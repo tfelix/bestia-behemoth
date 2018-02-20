@@ -1,4 +1,4 @@
-package bestia.webserver.config;
+package net.bestia.webserver.config;
 
 import java.util.Objects;
 
@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import bestia.webserver.websocket.BestiaSocketHandler;
+import net.bestia.webserver.websocket.BestiaSocketHandler;
 
 /**
  * Configures the websocket connection endpoint.

@@ -1,4 +1,4 @@
-package bestia.webserver.component;
+package net.bestia.webserver.component;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

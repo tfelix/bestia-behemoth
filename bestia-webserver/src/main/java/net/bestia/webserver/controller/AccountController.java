@@ -1,4 +1,4 @@
-package bestia.webserver.controller;
+package net.bestia.webserver.controller;
 
 import java.util.Objects;
 
@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import bestia.messages.account.AccountLoginRequest;
-import bestia.messages.account.AccountRegistration;
-import bestia.messages.account.AccountRegistrationReply;
-import bestia.messages.account.UserNameCheck;
-import bestia.webserver.actor.WebserverActorApi;
-import bestia.webserver.exceptions.NoConnectedException;
-import bestia.webserver.service.ConfigurationService;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationReply;
+import net.bestia.messages.account.UserNameCheck;
+import net.bestia.webserver.actor.WebserverActorApi;
+import net.bestia.webserver.exceptions.NoConnectedException;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * This controller provides a rest interface to control logins of the clients.

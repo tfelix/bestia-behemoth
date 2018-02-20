@@ -1,8 +1,8 @@
-package bestia.webserver.exceptions;
+package net.bestia.webserver.exceptions;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import bestia.webserver.service.ConfigurationService;
+import net.bestia.webserver.service.ConfigurationService;
 
 import org.springframework.http.HttpStatus;
 

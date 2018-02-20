@@ -1,13 +1,13 @@
-package bestia.webserver.actor;
+package net.bestia.webserver.actor;
 
 import org.springframework.web.socket.WebSocketSession;
 
-import bestia.messages.account.AccountLoginRequest;
-import bestia.messages.account.AccountRegistration;
-import bestia.messages.account.AccountRegistrationReply;
-import bestia.messages.account.ServerStatusMessage;
-import bestia.messages.account.UserNameCheck;
-import bestia.webserver.exceptions.WrongCredentialsException;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationReply;
+import net.bestia.messages.account.ServerStatusMessage;
+import net.bestia.messages.account.UserNameCheck;
+import net.bestia.webserver.exceptions.WrongCredentialsException;
 
 public interface WebserverActorApi {
 

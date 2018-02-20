@@ -1,23 +1,17 @@
-package bestia.webserver.actor;
+package net.bestia.webserver.actor;
 
-import java.util.Objects;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.Deploy;
-import akka.actor.PoisonPill;
-import akka.actor.Props;
-import akka.actor.Terminated;
+import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import bestia.webserver.messages.web.ClientPayloadMessage;
-import bestia.webserver.messages.web.CloseConnection;
-import bestia.webserver.messages.web.OpenConnection;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
+import net.bestia.webserver.messages.web.CloseConnection;
+import net.bestia.webserver.messages.web.OpenConnection;
+
+import java.util.Objects;
 
 /**
  * Holds a reference to all currently connected client sockets and manages them.

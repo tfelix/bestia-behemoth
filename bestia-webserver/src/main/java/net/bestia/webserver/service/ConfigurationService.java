@@ -1,4 +1,4 @@
-package bestia.webserver.service;
+package net.bestia.webserver.service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

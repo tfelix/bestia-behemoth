@@ -1,19 +1,15 @@
-package bestia.webserver.actor;
+package net.bestia.webserver.actor;
 
-import java.util.Objects;
-
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.Deploy;
-import akka.actor.Props;
-import akka.actor.Terminated;
+import akka.actor.*;
 import akka.cluster.client.ClusterClient;
 import akka.cluster.client.ClusterClientSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import bestia.webserver.messages.web.ClusterConnectionTerminated;
-import bestia.webserver.service.ConfigurationService;
+import net.bestia.webserver.messages.web.ClusterConnectionTerminated;
+import net.bestia.webserver.service.ConfigurationService;
+
+import java.util.Objects;
 
 /**
  * This actor tries to re-establish connection with the bestia cluster. If the
@@ -48,13 +44,6 @@ public class ClusterConnectActor extends AbstractActor {
 		config.setConnectedToCluster(true);
 	}
 
-	/**
-	 * Akka props helper method.
-	 * 
-	 * @param terminator
-	 * @param config
-	 * @return
-	 */
 	public static Props props(ConfigurationService config) {
 		return Props.create(new Creator<ClusterConnectActor>() {
 			private static final long serialVersionUID = 1L;

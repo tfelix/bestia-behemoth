@@ -1,4 +1,4 @@
-package bestia.webserver.actor;
+package net.bestia.webserver.actor;
 
 import java.util.Objects;
 
@@ -12,16 +12,16 @@ import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import bestia.messages.account.AccountLoginRequest;
-import bestia.messages.account.AccountRegistration;
-import bestia.messages.account.AccountRegistrationReply;
-import bestia.messages.account.ChangePasswordRequest;
-import bestia.messages.account.ServerStatusMessage;
-import bestia.messages.account.UserNameCheck;
-import bestia.webserver.exceptions.WrongCredentialsException;
-import bestia.webserver.messages.web.ClientPayloadMessage;
-import bestia.webserver.messages.web.CloseConnection;
-import bestia.webserver.messages.web.OpenConnection;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationReply;
+import net.bestia.messages.account.ChangePasswordRequest;
+import net.bestia.messages.account.ServerStatusMessage;
+import net.bestia.messages.account.UserNameCheck;
+import net.bestia.webserver.exceptions.WrongCredentialsException;
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
+import net.bestia.webserver.messages.web.CloseConnection;
+import net.bestia.webserver.messages.web.OpenConnection;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;

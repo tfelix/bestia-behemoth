@@ -1,4 +1,4 @@
-package bestia.webserver.websocket;
+package net.bestia.webserver.websocket;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -12,8 +12,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import bestia.webserver.actor.WebserverActorApi;
-import bestia.webserver.service.ConfigurationService;
+import net.bestia.webserver.actor.WebserverActorApi;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * Handles the bestia websocket to the clients.

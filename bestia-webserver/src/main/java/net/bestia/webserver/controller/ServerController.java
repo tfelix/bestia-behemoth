@@ -1,4 +1,4 @@
-package bestia.webserver.controller;
+package net.bestia.webserver.controller;
 
 import java.util.Objects;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import bestia.messages.account.ServerStatusMessage;
-import bestia.webserver.actor.WebserverActorApi;
+import net.bestia.messages.account.ServerStatusMessage;
+import net.bestia.webserver.actor.WebserverActorApi;
 
 /**
  * Controller provides REST information about the server.

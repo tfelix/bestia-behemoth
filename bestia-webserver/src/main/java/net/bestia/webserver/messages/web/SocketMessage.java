@@ -1,4 +1,4 @@
-package bestia.webserver.messages.web;
+package net.bestia.webserver.messages.web;
 
 /**
  * Messages directed to a certain socket with a socket/session id.

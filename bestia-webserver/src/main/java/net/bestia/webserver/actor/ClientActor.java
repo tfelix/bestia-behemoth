@@ -1,9 +1,10 @@
-package bestia.webserver.actor;
+package net.bestia.webserver.actor;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,15 +20,14 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import bestia.messages.AccountMessage;
-import bestia.messages.JsonMessage;
-import bestia.messages.client.ClientConnectMessage;
-import bestia.messages.client.ClientConnectMessage.ConnectionState;
-import bestia.messages.login.LoginAuthMessage;
-import bestia.messages.login.LoginAuthReplyMessage;
-import bestia.messages.login.LoginState;
-import bestia.messages.login.LogoutMessage;
-import bestia.webserver.messages.web.ClientPayloadMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.JsonMessage;
+import net.bestia.messages.client.ClientConnectMessage;
+import net.bestia.messages.client.ClientConnectMessage.ConnectionState;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginState;
+import net.bestia.messages.login.LogoutMessage;
 import scala.concurrent.duration.Duration;
 
 public class ClientActor extends AbstractActor {

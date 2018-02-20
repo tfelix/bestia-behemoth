@@ -1,4 +1,4 @@
-package bestia.webserver.config;
+package net.bestia.webserver.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,10 @@ import akka.actor.Deploy;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.japi.Creator;
-import bestia.webserver.actor.ClusterConnectActor;
-import bestia.webserver.actor.WebserverActorApi;
-import bestia.webserver.actor.WebserverActorApiActor;
-import bestia.webserver.service.ConfigurationService;
+import net.bestia.webserver.actor.ClusterConnectActor;
+import net.bestia.webserver.actor.WebserverActorApi;
+import net.bestia.webserver.actor.WebserverActorApiActor;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -37,8 +37,7 @@ public class AkkaConfiguration {
 	private ActorRef rootActor;
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig,
-			ConfigurationService serverConfig) {
+	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService serverConfig) {
 
 		LOG.debug("Starting actor system.");
 		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
