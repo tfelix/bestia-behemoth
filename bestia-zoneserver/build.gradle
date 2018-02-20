@@ -1,7 +1,6 @@
 description = 'bestia-zoneserver'
 
 dependencies {
-  // compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
   compile('org.springframework.boot:spring-boot-starter')
   compile('org.springframework.boot:spring-boot-starter-data-jpa')
   compile('org.springframework.boot:spring-boot-starter-web') {

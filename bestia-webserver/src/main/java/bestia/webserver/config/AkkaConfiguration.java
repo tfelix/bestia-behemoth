@@ -60,16 +60,16 @@ public class AkkaConfiguration {
 
 		final WebserverActorApi login = TypedActor.get(system)
 				.typedActorOf(
-						new TypedProps<WebserverActorApiActor>(WebserverActorApi.class,
-								new Creator<WebserverActorApiActor>() {
-									private static final long serialVersionUID = 1L;
+								new TypedProps<>(WebserverActorApi.class,
+												new Creator<WebserverActorApiActor>() {
+													private static final long serialVersionUID = 1L;
 
-									@Override
-									public WebserverActorApiActor create() throws Exception {
-										return new WebserverActorApiActor(rootActor);
-									}
+													@Override
+													public WebserverActorApiActor create() {
+														return new WebserverActorApiActor(rootActor);
+													}
 
-								}).withDeploy(Deploy.local()),
+												}).withDeploy(Deploy.local()),
 						"loginWebActor");
 
 		return login;
