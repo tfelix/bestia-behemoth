@@ -1,5 +1,6 @@
 package bestia.memoryserver.configuration;
 
+import net.bestia.memoryserver.configuration.HazelcastConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,8 +10,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import bestia.memoryserver.persistance.ComponentMapStore;
-import bestia.memoryserver.persistance.EntityMapStore;
+import net.bestia.memoryserver.persistance.ComponentMapStore;
+import net.bestia.memoryserver.persistance.EntityMapStore;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HazelcastConfigurationTest {

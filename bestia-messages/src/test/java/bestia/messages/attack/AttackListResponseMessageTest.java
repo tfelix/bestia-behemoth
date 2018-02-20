@@ -3,6 +3,7 @@ package bestia.messages.attack;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bestia.messages.attack.AttackListResponseMessage;
 import org.junit.Assert;
 import org.junit.Test;
 

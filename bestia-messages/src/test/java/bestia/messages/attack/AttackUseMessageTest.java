@@ -1,5 +1,6 @@
 package bestia.messages.attack;
 
+import net.bestia.messages.attack.AttackUseMessage;
 import org.junit.Assert;
 import org.junit.Test;
 

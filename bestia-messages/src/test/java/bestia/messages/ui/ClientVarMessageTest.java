@@ -1,11 +1,12 @@
 package bestia.messages.ui;
 
+import net.bestia.messages.ui.ClientVarMessage;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import bestia.messages.JsonMessage;
+import net.bestia.messages.JsonMessage;
 
 public class ClientVarMessageTest {
 

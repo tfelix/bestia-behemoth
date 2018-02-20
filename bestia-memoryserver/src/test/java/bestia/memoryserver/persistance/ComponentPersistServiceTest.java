@@ -3,13 +3,14 @@ package bestia.memoryserver.persistance;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import net.bestia.memoryserver.persistance.ComponentPersistService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.entity.component.Component;
+import net.bestia.entity.component.Component;
 import bestia.model.dao.ComponentDataDAO;
 import bestia.model.domain.ComponentData;
 

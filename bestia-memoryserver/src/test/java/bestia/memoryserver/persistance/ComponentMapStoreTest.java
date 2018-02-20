@@ -6,13 +6,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.bestia.memoryserver.persistance.ComponentMapStore;
+import net.bestia.memoryserver.persistance.ComponentPersistService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.entity.component.Component;
+import net.bestia.entity.component.Component;
 
 
 @RunWith(MockitoJUnitRunner.class)
