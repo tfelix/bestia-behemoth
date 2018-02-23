@@ -1,22 +1,17 @@
 package net.bestia.zoneserver.map.path;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Map;
+import net.bestia.model.map.Walkspeed;
 import net.bestia.zoneserver.entity.EntitySearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.PositionComponent;
-import bestia.model.geometry.Point;
-import bestia.model.map.Map;
-import bestia.model.map.Walkspeed;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Provides tile based nodes for map pathfinding based on a map object. The

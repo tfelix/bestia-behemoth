@@ -1,26 +1,24 @@
-package net.entity.component.interceptor;
-
-import java.util.Objects;
+package net.bestia.entity.component.interceptor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.bestia.messages.entity.ComponentInstallMessage;
-import net.bestia.messages.entity.ComponentRemoveMessage;
-import net.bestia.messages.entity.EntityComponentSyncMessage;
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentActor;
 import net.bestia.entity.component.ComponentSync;
-import net.entity.component.PlayerComponent;
 import net.bestia.entity.component.SyncType;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.entity.ComponentInstallMessage;
+import net.bestia.messages.entity.ComponentRemoveMessage;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
+import net.bestia.messages.entity.EntityComponentSyncMessage;
+import net.bestia.entity.component.PlayerComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * This component interceptor will test all components if a change will lead to

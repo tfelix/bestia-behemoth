@@ -4,7 +4,7 @@ import akka.actor.*;
 import akka.cluster.Cluster;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.zoneserver.actor.AkkaMessageApi;
 import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.SpringExtension;

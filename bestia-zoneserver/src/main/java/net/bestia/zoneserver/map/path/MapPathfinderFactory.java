@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.map.path;
 
-import java.util.Objects;
-
+import net.bestia.entity.EntityService;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.EntitySearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bestia.model.geometry.Point;
-import bestia.model.map.Map;
-import net.bestia.entity.EntityService;
+import java.util.Objects;
 
 /**
  * Helper factory in order to provide a clean setup for map pathfinders. This is

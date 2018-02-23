@@ -1,9 +1,6 @@
-package net.entity.component;
+package net.bestia.entity.component;
 
-import bestia.model.domain.Item;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+import net.bestia.model.domain.Item;
 
 import java.util.ArrayList;
 import java.util.List;

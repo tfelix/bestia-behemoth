@@ -1,14 +1,14 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
+
+import net.bestia.entity.component.AttackListComponent;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.EquipComponent;
+import net.bestia.entity.component.LevelComponent;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.entity.component.AttackListComponent;
-import net.bestia.entity.component.Component;
-import net.entity.component.EquipComponent;
-import net.entity.component.LevelComponent;
 
 /**
  * The parser will read entity describing JSON files and create a

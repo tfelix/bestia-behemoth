@@ -1,21 +1,19 @@
-package net.entity.component.interceptor;
+package net.bestia.entity.component.interceptor;
 
-import java.util.Objects;
-
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.component.PlayerComponentMessage;
+import net.bestia.messages.entity.EntityComponentDeleteMessage;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.entity.component.PlayerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.PlayerComponent;
-import bestia.messages.MessageApi;
-import net.bestia.messages.component.PlayerComponentMessage;
-import net.bestia.messages.entity.EntityComponentDeleteMessage;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.domain.PlayerBestia;
+import java.util.Objects;
 
 /**
  * After a {@link PlayerComponent} is added to an entity the referenced player

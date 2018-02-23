@@ -1,17 +1,15 @@
-package net.entity.component.interceptor;
+package net.bestia.entity.component.interceptor;
 
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.entity.component.EntityComponentSyncMessageFactory;
-import net.bestia.messages.entity.EntityComponentSyncMessage;
-import org.springframework.stereotype.Component;
-
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.LevelComponent;
-import net.entity.component.PlayerComponent;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.component.LevelComponentExMessage;
 import net.bestia.messages.component.LevelComponentMessage;
+import net.bestia.messages.entity.EntityComponentSyncMessage;
+import net.bestia.entity.component.EntityComponentSyncMessageFactory;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PlayerComponent;
+import org.springframework.stereotype.Component;
 
 /**
  * Intercepts the level component and will send a special level message

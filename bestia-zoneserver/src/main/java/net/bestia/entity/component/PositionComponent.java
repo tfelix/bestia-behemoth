@@ -1,15 +1,11 @@
-package net.entity.component;
-
-import java.util.Objects;
+package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import bestia.model.domain.Direction;
-import bestia.model.geometry.CollisionShape;
-import bestia.model.geometry.Point;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentActor;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+import net.bestia.model.domain.Direction;
+import net.bestia.model.geometry.CollisionShape;
+import net.bestia.model.geometry.Point;
+
+import java.util.Objects;
 
 /**
  * Entity with this component have a defined position in the world. Point refers

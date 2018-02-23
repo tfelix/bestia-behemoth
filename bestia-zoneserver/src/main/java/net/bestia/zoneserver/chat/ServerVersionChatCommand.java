@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.Objects;
-
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bestia.messages.MessageApi;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import java.util.Objects;
 
 /**
  * Sends the server version to the client.

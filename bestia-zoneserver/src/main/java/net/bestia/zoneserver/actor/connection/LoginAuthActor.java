@@ -1,11 +1,5 @@
 package net.bestia.zoneserver.actor.connection;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
@@ -13,13 +7,18 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
- * This actor will take {@link LoginRequestMessage} and check the validity of
+ * This actor will take LoginRequestMessage and check the validity of
  * the token. If the message has a valid one then the login is granted. There
  * might be also other conditions like a restricted login when the server is in
  * maintenance mode.

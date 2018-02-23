@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This command incorporates another level of commands. This means it can

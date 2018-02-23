@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.Objects;
+import net.bestia.entity.Entity;
+import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.entity.StatusBasedValues;
 
-import net.entity.Entity;
-import bestia.model.domain.Attack;
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.Element;
-import bestia.model.domain.StatusPoints;
-import bestia.model.entity.StatusBasedValues;
+import java.util.Objects;
 
 /**
  * Data transfer object to carry all needed data during a damage calculation.

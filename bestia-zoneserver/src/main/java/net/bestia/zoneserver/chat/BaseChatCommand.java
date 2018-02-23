@@ -1,11 +1,10 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.Objects;
-
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.chat.ChatMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import bestia.messages.MessageApi;
-import net.bestia.messages.chat.ChatMessage;
+import java.util.Objects;
 
 abstract class BaseChatCommand implements ChatCommand {
 

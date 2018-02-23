@@ -1,17 +1,16 @@
 package net.bestia.zoneserver.service;
 
-import java.util.List;
-import java.util.Objects;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.ClientVarDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.ClientVar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.ClientVarDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.ClientVar;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Service for managing and saving shortcuts coming from the clients to the

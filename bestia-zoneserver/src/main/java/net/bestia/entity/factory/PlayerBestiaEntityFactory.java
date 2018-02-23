@@ -1,20 +1,17 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
 
-import java.util.Objects;
-import java.util.Set;
-
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.TagComponent;
-import net.entity.component.*;
+import net.bestia.entity.Entity;
+import net.bestia.entity.component.*;
+import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.zoneserver.bestia.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import bestia.model.domain.PlayerBestia;
-import net.entity.Entity;
-import net.bestia.entity.component.TagComponent.Tag;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * The factory is used to create player entities which can be controlled via a

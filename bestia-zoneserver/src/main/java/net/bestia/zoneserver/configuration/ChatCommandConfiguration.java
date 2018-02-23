@@ -3,8 +3,8 @@ package net.bestia.zoneserver.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.entity.factory.MobFactory;
-import bestia.messages.MessageApi;
+import net.bestia.entity.factory.MobFactory;
+import net.bestia.messages.MessageApi;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.zoneserver.chat.MetaChatCommand;
 import net.bestia.zoneserver.chat.MobSpawnModule;

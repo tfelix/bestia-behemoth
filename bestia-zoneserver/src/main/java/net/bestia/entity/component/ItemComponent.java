@@ -1,8 +1,4 @@
-package net.entity.component;
-
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+package net.bestia.entity.component;
 
 import java.util.Objects;
 

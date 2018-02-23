@@ -1,15 +1,12 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.EquipmentSlot;
+import net.bestia.model.domain.Item;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import bestia.model.domain.EquipmentSlot;
-import bestia.model.domain.Item;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
 
 /**
  * Entities owning this component are able to equip items.

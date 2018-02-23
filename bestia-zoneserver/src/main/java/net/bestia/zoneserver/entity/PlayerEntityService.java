@@ -17,14 +17,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.LevelComponent;
-import net.entity.component.PlayerComponent;
-import net.entity.component.PositionComponent;
-import net.entity.component.StatusComponent;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.geometry.Rect;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.geometry.Rect;
 
 /**
  * This service manages the entities which are controlled by a player.

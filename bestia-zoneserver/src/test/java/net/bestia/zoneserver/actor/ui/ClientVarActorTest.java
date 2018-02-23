@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;

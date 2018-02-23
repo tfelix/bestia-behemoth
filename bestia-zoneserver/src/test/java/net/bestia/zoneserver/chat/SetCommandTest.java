@@ -17,7 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import net.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.entity.component.StatusComponent;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import bestia.model.dao.AccountDAO;
 import bestia.model.domain.Account;
 import bestia.model.domain.ConditionValues;

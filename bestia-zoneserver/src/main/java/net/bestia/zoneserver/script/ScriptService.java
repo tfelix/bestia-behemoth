@@ -1,23 +1,16 @@
 package net.bestia.zoneserver.script;
 
-import java.util.Objects;
-import java.util.UUID;
-
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.ScriptComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.ScriptComponent;
+import javax.script.*;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate

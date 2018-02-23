@@ -1,20 +1,19 @@
 package net.bestia.zoneserver.actor.chat;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
-import bestia.model.dao.PartyDAO;
-import bestia.model.domain.Party;
+import net.bestia.model.dao.PartyDAO;
+import net.bestia.model.domain.Party;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Handles party chat messages.

@@ -1,24 +1,23 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.PositionComponent;
-import bestia.messages.MessageApi;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.

@@ -2,8 +2,8 @@ package net.bestia.zoneserver.equip;
 
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import bestia.model.domain.Item;
+import net.bestia.entity.Entity;
+import net.bestia.model.domain.Item;
 
 @Service
 public class EquipService {

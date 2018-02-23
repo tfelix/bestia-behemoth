@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import bestia.model.dao.AccountDAO;
 import bestia.model.domain.Account;

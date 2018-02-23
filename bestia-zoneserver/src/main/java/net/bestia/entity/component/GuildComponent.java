@@ -1,11 +1,8 @@
-package net.entity.component;
-
-import java.util.Objects;
+package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+
+import java.util.Objects;
 
 /**
  * Holds the data to correlate an entity to a guild.

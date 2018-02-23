@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.Objects;
-import java.util.Optional;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.AttackListComponent;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.dao.AttackDAO;
+import net.bestia.model.domain.Attack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.AttackListComponent;
-import net.entity.component.LevelComponent;
-import net.entity.component.PositionComponent;
-import net.entity.component.StatusComponent;
-import bestia.model.dao.AttackDAO;
-import bestia.model.domain.Attack;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Provides all access to let entities learn attacks.

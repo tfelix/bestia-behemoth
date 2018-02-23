@@ -24,7 +24,7 @@ import net.entity.component.ComponentSetter;
 import net.bestia.entity.EntityCache;
 import net.entity.component.PlayerComponent;
 import net.entity.component.PlayerComponentSetter;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityFactoryTest {

@@ -1,9 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bestia.messages.entity.EntityComponentSyncMessage;
-import net.bestia.entity.component.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

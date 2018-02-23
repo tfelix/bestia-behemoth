@@ -1,29 +1,28 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
-import bestia.model.geometry.Point;
-import bestia.model.map.MapChunk;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.map.MapService;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.map.MapService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This actor generates a data message containing all the data/map chunks needed

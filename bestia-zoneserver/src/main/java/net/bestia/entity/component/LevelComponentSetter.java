@@ -1,4 +1,4 @@
-package net.entity.component;
+package net.bestia.entity.component;
 
 /**
  * Sets the value of a level component.

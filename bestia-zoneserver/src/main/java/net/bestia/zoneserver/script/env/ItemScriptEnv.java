@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.env;
 
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.script.ScriptApi;
 
 import java.util.Map;

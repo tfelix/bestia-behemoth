@@ -1,17 +1,16 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
 
-import java.util.Objects;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponentSetter;
+import net.bestia.entity.component.ScriptComponent;
+import net.bestia.model.geometry.CollisionShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.entity.Entity;
-import net.entity.component.PositionComponent;
-import net.entity.component.PositionComponentSetter;
-import net.entity.component.ScriptComponent;
-import bestia.model.geometry.CollisionShape;
+import java.util.Objects;
 
 /**
  * This builds a script entity which can be used by scripts because it usually
@@ -47,7 +46,7 @@ public class ScriptEntityFactory {
 		
 		LOG.trace("Building script entity: {} {} pos:{}.", area);
 
-		final PositionComponentSetter posSetter = new PositionComponentSetter(area);		
+		final PositionComponentSetter posSetter = new PositionComponentSetter(area);
 		final Entity entity = entityFactory.buildEntity(scriptEntityBlueprint, EntityFactory.makeSet(posSetter));
 
 		return entity;

@@ -1,12 +1,6 @@
-package net.entity.component;
+package net.bestia.entity.component;
 
-import net.bestia.entity.component.Component;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

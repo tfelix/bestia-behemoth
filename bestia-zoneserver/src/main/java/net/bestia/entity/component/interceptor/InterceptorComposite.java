@@ -1,19 +1,12 @@
-package net.entity.component.interceptor;
+package net.bestia.entity.component.interceptor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
+import java.util.*;
 
 /**
  * Main class for collecting and triggering component interaction interceptions.

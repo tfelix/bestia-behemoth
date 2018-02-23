@@ -1,17 +1,16 @@
 package net.bestia.zoneserver.actor.battle;
 
-import java.util.Objects;
-
+import akka.actor.AbstractActor;
+import net.bestia.entity.Entity;
+import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntitySkillUseMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import net.entity.Entity;
-import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import java.util.Objects;
 
 /**
  * This actor simply performs some safety checks for incoming player attack

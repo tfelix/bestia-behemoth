@@ -1,10 +1,9 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.entity.component.TagComponent.Tag;
 
 import java.util.Arrays;
 import java.util.List;
-
-import net.bestia.entity.component.TagComponent;
-import net.bestia.entity.component.TagComponent.Tag;
 
 /**
  * Initially sets the Tag component of an entity.

@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import bestia.model.domain.Account;
 import net.bestia.zoneserver.configuration.StaticConfigService;

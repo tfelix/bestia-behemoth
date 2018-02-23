@@ -1,12 +1,16 @@
 package net.bestia.zoneserver.bestia;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import net.entity.component.InventoryComponent;
-import net.entity.component.LevelComponent;
-import net.entity.component.StatusComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.InventoryComponent;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.ItemDAO;
+import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Item;
+import net.bestia.model.domain.PlayerItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.ItemDAO;
-import bestia.model.dao.PlayerItemDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Item;
-import bestia.model.domain.PlayerItem;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -261,7 +260,7 @@ public class InventoryService {
 	}
 
 	/**
-	 * Like {@link removeItem()} but accepting the item database name instead of
+	 * Like removeItem(long, String, int) but accepting the item database name instead of
 	 * the item id.
 	 * 
 	 * @param accId

@@ -11,7 +11,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ui.ClientVarMessage;
 import net.bestia.messages.ui.ClientVarRequestMessage;
-import bestia.model.domain.ClientVar;
+import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;

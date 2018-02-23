@@ -1,20 +1,14 @@
-package net.entity.component;
-
-import bestia.model.domain.Element;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.StatusPointsImpl;
-
-import java.util.Objects;
+package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsImpl;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.StatusBasedValuesImpl;
 
-import bestia.model.domain.ConditionValues;
-import bestia.model.entity.StatusBasedValues;
-import bestia.model.entity.StatusBasedValuesImpl;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentActor;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+import java.util.Objects;
 
 /**
  * Entities having this component can be participate in the attacking system. It

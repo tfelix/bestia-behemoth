@@ -1,4 +1,4 @@
-package bestia.messages
+package net.bestia.messages
 
 import akka.actor.ActorRef
 import java.io.Serializable

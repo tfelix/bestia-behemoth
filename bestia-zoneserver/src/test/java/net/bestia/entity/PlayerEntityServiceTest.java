@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.bestia.entity.EntityService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +33,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.HazelMock;
 import net.entity.component.PlayerComponent;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import bestia.model.domain.PlayerBestia;
 import bestia.model.geometry.Rect;

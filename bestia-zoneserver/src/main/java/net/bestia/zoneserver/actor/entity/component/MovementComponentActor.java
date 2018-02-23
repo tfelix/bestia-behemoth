@@ -1,24 +1,23 @@
 package net.bestia.zoneserver.actor.entity.component;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
-import net.entity.component.MoveComponent;
-import bestia.model.geometry.Point;
+import net.bestia.entity.component.MoveComponent;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.MovingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import scala.concurrent.duration.Duration;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handle movement of an entity. It will announce the intended move path with

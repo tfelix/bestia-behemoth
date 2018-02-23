@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.battle;
 
-import bestia.model.domain.Element;
+import net.bestia.model.domain.Element;
 
 /**
  * A set of variables which are used to modify a running damage calculation

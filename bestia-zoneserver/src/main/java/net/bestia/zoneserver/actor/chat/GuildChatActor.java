@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.actor.chat;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
-import bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.guild.GuildService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.guild.GuildService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Handles guild chats. 

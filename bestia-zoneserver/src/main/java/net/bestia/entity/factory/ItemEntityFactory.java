@@ -1,14 +1,12 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
 
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.TagComponent;
-import net.entity.Entity;
-import net.entity.component.*;
+import net.bestia.entity.Entity;
+import net.bestia.entity.component.*;
 import net.bestia.entity.component.TagComponent.Tag;
-import bestia.model.dao.ItemDAO;
-import bestia.model.domain.Item;
-import bestia.model.domain.SpriteInfo;
-import bestia.model.geometry.Point;
+import net.bestia.model.dao.ItemDAO;
+import net.bestia.model.domain.Item;
+import net.bestia.model.domain.SpriteInfo;
+import net.bestia.model.geometry.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

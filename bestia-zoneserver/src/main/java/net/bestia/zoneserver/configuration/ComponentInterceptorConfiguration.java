@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.configuration;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.bestia.entity.component.interceptor.Interceptor;
-import bestia.messages.MessageApi;
+import net.bestia.entity.component.interceptor.*;
+import net.bestia.messages.MessageApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

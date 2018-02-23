@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.domain.MapParameter;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
 
 /**
  * Returns the max current mapsize.

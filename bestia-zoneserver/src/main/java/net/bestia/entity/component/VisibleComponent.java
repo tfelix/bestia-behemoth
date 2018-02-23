@@ -1,13 +1,9 @@
-package net.entity.component;
-
-import java.util.Objects;
+package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.model.domain.SpriteInfo;
 
-import bestia.model.domain.SpriteInfo;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
+import java.util.Objects;
 
 /**
  * The entity can be visualized by the engine. In order to do this some means of

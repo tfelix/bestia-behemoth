@@ -19,7 +19,7 @@ import akka.actor.ActorRef;
 import net.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.entity.component.ScriptComponent;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScriptServiceTest {

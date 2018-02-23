@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.actor.guild;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import net.bestia.messages.guild.GuildMessage;
 import net.bestia.messages.guild.GuildRequestMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
-import bestia.model.dao.GuildDAO;
+import net.bestia.model.dao.GuildDAO;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.guild.GuildService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * The actor will reply to guild requests messages which will provide details to

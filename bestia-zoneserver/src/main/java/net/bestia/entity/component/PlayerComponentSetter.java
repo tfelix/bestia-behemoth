@@ -1,8 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.PlayerBestia;
 
 import java.util.Objects;
-
-import bestia.model.domain.PlayerBestia;
 
 public class PlayerComponentSetter extends ComponentSetter<PlayerComponent> {
 

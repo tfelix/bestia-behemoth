@@ -18,7 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import net.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.entity.component.PositionComponent;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import bestia.model.dao.AccountDAO;
 import bestia.model.dao.MapParameterDAO;

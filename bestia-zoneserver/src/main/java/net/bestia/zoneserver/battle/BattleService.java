@@ -1,40 +1,26 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.*;
+import net.bestia.messages.attack.AttackUseMessage;
+import net.bestia.model.battle.Damage;
+import net.bestia.model.dao.AttackDAO;
+import net.bestia.model.domain.*;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.geometry.CollisionShape;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.EntitySearchService;
+import net.bestia.zoneserver.map.MapService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.BattleComponent;
-import net.entity.component.ItemComponent;
-import net.entity.component.LevelComponent;
-import net.entity.component.PositionComponent;
-import net.entity.component.StatusComponent;
-import net.bestia.messages.attack.AttackUseMessage;
-import bestia.model.battle.Damage;
-import bestia.model.dao.AttackDAO;
-import bestia.model.domain.Attack;
-import bestia.model.domain.AttackType;
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.StatusPointsImpl;
-import bestia.model.entity.StatusBasedValues;
-import bestia.model.geometry.CollisionShape;
-import bestia.model.geometry.Point;
-import bestia.model.geometry.Rect;
-import bestia.model.map.Map;
-import net.bestia.zoneserver.map.MapService;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This service is used to perform attacks and damage calculation for battle

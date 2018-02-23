@@ -1,8 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.Bestia;
 
 import java.util.Objects;
-
-import bestia.model.domain.Bestia;
 
 /**
  * Sets the status values based on a mob bestia from the database.

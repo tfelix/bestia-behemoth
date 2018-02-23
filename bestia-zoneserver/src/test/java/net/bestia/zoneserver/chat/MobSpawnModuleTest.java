@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import net.entity.factory.MobFactory;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import bestia.model.domain.Account;
 
 @RunWith(MockitoJUnitRunner.class)

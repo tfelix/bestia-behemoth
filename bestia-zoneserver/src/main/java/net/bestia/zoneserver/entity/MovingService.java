@@ -1,24 +1,23 @@
 package net.bestia.zoneserver.entity;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.MoveComponent;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.model.domain.Direction;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Walkspeed;
+import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.MoveComponent;
-import net.entity.component.PositionComponent;
-import net.bestia.zoneserver.battle.StatusService;
-import bestia.model.domain.Direction;
-import bestia.model.entity.StatusBasedValues;
-import bestia.model.geometry.Point;
-import bestia.model.map.Walkspeed;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * This manager holds references of currently moving entities and their movement

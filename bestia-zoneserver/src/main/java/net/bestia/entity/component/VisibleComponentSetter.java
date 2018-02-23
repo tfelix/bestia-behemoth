@@ -1,8 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.SpriteInfo;
 
 import java.util.Objects;
-
-import bestia.model.domain.SpriteInfo;
 
 public class VisibleComponentSetter extends ComponentSetter<VisibleComponent> {
 

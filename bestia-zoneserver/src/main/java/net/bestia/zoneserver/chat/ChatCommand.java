@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
 
 public interface ChatCommand {
 
@@ -19,8 +19,7 @@ public interface ChatCommand {
 	/**
 	 * Executes the chat command which was issued by the given account id.
 	 * 
-	 * @param acc
-	 *            Account which issued this command.
+	 * @param account Account which issued this command.
 	 * @param text
 	 *            Chat text typed by the user.
 	 */

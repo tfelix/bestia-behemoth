@@ -1,19 +1,18 @@
 package net.bestia.zoneserver.map.generator;
 
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.map.Map2DDiscreteCoordinate;
 import de.tfelix.bestia.worldgen.map.Map2DDiscretePart;
 import de.tfelix.bestia.worldgen.map.MapDataPart;
 import de.tfelix.bestia.worldgen.random.NoiseVector;
 import de.tfelix.bestia.worldgen.workload.Job;
-import bestia.model.geometry.Rect;
-import bestia.model.map.MapDataDTO;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.MapDataDTO;
 import net.bestia.zoneserver.map.MapService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * Generates some sample tiles for the bestia map.

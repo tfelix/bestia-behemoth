@@ -1,22 +1,21 @@
 package net.bestia.zoneserver.guild;
 
+import net.bestia.model.dao.GuildDAO;
+import net.bestia.model.dao.GuildMemberDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.Guild;
+import net.bestia.model.domain.GuildMember;
+import net.bestia.model.domain.GuildRank;
+import net.bestia.model.domain.PlayerBestia;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import bestia.model.dao.GuildDAO;
-import bestia.model.dao.GuildMemberDAO;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.domain.Guild;
-import bestia.model.domain.GuildMember;
-import bestia.model.domain.GuildRank;
-import bestia.model.domain.PlayerBestia;
 
 /**
  * Service to manipulate the players guild.

@@ -1,20 +1,19 @@
 package net.bestia.zoneserver.actor.inventory;
 
-import java.util.List;
-import java.util.Objects;
-
+import akka.actor.ActorRef;
+import net.bestia.messages.inventory.InventoryListMessage;
+import net.bestia.messages.inventory.InventoryListRequestMessage;
+import net.bestia.model.domain.PlayerItem;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.bestia.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
-import net.bestia.zoneserver.bestia.InventoryService;
-import net.bestia.messages.inventory.InventoryListMessage;
-import net.bestia.messages.inventory.InventoryListRequestMessage;
-import bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This actor will create a list of the currently owned inventory items and send
@@ -36,9 +35,6 @@ public class InventoryRequestActor extends ClientMessageDigestActor {
 
 	/**
 	 * Ctor.
-	 * 
-	 * @param ctx
-	 *            The {@link BestiaActorContext}.
 	 */
 	@Autowired
 	public InventoryRequestActor(InventoryService inventoryService) {

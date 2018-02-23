@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.script;
 
-import java.util.List;
+import net.bestia.model.geometry.CollisionShape;
 
-import bestia.model.geometry.CollisionShape;
+import java.util.List;
 
 /**
  * Global script API used by all scripts in the bestia system to interact with

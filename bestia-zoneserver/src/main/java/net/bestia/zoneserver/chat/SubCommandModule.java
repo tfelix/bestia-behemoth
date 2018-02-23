@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.chat;
 
+import net.bestia.messages.MessageApi;
+import net.bestia.model.domain.Account;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import bestia.messages.MessageApi;
-import bestia.model.domain.Account;
 
 /**
  * The sub modules are used to implement chat command modules which are used by

@@ -1,18 +1,17 @@
 package net.bestia.zoneserver.actor.entity.component;
 
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
+import akka.actor.AbstractActor;
+import akka.actor.Cancellable;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.zoneserver.battle.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import akka.actor.AbstractActor;
-import akka.actor.Cancellable;
-import net.bestia.zoneserver.battle.StatusService;
-import bestia.model.domain.ConditionValues;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The actor checks an entity with a status component attached and will

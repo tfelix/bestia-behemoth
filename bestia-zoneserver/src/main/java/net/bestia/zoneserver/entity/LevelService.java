@@ -1,16 +1,15 @@
 package net.bestia.zoneserver.entity;
 
-import java.util.Objects;
-
-import net.entity.component.LevelComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.LevelComponent;
 import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
+import java.util.Objects;
 
 /**
  * This service manages entities to level up and to receive exp.

@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import bestia.model.battle.Damage;
-import bestia.model.domain.Attack;
-import bestia.model.domain.Element;
-import bestia.model.domain.StatusPoints;
+import net.bestia.model.battle.Damage;
+import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
 
 /**
  * This calculates the raw damage of an attack if all other variables are known.
@@ -35,11 +35,6 @@ public class DamageCalculator {
 	 * Please not that this method ONLY calculates the damage. If the attack is
 	 * controlled by a script this wont get checked by this method anymore. Only
 	 * raw damage calculation is performed.
-	 * 
-	 * @param atk
-	 * @param battleCtx
-	 * @param dmgVars
-	 * @return The calculated damage by this attack.
 	 */
 	public Damage calculateDamage(BattleContext battleCtx) {
 

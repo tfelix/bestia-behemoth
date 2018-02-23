@@ -1,36 +1,27 @@
 package net.bestia.zoneserver.map;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
-
+import net.bestia.model.dao.MapDataDAO;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.MapData;
+import net.bestia.model.domain.MapParameter;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
+import net.bestia.model.map.*;
+import net.bestia.util.ObjectSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import bestia.model.dao.MapDataDAO;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.MapData;
-import bestia.model.domain.MapParameter;
-import bestia.model.geometry.Point;
-import bestia.model.geometry.Rect;
-import bestia.model.map.Map;
-import bestia.model.map.MapChunk;
-import bestia.model.map.MapDataDTO;
-import bestia.model.map.Tileset;
-import bestia.model.map.TilesetService;
-import bestia.util.ObjectSerializer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.*;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * The {@link MapService} is central instance for requesting and modifing map

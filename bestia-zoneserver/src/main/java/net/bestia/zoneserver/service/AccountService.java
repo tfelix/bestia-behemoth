@@ -1,9 +1,11 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
-
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationError;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.bestia.messages.account.AccountRegistration;
-import net.bestia.messages.account.AccountRegistrationError;
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.BestiaDAO;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.BaseValues;
-import bestia.model.domain.Bestia;
-import bestia.model.domain.Password;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.domain.PlayerClass;
+import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -223,9 +217,6 @@ public class AccountService {
 	/**
 	 * Tries to change the password for the given account. The old password must
 	 * match first before this method executes.
-	 * 
-	 * @param data
-	 * @return
 	 */
 	public boolean changePassword(String accountName, String oldPassword, String newPassword) {
 		Objects.requireNonNull(accountName);

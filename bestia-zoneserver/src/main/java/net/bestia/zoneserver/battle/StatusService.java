@@ -1,26 +1,21 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import net.entity.component.LevelComponent;
-import net.entity.component.PlayerComponent;
-import net.entity.component.StatusComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.*;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.StatusBasedValuesImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.domain.BaseValues;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.StatusPointsImpl;
-import bestia.model.domain.ConditionValues;
-import bestia.model.entity.StatusBasedValues;
-import bestia.model.entity.StatusBasedValuesImpl;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The service class is responsible for recalculating the status values for a

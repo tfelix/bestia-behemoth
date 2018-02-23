@@ -1,12 +1,5 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Objects;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
@@ -14,11 +7,17 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
-import bestia.model.entity.InteractionType;
+import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.InteractionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask

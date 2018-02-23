@@ -1,19 +1,14 @@
 package net.bestia.zoneserver.entity;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
-import bestia.model.entity.InteractionType;
+import net.bestia.model.entity.InteractionType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * Service to control the interaction between entities. Usually in this

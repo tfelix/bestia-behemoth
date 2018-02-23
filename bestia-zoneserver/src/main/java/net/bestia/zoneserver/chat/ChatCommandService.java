@@ -1,16 +1,15 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The service always tries to find all implementations of {@link ChatCommand}

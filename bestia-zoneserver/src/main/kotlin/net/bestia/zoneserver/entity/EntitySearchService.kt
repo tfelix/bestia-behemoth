@@ -1,10 +1,11 @@
 package net.bestia.zoneserver.entity
 
-import net.bestia.entity.EntityService
 import com.hazelcast.core.HazelcastInstance
 import mu.KLogging
-import bestia.model.geometry.CollisionShape
 import net.bestia.entity.Entity
+import net.bestia.entity.EntityService
+import net.bestia.entity.component.PositionComponent
+import net.bestia.model.geometry.CollisionShape
 import org.springframework.stereotype.Service
 
 @Service

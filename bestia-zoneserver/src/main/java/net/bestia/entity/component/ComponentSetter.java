@@ -1,6 +1,4 @@
-package net.entity.component;
-
-import net.bestia.entity.component.Component;
+package net.bestia.entity.component;
 
 import java.util.Objects;
 

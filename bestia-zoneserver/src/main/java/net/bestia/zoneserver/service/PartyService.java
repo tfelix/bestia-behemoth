@@ -2,7 +2,7 @@ package net.bestia.zoneserver.service;
 
 import org.springframework.stereotype.Service;
 
-import bestia.model.dao.PartyDAO;
+import net.bestia.model.dao.PartyDAO;
 
 /**
  * Service to manage the parties of the players. Parties are a way to organize

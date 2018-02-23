@@ -1,26 +1,25 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
-import net.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
-import bestia.model.geometry.Point;
-import bestia.model.geometry.Rect;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.map.MapService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /***
  * If a {@link EntityJsonMessage} is received by this actor it will check if the

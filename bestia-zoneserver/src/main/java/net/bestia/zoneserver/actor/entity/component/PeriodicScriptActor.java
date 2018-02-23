@@ -5,7 +5,7 @@ import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.entity.component.ScriptComponent;
+import net.bestia.entity.component.ScriptComponent;
 import net.bestia.zoneserver.script.ScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

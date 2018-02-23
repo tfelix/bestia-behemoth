@@ -1,15 +1,11 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.geometry.Point;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
-
-import bestia.model.geometry.Point;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentActor;
-import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.SyncType;
 
 /**
  * If this component is added to an entity it will start moving along the path

@@ -1,36 +1,26 @@
 package net.bestia.zoneserver.chat;
 
-import static org.reflections.ReflectionUtils.forName;
-import static org.reflections.ReflectionUtils.getAllMethods;
-import static org.reflections.ReflectionUtils.withName;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.zoneserver.entity.PlayerEntityService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
-import net.entity.component.StatusComponent;
-import bestia.messages.MessageApi;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import static org.reflections.ReflectionUtils.*;
 
 /**
  * The set command is a very powerful admin and debugging command. It can set
@@ -319,9 +309,6 @@ public class SetCommand extends BaseChatCommand {
 
 	/**
 	 * Finds entity for the given id.
-	 * 
-	 * @param match
-	 * @return
 	 */
 	private Entity resolveEntity(String entityIdStr, long accId) {
 

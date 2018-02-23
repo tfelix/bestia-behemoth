@@ -1,15 +1,5 @@
 package net.bestia.zoneserver.map.generator;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import de.tfelix.bestia.worldgen.MapMasterCallbacks;
 import de.tfelix.bestia.worldgen.MapMasterGenerator;
 import de.tfelix.bestia.worldgen.description.Map2DDescription;
@@ -17,9 +7,18 @@ import de.tfelix.bestia.worldgen.io.NodeConnector;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
-import bestia.model.dao.MapDataDAO;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.MapParameter;
+import net.bestia.model.dao.MapDataDAO;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.MapParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class MapGeneratorMasterService implements MapMasterCallbacks {

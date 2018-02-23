@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.map.path;
 
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * Heuristically estimates the distances of {@link Point}s.

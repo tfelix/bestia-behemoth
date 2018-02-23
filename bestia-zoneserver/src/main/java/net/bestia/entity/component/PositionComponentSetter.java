@@ -1,9 +1,9 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.Direction;
+import net.bestia.model.geometry.CollisionShape;
 
 import java.util.Objects;
-
-import bestia.model.domain.Direction;
-import bestia.model.geometry.CollisionShape;
 
 /**
  * Initializes a {@link PositionComponent} with a position.

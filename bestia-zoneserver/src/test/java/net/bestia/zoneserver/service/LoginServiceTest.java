@@ -20,7 +20,7 @@ import akka.testkit.TestProbe;
 import net.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.entity.factory.PlayerBestiaEntityFactory;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.account.AccountLoginRequest;
 import bestia.model.dao.AccountDAO;
 import bestia.model.domain.Account;

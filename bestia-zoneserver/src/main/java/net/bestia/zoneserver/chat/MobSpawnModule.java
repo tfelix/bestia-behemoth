@@ -1,17 +1,16 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.factory.MobFactory;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.entity.Entity;
-import net.entity.factory.MobFactory;
-import bestia.messages.MessageApi;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Spawns a mob for a given mob database name.

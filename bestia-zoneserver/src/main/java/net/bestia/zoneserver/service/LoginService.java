@@ -1,9 +1,18 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.factory.PlayerBestiaEntityFactory;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.login.LogoutMessage;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.server.MaintenanceLevel;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.slf4j.Logger;
@@ -11,19 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.PlayerComponent;
-import net.entity.factory.PlayerBestiaEntityFactory;
-import bestia.messages.MessageApi;
-import net.bestia.messages.account.AccountLoginRequest;
-import net.bestia.messages.login.LogoutMessage;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigService;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Performs login or logout of the bestia server system.

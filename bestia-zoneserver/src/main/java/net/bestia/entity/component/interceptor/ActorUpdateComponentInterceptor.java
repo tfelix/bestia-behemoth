@@ -1,13 +1,12 @@
-package net.entity.component.interceptor;
+package net.bestia.entity.component.interceptor;
 
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentActor;
-import bestia.messages.ComponentChangedMessage;
+import net.bestia.messages.ComponentChangedMessage;
 import net.bestia.messages.ComponentMessageEnvelope;
-import bestia.messages.MessageApi;
+import net.bestia.messages.MessageApi;
 
 import java.util.Objects;
 

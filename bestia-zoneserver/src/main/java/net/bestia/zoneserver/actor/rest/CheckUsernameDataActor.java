@@ -1,18 +1,17 @@
 package net.bestia.zoneserver.actor.rest;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.account.UserNameCheck;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Checks if a username and email is available.

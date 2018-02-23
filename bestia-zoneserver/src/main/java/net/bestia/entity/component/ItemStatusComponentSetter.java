@@ -1,12 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.*;
 
 import java.util.Objects;
-
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.Element;
-import bestia.model.domain.Item;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.StatusPointsImpl;
 
 /**
  * Item entities have a lookup table for their status values. Their status values are

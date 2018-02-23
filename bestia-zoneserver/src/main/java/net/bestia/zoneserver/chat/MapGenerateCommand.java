@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import bestia.messages.MessageApi;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.domain.MapParameter;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
 import bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 

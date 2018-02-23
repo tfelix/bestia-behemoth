@@ -1,23 +1,22 @@
 package net.bestia.zoneserver.actor.battle;
 
-import java.util.Objects;
-
-import net.bestia.messages.entity.EntitySkillUseMessage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
-import bestia.model.battle.Damage;
+import net.bestia.messages.entity.EntitySkillUseMessage;
+import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.battle.BattleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Transforms the incoming player attack message into a entity skill message
@@ -82,7 +81,7 @@ public class AttackUseActor extends AbstractActor {
 
 		if (msg.getTargetEntityId() != 0) {
 			// Entity was targeted.
-			final Damage dmg = battleService.attackEntity(msg.getAttackId(), 
+			final Damage dmg = battleService.attackEntity(msg.getAttackId(),
 					msg.getSourceEntityId(),
 					msg.getTargetEntityId());
 			

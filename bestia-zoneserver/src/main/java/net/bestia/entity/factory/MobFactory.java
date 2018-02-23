@@ -1,28 +1,17 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
 
-import java.util.Objects;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.component.*;
+import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.domain.Bestia;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.entity.Entity;
-import net.entity.component.EquipComponent;
-import net.entity.component.InventoryComponent;
-import net.entity.component.LevelComponent;
-import net.entity.component.LevelComponentSetter;
-import net.entity.component.PositionComponent;
-import net.entity.component.PositionComponentSetter;
-import net.entity.component.StatusComponent;
-import net.bestia.entity.component.TagComponent;
-import net.bestia.entity.component.TagComponent.Tag;
-import net.entity.component.TagComponentSetter;
-import net.entity.component.VisibleComponent;
-import net.entity.component.VisibleComponentSetter;
-import bestia.model.dao.BestiaDAO;
-import bestia.model.domain.Bestia;
-import bestia.model.geometry.Point;
+import java.util.Objects;
 
 /**
  * Mob factory will create entities which serve as standard mobs for the bestia

@@ -1,24 +1,23 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapTilesetMessage;
 import net.bestia.messages.map.MapTilesetRequestMessage;
-import bestia.model.domain.TilesetData;
-import bestia.model.map.Tileset;
-import bestia.model.map.TilesetService;
+import net.bestia.model.domain.TilesetData;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.map.TilesetService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The user queries the name/data of an {@link TilesetData}. He only sends the

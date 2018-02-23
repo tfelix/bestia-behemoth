@@ -1,8 +1,8 @@
-package net.entity.component;
+package net.bestia.entity.component;
+
+import net.bestia.model.domain.PlayerBestia;
 
 import java.util.Objects;
-
-import bestia.model.domain.PlayerBestia;
 
 /**
  * This setter prefills the {@link StatusComponent} with the current HP and Mana

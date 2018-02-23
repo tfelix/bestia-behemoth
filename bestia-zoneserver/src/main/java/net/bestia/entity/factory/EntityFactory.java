@@ -1,22 +1,14 @@
-package net.entity.factory;
+package net.bestia.entity.factory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.ComponentSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
-import net.entity.component.ComponentSetter;
+import java.util.*;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into

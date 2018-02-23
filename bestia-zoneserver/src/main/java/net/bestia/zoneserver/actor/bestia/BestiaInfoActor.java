@@ -1,24 +1,23 @@
 package net.bestia.zoneserver.actor.bestia;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This actor gathers all needed information about the bestias in the players

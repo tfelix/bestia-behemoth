@@ -1,15 +1,9 @@
-package net.entity.factory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+package net.bestia.entity.factory;
 
 import net.bestia.entity.component.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Blueprints are used to generate entities with a certain mix of components.

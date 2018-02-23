@@ -1,16 +1,15 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.Objects;
-
+import akka.actor.AbstractActor;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.MoveComponent;
+import net.bestia.messages.entity.EntityMoveRequestMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import net.bestia.entity.EntityService;
-import net.entity.component.MoveComponent;
-import net.bestia.messages.entity.EntityMoveRequestMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import java.util.Objects;
 
 /**
  * Incoming player requests to move a bestia must be send towards the actor of

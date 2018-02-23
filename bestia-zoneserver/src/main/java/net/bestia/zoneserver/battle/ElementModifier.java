@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.battle;
 
+import net.bestia.model.domain.Element;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import bestia.model.domain.Element;
 
 /**
  * Returns the attack damage modifier for a given elemental set of the attacker
