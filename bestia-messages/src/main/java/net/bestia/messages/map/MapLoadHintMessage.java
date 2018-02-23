@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.domain.SpriteInfo;
+import net.bestia.model.domain.SpriteInfo;
 
 /**
  * This message is send by the server to the client which has newly connected to

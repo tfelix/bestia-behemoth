@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import bestia.model.I18n;
-import bestia.model.domain.Account;
+import net.bestia.model.I18n;
+import net.bestia.model.domain.Account;
 
 /**
  * Chatmessage is sent from the user to the server and vice versa.

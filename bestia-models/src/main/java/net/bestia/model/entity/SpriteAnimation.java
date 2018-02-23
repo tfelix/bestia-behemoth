@@ -1,4 +1,4 @@
-package bestia.model.entity;
+package net.bestia.model.entity;
 
 import java.io.Serializable;
 

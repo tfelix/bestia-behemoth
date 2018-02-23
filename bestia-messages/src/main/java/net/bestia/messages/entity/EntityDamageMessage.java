@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import bestia.model.battle.Damage;
+import net.bestia.model.battle.Damage;
 
 /**
  * This message can be used to communicate a received damage to an entity. If

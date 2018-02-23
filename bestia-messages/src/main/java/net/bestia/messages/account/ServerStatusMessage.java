@@ -3,7 +3,7 @@ package net.bestia.messages.account;
 import java.io.Serializable;
 import java.util.Objects;
 
-import bestia.model.server.MaintenanceLevel;
+import net.bestia.model.server.MaintenanceLevel;
 
 /**
  * Returns the current status of the server.

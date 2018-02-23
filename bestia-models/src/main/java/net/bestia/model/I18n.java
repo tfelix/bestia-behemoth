@@ -82,7 +82,7 @@ public class I18n {
 		// Replace the _ from java.Lang with the - version.
 		lang = lang.replace('_', '-');
 		
-		final bestia.model.domain.I18n trans = I18n.i18nDao.findOne(cat, keyClean, lang);
+		final net.bestia.model.domain.I18n trans = I18n.i18nDao.findOne(cat, keyClean, lang);
 		if (trans == null) {
 			final String errMsg = String.format("%s-%s", NO_TRANSLATION, key);
 			LOG.warn(errMsg);

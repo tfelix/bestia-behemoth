@@ -1,4 +1,4 @@
-package bestia.model.dto;
+package net.bestia.model.dto;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * Contains information to tell a client to play a animation. The animation

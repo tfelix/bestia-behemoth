@@ -1,4 +1,4 @@
-package bestia.util;
+package net.bestia.util;
 
 import java.lang.reflect.Modifier;
 import java.util.HashSet;

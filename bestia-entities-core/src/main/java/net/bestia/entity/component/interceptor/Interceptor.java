@@ -1,6 +1,6 @@
 package net.bestia.entity.component.interceptor;
 
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 

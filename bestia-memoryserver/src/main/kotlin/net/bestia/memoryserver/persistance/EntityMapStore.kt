@@ -1,7 +1,7 @@
 package net.bestia.memoryserver.persistance
 
-import net.entity.Entity
 import com.hazelcast.core.MapStore
+import net.bestia.entity.Entity
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.repository.CrudRepository

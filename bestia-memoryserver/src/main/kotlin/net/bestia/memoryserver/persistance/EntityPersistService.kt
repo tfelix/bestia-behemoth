@@ -1,11 +1,11 @@
 package net.bestia.memoryserver.persistance
 
-import net.entity.Entity
+import net.bestia.entity.Entity
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.TagComponent
-import bestia.model.dao.EntityDataDAO
-import bestia.model.domain.EntityData
-import bestia.util.ObjectSerializer
+import net.bestia.model.dao.EntityDataDAO
+import net.bestia.model.domain.EntityData
+import net.bestia.util.ObjectSerializer
 import org.slf4j.LoggerFactory
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service

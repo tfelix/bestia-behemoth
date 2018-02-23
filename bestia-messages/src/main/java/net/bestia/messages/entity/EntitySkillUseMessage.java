@@ -3,7 +3,7 @@ package net.bestia.messages.entity;
 import java.io.Serializable;
 import java.util.Objects;
 
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * Entity attack message which is issued if an entity used an attack/skill

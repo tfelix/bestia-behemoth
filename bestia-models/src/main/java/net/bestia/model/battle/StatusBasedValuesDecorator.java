@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
-import bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.map.Walkspeed;
 
 /**

@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import bestia.model.entity.InteractionType;
+import net.bestia.model.entity.InteractionType;
 
 /**
  * By sending this message to the client the client is informed how 

@@ -2,9 +2,9 @@ package net.bestia.messages.account;
 
 import java.io.Serializable;
 
-import bestia.model.domain.Gender;
-import bestia.model.domain.Hairstyle;
-import bestia.model.domain.PlayerClass;
+import net.bestia.model.domain.Gender;
+import net.bestia.model.domain.Hairstyle;
+import net.bestia.model.domain.PlayerClass;
 
 /**
  * This POJO holds the data needed for an account registration.

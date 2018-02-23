@@ -6,8 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import bestia.model.geometry.Point;
-import bestia.model.map.Walkspeed;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * <p>

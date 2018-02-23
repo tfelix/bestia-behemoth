@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import bestia.model.dao.TilesetDataDAO;
-import bestia.model.domain.TilesetData;
+import net.bestia.model.dao.TilesetDataDAO;
+import net.bestia.model.domain.TilesetData;
 
 @Service
 public class TilesetService {

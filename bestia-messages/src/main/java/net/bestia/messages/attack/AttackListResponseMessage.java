@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.domain.BestiaAttack;
+import net.bestia.model.domain.BestiaAttack;
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the

@@ -1,4 +1,4 @@
-package bestia.util;
+package net.bestia.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

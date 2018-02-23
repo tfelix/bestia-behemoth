@@ -3,7 +3,7 @@ package net.bestia.messages.guild;
 import java.util.Objects;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.domain.Guild;
+import net.bestia.model.domain.Guild;
 
 /**
  * Contains guild information.

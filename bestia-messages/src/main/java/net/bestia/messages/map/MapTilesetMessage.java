@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.map.Tileset.SimpleTileset;
+import net.bestia.model.map.Tileset.SimpleTileset;
 
 /**
  * Tiles are only referenced by so called gids. This ids are globally unique and

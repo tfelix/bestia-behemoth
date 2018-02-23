@@ -5,9 +5,9 @@ import java.util.Objects
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
-import bestia.model.dao.ComponentDataDAO
-import bestia.model.domain.ComponentData
-import bestia.util.ObjectSerializer
+import net.bestia.model.dao.ComponentDataDAO
+import net.bestia.model.domain.ComponentData
+import net.bestia.util.ObjectSerializer
 import net.bestia.entity.component.Component
 
 @Service

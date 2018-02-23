@@ -1,4 +1,4 @@
-package bestia.model.entity;
+package net.bestia.model.entity;
 
 /**
  * Interaction types give the client hints how the player is able to interact

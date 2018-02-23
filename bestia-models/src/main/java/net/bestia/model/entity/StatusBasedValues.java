@@ -1,10 +1,10 @@
-package bestia.model.entity;
+package net.bestia.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import bestia.model.domain.StatusPoints;
-import bestia.model.map.Walkspeed;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * The {@link StatusBasedValues} are used for advanced calculations. They are

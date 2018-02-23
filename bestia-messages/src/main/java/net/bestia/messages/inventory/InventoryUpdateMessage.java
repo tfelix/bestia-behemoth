@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.domain.Item;
+import net.bestia.model.domain.Item;
 
 /**
  * This message is send from a {@link InventoryManager} to the client. It

@@ -1,10 +1,10 @@
-package bestia.model.entity;
+package net.bestia.model.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import bestia.model.domain.StatusPoints;
-import bestia.model.map.Walkspeed;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * These modifier are calculates based on status values. The are used to

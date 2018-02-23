@@ -1,4 +1,4 @@
-package bestia.model.server;
+package net.bestia.model.server;
 
 public enum MaintenanceLevel {
 	

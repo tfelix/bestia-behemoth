@@ -3,7 +3,7 @@ package net.bestia.messages.map;
 import java.util.Objects;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * The ECS is adviced to move the given entity on the map. This is an internal

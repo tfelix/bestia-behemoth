@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * In contrast to the {@link EntityMoveMessage} which is send from a client this

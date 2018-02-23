@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.domain.PlayerItem;
+import net.bestia.model.domain.PlayerItem;
 
 /**
  * This will send a complete list with all items in the inventory to the client.

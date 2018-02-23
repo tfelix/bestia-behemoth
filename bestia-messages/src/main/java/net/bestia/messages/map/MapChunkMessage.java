@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import bestia.model.map.MapChunk;
+import net.bestia.model.map.MapChunk;
 
 /**
  * This message contains all needed information for the client to load and
