@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.script
 
 import net.bestia.zoneserver.script.env.BaseScriptEnvironment
-import net.bestia.zoneserver.script.exec.ScriptFunctionExecutor
 import org.junit.Test
 import org.mockito.Mock
 
@@ -18,6 +17,6 @@ class ScriptServiceTest {
 
     // Besonderer Call einer bestimmten funktion.
 
-    val funExecutor = ScriptFunctionExecutor("main", scriptEnv, )
+    // val funExecutor = ScriptFunctionExecutor("main", scriptEnv, )
   }
 }

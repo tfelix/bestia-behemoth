@@ -1,18 +1,16 @@
 package bestia.messages;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.bestia.messages.JsonMessage;
+import net.bestia.util.PackageLoader;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.bestia.messages.JsonMessage;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import bestia.util.PackageLoader;
 
 public class JsonMessageTest {
 

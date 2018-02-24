@@ -1,21 +1,15 @@
 package net.bestia.entity.component;
 
-import net.entity.component.PlayerStatusComponentSetter;
-import net.entity.component.StatusComponent;
+import net.bestia.model.domain.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
-
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.domain.Bestia;
-import bestia.model.domain.Element;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.ConditionValues;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerStatusComponentSetterTest {

@@ -3,6 +3,7 @@ package net.bestia.zoneserver
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.autoconfigure.hazelcast.HazelcastAutoConfiguration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 /**
@@ -10,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
  *
  * @author Thomas Felix
  */
-@SpringBootApplication(scanBasePackages = ["net.bestia"])
+@SpringBootApplication(scanBasePackages = ["net.bestia"], exclude = [HazelcastAutoConfiguration::class])
 @EnableJpaRepositories(basePackages = ["net.bestia.model.dao"])
 @EntityScan(basePackages = ["net.bestia.model.domain"])
 class Application

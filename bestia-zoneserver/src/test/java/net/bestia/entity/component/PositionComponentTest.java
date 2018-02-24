@@ -1,12 +1,10 @@
 package net.bestia.entity.component;
 
-import net.entity.component.PositionComponent;
+import net.bestia.model.domain.Direction;
+import net.bestia.model.geometry.Point;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import bestia.model.domain.Direction;
-import bestia.model.geometry.Point;
 
 public class PositionComponentTest {
 

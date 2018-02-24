@@ -1,12 +1,14 @@
 package net.bestia.zoneserver.chat;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.messages.MessageApi;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,15 +16,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.StatusComponent;
-import net.bestia.messages.MessageApi;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SetCommandTest {

@@ -1,11 +1,14 @@
 package net.bestia.zoneserver.service;
 
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import net.bestia.model.dao.MapDataDAO;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.MapParameter;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
+import net.bestia.model.map.MapChunk;
+import net.bestia.model.map.TilesetService;
+import net.bestia.zoneserver.map.MapService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,15 +16,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.dao.MapDataDAO;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.MapParameter;
-import bestia.model.geometry.Point;
-import bestia.model.geometry.Rect;
-import bestia.model.map.Map;
-import bestia.model.map.MapChunk;
-import bestia.model.map.TilesetService;
-import net.bestia.zoneserver.map.MapService;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapServiceTest {

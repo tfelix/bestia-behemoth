@@ -11,10 +11,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.server.MaintenanceLevel;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.service.LoginService;
 

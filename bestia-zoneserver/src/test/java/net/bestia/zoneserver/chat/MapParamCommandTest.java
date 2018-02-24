@@ -10,8 +10,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import bestia.model.dao.MapParameterDAO;
-import bestia.model.domain.Account;
+import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.Account;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapParamCommandTest {

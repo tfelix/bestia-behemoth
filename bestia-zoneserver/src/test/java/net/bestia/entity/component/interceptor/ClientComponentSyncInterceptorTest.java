@@ -1,11 +1,10 @@
 package net.bestia.entity.component.interceptor;
 
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
-import net.entity.component.interceptor.ClientComponentSyncInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

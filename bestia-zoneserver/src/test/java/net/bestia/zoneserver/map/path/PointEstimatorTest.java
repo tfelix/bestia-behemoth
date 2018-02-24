@@ -3,7 +3,7 @@ package net.bestia.zoneserver.map.path;
 import org.junit.Assert;
 import org.junit.Test;
 
-import bestia.model.geometry.Point;
+import net.bestia.model.geometry.Point;
 
 public class PointEstimatorTest {
 	

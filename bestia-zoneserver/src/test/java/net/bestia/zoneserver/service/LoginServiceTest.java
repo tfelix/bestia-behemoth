@@ -1,12 +1,17 @@
 package net.bestia.zoneserver.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import akka.testkit.TestProbe;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Password;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.server.MaintenanceLevel;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.factory.PlayerBestiaEntityFactory;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.Assert;
@@ -16,20 +21,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import akka.testkit.TestProbe;
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.factory.PlayerBestiaEntityFactory;
-import net.bestia.messages.MessageApi;
-import net.bestia.messages.account.AccountLoginRequest;
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
-import bestia.model.server.MaintenanceLevel;
-import bestia.model.domain.Password;
-import bestia.model.domain.PlayerBestia;
-import bestia.testing.BasicMocks;
-import net.bestia.zoneserver.configuration.RuntimeConfigService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginServiceTest {

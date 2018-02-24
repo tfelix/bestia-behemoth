@@ -79,7 +79,7 @@
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.21" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jetty:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:6.0.6" level="project" />
-    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast-client:3.9.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast-client:3.7.8" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.8.4" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-cluster-sharding_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-cluster-tools_2.12:2.5.6" level="project" />
@@ -90,8 +90,8 @@
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.15.0" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-testkit_2.12:2.5.6" level="project" />
-    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast:tests:3.7.4" level="project" />
-    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast:3.7.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast:tests:3.8.9" level="project" />
+    <orderEntry type="library" name="Gradle: com.hazelcast:hazelcast:3.8.9" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test-autoconfigure:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test:1.5.10.RELEASE" level="project" />

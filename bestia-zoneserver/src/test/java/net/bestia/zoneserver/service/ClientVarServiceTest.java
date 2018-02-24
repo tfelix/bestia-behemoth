@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.ClientVarDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.ClientVar;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,10 +11,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.ClientVarDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.ClientVar;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClientVarServiceTest {

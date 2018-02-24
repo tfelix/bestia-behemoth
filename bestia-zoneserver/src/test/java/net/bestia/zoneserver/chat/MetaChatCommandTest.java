@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.domain.Account;
-import bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetaChatCommandTest {

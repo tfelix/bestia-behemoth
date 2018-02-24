@@ -1,15 +1,13 @@
 package net.bestia.entity.factory;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import net.entity.factory.Blueprint;
-import net.entity.factory.EntityFactory;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityCache;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.ComponentSetter;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.PlayerComponentSetter;
+import net.bestia.messages.MessageApi;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +15,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
-import net.entity.component.ComponentSetter;
-import net.bestia.entity.EntityCache;
-import net.entity.component.PlayerComponent;
-import net.entity.component.PlayerComponentSetter;
-import net.bestia.messages.MessageApi;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityFactoryTest {

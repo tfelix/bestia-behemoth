@@ -1,18 +1,18 @@
 package net.bestia.entity.component;
 
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.LevelComponent;
+import net.bestia.zoneserver.battle.StatusService;
+import net.bestia.zoneserver.entity.LevelService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
-
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LevelServiceTest {

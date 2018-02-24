@@ -1,13 +1,12 @@
 package bestia.messages.attack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bestia.messages.attack.AttackListResponseMessage;
+import net.bestia.model.domain.BestiaAttack;
 import org.junit.Assert;
 import org.junit.Test;
 
-import bestia.model.domain.BestiaAttack;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AttackListResponseMessageTest {
 	

@@ -1,8 +1,16 @@
 package net.bestia.zoneserver.actor.bestia;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.testkit.javadsl.TestKit;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.messages.bestia.BestiaInfoRequestMessage;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.zoneserver.actor.ActorTestConfig;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.battle.StatusService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,17 +25,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.testkit.javadsl.TestKit;
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.zoneserver.battle.StatusService;
-import net.bestia.messages.bestia.BestiaInfoRequestMessage;
-import bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.zoneserver.actor.ActorTestConfig;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import java.util.HashSet;
+import java.util.Set;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

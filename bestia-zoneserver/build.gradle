@@ -9,7 +9,7 @@ dependencies {
   compile('org.springframework.boot:spring-boot-starter-jetty')
 
   compile group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
-  compile group: 'com.hazelcast', name: 'hazelcast-client', version: hazelcastVersion
+  compile group: 'com.hazelcast', name: 'hazelcast-client'
 
   compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.4'
   compile group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
@@ -29,6 +29,6 @@ dependencies {
 
   testCompile('org.springframework.boot:spring-boot-starter-test')
   testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
-  testCompile group: 'com.hazelcast', name: 'hazelcast', version: '3.7.4', classifier: 'tests'
+  testCompile group: 'com.hazelcast', name: 'hazelcast', version: hazelcastVersion, classifier: 'tests'
   testCompile project(':bestia-server-commons')
 }

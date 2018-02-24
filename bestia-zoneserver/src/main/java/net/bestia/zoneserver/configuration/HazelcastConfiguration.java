@@ -1,24 +1,25 @@
 package net.bestia.zoneserver.configuration;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.core.HazelcastInstance;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.core.HazelcastInstance;
+import java.io.IOException;
 
 /**
  * Hazelcast specific configuration.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Configuration
 public class HazelcastConfiguration {
 
-	@Bean
-	public HazelcastInstance hazelcastInstance() {
-		final HazelcastInstance client = HazelcastClient.newHazelcastClient();
-		return client;
-	}
-
+  @Bean
+  public HazelcastInstance getHazelcastClientInstance() throws IOException {
+    ClientConfig clientConfig = new XmlClientConfigBuilder("hazelcast-client.xml").build();
+    return HazelcastClient.newHazelcastClient(clientConfig);
+  }
 }

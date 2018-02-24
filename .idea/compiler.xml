@@ -2,24 +2,24 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="bestia-entities-core_main" target="1.9" />
-      <module name="bestia-entities-core_test" target="1.9" />
-      <module name="bestia-memoryserver_main" target="1.9" />
-      <module name="bestia-memoryserver_test" target="1.9" />
+      <module name="bestia-entities-core_main" target="1.8" />
+      <module name="bestia-entities-core_test" target="1.8" />
+      <module name="bestia-memoryserver_main" target="1.8" />
+      <module name="bestia-memoryserver_test" target="1.8" />
       <module name="bestia-messages-cluster_main" target="1.8" />
       <module name="bestia-messages-cluster_test" target="1.8" />
-      <module name="bestia-messages-proto_main" target="1.9" />
-      <module name="bestia-messages-proto_test" target="1.9" />
-      <module name="bestia-messages_main" target="1.9" />
-      <module name="bestia-messages_test" target="1.9" />
-      <module name="bestia-models_main" target="1.9" />
-      <module name="bestia-models_test" target="1.9" />
-      <module name="bestia-server-commons_main" target="1.9" />
-      <module name="bestia-server-commons_test" target="1.9" />
-      <module name="bestia-webserver_main" target="1.9" />
-      <module name="bestia-webserver_test" target="1.9" />
-      <module name="bestia-zoneserver_main" target="1.9" />
-      <module name="bestia-zoneserver_test" target="1.9" />
+      <module name="bestia-messages-proto_main" target="1.8" />
+      <module name="bestia-messages-proto_test" target="1.8" />
+      <module name="bestia-messages_main" target="1.8" />
+      <module name="bestia-messages_test" target="1.8" />
+      <module name="bestia-models_main" target="1.8" />
+      <module name="bestia-models_test" target="1.8" />
+      <module name="bestia-server-commons_main" target="1.8" />
+      <module name="bestia-server-commons_test" target="1.8" />
+      <module name="bestia-webserver_main" target="1.8" />
+      <module name="bestia-webserver_test" target="1.8" />
+      <module name="bestia-zoneserver_main" target="1.8" />
+      <module name="bestia-zoneserver_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

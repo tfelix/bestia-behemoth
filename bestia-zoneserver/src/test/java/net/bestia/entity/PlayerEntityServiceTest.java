@@ -32,11 +32,11 @@ import org.mockito.stubbing.Answer;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.HazelMock;
-import net.entity.component.PlayerComponent;
+import net.bestia.entity.component.PlayerComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.geometry.Rect;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 

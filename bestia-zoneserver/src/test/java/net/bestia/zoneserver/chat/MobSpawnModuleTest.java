@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.factory.MobFactory;
+import net.bestia.entity.factory.MobFactory;
 import net.bestia.messages.MessageApi;
-import bestia.model.domain.Account;
+import net.bestia.model.domain.Account;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MobSpawnModuleTest {

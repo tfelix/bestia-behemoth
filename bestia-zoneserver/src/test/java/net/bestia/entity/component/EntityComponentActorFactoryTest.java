@@ -1,10 +1,9 @@
 package net.bestia.entity.component;
 
-import static org.mockito.Mockito.when;
-
+import akka.actor.ActorContext;
+import akka.actor.ActorRef;
+import net.bestia.entity.EntityService;
 import net.bestia.zoneserver.actor.entity.EntityComponentActorFactory;
-import net.entity.component.PositionComponent;
-import net.entity.component.StatusComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,9 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import akka.actor.ActorContext;
-import akka.actor.ActorRef;
-import net.bestia.entity.EntityService;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityComponentActorFactoryTest {

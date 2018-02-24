@@ -19,7 +19,7 @@ import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.ui.ClientVarRequestMessage;
-import bestia.model.domain.ClientVar;
+import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.ClientVarService;

@@ -1,9 +1,17 @@
 package net.bestia.zoneserver.battle;
 
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.battle.Damage;
+import net.bestia.model.dao.AttackDAO;
+import net.bestia.model.domain.*;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.entity.EntitySearchService;
+import net.bestia.zoneserver.map.MapService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,22 +19,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.entity.component.LevelComponent;
-import net.entity.component.PositionComponent;
-import net.entity.component.StatusComponent;
-import bestia.model.battle.Damage;
-import bestia.model.dao.AttackDAO;
-import bestia.model.domain.Attack;
-import bestia.model.domain.AttackImpl;
-import bestia.model.domain.AttackType;
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.Element;
-import bestia.model.domain.StatusPoints;
-import bestia.model.entity.StatusBasedValues;
-import bestia.model.geometry.Point;
-import net.bestia.zoneserver.map.MapService;
+import java.util.Optional;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BattleServiceTest {
@@ -43,6 +38,9 @@ public class BattleServiceTest {
 
 	@Mock
 	private EntityService entityService;
+
+	@Mock
+  private EntitySearchService entitySearchService;
 
 	@Mock
 	private MapService mapService;
@@ -156,7 +154,7 @@ public class BattleServiceTest {
 		when(atk.getId()).thenReturn(Attack.DEFAULT_MELEE_ATTACK_ID);
 		
 
-		battleService = new BattleService(entityService, mapService, atkDao);
+		battleService = new BattleService(entityService, entitySearchService, mapService, atkDao);
 	}
 
 	@Test

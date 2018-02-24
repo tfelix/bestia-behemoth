@@ -3,7 +3,7 @@ package net.bestia.zoneserver.battle;
 import org.junit.Assert;
 import org.junit.Test;
 
-import bestia.model.domain.Element;
+import net.bestia.model.domain.Element;
 
 public class ElementModifierTest {
 

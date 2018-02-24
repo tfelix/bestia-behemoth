@@ -16,9 +16,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import net.entity.Entity;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.entity.component.ScriptComponent;
+import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
 
 @RunWith(MockitoJUnitRunner.class)

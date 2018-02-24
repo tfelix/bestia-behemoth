@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.HazelMock;
-import bestia.testing.BasicMocks;
 
 
 public class LatencyServiceTest {

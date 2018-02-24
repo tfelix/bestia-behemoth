@@ -5,9 +5,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.dao.GuildDAO;
-import bestia.model.dao.GuildMemberDAO;
-import bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.dao.GuildDAO;
+import net.bestia.model.dao.GuildMemberDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GuildServiceTest {
