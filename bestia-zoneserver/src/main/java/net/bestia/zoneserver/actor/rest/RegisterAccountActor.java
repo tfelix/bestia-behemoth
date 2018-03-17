@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import net.bestia.messages.account.AccountRegistration;
-import net.bestia.zoneserver.service.AccountService;
+import net.bestia.zoneserver.connection.AccountService;
 
 /**
  * Performs an account registration procedure.

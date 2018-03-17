@@ -43,21 +43,20 @@ public class AkkaConfiguration {
 		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
 
 		LOG.debug("Starting webserver root actor.");
-		rootActor = system.actorOf(ClusterConnectActor.props(serverConfig).withDeploy(Deploy.local()), "clusterUplink");
+		rootActor = system.actorOf(ClusterConnectActor.props(serverConfig)
+				.withDeploy(Deploy.local()), "clusterUplink");
 
 		return system;
 	}
 
 	@Bean
 	public Config config() {
-		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);
-		return config;
+		return ConfigFactory.load(AKKA_CONFIG_NAME);
 	}
 
 	@Bean
 	public WebserverActorApi webserverLogin(ActorSystem system) {
-
-		final WebserverActorApi login = TypedActor.get(system)
+		return TypedActor.get(system)
 				.typedActorOf(
 								new TypedProps<>(WebserverActorApi.class,
 												new Creator<WebserverActorApiActor>() {
@@ -70,7 +69,5 @@ public class AkkaConfiguration {
 
 												}).withDeploy(Deploy.local()),
 						"loginWebActor");
-
-		return login;
 	}
 }

@@ -14,8 +14,8 @@ import java.util.Objects;
 /**
  * This actor tries to re-establish connection with the bestia cluster. If the
  * connection is terminated it will start to re-establish the connection
- * automatically. If the connection goes away it will send a error message to
- * the
+ * automatically. If the connection to the cluster goes away he will send a message
+ * to all connected client actors.
  * 
  * @author Thomas Felix
  *

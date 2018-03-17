@@ -68,7 +68,7 @@ public class BestiaRootActor extends AbstractActor {
     // thus to break the circular dependency this trick is needed.
     messageApi.setPostmaster(postmaster);
 
-    final ActorRef clientMessageActor = SpringExtension.actorOf(getContext(), ClientMessageActor.class, postmaster);
+    SpringExtension.actorOf(getContext(), ClientMessageActor.class, postmaster);
 
     registerSingeltons();
     registerSharding(postmaster);
@@ -85,8 +85,6 @@ public class BestiaRootActor extends AbstractActor {
     final ActorRef sendClientInRangeActor = SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class);
 
     // === Register the postmaster connections ===
-    final RegisterEnvelopeMessage regFromClientMessage = new RegisterEnvelopeMessage(ClientFromMessageEnvelope.class, clientMessageActor);
-    postmaster.tell(regFromClientMessage, getSelf());
     final RegisterEnvelopeMessage regSendEntity = new RegisterEnvelopeMessage(EntityMessageEnvelope.class, sendEntityActor);
     postmaster.tell(regSendEntity, getSelf());
     final RegisterEnvelopeMessage regToClientMessage = new RegisterEnvelopeMessage(ClientToMessageEnvelope.class, sendClientActor);

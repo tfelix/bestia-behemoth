@@ -22,7 +22,7 @@ import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.service.ClientVarService;
+import net.bestia.zoneserver.connection.ClientVarService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

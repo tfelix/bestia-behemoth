@@ -1,27 +1,25 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.Objects;
-
-import net.bestia.messages.component.LatencyInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.JsonMessage;
 import bestia.server.EntryActorNames;
-import net.bestia.zoneserver.service.LatencyService;
+import net.bestia.messages.JsonMessage;
+import net.bestia.messages.component.LatencyInfo;
+import net.bestia.zoneserver.connection.LatencyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * This actor sends the incoming message towards the registered cluster sharding
  * actor which holds the connection to a client.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Component
 @Scope("prototype")

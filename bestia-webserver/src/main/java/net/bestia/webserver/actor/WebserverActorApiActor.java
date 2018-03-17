@@ -37,8 +37,6 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	private final static Logger LOG = LoggerFactory.getLogger(WebserverActorApiActor.class);
 	private final static Timeout REST_CALL_TIMEOUTS = new Timeout(Duration.create(5, "seconds"));
 
-	private final ActorContext context = TypedActor.context();
-	
 	private final ActorRef connections;
 	private final ActorRef uplink;
 
@@ -46,7 +44,8 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		this.uplink = Objects.requireNonNull(uplink);
 		
-		final Props connectionProps = ConnectionsActor.props(uplink);
+		final Props connectionProps = ClientConnectionsActor.props(uplink);
+		final ActorContext context = TypedActor.context();
 		this.connections = context.actorOf(connectionProps, "connections");
 	}
 
@@ -59,9 +58,8 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		try {
 			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
-			final AccountLoginRequest result = (AccountLoginRequest) Await.result(future,
+			return (AccountLoginRequest) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
-			return result;
 		} catch (Exception e) {
 			LOG.warn("Request for loginTokenRequest timed out: {}.", data);
 			return null;
@@ -104,8 +102,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		try {
 			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
-			final Boolean result = (Boolean) Await.result(future, REST_CALL_TIMEOUTS.duration());
-			return result;
+			return (Boolean) Await.result(future, REST_CALL_TIMEOUTS.duration());
 		} catch (Exception e) {
 			LOG.warn("Request for password change timed out: {}.", data);
 			return false;
@@ -119,8 +116,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		try {
 			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
-			final UserNameCheck result = (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());
-			return result;
+			return (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());
 		} catch (Exception e) {
 			LOG.warn("Request for user name check timed out: {}.", data);
 			return null;
@@ -136,9 +132,8 @@ public class WebserverActorApiActor implements WebserverActorApi {
 		try {
 			final ServerStatusMessage.Request req = new ServerStatusMessage.Request();
 			final Future<Object> future = Patterns.ask(uplink, req, REST_CALL_TIMEOUTS);
-			final ServerStatusMessage result = (ServerStatusMessage) Await.result(future,
+			return (ServerStatusMessage) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
-			return result;
 		} catch (Exception e) {
 			LOG.warn("Request for server status timed out.");
 			return null;
@@ -152,9 +147,8 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		try {
 			final Future<Object> future = Patterns.ask(uplink, registration, REST_CALL_TIMEOUTS);
-			final AccountRegistrationReply result = (AccountRegistrationReply) Await.result(future,
+			return (AccountRegistrationReply) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
-			return result;
 		} catch (Exception e) {
 			LOG.warn("Request for registration timed out.");
 			return null;

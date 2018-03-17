@@ -37,9 +37,11 @@ public class ShutdownHookRunner implements CommandLineRunner {
 				
 				final Cluster cluster = Cluster.get(system);
 				cluster.leave(cluster.selfAddress());
-				
-				// This will end the actor system and hazelcast.
-				
+				try {
+					system.terminate().wait();
+				} catch (InterruptedException e) {
+					// no op.
+				}
 			}
 		});
 

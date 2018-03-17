@@ -14,7 +14,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
-import net.bestia.zoneserver.service.LoginService;
+import net.bestia.zoneserver.connection.LoginService;
 
 /**
  * Allows admins to set the server into maintenance mode. Use with caution since

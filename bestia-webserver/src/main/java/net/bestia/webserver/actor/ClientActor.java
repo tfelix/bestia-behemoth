@@ -22,8 +22,8 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.client.ClientConnectMessage;
-import net.bestia.messages.client.ClientConnectMessage.ConnectionState;
+import net.bestia.messages.client.ClientConnectionStatusMessage;
+import net.bestia.messages.client.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
@@ -40,9 +40,9 @@ public class ClientActor extends AbstractActor {
 					Duration.create(10, TimeUnit.SECONDS),
 					getSelf(), PoisonPill.getInstance(), getContext().dispatcher(), null);
 
-	protected final ActorRef uplink;
-	protected final WebSocketSession session;
-	protected final ObjectMapper mapper;
+	private final ActorRef uplink;
+	private final WebSocketSession session;
+	private final ObjectMapper mapper;
 
 	private final AbstractActor.Receive unauthenticated;
 	private final AbstractActor.Receive authenticated;
@@ -103,7 +103,7 @@ public class ClientActor extends AbstractActor {
 			}
 		}
 
-		final ClientConnectMessage ccsmsg = new ClientConnectMessage(
+		final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
 				accountId,
 				ConnectionState.DISCONNECTED,
 				getSelf());
@@ -183,7 +183,7 @@ public class ClientActor extends AbstractActor {
 			getContext().become(authenticated);
 
 			// Announce to the server that we have a fully connected client.
-			final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
+			final ClientConnectionStatusMessage cccm = new ClientConnectionStatusMessage(accountId,
 					ConnectionState.CONNECTED,
 					getSelf());
 			uplink.tell(cccm, getSelf());
@@ -202,7 +202,7 @@ public class ClientActor extends AbstractActor {
 		deathTimer = null;
 	}
 
-	protected void sendToClient(AccountMessage message) {
+	private void sendToClient(AccountMessage message) {
 		// Send the payload to the client.
 		try {
 			final String payload = mapper.writeValueAsString(message);

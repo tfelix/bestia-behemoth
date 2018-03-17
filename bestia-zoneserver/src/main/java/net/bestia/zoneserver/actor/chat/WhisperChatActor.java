@@ -8,7 +8,7 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.service.AccountService;
+import net.bestia.zoneserver.connection.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

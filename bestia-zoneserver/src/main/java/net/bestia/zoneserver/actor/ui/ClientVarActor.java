@@ -15,7 +15,7 @@ import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.service.ClientVarService;
+import net.bestia.zoneserver.connection.ClientVarService;
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server

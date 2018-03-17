@@ -11,7 +11,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.account.ChangePasswordRequest;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.service.AccountService;
+import net.bestia.zoneserver.connection.AccountService;
 
 /**
  * Changes the password of a user.

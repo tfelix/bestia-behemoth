@@ -12,6 +12,7 @@ import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
+import net.bestia.zoneserver.connection.LoginService;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.Assert;

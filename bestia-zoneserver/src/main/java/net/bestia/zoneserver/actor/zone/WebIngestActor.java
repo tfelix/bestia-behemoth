@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * Central influx point for web clients. The incoming messages are resend
  * towards the connection actors which manage the client connections.
@@ -26,20 +28,19 @@ public class WebIngestActor extends AbstractActor {
 
 	public static final String NAME = "ingest";
 
-	private final ActorRef clients;
+	private final ActorRef postmaster;
 
 	@Autowired
-	public WebIngestActor() {
+	public WebIngestActor(ActorRef postmaster) {
 
-		final ClusterSharding sharding = ClusterSharding.get(context().system());
-		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
+		this.postmaster = Objects.requireNonNull(postmaster);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder().match(ClientFromMessageEnvelope.class, msg -> {
-			LOG.debug("Received message from remote: {}", msg);
-			clients.tell(msg, getSender());
+			LOG.debug("Received message from web: {}", msg);
+			postmaster.tell(msg, getSender());
 		}).build();
 	}
 }

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.party;
 
 import org.springframework.stereotype.Service;
 

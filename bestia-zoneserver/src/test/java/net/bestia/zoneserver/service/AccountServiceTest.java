@@ -3,6 +3,7 @@ package net.bestia.zoneserver.service;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
+import net.bestia.zoneserver.connection.AccountService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

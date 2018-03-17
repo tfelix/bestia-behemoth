@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.messages.client.PongMessage;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.service.LatencyService;
+import net.bestia.zoneserver.connection.LatencyService;
 
 /**
  * This actor holds the connection details of a client and is able to redirect

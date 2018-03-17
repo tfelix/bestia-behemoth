@@ -22,8 +22,7 @@ public class LoginAuthMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "system.loginauth";
 
 	private final String token;
-	//private final String browserAgent;
-	
+
 	private LoginAuthMessage() {
 		super(0);
 

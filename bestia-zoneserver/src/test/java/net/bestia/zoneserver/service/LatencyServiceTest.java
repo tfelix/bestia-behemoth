@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.service;
 
+import net.bestia.zoneserver.connection.LatencyService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
