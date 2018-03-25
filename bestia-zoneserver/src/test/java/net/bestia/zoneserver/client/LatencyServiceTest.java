@@ -1,8 +1,7 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.client;
 
 import com.hazelcast.core.HazelcastInstance;
 import net.bestia.HazelMock;
-import net.bestia.zoneserver.client.LatencyService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

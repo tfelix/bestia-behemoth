@@ -1,16 +1,11 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.bestia;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.BestiaAttackDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,12 +13,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.BestiaAttackDAO;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.dao.PlayerItemDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.PlayerBestia;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * TODO Some methods are under work ind progress so they are not yet tested.

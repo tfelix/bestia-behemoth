@@ -20,7 +20,7 @@ public interface WebserverActorApi {
 	 *            The user/account name.
 	 * @param password
 	 *            The password of this account.
-	 * @return The newly generated {@link AccountLoginToken} containing a valid
+	 * @return The newly generated {@link AccountLoginRequest} containing a valid
 	 *         login token.
 	 * @throws WrongCredentialsException
 	 *             If the provided accName or password were not found or did not

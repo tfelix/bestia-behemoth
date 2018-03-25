@@ -19,7 +19,7 @@ import akka.testkit.javadsl.TestKit;
 import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.connection.LoginService;
+import net.bestia.zoneserver.client.LoginService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

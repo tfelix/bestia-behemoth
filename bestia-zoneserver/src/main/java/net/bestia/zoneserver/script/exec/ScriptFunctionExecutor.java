@@ -12,8 +12,6 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.zoneserver.script.env.ScriptEnv;
-
 /**
  * Runs a certain javascript function.
  * 

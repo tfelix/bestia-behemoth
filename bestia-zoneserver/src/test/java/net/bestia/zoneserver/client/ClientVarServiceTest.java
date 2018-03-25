@@ -1,10 +1,9 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.client;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.ClientVarDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.ClientVar;
-import net.bestia.zoneserver.connection.ClientVarService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

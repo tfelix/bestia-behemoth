@@ -74,8 +74,10 @@
     <orderEntry type="library" name="Gradle: org.scalikejdbc:scalikejdbc-interpolation-macro_2.11:2.4.0" level="project" />
     <orderEntry type="library" name="Gradle: org.scalikejdbc:scalikejdbc-core_2.11:2.4.0" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: com.nhaarman:mockito-kotlin:1.5.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-junit:1.2.21" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test:1.2.21" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.0.7" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.21" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jetty:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:6.0.6" level="project" />
@@ -204,6 +206,7 @@
     <orderEntry type="library" name="Gradle: com.github.jnr:jffi:native:1.2.16" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-x86asm:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-pool2:2.4.3" level="project" />
+    <orderEntry type="module" module-name="bestia-server-commons_test" scope="TEST" />
   </component>
   <component name="TestModuleProperties" production-module="bestia-zoneserver_main" />
 </module>

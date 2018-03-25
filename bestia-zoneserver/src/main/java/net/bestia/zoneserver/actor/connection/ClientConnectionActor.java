@@ -17,7 +17,7 @@ import net.bestia.messages.client.ClientConnectionStatusMessage;
 import net.bestia.messages.client.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.connection.LoginService;
+import net.bestia.zoneserver.client.LoginService;
 
 /**
  * This actor holds the connection details of a client and is able to redirect

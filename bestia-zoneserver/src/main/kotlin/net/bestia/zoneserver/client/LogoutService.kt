@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.connection
+package net.bestia.zoneserver.client
 
 import org.springframework.stereotype.Service
 

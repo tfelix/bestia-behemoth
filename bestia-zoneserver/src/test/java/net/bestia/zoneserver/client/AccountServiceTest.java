@@ -1,9 +1,11 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.client;
 
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
-
-import net.bestia.zoneserver.connection.AccountService;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationError;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,17 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.messages.account.AccountRegistration;
-import net.bestia.messages.account.AccountRegistrationError;
-import bestia.model.dao.AccountDAO;
-import bestia.model.dao.BestiaDAO;
-import bestia.model.dao.PlayerBestiaDAO;
-import bestia.model.domain.Account;
-import bestia.model.domain.Bestia;
-import bestia.model.domain.Gender;
-import bestia.model.domain.Hairstyle;
-import bestia.model.domain.Password;
-import bestia.model.domain.PlayerBestia;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccountServiceTest {

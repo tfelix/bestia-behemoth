@@ -70,7 +70,7 @@ public class ScriptService {
   }
 
   private CompiledScript resolveScript(ScriptAnchor scriptAnchor) {
-    final CompiledScript script = scriptCache.getScript(scriptAnchor.getScriptName());
+    final CompiledScript script = scriptCache.getScript(scriptAnchor.getName());
 
     if (script == null) {
       LOG.warn("Did not find script file: {} ({})", scriptAnchor);
@@ -117,7 +117,7 @@ public class ScriptService {
             .orElseThrow(IllegalArgumentException::new);
 
     final String callbackAnchorString = scriptComp.getCallback(scriptUuid).getScript();
-    final ScriptAnchor anchor = ScriptAnchor.fromString(callbackAnchorString);
+    final ScriptAnchor anchor = ScriptAnchor.Companion.fromString(callbackAnchorString);
     final CompiledScript script = resolveScript(anchor);
 
     callFunction(script, anchor.getFunctionName());

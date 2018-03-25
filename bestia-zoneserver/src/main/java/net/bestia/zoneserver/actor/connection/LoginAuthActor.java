@@ -10,7 +10,7 @@ import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.connection.LoginService;
+import net.bestia.zoneserver.client.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

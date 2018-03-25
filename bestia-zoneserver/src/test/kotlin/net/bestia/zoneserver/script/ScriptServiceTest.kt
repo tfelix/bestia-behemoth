@@ -1,25 +1,18 @@
 package net.bestia.zoneserver.script
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-
-import java.util.Optional
-
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
-
 import akka.actor.ActorPath
 import akka.actor.ActorRef
 import net.bestia.entity.Entity
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.ScriptComponent
 import net.bestia.messages.MessageApi
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 
 @RunWith(MockitoJUnitRunner::class)
 class ScriptServiceTest {
@@ -28,8 +21,6 @@ class ScriptServiceTest {
   private val entityService: EntityService? = null
   @Mock
   private val akkaApi: MessageApi? = null
-  @Mock
-  private val scriptApi: ScriptApi? = null
   @Mock
   private val cache: ScriptCache? = null
   @Mock
@@ -65,7 +56,7 @@ class ScriptServiceTest {
     `when`(entityService.getComponent(VALID_SCRIPT_COMP_ID, ScriptComponent::class.java))
             .thenReturn(Optional.of(scriptComponent))
 
-    scriptService = ScriptService(entityService, akkaApi, cache, resolver)
+    scriptService = ScriptService(entityService, cache, resolver)
   }
 
   @Test
@@ -116,38 +107,6 @@ class ScriptServiceTest {
   @Test
   fun startScriptInterval_validParams_startsActorAndSendMsg() {
 
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun stopScriptInterval_nullEntity_throws() {
-    scriptService!!.stopScriptInterval(null)
-  }
-
-  @Test(expected = IllegalArgumentException::class)
-  fun stopScriptInterval_nonScriptEntity_throws() {
-    scriptService!!.stopScriptInterval(nonScriptEntity)
-  }
-
-  @Test
-  fun stopScriptInterval_noIntervalSetBefore_doesNothing() {
-    val argument = ArgumentCaptor.forClass(ScriptComponent::class.java)
-
-    scriptService!!.stopScriptInterval(scriptEntity)
-
-    verify<EntityService>(entityService).getComponent(scriptEntity, ScriptComponent::class.java)
-
-    verify<MessageApi>(akkaApi, never()).sendToEntity(any())
-    verify<EntityService>(entityService, never()).updateComponent(argument.capture())
-  }
-
-  @Test
-  fun stopScriptInterval_intervalSetBefore_stopsInterval() {
-
-    scriptService!!.startScriptInterval(scriptEntity, 2000, CALLBACK_FN_NAME)
-    scriptService!!.stopScriptInterval(scriptEntity)
-
-    verify<EntityService>(entityService).getComponent(scriptEntity, ScriptComponent::class.java)
-    verify<MessageApi>(akkaApi).sendToEntity(any(EntityKillMessage::class.java!!))
   }
 
   companion object {

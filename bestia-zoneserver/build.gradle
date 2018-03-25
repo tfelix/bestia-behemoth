@@ -31,5 +31,6 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
     testCompile group: 'com.hazelcast', name: 'hazelcast', version: hazelcastVersion, classifier: 'tests'
+    testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.5.0'
     testCompile project(':bestia-server-commons')
 }

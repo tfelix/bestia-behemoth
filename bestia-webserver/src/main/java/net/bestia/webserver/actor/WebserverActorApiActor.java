@@ -1,30 +1,24 @@
 package net.bestia.webserver.actor;
 
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.socket.WebSocketSession;
-
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import net.bestia.messages.account.AccountLoginRequest;
-import net.bestia.messages.account.AccountRegistration;
-import net.bestia.messages.account.AccountRegistrationReply;
-import net.bestia.messages.account.ChangePasswordRequest;
-import net.bestia.messages.account.ServerStatusMessage;
-import net.bestia.messages.account.UserNameCheck;
+import net.bestia.messages.account.*;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.CloseConnection;
 import net.bestia.webserver.messages.web.OpenConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.socket.WebSocketSession;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.util.Objects;
 
 /**
  * Typed actor to connect to the webserver in order to query the zoneservers.
@@ -44,7 +38,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		this.uplink = Objects.requireNonNull(uplink);
 		
-		final Props connectionProps = ClientConnectionsActor.props(uplink);
+		final Props connectionProps = ConnectionsActor.props(uplink);
 		final ActorContext context = TypedActor.context();
 		this.connections = context.actorOf(connectionProps, "connections");
 	}

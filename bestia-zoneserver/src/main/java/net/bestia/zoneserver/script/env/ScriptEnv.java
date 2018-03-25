@@ -3,7 +3,6 @@ package net.bestia.zoneserver.script.env;
 import net.bestia.zoneserver.script.ScriptApi;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * The {@link ScriptEnv} creates and setup an execution environment of each
@@ -16,14 +15,8 @@ import java.util.Objects;
  */
 public abstract class ScriptEnv {
 
-	private final ScriptApi scriptApi;
 
-	public ScriptEnv(ScriptApi scriptApi) {
-
-		this.scriptApi = Objects.requireNonNull(scriptApi);
-	}
-	
-	public void setupEnvironment(Map<String, Object> bindings) {
+	public void setupEnvironment(ScriptApi scriptApi, Map<String, Object> bindings) {
 		bindings.put("BAPI", scriptApi);
 		customEnvironmentSetup(bindings);
 	}

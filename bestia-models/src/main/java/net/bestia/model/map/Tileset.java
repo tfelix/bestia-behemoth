@@ -1,17 +1,12 @@
 package net.bestia.model.map;
 
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import net.bestia.model.geometry.Size;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.bestia.model.geometry.Size;
 
 /**
  * Data of a tileset which is used by the bestia map creation. It holds all
@@ -154,7 +149,7 @@ public class Tileset implements Serializable {
 	 * Checks if this tile is contained within this tileset. This is done via
 	 * gid comparison.
 	 * 
-	 * @param tile
+	 * @param gid
 	 *            The tile to check if it is contained within this tileset.
 	 * @return TRUE if this tile belongs to this tileset. FALSE otherwise.
 	 */

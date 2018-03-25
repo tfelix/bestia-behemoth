@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.map;
 
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
@@ -8,7 +8,6 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.TilesetService;
-import net.bestia.zoneserver.map.MapService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

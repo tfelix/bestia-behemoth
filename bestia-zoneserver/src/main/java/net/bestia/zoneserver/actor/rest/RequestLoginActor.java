@@ -11,7 +11,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.connection.LoginService;
+import net.bestia.zoneserver.client.LoginService;
 
 /**
  * Performs a login operation and generates a new login token for the account.

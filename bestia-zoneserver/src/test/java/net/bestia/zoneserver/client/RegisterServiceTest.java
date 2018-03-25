@@ -1,8 +1,6 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.client;
 
-import static org.mockito.Mockito.when;
-
-import net.bestia.zoneserver.connection.RegisterService;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterServiceTest {
