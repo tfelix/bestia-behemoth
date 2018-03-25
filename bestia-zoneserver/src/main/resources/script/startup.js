@@ -5,9 +5,6 @@
 
 function main() {
 	Bestia.info("Bestia Behemoth startup script.");
-	Bestia.info("engine: MYSCRIPT " + SNAME);
-	Bestia.info("engine: MYTYPE " + STYPE);
-	
 	
 	Bestia.spawnMob("blob", 12, 15);
 	

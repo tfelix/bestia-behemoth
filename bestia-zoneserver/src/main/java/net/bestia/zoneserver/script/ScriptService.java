@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script;
 
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
+import net.bestia.zoneserver.script.env.SimpleScriptEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +67,9 @@ public class ScriptService {
     final ScriptAnchor ident = ScriptAnchor.fromString(name);
     final CompiledScript script = resolveScript(ident);
 
-    //final ScriptExecutionService funcExec = new ScriptExecutionService("main", env, script);
-    // setupScriptBindings(script, ident, new SimpleBindings());
-    scriptExecutionService.execute(ident, script, null);
+    final SimpleScriptEnv scriptEnv = new SimpleScriptEnv();
+
+    scriptExecutionService.execute(ident.getFunctionName(), script, scriptEnv);
   }
 
   /**
@@ -90,6 +91,6 @@ public class ScriptService {
     final ScriptAnchor anchor = ScriptAnchor.Companion.fromString(callbackAnchorString);
     final CompiledScript script = resolveScript(anchor);
 
-    scriptExecutionService.execute(anchor, script, null);
+    scriptExecutionService.execute(anchor.getFunctionName(), script, null);
   }
 }

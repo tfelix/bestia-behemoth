@@ -1,17 +1,16 @@
 package net.bestia.zoneserver;
 
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-
+import akka.actor.ActorSystem;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import akka.actor.ActorSystem;
 import net.bestia.zoneserver.actor.SpringExtension;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Configures the app context for testing operations.
@@ -19,7 +18,8 @@ import net.bestia.zoneserver.actor.SpringExtension;
  * @author Thomas Felix
  *
  */
-@SpringBootConfiguration
+@TestConfiguration
+@ActiveProfiles("test")
 public class TestZoneConfiguration {
 
 	@Bean
@@ -33,13 +33,9 @@ public class TestZoneConfiguration {
 	@Bean
 	@Primary
 	public ActorSystem actorSystem(ApplicationContext appCtx) {
-		
 		final Config akkaConfig = ConfigFactory.load("akka-test");
-		
 		final ActorSystem system = ActorSystem.create("testSystem", akkaConfig);
-
 		SpringExtension.initialize(system, appCtx);
-		
 		return system;
 	}
 }

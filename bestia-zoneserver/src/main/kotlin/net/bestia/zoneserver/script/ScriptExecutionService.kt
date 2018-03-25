@@ -21,25 +21,7 @@ class ScriptExecutionService(
         private val scriptApi: ScriptRootApi
 ) {
 
-  /**
-   * This prepares the script bindings for usage inside this script and
-   * finally calls the given function name.
-   */
-  private fun callFunction(script: CompiledScript, functionName: String) {
-    try {
-
-      script.eval(script.engine.context)
-      (script.engine as Invocable).invokeFunction(functionName)
-
-    } catch (e: NoSuchMethodException) {
-      LOG.error("Error calling script. Script does not contain {}() function.", functionName)
-    } catch (e: ScriptException) {
-      LOG.error("Error during script  {} execution.", e)
-    }
-
-  }
-
-  fun execute(anchor: ScriptAnchor, script: CompiledScript, env: ScriptEnv) {
+  fun execute(fnName: String, script: CompiledScript, env: ScriptEnv) {
     val engine = script.engine
 
     // Setup the script environment.
@@ -50,11 +32,11 @@ class ScriptExecutionService(
     val inv = script.engine as Invocable
 
     try {
-      inv.invokeFunction(anchor.functionName)
+      inv.invokeFunction(fnName)
     } catch (e: NoSuchMethodException) {
-      LOG.error("Function {} is missing in script.", anchor.functionName, e)
+      LOG.error(e) { "Function $fnName is missing in script." }
     } catch (e: ScriptException) {
-      LOG.error("Error during script execution.", e)
+      LOG.error(e) { "Error during script execution." }
     }
   }
 }

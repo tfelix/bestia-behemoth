@@ -16,12 +16,14 @@ private val LOG = KotlinLogging.logger { }
 class ScriptRootApi(
         private val entityService: EntityService
 ) {
-  fun info(text: String) {
+  fun info(text: String): ScriptRootApi {
     LOG.info { text }
+    return this
   }
 
-  fun debug(text: String) {
+  fun debug(text: String): ScriptRootApi {
     LOG.debug { text }
+    return this
   }
 
   fun entity(entityId: Long): EntityApi {
@@ -30,10 +32,6 @@ class ScriptRootApi(
             entityId = entityId,
             entityService = entityService,
             rootApi = this)
-  }
-
-  fun entities(x: Long, y: Long, w: Long, h: Long) {
-
   }
 
   fun entity(blueprint: String = "") : EntityApi {

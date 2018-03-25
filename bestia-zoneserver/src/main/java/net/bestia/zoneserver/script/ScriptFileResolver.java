@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.configuration.StaticConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,7 @@ import java.nio.file.Paths;
 
 /**
  * This class looks up a path for a script file. It is determined by the name of
- * the script and the type of the script.
+ * the script and the configured base dir of the script.
  *
  * @author Thomas Felix
  */
@@ -21,11 +20,18 @@ import java.nio.file.Paths;
 public class ScriptFileResolver {
 
   private final static Logger LOG = LoggerFactory.getLogger(ScriptFileResolver.class);
+
   private final String scriptBasePath;
+  private final boolean isClasspath;
 
-  public ScriptFileResolver(StaticConfig config) {
+  public ScriptFileResolver(String scriptBasePath) {
 
-    this.scriptBasePath = config.getScriptDir();
+    this.isClasspath = scriptBasePath.startsWith("classpath:");
+    if(this.isClasspath) {
+      this.scriptBasePath = scriptBasePath.substring("classpath:".length());
+    } else {
+      this.scriptBasePath = scriptBasePath;
+    }
   }
 
   /**
@@ -52,7 +58,7 @@ public class ScriptFileResolver {
       name += ".js";
     }
 
-    if (!name.startsWith("/")) {
+      if (!name.startsWith("/")) {
       name = "/" + name;
     }
 
@@ -60,7 +66,7 @@ public class ScriptFileResolver {
       throw new IllegalArgumentException("Script path can not contain ..");
     }
 
-    if (scriptBasePath.length() == 0) {
+    if(isClasspath) {
       return getScriptFromClasspath(name);
     } else {
       return getScriptFromFolder(name);
@@ -68,14 +74,14 @@ public class ScriptFileResolver {
   }
 
   private File getScriptFromFolder(String scriptPath) {
-    final Path p = Paths.get(scriptBasePath, scriptPath.split("/"));
+    final Path p = Paths.get(scriptBasePath, scriptPath.split("\\/"));
     return p.toFile();
   }
 
   private File getScriptFromClasspath(String scriptPath) {
-    final Path p = Paths.get("script", scriptPath.split("/"));
+    final Path p = Paths.get("script", scriptPath.split("\\/"));
     try {
-      URL resource = ScriptFileResolver.class.getResource(p.toString());
+      URL resource = ScriptFileResolver.class.getResource("/" + p.toString());
       return Paths.get(resource.toURI()).toFile();
     } catch (NullPointerException | URISyntaxException e) {
       throw new IllegalArgumentException("File does not exist: " + p.toString(), e);

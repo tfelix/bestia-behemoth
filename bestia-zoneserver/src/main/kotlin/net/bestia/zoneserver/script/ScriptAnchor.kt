@@ -31,24 +31,25 @@ data class ScriptAnchor(
      */
     @JvmStatic
     fun fromString(anchorStr: String): ScriptAnchor {
-      val token = anchorStr.split(":").toTypedArray()
+      val token = anchorStr.split(":")
+
       val funcName = if (token.size == 2) {
         token[1]
       } else {
         MAIN_FUNC
       }
 
-      var scriptName = token[0]
-
-      // Remove .js from the end.
-      if (scriptName.endsWith(".js")) {
-        scriptName = scriptName.replace(".js", "")
+      var scriptName = if(token[0].endsWith(".js")) {
+        token[0]
+      } else {
+        token[0] + ".js"
       }
 
       // Remove trailing slash
       if (scriptName.startsWith("/")) {
         scriptName = scriptName.substring(1)
       }
+
       return ScriptAnchor(scriptName, funcName)
     }
   }

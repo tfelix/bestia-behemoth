@@ -80,26 +80,6 @@ class ScriptServiceTest {
 
   }
 
-  @Test(expected = NullPointerException::class)
-  fun startScriptInterval_nullEntity_throws() {
-    scriptService!!.startScriptInterval(null, 123, CALLBACK_FN_NAME)
-  }
-
-  @Test(expected = IllegalArgumentException::class)
-  fun startScriptInterval_negativeDelay_throws() {
-    scriptService!!.startScriptInterval(scriptEntity, -123, CALLBACK_FN_NAME)
-  }
-
-  @Test(expected = IllegalArgumentException::class)
-  fun startScriptInterval_nullDelay_throws() {
-    scriptService!!.startScriptInterval(scriptEntity, 0, CALLBACK_FN_NAME)
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun startScriptInterval_nullCallbackName_throws() {
-    scriptService!!.startScriptInterval(scriptEntity, 1230, null)
-  }
-
   @Test
   fun startScriptInterval_validParams_startsActorAndSendMsg() {
 
