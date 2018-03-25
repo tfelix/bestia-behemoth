@@ -18,7 +18,7 @@ import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.zoneserver.configuration.MapGenConfiguration;
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import net.bestia.zoneserver.configuration.StaticConfig;
 import net.bestia.zoneserver.map.MapService;
 
 @Component
@@ -34,13 +34,13 @@ public class MapGeneratorClientActor extends AbstractActor implements MasterConn
 	private MapNodeGenerator nodeGenerator;
 	private ActorRef master;
 
-	private final StaticConfigService config;
+	private final StaticConfig config;
 	private final MapGenDAO mapGenDao;
 	private final MapService mapService;
 
 	@Autowired
-	public MapGeneratorClientActor(StaticConfigService config, @Qualifier("localMapGenDao") MapGenDAO mapGenDao,
-			MapGenConfiguration genConfig, MapService mapService) {
+	public MapGeneratorClientActor(StaticConfig config, @Qualifier("localMapGenDao") MapGenDAO mapGenDao,
+                                 MapGenConfiguration genConfig, MapService mapService) {
 
 		this.genConfig = genConfig;
 

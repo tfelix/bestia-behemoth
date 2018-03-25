@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.entity.EntityService
+import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
 
@@ -11,6 +12,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
+@Service
 class ScriptRootApi(
         private val entityService: EntityService
 ) {

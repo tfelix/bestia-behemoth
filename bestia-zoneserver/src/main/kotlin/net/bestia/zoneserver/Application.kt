@@ -11,7 +11,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
  *
  * @author Thomas Felix
  */
-@SpringBootApplication(scanBasePackages = ["net.bestia"], exclude = [HazelcastAutoConfiguration::class])
+@SpringBootApplication(
+        scanBasePackages = ["net.bestia"],
+        exclude = [HazelcastAutoConfiguration::class]
+)
 @EnableJpaRepositories(basePackages = ["net.bestia.model.dao"])
 @EntityScan(basePackages = ["net.bestia.model.domain"])
 class Application

@@ -1,18 +1,18 @@
 package net.bestia.zoneserver.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * Holds configuration variables for the server. These config variables are
- * either obtained by application.properties or via commandline attributes. They
+ * either obtained by application.yml or via commandline attributes. They
  * are not meant to be changed during runtime.
  * 
  * @author Thomas Felix
  *
  */
-@Service
-public class StaticConfigService {
+@Component
+public class StaticConfig {
 
 	@Value("${server.name}")
 	private String serverName;
@@ -23,7 +23,7 @@ public class StaticConfigService {
 	/**
 	 * Directory of the script files.
 	 */
-	@Value("${server.scriptDir}")
+	@Value("${script.path}")
 	private String scriptDir;
 
 	@Value("${server.version}")

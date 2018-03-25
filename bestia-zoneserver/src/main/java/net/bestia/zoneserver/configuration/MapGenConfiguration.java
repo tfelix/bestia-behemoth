@@ -1,17 +1,5 @@
 package net.bestia.zoneserver.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-
 import de.tfelix.bestia.worldgen.MapNodeGenerator;
 import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO;
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
@@ -22,6 +10,16 @@ import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.map.generator.MapGeneratorConstants;
 import net.bestia.zoneserver.map.generator.TileGenerationJob;
 import net.bestia.zoneserver.map.generator.TileSaveJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Holds configuration for the local map generator.
@@ -30,7 +28,6 @@ import net.bestia.zoneserver.map.generator.TileSaveJob;
  *
  */
 @Configuration
-@Profile("production")
 public class MapGenConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MapGenConfiguration.class);
@@ -75,7 +72,7 @@ public class MapGenConfiguration {
 	 * @return The used {@link MapNodeGenerator}.
 	 */
 	public MapNodeGenerator mapNodeGenerator(
-			StaticConfigService config,
+			StaticConfig config,
 			MasterConnector connector,
 			MapGenDAO dao,
 			MapService mapService) {

@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import net.bestia.zoneserver.configuration.StaticConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +18,10 @@ import java.util.Objects;
 @Component
 public class ServerVersionChatCommand extends BaseChatCommand {
 
-	private final StaticConfigService config;
+	private final StaticConfig config;
 
 	@Autowired
-	public ServerVersionChatCommand(MessageApi akkaApi, StaticConfigService config) {
+	public ServerVersionChatCommand(MessageApi akkaApi, StaticConfig config) {
 		super(akkaApi);
 
 		this.config = Objects.requireNonNull(config);

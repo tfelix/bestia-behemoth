@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.env
 
-import net.bestia.zoneserver.script.api.ScriptApi
+import net.bestia.zoneserver.script.api.ScriptRootApi
 
 /**
  * The [ScriptEnv] creates and setup an execution environment of each
@@ -12,7 +12,7 @@ import net.bestia.zoneserver.script.api.ScriptApi
  */
 abstract class ScriptEnv {
 
-  fun setupEnvironment(scriptApi: ScriptApi, bindings: MutableMap<String, Any?>) {
+  fun setupEnvironment(scriptApi: ScriptRootApi, bindings: MutableMap<String, Any?>) {
     bindings["Bestia"] = scriptApi
     customEnvironmentSetup(bindings)
   }

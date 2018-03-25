@@ -29,7 +29,6 @@ import java.net.UnknownHostException;
  *
  */
 @Configuration
-@Profile("production")
 public class AkkaConfiguration implements DisposableBean {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);

@@ -39,7 +39,7 @@ public class ZoneBaseConfiguration {
 
 	@Bean
 	@Primary
-	public EntityCache entityRecycler(StaticConfigService config) {
+	public EntityCache entityRecycler(StaticConfig config) {
 		return new EntityCache(config.getEntityBufferSize());
 	}
 }

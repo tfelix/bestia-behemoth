@@ -51,7 +51,7 @@ public class ScriptCache {
    */
   public void cacheFolder(Path scriptBasePath) {
 
-    LOG.info("Adding folder {} of scripts {} to script cache.", scriptBasePath);
+    LOG.info("Adding folder {} to script cache.", scriptBasePath);
 
     // Starting to compile the scripts.
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(scriptBasePath)) {

@@ -6,6 +6,10 @@ import net.bestia.messages.entity.EntityComponentSyncMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Transforms the components into messages usable by the clients for updating their data model.
+ */
+@org.springframework.stereotype.Component
 public class EntityComponentSyncMessageFactory {
 
   private final static Logger LOG = LoggerFactory.getLogger(EntityComponentSyncMessageFactory.class);

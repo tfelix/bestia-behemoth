@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.script.api.ScriptApi
+import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.ScriptEnv
 import org.springframework.stereotype.Service
 import javax.script.CompiledScript
@@ -18,8 +18,7 @@ private val LOG = KotlinLogging.logger {  }
  */
 @Service
 class ScriptExecutionService(
-        private val fnName: String,
-        private val scriptApi: ScriptApi
+        private val scriptApi: ScriptRootApi
 ) {
 
   /**
@@ -46,15 +45,14 @@ class ScriptExecutionService(
     // Setup the script environment.
     val bindings = engine.createBindings()
     env.setupEnvironment(scriptApi, bindings)
-
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
     val inv = script.engine as Invocable
 
     try {
-      inv.invokeFunction(fnName)
+      inv.invokeFunction(anchor.functionName)
     } catch (e: NoSuchMethodException) {
-      LOG.error("Function {} is missing in script.", fnName, e)
+      LOG.error("Function {} is missing in script.", anchor.functionName, e)
     } catch (e: ScriptException) {
       LOG.error("Error during script execution.", e)
     }

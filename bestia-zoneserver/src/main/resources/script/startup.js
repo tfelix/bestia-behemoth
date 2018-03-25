@@ -4,13 +4,13 @@
  */
 
 function main() {
-	BAPI.info("Bestia Behemoth startup script.");
-	BAPI.info("engine: MYSCRIPT " + SNAME);
-	BAPI.info("engine: MYTYPE " + STYPE);
+	Bestia.info("Bestia Behemoth startup script.");
+	Bestia.info("engine: MYSCRIPT " + SNAME);
+	Bestia.info("engine: MYTYPE " + STYPE);
 	
 	
-	BAPI.spawnMob("blob", 12, 15);
+	Bestia.spawnMob("blob", 12, 15);
 	
-	var eid = BAPI.createEntity(point(10, 10));
-	BAPI.setInterval(eid, 'map/test_spawner:checkEntities', 5000)
+	var eid = Bestia.createEntity(point(10, 10));
+	Bestia.setInterval(eid, 'map/test_spawner:checkEntities', 5000)
 }

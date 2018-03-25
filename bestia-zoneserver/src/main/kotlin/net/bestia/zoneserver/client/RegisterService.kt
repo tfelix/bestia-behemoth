@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.client
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.zoneserver.configuration.StaticConfigService
+import net.bestia.zoneserver.configuration.StaticConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
@@ -18,8 +18,8 @@ import java.util.*
  */
 @Service
 class RegisterService @Autowired
-constructor(config: StaticConfigService) {
-  private val config: StaticConfigService
+constructor(config: StaticConfig) {
+  private val config: StaticConfig
 
   private class RecaptchaResponse {
 

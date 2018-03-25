@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.client;
 
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import net.bestia.zoneserver.configuration.StaticConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class RegisterServiceTest {
 	private RegisterService register;
 
 	@Mock
-	private StaticConfigService config;
+	private StaticConfig config;
 
 	@Before
 	public void setup() {
