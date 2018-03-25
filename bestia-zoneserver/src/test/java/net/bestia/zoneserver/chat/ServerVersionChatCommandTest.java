@@ -1,17 +1,17 @@
 package net.bestia.zoneserver.chat;
 
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.chat.ChatMessage;
+import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.messages.MessageApi;
-import net.bestia.messages.chat.ChatMessage;
-import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.configuration.StaticConfigService;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServerVersionChatCommandTest {
@@ -51,7 +51,7 @@ public class ServerVersionChatCommandTest {
 	public void executeCommand_validCommand_sendsServerVersion() {
 		cmd.executeCommand(acc, "/version");
 		
-		verify(akkaApi).sendToClient(any(ChatMessage.class));
+		verify(akkaApi).sendToClient(eq(acc.getId()), any(ChatMessage.class));
 	}
 
 }

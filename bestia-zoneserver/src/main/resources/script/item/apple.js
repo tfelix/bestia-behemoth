@@ -1,4 +1,6 @@
 
-//sendChat('TEXT');
-
-user.getStatusPoints().addHp(10);
+function main() {
+  Bestia.findEntity(USER_ID)
+    .condition
+      .addHp(10)
+}

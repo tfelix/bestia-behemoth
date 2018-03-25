@@ -8,7 +8,7 @@ import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.component.LatencyInfo;
-import net.bestia.zoneserver.connection.LatencyService;
+import net.bestia.zoneserver.client.LatencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

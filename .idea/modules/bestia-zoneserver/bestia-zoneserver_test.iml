@@ -89,7 +89,6 @@
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-cluster_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-persistence_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
-    <orderEntry type="library" name="Gradle: org.flywaydb:flyway-core:5.0.7" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.15.0" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-testkit_2.12:2.5.6" level="project" />
@@ -206,7 +205,6 @@
     <orderEntry type="library" name="Gradle: com.github.jnr:jffi:native:1.2.16" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-x86asm:1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-pool2:2.4.3" level="project" />
-    <orderEntry type="module" module-name="bestia-server-commons_test" scope="TEST" />
   </component>
   <component name="TestModuleProperties" production-module="bestia-zoneserver_main" />
 </module>

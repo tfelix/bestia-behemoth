@@ -1,17 +1,13 @@
 package net.bestia.entity.factory;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.component.*;
+import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.SpriteInfo;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.zoneserver.bestia.InventoryService;
-import net.entity.factory.Blueprint;
-import net.entity.factory.EntityFactory;
-import net.entity.factory.PlayerBestiaEntityFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,27 +15,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-
-import net.entity.Entity;
-import net.bestia.entity.component.Component;
-import net.entity.component.ComponentSetter;
-import net.entity.component.EquipComponent;
-import net.entity.component.InventoryComponent;
-import net.entity.component.LevelComponent;
-import net.entity.component.LevelComponentSetter;
-import net.entity.component.PlayerComponent;
-import net.entity.component.PlayerComponentSetter;
-import net.entity.component.PlayerStatusComponentSetter;
-import net.entity.component.PositionComponent;
-import net.entity.component.PositionComponentSetter;
-import net.entity.component.StatusComponent;
-import net.entity.component.VisibleComponent;
-import net.entity.component.VisibleComponentSetter;
-import bestia.model.domain.Bestia;
-import bestia.model.domain.PlayerBestia;
-import bestia.model.domain.SpriteInfo;
-import bestia.model.geometry.Point;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerBestiaEntityFactoryTest {

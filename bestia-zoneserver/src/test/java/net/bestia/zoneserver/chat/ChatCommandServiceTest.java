@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.chat;
 
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,8 +9,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import bestia.model.dao.AccountDAO;
-import bestia.model.domain.Account;
+import java.util.Arrays;
+
+import static org.mockito.Mockito.*;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChatCommandServiceTest {

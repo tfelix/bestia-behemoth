@@ -1,11 +1,5 @@
 package net.bestia.zoneserver.actor.ui;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -15,7 +9,12 @@ import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.connection.ClientVarService;
+import net.bestia.zoneserver.client.ClientVarService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
@@ -36,7 +35,7 @@ public class ClientVarActor extends ClientMessageDigestActor {
 	private final ActorRef sendClient;
 
 	@Autowired
-	public ClientVarActor(ClientVarService cvarService, 
+	public ClientVarActor(ClientVarService cvarService,
 			ActorRef msgHub) {
 
 		this.cvarService = Objects.requireNonNull(cvarService);

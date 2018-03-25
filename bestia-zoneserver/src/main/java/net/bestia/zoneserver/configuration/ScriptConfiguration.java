@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.configuration;
 
-import net.bestia.zoneserver.script.ScriptApi;
+import net.bestia.zoneserver.script.api.ScriptApi;
 import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptFileResolver;

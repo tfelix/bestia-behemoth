@@ -1,8 +1,6 @@
-function onTouch() {
+function onEffectExec() {
 	Bestia.info('Hello from script.');
 }
-
-print('Wird das gecalled?');
 
 function main() {
 
@@ -16,9 +14,8 @@ function main() {
 	Bestia.info('Script: main().');
 	
 	var entityId = Bestia.createEntity();
-	
+
+	Bestia.setCallbackOnce('onEffectExec', 1000)
 	Bestia.setLivetime(entityId, 12000);
-	// macht wenig sinn, da die meisten scripte 
-	//Bestia.setScript(entityId, MYSELF, MYTYPE);
 	Bestia.setInterval(entityId, 1000, 'onTouch');
 }

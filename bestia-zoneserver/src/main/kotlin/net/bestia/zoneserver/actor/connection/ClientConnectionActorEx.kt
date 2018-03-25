@@ -75,12 +75,6 @@ class ClientConnectionActorEx(
 
     when (msg.state) {
       ClientConnectMessage.ConnectionState.CONNECTED -> {
-        context.unwatch(tempNotAuthenticatedSocket)
-        tempNotAuthenticatedSocket?.tell(PoisonPill.getInstance(), self)
-        tempNotAuthenticatedSocket = msg.webserverRef
-        context.watch(tempNotAuthenticatedSocket)
-      }
-      ClientConnectMessage.ConnectionState.CONNECTED -> {
         context.unwatch(authenticatedSocket)
         authenticatedSocket?.tell(PoisonPill.getInstance(), self)
         authenticatedSocket = msg.webserverRef

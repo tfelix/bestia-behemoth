@@ -1,15 +1,14 @@
 package net.bestia.entity.component;
 
-import net.entity.component.StatusComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import bestia.model.domain.ConditionValues;
-import bestia.model.domain.Element;
-import bestia.model.domain.StatusPoints;
-import bestia.model.domain.StatusPointsImpl;
-import bestia.model.entity.StatusBasedValuesImpl;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsImpl;
+import net.bestia.model.entity.StatusBasedValuesImpl;
 
 public class StatusComponentTest {
 	

@@ -1,22 +1,21 @@
 package net.bestia.zoneserver.chat;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
-
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.client.LoginService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MaintenanceCommandTest {
@@ -63,7 +62,7 @@ public class MaintenanceCommandTest {
 	public void executeCommand_wrongArgs_sendsMessage() {
 		cmd.executeCommand(acc, "/maintenance bla");
 
-		verify(akkaApi).sendToClient(any(ChatMessage.class));
+		verify(akkaApi).sendToClient(eq(acc.getId()), any(ChatMessage.class));
 		verify(config, times(0)).setMaintenanceMode(any());
 		verify(loginService, times(0)).logoutAllUsersBelow(any());
 	}

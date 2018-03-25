@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script.env
 
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.script.ScriptApi
+import net.bestia.zoneserver.script.api.ScriptApi
 import org.junit.Test
 import org.mockito.Mock
 

@@ -1,19 +1,18 @@
 package net.bestia.zoneserver.actor.connection;
 
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
 import akka.actor.PoisonPill;
 import net.bestia.messages.client.PingMessage;
-import net.bestia.zoneserver.connection.LatencyService;
+import net.bestia.zoneserver.client.LatencyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import scala.concurrent.duration.Duration;
+
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Periodically pings the client to receive the pong request.

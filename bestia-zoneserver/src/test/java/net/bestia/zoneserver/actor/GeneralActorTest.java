@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.actor;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import akka.actor.AbstractActor;
+import net.bestia.util.PackageLoader;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
+import net.bestia.zoneserver.actor.entity.EntityActor;
+import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import bestia.util.PackageLoader;
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
-import net.bestia.zoneserver.actor.entity.EntityActor;
-import net.bestia.zoneserver.actor.zone.ClusterControlActor;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Especially testing if all actors are annotated correctly.
@@ -62,7 +61,7 @@ public class GeneralActorTest {
 	}
 
 	/**
-	 * {@link BestiaRoutingActor} implementations should have a public static
+	 * Implementations should have a public static
 	 * NAME field.
 	 */
 	@Test

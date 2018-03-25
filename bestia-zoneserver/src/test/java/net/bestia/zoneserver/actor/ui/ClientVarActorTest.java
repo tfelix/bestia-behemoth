@@ -1,5 +1,14 @@
 package net.bestia.zoneserver.actor.ui;
 
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.testkit.javadsl.TestKit;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.ui.ClientVarRequestMessage;
+import net.bestia.model.domain.ClientVar;
+import net.bestia.zoneserver.actor.ActorTestConfig;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.client.ClientVarService;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,16 +22,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.testkit.javadsl.TestKit;
-import net.bestia.messages.MessageApi;
-import net.bestia.messages.ui.ClientVarRequestMessage;
-import net.bestia.model.domain.ClientVar;
-import net.bestia.zoneserver.actor.ActorTestConfig;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.connection.ClientVarService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

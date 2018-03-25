@@ -1,17 +1,16 @@
 package net.bestia.zoneserver.actor.rest;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.account.ChangePasswordRequest;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.connection.AccountService;
+import net.bestia.zoneserver.client.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * Changes the password of a user.

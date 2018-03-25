@@ -67,6 +67,9 @@ public class PlayerBestia implements Serializable {
   @JsonIgnore
   private long entityId;
 
+  @ManyToOne
+  @JoinColumn(name = "PARTY_ID")
+  @JsonProperty("p")
   private Party party;
 
   /**

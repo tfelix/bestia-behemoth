@@ -1,23 +1,21 @@
 package net.bestia.zoneserver.actor.connection;
 
-import java.util.Objects;
-
-import net.bestia.messages.ClientFromMessageEnvelope;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.ClientFromMessageEnvelope;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.client.ClientConnectionStatusMessage;
-import net.bestia.messages.client.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.client.ClientConnectMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.client.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * This actor holds the connection details of a client and is able to redirect
@@ -97,9 +95,9 @@ public class ClientConnectionActor extends AbstractActor {
 
 			handleLoginAuthRequest((LoginAuthMessage) payload);
 
-		} else if (payload instanceof ClientConnectionStatusMessage) {
+		} else if (payload instanceof ClientConnectMessage) {
 
-			handleConnectionStatus((ClientConnectionStatusMessage) payload);
+			handleConnectionStatus((ClientConnectMessage) payload);
 
 		} else {
 
@@ -134,8 +132,8 @@ public class ClientConnectionActor extends AbstractActor {
 	/**
 	 * Gets called if a new connection was established.
 	 */
-	private void handleConnectionStatus(ClientConnectionStatusMessage msg) {
-		if (msg.getState() == ConnectionState.CONNECTED) {
+	private void handleConnectionStatus(ClientConnectMessage msg) {
+		if (msg.getState() == ClientConnectMessage.ConnectionState.CONNECTED) {
 			initClientConnection(msg);
 		} else {
 			onClientConnectionClosed();
@@ -145,7 +143,7 @@ public class ClientConnectionActor extends AbstractActor {
 	/**
 	 * Initializes a client connection.
 	 */
-	private void initClientConnection(ClientConnectionStatusMessage msg) {
+	private void initClientConnection(ClientConnectMessage msg) {
 
 		LOG.debug("Client has connected: {}.", msg);
 		

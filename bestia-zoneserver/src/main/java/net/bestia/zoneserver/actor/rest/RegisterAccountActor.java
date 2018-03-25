@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.actor.rest;
 
-import java.util.Objects;
-
+import akka.actor.AbstractActor;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.zoneserver.client.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import net.bestia.messages.account.AccountRegistration;
-import net.bestia.zoneserver.connection.AccountService;
+import java.util.Objects;
 
 /**
  * Performs an account registration procedure.

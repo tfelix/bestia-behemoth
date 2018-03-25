@@ -31,9 +31,6 @@ class ScriptServiceTest {
   private val nonScriptEntity: Entity? = null
 
   @Mock
-  private val resolver: ScriptResolver? = null
-
-  @Mock
   private val scriptComponent: ScriptComponent? = null
 
   @Mock
@@ -56,7 +53,6 @@ class ScriptServiceTest {
     `when`(entityService.getComponent(VALID_SCRIPT_COMP_ID, ScriptComponent::class.java))
             .thenReturn(Optional.of(scriptComponent))
 
-    scriptService = ScriptService(entityService, cache, resolver)
   }
 
   @Test

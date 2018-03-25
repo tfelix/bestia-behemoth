@@ -1,24 +1,15 @@
 package net.bestia.zoneserver.actor.connection;
 
-import java.util.Objects;
-
+import akka.actor.AbstractActor;
+import net.bestia.messages.client.PongMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.client.LatencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import net.bestia.messages.client.PongMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.connection.LatencyService;
+import java.util.Objects;
 
-/**
- * This actor holds the connection details of a client and is able to redirect
- * messages towards this client. It keeps track of the latency checks and
- * possibly disconnects the client if it does not reply in time.
- * 
- * @author Thomas Felix
- *
- */
 @Component
 @Scope("prototype")
 public class LatencyManagerActor extends AbstractActor {

@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import org.slf4j.Logger;
@@ -8,9 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.script.*;
+import javax.script.CompiledScript;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -28,45 +26,18 @@ public class ScriptService {
 
   private final EntityService entityService;
   private final ScriptCache scriptCache;
-  private final ScriptResolver resolver;
+  private final ScriptExecutionService scriptExecutionService;
 
   @Autowired
   public ScriptService(
           EntityService entityService,
-          ScriptCache cache,
-          ScriptResolver resolver) {
+          ScriptExecutionService scriptExecutionService,
+          ScriptCache cache) {
 
     this.entityService = Objects.requireNonNull(entityService);
     this.scriptCache = Objects.requireNonNull(cache);
-    this.resolver = Objects.requireNonNull(resolver);
+    this.scriptExecutionService = Objects.requireNonNull(scriptExecutionService);
 
-  }
-
-  /**
-   * This prepares the script bindings for usage inside this script and
-   * finally calls the given function name.
-   */
-  private synchronized void callFunction(CompiledScript script, String functionName) {
-    try {
-
-      script.eval(script.getEngine().getContext());
-      ((Invocable) script.getEngine()).invokeFunction(functionName);
-
-    } catch (NoSuchMethodException e) {
-      LOG.error("Error calling script. Script does not contain {}() function.", functionName);
-    } catch (ScriptException e) {
-      LOG.error("Error during script  {} execution.", e);
-    }
-  }
-
-  /**
-   * This prepares the script bindings for usage inside this script and
-   * finally calls the given function name.
-   */
-  private synchronized void setupScriptBindings(CompiledScript script, ScriptAnchor ident, Bindings bindings) {
-
-    final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-    scriptBindings.putAll(bindings);
   }
 
   private CompiledScript resolveScript(ScriptAnchor scriptAnchor) {
@@ -92,13 +63,12 @@ public class ScriptService {
     Objects.requireNonNull(name);
     LOG.debug("Calling script: {}.", name);
 
-    final ScriptAnchor ident = resolver.resolveScriptIdent(name);
+    final ScriptAnchor ident = ScriptAnchor.fromString(name);
     final CompiledScript script = resolveScript(ident);
 
-    //final ScriptFunctionExecutor funcExec = new ScriptFunctionExecutor("main", env, script);
-
-    setupScriptBindings(script, ident, new SimpleBindings());
-    callFunction(script, ident.getFunctionName());
+    //final ScriptExecutionService funcExec = new ScriptExecutionService("main", env, script);
+    // setupScriptBindings(script, ident, new SimpleBindings());
+    scriptExecutionService.execute(ident, script, null);
   }
 
   /**
@@ -120,28 +90,6 @@ public class ScriptService {
     final ScriptAnchor anchor = ScriptAnchor.Companion.fromString(callbackAnchorString);
     final CompiledScript script = resolveScript(anchor);
 
-    callFunction(script, anchor.getFunctionName());
-  }
-
-  /**
-   * Starts a recurring script interval attached to an entity. After the given
-   * delay timer in ms the script call will be invoked. The scripts must be
-   * attached to an entity since this is the only mechanism to allow time
-   * based trigger control of scripts.
-   */
-  public void startScriptInterval(Entity entity, int delay, String scriptAnchor) {
-    if (delay <= 0) {
-      throw new IllegalArgumentException("Delay must be bigger then 0.");
-    }
-
-    Objects.requireNonNull(entity);
-    Objects.requireNonNull(scriptAnchor);
-
-    final ScriptComponent scriptComp = entityService.getComponentOrCreate(entity, ScriptComponent.class);
-
-    final String scriptUuid = UUID.randomUUID().toString();
-    final ScriptComponent.ScriptCallback callback = new ScriptComponent.ScriptCallback(scriptUuid, ScriptComponent.TriggerType.ON_INTERVAL, scriptAnchor, delay);
-    scriptComp.addCallback(callback);
-    entityService.updateComponent(scriptComp);
+    scriptExecutionService.execute(anchor, script, null);
   }
 }
