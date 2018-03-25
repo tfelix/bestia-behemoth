@@ -1,18 +1,14 @@
 package net.bestia.zoneserver.service;
 
-import net.bestia.zoneserver.connection.LatencyService;
+import com.hazelcast.core.HazelcastInstance;
+import net.bestia.HazelMock;
+import net.bestia.zoneserver.client.LatencyService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.hazelcast.core.HazelcastInstance;
-
-import net.bestia.HazelMock;
-
-
 public class LatencyServiceTest {
 
-	private final static BasicMocks mocks = new BasicMocks();
 	private final static HazelcastInstance hz = HazelMock.hazelcastMock();
 	private static final long ACC_ID = 789;
 	
@@ -21,11 +17,6 @@ public class LatencyServiceTest {
 	@Before
 	public void setup() {
 		latencyService = new LatencyService(hz);
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void ctor_null_throws() {
-		new LatencyService(null);
 	}
 
 	@Test
@@ -46,5 +37,4 @@ public class LatencyServiceTest {
 		int latency = latencyService.getClientLatency(ACC_ID);
 		Assert.assertEquals(150, latency);
 	}
-
 }

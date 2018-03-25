@@ -1,18 +1,19 @@
 package net.bestia.zoneserver.service;
 
 import akka.testkit.TestProbe;
-import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.model.domain.Password;
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.server.MaintenanceLevel;
+import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.factory.PlayerBestiaEntityFactory;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Password;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
-import net.bestia.zoneserver.connection.LoginService;
+import net.bestia.zoneserver.client.LoginService;
 import net.bestia.zoneserver.entity.PlayerBestiaService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.Assert;
