@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.configuration.StaticConfig;
+import net.bestia.zoneserver.config.StaticConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

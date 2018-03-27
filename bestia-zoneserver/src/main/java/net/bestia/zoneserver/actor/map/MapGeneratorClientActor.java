@@ -1,12 +1,5 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
@@ -17,9 +10,15 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
+import net.bestia.zoneserver.config.StaticConfig;
 import net.bestia.zoneserver.configuration.MapGenConfiguration;
-import net.bestia.zoneserver.configuration.StaticConfig;
 import net.bestia.zoneserver.map.MapService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Component
 @Scope("prototype")

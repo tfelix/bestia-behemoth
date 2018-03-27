@@ -1,8 +1,5 @@
 package net.bestia.zoneserver.script.api
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.whenever
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.PositionComponent
 import org.junit.Before
@@ -35,29 +32,62 @@ class EntityApiTest {
 
   @Before
   fun setup() {
-    whenever(entityService.getComponentOrCreate(
-            any<Long>(),
-            eq(PositionComponent::class.java)))
-            .thenReturn(positionComponent)
+    // whenever(entityService.getComponentOrCreate(any<Long>(), any(PositionComponent::class.java)).thenReturn(positionComponent)
   }
 
   @Test
-  fun test() {
+  fun benchmark() {
+    testCompile()
+    testEval()
+  }
+
+
+  fun testCompile() {
 
     val engine = ScriptEngineManager().getEngineByName("nashorn")
-
     val bindings = engine.createBindings()
     bindings["Bestia"] = ScriptRootApi(entityService)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
-    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/test.js")
+    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testCompile.js")
     val scriptReader = InputStreamReader(scriptFile)
-    val script = (engine as Compilable).compile(scriptReader)
-    script.eval()
+    val compiledScript = (engine as Compilable).compile(scriptReader)
+    compiledScript.eval()
 
-    // engine.getBindings(ScriptContext.ENGINE_SCOPE)["bla"] = 5
+    var i = 0
+    val start = System.currentTimeMillis()
+    while (i < 500000) {
+      engine.getBindings(ScriptContext.ENGINE_SCOPE)["bla"] = Math.random()
+      val invocable = compiledScript.engine as Invocable
+      invocable.invokeFunction("main")
+      i++
+    }
+    val end = System.currentTimeMillis()
+    val duration = end - start
+    println("Compiled script took: $duration ms")
+  }
 
-    val invocable = script.engine as Invocable
-    invocable.invokeFunction("main")
+  fun testEval() {
+
+    val engine = ScriptEngineManager().getEngineByName("nashorn")
+    val bindings = engine.createBindings()
+    bindings["Bestia"] = ScriptRootApi(entityService)
+    engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
+
+    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testEval.js")
+    val scriptReader = InputStreamReader(scriptFile)
+    val compiledScript = (engine as Compilable).compile(scriptReader)
+
+
+    var i = 0
+    val start = System.currentTimeMillis()
+    while (i < 500000) {
+      engine.getBindings(ScriptContext.ENGINE_SCOPE)["bla"] = Math.random()
+      compiledScript.eval()
+      i++
+    }
+    val end = System.currentTimeMillis()
+    val duration = end - start
+    println("Evaled script took: $duration ms")
   }
 }

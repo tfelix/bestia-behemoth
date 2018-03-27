@@ -6,6 +6,7 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.workload.MultiplyJob;
 import de.tfelix.bestia.worldgen.workload.Workload;
+import net.bestia.zoneserver.config.StaticConfig;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.map.generator.MapGeneratorConstants;
 import net.bestia.zoneserver.map.generator.TileGenerationJob;

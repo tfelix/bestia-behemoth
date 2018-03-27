@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.client;
 
-import net.bestia.zoneserver.configuration.StaticConfig;
+import net.bestia.zoneserver.config.StaticConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

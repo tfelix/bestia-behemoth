@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.client
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.zoneserver.configuration.StaticConfig
+import net.bestia.zoneserver.config.StaticConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap

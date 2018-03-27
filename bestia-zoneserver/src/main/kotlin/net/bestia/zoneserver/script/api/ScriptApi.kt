@@ -30,6 +30,9 @@ class ScriptApi(
     }
 
     val scriptComp = entityService.getComponentOrCreate(entityId, ScriptComponent::class.java)
+    if(scriptComp == null) {
+      return this
+    }
     val scriptUuid = UUID.randomUUID().toString()
     val scriptCallback = ScriptCallback(
             scriptUuid,

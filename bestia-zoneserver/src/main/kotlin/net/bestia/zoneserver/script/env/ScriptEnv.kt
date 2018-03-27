@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.script.env
 
-import net.bestia.zoneserver.script.api.ScriptRootApi
-
 /**
  * The [ScriptEnv] creates and setup an execution environment of each
  * script. The script env should be immutable to ensure thread safety. All the
@@ -10,15 +8,7 @@ import net.bestia.zoneserver.script.api.ScriptRootApi
  *
  * @author Thomas Felix
  */
-abstract class ScriptEnv {
+interface ScriptEnv {
 
-  fun setupEnvironment(scriptApi: ScriptRootApi, bindings: MutableMap<String, Any?>) {
-    bindings["Bestia"] = scriptApi
-    customEnvironmentSetup(bindings)
-  }
-
-  /**
-   * Sets the script variables for this execution.
-   */
-  protected abstract fun customEnvironmentSetup(bindings: MutableMap<String, Any?>)
+  fun setupEnvironment(bindings: MutableMap<String, Any?>)
 }

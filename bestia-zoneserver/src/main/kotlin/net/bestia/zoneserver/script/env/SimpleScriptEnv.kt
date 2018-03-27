@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.script.env
 
-class SimpleScriptEnv : ScriptEnv() {
-
-  override fun customEnvironmentSetup(bindings: MutableMap<String, Any?>) {
+class SimpleScriptEnv : ScriptEnv {
+  override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
   }
 }

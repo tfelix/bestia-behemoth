@@ -3,6 +3,7 @@ package net.bestia.zoneserver.configuration;
 import net.bestia.entity.EntityCache;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
+import net.bestia.zoneserver.config.StaticConfig;
 import net.bestia.zoneserver.environment.date.BestiaDate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

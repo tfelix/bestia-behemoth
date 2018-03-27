@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.configuration.StaticConfig;
+import net.bestia.zoneserver.config.StaticConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
