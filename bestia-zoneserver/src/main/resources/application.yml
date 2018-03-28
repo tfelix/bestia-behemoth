@@ -38,6 +38,8 @@ script:
 
 # Connection url for the database "netgloo_blog"
 spring:
+  main:
+    web-environment: false
   datasource:
     url: jdbc:mysql://localhost/bestia?serverTimezone=UTC
     username: bestia

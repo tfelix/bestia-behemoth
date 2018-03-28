@@ -15,113 +15,119 @@ import java.util.*;
  */
 public class InterceptorComposite implements Interceptor {
 
-	private static final Logger LOG = LoggerFactory.getLogger(InterceptorComposite.class);
-	
-	private final Map<Class<? extends Component>, List<BaseComponentInterceptor>> interceptors = new HashMap<>();
-	private final List<BaseComponentInterceptor> defaultInterceptors = new ArrayList<>();
+  private static final Logger LOG = LoggerFactory.getLogger(InterceptorComposite.class);
 
-	public InterceptorComposite(List<BaseComponentInterceptor<? extends Component>> interceptors) {
-		Objects.requireNonNull(interceptors);
-		interceptors.forEach(this::addInterceptor);
-	}
+  private final Map<Class<? extends Component>, List<BaseComponentInterceptor>> interceptors = new HashMap<>();
+  private final List<BaseComponentInterceptor> defaultInterceptors = new ArrayList<>();
 
-	/**
-	 * Adds an interceptor which gets notified if certain components will
-	 * change. He then can perform actions like update the clients in range
-	 * about the occurring component change.
-	 *
-	 * @param interceptor The intercepter to listen to certain triggering events.
-	 */
-	public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
-		Objects.requireNonNull(interceptor);
-		LOG.debug("Adding intercetor: {}.", interceptor.getClass().getName());
+  public InterceptorComposite(List<BaseComponentInterceptor<? extends Component>> interceptors) {
+    Objects.requireNonNull(interceptors);
+    interceptors.forEach(this::addInterceptor);
+  }
 
-		final Class<? extends Component> triggerType = interceptor.getTriggerType();
+  /**
+   * Adds an interceptor which gets notified if certain components will
+   * change. He then can perform actions like update the clients in range
+   * about the occurring component change.
+   *
+   * @param interceptor The intercepter to listen to certain triggering events.
+   */
+  public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
+    Objects.requireNonNull(interceptor);
+    LOG.debug("Adding intercetor: {}.", interceptor.getClass().getName());
 
-		if (!interceptors.containsKey(triggerType)) {
-			interceptors.put(triggerType, new ArrayList<>());
-		}
+    final Class<? extends Component> triggerType = interceptor.getTriggerType();
 
-		interceptors.get(triggerType).add(interceptor);
-	}
+    if (!interceptors.containsKey(triggerType)) {
+      interceptors.put(triggerType, new ArrayList<>());
+    }
 
-	/**
-	 * The default interceptor are called upon each component update. Regardless of their type.
-	 * Thus they are handy is no type specific components need to be scanned.
-	 */
-	public void addDefaultInterceptor(BaseComponentInterceptor interceptor) {
-		defaultInterceptors.add(interceptor);
-	}
+    interceptors.get(triggerType).add(interceptor);
+  }
 
-	/**
-	 * Checks if the entity owns the component. If not an
-	 * {@link IllegalArgumentException} is thrown.
-	 */
-	private boolean ownsComponent(Entity e, Component c) {
-		if (e.getId() != c.getEntityId()) {
-			LOG.warn("Component {} is not owned by entity: {}.", c, e);
-			return false;
-		}
+  /**
+   * The default interceptor are called upon each component update. Regardless of their type.
+   * Thus they are handy is no type specific components need to be scanned.
+   */
+  public void addDefaultInterceptor(BaseComponentInterceptor interceptor) {
+    defaultInterceptors.add(interceptor);
+  }
 
-		return true;
-	}
+  /**
+   * Checks if the entity owns the component. If not an
+   * {@link IllegalArgumentException} is thrown.
+   */
+  private boolean ownsComponent(Entity e, Component c) {
+    if (e.getId() != c.getEntityId()) {
+      LOG.warn("Component {} is not owned by entity: {}.", c, e);
+      return false;
+    }
 
-	@Override
-	public void interceptUpdate(EntityService entityService, Entity entity, Component component) {
-		if (!ownsComponent(entity, component)) {
-			return;
-		}
+    return true;
+  }
 
-		defaultInterceptors.forEach(i -> {
-			i.triggerUpdateAction(entityService, entity, component);
-		});
+  @Override
+  public void interceptUpdate(EntityService entityService, Entity entity, Component component) {
+    if (!ownsComponent(entity, component)) {
+      return;
+    }
 
-		// Check possible interceptors.
-		if (interceptors.containsKey(component.getClass())) {
-			LOG.debug("Intercepting update component {} for: {}.", component, entity);
+    defaultInterceptors.forEach(i -> {
+      if (i.getTriggerType() == component.getClass()) {
+        i.triggerUpdateAction(entityService, entity, component);
+      }
+    });
 
-			interceptors.get(component.getClass()).forEach(intercep -> {
-				// Need to cast so we dont get problems with typings.
-				intercep.triggerUpdateAction(entityService, entity, component);
-			});
-		}
-	}
+    // Check possible interceptors.
+    if (interceptors.containsKey(component.getClass())) {
+      LOG.debug("Intercepting update component {} for: {}.", component, entity);
 
-	@Override
-	public void interceptCreated(EntityService entityService, Entity entity, Component component) {
-		if (!ownsComponent(entity, component)) {
-			return;
-		}
+      interceptors.get(component.getClass()).forEach(intercep -> {
+        // Need to cast so we dont get problems with typings.
+        intercep.triggerUpdateAction(entityService, entity, component);
+      });
+    }
+  }
 
-		defaultInterceptors.forEach(i -> {
-			i.triggerCreateAction(entityService, entity, component);
-		});
+  @Override
+  public void interceptCreated(EntityService entityService, Entity entity, Component component) {
+    if (!ownsComponent(entity, component)) {
+      return;
+    }
 
-		if (interceptors.containsKey(component.getClass())) {
-			LOG.debug("Intercepting created component {} for: {}.", component, entity);
+    defaultInterceptors.forEach(i -> {
+      if (i.getTriggerType() == component.getClass()) {
+        i.triggerCreateAction(entityService, entity, component);
+      }
+    });
 
-			interceptors.get(component.getClass()).forEach(intercep -> {
-				// Need to cast so we dont get problems with typings.
-				intercep.triggerCreateAction(entityService, entity, component);
-			});
-		}
-	}
+    if (interceptors.containsKey(component.getClass())) {
+      LOG.debug("Intercepting created component {} for: {}.", component, entity);
 
-	@Override
-	public void interceptDeleted(EntityService entityService, Entity entity, Component component) {
-		if (!ownsComponent(entity, component)) {
-			return;
-		}
+      interceptors.get(component.getClass()).forEach(intercep -> {
+        // Need to cast so we dont get problems with typings.
+        intercep.triggerCreateAction(entityService, entity, component);
+      });
+    }
+  }
 
-		defaultInterceptors.forEach(i -> {
-			i.triggerDeleteAction(entityService, entity, component);
-		});
+  @Override
+  public void interceptDeleted(EntityService entityService, Entity entity, Component component) {
+    if (!ownsComponent(entity, component)) {
+      return;
+    }
 
-		// Check possible interceptors.
-		if (interceptors.containsKey(component.getClass())) {
-			LOG.debug("Intercepting update component {} for: {}.", component, entity);
+    defaultInterceptors.forEach(i -> {
+      if (i.getTriggerType() == component.getClass()) {
+        i.triggerDeleteAction(entityService, entity, component);
+      }
+    });
 
-			interceptors.get(component.getClass()).forEach(intercep -> intercep.triggerDeleteAction(entityService, entity, component));
-		}
-	}
+    // Check possible interceptors.
+    if (interceptors.containsKey(component.getClass())) {
+      LOG.debug("Intercepting update component {} for: {}.", component, entity);
+
+      interceptors.get(component.getClass()).forEach(intercep -> intercep.triggerDeleteAction(entityService, entity, component));
+    }
+  }
 }

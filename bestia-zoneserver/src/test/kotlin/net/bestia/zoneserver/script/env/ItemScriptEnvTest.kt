@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.script.env
 
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.script.api.ScriptApi
+import org.junit.Assert
 import org.junit.Test
-import org.mockito.Mock
+import javax.script.SimpleBindings
 
 class ItemScriptEnvTest {
 
@@ -11,11 +11,21 @@ class ItemScriptEnvTest {
   private val userId = 10L
   private val targetId = 10L
 
-  @Mock
-  private lateinit var scriptApi: ScriptApi
+  @Test
+  fun test_item_bindings_target_entity() {
+    val env = ItemScriptEnv(userId, targetId)
+    val bindings = SimpleBindings()
+    env.setupEnvironment(bindings)
+    Assert.assertEquals(setOf("SELF", "TARGET_ENTITY", "TARGET_POSITION"), bindings.keys)
+    Assert.assertNull(bindings["TARGET_POSITION"])
+  }
 
   @Test
-  fun test_item_bindings() {
-    val env = ItemScriptEnv(userId, targetId)
+  fun test_item_bindings_target_position() {
+    val env = ItemScriptEnv(userId, targetPos)
+    val bindings = SimpleBindings()
+    env.setupEnvironment(bindings)
+    Assert.assertEquals(setOf("SELF", "TARGET_ENTITY", "TARGET_POSITION"), bindings.keys)
+    Assert.assertNull(bindings["TARGET_ENTITY"])
   }
 }

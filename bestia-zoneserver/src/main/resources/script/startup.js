@@ -2,12 +2,17 @@
  * Global startup script. This script is once triggered upon first start of the
  * cluster.
  */
-
 function main() {
 	Bestia.info("Bestia Behemoth startup script.");
 	
-	Bestia.spawnMob("blob", 12, 15);
+	Bestia.entity("blob")
+	  .position(12, 15);
 	
-	var eid = Bestia.createEntity(point(10, 10));
-	Bestia.setInterval(eid, 'map/test_spawner:checkEntities', 5000)
+	Bestia.entity()
+	  .script()
+	  .setInterval('startup:checkEntities', 5000)
+}
+
+function checkEntities() {
+  Bestia.info("Check entities.");
 }

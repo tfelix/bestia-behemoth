@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.entity.EntityService
+import net.bestia.entity.factory.MobFactory
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -14,7 +15,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ScriptRootApi(
-        private val entityService: EntityService
+        private val entityService: EntityService,
+        private val mobFactory: MobFactory
 ) {
   fun info(text: String) {
     LOG.info { text }
@@ -33,10 +35,17 @@ class ScriptRootApi(
   }
 
   fun entity(blueprint: String = "") : EntityApi {
-    LOG.info { "entity:String" }
-    val entityId = 1337L
+    val entity = mobFactory.build(blueprint, 0, 0)
     return EntityApi(
-            entityId = entityId,
+            entityId = entity.id,
+            entityService = entityService,
+            rootApi = this)
+  }
+
+  fun entity() : EntityApi {
+    val entity = entityService.newEntity()
+    return EntityApi(
+            entityId = entity.id,
             entityService = entityService,
             rootApi = this)
   }
