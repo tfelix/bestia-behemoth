@@ -4,6 +4,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.component.*;
 import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.net.bestia.entity.component.InventoryComponent;
 import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.zoneserver.bestia.InventoryService;
 import org.slf4j.Logger;

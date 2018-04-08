@@ -6,7 +6,7 @@ import net.bestia.messages.MessageApi;
 import net.bestia.messages.component.LevelComponentExMessage;
 import net.bestia.messages.component.LevelComponentMessage;
 import net.bestia.messages.entity.EntityComponentSyncMessage;
-import net.bestia.entity.component.EntityComponentSyncMessageFactory;
+import net.bestia.net.bestia.entity.component.EntityComponentSyncMessageFactory;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PlayerComponent;
 import org.springframework.stereotype.Component;

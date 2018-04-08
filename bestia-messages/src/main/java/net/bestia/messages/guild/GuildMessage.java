@@ -1,9 +1,9 @@
 package net.bestia.messages.guild;
 
-import java.util.Objects;
-
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.Guild;
+
+import java.util.Objects;
 
 /**
  * Contains guild information.
@@ -18,6 +18,10 @@ public class GuildMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "guild.info";
 	
 	private Guild guild;
+
+	private GuildMessage() {
+		super(0);
+	}
 
 	public GuildMessage(long accId) {
 		super(accId);

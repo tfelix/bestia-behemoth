@@ -1,9 +1,9 @@
 package net.bestia.webserver.service;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Holds configuration variables for the server.
@@ -40,24 +40,5 @@ public class ConfigurationService {
 	 */
 	public int getMaxDeadLetters() {
 		return maxDeadLetters;
-	}
-
-	/**
-	 * Returns if we are connected to the cluster.
-	 * 
-	 * @return TRUE if we are connected to the cluster.
-	 */
-	public boolean isConnectedToCluster() {
-		return isConnectedToCluster.get();
-	}
-
-	/**
-	 * Sets the flag if we are connected to the bestia cluster.
-	 * 
-	 * @param flag
-	 *            Flag if we are connected to the bestia cluster.
-	 */
-	public void setConnectedToCluster(boolean flag) {
-		isConnectedToCluster.set(flag);
 	}
 }

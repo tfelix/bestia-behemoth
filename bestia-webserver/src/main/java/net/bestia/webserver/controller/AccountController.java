@@ -1,24 +1,17 @@
 package net.bestia.webserver.controller;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.messages.account.AccountRegistration;
 import net.bestia.messages.account.AccountRegistrationReply;
 import net.bestia.messages.account.UserNameCheck;
 import net.bestia.webserver.actor.WebserverActorApi;
-import net.bestia.webserver.exceptions.NoConnectedException;
 import net.bestia.webserver.service.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * This controller provides a rest interface to control logins of the clients.
@@ -86,8 +79,6 @@ public class AccountController {
 			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password) {
 
-		NoConnectedException.isConnectedOrThrow(config);
-
 		final AccountLoginRequest request = akkaApi.getLoginToken(account, password);
 		final TokenResponse response = new TokenResponse(request);
 
@@ -110,7 +101,6 @@ public class AccountController {
 			@RequestParam(value = "oldPassword") String oldPassword,
 			@RequestParam(value = "newPassword") String newPassword,
 			@RequestParam(value = "email") String email) {
-		NoConnectedException.isConnectedOrThrow(config);
 
 		final boolean wasSuccessful = akkaApi.setPassword(email, oldPassword, newPassword);
 

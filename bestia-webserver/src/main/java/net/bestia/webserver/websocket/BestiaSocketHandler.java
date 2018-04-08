@@ -1,8 +1,6 @@
 package net.bestia.webserver.websocket;
 
-import java.util.Objects;
-import java.util.UUID;
-
+import net.bestia.webserver.actor.WebserverActorApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +10,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import net.bestia.webserver.actor.WebserverActorApi;
-import net.bestia.webserver.service.ConfigurationService;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Handles the bestia websocket to the clients.
@@ -28,13 +26,11 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	private static final String ATTRIBUTE_ACTOR_REF = "actorRef";
 	private final WebserverActorApi actorApi;
-	private final ConfigurationService config;
 
 	@Autowired
-	public BestiaSocketHandler(WebserverActorApi actorApi, ConfigurationService config) {
+	public BestiaSocketHandler(WebserverActorApi actorApi) {
 
 		this.actorApi = Objects.requireNonNull(actorApi);
-		this.config = Objects.requireNonNull(config);
 	}
 
 	@Override
@@ -50,12 +46,6 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		LOG.debug("New connection: {}.", session.getRemoteAddress().toString());
-
-		if (!config.isConnectedToCluster()) {
-			LOG.debug("Not connected to cluster. Deny connection.");
-			session.close(CloseStatus.SERVER_ERROR);
-			return;
-		}
 
 		final String sessionUid = UUID.randomUUID().toString();
 		session.getAttributes().put(ATTRIBUTE_ACTOR_REF, sessionUid);

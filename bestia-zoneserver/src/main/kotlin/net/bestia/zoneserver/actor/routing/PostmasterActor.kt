@@ -51,4 +51,8 @@ class PostmasterActor : AbstractActor() {
       it.forEach { it.forward(content, context) }
     }
   }
+
+  companion object {
+    const val NAME = "postmaster"
+  }
 }

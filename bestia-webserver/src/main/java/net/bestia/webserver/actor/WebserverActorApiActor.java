@@ -38,7 +38,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		this.uplink = Objects.requireNonNull(uplink);
 		
-		final Props connectionProps = ConnectionsActor.props(uplink);
+		final Props connectionProps = ClientConnectionsActor.props(uplink);
 		final ActorContext context = TypedActor.context();
 		this.connections = context.actorOf(connectionProps, "connections");
 	}

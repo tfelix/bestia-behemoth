@@ -2,10 +2,6 @@ package net.bestia.messages.entity
 
 import java.io.Serializable
 
-class ComponentRemoveMessage(
+data class ComponentRemoveMessage(
         val componentId: Long
-) : Serializable {
-  override fun toString(): String {
-    return "ComponentRemoveMessage[cid: $componentId]"
-  }
-}
+) : Serializable

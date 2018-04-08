@@ -16,5 +16,4 @@ export default class AuthenticateMessage {
         this.accId = accId;
         this.token = token;
     }
-
 }

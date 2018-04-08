@@ -15,11 +15,6 @@ import AuthenticateMessage from '../message/external/AuthenticateMessage';
  */
 export default class Authenticator {
 	
-	/**
-	 * 
-	 * @param {PubSub} pubsub 
-	 * @param {Storage} storage 
-	 */
 	constructor(pubsub, storage) {
 
 		if(!pubsub) {
@@ -43,7 +38,11 @@ export default class Authenticator {
 	_onConnected() {
 		LOG.debug('Connection established. Starting to authenticate with server.');
 
-		var authToken = this._storage.getAuth();
+		// var authToken = this._storage.getAuth();
+		var authToken = {
+			accountId: 1,
+			token: '944baa39-d1ba-48be-a541-664fbb2e6fae'
+		};
 
 		var authMsg = new AuthenticateMessage(
 			authToken.accountId, 

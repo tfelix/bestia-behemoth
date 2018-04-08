@@ -39,16 +39,13 @@ public class ClusterConnectActor extends AbstractActor {
 		final ClusterClientSettings settings = ClusterClientSettings.create(getContext().getSystem());
 		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
 		getContext().watch(uplink);
-		
-		// FIXME das hier erst auf true setzen wenn die connection besteht.
-		config.setConnectedToCluster(true);
 	}
 
 	public static Props props(ConfigurationService config) {
 		return Props.create(new Creator<ClusterConnectActor>() {
 			private static final long serialVersionUID = 1L;
 
-			public ClusterConnectActor create() throws Exception {
+			public ClusterConnectActor create() {
 				return new ClusterConnectActor(config);
 			}
 		}).withDeploy(Deploy.local());

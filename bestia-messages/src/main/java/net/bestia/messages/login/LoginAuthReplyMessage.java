@@ -1,11 +1,10 @@
 package net.bestia.messages.login;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import net.bestia.messages.JsonMessage;
+
+import java.util.Objects;
 
 /**
  * Message is replied from the login server after a {@link LoginAuthMessage}.
@@ -40,8 +39,8 @@ public class LoginAuthReplyMessage extends JsonMessage {
 		this.state = Objects.requireNonNull(state);
 		this.username = Objects.requireNonNull(username);
 	}
-	
-	@JsonProperty("state")
+
+  @JsonProperty("state")
 	public LoginState getLoginState() {
 		return state;
 	}
@@ -69,4 +68,11 @@ public class LoginAuthReplyMessage extends JsonMessage {
 		return new LoginAuthReplyMessage(accountId, state, username);
 	}
 
+  public static LoginAuthReplyMessage accept(long accountId, String username) {
+	  return new LoginAuthReplyMessage(accountId, LoginState.ACCEPTED, username);
+  }
+
+	public static LoginAuthReplyMessage denied(long accId) {
+		return new LoginAuthReplyMessage(accId, LoginState.DENIED, "");
+	}
 }

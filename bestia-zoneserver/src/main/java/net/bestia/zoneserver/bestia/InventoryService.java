@@ -2,7 +2,7 @@ package net.bestia.zoneserver.bestia;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.component.InventoryComponent;
+import net.bestia.net.bestia.entity.component.InventoryComponent;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AccountDAO;

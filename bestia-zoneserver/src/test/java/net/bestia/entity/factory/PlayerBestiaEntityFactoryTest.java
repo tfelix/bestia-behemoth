@@ -6,6 +6,7 @@ import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
+import net.bestia.net.bestia.entity.component.InventoryComponent;
 import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.zoneserver.bestia.InventoryService;
 import org.junit.Assert;

@@ -7,7 +7,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ComponentSync;
-import net.bestia.entity.component.EntityComponentSyncMessageFactory;
+import net.bestia.net.bestia.entity.component.EntityComponentSyncMessageFactory;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.SyncType;
 import net.bestia.messages.entity.EntityComponentSyncMessage;

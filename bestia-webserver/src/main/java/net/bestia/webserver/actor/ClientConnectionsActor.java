@@ -19,7 +19,7 @@ import java.util.Objects;
  *
  * @author Thomas Felix
  */
-public class ConnectionsActor extends AbstractActor {
+public class ClientConnectionsActor extends AbstractActor {
 
   private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -28,17 +28,17 @@ public class ConnectionsActor extends AbstractActor {
 
   private final BiMap<String, ActorRef> connections = HashBiMap.create();
 
-  private ConnectionsActor(ActorRef uplink) {
+  private ClientConnectionsActor(ActorRef uplink) {
 
     this.uplink = Objects.requireNonNull(uplink);
   }
 
   public static Props props(ActorRef uplink) {
-    return Props.create(new Creator<ConnectionsActor>() {
+    return Props.create(new Creator<ClientConnectionsActor>() {
       private static final long serialVersionUID = 1L;
 
-      public ConnectionsActor create() throws Exception {
-        return new ConnectionsActor(uplink);
+      public ClientConnectionsActor create() throws Exception {
+        return new ClientConnectionsActor(uplink);
       }
     }).withDeploy(Deploy.local());
   }
@@ -72,7 +72,7 @@ public class ConnectionsActor extends AbstractActor {
 
   private void handleClientSocketOpened(OpenConnection msg) {
 
-    final Props socketProps = ClientActor.props(uplink, mapper, msg.getSession());
+    final Props socketProps = ClientConnectionActor.props(uplink, mapper, msg.getSession());
     final String actorName = String.format("socket-%s", msg.getSessionId());
     final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
 
@@ -84,7 +84,6 @@ public class ConnectionsActor extends AbstractActor {
   }
 
   private void handleClientSocketClosed(CloseConnection msg) {
-
     LOG.debug("Client {} closed connection. Stopping actor.", msg.getSessionId());
 
     final ActorRef connectionActor = connections.get(msg.getSessionId());
@@ -94,10 +93,8 @@ public class ConnectionsActor extends AbstractActor {
   }
 
   private void handleClosedConnection(Terminated msg) {
-
     LOG.debug("Removing closed connection actor: {}", msg.actor());
 
     connections.inverse().remove(msg.actor());
-
   }
 }

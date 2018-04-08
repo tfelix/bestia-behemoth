@@ -6,11 +6,11 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.ClientFromMessageEnvelope;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.client.ClientConnectMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
-import net.bestia.messages.login.LoginState;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class ClientActor extends AbstractActor {
+public class ClientConnectionActor extends AbstractActor {
 
   private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -45,7 +45,7 @@ public class ClientActor extends AbstractActor {
    */
   private long accountId;
 
-  public ClientActor(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
+  public ClientConnectionActor(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
 
     this.uplink = Objects.requireNonNull(uplink);
     this.mapper = Objects.requireNonNull(mapper);
@@ -53,7 +53,6 @@ public class ClientActor extends AbstractActor {
 
     // Setup the two behaviours.
     unauthenticated = receiveBuilder()
-            .match(LoginAuthReplyMessage.class, this::handleLoginAuthReply)
             .match(ClientPayloadMessage.class, this::handleClientPayloadUnauthenticated)
             .build();
 
@@ -65,12 +64,12 @@ public class ClientActor extends AbstractActor {
 
   }
 
-  public static Props props(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
-    return Props.create(new Creator<ClientActor>() {
+  static Props props(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
+    return Props.create(new Creator<ClientConnectionActor>() {
       private static final long serialVersionUID = 1L;
 
-      public ClientActor create() throws Exception {
-        return new ClientActor(uplink, mapper, session);
+      public ClientConnectionActor create() {
+        return new ClientConnectionActor(uplink, mapper, session);
       }
     }).withDeploy(Deploy.local());
   }
@@ -81,7 +80,7 @@ public class ClientActor extends AbstractActor {
   }
 
   @Override
-  public void postStop() throws Exception {
+  public void postStop() {
 
     // Send the server that we have closed the connection.
     // If the websocket session is still opened and we are terminated from
@@ -119,7 +118,6 @@ public class ClientActor extends AbstractActor {
    * Payload is send from the client to the server.
    *
    * @param payload Payload data from the client.
-   * @throws IOException
    */
   private void handleClientPayload(ClientPayloadMessage payload) throws IOException {
     // We only accept auth messages if we are not connected. Every other
@@ -134,7 +132,7 @@ public class ClientActor extends AbstractActor {
       msg = msg.createNewInstance(accountId);
 
       LOG.debug("Client sending: {}.", msg.toString());
-      uplink.tell(msg, getSelf());
+      uplink.tell(wrap(msg), getSelf());
 
     } catch (IOException e) {
       LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
@@ -143,32 +141,31 @@ public class ClientActor extends AbstractActor {
               e.toString());
       throw e;
     }
-
   }
 
   /**
    * Payload is send from the client to the server.
    *
    * @param payload Payload data from the client.
-   * @throws IOException
    */
   private void handleClientPayloadUnauthenticated(ClientPayloadMessage payload) throws IOException {
     // We only accept auth messages if we are not connected. Every other
     // message will disconnect the client.
     final LoginAuthMessage loginReqMsg = mapper.readValue(payload.getMessage(), LoginAuthMessage.class);
-    uplink.tell(loginReqMsg, getSelf());
+    performTemporaryLoginFlow(loginReqMsg);
   }
 
-  /**
-   * If the server accepted the login we will propagate this to our parent and
-   * create the permanent client socket.
-   */
-  private void handleLoginAuthReply(LoginAuthReplyMessage msg) throws Exception {
-    // Check how the login state was given.
-    if (msg.getLoginState() == LoginState.ACCEPTED) {
-
+  private void performTemporaryLoginFlow(LoginAuthMessage loginMsg) {
+    LOG.warning("Temp. login flow must be replaced with a proper one when known how to do inter service communication");
+    String validLoginToken = "944baa39-d1ba-48be-a541-664fbb2e6fae";
+    if(!loginMsg.getToken().equals(validLoginToken)) {
+      final LoginAuthReplyMessage replyMessage = LoginAuthReplyMessage.denied(loginMsg.getAccountId());
+      sendToClient(replyMessage);
+      getContext().stop(getSelf());
+    } else {
+      LOG.debug("Client login accepted.");
       // This acc id is verified by the server.
-      this.accountId = msg.getAccountId();
+      this.accountId = loginMsg.getAccountId();
 
       getContext().become(authenticated);
 
@@ -176,16 +173,12 @@ public class ClientActor extends AbstractActor {
       final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
               ClientConnectMessage.ConnectionState.CONNECTED,
               getSelf());
-      uplink.tell(cccm, getSelf());
+      uplink.tell(wrap(cccm), getSelf());
 
       // Send the client the login message. This must be done when the server
       // has completed the registration of the client and awaits data now.
-      sendToClient(msg);
-
-    } else {
-      // We were denied login. Send to client then stop actor.
-      sendToClient(msg);
-      getContext().stop(getSelf());
+      final LoginAuthReplyMessage replyMessage = LoginAuthReplyMessage.accept(loginMsg.getAccountId(), "Testuser");
+      sendToClient(replyMessage);
     }
 
     deathTimer.cancel();
@@ -203,5 +196,9 @@ public class ClientActor extends AbstractActor {
       LOG.error("Could not send message: {}.", message.toString(), e);
       getContext().stop(getSelf());
     }
+  }
+
+  private ClientFromMessageEnvelope wrap(Object message) {
+    return new ClientFromMessageEnvelope(message);
   }
 }
