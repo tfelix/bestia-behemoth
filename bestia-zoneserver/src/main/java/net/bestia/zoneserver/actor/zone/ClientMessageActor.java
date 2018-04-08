@@ -93,7 +93,7 @@ public class ClientMessageActor extends AbstractActor {
   @Override
   public void preStart() throws Exception {
 
-    // === Login and connection ===
+    // === Connection ===
     SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
     // === Bestias ===

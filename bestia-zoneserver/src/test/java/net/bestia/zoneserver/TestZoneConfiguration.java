@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -31,6 +32,7 @@ public class TestZoneConfiguration {
 	}
 
 	@Bean
+	@Scope("prototype")
 	@Primary
 	public ActorSystem actorSystem(ApplicationContext appCtx) {
 		final Config akkaConfig = ConfigFactory.load("akka-test");

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor;
 
 import akka.actor.AbstractActor;
 import net.bestia.util.PackageLoader;
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ public class GeneralActorTest {
 	static {
 		IGNORED_ACTORS.add(ClusterControlActor.class);
 		IGNORED_ACTORS.add(EntityActor.class);
-		IGNORED_ACTORS.add(ClientConnectionActor.class);
+		IGNORED_ACTORS.add(ClientConnectionActorEx.class);
 	}
 
 	/**

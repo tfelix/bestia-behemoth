@@ -18,5 +18,4 @@ public class HazelMock {
 		HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
 		return hz;
 	}
-
 }

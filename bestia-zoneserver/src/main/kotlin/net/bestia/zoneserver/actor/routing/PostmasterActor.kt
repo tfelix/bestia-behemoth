@@ -7,7 +7,7 @@ import net.bestia.messages.Envelope
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
-class RegisterEnvelopeMessage(
+data class RegisterEnvelopeMessage(
         val envelopeClass: Class<out Envelope>,
         val receiverActor: ActorRef
 )
@@ -36,10 +36,8 @@ class PostmasterActor : AbstractActor() {
   }
 
   private fun registerListener(msg: RegisterEnvelopeMessage) {
-    val list = listener[msg.envelopeClass]
-
-    if(list != null) {
-      list.add(msg.receiverActor)
+    if(listener.containsKey(msg.envelopeClass)) {
+      listener[msg.envelopeClass]!!.add(msg.receiverActor)
     } else {
       listener[msg.envelopeClass] = mutableListOf(msg.receiverActor)
     }
@@ -48,9 +46,9 @@ class PostmasterActor : AbstractActor() {
   }
 
   private fun handleEnvelope(envelope: Envelope) {
-    listener.get(envelope.javaClass).let {
+    listener[envelope.javaClass]?.let {
       val content = envelope.content
-      it?.forEach { it.forward(content, context) }
+      it.forEach { it.forward(content, context) }
     }
   }
 }

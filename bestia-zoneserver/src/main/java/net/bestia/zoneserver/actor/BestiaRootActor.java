@@ -9,8 +9,11 @@ import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
-import net.bestia.messages.*;
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
+import net.bestia.messages.ClientToMessageEnvelope;
+import net.bestia.messages.ClientsInRangeEnvelope;
+import net.bestia.messages.EntityMessageEnvelope;
+import net.bestia.messages.MessageApi;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.SendEntityActor;
 import net.bestia.zoneserver.actor.routing.PostmasterActor;
@@ -97,7 +100,8 @@ public class BestiaRootActor extends AbstractActor {
 
     // Register the cluster client receptionist for receiving messages.
     final ActorRef ingest = SpringExtension.actorOf(getContext(), WebIngestActor.class, postmaster);
-    ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
+    final ClusterClientReceptionist receptionist = ClusterClientReceptionist.get(getContext().getSystem());
+    receptionist.registerService(ingest);
   }
 
   @Override
@@ -115,7 +119,7 @@ public class BestiaRootActor extends AbstractActor {
     sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
 
     // Client connection sharding.
-    final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class,
+    final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActorEx.class,
             postmaster);
     final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
     sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);

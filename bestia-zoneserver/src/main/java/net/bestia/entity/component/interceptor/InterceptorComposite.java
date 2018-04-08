@@ -34,7 +34,7 @@ public class InterceptorComposite implements Interceptor {
    */
   public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
     Objects.requireNonNull(interceptor);
-    LOG.debug("Adding intercetor: {}.", interceptor.getClass().getName());
+    LOG.debug("Adding interceptor: {}.", interceptor.getClass().getName());
 
     final Class<? extends Component> triggerType = interceptor.getTriggerType();
 
@@ -57,18 +57,18 @@ public class InterceptorComposite implements Interceptor {
    * Checks if the entity owns the component. If not an
    * {@link IllegalArgumentException} is thrown.
    */
-  private boolean ownsComponent(Entity e, Component c) {
+  private boolean dontOwnComponent(Entity e, Component c) {
     if (e.getId() != c.getEntityId()) {
       LOG.warn("Component {} is not owned by entity: {}.", c, e);
-      return false;
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   @Override
   public void interceptUpdate(EntityService entityService, Entity entity, Component component) {
-    if (!ownsComponent(entity, component)) {
+    if (dontOwnComponent(entity, component)) {
       return;
     }
 
@@ -91,7 +91,7 @@ public class InterceptorComposite implements Interceptor {
 
   @Override
   public void interceptCreated(EntityService entityService, Entity entity, Component component) {
-    if (!ownsComponent(entity, component)) {
+    if (dontOwnComponent(entity, component)) {
       return;
     }
 
@@ -113,7 +113,7 @@ public class InterceptorComposite implements Interceptor {
 
   @Override
   public void interceptDeleted(EntityService entityService, Entity entity, Component component) {
-    if (!ownsComponent(entity, component)) {
+    if (dontOwnComponent(entity, component)) {
       return;
     }
 

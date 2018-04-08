@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor;
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.ClientToMessageEnvelope;
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +34,7 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 		if (accId <= 0) {
 			return null;
 		}
-		return ClientConnectionActor.getActorName(accId);
+		return ClientConnectionActorEx.getActorName(accId);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 		if (accId <= 0) {
 			return null;
 		}
-		final String name = ClientConnectionActor.getActorName(accId);
+		final String name = ClientConnectionActorEx.getActorName(accId);
 		return String.valueOf(name.hashCode() % NUMBER_OF_SHARDS);
 	}
 }

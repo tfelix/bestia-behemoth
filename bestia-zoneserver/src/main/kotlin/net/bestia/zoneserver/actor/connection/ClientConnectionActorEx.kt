@@ -37,7 +37,6 @@ class ClientConnectionActorEx(
 
   private var accountId: Long = 0
   private var authenticatedSocket: ActorRef? = null
-  private var tempNotAuthenticatedSocket: ActorRef? = null
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
@@ -79,10 +78,6 @@ class ClientConnectionActorEx(
         authenticatedSocket?.tell(PoisonPill.getInstance(), self)
         authenticatedSocket = msg.webserverRef
         context.watch(authenticatedSocket)
-
-        context.unwatch(tempNotAuthenticatedSocket)
-        tempNotAuthenticatedSocket?.tell(PoisonPill.getInstance(), self)
-        tempNotAuthenticatedSocket = null
 
         initClientConnection(msg)
       }
@@ -147,6 +142,7 @@ class ClientConnectionActorEx(
      * The account ID.
      * @return The unique name of the connection actor.
      */
+    @JvmStatic
     fun getActorName(accId: Long): String {
       return String.format(ACTOR_NAME, accId)
     }

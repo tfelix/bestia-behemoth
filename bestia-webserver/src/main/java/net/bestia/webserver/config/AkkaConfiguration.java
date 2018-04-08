@@ -18,6 +18,7 @@ import net.bestia.webserver.actor.ClusterConnectActor;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.actor.WebserverActorApiActor;
 import net.bestia.webserver.service.ConfigurationService;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote

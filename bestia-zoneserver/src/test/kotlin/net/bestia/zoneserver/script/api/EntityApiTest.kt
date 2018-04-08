@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script.api
 
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.PositionComponent
+import net.bestia.entity.factory.MobFactory
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +29,9 @@ class EntityApiTest {
   @Mock
   private lateinit var positionComponent: PositionComponent
 
+  @Mock
+  private lateinit var mobFactory: MobFactory
+
   fun testFn(): Runnable = Runnable { println("Runnable from JS") }
 
   @Before
@@ -46,7 +50,7 @@ class EntityApiTest {
 
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
-    bindings["Bestia"] = ScriptRootApi(entityService)
+    bindings["Bestia"] = ScriptRootApi(entityService, mobFactory)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
     val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testCompile.js")
@@ -71,7 +75,7 @@ class EntityApiTest {
 
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
-    bindings["Bestia"] = ScriptRootApi(entityService)
+    bindings["Bestia"] = ScriptRootApi(entityService, mobFactory)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
     val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testEval.js")
