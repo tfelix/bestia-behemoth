@@ -11,6 +11,7 @@ import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
 import net.bestia.zoneserver.client.LogoutService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -30,7 +31,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 @Scope("prototype")
-class ClientConnectionActorEx(
+class ClientConnectionActorEx @Autowired constructor(
         private val loginService: LoginService,
         private val logoutService: LogoutService
 ) : AbstractActor() {
@@ -74,8 +75,11 @@ class ClientConnectionActorEx(
 
     when (msg.state) {
       ClientConnectMessage.ConnectionState.CONNECTED -> {
-        context.unwatch(authenticatedSocket)
-        authenticatedSocket?.tell(PoisonPill.getInstance(), self)
+        authenticatedSocket?.let {
+          context.unwatch(it)
+          it.tell(PoisonPill.getInstance(), self)
+        }
+
         authenticatedSocket = msg.webserverRef
         context.watch(authenticatedSocket)
 

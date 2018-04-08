@@ -1,25 +1,13 @@
 package net.bestia.zoneserver.actor.zone;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ClientFromMessageEnvelope;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.battle.AttackUseActor;
-import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
-import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
-import net.bestia.zoneserver.actor.chat.ChatActor;
-import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
-import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
-import net.bestia.zoneserver.actor.entity.EntitySyncRequestActor;
-import net.bestia.zoneserver.actor.inventory.InventoryRequestActor;
-import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
-import net.bestia.zoneserver.actor.map.PlayerMoveRequestActor;
-import net.bestia.zoneserver.actor.map.TilesetRequestActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor;
 import net.bestia.zoneserver.actor.routing.RegisterEnvelopeMessage;
-import net.bestia.zoneserver.actor.ui.ClientVarActor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -40,11 +28,11 @@ import java.util.Map.Entry;
  */
 @Component
 @Scope("prototype")
-public class ClientMessageActor extends AbstractActor {
+public class ClientMessageActor extends ClientMessageDigestActor {
 
   private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-  public static final String NAME = "clientMessageIngest";
+  public static final String NAME = "clientMessages";
 
   /**
    * This message is send towards actors (usually an IngestActor) which will
@@ -76,7 +64,7 @@ public class ClientMessageActor extends AbstractActor {
      *
      * @return A list of classes.
      */
-    List<Class<?>> getClasses() {
+    public List<Class<?>> getClasses() {
       return classes;
     }
   }
@@ -94,32 +82,33 @@ public class ClientMessageActor extends AbstractActor {
   public void preStart() throws Exception {
 
     // === Connection ===
-    SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
+    SpringExtension.actorOf(getContext(), ClientConnectionManagerActor.class);
+    // SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
     // === Bestias ===
-    SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
-    SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
+    // SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
+    //  SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 
     // === Inventory ===
-    SpringExtension.actorOf(getContext(), InventoryRequestActor.class);
+    // SpringExtension.actorOf(getContext(), InventoryRequestActor.class);
 
     // === Map ===
-    SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
-    SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
+    // SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
+    // SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
 
     // === Entities ===
-    SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
-    SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
-    SpringExtension.actorOf(getContext(), EntitySyncRequestActor.class);
+    // SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
+    //  SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
+    // SpringExtension.actorOf(getContext(), EntitySyncRequestActor.class);
 
     // === Attacking ===
-    SpringExtension.actorOf(getContext(), AttackUseActor.class);
+    // SpringExtension.actorOf(getContext(), AttackUseActor.class);
 
     // === UI ===
-    SpringExtension.actorOf(getContext(), ClientVarActor.class);
+    // SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
     // === Chat ===
-    SpringExtension.actorOf(getContext(), ChatActor.class);
+    // SpringExtension.actorOf(getContext(), ChatActor.class);
 
     final RegisterEnvelopeMessage registerEnvelopeMessage = new RegisterEnvelopeMessage(ClientFromMessageEnvelope.class, getSelf());
     postmaster.tell(registerEnvelopeMessage, getSelf());

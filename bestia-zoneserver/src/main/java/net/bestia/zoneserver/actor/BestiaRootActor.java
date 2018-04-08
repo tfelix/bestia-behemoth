@@ -71,6 +71,7 @@ public class BestiaRootActor extends AbstractActor {
     // thus to break the circular dependency this trick is needed.
     messageApi.setPostmaster(postmaster);
 
+    // === Client Messages ===
     SpringExtension.actorOf(getContext(), ClientMessageActor.class, postmaster);
 
     registerSingeltons();
