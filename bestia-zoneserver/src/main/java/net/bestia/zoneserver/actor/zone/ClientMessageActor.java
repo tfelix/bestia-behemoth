@@ -6,8 +6,15 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ClientFromMessageEnvelope;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
+import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor;
+import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
+import net.bestia.zoneserver.actor.entity.EntitySyncRequestActor;
+import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
+import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 import net.bestia.zoneserver.actor.routing.RegisterEnvelopeMessage;
+import net.bestia.zoneserver.actor.ui.ClientVarActor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -83,32 +90,29 @@ public class ClientMessageActor extends ClientMessageDigestActor {
 
     // === Connection ===
     SpringExtension.actorOf(getContext(), ClientConnectionManagerActor.class);
-    // SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
+    SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
     // === Bestias ===
     // SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
-    //  SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
-
-    // === Inventory ===
-    // SpringExtension.actorOf(getContext(), InventoryRequestActor.class);
+    SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 
     // === Map ===
-    // SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
-    // SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
+    SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
+    SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
 
     // === Entities ===
     // SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
-    //  SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
-    // SpringExtension.actorOf(getContext(), EntitySyncRequestActor.class);
+    // SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
+    SpringExtension.actorOf(getContext(), EntitySyncRequestActor.class);
 
     // === Attacking ===
     // SpringExtension.actorOf(getContext(), AttackUseActor.class);
 
     // === UI ===
-    // SpringExtension.actorOf(getContext(), ClientVarActor.class);
+    SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
     // === Chat ===
-    // SpringExtension.actorOf(getContext(), ChatActor.class);
+    SpringExtension.actorOf(getContext(), ChatActor.class);
 
     final RegisterEnvelopeMessage registerEnvelopeMessage = new RegisterEnvelopeMessage(ClientFromMessageEnvelope.class, getSelf());
     postmaster.tell(registerEnvelopeMessage, getSelf());

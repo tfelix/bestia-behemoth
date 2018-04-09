@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.actor.connection;
 
-import akka.actor.AbstractActor;
 import net.bestia.messages.client.PongMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.client.LatencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -12,7 +11,7 @@ import java.util.Objects;
 
 @Component
 @Scope("prototype")
-public class LatencyManagerActor extends AbstractActor {
+public class LatencyManagerActor extends ClientMessageDigestActor {
 
 	public final static String NAME = "latency";
 
@@ -22,19 +21,7 @@ public class LatencyManagerActor extends AbstractActor {
 	public LatencyManagerActor(LatencyService latencyService) {
 
 		this.latencyService = Objects.requireNonNull(latencyService);
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(PongMessage.class, this::onPongMessage)
-				.build();
-	}
-	
-	@Override
-	public void preStart() throws Exception {
-		RedirectMessage msg = RedirectMessage.get(PongMessage.class);
-		context().parent().tell(msg, getSelf());
+		redirectConfig.match(PongMessage.class, this::onPongMessage);
 	}
 
 	/**

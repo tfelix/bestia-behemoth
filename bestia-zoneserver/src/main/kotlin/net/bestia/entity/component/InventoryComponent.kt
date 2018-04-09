@@ -1,8 +1,5 @@
-package net.bestia.net.bestia.entity.component
+package net.bestia.entity.component
 
-import net.bestia.entity.component.Component
-import net.bestia.entity.component.ComponentSync
-import net.bestia.entity.component.SyncType
 import net.bestia.model.domain.Item
 import java.util.*
 

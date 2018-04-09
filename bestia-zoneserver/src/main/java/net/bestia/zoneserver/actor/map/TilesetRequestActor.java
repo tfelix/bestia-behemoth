@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.map;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -10,7 +9,7 @@ import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -28,7 +27,7 @@ import java.util.Optional;
  */
 @Component
 @Scope("prototype")
-public class TilesetRequestActor extends AbstractActor {
+public class TilesetRequestActor extends ClientMessageDigestActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static String NAME = "tileset";
@@ -41,20 +40,7 @@ public class TilesetRequestActor extends AbstractActor {
 
 		this.tilesetService = Objects.requireNonNull(tilesetService);
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(MapTilesetRequestMessage.class, this::onMapTilesetRequest)
-				.build();
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		// Register for chat commands.
-		final RedirectMessage redirMsg = RedirectMessage.get(MapTilesetRequestMessage.class);
-		getContext().parent().tell(redirMsg, getSelf());
+		redirectConfig.match(MapTilesetRequestMessage.class, this::onMapTilesetRequest);
 	}
 
 	private void onMapTilesetRequest(MapTilesetRequestMessage msg) {
@@ -72,5 +58,4 @@ public class TilesetRequestActor extends AbstractActor {
 
 		sendClient.tell(response, getSelf());
 	}
-
 }

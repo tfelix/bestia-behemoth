@@ -1,13 +1,12 @@
 package net.bestia.zoneserver.actor.entity;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ComponentSync;
-import net.bestia.net.bestia.entity.component.EntityComponentSyncMessageFactory;
+import net.bestia.entity.component.EntityComponentSyncMessageFactory;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.SyncType;
 import net.bestia.messages.entity.EntityComponentSyncMessage;
@@ -15,7 +14,7 @@ import net.bestia.messages.entity.EntitySyncRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.entity.EntitySearchService;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Scope("prototype")
-public class EntitySyncRequestActor extends AbstractActor {
+public class EntitySyncRequestActor extends ClientMessageDigestActor {
 
   private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
@@ -62,19 +61,7 @@ public class EntitySyncRequestActor extends AbstractActor {
     this.playerEntityService = Objects.requireNonNull(playerEntityService);
     this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
     this.sendAllClients = SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class);
-  }
-
-  @Override
-  public Receive createReceive() {
-    return receiveBuilder()
-            .match(EntitySyncRequestMessage.class, this::onSyncRequest)
-            .build();
-  }
-
-  @Override
-  public void preStart() throws Exception {
-    final RedirectMessage msg = RedirectMessage.get(EntitySyncRequestMessage.class);
-    context().parent().tell(msg, getSelf());
+    redirectConfig.match(EntitySyncRequestMessage.class, this::onSyncRequest);
   }
 
   private void onSyncRequest(EntitySyncRequestMessage msg) {

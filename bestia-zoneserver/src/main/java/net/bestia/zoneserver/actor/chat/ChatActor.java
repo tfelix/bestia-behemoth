@@ -1,19 +1,17 @@
 package net.bestia.zoneserver.actor.chat;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It
@@ -26,7 +24,7 @@ import net.bestia.zoneserver.chat.ChatCommandService;
  */
 @Component
 @Scope("prototype")
-public class ChatActor extends AbstractActor {
+public class ChatActor extends ClientMessageDigestActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "chat";
@@ -47,22 +45,10 @@ public class ChatActor extends AbstractActor {
 		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class);
 		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class);
 		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class);
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder().match(ChatMessage.class, this::onChatMessage).build();
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		// Register for chat commands.
-		final RedirectMessage redirMsg = RedirectMessage.get(ChatMessage.class);
-		getContext().parent().tell(redirMsg, getSelf());
+		this.redirectConfig.match(ChatMessage.class, this::onChatMessage);
 	}
 
 	private void onChatMessage(ChatMessage chatMsg) {
-
 		if (chatCmdService.isChatCommand(chatMsg.getText())) {
 			chatCmdService.executeChatCommand(chatMsg.getAccountId(), chatMsg.getText());
 			return;

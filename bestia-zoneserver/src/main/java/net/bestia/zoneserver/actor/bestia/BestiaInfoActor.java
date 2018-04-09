@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.bestia;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -8,7 +7,7 @@ import net.bestia.entity.Entity;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +27,12 @@ import java.util.stream.Collectors;
  */
 @Component
 @Scope("prototype")
-public class BestiaInfoActor extends AbstractActor {
+public class BestiaInfoActor extends ClientMessageDigestActor {
 
 	public static final String NAME = "bestiaInfo";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final PlayerEntityService playerEntityService;
-
 	private final ActorRef sendClient;
 
 	@Autowired
@@ -43,19 +41,7 @@ public class BestiaInfoActor extends AbstractActor {
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(BestiaInfoRequestMessage.class);
-		context().parent().tell(msg, getSelf());
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(BestiaInfoRequestMessage.class, this::handleInfoRequest)
-				.build();
+		redirectConfig.match(BestiaInfoRequestMessage.class, this::handleInfoRequest);
 	}
 
 	private void handleInfoRequest(BestiaInfoRequestMessage msg) {

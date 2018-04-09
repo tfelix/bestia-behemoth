@@ -7,7 +7,7 @@ import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.bestia.InventoryService;
+import net.bestia.zoneserver.entity.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

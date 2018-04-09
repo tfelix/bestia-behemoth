@@ -1,9 +1,8 @@
-package net.bestia.net.bestia.entity.component
+package net.bestia.entity.component
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
-import net.bestia.entity.component.Component
 import net.bestia.messages.entity.EntityComponentSyncMessage
 
 private val LOG = KotlinLogging.logger {  }

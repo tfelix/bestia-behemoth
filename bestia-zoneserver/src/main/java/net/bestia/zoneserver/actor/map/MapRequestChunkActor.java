@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.map;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -12,7 +11,7 @@ import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.map.MapService;
@@ -33,7 +32,7 @@ import java.util.Optional;
  */
 @Component
 @Scope("prototype")
-public class MapRequestChunkActor extends AbstractActor {
+public class MapRequestChunkActor extends ClientMessageDigestActor {
 
 	public final static String NAME = "mapChunk";
 
@@ -54,20 +53,8 @@ public class MapRequestChunkActor extends AbstractActor {
 		this.mapService = Objects.requireNonNull(mapService);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-	}
 
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(MapChunkRequestMessage.class, this::onMapChunkRequest)
-				.build();
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		// Register for chat commands.
-		final RedirectMessage redirMsg = RedirectMessage.get(MapChunkRequestMessage.class);
-		getContext().parent().tell(redirMsg, getSelf());
+		redirectConfig.match(MapChunkRequestMessage.class, this::onMapChunkRequest);
 	}
 
 	private void onMapChunkRequest(MapChunkRequestMessage msg) {

@@ -19,94 +19,85 @@ import java.util.Objects;
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
  * as well as sending requested shortcuts back to the client.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Component
 @Scope("prototype")
 public class ClientVarActor extends ClientMessageDigestActor {
 
-	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+  private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	public static final String NAME = "clientvar";
+  public static final String NAME = "clientvar";
 
-	private final ClientVarService cvarService;
-	private final ActorRef sendClient;
+  private final ClientVarService cvarService;
+  private final ActorRef sendClient;
 
-	@Autowired
-	public ClientVarActor(ClientVarService cvarService,
-			ActorRef msgHub) {
+  @Autowired
+  public ClientVarActor(
+          ClientVarService cvarService
+  ) {
 
-		this.cvarService = Objects.requireNonNull(cvarService);
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-		
-		this.redirectConfig.match(ClientVarRequestMessage.class, this::handleCvarReqest);
-	}
+    this.cvarService = Objects.requireNonNull(cvarService);
+    this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 
-	/**
-	 * Gets all current shortcuts and sends them back to the client.
-	 * 
-	 * @param msg
-	 *            The request.
-	 */
-	private void handleCvarReqest(ClientVarRequestMessage msg) {
+    this.redirectConfig.match(ClientVarRequestMessage.class, this::handleCvarReqest);
+  }
 
-		switch (msg.getMode()) {
-		case DEL:
-			handleCvarDelete(msg);
-			break;
-		case SET:
-			handleCvarSet(msg);
-			break;
-		case REQ:
-			handleCvarReq(msg);
-			break;
-		default:
-			LOG.warning("Unknown mode in cvar msg: {}.", msg.getMode().toString());
-			return;
-		}
+  /**
+   * Gets all current shortcuts and sends them back to the client.
+   *
+   * @param msg The request.
+   */
+  private void handleCvarReqest(ClientVarRequestMessage msg) {
+    switch (msg.getMode()) {
+      case DEL:
+        handleCvarDelete(msg);
+        break;
+      case SET:
+        handleCvarSet(msg);
+        break;
+      case REQ:
+        handleCvarReq(msg);
+        break;
+      default:
+        LOG.warning("Unknown mode in cvar msg: {}.", msg.getMode().toString());
+    }
+  }
 
-	}
+  /**
+   * Handles the setting of the cvar.
+   */
+  private void handleCvarSet(ClientVarRequestMessage msg) {
+    cvarService.set(msg.getAccountId(), msg.getKey(), msg.getData());
+  }
 
-	/**
-	 * Handles the setting of the cvar.
-	 * 
-	 * @param msg
-	 */
-	private void handleCvarSet(ClientVarRequestMessage msg) {
-		cvarService.set(msg.getAccountId(), msg.getKey(), msg.getData());
-	}
+  /**
+   * Deletes the given key.
+   *
+   * @param msg The message.
+   */
+  private void handleCvarDelete(ClientVarRequestMessage msg) {
+    if (cvarService.isOwnerOfVar(msg.getAccountId(), msg.getKey())) {
+      cvarService.delete(msg.getAccountId(), msg.getKey());
+    }
+  }
 
-	/**
-	 * Deletes the given key.
-	 * 
-	 * @param msg
-	 *            The message.
-	 */
-	private void handleCvarDelete(ClientVarRequestMessage msg) {
-		if (cvarService.isOwnerOfVar(msg.getAccountId(), msg.getKey())) {
-			cvarService.delete(msg.getAccountId(), msg.getKey());
-		}
-	}
+  /**
+   * Retrieves the requested key from the server.
+   *
+   * @param msg The message.
+   */
+  private void handleCvarReq(ClientVarRequestMessage msg) {
+    final long accId = msg.getAccountId();
+    final String key = msg.getKey();
 
-	/**
-	 * Retrieves the requested key from the server.
-	 * 
-	 * @param msg
-	 *            The message.
-	 */
-	private void handleCvarReq(ClientVarRequestMessage msg) {
-		final long accId = msg.getAccountId();
-		final String key = msg.getKey();
+    if (!cvarService.isOwnerOfVar(accId, key)) {
+      return;
+    }
 
-		if (!cvarService.isOwnerOfVar(accId, key)) {
-			return;
-		}
-
-		final ClientVar cvar = cvarService.find(accId, key);
-		final ClientVarMessage cvarMsg = new ClientVarMessage(accId, msg.getUuid(), cvar.getData());
-		sendClient.tell(cvarMsg, getSelf());
-	}
-
+    final ClientVar cvar = cvarService.find(accId, key);
+    final ClientVarMessage cvarMsg = new ClientVarMessage(accId, msg.getUuid(), cvar.getData());
+    sendClient.tell(cvarMsg, getSelf());
+  }
 }
