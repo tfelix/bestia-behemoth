@@ -6,7 +6,7 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.client.LoginService;
+import net.bestia.zoneserver.client.LogoutService;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class MaintenanceCommandTest {
 	private MessageApi akkaApi;
 
 	@Mock
-	private LoginService loginService;
+	private LogoutService logoutService;
 
 	@Mock
 	private RuntimeConfigService config;
@@ -40,7 +40,7 @@ public class MaintenanceCommandTest {
 	@Before
 	public void setup() {
 
-		cmd = new MaintenanceCommand(akkaApi, loginService, config);
+		cmd = new MaintenanceCommand(akkaApi, logoutService, config);
 	}
 
 	@Test
@@ -64,21 +64,21 @@ public class MaintenanceCommandTest {
 
 		verify(akkaApi).sendToClient(eq(acc.getId()), any(ChatMessage.class));
 		verify(config, times(0)).setMaintenanceMode(any());
-		verify(loginService, times(0)).logoutAllUsersBelow(any());
+		verify(logoutService, times(0)).logoutAllUsersBelow(any());
 	}
 
 	@Test
 	public void executeCommand_true_switchesServerModeLogoutUsers() {
 		cmd.executeCommand(acc, "/maintenance true");
 		verify(config).setMaintenanceMode(MaintenanceLevel.PARTIAL);
-		verify(loginService).logoutAllUsersBelow(UserLevel.SUPER_GM);
+		verify(logoutService).logoutAllUsersBelow(UserLevel.SUPER_GM);
 	}
 	
 	@Test
 	public void executeCommand_false_switchesServerModeLogoutUsers() {
 		cmd.executeCommand(acc, "/maintenance false");
 		verify(config).setMaintenanceMode(MaintenanceLevel.NONE);
-		verify(loginService, times(0)).logoutAllUsersBelow(any());
+		verify(logoutService, times(0)).logoutAllUsersBelow(any());
 	}
 
 }

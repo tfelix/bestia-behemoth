@@ -13,8 +13,8 @@ public enum SyncType {
 
 	/**
 	 * Only the client itself is informed. This is needed if the component only
-	 * contains client private data like status values.
+	 * contains client private data like status values. The owner synchronization is
+	 * performed always regardless where on the map the entity is placed.
 	 */
-	OWNER
-
+	ONLY_OWNER
 }

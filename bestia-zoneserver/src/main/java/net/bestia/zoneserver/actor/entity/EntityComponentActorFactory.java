@@ -3,7 +3,6 @@ package net.bestia.zoneserver.actor.entity;
 import java.util.Objects;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentActor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

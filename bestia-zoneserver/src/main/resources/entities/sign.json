@@ -1,0 +1,20 @@
+[
+  {
+    "component": "Visible",
+    "data": {
+      "spriteInfo": {
+        "sprite": "sign_small",
+        "type": "single"
+      }
+    }
+  },
+  {
+    "component": "Status",
+    "data": {
+      "spriteInfo": {
+        "sprite": "sign_small",
+        "type": "single"
+      }
+    }
+  }
+]

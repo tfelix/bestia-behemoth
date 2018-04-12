@@ -1,5 +1,6 @@
 package net.bestia.entity.component
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.domain.Item
 import java.util.*
 
@@ -15,7 +16,6 @@ data class InventoryItem(
  *
  * @author Thomas Felix
  */
-@ComponentSync(SyncType.OWNER)
 class InventoryComponent(id: Long) : Component(id) {
 
   /**
@@ -24,6 +24,7 @@ class InventoryComponent(id: Long) : Component(id) {
    *
    * @return The maximum item weight.
    */
+  @JsonProperty("mw")
   var maxWeight: Float = 0f
     set(value) {
       if (maxWeight < 0) {
@@ -37,6 +38,7 @@ class InventoryComponent(id: Long) : Component(id) {
    *
    * @return The maximum item count. -1 if unlimited.
    */
+  @JsonProperty("mc")
   var maxItemCount: Int = 0
 
   private val items = mutableListOf<InventoryItem>()
@@ -47,6 +49,7 @@ class InventoryComponent(id: Long) : Component(id) {
    *
    * @return Current item weight.
    */
+  @JsonProperty("w")
   var weight: Float = 0f
 
   /**
@@ -55,6 +58,7 @@ class InventoryComponent(id: Long) : Component(id) {
    * @return Current number of item slots stored in this entity.
    */
   val itemCount: Int
+    @JsonProperty("c")
     get() = items.size
 
   init {

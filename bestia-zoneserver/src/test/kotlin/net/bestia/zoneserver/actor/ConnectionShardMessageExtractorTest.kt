@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor
 
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.ClientToMessageEnvelope
+import net.bestia.messages.client.ClientToMessageEnvelope
 import org.junit.Assert
 import org.junit.Test
 

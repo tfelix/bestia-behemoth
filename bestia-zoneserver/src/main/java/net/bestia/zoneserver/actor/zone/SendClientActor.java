@@ -7,7 +7,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.ClientToMessageEnvelope;
+import net.bestia.messages.client.ClientToMessageEnvelope;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.component.LatencyInfo;
 import net.bestia.zoneserver.client.LatencyService;

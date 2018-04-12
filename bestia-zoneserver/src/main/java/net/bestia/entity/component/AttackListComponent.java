@@ -11,7 +11,6 @@ import java.util.Set;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.OWNER)
 public class AttackListComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -19,7 +18,7 @@ public class AttackListComponent extends Component {
 	private final Set<Integer> knownAttacks = new HashSet<>();
 
 	public AttackListComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op.
 	}
 
@@ -51,6 +50,4 @@ public class AttackListComponent extends Component {
 		final AttackListComponent other = (AttackListComponent) obj;
 		return Objects.equals(this.knownAttacks, other.knownAttacks);
 	}
-
-	
 }

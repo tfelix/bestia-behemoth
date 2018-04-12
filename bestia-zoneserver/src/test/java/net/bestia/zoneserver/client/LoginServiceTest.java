@@ -131,10 +131,8 @@ public class LoginServiceTest {
     loginService = new LoginService(config,
             accountDao,
             playerEntityService,
-            akkaApi,
             playerEntityFactory,
             playerBestiaService,
-            playerEntityFactory,
             entityService);
   }
 
@@ -168,23 +166,6 @@ public class LoginServiceTest {
     verify(akkaApi).sendToClient(any(), any());
     verify(playerBestiaService).getMaster(USER_ACC_ID);
     verify(playerEntityService).putPlayerEntity(bestiaEntity);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void logout_invalidAccId_throws() {
-    loginService.logout(-168239);
-  }
-
-  @Test
-  public void logout_validLoggedInAccId_accountIsLoggedOut() {
-    loginService.login(USER_ACC_ID);
-    loginService.logout(USER_ACC_ID);
-
-    //verify(connectionService).disconnectAccount(USER_ACC_ID);
-
-    verify(playerEntityService).save(bestiaEntity);
-    verify(playerEntityService).removePlayerBestias(USER_ACC_ID);
-    verify(entityService).delete(bestiaEntity);
   }
 
   @Test

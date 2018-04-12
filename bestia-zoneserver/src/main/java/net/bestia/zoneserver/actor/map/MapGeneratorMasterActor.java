@@ -1,36 +1,30 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import com.hazelcast.internal.util.ThreadLocalRandom;
-
-import akka.actor.AbstractActor;
-import akka.actor.ActorIdentity;
-import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
-import akka.actor.Identify;
+import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import bestia.server.AkkaCluster;
+import com.hazelcast.internal.util.ThreadLocalRandom;
 import de.tfelix.bestia.worldgen.description.MapDescription;
 import de.tfelix.bestia.worldgen.io.NodeConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.server.MaintenanceLevel;
-import bestia.server.AkkaCluster;
+import net.bestia.zoneserver.client.LogoutService;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService;
-import net.bestia.zoneserver.client.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import scala.concurrent.duration.Duration;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype")
@@ -79,17 +73,17 @@ public class MapGeneratorMasterActor extends AbstractActor {
 	private Set<ActorRef> availableNodes = new HashSet<>();
 
 	private final RuntimeConfigService clusterConfig;
-	private final LoginService loginService;
+	private final LogoutService logoutService;
 
 	@Autowired
 	public MapGeneratorMasterActor(
 			MapGeneratorMasterService mapGenService,
-			LoginService loginService,
+			LogoutService logoutService,
 			RuntimeConfigService config) {
 
 		this.mapGenService = Objects.requireNonNull(mapGenService);
 		this.clusterConfig = Objects.requireNonNull(config);
-		this.loginService = Objects.requireNonNull(loginService);
+		this.logoutService = Objects.requireNonNull(logoutService);
 
 		// Setup a call to the finish method. Must use akka messaging in order
 		// to prevent race conditions.
@@ -123,7 +117,7 @@ public class MapGeneratorMasterActor extends AbstractActor {
 		LOG.info("Putting server into maintenance mode and disconnecting all users.");
 
 		clusterConfig.setMaintenanceMode(MaintenanceLevel.FULL);
-		loginService.logoutAll();
+		logoutService.logoutAll();
 
 		mapBaseParameter = params;
 		queryGeneratorNodes();

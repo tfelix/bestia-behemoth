@@ -14,8 +14,6 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.ALL)
-@ComponentActor("net.bestia.zoneserver.actor.net.bestia.entity.component.MovementComponentActor")
 public class PositionComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -159,5 +157,4 @@ public class PositionComponent extends Component {
 				&& Objects.equals(shape, other.shape)
 				&& Objects.equals(sightBlocking, other.sightBlocking);
 	}
-
 }

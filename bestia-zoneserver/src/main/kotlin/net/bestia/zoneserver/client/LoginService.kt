@@ -1,13 +1,11 @@
 package net.bestia.zoneserver.client
 
-
+import mu.KotlinLogging
 import net.bestia.entity.Entity
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.PlayerComponent
 import net.bestia.entity.factory.PlayerBestiaEntityFactory
-import net.bestia.messages.MessageApi
 import net.bestia.messages.account.AccountLoginRequest
-import net.bestia.messages.login.LogoutMessage
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.domain.Account
 import net.bestia.model.domain.Account.UserLevel
@@ -15,45 +13,25 @@ import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.configuration.RuntimeConfigService
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
 
+private val LOG = KotlinLogging.logger {  }
+
 /**
- * Performs login or logout of the bestia server system.
+ * Performs login of the bestia server system.
  *
  * @author Thomas Felix
  */
 @Service
-class LoginService @Autowired
-constructor(config: RuntimeConfigService,
-            accountDao: AccountDAO,
-            playerEntityService: PlayerEntityService,
-            akkaApi: MessageApi,
-            playerEntityFactory: PlayerBestiaEntityFactory,
-            playerBestiaService: PlayerBestiaService,
-            playerFactory: PlayerBestiaEntityFactory,
-            entityService: EntityService) {
-
-  private val config: RuntimeConfigService
-  private val accountDao: AccountDAO
-  private val playerEntityService: PlayerEntityService
-  private val playerBestiaService: PlayerBestiaService
-  private val akkaApi: MessageApi
-  private val entityService: EntityService
-  private val playerEntityFactory: PlayerBestiaEntityFactory
-
-  init {
-
-    this.config = Objects.requireNonNull(config)
-    this.accountDao = Objects.requireNonNull(accountDao)
-    this.playerEntityService = Objects.requireNonNull(playerEntityService)
-    this.akkaApi = Objects.requireNonNull(akkaApi)
-    this.entityService = Objects.requireNonNull(entityService)
-    this.playerBestiaService = Objects.requireNonNull(playerBestiaService)
-    this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory)
-  }
+class LoginService(
+        private val config: RuntimeConfigService,
+        private val accountDao: AccountDAO,
+        private val playerEntityService: PlayerEntityService,
+        private val playerEntityFactory: PlayerBestiaEntityFactory,
+        private val playerBestiaService: PlayerBestiaService,
+        private val entityService: EntityService
+) {
 
   /**
    * Performs a login for this account. This prepares the bestia server system
@@ -65,7 +43,6 @@ constructor(config: RuntimeConfigService,
    * @return The logged in Account or NULL if login failed.
    */
   fun login(accId: Long): Account? {
-
     if (accId < 0) {
       throw IllegalArgumentException("Account ID must be positive.")
     }
@@ -116,81 +93,7 @@ constructor(config: RuntimeConfigService,
     return account
   }
 
-  /**
-   * Logouts a player. Also cleans up all the data and persists it back to the
-   * database.
-   *
-   * @param accId
-   * The account id to logout.
-   */
-  fun logout(accId: Long) {
-    if (accId <= 0) {
-      throw IllegalArgumentException("Account ID must be positive.")
-    }
-    // Unregister connection.
-    LOG.debug("Logout account: {}.", accId)
-
-    val acc = accountDao.findOne(accId)
-
-    if (acc == null) {
-      LOG.warn("Can not logout account id: {}. ID does not exist.", accId)
-      return
-    }
-
-    // Send disconnect message to the webserver.
-    // Depending on the logout state the actor might have already been
-    // stopped.
-    val logoutMsg = LogoutMessage(accId)
-    akkaApi.sendToClient(accId, logoutMsg)
-
-    val playerEntities = playerEntityService.getPlayerEntities(accId)
-
-    playerEntities.forEach { entity ->
-      try {
-        playerEntityService.save(entity)
-      } catch (e: Exception) {
-        LOG.warn("Something went wrong saving entity {}.", entity, e)
-      }
-    }
-
-    // Only remove the player bestia.
-    playerEntityService.removePlayerBestias(accId)
-
-    LOG.trace("Removing player bestias.")
-
-    // Recycle all entities.
-    playerEntities.forEach { entity ->
-      try {
-        entityService.delete(entity)
-      } catch (e: Exception) {
-        LOG.warn("Something went wrong deleting entity {}.", entity, e)
-      }
-    }
-  }
-
-  /**
-   * Perform a logout on all users currently connected to the server.
-   */
-  fun logoutAll() {
-    // TODO Auto-generated method stub
-
-  }
-
-  /**
-   * Logs out all users who are blow the given user level.
-   *
-   * @param level
-   */
-  fun logoutAllUsersBelow(level: UserLevel) {
-    throw IllegalStateException("Currently broken.")
-    /*
-     * connectionService.getAllConnectedAccountIds().forEachRemaining(accId
-     * -> { final Account acc = accountDao.findOne(accId);
-     *
-     * if (acc.getUserLevel().compareTo(level) == -1) { logout(accId); } });
-     */
-  }
-
+  @Deprecated("User are now directly logged in via web")
   fun setNewLoginToken(request: AccountLoginRequest): AccountLoginRequest {
     Objects.requireNonNull(request)
 
@@ -228,6 +131,7 @@ constructor(config: RuntimeConfigService,
    * The token of this account id.
    * @return TRUE if the account is permitted to login FALSE otherwise.
    */
+  @Deprecated("User are now directly logged in via web")
   fun canLogin(accId: Long, token: String): Boolean {
     Objects.requireNonNull(token)
 
@@ -264,13 +168,7 @@ constructor(config: RuntimeConfigService,
         return false
       }
     }
-
     LOG.trace("Account {} login permitted.", accId)
     return true
-  }
-
-  companion object {
-
-    private val LOG = LoggerFactory.getLogger(LoginService::class.java)
   }
 }

@@ -9,8 +9,6 @@ import java.util.Set;
  *
  * @author Thomas Felix
  */
-@ComponentActor(value = "net.bestia.zoneserver.actor.entity.component.ScriptComponentActor",
-		updateActorOnChange = true)
 public class ScriptComponent extends Component {
 
 	/**

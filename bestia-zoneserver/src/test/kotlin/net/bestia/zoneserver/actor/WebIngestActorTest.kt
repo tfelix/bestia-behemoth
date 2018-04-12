@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
-import net.bestia.messages.ClientFromMessageEnvelope
+import net.bestia.messages.client.ClientFromMessageEnvelope
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.zone.WebIngestActor
 import org.junit.Test

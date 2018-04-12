@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
-import net.bestia.messages.EntityMessageEnvelope;
+import net.bestia.messages.entity.EntityMessageEnvelope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

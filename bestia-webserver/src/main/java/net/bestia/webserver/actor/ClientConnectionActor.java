@@ -6,7 +6,7 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.ClientFromMessageEnvelope;
+import net.bestia.messages.client.ClientFromMessageEnvelope;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.client.ClientConnectMessage;
 import net.bestia.messages.login.LoginAuthMessage;

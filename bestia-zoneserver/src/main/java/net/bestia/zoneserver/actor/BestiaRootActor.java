@@ -9,10 +9,9 @@ import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
-import net.bestia.messages.ClientToMessageEnvelope;
-import net.bestia.messages.ClientsInRangeEnvelope;
-import net.bestia.messages.EntityMessageEnvelope;
 import net.bestia.messages.MessageApi;
+import net.bestia.messages.client.ClientToMessageEnvelope;
+import net.bestia.messages.entity.EntityMessageEnvelope;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.SendEntityActor;
@@ -93,8 +92,6 @@ public class BestiaRootActor extends AbstractActor {
     postmaster.tell(regSendEntity, getSelf());
     final RegisterEnvelopeMessage regToClientMessage = new RegisterEnvelopeMessage(ClientToMessageEnvelope.class, sendClientActor);
     postmaster.tell(regToClientMessage, getSelf());
-    final RegisterEnvelopeMessage regToClientsRangeMessage = new RegisterEnvelopeMessage(ClientsInRangeEnvelope.class, sendClientInRangeActor);
-    postmaster.tell(regToClientsRangeMessage, getSelf());
 
     // Call the startup script.
     scriptService.callScriptMainFunction("startup");

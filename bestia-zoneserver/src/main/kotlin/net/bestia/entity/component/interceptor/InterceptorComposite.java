@@ -82,10 +82,8 @@ public class InterceptorComposite implements Interceptor {
     if (interceptors.containsKey(component.getClass())) {
       LOG.debug("Intercepting update component {} for: {}.", component, entity);
 
-      interceptors.get(component.getClass()).forEach(intercep -> {
-        // Need to cast so we dont get problems with typings.
-        intercep.triggerUpdateAction(entityService, entity, component);
-      });
+      interceptors.get(component.getClass())
+              .forEach(intercep -> intercep.triggerUpdateAction(entityService, entity, component));
     }
   }
 
@@ -104,10 +102,8 @@ public class InterceptorComposite implements Interceptor {
     if (interceptors.containsKey(component.getClass())) {
       LOG.debug("Intercepting created component {} for: {}.", component, entity);
 
-      interceptors.get(component.getClass()).forEach(intercep -> {
-        // Need to cast so we dont get problems with typings.
-        intercep.triggerCreateAction(entityService, entity, component);
-      });
+      interceptors.get(component.getClass())
+              .forEach(intercep -> intercep.triggerCreateAction(entityService, entity, component));
     }
   }
 
@@ -127,7 +123,8 @@ public class InterceptorComposite implements Interceptor {
     if (interceptors.containsKey(component.getClass())) {
       LOG.debug("Intercepting update component {} for: {}.", component, entity);
 
-      interceptors.get(component.getClass()).forEach(intercep -> intercep.triggerDeleteAction(entityService, entity, component));
+      interceptors.get(component.getClass())
+              .forEach(intercep -> intercep.triggerDeleteAction(entityService, entity, component));
     }
   }
 }

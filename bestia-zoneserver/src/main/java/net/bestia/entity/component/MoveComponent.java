@@ -15,8 +15,6 @@ import java.util.Queue;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.ALL)
-@ComponentActor("net.bestia.zoneserver.actor.entity.component.MovementComponentActor")
 public class MoveComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

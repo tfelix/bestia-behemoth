@@ -5,7 +5,7 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.actor.Terminated
 import mu.KotlinLogging
-import net.bestia.messages.ClientToMessageEnvelope
+import net.bestia.messages.client.ClientToMessageEnvelope
 import net.bestia.messages.JsonMessage
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.zoneserver.actor.SpringExtension

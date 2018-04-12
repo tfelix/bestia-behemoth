@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.actor;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.ClientToMessageEnvelope;
-import net.bestia.messages.ClientsInRangeEnvelope;
-import net.bestia.messages.EntityMessageEnvelope;
+import net.bestia.messages.client.ClientToMessageEnvelope;
+import net.bestia.messages.entity.EntityMessageEnvelope;
 import net.bestia.messages.MessageApi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -27,13 +26,6 @@ public class AkkaMessageApi implements MessageApi {
     LOG.debug("sendToClient: {}", message);
     final ClientToMessageEnvelope clientEnvelope = new ClientToMessageEnvelope(clientAccountId, message);
     postmaster.tell(clientEnvelope, ActorRef.noSender());
-  }
-
-  @Override
-  public void sendToActiveClientsInRange(long entityIdWithPosition, @NotNull Serializable message) {
-    LOG.debug("sendToActiveClientsInRange: {}", message);
-    final ClientsInRangeEnvelope inRangeEnvelope = new ClientsInRangeEnvelope(entityIdWithPosition, message);
-    postmaster.tell(inRangeEnvelope, ActorRef.noSender());
   }
 
   @Override

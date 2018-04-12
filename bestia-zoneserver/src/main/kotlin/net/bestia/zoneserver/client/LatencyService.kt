@@ -1,13 +1,12 @@
 package net.bestia.zoneserver.client
 
-
 import com.hazelcast.core.HazelcastInstance
 import com.hazelcast.core.IMap
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.util.*
 
-private val LOG = KotlinLogging.logger {  }
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This services helps to keep track of the client latency. It generates
@@ -19,12 +18,6 @@ private val LOG = KotlinLogging.logger {  }
  */
 @Service
 class LatencyService(
-        /**
-         * Ctor.
-         *
-         * @param hz
-         * Instance of a hazelcast server.
-         */
         hz: HazelcastInstance
 ) {
 

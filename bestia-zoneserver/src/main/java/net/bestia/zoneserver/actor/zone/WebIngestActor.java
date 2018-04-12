@@ -2,11 +2,9 @@ package net.bestia.zoneserver.actor.zone;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.ClientFromMessageEnvelope;
-import bestia.server.EntryActorNames;
+import net.bestia.messages.client.ClientFromMessageEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

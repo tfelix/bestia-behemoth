@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.entity.component.receiver.InSighReceiver;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
@@ -18,8 +19,17 @@ import java.util.Objects;
  *
  * @author Thomas Felix
  */
-@ComponentSync(SyncType.OWNER)
-@ComponentActor("net.bestia.zoneserver.actor.entity.component.StatusComponentActor")
+
+/*
+Syncs:
+Besitzer: IMMER
+wenn in gleicher Party: Modifiziert (Nur HP/MANA)
+wenn in Sichtweite: Modifiziert (Nur HP/Mana)
+ */
+@ClientSync(
+        receiver = InSighReceiver.class,
+        transform =
+)
 public class StatusComponent extends Component {
 
   private static final long serialVersionUID = 1L;

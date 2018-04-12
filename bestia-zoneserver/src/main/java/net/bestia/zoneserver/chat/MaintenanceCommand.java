@@ -1,20 +1,19 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.bestia.messages.MessageApi;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.server.MaintenanceLevel;
+import net.bestia.zoneserver.client.LogoutService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.MessageApi;
-import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigService;
-import net.bestia.zoneserver.client.LoginService;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Allows admins to set the server into maintenance mode. Use with caution since
@@ -33,17 +32,17 @@ public class MaintenanceCommand extends BaseChatCommand {
 	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (true|false)", Pattern.CASE_INSENSITIVE);
 
 	private final RuntimeConfigService config;
-	private final LoginService loginService;
+	private final LogoutService logoutService;
 
 
 	@Autowired
 	public MaintenanceCommand(
-			MessageApi akkaApi, 
-			LoginService loginService, 
+			MessageApi akkaApi,
+			LogoutService logoutService,
 			RuntimeConfigService config) {
 		super(akkaApi);
 
-		this.loginService = Objects.requireNonNull(loginService);
+		this.logoutService = Objects.requireNonNull(logoutService);
 		this.config = Objects.requireNonNull(config);
 	}
 
@@ -83,7 +82,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 		if(isMaintenance) {
 			sendSystemMessage(account.getId(), "Server maintenance: true");
 			config.setMaintenanceMode(MaintenanceLevel.PARTIAL);
-			loginService.logoutAllUsersBelow(UserLevel.SUPER_GM);
+			logoutService.logoutAllUsersBelow(UserLevel.SUPER_GM);
 		} else {
 			sendSystemMessage(account.getId(), "Server maintenance: false");
 			config.setMaintenanceMode(MaintenanceLevel.NONE);

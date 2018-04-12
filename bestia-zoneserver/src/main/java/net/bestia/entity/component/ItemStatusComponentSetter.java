@@ -51,5 +51,4 @@ public class ItemStatusComponentSetter extends ComponentSetter<StatusComponent> 
 		comp.setConditionValues(condValue);
 		comp.setStatusPoints(sp);
 	}
-
 }

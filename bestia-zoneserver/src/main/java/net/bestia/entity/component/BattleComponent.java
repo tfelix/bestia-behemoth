@@ -39,7 +39,7 @@ public class BattleComponent extends Component {
 	private final Map<Long, DamageEntry> damageReceived = new HashMap<>();
 
 	public BattleComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op
 	}
 

@@ -14,7 +14,6 @@ import java.util.Set;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.OWNER)
 public class EquipComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -23,7 +22,7 @@ public class EquipComponent extends Component {
 	private final Set<Item> equipments = new HashSet<>();
 
 	public EquipComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op.
 	}
 

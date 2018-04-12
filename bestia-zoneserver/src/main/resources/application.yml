@@ -22,6 +22,8 @@ logging:
     net.bestia.entity.component.EntityService: DEBUG
     net.bestia.zoneserver.connection.LatencyService: INFO
     net.bestia.zoneserver.actor.zone.WebIngestActor: INFO
+    net.bestia.zoneserver.client.LatencyService: WARN
+    net.bestia.zoneserver.actor.zone.ClientMessageActor: WARN
     net.bestia.entity.EntityService: INFO
 
 # ===============================

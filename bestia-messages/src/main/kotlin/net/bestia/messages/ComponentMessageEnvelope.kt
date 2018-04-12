@@ -3,6 +3,7 @@ package net.bestia.messages
 /**
  * Messages inside this component envelope are delivered to the component actor of the entity actor.
  */
+// TODO Not sure if this is needed. Why not only send update notifiy to actor?
 class ComponentMessageEnvelope(
         val entityId: Long,
         val componentId: Long,

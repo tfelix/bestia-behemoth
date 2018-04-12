@@ -116,6 +116,6 @@ class LevelService(
   }
 
   companion object {
-    private const val MAX_LEVEL = 10
+    const val MAX_LEVEL = 10
   }
 }

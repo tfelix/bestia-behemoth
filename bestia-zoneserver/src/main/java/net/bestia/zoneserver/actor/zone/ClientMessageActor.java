@@ -4,7 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.ClientFromMessageEnvelope;
+import net.bestia.messages.client.ClientFromMessageEnvelope;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
@@ -86,7 +86,7 @@ public class ClientMessageActor extends ClientMessageDigestActor {
   }
 
   @Override
-  public void preStart() throws Exception {
+  public void preStart() {
 
     // === Connection ===
     SpringExtension.actorOf(getContext(), ClientConnectionManagerActor.class);

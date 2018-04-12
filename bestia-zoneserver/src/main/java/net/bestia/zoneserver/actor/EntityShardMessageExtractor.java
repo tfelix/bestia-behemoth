@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor;
 
 import akka.cluster.sharding.ShardRegion;
-import net.bestia.messages.EntityMessageEnvelope;
+import net.bestia.messages.entity.EntityMessageEnvelope;
 
 /**
  * Defines methods for extracting the shard id from the incoming messages for

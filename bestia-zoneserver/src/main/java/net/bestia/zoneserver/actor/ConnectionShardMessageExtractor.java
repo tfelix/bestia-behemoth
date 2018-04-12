@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor;
 
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.ClientToMessageEnvelope;
+import net.bestia.messages.client.ClientToMessageEnvelope;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import org.springframework.stereotype.Component;
 

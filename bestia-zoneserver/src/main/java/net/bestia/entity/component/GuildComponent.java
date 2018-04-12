@@ -10,7 +10,6 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.ALL)
 public class GuildComponent extends Component {
 	
 	private static final long serialVersionUID = 1L;
@@ -91,11 +90,8 @@ public class GuildComponent extends Component {
 		} else if (!guildName.equals(other.guildName))
 			return false;
 		if (rankName == null) {
-			if (other.rankName != null)
-				return false;
-		} else if (!rankName.equals(other.rankName))
-			return false;
-		return true;
+			return other.rankName == null;
+		} else return rankName.equals(other.rankName);
 	}
 
 	@Override

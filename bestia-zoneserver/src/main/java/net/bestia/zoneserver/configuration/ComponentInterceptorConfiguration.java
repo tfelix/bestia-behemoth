@@ -19,7 +19,6 @@ public class ComponentInterceptorConfiguration {
 
 	/**
 	 * Adds a new default interceptor to the interceptor class.
-	 *
 	 */
 	@Bean
 	public Interceptor defaultInterceptor(

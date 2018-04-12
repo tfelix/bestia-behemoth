@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.verify
-import net.bestia.messages.ClientToMessageEnvelope
+import net.bestia.messages.client.ClientToMessageEnvelope
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.SpringExtension
