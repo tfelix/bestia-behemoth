@@ -16,6 +16,8 @@
       <module name="bestia-models_test" target="1.8" />
       <module name="bestia-server-commons_main" target="1.8" />
       <module name="bestia-server-commons_test" target="1.8" />
+      <module name="bestia-webserver-akka_main" target="1.8" />
+      <module name="bestia-webserver-akka_test" target="1.8" />
       <module name="bestia-webserver_main" target="1.8" />
       <module name="bestia-webserver_test" target="1.8" />
       <module name="bestia-zoneserver_main" target="1.8" />
