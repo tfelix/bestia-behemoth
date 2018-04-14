@@ -1,17 +1,16 @@
 package net.bestia.messages.ui;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import net.bestia.messages.JsonMessage;
+
+import java.util.Objects;
 
 
 public class ClientVarMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MESSAGE_ID = "cvar";
+	public static final String MESSAGE_ID = "cvar";
 
 	private final String uuid;
 	private final String data;

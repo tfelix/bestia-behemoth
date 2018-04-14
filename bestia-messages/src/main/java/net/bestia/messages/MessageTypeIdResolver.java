@@ -19,7 +19,7 @@ import java.util.Set;
  * messages which inherit from Message and determine their id. It stores it and
  * uses this serialize the messages.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MessageTypeIdResolver extends TypeIdResolverBase {
@@ -46,7 +46,9 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			}
 
 			try {
-				final Field messageId = msg.getField("MESSAGE_ID");
+			  final Field[] fields = msg.getFields();
+			  log.debug(fields.toString());
+				final Field messageId = msg.getDeclaredField("MESSAGE_ID");
 				final String key = (String) messageId.get(null);
 
 				idToClass.put(key, msg);
@@ -55,7 +57,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 				log.trace("Found Message.class: {} - {}", key, msg.toString());
 
 			} catch (Exception e) {
-				log.error("Could not get static MESSAGE_ID field from Message class. Serialization and deserialization will fail.", e);
+				log.error("Could not get static MESSAGE_ID field from Message class: "+ msg.getName() +". Serialization and deserialization will fail.", e);
 				System.exit(1);
 			}
 		}

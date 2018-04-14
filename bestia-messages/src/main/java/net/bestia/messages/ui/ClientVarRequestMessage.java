@@ -15,7 +15,7 @@ public class ClientVarRequestMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MESSAGE_ID = "cvar.req";
+	public static final String MESSAGE_ID = "cvar.req";
 
 	/**
 	 * Which mode the client the message contains.

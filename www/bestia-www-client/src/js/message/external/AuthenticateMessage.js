@@ -13,7 +13,6 @@ export default class AuthenticateMessage {
     constructor(accId, token) {
         this.mid = MID.SYSTEM_AUTH;
 
-        this.accId = accId;
-        this.token = token;
+        this.jwtToken = token;
     }
 }

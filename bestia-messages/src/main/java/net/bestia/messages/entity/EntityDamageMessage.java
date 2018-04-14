@@ -1,13 +1,12 @@
 package net.bestia.messages.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.messages.EntityJsonMessage;
+import net.bestia.model.battle.Damage;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.bestia.messages.EntityJsonMessage;
-import net.bestia.model.battle.Damage;
 
 /**
  * This message can be used to communicate a received damage to an entity. If
@@ -21,7 +20,7 @@ public class EntityDamageMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MESSAGE_ID = "entity.damage";
+	public static final String MESSAGE_ID = "entity.damage";
 
 	@JsonProperty("d")
 	private final List<Damage> damage = new ArrayList<>();

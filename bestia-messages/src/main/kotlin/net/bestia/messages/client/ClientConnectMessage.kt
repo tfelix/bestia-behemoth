@@ -1,8 +1,9 @@
 package net.bestia.messages.client
 
 import akka.actor.ActorRef
+import java.io.Serializable
 
-sealed class ConnectMessage
+sealed class ConnectMessage : Serializable
 
 /**
  * This message is send by the webserver frontend as soon as a client is fully

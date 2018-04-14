@@ -5,6 +5,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
@@ -24,7 +25,7 @@ public class ClientConnectionsActor extends AbstractActor {
   private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
   private final ActorRef uplink;
-  private final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper = new ObjectMapper().registerModule(new KotlinModule());
 
   private final BiMap<String, ActorRef> connections = HashBiMap.create();
 

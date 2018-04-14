@@ -1,93 +1,94 @@
 package net.bestia.messages.chat;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import net.bestia.messages.JsonMessage;
+
+import java.util.Objects;
 
 public class ChatEchoMessage extends JsonMessage {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public enum EchoCode {
-		OK, ERROR, RECEIVER_UNKNOWN // < Receiver offline or unknown to the
-									// server or blocked.
-	}
+  public static final String MESSAGE_ID = "chat.echo";
 
-	@JsonProperty("ec")
-	private EchoCode echoCode;
+  public enum EchoCode {
+    OK, ERROR, RECEIVER_UNKNOWN // < Receiver offline or unknown to the
+    // server or blocked.
+  }
 
-	@JsonProperty("txt")
-	private String text;
+  @JsonProperty("ec")
+  private EchoCode echoCode;
 
-	@JsonProperty("cmid")
-	private int chatMessageId;
-	
-	/**
-	 * Needed for MessageTypeIdResolver 
-	 */
-	private ChatEchoMessage() {
-		super(0);
-	}
+  @JsonProperty("txt")
+  private String text;
 
-	private ChatEchoMessage(ChatMessage rhs) {
-		super(rhs.getAccountId());
+  @JsonProperty("cmid")
+  private int chatMessageId;
 
-		this.echoCode = EchoCode.OK;
-		this.text = rhs.getText();
-		this.chatMessageId = rhs.getChatMessageId();
-	}
+  /**
+   * Needed for MessageTypeIdResolver
+   */
+  private ChatEchoMessage() {
+    super(0);
+  }
 
-	public ChatEchoMessage(long accId, EchoCode code, String txt, int chatMsgId) {
-		super(accId);
+  private ChatEchoMessage(ChatMessage rhs) {
+    super(rhs.getAccountId());
 
-		this.echoCode = Objects.requireNonNull(code);
-		this.text = Objects.requireNonNull(txt);
-		this.chatMessageId = chatMsgId;
-	}
+    this.echoCode = EchoCode.OK;
+    this.text = rhs.getText();
+    this.chatMessageId = rhs.getChatMessageId();
+  }
 
-	/**
-	 * Creates a ChatEchoMessage from a incoming ChatMessage. Please note that
-	 * the ChatMessage must be fully initialized in order to use this method. So
-	 * account fields and message id must be set. Otherwise an exception is
-	 * thrown.
-	 * 
-	 * @param msg
-	 * @return
-	 */
-	public static ChatEchoMessage getEchoMessage(ChatMessage msg) {
+  public ChatEchoMessage(long accId, EchoCode code, String txt, int chatMsgId) {
+    super(accId);
 
-		return new ChatEchoMessage(msg);
-	}
+    this.echoCode = Objects.requireNonNull(code);
+    this.text = Objects.requireNonNull(txt);
+    this.chatMessageId = chatMsgId;
+  }
 
-	public EchoCode getEchoCode() {
-		return echoCode;
-	}
+  /**
+   * Creates a ChatEchoMessage from a incoming ChatMessage. Please note that
+   * the ChatMessage must be fully initialized in order to use this method. So
+   * account fields and message id must be set. Otherwise an exception is
+   * thrown.
+   *
+   * @param msg
+   * @return
+   */
+  public static ChatEchoMessage getEchoMessage(ChatMessage msg) {
 
-	public void setEchoCode(EchoCode echoCode) {
-		this.echoCode = echoCode;
-	}
+    return new ChatEchoMessage(msg);
+  }
 
-	public String getText() {
-		return text;
-	}
+  public EchoCode getEchoCode() {
+    return echoCode;
+  }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+  public void setEchoCode(EchoCode echoCode) {
+    this.echoCode = echoCode;
+  }
 
-	public int getChatMessageId() {
-		return chatMessageId;
-	}
+  public String getText() {
+    return text;
+  }
 
-	@Override
-	public String getMessageId() {
-		return "chat.echo";
-	}
+  public void setText(String text) {
+    this.text = text;
+  }
 
-	@Override
-	public ChatEchoMessage createNewInstance(long accountId) {
-		return new ChatEchoMessage(accountId, this.echoCode, this.text, this.chatMessageId);
-	}
+  public int getChatMessageId() {
+    return chatMessageId;
+  }
+
+  @Override
+  public String getMessageId() {
+    return MESSAGE_ID;
+  }
+
+  @Override
+  public ChatEchoMessage createNewInstance(long accountId) {
+    return new ChatEchoMessage(accountId, this.echoCode, this.text, this.chatMessageId);
+  }
 }
