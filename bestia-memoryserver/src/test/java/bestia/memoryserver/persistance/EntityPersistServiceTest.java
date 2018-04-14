@@ -1,24 +1,21 @@
 package bestia.memoryserver.persistance;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.TagComponent;
 import net.bestia.memoryserver.persistance.EntityPersistService;
+import net.bestia.model.dao.EntityDataDAO;
+import net.bestia.model.domain.EntityData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.TagComponent;
-import bestia.model.dao.EntityDataDAO;
-import bestia.model.domain.EntityData;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityPersistServiceTest {

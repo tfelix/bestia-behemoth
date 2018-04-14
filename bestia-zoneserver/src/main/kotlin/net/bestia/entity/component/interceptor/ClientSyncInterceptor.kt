@@ -7,10 +7,8 @@ import net.bestia.entity.Entity
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.ClientSync
 import net.bestia.entity.component.Component
-import net.bestia.entity.component.EntityComponentSyncMessageFactory
 import net.bestia.entity.component.receiver.ActorReceiver
 import net.bestia.entity.component.receiver.ClientReceiver
-import net.bestia.messages.MessageApi
 import net.bestia.messages.entity.EntityComponentSyncMessage
 import org.springframework.context.ApplicationContext
 
@@ -24,8 +22,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @org.springframework.stereotype.Component
-class ClientSyncInterceptorEx(
-        private val msgApi: MessageApi,
+class ClientSyncInterceptor(
         private val applicationContext: ApplicationContext
 ) {
   private val mapper = ObjectMapper()
@@ -65,6 +62,8 @@ class ClientSyncInterceptorEx(
 
       val receiver = gatherer.gatherReceiver(entity, comp, entityService)
 
+      LOG.debug { receiver }
+      /*
       if (!condition.doSync(entity, comp, entityService)) {
         return
       }
@@ -81,6 +80,7 @@ class ClientSyncInterceptorEx(
       val msg = envelopeForComponent(transformedComp)
 
       // TODO An alle empfänger senden
+      */
     }
   }
 

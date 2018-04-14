@@ -117,7 +117,7 @@ public class MapGeneratorMasterActor extends AbstractActor {
 		LOG.info("Putting server into maintenance mode and disconnecting all users.");
 
 		clusterConfig.setMaintenanceMode(MaintenanceLevel.FULL);
-		logoutService.logoutAll();
+		logoutService.logoutAllUsers();
 
 		mapBaseParameter = params;
 		queryGeneratorNodes();

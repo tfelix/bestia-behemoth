@@ -4,7 +4,7 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.client.ClientFromMessageEnvelope;
+import net.bestia.messages.client.FromClientEnvelop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class WebIngestActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder().match(ClientFromMessageEnvelope.class, msg -> {
+		return receiveBuilder().match(FromClientEnvelop.class, msg -> {
 			LOG.debug("Received message from web: {}", msg);
 			postmaster.tell(msg, getSender());
 		}).build();

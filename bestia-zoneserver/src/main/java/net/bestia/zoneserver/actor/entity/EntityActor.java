@@ -8,9 +8,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import net.bestia.messages.ComponentMessageEnvelope;
-import net.bestia.messages.entity.ComponentInstallMessage;
-import net.bestia.messages.entity.ComponentRemoveMessage;
+import net.bestia.messages.entity.ComponentEnvelope;
+import net.bestia.messages.entity.ComponentIntall;
+import net.bestia.messages.entity.ComponentRemove;
+import net.bestia.messages.entity.ToEntityEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -54,58 +55,71 @@ public class EntityActor extends AbstractActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-            .match(ComponentInstallMessage.class, this::handleComponentInstall)
-            .match(ComponentRemoveMessage.class, this::handleComponentRemove)
-            .match(ComponentMessageEnvelope.class, this::handleComponentPayload)
+            .match(ToEntityEnvelope.class, this::handleEntityEnvelope)
             .match(Terminated.class, this::handleTerminated)
             .build();
+  }
+
+  private void handleMessage(Object msg) {
+    if(msg instanceof  ComponentEnvelope) {
+      handleComponentPayload((ComponentEnvelope) msg);
+    } else {
+      unhandled(msg);
+    }
+  }
+
+  private void handleEntityEnvelope(ToEntityEnvelope envelope) {
+    checkStartup(envelope.getEntityId());
+    handleMessage(envelope.getContent());
   }
 
   /**
    * Checks if we have such a associated component and if so delivers the
    * message.
    */
-  private void handleComponentPayload(ComponentMessageEnvelope msg) {
-    checkStartup(msg.getEntityId());
-
+  private void handleComponentPayload(ComponentEnvelope msg) {
     final long compId = msg.getComponentId();
 
-    if (!componentActors.containsKey(compId)) {
-      LOG.debug("Component message unhandled: {}.", msg);
-      unhandled(msg);
-      return;
-    }
+    if(msg.getContent() instanceof ComponentIntall) {
+     handleComponentInstall(compId);
+    } else if(msg.getContent() instanceof ComponentRemove) {
+      handleComponentRemove(compId);
+    } else {
+      if (!componentActors.containsKey(compId)) {
+        LOG.debug("Component message unhandled: {}.", msg);
+        unhandled(msg);
+        return;
+      }
 
-    final ActorRef compActor = componentActors.get(compId);
-    LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
-    compActor.tell(msg.getContent(), getSelf());
+      final ActorRef compActor = componentActors.get(compId);
+      LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
+      compActor.tell(msg.getContent(), getSelf());
+    }
   }
 
   /**
    * Adds or removes a active component actor from the entity.
    */
-  private void handleComponentInstall(ComponentInstallMessage msg) {
-    checkStartup(msg.getEntityId());
-
-    LOG.debug("Installing component: {} on entity: {}.", msg.getComponentId(), entityId);
+  private void handleComponentInstall(long componentId) {
+    LOG.debug("Installing component: {} on entity: {}.", componentId, entityId);
 
     // Install the component.
-    final ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
+    final ActorRef compActor = factory.startActor(getContext(), componentId);
 
     if (compActor == null) {
-      LOG.warning("Component actor for comp id {} was not created.", msg.getComponentId());
+      LOG.warning("Component actor for comp id {} was not created.", componentId);
       return;
     }
 
     context().watch(compActor);
-    componentActors.put(msg.getComponentId(), compActor);
+    componentActors.put(componentId, compActor);
   }
 
-  private void handleComponentRemove(ComponentRemoveMessage msg) {
-    LOG.debug("Removing component: {} on entity: {}.", msg.getComponentId(), entityId);
+  private void handleComponentRemove(long componentId) {
+    LOG.debug("Removing component: {} on entity: {}.", componentId, entityId);
 
     // Remove the component.
-    final ActorRef compRef = componentActors.getOrDefault(msg.getComponentId(), ActorRef.noSender());
+    final ActorRef compRef = componentActors.getOrDefault(componentId, ActorRef.noSender());
     compRef.tell(PoisonPill.getInstance(), getSelf());
   }
 

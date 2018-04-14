@@ -55,7 +55,7 @@ class EntityFactory {
 	}
 
 	public Entity buildEntity(Blueprint blueprint,
-			Set<ComponentSetter<? extends Component>> setter) {
+														Set<ComponentSetter<? extends Component>> setter) {
 
 		Objects.requireNonNull(blueprint);
 		Objects.requireNonNull(setter);

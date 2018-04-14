@@ -10,8 +10,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.client.ClientToMessageEnvelope;
-import net.bestia.messages.entity.EntityMessageEnvelope;
+import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.entity.ToEntityEnvelope;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.SendEntityActor;
@@ -88,9 +88,9 @@ public class BestiaRootActor extends AbstractActor {
     final ActorRef sendClientInRangeActor = SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class);
 
     // === Register the postmaster connections ===
-    final RegisterEnvelopeMessage regSendEntity = new RegisterEnvelopeMessage(EntityMessageEnvelope.class, sendEntityActor);
+    final RegisterEnvelopeMessage regSendEntity = new RegisterEnvelopeMessage(ToEntityEnvelope.class, sendEntityActor);
     postmaster.tell(regSendEntity, getSelf());
-    final RegisterEnvelopeMessage regToClientMessage = new RegisterEnvelopeMessage(ClientToMessageEnvelope.class, sendClientActor);
+    final RegisterEnvelopeMessage regToClientMessage = new RegisterEnvelopeMessage(ToClientEnvelope.class, sendClientActor);
     postmaster.tell(regToClientMessage, getSelf());
 
     // Call the startup script.

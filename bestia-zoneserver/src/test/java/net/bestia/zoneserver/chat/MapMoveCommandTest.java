@@ -4,7 +4,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.client.ToClientEnvelope;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
@@ -91,7 +91,7 @@ public class MapMoveCommandTest {
 	public void executeCommand_wrongArgs_sendsMessage() {
 		cmd.executeCommand(acc, "/mm bla bla");
 
-		verify(akkaApi).sendToClient(any(), any(ChatMessage.class));
+		verify(akkaApi).send(any(ToClientEnvelope.class));
 		verify(entityService, times(0)).updateComponent(posComp);
 	}
 
@@ -108,12 +108,12 @@ public class MapMoveCommandTest {
 
 		cmd.executeCommand(acc, "/mm -10 11");
 		verify(entityService, times(0)).updateComponent(posComp);
-		verify(akkaApi).sendToClient(any(), any(ChatMessage.class));
+		verify(akkaApi).send(any(ToClientEnvelope.class));
 	
 		cmd.executeCommand(acc, "/mm 100000 11");
 
 		verify(entityService, times(0)).updateComponent(posComp);
-		verify(akkaApi, times(2)).sendToClient(any(), any(ChatMessage.class));
+		verify(akkaApi, times(2)).send(any(ToClientEnvelope.class));
 	}
 
 	@Test

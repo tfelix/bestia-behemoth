@@ -160,7 +160,7 @@ public class PlayerEntityServiceTest {
     pbeService.setActiveEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID);
 
     ArgumentCaptor<BestiaActivateMessage> captor = ArgumentCaptor.forClass(BestiaActivateMessage.class);
-    verify(akkaApi, times(1)).sendToClient(any(), captor.capture());
+    verify(akkaApi, times(1)).send(captor.capture());
 
     Entity active = pbeService.getActivePlayerEntity(KNOWN_ACC_ID);
 

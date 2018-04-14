@@ -1,17 +1,17 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Objects;
-
-import net.bestia.entity.component.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.component.ActorSync;
+import net.bestia.entity.component.Component;
 import net.bestia.zoneserver.actor.SpringExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * Depending on the given component ID this factory will create an actor
@@ -56,13 +56,13 @@ public class EntityComponentActorFactory {
 	}
 
 	private ActorRef startActorByAnnotation(ActorContext ctx, Component comp) {
-		if (!comp.getClass().isAnnotationPresent(ComponentActor.class)) {
+		if (!comp.getClass().isAnnotationPresent(ActorSync.class)) {
 			LOG.warn("Component {} (id: {}) has no ComponentActor annotation. Can not create Actor.",
 					comp.getClass().getName(), comp.getId());
 			return null;
 		}
 
-		final ComponentActor compActor = comp.getClass().getAnnotation(ComponentActor.class);
+		final ActorSync compActor = comp.getClass().getAnnotation(ActorSync.class);
 		try {
 			@SuppressWarnings("unchecked")
 			final Class<? extends AbstractActor> actorClass = (Class<? extends AbstractActor>) Class.forName(compActor.value());

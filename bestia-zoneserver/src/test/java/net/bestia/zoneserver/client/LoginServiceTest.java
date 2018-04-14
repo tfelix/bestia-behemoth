@@ -89,6 +89,9 @@ public class LoginServiceTest {
   private PlayerEntityService playerEntityService;
 
   @Mock
+  private ConnectionService connectionService;
+
+  @Mock
   private Password password;
 
   @Before
@@ -133,7 +136,8 @@ public class LoginServiceTest {
             playerEntityService,
             playerEntityFactory,
             playerBestiaService,
-            entityService);
+            entityService,
+            connectionService);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -151,7 +155,7 @@ public class LoginServiceTest {
     verify(entityService).getEntity(EXISTING_ENTITY_ID);
     //verify(connectionService).connected(USER_ACC_ID, clientConnection.ref().path().address());
     verify(playerEntityFactory, times(0)).build(any());
-    verify(akkaApi).sendToClient(any(), any());
+    verify(akkaApi).send(any());
     verify(playerBestiaService).getMaster(USER_ACC_ID);
     verify(playerEntityService).putPlayerEntity(bestiaEntity);
   }
@@ -163,9 +167,10 @@ public class LoginServiceTest {
     verify(accountDao).findOne(USER_ACC_ID);
     //verify(connectionService).connected(USER_ACC_ID, clientConnection.ref().path().address());
     verify(playerEntityFactory).build(any());
-    verify(akkaApi).sendToClient(any(), any());
+    verify(akkaApi).send(any());
     verify(playerBestiaService).getMaster(USER_ACC_ID);
     verify(playerEntityService).putPlayerEntity(bestiaEntity);
+    verify(connectionService).addConnection(USER_ACC_ID);
   }
 
   @Test

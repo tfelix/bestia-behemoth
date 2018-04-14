@@ -1,7 +1,10 @@
 package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.entity.component.receiver.InSameGuildReceiver;
 import net.bestia.entity.component.receiver.InSighReceiver;
+import net.bestia.entity.component.receiver.OwnerReceiver;
+import net.bestia.entity.component.transformer.StatusOnlyConditionTransformer;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
@@ -19,17 +22,11 @@ import java.util.Objects;
  *
  * @author Thomas Felix
  */
-
-/*
-Syncs:
-Besitzer: IMMER
-wenn in gleicher Party: Modifiziert (Nur HP/MANA)
-wenn in Sichtweite: Modifiziert (Nur HP/Mana)
- */
-@ClientSync(
-        receiver = InSighReceiver.class,
-        transform =
-)
+@ClientSync(directives = {
+        @ClientDirective(receiver = OwnerReceiver.class),
+        @ClientDirective(receiver = InSameGuildReceiver.class, transform = StatusOnlyConditionTransformer.class),
+        @ClientDirective(receiver = InSighReceiver.class, transform = StatusOnlyConditionTransformer.class)
+})
 public class StatusComponent extends Component {
 
   private static final long serialVersionUID = 1L;
@@ -46,7 +43,7 @@ public class StatusComponent extends Component {
   private ConditionValues condValues = new ConditionValues();
 
   public StatusComponent(long id) {
-    super(id);
+    super(id, 0);
     // no op
   }
 

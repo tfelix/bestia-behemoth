@@ -23,7 +23,7 @@ public class PositionComponent extends Component {
 	private boolean sightBlocking = false;
 
 	public PositionComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op.
 	}
 

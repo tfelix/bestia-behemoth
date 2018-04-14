@@ -8,4 +8,5 @@ class TrueCondition : SyncCondition {
   override fun doSync(receiver: Entity, entity: Entity, component: Component, entityService: EntityService): Boolean {
     return true
   }
+
 }

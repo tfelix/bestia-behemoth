@@ -1,11 +1,6 @@
 package bestia.memoryserver.persistance;
 
-import static org.mockito.Mockito.verify;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import net.bestia.entity.Entity;
 import net.bestia.memoryserver.persistance.EntityMapStore;
 import net.bestia.memoryserver.persistance.EntityPersistService;
 import org.junit.Before;
@@ -14,7 +9,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.entity.Entity;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)

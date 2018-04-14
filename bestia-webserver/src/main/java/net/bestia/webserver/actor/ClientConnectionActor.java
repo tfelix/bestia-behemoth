@@ -6,12 +6,12 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.client.ClientFromMessageEnvelope;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.client.ClientConnectMessage;
+import net.bestia.messages.client.FromClientEnvelop;
 import net.bestia.messages.login.LoginAuthMessage;
-import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LogoutMessage;
+import net.bestia.messages.login.LogoutState;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -94,11 +94,7 @@ public class ClientConnectionActor extends AbstractActor {
       }
     }
 
-    final ClientConnectMessage ccsmsg = new ClientConnectMessage(
-            accountId,
-            ClientConnectMessage.ConnectionState.DISCONNECTED,
-            getSelf());
-
+    final ClientConnectMessage ccsmsg = new ClientConnectMessage(accountId, getSelf());
     uplink.tell(ccsmsg, getSelf());
   }
 
@@ -132,7 +128,7 @@ public class ClientConnectionActor extends AbstractActor {
       msg = msg.createNewInstance(accountId);
 
       LOG.debug("Client sending: {}.", msg.toString());
-      uplink.tell(wrap(msg), getSelf());
+      uplink.tell(wrap(accountId, msg), getSelf());
 
     } catch (IOException e) {
       LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
@@ -158,34 +154,32 @@ public class ClientConnectionActor extends AbstractActor {
   private void performTemporaryLoginFlow(LoginAuthMessage loginMsg) {
     LOG.warning("Temp. login flow must be replaced with a proper one when known how to do inter service communication");
     String validLoginToken = "944baa39-d1ba-48be-a541-664fbb2e6fae";
-    if(!loginMsg.getToken().equals(validLoginToken)) {
-      final LoginAuthReplyMessage replyMessage = LoginAuthReplyMessage.denied(loginMsg.getAccountId());
-      sendToClient(replyMessage);
+    if(!loginMsg.getJwtToken().equals(validLoginToken)) {
+
+      final LogoutMessage reply = new LogoutMessage(LogoutState.NO_REASON, "");
+      sendToClient(reply);
       getContext().stop(getSelf());
     } else {
       LOG.debug("Client login accepted.");
       // This acc id is verified by the server.
-      this.accountId = loginMsg.getAccountId();
+      // TODO Must be returned from JWT token.
+      this.accountId = 1;
 
       getContext().become(authenticated);
 
       // Announce to the server that we have a fully connected client.
-      final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
-              ClientConnectMessage.ConnectionState.CONNECTED,
-              getSelf());
-      uplink.tell(wrap(cccm), getSelf());
-
-      // Send the client the login message. This must be done when the server
-      // has completed the registration of the client and awaits data now.
-      final LoginAuthReplyMessage replyMessage = LoginAuthReplyMessage.accept(loginMsg.getAccountId(), "Testuser");
-      sendToClient(replyMessage);
+      final ClientConnectMessage cccm = new ClientConnectMessage(
+              accountId,
+              getSelf()
+      );
+      uplink.tell(wrap(accountId, cccm), getSelf());
     }
 
     deathTimer.cancel();
     deathTimer = null;
   }
 
-  private void sendToClient(AccountMessage message) {
+  private void sendToClient(Object message) {
     // Send the payload to the client.
     try {
       final String payload = mapper.writeValueAsString(message);
@@ -198,7 +192,7 @@ public class ClientConnectionActor extends AbstractActor {
     }
   }
 
-  private ClientFromMessageEnvelope wrap(Object message) {
-    return new ClientFromMessageEnvelope(message);
+  private FromClientEnvelop wrap(Long accountId, Object message) {
+    return new FromClientEnvelop(accountId, message);
   }
 }

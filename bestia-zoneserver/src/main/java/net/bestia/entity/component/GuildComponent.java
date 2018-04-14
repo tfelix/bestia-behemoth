@@ -27,7 +27,7 @@ public class GuildComponent extends Component {
 	private String rankName;
 	
 	public GuildComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op.
 	}
 	

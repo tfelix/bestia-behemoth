@@ -2,7 +2,7 @@ package net.bestia.messages.entity
 
 import net.bestia.messages.Envelope
 
-class EntityMessageEnvelope(
+data class ToEntityEnvelope(
         val entityId: Long,
-        content: Any
-) : Envelope(content)
+        override val content: Any
+) : Envelope

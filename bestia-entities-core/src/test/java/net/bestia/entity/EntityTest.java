@@ -9,13 +9,13 @@ public class EntityTest {
 
 	private static class MyComponent extends Component {
 		public MyComponent(long id) {
-			super(id);
+			super(id, 0);
 		}
 	}
 
 	private static class MyComponent2 extends Component {
 		public MyComponent2(long id) {
-			super(id);
+			super(id, 0);
 		}
 	}
 

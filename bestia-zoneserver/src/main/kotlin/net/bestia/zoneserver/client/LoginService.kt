@@ -30,7 +30,8 @@ class LoginService(
         private val playerEntityService: PlayerEntityService,
         private val playerEntityFactory: PlayerBestiaEntityFactory,
         private val playerBestiaService: PlayerBestiaService,
-        private val entityService: EntityService
+        private val entityService: EntityService,
+        private val connectionService: ConnectionService
 ) {
 
   /**
@@ -89,6 +90,8 @@ class LoginService(
     // Update the DB.
     master.entityId = masterEntity.id
     playerBestiaService.save(master)
+
+    connectionService.addConnection(accId)
 
     return account
   }

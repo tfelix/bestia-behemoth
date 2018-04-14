@@ -1,7 +1,8 @@
 package net.bestia.messages.client
 
 import akka.actor.ActorRef
-import net.bestia.messages.AccountMessage
+
+sealed class ConnectMessage
 
 /**
  * This message is send by the webserver frontend as soon as a client is fully
@@ -11,25 +12,16 @@ import net.bestia.messages.AccountMessage
  *
  * @author Thomas Felix
  */
-class ClientConnectMessage(
-        accId: Long,
-        val state: ConnectionState,
+data class ClientConnectMessage(
+        val accountId: Long,
         /**
          * Webserver who did send this message and to which the client
          * mentioned in this message is connected.
          */
         val webserverRef: ActorRef
-) : AccountMessage(accId) {
+) : ConnectMessage()
 
-  enum class ConnectionState {
-    CONNECTED, DISCONNECTED, UNKNOWN
-  }
+data class ClientDisconnectMessage(
+        val accountId: Long
+) : ConnectMessage()
 
-  override fun toString(): String {
-    return "ClientConnectMessage[accId: $accountId, status: $state]"
-  }
-
-  override fun createNewInstance(accountId: Long): ClientConnectMessage {
-    return ClientConnectMessage(accountId, this.state, this.webserverRef)
-  }
-}

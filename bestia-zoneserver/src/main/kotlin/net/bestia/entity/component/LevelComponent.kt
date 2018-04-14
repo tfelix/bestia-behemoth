@@ -11,8 +11,6 @@ import net.bestia.zoneserver.entity.LevelService
  *
  * @author Thomas Felix
  */
-
-
 @ClientSync([
   ClientDirective(receiver = InSighReceiver::class, transform = LevelOnlyTransformer::class),
   ClientDirective(receiver = OwnerReceiver::class)

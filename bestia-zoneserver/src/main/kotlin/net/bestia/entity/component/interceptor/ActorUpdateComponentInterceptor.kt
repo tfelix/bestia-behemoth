@@ -5,6 +5,8 @@ import net.bestia.entity.EntityService
 import net.bestia.entity.component.ActorSync
 import net.bestia.entity.component.Component
 import net.bestia.messages.*
+import net.bestia.messages.entity.ComponentEnvelope
+import net.bestia.messages.entity.ToEntityEnvelope
 
 /**
  * This interceptor will check if the component was annotated to notify certain actors
@@ -39,8 +41,9 @@ class ActorUpdateComponentInterceptor(
   }
 
   private fun updateActorComponent(entity: Entity, msg: ComponentChangedMessage) {
-    val envelope = ComponentMessageEnvelope(entity.id, msg.componentId, msg)
-    msgApi.sendToEntity(entity.id, envelope)
+    val compEnv = ComponentEnvelope(msg.componentId, msg)
+    val entityEnv = ToEntityEnvelope(entity.id, compEnv)
+    msgApi.send(entityEnv)
   }
 
   private fun dontUpdateActor(syncActor: ActorSync?): Boolean {

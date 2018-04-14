@@ -1,18 +1,17 @@
 package bestia.memoryserver.persistance;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-
+import net.bestia.entity.component.Component;
 import net.bestia.memoryserver.persistance.ComponentPersistService;
+import net.bestia.model.dao.ComponentDataDAO;
+import net.bestia.model.domain.ComponentData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.entity.component.Component;
-import bestia.model.dao.ComponentDataDAO;
-import bestia.model.domain.ComponentData;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentPersistServiceTest {

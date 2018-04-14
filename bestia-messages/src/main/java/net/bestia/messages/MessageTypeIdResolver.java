@@ -1,20 +1,18 @@
 package net.bestia.messages;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Set;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Custom TypeId Resolver for message objects. Upon start it looks for all
@@ -48,12 +46,8 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			}
 
 			try {
-				Constructor<? extends MessageId> cons = msg.getDeclaredConstructor();
-				
-				// Make accessibale
-				cons.setAccessible(true);
-
-				final String key = cons.newInstance().getMessageId();
+				final Field messageId = msg.getField("MESSAGE_ID");
+				final String key = (String) messageId.get(null);
 
 				idToClass.put(key, msg);
 				classToId.put(msg, key);
@@ -61,7 +55,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 				log.trace("Found Message.class: {} - {}", key, msg.toString());
 
 			} catch (Exception e) {
-				log.error("Could not initialize all message handler. Serialization and deserialization will fail.", e);
+				log.error("Could not get static MESSAGE_ID field from Message class. Serialization and deserialization will fail.", e);
 				System.exit(1);
 			}
 		}
@@ -96,7 +90,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	}
 
 	@Override
-	public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+	public JavaType typeFromId(DatabindContext context, String id) {
 		final Class<? extends MessageId> clazz = idToClass.get(id);
 		return typeFactory.constructSpecializedType(baseType, clazz);
 	}

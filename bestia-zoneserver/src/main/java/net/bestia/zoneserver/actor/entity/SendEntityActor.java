@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
-import net.bestia.messages.entity.EntityMessageEnvelope;
+import net.bestia.messages.entity.ToEntityEnvelope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +38,7 @@ public class SendEntityActor extends AbstractActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-            .match(EntityMessageEnvelope.class, msg -> {
+            .match(ToEntityEnvelope.class, msg -> {
               LOG.debug("Sending to entity: {}", msg);
               entityActorShard.tell(msg, getSender());
             })

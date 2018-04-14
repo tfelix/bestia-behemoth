@@ -22,7 +22,9 @@ import org.springframework.test.context.junit4.SpringRunner
 @Import(TestZoneConfiguration::class)
 class WebIngestActorTest {
 
-  class TestEnvelope(content: String) : Envelope(content)
+  class TestEnvelope(
+          override val content: Any
+  ) : Envelope
 
   val defaultDuration = duration("1 second")!!
 

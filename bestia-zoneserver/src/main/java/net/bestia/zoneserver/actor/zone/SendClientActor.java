@@ -6,9 +6,8 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import bestia.server.EntryActorNames;
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.client.ClientToMessageEnvelope;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.client.ToClientEnvelope;
 import net.bestia.messages.component.LatencyInfo;
 import net.bestia.zoneserver.client.LatencyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,14 +58,11 @@ public class SendClientActor extends AbstractActor {
       // critical data.
       final int latency = latencyService.getClientLatency(msg.getAccountId());
       final LatencyInfo updatedMsg = ((LatencyInfo) msg).createNewInstance(msg.getAccountId(), latency);
-      final ClientToMessageEnvelope envelope = new ClientToMessageEnvelope(msg.getAccountId(), updatedMsg);
+      final ToClientEnvelope envelope = new ToClientEnvelope(msg.getAccountId(), updatedMsg);
       clientConnection.tell(envelope, getSender());
     } else {
-      clientConnection.tell(wrapInEnvelope(msg), getSender());
+      final ToClientEnvelope envelope = new ToClientEnvelope(msg.getAccountId(), msg);
+      clientConnection.tell(envelope, getSender());
     }
-  }
-
-  private ClientToMessageEnvelope wrapInEnvelope(AccountMessage msg) {
-    return new ClientToMessageEnvelope(msg.getAccountId(), msg);
   }
 }

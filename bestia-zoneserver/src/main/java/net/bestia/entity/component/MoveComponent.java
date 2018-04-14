@@ -22,7 +22,7 @@ public class MoveComponent extends Component {
 	private final Queue<Point> path = new LinkedList<>();
 
 	public MoveComponent(long id) {
-		super(id);
+		super(id, 0);
 		// no op.
 	}
 

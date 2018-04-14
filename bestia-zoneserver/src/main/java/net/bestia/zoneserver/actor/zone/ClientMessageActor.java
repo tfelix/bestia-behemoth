@@ -4,13 +4,12 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.client.ClientFromMessageEnvelope;
+import net.bestia.messages.client.FromClientEnvelop;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
-import net.bestia.zoneserver.actor.entity.EntitySyncRequestActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 import net.bestia.zoneserver.actor.routing.RegisterEnvelopeMessage;
@@ -103,7 +102,6 @@ public class ClientMessageActor extends ClientMessageDigestActor {
     // === Entities ===
     // SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
     // SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
-    SpringExtension.actorOf(getContext(), EntitySyncRequestActor.class);
 
     // === Attacking ===
     // SpringExtension.actorOf(getContext(), AttackUseActor.class);
@@ -114,7 +112,7 @@ public class ClientMessageActor extends ClientMessageDigestActor {
     // === Chat ===
     SpringExtension.actorOf(getContext(), ChatActor.class);
 
-    final RegisterEnvelopeMessage registerEnvelopeMessage = new RegisterEnvelopeMessage(ClientFromMessageEnvelope.class, getSelf());
+    final RegisterEnvelopeMessage registerEnvelopeMessage = new RegisterEnvelopeMessage(FromClientEnvelop.class, getSelf());
     postmaster.tell(registerEnvelopeMessage, getSelf());
   }
 

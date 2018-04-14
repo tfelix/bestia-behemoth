@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.actor;
 
 import akka.cluster.sharding.ShardRegion;
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.client.ClientToMessageEnvelope;
+import net.bestia.messages.client.ToClientEnvelope;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActorEx;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +18,8 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 
 	@Override
 	public String entityId(Object message) {
-		if (message instanceof AccountMessage) {
-			final long accId = ((AccountMessage) message).getAccountId();
-			return getActorName(accId);
-		} else if (message instanceof ClientToMessageEnvelope) {
-			final long accId = ((ClientToMessageEnvelope) message).getClientAccountId();
+		if (message instanceof ToClientEnvelope) {
+			final long accId = ((ToClientEnvelope) message).getAccountId();
 			return getActorName(accId);
 		} else {
 			return null;
@@ -45,13 +41,8 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 
 	@Override
 	public String shardId(Object message) {
-		if (message instanceof AccountMessage) {
-			// Use actor name to get the hash more evenly distributed.
-			// Maybe not necessairy.
-			final long accId = ((AccountMessage) message).getAccountId();
-			return getShardId(accId);
-		} else if (message instanceof ClientToMessageEnvelope) {
-			final long accId = ((ClientToMessageEnvelope) message).getClientAccountId();
+		if (message instanceof ToClientEnvelope) {
+			final long accId = ((ToClientEnvelope) message).getAccountId();
 			return getShardId(accId);
 		} else {
 			return null;

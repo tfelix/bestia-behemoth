@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.client.ToClientEnvelope;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import org.junit.Assert;
@@ -11,7 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapParamCommandTest {
@@ -55,7 +56,7 @@ public class MapParamCommandTest {
 	@Test
 	public void executeCommand_validCommand_sendsMessage() {
 		cmd.executeCommand(acc, "/mapinfo");
-		verify(akkaApi).sendToClient(eq(acc.getId()), any(ChatMessage.class));
+		verify(akkaApi).send(any(ToClientEnvelope.class));
 	}
 
 }

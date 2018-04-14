@@ -6,7 +6,6 @@ import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.geometry.Point;
-import net.bestia.entity.component.InventoryComponent;
 import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

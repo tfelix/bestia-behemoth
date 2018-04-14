@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
-import net.bestia.messages.client.ClientFromMessageEnvelope
+import net.bestia.messages.client.FromClientEnvelop
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.zone.WebIngestActor
 import org.junit.Test
@@ -30,7 +30,7 @@ class WebIngestActorTest {
         val postmasterTK = TestKit(system)
         val ingest = SpringExtension.actorOf(system, WebIngestActor::class.java, postmasterTK.ref)
 
-        val msg = ClientFromMessageEnvelope("Test")
+        val msg = FromClientEnvelop(1, "Test")
         ingest.tell(msg, ActorRef.noSender())
         postmasterTK.expectMsgEquals(duration("1 second"), msg)
       }

@@ -5,8 +5,8 @@ import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.verify
-import net.bestia.messages.client.ClientToMessageEnvelope
 import net.bestia.messages.client.ClientConnectMessage
+import net.bestia.messages.client.ToClientEnvelope
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
@@ -39,16 +39,16 @@ class WebIngestActorTest {
         val ingest = SpringExtension.actorOf(system, ClientConnectionActorEx::class.java)
 
         val conMesg = ClientConnectMessage(
-                10,
-                ClientConnectMessage.ConnectionState.CONNECTED,
-                socket.ref
+                accountId = 10,
+                webserverRef = socket.ref
         )
+
         ingest.tell(conMesg, socket.ref)
 
         verify(loginService.login(eq(10)))
 
         val content = "Hello World"
-        val toClient = ClientToMessageEnvelope(10, content)
+        val toClient = ToClientEnvelope(10, content)
         ingest.tell(toClient, ActorRef.noSender())
         socket.expectMsg(content)
       }

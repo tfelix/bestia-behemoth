@@ -2,10 +2,12 @@ package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
 import net.bestia.entity.EntityService
+import net.bestia.messages.MessageApi
+import net.bestia.messages.client.ToClientEnvelope
 import net.bestia.messages.login.LogoutMessage
+import net.bestia.messages.login.LogoutState
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.domain.Account
-import net.bestia.zoneserver.actor.AkkaMessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
 
@@ -14,9 +16,10 @@ private val LOG = KotlinLogging.logger {  }
 @Service
 class LogoutService(
         private val accountDao: AccountDAO,
-        private val akkaApi: AkkaMessageApi,
+        private val akkaApi: MessageApi,
         private val playerEntityService: PlayerEntityService,
-        private val entityService: EntityService
+        private val entityService: EntityService,
+				private val connectionService: ConnectionService
 ) {
 
 	/**
@@ -43,8 +46,8 @@ class LogoutService(
 		// Send disconnect message to the webserver.
 		// Depending on the logout state the actor might have already been
 		// stopped.
-		val logoutMsg = LogoutMessage(accId)
-		akkaApi.sendToClient(accId, logoutMsg)
+		val logoutMsg = LogoutMessage(LogoutState.NO_REASON)
+    akkaApi.send(ToClientEnvelope(acc.id, logoutMsg))
 
 		val playerEntities = playerEntityService.getPlayerEntities(accId)
 
@@ -69,14 +72,17 @@ class LogoutService(
 				LOG.warn("Something went wrong deleting entity {}.", entity, e)
 			}
 		}
+
+    connectionService.removeConnection(accId)
 	}
 
 	/**
 	 * Perform a logout on all users currently connected to the server.
 	 */
-	fun logoutAll() {
-		// TODO Auto-generated method stub
-
+	fun logoutAllUsers() {
+    connectionService.iterateOverConnections({
+      logout(it)
+    })
 	}
 
 	/**
@@ -85,12 +91,11 @@ class LogoutService(
 	 * @param level
 	 */
 	fun logoutAllUsersBelow(level: Account.UserLevel) {
-		throw IllegalStateException("Currently broken.")
-		/*
-     * connectionService.getAllConnectedAccountIds().forEachRemaining(accId
-     * -> { final Account acc = accountDao.findOne(accId);
-     *
-     * if (acc.getUserLevel().compareTo(level) == -1) { logout(accId); } });
-     */
+    connectionService.iterateOverConnections({
+      logout(it)
+    }, {
+      val account = accountDao.findOne(it)
+      account.userLevel < level
+    })
 	}
 }

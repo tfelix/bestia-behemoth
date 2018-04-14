@@ -1,11 +1,10 @@
 package net.bestia.model.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * This is a persisted entity which is saved into the database in case the
@@ -41,5 +40,4 @@ public class EntityData implements Serializable {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
-
 }

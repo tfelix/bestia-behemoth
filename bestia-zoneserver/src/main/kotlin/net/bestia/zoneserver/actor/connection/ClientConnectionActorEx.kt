@@ -5,9 +5,10 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.actor.Terminated
 import mu.KotlinLogging
-import net.bestia.messages.client.ClientToMessageEnvelope
 import net.bestia.messages.JsonMessage
 import net.bestia.messages.client.ClientConnectMessage
+import net.bestia.messages.client.ClientDisconnectMessage
+import net.bestia.messages.client.ToClientEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
 import net.bestia.zoneserver.client.LogoutService
@@ -41,7 +42,7 @@ class ClientConnectionActorEx @Autowired constructor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ClientToMessageEnvelope::class.java, this::checkMessageEnvelope)
+            .match(ToClientEnvelope::class.java, this::checkMessageEnvelope)
             .match(JsonMessage::class.java, { msg -> sendMessageToClient(msg) })
             .match(Terminated::class.java) { _ -> onClientConnectionClosed() }
             .build()
@@ -60,37 +61,35 @@ class ClientConnectionActorEx @Autowired constructor(
    * There are a few messages which are ment for this actor which might be only wrapped
    * for convienence. So we check this here.
    */
-  private fun checkMessageEnvelope(msg: ClientToMessageEnvelope) {
+  private fun checkMessageEnvelope(msg: ToClientEnvelope) {
     val content = msg.content
     when (content) {
-      is ClientConnectMessage -> handleNewClientConnection(content)
+      is ClientConnectMessage -> handleConnect(content)
+      is ClientDisconnectMessage -> handleDisconnect(content)
       else -> sendMessageToClient(msg.content)
     }
   }
 
-  private fun handleNewClientConnection(msg: ClientConnectMessage) {
+  private fun handleConnect(msg: ClientConnectMessage) {
     LOG.debug("Client has connected: {}.", msg)
 
     accountId = msg.accountId
 
-    when (msg.state) {
-      ClientConnectMessage.ConnectionState.CONNECTED -> {
-        authenticatedSocket?.let {
-          context.unwatch(it)
-          it.tell(PoisonPill.getInstance(), self)
-        }
-
-        authenticatedSocket = msg.webserverRef
-        context.watch(authenticatedSocket)
-
-        initClientConnection(msg)
-      }
-      ClientConnectMessage.ConnectionState.DISCONNECTED -> {
-        context.stop(self)
-      }
-      else -> {
-      }
+    authenticatedSocket?.let {
+      context.unwatch(it)
+      it.tell(PoisonPill.getInstance(), self)
     }
+
+    authenticatedSocket = msg.webserverRef
+    context.watch(authenticatedSocket)
+
+    initClientConnection(msg)
+  }
+
+  private fun handleDisconnect(msg: ClientDisconnectMessage) {
+    LOG.debug("Client has disconnected: {}.", msg)
+
+    context.stop(self)
   }
 
   /**
