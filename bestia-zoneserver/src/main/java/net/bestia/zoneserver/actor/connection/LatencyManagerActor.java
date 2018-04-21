@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.connection;
 
+import net.bestia.messages.Envelope;
 import net.bestia.messages.client.PongMessage;
 import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.client.LatencyService;
@@ -21,14 +22,14 @@ public class LatencyManagerActor extends ClientMessageDigestActor {
 	public LatencyManagerActor(LatencyService latencyService) {
 
 		this.latencyService = Objects.requireNonNull(latencyService);
-		redirectConfig.match(PongMessage.class, this::onPongMessage);
+		redirectConfig.matchEnvelope(PongMessage.class, this::onPongMessage);
 	}
 
 	/**
 	 * Updates the latency setting for the client who has send this latency reading.
 	 * @param msg
 	 */
-	private void onPongMessage(PongMessage msg) {		
+	private void onPongMessage(PongMessage msg, Envelope envelope) {
 		latencyService.addLatency(msg.getAccountId(), msg.getStart(), System.currentTimeMillis());
 	}
 }
