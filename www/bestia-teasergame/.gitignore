@@ -1,13 +1,9 @@
 node_modules
 node
 build
-build_temp
+dist
 .settings
-.grunt
-src/js/lib
 _SpecRunner.html
 vendor
 doc
 npm-debug.log
-
-phaser.js

@@ -1,0 +1,55 @@
+{
+	"targetSprite": "mastersmith",
+	"defaultCords": {"x": 0, "y": -66},
+	"offsets":[  
+    {  
+      "name":"bottom.png",
+      "triggered":"walk_down",
+      "offsets":[{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66}, {"x": 0, "y": -66},{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"bottom_left.png",
+      "triggered":"walk_down_left",
+      "offsets":[{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66}, {"x": 0, "y": -66},{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"left.png",
+      "triggered":"walk_left",
+      "offsets":[{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66}, {"x": 0, "y": -66},{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"top_left.png",
+      "triggered":"walk_up_left",
+      "offsets":[{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66}, {"x": 0, "y": -66},{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"top.png",
+      "triggered":"walk_up",
+      "offsets":[{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66},{"x": 0, "y": -66}, {"x": 0, "y": -66},{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"top.png",
+      "triggered":"stand_up",
+      "offsets":[{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"bottom.png",
+      "triggered":"stand_down",
+      "offsets":[{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"left.png",
+      "triggered":"stand_left",
+      "offsets":[{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"top_left.png",
+      "triggered":"stand_left_up",
+      "offsets":[{"x": 0, "y": -66}]
+    },
+    {  
+      "name":"bottom_left.png",
+      "triggered":"stand_down_left",
+      "offsets":[{"x": 0, "y": -66}]
+    }
+]}
