@@ -1,5 +1,6 @@
-import { Component, ComponentType } from "../../entities/components/Component";
-import { Entity } from "../../entities/Entity";
+import { Component } from '../../entities/components/Component';
+import { Entity } from '../../entities/Entity';
+import { ComponentType } from '../../entities/components/ComponentType';
 
 export abstract class ComponentRenderer<C extends Component> {
 
@@ -10,10 +11,10 @@ export abstract class ComponentRenderer<C extends Component> {
   }
 
   abstract get supportedComponent(): ComponentType;
-  
-  render(entity: Entity, component: Component) {
+
+  public render(entity: Entity, component: Component) {
     const sprite = entity.gameData['sprite'];
-    if(!sprite) {
+    if (!sprite) {
       this.createGameData(entity, component as C);
     } else {
       this.updateGameData(entity, component as C);
@@ -24,7 +25,5 @@ export abstract class ComponentRenderer<C extends Component> {
 
   protected abstract updateGameData(entity: Entity, component: C);
 
-  removeComponent(entity: Entity, component: Component) {
-    
-  }
+  protected abstract removeComponent(entity: Entity, component: Component);
 }

@@ -1,4 +1,5 @@
-import { Component, ComponentType } from "./Component";
+import { Component } from './Component';
+import { ComponentType } from './ComponentType';
 
 export enum SpriteType {
   MULTI

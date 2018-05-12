@@ -1,8 +1,8 @@
-import { NullPointer } from './NullPointer';
 import { EngineContext } from '../EngineContext';
-import { Pointer } from './Pointer';
 import { MapHelper } from '../map/MapHelper';
 import { MovePointer } from './MovePointer';
+import { NullPointer } from './NullPointer';
+import { Pointer } from './Pointer';
 
 /**
  * The manager is responsible for switching the indicator depending on the needs
@@ -18,7 +18,7 @@ export class PointerManager {
 
   private pointers: Pointer[] = [];
   private pointerStack: Pointer[] = [];
-  
+
   private activePointer: Pointer;
   private movePointer: Pointer;
   private nullIndicator: Pointer;

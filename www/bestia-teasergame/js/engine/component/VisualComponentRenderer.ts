@@ -1,12 +1,13 @@
 import * as LOG from 'loglevel';
 
-import { ComponentRenderer } from "./ComponentRenderer";
-import { ComponentType, Component } from "../../entities/components/Component";
-import { Entity } from "../../entities/Entity";
+import { ComponentRenderer } from './ComponentRenderer';
+import { Component } from '../../entities/components/Component';
+import { Entity } from '../../entities/Entity';
 import { VisualComponent, SpriteType } from '../../entities/components/VisualComponent';
 import { PositionComponent } from '../../entities/components/PositionComponent';
 import { MapHelper } from '../map/MapHelper';
 import { Point } from '../../entities/Point';
+import { ComponentType } from '../../entities/components/ComponentType';
 
 class VisualGameData { }
 
@@ -23,10 +24,13 @@ interface SpriteDescription {
   version: number;
   scale: number;
   animations: SpriteAnimation[];
-  anchor: Point
+  anchor: Point;
+  multiSprite: string[];
 }
 
 export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> {
+
+  public static readonly DAT_SPRITE = 'sprite';
 
   constructor(game: Phaser.Scene) {
     super(game);
@@ -41,70 +45,61 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     const texture = this.game.textures.get(component.sprite);
     const desc = (texture.customData as any).meta.description;
 
-    LOG.debug('Building: ' + JSON.stringify(component) + ' (dynamic sprite)');
+    LOG.debug(`Building: ${JSON.stringify(component)} (dynamic sprite)`);
 
     const posComp = entity.getComponent(ComponentType.POSITION) as PositionComponent;
-    const px = MapHelper.pointToPixel(posComp.position);
+    const px = MapHelper.getClampedTilePixelXY(posComp.position.x, posComp.position.y);
     const sprite = this.game.add.sprite(px.x, px.y, desc.name);
-    
-    // groups.get(GROUP_LAYERS.SPRITES).add(sprite);
+    sprite.setOrigin(0, 1);
+    entity.gameData[VisualComponentRenderer.DAT_SPRITE] = sprite;
 
     this.setupSpriteAnimation(sprite, desc);
 
     // Add the multi sprites if there are some of them.
-    var multisprites = desc.multiSprite || [];
+    const multisprites = desc.multiSprite || [];
 
-    /*
-		multisprites.forEach(function (msName) {
-			LOG.debug('Adding multisprite to main sprite: ' + msName);
+    multisprites.forEach(multiSprite => {
+      LOG.debug(`Adding multisprite to main sprite: ${component.sprite}`);
 
-			// Get the desc file of the multisprite.
-			var msDescName = msName + '_desc';
-			var msDesc = this._game.cache.getJSON(msDescName);
+      // Get the desc file of the multisprite.
+      const msDescName = `${multiSprite}_desc`;
+      const msDesc = this.game.cache.json.get(msDescName) as SpriteDescription;
 
-			// Generate offset information.
-			let offsetFileName = this._getOffsetFilename(msName, desc.name);
-			let offsets = this._game.cache.getJSON(offsetFileName) || {};
+      // Was not loaded. Should not happen.
+      if (msDesc === null) {
+        LOG.warn(`Subsprite description was not loaded. This should not happen: ${msDescName}`);
+        return;
+      }
 
-			// Was not loaded. Should not happen.
-			if (msDesc == null) {
-				LOG.warn('Subsprite description was not loaded. This should not happen: ' + msDescName);
-				return;
-			}
+      // Generate offset information.
+      const offsetFileName = this.getOffsetFilename(multiSprite, desc.name);
+      const offsets = this.game.cache.json.get(offsetFileName) || {};
 
-			let msSprite = this._game.make.sprite(0, 0, msName);
+      const msSprite = this.game.add.sprite(0, 0, multiSprite);
 
-			let defaultCords = offsets.defaultCords || {
-				x: 0,
-				y: 0
-			};
-			msSprite.x = defaultCords.x;
-			msSprite.y = defaultCords.y;
+      const defaultCords = offsets.defaultCords || {
+        x: 0,
+        y: 0
+      };
+      msSprite.x = defaultCords.x;
+      msSprite.y = defaultCords.y;
 
-			// Setup the normal data.
-			// setupSpriteAnimation(msSprite, msDesc);
+      // Setup the normal data.
+      this.setupSpriteAnimation(msSprite, msDesc);
 
-			// addSubsprite(sprite, msSprite);
-
-    }, this);*/
-    
-    // Das hier auslagern in eine eigene Component Anzeige.
-    sprite.setInteractive();
-    sprite.setPosition(0, 0);
-    sprite.setOrigin(0.5, 1);
-    const text = this.game.add.text(0, 0, 'rocket');
-    text.visible = false;
-    text.setOrigin(0.5, 0)
-    const container = this.game.add.container(100, 100, [sprite, text]);
-    sprite.on('mouseover', this.hoverHandler, this);
-  }
-
-  private hoverHandler(entitySprite) {
-    alert('geht');
+      // addSubsprite(sprite, msSprite);
+    });
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
     LOG.debug('Updating not implemented.');
+  }
+
+  protected removeComponent(entity: Entity, component: Component) {
+  }
+
+  private getOffsetFilename(multispriteName, mainspriteName) {
+    return `offset_${multispriteName}_${mainspriteName}`;
   }
 
   private setupScaleAndOrigin(sprite: Phaser.GameObjects.Sprite, description: SpriteDescription) {
@@ -113,7 +108,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       x: 0.5,
       y: 0.5
     };
-    sprite.displayOriginX = anchor.x
+    sprite.displayOriginX = anchor.x;
     sprite.displayOriginY = anchor.y;
 
     const scale = description.scale || 1;
@@ -127,18 +122,18 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
    */
   private setupSpriteAnimation(sprite: Phaser.GameObjects.Sprite, description: SpriteDescription) {
     const anims = description.animations || [];
-    LOG.debug('Setup sprite animations:' + JSON.stringify(anims) + ' for: ' + description.name);
+    LOG.debug(`Setup sprite animations: ${JSON.stringify(anims)} for: ${description.name}`);
 
     // Register all the animations of the sprite.
     anims.forEach(anim => {
       const config: GenerateFrameNamesConfig = {
-        prefix: anim.name + '/',
+        prefix: `${anim.name}/`,
         start: anim.from,
         end: anim.to,
         suffix: '.png'
       };
       const animationFrames = this.game.anims.generateFrameNames('test', config);
-      this.game.anims.create({defaultTextureKey: 'walk_down', frames: animationFrames, frameRate: 3, repeat: -1});
+      this.game.anims.create({ defaultTextureKey: 'walk_down', frames: animationFrames, frameRate: 3, repeat: -1 });
     });
   }
 }

@@ -4,7 +4,7 @@ class MultiSprite extends Phaser.GameObjects.Sprite implements BestiaObject {
 
   private jumpKey: Phaser.Input.Keyboard.Key;
   private anim: Phaser.Tweens.Tween[];
-  private isDead: boolean = false;
+  private isDead = false;
 
   public getDead(): boolean {
     return this.isDead;
@@ -16,12 +16,9 @@ class MultiSprite extends Phaser.GameObjects.Sprite implements BestiaObject {
 
   constructor(params) {
     super(params.scene, params.x, params.y, params.key, params.frame);
-
-
     params.scene.add.existing(this);
   }
 
-  update(): void {
-
+  public update(): void {
   }
 }

@@ -1,16 +1,11 @@
-export enum ComponentType {
-  MOVE,
-  VISUAL,
-  POSITION
-}
+import { ComponentType } from "./ComponentType";
 
 export class Component {
 
   constructor(
-    public readonly id: Number,
-    public readonly entityId: Number,
+    public readonly id: number,
+    public readonly entityId: number,
     public readonly type: ComponentType
   ) {
-    
   }
 }

@@ -1,10 +1,11 @@
 import * as LOG from 'loglevel';
 
-import { EntityStore } from "../entities/EntityStore";
-import { ComponentType, Component } from "../entities/components/Component";
-import { ComponentRenderer } from "./component/ComponentRenderer";
-import { VisualComponentRenderer } from "./component/VisualComponentRenderer";
+import { EntityStore } from '../entities/EntityStore';
+import { Component } from '../entities/components/Component';
+import { ComponentRenderer } from './component/ComponentRenderer';
+import { VisualComponentRenderer } from './component/VisualComponentRenderer';
 import { Entity } from '../entities/Entity';
+import { ComponentType } from '../entities/components/ComponentType';
 
 export class EntityRenderer {
 
@@ -21,7 +22,7 @@ export class EntityRenderer {
     this.componentRenderer.set(renderer.supportedComponent, renderer);
   }
 
-  update() {
+  public update() {
     this.updateNew();
 
     this.entityStore.removedEntities.forEach(e => this.remove(e));
@@ -34,10 +35,10 @@ export class EntityRenderer {
 
   private updateNew() {
     this.entityStore.newEntities.forEach(entity => {
-      
-      for(let component of entity.getComponentIterator()) {
+
+      for (const component of entity.getComponentIterator()) {
         const renderer = this.componentRenderer.get(component.type);
-        if(renderer != null) {
+        if (renderer) {
           renderer.render(entity, component);
         }
       }

@@ -6,7 +6,7 @@ import { PositionComponent } from '../entities/components/PositionComponent';
 import { Point } from '../entities/Point';
 import { EntityRenderer } from '../engine/EntityRenderer';
 import { EngineContext } from '../engine/EngineContext';
-import {PointerManager } from '../engine/pointer/PointerManager';
+import { PointerManager } from '../engine/pointer/PointerManager';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -19,11 +19,11 @@ export class GameScene extends Phaser.Scene {
 
   constructor() {
     super({
-      key: "GameScene"
+      key: 'GameScene'
     });
   }
 
-  init(entityStore: EntityStore): void {
+  public init(entityStore: EntityStore): void {
     this.entityStore = new EntityStore();
     this.engineContext = new EngineContext(this);
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
@@ -31,14 +31,14 @@ export class GameScene extends Phaser.Scene {
     this.setupTestEnv();
   }
 
-  setupTestEnv() {
+  public setupTestEnv() {
     const entity = new Entity(1);
     this.entityStore.addEntity(entity);
     const visual = new VisualComponent(
       1,
       1,
       true,
-      "mastersmith",
+      'mastersmith',
       SpriteType.MULTI
     );
     entity.addComponent(visual);
@@ -51,24 +51,22 @@ export class GameScene extends Phaser.Scene {
     entity.addComponent(position);
   }
 
-  preload(): void {
-    
-
+  public preload(): void {
     this.pointerManager.load(this.load);
   }
 
-  create() {
+  public create() {
     // Setup tilemap
-    var map = this.make.tilemap({ key: 'map' });
-    var floorTiles = map.addTilesetImage('trees_plants_rocks', 'tiles');
+    const map = this.make.tilemap({ key: 'map' });
+    const floorTiles = map.addTilesetImage('trees_plants_rocks', 'tiles');
     map.createStaticLayer('floor_0', floorTiles, 0, 0);
     map.createStaticLayer('floor_1', floorTiles, 0, 0);
 
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
-    var cursors = this.input.keyboard.createCursorKeys();
+    const cursors = this.input.keyboard.createCursorKeys();
 
-    var controlConfig = {
+    const controlConfig = {
       camera: this.cameras.main,
       left: cursors.left,
       right: cursors.right,
@@ -83,7 +81,7 @@ export class GameScene extends Phaser.Scene {
     this.add.text(100, 200, 'Phaser', { fontFamily: 'Arial', fontSize: 12, color: '#ffff00' });
   }
 
-  update(time, delta) {
+  public update(time, delta) {
     this.controls.update(delta);
 
     this.entityRenderer.update();

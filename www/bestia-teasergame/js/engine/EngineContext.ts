@@ -11,4 +11,3 @@ export class EngineContext {
     this.mapGroup0 = this.game.make.group({});
   }
 }
-

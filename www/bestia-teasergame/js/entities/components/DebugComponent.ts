@@ -1,14 +1,10 @@
 import { Component } from './Component';
-import { Point } from '../Point';
 import { ComponentType } from './ComponentType';
 
-class MoveComponent extends Component {
-
+export class DebugComponent extends Component {
   constructor(
     id: number,
-    entityId: number,
-    public latency: number,
-    public path: Point[]
+    entityId: number
   ) {
     super(id, entityId, ComponentType.MOVE);
   }
