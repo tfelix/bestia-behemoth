@@ -62,41 +62,19 @@ export class PointerManager {
     this.pointerStack = [];
   }
 
-	/**
-	 * Will trigger all load events on the registered indicators. This should be
-	 * called in the initial load event of the engine to fetch all presets the indicator
-	 * need.
-	 */
   public load(loader: Phaser.Loader.LoaderPlugin) {
     this.pointers.forEach(x => x.load(loader));
   }
 
-	/**
-	 * Triggers all create events on the registered indicators. This should be
-	 * called in the create event of phaser.
-	 */
   public create() {
     this.pointers.forEach(x => x.create());
     this.setActive(this.movePointer);
   }
 
-	/**
-	 * Called each tick in case there is a need to perform some changes
-	 * depending on the game tick.
-	 */
   public update() {
     // LOG.debug(this.engineContext.game.input.mouse.target);
   }
 
-	/**
-	 * An indicator can request to get displayed via the manager. The current
-	 * active indicator is pushed to the stack. With dismissActive it will
-	 * re-appear again.
-	 * 
-	 * @param force -
-	 *            The indicator will not be checked if its okay to replace him
-	 *            with the new indicator.
-	 */
   public requestActive(indicator, force = false) {
     // Ask the active pointer if he allows to be overwritten by the new
     // indicator.
@@ -110,10 +88,6 @@ export class PointerManager {
     this.activePointer.activate();
   }
 
-	/**
-	 * No pushing to the indicator stack will happen when using this method.
-	 * Otherwise its the same as requestActive.
-	 */
   private setActive(indicator) {
     // Ask the active pointer if he allows to be overwritten by the new
     // indicator.
@@ -125,10 +99,6 @@ export class PointerManager {
     this.activePointer.activate();
   }
 
-	/**
-	 * The indicator can request to get dismissed. It will be replaced with last
-	 * indicator.
-	 */
   public dismissActive() {
     if (this.pointerStack.length === 0) {
       this.activePointer = this.movePointer;

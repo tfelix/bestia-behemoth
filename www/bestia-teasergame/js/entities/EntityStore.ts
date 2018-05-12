@@ -4,29 +4,28 @@ export class EntityStore {
 
   public newEntities: Entity[] = [];
   public removedEntities: Entity[] = [];
-  
-  public entities: Map<Number, Entity> = new Map();
+
+  public entities: Map<number, Entity> = new Map();
 
   constructor() {
-    
   }
 
   /**
    * Updates the entity in the storage.
    * @param message Server update message for this entity.
    */
-  updateEntity(message: any) {
+  public updateEntity(message: any) {
 
   }
 
-  addEntity(entity: Entity) {
+  public addEntity(entity: Entity) {
     this.entities.set(entity.id, entity);
     this.newEntities.push(entity);
   }
 
-  removeEntity(entityId: Number) {
+  public removeEntity(entityId: number) {
     const entity = this.entities.get(entityId);
-    for(let component of entity.getComponentIterator()) {
+    for (const component of entity.getComponentIterator()) {
       entity.removeComponent(component.id);
     }
     this.entities.delete(entityId);

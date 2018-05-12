@@ -50,7 +50,7 @@ export class GameScene extends Phaser.Scene {
       new Point(2, 2)
     );
     entity.addComponent(position);
-    entity.addComponent(new DebugComponent(3, 1));
+    // entity.addComponent(new DebugComponent(3, 1));
   }
 
   public preload(): void {
@@ -81,8 +81,6 @@ export class GameScene extends Phaser.Scene {
 
     this.controls = new Phaser.Cameras.Controls.Fixed(controlConfig);
     this.pointerManager.create();
-
-    this.add.text(100, 200, 'Phaser', { fontFamily: 'Arial', fontSize: 12, color: '#ffff00' });
   }
 
   public update(time, delta) {

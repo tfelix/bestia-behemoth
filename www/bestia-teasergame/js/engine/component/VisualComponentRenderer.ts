@@ -9,8 +9,6 @@ import { MapHelper } from '../map/MapHelper';
 import { Point } from '../../entities/Point';
 import { ComponentType } from '../../entities/components/ComponentType';
 
-class VisualGameData { }
-
 interface SpriteAnimation {
   name: string;
   from: number;
@@ -61,11 +59,13 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     this.setupScaleAndOrigin(sprite, desc);
     this.setupSpriteAnimation(sprite, desc);
 
-    // this.setupMultiSprites(sprite, desc);
+    this.setupMultiSprites(sprite, desc);
   }
 
-  private setupMultiSprites(sprite, desc) {
-    // Add the multi sprites if there are some of them.
+  private setupMultiSprites(
+    sprite: Phaser.GameObjects.Sprite,
+    desc: SpriteDescription
+  ) {
     const multisprites = desc.multiSprite || [];
 
     multisprites.forEach(multiSprite => {
@@ -81,29 +81,25 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
         return;
       }
 
-      // Generate offset information.
       const offsetFileName = this.getOffsetFilename(multiSprite, desc.name);
       const offsets = this.game.cache.json.get(offsetFileName) || {};
 
       const msSprite = this.game.add.sprite(0, 0, multiSprite);
-
-      /*
-      const defaultCords = offsets.defaultCords || {
-        x: 0,
-        y: 0
-      };
-      msSprite.x = defaultCords.x;
-      msSprite.y = defaultCords.y;*/
+      const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
+      msSprite.setPosition(
+        sprite.x + defaultOffset.x * desc.scale,
+        sprite.y + defaultOffset.y * desc.scale
+      );
 
       this.setupScaleAndOrigin(msSprite, msDesc);
       this.setupSpriteAnimation(msSprite, msDesc);
-
-      // addSubsprite(sprite, msSprite);
     });
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
-    LOG.debug('Updating not implemented.');
+    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
+    const animationName = component.animation || 'stand_down';
+    sprite.anims.play(animationName, true);
   }
 
   protected removeComponent(entity: Entity, component: Component) {
@@ -132,17 +128,24 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   private setupSpriteAnimation(sprite: Phaser.GameObjects.Sprite, description: SpriteDescription) {
     const anims = description.animations || [];
     LOG.debug(`Setup sprite animations: ${JSON.stringify(anims)} for: ${description.name}`);
-
     // Register all the animations of the sprite.
     anims.forEach(anim => {
       const config: GenerateFrameNamesConfig = {
         prefix: `${anim.name}/`,
         start: anim.from,
+        zeroPad: 3,
         end: anim.to,
         suffix: '.png'
       };
-      const animationFrames = this.game.anims.generateFrameNames(anim.name, config);
-      this.game.anims.create({ defaultTextureKey: 'walk_down', frames: animationFrames, frameRate: anim.fps, repeat: -1 });
+      const animationFrames = this.game.anims.generateFrameNames(description.name, config);
+      const animConfig = {
+        key: anim.name,
+        frames: animationFrames,
+        frameRate: anim.fps,
+        repeat: -1
+      };
+      LOG.debug(JSON.stringify(animConfig));
+      this.game.anims.create(animConfig);
     });
   }
 }

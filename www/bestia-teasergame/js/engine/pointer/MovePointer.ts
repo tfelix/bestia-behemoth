@@ -1,8 +1,8 @@
-import { Pointer } from "./Pointer";
-import { PointerManager } from "./PointerManager";
-import { EngineContext } from "../EngineContext";
-import { Point } from "../../entities/Point";
-import { Px } from "../../entities/Px";
+import { Pointer } from './Pointer';
+import { PointerManager } from './PointerManager';
+import { EngineContext } from '../EngineContext';
+import { Point } from '../../entities/Point';
+import { Px } from '../../entities/Px';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -40,11 +40,11 @@ export class MovePointer extends Pointer {
         */
   }
 
-  activate() {
+  public activate() {
     this.marker.visible = true;
   }
 
-  updatePosition(point: Point, px: Px) {
+  public updatePosition(point: Point, px: Px) {
     this.marker.setPosition(point.x, point.y);
   }
 
@@ -73,35 +73,32 @@ export class MovePointer extends Pointer {
     // addMoveComponent(this._playerEntity, path, speed);
   }
 
-  _onClick(pointer) {
-/*
-    // No player no movement.
-    if (!this._playerBestia) {
-      return;
-    }
+  public _onClick(pointer) {
+    /*
+        // No player no movement.
+        if (!this._playerBestia) {
+          return;
+        }
+    
+        // Only left button.
+        if (pointer.button !== Phaser.Mouse.LEFT_BUTTON) {
+          return;
+        }
+    
+        // Display fx.
+        this._effect.alpha = 1;
+        this._game.add.tween(this._effect).to({
+          alpha: 0
+        }, 500, Phaser.Easing.Cubic.Out, true);
+    
+        var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
+    
+        // Start the path calculation
+        this._ctx.pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
+      */
+  }
 
-    // Only left button.
-    if (pointer.button !== Phaser.Mouse.LEFT_BUTTON) {
-      return;
-    }
-
-    // Display fx.
-    this._effect.alpha = 1;
-    this._game.add.tween(this._effect).to({
-      alpha: 0
-    }, 500, Phaser.Easing.Cubic.Out, true);
-
-    var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
-
-    // Start the path calculation
-    this._ctx.pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
-  */
- }
-
-	/**
-	 * Override an create all needed game objects here.
-	 */
-  load(loader) {
+  public load(loader) {
     this.ctx.game.load.spritesheet(
       'indicator_move',
       '../assets/sprites/indicators/cursor.png',
@@ -109,13 +106,10 @@ export class MovePointer extends Pointer {
     );
   }
 
-	/**
-	 * Override an create all needed game objects here.
-	 */
-  create() {
-    this.marker  = this.ctx.game.add.sprite(100, 100, 'indicator_move');
+  public create() {
+    this.marker = this.ctx.game.add.sprite(100, 100, 'indicator_move');
     this.marker.setOrigin(0, 0);
-    var config = {
+    const config = {
       key: 'cursor_anim',
       frames: this.ctx.game.anims.generateFrameNumbers('indicator_move', { start: 0, end: 1 }),
       frameRate: 1,
@@ -124,7 +118,7 @@ export class MovePointer extends Pointer {
     this.ctx.game.anims.create(config);
     this.marker.anims.play('cursor_anim');
     this.marker.visible = false;
-    
+
     /*
     const graphics = this.ctx.game.add.graphics(0, 0);
     graphics.beginFill(0x42D65D);

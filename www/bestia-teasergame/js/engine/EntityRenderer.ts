@@ -27,12 +27,17 @@ export class EntityRenderer {
   public update() {
     this.updateNew();
 
-    this.entityStore.removedEntities.forEach(e => this.remove(e));
-    this.entityStore.removedEntities = [];
-  }
+    for (const e of this.entityStore.entities.values()) {
+      for (const c of e.getComponentIterator()) {
+        const renderer = this.componentRenderer.get(c.type);
+        if (renderer) {
+          renderer.render(e, c);
+        }
+      }
+    }
 
-  private remove(entity: Entity) {
-
+    // this.entityStore.removedEntities.forEach(e => this.remove(e));
+    // this.entityStore.removedEntities = [];
   }
 
   private updateNew() {
