@@ -1,3 +1,5 @@
+import * as LOG from 'loglevel';
+
 import { DebugComponent } from '../../entities/components/DebugComponent';
 import { ComponentRenderer } from './ComponentRenderer';
 import { ComponentType } from '../../entities/components/ComponentType';
@@ -18,12 +20,15 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
     return ComponentType.DEBUG;
   }
 
+  protected hasNotSetup(entity: Entity, component: DebugComponent): boolean {
+    return entity.gameData[DebugComponentRenderer.DAT_DEBUG] === undefined;
+  }
+
   protected createGameData(entity: Entity, component: DebugComponent) {
-    const originCircle = new Phaser.Geom.Circle(0, 0, 10);
+    const originCircle = new Phaser.Geom.Circle(0, 0, 5);
     const originCircleGraphics = this.game.add.graphics({ fillStyle: { color: 0xFF0000 } });
     originCircleGraphics.fillCircleShape(originCircle);
     const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
-    entity.gameData[DebugComponentRenderer.DAT_DEBUG] = originCircleGraphics;
     this.alignGraphics(originCircleGraphics, sprite);
   }
 

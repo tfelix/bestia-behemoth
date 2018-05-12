@@ -2,7 +2,8 @@ var path = require('path');
 
 module.exports = {
   entry: './js/game.ts',
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
+  mode: 'development',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build')

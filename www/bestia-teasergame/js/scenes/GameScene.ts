@@ -7,6 +7,7 @@ import { Point } from '../entities/Point';
 import { EntityRenderer } from '../engine/EntityRenderer';
 import { EngineContext } from '../engine/EngineContext';
 import { PointerManager } from '../engine/pointer/PointerManager';
+import { DebugComponent } from '../entities/components/DebugComponent';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -46,9 +47,10 @@ export class GameScene extends Phaser.Scene {
     const position = new PositionComponent(
       2,
       1,
-      new Point(5, 5)
+      new Point(2, 2)
     );
     entity.addComponent(position);
+    entity.addComponent(new DebugComponent(3, 1));
   }
 
   public preload(): void {
@@ -56,6 +58,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create() {
+    this.engineContext.game.input.mouse.disableContextMenu();
+
     // Setup tilemap
     const map = this.make.tilemap({ key: 'map' });
     const floorTiles = map.addTilesetImage('trees_plants_rocks', 'tiles');
@@ -84,6 +88,7 @@ export class GameScene extends Phaser.Scene {
   public update(time, delta) {
     this.controls.update(delta);
 
+    this.pointerManager.update();
     this.entityRenderer.update();
   }
 }

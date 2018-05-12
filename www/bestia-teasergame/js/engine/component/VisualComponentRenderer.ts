@@ -40,6 +40,10 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     return ComponentType.VISUAL;
   }
 
+  protected hasNotSetup(entity: Entity, component: VisualComponent): boolean {
+    return entity.gameData[VisualComponentRenderer.DAT_SPRITE] === undefined;
+  }
+
   protected createGameData(entity: Entity, component: VisualComponent) {
 
     const texture = this.game.textures.get(component.sprite);
@@ -48,18 +52,24 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     LOG.debug(`Building: ${JSON.stringify(component)} (dynamic sprite)`);
 
     const posComp = entity.getComponent(ComponentType.POSITION) as PositionComponent;
-    const px = MapHelper.getClampedTilePixelXY(posComp.position.x, posComp.position.y);
+    const position = posComp.position || { x: 0, y: 0 };
+    const px = MapHelper.pointToPixelCentered(position);
+
     const sprite = this.game.add.sprite(px.x, px.y, desc.name);
-    sprite.setOrigin(0, 1);
     entity.gameData[VisualComponentRenderer.DAT_SPRITE] = sprite;
 
+    this.setupScaleAndOrigin(sprite, desc);
     this.setupSpriteAnimation(sprite, desc);
 
+    // this.setupMultiSprites(sprite, desc);
+  }
+
+  private setupMultiSprites(sprite, desc) {
     // Add the multi sprites if there are some of them.
     const multisprites = desc.multiSprite || [];
 
     multisprites.forEach(multiSprite => {
-      LOG.debug(`Adding multisprite to main sprite: ${component.sprite}`);
+      LOG.debug(`Adding multisprite: ${multiSprite}`);
 
       // Get the desc file of the multisprite.
       const msDescName = `${multiSprite}_desc`;
@@ -77,14 +87,15 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
 
       const msSprite = this.game.add.sprite(0, 0, multiSprite);
 
+      /*
       const defaultCords = offsets.defaultCords || {
         x: 0,
         y: 0
       };
       msSprite.x = defaultCords.x;
-      msSprite.y = defaultCords.y;
+      msSprite.y = defaultCords.y;*/
 
-      // Setup the normal data.
+      this.setupScaleAndOrigin(msSprite, msDesc);
       this.setupSpriteAnimation(msSprite, msDesc);
 
       // addSubsprite(sprite, msSprite);
@@ -108,12 +119,10 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       x: 0.5,
       y: 0.5
     };
-    sprite.displayOriginX = anchor.x;
-    sprite.displayOriginY = anchor.y;
+    sprite.setOrigin(anchor.x, anchor.y);
 
     const scale = description.scale || 1;
-    sprite.scaleX = scale;
-    sprite.scaleY = scale;
+    sprite.setScale(scale);
   }
 
   /**
@@ -132,8 +141,8 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
         end: anim.to,
         suffix: '.png'
       };
-      const animationFrames = this.game.anims.generateFrameNames('test', config);
-      this.game.anims.create({ defaultTextureKey: 'walk_down', frames: animationFrames, frameRate: 3, repeat: -1 });
+      const animationFrames = this.game.anims.generateFrameNames(anim.name, config);
+      this.game.anims.create({ defaultTextureKey: 'walk_down', frames: animationFrames, frameRate: anim.fps, repeat: -1 });
     });
   }
 }

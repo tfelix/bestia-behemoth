@@ -1,3 +1,5 @@
+import * as LOG from 'loglevel';
+
 import { EngineContext } from '../EngineContext';
 import { MapHelper } from '../map/MapHelper';
 import { MovePointer } from './MovePointer';
@@ -43,17 +45,11 @@ export class PointerManager {
     this.activePointer.updatePosition(cords, pointer);
   }
 
-	/**
-	 * This will hide and disable all indicators.
-	 */
-  hide() {
+  public hide() {
     this.requestActive(this.nullIndicator, true);
   }
 
-	/**
-	 * This will re-enable the indicators if they were hidden before.
-	 */
-  show() {
+  public show() {
     // We can only show when previously hidden.
     if (this.activePointer !== this.nullIndicator) {
       return;
@@ -61,10 +57,7 @@ export class PointerManager {
     this.dismissActive();
   }
 
-	/**
-	 * Shows the default pointer. It will also clear the pointer stack.
-	 */
-  showDefault() {
+  public showDefault() {
     this.requestActive(this.movePointer);
     this.pointerStack = [];
   }
@@ -74,7 +67,7 @@ export class PointerManager {
 	 * called in the initial load event of the engine to fetch all presets the indicator
 	 * need.
 	 */
-  load(loader: Phaser.Loader.LoaderPlugin) {
+  public load(loader: Phaser.Loader.LoaderPlugin) {
     this.pointers.forEach(x => x.load(loader));
   }
 
@@ -82,7 +75,7 @@ export class PointerManager {
 	 * Triggers all create events on the registered indicators. This should be
 	 * called in the create event of phaser.
 	 */
-  create() {
+  public create() {
     this.pointers.forEach(x => x.create());
     this.setActive(this.movePointer);
   }
@@ -91,8 +84,8 @@ export class PointerManager {
 	 * Called each tick in case there is a need to perform some changes
 	 * depending on the game tick.
 	 */
-  update() {
-
+  public update() {
+    // LOG.debug(this.engineContext.game.input.mouse.target);
   }
 
 	/**
@@ -104,7 +97,7 @@ export class PointerManager {
 	 *            The indicator will not be checked if its okay to replace him
 	 *            with the new indicator.
 	 */
-  requestActive(indicator, force = false) {
+  public requestActive(indicator, force = false) {
     // Ask the active pointer if he allows to be overwritten by the new
     // indicator.
     if (!force && !this.activePointer.allowOverwrite(indicator)) {
@@ -136,7 +129,7 @@ export class PointerManager {
 	 * The indicator can request to get dismissed. It will be replaced with last
 	 * indicator.
 	 */
-  dismissActive() {
+  public dismissActive() {
     if (this.pointerStack.length === 0) {
       this.activePointer = this.movePointer;
     } else {

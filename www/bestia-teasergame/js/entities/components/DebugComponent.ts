@@ -6,6 +6,6 @@ export class DebugComponent extends Component {
     id: number,
     entityId: number
   ) {
-    super(id, entityId, ComponentType.MOVE);
+    super(id, entityId, ComponentType.DEBUG);
   }
 }

@@ -6,6 +6,7 @@ import { ComponentRenderer } from './component/ComponentRenderer';
 import { VisualComponentRenderer } from './component/VisualComponentRenderer';
 import { Entity } from '../entities/Entity';
 import { ComponentType } from '../entities/components/ComponentType';
+import { DebugComponentRenderer } from './component/DebugComponentRenderer';
 
 export class EntityRenderer {
 
@@ -16,6 +17,7 @@ export class EntityRenderer {
     private readonly entityStore: EntityStore
   ) {
     this.addComponentRenderer(new VisualComponentRenderer(game));
+    this.addComponentRenderer(new DebugComponentRenderer(game));
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {
@@ -34,9 +36,12 @@ export class EntityRenderer {
   }
 
   private updateNew() {
+    if (this.entityStore.newEntities.length > 0) {
+      LOG.debug(`Processing ${this.entityStore.newEntities.length} new entities.`);
+    }
     this.entityStore.newEntities.forEach(entity => {
-
       for (const component of entity.getComponentIterator()) {
+        LOG.debug(`Processing component: ${component.type}.`);
         const renderer = this.componentRenderer.get(component.type);
         if (renderer) {
           renderer.render(entity, component);

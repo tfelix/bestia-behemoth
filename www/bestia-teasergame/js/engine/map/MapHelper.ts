@@ -1,9 +1,16 @@
-import { Point } from "../../entities/Point";
+import { Point } from '../../entities/Point';
 import { Px } from '../../entities/Px';
 
 export class MapHelper {
 
   public static readonly TILE_SIZE_PX = 32;
+
+  public static pointToPixelCentered(p: Point): Px {
+    return new Px(
+      p.x * this.TILE_SIZE_PX + this.TILE_SIZE_PX / 2,
+      p.y * this.TILE_SIZE_PX + this.TILE_SIZE_PX / 2
+    );
+  }
 
   public static pointToPixel(p: Point): Px {
     return new Px(
@@ -12,7 +19,7 @@ export class MapHelper {
     );
   }
 
-  public static getTileXY(xPx: number, yPx: number): Point {
+  public static pixelToPoint(xPx: number, yPx: number): Point {
     return new Point(
       Math.floor(xPx / this.TILE_SIZE_PX),
       Math.floor(yPx / this.TILE_SIZE_PX)

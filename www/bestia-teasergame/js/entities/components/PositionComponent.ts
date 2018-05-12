@@ -9,6 +9,6 @@ export class PositionComponent extends Component {
     entityId: number,
     public position: Point
   ) {
-    super(id, entityId, ComponentType.POSITION)
+    super(id, entityId, ComponentType.POSITION);
   }
 }

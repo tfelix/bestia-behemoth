@@ -13,13 +13,17 @@ export abstract class ComponentRenderer<C extends Component> {
   abstract get supportedComponent(): ComponentType;
 
   public render(entity: Entity, component: Component) {
-    const sprite = entity.gameData['sprite'];
-    if (!sprite) {
+    if (this.hasNotSetup(entity, component as C)) {
       this.createGameData(entity, component as C);
     } else {
       this.updateGameData(entity, component as C);
     }
   }
+
+  /**
+   * The render must decide if there was a setup for this entity yet.
+   */
+  protected abstract hasNotSetup(entity: Entity, component: C): boolean;
 
   protected abstract createGameData(entity: Entity, component: C);
 
