@@ -22,7 +22,6 @@ export class BootScene extends Phaser.Scene {
     // Load Tileset + Tilesheet
     this.load.image('tiles', '../assets/tilemap/tiles/trees_plants_rocks.png');
     this.load.tilemapTiledJSON('map', '../assets/tilemap/maps/demo.json');
-    this.load.spritesheet('indicator_move', '../assets/sprites/indicators/cursor.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
 
     // Tree Sprite
 

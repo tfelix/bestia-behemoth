@@ -5,6 +5,8 @@ import { VisualComponent, SpriteType } from '../entities/components/VisualCompon
 import { PositionComponent } from '../entities/components/PositionComponent';
 import { Point } from '../entities/Point';
 import { EntityRenderer } from '../engine/EntityRenderer';
+import { EngineContext } from '../engine/EngineContext';
+import {PointerManager } from '../engine/pointer/PointerManager';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -12,8 +14,8 @@ export class GameScene extends Phaser.Scene {
 
   private entityStore: EntityStore;
   private entityRenderer: EntityRenderer;
-
-  // private renderer = new EntityRenderer();
+  private engineContext: EngineContext;
+  private pointerManager: PointerManager;
 
   constructor() {
     super({
@@ -23,6 +25,9 @@ export class GameScene extends Phaser.Scene {
 
   init(entityStore: EntityStore): void {
     this.entityStore = new EntityStore();
+    this.engineContext = new EngineContext(this);
+    this.entityRenderer = new EntityRenderer(this, this.entityStore);
+    this.pointerManager = new PointerManager(this.engineContext);
     this.setupTestEnv();
   }
 
@@ -46,9 +51,13 @@ export class GameScene extends Phaser.Scene {
     entity.addComponent(position);
   }
 
-  create(): void {
-    this.entityRenderer = new EntityRenderer(this, this.entityStore);
+  preload(): void {
+    
 
+    this.pointerManager.load(this.load);
+  }
+
+  create() {
     // Setup tilemap
     var map = this.make.tilemap({ key: 'map' });
     var floorTiles = map.addTilesetImage('trees_plants_rocks', 'tiles');
@@ -69,20 +78,12 @@ export class GameScene extends Phaser.Scene {
     };
 
     this.controls = new Phaser.Cameras.Controls.Fixed(controlConfig);
+    this.pointerManager.create();
 
-    // TEST
-    const cursor = this.add.sprite(320, 320, 'indicator_move');
-    var config = {
-      key: 'cursor_anim',
-      frames: this.anims.generateFrameNumbers('indicator_move', { start: 0, end: 1 }),
-      frameRate: 1,
-      repeat: -1
-    };
-    this.anims.create(config);
-    cursor.anims.play('cursor_anim');
+    this.add.text(100, 200, 'Phaser', { fontFamily: 'Arial', fontSize: 12, color: '#ffff00' });
   }
 
-  update(time, delta): void {
+  update(time, delta) {
     this.controls.update(delta);
 
     this.entityRenderer.update();
