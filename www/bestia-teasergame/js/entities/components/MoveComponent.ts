@@ -2,7 +2,7 @@ import { Component } from './Component';
 import { Point } from '../Point';
 import { ComponentType } from './ComponentType';
 
-class MoveComponent extends Component {
+export class MoveComponent extends Component {
 
   constructor(
     id: number,

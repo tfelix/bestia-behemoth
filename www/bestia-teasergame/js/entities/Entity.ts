@@ -1,3 +1,5 @@
+import * as LOG from 'loglevel';
+
 import { Action } from './actions/Action';
 import { Component } from './components/Component';
 import { ComponentType } from './components/ComponentType';
@@ -25,6 +27,10 @@ export class Entity {
   }
 
   public addComponent(component: Component) {
+    if (this.componentsKeyId.get(component.id)) {
+      LOG.warn(`Component with id does already exist: ${component.id}`);
+      return;
+    }
     this.componentsKeyId.set(component.id, component);
     this.componentsKeyType.set(component.type, component);
     this.newComponents.push(component);

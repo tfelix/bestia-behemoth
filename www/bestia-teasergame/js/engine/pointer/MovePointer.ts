@@ -1,14 +1,12 @@
+import * as LOG from 'loglevel';
+
 import { Pointer } from './Pointer';
 import { PointerManager } from './PointerManager';
 import { EngineContext } from '../EngineContext';
 import { Point } from '../../entities/Point';
 import { Px } from '../../entities/Px';
+import { MapHelper } from '../map/MapHelper';
 
-/**
- * Basic indicator for visualization of the mouse pointer.
- * 
- * @class Bestia.Engine.Indicator
- */
 export class MovePointer extends Pointer {
 
   private marker: Phaser.GameObjects.Sprite;
@@ -18,30 +16,11 @@ export class MovePointer extends Pointer {
     ctx: EngineContext
   ) {
     super(manager, ctx);
-    /*
-        this._effect = null;
-    
-        // this._pubsub = engineContext.pubsub;
-        // this._game = engineContext.game;
-    
-        // this._playerBestia = null;
-        // this._playerEntity = null;
-        this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
-          LOG.debug('MoveIndivator: New Bestia detected.');
-          this._playerBestia = bestia;
-        }, this);
-    
-        // Catch the currently selected entity if its getting updated.
-        this._pubsub.subscribe(Signal.ENTITY_UPDATE, function (_, entity) {
-          if (this._playerBestia && entity.eid === this._playerBestia.entityId()) {
-            this._playerEntity = entity;
-          }
-        }, this);
-        */
   }
 
   public activate() {
     this.marker.visible = true;
+    this.ctx.game.input.on('pointerdown', this.onClickMove, this);
   }
 
   public updatePosition(point: Point, px: Px) {
@@ -49,9 +28,8 @@ export class MovePointer extends Pointer {
   }
 
   private onPathFound(path) {
-    /*
+    LOG.debug(`Path found: ${JSON.stringify(path)}`);
     path = path || [];
-
     if (path.length === 0) {
       return;
     }
@@ -59,43 +37,24 @@ export class MovePointer extends Pointer {
     // Remove first element since its the current position.
     path.shift();
 
+    /*
     var pbid = this._playerBestia.playerBestiaId();
     var eid = this._playerBestia.entityId();
     var speed = this._playerBestia.statusBasedValues.walkspeed();
+    */
 
-    var msg = new Message.EntityMove(pbid,
-      eid,
-      path,
-      speed);
-    this._pubsub.send(msg);*/
-
-    // Start movement locally as well.
     // addMoveComponent(this._playerEntity, path, speed);
   }
 
-  public _onClick(pointer) {
-    /*
-        // No player no movement.
-        if (!this._playerBestia) {
-          return;
-        }
-    
-        // Only left button.
-        if (pointer.button !== Phaser.Mouse.LEFT_BUTTON) {
-          return;
-        }
-    
-        // Display fx.
-        this._effect.alpha = 1;
-        this._game.add.tween(this._effect).to({
-          alpha: 0
-        }, 500, Phaser.Easing.Cubic.Out, true);
-    
-        var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
-    
-        // Start the path calculation
-        this._ctx.pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
-      */
+  private onClickMove(pointer: Phaser.Input.Pointer) {
+    if (!pointer.leftButtonDown) {
+      return;
+    }
+
+    const goal = MapHelper.pixelToPoint(pointer.downX, pointer.downY);
+    const start = { x: 0, y: 0 };
+    LOG.debug(`Find path from: ${JSON.stringify(start)} to ${JSON.stringify(goal)}`);
+    this.ctx.pathfinder.findPath(start.x, start.y, goal.x, goal.y, this.onPathFound.bind(this));
   }
 
   public load(loader) {
@@ -118,15 +77,5 @@ export class MovePointer extends Pointer {
     this.ctx.game.anims.create(config);
     this.marker.anims.play('cursor_anim');
     this.marker.visible = false;
-
-    /*
-    const graphics = this.ctx.game.add.graphics(0, 0);
-    graphics.beginFill(0x42D65D);
-    graphics.drawRect(0, 0, 32, 32);
-    graphics.endFill();
-    graphics.alpha = 0;
-    this.marker = graphics;
-    this.marker.addChild(this._effect);
-    */
   }
 }

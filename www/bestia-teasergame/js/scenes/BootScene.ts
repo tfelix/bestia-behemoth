@@ -28,6 +28,20 @@ export class BootScene extends Phaser.Scene {
       '../assets/sprites/partials/female_01/offset_female_01_mastersmith.json'
     );
 
+    this.load.json('poring_desc', '../assets/sprites/mob/poring/poring_desc.json');
+    this.load.atlas(
+      'poring',
+      '../assets/sprites/mob/poring/poring.png',
+      '../assets/sprites/mob/poring/poring.json'
+    );
+
+    this.load.json('vitata_desc', '../assets/sprites/mob/vitata/vitata_desc.json');
+    this.load.atlas(
+      'vitata',
+      '../assets/sprites/mob/vitata/vitata.png',
+      '../assets/sprites/mob/vitata/vitata.json'
+    );
+
     // Load Music
 
     // Load Tileset + Tilesheet

@@ -43,15 +43,16 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected createGameData(entity: Entity, component: VisualComponent) {
-
-    const texture = this.game.textures.get(component.sprite);
-    const desc = (texture.customData as any).meta.description;
-
-    LOG.debug(`Building: ${JSON.stringify(component)} (dynamic sprite)`);
-
     const posComp = entity.getComponent(ComponentType.POSITION) as PositionComponent;
+    if (!posComp) {
+      return;
+    }
     const position = posComp.position || { x: 0, y: 0 };
     const px = MapHelper.pointToPixelCentered(position);
+
+    const desc = this.getSpriteDescription(component);
+
+    LOG.debug(`Entity: ${entity.id} Visual: ${component.id} (${component.sprite})`);
 
     const sprite = this.game.add.sprite(px.x, px.y, desc.name);
     entity.gameData[VisualComponentRenderer.DAT_SPRITE] = sprite;
@@ -60,6 +61,17 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     this.setupSpriteAnimation(sprite, desc);
 
     this.setupMultiSprites(sprite, desc);
+  }
+
+  private getSpriteDescription(component: VisualComponent): SpriteDescription {
+    const texture = this.game.textures.get(component.sprite);
+    const desc = (texture.customData as any).meta.description;
+    // If null fallback to the old format. Maybe changed in the future.
+    if (!desc) {
+      return this.game.cache.json.get(`${component.sprite}_desc`);
+    } else {
+      return desc;
+    }
   }
 
   private setupMultiSprites(
@@ -97,9 +109,14 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
+    if (!component.animation) {
+      return;
+    }
     const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
-    const animationName = component.animation || 'stand_down';
-    sprite.anims.play(animationName, true);
+    const fullAnimationName = `${component.sprite}_${component.animation}`;
+    LOG.debug(`Play animation: ${fullAnimationName} for entity: ${entity.id}`);
+    sprite.anims.play(fullAnimationName, true);
+    component.animation = null;
   }
 
   protected removeComponent(entity: Entity, component: Component) {
@@ -127,7 +144,8 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
    */
   private setupSpriteAnimation(sprite: Phaser.GameObjects.Sprite, description: SpriteDescription) {
     const anims = description.animations || [];
-    LOG.debug(`Setup sprite animations: ${JSON.stringify(anims)} for: ${description.name}`);
+    const animsNames = anims.map(x => x.name);
+    LOG.debug(`Setup sprite animations: ${animsNames} for: ${description.name}`);
     // Register all the animations of the sprite.
     anims.forEach(anim => {
       const config: GenerateFrameNamesConfig = {
@@ -139,7 +157,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       };
       const animationFrames = this.game.anims.generateFrameNames(description.name, config);
       const animConfig = {
-        key: anim.name,
+        key: `${description.name}_${anim.name}`,
         frames: animationFrames,
         frameRate: anim.fps,
         repeat: -1

@@ -21,6 +21,8 @@
     "no-unused-variable": false,
     "member-ordering": false,
     "arrow-parens": false,
+    "no-import-side-effect": false,
+    "no-implicit-dependencies": false,
     "no-empty": false,
     // TODO: Enable stricter options for these
     "comment-format": [

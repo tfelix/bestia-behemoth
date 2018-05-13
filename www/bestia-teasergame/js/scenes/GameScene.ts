@@ -8,6 +8,7 @@ import { EntityRenderer } from '../engine/EntityRenderer';
 import { EngineContext } from '../engine/EngineContext';
 import { PointerManager } from '../engine/pointer/PointerManager';
 import { DebugComponent } from '../entities/components/DebugComponent';
+import { CollisionManager } from '../engine/map/CollisionManager';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -17,6 +18,7 @@ export class GameScene extends Phaser.Scene {
   private entityRenderer: EntityRenderer;
   private engineContext: EngineContext;
   private pointerManager: PointerManager;
+  private collisionManager: CollisionManager;
 
   constructor() {
     super({
@@ -29,6 +31,7 @@ export class GameScene extends Phaser.Scene {
     this.engineContext = new EngineContext(this);
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
     this.pointerManager = new PointerManager(this.engineContext);
+    this.collisionManager = new CollisionManager(this.engineContext);
     this.setupTestEnv();
   }
 
@@ -50,7 +53,26 @@ export class GameScene extends Phaser.Scene {
       new Point(2, 2)
     );
     entity.addComponent(position);
-    // entity.addComponent(new DebugComponent(3, 1));
+
+    const vitata = new Entity(2);
+    this.entityStore.addEntity(vitata);
+    const vitataVisual = new VisualComponent(
+      10,
+      10,
+      true,
+      'vitata',
+      SpriteType.MULTI
+    );
+    vitataVisual.animation = 'stand_down';
+    vitata.addComponent(vitataVisual);
+
+    const vitataPosition = new PositionComponent(
+      11,
+      10,
+      new Point(5, 4)
+    );
+    vitata.addComponent(vitataPosition);
+    // entity.addComponent(new DebugComponent(3, 1));*/
   }
 
   public preload(): void {
@@ -88,5 +110,6 @@ export class GameScene extends Phaser.Scene {
 
     this.pointerManager.update();
     this.entityRenderer.update();
+    this.collisionManager.update();
   }
 }
