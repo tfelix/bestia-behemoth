@@ -40,6 +40,10 @@ export class Entity {
     return this.componentsKeyType.get(type);
   }
 
+  public hasComponent(type: ComponentType): boolean {
+    return this.componentsKeyType.has(type);
+  }
+
   public removeComponent(componentId: number) {
     const removedComponent = this.componentsKeyId.get(componentId);
     this.removedComponents.push(removedComponent);

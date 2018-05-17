@@ -1,4 +1,3 @@
-
 export class Point {
   constructor(
     public readonly x: number,

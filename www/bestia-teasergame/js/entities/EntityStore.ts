@@ -1,11 +1,14 @@
+import { Subject } from 'rxjs';
+
 import { Entity } from './Entity';
 
 export class EntityStore {
 
-  public newEntities: Entity[] = [];
-  public removedEntities: Entity[] = [];
-
   public entities: Map<number, Entity> = new Map();
+
+  public readonly onUpdateEntity = new Subject();
+  public readonly onNewEntity = new Subject();
+  public readonly onRemovedEntity = new Subject();
 
   constructor() {
   }
@@ -20,15 +23,15 @@ export class EntityStore {
 
   public addEntity(entity: Entity) {
     this.entities.set(entity.id, entity);
-    this.newEntities.push(entity);
+    this.onNewEntity.next(entity);
   }
 
   public removeEntity(entityId: number) {
     const entity = this.entities.get(entityId);
+    this.onRemovedEntity.next(entity);
     for (const component of entity.getComponentIterator()) {
       entity.removeComponent(component.id);
     }
     this.entities.delete(entityId);
-    this.removedEntities.push(entity);
   }
 }

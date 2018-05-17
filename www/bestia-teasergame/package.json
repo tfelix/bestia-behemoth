@@ -1,10 +1,16 @@
 {
-  "name": "phaser3-typescript",
-  "version": "1.0.9",
+  "name": "bestia",
+  "version": "1.0.0",
   "description": "Boilerplate, Tutorials, Cheat Sheets and more for Phaser 3 in Typescript",
   "devDependencies": {
+    "@types/chai": "^4.1.3",
+    "@types/mocha": "^5.2.0",
+    "@types/storejs": "^2.0.2",
+    "chai": "^4.1.2",
     "expose-loader": "0.7.5",
+    "mocha": "^5.1.1",
     "ts-loader": "4.2.0",
+    "ts-node": "^6.0.3",
     "tslint": "^5.10.0",
     "typescript": "^2.8.1",
     "webpack": "4.6.0",
@@ -13,23 +19,22 @@
   },
   "dependencies": {
     "loglevel": "1.6.1",
-    "phaser": "3.5.0"
+    "phaser": "3.5.0",
+    "rxjs": "^6.1.0",
+    "store": "^2.0.12"
   },
   "scripts": {
     "dev": "webpack && webpack-dev-server -d",
-    "build": "webpack && webpack-dev-server --mode production"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/digitsensitive/phaser3-typescript.git"
+    "build": "webpack && webpack-dev-server --mode production",
+    "test": "mocha -r ts-node/register \"js/**/*.test.ts\""
   },
   "author": {
-    "name": "digitsensitive",
-    "email": "digit.sensitivee@gmail.com"
+    "name": "Thomas Felix",
+    "email": "thomas.felix@tfelix.de"
   },
-  "license": "ISC",
+  "license": "Propretary",
   "bugs": {
     "url": "https://github.com/digitsensitive/phaser3-typescript/issues"
   },
-  "homepage": "https://github.com/digitsensitive/phaser3-typescript#readme"
+  "homepage": "https://bestia-game.net"
 }

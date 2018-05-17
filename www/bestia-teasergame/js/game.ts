@@ -1,6 +1,7 @@
 /// <reference path="./phaser.d.ts"/>
 import 'phaser';
 import * as LOG from 'loglevel';
+import * as store from 'store';
 
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
@@ -28,7 +29,7 @@ const config: GameConfig = {
 
 LOG.setLevel('debug');
 
-export class Game extends Phaser.Game {
+class Game extends Phaser.Game {
   constructor(config: GameConfig) {
     super(config);
   }
