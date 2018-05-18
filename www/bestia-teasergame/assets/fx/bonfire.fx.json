@@ -1,0 +1,20 @@
+{
+	"version": 1,
+	"resources": [
+		{"key": "fire", "type": "image", "url": "fire.png"}
+	],
+	"animations": [
+		{
+			"id": "fire",
+			"type": "tween", 
+			"duration": 300, 
+			"data": {
+				"property": "scale", 
+				"from": 0.4, 
+				"to": 1
+			}
+		}
+	],
+	"target": [animation_seq_id_string],
+	"origin": [animation_seq_id_string]
+}

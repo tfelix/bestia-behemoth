@@ -1,14 +1,29 @@
 import { Subject } from 'rxjs';
 
 import { Entity } from './Entity';
+import { ComponentType } from './components';
+
+export enum UpdateType {
+  NEW,
+  CHANGED,
+  DELETED
+}
+
+export class EntityUpdate {
+  constructor(
+    public readonly entity: Entity,
+    public readonly changedComponent: ComponentType,
+    public readonly type: UpdateType
+  ) {
+  }
+}
 
 export class EntityStore {
 
   public entities: Map<number, Entity> = new Map();
 
-  public readonly onUpdateEntity = new Subject();
-  public readonly onNewEntity = new Subject();
-  public readonly onRemovedEntity = new Subject();
+  public readonly onUpdateEntity = new Subject<EntityUpdate>();
+  public readonly onRemoveEntity = new Subject<Entity>();
 
   constructor() {
   }
@@ -23,12 +38,11 @@ export class EntityStore {
 
   public addEntity(entity: Entity) {
     this.entities.set(entity.id, entity);
-    this.onNewEntity.next(entity);
   }
 
   public removeEntity(entityId: number) {
     const entity = this.entities.get(entityId);
-    this.onRemovedEntity.next(entity);
+    this.onRemoveEntity.next(entity);
     for (const component of entity.getComponentIterator()) {
       entity.removeComponent(component.id);
     }
