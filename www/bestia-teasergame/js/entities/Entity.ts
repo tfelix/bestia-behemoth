@@ -15,6 +15,7 @@ export class Entity {
   public gameData: any = {};
 
   public actions: Action[] = [];
+  public latency = 0;
 
   constructor(
     public readonly id: number

@@ -17,7 +17,6 @@ export class PlayerEntityManager {
   public readonly onEntitiesChanged = new Subject<Entity[]>();
 
   constructor(
-    private readonly accountId: number,
     private readonly info: AccountInfo,
     entityStore: EntityStore
   ) {

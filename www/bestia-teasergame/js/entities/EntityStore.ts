@@ -28,6 +28,18 @@ export class EntityStore {
   constructor() {
   }
 
+  public getEntity(id: number): Entity {
+    const e = this.entities.get(id);
+
+    if (!e) {
+      const newEntity = new Entity(id);
+      this.addEntity(newEntity);
+      return newEntity;
+    }
+
+    return e;
+  }
+
   /**
    * Updates the entity in the storage.
    * @param message Server update message for this entity.
