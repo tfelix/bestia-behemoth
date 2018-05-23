@@ -3,7 +3,7 @@ import { Entity } from '../entities/Entity';
 import { VisualComponentRenderer } from '../engine/component/VisualComponentRenderer';
 import { VisualComponent, SpriteType } from '../entities/components/VisualComponent';
 import { PositionComponent } from '../entities/components/PositionComponent';
-import { Point } from '../entities/Point';
+import { Point } from '../model';
 import { EntityRenderer } from '../engine/EntityRenderer';
 import { EngineContext } from '../engine/EngineContext';
 import { PointerManager } from '../engine/pointer/PointerManager';
@@ -50,8 +50,8 @@ export class GameScene extends Phaser.Scene {
     const position = new PositionComponent(
       2,
       1,
-      new Point(2, 2)
     );
+    position.position = new Point(2, 2);
     entity.addComponent(position);
 
     const vitata = new Entity(2);
@@ -68,9 +68,9 @@ export class GameScene extends Phaser.Scene {
 
     const vitataPosition = new PositionComponent(
       11,
-      10,
-      new Point(5, 4)
+      10
     );
+    vitataPosition.position = new Point(5, 4);
     vitata.addComponent(vitataPosition);
     // entity.addComponent(new DebugComponent(3, 1));*/
   }
