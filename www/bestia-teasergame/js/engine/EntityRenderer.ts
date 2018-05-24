@@ -6,6 +6,7 @@ import { ComponentRenderer } from './component/ComponentRenderer';
 import { VisualComponentRenderer } from './component/VisualComponentRenderer';
 import { ComponentType } from '../entities/components/ComponentType';
 import { DebugComponentRenderer } from './component/DebugComponentRenderer';
+import { MoveComponentRenderer } from './component/MoveComponentRenderer';
 
 export class EntityRenderer {
 
@@ -17,8 +18,9 @@ export class EntityRenderer {
   ) {
     this.addComponentRenderer(new VisualComponentRenderer(game));
     this.addComponentRenderer(new DebugComponentRenderer(game));
+    this.addComponentRenderer(new MoveComponentRenderer(game));
 
-    entityStore.onUpdateEntity.subscribe(this.handleUpdateEntity)
+    entityStore.onUpdateEntity.subscribe(this.handleUpdateEntity);
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {

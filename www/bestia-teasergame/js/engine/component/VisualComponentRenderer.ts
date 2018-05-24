@@ -47,7 +47,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     if (!posComp) {
       return;
     }
-    const position = posComp.position || { x: 0, y: 0 };
+    const position = posComp.position || new Point(0, 0);
     const px = MapHelper.pointToPixelCentered(position);
 
     const desc = this.getSpriteDescription(component);

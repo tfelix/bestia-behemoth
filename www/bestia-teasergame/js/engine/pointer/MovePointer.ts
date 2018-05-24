@@ -22,7 +22,7 @@ export class MovePointer extends Pointer {
     this.ctx.game.input.on('pointerdown', this.onClickMove, this);
   }
 
-  public updatePosition(point: Point, px: Px) {
+  public updatePosition(point: Point) {
     this.marker.setPosition(point.x, point.y);
   }
 

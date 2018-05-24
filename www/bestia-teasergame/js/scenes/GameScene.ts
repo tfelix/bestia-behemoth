@@ -9,6 +9,7 @@ import { EngineContext } from '../engine/EngineContext';
 import { PointerManager } from '../engine/pointer/PointerManager';
 import { DebugComponent } from '../entities/components/DebugComponent';
 import { CollisionManager } from '../engine/map/CollisionManager';
+import { MoveComponent } from 'entities/components';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -53,6 +54,15 @@ export class GameScene extends Phaser.Scene {
     );
     position.position = new Point(2, 2);
     entity.addComponent(position);
+
+    const move = new MoveComponent(
+      3,
+      1,
+    );
+    move.walkspeed = 1;
+    move.path = [new Point(2, 3), new Point(2, 4), new Point(3, 5), new Point(4, 5)];
+    // entity.addComponent(position);
+    this.entityStore.addComponent(move);
 
     const vitata = new Entity(2);
     this.entityStore.addEntity(vitata);

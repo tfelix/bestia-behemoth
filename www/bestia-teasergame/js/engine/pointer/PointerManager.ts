@@ -42,7 +42,7 @@ export class PointerManager {
 
   private updatePointerPosition(pointer: Phaser.Input.Pointer) {
     const cords = MapHelper.getClampedTilePixelXY(pointer.x, pointer.y);
-    this.activePointer.updatePosition(cords, pointer);
+    this.activePointer.updatePosition(cords);
   }
 
   public hide() {

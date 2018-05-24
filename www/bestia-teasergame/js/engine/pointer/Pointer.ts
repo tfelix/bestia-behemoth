@@ -63,7 +63,7 @@ export class Pointer {
     return this.manager.requestActive(this);
   }
 
-  public updatePosition(point: Point, px: Px) {
+  public updatePosition(px: Px) {
     // no op.
   }
 }

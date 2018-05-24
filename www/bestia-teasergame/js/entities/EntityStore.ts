@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 
 import { Entity } from './Entity';
-import { ComponentType } from './components';
+import { ComponentType, Component } from './components';
 
 export enum UpdateType {
   NEW,
@@ -19,7 +19,6 @@ export class EntityUpdate {
 }
 
 export class EntityStore {
-
   public entities: Map<number, Entity> = new Map();
 
   public readonly onUpdateEntity = new Subject<EntityUpdate>();
@@ -50,6 +49,13 @@ export class EntityStore {
 
   public addEntity(entity: Entity) {
     this.entities.set(entity.id, entity);
+  }
+
+  public addComponent(component: Component) {
+    const e = this.getEntity(component.entityId);
+    e.addComponent(component);
+    const updateMsg = new EntityUpdate(e, component.type, UpdateType.NEW);
+    this.onUpdateEntity.next(updateMsg);
   }
 
   public removeEntity(entityId: number) {
