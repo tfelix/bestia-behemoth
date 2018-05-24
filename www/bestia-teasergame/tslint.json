@@ -23,6 +23,7 @@
     "arrow-parens": false,
     "no-import-side-effect": false,
     "no-implicit-dependencies": false,
+    "no-submodule-imports": false,
     "no-empty": false,
     // TODO: Enable stricter options for these
     "comment-format": [

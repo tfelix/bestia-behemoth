@@ -3,8 +3,7 @@ import * as LOG from 'loglevel';
 import { Pointer } from './Pointer';
 import { PointerManager } from './PointerManager';
 import { EngineContext } from '../EngineContext';
-import { Point } from '../../entities/Point';
-import { Px } from '../../entities/Px';
+import { Point, Px } from 'model';
 import { MapHelper } from '../map/MapHelper';
 
 export class MovePointer extends Pointer {

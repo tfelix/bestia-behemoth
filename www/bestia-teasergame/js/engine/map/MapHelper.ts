@@ -1,5 +1,4 @@
-import { Point } from '../../entities/Point';
-import { Px } from '../../entities/Px';
+import { Point, Px } from 'model';
 
 export class MapHelper {
 

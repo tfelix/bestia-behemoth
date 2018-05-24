@@ -1,7 +1,6 @@
 import { PointerManager } from './PointerManager';
 import { EngineContext } from '../EngineContext';
-import { Point } from '../../entities/Point';
-import { Px } from '../../entities/Px';
+import { Point, Px } from 'model';
 
 /**
  * Basic indicator for visualization of the mouse pointer. This visualization is
@@ -27,8 +26,8 @@ export class Pointer {
 	/**
 	 * Checks if this indicator can be overwritten by the new one. Usually this
 	 * is the default behaviour.
-	 * 
-	 * @param {Indicator} indicator - The new indicator intended to override the currently active one.
+	 *
+	 * @param indicator - The new indicator intended to override the currently active one.
 	 */
   public allowOverwrite(otherPointer: Pointer) {
     return true;

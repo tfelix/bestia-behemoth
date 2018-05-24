@@ -1,13 +1,13 @@
 import * as LOG from 'loglevel';
 
 import { ComponentRenderer } from './ComponentRenderer';
-import { Component } from '../../entities/components/Component';
-import { Entity } from '../../entities/Entity';
-import { VisualComponent, SpriteType } from '../../entities/components/VisualComponent';
-import { PositionComponent } from '../../entities/components/PositionComponent';
-import { MapHelper } from '../map/MapHelper';
-import { Point } from '../../entities/Point';
-import { ComponentType } from '../../entities/components/ComponentType';
+import { Component } from 'entities/components/Component';
+import { Entity } from 'entities';
+import { VisualComponent, SpriteType } from 'entities/components/VisualComponent';
+import { PositionComponent } from 'entities/components/PositionComponent';
+import { MapHelper } from 'engine/map/MapHelper';
+import { Point } from 'model';
+import { ComponentType } from 'entities/components/ComponentType';
 
 interface SpriteAnimation {
   name: string;

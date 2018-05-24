@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 
-import { EntityStore } from './EntityStore';
+import { EntityStore, EntityUpdate } from './EntityStore';
 import { Entity } from './Entity';
 import { ComponentType } from './components/ComponentType';
 import { PlayerComponent } from './components/PlayerComponent';
@@ -20,7 +20,7 @@ export class PlayerEntityManager {
     private readonly info: AccountInfo,
     entityStore: EntityStore
   ) {
-    entityStore.onUpdateEntity.subscribe(entity => this.checkEntity(entity as Entity));
+    entityStore.onUpdateEntity.subscribe(this.checkEntity);
   }
 
   private addEntity(entity: Entity) {
@@ -32,8 +32,8 @@ export class PlayerEntityManager {
     this.onEntitiesChanged.next(this.ownedEntities);
   }
 
-  private checkEntity(entity: Entity) {
-    const playerComp = entity.getComponent(ComponentType.PLAYER) as PlayerComponent;
+  private checkEntity(data: EntityUpdate) {
+    const playerComp = data.entity.getComponent(ComponentType.PLAYER) as PlayerComponent;
     if (playerComp === null || playerComp.ownerAccountId === this.info.accountId) {
 
     }

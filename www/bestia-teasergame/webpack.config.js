@@ -17,7 +17,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    // modules: ["node_modules"],
+    modules: [
+      path.resolve('./node_modules'),
+      path.resolve('./js')
+    ],
     alias: {
       phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js'),
       Utilities: path.resolve(__dirname, 'node_modules/loglevel/dist/loglevel.js')
