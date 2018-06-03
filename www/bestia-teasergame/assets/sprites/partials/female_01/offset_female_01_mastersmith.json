@@ -1,6 +1,6 @@
 {
 	"targetSprite": "mastersmith",
-	"scale": 1.2,
+	"scale": 0.9,
 	"defaultCords": {"x": 0, "y": -66},
 	"offsets":[  
     {  

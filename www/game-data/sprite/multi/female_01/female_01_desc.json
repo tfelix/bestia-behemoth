@@ -10,8 +10,8 @@
 		{"name": "top_left", "from": 1, "to": 1, "fps": 0 }
 	],
   "anchor":{  
-    "x":0.5,
-    "y":1
+    "x": 0.5,
+    "y": 1
   },
   "assetpack":{  
     "female_01":[  

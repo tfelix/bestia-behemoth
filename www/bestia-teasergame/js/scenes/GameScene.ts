@@ -67,6 +67,7 @@ export class GameScene extends Phaser.Scene {
       new Point(2, 3),
       new Point(1, 4)
     ];
+    // move.path = [new Point(3, 3), new Point(4, 3)];
     master.addComponent(move);
 
     this.entityFactory.addObject('tree', new Point(10, 10));

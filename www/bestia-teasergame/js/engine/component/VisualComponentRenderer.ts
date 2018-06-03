@@ -59,19 +59,22 @@ function translateMovementToSubspriteAnimationName(moveAnimation: string): strin
       return 'bottom';
     case 'stand_down_left':
     case 'walk_down_left':
+      return 'bottom_left';
     case 'stand_down_right':
     case 'walk_down_right':
-      return 'bottom_left';
+      return 'bottom_right';
     case 'stand_left':
     case 'walk_left':
+      return 'left';
     case 'stand_right':
     case 'walk_right':
-      return 'left';
+      return 'right';
     case 'stand_up_left':
     case 'walk_up_left':
+      return 'top_left';
     case 'stand_up_right':
     case 'walk_up_right':
-      return 'top_left';
+      return 'top_right';
     case 'stand_up':
     case 'walk_up':
       return 'top';
@@ -120,6 +123,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     this.setupSpriteAnimation(sprite, desc);
 
     this.setupMultiSprites(spriteData, desc);
+    this.updateChildSpriteOffset(spriteData);
   }
 
   private getSpriteDescription(component: VisualComponent): SpriteDescription {
@@ -145,17 +149,28 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       // Get the desc file of the multisprite.
       const msDescName = `${multiSprite}_desc`;
       const msDesc = this.game.cache.json.get(msDescName) as SpriteDescription;
+      const offsetFileName = this.getOffsetFilename(multiSprite, spriteData.name);
+      const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
 
       // Was not loaded. Should not happen.
-      if (msDesc === null) {
-        LOG.warn(`Subsprite description was not loaded. This should not happen: ${msDescName}`);
+      if (!msDesc || !offsets) {
+        LOG.warn(`Subsprite description of offsets were not loaded. This should not happen: ${msDescName}`);
         return;
       }
 
       const msSprite = this.game.add.sprite(0, 0, multiSprite);
-      this.setupScaleAndOrigin(msSprite, msDesc);
+      // this.setupScaleAndOrigin(msSprite, msDesc);
       this.setupSpriteAnimation(msSprite, msDesc);
-      this.updateChildSpriteOffset(desc.name, msDesc.name, spriteData.sprite, msSprite);
+
+      // Das hier evtl besser auslagern?
+      const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
+      const defaultScale = offsets.scale || 1;
+      const anchor = msDesc.anchor || {
+        x: 0.5,
+        y: 0.5
+      };
+      msSprite.setOrigin(anchor.x, anchor.y);
+      msSprite.setScale(defaultScale);
 
       spriteData.childSprites.push({
         name: multiSprite,
@@ -164,44 +179,51 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     });
   }
 
-  private updateChildSpriteOffset(
-    parentSpriteName: string,
-    childSpriteName: string,
-    parentSprite: Phaser.GameObjects.Sprite,
-    childSprite: Phaser.GameObjects.Sprite
-  ) {
-    const offsetFileName = this.getOffsetFilename(childSpriteName, parentSpriteName);
-    const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
-
-    const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
-    const defaultScale = offsets.scale || 1;
-    childSprite.setPosition(
-      parentSprite.x + defaultOffset.x * defaultScale,
-      parentSprite.y + defaultOffset.y * defaultScale
-    );
-  }
-
   protected updateGameData(entity: Entity, component: VisualComponent) {
-    if (!component.animation) {
+    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
+
+    if (!spriteData) {
       return;
     }
-    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
-    const fullAnimationName = `${component.sprite}_${component.animation}`;
-    LOG.debug(`Play animation: ${fullAnimationName} for entity: ${entity.id}`);
-    this.setSpriteAnimationName(spriteData.sprite, fullAnimationName);
-    this.updateChildSprites(spriteData, component.animation);
-    component.animation = null;
+
+    if (component.animation) {
+      const fullAnimationName = `${component.sprite}_${component.animation}`;
+      LOG.debug(`Play animation: ${fullAnimationName} for entity: ${entity.id}`);
+      this.setSpriteAnimationName(spriteData.sprite, fullAnimationName);
+      this.updateChildSpritesAnimation(spriteData, component.animation);
+      component.animation = null;
+    }
+
+    this.updateChildSpriteOffset(spriteData);
   }
 
-  private updateChildSprites(spriteData: SpriteData, animationName: string) {
+  private updateChildSpritesAnimation(spriteData: SpriteData, animationName: string) {
     spriteData.childSprites.forEach(childSprite => {
-
       const subspriteAnimationName = translateMovementToSubspriteAnimationName(animationName);
       const fullAnimationName = `${childSprite.name}_${subspriteAnimationName}`;
       LOG.debug(`Play animation: ${fullAnimationName} for subsprite: ${childSprite.name}`);
       this.setSpriteAnimationName(childSprite.sprite, fullAnimationName);
+    });
+  }
 
-      this.updateChildSpriteOffset(spriteData.name, childSprite.name, spriteData.sprite, childSprite.sprite);
+  private updateChildSpriteOffset(
+    spriteData: SpriteData
+  ) {
+    spriteData.childSprites.forEach(childSprite => {
+      const mainSpriteDesc = this.game.cache.json.get(`${spriteData.name}_desc`) as SpriteDescription;
+      const offsetFileName = this.getOffsetFilename(childSprite.name, spriteData.name);
+      const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
+      const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
+      const defaultScale = offsets.scale || 1;
+
+      const x = spriteData.sprite.x + defaultOffset.x * mainSpriteDesc.scale;
+      const y = spriteData.sprite.y + defaultOffset.y * mainSpriteDesc.scale;
+
+      // LOG.debug(`Update position: ${childSprite.name} (x:${x}, y: ${y})`);
+      childSprite.sprite.setPosition(
+        x,
+        y,
+      );
     });
   }
 
