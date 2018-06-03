@@ -1,7 +1,6 @@
 {  
   "type":"multipart",
   "version":1,
-  "scale":1.2,
   "name": "female_01",
   "animations": [
 		{"name": "bottom", "from": 1, "to": 1, "fps": 0 },

@@ -4,7 +4,7 @@ import { DebugComponent } from '../../entities/components/DebugComponent';
 import { ComponentRenderer } from './ComponentRenderer';
 import { ComponentType } from '../../entities/components/ComponentType';
 import { Entity } from '../../entities/Entity';
-import { VisualComponentRenderer } from './VisualComponentRenderer';
+import { VisualComponentRenderer, SpriteData } from './VisualComponentRenderer';
 import { Component } from '../../entities/components/Component';
 import { MoveComponent, VisualComponent, PositionComponent } from '../../entities/components';
 import { Point } from 'model';
@@ -127,9 +127,9 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
     const currentPos = component.path[moveData.currentPathPosition];
     const nextPathPosition = moveData.currentPathPosition + 1;
 
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
+    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
     const visual = entity.getComponent(ComponentType.VISUAL) as VisualComponent;
-    if (!visual || !sprite) {
+    if (!visual || !spriteData) {
       LOG.warn('Can not display walking animation because no visual component exists.');
       return;
     }
@@ -153,7 +153,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
       const nextPosPx = MapHelper.pointToPixelCentered(nextPosition);
 
       const timeline = this.game.tweens.timeline({
-        targets: sprite,
+        targets: spriteData.sprite,
         ease: 'Linear',
         totalDuration: stepDuration,
         tweens: [{

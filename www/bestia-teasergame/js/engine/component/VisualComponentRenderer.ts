@@ -9,6 +9,15 @@ import { MapHelper } from 'engine/map/MapHelper';
 import { Point } from 'model';
 import { ComponentType } from 'entities/components/ComponentType';
 
+export interface SpriteData {
+  sprite: Phaser.GameObjects.Sprite;
+  name: string;
+  childSprites: Array<{
+    name: string;
+    sprite: Phaser.GameObjects.Sprite;
+  }>;
+}
+
 interface SpriteAnimation {
   name: string;
   from: number;
@@ -24,6 +33,51 @@ interface SpriteDescription {
   animations: SpriteAnimation[];
   anchor: Point;
   multiSprite: string[];
+}
+
+interface SpriteOffsets {
+  targetSprite: string;
+  scale: number;
+  defaultCords: {
+    x: number;
+    y: number;
+  };
+  offsets: Array<{
+    name: string;
+    triggered: string;
+    offsets: Array<{
+      x: number;
+      y: number;
+    }>;
+  }>;
+}
+
+function translateMovementToSubspriteAnimationName(moveAnimation: string): string {
+  switch (moveAnimation) {
+    case 'stand_down':
+    case 'walk_down':
+      return 'bottom';
+    case 'stand_down_left':
+    case 'walk_down_left':
+    case 'stand_down_right':
+    case 'walk_down_right':
+      return 'bottom_left';
+    case 'stand_left':
+    case 'walk_left':
+    case 'stand_right':
+    case 'walk_right':
+      return 'left';
+    case 'stand_up_left':
+    case 'walk_up_left':
+    case 'stand_up_right':
+    case 'walk_up_right':
+      return 'top_left';
+    case 'stand_up':
+    case 'walk_up':
+      return 'top';
+    default:
+      return moveAnimation;
+  }
 }
 
 export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> {
@@ -55,12 +109,17 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     LOG.debug(`Entity: ${entity.id} Visual: ${component.id} (${component.sprite})`);
 
     const sprite = this.game.add.sprite(px.x, px.y, desc.name);
-    entity.gameData[VisualComponentRenderer.DAT_SPRITE] = sprite;
+    const spriteData: SpriteData = {
+      sprite: sprite,
+      name: component.sprite,
+      childSprites: []
+    };
+    entity.gameData[VisualComponentRenderer.DAT_SPRITE] = spriteData;
 
     this.setupScaleAndOrigin(sprite, desc);
     this.setupSpriteAnimation(sprite, desc);
 
-    this.setupMultiSprites(sprite, desc);
+    this.setupMultiSprites(spriteData, desc);
   }
 
   private getSpriteDescription(component: VisualComponent): SpriteDescription {
@@ -75,7 +134,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   private setupMultiSprites(
-    sprite: Phaser.GameObjects.Sprite,
+    spriteData: SpriteData,
     desc: SpriteDescription
   ) {
     const multisprites = desc.multiSprite || [];
@@ -93,30 +152,72 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
         return;
       }
 
-      const offsetFileName = this.getOffsetFilename(multiSprite, desc.name);
-      const offsets = this.game.cache.json.get(offsetFileName) || {};
-
       const msSprite = this.game.add.sprite(0, 0, multiSprite);
-      const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
-      msSprite.setPosition(
-        sprite.x + defaultOffset.x * desc.scale,
-        sprite.y + defaultOffset.y * desc.scale
-      );
-
       this.setupScaleAndOrigin(msSprite, msDesc);
       this.setupSpriteAnimation(msSprite, msDesc);
+      this.updateChildSpriteOffset(desc.name, msDesc.name, spriteData.sprite, msSprite);
+
+      spriteData.childSprites.push({
+        name: multiSprite,
+        sprite: msSprite
+      });
     });
+  }
+
+  private updateChildSpriteOffset(
+    parentSpriteName: string,
+    childSpriteName: string,
+    parentSprite: Phaser.GameObjects.Sprite,
+    childSprite: Phaser.GameObjects.Sprite
+  ) {
+    const offsetFileName = this.getOffsetFilename(childSpriteName, parentSpriteName);
+    const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
+
+    const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
+    const defaultScale = offsets.scale || 1;
+    childSprite.setPosition(
+      parentSprite.x + defaultOffset.x * defaultScale,
+      parentSprite.y + defaultOffset.y * defaultScale
+    );
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
     if (!component.animation) {
       return;
     }
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
+    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
     const fullAnimationName = `${component.sprite}_${component.animation}`;
     LOG.debug(`Play animation: ${fullAnimationName} for entity: ${entity.id}`);
-    sprite.anims.play(fullAnimationName, true);
+    this.setSpriteAnimationName(spriteData.sprite, fullAnimationName);
+    this.updateChildSprites(spriteData, component.animation);
     component.animation = null;
+  }
+
+  private updateChildSprites(spriteData: SpriteData, animationName: string) {
+    spriteData.childSprites.forEach(childSprite => {
+
+      const subspriteAnimationName = translateMovementToSubspriteAnimationName(animationName);
+      const fullAnimationName = `${childSprite.name}_${subspriteAnimationName}`;
+      LOG.debug(`Play animation: ${fullAnimationName} for subsprite: ${childSprite.name}`);
+      this.setSpriteAnimationName(childSprite.sprite, fullAnimationName);
+
+      this.updateChildSpriteOffset(spriteData.name, childSprite.name, spriteData.sprite, childSprite.sprite);
+    });
+  }
+
+  private setSpriteAnimationName(sprite: Phaser.GameObjects.Sprite, animation: string) {
+    if (this.needsMirror(animation)) {
+      sprite.flipX = true;
+      const correctedAnimationName = animation.replace('_right', '_left');
+      sprite.anims.play(correctedAnimationName, true);
+    } else {
+      sprite.flipX = false;
+      sprite.anims.play(animation, true);
+    }
+  }
+
+  private needsMirror(animationName: string): boolean {
+    return animationName.endsWith('right');
   }
 
   protected removeComponent(entity: Entity, component: Component) {
@@ -144,7 +245,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
    */
   private setupSpriteAnimation(sprite: Phaser.GameObjects.Sprite, description: SpriteDescription) {
     const anims = description.animations || [];
-    const animsNames = anims.map(x => x.name);
+    const animsNames = anims.map(x => `${description.name}_${x.name}`);
     LOG.debug(`Setup sprite animations: ${animsNames} for: ${description.name}`);
     // Register all the animations of the sprite.
     anims.forEach(anim => {
@@ -162,7 +263,6 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
         frameRate: anim.fps,
         repeat: -1
       };
-      LOG.debug(JSON.stringify(animConfig));
       this.game.anims.create(animConfig);
     });
   }

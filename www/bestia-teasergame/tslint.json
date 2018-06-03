@@ -17,6 +17,7 @@
     "newline-before-return": false,
     "no-parameter-properties": false,
     "object-literal-sort-keys": false,
+    "object-literal-shorthand": false,
     "no-parameter-reassignment": false,
     "no-unused-variable": false,
     "member-ordering": false,
