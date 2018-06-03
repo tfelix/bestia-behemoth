@@ -51,4 +51,11 @@ export class Entity {
     this.componentsKeyId.delete(componentId);
     this.componentsKeyType.delete(removedComponent.type);
   }
+
+  public removeComponentByType(type: ComponentType) {
+    const component = this.componentsKeyType.get(type);
+    if (component) {
+      this.removeComponent(component.id);
+    }
+  }
 }

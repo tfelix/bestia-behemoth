@@ -1,0 +1,21 @@
+{"frames": {
+
+"tree.png":
+{
+	"frame": {"x":1,"y":1,"w":93,"h":154},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":93,"h":154},
+	"sourceSize": {"w":93,"h":154}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "tree.png",
+	"format": "RGBA8888",
+	"size": {"w":95,"h":156},
+	"collision": [[1,1,1],[1,1,1],[1,1,1],[1,1,1],[0,0,0]],
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:0afc71e8df94e6e2c70c21643bb60bb3:5816e1672f1023bfe8bb14b9b5e4d6aa:4e275c72fcbe49e6d6a6cf9ad6765a40$"
+}
+}

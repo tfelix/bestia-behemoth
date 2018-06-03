@@ -2,7 +2,8 @@ import { Component } from './Component';
 import { ComponentType } from './ComponentType';
 
 export enum SpriteType {
-  MULTI
+  MULTI,
+  SIMPLE
 }
 
 export class VisualComponent extends Component {

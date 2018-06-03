@@ -10,6 +10,7 @@ import { PointerManager } from '../engine/pointer/PointerManager';
 import { DebugComponent } from '../entities/components/DebugComponent';
 import { CollisionManager } from '../engine/map/CollisionManager';
 import { MoveComponent } from 'entities/components';
+import { EntityLocalFactory } from 'entities/EntityLocalFactory';
 
 export class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text[];
@@ -20,6 +21,8 @@ export class GameScene extends Phaser.Scene {
   private engineContext: EngineContext;
   private pointerManager: PointerManager;
   private collisionManager: CollisionManager;
+
+  private entityFactory: EntityLocalFactory;
 
   constructor() {
     super({
@@ -33,56 +36,40 @@ export class GameScene extends Phaser.Scene {
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
     this.pointerManager = new PointerManager(this.engineContext);
     this.collisionManager = new CollisionManager(this.engineContext);
+
+    this.entityFactory = new EntityLocalFactory(this.entityStore);
+
     this.setupTestEnv();
   }
 
   public setupTestEnv() {
-    const entity = new Entity(1);
-    this.entityStore.addEntity(entity);
-    const visual = new VisualComponent(
-      1,
-      1,
-      true,
-      'mastersmith',
-      SpriteType.MULTI
-    );
-    entity.addComponent(visual);
-
-    const position = new PositionComponent(
-      2,
-      1,
-    );
-    position.position = new Point(2, 2);
-    entity.addComponent(position);
+    const master = this.entityFactory.addSprite('mastersmith', new Point(2, 3));
+    const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
 
     const move = new MoveComponent(
       3,
       1,
     );
     move.walkspeed = 1;
-    move.path = [new Point(2, 3), new Point(2, 4), new Point(3, 5), new Point(4, 5)];
-    // entity.addComponent(position);
-    this.entityStore.addComponent(move);
+    move.path = [
+      new Point(2, 4),
+      new Point(2, 5),
+      new Point(2, 6),
+      new Point(3, 6),
+      new Point(4, 6),
+      new Point(5, 5),
+      new Point(6, 4),
+      new Point(6, 3),
+      new Point(6, 2),
+      new Point(5, 2),
+      new Point(4, 2),
+      new Point(3, 2),
+      new Point(2, 3),
+      new Point(1, 4)
+    ];
+    master.addComponent(move);
 
-    const vitata = new Entity(2);
-    this.entityStore.addEntity(vitata);
-    const vitataVisual = new VisualComponent(
-      10,
-      10,
-      true,
-      'vitata',
-      SpriteType.MULTI
-    );
-    vitataVisual.animation = 'stand_down';
-    vitata.addComponent(vitataVisual);
-
-    const vitataPosition = new PositionComponent(
-      11,
-      10
-    );
-    vitataPosition.position = new Point(5, 4);
-    vitata.addComponent(vitataPosition);
-    // entity.addComponent(new DebugComponent(3, 1));*/
+    this.entityFactory.addObject('tree', new Point(10, 10));
   }
 
   public preload(): void {
@@ -96,7 +83,6 @@ export class GameScene extends Phaser.Scene {
     const map = this.make.tilemap({ key: 'map' });
     const floorTiles = map.addTilesetImage('trees_plants_rocks', 'tiles');
     map.createStaticLayer('floor_0', floorTiles, 0, 0);
-    map.createStaticLayer('floor_1', floorTiles, 0, 0);
 
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 

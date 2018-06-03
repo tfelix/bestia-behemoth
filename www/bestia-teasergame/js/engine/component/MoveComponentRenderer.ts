@@ -16,6 +16,12 @@ type WalkAnimationName = 'walk_up' | 'walk_up_right' | 'walk_right' | 'walk_down
 type StandAnimationName = 'stand_up' | 'stand_up_right' | 'stand_right' | 'stand_down_right' |
   'stand_down' | 'stand_down_left' | 'stand_left' | 'stand_up_left';
 
+interface MoveData {
+  assumedWalkspeed: number;
+  currentPathPosition: number;
+  timeline: Phaser.Tweens.Timeline;
+}
+
 /**
  * Calculates the duration in ms of the total walk of the given path.
  * Depends upon the relative walkspeed of the entity.
@@ -111,116 +117,79 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
     return entity.gameData[MoveComponentRenderer.DAT_MOVE] === undefined;
   }
 
+  private clearMovementData(entity: Entity) {
+    entity.gameData[MoveComponentRenderer.DAT_MOVE] = null;
+    entity.removeComponentByType(ComponentType.MOVE);
+  }
+
+  private performNextMovement(entity: Entity, component: MoveComponent) {
+    const moveData = entity.gameData[MoveComponentRenderer.DAT_MOVE] as MoveData;
+    const currentPos = component.path[moveData.currentPathPosition];
+    const nextPathPosition = moveData.currentPathPosition + 1;
+
+    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
+    const visual = entity.getComponent(ComponentType.VISUAL) as VisualComponent;
+    if (!visual || !sprite) {
+      LOG.warn('Can not display walking animation because no visual component exists.');
+      return;
+    }
+
+    // Subtract one because we added start position of entity to the path queue before.
+    const hasNextStep = (component.path.length - 1) > nextPathPosition;
+    if (!hasNextStep) {
+
+      const lastPos = component.path[moveData.currentPathPosition - 1];
+      const standAnimation = getStandAnimationName(lastPos, currentPos);
+      visual.animation = standAnimation;
+      this.clearMovementData(entity);
+    } else {
+
+      const nextPosition = component.path[nextPathPosition];
+      const speed = component.walkspeed;
+      const walkAnimation = getWalkAnimationName(currentPos, nextPosition);
+      const stepDuration = getWalkDuration(currentPos.getDistance(nextPosition), 1);
+      visual.animation = walkAnimation;
+
+      const nextPosPx = MapHelper.pointToPixelCentered(nextPosition);
+
+      const timeline = this.game.tweens.timeline({
+        targets: sprite,
+        ease: 'Linear',
+        totalDuration: stepDuration,
+        tweens: [{
+          x: nextPosPx.x,
+          y: nextPosPx.y,
+          onComplete: () => this.performNextMovement(entity, component)
+        }]
+      });
+
+      moveData.currentPathPosition = nextPathPosition;
+    }
+  }
+
   protected createGameData(entity: Entity, component: MoveComponent) {
-
-    // Temporary
-    entity.gameData[MoveComponentRenderer.DAT_MOVE] = true;
-
     const path = component.path;
-    const speed = component.walkspeed;
 
     const position = entity.getComponent(ComponentType.POSITION) as PositionComponent;
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
 
-    // We need the current position to calculate the walk
-    // direction.
+    // We need the current position to calculate the walk direction.
     path.unshift(position.position);
-    // https://labs.phaser.io/edit.html?src=src\tweens\timelines\total%20duration.js
-    const timeline = this.game.tweens.timeline({
-      targets: sprite,
-      ease: 'Linear',
-      totalDuration: 5000,
-      tweens: [
-        {
-          y: 300,
-          onComplete: () => { console.log('onComplete'); }
-        },
-        {
-          y: 400,
-          onComplete: () => { console.log('onComplete'); }
-        },
-        {
-          y: 600,
-          onComplete: () => { console.log('onComplete'); }
-        }],
-      onStart: () => { console.log('onStart timeline'); },
-      onComplete: () => { console.log('onComplete timeline'); }
-    });
 
-    /*
-        const moveTween = this.game.tweens.add({
-          targets: sprite,
-          ease: 'Linear',
-          y: 500,
-          duration: 6000,
-          onStart: () => { console.log('onStart'); },
-          onComplete: () => { console.log('onComplete'); }
-        });*/
+    const moveData: MoveData = {
+      assumedWalkspeed: component.walkspeed,
+      currentPathPosition: 0,
+      timeline: null
+    };
+    entity.gameData[MoveComponentRenderer.DAT_MOVE] = moveData;
 
-    /*
-    // Calculate coordinate arrays from path.
-    path.forEach((pathPos, i) => {
-      // This is our current position.
-      // No need to move TO this position.
-      if (i === 0) {
-        return;
-      }
-
-      var cords = WorldHelper.getSpritePxXY(ele.x, ele.y);
-
-      const previousTile = path[i - 1];
-      const distance = previousTile.getDistance(pathPos);
-      // Check if we go diagonal to adjust speed.
-      const length = (distance > 1.01) ? 1 : 1.414;
-      const duration = getWalkDuration(length, speed);
-
-      // Start the animation.
-      sprite.tweenMove.to({
-        x: cords.x,
-        y: cords.y
-      }, duration, Phaser.Easing.Linear.None, false);
-    }, this);
-
-    // After each child tween has completed check the next walking direction and
-    // update the entity movement.
-    sprite.tweenMove.onChildComplete.add(function () {
-      currentPathCounter++;
-
-      var isLast = currentPath.length + 1 === currentPathCounter;
-      if (isLast) {
-        // We keep standing still now.
-      } else {
-        var currentPosition = currentPath[currentPathCounter];
-        var nextAnim = getWalkAnimationName(currentPosition, path[currentPathCounter + 1]);
-        playEntityAnimation(entity, nextAnim);
-      }
-
-    }, this);
-
-    // At the end of the movement fetch the correct standing animation
-    // and stop the movement.
-    sprite.tweenMove.onComplete.addOnce(function () {
-
-      var size = path.length;
-      var currentPos = path[size - 1];
-      var lastPos = path[size - 2];
-      var nextAnim = getStandAnimationName(lastPos, currentPos);
-      playEntityAnimation(entity, nextAnim);
-
-      this.position = currentPos;
-    }, this);
-
-    // Start the first animation immediately, because the usual checks
-    // only start to check after the first tween has finished.
-    var nextAnim = getWalkAnimationName(path[0], path[1]);
-    playEntityAnimation(entity, nextAnim);
-    sprite.tweenMove.start();*/
+    this.performNextMovement(entity, component);
   }
 
   protected updateGameData(entity: Entity, component: MoveComponent) {
   }
 
   protected removeComponent(entity: Entity, component: MoveComponent) {
+    this.clearMovementData(entity);
   }
 
   private isMoving(sprite): boolean {

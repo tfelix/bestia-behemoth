@@ -42,6 +42,15 @@ export class BootScene extends Phaser.Scene {
       '../assets/sprites/mob/vitata/vitata.json'
     );
 
+    const additionalObjects = ['tree'];
+    additionalObjects.forEach(x => {
+      const baseUrl = `../assets/sprites/object/${x}`;
+      const pngUrl = `${baseUrl}/${x}.png`;
+      const jsonUrl = `${baseUrl}/${x}.json`;
+      this.load.atlas(x, pngUrl, jsonUrl);
+      this.load.json(`${x}_desc`, `${baseUrl}/${x}_desc.json`);
+    });
+
     // Load Music
 
     // Load Tileset + Tilesheet

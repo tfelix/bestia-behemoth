@@ -3,5 +3,6 @@ export enum ComponentType {
   VISUAL,
   POSITION,
   DEBUG,
-  PLAYER
+  PLAYER,
+  CONDITION
 }
