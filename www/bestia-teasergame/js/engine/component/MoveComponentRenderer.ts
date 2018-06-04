@@ -172,9 +172,6 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
     const position = entity.getComponent(ComponentType.POSITION) as PositionComponent;
 
-    // We need the current position to calculate the walk direction.
-    path.unshift(position.position);
-
     const moveData: MoveData = {
       assumedWalkspeed: component.walkspeed,
       currentPathPosition: 0,

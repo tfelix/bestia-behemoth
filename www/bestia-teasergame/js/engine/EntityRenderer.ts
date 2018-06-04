@@ -20,7 +20,7 @@ export class EntityRenderer {
     this.addComponentRenderer(new DebugComponentRenderer(game));
     this.addComponentRenderer(new MoveComponentRenderer(game));
 
-    entityStore.onUpdateEntity.subscribe(this.handleUpdateEntity);
+    // entityStore.onUpdateEntity.subscribe(this.handleUpdateEntity);
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {

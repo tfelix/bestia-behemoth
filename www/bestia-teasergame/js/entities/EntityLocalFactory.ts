@@ -1,5 +1,5 @@
 import { Entity, EntityStore } from '.';
-import { VisualComponent, SpriteType, PositionComponent } from './components';
+import { VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType } from './components';
 import { Point } from 'model';
 
 export class EntityLocalFactory {
@@ -28,14 +28,14 @@ export class EntityLocalFactory {
       SpriteType.MULTI
     );
     visual.animation = 'stand_down';
-    entity.addComponent(visual);
+    this.entityStore.addComponent(visual);
 
     const position = new PositionComponent(
       this.componentCounter++,
       entity.id
     );
     position.position = pos;
-    entity.addComponent(position);
+    this.entityStore.addComponent(position);
 
     return entity;
   }
@@ -50,15 +50,25 @@ export class EntityLocalFactory {
       name,
       SpriteType.SIMPLE
     );
-    entity.addComponent(visual);
+    this.entityStore.addComponent(visual);
 
     const position = new PositionComponent(
       this.componentCounter++,
       entity.id,
     );
     position.position = pos;
-    entity.addComponent(position);
+    this.entityStore.addComponent(position);
 
     return entity;
+  }
+
+  public addPlayerComponent(entity: Entity, accountId: number) {
+    const playerComp = new PlayerComponent(
+      this.componentCounter++,
+      entity.id,
+      ComponentType.PLAYER,
+      accountId
+    );
+    this.entityStore.addComponent(playerComp);
   }
 }

@@ -6,7 +6,7 @@ import { ComponentType } from './components/ComponentType';
 import { PlayerComponent } from './components/PlayerComponent';
 import { AccountInfo } from '../model/AccountInfo';
 
-export class PlayerEntityManager {
+export class PlayerEntityHolder {
 
   public activeEntity?: Entity;
   public masterEntity?: Entity;
@@ -20,7 +20,7 @@ export class PlayerEntityManager {
     private readonly info: AccountInfo,
     entityStore: EntityStore
   ) {
-    entityStore.onUpdateEntity.subscribe(this.checkEntity);
+    entityStore.onUpdateEntity.subscribe(x => this.checkEntity(x));
   }
 
   private addEntity(entity: Entity) {
@@ -34,8 +34,14 @@ export class PlayerEntityManager {
 
   private checkEntity(data: EntityUpdate) {
     const playerComp = data.entity.getComponent(ComponentType.PLAYER) as PlayerComponent;
-    if (playerComp === null || playerComp.ownerAccountId === this.info.accountId) {
+    const isPlayerEntity = !!playerComp && playerComp.ownerAccountId === this.info.accountId;
 
+    if (isPlayerEntity) {
+      this.masterEntity = data.entity;
+
+      if (!this.activeEntity) {
+        this.activeEntity = data.entity;
+      }
     }
   }
 }

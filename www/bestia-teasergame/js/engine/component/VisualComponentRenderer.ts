@@ -9,6 +9,8 @@ import { MapHelper } from 'engine/map/MapHelper';
 import { Point } from 'model';
 import { ComponentType } from 'entities/components/ComponentType';
 
+// TODO getSpriteDescription besser handelns
+
 export interface SpriteData {
   sprite: Phaser.GameObjects.Sprite;
   name: string;

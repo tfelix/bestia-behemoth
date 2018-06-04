@@ -3,7 +3,7 @@ import { Entity } from '../entities/Entity';
 import { VisualComponentRenderer } from '../engine/component/VisualComponentRenderer';
 import { VisualComponent, SpriteType } from '../entities/components/VisualComponent';
 import { PositionComponent } from '../entities/components/PositionComponent';
-import { Point } from '../model';
+import { Point, AccountInfo } from '../model';
 import { EntityRenderer } from '../engine/EntityRenderer';
 import { EngineContext } from '../engine/EngineContext';
 import { PointerManager } from '../engine/pointer/PointerManager';
@@ -11,10 +11,12 @@ import { DebugComponent } from '../entities/components/DebugComponent';
 import { CollisionManager } from '../engine/map/CollisionManager';
 import { MoveComponent } from 'entities/components';
 import { EntityLocalFactory } from 'entities/EntityLocalFactory';
+import { PlayerEntityHolder } from 'entities';
 
 export class GameScene extends Phaser.Scene {
-  private scoreText: Phaser.GameObjects.Text[];
   private controls: Phaser.Cameras.Controls.FixedKeyControl;
+
+  private readonly playerAccountId = 1;
 
   private entityStore: EntityStore;
   private entityRenderer: EntityRenderer;
@@ -32,7 +34,10 @@ export class GameScene extends Phaser.Scene {
 
   public init(entityStore: EntityStore): void {
     this.entityStore = new EntityStore();
-    this.engineContext = new EngineContext(this);
+    const accountInfo = new AccountInfo('gast', this.playerAccountId, 'gast');
+    const playerEntityHolder = new PlayerEntityHolder(accountInfo, this.entityStore);
+    this.engineContext = new EngineContext(this, this.entityStore, playerEntityHolder);
+
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
     this.pointerManager = new PointerManager(this.engineContext);
     this.collisionManager = new CollisionManager(this.engineContext);
@@ -44,10 +49,12 @@ export class GameScene extends Phaser.Scene {
 
   public setupTestEnv() {
     const master = this.entityFactory.addSprite('mastersmith', new Point(2, 3));
+    this.entityFactory.addPlayerComponent(master, this.playerAccountId);
     const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
 
+    /*
     const move = new MoveComponent(
-      3,
+      1000,
       1,
     );
     move.walkspeed = 1;
@@ -67,8 +74,8 @@ export class GameScene extends Phaser.Scene {
       new Point(2, 3),
       new Point(1, 4)
     ];
-    // move.path = [new Point(3, 3), new Point(4, 3)];
-    master.addComponent(move);
+    this.entityStore.addComponent(move);
+    */
 
     this.entityFactory.addObject('tree', new Point(10, 10));
   }

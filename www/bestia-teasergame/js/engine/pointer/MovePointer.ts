@@ -5,6 +5,7 @@ import { PointerManager } from './PointerManager';
 import { EngineContext } from '../EngineContext';
 import { Point, Px } from 'model';
 import { MapHelper } from '../map/MapHelper';
+import { ComponentType, PositionComponent, MoveComponent } from 'entities/components';
 
 export class MovePointer extends Pointer {
 
@@ -26,23 +27,21 @@ export class MovePointer extends Pointer {
     this.marker.setPosition(point.x, point.y);
   }
 
-  private onPathFound(path) {
+  private onPathFound(path: Array<{ x: number; y: number }>) {
     LOG.debug(`Path found: ${JSON.stringify(path)}`);
     path = path || [];
     if (path.length === 0) {
       return;
     }
 
-    // Remove first element since its the current position.
-    path.shift();
-
-    /*
-    var pbid = this._playerBestia.playerBestiaId();
-    var eid = this._playerBestia.entityId();
-    var speed = this._playerBestia.statusBasedValues.walkspeed();
-    */
-
-    // addMoveComponent(this._playerEntity, path, speed);
+    const playerEntityId = this.ctx.playerHolder.activeEntity.id;
+    const move = new MoveComponent(
+      1000,
+      playerEntityId
+    );
+    move.walkspeed = 1;
+    move.path = path.map(p => new Point(p.x, p.y));
+    this.ctx.entityStore.addComponent(move);
   }
 
   private onClickMove(pointer: Phaser.Input.Pointer) {
@@ -50,8 +49,17 @@ export class MovePointer extends Pointer {
       return;
     }
 
+    const activePlayerEntity = this.ctx.playerHolder.activeEntity;
+    if (!activePlayerEntity) {
+      return;
+    }
+    const playerPositionComponent = activePlayerEntity.getComponent(ComponentType.POSITION) as PositionComponent;
+    if (!playerPositionComponent) {
+      return;
+    }
+    const start = playerPositionComponent.position;
     const goal = MapHelper.pixelToPoint(pointer.downX, pointer.downY);
-    const start = { x: 0, y: 0 };
+
     LOG.debug(`Find path from: ${JSON.stringify(start)} to ${JSON.stringify(goal)}`);
     this.ctx.pathfinder.findPath(start.x, start.y, goal.x, goal.y, this.onPathFound.bind(this));
   }
