@@ -137,7 +137,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
     }
 
     // Subtract one because we added start position of entity to the path queue before.
-    const hasNextStep = (component.path.length - 1) > nextPathPosition;
+    const hasNextStep = (component.path.length - 1) >= nextPathPosition;
     if (!hasNextStep) {
 
       const lastPos = component.path[moveData.currentPathPosition - 1];
