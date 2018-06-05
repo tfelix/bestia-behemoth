@@ -34,9 +34,11 @@ export class MovePointer extends Pointer {
       return;
     }
 
+    const componentId = Math.floor(Math.random() * -10000);
+
     const playerEntityId = this.ctx.playerHolder.activeEntity.id;
     const move = new MoveComponent(
-      1000,
+      componentId,
       playerEntityId
     );
     move.walkspeed = 1;

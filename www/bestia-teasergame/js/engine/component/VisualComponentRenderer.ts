@@ -27,7 +27,7 @@ interface SpriteAnimation {
   fps: number;
 }
 
-interface SpriteDescription {
+export interface SpriteDescription {
   name: string;
   type: SpriteType;
   version: number;
@@ -35,6 +35,7 @@ interface SpriteDescription {
   animations: SpriteAnimation[];
   anchor: Point;
   multiSprite: string[];
+  collision?: boolean[][];
 }
 
 interface SpriteOffsets {

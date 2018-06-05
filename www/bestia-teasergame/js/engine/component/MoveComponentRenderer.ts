@@ -114,7 +114,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
   }
 
   protected hasNotSetup(entity: Entity, component: MoveComponent): boolean {
-    return entity.gameData[MoveComponentRenderer.DAT_MOVE] === undefined;
+    return !entity.gameData[MoveComponentRenderer.DAT_MOVE];
   }
 
   private clearMovementData(entity: Entity) {
@@ -126,6 +126,8 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
     const moveData = entity.gameData[MoveComponentRenderer.DAT_MOVE] as MoveData;
     const currentPos = component.path[moveData.currentPathPosition];
     const nextPathPosition = moveData.currentPathPosition + 1;
+
+    this.updatePositionComponentLocalOnly(entity, currentPos);
 
     const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
     const visual = entity.getComponent(ComponentType.VISUAL) as VisualComponent;
@@ -191,5 +193,18 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
   private isMoving(sprite): boolean {
     return sprite._movingTween !== null && sprite._movingTween.isRunning;
+  }
+
+  /**
+   * Later when connected to the server only the server has the right to update position
+   * components. This wont be done in the client anymore.
+   */
+  private updatePositionComponentLocalOnly(entity: Entity, position: Point) {
+    LOG.debug(`Updating entity ${entity.id} position: ${JSON.stringify(position)}`);
+    const posComp = entity.getComponent(ComponentType.POSITION) as PositionComponent;
+    if (!posComp) {
+      return;
+    }
+    posComp.position = position;
   }
 }
