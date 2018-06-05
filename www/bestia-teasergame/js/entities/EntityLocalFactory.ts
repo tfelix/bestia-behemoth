@@ -1,5 +1,5 @@
 import { Entity, EntityStore } from '.';
-import { VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType } from './components';
+import { VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType, DebugComponent } from './components';
 import { Point } from 'model';
 
 export class EntityLocalFactory {
@@ -60,6 +60,14 @@ export class EntityLocalFactory {
     this.entityStore.addComponent(position);
 
     return entity;
+  }
+
+  public addDebugComponent(entity: Entity) {
+    const debugComp = new DebugComponent(
+      this.componentCounter++,
+      entity.id
+    );
+    this.entityStore.addComponent(debugComp);
   }
 
   public addPlayerComponent(entity: Entity, accountId: number) {

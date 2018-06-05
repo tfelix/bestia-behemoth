@@ -127,6 +127,9 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
 
     this.setupMultiSprites(spriteData, desc);
     this.updateChildSpriteOffset(spriteData);
+
+    // TODO Maybe in a single method.
+    sprite.depth = position.y;
   }
 
   private getSpriteDescription(component: VisualComponent): SpriteDescription {
@@ -222,7 +225,6 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       const x = spriteData.sprite.x + defaultOffset.x * mainSpriteDesc.scale;
       const y = spriteData.sprite.y + defaultOffset.y * mainSpriteDesc.scale;
 
-      // LOG.debug(`Update position: ${childSprite.name} (x:${x}, y: ${y})`);
       childSprite.sprite.setPosition(
         x,
         y,
@@ -259,7 +261,6 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       y: 0.5
     };
     sprite.setOrigin(anchor.x, anchor.y);
-
     const scale = description.scale || 1;
     sprite.setScale(scale);
   }
