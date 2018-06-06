@@ -99,6 +99,6 @@ export class GameScene extends Phaser.Scene {
     this.entityRenderer.update();
     this.collisionRenderer.update();
 
-    this.collisionUpdater.update();
+    this.engineContext.collisionUpdater.update();
   }
 }

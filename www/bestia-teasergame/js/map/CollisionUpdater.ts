@@ -3,7 +3,8 @@ import * as LOG from 'loglevel';
 import { MapHelper } from 'map';
 import { EngineContext } from 'engine/EngineContext';
 import { ComponentType, VisualComponent, PositionComponent } from 'entities/components';
-import { SpriteDescription } from 'engine/renderer';
+import { SpriteDescription, getSpriteDescriptionFromCache } from 'engine/renderer';
+import { Point, Size } from 'model';
 
 export class CollisionUpdater {
 
@@ -33,6 +34,10 @@ export class CollisionUpdater {
 
   public update() {
     this.ctx.pathfinder.calculate();
+
+    // TODO Do this only if a entity has changed.
+    this.isDirty = true;
+    this.updateCollisionMap();
   }
 
   public updateCollisionMap() {
@@ -47,17 +52,50 @@ export class CollisionUpdater {
         return;
       }
 
-      const sprite = visualComp.sprite;
-      const spriteDesc = '';
-      const desc = this.ctx.game.cache.json.get(spriteDesc) as SpriteDescription;
-      const collision = desc.collision || [[]];
+      const spriteName = visualComp.sprite;
+      const spriteDesc = getSpriteDescriptionFromCache(spriteName, this.ctx.game);
+      const collision = spriteDesc && spriteDesc.collision || [[]];
+
+      const sprite = entity.gameData.visual.sprite;
+      const spriteTopLeft = getSpriteTopLeft(sprite);
+      const spriteSize = getSpriteDimensions(sprite);
+
+      for (let dy = 0; dy < collision.length; dy++) {
+        for (let dx = 0; dx < collision[dy].length; dx++) {
+          if (collision[dy][dx] === 1) {
+            const x = spriteTopLeft.x + dx;
+            const y = spriteTopLeft.y + dy;
+            this.collisionMap[y][x] = 1;
+          }
+        }
+      }
 
     });
 
+    this.ctx.pathfinder.setGrid(this.collisionMap);
     this.isDirty = false;
   }
 
   public hasCollision(x: number, y: number): boolean {
     return this.collisionMap[y][x] !== 0;
   }
+}
+
+function getSpriteTopLeft(
+  sprite: Phaser.GameObjects.Sprite
+): Point {
+  const topleft = sprite.getTopLeft();
+  return new Point(
+    Math.floor(topleft.x / MapHelper.TILE_SIZE_PX),
+    Math.floor(topleft.y / MapHelper.TILE_SIZE_PX)
+  );
+}
+
+function getSpriteDimensions(
+  sprite: Phaser.GameObjects.Sprite
+): Size {
+  return new Size(
+    Math.ceil(sprite.width / MapHelper.TILE_SIZE_PX),
+    Math.ceil(sprite.height / MapHelper.TILE_SIZE_PX)
+  );
 }

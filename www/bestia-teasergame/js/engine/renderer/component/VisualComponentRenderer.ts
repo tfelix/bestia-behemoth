@@ -9,8 +9,6 @@ import { MapHelper } from 'map/MapHelper';
 
 import { ComponentRenderer } from './ComponentRenderer';
 
-// TODO getSpriteDescription besser handelns
-
 export interface SpriteData {
   sprite: Phaser.GameObjects.Sprite;
   spriteName: string;
@@ -35,7 +33,7 @@ export interface SpriteDescription {
   animations: SpriteAnimation[];
   anchor: Point;
   multiSprite: string[];
-  collision?: boolean[][];
+  collision?: number[][];
 }
 
 interface SpriteOffsets {
@@ -53,6 +51,13 @@ interface SpriteOffsets {
       y: number;
     }>;
   }>;
+}
+
+export function getSpriteDescriptionFromCache(
+  spriteName: string,
+  scene: Phaser.Scene
+): SpriteDescription {
+  return scene.cache.json.get(`${spriteName}_desc`);
 }
 
 function translateMovementToSubspriteAnimationName(moveAnimation: string): string {
@@ -135,14 +140,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   private getSpriteDescription(component: VisualComponent): SpriteDescription {
-    const texture = this.game.textures.get(component.sprite);
-    const desc = (texture.customData as any).meta.description;
-    // If null fallback to the old format. Maybe changed in the future.
-    if (!desc) {
-      return this.game.cache.json.get(`${component.sprite}_desc`);
-    } else {
-      return desc;
-    }
+    return getSpriteDescriptionFromCache(component.sprite, this.game);
   }
 
   private setupMultiSprites(
