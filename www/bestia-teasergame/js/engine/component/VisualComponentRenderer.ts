@@ -13,7 +13,7 @@ import { ComponentType } from 'entities/components/ComponentType';
 
 export interface SpriteData {
   sprite: Phaser.GameObjects.Sprite;
-  name: string;
+  spriteName: string;
   childSprites: Array<{
     name: string;
     sprite: Phaser.GameObjects.Sprite;
@@ -88,8 +88,6 @@ function translateMovementToSubspriteAnimationName(moveAnimation: string): strin
 
 export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> {
 
-  public static readonly DAT_SPRITE = 'sprite';
-
   constructor(game: Phaser.Scene) {
     super(game);
   }
@@ -99,7 +97,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected hasNotSetup(entity: Entity, component: VisualComponent): boolean {
-    return entity.gameData[VisualComponentRenderer.DAT_SPRITE] === undefined;
+    return !entity.gameData.visual;
   }
 
   protected createGameData(entity: Entity, component: VisualComponent) {
@@ -117,10 +115,10 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     const sprite = this.game.add.sprite(px.x, px.y, desc.name);
     const spriteData: SpriteData = {
       sprite: sprite,
-      name: component.sprite,
+      spriteName: component.sprite,
       childSprites: []
     };
-    entity.gameData[VisualComponentRenderer.DAT_SPRITE] = spriteData;
+    entity.gameData.visual = spriteData;
 
     this.setupScaleAndOrigin(sprite, desc);
     this.setupSpriteAnimation(sprite, desc);
@@ -155,7 +153,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       // Get the desc file of the multisprite.
       const msDescName = `${multiSprite}_desc`;
       const msDesc = this.game.cache.json.get(msDescName) as SpriteDescription;
-      const offsetFileName = this.getOffsetFilename(multiSprite, spriteData.name);
+      const offsetFileName = this.getOffsetFilename(multiSprite, spriteData.spriteName);
       const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
 
       // Was not loaded. Should not happen.
@@ -186,7 +184,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
-    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
+    const spriteData = entity.gameData.visual;
 
     if (!spriteData) {
       return;
@@ -216,8 +214,8 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     spriteData: SpriteData
   ) {
     spriteData.childSprites.forEach(childSprite => {
-      const mainSpriteDesc = this.game.cache.json.get(`${spriteData.name}_desc`) as SpriteDescription;
-      const offsetFileName = this.getOffsetFilename(childSprite.name, spriteData.name);
+      const mainSpriteDesc = this.game.cache.json.get(`${spriteData.spriteName}_desc`) as SpriteDescription;
+      const offsetFileName = this.getOffsetFilename(childSprite.name, spriteData.spriteName);
       const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
       const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
       const defaultScale = offsets.scale || 1;

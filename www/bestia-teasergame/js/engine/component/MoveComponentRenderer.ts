@@ -16,7 +16,7 @@ type WalkAnimationName = 'walk_up' | 'walk_up_right' | 'walk_right' | 'walk_down
 type StandAnimationName = 'stand_up' | 'stand_up_right' | 'stand_right' | 'stand_down_right' |
   'stand_down' | 'stand_down_left' | 'stand_left' | 'stand_up_left';
 
-interface MoveData {
+export interface MoveData {
   assumedWalkspeed: number;
   currentPathPosition: number;
   timeline: Phaser.Tweens.Timeline;
@@ -101,7 +101,6 @@ function getStandAnimationName(oldPos: Point, newPos: Point): StandAnimationName
 }
 
 export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
-  public static readonly DAT_MOVE = 'move';
 
   constructor(
     game: Phaser.Scene
@@ -114,22 +113,22 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
   }
 
   protected hasNotSetup(entity: Entity, component: MoveComponent): boolean {
-    return !entity.gameData[MoveComponentRenderer.DAT_MOVE];
+    return !entity.gameData.move;
   }
 
   private clearMovementData(entity: Entity) {
-    entity.gameData[MoveComponentRenderer.DAT_MOVE] = null;
+    entity.gameData.move = null;
     entity.removeComponentByType(ComponentType.MOVE);
   }
 
   private performNextMovement(entity: Entity, component: MoveComponent) {
-    const moveData = entity.gameData[MoveComponentRenderer.DAT_MOVE] as MoveData;
+    const moveData = entity.gameData.move;
     const currentPos = component.path[moveData.currentPathPosition];
     const nextPathPosition = moveData.currentPathPosition + 1;
 
     this.updatePositionComponentLocalOnly(entity, currentPos);
 
-    const spriteData = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
+    const spriteData = entity.gameData.visual;
     const visual = entity.getComponent(ComponentType.VISUAL) as VisualComponent;
     if (!visual || !spriteData) {
       LOG.warn('Can not display walking animation because no visual component exists.');
@@ -179,7 +178,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
       currentPathPosition: 0,
       timeline: null
     };
-    entity.gameData[MoveComponentRenderer.DAT_MOVE] = moveData;
+    entity.gameData.move = moveData;
 
     this.performNextMovement(entity, component);
   }
@@ -211,9 +210,9 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
      * For now we also update the z-index for depth sorting when moved.
      * This needs to be done in a different function.
      */
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as SpriteData;
+    const sprite = entity.gameData.visual.sprite;
     if (sprite) {
-      sprite.sprite.depth = position.y;
+      sprite.depth = position.y;
     }
   }
 }

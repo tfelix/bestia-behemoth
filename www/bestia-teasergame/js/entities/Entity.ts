@@ -3,6 +3,7 @@ import * as LOG from 'loglevel';
 import { Action } from './actions/Action';
 import { Component } from './components/Component';
 import { ComponentType } from './components/ComponentType';
+import { EntityData } from './EntityData';
 
 export class Entity {
 
@@ -12,9 +13,9 @@ export class Entity {
   private componentsKeyId = new Map<number, Component>();
   private componentsKeyType = new Map<ComponentType, Component>();
 
-  public gameData: any = {};
+  public readonly gameData = new EntityData();
+  public readonly actions: Action[] = [];
 
-  public actions: Action[] = [];
   public latency = 0;
 
   constructor(

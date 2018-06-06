@@ -7,13 +7,12 @@ import { Entity } from '../../entities/Entity';
 import { VisualComponentRenderer } from './VisualComponentRenderer';
 import { Component } from '../../entities/components/Component';
 
-interface DebugData {
+export interface DebugData {
   origin: Phaser.GameObjects.Graphics;
   depth?: Phaser.GameObjects.Text;
 }
 
 export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
-  public static readonly DAT_DEBUG = 'debug';
 
   constructor(
     game: Phaser.Scene
@@ -26,7 +25,7 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
   }
 
   protected hasNotSetup(entity: Entity, component: DebugComponent): boolean {
-    return entity.gameData[DebugComponentRenderer.DAT_DEBUG] === undefined;
+    return !entity.gameData.debug;
   }
 
   protected createGameData(entity: Entity, component: DebugComponent) {
@@ -34,25 +33,24 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
     const originCircleGraphics = this.game.add.graphics({ fillStyle: { color: 0xFF0000 } });
     originCircleGraphics.fillCircleShape(originCircle);
 
-    const data: DebugData = {
+    entity.gameData.debug = {
       origin: originCircleGraphics
     };
-    entity.gameData[DebugComponentRenderer.DAT_DEBUG] = data;
 
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
-    this.alignGraphics(data, sprite);
+    const sprite = entity.gameData.visual.sprite;
+    this.alignGraphics(entity.gameData.debug, sprite);
   }
 
   protected updateGameData(entity: Entity, component: DebugComponent) {
-    const sprite = entity.gameData[VisualComponentRenderer.DAT_SPRITE] as Phaser.GameObjects.Sprite;
-    const graphics = entity.gameData[DebugComponentRenderer.DAT_DEBUG] as DebugData;
+    const sprite = entity.gameData.visual.sprite;
+    const graphics = entity.gameData.debug;
     this.alignGraphics(graphics, sprite);
   }
 
   protected removeComponent(entity: Entity, component: Component) {
   }
 
-  private alignGraphics(graphics: DebugData, sprite: any) {
+  private alignGraphics(graphics: DebugData, sprite: Phaser.GameObjects.Sprite) {
     if (!sprite || !graphics) {
       return;
     }
@@ -60,8 +58,7 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
     if (graphics.depth) {
       graphics.depth.destroy();
     }
-    // TODO das hier an typensicherheit anpassen.
-    graphics.depth = this.game.add.text(sprite.sprite.x + 10, sprite.sprite.y - 32, `z: ${sprite.sprite.depth}`);
-    graphics.origin.setPosition(sprite.sprite.x, sprite.sprite.y);
+    graphics.depth = this.game.add.text(sprite.x + 10, sprite.y - 32, `z: ${sprite.depth}`);
+    graphics.origin.setPosition(sprite.x, sprite.y);
   }
 }
