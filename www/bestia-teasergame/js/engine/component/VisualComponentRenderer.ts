@@ -15,7 +15,7 @@ export interface SpriteData {
   sprite: Phaser.GameObjects.Sprite;
   spriteName: string;
   childSprites: Array<{
-    name: string;
+    spriteName: string;
     sprite: Phaser.GameObjects.Sprite;
   }>;
 }
@@ -125,9 +125,13 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
 
     this.setupMultiSprites(spriteData, desc);
     this.updateChildSpriteOffset(spriteData);
+  }
 
-    // TODO Maybe in a single method.
-    sprite.depth = position.y;
+  private updateSpriteDepth(spriteData: SpriteData) {
+    spriteData.sprite.depth = spriteData.sprite.y;
+    spriteData.childSprites.forEach(s => {
+      s.sprite.depth = spriteData.sprite.depth;
+    });
   }
 
   private getSpriteDescription(component: VisualComponent): SpriteDescription {
@@ -177,7 +181,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       msSprite.setScale(defaultScale);
 
       spriteData.childSprites.push({
-        name: multiSprite,
+        spriteName: multiSprite,
         sprite: msSprite
       });
     });
@@ -199,13 +203,14 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     }
 
     this.updateChildSpriteOffset(spriteData);
+    this.updateSpriteDepth(spriteData);
   }
 
   private updateChildSpritesAnimation(spriteData: SpriteData, animationName: string) {
     spriteData.childSprites.forEach(childSprite => {
       const subspriteAnimationName = translateMovementToSubspriteAnimationName(animationName);
-      const fullAnimationName = `${childSprite.name}_${subspriteAnimationName}`;
-      LOG.debug(`Play animation: ${fullAnimationName} for subsprite: ${childSprite.name}`);
+      const fullAnimationName = `${childSprite.spriteName}_${subspriteAnimationName}`;
+      LOG.debug(`Play animation: ${fullAnimationName} for subsprite: ${childSprite.spriteName}`);
       this.setSpriteAnimationName(childSprite.sprite, fullAnimationName);
     });
   }
@@ -215,7 +220,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   ) {
     spriteData.childSprites.forEach(childSprite => {
       const mainSpriteDesc = this.game.cache.json.get(`${spriteData.spriteName}_desc`) as SpriteDescription;
-      const offsetFileName = this.getOffsetFilename(childSprite.name, spriteData.spriteName);
+      const offsetFileName = this.getOffsetFilename(childSprite.spriteName, spriteData.spriteName);
       const offsets = this.game.cache.json.get(offsetFileName) as SpriteOffsets;
       const defaultOffset = offsets.defaultCords || { x: 0, y: 0 };
       const defaultScale = offsets.scale || 1;

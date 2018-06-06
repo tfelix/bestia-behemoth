@@ -58,7 +58,11 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
     if (graphics.depth) {
       graphics.depth.destroy();
     }
-    graphics.depth = this.game.add.text(sprite.x + 10, sprite.y - 32, `z: ${sprite.depth}`);
+    graphics.depth = this.game.add.text(
+      sprite.x + 10,
+      sprite.y - 32,
+      `z: ${Math.floor(sprite.depth)}`
+    );
     graphics.origin.setPosition(sprite.x, sprite.y);
   }
 }

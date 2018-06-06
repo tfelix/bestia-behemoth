@@ -205,14 +205,5 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
       return;
     }
     posComp.position = position;
-
-    /**
-     * For now we also update the z-index for depth sorting when moved.
-     * This needs to be done in a different function.
-     */
-    const sprite = entity.gameData.visual.sprite;
-    if (sprite) {
-      sprite.depth = position.y;
-    }
   }
 }
