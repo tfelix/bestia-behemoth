@@ -1,14 +1,14 @@
 import * as LOG from 'loglevel';
 
-import { DebugComponent } from '../../entities/components/DebugComponent';
+import {
+  DebugComponent, Component, ComponentType, MoveComponent,
+  VisualComponent, PositionComponent
+} from 'entities/components';
 import { ComponentRenderer } from './ComponentRenderer';
-import { ComponentType } from '../../entities/components/ComponentType';
-import { Entity } from '../../entities/Entity';
-import { VisualComponentRenderer, SpriteData } from './VisualComponentRenderer';
-import { Component } from '../../entities/components/Component';
-import { MoveComponent, VisualComponent, PositionComponent } from '../../entities/components';
+import { Entity } from 'entities';
 import { Point } from 'model';
-import { MapHelper } from '../map/MapHelper';
+import { MapHelper } from 'map';
+import { VisualComponentRenderer, SpriteData } from './VisualComponentRenderer';
 
 type WalkAnimationName = 'walk_up' | 'walk_up_right' | 'walk_right' | 'walk_down_right' |
   'walk_down' | 'walk_down_left' | 'walk_left' | 'walk_up_left';

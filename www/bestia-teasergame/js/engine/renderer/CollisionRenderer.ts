@@ -1,5 +1,6 @@
+import { MapHelper } from 'map';
+
 import { EngineContext } from '../EngineContext';
-import { MapHelper } from '../map/MapHelper';
 
 class CollisionRenderer {
 

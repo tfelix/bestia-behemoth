@@ -1,7 +1,8 @@
 import * as LOG from 'loglevel';
 
+import { MapHelper } from 'map/MapHelper';
+
 import { EngineContext } from '../EngineContext';
-import { MapHelper } from '../map/MapHelper';
 import { MovePointer } from './MovePointer';
 import { NullPointer } from './NullPointer';
 import { Pointer } from './Pointer';

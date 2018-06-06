@@ -1,7 +1,7 @@
-import { MapHelper } from './map/MapHelper';
-import { EngineContext } from './EngineContext';
+import { MapHelper } from 'map';
+import { EngineContext } from 'engine/EngineContext';
 import { ComponentType, VisualComponent, PositionComponent } from 'entities/components';
-import { SpriteDescription } from './component/VisualComponentRenderer';
+import { SpriteDescription } from 'engine/renderer';
 
 class CollisionMapUpdater {
 

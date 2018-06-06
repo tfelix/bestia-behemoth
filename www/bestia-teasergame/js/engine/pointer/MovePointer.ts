@@ -1,11 +1,12 @@
 import * as LOG from 'loglevel';
 
+import { Point, Px } from 'model';
+import { ComponentType, PositionComponent, MoveComponent } from 'entities/components';
+import { MapHelper } from 'map/MapHelper';
+
 import { Pointer } from './Pointer';
 import { PointerManager } from './PointerManager';
 import { EngineContext } from '../EngineContext';
-import { Point, Px } from 'model';
-import { MapHelper } from '../map/MapHelper';
-import { ComponentType, PositionComponent, MoveComponent } from 'entities/components';
 
 export class MovePointer extends Pointer {
 

@@ -39,6 +39,6 @@ class MoveComponentMessage extends ComponentMessage {
   public readonly path: Point[];
 
   public updateModel(entityStore: EntityStore) {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }

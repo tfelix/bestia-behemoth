@@ -1,17 +1,14 @@
-import { EntityStore } from '../entities/EntityStore';
-import { Entity } from '../entities/Entity';
-import { VisualComponentRenderer } from '../engine/component/VisualComponentRenderer';
-import { VisualComponent, SpriteType } from '../entities/components/VisualComponent';
-import { PositionComponent } from '../entities/components/PositionComponent';
-import { Point, AccountInfo } from '../model';
-import { EntityRenderer } from '../engine/EntityRenderer';
-import { EngineContext } from '../engine/EngineContext';
-import { PointerManager } from '../engine/pointer/PointerManager';
-import { DebugComponent } from '../entities/components/DebugComponent';
-import { CollisionManager } from '../engine/map/CollisionManager';
-import { MoveComponent } from 'entities/components';
+import { Entity, EntityStore, PlayerEntityHolder } from 'entities';
+import {
+  VisualComponent, SpriteType, PositionComponent, DebugComponent,
+  MoveComponent
+} from 'entities/components';
+import { Point, AccountInfo } from 'model';
+import { EntityRenderer } from 'engine/renderer';
+import { EngineContext } from 'engine/EngineContext';
+import { PointerManager } from 'engine/pointer';
+import { CollisionManager } from 'map';
 import { EntityLocalFactory } from 'entities/EntityLocalFactory';
-import { PlayerEntityHolder } from 'entities';
 
 export class GameScene extends Phaser.Scene {
   private controls: Phaser.Cameras.Controls.FixedKeyControl;

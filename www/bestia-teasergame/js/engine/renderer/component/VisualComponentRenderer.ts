@@ -1,13 +1,13 @@
 import * as LOG from 'loglevel';
 
-import { ComponentRenderer } from './ComponentRenderer';
-import { Component } from 'entities/components/Component';
+import {
+  Component, VisualComponent, SpriteType, PositionComponent, ComponentType
+} from 'entities/components';
 import { Entity } from 'entities';
-import { VisualComponent, SpriteType } from 'entities/components/VisualComponent';
-import { PositionComponent } from 'entities/components/PositionComponent';
-import { MapHelper } from 'engine/map/MapHelper';
 import { Point } from 'model';
-import { ComponentType } from 'entities/components/ComponentType';
+import { MapHelper } from 'map/MapHelper';
+
+import { ComponentRenderer } from './ComponentRenderer';
 
 // TODO getSpriteDescription besser handelns
 

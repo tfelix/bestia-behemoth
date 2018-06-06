@@ -1,10 +1,9 @@
 import * as LOG from 'loglevel';
 
 import { EntityStore, EntityUpdate, Entity } from 'entities';
-import { Component } from '../entities/components/Component';
+import { Component, ComponentType } from 'entities/components';
 import { ComponentRenderer } from './component/ComponentRenderer';
 import { VisualComponentRenderer } from './component/VisualComponentRenderer';
-import { ComponentType } from '../entities/components/ComponentType';
 import { DebugComponentRenderer } from './component/DebugComponentRenderer';
 import { MoveComponentRenderer } from './component/MoveComponentRenderer';
 
@@ -19,8 +18,6 @@ export class EntityRenderer {
     this.addComponentRenderer(new VisualComponentRenderer(game));
     this.addComponentRenderer(new DebugComponentRenderer(game));
     this.addComponentRenderer(new MoveComponentRenderer(game));
-
-    // entityStore.onUpdateEntity.subscribe(this.handleUpdateEntity);
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {
@@ -36,8 +33,6 @@ export class EntityRenderer {
         }
       }
     }
-    // this.entityStore.removedEntities.forEach(e => this.remove(e));
-    // this.entityStore.removedEntities = [];
   }
 
   private handleUpdateEntity(data: EntityUpdate) {

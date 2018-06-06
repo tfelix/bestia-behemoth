@@ -1,4 +1,4 @@
-import { EngineContext } from '../EngineContext';
+import { EngineContext } from 'engine/EngineContext';
 
 export class CollisionManager {
 

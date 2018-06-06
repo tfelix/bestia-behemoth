@@ -1,6 +1,4 @@
-import { SpriteData } from 'engine/component/VisualComponentRenderer';
-import { DebugData } from 'engine/component/DebugComponentRenderer';
-import { MoveData } from 'engine/component/MoveComponentRenderer';
+import { SpriteData, DebugData, MoveData } from 'engine/renderer';
 
 export class EntityData {
   public visual?: SpriteData;

@@ -1,11 +1,9 @@
 import * as LOG from 'loglevel';
 
-import { DebugComponent } from '../../entities/components/DebugComponent';
+import { DebugComponent, Component, ComponentType } from 'entities/components';
 import { ComponentRenderer } from './ComponentRenderer';
-import { ComponentType } from '../../entities/components/ComponentType';
-import { Entity } from '../../entities/Entity';
+import { Entity } from 'entities';
 import { VisualComponentRenderer } from './VisualComponentRenderer';
-import { Component } from '../../entities/components/Component';
 
 export interface DebugData {
   origin: Phaser.GameObjects.Graphics;

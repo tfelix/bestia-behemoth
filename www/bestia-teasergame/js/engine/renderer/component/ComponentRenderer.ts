@@ -1,6 +1,5 @@
-import { Component } from '../../entities/components/Component';
-import { Entity } from '../../entities/Entity';
-import { ComponentType } from '../../entities/components/ComponentType';
+import { Component, ComponentType } from 'entities/components';
+import { Entity } from 'entities';
 
 export abstract class ComponentRenderer<C extends Component> {
 
