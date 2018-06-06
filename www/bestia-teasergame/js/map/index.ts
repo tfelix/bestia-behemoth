@@ -1,3 +1,2 @@
-export * from './CollisionManager';
-export * from './CollisionMapUpdater';
+export * from './CollisionUpdater';
 export * from './MapHelper';

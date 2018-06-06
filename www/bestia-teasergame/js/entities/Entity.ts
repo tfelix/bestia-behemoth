@@ -4,14 +4,11 @@ import { Action } from './actions/Action';
 import { Component } from './components/Component';
 import { ComponentType } from './components/ComponentType';
 import { EntityData } from './EntityData';
+import { EntityStore } from '.';
 
 export class Entity {
-
-  public newComponents: Component[] = [];
-  public removedComponents: Component[] = [];
-
-  private componentsKeyId = new Map<number, Component>();
-  private componentsKeyType = new Map<ComponentType, Component>();
+  private readonly componentsKeyId = new Map<number, Component>();
+  private readonly componentsKeyType = new Map<ComponentType, Component>();
 
   public readonly gameData = new EntityData();
   public readonly actions: Action[] = [];
@@ -19,7 +16,8 @@ export class Entity {
   public latency = 0;
 
   constructor(
-    public readonly id: number
+    public readonly id: number,
+    private readonly entityStore: EntityStore
   ) {
 
   }
@@ -35,7 +33,6 @@ export class Entity {
     }
     this.componentsKeyId.set(component.id, component);
     this.componentsKeyType.set(component.type, component);
-    this.newComponents.push(component);
   }
 
   public getComponent(type: ComponentType) {
@@ -48,7 +45,6 @@ export class Entity {
 
   public removeComponent(componentId: number) {
     const removedComponent = this.componentsKeyId.get(componentId);
-    this.removedComponents.push(removedComponent);
     this.componentsKeyId.delete(componentId);
     this.componentsKeyType.delete(removedComponent.type);
   }

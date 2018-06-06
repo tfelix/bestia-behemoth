@@ -7,8 +7,8 @@ import {
 import { ComponentRenderer } from './ComponentRenderer';
 import { Entity } from 'entities';
 import { Point } from 'model';
-import { MapHelper } from 'map';
 import { VisualComponentRenderer, SpriteData } from './VisualComponentRenderer';
+import { MapHelper } from 'map';
 
 type WalkAnimationName = 'walk_up' | 'walk_up_right' | 'walk_right' | 'walk_down_right' |
   'walk_down' | 'walk_down_left' | 'walk_left' | 'walk_up_left';
@@ -123,6 +123,11 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
   private performNextMovement(entity: Entity, component: MoveComponent) {
     const moveData = entity.gameData.move;
+
+    if (!moveData) {
+      this.clearMovementData(entity);
+    }
+
     const currentPos = component.path[moveData.currentPathPosition];
     const nextPathPosition = moveData.currentPathPosition + 1;
 

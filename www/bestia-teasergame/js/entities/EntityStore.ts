@@ -31,7 +31,7 @@ export class EntityStore {
     const e = this.entities.get(id);
 
     if (!e) {
-      const newEntity = new Entity(id);
+      const newEntity = new Entity(id, this);
       this.addEntity(newEntity);
       return newEntity;
     }

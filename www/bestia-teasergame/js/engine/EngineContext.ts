@@ -1,5 +1,6 @@
 import * as EasyStar from 'easystarjs';
 import { PlayerEntityHolder, EntityStore } from 'entities';
+import { CollisionUpdater } from 'map';
 
 export class EngineConfig {
 
@@ -17,6 +18,7 @@ export class EngineContext {
   public mapGroup0: Phaser.GameObjects.Group;
   public pointerGroup: Phaser.GameObjects.Group;
   public pathfinder: EasyStar.js;
+  public collisionUpdater: CollisionUpdater;
 
   public readonly config = new EngineConfig();
 
@@ -31,5 +33,7 @@ export class EngineContext {
     // Easystar
     this.pathfinder = new EasyStar.js();
     this.pathfinder.enableDiagonals();
+
+    this.collisionUpdater = new CollisionUpdater(this);
   }
 }

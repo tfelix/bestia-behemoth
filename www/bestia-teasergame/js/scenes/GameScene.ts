@@ -4,11 +4,11 @@ import {
   MoveComponent
 } from 'entities/components';
 import { Point, AccountInfo } from 'model';
-import { EntityRenderer } from 'engine/renderer';
 import { EngineContext } from 'engine/EngineContext';
 import { PointerManager } from 'engine/pointer';
-import { CollisionManager } from 'map';
 import { EntityLocalFactory } from 'entities/EntityLocalFactory';
+import { EntityRenderer, CollisionRenderer } from 'engine/renderer';
+import { CollisionUpdater } from 'map';
 
 export class GameScene extends Phaser.Scene {
   private controls: Phaser.Cameras.Controls.FixedKeyControl;
@@ -16,10 +16,13 @@ export class GameScene extends Phaser.Scene {
   private readonly playerAccountId = 1;
 
   private entityStore: EntityStore;
-  private entityRenderer: EntityRenderer;
   private engineContext: EngineContext;
   private pointerManager: PointerManager;
-  private collisionManager: CollisionManager;
+
+  private collisionUpdater: CollisionUpdater;
+
+  private entityRenderer: EntityRenderer;
+  private collisionRenderer: CollisionRenderer;
 
   private entityFactory: EntityLocalFactory;
 
@@ -36,8 +39,10 @@ export class GameScene extends Phaser.Scene {
     this.engineContext = new EngineContext(this, this.entityStore, playerEntityHolder);
 
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
+    this.collisionRenderer = new CollisionRenderer(this.engineContext);
+
     this.pointerManager = new PointerManager(this.engineContext);
-    this.collisionManager = new CollisionManager(this.engineContext);
+    this.collisionUpdater = new CollisionUpdater(this.engineContext);
 
     this.entityFactory = new EntityLocalFactory(this.entityStore);
 
@@ -51,33 +56,10 @@ export class GameScene extends Phaser.Scene {
     const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
     this.entityFactory.addDebugComponent(vitata);
 
-    /*
-    const move = new MoveComponent(
-      1000,
-      1,
-    );
-    move.walkspeed = 1;
-    move.path = [
-      new Point(2, 4),
-      new Point(2, 5),
-      new Point(2, 6),
-      new Point(3, 6),
-      new Point(4, 6),
-      new Point(5, 5),
-      new Point(6, 4),
-      new Point(6, 3),
-      new Point(6, 2),
-      new Point(5, 2),
-      new Point(4, 2),
-      new Point(3, 2),
-      new Point(2, 3),
-      new Point(1, 4)
-    ];
-    this.entityStore.addComponent(move);
-    */
-
     const tree = this.entityFactory.addObject('tree', new Point(10, 10));
     this.entityFactory.addDebugComponent(tree);
+
+    this.engineContext.config.debug.renderCollision = true;
   }
 
   public preload(): void {
@@ -113,7 +95,10 @@ export class GameScene extends Phaser.Scene {
     this.controls.update(delta);
 
     this.pointerManager.update();
+
     this.entityRenderer.update();
-    this.collisionManager.update();
+    this.collisionRenderer.update();
+
+    this.collisionUpdater.update();
   }
 }

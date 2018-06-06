@@ -1,4 +1,4 @@
-import { ComponentType } from "./ComponentType";
+import { ComponentType } from './ComponentType';
 
 export class Component {
 

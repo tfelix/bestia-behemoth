@@ -1,5 +1,7 @@
 import { Entity, EntityStore } from '.';
-import { VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType, DebugComponent } from './components';
+import {
+  VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType, DebugComponent
+} from './components';
 import { Point } from 'model';
 
 export class EntityLocalFactory {
@@ -14,7 +16,7 @@ export class EntityLocalFactory {
   }
 
   public createEntity(): Entity {
-    return new Entity(this.entityCounter++);
+    return this.entityStore.getEntity(this.entityCounter++);
   }
 
   public addSprite(name: string, pos: Point): Entity {
