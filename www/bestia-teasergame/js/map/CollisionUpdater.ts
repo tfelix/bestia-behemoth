@@ -69,7 +69,6 @@ export class CollisionUpdater {
           }
         }
       }
-
     });
 
     this.ctx.pathfinder.setGrid(this.collisionMap);

@@ -1,0 +1,31 @@
+{
+	"name": "player_1",
+	"type" : "sprite",
+	"version": 1,
+	"scale" : 1,
+    "animations": [
+				{"name": "walk_down", "from": 1, "to": 9, "fps": 8 },
+				{"name": "walk_down_left", "from": 1, "to": 9, "fps": 8 },
+				{"name": "walk_left", "from": 1, "to": 9, "fps": 8 },
+				{"name": "walk_up_left", "from": 1, "to": 9, "fps": 8 },
+				{"name": "walk_up", "from": 1, "to": 9, "fps": 8 },
+				{"name": "stand_up", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_down", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_down_left", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_left", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_up_left", "from": 1, "to": 1, "fps": 0 }
+			],
+	"collision": [[0],[0],[1]],
+	"anchor": {"x": 0.5, "y": 1},
+	"assetpack" : { 
+		"player_1": [
+			{
+				"type": "atlasJSONHash",
+				"key": "player_1",
+				"textureURL": "assets/sprite/mob/player_1/player_1.png",
+				"atlasURL": "assets/sprite/mob/player_1/player_1.json",
+				"atlasData": null
+			}
+		]
+	}
+}

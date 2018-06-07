@@ -50,7 +50,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public setupTestEnv() {
-    const master = this.entityFactory.addSprite('mastersmith', new Point(2, 3));
+    const master = this.entityFactory.addSprite('player_1', new Point(2, 3));
     this.entityFactory.addPlayerComponent(master, this.playerAccountId);
     this.entityFactory.addDebugComponent(master);
     const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));

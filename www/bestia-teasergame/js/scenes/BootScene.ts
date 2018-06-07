@@ -7,25 +7,11 @@ export class BootScene extends Phaser.Scene {
 
   public preload(): void {
     // Load Player Sprite
-    this.load.json('mastersmith_desc', '../assets/sprites/mob/mastersmith/mastersmith_desc.json');
+    this.load.json('player_1_desc', '../assets/sprites/mob/player_1/player_1_desc.json');
     this.load.atlas(
-      'mastersmith',
-      '../assets/sprites/mob/mastersmith/mastersmith.png',
-      '../assets/sprites/mob/mastersmith/mastersmith.json'
-    );
-
-    this.load.atlas(
-      'female_01',
-      '../assets/sprites/partials/female_01/female_01.png',
-      '../assets/sprites/partials/female_01/female_01.json'
-    );
-    this.load.json(
-      'female_01_desc',
-      '../assets/sprites/partials/female_01/female_01_desc.json'
-    );
-    this.load.json(
-      'offset_female_01_mastersmith',
-      '../assets/sprites/partials/female_01/offset_female_01_mastersmith.json'
+      'player_1',
+      '../assets/sprites/mob/player_1/player_1.png',
+      '../assets/sprites/mob/player_1/player_1.json'
     );
 
     this.load.json('poring_desc', '../assets/sprites/mob/poring/poring_desc.json');
