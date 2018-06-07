@@ -11,7 +11,7 @@ export class Entity {
   private readonly componentsKeyType = new Map<ComponentType, Component>();
 
   public readonly gameData = new EntityData();
-  public readonly actions: Action[] = [];
+  public actions: Action[] = [];
 
   public latency = 0;
 

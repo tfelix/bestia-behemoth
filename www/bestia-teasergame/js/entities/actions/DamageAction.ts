@@ -5,15 +5,19 @@ export enum DamageType {
 }
 
 export class DamageAction {
+
+  public readonly amounts: number[];
+
   constructor(
-    public readonly amounts: number[],
+    amounts: number | number[],
     public readonly type: DamageType = DamageType.NORMAL
   ) {
+    this.amounts = (Array.isArray(amounts)) ? amounts : [amounts];
   }
 
   get totalAmount(): number {
     let total = 0;
-    this.amounts.forEach(v => total += total);
+    this.amounts.forEach(v => total += v);
     return total;
   }
 }

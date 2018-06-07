@@ -1,3 +1,5 @@
+import * as LOG from 'loglevel';
+
 import { Entity, EntityStore, PlayerEntityHolder } from 'entities';
 import {
   VisualComponent, SpriteType, PositionComponent, DebugComponent,
@@ -9,6 +11,8 @@ import { PointerManager } from 'engine/pointer';
 import { EntityLocalFactory } from 'entities/EntityLocalFactory';
 import { EntityRenderer, CollisionRenderer } from 'engine/renderer';
 import { CollisionUpdater } from 'map';
+import { DamageAction } from 'entities/actions';
+import { ActionsRendererManager } from 'engine/renderer/actions/ActionsRenderManager';
 
 export class GameScene extends Phaser.Scene {
   private controls: Phaser.Cameras.Controls.FixedKeyControl;
@@ -23,6 +27,7 @@ export class GameScene extends Phaser.Scene {
 
   private entityRenderer: EntityRenderer;
   private collisionRenderer: CollisionRenderer;
+  private actionRenderManager: ActionsRendererManager;
 
   private entityFactory: EntityLocalFactory;
 
@@ -40,6 +45,7 @@ export class GameScene extends Phaser.Scene {
 
     this.entityRenderer = new EntityRenderer(this, this.entityStore);
     this.collisionRenderer = new CollisionRenderer(this.engineContext);
+    this.actionRenderManager = new ActionsRendererManager(this, this.entityStore);
 
     this.pointerManager = new PointerManager(this.engineContext);
     this.collisionUpdater = new CollisionUpdater(this.engineContext);
@@ -61,6 +67,16 @@ export class GameScene extends Phaser.Scene {
     this.entityFactory.addDebugComponent(tree);
 
     this.engineContext.config.debug.renderCollision = false;
+
+    this.time.addEvent({
+      delay: 1000,
+      repeat: 9,
+      callback: () => {
+        const dmg = Math.floor(Math.random() * 15 + 4);
+        const dmgAction = new DamageAction(dmg);
+        vitata.actions.push(dmgAction);
+      }
+    });
   }
 
   public preload(): void {
@@ -98,6 +114,7 @@ export class GameScene extends Phaser.Scene {
     this.pointerManager.update();
 
     this.entityRenderer.update();
+    this.actionRenderManager.update();
     this.collisionRenderer.update();
 
     this.engineContext.collisionUpdater.update();
