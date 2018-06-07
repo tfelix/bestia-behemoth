@@ -6,6 +6,7 @@ import { ComponentRenderer } from './component/ComponentRenderer';
 import { VisualComponentRenderer } from './component/VisualComponentRenderer';
 import { DebugComponentRenderer } from './component/DebugComponentRenderer';
 import { MoveComponentRenderer } from './component/MoveComponentRenderer';
+import { ConditionComponentRenderer } from './component/ConditionComponentRenderer';
 
 export class EntityRenderer {
 
@@ -18,6 +19,7 @@ export class EntityRenderer {
     this.addComponentRenderer(new VisualComponentRenderer(game));
     this.addComponentRenderer(new DebugComponentRenderer(game));
     this.addComponentRenderer(new MoveComponentRenderer(game));
+    this.addComponentRenderer(new ConditionComponentRenderer(game));
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {

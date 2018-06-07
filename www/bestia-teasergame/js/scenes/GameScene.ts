@@ -55,11 +55,12 @@ export class GameScene extends Phaser.Scene {
     this.entityFactory.addDebugComponent(master);
     const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
     this.entityFactory.addDebugComponent(vitata);
+    this.entityFactory.addConditionComponent(vitata);
 
     const tree = this.entityFactory.addObject('tree', new Point(10, 10));
     this.entityFactory.addDebugComponent(tree);
 
-    this.engineContext.config.debug.renderCollision = true;
+    this.engineContext.config.debug.renderCollision = false;
   }
 
   public preload(): void {

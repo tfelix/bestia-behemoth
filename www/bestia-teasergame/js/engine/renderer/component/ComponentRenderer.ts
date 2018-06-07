@@ -28,5 +28,5 @@ export abstract class ComponentRenderer<C extends Component> {
 
   protected abstract updateGameData(entity: Entity, component: C);
 
-  protected abstract removeComponent(entity: Entity, component: Component);
+  protected abstract removeComponent(entity: Entity, component: C);
 }

@@ -3,6 +3,7 @@ import {
   VisualComponent, SpriteType, PositionComponent, PlayerComponent, ComponentType, DebugComponent
 } from './components';
 import { Point } from 'model';
+import { ConditionComponent } from './components/ConditionComponent';
 
 export class EntityLocalFactory {
 
@@ -62,6 +63,16 @@ export class EntityLocalFactory {
     this.entityStore.addComponent(position);
 
     return entity;
+  }
+
+  public addConditionComponent(entity: Entity) {
+    const condComponent = new ConditionComponent(
+      this.componentCounter++,
+      entity.id
+    );
+    condComponent.maxHealth = 100;
+    condComponent.currentHealth = 100;
+    this.entityStore.addComponent(condComponent);
   }
 
   public addDebugComponent(entity: Entity) {
