@@ -81,6 +81,7 @@ export class ConditionComponentRenderer extends ComponentRenderer<ConditionCompo
     rect.x += 2;
     rect.y += 2;
     rect.width -= 4;
+    rect.width *= hpPerc;
     rect.height -= 4;
     gfx.fillRectShape(rect);
   }

@@ -71,7 +71,7 @@ export class EntityLocalFactory {
       entity.id
     );
     condComponent.maxHealth = 100;
-    condComponent.currentHealth = 100;
+    condComponent.currentHealth = 60;
     this.entityStore.addComponent(condComponent);
   }
 
