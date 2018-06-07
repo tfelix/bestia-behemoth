@@ -8,6 +8,8 @@ import { Point, Size } from 'model';
 
 export class CollisionUpdater {
 
+  private widthTiles: number;
+  private heightTiles: number;
   private collisionMap: number[][];
   public isDirty = true;
 
@@ -17,26 +19,32 @@ export class CollisionUpdater {
     // Generalize this map size
     const width = 800;
     const height = 600;
-    const widthTiles = Math.ceil(width / MapHelper.TILE_SIZE_PX);
-    const heightTiles = Math.ceil(height / MapHelper.TILE_SIZE_PX);
+    this.widthTiles = Math.ceil(width / MapHelper.TILE_SIZE_PX);
+    this.heightTiles = Math.ceil(height / MapHelper.TILE_SIZE_PX);
 
-    LOG.debug(`Found collision map size: w:${widthTiles}, h: ${heightTiles}`);
+    LOG.debug(`Found collision map size: w:${this.widthTiles}, h: ${this.heightTiles}`);
 
-    this.collisionMap = new Array(heightTiles);
+    this.collisionMap = new Array(this.heightTiles);
+    this.clearCollisionMap();
+    ctx.pathfinder.setGrid(this.collisionMap);
+    ctx.pathfinder.setAcceptableTiles(0);
+  }
+
+  private clearCollisionMap() {
     for (let i = 0; i < this.collisionMap.length; i++) {
-      const element = new Array(widthTiles);
+      const element = new Array(this.widthTiles);
       element.fill(0);
       this.collisionMap[i] = element;
     }
-    ctx.pathfinder.setGrid(this.collisionMap);
-    ctx.pathfinder.setAcceptableTiles(0);
   }
 
   public update() {
     this.ctx.pathfinder.calculate();
 
     // TODO Do this only if a entity has changed.
+    // This is for now and inefficent.
     this.isDirty = true;
+    this.clearCollisionMap();
     this.updateCollisionMap();
   }
 
