@@ -9,7 +9,6 @@ export class DamageAction {
     public readonly amounts: number[],
     public readonly type: DamageType = DamageType.NORMAL
   ) {
-
   }
 
   get totalAmount(): number {

@@ -15,7 +15,7 @@
 				{"name": "stand_down_left", "from": 1, "to": 4, "fps": 2 },
 				{"name": "stand_left", "from": 1, "to": 4, "fps": 2 }
 			],
-	"collision": [[1]],
+	"collision": [[0, 0, 0],[0, 1, 0]],
 	"anchor": {"x": 0.5, "y": 1},
 	"assetpack": { 
 		"vitata": [

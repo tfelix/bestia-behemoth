@@ -24,8 +24,15 @@ export class MovePointer extends Pointer {
     this.ctx.game.input.on('pointerdown', this.onClickMove, this);
   }
 
-  public updatePosition(point: Point) {
-    this.marker.setPosition(point.x, point.y);
+  public updatePosition(px: Px) {
+    this.marker.setPosition(px.x, px.y);
+
+    const point = MapHelper.pixelToPoint(px.x, px.y);
+    this.marker.visible = !this.isNotWalkable(point);
+  }
+
+  private isNotWalkable(point: Point) {
+    return this.ctx.collisionUpdater.hasCollision(point.x, point.y);
   }
 
   private onPathFound(path: Array<{ x: number; y: number }>) {
@@ -62,6 +69,10 @@ export class MovePointer extends Pointer {
     }
     const start = playerPositionComponent.position;
     const goal = MapHelper.pixelToPoint(pointer.downX, pointer.downY);
+
+    if (this.isNotWalkable(goal)) {
+      return;
+    }
 
     LOG.debug(`Find path from: ${JSON.stringify(start)} to ${JSON.stringify(goal)}`);
     this.ctx.pathfinder.findPath(start.x, start.y, goal.x, goal.y, this.onPathFound.bind(this));
