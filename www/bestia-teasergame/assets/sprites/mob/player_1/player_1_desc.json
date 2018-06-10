@@ -15,8 +15,8 @@
 				{"name": "stand_left", "from": 1, "to": 1, "fps": 0 },
 				{"name": "stand_up_left", "from": 1, "to": 1, "fps": 0 }
 			],
-	"collision": [[0],[0],[1]],
-	"anchor": {"x": 0.5, "y": 1},
+	"collision": [[0],[1]],
+	"anchor": {"x": 0.5, "y": 0.9},
 	"assetpack" : { 
 		"player_1": [
 			{

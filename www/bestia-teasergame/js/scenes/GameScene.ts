@@ -14,10 +14,10 @@ import { CollisionUpdater } from 'map';
 import { DamageAction } from 'entities/actions';
 import { ActionsRendererManager } from 'engine/renderer/actions/ActionsRenderManager';
 
+const PLAYER_ACC_ID = 1;
+
 export class GameScene extends Phaser.Scene {
   private controls: Phaser.Cameras.Controls.FixedKeyControl;
-
-  private readonly playerAccountId = 1;
 
   private entityStore: EntityStore;
   private engineContext: EngineContext;
@@ -39,7 +39,7 @@ export class GameScene extends Phaser.Scene {
 
   public init(entityStore: EntityStore): void {
     this.entityStore = new EntityStore();
-    const accountInfo = new AccountInfo('gast', this.playerAccountId, 'gast');
+    const accountInfo = new AccountInfo('gast', PLAYER_ACC_ID, 'gast');
     const playerEntityHolder = new PlayerEntityHolder(accountInfo, this.entityStore);
     this.engineContext = new EngineContext(this, this.entityStore, playerEntityHolder);
 
@@ -57,7 +57,7 @@ export class GameScene extends Phaser.Scene {
 
   public setupTestEnv() {
     const master = this.entityFactory.addSprite('player_1', new Point(2, 3));
-    this.entityFactory.addPlayerComponent(master, this.playerAccountId);
+    this.entityFactory.addPlayerComponent(master, PLAYER_ACC_ID);
     this.entityFactory.addDebugComponent(master);
     const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
     this.entityFactory.addDebugComponent(vitata);
@@ -66,7 +66,7 @@ export class GameScene extends Phaser.Scene {
     const tree = this.entityFactory.addObject('tree', new Point(10, 10));
     this.entityFactory.addDebugComponent(tree);
 
-    this.engineContext.config.debug.renderCollision = false;
+    this.engineContext.config.debug.renderCollision = true;
 
     this.time.addEvent({
       delay: 1000,

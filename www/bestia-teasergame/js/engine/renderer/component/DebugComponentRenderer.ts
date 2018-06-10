@@ -23,7 +23,7 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
   }
 
   protected hasNotSetup(entity: Entity, component: DebugComponent): boolean {
-    return !entity.gameData.debug;
+    return !entity.data.debug;
   }
 
   protected createGameData(entity: Entity, component: DebugComponent) {
@@ -31,17 +31,17 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
     const originCircleGraphics = this.game.add.graphics({ fillStyle: { color: 0xFF0000 } });
     originCircleGraphics.fillCircleShape(originCircle);
 
-    entity.gameData.debug = {
+    entity.data.debug = {
       origin: originCircleGraphics
     };
 
-    const sprite = entity.gameData.visual.sprite;
-    this.alignGraphics(entity.gameData.debug, sprite);
+    const sprite = entity.data.visual.sprite;
+    this.alignGraphics(entity.data.debug, sprite);
   }
 
   protected updateGameData(entity: Entity, component: DebugComponent) {
-    const sprite = entity.gameData.visual.sprite;
-    const graphics = entity.gameData.debug;
+    const sprite = entity.data.visual.sprite;
+    const graphics = entity.data.debug;
     this.alignGraphics(graphics, sprite);
   }
 

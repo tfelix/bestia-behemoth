@@ -22,7 +22,7 @@ export class DamageActionsRenderer extends ActionsRenderer {
   public render(entity: Entity) {
     const actions = this.getActionsFromEntity(entity);
 
-    const sprite = entity.gameData.visual && entity.gameData.visual.sprite;
+    const sprite = entity.data.visual && entity.data.visual.sprite;
     if (!sprite) {
       return;
     }

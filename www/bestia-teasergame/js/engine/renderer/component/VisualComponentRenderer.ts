@@ -102,7 +102,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected hasNotSetup(entity: Entity, component: VisualComponent): boolean {
-    return !entity.gameData.visual;
+    return !entity.data.visual;
   }
 
   protected createGameData(entity: Entity, component: VisualComponent) {
@@ -123,7 +123,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       spriteName: component.sprite,
       childSprites: []
     };
-    entity.gameData.visual = spriteData;
+    entity.data.visual = spriteData;
 
     this.setupScaleAndOrigin(sprite, desc);
     this.setupSpriteAnimation(sprite, desc);
@@ -186,7 +186,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
   }
 
   protected updateGameData(entity: Entity, component: VisualComponent) {
-    const spriteData = entity.gameData.visual;
+    const spriteData = entity.data.visual;
 
     if (!spriteData) {
       return;

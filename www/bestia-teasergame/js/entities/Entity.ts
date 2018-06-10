@@ -5,12 +5,13 @@ import { Component } from './components/Component';
 import { ComponentType } from './components/ComponentType';
 import { EntityData } from './EntityData';
 import { EntityStore } from '.';
+import { LOCAL_COMPONENT_ID } from 'engine/renderer/component/local/LocalComponent';
 
 export class Entity {
   private readonly componentsKeyId = new Map<number, Component>();
   private readonly componentsKeyType = new Map<ComponentType, Component>();
 
-  public readonly gameData = new EntityData();
+  public readonly data = new EntityData();
   public actions: Action[] = [];
 
   public latency = 0;
@@ -27,11 +28,17 @@ export class Entity {
   }
 
   public addComponent(component: Component) {
-    if (this.componentsKeyId.get(component.id)) {
+    if (component.id !== LOCAL_COMPONENT_ID && this.componentsKeyId.get(component.id)) {
       LOG.warn(`Component with id does already exist: ${component.id}`);
       return;
     }
-    this.componentsKeyId.set(component.id, component);
+
+    // We keep reference of non client only components so we can update and track them.
+    // For client only components this kind of trackig is not needed.
+    if (component.id !== LOCAL_COMPONENT_ID) {
+      this.componentsKeyId.set(component.id, component);
+    }
+
     this.componentsKeyType.set(component.type, component);
   }
 

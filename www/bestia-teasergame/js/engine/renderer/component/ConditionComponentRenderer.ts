@@ -31,12 +31,12 @@ export class ConditionComponentRenderer extends ComponentRenderer<ConditionCompo
   }
 
   protected hasNotSetup(entity: Entity, component: ConditionComponent): boolean {
-    return !entity.gameData.condition;
+    return !entity.data.condition;
   }
 
   protected createGameData(entity: Entity, component: ConditionComponent) {
-    const sprite = entity.gameData.visual && entity.gameData.visual.sprite;
-    entity.gameData.condition = {
+    const sprite = entity.data.visual && entity.data.visual.sprite;
+    entity.data.condition = {
       conditionGraphic: this.game.add.graphics({ fillStyle: { color: 0x00AA00 } }),
       createdWidth: sprite && sprite.width || 50
     };
@@ -49,21 +49,21 @@ export class ConditionComponentRenderer extends ComponentRenderer<ConditionCompo
 
   protected removeComponent(entity: Entity, component: ConditionComponent) {
     this.clearGraphics(entity);
-    entity.gameData.condition.conditionGraphic = null;
+    entity.data.condition.conditionGraphic = null;
   }
 
   private clearGraphics(entity: Entity) {
-    entity.gameData.condition.conditionGraphic.clear();
+    entity.data.condition.conditionGraphic.clear();
   }
 
   private drawHealthBar(entity: Entity, component: ConditionComponent) {
-    const sprite = entity.gameData.visual && entity.gameData.visual.sprite;
+    const sprite = entity.data.visual && entity.data.visual.sprite;
     if (!sprite) {
       return;
     }
 
-    const gfx = entity.gameData.condition.conditionGraphic;
-    const maxWidth = entity.gameData.condition.createdWidth;
+    const gfx = entity.data.condition.conditionGraphic;
+    const maxWidth = entity.data.condition.createdWidth;
     const hpPerc = component.currentHealth / component.maxHealth;
 
     rect.height = conditionBarHeight;

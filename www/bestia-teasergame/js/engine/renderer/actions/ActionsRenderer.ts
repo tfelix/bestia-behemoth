@@ -10,10 +10,4 @@ export abstract class ActionsRenderer {
 
   public abstract needsActionRender(entity: Entity): boolean;
   public abstract render(entity: Entity);
-
-  /*
-  protected getActionsFromEntity<A extends Action>(entity: Entity): A[] {
-    return entity.actions.filter(x => x instanceof A) as A[];
-  }
-  */
 }

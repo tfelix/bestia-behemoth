@@ -113,16 +113,16 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
   }
 
   protected hasNotSetup(entity: Entity, component: MoveComponent): boolean {
-    return !entity.gameData.move;
+    return !entity.data.move;
   }
 
   private clearMovementData(entity: Entity) {
-    entity.gameData.move = null;
+    entity.data.move = null;
     entity.removeComponentByType(ComponentType.MOVE);
   }
 
   private performNextMovement(entity: Entity, component: MoveComponent) {
-    const moveData = entity.gameData.move;
+    const moveData = entity.data.move;
 
     if (!moveData) {
       this.clearMovementData(entity);
@@ -133,7 +133,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
     this.updatePositionComponentLocalOnly(entity, currentPos);
 
-    const spriteData = entity.gameData.visual;
+    const spriteData = entity.data.visual;
     const visual = entity.getComponent(ComponentType.VISUAL) as VisualComponent;
     if (!visual || !spriteData) {
       LOG.warn('Can not display walking animation because no visual component exists.');
@@ -183,7 +183,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
       currentPathPosition: 0,
       timeline: null
     };
-    entity.gameData.move = moveData;
+    entity.data.move = moveData;
 
     this.performNextMovement(entity, component);
   }

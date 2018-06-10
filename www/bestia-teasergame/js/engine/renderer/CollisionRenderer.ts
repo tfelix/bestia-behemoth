@@ -1,7 +1,7 @@
 import { MapHelper } from 'map';
 
 import { EngineContext } from '../EngineContext';
-import { Point } from 'model';
+import { Point, Size } from 'model';
 
 export class CollisionRenderer {
 
@@ -10,18 +10,12 @@ export class CollisionRenderer {
 
   private rect = new Phaser.Geom.Rectangle(0, 0, MapHelper.TILE_SIZE_PX, MapHelper.TILE_SIZE_PX);
 
-  private widthTiles: number;
-  private heightTiles: number;
+  private gameTileSize: Size;
 
   constructor(
     private readonly context: EngineContext
   ) {
-
-    // Generalize this map size (also in CollisionUpdater.ts)
-    const width = 800;
-    const height = 600;
-    this.widthTiles = Math.ceil(width / MapHelper.TILE_SIZE_PX);
-    this.heightTiles = Math.ceil(height / MapHelper.TILE_SIZE_PX);
+    this.gameTileSize = this.context.helper.display.getDisplaySizeInTiles();
   }
 
   public update() {
@@ -41,8 +35,8 @@ export class CollisionRenderer {
     this.graphicsCollision.clear();
     this.graphicsNonCollision.clear();
 
-    for (let y = 0; y < this.heightTiles; y++) {
-      for (let x = 0; x < this.widthTiles; x++) {
+    for (let y = 0; y < this.gameTileSize.height; y++) {
+      for (let x = 0; x < this.gameTileSize.width; x++) {
         const px = MapHelper.pointToPixel(new Point(x, y));
         this.rect.x = px.x;
         this.rect.y = px.y;

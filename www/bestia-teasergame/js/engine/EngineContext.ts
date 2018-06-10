@@ -1,6 +1,8 @@
 import * as EasyStar from 'easystarjs';
 import { PlayerEntityHolder, EntityStore } from 'entities';
 import { CollisionUpdater } from 'map';
+import { DisplayHelper } from './DisplayHelper';
+import { SpriteHelper } from './SpriteHelper';
 
 export class EngineConfig {
 
@@ -13,6 +15,9 @@ export class EngineConfig {
   }
 }
 
+export class GameData {
+}
+
 export class EngineContext {
 
   public mapGroup0: Phaser.GameObjects.Group;
@@ -21,16 +26,25 @@ export class EngineContext {
   public collisionUpdater: CollisionUpdater;
 
   public readonly config = new EngineConfig();
+  public readonly data = new GameData();
+
+  public readonly helper: {
+    display: DisplayHelper;
+    sprite: SpriteHelper;
+  };
 
   constructor(
     public readonly game: Phaser.Scene,
     public readonly entityStore: EntityStore,
     public readonly playerHolder: PlayerEntityHolder
   ) {
+    this.helper = {
+      display: new DisplayHelper(this.game),
+      sprite: new SpriteHelper(this.game)
+    };
 
     this.mapGroup0 = this.game.make.group({});
 
-    // Easystar
     this.pathfinder = new EasyStar.js();
     this.pathfinder.enableDiagonals();
 

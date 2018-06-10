@@ -8,23 +8,18 @@ import { Point, Size } from 'model';
 
 export class CollisionUpdater {
 
-  private widthTiles: number;
-  private heightTiles: number;
   private collisionMap: number[][];
   public isDirty = true;
+  private displayTileSize: Size;
 
   constructor(
     private readonly ctx: EngineContext
   ) {
-    // Generalize this map size
-    const width = 800;
-    const height = 600;
-    this.widthTiles = Math.ceil(width / MapHelper.TILE_SIZE_PX);
-    this.heightTiles = Math.ceil(height / MapHelper.TILE_SIZE_PX);
 
-    LOG.debug(`Found collision map size: w:${this.widthTiles}, h: ${this.heightTiles}`);
+    this.displayTileSize = ctx.helper.display.getDisplaySizeInTiles();
+    LOG.debug(`Found collision map size: w:${this.displayTileSize.width}, h: ${this.displayTileSize.height}`);
 
-    this.collisionMap = new Array(this.heightTiles);
+    this.collisionMap = new Array(this.displayTileSize.height);
     this.clearCollisionMap();
     ctx.pathfinder.setGrid(this.collisionMap);
     ctx.pathfinder.setAcceptableTiles(0);
@@ -32,7 +27,7 @@ export class CollisionUpdater {
 
   private clearCollisionMap() {
     for (let i = 0; i < this.collisionMap.length; i++) {
-      const element = new Array(this.widthTiles);
+      const element = new Array(this.displayTileSize.width);
       element.fill(0);
       this.collisionMap[i] = element;
     }
@@ -64,9 +59,9 @@ export class CollisionUpdater {
       const spriteDesc = getSpriteDescriptionFromCache(spriteName, this.ctx.game);
       const collision = spriteDesc && spriteDesc.collision || [[]];
 
-      const sprite = entity.gameData.visual.sprite;
-      const spriteTopLeft = getSpriteTopLeft(sprite);
-      const spriteSize = getSpriteDimensions(sprite);
+      const sprite = entity.data.visual.sprite;
+      const spriteTopLeft = this.ctx.helper.sprite.getSpriteTopLeftPoint(sprite);
+      const spriteSize = this.ctx.helper.sprite.getSpriteSizePoints(sprite);
 
       for (let dy = 0; dy < collision.length; dy++) {
         for (let dx = 0; dx < collision[dy].length; dx++) {
@@ -86,23 +81,4 @@ export class CollisionUpdater {
   public hasCollision(x: number, y: number): boolean {
     return this.collisionMap[y][x] !== 0;
   }
-}
-
-function getSpriteTopLeft(
-  sprite: Phaser.GameObjects.Sprite
-): Point {
-  const topleft = sprite.getTopLeft();
-  return new Point(
-    Math.floor(topleft.x / MapHelper.TILE_SIZE_PX),
-    Math.floor(topleft.y / MapHelper.TILE_SIZE_PX)
-  );
-}
-
-function getSpriteDimensions(
-  sprite: Phaser.GameObjects.Sprite
-): Size {
-  return new Size(
-    Math.ceil(sprite.width / MapHelper.TILE_SIZE_PX),
-    Math.ceil(sprite.height / MapHelper.TILE_SIZE_PX)
-  );
 }
