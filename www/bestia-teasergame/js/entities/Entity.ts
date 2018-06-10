@@ -8,8 +8,7 @@ import { EntityStore } from '.';
 import { LOCAL_COMPONENT_ID } from 'engine/renderer/component/local/LocalComponent';
 
 export class Entity {
-  private readonly componentsKeyId = new Map<number, Component>();
-  private readonly componentsKeyType = new Map<ComponentType, Component>();
+  private readonly components = new Map<ComponentType, Component>();
 
   public readonly data = new EntityData();
   public actions: Action[] = [];
@@ -24,42 +23,22 @@ export class Entity {
   }
 
   public getComponentIterator(): IterableIterator<Component> {
-    return this.componentsKeyId.values();
+    return this.components.values();
   }
 
   public addComponent(component: Component) {
-    if (component.id !== LOCAL_COMPONENT_ID && this.componentsKeyId.get(component.id)) {
-      LOG.warn(`Component with id does already exist: ${component.id}`);
-      return;
-    }
-
-    // We keep reference of non client only components so we can update and track them.
-    // For client only components this kind of trackig is not needed.
-    if (component.id !== LOCAL_COMPONENT_ID) {
-      this.componentsKeyId.set(component.id, component);
-    }
-
-    this.componentsKeyType.set(component.type, component);
+    this.components.set(component.type, component);
   }
 
   public getComponent(type: ComponentType) {
-    return this.componentsKeyType.get(type);
+    return this.components.get(type);
   }
 
   public hasComponent(type: ComponentType): boolean {
-    return this.componentsKeyType.has(type);
-  }
-
-  public removeComponent(componentId: number) {
-    const removedComponent = this.componentsKeyId.get(componentId);
-    this.componentsKeyId.delete(componentId);
-    this.componentsKeyType.delete(removedComponent.type);
+    return this.components.has(type);
   }
 
   public removeComponentByType(type: ComponentType) {
-    const component = this.componentsKeyType.get(type);
-    if (component) {
-      this.removeComponent(component.id);
-    }
+    this.components.delete(type);
   }
 }

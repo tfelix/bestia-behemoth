@@ -7,19 +7,19 @@ import { VisualComponentRenderer } from './component/VisualComponentRenderer';
 import { DebugComponentRenderer } from './component/DebugComponentRenderer';
 import { MoveComponentRenderer } from './component/MoveComponentRenderer';
 import { ConditionComponentRenderer } from './component/ConditionComponentRenderer';
+import { EngineContext } from '../EngineContext';
 
 export class EntityRenderer {
 
   private componentRenderer = new Map<ComponentType, ComponentRenderer<Component>>();
 
   constructor(
-    private readonly game: Phaser.Scene,
-    private readonly entityStore: EntityStore
+    private readonly context: EngineContext
   ) {
-    this.addComponentRenderer(new VisualComponentRenderer(game));
-    this.addComponentRenderer(new DebugComponentRenderer(game));
-    this.addComponentRenderer(new MoveComponentRenderer(game));
-    this.addComponentRenderer(new ConditionComponentRenderer(game));
+    this.addComponentRenderer(new VisualComponentRenderer(this.context.game));
+    this.addComponentRenderer(new DebugComponentRenderer(this.context.game));
+    this.addComponentRenderer(new MoveComponentRenderer(context));
+    this.addComponentRenderer(new ConditionComponentRenderer(this.context.game));
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {
@@ -27,7 +27,7 @@ export class EntityRenderer {
   }
 
   public update() {
-    for (const e of this.entityStore.entities.values()) {
+    for (const e of this.context.entityStore.entities.values()) {
       for (const c of e.getComponentIterator()) {
         const renderer = this.componentRenderer.get(c.type);
         if (renderer) {
@@ -38,10 +38,10 @@ export class EntityRenderer {
   }
 
   private handleUpdateEntity(data: EntityUpdate) {
-    LOG.debug(`Processing component: ${data.changedComponent}.`);
-    const renderer = this.componentRenderer.get(data.changedComponent);
+    LOG.debug(`Processing component: ${data.changedComponentType}.`);
+    const renderer = this.componentRenderer.get(data.changedComponentType);
     if (renderer) {
-      const component = data.entity.getComponent(data.changedComponent);
+      const component = data.entity.getComponent(data.changedComponentType);
       renderer.render(data.entity, component);
     }
   }

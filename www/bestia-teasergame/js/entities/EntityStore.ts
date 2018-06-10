@@ -12,8 +12,8 @@ export enum UpdateType {
 export class EntityUpdate {
   constructor(
     public readonly entity: Entity,
-    public readonly changedComponent: ComponentType,
-    public readonly type: UpdateType
+    public readonly changedComponentType: ComponentType,
+    public readonly updateType: UpdateType
   ) {
   }
 }
@@ -62,7 +62,7 @@ export class EntityStore {
     const entity = this.entities.get(entityId);
     this.onRemoveEntity.next(entity);
     for (const component of entity.getComponentIterator()) {
-      entity.removeComponent(component.id);
+      entity.removeComponentByType(component.type);
     }
     this.entities.delete(entityId);
   }

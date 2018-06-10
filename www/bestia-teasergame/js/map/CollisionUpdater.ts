@@ -17,7 +17,7 @@ export class CollisionUpdater {
   ) {
 
     this.displayTileSize = ctx.helper.display.getDisplaySizeInTiles();
-    LOG.debug(`Found collision map size: w:${this.displayTileSize.width}, h: ${this.displayTileSize.height}`);
+    LOG.debug(`Found collision map size: w: ${this.displayTileSize.width}, h: ${this.displayTileSize.height}`);
 
     this.collisionMap = new Array(this.displayTileSize.height);
     this.clearCollisionMap();

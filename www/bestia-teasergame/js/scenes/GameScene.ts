@@ -43,12 +43,11 @@ export class GameScene extends Phaser.Scene {
     const playerEntityHolder = new PlayerEntityHolder(accountInfo, this.entityStore);
     this.engineContext = new EngineContext(this, this.entityStore, playerEntityHolder);
 
-    this.entityRenderer = new EntityRenderer(this, this.entityStore);
+    this.entityRenderer = new EntityRenderer(this.engineContext);
     this.collisionRenderer = new CollisionRenderer(this.engineContext);
     this.actionRenderManager = new ActionsRendererManager(this, this.entityStore);
 
     this.pointerManager = new PointerManager(this.engineContext);
-    this.collisionUpdater = new CollisionUpdater(this.engineContext);
 
     this.entityFactory = new EntityLocalFactory(this.entityStore);
 

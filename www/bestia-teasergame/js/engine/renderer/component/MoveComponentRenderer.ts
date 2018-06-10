@@ -9,6 +9,7 @@ import { Entity } from 'entities';
 import { Point } from 'model';
 import { VisualComponentRenderer, SpriteData } from './VisualComponentRenderer';
 import { MapHelper } from 'map';
+import { EngineConfig, EngineContext } from '../../EngineContext';
 
 type WalkAnimationName = 'walk_up' | 'walk_up_right' | 'walk_right' | 'walk_down_right' |
   'walk_down' | 'walk_down_left' | 'walk_left' | 'walk_up_left';
@@ -103,9 +104,16 @@ function getStandAnimationName(oldPos: Point, newPos: Point): StandAnimationName
 export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
   constructor(
-    game: Phaser.Scene
+    private readonly ctx: EngineContext,
   ) {
-    super(game);
+    super(ctx.game);
+
+    this.ctx.entityStore.onUpdateEntity.subscribe(msg => {
+      if (msg.changedComponentType === ComponentType.MOVE) {
+        LOG.debug('Received new movement data.');
+        this.clearMovementData(msg.entity);
+      }
+    });
   }
 
   get supportedComponent(): ComponentType {
@@ -117,11 +125,16 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
   }
 
   private clearMovementData(entity: Entity) {
+    LOG.debug(`Clearing movement data for entity: ${entity.id}`);
+    if (entity.data.move && entity.data.move.timeline) {
+      entity.data.move.timeline.stop();
+    }
     entity.data.move = null;
     entity.removeComponentByType(ComponentType.MOVE);
   }
 
   private performNextMovement(entity: Entity, component: MoveComponent) {
+    LOG.debug(`performNextMovement for entity: ${entity.id}`);
     const moveData = entity.data.move;
 
     if (!moveData) {
@@ -158,7 +171,7 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
 
       const nextPosPx = MapHelper.pointToPixelCentered(nextPosition);
 
-      const timeline = this.game.tweens.timeline({
+      moveData.timeline = this.game.tweens.timeline({
         targets: spriteData.sprite,
         ease: 'Linear',
         totalDuration: stepDuration,
@@ -174,8 +187,8 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
   }
 
   protected createGameData(entity: Entity, component: MoveComponent) {
+    LOG.debug(`Creating movement data for entity: ${entity.id}`);
     const path = component.path;
-
     const position = entity.getComponent(ComponentType.POSITION) as PositionComponent;
 
     const moveData: MoveData = {

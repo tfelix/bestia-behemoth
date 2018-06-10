@@ -27,6 +27,10 @@ export class DebugComponentRenderer extends ComponentRenderer<DebugComponent> {
   }
 
   protected createGameData(entity: Entity, component: DebugComponent) {
+    if (!entity.data.visual) {
+      return;
+    }
+
     const originCircle = new Phaser.Geom.Circle(0, 0, 5);
     const originCircleGraphics = this.game.add.graphics({ fillStyle: { color: 0xFF0000 } });
     originCircleGraphics.fillCircleShape(originCircle);
