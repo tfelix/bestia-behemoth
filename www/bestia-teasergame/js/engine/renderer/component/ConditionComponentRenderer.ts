@@ -2,16 +2,10 @@ import { ComponentRenderer } from '.';
 import { ConditionComponent } from 'entities/components/ConditionComponent';
 import { ComponentType } from 'entities/components';
 import { Entity } from 'entities';
+import { EngineContext } from '../../EngineContext';
 
 export interface ConditionData {
   conditionGraphic: Phaser.GameObjects.Graphics;
-  /**
-   * Width of sprites changes depending on animation frame.
-   * We need to find a default way of determining the frame width and
-   * use it as a width measurement. We currently save the width to re-use it
-   * independently of frame width.
-   */
-  createdWidth: number;
 }
 
 const bottomHealtbarOffset = 8;
@@ -21,9 +15,9 @@ const rect = new Phaser.Geom.Rectangle();
 export class ConditionComponentRenderer extends ComponentRenderer<ConditionComponent> {
 
   constructor(
-    game: Phaser.Scene
+    private readonly ctx: EngineContext
   ) {
-    super(game);
+    super(ctx.game);
   }
 
   get supportedComponent(): ComponentType {
@@ -35,10 +29,8 @@ export class ConditionComponentRenderer extends ComponentRenderer<ConditionCompo
   }
 
   protected createGameData(entity: Entity, component: ConditionComponent) {
-    const sprite = entity.data.visual && entity.data.visual.sprite;
     entity.data.condition = {
-      conditionGraphic: this.game.add.graphics({ fillStyle: { color: 0x00AA00 } }),
-      createdWidth: sprite && sprite.width || 50
+      conditionGraphic: this.game.add.graphics({ fillStyle: { color: 0x00AA00 } })
     };
   }
 
@@ -63,7 +55,7 @@ export class ConditionComponentRenderer extends ComponentRenderer<ConditionCompo
     }
 
     const gfx = entity.data.condition.conditionGraphic;
-    const maxWidth = entity.data.condition.createdWidth;
+    const maxWidth = this.ctx.helper.sprite.getSpriteSize(sprite).width;
     const hpPerc = component.currentHealth / component.maxHealth;
 
     rect.height = conditionBarHeight;

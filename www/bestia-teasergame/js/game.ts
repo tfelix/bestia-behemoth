@@ -5,11 +5,12 @@ import * as store from 'store';
 
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
+import { CustomPipeline } from 'pipeline/pipeline';
 
 const config: GameConfig = {
   title: 'Bestia',
   url: 'https://bestia-game.net',
-  version: '1.0',
+  version: '0.1-alpha',
   width: 800,
   height: 600,
   zoom: 1,

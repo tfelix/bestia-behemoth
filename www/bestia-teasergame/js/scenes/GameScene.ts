@@ -9,10 +9,11 @@ import { Point, AccountInfo } from 'model';
 import { EngineContext } from 'engine/EngineContext';
 import { PointerManager } from 'engine/pointer';
 import { EntityLocalFactory } from 'entities/EntityLocalFactory';
-import { EntityRenderer, CollisionRenderer } from 'engine/renderer';
+import { EntityRenderManager, CollisionRenderer } from 'engine/renderer';
 import { CollisionUpdater } from 'map';
 import { DamageAction } from 'entities/actions';
 import { ActionsRendererManager } from 'engine/renderer/actions/ActionsRenderManager';
+import { ChatAction } from 'entities/actions/ChatAction';
 
 const PLAYER_ACC_ID = 1;
 
@@ -25,7 +26,7 @@ export class GameScene extends Phaser.Scene {
 
   private collisionUpdater: CollisionUpdater;
 
-  private entityRenderer: EntityRenderer;
+  private entityRenderManager: EntityRenderManager;
   private collisionRenderer: CollisionRenderer;
   private actionRenderManager: ActionsRendererManager;
 
@@ -43,9 +44,9 @@ export class GameScene extends Phaser.Scene {
     const playerEntityHolder = new PlayerEntityHolder(accountInfo, this.entityStore);
     this.engineContext = new EngineContext(this, this.entityStore, playerEntityHolder);
 
-    this.entityRenderer = new EntityRenderer(this.engineContext);
+    this.entityRenderManager = new EntityRenderManager(this.engineContext);
     this.collisionRenderer = new CollisionRenderer(this.engineContext);
-    this.actionRenderManager = new ActionsRendererManager(this, this.entityStore);
+    this.actionRenderManager = new ActionsRendererManager(this.engineContext);
 
     this.pointerManager = new PointerManager(this.engineContext);
 
@@ -65,7 +66,7 @@ export class GameScene extends Phaser.Scene {
     const tree = this.entityFactory.addObject('tree', new Point(10, 10));
     this.entityFactory.addDebugComponent(tree);
 
-    this.engineContext.config.debug.renderCollision = true;
+    this.engineContext.config.debug.renderCollision = false;
 
     this.time.addEvent({
       delay: 1000,
@@ -74,8 +75,12 @@ export class GameScene extends Phaser.Scene {
         const dmg = Math.floor(Math.random() * 15 + 4);
         const dmgAction = new DamageAction(dmg);
         vitata.actions.push(dmgAction);
+
+        const chatAction = new ChatAction('Test', 'rocket');
+        master.actions.push(chatAction);
       }
     });
+
   }
 
   public preload(): void {
@@ -112,7 +117,7 @@ export class GameScene extends Phaser.Scene {
 
     this.pointerManager.update();
 
-    this.entityRenderer.update();
+    this.entityRenderManager.update();
     this.actionRenderManager.update();
     this.collisionRenderer.update();
 

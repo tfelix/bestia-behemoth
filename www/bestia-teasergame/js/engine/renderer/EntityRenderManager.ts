@@ -9,7 +9,7 @@ import { MoveComponentRenderer } from './component/MoveComponentRenderer';
 import { ConditionComponentRenderer } from './component/ConditionComponentRenderer';
 import { EngineContext } from '../EngineContext';
 
-export class EntityRenderer {
+export class EntityRenderManager {
 
   private componentRenderer = new Map<ComponentType, ComponentRenderer<Component>>();
 
@@ -19,7 +19,7 @@ export class EntityRenderer {
     this.addComponentRenderer(new VisualComponentRenderer(this.context.game));
     this.addComponentRenderer(new DebugComponentRenderer(this.context.game));
     this.addComponentRenderer(new MoveComponentRenderer(context));
-    this.addComponentRenderer(new ConditionComponentRenderer(this.context.game));
+    this.addComponentRenderer(new ConditionComponentRenderer(context));
   }
 
   private addComponentRenderer(renderer: ComponentRenderer<Component>) {

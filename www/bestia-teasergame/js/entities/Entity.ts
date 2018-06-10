@@ -22,6 +22,10 @@ export class Entity {
 
   }
 
+  public hasAction(actionConstructor: { new(...args: any[]) }): boolean {
+    return this.actions.findIndex(x => x instanceof actionConstructor) !== -1;
+  }
+
   public getComponentIterator(): IterableIterator<Component> {
     return this.components.values();
   }

@@ -8,19 +8,12 @@ export class DamageActionsRenderer extends ActionsRenderer {
     super(game);
   }
 
-  /**
-   * Das hier noch generalisieren.
-   */
-  private getActionsFromEntity(entity: Entity): DamageAction[] {
-    return entity.actions.filter(x => x instanceof DamageAction) as DamageAction[];
-  }
-
   public needsActionRender(entity: Entity): boolean {
     return entity.actions.findIndex(x => x instanceof DamageAction) !== -1;
   }
 
   public render(entity: Entity) {
-    const actions = this.getActionsFromEntity(entity);
+    const actions = this.getActionsFromEntity<DamageAction>(entity, DamageAction);
 
     const sprite = entity.data.visual && entity.data.visual.sprite;
     if (!sprite) {

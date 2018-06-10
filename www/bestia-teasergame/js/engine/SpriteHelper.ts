@@ -11,7 +11,7 @@ export class SpriteHelper {
   }
 
   public getSpriteSize(sprite: Phaser.GameObjects.Sprite): Size {
-    const name = sprite.name;
+    const name = sprite.texture.key;
     if (this.sizeCache.has(name)) {
       return this.sizeCache.get(name);
     }
@@ -22,10 +22,10 @@ export class SpriteHelper {
   }
 
   private determineSpriteSize(sprite: Phaser.GameObjects.Sprite) {
-    const tempSprite = this.game.add.sprite(-100, -100, sprite.name);
+    const tempSprite = this.game.add.sprite(-100, -100, sprite.texture.key);
     let size: Size;
     try {
-      tempSprite.anims.play('stand_down');
+      tempSprite.anims.play(`${sprite.texture.key}_stand_down`);
       size = new Size(tempSprite.width, tempSprite.height);
       tempSprite.destroy();
     } catch (_) {
