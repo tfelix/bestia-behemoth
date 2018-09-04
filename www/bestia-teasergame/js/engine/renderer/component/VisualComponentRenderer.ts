@@ -12,6 +12,7 @@ import { ComponentRenderer } from './ComponentRenderer';
 export interface SpriteData {
   sprite: Phaser.GameObjects.Sprite;
   spriteName: string;
+  lastPlayedAnimation?: string;
   childSprites: Array<{
     spriteName: string;
     sprite: Phaser.GameObjects.Sprite;
@@ -193,6 +194,7 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
     }
 
     if (component.animation) {
+      spriteData.lastPlayedAnimation = component.animation;
       const fullAnimationName = `${component.sprite}_${component.animation}`;
       LOG.debug(`Play animation: ${fullAnimationName} for entity: ${entity.id}`);
       this.setSpriteAnimationName(spriteData.sprite, fullAnimationName);
@@ -200,8 +202,29 @@ export class VisualComponentRenderer extends ComponentRenderer<VisualComponent> 
       component.animation = null;
     }
 
+    if (component.oneshotAnimation) {
+      this.setupOneshotAnimation(entity, component);
+    }
+
     this.updateChildSpriteOffset(spriteData);
     this.updateSpriteDepth(spriteData);
+  }
+
+  private setupOneshotAnimation(entity: Entity, component: VisualComponent) {
+    const spriteData = entity.data.visual;
+    const fullAnimationName = `${component.sprite}_${component.oneshotAnimation}`;
+    LOG.debug(`Play oneshot animation: ${fullAnimationName} for entity: ${entity.id}`);
+    this.setSpriteAnimationName(spriteData.sprite, fullAnimationName);
+    this.updateChildSpritesAnimation(spriteData, component.oneshotAnimation);
+
+    const animationDuration = spriteData.sprite.anims.getTotalFrames() * spriteData.sprite.anims.msPerFrame;
+
+    const previousAnimationName = spriteData.lastPlayedAnimation;
+    this.game.time.addEvent({
+      delay: animationDuration,
+      callback: () => component.animation = previousAnimationName
+    });
+    component.oneshotAnimation = null;
   }
 
   private updateChildSpritesAnimation(spriteData: SpriteData, animationName: string) {

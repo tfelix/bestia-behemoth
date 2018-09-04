@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor
 
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.zoneserver.actor.routing.ConnectionShardMessageExtractor
 import org.junit.Assert
 import org.junit.Test
 

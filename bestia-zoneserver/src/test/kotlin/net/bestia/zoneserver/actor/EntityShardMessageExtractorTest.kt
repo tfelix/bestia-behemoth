@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor
 
 import net.bestia.messages.entity.ToEntityEnvelope
+import net.bestia.zoneserver.actor.routing.EntityShardMessageExtractor
 import org.junit.Assert
 import org.junit.Test
 

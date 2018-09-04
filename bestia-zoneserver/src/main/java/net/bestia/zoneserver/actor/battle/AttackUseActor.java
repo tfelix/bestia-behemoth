@@ -9,7 +9,7 @@ import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.EntitySkillUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.battle.BattleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class AttackUseActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(AttackUseMessage.class, EntitySkillUseMessage.class);
+		final RedirectMessage msg = RedirectMessage.Companion.get(AttackUseMessage.class, EntitySkillUseMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 

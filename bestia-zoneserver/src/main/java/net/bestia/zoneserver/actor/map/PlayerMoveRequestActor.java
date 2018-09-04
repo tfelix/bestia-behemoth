@@ -4,7 +4,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.messages.entity.EntityMoveRequestMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class PlayerMoveRequestActor extends AbstractActor {
 	@Override
 	public void preStart() throws Exception {
 		// Register for chat commands.
-		final RedirectMessage redirMsg = RedirectMessage.get(EntityMoveRequestMessage.class);
+		final RedirectMessage redirMsg = RedirectMessage.Companion.get(EntityMoveRequestMessage.class);
 		getContext().parent().tell(redirMsg, getSelf());
 	}
 

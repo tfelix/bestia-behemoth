@@ -9,8 +9,8 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import net.bestia.zoneserver.entity.InteractionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -41,7 +41,7 @@ public class EntityInteractionRequestActor extends AbstractActor {
 			InteractionService interactService) {
 	
 		this.interactService = Objects.requireNonNull(interactService);
-		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class EntityInteractionRequestActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(EntityInteractionRequestMessage.class);
+		final RedirectMessage msg = RedirectMessage.Companion.get(EntityInteractionRequestMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 

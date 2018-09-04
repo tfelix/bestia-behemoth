@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.messages.account.ServerStatusMessage;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**
@@ -41,7 +41,7 @@ public class RequestServerStatusActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage req = RedirectMessage.get(ServerStatusMessage.Request.class);
+		final RedirectMessage req = RedirectMessage.Companion.get(ServerStatusMessage.Request.class);
 		context().parent().tell(req, getSelf());
 	}
 

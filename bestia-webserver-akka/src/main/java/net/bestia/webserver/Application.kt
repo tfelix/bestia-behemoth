@@ -1,121 +1,138 @@
 package net.bestia.webserver
 
 import akka.NotUsed
-import akka.actor.ActorRef
-import akka.actor.Props
+import akka.actor.ActorSystem
+import java.util.concurrent.atomic.AtomicInteger
+import akka.http.javadsl.ConnectHttp
+import akka.http.javadsl.ConnectionContext
+import akka.http.javadsl.Http
+import akka.http.javadsl.model.HttpRequest
+import akka.http.javadsl.model.HttpResponse
 import akka.http.javadsl.model.ws.Message
 import akka.http.javadsl.model.ws.TextMessage
-import akka.http.javadsl.server.HttpApp
-import akka.http.javadsl.server.Route
-import akka.stream.actor.AbstractActorPublisher
-import akka.stream.actor.AbstractActorSubscriber
-import akka.stream.actor.MaxInFlightRequestStrategy
-import akka.stream.actor.RequestStrategy
+import akka.http.javadsl.model.ws.WebSocket
+import akka.http.javadsl.model.ws.WebSocketRequest
+import akka.http.javadsl.settings.ClientConnectionSettings
+import akka.http.javadsl.settings.ServerSettings
+import akka.japi.JavaPartialFunction
+import akka.stream.ActorMaterializer
 import akka.stream.javadsl.Flow
-import akka.stream.javadsl.Sink
 import akka.stream.javadsl.Source
+import akka.util.ByteString
+import java.io.InputStreamReader
+import java.io.BufferedReader
+import java.util.*
+import java.util.concurrent.TimeUnit
 
+object WebSocketCoreExample {
 
-class WebSocketCommandSubscriber : AbstractActorSubscriber() {
-  override fun createReceive(): Receive {
-    return receiveBuilder().match(
-            String::class.java, this::handleMessage)
-            .build()
-  }
+  fun handleRequest(request: HttpRequest): HttpResponse {
+    System.out.println("Handling request to " + request.uri)
 
-  override fun requestStrategy(): RequestStrategy {
-    return object : MaxInFlightRequestStrategy(10) {
-      override fun inFlightInternally(): Int {
-        // we do not hold any messages yet, but will eventually be
-        // required, e.g. for request/response message handling
-        return 0
-      }
-    }
-  }
-
-  private fun handleMessage(msg: String) {
-    println(msg)
-  }
-
-  companion object {
-    @JvmStatic
-    fun props(): Props {
-      return Props.create(WebSocketCommandSubscriber::class.java)
-    }
-  }
-}
-
-class WebSocketDataPublisher : AbstractActorPublisher<String>() {
-
-  /*
-  @Throws(Exception::class)
-  override fun preStart() {
-    for (eventClass in interesstedEvents) {
-      // unsubscribing performed automatically by the event stream on actor destroy
-      context.system().eventStream().subscribe(self(), eventClass)
-    }
-  }*/
-
-  override fun createReceive(): Receive {
-    return receiveBuilder().match(
-            String::class.java, this::handleMessage)
-            .build()
-  }
-
-  private fun handleMessage(message: Any) {
-
-    // while the stream is not ready to receive data - incoming messages are lost
-
-    if (isActive && totalDemand() > 0) {
-
-      // val webSocketMessage = WebSocketMessage.create(message.javaClass.simpleName, message)
-
-      //            System.out.println("send message to WS: " + message);
-
-      onNext(message as String)
-
+    return if (request.uri.path() == "/greeter") {
+      val greeterFlow = greeter()
+      WebSocket.handleWebSocketRequestWith(request, greeterFlow)
     } else {
-
-      //            System.out.println("LOST message to WS: " + message);
-
-    }
-
-  }
-
-
-  companion object {
-    @JvmStatic
-    fun props(): Props {
-      return Props.create(WebSocketCommandSubscriber::class.java)
-    }
-  }
-}
-
-class WebsocketApp : HttpApp() {
-  override fun routes(): Route {
-    return get {
-      path("socket") {
-        handleWebSocketMessages(metrics())
-      }
+      HttpResponse.create().withStatus(404)
     }
   }
 
-  private fun metrics(): Flow<Message, Message, NotUsed> {
-    val metricsSink: Sink<Message, ActorRef> = Sink.actorSubscriber(WebSocketCommandSubscriber.props())
-    val metricsSource: Source<Message, ActorRef> = Source.actorPublisher<Source<Message, ActorRef>>(WebSocketDataPublisher.props())
-            .map({ _: Any -> TextMessage.create("Hello World") })
-    // .map((measurementData) -> TextMessage.create(gson.toJson(measurementData)));
-    return Flow.fromSinkAndSource(metricsSink, metricsSource)
+  /**
+   * A handler that treats incoming messages as a name,
+   * and responds with a greeting to that name
+   */
+  fun greeter(): Flow<Message, Message, NotUsed> {
+    return Flow.create()
+            .collect(object : JavaPartialFunction<Message, Message>() {
+              @Throws(Exception::class)
+              fun apply(msg: Message, isCheck: Boolean): Message? {
+                return if (isCheck) {
+                  if (msg.isText()) {
+                    null
+                  } else {
+                    throw noMatch()
+                  }
+                } else {
+                  handleTextMessage(msg.asTextMessage())
+                }
+              }
+            })
+  }
+
+  fun handleTextMessage(msg: TextMessage): TextMessage {
+    return if (msg.isStrict) {
+      TextMessage.create("Hello " + msg.strictText)
+    } else {
+      TextMessage.create(Source.single("Hello ").concat(msg.streamedText))
+    }
+  }
+
+  init {
+    val system: ActorSystem? = null
+    val materializer: ActorMaterializer? = null
+    val handler: Flow<HttpRequest, HttpResponse, NotUsed>? = null
+    val defaultSettings = ServerSettings.create(system)
+
+    val pingCounter = AtomicInteger()
+
+    val customWebsocketSettings = defaultSettings.websocketSettings
+            .withPeriodicKeepAliveData({ ByteString.fromString(String.format("debug-%d", pingCounter.incrementAndGet())) })
+
+    val customServerSettings = defaultSettings.withWebsocketSettings(customWebsocketSettings)
+
+    val http = Http.get(system)
+    http.bindAndHandle(handler,
+            ConnectHttp.toHost("127.0.0.1"),
+            customServerSettings, // pass the configuration
+            system!!.log(),
+            materializer)
+  }
+
+  init {
+    val system: ActorSystem = ActorSystem.create()
+    val materializer = ActorMaterializer.create(system)
+    val clientFlow: Flow<Message, Message, NotUsed>? = null
+    val defaultSettings = ClientConnectionSettings.create(system)
+
+    val pingCounter = AtomicInteger()
+
+    val customWebsocketSettings = defaultSettings.websocketSettings
+            .withPeriodicKeepAliveData({ ByteString.fromString(String.format("debug-%d", pingCounter.incrementAndGet())) })
+
+    val customSettings = defaultSettings.withWebsocketSettings(customWebsocketSettings)
+
+    val http = Http.get(system)
+    http.singleWebSocketRequest(
+            WebSocketRequest.create("ws://127.0.0.1"),
+            clientFlow,
+            ConnectionContext.noEncryption(),
+            Optional.empty(),
+            customSettings,
+            system.log(),
+            materializer
+    )
   }
 }
 
 // @SpringBootApplication
 object Application {
-
   @Throws(Exception::class)
   @JvmStatic
   fun main(args: Array<String>) {
-    val myServer = WebsocketApp()
-    myServer.startServer("localhost", 8080)
+
+    try {
+      val materializer = ActorMaterializer.create(system)
+
+      val handler = { request -> WebSocketCoreExample.handleRequest(request) }
+      val serverBindingFuture = Http.get(system).bindAndHandleSync(
+              handler, ConnectHttp.toHost("localhost", 8080), materializer)
+
+      // will throw if binding fails
+      serverBindingFuture.toCompletableFuture().get(1, TimeUnit.SECONDS)
+      println("Press ENTER to stop.")
+      BufferedReader(InputStreamReader(System.`in`)).readLine()
+    } finally {
+      system.terminate()
+    }
   }
 }

@@ -6,7 +6,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.account.UserNameCheck;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,7 @@ public class CheckUsernameDataActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage req = RedirectMessage.get(UserNameCheck.class);
+		final RedirectMessage req = RedirectMessage.Companion.get(UserNameCheck.class);
 		getContext().parent().tell(req, getSelf());
 	}
 

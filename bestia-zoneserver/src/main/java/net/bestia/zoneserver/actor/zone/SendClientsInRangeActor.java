@@ -11,6 +11,7 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.map.MapService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * If a {@link EntityJsonMessage} is received by this actor it will check if the
  * given entity contains a {@link PositionComponent} and if it does it will
  * detect all active player entities in the update range of the game and forward
- * the message to them via a {@link SendClientActor}.
+ * the message to them via a {@link SendToClientActor}.
  * 
  * @author Thomas Felix
  *
@@ -47,7 +48,7 @@ public class SendClientsInRangeActor extends AbstractActor {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
 		
 	}
 

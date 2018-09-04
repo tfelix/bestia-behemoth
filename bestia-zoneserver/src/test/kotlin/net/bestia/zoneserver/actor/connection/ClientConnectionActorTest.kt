@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 @Import(TestZoneConfiguration::class)
-class WebIngestActorTest {
+class IngestActorTest {
 
   @Autowired
   lateinit var system: ActorSystem
@@ -36,7 +36,7 @@ class WebIngestActorTest {
     object : TestKit(system) {
       init {
         val socket = TestKit(system)
-        val ingest = SpringExtension.actorOf(system, ClientConnectionActorEx::class.java)
+        val ingest = SpringExtension.actorOf(system, ClientConnectionActor::class.java)
 
         val conMesg = ClientConnectMessage(
                 accountId = 10,

@@ -21,11 +21,11 @@ export class BootScene extends Phaser.Scene {
       '../assets/sprites/mob/poring/poring.json'
     );
 
-    this.load.json('vitata_desc', '../assets/sprites/mob/vitata/vitata_desc.json');
+    this.load.json('rabbit_desc', '../assets/sprites/mob/rabbit/rabbit_desc.json');
     this.load.atlas(
-      'vitata',
-      '../assets/sprites/mob/vitata/vitata.png',
-      '../assets/sprites/mob/vitata/vitata.json'
+      'rabbit',
+      '../assets/sprites/mob/rabbit/rabbit.png',
+      '../assets/sprites/mob/rabbit/rabbit.json'
     );
 
     const additionalObjects = ['tree'];

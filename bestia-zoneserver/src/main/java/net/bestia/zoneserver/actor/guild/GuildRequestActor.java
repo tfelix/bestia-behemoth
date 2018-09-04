@@ -7,8 +7,8 @@ import net.bestia.messages.guild.GuildRequestMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.dao.GuildDAO;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import net.bestia.zoneserver.guild.GuildService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -39,7 +39,7 @@ public class GuildRequestActor extends AbstractActor {
 
 		this.guildService = Objects.requireNonNull(guildService);
 		this.guildDao = Objects.requireNonNull(guildDao);
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class GuildRequestActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(InventoryListRequestMessage.class);
+		final RedirectMessage msg = RedirectMessage.Companion.get(InventoryListRequestMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 

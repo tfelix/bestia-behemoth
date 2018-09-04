@@ -14,7 +14,13 @@ export class VisualComponent extends Component {
     public visible: boolean,
     public sprite: string,
     public spriteType: SpriteType,
-    public animation: string | null = null
+    public animation: string | null = null,
+    /**
+     * Other systems can set this. Such animations are only
+     * shortly displayed and once after the normal animation is
+     * played again.
+     */
+    public oneshotAnimation: string | null = null,
   ) {
     super(id, entityId, ComponentType.VISUAL);
   }

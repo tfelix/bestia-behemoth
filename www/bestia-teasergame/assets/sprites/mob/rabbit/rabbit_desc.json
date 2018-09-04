@@ -1,0 +1,32 @@
+{
+	"name": "rabbit",
+	"type": "sprite",
+	"version": 1,
+	"scale" : 1,
+    "animations": [
+				{"name": "walk_down", "from": 1, "to": 8, "fps": 8 },
+				{"name": "walk_down_left", "from": 1, "to": 8, "fps": 8 },
+				{"name": "walk_left", "from": 1, "to": 8, "fps": 8 },
+				{"name": "walk_up_left", "from": 1, "to": 8, "fps": 8 },
+				{"name": "walk_up", "from": 1, "to": 8, "fps": 8 },
+				{"name": "stand_up", "from": 1, "to": 4, "fps": 2 },
+				{"name": "stand_up_left", "from": 1, "to": 4, "fps": 2 },
+				{"name": "stand_down", "from": 1, "to": 4, "fps": 2 },
+				{"name": "stand_down_left", "from": 1, "to": 4, "fps": 2 },
+				{"name": "stand_left", "from": 1, "to": 4, "fps": 2 },
+				{"name": "hit", "from": 1, "to": 2, "fps": 2 }
+			],
+	"collision": [[0, 0, 0],[0, 1, 0]],
+	"anchor": {"x": 0.5, "y": 1},
+	"assetpack": { 
+		"rabbit": [
+			{
+				"type": "atlasJSONHash",
+				"key": "rabbit",
+				"textureURL": "assets/sprite/mob/rabbit/rabbit.png",
+				"atlasURL": "assets/sprite/mob/rabbit/rabbit.json",
+				"atlasData": null
+			}
+		]
+	}
+}

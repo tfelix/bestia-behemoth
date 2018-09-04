@@ -8,6 +8,7 @@ import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.client.ClientVarActor;
 import net.bestia.zoneserver.client.ClientVarService;
 import org.junit.AfterClass;
 import org.junit.Before;

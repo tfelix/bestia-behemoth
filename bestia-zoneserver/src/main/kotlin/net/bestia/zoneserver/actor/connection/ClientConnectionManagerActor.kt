@@ -5,7 +5,7 @@ import bestia.server.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ToClientEnvelope
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor
+import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -18,7 +18,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 @Scope("prototype")
-class ClientConnectionManagerActor : ClientMessageDigestActor() {
+class ClientConnectionManagerActor : BaseClientMessageRouteActor() {
 
   private val clientConnectionActor = ClusterSharding.get(context.system)
           .shardRegion(EntryActorNames.SHARD_CONNECTION)

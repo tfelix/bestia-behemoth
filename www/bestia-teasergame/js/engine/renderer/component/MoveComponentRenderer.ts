@@ -111,7 +111,8 @@ export class MoveComponentRenderer extends ComponentRenderer<MoveComponent> {
     this.ctx.entityStore.onUpdateEntity.subscribe(msg => {
       if (msg.changedComponentType === ComponentType.MOVE) {
         LOG.debug('Received new movement data.');
-        this.clearMovementData(msg.entity);
+        // TODO das hier noch debuggen.
+        // this.clearMovementData(msg.entity);
       }
     });
   }

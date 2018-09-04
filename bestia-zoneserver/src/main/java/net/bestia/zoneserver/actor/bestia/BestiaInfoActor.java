@@ -7,8 +7,8 @@ import net.bestia.entity.Entity;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @Component
 @Scope("prototype")
-public class BestiaInfoActor extends ClientMessageDigestActor {
+public class BestiaInfoActor extends BaseClientMessageRouteActor {
 
 	public static final String NAME = "bestiaInfo";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
@@ -40,8 +40,8 @@ public class BestiaInfoActor extends ClientMessageDigestActor {
 
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-		redirectConfig.match(BestiaInfoRequestMessage.class, this::handleInfoRequest);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
+		getRedirectConfig().match(BestiaInfoRequestMessage.class, this::handleInfoRequest);
 	}
 
 	private void handleInfoRequest(BestiaInfoRequestMessage msg) {

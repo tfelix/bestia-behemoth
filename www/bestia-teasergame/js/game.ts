@@ -1,11 +1,9 @@
-/// <reference path="./phaser.d.ts"/>
 import 'phaser';
 import * as LOG from 'loglevel';
 import * as store from 'store';
 
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
-import { CustomPipeline } from 'pipeline/pipeline';
 
 const config: GameConfig = {
   title: 'Bestia',

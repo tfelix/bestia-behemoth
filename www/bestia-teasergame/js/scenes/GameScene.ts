@@ -59,12 +59,14 @@ export class GameScene extends Phaser.Scene {
     const master = this.entityFactory.addSprite('player_1', new Point(2, 3));
     this.entityFactory.addPlayerComponent(master, PLAYER_ACC_ID);
     this.entityFactory.addDebugComponent(master);
-    const vitata = this.entityFactory.addSprite('vitata', new Point(5, 6));
-    this.entityFactory.addDebugComponent(vitata);
-    this.entityFactory.addConditionComponent(vitata);
+    const rabbit = this.entityFactory.addSprite('rabbit', new Point(5, 6));
+    this.entityFactory.addDebugComponent(rabbit);
+    this.entityFactory.addConditionComponent(rabbit);
 
-    const tree = this.entityFactory.addObject('tree', new Point(10, 10));
-    this.entityFactory.addDebugComponent(tree);
+    this.entityFactory.addObject('tree', new Point(10, 10));
+    this.entityFactory.addObject('tree', new Point(14, 12));
+    this.entityFactory.addObject('tree', new Point(18, 9));
+    this.entityFactory.addObject('tree', new Point(6, 16));
 
     this.engineContext.config.debug.renderCollision = false;
 
@@ -74,7 +76,7 @@ export class GameScene extends Phaser.Scene {
       callback: () => {
         const dmg = Math.floor(Math.random() * 15 + 4);
         const dmgAction = new DamageAction(dmg);
-        vitata.actions.push(dmgAction);
+        rabbit.actions.push(dmgAction);
 
         const chatAction = new ChatAction('Test', 'rocket');
         master.actions.push(chatAction);

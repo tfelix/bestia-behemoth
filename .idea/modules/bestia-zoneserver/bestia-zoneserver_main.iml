@@ -46,7 +46,7 @@
     <orderEntry type="module" module-name="bestia-messages_main" />
     <orderEntry type="module" module-name="bestia-server-commons_main" />
     <orderEntry type="module" module-name="bestia-models_main" />
-    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.4.9" level="project" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.6.10" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-slf4j_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.netflix.servo:servo-core:0.12.7" level="project" />
     <orderEntry type="library" name="Gradle: de.tfelix.bestia:worldgen:1.0.0-ALPHA" level="project" />
@@ -82,6 +82,7 @@
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-cluster_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-persistence_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging-common:1.6.10" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-autoconfigure:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot:1.5.10.RELEASE" level="project" />
@@ -127,6 +128,7 @@
     <orderEntry type="library" name="Gradle: org.scala-lang:scala-library:2.12.3" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.11" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:20.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.60" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-dbcp2:2.1.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Gradle: org.aspectj:aspectjweaver:1.8.13" level="project" />

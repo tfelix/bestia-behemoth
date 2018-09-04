@@ -78,8 +78,7 @@ public class GuildService {
   }
 
   public Optional<Guild> getGuildOfPlayer(long playerBestiaId) {
-    return memberDao.findByPlayerBestiaId(playerBestiaId)
-            .map(GuildMember::getGuild);
+    return memberDao.findByPlayerBestiaId(playerBestiaId).map(GuildMember::getGuild);
   }
 
   public int addExpTaxToGuild(long playerBestiaId, int earnedTotalExp) {

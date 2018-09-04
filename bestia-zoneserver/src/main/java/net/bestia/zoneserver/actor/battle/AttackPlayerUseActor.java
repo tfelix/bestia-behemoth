@@ -4,7 +4,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntitySkillUseMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -43,7 +43,7 @@ public class AttackPlayerUseActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(AttackUseMessage.class);
+		final RedirectMessage msg = RedirectMessage.Companion.get(AttackUseMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 

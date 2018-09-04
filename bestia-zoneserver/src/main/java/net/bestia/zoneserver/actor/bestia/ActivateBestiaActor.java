@@ -10,7 +10,7 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
@@ -46,7 +46,7 @@ public class ActivateBestiaActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(BestiaActivateMessage.class);
+		final RedirectMessage msg = RedirectMessage.Companion.get(BestiaActivateMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 

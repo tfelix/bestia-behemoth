@@ -9,8 +9,8 @@ import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 @Component
 @Scope("prototype")
-public class TilesetRequestActor extends ClientMessageDigestActor {
+public class TilesetRequestActor extends BaseClientMessageRouteActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static String NAME = "tileset";
@@ -39,8 +39,8 @@ public class TilesetRequestActor extends ClientMessageDigestActor {
 	public TilesetRequestActor(TilesetService tilesetService) {
 
 		this.tilesetService = Objects.requireNonNull(tilesetService);
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-		redirectConfig.match(MapTilesetRequestMessage.class, this::onMapTilesetRequest);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
+		getRedirectConfig().match(MapTilesetRequestMessage.class, this::onMapTilesetRequest);
 	}
 
 	private void onMapTilesetRequest(MapTilesetRequestMessage msg) {

@@ -11,8 +11,8 @@ import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor;
+import net.bestia.zoneserver.actor.client.SendToClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.map.MapService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 @Component
 @Scope("prototype")
-public class MapRequestChunkActor extends ClientMessageDigestActor {
+public class MapRequestChunkActor extends BaseClientMessageRouteActor {
 
 	public final static String NAME = "mapChunk";
 
@@ -52,9 +52,9 @@ public class MapRequestChunkActor extends ClientMessageDigestActor {
 		this.pbService = Objects.requireNonNull(pbService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.entityService = Objects.requireNonNull(entityService);
-		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendToClientActor.class);
 
-		redirectConfig.match(MapChunkRequestMessage.class, this::onMapChunkRequest);
+		getRedirectConfig().match(MapChunkRequestMessage.class, this::onMapChunkRequest);
 	}
 
 	private void onMapChunkRequest(MapChunkRequestMessage msg) {

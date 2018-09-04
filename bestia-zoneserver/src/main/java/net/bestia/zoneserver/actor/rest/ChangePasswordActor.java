@@ -4,7 +4,7 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.account.ChangePasswordRequest;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.client.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.client.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -43,7 +43,7 @@ public class ChangePasswordActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage req = RedirectMessage.get(ChangePasswordRequest.class);
+		final RedirectMessage req = RedirectMessage.Companion.get(ChangePasswordRequest.class);
 		context().parent().tell(req, getSelf());
 	}
 

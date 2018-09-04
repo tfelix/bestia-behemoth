@@ -1,25 +1,17 @@
 package net.bestia.zoneserver.actor;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import akka.actor.Actor;
+import akka.actor.IndirectActorProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import akka.actor.Actor;
-import akka.actor.IndirectActorProducer;
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * An actor producer that lets Spring create the Akka Actor instances.
@@ -34,7 +26,6 @@ class SpringActorProducer implements IndirectActorProducer {
 
 	public SpringActorProducer(ApplicationContext applicationContext, Class<? extends Actor> actorBeanClass) {
 		this(applicationContext, actorBeanClass, new Object[] {});
-
 		// no op.
 	}
 
@@ -42,7 +33,7 @@ class SpringActorProducer implements IndirectActorProducer {
 			Class<? extends Actor> actorBeanClass,
 			Object... args) {
 		
-		if(Stream.of(args).anyMatch(x -> x == null)) {
+		if(Stream.of(args).anyMatch(Objects::isNull)) {
 			throw new IllegalArgumentException("Arguments can not contain null.");
 		}
 

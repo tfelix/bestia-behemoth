@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.connection;
 
 import net.bestia.messages.Envelope;
 import net.bestia.messages.client.PongMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
+import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor;
 import net.bestia.zoneserver.client.LatencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Component
 @Scope("prototype")
-public class LatencyManagerActor extends ClientMessageDigestActor {
+public class LatencyManagerActor extends BaseClientMessageRouteActor {
 
 	public final static String NAME = "latency";
 
@@ -22,7 +22,7 @@ public class LatencyManagerActor extends ClientMessageDigestActor {
 	public LatencyManagerActor(LatencyService latencyService) {
 
 		this.latencyService = Objects.requireNonNull(latencyService);
-		redirectConfig.matchEnvelope(PongMessage.class, this::onPongMessage);
+		getRedirectConfig().matchEnvelope(PongMessage.class, this::onPongMessage);
 	}
 
 	/**
