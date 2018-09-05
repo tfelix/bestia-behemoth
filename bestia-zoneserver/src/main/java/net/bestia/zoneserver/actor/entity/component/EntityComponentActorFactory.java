@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity;
+package net.bestia.zoneserver.actor.entity.component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorContext;

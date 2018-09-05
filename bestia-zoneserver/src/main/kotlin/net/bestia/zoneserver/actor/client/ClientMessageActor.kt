@@ -13,6 +13,9 @@ private val LOG = KotlinLogging.logger { }
 @Scope("prototype")
 class ClientMessageActor : BaseClientMessageRouteActor() {
 
+  override fun createReceive(builder: BuilderFacade) {
+  }
+
   override fun preStart() {
 
     // === Connection ===

@@ -5,7 +5,7 @@ import akka.cluster.Cluster
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.messages.MessageApi
-import net.bestia.zoneserver.actor.AkkaMessageApi
+import net.bestia.zoneserver.AkkaMessageApi
 import net.bestia.zoneserver.actor.BestiaRootActor
 import net.bestia.zoneserver.actor.SpringExtension
 import org.springframework.beans.factory.DisposableBean

@@ -3,7 +3,7 @@ package net.bestia.entity.component;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
-import net.bestia.zoneserver.actor.entity.EntityComponentActorFactory;
+import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

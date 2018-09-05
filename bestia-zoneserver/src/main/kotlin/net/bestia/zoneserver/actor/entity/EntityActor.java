@@ -12,6 +12,7 @@ import net.bestia.messages.entity.ComponentEnvelope;
 import net.bestia.messages.entity.ComponentIntall;
 import net.bestia.messages.entity.ComponentRemove;
 import net.bestia.messages.entity.ToEntityEnvelope;
+import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

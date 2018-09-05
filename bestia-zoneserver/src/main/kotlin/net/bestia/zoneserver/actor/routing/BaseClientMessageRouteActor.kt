@@ -2,7 +2,6 @@ package net.bestia.zoneserver.actor.routing
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import akka.japi.pf.FI
 import akka.japi.pf.ReceiveBuilder
 
 /**
@@ -19,25 +18,26 @@ abstract class BaseClientMessageRouteActor : AbstractActor() {
           val receiver: ActorRef
   )
 
-  private class Tuple<P>(
-          internal val type: Class<P>,
-          internal val apply: FI.UnitApply<P>
+  protected class BuilderFacade(
+          private val builder: ReceiveBuilder
   ) {
-    internal fun apply(builder: ReceiveBuilder) {
-      builder.match(type, apply)
+    private val receivedMessages = mutableListOf<Class<*>>()
+
+    fun <T> match(clazz: Class<T>, fn: (T) -> Unit) {
+      receivedMessages.add(clazz)
+      builder.match(clazz, fn)
+    }
+
+    fun <T> matchEquals(obj: T, fn: (T) -> Unit) {
+      builder.matchEquals(obj, fn)
     }
   }
 
-  private val redirections = mutableMapOf<Class<*>, MutableList<ActorRef>>()
-  private val messageHandler = mutableSetOf<Tuple<*>>()
-
-  protected fun <T> requestMessages(requestedMessageClasses: Class<T>, fn: FI.UnitApply<T>) {
-    messageHandler.add(Tuple(requestedMessageClasses, fn))
-  }
+  private val redirects = mutableMapOf<Class<*>, MutableList<ActorRef>>()
 
   @Throws(Exception::class)
   override fun preStart() {
-    redirections.forEach({ (clazz: Class<*>, actors: MutableList<ActorRef>) ->
+    redirects.forEach({ (clazz: Class<*>, actors: MutableList<ActorRef>) ->
       actors.forEach { actor ->
         val msg = RedirectMessage(clazz, actor)
         context().parent().tell(msg, self)
@@ -47,10 +47,14 @@ abstract class BaseClientMessageRouteActor : AbstractActor() {
 
   override fun createReceive(): AbstractActor.Receive {
     val builder = receiveBuilder()
-    messageHandler.forEach { t -> t.apply(builder) }
+    val facade = BuilderFacade(builder)
+    createReceive(facade)
+    builder.matchAny(this::handleMessage)
 
     return builder.build()
   }
+
+  protected abstract fun createReceive(builder: BuilderFacade)
 
   private fun handleMessage(msg: Any) {
     when (msg) {
@@ -60,12 +64,12 @@ abstract class BaseClientMessageRouteActor : AbstractActor() {
   }
 
   private fun routeMessage(msg: Any) {
-    redirections[msg]?.forEach {
+    redirects[msg]?.forEach {
       it.tell(msg, sender)
     }
   }
 
   private fun handleRedirectMessage(msg: RedirectMessage) {
-    redirections.getOrPut(msg.requestedMessageClass, { mutableListOf() }).add(msg.receiver)
+    redirects.getOrPut(msg.requestedMessageClass, { mutableListOf() }).add(msg.receiver)
   }
 }

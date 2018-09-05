@@ -25,8 +25,8 @@ class ClientVarActor(
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
-  init {
-    this.requestMessages(ClientVarRequestMessage::class.java, { this.handleCvarMessage(it) })
+  override fun createReceive(builder: BuilderFacade) {
+    builder.match(ClientVarRequestMessage::class.java, this::handleCvarMessage)
   }
 
   /**

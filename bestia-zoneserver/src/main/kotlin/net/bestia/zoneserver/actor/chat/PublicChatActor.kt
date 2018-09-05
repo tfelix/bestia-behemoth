@@ -6,7 +6,7 @@ import net.bestia.entity.EntityService
 import net.bestia.entity.component.PositionComponent
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor
+import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

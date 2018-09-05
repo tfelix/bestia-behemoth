@@ -23,8 +23,8 @@ class ClientConnectionManagerActor : BaseClientMessageRouteActor() {
   private val clientConnectionActor = ClusterSharding.get(context.system)
           .shardRegion(EntryActorNames.SHARD_CONNECTION)
 
-  init {
-    redirectConfig.match(ClientConnectMessage::class.java, this::onClientConnection)
+  override fun createReceive(builder: BuilderFacade) {
+    builder.match(ClientConnectMessage::class.java, this::onClientConnection)
   }
 
   private fun onClientConnection(msg: ClientConnectMessage) {

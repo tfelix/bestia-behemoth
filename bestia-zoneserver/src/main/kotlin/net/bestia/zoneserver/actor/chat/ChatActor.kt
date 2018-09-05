@@ -29,8 +29,8 @@ class ChatActor(
   private val guildChatActor = SpringExtension.actorOf(context, GuildChatActor::class.java)
   private val partyChatActor = SpringExtension.actorOf(context, PartyChatActor::class.java)
 
-  init {
-    requestMessages(ChatMessage::class.java, { msg: ChatMessage -> })
+  override fun createReceive(builder: BuilderFacade) {
+    builder.match(ChatMessage::class.java, this::onChatMessage)
   }
 
   private fun onChatMessage(chatMsg: ChatMessage) {
