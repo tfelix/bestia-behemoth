@@ -15,6 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Configures the app context for testing operations.
+ *
+ * TODO This file probably needs an overhowl
  * 
  * @author Thomas Felix
  *

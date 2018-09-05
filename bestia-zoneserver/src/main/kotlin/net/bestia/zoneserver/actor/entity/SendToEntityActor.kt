@@ -5,7 +5,7 @@ import akka.actor.ActorRef
 import akka.cluster.sharding.ClusterSharding
 import bestia.server.EntryActorNames
 import mu.KotlinLogging
-import net.bestia.messages.entity.ToEntityEnvelope
+import net.bestia.messages.entity.EntityEnvelope
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -25,7 +25,7 @@ class SendToEntityActor : AbstractActor() {
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ToEntityEnvelope::class.java) { msg ->
+            .match(EntityEnvelope::class.java) { msg ->
               LOG.debug("Sending to entity: {}", msg)
               entityActorShard.tell(msg, sender)
             }

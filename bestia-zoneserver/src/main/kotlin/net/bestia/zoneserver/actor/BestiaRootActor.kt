@@ -15,8 +15,8 @@ import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.IngestActor
 import net.bestia.zoneserver.actor.entity.EntityActor
-import net.bestia.zoneserver.actor.routing.ConnectionShardMessageExtractor
-import net.bestia.zoneserver.actor.routing.EntityShardMessageExtractor
+import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
+import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.PostmasterActor
 import net.bestia.zoneserver.actor.zone.BootstrapActor
 import net.bestia.zoneserver.script.ScriptService

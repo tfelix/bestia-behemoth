@@ -45,12 +45,12 @@ class SpringActorProducer implements IndirectActorProducer {
 	@Override
 	public Actor produce() {
 		if (args.length == 0) {
-			return (Actor) applicationContext.getBean(actorBeanClass);
+			return applicationContext.getBean(actorBeanClass);
 		} else {
 
 			try {
 				Object[] ctorArgs = getAllCtorArgs();
-				return (Actor) applicationContext.getBean(actorBeanClass, ctorArgs);
+				return applicationContext.getBean(actorBeanClass, ctorArgs);
 			} catch (ClassNotFoundException e) {
 				throw new BeanCreationException("Class for mixed argument list not found.", e);
 			}
@@ -70,14 +70,29 @@ class SpringActorProducer implements IndirectActorProducer {
 		Constructor<?> autoCtor = null;
 
 		// Create a hashset of all provided arg objects.
-		final Set<Class<?>> availableArgsClasses = Stream.of(args).map(t -> t.getClass()).collect(Collectors.toSet());
+		final Set<Class<?>> availableArgsClasses = Stream.of(args).map(Object::getClass).collect(Collectors.toSet());
 
+		// Find the annotated ctor
 		for (Constructor<?> ctor : ctors) {
 			if (ctor.isAnnotationPresent(Autowired.class)) {
 				autoCtor = ctor;
 				break;
 			}
 		}
+
+		// Find the std ctor
+		if(autoCtor == null) {
+			for (Constructor<?> ctor : ctors) {
+				if(ctor.getParameterCount() == 0) {
+					autoCtor = ctor;
+					break;
+				}
+			}
+		}
+
+		if(autoCtor == null && ctors.length == 1) {
+		  autoCtor = ctors[0];
+    }
 
 		if (autoCtor == null) {
 			LOG.warn("No Ctor with Autowire annotation found. Can not create bean: {}", actorBeanClass.getName());

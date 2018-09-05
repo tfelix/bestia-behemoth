@@ -1,7 +1,7 @@
-package net.bestia.zoneserver.actor.routing
+package net.bestia.zoneserver.actor.entity
 
 import akka.cluster.sharding.ShardRegion
-import net.bestia.messages.entity.ToEntityEnvelope
+import net.bestia.messages.entity.EntityEnvelope
 
 /**
  * Defines methods for extracting the shard id from the incoming messages for
@@ -12,24 +12,23 @@ import net.bestia.messages.entity.ToEntityEnvelope
 class EntityShardMessageExtractor : ShardRegion.MessageExtractor {
 
   override fun entityId(message: Any): String? {
-    return if (message is ToEntityEnvelope) {
-      message.entityId.toString()
-    } else {
-      null
+    return when(message) {
+      is EntityEnvelope -> message.entityId.toString()
+      else -> null
     }
   }
 
+  /**
+   * Message is the payload no need to extract it.
+   */
   override fun entityMessage(message: Any): Any {
-    // It IS the payload itself. No need to extract anything.
     return message
   }
 
   override fun shardId(message: Any): String? {
-    return if (message is ToEntityEnvelope) {
-      val id = message.entityId
-      (id % NUMBER_OF_SHARDS).toString()
-    } else {
-      null
+    return when(message) {
+      is EntityEnvelope -> (message.entityId % NUMBER_OF_SHARDS).toString()
+      else -> null
     }
   }
 

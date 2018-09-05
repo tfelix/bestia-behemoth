@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor
 
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ToClientEnvelope
-import net.bestia.zoneserver.actor.routing.ConnectionShardMessageExtractor
+import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import org.junit.Assert
 import org.junit.Test
 
@@ -18,14 +18,14 @@ class ConnectionShardMessageExtractorTest {
       }
     }
     val id = extractor.entityId(accMsg)
-    Assert.assertTrue(id.contains("10"))
+    Assert.assertTrue(id!!.contains("10"))
   }
 
   @Test
   fun entityId_returns_id_for_clientToMsgEnvelope() {
     val env = ToClientEnvelope(10, "Test")
     val id = extractor.entityId(env)
-    Assert.assertTrue(id.contains("10"))
+    Assert.assertTrue(id!!.contains("10"))
   }
 
   @Test

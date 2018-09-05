@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.connection
 
 import akka.actor.AbstractActor
 import mu.KotlinLogging
-import net.bestia.messages.entity.ToEntityEnvelope
+import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
@@ -33,7 +33,7 @@ class IngestActor : AbstractActor() {
 
     // TODO Handle the REST Calls here
     when (message) {
-      is ToEntityEnvelope -> sendToEntity.tell(message, sender)
+      is EntityEnvelope -> sendToEntity.tell(message, sender)
       else -> clientMessageActor.tell(message, sender)
     }
   }

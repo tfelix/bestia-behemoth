@@ -1,8 +1,7 @@
-package net.bestia.zoneserver.actor.routing
+package net.bestia.zoneserver.actor.connection
 
 import akka.cluster.sharding.ShardRegion
 import net.bestia.messages.client.ToClientEnvelope
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import org.springframework.stereotype.Component
 
 /**
