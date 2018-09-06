@@ -11,6 +11,8 @@ import net.bestia.messages.entity.ComponentIntall
 import net.bestia.messages.entity.ComponentRemove
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
+import net.bestia.zoneserver.actor.entity.component.RequestAllComponentMessage
+import net.bestia.zoneserver.actor.entity.component.RequestComponentMessage
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -44,6 +46,7 @@ class EntityActor(
   private val componentActors = HashBiMap.create<Long, ActorRef>()
 
   private var entityId: Long = 0
+  private var accountOwnerId: Long? = null
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
@@ -57,8 +60,16 @@ class EntityActor(
     val content = envelope.content
     when (content) {
       is ComponentEnvelope -> handleComponentEnvelope(content)
+      is RequestAllComponentMessage -> handleAllComponentRequest(content)
       else -> unhandled(content)
     }
+  }
+
+  private fun handleAllComponentRequest(msg: RequestAllComponentMessage) {
+    val ownerId = accountOwnerId ?: return
+    val requestMessage = RequestComponentMessage(ownerId, msg.requester)
+
+    componentActors.values.forEach { it.tell(requestMessage, sender) }
   }
 
   /**

@@ -49,10 +49,7 @@ class ClientConnectionActor(
 
   @Throws(Exception::class)
   override fun postStop() {
-
-    // Stop connection and clean up the associated entity actors.
     logoutService.logout(accountId)
-
     LOG.debug("Connection removed: {}, account: {}", self.path(), accountId)
   }
 
@@ -87,7 +84,6 @@ class ClientConnectionActor(
 
   private fun handleDisconnect(msg: ClientDisconnectMessage) {
     LOG.debug("Client has disconnected: {}.", msg)
-
     context.stop(self)
   }
 

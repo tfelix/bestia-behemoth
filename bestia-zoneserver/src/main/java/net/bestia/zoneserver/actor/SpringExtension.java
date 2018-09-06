@@ -129,11 +129,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	/**
 	 * Creates a new actor via injection of spring dependencies. Does give the
 	 * actor a custom name by the user and starts actor on the root actor system.
-	 * 
-	 * @param system
-	 * @param clazz
-	 * @param actorName
-	 *            Default actor name, if the name is null the class name or a
+	 *
+	 * @param clazz Default actor name, if the name is null the class name or a
 	 *            random name is used.
 	 * @return The created {@link ActorRef}.
 	 */

@@ -30,24 +30,36 @@ class SendToClientActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
             .match(JsonMessage::class.java, this::handleSendClient)
+            .match(ToClientEnvelope::class.java, this::sendToClient)
             .build()
+  }
+
+  private fun sendToClient(msg: ToClientEnvelope) {
+    clientConnection.tell(msg, self)
   }
 
   private fun handleSendClient(msg: JsonMessage) {
     LOG.debug("Sending to client: {}", msg)
-
-    if (msg is LatencyInfo) {
-      // If its a component message include the client latency in the
-      // message because the clients might need this for animation
-      // critical data.
-      val latency = latencyService.getClientLatency(msg.accountId)
-      val updatedMsg = (msg as LatencyInfo).createNewInstance(msg.accountId, latency)
-      val envelope = ToClientEnvelope(msg.accountId, updatedMsg)
-      clientConnection.tell(envelope, sender)
-    } else {
-      val envelope = ToClientEnvelope(msg.accountId, msg)
-      clientConnection.tell(envelope, sender)
+    val accountId = msg.accountId
+    when (msg) {
+      is LatencyInfo -> addLatencyInfoToMessage(accountId, msg)
+      else -> clientConnection.tell(ToClientEnvelope(accountId, msg), sender)
     }
+  }
+
+  /**
+   * If its a component message include the client latency in the
+   * message because the clients might need this for animation
+   * critical data.
+   */
+  private fun addLatencyInfoToMessage(accountId: Long, msg: LatencyInfo) {
+    // This is a good example. the master entity should have a latency component which should be fetched
+    // for this opportunity from the entity component
+    // TODO The latency data should be managed on the ClientConnectionActor.
+    val latency = latencyService.getClientLatency(accountId)
+    val updatedMsg = msg.createNewInstance(accountId, latency)
+    val envelope = ToClientEnvelope(accountId, updatedMsg)
+    clientConnection.tell(envelope, sender)
   }
 
   companion object {

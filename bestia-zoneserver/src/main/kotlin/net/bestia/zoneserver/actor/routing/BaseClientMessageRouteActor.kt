@@ -23,6 +23,8 @@ abstract class BaseClientMessageRouteActor : AbstractActor() {
   ) {
     private val receivedMessages = mutableListOf<Class<*>>()
 
+    val noRedirect get() = builder
+
     fun <T> match(clazz: Class<T>, fn: (T) -> Unit) {
       receivedMessages.add(clazz)
       builder.match(clazz, fn)

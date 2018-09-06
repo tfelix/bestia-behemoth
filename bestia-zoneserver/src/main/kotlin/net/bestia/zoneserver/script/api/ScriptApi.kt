@@ -11,7 +11,6 @@ class ScriptApi(
         private val entityService: EntityService
 ) : ScriptChildApi {
 
-
   override fun and(): ScriptRootApi {
     return rootApi
   }
@@ -29,10 +28,7 @@ class ScriptApi(
       throw IllegalArgumentException("Delay must be bigger then 0.")
     }
 
-    val scriptComp = entityService.getComponentOrCreate(entityId, ScriptComponent::class.java)
-    if(scriptComp == null) {
-      return this
-    }
+    val scriptComp = entityService.getComponentOrCreate(entityId, ScriptComponent::class.java) ?: return this
     val scriptUuid = UUID.randomUUID().toString()
     val scriptCallback = ScriptCallback(
             scriptUuid,
