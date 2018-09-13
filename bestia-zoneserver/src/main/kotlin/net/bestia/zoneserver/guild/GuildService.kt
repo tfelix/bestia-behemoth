@@ -5,16 +5,10 @@ import net.bestia.model.dao.GuildMemberDAO
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.domain.Guild
 import net.bestia.model.domain.GuildMember
-import net.bestia.model.domain.GuildRank
 import net.bestia.model.domain.PlayerBestia
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-
-import java.util.Collections
-import java.util.Objects
-import java.util.Optional
-import java.util.stream.Collectors
+import java.util.*
 
 /**
  * Service to manipulate the players guild.
@@ -66,7 +60,7 @@ class GuildService(
     return guildMemberDao.findByPlayerBestiaId(playerBestiaId).map { member ->
       val rank = member.rank
       if (rank == null) {
-        return@memberDao.findByPlayerBestiaId(playerBestiaId).map 0
+        0
       }
 
       val taxExp = Math.ceil((rank!!.taxRate * earnedTotalExp).toDouble()).toInt()

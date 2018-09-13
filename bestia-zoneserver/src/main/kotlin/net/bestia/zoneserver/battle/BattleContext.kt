@@ -23,8 +23,8 @@ data class BattleContext(
         var defenderStatusBased: StatusBasedValues? = null,
         var attackerCondition: ConditionValues? = null,
         var defenderCondition: ConditionValues? = null,
-        val defenderElement: Element,
-        val attackElement: Element,
-        val attackerLevel: Int,
-        val defenderLevel: Int
+        val defenderElement: Element = Element.NORMAL,
+        val attackElement: Element = Element.NORMAL,
+        val attackerLevel: Int = 1,
+        val defenderLevel: Int = 1
 )

@@ -2,7 +2,8 @@ package net.bestia.zoneserver.script
 
 data class ScriptAnchor(
         val name: String,
-        val functionName: String) {
+        val functionName: String
+) {
 
   /**
    * Creates a specialized string for safe the anchor.
