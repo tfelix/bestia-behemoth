@@ -1,16 +1,15 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This calculates the raw damage of an attack if all other variables are known.

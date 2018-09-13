@@ -17,6 +17,7 @@ dependencies {
   compile group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
   compile group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
   compile group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
+  compile group: 'com.typesafe.akka', name: 'akka-http_2.12', version: akkaHttpVersion
   compile group: 'com.okumin', name: 'akka-persistence-sql-async_2.11', version: '0.4.0'
   compile group: 'com.github.mauricio', name: 'mysql-async_2.11', version: '0.2.20'
   compile group: 'commons-io', name: 'commons-io', version: '2.5'

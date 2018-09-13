@@ -5,6 +5,7 @@ buildscript {
     javaConnectorVersion = '6.0.6'
     hazelcastVersion = '3.8.9'
     akkaVersion = '2.5.6'
+    akkaHttpVersion = '10.1.5'
   }
 
   repositories {
