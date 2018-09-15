@@ -35,8 +35,7 @@ class EntityComponentActorFactory(
   fun startActor(ctx: ActorContext, componentId: Long): ActorRef? {
     val comp = entityService.getComponent(componentId)
 
-    if (comp ==
-            null) {
+    if (comp == null) {
       LOG.warn("Component {} does not exist. Can not build component actor for it.", componentId)
       return null
     }

@@ -4,6 +4,7 @@ package net.bestia.messages
  * Only an empty class to notify actor that their managed component
  * has changed.
  */
+// TODO This can be deleted with the new system
 sealed class ComponentChangedMessage {
   abstract val componentId: Long
 }

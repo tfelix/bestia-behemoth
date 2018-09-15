@@ -33,6 +33,7 @@ abstract class Component(
    * very complex ones which need to be cleared before reuse should do this
    * in this method.
    */
+  @Deprecated("Components wont be reusable in the future")
   open fun clear() {
     // no op.
   }

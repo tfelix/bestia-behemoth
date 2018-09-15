@@ -10,9 +10,8 @@ import net.bestia.messages.entity.ComponentEnvelope
 import net.bestia.messages.entity.ComponentIntall
 import net.bestia.messages.entity.ComponentRemove
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
-import net.bestia.zoneserver.actor.entity.component.RequestAllComponentMessage
-import net.bestia.zoneserver.actor.entity.component.RequestComponentMessage
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -40,9 +39,6 @@ class EntityActor(
         private val factory: EntityComponentActorFactory
 ) : AbstractActor() {
 
-  /**
-   * Saves the references for the actors managing components.
-   */
   private val componentActors = HashBiMap.create<Long, ActorRef>()
 
   private var entityId: Long = 0
@@ -60,16 +56,14 @@ class EntityActor(
     val content = envelope.content
     when (content) {
       is ComponentEnvelope -> handleComponentEnvelope(content)
-      is RequestAllComponentMessage -> handleAllComponentRequest(content)
+      is ComponentBroadcastEnvelope -> handleAllComponentRequest(content)
       else -> unhandled(content)
     }
   }
 
-  private fun handleAllComponentRequest(msg: RequestAllComponentMessage) {
-    val ownerId = accountOwnerId ?: return
-    val requestMessage = RequestComponentMessage(ownerId, msg.requester)
-
-    componentActors.values.forEach { it.tell(requestMessage, sender) }
+  private fun handleAllComponentRequest(msg: ComponentBroadcastEnvelope) {
+    LOG.debug { "Entity received $msg" }
+    componentActors.values.forEach { it.tell(msg.content, sender) }
   }
 
   /**
@@ -123,7 +117,6 @@ class EntityActor(
    */
   private fun handleTerminated(term: Terminated) {
     componentActors.inverse().remove(term.actor())
-
     if (componentActors.size == 0) {
       context.stop(self)
     }

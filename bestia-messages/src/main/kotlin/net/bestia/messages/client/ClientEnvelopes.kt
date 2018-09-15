@@ -7,6 +7,7 @@ data class ToClientEnvelope(
         override val content: Any
 ) : Envelope
 
+// TODO Check if this is still needed
 data class FromClientEnvelop(
         val accountId: Long,
         override val content: Any

@@ -7,7 +7,9 @@ import akka.japi.pf.ReceiveBuilder
 /**
  * This class is the base class to register basic message receiving on its parent actor.
  */
-abstract class BaseClientMessageRouteActor : AbstractActor() {
+abstract class BaseClientMessageRouteActor(
+        private val propagateRedirectToParent: Boolean = true
+) : AbstractActor() {
 
   /**
    * This message is send towards actors (usually an IngestActor) which will
@@ -39,6 +41,9 @@ abstract class BaseClientMessageRouteActor : AbstractActor() {
 
   @Throws(Exception::class)
   override fun preStart() {
+    if (!propagateRedirectToParent) {
+      return
+    }
     redirects.forEach({ (clazz: Class<*>, actors: MutableList<ActorRef>) ->
       actors.forEach { actor ->
         val msg = RedirectMessage(clazz, actor)

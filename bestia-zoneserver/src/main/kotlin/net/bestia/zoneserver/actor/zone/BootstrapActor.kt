@@ -1,9 +1,11 @@
 package net.bestia.zoneserver.actor.zone
 
 import akka.actor.AbstractActor
-import akka.event.Logging
+import mu.KotlinLogging
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This is a cluster singelton actor. It centralized the control over the whole
@@ -17,13 +19,11 @@ import org.springframework.stereotype.Component
 @Scope("prototype")
 class BootstrapActor : AbstractActor() {
 
-  private val LOG = Logging.getLogger(context.system(), this)
-
   private var hasInitialized = false
 
   @Throws(Exception::class)
   override fun preStart() {
-    LOG.warning("INITGLOBAL STARTED")
+    LOG.warn("INITGLOBAL STARTED")
   }
 
   override fun createReceive(): AbstractActor.Receive {
@@ -45,7 +45,6 @@ class BootstrapActor : AbstractActor() {
   }
 
   companion object {
-
-    val START_MSG = "init.start"
+    const val START_MSG = "init.start"
   }
-}// no op.
+}

@@ -2,7 +2,6 @@ package net.bestia.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.domain.Item
-import java.util.*
 
 data class InventoryItem(
         val amount: Int,
@@ -72,12 +71,6 @@ class InventoryComponent(id: Long) : Component(id) {
   }
 
   /**
-   * Sets the maximum weight this entity can carry.
-   *
-   * @param maxWeight The maximum weight in units. One unit is 0.1kg.
-   */
-
-  /**
    * Adds the new item to the inventory. But this will work only if the number
    * of item slots are not exceeded and the total amount of weight does not be
    * bigger as the maximum amount of weight.
@@ -135,32 +128,11 @@ class InventoryComponent(id: Long) : Component(id) {
     }
   }
 
-  override fun hashCode(): Int {
-    return Objects.hash(items, maxItemCount, maxWeight)
-  }
-
-  override fun equals(obj: Any?): Boolean {
-    if (this === obj) {
-      return true
-    }
-    if (!super.equals(obj)) {
-      return false
-    }
-    if (obj !is InventoryComponent) {
-      return false
-    }
-    val other = obj as InventoryComponent?
-    return (items == other!!.items
-            && maxItemCount == other.maxItemCount
-            && maxWeight == other.maxWeight)
-  }
-
   override fun toString(): String {
     return "InventoryComp[maxWeight: $maxWeight, items: ${items.size}/$maxItemCount]"
   }
 
   companion object {
-
     /**
      * Constant for meaning that the item count is basically not limited.
      */

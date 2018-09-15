@@ -1,13 +1,13 @@
 package net.bestia.util;
 
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class can load instances of sub types of a given base-type. Because of
@@ -80,7 +80,7 @@ public class PackageLoader<BaseT> {
     for (Class<? extends BaseT> clazz : subclasses) {
       // Dont instance abstract classes.
       if (Modifier.isAbstract(clazz.getModifiers())) {
-        LOG.trace("Can not instanciate (is Abstract) : {}", clazz.toString());
+        LOG.trace("Can not instantiate (is Abstract) : {}", clazz.toString());
         continue;
       }
 
@@ -88,7 +88,7 @@ public class PackageLoader<BaseT> {
         final BaseT extra = clazz.newInstance();
         objInstances.add(extra);
       } catch (InstantiationException | IllegalAccessException e) {
-        LOG.error("Can not instanciate (has no std. ctor.): {}", clazz.toString(), e);
+        LOG.error("Can not instantiate (has no std. ctor.): {}", clazz.toString(), e);
       }
     }
 
@@ -117,7 +117,7 @@ public class PackageLoader<BaseT> {
       try {
         clazz.getConstructor();
       } catch (NoSuchMethodException | SecurityException e) {
-        LOG.warn("Class {} has no accessable std. ctor.", clazz.getSimpleName(), e);
+        LOG.warn("Class {} has no accessible std. ctor.", clazz.getSimpleName(), e);
         return false;
       }
     }

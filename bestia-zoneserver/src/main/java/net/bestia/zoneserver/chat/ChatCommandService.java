@@ -73,7 +73,6 @@ public class ChatCommandService {
 						return;
 					}
 					
-					// Check if userlevel matches.
 					if (acc.getUserLevel().compareTo(cmd.requiredUserLevel()) < 0) {
 						return;
 					}

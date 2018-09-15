@@ -5,7 +5,6 @@ import net.bestia.messages.MessageApi
 import net.bestia.zoneserver.chat.ChatCommandService
 import net.bestia.zoneserver.chat.MetaChatCommand
 import net.bestia.zoneserver.chat.MobSpawnModule
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
@@ -17,7 +16,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class ChatCommandConfiguration {
 
-  @Bean
+  // @Bean This currently gives a strange exception
   fun getSpawnChatCommand(akkaApi: MessageApi, mobFactory: MobFactory): MetaChatCommand {
     val spawnCmd = MetaChatCommand("/spawn")
     val mobModule = MobSpawnModule(akkaApi, mobFactory)

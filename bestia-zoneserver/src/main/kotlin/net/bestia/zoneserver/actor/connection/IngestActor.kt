@@ -15,6 +15,9 @@ private val LOG = KotlinLogging.logger { }
  * Central influx point for web clients. The incoming messages are resend
  * towards the connection actors which manage the client connections.
  *
+ * TODO Its now not clear if this is still needed if we have direct connection into
+ * the zone actor.
+ *
  * @author Thomas Felix
  */
 @Component
