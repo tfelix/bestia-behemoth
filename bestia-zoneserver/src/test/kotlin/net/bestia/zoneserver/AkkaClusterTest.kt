@@ -1,4 +1,4 @@
-package bestia.server
+package net.bestia.zoneserver
 
 import org.junit.Assert
 import org.junit.Test

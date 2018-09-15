@@ -1,13 +1,5 @@
 package net.bestia.zoneserver.chat;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
@@ -15,8 +7,15 @@ import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.MapParameter;
-import bestia.server.AkkaCluster;
+import net.bestia.zoneserver.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Generates a new map upon command. This will basically send a message to start
@@ -84,7 +83,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 		LOG.info("New map parameter: {}", baseParams);
 
 		// Perform the map generation.
-		final String nodeName = AkkaCluster.INSTANCE.getNodeName(MapGeneratorMasterActor.NAME);
+		final String nodeName = AkkaCluster.getNodeName(MapGeneratorMasterActor.NAME);
 		final ActorSelection selection = system.actorSelection(nodeName);
 		selection.tell(baseParams, ActorRef.noSender());
 	}

@@ -7,9 +7,9 @@ import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
-import bestia.server.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.EntryActorNames
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
@@ -42,6 +42,10 @@ class BestiaRootActor(
   private val settings = ClusterShardingSettings.create(system)
   private val sharding = ClusterSharding.get(system)
 
+  override fun createReceive(): Receive {
+    return emptyBehavior()
+  }
+
   override fun preStart() {
     LOG.info { "Bootstrapping Behemoth actor system." }
 
@@ -62,15 +66,11 @@ class BestiaRootActor(
 
     // Register the cluster client receptionist for receiving messages.
     val ingest = SpringExtension.actorOf(context, IngestActor::class.java)
-    val receptionist = ClusterClientReceptionist.get(context.system)
+    val receptionist = ClusterClientReceptionist.get(system)
     receptionist.registerService(ingest)
 
     // FIXME Wieder entfernen wenn ich fertig bin
     test()
-  }
-
-  override fun createReceive(): AbstractActor.Receive {
-    return receiveBuilder().build()
   }
 
   private fun registerSharding() {
@@ -113,10 +113,10 @@ class BestiaRootActor(
 
   private fun test() {
     val routerActor = SpringExtension.actorOf(system, RoutingActor::class.java)
-    val msg = RequestComponentMessage(self)
+    val msg = RequestComponentMessage(self())
     val broadcast = ComponentBroadcastEnvelope(msg)
     val entityMsg = EntityEnvelope(1L, broadcast)
-    routerActor.tell(entityMsg, self)
+    routerActor.tell(entityMsg, self())
   }
 
   companion object {

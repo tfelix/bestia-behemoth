@@ -1,4 +1,4 @@
-package bestia.testing;
+package net.bestia.zoneserver;
 
 import org.springframework.context.annotation.Bean;
 

@@ -1,4 +1,4 @@
-package bestia.server
+package net.bestia.zoneserver
 
 /**
  * Configuration names for the akka cluster. This hardcoded values are used to
@@ -17,6 +17,7 @@ object AkkaCluster {
    * The names for the actor.
    * @return The actor path.
    */
+  @JvmStatic
   fun getNodeName(vararg names: String): String {
 
     val joinedNames = names.joinToString("/")

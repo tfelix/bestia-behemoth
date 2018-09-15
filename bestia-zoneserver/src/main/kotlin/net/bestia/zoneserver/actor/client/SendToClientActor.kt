@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.client
 
 import akka.actor.AbstractActor
 import akka.cluster.sharding.ClusterSharding
-import bestia.server.EntryActorNames
+import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.JsonMessage
 import net.bestia.messages.client.ToClientEnvelope

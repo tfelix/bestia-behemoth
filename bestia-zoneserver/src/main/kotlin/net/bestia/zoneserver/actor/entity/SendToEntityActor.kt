@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.cluster.sharding.ClusterSharding
-import bestia.server.EntryActorNames
+import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityEnvelope
 import org.springframework.context.annotation.Scope

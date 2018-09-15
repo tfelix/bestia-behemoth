@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.connection
 
 import akka.cluster.sharding.ClusterSharding
-import bestia.server.EntryActorNames
+import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ToClientEnvelope

@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.ActorIdentity
 import akka.actor.ActorRef
 import akka.actor.Identify
-import bestia.server.AkkaCluster
 import com.hazelcast.internal.util.ThreadLocalRandom
 import de.tfelix.bestia.worldgen.description.MapDescription
 import de.tfelix.bestia.worldgen.io.NodeConnector
@@ -13,6 +12,7 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
 import net.bestia.model.domain.MapParameter
 import net.bestia.model.server.MaintenanceLevel
+import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.client.LogoutService
 import net.bestia.zoneserver.configuration.RuntimeConfigService
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService

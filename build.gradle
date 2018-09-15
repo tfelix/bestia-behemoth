@@ -1,10 +1,10 @@
 buildscript {
   ext {
-    kotlinVersion = '1.2.21'
+    kotlinVersion = '1.2.30'
     springBootVersion = '1.5.10.RELEASE'
     javaConnectorVersion = '6.0.6'
     hazelcastVersion = '3.8.9'
-    akkaVersion = '2.5.6'
+    akkaVersion = '2.5.16'
     akkaHttpVersion = '10.1.5'
   }
 
