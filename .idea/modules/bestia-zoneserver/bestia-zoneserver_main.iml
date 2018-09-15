@@ -83,6 +83,7 @@
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-persistence_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-http_2.12:10.1.5" level="project" />
     <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.flywaydb:flyway-core:5.1.4" level="project" />
     <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging-common:1.6.10" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-autoconfigure:1.5.10.RELEASE" level="project" />

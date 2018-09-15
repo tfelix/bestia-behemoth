@@ -1,18 +1,6 @@
-
-server:
-   name: zoneserver-${random.uuid}
-   version: \@project.version\@
-   entityBuffer: 100
-
-mapgen:
-  tempDir: D:/bestia_map
-  # Size of the data transfer object which are used to store the map.
-  dtoSize: 100
-
-# The key of the re-captcha authentication checks.
-recaptcha:
-  secretKey: XXXXXX
-
+# ===============================
+# = LOGGING
+# ===============================
 logging:
   level:
     ROOT: WARN
@@ -27,18 +15,9 @@ logging:
     net.bestia.entity.EntityService: INFO
 
 # ===============================
-# = SCRIPTS
-# ===============================
-script:
-  path: classpath:script
-
-# ===============================
-# = DATA SOURCE
+# = LIBRARIES
 # ===============================
 
-# Set here configurations for the database connection
-
-# Connection url for the database "netgloo_blog"
 spring:
   main:
     web-environment: false
@@ -54,6 +33,29 @@ spring:
     # Hibernate ddl auto (create, create-drop, update): with "update" the database
     # schema will be automatically updated accordingly to java entities found in
     # the project
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: none
     # Allows Hibernate to generate SQL optimized for a particular DBMS
     properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+
+flyway:
+  enabled: false
+
+# The key of the re-captcha authentication checks.
+recaptcha:
+  secretKey: XXXXXX
+
+# ===============================
+# = ZONE
+# ===============================
+server:
+   name: zoneserver-${random.uuid}
+   version: \@project.version\@
+   entityBuffer: 100
+
+mapgen:
+  tempDir: D:/bestia_map
+  # Size of the data transfer object which are used to store the map.
+  dtoSize: 100
+
+script:
+  path: classpath:script

@@ -112,6 +112,7 @@ class MapGeneratorMasterActor(
   private fun finish() {
     LOG.info("Map generation was finished. Ending maintenance mode.")
     config.maintenanceMode = MaintenanceLevel.NONE
+    context.stop(self)
   }
 
   /**
@@ -134,7 +135,7 @@ class MapGeneratorMasterActor(
    * Tries to lookup all generator nodes in the system.
    */
   private fun queryGeneratorNodes() {
-    LOG.debug("Quering available map generator nodes.")
+    LOG.debug("Querying available map generator nodes.")
 
     availableNodes.clear()
     currentLookupIdent = ThreadLocalRandom.current().nextInt()
@@ -142,9 +143,9 @@ class MapGeneratorMasterActor(
             .actorSelection(AkkaCluster.getNodeName(MapGeneratorClientActor.NAME))
     selection.tell(Identify(currentLookupIdent), self)
 
-    // Wait three seconds until generation starts.
+    // Wait some time until we start the creation and hope all clients have registered.
     context().system().scheduler().scheduleOnce(
-            Duration.create(3, TimeUnit.SECONDS),
+            Duration.create(5, TimeUnit.SECONDS),
             self,
             START_MSG,
             context().dispatcher(),

@@ -10,10 +10,6 @@ package bestia.server
  */
 object AkkaCluster {
 
-  val CLUSTER_NAME = "BehemothCluster"
-  val ROLE_WEB = "webserver"
-  val ROLE_ZONE = "zoneserver"
-
   /**
    * Creates the node name of the akka cluster server.
    *
