@@ -1,193 +1,195 @@
-package net.bestia.model.domain;
+package net.bestia.model.domain
 
-import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Base64;
+import com.fasterxml.jackson.annotation.JsonIgnore
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.slf4j.Marker
+import org.slf4j.MarkerFactory
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Transient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
+import javax.persistence.Column
+import javax.persistence.Embeddable
+import javax.persistence.Transient
+import java.io.Serializable
+import java.security.NoSuchAlgorithmException
+import java.security.SecureRandom
+import java.security.spec.InvalidKeySpecException
+import java.security.spec.KeySpec
+import java.util.Base64
 
 /**
  * Embeddable data class for storing and checking passwords securely hashed
  * inside a database.
- * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
  *
+ * @author Thomas Felix
  */
 @Embeddable
-public class Password implements Serializable {
+class Password : Serializable {
 
-	private static final long serialVersionUID = 1L;
+  /**
+   * Length is key + salt + delimiter char.
+   */
+  @Column(name = "password", length = 255, nullable = false)
+  private var passwordHash = ""
 
-	@Transient
-	private final static Logger log = LoggerFactory.getLogger(Password.class);
-	private final static Marker marker = MarkerFactory.getMarker("FATAL");
+  private val newSalt: ByteArray
+    @Throws(Exception::class)
+    get() {
+      val salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(
+              SALT_LENGTH)
+      return salt
+    }
 
-	@Transient
-	private final static String HASH_FUNCTION = "PBKDF2WithHmacSHA1";
+  /**
+   * Returns the saved salt from the password.
+   *
+   * @return
+   */
+  val salt: ByteArray
+    @JsonIgnore
+    @Throws(IllegalStateException::class)
+    get() {
+      val splitted = passwordHash.split("\\$".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+      if (splitted.size < 2) {
+        throw IllegalStateException(
+                "Password does not contain salt seperator symbol. Invalid data.")
+      }
+      return stringToByte(splitted[1])
+    }
 
-	@Transient
-	private final static int ITERATIONS = 512;
+  /**
+   * Paramless Ctor for Hibernate.
+   */
+  constructor() {
 
-	@Transient
-	private final static int KEY_LENGTH = 128;
+  }
 
-	@Transient
-	private static final int SALT_LENGTH = 32;
+  /**
+   * Creates a new password with a random new salt.
+   *
+   * @param password
+   */
+  constructor(password: String) {
 
-	/**
-	 * Length is key + salt + delimiter char.
-	 */
-	@Column(name = "password", length = 255, nullable = false)
-	private String passwordHash = "";
+    try {
+      val salt = newSalt
+      val data = hash(password, salt)
+      setPasswordHash(data, salt)
+    } catch (e: Exception) {
+      log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!")
+    }
 
-	/**
-	 * Paramless Ctor for Hibernate.
-	 */
-	public Password() {
+  }
 
-	}
+  /**
+   * Creates a new password with a given salt.
+   *
+   * @param password
+   * @param salt
+   */
+  constructor(password: String, salt: ByteArray) {
+    try {
+      val data = hash(password, salt)
+      setPasswordHash(data, salt)
+    } catch (e: Exception) {
+      log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!")
+    }
 
-	/**
-	 * Creates a new password with a random new salt.
-	 * 
-	 * @param password
-	 */
-	public Password(String password) {
+  }
 
-		try {
-			final byte[] salt = getNewSalt();
-			final byte[] data = hash(password, salt);
-			setPasswordHash(data, salt);
-		} catch (Exception e) {
-			log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!");
-		}
+  private fun setPasswordHash(data: ByteArray, salt: ByteArray) {
+    val enc = Base64.getEncoder()
 
-	}
+    val dataStr = enc.encodeToString(data)
+    val saltStr = enc.encodeToString(salt)
 
-	/**
-	 * Creates a new password with a given salt.
-	 * 
-	 * @param password
-	 * @param salt
-	 */
-	public Password(String password, byte[] salt) {
-		try {
-			final byte[] data = hash(password, salt);
-			setPasswordHash(data, salt);
-		} catch (Exception e) {
-			log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!");
-		}
-	}
+    passwordHash = "$dataStr$$saltStr"
+  }
 
-	private void setPasswordHash(byte[] data, byte[] salt) {
-		final Base64.Encoder enc = Base64.getEncoder();
+  /**
+   * Calculates the hash of a given password.
+   *
+   * @param str
+   * @return
+   */
+  @Throws(NoSuchAlgorithmException::class)
+  private fun hash(str: String, salt: ByteArray): ByteArray {
 
-		final String dataStr = enc.encodeToString(data);
-		final String saltStr = enc.encodeToString(salt);
+    // KEY_LENGTH is in byte. Function awaits bits.
+    val spec = PBEKeySpec(str.toCharArray(), salt,
+            ITERATIONS, KEY_LENGTH * 8)
+    val f = SecretKeyFactory.getInstance(HASH_FUNCTION)
+    try {
+      val key = f.generateSecret(spec)
+      val hash = key.encoded
 
-		passwordHash = dataStr + "$" + saltStr;
-	}
+      return hash
+    } catch (ex: InvalidKeySpecException) {
 
-	private byte[] getNewSalt() throws Exception {
-		final byte[] salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(
-				SALT_LENGTH);
-		return salt;
-	}
+      log.error(marker, "Invalid key spec! Can not create hashed passwords!", ex)
+    }
 
-	/**
-	 * Returns the saved salt from the password.
-	 * 
-	 * @return
-	 */
-	@JsonIgnore
-	public byte[] getSalt() throws IllegalStateException {
-		final String[] splitted = passwordHash.split("\\$");
-		if (splitted.length < 2) {
-			throw new IllegalStateException(
-					"Password does not contain salt seperator symbol. Invalid data.");
-		}
-		return stringToByte(splitted[1]);
-	}
+    return ByteArray(KEY_LENGTH)
+  }
 
-	/**
-	 * Calculates the hash of a given password.
-	 * 
-	 * @param str
-	 * @return
-	 */
-	private byte[] hash(String str, byte[] salt)
-			throws NoSuchAlgorithmException {
+  private fun stringToByte(data: String): ByteArray {
+    val decoded = Base64.getDecoder().decode(data)
+    return decoded
+  }
 
-		// KEY_LENGTH is in byte. Function awaits bits.
-		final KeySpec spec = new PBEKeySpec(str.toCharArray(), salt,
-				ITERATIONS, KEY_LENGTH * 8);
-		final SecretKeyFactory f = SecretKeyFactory.getInstance(HASH_FUNCTION);
-		try {
-			final SecretKey key = f.generateSecret(spec);
-			final byte[] hash = key.getEncoded();
+  /**
+   * Checks if a password matches a given string.
+   *
+   * @param password
+   * @return
+   */
+  fun matches(password: String): Boolean {
 
-			return hash;
-		} catch (InvalidKeySpecException ex) {
+    // Extract current salt.
+    val salt = salt
 
-			log.error(marker, "Invalid key spec! Can not create hashed passwords!", ex);
-		}
+    return equals(Password(password, salt))
+  }
 
-		return new byte[KEY_LENGTH];
-	}
+  override fun hashCode(): Int {
+    return passwordHash.hashCode()
+  }
 
-	private byte[] stringToByte(String data) {
-		final byte[] decoded = Base64.getDecoder().decode(data);
-		return decoded;
-	}
+  override fun equals(o: Any?): Boolean {
+    if (o === this) {
+      return true
+    }
+    if (o !is Password) {
+      return false
+    }
+    val that = o as Password?
+    return this.passwordHash == that!!.passwordHash
+  }
 
-	/**
-	 * Checks if a password matches a given string.
-	 * 
-	 * @param password
-	 * @return
-	 */
-	public boolean matches(String password) {
+  override fun toString(): String {
+    return String.format("Password[Hash: %s...]", passwordHash.subSequence(0, 12))
+  }
 
-		// Extract current salt.
-		final byte[] salt = getSalt();
+  companion object {
 
-		return equals(new Password(password, salt));
-	}
+    private const val serialVersionUID = 1L
 
-	@Override
-	public int hashCode() {
-		return passwordHash.hashCode();
-	};
+    @Transient
+    private val log = LoggerFactory.getLogger(Password::class.java)
+    private val marker = MarkerFactory.getMarker("FATAL")
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == this) {
-			return true;
-		}
-		if (!(o instanceof Password)) {
-			return false;
-		}
-		Password that = (Password) o;
-		return this.passwordHash.equals(that.passwordHash);
-	}
+    @Transient
+    private val HASH_FUNCTION = "PBKDF2WithHmacSHA1"
 
-	@Override
-	public String toString() {
-		return String.format("Password[Hash: %s...]", passwordHash.subSequence(0, 12));
-	}
+    @Transient
+    private val ITERATIONS = 512
+
+    @Transient
+    private val KEY_LENGTH = 128
+
+    @Transient
+    private val SALT_LENGTH = 32
+  }
 }
