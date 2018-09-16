@@ -35,7 +35,7 @@ public class ComponentPersistServiceTest {
 	@Test
 	public void delete_validId_deletes() {
 		service.delete(VALID_COMP_ID);
-		verify(compDao).delete(VALID_COMP_ID);
+		verify(compDao).deleteById(VALID_COMP_ID);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -47,11 +47,5 @@ public class ComponentPersistServiceTest {
 	public void store_validComponent_stores() {
 		service.store(comp);
 		verify(compDao).save(any(ComponentData.class));
-	}
-
-	@Test
-	public void load_validId_loads() {
-		service.load(VALID_COMP_ID);
-		verify(compDao).findOne(VALID_COMP_ID);
 	}
 }

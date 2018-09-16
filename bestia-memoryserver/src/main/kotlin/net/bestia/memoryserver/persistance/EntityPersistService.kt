@@ -1,25 +1,24 @@
 package net.bestia.memoryserver.persistance
 
+import mu.KotlinLogging
 import net.bestia.entity.Entity
 import net.bestia.entity.EntityService
 import net.bestia.entity.component.TagComponent
 import net.bestia.model.dao.EntityDataDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.EntityData
 import net.bestia.util.ObjectSerializer
-import org.slf4j.LoggerFactory
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import java.util.*
+
+private val LOG = KotlinLogging.logger { }
 
 @Service
 class EntityPersistService(
         private val entityDao: EntityDataDAO,
         private val entityService: EntityService
 ) {
-
-  companion object {
-    private val LOG = LoggerFactory.getLogger(EntityPersistService::class.java)
-  }
 
   private val serializer = ObjectSerializer<Entity>()
 
@@ -31,9 +30,9 @@ class EntityPersistService(
    * Deletes the entity and all attached component from the
    * storage.
    */
-  fun delete(id: Long?) {
+  fun delete(id: Long) {
     try {
-      entityDao.delete(id)
+      entityDao.deleteById(id)
     } catch (e: EmptyResultDataAccessException) {
       // Entity did not exist. Not important. Ignore.
     }
@@ -45,7 +44,7 @@ class EntityPersistService(
    */
   fun load(id: Long?): Entity? {
 
-    val data = entityDao.findOne(id)
+    val data = entityDao.findOneOrThrow(id)
 
     if (data == null) {
       LOG.debug("Did not find entity {} inside database. Returning null.", id)

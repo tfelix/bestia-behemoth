@@ -6,7 +6,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.slf4j.Logger;

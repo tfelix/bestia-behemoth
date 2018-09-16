@@ -4,7 +4,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.factory.MobFactory;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

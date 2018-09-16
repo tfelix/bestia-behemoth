@@ -7,7 +7,7 @@ import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

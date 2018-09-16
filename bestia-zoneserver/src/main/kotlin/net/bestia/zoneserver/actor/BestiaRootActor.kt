@@ -20,7 +20,6 @@ import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
 import net.bestia.zoneserver.actor.entity.component.RequestComponentMessage
 import net.bestia.zoneserver.actor.routing.RoutingActor
-import net.bestia.zoneserver.actor.zone.BootstrapActor
 import net.bestia.zoneserver.script.ScriptService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

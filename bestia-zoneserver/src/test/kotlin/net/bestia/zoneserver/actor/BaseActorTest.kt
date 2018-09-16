@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import com.hazelcast.core.HazelcastInstance
 import com.hazelcast.test.TestHazelcastInstanceFactory
-import com.typesafe.config.ConfigFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -33,7 +32,6 @@ fun Duration.toScala(): FiniteDuration {
 abstract class BaseActorTest {
 
   @Configuration
-  // @ComponentScan(basePackages = ["net.bestia"], excludeFilters = [ComponentScan.Filter(type = FilterType.REGEX, pattern = ["net\\.bestia\\.zoneserver\\.actor\\..*"])])
   class ActorTestConfiguration {
     @Bean
     @Primary
@@ -43,7 +41,6 @@ abstract class BaseActorTest {
     }
   }
 
-  private val akkaConfig = ConfigFactory.load("akka-test")
   protected lateinit var system: ActorSystem
 
   @Autowired
@@ -51,7 +48,7 @@ abstract class BaseActorTest {
 
   @Before
   fun setup() {
-    system = ActorSystem.create("test-system", akkaConfig)
+    system = ActorSystem.create("test-system")
     SpringExtension.initialize(system, applicationContext)
   }
 

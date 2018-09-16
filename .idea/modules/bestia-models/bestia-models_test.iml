@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":bestia-models:test" external.linked.project.path="$MODULE_DIR$/../../../bestia-models" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="net.bestia" external.system.module.type="sourceSet" external.system.module.version="alpha-0.5.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":bestia-models:test" external.linked.project.path="$MODULE_DIR$/../../../bestia-models" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="behemoth" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JVM 1.6" useProjectSettings="false">
-        <compilerSettings />
+        <compilerSettings>
+          <option name="additionalArguments" value="-java-parameters" />
+        </compilerSettings>
         <compilerArguments>
           <option name="destination" value="$MODULE_DIR$/../../../bestia-models/build/classes/kotlin/test" />
+          <option name="classpath" value="$MODULE_DIR$/../../../bestia-models/build/classes/java/main;C:/Users/Thomas/workspace/14BES-bestia-behemoth/bestia-behemoth/bestia-models/build/classes/kotlin/main;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-data-jpa/2.0.5.RELEASE/c99b58e8ada11478aa5d0c3065745b7e887f094e/spring-boot-starter-data-jpa-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-test/2.0.5.RELEASE/ab04ca2e76f6a8e786001352a81a10e4b0e7fbc8/spring-boot-starter-test-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-aop/2.0.5.RELEASE/6bc1e8bcc849772d48cae1e8278cd2b471361698/spring-boot-starter-aop-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-jdbc/2.0.5.RELEASE/9a5370acc7c5e17f4a00578211fbbd212b9a8329/spring-boot-starter-jdbc-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter/2.0.5.RELEASE/1f53487a373be18d064a5815e9bac9882ef15cdc/spring-boot-starter-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/io.github.microutils/kotlin-logging/1.4.9/517de98b6f8fdf6cc757eb7e911016f3ec0b7ac5/kotlin-logging-1.4.9.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.dbunit/dbunit/2.5.0/fd9e26e8c2c54770840daf448ce684938becc732/dbunit-2.5.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-jpa/2.0.10.RELEASE/a6e644c363d050c6c90f078f4f0ac66892f60d54/spring-data-jpa-2.0.10.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.jayway.jsonpath/json-path/2.4.0/765a4401ceb2dc8d40553c2075eb80a8fa35c2ae/json-path-2.4.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-logging/2.0.5.RELEASE/c353e0b9591d0765c687ff0a678478cbebfd5c23/spring-boot-starter-logging-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.2.3/7c4f3c474fb2c041d8028740440937705ebb473a/logback-classic-1.2.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-to-slf4j/2.10.0/f7e631ccf49cfc0aefa4a2a728da7d374c05bd3c/log4j-to-slf4j-2.10.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.slf4j/jul-to-slf4j/1.7.25/af5364cd6679bfffb114f0dec8a157aaa283b76/jul-to-slf4j-1.7.25.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.zaxxer/HikariCP/2.7.9/a83113d2c091d0d0f853dad3217bd7df3beb6ae3/HikariCP-2.7.9.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-commons/2.0.10.RELEASE/64d4e58a2b16b9446d51a2650058d821a5bce98d/spring-data-commons-2.0.10.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/da76ca59f6a57ee3102f8f9bd9cee742973efa8a/slf4j-api-1.7.25.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.8.4/1c36c81e79cacdf48116afba8495e3393d267ba1/jackson-databind-2.8.4.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.reflections/reflections/0.9.11/4c686033d918ec1727e329b7222fcb020152e32b/reflections-0.9.11.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/javax.xml.bind/jaxb-api/2.3.0/99f802e0cb3e953ba3d6e698795c4aeb98d37c48/jaxb-api-2.3.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-junit/1.2.70/363ce266edf823ffb0197c5e0e77ef6f94ce259a/kotlin-test-junit-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-core/2.15.0/b84bfbbc29cd22c9529409627af6ea2897f4fa85/mockito-core-2.15.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.github.springtestdbunit/spring-test-dbunit/1.2.0/11a8015d2443ee1b68d891b3445364c289033378/spring-test-dbunit-1.2.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.3.3/d12d506194447dffb8a2b05dd2c50b0cdd73d9d1/hsqldb-2.3.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test-autoconfigure/2.0.5.RELEASE/54d5e8f9e88c6236fe164474f0aed5a8a1052c43/spring-boot-test-autoconfigure-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/2.0.5.RELEASE/e5588642799e0c0c04638e255c3d3f31ba400ff4/spring-boot-autoconfigure-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-test/2.0.5.RELEASE/ce6353f33217982357a6bdba6576015ea333304c/spring-boot-test-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/2.0.5.RELEASE/19a4624cbd89a318d10c79f289c6c816043850fb/spring-boot-2.0.5.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/javax.annotation/javax.annotation-api/1.3.2/934c04d3cfef185a8008e7bf34331b79730a9d43/javax.annotation-api-1.3.2.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/5.0.9.RELEASE/218c8648f898453be92d550252e0ce2a84b54375/spring-test-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-context/5.0.9.RELEASE/2501e55acb6c2e84667cda3f845d1d00a0dc4e05/spring-context-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/5.0.9.RELEASE/98003b099697fe46b6bdf18c7e3f66d7a1381060/spring-aop-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-orm/5.0.9.RELEASE/bb9265effd7c903f4cc1c98d16b4188b7827a1cc/spring-orm-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jdbc/5.0.9.RELEASE/2f38726ef2f5ecb72af7e915dac43177b01a8f53/spring-jdbc-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-tx/5.0.9.RELEASE/d3a13fc3c56bdddd8144a686ed64f0cdb3ad7305/spring-tx-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/5.0.9.RELEASE/65f56fdab1bb90ad059e314d2f2f4cf76f9bdbde/spring-beans-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/5.0.9.RELEASE/1f9db5ff3a758102c0434cc3457aa47c50c39a4a/spring-expression-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/5.0.9.RELEASE/9f9a828936d81afd49a603bda9cc1aed863a0d85/spring-core-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.yaml/snakeyaml/1.19/2d998d3d674b172a588e54ab619854d073f555b5/snakeyaml-1.19.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test/1.2.70/ce29a2816a346fb10b4325e17a7f9acc9743e401/kotlin-test-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.2.70/b5b9449f73ce7bf312e89a7560cb3c209a0fa13e/kotlin-stdlib-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/javax.transaction/javax.transaction-api/1.2/d81aff979d603edd90dcd8db2abc1f4ce6479e3e/javax.transaction-api-1.2.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hibernate/hibernate-core/5.2.17.Final/f2dc36470e7a2ffcf6106bb1625ecf5b54bb5f65/hibernate-core-5.2.17.Final.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aspects/5.0.9.RELEASE/dfb2da4c573391d8e8a482f08bdf4d38398e2bb0/spring-aspects-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.9.0/7c10d545325e3a6e72e06381afe469fd40eb701/jackson-annotations-2.9.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.9.6/4e393793c37c77e042ccc7be5a914ae39251b365/jackson-core-2.9.6.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/20.0/89507701249388e1ed5ddcf8c41f4ce1be7831ef/guava-20.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.22.0-GA/3e83394258ae2089be7219b971ec21a8288528ad/javassist-3.22.0-GA.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-library/1.3/4785a3c21320980282f9f33d0d1264a69040538f/hamcrest-library-1.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.7.11/f02857a4e2c66ccbe7aaad6100a0a6c461bce9b3/byte-buddy-1.7.11.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.7.11/b425a8933ca07edd03c6dbc8bc3b595fba9780de/byte-buddy-agent-1.7.11.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.6/639033469776fd37c08358c6b92a4761feb2af4b/objenesis-2.6.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-annotations-common/1.2.70/eaa059fc51e71baa429516219764831cad30e6cf/kotlin-test-annotations-common-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.assertj/assertj-core/3.9.1/c5ce126b15f28d56cd8f960c1a6a058b9c9aea87/assertj-core-3.9.1.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.skyscreamer/jsonassert/1.5.0/6c9d5fe2f59da598d9aefc1cfc6528ff3cf32df3/jsonassert-1.5.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.xmlunit/xmlunit-core/2.5.1/4ffdb346572a7356f7521cd3119ce5287d2e339d/xmlunit-core-2.5.1.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/commons-collections/commons-collections/3.2.1/761ea405b9b37ced573d2df0d1e3a4e0f9edc668/commons-collections-3.2.1.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.springframework/spring-jcl/5.0.9.RELEASE/bc3b5aaae53f0bc03647e53ecbd98a05b47a4e90/spring-jcl-5.0.9.RELEASE.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-test-common/1.2.70/c0afa54c2265748dc48ed4699d70a01ce8fe0ef6/kotlin-test-common-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.2.70/6ea722d7d0b9451293e739076ddb6a4108d57b6b/kotlin-stdlib-common-1.2.70.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjweaver/1.8.13/ad94df2a28d658a40dc27bbaff6a1ce5fbf04e9b/aspectjweaver-1.8.13.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hibernate.common/hibernate-commons-annotations/5.0.1.Final/71e1cff3fcb20d3b3af4f3363c3ddb24d33c6879/hibernate-commons-annotations-5.0.1.Final.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jboss.logging/jboss-logging/3.3.2.Final/3789d00e859632e6c6206adc0c71625559e6e3b0/jboss-logging-3.3.2.Final.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.hibernate.javax.persistence/hibernate-jpa-2.1-api/1.0.2.Final/52afb5762c704a6b586e27742470c08f91877fc1/hibernate-jpa-2.1-api-1.0.2.Final.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/antlr/antlr/2.7.7/83cd2cd674a217ade95a4bb83a8a14f351f48bd0/antlr-2.7.7.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.jboss/jandex/2.0.3.Final/bfc4d6257dbff7a33a357f0de116be6ff951d849/jandex-2.0.3.Final.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.fasterxml/classmate/1.3.4/3d5f48f10bbe4eb7bd862f10c0583be2e0053c6/classmate-1.3.4.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/dom4j/dom4j/1.6.1/5d3ccc056b6f056dbf0dddfdf43894b9065a8f94/dom4j-1.6.1.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/net.minidev/json-smart/2.3/7396407491352ce4fa30de92efb158adb76b5b/json-smart-2.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.2.3/864344400c3d4d92dfeb0a305dc87d953677c03c/logback-core-1.2.3.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.10.0/fec5797a55b786184a537abd39c3fa1449d752d6/log4j-api-2.10.0.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/net.minidev/accessors-smart/1.2/c592b500269bfde36096641b01238a8350f8aa31/accessors-smart-1.2.jar;C:/Users/Thomas/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/5.0.4/da08b8cce7bbf903602a25a3a163ae252435795/asm-5.0.4.jar" />
           <option name="noStdlib" value="true" />
           <option name="noReflect" value="true" />
           <option name="moduleName" value="bestia-models" />
           <option name="addCompilerBuiltIns" value="true" />
           <option name="loadBuiltInsFromDependencies" value="true" />
+          <option name="friendPaths">
+            <array>
+              <option value="$MODULE_DIR$/../../../bestia-models/build/classes/kotlin/main" />
+              <option value="$MODULE_DIR$/../../../bestia-models/build/classes/java/main" />
+            </array>
+          </option>
           <option name="languageVersion" value="1.2" />
           <option name="apiVersion" value="1.2" />
           <option name="pluginOptions">
@@ -37,83 +46,74 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../bestia-models/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../bestia-models/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../bestia-models/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../bestia-models/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="bestia-models_main" />
-    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.4.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-test:" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:2.0.10.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-aspects:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-autoconfigure:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.15.0" level="project" />
     <orderEntry type="library" name="Gradle: org.dbunit:dbunit:2.5.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:1.11.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-test:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: com.jayway.jsonpath:json-path:2.2.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:1.13.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-aop:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jdbc:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-logging:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.slf4j:jcl-over-slf4j:1.7.25" level="project" />
-    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.1.11" level="project" />
-    <orderEntry type="library" name="Gradle: org.slf4j:jul-to-slf4j:1.7.25" level="project" />
-    <orderEntry type="library" name="Gradle: org.slf4j:log4j-over-slf4j:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.8.4" level="project" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.4.9" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-junit:1.2.30" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test:1.2.30" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.30" level="project" />
+    <orderEntry type="library" name="Gradle: org.objenesis:objenesis:2.6" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-annotations-common:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy:1.7.9" level="project" />
+    <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-common:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy-agent:1.7.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-aop:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jdbc:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: javax.transaction:javax.transaction-api:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.hsqldb:hsqldb:2.3.3" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.8.4" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.11" level="project" />
     <orderEntry type="library" name="Gradle: javax.xml.bind:jaxb-api:2.3.0" level="project" />
-    <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
-    <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.15.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.github.springtestdbunit:spring-test-dbunit:1.2.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.hsqldb:hsqldb:2.3.3" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.hibernate:hibernate-entitymanager:5.0.12.Final" level="project" />
-    <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.0.12.Final" level="project" />
-    <orderEntry type="library" name="Gradle: javax.transaction:javax.transaction-api:1.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-aspects:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.8.10" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.guava:guava:20.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.javassist:javassist:3.21.0-GA" level="project" />
-    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-library:1.3" level="project" />
-    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy:1.7.9" level="project" />
-    <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy-agent:1.7.9" level="project" />
-    <orderEntry type="library" name="Gradle: org.objenesis:objenesis:2.6" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test-autoconfigure:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.assertj:assertj-core:2.6.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.skyscreamer:jsonassert:1.4.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-test:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-autoconfigure:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot:1.5.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-orm:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-jdbc:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-context:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-tx:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-aop:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-beans:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-expression:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: org.springframework:spring-core:4.3.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-junit:1.2.70" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-logging:2.0.5.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: javax.annotation:javax.annotation-api:1.3.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:1.19" level="project" />
     <orderEntry type="library" name="Gradle: org.aspectj:aspectjweaver:1.8.13" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-jdbc:8.5.27" level="project" />
-    <orderEntry type="library" name="Gradle: org.hibernate.common:hibernate-commons-annotations:5.0.1.Final" level="project" />
+    <orderEntry type="library" name="Gradle: com.zaxxer:HikariCP:2.7.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-jdbc:5.0.9.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.jboss.logging:jboss-logging:3.3.1.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.javassist:javassist:3.22.0-GA" level="project" />
     <orderEntry type="library" name="Gradle: antlr:antlr:2.7.7" level="project" />
-    <orderEntry type="library" name="Gradle: org.jboss:jandex:2.0.0.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.jboss:jandex:2.0.3.Final" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml:classmate:1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
-    <orderEntry type="library" name="Gradle: net.minidev:json-smart:2.2.1" level="project" />
-    <orderEntry type="library" name="Gradle: com.vaadin.external.google:android-json:0.0.20131108.vaadin1" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-juli:8.5.27" level="project" />
-    <orderEntry type="library" name="Gradle: net.minidev:accessors-smart:1.1" level="project" />
-    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.11" level="project" />
-    <orderEntry type="library" name="Gradle: org.ow2.asm:asm:5.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.hibernate.common:hibernate-commons-annotations:5.0.1.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:2.0.10.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-orm:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-core:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-to-slf4j:2.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:jul-to-slf4j:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-tx:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-aop:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-expression:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.springtestdbunit:spring-test-dbunit:1.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.2.17.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-api:2.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-beans:5.0.9.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:guava:20.0" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="bestia-models_main" />
 </module>

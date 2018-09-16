@@ -8,6 +8,7 @@ import net.bestia.entity.component.LevelComponent
 import net.bestia.entity.component.PositionComponent
 import net.bestia.entity.component.StatusComponent
 import net.bestia.model.dao.AttackDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Attack
 import org.springframework.stereotype.Service
 
@@ -43,7 +44,7 @@ class AttackService(
    * Checks if the bestia knows this attack.
    */
   fun knowsAttack(entityId: Long, attackId: Int): Boolean {
-    val attack = attackDao.findOne(attackId)
+    val attack = attackDao.findOneOrThrow(attackId)
     val attacker = entityService.getEntity(attackId.toLong())
     return knowsAttack(attacker, attack)
   }
@@ -78,7 +79,7 @@ class AttackService(
 
     // TODO Check line of sight.
 
-    val attack = attackDao.findOne(attackId)
+    val attack = attackDao.findOneOrThrow(attackId)
     val attacker = entityService.getEntity(attackId.toLong())
 
     return hasAllBattleComponents(attacker) && knowsAttack(attacker, attack) && hasManaForAttack(attacker, attack)

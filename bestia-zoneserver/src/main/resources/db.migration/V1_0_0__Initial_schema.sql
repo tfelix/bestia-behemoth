@@ -21,6 +21,7 @@ CREATE TABLE `accounts` (
   `additional_bestia_slots` int(11) NOT NULL,
   `banned_until_date` date DEFAULT NULL,
   `email` varchar(64) COLLATE utf8_bin NOT NULL,
+  `username` varchar(32) COLLATE utf8_bin NOT NULL,
   `gold` int(11) NOT NULL,
   `hairstyle` int(11) DEFAULT NULL,
   `is_activated` bit(1) NOT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE `accounts` (
   `gender` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_email` (`email`),
+  UNIQUE KEY `UK_username` (`username` ASC);
   KEY `FK_account_party_id` (`party_id`),
   CONSTRAINT `FK_account_party_id` FOREIGN KEY (`party_id`) REFERENCES `parties` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

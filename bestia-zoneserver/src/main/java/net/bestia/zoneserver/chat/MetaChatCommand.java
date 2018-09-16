@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat;
 
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 import net.bestia.model.domain.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

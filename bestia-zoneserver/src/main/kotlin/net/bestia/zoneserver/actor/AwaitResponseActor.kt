@@ -1,26 +1,26 @@
-package net.bestia.zoneserver.actor.zone
+package net.bestia.zoneserver.actor
 
 import akka.actor.AbstractActor
 import akka.actor.Props
 import akka.actor.ReceiveTimeout
 import mu.KotlinLogging
 import scala.concurrent.duration.FiniteDuration
+import kotlin.reflect.KClass
 
 private val LOG = KotlinLogging.logger { }
-
 
 data class Responses(
         private val receivedResponses: List<Any>
 ) {
 
-  fun <T> getReponse(responseClass: Class<T>): T {
+  fun <T : Any> getReponse(responseClass: KClass<T>): T {
     @Suppress("UNCHECKED_CAST")
-    return receivedResponses.first { it.javaClass == responseClass } as T
+    return receivedResponses.first { it::class == responseClass } as T
   }
 
-  fun <T> getAllReponses(responseClass: Class<T>): List<T> {
+  fun <T : Any> getAllReponses(responseClass: KClass<T>): List<T> {
     @Suppress("UNCHECKED_CAST")
-    return receivedResponses.filter { it.javaClass == responseClass }.map { it as T }
+    return receivedResponses.filter { it::class == responseClass }.map { it as T }
   }
 }
 
@@ -48,29 +48,25 @@ class AwaitResponseActor(
 
     receivedResponses.add(msg)
 
-    if (hasReceivedAllResponses()) {
+    if (checkResponseReceived(receivedResponses)) {
       val response = Responses(receivedResponses)
       try {
         action(response)
       } catch (e: Exception) {
         LOG.warn { "Error while executing response action: $e" }
+        context.stop(self)
       }
     }
-
-    context.stop(self)
-  }
-
-  private fun hasReceivedAllResponses(): Boolean {
-    return checkResponseReceived(receivedResponses)
   }
 
   companion object {
     fun props(
-            awaitedResponses: List<Class<*>>,
+            awaitedResponses: List<KClass<*>>,
             action: (Responses) -> Unit
     ): Props {
-      val checkResponseReceived: (List<Any>) -> Boolean = {
-        val missing = awaitedResponses - it
+      val checkResponseReceived: (List<Any>) -> Boolean = { receivedData ->
+        val receivedClasses = receivedData.map { it::class }
+        val missing = awaitedResponses - receivedClasses
         missing.isEmpty()
       }
       return Props.create(AwaitResponseActor::class.java) {

@@ -56,6 +56,8 @@ public class PlayerBestia implements Serializable {
   @JsonIgnore
   private Account master;
 
+  private boolean isMaster;
+
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   @JoinColumn(name = "BESTIA_ID", nullable = false)
   @JsonProperty("b")
@@ -163,6 +165,14 @@ public class PlayerBestia implements Serializable {
 
   public void setName(String name) {
     this.name = Objects.requireNonNull(name);
+  }
+
+  public boolean isMaster() {
+    return isMaster;
+  }
+
+  public void setMaster(boolean master) {
+    isMaster = master;
   }
 
   public Point getSavePosition() {

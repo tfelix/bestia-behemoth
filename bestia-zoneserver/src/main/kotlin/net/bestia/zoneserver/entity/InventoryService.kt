@@ -9,6 +9,7 @@ import net.bestia.entity.component.StatusComponent
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.ItemDAO
 import net.bestia.model.dao.PlayerItemDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Item
 import net.bestia.model.domain.PlayerItem
 import org.springframework.stereotype.Service
@@ -160,8 +161,8 @@ class InventoryService(
     if (pitem == null) {
       // New item.
 
-      val acc = accountDao.findOne(accId)
-      val item = itemDao.findOne(itemId)
+      val acc = accountDao.findOneOrThrow(accId)
+      val item = itemDao.findOneOrThrow(itemId)
 
       if (acc == null) {
         LOG.info("Could not find account {}", accId)
@@ -260,7 +261,7 @@ class InventoryService(
    * @return The [PlayerItem] or NULL if the ID does not exist.
    */
   fun getPlayerItem(playerItemId: Int): PlayerItem {
-    return playerItemDao.findOne(playerItemId)
+    return playerItemDao.findOneOrThrow(playerItemId)
   }
 
   /**
@@ -303,7 +304,7 @@ class InventoryService(
    * Checks if the user has the given player item with the wanted amount.
    */
   fun hasPlayerItem(playerItemId: Int, amount: Int): Boolean {
-    val item = playerItemDao.findOne(playerItemId)
+    val item = playerItemDao.findOneOrThrow(playerItemId)
 
     return item != null && item.amount >= amount
 

@@ -20,8 +20,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class EntityPersistServiceTest {
 
-	private final static long VALID_ID = 123;
-
 	private EntityPersistService service;
 
 	@Mock
@@ -50,12 +48,6 @@ public class EntityPersistServiceTest {
 		service = new EntityPersistService(entityDao, entityService);
 	}
 
-	@Test
-	public void delete_validId_deletes() {
-		service.delete(VALID_ID);
-		verify(entityDao).delete(VALID_ID);
-	}
-
 	@Test(expected = NullPointerException.class)
 	public void store_null_throws() {
 		service.store(null);
@@ -71,11 +63,5 @@ public class EntityPersistServiceTest {
 	public void store_untaggedEntity_dontStore() {
 		service.store(untaggedEntity);
 		verify(entityDao, never()).save(any(EntityData.class));
-	}
-
-	@Test
-	public void load_validId_loads() {
-		service.load(VALID_ID);
-		verify(entityDao).findOne(VALID_ID);
 	}
 }

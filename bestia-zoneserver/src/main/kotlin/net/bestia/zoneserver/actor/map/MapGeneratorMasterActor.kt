@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.ActorIdentity
 import akka.actor.ActorRef
 import akka.actor.Identify
-import com.hazelcast.internal.util.ThreadLocalRandom
 import de.tfelix.bestia.worldgen.description.MapDescription
 import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.map.MapPart
@@ -20,6 +19,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import scala.concurrent.duration.Duration
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.TimeUnit
 
 private val LOG = KotlinLogging.logger { }

@@ -5,7 +5,7 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.client.ToClientEnvelope;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 import net.bestia.model.domain.MapParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

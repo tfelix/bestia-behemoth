@@ -2,6 +2,8 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="behemoth_main" target="1.8" />
+      <module name="behemoth_test" target="1.8" />
       <module name="bestia-entities-core_main" target="1.8" />
       <module name="bestia-entities-core_test" target="1.8" />
       <module name="bestia-memoryserver_main" target="1.8" />

@@ -7,6 +7,7 @@ import net.bestia.messages.client.ToClientEnvelope
 import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LogoutState
 import net.bestia.model.dao.AccountDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
@@ -36,7 +37,7 @@ class LogoutService(
 		// Unregister connection.
 		LOG.debug("Logout account: {}.", accId)
 
-		val acc = accountDao.findOne(accId)
+		val acc = accountDao.findOneOrThrow(accId)
 
 		if (acc == null) {
 			LOG.warn("Can not logout account id: {}. ID does not exist.", accId)
@@ -90,11 +91,11 @@ class LogoutService(
 	 *
 	 * @param level
 	 */
-	fun logoutAllUsersBelow(level: Account.UserLevel) {
+	fun logoutAllUsersBelow(level: Account.Companion.UserLevel) {
     connectionService.iterateOverConnections({
       logout(it)
     }, {
-      val account = accountDao.findOne(it)
+      val account = accountDao.findOneOrThrow(it)
       account.userLevel < level
     })
 	}

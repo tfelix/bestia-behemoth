@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.Account.Companion.UserLevel;
 
 public interface ChatCommand {
 

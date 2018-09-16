@@ -1,21 +1,20 @@
 package net.bestia.model.map;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import net.bestia.model.geometry.Rect;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import net.bestia.model.geometry.Rect;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapDataDTOTest {

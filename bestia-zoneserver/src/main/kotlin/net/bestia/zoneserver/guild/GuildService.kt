@@ -3,6 +3,7 @@ package net.bestia.zoneserver.guild
 import net.bestia.model.dao.GuildDAO
 import net.bestia.model.dao.GuildMemberDAO
 import net.bestia.model.dao.PlayerBestiaDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Guild
 import net.bestia.model.domain.GuildMember
 import net.bestia.model.domain.PlayerBestia
@@ -23,7 +24,7 @@ class GuildService(
 ) {
 
   fun addPlayerToGuild(playerBestiaId: Long, guildId: Int) {
-    val pb = playerBestiaDao.findOne(playerBestiaId) ?: return
+    val pb = playerBestiaDao.findOneOrThrow(playerBestiaId) ?: return
 
     guildDao.findOne(guildId).ifPresent { guild ->
       if (guild.members.size >= getMaxGuildMembers(guild)) {

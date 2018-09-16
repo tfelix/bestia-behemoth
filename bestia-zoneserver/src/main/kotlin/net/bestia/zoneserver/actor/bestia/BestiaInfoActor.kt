@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaInfoRequestMessage
 import net.bestia.messages.client.ToClientEnvelope
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
@@ -11,7 +12,6 @@ import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
 import net.bestia.zoneserver.actor.entity.component.RequestComponentMessage
 import net.bestia.zoneserver.actor.entity.component.ResponseComponentMessage
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
-import net.bestia.zoneserver.actor.zone.AwaitResponseActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -53,7 +53,7 @@ class BestiaInfoActor(
       receivedEntities.containsAll(bestiasEids)
     }
     val props = AwaitResponseActor.props(wasAllReceived) {
-      it.getAllReponses(ResponseComponentMessage::class.java)
+      it.getAllReponses(ResponseComponentMessage::class)
               .map { ToClientEnvelope(accountId, it) }
               .forEach { sendToClient.tell(it, self) }
     }

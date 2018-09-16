@@ -54,7 +54,7 @@ class EntityMapStore(
   }
 
   @Synchronized
-  override fun delete(id: Long?) {
+  override fun delete(id: Long) {
 
     LOG.trace("Deleting entity: {}.", id)
 

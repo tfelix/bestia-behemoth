@@ -10,6 +10,7 @@ import net.bestia.entity.component.StatusComponent
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.model.battle.Damage
 import net.bestia.model.dao.AttackDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.*
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point
@@ -71,7 +72,7 @@ constructor(
   fun attackEntity(attackId: Int, atkEntityId: Long, defEntityId: Long): Damage? {
     val attacker = entityService.getEntity(atkEntityId)
     val defender = entityService.getEntity(defEntityId)
-    val atk = atkDao.findOne(attackId)
+    val atk = atkDao.findOneOrThrow(attackId)
     return attackEntity(atk, attacker, defender)
   }
 

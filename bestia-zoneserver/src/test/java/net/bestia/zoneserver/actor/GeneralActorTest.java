@@ -4,7 +4,6 @@ import akka.actor.AbstractActor;
 import net.bestia.util.PackageLoader;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
-import net.bestia.zoneserver.actor.zone.BootstrapActor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.annotation.Scope;

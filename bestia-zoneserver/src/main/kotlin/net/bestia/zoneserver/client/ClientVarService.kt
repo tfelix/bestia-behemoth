@@ -3,6 +3,7 @@ package net.bestia.zoneserver.client
 import mu.KotlinLogging
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.ClientVarDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.ClientVar
 import org.springframework.stereotype.Service
 import java.util.*
@@ -106,7 +107,7 @@ constructor(
     } else {
 
       // Cvar is not yet set. Just create one.
-      val acc = accDao.findOne(accountId) ?: throw IllegalArgumentException("Account does not exist.")
+      val acc = accDao.findOneOrThrow(accountId) ?: throw IllegalArgumentException("Account does not exist.")
 
       cvar = ClientVar(acc, key, data)
     }

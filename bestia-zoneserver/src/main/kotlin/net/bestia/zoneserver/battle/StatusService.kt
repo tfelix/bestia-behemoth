@@ -7,6 +7,7 @@ import net.bestia.entity.component.LevelComponent
 import net.bestia.entity.component.PlayerComponent
 import net.bestia.entity.component.StatusComponent
 import net.bestia.model.dao.PlayerBestiaDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.ConditionValues
 import net.bestia.model.domain.StatusPoints
 import net.bestia.model.domain.StatusPointsImpl
@@ -118,7 +119,7 @@ class StatusService(
     val statusPoints = statusComp.originalStatusPoints
     val condValues = statusComp.conditionValues
 
-    val pb = playerBestiaDao.findOne(playerComp.playerBestiaId)
+    val pb = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
     val baseValues = pb.baseValues
     val effortValues = pb.effortValues

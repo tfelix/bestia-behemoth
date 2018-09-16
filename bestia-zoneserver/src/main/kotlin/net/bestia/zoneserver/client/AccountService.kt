@@ -1,17 +1,22 @@
 package net.bestia.zoneserver.client
 
+import mu.KotlinLogging
 import net.bestia.messages.account.AccountRegistration
 import net.bestia.messages.account.AccountRegistrationError
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.BestiaDAO
 import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.domain.*
-import org.slf4j.LoggerFactory
-import org.springframework.orm.jpa.JpaSystemException
+import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.domain.Account
+import net.bestia.model.domain.BaseValues
+import net.bestia.model.domain.Password
+import net.bestia.model.domain.PlayerBestia
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.time.Instant
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -24,35 +29,11 @@ import java.util.*
 class AccountService(
         private val accountDao: AccountDAO,
         private val playerBestiaDao: PlayerBestiaDAO,
-        private val bestiaDao: BestiaDAO) {
+        private val bestiaDao: BestiaDAO
+) {
 
-  private fun getIdFromPlayerClass(pc: PlayerClass): Int {
+  private fun getStarterBestiaId(): Int {
     return 1
-  }
-
-  /**
-   * This will return a [Account] with the needed, new access token. If
-   * the wrong credentials where provided null is returned instead.
-   *
-   * @param accName
-   * @return The account with the new token, or null if wrong credentials.
-   */
-  fun createLoginToken(accName: String, password: String): Account? {
-    val acc = accountDao.findByEmail(accName) ?: return null
-
-// Dont allow login for not activated accounts.
-    if (!acc.isActivated) {
-      return null
-    }
-
-    if (!acc.password.matches(password)) {
-      return null
-    }
-
-    acc.lastLogin = Date()
-    acc.loginToken = UUID.randomUUID().toString()
-    accountDao.save(acc)
-    return acc
   }
 
   /**
@@ -65,19 +46,19 @@ class AccountService(
    */
   fun activateAccount(accId: Long, activationCode: String): Boolean {
 
-    val acc = accountDao.findOne(accId)
+    val acc = accountDao.findOneOrThrow(accId)
 
     // Abort if account is activated.
     if (acc.isActivated) {
       return false
     }
 
-    if (acc.loginToken == activationCode) {
+    return if (acc.loginToken == activationCode) {
       acc.isActivated = true
       acc.loginToken = ""
-      return true
+      true
     } else {
-      return false
+      false
     }
   }
 
@@ -85,26 +66,19 @@ class AccountService(
    * Creates a completely new account. The username will be given to the
    * bestia master. No other bestia mastia can have this name.
    *
-   * @return `TRUE` if the new account coule be created. `FALSE`
-   * otherwise.
    */
-  fun createNewAccount(data: AccountRegistration): AccountRegistrationError {
-
-    val mastername = data.username
-
-    if (mastername == null || mastername.isEmpty()) {
+  fun createNewAccount(data: AccountRegistration) {
+    if (data.username.isEmpty()) {
       throw IllegalArgumentException("Mastername can not be null or empty.")
     }
 
-    val account = Account(data.email, data.password)
+    playerBestiaDao.findMasterBestiaWithName(data.username) ?: run {
+      LOG.warn { "Can not create account. Master name already exists: ${data.username}" }
+      throw AccountRegistrationException(AccountRegistrationError.USERNAME_INVALID)
+    }
 
-    // TODO das hier noch auslagern. Die aktivierung soll nur per
-    // username/password anmeldung notwendig sein.
-    account.isActivated = true
-
-    // Depending on the master get the offspring bestia.
-    val starterId = getIdFromPlayerClass(data.playerClass)
-    val origin = bestiaDao.findOne(starterId)
+    val starterId = getStarterBestiaId()
+    val origin = bestiaDao.findOneOrThrow(starterId)
 
     if (origin == null) {
       LOG.error("Starter bestia with id {} could not been found.", starterId)
@@ -113,36 +87,27 @@ class AccountService(
 
     if (accountDao.findByEmail(data.email) != null) {
       LOG.debug("Could not create account because of duplicate mail: {}", data.email)
-      return AccountRegistrationError.EMAIL_INVALID
+      throw AccountRegistrationException(AccountRegistrationError.EMAIL_INVALID)
     }
 
-    // Check if there is a bestia master with this name.
-    val existingMaster = playerBestiaDao.findMasterBestiaWithName(mastername)
+    val account = Account(
+            email = data.email,
+            password = Password(data.password),
+            username = data.username,
+            gender = data.gender,
+            registerDate = Instant.now()
+    )
 
-    if (existingMaster != null) {
-      LOG.warn("Can not create account. Master name already exists: {}", mastername)
-      return AccountRegistrationError.USERNAME_INVALID
-    }
-
-    // Create the bestia.
     val masterBestia = PlayerBestia(account, origin, BaseValues.getStarterIndividualValues())
-
-    masterBestia.name = mastername
+    masterBestia.isMaster = true
+    masterBestia.name = data.username
     masterBestia.master = account
 
-    // Generate ID.
-    try {
+    // TODO Implement a proper account activation process.
+    account.isActivated = true
 
-      accountDao.save(account)
-      playerBestiaDao.save(masterBestia)
-
-      return AccountRegistrationError.NONE
-
-    } catch (ex: JpaSystemException) {
-      LOG.warn("Could not create account: {}", ex.message, ex)
-      return AccountRegistrationError.GENERAL_ERROR
-    }
-
+    accountDao.save(account)
+    playerBestiaDao.save(masterBestia)
   }
 
   /**
@@ -156,66 +121,8 @@ class AccountService(
    * does not exist or the account is not online.
    */
   fun getOnlineAccountByName(username: String): Account? {
-    Objects.requireNonNull(username)
     val acc = accountDao.findByUsername(username) ?: return null
-
-// Check if this account is online.
-    /*
-    if (connectionService.isConnected(acc.getId())) {
-      return null;
-    }*/
     LOG.warn("Currently broken!")
-
     return acc
   }
-
-  /**
-   * Sets the password without checking the old password first.
-   *
-   * @param accountName
-   * @param newPassword
-   * @return
-   */
-  fun changePasswordWithoutCheck(accountName: String, newPassword: String): Boolean {
-    Objects.requireNonNull(accountName)
-    Objects.requireNonNull(newPassword)
-
-    val acc = accountDao.findByUsernameOrEmail(accountName) ?: return false
-
-    acc.password = Password(newPassword)
-    accountDao.save(acc)
-    return true
-  }
-
-  /**
-   * Tries to change the password for the given account. The old password must
-   * match first before this method executes.
-   */
-  fun changePassword(accountName: String, oldPassword: String, newPassword: String): Boolean {
-    Objects.requireNonNull(accountName)
-    Objects.requireNonNull(oldPassword)
-    Objects.requireNonNull(newPassword)
-
-    if (newPassword.isEmpty()) {
-      return false
-    }
-
-    val acc = accountDao.findByUsernameOrEmail(accountName) ?: return false
-
-    val password = acc.password
-
-    if (!password.matches(oldPassword)) {
-      return false
-    }
-
-    acc.password = Password(newPassword)
-    accountDao.save(acc)
-    return true
-  }
-
-  companion object {
-
-    private val LOG = LoggerFactory.getLogger(AccountService::class.java)
-  }
-
 }

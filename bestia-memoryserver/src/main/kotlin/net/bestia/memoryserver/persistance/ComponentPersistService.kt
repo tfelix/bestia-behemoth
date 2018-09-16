@@ -1,14 +1,13 @@
 package net.bestia.memoryserver.persistance
 
-import java.util.Objects
-
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-
+import net.bestia.entity.component.Component
 import net.bestia.model.dao.ComponentDataDAO
+import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.ComponentData
 import net.bestia.util.ObjectSerializer
-import net.bestia.entity.component.Component
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class ComponentPersistService(
@@ -19,11 +18,9 @@ class ComponentPersistService(
   /**
    * Permanently deletes the component with the given id.
    *
-   * @param id
-   * The ID of the persisted component to be deleted.
    */
   fun delete(id: Long) {
-    componentDao.delete(id)
+    componentDao.deleteById(id)
   }
 
   /**
@@ -58,7 +55,7 @@ class ComponentPersistService(
    */
   fun load(id: Long): Component? {
 
-    val data = componentDao.findOne(id)
+    val data = componentDao.findOneOrThrow(id)
 
     if (data == null) {
       LOG.debug("Did not find component {} inside database. Returning null.", id)

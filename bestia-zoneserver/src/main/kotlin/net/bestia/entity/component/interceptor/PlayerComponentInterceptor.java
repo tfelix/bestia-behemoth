@@ -43,7 +43,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
     LOG.debug("intercept onCreate: PlayerComponent.");
 
     final long pbid = comp.getPlayerBestiaId();
-    final PlayerBestia playerBestia = playerBestiaDao.findOne(pbid);
+    final PlayerBestia playerBestia = playerBestiaDao.findById(pbid).get();
 
     if (playerBestia == null) {
       LOG.warn("Could not find player bestia with id: {}.", pbid);
@@ -59,7 +59,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
     LOG.debug("intercept onDelete: PlayerComponent.");
 
     final long pbid = comp.getPlayerBestiaId();
-    final PlayerBestia playerBestia = playerBestiaDao.findOne(pbid);
+    final PlayerBestia playerBestia = playerBestiaDao.findById(pbid).get();
 
     if (playerBestia == null) {
       LOG.warn("Could not find player bestia with id {}.", pbid);

@@ -30,6 +30,7 @@ class BootMapCreationActor(
     if(mapService.isMapInitialized) {
       LOG.info { "Map exists and nothing needs to be done" }
       context.stop(self)
+      return
     }
 
     createMap()

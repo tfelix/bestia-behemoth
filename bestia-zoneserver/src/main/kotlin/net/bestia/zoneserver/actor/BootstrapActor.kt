@@ -1,10 +1,9 @@
-package net.bestia.zoneserver.actor.zone
+package net.bestia.zoneserver.actor
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.Terminated
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.map.BootMapCreationActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

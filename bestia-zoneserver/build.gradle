@@ -1,15 +1,12 @@
+plugins {
+  id 'org.springframework.boot'
+}
+
 description = 'bestia-zoneserver'
 
 dependencies {
   compile('org.springframework.boot:spring-boot-starter')
   compile('org.springframework.boot:spring-boot-starter-data-jpa')
-  compile('org.springframework.boot:spring-boot-starter-web') {
-    exclude(module: 'spring-boot-starter-tomcat')
-  }
-  compile('org.springframework.boot:spring-boot-starter-jetty')
-
-  compile group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
-  compile group: 'com.hazelcast', name: 'hazelcast-client'
 
   compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
   compile group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
@@ -23,6 +20,9 @@ dependencies {
   compile group: 'com.lightbend.akka.discovery', name: 'akka-discovery-config_2.12', version: '0.18.0'
   compile group: 'com.okumin', name: 'akka-persistence-sql-async_2.12', version: '0.5.1'
 
+  compile group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
+  compile group: 'com.hazelcast', name: 'hazelcast-client'
+
   compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.4'
   compile group: 'com.github.mauricio', name: 'mysql-async_2.11', version: '0.2.20'
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
@@ -31,7 +31,6 @@ dependencies {
   compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
 
   compile project(':bestia-messages')
-  compile project(':bestia-server-commons')
   compile project(':bestia-entities-core')
   compile group: 'de.tfelix.bestia', name: 'worldgen', version: '1.0.0-ALPHA'
 
@@ -39,5 +38,4 @@ dependencies {
   testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
   testCompile group: 'com.hazelcast', name: 'hazelcast', version: hazelcastVersion, classifier: 'tests'
   testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.5.0'
-  testCompile project(':bestia-server-commons')
 }

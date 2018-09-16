@@ -1,17 +1,17 @@
 package net.bestia.model;
 
+import net.bestia.model.dao.I18nDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.TranslationCategory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
-
 import java.util.Locale;
 
-import net.bestia.model.dao.I18nDAO;
-import net.bestia.model.domain.Account;
-import net.bestia.model.domain.TranslationCategory;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class I18nTest {
 
@@ -84,10 +84,10 @@ public class I18nTest {
 		return mock;
 	}
 	
-	public Account getAccountMock() {
+	Account getAccountMock() {
 		Account acc = mock(Account.class);
 		
-		when(acc.getLanguage()).thenReturn(Locale.GERMANY);
+		when(acc.getLanguage()).thenReturn(Locale.GERMANY.toString());
 		
 		return acc;
 	}

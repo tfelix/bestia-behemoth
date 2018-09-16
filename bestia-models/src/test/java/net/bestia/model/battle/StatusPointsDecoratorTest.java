@@ -1,15 +1,15 @@
 package net.bestia.model.battle;
 
-import static org.mockito.Mockito.*;
-
+import net.bestia.model.domain.StatusPoints;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.model.domain.StatusPoints;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatusPointsDecoratorTest {

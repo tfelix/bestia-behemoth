@@ -3,8 +3,6 @@ package net.bestia.messages.client
 import akka.actor.ActorRef
 import java.io.Serializable
 
-sealed class ConnectMessage : Serializable
-
 /**
  * This message is send by the webserver frontend as soon as a client is fully
  * connected and must be registered into the bestia system. As soon as this
@@ -20,9 +18,5 @@ data class ClientConnectMessage(
          * mentioned in this message is connected.
          */
         val webserverRef: ActorRef
-) : ConnectMessage()
-
-data class ClientDisconnectMessage(
-        val accountId: Long
-) : ConnectMessage()
+) : Serializable
 
