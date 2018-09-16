@@ -7,7 +7,7 @@ dependencies {
   compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
   compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
 
-  testCompile('org.springframework.boot:spring-boot-starter-test')
+  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
   testCompile group: 'org.dbunit', name: 'dbunit', version: '2.5.0'
   testCompile group: 'com.github.springtestdbunit', name: 'spring-test-dbunit', version: '1.2.0'
   testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.3'

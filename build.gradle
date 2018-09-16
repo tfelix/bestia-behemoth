@@ -26,8 +26,6 @@ allprojects {
     jcenter()
     mavenLocal()
   }
-
-  apply plugin: 'io.spring.dependency-management'
 }
 
 group = 'net.bestia'

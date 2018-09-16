@@ -43,6 +43,10 @@ class EntityComponentActorFactory(
     return startActorByAnnotation(ctx, comp)
   }
 
+  fun startActor(ctx: ActorContext, component: Component): ActorRef? {
+    return startActorByAnnotation(ctx, component)
+  }
+
   private fun startActorByAnnotation(ctx: ActorContext, comp: Component): ActorRef? {
     if (!comp.javaClass.isAnnotationPresent(ActorSync::class.java)) {
       LOG.warn("Component {} (id: {}) has no ComponentActor annotation. Can not create Actor.",
@@ -53,10 +57,17 @@ class EntityComponentActorFactory(
     val compActor = comp.javaClass.getAnnotation(ActorSync::class.java)
     try {
       val actorClass = Class.forName(compActor.value) as Class<AbstractActor>
-      val actorRef = SpringExtension.actorOf(ctx,
-              actorClass, null,
-              comp.entityId,
-              comp.id)
+
+      val takesComponentAsArg = actorClass.declaredConstructors.any {
+        it.parameterCount == 1 && Component::class.java.isAssignableFrom(it.parameterTypes[0])
+      }
+
+      val actorRef = if(takesComponentAsArg) {
+         SpringExtension.actorOf(ctx, actorClass, null, comp)
+      } else {
+        SpringExtension.actorOf(ctx, actorClass, null, comp.entityId, comp.id)
+      }
+
 
       LOG.debug("Starting ComponentActor: {} ({}) for entity: {}.",
               actorClass.simpleName,

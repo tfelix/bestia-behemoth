@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.battle
 
-import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntityDamageMessage
@@ -23,8 +22,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class AttackUseActor(
-        private val battleService: BattleService,
-        private val msgHub: ActorRef
+        private val battleService: BattleService
 ) : BaseClientMessageRouteActor() {
 
   private val transformAtkMsg = SpringExtension.actorOf(context, AttackPlayerUseActor::class.java)

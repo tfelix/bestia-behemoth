@@ -6,10 +6,12 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
+import net.bestia.messages.ComponentUpdate
 import net.bestia.messages.entity.ComponentEnvelope
 import net.bestia.messages.entity.ComponentIntall
 import net.bestia.messages.entity.ComponentRemove
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.ComponentEnvelope2
 import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import org.springframework.context.annotation.Scope
@@ -40,9 +42,9 @@ class EntityActor(
 ) : AbstractActor() {
 
   private val componentActors = HashBiMap.create<Long, ActorRef>()
+  private val componentActors2 = HashBiMap.create<Class<*>, ActorRef>()
 
   private var entityId: Long = 0
-  private var accountOwnerId: Long? = null
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
@@ -55,7 +57,9 @@ class EntityActor(
     checkStartup(envelope.entityId)
     val content = envelope.content
     when (content) {
+      is ComponentUpdate<*> -> handleComponentInstall2(content)
       is ComponentEnvelope -> handleComponentEnvelope(content)
+      is ComponentEnvelope2<*> -> handleComponentEnvelope2(content)
       is ComponentBroadcastEnvelope -> handleAllComponentRequest(content)
       else -> unhandled(content)
     }
@@ -78,6 +82,23 @@ class EntityActor(
       is ComponentRemove -> handleComponentRemove(compId)
       else -> trySendComponentActor(componentActors[compId], msg)
     }
+  }
+
+  private fun handleComponentInstall2(msg: ComponentUpdate<*>) {
+    LOG.debug { "Installing component: ${msg.component.id} on entity: $entityId." }
+
+    val compActor = factory.startActor(context, msg.component) ?: run {
+      LOG.warn { "Component actor for comp id ${msg.component.id} was not created." }
+      return
+    }
+
+    context().watch(compActor)
+    componentActors[msg.component.id] = compActor
+    componentActors2[msg.javaClass] = compActor
+  }
+
+  private fun handleComponentEnvelope2(msg: ComponentEnvelope2<*>) {
+    componentActors2[msg.componentClass]?.forward(msg.content, context)
   }
 
   private fun trySendComponentActor(compActor: ActorRef?, msg: ComponentEnvelope) {

@@ -1,10 +1,10 @@
 package net.bestia.model.dao;
 
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import net.bestia.model.domain.Guild;
 
-// TODO Make NUllable Repository
 @Repository
-public interface GuildDAO extends CrudOptionalRepository<Guild, Integer> {
+public interface GuildDAO extends CrudRepository<Guild, Integer> {
 }

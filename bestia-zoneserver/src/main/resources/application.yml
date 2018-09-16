@@ -4,6 +4,7 @@
 logging:
   level:
     ROOT: WARN
+    akka.management.cluster: INFO
     net.bestia: TRACE
     de.tfelix.bestia: TRACE
     net.bestia.entity.component.StatusService: DEBUG

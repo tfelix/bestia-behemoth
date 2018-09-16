@@ -10,6 +10,7 @@ import akka.cluster.singleton.ClusterSingletonManagerSettings
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.EntryActorNames
+import net.bestia.zoneserver.TestService
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
@@ -34,7 +35,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class BestiaRootActor(
-        private val scriptService: ScriptService
+        private val scriptService: ScriptService,
+        private val testService: TestService
 ) : AbstractActor() {
 
   private val system = context.system()
@@ -51,14 +53,8 @@ class BestiaRootActor(
     // === Client Messages ===
     SpringExtension.actorOf(context, ClientMessageActor::class.java)
 
-    // === Web/REST actors ===
-    // SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);
-    // SpringExtension.actorOf(getContext(), ChangePasswordActor.class);
-    // SpringExtension.actorOf(getContext(), RequestLoginActor.class);
-    // SpringExtension.actorOf(getContext(), RequestServerStatusActor.class);
-
     registerSingeltons()
-    registerSharding()
+    // registerSharding()
 
     // Call the startup script.
     scriptService.callScriptMainFunction("startup")
@@ -116,6 +112,9 @@ class BestiaRootActor(
     val broadcast = ComponentBroadcastEnvelope(msg)
     val entityMsg = EntityEnvelope(1L, broadcast)
     routerActor.tell(entityMsg, self())
+
+    val id = testService.addComponent("blabla")
+    testService.updateComponent(id, "unddazu")
   }
 
   companion object {

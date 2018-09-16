@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.guild
 import net.bestia.messages.guild.GuildMessage
 import net.bestia.messages.guild.GuildRequestMessage
 import net.bestia.model.dao.GuildDAO
+import net.bestia.model.dao.findOne
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
@@ -36,7 +37,7 @@ class GuildRequestActor(
       return
     }
 
-    guildDao.findOne(guildId).ifPresent { guild ->
+    guildDao.findOne(guildId)?.let { guild ->
       val gmsg = GuildMessage(msg.accountId, guild)
       sendClient.tell(gmsg, self)
     }
