@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.client
 
 import mu.KotlinLogging
-import net.bestia.messages.ui.ClientVarMessage
+import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
@@ -62,7 +62,7 @@ class ClientVarActor(
     }
 
     val cvar = cvarService.find(accId, key)
-    val cvarMsg = ClientVarMessage(accId, msg.uuid, cvar.data)
+    val cvarMsg = ClientVarResponseMessage(accId, msg.uuid, cvar.data)
     sendClient.tell(cvarMsg, self)
   }
 

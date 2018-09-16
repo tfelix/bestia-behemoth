@@ -1,9 +1,10 @@
 package net.bestia.entity.component;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.battle.StatusService;
-import net.bestia.zoneserver.entity.LevelService;
+import net.bestia.zoneserver.bestia.LevelService;
+import net.bestia.zoneserver.entity.component.LevelComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

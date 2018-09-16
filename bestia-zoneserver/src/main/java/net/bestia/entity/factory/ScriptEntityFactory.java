@@ -1,9 +1,9 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
-import net.bestia.entity.component.ScriptComponent;
+import net.bestia.zoneserver.entity.component.ScriptComponent;
 import net.bestia.model.geometry.CollisionShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

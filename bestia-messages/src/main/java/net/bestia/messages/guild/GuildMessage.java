@@ -1,6 +1,7 @@
 package net.bestia.messages.guild;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.domain.Guild;
 
 import java.util.Objects;
@@ -11,7 +12,7 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-public class GuildMessage extends JsonMessage {
+public class GuildMessage extends AccountMessage implements MessageId {
 	
 	private static final long serialVersionUID = 1L;
 

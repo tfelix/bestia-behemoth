@@ -9,13 +9,12 @@ import net.bestia.messages.MessageId
  * @author Thomas Felix
  */
 data class LogoutMessage(
-        val state: LogoutState = LogoutState.NO_REASON,
+        val state: LoginError = LoginError.NO_REASON,
         val reason: String = ""
 ) : MessageId {
 
-  override fun getMessageId(): String {
-    return MESSAGE_ID
-  }
+  override val messageId: String
+    get() = MESSAGE_ID
 
   companion object {
     const val MESSAGE_ID = "system.logout"

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.bestia
 
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaInfoRequestMessage
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.SpringExtension
@@ -54,7 +54,7 @@ class BestiaInfoActor(
     }
     val props = AwaitResponseActor.props(wasAllReceived) {
       it.getAllReponses(ResponseComponentMessage::class)
-              .map { ToClientEnvelope(accountId, it) }
+              .map { ClientEnvelope(accountId, it) }
               .forEach { sendToClient.tell(it, self) }
     }
     val responseAggregator = context.actorOf(props)

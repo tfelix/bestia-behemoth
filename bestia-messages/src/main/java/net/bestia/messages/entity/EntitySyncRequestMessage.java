@@ -1,6 +1,7 @@
 package net.bestia.messages.entity;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Requests the server to send a full list with all visible entities to the
@@ -10,7 +11,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class EntitySyncRequestMessage extends JsonMessage {
+public class EntitySyncRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.sync";

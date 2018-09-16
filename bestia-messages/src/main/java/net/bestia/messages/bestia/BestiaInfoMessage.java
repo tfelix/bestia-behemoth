@@ -6,7 +6,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * This message is send to the client to trigger a initial synchronization about
@@ -18,7 +19,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class BestiaInfoMessage extends JsonMessage {
+public class BestiaInfoMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 

@@ -3,7 +3,8 @@ package net.bestia.messages.attack;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * A message from the client to the server to use an attack/skill.
@@ -11,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class AttackUseMessage extends JsonMessage {
+public class AttackUseMessage extends AccountMessage implements MessageId {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

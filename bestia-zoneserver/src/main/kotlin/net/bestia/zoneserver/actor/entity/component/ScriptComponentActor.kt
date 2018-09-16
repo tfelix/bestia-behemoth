@@ -6,8 +6,8 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.ScriptComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.messages.ComponentChangedMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import org.springframework.context.annotation.Scope

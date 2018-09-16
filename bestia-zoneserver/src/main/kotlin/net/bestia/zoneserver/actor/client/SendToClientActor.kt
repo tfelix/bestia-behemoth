@@ -5,7 +5,7 @@ import akka.cluster.sharding.ClusterSharding
 import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.JsonMessage
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.component.LatencyInfo
 import net.bestia.zoneserver.client.LatencyService
 import org.springframework.context.annotation.Scope
@@ -30,11 +30,11 @@ class SendToClientActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
             .match(JsonMessage::class.java, this::handleSendClient)
-            .match(ToClientEnvelope::class.java, this::sendToClient)
+            .match(ClientEnvelope::class.java, this::sendToClient)
             .build()
   }
 
-  private fun sendToClient(msg: ToClientEnvelope) {
+  private fun sendToClient(msg: ClientEnvelope) {
     clientConnection.tell(msg, self)
   }
 
@@ -43,7 +43,7 @@ class SendToClientActor(
     val accountId = msg.accountId
     when (msg) {
       is LatencyInfo -> addLatencyInfoToMessage(accountId, msg)
-      else -> clientConnection.tell(ToClientEnvelope(accountId, msg), sender)
+      else -> clientConnection.tell(ClientEnvelope(accountId, msg), sender)
     }
   }
 
@@ -58,7 +58,7 @@ class SendToClientActor(
     // TODO The latency data should be managed on the ClientConnectionActor.
     val latency = latencyService.getClientLatency(accountId)
     val updatedMsg = msg.createNewInstance(accountId, latency)
-    val envelope = ToClientEnvelope(accountId, updatedMsg)
+    val envelope = ClientEnvelope(accountId, updatedMsg)
     clientConnection.tell(envelope, sender)
   }
 

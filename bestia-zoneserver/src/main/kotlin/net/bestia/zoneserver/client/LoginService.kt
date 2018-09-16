@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.entity.Entity
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.PlayerComponent
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.entity.factory.PlayerBestiaEntityFactory
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOneOrThrow

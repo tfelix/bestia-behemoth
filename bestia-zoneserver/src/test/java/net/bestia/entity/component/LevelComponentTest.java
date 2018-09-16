@@ -1,5 +1,6 @@
 package net.bestia.entity.component;
 
+import net.bestia.zoneserver.entity.component.LevelComponent;
 import org.junit.Assert;
 import org.junit.Test;
 

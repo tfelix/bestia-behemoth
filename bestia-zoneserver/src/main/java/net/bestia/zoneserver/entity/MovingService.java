@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.MoveComponent;
-import net.bestia.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.MoveComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;

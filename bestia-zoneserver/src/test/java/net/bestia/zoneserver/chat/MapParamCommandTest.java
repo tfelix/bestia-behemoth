@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.client.ClientEnvelope;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import org.junit.Assert;
@@ -56,7 +56,7 @@ public class MapParamCommandTest {
 	@Test
 	public void executeCommand_validCommand_sendsMessage() {
 		cmd.executeCommand(acc, "/mapinfo");
-		verify(akkaApi).send(any(ToClientEnvelope.class));
+		verify(akkaApi).send(any(ClientEnvelope.class));
 	}
 
 }

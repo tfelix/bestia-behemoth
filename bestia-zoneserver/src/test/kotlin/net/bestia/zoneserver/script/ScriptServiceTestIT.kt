@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script
 
-import net.bestia.entity.EntityService
+import net.bestia.zoneserver.entity.EntityService
 import net.bestia.entity.factory.MobFactory
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.config.StaticConfig

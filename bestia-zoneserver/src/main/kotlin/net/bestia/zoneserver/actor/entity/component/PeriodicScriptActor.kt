@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
-import net.bestia.entity.component.ScriptComponent
+import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.ScriptService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

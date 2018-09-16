@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.ScriptComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.env.ScriptEnv
 import net.bestia.zoneserver.script.env.SimpleScriptEnv
 import org.springframework.stereotype.Service

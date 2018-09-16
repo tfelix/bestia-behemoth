@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.client.ClientEnvelope;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.Companion.UserLevel;
@@ -62,7 +62,7 @@ public class MaintenanceCommandTest {
 	public void executeCommand_wrongArgs_sendsMessage() {
 		cmd.executeCommand(acc, "/maintenance bla");
 
-		verify(akkaApi).send(any(ToClientEnvelope.class));
+		verify(akkaApi).send(any(ClientEnvelope.class));
 		verify(config, times(0)).setMaintenanceMode(any());
 		verify(logoutService, times(0)).logoutAllUsersBelow(any());
 	}

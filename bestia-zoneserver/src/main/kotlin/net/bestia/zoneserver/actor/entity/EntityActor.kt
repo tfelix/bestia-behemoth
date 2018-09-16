@@ -6,12 +6,9 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
-import net.bestia.messages.ComponentUpdate
-import net.bestia.messages.entity.ComponentEnvelope
-import net.bestia.messages.entity.ComponentIntall
-import net.bestia.messages.entity.ComponentRemove
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.messages.entity.*
 import net.bestia.zoneserver.ComponentEnvelope2
+import net.bestia.zoneserver.actor.entity.component.AddComponentMessage
 import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import org.springframework.context.annotation.Scope
@@ -41,31 +38,57 @@ class EntityActor(
         private val factory: EntityComponentActorFactory
 ) : AbstractActor() {
 
-  private val componentActors = HashBiMap.create<Long, ActorRef>()
-  private val componentActors2 = HashBiMap.create<Class<*>, ActorRef>()
+  private data class ComponentKey(
+          val componentId: Long,
+          val componentClass: Class<net.bestia.zoneserver.entity.component.Component>
+  )
 
+  private val componentActors = HashBiMap.create<ComponentKey, ActorRef>()
   private var entityId: Long = 0
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
             .match(EntityEnvelope::class.java, this::handleEntityEnvelope)
             .match(Terminated::class.java, this::handleTerminated)
+            .matchAny(this::terminateIfNoSuitableMessage)
             .build()
+  }
+
+  private fun terminateIfNoSuitableMessage(msg: Any) {
+    if (entityId == 0L && msg !is AddComponentMessage<*>) {
+      LOG.info { "EntityActor $entityId received message: $msg. Awaited AddComponentMessage. Terminate." }
+      context.stop(self)
+    }
   }
 
   private fun handleEntityEnvelope(envelope: EntityEnvelope) {
     checkStartup(envelope.entityId)
     val content = envelope.content
     when (content) {
-      is ComponentUpdate<*> -> handleComponentInstall2(content)
-      is ComponentEnvelope -> handleComponentEnvelope(content)
-      is ComponentEnvelope2<*> -> handleComponentEnvelope2(content)
-      is ComponentBroadcastEnvelope -> handleAllComponentRequest(content)
+      is AddComponentMessage<*> -> handleComponentInstall(content)
+      is ComponentIdEnvelope -> handleComponentEnvelope(content)
+      is ComponentClassEnvelope<*> -> handleComponentEnvelope2(content)
+      is ComponentBroadcastEnvelope -> handleAllComponentBroadcast(content)
       else -> unhandled(content)
     }
   }
 
-  private fun handleAllComponentRequest(msg: ComponentBroadcastEnvelope) {
+  private fun handleComponentInstall(msg: AddComponentMessage<*>) {
+    LOG.debug { "Installing component: ${msg.component.id} on entity: $entityId." }
+
+    val compActor = factory.startActor(context, msg.component) ?: run {
+      LOG.warn { "Component actor for comp id ${msg.component.id} was not created." }
+      return
+    }
+
+    context().watch(compActor)
+    // Maybe this is dump and it would be better two have two collections are a dedicated
+    // cache class for this kind of lookups.
+    val key = ComponentKey(msg.component.id, msg.component.javaClass)
+    componentActors[key] = compActor
+  }
+
+  private fun handleAllComponentBroadcast(msg: ComponentBroadcastEnvelope) {
     LOG.debug { "Entity received $msg" }
     componentActors.values.forEach { it.tell(msg.content, sender) }
   }
@@ -74,7 +97,7 @@ class EntityActor(
    * Checks if we have such a associated component and if so delivers the
    * message.
    */
-  private fun handleComponentEnvelope(msg: ComponentEnvelope) {
+  private fun handleComponentEnvelope(msg: ComponentIdEnvelope) {
     val compId = msg.componentId
 
     when (msg.content) {
@@ -84,24 +107,11 @@ class EntityActor(
     }
   }
 
-  private fun handleComponentInstall2(msg: ComponentUpdate<*>) {
-    LOG.debug { "Installing component: ${msg.component.id} on entity: $entityId." }
-
-    val compActor = factory.startActor(context, msg.component) ?: run {
-      LOG.warn { "Component actor for comp id ${msg.component.id} was not created." }
-      return
-    }
-
-    context().watch(compActor)
-    componentActors[msg.component.id] = compActor
-    componentActors2[msg.javaClass] = compActor
-  }
-
   private fun handleComponentEnvelope2(msg: ComponentEnvelope2<*>) {
     componentActors2[msg.componentClass]?.forward(msg.content, context)
   }
 
-  private fun trySendComponentActor(compActor: ActorRef?, msg: ComponentEnvelope) {
+  private fun trySendComponentActor(compActor: ActorRef?, msg: ComponentIdEnvelope) {
     when (compActor) {
       null -> {
         LOG.debug("Component message unhandled: {}.", msg)

@@ -1,5 +1,7 @@
 package net.bestia.entity.component;
 
+import net.bestia.zoneserver.entity.component.LevelComponent;
+
 /**
  * Sets the value of a level component.
  * 

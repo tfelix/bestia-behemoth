@@ -1,13 +1,14 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.component.*;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.battle.StatusService;
-import net.bestia.zoneserver.entity.InventoryService;
+import net.bestia.zoneserver.entity.component.*;
+import net.bestia.zoneserver.inventory.InventoryService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

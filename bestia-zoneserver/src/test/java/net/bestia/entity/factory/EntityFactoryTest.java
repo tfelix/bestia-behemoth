@@ -1,11 +1,10 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityCache;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
-import net.bestia.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
 import net.bestia.messages.MessageApi;
 import org.junit.Assert;

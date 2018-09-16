@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.map.path;
 
-import net.bestia.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.EntitySearchService;

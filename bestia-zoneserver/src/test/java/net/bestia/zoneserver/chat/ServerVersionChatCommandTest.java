@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.client.ClientEnvelope;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.config.StaticConfig;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class ServerVersionChatCommandTest {
 	public void executeCommand_validCommand_sendsServerVersion() {
 		cmd.executeCommand(acc, "/version");
 		
-		verify(akkaApi).send(any(ToClientEnvelope.class));
+		verify(akkaApi).send(any(ClientEnvelope.class));
 	}
 
 }

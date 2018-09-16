@@ -3,8 +3,8 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.MoveComponent
 import net.bestia.zoneserver.entity.MovingService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

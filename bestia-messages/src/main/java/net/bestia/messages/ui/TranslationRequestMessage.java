@@ -9,7 +9,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * This message requests a translation from the server. The data is fetched via
@@ -19,7 +20,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class TranslationRequestMessage extends JsonMessage {
+public class TranslationRequestMessage extends AccountMessage implements MessageId {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

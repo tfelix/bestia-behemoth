@@ -1,11 +1,13 @@
 package net.bestia.entity.component;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.*;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.battle.StatusService;
+import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

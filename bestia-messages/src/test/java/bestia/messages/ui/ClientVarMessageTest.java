@@ -1,12 +1,10 @@
 package bestia.messages.ui;
 
-import net.bestia.messages.ui.ClientVarMessage;
+import net.bestia.messages.ui.ClientVarResponseMessage;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.bestia.messages.JsonMessage;
 
 public class ClientVarMessageTest {
 
@@ -19,7 +17,7 @@ public class ClientVarMessageTest {
 
 	@Test
 	public void createNewInstance_newInstance() {
-		ClientVarMessage cvmsg1 = new ClientVarMessage(ACC_ID, UUID, JSON_DATA);
+		ClientVarResponseMessage cvmsg1 = new ClientVarResponseMessage(ACC_ID, UUID, JSON_DATA);
 		JsonMessage cvmsg2 = cvmsg1.createNewInstance(NEW_ACC_ID);
 		
 		Assert.assertNotEquals(cvmsg1, cvmsg2);
@@ -28,7 +26,7 @@ public class ClientVarMessageTest {
 
 	@Test
 	public void canBeJsonSerialized() throws Exception {
-		ClientVarMessage cvmsg = new ClientVarMessage(ACC_ID, UUID, JSON_DATA);
+		ClientVarResponseMessage cvmsg = new ClientVarResponseMessage(ACC_ID, UUID, JSON_DATA);
 		String json = mapper.writeValueAsString(cvmsg);
 		Assert.assertNotNull(json);
 	}

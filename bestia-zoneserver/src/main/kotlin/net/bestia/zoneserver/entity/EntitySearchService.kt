@@ -2,9 +2,7 @@ package net.bestia.zoneserver.entity
 
 import com.hazelcast.core.HazelcastInstance
 import mu.KLogging
-import net.bestia.entity.Entity
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.geometry.CollisionShape
 import org.springframework.stereotype.Service
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import net.bestia.messages.EntityJsonMessage;
-import net.bestia.messages.JsonMessage;
 
 import java.util.Objects;
 

@@ -2,7 +2,8 @@ package net.bestia.messages.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Simple ping message which can be send to the server. Will be answered with a
@@ -11,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class PingMessage extends JsonMessage {
+public class PingMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "lat.req";

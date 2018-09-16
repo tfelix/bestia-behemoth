@@ -3,7 +3,6 @@ package net.bestia.messages.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
-import net.bestia.messages.JsonMessage;
 
 /**
  * This message is send to the clients if a visible component for the clients

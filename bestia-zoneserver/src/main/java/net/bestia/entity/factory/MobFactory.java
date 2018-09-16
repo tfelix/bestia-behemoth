@@ -1,8 +1,9 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.component.*;
-import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.zoneserver.entity.component.*;
+import net.bestia.zoneserver.entity.component.TagComponent.Tag;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.geometry.Point;

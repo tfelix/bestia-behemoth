@@ -8,7 +8,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.domain.Item;
 
 /**
@@ -19,7 +20,7 @@ import net.bestia.model.domain.Item;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryUpdateMessage extends JsonMessage {
+public class InventoryUpdateMessage extends AccountMessage implements MessageId {
 
 	/**
 	 * Item to be updates inside the inventory with a new amount.

@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.actor.map
 
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.map.MapChunkMessage
 import net.bestia.messages.map.MapChunkRequestMessage
 import net.bestia.zoneserver.actor.SpringExtension

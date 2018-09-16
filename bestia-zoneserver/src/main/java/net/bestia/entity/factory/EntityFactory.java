@@ -1,8 +1,8 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

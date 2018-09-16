@@ -6,7 +6,7 @@ import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.verify
 import net.bestia.messages.client.ClientConnectMessage
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
@@ -48,7 +48,7 @@ class IngestActorTest {
         verify(loginService.login(eq(10)))
 
         val content = "Hello World"
-        val toClient = ToClientEnvelope(10, content)
+        val toClient = ClientEnvelope(10, content)
         ingest.tell(toClient, ActorRef.noSender())
         socket.expectMsg(content)
       }

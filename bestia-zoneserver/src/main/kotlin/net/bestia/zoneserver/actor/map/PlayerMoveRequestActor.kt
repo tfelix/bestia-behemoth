@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.map
 
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.MoveComponent
 import net.bestia.messages.entity.EntityMoveRequestMessage
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope

@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.entity.Entity
-import net.bestia.entity.EntityService
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityService
 import net.bestia.entity.component.BattleComponent
-import net.bestia.entity.component.LevelComponent
-import net.bestia.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.component.LevelComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.entity.component.StatusComponent
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.model.battle.Damage

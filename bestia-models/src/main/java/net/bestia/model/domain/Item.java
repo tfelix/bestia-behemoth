@@ -54,6 +54,8 @@ public class Item implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("t")
 	private ItemType type;
+
+	private EquipmentSlot usedSlot;
 	
 	@JsonProperty("i")
 	private String indicator;
@@ -101,7 +103,15 @@ public class Item implements Serializable {
 	public int getUsableDefaultRange() {
 		return usableDefaultRange;
 	}
-	
+
+	public EquipmentSlot getUsedSlot() {
+		return usedSlot;
+	}
+
+	public void setUsedSlot(EquipmentSlot usedSlot) {
+		this.usedSlot = usedSlot;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("Item[dbName: %s, id: %d, type: %s]", itemDbName, id, type);

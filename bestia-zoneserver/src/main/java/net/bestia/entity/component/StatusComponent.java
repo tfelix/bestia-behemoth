@@ -1,10 +1,13 @@
 package net.bestia.entity.component;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.bestia.entity.component.receiver.InSameGuildReceiver;
-import net.bestia.entity.component.receiver.InSighReceiver;
-import net.bestia.entity.component.receiver.OwnerReceiver;
-import net.bestia.entity.component.transformer.StatusOnlyConditionTransformer;
+import net.bestia.zoneserver.entity.component.ClientDirective;
+import net.bestia.zoneserver.entity.component.ClientSync;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.receiver.InSameGuildReceiver;
+import net.bestia.zoneserver.entity.component.receiver.InSighReceiver;
+import net.bestia.zoneserver.entity.component.receiver.OwnerReceiver;
+import net.bestia.zoneserver.entity.component.transformer.StatusOnlyConditionTransformer;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;

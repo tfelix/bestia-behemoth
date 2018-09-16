@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
+import net.bestia.zoneserver.entity.EntityService
 import net.bestia.entity.factory.MobFactory
 import org.springframework.stereotype.Service
 

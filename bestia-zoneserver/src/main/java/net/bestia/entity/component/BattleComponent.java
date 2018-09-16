@@ -1,5 +1,7 @@
 package net.bestia.entity.component;
 
+import net.bestia.zoneserver.entity.component.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
 

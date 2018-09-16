@@ -2,7 +2,8 @@ package net.bestia.messages.ui;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Asks the server to replay with a list of shortcuts for the current entity and
@@ -11,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class ClientVarRequestMessage extends JsonMessage {
+public class ClientVarRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 

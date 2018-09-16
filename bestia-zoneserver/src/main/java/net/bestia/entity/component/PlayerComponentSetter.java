@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 
 import java.util.Objects;
 

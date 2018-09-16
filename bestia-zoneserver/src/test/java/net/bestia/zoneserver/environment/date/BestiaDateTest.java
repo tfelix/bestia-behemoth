@@ -16,7 +16,7 @@ public class BestiaDateTest {
 	@Test
 	public void getHours_correctHours() {
 		
-		BestiaDate d = BestiaDate.fromDate(createDate());
+		BestiaDate d = BestiaDate.Companion.fromDate(createDate());
 		int bhour = d.getHours(createNowDate());
 		
 		assertEquals(1, bhour);
@@ -24,12 +24,12 @@ public class BestiaDateTest {
 	
 	@Test(expected=NullPointerException.class)
 	public void fromDate_null_throws() {
-		BestiaDate.fromDate(null);
+		BestiaDate.Companion.fromDate(null);
 	}
 	
 	@Test
 	public void getMinutes_correctMinutes() {
-		BestiaDate d = BestiaDate.fromDate(createDate());	
+		BestiaDate d = BestiaDate.Companion.fromDate(createDate());
 		int bmin = d.getMinutes(createNowDate());
 		
 		assertEquals(9, bmin);
@@ -37,14 +37,14 @@ public class BestiaDateTest {
 	
 	@Test
 	public void getSeason_currentSeason() {
-		BestiaDate d = BestiaDate.fromDate(createDate());
+		BestiaDate d = BestiaDate.Companion.fromDate(createDate());
 		Season s = d.getSeason();
 		Assert.assertNotNull(s);
 	}
 
 	@Test
 	public void fromDate_instance() {
-		BestiaDate bd = BestiaDate.fromDate(createDate());
+		BestiaDate bd = BestiaDate.Companion.fromDate(createDate());
 		Assert.assertNotNull(bd);
 	}
 	

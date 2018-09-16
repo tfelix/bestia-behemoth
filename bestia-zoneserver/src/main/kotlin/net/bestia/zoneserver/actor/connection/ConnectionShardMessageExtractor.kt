@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.connection
 
 import akka.cluster.sharding.ShardRegion
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import org.springframework.stereotype.Component
 
 /**
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 class ConnectionShardMessageExtractor : ShardRegion.MessageExtractor {
 
   override fun entityId(message: Any): String? {
-    return if (message is ToClientEnvelope) {
+    return if (message is ClientEnvelope) {
       val accId = message.accountId
       getActorName(accId)
     } else {
@@ -34,7 +34,7 @@ class ConnectionShardMessageExtractor : ShardRegion.MessageExtractor {
   }
 
   override fun shardId(message: Any): String? {
-    return if (message is ToClientEnvelope) {
+    return if (message is ClientEnvelope) {
       val accId = message.accountId
       getShardId(accId)
     } else {

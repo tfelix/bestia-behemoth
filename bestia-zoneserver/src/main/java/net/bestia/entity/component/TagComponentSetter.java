@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
-import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.zoneserver.entity.component.TagComponent;
+import net.bestia.zoneserver.entity.component.TagComponent.Tag;
 
 import java.util.Arrays;
 import java.util.List;

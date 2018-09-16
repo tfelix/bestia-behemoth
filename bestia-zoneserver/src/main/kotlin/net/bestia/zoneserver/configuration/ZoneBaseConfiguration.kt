@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.configuration
 
-import net.bestia.entity.EntityCache
 import net.bestia.zoneserver.config.StaticConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

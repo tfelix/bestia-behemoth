@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.TagComponent;
-import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.zoneserver.entity.component.TagComponent;
+import net.bestia.zoneserver.entity.component.TagComponent.Tag;
 import net.bestia.model.entity.InteractionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

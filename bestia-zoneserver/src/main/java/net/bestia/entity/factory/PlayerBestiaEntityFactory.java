@@ -1,11 +1,12 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.Entity;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.component.*;
-import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.zoneserver.entity.component.*;
+import net.bestia.zoneserver.entity.component.TagComponent.Tag;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.battle.StatusService;
-import net.bestia.zoneserver.entity.InventoryService;
+import net.bestia.zoneserver.inventory.InventoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

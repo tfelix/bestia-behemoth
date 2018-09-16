@@ -5,7 +5,7 @@ import net.bestia.messages.inventory.InventoryListRequestMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
-import net.bestia.zoneserver.entity.InventoryService
+import net.bestia.zoneserver.inventory.InventoryService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 

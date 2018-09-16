@@ -10,7 +10,6 @@ import akka.management.AkkaManagement
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
-import net.bestia.messages.MessageApi
 import net.bestia.zoneserver.AkkaMessageApi
 import net.bestia.zoneserver.EntryActorNames
 import net.bestia.zoneserver.actor.BestiaRootActor

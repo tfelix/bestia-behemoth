@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.configuration
 
-import net.bestia.entity.component.interceptor.ActorUpdateComponentInterceptor
+import net.bestia.zoneserver.entity.component.interceptor.ActorUpdateComponentInterceptor
 import net.bestia.entity.component.interceptor.Interceptor
-import net.bestia.entity.component.interceptor.InterceptorComposite
-import net.bestia.messages.MessageApi
+import net.bestia.zoneserver.entity.component.interceptor.InterceptorComposite
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

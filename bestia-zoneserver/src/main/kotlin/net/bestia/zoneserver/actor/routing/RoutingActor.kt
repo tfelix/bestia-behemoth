@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.routing
 
 import akka.actor.AbstractActor
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
@@ -19,11 +19,11 @@ class RoutingActor : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
             .match(EntityEnvelope::class.java, this::handleToEntity)
-            .match(ToClientEnvelope::class.java, this::handleToClient)
+            .match(ClientEnvelope::class.java, this::handleToClient)
             .build()
   }
 
-  private fun handleToClient(msg: ToClientEnvelope) {
+  private fun handleToClient(msg: ClientEnvelope) {
     sendToClientActor.forward(msg, context)
   }
 

@@ -5,10 +5,9 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.actor.Terminated
 import mu.KotlinLogging
-import net.bestia.messages.JsonMessage
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientDisconnectMessage
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
 import net.bestia.zoneserver.client.LogoutService
@@ -41,7 +40,7 @@ class ClientConnectionActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ToClientEnvelope::class.java, this::checkMessageEnvelope)
+            .match(ClientEnvelope::class.java, this::checkMessageEnvelope)
             .match(JsonMessage::class.java, { msg -> sendMessageToClient(msg) })
             .match(Terminated::class.java) { _ -> onClientConnectionClosed() }
             .build()
@@ -57,7 +56,7 @@ class ClientConnectionActor(
    * There are a few messages which are ment for this actor which might be only wrapped
    * for convienence. So we check this here.
    */
-  private fun checkMessageEnvelope(msg: ToClientEnvelope) {
+  private fun checkMessageEnvelope(msg: ClientEnvelope) {
     val content = msg.content
     when (content) {
       is ClientConnectMessage -> handleConnect(content)

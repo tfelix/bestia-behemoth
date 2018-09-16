@@ -2,7 +2,8 @@ package net.bestia.messages.map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Tiles are only referenced by so called gids. This ids are globally unique and
@@ -12,7 +13,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class MapTilesetRequestMessage extends JsonMessage {
+public class MapTilesetRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.tilesetrequest";

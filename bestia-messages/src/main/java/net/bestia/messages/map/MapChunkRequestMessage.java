@@ -6,7 +6,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -16,7 +17,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix
  *
  */
-public class MapChunkRequestMessage extends JsonMessage {
+public class MapChunkRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";

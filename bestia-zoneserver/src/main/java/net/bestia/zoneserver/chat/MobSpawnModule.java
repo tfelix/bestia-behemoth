@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat;
 
-import net.bestia.entity.Entity;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.factory.MobFactory;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;

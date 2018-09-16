@@ -2,8 +2,8 @@ package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor

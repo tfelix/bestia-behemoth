@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import net.bestia.model.domain.Direction;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

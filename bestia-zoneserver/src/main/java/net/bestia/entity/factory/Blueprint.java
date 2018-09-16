@@ -1,6 +1,6 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.component.Component;
+import net.bestia.zoneserver.entity.component.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;

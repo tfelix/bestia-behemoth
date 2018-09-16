@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.client.ClientEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
@@ -32,6 +32,6 @@ abstract class BaseChatCommand implements ChatCommand {
    */
   protected void sendSystemMessage(long accId, String text) {
     final ChatMessage replyMsg = ChatMessage.getSystemMessage(accId, text);
-    akkaApi.send(new ToClientEnvelope(accId, replyMsg));
+    akkaApi.send(new ClientEnvelope(accId, replyMsg));
   }
 }

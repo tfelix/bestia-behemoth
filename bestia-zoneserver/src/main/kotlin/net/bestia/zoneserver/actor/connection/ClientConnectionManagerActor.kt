@@ -4,7 +4,7 @@ import akka.cluster.sharding.ClusterSharding
 import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -29,7 +29,7 @@ class ClientConnectionManagerActor : BaseClientMessageRouteActor() {
 
   private fun onClientConnection(msg: ClientConnectMessage) {
     LOG.trace { "Received: $msg" }
-    val envelope = ToClientEnvelope(msg.accountId, msg)
+    val envelope = ClientEnvelope(msg.accountId, msg)
     clientConnectionActor.tell(envelope, self)
   }
 

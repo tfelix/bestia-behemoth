@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.entity.Entity
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.model.domain.Attack
 import net.bestia.model.domain.ConditionValues
 import net.bestia.model.domain.Element

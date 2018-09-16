@@ -1,9 +1,9 @@
 package net.bestia.entity.factory;
 
-import net.bestia.entity.component.AttackListComponent;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.EquipComponent;
-import net.bestia.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.AttackListComponent;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.EquipComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
 
 import java.io.File;
 import java.util.HashMap;

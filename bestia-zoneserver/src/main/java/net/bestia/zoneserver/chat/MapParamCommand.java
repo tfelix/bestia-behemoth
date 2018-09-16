@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat;
 
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.client.ToClientEnvelope;
+import net.bestia.messages.client.ClientEnvelope;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.Companion.UserLevel;
@@ -60,13 +60,13 @@ public class MapParamCommand extends BaseChatCommand {
     if (mapParam == null) {
       LOG.warn("No map parameter found inside database.");
       final ChatMessage msg = ChatMessage.getSystemMessage(account.getId(), "No map info found in database.");
-			final ToClientEnvelope envelope = new ToClientEnvelope(account.getId(), msg);
+			final ClientEnvelope envelope = new ClientEnvelope(account.getId(), msg);
       akkaApi.send(envelope);
       return;
     }
 
     final ChatMessage msg = ChatMessage.getSystemMessage(account.getId(), mapParam.toDetailString());
-    final ToClientEnvelope envelope = new ToClientEnvelope(account.getId(), msg);
+    final ClientEnvelope envelope = new ClientEnvelope(account.getId(), msg);
     akkaApi.send(envelope);
   }
 

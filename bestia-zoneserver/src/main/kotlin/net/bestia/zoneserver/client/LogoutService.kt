@@ -1,11 +1,10 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.messages.MessageApi
-import net.bestia.messages.client.ToClientEnvelope
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.login.LogoutMessage
-import net.bestia.messages.login.LogoutState
+import net.bestia.messages.login.LoginError
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
@@ -20,7 +19,7 @@ class LogoutService(
         private val akkaApi: MessageApi,
         private val playerEntityService: PlayerEntityService,
         private val entityService: EntityService,
-				private val connectionService: ConnectionService
+        private val connectionService: ConnectionService
 ) {
 
 	/**
@@ -47,8 +46,8 @@ class LogoutService(
 		// Send disconnect message to the webserver.
 		// Depending on the logout state the actor might have already been
 		// stopped.
-		val logoutMsg = LogoutMessage(LogoutState.NO_REASON)
-    akkaApi.send(ToClientEnvelope(acc.id, logoutMsg))
+		val logoutMsg = LogoutMessage(LoginError.NO_REASON)
+    akkaApi.send(ClientEnvelope(acc.id, logoutMsg))
 
 		val playerEntities = playerEntityService.getPlayerEntities(accId)
 

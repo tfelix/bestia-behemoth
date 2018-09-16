@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.chat;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;

@@ -1,6 +1,7 @@
 package net.bestia.messages.bestia;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * This message is send from the client to ask the server for data about the
@@ -9,7 +10,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public class BestiaInfoRequestMessage extends JsonMessage {
+public class BestiaInfoRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "bestia.requestinfo";

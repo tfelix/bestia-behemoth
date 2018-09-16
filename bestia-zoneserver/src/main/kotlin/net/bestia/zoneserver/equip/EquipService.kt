@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.equip
 
-import net.bestia.entity.Entity
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.model.domain.Item
 import org.springframework.stereotype.Service
 

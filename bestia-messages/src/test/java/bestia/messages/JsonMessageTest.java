@@ -1,7 +1,6 @@
 package bestia.messages;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.bestia.messages.JsonMessage;
 import net.bestia.util.PackageLoader;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
 import net.bestia.model.domain.SpriteInfo;
+import net.bestia.zoneserver.entity.component.VisibleComponent;
 
 import java.util.Objects;
 

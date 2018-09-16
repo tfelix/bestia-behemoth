@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
-import net.bestia.entity.component.Component
+import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger{ }
 

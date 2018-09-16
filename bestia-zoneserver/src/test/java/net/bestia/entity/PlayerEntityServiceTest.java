@@ -2,14 +2,12 @@ package net.bestia.entity;
 
 import com.hazelcast.core.HazelcastInstance;
 import net.bestia.HazelMock;
-import net.bestia.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.EntitySearchService;
-import net.bestia.zoneserver.entity.PlayerBestiaService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.entity.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

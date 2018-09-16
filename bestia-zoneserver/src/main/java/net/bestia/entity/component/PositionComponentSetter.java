@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import net.bestia.model.domain.Direction;
 import net.bestia.model.geometry.CollisionShape;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 
 import java.util.Objects;
 

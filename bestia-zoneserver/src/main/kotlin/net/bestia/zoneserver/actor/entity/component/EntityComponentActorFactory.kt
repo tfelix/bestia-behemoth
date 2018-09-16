@@ -4,9 +4,8 @@ import akka.actor.AbstractActor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.entity.EntityService
-import net.bestia.entity.component.ActorSync
-import net.bestia.entity.component.Component
+import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.actor.SpringExtension
 
 private val LOG = KotlinLogging.logger { }
