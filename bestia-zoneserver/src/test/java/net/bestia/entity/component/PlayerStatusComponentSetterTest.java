@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
 import net.bestia.model.domain.*;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

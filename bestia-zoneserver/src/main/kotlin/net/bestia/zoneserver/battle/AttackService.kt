@@ -2,11 +2,10 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.AttackListComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.entity.component.StatusComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.dao.AttackDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Attack
@@ -21,8 +20,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class AttackService(
-        private val entityService: EntityService,
-        private val attackDao: AttackDAO
+    private val attackDao: AttackDAO
 ) {
 
   /**
@@ -30,23 +28,19 @@ class AttackService(
    * entity to learn the attack it must have a [StatusComponent] as well
    * as a [PositionComponent]. If it has not a
    * [AttackListComponent] this component will be added.
-   *
-   * @param entityId
-   * The entity to learn the attack.
-   * @param attackId
-   * The attack to learn.
    */
-  fun learnAttack(entityId: Long, attackId: Int) {
+  fun learnAttack(entity: Entity, attackId: Int) {
     LOG.debug("Entity {} learns attack {}.")
+    // TODO Implementieren
   }
 
   /**
    * Checks if the bestia knows this attack.
    */
-  fun knowsAttack(entityId: Long, attackId: Int): Boolean {
+  fun knowsAttack(entity: Entity, attackId: Int): Boolean {
     val attack = attackDao.findOneOrThrow(attackId)
-    val attacker = entityService.getEntity(attackId.toLong())
-    return knowsAttack(attacker, attack)
+
+    return knowsAttack(entity, attack)
   }
 
   /**
@@ -60,12 +54,8 @@ class AttackService(
    */
   fun knowsAttack(entity: Entity, attack: Attack): Boolean {
 
-    val attacks = entityService.getComponent(entity, AttackListComponent::class.java)
-
-    return if (!attacks.isPresent) {
-      false
-    } else attacks.get().knowsAttack(attack.id)
-
+    return entity.tryGetComponent(AttackListComponent::class.java)
+        ?.knownAttacks?.contains(attack.id) ?: false
   }
 
   /**
@@ -75,25 +65,25 @@ class AttackService(
    *
    * @return TRUE of the entity can now use this skill/attack.
    */
-  fun canUseAttack(attackerId: Long, attackId: Int): Boolean {
+  fun canUseAttack(attacker: Entity, attackId: Int): Boolean {
 
     // TODO Check line of sight.
 
     val attack = attackDao.findOneOrThrow(attackId)
-    val attacker = entityService.getEntity(attackId.toLong())
-
-    return hasAllBattleComponents(attacker) && knowsAttack(attacker, attack) && hasManaForAttack(attacker, attack)
+    return hasAllBattleComponents(attacker) &&
+        knowsAttack(attacker, attack) &&
+        hasManaForAttack(attacker, attack)
   }
 
   private fun hasManaForAttack(entity: Entity, attack: Attack): Boolean {
-    return false
+    // TODO Take Equipment and Status altering effects into account
+    val currentMana = entity.tryGetComponent(StatusComponent::class.java)?.conditionValues?.currentMana ?: 0
+    return currentMana >= attack.manaCost
   }
 
-  private fun hasAllBattleComponents(entity: Entity?): Boolean {
-    return if (entity == null) {
-      false
-    } else entityService.hasComponent(entity, PositionComponent::class.java)
-            && entityService.hasComponent(entity, StatusComponent::class.java)
-            && entityService.hasComponent(entity, LevelComponent::class.java)
+  private fun hasAllBattleComponents(entity: Entity): Boolean {
+    return entity.tryGetComponent(PositionComponent::class.java) != null
+        && entity.tryGetComponent(StatusComponent::class.java) != null
+        && entity.tryGetComponent(LevelComponent::class.java) != null
   }
 }

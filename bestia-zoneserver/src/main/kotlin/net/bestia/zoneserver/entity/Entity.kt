@@ -3,6 +3,7 @@ package net.bestia.zoneserver.entity
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.Component
 import java.io.Serializable
+import java.lang.NullPointerException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -13,15 +14,13 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 class Entity(
-        /**
-         * Returns the unique ID for each entity.
-         *
-         * @return The unique ID for each entity.
-         */
-        val id: Long
+    /**
+     * @return The unique ID for each entity.
+     */
+    val id: Long
 ) : Serializable {
 
-  private val components = mutableMapOf<String, Long>()
+  private val components = mutableMapOf<Class<*>, Component>()
 
   /**
    * Adds a given component reference to this entity. Note that the component
@@ -32,9 +31,8 @@ class Entity(
    * The component to be added.
    */
   internal fun addComponent(comp: Component) {
-    val simpleName = comp.javaClass.simpleName
-    LOG.trace("Adding component {} (id: {}) to entity id: {}.", simpleName, comp.id, id)
-    components[simpleName] = comp.id
+    LOG.trace { "Adding component $comp to entity id:  $id." }
+    components[comp.javaClass] = comp
   }
 
   /**
@@ -44,23 +42,8 @@ class Entity(
    * The component to be removed.
    */
   internal fun removeComponent(comp: Component) {
-    val simpleName = comp.javaClass.simpleName
-    LOG.trace("Removing component {} from entity id: {}.", simpleName, id)
-    components.remove(simpleName)
-  }
-
-  /**
-   * Removes the component via its id from the entity.
-   *
-   * @param compId
-   * The ID of the component to be removed.
-   */
-  internal fun removeComponent(compId: Long) {
-    LOG.trace("Removing component id {} from entity: {}.", compId, id)
-    components.entries.asSequence()
-            .filter { (_, id) -> id == compId }
-            .map { (name, _) -> name }
-            .firstOrNull()?.let { components.remove(it) }
+    LOG.trace { "Removing component $comp from entity id: $id." }
+    components.remove(comp.javaClass)
   }
 
   /**
@@ -72,6 +55,15 @@ class Entity(
    * otherwise.
    */
   internal fun getComponentId(clazz: Class<out Component>): Long {
-    return components[clazz.simpleName] ?: 0
+    return components[clazz]?.id ?: 0
+  }
+
+  internal fun <T : Component> getComponent(clazz: Class<T>): T {
+    return tryGetComponent(clazz) ?: throw NullPointerException("Entity $id has no component of type $clazz")
+  }
+
+  internal fun <T : Component> tryGetComponent(clazz: Class<T>): T? {
+    @Suppress("UNCHECKED_CAST")
+    return components[clazz] as? T
   }
 }

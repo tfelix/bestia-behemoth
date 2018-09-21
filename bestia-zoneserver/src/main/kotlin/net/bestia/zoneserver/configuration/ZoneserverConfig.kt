@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.config
+package net.bestia.zoneserver.configuration
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * @author Thomas Felix
  */
 @Component
-data class StaticConfig(
+data class ZoneserverConfig(
         /**
          * Returns the name of this server. By default this is an auto generated
          * value.

@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.component.transformer
 
-import net.bestia.entity.component.StatusComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.entity.component.transform.SyncTransformer
 
 /**

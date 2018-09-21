@@ -2,11 +2,10 @@ package net.bestia.zoneserver.bestia
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.battle.StatusService
+import net.bestia.zoneserver.entity.ComponentNotifyService
 import org.springframework.stereotype.Service
-import java.util.*
 
 private val LOG = KotlinLogging.logger { }
 
@@ -17,8 +16,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class LevelService(
-        private val entityService: EntityService,
-        private val statusService: StatusService) {
+    private val statusService: StatusService,
+    private val componentNotifyService: ComponentNotifyService
+) {
 
   /**
    * Sets the level of the given entity to a certain level. The entity must
@@ -30,22 +30,17 @@ class LevelService(
    * The new level to set.
    */
   fun setLevel(entity: Entity, level: Int) {
-
-    LOG.debug { "Setting entity $entity level to {}$level." }
-
-    Objects.requireNonNull(entity)
+    LOG.debug { "setLevel(): $entity level to $level." }
 
     if (level <= 0 || level > MAX_LEVEL) {
       throw IllegalArgumentException("Level must be between 1 and $MAX_LEVEL")
     }
 
-    val lvComp = entityService.getComponent(entity, LevelComponent::class.java)
-            .orElseThrow { IllegalStateException("Level component missing.") }
-
+    val lvComp = entity.getComponent(LevelComponent::class.java)
     lvComp.level = level
-
-    // Invalidate the status points if the entity has a status component.
     statusService.calculateStatusPoints(entity)
+
+    componentNotifyService.notifyChanged(entity.id, lvComp)
   }
 
   /**
@@ -53,18 +48,24 @@ class LevelService(
    * [LevelComponent] or 1 is returned.
    */
   fun getLevel(entity: Entity): Int {
+    return entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
+  }
 
-    return entityService.getComponent(entity, LevelComponent::class.java)
-            .map { it.level }
-            .orElse(1)
+  /**
+   * The current experience of the entity. Entity must possess
+   * [LevelComponent] or 0 will be returned.
+   *
+   * @return The current exp or 0 if the [LevelComponent] is missing.
+   */
+  fun getExp(entity: Entity): Int {
+    return entity.tryGetComponent(LevelComponent::class.java)?.exp ?: 0
   }
 
   private fun checkLevelup(entity: Entity, levelComponent: LevelComponent) {
-
     val neededExp = Math
-            .round(Math.pow(levelComponent.level.toDouble(), 3.0) / 10 + 15.0 + levelComponent.level * 1.5).toInt()
+        .round(Math.pow(levelComponent.level.toDouble(), 3.0) / 10 + 15.0 + levelComponent.level * 1.5).toInt()
 
-    LOG.trace("Entity {} has {}/{} exp for levelup.", entity, neededExp, levelComponent.exp)
+    LOG.trace { "checkLevelup(): $entity has ${levelComponent.exp}/$neededExp exp for levelup" }
 
     if (levelComponent.exp > neededExp && levelComponent.level < MAX_LEVEL) {
       levelComponent.exp = levelComponent.exp - neededExp
@@ -72,10 +73,7 @@ class LevelService(
       checkLevelup(entity, levelComponent)
     }
 
-    // Finally recalculate the status if all level ups have recursively
-    // resolved.
     statusService.calculateStatusPoints(entity)
-    entityService.updateComponent(levelComponent)
   }
 
   /**
@@ -87,32 +85,18 @@ class LevelService(
    * @param exp
    */
   fun addExp(entity: Entity, exp: Int) {
-
-    LOG.trace("Entity {} gains {} exp.", entity, exp)
-
     if (exp < 0) {
       throw IllegalArgumentException("Exp can not be negative.")
     }
 
-    val levelComp = entityService.getComponent(entity, LevelComponent::class.java)
-            .orElseThrow { IllegalArgumentException() }
+    LOG.trace { "addExp(): $entity gains $exp exp" }
 
+    val levelComp = entity.getComponent(LevelComponent::class.java)
     levelComp.exp = levelComp.exp + exp
-    checkLevelup(entity, levelComp)
-  }
 
-  /**
-   * The current experience of the entity. Entity must possess
-   * [LevelComponent] or 0 will be returned.
-   *
-   * @param entity
-   * The entity to get its experience points.
-   * @return The current exp or 0 if the [LevelComponent] is missing.
-   */
-  fun getExp(entity: Entity): Int {
-    return entityService.getComponent(entity, LevelComponent::class.java)
-            .map { it.exp }
-            .orElse(0)
+    checkLevelup(entity, levelComp)
+
+    componentNotifyService.notifyChanged(entity.id, levelComp)
   }
 
   companion object {

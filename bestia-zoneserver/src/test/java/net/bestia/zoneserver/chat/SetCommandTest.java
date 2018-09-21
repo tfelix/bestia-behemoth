@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat;
 
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.entity.component.StatusComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;

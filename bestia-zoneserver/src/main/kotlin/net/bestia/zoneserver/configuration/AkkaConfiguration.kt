@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.config
+package net.bestia.zoneserver.configuration
 
 import akka.actor.ActorRef
 import akka.actor.ActorSystem

@@ -9,7 +9,7 @@ import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.map.MapPart
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
-import net.bestia.zoneserver.config.StaticConfig
+import net.bestia.zoneserver.configuration.ZoneserverConfig
 import net.bestia.zoneserver.configuration.MapGenConfiguration
 import net.bestia.zoneserver.map.MapService
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,11 +21,11 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class MapGeneratorClientActor(
-        private val config: StaticConfig,
-        @Qualifier("localMapGenDao")
+    private val config: ZoneserverConfig,
+    @Qualifier("localMapGenDao")
         private val mapGenDao: MapGenDAO,
-        private val genConfig: MapGenConfiguration,
-        private val mapService: MapService
+    private val genConfig: MapGenConfiguration,
+    private val mapService: MapService
 ) : AbstractActor(), MasterConnector {
 
   private var nodeGenerator: MapNodeGenerator? = null

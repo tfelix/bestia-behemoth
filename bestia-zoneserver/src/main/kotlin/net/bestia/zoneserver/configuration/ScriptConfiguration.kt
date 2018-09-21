@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.config
+package net.bestia.zoneserver.configuration
 
 import net.bestia.zoneserver.script.ScriptCache
 import net.bestia.zoneserver.script.ScriptCompiler

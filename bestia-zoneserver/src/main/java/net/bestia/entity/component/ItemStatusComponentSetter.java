@@ -1,6 +1,7 @@
 package net.bestia.entity.component;
 
 import net.bestia.model.domain.*;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 
 import java.util.Objects;
 

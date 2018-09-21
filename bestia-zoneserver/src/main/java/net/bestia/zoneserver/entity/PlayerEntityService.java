@@ -6,7 +6,7 @@ import com.hazelcast.core.MultiMap;
 import net.bestia.zoneserver.entity.component.LevelComponent;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.zoneserver.entity.component.PositionComponent;
-import net.bestia.entity.component.StatusComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
 import org.slf4j.Logger;

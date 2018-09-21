@@ -5,7 +5,7 @@ import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
-import net.bestia.entity.component.StatusComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.ConditionValues

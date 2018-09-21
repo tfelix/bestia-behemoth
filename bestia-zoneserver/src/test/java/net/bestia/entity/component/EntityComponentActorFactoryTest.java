@@ -5,6 +5,7 @@ import akka.actor.ActorRef;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory;
 import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

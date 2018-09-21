@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.client.ClientEnvelope;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.config.StaticConfig;
+import net.bestia.zoneserver.configuration.ZoneserverConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class ServerVersionChatCommandTest {
 	private Account acc;
 	
 	@Mock
-	private StaticConfig config;
+	private ZoneserverConfig config;
 	
 	@Before
 	public void setup() {

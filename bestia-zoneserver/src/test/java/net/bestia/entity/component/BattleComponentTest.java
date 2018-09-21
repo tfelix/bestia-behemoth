@@ -1,5 +1,6 @@
 package net.bestia.entity.component;
 
+import net.bestia.zoneserver.entity.component.BattleComponent;
 import org.junit.Assert;
 import org.junit.Test;
 

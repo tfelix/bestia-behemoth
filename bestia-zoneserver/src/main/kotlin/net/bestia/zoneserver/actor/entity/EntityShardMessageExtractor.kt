@@ -21,8 +21,11 @@ class EntityShardMessageExtractor : ShardRegion.MessageExtractor {
   /**
    * Message is the payload no need to extract it.
    */
-  override fun entityMessage(message: Any): Any {
-    return message
+  override fun entityMessage(message: Any): Any? {
+    return when(message) {
+      is EntityEnvelope -> message.content
+      else -> null
+    }
   }
 
   override fun shardId(message: Any): String? {

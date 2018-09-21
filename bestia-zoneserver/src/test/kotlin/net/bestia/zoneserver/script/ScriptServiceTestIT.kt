@@ -3,7 +3,7 @@ package net.bestia.zoneserver.script
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.entity.factory.MobFactory
 import net.bestia.zoneserver.TestZoneConfiguration
-import net.bestia.zoneserver.config.StaticConfig
+import net.bestia.zoneserver.configuration.ZoneserverConfig
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.GlobalEnv
 import org.junit.Test
@@ -35,9 +35,9 @@ class ScriptServiceTestIT {
     @Bean
     fun globEnv(): GlobalEnv {
       return GlobalEnv(
-              config = StaticConfig(
-                      serverVersion = "1337",
-                      scriptDir = "classpath:script"
+              config = ZoneserverConfig(
+                  serverVersion = "1337",
+                  scriptDir = "classpath:script"
               ),
               api = ScriptRootApi(entityService, mobFactory)
       )

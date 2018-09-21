@@ -46,6 +46,7 @@ class EntityActor(
   private val componentActors = HashBiMap.create<ComponentKey, ActorRef>()
   private var entityId: Long = 0
 
+  // TODO ENvelope is not send to entity anymore.
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
             .match(EntityEnvelope::class.java, this::handleEntityEnvelope)

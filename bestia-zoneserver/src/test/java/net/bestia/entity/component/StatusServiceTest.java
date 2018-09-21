@@ -8,6 +8,7 @@ import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.zoneserver.entity.component.LevelComponent;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
