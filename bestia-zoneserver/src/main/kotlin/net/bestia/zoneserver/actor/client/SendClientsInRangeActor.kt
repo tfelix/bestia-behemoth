@@ -24,8 +24,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class SendClientsInRangeActor(
-        private val playerEntityService: PlayerEntityService,
-        private val entityService: EntityService
+    private val playerEntityService: PlayerEntityService,
+    private val entityService: EntityService
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {

@@ -72,7 +72,7 @@ public class ItemEntityFactory {
 
     final PositionComponentSetter posSetter = new PositionComponentSetter(position);
     final VisibleComponentSetter visSetter = new VisibleComponentSetter(SpriteInfo.item(item.getImage()));
-    final TagComponentSetter tagSetter = new TagComponentSetter(Tag.ITEM, Tag.PERSIST);
+    final TagComponentSetter tagSetter = new TagComponentSetter(TagComponent.ITEM, TagComponent.PERSIST);
     final ItemStatusComponentSetter statusSetter = new ItemStatusComponentSetter(item);
 
     final Set<ComponentSetter<? extends Component>> compSetter = EntityFactory.makeSet(

@@ -15,11 +15,11 @@ private val LOG = KotlinLogging.logger {  }
 
 @Service
 class LogoutService(
-        private val accountDao: AccountDAO,
-        private val akkaApi: MessageApi,
-        private val playerEntityService: PlayerEntityService,
-        private val entityService: EntityService,
-        private val connectionService: ConnectionService
+    private val accountDao: AccountDAO,
+    private val akkaApi: MessageApi,
+    private val playerEntityService: PlayerEntityService,
+    private val entityService: EntityService,
+    private val connectionService: ConnectionService
 ) {
 
 	/**

@@ -1,20 +1,14 @@
 package net.bestia.zoneserver.entity
 
-import com.hazelcast.core.HazelcastInstance
-import mu.KLogging
+import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.geometry.CollisionShape
 import org.springframework.stereotype.Service
 
+private val LOG = KotlinLogging.logger { }
+
 @Service
-class EntitySearchService(
-        hazelcast: HazelcastInstance,
-        private val entityService: EntityService
-) {
-
-  private val entities = hazelcast.getMap<Long, Entity>(EntityService.ECS_ENTITY_MAP_KEY)
-
-  companion object: KLogging()
+class EntitySearchService {
 
   /**
    * Returns all entities which are currently colliding with the given entity.
@@ -29,8 +23,8 @@ class EntitySearchService(
    *
    * @return All entities colliding with this entity.
    */
-  fun getCollidingEntities(entity: Entity) : Set<Entity> {
-    logger.trace{ "Finding all colliding entities for: $entity." }
+  fun getCollidingEntities(entity: Entity): Set<Entity> {
+    LOG.trace { "Finding all colliding entities for: $entity." }
 
     val posComp = entityService.getComponent(entity, PositionComponent::class.java)
 
@@ -38,7 +32,7 @@ class EntitySearchService(
       val shape = posComp.get().shape
       val collidingEntities = getCollidingEntities(shape)
 
-      logger.trace {"Found colliding entities: $collidingEntities" }
+      LOG.trace { "Found colliding entities: $collidingEntities" }
       return collidingEntities
     } else {
       hashSetOf()
@@ -53,7 +47,7 @@ class EntitySearchService(
    * @param area The area in which the looked up entities lie.
    * @return All entities contained in the area.
    */
-  fun getCollidingEntities(area: CollisionShape) : Set<Entity> {
+  fun getCollidingEntities(area: CollisionShape): Set<Entity> {
 
     val colliders = mutableSetOf<Entity>()
 

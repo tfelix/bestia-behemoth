@@ -167,7 +167,7 @@ public class ScriptPropertyAccessor {
     final boolean hasNonVoidReturn = !method.getReturnType().equals(Void.TYPE);
     final ScriptProperty scriptProp = method.getDeclaredAnnotation(ScriptProperty.class);
     final boolean isAnnotatedGetter = scriptProp != null
-            && scriptProp.accessor() == ScriptProperty.Accessor.GETTER;
+            && scriptProp.accessor() == ScriptAccessor.GETTER;
     return (isNamedGet || isAnnotatedGetter) && hasNoParam && hasNonVoidReturn;
   }
 
@@ -177,7 +177,7 @@ public class ScriptPropertyAccessor {
     final boolean hasVoidReturn = method.getReturnType().equals(Void.TYPE);
     final ScriptProperty scriptProp = method.getDeclaredAnnotation(ScriptProperty.class);
     final boolean isAnnotatedGetter = scriptProp != null
-            && scriptProp.accessor() == ScriptProperty.Accessor.SETTER;
+            && scriptProp.accessor() == ScriptAccessor.SETTER;
     return (isNamedSet || isAnnotatedGetter) && hasOneParam && hasVoidReturn;
   }
 

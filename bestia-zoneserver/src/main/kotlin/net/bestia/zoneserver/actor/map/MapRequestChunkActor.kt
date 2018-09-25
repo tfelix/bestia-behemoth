@@ -24,9 +24,9 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class MapRequestChunkActor(
-        private val mapService: MapService,
-        private val pbService: PlayerEntityService,
-        private val entityService: EntityService
+    private val mapService: MapService,
+    private val pbService: PlayerEntityService,
+    private val entityService: EntityService
 ) : BaseClientMessageRouteActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)

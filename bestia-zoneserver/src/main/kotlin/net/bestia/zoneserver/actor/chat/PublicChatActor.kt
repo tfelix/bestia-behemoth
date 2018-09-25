@@ -22,8 +22,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class PublicChatActor(
-        private val playerEntityService: PlayerEntityService,
-        private val entityService: EntityService
+    private val playerEntityService: PlayerEntityService,
+    private val entityService: EntityService
 ) : AbstractActor() {
 
   private val sendActiveRange = SpringExtension.actorOf(context, SendClientsInRangeActor::class.java)

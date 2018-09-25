@@ -13,19 +13,19 @@ data class Responses(
         private val receivedResponses: List<Any>
 ) {
 
-  fun <T : Any> getReponse(responseClass: KClass<T>): T {
+  fun <T : Any> getResponse(responseClass: KClass<T>): T {
     @Suppress("UNCHECKED_CAST")
     return receivedResponses.first { it::class == responseClass } as T
   }
 
-  fun <T : Any> getAllReponses(responseClass: KClass<T>): List<T> {
+  fun <T : Any> getAllResponses(responseClass: KClass<T>): List<T> {
     @Suppress("UNCHECKED_CAST")
-    return receivedResponses.filter { it::class == responseClass }.map { it as T }
+    return receivedResponses.asSequence().filter { it::class == responseClass }.map { it as T }.toList()
   }
 }
 
 class AwaitResponseActor(
-        private val action: (Responses) -> Unit,
+        private val action: (Responses) -> Any,
         private val checkResponseReceived: ((List<Any>) -> Boolean)
 ) : AbstractActor() {
 
@@ -51,9 +51,11 @@ class AwaitResponseActor(
     if (checkResponseReceived(receivedResponses)) {
       val response = Responses(receivedResponses)
       try {
-        action(response)
+        val responseMsg = action(response)
+        context.parent.tell(responseMsg, self)
       } catch (e: Exception) {
         LOG.warn { "Error while executing response action: $e" }
+      } finally {
         context.stop(self)
       }
     }
@@ -62,7 +64,7 @@ class AwaitResponseActor(
   companion object {
     fun props(
             awaitedResponses: List<KClass<*>>,
-            action: (Responses) -> Unit
+            action: (Responses) -> Any
     ): Props {
       val checkResponseReceived: (List<Any>) -> Boolean = { receivedData ->
         val receivedClasses = receivedData.map { it::class }

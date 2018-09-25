@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
+import net.bestia.messages.entity.RequestComponentMessage
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger{ }
@@ -27,7 +28,7 @@ abstract class BaseComponentActor<T : Component>(
   }
 
   private fun sendComponent(msg: RequestComponentMessage) {
-    msg.requester.tell(ResponseComponentMessage(component), self)
+    msg.requester.tell(component, self)
   }
 
   protected abstract fun createReceive(builder: ReceiveBuilder)

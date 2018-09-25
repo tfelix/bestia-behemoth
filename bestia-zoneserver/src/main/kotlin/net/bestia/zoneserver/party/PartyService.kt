@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class PartyService(
-        private val partyDao: PartyDAO
+    private val partyDao: PartyDAO
 ) {
 
   /**

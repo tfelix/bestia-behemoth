@@ -284,12 +284,12 @@ public class SetCommand extends BaseChatCommand {
 		}
 
 		componentName = firstUppercase(componentName);
-		final String fullCompName = COMPONENT_PACKAGE + "." + componentName;
+		final String fullCompName = COMPONENT_PACKAGE + "" + componentName;
 
 		Class<? extends Component> clazz = (Class<? extends Component>) forName(fullCompName,
 				this.getClass().getClassLoader());
 
-		final String member = Stream.of(compNameToken).skip(1).collect(Collectors.joining("."));
+		final String member = Stream.of(compNameToken).skip(1).collect(Collectors.joining(""));
 
 		return new Target(clazz, member);
 	}

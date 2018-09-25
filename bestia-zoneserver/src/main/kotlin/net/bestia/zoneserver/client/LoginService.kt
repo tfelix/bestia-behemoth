@@ -21,12 +21,12 @@ private val LOG = KotlinLogging.logger {  }
  */
 @Service
 class LoginService(
-        private val accountDao: AccountDAO,
-        private val playerEntityService: PlayerEntityService,
-        private val playerEntityFactory: PlayerBestiaEntityFactory,
-        private val playerBestiaService: PlayerBestiaService,
-        private val entityService: EntityService,
-        private val connectionService: ConnectionService
+    private val accountDao: AccountDAO,
+    private val playerEntityService: PlayerEntityService,
+    private val playerEntityFactory: PlayerBestiaEntityFactory,
+    private val playerBestiaService: PlayerBestiaService,
+    private val entityService: EntityService,
+    private val connectionService: ConnectionService
 ) {
 
   /**

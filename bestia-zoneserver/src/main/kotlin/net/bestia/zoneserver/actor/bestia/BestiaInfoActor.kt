@@ -53,7 +53,7 @@ class BestiaInfoActor(
       receivedEntities.containsAll(bestiasEids)
     }
     val props = AwaitResponseActor.props(wasAllReceived) {
-      it.getAllReponses(ResponseComponentMessage::class)
+      it.getAllResponses(ResponseComponentMessage::class)
               .map { ClientEnvelope(accountId, it) }
               .forEach { sendToClient.tell(it, self) }
     }

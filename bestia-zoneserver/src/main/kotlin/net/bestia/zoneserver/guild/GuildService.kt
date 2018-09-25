@@ -1,11 +1,14 @@
 package net.bestia.zoneserver.guild
 
+import mu.KotlinLogging
 import net.bestia.model.dao.*
 import net.bestia.model.domain.Guild
 import net.bestia.model.domain.GuildMember
 import net.bestia.model.domain.PlayerBestia
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Service to manipulate the players guild.
@@ -14,9 +17,9 @@ import org.springframework.stereotype.Service
  */
 @Service
 class GuildService(
-        private val guildDao: GuildDAO,
-        private val guildMemberDao: GuildMemberDAO,
-        private val playerBestiaDao: PlayerBestiaDAO
+    private val guildDao: GuildDAO,
+    private val guildMemberDao: GuildMemberDAO,
+    private val playerBestiaDao: PlayerBestiaDAO
 ) {
 
   fun addPlayerToGuild(playerBestiaId: Long, guildId: Int) {
@@ -76,11 +79,11 @@ class GuildService(
 
   fun getGuildMembersFromPlayer(playerBestiaId: Long): Set<PlayerBestia> {
     return getGuildOfPlayer(playerBestiaId)?.members
-            ?.asSequence()
-            ?.map { it.member }
-            ?.filter { x -> x.id != playerBestiaId }
-            ?.toSet()
-            ?: emptySet()
+        ?.asSequence()
+        ?.map { it.member }
+        ?.filter { x -> x.id != playerBestiaId }
+        ?.toSet()
+        ?: emptySet()
   }
 
   fun getSkillpointsToSpend(guildId: Int): Int {
@@ -102,6 +105,5 @@ class GuildService(
 
   companion object {
     private const val BASE_MAX_GUILD_MEMBERS = 24
-    private val LOG = LoggerFactory.getLogger(GuildService::class.java)
   }
 }

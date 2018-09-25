@@ -20,8 +20,12 @@ data class BattleComponent(
    */
   val damageDistribution: Map<Long, Double>
     get() {
-      val totalDmg = damageReceived.values.map { it.damage }.fold(0L) { a, b -> a + b }.toDouble()
-      return damageReceived.entries.groupBy { (key, value) -> key to value.damage / totalDmg }
+      val totalDmg = damageReceived.values.map { it.damage }.sum().toDouble()
+      return damageReceived.entries
+          .asSequence()
+          .map { (key, value) -> key to value.damage / totalDmg }
+          .sortedBy { it.second }
+          .toList().toMap()
     }
 
   /**

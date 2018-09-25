@@ -19,7 +19,7 @@ class AwaitReponseActorTest {
 
         var wasCalledCorrectly = false
         val awaitResponseProps = AwaitResponseActor.props(listOf(String::class, Long::class)) {
-          wasCalledCorrectly = it.getReponse(String::class) == testString && it.getReponse(Long::class) == testLong
+          wasCalledCorrectly = it.getResponse(String::class) == testString && it.getResponse(Long::class) == testLong
         }
         val actor = system.actorOf(awaitResponseProps)
 
