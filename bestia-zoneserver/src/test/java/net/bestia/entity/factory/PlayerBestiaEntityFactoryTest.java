@@ -1,5 +1,8 @@
 package net.bestia.entity.factory;
 
+import net.bestia.zoneserver.entity.factory.Blueprint;
+import net.bestia.zoneserver.entity.factory.EntityFactory;
+import net.bestia.zoneserver.entity.factory.PlayerBestiaEntityFactory;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.component.*;
 import net.bestia.model.domain.Bestia;
@@ -104,7 +107,7 @@ public class PlayerBestiaEntityFactoryTest {
 		verify(entityFactory).buildEntity(blueprintCaptor.capture(), componentSetterCaptor.capture());
 
 		// Assert the captor.
-		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(VisibleComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(VisualComponent.class));
 		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(EquipComponent.class));
 		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(InventoryComponent.class));
 		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(PositionComponent.class));

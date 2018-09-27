@@ -34,10 +34,11 @@ private val LOG = KotlinLogging.logger { }
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
 class InventoryService(
-        private val playerItemDao: PlayerItemDAO,
-        private val accountDao: AccountDAO,
-        private val itemDao: ItemDAO,
-        private val entityService: EntityService) {
+    private val playerItemDao: PlayerItemDAO,
+    private val accountDao: AccountDAO,
+    private val itemDao: ItemDAO,
+    private val entityService: EntityService
+) {
 
   /**
    * If the entity also has a [StatusComponent] attached it will update
@@ -54,29 +55,18 @@ class InventoryService(
    * This entity inventory gets updated with the maximum weight.
    */
   fun updateMaxWeight(entity: Entity) {
-    val invComp = checkAndGetInventoryComp(entity)
+    val invComp = entity.getComponent(InventoryComponent::class.java)
+    val statusComp = entity.getComponent(StatusComponent::class.java)
 
-    // Now we must check if we have a status component.
-    val statusComp = entityService.getComponent(entity, StatusComponent::class.java)
+    val level = entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
 
-    if (!statusComp.isPresent) {
-      invComp.maxWeight = 0f
-      entityService.updateComponent(invComp)
-      return
-    }
-
-    // Currently we can not distinguish between bestia classes.
-    val level = entityService
-            .getComponent(entity, LevelComponent::class.java)
-            .map { it.level }
-            .orElse(1)
-
-    val str = statusComp.map { c -> c.statusPoints.strength }.orElse(0)
+    val str = statusComp.statusPoints.strength
     val maxWeight = BASE_WEIGHT + str * 4 * level
 
-    LOG.trace("Setting max weight for entity {} to {}.", entity, maxWeight)
+    LOG.trace { "Setting max weight for entity $entity to $maxWeight." }
 
     invComp.maxWeight = maxWeight
+
     entityService.updateComponent(invComp)
   }
 
@@ -93,26 +83,10 @@ class InventoryService(
    * inventory component.
    */
   fun setMaxItemCount(entity: Entity, maxNumItems: Int) {
-    val invComp = checkAndGetInventoryComp(entity)
+    val invComp = entity.getComponent(InventoryComponent::class.java)
     invComp.maxItemCount = maxNumItems
+
     entityService.updateComponent(invComp)
-  }
-
-  /**
-   * Checks if the entity has the inventory component, if not the component
-   * will be added.
-   */
-  private fun checkAndGetInventoryComp(entity: Entity): InventoryComponent {
-    val invCompOpt = entityService.getComponent(entity, InventoryComponent::class.java)
-    val invComp: InventoryComponent
-    if (!invCompOpt.isPresent) {
-      invComp = entityService.newComponent(InventoryComponent::class.java)
-      entityService.attachComponent(entity, invComp)
-    } else {
-      invComp = invCompOpt.get()
-    }
-
-    return invComp
   }
 
   /**
@@ -156,21 +130,15 @@ class InventoryService(
   fun addItem(accId: Long, itemId: Int, amount: Int): Boolean {
 
     // Look if the account already has such an item.
-    var pitem: PlayerItem? = playerItemDao.findPlayerItem(accId, itemId)
+    var pitem = playerItemDao.findPlayerItem(accId, itemId)
 
     if (pitem == null) {
       // New item.
-
       val acc = accountDao.findOneOrThrow(accId)
       val item = itemDao.findOneOrThrow(itemId)
 
-      if (acc == null) {
-        LOG.info("Could not find account {}", accId)
-        return false
-      }
-
       if (item == null) {
-        LOG.info("Could not find item {}", itemId)
+        LOG.info { "Could not find item $itemId" }
         return false
       }
 
@@ -182,7 +150,7 @@ class InventoryService(
       playerItemDao.save(pitem)
     }
 
-    LOG.info("Account {} received item {}, amount: {}", accId, itemId, amount)
+    LOG.info { "Account $accId received item $itemId, amount: $amount" }
 
     return true
   }
@@ -195,7 +163,6 @@ class InventoryService(
     val item = itemDao.findItemByName(itemDbName)
 
     return item != null && addItem(accId, item.id, amount)
-
   }
 
   /**
@@ -265,21 +232,6 @@ class InventoryService(
   }
 
   /**
-   * Returns a [PlayerItem] with the given account id and item id. If
-   * the item does not exist in the inventory for this given account, null is
-   * returned.
-   *
-   * @param accId
-   * Account ID
-   * @param itemId
-   * Item ID
-   * @return The [PlayerItem] or NULL if the item does not exist.
-   */
-  fun getPlayerItem(accId: Long, itemId: Int): PlayerItem {
-    return playerItemDao.findPlayerItem(accId, itemId)
-  }
-
-  /**
    * Returns a [Item] with the given item db name or NULL if no item
    * with this name was found.
    *
@@ -306,8 +258,7 @@ class InventoryService(
   fun hasPlayerItem(playerItemId: Int, amount: Int): Boolean {
     val item = playerItemDao.findOneOrThrow(playerItemId)
 
-    return item != null && item.amount >= amount
-
+    return item.amount >= amount
   }
 
   companion object {

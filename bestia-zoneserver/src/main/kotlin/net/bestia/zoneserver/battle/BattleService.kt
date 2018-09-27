@@ -7,17 +7,13 @@ import net.bestia.zoneserver.entity.component.BattleComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.model.battle.Damage
-import net.bestia.model.dao.AttackDAO
-import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.*
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
-import net.bestia.zoneserver.entity.EntitySearchService
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.map.MapService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.concurrent.ThreadLocalRandom
 
@@ -30,12 +26,10 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Service
-class BattleService @Autowired
-constructor(
-        private val entityService: EntityService,
-        private val entitySearchService: EntitySearchService,
-        private val mapService: MapService,
-        private val atkDao: AttackDAO
+class BattleService(
+    private val entityService: EntityService,
+    private val mapService: MapService,
+    private val entityCollisionService: EntityCollisionService
 ) {
 
   private val rand = ThreadLocalRandom.current()
@@ -44,7 +38,7 @@ constructor(
   /**
    * Attacks itself.
    */
-  fun attackSelf(atkMsg: AttackUseMessage, usedAttack: Attack, pbe: Entity) {
+  fun attackSelf(attack: Attack, self: Entity) {
     // FIXME Reparieren.
     throw IllegalStateException("Not yet implemented.")
   }
@@ -56,24 +50,9 @@ constructor(
    *
    * @param target Point to attack.
    */
-  fun attackGround(atkId: Int, attackerId: Long, target: Point) {
+  fun attackGround(attack: Attack, attacker: Entity, target: Point) {
     // FIXME Reparieren.
     throw IllegalStateException("Not yet implemented.")
-  }
-
-  /**
-   * Alias for [.attackEntity].
-   *
-   * @param attackId
-   * @param atkEntityId
-   * @param defEntityId
-   * @return The received damage.
-   */
-  fun attackEntity(attackId: Int, atkEntityId: Long, defEntityId: Long): Damage? {
-    val attacker = entityService.getEntity(atkEntityId)
-    val defender = entityService.getEntity(defEntityId)
-    val atk = atkDao.findOneOrThrow(attackId)
-    return attackEntity(atk, attacker, defender)
   }
 
   /**
@@ -81,45 +60,35 @@ constructor(
    * Both entities must posess a [StatusComponent] for the calculation
    * to take place. If this is missing an [IllegalArgumentException]
    * will be thrown.
-   *
-   * @param usedAttack
-   * @param attacker
-   * @param defender
    */
-  fun attackEntity(usedAttack: Attack, attacker: Entity, defender: Entity): Damage? {
-    LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, usedAttack)
+  fun attackEntity(attack: Attack, attacker: Entity, defender: Entity): Damage? {
+    LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, attack)
 
-    if (isDefaultEntity(defender)) {
-      LOG.debug("Defending entity is a bestia.")
-      return attackDefaultEntity(usedAttack, attacker, defender)
+    return if (isEligibleForDamage(defender)) {
+      LOG.debug { "Defending entity is a bestia." }
+      attackDamagableEntity(attack, attacker, defender)
     } else {
       LOG.warn("Entity can not receive damage because of missing components.")
-      return null
+      null
     }
   }
 
   /**
    * Default damage calculation for entity hits.
    *
-   * @param usedAttack The used attack by the attacker.
+   * @param attack The used attack by the attacker.
    * @param attacker   The entity attacking.
    * @param defender   The defending entity.
    * @return The calculated damage object.
    */
-  private fun attackDefaultEntity(usedAttack: Attack, attacker: Entity, defender: Entity): Damage? {
-
-    // Prepare the battle context since this is needed to carry all
-    // information.
-    val battleCtx = createBattleContext(usedAttack, attacker, defender)
+  private fun attackDamagableEntity(attack: Attack, attacker: Entity, defender: Entity): Damage? {
+    // Prepare the battle context since this is needed to carry all information.
+    val battleCtx = createBattleContext(attack, attacker, defender)
 
     if (!isAttackPossible(battleCtx)) {
       LOG.trace("Attack was not possible.")
       return null
     }
-
-    // Check if attack hits.
-
-    LOG.trace("Attack did hit.")
 
     isCriticalHit(battleCtx)
 
@@ -131,7 +100,7 @@ constructor(
     LOG.trace("Primary damage calculated: {}", primaryDamage)
 
     // Damage can now be reduced by effects.
-    val receivedDamage = takeDamage(attacker, defender, primaryDamage)
+    val receivedDamage = takeDamage(defender, primaryDamage, attacker)
     LOG.trace("Entity {} received damage: {}", defender, primaryDamage)
 
     return receivedDamage
@@ -150,15 +119,15 @@ constructor(
     val defCond = getConditional(defender)
 
     return BattleContext(
-            usedAttack = usedAttack,
-            attacker = attacker,
-            damageVariables = dmgVars,
-            attackerStatusPoints = atkStatus,
-            defenderStatusPoints = defStatus,
-            attackerCondition = atkCond,
-            defenderCondition = defCond,
-            attackerStatusBased = atkStatusBased,
-            defenderStatusBased = defStatusBased
+        usedAttack = usedAttack,
+        attacker = attacker,
+        damageVariables = dmgVars,
+        attackerStatusPoints = atkStatus,
+        defenderStatusPoints = defStatus,
+        attackerCondition = atkCond,
+        defenderCondition = defCond,
+        attackerStatusBased = atkStatusBased,
+        defenderStatusBased = defStatusBased
     )
   }
 
@@ -169,19 +138,19 @@ constructor(
    *
    * @return TRUE if the entity is abtle to receive damage. FALSE otherwise.
    */
-  private fun isDefaultEntity(entity: Entity): Boolean {
+  private fun isEligibleForDamage(entity: Entity): Boolean {
     // Check if we have valid x and y.
-    if (!entityService.hasComponent(entity, StatusComponent::class.java)) {
+    if (!entity.hasComponent(StatusComponent::class.java)) {
       LOG.warn("Entity {} does not have status component.", entity)
       return false
     }
 
-    if (!entityService.hasComponent(entity, PositionComponent::class.java)) {
+    if (!entity.hasComponent(PositionComponent::class.java)) {
       LOG.warn("Entity {} does not have position component.", entity)
       return false
     }
 
-    if (!entityService.hasComponent(entity, LevelComponent::class.java)) {
+    if (!entity.hasComponent(LevelComponent::class.java)) {
       LOG.warn("Entity {} does not have level component.", entity)
       return false
     }
@@ -195,10 +164,9 @@ constructor(
    * @return TRUE if the attack hits the target. FALSE otherwise.
    */
   private fun doesAttackHit(battleCtx: BattleContext): Boolean {
-
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender
+    val defender = battleCtx.defender!!
     val isCriticalHit = battleCtx.damageVariables.isCriticalHit
 
     LOG.trace("Calculate hit.")
@@ -206,8 +174,8 @@ constructor(
     val atkType = attack.type
 
     if (atkType == AttackType.MELEE_MAGIC
-            || atkType == AttackType.RANGED_MAGIC
-            || atkType == AttackType.NO_DAMAGE) {
+        || atkType == AttackType.RANGED_MAGIC
+        || atkType == AttackType.NO_DAMAGE) {
       LOG.trace("Non physical attacks always hits.")
       return true
     }
@@ -242,9 +210,9 @@ constructor(
    */
   private fun isAttackPossible(battleCtx: BattleContext): Boolean {
     return (isInRange(battleCtx)
-            && hasLineOfSight(battleCtx)
-            && hasAttackerEnoughMana(battleCtx)
-            && hasAmmo(battleCtx))
+        && hasLineOfSight(battleCtx)
+        && hasAttackerEnoughMana(battleCtx)
+        && hasAmmo(battleCtx))
   }
 
   /**
@@ -255,9 +223,8 @@ constructor(
    * @return TRUE if the attack is in range. FALSE otherwise.
    */
   private fun isInRange(battleCtx: BattleContext): Boolean {
-
     val atkPosition = getPosition(battleCtx.attacker)
-    val defPosition = getPosition(battleCtx.defender)
+    val defPosition = getPosition(battleCtx.defender!!)
 
     val effectiveRange = getEffectiveSkillRange(battleCtx.usedAttack, battleCtx.attacker)
 
@@ -275,18 +242,17 @@ constructor(
    * is no direct line of sight.
    */
   private fun hasLineOfSight(battleCtx: BattleContext): Boolean {
-
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender
+    val defender = battleCtx.defender!!
 
     if (!attack.needsLineOfSight()) {
       LOG.trace("Attack does not need los.")
       return true
     }
 
-    val start = entityService.getComponent(attacker, PositionComponent::class.java).get().position
-    val end = entityService.getComponent(defender, PositionComponent::class.java).get().position
+    val start = attacker.getComponent(PositionComponent::class.java).position
+    val end = defender.getComponent(PositionComponent::class.java).position
 
     val x1: Long
     val x2: Long
@@ -307,7 +273,8 @@ constructor(
     val lineOfSight = lineOfSight(start, end)
     val doesMapBlock = lineOfSight.any { map.blocksSight(it) }
 
-    val blockingEntities = entitySearchService.getCollidingEntities(bbox)
+    // TODO Hier weiß ich noch nicht wie man das am geschicktesten lösen kann.
+    val blockingEntities = entityCollisionService.getAllCollidingEntityIds(bbox)
     val doesEntityBlock = blockingEntities.any { entity ->
       val pos = entityService.getComponent(entity, PositionComponent::class.java)
       pos.map {
@@ -326,10 +293,9 @@ constructor(
    * of the critical hit check is then saved into damage variables.
    */
   private fun isCriticalHit(battleCtx: BattleContext): Boolean {
-
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender
+    val defender = battleCtx.defender!!
     val dmgVars = battleCtx.damageVariables
 
     LOG.trace("Calculating: criticalHit")
@@ -353,8 +319,8 @@ constructor(
     val defAgi = defStatus.agility.toFloat()
 
     var crit = (0.02f + (atkLv / defLv / 5).toFloat()
-            + atkDex / defDex / 2
-            + atkAgi / defAgi / 2) * dmgVars.criticalChanceMod
+        + atkDex / defDex / 2
+        + atkAgi / defAgi / 2) * dmgVars.criticalChanceMod
 
     crit = crit.between(0.01f, 0.95f)
 
@@ -380,10 +346,10 @@ constructor(
    */
   private fun getNeededMana(battleCtx: BattleContext): Int {
     val attack = battleCtx.usedAttack
-    val (_, _, _, _, _, _, _, _, _, _, _, neededManaMod) = battleCtx.damageVariables
-
+    val neededManaMod = battleCtx.damageVariables.neededManaMod
     val neededMana = Math.ceil((attack.manaCost * neededManaMod).toDouble()).toInt()
     LOG.trace("Needed mana: {}/{}", neededMana, attack.manaCost)
+
     return neededMana
   }
 
@@ -425,13 +391,10 @@ constructor(
    * @param trueDamage
    */
   fun takeTrueDamage(defender: Entity, trueDamage: Damage) {
-
     val damage = trueDamage.damage
 
-    entityService.getComponent(defender, StatusComponent::class.java).ifPresent { statusComp ->
-
+    defender.getComponent(StatusComponent::class.java)?.let { statusComp ->
       statusComp.conditionValues.addHealth(-damage)
-
       if (statusComp.conditionValues.currentHealth == 0) {
         killEntity(defender)
       }
@@ -450,11 +413,10 @@ constructor(
    * @param primaryDamage The damage to apply to this entity.
    * @return The actually applied damage.
    */
-  fun takeDamage(attacker: Entity?, defender: Entity, primaryDamage: Damage): Damage {
+  fun takeDamage(defender: Entity, primaryDamage: Damage, attacker: Entity? = null): Damage {
     LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage)
 
-    val statusComp = entityService.getComponent(defender, StatusComponent::class.java)
-            .orElseThrow { IllegalArgumentException() }
+    val statusComp = defender.getComponent(StatusComponent::class.java)
 
     // TODO Possibly reduce the damage via effects or scripts.
     val damage = primaryDamage.damage
@@ -462,9 +424,12 @@ constructor(
 
     // Hit the entity and add the origin entity into the list of received
     // damage dealers.
-    val battleComp = entityService.getComponentOrCreate(defender, BattleComponent::class.java)
-    battleComp.addDamageReceived(attacker!!.id, damage)
-    entityService.updateComponent(battleComp)
+    val battleComp = defender.tryGetComponent(BattleComponent::class.java) ?: createBattleComponent()
+
+    attacker?.let {
+      battleComp.addDamageReceived(it.id, damage)
+      entityService.updateComponent(battleComp)
+    }
 
     val condValues = statusComp.conditionValues
     condValues.addHealth(-damage)
@@ -486,7 +451,7 @@ constructor(
    */
   fun takeDamage(defender: Entity, damage: Int): Damage {
     val dmg = Damage.getHit(damage)
-    return takeDamage(null, defender, dmg)
+    return takeDamage(defender, dmg)
   }
 
   fun killEntity(killed: Entity) {
@@ -507,7 +472,6 @@ constructor(
    */
   private fun lineOfSight(start: Point, end: Point): List<Point> {
     val result = mutableListOf<Point>()
-
     val dx = end.x - start.x
     val dy = end.y - start.y
     var D = 2 * dy - dx
@@ -515,12 +479,10 @@ constructor(
 
     for (x in start.x..end.x) {
       result.add(Point(x, y))
-
       if (D > 0) {
         y += 1
         D -= 2 * dx
       }
-
       D += 2 * dy
     }
 
@@ -531,52 +493,41 @@ constructor(
    * Calculates the effective range of the attack. A skill range can be
    * altered by an equipment or a buff for example.
    */
-  private fun getEffectiveSkillRange(usedAttack: Attack, user: Entity): Int {
-    return usedAttack.range
+  private fun getEffectiveSkillRange(attack: Attack, entity: Entity): Int {
+    // TODO Take status modifications into account.
+    return attack.range
   }
 
-  /**
-   * @return Current position of the entity.
-   */
-  private fun getPosition(e: Entity?): Point {
-    return entityService.getComponent(e, PositionComponent::class.java)
-            .map({ it.position })
-            .orElse(Point(0, 0))
-  }
 
   /**
    * @return The [StatusPoints] of a entity.
    */
-  private fun getStatusPoints(e: Entity?): StatusPoints {
-    return entityService.getComponent(e, StatusComponent::class.java)
-            .map { it.statusPoints }
-            .orElse(StatusPointsImpl())
+  private fun getStatusPoints(e: Entity): StatusPoints {
+    return e.getComponent(StatusComponent::class.java).statusPoints
   }
 
   /**
    * @return [StatusBasedValues] of the entity.
    */
-  private fun getStatBased(e: Entity?): StatusBasedValues {
-    return entityService.getComponent(e, StatusComponent::class.java)
-            .map { it.statusBasedValues }
-            .orElseThrow { IllegalArgumentException() }
+  private fun getStatBased(e: Entity): StatusBasedValues {
+    return e.getComponent(StatusComponent::class.java).statusBasedValues
   }
 
   /**
    * @return [StatusBasedValues] of the entity.
    */
   private fun getConditional(e: Entity): ConditionValues {
-    return entityService.getComponent(e, StatusComponent::class.java)
-            .map { it.conditionValues }
-            .orElseThrow { IllegalArgumentException() }
+    return e.getComponent(StatusComponent::class.java).conditionValues
   }
 
   /**
    * @return The level of the entity.
    */
-  private fun getLevel(e: Entity?): Int {
-    return entityService.getComponent(e, LevelComponent::class.java)
-            .map { it.level }
-            .orElse(1)
+  private fun getLevel(e: Entity): Int {
+    return e.getComponent(LevelComponent::class.java).level
+  }
+
+  private fun getPosition(e: Entity): Point {
+    return e.getComponent(PositionComponent::class.java).position
   }
 }

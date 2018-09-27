@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.entity.factory.MobFactory;
+import net.bestia.zoneserver.entity.factory.MobFactory;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
 

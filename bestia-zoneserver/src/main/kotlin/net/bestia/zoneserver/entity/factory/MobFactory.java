@@ -1,4 +1,4 @@
-package net.bestia.entity.factory;
+package net.bestia.zoneserver.entity.factory;
 
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.entity.component.*;
@@ -30,7 +30,7 @@ public class MobFactory {
 
 	static {
 		Blueprint.Builder builder = new Blueprint.Builder();
-		builder.addComponent(VisibleComponent.class)
+		builder.addComponent(VisualComponent.class)
 				.addComponent(EquipComponent.class)
 				.addComponent(InventoryComponent.class)
 				.addComponent(PositionComponent.class)

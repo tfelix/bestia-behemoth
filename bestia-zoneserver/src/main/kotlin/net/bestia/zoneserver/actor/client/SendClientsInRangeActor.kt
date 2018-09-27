@@ -2,13 +2,12 @@ package net.bestia.zoneserver.actor.client
 
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.EntityJsonMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.map.MapService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -31,7 +30,7 @@ internal data class SendInRange(
 @Component
 @Scope("prototype")
 class SendClientsInRangeActor(
-    private val playerEntityService: PlayerEntityService
+    private val entityCollisionService: EntityCollisionService
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
@@ -55,12 +54,9 @@ class SendClientsInRangeActor(
         }
 
     val updateRect = MapService.getUpdateRect(posComp.position)
-    val activeIds = playerEntityService.getActiveAccountIdsInRange(updateRect)
-
-    msg.content::class.isData as DataCla
+    val activeIds = entityCollisionService.getAllCollidingEntityIds(updateRect)
 
     for (activeId in activeIds) {
-      val newMsg = msg.content.co
       sendClient.tell(newMsg, self)
     }
   }

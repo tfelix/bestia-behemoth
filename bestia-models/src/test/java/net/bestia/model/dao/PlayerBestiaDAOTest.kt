@@ -1,6 +1,7 @@
 package net.bestia.model.dao
 
 import net.bestia.model.domain.AccountFixture
+import net.bestia.model.domain.BestiaFixture
 import net.bestia.model.domain.ConditionValues
 import net.bestia.model.domain.PlayerBestia
 import org.junit.Assert
@@ -24,7 +25,10 @@ class PlayerBestiaDAOTest {
   fun setup() {
 
     val acc = AccountFixture.createAccount()
-    val pb = PlayerBestia()
+    val pb = PlayerBestia(
+        owner = acc,
+        origin = BestiaFixture.bestia
+    )
 
     val sv = ConditionValues()
     sv.currentHealth = 10
@@ -32,9 +36,6 @@ class PlayerBestiaDAOTest {
 
     pb.conditionValues = sv
     pb.level = 10
-    pb.name = BESTIA_NAME
-
-    pb.owner = acc
 
     playerDao.save(pb)
   }

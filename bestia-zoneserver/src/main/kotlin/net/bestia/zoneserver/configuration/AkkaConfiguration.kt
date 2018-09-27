@@ -2,16 +2,14 @@ package net.bestia.zoneserver.configuration
 
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
-import akka.actor.TypedActor
-import akka.actor.TypedProps
 import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
 import akka.management.AkkaManagement
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
-import net.bestia.zoneserver.AkkaMessageApi
 import net.bestia.zoneserver.EntryActorNames
+import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.BestiaRootActor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import java.net.UnknownHostException
 
 private val LOG = KotlinLogging.logger { }
@@ -78,13 +75,6 @@ class AkkaConfiguration {
     AkkaManagement.get(system).start()
     // Starting the bootstrap process needs to be done explicitly
     ClusterBootstrap.get(system).start()
-  }
-
-  @Bean
-  @Primary
-  fun messageApi(system: ActorSystem): MessageApi {
-    val typedProps = TypedProps(MessageApi::class.java, AkkaMessageApi::class.java)
-    return TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi")
   }
 
   @Bean

@@ -28,25 +28,11 @@ data class PositionComponent(
 
     /**
      * Sets the flag if the entity blocks the line of sight.
-     *
-     * @param sightBlocking
-     * The flag to set the sight blocking.
      */
     @JsonProperty("sb")
     var isSightBlocking: Boolean = false
 ) : Component {
 
-  /**
-   * Returns the anchor position of the entities [CollisionShape].
-   *
-   * @return Current position of the entity.
-   */
-  /**
-   * Its an alias for [.setPosition].
-   *
-   * @param pos
-   * The new position.
-   */
   var position: Point
     @JsonProperty("p")
     get() = shape.anchor

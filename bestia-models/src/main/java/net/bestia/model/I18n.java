@@ -12,7 +12,7 @@ import net.bestia.model.domain.TranslationCategory;
  * Helper class to use translation in an easy way. Uses the i18n DAO to
  * translate messages. No state is kept therefore this class is threadsafe.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class I18n {

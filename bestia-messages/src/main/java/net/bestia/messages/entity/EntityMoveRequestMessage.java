@@ -88,7 +88,7 @@ public class EntityMoveRequestMessage extends EntityJsonMessage {
 	}
 
 	public EntityMoveRequestMessage(long entityId, List<Point> path) {
-		this(entityId, path, Walkspeed.ZERO);
+		this(entityId, path, Walkspeed.Companion.getZERO());
 	}
 	
 	public void setDelta(int delta) {
@@ -164,6 +164,6 @@ public class EntityMoveRequestMessage extends EntityJsonMessage {
 
 	@Override
 	public EntityMoveRequestMessage createNewInstance(long accountId) {
-		return new EntityMoveRequestMessage(accountId, getEntityId(), getPath(), Walkspeed.fromFloat(walkspeed));
+		return new EntityMoveRequestMessage(accountId, getEntityId(), getPath(), Walkspeed.Companion.fromFloat(walkspeed));
 	}
 }

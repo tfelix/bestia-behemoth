@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
+// TODO Please rework this class its totally broken
 class BestiaDate private constructor(
         private val startDate: LocalDateTime
 ) {

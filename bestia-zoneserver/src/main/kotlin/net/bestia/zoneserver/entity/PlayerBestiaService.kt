@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.BestiaAttackDAO
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
@@ -22,7 +21,6 @@ private val LOG = KotlinLogging.logger { }
 @Service
 @Transactional
 class PlayerBestiaService(
-        private val accountDao: AccountDAO,
         private val playerBestiaDao: PlayerBestiaDAO,
         private val attackDao: BestiaAttackDAO
 ) {
@@ -56,8 +54,7 @@ class PlayerBestiaService(
 
     val bestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
     val checkedItems = arrayOfNulls<PlayerItem>(NUM_ITEM_SLOTS)
-
-    playerBestiaDao.save<PlayerBestia>(bestia)
+    playerBestiaDao.save(bestia)
 
     return checkedItems
   }
@@ -108,7 +105,6 @@ class PlayerBestiaService(
 
     LOG.debug("Persisting player bestia: {}.", playerBestia)
     playerBestiaDao.save(playerBestia)
-
   }
 
   companion object {

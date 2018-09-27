@@ -5,8 +5,9 @@ import net.bestia.zoneserver.script.ScriptCompiler
 import net.bestia.zoneserver.script.ScriptFileResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.io.File
 import java.net.URISyntaxException
-import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Holds the script bean initialization.
@@ -20,23 +21,21 @@ class ScriptConfiguration {
 
   @Bean
   @Throws(URISyntaxException::class)
-  fun scriptCache(compiler: ScriptCompiler): ScriptCache {
+  fun scriptCache(compiler: ScriptCompiler, config: ZoneserverConfig): ScriptCache {
     val cache = ScriptCache(compiler, resolver)
+    val classPathSuffix = "classpath:"
 
-    val scriptBaseDir: Path
+    val scriptBaseDir = if (config.scriptDir.startsWith(classPathSuffix)) {
+      val base = config.scriptDir.substring(classPathSuffix.length)
+      val res = javaClass.classLoader.getResource(base)
+      val classPath = File(res.toURI())
+      classPath.toPath()
+    } else {
+      Paths.get(config.scriptDir)
+    }
 
-    /*
-		final String classPathSuffix = "classpath:";
-		if (config.getScriptDir().startsWith(classPathSuffix)) {
-			final String base = config.getScriptDir().substring(classPathSuffix.length());
-			final URL res = getClass().getClassLoader().getResource(base);
-			final File classPath = new File(res.toURI());
-			scriptBaseDir = classPath.toPath();
-		} else {
-			scriptBaseDir = Paths.get(config.getScriptDir());
-		}*/
+    cache.cacheFolder(scriptBaseDir)
 
-    // cache.cacheFolder(scriptBaseDir);
     return cache
   }
 }

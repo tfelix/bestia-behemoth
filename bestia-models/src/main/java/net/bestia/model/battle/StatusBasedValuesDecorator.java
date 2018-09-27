@@ -185,13 +185,13 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public Walkspeed getWalkspeedMod() {
+	public Walkspeed getWalkspeed() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getWalkspeedMod);
 		final int value = sumInt(StatusBasedValueModifier::getWalkspeedValue);
 		int walkspeed = Math.round(wrapped.getDodge() * mod) + value;
 
-		return Walkspeed.fromInt(walkspeed);
+		return Walkspeed.Companion.fromInt(walkspeed);
 	}
 
 	@Override

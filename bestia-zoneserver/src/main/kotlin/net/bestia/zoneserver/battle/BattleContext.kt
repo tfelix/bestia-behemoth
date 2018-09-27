@@ -13,18 +13,18 @@ import net.bestia.model.entity.StatusBasedValues
  * @author Thomas Felix
  */
 data class BattleContext(
-        val usedAttack: Attack,
-        val attacker: Entity,
-        val damageVariables: DamageVariables,
-        val defender: Entity? = null,
-        val attackerStatusPoints: StatusPoints? = null,
-        val defenderStatusPoints: StatusPoints? = null,
-        var attackerStatusBased: StatusBasedValues? = null,
-        var defenderStatusBased: StatusBasedValues? = null,
-        var attackerCondition: ConditionValues? = null,
-        var defenderCondition: ConditionValues? = null,
-        val defenderElement: Element = Element.NORMAL,
-        val attackElement: Element = Element.NORMAL,
-        val attackerLevel: Int = 1,
-        val defenderLevel: Int = 1
+    val usedAttack: Attack,
+    val attacker: Entity,
+    val damageVariables: DamageVariables,
+    val defender: Entity? = null,
+    val attackerStatusPoints: StatusPoints? = null,
+    val defenderStatusPoints: StatusPoints? = null,
+    var attackerStatusBased: StatusBasedValues? = null,
+    var defenderStatusBased: StatusBasedValues? = null,
+    var attackerCondition: ConditionValues? = null,
+    var defenderCondition: ConditionValues? = null,
+    val defenderElement: Element = Element.NORMAL,
+    val attackElement: Element = Element.NORMAL,
+    val attackerLevel: Int = 1,
+    val defenderLevel: Int = 1
 )

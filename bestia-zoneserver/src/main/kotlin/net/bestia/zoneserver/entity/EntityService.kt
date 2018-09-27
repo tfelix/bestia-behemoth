@@ -9,17 +9,6 @@ import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
 
-@Service
-class ComponentNotifyService(
-    private val messageApi: MessageApi
-) {
-
-  fun notifyChanged(entityId: Long, component: Component) {
-    val entityEnvelope = EntityEnvelope(entityId, component)
-    messageApi.send(entityEnvelope)
-  }
-}
-
 /**
  * The [EntityService] is a central very important part of the bestia
  * game. It gives access to all entities in the game which represent all
@@ -65,7 +54,8 @@ class EntityService(
     messageApi.send(entityEnvelope)
   }
 
-  companion object {
-    const val ECS_ENTITY_MAP_KEY = "entities"
+  fun updateComponent(component: Component) {
+    val entityEnvelope = EntityEnvelope(component.entityId, component)
+    messageApi.send(entityEnvelope)
   }
 }

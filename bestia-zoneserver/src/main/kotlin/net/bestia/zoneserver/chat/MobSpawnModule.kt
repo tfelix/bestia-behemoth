@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.entity.factory.MobFactory
+import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.model.domain.Account
 import net.bestia.model.domain.Account.Companion.UserLevel
 import net.bestia.zoneserver.MessageApi

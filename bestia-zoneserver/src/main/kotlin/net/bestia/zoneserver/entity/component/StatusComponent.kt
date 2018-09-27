@@ -1,18 +1,12 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.zoneserver.entity.component.receiver.InSameGuildReceiver
-import net.bestia.zoneserver.entity.component.receiver.InSighReceiver
-import net.bestia.zoneserver.entity.component.receiver.OwnerReceiver
-import net.bestia.zoneserver.entity.component.transformer.StatusOnlyConditionTransformer
 import net.bestia.model.domain.ConditionValues
 import net.bestia.model.domain.Element
 import net.bestia.model.domain.StatusPoints
 import net.bestia.model.domain.StatusPointsImpl
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.entity.StatusBasedValuesImpl
-
-import java.util.Objects
 
 /**
  * Entities having this component can be participate in the attacking system. It
@@ -22,13 +16,6 @@ import java.util.Objects
  *
  * @author Thomas Felix
  */
-@ClientSync(
-    directives = [
-      ClientDirective(receiver = OwnerReceiver::class),
-      ClientDirective(receiver = InSameGuildReceiver::class, transform = StatusOnlyConditionTransformer::class),
-      ClientDirective(receiver = InSighReceiver::class, transform = StatusOnlyConditionTransformer::class)
-    ]
-)
 data class StatusComponent(
     override val id: Long,
     override val entityId: Long,

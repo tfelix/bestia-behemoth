@@ -2,7 +2,7 @@ package net.bestia.zoneserver.script.api
 
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.entity.factory.MobFactory
+import net.bestia.zoneserver.entity.factory.MobFactory
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

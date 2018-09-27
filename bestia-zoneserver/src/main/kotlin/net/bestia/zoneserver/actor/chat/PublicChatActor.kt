@@ -55,7 +55,7 @@ class PublicChatActor(
     val activeEntityId = playerEntityService.getActivePlayerEntityId(accId) ?: return
     val chatEntityMsg = chatMsg.copy(entityId = activeEntityId)
 
-    val requestEntity = RequestEntity(chatEntityMsg)
+    val requestEntity = RequestEntity(self, chatEntityMsg)
     messageApi.send(EntityEnvelope(activeEntityId, requestEntity))
   }
 

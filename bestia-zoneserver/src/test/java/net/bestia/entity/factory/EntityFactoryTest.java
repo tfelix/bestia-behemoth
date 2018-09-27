@@ -1,5 +1,7 @@
 package net.bestia.entity.factory;
 
+import net.bestia.zoneserver.entity.factory.Blueprint;
+import net.bestia.zoneserver.entity.factory.EntityFactory;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.Component;

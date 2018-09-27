@@ -3,7 +3,7 @@ package net.bestia.model.domain;
 /**
  * List of all elements used by the Bestia game.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum Element {
@@ -14,5 +14,4 @@ public enum Element {
 	NORMAL_3, WATER_3, EARTH_3, FIRE_3, WIND_3, POISON_3, HOLY_3, SHADOW_3, GHOST_3, UNDEAD_3,
 	// Level 4
 	NORMAL_4, WATER_4, EARTH_4, FIRE_4, WIND_4, POISON_4, HOLY_4, SHADOW_4, GHOST_4, UNDEAD_4
-
 }

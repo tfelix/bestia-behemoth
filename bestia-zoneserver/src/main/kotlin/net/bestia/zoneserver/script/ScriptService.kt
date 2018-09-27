@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.env.ScriptEnv
@@ -11,7 +12,7 @@ import javax.script.CompiledScript
 import javax.script.Invocable
 import javax.script.ScriptException
 
-private val LOG = KotlinLogging.logger {  }
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -25,8 +26,8 @@ private val LOG = KotlinLogging.logger {  }
  */
 @Service
 class ScriptService(
-        private val entityService: EntityService,
-        private val cache: ScriptCache
+    private val entityService: EntityService,
+    private val cache: ScriptCache
 ) {
 
   fun execute(fnName: String, script: CompiledScript, env: ScriptEnv) {
@@ -83,14 +84,13 @@ class ScriptService(
    * callback script attached).
    * @param scriptEntityId The script entity whose callback is about to be triggered.
    */
-  fun callScriptIntervalCallback(scriptEntityId: Long, scriptUuid: String) {
+  fun callScriptIntervalCallback(entity: Entity, scriptUuid: String) {
 
-    LOG.trace("Script {} interval called.", scriptEntityId)
+    LOG.trace { "Script $entity interval called." }
 
-    val scriptComp: ScriptComponent = entityService.getComponent(scriptEntityId, ScriptComponent::class.java).get()
-            ?: throw IllegalArgumentException()
+    val scriptComp = entity.getComponent(ScriptComponent::class.java)
 
-    val callbackAnchorString = scriptComp.getCallback(scriptUuid).script
+    val callbackAnchorString = scriptComp.getCallback(scriptUuid)?.script ?: return
     val anchor = ScriptAnchor.fromString(callbackAnchorString)
     val script = resolveScript(anchor)
     val simpleScriptEnv = SimpleScriptEnv()

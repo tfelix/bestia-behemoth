@@ -1,4 +1,4 @@
-package net.bestia.entity.factory;
+package net.bestia.zoneserver.entity.factory;
 
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.component.PositionComponent;
@@ -47,7 +47,7 @@ public class ScriptEntityFactory {
 		LOG.trace("Building script entity: {} {} pos:{}.", area);
 
 		final PositionComponentSetter posSetter = new PositionComponentSetter(area);
-		final Entity entity = entityFactory.buildEntity(scriptEntityBlueprint, EntityFactory.makeSet(posSetter));
+		final Entity entity = entityFactory.buildEntity(scriptEntityBlueprint, EntityFactory.Companion.makeSet(posSetter));
 
 		return entity;
 	}

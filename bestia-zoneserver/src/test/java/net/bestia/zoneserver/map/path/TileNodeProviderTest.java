@@ -54,7 +54,7 @@ public class TileNodeProviderTest {
   private final static Entity blockingEntity;
   private final static Set<Entity> blockingEntities = new HashSet<>();
 
-  private final static Walkspeed WALKSPD = Walkspeed.fromFloat(1.0f);
+  private final static Walkspeed WALKSPD = Walkspeed.Companion.fromFloat(1.0f);
 
   static {
     blockingEntity = Mockito.mock(Entity.class);

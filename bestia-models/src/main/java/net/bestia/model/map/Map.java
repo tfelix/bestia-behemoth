@@ -61,11 +61,11 @@ public class Map {
 		final int gid = data.getGroundGid(x, y);
 
 		if (gid == 0) {
-			return Walkspeed.fromInt(0);
+			return Walkspeed.Companion.fromInt(0);
 		}
 
-		return getTileset(gid).map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
-				.orElse(Walkspeed.fromInt(0));
+		return getTileset(gid).map(ts -> Walkspeed.Companion.fromInt(ts.getProperties(gid).getWalkspeed()))
+				.orElse(Walkspeed.Companion.fromInt(0));
 	}
 
 	/**

@@ -125,8 +125,8 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getWalkspeed()
 	 */
 	@Override
-	public Walkspeed getWalkspeedMod() {
-		return Walkspeed.fromFloat(1);
+	public Walkspeed getWalkspeed() {
+		return Walkspeed.Companion.fromFloat(1);
 	}
 
 	@Override

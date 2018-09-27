@@ -67,6 +67,10 @@ class Entity(
     return components[clazz] as? T
   }
 
+  fun hasComponent(compClass: Class<out Component>): Boolean {
+    return components.containsKey(compClass)
+  }
+
   companion object {
     fun withComponents(entityId: Long, components: Collection<Component>): Entity {
       return Entity(entityId).apply {
