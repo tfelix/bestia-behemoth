@@ -79,7 +79,7 @@ class LoginService(
 
     // Save the entity.
     // Now activate the master and notify the client.
-    playerEntityService.putPlayerEntity(masterEntity)
+    playerEntityService.updatePlayerBestiaWithEntityId(masterEntity)
     playerEntityService.setActiveEntity(accId, masterEntity!!.id)
 
     // Update the DB.

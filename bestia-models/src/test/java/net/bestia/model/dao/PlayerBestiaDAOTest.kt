@@ -30,7 +30,7 @@ class PlayerBestiaDAOTest {
     sv.currentHealth = 10
     sv.currentMana = 10
 
-    pb.statusValues = sv
+    pb.conditionValues = sv
     pb.level = 10
     pb.name = BESTIA_NAME
 

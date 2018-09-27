@@ -7,11 +7,23 @@ import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.messages.entity.*
+import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
+import net.bestia.zoneserver.entity.Entity
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
+
+internal data class RequestEntity<T>(
+    val requester: ActorRef,
+    val context: T
+)
+
+internal data class ResponseEntity<T>(
+    val entity: Entity,
+    val content: T
+)
 
 /**
  * The [EntityActor] is a persistent actor managing all aspects of a
@@ -37,7 +49,7 @@ class EntityActor(
 
   private class ComponentActorCache {
 
-    private val idToActor =  HashBiMap.create<Long, ActorRef>()
+    private val idToActor = HashBiMap.create<Long, ActorRef>()
     private val classToActor = HashBiMap.create<Class<*>, ActorRef>()
 
     val size: Int get() = idToActor.size
@@ -63,6 +75,15 @@ class EntityActor(
     fun get(componentId: Long): ActorRef? {
       return idToActor[componentId]
     }
+
+    fun getAllCachedComponentClasses(): Set<Class<out net.bestia.zoneserver.entity.component.Component>> {
+      return classToActor.keys.asSequence().filter {
+        Component::class.java.isAssignableFrom(it)
+      }.map {
+        @Suppress("UNCHECKED_CAST")
+        it as Class<out net.bestia.zoneserver.entity.component.Component>
+      }.toSet()
+    }
   }
 
   private val componentActorCache = ComponentActorCache()
@@ -77,8 +98,33 @@ class EntityActor(
         .match(ComponentRequestMessage::class.java, this::handleComponentRequest)
         .match(DeleteComponentMessage::class.java, this::handleComponentRemove)
         .match(Terminated::class.java, this::handleTerminated)
+        .match(RequestEntity::class.java, this::handleEntityRequest)
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
+  }
+
+  private fun handleEntityRequest(msg: RequestEntity<*>) {
+    val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
+    val hasAllResponses = { receivedResponses: List<Any> ->
+      awaitedComponentClasses.containsAll(receivedResponses)
+    }
+    val waitResponseProps = AwaitResponseActor.props(hasAllResponses) {
+      val entity = Entity.withComponents(
+          entityId,
+          it.getAllResponses(net.bestia.zoneserver.entity.component.Component::class)
+      )
+      val entityResponse = ResponseEntity(
+          entity,
+          msg.context
+      )
+      msg.requester.tell(entityResponse, self)
+    }
+    val waitResponseActor = context.actorOf(waitResponseProps)
+
+    componentActorCache.allActors().forEach {
+      val requestMsg = RequestComponentMessage(requester = waitResponseActor)
+      it.tell(requestMsg, self)
+    }
   }
 
   private fun terminateIfNoSuitableMessage(msg: Any) {

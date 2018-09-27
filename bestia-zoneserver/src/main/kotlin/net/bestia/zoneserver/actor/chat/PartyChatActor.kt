@@ -19,15 +19,15 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class PartyChatActor(
-        private val partyDao: PartyDAO
+    private val partyDao: PartyDAO
 ) : AbstractActor() {
 
   private val sendToClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ChatMessage::class.java, this::handleParty)
-            .build()
+        .match(ChatMessage::class.java, this::handleParty)
+        .build()
   }
 
   /**
@@ -46,15 +46,15 @@ class PartyChatActor(
 
     if (party == null) {
       // not a member of a party.
-      LOG.debug{ "Account ${chatMsg.accountId} is no member of any party." }
+      LOG.debug { "Account ${chatMsg.accountId} is no member of any party." }
       val replyMsg = ChatMessage.getSystemMessage(chatMsg.accountId,
-              "Not a member of a party.")
+          "Not a member of a party.")
       sendToClient.tell(replyMsg, self)
       return
     }
 
     party.members.forEach { member ->
-      val reply = chatMsg.createNewInstance(member.id)
+      val reply = chatMsg.copy(accountId = member.id)
       sendToClient.tell(reply, self)
     }
   }

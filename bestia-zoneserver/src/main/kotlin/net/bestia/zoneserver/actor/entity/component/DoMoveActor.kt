@@ -17,14 +17,13 @@ import java.util.concurrent.TimeUnit
 
 private val LOG = KotlinLogging.logger { }
 
-private class DoMapMove
-
 @Component
 @Scope("prototype")
 class MoveComponentActor() : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(MapMoveMessage::class.java, this::handleMapMoveChatCommand)
+        .match()
         .build()
   }
 
@@ -56,11 +55,6 @@ class MoveComponentActor() : AbstractActor() {
     }
   }
 }
-
-internal data class MapMoveCommand(
-    val entity: Entity,
-    val point: Point
-)
 
 /**
  * Handle movement of an entity. It will announce the intended move path with

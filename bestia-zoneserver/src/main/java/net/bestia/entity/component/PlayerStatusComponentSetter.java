@@ -26,7 +26,7 @@ public class PlayerStatusComponentSetter extends ComponentSetter<StatusComponent
 	protected void performSetting(StatusComponent comp) {
 		
 		comp.setUnmodifiedElement(playerBestia.getOrigin().getElement());
-		comp.setConditionValues(playerBestia.getStatusValues());
+		comp.setConditionValues(playerBestia.getConditionValues());
 	}
 
 }

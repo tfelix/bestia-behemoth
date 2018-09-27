@@ -4,7 +4,7 @@ import akka.actor.AbstractActor
 import akka.cluster.sharding.ClusterSharding
 import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
-import net.bestia.messages.JsonMessage
+import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.component.LatencyInfo
 import net.bestia.zoneserver.client.LatencyService
@@ -29,7 +29,7 @@ class SendToClientActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(JsonMessage::class.java, this::handleSendClient)
+            .match(AccountMessage::class.java, this::handleSendClient)
             .match(ClientEnvelope::class.java, this::sendToClient)
             .build()
   }
@@ -38,7 +38,7 @@ class SendToClientActor(
     clientConnection.tell(msg, self)
   }
 
-  private fun handleSendClient(msg: JsonMessage) {
+  private fun handleSendClient(msg: AccountMessage) {
     LOG.debug("Sending to client: {}", msg)
     val accountId = msg.accountId
     when (msg) {

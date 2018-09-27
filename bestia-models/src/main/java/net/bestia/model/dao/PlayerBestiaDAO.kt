@@ -21,10 +21,10 @@ interface PlayerBestiaDAO : CrudRepository<PlayerBestia, Long> {
    * Account ID to get all bestias.
    * @return A set of all found [PlayerBestia]s for this account.
    */
-  @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.isMaster = false")
+  @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.master == null")
   fun findPlayerBestiasForAccount(@Param("owner") accId: Long): Set<PlayerBestia>
 
-  @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.isMaster = true")
+  @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.master != null")
   fun findMasterBestiasForAccount(@Param("owner") accId: Long): PlayerBestia
 
   /**

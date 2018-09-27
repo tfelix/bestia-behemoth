@@ -41,7 +41,7 @@ public class PlayerStatusComponentSetterTest {
 		setter = new PlayerStatusComponentSetter(playerBestia);
 		
 		when(playerBestia.getOrigin()).thenReturn(bestia);
-		when(playerBestia.getStatusValues()).thenReturn(statusValues);
+		when(playerBestia.getConditionValues()).thenReturn(statusValues);
 		
 		when(bestia.getElement()).thenReturn(Element.FIRE);
 	}

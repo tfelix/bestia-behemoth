@@ -8,9 +8,7 @@ import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
 import mu.KotlinLogging
-import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.EntryActorNames
-import net.bestia.zoneserver.TestService
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
@@ -18,9 +16,6 @@ import net.bestia.zoneserver.actor.connection.IngestActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityIdGeneratorActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
-import net.bestia.zoneserver.actor.entity.component.ComponentBroadcastEnvelope
-import net.bestia.zoneserver.actor.entity.component.RequestComponentMessage
-import net.bestia.zoneserver.actor.routing.RoutingActor
 import net.bestia.zoneserver.script.ScriptService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -35,8 +30,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class BestiaRootActor(
-        private val scriptService: ScriptService,
-        private val testService: TestService
+        private val scriptService: ScriptService
 ) : AbstractActor() {
 
   private val system = context.system()
@@ -63,9 +57,6 @@ class BestiaRootActor(
     val ingest = SpringExtension.actorOf(context, IngestActor::class.java)
     val receptionist = ClusterClientReceptionist.get(system)
     receptionist.registerService(ingest)
-
-    // FIXME Wieder entfernen wenn ich fertig bin
-    test()
   }
 
   private fun registerSharding() {
@@ -104,17 +95,6 @@ class BestiaRootActor(
     val props = SpringExtension.getSpringProps(system, actorClass)
     val clusterProbs = ClusterSingletonManager.props(props, PoisonPill.getInstance(), settings)
     system.actorOf(clusterProbs, name)
-  }
-
-  private fun test() {
-    val routerActor = SpringExtension.actorOf(system, RoutingActor::class.java)
-    val msg = RequestComponentMessage(self())
-    val broadcast = ComponentBroadcastEnvelope(msg)
-    val entityMsg = EntityEnvelope(1L, broadcast)
-    routerActor.tell(entityMsg, self())
-
-    val id = testService.addComponent("blabla")
-    testService.updateComponent(id, "unddazu")
   }
 
   companion object {

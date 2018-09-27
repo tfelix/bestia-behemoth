@@ -44,18 +44,15 @@ constructor(
     }
 
     // Cant handle with no receiver name.
-    if (chatMsg.receiverNickname == null) {
-      return
-    }
-
-    val acc = accService.getOnlineAccountByName(chatMsg.receiverNickname)
+    val receiverNickname = chatMsg.receiverNickname ?: return
+    val acc = accService.getOnlineAccountByName(receiverNickname)
 
     if (acc == null) {
       LOG.debug { "Whisper receiver ${chatMsg.receiverNickname} not found." }
       return
     }
 
-    val reply = chatMsg.createNewInstance(acc.id)
+    val reply = chatMsg.copy(acc.id)
     sendToClientActor.tell(reply, self)
   }
 

@@ -52,7 +52,7 @@ class GuildChatActor(
     guildService.getGuildMembersFromPlayer(playerBestiaId).stream()
             .filter { member -> member.entityId != 0L }
             .map { it.id }
-            .map{ chatMsg.createNewInstance(it) }
+            .map{ chatMsg.copy(accountId = it) }
             .forEach { msg -> sendToClientActor.tell(msg, self) }
   }
 

@@ -8,7 +8,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
-class Account(
+data class Account(
         @Column(length = 64, unique = true, nullable = false)
         var email: String,
 
@@ -27,6 +27,8 @@ class Account(
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(unique = true, nullable = false)
   var id: Long = 0
+
+  var activeBestiaEntityId: Long = 0
 
   var loginToken = ""
 
@@ -55,31 +57,12 @@ class Account(
   @ManyToOne(cascade = [(CascadeType.ALL)])
   val party: Party? = null
 
-  override fun hashCode(): Int {
-    return email.hashCode()
-  }
-
-  override fun equals(obj: Any?): Boolean {
-    if (this === obj) {
-      return true
-    }
-    if (obj == null || obj !is Account) {
-      return false
-    }
-
-    val other = obj as Account?
-    return email == other!!.email
-  }
-
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
     return "Account[id: $id, email: $email, registerDate: $dateStr]"
   }
 
   companion object {
-    private val EMAIL_PATTERN = Pattern
-            .compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
-
     enum class UserLevel {
       USER, GM, SUPER_GM, ADMIN
     }

@@ -1,17 +1,24 @@
 package net.bestia.zoneserver.actor.client
 
 import mu.KotlinLogging
+import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.EntityJsonMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.map.MapService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
+
+internal data class SendInRange(
+    val entity: Entity,
+    val content: AccountMessage
+)
 
 /***
  * If a [EntityJsonMessage] is received by this actor it will check if the
@@ -24,12 +31,11 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class SendClientsInRangeActor(
-    private val playerEntityService: PlayerEntityService,
-    private val entityService: EntityService
+    private val playerEntityService: PlayerEntityService
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(EntityJsonMessage::class.java, this::sendToActiveInRange)
+    builder.match(SendInRange::class.java, this::handleSendToActiveInRange)
   }
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
@@ -39,27 +45,22 @@ class SendClientsInRangeActor(
    * method by message type does not work out. Then we might need to create a
    * whole new actor only responsible for sending active range messages. Might
    * be better idea anyways.
-   *
-   * @param msg
    */
-  private fun sendToActiveInRange(msg: EntityJsonMessage) {
-
+  private fun handleSendToActiveInRange(msg: SendInRange) {
     // Get position of the entity.
-    val posComp = entityService.getComponent(msg.entityId,
-            PositionComponent::class.java)
+    val posComp = msg.entity.tryGetComponent(PositionComponent::class.java)
+        ?: run {
+          LOG.warn { "Position component of entity in message $msg not present. Can not send range update." }
+          return
+        }
 
-    if (!posComp.isPresent) {
-      LOG.warn { "Position component of entity in message $msg not present. Can not send range update." }
-      return
-    }
-
-    val pos = posComp.get().position
-    val updateRect = MapService.getUpdateRect(pos)
-
+    val updateRect = MapService.getUpdateRect(posComp.position)
     val activeIds = playerEntityService.getActiveAccountIdsInRange(updateRect)
 
+    msg.content::class.isData as DataCla
+
     for (activeId in activeIds) {
-      val newMsg = msg.createNewInstance(activeId!!)
+      val newMsg = msg.content.co
       sendClient.tell(newMsg, self)
     }
   }

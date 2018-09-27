@@ -8,6 +8,7 @@ import net.bestia.messages.login.LoginError
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
+import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
 
@@ -15,11 +16,11 @@ private val LOG = KotlinLogging.logger {  }
 
 @Service
 class LogoutService(
-    private val accountDao: AccountDAO,
-    private val akkaApi: MessageApi,
-    private val playerEntityService: PlayerEntityService,
-    private val entityService: EntityService,
-    private val connectionService: ConnectionService
+		private val accountDao: AccountDAO,
+		private val messageApi: MessageApi,
+		private val playerEntityService: PlayerEntityService,
+		private val entityService: EntityService,
+		private val connectionService: ConnectionService
 ) {
 
 	/**
@@ -47,7 +48,7 @@ class LogoutService(
 		// Depending on the logout state the actor might have already been
 		// stopped.
 		val logoutMsg = LogoutMessage(LoginError.NO_REASON)
-    akkaApi.send(ClientEnvelope(acc.id, logoutMsg))
+		messageApi.send(ClientEnvelope(acc.id, logoutMsg))
 
 		val playerEntities = playerEntityService.getPlayerEntities(accId)
 
@@ -60,7 +61,7 @@ class LogoutService(
 		}
 
 		// Only remove the player bestia.
-		playerEntityService.removePlayerBestias(accId)
+		playerEntityService.removeEntityIdsFromAccount(accId)
 
 		LOG.trace("Removing player bestias.")
 

@@ -4,9 +4,10 @@ import akka.actor.AbstractActor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.actor.SpringExtension
+import org.reflections.Reflections
+import kotlin.reflect.KClass
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,66 +19,53 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @org.springframework.stereotype.Component
-class EntityComponentActorFactory(
-        private val entityService: EntityService
-) {
+class EntityComponentActorFactory {
 
-  /**
-   * Starts a component actor which is responsible for managing continues
-   * callback to some component code.
-   *
-   * @param componentId
-   * The ID of the already saved and existing component to create
-   * an actor for.
-   * @return The created actor or null if something went wrong.
-   */
-  fun startActor(ctx: ActorContext, componentId: Long): ActorRef? {
-    val comp = entityService.getComponent(componentId)
+  private val componentToActorClass: Map<KClass<out Component>, Class<out AbstractActor>>
 
-    if (comp == null) {
-      LOG.warn("Component {} does not exist. Can not build component actor for it.", componentId)
-      return null
-    }
-
-    return startActorByAnnotation(ctx, comp)
+  init {
+    val reflections = Reflections("net.bestia.zoneserver.actor")
+    val annotated = reflections.getTypesAnnotatedWith(HandlesComponent::class.java)
+    componentToActorClass = annotated.asSequence()
+        .filter { it is AbstractActor }
+        .map {
+          @Suppress("UNCHECKED_CAST")
+          it as Class<out AbstractActor>
+        }
+        .map {
+          val annotation = it.getAnnotation(HandlesComponent::class.java)
+          annotation.component to it
+        }.toList()
+        .toMap()
   }
 
   fun startActor(ctx: ActorContext, component: Component): ActorRef? {
     return startActorByAnnotation(ctx, component)
   }
 
-  private fun startActorByAnnotation(ctx: ActorContext, comp: Component): ActorRef? {
-    if (!comp.javaClass.isAnnotationPresent(ActorSync::class.java)) {
-      LOG.warn("Component {} (id: {}) has no ComponentActor annotation. Can not create Actor.",
-              comp.javaClass.name, comp.id)
-      return null
-    }
+  private fun startActorByAnnotation(
+      ctx: ActorContext,
+      component: Component
+  ): ActorRef? {
 
-    val compActor = comp.javaClass.getAnnotation(ActorSync::class.java)
     try {
-      val actorClass = Class.forName(compActor.value) as Class<AbstractActor>
-
+      val actorClass = componentToActorClass[component::class]!!
       val takesComponentAsArg = actorClass.declaredConstructors.any {
         it.parameterCount == 1 && Component::class.java.isAssignableFrom(it.parameterTypes[0])
       }
 
-      val actorRef = if(takesComponentAsArg) {
-         SpringExtension.actorOf(ctx, actorClass, null, comp)
+      val actorRef = if (takesComponentAsArg) {
+        SpringExtension.actorOf(ctx, actorClass, component)
       } else {
-        SpringExtension.actorOf(ctx, actorClass, null, comp.entityId, comp.id)
+        null
       }
 
-
-      LOG.debug("Starting ComponentActor: {} ({}) for entity: {}.",
-              actorClass.simpleName,
-              comp.id,
-              comp.entityId)
+      LOG.debug { "Starting ComponentActor: ${actorClass.simpleName} for entity: ${component.entityId}." }
 
       return actorRef
     } catch (e: ClassNotFoundException) {
-      LOG.warn("Could not start ComponentActor. Class not found: {}.", compActor.value)
+      LOG.warn { "Could not start ComponentActor. Class not found: ${component.javaClass}." }
       return null
     }
-
   }
 }

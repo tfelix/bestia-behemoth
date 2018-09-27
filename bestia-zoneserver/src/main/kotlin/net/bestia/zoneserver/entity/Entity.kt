@@ -20,7 +20,7 @@ class Entity(
     val id: Long
 ) : Serializable {
 
-  private val components = mutableMapOf<Class<*>, Component>()
+  private val components = mutableMapOf<Class<out Component>, Component>()
 
   /**
    * Adds a given component reference to this entity. Note that the component
@@ -65,5 +65,13 @@ class Entity(
   internal fun <T : Component> tryGetComponent(clazz: Class<T>): T? {
     @Suppress("UNCHECKED_CAST")
     return components[clazz] as? T
+  }
+
+  companion object {
+    fun withComponents(entityId: Long, components: Collection<Component>): Entity {
+      return Entity(entityId).apply {
+        this.components.putAll(components.map { it::class.java to it }.toMap())
+      }
+    }
   }
 }

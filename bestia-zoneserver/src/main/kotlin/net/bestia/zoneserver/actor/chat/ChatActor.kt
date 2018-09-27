@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class ChatActor(
-        private val chatCmdService: ChatCommandService
+    private val chatCmdService: ChatCommandService
 ) : BaseClientMessageRouteActor() {
 
   private val publicChatActor = SpringExtension.actorOf(context, PublicChatActor::class.java)
@@ -44,7 +44,6 @@ class ChatActor(
       ChatMessage.Mode.WHISPER -> whisperChatActor.tell(chatMsg, self)
       ChatMessage.Mode.PARTY -> partyChatActor.tell(chatMsg, self)
       ChatMessage.Mode.GUILD -> guildChatActor.tell(chatMsg, self)
-
       else -> LOG.warn { "Message type not yet supported." }
     }
   }

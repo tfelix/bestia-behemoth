@@ -23,8 +23,4 @@ abstract class EntityJsonMessage(
   override fun toString(): String {
     return "EntityJsonMessage[eeid: $entityId, accId: $accountId]"
   }
-
-  companion object {
-    private const val serialVersionUID = 1L
-  }
 }

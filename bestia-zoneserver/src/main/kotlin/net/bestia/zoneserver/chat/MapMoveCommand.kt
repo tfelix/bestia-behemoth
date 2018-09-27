@@ -9,7 +9,7 @@ import net.bestia.model.domain.Account.Companion.UserLevel
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
-import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
 
@@ -65,7 +65,7 @@ internal class MapMoveCommand(
     messageApi.send(
         EntityEnvelope(
             activePlayerEntity.id,
-            ComponentClassEnvelope(MoveComponent::class.java, mapMoveMessage)
+            ComponentClassEnvelope(PositionComponent::class.java, mapMoveMessage)
         )
     )
   }

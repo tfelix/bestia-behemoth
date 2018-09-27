@@ -189,7 +189,7 @@ public class PlayerEntityServiceTest {
 
   @Test
   public void getPlayerEntities_knownAccoundId_returns() {
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
     Set<Entity> entities = pbeService.getPlayerEntities(KNOWN_ACC_ID);
     assertTrue(entities.contains(playerEntity));
   }
@@ -224,8 +224,8 @@ public class PlayerEntityServiceTest {
 
   @Test
   public void getPlayerEntities_knownId_entity() {
-    pbeService.putPlayerEntity(playerEntity);
-    pbeService.putPlayerEntity(masterEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(masterEntity);
 
     Set<Entity> entities = pbeService.getPlayerEntities(KNOWN_ACC_ID);
     assertTrue(entities.contains(playerEntity));
@@ -239,8 +239,8 @@ public class PlayerEntityServiceTest {
 
   @Test
   public void getMasterEntity_knownId_entity() {
-    pbeService.putPlayerEntity(masterEntity);
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(masterEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
 
     Optional<Entity> master = pbeService.getMasterEntity(KNOWN_ACC_ID);
     assertTrue(master.isPresent());
@@ -249,7 +249,7 @@ public class PlayerEntityServiceTest {
 
   @Test(expected = NullPointerException.class)
   public void putPlayerEntities_null_throws() {
-    pbeService.putPlayerEntities(null);
+    pbeService.updatePlayerBestiaWithEntityId(null);
   }
 
   @Test
@@ -259,7 +259,7 @@ public class PlayerEntityServiceTest {
     playerEntities.add(masterEntity);
     playerEntities.add(playerEntity);
 
-    pbeService.putPlayerEntities(playerEntities);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntities);
 
     for (Entity e : pbeService.getPlayerEntities(KNOWN_ACC_ID)) {
       assertTrue(playerEntities.contains(e));
@@ -278,14 +278,14 @@ public class PlayerEntityServiceTest {
 
   @Test
   public void hasPlayerEntity_knownAccOkEntityId_true() {
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
     boolean isKnown = pbeService.hasPlayerEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID);
     assertTrue(isKnown);
   }
 
   @Test(expected = NullPointerException.class)
   public void putPlayerEntity_null_throws() {
-    pbeService.putPlayerEntity(null);
+    pbeService.updatePlayerBestiaWithEntityId(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -296,7 +296,7 @@ public class PlayerEntityServiceTest {
     when(entityService.hasComponent(nonPlayer, PlayerComponent.class)).thenReturn(false);
     when(entityService.getComponent(nonPlayer, PlayerComponent.class)).thenReturn(Optional.empty());
     when(entityService.getComponent(nonPlayerId, PlayerComponent.class)).thenReturn(Optional.empty());
-    pbeService.putPlayerEntity(nonPlayer);
+    pbeService.updatePlayerBestiaWithEntityId(nonPlayer);
 
     // We have no access to the internal HZ map so we can not check the non
     // adding.
@@ -305,26 +305,26 @@ public class PlayerEntityServiceTest {
   @Test
   public void putPlayerEntity_playerEntity_added() {
 
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
     assertTrue(pbeService.getPlayerEntities(KNOWN_ACC_ID).contains(playerEntity));
   }
 
   @Test
   public void removePlayerBestias_wrongAccId_nothing() {
-    pbeService.removePlayerBestias(123);
+    pbeService.removeEntityIdsFromAccount(123);
   }
 
   @Test
   public void removePlayerBestias_accIdWithBestias_allBestiasRemoved() {
 
-    pbeService.putPlayerEntity(masterEntity);
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(masterEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
 
     Collection<Entity> entities = pbeService.getPlayerEntities(KNOWN_ACC_ID);
 
     assertEquals("Account should own two bestias now.", 2, entities.size());
 
-    pbeService.removePlayerBestias(KNOWN_ACC_ID);
+    pbeService.removeEntityIdsFromAccount(KNOWN_ACC_ID);
 
     assertEquals("All bestias should be removed.", 0, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
   }
@@ -338,8 +338,8 @@ public class PlayerEntityServiceTest {
   @Test
   public void removePlayerBestia_addedEntity_isRemoved() {
 
-    pbeService.putPlayerEntity(masterEntity);
-    pbeService.putPlayerEntity(playerEntity);
+    pbeService.updatePlayerBestiaWithEntityId(masterEntity);
+    pbeService.updatePlayerBestiaWithEntityId(playerEntity);
     pbeService.setActiveEntity(KNOWN_ACC_ID, masterEntity.getId());
 
     assertEquals("Account should own two bestias now.", 2, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
