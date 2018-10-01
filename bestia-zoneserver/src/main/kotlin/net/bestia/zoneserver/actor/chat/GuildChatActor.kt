@@ -43,11 +43,7 @@ class GuildChatActor(
       return
     }
 
-    val playerBestiaId = playerEntityService.getActivePlayerBestiaId(chatMsg.accountId)
-
-    if (playerBestiaId == 0L) {
-      return
-    }
+    val playerBestiaId = playerEntityService.getActivePlayerEntityId(chatMsg.accountId) ?: return
 
     guildService.getGuildMembersFromPlayer(playerBestiaId).stream()
             .filter { member -> member.entityId != 0L }

@@ -103,12 +103,9 @@ constructor(
 
     if (cvar != null) {
       cvar.data = data
-
     } else {
-
       // Cvar is not yet set. Just create one.
-      val acc = accDao.findOneOrThrow(accountId) ?: throw IllegalArgumentException("Account does not exist.")
-
+      val acc = accDao.findOneOrThrow(accountId)
       cvar = ClientVar(acc, key, data)
     }
 

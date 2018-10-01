@@ -7,20 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  *
  * @author Thomas Felix
  */
-abstract class EntityJsonMessage(
-        accId: Long,
-
-        @field:JsonProperty("eid")
-        val entityId: Long
-) : JsonMessage(accId) {
-
-  init {
-    if (entityId < 0) {
-      throw IllegalArgumentException("EntityID must be positive or 0.")
-    }
-  }
-
-  override fun toString(): String {
-    return "EntityJsonMessage[eeid: $entityId, accId: $accountId]"
-  }
+interface EntityMessage {
+  @get:JsonProperty("eid")
+  val entityId: Long
 }

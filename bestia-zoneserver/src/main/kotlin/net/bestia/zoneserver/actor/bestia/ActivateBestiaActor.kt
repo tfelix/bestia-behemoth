@@ -34,7 +34,7 @@ class ActivateBestiaActor(
               msg.entityId)
 
     } catch (ex: IllegalArgumentException) {
-      LOG.warn { "Can not activiate entity: $msg" }
+      LOG.warn { "Can not activate entity: $msg" }
     }
   }
 

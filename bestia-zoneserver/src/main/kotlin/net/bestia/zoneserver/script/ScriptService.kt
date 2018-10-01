@@ -2,7 +2,6 @@ package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.env.ScriptEnv
 import net.bestia.zoneserver.script.env.SimpleScriptEnv
@@ -26,7 +25,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ScriptService(
-    private val entityService: EntityService,
     private val cache: ScriptCache
 ) {
 
@@ -46,14 +44,7 @@ class ScriptService(
   }
 
   private fun resolveScript(scriptAnchor: ScriptAnchor): CompiledScript {
-    val script = cache.getScript(scriptAnchor.name)
-
-    if (script == null) {
-      LOG.warn("Did not find script file: {} ({})", scriptAnchor)
-      throw IllegalArgumentException("Could not find script.")
-    }
-
-    return script
+    return cache.getScript(scriptAnchor.name)
   }
 
   /**
@@ -82,7 +73,6 @@ class ScriptService(
    *
    * @param scriptUuid     The uuid of the script (an entity can have more then one
    * callback script attached).
-   * @param scriptEntityId The script entity whose callback is about to be triggered.
    */
   fun callScriptIntervalCallback(entity: Entity, scriptUuid: String) {
 

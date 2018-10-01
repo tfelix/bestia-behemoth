@@ -39,7 +39,7 @@ public class TestZoneConfiguration {
 	public ActorSystem actorSystem(ApplicationContext appCtx) {
 		final Config akkaConfig = ConfigFactory.load("akka-test");
 		final ActorSystem system = ActorSystem.create("testSystem", akkaConfig);
-		SpringExtension.initialize(system, appCtx);
+		SpringExtension.Companion.initialize(system, appCtx);
 		return system;
 	}
 }

@@ -238,7 +238,7 @@ class MapService(
     /**
      * Max sight range for the client in tiles in every direction.
      */
-    var SIGHT_RANGE_TILES = 32
+    private const val SIGHT_RANGE_TILES = 32
 
     /**
      * Returns the rect which lies inside the sight range of the position.

@@ -57,6 +57,7 @@ class SendClientsInRangeActor(
     val activeIds = entityCollisionService.getAllCollidingEntityIds(updateRect)
 
     for (activeId in activeIds) {
+      ToClient
       sendClient.tell(newMsg, self)
     }
   }

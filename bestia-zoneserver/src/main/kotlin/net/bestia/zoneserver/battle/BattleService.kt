@@ -93,7 +93,7 @@ class BattleService(
     isCriticalHit(battleCtx)
 
     if (!doesAttackHit(battleCtx)) {
-      return Damage.getMiss()
+      return Damage.miss
     }
 
     val primaryDamage = damageCalculator.calculateDamage(battleCtx)
@@ -246,7 +246,7 @@ class BattleService(
     val attacker = battleCtx.attacker
     val defender = battleCtx.defender!!
 
-    if (!attack.needsLineOfSight()) {
+    if (!attack.needsLineOfSight) {
       LOG.trace("Attack does not need los.")
       return true
     }
@@ -276,7 +276,7 @@ class BattleService(
     // TODO Hier weiß ich noch nicht wie man das am geschicktesten lösen kann.
     val blockingEntities = entityCollisionService.getAllCollidingEntityIds(bbox)
     val doesEntityBlock = blockingEntities.any { entity ->
-      val pos = entityService.getComponent(entity, PositionComponent::class.java)
+      val pos = entity.getComponent(PositionComponent::class.java)
       pos.map {
         val shape = it.shape
         lineOfSight.any { shape.collide(it) }

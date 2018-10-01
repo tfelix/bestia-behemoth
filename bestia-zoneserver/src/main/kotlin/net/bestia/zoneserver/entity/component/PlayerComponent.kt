@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.entity.component
 
-import net.bestia.zoneserver.entity.component.receiver.OwnerReceiver
-
-@ClientSync([(ClientDirective(OwnerReceiver::class))])
-class PlayerComponent(id: Long): Component(id) {
+data class PlayerComponent(
+    override val id: Long,
+    override val entityId: Long
+): Component {
 
   var ownerAccountId: Long = 0
     set(ownerAccountId) {

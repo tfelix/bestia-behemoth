@@ -1,21 +1,10 @@
 package net.bestia.model.geometry;
 
-import java.io.Serializable;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.model.geometry.Circle;
-import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
-
 public class RectTest {
 	
-	@Test
-	public void is_serializable() {
-		Assert.assertTrue(Serializable.class.isAssignableFrom(Rect.class));
-	}
-
 	@Test
 	public void moveAnchor() {
 		Rect r = new Rect(10, 10 , 3, 3);

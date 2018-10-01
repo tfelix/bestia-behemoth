@@ -25,7 +25,7 @@ class LatencyPingActor(
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchEquals(LATENCY_REQUEST_MSG, { onLatencyRequest() })
+    builder.matchEquals(LATENCY_REQUEST_MSG) { onLatencyRequest() }
   }
 
   private val latencyTick = context.system.scheduler().schedule(
@@ -34,9 +34,7 @@ class LatencyPingActor(
           self, LATENCY_REQUEST_MSG, context.dispatcher(), null)
 
   override fun createReceive(): AbstractActor.Receive {
-    return receiveBuilder()
-
-            .build()
+    return receiveBuilder().build()
   }
 
   @Throws(Exception::class)

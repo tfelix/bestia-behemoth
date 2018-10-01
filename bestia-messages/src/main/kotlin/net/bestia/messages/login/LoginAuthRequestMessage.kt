@@ -10,7 +10,7 @@ import net.bestia.messages.MessageId
  * @author Thomas Felix
  */
 data class LoginAuthRequestMessage(
-        /**
+    /**
          * User provided login token which will be checked against in the database.
          *
          * @return Login token.
@@ -18,9 +18,8 @@ data class LoginAuthRequestMessage(
         val token: String
 ) : MessageId {
 
-  override fun getMessageId(): String {
-    return MESSAGE_ID
-  }
+  override val messageId: String
+    get() = MESSAGE_ID
 
   companion object {
     const val MESSAGE_ID = "system.loginauth"

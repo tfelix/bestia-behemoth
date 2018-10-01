@@ -4,7 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.Cancellable
 import mu.KotlinLogging
-import net.bestia.messages.MapMoveMessage
+import net.bestia.messages.map.MapMoveMessage
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.entity.Entity

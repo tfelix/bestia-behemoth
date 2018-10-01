@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.actor.guild
 
-import net.bestia.messages.guild.GuildMessage
+import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.messages.guild.GuildRequestMessage
 import net.bestia.model.dao.GuildDAO
 import net.bestia.model.dao.findOne
@@ -30,7 +30,7 @@ class GuildRequestActor(
   }
 
   private fun onRequest(msg: GuildRequestMessage) {
-    val guildId = msg.getRequestedGuildId()
+    val guildId = msg.requestedGuildId
 
     val isRequesterInGuild = guildService.isInGuild(msg.accountId, guildId)
     if (!isRequesterInGuild) {
@@ -38,7 +38,7 @@ class GuildRequestActor(
     }
 
     guildDao.findOne(guildId)?.let { guild ->
-      val gmsg = GuildMessage(msg.accountId, guild)
+      val gmsg = GuildResponseMessage(msg.accountId, guild)
       sendClient.tell(gmsg, self)
     }
   }

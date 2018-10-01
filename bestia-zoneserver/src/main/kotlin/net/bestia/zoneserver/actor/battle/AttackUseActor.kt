@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class AttackUseActor(
-        private val battleService: BattleService
+    private val battleService: BattleService
 ) : BaseClientMessageRouteActor() {
 
   private val transformAtkMsg = SpringExtension.actorOf(context, AttackPlayerUseActor::class.java)
@@ -54,17 +54,21 @@ class AttackUseActor(
     LOG.debug("Received skill message: {}", msg)
 
     if (msg.targetEntityId != 0L) {
-      // Entity was targeted.
-      val dmg = battleService.attackEntity(msg.attackId,
-              msg.sourceEntityId,
-              msg.targetEntityId)
-
-      val dmgMsg = EntityDamageMessage(msg.targetEntityId, dmg)
-      sendActiveRange.tell(dmgMsg, self)
-
+      handleEntityAttack(msg)
     } else {
       LOG.warn { "Attackmode Currently not supported." }
     }
+  }
+
+  private fun handleEntityAttack(msg: EntitySkillUseMessage) {
+    val dmg = battleService.attackEntity(
+        msg.attackId,
+        msg.sourceEntityId,
+        msg.targetEntityId
+    )
+
+    val dmgMsg = EntityDamageMessage(msg.targetEntityId, dmg)
+    sendActiveRange.tell(dmgMsg, self)
   }
 
   companion object {

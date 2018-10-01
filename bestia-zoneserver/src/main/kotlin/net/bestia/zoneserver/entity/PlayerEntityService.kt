@@ -29,9 +29,7 @@ class PlayerEntityService(
    * Sets the entity id as the active player bestia for the given account id.
    * This will throw if the given entity id does not exist in the system.
    *
-   * @param accId
-   * @param activeEntityId
-   * @throws IllegalArgumentException If the entity id does not exist.
+   * @throws IllegalArgumentException If the entity does not belong to the given account id.
    */
   fun setActiveEntity(accId: Long, entity: Entity) {
 

@@ -7,7 +7,9 @@ package net.bestia.model.map
  *
  * @author Thomas Felix
  */
-class Walkspeed {
+data class Walkspeed(
+    private var _speed: Float = 1f
+) {
 
   /**
    * Gets the current speed.
@@ -21,6 +23,7 @@ class Walkspeed {
       }
       field = value
     }
+    get() = _speed
 
   /**
    * Returns the walkspeed as float.
@@ -29,10 +32,6 @@ class Walkspeed {
    */
   fun toInt(): Int {
     return (speed * 100).toInt()
-  }
-
-  override fun toString(): String {
-    return "Walkspeed[spd: $speed]"
   }
 
   companion object {

@@ -22,7 +22,6 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class EntityInteractionRequestActor(
-        private val entityService: EntityService,
         private val interactService: InteractionService
 ) : BaseClientMessageRouteActor() {
 

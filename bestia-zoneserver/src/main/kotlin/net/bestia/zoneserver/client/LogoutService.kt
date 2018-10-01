@@ -6,6 +6,7 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LoginError
 import net.bestia.model.dao.AccountDAO
+import net.bestia.model.dao.findOne
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
 import net.bestia.zoneserver.MessageApi
@@ -37,12 +38,7 @@ class LogoutService(
 		// Unregister connection.
 		LOG.debug("Logout account: {}.", accId)
 
-		val acc = accountDao.findOneOrThrow(accId)
-
-		if (acc == null) {
-			LOG.warn("Can not logout account id: {}. ID does not exist.", accId)
-			return
-		}
+		val acc = accountDao.findOne(accId) ?: return
 
 		// Send disconnect message to the webserver.
 		// Depending on the logout state the actor might have already been

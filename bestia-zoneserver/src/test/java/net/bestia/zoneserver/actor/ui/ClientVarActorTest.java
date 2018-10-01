@@ -62,7 +62,7 @@ public class ClientVarActorTest {
 
 	@Before
 	public void setup() {
-		SpringExtension.initialize(system, appCtx);
+		SpringExtension.Companion.initialize(system, appCtx);
 
 		Mockito.when(cvar.getData()).thenReturn(DATA);
 		Mockito.when(cvar.getDataLength()).thenReturn(DATA.length());
@@ -77,9 +77,9 @@ public class ClientVarActorTest {
 		new TestKit(system) {
 			{
 				TestKit sender = new TestKit(system);
-				ActorRef cvarActor = SpringExtension.actorOf(system, ClientVarActor.class, "reqReq");
+				ActorRef cvarActor = SpringExtension.Companion.actorOf(system, ClientVarActor.class, "reqReq");
 
-				ClientVarRequestMessage msg = ClientVarRequestMessage.request(ACC_ID, KEY, UUID);
+				ClientVarRequestMessage msg = ClientVarRequestMessage.Companion.request(ACC_ID, KEY, UUID);
 				cvarActor.tell(msg, sender.getRef());
 
 				expectMsg(duration("1 second"), ClientVarRequestMessage.class);
@@ -93,9 +93,9 @@ public class ClientVarActorTest {
 	@Test
 	public void onDelete_deleteCvar() {
 		TestKit sender = new TestKit(system);
-		ActorRef cvarActor = SpringExtension.actorOf(system, ClientVarActor.class, "delReq");
+		ActorRef cvarActor = SpringExtension.Companion.actorOf(system, ClientVarActor.class, "delReq");
 
-		ClientVarRequestMessage msg = ClientVarRequestMessage.delete(ACC_ID, KEY);
+		ClientVarRequestMessage msg = ClientVarRequestMessage.Companion.delete(ACC_ID, KEY);
 		cvarActor.tell(msg, sender.getRef());
 
 		// Check the setting.
@@ -107,8 +107,8 @@ public class ClientVarActorTest {
 		new TestKit(system) {
 			{
 				TestKit sender = new TestKit(system);
-				ActorRef cvarActor = SpringExtension.actorOf(system, ClientVarActor.class, "setReq");
-				ClientVarRequestMessage msg = ClientVarRequestMessage.set(ACC_ID, KEY, UUID, DATA);
+				ActorRef cvarActor = SpringExtension.Companion.actorOf(system, ClientVarActor.class, "setReq");
+				ClientVarRequestMessage msg = ClientVarRequestMessage.Companion.set(ACC_ID, KEY, UUID, DATA);
 				cvarActor.tell(msg, sender.getRef());
 
 				// Check the setting.
@@ -122,9 +122,9 @@ public class ClientVarActorTest {
 		new TestKit(system) {
 			{
 				TestKit sender = new TestKit(system);
-				ActorRef cvarActor = SpringExtension.actorOf(system, ClientVarActor.class, "onReqNotOwn");
+				ActorRef cvarActor = SpringExtension.Companion.actorOf(system, ClientVarActor.class, "onReqNotOwn");
 
-				ClientVarRequestMessage msg = ClientVarRequestMessage.request(WRONG_ACC_ID, KEY, UUID);
+				ClientVarRequestMessage msg = ClientVarRequestMessage.Companion.request(WRONG_ACC_ID, KEY, UUID);
 				cvarActor.tell(msg, sender.getRef());
 
 				expectNoMsg(duration("1 second"));

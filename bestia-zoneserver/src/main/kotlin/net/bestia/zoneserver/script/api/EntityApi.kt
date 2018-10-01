@@ -1,10 +1,7 @@
 package net.bestia.zoneserver.script.api
 
-import mu.KotlinLogging
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
-
-private val LOG = KotlinLogging.logger {  }
 
 class EntityApi(
         private val rootApi: ScriptRootApi,

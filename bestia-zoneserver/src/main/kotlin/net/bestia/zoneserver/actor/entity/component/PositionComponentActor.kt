@@ -15,7 +15,7 @@ internal data class SetPositionMessage(
 @HandlesComponent(component = PositionComponent::class)
 class PositionComponentActor(
     positionComponent: PositionComponent
-) : BaseComponentActor<PositionComponent>(positionComponent) {
+) : ComponentActor<PositionComponent>(positionComponent) {
 
   override fun createReceive(builder: ReceiveBuilder) {
     builder.match(PositionComponent::class.java, this::handleComponent)

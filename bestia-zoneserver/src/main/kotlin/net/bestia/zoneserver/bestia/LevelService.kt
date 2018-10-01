@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.battle.StatusService
-import net.bestia.zoneserver.entity.ComponentNotifyService
+import net.bestia.zoneserver.entity.EntityService
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -17,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class LevelService(
     private val statusService: StatusService,
-    private val componentNotifyService: ComponentNotifyService
+    private val entityService: EntityService
 ) {
 
   /**
@@ -40,7 +40,7 @@ class LevelService(
     lvComp.level = level
     statusService.calculateStatusPoints(entity)
 
-    componentNotifyService.notifyChanged(entity.id, lvComp)
+    entityService.updateComponent(lvComp)
   }
 
   /**
@@ -96,7 +96,7 @@ class LevelService(
 
     checkLevelup(entity, levelComp)
 
-    componentNotifyService.notifyChanged(entity.id, levelComp)
+    entityService.updateComponent(levelComp)
   }
 
   companion object {

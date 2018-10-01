@@ -5,6 +5,7 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.actor.Terminated
 import mu.KotlinLogging
+import net.bestia.messages.MessageId
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientDisconnectMessage
 import net.bestia.messages.client.ClientEnvelope
@@ -31,8 +32,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class ClientConnectionActor(
-        private val loginService: LoginService,
-        private val logoutService: LogoutService
+    private val loginService: LoginService,
+    private val logoutService: LogoutService
 ) : AbstractActor() {
 
   private var accountId: Long = 0
@@ -40,10 +41,10 @@ class ClientConnectionActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ClientEnvelope::class.java, this::checkMessageEnvelope)
-            .match(JsonMessage::class.java, { msg -> sendMessageToClient(msg) })
-            .match(Terminated::class.java) { _ -> onClientConnectionClosed() }
-            .build()
+        .match(ClientEnvelope::class.java, this::checkMessageEnvelope)
+        .match(MessageId::class.java, this::sendMessageToClient)
+        .match(Terminated::class.java) { _ -> onClientConnectionClosed() }
+        .build()
   }
 
   @Throws(Exception::class)
@@ -93,9 +94,9 @@ class ClientConnectionActor(
     LOG.debug("Client has authenticated: {}.", msg)
 
     SpringExtension.actorOf(context,
-            LatencyPingActor::class.java,
-            accountId,
-            authenticatedSocket)
+        LatencyPingActor::class.java,
+        accountId,
+        authenticatedSocket)
 
     // Spawn all the associated entities.
     loginService.login(accountId)

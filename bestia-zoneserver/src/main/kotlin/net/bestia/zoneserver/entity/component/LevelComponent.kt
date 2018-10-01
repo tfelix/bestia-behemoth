@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.zoneserver.entity.component.receiver.InSighReceiver
-import net.bestia.zoneserver.entity.component.receiver.OwnerReceiver
-import net.bestia.zoneserver.entity.component.transformer.LevelOnlyTransformer
 import net.bestia.zoneserver.bestia.LevelService
 
 /**
@@ -11,11 +8,11 @@ import net.bestia.zoneserver.bestia.LevelService
  *
  * @author Thomas Felix
  */
-@ClientSync([
-  ClientDirective(receiver = InSighReceiver::class, transform = LevelOnlyTransformer::class),
-  ClientDirective(receiver = OwnerReceiver::class)
-])
-class LevelComponent(id: Long) : Component(id, 0) {
+data class LevelComponent(
+    override val id: Long,
+    override val entityId: Long
+) : Component {
+
   @JsonProperty("lv")
   var level: Int = 1
     set(value) {
@@ -34,8 +31,4 @@ class LevelComponent(id: Long) : Component(id, 0) {
         else -> value
       }
     }
-
-  override fun toString(): String {
-    return "LevelComponent[id: $id, level: $level, exp: $exp]"
-  }
 }

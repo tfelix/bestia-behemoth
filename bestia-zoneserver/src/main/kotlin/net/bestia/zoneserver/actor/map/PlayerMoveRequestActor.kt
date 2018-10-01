@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.map
 
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.MoveComponent
-import net.bestia.messages.entity.EntityMoveRequestMessage
+import net.bestia.messages.entity.EntityMoveMessage
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -21,10 +21,10 @@ class PlayerMoveRequestActor(
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(EntityMoveRequestMessage::class.java, this::handleMoveRequest)
+    builder.match(EntityMoveMessage::class.java, this::handleMoveRequest)
   }
 
-  private fun handleMoveRequest(msg: EntityMoveRequestMessage) {
+  private fun handleMoveRequest(msg: EntityMoveMessage) {
     val mc = entityService.getComponentOrCreate(msg.entityId, MoveComponent::class.java)
     mc.setPath(msg.path)
     entityService.updateComponent(mc)

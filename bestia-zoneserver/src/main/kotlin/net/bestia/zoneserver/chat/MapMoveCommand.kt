@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.messages.MapMoveMessage
+import net.bestia.messages.map.MapMoveMessage
 import net.bestia.messages.entity.ComponentClassEnvelope
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.model.domain.Account
@@ -61,13 +61,14 @@ internal class MapMoveCommand(
         Point(x, y)
     )
 
-    val activePlayerEntity = playerBestiaService.getActivePlayerEntity(account.id)
-    messageApi.send(
-        EntityEnvelope(
-            activePlayerEntity.id,
-            ComponentClassEnvelope(PositionComponent::class.java, mapMoveMessage)
-        )
-    )
+    playerBestiaService.getActivePlayerEntityId(account.id)?.let {
+      messageApi.send(
+          EntityEnvelope(
+              it,
+              ComponentClassEnvelope(PositionComponent::class.java, mapMoveMessage)
+          )
+      )
+    }
   }
 
   companion object {

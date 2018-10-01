@@ -35,11 +35,7 @@ class PeriodicScriptActor(
   }
 
   override fun postStop() {
-
-    if (tick != null) {
-      tick!!.cancel()
-    }
-
+    tick?.cancel()
   }
 
   /**
@@ -48,19 +44,17 @@ class PeriodicScriptActor(
    * @param msg
    */
   private fun handleDelayChange(msg: ScriptComponent.ScriptCallback) {
-    tick!!.cancel()
+    tick?.cancel()
     setupMoveTick(msg.intervalMs)
   }
 
   private fun onTick() {
-
     try {
       scriptService.callScriptIntervalCallback(entityId, scriptUuid)
     } catch (e: Exception) {
       LOG.warn("Error during script interval execution. Stopping callback interval.", e)
       context().stop(self)
     }
-
   }
 
   /**
