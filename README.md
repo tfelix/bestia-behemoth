@@ -1,34 +1,35 @@
+# Bestia-Behemoth
 
+> Massive scalable Zoneserver for the [Bestia Browsergame](https://bestia-game.net) using Akka Actors and written 
+> in Kotlin.
 
+The zoneserver is the backend game server for the Bestia Browsergame. 
+It provides all needed business logic in order to play the game and is able to support huge tile maps
+of several thousands square kilometers and thousands of entities.
 
-Um einen Production Build auszuführen Maven starten:
+Detailed documentation about the game mechanics and server architecture can be found in the official
+[documentation](https://docs.bestia-game.net).
 
-mvn package -DskipTests -Dprod
+The server is open source so bug fixes and feature can be community driven which is a declared goal
+of the whole Bestia game project.
 
-Um die Module auf eine neue Version upzudaten:
+## Bestia-Zoneserver
 
-mvn release:update-versions -DautoVersionSubmodules=true
+The zoneserver is the backend game server for the Bestia Browsergame. 
+It provides all needed business logic in order to play the game and supports game logic written in
+JavaScript.
 
-===Release durchführen===
+Detailed documentation about the game mechanics and server architecture can be found in the official
+[documentation](https://docs.bestia-game.net).
 
-Um einen Release durchzuführen vorher sicherstelle:
+### Prerequisites
 
-* Laufen alle Tests?
-* Sinde alle aktuellen Änderungen im Commit enthalten?
+_TODO_
 
-Wenn das sichergestellt ist, folgende Punkte abhandeln:
+### Install
 
-* SNAPSHOT Version austauschen
-	* mvn versions:set -DnewVersion=VERSION
-* Commit durchführen.
-* Tag anlegen.
-	* git tag -a vAlpha-0.4.0 -m "alpha-0.4.0 release"
-* Neuen Branch für die nächste Version erstellen: 
-	* git checkout -b NEXT_VERSION
-* Version in POM updaten:
-	* mvn versions:set -DnewVersion=NEXT_VERSION-SNAPSHOT
-* Commit durchführen.
-	* git add .
-	* git commit -m "NEXT_VERSION start"
-* Neuen Branch ins Repository übertragen:
-	* git push origin NEXT_VERSION
+_TODO_
+
+## Contributing
+
+_TODO_
