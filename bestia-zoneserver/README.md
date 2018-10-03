@@ -1,13 +1,16 @@
-# Bestia-Zoneserver
+# Bestia-Behemoth
 
-The zoneserver is the central game server for the Bestia game. It provides all needed buisness logic in order to play the game.
+> Massive scalable Zoneserver for the [Bestia Browsergame](https://bestia-game.net) using Akka Actors and written 
+> in Kotlin.
+
+The zoneserver is the backend game server for the Bestia Browsergame. 
+It provides all needed business logic in order to play the game.
+
+Detailed documentation about the game mechanics and server architecture can be found in the official
+[documentation](https://docs.bestia-game.net).
+
+## 
 
 ## Installation
 
-In order to perform automatic startup of the server systemd start scripts are provided. In order to start the server automatically place the scripts under `/etc/systemd/system` and then do the following:
-
-```
-systemctl enable bestia-zone.service
-```
-
-The Bestia  bestia-zoneserver.jar file must be placed in `/opt/bestia-zone/` to install it.
+TODO

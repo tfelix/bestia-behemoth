@@ -1,9 +1,0 @@
-node_modules
-node
-build
-dist
-.settings
-_SpecRunner.html
-vendor
-doc
-npm-debug.log
