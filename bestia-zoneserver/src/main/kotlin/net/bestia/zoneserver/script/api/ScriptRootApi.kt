@@ -15,8 +15,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ScriptRootApi(
-        private val entityService: EntityService,
-        private val mobFactory: MobFactory
+    private val entityService: EntityService,
+    private val mobFactory: MobFactory
 ) {
   fun info(text: String) {
     LOG.info { text }
@@ -29,24 +29,25 @@ class ScriptRootApi(
   fun entity(entityId: Long): EntityApi {
     LOG.debug { "Looking up entity: $entityId" }
     return EntityApi(
-            entityId = entityId,
-            entityService = entityService,
-            rootApi = this)
+        entityId = entityId,
+        entityService = entityService,
+        rootApi = this)
   }
 
-  fun entity(blueprint: String = "") : EntityApi {
+  fun entity(blueprint: String = ""): EntityApi {
     val entity = mobFactory.build(blueprint, 0, 0)
     return EntityApi(
-            entityId = entity.id,
-            entityService = entityService,
-            rootApi = this)
+        entityId = entity.id,
+        entityService = entityService,
+        rootApi = this)
   }
 
-  fun entity() : EntityApi {
+  fun entity(): EntityApi {
     val entity = entityService.newEntity()
     return EntityApi(
-            entityId = entity.id,
-            entityService = entityService,
-            rootApi = this)
+        entityId = entity.id,
+        entityService = entityService,
+        rootApi = this
+    )
   }
 }

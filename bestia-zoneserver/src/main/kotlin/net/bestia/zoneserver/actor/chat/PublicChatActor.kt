@@ -35,7 +35,7 @@ class PublicChatActor(
         .build()
   }
 
-  private fun handleEntityResponse(response: ResponseEntity<*>) {
+  private fun handleEntityResponse(response: ResponseEntity) {
     val sendInRange = SendInRange(
         response.entity,
         response.content as ChatMessage

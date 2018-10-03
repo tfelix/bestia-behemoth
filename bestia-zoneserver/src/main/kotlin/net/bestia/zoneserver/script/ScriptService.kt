@@ -79,9 +79,8 @@ class ScriptService(
     LOG.trace { "Script $entity interval called." }
 
     val scriptComp = entity.getComponent(ScriptComponent::class.java)
-
-    val callbackAnchorString = scriptComp.getCallback(scriptUuid)?.script ?: return
-    val anchor = ScriptAnchor.fromString(callbackAnchorString)
+    val scriptAnchorString = scriptComp.scripts[scriptUuid]?.script ?: return
+    val anchor = ScriptAnchor.fromString(scriptAnchorString)
     val script = resolveScript(anchor)
     val simpleScriptEnv = SimpleScriptEnv()
 

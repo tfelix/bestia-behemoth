@@ -9,7 +9,6 @@ import net.bestia.zoneserver.bestia.LevelService
  * @author Thomas Felix
  */
 data class LevelComponent(
-    override val id: Long,
     override val entityId: Long
 ) : Component {
 

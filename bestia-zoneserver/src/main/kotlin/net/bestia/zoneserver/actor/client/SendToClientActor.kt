@@ -6,8 +6,6 @@ import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.component.LatencyInfo
-import net.bestia.zoneserver.client.LatencyService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -21,45 +19,26 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 @Scope("prototype")
-class SendToClientActor(
-        private val latencyService: LatencyService
-) : AbstractActor() {
+class SendToClientActor : AbstractActor() {
 
-  private var clientConnection = ClusterSharding.get(context.system).shardRegion(EntryActorNames.SHARD_CONNECTION)
+  private var clientConnection = ClusterSharding.get(context.system)
+      .shardRegion(EntryActorNames.SHARD_CONNECTION)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(AccountMessage::class.java, this::handleSendClient)
-            .match(ClientEnvelope::class.java, this::sendToClient)
-            .build()
+        .match(AccountMessage::class.java, this::handleAccountMessage)
+        .match(ClientEnvelope::class.java, this::handleClientEnvelope)
+        .build()
   }
 
-  private fun sendToClient(msg: ClientEnvelope) {
+  private fun handleClientEnvelope(msg: ClientEnvelope) {
     clientConnection.tell(msg, self)
   }
 
-  private fun handleSendClient(msg: AccountMessage) {
+  private fun handleAccountMessage(msg: AccountMessage) {
     LOG.debug("Sending to client: {}", msg)
     val accountId = msg.accountId
-    when (msg) {
-      is LatencyInfo -> addLatencyInfoToMessage(accountId, msg)
-      else -> clientConnection.tell(ClientEnvelope(accountId, msg), sender)
-    }
-  }
-
-  /**
-   * If its a component message include the client latency in the
-   * message because the clients might need this for animation
-   * critical data.
-   */
-  private fun addLatencyInfoToMessage(accountId: Long, msg: LatencyInfo) {
-    // This is a good example. the master entity should have a latency component which should be fetched
-    // for this opportunity from the entity component
-    // TODO The latency data should be managed on the ClientConnectionActor.
-    val latency = latencyService.getClientLatency(accountId)
-    val updatedMsg = msg.createNewInstance(accountId, latency)
-    val envelope = ClientEnvelope(accountId, updatedMsg)
-    clientConnection.tell(envelope, sender)
+    clientConnection.tell(ClientEnvelope(accountId, msg), sender)
   }
 
   companion object {

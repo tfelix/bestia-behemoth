@@ -12,7 +12,6 @@ import net.bestia.zoneserver.EntryActorNames
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
-import net.bestia.zoneserver.actor.connection.IngestActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityIdGeneratorActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
@@ -48,15 +47,17 @@ class BestiaRootActor(
     SpringExtension.actorOf(context, ClientMessageActor::class.java)
 
     registerSingeltons()
-    // registerSharding()
+    registerSharding()
 
     // Call the startup script.
     scriptService.callScriptMainFunction("startup")
 
     // Register the cluster client receptionist for receiving messages.
+    /*
     val ingest = SpringExtension.actorOf(context, IngestActor::class.java)
     val receptionist = ClusterClientReceptionist.get(system)
     receptionist.registerService(ingest)
+    */
   }
 
   private fun registerSharding() {

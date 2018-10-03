@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.component.MoveComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.domain.Direction
 import net.bestia.model.geometry.Point
@@ -115,23 +114,6 @@ class MovingService(
     } else {
       Direction.SOUTH_WEST
     }
-  }
-
-  /**
-   * This triggers a longer movement by using a path. This involves spinning
-   * up an actor which will continuously update the movement of the entity
-   * until an error occurs or the end of the path has been reached.
-   *
-   * @param entityId The entity to move.
-   * @param path     The path to move along.
-   */
-  fun movePath(entity: Entity, path: List<Point>) {
-    LOG.trace { "Moving entity $entity along path: $path" }
-
-    // TODO Create a move component. Think if we need a proper ID for it.
-    val mc = entityService.getComponentOrCreate(entityId, MoveComponent::class.java)
-    mc.setPath(path)
-    entityService.updateComponent(mc)
   }
 
   companion object {

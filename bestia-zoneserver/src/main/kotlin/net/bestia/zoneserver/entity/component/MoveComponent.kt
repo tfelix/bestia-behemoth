@@ -12,13 +12,12 @@ import java.util.Queue
  * @author Thomas Felix
  */
 data class MoveComponent(
-        override val id: Long,
-        override val entityId: Long,
-        val path: Queue<Point> = LinkedList()
+    override val entityId: Long,
+    val path: Queue<Point> = LinkedList()
 ) : Component {
-
-  fun setPath(path: Collection<Point>) {
-    this.path.clear()
-    this.path.addAll(path)
+  companion object {
+    fun fromCollection(entityId: Long, path: Collection<Point>): MoveComponent {
+      return MoveComponent(entityId, LinkedList(path))
+    }
   }
 }

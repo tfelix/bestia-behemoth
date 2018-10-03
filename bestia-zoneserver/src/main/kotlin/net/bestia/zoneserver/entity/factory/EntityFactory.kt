@@ -3,12 +3,7 @@ package net.bestia.zoneserver.entity.factory
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
-
-interface EntityBuilder {
-  fun build(entity: Entity)
-}
 
 private val LOG = KotlinLogging.logger { }
 
@@ -24,14 +19,15 @@ internal class EntityFactory(
     private val messageApi: MessageApi
 ) {
 
-  fun buildEntity(builder: EntityBuilder) {
-    LOG.trace { "Creating entity with: $builder" }
+  fun buildEntity(blueprint: EntityBlueprint) {
+    LOG.trace { "Creating entity with: $blueprint" }
 
-    // TODO Possibly we need to somehow cache the component ids if they should be unique.
     val e = entityService.newEntity()
-    builder.build(e)
-
     val entityEnvelope = EntityEnvelope(e.id, e)
     messageApi.send(entityEnvelope)
+
+    blueprint.components.forEach {
+      entityService.updateComponent(it)
+    }
   }
 }

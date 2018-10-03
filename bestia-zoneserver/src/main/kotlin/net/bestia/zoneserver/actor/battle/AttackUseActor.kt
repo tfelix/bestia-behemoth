@@ -4,7 +4,12 @@ import mu.KotlinLogging
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntityDamageMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
+import net.bestia.model.dao.AttackDAO
+import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.domain.Attack
+import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import net.bestia.zoneserver.battle.BattleService
@@ -22,7 +27,9 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class AttackUseActor(
-    private val battleService: BattleService
+    private val battleService: BattleService,
+    private val attackDao: AttackDAO,
+    private val messageApi: MessageApi
 ) : BaseClientMessageRouteActor() {
 
   private val transformAtkMsg = SpringExtension.actorOf(context, AttackPlayerUseActor::class.java)
@@ -40,7 +47,7 @@ class AttackUseActor(
    * @param msg
    */
   private fun handleAttackMessage(msg: AttackUseMessage) {
-    LOG.debug("Received essage: {}.", msg)
+    LOG.debug("Received message: {}.", msg)
     transformAtkMsg.tell(msg, self)
   }
 
@@ -51,24 +58,24 @@ class AttackUseActor(
    * The message describing the attack.
    */
   private fun handleEntitySkillMessage(msg: EntitySkillUseMessage) {
-    LOG.debug("Received skill message: {}", msg)
+    LOG.debug { "Use skill: $msg" }
 
-    if (msg.targetEntityId != 0L) {
-      handleEntityAttack(msg)
+    val attack = attackDao.findOneOrThrow(msg.attackId)
+
+    if (msg.targetEntityId != null) {
+      handleEntityAttack(attack, msg.sourceEntityId, msg.targetEntityId!!)
     } else {
       LOG.warn { "Attackmode Currently not supported." }
     }
   }
 
-  private fun handleEntityAttack(msg: EntitySkillUseMessage) {
-    val dmg = battleService.attackEntity(
-        msg.attackId,
-        msg.sourceEntityId,
-        msg.targetEntityId
-    )
-
-    val dmgMsg = EntityDamageMessage(msg.targetEntityId, dmg)
-    sendActiveRange.tell(dmgMsg, self)
+  private fun handleEntityAttack(attack: Attack, attackerId: Long, defenderId: Long) {
+    awaitEntityResponse(messageApi, context, setOf(attackerId, defenderId)) {
+      val dmg = battleService.attackEntity(attack, it[attackerId], it[defenderId])
+          ?: return@awaitEntityResponse
+      val dmgMsg = EntityDamageMessage(defenderId, dmg)
+      sendActiveRange.tell(dmgMsg, self)
+    }
   }
 
   companion object {

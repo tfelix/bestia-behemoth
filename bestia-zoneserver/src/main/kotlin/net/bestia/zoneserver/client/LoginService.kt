@@ -25,8 +25,7 @@ class LoginService(
     private val playerEntityService: PlayerEntityService,
     private val playerEntityFactory: PlayerBestiaEntityFactory,
     private val playerBestiaService: PlayerBestiaService,
-    private val entityService: EntityService,
-    private val connectionService: ConnectionService
+    private val entityService: EntityService
 ) {
 
   /**
@@ -44,20 +43,13 @@ class LoginService(
     }
 
     val account = accountDao.findOneOrThrow(accId)
-
-    if (account == null) {
-      LOG.warn("Account {} was not found.", accId)
-      return null
-    }
-
-    // Spawn the player bestia of this account.
     val master = playerBestiaService.getMaster(accId)
 
-    var masterEntity: Entity? = null
+    LOG.debug { "Login of account: $account" }
 
-    if (master!!.entityId != 0L) {
-      LOG.debug("Login in acc: {}. Master bestia already spawned (eid: {}). Using it.", accId,
-              master.entityId)
+    var masterEntity: Entity? = null
+    if (master.entityId != 0L) {
+      LOG.debug{ "Master Bestia already spawned use entity: ${master.entityId}" }
 
       masterEntity = entityService.getEntity(master.entityId)
 
@@ -85,8 +77,6 @@ class LoginService(
     // Update the DB.
     master.entityId = masterEntity.id
     playerBestiaService.save(master)
-
-    connectionService.addConnection(accId)
 
     return account
   }

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Thomas Felix
  */
 data class GuildComponent(
-        override val id: Long,
         override val entityId: Long,
 
         @JsonProperty("gid")

@@ -14,6 +14,10 @@ class EntityCollisionService {
     return emptySet()
   }
 
+  fun getAllCollidingEntityIds(shapes: List<CollisionShape>): Set<Long> {
+    return emptySet()
+  }
+
   /*
     /**
    * Returns a list of account ids from players which active bestia entity is

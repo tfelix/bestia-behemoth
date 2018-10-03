@@ -1,7 +1,5 @@
 package net.bestia.messages.ui
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.MessageId
 
@@ -14,9 +12,7 @@ import net.bestia.messages.MessageId
 data class ClientVarRequestMessage(
     override val accountId: Long,
     val key: String,
-    var uuid: String,
-    @JsonProperty("d")
-    var data: String
+    var uuid: String
 ) : AccountMessage, MessageId {
 
   override val messageId: String

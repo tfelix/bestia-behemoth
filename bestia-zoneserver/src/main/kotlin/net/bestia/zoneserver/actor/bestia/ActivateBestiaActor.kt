@@ -2,6 +2,8 @@ package net.bestia.zoneserver.actor.bestia
 
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaActivateMessage
+import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.context.annotation.Scope
@@ -19,7 +21,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class ActivateBestiaActor(
-        private val playerService: PlayerEntityService
+        private val playerService: PlayerEntityService,
+        private val messageApi: MessageApi
 ) : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
@@ -27,14 +30,16 @@ class ActivateBestiaActor(
   }
 
   private fun handleActivateBestia(msg: BestiaActivateMessage) {
-    try {
-      playerService.setActiveEntity(msg.accountId, msg.entityId)
-      LOG.debug("Activated player bestia from accId: {}, entityId: {}",
-              msg.accountId,
-              msg.entityId)
+    awaitEntityResponse(messageApi, context, msg.entityId) {
+      try {
+        playerService.setActiveEntity(msg.accountId, it)
+        LOG.debug("Activated player bestia from accId: {}, entityId: {}",
+            msg.accountId,
+            msg.entityId)
 
-    } catch (ex: IllegalArgumentException) {
-      LOG.warn { "Can not activate entity: $msg" }
+      } catch (ex: IllegalArgumentException) {
+        LOG.warn { "Can not activate entity: $msg" }
+      }
     }
   }
 

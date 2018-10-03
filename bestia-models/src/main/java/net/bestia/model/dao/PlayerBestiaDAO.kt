@@ -25,7 +25,7 @@ interface PlayerBestiaDAO : CrudRepository<PlayerBestia, Long> {
   fun findPlayerBestiasForAccount(@Param("owner") accId: Long): Set<PlayerBestia>
 
   @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.master != null")
-  fun findMasterBestiasForAccount(@Param("owner") accId: Long): PlayerBestia
+  fun findMasterBestiaForAccount(@Param("owner") accId: Long): PlayerBestia
 
   /**
    * Returns a master player bestia with the given name or null if no such
@@ -36,5 +36,5 @@ interface PlayerBestiaDAO : CrudRepository<PlayerBestia, Long> {
    * @return The found [PlayerBestia] or null.
    */
   @Query("FROM PlayerBestia pb WHERE pb.master != null AND pb.name = :name")
-  fun findMasterBestiaWithName(@Param("name") name: String): PlayerBestia
+  fun findMasterBestiaWithName(@Param("name") name: String): PlayerBestia?
 }

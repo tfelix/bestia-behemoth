@@ -133,7 +133,7 @@ class PlayerEntityService(
   fun removeEntityIdsFromAccount(accountId: Long) {
     LOG.trace { "removeEntityIdsFromAccount(): For account $accountId." }
 
-    accountDao.findOneOrThrow(accountId)?.let {
+    accountDao.findOneOrThrow(accountId).let {
       it.activeBestiaEntityId = 0
       accountDao.save(it)
     }

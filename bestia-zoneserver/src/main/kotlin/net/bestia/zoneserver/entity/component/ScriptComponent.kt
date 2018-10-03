@@ -6,9 +6,8 @@ package net.bestia.zoneserver.entity.component
  * @author Thomas Felix
  */
 data class ScriptComponent(
-        override val id: Long,
-        override val entityId: Long
-): Component {
+    override val entityId: Long
+) : Component {
 
   /**
    * Callback types of the different scripts. This is used to register
@@ -51,33 +50,26 @@ data class ScriptComponent(
     ON_ATTACK,
 
     /**
-     * Script is called if an item is picked up by a player.
+     * Script is called if an item is picked up by a player in the surrounding area.
      */
     ON_ITEM_PICKUP,
 
     /**
-     * Script is called if a player drops an item.
+     * Script is called if a player drops an item in the surrounding area.
      */
     ON_ITEM_DROP
   }
 
   data class ScriptCallback(
-          val uuid: String,
-          val type: TriggerType,
-          val script: String,
-          val intervalMs: Int
+      val uuid: String,
+      val type: TriggerType,
+      val script: String,
+      val intervalMs: Int
   )
 
-  private val callbacks = mutableMapOf<String, ScriptCallback>()
+  val scripts = mutableMapOf<String, ScriptCallback>()
 
-  val allScriptUids: Set<String>
-    get() = callbacks.keys
-
-  fun getCallback(uuid: String): ScriptCallback? {
-    return callbacks[uuid]
-  }
-
-  fun addCallback(callback: ScriptCallback) {
-    callbacks[callback.uuid] = callback
+  fun addScriptCallback(callback: ScriptCallback) {
+    scripts[callback.uuid] = callback
   }
 }

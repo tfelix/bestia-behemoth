@@ -6,8 +6,7 @@ package net.bestia.zoneserver.entity.component
  * @author Thomas Felix
  */
 data class TagComponent(
-        override val id: Long,
-        override val entityId: Long
+    override val entityId: Long
 ) : Component {
 
   private val tags = mutableSetOf<String>()

@@ -3,6 +3,8 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
+import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.ScriptService
 import org.springframework.context.annotation.Scope
@@ -21,6 +23,7 @@ private val LOG = KotlinLogging.logger { }
 @Scope("prototype")
 class PeriodicScriptActor(
         private val scriptService: ScriptService,
+        private val messageApi: MessageApi,
         private val entityId: Long,
         private val scriptUuid: String
 ) : AbstractActor() {
@@ -30,7 +33,7 @@ class PeriodicScriptActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
             .match(ScriptComponent.ScriptCallback::class.java, this::handleDelayChange)
-            .matchEquals(TICK_MSG) { x -> onTick() }
+            .matchEquals(TICK_MSG) { onTick() }
             .build()
   }
 
@@ -45,15 +48,17 @@ class PeriodicScriptActor(
    */
   private fun handleDelayChange(msg: ScriptComponent.ScriptCallback) {
     tick?.cancel()
-    setupMoveTick(msg.intervalMs)
+    setupTick(msg.intervalMs)
   }
 
   private fun onTick() {
-    try {
-      scriptService.callScriptIntervalCallback(entityId, scriptUuid)
-    } catch (e: Exception) {
-      LOG.warn("Error during script interval execution. Stopping callback interval.", e)
-      context().stop(self)
+    awaitEntityResponse(messageApi, context, entityId) {
+      try {
+        scriptService.callScriptIntervalCallback(it, scriptUuid)
+      } catch (e: Exception) {
+        LOG.warn("Error during script interval execution. Stopping callback interval.", e)
+        context().stop(self)
+      }
     }
   }
 
@@ -61,7 +66,7 @@ class PeriodicScriptActor(
    * Setup a new movement tick based on the delay. If the delay is negative we
    * know that we can not move and thus end the movement and this actor.
    */
-  private fun setupMoveTick(delay: Int) {
+  private fun setupTick(delay: Int) {
     if (delay < 0) {
       context.stop(self)
       return

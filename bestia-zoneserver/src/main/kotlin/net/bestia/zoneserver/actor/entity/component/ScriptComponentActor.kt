@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.actor.Terminated
+import akka.japi.pf.ReceiveBuilder
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.entity.component.ScriptComponent
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -22,75 +21,39 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class ScriptComponentActor(
-        private val entityId: Long,
-        private val componentId: Long,
-        private val entityService: EntityService,
-        scriptComponent: ScriptComponent
+    scriptComponent: ScriptComponent
 ) : ComponentActor<ScriptComponent>(scriptComponent) {
 
-  private val scriptActors = HashBiMap.create<String, ActorRef>()
+  private val periodicScriptActor = HashBiMap.create<String, ActorRef>()
 
-  override fun createReceive(): AbstractActor.Receive {
-    return receiveBuilder()
-            .match(ComponentChangedMessage::class.java, this::handleComponentUpdate)
-            .match(Terminated::class.java, this::handleTerminated)
-            .build()
+  override fun createReceive(builder: ReceiveBuilder) {
+    builder.match(Terminated::class.java, this::handlePeriodicActorTerminated)
   }
 
-  /**
-   * The script component has changed. We try to look into the changes and create or delete all
-   * the actors managing the components since a script component might have several timed callbacks
-   * with which we must now synchronize.
-   */
-  private fun handleComponentUpdate(msg: ComponentChangedMessage) {
-    entityService.getComponent(componentId, ScriptComponent::class.java).ifPresent { c ->
-      val currentActiveUids = scriptActors.keys
-      val componentActiveUids = c.allScriptUids
+  private fun handlePeriodicActorTerminated(msg: Terminated) {
+    LOG.debug { "PeriodicScriptActor ${msg.actor.path()} terminated" }
+    periodicScriptActor.inverse().remove(msg.actor)
+  }
 
-      componentActiveUids
-              .filter { cuid -> componentActiveUids.contains(cuid) }
-              .map { c.getCallback(it) }
-              .forEach { this.updateActor(it) }
+  override fun onComponentChanged(oldComponent: ScriptComponent, newComponent: ScriptComponent) {
+    val periodicScriptActorsToRemove = periodicScriptActor.keys - component.scripts.keys
+    periodicScriptActorsToRemove.forEach { killPeriodicActor(it) }
 
-      currentActiveUids
-              .filter { cuid -> !componentActiveUids.contains(cuid) }
-              .forEach { this.terminateActor(it) }
-
-      componentActiveUids
-              .filter { cuid -> !currentActiveUids.contains(cuid) }
-              .map { c.getCallback(it) }
-              .forEach { this.createActor(it) }
+    val periodicScriptActorToAdd = component.scripts.keys - periodicScriptActor.keys
+    periodicScriptActorToAdd.forEach {
+      component.scripts[it]?.let { scriptCallback -> addPeriodicScriptActor(scriptCallback) }
     }
   }
 
-  private fun terminateActor(uid: String) {
-    LOG.debug("Periodic script actor terminating: {}", uid)
-    val ref = scriptActors[uid]
-    ref?.tell(PoisonPill.getInstance(), self)
+  private fun killPeriodicActor(key: String) {
+    periodicScriptActor[key]?.tell(PoisonPill.getInstance(), self)
+    periodicScriptActor.remove(key)
   }
 
-  private fun createActor(callback: ScriptComponent.ScriptCallback) {
-    val actor = SpringExtension.unnamedActorOf(context,
-            PeriodicScriptActor::class.java, entityId,
-            callback.intervalMs, callback.script)
-
-    context.watch(actor)
-  }
-
-  private fun updateActor(callback: ScriptComponent.ScriptCallback) {
-    val ref = scriptActors[callback.uuid]
-    ref?.tell(callback, self)
-  }
-
-  /**
-   * Handle the termination of the periodic movement and remove the actor ref
-   * so we can start a new one.
-   */
-  private fun handleTerminated(term: Terminated) {
-    LOG.debug("Periodic script actor terminated: {}", term.actor.toString())
-
-    val termActor = term.actor()
-    scriptActors.inverse().remove(termActor)
+  private fun addPeriodicScriptActor(scriptCallback: ScriptComponent.ScriptCallback) {
+    LOG.debug { "PeriodicScriptActor $scriptCallback added" }
+    val periodicActor = SpringExtension.actorOf(context, PeriodicScriptActor::class.java)
+    periodicScriptActor[scriptCallback.uuid] = periodicActor
   }
 
   companion object {

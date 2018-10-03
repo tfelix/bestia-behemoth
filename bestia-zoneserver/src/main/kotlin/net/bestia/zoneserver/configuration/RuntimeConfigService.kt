@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.configuration
 
-import com.hazelcast.core.HazelcastInstance
-import com.hazelcast.core.IMap
 import net.bestia.model.server.MaintenanceLevel
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 /**
  * This configuration service holds information about the current state of the
@@ -13,11 +12,7 @@ import org.springframework.stereotype.Service
  * @author Thomas Felix
  */
 @Service
-class RuntimeConfigService(
-        hz: HazelcastInstance
-) {
-
-  private val config: IMap<String, Any> = hz.getMap("server.config")
+class RuntimeConfigService {
 
   /**
    * Returns the flag if the server is in maintenance mode.
@@ -31,6 +26,6 @@ class RuntimeConfigService(
    * The flag to set the server into maintenance mode.
    */
   var maintenanceMode: MaintenanceLevel
-    get() = config.getOrDefault("serverMaintenanceMode", MaintenanceLevel.NONE) as MaintenanceLevel
-    set(flag) = config.set("serverMaintenanceMode", flag)
+    get() = throw IllegalArgumentException("not implemented")
+    set(flag) = throw IllegalArgumentException("not implemented")
 }

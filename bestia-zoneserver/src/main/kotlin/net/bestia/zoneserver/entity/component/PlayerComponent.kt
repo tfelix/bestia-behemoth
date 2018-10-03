@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.entity.component
 
 data class PlayerComponent(
-    override val id: Long,
     override val entityId: Long
-): Component {
+) : Component {
 
   var ownerAccountId: Long = 0
     set(ownerAccountId) {
@@ -20,8 +19,4 @@ data class PlayerComponent(
       }
       field = playerBestiaId
     }
-
-  override fun toString(): String {
-    return "PlayerComponent[id: $id, accId: $ownerAccountId, pbId: $playerBestiaId]"
-  }
 }

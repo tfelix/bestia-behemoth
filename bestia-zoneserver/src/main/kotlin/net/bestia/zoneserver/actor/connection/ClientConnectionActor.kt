@@ -9,7 +9,6 @@ import net.bestia.messages.MessageId
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientDisconnectMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.client.LoginService
 import net.bestia.zoneserver.client.LogoutService
 import org.springframework.context.annotation.Scope
@@ -92,11 +91,6 @@ class ClientConnectionActor(
    */
   private fun initClientConnection(msg: ClientConnectMessage) {
     LOG.debug("Client has authenticated: {}.", msg)
-
-    SpringExtension.actorOf(context,
-        LatencyPingActor::class.java,
-        accountId,
-        authenticatedSocket)
 
     // Spawn all the associated entities.
     loginService.login(accountId)

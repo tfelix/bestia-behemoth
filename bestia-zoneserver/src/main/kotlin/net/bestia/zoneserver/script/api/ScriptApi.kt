@@ -28,7 +28,7 @@ class ScriptApi(
       throw IllegalArgumentException("Delay must be bigger then 0.")
     }
 
-    val scriptComp = entityService.getComponentOrCreate(entityId, ScriptComponent::class.java) ?: return this
+    val scriptComp = ScriptComponent(entityId)
     val scriptUuid = UUID.randomUUID().toString()
     val scriptCallback = ScriptCallback(
             scriptUuid,
@@ -36,7 +36,7 @@ class ScriptApi(
             callback,
             delayMs
     )
-    scriptComp.addCallback(scriptCallback)
+    scriptComp.addScriptCallback(scriptCallback)
     entityService.updateComponent(scriptComp)
     return this
   }

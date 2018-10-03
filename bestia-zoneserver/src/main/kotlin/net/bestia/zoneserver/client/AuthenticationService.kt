@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.messages.account.AccountLoginRequest
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
@@ -16,14 +15,13 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class AuthenticationService(
-        private val config: RuntimeConfigService,
-        private val accountDao: AccountDAO
+    private val config: RuntimeConfigService,
+    private val accountDao: AccountDAO
 ) {
 
   fun isUserAuthenticated(token: String): Boolean {
     return true
   }
-
 
   /**
    * This will return a [Account] with the needed, new access token. If
@@ -49,33 +47,6 @@ class AuthenticationService(
     return acc
   }
 
-  @Deprecated("User are now directly logged in via web")
-  fun setNewLoginToken(request: AccountLoginRequest): AccountLoginRequest {
-    Objects.requireNonNull(request)
-
-    LOG.debug("Trying to set login token for username {}.", request)
-
-    val account = accountDao.findByUsernameOrEmail(request.username)
-
-    if (account == null) {
-      LOG.debug("Account with username {} not found.", request.username)
-      return request.fail()
-    }
-
-    if (!account.password.matches(request.password)) {
-      LOG.debug("Password does not match: {}.", request)
-      return request.fail()
-    }
-
-    // Create new token and save it.
-    val uuid = UUID.randomUUID().toString()
-    account.loginToken = uuid
-    accountDao.save(account)
-
-    // Check login.
-    return request.success(account.id, uuid)
-  }
-
   /**
    * An user can only login if he provides the correct login token and the
    * server is not in maintenance mode. A game master can override the server
@@ -94,11 +65,6 @@ class AuthenticationService(
     LOG.debug("Checking login for account {}.", accId)
 
     val acc = accountDao.findOneOrThrow(accId)
-
-    if (acc == null) {
-      LOG.trace("No account with id {} found.", accId)
-      return false
-    }
 
     if (acc.loginToken.isEmpty()) {
       LOG.debug("Login with empty token is not allowed.")

@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.actor.client
 
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequestMessage
+import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import net.bestia.zoneserver.client.ClientVarService
@@ -22,7 +24,7 @@ class ClientVarActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(ClientVarRequestMessage::class.java, this::handleCvarMessage)
+    builder.match(ClientVarRequestMessage::class.java, this::handleCvarRequest)
   }
 
   /**
@@ -30,12 +32,7 @@ class ClientVarActor(
    *
    * @param msg The request.
    */
-  private fun handleCvarMessage(msg: ClientVarRequestMessage) {
-    cvarService[msg.accountId, msg.key] = msg.data
-  }
-
-  /*
-  private fun handleCvarReq(msg: ClientVarRequestMessage) {
+  private fun handleCvarRequest(msg: ClientVarRequestMessage) {
     val accId = msg.accountId
     val key = msg.key
 
@@ -44,10 +41,9 @@ class ClientVarActor(
     }
 
     val cvar = cvarService.find(accId, key)
-    val cvarMsg = ClientVarResponseMessage(accId, msg.uuid, cvar.data)
-    sendClient.tell(cvarMsg, self)
+    val cvarMsg = ClientVarResponseMessage(msg.uuid, cvar.data)
+    sendClient.tell(ClientEnvelope(accId, cvarMsg), self)
   }
-  */
 
   companion object {
     const val NAME = "clientvar"

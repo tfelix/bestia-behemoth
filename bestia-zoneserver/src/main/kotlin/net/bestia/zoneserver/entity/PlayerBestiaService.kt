@@ -33,7 +33,7 @@ class PlayerBestiaService(
   fun getAllAttacksForPlayerBestia(playerBestiaId: Long): List<BestiaAttack> {
     LOG.trace("Retrieving all attacks for player bestia {}", playerBestiaId)
     val pb = playerBestiaDao.findOneOrThrow(playerBestiaId)
-    return attackDao.getAllAttacksForBestia(pb.origin.getId())
+    return attackDao.getAllAttacksForBestia(pb.origin.id)
   }
 
   /**
@@ -92,7 +92,7 @@ class PlayerBestiaService(
    * @return The master bestia or NULL if the account does not extist.
    */
   fun getMaster(accountId: Long): PlayerBestia {
-    return playerBestiaDao.findMasterBestiasForAccount(accountId)
+    return playerBestiaDao.findMasterBestiaForAccount(accountId)
   }
 
   /**

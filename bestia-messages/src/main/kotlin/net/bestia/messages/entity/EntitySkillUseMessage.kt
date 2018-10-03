@@ -10,7 +10,7 @@ import net.bestia.model.geometry.Point
  *
  * @author Thomas Felix
  */
-data class EntitySkillUseMessage private constructor(
+data class EntitySkillUseMessage(
     val targetPostion: Point?,
     val targetEntityId: Long?,
     val sourceEntityId: Long,

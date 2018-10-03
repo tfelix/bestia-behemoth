@@ -8,7 +8,6 @@ package net.bestia.zoneserver.entity.component
  * @author Thomas Felix
  */
 data class BattleComponent(
-    override val id: Long,
     override val entityId: Long
 ) : Component {
 

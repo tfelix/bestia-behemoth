@@ -3,7 +3,7 @@ package net.bestia.messages.login
 import net.bestia.messages.MessageId
 
 data class LoginAuthResponseMessage(
-        val response: LoginError
+        val response: LoginResponse
 ): MessageId {
 
   override val messageId: String

@@ -12,8 +12,6 @@ import net.bestia.model.domain.SpriteInfo
  * @author Thomas Felix
  */
 data class VisualComponent(
-    override val id: Long,
-
     override val entityId: Long,
 
     @JsonProperty("v")

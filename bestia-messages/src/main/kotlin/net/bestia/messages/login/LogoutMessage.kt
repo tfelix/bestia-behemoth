@@ -9,8 +9,8 @@ import net.bestia.messages.MessageId
  * @author Thomas Felix
  */
 data class LogoutMessage(
-        val state: LoginError = LoginError.NO_REASON,
-        val reason: String = ""
+    val state: LoginResponse = LoginResponse.NO_REASON,
+    val reason: String = ""
 ) : MessageId {
 
   override val messageId: String

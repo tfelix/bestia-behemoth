@@ -15,15 +15,17 @@ import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
-internal data class RequestEntity<T>(
+internal data class RequestEntity(
     val requester: ActorRef,
-    val context: T
+    val context: Any? = null
 )
 
-internal data class ResponseEntity<T>(
+internal data class ResponseEntity(
     val entity: Entity,
-    val content: T
+    val content: Any? = null
 )
+
+internal object SaveAndKill
 
 /**
  * The [EntityActor] is a persistent actor managing all aspects of a
@@ -49,31 +51,24 @@ class EntityActor(
 
   private class ComponentActorCache {
 
-    private val idToActor = HashBiMap.create<Long, ActorRef>()
     private val classToActor = HashBiMap.create<Class<*>, ActorRef>()
 
-    val size: Int get() = idToActor.size
+    val size: Int get() = classToActor.size
 
     fun <T : net.bestia.zoneserver.entity.component.Component> add(component: T, compActor: ActorRef) {
-      idToActor[component.id] = compActor
       classToActor[component.javaClass] = compActor
     }
 
     fun allActors(): List<ActorRef> {
-      return idToActor.values.toList()
+      return classToActor.values.toList()
     }
 
     fun remove(actor: ActorRef) {
-      idToActor.inverse().remove(actor)
       classToActor.inverse().remove(actor)
     }
 
     fun <T : net.bestia.zoneserver.entity.component.Component> get(componentClass: Class<T>): ActorRef? {
       return classToActor[componentClass]
-    }
-
-    fun get(componentId: Long): ActorRef? {
-      return idToActor[componentId]
     }
 
     fun getAllCachedComponentClasses(): Set<Class<out net.bestia.zoneserver.entity.component.Component>> {
@@ -92,18 +87,20 @@ class EntityActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
         .match(AddComponentMessage::class.java, this::handleComponentInstall)
-        .match(ComponentIdEnvelope::class.java, this::handleComponentIdEnvelope)
         .match(ComponentClassEnvelope::class.java, this::handleComponentClassEnvelope)
         .match(ComponentBroadcastEnvelope::class.java, this::handleAllComponentBroadcast)
         .match(ComponentRequestMessage::class.java, this::handleComponentRequest)
         .match(DeleteComponentMessage::class.java, this::handleComponentRemove)
+
         .match(Terminated::class.java, this::handleTerminated)
+
+        .match(SaveAndKill::class.java, this::handleSaveAndKill)
         .match(RequestEntity::class.java, this::handleEntityRequest)
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
   }
 
-  private fun handleEntityRequest(msg: RequestEntity<*>) {
+  private fun handleEntityRequest(msg: RequestEntity) {
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
     val hasAllResponses = { receivedResponses: List<Any> ->
       awaitedComponentClasses.containsAll(receivedResponses)
@@ -135,10 +132,10 @@ class EntityActor(
   }
 
   private fun handleComponentInstall(msg: AddComponentMessage<*>) {
-    LOG.debug { "Installing component: ${msg.component.id} on entity: $entityId." }
+    LOG.debug { "Installing component: ${msg.component} on entity: $entityId." }
 
     val compActor = factory.startActor(context, msg.component) ?: run {
-      LOG.warn { "Component actor for comp id ${msg.component.id} was not created." }
+      LOG.warn { "Component actor for comp id ${msg.component} was not created." }
       return
     }
 
@@ -149,15 +146,6 @@ class EntityActor(
   private fun handleAllComponentBroadcast(msg: ComponentBroadcastEnvelope) {
     LOG.debug { "Entity received $msg" }
     componentActorCache.allActors().forEach { it.tell(msg.content, sender) }
-  }
-
-  /**
-   * Checks if we have such a associated component and if so delivers the
-   * message.
-   */
-  private fun handleComponentIdEnvelope(msg: ComponentIdEnvelope) {
-    val componentActor = componentActorCache.get(msg.componentId)
-    trySendComponentActor(componentActor, msg.content)
   }
 
   private fun handleComponentClassEnvelope(msg: ComponentClassEnvelope<*>) {
@@ -195,6 +183,13 @@ class EntityActor(
     componentActorCache.remove(term.actor)
     if (componentActorCache.size == 0) {
       context.stop(self)
+    }
+  }
+
+  private fun handleSaveAndKill(msg: SaveAndKill) {
+    componentActorCache.allActors().forEach {
+      it.tell(msg, sender)
+      it.tell(PoisonPill.getInstance(), self)
     }
   }
 }

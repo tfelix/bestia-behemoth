@@ -69,7 +69,7 @@ class StatusService(
     val eVals = pb.effortValues
     val iVals = pb.individualValue
 
-    val str = (bVals.attack * 2 + iVals.attack + eVals.attack / 4) * lv / 100 + 5
+    val str = (bVals.strength * 2 + iVals.strength + eVals.strength / 4) * lv / 100 + 5
     val vit = (bVals.vitality * 2 + iVals.vitality + eVals.vitality / 4) * lv / 100 + 5
     val intel = (bVals.intelligence * 2 + iVals.intelligence + eVals.intelligence / 4) * lv / 100 + 5
     val will = (bVals.willpower * 2 + iVals.willpower + eVals.willpower / 4) * lv / 100 + 5

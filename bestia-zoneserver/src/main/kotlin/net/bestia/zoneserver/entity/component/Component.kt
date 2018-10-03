@@ -14,11 +14,6 @@ import java.io.Serializable
  */
 interface Component : Serializable {
   /**
-   * @return The unique component id.
-   */
-  val id: Long
-
-  /**
    * @return The entity id to which this component is attached.
    */
   @get:JsonIgnore

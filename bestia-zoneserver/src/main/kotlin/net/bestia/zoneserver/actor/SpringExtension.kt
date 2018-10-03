@@ -93,7 +93,6 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
       }
     }
 
-
     fun actorOf(system: ActorSystem, clazz: Class<out AbstractActor>, vararg args: Any): ActorRef {
       val props = if (args.isEmpty()) getSpringProps(system, clazz) else getSpringProps(system, clazz, *args)
       val actorName = getActorName(clazz)
@@ -129,8 +128,8 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * @return The created and already registered new actor.
      */
     fun actorOf(ctx: ActorContext, clazz: Class<out AbstractActor>): ActorRef {
-
       val actorName = getActorName(clazz)
+
       return actorOf(ctx, clazz, actorName)
     }
 
@@ -149,10 +148,10 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * @return The created and already registered new actor.
      */
     fun actorOf(context: ActorContext, clazz: Class<out AbstractActor>, name: String?): ActorRef {
-
       val props = getSpringProps(context.system(), clazz)
       val actor = if (name == null) context.actorOf(props) else context.actorOf(props, name)
       LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
+
       return actor
     }
 
@@ -173,29 +172,24 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * The additional arguments delivered to the actor.
      * @return
      */
-    fun actorOf(context: ActorContext,
-                clazz: Class<out AbstractActor>,
-                name: String?,
-                vararg args: Any): ActorRef {
-
+    fun actorOf(
+        context: ActorContext,
+        clazz: Class<out AbstractActor>,
+        name: String?,
+        vararg args: Any
+    ): ActorRef {
       val props = getSpringProps(context.system(), clazz, *args)
+
       return if (name == null) context.actorOf(props) else context.actorOf(props, name)
     }
 
-    fun actorOf(context: ActorContext,
-                clazz: Class<out AbstractActor>,
-                vararg args: Any): ActorRef {
+    fun actorOf(
+        context: ActorContext,
+        clazz: Class<out AbstractActor>,
+        vararg args: Any
+    ): ActorRef {
       val actorName = getActorName(clazz)
       return actorOf(context, clazz, actorName, *args)
-    }
-
-    /**
-     * Alias for [.unnamedActorOf] but allows
-     * additional arguments to be fed into the constructor.
-     *
-     */
-    fun unnamedActorOf(ctx: ActorContext, clazz: Class<out AbstractActor>, vararg args: Any): ActorRef {
-      return actorOf(ctx, clazz, null, *args)
     }
 
     /**

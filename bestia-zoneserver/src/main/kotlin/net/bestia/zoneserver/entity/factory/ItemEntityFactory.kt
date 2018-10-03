@@ -1,35 +1,24 @@
 package net.bestia.zoneserver.entity.factory
 
-import net.bestia.zoneserver.entity.Entity
-import net.bestia.entity.component.*
-import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.entity.component.TagComponent.Tag
+import mu.KotlinLogging
 import net.bestia.model.dao.ItemDAO
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.domain.Item
 import net.bestia.model.domain.SpriteInfo
 import net.bestia.model.geometry.Point
-import org.springframework.beans.factory.annotation.Autowired
 
 import java.util.Objects
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This factory can be used in order to create map item entities on which the player can click
  * and pick them up if necessary.
  */
-@org.springframework.stereotype.Component
-class ItemEntityBuilder(
-
-) : EntityBuilder {
-
-  private val entityFactory: EntityFactory
-  private val itemDao: ItemDAO
-
-  @Autowired
-  constructor(entityFactory: EntityFactory, itemDao: ItemDAO) {
-
-    this.entityFactory = Objects.requireNonNull(entityFactory)
-    this.itemDao = Objects.requireNonNull(itemDao)
-  }
+class ItemEntityFactory(
+    private val itemDao: ItemDAO
+) {
 
   /**
    * Creates an dropped item entity on the given position with the name.
@@ -39,21 +28,19 @@ class ItemEntityBuilder(
    * @param amount     The amount of items to spawn at this location.
    * @return The created entity.
    */
-  fun build(itemDbName: String, position: Point, amount: Int): Entity {
+  fun build(itemDbName: String, position: Point, amount: Int): EntityBlueprint {
     val item = itemDao.findItemByName(itemDbName)
     return build(item, position, amount)
   }
 
-  fun build(item: Item, position: Point, amount: Int): Entity {
-    Objects.requireNonNull(item)
-    Objects.requireNonNull(position)
-
+  fun build(item: Item, position: Point, amount: Int): EntityBlueprint {
     if (amount <= 0) {
       throw IllegalArgumentException("Amount can not be 0 or negative.")
     }
 
     LOG.info("Spawning item: {}, amount: {} on {}.", item, amount, position)
 
+    val posComp = PositionComponent()
     val posSetter = PositionComponentSetter(position)
     val visSetter = VisibleComponentSetter(SpriteInfo.item(item.image))
     val tagSetter = TagComponentSetter(TagComponent.ITEM, TagComponent.PERSIST)
@@ -67,20 +54,48 @@ class ItemEntityBuilder(
 
     return entityFactory.buildEntity(ITEM_BLUEPRINT, compSetter)
   }
+}
 
-  companion object {
+/**
+ * This factory can be used in order to create map item entities on which the player can click
+ * and pick them up if necessary.
+ */
+class ItemEntityBuilder(
+    private val itemDao: ItemDAO
+) {
 
-    private val ITEM_BLUEPRINT: Blueprint
+  /**
+   * Creates an dropped item entity on the given position with the name.
+   *
+   * @param itemDbName The item DB name of the item to spawn.
+   * @param position   Location where to spawn the item entity.
+   * @param amount     The amount of items to spawn at this location.
+   * @return The created entity.
+   */
+  fun build(itemDbName: String, position: Point, amount: Int): EntityBlueprint {
+    val item = itemDao.findItemByName(itemDbName)
+    return build(item, position, amount)
+  }
 
-    init {
-      val builder = Blueprint.Builder()
-      builder.addComponent(VisualComponent::class.java)
-          .addComponent(PositionComponent::class.java)
-          .addComponent(InventoryComponent::class.java)
-          .addComponent(TagComponent::class.java)
-          .addComponent(StatusComponent::class.java)
-
-      ITEM_BLUEPRINT = builder.build()
+  fun build(item: Item, position: Point, amount: Int): EntityBlueprint {
+    if (amount <= 0) {
+      throw IllegalArgumentException("Amount can not be 0 or negative.")
     }
+
+    LOG.info("Spawning item: {}, amount: {} on {}.", item, amount, position)
+
+    val posComp = PositionComponent()
+    val posSetter = PositionComponentSetter(position)
+    val visSetter = VisibleComponentSetter(SpriteInfo.item(item.image))
+    val tagSetter = TagComponentSetter(TagComponent.ITEM, TagComponent.PERSIST)
+    val statusSetter = ItemStatusComponentSetter(item)
+
+    val compSetter = EntityFactory.Companion.makeSet(
+        posSetter,
+        visSetter,
+        tagSetter,
+        statusSetter)
+
+    return entityFactory.buildEntity(ITEM_BLUEPRINT, compSetter)
   }
 }

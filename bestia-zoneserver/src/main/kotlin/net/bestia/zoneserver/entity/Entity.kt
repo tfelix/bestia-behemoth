@@ -46,18 +46,6 @@ class Entity(
     components.remove(comp.javaClass)
   }
 
-  /**
-   * Returns the associated component ID with this component class.
-   *
-   * @param clazz
-   * The class of the component.
-   * @return The ID is this component is attached to this entity or 0
-   * otherwise.
-   */
-  internal fun getComponentId(clazz: Class<out Component>): Long {
-    return components[clazz]?.id ?: 0
-  }
-
   internal fun <T : Component> getComponent(clazz: Class<T>): T {
     return tryGetComponent(clazz) ?: throw NullPointerException("Entity $id has no component of type $clazz")
   }

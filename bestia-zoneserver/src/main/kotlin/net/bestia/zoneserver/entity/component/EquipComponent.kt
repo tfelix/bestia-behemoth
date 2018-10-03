@@ -9,10 +9,9 @@ import net.bestia.model.domain.Item
  * @author Thomas Felix
  */
 data class EquipComponent(
-        override val id: Long,
-        override val entityId: Long,
-        val allEquipmentSlots: MutableSet<EquipmentSlot> = mutableSetOf(),
-        val equipments: MutableSet<Item> = mutableSetOf()
+    override val entityId: Long,
+    val allEquipmentSlots: MutableSet<EquipmentSlot> = mutableSetOf(),
+    val equipments: MutableSet<Item> = mutableSetOf()
 ) : Component {
 
   /**

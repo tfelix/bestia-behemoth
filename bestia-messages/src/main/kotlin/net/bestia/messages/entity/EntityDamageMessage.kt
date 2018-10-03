@@ -13,11 +13,10 @@ import net.bestia.model.battle.Damage
  * @author Thomas Felix
  */
 data class EntityDamageMessage(
-    override val accountId: Long,
     override val entityId: Long,
     @JsonProperty("d")
     val damage: List<Damage>
-) : EntityMessage, AccountMessage {
+) : EntityMessage {
 
   val messageId: String
     get() = MESSAGE_ID

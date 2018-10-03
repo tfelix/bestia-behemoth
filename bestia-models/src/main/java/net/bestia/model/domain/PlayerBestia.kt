@@ -2,12 +2,9 @@ package net.bestia.model.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonUnwrapped
 import net.bestia.model.geometry.Point
-
-import javax.persistence.*
 import java.io.Serializable
-import java.util.Objects
+import javax.persistence.*
 
 /**
  * Entity for the PlayerBestias these are bestias which are directly controlled
@@ -42,16 +39,16 @@ data class PlayerBestia(
         AttributeOverride(name = "agility", column = Column(name = "ivSpd")),
         AttributeOverride(name = "dexterity", column = Column(name = "ivDex"))
     )
-    var individualValue: BaseValues = BaseValues.getNewIndividualValues()
+    var individualValue: BaseValues = BaseValues.newIndividualValues,
+
+    var exp: Int = 0
 ) : Serializable {
 
   @Id
   @GeneratedValue
   val id: Long = 0
 
-  var exp: Int = 0
-
-  private var name: String? = null
+  var name: String? = null
     get() {
       return when {
         field.isNullOrEmpty() -> origin.defaultName
@@ -78,8 +75,6 @@ data class PlayerBestia(
   /**
    * Returns the entity ID of this player bestia if the bestia was spawned. If
    * no entity was spawned the ID is 0.
-   *
-   * @return The entity ID of the player bestia. 0 if no entity was spawned.
    */
   @JsonIgnore
   var entityId: Long = 0
@@ -105,14 +100,10 @@ data class PlayerBestia(
       AttributeOverride(name = "dexterity", column = Column(name = "evDex"))
   )
   @JsonIgnore
-  val effortValues: BaseValues = BaseValues.getNullValues()
+  val effortValues: BaseValues = BaseValues.nullValues
 
-  val baseValues: BaseValues
-    @JsonIgnore
-    get() = origin.baseValues
+  @get:JsonIgnore
+  val baseValues = origin.baseValues
 
-  override fun toString(): String {
-    return String.format("PlayerBestia[id: %d, name: %s, lv: %d, pos: %s]", id, name, level,
-        this.currentPosition.toString())
-  }
+  override fun toString() = "PlayerBestia[id: $id, name: $name, lv: $level, pos: $currentPosition]"
 }

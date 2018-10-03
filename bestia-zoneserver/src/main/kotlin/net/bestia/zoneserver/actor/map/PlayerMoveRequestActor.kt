@@ -25,8 +25,7 @@ class PlayerMoveRequestActor(
   }
 
   private fun handleMoveRequest(msg: EntityMoveMessage) {
-    val mc = entityService.getComponentOrCreate(msg.entityId, MoveComponent::class.java)
-    mc.setPath(msg.path)
-    entityService.updateComponent(mc)
+    val moveComponent = MoveComponent.fromCollection(msg.entityId, msg.path)
+    entityService.updateComponent(moveComponent)
   }
 }

@@ -12,7 +12,6 @@ import net.bestia.model.geometry.Point
  * @author Thomas Felix
  */
 data class PositionComponent(
-    override val id: Long,
     override val entityId: Long,
 
     var shape: CollisionShape = Point(),

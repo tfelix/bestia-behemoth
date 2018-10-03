@@ -8,7 +8,6 @@ import net.bestia.model.dao.BestiaDAO
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
-import net.bestia.model.domain.BaseValues
 import net.bestia.model.domain.Password
 import net.bestia.model.domain.PlayerBestia
 import org.springframework.stereotype.Service
@@ -27,9 +26,9 @@ private val LOG = KotlinLogging.logger { }
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
 class AccountService(
-        private val accountDao: AccountDAO,
-        private val playerBestiaDao: PlayerBestiaDAO,
-        private val bestiaDao: BestiaDAO
+    private val accountDao: AccountDAO,
+    private val playerBestiaDao: PlayerBestiaDAO,
+    private val bestiaDao: BestiaDAO
 ) {
 
   private fun getStarterBestiaId(): Int {
@@ -91,17 +90,20 @@ class AccountService(
     }
 
     val account = Account(
-            email = data.email,
-            password = Password(data.password),
-            username = data.username,
-            gender = data.gender,
-            registerDate = Instant.now()
+        email = data.email,
+        password = Password(data.password),
+        username = data.username,
+        gender = data.gender,
+        registerDate = Instant.now()
     )
 
-    val masterBestia = PlayerBestia(account, origin, BaseValues.getStarterIndividualValues())
-    masterBestia.isMaster = true
-    masterBestia.name = data.username
-    masterBestia.master = account
+    val masterBestia = PlayerBestia(
+        owner = account,
+        origin = origin,
+        master = account
+    ).also {
+      it.name = data.username
+    }
 
     // TODO Implement a proper account activation process.
     account.isActivated = true

@@ -17,7 +17,6 @@ import net.bestia.model.entity.StatusBasedValuesImpl
  * @author Thomas Felix
  */
 data class StatusComponent(
-    override val id: Long,
     override val entityId: Long,
 
     @get:JsonProperty("osp")

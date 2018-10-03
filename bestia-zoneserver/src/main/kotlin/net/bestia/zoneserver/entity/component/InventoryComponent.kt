@@ -2,10 +2,11 @@ package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.domain.Item
+import java.lang.IllegalStateException
 
 data class InventoryItem(
-        val amount: Int,
-        val itemId: Int
+    val amount: Int,
+    val itemId: Int
 )
 
 /**
@@ -15,7 +16,11 @@ data class InventoryItem(
  *
  * @author Thomas Felix
  */
-class InventoryComponent(id: Long) : Component(id) {
+data class InventoryComponent(
+    override val entityId: Long
+) : Component {
+
+  private val items: MutableMap<Long, InventoryItem> = mutableMapOf()
 
   /**
    * Gives the maximum carryable weight of this entity. It is pos. infinite if
@@ -27,7 +32,7 @@ class InventoryComponent(id: Long) : Component(id) {
   var maxWeight: Float = 0f
     set(value) {
       if (maxWeight < 0) {
-        throw IllegalArgumentException("MaxWeight can not be negative.")
+        throw IllegalArgumentException("maxWeight can not be negative.")
       }
       field = value
     }
@@ -39,8 +44,6 @@ class InventoryComponent(id: Long) : Component(id) {
    */
   @JsonProperty("mc")
   var maxItemCount: Int = 0
-
-  private val items = mutableListOf<InventoryItem>()
 
   /**
    * The current item weight in kg. The item weight per item is saved as 0.1kg
@@ -60,16 +63,6 @@ class InventoryComponent(id: Long) : Component(id) {
     @JsonProperty("c")
     get() = items.size
 
-  init {
-    clear()
-  }
-
-  override fun clear() {
-    items.clear()
-    maxItemCount = UNLIMITED_ITEMS
-    maxWeight = 0f
-  }
-
   /**
    * Adds the new item to the inventory. But this will work only if the number
    * of item slots are not exceeded and the total amount of weight does not be
@@ -81,51 +74,7 @@ class InventoryComponent(id: Long) : Component(id) {
    * otherwise.
    */
   fun addItem(item: Item, amount: Int): Boolean {
-    // Check count.
-    if (itemCount + 1 > maxItemCount) {
-      return false
-    }
-
-    // Check weight.
-    if (item.weight / .1f + weight > maxWeight) {
-      return false
-    }
-
-    items.add(InventoryItem(amount, item.id))
-    return true
-  }
-
-  /**
-   * Removes the item from the inventory. It returns true only if the item
-   * could be successfully be removed.
-   *
-   * @param item
-   * @param amount
-   * @return
-   */
-  fun removeItem(item: Item, amount: Int): Boolean {
-    val inventoryItem = items.stream()
-            .filter { x -> x.itemId == item.id }
-            .findFirst()
-    if (inventoryItem.isPresent) {
-
-      val ic = inventoryItem.get()
-
-      return when {
-        ic.amount > amount -> {
-          items.remove(ic)
-          items.add(ic.copy(amount = ic.amount - amount))
-          true
-        }
-        ic.amount == amount -> {
-          items.remove(ic)
-          true
-        }
-        else -> false
-      }
-    } else {
-      return false
-    }
+    throw IllegalStateException("Not implemented")
   }
 
   override fun toString(): String {

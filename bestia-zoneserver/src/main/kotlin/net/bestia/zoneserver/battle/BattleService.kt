@@ -61,7 +61,7 @@ class BattleService(
    * to take place. If this is missing an [IllegalArgumentException]
    * will be thrown.
    */
-  fun attackEntity(attack: Attack, attacker: Entity, defender: Entity): Damage? {
+  fun attackEntity(attack: Attack, attacker: Entity, defender: Entity): List<Damage>? {
     LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, attack)
 
     return if (isEligibleForDamage(defender)) {
@@ -79,9 +79,9 @@ class BattleService(
    * @param attack The used attack by the attacker.
    * @param attacker   The entity attacking.
    * @param defender   The defending entity.
-   * @return The calculated damage object.
+   * @return The calculated damage object or null if the attack failed or was not possible.
    */
-  private fun attackDamagableEntity(attack: Attack, attacker: Entity, defender: Entity): Damage? {
+  private fun attackDamagableEntity(attack: Attack, attacker: Entity, defender: Entity): List<Damage>? {
     // Prepare the battle context since this is needed to carry all information.
     val battleCtx = createBattleContext(attack, attacker, defender)
 
@@ -93,7 +93,7 @@ class BattleService(
     isCriticalHit(battleCtx)
 
     if (!doesAttackHit(battleCtx)) {
-      return Damage.miss
+      return listOf(Damage.miss)
     }
 
     val primaryDamage = damageCalculator.calculateDamage(battleCtx)
@@ -103,7 +103,7 @@ class BattleService(
     val receivedDamage = takeDamage(defender, primaryDamage, attacker)
     LOG.trace("Entity {} received damage: {}", defender, primaryDamage)
 
-    return receivedDamage
+    return listOf(receivedDamage)
   }
 
   private fun createBattleContext(usedAttack: Attack, attacker: Entity, defender: Entity): BattleContext {
@@ -272,16 +272,7 @@ class BattleService(
 
     val lineOfSight = lineOfSight(start, end)
     val doesMapBlock = lineOfSight.any { map.blocksSight(it) }
-
-    // TODO Hier weiß ich noch nicht wie man das am geschicktesten lösen kann.
-    val blockingEntities = entityCollisionService.getAllCollidingEntityIds(bbox)
-    val doesEntityBlock = blockingEntities.any { entity ->
-      val pos = entity.getComponent(PositionComponent::class.java)
-      pos.map {
-        val shape = it.shape
-        lineOfSight.any { shape.collide(it) }
-      }.orElseGet { false }
-    }
+    val doesEntityBlock = entityCollisionService.getAllCollidingEntityIds(lineOfSight).isNotEmpty()
 
     val hasLos = !doesMapBlock && !doesEntityBlock
     LOG.trace("Entity has line of sight: {}", hasLos)
@@ -424,7 +415,8 @@ class BattleService(
 
     // Hit the entity and add the origin entity into the list of received
     // damage dealers.
-    val battleComp = defender.tryGetComponent(BattleComponent::class.java) ?: createBattleComponent()
+    val battleComp = defender.tryGetComponent(BattleComponent::class.java)
+        ?: BattleComponent(defender.id)
 
     attacker?.let {
       battleComp.addDamageReceived(it.id, damage)
