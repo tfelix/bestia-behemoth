@@ -1,10 +1,12 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.model.domain.Account
 import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.entity.factory.EntityFactory
+import net.bestia.zoneserver.entity.factory.MobBlueprint
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -18,7 +20,7 @@ private val LOG = KotlinLogging.logger { }
  */
 internal class MobSpawnModule(
     messageApi: MessageApi,
-    private val mobFactory: MobFactory
+    private val entityFactory: EntityFactory
 ) : SubCommandModule(messageApi) {
 
   public override val helpText: String
@@ -41,9 +43,8 @@ internal class MobSpawnModule(
     val x = java.lang.Long.parseLong(matcher.group(2))
     val y = java.lang.Long.parseLong(matcher.group(3))
 
-    mobFactory.build(mobName, x, y) ?: run {
-      sendSystemMessage(account.id, String.format("Mob %s could not be spawned.", mobName))
-    }
+    val mobBlueprint = MobBlueprint(mobName, Point(x, y))
+    entityFactory.build(mobBlueprint)
   }
 
   companion object {

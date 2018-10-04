@@ -1,10 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.ConditionValues
-import net.bestia.model.domain.Element
-import net.bestia.model.domain.StatusPoints
-import net.bestia.model.domain.StatusPointsImpl
+import net.bestia.model.domain.*
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.entity.StatusBasedValuesImpl
 
@@ -60,4 +57,10 @@ data class StatusComponent(
 
     @get:JsonProperty("cv")
     val conditionValues: ConditionValues = ConditionValues()
-) : Component
+) : Component {
+  companion object {
+    fun forItem(entityId: Long, item: Item): StatusComponent {
+      return StatusComponent(entityId = entityId)
+    }
+  }
+}

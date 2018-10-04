@@ -1,16 +1,22 @@
 package net.bestia.zoneserver.entity.factory
 
+import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.dao.BestiaDAO
 import net.bestia.model.domain.Bestia
+import net.bestia.model.domain.SpriteInfo
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.battle.StatusService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 
 import java.util.Objects
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Mob factory will create entities which serve as standard mobs for the bestia
@@ -18,62 +24,48 @@ import java.util.Objects
  *
  * @author Thomas Felix
  */
-class MobFactory(
-    entityFactory: EntityFactory, statusService: StatusService, bestiaDao: BestiaDAO
-) : EntityBuilder {
+@Component
+internal class MobFactory(
+    private val statusService: StatusService,
+    private val bestiaDao: BestiaDAO
+) : AbstractFactory<MobBlueprint>(MobBlueprint::class.java) {
 
-  override fun getComponents(): Set<Component> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  override fun performBuild(entity: Entity, blueprint: MobBlueprint) {
 
-  init {
+    val bestia = bestiaDao.findByDatabaseName(blueprint.mobDbName)
+        ?: throw IllegalArgumentException("Could not find bestia in database for blueprint $blueprint.")
 
-    this.entityFactory = Objects.requireNonNull(entityFactory)
-    this.statusService = Objects.requireNonNull(statusService)
-    this.bestiaDao = Objects.requireNonNull(bestiaDao)
-  }
+    LOG.debug { "Spawning mob entity: $blueprint" }
 
-  fun build(moDbName: String, x: Long, y: Long): Entity? {
+    entity.addComponent(
+        PositionComponent(
+            entityId = entity.id,
+            shape = blueprint.position
+        )
+    )
+    entity.addComponent(
+        VisualComponent(
+            entityId = entity.id,
+            visual = bestia.spriteInfo
+        )
+    )
 
-    val bestia = bestiaDao.findByDatabaseName(moDbName)
+    entity.addComponent(
+        LevelComponent(
+            entityId = entity.id
+        ).apply { this.level = bestia.level }
+    )
 
-    if (bestia == null) {
-      LOG.warn("Database does not contain mob bestia: {}", moDbName)
-      return null
-    }
+    entity.addComponent(EquipComponent(entityId = entity.id))
+    entity.addComponent(InventoryComponent(entityId = entity.id))
+    entity.addComponent(
+        StatusComponent(
+            entityId = entity.id,
+            statusPoints = bestia.statusPoints,
+            element = bestia.element
+        )
+    )
 
-    LOG.debug("Spawning mob {} ({},{}).", moDbName, x, y)
-
-    val posSetter = PositionComponentSetter(Point(x, y))
-    val visSetter = VisibleComponentSetter(bestia.spriteInfo)
-    val levelSetter = LevelComponentSetter(bestia.level, 0)
-    val tagSetter = TagComponentSetter(Tag.PERSIST)
-
-    val mob = entityFactory.buildEntity(mobBlueprint, posSetter, visSetter, levelSetter, tagSetter)
-
-    // Calculate the status points now.
-    statusService.calculateStatusPoints(mob)
-
-    return mob
-  }
-
-  companion object {
-
-    private val LOG = LoggerFactory.getLogger(MobFactory::class.java)
-
-    private val mobBlueprint: Blueprint
-
-    init {
-      val builder = Blueprint.Builder()
-      builder.addComponent(VisualComponent::class.java)
-          .addComponent(EquipComponent::class.java)
-          .addComponent(InventoryComponent::class.java)
-          .addComponent(PositionComponent::class.java)
-          .addComponent(LevelComponent::class.java)
-          .addComponent(TagComponent::class.java)
-          .addComponent(StatusComponent::class.java)
-
-      mobBlueprint = builder.build()
-    }
+    statusService.calculateStatusPoints(entity)
   }
 }

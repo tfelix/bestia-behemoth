@@ -1,15 +1,13 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.component.PlayerComponent
-import net.bestia.zoneserver.entity.factory.PlayerBestiaEntityFactory
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.Account
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService
+import net.bestia.zoneserver.entity.factory.EntityFactory
+import net.bestia.zoneserver.entity.factory.PlayerBestiaBlueprint
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger {  }
@@ -23,9 +21,8 @@ private val LOG = KotlinLogging.logger {  }
 class LoginService(
     private val accountDao: AccountDAO,
     private val playerEntityService: PlayerEntityService,
-    private val playerEntityFactory: PlayerBestiaEntityFactory,
-    private val playerBestiaService: PlayerBestiaService,
-    private val entityService: EntityService
+    private val entityFactory: EntityFactory,
+    private val playerBestiaService: PlayerBestiaService
 ) {
 
   /**
@@ -47,34 +44,12 @@ class LoginService(
 
     LOG.debug { "Login of account: $account" }
 
-    var masterEntity: Entity? = null
-    if (master.entityId != 0L) {
-      LOG.debug{ "Master Bestia already spawned use entity: ${master.entityId}" }
+    val playerBestiaBlueprint = PlayerBestiaBlueprint(master.id)
+    val masterEntity = entityFactory.build(playerBestiaBlueprint)
 
-      masterEntity = entityService.getEntity(master.entityId)
-
-      // Safetycheck the entity.
-      val isPlayersMasterEntity = entityService.getComponent(masterEntity, PlayerComponent::class.java)
-              .map { pc -> pc.playerBestiaId == master.id }
-              .orElse(false)
-
-      if (masterEntity == null || !isPlayersMasterEntity) {
-        LOG.warn("Master entity {} for account {} not found even though ID was set. Spawning it.",
-                master.entityId, accId)
-        masterEntity = playerEntityFactory.build(master)
-      }
-
-    } else {
-      LOG.debug("Login in acc: {}. Spawning master bestias.", accId)
-      masterEntity = playerEntityFactory.build(master)
-    }
-
-    // Save the entity.
-    // Now activate the master and notify the client.
     playerEntityService.updatePlayerBestiaWithEntityId(masterEntity)
-    playerEntityService.setActiveEntity(accId, masterEntity!!.id)
+    playerEntityService.setActiveEntity(accId, masterEntity)
 
-    // Update the DB.
     master.entityId = masterEntity.id
     playerBestiaService.save(master)
 

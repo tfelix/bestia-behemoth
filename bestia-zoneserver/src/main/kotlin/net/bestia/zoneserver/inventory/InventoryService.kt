@@ -10,7 +10,6 @@ import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.ItemDAO
 import net.bestia.model.dao.PlayerItemDAO
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Item
 import net.bestia.model.domain.PlayerItem
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -229,18 +228,6 @@ class InventoryService(
    */
   fun getPlayerItem(playerItemId: Int): PlayerItem {
     return playerItemDao.findOneOrThrow(playerItemId)
-  }
-
-  /**
-   * Returns a [Item] with the given item db name or NULL if no item
-   * with this name was found.
-   *
-   * @param itemDbName
-   * The item database name.
-   * @return The [Item] or NULL.
-   */
-  fun getItem(itemDbName: String): Item {
-    return itemDao.findItemByName(itemDbName)
   }
 
   /**

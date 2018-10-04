@@ -42,7 +42,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 	/**
 	 * Generates a new map and puts it into the static save of a new map.
-	 * 
+	 *
 	 * @param params
 	 *            The basic parameter to perform the world creation with.
 	 */
@@ -90,7 +90,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
 				Float.class,
 				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
-		noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP, 
+		noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
 				Float.class,
 				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
 
@@ -103,7 +103,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 	/**
 	 * Sets a callback this is executed after the mapgeneration has finished.
-	 * 
+	 *
 	 * @param onFinishCallback
 	 */
 	public void setOnFinishCallback(Runnable onFinishCallback) {
@@ -114,7 +114,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 	 * Helper method which will give the master the current state of the nodes.
 	 * The {@link MapMasterGenerator} class will take care if keeping track
 	 * about the origins.
-	 * 
+	 *
 	 * @param workstate
 	 *            The workstate reported by the client.
 	 */

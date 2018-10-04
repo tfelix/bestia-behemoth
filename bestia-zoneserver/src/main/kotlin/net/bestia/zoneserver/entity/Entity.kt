@@ -35,6 +35,10 @@ class Entity(
     components[comp.javaClass] = comp
   }
 
+  internal fun addAllComponents(comps: Collection<Component>) {
+    comps.forEach { addComponent(it) }
+  }
+
   /**
    * Removes a component from the entity.
    *

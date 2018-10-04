@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
+import java.util.*
+
 /**
  * Holds various script callbacks for entities.
  *
@@ -71,5 +73,16 @@ data class ScriptComponent(
 
   fun addScriptCallback(callback: ScriptCallback) {
     scripts[callback.uuid] = callback
+  }
+
+  companion object {
+    fun simpleCallback(scriptName: String, intervalMs: Int): ScriptCallback {
+      return ScriptCallback(
+          UUID.randomUUID().toString(),
+          TriggerType.ON_INTERVAL,
+          scriptName,
+          intervalMs
+      )
+    }
   }
 }
