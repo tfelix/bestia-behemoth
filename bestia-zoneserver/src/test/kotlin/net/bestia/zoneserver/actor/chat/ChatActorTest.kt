@@ -23,7 +23,7 @@ class ChatActorTest : BaseActorTest() {
       init {
 
         val chat = SpringExtension.actorOf(system, ChatActor::class.java)
-        val chatMessage = ChatMessage(1, 1, "Hello World", ChatMessage.Mode.PUBLIC)
+        val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello World")
         chat.tell(chatMessage, ref)
 
         expectMsgClass(BaseClientMessageRouteActor.RedirectMessage::class.java)

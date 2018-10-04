@@ -10,7 +10,7 @@ import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.*
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.entity.EntitySearchService
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.map.MapService
 import org.junit.Assert
 import org.junit.Before
@@ -33,7 +33,7 @@ class BattleServiceTest {
   private lateinit var entityService: EntityService
 
   @Mock
-  private lateinit var entitySearchService: EntitySearchService
+  private lateinit var entityCollisionService: EntityCollisionService
 
   @Mock
   private lateinit var mapService: MapService
@@ -87,7 +87,7 @@ class BattleServiceTest {
   @Before
   fun setup() {
 
-    `when`(entityService!!.getEntity(ENTITY_ATTACKER_ID)).thenReturn(attacker)
+    `when`(entityService.getEntity(ENTITY_ATTACKER_ID)).thenReturn(attacker)
     `when`(entityService.getEntity(ENTITY_DEFENDER_ID)).thenReturn(defender)
     `when`(atkDao.findOneOrThrow(VALID_ATK_ID)).thenReturn(atk)
 
@@ -99,12 +99,12 @@ class BattleServiceTest {
     `when`(entityService.hasComponent(defender, LevelComponent::class.java)).thenReturn(true)
 
     // Setup components.
-    `when`(entityService.getComponent(attacker, PositionComponent::class.java)).thenReturn(Optional.of(posCompAtk!!))
-    `when`(entityService.getComponent(defender, PositionComponent::class.java)).thenReturn(Optional.of(posCompDef!!))
-    `when`(entityService.getComponent(attacker, StatusComponent::class.java)).thenReturn(Optional.of(statusCompAtk!!))
-    `when`(entityService.getComponent(defender, StatusComponent::class.java)).thenReturn(Optional.of(statusCompDef!!))
-    `when`(entityService.getComponent(attacker, LevelComponent::class.java)).thenReturn(Optional.of(lvAtk!!))
-    `when`(entityService.getComponent(defender, LevelComponent::class.java)).thenReturn(Optional.of(lvDef!!))
+    `when`(entityService.getComponent(attacker, PositionComponent::class.java)).thenReturn(Optional.of(posCompAtk))
+    `when`(entityService.getComponent(defender, PositionComponent::class.java)).thenReturn(Optional.of(posCompDef))
+    `when`(entityService.getComponent(attacker, StatusComponent::class.java)).thenReturn(Optional.of(statusCompAtk))
+    `when`(entityService.getComponent(defender, StatusComponent::class.java)).thenReturn(Optional.of(statusCompDef))
+    `when`(entityService.getComponent(attacker, LevelComponent::class.java)).thenReturn(Optional.of(lvAtk))
+    `when`(entityService.getComponent(defender, LevelComponent::class.java)).thenReturn(Optional.of(lvDef))
 
     // Setup level comp.
     `when`(lvAtk.level).thenReturn(12)
@@ -123,30 +123,29 @@ class BattleServiceTest {
     `when`(statusCompDef.statusPoints).thenReturn(defStats)
 
     // Setup cond valus.
-    `when`(attackerCond!!.currentMana).thenReturn(100)
+    `when`(attackerCond.currentMana).thenReturn(100)
 
     // Setup status based.
-    `when`(statBasedAtk!!.hitrate).thenReturn(23)
-    `when`(statBasedDef!!.dodge).thenReturn(40)
+    `when`(statBasedAtk.hitrate).thenReturn(23)
+    `when`(statBasedDef.dodge).thenReturn(40)
 
     // Setup status vals.
-    `when`(atkStats!!.dexterity).thenReturn(34)
-    `when`(defStats!!.dexterity).thenReturn(10)
+    `when`(atkStats.dexterity).thenReturn(34)
+    `when`(defStats.dexterity).thenReturn(10)
 
     `when`(atkStats.agility).thenReturn(21)
     `when`(defStats.agility).thenReturn(35)
 
 
     // Setup attack
-    `when`(atk!!.range).thenReturn(10)
+    `when`(atk.range).thenReturn(10)
     `when`(atk.element).thenReturn(Element.FIRE)
     `when`(atk.type).thenReturn(AttackType.MELEE_PHYSICAL)
     `when`(atk.needsLineOfSight()).thenReturn(false)
     `when`(atk.manaCost).thenReturn(2)
     `when`(atk.id).thenReturn(Attack.DEFAULT_MELEE_ATTACK_ID)
 
-
-    battleService = BattleService(entityService, entitySearchService!!, mapService!!, atkDao!!)
+    battleService = BattleService(entityService, mapService, entityCollisionService)
   }
 
   @Test
@@ -157,7 +156,7 @@ class BattleServiceTest {
 
   @Test
   fun attackEntity_validEntities_damage() {
-    val dmg = battleService!!.attackEntity(atk!!, attacker!!, defender!!)
+    val dmg = battleService!!.attackEntity(atk, attacker, defender)
     Assert.assertNotNull(dmg)
   }
 
@@ -168,10 +167,9 @@ class BattleServiceTest {
   }
 
   companion object {
-
-    private val ENTITY_ATTACKER_ID: Long = 1
-    private val ENTITY_DEFENDER_ID: Long = 2
-    private val VALID_ATK_ID = 1
-    private val INVALID_ATK_ID = 2
+    private const val ENTITY_ATTACKER_ID: Long = 1
+    private const val ENTITY_DEFENDER_ID: Long = 2
+    private const val VALID_ATK_ID = 1
+    private const val INVALID_ATK_ID = 2
   }
 }

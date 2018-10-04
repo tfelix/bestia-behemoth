@@ -2,8 +2,6 @@ package net.bestia.zoneserver.actor
 
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
-import com.hazelcast.core.HazelcastInstance
-import com.hazelcast.test.TestHazelcastInstanceFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -30,16 +28,6 @@ fun Duration.toScala(): FiniteDuration {
 @RunWith(SpringRunner::class)
 @ActiveProfiles("test")
 abstract class BaseActorTest {
-
-  @Configuration
-  class ActorTestConfiguration {
-    @Bean
-    @Primary
-    fun hazelcastMock(): HazelcastInstance {
-      val hzFact = TestHazelcastInstanceFactory()
-      return hzFact.newHazelcastInstance()
-    }
-  }
 
   protected lateinit var system: ActorSystem
 

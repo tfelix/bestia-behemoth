@@ -30,9 +30,6 @@ class PlayerBestiaServiceTest {
   private lateinit var attackLevelDao: BestiaAttackDAO
 
   @Mock
-  private lateinit var playerItemDao: PlayerItemDAO
-
-  @Mock
   private lateinit var playerBestia: PlayerBestia
 
   @Mock
@@ -44,9 +41,9 @@ class PlayerBestiaServiceTest {
     ALL_BESTIAS.add(playerBestia)
 
     `when`(accountDao.findOneOrThrow(OK_ACC_ID)).thenReturn(account)
-    `when`(playerBestiaDao!!.findOneOrThrow(OK_PLAYERBESTIA_ID)).thenReturn(playerBestia)
+    `when`(playerBestiaDao.findOneOrThrow(OK_PLAYERBESTIA_ID)).thenReturn(playerBestia)
 
-    pbService = PlayerBestiaService(accountDao, playerBestiaDao, attackLevelDao)
+    pbService = PlayerBestiaService(playerBestiaDao, attackLevelDao)
   }
 
   @Test
@@ -94,7 +91,7 @@ class PlayerBestiaServiceTest {
   fun save_playerBestia_saved() {
     pbService!!.save(playerBestia)
 
-    verify<PlayerBestiaDAO>(playerBestiaDao).save(playerBestia!!)
+    verify<PlayerBestiaDAO>(playerBestiaDao).save(playerBestia)
   }
 
   companion object {

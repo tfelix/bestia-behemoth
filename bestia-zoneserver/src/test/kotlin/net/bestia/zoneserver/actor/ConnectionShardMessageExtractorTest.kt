@@ -10,15 +10,15 @@ class ConnectionShardMessageExtractorTest {
 
   private val extractor = ConnectionShardMessageExtractor()
 
+  private val accMsg = object : AccountMessage {
+    override val accountId: Long
+      get() = 10
+  }
+
   @Test
   fun entityId_returns_id_for_accountMsg() {
-    val accMsg = object : AccountMessage(10) {
-      override fun createNewInstance(accountId: Long): AccountMessage {
-        return this
-      }
-    }
     val id = extractor.entityId(accMsg)
-    Assert.assertTrue(id!!.contains("10"))
+    Assert.assertTrue(id!!.contains(accMsg.accountId.toString()))
   }
 
   @Test
@@ -37,11 +37,6 @@ class ConnectionShardMessageExtractorTest {
 
   @Test
   fun shardId_returns_id_for_accountMsg() {
-    val accMsg = object : AccountMessage(10) {
-      override fun createNewInstance(accountId: Long): AccountMessage {
-        return this
-      }
-    }
     val id = extractor.shardId(accMsg)
     Assert.assertNotNull(id)
   }

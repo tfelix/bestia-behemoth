@@ -21,8 +21,8 @@ private val LOG = KotlinLogging.logger { }
 @Service
 @Transactional
 class PlayerBestiaService(
-        private val playerBestiaDao: PlayerBestiaDAO,
-        private val attackDao: BestiaAttackDAO
+    private val playerBestiaDao: PlayerBestiaDAO,
+    private val attackDao: BestiaAttackDAO
 ) {
   /**
    * Returns all attacks for a certain player bestia with the given player
@@ -49,7 +49,7 @@ class PlayerBestiaService(
 
     if (itemIds.size != 5) {
       throw IllegalArgumentException(
-              "The size of the item slot array must be 5. Fill empty slots with null.")
+          "The size of the item slot array must be 5. Fill empty slots with null.")
     }
 
     val bestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
