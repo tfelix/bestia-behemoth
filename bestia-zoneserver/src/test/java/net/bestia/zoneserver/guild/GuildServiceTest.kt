@@ -12,20 +12,20 @@ import net.bestia.model.dao.PlayerBestiaDAO
 @RunWith(MockitoJUnitRunner::class)
 class GuildServiceTest {
 
-  private var gs: GuildService? = null
+  private lateinit var gs: GuildService
 
   @Mock
-  private val guildDao: GuildDAO? = null
+  private lateinit var guildDao: GuildDAO
 
   @Mock
-  private val guildMemberDao: GuildMemberDAO? = null
+  private lateinit var guildMemberDao: GuildMemberDAO
 
   @Mock
-  private val bestiaDao: PlayerBestiaDAO? = null
+  private lateinit var bestiaDao: PlayerBestiaDAO
 
   @Before
   fun setup() {
-    gs = GuildService(guildDao!!, guildMemberDao!!, bestiaDao!!)
+    gs = GuildService(guildDao, guildMemberDao, bestiaDao)
   }
 
   fun addPlayerToGuild_existingGuildEnoughSpace_memberAdded() {

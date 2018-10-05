@@ -27,9 +27,6 @@ data class Node<T>(
         return completeCost
       }
 
-      return when (parent) {
-        null -> ownCost
-        else -> ownCost + parent!!.nodeCost
-      }
+      return ownCost + (parent?.nodeCost ?: 0f)
     }
 }

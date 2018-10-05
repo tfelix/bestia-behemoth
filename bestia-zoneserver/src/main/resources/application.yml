@@ -18,7 +18,6 @@ logging:
 # ===============================
 # = LIBRARIES
 # ===============================
-
 spring:
   main:
     web-environment: false
@@ -41,16 +40,11 @@ spring:
 flyway:
   enabled: false
 
-# The key of the re-captcha authentication checks.
-recaptcha:
-  secretKey: XXXXXX
-
 # ===============================
 # = ZONE
 # ===============================
 server:
    name: zoneserver-${random.uuid}
-   version: \@project.version\@
    entityBuffer: 100
 
 mapgen:

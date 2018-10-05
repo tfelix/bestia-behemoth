@@ -27,9 +27,9 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class MapGeneratorMasterActor(
-        private val mapGenService: MapGeneratorMasterService,
-        private val logoutService: LogoutService,
-        private val config: RuntimeConfigService
+    private val mapGenService: MapGeneratorMasterService,
+    private val logoutService: LogoutService,
+    private val config: RuntimeConfigService
 ) : AbstractActor() {
 
   private var mapBaseParameter: MapParameter? = null
@@ -41,7 +41,7 @@ class MapGeneratorMasterActor(
    *
    */
   private inner class AkkaMapGenClient(
-          private val generatorNode: ActorRef
+      private val generatorNode: ActorRef
   ) : NodeConnector {
 
     override fun sendClient(part: MapPart) {
@@ -60,17 +60,17 @@ class MapGeneratorMasterActor(
   init {
     // Setup a call to the finish method. Must use akka messaging in order
     // to prevent race conditions.
-    mapGenService.setOnFinishCallback { self().tell(FINISH_MSG, self) }
+    mapGenService.setOnFinishCallback(Runnable { self().tell(FINISH_MSG, self) })
   }
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(MapParameter::class.java, this::handleMapParameter)
-            .match(WorkstateMessage::class.java, mapGenService::consumeNodeMessage)
-            .match(ActorIdentity::class.java, this::addToAvailableNodes)
-            .matchEquals(START_MSG) { this.start() }
-            .matchEquals(FINISH_MSG) { this.finish() }
-            .build()
+        .match(MapParameter::class.java, this::handleMapParameter)
+        .match(WorkstateMessage::class.java, mapGenService::consumeNodeMessage)
+        .match(ActorIdentity::class.java, this::addToAvailableNodes)
+        .matchEquals(START_MSG) { this.start() }
+        .matchEquals(FINISH_MSG) { this.finish() }
+        .build()
   }
 
   /**
@@ -94,8 +94,8 @@ class MapGeneratorMasterActor(
 
     // Prepare the list of nodes.
     val nodes = availableNodes
-            .map { ref -> AkkaMapGenClient(ref) }
-            .toList()
+        .map { ref -> AkkaMapGenClient(ref) }
+        .toList()
 
     if (nodes.isEmpty()) {
       LOG.warn("No other nodes found to generate the map. Aborting.")
@@ -103,7 +103,7 @@ class MapGeneratorMasterActor(
       return
     }
 
-    mapGenService.generateMap(mapBaseParameter, nodes)
+    mapGenService.generateMap(mapBaseParameter!!, nodes)
   }
 
   /**
@@ -140,16 +140,16 @@ class MapGeneratorMasterActor(
     availableNodes.clear()
     currentLookupIdent = ThreadLocalRandom.current().nextInt()
     val selection = context()
-            .actorSelection(AkkaCluster.getNodeName(MapGeneratorClientActor.NAME))
+        .actorSelection(AkkaCluster.getNodeName(MapGeneratorClientActor.NAME))
     selection.tell(Identify(currentLookupIdent), self)
 
     // Wait some time until we start the creation and hope all clients have registered.
     context().system().scheduler().scheduleOnce(
-            Duration.create(5, TimeUnit.SECONDS),
-            self,
-            START_MSG,
-            context().dispatcher(),
-            null)
+        Duration.create(5, TimeUnit.SECONDS),
+        self,
+        START_MSG,
+        context().dispatcher(),
+        null)
   }
 
   companion object {

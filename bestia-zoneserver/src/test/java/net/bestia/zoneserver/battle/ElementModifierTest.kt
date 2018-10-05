@@ -9,7 +9,6 @@ class ElementModifierTest {
 
   @Test
   fun getModifier_differentTests() {
-
     Assert.assertEquals(100, ElementModifier.getModifier(Element.EARTH, Element.EARTH).toLong())
     Assert.assertEquals(0, ElementModifier.getModifier(Element.FIRE, Element.WATER_3).toLong())
     Assert.assertEquals(100, ElementModifier.getModifier(Element.POISON, Element.NORMAL_2).toLong())

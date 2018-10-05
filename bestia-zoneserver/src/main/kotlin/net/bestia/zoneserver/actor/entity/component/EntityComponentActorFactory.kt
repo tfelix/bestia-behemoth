@@ -8,6 +8,7 @@ import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.actor.SpringExtension
 import org.reflections.Reflections
 import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@org.springframework.stereotype.Component
+@SpringComponent
 class EntityComponentActorFactory {
 
   private val componentToActorClass: Map<KClass<out Component>, Class<out AbstractActor>>
