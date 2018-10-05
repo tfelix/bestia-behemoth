@@ -1,0 +1,12 @@
+version: '3'
+services:
+  db:
+    image: mariadb
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: bestia
+      MYSQL_USER: bestia
+      MYSQL_PASSWORD: bestia
+      MYSQL_ROOT_PASSWORD: bestia
