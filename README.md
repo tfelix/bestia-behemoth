@@ -22,14 +22,19 @@ JavaScript.
 Detailed documentation about the game mechanics and server architecture can be found in the official
 [documentation](https://docs.bestia-game.net).
 
-### Prerequisites
-
-_TODO_
-
-### Install
-
-_TODO_
-
 ## Contributing
 
-_TODO_
+Contributions are always welcome! If you want to get into it a lot of code is still untested and might be
+a good starting point. If you want to change or work an game related stuff please consult the 
+[documentation](https://docs.bestia-game.net) first to stick to the general manifests of this game.
+ 
+ Anyways to start up the develop environment there is a `docker-compose.yml` inside 
+the `/bestia-zonserver` folder which will setup all the needed database and server infrastructure.
+
+```
+cd bestia-zoneserver
+sudo docker-compose up
+```
+
+After the server has started you can startup the zoneserver. It will automatically setup all the needed 
+database schemas and you can start right ahead.
