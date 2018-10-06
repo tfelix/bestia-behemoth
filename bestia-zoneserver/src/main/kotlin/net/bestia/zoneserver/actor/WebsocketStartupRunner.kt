@@ -9,11 +9,9 @@ import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
 
-private val LOG = KotlinLogging.logger { }
-
 @Component
 class WebsocketStartupRunner(
-        private val system: ActorSystem
+    private val system: ActorSystem
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {

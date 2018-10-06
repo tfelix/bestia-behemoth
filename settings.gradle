@@ -1,5 +1,4 @@
 rootProject.name = 'behemoth'
-include ':bestia-models'
-include ':bestia-messages'
-include ':bestia-zoneserver'
-include ':bestia-memoryserver'
+include 'bestia-models'
+include 'bestia-messages'
+include 'bestia-zoneserver'

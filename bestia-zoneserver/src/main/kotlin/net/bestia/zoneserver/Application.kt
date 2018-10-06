@@ -6,14 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.autoconfigure.hazelcast.HazelcastAutoConfiguration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
-/**
- * Main application entry point. This will start the spring-boot application.
- *
- * @author Thomas Felix
- */
 @SpringBootApplication(
-        scanBasePackages = ["net.bestia"],
-        exclude = [HazelcastAutoConfiguration::class]
+    scanBasePackages = ["net.bestia"]
 )
 @EnableJpaRepositories(basePackages = ["net.bestia.model.dao"])
 @EntityScan(basePackages = ["net.bestia.model.domain"])

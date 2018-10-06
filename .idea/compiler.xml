@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="bestia-entities-core_main" target="1.8" />
       <module name="bestia-entities-core_test" target="1.8" />
+      <module name="bestia-memoryserver_main" target="1.8" />
+      <module name="bestia-memoryserver_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

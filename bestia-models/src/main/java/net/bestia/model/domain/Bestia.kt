@@ -10,7 +10,6 @@ import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.Id
-import javax.persistence.PrimaryKeyJoinColumn
 import javax.persistence.Table
 import javax.persistence.Transient
 
@@ -92,6 +91,6 @@ class Bestia(
 ) : Serializable {
 
   override fun toString(): String {
-    return String.format("Bestia[db: %s, id: %d, level: %d]", databaseName, id, level)
+    return "Bestia[db: $databaseName, id: $id, level: $level]"
   }
 }

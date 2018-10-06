@@ -4,8 +4,11 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
+import akka.http.javadsl.ConnectHttp
+import akka.http.javadsl.Http
 import akka.management.AkkaManagement
 import akka.management.cluster.bootstrap.ClusterBootstrap
+import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.EntryActorNames
@@ -14,6 +17,7 @@ import net.bestia.zoneserver.actor.BestiaRootActor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
+import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
@@ -49,9 +53,6 @@ class AkkaConfiguration {
 
     SpringExtension.initialize(system, appContext)
 
-    // TEST
-    LOG.info { "Configuring sharding actors." }
-
     LOG.info { "Starting entity sharding..." }
     val settings = ClusterShardingSettings.create(system)
     val sharding = ClusterSharding.get(system)
@@ -59,13 +60,21 @@ class AkkaConfiguration {
     val entityProps = SpringExtension.getSpringProps(system, EntityActor::class.java)
     val entityExtractor = EntityShardMessageExtractor()
     sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor)
+    LOG.info { "Started entity sharding" }
 
     LOG.info { "Starting client sharding..." }
     val connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor::class.java)
     val connectionExtractor = ConnectionShardMessageExtractor()
     sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
+    LOG.info("Started the sharding actors")
 
-    LOG.info("Started the sharding actors.")
+    LOG.info { "Starting websocket ingress..." }
+    val materializer = ActorMaterializer.create(system)
+    val http = Http.get(system)
+    val router = WebSocketRouter(system)
+    val routeFlow = router.createRoute().flow(system, materializer)
+    http.bindAndHandle(routeFlow, ConnectHttp.toHost("localhost", 8090), materializer)
+    LOG.info { "Started websocket ingress" }
 
     return system
   }

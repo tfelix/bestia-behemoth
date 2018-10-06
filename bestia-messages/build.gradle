@@ -1,6 +1,11 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
 description = 'bestia-messages'
 
 dependencies {
-  compile project(':bestia-models')
-  compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
+    compile project(':bestia-models')
+    compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
+    compileOnly group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
 }
