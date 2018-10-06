@@ -17,8 +17,13 @@ private val LOG = KotlinLogging.logger { }
 internal class SpringActorProducer(
     private val applicationContext: ApplicationContext,
     private val actorBeanClass: Class<out Actor>,
-    private val args: ArrayList<*>
+    private val args: Array<*>
 ) : IndirectActorProducer {
+
+  constructor(
+      applicationContext: ApplicationContext,
+      actorBeanClass: Class<out Actor>
+  ) : this(applicationContext, actorBeanClass, emptyArray<Any>())
 
   init {
     if (args.any { it == null }) {
@@ -54,14 +59,15 @@ internal class SpringActorProducer(
     get() {
       val ctors = actorBeanClass.constructors
 
-      val availableArgsClasses = args.asSequence().map { it.javaClass }.toSet()
+      val availableArgsClasses = args.asSequence()
+          .map { it!!.javaClass }.toSet()
       val autoCtor: Constructor<*>? = getAnnotatedCtor(ctors)
           ?: getZeroArgCtor(ctors)
           ?: getOnlyCtor(ctors)
 
-      if(autoCtor == null) {
-          LOG.warn("No Ctor with Autowire annotation found. Can not create bean: {}", actorBeanClass.name)
-          return emptyArray()
+      if (autoCtor == null) {
+        LOG.warn("No Ctor with Autowire annotation found. Can not create bean: {}", actorBeanClass.name)
+        return emptyArray()
       }
 
       val params = autoCtor.parameterTypes
@@ -75,13 +81,13 @@ internal class SpringActorProducer(
           .toMutableList()
 
       val sortedArgs = ArrayList<Any>()
-      val providedArgs = ArrayList(args)
+      val providedArgs = args.toMutableList()
       for (param in params) {
         var wasProvided = false
 
         for (i in providedArgs.indices) {
-          if (boxPrimitiveClass(param).isAssignableFrom(providedArgs[i].javaClass)) {
-            sortedArgs.add(providedArgs[i])
+          if (boxPrimitiveClass(param).isAssignableFrom(providedArgs[i]!!.javaClass)) {
+            sortedArgs.add(providedArgs[i]!!)
             providedArgs.removeAt(i)
             wasProvided = true
             break

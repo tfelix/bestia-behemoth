@@ -20,12 +20,11 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 class ScriptCache(
-        private val compiler: ScriptCompiler,
-        private val resolver: ScriptFileResolver
+    private val compiler: ScriptCompiler,
+    private val resolver: ScriptFileResolver
 ) {
 
   private val cache = mutableMapOf<String, CompiledScript>()
-
 
   /**
    * Adds a folder to the script cache. It will immediately start to compile
@@ -35,8 +34,12 @@ class ScriptCache(
    */
   fun cacheFolder(scriptBasePath: Path) {
 
-    LOG.info("Adding folder {} to script cache.", scriptBasePath)
+    LOG.warn {
+      "Script folder caching is currently disabled until we figured out how to properly" +
+          " read folder from resource."
+    }
 
+    /*
     try {
       Files.newDirectoryStream(scriptBasePath).use { directoryStream ->
         for (scriptPath in directoryStream) {
@@ -53,10 +56,7 @@ class ScriptCache(
     } catch (e: IOException) {
       LOG.error("Could not compile script.", e)
     }
-  }
-
-  private fun getRelativePath(basePath: Path, scriptPath: Path): String {
-    return scriptPath.relativize(basePath).toString()
+    */
   }
 
   /**
@@ -75,7 +75,7 @@ class ScriptCache(
     return when (script) {
       null -> {
         LOG.trace("Script was not found in cache. Try compiling it first.")
-        val scriptFile = resolver.getScriptFile(name)
+        val scriptFile = resolver.getScriptInputStream(name)
         val compiledScript = compiler.compileScript(scriptFile) ?: throw IOException()
         cache[name] = compiledScript
         compiledScript

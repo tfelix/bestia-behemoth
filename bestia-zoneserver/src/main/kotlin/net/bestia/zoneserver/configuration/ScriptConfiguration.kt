@@ -2,7 +2,7 @@ package net.bestia.zoneserver.configuration
 
 import net.bestia.zoneserver.script.ScriptCache
 import net.bestia.zoneserver.script.ScriptCompiler
-import net.bestia.zoneserver.script.ScriptFileResolver
+import net.bestia.zoneserver.script.FilesystemScriptFileResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.io.File
@@ -17,16 +17,15 @@ import java.nio.file.Paths
 @Configuration
 class ScriptConfiguration {
 
-  private val resolver = ScriptFileResolver("classpath:")
+  private val resolver = FilesystemScriptFileResolver("classpath:")
 
   @Bean
   @Throws(URISyntaxException::class)
   fun scriptCache(compiler: ScriptCompiler, config: ZoneserverConfig): ScriptCache {
     val cache = ScriptCache(compiler, resolver)
-    val classPathSuffix = "classpath:"
 
-    val scriptBaseDir = if (config.scriptDir.startsWith(classPathSuffix)) {
-      val base = config.scriptDir.substring(classPathSuffix.length)
+    val scriptBaseDir = if (config.scriptDir.startsWith(CLASSPATH_PREFIX)) {
+      val base = config.scriptDir.substring(CLASSPATH_PREFIX.length)
       val res = javaClass.classLoader.getResource(base)
       val classPath = File(res.toURI())
       classPath.toPath()
@@ -37,5 +36,9 @@ class ScriptConfiguration {
     cache.cacheFolder(scriptBaseDir)
 
     return cache
+  }
+
+  companion object {
+    private val CLASSPATH_PREFIX = "classpath:"
   }
 }

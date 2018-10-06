@@ -30,4 +30,8 @@ class RoutingActor : AbstractActor() {
   private fun handleToEntity(msg: EntityEnvelope) {
     sendToEntityActor.forward(msg, context)
   }
+
+  companion object {
+    const val NAME = "routing"
+  }
 }

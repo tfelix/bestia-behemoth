@@ -22,14 +22,6 @@ data class ZoneserverConfig(
     val serverName: String,
 
     /**
-     * Returns the size of the entity buffer inside the recycler.
-     *
-     * @return Size of the entity buffer.
-     */
-    @Value("\${server.entityBuffer:10}")
-    val entityBufferSize: Int = 10,
-
-    /**
      * Directory of the script files.
      */
     /**

@@ -3,9 +3,7 @@ package net.bestia.zoneserver.script
 import mu.KotlinLogging
 import net.bestia.zoneserver.script.env.GlobalEnv
 import org.springframework.stereotype.Component
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
+import java.io.*
 import javax.script.*
 
 private val LOG = KotlinLogging.logger { }
@@ -35,16 +33,14 @@ class ScriptCompiler(globalEnv: GlobalEnv) {
    * @param file The javascript bestia script file.
    * @return A compiled version of the script or null if there was an error.
    */
-  fun compileScript(file: File): CompiledScript? {
-    LOG.trace("Compiling script file: {}.", file)
-
+  fun compileScript(inputScriptStream: InputStream): CompiledScript? {
     try {
-      FileReader(file).use { scriptReader ->
+      InputStreamReader(inputScriptStream).use { scriptReader ->
 
         val script = (engine as Compilable).compile(scriptReader)
         script.eval()
-        return script
 
+        return script
       }
     } catch (e: ScriptException) {
       LOG.error("Could not compile script.", e)
