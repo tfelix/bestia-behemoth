@@ -22,79 +22,27 @@ CREATE TABLE `accounts` (
   `banned_until_date` date DEFAULT NULL,
   `email` varchar(64) COLLATE utf8_bin NOT NULL,
   `username` varchar(32) COLLATE utf8_bin NOT NULL,
-  `gold` int(11) NOT NULL,
   `hairstyle` int(11) DEFAULT NULL,
   `is_activated` bit(1) NOT NULL,
-  `language` varchar(255) COLLATE utf8_bin NOT NULL,
-  `last_login` date DEFAULT NULL,
+  `language` varchar(5) COLLATE utf8_bin NOT NULL,
   `login_token` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `password` varchar(255) COLLATE utf8_bin NOT NULL,
   `register_date` date DEFAULT NULL,
   `remarks` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `user_level` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `user_level` varchar(20) COLLATE utf8_bin DEFAULT NULL,
   `party_id` bigint(20) DEFAULT NULL,
-  `gender` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `gender` varchar(6) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_email` (`email`),
-  UNIQUE KEY `UK_username` (`username` ASC);
+  UNIQUE KEY `UK_username` (`username` ASC),
   KEY `FK_account_party_id` (`party_id`),
   CONSTRAINT `FK_account_party_id` FOREIGN KEY (`party_id`) REFERENCES `parties` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `akka_journal`
---
-
-DROP TABLE IF EXISTS `akka_journal`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `akka_journal` (
-  `persistence_key` bigint(20) NOT NULL,
-  `sequence_nr` bigint(20) NOT NULL,
-  `message` blob NOT NULL,
-  PRIMARY KEY (`persistence_key`,`sequence_nr`),
-  CONSTRAINT `akka_journal_ibfk_1` FOREIGN KEY (`persistence_key`) REFERENCES `akka_metadata` (`persistence_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `akka_metadata`
---
-
-DROP TABLE IF EXISTS `akka_metadata`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `akka_metadata` (
-  `persistence_key` bigint(20) NOT NULL AUTO_INCREMENT,
-  `persistence_id` varchar(255) COLLATE utf8_bin NOT NULL,
-  `sequence_nr` bigint(20) NOT NULL,
-  PRIMARY KEY (`persistence_key`),
-  UNIQUE KEY `persistence_id` (`persistence_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `akka_snapshot`
---
-
-DROP TABLE IF EXISTS `akka_snapshot`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `akka_snapshot` (
-  `persistence_key` bigint(20) NOT NULL,
-  `sequence_nr` bigint(20) NOT NULL,
-  `created_at` bigint(20) NOT NULL,
-  `snapshot` blob NOT NULL,
-  PRIMARY KEY (`persistence_key`,`sequence_nr`),
-  CONSTRAINT `akka_snapshot_ibfk_1` FOREIGN KEY (`persistence_key`) REFERENCES `akka_metadata` (`persistence_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `attacks`
 --
-
 DROP TABLE IF EXISTS `attacks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -169,7 +117,7 @@ CREATE TABLE `bestias` (
   `b_will` int(11) DEFAULT NULL,
   `visual_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_egdca22syhdicxngo00qc3poy` (`bestia_db_name`)
+  UNIQUE KEY `UK_bestia_bestia_db_name` (`bestia_db_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -186,9 +134,9 @@ CREATE TABLE `clientvars` (
   `cvar_key` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `account_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `key_idx` (`cvar_key`),
-  KEY `FKnc2khtlwq8ukd38dpbdjoh15l` (`account_id`),
-  CONSTRAINT `FKnc2khtlwq8ukd38dpbdjoh15l` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`)
+  KEY `key_clientvars_id` (`cvar_key`),
+  KEY `fk_clientvars_account_id` (`account_id`),
+  CONSTRAINT `clientvars_account_id` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

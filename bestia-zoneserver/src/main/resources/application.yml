@@ -22,7 +22,7 @@ spring:
   main:
     web-environment: false
   datasource:
-    url: jdbc:mysql://localhost/bestia?serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/bestia?serverTimezone=UTC
     username: bestia
     password: bestia
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -36,9 +36,6 @@ spring:
     hibernate.ddl-auto: none
     # Allows Hibernate to generate SQL optimized for a particular DBMS
     properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-
-flyway:
-  enabled: false
 
 # ===============================
 # = ZONE

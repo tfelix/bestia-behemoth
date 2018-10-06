@@ -14,7 +14,6 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "player_bestias")
-@PrimaryKeyJoinColumn(name = "bestia_id")
 data class PlayerBestia(
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ACCOUNT_ID", nullable = false)
@@ -27,19 +26,6 @@ data class PlayerBestia(
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MASTER_ID", nullable = true, unique = true)
     private var master: Account? = null,
-
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "hp", column = Column(name = "ivHp")),
-        AttributeOverride(name = "mana", column = Column(name = "ivMana")),
-        AttributeOverride(name = "strength", column = Column(name = "ivAtk")),
-        AttributeOverride(name = "vitality", column = Column(name = "ivDef")),
-        AttributeOverride(name = "intelligence", column = Column(name = "ivSpAtk")),
-        AttributeOverride(name = "willpower", column = Column(name = "ivSpDef")),
-        AttributeOverride(name = "agility", column = Column(name = "ivSpd")),
-        AttributeOverride(name = "dexterity", column = Column(name = "ivDex"))
-    )
-    var individualValue: BaseValues = BaseValues.newIndividualValues,
 
     var exp: Int = 0
 ) : Serializable {
@@ -102,8 +88,22 @@ data class PlayerBestia(
   @JsonIgnore
   val effortValues: BaseValues = BaseValues.nullValues
 
+  @Embedded
+  @AttributeOverrides(
+      AttributeOverride(name = "hp", column = Column(name = "ivHp")),
+      AttributeOverride(name = "mana", column = Column(name = "ivMana")),
+      AttributeOverride(name = "strength", column = Column(name = "ivAtk")),
+      AttributeOverride(name = "vitality", column = Column(name = "ivDef")),
+      AttributeOverride(name = "intelligence", column = Column(name = "ivSpAtk")),
+      AttributeOverride(name = "willpower", column = Column(name = "ivSpDef")),
+      AttributeOverride(name = "agility", column = Column(name = "ivSpd")),
+      AttributeOverride(name = "dexterity", column = Column(name = "ivDex"))
+  )
+  var individualValue: BaseValues = BaseValues.newIndividualValues
+
   @get:JsonIgnore
-  val baseValues = origin.baseValues
+  @get:Transient
+  val baseValues get() = origin.baseValues
 
   override fun toString() = "PlayerBestia[id: $id, name: $name, lv: $level, pos: $currentPosition]"
 }

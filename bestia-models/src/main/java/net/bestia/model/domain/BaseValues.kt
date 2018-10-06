@@ -91,6 +91,6 @@ class BaseValues(
      *
      * @return A [BaseValues] instance with all values set to 0.
      */
-    val nullValues = BaseValues()
+    val nullValues get() = BaseValues()
   }
 }

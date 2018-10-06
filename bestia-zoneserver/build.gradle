@@ -29,7 +29,7 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
   compile group: 'com.netflix.servo', name: 'servo-core', version: '0.12.7'
   compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
-  // compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
+  compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
 
   compile project(':bestia-messages')
   compile group: 'de.tfelix.bestia', name: 'worldgen', version: '1.0.0-ALPHA'

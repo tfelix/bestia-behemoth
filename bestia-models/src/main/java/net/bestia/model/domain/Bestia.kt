@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @Entity
 @Table(name = "bestias")
-@PrimaryKeyJoinColumn(name = "bestia_id")
 class Bestia(
     @Id
     @JsonIgnore
@@ -91,48 +90,6 @@ class Bestia(
     @JsonIgnore
     val scriptExec: String? = null
 ) : Serializable {
-
-  /**
-   * Returns the NPC bestias effort values which will be granted if the bestia
-   * was killed by a player.
-   *
-   * @return The earned effort values if a bestia was killed by a player.
-   */
-  val effortValues get() = calculateEffortValues()
-
-  /**
-   * Calculates the effort values depending on its level and the base values.
-   */
-  private fun calculateEffortValues(): BaseValues {
-    val maxEffortVal: Int = when {
-      level <= 25 -> 1
-      level <= 50 -> 2
-      level <= 75 -> 3
-      else -> 4
-    }
-
-    // Calculate total amount of base values and distribute accordingly.
-    val baseMax = (baseValues.strength + baseValues.vitality + baseValues.hp + baseValues.mana
-        + baseValues.intelligence + baseValues.agility + baseValues.willpower).toFloat()
-
-    val evHp = Math.round(maxEffortVal * (baseValues.hp / baseMax))
-    val evMana = Math.round(maxEffortVal * (baseValues.mana / baseMax))
-    val evStr = Math.round(maxEffortVal * (baseValues.strength / baseMax))
-    val evVit = Math.round(maxEffortVal * (baseValues.vitality / baseMax))
-    val evInt = Math.round(maxEffortVal * (baseValues.intelligence / baseMax))
-    val evWillpower = Math.round(maxEffortVal * (baseValues.willpower / baseMax))
-    val evAgi = Math.round(maxEffortVal * (baseValues.agility / baseMax))
-
-    return BaseValues(
-        strength = evStr,
-        vitality = evVit,
-        hp = evHp,
-        mana = evMana,
-        intelligence = evInt,
-        willpower = evWillpower,
-        agility = evAgi
-    )
-  }
 
   override fun toString(): String {
     return String.format("Bestia[db: %s, id: %d, level: %d]", databaseName, id, level)

@@ -3,24 +3,23 @@ package net.bestia.model.domain
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.util.regex.Pattern
 import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
 data class Account(
-        @Column(length = 64, unique = true, nullable = false)
-        var email: String,
+    @Column(length = 64, unique = true, nullable = false)
+    var email: String,
 
-        @Embedded
-        var password: Password,
+    @Embedded
+    var password: Password,
 
-        val username: String,
+    val username: String,
 
-        var registerDate: Instant,
+    var registerDate: Instant,
 
-        @Enumerated(EnumType.STRING)
-        var gender: Gender
+    @Enumerated(EnumType.STRING)
+    var gender: Gender
 ) : Serializable {
 
   @Id
@@ -32,14 +31,9 @@ data class Account(
 
   var loginToken = ""
 
-  @Column(nullable = true)
-  var lastLogin: Instant? = null
-
   var isActivated = false
 
   var remarks = ""
-
-  var gold = 0
 
   var additionalBestiaSlots: Int = 0
 
@@ -54,12 +48,9 @@ data class Account(
 
   var hairstyle = Hairstyle.female_01
 
-  @ManyToOne(cascade = [(CascadeType.ALL)])
-  val party: Party? = null
-
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
-    return "Account[id: $id, email: $email, registerDate: $dateStr]"
+    return "Account[id: $id, registerDate: $dateStr]"
   }
 
   companion object {

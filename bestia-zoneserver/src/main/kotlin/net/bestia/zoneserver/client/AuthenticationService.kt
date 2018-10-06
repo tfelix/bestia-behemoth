@@ -41,7 +41,6 @@ class AuthenticationService(
       return null
     }
 
-    acc.lastLogin = Instant.now()
     acc.loginToken = UUID.randomUUID().toString()
     accountDao.save(acc)
     return acc
