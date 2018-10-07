@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.lang.IllegalArgumentException
-import java.nio.file.Path
 import javax.script.CompiledScript
 
 private val LOG = KotlinLogging.logger { }
@@ -24,20 +23,6 @@ class ScriptCache(
 ) {
 
   private val cache = mutableMapOf<String, CompiledScript>()
-
-  /**
-   * Adds a folder to the script cache. It will immediately start to compile
-   * all the scripts inside this folder.
-   *
-   * @param scriptBasePath The folder to add to the cache.
-   */
-  fun cacheFolder(scriptBasePath: Path) {
-
-    LOG.warn {
-      "Script folder caching is currently disabled until we figured out how to properly" +
-          " read folder from resource."
-    }
-  }
 
   /**
    * Returns the compiled script of the given type and name.

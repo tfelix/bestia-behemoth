@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.configuration
 
+import net.bestia.zoneserver.script.ClasspathScriptFileResolver
 import net.bestia.zoneserver.script.ScriptCache
 import net.bestia.zoneserver.script.ScriptCompiler
 import net.bestia.zoneserver.script.FilesystemScriptFileResolver
@@ -17,28 +18,21 @@ import java.nio.file.Paths
 @Configuration
 class ScriptConfiguration {
 
-  private val resolver = FilesystemScriptFileResolver("classpath:")
-
   @Bean
   @Throws(URISyntaxException::class)
   fun scriptCache(compiler: ScriptCompiler, config: ZoneserverConfig): ScriptCache {
-    val cache = ScriptCache(compiler, resolver)
+    val scriptBaseDir = config.scriptDir
+    val isClasspath = scriptBaseDir.startsWith(CLASSPATH_PREFIX)
 
-    val scriptBaseDir = if (config.scriptDir.startsWith(CLASSPATH_PREFIX)) {
-      val base = config.scriptDir.substring(CLASSPATH_PREFIX.length)
-      val res = javaClass.classLoader.getResource(base)
-      val classPath = File(res.toURI())
-      classPath.toPath()
-    } else {
-      Paths.get(config.scriptDir)
+    val resolver = when(isClasspath) {
+      true ->  ClasspathScriptFileResolver(scriptBaseDir)
+      false -> FilesystemScriptFileResolver(scriptBaseDir)
     }
 
-    cache.cacheFolder(scriptBaseDir)
-
-    return cache
+    return ScriptCache(compiler, resolver)
   }
 
   companion object {
-    private val CLASSPATH_PREFIX = "classpath:"
+    private const val CLASSPATH_PREFIX = "classpath:"
   }
 }
