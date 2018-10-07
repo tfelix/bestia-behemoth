@@ -1,8 +1,13 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.actor.AbstractActor
+import akka.japi.pf.ReceiveBuilder
+import net.bestia.zoneserver.entity.component.AiComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import java.time.Duration
+import java.util.*
+import net.bestia.model.geometry.Point
 
 /**
  * At the current implementation this actor will only periodically start a short
@@ -12,11 +17,53 @@ import org.springframework.stereotype.Component
  */
 @Component
 @Scope("prototype")
-class AiComponentActor : AbstractActor() {
+@HandlesComponent(AiComponent::class)
+class AiComponentActor(
+    aiComponent: AiComponent
+) : ComponentActor<AiComponent>(aiComponent) {
 
-  override fun createReceive(): AbstractActor.Receive? {
-    // TODO Auto-generated method stub
-    return null
+  private val rand = Random()
+
+  private val tick = context.system().scheduler().schedule(
+      Duration.ofSeconds(5),
+      Duration.ofSeconds(5),
+      self,
+      AI_TICK_MSG,
+      context.dispatcher(),
+      null
+  )
+
+  override fun createReceive(builder: ReceiveBuilder) {
+    builder.matchEquals(AI_TICK_MSG) { handleAiTick() }
   }
 
+  override fun postStop() {
+    tick.cancel()
+  }
+
+  private fun handleAiTick() {
+    awaitEntity {
+      val positionComponent = it.getComponent(PositionComponent::class.java)
+
+      val moveDelta = when (rand.nextInt(10)) {
+        0 -> Point(0, -1)
+        1 -> Point(0, 1)
+        2 -> Point(1, 0)
+        3 -> Point(-1, 0)
+        4 -> Point(1, 1)
+        5 -> Point(1, -1)
+        6 -> Point(-1, 1)
+        7 -> Point(-1, -1)
+        else -> Point(0, 0)
+      }
+
+      // We should probably use a walk service here to get a proper path
+      positionComponent.position = positionComponent.position.minus(moveDelta)
+      context.parent.tell(positionComponent, self)
+    }
+  }
+
+  companion object {
+    private const val AI_TICK_MSG = "aitick"
+  }
 }

@@ -3,7 +3,7 @@
  * cluster.
  */
 function main() {
-	Bestia.info("Bestia Behemoth startup script.");
+	Bestia.info("Bestia Behemoth startup script");
 	
 	Bestia.entity("blob")
 	  .position(12, 15);

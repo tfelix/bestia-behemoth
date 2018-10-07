@@ -1,7 +1,6 @@
 package net.bestia.model.geometry
 
 import java.io.Serializable
-import java.util.Objects
 
 import javax.persistence.Embeddable
 
@@ -74,5 +73,12 @@ data class Point(
     val dy = y - p.y
 
     return Math.sqrt((dx * dx + dy * dy).toDouble())
+  }
+
+  fun minus(rhs: Point): Point {
+    return Point(
+        x - rhs.x,
+        y - rhs.y
+    )
   }
 }

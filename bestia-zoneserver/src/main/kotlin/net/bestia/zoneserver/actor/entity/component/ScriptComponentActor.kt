@@ -20,6 +20,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 @Scope("prototype")
+@HandlesComponent(ScriptComponent::class)
 class ScriptComponentActor(
     scriptComponent: ScriptComponent
 ) : ComponentActor<ScriptComponent>(scriptComponent) {

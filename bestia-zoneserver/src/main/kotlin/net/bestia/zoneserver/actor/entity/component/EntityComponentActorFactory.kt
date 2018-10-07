@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component as SpringComponent
 private val LOG = KotlinLogging.logger { }
 
 /**
- * Depending on the given component ID this factory will create an actor
+ * Depending on the given component class this factory will create an actor
  * suitable for the component. This is done by checking the annotation
  * of the component.
  *

@@ -45,7 +45,7 @@ class BattleComponentTest {
   fun clearDamageEntries_clearsTheEntries() {
     val bc = BattleComponent(1)
     bc.addDamageReceived(1, 10)
-    bc.clearDamageEntries()
+    bc.damageDealers.clear()
     Assert.assertEquals(0, bc.damageDealers.size.toLong())
   }
 

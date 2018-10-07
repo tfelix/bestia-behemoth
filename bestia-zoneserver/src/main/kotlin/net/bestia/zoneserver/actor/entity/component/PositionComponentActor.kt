@@ -12,7 +12,7 @@ internal data class SetPositionMessage(
 
 @Component
 @Scope("prototype")
-@HandlesComponent(component = PositionComponent::class)
+@HandlesComponent(PositionComponent::class)
 class PositionComponentActor(
     positionComponent: PositionComponent
 ) : ComponentActor<PositionComponent>(positionComponent) {

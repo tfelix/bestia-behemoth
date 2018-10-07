@@ -58,6 +58,7 @@ internal class MobFactory(
 
     entity.addComponent(EquipComponent(entityId = entity.id))
     entity.addComponent(InventoryComponent(entityId = entity.id))
+    entity.addComponent(AiComponent(entityId = entity.id))
     entity.addComponent(
         StatusComponent(
             entityId = entity.id,

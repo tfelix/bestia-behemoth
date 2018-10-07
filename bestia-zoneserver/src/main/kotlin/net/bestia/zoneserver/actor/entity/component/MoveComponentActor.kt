@@ -22,6 +22,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 @Scope("prototype")
+@HandlesComponent(MoveComponent::class)
 class MoveComponentActor(
     moveComponent: MoveComponent,
     private val movingService: MovingService

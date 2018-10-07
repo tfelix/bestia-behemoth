@@ -11,10 +11,10 @@ import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
 
-private val LOG = KotlinLogging.logger{ }
+private val LOG = KotlinLogging.logger { }
 
 abstract class ComponentActor<T : Component>(
-        component: T
+    component: T
 ) : AbstractActor() {
 
   protected fun awaitEntity(
@@ -52,7 +52,7 @@ abstract class ComponentActor<T : Component>(
   }
 
   private fun handleComponentSet(newComponent: T) {
-    if(component == newComponent) {
+    if (component == newComponent) {
       return
     }
 
@@ -66,13 +66,13 @@ abstract class ComponentActor<T : Component>(
     msg.requester.tell(component, self)
   }
 
-  protected open fun onComponentChanged(oldComponent: T, newComponent: T) { }
+  protected open fun onComponentChanged(oldComponent: T, newComponent: T) {}
 
   /**
    * Actor should save the component to a persistent storage because the actor is getting killed
    * most likely soon.
    */
-  protected open fun onSave() { }
+  protected open fun onSave() {}
 
   protected abstract fun createReceive(builder: ReceiveBuilder)
 
@@ -80,5 +80,5 @@ abstract class ComponentActor<T : Component>(
    * Depending of the component it will check which entities of connected clients need to
    * be notified about the change.
    */
-  protected fun updateEntitiesAboutComponentChanged() { }
+  protected fun updateEntitiesAboutComponentChanged() {}
 }

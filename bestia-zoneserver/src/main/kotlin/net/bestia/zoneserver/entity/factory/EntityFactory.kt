@@ -22,7 +22,9 @@ class EntityFactory(
     factories: List<AbstractFactory<*>>
 ) {
 
-  private val blueprintEntityFactories = factories.map { it.supportsType to it }.toMap()
+  private val blueprintEntityFactories = factories
+      .map { it.supportsType to it }
+      .toMap()
 
   fun <T : Blueprint> build(blueprint: T): Entity {
     LOG.trace { "Creating entity with: $blueprint" }

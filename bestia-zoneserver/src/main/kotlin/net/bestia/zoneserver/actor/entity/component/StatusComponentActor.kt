@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit
  */
 @Component
 @Scope("prototype")
+@HandlesComponent(StatusComponent::class)
 class StatusComponentActor(
     private val statusService: StatusService,
     component: StatusComponent
