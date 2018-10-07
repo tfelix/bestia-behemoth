@@ -27,7 +27,7 @@ class ScriptService(
     private val cache: ScriptCache
 ) {
 
-  fun execute(fnName: String, script: CompiledScript, env: ScriptEnv) {
+  private fun execute(fnName: String, script: CompiledScript, env: ScriptEnv) {
     val engine = script.engine
     val bindings = engine.createBindings()
     env.setupEnvironment(bindings)
@@ -51,7 +51,7 @@ class ScriptService(
    * @param name The name of the script to be called.
    */
   fun callScriptMainFunction(name: String) {
-    LOG.debug { "Calling script main() in: $name" }
+    LOG.trace { "Calling script main() in: $name" }
 
     val ident = ScriptAnchor.fromString(name)
     val script = cache.getScript(ident.name)
@@ -69,7 +69,6 @@ class ScriptService(
    * callback script attached).
    */
   fun callScriptIntervalCallback(entity: Entity, scriptUuid: String) {
-
     LOG.trace { "Script $entity interval called." }
 
     val scriptComp = entity.getComponent(ScriptComponent::class.java)

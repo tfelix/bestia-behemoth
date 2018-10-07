@@ -1,19 +1,19 @@
 package net.bestia.zoneserver.script
 
-import org.junit.Test
 import java.io.InputStreamReader
 import javax.script.Compilable
 import javax.script.Invocable
 import javax.script.ScriptEngineManager
 
+/**
+ * playground for scripts. when scripting properly works it can be removed.
+ */
 class ScriptTest {
 
-  // TODO Can be removed when scripts finalized.
-  @Test
   @Throws(Exception::class)
   fun test() {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
-    val scriptInput = this.javaClass.classLoader.getResourceAsStream("script/test.js")
+    val scriptInput = this.javaClass.classLoader.getResourceAsStream("/script/test.js")
 
     val scriptReader = InputStreamReader(scriptInput)
 

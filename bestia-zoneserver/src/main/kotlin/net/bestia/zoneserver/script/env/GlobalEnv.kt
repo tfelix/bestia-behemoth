@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class GlobalEnv(
-        private val api: ScriptRootApi,
-        private val config: ZoneserverConfig
+    private val api: ScriptRootApi,
+    private val config: ZoneserverConfig
 ) : ScriptEnv {
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
     bindings["Bestia"] = api

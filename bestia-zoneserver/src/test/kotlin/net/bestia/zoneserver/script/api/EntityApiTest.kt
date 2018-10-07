@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.script.api
 
+import net.bestia.model.domain.Direction
+import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.factory.EntityFactory
-import net.bestia.zoneserver.entity.factory.MobFactory
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -27,8 +27,12 @@ class EntityApiTest {
   @Mock
   private lateinit var entityService: EntityService
 
-  @Mock
-  private lateinit var positionComponent: PositionComponent
+  private var positionComponent = PositionComponent(
+      entityId = 1,
+      shape = Point(10, 10),
+      facing = Direction.EAST,
+      isSightBlocking = false
+  )
 
   @Mock
   private lateinit var entityFactory: EntityFactory
@@ -37,12 +41,15 @@ class EntityApiTest {
 
   @Test
   fun benchmark() {
-    testCompile()
-    testEval()
+    val durationCompile = testCompile()
+    val durationEval = testEval()
+
+    println()
+    println("Duration (compile): $durationCompile ms")
+    println("Duration (eval): $durationEval ms")
   }
 
-
-  fun testCompile() {
+  private fun testCompile(): Long {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
     bindings["Bestia"] = ScriptRootApi(entityService, entityFactory)
@@ -53,21 +60,20 @@ class EntityApiTest {
     val compiledScript = (engine as Compilable).compile(scriptReader)
     compiledScript.eval()
 
-    var i = 0
     val start = System.currentTimeMillis()
-    while (i < 500000) {
+    for(i in 0..BENCHMARK_RUNS) {
       engine.getBindings(ScriptContext.ENGINE_SCOPE)["bla"] = Math.random()
       val invocable = compiledScript.engine as Invocable
       invocable.invokeFunction("main")
-      i++
     }
     val end = System.currentTimeMillis()
     val duration = end - start
     println("Compiled script took: $duration ms")
+
+    return duration
   }
 
-  fun testEval() {
-
+  private fun testEval(): Long {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
     bindings["Bestia"] = ScriptRootApi(entityService, entityFactory)
@@ -77,16 +83,19 @@ class EntityApiTest {
     val scriptReader = InputStreamReader(scriptFile)
     val compiledScript = (engine as Compilable).compile(scriptReader)
 
-
-    var i = 0
     val start = System.currentTimeMillis()
-    while (i < 500000) {
+    for (i in 0..BENCHMARK_RUNS) {
       engine.getBindings(ScriptContext.ENGINE_SCOPE)["bla"] = Math.random()
       compiledScript.eval()
-      i++
     }
     val end = System.currentTimeMillis()
     val duration = end - start
     println("Evaled script took: $duration ms")
+
+    return duration
+  }
+
+  companion object {
+    private const val BENCHMARK_RUNS = 5000
   }
 }

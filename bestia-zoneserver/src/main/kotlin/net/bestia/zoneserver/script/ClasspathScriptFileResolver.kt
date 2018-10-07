@@ -1,21 +1,36 @@
 package net.bestia.zoneserver.script
 
 import java.io.InputStream
-import java.net.URISyntaxException
-import java.nio.file.Paths
+import java.lang.Exception
 
 class ClasspathScriptFileResolver(
-    private val basePath: String
+     _basePath: String
 ) : ScriptFileResolver {
 
+  private val basePath = _basePath.let {
+    if(!it.startsWith("classpath:")) {
+      throw IllegalArgumentException("Basepath must start with classpath:")
+    }
+
+    var stripedPath = it.removePrefix("classpath:")
+
+    if(!stripedPath.startsWith("/")) {
+      stripedPath = "/$stripedPath"
+    }
+
+    if(stripedPath.endsWith("/")) {
+      stripedPath = stripedPath.removeSuffix("/")
+    }
+
+    stripedPath
+  }
+
   override fun getScriptInputStream(script: String): InputStream {
-    val p = Paths.get(basePath, cleanScriptName(script))
+    val path = "$basePath${cleanScriptName(script)}"
     try {
-      return this.javaClass.getResourceAsStream(p.toString())
-    } catch (e: NullPointerException) {
-      throw IllegalArgumentException("File does not exist: " + p.toString(), e)
-    } catch (e: URISyntaxException) {
-      throw IllegalArgumentException("File does not exist: " + p.toString(), e)
+      return this.javaClass.getResourceAsStream(path)
+    } catch (e: Exception) {
+      throw IllegalArgumentException("File does not exist: $path", e)
     }
   }
 }

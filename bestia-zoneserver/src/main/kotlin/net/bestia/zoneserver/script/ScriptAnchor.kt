@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.script
 
 data class ScriptAnchor(
-        val name: String,
-        val functionName: String
+    val name: String,
+    val functionName: String
 ) {
 
   /**
@@ -40,7 +40,7 @@ data class ScriptAnchor(
         MAIN_FUNC
       }
 
-      var scriptName = if(token[0].endsWith(".js")) {
+      var scriptName = if (token[0].endsWith(".js")) {
         token[0]
       } else {
         token[0] + ".js"

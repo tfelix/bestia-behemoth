@@ -3,9 +3,8 @@ package net.bestia.zoneserver.script
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.io.IOException
-import java.nio.file.Files
+import java.lang.IllegalArgumentException
 import java.nio.file.Path
-import java.util.*
 import javax.script.CompiledScript
 
 private val LOG = KotlinLogging.logger { }
@@ -46,7 +45,7 @@ class ScriptCache(
    * @param name The name of the script file (without extention).
    * @return The compiled script or null of no script was found.
    */
-  @Throws(IOException::class)
+  @Throws(IOException::class, IllegalArgumentException::class)
   fun getScript(name: String): CompiledScript {
     LOG.trace("Requesting script file from cache: {}.", name)
 
@@ -56,7 +55,8 @@ class ScriptCache(
       null -> {
         LOG.trace("Script was not found in cache. Try compiling it first.")
         val scriptFile = resolver.getScriptInputStream(name)
-        val compiledScript = compiler.compileScript(scriptFile) ?: throw IOException()
+        val compiledScript = compiler.compileScript(scriptFile)
+            ?: throw IOException("Script '$name' could not be compiled")
         cache[name] = compiledScript
         compiledScript
       }

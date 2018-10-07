@@ -25,6 +25,14 @@ class ScriptCompiler(globalEnv: GlobalEnv) {
     val bindings = engine.createBindings()
     globalEnv.setupEnvironment(bindings)
     engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+    setupGlobalHelpers()
+  }
+
+  private fun setupGlobalHelpers() {
+    val inputScriptStream = this::class.java.getResourceAsStream(globalHelperScript)
+    InputStreamReader(inputScriptStream).use { scriptReader ->
+      engine.eval(scriptReader)
+    }
   }
 
   /**
@@ -36,7 +44,6 @@ class ScriptCompiler(globalEnv: GlobalEnv) {
   fun compileScript(inputScriptStream: InputStream): CompiledScript? {
     try {
       InputStreamReader(inputScriptStream).use { scriptReader ->
-
         val script = (engine as Compilable).compile(scriptReader)
         script.eval()
 
@@ -49,5 +56,9 @@ class ScriptCompiler(globalEnv: GlobalEnv) {
       LOG.error("Could not compile script.", e)
       return null
     }
+  }
+
+  companion object {
+    private const val globalHelperScript = "/script/helper.js"
   }
 }

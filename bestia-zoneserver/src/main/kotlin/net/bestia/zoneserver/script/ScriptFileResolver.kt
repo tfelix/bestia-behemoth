@@ -14,7 +14,7 @@ fun cleanScriptName(name: String): String {
   }
 
   if (!cleanedName.startsWith("/")) {
-    cleanedName = "/$name"
+    cleanedName = "/$cleanedName"
   }
 
   if (cleanedName.contains("..")) {
