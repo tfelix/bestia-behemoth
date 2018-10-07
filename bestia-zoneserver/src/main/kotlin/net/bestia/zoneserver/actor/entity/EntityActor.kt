@@ -7,25 +7,16 @@ import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.messages.entity.*
+import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.AwaitResponseActor
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.entity.Entity
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import net.bestia.zoneserver.entity.component.Component as BestiaComponent
 
 private val LOG = KotlinLogging.logger { }
-
-internal data class RequestEntity(
-    val requester: ActorRef,
-    val context: Any? = null
-)
-
-internal data class ResponseEntity(
-    val entity: Entity,
-    val content: Any? = null
-)
-
-internal object SaveAndKill
 
 /**
  * The [EntityActor] is a persistent actor managing all aspects of a
@@ -46,14 +37,15 @@ internal object SaveAndKill
 @Component
 @Scope("prototype")
 class EntityActor(
-    private val factory: EntityComponentActorFactory
+    private val factory: EntityComponentActorFactory,
+    private val messageApi: MessageApi
 ) : AbstractActor() {
 
   private class ComponentActorCache {
 
     private val classToActor = HashBiMap.create<Class<*>, ActorRef>()
 
-    val size: Int get() = classToActor.size
+    val activeComponentActorCount: Int get() = classToActor.size
 
     fun <T : net.bestia.zoneserver.entity.component.Component> add(component: T, compActor: ActorRef) {
       classToActor[component.javaClass] = compActor
@@ -86,7 +78,7 @@ class EntityActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-        .match(AddComponentMessage::class.java, this::handleComponentInstall)
+        .match(BestiaComponent::class.java, this::handleComponentInstall)
         .match(ComponentClassEnvelope::class.java, this::handleComponentClassEnvelope)
         .match(ComponentBroadcastEnvelope::class.java, this::handleAllComponentBroadcast)
         .match(ComponentRequestMessage::class.java, this::handleComponentRequest)
@@ -94,7 +86,7 @@ class EntityActor(
 
         .match(Terminated::class.java, this::handleTerminated)
 
-        .match(SaveAndKill::class.java, this::handleSaveAndKill)
+        .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
         .match(RequestEntity::class.java, this::handleEntityRequest)
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
@@ -102,9 +94,11 @@ class EntityActor(
 
   private fun handleEntityRequest(msg: RequestEntity) {
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
+
     val hasAllResponses = { receivedResponses: List<Any> ->
       awaitedComponentClasses.containsAll(receivedResponses)
     }
+
     val waitResponseProps = AwaitResponseActor.props(hasAllResponses) {
       val entity = Entity.withComponents(
           entityId,
@@ -126,21 +120,27 @@ class EntityActor(
 
   private fun terminateIfNoSuitableMessage(msg: Any) {
     if (entityId == 0L && msg !is AddComponentMessage<*>) {
-      LOG.info { "EntityActor $entityId received message: $msg. Awaited AddComponentMessage. Terminate." }
+      LOG.info { "Uninitialized EntityActor received message: $msg but awaited Component. Terminate." }
       context.stop(self)
     }
+
+    unhandled(msg)
   }
 
-  private fun handleComponentInstall(msg: AddComponentMessage<*>) {
-    LOG.debug { "Installing component: ${msg.component} on entity: $entityId." }
+  private fun handleComponentInstall(msg: BestiaComponent) {
+    if(entityId == 0L) {
+      entityId = msg.entityId
+    }
 
-    val compActor = factory.startActor(context, msg.component) ?: run {
-      LOG.warn { "Component actor for comp id ${msg.component} was not created." }
+    LOG.debug { "Installing component: $msg on entity: $entityId." }
+
+    val compActor = factory.startActor(context, msg) ?: run {
+      LOG.warn { "Component actor for comp id $msg was not created." }
       return
     }
 
     context().watch(compActor)
-    componentActorCache.add(msg.component, compActor)
+    componentActorCache.add(msg, compActor)
   }
 
   private fun handleAllComponentBroadcast(msg: ComponentBroadcastEnvelope) {
@@ -181,12 +181,17 @@ class EntityActor(
    */
   private fun handleTerminated(term: Terminated) {
     componentActorCache.remove(term.actor)
-    if (componentActorCache.size == 0) {
+    if (componentActorCache.activeComponentActorCount == 0) {
       context.stop(self)
     }
   }
 
-  private fun handleSaveAndKill(msg: SaveAndKill) {
+  private fun handleSaveAndKill(msg: SaveAndKillEntity) {
+    awaitEntityResponse(messageApi, context, entityId) {
+      // TODO Persist the given entity.
+      LOG.error { "Persisting entities/components is not yet implemented." }
+    }
+
     componentActorCache.allActors().forEach {
       it.tell(msg, sender)
       it.tell(PoisonPill.getInstance(), self)

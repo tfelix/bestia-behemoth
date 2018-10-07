@@ -4,13 +4,13 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.messages.entity.SaveAndKillEntity
 import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LoginResponse
 import net.bestia.model.dao.AccountDAO
 import net.bestia.model.dao.findOne
 import net.bestia.model.domain.Account
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.entity.SaveAndKill
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
@@ -49,7 +49,7 @@ class LogoutService(
 
     val playerEntities = playerEntityService.getPlayerEntities(accId)
     playerEntities.forEach { entityId ->
-      messageApi.send(EntityEnvelope(entityId, SaveAndKill))
+      messageApi.send(EntityEnvelope(entityId, SaveAndKillEntity))
     }
 
     playerEntityService.removeEntityIdsFromAccount(accId)

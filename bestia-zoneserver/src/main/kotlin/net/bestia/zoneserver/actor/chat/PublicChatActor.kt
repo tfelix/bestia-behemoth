@@ -3,12 +3,12 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.messages.entity.RequestEntity
+import net.bestia.messages.entity.ResponseEntity
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.client.SendInRange
-import net.bestia.zoneserver.actor.entity.RequestEntity
-import net.bestia.zoneserver.actor.entity.ResponseEntity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

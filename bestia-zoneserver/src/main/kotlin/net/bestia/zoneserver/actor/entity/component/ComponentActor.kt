@@ -4,10 +4,10 @@ import akka.actor.AbstractActor
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.messages.entity.RequestComponentMessage
+import net.bestia.messages.entity.RequestEntity
+import net.bestia.messages.entity.SaveAndKillEntity
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
-import net.bestia.zoneserver.actor.entity.RequestEntity
-import net.bestia.zoneserver.actor.entity.SaveAndKill
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
 
@@ -45,7 +45,7 @@ abstract class ComponentActor<T : Component>(
 
     builder
         .match(RequestComponentMessage::class.java, this::sendComponent)
-        .match(SaveAndKill::class.java) { _ -> onSave() }
+        .match(SaveAndKillEntity::class.java) { _ -> onSave() }
         .match(component.javaClass, this::handleComponentSet)
 
     return builder.build()

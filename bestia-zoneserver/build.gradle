@@ -40,7 +40,7 @@ dependencies {
 
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
     testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.5.0'
