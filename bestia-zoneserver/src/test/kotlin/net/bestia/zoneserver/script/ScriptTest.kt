@@ -1,4 +1,4 @@
-package net.bestia.entity
+package net.bestia.zoneserver.script
 
 import org.junit.Test
 import java.io.InputStreamReader

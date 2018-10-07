@@ -20,6 +20,10 @@ internal class SpringActorProducer(
     private val args: Array<*>
 ) : IndirectActorProducer {
 
+  /**
+   * It is used by Spring.
+   */
+  @Suppress("unused")
   constructor(
       applicationContext: ApplicationContext,
       actorBeanClass: Class<out Actor>
@@ -111,7 +115,7 @@ internal class SpringActorProducer(
     }
 
   override fun produce(): Actor {
-    return if (args.size == 0) {
+    return if (args.isEmpty()) {
       applicationContext.getBean(actorBeanClass)
     } else {
       try {

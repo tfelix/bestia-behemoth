@@ -6,7 +6,6 @@ import net.bestia.zoneserver.entity.component.ScriptComponent
 import net.bestia.zoneserver.script.env.ScriptEnv
 import net.bestia.zoneserver.script.env.SimpleScriptEnv
 import org.springframework.stereotype.Service
-import java.util.*
 import javax.script.CompiledScript
 import javax.script.Invocable
 import javax.script.ScriptException
@@ -43,10 +42,6 @@ class ScriptService(
     }
   }
 
-  private fun resolveScript(scriptAnchor: ScriptAnchor): CompiledScript {
-    return cache.getScript(scriptAnchor.name)
-  }
-
   /**
    * Central entry point for calling a script execution from the Bestia
    * system. This will fetch the script from cache, if cache does not hold the
@@ -56,11 +51,10 @@ class ScriptService(
    * @param name The name of the script to be called.
    */
   fun callScriptMainFunction(name: String) {
-    Objects.requireNonNull(name)
-    LOG.debug("Calling script: {}.", name)
+    LOG.debug { "Calling script main() in: $name" }
 
     val ident = ScriptAnchor.fromString(name)
-    val script = resolveScript(ident)
+    val script = cache.getScript(ident.name)
 
     val scriptEnv = SimpleScriptEnv()
 
@@ -81,7 +75,7 @@ class ScriptService(
     val scriptComp = entity.getComponent(ScriptComponent::class.java)
     val scriptAnchorString = scriptComp.scripts[scriptUuid]?.script ?: return
     val anchor = ScriptAnchor.fromString(scriptAnchorString)
-    val script = resolveScript(anchor)
+    val script = cache.getScript(anchor.name)
     val simpleScriptEnv = SimpleScriptEnv()
 
     execute(anchor.functionName, script, simpleScriptEnv)

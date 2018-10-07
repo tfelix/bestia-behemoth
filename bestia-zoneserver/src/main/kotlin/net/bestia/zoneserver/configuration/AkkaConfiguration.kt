@@ -93,9 +93,9 @@ class AkkaConfiguration {
   }
 
   @Bean
-  fun rootActor(msgApi: MessageApi, system: ActorSystem): ActorRef {
+  fun rootActor(system: ActorSystem): ActorRef {
     LOG.info("Starting bestia root actor")
-    return SpringExtension.actorOf(system, BestiaRootActor::class.java, msgApi)
+    return SpringExtension.actorOf(system, BestiaRootActor::class.java)
   }
 
   companion object {

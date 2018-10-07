@@ -38,25 +38,6 @@ class ScriptCache(
       "Script folder caching is currently disabled until we figured out how to properly" +
           " read folder from resource."
     }
-
-    /*
-    try {
-      Files.newDirectoryStream(scriptBasePath).use { directoryStream ->
-        for (scriptPath in directoryStream) {
-          LOG.debug("Compiling script: {}", scriptPath)
-
-          val scriptFile = resolver.getScriptFile(scriptPath.toString())
-          val scriptKey = getRelativePath(scriptBasePath, scriptPath)
-
-          compiler.compileScript(scriptFile)?.also {
-            cache[scriptKey] = it
-          }
-        }
-      }
-    } catch (e: IOException) {
-      LOG.error("Could not compile script.", e)
-    }
-    */
   }
 
   /**
@@ -67,7 +48,6 @@ class ScriptCache(
    */
   @Throws(IOException::class)
   fun getScript(name: String): CompiledScript {
-    Objects.requireNonNull(name)
     LOG.trace("Requesting script file from cache: {}.", name)
 
     val script = cache[name]

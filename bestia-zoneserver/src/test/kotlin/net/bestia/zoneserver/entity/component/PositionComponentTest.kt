@@ -1,4 +1,4 @@
-package net.bestia.entity.component
+package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.domain.Direction
 import net.bestia.model.geometry.Point
