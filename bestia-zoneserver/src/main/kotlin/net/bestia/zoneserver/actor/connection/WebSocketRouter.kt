@@ -14,31 +14,31 @@ import akka.stream.javadsl.Source
 import net.bestia.zoneserver.actor.SpringExtension
 
 class WebSocketRouter(
-        private val system: ActorSystem
+    private val system: ActorSystem
 ) : AllDirectives() {
 
   private fun socketFlow(): Flow<Message, Message, NotUsed> {
     val connectionActor = SpringExtension.actorOf(system, WebsocketActor::class.java)
 
     val incomingMessages = Sink.actorRefWithAck<Message>(connectionActor,
-            WebsocketActor.INIT,
-            WebsocketActor.ACK,
-            WebsocketActor.COMPLETE
+        WebsocketActor.INIT,
+        WebsocketActor.ACK,
+        WebsocketActor.COMPLETE
     ) { _ -> "Failure" }
 
     val outgoingMessages: Source<Message, *> = Source.actorRef<String>(100, OverflowStrategy.fail())
-            .mapMaterializedValue { outActor ->
-              connectionActor.tell(outActor, ActorRef.noSender())
-            }.map { outMsg -> TextMessage.create(outMsg) }
+        .mapMaterializedValue { outActor ->
+          connectionActor.tell(outActor, ActorRef.noSender())
+        }.map { outMsg -> TextMessage.create(outMsg) }
 
     return Flow.fromSinkAndSource(incomingMessages, outgoingMessages)
   }
 
   fun createRoute(): Route {
     return route(
-            path("socket", {
-              handleWebSocketMessages(socketFlow())
-            })
+        path("socket") {
+          handleWebSocketMessages(socketFlow())
+        }
     )
   }
 }

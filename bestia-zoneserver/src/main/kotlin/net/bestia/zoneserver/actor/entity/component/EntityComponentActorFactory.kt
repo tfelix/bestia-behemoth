@@ -7,6 +7,8 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.actor.SpringExtension
 import org.reflections.Reflections
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -28,7 +30,7 @@ class EntityComponentActorFactory {
     val reflections = Reflections("net.bestia.zoneserver.actor")
     val annotated = reflections.getTypesAnnotatedWith(HandlesComponent::class.java)
     componentToActorClass = annotated.asSequence()
-        .filter { it is AbstractActor }
+        .filter { AbstractActor::class.java.isAssignableFrom(it) }
         .map {
           @Suppress("UNCHECKED_CAST")
           it as Class<out AbstractActor>
@@ -47,26 +49,20 @@ class EntityComponentActorFactory {
   private fun startActorByAnnotation(
       ctx: ActorContext,
       component: Component
-  ): ActorRef? {
+  ): ActorRef {
+    LOG.debug { "Starting actor for component $component" }
 
-    try {
-      val actorClass = componentToActorClass[component::class]!!
-      val takesComponentAsArg = actorClass.declaredConstructors.any {
-        it.parameterCount == 1 && Component::class.java.isAssignableFrom(it.parameterTypes[0])
-      }
+    val actorClass = componentToActorClass[component::class]
+        ?: throw IllegalArgumentException("Could not find actor for component class: ${component.javaClass}")
 
-      val actorRef = if (takesComponentAsArg) {
-        SpringExtension.actorOf(ctx, actorClass, component)
-      } else {
-        null
-      }
+    val takesComponentAsArg = actorClass.declaredConstructors.any {
+      it.parameterCount == 1 && Component::class.java.isAssignableFrom(it.parameterTypes[0])
+    }
 
-      LOG.debug { "Starting ComponentActor: ${actorClass.simpleName} for entity: ${component.entityId}." }
-
-      return actorRef
-    } catch (e: ClassNotFoundException) {
-      LOG.warn { "Could not start ComponentActor. Class not found: ${component.javaClass}." }
-      return null
+    return if (takesComponentAsArg) {
+      SpringExtension.actorOf(ctx, actorClass, component)
+    } else {
+      throw IllegalStateException("Actor $actorClass does not use component ${component.javaClass} as ctor argument.")
     }
   }
 }

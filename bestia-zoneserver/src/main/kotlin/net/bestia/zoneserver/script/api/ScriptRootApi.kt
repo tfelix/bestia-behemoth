@@ -6,6 +6,7 @@ import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.factory.EntityFactory
 import net.bestia.zoneserver.entity.factory.MobBlueprint
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -29,6 +30,9 @@ class ScriptRootApi(
   }
 
   fun entity(entityId: Long): EntityApi {
+    if (entityId == 0L) {
+      throw IllegalArgumentException("Entity ID can not be null. This is probably a wrong call.")
+    }
     LOG.debug { "Looking up entity: $entityId" }
     return EntityApi(
         entityId = entityId,

@@ -19,6 +19,6 @@ class WebsocketStartupRunner(
     val http = Http.get(system)
     val router = WebSocketRouter(system)
     val routeFlow = router.createRoute().flow(system, materializer)
-    http.bindAndHandle(routeFlow, ConnectHttp.toHost("localhost", 8090), materializer)
+    http.bindAndHandle(routeFlow, ConnectHttp.toHost("localhost", 8990), materializer)
   }
 }

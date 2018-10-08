@@ -5,9 +5,8 @@
 function main() {
 	Bestia.info("Bestia Behemoth startup script");
 	
-	Bestia.entity("blob")
-	  .position(12, 15);
-	
+	Bestia.entity("blob", 12 ,15)
+
 	Bestia.entity()
 	  .script()
 	  .setInterval('startup:checkEntities', 5000)
