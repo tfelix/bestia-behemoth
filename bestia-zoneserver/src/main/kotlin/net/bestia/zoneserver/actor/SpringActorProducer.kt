@@ -77,7 +77,7 @@ internal class SpringActorProducer(
       val params = autoCtor.parameterTypes
       val neededArgs = params
           .map { boxPrimitiveClass(it) }
-          .filter { availableArgsClasses.any { availClass -> it.isAssignableFrom(availClass) } }
+          .filter { !availableArgsClasses.any { availClass -> it.isAssignableFrom(availClass) } }
           .toSet()
 
       val instancedArgs = neededArgs.asSequence()
