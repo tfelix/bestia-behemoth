@@ -39,6 +39,9 @@ data class ZoneserverConfig(
      * @return The server version.
      */
     @Value("\${server.version}")
-    val serverVersion: String
+    val serverVersion: String,
+
+    @Value("\${server.websocketPort}")
+    val websocketPort: Int
 )
 

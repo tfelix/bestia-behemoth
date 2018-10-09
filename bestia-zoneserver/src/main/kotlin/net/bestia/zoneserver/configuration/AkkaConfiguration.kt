@@ -42,8 +42,10 @@ class AkkaConfiguration {
 
   @Bean
   @Throws(UnknownHostException::class)
-  fun actorSystem(appContext: ApplicationContext): ActorSystem {
-
+  fun actorSystem(
+      appContext: ApplicationContext,
+      zoneConfig: ZoneserverConfig
+  ): ActorSystem {
     val akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME)
     LOG.debug { "Loaded akka config: $AKKA_CONFIG_NAME" }
 
@@ -73,7 +75,9 @@ class AkkaConfiguration {
     val http = Http.get(system)
     val router = WebSocketRouter(system)
     val routeFlow = router.createRoute().flow(system, materializer)
-    http.bindAndHandle(routeFlow, ConnectHttp.toHost("localhost", 8090), materializer)
+    val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
+    LOG.info { "Starting websocket ingress on $websocketConnect..." }
+    http.bindAndHandle(routeFlow, websocketConnect, materializer)
     LOG.info { "Started websocket ingress" }
 
     return system

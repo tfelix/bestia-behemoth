@@ -5,98 +5,29 @@ import java.io.Serializable
 import javax.persistence.Embeddable
 
 /**
- * Status values for bestia entities.
+ * Status values for Bestia entities.
  *
  * @author Thomas Felix
  */
 @Embeddable
-class StatusPointsImpl : Serializable, StatusPoints {
-
-  override var strength: Int = 1
+data class StatusPointsImpl(
+    override var strength: Int = 1,
+    override var vitality: Int = 1,
+    override var intelligence: Int = 1,
+    override var willpower: Int = 1,
+    override var agility: Int = 1,
+    override var dexterity: Int = 1,
     /**
-     * Sets the strength. Can not be lower then 1.
+     * Sets the defense. Must be between 0 and 1000 (which increments in
+     * 1/10) percents.
      */
-    set(value) {
-      field = if (value < 1) {
-        value
-      } else {
-        value
-      }
-    }
-
-  override var vitality = 1
+    override var defense: Int = 0,
     /**
-     * Sets the vitality. Can not be lower then 1.
+     * Sets the magic defense. Must be between 0 and 1000 (which increments in
+     * 1/10) percents.
      */
-    set(value) {
-      field = when {
-        value < 0 -> 0
-        value > 1000 -> 1000
-        else -> value
-      }
-    }
-
-  override var intelligence = 1
-    /**
-     * Sets the vitality. Can not be lower then 1.
-     */
-    set(value) {
-      field = if (value < 1) {
-        value
-      } else {
-        value
-      }
-    }
-
-  override var willpower = 1
-    set(value) {
-      field = if (value < 1) {
-        value
-      } else {
-        value
-      }
-    }
-
-  override var agility = 1
-    set(value) {
-      field = if (value < 1) {
-        value
-      } else {
-        value
-      }
-    }
-
-  override var dexterity = 1
-    set(value) {
-      field = if (value < 1) {
-        value
-      } else {
-        value
-      }
-    }
-
-  override var defense: Int = 0
-    set(value) {
-      field = when {
-        value < 0 -> 0
-        value > 1000 -> 1000
-        else -> value
-      }
-    }
-
-  /**
-   * Sets the magic defense. Must be between 0 and 1000 (which increments in
-   * 1/10) percents.
-   *
-   */
-  override var magicDefense: Int = 0
-    set(value) {
-      field = when {
-        value < 0 -> 0
-        value > 1000 -> 1000
-        else -> value
-      }
-    }
+    override var magicDefense: Int = 0
+) : Serializable, StatusPoints {
 
   override fun set(rhs: StatusPoints) {
     this.agility = rhs.agility

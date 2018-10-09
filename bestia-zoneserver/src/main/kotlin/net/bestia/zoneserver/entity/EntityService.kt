@@ -58,4 +58,8 @@ class EntityService(
     val entityEnvelope = EntityEnvelope(component.entityId, component)
     messageApi.send(entityEnvelope)
   }
+
+  fun updateAllComponents(entity: Entity) {
+    entity.getAllComponents().forEach { updateComponent(it) }
+  }
 }

@@ -12,66 +12,34 @@ import javax.persistence.Embeddable
  * @author Thomas Felix
  */
 @Embeddable
-class ConditionValues : Serializable {
+class ConditionValues(
+    /**
+     * Sets the current health value. The value can not be less then 0 and not
+     * bigger then the current max value.
+     */
+    @get:JsonProperty("chp")
+    var currentHealth: Int = 0,
 
-  /**
-   * Sets the current health value. The value can not be less then 0 and not
-   * bigger then the current max value.
-   */
-  @get:JsonProperty("chp")
-  var currentHealth: Int = 0
-    set(value) {
-      field = when {
-        value > maxHealth -> maxHealth
-        field < 0 -> 0
-        else -> value
-      }
-    }
+    /**
+     * Current maximum HP value.
+     */
+    @get:JsonProperty("mhp")
+    var maxHealth: Int = 0,
 
-  /**
-   * Current maximum HP value.
-   *
-   * @return current maximum HP.
-   */
-  @get:JsonProperty("mhp")
-  var maxHealth: Int = 0
-    set(value) {
-      field = value
-      if (value < currentHealth) {
-        currentHealth = value
-      }
-    }
 
-  /**
-   * @return The current mana.
-   */
-  /**
-   * Sets the current mana value. The value can not be less then 0 and not
-   * bigger then the current max value.
-   */
-  @get:JsonProperty("cmana")
-  var currentMana: Int = 0
-    set(value) {
-      field = when {
-        value > maxMana -> maxMana
-        field < 0 -> 0
-        else -> value
-      }
-    }
+    /**
+     * Sets the current mana value. The value can not be less then 0 and not
+     * bigger then the current max value.
+     */
+    @get:JsonProperty("cmana")
+    var currentMana: Int = 0,
 
-  /**
-   * Returns the max mana.
-   *
-   * @return Max mana.
-   */
-  @get:JsonProperty("mmana")
-  var maxMana: Int = 0
-    set(value) {
-      field = value
-      if (value < currentMana) {
-        currentMana = value
-      }
-    }
+    /**
+     * Returns the max mana.
+     */
+    @get:JsonProperty("mmana")
+    var maxMana: Int = 0
+) : Serializable {
 
   /**
    * Sets the object to the values from the given argument.

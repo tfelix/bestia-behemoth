@@ -55,11 +55,11 @@ class EntityComponentActorFactory {
     val actorClass = componentToActorClass[component::class]
         ?: throw IllegalArgumentException("Could not find actor for component class: ${component.javaClass}")
 
-    val takesComponentAsArg = actorClass.declaredConstructors.any {
-      it.parameterCount == 1 && Component::class.java.isAssignableFrom(it.parameterTypes[0])
+    val hasCtorWithComponentAsArg = actorClass.declaredConstructors.any {
+      it.parameterTypes.any { paramType -> Component::class.java.isAssignableFrom(paramType) }
     }
 
-    return if (takesComponentAsArg) {
+    return if (hasCtorWithComponentAsArg) {
       SpringExtension.actorOf(ctx, actorClass, component)
     } else {
       throw IllegalStateException("Actor $actorClass does not use component ${component.javaClass} as ctor argument.")

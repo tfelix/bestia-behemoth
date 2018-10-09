@@ -44,7 +44,7 @@ server:
   # The version property expansion is currently broken with gradle
   version: 0.5.0-ALPHA
   name: zoneserver-${random.uuid}
-  entityBuffer: 100
+  websocketPort: 8990
 
 mapgen:
   tempDir: D:/bestia_map

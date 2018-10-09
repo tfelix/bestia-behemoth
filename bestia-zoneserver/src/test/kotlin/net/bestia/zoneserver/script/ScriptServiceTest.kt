@@ -22,7 +22,8 @@ class ScriptServiceTest {
   private val zonserverConfig = ZoneserverConfig(
       scriptDir = "classpath:script",
       serverName = "test",
-      serverVersion = "1.0.0"
+      serverVersion = "1.0.0",
+      websocketPort = 1337
   )
   private lateinit var globalEnv: GlobalEnv
   private lateinit var scriptCompiler: ScriptCompiler

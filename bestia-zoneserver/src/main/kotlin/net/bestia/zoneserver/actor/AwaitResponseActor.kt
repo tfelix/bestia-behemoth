@@ -90,21 +90,23 @@ class AwaitResponseActor(
 
   private fun gatherResponses(msg: Any) {
     if (msg is ReceiveTimeout) {
+      LOG.debug { "Received response timeout in ${context.self().path()}" }
       context.stop(self)
+      return
     }
 
     receivedResponses.add(msg)
 
-    if (checkResponseReceived(receivedResponses)) {
-      val response = Responses(receivedResponses)
-      try {
+    try {
+      if (checkResponseReceived(receivedResponses)) {
+        val response = Responses(receivedResponses)
         val responseMsg = action(response)
         context.parent.tell(responseMsg, self)
-      } catch (e: Exception) {
-        LOG.warn { "Error while executing response action: $e" }
-      } finally {
-        context.stop(self)
       }
+    } catch (e: Exception) {
+      LOG.warn(e) { "Error while executing response action in ${context.self().path()}" }
+    } finally {
+      context.stop(self)
     }
   }
 

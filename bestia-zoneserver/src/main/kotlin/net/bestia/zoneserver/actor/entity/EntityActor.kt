@@ -41,14 +41,18 @@ class EntityActor(
     private val messageApi: MessageApi
 ) : AbstractActor() {
 
-  private class ComponentActorCache {
+  class ComponentActorCache {
 
-    private val classToActor = HashBiMap.create<Class<*>, ActorRef>()
+    private val classToActor = HashBiMap.create<Class<out BestiaComponent>, ActorRef>()
 
     val activeComponentActorCount: Int get() = classToActor.size
 
-    fun <T : net.bestia.zoneserver.entity.component.Component> add(component: T, compActor: ActorRef) {
+    fun <T : BestiaComponent> add(component: T, compActor: ActorRef) {
       classToActor[component.javaClass] = compActor
+    }
+
+    fun <T : BestiaComponent> has(clazz: Class<T>): Boolean {
+      return classToActor.containsKey(clazz)
     }
 
     fun allActors(): List<ActorRef> {
@@ -59,11 +63,11 @@ class EntityActor(
       classToActor.inverse().remove(actor)
     }
 
-    fun <T : net.bestia.zoneserver.entity.component.Component> get(componentClass: Class<T>): ActorRef? {
+    fun <T : BestiaComponent> get(componentClass: Class<T>): ActorRef? {
       return classToActor[componentClass]
     }
 
-    fun getAllCachedComponentClasses(): Set<Class<out net.bestia.zoneserver.entity.component.Component>> {
+    fun getAllCachedComponentClasses(): Set<Class<out BestiaComponent>> {
       return classToActor.keys.asSequence().filter {
         Component::class.java.isAssignableFrom(it)
       }.map {
@@ -78,7 +82,7 @@ class EntityActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-        .match(BestiaComponent::class.java, this::handleComponentInstall)
+        .match(BestiaComponent::class.java, this::handleComponent)
         .match(ComponentClassEnvelope::class.java, this::handleComponentClassEnvelope)
         .match(ComponentBroadcastEnvelope::class.java, this::handleAllComponentBroadcast)
         .match(ComponentRequestMessage::class.java, this::handleComponentRequest)
@@ -96,13 +100,13 @@ class EntityActor(
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
 
     val hasAllResponses = { receivedResponses: List<Any> ->
-      awaitedComponentClasses.containsAll(receivedResponses)
+      receivedResponses.containsAll(awaitedComponentClasses)
     }
 
     val waitResponseProps = AwaitResponseActor.props(hasAllResponses) {
       val entity = Entity.withComponents(
           entityId,
-          it.getAllResponses(net.bestia.zoneserver.entity.component.Component::class)
+          it.getAllResponses(BestiaComponent::class)
       )
       val entityResponse = ResponseEntity(
           entity,
@@ -127,11 +131,21 @@ class EntityActor(
     unhandled(msg)
   }
 
-  private fun handleComponentInstall(msg: BestiaComponent) {
+  private fun handleComponent(msg: BestiaComponent) {
     if(entityId == 0L) {
       entityId = msg.entityId
     }
 
+    if(!componentActorCache.has(msg.javaClass)) {
+      installComponentActor(msg)
+    } else {
+      LOG.debug { "Updating component: $msg on entity: $entityId." }
+      val componentActor = componentActorCache.get(msg.javaClass)
+      trySendComponentActor(componentActor, msg)
+    }
+  }
+
+  private fun installComponentActor(msg: BestiaComponent) {
     LOG.debug { "Installing component: $msg on entity: $entityId." }
 
     val compActor = factory.startActor(context, msg) ?: run {
