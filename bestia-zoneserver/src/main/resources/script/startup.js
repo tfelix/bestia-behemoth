@@ -5,7 +5,7 @@
 function main() {
 	Bestia.info("Bestia Behemoth startup script");
 	
-	// Bestia.entity("blob", point(12 ,15))
+	Bestia.entity("blob", point(12 ,15))
 
 	Bestia.entity()
 	  .script()
