@@ -19,7 +19,7 @@ dependencies {
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
 
     compile project(':bestia-messages')
-    compile group: 'de.tfelix', name: 'worldgen', version: '1.0.0-ALPHA'
+    compile 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
 
     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion

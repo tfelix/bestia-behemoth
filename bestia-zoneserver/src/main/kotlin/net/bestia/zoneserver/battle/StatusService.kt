@@ -1,13 +1,16 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
+import net.bestia.model.dao.BestiaDAO
+import net.bestia.model.dao.PlayerBestiaDAO
+import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.domain.BaseValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.MetaDataComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -22,7 +25,8 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class StatusService(
     private val entityService: EntityService,
-    private val playerBestiaDao: PlayerBestiaDAO
+    private val playerBestiaDao: PlayerBestiaDAO,
+    private val bestiaDao: BestiaDAO
 ) {
 
   /**
@@ -39,9 +43,14 @@ class StatusService(
   fun calculateStatusPoints(entity: Entity) {
     LOG.trace("Calculate status points for entity {}.", entity)
 
-    // Mob entities should have their unmodified status points set to a fixed value.
-    if (entity.hasComponent(PlayerComponent::class.java)) {
-      calculateUnmodifiedStatusPoints(entity)
+    val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
+    val bestiaId = metaDataComponent?.data?.get(MetaDataComponent.MOB_BESTIA_ID) as? Int
+
+    val isPlayer = entity.hasComponent(PlayerComponent::class.java)
+
+    when {
+      bestiaId != null -> calculateMobStatus(bestiaId, entity)
+      isPlayer -> calculatePlayerStatus(entity)
     }
 
     calculateModifiedStatusPoints(entity)
@@ -50,24 +59,42 @@ class StatusService(
     entityService.updateComponent(statusComp)
   }
 
-  /**
-   * At first this calculates the unmodified, original status points.
-   */
-  private fun calculateUnmodifiedStatusPoints(entity: Entity) {
-    LOG.trace { "Calculate unmodfified status points for entity $entity." }
+  private fun calculateMobStatus(bestiaId: Int, entity: Entity) {
+    val bestia = bestiaDao.findOneOrThrow(bestiaId)
+    calculateUnmodifiedStatusPoints(
+        entity = entity,
+        bVals = bestia.baseValues
+    )
+  }
 
-    val lv = entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
-    val statusComp = entity.getComponent(StatusComponent::class.java)
+  private fun calculatePlayerStatus(entity: Entity) {
     val playerComp = entity.getComponent(PlayerComponent::class.java)
-
-    val sp = statusComp.originalStatusPoints
-    val condVals = statusComp.conditionValues
-
     val pb = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
     val bVals = pb.baseValues
     val eVals = pb.effortValues
     val iVals = pb.individualValue
+
+    calculateUnmodifiedStatusPoints(entity, bVals, iVals, eVals)
+  }
+
+  /**
+   * At first this calculates the unmodified, original status points.
+   */
+  private fun calculateUnmodifiedStatusPoints(
+      entity: Entity,
+      bVals: BaseValues,
+      iVals: BaseValues = BaseValues.nullValues,
+      eVals: BaseValues = BaseValues.nullValues
+  ) {
+    LOG.trace { "Calculate unmodfified status points for entity $entity." }
+
+    val lv = entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
+    val statusComp = entity.getComponent(StatusComponent::class.java)
+
+
+    val sp = statusComp.originalStatusPoints
+    val condVals = statusComp.conditionValues
 
     val str = (bVals.strength * 2 + iVals.strength + eVals.strength / 4) * lv / 100 + 5
     val vit = (bVals.vitality * 2 + iVals.vitality + eVals.vitality / 4) * lv / 100 + 5

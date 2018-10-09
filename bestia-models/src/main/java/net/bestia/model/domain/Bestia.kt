@@ -11,7 +11,6 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 import javax.persistence.Id
 import javax.persistence.Table
-import javax.persistence.Transient
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -49,16 +48,12 @@ class Bestia(
 
     /**
      * Experience points gained if bestia was defeated.
-     *
-     * @return
      */
     @JsonIgnore
     val expGained: Int,
 
     /**
      * Returns the type of the bestia.
-     *
-     * @return The type of the bestia.
      */
     @Enumerated(EnumType.STRING)
     @JsonProperty("t")
@@ -69,15 +64,6 @@ class Bestia(
 
     @JsonIgnore
     val isBoss: Boolean = false,
-
-    /**
-     * Returns the status points of this bestia.
-     *
-     * @return The status points.
-     */
-    @JsonIgnore
-    @Transient
-    val statusPoints: StatusPoints,
 
     @Embedded
     @JsonIgnore

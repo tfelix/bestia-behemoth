@@ -8,6 +8,8 @@ import net.bestia.model.domain.Bestia
 import net.bestia.model.domain.SpriteInfo
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.battle.StatusService
+import net.bestia.zoneserver.entity.MetaDataComponent
+import net.bestia.zoneserver.entity.MetaDataComponent.Companion.MOB_BESTIA_ID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,6 +39,9 @@ internal class MobFactory(
 
     LOG.debug { "Spawning mob entity: $blueprint" }
 
+    val metaDataComponent = MetaDataComponent(entity.id)
+    metaDataComponent.data[MOB_BESTIA_ID] = bestia.id
+
     entity.addComponent(
         PositionComponent(
             entityId = entity.id,
@@ -62,8 +67,7 @@ internal class MobFactory(
     entity.addComponent(
         StatusComponent(
             entityId = entity.id,
-            statusPoints = bestia.statusPoints,
-            element = bestia.element
+            originalElement = bestia.element
         )
     )
 

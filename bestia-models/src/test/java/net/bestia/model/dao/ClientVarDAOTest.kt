@@ -1,6 +1,6 @@
 package net.bestia.model.dao
 
-import net.bestia.model.domain.AccountFixture
+import net.bestia.model.test.AccountFixture
 import net.bestia.model.domain.ClientVar
 import org.junit.Assert
 import org.junit.Before

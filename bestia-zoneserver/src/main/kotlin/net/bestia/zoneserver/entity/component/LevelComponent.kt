@@ -9,25 +9,11 @@ import net.bestia.zoneserver.bestia.LevelService
  * @author Thomas Felix
  */
 data class LevelComponent(
-    override val entityId: Long
-) : Component {
+    override val entityId: Long,
 
-  @JsonProperty("lv")
-  var level: Int = 1
-    set(value) {
-      field = when {
-        value < 0 -> 1
-        value > LevelService.MAX_LEVEL -> LevelService.MAX_LEVEL
-        else -> value
-      }
-    }
+    @JsonProperty("lv")
+    var level: Int = 1,
 
-  @JsonProperty("e")
-  var exp: Int = 0
-    set(value) {
-      field = when {
-        value < 0 -> 0
-        else -> value
-      }
-    }
-}
+    @JsonProperty("e")
+    var exp: Int = 0
+) : Component

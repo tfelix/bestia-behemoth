@@ -25,7 +25,7 @@ data class PlayerBestia(
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MASTER_ID", nullable = true, unique = true)
-    private var master: Account? = null,
+    private val master: Account? = null,
 
     var exp: Int = 0
 ) : Serializable {
@@ -56,7 +56,7 @@ data class PlayerBestia(
   @Embedded
   var currentPosition = Point(0, 0)
 
-  var level: Int = 0
+  var level: Int = 1
 
   /**
    * Returns the entity ID of this player bestia if the bestia was spawned. If

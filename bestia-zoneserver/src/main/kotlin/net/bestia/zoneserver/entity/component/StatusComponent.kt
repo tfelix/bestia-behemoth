@@ -31,14 +31,6 @@ data class StatusComponent(
     val statusPoints: StatusPoints = StatusPointsImpl(),
 
     /**
-     * Sets the status based values.
-     *
-     * @param statusBasedValues The new status based values.
-     */
-    @get:JsonProperty("sbv")
-    val statusBasedValues: StatusBasedValues = StatusBasedValuesImpl(statusPoints, 1),
-
-    /**
      * The original element of this entity unaltered by status effects or
      * equipments.
      *
@@ -47,20 +39,23 @@ data class StatusComponent(
     @get:JsonProperty("oe")
     var originalElement: Element = Element.NORMAL,
 
-    /**
-     * The current element of this entity.
-     *
-     * @return The current element of the entity.
-     */
-    @get:JsonProperty("e")
-    var element: Element = Element.NORMAL,
-
     @get:JsonProperty("cv")
     val conditionValues: ConditionValues = ConditionValues()
 ) : Component {
-  companion object {
-    fun forItem(entityId: Long, item: Item): StatusComponent {
-      return StatusComponent(entityId = entityId)
-    }
-  }
+
+  /**
+   * Sets the status based values.
+   *
+   * @param statusBasedValues The new status based values.
+   */
+  @get:JsonProperty("sbv")
+  val statusBasedValues: StatusBasedValues = StatusBasedValuesImpl(statusPoints, 1)
+
+  /**
+   * The current element of this entity.
+   *
+   * @return The current element of the entity.
+   */
+  @get:JsonProperty("e")
+  var element: Element = Element.NORMAL
 }

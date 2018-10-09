@@ -1,4 +1,6 @@
-package net.bestia.model.domain
+package net.bestia.model.test
+
+import net.bestia.model.domain.*
 
 object BestiaFixture {
 
@@ -11,7 +13,6 @@ object BestiaFixture {
       expGained = 100,
       type = BestiaType.DEMI_HUMAN,
       level = 10,
-      statusPoints = StatusPointsImpl(),
       baseValues = BaseValues.nullValues
   )
 }

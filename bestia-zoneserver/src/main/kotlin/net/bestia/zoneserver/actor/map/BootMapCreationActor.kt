@@ -21,8 +21,8 @@ class BootMapCreationActor(
 ) : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
-            .match(Terminated::class.java, { context.stop(self) })
-            .build()
+            .match(Terminated::class.java) { context.stop(self) }
+        .build()
   }
 
   override fun preStart() {

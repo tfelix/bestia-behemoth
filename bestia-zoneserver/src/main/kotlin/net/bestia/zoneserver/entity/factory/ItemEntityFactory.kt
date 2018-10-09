@@ -45,6 +45,6 @@ class ItemEntityFactory(
         entityId = entity.id
     ).apply { this.add(TagComponent.ITEM, TagComponent.PERSIST) })
 
-    entity.addComponent(StatusComponent.forItem(entity.id, item))
+    entity.addComponent(StatusComponent(entity.id))
   }
 }
