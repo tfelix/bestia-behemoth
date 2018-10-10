@@ -46,20 +46,25 @@ class StatusComponentActor(
         manaIncrement += statusService.getManaTick(entity)
 
         val condValues = entity.getComponent(StatusComponent::class.java).conditionValues
+        var hasChanged = false
 
         if (healthIncrement > 1) {
           val hpRound = healthIncrement.toInt()
           healthIncrement -= hpRound.toFloat()
           condValues.addHealth(hpRound)
+          hasChanged = true
         }
 
         if (manaIncrement > 1) {
           val manaRound = manaIncrement.toInt()
           manaIncrement -= manaRound.toFloat()
           condValues.addMana(manaRound)
+          hasChanged = true
         }
 
-        updateEntitiesAboutComponentChanged()
+        if(hasChanged) {
+          updateEntitiesAboutComponentChanged()
+        }
       } catch (e: IllegalArgumentException) {
         // Could not tick regeneration for this entity id.
         // Probably no status component attached.

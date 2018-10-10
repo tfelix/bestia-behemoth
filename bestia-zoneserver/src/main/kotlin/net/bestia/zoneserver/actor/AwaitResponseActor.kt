@@ -6,7 +6,7 @@ import akka.actor.Props
 import akka.actor.ReceiveTimeout
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.messages.entity.RequestEntity
+import net.bestia.messages.entity.EntityRequest
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.Entity
 import scala.concurrent.duration.FiniteDuration
@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 
 private val LOG = KotlinLogging.logger { }
 
-class EntityResponse(
+class EntitiesResponse(
     private val data: Map<Long, Entity>
 ) {
   operator fun get(key: Long): Entity {
@@ -41,18 +41,18 @@ fun awaitEntityResponse(
     messageApi: MessageApi,
     ctx: ActorContext,
     entitiyIds: Set<Long>,
-    callback: (EntityResponse) -> Unit
+    callback: (EntitiesResponse) -> Unit
 ) {
   val hasReceivedAll: (List<Any>) -> Boolean = { responses: List<Any> ->
     responses.toSet() == entitiyIds
   }
   val transformResponse = { response: Responses ->
     val mappedEntities = response.getAllResponses(Entity::class).map { it.id to it }.toMap()
-    callback(EntityResponse(mappedEntities))
+    callback(EntitiesResponse(mappedEntities))
   }
   val props = AwaitResponseActor.props(hasReceivedAll, transformResponse)
   val requestActor = ctx.actorOf(props)
-  val requestMsg = RequestEntity(requestActor)
+  val requestMsg = EntityRequest(requestActor)
   entitiyIds.forEach { messageApi.send(EntityEnvelope(it, requestMsg)) }
 }
 
@@ -67,7 +67,12 @@ data class Responses(
 
   fun <T : Any> getAllResponses(responseClass: KClass<T>): List<T> {
     @Suppress("UNCHECKED_CAST")
-    return receivedResponses.asSequence().filter { it::class == responseClass }.map { it as T }.toList()
+    return receivedResponses.asSequence().filterIsInstance(responseClass.java).toList()
+  }
+
+  fun getAllResponses(): List<Any> {
+    @Suppress("UNCHECKED_CAST")
+    return receivedResponses
   }
 }
 
@@ -90,7 +95,8 @@ class AwaitResponseActor(
 
   private fun gatherResponses(msg: Any) {
     if (msg is ReceiveTimeout) {
-      LOG.debug { "Received response timeout in ${context.self().path()}" }
+      LOG.debug { "Received response timeout in ${context.self().path()}. " +
+          "Received so far: ${receivedResponses.map { it.javaClass.simpleName }}" }
       context.stop(self)
       return
     }
@@ -102,10 +108,10 @@ class AwaitResponseActor(
         val response = Responses(receivedResponses)
         val responseMsg = action(response)
         context.parent.tell(responseMsg, self)
+        context.stop(self)
       }
     } catch (e: Exception) {
       LOG.warn(e) { "Error while executing response action in ${context.self().path()}" }
-    } finally {
       context.stop(self)
     }
   }

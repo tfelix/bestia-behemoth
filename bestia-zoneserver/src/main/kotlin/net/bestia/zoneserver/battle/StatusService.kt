@@ -139,7 +139,7 @@ class StatusService(
 
     // Calc the added value.
     val manaRegen = manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
-    LOG.trace { "Ticking mana regen $manaRegen for entity $entity." }
+    LOG.trace { "Tick Mana $manaRegen for entity $entity." }
 
     return manaRegen
   }
@@ -158,7 +158,7 @@ class StatusService(
     val hpRegenRate = statusComponent.statusBasedValues.hpRegenRate
 
     val hpRegen = hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS
-    LOG.trace { "Ticking hp regen $hpRegen for entity $entity." }
+    LOG.trace { "Tick HP regen $hpRegen for entity $entity." }
 
     return hpRegenRate
   }

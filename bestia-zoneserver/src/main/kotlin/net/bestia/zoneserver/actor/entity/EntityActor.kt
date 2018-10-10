@@ -43,15 +43,15 @@ class EntityActor(
 
   class ComponentActorCache {
 
-    private val classToActor = HashBiMap.create<Class<out BestiaComponent>, ActorRef>()
+    private val classToActor = HashBiMap.create<Class<BestiaComponent>, ActorRef>()
 
     val activeComponentActorCount: Int get() = classToActor.size
 
-    fun <T : BestiaComponent> add(component: T, compActor: ActorRef) {
+    fun add(component: BestiaComponent, compActor: ActorRef) {
       classToActor[component.javaClass] = compActor
     }
 
-    fun <T : BestiaComponent> has(clazz: Class<T>): Boolean {
+    fun has(clazz: Class<out BestiaComponent>): Boolean {
       return classToActor.containsKey(clazz)
     }
 
@@ -63,17 +63,12 @@ class EntityActor(
       classToActor.inverse().remove(actor)
     }
 
-    fun <T : BestiaComponent> get(componentClass: Class<T>): ActorRef? {
+    fun get(componentClass: Class<out BestiaComponent>): ActorRef? {
       return classToActor[componentClass]
     }
 
-    fun getAllCachedComponentClasses(): Set<Class<out BestiaComponent>> {
-      return classToActor.keys.asSequence().filter {
-        Component::class.java.isAssignableFrom(it)
-      }.map {
-        @Suppress("UNCHECKED_CAST")
-        it as Class<out net.bestia.zoneserver.entity.component.Component>
-      }.toSet()
+    fun getAllCachedComponentClasses(): Set<Class<BestiaComponent>> {
+      return classToActor.keys.toSet()
     }
   }
 
@@ -91,24 +86,27 @@ class EntityActor(
         .match(Terminated::class.java, this::handleTerminated)
 
         .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
-        .match(RequestEntity::class.java, this::handleEntityRequest)
+        .match(EntityRequest::class.java, this::handleEntityRequest)
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
   }
 
-  private fun handleEntityRequest(msg: RequestEntity) {
+  private fun handleEntityRequest(msg: EntityRequest) {
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
 
     val hasAllResponses = { receivedResponses: List<Any> ->
-      receivedResponses.containsAll(awaitedComponentClasses)
+      receivedResponses.asSequence()
+          .map { it.javaClass }
+          .toSet() == awaitedComponentClasses
     }
 
     val waitResponseProps = AwaitResponseActor.props(hasAllResponses) {
+      @Suppress("UNCHECKED_CAST")
       val entity = Entity.withComponents(
           entityId,
-          it.getAllResponses(BestiaComponent::class)
+          it.getAllResponses() as List<BestiaComponent>
       )
-      val entityResponse = ResponseEntity(
+      val entityResponse = EntityResponse(
           entity,
           msg.context
       )

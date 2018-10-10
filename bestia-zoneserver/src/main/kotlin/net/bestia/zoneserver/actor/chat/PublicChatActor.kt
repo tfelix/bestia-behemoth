@@ -3,8 +3,8 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.messages.entity.RequestEntity
-import net.bestia.messages.entity.ResponseEntity
+import net.bestia.messages.entity.EntityRequest
+import net.bestia.messages.entity.EntityResponse
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
@@ -31,11 +31,11 @@ class PublicChatActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
         .match(ChatMessage::class.java, this::handlePublic)
-        .match(ResponseEntity::class.java, this::handleEntityResponse)
+        .match(EntityResponse::class.java, this::handleEntityResponse)
         .build()
   }
 
-  private fun handleEntityResponse(response: ResponseEntity) {
+  private fun handleEntityResponse(response: EntityResponse) {
     val sendInRange = SendInRange(
         response.entity,
         response.content as ChatMessage
@@ -55,7 +55,7 @@ class PublicChatActor(
     val activeEntityId = playerEntityService.getActivePlayerEntityId(accId) ?: return
     val chatEntityMsg = chatMsg.copy(entityId = activeEntityId)
 
-    val requestEntity = RequestEntity(self, chatEntityMsg)
+    val requestEntity = EntityRequest(self, chatEntityMsg)
     messageApi.send(EntityEnvelope(activeEntityId, requestEntity))
   }
 

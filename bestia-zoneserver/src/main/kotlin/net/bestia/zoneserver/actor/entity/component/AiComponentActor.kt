@@ -57,7 +57,7 @@ class AiComponentActor(
         else -> Point(0, 0)
       }
 
-      // We should probably use a walk service here to get a proper path
+      // TODO We should probably use a walk service here to get a proper path
       positionComponent.position = positionComponent.position.minus(moveDelta)
       context.parent.tell(positionComponent, self)
     }

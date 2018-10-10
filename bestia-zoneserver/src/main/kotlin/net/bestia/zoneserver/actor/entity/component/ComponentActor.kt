@@ -4,9 +4,11 @@ import akka.actor.AbstractActor
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.messages.entity.RequestComponentMessage
-import net.bestia.messages.entity.RequestEntity
+import net.bestia.messages.entity.EntityRequest
+import net.bestia.messages.entity.EntityResponse
 import net.bestia.messages.entity.SaveAndKillEntity
 import net.bestia.zoneserver.actor.AwaitResponseActor
+import net.bestia.zoneserver.actor.EntitiesResponse
 import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
@@ -24,12 +26,12 @@ abstract class ComponentActor<T : Component>(
       true
     }
     val transformResponse = { response: Responses ->
-      val entity = response.getResponse(Entity::class)
-      callback(entity)
+      val entityResponse = response.getResponse(EntityResponse::class)
+      callback(entityResponse.entity)
     }
     val props = AwaitResponseActor.props(hasReceived, transformResponse)
     val requestActor = context.actorOf(props)
-    val requestMsg = RequestEntity(requestActor)
+    val requestMsg = EntityRequest(requestActor)
     context.parent.tell(requestMsg, requestActor)
   }
 
