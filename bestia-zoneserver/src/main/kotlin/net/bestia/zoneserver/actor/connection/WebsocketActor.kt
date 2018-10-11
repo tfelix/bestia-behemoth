@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.connection
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
+import akka.http.javadsl.model.ws.TextMessage
 import mu.KotlinLogging
 import net.bestia.messages.client.PongMessage
 import net.bestia.messages.login.LoginAuthRequestMessage
@@ -24,14 +25,12 @@ class WebsocketActor(
 
   @Suppress("LeakingThis")
   private val authenticated = receiveBuilder()
-      .matchAny(this::processAnyMessage)
+      .matchAny(this::processAnyMessageAuthenticated)
       .build()
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(ActorRef::class.java, this::onInit)
-        .match(LoginAuthRequestMessage::class.java, this::onAuth)
-        .matchAny { context.stop(self) }
+        .matchAny { processAnyMessage(it) }
         .build()
   }
 
@@ -56,23 +55,32 @@ class WebsocketActor(
     this.clientSocketActor = outActor
   }
 
-  // TODO Send Latency to the messages who need it.
-  private fun processAnyMessage(msg: Any) {
+  private fun processAnyMessageAuthenticated(msg: Any) {
+    sender.tell(ACK, self)
+
+    // Handle the client message.
+    println(msg)
     when (msg) {
-      INIT -> {
-        println("Init")
-        sender.tell(ACK, self)
-      }
+      INIT -> sender.tell(ACK, self)
       COMPLETE -> {
         println("Stream complete")
       }
       is PongMessage -> handleLatencyPong(msg)
-      else -> {
-        println("Received: $msg")
-        sender.tell(ACK, self)
-      }
+      else -> sender.tell(ACK, self)
     }
+  }
+
+  private fun processAnyMessage(msg: Any) {
     sender.tell(ACK, self)
+    when (msg) {
+      COMPLETE -> { }
+      is ActorRef -> onInit(msg)
+      is TextMessage -> onTextMessage(msg)
+    }
+  }
+
+  private fun onTextMessage(msg: TextMessage) {
+    println("Client send ${msg.strictText}")
   }
 
   private fun handleLatencyPong(msg: PongMessage) {
