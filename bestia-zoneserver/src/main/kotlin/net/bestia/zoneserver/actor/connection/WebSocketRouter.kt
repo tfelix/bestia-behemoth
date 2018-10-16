@@ -14,11 +14,12 @@ import akka.stream.javadsl.Source
 import net.bestia.zoneserver.actor.SpringExtension
 
 class WebSocketRouter(
-    private val system: ActorSystem
+    private val system: ActorSystem,
+    private val clientMessageIngressActor: ActorRef
 ) : AllDirectives() {
 
   private fun socketFlow(): Flow<Message, Message, NotUsed> {
-    val connectionActor = SpringExtension.actorOf(system, WebsocketActor::class.java)
+    val connectionActor = SpringExtension.actorOf(system, WebsocketActor::class.java, clientMessageIngressActor)
 
     val incomingMessages = Sink.actorRefWithAck<Message>(connectionActor,
         WebsocketActor.INIT,

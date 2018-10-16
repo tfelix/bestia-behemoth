@@ -1,9 +1,13 @@
 package net.bestia.zoneserver.configuration
 
+import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
+import akka.actor.PoisonPill
 import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
+import akka.cluster.singleton.ClusterSingletonManager
+import akka.cluster.singleton.ClusterSingletonManagerSettings
 import akka.http.javadsl.ConnectHttp
 import akka.http.javadsl.Http
 import akka.management.AkkaManagement
@@ -12,13 +16,14 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.EntryActorNames
-import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.BestiaRootActor
+import net.bestia.zoneserver.actor.BootstrapActor
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
+import net.bestia.zoneserver.actor.entity.EntityIdGeneratorActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
 import org.springframework.beans.factory.annotation.Qualifier
@@ -49,12 +54,31 @@ class AkkaConfiguration {
     val akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME)
     LOG.debug { "Loaded akka config: $AKKA_CONFIG_NAME" }
 
+    LOG.info { "Bootstrapping Behemoth actor system." }
     val system = ActorSystem.create("behemoth-local", akkaConfig)
 
     setupClusterDiscovery(system)
-
     SpringExtension.initialize(system, appContext)
+    setupSharding(system)
 
+    val clientMessageIngress = SpringExtension.actorOf(system, ClientMessageActor::class.java)
+
+    LOG.info { "Starting websocket ingress..." }
+    val materializer = ActorMaterializer.create(system)
+    val http = Http.get(system)
+    val router = WebSocketRouter(system, clientMessageIngress)
+    val routeFlow = router.createRoute().flow(system, materializer)
+    val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
+    LOG.info { "Starting websocket ingress on $websocketConnect..." }
+    http.bindAndHandle(routeFlow, websocketConnect, materializer)
+    LOG.info { "Started websocket ingress" }
+
+    // scriptService.callScriptMainFunction("startup")
+
+    return system
+  }
+
+  private fun setupSharding(system: ActorSystem) {
     LOG.info { "Starting entity sharding..." }
     val settings = ClusterShardingSettings.create(system)
     val sharding = ClusterSharding.get(system)
@@ -69,37 +93,38 @@ class AkkaConfiguration {
     val connectionExtractor = ConnectionShardMessageExtractor()
     sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
     LOG.info("Started the sharding actors")
-
-    LOG.info { "Starting websocket ingress..." }
-    val materializer = ActorMaterializer.create(system)
-    val http = Http.get(system)
-    val router = WebSocketRouter(system)
-    val routeFlow = router.createRoute().flow(system, materializer)
-    val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
-    LOG.info { "Starting websocket ingress on $websocketConnect..." }
-    http.bindAndHandle(routeFlow, websocketConnect, materializer)
-    LOG.info { "Started websocket ingress" }
-
-    return system
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {
-    // Akka Management hosts the HTTP routes used by bootstrap
     AkkaManagement.get(system).start()
-    // Starting the bootstrap process needs to be done explicitly
     ClusterBootstrap.get(system).start()
+  }
+
+  private fun setupSingeltons(system: ActorSystem) {
+    LOG.info { "Starting the bootstrap actor." }
+
+    val settings = ClusterSingletonManagerSettings.create(system)
+    startAsSingelton(system, settings, BootstrapActor::class.java, "bootstrap")
+    startAsSingelton(system, settings, EntityIdGeneratorActor::class.java, EntityIdGeneratorActor.NAME)
+
+    LOG.info { "Started the bootstrap actor." }
+  }
+
+  private fun <T : AbstractActor> startAsSingelton(
+      system: ActorSystem,
+      settings: ClusterSingletonManagerSettings,
+      actorClass: Class<T>,
+      name: String
+  ) {
+    val props = SpringExtension.getSpringProps(system, actorClass)
+    val clusterProbs = ClusterSingletonManager.props(props, PoisonPill.getInstance(), settings)
+    system.actorOf(clusterProbs, name)
   }
 
   @Bean
   @Qualifier("router")
   fun routerActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, RoutingActor::class.java)
-  }
-
-  @Bean
-  fun rootActor(system: ActorSystem): ActorRef {
-    LOG.info("Starting bestia root actor")
-    return SpringExtension.actorOf(system, BestiaRootActor::class.java)
   }
 
   companion object {

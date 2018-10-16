@@ -11,11 +11,11 @@ import net.bestia.messages.MessageId
  */
 data class LoginAuthRequestMessage(
     /**
-         * User provided login token which will be checked against in the database.
-         *
-         * @return Login token.
-         */
-        val token: String
+     * User provided login token which will be checked against in the database.
+     *
+     * @return Login token.
+     */
+    val token: String
 ) : MessageId {
 
   override val messageId: String

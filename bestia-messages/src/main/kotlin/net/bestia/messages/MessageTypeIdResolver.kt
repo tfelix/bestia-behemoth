@@ -23,13 +23,13 @@ private val LOG = KotlinLogging.logger { }
 class MessageTypeIdResolver : TypeIdResolverBase() {
 
   private val typeFactory = TypeFactory.defaultInstance()
-  private var baseType: JavaType? = null
+  private lateinit var baseType: JavaType
 
   /**
    * Finds all IDs of the messages and registers them for later
    * identification.
    */
-  override fun init(bt: JavaType?) {
+  override fun init(bt: JavaType) {
     super.init(bt)
     baseType = bt
   }
@@ -49,7 +49,7 @@ class MessageTypeIdResolver : TypeIdResolverBase() {
 
   override fun typeFromId(context: DatabindContext?, id: String?): JavaType {
     val clazz = idToClass[id]
-    return typeFactory.constructSpecializedType(baseType!!, clazz)
+    return typeFactory.constructSpecializedType(baseType, clazz)
   }
 
   companion object {
@@ -70,8 +70,6 @@ class MessageTypeIdResolver : TypeIdResolverBase() {
         }
 
         try {
-          val fields = msg.fields
-          LOG.debug(fields.toString())
           val messageId = msg.getDeclaredField("MESSAGE_ID")
           val key = messageId.get(null) as String
 
