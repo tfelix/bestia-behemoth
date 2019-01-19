@@ -6,6 +6,7 @@ import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.messages.entity.EntityRequest
 import net.bestia.messages.entity.EntityResponse
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.client.SendInRange
@@ -19,8 +20,7 @@ import org.springframework.stereotype.Component
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class PublicChatActor(
     private val playerEntityService: PlayerEntityService,
     private val messageApi: MessageApi

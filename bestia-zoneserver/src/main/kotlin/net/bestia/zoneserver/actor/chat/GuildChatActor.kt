@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -19,8 +20,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class GuildChatActor(
         private val guildService: GuildService,
         private val playerEntityService: PlayerEntityService

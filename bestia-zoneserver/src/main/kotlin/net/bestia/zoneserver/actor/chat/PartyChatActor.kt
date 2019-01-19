@@ -4,6 +4,7 @@ import akka.actor.AbstractActor
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.model.dao.PartyDAO
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import org.springframework.context.annotation.Scope
@@ -16,8 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class PartyChatActor(
     private val partyDao: PartyDAO
 ) : AbstractActor() {

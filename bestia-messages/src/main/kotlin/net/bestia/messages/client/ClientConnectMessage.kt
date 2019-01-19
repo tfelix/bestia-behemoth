@@ -5,7 +5,7 @@ import java.io.Serializable
 
 /**
  * This message is send by the webserver frontend as soon as a client is fully
- * connected and must be registered into the bestia system. As soon as this
+ * connected and must be registered into the Bestia system. As soon as this
  * message arrives the client is authenticated and connected and must/can
  * receive messages from now on.
  *

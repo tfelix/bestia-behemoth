@@ -6,6 +6,7 @@ import akka.http.javadsl.model.ws.TextMessage
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import net.bestia.messages.MessageId
+import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.client.LatencyInfo
 import net.bestia.messages.client.PongMessage
@@ -137,8 +138,14 @@ class WebsocketActor(
     }
 
     sendToClientSocket(respMessage)
+
+    val clientConnectedMessage = ClientConnectMessage(
+        accountId = connectedAccountId,
+        webserverRef = self
+    )
+    clientMessageIngress.tell(clientConnectedMessage, self)
   }
-  
+
   private fun sendToClientSocket(msg: Any) {
     clientSocketActor.tell(serialize(msg), self)
   }
