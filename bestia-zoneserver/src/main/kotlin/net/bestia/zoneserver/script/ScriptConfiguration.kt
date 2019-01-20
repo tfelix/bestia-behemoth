@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script
 
-import net.bestia.zoneserver.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.net.URISyntaxException

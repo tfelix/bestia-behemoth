@@ -2,11 +2,13 @@ package net.bestia.zoneserver.actor.ui
 
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.model.account.ClientVar
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.ClientVarActor
-import net.bestia.zoneserver.client.ClientVarService
+import net.bestia.zoneserver.account.ClientVarService
+import net.bestia.zoneserver.actor.seconds
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
@@ -31,15 +33,15 @@ class ClientVarActorTest {
   private val cvarService: ClientVarService? = null
 
   @Mock
-  private val cvar: ClientVar? = null
+  private lateinit var cvar: ClientVar
 
   @Before
   fun setup() {
     SpringExtension.initialize(system!!, appCtx!!)
 
-    Mockito.`when`(cvar!!.data).thenReturn(DATA)
-    Mockito.`when`(cvar.dataLength).thenReturn(DATA.length)
-    Mockito.`when`(cvar.key).thenReturn(KEY)
+    whenever(cvar.getDataAsString()).thenReturn(DATA)
+    whenever(cvar.dataLength).thenReturn(DATA.length)
+    whenever(cvar.key).thenReturn(KEY)
 
     Mockito.`when`(cvarService!!.find(ACC_ID, KEY)).thenReturn(cvar)
     Mockito.`when`(cvarService.find(WRONG_ACC_ID, KEY)).thenReturn(null)
@@ -55,7 +57,7 @@ class ClientVarActorTest {
         val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
         cvarActor.tell(msg, sender.ref)
 
-        expectMsg(duration("1 second"), ClientVarRequestMessage::class.java)
+        expectMsg(1.seconds(), ClientVarRequestMessage::class.java)
       }
     }
 

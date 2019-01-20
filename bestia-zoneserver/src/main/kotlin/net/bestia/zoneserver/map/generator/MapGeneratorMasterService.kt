@@ -115,8 +115,8 @@ class MapGeneratorMasterService(
     // the db.
 
     when (label) {
-      MapGeneratorConstants.WORK_SCALE -> masterGenerator!!.startWorkload(MapGeneratorConstants.WORK_GEN_BIOMES)
-      MapGeneratorConstants.WORK_GEN_BIOMES -> masterGenerator!!.startWorkload(MapGeneratorConstants.WORK_GEN_TILES)
+      MapGeneratorConstants.WORK_SCALE -> masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_BIOMES)
+      MapGeneratorConstants.WORK_GEN_BIOMES -> masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_TILES)
       MapGeneratorConstants.WORK_GEN_TILES -> {
         LOG.info("Finished map creation.")
         isGenerating.set(false)

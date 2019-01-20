@@ -1,11 +1,13 @@
-package net.bestia.zoneserver.client
+package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
-import net.bestia.zoneserver.RuntimeConfigService
+import net.bestia.zoneserver.config.RuntimeConfigService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -14,7 +16,8 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class AuthenticationService(
     private val config: RuntimeConfigService,
-    private val accountDao: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
 
   fun isUserAuthenticated(token: String): Boolean {
@@ -29,18 +32,18 @@ class AuthenticationService(
    * @return The account with the new token, or null if wrong credentials.
    */
   fun createLoginToken(accName: String, password: String): Account? {
-    val acc = accountDao.findByEmail(accName) ?: return null
+    val acc = accountRepository.findByEmail(accName) ?: return null
 
     if (!acc.isActivated) {
       return null
     }
 
-    if (!acc.password.matches(password)) {
+    if (!passwordEncoder.matches(password, acc.password)) {
       return null
     }
 
     acc.loginToken = UUID.randomUUID().toString()
-    accountDao.save(acc)
+    accountRepository.save(acc)
     return acc
   }
 
@@ -61,7 +64,7 @@ class AuthenticationService(
 
     LOG.debug("Checking login for account {}.", accId)
 
-    val acc = accountDao.findOneOrThrow(accId)
+    val acc = accountRepository.findOneOrThrow(accId)
 
     if (acc.loginToken.isEmpty()) {
       LOG.debug("Login with empty token is not allowed.")
@@ -82,7 +85,7 @@ class AuthenticationService(
         return false
       }
 
-      if (config.maintenanceMode == MaintenanceLevel.PARTIAL && acc.userLevel.compareTo(Account.AccountType.SUPER_GM) < 0) {
+      if (config.maintenanceMode == MaintenanceLevel.PARTIAL && acc.userLevel < AccountType.SUPER_GM) {
         LOG.debug("Account {} can not login during maintenance User level too low.", accId)
         return false
       }
@@ -102,10 +105,10 @@ class AuthenticationService(
     Objects.requireNonNull(accountName)
     Objects.requireNonNull(newPassword)
 
-    val acc = accountDao.findByUsernameOrEmail(accountName) ?: return false
+    val acc = accountRepository.findByUsernameOrEmail(accountName) ?: return false
 
-    acc.password = Password(newPassword)
-    accountDao.save(acc)
+    acc.password = passwordEncoder.encode(newPassword)
+    accountRepository.save(acc)
     return true
   }
 
@@ -118,16 +121,15 @@ class AuthenticationService(
       return false
     }
 
-    val acc = accountDao.findByUsernameOrEmail(accountName) ?: return false
-
+    val acc = accountRepository.findByUsernameOrEmail(accountName) ?: return false
     val password = acc.password
 
-    if (!password.matches(oldPassword)) {
+    if (!passwordEncoder.matches(password, oldPassword)) {
       return false
     }
 
-    acc.password = Password(newPassword)
-    accountDao.save(acc)
+    acc.password = passwordEncoder.encode(newPassword)
+    accountRepository.save(acc)
     return true
   }
 }

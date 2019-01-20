@@ -5,7 +5,7 @@ import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
-import net.bestia.zoneserver.client.ClientVarService
+import net.bestia.zoneserver.account.ClientVarService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 

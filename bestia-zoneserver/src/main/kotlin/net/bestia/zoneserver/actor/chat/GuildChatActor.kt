@@ -6,10 +6,7 @@ import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.entity.PlayerEntityService
-import net.bestia.zoneserver.guild.GuildService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.chat.GuildChatService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -22,16 +19,15 @@ private val LOG = KotlinLogging.logger { }
  */
 @ActorComponent
 class GuildChatActor(
-        private val guildService: GuildService,
-        private val playerEntityService: PlayerEntityService
+    private val guildChatService: GuildChatService
 ) : AbstractActor() {
 
   private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ChatMessage::class.java, this::handleGuild)
-            .build()
+        .match(ChatMessage::class.java, this::handleGuild)
+        .build()
   }
 
   /**
@@ -39,17 +35,13 @@ class GuildChatActor(
    */
   private fun handleGuild(chatMsg: ChatMessage) {
     if (chatMsg.chatMode != ChatMessage.Mode.GUILD) {
-      LOG.warn { "Message $chatMsg is no guild message." }
+      LOG.warn { "Can not send non guild chat to guild" }
       return
     }
 
-    val playerBestiaId = playerEntityService.getActivePlayerEntityId(chatMsg.accountId) ?: return
-
-    guildService.getGuildMembersFromPlayer(playerBestiaId).stream()
-            .filter { member -> member.entityId != 0L }
-            .map { it.id }
-            .map{ chatMsg.copy(accountId = it) }
-            .forEach { msg -> sendToClientActor.tell(msg, self) }
+    guildChatService.copyChatMessageToAllGuildMembers(chatMsg).forEach {
+      sendToClientActor.tell(it, self)
+    }
   }
 
   companion object {

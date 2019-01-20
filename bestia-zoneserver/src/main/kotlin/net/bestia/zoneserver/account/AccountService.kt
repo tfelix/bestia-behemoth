@@ -1,14 +1,15 @@
-package net.bestia.zoneserver.client
+package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
 import net.bestia.messages.account.AccountRegistration
 import net.bestia.messages.account.AccountRegistrationError
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.bestia.PlayerBestia
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -26,12 +27,13 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class AccountService(
     private val accountDao: AccountRepository,
-    private val playerBestiaDao: PlayerBestiaDAO,
-    private val bestiaDao: BestiaRepository
+    private val playerBestiaDao: PlayerBestiaRepository,
+    private val bestiaDao: BestiaRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
 
-  private fun getStarterBestiaId(): Int {
-    return 1
+  private fun getStarterBestiaId(): Long {
+    return 1L
   }
 
   /**
@@ -90,7 +92,7 @@ class AccountService(
 
     val account = Account(
         email = data.email,
-        password = Password(data.password),
+        password = passwordEncoder.encode(data.password),
         username = data.username,
         gender = data.gender,
         registerDate = Instant.now()

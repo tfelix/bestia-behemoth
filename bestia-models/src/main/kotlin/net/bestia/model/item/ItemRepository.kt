@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 @Transactional(readOnly = true)
-interface ItemRepository : JpaRepository<Item, Int> {
+interface ItemRepository : JpaRepository<Item, Long> {
 
   /**
    * Returns an item by its item database name. The name is unique. Returns null if the item was not found.

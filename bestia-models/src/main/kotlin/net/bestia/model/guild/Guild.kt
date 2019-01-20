@@ -1,6 +1,8 @@
 package net.bestia.model.guild
 
 import net.bestia.model.AbstractEntity
+import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.findOne
 import java.io.Serializable
 import java.time.Instant
 import java.util.*
@@ -34,6 +36,8 @@ class Guild(
   var exp = 0
     private set
 
+  var defaultRankName: String = "Rookie"
+
   /**
    * Last time the leader of this guild was changed. If it is null then the
    * leader was never changed.
@@ -58,6 +62,16 @@ class Guild(
     }
   }
 
+  fun addGuildMember(playerBestia: PlayerBestia): Boolean {
+    if (members.size >= MAX_GUILD_LEVEL) {
+      return false
+    }
+
+    members.add(GuildMember(this, playerBestia, GuildRank(defaultRankName)))
+
+    return true
+  }
+
   /**
    * @param member Removes this [GuildMember] from the guild.
    */
@@ -76,6 +90,11 @@ class Guild(
   fun addRank(rank: GuildRank) {
     this.ranks.add(rank)
   }
+
+  fun getPlayerBestiaIds(): Set<Long> {
+    return members.map { it.member.id }.toSet()
+  }
+
 
   fun addExp(exp: Int) {
     this.exp += exp

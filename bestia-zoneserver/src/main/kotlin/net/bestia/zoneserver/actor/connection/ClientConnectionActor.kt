@@ -9,8 +9,8 @@ import net.bestia.messages.MessageId
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientDisconnectMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.client.LoginService
-import net.bestia.zoneserver.client.LogoutService
+import net.bestia.zoneserver.account.LoginService
+import net.bestia.zoneserver.account.LogoutService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 

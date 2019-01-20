@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.env
 
-import net.bestia.zoneserver.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverConfig
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import org.springframework.stereotype.Component
 

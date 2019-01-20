@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
 import net.bestia.model.battle.BestiaAttackRepository
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.battle.BestiaAttack
 import net.bestia.model.bestia.PlayerBestia
@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 @Transactional
 class PlayerBestiaService(
-    private val playerBestiaDao: PlayerBestiaDAO,
+    private val playerBestiaDao: PlayerBestiaRepository,
     private val attackRepository: BestiaAttackRepository
 ) {
   /**

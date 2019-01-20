@@ -5,6 +5,7 @@ import net.bestia.model.account.ClientVarRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.account.ClientVar
+import net.bestia.zoneserver.account.ClientVarService
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -39,17 +40,7 @@ class ClientVarServiceTest {
     `when`(accDao.findOneOrThrow(NOT_EXISTING_ACC)).thenReturn(null)
     `when`(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
 
-    cvarService = ClientVarService(cvarDao, accDao!!)
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun ctor_nullCvarDao_throws() {
-    ClientVarService(null!!, accDao!!)
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun ctor_nullAccountDao_throws() {
-    ClientVarService(cvarDao!!, null!!)
+    cvarService = ClientVarService(cvarDao, accDao)
   }
 
   @Test
@@ -78,21 +69,6 @@ class ClientVarServiceTest {
     val `var` = cvarService!!.find(EXISTING_ACC_ID, NOT_EXISTING_KEY)
     verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
     Assert.assertNull(`var`)
-  }
-
-  @Test
-  fun find_existingAccIdAndKey_cvar() {
-
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun set_nullKey_throws() {
-    cvarService!![EXISTING_ACC_ID, null!!] = DATA_STR
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun set_nullData_throws() {
-    cvarService!![EXISTING_ACC_ID, EXISTING_KEY] = null!!
   }
 
   @Test(expected = IllegalArgumentException::class)

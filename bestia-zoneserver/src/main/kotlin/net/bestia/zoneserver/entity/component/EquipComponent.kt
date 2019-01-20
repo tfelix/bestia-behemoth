@@ -22,5 +22,5 @@ data class EquipComponent(
    * @return A set of available equipment allEquipmentSlots.
    */
   val availableEquipmentSlots: Set<EquipmentSlot>
-    get() = allEquipmentSlots - equipments.map { it.usedSlot }
+    get() = emptySet()
 }

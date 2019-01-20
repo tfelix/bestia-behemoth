@@ -40,8 +40,6 @@ data class Item(
     @JsonProperty("t")
     val type: ItemType,
 
-    var usedSlot: EquipmentSlot? = null,
-
     @JsonProperty("i")
     val indicator: String? = null,
 

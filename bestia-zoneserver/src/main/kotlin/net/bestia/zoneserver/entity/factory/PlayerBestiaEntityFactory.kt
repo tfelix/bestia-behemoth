@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.factory
 
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.Entity
@@ -16,11 +16,10 @@ import net.bestia.zoneserver.inventory.InventoryService
 class PlayerBestiaEntityFactory(
     private val statusService: StatusService,
     private val inventoryService: InventoryService,
-    private val playerBestiaDao: PlayerBestiaDAO
+    private val playerBestiaDao: PlayerBestiaRepository
 ) : AbstractFactory<PlayerBestiaBlueprint>(PlayerBestiaBlueprint::class.java) {
 
   override fun performBuild(entity: Entity, blueprint: PlayerBestiaBlueprint) {
-
     val playerBestia = playerBestiaDao.findOneOrThrow(blueprint.playerBestiaId)
 
     entity.addAllComponents(
@@ -31,7 +30,7 @@ class PlayerBestiaEntityFactory(
             ),
             VisualComponent(
                 entityId = entity.id,
-                visual = playerBestia.origin.spriteInfo
+                visual = SpriteInfo.mob(playerBestia.origin.sprite)
             ),
             EquipComponent(
                 entityId = entity.id

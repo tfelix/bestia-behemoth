@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
@@ -12,7 +12,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import java.util.*
-
 
 @RunWith(MockitoJUnitRunner::class)
 class ChatCommandServiceTest {
@@ -36,7 +35,7 @@ class ChatCommandServiceTest {
 
     whenever(accDao.findOneOrThrow(ACC_ID)).thenReturn(acc)
 
-    chatService = ChatCommandService(Arrays.asList(chatCmd), accDao!!)
+    chatService = ChatCommandService(Arrays.asList(chatCmd), accDao)
   }
 
   @Test

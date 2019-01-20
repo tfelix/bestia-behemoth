@@ -3,13 +3,13 @@ package net.bestia.zoneserver.actor.connection
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.verify
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.TestZoneConfiguration
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.client.LoginService
+import net.bestia.zoneserver.account.LoginService
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired

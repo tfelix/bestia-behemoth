@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 import net.bestia.model.item.PlayerItem
 
 @Repository
-interface PlayerItemDAO : CrudRepository<PlayerItem, Int> {
+interface PlayerItemRepository : CrudRepository<PlayerItem, Int> {
 
   /**
    * Returns all PlayerItems for a particular account id.
@@ -31,7 +31,7 @@ interface PlayerItemDAO : CrudRepository<PlayerItem, Int> {
    * @return The found PlayerItem, null otherwise.
    */
   @Query("SELECT pi FROM PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId")
-  fun findPlayerItem(@Param("accId") accId: Long, @Param("itemId") itemId: Int): PlayerItem?
+  fun findPlayerItem(@Param("accId") accId: Long, @Param("itemId") itemId: Long): PlayerItem?
 
   /**
    * Returns the total weight of all items inside the inventory of the given

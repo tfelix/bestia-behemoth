@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.battle
 
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.bestia.StatusPointsImpl
 import net.bestia.model.test.BestiaFixture
@@ -24,18 +24,17 @@ class StatusServiceTest {
   private lateinit var statusService: StatusService
 
   @Mock
-  private lateinit var playerBestiaDao: PlayerBestiaDAO
+  private lateinit var playerBestiaDao: PlayerBestiaRepository
 
   @Mock
   private lateinit var bestiaDao: BestiaRepository
 
-  private val bestiaId = 1
+  private val bestiaId = 1L
   private val playerBestiaId = 2L
 
   private val bestia = BestiaFixture.bestia
 
   fun setup() {
-
     whenever(bestiaDao.findOneOrThrow(bestiaId)).thenReturn(bestia)
     whenever(playerBestiaDao.findOneOrThrow(playerBestiaId))
         .thenReturn(PlayerBestiaFixture.playerBestiaWithoutMaster)

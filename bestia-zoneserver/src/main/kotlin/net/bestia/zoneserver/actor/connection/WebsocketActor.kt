@@ -13,7 +13,7 @@ import net.bestia.messages.client.PongMessage
 import net.bestia.messages.login.LoginAuthRequestMessage
 import net.bestia.messages.login.LoginAuthResponseMessage
 import net.bestia.messages.login.LoginResponse
-import net.bestia.zoneserver.client.AuthenticationService
+import net.bestia.zoneserver.account.AuthenticationService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -25,7 +25,6 @@ private val LOG = KotlinLogging.logger { }
 @Scope("prototype")
 class WebsocketActor(
     private val authService: AuthenticationService,
-    @Qualifier("socketMapper")
     private val mapper: ObjectMapper,
     private val clientMessageIngress: ActorRef
 ) : AbstractActor() {

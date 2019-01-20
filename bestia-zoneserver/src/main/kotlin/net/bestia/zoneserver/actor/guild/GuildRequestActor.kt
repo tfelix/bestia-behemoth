@@ -1,15 +1,14 @@
 package net.bestia.zoneserver.actor.guild
 
-import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.messages.guild.GuildRequestMessage
-import net.bestia.model.guild.GuildRepository
+import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.model.findOne
+import net.bestia.model.guild.GuildRepository
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import net.bestia.zoneserver.guild.GuildService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 /**
  * The actor will reply to guild requests messages which will provide details to
@@ -17,11 +16,10 @@ import org.springframework.stereotype.Component
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class GuildRequestActor(
-        private val guildService: GuildService,
-        private val guildDao: GuildRepository
+    private val guildService: GuildService,
+    private val guildDao: GuildRepository
 ) : BaseClientMessageRouteActor() {
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

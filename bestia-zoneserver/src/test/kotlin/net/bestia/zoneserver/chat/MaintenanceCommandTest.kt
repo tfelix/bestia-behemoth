@@ -3,11 +3,11 @@ package net.bestia.zoneserver.chat
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.Account
-import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.client.LogoutService
-import net.bestia.zoneserver.RuntimeConfigService
+import net.bestia.zoneserver.account.LogoutService
+import net.bestia.zoneserver.config.RuntimeConfigService
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

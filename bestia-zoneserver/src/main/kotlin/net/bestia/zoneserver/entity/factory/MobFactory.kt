@@ -43,7 +43,7 @@ internal class MobFactory(
     entity.addComponent(
         VisualComponent(
             entityId = entity.id,
-            visual = bestia.spriteInfo
+            visual = SpriteInfo.mob(bestia.sprite)
         )
     )
 

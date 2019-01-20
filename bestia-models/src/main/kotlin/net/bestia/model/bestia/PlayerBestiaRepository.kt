@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
  * @author Thomas Felix
  */
 @Repository
-interface PlayerBestiaDAO : CrudRepository<PlayerBestia, Long> {
+interface PlayerBestiaRepository : CrudRepository<PlayerBestia, Long> {
 
   /**
    * Finds all [PlayerBestia]s for a given account ID.

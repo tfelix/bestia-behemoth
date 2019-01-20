@@ -1,4 +1,4 @@
-package net.bestia.zoneserver
+package net.bestia.zoneserver.config
 
 import net.bestia.model.server.MaintenanceLevel
 import org.springframework.stereotype.Service

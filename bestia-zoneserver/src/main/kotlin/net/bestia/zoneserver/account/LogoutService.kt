@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.client
+package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.EntityService
@@ -9,7 +9,6 @@ import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LoginResponse
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOne
-import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService

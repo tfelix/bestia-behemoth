@@ -6,10 +6,8 @@ import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.client.AccountService
+import net.bestia.zoneserver.account.AccountService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 

@@ -8,7 +8,7 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.item.ItemRepository
-import net.bestia.model.item.PlayerItemDAO
+import net.bestia.model.item.PlayerItemRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.item.PlayerItem
 import org.springframework.stereotype.Service
@@ -33,7 +33,7 @@ private val LOG = KotlinLogging.logger { }
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
 class InventoryService(
-    private val playerItemDao: PlayerItemDAO,
+    private val playerItemDao: PlayerItemRepository,
     private val accountDao: AccountRepository,
     private val itemDao: ItemRepository,
     private val entityService: EntityService
@@ -100,7 +100,7 @@ class InventoryService(
    * @return TRUE if the item with the given amount is in the inventory. FALSE
    * otherwise.
    */
-  fun hasItem(accId: Long, itemId: Int, amount: Int): Boolean {
+  fun hasItem(accId: Long, itemId: Long, amount: Int): Boolean {
     val item = playerItemDao.findPlayerItem(accId, itemId)
     return item != null && item.amount >= amount
   }
@@ -126,13 +126,10 @@ class InventoryService(
    * Adds an item to the account.
    *
    */
-  fun addItem(accId: Long, itemId: Int, amount: Int): Boolean {
-
-    // Look if the account already has such an item.
+  fun addItem(accId: Long, itemId: Long, amount: Int): Boolean {
     var pitem = playerItemDao.findPlayerItem(accId, itemId)
 
     if (pitem == null) {
-      // New item.
       val acc = accountDao.findOneOrThrow(accId)
       val item = itemDao.findOneOrThrow(itemId)
 
@@ -174,7 +171,7 @@ class InventoryService(
    * @return TRUE if the item amount was on this account and the item(s) where
    * removed. FALSE if no or not enough items where in this account.
    */
-  fun removeItem(accId: Long, itemId: Int, amount: Int): Boolean {
+  fun removeItem(accId: Long, itemId: Long, amount: Int): Boolean {
     if (amount < 0) {
       throw IllegalArgumentException("Amount must be positive.")
     }
@@ -215,7 +212,6 @@ class InventoryService(
     val item = itemDao.findItemByName(itemDbName)
 
     return item != null && removeItem(accId, item.id, amount)
-
   }
 
   /**

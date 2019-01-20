@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.data.jpa.repository.JpaRepository
 
 @Repository
-interface BestiaRepository : JpaRepository<Bestia, Int> {
+interface BestiaRepository : JpaRepository<Bestia, Long> {
 
   /**
    * Finds a bestia by its database name.

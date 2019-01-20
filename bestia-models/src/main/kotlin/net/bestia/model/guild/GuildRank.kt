@@ -1,6 +1,5 @@
 package net.bestia.model.guild
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import net.bestia.model.AbstractEntity
 import javax.persistence.*
 
@@ -14,11 +13,7 @@ import javax.persistence.*
 @Table(name = "guild_ranks")
 class GuildRank(
     @Column(nullable = false)
-    var name: String,
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GUILD_ID", nullable = false)
-    @JsonIgnore
-    private val guild: Guild
+    var name: String
 ) : AbstractEntity() {
 
   var taxRate: Float = 0f

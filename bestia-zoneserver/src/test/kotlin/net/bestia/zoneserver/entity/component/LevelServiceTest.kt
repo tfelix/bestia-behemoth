@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.battle.StatusService
@@ -15,8 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class LevelServiceTest {
-
-  private val LEVEL = 4
 
   @Mock
   private lateinit var  entityService: EntityService
@@ -45,7 +43,6 @@ class LevelServiceTest {
 
   @Test
   fun setLevel_validValues_levelSet() {
-
     lvService!!.setLevel(entity, 10)
 
     // Verify recalc status values.
@@ -56,25 +53,25 @@ class LevelServiceTest {
   @Test(expected = IllegalArgumentException::class)
   fun setLevel_0Level_throws() {
 
-    lvService!!.setLevel(entity!!, 0)
+    lvService!!.setLevel(entity, 0)
   }
 
   @Test(expected = IllegalArgumentException::class)
   fun setLevel_NegativeLevel_throws() {
 
-    lvService!!.setLevel(entity!!, -1)
+    lvService!!.setLevel(entity, -1)
   }
 
   @Test(expected = IllegalArgumentException::class)
   fun addExp_negExp_throws() {
 
-    lvService!!.addExp(entity!!, -10)
+    lvService!!.addExp(entity, -10)
   }
 
   @Test
   fun addExp_validExp_checksLevelUp() {
 
-    lvService!!.addExp(entity!!, 100)
+    lvService!!.addExp(entity, 100)
 
     Mockito.verify<StatusService>(statusService).calculateStatusPoints(entity)
     Mockito.verify<EntityService>(entityService).updateComponent(lvComp!!)
@@ -95,11 +92,15 @@ class LevelServiceTest {
   @Test
   fun getLevel_levelComponentEntity_returnsLevel() {
 
-    Assert.assertEquals(LEVEL.toLong(), lvService!!.getLevel(entity!!).toLong())
+    Assert.assertEquals(LEVEL.toLong(), lvService!!.getLevel(entity).toLong())
   }
 
   @Test
   fun getExp_nonLevelComponentEntity_returns0() {
     Assert.assertEquals(0, lvService!!.getExp(nonComponentEntity!!).toLong())
+  }
+
+  companion object {
+    private const val LEVEL = 4
   }
 }

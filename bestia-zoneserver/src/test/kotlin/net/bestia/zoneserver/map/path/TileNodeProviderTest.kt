@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.map.path
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
 import net.bestia.model.map.BestiaMap
@@ -35,7 +35,6 @@ class TileNodeProviderTest {
 
   @Before
   fun setup() {
-
     whenever(gameMap.isWalkable(anyLong(), anyLong())).thenReturn(true)
     whenever(gameMap.getWalkspeed(anyLong(), anyLong())).thenReturn(WALKSPD)
     whenever(gameMap.rect).thenReturn(MAP_RECT)

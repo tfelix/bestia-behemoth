@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.map.path
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.geometry.Point
 import org.junit.Assert
 import org.junit.Before

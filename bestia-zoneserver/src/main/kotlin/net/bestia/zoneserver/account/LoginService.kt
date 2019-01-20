@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.client
+package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository

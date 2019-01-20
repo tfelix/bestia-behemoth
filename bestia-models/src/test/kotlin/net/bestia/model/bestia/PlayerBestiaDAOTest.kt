@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner
 class PlayerBestiaDAOTest {
 
   @Autowired
-  private lateinit var playerDao: PlayerBestiaDAO
+  private lateinit var playerDao: PlayerBestiaRepository
 
   @Before
   fun setup() {

@@ -1,14 +1,10 @@
 package net.bestia.zoneserver.guild
 
 import mu.KotlinLogging
-import net.bestia.model.bestia.PlayerBestiaDAO
-import net.bestia.model.guild.Guild
-import net.bestia.model.guild.GuildMember
-import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
-import net.bestia.model.guild.GuildRepository
-import net.bestia.model.guild.GuildMemberRepository
+import net.bestia.model.guild.*
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -20,20 +16,16 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class GuildService(
-    private val guildDao: GuildRepository,
-    private val guildMemberDao: GuildMemberRepository,
-    private val playerBestiaDao: PlayerBestiaDAO
+    private val guildRepository: GuildRepository,
+    private val guildMemberRepository: GuildMemberRepository,
+    private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
   fun addPlayerToGuild(playerBestiaId: Long, guildId: Int) {
-    val pb = playerBestiaDao.findOneOrThrow(playerBestiaId) ?: return
-
-    val guild = guildDao.findOneOrThrow(guildId)
-    if (guild.members.size >= getMaxGuildMembers(guild)) {
-      guildMemberDao.findOne(guildId)?.also {
-        val gm = GuildMember(guild, pb)
-        guildMemberDao.save(gm)
-      }
+    val pb = playerBestiaRepository.findOneOrThrow(playerBestiaId)
+    val guild = guildRepository.findOneOrThrow(guildId)
+    if (guild.addGuildMember(pb)) {
+      guildRepository.save(guild)
     }
   }
 
@@ -51,20 +43,20 @@ class GuildService(
   }
 
   fun hasGuild(playerBestiaId: Long): Boolean {
-    return guildMemberDao.findByPlayerBestiaId(playerBestiaId) != null
+    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId) != null
   }
 
   fun getGuildOfPlayer(playerBestiaId: Long): Guild? {
-    return guildMemberDao.findByPlayerBestiaId(playerBestiaId)?.guild
+    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId)?.guild
   }
 
   fun addExpTaxToGuild(playerBestiaId: Long, earnedTotalExp: Int): Int {
-    return guildMemberDao.findByPlayerBestiaId(playerBestiaId)?.let { member ->
+    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId)?.let { member ->
       val rank = member.rank
       val taxExp = Math.ceil((rank!!.taxRate * earnedTotalExp).toDouble()).toInt()
       val guild = member.guild
       guild.addExp(taxExp)
-      guildDao.save(guild)
+      guildRepository.save(guild)
 
       LOG.debug(String.format("Guild %d earned %d tax from pbid: %d", guild.id, taxExp, playerBestiaId))
 
@@ -77,16 +69,7 @@ class GuildService(
   }
 
   fun getNeededNextLevelExp(guildId: Int): Int {
-    return guildDao.findOne(guildId)?.let { this.getNeededNextLevelExp(it) } ?: 0
-  }
-
-  fun getGuildMembersFromPlayer(playerBestiaId: Long): Set<PlayerBestia> {
-    return getGuildOfPlayer(playerBestiaId)?.members
-        ?.asSequence()
-        ?.map { it.member }
-        ?.filter { x -> x.id != playerBestiaId }
-        ?.toSet()
-        ?: emptySet()
+    return guildRepository.findOne(guildId)?.let { this.getNeededNextLevelExp(it) } ?: 0
   }
 
   fun getSkillpointsToSpend(guildId: Int): Int {
@@ -101,9 +84,7 @@ class GuildService(
    * @return TRUE if the account id has at least one bestia inside this guild.
    */
   fun isInGuild(accountId: Long, guildId: Int): Boolean {
-    return guildDao.findOne(guildId)?.let { guild ->
-      guild.members.stream().anyMatch { m -> m.member.owner.id == accountId }
-    } ?: false
+    return guildRepository.findOne(guildId)?.getPlayerBestiaIds()?.contains(accountId) ?: false
   }
 
   companion object {

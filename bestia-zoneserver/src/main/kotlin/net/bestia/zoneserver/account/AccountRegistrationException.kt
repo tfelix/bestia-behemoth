@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.client
+package net.bestia.zoneserver.account
 
 import net.bestia.messages.account.AccountRegistrationError
 

@@ -3,7 +3,7 @@ package net.bestia.zoneserver.bestia
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.battle.BestiaAttackRepository
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.PlayerBestiaService
@@ -27,7 +27,7 @@ class PlayerBestiaServiceTest {
   private lateinit var accountDao: AccountRepository
 
   @Mock
-  private lateinit var playerBestiaDao: PlayerBestiaDAO
+  private lateinit var playerBestiaDao: PlayerBestiaRepository
 
   @Mock
   private lateinit var attackLevelDao: BestiaAttackRepository
@@ -94,7 +94,7 @@ class PlayerBestiaServiceTest {
   fun save_playerBestia_saved() {
     pbService!!.save(playerBestia)
 
-    verify<PlayerBestiaDAO>(playerBestiaDao).save(playerBestia)
+    verify<PlayerBestiaRepository>(playerBestiaDao).save(playerBestia)
   }
 
   companion object {

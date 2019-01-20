@@ -35,5 +35,9 @@ data class SpriteInfo(
     fun item(image: String): SpriteInfo {
       return SpriteInfo(image, VisualType.ITEM)
     }
+
+    fun mob(sprite: String): SpriteInfo {
+      return SpriteInfo(sprite, VisualType.DYNAMIC)
+    }
   }
 }

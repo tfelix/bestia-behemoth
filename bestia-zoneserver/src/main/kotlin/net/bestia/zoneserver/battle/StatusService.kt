@@ -2,7 +2,7 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.bestia.BaseValues
 import net.bestia.zoneserver.entity.Entity
@@ -25,7 +25,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class StatusService(
     private val entityService: EntityService,
-    private val playerBestiaDao: PlayerBestiaDAO,
+    private val playerBestiaDao: PlayerBestiaRepository,
     private val bestiaDao: BestiaRepository
 ) {
 
@@ -44,8 +44,7 @@ class StatusService(
     LOG.trace("Calculate status points for entity {}.", entity)
 
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
-    val bestiaId = metaDataComponent?.data?.get(MetaDataComponent.MOB_BESTIA_ID) as? Int
-
+    val bestiaId = metaDataComponent?.data?.get(MetaDataComponent.MOB_BESTIA_ID) as? Long
     val isPlayer = entity.hasComponent(PlayerComponent::class.java)
 
     when {
@@ -59,7 +58,7 @@ class StatusService(
     entityService.updateComponent(statusComp)
   }
 
-  private fun calculateMobStatus(bestiaId: Int, entity: Entity) {
+  private fun calculateMobStatus(bestiaId: Long, entity: Entity) {
     val bestia = bestiaDao.findOneOrThrow(bestiaId)
     calculateUnmodifiedStatusPoints(
         entity = entity,

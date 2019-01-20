@@ -24,7 +24,7 @@ import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityIdGeneratorActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
-import net.bestia.zoneserver.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverConfig
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean

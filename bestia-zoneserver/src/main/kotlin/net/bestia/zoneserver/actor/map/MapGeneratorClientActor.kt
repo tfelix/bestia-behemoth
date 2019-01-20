@@ -7,7 +7,7 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO
 import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
-import net.bestia.zoneserver.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverConfig
 import net.bestia.zoneserver.map.MapGenConfiguration
 import net.bestia.zoneserver.map.MapService
 import org.springframework.beans.factory.annotation.Qualifier

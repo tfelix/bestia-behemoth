@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.SpriteInfo
 
 /**
  * The entity can be visualized by the engine. In order to do this some means of

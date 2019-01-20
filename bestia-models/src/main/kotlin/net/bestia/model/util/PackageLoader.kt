@@ -17,7 +17,7 @@ class PackageLoader<BaseT>(
     private val typeParameterClass: Class<BaseT>,
     private val packageName: String
 ) {
-  private val subClasses by lazy { load() }
+  val subClasses by lazy { load() }
 
   /**
    * Returns only concrete subsclasses which can be instantiated.

@@ -5,7 +5,7 @@ buildscript {
         javaConnectorVersion = '6.0.6'
         jacksonVersion = '2.9.7'
         reflectionsVersion = '0.9.11'
-        kotlinLoggingVersion = '1.6.10'
+        kotlinLoggingVersion = '1.6.22'
         akkaVersion = '2.5.16'
         akkaHttpVersion = '10.1.5'
     }

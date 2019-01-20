@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.entity
 
 import akka.actor.PoisonPill
-import com.nhaarman.mockito_kotlin.check
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.check
 import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.model.bestia.Direction
 import net.bestia.zoneserver.MessageApi

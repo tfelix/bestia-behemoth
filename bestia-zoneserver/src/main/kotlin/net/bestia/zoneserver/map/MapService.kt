@@ -180,7 +180,7 @@ class MapService(
    * @return A list with all [MapDataDTO] covering the given area.
    */
   private fun getCoveredMapDataDTO(x: Long, y: Long, width: Long, height: Long): List<MapDataDTO> {
-    val rawData = mapDataDao.findAllInRange(x, y, width, height) ?: return emptyList()
+    val rawData = mapDataDao.findAllInRange(x, y, width, height)
 
     val dtos = ArrayList<MapDataDTO>(rawData.size)
     for (md in rawData) {

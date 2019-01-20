@@ -17,15 +17,15 @@ class PositionComponentTest {
 
   @Test
   fun isSightBlocking_setAndGet() {
-    Assert.assertFalse(posComp!!.isSightBlocking)
+    Assert.assertFalse(posComp.isSightBlocking)
     posComp.isSightBlocking = true
-    Assert.assertTrue(posComp!!.isSightBlocking)
+    Assert.assertTrue(posComp.isSightBlocking)
   }
 
   @Test
   fun getFacing_setAndGet() {
     posComp.facing = Direction.EAST
-    Assert.assertEquals(Direction.EAST, posComp!!.facing)
+    Assert.assertEquals(Direction.EAST, posComp.facing)
   }
 
   @Test

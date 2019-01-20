@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat
 
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PositionComponent
