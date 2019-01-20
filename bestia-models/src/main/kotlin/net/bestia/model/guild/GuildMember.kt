@@ -1,7 +1,7 @@
 package net.bestia.model.guild
 
 import net.bestia.model.AbstractEntity
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestia
 import javax.persistence.*
 
 /**

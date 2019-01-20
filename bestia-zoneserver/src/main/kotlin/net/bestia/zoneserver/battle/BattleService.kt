@@ -11,7 +11,7 @@ import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.Damage
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.domain.*
+import net.bestia.model.bestia.StatusPoints
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect

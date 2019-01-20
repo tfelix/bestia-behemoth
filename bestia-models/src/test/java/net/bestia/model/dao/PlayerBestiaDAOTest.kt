@@ -3,7 +3,8 @@ package net.bestia.model.dao
 import net.bestia.model.test.AccountFixture
 import net.bestia.model.test.BestiaFixture
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestia
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

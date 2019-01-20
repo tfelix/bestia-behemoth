@@ -5,11 +5,11 @@ import net.bestia.messages.account.AccountRegistration
 import net.bestia.messages.account.AccountRegistrationError
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.domain.Password
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestia
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

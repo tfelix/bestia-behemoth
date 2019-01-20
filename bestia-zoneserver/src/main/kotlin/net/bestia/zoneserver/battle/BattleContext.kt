@@ -3,8 +3,8 @@ package net.bestia.zoneserver.battle
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.model.battle.Attack
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.domain.Element
-import net.bestia.model.domain.StatusPoints
+import net.bestia.model.battle.Element
+import net.bestia.model.bestia.StatusPoints
 import net.bestia.model.entity.StatusBasedValues
 
 /**

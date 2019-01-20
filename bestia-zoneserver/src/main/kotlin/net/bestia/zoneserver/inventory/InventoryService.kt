@@ -7,10 +7,10 @@ import net.bestia.zoneserver.entity.component.InventoryComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.ItemDAO
-import net.bestia.model.dao.PlayerItemDAO
-import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.PlayerItem
+import net.bestia.model.item.ItemRepository
+import net.bestia.model.item.PlayerItemDAO
+import net.bestia.model.findOneOrThrow
+import net.bestia.model.item.PlayerItem
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -35,7 +35,7 @@ private val LOG = KotlinLogging.logger { }
 class InventoryService(
     private val playerItemDao: PlayerItemDAO,
     private val accountDao: AccountRepository,
-    private val itemDao: ItemDAO,
+    private val itemDao: ItemRepository,
     private val entityService: EntityService
 ) {
 

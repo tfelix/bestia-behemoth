@@ -2,9 +2,9 @@ package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOne
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOne
+import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.PositionComponent

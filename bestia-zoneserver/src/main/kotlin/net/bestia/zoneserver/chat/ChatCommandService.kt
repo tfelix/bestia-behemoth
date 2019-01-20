@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.findOneOrThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*

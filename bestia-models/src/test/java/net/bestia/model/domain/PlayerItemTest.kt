@@ -1,5 +1,7 @@
 package net.bestia.model.domain
 
+import net.bestia.model.item.Item
+import net.bestia.model.item.PlayerItem
 import net.bestia.model.test.AccountFixture
 import org.junit.Test
 

@@ -1,7 +1,7 @@
 package net.bestia.model.party
 
 import net.bestia.model.AbstractEntity
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestia
 import java.io.Serializable
 import javax.persistence.*
 

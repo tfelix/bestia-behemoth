@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import net.bestia.model.bestia.StatusPoints;
+import net.bestia.model.bestia.StatusPointsImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -3,7 +3,7 @@ package net.bestia.model.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 
-import net.bestia.model.domain.StatusPoints
+import net.bestia.model.bestia.StatusPoints
 import net.bestia.model.map.Walkspeed
 
 /**

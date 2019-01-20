@@ -15,6 +15,10 @@ class PartyService(
     private val partyRepository: PartyRepository
 ) {
 
+  fun invitePartyMember(memberAccountId: Long, invitedAccountId: Long): Boolean {
+    throw IllegalStateException("Method not implemented.")
+  }
+
   /**
    * Adds a new member to this party. All party member can invite new member
    * to a party. The player must not be a member of another party. He must

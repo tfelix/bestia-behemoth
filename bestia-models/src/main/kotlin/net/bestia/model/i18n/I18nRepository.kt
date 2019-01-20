@@ -1,7 +1,5 @@
 package net.bestia.model.i18n
 
-import net.bestia.model.domain.TranslationCategory
-
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.Repository
 import org.springframework.data.repository.query.Param

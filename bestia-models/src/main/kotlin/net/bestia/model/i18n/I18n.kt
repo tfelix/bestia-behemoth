@@ -1,7 +1,6 @@
 package net.bestia.model.i18n
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import net.bestia.model.domain.TranslationCategory
 import java.io.Serializable
 import javax.persistence.*
 

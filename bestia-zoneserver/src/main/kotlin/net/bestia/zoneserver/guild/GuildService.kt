@@ -1,10 +1,12 @@
 package net.bestia.zoneserver.guild
 
 import mu.KotlinLogging
-import net.bestia.model.dao.*
+import net.bestia.model.bestia.PlayerBestiaDAO
 import net.bestia.model.guild.Guild
 import net.bestia.model.guild.GuildMember
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.findOne
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.guild.GuildRepository
 import net.bestia.model.guild.GuildMemberRepository
 import org.springframework.stereotype.Service

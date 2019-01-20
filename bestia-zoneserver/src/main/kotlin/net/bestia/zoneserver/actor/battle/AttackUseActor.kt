@@ -5,7 +5,7 @@ import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntityDamageMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
 import net.bestia.model.battle.AttackRepository
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.battle.Attack
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.SpringExtension

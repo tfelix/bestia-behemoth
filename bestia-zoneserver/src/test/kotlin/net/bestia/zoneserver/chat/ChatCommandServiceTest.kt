@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat
 
 import com.nhaarman.mockito_kotlin.whenever
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import org.junit.Assert
 import org.junit.Before

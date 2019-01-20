@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.ui
 import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import net.bestia.messages.ui.ClientVarRequestMessage
-import net.bestia.model.domain.ClientVar
+import net.bestia.model.account.ClientVar
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.ClientVarActor
 import net.bestia.zoneserver.client.ClientVarService

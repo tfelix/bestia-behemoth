@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.Direction
+import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Point
 

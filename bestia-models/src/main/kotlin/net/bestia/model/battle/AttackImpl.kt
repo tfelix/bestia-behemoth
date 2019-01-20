@@ -10,7 +10,6 @@ import javax.persistence.Id
 import javax.persistence.Table
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.Element
 
 @Entity
 @Table(name = "attacks")

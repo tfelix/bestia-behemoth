@@ -1,7 +1,5 @@
 package net.bestia.model.battle
 
-import net.bestia.model.domain.Element
-
 interface Attack {
 
   val id: Int

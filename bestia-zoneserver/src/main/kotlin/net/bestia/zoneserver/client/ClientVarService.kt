@@ -2,9 +2,9 @@ package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.ClientVarDAO
-import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.ClientVar
+import net.bestia.model.account.ClientVarRepository
+import net.bestia.model.findOneOrThrow
+import net.bestia.model.account.ClientVar
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -19,8 +19,8 @@ private val LOG = KotlinLogging.logger {  }
 @Service
 class ClientVarService
 constructor(
-        private val cvarDao: ClientVarDAO,
-        private val accDao: AccountRepository
+    private val cvarDao: ClientVarRepository,
+    private val accDao: AccountRepository
 ) {
 
   /**

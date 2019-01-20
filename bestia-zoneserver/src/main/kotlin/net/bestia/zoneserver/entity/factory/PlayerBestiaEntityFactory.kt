@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.factory
 
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*

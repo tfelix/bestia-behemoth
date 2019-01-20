@@ -2,7 +2,7 @@ package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService

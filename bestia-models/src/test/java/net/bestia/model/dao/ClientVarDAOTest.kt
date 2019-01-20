@@ -2,7 +2,8 @@ package net.bestia.model.dao
 
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.test.AccountFixture
-import net.bestia.model.domain.ClientVar
+import net.bestia.model.account.ClientVar
+import net.bestia.model.account.ClientVarRepository
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -18,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner
 class ClientVarDAOTest {
 
   @Autowired
-  private lateinit var cvDao: ClientVarDAO
+  private lateinit var cvDao: ClientVarRepository
 
   @Autowired
   private lateinit var accDao: AccountRepository

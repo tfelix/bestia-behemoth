@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.guild
 import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.messages.guild.GuildRequestMessage
 import net.bestia.model.guild.GuildRepository
-import net.bestia.model.dao.findOne
+import net.bestia.model.findOne
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor

@@ -2,11 +2,11 @@ package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
 import net.bestia.model.battle.BestiaAttackRepository
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.BestiaAttack
-import net.bestia.model.domain.PlayerBestia
-import net.bestia.model.domain.PlayerItem
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOneOrThrow
+import net.bestia.model.battle.BestiaAttack
+import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.item.PlayerItem
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*

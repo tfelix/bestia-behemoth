@@ -1,6 +1,6 @@
 package net.bestia.model.test
 
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestia
 
 object PlayerBestiaFixture {
 

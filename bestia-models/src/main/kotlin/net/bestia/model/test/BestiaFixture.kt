@@ -1,7 +1,9 @@
 package net.bestia.model.test
 
+import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BaseValues
 import net.bestia.model.bestia.Bestia
+import net.bestia.model.bestia.BestiaType
 import net.bestia.model.domain.*
 
 object BestiaFixture {

@@ -3,7 +3,7 @@ package net.bestia.model;
 import net.bestia.model.i18n.I18n;
 import net.bestia.model.i18n.I18nRepository;
 import net.bestia.model.account.Account;
-import net.bestia.model.domain.TranslationCategory;
+import net.bestia.model.i18n.TranslationCategory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

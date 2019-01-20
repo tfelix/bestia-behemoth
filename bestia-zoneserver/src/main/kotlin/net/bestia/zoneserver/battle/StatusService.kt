@@ -2,8 +2,8 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.bestia.BaseValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService

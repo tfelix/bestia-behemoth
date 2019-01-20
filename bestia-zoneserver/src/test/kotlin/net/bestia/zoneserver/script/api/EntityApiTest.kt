@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.model.domain.Direction
+import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent

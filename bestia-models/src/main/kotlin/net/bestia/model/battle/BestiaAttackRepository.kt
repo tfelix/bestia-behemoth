@@ -1,7 +1,5 @@
 package net.bestia.model.battle
 
-import net.bestia.model.domain.BestiaAttack
-
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository

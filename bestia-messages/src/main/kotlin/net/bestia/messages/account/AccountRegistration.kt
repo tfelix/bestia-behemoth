@@ -1,6 +1,6 @@
 package net.bestia.messages.account
 
-import net.bestia.model.domain.Gender
+import net.bestia.model.account.Gender
 import net.bestia.model.account.Hairstyle
 
 /**

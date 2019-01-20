@@ -1,7 +1,6 @@
 package net.bestia.model.account
 
 import net.bestia.model.AbstractEntity
-import net.bestia.model.domain.Gender
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant

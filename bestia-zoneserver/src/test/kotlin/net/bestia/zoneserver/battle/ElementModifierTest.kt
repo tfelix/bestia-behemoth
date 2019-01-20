@@ -3,7 +3,7 @@ package net.bestia.zoneserver.battle
 import org.junit.Assert
 import org.junit.Test
 
-import net.bestia.model.domain.Element
+import net.bestia.model.battle.Element
 
 class ElementModifierTest {
 

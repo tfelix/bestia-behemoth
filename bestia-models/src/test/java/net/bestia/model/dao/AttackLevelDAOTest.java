@@ -16,7 +16,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
-import net.bestia.model.domain.BestiaAttack;
+import net.bestia.model.battle.BestiaAttack;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

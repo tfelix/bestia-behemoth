@@ -1,16 +1,15 @@
 package net.bestia.model.test
 
 import net.bestia.model.account.Account
-import net.bestia.model.domain.Gender
-import net.bestia.model.domain.Password
+import net.bestia.model.account.Gender
 import java.time.Instant
 
 object AccountFixture {
 
-  val email = "test@example.com"
-  val username = "usernamer"
-  val registeredOn = Instant.parse("2018-10-12")
-  val password = Password("sample123")
+  const val email = "test@example.com"
+  const val username = "usernamer"
+  val registeredOn = Instant.parse("2018-10-12")!!
+  const val password = "sample123"
 
   @JvmStatic
   fun createAccount(): Account {

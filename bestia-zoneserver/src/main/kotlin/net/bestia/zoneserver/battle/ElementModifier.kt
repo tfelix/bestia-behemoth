@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.model.domain.Element
+import net.bestia.model.battle.Element
 import java.util.*
 
 /**
@@ -481,8 +481,8 @@ internal object ElementModifier {
    * @author Thomas Felix
    */
   private data class ElementKey(
-          private val el1: Element,
-          private val el2: Element
+      private val el1: Element,
+      private val el2: Element
   )
 
   /**

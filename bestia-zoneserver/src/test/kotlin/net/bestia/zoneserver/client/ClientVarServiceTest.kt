@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.client
 
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.dao.ClientVarDAO
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.account.ClientVarRepository
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
-import net.bestia.model.domain.ClientVar
+import net.bestia.model.account.ClientVar
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -22,7 +22,7 @@ class ClientVarServiceTest {
   private lateinit var accDao: AccountRepository
 
   @Mock
-  private lateinit var cvarDao: ClientVarDAO
+  private lateinit var cvarDao: ClientVarRepository
 
   @Mock
   private lateinit var account: Account
@@ -70,13 +70,13 @@ class ClientVarServiceTest {
   @Test
   fun delete_existingAccId_deletes() {
     cvarService!!.delete(EXISTING_ACC_ID, EXISTING_KEY)
-    verify<ClientVarDAO>(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
+    verify<ClientVarRepository>(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
   }
 
   @Test
   fun find_existingAccId_notExistingKey_null() {
     val `var` = cvarService!!.find(EXISTING_ACC_ID, NOT_EXISTING_KEY)
-    verify<ClientVarDAO>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
+    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
     Assert.assertNull(`var`)
   }
 
@@ -110,8 +110,8 @@ class ClientVarServiceTest {
 
     cvarService!![EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
 
-    verify<ClientVarDAO>(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
-    verify<ClientVarDAO>(cvarDao).save(any(ClientVar::class.java))
+    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
+    verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
   }
 
   @Test
@@ -119,8 +119,8 @@ class ClientVarServiceTest {
 
     cvarService!![EXISTING_ACC_ID, NOT_EXISTING_KEY] = DATA_STR
 
-    verify<ClientVarDAO>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
-    verify<ClientVarDAO>(cvarDao).save(any(ClientVar::class.java))
+    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
+    verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
   }
 
   companion object {

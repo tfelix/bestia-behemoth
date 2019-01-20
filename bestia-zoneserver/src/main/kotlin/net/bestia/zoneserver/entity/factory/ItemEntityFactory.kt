@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
-import net.bestia.model.dao.ItemDAO
+import net.bestia.model.item.ItemRepository
 import net.bestia.model.domain.SpriteInfo
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PositionComponent
@@ -18,7 +18,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 class ItemEntityFactory(
-    private val itemDao: ItemDAO
+    private val itemDao: ItemRepository
 ) : AbstractFactory<ItemBlueprint>(ItemBlueprint::class.java) {
 
   override fun performBuild(entity: Entity, blueprint: ItemBlueprint) {

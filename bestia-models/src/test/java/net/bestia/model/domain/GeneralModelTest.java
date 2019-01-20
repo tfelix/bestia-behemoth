@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
+import net.bestia.model.account.LoginInfo;
 import org.junit.Assert;
 import org.junit.Test;
 import org.reflections.Reflections;

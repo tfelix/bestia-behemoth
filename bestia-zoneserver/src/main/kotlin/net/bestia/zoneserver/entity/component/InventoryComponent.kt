@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.Item
+import net.bestia.model.item.Item
 import java.lang.IllegalStateException
 
 data class InventoryItem(

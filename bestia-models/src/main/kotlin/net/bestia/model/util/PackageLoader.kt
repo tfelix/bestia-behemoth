@@ -4,7 +4,6 @@ import org.reflections.Reflections
 
 import java.lang.reflect.Modifier
 import java.util.HashSet
-import java.util.stream.Collectors
 
 /**
  * This class can load instances of sub types of a given base-type. Because of
@@ -18,37 +17,14 @@ class PackageLoader<BaseT>(
     private val typeParameterClass: Class<BaseT>,
     private val packageName: String
 ) {
-  private val hasLoaded = false
-  private val subclasses = HashSet<Class<out BaseT>>()
-
-  /**
-   * Returns a Set of all the subclasses for the given super-type and package.
-   * This will return ALL subtypes (even abstract ones).
-   *
-   * @return The set of subclasses.
-   */
-  val subClasses: Set<Class<out BaseT>>
-    get() {
-
-      if (!hasLoaded) {
-        load()
-      }
-
-      return subclasses
-    }
+  private val subClasses by lazy { load() }
 
   /**
    * Returns only concrete subsclasses which can be instantiated.
    */
   val concreteSubClasses: Set<Class<out BaseT>>
     get() {
-      if (!hasLoaded) {
-        load()
-      }
-
-      return subclasses.stream()
-          .filter { x -> !Modifier.isAbstract(x.modifiers) }
-          .collect<Set<Class<out BaseT>>, Any>(Collectors.toSet())
+      return subClasses.asSequence().filter { !Modifier.isAbstract(it.modifiers) }.toSet()
     }
 
   /**
@@ -57,15 +33,10 @@ class PackageLoader<BaseT>(
    *
    * @return The Set of instantiated objects.
    */
-  // Dont instance abstract classes.
   val subObjects: Set<BaseT>
     get() {
-      if (!hasLoaded) {
-        load()
-      }
-
       val objInstances = HashSet<BaseT>()
-      for (clazz in subclasses) {
+      for (clazz in subClasses) {
         if (Modifier.isAbstract(clazz.modifiers)) {
           LOG.trace("Can not instantiate (is Abstract) : {}", clazz.toString())
           continue
@@ -79,15 +50,14 @@ class PackageLoader<BaseT>(
         } catch (e: IllegalAccessException) {
           LOG.error("Can not instantiate (has no std. ctor.): {}", clazz.toString(), e)
         }
-
       }
 
       return objInstances
     }
 
-  private fun load() {
+  private fun load(): Set<Class<out BaseT>> {
     val reflections = Reflections(packageName)
-    subclasses.addAll(reflections.getSubTypesOf(typeParameterClass))
+    return reflections.getSubTypesOf(typeParameterClass).toSet()
   }
 
   /**
@@ -99,11 +69,7 @@ class PackageLoader<BaseT>(
    * FALSE otherwise.
    */
   fun haveAllStdCtor(): Boolean {
-    if (!hasLoaded) {
-      load()
-    }
-
-    for (clazz in subclasses) {
+    for (clazz in subClasses) {
       // Dont instance abstract classes.
       if (Modifier.isAbstract(clazz.modifiers)) {
         continue

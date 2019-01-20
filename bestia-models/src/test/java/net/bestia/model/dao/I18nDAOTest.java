@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.model.i18n.I18n;
-import net.bestia.model.domain.TranslationCategory;
+import net.bestia.model.i18n.TranslationCategory;
 
 //@RunWith(SpringRunner.class)
 //@SpringBootTest

@@ -1,11 +1,10 @@
 package net.bestia.zoneserver.entity
 
 import akka.actor.PoisonPill
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.check
 import com.nhaarman.mockito_kotlin.verify
 import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.model.domain.Direction
+import net.bestia.model.bestia.Direction
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.component.PositionComponent
 import org.junit.Assert

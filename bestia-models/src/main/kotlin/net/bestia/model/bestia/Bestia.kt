@@ -14,8 +14,7 @@ import javax.persistence.Table
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.domain.BestiaType
-import net.bestia.model.domain.Element
+import net.bestia.model.battle.Element
 import net.bestia.model.domain.SpriteInfo
 
 @Entity

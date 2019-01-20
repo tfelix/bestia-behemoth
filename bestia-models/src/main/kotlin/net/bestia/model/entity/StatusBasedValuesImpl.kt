@@ -2,7 +2,7 @@ package net.bestia.model.entity
 
 import java.io.Serializable
 
-import net.bestia.model.domain.StatusPoints
+import net.bestia.model.bestia.StatusPoints
 import net.bestia.model.map.Walkspeed
 
 /**

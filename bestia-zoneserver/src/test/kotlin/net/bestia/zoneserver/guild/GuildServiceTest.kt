@@ -7,7 +7,7 @@ import org.mockito.junit.MockitoJUnitRunner
 
 import net.bestia.model.guild.GuildRepository
 import net.bestia.model.guild.GuildMemberRepository
-import net.bestia.model.dao.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestiaDAO
 
 @RunWith(MockitoJUnitRunner::class)
 class GuildServiceTest {

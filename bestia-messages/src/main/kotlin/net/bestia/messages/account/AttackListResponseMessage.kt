@@ -3,7 +3,7 @@ package net.bestia.messages.account
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.MessageId
-import net.bestia.model.domain.BestiaAttack
+import net.bestia.model.battle.BestiaAttack
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the

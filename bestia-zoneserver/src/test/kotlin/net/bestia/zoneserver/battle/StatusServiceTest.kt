@@ -3,9 +3,9 @@ package net.bestia.zoneserver.battle
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.dao.PlayerBestiaDAO
-import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.StatusPointsImpl
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.findOneOrThrow
+import net.bestia.model.bestia.StatusPointsImpl
 import net.bestia.model.test.BestiaFixture
 import net.bestia.model.test.PlayerBestiaFixture
 import net.bestia.zoneserver.entity.Entity

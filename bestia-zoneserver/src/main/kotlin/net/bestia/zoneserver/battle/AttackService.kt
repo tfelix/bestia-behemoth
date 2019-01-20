@@ -7,7 +7,7 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.AttackRepository
-import net.bestia.model.dao.findOneOrThrow
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.battle.Attack
 import org.springframework.stereotype.Service
 

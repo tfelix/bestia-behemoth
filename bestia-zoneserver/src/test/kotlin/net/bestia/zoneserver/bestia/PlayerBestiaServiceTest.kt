@@ -1,10 +1,11 @@
 package net.bestia.zoneserver.bestia
 
-import net.bestia.model.dao.*
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.battle.BestiaAttackRepository
-import net.bestia.model.domain.PlayerBestia
+import net.bestia.model.bestia.PlayerBestiaDAO
+import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.model.domain.Direction
+import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service

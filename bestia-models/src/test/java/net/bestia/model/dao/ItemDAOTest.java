@@ -1,5 +1,6 @@
 package net.bestia.model.dao;
 
+import net.bestia.model.item.ItemRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +14,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
-import net.bestia.model.domain.Item;
+import net.bestia.model.item.Item;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -24,17 +25,17 @@ import net.bestia.model.domain.Item;
 public class ItemDAOTest {
 
 	@Autowired
-	private ItemDAO itemDao;
+	private ItemRepository itemRepository;
 
 	@Test
 	public void findItemByName_existingName_item() {
-		final Item item = itemDao.findItemByName("apple");
+		final Item item = itemRepository.findItemByName("apple");
 		Assert.assertNotNull(item);
 	}
 
 	@Test
 	public void findItemByName_nonExistingName_null() {
-		final Item item = itemDao.findItemByName("bla_bli_blub");
+		final Item item = itemRepository.findItemByName("bla_bli_blub");
 		Assert.assertNull(item);
 	}
 }
