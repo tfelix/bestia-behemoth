@@ -11,44 +11,41 @@ repositories {
 }
 
 description = 'bestia-zoneserver'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinVersion
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: kotlinVersion
+    implementation project(':bestia-messages')
+    implementation project(':bestia-models')
+    implementation 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
 
-    compile project(':bestia-messages')
-    compile 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-http_2.12', version: akkaHttpVersion
 
-    compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
-    compile group: 'com.typesafe.akka', name: 'akka-http_2.12', version: akkaHttpVersion
+    implementation group: "com.lightbend.akka.management", name: "akka-management-cluster-bootstrap_2.12", version: "0.18.0"
+    implementation group: 'com.lightbend.akka.discovery', name: 'akka-discovery-config_2.12', version: '0.18.0'
+    implementation group: 'com.okumin', name: 'akka-persistence-sql-async_2.12', version: '0.5.1'
 
-    compile group: "com.lightbend.akka.management", name: "akka-management-cluster-bootstrap_2.12", version: "0.18.0"
-    compile group: 'com.lightbend.akka.discovery', name: 'akka-discovery-config_2.12', version: '0.18.0'
-    compile group: 'com.okumin', name: 'akka-persistence-sql-async_2.12', version: '0.5.1'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
 
-    compile group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
-
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
-    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.6'
-    compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
-    compile group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
+    implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
+    implementation group: 'commons-io', name: 'commons-io', version: '2.5'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
+    implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
 
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
-    testCompile group: 'com.nhaarman', name: 'mockito-kotlin', version: '1.5.0'
+    testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
 }

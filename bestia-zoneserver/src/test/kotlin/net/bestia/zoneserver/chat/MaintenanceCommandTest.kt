@@ -7,7 +7,7 @@ import net.bestia.model.account.Account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.client.LogoutService
-import net.bestia.zoneserver.configuration.RuntimeConfigService
+import net.bestia.zoneserver.RuntimeConfigService
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

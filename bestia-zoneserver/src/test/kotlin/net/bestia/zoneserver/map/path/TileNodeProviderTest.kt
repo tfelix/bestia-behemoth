@@ -3,7 +3,7 @@ package net.bestia.zoneserver.map.path
 import com.nhaarman.mockito_kotlin.whenever
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
-import net.bestia.model.map.Map
+import net.bestia.model.map.BestiaMap
 import net.bestia.model.map.Walkspeed
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner
 class TileNodeProviderTest {
 
   @Mock
-  private lateinit var gameMap: Map
+  private lateinit var gameMap: BestiaMap
 
   @Mock
   private lateinit var posComp: PositionComponent

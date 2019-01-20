@@ -11,7 +11,7 @@ typealias WalkspeedFloat = Float
  * @author Thomas Felix
  */
 data class Walkspeed(
-    private val speed: WalkspeedFloat
+    val speed: WalkspeedFloat
 ) {
 
   init {

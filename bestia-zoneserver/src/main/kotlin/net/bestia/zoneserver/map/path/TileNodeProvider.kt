@@ -2,7 +2,7 @@ package net.bestia.zoneserver.map.path
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Point
-import net.bestia.model.map.Map
+import net.bestia.model.map.BestiaMap
 import net.bestia.zoneserver.entity.EntityCollisionService
 import java.util.*
 
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 class TileNodeProvider(
-    private val gameMap: Map,
+    private val gameMap: BestiaMap,
     private val entityCollisionService: EntityCollisionService
 ) : NodeProvider<Point> {
 

@@ -1,7 +1,6 @@
 package net.bestia.model.map
 
 import com.fasterxml.jackson.annotation.*
-import com.fasterxml.jackson.annotation.JsonInclude.Include
 import net.bestia.model.geometry.Size
 
 import java.io.Serializable
@@ -15,13 +14,10 @@ import java.util.Objects
  * @author Thomas Felix
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Tileset
+data class Tileset(
+    val name: String,
+    val size: Size,
 
-@JsonCreator
-constructor(
-    @JsonProperty("name") name: String,
-    @JsonProperty("size") size: Size,
-    @param:JsonProperty("mingid") @field:JsonProperty("mingid")
     /**
      * Returns the first gid of the tiles in this set. The GID are used to
      * identify the tiles it is a globally usable id which is connected to a
@@ -29,37 +25,11 @@ constructor(
      *
      * @return The first used GID of the tiles in this tileset.
      */
-    val startGID: Int) : Serializable {
-
-  /**
-   * Returns the name of this tileset file.
-   *
-   * @return The name of this tileset file.
-   */
-  val name: String
-
-  @JsonProperty("maxgid")
-  private val maxGid: Int
-
-  @JsonProperty("size")
-  private val size: Size
-
-  @JsonProperty("props")
-  @JsonInclude(Include.NON_NULL)
+    val startGID: Int
+) : Serializable {
+  val maxGid: Int = startGID + (size.height * size.width).toInt()
   private val tileProperties = HashMap<Int, TileProperties>()
-
-  @JsonIgnore
-  private val tileCount: Int
-
-  /**
-   * Returns the simple representation of the tileset for use to be send to
-   * the client. This version does not contain any tile property information.
-   *
-   * @return A simplified version of Tileset.
-   */
-  val simpleTileset: SimpleTileset
-    @JsonIgnore
-    get() = SimpleTileset(this)
+  private val tileCount = this.maxGid - this.startGID
 
   /**
    * This class is used for simple tileset representations send to the client.
@@ -69,43 +39,29 @@ constructor(
    *
    */
   class SimpleTileset(tileset: Tileset) : Serializable {
-
     @JsonProperty("mingid")
-    private val minGID: Int
+    val minGID: Int = tileset.startGID
 
     @JsonProperty("maxgid")
-    private val maxGid: Int
+    val maxGid: Int = tileset.maxGid
 
     @JsonProperty("name")
-    private val name: String
-
-    init {
-
-      this.minGID = tileset.startGID
-      this.maxGid = tileset.maxGid
-      this.name = tileset.name
-    }
+    val name: String = tileset.name
 
     override fun toString(): String {
-      return String.format("TS[name: %s]", name)
-    }
-
-    companion object {
-
-      private const val serialVersionUID = 1L
+      return "TS[name: $name]"
     }
   }
 
-  init {
-
-    this.name = Objects.requireNonNull(name)
-    this.size = Objects.requireNonNull(size)
-    this.maxGid = startGID + (size.height * size.width).toInt()
-    this.tileCount = this.maxGid - this.startGID
-  }/*
-		if(props != null) {
-			this.tileProperties.putAll(props);
-		}*/
+  /**
+   * Returns the simple representation of the tileset for use to be send to
+   * the client. This version does not contain any tile property information.
+   *
+   * @return A simplified version of Tileset.
+   */
+  fun toTilesetDTO(): SimpleTileset {
+    return SimpleTileset(this)
+  }
 
   /**
    * Sets the properties of a given tile with a guid.
@@ -131,14 +87,9 @@ constructor(
    * The GID of the tile.
    * @return The [TileProperties] of the tile or NULL if the tile had no
    * properties.
-   * @throws IllegalArgumentException
-   * if the gid is not part of this tileset.
    */
   fun getProperties(gid: Int): TileProperties {
-    if (!contains(gid)) {
-      throw IllegalArgumentException("GID is not contained withing this tileset.")
-    }
-    return tileProperties[gid]
+    return tileProperties[gid] ?: throw IllegalArgumentException("GID is not contained within this tileset.")
   }
 
   /**
@@ -154,10 +105,6 @@ constructor(
   }
 
   companion object {
-
-    private const val serialVersionUID = 1L
-
-    @JsonIgnore
     val TILE_SIZE = Size(32, 32)
   }
 }

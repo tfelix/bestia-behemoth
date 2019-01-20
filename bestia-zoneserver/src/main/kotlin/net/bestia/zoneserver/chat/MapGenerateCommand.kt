@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import mu.KotlinLogging
 import net.bestia.model.account.Account
-import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.AccountType
 import net.bestia.model.map.MapParameter
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.MessageApi

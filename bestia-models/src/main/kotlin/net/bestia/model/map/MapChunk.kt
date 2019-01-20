@@ -15,7 +15,7 @@ import net.bestia.model.geometry.Rect
  *
  * @author Thomas Felix
  */
-data class MapChunk(
+class MapChunk(
     @JsonProperty("p")
     val position: Point,
     groundLayer: IntArray,
@@ -26,9 +26,10 @@ data class MapChunk(
   val groundLayer = IntArray(MAP_CHUNK_SIZE_AREA)
 
   @JsonProperty("l")
-  val layers: List<Map<Point, Int>> = mutableListOf()
+  val layers: List<Map<Point, Int>> = layers ?: listOf()
 
-  constructor(pos: Point, groundLayer: List<Int>, layers: List<Map<Point, Int>>) : this(pos, groundLayer.toIntArray(), layers) {
+  constructor(pos: Point, groundLayer: List<Int>, layers: List<Map<Point, Int>>)
+      : this(pos, groundLayer.toIntArray(), layers) {
     // no op.
   }
 
@@ -40,10 +41,6 @@ data class MapChunk(
 
     checkPositiveCords(position)
     System.arraycopy(groundLayer, 0, this.groundLayer, 0, this.groundLayer.size)
-
-    if (layers != null) {
-      this.layers.addAll(layers)
-    }
   }
 
   /**
@@ -78,7 +75,7 @@ data class MapChunk(
       // Correct the id since the 0 layer (ground) is saved in an own
       // structure.
       val layerData = layers[layer - 1]
-      if (layerData.containsKey(chunkPos)) layerData.get(chunkPos) else -1
+      layerData[chunkPos] ?: -1
     }
   }
 

@@ -41,7 +41,7 @@ class ClientVarActor(
     }
 
     val cvar = cvarService.find(accId, key)
-    val cvarMsg = ClientVarResponseMessage(msg.uuid, cvar.data)
+    val cvarMsg = ClientVarResponseMessage(msg.uuid, cvar.getDataAsString())
     sendClient.tell(ClientEnvelope(accId, cvarMsg), self)
   }
 

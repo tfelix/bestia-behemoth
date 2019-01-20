@@ -17,5 +17,5 @@ interface TilesetDataRepository : CrudRepository<TilesetData, Long> {
    * [TilesetData] was found.
    */
   @Query("SELECT t FROM TilesetData t WHERE t.minGid <= :gid AND t.maxGid >= :gid")
-  fun findByGid(@Param("gid") gid: Long): TilesetData
+  fun findByGid(@Param("gid") gid: Long): TilesetData?
 }

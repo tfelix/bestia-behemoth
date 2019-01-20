@@ -2,7 +2,7 @@ package net.bestia.zoneserver.script
 
 import com.nhaarman.mockito_kotlin.verify
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.configuration.ZoneserverConfig
+import net.bestia.zoneserver.ZoneserverConfig
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.GlobalEnv
 import org.junit.Before

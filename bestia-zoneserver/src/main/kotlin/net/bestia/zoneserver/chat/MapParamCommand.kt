@@ -5,7 +5,7 @@ import net.bestia.messages.chat.ChatMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.account.Account
-import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.MessageApi
 import org.springframework.stereotype.Component
 

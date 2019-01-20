@@ -5,7 +5,7 @@ import net.bestia.model.map.MapParameterRepository;
 import net.bestia.model.map.MapParameter;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.model.map.Map;
+import net.bestia.model.map.BestiaMap;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.TilesetService;
 import org.junit.Assert;
@@ -75,7 +75,7 @@ public class MapServiceTest {
 	@Test
 	public void getMap_legalCoordinates_validMap() {
 
-		Map m = ms.getMap(5, 10, 10, 10);
+		BestiaMap m = ms.getMap(5, 10, 10, 10);
 
 		Assert.assertNotNull(m);
 		Assert.assertEquals(new Rect(5, 10, 10, 10), m.getRect());

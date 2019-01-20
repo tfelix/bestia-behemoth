@@ -6,7 +6,7 @@ import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.map.MapData
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
-import net.bestia.model.map.Map
+import net.bestia.model.map.BestiaMap
 import net.bestia.model.map.*
 import net.bestia.model.util.ObjectSerializer
 import org.springframework.stereotype.Service
@@ -36,8 +36,6 @@ class MapService(
     private val mapParamDao: MapParameterRepository,
     private val tilesetService: TilesetService
 ) {
-  private val mapDataSerializer = ObjectSerializer<MapDataDTO>()
-
   /**
    * Checks if there is a initialized map inside the permanent storage is
    * active.
@@ -59,9 +57,9 @@ class MapService(
    * Retrieves and generates the map. It has the dimensions of the given
    * coordinates and contains all layers and tilemap data.
    *
-   * @return A [Map] containig the enclosed data.
+   * @return A [BestiaMap] containig the enclosed data.
    */
-  fun getMap(startX: Long, startY: Long, width: Long, height: Long): Map {
+  fun getMap(startX: Long, startY: Long, width: Long, height: Long): BestiaMap {
     if (startX < 0 || startY < 0 || width < 0 || height < 0) {
       throw IllegalArgumentException("X, Y, width and height must be positive.")
     }
@@ -79,7 +77,7 @@ class MapService(
     // Find all tilesets for the gids.
     val tilesets = tilesetService.findAllTilesets(gids)
 
-    return Map(slicedData, tilesets)
+    return BestiaMap(slicedData, tilesets)
   }
 
   /**
@@ -88,7 +86,7 @@ class MapService(
    * @param bbox
    * The bounding box for retrieving the map data.
    */
-  fun getMap(bbox: Rect): Map {
+  fun getMap(bbox: Rect): BestiaMap {
     return getMap(bbox.x, bbox.y, bbox.width, bbox.height)
   }
 
@@ -146,24 +144,25 @@ class MapService(
    * Saved the given [MapDataDTO] to the database for later retrieval.
    *
    */
+  @Throws(IOException::class)
   fun saveMapData(dto: MapDataDTO) {
     try {
-      var output = mapDataSerializer.serialize(dto)
+      var output = ObjectSerializer.serialize(dto) ?: throw IOException()
       output = compress(output)
 
       LOG.debug("Map data {} compressed size: {} bytes.", dto, output.size)
 
-      // Now create the map data object and save it to the database.
-      val mapData = MapData()
-      mapData.data = output
-      mapData.height = dto.rect.height
-      mapData.width = dto.rect.width
-      mapData.x = dto.rect.x
-      mapData.y = dto.rect.y
+      val mapData = MapData(
+          data = output,
+          height = dto.rect.height,
+          width = dto.rect.width,
+          x = dto.rect.x,
+          y = dto.rect.y
+      )
       mapDataDao.save(mapData)
-
     } catch (e: IOException) {
-      LOG.error(e) { "Could not compress map data." }
+      LOG.error(e) { "Could not compress map data: $dto" }
+      throw e
     }
   }
 

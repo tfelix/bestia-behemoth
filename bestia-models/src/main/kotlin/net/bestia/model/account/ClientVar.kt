@@ -40,6 +40,11 @@ data class ClientVar(
   val dataLength: Int
     get() = data?.size ?: 0
 
+  constructor(account: Account, key: String, data: String)
+      : this(account, key) {
+    setData(data)
+  }
+
   fun getDataAsString(): String {
     return data?.let { String(it, UTF_8) } ?: ""
   }

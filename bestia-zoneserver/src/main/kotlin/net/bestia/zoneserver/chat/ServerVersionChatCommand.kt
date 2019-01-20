@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.model.account.Account.AccountType
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.configuration.ZoneserverConfig
+import net.bestia.zoneserver.ZoneserverConfig
 import org.springframework.stereotype.Component
 
 /**

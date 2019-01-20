@@ -4,10 +4,10 @@ import mu.KotlinLogging
 import net.bestia.messages.map.MapTilesetMessage
 import net.bestia.messages.map.MapTilesetRequestMessage
 import net.bestia.model.map.TilesetData
-import net.bestia.model.map.TilesetService
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.map.TilesetService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 @Scope("prototype")
 class TilesetRequestActor(
-        private val tilesetService: TilesetService
+    private val tilesetService: TilesetService
 ) : BaseClientMessageRouteActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
@@ -34,15 +34,15 @@ class TilesetRequestActor(
   private fun onMapTilesetRequest(msg: MapTilesetRequestMessage) {
 
     val ts = tilesetService.findTileset(msg.tileId)
-
-    if (!ts.isPresent) {
+    if (ts == null) {
       LOG.warn { "Tileset containing gid ${msg.tileId} not found." }
       return
     }
 
     val response = MapTilesetMessage(
-            msg.accountId,
-            ts.get().simpleTileset)
+        msg.accountId,
+        ts.toTilesetDTO()
+    )
 
     sendClient.tell(response, self)
   }

@@ -1,8 +1,11 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.71'
-        springBootVersion = '2.0.5.RELEASE'
+        kotlinVersion = '1.3.11'
+        springBootVersion = '2.1.2.RELEASE'
         javaConnectorVersion = '6.0.6'
+        jacksonVersion = '2.9.7'
+        reflectionsVersion = '0.9.11'
+        kotlinLoggingVersion = '1.6.10'
         akkaVersion = '2.5.16'
         akkaHttpVersion = '10.1.5'
     }
@@ -12,14 +15,26 @@ buildscript {
         jcenter()
         mavenLocal()
     }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
 }
 
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+/*
 plugins {
     id 'org.springframework.boot' version '2.0.5.RELEASE'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.2.71'
-    id 'org.jetbrains.kotlin.jvm' version "1.2.71"
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.2.71'
-}
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.3.11'
+    id 'org.jetbrains.kotlin.jvm' version "1.3.11"
+    id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.11'
+}*/
 
 allprojects {
     repositories {
@@ -29,7 +44,29 @@ allprojects {
 }
 
 group = 'net.bestia'
+sourceCompatibility = '1.8'
 
 subprojects {
     version = 'alpha-0.5.0-SNAPSHOT'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
 }

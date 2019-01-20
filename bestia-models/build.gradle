@@ -1,21 +1,16 @@
-plugins {
-    id 'org.jetbrains.kotlin.plugin.spring'
-    id 'org.jetbrains.kotlin.plugin.jpa'
-}
+apply plugin: 'kotlin'
 
 description = 'bestia-models'
 
 dependencies {
-    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: kotlinVersion
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
-
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.4'
-    implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
-    // compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
-    implementation group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
+    implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
+    implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
 
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testImplementation group: 'org.dbunit', name: 'dbunit', version: '2.5.0'
     testImplementation group: 'com.github.springtestdbunit', name: 'spring-test-dbunit', version: '1.2.0'
     testImplementation group: 'org.hsqldb', name: 'hsqldb', version: '2.3.3'
+    testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
 }

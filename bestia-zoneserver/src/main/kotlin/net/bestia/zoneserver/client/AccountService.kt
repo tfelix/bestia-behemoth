@@ -8,7 +8,6 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.PlayerBestiaDAO
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
-import net.bestia.model.domain.Password
 import net.bestia.model.bestia.PlayerBestia
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation

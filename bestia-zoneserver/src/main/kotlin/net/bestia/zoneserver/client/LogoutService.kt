@@ -10,6 +10,7 @@ import net.bestia.messages.login.LoginResponse
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOne
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
@@ -75,7 +76,7 @@ class LogoutService(
    *
    * @param level
    */
-  fun logoutAllUsersBelow(level: Account.AccountType) {
+  fun logoutAllUsersBelow(level: AccountType) {
     throw IllegalStateException("Must be implemented")
   }
 }

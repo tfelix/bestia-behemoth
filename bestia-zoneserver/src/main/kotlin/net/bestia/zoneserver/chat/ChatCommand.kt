@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import net.bestia.model.account.Account
-import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.AccountType
 
 interface ChatCommand {
 

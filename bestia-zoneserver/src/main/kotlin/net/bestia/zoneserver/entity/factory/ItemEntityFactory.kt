@@ -2,12 +2,8 @@ package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
 import net.bestia.model.item.ItemRepository
-import net.bestia.model.domain.SpriteInfo
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.zoneserver.entity.component.TagComponent
-import net.bestia.zoneserver.entity.component.VisualComponent
+import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }

@@ -16,7 +16,7 @@ class TilesetService(
 ) {
 
   fun findTileset(containedGid: Int): Tileset? {
-    val data = tilesetRepository.findByGid(containedGid.toLong())
+    val data = tilesetRepository.findByGid(containedGid.toLong()) ?: return null
 
     return try {
       mapper.readValue(data.data, Tileset::class.java)

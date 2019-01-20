@@ -18,7 +18,7 @@ interface ClientVarRepository : CrudRepository<ClientVar, Long> {
    * The owning account id.
    * @return Returns the found client variable or null if no was found.
    */
-  fun findByKeyAndAccountId(key: String, accountId: Long): ClientVar
+  fun findByKeyAndAccountId(key: String, accountId: Long): ClientVar?
 
   /**
    * Deletes a client variable identified by its key and the owning account

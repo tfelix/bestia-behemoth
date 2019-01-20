@@ -13,7 +13,7 @@ import net.bestia.model.map.MapParameter
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.client.LogoutService
-import net.bestia.zoneserver.configuration.RuntimeConfigService
+import net.bestia.zoneserver.RuntimeConfigService
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

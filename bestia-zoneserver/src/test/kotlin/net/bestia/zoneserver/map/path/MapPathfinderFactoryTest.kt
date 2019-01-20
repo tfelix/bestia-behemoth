@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.map.path
 
 import net.bestia.zoneserver.entity.EntityService
-import net.bestia.model.map.Map
+import net.bestia.model.map.BestiaMap
 import net.bestia.zoneserver.entity.EntityCollisionService
 import org.junit.Assert
 import org.junit.Before
@@ -21,7 +21,7 @@ class MapPathfinderFactoryTest {
   private lateinit var entitiyCollisionService: EntityCollisionService
 
   @Mock
-  private lateinit var map: Map
+  private lateinit var map: BestiaMap
 
   @Before
   fun setup() {

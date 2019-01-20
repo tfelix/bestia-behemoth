@@ -8,7 +8,7 @@ import net.bestia.model.account.ClientVar
 import org.springframework.stereotype.Service
 import java.util.*
 
-private val LOG = KotlinLogging.logger {  }
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Service for managing and saving shortcuts coming from the clients to the
@@ -33,8 +33,7 @@ constructor(
    * @return TRUE if the account owns this variable. FALSE otherwise.
    */
   fun isOwnerOfVar(accId: Long, key: String): Boolean {
-    val cvar = cvarDao.findByKeyAndAccountId(Objects.requireNonNull(key), accId)
-    return cvar != null
+    return cvarDao.findByKeyAndAccountId(key, accId) !== null
   }
 
   /**
@@ -58,7 +57,7 @@ constructor(
    * @return The number of bytes used by this account.
    */
   fun getTotalBytesUsedByAccount(accId: Long): Int {
-    return cvarDao.findByAccountId(accId)?.sumBy { it.dataLength } ?: 0
+    return cvarDao.findByAccountId(accId).sumBy { it.dataLength }
   }
 
   /**
@@ -66,13 +65,14 @@ constructor(
    *
    * @param accId
    * The account id.
-   * @param key
-   * A key.
+   * @param key A key.
    * @return The associated cvar variable.
    */
   fun find(accId: Long, key: String): ClientVar {
-    LOG.debug("Finding cvar with accID: {} and key: {}.", accId, key)
+    LOG.debug { "Find cvar with accID: $accId and key: $key." }
+
     return cvarDao.findByKeyAndAccountId(Objects.requireNonNull(key), accId)
+        ?: throw IllegalArgumentException("No cvor for account $accId with key: $key")
   }
 
   /**
@@ -95,16 +95,15 @@ constructor(
 
     if (getTotalBytesUsedByAccount(accountId) + data.length >= MAX_DATA_LENGTH_TOTAL_BYTES) {
       val errMsg = String.format("Max data stored can not be longer then %d bytes.",
-              MAX_DATA_LENGTH_TOTAL_BYTES)
+          MAX_DATA_LENGTH_TOTAL_BYTES)
       throw IllegalArgumentException(errMsg)
     }
 
     var cvar: ClientVar? = find(accountId, key)
 
     if (cvar != null) {
-      cvar.data = data
+      cvar.setData(data)
     } else {
-      // Cvar is not yet set. Just create one.
       val acc = accDao.findOneOrThrow(accountId)
       cvar = ClientVar(acc, key, data)
     }

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
 import net.bestia.model.account.Account
-import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.factory.EntityFactory
