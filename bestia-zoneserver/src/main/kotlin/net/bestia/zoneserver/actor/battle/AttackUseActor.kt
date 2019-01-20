@@ -4,9 +4,9 @@ import mu.KotlinLogging
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntityDamageMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
-import net.bestia.model.dao.AttackDAO
+import net.bestia.model.battle.AttackRepository
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Attack
+import net.bestia.model.battle.Attack
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.awaitEntityResponse
@@ -28,7 +28,7 @@ private val LOG = KotlinLogging.logger { }
 @Scope("prototype")
 class AttackUseActor(
     private val battleService: BattleService,
-    private val attackDao: AttackDAO,
+    private val attackDao: AttackRepository,
     private val messageApi: MessageApi
 ) : BaseClientMessageRouteActor() {
 

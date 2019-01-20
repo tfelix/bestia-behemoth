@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.zoneserver.MessageApi
 
 import java.util.regex.Matcher

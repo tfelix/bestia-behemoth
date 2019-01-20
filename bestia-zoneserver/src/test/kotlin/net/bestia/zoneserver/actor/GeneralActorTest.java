@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor;
 
 import akka.actor.AbstractActor;
-import net.bestia.util.PackageLoader;
+import net.bestia.model.util.PackageLoader;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import org.junit.Assert;

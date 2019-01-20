@@ -3,12 +3,10 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.model.dao.PartyDAO
+import net.bestia.model.party.PartyRepository
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -19,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @ActorComponent
 class PartyChatActor(
-    private val partyDao: PartyDAO
+    private val partyRepository: PartyRepository
 ) : AbstractActor() {
 
   private val sendToClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
@@ -42,7 +40,7 @@ class PartyChatActor(
       return
     }
 
-    val party = partyDao.findPartyByMembership(chatMsg.accountId)
+    val party = partyRepository.findPartyByMembership(chatMsg.accountId)
 
     if (party == null) {
       // not a member of a party.
@@ -53,7 +51,7 @@ class PartyChatActor(
       return
     }
 
-    party.members.forEach { member ->
+    party.getMembers().forEach { member ->
       val reply = chatMsg.copy(accountId = member.id)
       sendToClient.tell(reply, self)
     }

@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.client.LogoutService
@@ -32,8 +32,8 @@ internal class MaintenanceCommand(
     return text.matches(CMD_START_REGEX)
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.ADMIN
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.ADMIN
   }
 
   override fun executeCommand(account: Account, text: String) {
@@ -50,7 +50,7 @@ internal class MaintenanceCommand(
     if (isMaintenance) {
       sendSystemMessage(account.id, "Server maintenance: true")
       config.maintenanceMode = MaintenanceLevel.PARTIAL
-      logoutService.logoutAllUsersBelow(UserLevel.SUPER_GM)
+      logoutService.logoutAllUsersBelow(AccountType.SUPER_GM)
     } else {
       sendSystemMessage(account.id, "Server maintenance: false")
       config.maintenanceMode = MaintenanceLevel.NONE

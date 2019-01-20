@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.map;
 
-import net.bestia.model.dao.MapDataDAO;
-import net.bestia.model.dao.MapParameterDAO;
-import net.bestia.model.domain.MapParameter;
+import net.bestia.model.map.MapDataRepository;
+import net.bestia.model.map.MapParameterRepository;
+import net.bestia.model.map.MapParameter;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
@@ -29,16 +29,16 @@ public class MapServiceTest {
 	private MapService ms;
 
 	@Mock
-	private MapDataDAO dataNoMapDao;
+	private MapDataRepository dataNoMapDao;
 
 	@Mock
-	private MapDataDAO dataMapDao;
+	private MapDataRepository dataMapDao;
 
 	@Mock
-	private MapParameterDAO paramDao;
+	private MapParameterRepository paramDao;
 
 	@Mock
-	private MapParameterDAO paramNoMapDao;
+	private MapParameterRepository paramNoMapDao;
 
 	@Mock
 	private MapParameter mapParams;

@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.model.dao.BestiaDAO
+import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.BaseValues
+import net.bestia.model.bestia.BaseValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.MetaDataComponent
@@ -26,7 +26,7 @@ private val LOG = KotlinLogging.logger { }
 class StatusService(
     private val entityService: EntityService,
     private val playerBestiaDao: PlayerBestiaDAO,
-    private val bestiaDao: BestiaDAO
+    private val bestiaDao: BestiaRepository
 ) {
 
   /**

@@ -3,9 +3,9 @@ package net.bestia.zoneserver.chat
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import mu.KotlinLogging
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
-import net.bestia.model.domain.MapParameter
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
+import net.bestia.model.map.MapParameter
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor
@@ -31,8 +31,8 @@ internal class MapGenerateCommand(
     return text.matches(CMD_START_REGEX.toRegex())
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.ADMIN
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.ADMIN
   }
 
   override fun executeCommand(account: Account, text: String) {

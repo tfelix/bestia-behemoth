@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.chat
 
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.model.dao.AccountDAO
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.account.AccountRepository
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.client.LogoutService
@@ -26,7 +26,7 @@ class MaintenanceCommandTest {
   private val acc: Account? = null
 
   @Mock
-  private val accDao: AccountDAO? = null
+  private val accDao: AccountRepository? = null
 
   @Mock
   private val akkaApi: MessageApi? = null
@@ -70,7 +70,7 @@ class MaintenanceCommandTest {
   fun executeCommand_true_switchesServerModeLogoutUsers() {
     cmd!!.executeCommand(acc!!, "/maintenance true")
     verify<RuntimeConfigService>(config).maintenanceMode = MaintenanceLevel.PARTIAL
-    verify<LogoutService>(logoutService).logoutAllUsersBelow(UserLevel.SUPER_GM)
+    verify<LogoutService>(logoutService).logoutAllUsersBelow(AccountType.SUPER_GM)
   }
 
   @Test

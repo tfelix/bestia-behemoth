@@ -5,8 +5,6 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.util.ObjectSerializer;
-
 public class ObjectSerializerTest {
 	
 	private ObjectSerializer<String> serializer = new ObjectSerializer<>();

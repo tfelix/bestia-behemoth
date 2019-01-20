@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.factory.EntityFactory
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger {  }
  */
 @Service
 class LoginService(
-    private val accountDao: AccountDAO,
+    private val accountDao: AccountRepository,
     private val playerEntityService: PlayerEntityService,
     private val entityFactory: EntityFactory,
     private val playerBestiaService: PlayerBestiaService

@@ -1,7 +1,9 @@
 package net.bestia.zoneserver.bestia
 
 import net.bestia.model.dao.*
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
+import net.bestia.model.account.AccountRepository
+import net.bestia.model.battle.BestiaAttackRepository
 import net.bestia.model.domain.PlayerBestia
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import org.hamcrest.MatcherAssert.assertThat
@@ -21,13 +23,13 @@ class PlayerBestiaServiceTest {
   private var pbService: PlayerBestiaService? = null
 
   @Mock
-  private lateinit var accountDao: AccountDAO
+  private lateinit var accountDao: AccountRepository
 
   @Mock
   private lateinit var playerBestiaDao: PlayerBestiaDAO
 
   @Mock
-  private lateinit var attackLevelDao: BestiaAttackDAO
+  private lateinit var attackLevelDao: BestiaAttackRepository
 
   @Mock
   private lateinit var playerBestia: PlayerBestia

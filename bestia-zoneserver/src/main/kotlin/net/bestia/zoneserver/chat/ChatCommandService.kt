@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.findOneOrThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -17,10 +17,10 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ChatCommandService @Autowired
-constructor(chatCommands: List<ChatCommand>, accDao: AccountDAO) {
+constructor(chatCommands: List<ChatCommand>, accDao: AccountRepository) {
 
   private val chatCommands = ArrayList<ChatCommand>()
-  private val accountDao: AccountDAO
+  private val accountDao: AccountRepository
 
   init {
 

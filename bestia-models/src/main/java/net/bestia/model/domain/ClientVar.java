@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import net.bestia.model.account.Account;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Objects;

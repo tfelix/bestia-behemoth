@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import net.bestia.messages.map.MapMoveMessage
 import net.bestia.messages.entity.ComponentClassEnvelope
 import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -32,8 +32,8 @@ internal class MapMoveCommand(
     return text.startsWith("/mm ")
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.GM
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.GM
   }
 
   override fun executeCommand(account: Account, text: String) {

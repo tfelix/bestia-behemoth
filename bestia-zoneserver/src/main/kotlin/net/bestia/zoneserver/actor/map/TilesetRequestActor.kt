@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.map
 import mu.KotlinLogging
 import net.bestia.messages.map.MapTilesetMessage
 import net.bestia.messages.map.MapTilesetRequestMessage
-import net.bestia.model.domain.TilesetData
+import net.bestia.model.map.TilesetData
 import net.bestia.model.map.TilesetService
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor

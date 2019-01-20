@@ -3,13 +3,11 @@ package net.bestia.zoneserver.chat
 import com.nhaarman.mockito_kotlin.whenever
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.model.dao.AccountDAO
-import net.bestia.model.dao.MapParameterDAO
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.MapParameter
+import net.bestia.model.map.MapParameterRepository
+import net.bestia.model.account.Account
+import net.bestia.model.map.MapParameter
 import net.bestia.model.geometry.Size
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.Assert
@@ -18,8 +16,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-
-import java.util.Optional
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
@@ -43,7 +39,7 @@ class MapMoveCommandTest {
   private lateinit var playerEntityService: PlayerEntityService
 
   @Mock
-  private lateinit var mapParamDao: MapParameterDAO
+  private lateinit var mapParamDao: MapParameterRepository
 
   @Mock
   private lateinit var mapParam: MapParameter

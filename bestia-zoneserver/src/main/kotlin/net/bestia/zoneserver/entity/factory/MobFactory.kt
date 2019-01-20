@@ -3,20 +3,12 @@ package net.bestia.zoneserver.entity.factory
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.model.dao.BestiaDAO
-import net.bestia.model.domain.Bestia
-import net.bestia.model.domain.SpriteInfo
-import net.bestia.model.geometry.Point
+import net.bestia.model.bestia.BestiaRepository
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.MetaDataComponent
 import net.bestia.zoneserver.entity.MetaDataComponent.Companion.MOB_BESTIA_ID
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
-
-import java.util.Objects
 
 private val LOG = KotlinLogging.logger { }
 
@@ -29,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 internal class MobFactory(
     private val statusService: StatusService,
-    private val bestiaDao: BestiaDAO
+    private val bestiaDao: BestiaRepository
 ) : AbstractFactory<MobBlueprint>(MobBlueprint::class.java) {
 
   override fun performBuild(entity: Entity, blueprint: MobBlueprint) {

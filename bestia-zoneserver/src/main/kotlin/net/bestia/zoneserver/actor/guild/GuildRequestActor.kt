@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.guild
 
 import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.messages.guild.GuildRequestMessage
-import net.bestia.model.dao.GuildDAO
+import net.bestia.model.guild.GuildRepository
 import net.bestia.model.dao.findOne
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 @Scope("prototype")
 class GuildRequestActor(
         private val guildService: GuildService,
-        private val guildDao: GuildDAO
+        private val guildDao: GuildRepository
 ) : BaseClientMessageRouteActor() {
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

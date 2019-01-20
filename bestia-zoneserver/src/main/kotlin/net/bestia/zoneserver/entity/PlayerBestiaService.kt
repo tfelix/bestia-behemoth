@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
-import net.bestia.model.dao.BestiaAttackDAO
+import net.bestia.model.battle.BestiaAttackRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.BestiaAttack
@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
 @Transactional
 class PlayerBestiaService(
     private val playerBestiaDao: PlayerBestiaDAO,
-    private val attackDao: BestiaAttackDAO
+    private val attackRepository: BestiaAttackRepository
 ) {
   /**
    * Returns all attacks for a certain player bestia with the given player
@@ -33,7 +33,7 @@ class PlayerBestiaService(
   fun getAllAttacksForPlayerBestia(playerBestiaId: Long): List<BestiaAttack> {
     LOG.trace("Retrieving all attacks for player bestia {}", playerBestiaId)
     val pb = playerBestiaDao.findOneOrThrow(playerBestiaId)
-    return attackDao.getAllAttacksForBestia(pb.origin.id)
+    return attackRepository.getAllAttacksForBestia(pb.origin.id)
   }
 
   /**

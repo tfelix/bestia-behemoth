@@ -2,10 +2,11 @@ package net.bestia.zoneserver.guild
 
 import mu.KotlinLogging
 import net.bestia.model.dao.*
-import net.bestia.model.domain.Guild
-import net.bestia.model.domain.GuildMember
+import net.bestia.model.guild.Guild
+import net.bestia.model.guild.GuildMember
 import net.bestia.model.domain.PlayerBestia
-import org.slf4j.LoggerFactory
+import net.bestia.model.guild.GuildRepository
+import net.bestia.model.guild.GuildMemberRepository
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -17,8 +18,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class GuildService(
-    private val guildDao: GuildDAO,
-    private val guildMemberDao: GuildMemberDAO,
+    private val guildDao: GuildRepository,
+    private val guildMemberDao: GuildMemberRepository,
     private val playerBestiaDao: PlayerBestiaDAO
 ) {
 

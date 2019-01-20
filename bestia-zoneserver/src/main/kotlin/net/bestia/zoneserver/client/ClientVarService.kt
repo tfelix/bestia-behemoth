@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.ClientVarDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.ClientVar
@@ -20,7 +20,7 @@ private val LOG = KotlinLogging.logger {  }
 class ClientVarService
 constructor(
         private val cvarDao: ClientVarDAO,
-        private val accDao: AccountDAO
+        private val accDao: AccountRepository
 ) {
 
   /**

@@ -6,9 +6,9 @@ import net.bestia.zoneserver.entity.component.AttackListComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.model.dao.AttackDAO
+import net.bestia.model.battle.AttackRepository
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Attack
+import net.bestia.model.battle.Attack
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -20,7 +20,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class AttackService(
-    private val attackDao: AttackDAO
+    private val attackDao: AttackRepository
 ) {
 
   /**

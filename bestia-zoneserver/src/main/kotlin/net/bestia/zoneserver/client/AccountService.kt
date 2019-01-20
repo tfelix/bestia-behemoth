@@ -3,11 +3,11 @@ package net.bestia.zoneserver.client
 import mu.KotlinLogging
 import net.bestia.messages.account.AccountRegistration
 import net.bestia.messages.account.AccountRegistrationError
-import net.bestia.model.dao.AccountDAO
-import net.bestia.model.dao.BestiaDAO
+import net.bestia.model.account.AccountRepository
+import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.model.domain.Password
 import net.bestia.model.domain.PlayerBestia
 import org.springframework.stereotype.Service
@@ -26,9 +26,9 @@ private val LOG = KotlinLogging.logger { }
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
 class AccountService(
-    private val accountDao: AccountDAO,
+    private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaDAO,
-    private val bestiaDao: BestiaDAO
+    private val bestiaDao: BestiaRepository
 ) {
 
   private fun getStarterBestiaId(): Int {

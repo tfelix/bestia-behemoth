@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.factory.EntityFactory
@@ -30,8 +30,8 @@ internal class MobSpawnModule(
     return text.startsWith("mob ")
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.SUPER_GM
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.SUPER_GM
   }
 
   override val matcherPattern: Pattern = CMD_PATTERN

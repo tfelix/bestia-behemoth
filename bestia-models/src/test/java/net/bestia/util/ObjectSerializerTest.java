@@ -1,5 +1,6 @@
 package net.bestia.util;
 
+import net.bestia.model.util.ObjectSerializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

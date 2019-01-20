@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.domain.Direction
-import net.bestia.model.geometry.CollisionShape
+import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Point
 
 /**
@@ -14,7 +14,7 @@ import net.bestia.model.geometry.Point
 data class PositionComponent(
     override val entityId: Long,
 
-    var shape: CollisionShape = Point(),
+    var shape: Shape = Point(),
 
     /**
      * Returns the current direction of facing. Important to check for AI for

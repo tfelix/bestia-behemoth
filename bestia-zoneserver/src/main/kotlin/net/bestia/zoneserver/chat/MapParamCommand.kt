@@ -3,9 +3,9 @@ package net.bestia.zoneserver.chat
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.model.dao.MapParameterDAO
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.map.MapParameterRepository
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 import net.bestia.zoneserver.MessageApi
 import org.springframework.stereotype.Component
 
@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 internal class MapParamCommand(
     messageApi: MessageApi,
-    private val mapParamDao: MapParameterDAO
+    private val mapParamDao: MapParameterRepository
 ) : BaseChatCommand(messageApi) {
 
   public override val helpText: String
@@ -32,8 +32,8 @@ internal class MapParamCommand(
     return text.startsWith("/mapinfo")
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.USER
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.USER
   }
 
   override fun executeCommand(account: Account, text: String) {

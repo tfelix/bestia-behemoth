@@ -16,6 +16,7 @@ import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.model.account.Account;
 
 @Entity
 @Table(name = "player_items", uniqueConstraints = { @UniqueConstraint(columnNames = {

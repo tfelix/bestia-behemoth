@@ -60,32 +60,24 @@ class MessageTypeIdResolver : TypeIdResolverBase() {
       val reflections = Reflections("net.bestia.messages")
       val messages = reflections.getSubTypesOf(MessageId::class.java)
 
-      // Instantiate the message classes to get their message id from the
-      // method and store it for later serialization and deserialization.
-      for (msg in messages) {
+      messages.filter { !Modifier.isAbstract(it.modifiers) }
+          .forEach {
+            try {
+              val messageId = it.getDeclaredField("MESSAGE_ID")
+              val key = messageId.get(null) as String
 
-        // Avoid abstract classes.
-        if (Modifier.isAbstract(msg.modifiers)) {
-          continue
-        }
+              idToClass[key] = it
+              classToId[it] = key
 
-        try {
-          val messageId = msg.getDeclaredField("MESSAGE_ID")
-          val key = messageId.get(null) as String
-
-          idToClass[key] = msg
-          classToId[msg] = key
-
-          LOG.trace("Found Message.class: {} - {}", key, msg.toString())
-
-        } catch (e: Exception) {
-          LOG.error(e) {
-            "Could not get static MESSAGE_ID field from Message class: ${msg.name}. " +
-                "Serialization and deserialization will fail."
+              LOG.trace { "Found Message.class: $key - $it" }
+            } catch (e: Exception) {
+              LOG.error(e) {
+                "Could not get static MESSAGE_ID field from Message class: ${it.name}. " +
+                    "Serialization and deserialization will fail."
+              }
+              System.exit(1)
+            }
           }
-          System.exit(1)
-        }
-      }
     }
   }
 }

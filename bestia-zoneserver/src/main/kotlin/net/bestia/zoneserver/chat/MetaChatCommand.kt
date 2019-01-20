@@ -1,13 +1,10 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.model.domain.Account.Companion.UserLevel
-import net.bestia.model.domain.Account
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.Account
 
 import java.util.ArrayList
-import java.util.Objects
 
 private val LOG = KotlinLogging.logger { }
 
@@ -49,8 +46,8 @@ internal class MetaChatCommand(
    *
    * @return The minimum userlevel required to use this command.
    */
-  override fun requiredUserLevel(): UserLevel {
-    var level = UserLevel.ADMIN
+  override fun requiredUserLevel(): AccountType {
+    var level = AccountType.ADMIN
     for (module in modules) {
       if (module.requiredUserLevel() < level) {
         level = module.requiredUserLevel()

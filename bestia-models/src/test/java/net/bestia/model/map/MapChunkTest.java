@@ -75,34 +75,34 @@ public class MapChunkTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void getChunkCords_negative_throws() {
-		MapChunk.getChunkCords(new Point(-1, 5));
+		MapChunk.Companion.getChunkCords(new Point(-1, 5));
 	}
 
 	@Test
 	public void getChunkCords_ok() {
-		Point p = MapChunk.getChunkCords(new Point(105, 5));
+		Point p = MapChunk.Companion.getChunkCords(new Point(105, 5));
 		Assert.assertEquals(new Point(5, 5), p);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void getWorldCords_negative_throws() {
-		MapChunk.getWorldCords(new Point(-1, 0));
+		MapChunk.Companion.getWorldCords(new Point(-1, 0));
 	}
 
 	@Test
 	public void getWorldCords_ok() {
-		Point p = MapChunk.getWorldCords(new Point(5, 5));
+		Point p = MapChunk.Companion.getWorldCords(new Point(5, 5));
 		Assert.assertEquals(new Point(50, 50), p);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void getWorldRect_negative_throws() {
-		MapChunk.getWorldRect(new Point(-1, 5));
+		MapChunk.Companion.getWorldRect(new Point(-1, 5));
 	}
 
 	@Test
 	public void getWorldRect_ok() {
-		Rect r = MapChunk.getWorldRect(new Point(1, 5));
+		Rect r = MapChunk.Companion.getWorldRect(new Point(1, 5));
 		Assert.assertEquals(new Rect(10, 50, 10, 10), r);
 	}
 }

@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.model.domain.Account
-import net.bestia.model.domain.Account.Companion.UserLevel
+import net.bestia.model.account.Account
+import net.bestia.model.account.Account.AccountType
 
 interface ChatCommand {
 
@@ -30,5 +30,5 @@ interface ChatCommand {
    *
    * @return The minimum userlevel required to use this command.
    */
-  fun requiredUserLevel(): UserLevel
+  fun requiredUserLevel(): AccountType
 }

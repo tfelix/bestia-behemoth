@@ -1,7 +1,8 @@
 package net.bestia.model;
 
-import net.bestia.model.dao.I18nDAO;
-import net.bestia.model.domain.Account;
+import net.bestia.model.i18n.I18n;
+import net.bestia.model.i18n.I18nRepository;
+import net.bestia.model.account.Account;
 import net.bestia.model.domain.TranslationCategory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,7 +18,7 @@ public class I18nTest {
 
 	private static final String t1Result = "HELLO_WORLD";
 
-	private static net.bestia.model.domain.I18n t1 = new net.bestia.model.domain.I18n("test", TranslationCategory.ETC,
+	private static I18n t1 = new I18n("test", TranslationCategory.ETC,
 			"DE-de",
 			t1Result);
 
@@ -76,8 +77,8 @@ public class I18nTest {
 
 	}
 
-	public static I18nDAO getI18nDaoMock() {
-		I18nDAO mock = Mockito.mock(I18nDAO.class);
+	public static I18nRepository getI18nDaoMock() {
+		I18nRepository mock = Mockito.mock(I18nRepository.class);
 
 		when(mock.findOne(TranslationCategory.ETC, "test", "de-DE")).thenReturn(t1);
 

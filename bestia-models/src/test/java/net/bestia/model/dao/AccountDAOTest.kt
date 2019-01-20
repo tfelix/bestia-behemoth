@@ -1,5 +1,6 @@
 package net.bestia.model.dao
 
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.test.AccountFixture
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -15,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner
 class AccountDAOTest {
 
   @Autowired
-  private lateinit var accountDao: AccountDAO
+  private lateinit var accountDao: AccountRepository
 
   @Test
   fun findByEmail_test() {

@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import net.bestia.model.bestia.Bestia;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;

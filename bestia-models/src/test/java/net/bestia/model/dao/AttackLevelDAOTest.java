@@ -2,6 +2,7 @@ package net.bestia.model.dao;
 
 import java.util.List;
 
+import net.bestia.model.battle.BestiaAttackRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +27,7 @@ import net.bestia.model.domain.BestiaAttack;
 public class AttackLevelDAOTest {
 	
 	@Autowired
-	private BestiaAttackDAO attackLevelDao;
+	private BestiaAttackRepository attackLevelDao;
 	
 	@Test
 	public void getAllAttacksForBestia_existingId_list() {

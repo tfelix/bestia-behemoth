@@ -15,12 +15,15 @@ import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.bestia.model.battle.Attack;
+import net.bestia.model.battle.AttackImpl;
+import net.bestia.model.bestia.Bestia;
 
 /**
  * Gives a clue which bestia learns which attack at a certain level. Usually
  * this is only defined in the database. Hence there are no setters.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity

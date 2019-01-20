@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.client
 
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.ClientVarDAO
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.model.domain.ClientVar
 import org.junit.Assert
 import org.junit.Before
@@ -19,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner
 class ClientVarServiceTest {
 
   @Mock
-  private lateinit var accDao: AccountDAO
+  private lateinit var accDao: AccountRepository
 
   @Mock
   private lateinit var cvarDao: ClientVarDAO

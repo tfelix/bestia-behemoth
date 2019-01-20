@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import net.bestia.model.bestia.ConditionValues;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

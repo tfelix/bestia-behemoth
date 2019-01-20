@@ -8,9 +8,9 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider
 import mu.KotlinLogging
-import net.bestia.model.dao.MapDataDAO
-import net.bestia.model.dao.MapParameterDAO
-import net.bestia.model.domain.MapParameter
+import net.bestia.model.map.MapDataRepository
+import net.bestia.model.map.MapParameterRepository
+import net.bestia.model.map.MapParameter
 import org.springframework.stereotype.Service
 import java.util.concurrent.ThreadLocalRandom
 import java.util.concurrent.atomic.AtomicBoolean
@@ -19,8 +19,8 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class MapGeneratorMasterService(
-    private val mapDataDao: MapDataDAO,
-    private val mapParamDao: MapParameterDAO
+    private val mapDataDao: MapDataRepository,
+    private val mapParamDao: MapParameterRepository
 ) : MapMasterCallbacks {
 
   private val isGenerating = AtomicBoolean(false)

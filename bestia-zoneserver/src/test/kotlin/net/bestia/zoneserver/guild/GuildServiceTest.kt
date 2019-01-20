@@ -5,8 +5,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
-import net.bestia.model.dao.GuildDAO
-import net.bestia.model.dao.GuildMemberDAO
+import net.bestia.model.guild.GuildRepository
+import net.bestia.model.guild.GuildMemberRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 
 @RunWith(MockitoJUnitRunner::class)
@@ -15,10 +15,10 @@ class GuildServiceTest {
   private lateinit var gs: GuildService
 
   @Mock
-  private lateinit var guildDao: GuildDAO
+  private lateinit var guildDao: GuildRepository
 
   @Mock
-  private lateinit var guildMemberDao: GuildMemberDAO
+  private lateinit var guildMemberDao: GuildMemberRepository
 
   @Mock
   private lateinit var bestiaDao: PlayerBestiaDAO

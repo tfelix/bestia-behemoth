@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import net.bestia.model.account.Account;
+
 import java.util.Date;
 
 import javax.persistence.Entity;

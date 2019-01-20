@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
+import net.bestia.model.battle.Attack
+import net.bestia.model.battle.AttackType
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.BattleComponent
@@ -8,6 +10,7 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.Damage
+import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.domain.*
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point

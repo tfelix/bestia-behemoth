@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.model.domain.Account.Companion.UserLevel
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account.AccountType
+import net.bestia.model.account.Account
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.configuration.ZoneserverConfig
 import org.springframework.stereotype.Component
@@ -24,8 +24,8 @@ internal class ServerVersionChatCommand(
     return text.startsWith("/net/bestia/server ") || text == "/net/bestia/server"
   }
 
-  override fun requiredUserLevel(): UserLevel {
-    return UserLevel.USER
+  override fun requiredUserLevel(): AccountType {
+    return AccountType.USER
   }
 
   override fun executeCommand(account: Account, text: String) {

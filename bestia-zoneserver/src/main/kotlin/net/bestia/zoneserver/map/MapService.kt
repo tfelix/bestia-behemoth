@@ -1,14 +1,14 @@
 package net.bestia.zoneserver.map
 
 import mu.KotlinLogging
-import net.bestia.model.dao.MapDataDAO
-import net.bestia.model.dao.MapParameterDAO
-import net.bestia.model.domain.MapData
+import net.bestia.model.map.MapDataRepository
+import net.bestia.model.map.MapParameterRepository
+import net.bestia.model.map.MapData
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
 import net.bestia.model.map.Map
 import net.bestia.model.map.*
-import net.bestia.util.ObjectSerializer
+import net.bestia.model.util.ObjectSerializer
 import org.springframework.stereotype.Service
 
 import java.io.ByteArrayInputStream
@@ -32,8 +32,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class MapService(
-    private val mapDataDao: MapDataDAO,
-    private val mapParamDao: MapParameterDAO,
+    private val mapDataDao: MapDataRepository,
+    private val mapParamDao: MapParameterRepository,
     private val tilesetService: TilesetService
 ) {
   private val mapDataSerializer = ObjectSerializer<MapDataDTO>()

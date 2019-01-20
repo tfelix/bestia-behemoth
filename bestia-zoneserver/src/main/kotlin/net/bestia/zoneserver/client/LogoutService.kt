@@ -7,9 +7,9 @@ import net.bestia.messages.entity.EntityEnvelope
 import net.bestia.messages.entity.SaveAndKillEntity
 import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LoginResponse
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.findOne
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class LogoutService(
-    private val accountDao: AccountDAO,
+    private val accountDao: AccountRepository,
     private val messageApi: MessageApi,
     private val playerEntityService: PlayerEntityService,
     private val entityService: EntityService
@@ -75,7 +75,7 @@ class LogoutService(
    *
    * @param level
    */
-  fun logoutAllUsersBelow(level: Account.Companion.UserLevel) {
+  fun logoutAllUsersBelow(level: Account.AccountType) {
     throw IllegalStateException("Must be implemented")
   }
 }

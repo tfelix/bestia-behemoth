@@ -1,5 +1,6 @@
 package net.bestia.model.dao;
 
+import net.bestia.model.map.MapParameterRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
-import net.bestia.model.domain.MapParameter;
+import net.bestia.model.map.MapParameter;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -21,14 +22,14 @@ public class MapParameterDAOTest {
 	private static final String MAPNAME2 = "Ballermann 2";
 	
 	@Autowired
-	private MapParameterDAO dao;
+	private MapParameterRepository dao;
 	
 	@Before
 	public void setup() {
-		MapParameter p1 = MapParameter.fromAverageUserCount(100, MAPNAME1);
+		MapParameter p1 = MapParameter.Companion.fromAverageUserCount(100, MAPNAME1);
 		dao.save(p1);
 		
-		MapParameter p2 = MapParameter.fromAverageUserCount(110, MAPNAME2);
+		MapParameter p2 = MapParameter.Companion.fromAverageUserCount(110, MAPNAME2);
 		dao.save(p2);
 	}
 	

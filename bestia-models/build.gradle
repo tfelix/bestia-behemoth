@@ -13,6 +13,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.4'
     compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+    compile group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testCompile group: 'org.dbunit', name: 'dbunit', version: '2.5.0'

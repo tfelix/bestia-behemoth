@@ -2,7 +2,7 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Damage
-import net.bestia.model.domain.AttackType
+import net.bestia.model.battle.AttackType
 import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 

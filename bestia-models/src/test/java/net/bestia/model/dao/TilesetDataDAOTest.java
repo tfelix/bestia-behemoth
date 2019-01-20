@@ -1,5 +1,6 @@
 package net.bestia.model.dao;
 
+import net.bestia.model.map.TilesetDataRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import net.bestia.model.domain.TilesetData;
+import net.bestia.model.map.TilesetData;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -17,7 +18,7 @@ import net.bestia.model.domain.TilesetData;
 public class TilesetDataDAOTest {
 	
 	@Autowired
-	private TilesetDataDAO dao;
+	private TilesetDataRepository dao;
 	
 	@Before
 	public void setup() {

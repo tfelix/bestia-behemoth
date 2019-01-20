@@ -10,6 +10,7 @@ import net.bestia.messages.MessageId
  *
  * @author Thomas Felix
  */
+@Deprecated("Use components")
 data class AttackSetMessage(
     override val accountId: Long,
 

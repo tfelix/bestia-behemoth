@@ -2,9 +2,7 @@ package net.bestia.messages.guild
 
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.MessageId
-import net.bestia.model.domain.Guild
-
-import java.util.Objects
+import net.bestia.model.guild.Guild
 
 /**
  * Contains guild information.

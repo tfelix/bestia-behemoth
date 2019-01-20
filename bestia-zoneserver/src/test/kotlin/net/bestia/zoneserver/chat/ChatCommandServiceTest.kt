@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.chat
 
 import com.nhaarman.mockito_kotlin.whenever
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -23,7 +23,7 @@ class ChatCommandServiceTest {
   private lateinit var chatCmd: ChatCommand
 
   @Mock
-  private lateinit var accDao: AccountDAO
+  private lateinit var accDao: AccountRepository
 
   @Mock
   private lateinit var acc: Account

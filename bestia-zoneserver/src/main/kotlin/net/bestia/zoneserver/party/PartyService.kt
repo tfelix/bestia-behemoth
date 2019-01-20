@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.party
 
-import net.bestia.model.dao.PartyDAO
+import net.bestia.model.party.PartyRepository
 import org.springframework.stereotype.Service
 
 /**
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class PartyService(
-    private val partyDao: PartyDAO
+    private val partyRepository: PartyRepository
 ) {
 
   /**

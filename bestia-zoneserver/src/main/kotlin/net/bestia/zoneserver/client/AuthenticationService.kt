@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.client
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.findOneOrThrow
-import net.bestia.model.domain.Account
+import net.bestia.model.account.Account
 import net.bestia.model.domain.Password
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.configuration.RuntimeConfigService
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.util.*
 
 private val LOG = KotlinLogging.logger { }
@@ -16,7 +15,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class AuthenticationService(
     private val config: RuntimeConfigService,
-    private val accountDao: AccountDAO
+    private val accountDao: AccountRepository
 ) {
 
   fun isUserAuthenticated(token: String): Boolean {
@@ -84,7 +83,7 @@ class AuthenticationService(
         return false
       }
 
-      if (config.maintenanceMode == MaintenanceLevel.PARTIAL && acc.userLevel.compareTo(Account.Companion.UserLevel.SUPER_GM) < 0) {
+      if (config.maintenanceMode == MaintenanceLevel.PARTIAL && acc.userLevel.compareTo(Account.AccountType.SUPER_GM) < 0) {
         LOG.debug("Account {} can not login during maintenance User level too low.", accId)
         return false
       }

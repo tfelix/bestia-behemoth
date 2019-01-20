@@ -6,7 +6,7 @@ import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.InventoryComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.ItemDAO
 import net.bestia.model.dao.PlayerItemDAO
 import net.bestia.model.dao.findOneOrThrow
@@ -34,7 +34,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class InventoryService(
     private val playerItemDao: PlayerItemDAO,
-    private val accountDao: AccountDAO,
+    private val accountDao: AccountRepository,
     private val itemDao: ItemDAO,
     private val entityService: EntityService
 ) {

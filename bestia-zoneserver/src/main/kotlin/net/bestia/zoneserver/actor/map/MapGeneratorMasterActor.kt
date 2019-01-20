@@ -9,7 +9,7 @@ import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.map.MapPart
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
-import net.bestia.model.domain.MapParameter
+import net.bestia.model.map.MapParameter
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.client.LogoutService

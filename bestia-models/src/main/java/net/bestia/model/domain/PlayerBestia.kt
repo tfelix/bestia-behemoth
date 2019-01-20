@@ -2,13 +2,20 @@ package net.bestia.model.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import net.bestia.model.account.Account
+import net.bestia.model.bestia.BaseValues
+import net.bestia.model.bestia.Bestia
+import net.bestia.model.bestia.ConditionValues
+import net.bestia.model.party.Party
 import net.bestia.model.geometry.Point
 import java.io.Serializable
 import javax.persistence.*
 
 /**
- * Entity for the PlayerBestias these are bestias which are directly controlled
+ * Entity for the PlayerBestias these are Bestias which are directly controlled
  * by the player.
+ *
+ * TODO: Important: equals must only check ID equality.
  *
  * @author Thomas Felix
  */

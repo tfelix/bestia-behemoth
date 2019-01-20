@@ -2,7 +2,7 @@ package net.bestia.zoneserver.battle
 
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import net.bestia.model.dao.BestiaDAO
+import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOneOrThrow
 import net.bestia.model.domain.StatusPointsImpl
@@ -27,7 +27,7 @@ class StatusServiceTest {
   private lateinit var playerBestiaDao: PlayerBestiaDAO
 
   @Mock
-  private lateinit var bestiaDao: BestiaDAO
+  private lateinit var bestiaDao: BestiaRepository
 
   private val bestiaId = 1
   private val playerBestiaId = 2L

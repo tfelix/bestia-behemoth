@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
-import net.bestia.model.dao.AccountDAO
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.dao.PlayerBestiaDAO
 import net.bestia.model.dao.findOne
 import net.bestia.model.dao.findOneOrThrow
@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class PlayerEntityService(
     private val playerBestiaService: PlayerBestiaService,
-    private val accountDao: AccountDAO,
+    private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaDAO
 ) {
 

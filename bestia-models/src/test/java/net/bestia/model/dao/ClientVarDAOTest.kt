@@ -1,5 +1,6 @@
 package net.bestia.model.dao
 
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.test.AccountFixture
 import net.bestia.model.domain.ClientVar
 import org.junit.Assert
@@ -20,7 +21,7 @@ class ClientVarDAOTest {
   private lateinit var cvDao: ClientVarDAO
 
   @Autowired
-  private lateinit var accDao: AccountDAO
+  private lateinit var accDao: AccountRepository
 
   @Before
   fun setup() {

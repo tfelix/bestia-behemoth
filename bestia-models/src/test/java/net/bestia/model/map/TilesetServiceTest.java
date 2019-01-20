@@ -17,8 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import net.bestia.model.dao.TilesetDataDAO;
-import net.bestia.model.domain.TilesetData;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +38,7 @@ public class TilesetServiceTest {
 	private TilesetData invalidData;
 
 	@Mock
-	private TilesetDataDAO tilesetDao;
+	private TilesetDataRepository tilesetDao;
 
 	@Before
 	public void setup() {
