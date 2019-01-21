@@ -5,8 +5,8 @@ import akka.actor.ActorContext
 import akka.actor.Props
 import akka.actor.ReceiveTimeout
 import mu.KotlinLogging
-import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.messages.entity.EntityRequest
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityRequest
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.Entity
 import scala.concurrent.duration.FiniteDuration

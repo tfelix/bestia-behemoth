@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.*
 import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 
 /**
  * At the current implementation this actor will only periodically start a short
@@ -57,9 +58,9 @@ class AiComponentActor(
         else -> Point(0, 0)
       }
 
-      // TODO We should probably use a walk service here to get a proper path
-      positionComponent.position = positionComponent.position.minus(moveDelta)
-      context.parent.tell(positionComponent, self)
+      val newPos = positionComponent.position - moveDelta
+      val newPositionComp = positionComponent.copy(shape = positionComponent.shape.moveTo(newPos))
+      context.parent.tell(UpdateComponentMessage(newPositionComp), self)
     }
   }
 

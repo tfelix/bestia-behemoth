@@ -39,17 +39,6 @@ data class Entity(
     comps.forEach { addComponent(it) }
   }
 
-  /**
-   * Removes a component from the entity.
-   *
-   * @param comp
-   * The component to be removed.
-   */
-  internal fun removeComponent(comp: Component) {
-    LOG.trace { "Removing component $comp from entity id: $id." }
-    components.remove(comp.javaClass)
-  }
-
   internal fun <T : Component> getComponent(clazz: Class<T>): T {
     return tryGetComponent(clazz) ?: throw NullPointerException("Entity $id has no component of type $clazz")
   }

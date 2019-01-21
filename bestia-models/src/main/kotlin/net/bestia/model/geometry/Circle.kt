@@ -72,7 +72,7 @@ data class Circle(
     return s.collide(this)
   }
 
-  override fun moveByAnchor(x: Long, y: Long): Circle {
+  override fun moveTo(x: Long, y: Long): Circle {
     val dX = center.x - anchor.x
     val dY = center.y - anchor.y
 

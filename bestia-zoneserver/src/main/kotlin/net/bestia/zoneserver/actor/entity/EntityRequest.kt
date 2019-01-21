@@ -1,8 +1,8 @@
-package net.bestia.messages.entity
+package net.bestia.zoneserver.actor.entity
 
 import akka.actor.ActorRef
 
 internal data class EntityRequest(
-    val requester: ActorRef,
+    val replyTo: ActorRef,
     val context: Any? = null
 )

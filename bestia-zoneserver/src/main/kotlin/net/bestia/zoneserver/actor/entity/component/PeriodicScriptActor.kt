@@ -5,12 +5,11 @@ import akka.actor.Cancellable
 import mu.KotlinLogging
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.awaitEntityResponse
-import net.bestia.zoneserver.entity.component.ScriptComponent
+import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.script.ScriptService
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 private val LOG = KotlinLogging.logger { }
 
@@ -32,7 +31,7 @@ class PeriodicScriptActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ScriptComponent.ScriptCallback::class.java, this::handleDelayChange)
+            .match(IntervalScriptCallback::class.java, this::handleDelayChange)
             .matchEquals(TICK_MSG) { onTick() }
             .build()
   }
@@ -46,7 +45,7 @@ class PeriodicScriptActor(
    *
    * @param msg
    */
-  private fun handleDelayChange(msg: ScriptComponent.ScriptCallback) {
+  private fun handleDelayChange(msg: IntervalScriptCallback) {
     tick?.cancel()
     setupTick(msg.intervalMs)
   }
@@ -66,14 +65,14 @@ class PeriodicScriptActor(
    * Setup a new movement tick based on the delay. If the delay is negative we
    * know that we can not move and thus end the movement and this actor.
    */
-  private fun setupTick(delay: Int) {
-    if (delay < 0) {
+  private fun setupTick(delayMs: Long) {
+    if (delayMs < 0) {
       context.stop(self)
       return
     }
 
     val shed = context.system().scheduler()
-    tick = shed.scheduleOnce(Duration.create(delay.toLong(), TimeUnit.MILLISECONDS),
+    tick = shed.scheduleOnce(Duration.ofMillis(delayMs),
             self, TICK_MSG, context.dispatcher(), null)
   }
 

@@ -57,7 +57,7 @@ data class Point(
     return s.collide(this)
   }
 
-  override fun moveByAnchor(x: Long, y: Long): Point {
+  override fun moveTo(x: Long, y: Long): Point {
     return Point(x, y)
   }
 
@@ -75,7 +75,7 @@ data class Point(
     return Math.sqrt((dx * dx + dy * dy).toDouble())
   }
 
-  fun minus(rhs: Point): Point {
+  operator fun minus(rhs: Point): Point {
     return Point(
         x - rhs.x,
         y - rhs.y

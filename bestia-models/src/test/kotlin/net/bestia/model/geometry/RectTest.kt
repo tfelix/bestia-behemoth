@@ -8,7 +8,7 @@ class RectTest {
   @Test
   fun moveAnchor() {
     var r = Rect(10, 10, 3, 3)
-    r = r.moveByAnchor(15, 15)
+    r = r.moveTo(15, 15)
 
     Assert.assertEquals(14, r.x)
     Assert.assertEquals(14, r.y)

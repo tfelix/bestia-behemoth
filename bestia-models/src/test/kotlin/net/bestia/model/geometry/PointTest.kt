@@ -5,10 +5,6 @@ import java.io.Serializable
 import org.junit.Assert
 import org.junit.Test
 
-import net.bestia.model.geometry.Circle
-import net.bestia.model.geometry.Point
-import net.bestia.model.geometry.Rect
-
 class PointTest {
 
   @Test
@@ -19,7 +15,7 @@ class PointTest {
   @Test
   fun moveAnchor() {
     var p = Point(10, 10)
-    p = p.moveByAnchor(3, 3)
+    p = p.moveTo(3, 3)
     Assert.assertEquals(3, p.x)
     Assert.assertEquals(3, p.y)
   }

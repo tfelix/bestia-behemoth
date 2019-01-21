@@ -12,8 +12,8 @@ data class LevelComponent(
     override val entityId: Long,
 
     @JsonProperty("lv")
-    var level: Int = 1,
+    val level: Int = 1,
 
     @JsonProperty("e")
-    var exp: Int = 0
+    val exp: Int = 0
 ) : Component

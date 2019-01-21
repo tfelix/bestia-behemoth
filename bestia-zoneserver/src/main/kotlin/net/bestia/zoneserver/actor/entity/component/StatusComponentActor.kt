@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.context.annotation.Scope
@@ -15,8 +16,7 @@ import java.util.concurrent.TimeUnit
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 @HandlesComponent(StatusComponent::class)
 class StatusComponentActor(
     private val statusService: StatusService,
@@ -46,24 +46,16 @@ class StatusComponentActor(
         manaIncrement += statusService.getManaTick(entity)
 
         val condValues = entity.getComponent(StatusComponent::class.java).conditionValues
-        var hasChanged = false
-
         if (healthIncrement > 1) {
           val hpRound = healthIncrement.toInt()
           healthIncrement -= hpRound.toFloat()
           condValues.addHealth(hpRound)
-          hasChanged = true
         }
 
         if (manaIncrement > 1) {
           val manaRound = manaIncrement.toInt()
           manaIncrement -= manaRound.toFloat()
           condValues.addMana(manaRound)
-          hasChanged = true
-        }
-
-        if(hasChanged) {
-          updateEntitiesAboutComponentChanged()
         }
       } catch (e: IllegalArgumentException) {
         // Could not tick regeneration for this entity id.

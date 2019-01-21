@@ -3,7 +3,7 @@ package net.bestia.zoneserver.entity
 import akka.actor.PoisonPill
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.check
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.model.bestia.Direction
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.component.PositionComponent

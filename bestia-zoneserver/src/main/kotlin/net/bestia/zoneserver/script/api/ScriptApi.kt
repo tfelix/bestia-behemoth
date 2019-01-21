@@ -2,7 +2,6 @@ package net.bestia.zoneserver.script.api
 
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.ScriptComponent
-import net.bestia.zoneserver.entity.component.ScriptComponent.ScriptCallback
 import java.util.*
 
 class ScriptApi(

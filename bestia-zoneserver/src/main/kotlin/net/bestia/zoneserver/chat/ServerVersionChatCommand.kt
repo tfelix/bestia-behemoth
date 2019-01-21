@@ -21,7 +21,7 @@ internal class ServerVersionChatCommand(
     get() = "Usage: /server"
 
   override fun isCommand(text: String): Boolean {
-    return text.startsWith("/net/bestia/server ") || text == "/net/bestia/server"
+    return text.startsWith("/server ") || text == "/server"
   }
 
   override fun requiredUserLevel(): AccountType {
@@ -29,7 +29,7 @@ internal class ServerVersionChatCommand(
   }
 
   override fun executeCommand(account: Account, text: String) {
-    val replyText = String.format("Bestia Behemoth Server (%s)", config.serverVersion)
+    val replyText = "Bestia Behemoth Server: ${config.serverName} v.${config.serverVersion}"
     sendSystemMessage(account.id, replyText)
   }
 }

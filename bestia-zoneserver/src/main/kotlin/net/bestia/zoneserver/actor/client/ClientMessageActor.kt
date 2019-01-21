@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.client
 
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.battle.AttackUseActor
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
@@ -13,8 +14,7 @@ import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
-@Component
-@Scope("prototype")
+@ActorComponent
 class ClientMessageActor : BaseClientMessageRouteActor() {
 
   override fun createReceive(builder: BuilderFacade) {
@@ -28,8 +28,8 @@ class ClientMessageActor : BaseClientMessageRouteActor() {
     SpringExtension.actorOf(context, ActivateBestiaActor::class.java)
 
     // === Map ===
-    SpringExtension.actorOf(context, MapRequestChunkActor::class.java)
-    SpringExtension.actorOf(context, TilesetRequestActor::class.java)
+    // SpringExtension.actorOf(context, MapRequestChunkActor::class.java)
+    // SpringExtension.actorOf(context, TilesetRequestActor::class.java)
 
     // === Entities ===
     SpringExtension.actorOf(context, EntityInteractionRequestActor::class.java)

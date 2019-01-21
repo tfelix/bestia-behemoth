@@ -2,12 +2,12 @@ package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
 import net.bestia.messages.map.MapMoveMessage
-import net.bestia.messages.entity.ComponentClassEnvelope
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import org.springframework.stereotype.Component

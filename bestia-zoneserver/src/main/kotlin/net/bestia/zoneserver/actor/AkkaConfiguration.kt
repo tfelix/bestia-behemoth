@@ -21,7 +21,6 @@ import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
-import net.bestia.zoneserver.actor.entity.EntityIdGeneratorActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
 import net.bestia.zoneserver.config.ZoneserverConfig
@@ -53,7 +52,7 @@ class AkkaConfiguration {
     val akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME)
     LOG.debug { "Loaded akka config: $AKKA_CONFIG_NAME" }
 
-    LOG.info { "Bootstrapping Behemoth actor system." }
+    LOG.info { "Bootstrapping Behemoth actor system" }
     val system = ActorSystem.create("behemoth-local", akkaConfig)
 
     setupClusterDiscovery(system)
@@ -62,7 +61,6 @@ class AkkaConfiguration {
 
     val clientMessageIngress = SpringExtension.actorOf(system, ClientMessageActor::class.java)
 
-    LOG.info { "Starting websocket ingress..." }
     val materializer = ActorMaterializer.create(system)
     val http = Http.get(system)
     val router = WebSocketRouter(system, clientMessageIngress)
@@ -70,7 +68,6 @@ class AkkaConfiguration {
     val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
     LOG.info { "Starting websocket ingress on $websocketConnect..." }
     http.bindAndHandle(routeFlow, websocketConnect, materializer)
-    LOG.info { "Started websocket ingress" }
 
     // scriptService.callScriptMainFunction("startup")
 
@@ -85,13 +82,11 @@ class AkkaConfiguration {
     val entityProps = SpringExtension.getSpringProps(system, EntityActor::class.java)
     val entityExtractor = EntityShardMessageExtractor()
     sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor)
-    LOG.info { "Started entity sharding" }
 
     LOG.info { "Starting client sharding..." }
     val connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor::class.java)
     val connectionExtractor = ConnectionShardMessageExtractor()
     sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
-    LOG.info("Started the sharding actors")
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {
@@ -101,12 +96,8 @@ class AkkaConfiguration {
 
   private fun setupSingeltons(system: ActorSystem) {
     LOG.info { "Starting the bootstrap actor." }
-
     val settings = ClusterSingletonManagerSettings.create(system)
     startAsSingelton(system, settings, BootstrapActor::class.java, "bootstrap")
-    startAsSingelton(system, settings, EntityIdGeneratorActor::class.java, EntityIdGeneratorActor.NAME)
-
-    LOG.info { "Started the bootstrap actor." }
   }
 
   private fun <T : AbstractActor> startAsSingelton(

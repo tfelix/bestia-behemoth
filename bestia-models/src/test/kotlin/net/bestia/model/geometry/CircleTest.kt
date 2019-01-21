@@ -77,8 +77,8 @@ class CircleTest {
     var c1 = Circle(10, 10, 2)
     var c2 = Circle(14, 14, 4, 16, 16)
 
-    c1 = c1.moveByAnchor(15, 16)
-    c2 = c2.moveByAnchor(10, 10)
+    c1 = c1.moveTo(15, 16)
+    c2 = c2.moveTo(10, 10)
 
     Assert.assertTrue(c1.center == Point(15, 16))
     Assert.assertTrue(c2.center == Point(8, 8))

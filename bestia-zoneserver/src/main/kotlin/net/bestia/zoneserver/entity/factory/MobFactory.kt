@@ -5,8 +5,8 @@ import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.zoneserver.battle.StatusService
-import net.bestia.zoneserver.entity.MetaDataComponent
-import net.bestia.zoneserver.entity.MetaDataComponent.Companion.MOB_BESTIA_ID
+import net.bestia.zoneserver.entity.component.MetaDataComponent
+import net.bestia.zoneserver.entity.component.MetaDataComponent.Companion.MOB_BESTIA_ID
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
 

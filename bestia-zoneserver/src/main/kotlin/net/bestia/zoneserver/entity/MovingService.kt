@@ -19,10 +19,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Service
-class MovingService(
-    private val entityService: EntityService,
-    private val entityCollisionService: EntityCollisionService
-) {
+class MovingService {
 
   /**
    * Calculates the next movement tick depending on the move speed. If -1 is
@@ -36,7 +33,7 @@ class MovingService(
    * @return The delay in ms for the next movement tick, or -1 if an error has
    * occurred.
    */
-  fun getMoveDelayMs(entity: Entity, newPos: Point): Int {
+  fun getMoveDelayMs(entity: Entity, newPos: Point): Long {
     val walkspeed = entity.tryGetComponent(StatusComponent::class.java)?.statusBasedValues?.walkspeed
         ?: return -1
     val posComp = entity.tryGetComponent(PositionComponent::class.java)
@@ -50,7 +47,7 @@ class MovingService(
       else -> 1.0
     }
 
-    return Math.floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed.speed) * diagMult).toInt()
+    return Math.floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed.speed) * diagMult).toLong()
   }
 
   /**
@@ -61,23 +58,17 @@ class MovingService(
    *
    * @param entity The entity to be moved.
    * @param newPos   The new position.
+   * @return Updated position component
    */
-  fun moveToPosition(entity: Entity, newPos: Point) {
+  fun moveToPosition(entity: Entity, newPos: Point): PositionComponent {
     val positionComp = entity.getComponent(PositionComponent::class.java)
     val oldPos = positionComp.position
-    val preMoveCollisions = entityCollisionService.getAllCollidingEntityIds(oldPos)
+    LOG.trace { "Moving entity $entity to pos: $newPos." }
 
-    positionComp.position = newPos
-    positionComp.facing = getDirection(oldPos, newPos, positionComp.facing)
-
-    val postMoveCollisions = entityCollisionService.getAllCollidingEntityIds(newPos).toMutableSet()
-    postMoveCollisions.removeAll(preMoveCollisions)
-
-    LOG.trace { "Moving entity $entity to postition: $newPos." }
-
-    // TODO Check if a new collision has occurred and if necessary trigger scripts.
-
-    entityService.updateComponent(positionComp)
+    return positionComp.copy(
+        shape = positionComp.shape.moveTo(newPos),
+        facing = getDirection(oldPos, newPos, positionComp.facing)
+    )
   }
 
   /**

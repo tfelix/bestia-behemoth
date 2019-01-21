@@ -61,8 +61,8 @@ interface Shape {
   fun collide(s: Shape): Boolean
 
   /**
-   * Moves the whole [Shape] to the new coordinates relative to
-   * its anchor point whose absolute coordinates are now set by this method.
+   * Moves the whole [Shape] to the new coordinates relative to its anchor point
+   * whose absolute coordinates are now set by this method.
    *
    * @param x
    * New absolute x coordinate.
@@ -70,5 +70,9 @@ interface Shape {
    * New absolute y coordinate.
    * @return A new collision shape which is move
    */
-  fun moveByAnchor(x: Long, y: Long): Shape
+  fun moveTo(x: Long, y: Long): Shape
+
+  fun moveTo(p: Point): Shape {
+    return moveTo(p.x, p.y)
+  }
 }

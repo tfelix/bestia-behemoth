@@ -16,7 +16,6 @@ private val LOG = KotlinLogging.logger { }
  *
  * /mapinfo
  *
- *
  * @author Thomas Felix
  */
 @Component

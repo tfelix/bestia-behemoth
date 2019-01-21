@@ -5,6 +5,7 @@ import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientEnvelope
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -16,8 +17,7 @@ private val LOG = KotlinLogging.logger { }
  * to be directed towards the client connection actor who is handles via sharding. So we basically send this message
  * to the client who will work upon this status message.
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class ClientConnectionManagerActor : BaseClientMessageRouteActor() {
 
   private val clientConnectionActor = ClusterSharding.get(context.system)

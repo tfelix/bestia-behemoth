@@ -6,22 +6,9 @@ package net.bestia.zoneserver.entity.component
  * @author Thomas Felix
  */
 data class TagComponent(
-    override val entityId: Long
+    override val entityId: Long,
+    val tags: Set<String>
 ) : Component {
-
-  private val tags = mutableSetOf<String>()
-
-  constructor(entityId: Long, tags: Set<String>) : this(entityId) {
-    this.tags.addAll(tags)
-  }
-
-  fun add(vararg tags: String) {
-    this.tags.addAll(tags)
-  }
-
-  fun add(tag: String) {
-    tags.add(tag)
-  }
 
   fun has(tag: String): Boolean {
     return tags.contains(tag)

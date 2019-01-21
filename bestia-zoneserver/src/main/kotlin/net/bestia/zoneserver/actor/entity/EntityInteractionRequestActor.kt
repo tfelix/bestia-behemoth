@@ -49,7 +49,8 @@ class EntityInteractionRequestActor(
       val reply = EntityInteractionMessage(
           msg.accountId,
           msg.entityId,
-          interactions)
+          interactions
+      )
 
       sendClient.tell(reply, self)
     }

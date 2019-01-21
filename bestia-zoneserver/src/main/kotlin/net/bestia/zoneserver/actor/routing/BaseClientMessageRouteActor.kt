@@ -8,7 +8,7 @@ import akka.japi.pf.ReceiveBuilder
  * This class is the base class to register basic message receiving on its parent actor.
  */
 abstract class BaseClientMessageRouteActor(
-        private val propagateRedirectToParent: Boolean = true
+    private val propagateRedirectToParent: Boolean = true
 ) : AbstractActor() {
 
   /**
@@ -16,12 +16,12 @@ abstract class BaseClientMessageRouteActor(
    * then redirect all messages towards the given actor.
    */
   internal data class RedirectMessage(
-          val requestedMessageClass: Class<*>,
-          val receiver: ActorRef
+      val requestedMessageClass: Class<*>,
+      val receiver: ActorRef
   )
 
   protected class BuilderFacade(
-          private val builder: ReceiveBuilder
+      private val builder: ReceiveBuilder
   ) {
     private val receivedMessages = mutableListOf<Class<*>>()
 
@@ -44,12 +44,12 @@ abstract class BaseClientMessageRouteActor(
     if (!propagateRedirectToParent) {
       return
     }
-    redirects.forEach({ (clazz: Class<*>, actors: MutableList<ActorRef>) ->
+    redirects.forEach { (clazz: Class<*>, actors: MutableList<ActorRef>) ->
       actors.forEach { actor ->
         val msg = RedirectMessage(clazz, actor)
         context().parent().tell(msg, self)
       }
-    })
+    }
   }
 
   override fun createReceive(): AbstractActor.Receive {
@@ -77,6 +77,6 @@ abstract class BaseClientMessageRouteActor(
   }
 
   private fun handleRedirectMessage(msg: RedirectMessage) {
-    redirects.getOrPut(msg.requestedMessageClass, { mutableListOf() }).add(msg.receiver)
+    redirects.getOrPut(msg.requestedMessageClass) { mutableListOf() }.add(msg.receiver)
   }
 }

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity
 
 import akka.actor.PoisonPill
 import mu.KotlinLogging
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.entity.component.Component
 import org.springframework.stereotype.Service

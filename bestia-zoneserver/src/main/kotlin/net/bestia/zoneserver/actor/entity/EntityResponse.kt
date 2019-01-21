@@ -1,8 +1,8 @@
-package net.bestia.messages.entity
+package net.bestia.zoneserver.actor.entity
 
 import net.bestia.zoneserver.entity.Entity
 
 internal data class EntityResponse(
     val entity: Entity,
-    val content: Any? = null
+    val context: Any? = null
 )

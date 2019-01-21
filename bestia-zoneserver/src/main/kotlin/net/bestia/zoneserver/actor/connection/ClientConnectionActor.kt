@@ -42,7 +42,7 @@ class ClientConnectionActor(
     return receiveBuilder()
         .match(ClientEnvelope::class.java, this::checkMessageEnvelope)
         .match(MessageId::class.java, this::sendMessageToClient)
-        .match(Terminated::class.java) { _ -> onClientConnectionClosed() }
+        .match(Terminated::class.java) { onClientConnectionClosed() }
         .build()
   }
 
@@ -91,10 +91,7 @@ class ClientConnectionActor(
    */
   private fun initClientConnection(msg: ClientConnectMessage) {
     LOG.debug("Client has authenticated: {}.", msg)
-
-    // Spawn all the associated entities.
     loginService.login(accountId)
-
     LOG.debug("Connection established: {}, account: {}", self.path(), accountId)
   }
 

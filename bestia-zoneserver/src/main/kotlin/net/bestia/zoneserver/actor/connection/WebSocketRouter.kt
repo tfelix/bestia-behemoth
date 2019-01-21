@@ -25,7 +25,7 @@ class WebSocketRouter(
         WebsocketActor.INIT,
         WebsocketActor.ACK,
         WebsocketActor.COMPLETE
-    ) { _ -> "Failure" }
+    ) { "Failure" }
 
     val outgoingMessages: Source<Message, *> = Source.actorRef<String>(100, OverflowStrategy.fail())
         .mapMaterializedValue { outActor ->

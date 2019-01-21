@@ -3,8 +3,8 @@ package net.bestia.zoneserver.account
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.messages.entity.SaveAndKillEntity
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
 import net.bestia.messages.login.LogoutMessage
 import net.bestia.messages.login.LoginResponse
 import net.bestia.model.account.AccountRepository

@@ -14,7 +14,8 @@ import net.bestia.model.geometry.Point
 data class PositionComponent(
     override val entityId: Long,
 
-    var shape: Shape = Point(),
+    @JsonProperty("s")
+    val shape: Shape = Point(),
 
     /**
      * Returns the current direction of facing. Important to check for AI for
@@ -23,19 +24,16 @@ data class PositionComponent(
      * @return The face direction.
      */
     @JsonProperty("f")
-    var facing: Direction = Direction.SOUTH,
+    val facing: Direction = Direction.SOUTH,
 
     /**
      * Sets the flag if the entity blocks the line of sight.
      */
     @JsonProperty("sb")
-    var isSightBlocking: Boolean = false
+    val isSightBlocking: Boolean = false
 ) : Component {
 
-  var position: Point
+  val position: Point
     @JsonProperty("p")
     get() = shape.anchor
-    set(value) {
-      shape = shape.moveByAnchor(value.x, value.y)
-    }
 }

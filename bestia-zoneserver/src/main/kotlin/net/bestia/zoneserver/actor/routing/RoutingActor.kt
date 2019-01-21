@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.routing
 
 import akka.actor.AbstractActor
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor

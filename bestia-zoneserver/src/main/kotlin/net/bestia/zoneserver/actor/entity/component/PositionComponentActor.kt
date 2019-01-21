@@ -1,32 +1,43 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.japi.pf.ReceiveBuilder
-import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.SendToEntityActor
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.entity.component.ScriptComponent
 
-internal data class SetPositionMessage(
-    val position: Point
-)
-
-@Component
-@Scope("prototype")
+@ActorComponent
 @HandlesComponent(PositionComponent::class)
 class PositionComponentActor(
-    positionComponent: PositionComponent
+    positionComponent: PositionComponent,
+    private val entityCollisionService: EntityCollisionService
 ) : ComponentActor<PositionComponent>(positionComponent) {
 
-  override fun createReceive(builder: ReceiveBuilder) {
-    builder.match(PositionComponent::class.java, this::handleComponent)
-    builder.match(SetPositionMessage::class.java, this::handlePositionSet)
-  }
+  val sendToEntityActor = SpringExtension.actorOf(context, SendToEntityActor::class.java)
 
-  private fun handlePositionSet(msg: SetPositionMessage) {
-    component.position = msg.position
-  }
+  override fun onComponentChanged(oldComponent: PositionComponent, newComponent: PositionComponent) {
+    val previousCollisions = entityCollisionService.getAllCollidingEntityIds(oldComponent.shape)
+    val newCollisions = entityCollisionService.getAllCollidingEntityIds(newComponent.shape)
 
-  private fun handleComponent(comp: PositionComponent) {
-    component = comp
+    val collisionsLeft = previousCollisions - newCollisions
+    val collisionsEntered = newCollisions - previousCollisions
+
+    val leftTrigger = ComponentEnvelope(
+        ScriptComponent::class.java,
+        ScriptTriggerAreaLeft(component.entityId)
+    )
+    collisionsLeft.map { EntityEnvelope(it, leftTrigger) }.forEach {
+      sendToEntityActor.tell(it, self)
+    }
+
+    val enteredTrigger = ComponentEnvelope(
+        ScriptComponent::class.java,
+        ScriptTriggerAreaEntered(component.entityId)
+    )
+    collisionsEntered.map { EntityEnvelope(it, enteredTrigger) }.forEach {
+      sendToEntityActor.tell(it, self)
+    }
   }
 }

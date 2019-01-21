@@ -142,7 +142,7 @@ data class Rect(
     return s.collide(this)
   }
 
-  override fun moveByAnchor(x: Long, y: Long): Rect {
+  override fun moveTo(x: Long, y: Long): Rect {
     val cX = x + x - anchor.x
     val cY = y + y - anchor.y
 

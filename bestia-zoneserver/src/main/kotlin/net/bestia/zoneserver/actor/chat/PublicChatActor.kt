@@ -2,17 +2,15 @@ package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.messages.entity.EntityEnvelope
-import net.bestia.messages.entity.EntityRequest
-import net.bestia.messages.entity.EntityResponse
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityRequest
+import net.bestia.zoneserver.actor.entity.EntityResponse
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.client.SendInRange
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 /**
  * Handles public chat of the user and sends them to all entities which can
@@ -38,7 +36,7 @@ class PublicChatActor(
   private fun handleEntityResponse(response: EntityResponse) {
     val sendInRange = SendInRange(
         response.entity,
-        response.content as ChatMessage
+        response.context as ChatMessage
     )
 
     // We dont need to send a echo back because the player entity is also

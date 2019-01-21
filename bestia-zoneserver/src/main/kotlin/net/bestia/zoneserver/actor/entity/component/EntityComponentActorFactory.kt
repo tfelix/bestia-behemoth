@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
-import mu.KotlinLogging
+import akka.event.Logging
 import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.actor.SpringExtension
 import org.reflections.Reflections
@@ -11,8 +11,9 @@ import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
+import java.rmi.activation.ActivationGroup.getSystem
 
-private val LOG = KotlinLogging.logger { }
+
 
 /**
  * Depending on the given component class this factory will create an actor
@@ -27,7 +28,7 @@ class EntityComponentActorFactory {
   private val componentToActorClass: Map<KClass<out Component>, Class<out AbstractActor>>
 
   init {
-    val reflections = Reflections("net.bestia.zoneserver.actor")
+    val reflections = Reflections(javaClass.`package`.toString())
     val annotated = reflections.getTypesAnnotatedWith(HandlesComponent::class.java)
     componentToActorClass = annotated.asSequence()
         .filter { AbstractActor::class.java.isAssignableFrom(it) }
@@ -50,8 +51,6 @@ class EntityComponentActorFactory {
       ctx: ActorContext,
       component: Component
   ): ActorRef {
-    LOG.debug { "Starting actor for component $component" }
-
     val actorClass = componentToActorClass[component::class]
         ?: throw IllegalArgumentException("Could not find actor for component class: ${component.javaClass}")
 

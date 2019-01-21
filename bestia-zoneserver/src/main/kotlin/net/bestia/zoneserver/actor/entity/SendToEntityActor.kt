@@ -5,7 +5,7 @@ import akka.actor.ActorRef
 import akka.cluster.sharding.ClusterSharding
 import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
-import net.bestia.messages.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.ActorComponent
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -17,8 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class SendToEntityActor : AbstractActor() {
 
   private var entityActorShard: ActorRef = ClusterSharding.get(context.system)

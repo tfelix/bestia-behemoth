@@ -1,8 +1,8 @@
-package net.bestia.messages.entity
+package net.bestia.zoneserver.actor.entity
 
 import net.bestia.messages.Envelope
 
-data class EntityEnvelope(
+internal data class EntityEnvelope(
     val entityId: Long,
     override val content: Any
 ) : Envelope

@@ -7,7 +7,7 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.model.bestia.BaseValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.MetaDataComponent
+import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
