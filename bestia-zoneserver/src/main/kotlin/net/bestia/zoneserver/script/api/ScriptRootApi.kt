@@ -47,7 +47,8 @@ class ScriptRootApi(
     return EntityApi(
         entityId = entity.id,
         entityService = entityService,
-        rootApi = this)
+        rootApi = this
+    )
   }
 
   fun entity(): EntityApi {

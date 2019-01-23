@@ -11,7 +11,4 @@ import org.springframework.stereotype.Component
 class AttackListComponentActor(
     attackListComponent: AttackListComponent
 ) : ComponentActor<AttackListComponent>(attackListComponent) {
-  override fun createReceive(builder: ReceiveBuilder) {
-
-  }
 }

@@ -13,14 +13,14 @@ import net.bestia.zoneserver.inventory.InventoryService
  *
  * @author Thomas Felix
  */
-class PlayerBestiaEntityFactory(
+class PlayerBestiaFactory(
     private val statusService: StatusService,
     private val inventoryService: InventoryService,
     private val playerBestiaDao: PlayerBestiaRepository
-) : AbstractFactory<PlayerBestiaBlueprint>(PlayerBestiaBlueprint::class.java) {
+) {
 
-  override fun performBuild(entity: Entity, blueprint: PlayerBestiaBlueprint) {
-    val playerBestia = playerBestiaDao.findOneOrThrow(blueprint.playerBestiaId)
+  fun build(playerBestiaId: Long) {
+    val playerBestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
 
     entity.addAllComponents(
         listOf(
@@ -60,8 +60,5 @@ class PlayerBestiaEntityFactory(
             )
         )
     )
-
-    statusService.calculateStatusPoints(entity)
-    inventoryService.updateMaxWeight(entity)
   }
 }

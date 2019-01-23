@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @MustBeDocumented
+@Deprecated("Use ActorComponent annotation instead")
 annotation class HandlesComponent(
     val component: KClass<out Component>
 )

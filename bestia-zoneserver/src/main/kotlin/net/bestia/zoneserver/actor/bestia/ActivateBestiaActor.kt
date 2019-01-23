@@ -3,11 +3,10 @@ package net.bestia.zoneserver.actor.bestia
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaActivateMessage
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.awaitEntityResponse
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,12 +17,11 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class ActivateBestiaActor(
-        private val playerService: PlayerEntityService,
-        private val messageApi: MessageApi
-) : BaseClientMessageRouteActor() {
+    private val playerService: PlayerEntityService,
+    private val messageApi: MessageApi
+) : DynamicMessageRouterActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(BestiaActivateMessage::class.java, this::handleActivateBestia)

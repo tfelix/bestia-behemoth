@@ -2,10 +2,9 @@ package net.bestia.zoneserver.actor.battle
 
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 /**
  * This actor simply performs some safety checks for incoming player attack
@@ -14,11 +13,10 @@ import org.springframework.stereotype.Component
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class AttackPlayerUseActor(
     private val playerEntityService: PlayerEntityService
-) : BaseClientMessageRouteActor() {
+) : DynamicMessageRouterActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(AttackUseMessage::class.java, this::handleAttackMessage)
@@ -34,8 +32,7 @@ class AttackPlayerUseActor(
     val activeEntityId = playerEntityService.getActivePlayerEntityId(msg.accountId) ?: return
 
     // Does the target of the attack matches the target provided in the
-    // message?
-    // If this is not the case by the user send data dont perform the attack.
+    // message? If this is not the case by the user send data dont perform the attack.
     val skillMsg = EntitySkillUseMessage(activeEntityId,
         msg.attackId,
         msg.targetEntityId)

@@ -16,8 +16,7 @@ import java.time.Duration
  *
  * @author Thomas Felix
  */
-@ActorComponent
-@HandlesComponent(MoveComponent::class)
+@ActorComponent(MoveComponent::class)
 class MoveComponentActor(
     moveComponent: MoveComponent,
     private val movingService: MovingService
@@ -35,7 +34,7 @@ class MoveComponentActor(
       return
     }
 
-    awaitEntity {
+    fetchEntity {
       val moveDelay = movingService.getMoveDelayMs(it, nextPos) / 2
       setupMoveTick(moveDelay)
     }
@@ -52,7 +51,7 @@ class MoveComponentActor(
       return
     }
 
-    awaitEntity { entity ->
+    fetchEntity { entity ->
       val newPosition = component.path[0]
 
       val newPositionComp = movingService.moveToPosition(entity, newPosition)
@@ -61,7 +60,7 @@ class MoveComponentActor(
       val nextPosition = component.path.getOrNull(1)
           ?: run {
             context.stop(self)
-            return@awaitEntity
+            return@fetchEntity
           }
       val moveDelay = movingService.getMoveDelayMs(entity, nextPosition)
       setupMoveTick(moveDelay)

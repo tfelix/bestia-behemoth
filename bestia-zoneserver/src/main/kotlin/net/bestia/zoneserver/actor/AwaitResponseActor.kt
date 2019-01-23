@@ -1,60 +1,13 @@
 package net.bestia.zoneserver.actor
 
 import akka.actor.AbstractActor
-import akka.actor.ActorContext
 import akka.actor.Props
 import akka.actor.ReceiveTimeout
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
-import net.bestia.zoneserver.actor.entity.EntityRequest
-import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.entity.Entity
 import scala.concurrent.duration.FiniteDuration
-import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 
 private val LOG = KotlinLogging.logger { }
-
-class EntitiesResponse(
-    private val data: Map<Long, Entity>
-) {
-  operator fun get(key: Long): Entity {
-    return data[key]
-        ?: throw IllegalArgumentException("Entity with id $key was not inside response.")
-  }
-
-  val all get() = data.values
-}
-
-fun awaitEntityResponse(
-    messageApi: MessageApi,
-    ctx: ActorContext,
-    entityId: Long,
-    callback: (Entity) -> Unit
-) {
-  awaitEntityResponse(messageApi, ctx, setOf(entityId)) {
-    it[entityId].let(callback)
-  }
-}
-
-fun awaitEntityResponse(
-    messageApi: MessageApi,
-    ctx: ActorContext,
-    entitiyIds: Set<Long>,
-    callback: (EntitiesResponse) -> Unit
-) {
-  val hasReceivedAll: (List<Any>) -> Boolean = { responses: List<Any> ->
-    responses.toSet() == entitiyIds
-  }
-  val transformResponse = { response: Responses ->
-    val mappedEntities = response.getAllResponses(Entity::class).map { it.id to it }.toMap()
-    callback(EntitiesResponse(mappedEntities))
-  }
-  val props = AwaitResponseActor.props(hasReceivedAll, transformResponse)
-  val requestActor = ctx.actorOf(props)
-  val requestMsg = EntityRequest(requestActor)
-  entitiyIds.forEach { messageApi.send(EntityEnvelope(it, requestMsg)) }
-}
 
 data class Responses(
     private val receivedResponses: List<Any>

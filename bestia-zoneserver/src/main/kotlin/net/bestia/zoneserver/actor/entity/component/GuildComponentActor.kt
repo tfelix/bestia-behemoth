@@ -11,7 +11,4 @@ import org.springframework.stereotype.Component
 class GuildComponentActor(
     guildComponent: GuildComponent
 ) : ComponentActor<GuildComponent>(guildComponent) {
-  override fun createReceive(builder: ReceiveBuilder) {
-
-  }
 }

@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.map
 import akka.actor.AbstractActor
 import akka.actor.Terminated
 import mu.KotlinLogging
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.map.MapService
 import org.springframework.context.annotation.Scope
@@ -14,8 +15,7 @@ private val LOG = KotlinLogging.logger { }
  * Checks is a map is properly created in the database.
  * If not it will start to generate one.
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class BootMapCreationActor(
         private val mapService: MapService
 ) : AbstractActor() {

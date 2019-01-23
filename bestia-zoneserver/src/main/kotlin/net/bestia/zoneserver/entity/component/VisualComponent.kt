@@ -14,15 +14,13 @@ data class VisualComponent(
     override val entityId: Long,
 
     @JsonProperty("v")
-    var visual: SpriteInfo,
+    val visual: SpriteInfo,
 
     /**
      * Gives a flag if the entity is currently visible.
      *
      * @return TRUE if the entity is visible. FALSE otherwise.
-     * Better way would be to change this component into another component
-     * with other sync settings and then reset to this component.
      */
     @JsonProperty("vis")
-    var isVisible: Boolean = true
+    val isVisible: Boolean = true
 ) : Component

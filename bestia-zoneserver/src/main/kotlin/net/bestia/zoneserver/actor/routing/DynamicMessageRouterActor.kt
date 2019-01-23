@@ -7,7 +7,7 @@ import akka.japi.pf.ReceiveBuilder
 /**
  * This class is the base class to register basic message receiving on its parent actor.
  */
-abstract class BaseClientMessageRouteActor(
+abstract class DynamicMessageRouterActor(
     private val propagateRedirectToParent: Boolean = true
 ) : AbstractActor() {
 

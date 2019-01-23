@@ -32,7 +32,7 @@ data class PlayerBestia(
     @JoinColumn(name = "MASTER_ID", nullable = true, unique = true)
     private val master: Account? = null,
 
-    var exp: Int = 0
+    var exp: Long = 0
 ) : AbstractEntity(), Serializable {
 
   var name: String? = null

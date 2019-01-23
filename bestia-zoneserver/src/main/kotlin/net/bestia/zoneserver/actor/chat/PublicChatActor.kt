@@ -8,6 +8,7 @@ import net.bestia.zoneserver.actor.entity.EntityResponse
 import net.bestia.zoneserver.MessageApi
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.client.SendInRange
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -29,20 +30,7 @@ class PublicChatActor(
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
         .match(ChatMessage::class.java, this::handlePublic)
-        .match(EntityResponse::class.java, this::handleEntityResponse)
         .build()
-  }
-
-  private fun handleEntityResponse(response: EntityResponse) {
-    val sendInRange = SendInRange(
-        response.entity,
-        response.context as ChatMessage
-    )
-
-    // We dont need to send a echo back because the player entity is also
-    // active in the area so this call also includes the sender of the chat
-    // message.
-    sendActiveRange.tell(sendInRange, self)
   }
 
   /**
@@ -51,10 +39,15 @@ class PublicChatActor(
   private fun handlePublic(chatMsg: ChatMessage) {
     val accId = chatMsg.accountId
     val activeEntityId = playerEntityService.getActivePlayerEntityId(accId) ?: return
-    val chatEntityMsg = chatMsg.copy(entityId = activeEntityId)
 
-    val requestEntity = EntityRequest(self, chatEntityMsg)
-    messageApi.send(EntityEnvelope(activeEntityId, requestEntity))
+    awaitEntityResponse(messageApi, context, activeEntityId) {
+      val sendInRange = SendInRange(it, chatMsg)
+
+      // We dont need to send a echo back because the player entity is also
+      // active in the area so this call also includes the sender of the chat
+      // message.
+      sendActiveRange.tell(sendInRange, self)
+    }
   }
 
   companion object {

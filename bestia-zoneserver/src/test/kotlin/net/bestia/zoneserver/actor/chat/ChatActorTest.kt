@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.verify
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.BaseActorTest
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.actor.seconds
 import net.bestia.zoneserver.chat.ChatCommandService
 import org.junit.Test
@@ -25,7 +25,7 @@ class ChatActorTest : BaseActorTest() {
         val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello World")
         chat.tell(chatMessage, ref)
 
-        expectMsgClass(BaseClientMessageRouteActor.RedirectMessage::class.java)
+        expectMsgClass(DynamicMessageRouterActor.RedirectMessage::class.java)
         awaitAssert(1.seconds(), 1.seconds()) {
           verify(chatCmdService).isChatCommand("Hello World")
         }

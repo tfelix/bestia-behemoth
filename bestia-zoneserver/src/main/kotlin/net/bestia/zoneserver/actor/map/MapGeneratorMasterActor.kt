@@ -13,6 +13,7 @@ import net.bestia.model.map.MapParameter
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.account.LogoutService
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.config.RuntimeConfigService
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService
 import org.springframework.context.annotation.Scope
@@ -24,8 +25,7 @@ import java.util.concurrent.TimeUnit
 
 private val LOG = KotlinLogging.logger { }
 
-@Component
-@Scope("prototype")
+@ActorComponent
 class MapGeneratorMasterActor(
     private val mapGenService: MapGeneratorMasterService,
     private val logoutService: LogoutService,

@@ -4,12 +4,11 @@ import mu.KotlinLogging
 import net.bestia.messages.map.MapTilesetMessage
 import net.bestia.messages.map.MapTilesetRequestMessage
 import net.bestia.model.map.TilesetData
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.map.TilesetService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -19,11 +18,10 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class TilesetRequestActor(
     private val tilesetService: TilesetService
-) : BaseClientMessageRouteActor() {
+) : DynamicMessageRouterActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

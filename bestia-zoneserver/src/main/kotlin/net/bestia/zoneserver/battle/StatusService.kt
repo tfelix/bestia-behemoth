@@ -24,7 +24,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class StatusService(
-    private val entityService: EntityService,
     private val playerBestiaDao: PlayerBestiaRepository,
     private val bestiaDao: BestiaRepository
 ) {
@@ -40,7 +39,7 @@ class StatusService(
    * @param entity
    * The entity to recalculate the status.
    */
-  fun calculateStatusPoints(entity: Entity) {
+  fun calculateStatusPoints(entity: Entity): StatusComponent {
     LOG.trace("Calculate status points for entity {}.", entity)
 
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
@@ -54,8 +53,7 @@ class StatusService(
 
     calculateModifiedStatusPoints(entity)
 
-    val statusComp = entity.getComponent(StatusComponent::class.java)
-    entityService.updateComponent(statusComp)
+    return entity.getComponent(StatusComponent::class.java)
   }
 
   private fun calculateMobStatus(bestiaId: Long, entity: Entity) {
@@ -166,6 +164,6 @@ class StatusService(
     /**
      * How often the regeneration should tick for each entity.
      */
-    const val REGENERATION_TICK_RATE_MS = 8000
+    const val REGENERATION_TICK_RATE_MS = 8000L
   }
 }

@@ -18,17 +18,16 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @ActorComponent
-class WhisperChatActor @Autowired
-constructor(
-        private val accService: AccountService
+class WhisperChatActor(
+    private val accService: AccountService
 ) : AbstractActor() {
 
   private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-            .match(ChatMessage::class.java, this::handleWhisper)
-            .build()
+        .match(ChatMessage::class.java, this::handleWhisper)
+        .build()
   }
 
   /**

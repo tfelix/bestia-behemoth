@@ -9,6 +9,7 @@ import javax.persistence.Enumerated
  * This class is meant to be included in different messages. The engine must be
  * informed when getting the player bestia data how to display it and also when
  * an entity gets an update.
+ * TODO Can probably included into the component.
  *
  * @author Thomas Felix
  */

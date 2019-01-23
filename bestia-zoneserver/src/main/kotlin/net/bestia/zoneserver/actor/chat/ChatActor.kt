@@ -4,10 +4,8 @@ import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.chat.ChatCommandService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -22,7 +20,7 @@ private val LOG = KotlinLogging.logger { }
 @ActorComponent
 class ChatActor(
     private val chatCmdService: ChatCommandService
-) : BaseClientMessageRouteActor() {
+) : DynamicMessageRouterActor() {
 
   private val publicChatActor = SpringExtension.actorOf(context, PublicChatActor::class.java)
   private val whisperChatActor = SpringExtension.actorOf(context, WhisperChatActor::class.java)

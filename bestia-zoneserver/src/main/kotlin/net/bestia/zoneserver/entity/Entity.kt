@@ -6,6 +6,7 @@ import java.io.Serializable
 import java.lang.NullPointerException
 
 private val LOG = KotlinLogging.logger { }
+typealias EntityId = Long
 
 /**
  * Entities can be attached with components in order to make a composition of a
@@ -17,7 +18,7 @@ data class Entity(
     /**
      * @return The unique ID for each entity.
      */
-    val id: Long
+    val id: EntityId
 ) : Serializable {
 
   private val components = mutableMapOf<Class<out Component>, Component>()

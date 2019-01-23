@@ -18,7 +18,7 @@ abstract class ComponentActor<T : Component>(
     component: T
 ) : AbstractActor() {
 
-  protected fun awaitEntity(
+  protected fun fetchEntity(
       callback: (Entity) -> Unit
   ) {
     val hasReceived: (List<Any>) -> Boolean = {
@@ -74,5 +74,7 @@ abstract class ComponentActor<T : Component>(
    */
   protected open fun onSave() {}
 
-  protected fun createReceive(builder: ReceiveBuilder) { }
+  protected fun announceComponentChange() { }
+
+  protected open fun createReceive(builder: ReceiveBuilder) { }
 }

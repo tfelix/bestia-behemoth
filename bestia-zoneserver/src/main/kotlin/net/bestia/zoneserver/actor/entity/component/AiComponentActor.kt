@@ -43,7 +43,7 @@ class AiComponentActor(
   }
 
   private fun handleAiTick() {
-    awaitEntity {
+    fetchEntity {
       val positionComponent = it.getComponent(PositionComponent::class.java)
 
       val moveDelta = when (rand.nextInt(10)) {

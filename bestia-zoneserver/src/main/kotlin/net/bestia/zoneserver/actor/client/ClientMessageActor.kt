@@ -7,15 +7,11 @@ import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
 import net.bestia.zoneserver.actor.chat.ChatActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
-import net.bestia.zoneserver.actor.map.MapRequestChunkActor
 import net.bestia.zoneserver.actor.map.PlayerMoveRequestActor
-import net.bestia.zoneserver.actor.map.TilesetRequestActor
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 
 @ActorComponent
-class ClientMessageActor : BaseClientMessageRouteActor() {
+class ClientMessageActor : DynamicMessageRouterActor() {
 
   override fun createReceive(builder: BuilderFacade) {
   }

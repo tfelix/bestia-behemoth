@@ -8,17 +8,17 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Thomas Felix
  */
 data class GuildComponent(
-        override val entityId: Long,
+    override val entityId: Long,
 
-        @JsonProperty("gid")
-        var guildId: Int,
+    @JsonProperty("gid")
+    val guildId: Long,
 
-        @JsonProperty("gn")
-        var guildName: String,
+    @JsonProperty("gn")
+    val guildName: String,
 
-        @JsonProperty("e")
-        var emblem: String?,
+    @JsonProperty("e")
+    val emblem: String? = null,
 
-        @JsonProperty("rn")
-        var rankName: String
+    @JsonProperty("rn")
+    val rankName: String
 ) : Component

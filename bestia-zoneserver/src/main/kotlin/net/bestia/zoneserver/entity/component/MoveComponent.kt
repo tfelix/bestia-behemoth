@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.geometry.Point
-import java.util.LinkedList
-import java.util.Queue
 
 /**
  * If this component is added to an entity it will start moving along the path

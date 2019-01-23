@@ -5,7 +5,7 @@ import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackType
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.component.BattleComponent
+import net.bestia.zoneserver.entity.component.BattleDamageComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
@@ -418,8 +418,8 @@ class BattleService(
 
     // Hit the entity and add the origin entity into the list of received
     // damage dealers.
-    val battleComp = defender.tryGetComponent(BattleComponent::class.java)
-        ?: BattleComponent(defender.id)
+    val battleComp = defender.tryGetComponent(BattleDamageComponent::class.java)
+        ?: BattleDamageComponent(defender.id)
 
     attacker?.let {
       battleComp.addDamageReceived(it.id, damage)

@@ -1,14 +1,34 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.component.LevelComponent
+import net.bestia.zoneserver.inventory.InventoryService
 
-@ActorComponent
-@HandlesComponent(LevelComponent::class)
+@ActorComponent(LevelComponent::class)
 class LevelComponentActor(
-    levelComponent: LevelComponent
+    levelComponent: LevelComponent,
+    private val statusService: StatusService,
+    private val inventoryService: InventoryService
 ) : ComponentActor<LevelComponent>(levelComponent) {
-  override fun createReceive(builder: ReceiveBuilder) {
+
+  override fun preStart() {
+    fetchEntity { entity ->
+      val newStatusComp = statusService.calculateStatusPoints(entity)
+      context.parent.tell(newStatusComp, self)
+      announceComponentChange()
+    }
+  }
+
+  override fun onComponentChanged(oldComponent: LevelComponent, newComponent: LevelComponent) {
+    if (oldComponent.level != newComponent.level) {
+      fetchEntity { entity ->
+        val newStatusComp = statusService.calculateStatusPoints(entity)
+        context.parent.tell(newStatusComp, self)
+        val newInventoryComp = inventoryService.updateMaxWeight(entity)
+        context.parent.tell(newInventoryComp, sender)
+        announceComponentChange()
+      }
+    }
   }
 }

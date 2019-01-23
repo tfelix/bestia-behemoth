@@ -7,6 +7,8 @@ import net.bestia.model.account.Account
 import java.io.Serializable
 import javax.persistence.*
 
+typealias PlayerItemId = Long
+
 @Entity
 @Table(name = "player_items", uniqueConstraints = [
   UniqueConstraint(columnNames = arrayOf("ITEM_ID", "ACCOUNT_ID"))

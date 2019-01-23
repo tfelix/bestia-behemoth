@@ -1,13 +1,16 @@
 package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.item.Item
-import java.lang.IllegalStateException
+import net.bestia.model.item.PlayerItemId
 
 data class InventoryItem(
     val amount: Int,
-    val itemId: Int
-)
+    val weight: Int,
+    val playerItemId: PlayerItemId
+) {
+  val totalWeight: Int
+    get() = amount * weight
+}
 
 /**
  * Entities having this trait can be loaded with a certain amount of items into
@@ -17,69 +20,46 @@ data class InventoryItem(
  * @author Thomas Felix
  */
 data class InventoryComponent(
-    override val entityId: Long
+    override val entityId: Long,
+
+    /**
+     * Gives the maximum carryable weight of this entity. It is pos. infinite if
+     * its unlimited. Its unit is measured in 0.1 increments of a kg.
+     *
+     * @return The maximum item weight.
+     */
+    @JsonProperty("mw")
+    val maxWeight: Int = 100,
+
+    /**
+     * The maximum number of items for this unit. Or -1 of its unlimited.
+     *
+     * @return The maximum item count. -1 if unlimited.
+     */
+    @JsonProperty("mc")
+    val maxItemCount: Int = 100,
+
+    val items: List<InventoryItem> = emptyList()
 ) : Component {
 
-  private val items: MutableMap<Long, InventoryItem> = mutableMapOf()
-
-  /**
-   * Gives the maximum carryable weight of this entity. It is pos. infinite if
-   * its unlimited.
-   *
-   * @return The maximum item weight.
-   */
-  @JsonProperty("mw")
-  var maxWeight: Float = 0f
-    set(value) {
-      if (maxWeight < 0) {
-        throw IllegalArgumentException("maxWeight can not be negative.")
-      }
-      field = value
+  init {
+    if (totalWeight > maxWeight) {
+      throw IllegalArgumentException("Current weight ($totalWeight) is bigger then max weight ($maxWeight)")
     }
 
-  /**
-   * The maximum number of items for this unit. Or -1 of its unlimited.
-   *
-   * @return The maximum item count. -1 if unlimited.
-   */
-  @JsonProperty("mc")
-  var maxItemCount: Int = 0
+    if (items.size > maxItemCount) {
+      throw IllegalArgumentException("Item slots used (${items.size} is bigger then max item slots ($maxItemCount)")
+    }
+  }
 
   /**
-   * The current item weight in kg. The item weight per item is saved as 0.1kg
-   * per unit.
+   * The current total item weight in units of 0.1 kg.
    *
    * @return Current item weight.
    */
-  @JsonProperty("w")
-  var weight: Float = 0f
-
-  /**
-   * The current number of item (slots) stored in this entity.
-   *
-   * @return Current number of item slots stored in this entity.
-   */
-  val itemCount: Int
-    @JsonProperty("c")
-    get() = items.size
-
-  /**
-   * Adds the new item to the inventory. But this will work only if the number
-   * of item slots are not exceeded and the total amount of weight does not be
-   * bigger as the maximum amount of weight.
-   *
-   * @param item   The item to be added.
-   * @param amount The amount of the item to be added to the inventory.
-   * @return TRUE if the item has been added to the inventory. FALSE
-   * otherwise.
-   */
-  fun addItem(item: Item, amount: Int): Boolean {
-    throw IllegalStateException("Not implemented")
-  }
-
-  override fun toString(): String {
-    return "InventoryComp[maxWeight: $maxWeight, items: ${items.size}/$maxItemCount]"
-  }
+  @get:JsonProperty("w")
+  val totalWeight: Int
+    get() = items.sumBy { it.totalWeight }
 
   companion object {
     /**

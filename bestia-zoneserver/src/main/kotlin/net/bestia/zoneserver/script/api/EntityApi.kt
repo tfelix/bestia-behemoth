@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 
@@ -16,7 +15,6 @@ class EntityApi(
 
   fun position(x: Long, y: Long): EntityApi {
     val posComp = PositionComponent(entityId)
-    posComp.position = Point(x, y)
     entityService.updateComponent(posComp)
     return this
   }

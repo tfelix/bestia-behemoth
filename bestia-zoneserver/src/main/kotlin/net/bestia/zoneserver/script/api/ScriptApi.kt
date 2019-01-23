@@ -5,9 +5,9 @@ import net.bestia.zoneserver.entity.component.ScriptComponent
 import java.util.*
 
 class ScriptApi(
-        private val rootApi: ScriptRootApi,
-        private val entityId: Long,
-        private val entityService: EntityService
+    private val rootApi: ScriptRootApi,
+    private val entityId: Long,
+    private val entityService: EntityService
 ) : ScriptChildApi {
 
   override fun and(): ScriptRootApi {
@@ -30,10 +30,10 @@ class ScriptApi(
     val scriptComp = ScriptComponent(entityId)
     val scriptUuid = UUID.randomUUID().toString()
     val scriptCallback = ScriptCallback(
-            scriptUuid,
-            ScriptComponent.TriggerType.ON_INTERVAL,
-            callback,
-            delayMs
+        scriptUuid,
+        ScriptComponent.TriggerType.ON_INTERVAL,
+        callback,
+        delayMs
     )
     scriptComp.addScriptCallback(scriptCallback)
     entityService.updateComponent(scriptComp)

@@ -26,8 +26,7 @@ data class ScriptTriggerAreaEntered(
  *
  * @author Thomas Felix
  */
-@ActorComponent
-@HandlesComponent(ScriptComponent::class)
+@ActorComponent(ScriptComponent::class)
 class ScriptComponentActor(
     scriptComponent: ScriptComponent
 ) : ComponentActor<ScriptComponent>(scriptComponent) {

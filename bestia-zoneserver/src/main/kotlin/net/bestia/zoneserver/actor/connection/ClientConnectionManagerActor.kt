@@ -6,9 +6,7 @@ import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  * to the client who will work upon this status message.
  */
 @ActorComponent
-class ClientConnectionManagerActor : BaseClientMessageRouteActor() {
+class ClientConnectionManagerActor : DynamicMessageRouterActor() {
 
   private val clientConnectionActor = ClusterSharding.get(context.system)
           .shardRegion(EntryActorNames.SHARD_CONNECTION)

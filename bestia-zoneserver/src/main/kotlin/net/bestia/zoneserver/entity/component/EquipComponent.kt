@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.item.EquipmentSlot
-import net.bestia.model.item.Item
+import net.bestia.model.item.PlayerItemId
 
 /**
  * Entities owning this component are able to equip items.
@@ -10,8 +10,9 @@ import net.bestia.model.item.Item
  */
 data class EquipComponent(
     override val entityId: Long,
-    val allEquipmentSlots: MutableSet<EquipmentSlot> = mutableSetOf(),
-    val equipments: MutableSet<Item> = mutableSetOf()
+    val slots: Map<EquipmentSlot, PlayerItemId?> = EquipmentSlot.values()
+        .map { it to null }
+        .toMap()
 ) : Component {
 
   /**
@@ -22,5 +23,5 @@ data class EquipComponent(
    * @return A set of available equipment allEquipmentSlots.
    */
   val availableEquipmentSlots: Set<EquipmentSlot>
-    get() = emptySet()
+    get() = slots.filter { a -> a.value == null }.map { it.key }.toSet()
 }

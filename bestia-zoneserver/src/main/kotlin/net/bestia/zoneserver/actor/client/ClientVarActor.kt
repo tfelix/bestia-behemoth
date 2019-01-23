@@ -4,10 +4,9 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.account.ClientVarService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.actor.ActorComponent
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
@@ -15,11 +14,10 @@ import org.springframework.stereotype.Component
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponent
 class ClientVarActor(
-        private val cvarService: ClientVarService
-) : BaseClientMessageRouteActor() {
+    private val cvarService: ClientVarService
+) : DynamicMessageRouterActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

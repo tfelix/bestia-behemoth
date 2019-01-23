@@ -7,6 +7,7 @@ import net.bestia.model.bestia.StatusPoints
 import net.bestia.model.bestia.StatusPointsImpl
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.entity.StatusBasedValuesImpl
+import net.bestia.model.item.Item
 
 /**
  * Entities having this component can be participate in the attacking system. It
@@ -61,4 +62,12 @@ data class StatusComponent(
    */
   @get:JsonProperty("e")
   var element: Element = Element.NORMAL
+
+  companion object {
+    fun forItem(entityId: Long, item: Item): StatusComponent {
+      return StatusComponent(
+          entityId = entityId
+      )
+    }
+  }
 }

@@ -7,7 +7,7 @@ import net.bestia.model.guild.GuildRepository
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.actor.routing.BaseClientMessageRouteActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.guild.GuildService
 
 /**
@@ -20,7 +20,7 @@ import net.bestia.zoneserver.guild.GuildService
 class GuildRequestActor(
     private val guildService: GuildService,
     private val guildDao: GuildRepository
-) : BaseClientMessageRouteActor() {
+) : DynamicMessageRouterActor() {
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {

@@ -8,8 +8,7 @@ import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.ScriptComponent
 
-@ActorComponent
-@HandlesComponent(PositionComponent::class)
+@ActorComponent(PositionComponent::class)
 class PositionComponentActor(
     positionComponent: PositionComponent,
     private val entityCollisionService: EntityCollisionService
@@ -39,5 +38,7 @@ class PositionComponentActor(
     collisionsEntered.map { EntityEnvelope(it, enteredTrigger) }.forEach {
       sendToEntityActor.tell(it, self)
     }
+
+    announceComponentChange()
   }
 }

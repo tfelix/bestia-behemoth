@@ -53,39 +53,17 @@ class InventoryService(
    * @param entity
    * This entity inventory gets updated with the maximum weight.
    */
-  fun updateMaxWeight(entity: Entity) {
+  fun updateMaxWeight(entity: Entity): InventoryComponent {
     val invComp = entity.getComponent(InventoryComponent::class.java)
     val statusComp = entity.getComponent(StatusComponent::class.java)
-
     val level = entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
 
     val str = statusComp.statusPoints.strength
-    val maxWeight = BASE_WEIGHT + str * 4 * level
+    val maxWeight = (BASE_WEIGHT + str * 4 * level).toInt()
 
-    LOG.trace { "Setting max weight for entity $entity to $maxWeight." }
+    LOG.trace { "Component(Inventory) entity: ${entity.id} maxWeight: $maxWeight" }
 
-    invComp.maxWeight = maxWeight
-
-    entityService.updateComponent(invComp)
-  }
-
-  /**
-   * The maximum number of items are either limited by weight of by a concrete
-   * number of max items. If this number is reached no more items can be added
-   * to the inventory. If this is set to another value then
-   * [InventoryComponent.UNLIMITED_ITEMS] then the weight is ignored.
-   *
-   * @param entity
-   * The entity to update the max num item component.
-   * @param maxNumItems
-   * The maximum number of items which can be attached to this
-   * inventory component.
-   */
-  fun setMaxItemCount(entity: Entity, maxNumItems: Int) {
-    val invComp = entity.getComponent(InventoryComponent::class.java)
-    invComp.maxItemCount = maxNumItems
-
-    entityService.updateComponent(invComp)
+    return invComp.copy(maxWeight = maxWeight)
   }
 
   /**
@@ -245,6 +223,6 @@ class InventoryService(
   }
 
   companion object {
-    private const val BASE_WEIGHT = 150f
+    private const val BASE_WEIGHT = 200f
   }
 }

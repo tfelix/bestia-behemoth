@@ -7,14 +7,14 @@ class BattleComponentTest {
 
   @Test
   fun addDamageReceived_negativeId_doesNothing() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
     bc.addDamageReceived(-1, 10)
     Assert.assertEquals(0, bc.damageDealers.size.toLong())
   }
 
   @Test
   fun addDamageReceived_negativeOrNullDamage_doesNothing() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 0)
     bc.addDamageReceived(2, -10)
 
@@ -23,14 +23,14 @@ class BattleComponentTest {
 
   @Test
   fun addDamageReceived_validNumberOfDamage_isAdded() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 10)
     Assert.assertEquals(1, bc.damageDealers.size.toLong())
   }
 
   @Test
   fun addDamageReceived_notMoreThenCertainMax() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
 
     val maxTest = 1000
 
@@ -43,7 +43,7 @@ class BattleComponentTest {
 
   @Test
   fun clearDamageEntries_clearsTheEntries() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 10)
     bc.damageDealers.clear()
     Assert.assertEquals(0, bc.damageDealers.size.toLong())
@@ -51,7 +51,7 @@ class BattleComponentTest {
 
   @Test
   fun getDamageDistribution_containsAllDamageDealersPercentage() {
-    val bc = BattleComponent(1)
+    val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 10)
     bc.addDamageReceived(2, 20)
     bc.addDamageReceived(2, 20)

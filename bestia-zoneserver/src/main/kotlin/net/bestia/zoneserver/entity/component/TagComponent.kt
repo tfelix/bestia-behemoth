@@ -16,12 +16,6 @@ data class TagComponent(
 
   companion object {
     /**
-     * Entity should be persisted by the system in case of a server
-     * crash/stop.
-     */
-    const val PERSIST = "persist"
-
-    /**
      * This tagged entity is a usual bestia mob.
      */
     const val MOB = "mob"
