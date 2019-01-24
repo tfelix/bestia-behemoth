@@ -16,7 +16,6 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
 class ScriptCache(
     private val compiler: ScriptCompiler,
     private val resolver: ScriptFileResolver

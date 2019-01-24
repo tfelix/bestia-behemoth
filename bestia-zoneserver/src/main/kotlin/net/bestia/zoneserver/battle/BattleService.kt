@@ -101,10 +101,10 @@ class BattleService(
     LOG.trace("Primary damage calculated: {}", primaryDamage)
 
     // Damage can now be reduced by effects.
-    val receivedDamage = takeDamage(defender, primaryDamage, attacker)
+    val (defender, attacker, damage) = takeDamage(defender, primaryDamage, attacker)
     LOG.trace("Entity {} received damage: {}", defender, primaryDamage)
 
-    return listOf(receivedDamage)
+    return listOf(damage)
   }
 
   private fun createBattleContext(usedAttack: Attack, attacker: Entity, defender: Entity): BattleContext {

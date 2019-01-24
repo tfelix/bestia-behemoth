@@ -13,10 +13,11 @@ import java.time.Instant
  */
 data class BattleDamageComponent(
     override val entityId: Long,
-    val damageDealers: Map<EntityId, DamageEntry> = emptyMap()
+    val damageDealers: List<DamageEntry> = emptyList()
 ) : Component {
 
   data class DamageEntry(
+      val entityId: Long,
       val time: Instant,
       val damage: Long
   )
@@ -24,19 +25,24 @@ data class BattleDamageComponent(
   fun removeOutdatedEntries(): BattleDamageComponent {
     val now = Instant.now()
     return copy(
-        damageDealers = damageDealers.filter { Duration.between(it.value.time, now) < DAMAGE_RETAIN_TIME }
+        damageDealers = damageDealers.filter { Duration.between(it.time, now) < DAMAGE_RETAIN_TIME }
     )
+  }
+
+  private fun sortDamages() {
+    damageDealers.sortedBy { it.damage }
   }
 
   /**
    * @return The percentage damage distribution done by all entities. The map
    * is immutable.
    */
+  /*
   val damageDistribution: Map<Long, Double>
     get() {
       val totalDmg = damageDealers.values.sumByDouble { it.damage.toDouble() }
       return damageDealers.map { (k, v) -> k to v.damage / totalDmg }.toMap()
-    }
+    }*/
 
   fun addDamageReceived(damageDealer: EntityId, damage: Long): BattleDamageComponent {
     if (damage <= 0) {
@@ -44,20 +50,16 @@ data class BattleDamageComponent(
     }
 
     val now = Instant.now()
-
-    val newDmg = damageDealers[entityId]?.let {
+    val newDmg = damageDealers.firstOrNull { it.entityId == damageDealer }?.let {
       it.copy(time = now, damage = it.damage + damage)
-    } ?: DamageEntry(now, damage)
+    } ?: DamageEntry(entityId, now, damage)
 
-    val newDamages = damageDealers.toMutableMap()[damageDealer] = newDmg
+    val newDamages = (damageDealers + newDmg).take(ENTITY_DAMAGE_TRACK_COUNT)
 
-    if (newDamages.size > ENTITY_DAMAGE_TRACK_COUNT) {
-      newDamages.map { it.key to it.value }.sortedBy { it.second.damage }
-          .takeLast(damageDealers.size - ENTITY_DAMAGE_TRACK_COUNT)
-          .forEach { damageDealers.remove(it.first) }
-    }
+    val newBattleDamage = copy(damageDealers = newDamages)
+    newBattleDamage.sortDamages()
 
-    return copy(damageDealers = newDamages)
+    return newBattleDamage
   }
 
   companion object {

@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity.component
 
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.entity.component.Component
 import org.junit.Assert
 import org.junit.Test
@@ -29,9 +30,9 @@ class EntityComponentActorFactoryTest {
 
   private fun getComponentsHandledByActors(): Set<Class<out Component>> {
     val reflections = Reflections("net.bestia.zoneserver.actor")
-    val annotatedActors = reflections.getTypesAnnotatedWith(HandlesComponent::class.java)
+    val annotatedActors = reflections.getTypesAnnotatedWith(ActorComponent::class.java)
     return annotatedActors.asSequence()
-        .map { it.getAnnotation(HandlesComponent::class.java).component.java }
+        .map { it.getAnnotation(ActorComponent::class.java).component.java }
         .toSet()
   }
 }

@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContext
 @SpringBootTest
 class SpringTestTest {
 
-  // Currently the Spring Context is now loaded because of shitty Intellij/Spring
+  // Currently the Spring Context is not loaded because of shitty Intellij/Spring
   @Autowired
   lateinit var applicationContext: ApplicationContext
 

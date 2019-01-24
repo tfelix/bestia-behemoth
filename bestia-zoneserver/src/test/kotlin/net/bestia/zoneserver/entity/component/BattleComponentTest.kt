@@ -45,22 +45,6 @@ class BattleComponentTest {
   fun clearDamageEntries_clearsTheEntries() {
     val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 10)
-    bc.damageDealers.clear()
     Assert.assertEquals(0, bc.damageDealers.size.toLong())
-  }
-
-  @Test
-  fun getDamageDistribution_containsAllDamageDealersPercentage() {
-    val bc = BattleDamageComponent(1)
-    bc.addDamageReceived(1, 10)
-    bc.addDamageReceived(2, 20)
-    bc.addDamageReceived(2, 20)
-    bc.addDamageReceived(4, 50)
-
-    val dist = bc.damageDistribution
-
-    Assert.assertEquals(0.1, dist[1]!!, 0.001)
-    Assert.assertEquals(0.4, dist[2]!!, 0.001)
-    Assert.assertEquals(0.5, dist[4]!!, 0.001)
   }
 }

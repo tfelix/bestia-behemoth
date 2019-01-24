@@ -108,12 +108,6 @@ class InventoryService(
     if (pitem == null) {
       val acc = accountDao.findOneOrThrow(accId)
       val item = itemDao.findOneOrThrow(itemId)
-
-      if (item == null) {
-        LOG.info { "Could not find item $itemId" }
-        return false
-      }
-
       pitem = PlayerItem(item, acc, amount)
       playerItemDao.save(pitem)
     } else {

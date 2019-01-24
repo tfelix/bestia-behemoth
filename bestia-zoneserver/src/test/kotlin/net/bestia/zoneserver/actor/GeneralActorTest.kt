@@ -60,7 +60,9 @@ class GeneralActorTest {
   fun staticNameFieldPresent() {
     val actorLoader = PackageLoader(AbstractActor::class.java,
         "net.bestia.zoneserver.actor")
-    val classes = actorLoader.concreteSubClasses
+    val classes = actorLoader.concreteSubClasses.filter {
+      !it.isAnnotationPresent(ActorComponent::class.java)
+    }
 
     val failedClasses = ArrayList<String>()
     for (clazz in classes) {

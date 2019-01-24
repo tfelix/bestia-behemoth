@@ -2,9 +2,9 @@ package net.bestia.zoneserver.script.api
 
 import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.entity.EntityService
+import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.factory.EntityFactory
+import net.bestia.zoneserver.entity.factory.MobFactory
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -24,9 +24,6 @@ class EntityApiTest {
     }
   }
 
-  @Mock
-  private lateinit var entityService: EntityService
-
   private var positionComponent = PositionComponent(
       entityId = 1,
       shape = Point(10, 10),
@@ -34,10 +31,12 @@ class EntityApiTest {
       isSightBlocking = false
   )
 
-  @Mock
-  private lateinit var entityFactory: EntityFactory
-
   fun testFn(): Runnable = Runnable { println("Runnable from JS") }
+
+  private val idGeneratorService = IdGeneratorService()
+
+  @Mock
+  private lateinit var mobFactory: MobFactory
 
   @Test
   fun benchmark() {
@@ -52,7 +51,8 @@ class EntityApiTest {
   private fun testCompile(): Long {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
-    bindings["Bestia"] = ScriptRootApi(entityService, entityFactory)
+    val scriptRootContext = ScriptRootContext()
+    bindings["Bestia"] = ScriptRootApi(idGeneratorService, mobFactory, scriptRootContext)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
     val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testCompile.js")
@@ -76,7 +76,8 @@ class EntityApiTest {
   private fun testEval(): Long {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val bindings = engine.createBindings()
-    bindings["Bestia"] = ScriptRootApi(entityService, entityFactory)
+    val scriptRootContext = ScriptRootContext()
+    bindings["Bestia"] = ScriptRootApi(idGeneratorService, mobFactory, scriptRootContext)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
     val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testEval.js")

@@ -16,8 +16,6 @@ import java.lang.IllegalArgumentException
 class ScriptServiceTest {
 
   private lateinit var scriptCache: ScriptCache
-
-  @Mock
   private lateinit var api: ScriptRootApi
   private val zonserverConfig = ZoneserverConfig(
       scriptDir = "classpath:script",
@@ -27,7 +25,6 @@ class ScriptServiceTest {
   )
   private lateinit var globalEnv: GlobalEnv
   private lateinit var scriptCompiler: ScriptCompiler
-
   private lateinit var scriptService: ScriptService
 
   @Before
@@ -54,9 +51,9 @@ class ScriptServiceTest {
 
     verify(api).debug(LOG_TEST_CALLSTR)
     verify(api).info(LOG_TEST_CALLSTR)
-    verify(api).entity()
-    verify(api).entity(TEST_ARGUMENT_INT)
-    verify(api).entity("blob", Point(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
+    verify(api).newEntity()
+    verify(api).findEntity(TEST_ARGUMENT_INT)
+    verify(api).spawnMob("blob", Point(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
   }
 
   companion object {
