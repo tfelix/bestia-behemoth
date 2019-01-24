@@ -1,25 +1,27 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.component.PositionComponent
+import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.chat.PositionToMessage
 
 class EntityApi(
-    private val rootApi: ScriptRootApi,
-    private val entityId: Long,
-    private val entityService: EntityService
-) : ScriptChildApi {
-
-  override fun and(): ScriptRootApi {
-    return rootApi
-  }
-
+    private val entityContext: EntityContext
+) {
   fun position(x: Long, y: Long): EntityApi {
-    val posComp = PositionComponent(entityId)
-    entityService.updateComponent(posComp)
+    entityContext.position = PositionToMessage(Point(x, y))
     return this
   }
 
+  fun condition(): EntityConditionApi {
+    val conditionCtx = EntityConditionContext(entityContext.entityId)
+    entityContext.condition = conditionCtx
+
+    return EntityConditionApi(conditionCtx)
+  }
+
   fun script(): ScriptApi {
-    return ScriptApi(rootApi, entityId, entityService)
+    val ctx = ScriptContext(entityContext.entityId)
+    entityContext.script = ctx
+
+    return ScriptApi(ctx)
   }
 }

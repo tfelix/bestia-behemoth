@@ -1,16 +1,15 @@
 package net.bestia.zoneserver.actor.client
 
-import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.battle.AttackUseActor
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
 import net.bestia.zoneserver.actor.chat.ChatActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
-import net.bestia.zoneserver.actor.map.PlayerMoveRequestActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 
-@ActorComponent
+@ActorComponentNoComponent
 class ClientMessageActor : DynamicMessageRouterActor() {
 
   override fun createReceive(builder: BuilderFacade) {
@@ -29,7 +28,6 @@ class ClientMessageActor : DynamicMessageRouterActor() {
 
     // === Entities ===
     SpringExtension.actorOf(context, EntityInteractionRequestActor::class.java)
-    SpringExtension.actorOf(context, PlayerMoveRequestActor::class.java)
 
     // === Attacking ===
     SpringExtension.actorOf(context, AttackUseActor::class.java)

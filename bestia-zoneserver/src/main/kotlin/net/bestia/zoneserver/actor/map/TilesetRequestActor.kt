@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.messages.map.MapTilesetMessage
 import net.bestia.messages.map.MapTilesetRequestMessage
 import net.bestia.model.map.TilesetData
-import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
@@ -18,7 +18,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class TilesetRequestActor(
     private val tilesetService: TilesetService
 ) : DynamicMessageRouterActor() {

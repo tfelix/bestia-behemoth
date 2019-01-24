@@ -5,10 +5,10 @@ import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.map.MapChunkMessage
 import net.bestia.messages.map.MapChunkRequestMessage
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.client.SendToClientActor
+import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.map.MapService
@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class MapRequestChunkActor(
     private val mapService: MapService,
     private val pbService: PlayerEntityService,

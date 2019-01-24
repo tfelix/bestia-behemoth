@@ -6,11 +6,10 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService
-import net.bestia.zoneserver.entity.factory.EntityFactory
-import net.bestia.zoneserver.entity.factory.PlayerBestiaBlueprint
+import net.bestia.zoneserver.entity.factory.PlayerBestiaFactory
 import org.springframework.stereotype.Service
 
-private val LOG = KotlinLogging.logger {  }
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Performs login of the bestia server system.
@@ -21,8 +20,8 @@ private val LOG = KotlinLogging.logger {  }
 class LoginService(
     private val accountDao: AccountRepository,
     private val playerEntityService: PlayerEntityService,
-    private val entityFactory: EntityFactory,
-    private val playerBestiaService: PlayerBestiaService
+    private val playerBestiaService: PlayerBestiaService,
+    private val playerBestiaFactory: PlayerBestiaFactory
 ) {
 
   /**
@@ -44,9 +43,7 @@ class LoginService(
 
     LOG.debug { "Login of account: $account" }
 
-    val playerBestiaBlueprint = PlayerBestiaBlueprint(master.id)
-    val masterEntity = entityFactory.build(playerBestiaBlueprint)
-
+    val masterEntity = playerBestiaFactory.build(master.id)
     playerEntityService.updatePlayerBestiaWithEntityId(masterEntity)
     playerEntityService.setActiveEntity(accId, masterEntity)
 

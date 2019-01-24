@@ -7,9 +7,8 @@ import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.AwaitResponseActor
-import net.bestia.zoneserver.actor.awaitEntityResponse
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component as BestiaComponent
@@ -32,7 +31,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class EntityActor(
     private val factory: EntityComponentActorFactory,
     private val messageApi: MessageApi

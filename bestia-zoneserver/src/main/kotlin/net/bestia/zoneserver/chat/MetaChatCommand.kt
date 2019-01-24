@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 internal class MetaChatCommand(
     metaCommandStr: String
 ) : ChatCommand {
-  private val modules = ArrayList<BaseChatCommand>()
+  private val modules = mutableListOf<BaseChatCommand>()
   private val commandStr = metaCommandStr.trim { it <= ' ' } + " "
 
   /**
@@ -69,7 +69,6 @@ internal class MetaChatCommand(
           LOG.warn("Error while executing chat command: {}", text, e)
           return
         }
-
       }
     }
   }

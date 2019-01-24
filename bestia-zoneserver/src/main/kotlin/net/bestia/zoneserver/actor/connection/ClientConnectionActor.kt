@@ -12,6 +12,7 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.account.LoginService
 import net.bestia.zoneserver.account.LogoutService
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 
@@ -29,7 +30,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class ClientConnectionActor(
     private val loginService: LoginService,
     private val logoutService: LogoutService

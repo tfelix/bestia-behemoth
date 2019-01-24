@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Component
-internal class MobFactory(
+class MobFactory(
     private val statusService: StatusService,
     private val bestiaDao: BestiaRepository,
     private val idGenerator: IdGeneratorService

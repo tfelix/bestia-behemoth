@@ -5,6 +5,7 @@ import net.bestia.messages.guild.GuildResponseMessage
 import net.bestia.model.findOne
 import net.bestia.model.guild.GuildRepository
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
@@ -16,7 +17,7 @@ import net.bestia.zoneserver.guild.GuildService
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class GuildRequestActor(
     private val guildService: GuildService,
     private val guildDao: GuildRepository

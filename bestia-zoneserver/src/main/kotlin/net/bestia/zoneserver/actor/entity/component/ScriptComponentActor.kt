@@ -8,8 +8,10 @@ import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.entity.component.ScriptCallback
 import net.bestia.zoneserver.entity.component.ScriptComponent
+import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -19,6 +21,10 @@ data class ScriptTriggerAreaLeft(
 
 data class ScriptTriggerAreaEntered(
     val entityId: Long
+)
+
+data class ScriptLifetime(
+    val lifetimeMs: Long
 )
 
 /**
@@ -38,14 +44,26 @@ class ScriptComponentActor(
         .match(Terminated::class.java, this::handlePeriodicActorTerminated)
         .match(ScriptTriggerAreaLeft::class.java, this::onAreaLeave)
         .match(ScriptTriggerAreaEntered::class.java, this::onAreaEntered)
+        .match(IntervalScriptCallback::class.java, this::addIntervalCallback)
+        .match(ScriptLifetime::class.java, this::setScriptLifetime)
+  }
+
+  private fun setScriptLifetime(msg: ScriptLifetime) {
+    throw IllegalStateException("No implemented")
+  }
+
+  private fun addIntervalCallback(msg: IntervalScriptCallback) {
+    throw IllegalStateException("No implemented")
   }
 
   private fun onAreaLeave(msg: ScriptTriggerAreaLeft) {
     // TODO Fetch entity who has left. Call Script.
+    throw IllegalStateException("No implemented")
   }
 
   private fun onAreaEntered(msg: ScriptTriggerAreaEntered) {
     // TODO Fetch entity who has entered. Call Script.
+    throw IllegalStateException("No implemented")
   }
 
   private fun handlePeriodicActorTerminated(msg: Terminated) {

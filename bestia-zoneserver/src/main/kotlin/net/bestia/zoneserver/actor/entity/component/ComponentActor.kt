@@ -37,6 +37,7 @@ abstract class ComponentActor<T : Component>(
   protected var component = component
     set(value) {
       LOG.trace { "Set component $component on ${this.self.path()}" }
+      handleComponentSet(value)
       field = value
     }
 

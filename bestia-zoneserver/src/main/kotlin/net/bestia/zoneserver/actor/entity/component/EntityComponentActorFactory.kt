@@ -3,17 +3,12 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
-import akka.event.Logging
-import net.bestia.zoneserver.entity.component.Component
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.entity.component.Component
 import org.reflections.Reflections
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
-import java.rmi.activation.ActivationGroup.getSystem
-
-
 
 /**
  * Depending on the given component class this factory will create an actor
@@ -29,7 +24,7 @@ class EntityComponentActorFactory {
 
   init {
     val reflections = Reflections(javaClass.`package`.toString())
-    val annotated = reflections.getTypesAnnotatedWith(HandlesComponent::class.java)
+    val annotated = reflections.getTypesAnnotatedWith(ActorComponent::class.java)
     componentToActorClass = annotated.asSequence()
         .filter { AbstractActor::class.java.isAssignableFrom(it) }
         .map {
@@ -37,7 +32,7 @@ class EntityComponentActorFactory {
           it as Class<out AbstractActor>
         }
         .map {
-          val annotation = it.getAnnotation(HandlesComponent::class.java)
+          val annotation = it.getAnnotation(ActorComponent::class.java)
           annotation.component to it
         }.toList()
         .toMap()

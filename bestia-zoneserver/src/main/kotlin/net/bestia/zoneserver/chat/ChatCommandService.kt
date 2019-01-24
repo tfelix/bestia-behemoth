@@ -3,7 +3,6 @@ package net.bestia.zoneserver.chat
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -16,8 +15,9 @@ private val LOG = KotlinLogging.logger { }
  *
  */
 @Service
-class ChatCommandService @Autowired
-constructor(chatCommands: List<ChatCommand>, accDao: AccountRepository) {
+class ChatCommandService(
+    chatCommands: List<ChatCommand>, accDao: AccountRepository
+) {
 
   private val chatCommands = ArrayList<ChatCommand>()
   private val accountDao: AccountRepository
@@ -58,8 +58,9 @@ constructor(chatCommands: List<ChatCommand>, accDao: AccountRepository) {
 
     val acc = accountDao.findOneOrThrow(accId)
 
-    chatCommands.first { it.isCommand(text) && acc.userLevel >= it.requiredUserLevel() }
-            .executeCommand(acc, text)
+    chatCommands
+        .first { it.isCommand(text) && acc.userLevel >= it.requiredUserLevel() }
+        .executeCommand(acc, text)
   }
 
   companion object {

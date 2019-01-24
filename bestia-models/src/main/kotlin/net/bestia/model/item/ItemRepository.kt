@@ -5,11 +5,12 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.CrudRepository
 import org.springframework.transaction.annotation.Transactional
 
 @Repository
 @Transactional(readOnly = true)
-interface ItemRepository : JpaRepository<Item, Long> {
+interface ItemRepository : CrudRepository<Item, Long> {
 
   /**
    * Returns an item by its item database name. The name is unique. Returns null if the item was not found.

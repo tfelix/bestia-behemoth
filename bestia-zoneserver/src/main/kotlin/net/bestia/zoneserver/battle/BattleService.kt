@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackType
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.zoneserver.entity.component.BattleDamageComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
@@ -30,7 +29,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class BattleService(
-    private val entityService: EntityService,
     private val mapService: MapService,
     private val entityCollisionService: EntityCollisionService
 ) {
@@ -384,7 +382,7 @@ class BattleService(
    * @param defender
    * @param trueDamage
    */
-  fun takeTrueDamage(defender: Entity, trueDamage: Damage) {
+  fun takeTrueDamage(defender: Entity, trueDamage: Damage): Entity {
     val damage = trueDamage.damage
 
     defender.getComponent(StatusComponent::class.java)?.let { statusComp ->
@@ -392,9 +390,9 @@ class BattleService(
       if (statusComp.conditionValues.currentHealth == 0) {
         killEntity(defender)
       }
-
-      entityService.updateComponent(statusComp)
     }
+
+    return defender
   }
 
   /**
@@ -407,7 +405,7 @@ class BattleService(
    * @param primaryDamage The damage to apply to this entity.
    * @return The actually applied damage.
    */
-  fun takeDamage(defender: Entity, primaryDamage: Damage, attacker: Entity? = null): Damage {
+  fun takeDamage(defender: Entity, primaryDamage: Damage, attacker: Entity? = null): Triple<Entity?, Entity, Damage> {
     LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage)
 
     val statusComp = defender.getComponent(StatusComponent::class.java)
@@ -422,19 +420,17 @@ class BattleService(
         ?: BattleDamageComponent(defender.id)
 
     attacker?.let {
-      battleComp.addDamageReceived(it.id, damage)
-      entityService.updateComponent(battleComp)
+      battleComp.addDamageReceived(it.id, damage.toLong())
     }
 
     val condValues = statusComp.conditionValues
     condValues.addHealth(-damage)
-    entityService.updateComponent(statusComp)
 
     if (condValues.currentHealth == 0) {
       killEntity(defender)
     }
 
-    return reducedDamage
+    return Triple(attacker, defender, reducedDamage)
   }
 
   /**
@@ -444,13 +440,15 @@ class BattleService(
    * @param damage
    * @return
    */
-  fun takeDamage(defender: Entity, damage: Int): Damage {
+  fun takeDamage(defender: Entity, damage: Int): Pair<Entity, Damage> {
     val dmg = Damage.getHit(damage)
-    return takeDamage(defender, dmg)
+    val (_, defender, damageTaken) = takeDamage(defender, dmg)
+
+    return Pair(defender, damageTaken)
   }
 
   fun killEntity(killed: Entity) {
-    LOG.debug("Entity {} killed.", killed)
+    LOG.debug{ "Entity ${killed.id} killed" }
 
     // Entity will play death animation.
 

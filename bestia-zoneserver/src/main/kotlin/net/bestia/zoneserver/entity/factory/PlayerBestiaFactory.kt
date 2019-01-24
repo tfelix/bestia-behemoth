@@ -4,6 +4,7 @@ import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.zoneserver.inventory.InventoryService
 
@@ -14,51 +15,52 @@ import net.bestia.zoneserver.inventory.InventoryService
  * @author Thomas Felix
  */
 class PlayerBestiaFactory(
-    private val statusService: StatusService,
-    private val inventoryService: InventoryService,
-    private val playerBestiaDao: PlayerBestiaRepository
+    private val playerBestiaDao: PlayerBestiaRepository,
+    private val idGenerator: IdGeneratorService
 ) {
 
-  fun build(playerBestiaId: Long) {
+  fun build(playerBestiaId: Long): Entity {
     val playerBestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
 
-    entity.addAllComponents(
-        listOf(
-            PositionComponent(
-                entityId = entity.id,
-                shape = playerBestia.currentPosition
-            ),
-            VisualComponent(
-                entityId = entity.id,
-                visual = SpriteInfo.mob(playerBestia.origin.sprite)
-            ),
-            EquipComponent(
-                entityId = entity.id
-            ),
-            InventoryComponent(
-                entityId = entity.id
-            ),
-            PlayerComponent(
-                entityId = entity.id,
-                ownerAccountId = playerBestia.owner.id,
-                playerBestiaId = playerBestia.id
-            ),
-            LevelComponent(
-                entityId = entity.id
-            ).also {
-              it.level = playerBestia.level
-              it.exp = playerBestia.exp
-            },
-            StatusComponent(
-                entityId = entity.id,
-                conditionValues = playerBestia.conditionValues,
-                originalElement = playerBestia.origin.element
-            ),
-            TagComponent(
-                entityId = entity.id,
-                tags = setOf(TagComponent.PLAYER)
-            )
-        )
-    )
+    val entityId = idGenerator.newId()
+    val entity = Entity(entityId)
+
+    entity.apply {
+      addComponent(PositionComponent(
+          entityId = entity.id,
+          shape = playerBestia.currentPosition
+      ))
+      addComponent(VisualComponent(
+          entityId = entity.id,
+          visual = SpriteInfo.mob(playerBestia.origin.sprite)
+      ))
+      addComponent(EquipComponent(
+          entityId = entity.id
+      ))
+      addComponent(InventoryComponent(
+          entityId = entity.id
+      ))
+      addComponent(PlayerComponent(
+          entityId = entity.id,
+          ownerAccountId = playerBestia.owner.id,
+          playerBestiaId = playerBestia.id
+      ))
+      addComponent(LevelComponent(
+          entityId = entity.id,
+          level = playerBestia.level,
+          exp = playerBestia.exp
+      ))
+      addComponent(StatusComponent(
+          entityId = entity.id,
+          conditionValues = playerBestia.conditionValues,
+          originalElement = playerBestia.origin.element
+      ))
+      addComponent(TagComponent(
+          entityId = entity.id,
+          tags = setOf(TagComponent.PLAYER)
+      ))
+    }
+
+    return entity
   }
 }

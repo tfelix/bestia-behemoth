@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.EntityService
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
@@ -21,8 +20,7 @@ private val LOG = KotlinLogging.logger { }
 class LogoutService(
     private val accountDao: AccountRepository,
     private val messageApi: MessageApi,
-    private val playerEntityService: PlayerEntityService,
-    private val entityService: EntityService
+    private val playerEntityService: PlayerEntityService
 ) {
 
   /**
@@ -53,14 +51,6 @@ class LogoutService(
     }
 
     playerEntityService.removeEntityIdsFromAccount(accId)
-
-    playerEntities.forEach { entity ->
-      try {
-        entityService.delete(entity)
-      } catch (e: Exception) {
-        LOG.warn("Something went wrong deleting entity {}.", entity, e)
-      }
-    }
   }
 
   /**

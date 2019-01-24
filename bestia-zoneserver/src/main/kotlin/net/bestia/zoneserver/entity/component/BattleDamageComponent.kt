@@ -16,7 +16,10 @@ data class BattleDamageComponent(
     val damageDealers: Map<EntityId, DamageEntry> = emptyMap()
 ) : Component {
 
-  data class DamageEntry(val time: Instant, val damage: Long)
+  data class DamageEntry(
+      val time: Instant,
+      val damage: Long
+  )
 
   fun removeOutdatedEntries(): BattleDamageComponent {
     val now = Instant.now()
@@ -42,17 +45,19 @@ data class BattleDamageComponent(
 
     val now = Instant.now()
 
-    val newDamageReceived = damageDealers[entityId]?.let {
+    val newDmg = damageDealers[entityId]?.let {
       it.copy(time = now, damage = it.damage + damage)
     } ?: DamageEntry(now, damage)
 
-    val test = damageDealers + {damageDealer to newDamageReceived}
+    val newDamages = damageDealers.toMutableMap()[damageDealer] = newDmg
 
-    if (damageDealers.size > ENTITY_DAMAGE_TRACK_COUNT) {
-      damageDealers.map { it.key to it.value }.sortedBy { it.second.damage }
+    if (newDamages.size > ENTITY_DAMAGE_TRACK_COUNT) {
+      newDamages.map { it.key to it.value }.sortedBy { it.second.damage }
           .takeLast(damageDealers.size - ENTITY_DAMAGE_TRACK_COUNT)
           .forEach { damageDealers.remove(it.first) }
     }
+
+    return copy(damageDealers = newDamages)
   }
 
   companion object {

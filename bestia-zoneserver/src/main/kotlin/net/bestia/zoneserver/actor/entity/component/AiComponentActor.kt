@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
+import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 import net.bestia.zoneserver.entity.component.AiComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 import java.time.Duration
 import java.util.*
-import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 
 /**
  * At the current implementation this actor will only periodically start a short
@@ -16,9 +15,7 @@ import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
-@HandlesComponent(AiComponent::class)
+@ActorComponent(AiComponent::class)
 class AiComponentActor(
     aiComponent: AiComponent
 ) : ComponentActor<AiComponent>(aiComponent) {

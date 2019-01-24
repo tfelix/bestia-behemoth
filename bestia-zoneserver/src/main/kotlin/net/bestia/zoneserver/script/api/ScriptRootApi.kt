@@ -2,25 +2,25 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.entity.EntityService
-import net.bestia.zoneserver.entity.factory.EntityFactory
-import net.bestia.zoneserver.entity.factory.MobBlueprint
-import org.springframework.stereotype.Service
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.factory.MobFactory
 import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
 /**
- * Global script API used by all scripts in the bestia system to interact with
- * the behemoth server.
+ * Global script API used by all scripts in the Bestia system to interact with
+ * the Behemoth server.
  *
  * @author Thomas Felix
  */
-@Service
 class ScriptRootApi(
-    private val entityService: EntityService,
-    private val entityFactory: EntityFactory
+    private val idGeneratorService: IdGeneratorService,
+    private val mobFactory: MobFactory,
+    private val scriptContext: ScriptRootContext
 ) {
+
   fun info(text: String) {
     LOG.info { text }
   }
@@ -29,34 +29,37 @@ class ScriptRootApi(
     LOG.debug { text }
   }
 
-  fun entity(entityId: Long): EntityApi {
-    if (entityId == 0L) {
+  fun findEntity(entityId: Long): EntityApi {
+    if (entityId <= 0L) {
       throw IllegalArgumentException("Entity ID can not be null. This is probably a wrong call.")
     }
-    LOG.debug { "Looking up entity: $entityId" }
-    return EntityApi(
-        entityId = entityId,
-        entityService = entityService,
-        rootApi = this)
+    LOG.debug { "findEntity: $entityId" }
+
+    val ctx = EntityContext(entityId)
+    scriptContext.entityContexts.add(ctx)
+
+    return EntityApi(ctx)
   }
 
-  fun entity(mobName: String, position: Point): EntityApi {
-    LOG.debug { "Creating mob entity: $mobName" }
-    val mobBlueprint = MobBlueprint(mobName, position)
-    val entity = entityFactory.build(mobBlueprint)
-    return EntityApi(
-        entityId = entity.id,
-        entityService = entityService,
-        rootApi = this
-    )
+  fun spawnMob(
+      mobName: String,
+      position: Point
+  ): EntityApi {
+    LOG.debug { "spawnMob: $mobName pos: $position" }
+    val entity = mobFactory.build(mobName, position)
+
+    val ctx = EntityContext(entity.id)
+    scriptContext.entityContexts.add(ctx)
+    scriptContext.newEntities.add(entity)
+
+    return EntityApi(ctx)
   }
 
-  fun entity(): EntityApi {
-    val entity = entityService.newEntity()
-    return EntityApi(
-        entityId = entity.id,
-        entityService = entityService,
-        rootApi = this
-    )
+  fun newEntity(): EntityApi {
+    val entityId = idGeneratorService.newId()
+    scriptContext.newEntities.add(Entity(entityId))
+    val ctx = EntityContext(entityId)
+
+    return EntityApi(ctx)
   }
 }

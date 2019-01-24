@@ -5,8 +5,8 @@ import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.entity.factory.EntityFactory
-import net.bestia.zoneserver.entity.factory.MobBlueprint
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.entity.factory.MobFactory
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -18,16 +18,16 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-internal class MobSpawnModule(
+internal class SpawnMobModule(
     messageApi: MessageApi,
-    private val entityFactory: EntityFactory
+    private val mobFactory: MobFactory
 ) : SubCommandModule(messageApi) {
 
   public override val helpText: String
     get() = "Usage: /spawn mob <MOB_DB_NAME> <POS_X> <POS_Y>"
 
   override fun isCommand(text: String): Boolean {
-    return text.startsWith("mob ")
+    return text.matches(CMD_PATTERN.toRegex())
   }
 
   override fun requiredUserLevel(): AccountType {
@@ -37,14 +37,13 @@ internal class MobSpawnModule(
   override val matcherPattern: Pattern = CMD_PATTERN
 
   override fun executeCheckedCommand(account: Account, text: String, matcher: Matcher) {
-    LOG.info { "Command: /spawn mob triggered by account ${account.id}" }
-
     val mobName = matcher.group(1)
     val x = java.lang.Long.parseLong(matcher.group(2))
     val y = java.lang.Long.parseLong(matcher.group(3))
+    LOG.info { "Command: /spawn mob $mobName $x $y triggered by account ${account.id}" }
 
-    val mobBlueprint = MobBlueprint(mobName, Point(x, y))
-    entityFactory.build(mobBlueprint)
+    val entity = mobFactory.build(mobName, Point(x, y))
+    messageApi.send(EntityEnvelope(entity.id, entity))
   }
 
   companion object {

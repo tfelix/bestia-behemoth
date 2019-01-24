@@ -4,11 +4,10 @@ import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.awaitEntityResponse
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.script.ScriptService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 import java.time.Duration
 
 private val LOG = KotlinLogging.logger { }
@@ -18,8 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@ActorComponentNoComponent
 class PeriodicScriptActor(
         private val scriptService: ScriptService,
         private val messageApi: MessageApi,

@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.model.party.PartyRepository
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 
@@ -15,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class PartyChatActor(
     private val partyRepository: PartyRepository
 ) : AbstractActor() {

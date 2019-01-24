@@ -6,9 +6,7 @@ import net.bestia.zoneserver.EntryActorNames
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.actor.ActorComponent
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class SendToClientActor : AbstractActor() {
 
   private var clientConnection = ClusterSharding.get(context.system)

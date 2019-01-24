@@ -7,6 +7,7 @@ import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.account.AccountService
+import net.bestia.zoneserver.actor.ActorComponentNoComponent
 import org.springframework.beans.factory.annotation.Autowired
 
 private val LOG = KotlinLogging.logger { }
@@ -17,7 +18,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponent
+@ActorComponentNoComponent
 class WhisperChatActor(
     private val accService: AccountService
 ) : AbstractActor() {

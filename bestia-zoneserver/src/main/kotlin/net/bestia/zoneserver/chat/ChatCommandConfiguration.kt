@@ -1,12 +1,8 @@
 package net.bestia.zoneserver.chat
 
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.entity.factory.ItemFactory
 import net.bestia.zoneserver.entity.factory.MobFactory
-import net.bestia.zoneserver.chat.ChatCommandService
-import net.bestia.zoneserver.chat.MetaChatCommand
-import net.bestia.zoneserver.chat.MobSpawnModule
-import net.bestia.zoneserver.chat.SubCommandModule
-import net.bestia.zoneserver.entity.factory.EntityFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -20,10 +16,16 @@ import org.springframework.context.annotation.Configuration
 class ChatCommandConfiguration {
 
   @Bean
-  internal fun getSpawnChatCommand(akkaApi: MessageApi, entityFactory: EntityFactory): MetaChatCommand {
+  internal fun getSpawnChatCommand(
+      msgApi: MessageApi,
+      mobFactory: MobFactory,
+      itemFactory: ItemFactory
+  ): MetaChatCommand {
     val spawnCmd = MetaChatCommand("/spawn")
-    val mobModule = MobSpawnModule(akkaApi, entityFactory)
+    val mobModule = SpawnMobModule(msgApi, mobFactory)
+    val itemModule = SpawnItemModule(msgApi, itemFactory)
     spawnCmd.addCommandModule(mobModule)
+    spawnCmd.addCommandModule(itemModule)
 
     return spawnCmd
   }

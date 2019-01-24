@@ -1,19 +1,22 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.messages.map.MapMoveMessage
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.awaitEntityResponse
+import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
 
 private val LOG = KotlinLogging.logger { }
+
+data class PositionToMessage(
+    val position: Point
+)
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.
@@ -56,16 +59,11 @@ internal class MapMoveCommand(
       throw IllegalArgumentException("X and Y can not be negative.")
     }
 
-    val mapMoveMessage = MapMoveMessage(
-        account.id,
-        Point(x, y)
-    )
-
-    playerBestiaService.getActivePlayerEntityId(account.id)?.let {
+    playerBestiaService.getActivePlayerEntityId(account.id)?.let { activePlayerBestia ->
       messageApi.send(
           EntityEnvelope(
-              it,
-              ComponentClassEnvelope(PositionComponent::class.java, mapMoveMessage)
+              activePlayerBestia,
+              ComponentEnvelope(PositionComponent::class.java, PositionToMessage(Point(x, y)))
           )
       )
     }
