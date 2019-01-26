@@ -1,6 +1,5 @@
-package net.bestia.zoneserver.actor.ui
+package net.bestia.zoneserver.actor.account
 
-import akka.actor.ActorSystem
 import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.ui.ClientVarRequestMessage
@@ -8,37 +7,25 @@ import net.bestia.model.account.ClientVar
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.ClientVarActor
 import net.bestia.zoneserver.account.ClientVarService
-import net.bestia.zoneserver.actor.seconds
-import org.junit.AfterClass
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
-import org.junit.runner.RunWith
+import net.bestia.zoneserver.actor.AbstractActorTest
+import org.junit.jupiter.api.*
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.ApplicationContext
-import org.springframework.test.context.junit4.SpringRunner
+import java.time.Duration
 
-@RunWith(SpringRunner::class)
+// @RunWith(SpringRunner::class)
 @SpringBootTest
-class ClientVarActorTest {
-
-  @Autowired
-  private val appCtx: ApplicationContext? = null
-
+class ClientVarActorTest : AbstractActorTest() {
   @MockBean
   private val cvarService: ClientVarService? = null
 
   @Mock
   private lateinit var cvar: ClientVar
 
-  @Before
+  @BeforeEach
   fun setup() {
-    SpringExtension.initialize(system!!, appCtx!!)
-
     whenever(cvar.getDataAsString()).thenReturn(DATA)
     whenever(cvar.dataLength).thenReturn(DATA.length)
     whenever(cvar.key).thenReturn(KEY)
@@ -57,7 +44,7 @@ class ClientVarActorTest {
         val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
         cvarActor.tell(msg, sender.ref)
 
-        expectMsg(1.seconds(), ClientVarRequestMessage::class.java)
+        expectMsg(Duration.ofSeconds(1), ClientVarRequestMessage::class.java)
       }
     }
 
@@ -66,24 +53,10 @@ class ClientVarActorTest {
   }
 
   companion object {
-
-    private var system: ActorSystem? = null
-
     private const val ACC_ID: Long = 1
     private const val WRONG_ACC_ID: Long = 2
     private const val KEY = "test"
     private const val UUID = "test-1235-124545-122345"
     private const val DATA = "myData"
-
-    @BeforeClass
-    fun initialize() {
-      system = ActorSystem.create()
-    }
-
-    @AfterClass
-    fun teardown() {
-      TestKit.shutdownActorSystem(system)
-      system = null
-    }
   }
 }

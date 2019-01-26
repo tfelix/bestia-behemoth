@@ -16,17 +16,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ChatCommandService(
-    chatCommands: List<ChatCommand>, accDao: AccountRepository
+    private val chatCommands: List<ChatCommand>,
+    private val accDao: AccountRepository
 ) {
-
-  private val chatCommands = ArrayList<ChatCommand>()
-  private val accountDao: AccountRepository
-
-  init {
-
-    this.chatCommands.addAll(Objects.requireNonNull(chatCommands))
-    this.accountDao = Objects.requireNonNull(accDao)
-  }
 
   /**
    * Checks if the given text string contains a chat command.
@@ -56,11 +48,11 @@ class ChatCommandService(
       return
     }
 
-    val acc = accountDao.findOneOrThrow(accId)
+    val acc = accDao.findOneOrThrow(accId)
 
     chatCommands
-        .first { it.isCommand(text) && acc.userLevel >= it.requiredUserLevel() }
-        .executeCommand(acc, text)
+        .firstOrNull { it.isCommand(text) && acc.userLevel >= it.requiredUserLevel() }
+        ?.executeCommand(acc, text)
   }
 
   companion object {

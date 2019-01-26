@@ -1,22 +1,23 @@
 package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.verify
-import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.config.ZoneserverConfig
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.GlobalEnv
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
-import java.lang.IllegalArgumentException
+import org.mockito.junit.jupiter.MockitoExtension
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class ScriptServiceTest {
-
   private lateinit var scriptCache: ScriptCache
+
+  @Mock
   private lateinit var api: ScriptRootApi
+
   private val zonserverConfig = ZoneserverConfig(
       scriptDir = "classpath:script",
       serverName = "test",
@@ -27,7 +28,7 @@ class ScriptServiceTest {
   private lateinit var scriptCompiler: ScriptCompiler
   private lateinit var scriptService: ScriptService
 
-  @Before
+  @BeforeEach
   fun setup() {
     globalEnv = GlobalEnv(api, zonserverConfig)
     scriptCompiler = ScriptCompiler(globalEnv)
@@ -40,9 +41,11 @@ class ScriptServiceTest {
     scriptService = ScriptService(scriptCache)
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun `callScriptMainFunction() with unknown scriptname does nothing`() {
-    scriptService.callScriptMainFunction("unknownscript")
+    assertThrows(IllegalArgumentException::class.java) {
+      scriptService.callScriptMainFunction("unknownscript")
+    }
   }
 
   @Test
@@ -53,7 +56,7 @@ class ScriptServiceTest {
     verify(api).info(LOG_TEST_CALLSTR)
     verify(api).newEntity()
     verify(api).findEntity(TEST_ARGUMENT_INT)
-    verify(api).spawnMob("blob", Point(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
+    verify(api).spawnMob("blob", TEST_ARGUMENT_INT, TEST_ARGUMENT_INT)
   }
 
   companion object {

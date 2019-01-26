@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.client.SendInRange
@@ -16,7 +16,7 @@ import net.bestia.zoneserver.entity.PlayerEntityService
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class PublicChatActor(
     private val playerEntityService: PlayerEntityService,
     private val messageApi: MessageApi

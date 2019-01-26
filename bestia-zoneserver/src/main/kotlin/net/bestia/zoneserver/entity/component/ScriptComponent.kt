@@ -7,6 +7,12 @@ sealed class ScriptCallback {
   abstract val script: String
 }
 
+data class DelayScriptCallback(
+    override val uuid: String,
+    override val script: String,
+    val delayMs: Long
+) : ScriptCallback()
+
 data class IntervalScriptCallback(
     override val uuid: String,
     override val script: String,

@@ -22,4 +22,4 @@ annotation class ActorComponent(
 @Retention(AnnotationRetention.RUNTIME)
 @Component
 @Scope("prototype")
-annotation class ActorComponentNoComponent
+annotation class Actor

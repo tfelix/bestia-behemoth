@@ -8,7 +8,7 @@ import net.bestia.model.battle.AttackRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.battle.Attack
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
@@ -23,7 +23,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class AttackUseActor(
     private val battleService: BattleService,
     private val attackDao: AttackRepository,

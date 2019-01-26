@@ -3,12 +3,10 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.account.AccountService
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
-import org.springframework.beans.factory.annotation.Autowired
+import net.bestia.zoneserver.actor.Actor
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class WhisperChatActor(
     private val accService: AccountService
 ) : AbstractActor() {

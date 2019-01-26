@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.actor.client
 
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.battle.AttackUseActor
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
@@ -9,7 +9,7 @@ import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 
-@ActorComponentNoComponent
+@Actor
 class ClientMessageActor : DynamicMessageRouterActor() {
 
   override fun createReceive(builder: BuilderFacade) {

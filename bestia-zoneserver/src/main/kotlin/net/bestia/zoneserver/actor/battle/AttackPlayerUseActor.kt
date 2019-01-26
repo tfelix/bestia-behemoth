@@ -2,8 +2,7 @@ package net.bestia.zoneserver.actor.battle
 
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
-import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 
@@ -14,7 +13,7 @@ import net.bestia.zoneserver.entity.PlayerEntityService
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class AttackPlayerUseActor(
     private val playerEntityService: PlayerEntityService
 ) : DynamicMessageRouterActor() {

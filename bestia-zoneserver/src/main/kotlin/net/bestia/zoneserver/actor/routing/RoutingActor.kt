@@ -2,16 +2,13 @@ package net.bestia.zoneserver.actor.routing
 
 import akka.actor.AbstractActor
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
-@ActorComponentNoComponent
+@Actor
 class RoutingActor : AbstractActor() {
 
   private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)

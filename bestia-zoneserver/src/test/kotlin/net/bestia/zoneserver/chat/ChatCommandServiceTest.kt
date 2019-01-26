@@ -1,22 +1,24 @@
 package net.bestia.zoneserver.chat
 
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountType
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class ChatCommandServiceTest {
 
-  private var chatService: ChatCommandService? = null
+  private lateinit var chatService: ChatCommandService
 
   @Mock
   private lateinit var chatCmd: ChatCommand
@@ -27,40 +29,39 @@ class ChatCommandServiceTest {
   @Mock
   private lateinit var acc: Account
 
-  @Before
+  @BeforeEach
   fun setup() {
-
-    whenever(chatCmd.isCommand(any())).thenReturn(false)
-    whenever(chatCmd.isCommand(CMD_TXT)).thenReturn(true)
-
-    whenever(accDao.findOneOrThrow(ACC_ID)).thenReturn(acc)
-
     chatService = ChatCommandService(Arrays.asList(chatCmd), accDao)
   }
 
   @Test
   fun isChatCommand_containedChatPrefix_true() {
-    Assert.assertTrue(chatService!!.isChatCommand("/known test"))
+    Assert.assertTrue(chatService.isChatCommand("/known test"))
   }
 
   @Test
   fun isChatCommand_notContainedChatPrefix_false() {
-    Assert.assertFalse(chatService!!.isChatCommand("#unknown test"))
+    Assert.assertFalse(chatService.isChatCommand("#unknown test"))
   }
 
   @Test
   fun executeChatCommand_validTextCommand_chatCommandIsExecuted() {
-    chatService!!.executeChatCommand(ACC_ID, CMD_TXT)
+    whenever(accDao.findById(ACC_ID)).thenReturn(Optional.of(acc))
+    whenever(chatCmd.isCommand(CMD_TXT)).thenReturn(true)
+    whenever(chatCmd.requiredUserLevel()).thenReturn(AccountType.USER)
+    whenever(acc.userLevel).thenReturn(AccountType.GM)
+    chatService.executeChatCommand(ACC_ID, CMD_TXT)
 
-    verify<ChatCommand>(chatCmd).executeCommand(acc, CMD_TXT)
+    verify(chatCmd).executeCommand(acc, CMD_TXT)
   }
 
   @Test
   fun executeChatCommand_invalidTextCommand_noChatCommandIsExecuted() {
+    whenever(accDao.findById(ACC_ID)).thenReturn(Optional.of(acc))
     val CMD_TXT = "/unknown la la"
-    chatService!!.executeChatCommand(ACC_ID, CMD_TXT)
+    chatService.executeChatCommand(ACC_ID, CMD_TXT)
 
-    verify<ChatCommand>(chatCmd, times(0)).executeCommand(acc, CMD_TXT)
+    verify(chatCmd, times(0)).executeCommand(acc, CMD_TXT)
   }
 
   companion object {

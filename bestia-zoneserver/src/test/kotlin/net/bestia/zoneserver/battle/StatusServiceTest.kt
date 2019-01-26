@@ -4,8 +4,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.model.findOneOrThrow
 import net.bestia.model.bestia.StatusPointsImpl
+import net.bestia.model.findOneOrThrow
 import net.bestia.model.test.BestiaFixture
 import net.bestia.model.test.PlayerBestiaFixture
 import net.bestia.zoneserver.entity.Entity
@@ -13,12 +13,14 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.junit.Assert
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
+import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class StatusServiceTest {
 
   private lateinit var statusService: StatusService
@@ -31,13 +33,15 @@ class StatusServiceTest {
 
   private val bestiaId = 1L
   private val playerBestiaId = 2L
-
   private val bestia = BestiaFixture.bestia
 
+  @BeforeEach
   fun setup() {
-    whenever(bestiaDao.findOneOrThrow(bestiaId)).thenReturn(bestia)
-    whenever(playerBestiaDao.findOneOrThrow(playerBestiaId))
-        .thenReturn(PlayerBestiaFixture.playerBestiaWithoutMaster)
+    whenever(bestiaDao.findById(bestiaId)).thenReturn(Optional.of(bestia))
+    whenever(playerBestiaDao.findById(playerBestiaId))
+        .thenReturn(Optional.of(PlayerBestiaFixture.playerBestiaWithoutMaster))
+
+    statusService = StatusService(playerBestiaDao, bestiaDao)
   }
 
   @Test

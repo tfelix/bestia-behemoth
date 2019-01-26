@@ -5,13 +5,9 @@ import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import org.junit.Assert
-import org.junit.Test
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
-
+import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
-import java.util.ArrayList
-import java.util.HashSet
+import java.util.*
 
 /**
  * Especially testing if all actors are annotated correctly.
@@ -19,6 +15,8 @@ import java.util.HashSet
  * @author Thomas Felix
  */
 class GeneralActorTest {
+
+  private val whitelist = setOf(AwaitResponseActor::class.java)
 
   /**
    * Tests if all actors have the correct spring component annotations.
@@ -40,15 +38,10 @@ class GeneralActorTest {
         continue
       }
 
-      val isLegacyAnnotated = clazz.isAnnotationPresent(Component::class.java) &&
-          clazz.isAnnotationPresent(Scope::class.java)
-      val isAnnotated = clazz.isAnnotationPresent(ActorComponent::class.java)
-      Assert.assertTrue("Missing component annotation for: " + clazz.name, isLegacyAnnotated || isAnnotated)
-
-      if (isLegacyAnnotated) {
-        val scope = clazz.getAnnotation(Scope::class.java)
-        Assert.assertEquals(scope.value, "prototype")
-      }
+      val isAnnotated = clazz.isAnnotationPresent(ActorComponent::class.java) ||
+          clazz.isAnnotationPresent(Actor::class.java) ||
+          whitelist.contains(clazz)
+      Assert.assertTrue("Missing component annotation for: " + clazz.name, isAnnotated)
     }
   }
 
@@ -62,6 +55,8 @@ class GeneralActorTest {
         "net.bestia.zoneserver.actor")
     val classes = actorLoader.concreteSubClasses.filter {
       !it.isAnnotationPresent(ActorComponent::class.java)
+          && !it.isAnnotationPresent(Actor::class.java)
+          && !whitelist.contains(it)
     }
 
     val failedClasses = ArrayList<String>()
@@ -73,7 +68,6 @@ class GeneralActorTest {
           failedClasses.add(clazz.canonicalName)
         }
       }
-
     }
 
     if (failedClasses.size > 0) {

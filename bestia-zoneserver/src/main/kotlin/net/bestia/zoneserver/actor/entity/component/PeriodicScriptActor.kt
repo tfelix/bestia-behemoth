@@ -4,7 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.script.ScriptService
@@ -17,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class PeriodicScriptActor(
         private val scriptService: ScriptService,
         private val messageApi: MessageApi,

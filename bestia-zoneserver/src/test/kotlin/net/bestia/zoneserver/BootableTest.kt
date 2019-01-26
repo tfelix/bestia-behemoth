@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationContext
  * Playground for testing SpringBootTests
  */
 @SpringBootTest
-class SpringTestTest {
+class BootableTest {
 
   // Currently the Spring Context is not loaded because of shitty Intellij/Spring
   @Autowired

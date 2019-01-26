@@ -6,7 +6,7 @@ import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.account.ClientVarService
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
@@ -14,7 +14,7 @@ import net.bestia.zoneserver.actor.ActorComponentNoComponent
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class ClientVarActor(
     private val cvarService: ClientVarService
 ) : DynamicMessageRouterActor() {

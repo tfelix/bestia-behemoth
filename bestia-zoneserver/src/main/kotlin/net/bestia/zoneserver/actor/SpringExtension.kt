@@ -64,7 +64,7 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * Additional arguments for the actor ctor.
      * @return A props object containing an application context.
      */
-    fun props(actorBeanClass: Class<out Actor>, vararg args: Any): Props {
+    fun props(actorBeanClass: Class<out AbstractActor>, vararg args: Any): Props {
       return Props.create(
           SpringActorProducer::class.java,
           applicationContext,

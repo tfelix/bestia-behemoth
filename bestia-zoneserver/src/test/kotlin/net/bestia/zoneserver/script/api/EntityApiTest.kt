@@ -1,42 +1,38 @@
 package net.bestia.zoneserver.script.api
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.factory.MobFactory
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.Extensions
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.io.InputStreamReader
 import javax.script.Compilable
 import javax.script.Invocable
 import javax.script.ScriptContext
 import javax.script.ScriptEngineManager
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class EntityApiTest {
-
-  private class TestFn : Runnable {
-    override fun run() {
-      println("Runnable from JS")
-    }
-  }
-
-  private var positionComponent = PositionComponent(
-      entityId = 1,
-      shape = Point(10, 10),
-      facing = Direction.EAST,
-      isSightBlocking = false
-  )
-
-  fun testFn(): Runnable = Runnable { println("Runnable from JS") }
-
   private val idGeneratorService = IdGeneratorService()
 
   @Mock
   private lateinit var mobFactory: MobFactory
+
+  @BeforeEach
+  fun setup() {
+    whenever(mobFactory.build(any(), any())).thenReturn(Entity(1))
+  }
 
   @Test
   fun benchmark() {
@@ -44,8 +40,8 @@ class EntityApiTest {
     val durationEval = testEval()
 
     println()
-    println("Duration (compile): $durationCompile ms")
-    println("Duration (eval): $durationEval ms")
+    println("Duration (compile): $durationCompile ms (${durationCompile.toFloat() / BENCHMARK_RUNS} ms/ea)")
+    println("Duration (eval): $durationEval ms (${durationEval.toFloat() / BENCHMARK_RUNS} ms/ea)")
   }
 
   private fun testCompile(): Long {
@@ -55,7 +51,7 @@ class EntityApiTest {
     bindings["Bestia"] = ScriptRootApi(idGeneratorService, mobFactory, scriptRootContext)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
-    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testCompile.js")
+    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/benchmark/testCompile.js")
     val scriptReader = InputStreamReader(scriptFile)
     val compiledScript = (engine as Compilable).compile(scriptReader)
     compiledScript.eval()
@@ -80,7 +76,7 @@ class EntityApiTest {
     bindings["Bestia"] = ScriptRootApi(idGeneratorService, mobFactory, scriptRootContext)
     engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
 
-    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/testEval.js")
+    val scriptFile = this.javaClass.classLoader.getResourceAsStream("script/benchmark/testEval.js")
     val scriptReader = InputStreamReader(scriptFile)
     val compiledScript = (engine as Compilable).compile(scriptReader)
 
@@ -97,6 +93,6 @@ class EntityApiTest {
   }
 
   companion object {
-    private const val BENCHMARK_RUNS = 5000
+    private const val BENCHMARK_RUNS = 10000
   }
 }

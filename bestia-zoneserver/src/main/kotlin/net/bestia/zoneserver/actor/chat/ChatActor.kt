@@ -2,8 +2,7 @@ package net.bestia.zoneserver.actor.chat
 
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.chat.ChatCommandService
@@ -18,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class ChatActor(
     private val chatCmdService: ChatCommandService
 ) : DynamicMessageRouterActor() {

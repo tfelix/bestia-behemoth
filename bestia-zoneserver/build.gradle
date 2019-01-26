@@ -42,13 +42,14 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.5'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
-    implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.1.4'
+    implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
 
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.12', version: '0.92'
     testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.15.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.4'
     testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
 }

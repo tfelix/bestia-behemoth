@@ -16,12 +16,6 @@ class ConnectionShardMessageExtractorTest {
   }
 
   @Test
-  fun entityId_returns_id_for_accountMsg() {
-    val id = extractor.entityId(accMsg)
-    Assert.assertTrue(id!!.contains(accMsg.accountId.toString()))
-  }
-
-  @Test
   fun entityId_returns_id_for_clientToMsgEnvelope() {
     val env = ClientEnvelope(10, "Test")
     val id = extractor.entityId(env)
@@ -32,12 +26,6 @@ class ConnectionShardMessageExtractorTest {
   fun shardId_returns_id_for_clientToMsgEnvelope() {
     val env = ClientEnvelope(10, "Test")
     val id = extractor.shardId(env)
-    Assert.assertNotNull(id)
-  }
-
-  @Test
-  fun shardId_returns_id_for_accountMsg() {
-    val id = extractor.shardId(accMsg)
     Assert.assertNotNull(id)
   }
 }

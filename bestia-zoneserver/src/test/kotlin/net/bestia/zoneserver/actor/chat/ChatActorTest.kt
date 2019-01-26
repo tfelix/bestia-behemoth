@@ -3,15 +3,15 @@ package net.bestia.zoneserver.actor.chat
 import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockitokotlin2.verify
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.zoneserver.actor.BaseActorTest
+import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
-import net.bestia.zoneserver.actor.seconds
 import net.bestia.zoneserver.chat.ChatCommandService
 import org.junit.Test
 import org.springframework.boot.test.mock.mockito.MockBean
+import java.time.Duration
 
-class ChatActorTest : BaseActorTest() {
+class ChatActorTest : AbstractActorTest() {
 
   @MockBean
   lateinit var chatCmdService: ChatCommandService
@@ -26,7 +26,7 @@ class ChatActorTest : BaseActorTest() {
         chat.tell(chatMessage, ref)
 
         expectMsgClass(DynamicMessageRouterActor.RedirectMessage::class.java)
-        awaitAssert(1.seconds(), 1.seconds()) {
+        awaitAssert(Duration.ofSeconds(1), Duration.ofSeconds(1)) {
           verify(chatCmdService).isChatCommand("Hello World")
         }
       }

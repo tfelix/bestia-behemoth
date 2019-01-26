@@ -5,8 +5,6 @@ import akka.actor.ActorRef
 import akka.actor.Terminated
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.map.BootMapCreationActor
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class BootstrapActor : AbstractActor() {
 
   private val watchedActorSet = mutableSetOf<ActorRef>()

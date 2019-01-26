@@ -4,13 +4,12 @@ import mu.KotlinLogging
 import net.bestia.messages.entity.EntityInteractionMessage
 import net.bestia.messages.entity.EntityInteractionRequestMessage
 import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.InteractionService
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,8 +19,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-@Scope("prototype")
+@Actor
 class EntityInteractionRequestActor(
     private val interactService: InteractionService,
     private val playerEntityService: PlayerEntityService,

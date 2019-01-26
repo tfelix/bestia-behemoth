@@ -7,18 +7,15 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO
 import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.config.ZoneserverConfig
 import net.bestia.zoneserver.map.MapGenConfiguration
 import net.bestia.zoneserver.map.MapService
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.annotation.Scope
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
-@ActorComponentNoComponent
+@Actor
 class MapGeneratorClientActor(
     private val config: ZoneserverConfig,
     @Qualifier("localMapGenDao")

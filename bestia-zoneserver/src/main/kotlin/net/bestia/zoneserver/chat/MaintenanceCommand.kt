@@ -44,7 +44,7 @@ internal class MaintenanceCommand(
       return
     }
 
-    val isMaintenance = match.groups[0]?.value?.toBoolean() ?: false
+    val isMaintenance = match.groups[1]?.value?.toBoolean() ?: false
     LOG.info("Account {} set maintenance to: {}", account.id, isMaintenance)
 
     if (isMaintenance) {

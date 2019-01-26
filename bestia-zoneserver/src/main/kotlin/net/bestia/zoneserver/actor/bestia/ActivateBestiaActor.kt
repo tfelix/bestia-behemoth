@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.bestia
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaActivateMessage
 import net.bestia.zoneserver.MessageApi
-import net.bestia.zoneserver.actor.ActorComponentNoComponent
+import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -17,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@ActorComponentNoComponent
+@Actor
 class ActivateBestiaActor(
     private val playerService: PlayerEntityService,
     private val messageApi: MessageApi
