@@ -9,7 +9,7 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.account.LoginService
 import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.SpringExtension
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 
 class ClientConnectionActorTest : AbstractActorTest() {

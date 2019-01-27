@@ -1,23 +1,30 @@
 package net.bestia.zoneserver.client
 
-import net.bestia.model.account.AccountRepository
-import net.bestia.model.account.ClientVarRepository
-import net.bestia.model.findOneOrThrow
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVar
+import net.bestia.model.account.ClientVarRepository
 import net.bestia.zoneserver.account.ClientVarService
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.Rule
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.jupiter.MockitoExtension
+import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class ClientVarServiceTest {
+
+  @Rule
+  @JvmField
+  val rule = MockitoJUnit.rule().silent()
 
   @Mock
   private lateinit var accDao: AccountRepository
@@ -31,26 +38,25 @@ class ClientVarServiceTest {
   @Mock
   private lateinit var existingCvar: ClientVar
 
-  private var cvarService: ClientVarService? = null
+  private lateinit var cvarService: ClientVarService
 
-  @Before
+  @BeforeEach
   fun setup() {
-
-    `when`(accDao.findOneOrThrow(EXISTING_ACC_ID)).thenReturn(account)
-    `when`(accDao.findOneOrThrow(NOT_EXISTING_ACC)).thenReturn(null)
-    `when`(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
+    whenever(accDao.findById(EXISTING_ACC_ID)).thenReturn(Optional.of(account))
+    whenever(accDao.findById(NOT_EXISTING_ACC)).thenReturn(null)
+    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
 
     cvarService = ClientVarService(cvarDao, accDao)
   }
 
   @Test
   fun isOwnerOfVar_nonOwnerAccId_false() {
-    Assert.assertFalse(cvarService!!.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
+    Assert.assertFalse(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
   }
 
   @Test
   fun isOwnerOfVar_notExistingAccId_false() {
-    Assert.assertFalse(cvarService!!.isOwnerOfVar(NOT_EXISTING_ACC, EXISTING_KEY))
+    Assert.assertFalse(cvarService.isOwnerOfVar(NOT_EXISTING_ACC, EXISTING_KEY))
   }
 
   @Test
@@ -60,31 +66,35 @@ class ClientVarServiceTest {
 
   @Test
   fun delete_existingAccId_deletes() {
-    cvarService!!.delete(EXISTING_ACC_ID, EXISTING_KEY)
+    cvarService.delete(EXISTING_ACC_ID, EXISTING_KEY)
     verify<ClientVarRepository>(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
   }
 
   @Test
   fun find_existingAccId_notExistingKey_null() {
-    val `var` = cvarService!!.find(EXISTING_ACC_ID, NOT_EXISTING_KEY)
+    val `var` = cvarService.find(EXISTING_ACC_ID, NOT_EXISTING_KEY)
     verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
     Assert.assertNull(`var`)
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun set_longData_throws() {
-    cvarService!![EXISTING_ACC_ID, EXISTING_KEY] = LONG_DATA_STR
+    Assertions.assertThrows(IllegalArgumentException::class.java) {
+      cvarService[EXISTING_ACC_ID, EXISTING_KEY] = LONG_DATA_STR
+    }
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun set_nonExistingAccountExistingDataAndKey_throws() {
-    cvarService!![NOT_EXISTING_ACC, EXISTING_KEY] = DATA_STR
+    Assertions.assertThrows(IllegalArgumentException::class.java) {
+      cvarService[NOT_EXISTING_ACC, EXISTING_KEY] = DATA_STR
+    }
   }
 
   @Test
   fun set_existingAccountExistingDataAndKey_works() {
 
-    cvarService!![EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
+    cvarService[EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
 
     verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
     verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
@@ -93,7 +103,7 @@ class ClientVarServiceTest {
   @Test
   fun set_existingAccountNotExistingDataAndKey_works() {
 
-    cvarService!![EXISTING_ACC_ID, NOT_EXISTING_KEY] = DATA_STR
+    cvarService[EXISTING_ACC_ID, NOT_EXISTING_KEY] = DATA_STR
 
     verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
     verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
@@ -101,13 +111,13 @@ class ClientVarServiceTest {
 
   companion object {
 
-    private val EXISTING_ACC_ID: Long = 13
-    private val NON_OWNING_ACC_ID: Long = 12
-    private val OWNING_ACC_ID: Long = 14
-    private val NOT_EXISTING_ACC: Long = 10
+    private const val EXISTING_ACC_ID: Long = 13
+    private const val NON_OWNING_ACC_ID: Long = 12
+    private const val OWNING_ACC_ID: Long = 14
+    private const val NOT_EXISTING_ACC: Long = 10
 
-    private val EXISTING_KEY = "hello"
-    private val NOT_EXISTING_KEY = "blub"
+    private const val EXISTING_KEY = "hello"
+    private const val NOT_EXISTING_KEY = "blub"
 
     private val DATA_STR = "{\"bla\": 123, \"slot\": 10}"
     private val LONG_DATA_STR: String

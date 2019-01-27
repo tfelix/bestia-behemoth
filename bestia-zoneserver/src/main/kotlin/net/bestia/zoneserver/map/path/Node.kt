@@ -10,10 +10,11 @@ package net.bestia.zoneserver.map.path
  *
  */
 data class Node<T>(
-    val self: T,
-    var parent: Node<T>? = null,
-    var ownCost: Float = 0f
+    val self: T
 ) {
+  var parent: Node<T>? = null
+  var ownCost: Float = 0f
+
   private var completeCost = Float.NaN
 
   /**

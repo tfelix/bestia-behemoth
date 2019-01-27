@@ -5,7 +5,7 @@ import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
 import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.SpringExtension
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class AttackUseActorTest : AbstractActorTest() {
 
