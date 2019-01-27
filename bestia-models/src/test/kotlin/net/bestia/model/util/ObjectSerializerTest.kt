@@ -1,6 +1,5 @@
-package net.bestia.util
+package net.bestia.model.util
 
-import net.bestia.model.util.ObjectSerializer
 import java.util.Arrays
 
 import org.junit.Assert

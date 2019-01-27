@@ -1,9 +1,10 @@
 package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.verify
-import net.bestia.zoneserver.config.ZoneserverConfig
+import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.api.ScriptRootApi
-import net.bestia.zoneserver.script.env.GlobalEnv
+import net.bestia.zoneserver.script.env.SimpleScriptEnv
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -12,39 +13,45 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
-class ScriptServiceTest {
-  private lateinit var scriptService: ScriptService
-
+class ScriptExecServiceTest {
   @Mock
   private lateinit var api: ScriptRootApi
 
   @Mock
-  private lateinit var scriptExecService: ScriptExecService
+  private lateinit var fileResolver: ScriptFileResolver
 
-  private val zonserverConfig = ZoneserverConfig(
-      scriptDir = "classpath:script",
-      serverName = "test",
-      serverVersion = "1.0.0",
-      websocketPort = 1337
-  )
-  private lateinit var globalEnv: GlobalEnv
+  @Mock
+  private lateinit var mobFactory: MobFactory
+
+  private lateinit var scriptExecService: ScriptExecService
 
   @BeforeEach
   fun setup() {
-    globalEnv = GlobalEnv(api, zonserverConfig)
-    scriptService = ScriptService(scriptExecService)
+    scriptExecService = ScriptExecService(
+            fileResolver = fileResolver,
+            mobFactory = mobFactory,
+            idGeneratorService = IdGeneratorService()
+    )
   }
 
   @Test
-  fun `callScriptMainFunction() throws`() {
+  fun `callScriptMainFunction() with unknown scriptname does nothing`() {
     assertThrows(IllegalArgumentException::class.java) {
-      scriptService.callScriptMainFunction("unknownscript")
+      scriptExecService.executeFunction(
+              SimpleScriptEnv(),
+              "unknownscript",
+              "unknown"
+      )
     }
   }
 
   @Test
   fun `callScriptMainFunction() with known scriptname executes script`() {
-    scriptService.callScriptMainFunction(EXISTING_API_TEST_SCRIPT)
+    scriptExecService.executeFunction(
+            SimpleScriptEnv(),
+            EXISTING_API_TEST_SCRIPT,
+            "main"
+    )
 
     verify(api).debug(LOG_TEST_CALLSTR)
     verify(api).info(LOG_TEST_CALLSTR)

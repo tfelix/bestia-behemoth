@@ -2,6 +2,13 @@ plugins {
     id 'org.springframework.boot'
     id 'org.jetbrains.kotlin.plugin.spring'
     id 'org.jetbrains.kotlin.jvm'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0-RC12'
+}
+
+detekt {
+    toolVersion = "1.0.0-RC12"
+    input = files("src/main/kotlin")
+    filters = ".*/resources/.*,.*/build/.*"
 }
 
 repositories {
@@ -44,12 +51,13 @@ dependencies {
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
     implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
 
+    // ##### COPY PASTE THIS TESTCODE TO ALL SUBMODULES BECAUSE GRADLE IS SHIT
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.12', version: '0.92'
-    testImplementation group: 'org.jetbrains.kotlin', name: 'kotlin-test-junit', version: kotlinVersion
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1'
+    testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.4'
-    testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
 }

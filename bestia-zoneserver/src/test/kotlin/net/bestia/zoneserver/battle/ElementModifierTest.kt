@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.battle
 
-import org.junit.Assert
-import org.junit.Test
-
 import net.bestia.model.battle.Element
+import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 
 class ElementModifierTest {
 
@@ -16,8 +16,10 @@ class ElementModifierTest {
     Assert.assertEquals(-75, ElementModifier.getModifier(Element.SHADOW, Element.UNDEAD_3).toLong())
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun getModifier_nonLv1AttackElement_throws() {
-    ElementModifier.getModifier(Element.EARTH_3, Element.FIRE_2)
+    assertThrows(IllegalArgumentException::class.java) {
+      ElementModifier.getModifier(Element.EARTH_3, Element.FIRE_2)
+    }
   }
 }

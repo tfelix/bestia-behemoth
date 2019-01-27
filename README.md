@@ -1,5 +1,9 @@
 # Bestia-Behemoth
 
+[![Build Status](https://travis-ci.org/tfelix/bestia-behemoth.svg)](https://travis-ci.org/tfelix/bestia-behmoth)
+[![Codecov](https://codecov.io/github/tfelix/bestia-behemoth/coverage.svg)](https://codecov.io/gh/tfelix/bestia-behemoth)
+[![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
+
 > Massive scalable Zoneserver for the [Bestia Browsergame](https://bestia-game.net) using Akka Actors and written 
 > in Kotlin.
 

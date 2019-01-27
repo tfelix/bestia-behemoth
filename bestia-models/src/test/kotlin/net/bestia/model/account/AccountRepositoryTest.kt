@@ -1,17 +1,12 @@
 package net.bestia.model.account
 
+import net.bestia.model.IntegrationTest
 import net.bestia.model.test.AccountFixture
 import org.junit.Assert.assertNotNull
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 
-@RunWith(SpringRunner::class)
-@SpringBootTest
-@DataJpaTest
+@IntegrationTest
 class AccountRepositoryTest {
 
   @Autowired

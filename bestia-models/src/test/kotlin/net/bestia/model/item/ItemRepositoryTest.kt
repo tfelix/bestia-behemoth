@@ -1,7 +1,6 @@
 package net.bestia.model.item
 
 import org.junit.Assert
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -12,12 +11,15 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener
 import com.github.springtestdbunit.annotation.DatabaseSetup
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
 @DataJpaTest
 @TestExecutionListeners(DependencyInjectionTestExecutionListener::class, DbUnitTestExecutionListener::class)
 @DatabaseSetup("/db/items.xml")
+@Tag("it")
 class ItemRepositoryTest {
 
   @Autowired

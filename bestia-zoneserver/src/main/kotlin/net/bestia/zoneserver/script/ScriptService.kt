@@ -1,16 +1,9 @@
 package net.bestia.zoneserver.script
 
-import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.ScriptComponent
-import net.bestia.zoneserver.script.env.ScriptEnv
 import net.bestia.zoneserver.script.env.SimpleScriptEnv
 import org.springframework.stereotype.Service
-import javax.script.CompiledScript
-import javax.script.Invocable
-import javax.script.ScriptException
-
-private val LOG = KotlinLogging.logger { }
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -24,23 +17,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class ScriptService(
-    private val cache: ScriptCache
+        private val scriptExecService: ScriptExecService
 ) {
-
-  private fun execute(fnName: String, script: CompiledScript, env: ScriptEnv) {
-    val engine = script.engine
-    val bindings = engine.createBindings()
-    env.setupEnvironment(bindings)
-    val inv = script.engine as Invocable
-    try {
-      script.eval(bindings)
-      inv.invokeFunction(fnName)
-    } catch (e: NoSuchMethodException) {
-      LOG.error(e) { "Function $fnName is missing in script $script" }
-    } catch (e: ScriptException) {
-      LOG.error(e) { "Error during script execution." }
-    }
-  }
 
   /**
    * Central entry point for calling a script execution from the Bestia
@@ -51,14 +29,13 @@ class ScriptService(
    * @param name The name of the script to be called.
    */
   fun callScriptMainFunction(name: String) {
-    LOG.trace { "Calling script main() in: $name" }
+    val anchor = ScriptAnchor.fromString(name)
 
-    val ident = ScriptAnchor.fromString(name)
-    val script = cache.getScript(ident.name)
-
-    val scriptEnv = SimpleScriptEnv()
-
-    execute(ident.functionName, script, scriptEnv)
+    scriptExecService.executeFunction(
+            SimpleScriptEnv(),
+            anchor.name,
+            "main"
+    )
   }
 
   /**
@@ -69,14 +46,14 @@ class ScriptService(
    * callback script attached).
    */
   fun callScriptIntervalCallback(entity: Entity, scriptUuid: String) {
-    LOG.trace { "Script $entity interval called." }
-
-    val scriptComp = entity.getComponent(ScriptComponent::class.java)
+    val scriptComp = entity.tryGetComponent(ScriptComponent::class.java) ?: return
     val scriptAnchorString = scriptComp.scripts[scriptUuid]?.script ?: return
     val anchor = ScriptAnchor.fromString(scriptAnchorString)
-    val script = cache.getScript(anchor.name)
-    val simpleScriptEnv = SimpleScriptEnv()
 
-    execute(anchor.functionName, script, simpleScriptEnv)
+    scriptExecService.executeFunction(
+            SimpleScriptEnv(),
+            anchor.name,
+            anchor.functionName
+    )
   }
 }
