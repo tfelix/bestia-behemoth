@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.script
 
+import org.junit.jupiter.api.Test
 import java.io.InputStreamReader
 import javax.script.Compilable
 import javax.script.Invocable
@@ -11,9 +12,10 @@ import javax.script.ScriptEngineManager
 class ScriptTest {
 
   @Throws(Exception::class)
+  @Test
   fun test() {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
-    val scriptInput = this.javaClass.classLoader.getResourceAsStream("/script/test.js")
+    val scriptInput = this.javaClass.classLoader.getResourceAsStream("script/test.js")
 
     val scriptReader = InputStreamReader(scriptInput)
 

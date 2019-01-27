@@ -1,10 +1,8 @@
 function main() {
-    print('Hello World');
+    BESTIA.info('Hello World');
+    BESTIA.debug('Hello World');
 
-    Bestia.info('Hello World');
-    Bestia.debug('Hello World');
-
-    Bestia.entity()
-    Bestia.entity(10)
-    Bestia.entity('blob', point(10, 10))
+    BESTIA.newEntity();
+    BESTIA.findEntity(10);
+    BESTIA.spawnMob('blob', 10, 10);
 }

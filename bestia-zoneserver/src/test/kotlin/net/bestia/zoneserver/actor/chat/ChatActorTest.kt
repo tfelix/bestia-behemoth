@@ -7,7 +7,7 @@ import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.chat.ChatCommandService
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import java.time.Duration
 

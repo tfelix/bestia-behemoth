@@ -23,13 +23,13 @@ class ScriptExecService(
   fun executeFunction(env: ScriptEnv, scriptName: String, fnName: String) {
     LOG.trace { "Call $fnName() in $scriptName" }
     val bindings = setupEnvironment(env)
-    val script = getCompiledScript(scriptName)
-    val inv = script.engine as Invocable
     try {
-      script.eval(bindings)
-      inv.invokeFunction(fnName)
+      val script = getCompiledScript(scriptName)
+      script.eval()
+      script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+      (script.engine as Invocable).invokeFunction(fnName)
     } catch (e: NoSuchMethodException) {
-      LOG.error(e) { "Function $fnName is missing in script $script" }
+      LOG.error(e) { "Function $fnName is missing in script $scriptName" }
     } catch (e: ScriptException) {
       LOG.error(e) { "Error during script execution." }
     }

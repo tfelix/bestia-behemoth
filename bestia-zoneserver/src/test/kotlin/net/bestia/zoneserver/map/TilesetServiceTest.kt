@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.map.TilesetData
 import net.bestia.model.map.TilesetDataRepository
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,7 +13,6 @@ import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import java.util.*
-import kotlin.test.assertNotNull
 
 @RunWith(MockitoJUnitRunner::class)
 class TilesetServiceTest {

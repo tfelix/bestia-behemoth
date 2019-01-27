@@ -13,20 +13,6 @@ import java.net.URISyntaxException
 @Configuration
 class ScriptConfiguration {
 
-  @Bean
-  @Throws(URISyntaxException::class)
-  fun scriptCache(compiler: ScriptCompiler, config: ZoneserverConfig): ScriptCache {
-    val scriptBaseDir = config.scriptDir
-    val isClasspath = scriptBaseDir.startsWith(CLASSPATH_PREFIX)
-
-    val resolver = when(isClasspath) {
-      true ->  ClasspathScriptFileResolver(scriptBaseDir)
-      false -> FilesystemScriptFileResolver(scriptBaseDir)
-    }
-
-    return ScriptCache(compiler, resolver)
-  }
-
   companion object {
     private const val CLASSPATH_PREFIX = "classpath:"
   }

@@ -1,20 +1,17 @@
-package net.bestia.zoneserver.script.api
+package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.bestia.Direction
-import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
-import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.factory.MobFactory
+import net.bestia.zoneserver.script.api.ScriptRootApi
+import net.bestia.zoneserver.script.api.ScriptRootContext
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.Extensions
-import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.junit.jupiter.MockitoExtension
 import java.io.InputStreamReader
 import javax.script.Compilable
@@ -23,7 +20,8 @@ import javax.script.ScriptContext
 import javax.script.ScriptEngineManager
 
 @ExtendWith(MockitoExtension::class)
-class EntityApiTest {
+@Disabled
+class ScriptBenchmarkTest {
   private val idGeneratorService = IdGeneratorService()
 
   @Mock

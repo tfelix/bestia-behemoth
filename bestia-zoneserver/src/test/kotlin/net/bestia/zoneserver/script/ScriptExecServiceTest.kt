@@ -1,6 +1,10 @@
 package net.bestia.zoneserver.script
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.api.ScriptRootApi
@@ -14,11 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 
 @ExtendWith(MockitoExtension::class)
 class ScriptExecServiceTest {
-  @Mock
-  private lateinit var api: ScriptRootApi
-
-  @Mock
-  private lateinit var fileResolver: ScriptFileResolver
+  private val fileResolver = ClasspathScriptFileResolver("classpath:/script")
 
   @Mock
   private lateinit var mobFactory: MobFactory
@@ -28,9 +28,9 @@ class ScriptExecServiceTest {
   @BeforeEach
   fun setup() {
     scriptExecService = ScriptExecService(
-            fileResolver = fileResolver,
-            mobFactory = mobFactory,
-            idGeneratorService = IdGeneratorService()
+        fileResolver = fileResolver,
+        mobFactory = mobFactory,
+        idGeneratorService = IdGeneratorService()
     )
   }
 
@@ -38,26 +38,23 @@ class ScriptExecServiceTest {
   fun `callScriptMainFunction() with unknown scriptname does nothing`() {
     assertThrows(IllegalArgumentException::class.java) {
       scriptExecService.executeFunction(
-              SimpleScriptEnv(),
-              "unknownscript",
-              "unknown"
+          SimpleScriptEnv(),
+          "unknownscript",
+          "unknown"
       )
     }
   }
 
   @Test
   fun `callScriptMainFunction() with known scriptname executes script`() {
+    whenever(mobFactory.build(any(), any())).thenReturn(Entity(1))
     scriptExecService.executeFunction(
-            SimpleScriptEnv(),
-            EXISTING_API_TEST_SCRIPT,
-            "main"
+        SimpleScriptEnv(),
+        EXISTING_API_TEST_SCRIPT,
+        "main"
     )
 
-    verify(api).debug(LOG_TEST_CALLSTR)
-    verify(api).info(LOG_TEST_CALLSTR)
-    verify(api).newEntity()
-    verify(api).findEntity(TEST_ARGUMENT_INT)
-    verify(api).spawnMob("blob", TEST_ARGUMENT_INT, TEST_ARGUMENT_INT)
+    verify(mobFactory).build("blob", Point(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
   }
 
   companion object {

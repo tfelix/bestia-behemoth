@@ -6,6 +6,7 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.battle.BestiaAttackRepository
 import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.bestia.PlayerBestiaRepository
+import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import org.hamcrest.MatcherAssert.assertThat
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
@@ -25,9 +25,6 @@ class PlayerBestiaServiceTest {
   private lateinit var pbService: PlayerBestiaService
 
   @Mock
-  private lateinit var accountDao: AccountRepository
-
-  @Mock
   private lateinit var playerBestiaDao: PlayerBestiaRepository
 
   @Mock
@@ -36,16 +33,12 @@ class PlayerBestiaServiceTest {
   @Mock
   private lateinit var playerBestia: PlayerBestia
 
-  @Mock
-  private lateinit var account: Account
-
   @BeforeEach
   fun setup() {
     ALL_BESTIAS.clear()
     ALL_BESTIAS.add(playerBestia)
 
-    // whenever(accountDao.findById(OK_ACC_ID)).thenReturn(Optional.of(account))
-    whenever(playerBestiaDao.findOneOrThrow(OK_PLAYERBESTIA_ID)).thenReturn(playerBestia)
+    whenever(playerBestiaDao.findById(OK_PLAYERBESTIA_ID)).thenReturn(Optional.of(playerBestia))
 
     pbService = PlayerBestiaService(playerBestiaDao, attackLevelDao)
   }

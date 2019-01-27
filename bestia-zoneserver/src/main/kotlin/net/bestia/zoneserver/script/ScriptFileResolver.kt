@@ -6,7 +6,7 @@ interface ScriptFileResolver {
   fun getScriptInputStream(script: String): InputStream
 }
 
-fun cleanScriptName(name: String): String {
+internal fun cleanScriptName(name: String): String {
   var cleanedName = name
 
   if (!cleanedName.endsWith(".js")) {
