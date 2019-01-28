@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.client
 
 import akka.actor.AbstractActor
 import akka.cluster.sharding.ClusterSharding
-import net.bestia.zoneserver.EntryActorNames
+import net.bestia.zoneserver.ShardActorNames
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
@@ -20,7 +20,7 @@ private val LOG = KotlinLogging.logger { }
 class SendToClientActor : AbstractActor() {
 
   private var clientConnection = ClusterSharding.get(context.system)
-      .shardRegion(EntryActorNames.SHARD_CONNECTION)
+      .shardRegion(ShardActorNames.SHARD_CONNECTION)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()

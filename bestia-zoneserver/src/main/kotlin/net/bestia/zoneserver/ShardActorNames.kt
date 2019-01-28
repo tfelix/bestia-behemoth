@@ -6,7 +6,8 @@ package net.bestia.zoneserver
  *
  * @author Thomas Felix
  */
-object EntryActorNames {
+object ShardActorNames {
   const val SHARD_ENTITY = "entityShard"
   const val SHARD_CONNECTION = "connectionShard"
+  const val SHARD_QUADTREE = "quadtree"
 }

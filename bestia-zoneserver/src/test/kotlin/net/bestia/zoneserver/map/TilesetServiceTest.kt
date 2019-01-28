@@ -6,15 +6,15 @@ import net.bestia.model.map.TilesetData
 import net.bestia.model.map.TilesetDataRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class TilesetServiceTest {
 
   private lateinit var tilesetServ: TilesetService
@@ -28,7 +28,7 @@ class TilesetServiceTest {
   @Mock
   private lateinit var tilesetDao: TilesetDataRepository
 
-  @Before
+  @BeforeEach
   fun setup() {
     whenever(tilesetDao.findByGid(anyLong())).thenReturn(null)
     whenever(tilesetDao.findByGid(VALID_ID.toLong())).thenReturn(validData)

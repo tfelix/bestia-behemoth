@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.connection
 
 import akka.cluster.sharding.ClusterSharding
-import net.bestia.zoneserver.EntryActorNames
+import net.bestia.zoneserver.ShardActorNames
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientConnectMessage
 import net.bestia.messages.client.ClientEnvelope
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 class ClientConnectionManagerActor : DynamicMessageRouterActor() {
 
   private val clientConnectionActor = ClusterSharding.get(context.system)
-          .shardRegion(EntryActorNames.SHARD_CONNECTION)
+          .shardRegion(ShardActorNames.SHARD_CONNECTION)
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(ClientConnectMessage::class.java, this::onClientConnection)

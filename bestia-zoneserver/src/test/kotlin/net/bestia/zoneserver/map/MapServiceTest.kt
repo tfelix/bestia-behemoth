@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.map
 
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.map.MapDataRepository
-import net.bestia.model.map.MapParameterRepository
-import net.bestia.model.map.MapParameter
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
+import net.bestia.model.map.MapDataRepository
+import net.bestia.model.map.MapParameter
+import net.bestia.model.map.MapParameterRepository
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
+import java.util.*
 
-import java.util.ArrayList
-
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class MapServiceTest {
 
   private lateinit var ms: MapService

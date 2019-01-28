@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class BattleComponentTest {
 
