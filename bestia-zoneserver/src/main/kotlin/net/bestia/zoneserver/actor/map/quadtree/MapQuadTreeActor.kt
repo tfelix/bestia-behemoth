@@ -28,7 +28,6 @@ interface QuadtreeQuery {
   val replyTo: ActorRef
 }
 
-/*
 @Actor
 class MapQuadTreeActor(
     private val boundary: Rect
@@ -157,4 +156,4 @@ class MapQuadTreeActor(
       }
     }
   }
-}*/
+}

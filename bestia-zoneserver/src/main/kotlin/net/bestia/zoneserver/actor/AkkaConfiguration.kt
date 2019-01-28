@@ -22,7 +22,7 @@ import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
-// import net.bestia.zoneserver.actor.map.quadtree.MapQuadTreeActor
+import net.bestia.zoneserver.actor.map.quadtree.MapQuadTreeActor
 import net.bestia.zoneserver.actor.map.quadtree.QuadtreeShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
 import net.bestia.zoneserver.config.ZoneserverConfig
@@ -91,12 +91,10 @@ class AkkaConfiguration {
     val connectionExtractor = ConnectionShardMessageExtractor()
     sharding.start(ShardActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
 
-    /*
     LOG.info { "Starting quadtree sharding..." }
     val treeProps = SpringExtension.getSpringProps(system, MapQuadTreeActor::class.java)
     val treeShardExtractor = QuadtreeShardMessageExtractor(numberOfShards)
     sharding.start(ShardActorNames.SHARD_QUADTREE, treeProps, settings, treeShardExtractor)
-    */
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {
