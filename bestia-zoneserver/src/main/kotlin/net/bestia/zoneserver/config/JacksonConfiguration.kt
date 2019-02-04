@@ -10,7 +10,17 @@ class JacksonConfiguration {
 
   @Bean
   fun socketMapper(): ObjectMapper {
-    return ObjectMapper()
-        .registerModule(KotlinModule())
+    return createBestiaMapper()
+  }
+
+  companion object {
+    /**
+     * This can be called externally to get a new Mapper configured for use
+     * with Bestia.
+     */
+    fun createBestiaMapper(): ObjectMapper {
+      return ObjectMapper()
+          .registerModule(KotlinModule())
+    }
   }
 }

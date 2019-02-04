@@ -5,6 +5,7 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVarRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.ClientVar
+import net.bestia.model.findOne
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -69,10 +70,14 @@ constructor(
    * @return The associated cvar variable.
    */
   fun find(accId: Long, key: String): ClientVar {
+    return tryFind(accId, key)
+        ?: throw IllegalArgumentException("No cvar for account $accId with key: $key")
+  }
+
+  fun tryFind(accId: Long, key: String): ClientVar? {
     LOG.debug { "Find cvar with accID: $accId and key: $key." }
 
-    return cvarDao.findByKeyAndAccountId(Objects.requireNonNull(key), accId)
-        ?: throw IllegalArgumentException("No cvor for account $accId with key: $key")
+    return cvarDao.findByKeyAndAccountId(key, accId)
   }
 
   /**
@@ -86,8 +91,6 @@ constructor(
    * The data payload.
    */
   operator fun set(accountId: Long, key: String, data: String) {
-    Objects.requireNonNull(data)
-
     if (data.length > MAX_DATA_ENTRY_LENGTH_BYTES) {
       val errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_ENTRY_LENGTH_BYTES)
       throw IllegalArgumentException(errMsg)
@@ -99,12 +102,13 @@ constructor(
       throw IllegalArgumentException(errMsg)
     }
 
-    var cvar: ClientVar? = find(accountId, key)
+    var cvar: ClientVar? = tryFind(accountId, key)
 
     if (cvar != null) {
       cvar.setData(data)
     } else {
-      val acc = accDao.findOneOrThrow(accountId)
+      val acc = accDao.findOne(accountId)
+          ?: throw java.lang.IllegalArgumentException("Account $accountId was not found")
       cvar = ClientVar(acc, key, data)
     }
 

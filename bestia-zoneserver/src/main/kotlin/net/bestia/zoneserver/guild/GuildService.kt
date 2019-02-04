@@ -53,7 +53,7 @@ class GuildService(
   fun addExpTaxToGuild(playerBestiaId: Long, earnedTotalExp: Int): Int {
     return guildMemberRepository.findByPlayerBestiaId(playerBestiaId)?.let { member ->
       val rank = member.rank
-      val taxExp = Math.ceil((rank!!.taxRate * earnedTotalExp).toDouble()).toInt()
+      val taxExp = Math.ceil((rank.taxRate * earnedTotalExp).toDouble()).toInt()
       val guild = member.guild
       guild.addExp(taxExp)
       guildRepository.save(guild)

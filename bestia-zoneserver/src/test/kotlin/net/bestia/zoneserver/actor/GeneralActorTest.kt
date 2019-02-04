@@ -4,6 +4,8 @@ import akka.actor.AbstractActor
 import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.entity.EntityActor
+import net.bestia.zoneserver.actor.map.quadtree.AwaitQuadTreeResponseActor
+import net.bestia.zoneserver.actor.map.quadtree.MapQuadTreeActor
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
@@ -16,7 +18,14 @@ import java.util.*
  */
 class GeneralActorTest {
 
-  private val whitelist = setOf(AwaitResponseActor::class.java)
+  /**
+   * These actors wont be tested for existence of annotations.
+   */
+  private val whitelist = setOf(
+      AwaitResponseActor::class.java,
+      MapQuadTreeActor::class.java,
+      AwaitQuadTreeResponseActor::class.java
+  )
 
   /**
    * Tests if all actors have the correct spring component annotations.

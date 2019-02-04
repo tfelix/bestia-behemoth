@@ -42,7 +42,7 @@ class StatusService(
     LOG.trace("Calculate status points for entity {}.", entity)
 
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
-    val bestiaId = metaDataComponent?.data?.get(MetaDataComponent.MOB_BESTIA_ID) as? Long
+    val bestiaId = metaDataComponent?.tryGetAsLong(MetaDataComponent.MOB_BESTIA_ID)
     val isPlayer = entity.hasComponent(PlayerComponent::class.java)
 
     when {

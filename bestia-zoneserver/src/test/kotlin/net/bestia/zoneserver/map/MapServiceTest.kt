@@ -6,12 +6,13 @@ import net.bestia.model.geometry.Rect
 import net.bestia.model.map.MapDataRepository
 import net.bestia.model.map.MapParameter
 import net.bestia.model.map.MapParameterRepository
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import java.lang.IllegalArgumentException
 import java.util.*
 
 @ExtendWith(MockitoExtension::class)
@@ -37,7 +38,7 @@ class MapServiceTest {
   @Mock
   private lateinit var tilesetService: TilesetService
 
-  @Before
+  @BeforeEach
   fun setup() {
     whenever(dataMapDao.count()).thenReturn(1L)
     whenever(mapParams.name).thenReturn(MAP_NAME)
@@ -48,18 +49,20 @@ class MapServiceTest {
 
   @Test
   fun isMapInitialized_noMapInsideDB_false() {
-    Assert.assertFalse(ms.isMapInitialized)
+    Assertions.assertFalse(ms.isMapInitialized)
   }
 
   @Test
   fun isMapInitialized_mapInsideDB_true() {
     ms = MapService(dataMapDao, paramDao, tilesetService)
-    Assert.assertTrue(ms.isMapInitialized)
+    Assertions.assertTrue(ms.isMapInitialized)
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun getMap_illegalCoordinates_throws() {
-    ms.getMap(10, 10, -10, 10)
+    Assertions.assertThrows(IllegalArgumentException::class.java) {
+      ms.getMap(10, 10, -10, 10)
+    }
   }
 
   @Test
@@ -67,19 +70,19 @@ class MapServiceTest {
 
     val m = ms.getMap(5, 10, 10, 10)
 
-    Assert.assertNotNull(m)
-    Assert.assertEquals(Rect(5, 10, 10, 10), m.rect)
+    Assertions.assertNotNull(m)
+    Assertions.assertEquals(Rect(5, 10, 10, 10), m.rect)
   }
 
   @Test
   fun getMapName_noMapInsideDB_emptyStr() {
     ms = MapService(dataNoMapDao, paramNoMapDao, tilesetService)
-    Assert.assertEquals("", ms.mapName)
+    Assertions.assertEquals("", ms.mapName)
   }
 
   @Test
   fun getMapName_mapInsideDB_validStr() {
-    Assert.assertEquals(MAP_NAME, ms.mapName)
+    Assertions.assertEquals(MAP_NAME, ms.mapName)
   }
 
   @Test
@@ -88,8 +91,8 @@ class MapServiceTest {
     chunkCords.add(Point(1, 1))
     val chunks = ms.getChunks(chunkCords)
 
-    Assert.assertNotNull(chunks)
-    Assert.assertEquals(1, chunks.size.toLong())
+    Assertions.assertNotNull(chunks)
+    Assertions.assertEquals(1, chunks.size.toLong())
   }
 
   companion object {

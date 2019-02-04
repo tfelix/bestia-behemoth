@@ -7,8 +7,8 @@ class QuadtreeShardMessageExtractor(
 ) : ShardRegion.MessageExtractor {
 
   override fun entityId(message: Any): String? {
-    return when(message) {
-      is QuadtreeQuery -> message.areaToCheck.toString()
+    return when (message) {
+      is QueryCommand -> message.nodeAdress
       else -> null
     }
   }
@@ -18,8 +18,8 @@ class QuadtreeShardMessageExtractor(
   }
 
   override fun shardId(message: Any): String? {
-    return when(message) {
-      is QuadtreeQuery -> (message.areaToCheck.toString().hashCode() % numberOfShards).toString()
+    return when (message) {
+      is QueryCommand -> (message.nodeAdress.hashCode() % numberOfShards).toString()
       else -> null
     }
   }

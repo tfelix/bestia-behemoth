@@ -22,10 +22,6 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class ClientVarServiceTest {
 
-  @Rule
-  @JvmField
-  val rule = MockitoJUnit.rule().silent()
-
   @Mock
   private lateinit var accDao: AccountRepository
 
@@ -42,10 +38,6 @@ class ClientVarServiceTest {
 
   @BeforeEach
   fun setup() {
-    whenever(accDao.findById(EXISTING_ACC_ID)).thenReturn(Optional.of(account))
-    whenever(accDao.findById(NOT_EXISTING_ACC)).thenReturn(null)
-    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
-
     cvarService = ClientVarService(cvarDao, accDao)
   }
 
@@ -61,20 +53,23 @@ class ClientVarServiceTest {
 
   @Test
   fun isOwnerOfVar_owningAccId_true() {
-    Assert.assertTrue(cvarService!!.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
+    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
+
+    Assert.assertTrue(cvarService.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
   }
 
   @Test
   fun delete_existingAccId_deletes() {
     cvarService.delete(EXISTING_ACC_ID, EXISTING_KEY)
-    verify<ClientVarRepository>(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
+
+    verify(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
   }
 
   @Test
   fun find_existingAccId_notExistingKey_null() {
-    val `var` = cvarService.find(EXISTING_ACC_ID, NOT_EXISTING_KEY)
-    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
-    Assert.assertNull(`var`)
+    val result = cvarService.tryFind(EXISTING_ACC_ID, NOT_EXISTING_KEY)
+    verify(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
+    Assert.assertNull(result)
   }
 
   @Test
@@ -93,24 +88,25 @@ class ClientVarServiceTest {
 
   @Test
   fun set_existingAccountExistingDataAndKey_works() {
+    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)).thenReturn(existingCvar)
 
     cvarService[EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
 
-    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
-    verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
+    verify(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
+    verify(cvarDao).save(any(ClientVar::class.java))
   }
 
   @Test
   fun set_existingAccountNotExistingDataAndKey_works() {
+    whenever(accDao.findById(EXISTING_ACC_ID)).thenReturn(Optional.of(account))
 
     cvarService[EXISTING_ACC_ID, NOT_EXISTING_KEY] = DATA_STR
 
-    verify<ClientVarRepository>(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
-    verify<ClientVarRepository>(cvarDao).save(any(ClientVar::class.java))
+    verify(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
+    verify(cvarDao).save(any(ClientVar::class.java))
   }
 
   companion object {
-
     private const val EXISTING_ACC_ID: Long = 13
     private const val NON_OWNING_ACC_ID: Long = 12
     private const val OWNING_ACC_ID: Long = 14

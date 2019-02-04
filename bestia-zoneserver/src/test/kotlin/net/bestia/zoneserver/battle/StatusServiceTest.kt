@@ -5,15 +5,16 @@ import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.bestia.StatusPointsImpl
-import net.bestia.model.findOneOrThrow
 import net.bestia.model.test.BestiaFixture
 import net.bestia.model.test.PlayerBestiaFixture
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
+import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
@@ -37,13 +38,10 @@ class StatusServiceTest {
 
   @BeforeEach
   fun setup() {
-    whenever(bestiaDao.findById(bestiaId)).thenReturn(Optional.of(bestia))
-    whenever(playerBestiaDao.findById(playerBestiaId))
-        .thenReturn(Optional.of(PlayerBestiaFixture.playerBestiaWithoutMaster))
-
     statusService = StatusService(playerBestiaDao, bestiaDao)
   }
 
+  @Disabled("Currently no status calc for non player or mob entities")
   @Test
   fun `non mob or player entity but with status values component calculates and uses level`() {
     val e = Entity(1)
@@ -53,34 +51,47 @@ class StatusServiceTest {
         LevelComponent(e.id, 10, 0)
     ))
 
-    statusService.calculateStatusPoints(e)
+    val resultStatus = statusService.calculateStatusPoints(e)
 
-    Assert.assertNotEquals(StatusPointsImpl(), statusComponent.originalStatusPoints)
+    Assert.assertNotEquals(StatusPointsImpl(), resultStatus.originalStatusPoints)
   }
 
   @Test
   fun `mob tagged component calculates with mob data from database`() {
+    whenever(bestiaDao.findById(bestiaId))
+        .thenReturn(Optional.of(BestiaFixture.bestia))
+
     val e = Entity(1)
     val statusComponent = StatusComponent(e.id)
     e.addAllComponents(listOf(
         statusComponent,
-        LevelComponent(e.id, 10, 0)
+        LevelComponent(e.id, 10, 0),
+        MetaDataComponent(e.id, mapOf(
+            MetaDataComponent.MOB_BESTIA_ID to bestiaId.toString()
+        ))
     ))
+    val resultStatus = statusService.calculateStatusPoints(e)
 
-    verify(bestiaDao).findOneOrThrow(bestiaId)
-    Assert.assertNotEquals(StatusPointsImpl(), statusComponent.originalStatusPoints)
+    verify(bestiaDao).findById(bestiaId)
+    Assert.assertNotEquals(StatusPointsImpl(), resultStatus.originalStatusPoints)
   }
 
   @Test
   fun `player component calculates with player data`() {
+    whenever(playerBestiaDao.findById(playerBestiaId))
+        .thenReturn(Optional.of(PlayerBestiaFixture.playerBestiaWithoutMaster))
+
     val e = Entity(1)
     e.addComponent(PlayerComponent(
         entityId = e.id,
         playerBestiaId = playerBestiaId,
         ownerAccountId = 1
     ))
+    e.addComponent(StatusComponent(
+        entityId = e.id
+    ))
 
     statusService.calculateStatusPoints(e)
-    verify(playerBestiaDao).findOneOrThrow(playerBestiaId)
+    verify(playerBestiaDao).findById(playerBestiaId)
   }
 }
