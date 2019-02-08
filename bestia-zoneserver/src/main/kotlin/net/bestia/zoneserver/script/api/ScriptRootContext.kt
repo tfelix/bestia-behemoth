@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.entity.Entity
 
 class ScriptRootContext : Context {

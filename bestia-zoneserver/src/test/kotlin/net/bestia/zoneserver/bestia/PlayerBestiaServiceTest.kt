@@ -38,57 +38,23 @@ class PlayerBestiaServiceTest {
     ALL_BESTIAS.clear()
     ALL_BESTIAS.add(playerBestia)
 
-    whenever(playerBestiaDao.findById(OK_PLAYERBESTIA_ID)).thenReturn(Optional.of(playerBestia))
-
     pbService = PlayerBestiaService(playerBestiaDao, attackLevelDao)
   }
 
   @Test
   fun getAllBestias_wrongAccId_empty() {
+    whenever(playerBestiaDao.findMasterBestiaForAccount(WRONG_ACC_ID)).thenReturn(null)
+
     val bestias = pbService.getAllBestias(WRONG_ACC_ID)
     assertThat(bestias, hasSize(0))
   }
 
   @Test
   fun getAllBestias_okAccId_allBestias() {
+    whenever(playerBestiaDao.findPlayerBestiasForAccount(OK_ACC_ID)).thenReturn(setOf(playerBestia))
     val bestias = pbService.getAllBestias(OK_ACC_ID)
 
     assertThat(bestias, hasSize(ALL_BESTIAS.size))
-  }
-
-  @Test
-  fun getPlayerBestia_wrongId_null() {
-    val bestia = pbService.getPlayerBestia(WRONG_PLAYERBESTIA_ID)
-
-    assertThat(bestia, nullValue())
-  }
-
-  @Test
-  fun getPlayerBestia_okId_bestia() {
-    val bestia = pbService.getPlayerBestia(OK_PLAYERBESTIA_ID)
-
-    assertThat(bestia, notNullValue())
-  }
-
-  @Test
-  fun getMaster_wrongAccId_null() {
-    val master = pbService.getMaster(WRONG_ACC_ID)
-
-    assertThat(master, nullValue())
-  }
-
-  @Test
-  fun getMaster_okAccId_master() {
-    val master = pbService.getMaster(OK_ACC_ID)
-
-    assertThat(master, notNullValue())
-  }
-
-  @Test
-  fun save_playerBestia_saved() {
-    pbService.save(playerBestia)
-
-    verify<PlayerBestiaRepository>(playerBestiaDao).save(playerBestia)
   }
 
   companion object {

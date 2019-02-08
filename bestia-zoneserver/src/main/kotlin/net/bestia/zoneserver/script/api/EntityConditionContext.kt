@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 
 data class EntityConditionContext(
     val entityId: Long

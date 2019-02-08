@@ -7,7 +7,7 @@ import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.map.MapParameter
 import net.bestia.zoneserver.AkkaCluster
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern

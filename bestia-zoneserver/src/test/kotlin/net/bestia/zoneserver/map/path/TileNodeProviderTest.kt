@@ -7,8 +7,7 @@ import net.bestia.model.map.BestiaMap
 import net.bestia.model.map.Walkspeed
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,9 +20,6 @@ class TileNodeProviderTest {
 
   @Mock
   private lateinit var gameMap: BestiaMap
-
-  @Mock
-  private lateinit var posComp: PositionComponent
 
   @Mock
   private lateinit var entityCollisionService: EntityCollisionService
@@ -48,8 +44,7 @@ class TileNodeProviderTest {
 
   @Test
   fun getConnectedNodes_nodeOutOfMapRange_emptyConnections() {
-    whenever(gameMap.isWalkable(anyLong(), anyLong())).thenReturn(true)
-
+    whenever(gameMap.rect).thenReturn(MAP_RECT)
     val cons = provider.getConnectedNodes(NODE_OUT_OF_RANGE)
     assertTrue(cons.isEmpty())
   }
@@ -61,7 +56,7 @@ class TileNodeProviderTest {
     whenever(gameMap.rect).thenReturn(MAP_RECT)
 
     val cons = provider.getConnectedNodes(NODE_ENTITY_BLOCK)
-    assertTrue(cons.isEmpty())
+    assertEquals(emptySet<Node<Point>>(), cons)
   }
 
   companion object {

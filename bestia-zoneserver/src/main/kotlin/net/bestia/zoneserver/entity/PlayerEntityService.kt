@@ -20,7 +20,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class PlayerEntityService(
-    private val playerBestiaService: PlayerBestiaService,
     private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaRepository
 ) {
@@ -152,7 +151,7 @@ class PlayerEntityService(
    */
   fun save(playerEntity: Entity) {
     val playerComp = playerEntity.getComponent(PlayerComponent::class.java)
-    val playerBestia = playerBestiaService.getPlayerBestia(playerComp.playerBestiaId)
+    val playerBestia = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
     // Current status values (HP/Mana)
     val statusComp = playerEntity.getComponent(StatusComponent::class.java)
@@ -167,6 +166,6 @@ class PlayerEntityService(
     playerBestia.exp = levelComp.exp
     playerBestia.level = levelComp.level
 
-    playerBestiaService.save(playerBestia)
+    playerBestiaDao.save(playerBestia)
   }
 }

@@ -24,7 +24,7 @@ interface PlayerBestiaRepository : CrudRepository<PlayerBestia, Long> {
   fun findPlayerBestiasForAccount(@Param("owner") accId: Long): Set<PlayerBestia>
 
   @Query("FROM PlayerBestia pb WHERE pb.owner.id = :owner AND pb.master IS NOT null")
-  fun findMasterBestiaForAccount(@Param("owner") accId: Long): PlayerBestia
+  fun findMasterBestiaForAccount(@Param("owner") accId: Long): PlayerBestia?
 
   /**
    * Returns a master player bestia with the given name or null if no such

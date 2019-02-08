@@ -3,7 +3,6 @@ package net.bestia.zoneserver.actor
 import akka.actor.*
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
-import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -12,7 +11,6 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
 class SpringExtension private constructor() : AbstractExtensionId<SpringExtension.SpringAkkaExt>() {
 
   /**
@@ -26,19 +24,19 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
   /**
    * The extension implementation.
    */
-  class SpringAkkaExt internal constructor() : Extension {
+  class SpringAkkaExt : Extension {
 
     @Volatile
     private lateinit var applicationContext: ApplicationContext
+    private lateinit var actorProducerClass: Class<out IndirectActorProducer>
 
     /**
      * Used to initialize the Spring application context for the extension.
      *
-     * @param applicationContext
-     * The Spring application context.
      */
-    fun initialize(applicationContext: ApplicationContext) {
+    fun initialize(applicationContext: ApplicationContext, actorProducerClass: Class<out IndirectActorProducer>) {
       this.applicationContext = applicationContext
+      this.actorProducerClass = actorProducerClass
     }
 
     /**
@@ -49,10 +47,10 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      */
     fun props(actorBeanClass: Class<out Actor>): Props {
       return Props.create(
-          SpringActorProducer::class.java,
+          actorProducerClass,
           applicationContext,
-          actorBeanClass)
-          .withDeploy(Deploy.local())
+          actorBeanClass
+      ).withDeploy(Deploy.local())
     }
 
     /**
@@ -66,11 +64,11 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      */
     fun props(actorBeanClass: Class<out AbstractActor>, vararg args: Any): Props {
       return Props.create(
-          SpringActorProducer::class.java,
+          actorProducerClass,
           applicationContext,
           actorBeanClass,
-          args)
-          .withDeploy(Deploy.local())
+          args
+      ).withDeploy(Deploy.local())
     }
   }
 
@@ -114,6 +112,7 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
       val actorName = getActorName(clazz)
       val actor = if (actorName == null) system.actorOf(props) else system.actorOf(props, actorName)
       LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
+
       return actor
     }
 
@@ -230,8 +229,12 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * @param appContext
      * The spring app context.
      */
-    fun initialize(system: ActorSystem, appContext: ApplicationContext) {
-      PROVIDER.get(system).initialize(appContext)
+    fun initialize(
+        system: ActorSystem,
+        appContext: ApplicationContext,
+        actorProducerClass: Class<out IndirectActorProducer> = SpringActorProducer::class.java
+    ) {
+      PROVIDER.get(system).initialize(appContext, actorProducerClass)
     }
   }
 }

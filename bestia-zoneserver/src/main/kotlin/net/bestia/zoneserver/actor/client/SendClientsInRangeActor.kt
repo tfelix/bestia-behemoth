@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.client
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.actor.SpringExtension

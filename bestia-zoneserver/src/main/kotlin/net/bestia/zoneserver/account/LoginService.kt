@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.factory.PlayerBestiaFactory
@@ -18,9 +19,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class LoginService(
-    private val accountDao: AccountRepository,
+    private val accountRepository: AccountRepository,
+    private val playerBestiaRepository: PlayerBestiaRepository,
     private val playerEntityService: PlayerEntityService,
-    private val playerBestiaService: PlayerBestiaService,
     private val playerBestiaFactory: PlayerBestiaFactory
 ) {
 
@@ -38,8 +39,9 @@ class LoginService(
       throw IllegalArgumentException("Account ID must be positive.")
     }
 
-    val account = accountDao.findOneOrThrow(accId)
-    val master = playerBestiaService.getMaster(accId)
+    val account = accountRepository.findOneOrThrow(accId)
+    val master = playerBestiaRepository.findMasterBestiaForAccount(accId)
+        ?: throw IllegalArgumentException("Account had no BestiaMaster assigned")
 
     LOG.debug { "Login of account: $account" }
 
@@ -48,8 +50,7 @@ class LoginService(
     playerEntityService.setActiveEntity(accId, masterEntity)
 
     master.entityId = masterEntity.id
-    playerBestiaService.save(master)
-
+    playerBestiaRepository.save(master)
     return account
   }
 }

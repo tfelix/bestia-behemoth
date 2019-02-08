@@ -11,12 +11,9 @@ import net.bestia.zoneserver.actor.AbstractActorTest
 import org.junit.jupiter.api.*
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import java.time.Duration
 
-// @RunWith(SpringRunner::class)
-@SpringBootTest
 class ClientVarActorTest : AbstractActorTest() {
   @MockBean
   private val cvarService: ClientVarService? = null

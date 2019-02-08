@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.Cancellable
 import mu.KotlinLogging
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
@@ -19,10 +19,10 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class PeriodicScriptActor(
-        private val scriptService: ScriptService,
-        private val messageApi: MessageApi,
-        private val entityId: Long,
-        private val scriptUuid: String
+    private val scriptService: ScriptService,
+    private val messageApi: MessageApi,
+    private val entityId: Long,
+    private val scriptUuid: String
 ) : AbstractActor() {
 
   private var tick: Cancellable? = null

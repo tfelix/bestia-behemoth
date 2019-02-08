@@ -29,12 +29,6 @@ internal class SpringActorProducer(
       actorBeanClass: Class<out Actor>
   ) : this(applicationContext, actorBeanClass, emptyArray<Any>())
 
-  init {
-    if (args.any { it == null }) {
-      throw IllegalArgumentException("Arguments can not contain null.")
-    }
-  }
-
   private fun getAnnotatedCtor(ctors: Array<Constructor<*>>): Constructor<*>? {
     return ctors.find { it.isAnnotationPresent(Autowired::class.java) }
   }

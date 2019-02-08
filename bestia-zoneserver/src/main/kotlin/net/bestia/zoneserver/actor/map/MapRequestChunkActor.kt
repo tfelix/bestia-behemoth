@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.messages.map.MapChunkMessage
 import net.bestia.messages.map.MapChunkRequestMessage
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor

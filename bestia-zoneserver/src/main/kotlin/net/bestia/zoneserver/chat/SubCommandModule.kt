@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import net.bestia.model.account.Account
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern

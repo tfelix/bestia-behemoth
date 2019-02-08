@@ -1,6 +1,5 @@
-flyway:
-  enabled: false
-
 spring:
+  flyway:
+    enabled: false
   main:
     allow-bean-definition-overriding: true

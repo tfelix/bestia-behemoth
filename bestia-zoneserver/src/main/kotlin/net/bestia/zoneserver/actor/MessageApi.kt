@@ -1,4 +1,4 @@
-package net.bestia.zoneserver
+package net.bestia.zoneserver.actor
 
 import akka.actor.ActorRef
 import mu.KotlinLogging

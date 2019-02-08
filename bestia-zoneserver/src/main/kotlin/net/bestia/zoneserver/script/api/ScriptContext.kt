@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.entity.component.ScriptLifetime
 import net.bestia.zoneserver.actor.entity.entityParcel
 import net.bestia.zoneserver.entity.component.DelayScriptCallback

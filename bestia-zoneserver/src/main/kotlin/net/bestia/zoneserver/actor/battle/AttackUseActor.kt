@@ -7,7 +7,7 @@ import net.bestia.messages.entity.EntitySkillUseMessage
 import net.bestia.model.battle.AttackRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.battle.Attack
-import net.bestia.zoneserver.MessageApi
+import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor

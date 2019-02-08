@@ -34,12 +34,12 @@ dependencies {
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-discovery_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-http_2.12', version: akkaHttpVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra_2.12', version: '0.92'
 
-    implementation group: "com.lightbend.akka.management", name: "akka-management-cluster-bootstrap_2.12", version: "0.18.0"
-    implementation group: 'com.lightbend.akka.discovery', name: 'akka-discovery-config_2.12', version: '0.18.0'
-    implementation group: 'com.okumin', name: 'akka-persistence-sql-async_2.12', version: '0.5.1'
+    implementation group: 'com.lightbend.akka.management', name: 'akka-management_2.12', version: '1.0.0-RC2'
+    implementation group: 'com.lightbend.akka.management', name: 'akka-management-cluster-bootstrap_2.12', version: '1.0.0-RC2'
 
     implementation group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
 
@@ -58,6 +58,6 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.4'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
 }

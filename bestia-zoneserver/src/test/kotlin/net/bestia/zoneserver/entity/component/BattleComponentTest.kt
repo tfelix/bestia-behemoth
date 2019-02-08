@@ -24,8 +24,8 @@ class BattleComponentTest {
   @Test
   fun addDamageReceived_validNumberOfDamage_isAdded() {
     val bc = BattleDamageComponent(1)
-    bc.addDamageReceived(1, 10)
-    Assert.assertEquals(1, bc.damageDealers.size.toLong())
+    val newBc = bc.addDamageReceived(1, 10)
+    Assert.assertEquals(1, newBc.damageDealers.size.toLong())
   }
 
   @Test

@@ -70,41 +70,10 @@ class PlayerBestiaService(
   fun getAllBestias(accId: Long): Set<PlayerBestia> {
     val bestias = playerBestiaDao.findPlayerBestiasForAccount(accId).toMutableSet()
     // Add master as well since its not listed as a "player bestia".
-    bestias.add(getMaster(accId))
+    val master = playerBestiaDao.findMasterBestiaForAccount(accId)
+    master?.let { bestias.add(it) }
 
     return bestias
-  }
-
-  /**
-   * Returns the player bestia with the given id or null.
-   *
-   * @param playerBestiaId
-   * @return
-   */
-  fun getPlayerBestia(playerBestiaId: Long): PlayerBestia {
-    return playerBestiaDao.findOneOrThrow(playerBestiaId)
-  }
-
-  /**
-   * Returns the master bestia for this given account id.
-   *
-   * @param accountId
-   * @return The master bestia or NULL if the account does not extist.
-   */
-  fun getMaster(accountId: Long): PlayerBestia {
-    return playerBestiaDao.findMasterBestiaForAccount(accountId)
-  }
-
-  /**
-   * Saves the given player bestia into the database.
-   *
-   * @param playerBestia The bestia to save into the database.
-   */
-  fun save(playerBestia: PlayerBestia) {
-    Objects.requireNonNull(playerBestia)
-
-    LOG.debug("Persisting player bestia: {}.", playerBestia)
-    playerBestiaDao.save(playerBestia)
   }
 
   companion object {
