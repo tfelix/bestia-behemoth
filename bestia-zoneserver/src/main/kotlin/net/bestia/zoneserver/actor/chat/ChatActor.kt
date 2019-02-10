@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.chat
 
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.Actor

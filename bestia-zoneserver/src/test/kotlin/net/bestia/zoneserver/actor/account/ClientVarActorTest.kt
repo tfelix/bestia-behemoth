@@ -1,22 +1,22 @@
 package net.bestia.zoneserver.actor.account
 
 import akka.testkit.javadsl.TestKit
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.model.account.ClientVar
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.ClientVarActor
 import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.AbstractActorTest
-import org.junit.jupiter.api.*
+import net.bestia.zoneserver.actor.client.ClientVarActor
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.springframework.boot.test.mock.mockito.MockBean
 import java.time.Duration
 
 class ClientVarActorTest : AbstractActorTest() {
   @MockBean
-  private val cvarService: ClientVarService? = null
+  private lateinit var cvarService: ClientVarService
 
   @Mock
   private lateinit var cvar: ClientVar
@@ -27,8 +27,8 @@ class ClientVarActorTest : AbstractActorTest() {
     whenever(cvar.dataLength).thenReturn(DATA.length)
     whenever(cvar.key).thenReturn(KEY)
 
-    Mockito.`when`(cvarService!!.find(ACC_ID, KEY)).thenReturn(cvar)
-    Mockito.`when`(cvarService.find(WRONG_ACC_ID, KEY)).thenReturn(null)
+    whenever(cvarService.find(ACC_ID, KEY)).thenReturn(cvar)
+    whenever(cvarService.find(WRONG_ACC_ID, KEY)).thenReturn(null)
   }
 
   @Test
@@ -36,7 +36,7 @@ class ClientVarActorTest : AbstractActorTest() {
     object : TestKit(system) {
       init {
         val sender = TestKit(system)
-        val cvarActor = SpringExtension.actorOf(system!!, ClientVarActor::class.java, "reqReq")
+        val cvarActor = actorOf(ClientVarActor::class)
 
         val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
         cvarActor.tell(msg, sender.ref)
@@ -45,8 +45,7 @@ class ClientVarActorTest : AbstractActorTest() {
       }
     }
 
-    // Check the setting.
-    Mockito.verify<ClientVarService>(cvarService).find(ACC_ID, KEY)
+    verify(cvarService).find(ACC_ID, KEY)
   }
 
   companion object {

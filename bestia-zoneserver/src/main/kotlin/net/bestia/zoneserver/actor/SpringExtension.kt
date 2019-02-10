@@ -91,104 +91,26 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
       }
     }
 
-    fun actorOf(system: ActorSystem, clazz: Class<out AbstractActor>, vararg args: Any): ActorRef {
-      val props = if (args.isEmpty()) getSpringProps(system, clazz) else getSpringProps(system, clazz, *args)
-      val actorName = getActorName(clazz)
-      val actor = if (actorName == null) system.actorOf(props) else system.actorOf(props, actorName)
-      LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
-      return actor
-    }
-
-    /**
-     * Creates a new actor via injection of spring dependencies. Does give the
-     * actor a custom name by the user and starts actor on the root actor system.
-     *
-     * @param clazz Default actor name, if the name is null the class name or a
-     * random name is used.
-     * @return The created [ActorRef].
-     */
-    fun actorOf(system: ActorSystem, clazz: Class<out AbstractActor>): ActorRef {
-      val props = getSpringProps(system, clazz)
-      val actorName = getActorName(clazz)
-      val actor = if (actorName == null) system.actorOf(props) else system.actorOf(props, actorName)
-      LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
-
-      return actor
-    }
-
-    /**
-     * Like [.createActor] but it will examine the given
-     * class if it has a static public string field called NAME and will use
-     * this name as actor name. If no such field exists the name "NONAME" will
-     * be used.
-     *
-     * @param clazz
-     * The class of the [UntypedActor] to instantiate.
-     * @return The created and already registered new actor.
-     */
-    fun actorOf(ctx: ActorContext, clazz: Class<out AbstractActor>): ActorRef {
-      val actorName = getActorName(clazz)
-
-      return actorOf(ctx, clazz, actorName)
-    }
-
-    /**
-     * Creates a new actor and already register it with this routing actor so it
-     * is considered when receiving messages.
-     *
-     * @param context
-     * The [ActorContext] under which the actor should be
-     * spawned.
-     * @param clazz
-     * The class of the [UntypedActor] to instantiate.
-     * @param name
-     * The name under which the actor should be created. The name can
-     * be null then the actor is created with a random name.
-     * @return The created and already registered new actor.
-     */
-    fun actorOf(context: ActorContext, clazz: Class<out AbstractActor>, name: String?): ActorRef {
-      val props = getSpringProps(context.system(), clazz)
-      val actor = if (name == null) context.actorOf(props) else context.actorOf(props, name)
-      LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
-
-      return actor
-    }
-
-    /**
-     * Returns a new actor with a external name like
-     * [.actorOf] but with optional parameter
-     * arguments.
-     *
-     * @param context
-     * The [ActorContext] under which the actor should be
-     * spawned.
-     * @param clazz
-     * The class of the [AbstractActor] to be instantiated.
-     * @param name
-     * The name under which the actor should be created. The name can
-     * be null then the actor is created with a random name.
-     * @param args
-     * The additional arguments delivered to the actor.
-     * @return
-     */
     fun actorOf(
-        context: ActorContext,
-        clazz: Class<out AbstractActor>,
-        name: String?,
-        vararg args: Any
-    ): ActorRef {
-      val props = getSpringProps(context.system(), clazz, *args)
-
-      return if (name == null) context.actorOf(props) else context.actorOf(props, name)
-    }
-
-    fun actorOf(
-        context: ActorContext,
+        actorCtx: ActorRefFactory,
         clazz: Class<out AbstractActor>,
         vararg args: Any
     ): ActorRef {
-      val actorName = getActorName(clazz)
-      return actorOf(context, clazz, actorName, *args)
+      return actorOf(actorCtx, clazz, null, *args)
+    }
+
+    fun actorOf(
+        actorCtx: ActorRefFactory,
+        clazz: Class<out AbstractActor>,
+        name: String? = null,
+        vararg args: Any
+    ): ActorRef {
+      val props = getSpringProps(actorCtx, clazz, *args)
+      val actorName = name ?: getActorName(clazz)
+      val actor = if (actorName == null) actorCtx.actorOf(props) else actorCtx.actorOf(props, actorName)
+      LOG.debug("Started actor: {}, path: {}", clazz, actor.path())
+
+      return actor
     }
 
     /**
@@ -202,22 +124,8 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
      * arguments.
      * @return The created props object.
      */
-    fun getSpringProps(system: ActorSystem, clazz: Class<out AbstractActor>, vararg args: Any): Props {
-
-      return PROVIDER.get(system).props(clazz, *args)
-    }
-
-    /**
-     * Small helper method to get props via the spring extension (and thus can
-     * use dependency injection).
-     *
-     * @param clazz
-     * The Actor class to get the props object for.
-     * @return The created props object.
-     */
-    private fun getSpringProps(system: ActorSystem, clazz: Class<out AbstractActor>): Props {
-
-      return PROVIDER.get(system).props(clazz)
+    fun getSpringProps(system: ActorRefFactory, clazz: Class<out AbstractActor>, vararg args: Any): Props {
+      return PROVIDER.get(system.systemImpl()).props(clazz, *args)
     }
 
     /**

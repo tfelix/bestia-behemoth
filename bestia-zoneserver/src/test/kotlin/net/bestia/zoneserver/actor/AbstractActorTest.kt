@@ -3,10 +3,9 @@ package net.bestia.zoneserver.actor
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
+import akka.testkit.TestActorRef
+import akka.testkit.TestProbe
 import akka.testkit.javadsl.TestKit
-import net.bestia.model.account.AccountRepository
-import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.zoneserver.TestZoneConfiguration
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -14,12 +13,11 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationContext
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import kotlin.reflect.KClass
+
 
 @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension::class)
 @ContextConfiguration(classes = [TestZoneConfiguration::class])
@@ -28,15 +26,6 @@ import kotlin.reflect.KClass
 @Tag("actor")
 abstract class AbstractActorTest {
 
-  @MockBean
-  protected lateinit var accountRepository: AccountRepository
-
-  @MockBean
-  protected lateinit var playerBestiaRepository: PlayerBestiaRepository
-
-  @MockBean
-  protected  lateinit var bestiaRepository: BestiaRepository
-
   @Autowired
   protected lateinit var appCtx: ApplicationContext
   protected lateinit var system: ActorSystem
@@ -44,7 +33,7 @@ abstract class AbstractActorTest {
   @BeforeAll
   fun initialize() {
     system = ActorSystem.create()
-    SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
+    SpringExtension.initialize(system, appCtx)
   }
 
   @AfterAll
@@ -60,7 +49,30 @@ abstract class AbstractActorTest {
     }
   }
 
+  protected fun <T : AbstractActor> injectProbeMembers(
+      actor: TestActorRef<T>,
+      probes: List<String>
+  ): Map<String, TestProbe> {
+    val rawActor = actor.underlyingActor()
+
+    val mappedProbed = probes.map { it to TestProbe(system) }.toMap()
+
+    mappedProbed.forEach { fieldName, probe ->
+      val field = rawActor.javaClass.getDeclaredField(fieldName)
+      field.isAccessible = true
+      field.set(rawActor, probe.ref())
+    }
+
+    return mappedProbed
+  }
+
+  protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>): TestActorRef<T> {
+    val props = SpringExtension.getSpringProps(system, actorClass.java)
+
+    return TestActorRef.create<T>(system, props)
+  }
+
   protected fun <T : AbstractActor> actorOf(actorClass: KClass<T>): ActorRef {
-    return SpringExtension.actorOf(system, actorClass.java)
+    return SpringExtension.actorOf(system, actorClass.java, MockActorProducer::class)
   }
 }

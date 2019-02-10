@@ -1,13 +1,11 @@
 package net.bestia.zoneserver.actor.chat
 
-import com.nhaarman.mockitokotlin2.verify
+import akka.actor.ActorRef
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.AbstractActorTest
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
 import net.bestia.zoneserver.chat.ChatCommandService
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
-import java.time.Duration
 
 class ChatActorTest : AbstractActorTest() {
 
@@ -15,17 +13,30 @@ class ChatActorTest : AbstractActorTest() {
   lateinit var chatCmdService: ChatCommandService
 
   @Test
-  fun `calls chat service to execute chat functions`() {
+  fun `routes messages to the sub actors by type`() {
     testKit {
-      val chat = actorOf(ChatActor::class)
+      val chat = testActorOf(ChatActor::class)
 
+      val probes = injectProbeMembers(chat, listOf(
+          "publicChatActor",
+          "whisperChatActor",
+          "guildChatActor",
+          "partyChatActor"
+      ))
+
+      val pubChat = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
+      chat.tell(pubChat, ActorRef.noSender())
       val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello World")
-      chat.tell(chatMessage, it.ref)
+      chat.tell(chatMessage, ActorRef.noSender())
+      val guildMessage = ChatMessage(1, ChatMessage.Mode.GUILD, "Hello World")
+      chat.tell(guildMessage, ActorRef.noSender())
+      val partyMessage = ChatMessage(1, ChatMessage.Mode.PARTY, "Hello World")
+      chat.tell(partyMessage, ActorRef.noSender())
 
-      it.expectMsgClass(DynamicMessageRouterActor.RedirectMessage::class.java)
-      it.awaitAssert(Duration.ofSeconds(1), Duration.ofSeconds(1)) {
-        verify(chatCmdService).isChatCommand("Hello World")
-      }
+      probes["publicChatActor"]!!.expectMsg(pubChat)
+      probes["guildChatActor"]!!.expectMsg(guildMessage)
+      probes["partyChatActor"]!!.expectMsg(partyMessage)
+      probes["whisperChatActor"]!!.expectMsg(partyMessage)
     }
   }
 }
