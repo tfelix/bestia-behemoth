@@ -24,19 +24,18 @@ class ChatActorTest : AbstractActorTest() {
           "partyChatActor"
       ))
 
-      val pubChat = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
+      val pubChat = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello PUBLIC")
       chat.tell(pubChat, ActorRef.noSender())
-      val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello World")
+      val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello SYSTEM")
       chat.tell(chatMessage, ActorRef.noSender())
-      val guildMessage = ChatMessage(1, ChatMessage.Mode.GUILD, "Hello World")
+      val guildMessage = ChatMessage(1, ChatMessage.Mode.GUILD, "Hello GUILD")
       chat.tell(guildMessage, ActorRef.noSender())
-      val partyMessage = ChatMessage(1, ChatMessage.Mode.PARTY, "Hello World")
+      val partyMessage = ChatMessage(1, ChatMessage.Mode.PARTY, "Hello PARTY")
       chat.tell(partyMessage, ActorRef.noSender())
 
       probes["publicChatActor"]!!.expectMsg(pubChat)
       probes["guildChatActor"]!!.expectMsg(guildMessage)
       probes["partyChatActor"]!!.expectMsg(partyMessage)
-      probes["whisperChatActor"]!!.expectMsg(partyMessage)
     }
   }
 }

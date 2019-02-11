@@ -14,14 +14,6 @@ private val LOG = KotlinLogging.logger { }
 class SpringExtension private constructor() : AbstractExtensionId<SpringExtension.SpringAkkaExt>() {
 
   /**
-   * Is used by Akka to instantiate the Extension identified by this
-   * ExtensionId, internal use only.
-   */
-  override fun createExtension(system: ExtendedActorSystem): SpringAkkaExt {
-    return SpringAkkaExt()
-  }
-
-  /**
    * The extension implementation.
    */
   class SpringAkkaExt : Extension {
@@ -70,6 +62,14 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
           args
       ).withDeploy(Deploy.local())
     }
+  }
+
+  /**
+   * Is used by Akka to instantiate the Extension identified by this
+   * ExtensionId, internal use only.
+   */
+  override fun createExtension(system: ExtendedActorSystem): SpringAkkaExt {
+    return SpringAkkaExt()
   }
 
   companion object {

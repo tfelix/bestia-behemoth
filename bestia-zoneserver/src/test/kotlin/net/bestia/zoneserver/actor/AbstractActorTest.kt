@@ -18,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import kotlin.reflect.KClass
 
-
 @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension::class)
 @ContextConfiguration(classes = [TestZoneConfiguration::class])
 @ActiveProfiles("test")
@@ -33,7 +32,8 @@ abstract class AbstractActorTest {
   @BeforeAll
   fun initialize() {
     system = ActorSystem.create()
-    SpringExtension.initialize(system, appCtx)
+    SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
+    SpringNoMockExtension.initialize(system, appCtx)
   }
 
   @AfterAll
@@ -67,12 +67,12 @@ abstract class AbstractActorTest {
   }
 
   protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>): TestActorRef<T> {
-    val props = SpringExtension.getSpringProps(system, actorClass.java)
+    val props = SpringNoMockExtension.getSpringProps(system, actorClass.java)
 
     return TestActorRef.create<T>(system, props)
   }
 
   protected fun <T : AbstractActor> actorOf(actorClass: KClass<T>): ActorRef {
-    return SpringExtension.actorOf(system, actorClass.java, MockActorProducer::class)
+    return SpringExtension.actorOf(system, actorClass.java)
   }
 }

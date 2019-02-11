@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.chat
 
-import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.Actor
@@ -43,7 +42,10 @@ class ChatActor(
       ChatMessage.Mode.WHISPER -> whisperChatActor.tell(chatMsg, self)
       ChatMessage.Mode.PARTY -> partyChatActor.tell(chatMsg, self)
       ChatMessage.Mode.GUILD -> guildChatActor.tell(chatMsg, self)
-      else -> LOG.warn { "Message type not yet supported." }
+      else -> {
+        LOG.warn { "Message type ${chatMsg.chatMode} not yet supported." }
+        unhandled(chatMsg)
+      }
     }
   }
 

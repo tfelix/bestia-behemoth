@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor
 
+import akka.actor.*
 import akka.actor.Actor
-import akka.actor.IndirectActorProducer
 import com.nhaarman.mockitokotlin2.mock
 import org.springframework.context.ApplicationContext
 
