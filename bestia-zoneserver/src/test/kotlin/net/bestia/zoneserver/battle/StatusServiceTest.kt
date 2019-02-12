@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.model.bestia.StatusPointsImpl
+import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.test.BestiaFixture
 import net.bestia.model.test.PlayerBestiaFixture
 import net.bestia.zoneserver.entity.Entity
@@ -53,7 +53,7 @@ class StatusServiceTest {
 
     val resultStatus = statusService.calculateStatusPoints(e)
 
-    Assert.assertNotEquals(StatusPointsImpl(), resultStatus.originalStatusPoints)
+    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusPoints)
   }
 
   @Test
@@ -73,7 +73,7 @@ class StatusServiceTest {
     val resultStatus = statusService.calculateStatusPoints(e)
 
     verify(bestiaDao).findById(bestiaId)
-    Assert.assertNotEquals(StatusPointsImpl(), resultStatus.originalStatusPoints)
+    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusPoints)
   }
 
   @Test

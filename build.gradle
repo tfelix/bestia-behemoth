@@ -30,10 +30,21 @@ apply plugin: 'jacoco'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-allprojects {
+subprojects {
     repositories {
         jcenter()
         mavenLocal()
+    }
+
+    apply plugin: 'kotlin'
+
+    dependencies {
+        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+        testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
+        testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
+        testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api', version: '1.3.2'
+        testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.3.2'
     }
 }
 

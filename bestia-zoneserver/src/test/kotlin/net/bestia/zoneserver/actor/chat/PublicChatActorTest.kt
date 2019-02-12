@@ -1,19 +1,21 @@
 package net.bestia.zoneserver.actor.chat
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.MessageApi
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
-import net.bestia.zoneserver.chat.ChatCommandService
+import net.bestia.zoneserver.actor.client.SendInRange
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.EntityRequest
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
-import java.time.Duration
 
 class PublicChatActorTest : AbstractActorTest() {
-  // Make a shared mocked bean ctx for faster testing.
   @MockBean
   lateinit var messageApi: MessageApi
 
@@ -21,22 +23,27 @@ class PublicChatActorTest : AbstractActorTest() {
   lateinit var playerEntityService: PlayerEntityService
 
   @Test
-  fun `test`() {
-    testKit {
-      val chat = actorOf(PublicChatActor::class)
+  fun `public messages are sent to players near by`() {
+    val entity = Entity(id = 10)
+    val activeEntityId = 1L
+    val chatMessage = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
+    whenever(playerEntityService.getActivePlayerEntityId(any())).thenReturn(activeEntityId)
 
-      val chatMessage = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
+    testKit {
+      val chat = testActorOf(PublicChatActor::class)
+      val probes = injectProbeMembers(chat, listOf("sendActiveRange"))
+
+      whenever(messageApi.send(any<EntityEnvelope>())).doAnswer {
+        // val msg = it.getArgument<EntityEnvelope>(0)
+      }
+
       chat.tell(chatMessage, it.ref)
 
-      it.awaitAssert(10.seconds, 100.ms) {
+      probes["sendActiveRange"]!!.expectMsg(SendInRange(entity, chatMessage))
+
+      it.awaitAssert {
         verify(messageApi).send(any())
       }
     }
   }
 }
-
-private val Number.ms: Duration
-  get() = Duration.ofSeconds(this.toLong())
-
-private val Number.seconds: Duration
-  get() = Duration.ofSeconds(this.toLong())

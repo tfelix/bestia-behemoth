@@ -58,7 +58,7 @@ class StatusComponentActor(
   }
 
   override fun onComponentChanged(oldComponent: StatusComponent, newComponent: StatusComponent) {
-    if(oldComponent.statusPoints.strength != newComponent.statusPoints.strength) {
+    if(oldComponent.statusValues.strength != newComponent.statusValues.strength) {
       fetchEntity {
         val newInventoryComp = inventoryService.updateMaxWeight(it)
         context.parent.tell(newInventoryComp, self)

@@ -18,13 +18,13 @@ data class ConditionValues(
      * bigger then the current max value.
      */
     @get:JsonProperty("chp")
-    var currentHealth: Int = 0,
+    val currentHealth: Int = 0,
 
     /**
      * Current maximum HP value.
      */
     @get:JsonProperty("mhp")
-    var maxHealth: Int = 0,
+    val maxHealth: Int = 0,
 
 
     /**
@@ -32,27 +32,14 @@ data class ConditionValues(
      * bigger then the current max value.
      */
     @get:JsonProperty("cmana")
-    var currentMana: Int = 0,
+    val currentMana: Int = 0,
 
     /**
      * Returns the max mana.
      */
     @get:JsonProperty("mmana")
-    var maxMana: Int = 0
+    val maxMana: Int = 0
 ) : Serializable {
-
-  /**
-   * Sets the object to the values from the given argument.
-   *
-   * @param rhs
-   * The object to set all the local values to.
-   */
-  fun set(rhs: ConditionValues) {
-    maxHealth = rhs.maxHealth
-    maxMana = rhs.maxMana
-    currentHealth = rhs.currentHealth
-    currentMana = rhs.currentMana
-  }
 
   /**
    * This will add or subtract HP from the current HP (depending if the
@@ -62,8 +49,8 @@ data class ConditionValues(
    * @param hp The value to subtract from current mana value. Must be
    * positive.
    */
-  fun addHealth(hp: Int) {
-    currentHealth += hp
+  fun addHealth(hp: Int): ConditionValues {
+    return copy(currentHealth + hp)
   }
 
   /**
@@ -74,7 +61,16 @@ data class ConditionValues(
    * @param mana The value to subtract from current mana value. Must be
    * positive.
    */
-  fun addMana(mana: Int) {
-    currentMana += mana
+  fun addMana(mana: Int): ConditionValues {
+    return copy(currentMana + mana)
+  }
+
+  fun setMaximumValues(maxHp: Int, maxMana: Int): ConditionValues {
+    return ConditionValues(
+        maxHealth = maxHp,
+        maxMana = maxMana,
+        currentHealth = Math.min(maxHp, currentHealth),
+        currentMana = Math.min(maxMana, currentMana)
+    )
   }
 }

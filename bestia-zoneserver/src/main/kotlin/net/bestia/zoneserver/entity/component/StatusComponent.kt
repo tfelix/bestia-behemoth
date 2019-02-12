@@ -3,10 +3,10 @@ package net.bestia.zoneserver.entity.component
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.bestia.StatusPoints
-import net.bestia.model.bestia.StatusPointsImpl
+import net.bestia.model.bestia.StatusValues
+import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.entity.StatusBasedValues
-import net.bestia.model.entity.StatusBasedValuesImpl
+import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.item.Item
 
 /**
@@ -21,18 +21,18 @@ data class StatusComponent(
     override val entityId: Long,
 
     @get:JsonProperty("osp")
-    val originalStatusPoints: StatusPoints = StatusPointsImpl(),
+    val originalStatusPoints: StatusValues,
 
     /**
-     * [StatusPointsImpl]s of this entity. Please note that this status
+     * [BasicStatusValues]s of this entity. Please note that this status
      * points might have been altered via items, equipments or status effects.
      * The original status points without this effects applied can be obtained
-     * via [.getOriginalStatusPoints].
+     * via originalStatusPoints.
      *
      * @return The current status points of the entity.
      */
-    @get:JsonProperty("sp")
-    val statusPoints: StatusPoints = StatusPointsImpl(),
+    @get:JsonProperty("sv")
+    val statusValues: StatusValues,
 
     /**
      * The original element of this entity unaltered by status effects or
@@ -41,28 +41,27 @@ data class StatusComponent(
      * @return The original unaltered element.
      */
     @get:JsonProperty("oe")
-    var originalElement: Element = Element.NORMAL,
+    val originalElement: Element = Element.NORMAL,
 
     @get:JsonProperty("cv")
-    val conditionValues: ConditionValues = ConditionValues()
+    val conditionValues: ConditionValues,
+
+    /**
+     * Sets the status based values.
+     *
+     * @param statusBasedValues The new status based values.
+     */
+    @get:JsonProperty("sbv")
+    val statusBasedValues: StatusBasedValues,
+
+    /**
+     * The current element of this entity.
+     *
+     * @return The current element of the entity.
+     */
+    @get:JsonProperty("e")
+    var element: Element = Element.NORMAL
 ) : Component {
-
-  /**
-   * Sets the status based values.
-   *
-   * @param statusBasedValues The new status based values.
-   */
-  @get:JsonProperty("sbv")
-  val statusBasedValues: StatusBasedValues = StatusBasedValuesImpl(statusPoints, 1)
-
-  /**
-   * The current element of this entity.
-   *
-   * @return The current element of the entity.
-   */
-  @get:JsonProperty("e")
-  var element: Element = Element.NORMAL
-
   companion object {
     fun forItem(entityId: Long, item: Item): StatusComponent {
       return StatusComponent(

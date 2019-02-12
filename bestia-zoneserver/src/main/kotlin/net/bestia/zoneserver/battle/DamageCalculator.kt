@@ -51,13 +51,13 @@ class DamageCalculator {
     val varMod = if (battleCtx.damageVariables.isCriticalHit) 1f else calculateVarMod()
     val weaponAtk = calculateWeaponAtk()
     val varModRed = varMod - varMod / 2 - 0.5f
-    val ammaAtk = if (usedAttack.isRanged) getAmmoAtk(battleCtx) else 0f
+    val ammoAtk = if (usedAttack.isRanged) getAmmoAtk(battleCtx) else 0f
     val bonusAtk = (if (usedAttack.isMagic) attackMagicBonus else attackPhysicalBonus).toInt()
     val elementMod = getElementMod(battleCtx)
     val elementBonusMod = getElementBonusMod(battleCtx)
 
-    var baseAtk = 2f * statusAtk * varMod + weaponAtk * varModRed + ammaAtk + bonusAtk.toFloat()
-    baseAtk = baseAtk * elementMod * elementBonusMod
+    var baseAtk = 2f * statusAtk * varMod + weaponAtk * varModRed + ammoAtk + bonusAtk.toFloat()
+    baseAtk *= elementMod * elementBonusMod
     baseAtk = Math.min(1f, baseAtk)
 
     LOG.trace("BaseAtk: {}.", baseAtk)
@@ -73,20 +73,20 @@ class DamageCalculator {
     val lvMod = (battleCtx.attackerLevel / 4).toFloat()
     val sp = battleCtx.attackerStatusPoints
 
-    val statusAtk: Float
-    if (atk.isMagic) {
-      statusAtk = lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
-      LOG.trace("StatusAtk (magic): {}", statusAtk)
-    } else if (atk.isRanged) {
-      statusAtk = lvMod + sp!!.dexterity.toFloat() + (sp.strength / 5).toFloat()
-      LOG.trace("StatusAtk (ranged physical): {}", statusAtk)
-    } else {
-      statusAtk = lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
-      LOG.trace("StatusAtk (melee physical): {}", statusAtk)
-
+    return when {
+      atk.isMagic -> {
+        LOG.trace("StatusAtk (magic)")
+        lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
+      }
+      atk.isRanged -> {
+        LOG.trace("StatusAtk (ranged physical)")
+        lvMod + sp!!.dexterity.toFloat() + (sp.strength / 5).toFloat()
+      }
+      else -> {
+        LOG.trace { "StatusAtk (melee physical)" }
+        lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
+      }
     }
-
-    return statusAtk
   }
 
   private fun getSoftDefense(battleCtx: BattleContext): Float {
@@ -101,7 +101,7 @@ class DamageCalculator {
     when (atk.type) {
       AttackType.MELEE_MAGIC, AttackType.RANGED_MAGIC -> {
         softDef = (lv / 2f + defStatus!!.vitality.toFloat() + defStatus.willpower / 4f
-                + defStatus.intelligence / 5f)
+            + defStatus.intelligence / 5f)
         softDef = lv / 2f + defStatus.vitality.toFloat() + defStatus.strength / 3f
       }
       AttackType.MELEE_PHYSICAL, AttackType.RANGED_PHYSICAL -> {
@@ -118,28 +118,16 @@ class DamageCalculator {
   }
 
   private fun getHardDefenseModifier(battleCtx: BattleContext): Float {
-
     val atk = battleCtx.usedAttack
     val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
     val magicDefenseMod = battleCtx.damageVariables.magicDefenseMod
-    val defStatus = battleCtx.defenderStatusPoints
+    val defStatus = battleCtx.defenderStatusPoints!!
 
-    var defMod: Float
-
-    when (atk.type) {
-      AttackType.MELEE_MAGIC, AttackType.RANGED_MAGIC -> {
-        defMod = 1 - (defStatus!!.magicDefense / 100f + magicDefenseMod)
-        defMod = 1 - (defStatus.defense / 100f + physicalDefenseMod)
-        defMod = 1f
-      }
-      AttackType.MELEE_PHYSICAL, AttackType.RANGED_PHYSICAL -> {
-        defMod = 1 - (defStatus!!.defense / 100f + physicalDefenseMod)
-        defMod = 1f
-      }
-      else -> defMod = 1f
-    }
-
-    defMod = defMod.between(0.05f, 1.0f)
+    val defMod = when (atk.type) {
+      AttackType.MELEE_MAGIC, AttackType.RANGED_MAGIC -> 1 - (defStatus.magicDefense / 100f + magicDefenseMod)
+      AttackType.MELEE_PHYSICAL, AttackType.RANGED_PHYSICAL  -> 1 - (defStatus.physicalDefense / 100f + physicalDefenseMod)
+      else -> 1f
+    }.clamp(0.05f, 1.0f)
 
     LOG.trace("HardDefenseMod: {}.", defMod)
 
@@ -152,15 +140,13 @@ class DamageCalculator {
   private fun getAttackModifier(battleCtx: BattleContext): Float {
 
     val atk = battleCtx.usedAttack
-    val (_, _, attackMagicMod, _, attackRangedMod, attackMeleeMod) = battleCtx.damageVariables
+    val dmgVars = battleCtx.damageVariables
 
-    val atkMod: Float
-
-    when (atk.type) {
-      AttackType.MELEE_MAGIC, AttackType.MELEE_PHYSICAL -> atkMod = attackMagicMod * attackMeleeMod
-      AttackType.RANGED_MAGIC, AttackType.RANGED_PHYSICAL -> atkMod = attackRangedMod * attackRangedMod
-      else -> atkMod = 1.0f
-    }
+    var atkMod = when (atk.type) {
+      AttackType.MELEE_MAGIC, AttackType.MELEE_PHYSICAL -> dmgVars.attackMagicMod * dmgVars.attackMeleeMod
+      AttackType.RANGED_MAGIC, AttackType.RANGED_PHYSICAL -> dmgVars.attackRangedMod * dmgVars.attackRangedMod
+      else -> 1.0f
+    }.clamp(0f)
 
     LOG.trace("AttackMod: {}.", atkMod)
 
@@ -171,12 +157,9 @@ class DamageCalculator {
    * @return The critical modifier.
    */
   private fun getCritModifier(battleCtx: BattleContext): Float {
+    val dmgVars = battleCtx.damageVariables
 
-    val (_, _, _, _, _, _, _, _, criticalDamageMod, _, _, _, _, _, isCriticalHit) = battleCtx.damageVariables
-
-    var critMod = if (isCriticalHit) 1.4f * criticalDamageMod else 1.0f
-    critMod = Math.min(1.0f, critMod)
-
+    val critMod = (if (dmgVars.isCriticalHit) 1.4f * dmgVars.criticalDamageMod else 1.0f).clamp(1.0f)
     LOG.trace("CritMod: {}.", critMod)
 
     return critMod

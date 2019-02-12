@@ -4,7 +4,7 @@ import net.bestia.zoneserver.entity.Entity
 import net.bestia.model.battle.Attack
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.StatusPoints
+import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
 
 /**
@@ -17,8 +17,8 @@ data class BattleContext(
     val attacker: Entity,
     val damageVariables: DamageVariables,
     val defender: Entity? = null,
-    val attackerStatusPoints: StatusPoints? = null,
-    val defenderStatusPoints: StatusPoints? = null,
+    val attackerStatusPoints: StatusValues? = null,
+    val defenderStatusPoints: StatusValues? = null,
     var attackerStatusBased: StatusBasedValues? = null,
     var defenderStatusBased: StatusBasedValues? = null,
     var attackerCondition: ConditionValues? = null,

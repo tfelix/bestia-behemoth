@@ -10,7 +10,7 @@ import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.Damage
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.bestia.StatusPoints
+import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Point
 import net.bestia.model.geometry.Rect
@@ -493,10 +493,10 @@ class BattleService(
 
 
   /**
-   * @return The [StatusPoints] of a entity.
+   * @return The [StatusValues] of a entity.
    */
-  private fun getStatusPoints(e: Entity): StatusPoints {
-    return e.getComponent(StatusComponent::class.java).statusPoints
+  private fun getStatusPoints(e: Entity): StatusValues {
+    return e.getComponent(StatusComponent::class.java).statusValues
   }
 
   /**

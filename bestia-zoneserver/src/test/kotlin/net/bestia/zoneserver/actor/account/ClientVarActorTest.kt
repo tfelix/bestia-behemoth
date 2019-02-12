@@ -1,9 +1,13 @@
 package net.bestia.zoneserver.actor.account
 
+import akka.testkit.TestProbe
 import akka.testkit.javadsl.TestKit
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequestMessage
+import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.model.account.ClientVar
 import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.AbstractActorTest
@@ -12,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.springframework.boot.test.mock.mockito.MockBean
-import java.time.Duration
 
 class ClientVarActorTest : AbstractActorTest() {
   @MockBean
@@ -29,23 +32,26 @@ class ClientVarActorTest : AbstractActorTest() {
 
     whenever(cvarService.find(ACC_ID, KEY)).thenReturn(cvar)
     whenever(cvarService.find(WRONG_ACC_ID, KEY)).thenReturn(null)
+    whenever(cvarService.isOwnerOfVar(any(), any())).thenReturn(true)
   }
 
   @Test
-  fun onRequest_answersWithCvar() {
-    object : TestKit(system) {
-      init {
-        val sender = TestKit(system)
-        val cvarActor = actorOf(ClientVarActor::class)
+  fun `anwers with cvar when requested`() {
 
-        val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
-        cvarActor.tell(msg, sender.ref)
+    testKit {
+      val sender = TestProbe(system)
+      val cvarActor = testActorOf(ClientVarActor::class)
 
-        expectMsg(Duration.ofSeconds(1), ClientVarRequestMessage::class.java)
-      }
+      val probes = injectProbeMembers(cvarActor, listOf(
+          "sendClient"
+      ))
+
+      val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
+      cvarActor.tell(msg, sender.ref())
+
+      probes["sendClient"]!!.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponseMessage(UUID, DATA)))
+      verify(cvarService).find(ACC_ID, KEY)
     }
-
-    verify(cvarService).find(ACC_ID, KEY)
   }
 
   companion object {

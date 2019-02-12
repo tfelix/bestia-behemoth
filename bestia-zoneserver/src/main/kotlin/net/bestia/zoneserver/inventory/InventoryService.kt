@@ -56,7 +56,7 @@ class InventoryService(
     val statusComp = entity.getComponent(StatusComponent::class.java)
     val level = entity.tryGetComponent(LevelComponent::class.java)?.level ?: 1
 
-    val str = statusComp.statusPoints.strength
+    val str = statusComp.statusValues.strength
     val maxWeight = (BASE_WEIGHT + str * 4 * level).toInt()
 
     LOG.trace { "Component(Inventory) entity: ${entity.id} maxWeight: $maxWeight" }

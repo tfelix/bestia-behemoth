@@ -71,8 +71,4 @@ abstract class AbstractActorTest {
 
     return TestActorRef.create<T>(system, props)
   }
-
-  protected fun <T : AbstractActor> actorOf(actorClass: KClass<T>): ActorRef {
-    return SpringExtension.actorOf(system, actorClass.java)
-  }
 }
