@@ -6,66 +6,40 @@ import org.junit.Test
 class StatusPointsImplTest {
 
   @Test
-  fun check_invalid_sp_armor() {
-    val sp = BasicStatusValues()
-
-    sp.setMagicDefense(-10)
-    Assert.assertEquals(0, sp.magicDefense.toLong())
-    sp.setMagicDefense(10)
-    Assert.assertEquals(10, sp.magicDefense.toLong())
-    sp.setMagicDefense(1100)
-    Assert.assertEquals(1000, sp.magicDefense.toLong())
-  }
-
-  @Test
-  fun check_invalid_armor() {
-    val sp = BasicStatusValues()
-
-    sp.setDefense(-10)
-    Assert.assertEquals(0, sp.physicalDefense.toLong())
-    sp.setDefense(10)
-    Assert.assertEquals(10, sp.physicalDefense.toLong())
-    sp.setDefense(1100)
-    Assert.assertEquals(1000, sp.physicalDefense.toLong())
-  }
-
-  @Test
   fun check_add() {
-    val sp1 = BasicStatusValues()
+    val sp1 = BasicStatusValues(
+        strength = 10,
+        vitality = 10,
+        intelligence = 10,
+        willpower = 10,
+        agility = 10,
+        dexterity = 10,
+        magicDefense = 10,
+        physicalDefense = 10
+    )
 
-    sp1.setStrength(10)
-    sp1.setVitality(10)
-    sp1.setIntelligence(10)
-    sp1.setWillpower(10)
-    sp1.setAgility(10)
-    sp1.setDexterity(10)
+    val restult = sp1 + sp1
 
-    sp1.setDefense(10)
-    sp1.setMagicDefense(10)
+    Assert.assertEquals(20, restult.physicalDefense)
+    Assert.assertEquals(20, restult.magicDefense)
 
-
-    sp1.add(sp1)
-
-    Assert.assertEquals(20, sp1.physicalDefense.toLong())
-    Assert.assertEquals(20, sp1.magicDefense.toLong())
-
-    Assert.assertEquals(20, sp1.intelligence.toLong())
-    Assert.assertEquals(20, sp1.vitality.toLong())
-    Assert.assertEquals(20, sp1.vitality.toLong())
+    Assert.assertEquals(20, restult.intelligence)
+    Assert.assertEquals(20, restult.vitality)
+    Assert.assertEquals(20, restult.vitality)
   }
 
   @Test
   fun test_instanciation() {
-    val (strength, vitality, intelligence, willpower, agility, _, physicalDefense, magicDefense) = BasicStatusValues()
+    val sut = BasicStatusValues()
 
-    Assert.assertEquals(0, agility.toLong())
-    Assert.assertEquals(0, vitality.toLong())
-    Assert.assertEquals(0, intelligence.toLong())
-    Assert.assertEquals(0, agility.toLong())
-    Assert.assertEquals(0, willpower.toLong())
-    Assert.assertEquals(0, strength.toLong())
+    Assert.assertEquals(0, sut.agility)
+    Assert.assertEquals(0, sut.vitality)
+    Assert.assertEquals(0, sut.intelligence)
+    Assert.assertEquals(0, sut.agility)
+    Assert.assertEquals(0, sut.willpower)
+    Assert.assertEquals(0, sut.strength)
 
-    Assert.assertEquals(0, physicalDefense.toLong())
-    Assert.assertEquals(0, magicDefense.toLong())
+    Assert.assertEquals(0, sut.physicalDefense)
+    Assert.assertEquals(0, sut.magicDefense)
   }
 }

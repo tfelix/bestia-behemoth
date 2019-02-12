@@ -53,7 +53,7 @@ class StatusServiceTest {
 
     val resultStatus = statusService.calculateStatusPoints(e)
 
-    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusPoints)
+    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusValues)
   }
 
   @Test
@@ -73,7 +73,7 @@ class StatusServiceTest {
     val resultStatus = statusService.calculateStatusPoints(e)
 
     verify(bestiaDao).findById(bestiaId)
-    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusPoints)
+    Assert.assertNotEquals(BasicStatusValues(), resultStatus.originalStatusValues)
   }
 
   @Test

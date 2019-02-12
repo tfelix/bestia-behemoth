@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
+import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.entity.REGENERATION_TICK_RATE_MS
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.component.StatusComponent
@@ -58,14 +60,15 @@ class StatusComponentActor(
   }
 
   override fun onComponentChanged(oldComponent: StatusComponent, newComponent: StatusComponent) {
-    if(oldComponent.statusValues.strength != newComponent.statusValues.strength) {
-      fetchEntity {
+    fetchEntity {
+      if (oldComponent.statusValues.strength != newComponent.statusValues.strength) {
+
         val newInventoryComp = inventoryService.updateMaxWeight(it)
         context.parent.tell(newInventoryComp, self)
       }
-    }
 
-    announceComponentChange()
+      announceComponentChange()
+    }
   }
 
   override fun postStop() {
@@ -73,7 +76,7 @@ class StatusComponentActor(
   }
 
   companion object {
-    private val REGEN_TICK_INTERVAL = Duration.ofMillis(StatusService.REGENERATION_TICK_RATE_MS)
+    private val REGEN_TICK_INTERVAL = Duration.ofMillis(REGENERATION_TICK_RATE_MS)
     private const val ON_REGEN_TICK_MSG = "tickStatus"
     const val NAME = "statusComponent"
   }

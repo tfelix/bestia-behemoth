@@ -1,7 +1,7 @@
 package net.bestia.model.entity
 
+import net.bestia.model.bestia.ConditionValues
 import java.io.Serializable
-
 import net.bestia.model.bestia.StatusValues
 
 /**
@@ -11,6 +11,10 @@ import net.bestia.model.bestia.StatusValues
  * @author Thomas Felix
  */
 data class BasicStatusBasedValues(
+    private val statusValues: StatusValues,
+    private val conditionValues: ConditionValues,
+    private val level: Int,
+
     override val criticalHitrate: Int = 0,
     override val dodge: Int = 0,
     override val casttimeMod: Float = 1f,
@@ -19,11 +23,23 @@ data class BasicStatusBasedValues(
     override val minDamage: Int = 60,
     override val rangedBonusDamage: Int = 0,
     override val attackSpeed: Float = 0f,
-    override val walkspeed: Float = 1f,
-    override val cooldownMod: Float = 1.0f,
-    override val hpRegenRate: Float = 0f,
-    override val manaRegenRate: Float = 0f
+    private val baseWalkspeed: Float = 1f,
+    override val cooldownMod: Float = 1.0f
 ) : Serializable, StatusBasedValues {
+
+  override val hpRegenRate = (statusValues.vitality * 4 + statusValues.strength * 1.5f + level) / 100.0f
+  override val manaRegenRate = (statusValues.willpower * 4 + level) / 100.0f
+  override val staminaRegenRate = (statusValues.vitality * 4 + statusValues.willpower * 1.5f + level) / 100.0f
+
+  private val staminaPerc: Float
+    get() = conditionValues.currentStamina.toFloat() / conditionValues.maxStamina
+
+  override val walkspeed: Float
+    get() {
+      val modWalkspeed = if (staminaPerc < 0.3) 5f / 3 * staminaPerc else 1f
+
+      return baseWalkspeed * modWalkspeed
+    }
 
   /**
    * Returns the health value ticked per regeneration step. Note that this
@@ -34,9 +50,16 @@ data class BasicStatusBasedValues(
    * @param entity The entity.
    * @return The ticked health value.
    */
-  val healthTick: Float
-    get() = hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS
-
+  override val healthTick: Float
+    get() {
+      return if (staminaPerc < 0.1f) {
+        0f
+      } else if (staminaPerc < 0.5f) {
+        conditionValues.maxHealth * -0.03f
+      } else {
+        hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS
+      }
+    }
 
   /**
    * Returns the mana value ticked per regeneration step. Note that this value
@@ -46,24 +69,15 @@ data class BasicStatusBasedValues(
    * @param entity The entity.
    * @return The ticked mana value.
    */
-  val getManaTick: Float
-    get() = manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
-
-  companion object {
-    fun create(status: StatusValues, level: Int = 1): BasicStatusBasedValues {
-      if (level < 1) {
-        throw IllegalArgumentException("Level can not be smaller then 1.")
+  override val manaTick: Float
+    get() {
+      return if (staminaPerc < 0.1f) {
+        0f
+      } else {
+        manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
       }
-
-      val hpRegen = (status.vitality * 4 + level) / 100.0f
-      val manaRegen = (status.vitality * 1.5f + level) / 100.0f
-
-      return BasicStatusBasedValues(manaRegenRate = manaRegen, hpRegenRate = hpRegen)
     }
 
-    /**
-     * How often the regeneration should tick for each entity.
-     */
-    const val REGENERATION_TICK_RATE_MS = 8000L
-  }
+  override val staminaTick: Float
+    get() = staminaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
 }

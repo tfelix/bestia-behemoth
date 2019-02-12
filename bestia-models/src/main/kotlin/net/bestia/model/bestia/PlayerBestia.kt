@@ -87,7 +87,7 @@ data class PlayerBestia(
       AttributeOverride(name = "dexterity", column = Column(name = "evDex"))
   )
   @JsonIgnore
-  val effortValues: BaseValues = BaseValues.nullValues
+  val effortValues: BaseValues = BaseValues.NULL_VALUES
 
   @Embedded
   @AttributeOverrides(
@@ -100,7 +100,7 @@ data class PlayerBestia(
       AttributeOverride(name = "agility", column = Column(name = "ivSpd")),
       AttributeOverride(name = "dexterity", column = Column(name = "ivDex"))
   )
-  var individualValue: BaseValues = BaseValues.newIndividualValues
+  var individualValue: BaseValues = BaseValues.newIndividualValues()
 
   @get:JsonIgnore
   @get:Transient

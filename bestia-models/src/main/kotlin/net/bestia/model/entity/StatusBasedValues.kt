@@ -7,6 +7,11 @@ import net.bestia.model.bestia.StatusValues
 import net.bestia.model.map.Walkspeed
 
 /**
+ * How often the regeneration should tick for each entity.
+ */
+const val REGENERATION_TICK_RATE_MS = 8000L
+
+/**
  * The [StatusBasedValues] are used for advanced calculations. They are
  * usually based upon [StatusValues] and provide data needed for further
  * algorithms into the game. This implementation can be wrapped/decorated in
@@ -27,6 +32,12 @@ interface StatusBasedValues {
    */
   @get:JsonProperty("manar")
   val manaRegenRate: Float
+
+  /**
+   * @return The current mana regeneration per second.
+   */
+  @get:JsonProperty("star")
+  val staminaRegenRate: Float
 
   /**
    * Denotes the chance of a critical hit. Hit is a fixed point with 1/10
@@ -88,4 +99,13 @@ interface StatusBasedValues {
 
   @get:JsonProperty("w")
   val walkspeed: Float
+
+  @get:JsonIgnore
+  val healthTick: Float
+
+  @get:JsonIgnore
+  val manaTick: Float
+
+  @get:JsonIgnore
+  val staminaTick: Float
 }

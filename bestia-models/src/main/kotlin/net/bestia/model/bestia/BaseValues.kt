@@ -14,31 +14,58 @@ import javax.persistence.Transient
  * @author Thomas Felix
  */
 @Embeddable
-class BaseValues(
+data class BaseValues(
     @Column(name = "bHp")
-    var hp: Int = 0,
+    val hp: Int = 0,
 
     @Column(name = "bMana")
-    var mana: Int = 0,
+    val mana: Int = 0,
+
+    @Column(name = "bSta")
+    val stamina: Int = 0,
 
     @Column(name = "bStr")
-    var strength: Int = 0,
+    val strength: Int = 0,
 
     @Column(name = "bVit")
-    var vitality: Int = 0,
+    val vitality: Int = 0,
 
     @Column(name = "bInt")
-    var intelligence: Int = 0,
+    val intelligence: Int = 0,
 
     @Column(name = "bWill")
-    var willpower: Int = 0,
+    val willpower: Int = 0,
 
     @Column(name = "bAgi")
-    var agility: Int = 0,
+    val agility: Int = 0,
 
     @Column(name = "bDex")
-    var dexterity: Int = 0
+    val dexterity: Int = 0
 ) : Serializable {
+
+  operator fun minus(rhs: BaseValues) = copy(
+      hp = hp - rhs.hp,
+      mana = mana - rhs.mana,
+      stamina = stamina - rhs.stamina,
+      strength = strength - rhs.strength,
+      vitality = vitality - rhs.vitality,
+      intelligence = intelligence - rhs.intelligence,
+      willpower = willpower - rhs.willpower,
+      agility = agility - rhs.agility,
+      dexterity = dexterity - rhs.dexterity
+  )
+
+  operator fun plus(rhs: BaseValues) = copy(
+      hp = hp + rhs.hp,
+      mana = mana + rhs.mana,
+      stamina = stamina + rhs.stamina,
+      strength = strength + rhs.strength,
+      vitality = vitality + rhs.vitality,
+      intelligence = intelligence + rhs.intelligence,
+      willpower = willpower + rhs.willpower,
+      agility = agility + rhs.agility,
+      dexterity = dexterity + rhs.dexterity
+  )
 
   companion object {
     @Transient
@@ -51,46 +78,43 @@ class BaseValues(
      * @return [BaseValues] instance initiated with random values between
      * 0 and `MAX_IV_VALUE`.
      */
-    val newIndividualValues: BaseValues
-      get() {
-        val rand = ThreadLocalRandom.current()
+    fun newIndividualValues(): BaseValues {
+      val rand = ThreadLocalRandom.current()
 
-        return BaseValues(
-            hp = rand.nextInt(0, MAX_IV_VALUE + 1),
-            mana = rand.nextInt(0, MAX_IV_VALUE + 1),
-            strength = rand.nextInt(0, MAX_IV_VALUE + 1),
-            vitality = rand.nextInt(0, MAX_IV_VALUE + 1),
-            intelligence = rand.nextInt(0, MAX_IV_VALUE + 1),
-            willpower = rand.nextInt(0, MAX_IV_VALUE + 1),
-            dexterity = rand.nextInt(0, MAX_IV_VALUE + 1),
-            agility = rand.nextInt(0, MAX_IV_VALUE + 1)
-        )
-      }
+      return BaseValues(
+          hp = rand.nextInt(0, MAX_IV_VALUE + 1),
+          mana = rand.nextInt(0, MAX_IV_VALUE + 1),
+          strength = rand.nextInt(0, MAX_IV_VALUE + 1),
+          vitality = rand.nextInt(0, MAX_IV_VALUE + 1),
+          intelligence = rand.nextInt(0, MAX_IV_VALUE + 1),
+          willpower = rand.nextInt(0, MAX_IV_VALUE + 1),
+          dexterity = rand.nextInt(0, MAX_IV_VALUE + 1),
+          agility = rand.nextInt(0, MAX_IV_VALUE + 1)
+      )
+    }
 
     /**
      * To create non random starter bestia the values are all created equally.
      *
      * @return [BaseValues] instance initiated with equal values of 13.
      */
-    val starterIndividualValues: BaseValues
-      get() {
-        return BaseValues(
-            hp = 13,
-            mana = 13,
-            strength = 13,
-            vitality = 13,
-            intelligence = 13,
-            willpower = 13,
-            dexterity = 13,
-            agility = 13
-        )
-      }
+    val STARTER_IV_VALUES = BaseValues(
+        hp = 13,
+        mana = 13,
+        stamina = 13,
+        strength = 13,
+        vitality = 13,
+        intelligence = 13,
+        willpower = 13,
+        dexterity = 13,
+        agility = 13
+    )
 
     /**
      * All values are 0.
      *
      * @return A [BaseValues] instance with all values set to 0.
      */
-    val nullValues get() = BaseValues()
+    val NULL_VALUES = BaseValues()
   }
 }

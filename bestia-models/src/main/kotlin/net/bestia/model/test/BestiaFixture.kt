@@ -15,6 +15,6 @@ object BestiaFixture {
       expGained = 100,
       type = BestiaType.DEMI_HUMAN,
       level = 10,
-      baseValues = BaseValues.nullValues
+      baseValues = BaseValues.NULL_VALUES
   )
 }

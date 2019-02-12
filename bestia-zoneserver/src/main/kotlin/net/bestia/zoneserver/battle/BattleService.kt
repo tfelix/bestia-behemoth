@@ -190,7 +190,7 @@ class BattleService(
       hitrate *= 3f
     }
 
-    hitrate = hitrate.between(0.05f, 1f)
+    hitrate = hitrate.clamp(0.05f, 1f)
 
     LOG.trace("Hit chance: {}", hitrate)
 
@@ -314,7 +314,7 @@ class BattleService(
         + atkDex / defDex / 2
         + atkAgi / defAgi / 2) * dmgVars.criticalChanceMod
 
-    crit = crit.between(0.01f, 0.95f)
+    crit = crit.clamp(0.01f, 0.95f)
 
     LOG.trace("Crit chance: {}", crit)
 

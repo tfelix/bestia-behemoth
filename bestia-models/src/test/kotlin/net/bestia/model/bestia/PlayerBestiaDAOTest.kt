@@ -28,9 +28,10 @@ class PlayerBestiaDAOTest {
         origin = BestiaFixture.bestia
     )
 
-    val sv = ConditionValues()
-    sv.currentHealth = 10
-    sv.currentMana = 10
+    val sv = ConditionValues(
+        currentHealth = 10,
+        currentMana = 10
+    )
 
     pb.conditionValues = sv
     pb.level = 10

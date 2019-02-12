@@ -26,7 +26,6 @@ data class ConditionValues(
     @get:JsonProperty("mhp")
     val maxHealth: Int = 0,
 
-
     /**
      * Sets the current mana value. The value can not be less then 0 and not
      * bigger then the current max value.
@@ -38,7 +37,20 @@ data class ConditionValues(
      * Returns the max mana.
      */
     @get:JsonProperty("mmana")
-    val maxMana: Int = 0
+    val maxMana: Int = 0,
+
+    /**
+     * Sets the current mana value. The value can not be less then 0 and not
+     * bigger then the current max value.
+     */
+    @get:JsonProperty("csta")
+    val currentStamina: Int = 0,
+
+    /**
+     * Returns the max mana.
+     */
+    @get:JsonProperty("msta")
+    val maxStamina: Int = 0
 ) : Serializable {
 
   /**
@@ -65,12 +77,33 @@ data class ConditionValues(
     return copy(currentMana + mana)
   }
 
-  fun setMaximumValues(maxHp: Int, maxMana: Int): ConditionValues {
+  fun setMaximumValues(
+      maxHp: Int,
+      maxMana: Int,
+      maxStamina: Int
+  ): ConditionValues {
     return ConditionValues(
         maxHealth = maxHp,
         maxMana = maxMana,
+        maxStamina = maxStamina,
         currentHealth = Math.min(maxHp, currentHealth),
-        currentMana = Math.min(maxMana, currentMana)
+        currentMana = Math.min(maxMana, currentMana),
+        currentStamina = Math.min(maxStamina, currentStamina)
     )
+  }
+
+  fun updateConditionValues(
+      conditionValues: ConditionValues = ConditionValues(),
+      level: Int = 1,
+      bVals: BaseValues,
+      iVals: BaseValues = BaseValues.NULL_VALUES,
+      eVals: BaseValues = BaseValues.NULL_VALUES
+  ): ConditionValues {
+
+    val maxHp = bVals.hp * 2 + iVals.hp + eVals.hp / 4 * level / 100 + 10 + level
+    val maxMana = bVals.mana * 2 + iVals.mana + eVals.mana / 4 * level / 100 + 10 + level * 2
+    val maxStamina = bVals.stamina * 2 + iVals.stamina + eVals.stamina / 4 * level / 100 + 10 + level
+
+    return conditionValues.setMaximumValues(maxHp, maxMana, maxStamina)
   }
 }

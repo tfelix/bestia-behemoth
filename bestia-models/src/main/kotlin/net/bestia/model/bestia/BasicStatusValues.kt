@@ -2,7 +2,6 @@ package net.bestia.model.bestia
 
 import java.io.Serializable
 import java.lang.IllegalArgumentException
-
 import javax.persistence.Embeddable
 
 /**
@@ -34,5 +33,18 @@ data class BasicStatusValues(
       throw IllegalArgumentException("Strength can not be less than 1")
     }
     // TODO Other checks
+  }
+
+  operator fun plus(rhs: StatusValues): BasicStatusValues {
+    return BasicStatusValues(
+        strength = strength + rhs.strength,
+        vitality = vitality + rhs.vitality,
+        intelligence = intelligence + rhs.intelligence,
+        willpower = willpower + rhs.willpower,
+        agility = agility + rhs.agility,
+        dexterity = dexterity + rhs.dexterity,
+        physicalDefense = physicalDefense + rhs.physicalDefense,
+        magicDefense = magicDefense + rhs.magicDefense
+    )
   }
 }

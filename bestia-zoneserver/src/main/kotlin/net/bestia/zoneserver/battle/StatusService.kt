@@ -44,14 +44,12 @@ class StatusService(
 
     if(isPlayer) {
       return calculatePlayerStatus(entity)
-    }
-
-    if(bestiaId != null) {
+    } else {
       return calculateMobStatus(bestiaId, entity)
     }
   }
 
-  private fun calculateMobStatus(bestiaId: Long, entity: Entity) {
+  private fun calculateMobStatus(bestiaId: Long, entity: Entity): StatusComponent {
     val bestia = bestiaRepository.findOneOrThrow(bestiaId)
     calculateUnmodifiedStatusValues(
         bVals = bestia.baseValues
@@ -75,8 +73,8 @@ class StatusService(
   private fun calculateUnmodifiedStatusValues(
       lv: Int,
       bVals: BaseValues,
-      iVals: BaseValues = BaseValues.nullValues,
-      eVals: BaseValues = BaseValues.nullValues
+      iVals: BaseValues = BaseValues.NULL_VALUES,
+      eVals: BaseValues = BaseValues.NULL_VALUES
   ): StatusValues {
     val str = (bVals.strength * 2 + iVals.strength + eVals.strength / 4) * lv / 100 + 5
     val vit = (bVals.vitality * 2 + iVals.vitality + eVals.vitality / 4) * lv / 100 + 5
