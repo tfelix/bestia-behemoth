@@ -18,7 +18,7 @@ class GainPointService {
     return gainPointComponent.copy(gainPoints = gainPointComponent.gainPoints + earnedGainPoints)
   }
 
-  fun neededGainPoints(currentEffortValue: Int): Int {
+  fun neededGainPointsForUpgrade(currentEffortValue: Int): Int {
     return Math.floor((currentEffortValue + 1) * 0.25).toInt() * 2
   }
 
@@ -30,13 +30,21 @@ class GainPointService {
     var currentGain = gainComponent.gainPoints
     val delta = newEffortValues - effortValues
 
-    for (i in 1..delta.dexterity) {
-      val neededGain = neededGainPoints(effortValues.dexterity)
+    if(delta.hp > 0) {
+      val currentPoint = effortValues.hp
+      val neededGain = neededGainPointsForUpgrade(currentPoint)
       if(currentGain < neededGain) {
         break
       }
+      currentGain -= neededGain
+    }
 
-      currentGain -=
+    for (i in 1..delta.dexterity) {
+      val neededGain = neededGainPointsForUpgrade(effortValues.dexterity)
+      if(currentGain < neededGain) {
+        break
+      }
+      currentGain -= neededGain
     }
   }
 }

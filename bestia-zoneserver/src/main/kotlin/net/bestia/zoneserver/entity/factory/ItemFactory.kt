@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.bestia.model.findOne
 import net.bestia.model.geometry.Point
 import net.bestia.model.item.ItemRepository
+import net.bestia.zoneserver.battle.StatusServiceFactory
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.*
@@ -18,7 +19,8 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class ItemFactory(
     private val itemDao: ItemRepository,
-    private val idGenerator: IdGeneratorService
+    private val idGenerator: IdGeneratorService,
+    private val statusServiceFactory: StatusServiceFactory
 ) {
 
   fun build(itemDbName: String, position: Point, amount: Int = 1): Entity {
@@ -46,15 +48,18 @@ class ItemFactory(
         entityId = entityId,
         level = item.level
     )
-    val statusComp = StatusComponent.forItem(entityId, item)
+
 
     entity.addAllComponents(listOf(
         posComp,
         visualComp,
         tagComp,
-        levelComp,
-        statusComp
+        levelComp
     ))
+
+    val statusService = statusServiceFactory.getStatusService(entity)
+    val statusComp = statusService.calculateStatusPoints(entity)
+    entity.addComponent(statusComp)
 
     return entity
   }

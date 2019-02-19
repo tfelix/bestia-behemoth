@@ -6,7 +6,7 @@ import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.randomDirection
 import net.bestia.model.geometry.Point
-import net.bestia.zoneserver.battle.StatusService
+import net.bestia.zoneserver.battle.MobStatusService
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.MetaDataComponent.Companion.MOB_BESTIA_ID
@@ -23,7 +23,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 class MobFactory(
-    private val statusService: StatusService,
+    private val statusService: MobStatusService,
     private val bestiaDao: BestiaRepository,
     private val idGenerator: IdGeneratorService
 ) {
@@ -63,14 +63,7 @@ class MobFactory(
     entity.addComponent(equipComp)
     entity.addComponent(InventoryComponent(entityId = entity.id))
     entity.addComponent(AiComponent(entityId = entity.id))
-    entity.addComponent(
-        StatusComponent(
-            entityId = entity.id,
-            originalElement = bestia.element
-        )
-    )
 
-    // TODO In createStatusPoint umbennenen und splitten zwischen neu-berechnen und erzeugen!
     val statusComp = statusService.calculateStatusPoints(entity)
     entity.addComponent(statusComp)
 

@@ -24,7 +24,7 @@ import java.util.*
 @ExtendWith(MockitoExtension::class)
 class StatusServiceTest {
 
-  private lateinit var statusService: StatusService
+  private lateinit var statusService: MobStatusService
 
   @Mock
   private lateinit var playerBestiaDao: PlayerBestiaRepository
@@ -38,7 +38,7 @@ class StatusServiceTest {
 
   @BeforeEach
   fun setup() {
-    statusService = StatusService(playerBestiaDao, bestiaDao)
+    statusService = MobStatusService(playerBestiaDao, bestiaDao)
   }
 
   @Disabled("Currently no status calc for non player or mob entities")

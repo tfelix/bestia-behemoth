@@ -47,7 +47,7 @@ class MovingService {
       else -> 1.0
     }
 
-    return Math.floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed.speed) * diagMult).toLong()
+    return Math.floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed) * diagMult).toLong()
   }
 
   /**

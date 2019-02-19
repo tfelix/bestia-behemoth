@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 
 import net.bestia.model.bestia.StatusValues
-import net.bestia.model.map.Walkspeed
+import net.bestia.model.map.WalkspeedFloat
 
 /**
  * How often the regeneration should tick for each entity.
@@ -98,7 +98,7 @@ interface StatusBasedValues {
   val attackSpeed: Float
 
   @get:JsonProperty("w")
-  val walkspeed: Float
+  val walkspeed: WalkspeedFloat
 
   @get:JsonIgnore
   val healthTick: Float

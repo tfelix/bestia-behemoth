@@ -2,11 +2,9 @@ package net.bestia.zoneserver.entity.factory
 
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
-import net.bestia.zoneserver.battle.StatusService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.inventory.InventoryService
 
 /**
  * The factory is used to create player entities which can be controlled via a
