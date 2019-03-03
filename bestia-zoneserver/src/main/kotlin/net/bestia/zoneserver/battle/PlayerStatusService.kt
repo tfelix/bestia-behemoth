@@ -33,8 +33,10 @@ class PlayerStatusService(
   override fun calculateStatusPoints(entity: Entity): StatusComponent {
     LOG.trace("Calculate status points for player entity {}.", entity)
     val playerComp = entity.getComponent(PlayerComponent::class.java)
+
     val pb = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
+    val lv = pb.l
     val bVals = pb.baseValues
     val eVals = pb.effortValues
     val iVals = pb.individualValue

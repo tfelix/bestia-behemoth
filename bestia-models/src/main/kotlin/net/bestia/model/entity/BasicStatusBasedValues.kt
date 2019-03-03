@@ -52,12 +52,10 @@ data class BasicStatusBasedValues(
    */
   override val healthTick: Float
     get() {
-      return if (staminaPerc < 0.1f) {
-        0f
-      } else if (staminaPerc < 0.5f) {
-        conditionValues.maxHealth * -0.03f
-      } else {
-        hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS
+      return when {
+        staminaPerc < 0.1f -> 0f
+        staminaPerc < 0.5f -> conditionValues.maxHealth * -0.03f
+        else -> hpRegenRate / 1000 * 8000
       }
     }
 
@@ -71,13 +69,13 @@ data class BasicStatusBasedValues(
    */
   override val manaTick: Float
     get() {
-      return if (staminaPerc < 0.1f) {
-        0f
-      } else {
-        manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
+      return when {
+        staminaPerc < 0.1f -> 0f
+        staminaPerc < 0.5f -> conditionValues.maxHealth * -0.03f
+        else -> manaRegenRate
       }
     }
 
   override val staminaTick: Float
-    get() = staminaRegenRate / 1000 * REGENERATION_TICK_RATE_MS
+    get() = staminaRegenRate
 }

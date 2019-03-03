@@ -7,11 +7,6 @@ import net.bestia.model.bestia.StatusValues
 import net.bestia.model.map.WalkspeedFloat
 
 /**
- * How often the regeneration should tick for each entity.
- */
-const val REGENERATION_TICK_RATE_MS = 8000L
-
-/**
  * The [StatusBasedValues] are used for advanced calculations. They are
  * usually based upon [StatusValues] and provide data needed for further
  * algorithms into the game. This implementation can be wrapped/decorated in

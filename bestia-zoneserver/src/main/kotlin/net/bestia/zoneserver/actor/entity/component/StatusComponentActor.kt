@@ -1,9 +1,10 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
-import net.bestia.model.entity.REGENERATION_TICK_RATE_MS
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.battle.MobStatusService
+import net.bestia.zoneserver.battle.ConditionIncrements
+import net.bestia.zoneserver.battle.RegenerationService
+import net.bestia.zoneserver.battle.RegenerationService.Companion.REGENERATION_TICK_RATE_MS
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.zoneserver.inventory.InventoryService
 import java.time.Duration
@@ -17,10 +18,12 @@ import java.time.Duration
  */
 @ActorComponent(StatusComponent::class)
 class StatusComponentActor(
-    private val statusService: MobStatusService,
     private val inventoryService: InventoryService,
+    private val regenerationService: RegenerationService,
     component: StatusComponent
 ) : ComponentActor<StatusComponent>(component) {
+
+  private val currentIncrements = ConditionIncrements()
 
   private val tick = context.system.scheduler().schedule(
       REGEN_TICK_INTERVAL,
@@ -31,36 +34,13 @@ class StatusComponentActor(
       null
   )
 
-  private var manaIncrement = 0f
-  private var healthIncrement = 0f
-  private var staminaIncrement = 0f
-
   override fun createReceive(builder: ReceiveBuilder) {
-    builder.matchEquals(ON_REGEN_TICK_MSG) { onRegenTick() }
+    builder.matchEquals(ON_REGEN_TICK_MSG) { tickRegeneration() }
   }
 
-  private fun onRegenTick() {
-    healthIncrement = component.statusBasedValues.hpRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    manaIncrement = component.statusBasedValues.manaRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    staminaIncrement = component.statusBasedValues.staminaRegenRate * REGENERATION_TICK_RATE_MS / 1000
-
-    val condValues = component.conditionValues
-    val hpRound = healthIncrement.toInt()
-    healthIncrement -= hpRound.toFloat()
-
-    val manaRound = manaIncrement.toInt()
-    manaIncrement -= manaRound.toFloat()
-
-    val staminaRound = staminaIncrement.toInt()
-    staminaIncrement -= staminaRound.toFloat()
-
-    val updatedConditionValues = condValues.copy(
-        currentMana = condValues.currentMana + manaRound,
-        currentHealth = condValues.currentHealth + hpRound,
-        currentStamina = condValues.currentStamina + staminaRound
-    )
-
-    component = component.copy(conditionValues = updatedConditionValues)
+  private fun tickRegeneration() {
+    regenerationService.addIncrements(currentIncrements, component)
+    component = regenerationService.transferIncrementsToCondition(currentIncrements, component)
   }
 
   override fun onComponentChanged(oldComponent: StatusComponent, newComponent: StatusComponent) {

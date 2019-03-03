@@ -2,6 +2,7 @@ package net.bestia.zoneserver.entity.factory
 
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
+import net.bestia.zoneserver.battle.PlayerStatusService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGeneratorService
 import net.bestia.zoneserver.entity.component.*
@@ -14,6 +15,7 @@ import net.bestia.zoneserver.entity.component.*
  */
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
+    private val playerStatusService: PlayerStatusService,
     private val idGenerator: IdGeneratorService
 ) {
 
@@ -48,15 +50,13 @@ class PlayerBestiaFactory(
           level = playerBestia.level,
           exp = playerBestia.exp
       ))
-      addComponent(StatusComponent(
-          entityId = entity.id,
-          conditionValues = playerBestia.conditionValues,
-          originalElement = playerBestia.origin.element
-      ))
       addComponent(TagComponent(
           entityId = entity.id,
           tags = setOf(TagComponent.PLAYER)
       ))
+
+      val statusComponent = playerStatusService.calculateStatusPoints(entity)
+      addComponent(statusComponent)
     }
 
     return entity

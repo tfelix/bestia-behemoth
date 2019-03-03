@@ -12,7 +12,6 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class MobStatusService(
-    private val playerBestiaDao: PlayerBestiaRepository,
     private val bestiaRepository: BestiaRepository
 ) : StatusService {
 
@@ -39,33 +38,18 @@ class MobStatusService(
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
     val bestiaId = metaDataComponent?.tryGetAsLong(MetaDataComponent.MOB_BESTIA_ID)
 
-    return calculateMobStatus(bestiaId, entity)
-  }
-
-  private fun calculateMobStatus(bestiaId: Long, entity: Entity): StatusComponent {
     val bestia = bestiaRepository.findOneOrThrow(bestiaId)
-    calculateUnmodifiedStatusValues(
-        bVals = bestia.baseValues
-    )
-  }
+    val bVals = bestia.baseValues
+    val lv = bestia.level
 
-  /**
-   * At first this calculates the unmodified, original status points.
-   */
-  private fun calculateUnmodifiedStatusValues(
-      lv: Int,
-      bVals: BaseValues,
-      iVals: BaseValues = BaseValues.NULL_VALUES,
-      eVals: BaseValues = BaseValues.NULL_VALUES
-  ): StatusValues {
-    val str = (bVals.strength * 2 + iVals.strength + eVals.strength / 4) * lv / 100 + 5
-    val vit = (bVals.vitality * 2 + iVals.vitality + eVals.vitality / 4) * lv / 100 + 5
-    val intel = (bVals.intelligence * 2 + iVals.intelligence + eVals.intelligence / 4) * lv / 100 + 5
-    val will = (bVals.willpower * 2 + iVals.willpower + eVals.willpower / 4) * lv / 100 + 5
-    val agi = (bVals.agility * 2 + iVals.agility + eVals.agility / 4) * lv / 100 + 5
-    val dex = (bVals.dexterity * 2 + iVals.dexterity + eVals.dexterity / 4) * lv / 100 + 5
+    val str = (bVals.strength * 2) * lv / 100 + 5
+    val vit = (bVals.vitality * 2) * lv / 100 + 5
+    val intel = (bVals.intelligence * 2) * lv / 100 + 5
+    val will = (bVals.willpower * 2) * lv / 100 + 5
+    val agi = (bVals.agility * 2) * lv / 100 + 5
+    val dex = (bVals.dexterity * 2) * lv / 100 + 5
 
-    return BasicStatusValues(
+    val statusValues = BasicStatusValues(
         str,
         vit,
         intel,
