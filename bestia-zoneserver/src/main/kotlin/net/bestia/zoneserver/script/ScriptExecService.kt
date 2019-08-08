@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.api.ScriptRootContext
@@ -16,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
 class ScriptExecService(
         private val fileResolver: ScriptFileResolver,
         private val mobFactory: MobFactory,
-        private val idGeneratorService: IdGeneratorService
+        private val idGeneratorService: IdGenerator
 ) {
   private val engine = ScriptEngineManager().getEngineByName("nashorn")
 

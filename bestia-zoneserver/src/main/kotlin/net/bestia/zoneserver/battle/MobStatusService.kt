@@ -36,6 +36,7 @@ class MobStatusService(
     LOG.trace("Calculate status points for entity {}.", entity)
 
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
+    val statusComp = entity.getComponent(StatusComponent::class.java)
     val bestiaId = metaDataComponent?.tryGetAsLong(MetaDataComponent.MOB_BESTIA_ID)
 
     val bestia = bestiaRepository.findOneOrThrow(bestiaId)
@@ -57,6 +58,8 @@ class MobStatusService(
         agi,
         dex
     )
+
+    return statusComp.copy(statusValues = statusValues)
   }
 }
 

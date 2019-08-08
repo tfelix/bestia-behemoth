@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.bestia.model.bestia.*
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
@@ -33,20 +34,20 @@ class PlayerStatusService(
   override fun calculateStatusPoints(entity: Entity): StatusComponent {
     LOG.trace("Calculate status points for player entity {}.", entity)
     val playerComp = entity.getComponent(PlayerComponent::class.java)
+    val levelComp = entity.getComponent(LevelComponent::class.java)
+    val statusComp = entity.getComponent(StatusComponent::class.java)
 
     val pb = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
-    val lv = pb.l
+    val lv = levelComp.level
     val bVals = pb.baseValues
     val eVals = pb.effortValues
     val iVals = pb.individualValue
 
-    val originalStatus = calculateUnmodifiedStatusValues(bVals, iVals, eVals)
+    val originalStatus = calculateUnmodifiedStatusValues(lv, bVals, iVals, eVals)
 
-    return StatusComponent(
-        entityId = entity.id,
-        originalStatusValues = originalStatus,
-
+    return statusComp.copy(
+        originalStatusValues = originalStatus
     )
   }
 

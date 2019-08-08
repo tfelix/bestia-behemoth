@@ -6,7 +6,7 @@ import net.bestia.model.geometry.Point
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.battle.StatusServiceFactory
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Component
 
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class ItemFactory(
     private val itemDao: ItemRepository,
-    private val idGenerator: IdGeneratorService,
+    private val idGenerator: IdGenerator,
     private val statusServiceFactory: StatusServiceFactory
 ) {
 

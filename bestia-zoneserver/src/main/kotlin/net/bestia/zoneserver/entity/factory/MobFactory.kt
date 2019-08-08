@@ -7,7 +7,7 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.randomDirection
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.battle.MobStatusService
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.MetaDataComponent.Companion.MOB_BESTIA_ID
 import org.springframework.stereotype.Component
@@ -25,7 +25,7 @@ private val LOG = KotlinLogging.logger { }
 class MobFactory(
     private val statusService: MobStatusService,
     private val bestiaDao: BestiaRepository,
-    private val idGenerator: IdGeneratorService
+    private val idGenerator: IdGenerator
 ) {
 
   fun build(mobDbName: String, pos: Point): Entity {

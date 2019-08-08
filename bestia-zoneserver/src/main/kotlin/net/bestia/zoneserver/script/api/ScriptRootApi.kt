@@ -3,7 +3,7 @@ package net.bestia.zoneserver.script.api
 import mu.KotlinLogging
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
 import java.lang.IllegalArgumentException
 
@@ -16,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 class ScriptRootApi(
-    private val idGeneratorService: IdGeneratorService,
+    private val idGeneratorService: IdGenerator,
     private val mobFactory: MobFactory,
     private val scriptContext: ScriptRootContext
 ) {

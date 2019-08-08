@@ -5,9 +5,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
-import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.SimpleScriptEnv
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -30,7 +29,7 @@ class ScriptExecServiceTest {
     scriptExecService = ScriptExecService(
         fileResolver = fileResolver,
         mobFactory = mobFactory,
-        idGeneratorService = IdGeneratorService()
+        idGeneratorService = IdGenerator()
     )
   }
 

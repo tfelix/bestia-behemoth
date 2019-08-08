@@ -46,6 +46,6 @@ class RegenerationService() {
     /**
      * How often the regeneration should tick for each entity.
      */
-    val REGENERATION_TICK_RATE_MS = 8000L
+    const val REGENERATION_TICK_RATE_MS = 8000L
   }
 }

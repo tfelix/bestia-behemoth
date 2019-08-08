@@ -10,7 +10,7 @@ typealias EntityId = Long
 
 /**
  * Entities can be attached with components in order to make a composition of a
- * complex entity which can be interacted with inside the bestia system.
+ * complex entity which can be interacted with inside the Bestia system.
  *
  * @author Thomas Felix
  */
@@ -42,10 +42,6 @@ data class Entity(
 
   internal fun <T : Component> getComponent(clazz: Class<T>): T {
     return tryGetComponent(clazz) ?: throw NullPointerException("Entity $id has no component of type $clazz")
-  }
-
-  internal fun getAllComponents(): Collection<Component> {
-    return components.values
   }
 
   internal fun <T : Component> tryGetComponent(clazz: Class<T>): T? {

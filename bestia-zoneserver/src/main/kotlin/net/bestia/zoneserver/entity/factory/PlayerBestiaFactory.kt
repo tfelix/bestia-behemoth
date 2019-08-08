@@ -4,7 +4,7 @@ import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.battle.PlayerStatusService
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
 
 /**
@@ -16,7 +16,7 @@ import net.bestia.zoneserver.entity.component.*
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
     private val playerStatusService: PlayerStatusService,
-    private val idGenerator: IdGeneratorService
+    private val idGenerator: IdGenerator
 ) {
 
   fun build(playerBestiaId: Long): Entity {

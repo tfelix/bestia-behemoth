@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.actor.AbstractActor
+import akka.actor.AbstractActorWithTimers
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.entity.RequestComponentMessage
@@ -16,7 +17,7 @@ private val LOG = KotlinLogging.logger { }
 
 abstract class ComponentActor<T : Component>(
     component: T
-) : AbstractActor() {
+) : AbstractActorWithTimers() {
 
   protected fun fetchEntity(
       callback: (Entity) -> Unit

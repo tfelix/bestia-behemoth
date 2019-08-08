@@ -3,7 +3,7 @@ package net.bestia.zoneserver.script
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.IdGeneratorService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.api.ScriptRootContext
@@ -22,7 +22,7 @@ import javax.script.ScriptEngineManager
 @ExtendWith(MockitoExtension::class)
 @Disabled
 class ScriptBenchmarkTest {
-  private val idGeneratorService = IdGeneratorService()
+  private val idGeneratorService = IdGenerator()
 
   @Mock
   private lateinit var mobFactory: MobFactory

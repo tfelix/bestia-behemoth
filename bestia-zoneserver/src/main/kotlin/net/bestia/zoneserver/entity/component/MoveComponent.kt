@@ -11,5 +11,6 @@ import net.bestia.model.geometry.Point
  */
 data class MoveComponent(
     override val entityId: Long,
+    val speed: Point, // Should be a vector
     val path: List<Point>
 ) : Component

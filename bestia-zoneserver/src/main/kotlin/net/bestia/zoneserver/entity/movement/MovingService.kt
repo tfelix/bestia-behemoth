@@ -1,9 +1,10 @@
-package net.bestia.zoneserver.entity
+package net.bestia.zoneserver.entity.movement
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
 

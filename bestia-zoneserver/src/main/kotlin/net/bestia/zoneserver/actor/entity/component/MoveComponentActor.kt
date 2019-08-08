@@ -4,7 +4,7 @@ import akka.actor.Cancellable
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
-import net.bestia.zoneserver.entity.MovingService
+import net.bestia.zoneserver.entity.movement.MovingService
 import net.bestia.zoneserver.entity.component.MoveComponent
 import java.time.Duration
 
@@ -21,6 +21,10 @@ class MoveComponentActor(
     moveComponent: MoveComponent,
     private val movingService: MovingService
 ) : ComponentActor<MoveComponent>(moveComponent) {
+
+  init {
+    timers.startPeriodicTimer(MOVE_TICK_KEY, TICK_MSG, Duration.ofMillis(10))
+  }
 
   private var tick: Cancellable? = null
 
@@ -83,6 +87,7 @@ class MoveComponentActor(
   }
 
   companion object {
+    private const val MOVE_TICK_KEY = "MoveTickKey";
     private const val TICK_MSG = "onTick"
     const val NAME = "moveComponent"
   }
