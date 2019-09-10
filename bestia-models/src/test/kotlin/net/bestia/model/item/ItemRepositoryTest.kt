@@ -9,16 +9,13 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
 @DataJpaTest
-@TestExecutionListeners(DependencyInjectionTestExecutionListener::class, DbUnitTestExecutionListener::class)
-@DatabaseSetup("/db/items.xml")
+@TestExecutionListeners(DependencyInjectionTestExecutionListener::class)
 @Tag("it")
 class ItemRepositoryTest {
 

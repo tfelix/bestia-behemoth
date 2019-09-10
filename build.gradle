@@ -2,12 +2,25 @@ buildscript {
     ext {
         springBootVersion = '2.1.2.RELEASE'
         javaConnectorVersion = '8.0.14'
-        jacksonVersion = '2.9.7'
+        jacksonVersion = '2.9.9'
         reflectionsVersion = '0.9.11'
         kotlinLoggingVersion = '1.6.22'
         akkaVersion = '2.5.19'
         akkaHttpVersion = '10.1.5'
     }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.1.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.3.50'
+}
+
+allprojects {
+    version = 'alpha-0.6.0-SNAPSHOT'
+    group = 'net.bestia'
+    sourceCompatibility = '1.8'
 
     repositories {
         mavenCentral()
@@ -15,65 +28,27 @@ buildscript {
         mavenLocal()
     }
 
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.2.RELEASE")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.41")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:1.3.41")
-        classpath("org.jetbrains.kotlin:kotlin-reflect:1.3.41")
+    compileKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ['-Xjsr305=strict']
+            jvmTarget = '1.8'
+        }
     }
-}
 
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-spring'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-repositories {
-    mavenCentral()
-    jcenter()
-    mavenLocal()
-}
-
-subprojects {
-    apply plugin: 'kotlin'
-
-    dependencies {
-        testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.1.2.RELEASE'
-        testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.2")
-        testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
-        testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api', version: '1.3.2'
-        testImplementation group: 'org.junit.platform', name: 'junit-platform-runner', version: '1.3.2'
-    }
-}
-
-group = 'net.bestia'
-sourceCompatibility = '1.8'
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "org.jetbrains.kotlin:kotlin-reflect"
-}
-
-allprojects {
-    version = 'alpha-0.5.0-SNAPSHOT'
-}
-
-compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ['-Xjsr305=strict']
-        jvmTarget = '1.8'
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        freeCompilerArgs = ['-Xjsr305=strict']
-        jvmTarget = '1.8'
+    compileTestKotlin {
+        kotlinOptions {
+            freeCompilerArgs = ['-Xjsr305=strict']
+            jvmTarget = '1.8'
+        }
     }
 }
 
 test {
     useJUnitPlatform()
+}
+
+dependencies {
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: '1.3.50' {
+        force = true
+    }
 }

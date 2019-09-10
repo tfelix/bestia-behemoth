@@ -10,13 +10,9 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener
-import com.github.springtestdbunit.annotation.DatabaseSetup
-
 @RunWith(SpringRunner::class)
 @SpringBootTest
-@TestExecutionListeners(DependencyInjectionTestExecutionListener::class, DbUnitTestExecutionListener::class)
-@DatabaseSetup("/db/attack_levels.xml")
+@TestExecutionListeners(DependencyInjectionTestExecutionListener::class)
 @DataJpaTest
 class AttackLevelRepositoryTest {
 

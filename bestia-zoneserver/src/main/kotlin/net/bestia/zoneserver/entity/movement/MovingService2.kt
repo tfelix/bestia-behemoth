@@ -2,7 +2,6 @@ package net.bestia.zoneserver.entity.movement
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Point
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.StatusComponent
@@ -19,8 +18,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class MovingService2 {
-
-  private fun
 
   /**
    * Calculates the next movement tick depending on the move speed. If -1 is

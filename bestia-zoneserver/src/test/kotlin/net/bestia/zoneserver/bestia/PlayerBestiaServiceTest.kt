@@ -1,21 +1,16 @@
 package net.bestia.zoneserver.bestia
 
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.account.Account
-import net.bestia.model.account.AccountRepository
 import net.bestia.model.battle.BestiaAttackRepository
 import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.model.findOne
-import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.PlayerBestiaService
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
-import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
 

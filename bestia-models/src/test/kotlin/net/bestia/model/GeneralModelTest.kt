@@ -3,8 +3,8 @@ package net.bestia.model
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.bestia.model.account.LoginInfo
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import org.reflections.Reflections
 import java.io.Serializable
 import javax.persistence.Entity
@@ -31,8 +31,10 @@ class GeneralModelTest {
         continue
       }
 
-      Assert.assertTrue(clazz.toGenericString() + " does not implement Serializable.",
-          Serializable::class.java.isAssignableFrom(clazz))
+      assertTrue(
+          Serializable::class.java.isAssignableFrom(clazz),
+          clazz.toGenericString() + " does not implement Serializable."
+      )
     }
   }
 
