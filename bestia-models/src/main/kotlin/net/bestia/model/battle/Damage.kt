@@ -17,9 +17,7 @@ data class Damage(
 ) : Serializable {
 
   init {
-    if (damage < 0) {
-      throw IllegalArgumentException("Damage can not be negative.")
-    }
+    require(damage >= 0) { "Damage can not be negative." }
   }
 
   companion object {

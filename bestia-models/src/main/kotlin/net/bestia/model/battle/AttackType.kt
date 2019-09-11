@@ -1,7 +1,6 @@
 package net.bestia.model.battle
 
 enum class AttackType {
-
   /**
    * Attack is based on special attack stat its nature is a magic one.
    */

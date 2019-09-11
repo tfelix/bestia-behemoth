@@ -35,15 +35,15 @@ class ExamplePersistentActor(
   }
 
   private fun snapshotFailure(recoveredComponent: SaveSnapshotFailure) {
-
+    println(recoveredComponent)
   }
 
   private fun snapshotSuccess(recoveredComponent: SaveSnapshotSuccess) {
-
+    println(recoveredComponent)
   }
 
   private fun recoverComponent(recoveredComponent: Component) {
-
+    println(recoveredComponent)
   }
 
   override fun createReceive(): Receive {
@@ -51,6 +51,6 @@ class ExamplePersistentActor(
   }
 
   companion object {
-    private val SNAP_SHOT_INTERVAL = 100
+    private const val SNAP_SHOT_INTERVAL = 100
   }
 }

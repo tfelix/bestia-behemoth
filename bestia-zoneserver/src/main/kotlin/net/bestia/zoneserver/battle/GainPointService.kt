@@ -5,10 +5,12 @@ import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.GainPointComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
+import kotlin.math.floor
 
+// TODO Test it
 class GainPointService {
 
-  fun earnGainPoints(entity: Entity): GainPointComponent {
+  fun addGainPoints(entity: Entity): GainPointComponent {
     val gainPointComponent = entity.getComponent(GainPointComponent::class.java)
     val newLevel = entity.tryGetComponent(LevelComponent::class.java)?.level
         ?: return gainPointComponent
@@ -19,16 +21,16 @@ class GainPointService {
   }
 
   fun neededGainPointsForUpgrade(currentEffortValue: Int): Int {
-    return Math.floor((currentEffortValue + 1) * 0.25).toInt() * 2
+    return floor((currentEffortValue + 1) * 0.25).toInt() * 2
   }
 
-  fun updateEffortValues(entity: Entity, newEffortValues: BaseValues): Pair<GainPointComponent, StatusComponent> {
+  fun updateEffortValues(entity: Entity, desiredEffortValues: BaseValues): Pair<GainPointComponent, StatusComponent> {
     val statusComponent = entity.getComponent(StatusComponent::class.java)
     val gainComponent = entity.getComponent(GainPointComponent::class.java)
     var effortValues = statusComponent.effortValues
 
     var currentGain = gainComponent.gainPoints
-    val delta = newEffortValues - effortValues
+    val delta = desiredEffortValues - effortValues
 
     for (i in 1..delta.hp) {
       val neededGain = neededGainPointsForUpgrade(effortValues.hp)

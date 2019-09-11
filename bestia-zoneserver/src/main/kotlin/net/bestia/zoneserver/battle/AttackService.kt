@@ -66,13 +66,36 @@ class AttackService(
    * @return TRUE of the entity can now use this skill/attack.
    */
   fun canUseAttack(attacker: Entity, attackId: Int): Boolean {
-
-    // TODO Check line of sight.
-
     val attack = attackDao.findOneOrThrow(attackId)
-    return hasAllBattleComponents(attacker) &&
+    return hasAllNeededBattleComponents(attacker) &&
         knowsAttack(attacker, attack) &&
-        hasManaForAttack(attacker, attack)
+        hasManaForAttack(attacker, attack) &&
+        hasLineOfSightIfRequired(attacker, attack) &&
+        hasRequiredItemsForAttack(attacker, attack) &&
+        hasAttackRequirements(attacker, attack)
+  }
+
+  private fun hasLineOfSightIfRequired(entity: Entity, attack: Attack): Boolean {
+    if (!attack.needsLineOfSight) {
+      return true
+    }
+
+    // FIXME Check line of sight against target position via the map service.
+    return true
+  }
+
+  private fun hasRequiredItemsForAttack(entity: Entity, attack: Attack): Boolean {
+    // FIXME Implement
+    return true
+  }
+
+  /**
+   * Some attacks might have over constrains like they work only if a certain debuff
+   * is applied etc. This must usually checked via the attack script.
+   */
+  private fun hasAttackRequirements(entity: Entity, attack: Attack): Boolean {
+    // FIXME Implement
+    return true
   }
 
   private fun hasManaForAttack(entity: Entity, attack: Attack): Boolean {
@@ -81,7 +104,7 @@ class AttackService(
     return currentMana >= attack.manaCost
   }
 
-  private fun hasAllBattleComponents(entity: Entity): Boolean {
+  private fun hasAllNeededBattleComponents(entity: Entity): Boolean {
     return entity.tryGetComponent(PositionComponent::class.java) != null
         && entity.tryGetComponent(StatusComponent::class.java) != null
         && entity.tryGetComponent(LevelComponent::class.java) != null

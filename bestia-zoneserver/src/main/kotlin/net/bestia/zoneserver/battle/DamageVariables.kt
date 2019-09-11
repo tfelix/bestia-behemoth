@@ -11,31 +11,31 @@ import net.bestia.model.battle.Element
  * @author Thomas Felix
  */
 data class DamageVariables(
-        // Attack
-        var attackPhysicalBonus: Float = 0f,
-        var attackMagicBonus: Float = 0f,
-        var attackMagicMod: Float = 1f,
-        var attackPhysicalMod: Float = 1f,
-        var attackRangedMod: Float = 1f,
-        var attackMeleeMod: Float = 1f,
+    // Attack
+    var attackPhysicalBonus: Float = 0f,
+    var attackMagicBonus: Float = 0f,
+    var attackMagicMod: Float = 1f,
+    var attackPhysicalMod: Float = 1f,
+    var attackRangedMod: Float = 1f,
+    var attackMeleeMod: Float = 1f,
 
-        // Weapon
-        var weaponMod: Float = 1f,
+    // Weapon
+    var weaponMod: Float = 1f,
 
-        // Critical
-        var criticalChanceMod: Float = 1f,
-        var criticalDamageMod: Float = 1f,
+    // Critical
+    var criticalChanceMod: Float = 1f,
+    var criticalDamageMod: Float = 1f,
 
-        // Defenses
-        var physicalDefenseMod: Float = 1f,
-        var magicDefenseMod: Float = 1f,
+    // Defenses
+    var physicalDefenseMod: Float = 1f,
+    var magicDefenseMod: Float = 1f,
 
-        // Misc
-        var neededManaMod: Float = 1f,
-        var attackRangeMod: Float = 1f,
-        var attackRangeBonus: Int = 0,
+    // Misc
+    var neededManaMod: Float = 1f,
+    var attackRangeMod: Float = 1f,
+    var attackRangeBonus: Int = 0,
 
-        var isCriticalHit: Boolean = false
+    var isCriticalHit: Boolean = false
 ) {
 
 
@@ -89,9 +89,5 @@ data class DamageVariables(
     vars.attackRangeBonus = attackRangeBonus + rhs.attackRangeBonus
 
     return vars
-  }
-
-  fun getElementBonusMod(atkEle: Element): Float {
-    return 0f
   }
 }

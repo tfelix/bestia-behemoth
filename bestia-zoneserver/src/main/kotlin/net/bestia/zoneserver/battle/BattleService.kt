@@ -30,11 +30,10 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class BattleService(
     private val mapService: MapService,
-    private val entityCollisionService: EntityCollisionService
+    private val entityCollisionService: EntityCollisionService,
+    private val damageCalculator: DamageCalculator
 ) {
-
   private val rand = ThreadLocalRandom.current()
-  private val damageCalculator: DamageCalculator = DamageCalculator()
 
   /**
    * Attacks itself.
@@ -122,13 +121,15 @@ class BattleService(
     return BattleContext(
         usedAttack = usedAttack,
         attacker = attacker,
+        defender = defender,
         damageVariables = dmgVars,
         attackerStatusPoints = atkStatus,
         defenderStatusPoints = defStatus,
         attackerCondition = atkCond,
         defenderCondition = defCond,
         attackerStatusBased = atkStatusBased,
-        defenderStatusBased = defStatusBased
+        defenderStatusBased = defStatusBased,
+        weaponAtk = 1f // FIXME When Equipment is implemented use this to get meaningful value
     )
   }
 
@@ -167,7 +168,7 @@ class BattleService(
   private fun doesAttackHit(battleCtx: BattleContext): Boolean {
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender!!
+    val defender = battleCtx.defender
     val isCriticalHit = battleCtx.damageVariables.isCriticalHit
 
     LOG.trace("Calculate hit.")
@@ -225,7 +226,7 @@ class BattleService(
    */
   private fun isInRange(battleCtx: BattleContext): Boolean {
     val atkPosition = getPosition(battleCtx.attacker)
-    val defPosition = getPosition(battleCtx.defender!!)
+    val defPosition = getPosition(battleCtx.defender)
 
     val effectiveRange = getEffectiveSkillRange(battleCtx.usedAttack, battleCtx.attacker)
 
@@ -245,7 +246,7 @@ class BattleService(
   private fun hasLineOfSight(battleCtx: BattleContext): Boolean {
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender!!
+    val defender = battleCtx.defender
 
     if (!attack.needsLineOfSight) {
       LOG.trace("Attack does not need los.")
@@ -287,7 +288,7 @@ class BattleService(
   private fun isCriticalHit(battleCtx: BattleContext): Boolean {
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
-    val defender = battleCtx.defender!!
+    val defender = battleCtx.defender
     val dmgVars = battleCtx.damageVariables
 
     LOG.trace("Calculating: criticalHit")
@@ -353,7 +354,7 @@ class BattleService(
    */
   private fun hasAttackerEnoughMana(battleCtx: BattleContext): Boolean {
     val neededMana = getNeededMana(battleCtx)
-    return battleCtx.attackerCondition!!.currentMana >= neededMana
+    return battleCtx.attackerCondition.currentMana >= neededMana
   }
 
   private fun hasAmmo(battleCtx: BattleContext): Boolean {
@@ -385,11 +386,12 @@ class BattleService(
   fun takeTrueDamage(defender: Entity, trueDamage: Damage): Entity {
     val damage = trueDamage.damage
 
-    defender.getComponent(StatusComponent::class.java)?.let { statusComp ->
-      statusComp.conditionValues.addHealth(-damage)
-      if (statusComp.conditionValues.currentHealth == 0) {
-        killEntity(defender)
-      }
+    val statusComp = defender.getComponent(StatusComponent::class.java)
+
+    statusComp.conditionValues.addHealth(-damage)
+
+    if (statusComp.conditionValues.currentHealth == 0) {
+      killEntity(defender)
     }
 
     return defender
@@ -447,8 +449,8 @@ class BattleService(
     return Pair(defender, damageTaken)
   }
 
-  fun killEntity(killed: Entity) {
-    LOG.debug{ "Entity ${killed.id} killed" }
+  fun killEntity(entity: Entity) {
+    LOG.debug { "Entity ${entity.id} killed" }
 
     // Entity will play death animation.
 
@@ -490,7 +492,6 @@ class BattleService(
     // TODO Take status modifications into account.
     return attack.range
   }
-
 
   /**
    * @return The [StatusValues] of a entity.

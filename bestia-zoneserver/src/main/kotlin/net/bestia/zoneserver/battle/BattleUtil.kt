@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.battle
 
+import kotlin.math.max
+import kotlin.math.min
+
 fun Float.clamp(min: Float, max: Float = Float.MAX_VALUE): Float {
-  return Math.max(min, Math.min(max, this))
+  return max(min, min(max, this))
 }

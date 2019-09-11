@@ -2,13 +2,14 @@ package net.bestia.zoneserver.battle
 
 import net.bestia.zoneserver.entity.component.StatusComponent
 
+// TODO TEST
 data class ConditionIncrements(
     var manaIncrement: Float = 0f,
     var healthIncrement: Float = 0f,
     var staminaIncrement: Float = 0f
 )
 
-class RegenerationService() {
+class RegenerationService {
 
   fun addIncrements(currentIncrements: ConditionIncrements, statusComponent: StatusComponent) {
     val healthIncrement = statusComponent.statusBasedValues.hpRegenRate * REGENERATION_TICK_RATE_MS / 1000
@@ -46,6 +47,6 @@ class RegenerationService() {
     /**
      * How often the regeneration should tick for each entity.
      */
-    const val REGENERATION_TICK_RATE_MS = 8000L
+    const val REGENERATION_TICK_RATE_MS = 4000L
   }
 }
