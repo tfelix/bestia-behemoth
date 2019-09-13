@@ -2,7 +2,6 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.battle.AttackType
-import net.bestia.model.battle.Damage
 import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.floor
@@ -69,24 +68,11 @@ class MagicDamageCalculator : DamageCalculator {
    * @return The attack value based solely on the status of the entity.
    */
   private fun getStatusAttack(battleCtx: BattleContext): Float {
-    val atk = battleCtx.usedAttack
     val lvMod = (battleCtx.attackerLevel / 4).toFloat()
     val sp = battleCtx.attackerStatusPoints
 
-    return when {
-      atk.isMagic -> {
-        LOG.trace("StatusAtk (magic)")
-        lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
-      }
-      atk.isRanged -> {
-        LOG.trace("StatusAtk (ranged physical)")
-        lvMod + sp!!.dexterity.toFloat() + (sp.strength / 5).toFloat()
-      }
-      else -> {
-        LOG.trace { "StatusAtk (melee physical)" }
-        lvMod + sp!!.strength.toFloat() + (sp.dexterity / 5).toFloat()
-      }
-    }
+    LOG.trace("StatusAtk (magic)")
+    return lvMod + sp.strength.toFloat() + (sp.dexterity / 5).toFloat()
   }
 
   private fun getSoftDefense(battleCtx: BattleContext): Float {

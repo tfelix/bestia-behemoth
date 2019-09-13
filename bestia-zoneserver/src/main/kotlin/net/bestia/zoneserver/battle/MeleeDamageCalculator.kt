@@ -39,6 +39,7 @@ class MeleeDamageCalculator : DamageCalculator {
     val softDef = getSoftDefense(battleCtx)
 
     val damage = floor(baseAtk * atkMod * hardDefMod * critMod - softDef).toInt()
+        .coerceAtLeast(0)
 
     LOG.trace { "Damage (melee): $damage." }
 
@@ -52,13 +53,13 @@ class MeleeDamageCalculator : DamageCalculator {
     val statusAtk = getStatusAttack(battleCtx)
     val varMod = if (battleCtx.damageVariables.isCriticalHit) 1f else calculateVarMod()
     val weaponAtk = battleCtx.weaponAtk
-    val varModReduced = varMod - varMod / 2 - 0.5f
+    val varModReduced = varMod - varMod / 2
     val bonusAtk = (if (usedAttack.isMagic) attackMagicBonus else attackPhysicalBonus).toInt()
     val elementMod = getElementMod(battleCtx)
 
     var baseAtk = 2f * statusAtk * varMod + weaponAtk * varModReduced + bonusAtk.toFloat()
     baseAtk *= elementMod
-    baseAtk = max(1f, baseAtk)
+    baseAtk = max(0f, baseAtk)
 
     LOG.trace { "BaseAtk: $baseAtk" }
 
@@ -73,7 +74,7 @@ class MeleeDamageCalculator : DamageCalculator {
     val lvMod = attackerLevel / 4f
     val sp = battleCtx.attackerStatusPoints
 
-    val statusAtk = lvMod + sp.strength.toFloat() + (sp.dexterity / 5).toFloat()
+    val statusAtk = lvMod + sp.strength + sp.dexterity / 5f
     LOG.trace { "StatusAtk (melee physical): $statusAtk" }
 
     return statusAtk
@@ -83,7 +84,7 @@ class MeleeDamageCalculator : DamageCalculator {
     val defStatus = battleCtx.defenderStatusPoints
     val defenderLevel = battleCtx.defender.tryGetComponent(LevelComponent::class.java)?.level ?: 1
 
-    val softDef = min(0f, defenderLevel / 2f + defStatus.vitality + defStatus.strength / 3f)
+    val softDef = max(0f, defenderLevel / 2f + defStatus.vitality + defStatus.strength / 3f)
 
     LOG.trace { "softDef: $softDef" }
 
@@ -97,10 +98,10 @@ class MeleeDamageCalculator : DamageCalculator {
     val defStatus = battleCtx.defenderStatusPoints
 
     val defMod = when (atk.type) {
-      AttackType.MELEE_MAGIC -> 1 - (defStatus.magicDefense / 100f + magicDefenseMod)
-      AttackType.MELEE_PHYSICAL -> 1 - (defStatus.physicalDefense / 100f + physicalDefenseMod)
+      AttackType.MELEE_MAGIC -> 1 - (defStatus.magicDefense / 100f) * magicDefenseMod
+      AttackType.MELEE_PHYSICAL -> 1 - (defStatus.physicalDefense / 100f) * physicalDefenseMod
       else -> 1f
-    }.clamp(0.05f, 1.0f)
+    }.coerceAtLeast(0.05f)
 
     LOG.trace { "defMod: $defMod" }
 
@@ -117,11 +118,11 @@ class MeleeDamageCalculator : DamageCalculator {
     val atkMod = when (atk.type) {
       AttackType.MELEE_MAGIC, AttackType.MELEE_PHYSICAL -> dmgVars.attackMagicMod * dmgVars.attackMeleeMod
       else -> 1.0f
-    }.clamp(0f)
+    }
 
     LOG.trace { "AttackMod: $atkMod" }
 
-    return min(0f, atkMod)
+    return max(0f, atkMod)
   }
 
   /**

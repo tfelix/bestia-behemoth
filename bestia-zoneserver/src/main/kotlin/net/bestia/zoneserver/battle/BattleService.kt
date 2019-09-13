@@ -9,6 +9,7 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.Damage
+import net.bestia.model.battle.Element
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
@@ -90,17 +91,21 @@ class BattleService(
       return null
     }
 
-    isCriticalHit(battleCtx)
+    val isCritical = isCriticalHit(battleCtx)
 
     if (!doesAttackHit(battleCtx)) {
       return listOf(Damage.miss)
     }
 
-    val primaryDamage = damageCalculator.calculateDamage(battleCtx)
-    LOG.trace("Primary damage calculated: {}", primaryDamage)
+    val damageValue = damageCalculator.calculateDamage(battleCtx)
+    LOG.trace("Primary damage calculated: {}", damageValue)
 
-    // Damage can now be reduced by effects.
-    val (defender, attacker, damage) = takeDamage(defender, primaryDamage, attacker)
+    val primaryDamage = when(isCritical) {
+      true -> Damage.getCrit(damageValue)
+      false -> Damage.getHit(damageValue)
+    }
+        // Damage can now be reduced by effects.
+        val (defender, attacker, damage) = takeDamage(defender, primaryDamage, attacker)
     LOG.trace("Entity {} received damage: {}", defender, primaryDamage)
 
     return listOf(damage)
@@ -129,6 +134,8 @@ class BattleService(
         defenderCondition = defCond,
         attackerStatusBased = atkStatusBased,
         defenderStatusBased = defStatusBased,
+        attackElement = Element.NORMAL, // FIXME
+        defenderElement = Element.NORMAL,
         weaponAtk = 1f // FIXME When Equipment is implemented use this to get meaningful value
     )
   }

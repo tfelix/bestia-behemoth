@@ -12,9 +12,9 @@ import net.bestia.model.battle.Element
  */
 data class DamageVariables(
     // Attack
-    var attackPhysicalBonus: Float = 0f,
     var attackMagicBonus: Float = 0f,
     var attackMagicMod: Float = 1f,
+    var attackPhysicalBonus: Float = 0f,
     var attackPhysicalMod: Float = 1f,
     var attackRangedMod: Float = 1f,
     var attackMeleeMod: Float = 1f,
