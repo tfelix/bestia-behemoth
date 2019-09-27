@@ -15,8 +15,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class MessageApi(
-        @Qualifier("router")
-        private val router: ActorRef
+    @Qualifier("router")
+    private val router: ActorRef
 ) {
 
   /**

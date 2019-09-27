@@ -1,9 +1,11 @@
 package net.bestia.zoneserver.environment.date
 
+import java.time.Clock
 import java.time.Instant
 
 class BestiaDate(
-    private val startTime: Instant
+    private val startTime: Instant,
+    private val clock: Clock? = null
 ) {
   /**
    * Returns the progress in percentage of the month. Starting at the first
@@ -17,19 +19,14 @@ class BestiaDate(
   val hourOfDay: Int
     get() = 0
 
-  /**
-   * Returns the current minute of the day in the bestia time format.
-   *
-   * @return Current minute of the bestia world day.
-   */
   val minutesOfHour: Int
     get() = (((minutesSinceStart() % MINUTES_OF_YEAR) % MINUTES_OF_DAY) % HOUR_MINUTES).toInt()
 
   val dayOfMonth: Int
-    get() = (minutesSinceStart() % MINUTES_OF_YEAR / MINUTES_OF_MONTH).toInt()
+    get() = ((minutesSinceStart() % MINUTES_OF_YEAR) / MINUTES_OF_MONTH).toInt()
 
   val monthOfYear: Int
-    get() = (minutesSinceStart() % MINUTES_OF_YEAR / MINUTES_OF_MONTH).toInt()
+    get() = ((minutesSinceStart() % MINUTES_OF_YEAR) / MINUTES_OF_MONTH).toInt()
 
   val year: Int
     get() = (minutesSinceStart() / MINUTES_OF_YEAR).toInt()
@@ -48,7 +45,8 @@ class BestiaDate(
   private fun daysSinceStart(): Long  = minutesSinceStart() / MINUTES_OF_DAY
 
   private fun minutesSinceStart(): Long {
-    return startTime.epochSecond - Instant.now().epochSecond
+    val now = clock?.let { Instant.now(it) } ?: Instant.now()
+    return (now.epochSecond - startTime.epochSecond) / 60
   }
 
   override fun toString(): String {
