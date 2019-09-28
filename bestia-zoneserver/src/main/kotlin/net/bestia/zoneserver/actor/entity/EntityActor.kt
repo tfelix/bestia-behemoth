@@ -91,7 +91,7 @@ class EntityActor(
       @Suppress("UNCHECKED_CAST")
       val entity = Entity.withComponents(
           entityId,
-          it.getAllResponses() as List<BestiaComponent>
+          it.getAllResponses()
       )
       val entityResponse = EntityResponse(
           entity,

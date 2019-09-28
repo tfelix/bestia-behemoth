@@ -13,6 +13,10 @@ class RuntimeConfigService(
 ) {
   private var runtimeConfig: RuntimeConfig = RuntimeConfig()
 
+  fun getRuntimeConfig(): RuntimeConfig {
+    return runtimeConfig
+  }
+
   fun setConfigWithoutClusterUpdate(runtimeConfig: RuntimeConfig) {
     LOG.trace { "Runtime config set to: $runtimeConfig" }
     this.runtimeConfig = runtimeConfig

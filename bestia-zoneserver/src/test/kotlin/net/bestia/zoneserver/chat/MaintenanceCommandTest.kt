@@ -5,7 +5,6 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.account.LogoutService
 import net.bestia.zoneserver.config.RuntimeConfigService
@@ -58,21 +57,21 @@ class MaintenanceCommandTest {
     cmd.executeCommand(acc, "/maintenance bla")
 
     verify(akkaApi).send(any())
-    verify(config, times(0)).maintenanceMode = any()
+    verify(config, times(0)).setConfigWithClusterUpdate(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())
   }
 
   @Test
   fun executeCommand_true_switchesServerModeLogoutUsers() {
     cmd.executeCommand(acc, "/maintenance true")
-    verify(config).maintenanceMode = MaintenanceLevel.PARTIAL
+    verify(config).setConfigWithClusterUpdate(any())
     verify(logoutService).logoutAllUsersBelow(AccountType.SUPER_GM)
   }
 
   @Test
   fun executeCommand_false_switchesServerModeLogoutUsers() {
     cmd.executeCommand(acc, "/maintenance false")
-    verify(config).maintenanceMode = MaintenanceLevel.NONE
+    verify(config).setConfigWithClusterUpdate(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())
   }
 }

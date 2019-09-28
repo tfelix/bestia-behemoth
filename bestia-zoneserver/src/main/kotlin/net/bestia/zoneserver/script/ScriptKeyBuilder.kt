@@ -1,7 +1,11 @@
 package net.bestia.zoneserver.script
 
-class ScriptKeyBuilder() {
+object ScriptKeyBuilder {
+
+  private val fileEndingPattern = """\.[^.]+$""".toRegex()
+
   fun getScriptKey(type: ScriptType, scriptName: String): String {
-    return "${type.name.toLowerCase()}_$scriptName"
+    val cleanedName = scriptName.replace(fileEndingPattern, "")
+    return "${type.name.toLowerCase()}_$cleanedName"
   }
 }

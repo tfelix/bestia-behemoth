@@ -1,8 +1,9 @@
 package net.bestia.zoneserver.script
 
+import org.springframework.core.io.Resource
 import java.io.File
 import javax.script.CompiledScript
 
 interface ScriptCompiler {
-  fun compile(file: File): CompiledScript
+  fun compile(fileResource: Resource): CompiledScript
 }

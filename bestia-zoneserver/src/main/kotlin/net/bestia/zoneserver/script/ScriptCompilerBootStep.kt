@@ -18,7 +18,7 @@ class ScriptCompilerBootStep(
   override fun execute() {
     var i = 0
     fileProvider.forEach { scriptFile ->
-      val compiled = scriptCompiler.compile(scriptFile.file)
+      val compiled = scriptCompiler.compile(scriptFile.resource)
       scriptCache.addScript(scriptFile.key, compiled)
       i++
     }

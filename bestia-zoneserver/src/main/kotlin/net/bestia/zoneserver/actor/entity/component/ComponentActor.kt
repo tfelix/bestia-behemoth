@@ -28,7 +28,10 @@ abstract class ComponentActor<T : Component>(
       val entityResponse = response.getResponse(EntityResponse::class)
       callback(entityResponse.entity)
     }
-    val props = AwaitResponseActor.props(hasReceived, transformResponse)
+    val props = AwaitResponseActor.props(
+        checkResponseReceived = hasReceived,
+        action = transformResponse
+    )
     val requestActor = context.actorOf(props)
     val requestMsg = EntityRequest(requestActor)
     context.parent.tell(requestMsg, requestActor)

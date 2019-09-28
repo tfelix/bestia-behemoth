@@ -10,16 +10,15 @@ import kotlin.reflect.KClass
 private val LOG = KotlinLogging.logger { }
 
 data class Responses(
-    private val receivedResponses: List<Any>
+    val receivedResponses: List<Any>
 ) {
   fun <T : Any> getResponse(responseClass: KClass<T>): T {
     @Suppress("UNCHECKED_CAST")
     return receivedResponses.first { it::class == responseClass } as T
   }
 
-  fun <T : Any> getAllResponses(responseClass: KClass<T>): List<T> {
-    @Suppress("UNCHECKED_CAST")
-    return receivedResponses.asSequence().filterIsInstance(responseClass.java).toList()
+  inline fun <reified T : Any> getAllResponses(): List<T> {
+    return receivedResponses.asSequence().filterIsInstance(T::class.java).toList()
   }
 }
 
@@ -37,7 +36,7 @@ class AwaitResponseActor(
   private val receivedResponses = mutableListOf<Any>()
 
   init {
-    context.setReceiveTimeout(timeout)
+    context.receiveTimeout = timeout
   }
 
   override fun createReceive(): Receive {
@@ -72,8 +71,8 @@ class AwaitResponseActor(
   companion object {
     fun props(
         awaitedResponseTypes: List<KClass<*>>,
-        action: (Responses) -> Any,
-        timeout: Duration = Duration.ofMillis(500)
+        timeout: Duration = Duration.ofMillis(500),
+        action: (Responses) -> Any
     ): Props {
       val checkResponseReceived: (List<Any>) -> Boolean = { receivedData ->
         val receivedClasses = receivedData.map { it::class }
@@ -89,7 +88,7 @@ class AwaitResponseActor(
     fun props(
         checkResponseReceived: ((List<Any>) -> Boolean),
         timeout: Duration = Duration.ofMillis(500),
-        action: (Responses) -> Unit
+        action: (Responses) -> Any
     ): Props {
       return Props.create(AwaitResponseActor::class.java) {
         AwaitResponseActor(action, checkResponseReceived, timeout)

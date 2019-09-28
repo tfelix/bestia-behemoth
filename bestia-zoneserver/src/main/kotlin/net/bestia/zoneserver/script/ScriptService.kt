@@ -1,45 +1,12 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
-import net.bestia.model.geometry.Vec3
-import net.bestia.model.item.PlayerItem
-import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.script.api.ScriptRootApi
-import net.bestia.zoneserver.script.env.ScriptEnv
+import net.bestia.zoneserver.script.exec.ScriptExec
 import org.springframework.stereotype.Service
 import javax.script.*
 
 private val LOG = KotlinLogging.logger { }
-
-interface ScriptExec {
-  val scriptKey: String
-  fun setupEnvironment(bindings: MutableMap<String, Any?>)
-}
-
-data class ItemScriptExec private constructor(
-    override val scriptKey: String,
-    val userId: Long,
-    val targetId: Long?,
-    val targetPosition: Vec3? = null
-) : ScriptExec {
-
-  override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
-    bindings["SELF"] = userId
-    bindings["TARGET_ENTITY"] = targetId
-    bindings["TARGET_POSITION"] = targetPosition
-  }
-
-  class Builder() {
-    var item: PlayerItem? = null
-    var user: Entity? = null
-    var targetEntity: Entity? = null
-    var targetPoint: Vec3? = null
-
-    fun build(): ItemScriptExec {
-
-    }
-  }
-}
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -59,27 +26,31 @@ class ScriptService(
 
   fun execute(scriptExec: ScriptExec) {
     LOG.trace { "Call Script: $scriptExec" }
-    val bindings = setupEnvironment(env)
-
+    val bindings = setupEnvironment(scriptExec)
     try {
       val script = scriptCache.getScript(scriptExec.scriptKey)
-      script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
-
       // Check if function invoke is needed or just call the script.
-
-      (script.engine as Invocable).invokeFunction(fnName)
+      val fnName = scriptExec.callbackFunction
+      if (fnName != null) {
+        scriptExec.callbackFunction?.let { fnName ->
+          script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+          (script.engine as Invocable).invokeFunction(fnName)
+        }
+      } else {
+        script.eval(bindings)
+      }
     } catch (e: NoSuchMethodException) {
-      LOG.error(e) { "Function $fnName is missing in script $scriptName" }
+      LOG.error(e) { "Function ${scriptExec.callbackFunction} is missing in script ${scriptExec.scriptKey}" }
     } catch (e: ScriptException) {
       LOG.error(e) { "Error during script execution." }
     }
   }
 
-  private fun setupEnvironment(env: ScriptEnv): Bindings {
+  private fun setupEnvironment(env: ScriptExec): Bindings {
     val bindings = SimpleBindings()
     env.setupEnvironment(bindings)
 
-    bindings["BESTIA"] = scriptRootApi
+    bindings["Bestia"] = scriptRootApi
 
     return bindings
   }

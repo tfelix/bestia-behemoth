@@ -51,7 +51,7 @@ class PeriodicScriptActor(
   private fun onTick() {
     awaitEntityResponse(messageApi, context, entityId) {
       try {
-        scriptService.callScriptIntervalCallback(it, scriptUuid)
+        // scriptService.callScriptIntervalCallback(it, scriptUuid)
       } catch (e: Exception) {
         LOG.warn("Error during script interval execution. Stopping callback interval.", e)
         context().stop(self)

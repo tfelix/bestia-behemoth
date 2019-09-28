@@ -44,9 +44,10 @@ class ScriptRootApi(
   fun spawnMob(
       mobName: String,
       x: Long,
-      y: Long
+      y: Long,
+      z: Long
   ): EntityApi {
-    val position = Vec3(x, y)
+    val position = Vec3(x, y, z)
     LOG.debug { "spawnMob: $mobName pos: $position" }
     val entity = mobFactory.build(mobName, position)
 

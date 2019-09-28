@@ -41,14 +41,14 @@ fun awaitEntityResponse(
     entitiyIds: Set<Long>,
     callback: (EntitiesResponse) -> Unit
 ) {
-  val hasReceivedAll: (List<Any>) -> Boolean = { responses: List<Any> ->
+  val hasReceivedAll = { responses: List<Any> ->
     responses.toSet() == entitiyIds
   }
   val transformResponse = { response: Responses ->
-    val mappedEntities = response.getAllResponses(Entity::class).map { it.id to it }.toMap()
+    val mappedEntities = response.getAllResponses<Entity>().map { it.id to it }.toMap()
     callback(EntitiesResponse(mappedEntities))
   }
-  val props = AwaitResponseActor.props(hasReceivedAll, transformResponse)
+  val props = AwaitResponseActor.props(checkResponseReceived = hasReceivedAll, action = transformResponse)
   val requestActor = ctx.actorOf(props)
   val requestMsg = EntityRequest(requestActor)
   entitiyIds.forEach { messageApi.send(EntityEnvelope(it, requestMsg)) }

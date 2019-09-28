@@ -24,7 +24,7 @@ data class EntityContext(
       )
     }
 
-    condition?.let { it.commitEntityUpdates(messageApi) }
-    script?.let { it.commitEntityUpdates(messageApi) }
+    condition?.commitEntityUpdates(messageApi)
+    script?.commitEntityUpdates(messageApi)
   }
 }
