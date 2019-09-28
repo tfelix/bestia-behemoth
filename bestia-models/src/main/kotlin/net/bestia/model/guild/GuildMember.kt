@@ -28,11 +28,8 @@ data class GuildMember(
     @JoinColumn(name = "RANK_ID", nullable = true)
     val rank: GuildRank
 ) : AbstractEntity() {
-  /**
-   * @param expEarned
-   * The expEarned to set
-   */
   var expEarned: Int = 0
+    private set
 
   /**
    * @param expEarned Adds the amount to the earned exp.

@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat
 import mu.KotlinLogging
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.factory.MobFactory
@@ -40,9 +40,10 @@ internal class SpawnMobModule(
     val mobName = matcher.group(1)
     val x = java.lang.Long.parseLong(matcher.group(2))
     val y = java.lang.Long.parseLong(matcher.group(3))
+    val z = java.lang.Long.parseLong(matcher.group(4))
     LOG.info { "Command: /spawn mob $mobName $x $y triggered by account ${account.id}" }
 
-    val entity = mobFactory.build(mobName, Point(x, y))
+    val entity = mobFactory.build(mobName, Vec3(x, y, z))
     messageApi.send(EntityEnvelope(entity.id, entity))
   }
 

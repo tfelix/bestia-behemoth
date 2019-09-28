@@ -4,7 +4,6 @@ data class ScriptAnchor(
     val name: String,
     val functionName: String
 ) {
-
   /**
    * Creates a specialized string for safe the anchor.
    */
@@ -12,7 +11,6 @@ data class ScriptAnchor(
     get() = String.format("%s:%s", name, functionName)
 
   companion object {
-
     private const val MAIN_FUNC = "main"
 
     /**

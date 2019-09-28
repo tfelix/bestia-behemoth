@@ -3,16 +3,16 @@ package net.bestia.zoneserver.actor.client
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
+import net.bestia.model.geometry.Rect
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PlayerComponent
-import net.bestia.zoneserver.map.MapService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -33,7 +33,7 @@ internal data class SendInRange(
 class SendClientsInRangeActor(
     private val entityCollisionService: EntityCollisionService,
     private val messageApi: MessageApi
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(SendInRange::class.java, this::handleSendToActiveInRange)
@@ -55,10 +55,11 @@ class SendClientsInRangeActor(
           return
         }
 
-    val updateRect = MapService.getUpdateRect(posComp.position)
+    // FIXME Get the proper rect
+    val updateRect = Rect(0, 0, 0, 10, 10, 10)// MapService.getUpdateRect(posComp.position)
     val activeIds = entityCollisionService.getAllCollidingEntityIds(updateRect)
 
-    awaitEntityResponse(messageApi, context, activeIds) {entities ->
+    awaitEntityResponse(messageApi, context, activeIds) { entities ->
       val playerAccountIds = entities.all
           .mapNotNull { it.tryGetComponent(PlayerComponent::class.java)?.ownerAccountId }
       playerAccountIds.forEach {

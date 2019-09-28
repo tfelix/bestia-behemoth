@@ -250,9 +250,9 @@ CREATE TABLE `guilds` (
   `leader_id` int(11) NOT NULL,
   `experience` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_jdl3u9rp7vaqkdowxq64ddhso` (`name`),
-  UNIQUE KEY `UK_k8oes0600ofjbc52on8eoo0et` (`leader_id`),
-  CONSTRAINT `FKb59a6y95glk77fwskwfun4nak` FOREIGN KEY (`leader_id`) REFERENCES `guild_member` (`id`)
+  UNIQUE KEY `guilds_name` (`name`),
+  UNIQUE KEY `guilds_leader_id` (`leader_id`),
+  CONSTRAINT `fk_guilds_member_leader_id` FOREIGN KEY (`leader_id`) REFERENCES `guild_member` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

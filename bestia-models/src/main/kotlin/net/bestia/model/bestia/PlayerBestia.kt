@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
 import net.bestia.model.party.Party
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import java.io.Serializable
 import javax.persistence.*
 
@@ -49,13 +49,13 @@ data class PlayerBestia(
   )
   @Embedded
   @JsonProperty("sl")
-  var savePosition = Point(0, 0)
+  var savePosition = Vec3(0, 0, 0)
 
   @Embedded
   var conditionValues: ConditionValues = ConditionValues()
 
   @Embedded
-  var currentPosition = Point(0, 0)
+  var currentPosition = Vec3(0, 0, 0)
 
   var level: Int = 1
 

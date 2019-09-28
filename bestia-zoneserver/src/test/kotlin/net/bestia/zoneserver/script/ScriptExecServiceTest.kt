@@ -3,7 +3,7 @@ package net.bestia.zoneserver.script
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
@@ -53,7 +53,7 @@ class ScriptExecServiceTest {
         "main"
     )
 
-    verify(mobFactory).build("blob", Point(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
+    verify(mobFactory).build("blob", Vec3(TEST_ARGUMENT_INT, TEST_ARGUMENT_INT))
   }
 
   companion object {

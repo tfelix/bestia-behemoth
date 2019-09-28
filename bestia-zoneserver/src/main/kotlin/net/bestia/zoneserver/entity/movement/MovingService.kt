@@ -2,8 +2,7 @@ package net.bestia.zoneserver.entity.movement
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.model.bestia.Direction
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
@@ -34,7 +33,7 @@ class MovingService {
    * @return The delay in ms for the next movement tick, or -1 if an error has
    * occurred.
    */
-  fun getMoveDelayMs(entity: Entity, newPos: Point): Long {
+  fun getMoveDelayMs(entity: Entity, newPos: Vec3): Long {
     val walkspeed = entity.tryGetComponent(StatusComponent::class.java)?.statusBasedValues?.walkspeed
         ?: return -1
     val posComp = entity.tryGetComponent(PositionComponent::class.java)
@@ -61,51 +60,15 @@ class MovingService {
    * @param newPos   The new position.
    * @return Updated position component
    */
-  fun moveToPosition(entity: Entity, newPos: Point): PositionComponent {
+  fun moveToPosition(entity: Entity, newPos: Vec3): PositionComponent {
     val positionComp = entity.getComponent(PositionComponent::class.java)
     val oldPos = positionComp.position
     LOG.trace { "Moving entity $entity to pos: $newPos." }
 
     return positionComp.copy(
         shape = positionComp.shape.moveTo(newPos),
-        facing = getDirection(oldPos, newPos, positionComp.facing)
+        facing = Vec3(1, 0, 0)
     )
-  }
-
-  /**
-   * Calculates the direction of the entity which it is now facing. Usually an
-   * entity faces the direction it moves. If old and new position are the
-   * same, then the lastDirection is returned.
-   *
-   * @param oldPos The old position.
-   * @param newPos The new position.
-   * @return The direction the unit now faces.
-   */
-  private fun getDirection(oldPos: Point, newPos: Point, lastDirection: Direction): Direction {
-    if (oldPos == newPos) {
-      return lastDirection
-    }
-
-    val y = newPos.y - oldPos.y
-    val x = newPos.x - oldPos.x
-
-    return if (x == 0L && y > 0) {
-      Direction.SOUTH
-    } else if (x > 0 && y > 0) {
-      Direction.SOUTH_EAST
-    } else if (x > 0 && y == 0L) {
-      Direction.EAST
-    } else if (x > 0 && y < 0) {
-      Direction.NORTH_EAST
-    } else if (x == 0L && y < 0) {
-      Direction.NORTH
-    } else if (x < 0 && y < 0) {
-      Direction.NORTH_WEST
-    } else if (x < 0 && y == 0L) {
-      Direction.WEST
-    } else {
-      Direction.SOUTH_WEST
-    }
   }
 
   companion object {

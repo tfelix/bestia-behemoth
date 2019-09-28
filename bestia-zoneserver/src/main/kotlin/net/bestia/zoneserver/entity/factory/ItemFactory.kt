@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
 import net.bestia.model.findOne
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.battle.StatusServiceFactory
 import net.bestia.zoneserver.entity.Entity
@@ -23,7 +23,7 @@ class ItemFactory(
     private val statusServiceFactory: StatusServiceFactory
 ) {
 
-  fun build(itemDbName: String, position: Point, amount: Int = 1): Entity {
+  fun build(itemDbName: String, position: Vec3, amount: Int = 1): Entity {
     val item = itemDao.findItemByName(itemDbName)
         ?: itemDao.findOne(itemDbName.toLongOrNull() ?: 0)
         ?: throw IllegalArgumentException("Item in blueprint $itemDbName was not found in database.")
@@ -38,7 +38,7 @@ class ItemFactory(
     )
     val visualComp = VisualComponent(
         entityId = entityId,
-        visual = SpriteInfo.item(item.image)
+        mesh = item.mesh
     )
     val tagComp = TagComponent(
         entityId = entityId,

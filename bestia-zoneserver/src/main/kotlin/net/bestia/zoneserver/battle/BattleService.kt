@@ -13,10 +13,9 @@ import net.bestia.model.battle.Element
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.model.geometry.Rect
 import net.bestia.zoneserver.entity.EntityCollisionService
-import net.bestia.zoneserver.map.MapService
 import org.springframework.stereotype.Service
 import java.util.concurrent.ThreadLocalRandom
 
@@ -30,7 +29,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class BattleService(
-    private val mapService: MapService,
     private val entityCollisionService: EntityCollisionService,
     private val damageCalculator: DamageCalculator
 ) {
@@ -51,7 +49,7 @@ class BattleService(
    *
    * @param target Point to attack.
    */
-  fun attackGround(attack: Attack, attacker: Entity, target: Point) {
+  fun attackGround(attack: Attack, attacker: Entity, target: Vec3) {
     // FIXME Reparieren.
     throw IllegalStateException("Not yet implemented.")
   }
@@ -100,12 +98,12 @@ class BattleService(
     val damageValue = damageCalculator.calculateDamage(battleCtx)
     LOG.trace("Primary damage calculated: {}", damageValue)
 
-    val primaryDamage = when(isCritical) {
+    val primaryDamage = when (isCritical) {
       true -> Damage.getCrit(damageValue)
       false -> Damage.getHit(damageValue)
     }
-        // Damage can now be reduced by effects.
-        val (defender, attacker, damage) = takeDamage(defender, primaryDamage, attacker)
+    // Damage can now be reduced by effects.
+    val (defender, attacker, damage) = takeDamage(defender, primaryDamage, attacker)
     LOG.trace("Entity {} received damage: {}", defender, primaryDamage)
 
     return listOf(damage)
@@ -263,20 +261,21 @@ class BattleService(
     val start = attacker.getComponent(PositionComponent::class.java).position
     val end = defender.getComponent(PositionComponent::class.java).position
 
-    val x1: Long
-    val x2: Long
-    val y1: Long
-    val y2: Long
-    x1 = Math.min(start.x, end.x)
-    x2 = Math.max(start.x, end.x)
-    y1 = Math.min(start.y, end.y)
-    y2 = Math.max(start.y, end.y)
+    val x1 = Math.min(start.x, end.x)
+    val x2 = Math.max(start.x, end.x)
+    val y1 = Math.min(start.y, end.y)
+    val y2 = Math.max(start.y, end.y)
+    val z1 = Math.min(start.z, end.z)
+    val z2 = Math.max(start.z, end.z)
 
     val width = x2 - x1
-    val height = y2 - y1
+    val depth = y2 - y1
+    val height = z2 - z1
 
-    val bbox = Rect(x1, y1, width, height)
+    val bbox = Rect(x1, y1, z1, width, depth, height)
 
+    return true
+    /*
     val map = mapService.getMap(bbox)
 
     val lineOfSight = lineOfSight(start, end)
@@ -285,7 +284,7 @@ class BattleService(
 
     val hasLos = !doesMapBlock && !doesEntityBlock
     LOG.trace("Entity has line of sight: {}", hasLos)
-    return hasLos
+    return hasLos*/
   }
 
   /**
@@ -465,33 +464,6 @@ class BattleService(
   }
 
   /**
-   * Calculates a list of points which lie under the given line of sight. This
-   * uses Bresenham line algorithm.
-   *
-   * @param start Starting point.
-   * @param end   End point.
-   * @return A list of points which are under the
-   */
-  private fun lineOfSight(start: Point, end: Point): List<Point> {
-    val result = mutableListOf<Point>()
-    val dx = end.x - start.x
-    val dy = end.y - start.y
-    var D = 2 * dy - dx
-    var y = start.y
-
-    for (x in start.x..end.x) {
-      result.add(Point(x, y))
-      if (D > 0) {
-        y += 1
-        D -= 2 * dx
-      }
-      D += 2 * dy
-    }
-
-    return result
-  }
-
-  /**
    * Calculates the effective range of the attack. A skill range can be
    * altered by an equipment or a buff for example.
    */
@@ -528,7 +500,7 @@ class BattleService(
     return e.getComponent(LevelComponent::class.java).level
   }
 
-  private fun getPosition(e: Entity): Point {
+  private fun getPosition(e: Entity): Vec3 {
     return e.getComponent(PositionComponent::class.java).position
   }
 }

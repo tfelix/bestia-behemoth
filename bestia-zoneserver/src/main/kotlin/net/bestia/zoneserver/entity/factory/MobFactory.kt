@@ -4,8 +4,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository
-import net.bestia.model.bestia.randomDirection
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.battle.MobStatusService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.MetaDataComponent
@@ -28,7 +27,7 @@ class MobFactory(
     private val idGenerator: IdGenerator
 ) {
 
-  fun build(mobDbName: String, pos: Point): Entity {
+  fun build(mobDbName: String, pos: Vec3): Entity {
     val bestia = bestiaDao.findByDatabaseName(mobDbName)
         ?: run {
           LOG.warn { "Could not find bestia in database for blueprint $mobDbName" }
@@ -45,13 +44,13 @@ class MobFactory(
     val posComp = PositionComponent(
         entityId = entity.id,
         shape = pos,
-        facing = randomDirection(),
+        facing = Vec3(0, 1, 0),
         isSightBlocking = true
     )
     entity.addComponent(posComp)
     val visualComp = VisualComponent(
         entityId = entity.id,
-        visual = SpriteInfo.mob(bestia.sprite)
+        mesh = bestia.mesh
     )
     entity.addComponent(visualComp)
     val levelComp = LevelComponent(

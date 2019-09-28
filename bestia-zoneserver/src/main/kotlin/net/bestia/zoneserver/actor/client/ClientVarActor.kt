@@ -4,7 +4,7 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequestMessage
 import net.bestia.messages.ui.ClientVarResponseMessage
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.Actor
 
@@ -17,7 +17,7 @@ import net.bestia.zoneserver.actor.Actor
 @Actor
 class ClientVarActor(
     private val cvarService: ClientVarService
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

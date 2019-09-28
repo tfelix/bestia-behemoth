@@ -27,7 +27,7 @@ class PlayerItemTest {
 
   private val item = Item(
       itemDbName = "apple",
-      image = "apple.png",
+      mesh = "apple.png",
       level = 1,
       price = 1,
       type = ItemType.USABLE,

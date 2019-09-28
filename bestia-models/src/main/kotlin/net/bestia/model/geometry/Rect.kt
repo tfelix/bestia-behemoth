@@ -12,13 +12,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 data class Rect(
     @JsonProperty("o")
-    val origin: Point,
+    val origin: Vec3,
 
     @JsonProperty("s")
     private val size: Size,
 
     @JsonProperty("a")
-    override val anchor: Point
+    override val anchor: Vec3
 ) : Shape, Serializable {
 
   init {
@@ -29,25 +29,30 @@ data class Rect(
   constructor(
       x: Long,
       y: Long,
+      z: Long,
       width: Long,
-      height: Long
+      height: Long,
+      depth: Long
   ) : this(
-      Point(x, y),
+      Vec3(x, y, z),
       Size(width, height),
-      Point(x + width / 2, y + height / 2)
+      Vec3(x + width / 2, y + height / 2, depth / 2)
   )
 
   constructor(
       x: Long,
       y: Long,
+      z: Long,
       width: Long,
       height: Long,
+      depth: Long,
       anchorX: Long,
-      anchorY: Long
+      anchorY: Long,
+      anchorZ: Long
   ) : this(
-      Point(x, y),
-      Size(width, height),
-      Point(anchorX, anchorY)
+      Vec3(x, y, z),
+      Size(width, height, depth),
+      Vec3(anchorX, anchorY, anchorZ)
   )
 
   /**
@@ -59,7 +64,7 @@ data class Rect(
    * @param height
    * Height
    */
-  constructor (width: Long, height: Long) : this(0, 0, width, height)
+  constructor (width: Long, height: Long, depth: Long) : this(0, 0, 0, width, height, depth)
 
   /**
    * Returns the width.
@@ -77,6 +82,9 @@ data class Rect(
   val height: Long
     get() = size.height
 
+  val depth: Long
+    get() = size.depth
+
   /**
    * Returns the x value. Offset of the box from origin.
    *
@@ -92,6 +100,9 @@ data class Rect(
    */
   val y: Long
     get() = origin.y
+
+  val z: Long
+    get() = origin.z
 
   override val boundingBox: Rect
     get() = this
@@ -111,12 +122,8 @@ data class Rect(
   }
 
   private fun checkNotNegative(width: Long, height: Long) {
-    if (width < 0) {
-      throw IllegalArgumentException("Width can not be null.")
-    }
-    if (height < 0) {
-      throw IllegalArgumentException("Height can not be null.")
-    }
+    require(width >= 0) { "Width can not be null." }
+    require(height >= 0) { "Height can not be null." }
   }
 
   /**
@@ -126,11 +133,11 @@ data class Rect(
    * Coordinates to check against this rectangle.
    * @return TRUE if it lies within, FALSE otherwise.
    */
-  override fun collide(s: Point): Boolean {
+  override fun collide(s: Vec3): Boolean {
     return CollisionHelper.collide(s, this)
   }
 
-  override fun collide(s: Circle): Boolean {
+  override fun collide(s: Sphere): Boolean {
     return CollisionHelper.collide(s, this)
   }
 
@@ -142,10 +149,11 @@ data class Rect(
     return s.collide(this)
   }
 
-  override fun moveTo(x: Long, y: Long): Rect {
+  override fun moveTo(x: Long, y: Long, z: Long): Rect {
     val cX = x + x - anchor.x
     val cY = y + y - anchor.y
+    val cZ = z + z - anchor.z
 
-    return Rect(Point(cX, cY), Size(width, height), Point(x, y))
+    return Rect(Vec3(cX, cY, cZ), Size(width, height), Vec3(x, y, z))
   }
 }

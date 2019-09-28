@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.actor.AbstractActor
 import akka.actor.AbstractActorWithTimers
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
@@ -42,7 +41,7 @@ abstract class ComponentActor<T : Component>(
       field = value
     }
 
-  final override fun createReceive(): AbstractActor.Receive {
+  final override fun createReceive(): Receive {
     val builder = receiveBuilder()
     createReceive(builder)
 
@@ -76,7 +75,7 @@ abstract class ComponentActor<T : Component>(
    */
   protected open fun onSave() {}
 
-  protected fun announceComponentChange() { }
+  protected fun announceComponentChange() {}
 
-  protected open fun createReceive(builder: ReceiveBuilder) { }
+  protected open fun createReceive(builder: ReceiveBuilder) {}
 }

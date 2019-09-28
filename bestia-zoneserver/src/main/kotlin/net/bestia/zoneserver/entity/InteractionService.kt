@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import net.bestia.zoneserver.entity.component.TagComponent
-import net.bestia.model.entity.InteractionType
+import net.bestia.model.entity.Interactions
 import org.springframework.stereotype.Service
 
 import java.util.*
@@ -33,24 +33,24 @@ class InteractionService {
    *
    * @return A set of possible interactions.
    */
-  fun getPossibleInteractions(source: Entity, target: Entity): Set<InteractionType> {
+  fun getPossibleInteractions(source: Entity, target: Entity): Set<Interactions> {
     // We cant interact with untagged entity.
     val tagComp = target.tryGetComponent(TagComponent::class.java) ?: return emptySet()
 
-    val interactTypes = HashSet<InteractionType>()
+    val interactTypes = HashSet<Interactions>()
 
     // Check if the target is an item.
     if (tagComp.has(TagComponent.ITEM)) {
-      interactTypes.add(InteractionType.PICKABLE)
-      interactTypes.add(InteractionType.ATTACKABLE)
+      interactTypes.add(Interactions.PICKUP)
+      interactTypes.add(Interactions.ATTACK)
     }
 
     if (tagComp.has(TagComponent.MOB)) {
-      interactTypes.add(InteractionType.ATTACKABLE)
+      interactTypes.add(Interactions.ATTACK)
     }
 
     if (tagComp.has(TagComponent.NPC)) {
-      interactTypes.add(InteractionType.INTERACT)
+      interactTypes.add(Interactions.INTERACT)
     }
 
     // FIXME The distance between the interaction requester and the entity should also be considered. Via script?

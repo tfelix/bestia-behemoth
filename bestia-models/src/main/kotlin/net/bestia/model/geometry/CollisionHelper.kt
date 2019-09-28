@@ -11,7 +11,7 @@ package net.bestia.model.geometry
 internal object CollisionHelper {
 
   /**
-   * Checks if a [Point] and a [Rect] collide.
+   * Checks if a [Vec3] and a [Rect] collide.
    *
    * @param s
    * Vector.
@@ -19,7 +19,7 @@ internal object CollisionHelper {
    * Rect.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(s: Point, r: Rect): Boolean {
+  fun collide(s: Vec3, r: Rect): Boolean {
 
     val xLeft = s.x < r.x
     val yTop = s.y < r.y
@@ -30,7 +30,7 @@ internal object CollisionHelper {
   }
 
   /**
-   * Checks if a [Circle] and a [Rect] collide.
+   * Checks if a [Sphere] and a [Rect] collide.
    *
    * @param s
    * Circle.
@@ -38,7 +38,7 @@ internal object CollisionHelper {
    * Rect.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(s: Circle, r: Rect): Boolean {
+  fun collide(s: Sphere, r: Rect): Boolean {
 
     val cc = s.center
 
@@ -89,7 +89,7 @@ internal object CollisionHelper {
   }
 
   /**
-   * Checks if a [Circle] and a [Point] collide.
+   * Checks if a [Sphere] and a [Vec3] collide.
    *
    * @param c
    * Circle.
@@ -97,7 +97,7 @@ internal object CollisionHelper {
    * Vector.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(c: Circle, v: Point): Boolean {
+  fun collide(c: Sphere, v: Vec3): Boolean {
     val distance = Math.abs(c.center.x - v.x) + Math.abs(c.center.y - v.y)
     return distance <= c.radius
   }
@@ -121,7 +121,7 @@ internal object CollisionHelper {
   }
 
   /**
-   * Checks if two [Circle] collide.
+   * Checks if two [Sphere] collide.
    *
    * @param s
    * First circle.
@@ -129,13 +129,13 @@ internal object CollisionHelper {
    * Second circle.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(s: Circle, s2: Circle): Boolean {
+  fun collide(s: Sphere, s2: Sphere): Boolean {
     val distance = s.center.getDistance(s2.center)
     return distance < s.radius + s2.radius
   }
 
   /**
-   * Checks if two [Point] collide.
+   * Checks if two [Vec3] collide.
    *
    * @param s
    * First vector.
@@ -143,7 +143,7 @@ internal object CollisionHelper {
    * Second vector.
    * @return TRUE if they collide. False otherwise.
    */
-  fun collide(s: Point, s2: Point): Boolean {
+  fun collide(s: Vec3, s2: Vec3): Boolean {
     return s == s2
   }
 }

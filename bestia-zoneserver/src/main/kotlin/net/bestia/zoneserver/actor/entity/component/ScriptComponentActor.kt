@@ -15,14 +15,6 @@ import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
-data class ScriptTriggerAreaLeft(
-    val entityId: Long
-)
-
-data class ScriptTriggerAreaEntered(
-    val entityId: Long
-)
-
 data class ScriptLifetime(
     val lifetimeMs: Long
 )
@@ -42,8 +34,6 @@ class ScriptComponentActor(
   override fun createReceive(builder: ReceiveBuilder) {
     builder
         .match(Terminated::class.java, this::handlePeriodicActorTerminated)
-        .match(ScriptTriggerAreaLeft::class.java, this::onAreaLeave)
-        .match(ScriptTriggerAreaEntered::class.java, this::onAreaEntered)
         .match(IntervalScriptCallback::class.java, this::addIntervalCallback)
         .match(ScriptLifetime::class.java, this::setScriptLifetime)
   }
@@ -53,16 +43,6 @@ class ScriptComponentActor(
   }
 
   private fun addIntervalCallback(msg: IntervalScriptCallback) {
-    throw IllegalStateException("No implemented")
-  }
-
-  private fun onAreaLeave(msg: ScriptTriggerAreaLeft) {
-    // TODO Fetch entity who has left. Call Script.
-    throw IllegalStateException("No implemented")
-  }
-
-  private fun onAreaEntered(msg: ScriptTriggerAreaEntered) {
-    // TODO Fetch entity who has entered. Call Script.
     throw IllegalStateException("No implemented")
   }
 

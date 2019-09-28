@@ -6,10 +6,9 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO
 import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.workload.MultiplyJob
 import de.tfelix.bestia.worldgen.workload.Workload
-import net.bestia.zoneserver.config.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import net.bestia.zoneserver.map.generator.MapGeneratorConstants
 import net.bestia.zoneserver.map.generator.TileGenerationJob
-import net.bestia.zoneserver.map.generator.TileSaveJob
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -66,10 +65,10 @@ class MapGenConfiguration {
    * @return The used [MapNodeGenerator].
    */
   fun mapNodeGenerator(
-      config: ZoneserverConfig,
+      config: ZoneserverNodeConfig,
       connector: MasterConnector,
-      dao: MapGenDAO,
-      mapService: MapService): MapNodeGenerator {
+      dao: MapGenDAO
+  ): MapNodeGenerator {
 
     val nodeGenerator = MapNodeGenerator(config.serverName, connector, dao)
 
@@ -81,7 +80,7 @@ class MapGenConfiguration {
     val work = Workload(MapGeneratorConstants.WORK_GEN_TILES)
     work.addJob(MultiplyJob(1500.0, MapGeneratorConstants.HEIGHT_MAP))
     work.addJob(TileGenerationJob())
-    work.addJob(TileSaveJob(mapService))
+    // work.addJob(TileSaveJob(mapService))
 
     nodeGenerator.addWorkload(work)
 

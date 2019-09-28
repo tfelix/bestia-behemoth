@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat
 import mu.KotlinLogging
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.factory.ItemFactory
@@ -38,11 +38,12 @@ internal class SpawnItemModule(
 
   override fun executeCheckedCommand(account: Account, text: String, matcher: Matcher) {
     val itemIdent = matcher.group(1)
-    val x = java.lang.Long.parseLong(matcher.group(2))
-    val y = java.lang.Long.parseLong(matcher.group(3))
+    val x = matcher.group(2).toLong()
+    val y = matcher.group(3).toLong()
+    val z = matcher.group(4).toLong()
     LOG.info { "Command: /spawn item $itemIdent $x $y triggered by account ${account.id}" }
 
-    val item = itemFactory.build(itemIdent, Point(x, y))
+    val item = itemFactory.build(itemIdent, Vec3(x, y, z))
     messageApi.send(EntityEnvelope(item.id, item))
   }
 

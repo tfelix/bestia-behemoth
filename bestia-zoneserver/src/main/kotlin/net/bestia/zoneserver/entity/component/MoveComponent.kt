@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 
 /**
  * If this component is added to an entity it will start moving along the path
@@ -11,6 +11,6 @@ import net.bestia.model.geometry.Point
  */
 data class MoveComponent(
     override val entityId: Long,
-    val speed: Point, // Should be a vector
-    val path: List<Point>
+    val speed: Vec3, // Should be a vector
+    val path: List<Vec3>
 ) : Component

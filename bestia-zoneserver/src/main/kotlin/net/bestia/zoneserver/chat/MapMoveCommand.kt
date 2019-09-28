@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -15,7 +15,7 @@ import java.util.regex.Pattern
 private val LOG = KotlinLogging.logger { }
 
 data class PositionToMessage(
-    val position: Point
+    val position: Vec3
 )
 
 /**
@@ -51,8 +51,9 @@ internal class MapMoveCommand(
       return
     }
 
-    val x = java.lang.Long.parseLong(match.group(1))
-    val y = java.lang.Long.parseLong(match.group(2))
+    val x = match.group(1).toLong()
+    val y = match.group(2).toLong()
+    val z = match.group(3).toLong()
 
     if (x < 0 || y < 0) {
       sendSystemMessage(account.id, "Illegal coordinates. Must be positive.")
@@ -63,7 +64,7 @@ internal class MapMoveCommand(
       messageApi.send(
           EntityEnvelope(
               activePlayerBestia,
-              ComponentEnvelope(PositionComponent::class.java, PositionToMessage(Point(x, y)))
+              ComponentEnvelope(PositionComponent::class.java, PositionToMessage(Vec3(x, y, z)))
           )
       )
     }

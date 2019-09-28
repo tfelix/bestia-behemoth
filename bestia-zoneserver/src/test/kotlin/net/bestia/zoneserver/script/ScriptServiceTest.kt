@@ -1,10 +1,9 @@
 package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.verify
-import net.bestia.zoneserver.config.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.env.GlobalEnv
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -22,7 +21,7 @@ class ScriptServiceTest {
   @Mock
   private lateinit var scriptExecService: ScriptExecService
 
-  private val zonserverConfig = ZoneserverConfig(
+  private val zonserverConfig = ZoneserverNodeConfig(
       scriptDir = "classpath:script",
       serverName = "test",
       serverVersion = "1.0.0",

@@ -1,31 +1,17 @@
 package net.bestia.zoneserver.config
 
-import net.bestia.model.server.MaintenanceLevel
 import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 
-/**
- * This configuration service holds information about the current state of the
- * server while they are running. These information might get changed during
- * runtime. It is saved via the in memory database.
- *
- * @author Thomas Felix
- */
 @Service
 class RuntimeConfigService {
+  private var runtimeConfig: RuntimeConfig = RuntimeConfig()
 
-  /**
-   * Returns the flag if the server is in maintenance mode.
-   *
-   * @return TRUE if the server is in maintenance mode. FALSE otherwise.
-   */
-  /**
-   * Sets the flag if the server is in maintenance mode.
-   *
-   * @param flag
-   * The flag to set the server into maintenance mode.
-   */
-  var maintenanceMode: MaintenanceLevel
-    get() = throw IllegalArgumentException("not implemented")
-    set(flag) = throw IllegalArgumentException("not implemented")
+  fun setConfigWithoutClusterUpdate(runtimeConfig: RuntimeConfig) {
+    this.runtimeConfig = runtimeConfig
+  }
+
+  fun setConfigWithClusterUpdate(runtimeConfig: RuntimeConfig) {
+    this.runtimeConfig = runtimeConfig
+    // TODO Send Message to Actor
+  }
 }

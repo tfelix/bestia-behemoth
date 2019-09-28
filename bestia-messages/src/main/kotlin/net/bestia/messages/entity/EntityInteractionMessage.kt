@@ -3,7 +3,7 @@ package net.bestia.messages.entity
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.EntityMessage
-import net.bestia.model.entity.InteractionType
+import net.bestia.model.entity.Interactions
 
 /**
  * By sending this message to the client the client is informed how
@@ -15,7 +15,7 @@ data class EntityInteractionMessage(
     override val accountId: Long,
     override val entityId: Long,
     @JsonProperty("is")
-    private val interactions: Set<InteractionType>
+    private val interactions: Set<Interactions>
 ) : AccountMessage, EntityMessage {
 
   val messageId: String

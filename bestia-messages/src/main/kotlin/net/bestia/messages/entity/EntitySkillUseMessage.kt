@@ -2,7 +2,7 @@ package net.bestia.messages.entity
 
 import java.io.Serializable
 
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 
 /**
  * Entity attack message which is issued if an entity used an attack/skill
@@ -11,7 +11,7 @@ import net.bestia.model.geometry.Point
  * @author Thomas Felix
  */
 data class EntitySkillUseMessage(
-    val targetPostion: Point?,
+    val targetPostion: Vec3?,
     val targetEntityId: Long?,
     val sourceEntityId: Long,
     val attackId: Int

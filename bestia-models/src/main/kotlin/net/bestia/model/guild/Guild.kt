@@ -4,6 +4,7 @@ import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.findOne
 import java.io.Serializable
+import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -26,15 +27,13 @@ class Guild(
 ) : AbstractEntity(), Serializable {
 
   var level = 1
-    set(level) {
-      if (level > MAX_GUILD_LEVEL || level < 0) {
-        throw IllegalArgumentException("Guild level must be between 0 and $MAX_GUILD_LEVEL")
-      }
-      field = level
-    }
+  set(level) {
+    require(!(level > MAX_GUILD_LEVEL || level < 0)) { "Guild level must be between 0 and $MAX_GUILD_LEVEL" }
+    field = level
+  }
 
   var exp = 0
-    private set
+  private set
 
   var defaultRankName: String = "Rookie"
 
@@ -50,16 +49,18 @@ class Guild(
    */
   val creationDate = Instant.now()
 
-  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   private val members: MutableSet<GuildMember> = mutableSetOf()
 
-  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   private val ranks: MutableSet<GuildRank> = mutableSetOf()
 
   init {
-    if (name.isEmpty() || name.length > 40) {
-      throw IllegalArgumentException("Guild name can not be null or empty or longer then 40 character.")
-    }
+    require(!(name.isEmpty() || name.length > 40)) { "Guild name can not be null or empty or longer then 40 character." }
+  }
+
+  fun getMember(accountId: Long): GuildMember? {
+    throw IllegalArgumentException("Not implemented")
   }
 
   fun addGuildMember(playerBestia: PlayerBestia): Boolean {
@@ -94,7 +95,6 @@ class Guild(
   fun getPlayerBestiaIds(): Set<Long> {
     return members.map { it.member.id }.toSet()
   }
-
 
   fun addExp(exp: Int) {
     this.exp += exp

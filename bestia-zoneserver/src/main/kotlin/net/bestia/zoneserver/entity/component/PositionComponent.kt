@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import net.bestia.model.bestia.Direction
 import net.bestia.model.geometry.Shape
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 
 /**
  * Entity with this component have a defined position in the world. Point refers
@@ -14,8 +12,7 @@ import net.bestia.model.geometry.Point
 data class PositionComponent(
     override val entityId: Long,
 
-    @JsonProperty("s")
-    val shape: Shape = Point(),
+    val shape: Shape = Vec3(),
 
     /**
      * Returns the current direction of facing. Important to check for AI for
@@ -23,17 +20,14 @@ data class PositionComponent(
      *
      * @return The face direction.
      */
-    @JsonProperty("f")
-    val facing: Direction = Direction.SOUTH,
+    val facing: Vec3 = Vec3(),
 
     /**
      * Sets the flag if the entity blocks the line of sight.
      */
-    @JsonProperty("sb")
     val isSightBlocking: Boolean = false
 ) : Component {
 
-  val position: Point
-    @JsonProperty("p")
+  val position: Vec3
     get() = shape.anchor
 }

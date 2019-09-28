@@ -8,7 +8,6 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider
 import mu.KotlinLogging
-import net.bestia.model.map.MapDataRepository
 import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.map.MapParameter
 import org.springframework.stereotype.Service
@@ -19,7 +18,6 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class MapGeneratorMasterService(
-    private val mapDataDao: MapDataRepository,
     private val mapParamDao: MapParameterRepository
 ) : MapMasterCallbacks {
 
@@ -46,7 +44,7 @@ class MapGeneratorMasterService(
     LOG.info("Dropping old world from database...")
     // FIXME Das droppen ggf in eigenen service auslagern, da es noch
     // komplexere behandlung der entities benötigt.
-    mapDataDao.deleteAll()
+    // mapDataDao.deleteAll()
     LOG.info("Old world dropped from database.")
 
     val rand = ThreadLocalRandom.current()

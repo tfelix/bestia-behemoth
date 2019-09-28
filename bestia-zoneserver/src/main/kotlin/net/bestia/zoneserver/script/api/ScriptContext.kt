@@ -2,7 +2,7 @@ package net.bestia.zoneserver.script.api
 
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.entity.component.ScriptLifetime
-import net.bestia.zoneserver.actor.entity.entityParcel
+import net.bestia.zoneserver.actor.entity.makeEntityComponentEnvelope
 import net.bestia.zoneserver.entity.component.DelayScriptCallback
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.entity.component.ScriptComponent
@@ -16,7 +16,7 @@ class ScriptContext(
 
   override fun commitEntityUpdates(messageApi: MessageApi) {
     lifetimeMs?.let {
-      val parcel = entityParcel(
+      val parcel = makeEntityComponentEnvelope(
           entityId,
           ScriptComponent::class.java,
           ScriptLifetime(it)
@@ -25,7 +25,7 @@ class ScriptContext(
     }
 
     intervalCallback?.let {
-      val parcel = entityParcel(
+      val parcel = makeEntityComponentEnvelope(
           entityId,
           ScriptComponent::class.java,
           it
@@ -34,7 +34,7 @@ class ScriptContext(
     }
 
     delayCallback?.let {
-      val parcel = entityParcel(
+      val parcel = makeEntityComponentEnvelope(
           entityId,
           ScriptComponent::class.java,
           it

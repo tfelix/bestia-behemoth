@@ -4,4 +4,6 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface GuildRepository : CrudRepository<Guild, Int>
+interface GuildRepository : CrudRepository<Guild, Int> {
+  fun findGuildByAccountId(accountId: Long): Guild?
+}

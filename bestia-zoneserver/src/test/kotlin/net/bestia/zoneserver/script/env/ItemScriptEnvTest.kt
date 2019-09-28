@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.script.env
 
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import org.junit.Assert
 import org.junit.Test
 import javax.script.SimpleBindings
 
 class ItemScriptEnvTest {
 
-  private val targetPos = Point(10, 10)
+  private val targetPos = Vec3(10, 10)
   private val userId = 10L
   private val targetId = 10L
 

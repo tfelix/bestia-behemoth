@@ -17,7 +17,6 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class GuildService(
     private val guildRepository: GuildRepository,
-    private val guildMemberRepository: GuildMemberRepository,
     private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
@@ -42,23 +41,24 @@ class GuildService(
     } else BASE_MAX_GUILD_MEMBERS
   }
 
-  fun hasGuild(playerBestiaId: Long): Boolean {
-    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId) != null
+  fun hasGuild(accountId: Long): Boolean {
+    return guildRepository.findGuildByAccountId(accountId) != null
   }
 
-  fun getGuildOfPlayer(playerBestiaId: Long): Guild? {
-    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId)?.guild
+  fun getGuildOfPlayer(accountId: Long): Guild? {
+    return guildRepository.findGuildByAccountId(accountId)
   }
 
-  fun addExpTaxToGuild(playerBestiaId: Long, earnedTotalExp: Int): Int {
-    return guildMemberRepository.findByPlayerBestiaId(playerBestiaId)?.let { member ->
+  fun addExpToGuild(accountId: Long, earnedTotalExp: Int): Int {
+    return guildRepository.findGuildByAccountId(accountId)?.let { guild ->
+      val member = guild.getMember(accountId) ?: return 0
       val rank = member.rank
       val taxExp = Math.ceil((rank.taxRate * earnedTotalExp).toDouble()).toInt()
       val guild = member.guild
       guild.addExp(taxExp)
       guildRepository.save(guild)
 
-      LOG.debug(String.format("Guild %d earned %d tax from pbid: %d", guild.id, taxExp, playerBestiaId))
+      LOG.debug(String.format("Guild %d earned %d tax from accId: %d", guild.id, taxExp, accountId))
 
       taxExp
     } ?: 0

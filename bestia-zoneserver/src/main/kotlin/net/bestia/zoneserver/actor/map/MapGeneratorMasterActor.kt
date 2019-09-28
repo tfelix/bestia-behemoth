@@ -27,7 +27,7 @@ private val LOG = KotlinLogging.logger { }
 class MapGeneratorMasterActor(
     private val mapGenService: MapGeneratorMasterService,
     private val logoutService: LogoutService,
-    private val config: RuntimeConfigService
+    private val configService: RuntimeConfigService
 ) : AbstractActor() {
 
   private var mapBaseParameter: MapParameter? = null
@@ -80,7 +80,9 @@ class MapGeneratorMasterActor(
     LOG.info("Received map base parameter. Starting to generate map. ({})", params)
     LOG.info("Putting server into maintenance mode and disconnecting all users.")
 
-    config.maintenanceMode = MaintenanceLevel.FULL
+    configService.runtimeConfig = configService.runtimeConfig
+        .copy(maintenanceLevel = MaintenanceLevel.FULL)
+
     logoutService.logoutAllUsers()
 
     mapBaseParameter = params
@@ -109,7 +111,9 @@ class MapGeneratorMasterActor(
    */
   private fun finish() {
     LOG.info("Map generation was finished. Ending maintenance mode.")
-    config.maintenanceMode = MaintenanceLevel.NONE
+    configService.runtimeConfig = configService.runtimeConfig
+        .copy(maintenanceLevel = MaintenanceLevel.NONE)
+
     context.stop(self)
   }
 

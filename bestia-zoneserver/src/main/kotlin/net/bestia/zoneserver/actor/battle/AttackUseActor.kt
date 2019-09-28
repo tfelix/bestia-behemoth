@@ -12,7 +12,7 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.battle.BattleService
 
 private val LOG = KotlinLogging.logger { }
@@ -28,7 +28,7 @@ class AttackUseActor(
     private val battleService: BattleService,
     private val attackDao: AttackRepository,
     private val messageApi: MessageApi
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   private val transformAtkMsg = SpringExtension.actorOf(context, AttackPlayerUseActor::class.java)
   private val sendActiveRange = SpringExtension.actorOf(context, SendClientsInRangeActor::class.java)

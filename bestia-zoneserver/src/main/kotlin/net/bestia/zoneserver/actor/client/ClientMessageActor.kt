@@ -7,10 +7,10 @@ import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
 import net.bestia.zoneserver.actor.chat.ChatActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 
 @Actor
-class ClientMessageActor : DynamicMessageRouterActor() {
+class ClientMessageActor : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
   }

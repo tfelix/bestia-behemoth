@@ -13,14 +13,15 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class VisualComponent(
     override val entityId: Long,
 
-    @JsonProperty("v")
-    val visual: SpriteInfo,
+    /**
+     * Name of the Mesh to be used in the client.
+     */
+    val mesh: String,
 
     /**
      * Gives a flag if the entity is currently visible.
      *
      * @return TRUE if the entity is visible. FALSE otherwise.
      */
-    @JsonProperty("vis")
     val isVisible: Boolean = true
 ) : Component

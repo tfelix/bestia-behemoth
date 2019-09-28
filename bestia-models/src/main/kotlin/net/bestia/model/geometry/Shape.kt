@@ -22,7 +22,7 @@ interface Shape {
    *
    * @return The anchor coordiantes in world space.
    */
-  val anchor: Point
+  val anchor: Vec3
 
   /**
    * Checks if this shape collides with the given vector.
@@ -31,7 +31,7 @@ interface Shape {
    * Collding shape.
    * @return TRUE if it collides. FALSE otherwise.
    */
-  fun collide(s: Point): Boolean
+  fun collide(s: Vec3): Boolean
 
   /**
    * Checks if this shape collides with the given vector.
@@ -40,7 +40,7 @@ interface Shape {
    * Collding shape.
    * @return TRUE if it collides. FALSE otherwise.
    */
-  fun collide(s: Circle): Boolean
+  fun collide(s: Sphere): Boolean
 
   /**
    * Checks if this shape collides with the given vector.
@@ -64,15 +64,11 @@ interface Shape {
    * Moves the whole [Shape] to the new coordinates relative to its anchor point
    * whose absolute coordinates are now set by this method.
    *
-   * @param x
-   * New absolute x coordinate.
-   * @param y
-   * New absolute y coordinate.
    * @return A new collision shape which is move
    */
-  fun moveTo(x: Long, y: Long): Shape
+  fun moveTo(x: Long, y: Long, z: Long): Shape
 
-  fun moveTo(p: Point): Shape {
-    return moveTo(p.x, p.y)
+  fun moveTo(p: Vec3): Shape {
+    return moveTo(p.x, p.y, p.z)
   }
 }

@@ -6,7 +6,7 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
-import net.bestia.zoneserver.config.RuntimeConfigService
+import net.bestia.zoneserver.config.RuntimeConfig
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
@@ -15,7 +15,7 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class AuthenticationService(
-    private val config: RuntimeConfigService,
+    private val config: RuntimeConfig,
     private val accountRepository: AccountRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
@@ -77,15 +77,15 @@ class AuthenticationService(
     }
 
     // Special handling of maintenance mode.
-    if (config.maintenanceMode != MaintenanceLevel.NONE) {
+    if (config.maintenanceLevel != MaintenanceLevel.NONE) {
 
       // Depending on maintenance mode certain users can login.
-      if (config.maintenanceMode == MaintenanceLevel.FULL) {
+      if (config.maintenanceLevel == MaintenanceLevel.FULL) {
         LOG.debug("No accounts can login during full maintenance.")
         return false
       }
 
-      if (config.maintenanceMode == MaintenanceLevel.PARTIAL && acc.userLevel < AccountType.SUPER_GM) {
+      if (config.maintenanceLevel == MaintenanceLevel.PARTIAL && acc.userLevel < AccountType.SUPER_GM) {
         LOG.debug("Account {} can not login during maintenance User level too low.", accId)
         return false
       }

@@ -9,7 +9,7 @@ internal data class EntityEnvelope(
     override val content: Any
 ) : Envelope
 
-internal inline fun <reified T : Component> entityParcel(
+internal inline fun <reified T : Component> makeEntityComponentEnvelope(
     entityId: Long,
     componentClass: Class<T>,
     payload: Any

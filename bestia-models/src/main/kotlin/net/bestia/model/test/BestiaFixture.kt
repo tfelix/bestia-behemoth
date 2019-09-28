@@ -11,7 +11,7 @@ object BestiaFixture {
       defaultName = "Test",
       element = Element.NORMAL,
       image = "testimage",
-      sprite = "test",
+      mesh = "test",
       expGained = 100,
       type = BestiaType.DEMI_HUMAN,
       level = 10,

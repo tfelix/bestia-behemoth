@@ -22,7 +22,7 @@ private val LOG = KotlinLogging.logger { }
 internal class MaintenanceCommand(
     messageApi: MessageApi,
     private val logoutService: LogoutService,
-    private val config: RuntimeConfigService
+    private val configService: RuntimeConfigService
 ) : BaseChatCommand(messageApi) {
 
   override val helpText: String
@@ -49,11 +49,13 @@ internal class MaintenanceCommand(
 
     if (isMaintenance) {
       sendSystemMessage(account.id, "Server maintenance: true")
-      config.maintenanceMode = MaintenanceLevel.PARTIAL
+      configService.runtimeConfig = configService.runtimeConfig
+          .copy(maintenanceLevel = MaintenanceLevel.PARTIAL)
       logoutService.logoutAllUsersBelow(AccountType.SUPER_GM)
     } else {
       sendSystemMessage(account.id, "Server maintenance: false")
-      config.maintenanceMode = MaintenanceLevel.NONE
+      configService.runtimeConfig = configService.runtimeConfig
+          .copy(maintenanceLevel = MaintenanceLevel.NONE)
     }
   }
 

@@ -22,8 +22,7 @@ data class Item(
     val itemDbName: String,
 
     @Column(nullable = false)
-    @JsonProperty("img")
-    val image: String,
+    val mesh: String,
 
     @JsonIgnore
     @Column(nullable = false)

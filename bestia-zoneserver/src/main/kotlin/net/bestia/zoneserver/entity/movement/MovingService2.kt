@@ -2,7 +2,7 @@ package net.bestia.zoneserver.entity.movement
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
@@ -31,7 +31,7 @@ class MovingService2 {
    * @return The delay in ms for the next movement tick, or -1 if an error has
    * occurred.
    */
-  fun getMoveDelayMs(entity: Entity, newPos: Point): Long {
+  fun getMoveDelayMs(entity: Entity, newPos: Vec3): Long {
     val walkspeed = entity.tryGetComponent(StatusComponent::class.java)?.statusBasedValues?.walkspeed
         ?: return -1
     val posComp = entity.tryGetComponent(PositionComponent::class.java)

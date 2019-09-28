@@ -16,16 +16,15 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
+import net.bestia.zoneserver.actor.bootstrap.BootstrapActor
 import net.bestia.zoneserver.actor.client.ClientMessageActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
-import net.bestia.zoneserver.actor.map.quadtree.MapQuadTreeActor
-import net.bestia.zoneserver.actor.map.quadtree.QuadtreeShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.RoutingActor
-import net.bestia.zoneserver.config.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -49,7 +48,7 @@ class AkkaConfiguration {
   @Throws(UnknownHostException::class)
   fun actorSystem(
       appContext: ApplicationContext,
-      zoneConfig: ZoneserverConfig
+      zoneConfig: ZoneserverNodeConfig
   ): ActorSystem {
     val akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME)
     LOG.debug { "Loaded akka config: $AKKA_CONFIG_NAME" }
@@ -71,6 +70,9 @@ class AkkaConfiguration {
     LOG.info { "Starting websocket ingress on $websocketConnect..." }
     http.bindAndHandle(routeFlow, websocketConnect, materializer)
 
+    // Setup the special actors
+
+
     // scriptService.callScriptMainFunction("startup")
 
     return system
@@ -90,11 +92,6 @@ class AkkaConfiguration {
     val connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor::class.java)
     val connectionExtractor = ConnectionShardMessageExtractor()
     sharding.start(ShardActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
-
-    LOG.info { "Starting quadtree sharding..." }
-    val treeProps = SpringExtension.getSpringProps(system, MapQuadTreeActor::class.java)
-    val treeShardExtractor = QuadtreeShardMessageExtractor(numberOfShards)
-    sharding.start(ShardActorNames.SHARD_QUADTREE, treeProps, settings, treeShardExtractor)
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {

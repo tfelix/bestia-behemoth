@@ -3,7 +3,7 @@ package net.bestia.zoneserver.chat
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.MessageApi
-import net.bestia.zoneserver.config.ZoneserverConfig
+import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.stereotype.Component
 
 /**
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 internal class ServerVersionChatCommand(
     msgApi: MessageApi,
-    private val config: ZoneserverConfig
+    private val config: ZoneserverNodeConfig
 ) : BaseChatCommand(msgApi) {
 
   override val helpText: String

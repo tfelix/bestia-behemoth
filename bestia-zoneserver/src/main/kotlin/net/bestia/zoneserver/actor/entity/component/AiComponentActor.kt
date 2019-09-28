@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 import net.bestia.zoneserver.entity.component.AiComponent
@@ -44,15 +44,15 @@ class AiComponentActor(
       val positionComponent = it.getComponent(PositionComponent::class.java)
 
       val moveDelta = when (rand.nextInt(10)) {
-        0 -> Point(0, -1)
-        1 -> Point(0, 1)
-        2 -> Point(1, 0)
-        3 -> Point(-1, 0)
-        4 -> Point(1, 1)
-        5 -> Point(1, -1)
-        6 -> Point(-1, 1)
-        7 -> Point(-1, -1)
-        else -> Point(0, 0)
+        0 -> Vec3(0, -1, 0)
+        1 -> Vec3(0, 1, 0)
+        2 -> Vec3(1, 0, 0)
+        3 -> Vec3(-1, 0, 0)
+        4 -> Vec3(1, 1, 0)
+        5 -> Vec3(1, -1, 0)
+        6 -> Vec3(-1, 1, 0)
+        7 -> Vec3(-1, -1, 0)
+        else -> Vec3(0, 0, 0)
       }
 
       val newPos = positionComponent.position - moveDelta

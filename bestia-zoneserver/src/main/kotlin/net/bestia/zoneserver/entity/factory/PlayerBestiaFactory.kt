@@ -32,7 +32,7 @@ class PlayerBestiaFactory(
       ))
       addComponent(VisualComponent(
           entityId = entity.id,
-          visual = SpriteInfo.mob(playerBestia.origin.sprite)
+          mesh = playerBestia.origin.mesh
       ))
       addComponent(EquipComponent(
           entityId = entity.id

@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
@@ -46,7 +46,7 @@ class ScriptRootApi(
       x: Long,
       y: Long
   ): EntityApi {
-    val position = Point(x, y)
+    val position = Vec3(x, y)
     LOG.debug { "spawnMob: $mobName pos: $position" }
     val entity = mobFactory.build(mobName, position)
 

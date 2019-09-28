@@ -26,7 +26,7 @@ class Bestia(
     @Enumerated(EnumType.STRING)
     val element: Element,
     val image: String,
-    val sprite: String,
+    val mesh: String,
 
     /**
      * Experience points gained if bestia was defeated.

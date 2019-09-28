@@ -7,7 +7,7 @@ import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.InteractionService
 import net.bestia.zoneserver.entity.PlayerEntityService
 
@@ -24,7 +24,7 @@ class EntityInteractionRequestActor(
     private val interactService: InteractionService,
     private val playerEntityService: PlayerEntityService,
     private val messageApi: MessageApi
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 

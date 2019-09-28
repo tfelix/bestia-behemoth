@@ -8,7 +8,6 @@ import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.entity.Entity
 import java.lang.IllegalArgumentException
 
-
 data class EntityRequest(
     val replyTo: ActorRef,
     val context: Any? = null

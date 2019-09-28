@@ -1,12 +1,11 @@
 package net.bestia.zoneserver.map.path
 
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.model.geometry.Rect
 import net.bestia.model.map.BestiaMap
 import net.bestia.model.map.Walkspeed
 import net.bestia.zoneserver.entity.EntityCollisionService
-import net.bestia.zoneserver.entity.component.PositionComponent
 import org.junit.Assert.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,17 +55,17 @@ class TileNodeProviderTest {
     whenever(gameMap.rect).thenReturn(MAP_RECT)
 
     val cons = provider.getConnectedNodes(NODE_ENTITY_BLOCK)
-    assertEquals(emptySet<Node<Point>>(), cons)
+    assertEquals(emptySet<Node<Vec3>>(), cons)
   }
 
   companion object {
-    private val POINT_OUT_OF_RANGE = Point(1000, 1000)
+    private val POINT_OUT_OF_RANGE = Vec3(1000, 1000)
     private val NODE_OUT_OF_RANGE = Node(POINT_OUT_OF_RANGE)
 
-    private val POINT_IN_RANGE = Point(10, 10)
+    private val POINT_IN_RANGE = Vec3(10, 10)
     private val NODE_IN_RANGE = Node(POINT_IN_RANGE)
 
-    private val POINT_ENTITY_BLOCK = Point(50, 50)
+    private val POINT_ENTITY_BLOCK = Vec3(50, 50)
     private val NODE_ENTITY_BLOCK = Node(POINT_ENTITY_BLOCK)
 
     private val MAP_RECT = Rect(0, 0, 100, 100)

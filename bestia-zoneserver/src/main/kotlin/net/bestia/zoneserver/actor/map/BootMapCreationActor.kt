@@ -5,7 +5,6 @@ import akka.actor.Terminated
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.map.MapService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -15,7 +14,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class BootMapCreationActor(
-        private val mapService: MapService
 ) : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
@@ -25,11 +23,6 @@ class BootMapCreationActor(
 
   override fun preStart() {
     LOG.info { "Checking if proper map exists" }
-    if(mapService.isMapInitialized) {
-      LOG.info { "Map exists and nothing needs to be done" }
-      context.stop(self)
-      return
-    }
 
     createMap()
   }

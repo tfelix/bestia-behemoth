@@ -5,7 +5,7 @@ import net.bestia.messages.bestia.BestiaActivateMessage
 import net.bestia.zoneserver.actor.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 
 private val LOG = KotlinLogging.logger { }
@@ -21,7 +21,7 @@ private val LOG = KotlinLogging.logger { }
 class ActivateBestiaActor(
     private val playerService: PlayerEntityService,
     private val messageApi: MessageApi
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(BestiaActivateMessage::class.java, this::handleActivateBestia)

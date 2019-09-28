@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.map
 
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.geometry.Point
+import net.bestia.model.geometry.Vec3
 import net.bestia.model.geometry.Rect
 import net.bestia.model.map.MapDataRepository
 import net.bestia.model.map.MapParameter
@@ -93,8 +93,8 @@ class MapServiceTest {
 
   @Test
   fun getChunks_validCords_listWithChunks() {
-    val chunkCords = ArrayList<Point>()
-    chunkCords.add(Point(1, 1))
+    val chunkCords = ArrayList<Vec3>()
+    chunkCords.add(Vec3(1, 1))
     val chunks = ms.getChunks(chunkCords)
 
     Assertions.assertNotNull(chunks)

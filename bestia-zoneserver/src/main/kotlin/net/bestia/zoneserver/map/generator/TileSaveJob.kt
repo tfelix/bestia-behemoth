@@ -8,8 +8,6 @@ import de.tfelix.bestia.worldgen.random.NoiseVector
 import de.tfelix.bestia.worldgen.workload.Job
 import mu.KotlinLogging
 import net.bestia.model.geometry.Rect
-import net.bestia.model.map.MapDataDTO
-import net.bestia.zoneserver.map.MapService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,9 +16,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-class TileSaveJob(
-    private val mapService: MapService
-) : Job() {
+class TileSaveJob : Job() {
 
   override fun foreachNoiseVector(dao: MapGenDAO, data: MapDataPart, vec: NoiseVector) {
     // no op.
@@ -29,10 +25,11 @@ class TileSaveJob(
   override fun onFinish(dao: MapGenDAO?, data: MapDataPart?) {
     LOG.debug("Starting tile saving job.")
 
+    /*
     val part = data!!.mapPart as Map2DDiscretePart
 
     val partRect = Rect(part.x, part.y, part.width, part.height)
-    val mapDataDto = MapDataDTO(partRect)
+    // val mapDataDto = MapDataDTO(partRect)
 
     // Transfer the data into the DTO object.
     for (y in part.y until part.y + part.height) {
@@ -53,7 +50,8 @@ class TileSaveJob(
     }
     // Now the tiles must be saved.
     LOG.info("Mapdata {} saved to database.", data)
-    mapService.saveMapData(mapDataDto)
+    // mapService.saveMapData(mapDataDto)
+    */
   }
 
   override fun onStart() {

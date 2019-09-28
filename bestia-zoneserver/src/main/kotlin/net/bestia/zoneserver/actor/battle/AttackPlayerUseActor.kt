@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.battle
 import net.bestia.messages.attack.AttackUseMessage
 import net.bestia.messages.entity.EntitySkillUseMessage
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.routing.DynamicMessageRouterActor
+import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.PlayerEntityService
 
 /**
@@ -16,7 +16,7 @@ import net.bestia.zoneserver.entity.PlayerEntityService
 @Actor
 class AttackPlayerUseActor(
     private val playerEntityService: PlayerEntityService
-) : DynamicMessageRouterActor() {
+) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.match(AttackUseMessage::class.java, this::handleAttackMessage)

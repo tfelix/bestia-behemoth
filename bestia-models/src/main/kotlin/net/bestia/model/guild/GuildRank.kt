@@ -25,8 +25,8 @@ class GuildRank(
       }
     }
 
-  private var canEditMember: Boolean = false
-  private var canEditRanks: Boolean = false
+  var canEditMember: Boolean = false
+  var canEditRanks: Boolean = false
 
   override fun toString(): String {
     return "Rank[id: $id, name: $name]"
