@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.factory.ItemFactory
 import net.bestia.zoneserver.entity.factory.MobFactory
 import org.springframework.context.annotation.Bean

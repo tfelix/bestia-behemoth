@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityInteractionMessage
 import net.bestia.messages.entity.EntityInteractionRequestMessage
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
@@ -29,7 +29,7 @@ class EntityInteractionRequestActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(EntityInteractionRequestMessage::class.java, this::onInteractionRequest)
+    builder.matchRedirect(EntityInteractionRequestMessage::class.java, this::onInteractionRequest)
   }
 
   private fun onInteractionRequest(msg: EntityInteractionRequestMessage) {

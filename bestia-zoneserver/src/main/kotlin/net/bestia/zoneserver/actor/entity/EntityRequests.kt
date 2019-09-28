@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.entity
 
 import akka.actor.ActorContext
 import akka.actor.ActorRef
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.entity.Entity

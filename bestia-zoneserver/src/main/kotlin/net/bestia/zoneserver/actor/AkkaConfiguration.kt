@@ -17,13 +17,14 @@ import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
 import net.bestia.zoneserver.actor.bootstrap.BootstrapActor
-import net.bestia.zoneserver.actor.client.ClientMessageActor
+import net.bestia.zoneserver.actor.client.ClientMessageRoutingActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
 import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
-import net.bestia.zoneserver.actor.routing.RoutingActor
+import net.bestia.zoneserver.actor.routing.EntityRoutingActor
+import net.bestia.zoneserver.actor.routing.SystemRoutingActor
 import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
@@ -53,25 +54,22 @@ class AkkaConfiguration {
     val akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME)
     LOG.debug { "Loaded akka config: $AKKA_CONFIG_NAME" }
 
-    LOG.info { "Bootstrapping Behemoth actor system" }
+    LOG.info { "Starting Behemoth actor system" }
     val system = ActorSystem.create("behemoth-local", akkaConfig)
 
     setupClusterDiscovery(system)
     SpringExtension.initialize(system, appContext)
     setupSharding(system)
 
-    val clientMessageIngress = SpringExtension.actorOf(system, ClientMessageActor::class.java)
+    val clientMessageRouting = SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
 
     val materializer = ActorMaterializer.create(system)
     val http = Http.get(system)
-    val router = WebSocketRouter(system, clientMessageIngress)
+    val router = WebSocketRouter(system, clientMessageRouting)
     val routeFlow = router.createRoute().flow(system, materializer)
     val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
     LOG.info { "Starting websocket ingress on $websocketConnect..." }
     http.bindAndHandle(routeFlow, websocketConnect, materializer)
-
-    // Setup the special actors
-
 
     // scriptService.callScriptMainFunction("startup")
 
@@ -81,7 +79,6 @@ class AkkaConfiguration {
   private fun setupSharding(system: ActorSystem) {
     val settings = ClusterShardingSettings.create(system)
     val sharding = ClusterSharding.get(system)
-    val numberOfShards = 10
 
     LOG.info { "Starting entity sharding..." }
     val entityProps = SpringExtension.getSpringProps(system, EntityActor::class.java)
@@ -117,12 +114,20 @@ class AkkaConfiguration {
   }
 
   @Bean
-  @Qualifier("router")
-  fun routerActor(system: ActorSystem): ActorRef {
-    return SpringExtension.actorOf(system, RoutingActor::class.java)
+  @Qualifier(SYSTEM_ROUTER_QUALIFIER)
+  fun systemRouterActor(system: ActorSystem): ActorRef {
+    return SpringExtension.actorOf(system, SystemRoutingActor::class.java)
+  }
+
+  @Bean
+  @Qualifier(ENTITY_ROUTER_QUALIFIER)
+  fun entityRouterActor(system: ActorSystem): ActorRef {
+    return SpringExtension.actorOf(system, EntityRoutingActor::class.java)
   }
 
   companion object {
     private const val AKKA_CONFIG_NAME = "akka"
+    const val ENTITY_ROUTER_QUALIFIER = "entityRouter"
+    const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
   }
 }

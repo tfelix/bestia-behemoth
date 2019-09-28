@@ -24,7 +24,7 @@ class GuildRequestActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(GuildRequestMessage::class.java, this::onRequest)
+    builder.matchRedirect(GuildRequestMessage::class.java, this::onRequest)
   }
 
   private fun onRequest(msg: GuildRequestMessage) {

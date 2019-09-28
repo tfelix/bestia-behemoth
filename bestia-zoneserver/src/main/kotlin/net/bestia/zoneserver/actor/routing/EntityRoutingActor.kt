@@ -8,8 +8,9 @@ import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
 
+// FIXME Find a better suitable name
 @Actor
-class RoutingActor : AbstractActor() {
+class EntityRoutingActor : AbstractActor() {
 
   private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)
   private val sendToEntityActor = SpringExtension.actorOf(context, SendToEntityActor::class.java)

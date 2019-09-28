@@ -22,7 +22,7 @@ class ClientVarActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(ClientVarRequestMessage::class.java, this::handleCvarRequest)
+    builder.matchRedirect(ClientVarRequestMessage::class.java, this::handleCvarRequest)
   }
 
   /**

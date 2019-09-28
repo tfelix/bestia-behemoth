@@ -22,7 +22,7 @@ class ClientConnectionManagerActor : DynamicMessageRoutingActor() {
           .shardRegion(ShardActorNames.SHARD_CONNECTION)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(ClientConnectMessage::class.java, this::onClientConnection)
+    builder.matchRedirect(ClientConnectMessage::class.java, this::onClientConnection)
   }
 
   private fun onClientConnection(msg: ClientConnectMessage) {

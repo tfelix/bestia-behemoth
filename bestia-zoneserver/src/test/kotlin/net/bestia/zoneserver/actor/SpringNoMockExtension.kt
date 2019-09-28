@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContext
 /**
  * We need another provider for Spring backed up beans during our tests so we
  * can replace the original with producing mocks during creation.
+ * But this class wont use the mocked Spring producer and thus can be used to
+ * build functional actor props.
  */
 class SpringNoMockExtension private constructor() : AbstractExtensionId<SpringExtension.SpringAkkaExt>() {
 

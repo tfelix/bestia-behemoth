@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor
 
 import akka.actor.AbstractActor
-import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.testkit.TestActorRef
 import akka.testkit.TestProbe
@@ -17,8 +16,9 @@ import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import kotlin.reflect.KClass
+import org.springframework.test.context.junit.jupiter.SpringExtension as SpringJunitExtension
 
-@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension::class)
+@ExtendWith(SpringJunitExtension::class)
 @ContextConfiguration(classes = [TestZoneConfiguration::class])
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

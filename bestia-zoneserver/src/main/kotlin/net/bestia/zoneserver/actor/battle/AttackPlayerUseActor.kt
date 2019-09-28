@@ -19,7 +19,7 @@ class AttackPlayerUseActor(
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(AttackUseMessage::class.java, this::handleAttackMessage)
+    builder.matchRedirect(AttackUseMessage::class.java, this::handleAttackMessage)
   }
 
   /**

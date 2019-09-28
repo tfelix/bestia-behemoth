@@ -25,15 +25,34 @@ abstract class DynamicMessageRoutingActor(
   ) {
     private val receivedMessages = mutableListOf<Class<*>>()
 
-    val noRedirect get() = builder
-
-    fun <T> match(clazz: Class<T>, fn: (T) -> Unit) {
+    /**
+     * This function will request a redirect of this kind of messages from its parent.
+     */
+    fun <T> matchRedirect(clazz: Class<T>, fn: (T) -> Unit): BuilderFacade {
       receivedMessages.add(clazz)
       builder.match(clazz, fn)
+
+      return this
     }
 
-    fun <T> matchEquals(obj: T, fn: (T) -> Unit) {
+    /**
+     * This function will request a redirect of this kind of messages from its parent.
+     */
+    fun <T> matchEqualsRedirect(obj: T, fn: (T) -> Unit): BuilderFacade {
       builder.matchEquals(obj, fn)
+
+      return this
+    }
+
+    /**
+     * This function will NOT request a redirect. The actor is only to able and process
+     * this message if it gets send directly towards it. Usually you want to use
+     * matchRedirect
+     */
+    fun <T> match(clazz: Class<T>, fn: (T) -> Unit): BuilderFacade {
+      builder.match(clazz, fn)
+
+      return this
     }
   }
 
@@ -52,7 +71,7 @@ abstract class DynamicMessageRoutingActor(
     }
   }
 
-  override fun createReceive(): AbstractActor.Receive {
+  final override fun createReceive(): Receive {
     val builder = receiveBuilder()
     val facade = BuilderFacade(builder)
     createReceive(facade)

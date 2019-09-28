@@ -4,6 +4,9 @@ import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import net.bestia.zoneserver.actor.MockActorProducer
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.config.RuntimeConfigService
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -13,7 +16,7 @@ import org.springframework.context.annotation.Profile
 /**
  * Configures the app context for testing operations.
  */
-@Configuration
+@TestConfiguration
 @Profile("test")
 @ComponentScan("net.bestia.zoneserver.actor")
 class TestZoneConfiguration {
@@ -29,4 +32,7 @@ class TestZoneConfiguration {
 
     return system
   }
+
+  @MockBean
+  lateinit var runtimeConfigService: RuntimeConfigService
 }

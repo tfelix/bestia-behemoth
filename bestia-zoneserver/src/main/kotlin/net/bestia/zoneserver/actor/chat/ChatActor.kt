@@ -28,7 +28,7 @@ class ChatActor(
   private val partyChatActor = SpringExtension.actorOf(context, PartyChatActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(ChatMessage::class.java, this::onChatMessage)
+    builder.matchRedirect(ChatMessage::class.java, this::onChatMessage)
   }
 
   private fun onChatMessage(chatMsg: ChatMessage) {

@@ -9,7 +9,7 @@ import net.bestia.messages.login.LoginResponse
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOne
 import net.bestia.model.account.AccountType
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException

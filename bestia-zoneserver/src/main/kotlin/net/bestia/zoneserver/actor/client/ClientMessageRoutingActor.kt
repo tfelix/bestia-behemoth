@@ -10,10 +10,9 @@ import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 
 @Actor
-class ClientMessageActor : DynamicMessageRoutingActor() {
+class ClientMessageRoutingActor : DynamicMessageRoutingActor() {
 
-  override fun createReceive(builder: BuilderFacade) {
-  }
+  override fun createReceive(builder: BuilderFacade) { }
 
   override fun preStart() {
     // === Connection ===

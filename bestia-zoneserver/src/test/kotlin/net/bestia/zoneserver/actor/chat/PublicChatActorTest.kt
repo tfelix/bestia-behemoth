@@ -6,10 +6,9 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.AbstractActorTest
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.client.SendInRange
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
-import net.bestia.zoneserver.actor.entity.EntityRequest
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.jupiter.api.Test

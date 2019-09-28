@@ -3,12 +3,9 @@ package net.bestia.zoneserver.actor
 import akka.actor.*
 import akka.actor.Actor
 import com.nhaarman.mockitokotlin2.mock
-import org.springframework.context.ApplicationContext
 
 class MockActorProducer(
-    private val applicationContext: ApplicationContext,
-    private val actorBeanClass: Class<out Actor>,
-    private val args: Array<*>
+    private val actorBeanClass: Class<out Actor>
 ): IndirectActorProducer {
 
   override fun produce(): Actor {

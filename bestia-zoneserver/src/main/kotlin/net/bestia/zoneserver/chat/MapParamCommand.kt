@@ -6,7 +6,7 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }

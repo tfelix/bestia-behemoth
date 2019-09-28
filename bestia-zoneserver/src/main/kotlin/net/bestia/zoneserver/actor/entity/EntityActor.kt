@@ -6,7 +6,7 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory

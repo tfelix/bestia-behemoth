@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.bestia
 
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaActivateMessage
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
@@ -24,7 +24,7 @@ class ActivateBestiaActor(
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(BestiaActivateMessage::class.java, this::handleActivateBestia)
+    builder.matchRedirect(BestiaActivateMessage::class.java, this::handleActivateBestia)
   }
 
   private fun handleActivateBestia(msg: BestiaActivateMessage) {

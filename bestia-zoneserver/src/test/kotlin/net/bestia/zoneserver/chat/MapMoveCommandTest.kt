@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat
 
 import com.nhaarman.mockitokotlin2.any
 import net.bestia.model.account.Account
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach

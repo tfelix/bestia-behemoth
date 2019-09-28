@@ -5,8 +5,6 @@ import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.bootstrap.BootstrapActor
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor
 import net.bestia.zoneserver.actor.entity.EntityActor
-import net.bestia.zoneserver.actor.map.quadtree.AwaitQuadTreeResponseActor
-import net.bestia.zoneserver.actor.map.quadtree.MapQuadTreeActor
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
@@ -23,9 +21,7 @@ class GeneralActorTest {
    * These actors wont be tested for existence of annotations.
    */
   private val whitelist = setOf(
-      AwaitResponseActor::class.java,
-      MapQuadTreeActor::class.java,
-      AwaitQuadTreeResponseActor::class.java
+      AwaitResponseActor::class.java
   )
 
   /**

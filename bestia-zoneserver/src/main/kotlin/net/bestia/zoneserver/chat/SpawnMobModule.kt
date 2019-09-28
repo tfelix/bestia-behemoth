@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.factory.MobFactory
 

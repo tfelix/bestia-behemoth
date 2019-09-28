@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.geometry.Rect
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.actor.SpringExtension
@@ -36,7 +36,7 @@ class SendClientsInRangeActor(
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.match(SendInRange::class.java, this::handleSendToActiveInRange)
+    builder.matchRedirect(SendInRange::class.java, this::handleSendToActiveInRange)
   }
 
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)

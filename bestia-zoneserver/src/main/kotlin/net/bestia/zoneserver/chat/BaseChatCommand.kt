@@ -2,7 +2,7 @@ package net.bestia.zoneserver.chat
 
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.actor.MessageApi
+import net.bestia.zoneserver.actor.routing.MessageApi
 
 internal abstract class BaseChatCommand(
     protected val messageApi: MessageApi
