@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.entity.component
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BaseValues
 import net.bestia.model.bestia.BasicStatusValues
@@ -19,10 +18,16 @@ import net.bestia.model.entity.StatusBasedValues
 data class StatusComponent(
     override val entityId: Long,
 
-    @get:JsonProperty("osv")
     val originalStatusValues: StatusValues,
 
-    @get:JsonProperty("ef")
+    /**
+     * The original element of this entity unaltered by status effects or
+     * equipments.
+     *
+     * @return The original unaltered element.
+     */
+    val originalElement: Element = Element.NORMAL,
+
     val effortValues: BaseValues = BaseValues.NULL_VALUES,
 
     /**
@@ -33,19 +38,8 @@ data class StatusComponent(
      *
      * @return The current status points of the entity.
      */
-    @get:JsonProperty("sv")
     val statusValues: StatusValues,
 
-    /**
-     * The original element of this entity unaltered by status effects or
-     * equipments.
-     *
-     * @return The original unaltered element.
-     */
-    @get:JsonProperty("oe")
-    val originalElement: Element = Element.NORMAL,
-
-    @get:JsonProperty("cv")
     val conditionValues: ConditionValues,
 
     /**
@@ -53,7 +47,6 @@ data class StatusComponent(
      *
      * @param statusBasedValues The new status based values.
      */
-    @get:JsonProperty("sbv")
     val statusBasedValues: StatusBasedValues,
 
     /**
@@ -61,6 +54,5 @@ data class StatusComponent(
      *
      * @return The current element of the entity.
      */
-    @get:JsonProperty("e")
-    var element: Element = Element.NORMAL
+    val element: Element = Element.NORMAL
 ) : Component

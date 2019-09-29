@@ -62,7 +62,7 @@ data class ConditionValues(
    * positive.
    */
   fun addHealth(hp: Int): ConditionValues {
-    return copy(currentHealth + hp)
+    return copy(currentHealth = currentHealth + hp)
   }
 
   /**
@@ -74,7 +74,7 @@ data class ConditionValues(
    * positive.
    */
   fun addMana(mana: Int): ConditionValues {
-    return copy(currentMana + mana)
+    return copy(currentMana = currentMana + mana)
   }
 
   fun setMaximumValues(

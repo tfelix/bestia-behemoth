@@ -1,6 +1,3 @@
-
-function main() {
-  Bestia.findEntity(USER_ID)
+Bestia.findEntity(SELF)
     .condition()
       .addHp(10)
-}

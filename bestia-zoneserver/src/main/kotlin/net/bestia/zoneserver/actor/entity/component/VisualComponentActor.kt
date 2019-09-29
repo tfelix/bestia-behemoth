@@ -9,7 +9,6 @@ class VisualComponentActor(
 ) : ComponentActor<VisualComponent>(visualComponent) {
 
   override fun onComponentChanged(oldComponent: VisualComponent, newComponent: VisualComponent) {
-
     // TODO This is tricky. If the entity is now invisible only play the make invis animation
     // and then stop all updates to this entity like e.g. position.
 

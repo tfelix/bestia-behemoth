@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.floor
 import kotlin.math.max
-import kotlin.math.min
+import kotlin.random.Random
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,8 +20,9 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Component
-class MeleeDamageCalculator : DamageCalculator {
-  private val rand = ThreadLocalRandom.current()
+class MeleeDamageCalculator(
+    private val random: Random
+) : DamageCalculator {
 
   /**
    * This calculates the taken battle damage. Currently this is only a
@@ -153,6 +154,6 @@ class MeleeDamageCalculator : DamageCalculator {
    * @return A random value between 0.85 and 1.
    */
   private fun calculateVarMod(): Float {
-    return 1 - rand.nextFloat() * 0.15f
+    return 1 - random.nextFloat() * 0.15f
   }
 }

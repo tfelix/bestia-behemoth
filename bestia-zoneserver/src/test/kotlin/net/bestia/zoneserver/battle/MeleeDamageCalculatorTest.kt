@@ -7,14 +7,14 @@ import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.entity.BasicStatusBasedValues
-import net.bestia.model.entity.StatusBasedValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 internal class MeleeDamageCalculatorTest {
 
-  private val sut = MeleeDamageCalculator()
+  private val sut = MeleeDamageCalculator(random = Random(1234))
 
   @Test
   fun calculateDamage() {
@@ -37,7 +37,6 @@ internal class MeleeDamageCalculatorTest {
         maxMana = 100,
         maxStamina = 100
     )
-
     val defenderLevel = 5
 
     val defender = Entity(id = 1)
@@ -105,7 +104,7 @@ internal class MeleeDamageCalculatorTest {
         ),
         defenderStatusBased = BasicStatusBasedValues(
             statusValues = defenderStatusValues,
-            conditionValues = attackerCondition,
+            conditionValues = defenderCondition,
             attackSpeed = 10f,
             baseWalkspeed = 10f,
             casttimeMod = 1.0f,
@@ -124,5 +123,7 @@ internal class MeleeDamageCalculatorTest {
         defender = defender
     )
     val dmg = sut.calculateDamage(ctx)
+
+    println(dmg)
   }
 }

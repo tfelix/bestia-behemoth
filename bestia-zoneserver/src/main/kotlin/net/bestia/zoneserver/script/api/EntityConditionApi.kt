@@ -4,29 +4,25 @@ class EntityConditionApi(
     private val conditionContext: EntityConditionContext
 ) {
   fun addHp(hp: Long): EntityConditionApi {
-    conditionContext.deltaHP += hp
-    conditionContext.setHP = null
+    conditionContext.commands.add(AddHp(hp))
 
     return this
   }
 
   fun setHp(hp: Long): EntityConditionApi {
-    conditionContext.deltaHP = 0
-    conditionContext.setHP = hp
+    conditionContext.commands.add(SetHp(hp))
 
     return this
   }
 
   fun addMana(mana: Long): EntityConditionApi {
-    conditionContext.deltaMana += mana
-    conditionContext.setMana = null
+    conditionContext.commands.add(AddMana(mana))
 
     return this
   }
 
   fun setMana(mana: Long): EntityConditionApi {
-    conditionContext.deltaMana = 0
-    conditionContext.setMana = mana
+    conditionContext.commands.add(SetMana(mana))
 
     return this
   }

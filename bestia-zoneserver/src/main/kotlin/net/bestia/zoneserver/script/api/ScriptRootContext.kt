@@ -3,7 +3,9 @@ package net.bestia.zoneserver.script.api
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
 
-class ScriptRootContext : Context {
+class ScriptRootContext(
+    val scriptName: String
+) : Context {
   val entityContexts = mutableListOf<EntityContext>()
   val newEntities = mutableListOf<Entity>()
 

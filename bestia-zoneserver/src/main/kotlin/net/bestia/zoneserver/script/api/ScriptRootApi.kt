@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
-import net.bestia.model.geometry.Vec3
+import net.bestia.model.geometry.Rect
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
-import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -17,52 +17,48 @@ private val LOG = KotlinLogging.logger { }
  */
 class ScriptRootApi(
     private val idGeneratorService: IdGenerator,
+    private val rootCtx: ScriptRootContext,
     private val mobFactory: MobFactory,
-    private val scriptContext: ScriptRootContext
+    private val entityCollisionService: EntityCollisionService
 ) {
 
   fun info(text: String) {
-    LOG.info { text }
+    LOG.info { "${rootCtx.scriptName}: $text" }
   }
 
   fun debug(text: String) {
-    LOG.debug { text }
+    LOG.debug { "${rootCtx.scriptName}: $text" }
   }
 
   fun findEntity(entityId: Long): EntityApi {
-    if (entityId <= 0L) {
-      throw IllegalArgumentException("Entity ID can not be null. This is probably a wrong call.")
-    }
-    LOG.debug { "findEntity: $entityId" }
+    require(entityId > 0L) { "Entity ID can not be null. This is probably a wrong call." }
+    LOG.debug { "${rootCtx.scriptName}: findEntity($entityId)" }
 
     val ctx = EntityContext(entityId)
-    scriptContext.entityContexts.add(ctx)
+    rootCtx.entityContexts.add(ctx)
 
-    return EntityApi(ctx)
+    return EntityApi(entityContext = ctx, mobFactory = mobFactory, rootCtx = rootCtx)
   }
 
-  fun spawnMob(
-      mobName: String,
-      x: Long,
-      y: Long,
-      z: Long
-  ): EntityApi {
-    val position = Vec3(x, y, z)
-    LOG.debug { "spawnMob: $mobName pos: $position" }
-    val entity = mobFactory.build(mobName, position)
+  fun findEntitiesBbox(x1: Long, y1: Long, z1: Long, x2: Long, y2: Long, z2: Long): Array<EntityApi> {
+    LOG.debug { "${rootCtx.scriptName}: findEntitiesBbox($x1: Long, $y1: Long, $z1: Long, $x2: Long, $y2: Long, $z2: Long)" }
 
-    val ctx = EntityContext(entity.id)
-    scriptContext.entityContexts.add(ctx)
-    scriptContext.newEntities.add(entity)
+    val rect = Rect(x1, y1, z1, x2, y2, z2)
+    val entities = entityCollisionService.getAllCollidingEntityIds(rect)
 
-    return EntityApi(ctx)
+    return entities.map {
+      EntityContext(it)
+    }.map {
+      rootCtx.entityContexts.add(it)
+      EntityApi(entityContext = it, mobFactory = mobFactory, rootCtx = rootCtx)
+    }.toTypedArray()
   }
 
   fun newEntity(): EntityApi {
     val entityId = idGeneratorService.newId()
-    scriptContext.newEntities.add(Entity(entityId))
+    rootCtx.newEntities.add(Entity(entityId))
     val ctx = EntityContext(entityId)
 
-    return EntityApi(ctx)
+    return EntityApi(entityContext = ctx, mobFactory = mobFactory, rootCtx = rootCtx)
   }
 }
