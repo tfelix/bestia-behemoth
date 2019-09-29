@@ -19,25 +19,11 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class SendToClientActor : AbstractActor() {
 
-  private var clientConnection = ClusterSharding.get(context.system)
-      .shardRegion(ShardActorNames.SHARD_CONNECTION)
-
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-        .match(AccountMessage::class.java, this::handleAccountMessage)
-        .match(ClientEnvelope::class.java, this::handleClientEnvelope)
         .build()
   }
 
-  private fun handleClientEnvelope(msg: ClientEnvelope) {
-    clientConnection.tell(msg, self)
-  }
-
-  private fun handleAccountMessage(msg: AccountMessage) {
-    LOG.debug("Sending to client: {}", msg)
-    val accountId = msg.accountId
-    clientConnection.tell(ClientEnvelope(accountId, msg), sender)
-  }
 
   companion object {
     const val NAME = "sendToClient"

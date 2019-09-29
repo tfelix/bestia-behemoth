@@ -1,11 +1,13 @@
 package net.bestia.zoneserver.account
 
 import mu.KotlinLogging
-import net.bestia.model.account.AccountRepository
-import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountRepository
+import net.bestia.model.account.AccountType
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.zoneserver.entity.PlayerBestiaService
+import net.bestia.model.findOneOrThrow
+import net.bestia.model.server.MaintenanceLevel
+import net.bestia.zoneserver.config.RuntimeConfigService
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.factory.PlayerBestiaFactory
 import org.springframework.stereotype.Service
@@ -22,8 +24,20 @@ class LoginService(
     private val accountRepository: AccountRepository,
     private val playerBestiaRepository: PlayerBestiaRepository,
     private val playerEntityService: PlayerEntityService,
-    private val playerBestiaFactory: PlayerBestiaFactory
+    private val playerBestiaFactory: PlayerBestiaFactory,
+    private val runtimeConfigService: RuntimeConfigService
 ) {
+
+  fun isLoginAllowedForAccount(accountId: Long): Boolean {
+    val currentMaintenanceLevel = runtimeConfigService.getRuntimeConfig().maintenanceLevel
+    val account = accountRepository.findOneOrThrow(accountId)
+
+    return when (currentMaintenanceLevel) {
+      MaintenanceLevel.NONE -> true
+      MaintenanceLevel.PARTIAL -> account.userLevel > AccountType.GM
+      MaintenanceLevel.FULL -> false
+    }
+  }
 
   /**
    * Performs a login for this account. This prepares the bestia server system

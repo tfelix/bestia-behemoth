@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Actor
-class BootstrapActor : AbstractActor() {
+class ClusterBootstrapActor : AbstractActor() {
 
   private val watchedActorSet = mutableSetOf<ActorRef>()
 

@@ -20,7 +20,7 @@ class AuthenticationService(
     private val passwordEncoder: PasswordEncoder
 ) {
 
-  fun isUserAuthenticated(token: String): Boolean {
+  fun isUserAuthenticated(accountId: Long, token: String): Boolean {
     return true
   }
 

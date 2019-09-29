@@ -2,8 +2,7 @@ package net.bestia.zoneserver.actor
 
 import akka.actor.AbstractActor
 import net.bestia.model.util.PackageLoader
-import net.bestia.zoneserver.actor.bootstrap.BootstrapActor
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor
+import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import org.junit.Assert
 import org.junit.jupiter.api.Test
@@ -87,9 +86,8 @@ class GeneralActorTest {
     private val IGNORED_ACTORS = HashSet<Class<out AbstractActor>>()
 
     init {
-      IGNORED_ACTORS.add(BootstrapActor::class.java)
+      IGNORED_ACTORS.add(ClusterBootstrapActor::class.java)
       IGNORED_ACTORS.add(EntityActor::class.java)
-      IGNORED_ACTORS.add(ClientConnectionActor::class.java)
     }
   }
 }

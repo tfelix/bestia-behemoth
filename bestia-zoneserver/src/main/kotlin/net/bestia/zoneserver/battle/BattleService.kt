@@ -3,21 +3,20 @@ package net.bestia.zoneserver.battle
 import mu.KotlinLogging
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackType
-import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.BattleDamageComponent
-import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
-import net.bestia.model.geometry.Vec3
 import net.bestia.model.geometry.Rect
-import net.bestia.zoneserver.entity.EntityCollisionService
+import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.BattleDamageComponent
+import net.bestia.zoneserver.entity.component.LevelComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
-import java.util.concurrent.ThreadLocalRandom
+import java.util.*
 
 private val LOG = KotlinLogging.logger { }
 
@@ -29,10 +28,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class BattleService(
-    private val entityCollisionService: EntityCollisionService,
-    private val damageCalculator: DamageCalculator
+    private val damageCalculator: DamageCalculator,
+    private val random: Random
 ) {
-  private val rand = ThreadLocalRandom.current()
 
   /**
    * Attacks itself.
@@ -200,7 +198,7 @@ class BattleService(
 
     LOG.trace("Hit chance: {}", hitrate)
 
-    return if (rand.nextFloat() < hitrate) {
+    return if (random.nextFloat() < hitrate) {
       LOG.trace("Attack was hit.")
       true
     } else {
@@ -325,7 +323,7 @@ class BattleService(
 
     LOG.trace("Crit chance: {}", crit)
 
-    return if (rand.nextFloat() < crit) {
+    return if (random.nextFloat() < crit) {
       LOG.trace("Attack was critical hit.")
       dmgVars.isCriticalHit = true
       true

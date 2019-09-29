@@ -8,19 +8,15 @@ import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
+import akka.cluster.singleton.ClusterSingletonProxy
 import akka.http.javadsl.ConnectHttp
-import akka.http.javadsl.Http
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.javadsl.AkkaManagement
-import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
-import net.bestia.zoneserver.actor.bootstrap.BootstrapActor
+import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
 import net.bestia.zoneserver.actor.client.ClientMessageRoutingActor
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor
-import net.bestia.zoneserver.actor.connection.ConnectionShardMessageExtractor
-import net.bestia.zoneserver.actor.connection.WebSocketRouter
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.routing.EntityRoutingActor
@@ -31,6 +27,8 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.net.UnknownHostException
+import akka.cluster.singleton.ClusterSingletonProxySettings
+import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 
 private val LOG = KotlinLogging.logger { }
 
@@ -62,15 +60,6 @@ class AkkaConfiguration {
     setupSharding(system)
 
     val clientMessageRouting = SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
-
-    val materializer = ActorMaterializer.create(system)
-    val http = Http.get(system)
-    val router = WebSocketRouter(system, clientMessageRouting)
-    val routeFlow = router.createRoute().flow(system, materializer)
-    val websocketConnect = ConnectHttp.toHost("localhost", zoneConfig.websocketPort)
-    LOG.info { "Starting websocket ingress on $websocketConnect..." }
-    http.bindAndHandle(routeFlow, websocketConnect, materializer)
-
     // scriptService.callScriptMainFunction("startup")
 
     return system
@@ -85,10 +74,6 @@ class AkkaConfiguration {
     val entityExtractor = EntityShardMessageExtractor()
     sharding.start(ShardActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor)
 
-    LOG.info { "Starting client sharding..." }
-    val connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor::class.java)
-    val connectionExtractor = ConnectionShardMessageExtractor()
-    sharding.start(ShardActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor)
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {
@@ -97,9 +82,11 @@ class AkkaConfiguration {
   }
 
   private fun setupSingeltons(system: ActorSystem) {
-    LOG.info { "Starting the bootstrap actor." }
+    LOG.info { "Starting the bootstrap actor" }
     val settings = ClusterSingletonManagerSettings.create(system)
-    startAsSingelton(system, settings, BootstrapActor::class.java, "bootstrap")
+    startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "bootstrap")
+    LOG.info { "Starting the client connection manager actor" }
+    startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, CLIENT_CONNECTION_MANAGER)
   }
 
   private fun <T : AbstractActor> startAsSingelton(
@@ -125,9 +112,21 @@ class AkkaConfiguration {
     return SpringExtension.actorOf(system, EntityRoutingActor::class.java)
   }
 
+  @Bean
+  @Qualifier(CONNECTION_MANAGER)
+  fun connectionManager(system: ActorSystem): ActorRef {
+    val proxySettings = ClusterSingletonProxySettings.create(system)
+    val props = ClusterSingletonProxy.props("/user/$CLIENT_CONNECTION_MANAGER", proxySettings)
+
+    return system.actorOf(props, "clientConnectionManagerProxy")
+  }
+
   companion object {
+    private const val CLIENT_CONNECTION_MANAGER = "clientConnectionManager"
     private const val AKKA_CONFIG_NAME = "akka"
+
     const val ENTITY_ROUTER_QUALIFIER = "entityRouter"
     const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
+    const val CONNECTION_MANAGER = "clientConnectionManager"
   }
 }

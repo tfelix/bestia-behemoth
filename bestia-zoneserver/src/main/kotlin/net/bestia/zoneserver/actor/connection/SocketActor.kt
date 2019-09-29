@@ -2,16 +2,27 @@ package net.bestia.zoneserver.actor.connection
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import akka.actor.PoisonPill
-import akka.actor.Terminated
+import akka.http.javadsl.model.ws.TextMessage
+import akka.io.Tcp
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import net.bestia.messages.MessageId
 import net.bestia.messages.client.ClientConnectMessage
-import net.bestia.messages.client.ClientDisconnectMessage
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.zoneserver.account.LoginService
-import net.bestia.zoneserver.account.LogoutService
+import net.bestia.messages.client.LatencyInfo
+import net.bestia.messages.client.PongMessage
+import net.bestia.messages.login.LoginAuthRequestMessage
+import net.bestia.messages.login.LoginAuthResponseMessage
+import net.bestia.messages.login.LoginResponse
+import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.actor.Actor
+import java.io.IOException
+import scala.sys.*
+import scala.runtime.BoxedUnit
+import akka.io.Tcp.ConnectionClosed
+import akka.io.TcpMessage
+import net.bestia.zoneserver.account.LoginService
+import net.bestia.zoneserver.config.RuntimeConfigService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -28,10 +39,62 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Actor
-class ClientConnectionActor(
-    private val loginService: LoginService,
-    private val logoutService: LogoutService
+class SocketActor(
+    private val connection: ActorRef,
+    private val authenticationService: AuthenticationService,
+    private val loginService: LoginService
 ) : AbstractActor() {
+
+  init {
+    // this actor stops when the connection is closed
+    context.watch(connection)
+  }
+
+  override fun createReceive(): Receive {
+    return receiveBuilder()
+        .match(Tcp.Received::class.java, this::waitForAuth)
+        .match(ConnectionClosed::class.java) { context.stop(self) }
+        .build()
+  }
+
+  /**
+   * State if the connection became authenticated with the client.
+   */
+  private fun authenticated(): Receive {
+    return receiveBuilder()
+        .match(Tcp.Received::class.java, this::receiveClientMessage)
+        .match(ConnectionClosed::class.java) { context.stop(self) }
+        .build()
+  }
+
+  private fun waitForAuth(msg: Tcp.Received) {
+    val data = msg.data()
+    println(data)
+
+    // TODO Deserialize the byte string.
+    val authMessage = LoginAuthRequestMessage(token = "test1234", accountId = 1)
+
+    val isAuthenticated = authenticationService.isUserAuthenticated(
+        authMessage.accountId,
+        authMessage.token
+    )
+    val isLoginAllowed = loginService.isLoginAllowedForAccount(authMessage.accountId)
+
+    if (isAuthenticated && isLoginAllowed) {
+      context.become(authenticated(), true)
+    } else {
+      // Drop connection to client
+      // TODO Check if we need so send some kind of reason first. Currently in maintenance mode?
+      connection.tell(TcpMessage.close(), self)
+    }
+  }
+
+  private fun receiveClientMessage(msg: Tcp.Received) {
+
+  }
+}
+
+/*
 
   private var accountId: Long = 0
   private var authenticatedSocket: ActorRef? = null
@@ -134,4 +197,4 @@ class ClientConnectionActor(
       return String.format(ACTOR_NAME, accId)
     }
   }
-}
+ */

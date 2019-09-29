@@ -16,9 +16,6 @@ class ClasspathJavaScriptFileProvider : ScriptFileProvider {
     }
   }
 
-  /**
-   * This approach might fail if we are inside a jar file. Maybe we need
-   */
   private fun fetchAttackScripts(): List<ScriptFile> {
     return resolver.getResources("classpath*:script/attack/*.js").map {
       ScriptFile(

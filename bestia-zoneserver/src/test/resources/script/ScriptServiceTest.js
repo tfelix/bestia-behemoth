@@ -1,8 +1,6 @@
-function main() {
-    BESTIA.info('Hello World');
-    BESTIA.debug('Hello World');
+Bestia.info('Hello World');
+Bestia.debug('Hello World');
 
-    BESTIA.newEntity();
-    BESTIA.findEntity(10);
-    BESTIA.spawnMob('blob', 10, 10);
-}
+Bestia.newEntity();
+Bestia.findEntity(10);
+Bestia.spawnMob('blob', 10, 10);

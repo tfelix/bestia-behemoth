@@ -15,7 +15,9 @@ data class LoginAuthRequestMessage(
      *
      * @return Login token.
      */
-    val token: String
+    val token: String,
+
+    val accountId: Long
 ) : MessageId {
 
   override val messageId: String

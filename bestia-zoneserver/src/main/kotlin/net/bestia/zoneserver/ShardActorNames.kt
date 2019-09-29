@@ -8,6 +8,4 @@ package net.bestia.zoneserver
  */
 object ShardActorNames {
   const val SHARD_ENTITY = "entityShard"
-  const val SHARD_CONNECTION = "connectionShard"
-  const val SHARD_QUADTREE = "quadtree"
 }
