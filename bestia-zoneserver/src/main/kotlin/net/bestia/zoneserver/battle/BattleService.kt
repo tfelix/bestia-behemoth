@@ -17,6 +17,8 @@ import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 private val LOG = KotlinLogging.logger { }
 
@@ -62,10 +64,9 @@ class BattleService(
     LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, attack)
 
     return if (isEligibleForDamage(defender)) {
-      LOG.debug { "Defending entity is a bestia." }
       attackDamagableEntity(attack, attacker, defender)
     } else {
-      LOG.warn("Entity can not receive damage because of missing components.")
+      LOG.warn("Entity $defender can not receive damage because of missing components")
       null
     }
   }
@@ -259,12 +260,12 @@ class BattleService(
     val start = attacker.getComponent(PositionComponent::class.java).position
     val end = defender.getComponent(PositionComponent::class.java).position
 
-    val x1 = Math.min(start.x, end.x)
-    val x2 = Math.max(start.x, end.x)
-    val y1 = Math.min(start.y, end.y)
-    val y2 = Math.max(start.y, end.y)
-    val z1 = Math.min(start.z, end.z)
-    val z2 = Math.max(start.z, end.z)
+    val x1 = min(start.x, end.x)
+    val x2 = max(start.x, end.x)
+    val y1 = min(start.y, end.y)
+    val y2 = max(start.y, end.y)
+    val z1 = min(start.z, end.z)
+    val z2 = max(start.z, end.z)
 
     val width = x2 - x1
     val depth = y2 - y1

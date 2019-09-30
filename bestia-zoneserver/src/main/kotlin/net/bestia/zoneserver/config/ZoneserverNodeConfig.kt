@@ -13,13 +13,18 @@ import org.springframework.stereotype.Component
 @Component
 data class ZoneserverNodeConfig(
     /**
-     * Returns the name of this server. By default this is an auto generated
-     * value.
+     * Returns the name of this server.
      *
      * @return The server name.
      */
-    @Value("\${server.name}")
+    @Value("server.name")
     val serverName: String,
+
+    /**
+     * Id of this server. Must be unique in the cluster.
+     */
+    @Value("server.node-id")
+    val nodeId: Int,
 
     /**
      * Returns the server string of its version.
@@ -27,9 +32,6 @@ data class ZoneserverNodeConfig(
      * @return The server version.
      */
     @Value("\${server.version}")
-    val serverVersion: String,
-
-    @Value("\${server.websocketPort}")
-    val websocketPort: Int
+    val serverVersion: String
 )
 
