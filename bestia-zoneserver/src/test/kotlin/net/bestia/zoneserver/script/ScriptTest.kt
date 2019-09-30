@@ -1,9 +1,11 @@
 package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.mock
+import net.bestia.zoneserver.Fixtures
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
+import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.exec.ItemScriptExec
 import org.junit.jupiter.api.BeforeAll
@@ -24,6 +26,7 @@ class ScriptCompileTest {
   private val mobFactory: MobFactory = mock { }
   private val messageApi: MessageApi = mock { }
   private val entityCollisionService: EntityCollisionService = mock { }
+  private val idGenerator = IdGenerator(Fixtures.zoneserverNodeConfig)
 
   private val scriptProvider = ClasspathJavaScriptFileProvider()
   private val cache = ScriptCache()
@@ -37,7 +40,8 @@ class ScriptCompileTest {
       scriptCache = cache,
       mobFactory = mobFactory,
       messageApi = messageApi,
-      entityCollisionService = entityCollisionService
+      entityCollisionService = entityCollisionService,
+      idGenerator = idGenerator
   )
 
   @Throws(Exception::class)

@@ -86,7 +86,7 @@ class AkkaConfiguration {
     val settings = ClusterSingletonManagerSettings.create(system)
     startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "bootstrap")
     LOG.info { "Starting the client connection manager actor" }
-    startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, CLIENT_CONNECTION_MANAGER)
+    startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, ClusterClientConnectionManagerActor.NAME)
   }
 
   private fun <T : AbstractActor> startAsSingelton(
@@ -116,13 +116,12 @@ class AkkaConfiguration {
   @Qualifier(CONNECTION_MANAGER)
   fun connectionManager(system: ActorSystem): ActorRef {
     val proxySettings = ClusterSingletonProxySettings.create(system)
-    val props = ClusterSingletonProxy.props("/user/$CLIENT_CONNECTION_MANAGER", proxySettings)
+    val props = ClusterSingletonProxy.props("/user/${ClusterClientConnectionManagerActor.NAME}", proxySettings)
 
-    return system.actorOf(props, "clientConnectionManagerProxy")
+    return system.actorOf(props, ClusterClientConnectionManagerActor.NAME)
   }
 
   companion object {
-    private const val CLIENT_CONNECTION_MANAGER = "clientConnectionManager"
     private const val AKKA_CONFIG_NAME = "akka"
 
     const val ENTITY_ROUTER_QUALIFIER = "entityRouter"

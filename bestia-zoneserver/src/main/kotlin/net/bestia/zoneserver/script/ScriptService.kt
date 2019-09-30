@@ -28,6 +28,7 @@ class ScriptService(
     private val scriptCache: ScriptCache,
     private val mobFactory: MobFactory,
     private val messageApi: MessageApi,
+    private val idGenerator: IdGenerator,
     private val entityCollisionService: EntityCollisionService
 ) {
 
@@ -61,7 +62,7 @@ class ScriptService(
     exec.setupEnvironment(bindings)
 
     val rootApi = ScriptRootApi(
-        idGeneratorService = IdGenerator(),
+        idGeneratorService = idGenerator,
         rootCtx = rootContext,
         mobFactory = mobFactory,
         entityCollisionService = entityCollisionService

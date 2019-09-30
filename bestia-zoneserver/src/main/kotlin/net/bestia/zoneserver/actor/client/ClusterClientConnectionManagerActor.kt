@@ -1,7 +1,27 @@
 package net.bestia.zoneserver.actor.client
 
-import akka.actor.AbstractActor
-import net.bestia.zoneserver.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.PoisonPill
+import akka.persistence.AbstractPersistentActor
+import akka.persistence.SnapshotOffer
+
+data class ClientConnectedEvent(
+    val accountId: Long,
+    val socketActor: ActorRef
+)
+
+data class ClientDisconnectedEvent(
+    val accountId: Long
+)
+
+data class ClientSocketRequest(
+    val accountId: Long
+)
+
+data class ClientSocketResponse(
+    val accountId: Long,
+    val socketActor: ActorRef?
+)
 
 /**
  * This is the cluster wide connection manager. It keeps track of all the current connection to the cluster.
@@ -10,15 +30,64 @@ import net.bestia.zoneserver.actor.Actor
  * here.
  *
  */
-class ClusterClientConnectionManagerActor : AbstractActor() {
-  override fun createReceive(): Receive {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-}
+class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
 
-@Actor
-class NodeClientConnectionManagerActor : AbstractActor() {
+  private val connections = mutableMapOf<Long, ActorRef>()
+
+  override fun createReceiveRecover(): Receive {
+    return receiveBuilder()
+        .match(ClientConnectedEvent::class.java, this::addClientConnection)
+        .match(ClientDisconnectedEvent::class.java, this::removeClientConnection)
+        .match(SnapshotOffer::class.java) {
+          connections.clear()
+          @Suppress("UNCHECKED_CAST")
+          val snapshot = it.snapshot() as Map<Long, ActorRef>
+          connections.putAll(snapshot)
+        }.build()
+  }
+
+  /**
+   * Make sure this manager is a singelton so we can actually use its name as the persistence id.
+   */
+  override fun persistenceId(): String {
+    return NAME
+  }
+
   override fun createReceive(): Receive {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return receiveBuilder()
+        .match(ClientConnectedEvent::class.java, this::addClientConnection)
+        .match(ClientDisconnectedEvent::class.java, this::removeClientConnection)
+        .match(ClientSocketRequest::class.java, this::requestClientSocket)
+        .build()
+  }
+
+  private fun requestClientSocket(msg: ClientSocketRequest) {
+    val response = ClientSocketResponse(
+        accountId = msg.accountId,
+        socketActor = connections[msg.accountId]
+    )
+
+    sender.tell(response, self)
+  }
+
+  private fun addClientConnection(msg: ClientConnectedEvent) {
+    persist(msg) {
+      connections[msg.accountId]?.let { existingSocketActor ->
+        if(existingSocketActor != msg.socketActor) {
+          existingSocketActor.tell(PoisonPill.getInstance(), self)
+        }
+      }
+      connections[msg.accountId] = msg.socketActor
+    }
+  }
+
+  private fun removeClientConnection(msg: ClientDisconnectedEvent) {
+    persist(msg) {
+      connections.remove(msg.accountId)
+    }
+  }
+
+  companion object {
+    const val NAME = "clusterClientConnectionManager"
   }
 }

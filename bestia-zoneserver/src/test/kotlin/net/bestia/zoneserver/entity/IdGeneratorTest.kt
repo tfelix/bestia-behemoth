@@ -14,7 +14,7 @@ internal class IdGeneratorTest {
       private val generator: IdGenerator
   ) : Callable<List<Long>> {
     override fun call(): List<Long> {
-      return (0..99).map { generator.newId() }.toList()
+      return (0..999).map { generator.newId() }.toList()
     }
   }
 
@@ -22,11 +22,12 @@ internal class IdGeneratorTest {
 
   @Test
   fun `newId produces different and valid ids in different threads`() {
-    val duplicates = (0..3)
+    val results = (0..3)
         .map { GetId(sut) }
         .map { executor.submit(it) }
         .flatMap { it.get() }
-        .groupingBy { it }
+
+    val duplicates = results.groupingBy { it }
         .eachCount()
         .filter { it.value > 1 }
 

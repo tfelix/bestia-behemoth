@@ -5,6 +5,10 @@ import akka.persistence.SaveSnapshotFailure
 import akka.persistence.SaveSnapshotSuccess
 import net.bestia.zoneserver.entity.component.Component
 
+/**
+ * Snapshot every 30s
+ *
+ */
 @Actor
 class ExamplePersistentActor(
     component: Component

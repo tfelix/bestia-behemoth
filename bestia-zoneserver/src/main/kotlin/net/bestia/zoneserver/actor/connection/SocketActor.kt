@@ -2,27 +2,17 @@ package net.bestia.zoneserver.actor.connection
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import akka.http.javadsl.model.ws.TextMessage
 import akka.io.Tcp
-import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
-import net.bestia.messages.MessageId
-import net.bestia.messages.client.ClientConnectMessage
-import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.client.LatencyInfo
-import net.bestia.messages.client.PongMessage
-import net.bestia.messages.login.LoginAuthRequestMessage
-import net.bestia.messages.login.LoginAuthResponseMessage
-import net.bestia.messages.login.LoginResponse
-import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.actor.Actor
-import java.io.IOException
-import scala.sys.*
-import scala.runtime.BoxedUnit
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
+import mu.KotlinLogging
+import net.bestia.messages.login.LoginAuthRequestMessage
+import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.LoginService
-import net.bestia.zoneserver.config.RuntimeConfigService
+import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.client.ClientConnectedEvent
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -42,7 +32,9 @@ private val LOG = KotlinLogging.logger { }
 class SocketActor(
     private val connection: ActorRef,
     private val authenticationService: AuthenticationService,
-    private val loginService: LoginService
+    private val loginService: LoginService,
+    @Qualifier(AkkaConfiguration.CONNECTION_MANAGER)
+    private val clusterClientConnectionManager: ActorRef
 ) : AbstractActor() {
 
   init {
@@ -52,7 +44,7 @@ class SocketActor(
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(Tcp.Received::class.java, this::waitForAuth)
+        .match(Tcp.Received::class.java, this::waitForAuthMessage)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
   }
@@ -67,7 +59,7 @@ class SocketActor(
         .build()
   }
 
-  private fun waitForAuth(msg: Tcp.Received) {
+  private fun waitForAuthMessage(msg: Tcp.Received) {
     val data = msg.data()
     println(data)
 
@@ -82,15 +74,31 @@ class SocketActor(
 
     if (isAuthenticated && isLoginAllowed) {
       context.become(authenticated(), true)
+      announceNewClientConnection(authMessage.accountId)
     } else {
-      // Drop connection to client
       // TODO Check if we need so send some kind of reason first. Currently in maintenance mode?
       connection.tell(TcpMessage.close(), self)
     }
   }
 
-  private fun receiveClientMessage(msg: Tcp.Received) {
+  override fun postStop() {
+    super.postStop()
+    LOG.trace { "Actor stopped, closing socket" }
+    connection.tell(TcpMessage.close(), self)
+  }
 
+  private fun announceNewClientConnection(accountId: Long) {
+    val event = ClientConnectedEvent(
+        accountId = accountId,
+        socketActor = self
+    )
+
+    clusterClientConnectionManager.tell(event, self)
+  }
+
+  private fun receiveClientMessage(msg: Tcp.Received) {
+    // Deserialize and feed it into the system.
+    println(msg)
   }
 }
 
