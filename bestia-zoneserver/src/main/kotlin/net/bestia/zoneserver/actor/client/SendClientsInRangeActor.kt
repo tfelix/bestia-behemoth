@@ -13,6 +13,7 @@ import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PlayerComponent
+import net.bestia.zoneserver.map.MapService
 
 private val LOG = KotlinLogging.logger { }
 
@@ -55,8 +56,7 @@ class SendClientsInRangeActor(
           return
         }
 
-    // FIXME Get the proper rect
-    val updateRect = Rect(0, 0, 0, 10, 10, 10)// MapService.getUpdateRect(posComp.position)
+    val updateRect = MapService.getUpdateRect(posComp.position)
     val activeIds = entityCollisionService.getAllCollidingEntityIds(updateRect)
 
     awaitEntityResponse(messageApi, context, activeIds) { entities ->
