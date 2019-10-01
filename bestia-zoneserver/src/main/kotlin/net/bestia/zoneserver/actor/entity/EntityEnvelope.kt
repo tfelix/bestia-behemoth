@@ -4,7 +4,7 @@ import net.bestia.messages.Envelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.entity.component.Component
 
-internal data class EntityEnvelope(
+data class EntityEnvelope(
     val entityId: Long,
     override val content: Any
 ) : Envelope

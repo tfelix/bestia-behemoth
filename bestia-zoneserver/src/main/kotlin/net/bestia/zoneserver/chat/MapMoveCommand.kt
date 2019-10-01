@@ -9,14 +9,11 @@ import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
+import net.bestia.zoneserver.script.api.SetPositionToCommand
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
 
 private val LOG = KotlinLogging.logger { }
-
-data class PositionToMessage(
-    val position: Vec3
-)
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.
@@ -64,7 +61,10 @@ internal class MapMoveCommand(
       messageApi.send(
           EntityEnvelope(
               activePlayerBestia,
-              ComponentEnvelope(PositionComponent::class.java, PositionToMessage(Vec3(x, y, z)))
+              ComponentEnvelope(PositionComponent::class.java, SetPositionToCommand(
+                  entityId = activePlayerBestia,
+                  position = Vec3(x, y, z)
+              ))
           )
       )
     }

@@ -2,37 +2,36 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.chat.PositionToMessage
-import net.bestia.zoneserver.entity.factory.MobFactory
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
+import net.bestia.zoneserver.entity.component.PositionComponent
 import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
+data class SetPositionToCommand(
+    val entityId: Long,
+    val position: Vec3
+) : EntityCommand {
+  override fun toEntityEnvelope(): EntityEnvelope {
+    return EntityEnvelope(
+        entityId = entityId,
+        content = ComponentEnvelope(
+            componentType = PositionComponent::class.java,
+            content = this
+        )
+    )
+  }
+}
+
 class EntityApi(
-    private val entityContext: EntityContext,
-    private val mobFactory: MobFactory,
-    private val rootCtx: ScriptRootContext
+    val entityId: Long,
+    private val commands: MutableList<EntityCommand>
 ) {
 
-  fun spawnMob(
-      mobName: String,
-      x: Long,
-      y: Long,
-      z: Long
-  ): EntityApi {
-    val position = Vec3(x, y, z)
-    LOG.debug { "spawnMob: $mobName pos: $position" }
-    val entity = mobFactory.build(mobName, position)
-
-    val ctx = EntityContext(entity.id)
-    rootCtx.entityContexts.add(ctx)
-    rootCtx.newEntities.add(entity)
-
-    return this
-  }
-
   fun setPosition(x: Long, y: Long, z: Long): EntityApi {
-    entityContext.position = PositionToMessage(Vec3(x, y, z))
+    commands.add(SetPositionToCommand(entityId, Vec3(x, y, z)))
+
     return this
   }
 
@@ -41,16 +40,11 @@ class EntityApi(
   }
 
   fun condition(): EntityConditionApi {
-    val conditionCtx = EntityConditionContext(entityContext.entityId)
-    entityContext.condition = conditionCtx
-
-    return EntityConditionApi(conditionCtx)
+    return EntityConditionApi(entityId = entityId, commands = commands)
   }
 
   fun script(): ScriptApi {
-    val ctx = ScriptContext(entityContext.entityId)
-    entityContext.script = ctx
 
-    return ScriptApi(ctx)
+    return ScriptApi(entityId = entityId)
   }
 }

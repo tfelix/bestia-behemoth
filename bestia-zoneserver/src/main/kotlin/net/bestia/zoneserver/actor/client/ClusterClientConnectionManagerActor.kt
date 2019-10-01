@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.client
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.persistence.AbstractPersistentActor
+import akka.persistence.SaveSnapshotSuccess
 import akka.persistence.SnapshotOffer
 
 data class ClientConnectedEvent(
@@ -33,6 +34,7 @@ data class ClientSocketResponse(
 class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
 
   private val connections = mutableMapOf<Long, ActorRef>()
+  private var updateCount = 0
 
   override fun createReceiveRecover(): Receive {
     return receiveBuilder()
@@ -58,7 +60,14 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
         .match(ClientConnectedEvent::class.java, this::addClientConnection)
         .match(ClientDisconnectedEvent::class.java, this::removeClientConnection)
         .match(ClientSocketRequest::class.java, this::requestClientSocket)
+        .match(SaveSnapshotSuccess::class.java, this::onSnapshotSuccess)
         .build()
+  }
+
+  private fun onSnapshotSuccess(msg: SaveSnapshotSuccess) {
+    val meta = msg.metadata()
+    deleteMessages(meta.sequenceNr())
+    // TODO Delete upon a special sequence number
   }
 
   private fun requestClientSocket(msg: ClientSocketRequest) {
@@ -78,16 +87,20 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
         }
       }
       connections[msg.accountId] = msg.socketActor
+      updateCount++
     }
   }
 
   private fun removeClientConnection(msg: ClientDisconnectedEvent) {
     persist(msg) {
       connections.remove(msg.accountId)
+      updateCount++
     }
   }
 
   companion object {
     const val NAME = "clusterClientConnectionManager"
+    // Perform an actor snapshot after 1000 updates.
+    private val SNAPSHOT_AFTER_UPDATES = 1000
   }
 }

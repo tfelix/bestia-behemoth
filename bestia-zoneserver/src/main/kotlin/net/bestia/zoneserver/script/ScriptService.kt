@@ -6,7 +6,6 @@ import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.api.ScriptRootApi
-import net.bestia.zoneserver.script.api.ScriptRootContext
 import net.bestia.zoneserver.script.exec.ScriptExec
 import org.springframework.stereotype.Service
 import javax.script.*
@@ -34,8 +33,7 @@ class ScriptService(
 
   fun execute(scriptExec: ScriptExec) {
     LOG.trace { "Call Script: $scriptExec" }
-    val rootCtx = ScriptRootContext(scriptName = scriptExec.scriptKey)
-    val bindings = setupEnvironment(scriptExec, rootCtx)
+    val (bindings, rootApi) = setupEnvironment(scriptExec)
     try {
       val script = scriptCache.getScript(scriptExec.scriptKey)
       // Check if function invoke is needed or just call the script.
@@ -49,7 +47,7 @@ class ScriptService(
         script.eval(bindings)
       }
 
-      rootCtx.commitEntityUpdates(messageApi)
+      rootApi.commitEntityUpdates(messageApi)
     } catch (e: NoSuchMethodException) {
       LOG.error(e) { "Function ${scriptExec.callbackFunction} is missing in script ${scriptExec.scriptKey}" }
     } catch (e: ScriptException) {
@@ -57,18 +55,19 @@ class ScriptService(
     }
   }
 
-  private fun setupEnvironment(exec: ScriptExec, rootContext: ScriptRootContext): Bindings {
+  private fun setupEnvironment(exec: ScriptExec): Pair<Bindings, ScriptRootApi> {
     val bindings = SimpleBindings()
+
     exec.setupEnvironment(bindings)
 
     val rootApi = ScriptRootApi(
+        scriptName = exec.scriptKey,
         idGeneratorService = idGenerator,
-        rootCtx = rootContext,
         mobFactory = mobFactory,
         entityCollisionService = entityCollisionService
     )
     bindings["Bestia"] = rootApi
 
-    return bindings
+    return Pair(bindings, rootApi)
   }
 }
