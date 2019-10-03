@@ -1,7 +1,7 @@
 package net.bestia.model.battle
 
+// Why is there this interface?
 interface Attack {
-
   val id: Int
 
   val target: AttackTarget
@@ -12,7 +12,6 @@ interface Attack {
   val casttime: Int
   val range: Int
   val cooldown: Int
-  val indicator: String?
   val type: AttackType
   val hasScript: Boolean
   val needsLineOfSight: Boolean

@@ -45,6 +45,6 @@ class EntityApi(
 
   fun script(): ScriptApi {
 
-    return ScriptApi(entityId = entityId)
+    return ScriptApi(entityId = entityId, commands = commands)
   }
 }

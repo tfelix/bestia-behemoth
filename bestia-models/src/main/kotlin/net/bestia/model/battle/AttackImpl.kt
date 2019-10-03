@@ -1,15 +1,8 @@
 package net.bestia.model.battle
 
-import java.io.Serializable
-
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
-import javax.persistence.Id
-import javax.persistence.Table
-
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
+import javax.persistence.*
 
 @Entity
 @Table(name = "attacks")
@@ -39,7 +32,8 @@ class AttackImpl(
     override val hasScript: Boolean = false,
 
     /**
-     * Range of the attack. Range is a mysql reserved word, so quots are needed.
+     * Range of the attack. Range is a mysql reserved word so an alias is needed.
+     * Range is in meter.
      */
     @JsonProperty("r")
     @Column(name = "atkRange", nullable = false)
@@ -64,24 +58,13 @@ class AttackImpl(
     @JsonProperty("cd")
     override var cooldown: Int = 0,
 
-    /**
-     * Shows if there is a special indicator when the attack is activated to be
-     * shown.
-     */
-    @JsonProperty("i")
-    override val indicator: String? = null,
-
-    @JsonProperty("a")
-    val animation: String? = null,
-
     @Enumerated(EnumType.STRING)
     @JsonProperty("t")
     override var target: AttackTarget
-
 ) : Serializable, Attack {
 
   companion object {
-    val DFAULT_MELEE_ATTACK: Attack = AttackImpl(
+    val DEFAULT_MELEE_ATTACK: Attack = AttackImpl(
         id = Attack.DEFAULT_MELEE_ATTACK_ID,
         databaseName = "default_melee_attack",
         strength = 5,

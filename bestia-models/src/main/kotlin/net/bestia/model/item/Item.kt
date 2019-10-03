@@ -48,7 +48,11 @@ data class Item(
     /**
      * Maybe we should query a script for the dynamic range.
      */
-    val usableDefaultRange: Int = 0
+    val usableDefaultRange: Int = 0,
+
+    @OneToMany
+    @JoinColumn(name="itemId")
+    val recepies: MutableList<ItemCraftRecipe> = mutableListOf()
 ) : AbstractEntity(), Serializable {
   override fun toString(): String {
     return "Item[dbName: $itemDbName, id: $id, type: $type]"

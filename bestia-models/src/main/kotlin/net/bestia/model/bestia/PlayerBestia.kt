@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
+import net.bestia.model.account.Gender
 import net.bestia.model.party.Party
 import net.bestia.model.geometry.Vec3
 import java.io.Serializable
@@ -58,6 +59,8 @@ data class PlayerBestia(
   var currentPosition = Vec3(0, 0, 0)
 
   var level: Int = 1
+
+  var gender: Gender = Gender.MALE
 
   /**
    * Returns the entity ID of this player bestia if the bestia was spawned. If

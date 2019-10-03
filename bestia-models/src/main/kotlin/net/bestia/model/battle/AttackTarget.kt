@@ -1,7 +1,7 @@
 package net.bestia.model.battle
 
 /**
- * Gives the target type for a attack.
+ * Gives the default target type for a attack.
  *
  * @author Thomas Felix
  */
