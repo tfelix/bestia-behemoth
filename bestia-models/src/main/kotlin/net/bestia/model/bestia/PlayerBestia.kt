@@ -22,15 +22,15 @@ import javax.persistence.*
 @Table(name = "player_bestias")
 data class PlayerBestia(
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ACCOUNT_ID", nullable = false)
+    @JoinColumn(name = "account_id", nullable = false)
     var owner: Account,
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "BESTIA_ID", nullable = false)
+    @JoinColumn(name = "bestia_id", nullable = false)
     val origin: Bestia,
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MASTER_ID", nullable = true, unique = true)
+    @JoinColumn(name = "master_id", nullable = true, unique = true)
     private val master: Account? = null,
 
     var exp: Long = 0
@@ -46,10 +46,10 @@ data class PlayerBestia(
 
   @AttributeOverrides(
       AttributeOverride(name = "x", column = Column(name = "saveX")),
-      AttributeOverride(name = "y", column = Column(name = "saveY"))
+      AttributeOverride(name = "y", column = Column(name = "saveY")),
+      AttributeOverride(name = "z", column = Column(name = "saveZ"))
   )
   @Embedded
-  @JsonProperty("sl")
   var savePosition = Vec3(0, 0, 0)
 
   @Embedded
@@ -70,7 +70,6 @@ data class PlayerBestia(
   var entityId: Long = 0
 
   @ManyToOne
-  @JoinColumn(name = "PARTY_ID")
   var party: Party? = null
 
   /**
@@ -82,6 +81,7 @@ data class PlayerBestia(
   @AttributeOverrides(
       AttributeOverride(name = "hp", column = Column(name = "evHp")),
       AttributeOverride(name = "mana", column = Column(name = "evMana")),
+      AttributeOverride(name = "stamina", column = Column(name = "evStamina")),
       AttributeOverride(name = "strength", column = Column(name = "evStr")),
       AttributeOverride(name = "defense", column = Column(name = "evDef")),
       AttributeOverride(name = "intelligence", column = Column(name = "evInt")),
@@ -96,6 +96,7 @@ data class PlayerBestia(
   @AttributeOverrides(
       AttributeOverride(name = "hp", column = Column(name = "ivHp")),
       AttributeOverride(name = "mana", column = Column(name = "ivMana")),
+      AttributeOverride(name = "stamina", column = Column(name = "ivStamina")),
       AttributeOverride(name = "strength", column = Column(name = "ivAtk")),
       AttributeOverride(name = "vitality", column = Column(name = "ivDef")),
       AttributeOverride(name = "intelligence", column = Column(name = "ivSpAtk")),

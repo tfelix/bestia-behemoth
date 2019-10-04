@@ -31,6 +31,8 @@ class ScriptService(
     private val entityCollisionService: EntityCollisionService
 ) {
 
+  // All script execution should be done inside a own actor to avoid blocking the system
+
   fun execute(scriptExec: ScriptExec) {
     LOG.trace { "Call Script: $scriptExec" }
     val (bindings, rootApi) = setupEnvironment(scriptExec)

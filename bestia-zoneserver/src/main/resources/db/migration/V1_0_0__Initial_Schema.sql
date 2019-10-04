@@ -32,6 +32,7 @@ CREATE TABLE `accounts` (
   `user_level` varchar(20) COLLATE utf8_bin DEFAULT NULL,
   `party_id` bigint(20) DEFAULT NULL,
   `gender` varchar(6) COLLATE utf8_bin DEFAULT NULL,
+  `banned_until` timestamp DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_email` (`email`),
   UNIQUE KEY `UK_username` (`username` ASC),
@@ -63,7 +64,7 @@ CREATE TABLE `attacks` (
   `has_script` bit(1) NOT NULL,
   `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_tigj3iera7lvpgs98piy9b9g9` (`attack_db_name`)
+  UNIQUE KEY `UK_attacks_attack_db_name` (`attack_db_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -80,8 +81,7 @@ CREATE TABLE `bestia_attacks` (
   `attack_id` int(11) NOT NULL,
   `bestia_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UKrul2cv5tx3hk5r0f0fjc0coy1` (`attack_id`,`bestia_id`),
-  KEY `FKhkh96eh7359axliwg1kw0efoh` (`bestia_id`),
+  UNIQUE KEY `UK_bestia_attacks_attack_id_bestia_id` (`attack_id`,`bestia_id`),
   CONSTRAINT `FKhkh96eh7359axliwg1kw0efoh` FOREIGN KEY (`bestia_id`) REFERENCES `bestias` (`id`),
   CONSTRAINT `FKp7ae9tdi1jbrldgp6ibsgooaa` FOREIGN KEY (`attack_id`) REFERENCES `attacks` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -202,14 +202,12 @@ CREATE TABLE `guild_member` (
   `player_bestia_id` bigint(20) NOT NULL,
   `rank_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UKs16um83tuhndfb126wq4xh3u9` (`guild_id`,`player_bestia_id`),
-  UNIQUE KEY `UK7crydqebi83k00g7jvt1xftej` (`guild_id`),
-  KEY `hjchasjkd82hdcgjhdsfsafhgdb_idx` (`player_bestia_id`),
-  KEY `FKpkn9yhdkbr1a65bwmqv3f6vx8` (`rank_id`),
-  CONSTRAINT `FKb3172le74tvsn9sie3fnorgf7` FOREIGN KEY (`player_bestia_id`) REFERENCES `player_bestias` (`id`),
-  CONSTRAINT `FKha9f2dmqo2d91tplhgmlpsixr` FOREIGN KEY (`guild_id`) REFERENCES `guilds` (`id`),
-  CONSTRAINT `FKpkn9yhdkbr1a65bwmqv3f6vx8` FOREIGN KEY (`rank_id`) REFERENCES `guild_ranks` (`id`),
-  CONSTRAINT `hjchasjkd82hdcgjhdsfsafhgdb` FOREIGN KEY (`player_bestia_id`) REFERENCES `player_bestias` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  UNIQUE KEY `guild_member_guild_id_player_bestia_id` (`guild_id`,`player_bestia_id`),
+  KEY `guild_member_player_bestia_id` (`player_bestia_id`),
+  KEY `guild_member_rank_id` (`rank_id`),
+  CONSTRAINT `fk_guild_member_player_bestias_id` FOREIGN KEY (`player_bestia_id`) REFERENCES `player_bestias` (`id`),
+  CONSTRAINT `fk_guild_member_guilds_id` FOREIGN KEY (`guild_id`) REFERENCES `guilds` (`id`),
+  CONSTRAINT `fk_guild_member_guild_ranks_id` FOREIGN KEY (`rank_id`) REFERENCES `guild_ranks` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -257,18 +255,15 @@ CREATE TABLE `guilds` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `i18ns`
+-- Table structure for table `craft_recipe`
 --
-
-DROP TABLE IF EXISTS `i18ns`;
+DROP TABLE IF EXISTS `craft_recipe`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `i18ns` (
-  `category` varchar(255) COLLATE utf8_bin NOT NULL,
-  `translation_key` varchar(255) COLLATE utf8_bin NOT NULL,
-  `lang` varchar(5) COLLATE utf8_bin NOT NULL,
-  `value` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`category`,`translation_key`,`lang`)
+CREATE TABLE `craft_recipe` (
+  `id` BIGINT(20) NOT NULL,
+  `recipe_data` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -1,32 +1,19 @@
 package net.bestia.zoneserver.actor.entity
 
-import akka.actor.ActorContext
-import akka.actor.ActorRef
-import net.bestia.zoneserver.actor.routing.MessageApi
+import akka.actor.ActorRefFactory
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
-import java.lang.IllegalArgumentException
 
-data class EntityRequest(
-    val replyTo: ActorRef,
-    val context: Any? = null
-)
-
-data class EntitiesResponse(
-    private val data: Map<Long, Entity>
-) {
-  operator fun get(key: Long): Entity {
-    return data[key]
-        ?: throw IllegalArgumentException("Entity with id $key was not inside response.")
-  }
-
-  val all get() = data.values
-}
+/**
+ * Message is send back if the requested entity does not exist.
+ */
+object EntityDoesNotExist
 
 fun awaitEntityResponse(
     messageApi: MessageApi,
-    ctx: ActorContext,
+    ctx: ActorRefFactory,
     entityId: Long,
     callback: (Entity) -> Unit
 ) {
@@ -37,7 +24,7 @@ fun awaitEntityResponse(
 
 fun awaitEntityResponse(
     messageApi: MessageApi,
-    ctx: ActorContext,
+    ctx: ActorRefFactory,
     entitiyIds: Set<Long>,
     callback: (EntitiesResponse) -> Unit
 ) {
@@ -45,7 +32,9 @@ fun awaitEntityResponse(
     responses.toSet() == entitiyIds
   }
   val transformResponse = { response: Responses ->
-    val mappedEntities = response.getAllResponses<Entity>().map { it.id to it }.toMap()
+    val mappedEntities = response.receivedResponses
+        .filterIsInstance(Entity::class.java)
+        .map { it.id to it }.toMap()
     callback(EntitiesResponse(mappedEntities))
   }
   val props = AwaitResponseActor.props(checkResponseReceived = hasReceivedAll, action = transformResponse)

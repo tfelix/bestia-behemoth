@@ -37,10 +37,6 @@ class PlayerEntityService(
       throw IllegalArgumentException("Account ID does not own entity id. Can not activate.")
     }
 
-    val account = accountDao.findOneOrThrow(accId)
-    account.activeBestiaEntityId = entity.id
-    accountDao.save(account)
-
     LOG.debug { "Activating entity id: ${entity.id} for account: $accId." }
   }
 
@@ -54,7 +50,7 @@ class PlayerEntityService(
   private fun isActiveEntity(accountId: Long, entityId: Long): Boolean {
     val account = accountDao.findOne(accountId) ?: return false
 
-    return account.activeBestiaEntityId == entityId
+    return false
   }
 
   /**
@@ -64,9 +60,7 @@ class PlayerEntityService(
    * @return The active entity id of this account or null.
    */
   fun getActivePlayerEntityId(accountId: Long): Long? {
-    val account = accountDao.findOne(accountId) ?: return null
-
-    return account.activeBestiaEntityId
+    return null
   }
 
   /**
@@ -131,11 +125,6 @@ class PlayerEntityService(
    */
   fun removeEntityIdsFromAccount(accountId: Long) {
     LOG.trace { "removeEntityIdsFromAccount(): For account $accountId." }
-
-    accountDao.findOneOrThrow(accountId).let {
-      it.activeBestiaEntityId = 0
-      accountDao.save(it)
-    }
 
     val updatedPlayerBestias = playerBestiaDao.findPlayerBestiasForAccount(accountId)
         .map {

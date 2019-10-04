@@ -15,28 +15,30 @@ logging:
 spring:
   main:
     web-environment: false
+    web-application-type: none
   datasource:
-    url: jdbc:mysql://localhost:3306/bestia?serverTimezone=UTC
+    url: jdbc:mysql://192.168.178.220:3306/bestia?serverTimezone=UTC
     username: bestia
     password: bestia
     driver-class-name: com.mysql.cj.jdbc.Driver
-    testWhileIdle: true
-    validationQuery: SELECT 1
+    test-while-idle: true
+    validation-query: SELECT 1
   jpa:
     show-sql: false
     # Hibernate ddl auto (create, create-drop, update): with "update" the database
     # schema will be automatically updated accordingly to java entities found in
     # the project
-    hibernate.ddl-auto: none
+    hibernate:
+      ddl-auto: validate
     # Allows Hibernate to generate SQL optimized for a particular DBMS
-    properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+    properties.hibernate.dialect: org.hibernate.dialect.MariaDB53Dialect
 
 # ===============================
 # = ZONE
 # ===============================
 server:
   # The version property expansion is currently broken with gradle
-  version: 0.5.0-ALPHA
+  version: 1.0.0-ALPHA
   name: zoneserver-${random.uuid}
   bind-address: localhost
   port: 8990

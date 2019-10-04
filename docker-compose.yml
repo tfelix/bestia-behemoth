@@ -14,3 +14,6 @@ services:
     # https://docs.docker.com/samples/library/cassandra/
     image: cassandra:3
     restart: always
+    ports:
+      - 7000:7000
+      - 9042:9042

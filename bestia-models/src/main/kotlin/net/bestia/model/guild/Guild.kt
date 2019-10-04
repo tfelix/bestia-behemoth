@@ -27,13 +27,13 @@ class Guild(
 ) : AbstractEntity(), Serializable {
 
   var level = 1
-  set(level) {
-    require(!(level > MAX_GUILD_LEVEL || level < 0)) { "Guild level must be between 0 and $MAX_GUILD_LEVEL" }
-    field = level
-  }
+    set(level) {
+      require(!(level > MAX_GUILD_LEVEL || level < 0)) { "Guild level must be between 0 and $MAX_GUILD_LEVEL" }
+      field = level
+    }
 
   var exp = 0
-  private set
+    private set
 
   var defaultRankName: String = "Rookie"
 
@@ -49,10 +49,12 @@ class Guild(
    */
   val creationDate = Instant.now()
 
-  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @JoinColumn(name = "guild_id")
   private val members: MutableSet<GuildMember> = mutableSetOf()
 
-  @OneToMany(mappedBy = "guild", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @JoinColumn(name = "guild_id")
   private val ranks: MutableSet<GuildRank> = mutableSetOf()
 
   init {

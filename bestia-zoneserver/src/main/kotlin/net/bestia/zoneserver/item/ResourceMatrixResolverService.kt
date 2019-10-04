@@ -62,7 +62,6 @@ class ResourceMatrixResolverService(
         val type = entry.resource.ordinal
         val amount = entry.amount
 
-
         val typeLength = nextExpOf2(Resource.values().size)
         val amountLength = nextExpOf2(ResourceEntry.MAX_RESOURCE_AMOUNT_PER_SLOT)
 

@@ -19,6 +19,10 @@ repositories {
 
 description = 'bestia-zoneserver'
 
+processResources {
+    expand(project.properties)
+}
+
 dependencies {
     implementation project(':bestia-messages')
     implementation project(':bestia-models')
@@ -31,6 +35,7 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: springBootVersion
 
     implementation group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-actor-typed_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion

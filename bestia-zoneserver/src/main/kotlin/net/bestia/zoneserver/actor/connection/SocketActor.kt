@@ -98,7 +98,7 @@ class SocketActor(
 
   private fun receiveClientMessage(msg: Tcp.Received) {
     // Deserialize and feed it into the system.
-    println(msg)
+    LOG.debug { "Received: ${msg.data()}" }
   }
 }
 

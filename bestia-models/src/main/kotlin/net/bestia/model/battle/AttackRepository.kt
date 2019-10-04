@@ -7,4 +7,4 @@ import org.springframework.data.repository.CrudRepository
 
 @Repository
 @Transactional(readOnly = true)
-interface AttackRepository : CrudRepository<AttackImpl, Int>
+interface AttackRepository : CrudRepository<Attack, Int>

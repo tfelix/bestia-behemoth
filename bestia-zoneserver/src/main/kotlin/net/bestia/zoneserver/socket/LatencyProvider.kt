@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.connection
+package net.bestia.zoneserver.socket
 
 import java.util.*
 

@@ -4,11 +4,13 @@ import java.util.*
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.MappedSuperclass
 
+@MappedSuperclass
 abstract class AbstractEntity {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  val id: Long = 0
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  var id: Long = 0
 
   final override fun hashCode(): Int {
     return Objects.hashCode(id)

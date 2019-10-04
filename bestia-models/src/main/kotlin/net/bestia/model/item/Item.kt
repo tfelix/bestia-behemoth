@@ -52,7 +52,7 @@ data class Item(
 
     @OneToMany
     @JoinColumn(name="itemId")
-    val recepies: MutableList<ItemCraftRecipe> = mutableListOf()
+    val recepies: MutableList<CraftRecipe> = mutableListOf()
 ) : AbstractEntity(), Serializable {
   override fun toString(): String {
     return "Item[dbName: $itemDbName, id: $id, type: $type]"

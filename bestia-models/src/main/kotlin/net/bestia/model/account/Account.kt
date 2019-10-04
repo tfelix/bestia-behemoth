@@ -15,7 +15,7 @@ data class Account(
     val username: String,
     var registerDate: Instant = Instant.now(),
     @Enumerated(EnumType.STRING)
-    var gender: Gender,
+    val gender: Gender,
     var isActivated: Boolean = false,
     var language: String = "en",
     var hairstyle: Hairstyle = Hairstyle.FEMALE_01
@@ -25,7 +25,6 @@ data class Account(
   var additionalBestiaSlots: Int = 0
   var remarks = ""
   var loginToken = ""
-  var activeBestiaEntityId: Long = 0
 
   @Column(nullable = true)
   var bannedUntil: Instant? = null

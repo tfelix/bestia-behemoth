@@ -12,20 +12,14 @@ import javax.persistence.*
  * @author Thomas Felix
  */
 @Entity
-@Table(name = "guild_member", uniqueConstraints = [
-  UniqueConstraint(columnNames = arrayOf("GUILD_ID", "PLAYER_BESTIA_ID"))
-])
 data class GuildMember(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "GUILD_ID", nullable = false)
     var guild: Guild,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PLAYER_BESTIA_ID", nullable = false)
     val member: PlayerBestia,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RANK_ID", nullable = true)
     val rank: GuildRank
 ) : AbstractEntity() {
   var expEarned: Int = 0

@@ -79,6 +79,11 @@ class EntityActor(
   }
 
   private fun handleEntityRequest(msg: EntityRequest) {
+    if (entityId == 0L) {
+      LOG.debug { "${msg.replyTo} requested not existing entity" }
+      msg.replyTo.tell(EntityDoesNotExist, self)
+    }
+
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
 
     val hasAllResponses = { receivedResponses: List<Any> ->
@@ -163,8 +168,9 @@ class EntityActor(
 
       componentActorCache.allActors().forEach {
         it.tell(msg, sender)
-        it.tell(PoisonPill.getInstance(), self)
       }
+
+      context.stop(self)
     }
   }
 }
