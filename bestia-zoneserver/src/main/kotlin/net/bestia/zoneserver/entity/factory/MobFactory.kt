@@ -30,11 +30,9 @@ class MobFactory(
   fun build(mobDbName: String, pos: Vec3): Entity {
     val bestia = bestiaDao.findByDatabaseName(mobDbName)
         ?: run {
-          LOG.warn { "Could not find bestia in database for blueprint $mobDbName" }
+          LOG.warn { "Could not find Bestia in database: '$mobDbName'" }
           throw IllegalArgumentException()
         }
-
-    LOG.info { "Create Entity(Mob): $bestia, at $pos." }
 
     val entityId = idGenerator.newId()
     val entity = Entity(entityId)
@@ -65,6 +63,8 @@ class MobFactory(
 
     val statusComp = statusService.calculateStatusPoints(entity)
     entity.addComponent(statusComp)
+
+    LOG.debug { "Created Entity(Mob): $bestia, at $pos" }
 
     return entity
   }

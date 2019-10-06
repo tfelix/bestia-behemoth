@@ -9,7 +9,6 @@ import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
 import akka.cluster.singleton.ClusterSingletonProxy
-import akka.http.javadsl.ConnectHttp
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.javadsl.AkkaManagement
 import com.typesafe.config.ConfigFactory
@@ -28,6 +27,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.net.UnknownHostException
 import akka.cluster.singleton.ClusterSingletonProxySettings
+import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 
 private val LOG = KotlinLogging.logger { }
@@ -60,7 +60,7 @@ class AkkaConfiguration {
     setupSharding(system)
 
     SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
-    // scriptService.callScriptMainFunction("startup")
+    SpringExtension.actorOf(system, NodeBootstrapActor::class.java)
 
     return system
   }
@@ -73,7 +73,6 @@ class AkkaConfiguration {
     val entityProps = SpringExtension.getSpringProps(system, EntityActor::class.java)
     val entityExtractor = EntityShardMessageExtractor()
     sharding.start(ShardActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor)
-
   }
 
   private fun setupClusterDiscovery(system: ActorSystem) {

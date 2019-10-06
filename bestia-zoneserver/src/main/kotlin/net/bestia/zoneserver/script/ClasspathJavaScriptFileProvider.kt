@@ -7,26 +7,31 @@ import org.springframework.stereotype.Component
 class ClasspathJavaScriptFileProvider : ScriptFileProvider {
   private val resolver = PathMatchingResourcePatternResolver()
 
-  private fun fetchItemScripts(): List<ScriptFile> {
-    return resolver.getResources("classpath*:script/item/*.js").map {
+  private fun resolveClasspathSearch(pattern: String, scriptType: ScriptType): List<ScriptFile> {
+    return resolver.getResources(pattern).map {
       ScriptFile(
-          ScriptKeyBuilder.getScriptKey(ScriptType.ITEM, it.file.nameWithoutExtension),
+          ScriptKeyBuilder.getScriptKey(scriptType, it.file.nameWithoutExtension),
           it
       )
     }
+  }
+
+  private fun fetchBasicScripts(): List<ScriptFile> {
+    return resolveClasspathSearch("classpath*:script/*.js", ScriptType.BASIC)
+  }
+
+  private fun fetchItemScripts(): List<ScriptFile> {
+    return resolveClasspathSearch("classpath*:script/item/*.js", ScriptType.ITEM)
   }
 
   private fun fetchAttackScripts(): List<ScriptFile> {
-    return resolver.getResources("classpath*:script/attack/*.js").map {
-      ScriptFile(
-          ScriptKeyBuilder.getScriptKey(ScriptType.ATTACK, it.file.nameWithoutExtension),
-          it
-      )
-    }
+    return resolveClasspathSearch("classpath*:script/attack/*.js", ScriptType.ATTACK)
   }
 
   override fun iterator(): Iterator<ScriptFile> {
-    val scriptFiles = fetchItemScripts() + fetchAttackScripts()
+    val scriptFiles = fetchItemScripts() +
+        fetchAttackScripts() +
+        fetchBasicScripts()
     return scriptFiles.iterator()
   }
 }

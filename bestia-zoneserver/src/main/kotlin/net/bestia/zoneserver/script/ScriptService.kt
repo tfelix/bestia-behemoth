@@ -39,21 +39,18 @@ class ScriptService(
     try {
       val script = scriptCache.getScript(scriptExec.scriptKey)
       // Check if function invoke is needed or just call the script.
-      val fnName = scriptExec.callbackFunction
-      if (fnName != null) {
-        scriptExec.callbackFunction?.let { fnName ->
-          script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
-          (script.engine as Invocable).invokeFunction(fnName)
-        }
-      } else {
+      scriptExec.callFunction?.let { fnName ->
+        script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+        (script.engine as Invocable).invokeFunction(fnName)
+      } ?: run {
         script.eval(bindings)
       }
 
       rootApi.commitEntityUpdates(messageApi)
     } catch (e: NoSuchMethodException) {
-      LOG.error(e) { "Function ${scriptExec.callbackFunction} is missing in script ${scriptExec.scriptKey}" }
-    } catch (e: ScriptException) {
-      LOG.error(e) { "Error during script execution." }
+      LOG.error(e) { "Function ${scriptExec.callFunction} is missing in script ${scriptExec.scriptKey}" }
+    } catch (e: Exception) {
+      LOG.error(e) { "Error during script '${scriptExec.scriptKey}' execution." }
     }
   }
 

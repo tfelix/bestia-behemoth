@@ -2,10 +2,13 @@ package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.bootstrap.NodeBootStep
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 class ScriptCompilerBootStep(
     private val fileProvider: ScriptFileProvider,
