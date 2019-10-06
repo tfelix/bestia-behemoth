@@ -7,6 +7,7 @@ import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.config.RuntimeConfig
+import net.bestia.zoneserver.config.RuntimeConfigService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
@@ -15,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class AuthenticationService(
-    private val config: RuntimeConfig,
+    private val configService: RuntimeConfigService,
     private val accountRepository: AccountRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
@@ -77,6 +78,7 @@ class AuthenticationService(
     }
 
     // Special handling of maintenance mode.
+    val config = configService.getRuntimeConfig()
     if (config.maintenanceLevel != MaintenanceLevel.NONE) {
 
       // Depending on maintenance mode certain users can login.
@@ -105,7 +107,9 @@ class AuthenticationService(
     Objects.requireNonNull(accountName)
     Objects.requireNonNull(newPassword)
 
-    val acc = accountRepository.findByUsernameOrEmail(accountName) ?: return false
+    val acc = accountRepository.findByUsername(accountName)
+        ?: accountRepository.findByEmail(accountName)
+        ?: return false
 
     acc.password = passwordEncoder.encode(newPassword)
     accountRepository.save(acc)
@@ -121,7 +125,9 @@ class AuthenticationService(
       return false
     }
 
-    val acc = accountRepository.findByUsernameOrEmail(accountName) ?: return false
+    val acc = accountRepository.findByUsername(accountName)
+        ?: accountRepository.findByEmail(accountName)
+        ?: return false
     val password = acc.password
 
     if (!passwordEncoder.matches(password, oldPassword)) {

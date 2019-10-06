@@ -1,14 +1,12 @@
 package net.bestia.model.item
 
 import net.bestia.model.AbstractEntity
-import javax.persistence.AttributeConverter
-import javax.persistence.Convert
-import javax.persistence.Converter
-import javax.persistence.Entity
+import javax.persistence.*
 
 @Entity
 class CraftRecipe(
     @Convert(converter = RecipeConverter::class, attributeName= "recipe_data")
+    @Column(name = "recipe_data", columnDefinition = "TEXT")
     val recipe: ResourceMatrix
 ) : AbstractEntity()
 

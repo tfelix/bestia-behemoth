@@ -13,7 +13,7 @@ data class GuildRequestMessage(
     override val accountId: Long,
 
     @JsonProperty("rgid")
-    val requestedGuildId: Int
+    val requestedGuildId: Long
 ) : AccountMessage {
   companion object {
     const val MESSAGE_ID = "guild.req"

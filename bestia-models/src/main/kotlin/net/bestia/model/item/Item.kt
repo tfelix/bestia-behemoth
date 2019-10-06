@@ -15,10 +15,8 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "items")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 data class Item(
     @Column(name = "item_db_name", unique = true, nullable = false)
-    @JsonProperty("idbn")
     val itemDbName: String,
 
     @Column(nullable = false)
@@ -31,18 +29,11 @@ data class Item(
     /**
      * Weight of the item. The rule is: 100gr = 1 weight unit.
      */
-    @Column(nullable = false)
-    @JsonProperty("w")
     val weight: Int = 0,
 
     @Enumerated(EnumType.STRING)
-    @JsonProperty("t")
     val type: ItemType,
 
-    @JsonProperty("i")
-    val indicator: String? = null,
-
-    @JsonProperty("lv")
     val level: Int = 1,
 
     /**

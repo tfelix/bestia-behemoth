@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 import net.bestia.model.item.PlayerItem
 
 @Repository
-interface PlayerItemRepository : CrudRepository<PlayerItem, Int> {
+interface PlayerItemRepository : CrudRepository<PlayerItem, Long> {
 
   /**
    * Returns all PlayerItems for a particular account id.

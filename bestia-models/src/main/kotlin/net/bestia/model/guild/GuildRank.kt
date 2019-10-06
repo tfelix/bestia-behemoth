@@ -10,6 +10,7 @@ import javax.persistence.*
  * @author Thomas Felix
  */
 @Entity
+@Table(name = "guild_ranks")
 class GuildRank(
     @Column(nullable = false)
     var name: String
@@ -29,5 +30,9 @@ class GuildRank(
 
   override fun toString(): String {
     return "Rank[id: $id, name: $name]"
+  }
+
+  companion object {
+    const val DEFAULT_RANK_NAME: String = "Rookie"
   }
 }

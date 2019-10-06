@@ -16,9 +16,9 @@ import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
-import java.util.*
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.random.Random
 
 private val LOG = KotlinLogging.logger { }
 

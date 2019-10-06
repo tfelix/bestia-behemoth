@@ -2,6 +2,8 @@ package net.bestia.zoneserver.chat
 
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.model.bestia.PlayerBestiaRepository
+import net.bestia.model.findOne
+import net.bestia.model.guild.GuildRepository
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.guild.GuildService
 import org.springframework.stereotype.Service
@@ -10,19 +12,17 @@ import org.springframework.stereotype.Service
 class GuildChatService(
     private val playerEntityService: PlayerEntityService,
     private val guildService: GuildService,
-    private val playerBestiaRepository: PlayerBestiaRepository
+    private val playerBestiaRepository: PlayerBestiaRepository,
+    private val guildRepository: GuildRepository
 ) {
 
-  fun copyChatMessageToAllGuildMembers(chatMessage: ChatMessage): List<ChatMessage> {
+  fun copyChatMessageToAllGuildMembers(guildId: Long, chatMessage: ChatMessage): List<ChatMessage> {
     val playerBestiaId = playerEntityService.getActivePlayerEntityId(chatMessage.accountId)
         ?: return emptyList()
-    val playerGuild = guildService.getGuildOfPlayer(playerBestiaId)
+    val receivingGuild = guildRepository.findOne(guildId)
         ?: return emptyList()
-    val playerBestiaIds = playerGuild.getPlayerBestiaIds()
+    val playerBestiaIds = receivingGuild.getPlayerBestiaIds()
 
-    return playerBestiaRepository.findAllById(playerBestiaIds)
-        .filter { member -> member.entityId != 0L }
-        .map { it.id }
-        .map { chatMessage.copy(accountId = it) }
+    return playerBestiaIds.map { chatMessage.copy(accountId = it) }
   }
 }

@@ -7,6 +7,7 @@ import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
+import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -38,6 +39,7 @@ class MobStatusService(
     val metaDataComponent = entity.tryGetComponent(MetaDataComponent::class.java)
     val statusComp = entity.getComponent(StatusComponent::class.java)
     val bestiaId = metaDataComponent?.tryGetAsLong(MetaDataComponent.MOB_BESTIA_ID)
+        ?: throw IllegalStateException("Can not calcuate StatusPoints. Mob entity not associated with mob.")
 
     val bestia = bestiaRepository.findOneOrThrow(bestiaId)
     val bVals = bestia.baseValues

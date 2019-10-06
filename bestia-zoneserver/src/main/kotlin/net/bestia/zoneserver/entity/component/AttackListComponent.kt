@@ -8,5 +8,5 @@ package net.bestia.zoneserver.entity.component
  */
 data class AttackListComponent(
     override val entityId: Long,
-    val knownAttacks: Set<Int>
+    val knownAttacks: Set<Long>
 ) : Component

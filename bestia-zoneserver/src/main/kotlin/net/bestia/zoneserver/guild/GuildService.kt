@@ -20,7 +20,7 @@ class GuildService(
     private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
-  fun addPlayerToGuild(playerBestiaId: Long, guildId: Int) {
+  fun addPlayerToGuild(playerBestiaId: Long, guildId: Long) {
     val pb = playerBestiaRepository.findOneOrThrow(playerBestiaId)
     val guild = guildRepository.findOneOrThrow(guildId)
     if (guild.addGuildMember(pb)) {
@@ -41,16 +41,8 @@ class GuildService(
     } else BASE_MAX_GUILD_MEMBERS
   }
 
-  fun hasGuild(accountId: Long): Boolean {
-    return guildRepository.findGuildByAccountId(accountId) != null
-  }
-
-  fun getGuildOfPlayer(accountId: Long): Guild? {
-    return guildRepository.findGuildByAccountId(accountId)
-  }
-
-  fun addExpToGuild(accountId: Long, earnedTotalExp: Int): Int {
-    return guildRepository.findGuildByAccountId(accountId)?.let { guild ->
+  fun addExpToGuild(guildId: Long, accountId: Long, earnedTotalExp: Int): Int {
+    return guildRepository.findOne(guildId)?.let { guild ->
       val member = guild.getMember(accountId) ?: return 0
       val rank = member.rank
       val taxExp = Math.ceil((rank.taxRate * earnedTotalExp).toDouble()).toInt()
@@ -68,7 +60,7 @@ class GuildService(
     return guild.level * 1000
   }
 
-  fun getNeededNextLevelExp(guildId: Int): Int {
+  fun getNeededNextLevelExp(guildId: Long): Int {
     return guildRepository.findOne(guildId)?.let { this.getNeededNextLevelExp(it) } ?: 0
   }
 
@@ -83,7 +75,7 @@ class GuildService(
    * @param guildId
    * @return TRUE if the account id has at least one bestia inside this guild.
    */
-  fun isInGuild(accountId: Long, guildId: Int): Boolean {
+  fun isInGuild(accountId: Long, guildId: Long): Boolean {
     return guildRepository.findOne(guildId)?.getPlayerBestiaIds()?.contains(accountId) ?: false
   }
 

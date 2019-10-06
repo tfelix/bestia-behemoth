@@ -59,7 +59,7 @@ class AkkaConfiguration {
     SpringExtension.initialize(system, appContext)
     setupSharding(system)
 
-    val clientMessageRouting = SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
+    SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
     // scriptService.callScriptMainFunction("startup")
 
     return system

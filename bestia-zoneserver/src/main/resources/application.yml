@@ -29,9 +29,11 @@ spring:
     # schema will be automatically updated accordingly to java entities found in
     # the project
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     # Allows Hibernate to generate SQL optimized for a particular DBMS
     properties.hibernate.dialect: org.hibernate.dialect.MariaDB53Dialect
+flyway:
+  enabled: false
 
 # ===============================
 # = ZONE
@@ -40,6 +42,7 @@ server:
   # The version property expansion is currently broken with gradle
   version: 1.0.0-ALPHA
   name: zoneserver-${random.uuid}
+  node-id: 1
   bind-address: localhost
   port: 8990
   max-connections: 1000

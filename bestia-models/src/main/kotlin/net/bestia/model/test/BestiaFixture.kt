@@ -10,7 +10,6 @@ object BestiaFixture {
       databaseName = "testBestia",
       defaultName = "Test",
       element = Element.NORMAL,
-      image = "testimage",
       mesh = "test",
       expGained = 100,
       type = BestiaType.DEMI_HUMAN,

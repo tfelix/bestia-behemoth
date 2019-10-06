@@ -20,16 +20,4 @@ class AccountRepositoryTest {
     val found = accountDao.findByEmail(AccountFixture.email)
     assertNotNull(found)
   }
-
-  @Test
-  fun findByEmailOrUsername_findsBoth() {
-    val a = AccountFixture.createAccount()
-    accountDao.save(a)
-
-    var found = accountDao.findByUsernameOrEmail(AccountFixture.username)
-    assertNotNull(found)
-
-    found = accountDao.findByUsernameOrEmail(AccountFixture.email)
-    assertNotNull(found)
-  }
 }

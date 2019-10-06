@@ -17,13 +17,13 @@ data class ZoneserverNodeConfig(
      *
      * @return The server name.
      */
-    @Value("server.name")
+    @Value("\${server.name}")
     val serverName: String,
 
     /**
      * Id of this server. Must be unique in the cluster.
      */
-    @Value("server.node-id")
+    @Value("\${server.node-id}")
     val nodeId: Int,
 
     /**
@@ -34,4 +34,3 @@ data class ZoneserverNodeConfig(
     @Value("\${server.version}")
     val serverVersion: String
 )
-

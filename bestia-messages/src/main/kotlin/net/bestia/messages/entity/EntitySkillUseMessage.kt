@@ -14,10 +14,10 @@ data class EntitySkillUseMessage(
     val targetPostion: Vec3?,
     val targetEntityId: Long?,
     val sourceEntityId: Long,
-    val attackId: Int
+    val attackId: Long
 ) : Serializable {
 
-  constructor(sourceEntityId: Long, attackId: Int, targetEntityId: Long): this(
+  constructor(sourceEntityId: Long, attackId: Long, targetEntityId: Long): this(
       targetPostion = null,
       targetEntityId = targetEntityId,
       sourceEntityId = sourceEntityId,

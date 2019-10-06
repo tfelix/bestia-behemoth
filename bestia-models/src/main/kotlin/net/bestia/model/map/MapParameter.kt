@@ -22,12 +22,11 @@ class MapParameter(
      * @return Number of NPCs in this world.
      */
     val population: Long = 0,
-    /**
-     * The size of this world in meter.
-     *
-     * @return World size.
-     */
-    val worldSize: Size,
+
+    val width: Long = 1000,
+
+    val depth: Long = 1000,
+
     /**
      * Projected ratio between water and land.
      *
@@ -74,13 +73,17 @@ class MapParameter(
     return "MapParameter[size: $worldSize, waterLandRatio: $waterLandRatio, population: $population, seed: $seed, created: $createDate]"
   }
 
+  val worldSize: Size
+    get() = Size(width, 3000, depth)
+
   companion object {
     private const val MINIMUM_LANDMASS_SQUARE_KM = 40000
 
     fun newDefault(name: String): MapParameter {
       return MapParameter(
           population = 100,
-          worldSize = Size(1000, 1000),
+          width = 1000,
+          depth = 1000,
           waterLandRatio = 0.5f,
           minSettlementDistance = 500,
           settlementCount = 5,
@@ -112,7 +115,7 @@ class MapParameter(
       // final double y = baseSize / MAP_RATIO;
       // final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
       // FIXME We currently limit world size to 1sqm.
-      val worldSize = Size(1000, 1000)
+      val worldSize = Size(1000, 3000, depth = 1000)
 
       val population = 6L * user
       val numberOfSettlements = Math.max(30, 2 * population / 55) * (rand.nextFloat() * 40).toInt()
@@ -120,7 +123,8 @@ class MapParameter(
 
       return MapParameter(
           population = population,
-          worldSize = worldSize,
+          width = worldSize.width,
+          depth = worldSize.depth,
           seed = rand.nextInt(),
           name = mapName,
           settlementCount = numberOfSettlements.toInt(),

@@ -5,8 +5,6 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
-import net.bestia.model.account.Account
-
 @Repository
 interface AccountRepository : CrudRepository<Account, Long> {
 
@@ -29,12 +27,4 @@ interface AccountRepository : CrudRepository<Account, Long> {
    */
   @Query("FROM Account a WHERE a.username = :username")
   fun findByUsername(@Param("username") username: String): Account?
-
-  /**
-   * Returns the account via its username or if its mail if the username did
-   * not match (username takes preference about email). If none could be found
-   * null is returned.
-   */
-  @Query("FROM Account a WHERE a.username = :username OR a.email = :username")
-  fun findByUsernameOrEmail(@Param("username") username: String): Account?
 }

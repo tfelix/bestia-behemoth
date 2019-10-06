@@ -6,6 +6,7 @@ import net.bestia.zoneserver.battle.PlayerStatusService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
+import org.springframework.stereotype.Component
 
 /**
  * The factory is used to create player entities which can be controlled via a
@@ -13,6 +14,7 @@ import net.bestia.zoneserver.entity.component.*
  *
  * @author Thomas Felix
  */
+@Component
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
     private val playerStatusService: PlayerStatusService,

@@ -2,7 +2,6 @@ package net.bestia.model.guild
 
 import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.PlayerBestia
-import net.bestia.model.findOne
 import java.io.Serializable
 import java.lang.IllegalArgumentException
 import java.time.Instant
@@ -21,9 +20,9 @@ class Guild(
     val name: String,
     @OneToOne
     @JoinColumn(nullable = false, unique = true)
-    private var leader: GuildMember,
-    @Column(nullable = true)
-    var emblem: String? = null
+    private var leader: GuildMember
+    // @Column(nullable = true)
+    // var emblem: String? = null
 ) : AbstractEntity(), Serializable {
 
   var level = 1
@@ -35,19 +34,17 @@ class Guild(
   var exp = 0
     private set
 
-  var defaultRankName: String = "Rookie"
-
   /**
    * Last time the leader of this guild was changed. If it is null then the
    * leader was never changed.
    */
   @Column(nullable = true)
-  private val lastLeaderChangeDate: Instant? = null
+  private val lastLeaderChange: Instant? = null
 
   /**
    * Date when the guild was created.
    */
-  val creationDate = Instant.now()
+  val created = Instant.now()
 
   @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
   @JoinColumn(name = "guild_id")
@@ -70,7 +67,7 @@ class Guild(
       return false
     }
 
-    members.add(GuildMember(this, playerBestia, GuildRank(defaultRankName)))
+    members.add(GuildMember(this, playerBestia, GuildRank(GuildRank.DEFAULT_RANK_NAME)))
 
     return true
   }

@@ -1,14 +1,12 @@
 package net.bestia.model.battle
 
+import net.bestia.model.AbstractEntity
 import java.io.Serializable
 import javax.persistence.*
 
 @Entity
 @Table(name = "attacks")
 class Attack(
-    @Id
-    val id: Int = 0,
-
     @Column(name = "attack_db_name", unique = true, nullable = false)
     val databaseName: String,
 
@@ -50,7 +48,7 @@ class Attack(
 
     @Enumerated(EnumType.STRING)
     val target: AttackTarget
-) : Serializable {
+): AbstractEntity(), Serializable {
 
   val isRanged: Boolean
     get() = type == AttackType.RANGED_MAGIC || type == AttackType.RANGED_PHYSICAL
@@ -66,10 +64,9 @@ class Attack(
      * Basic attack id used for the default attack every bestia has. Each bestia
      * has the default melee or ranged attack.
      */
-    const val DEFAULT_MELEE_ATTACK_ID = -1
-    const val DEFAULT_RANGE_ATTACK_ID = -2
+    const val DEFAULT_MELEE_ATTACK_ID = -1L
+    const val DEFAULT_RANGE_ATTACK_ID = -2L
     val DEFAULT_MELEE_ATTACK: Attack = Attack(
-        id = DEFAULT_MELEE_ATTACK_ID,
         databaseName = "default_melee_attack",
         strength = 5,
         element = Element.NORMAL,
@@ -80,6 +77,8 @@ class Attack(
         target = AttackTarget.ENEMY_ENTITY,
         casttime = 0,
         cooldown = 1500
-    )
+    ).apply {
+      id = DEFAULT_MELEE_ATTACK_ID
+    }
   }
 }

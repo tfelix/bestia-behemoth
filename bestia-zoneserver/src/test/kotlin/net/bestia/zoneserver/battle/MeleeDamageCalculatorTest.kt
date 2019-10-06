@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.model.battle.AttackImpl
+import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackTarget
 import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Element
@@ -72,7 +72,7 @@ internal class MeleeDamageCalculatorTest {
         defenderElement = Element.FIRE,
         weaponAtk = 10f,
         damageVariables = DamageVariables(),
-        usedAttack = AttackImpl(
+        usedAttack = Attack(
             databaseName = "test",
             casttime = 100,
             cooldown = 100,

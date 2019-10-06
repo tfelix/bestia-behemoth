@@ -14,5 +14,5 @@ interface BestiaAttackRepository : org.springframework.data.repository.Repositor
    *
    */
   @Query("FROM BestiaAttack ba WHERE ba.bestia.id = :bestiaId ORDER BY ba.minLevel ASC")
-  fun getAllAttacksForBestia(@Param("bestiaId") bestiaId: Int): List<BestiaAttack>
+  fun getAllAttacksForBestia(@Param("bestiaId") bestiaId: Long): List<BestiaAttack>
 }

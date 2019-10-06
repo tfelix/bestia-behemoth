@@ -37,7 +37,7 @@ class AttackService(
   /**
    * Checks if the bestia knows this attack.
    */
-  fun knowsAttack(entity: Entity, attackId: Int): Boolean {
+  fun knowsAttack(entity: Entity, attackId: Long): Boolean {
     val attack = attackDao.findOneOrThrow(attackId)
 
     return knowsAttack(entity, attack)
@@ -65,7 +65,7 @@ class AttackService(
    *
    * @return TRUE of the entity can now use this skill/attack.
    */
-  fun canUseAttack(attacker: Entity, attackId: Int): Boolean {
+  fun canUseAttack(attacker: Entity, attackId: Long): Boolean {
     val attack = attackDao.findOneOrThrow(attackId)
     return hasAllNeededBattleComponents(attacker) &&
         knowsAttack(attacker, attack) &&

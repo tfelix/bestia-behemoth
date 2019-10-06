@@ -192,7 +192,7 @@ class InventoryService(
    * The player item id.
    * @return The [PlayerItem] or NULL if the ID does not exist.
    */
-  fun getPlayerItem(playerItemId: Int): PlayerItem {
+  fun getPlayerItem(playerItemId: Long): PlayerItem {
     return playerItemDao.findOneOrThrow(playerItemId)
   }
 
@@ -208,7 +208,7 @@ class InventoryService(
   /**
    * Checks if the user has the given player item with the wanted amount.
    */
-  fun hasPlayerItem(playerItemId: Int, amount: Int): Boolean {
+  fun hasPlayerItem(playerItemId: Long, amount: Int): Boolean {
     val item = playerItemDao.findOneOrThrow(playerItemId)
 
     return item.amount >= amount

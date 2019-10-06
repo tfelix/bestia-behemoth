@@ -14,18 +14,12 @@ import javax.persistence.*
  * @author Thomas Felix
  */
 @Entity
-@Table(name = "bestia_attacks", uniqueConstraints = [
-  UniqueConstraint(columnNames = arrayOf("ATTACK_ID", "BESTIA_ID"))
-])
+@Table(name = "bestia_attacks")
 class BestiaAttack(
     @ManyToOne
-    @JoinColumn(name = "ATTACK_ID", nullable = false)
-    @JsonProperty("a")
     val attack: Attack,
 
     @ManyToOne
-    @JoinColumn(name = "BESTIA_ID", nullable = false)
-    @JsonIgnore
     val bestia: Bestia,
 
     /**

@@ -5,8 +5,10 @@ import net.bestia.model.geometry.Vec3
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
+@Table(name = "entity_positions")
 class EntityPosition(
     @Id
     val entityId: Long,

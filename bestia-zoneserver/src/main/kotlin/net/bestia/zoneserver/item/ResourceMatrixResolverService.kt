@@ -2,9 +2,11 @@ package net.bestia.zoneserver.item
 
 import info.debatty.java.lsh.LSHMinHash
 import net.bestia.model.item.*
+import org.springframework.stereotype.Service
 import kotlin.math.ceil
 import kotlin.math.log2
 
+@Service
 class ResourceMatrixResolverService(
     private val itemRepository: ItemRepository
 ) {

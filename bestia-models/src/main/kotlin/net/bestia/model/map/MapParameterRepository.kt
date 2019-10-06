@@ -4,7 +4,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MapParameterRepository : CrudRepository<MapParameter, Int> {
+interface MapParameterRepository : CrudRepository<MapParameter, Long> {
 
   /**
    * Returns the latest [MapParameter] from the database.

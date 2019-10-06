@@ -10,15 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class GuildComponent(
     override val entityId: Long,
 
-    @JsonProperty("gid")
     val guildId: Long,
-
-    @JsonProperty("gn")
     val guildName: String,
-
-    @JsonProperty("e")
-    val emblem: String? = null,
-
-    @JsonProperty("rn")
     val rankName: String
 ) : Component

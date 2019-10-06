@@ -1,6 +1,7 @@
 package net.bestia.model.bestia
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import net.bestia.model.AbstractEntity
 import net.bestia.model.battle.Element
 import java.io.Serializable
 import javax.persistence.*
@@ -8,10 +9,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "bestias")
 class Bestia(
-    @Id
-    @JsonIgnore
-    val id: Int = 0,
-
     /**
      * The database name.
      *
@@ -25,7 +22,6 @@ class Bestia(
 
     @Enumerated(EnumType.STRING)
     val element: Element,
-    val image: String,
     val mesh: String,
 
     /**
@@ -48,7 +44,7 @@ class Bestia(
      * Script which will be attached to this bestia.
      */
     val scriptExec: String? = null
-) : Serializable {
+) : AbstractEntity(), Serializable {
 
   override fun toString(): String {
     return "Bestia[db: $databaseName, id: $id, level: $level]"

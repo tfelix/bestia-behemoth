@@ -14,7 +14,7 @@ data class AttackUseMessage(
     override val accountId: Long,
 
     @JsonProperty("aid")
-    var attackId: Int,
+    var attackId: Long,
 
     @JsonProperty("x")
     var x: Long,
