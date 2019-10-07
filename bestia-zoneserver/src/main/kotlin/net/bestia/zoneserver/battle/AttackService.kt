@@ -1,14 +1,11 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.AttackListComponent
-import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
+import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackRepository
 import net.bestia.model.findOneOrThrow
-import net.bestia.model.battle.Attack
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -22,17 +19,6 @@ private val LOG = KotlinLogging.logger { }
 class AttackService(
     private val attackDao: AttackRepository
 ) {
-
-  /**
-   * Teaches the given entity the given attack via its ID. In order for the
-   * entity to learn the attack it must have a [StatusComponent] as well
-   * as a [PositionComponent]. If it has not a
-   * [AttackListComponent] this component will be added.
-   */
-  fun learnAttack(entity: Entity, attackId: Int) {
-    LOG.debug("Entity {} learns attack {}.")
-    // TODO Implementieren
-  }
 
   /**
    * Checks if the bestia knows this attack.
@@ -100,7 +86,7 @@ class AttackService(
 
   private fun hasManaForAttack(entity: Entity, attack: Attack): Boolean {
     // TODO Take Equipment and Status altering effects into account
-    val currentMana = entity.tryGetComponent(StatusComponent::class.java)?.conditionValues?.currentMana ?: 0
+    val currentMana = entity.tryGetComponent(ConditionComponent::class.java)?.conditionValues?.currentMana ?: 0
     return currentMana >= attack.manaCost
   }
 

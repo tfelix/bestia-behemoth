@@ -1,11 +1,12 @@
 package net.bestia.model.battle
 
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface BestiaAttackRepository : org.springframework.data.repository.Repository<BestiaAttack, Long> {
+interface PlayerAttackRepository : JpaRepository<PlayerAttack, Long> {
 
   /**
    * Return all usable attacks for a given Bestia. The attacks are sorted by
@@ -13,6 +14,6 @@ interface BestiaAttackRepository : org.springframework.data.repository.Repositor
    * list is returned.
    *
    */
-  @Query("FROM BestiaAttack ba WHERE ba.bestia.id = :bestiaId ORDER BY ba.minLevel ASC")
-  fun getAllAttacksForBestia(@Param("bestiaId") bestiaId: Long): List<BestiaAttack>
+  @Query("FROM PlayerAttack pa WHERE pa.playerBestia.id = :pbId ORDER BY pa.minLevel ASC")
+  fun getAllAttacksForBestia(@Param("pbId") playerBestiaId: Long): List<PlayerAttack>
 }

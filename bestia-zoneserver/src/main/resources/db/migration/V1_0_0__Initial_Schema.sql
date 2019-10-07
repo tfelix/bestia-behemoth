@@ -115,8 +115,7 @@ CREATE TABLE `bestias` (
   `b_mana` int(11) DEFAULT NULL,
   `b_str` int(11) DEFAULT NULL,
   `b_vit` int(11) DEFAULT NULL,
-  `b_will` int(11) DEFAULT NULL,
-  `visual_type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `b_will` int(11) DEFAULT NULL
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_bestia_bestia_db_name` (`bestia_db_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

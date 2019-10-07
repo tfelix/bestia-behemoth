@@ -1,12 +1,12 @@
 plugins {
-    id 'org.springframework.boot'
-    id 'io.spring.dependency-management'
+    // id 'org.springframework.boot'
+    // id 'io.spring.dependency-management'
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jetbrains.kotlin.plugin.spring'
 }
 
 dependencies {
-    api project(':bestia-models')
+    implementation project(':bestia-models')
 
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'

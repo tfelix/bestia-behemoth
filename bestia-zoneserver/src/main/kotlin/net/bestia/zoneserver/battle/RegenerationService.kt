@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.battle
 
+import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 
-// TODO TEST
 data class ConditionIncrements(
     var manaIncrement: Float = 0f,
     var healthIncrement: Float = 0f,
@@ -23,8 +23,8 @@ class RegenerationService {
 
   fun transferIncrementsToCondition(
       currentIncrements: ConditionIncrements,
-      statusComponent: StatusComponent
-  ): StatusComponent {
+      conditionComponent: ConditionComponent
+  ): ConditionComponent {
     val hpRound = currentIncrements.healthIncrement.toInt()
     currentIncrements.healthIncrement -= hpRound.toFloat()
 
@@ -34,13 +34,13 @@ class RegenerationService {
     val staminaRound = currentIncrements.staminaIncrement.toInt()
     currentIncrements.staminaIncrement -= staminaRound.toFloat()
 
-    val updatedConditionValues = statusComponent.conditionValues.copy(
-        currentMana = statusComponent.conditionValues.currentMana + manaRound,
-        currentHealth = statusComponent.conditionValues.currentHealth + hpRound,
-        currentStamina = statusComponent.conditionValues.currentStamina + staminaRound
+    val updatedConditionValues = conditionComponent.conditionValues.copy(
+        currentMana = conditionComponent.conditionValues.currentMana + manaRound,
+        currentHealth = conditionComponent.conditionValues.currentHealth + hpRound,
+        currentStamina = conditionComponent.conditionValues.currentStamina + staminaRound
     )
 
-    return statusComponent.copy(conditionValues = updatedConditionValues)
+    return conditionComponent.copy(conditionValues = updatedConditionValues)
   }
 
   companion object {

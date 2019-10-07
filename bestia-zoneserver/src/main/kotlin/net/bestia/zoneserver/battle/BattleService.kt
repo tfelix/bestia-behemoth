@@ -11,10 +11,7 @@ import net.bestia.model.entity.StatusBasedValues
 import net.bestia.model.geometry.Rect
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.BattleDamageComponent
-import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
+import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
 import kotlin.math.max
 import kotlin.math.min
@@ -391,7 +388,7 @@ class BattleService(
   fun takeTrueDamage(defender: Entity, trueDamage: Damage): Entity {
     val damage = trueDamage.damage
 
-    val statusComp = defender.getComponent(StatusComponent::class.java)
+    val statusComp = defender.getComponent(ConditionComponent::class.java)
 
     statusComp.conditionValues.addHealth(-damage)
 
@@ -415,7 +412,7 @@ class BattleService(
   fun takeDamage(defender: Entity, primaryDamage: Damage, attacker: Entity? = null): Triple<Entity?, Entity, Damage> {
     LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage)
 
-    val statusComp = defender.getComponent(StatusComponent::class.java)
+    val conditionComp = defender.getComponent(ConditionComponent::class.java)
 
     // TODO Possibly reduce the damage via effects or scripts.
     val damage = primaryDamage.damage
@@ -430,7 +427,7 @@ class BattleService(
       battleComp.addDamageReceived(it.id, damage.toLong())
     }
 
-    val condValues = statusComp.conditionValues
+    val condValues = conditionComp.conditionValues
     condValues.addHealth(-damage)
 
     if (condValues.currentHealth == 0) {
@@ -489,7 +486,7 @@ class BattleService(
    * @return [StatusBasedValues] of the entity.
    */
   private fun getConditional(e: Entity): ConditionValues {
-    return e.getComponent(StatusComponent::class.java).conditionValues
+    return e.getComponent(ConditionComponent::class.java).conditionValues
   }
 
   /**

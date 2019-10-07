@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.BaseValues
 import net.bestia.model.bestia.BasicStatusValues
-import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
 
@@ -18,18 +16,6 @@ import net.bestia.model.entity.StatusBasedValues
 data class StatusComponent(
     override val entityId: Long,
 
-    val originalStatusValues: StatusValues,
-
-    /**
-     * The original element of this entity unaltered by status effects or
-     * equipments.
-     *
-     * @return The original unaltered element.
-     */
-    val originalElement: Element = Element.NORMAL,
-
-    val effortValues: BaseValues = BaseValues.NULL_VALUES,
-
     /**
      * [BasicStatusValues]s of this entity. Please note that this status
      * points might have been altered via items, equipments or status effects.
@@ -39,8 +25,6 @@ data class StatusComponent(
      * @return The current status points of the entity.
      */
     val statusValues: StatusValues,
-
-    val conditionValues: ConditionValues,
 
     /**
      * Sets the status based values.

@@ -1,11 +1,12 @@
 package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
+import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.Bestia
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.battle.MobStatusService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.MetaDataComponent
 import net.bestia.zoneserver.entity.component.MetaDataComponent.Companion.MOB_BESTIA_ID
@@ -22,7 +23,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Component
 class MobFactory(
-    private val statusService: MobStatusService,
     private val bestiaDao: BestiaRepository,
     private val idGenerator: IdGenerator
 ) {
@@ -60,12 +60,39 @@ class MobFactory(
     entity.addComponent(equipComp)
     entity.addComponent(InventoryComponent(entityId = entity.id))
     entity.addComponent(AiComponent(entityId = entity.id))
-
-    val statusComp = statusService.calculateStatusPoints(entity)
-    entity.addComponent(statusComp)
+    entity.addComponent(makeStatusComponent(entity, bestia))
 
     LOG.debug { "Created Entity(Mob): $bestia, at $pos" }
 
     return entity
+  }
+
+  private fun makeStatusComponent(entity: Entity, bestia: Bestia): OriginalStatusComponent {
+    val bVals = bestia.baseValues
+    val lv = bestia.level
+
+    val str = (bVals.strength * 2) * lv / 100 + 5
+    val vit = (bVals.vitality * 2) * lv / 100 + 5
+    val intel = (bVals.intelligence * 2) * lv / 100 + 5
+    val will = (bVals.willpower * 2) * lv / 100 + 5
+    val agi = (bVals.agility * 2) * lv / 100 + 5
+    val dex = (bVals.dexterity * 2) * lv / 100 + 5
+
+    val statusValues = BasicStatusValues(
+        str,
+        vit,
+        intel,
+        will,
+        agi,
+        dex
+    )
+
+    LOG.trace { "Build mob '${bestia.databaseName}' status: $statusValues" }
+
+    return OriginalStatusComponent(
+        entityId = entity.id,
+        element = bestia.element,
+        statusValues = statusValues
+    )
   }
 }

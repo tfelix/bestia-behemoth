@@ -23,26 +23,6 @@ class StatusComponentActor(
     component: StatusComponent
 ) : ComponentActor<StatusComponent>(component) {
 
-  private val currentIncrements = ConditionIncrements()
-
-  private val tick = context.system.scheduler().schedule(
-      REGEN_TICK_INTERVAL,
-      REGEN_TICK_INTERVAL,
-      self,
-      ON_REGEN_TICK_MSG,
-      context.dispatcher(),
-      null
-  )
-
-  override fun createReceive(builder: ReceiveBuilder) {
-    builder.matchEquals(ON_REGEN_TICK_MSG) { tickRegeneration() }
-  }
-
-  private fun tickRegeneration() {
-    regenerationService.addIncrements(currentIncrements, component)
-    component = regenerationService.transferIncrementsToCondition(currentIncrements, component)
-  }
-
   override fun onComponentChanged(oldComponent: StatusComponent, newComponent: StatusComponent) {
     fetchEntity {
       if (oldComponent.statusValues.strength != newComponent.statusValues.strength) {
@@ -55,13 +35,7 @@ class StatusComponentActor(
     }
   }
 
-  override fun postStop() {
-    tick.cancel()
-  }
-
   companion object {
-    private val REGEN_TICK_INTERVAL = Duration.ofMillis(REGENERATION_TICK_RATE_MS)
-    private const val ON_REGEN_TICK_MSG = "tickStatus"
     const val NAME = "statusComponent"
   }
 }

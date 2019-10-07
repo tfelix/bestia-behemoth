@@ -29,10 +29,12 @@ data class BasicStatusValues(
     override val magicDefense: Int = 0
 ) : Serializable, StatusValues {
   init {
-    if (strength < 1) {
-      throw IllegalArgumentException("Strength can not be less than 1")
-    }
-    // TODO Other checks
+    require(strength >= 1) { "Strength can not be less than 1" }
+    require(vitality >= 1) { "Vitality can not be less than 1" }
+    require(intelligence >= 1) { "Intelligence can not be less than 1" }
+    require(willpower >= 1) { "Willpower can not be less than 1" }
+    require(agility >= 1) { "Agility can not be less than 1" }
+    require(dexterity >= 1) { "Dexterity can not be less than 1" }
   }
 
   operator fun plus(rhs: StatusValues): BasicStatusValues {

@@ -1,6 +1,7 @@
 plugins {
     id 'org.springframework.boot'
     id 'org.jetbrains.kotlin.plugin.spring'
+    id 'org.jetbrains.kotlin.plugin.jpa'
     id 'org.jetbrains.kotlin.jvm'
     id 'io.gitlab.arturbosch.detekt' version '1.0.0-RC12'
 }
@@ -18,10 +19,6 @@ repositories {
 }
 
 description = 'bestia-zoneserver'
-
-processResources {
-    expand(project.properties)
-}
 
 dependencies {
     implementation project(':bestia-messages')
@@ -61,7 +58,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.5'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
-    implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+    // implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'

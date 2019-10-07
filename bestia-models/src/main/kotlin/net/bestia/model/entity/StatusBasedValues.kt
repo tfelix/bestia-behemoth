@@ -1,8 +1,5 @@
 package net.bestia.model.entity
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
-
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.map.WalkspeedFloat
 
@@ -19,19 +16,16 @@ interface StatusBasedValues {
   /**
    * @return Returns the current HP regeneration per second.
    */
-  @get:JsonProperty("hpr")
   val hpRegenRate: Float
 
   /**
    * @return The current mana regeneration per second.
    */
-  @get:JsonProperty("manar")
   val manaRegenRate: Float
 
   /**
    * @return The current mana regeneration per second.
    */
-  @get:JsonProperty("star")
   val staminaRegenRate: Float
 
   /**
@@ -41,7 +35,6 @@ interface StatusBasedValues {
    * @return Critical hit percentage between 0 and 100% (in 1/10 increments,
    * thus 0 to 1000).
    */
-  @get:JsonProperty("cr")
   val criticalHitrate: Int
 
   /**
@@ -52,13 +45,8 @@ interface StatusBasedValues {
    * @return Dodge percentage between 0 and 100% (in 1/10 increments, thus 0
    * to 1000).
    */
-  @get:JsonProperty("d")
   val dodge: Int
-
-  @get:JsonProperty("ct")
   val casttimeMod: Float
-
-  @get:JsonProperty("cd")
   val cooldownMod: Float
 
   /**
@@ -70,16 +58,9 @@ interface StatusBasedValues {
    *
    * @return A modifier of the cast duration.
    */
-  @get:JsonProperty("cdu")
   val spellDurationMod: Float
-
-  @get:JsonProperty("hr")
   val hitrate: Int
-
-  @get:JsonIgnore
   val minDamage: Int
-
-  @get:JsonIgnore
   val rangedBonusDamage: Int
 
   /**
@@ -89,18 +70,9 @@ interface StatusBasedValues {
    *
    * @return
    */
-  @get:JsonProperty("aspd")
   val attackSpeed: Float
-
-  @get:JsonProperty("w")
   val walkspeed: WalkspeedFloat
-
-  @get:JsonIgnore
   val healthTick: Float
-
-  @get:JsonIgnore
   val manaTick: Float
-
-  @get:JsonIgnore
   val staminaTick: Float
 }

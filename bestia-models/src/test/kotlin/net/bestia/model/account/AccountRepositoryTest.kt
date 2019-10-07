@@ -2,8 +2,8 @@ package net.bestia.model.account
 
 import net.bestia.model.IntegrationTest
 import net.bestia.model.test.AccountFixture
-import org.junit.Assert.assertNotNull
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
 @IntegrationTest
