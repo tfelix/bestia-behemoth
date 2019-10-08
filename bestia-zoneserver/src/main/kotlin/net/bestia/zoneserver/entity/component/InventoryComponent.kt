@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.entity.component
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.item.PlayerItemId
 
 data class InventoryItem(
@@ -28,7 +27,6 @@ data class InventoryComponent(
      *
      * @return The maximum item weight.
      */
-    @JsonProperty("mw")
     val maxWeight: Int = 100,
 
     /**
@@ -36,20 +34,14 @@ data class InventoryComponent(
      *
      * @return The maximum item count. -1 if unlimited.
      */
-    @JsonProperty("mc")
     val maxItemCount: Int = 100,
 
     val items: List<InventoryItem> = emptyList()
 ) : Component {
 
   init {
-    if (totalWeight > maxWeight) {
-      throw IllegalArgumentException("Current weight ($totalWeight) is bigger then max weight ($maxWeight)")
-    }
-
-    if (items.size > maxItemCount) {
-      throw IllegalArgumentException("Item slots used (${items.size} is bigger then max item slots ($maxItemCount)")
-    }
+    require(totalWeight <= maxWeight) { "Current weight ($totalWeight) is bigger then max weight ($maxWeight)" }
+    require(items.size <= maxItemCount) { "Item slots used (${items.size} is bigger then max item slots ($maxItemCount)" }
   }
 
   /**
@@ -57,7 +49,6 @@ data class InventoryComponent(
    *
    * @return Current item weight.
    */
-  @get:JsonProperty("w")
   val totalWeight: Int
     get() = items.sumBy { it.totalWeight }
 

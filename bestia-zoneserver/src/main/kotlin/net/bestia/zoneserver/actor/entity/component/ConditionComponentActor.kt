@@ -15,6 +15,7 @@ class ConditionComponentActor(
 ) : ComponentActor<ConditionComponent>(conditionComponent) {
 
   private val currentIncrements = ConditionIncrements()
+  private var statusComponent: StatusComponent? = null
 
   private val tick = context.system.scheduler().schedule(
       REGEN_TICK_INTERVAL,
@@ -25,15 +26,20 @@ class ConditionComponentActor(
       null
   )
 
+  override fun preStart() {
+    val subscribeStatusComponent = SubscribeForComponentUpdates(StatusComponent::class.java, self)
+    context.parent.tell(subscribeStatusComponent, self)
+  }
+
   override fun createReceive(builder: ReceiveBuilder) {
-    builder.matchEquals(ON_REGEN_TICK_MSG) { tickRegeneration() }
+    builder
+        .matchEquals(ON_REGEN_TICK_MSG) { tickRegeneration() }
+        .match(StatusComponent::class.java) { statusComponent = it }
   }
 
   private fun tickRegeneration() {
-    fetchEntity { entity ->
-      val statusComponent = entity.getComponent(StatusComponent::class.java)
-      regenerationService.addIncrements(currentIncrements, statusComponent)
-      component = regenerationService.transferIncrementsToCondition(currentIncrements, component)
+    statusComponent?.let {
+      component = regenerationService.addIncrements(component, currentIncrements, it)
     }
   }
 

@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.actor.AbstractActorWithTimers
+import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.entity.RequestComponentMessage
@@ -14,9 +15,16 @@ import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
 
+data class SubscribeForComponentUpdates(
+    val componentType: Class<out Component>,
+    val sendUpdateTo: ActorRef
+)
+
 abstract class ComponentActor<T : Component>(
     component: T
 ) : AbstractActorWithTimers() {
+
+  private val componentUpdateSubscriber = mutableSetOf<ActorRef>()
 
   protected fun fetchEntity(
       callback: (Entity) -> Unit
@@ -49,11 +57,20 @@ abstract class ComponentActor<T : Component>(
     createReceive(builder)
 
     builder
+        .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdate)
         .match(RequestComponentMessage::class.java, this::sendComponent)
         .match(SaveAndKillEntity::class.java) { onSave() }
         .match(component.javaClass, this::handleComponentSet)
 
     return builder.build()
+  }
+
+  private fun subscribeForComponentUpdate(msg: SubscribeForComponentUpdates) {
+    // Check if this message is ment for this actor.
+    if (msg.componentType != component::class.java) {
+      return
+    }
+    componentUpdateSubscriber.add(msg.sendUpdateTo)
   }
 
   private fun handleComponentSet(newComponent: T) {
@@ -64,6 +81,7 @@ abstract class ComponentActor<T : Component>(
     val oldComponent = component
     component = newComponent
     onComponentChanged(oldComponent, component)
+    componentUpdateSubscriber.forEach { it.tell(component, self) }
   }
 
   private fun sendComponent(msg: RequestComponentMessage) {
@@ -78,7 +96,9 @@ abstract class ComponentActor<T : Component>(
    */
   protected open fun onSave() {}
 
-  protected fun announceComponentChange() {}
+  protected fun announceComponentChange() {
+    LOG.warn { "announceComponentChange(): Not implemented." }
+  }
 
   protected open fun createReceive(builder: ReceiveBuilder) {}
 }

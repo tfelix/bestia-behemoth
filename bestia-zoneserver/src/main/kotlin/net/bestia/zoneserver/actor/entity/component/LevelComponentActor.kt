@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity.component
 
+import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 
@@ -8,12 +9,7 @@ class LevelComponentActor(
     levelComponent: LevelComponent
 ) : ComponentActor<LevelComponent>(levelComponent) {
 
-  override fun onComponentChanged(oldComponent: LevelComponent, newComponent: LevelComponent) {
-    if (oldComponent.level < newComponent.level) {
-      fetchEntity { entity ->
-        val newStatusComp = statusService.calculateStatusPoints(entity)
-        context.parent.tell(newStatusComp, self)
-      }
-    }
+  companion object {
+    const val NAME = "levelComponent"
   }
 }

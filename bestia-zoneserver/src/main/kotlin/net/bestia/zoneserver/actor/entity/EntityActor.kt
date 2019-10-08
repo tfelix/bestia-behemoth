@@ -10,8 +10,9 @@ import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
+import net.bestia.zoneserver.actor.entity.component.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.Component as BestiaComponent
+import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
 
@@ -38,10 +39,10 @@ class EntityActor(
 ) : AbstractActor() {
 
   private class ComponentActorCache {
-    private val classToActor = HashBiMap.create<Class<BestiaComponent>, ActorRef>()
+    private val classToActor = HashBiMap.create<Class<Component>, ActorRef>()
     val activeComponentActorCount: Int get() = classToActor.size
 
-    fun add(component: BestiaComponent, compActor: ActorRef) {
+    fun add(component: Component, compActor: ActorRef) {
       classToActor[component.javaClass] = compActor
     }
 
@@ -53,29 +54,40 @@ class EntityActor(
       classToActor.inverse().remove(actor)
     }
 
-    fun get(componentClass: Class<out BestiaComponent>): ActorRef? {
+    fun get(componentClass: Class<out Component>): ActorRef? {
       return classToActor[componentClass]
     }
 
-    fun getAllCachedComponentClasses(): Set<Class<BestiaComponent>> {
+    fun getAllCachedComponentClasses(): Set<Class<Component>> {
       return classToActor.keys.toSet()
     }
   }
 
+  private val componentUpdateSubscriberCache = mutableSetOf<SubscribeForComponentUpdates>()
   private val componentActorCache = ComponentActorCache()
   private var entityId: Long = 0
 
-  override fun createReceive(): AbstractActor.Receive {
+  override fun createReceive(): Receive {
     return receiveBuilder()
         .match(AddComponentMessage::class.java, this::addComponentActor)
         .match(DeleteComponentMessage::class.java, this::removeComponentActor)
         .match(UpdateComponentMessage::class.java, this::updateComponentActor)
+        .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
 
         .match(Terminated::class.java, this::handleTerminated)
         .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
         .match(EntityRequest::class.java, this::handleEntityRequest)
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
+  }
+
+  /**
+   * We must cache any component subscription message as the actors are usually not re-sending it again
+   * and the component actor might not be there already. We need to re-send it to the component actor if
+   * an actor shows up.
+   */
+  private fun subscribeForComponentUpdates(msg: SubscribeForComponentUpdates) {
+    componentUpdateSubscriberCache.add(msg)
   }
 
   private fun handleEntityRequest(msg: EntityRequest) {
@@ -144,10 +156,11 @@ class EntityActor(
     componentActorCache.get(msg.componentClass)?.tell(PoisonPill.getInstance(), self)
   }
 
-  private fun createComponentActor(component: BestiaComponent): ActorRef? {
+  private fun createComponentActor(component: Component): ActorRef? {
     return factory.startActor(context, component)?.also {
       context().watch(it)
       componentActorCache.add(component, it)
+      componentUpdateSubscriberCache.forEach { subMsg -> it.tell(subMsg, self) }
     }
   }
 

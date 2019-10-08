@@ -2,12 +2,8 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.battle.ConditionIncrements
-import net.bestia.zoneserver.battle.RegenerationService
-import net.bestia.zoneserver.battle.RegenerationService.Companion.REGENERATION_TICK_RATE_MS
+import net.bestia.zoneserver.entity.component.OriginalStatusComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.zoneserver.inventory.InventoryService
-import java.time.Duration
 
 /**
  * The actor checks an entity with a status component attached and will
@@ -18,21 +14,17 @@ import java.time.Duration
  */
 @ActorComponent(StatusComponent::class)
 class StatusComponentActor(
-    private val inventoryService: InventoryService,
-    private val regenerationService: RegenerationService,
     component: StatusComponent
 ) : ComponentActor<StatusComponent>(component) {
 
-  override fun onComponentChanged(oldComponent: StatusComponent, newComponent: StatusComponent) {
-    fetchEntity {
-      if (oldComponent.statusValues.strength != newComponent.statusValues.strength) {
+  override fun createReceive(builder: ReceiveBuilder) {
+    builder
+        .match(OriginalStatusComponent::class.java, this::onOriginalStatusComponentChanged)
+  }
 
-        val newInventoryComp = inventoryService.updateMaxWeight(it)
-        context.parent.tell(newInventoryComp, self)
-      }
-
-      announceComponentChange()
-    }
+  private fun onOriginalStatusComponentChanged(originalStatusComponent: OriginalStatusComponent) {
+    // TODO Update the status values with the modified version via equip, scripts, buffs etc.
+    component = component.copy(statusValues = originalStatusComponent.statusValues)
   }
 
   companion object {

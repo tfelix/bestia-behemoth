@@ -50,7 +50,7 @@ class ResourceMatrixResolverServiceTest {
     private val resourceMatrices = makeTestData() + listOf(tableMatrix)
     private val testItems = resourceMatrices.mapIndexed { i, m ->
       Item(
-          itemDbName = "item-$i",
+          databaseName = "item-$i",
           mesh = "item-$i.mesh",
           type = ItemType.ETC
       ).apply {

@@ -11,17 +11,34 @@ data class ConditionIncrements(
 
 class RegenerationService {
 
-  fun addIncrements(currentIncrements: ConditionIncrements, statusComponent: StatusComponent) {
-    val healthIncrement = statusComponent.statusBasedValues.hpRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    val manaIncrement = statusComponent.statusBasedValues.manaRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    val staminaIncrement = statusComponent.statusBasedValues.staminaRegenRate * REGENERATION_TICK_RATE_MS / 1000
+  fun addIncrements(
+      conditionComponent: ConditionComponent,
+      currentIncrements: ConditionIncrements,
+      statusComponent: StatusComponent
+  ): ConditionComponent {
+    var healthIncrement = statusComponent.statusBasedValues.hpRegenRate * REGENERATION_TICK_RATE_MS / 1000
+    var manaIncrement = statusComponent.statusBasedValues.manaRegenRate * REGENERATION_TICK_RATE_MS / 1000
+    var staminaIncrement = statusComponent.statusBasedValues.staminaRegenRate * REGENERATION_TICK_RATE_MS / 1000
+
+    val condValues = conditionComponent.conditionValues
+    if (condValues.currentHealth == condValues.maxHealth) {
+      healthIncrement = 0f
+    }
+    if (condValues.currentMana == condValues.maxMana) {
+      manaIncrement = 0f
+    }
+    if (condValues.currentStamina == condValues.maxStamina) {
+      staminaIncrement = 0f
+    }
 
     currentIncrements.healthIncrement += healthIncrement
     currentIncrements.manaIncrement += manaIncrement
     currentIncrements.staminaIncrement += staminaIncrement
+
+    return transferIncrementsToCondition(currentIncrements, conditionComponent)
   }
 
-  fun transferIncrementsToCondition(
+  private fun transferIncrementsToCondition(
       currentIncrements: ConditionIncrements,
       conditionComponent: ConditionComponent
   ): ConditionComponent {
@@ -47,6 +64,6 @@ class RegenerationService {
     /**
      * How often the regeneration should tick for each entity.
      */
-    const val REGENERATION_TICK_RATE_MS = 4000L
+    const val REGENERATION_TICK_RATE_MS = 2000L
   }
 }

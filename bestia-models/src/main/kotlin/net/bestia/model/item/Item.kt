@@ -1,8 +1,6 @@
 package net.bestia.model.item
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
 import java.io.Serializable
 import javax.persistence.*
@@ -17,7 +15,7 @@ import javax.persistence.*
 @Table(name = "items")
 data class Item(
     @Column(name = "item_db_name", unique = true, nullable = false)
-    val itemDbName: String,
+    val databaseName: String,
 
     @Column(nullable = false)
     val mesh: String,
@@ -46,6 +44,6 @@ data class Item(
     val recepies: MutableList<CraftRecipe> = mutableListOf()
 ) : AbstractEntity(), Serializable {
   override fun toString(): String {
-    return "Item[dbName: $itemDbName, id: $id, type: $type]"
+    return "Item[dbName: $databaseName, id: $id, type: $type]"
   }
 }
