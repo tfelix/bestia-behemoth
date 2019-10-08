@@ -19,6 +19,6 @@ interface ItemRepository : CrudRepository<Item, Long> {
    * Unique database name of an item.
    * @return The found item. Or null if the item was not found.
    */
-  @Query("SELECT i FROM Item i where i.itemDbName = :name")
-  fun findItemByName(@Param("name") itemDbName: String): Item?
+  @Query("SELECT i FROM Item i where i.databaseName = :name")
+  fun findItemByName(@Param("name") databaseName: String): Item?
 }

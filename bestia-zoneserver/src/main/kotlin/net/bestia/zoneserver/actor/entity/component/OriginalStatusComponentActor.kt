@@ -39,4 +39,3 @@ class OriginalStatusComponentActor(
     const val NAME = "originalStatusComponent"
   }
 }
-

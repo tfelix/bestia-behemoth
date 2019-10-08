@@ -2,9 +2,9 @@ package net.bestia.zoneserver.battle
 
 import net.bestia.model.bestia.BaseValues
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.EffortValueComponent
 import net.bestia.zoneserver.entity.component.GainPointComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
 import kotlin.math.floor
 
 // TODO Test it
@@ -20,14 +20,14 @@ class GainPointService {
     return gainPointComponent.copy(gainPoints = gainPointComponent.gainPoints + earnedGainPoints)
   }
 
-  fun neededGainPointsForUpgrade(currentEffortValue: Int): Int {
+  private fun neededGainPointsForUpgrade(currentEffortValue: Int): Int {
     return floor((currentEffortValue + 1) * 0.25).toInt() * 2
   }
 
-  fun updateEffortValues(entity: Entity, desiredEffortValues: BaseValues): Pair<GainPointComponent, StatusComponent> {
-    val statusComponent = entity.getComponent(StatusComponent::class.java)
+  fun updateEffortValues(entity: Entity, desiredEffortValues: BaseValues): Pair<GainPointComponent, EffortValueComponent> {
+    val effortComponent = entity.getComponent(EffortValueComponent::class.java)
     val gainComponent = entity.getComponent(GainPointComponent::class.java)
-    var effortValues = statusComponent.effortValues
+    var effortValues = effortComponent.effortValues
 
     var currentGain = gainComponent.gainPoints
     val delta = desiredEffortValues - effortValues
@@ -115,7 +115,7 @@ class GainPointService {
 
     return Pair(
         gainComponent.copy(gainPoints = currentGain),
-        statusComponent.copy(effortValues = effortValues)
+        effortComponent.copy(effortValues = effortValues)
     )
   }
 }

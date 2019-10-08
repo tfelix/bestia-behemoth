@@ -8,7 +8,7 @@ Bestia.spawnMob("blob", 12 ,15, 10)
 
 Bestia.newEntity()
     .script()
-    .setInterval('checkEntities', 5000)
+    .setInterval(5000, 'checkEntities')
 
 function checkEntities() {
     Bestia.info("in checkEntities()")

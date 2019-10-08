@@ -5,10 +5,7 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
-import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.PlayerComponent
-import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
+import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -143,8 +140,8 @@ class PlayerEntityService(
     val playerBestia = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
 
     // Current status values (HP/Mana)
-    val statusComp = playerEntity.getComponent(StatusComponent::class.java)
-    playerBestia.conditionValues = statusComp.conditionValues
+    val conditionComp = playerEntity.getComponent(ConditionComponent::class.java)
+    playerBestia.conditionValues = conditionComp.conditionValues
 
     // Current position.
     val posComp = playerEntity.getComponent(PositionComponent::class.java)

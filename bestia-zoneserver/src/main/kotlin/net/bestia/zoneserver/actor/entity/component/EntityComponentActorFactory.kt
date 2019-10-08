@@ -23,7 +23,7 @@ class EntityComponentActorFactory {
   private val componentToActorClass: Map<KClass<out Component>, Class<out AbstractActor>>
 
   init {
-    val reflections = Reflections(javaClass.`package`.toString())
+    val reflections = Reflections(javaClass.`package`.name)
     val annotated = reflections.getTypesAnnotatedWith(ActorComponent::class.java)
     componentToActorClass = annotated.asSequence()
         .filter { AbstractActor::class.java.isAssignableFrom(it) }
