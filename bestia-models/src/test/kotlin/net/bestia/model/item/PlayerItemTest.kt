@@ -26,7 +26,7 @@ class PlayerItemTest {
   }
 
   private val item = Item(
-      itemDbName = "apple",
+      databaseName = "apple",
       mesh = "apple.png",
       level = 1,
       price = 1,
