@@ -1,2 +1,8 @@
 language: java
 
+addons:
+  mariadb: '10.4'
+
+services:
+  - cassandra
+  - mariadb

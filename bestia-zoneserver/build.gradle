@@ -66,6 +66,8 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.12', version: '0.92'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion) {
+        exclude group: 'junit', module: 'junit'
+    }
     testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
 }

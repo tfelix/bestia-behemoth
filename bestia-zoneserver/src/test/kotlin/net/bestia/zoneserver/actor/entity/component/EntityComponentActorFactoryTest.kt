@@ -16,7 +16,7 @@ class EntityComponentActorFactoryTest {
     val notHandledComponents = components - handledByActors
 
     Assert.assertEquals(
-        "Add ComponentActors annotated with @HandlesComponent for the missing components",
+        "Add ComponentActors annotated with @ActorComponent(COMPONENT::class) for the missing components",
         emptySet<String>(),
         notHandledComponents.asSequence().map { it.simpleName }.toSet()
     )

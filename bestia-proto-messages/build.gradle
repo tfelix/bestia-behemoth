@@ -16,7 +16,6 @@ repositories {
 
 dependencies {
     api 'com.google.protobuf:protobuf-java:3.0.0'
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
