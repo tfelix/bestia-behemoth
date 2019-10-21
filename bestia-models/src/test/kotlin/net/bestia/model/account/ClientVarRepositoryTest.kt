@@ -1,9 +1,10 @@
 package net.bestia.model.account
 
 import net.bestia.model.test.AccountFixture
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -21,7 +22,7 @@ class ClientVarRepositoryTest {
   @Autowired
   private lateinit var accDao: AccountRepository
 
-  @Before
+  @BeforeEach
   fun setup() {
     val acc = AccountFixture.createAccount()
     accDao.save(acc)
@@ -34,14 +35,14 @@ class ClientVarRepositoryTest {
   @Test
   fun findByKeyAndAccountId_validKeyAndAccId_finds() {
     val cv = cvDao.findByKeyAndAccountId(EXISTING_KEY, ACC_ID)
-    Assert.assertNotNull(cv)
+    assertNotNull(cv)
   }
 
   @Test
   fun deleteByKeyAndAccountId_validKeyAndAccId_deletes() {
     cvDao.deleteByKeyAndAccountId(EXISTING_KEY, ACC_ID)
     val cv = cvDao.findByKeyAndAccountId(EXISTING_KEY, ACC_ID)
-    Assert.assertNull(cv)
+    assertNull(cv)
   }
 
   companion object {

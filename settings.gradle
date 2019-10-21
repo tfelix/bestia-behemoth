@@ -3,4 +3,5 @@ include 'bestia-models'
 include 'bestia-messages'
 include 'bestia-zoneserver'
 include 'bestia-proto-messages'
+include 'test-client'
 

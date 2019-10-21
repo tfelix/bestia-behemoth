@@ -4,7 +4,8 @@ import com.nhaarman.mockitokotlin2.any
 import net.bestia.model.account.Account
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,15 +34,15 @@ class MapMoveCommandTest {
 
   @Test
   fun isCommand_okayCommand_true() {
-    Assert.assertTrue(cmd.isCommand("/mm 10 11"))
-    Assert.assertTrue(cmd.isCommand("/mm 10 10"))
+    assertTrue(cmd.isCommand("/mm 10 11"))
+    assertTrue(cmd.isCommand("/mm 10 10"))
   }
 
   @Test
   fun isCommand_falseCommand_false() {
-    Assert.assertFalse(cmd.isCommand("/mmm"))
-    Assert.assertFalse(cmd.isCommand("/mm2 34"))
-    Assert.assertFalse(cmd.isCommand("/.mm 10 10"))
+    assertFalse(cmd.isCommand("/mmm"))
+    assertFalse(cmd.isCommand("/mm2 34"))
+    assertFalse(cmd.isCommand("/.mm 10 10"))
   }
 
   @Test

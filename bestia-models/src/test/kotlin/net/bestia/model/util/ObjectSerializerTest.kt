@@ -1,9 +1,8 @@
 package net.bestia.model.util
 
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import java.util.Arrays
-
-import org.junit.Assert
-import org.junit.Test
 
 class ObjectSerializerTest {
   @Test
@@ -12,7 +11,7 @@ class ObjectSerializerTest {
     Arrays.fill(invalidData, 0x12.toByte())
 
     val test: String? = ObjectSerializer.deserialize(invalidData)
-    Assert.assertNull(test)
+    assertNull(test)
   }
 
   @Test
@@ -20,11 +19,11 @@ class ObjectSerializerTest {
     val test = "Hello World"
     val data = ObjectSerializer.serialize(test)
 
-    Assert.assertNotNull(data)
-    Assert.assertTrue(data!!.isNotEmpty())
+    assertNotNull(data)
+    assertTrue(data!!.isNotEmpty())
 
     val test2 = ObjectSerializer.deserialize<String>(data)
 
-    Assert.assertEquals(test, test2)
+    assertEquals(test, test2)
   }
 }

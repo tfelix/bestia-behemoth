@@ -2,16 +2,16 @@ package net.bestia.zoneserver.item
 
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.item.*
-import org.junit.Assert
-import org.junit.Before
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Answers
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.junit.jupiter.MockitoExtension
 import kotlin.random.Random
 
-@RunWith(MockitoJUnitRunner::class)
+@ExtendWith(MockitoExtension::class)
 class ResourceMatrixResolverServiceTest {
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -19,7 +19,7 @@ class ResourceMatrixResolverServiceTest {
 
   private lateinit var sut: ResourceMatrixResolverService
 
-  @Before
+  @BeforeEach
   fun setup() {
     whenever(itemRepository.findAll()).thenReturn(testItems)
 
@@ -31,7 +31,7 @@ class ResourceMatrixResolverServiceTest {
     sut.hashAllItems()
 
     val result = sut.resolveMatrix(tableMatrix)
-    Assert.assertEquals(tableItemId, result)
+    assertEquals(tableItemId, result)
   }
 
   companion object {

@@ -1,18 +1,21 @@
 package net.bestia.model.map
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 
 class WalkspeedTest {
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun fromInt_outOfRange_throws() {
-    Walkspeed.fromInt(2003)
+    assertThrows(IllegalArgumentException::class.java) { Walkspeed.fromInt(2003) }
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun fromInt_negative_throws() {
-    Walkspeed.fromInt(-1)
+    assertThrows(IllegalArgumentException::class.java) {
+      Walkspeed.fromInt(-1)
+    }
   }
 
   @Test
@@ -22,14 +25,18 @@ class WalkspeedTest {
     Walkspeed.fromInt(300)
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun fromFloat_outOfRange_throws() {
-    Walkspeed(3.7f)
+    assertThrows(IllegalArgumentException::class.java) {
+      Walkspeed(3.7f)
+    }
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun fromFloat_negative_throws() {
-    Walkspeed(-1.7f)
+    assertThrows(IllegalArgumentException::class.java) {
+      Walkspeed(-1.7f)
+    }
   }
 
   @Test
@@ -42,18 +49,18 @@ class WalkspeedTest {
   @Test
   fun getSpeed_ok() {
     val ws = Walkspeed(Walkspeed.MAX_WALKSPEED)
-    Assert.assertEquals(0.01f, Walkspeed.MAX_WALKSPEED, ws.speed)
+    assertEquals(0.01f, Walkspeed.MAX_WALKSPEED, ws.speed)
   }
 
   @Test
   fun toInt_ok() {
     var ws = Walkspeed(Walkspeed.MAX_WALKSPEED)
-    Assert.assertEquals(Walkspeed.MAX_WALKSPEED_INT.toLong(), ws.toInt().toLong())
+    assertEquals(Walkspeed.MAX_WALKSPEED_INT.toLong(), ws.toInt().toLong())
 
     ws = Walkspeed(0f)
-    Assert.assertEquals(0, ws.toInt().toLong())
+    assertEquals(0, ws.toInt().toLong())
 
     ws = Walkspeed.fromInt(100)
-    Assert.assertEquals(100, ws.toInt().toLong())
+    assertEquals(100, ws.toInt().toLong())
   }
 }

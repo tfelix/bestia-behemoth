@@ -1,22 +1,27 @@
 package net.bestia.model.item
 
 import net.bestia.model.test.AccountFixture
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertThrows
 
 class PlayerItemTest {
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun negative_amount_test() {
     val a = AccountFixture.createAccount()
     val pi = PlayerItem(item, a, 4)
-    pi.amount = -1
+    assertThrows(IllegalArgumentException::class.java) {
+      pi.amount = -1
+    }
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun zero_amount_test() {
     val a = AccountFixture.createAccount()
     val pi = PlayerItem(item, a, 4)
-    pi.amount = 0
+    assertThrows(IllegalArgumentException::class.java) {
+      pi.amount = 0
+    }
   }
 
   @Test

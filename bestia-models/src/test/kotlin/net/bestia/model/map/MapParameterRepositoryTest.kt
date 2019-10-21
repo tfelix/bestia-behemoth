@@ -1,23 +1,18 @@
 package net.bestia.model.map
 
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
+import net.bestia.model.IntegrationTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
 
-@RunWith(SpringRunner::class)
-@SpringBootTest
-@DataJpaTest
+@IntegrationTest
 class MapParameterRepositoryTest {
 
   @Autowired
   private val dao: MapParameterRepository? = null
 
-  @Before
+  @BeforeEach
   fun setup() {
     val p1 = MapParameter.fromAverageUserCount(100, MAPNAME1)
     dao!!.save(p1)
@@ -29,12 +24,11 @@ class MapParameterRepositoryTest {
   @Test
   fun findLatest_latestParams() {
     val p = dao!!.findFirstByOrderByIdDesc()
-    Assert.assertEquals(MAPNAME2, p!!.name)
+    assertEquals(MAPNAME2, p!!.name)
   }
 
   companion object {
-
-    private val MAPNAME1 = "Ballermann"
-    private val MAPNAME2 = "Ballermann 2"
+    private const val MAPNAME1 = "Ballermann"
+    private const val MAPNAME2 = "Ballermann 2"
   }
 }

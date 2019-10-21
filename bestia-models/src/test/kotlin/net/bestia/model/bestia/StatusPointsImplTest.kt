@@ -1,7 +1,7 @@
 package net.bestia.model.bestia
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class StatusPointsImplTest {
 
@@ -20,26 +20,26 @@ class StatusPointsImplTest {
 
     val restult = sp1 + sp1
 
-    Assert.assertEquals(20, restult.physicalDefense)
-    Assert.assertEquals(20, restult.magicDefense)
+    assertEquals(20, restult.physicalDefense)
+    assertEquals(20, restult.magicDefense)
 
-    Assert.assertEquals(20, restult.intelligence)
-    Assert.assertEquals(20, restult.vitality)
-    Assert.assertEquals(20, restult.vitality)
+    assertEquals(20, restult.intelligence)
+    assertEquals(20, restult.vitality)
+    assertEquals(20, restult.vitality)
   }
 
   @Test
   fun test_instanciation() {
     val sut = BasicStatusValues()
 
-    Assert.assertEquals(0, sut.agility)
-    Assert.assertEquals(0, sut.vitality)
-    Assert.assertEquals(0, sut.intelligence)
-    Assert.assertEquals(0, sut.agility)
-    Assert.assertEquals(0, sut.willpower)
-    Assert.assertEquals(0, sut.strength)
+    assertEquals(0, sut.agility)
+    assertEquals(0, sut.vitality)
+    assertEquals(0, sut.intelligence)
+    assertEquals(0, sut.agility)
+    assertEquals(0, sut.willpower)
+    assertEquals(0, sut.strength)
 
-    Assert.assertEquals(0, sut.physicalDefense)
-    Assert.assertEquals(0, sut.magicDefense)
+    assertEquals(0, sut.physicalDefense)
+    assertEquals(0, sut.magicDefense)
   }
 }

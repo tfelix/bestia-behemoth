@@ -8,7 +8,8 @@ import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.account.LogoutService
 import net.bestia.zoneserver.config.RuntimeConfigService
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,17 +40,17 @@ class MaintenanceCommandTest {
 
   @Test
   fun isCommand_okayCommand_true() {
-    Assert.assertTrue(cmd.isCommand("/maintenance true"))
-    Assert.assertTrue(cmd.isCommand("/maintenance false"))
-    Assert.assertTrue(cmd.isCommand("/maintenance blabla"))
+    assertTrue(cmd.isCommand("/maintenance true"))
+    assertTrue(cmd.isCommand("/maintenance false"))
+    assertTrue(cmd.isCommand("/maintenance blabla"))
   }
 
   @Test
   fun isCommand_falseCommand_false() {
-    Assert.assertFalse(cmd.isCommand("/maintenance9340"))
-    Assert.assertFalse(cmd.isCommand("/main9340"))
-    Assert.assertFalse(cmd.isCommand("/.maintenance true"))
-    Assert.assertFalse(cmd.isCommand("maintenance false"))
+    assertFalse(cmd.isCommand("/maintenance9340"))
+    assertFalse(cmd.isCommand("/main9340"))
+    assertFalse(cmd.isCommand("/.maintenance true"))
+    assertFalse(cmd.isCommand("maintenance false"))
   }
 
   @Test

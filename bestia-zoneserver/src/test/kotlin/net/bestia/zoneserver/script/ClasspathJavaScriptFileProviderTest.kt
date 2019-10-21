@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script
 
-import org.junit.Assert
 import org.junit.jupiter.api.Test
+import org.springframework.test.util.AssertionErrors.assertTrue
 import java.io.File
 
 internal class ClasspathJavaScriptFileProviderTest {
@@ -18,7 +18,7 @@ internal class ClasspathJavaScriptFileProviderTest {
     val foundScripts = sut.toList().map { fileNameWithParentDir(it.resource.file) }
 
     testScripts.forEach { script ->
-      Assert.assertTrue("Does not contain '$script'", foundScripts.contains(script))
+      assertTrue("Does not contain '$script'", foundScripts.contains(script))
     }
   }
 

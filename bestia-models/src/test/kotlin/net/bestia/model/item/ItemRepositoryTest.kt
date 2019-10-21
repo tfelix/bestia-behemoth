@@ -1,22 +1,12 @@
 package net.bestia.model.item
 
-import org.junit.Assert
-import org.junit.runner.RunWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
-
-import org.junit.jupiter.api.Tag
+import net.bestia.model.IntegrationTest
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 
-@RunWith(SpringRunner::class)
-@SpringBootTest
-@DataJpaTest
-@TestExecutionListeners(DependencyInjectionTestExecutionListener::class)
-@Tag("it")
+@IntegrationTest
 class ItemRepositoryTest {
 
   @Autowired
@@ -24,12 +14,12 @@ class ItemRepositoryTest {
   @Test
   fun findItemByName_existingName_item() {
     val item = itemRepository.findItemByName("apple")
-    Assert.assertNotNull(item)
+    assertNotNull(item)
   }
 
   @Test
   fun findItemByName_nonExistingName_null() {
     val item = itemRepository.findItemByName("bla_bli_blub")
-    Assert.assertNull(item)
+    assertNull(item)
   }
 }

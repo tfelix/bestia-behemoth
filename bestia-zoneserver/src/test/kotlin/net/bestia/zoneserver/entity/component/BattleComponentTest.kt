@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class BattleComponentTest {
@@ -9,7 +10,7 @@ class BattleComponentTest {
   fun addDamageReceived_negativeId_doesNothing() {
     val bc = BattleDamageComponent(1)
     bc.addDamageReceived(-1, 10)
-    Assert.assertEquals(0, bc.damageDealers.size.toLong())
+    assertEquals(0, bc.damageDealers.size.toLong())
   }
 
   @Test
@@ -18,14 +19,14 @@ class BattleComponentTest {
     bc.addDamageReceived(1, 0)
     bc.addDamageReceived(2, -10)
 
-    Assert.assertEquals(0, bc.damageDealers.size.toLong())
+    assertEquals(0, bc.damageDealers.size.toLong())
   }
 
   @Test
   fun addDamageReceived_validNumberOfDamage_isAdded() {
     val bc = BattleDamageComponent(1)
     val newBc = bc.addDamageReceived(1, 10)
-    Assert.assertEquals(1, newBc.damageDealers.size.toLong())
+    assertEquals(1, newBc.damageDealers.size.toLong())
   }
 
   @Test
@@ -38,13 +39,13 @@ class BattleComponentTest {
       bc.addDamageReceived(i.toLong(), 10)
     }
 
-    Assert.assertTrue(bc.damageDealers.size < maxTest)
+    assertTrue(bc.damageDealers.size < maxTest)
   }
 
   @Test
   fun clearDamageEntries_clearsTheEntries() {
     val bc = BattleDamageComponent(1)
     bc.addDamageReceived(1, 10)
-    Assert.assertEquals(0, bc.damageDealers.size.toLong())
+    assertEquals(0, bc.damageDealers.size.toLong())
   }
 }

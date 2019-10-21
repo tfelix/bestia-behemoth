@@ -1,9 +1,9 @@
 package net.bestia.zoneserver
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
@@ -20,6 +20,6 @@ class BootableSmokeTest {
   @Test
   fun injectionTests() {
     println(applicationContext.toString())
-    Assert.assertFalse(true)
+    assertFalse(true)
   }
 }

@@ -1,27 +1,28 @@
 package net.bestia.model.geometry
 
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 import java.io.Serializable
-
-import org.junit.Assert
-import org.junit.Test
 
 class SizeTest {
 
   @Test
   fun is_serializable() {
-    Assert.assertTrue(Serializable::class.java.isAssignableFrom(Size::class.java))
+    assertTrue(Serializable::class.java.isAssignableFrom(Size::class.java))
   }
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun ctor_negativeValue_throws() {
-    Size(0, -10)
+    assertThrows(java.lang.IllegalArgumentException::class.java) {
+      Size(0, -10)
+    }
   }
 
   @Test
   fun getter_ctor() {
     val (width, height) = Size(123, 10)
-    Assert.assertEquals(123, width)
-    Assert.assertEquals(10, height)
+    assertEquals(123, width)
+    assertEquals(10, height)
   }
 
   @Test
@@ -30,8 +31,8 @@ class SizeTest {
     val s2 = Size(10, 5)
     val s3 = Size(3, 1)
 
-    Assert.assertTrue(s1 == s2)
-    Assert.assertTrue(s1 == s1)
-    Assert.assertFalse(s2 == s3)
+    assertTrue(s1 == s2)
+    assertTrue(s1 == s1)
+    assertFalse(s2 == s3)
   }
 }

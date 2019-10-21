@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import net.bestia.zoneserver.Fixtures
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -31,6 +31,6 @@ internal class IdGeneratorTest {
         .eachCount()
         .filter { it.value > 1 }
 
-    Assert.assertTrue("There are duplicate IDs", duplicates.isEmpty())
+    assertTrue(duplicates.isEmpty(), "There are duplicate IDs")
   }
 }

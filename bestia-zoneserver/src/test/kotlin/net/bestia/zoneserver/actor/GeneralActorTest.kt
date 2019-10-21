@@ -4,7 +4,8 @@ import akka.actor.AbstractActor
 import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
 import net.bestia.zoneserver.actor.entity.EntityActor
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
 import java.util.*
@@ -46,7 +47,7 @@ class GeneralActorTest {
       val isAnnotated = clazz.isAnnotationPresent(ActorComponent::class.java) ||
           clazz.isAnnotationPresent(Actor::class.java) ||
           whitelist.contains(clazz)
-      Assert.assertTrue("Missing component annotation for: " + clazz.name, isAnnotated)
+      assertTrue(isAnnotated, "Missing component annotation for: " + clazz.name)
     }
   }
 
@@ -76,8 +77,7 @@ class GeneralActorTest {
     }
 
     if (failedClasses.size > 0) {
-      Assert.fail(
-          "These classes do not implement a public static String NAME field: " + failedClasses.toString())
+      Assertions.fail<Unit>("These classes do not implement a public static String NAME field: $failedClasses")
     }
   }
 

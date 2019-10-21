@@ -5,8 +5,7 @@ plugins {
     id 'idea'
 }
 
-group 'net.bestia'
-version 'alpha-0.6.0-SNAPSHOT'
+description = 'bestia-proto-messages'
 
 sourceCompatibility = 1.8
 

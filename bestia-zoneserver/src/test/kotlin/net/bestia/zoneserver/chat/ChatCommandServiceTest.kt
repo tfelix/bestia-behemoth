@@ -4,10 +4,9 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,12 +35,12 @@ class ChatCommandServiceTest {
 
   @Test
   fun isChatCommand_containedChatPrefix_true() {
-    Assert.assertTrue(chatService.isChatCommand("/known test"))
+    assertTrue(chatService.isChatCommand("/known test"))
   }
 
   @Test
   fun isChatCommand_notContainedChatPrefix_false() {
-    Assert.assertFalse(chatService.isChatCommand("#unknown test"))
+    assertFalse(chatService.isChatCommand("#unknown test"))
   }
 
   @Test

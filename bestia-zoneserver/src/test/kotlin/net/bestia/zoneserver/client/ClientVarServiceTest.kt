@@ -6,16 +6,14 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVar
 import net.bestia.model.account.ClientVarRepository
 import net.bestia.zoneserver.account.ClientVarService
-import org.junit.Assert
-import org.junit.Rule
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito.verify
-import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.jupiter.MockitoExtension
 import java.util.*
 
@@ -43,19 +41,19 @@ class ClientVarServiceTest {
 
   @Test
   fun isOwnerOfVar_nonOwnerAccId_false() {
-    Assert.assertFalse(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
+    assertFalse(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
   }
 
   @Test
   fun isOwnerOfVar_notExistingAccId_false() {
-    Assert.assertFalse(cvarService.isOwnerOfVar(NOT_EXISTING_ACC, EXISTING_KEY))
+    assertFalse(cvarService.isOwnerOfVar(NOT_EXISTING_ACC, EXISTING_KEY))
   }
 
   @Test
   fun isOwnerOfVar_owningAccId_true() {
     whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
 
-    Assert.assertTrue(cvarService.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
+    assertTrue(cvarService.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
   }
 
   @Test
@@ -69,19 +67,19 @@ class ClientVarServiceTest {
   fun find_existingAccId_notExistingKey_null() {
     val result = cvarService.tryFind(EXISTING_ACC_ID, NOT_EXISTING_KEY)
     verify(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
-    Assert.assertNull(result)
+    assertNull(result)
   }
 
   @Test
   fun set_longData_throws() {
-    Assertions.assertThrows(IllegalArgumentException::class.java) {
+    assertThrows(IllegalArgumentException::class.java) {
       cvarService[EXISTING_ACC_ID, EXISTING_KEY] = LONG_DATA_STR
     }
   }
 
   @Test
   fun set_nonExistingAccountExistingDataAndKey_throws() {
-    Assertions.assertThrows(IllegalArgumentException::class.java) {
+    assertThrows(IllegalArgumentException::class.java) {
       cvarService[NOT_EXISTING_ACC, EXISTING_KEY] = DATA_STR
     }
   }

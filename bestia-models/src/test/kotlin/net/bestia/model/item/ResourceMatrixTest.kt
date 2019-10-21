@@ -1,7 +1,7 @@
 package net.bestia.model.item
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 internal class ResourceMatrixTest {
 
@@ -16,6 +16,6 @@ internal class ResourceMatrixTest {
     val json = ResourceMatrix.MAPPER.writeValueAsString(sut)
     val sut2 = ResourceMatrix.MAPPER.readValue(json, ResourceMatrix::class.java)
 
-    Assert.assertEquals(sut, sut2)
+    assertEquals(sut, sut2)
   }
 }

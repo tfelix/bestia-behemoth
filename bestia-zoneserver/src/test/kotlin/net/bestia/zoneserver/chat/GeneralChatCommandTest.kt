@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.chat
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import java.lang.reflect.Modifier
 import java.util.ArrayList
 
-import org.junit.Assert
-import org.junit.Test
 import org.reflections.Reflections
 import org.springframework.stereotype.Component
 
@@ -37,7 +37,6 @@ class GeneralChatCommandTest {
       }
     }
 
-    Assert.assertEquals("ChatCommands must be annotated with @Component. Not annotated: " + notAnnotated.toString(),
-        0, notAnnotated.size.toLong())
+    assertEquals(0, notAnnotated.size.toLong(), "ChatCommands must be annotated with @Component. Not annotated: $notAnnotated")
   }
 }

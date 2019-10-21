@@ -1,19 +1,21 @@
 package net.bestia.model.geometry
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 class SphereTest {
 
-  @Test(expected = IllegalArgumentException::class)
+  @Test
   fun negRadius_throws() {
-    Sphere(10, 10, 4, -4)
+    assertThrows(java.lang.IllegalArgumentException::class.java) {
+      Sphere(10, 10, 4, -4)
+    }
   }
 
   @Test
   fun getCenter_ok() {
     val (center) = Sphere(3, 10, 10, 2)
-    Assert.assertTrue(center == Vec3(3, 10, 2))
+    assertTrue(center == Vec3(3, 10, 2))
   }
 
   @Test
@@ -22,9 +24,9 @@ class SphereTest {
     val c2 = Sphere(15, 15, 15, 2)
     val c3 = Sphere(10, 11, 10, 5)
 
-    Assert.assertTrue(c.collide(c3))
-    Assert.assertFalse(c.collide(c2))
-    Assert.assertTrue(c2.collide(c3))
+    assertTrue(c.collide(c3))
+    assertFalse(c.collide(c2))
+    assertTrue(c2.collide(c3))
   }
 
   @Test
@@ -34,9 +36,9 @@ class SphereTest {
     val p2 = Vec3(10, 10, 0)
     val p3 = Vec3(45, 23, 0)
 
-    Assert.assertTrue(c.collide(p1))
-    Assert.assertTrue(c.collide(p2))
-    Assert.assertFalse(c.collide(p3))
+    assertTrue(c.collide(p1))
+    assertTrue(c.collide(p2))
+    assertFalse(c.collide(p3))
   }
 
   @Test
@@ -46,9 +48,9 @@ class SphereTest {
     val r2 = Rect(12, 10, 10, 4, 4, 4)
     val r3 = Rect(10, 13, 10, 5, 5, 5)
 
-    Assert.assertTrue(c.collide(r1))
-    Assert.assertTrue(c.collide(r2))
-    Assert.assertFalse(c.collide(r3))
+    assertTrue(c.collide(r1))
+    assertTrue(c.collide(r2))
+    assertFalse(c.collide(r3))
   }
 
   @Test
@@ -59,7 +61,7 @@ class SphereTest {
     c1 = c1.moveTo(15, 16, 7)
     c2 = c2.moveTo(10, 10, 10)
 
-    Assert.assertTrue(c1.center == Vec3(15, 16, 0))
-    Assert.assertTrue(c2.center == Vec3(8, 8, 0))
+    assertTrue(c1.center == Vec3(15, 16, 0))
+    assertTrue(c2.center == Vec3(8, 8, 0))
   }
 }

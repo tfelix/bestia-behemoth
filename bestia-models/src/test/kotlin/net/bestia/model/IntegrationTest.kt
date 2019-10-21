@@ -1,10 +1,10 @@
 package net.bestia.model
 
 import org.junit.jupiter.api.Tag
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
  * As classes can not be null we sadly have to introduce a placeholder for the
@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest
 @DataJpaTest
 @Tag("it")

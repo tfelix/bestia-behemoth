@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script
 
-import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 internal class JavascriptScriptCompilerTest {
@@ -16,6 +16,6 @@ internal class JavascriptScriptCompilerTest {
     val compiled = sut.compile(resource)
     val returned = compiled.eval()
 
-    Assert.assertEquals("Hello World", returned)
+    assertEquals("Hello World", returned)
   }
 }
