@@ -22,6 +22,7 @@ description = 'bestia-zoneserver'
 
 dependencies {
     implementation project(':bestia-messages')
+    implementation project(':bestia-proto-messages')
     implementation project(':bestia-models')
     implementation 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
 

@@ -1,11 +1,15 @@
-package net.bestia.testclient
+package net.bestia.testclient.commands
 
 import net.bestia.messages.AuthMessageProto
 
-class LoginCommand {
-  val commandName = "login"
+class LoginCommand : Command {
+  private val commandName = "login"
 
-  fun execute(): ByteArray {
+  override fun matches(line: String): Boolean {
+    return true
+  }
+
+  override fun execute(line: String): ByteArray {
     return AuthMessageProto.AuthMessage.newBuilder()
         .setAccountId(1)
         .setToken(LOGIN_TOKEN)

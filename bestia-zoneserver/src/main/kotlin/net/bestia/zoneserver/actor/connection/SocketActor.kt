@@ -6,6 +6,7 @@ import akka.io.Tcp
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
 import mu.KotlinLogging
+import net.bestia.messages.AuthMessageProto
 import net.bestia.messages.login.LoginAuthRequestMessage
 import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.LoginService
@@ -13,6 +14,7 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AkkaConfiguration
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import org.springframework.beans.factory.annotation.Qualifier
+import java.nio.ByteBuffer
 
 private val LOG = KotlinLogging.logger { }
 
@@ -37,6 +39,8 @@ class SocketActor(
     private val clusterClientConnectionManager: ActorRef
 ) : AbstractActor() {
 
+  private val buffer = ByteBuffer.allocate(1024 * 4)
+
   init {
     // this actor stops when the connection is closed
     context.watch(connection)
@@ -60,11 +64,27 @@ class SocketActor(
   }
 
   private fun waitForAuthMessage(msg: Tcp.Received) {
-    val data = msg.data()
-    println(data)
+    buffer.put(msg.data().asByteBuffer())
 
-    // TODO Deserialize the byte string.
-    val authMessage = LoginAuthRequestMessage(token = "test1234", accountId = 1)
+    if (buffer.position() < Int.SIZE_BYTES) {
+      return
+    }
+
+    val messageSize = buffer.getInt(0)
+
+    LOG.debug { "Buffer: ${buffer.position()} bytes, next message size: $messageSize bytes" }
+
+    if (buffer.position() < messageSize) {
+      return
+    }
+
+    val messageBuffer = buffer.slice()
+    val messageBytes = ByteArray(messageSize)
+    messageBuffer.get(messageBytes)
+    messageBuffer.position(0)
+
+    val authMessage = AuthMessageProto.AuthMessage.parseFrom(messageBytes)
+    LOG.debug { authMessage }
 
     val isAuthenticated = authenticationService.isUserAuthenticated(
         authMessage.accountId,
@@ -101,108 +121,3 @@ class SocketActor(
     LOG.debug { "Received: ${msg.data()}" }
   }
 }
-
-/*
-
-  private var accountId: Long = 0
-  private var authenticatedSocket: ActorRef? = null
-
-  override fun createReceive(): AbstractActor.Receive {
-    return receiveBuilder()
-        .match(ClientEnvelope::class.java, this::checkMessageEnvelope)
-        .match(MessageId::class.java, this::sendMessageToClient)
-        .match(Terminated::class.java) { onClientConnectionClosed() }
-        .build()
-  }
-
-  @Throws(Exception::class)
-  override fun postStop() {
-    logoutService.logout(accountId)
-    LOG.debug("Connection removed: {}, account: {}", self.path(), accountId)
-  }
-
-  /**
-   * There are a few messages which are ment for this actor which might be only wrapped
-   * for convienence. So we check this here.
-   */
-  private fun checkMessageEnvelope(msg: ClientEnvelope) {
-    val content = msg.content
-    when (content) {
-      is ClientConnectMessage -> handleConnect(content)
-      is ClientDisconnectMessage -> handleDisconnect(content)
-      else -> sendMessageToClient(msg.content)
-    }
-  }
-
-  private fun handleConnect(msg: ClientConnectMessage) {
-    LOG.debug("Client has connected: {}.", msg)
-
-    accountId = msg.accountId
-
-    authenticatedSocket?.let {
-      context.unwatch(it)
-      it.tell(PoisonPill.getInstance(), self)
-    }
-
-    authenticatedSocket = msg.webserverRef
-    context.watch(authenticatedSocket)
-
-    initClientConnection(msg)
-  }
-
-  private fun handleDisconnect(msg: ClientDisconnectMessage) {
-    LOG.debug("Client has disconnected: {}.", msg)
-    context.stop(self)
-  }
-
-  /**
-   * Initializes a client connection.
-   */
-  private fun initClientConnection(msg: ClientConnectMessage) {
-    LOG.debug("Client has authenticated: {}.", msg)
-    loginService.login(accountId)
-    LOG.debug("Connection established: {}, account: {}", self.path(), accountId)
-  }
-
-  /**
-   * Called if the client actor and thus its connection has been terminated.
-   * Connection actor must clean the server resources by terminating itself.
-   *
-   */
-  private fun onClientConnectionClosed() {
-    LOG.debug("Socket actor account {} has terminated.", accountId)
-    context.stop(self)
-  }
-
-  /**
-   * Message must be forwarded to the client webserver so the message can be
-   * received by the client.
-   */
-  private fun sendMessageToClient(msg: Any) {
-    LOG.debug(String.format("Sending to client %d: %s", accountId, msg))
-
-    if (authenticatedSocket == null) {
-      LOG.warn { "Can not send to client. Not actorRef set! Stopping. MSG: $msg" }
-      context.stop(self)
-      return
-    }
-
-    authenticatedSocket?.tell(msg, self)
-  }
-
-  companion object {
-    private const val ACTOR_NAME = "connection-%d"
-
-    /**
-     * Gets the unique actor name by its connected account id.
-     *
-     * @param accId
-     * The account ID.
-     * @return The unique name of the connection actor.
-     */
-    @JvmStatic
-    fun getActorName(accId: Long): String {
-      return String.format(ACTOR_NAME, accId)
-    }
-  }
- */

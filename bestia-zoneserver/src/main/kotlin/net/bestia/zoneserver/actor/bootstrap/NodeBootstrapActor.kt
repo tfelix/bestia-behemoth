@@ -25,15 +25,16 @@ class NodeBootstrapActor(
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(BootReportSuccess::class.java, this::receiveBootReport)
-        .match(RegisterForBootReport::class.java, this::registerForBootReport)
+        .match(RegisterForBootCompleted::class.java, this::registerForBootCompleted)
         .build()
   }
 
-  private val expectingBootReports = mutableSetOf(
-      SocketServerActor::class.simpleName
+  private val expectingBootReady = mutableSetOf(
+      SocketServerActor::class.simpleName,
+      ClusterMonitorActor::class.simpleName
   )
+  private val bootreportListener = mutableSetOf<ActorRef>()
 
-  private val bootreportListener = mutableMapOf<String, ActorRef>()
   private var bootStepsRun = false
 
   override fun preStart() {
@@ -41,8 +42,9 @@ class NodeBootstrapActor(
   }
 
   private fun checkBootStepsStart() {
-    if (!bootreportListener.keys.containsAll(expectingBootReports)) {
-      LOG.debug { "Not all actors have registered for boot reporting" }
+    if (expectingBootReady.isNotEmpty()) {
+      LOG.debug { "Actors bootreport registration missing : ${expectingBootReady.joinToString(", ")}" }
+      return
     }
 
     val start = Instant.now()
@@ -62,34 +64,29 @@ class NodeBootstrapActor(
     LOG.info { "Boot steps were completed in ${bootDuration.seconds}s." }
     bootStepsRun = true
 
-    checkBootCompleteCondition()
+    notifyBootCompletedListener()
   }
 
   private fun receiveBootReport(msg: BootReportSuccess) {
-    if (!expectingBootReports.contains(msg.actorClass.simpleName)) {
+    if (!expectingBootReady.contains(msg.actorClass.simpleName)) {
       LOG.warn { "Did not expect boot report from ${msg.actorClass.simpleName}" }
     }
 
-    expectingBootReports.remove(msg.actorClass.simpleName)
-    checkBootCompleteCondition()
-  }
-
-  private fun registerForBootReport(msg: RegisterForBootReport) {
-    LOG.trace { "Actor ${msg.actorClass.simpleName} has subscribed for boot report" }
-    expectingBootReports.add(msg.actorClass.simpleName)
+    expectingBootReady.remove(msg.actorClass.simpleName)
     checkBootStepsStart()
   }
 
-  private fun checkBootCompleteCondition() {
-    if (!bootStepsRun || expectingBootReports.isNotEmpty()) {
-      return
-    }
+  private fun registerForBootCompleted(msg: RegisterForBootCompleted) {
+    LOG.debug { "Actor ${msg.actorRef} has subscribed for boot completed notification" }
+    bootreportListener.add(msg.actorRef)
+  }
 
-    LOG.debug { "All Actors reported operational status" }
-
-    bootreportListener.values.forEach {
+  private fun notifyBootCompletedListener() {
+    bootreportListener.forEach {
       it.tell(BootCompleted, self)
     }
+
+    LOG.debug { "Notified ${bootreportListener.size} actors with BootCompleted" }
 
     context.stop(self)
   }
@@ -100,8 +97,8 @@ class NodeBootstrapActor(
    */
   object BootCompleted
 
-  data class RegisterForBootReport(
-      val actorClass: Class<out AbstractActor>
+  data class RegisterForBootCompleted(
+      val actorRef: ActorRef
   )
 
   data class BootReportSuccess(

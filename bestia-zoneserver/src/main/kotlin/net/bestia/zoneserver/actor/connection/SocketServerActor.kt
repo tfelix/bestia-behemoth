@@ -23,7 +23,7 @@ class SocketServerActor(
 
   private var currentConnection = 0
 
-  private fun tellBootstrapManager(msg: Any) {
+  private fun tellNodeBootstrapManager(msg: Any) {
     val bootStrapPath = AkkaCluster.getNodeName(NodeBootstrapActor.NAME)
     val selector = context.actorSelection(bootStrapPath)
     selector.tell(msg, self)
@@ -32,24 +32,28 @@ class SocketServerActor(
   @Throws(Exception::class)
   override fun preStart() {
     // Register for updates from the boot manager
-    tellBootstrapManager(NodeBootstrapActor.RegisterForBootReport(SocketServerActor::class.java))
+    tellNodeBootstrapManager(NodeBootstrapActor.RegisterForBootCompleted(self))
 
     val tcp = Tcp.get(context.system).manager()
     val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
+    LOG.info { "Listening for clients on $socketAddress" }
     tcp.tell(TcpMessage.bind(self, socketAddress, 100), self)
   }
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(NodeBootstrapActor.BootCompleted::class.java) { context.become(readyForConnections()) }
+        .match(NodeBootstrapActor.BootCompleted::class.java) {
+          LOG.debug { "Server is now ready to accept client connections" }
+          context.become(readyForConnections())
+        }
         .match(Tcp.Bound::class.java, this::onTcpBound)
         .build()
   }
 
   private fun onTcpBound(msg: Tcp.Bound) {
     LOG.info { "Successful bound address to: ${msg.localAddress()}" }
-    // Notify boot manager about success
-    tellBootstrapManager(NodeBootstrapActor.BootReportSuccess(SocketServerActor::class.java))
+    // Notify boot manager about success to proceed boot process
+    tellNodeBootstrapManager(NodeBootstrapActor.BootReportSuccess(SocketServerActor::class.java))
   }
 
   private fun readyForConnections(): Receive {
@@ -78,5 +82,9 @@ class SocketServerActor(
     context.watch(handler)
     connectionActor.tell(TcpMessage.register(handler), self)
     LOG.debug { "Connected client: ${conn.remoteAddress()}" }
+  }
+
+  companion object {
+    const val NAME = "socketServer"
   }
 }

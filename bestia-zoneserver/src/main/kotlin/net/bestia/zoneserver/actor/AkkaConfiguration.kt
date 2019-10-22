@@ -29,6 +29,8 @@ import java.net.UnknownHostException
 import akka.cluster.singleton.ClusterSingletonProxySettings
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
+import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
+import net.bestia.zoneserver.actor.connection.SocketServerActor
 
 private val LOG = KotlinLogging.logger { }
 
@@ -55,12 +57,15 @@ class AkkaConfiguration {
     LOG.info { "Starting Behemoth actor system" }
     val system = ActorSystem.create("behemoth-local", akkaConfig)
 
-    setupClusterDiscovery(system)
     SpringExtension.initialize(system, appContext)
+    setupClusterDiscovery(system)
+
     setupSharding(system)
+    // setupSingeltons(system)
 
     SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
     SpringExtension.actorOf(system, NodeBootstrapActor::class.java)
+    SpringExtension.actorOf(system, SocketServerActor::class.java)
 
     return system
   }
@@ -78,6 +83,7 @@ class AkkaConfiguration {
   private fun setupClusterDiscovery(system: ActorSystem) {
     AkkaManagement.get(system).start()
     ClusterBootstrap.get(system).start()
+    SpringExtension.actorOf(system, ClusterMonitorActor::class.java)
   }
 
   private fun setupSingeltons(system: ActorSystem) {

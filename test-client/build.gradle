@@ -7,6 +7,4 @@ description = 'test-client'
 dependencies {
     implementation project(':bestia-proto-messages')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
-    implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
 }
