@@ -6,7 +6,6 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
-import net.bestia.zoneserver.config.RuntimeConfig
 import net.bestia.zoneserver.config.RuntimeConfigService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -17,12 +16,16 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class AuthenticationService(
     private val configService: RuntimeConfigService,
+    private val authConfig: AuthenticationConfig,
     private val accountRepository: AccountRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
 
   fun isUserAuthenticated(accountId: Long, token: String): Boolean {
-    return true
+    if(authConfig.rootAuthToken == token && authConfig.rootAuthToken != null) {
+      return true
+    }
+    return false
   }
 
   /**

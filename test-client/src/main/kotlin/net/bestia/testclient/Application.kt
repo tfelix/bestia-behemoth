@@ -7,7 +7,7 @@ fun main() {
   println("Bestia CLI Client")
 
   val ip = "localhost"
-  val port = 1212
+  val port = 8990
 
   val commands = listOf(
       LoginCommand()

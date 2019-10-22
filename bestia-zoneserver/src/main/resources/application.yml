@@ -46,12 +46,12 @@ server:
   bind-address: localhost
   port: 8990
   max-connections: 1000
-  devAuthToken: b53dc8ce-9702-4aeb-aa60-4ed33f314965
+  root-auth-token: 50cb5740-c390-4d48-932f-eef7cbc113c1
 
 mapgen:
-  tempDir: D:/bestia_map
+  temp-dir: D:/bestia_map
   # Size of the data transfer object which are used to store the map.
-  dtoSize: 100
+  dto-size: 100
 
 script:
   path: classpath:script

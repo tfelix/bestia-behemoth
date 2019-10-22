@@ -4,7 +4,8 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
 import java.nio.ByteBuffer
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
 
 class RxTxSocket(
     private val printRunnable: PrintRunnable,
@@ -15,36 +16,48 @@ class RxTxSocket(
   private val dOut: DataOutputStream
   private val dIn: DataInputStream
 
+  private val sendRunnable: SendRunnable
   private val rxThread: Thread
   private val txThread: Thread
 
-  private val inputBuffer = ConcurrentLinkedQueue<ByteArray>()
+  private val inputBuffer = LinkedBlockingQueue<ByteArray>()
 
   init {
     dOut = DataOutputStream(socket.getOutputStream())
     dIn = DataInputStream(socket.getInputStream())
 
-    rxThread = Thread(SendThread())
-    txThread = Thread(ReceiveThread())
+    sendRunnable = SendRunnable()
+    txThread = Thread(sendRunnable)
+    rxThread = Thread(ReceiveThread())
+
+    txThread.start()
+    rxThread.start()
   }
 
-  private inner class SendThread : Runnable {
-    override fun run() {
-      val element = inputBuffer.poll()
-      if(element != null) {
-        val sendBuffer = ByteBuffer.allocate(element.size + Int.SIZE_BYTES)
-        sendBuffer.putInt(element.size)
-        sendBuffer.put(element)
+  private inner class SendRunnable : Runnable {
+    var isRunning = true
 
-        dOut.write(element)
-        dOut.flush()
+    override fun run() {
+      while (isRunning) {
+        try {
+          val element = inputBuffer.poll(1000, TimeUnit.MILLISECONDS)
+              ?: continue
+
+          val sendBuffer = ByteBuffer.allocate(element.size + Int.SIZE_BYTES)
+          sendBuffer.putInt(element.size)
+          sendBuffer.put(element)
+
+          dOut.write(sendBuffer.array())
+          dOut.flush()
+        } catch (e: InterruptedException) {
+          // no op
+        }
       }
     }
   }
 
   private inner class ReceiveThread : Runnable {
     override fun run() {
-
       printRunnable.outputQueue.put("output")
     }
   }
@@ -55,6 +68,8 @@ class RxTxSocket(
 
   fun close() {
     socket.close()
+    sendRunnable.isRunning = false
+    txThread.interrupt()
   }
 
   fun join() {

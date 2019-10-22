@@ -5,6 +5,7 @@ import net.bestia.model.account.Account
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.AccountType
 import net.bestia.model.bestia.PlayerBestiaRepository
+import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.config.RuntimeConfigService
@@ -30,7 +31,8 @@ class LoginService(
 
   fun isLoginAllowedForAccount(accountId: Long): Boolean {
     val currentMaintenanceLevel = runtimeConfigService.getRuntimeConfig().maintenanceLevel
-    val account = accountRepository.findOneOrThrow(accountId)
+    val account = accountRepository.findOne(accountId)
+        ?: return false
 
     return when (currentMaintenanceLevel) {
       MaintenanceLevel.NONE -> true

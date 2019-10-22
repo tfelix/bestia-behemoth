@@ -78,6 +78,7 @@ class SocketActor(
       return
     }
 
+    buffer.position(Int.SIZE_BYTES)
     val messageBuffer = buffer.slice()
     val messageBytes = ByteArray(messageSize)
     messageBuffer.get(messageBytes)

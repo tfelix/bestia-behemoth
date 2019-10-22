@@ -5,6 +5,8 @@ import akka.actor.IndirectActorProducer
 import mu.KotlinLogging
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import java.lang.reflect.Constructor
 import java.util.*
@@ -57,8 +59,10 @@ internal class SpringActorProducer(
     get() {
       val ctors = actorBeanClass.constructors
 
-      val availableArgsClasses = args.asSequence()
-          .map { it!!.javaClass }.toSet()
+      val availableArgsClasses = args
+          .asSequence()
+          .map { it!!.javaClass }
+          .toList()
       val autoCtor: Constructor<*>? = getAnnotatedCtor(ctors)
           ?: getZeroArgCtor(ctors)
           ?: getOnlyCtor(ctors)
@@ -68,19 +72,41 @@ internal class SpringActorProducer(
         return emptyArray()
       }
 
-      val params = autoCtor.parameterTypes
-      val neededArgs = params
+      val neededParams = autoCtor.parameterTypes
           .map { boxPrimitiveClass(it) }
-          .filter { !availableArgsClasses.any { availClass -> it.isAssignableFrom(availClass) } }
-          .toSet()
+          .toList()
 
-      val instancedArgs = neededArgs.asSequence()
-          .map { applicationContext.getBean(it) }
-          .toMutableList()
+      val beanParams = neededParams.toMutableList<Class<*>?>()
+
+      availableArgsClasses.forEachIndexed { i, availCls ->
+        val idx = neededParams.indexOfFirst { it.isAssignableFrom(availCls) }
+        if (idx != -1) {
+          beanParams[i] = null
+        }
+      }
+
+      val instancedArgs = beanParams
+          .mapIndexedNotNull { i, clazz ->
+            if (clazz == null) {
+              null
+            } else {
+              if (autoCtor.parameters[i].isAnnotationPresent(Qualifier::class.java)) {
+                val qualifier = autoCtor.parameters[i].getAnnotation(Qualifier::class.java)
+
+                BeanFactoryAnnotationUtils.qualifiedBeanOfType(
+                    applicationContext.autowireCapableBeanFactory,
+                    clazz,
+                    qualifier.value
+                )
+              } else {
+                applicationContext.getBean(clazz)
+              }
+            }
+          }.toMutableList()
 
       val sortedArgs = ArrayList<Any>()
       val providedArgs = args.toMutableList()
-      for (param in params) {
+      for (param in neededParams) {
         var wasProvided = false
 
         for (i in providedArgs.indices) {
