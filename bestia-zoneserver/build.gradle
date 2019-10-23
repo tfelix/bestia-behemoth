@@ -24,7 +24,7 @@ dependencies {
     implementation project(':bestia-messages')
     implementation project(':bestia-proto-messages')
     implementation project(':bestia-models')
-    implementation 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
+    implementation project(':bestia-worldgen')
 
     implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
 
