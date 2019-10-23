@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.config
 
 import net.bestia.model.server.MaintenanceLevel
-import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 
 /**
  * This configuration service holds information about the current state of the

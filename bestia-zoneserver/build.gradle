@@ -40,7 +40,6 @@ dependencies {
     implementation group: 'com.typesafe.akka', name: 'akka-distributed-data_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-typed_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-discovery_2.12', version: akkaVersion

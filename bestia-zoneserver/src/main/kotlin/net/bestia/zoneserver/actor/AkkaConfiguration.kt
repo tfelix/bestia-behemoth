@@ -30,6 +30,7 @@ import akka.cluster.singleton.ClusterSingletonProxySettings
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
+import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.connection.SocketServerActor
 
 private val LOG = KotlinLogging.logger { }
@@ -118,6 +119,12 @@ class AkkaConfiguration {
   }
 
   @Bean
+  @Qualifier(RUNTIME_CONFIG_QUALIFIER)
+  fun runtimeConfigActor(system: ActorSystem): ActorRef {
+    return SpringExtension.actorOf(system, RuntimeConfigurationActor::class.java)
+  }
+
+  @Bean
   @Qualifier(CONNECTION_MANAGER)
   fun connectionManager(system: ActorSystem): ActorRef {
     val proxySettings = ClusterSingletonProxySettings.create(system)
@@ -129,6 +136,7 @@ class AkkaConfiguration {
   companion object {
     private const val AKKA_CONFIG_NAME = "akka"
 
+    const val RUNTIME_CONFIG_QUALIFIER = "runtimeConfig"
     const val ENTITY_ROUTER_QUALIFIER = "entityRouter"
     const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
     const val CONNECTION_MANAGER = "clientConnectionManager"

@@ -58,21 +58,21 @@ class MaintenanceCommandTest {
     cmd.executeCommand(acc, "/maintenance bla")
 
     verify(akkaApi).send(any())
-    verify(config, times(0)).setConfigWithClusterUpdate(any())
+    verify(config, times(0)).setRuntimeConfig(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())
   }
 
   @Test
   fun executeCommand_true_switchesServerModeLogoutUsers() {
     cmd.executeCommand(acc, "/maintenance true")
-    verify(config).setConfigWithClusterUpdate(any())
+    verify(config).setRuntimeConfig(any())
     verify(logoutService).logoutAllUsersBelow(AccountType.SUPER_GM)
   }
 
   @Test
   fun executeCommand_false_switchesServerModeLogoutUsers() {
     cmd.executeCommand(acc, "/maintenance false")
-    verify(config).setConfigWithClusterUpdate(any())
+    verify(config).setRuntimeConfig(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())
   }
 }

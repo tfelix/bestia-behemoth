@@ -1,31 +1,31 @@
 package net.bestia.zoneserver.config
 
-import mu.KotlinLogging
-import net.bestia.zoneserver.actor.config.UpdateRuntimeConfig
+import akka.actor.ActorRef
+import akka.pattern.Patterns
+import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.routing.SystemMessageService
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-
-private val LOG = KotlinLogging.logger { }
+import java.time.Duration
 
 @Service
 class RuntimeConfigService(
-    private val systemMsgService: SystemMessageService
+    private val systemMsgService: SystemMessageService,
+    @Qualifier(AkkaConfiguration.RUNTIME_CONFIG_QUALIFIER)
+    private val runtimeConfigActor: ActorRef
 ) {
+  private val defaultTimeout = Duration.ofMillis(500)
   private var runtimeConfig: RuntimeConfig = RuntimeConfig()
 
   fun getRuntimeConfig(): RuntimeConfig {
-    return runtimeConfig
+    val response = Patterns.ask(runtimeConfigActor, RuntimeConfigurationActor.GetRuntimeConfig, defaultTimeout)
+    return response.toCompletableFuture().get() as RuntimeConfig
   }
 
-  fun setConfigWithoutClusterUpdate(runtimeConfig: RuntimeConfig) {
-    LOG.trace { "Runtime config set to: $runtimeConfig" }
+  fun setRuntimeConfig(runtimeConfig: RuntimeConfig) {
     this.runtimeConfig = runtimeConfig
-  }
-
-  fun setConfigWithClusterUpdate(runtimeConfig: RuntimeConfig) {
-    LOG.trace { "Runtime config set and cluster updated: $runtimeConfig" }
-    this.runtimeConfig = runtimeConfig
-    val updateMessage = UpdateRuntimeConfig(runtimeConfig)
+    val updateMessage = RuntimeConfigurationActor.SaveRuntimeConfig(runtimeConfig)
     systemMsgService.send(updateMessage)
   }
 }

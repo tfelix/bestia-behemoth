@@ -49,14 +49,14 @@ internal class MaintenanceCommand(
 
     if (isMaintenance) {
       sendSystemMessage(account.id, "Server maintenance: true")
-      configService.setConfigWithClusterUpdate(
+      configService.setRuntimeConfig(
           configService.getRuntimeConfig()
               .copy(maintenanceLevel = MaintenanceLevel.PARTIAL)
       )
       logoutService.logoutAllUsersBelow(AccountType.SUPER_GM)
     } else {
       sendSystemMessage(account.id, "Server maintenance: false")
-      configService.setConfigWithClusterUpdate(
+      configService.setRuntimeConfig(
           configService.getRuntimeConfig()
               .copy(maintenanceLevel = MaintenanceLevel.NONE)
       )

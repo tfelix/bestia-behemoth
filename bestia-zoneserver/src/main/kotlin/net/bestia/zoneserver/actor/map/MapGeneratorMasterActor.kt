@@ -80,7 +80,7 @@ class MapGeneratorMasterActor(
     LOG.info("Received map base parameter. Starting to generate map. ({})", params)
     LOG.info("Putting server into maintenance mode and disconnecting all users.")
 
-    configService.setConfigWithClusterUpdate(
+    configService.setRuntimeConfig(
         configService
             .getRuntimeConfig()
             .copy(maintenanceLevel = MaintenanceLevel.FULL)
@@ -114,7 +114,7 @@ class MapGeneratorMasterActor(
    */
   private fun finish() {
     LOG.info("Map generation was finished. Ending maintenance mode.")
-    configService.setConfigWithClusterUpdate(
+    configService.setRuntimeConfig(
         configService
             .getRuntimeConfig()
             .copy(maintenanceLevel = MaintenanceLevel.NONE)
