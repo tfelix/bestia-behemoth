@@ -1,14 +1,18 @@
 package net.bestia.zoneserver.actor.connection
 
 import akka.actor.AbstractActor
+import akka.actor.ActorRef
 import akka.actor.Terminated
 import akka.io.Tcp
 import akka.io.TcpMessage
 import mu.KotlinLogging
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.AkkaConfiguration
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
+import net.bestia.zoneserver.actor.config.SocketBindNetworkError
+import org.springframework.beans.factory.annotation.Qualifier
 import java.net.InetSocketAddress
 
 private val LOG = KotlinLogging.logger { }
@@ -18,10 +22,13 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class SocketServerActor(
-    private val socketConfig: SocketConfig
+    private val socketConfig: SocketConfig,
+    @Qualifier(AkkaConfiguration.SYSTEM_ROUTER_QUALIFIER)
+    private val systemRouter: ActorRef
 ) : AbstractActor() {
 
   private var currentConnection = 0
+  private val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
 
   private fun tellNodeBootstrapManager(msg: Any) {
     val bootStrapPath = AkkaCluster.getNodeName(NodeBootstrapActor.NAME)
@@ -35,7 +42,7 @@ class SocketServerActor(
     tellNodeBootstrapManager(NodeBootstrapActor.RegisterForBootCompleted(self))
 
     val tcp = Tcp.get(context.system).manager()
-    val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
+
     LOG.info { "Listening for clients on $socketAddress" }
     tcp.tell(TcpMessage.bind(self, socketAddress, 100), self)
   }
@@ -47,7 +54,13 @@ class SocketServerActor(
           context.become(readyForConnections())
         }
         .match(Tcp.Bound::class.java, this::onTcpBound)
+        .match(Tcp.CommandFailed::class.java, this::onTcpBoundFail)
         .build()
+  }
+
+  private fun onTcpBoundFail(msg: Tcp.CommandFailed) {
+    LOG.error { "Could not bind to $socketAddress" }
+    systemRouter.tell(SocketBindNetworkError, self)
   }
 
   private fun onTcpBound(msg: Tcp.Bound) {

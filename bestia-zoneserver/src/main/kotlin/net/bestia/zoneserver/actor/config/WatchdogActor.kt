@@ -15,20 +15,23 @@ object SocketBindNetworkError : ErrorReport()
  * He decides if operation can continue or if he terminates the operation
  * of the Zone.
  * Before the Zone terminates there might be cleanup jobs to perform and so on
- * thats why its important to have a single actor manage this.
+ * thats why its important to have a single being responsible for this.
  */
 @Actor
-class HousekeepingActor() : DynamicMessageRoutingActor() {
+class WatchdogActor : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder
-        .matchRedirect(SocketBindNetworkError::class.java) { handleSocketBindNetworkError() }
+        .matchRedirect(ErrorReport::class.java, this::handleError)
   }
 
-  private fun handleSocketBindNetworkError() {
-    LOG.error { "Can not bind to network addr and port. Terminating." }
-    // TODO Improve shutdown sequence handling here.
-    exitProcess(1)
+  private fun handleError(msg: ErrorReport) {
+    when(msg) {
+      is SocketBindNetworkError -> {
+        LOG.error { "Not being able to bind to port is fatal." }
+        exitProcess(1)
+      }
+    }
   }
 
   companion object {

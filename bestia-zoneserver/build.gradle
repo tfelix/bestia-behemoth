@@ -24,7 +24,8 @@ dependencies {
     implementation project(':bestia-messages')
     implementation project(':bestia-proto-messages')
     implementation project(':bestia-models')
-    implementation project(':bestia-worldgen')
+    // implementation project(':bestia-worldgen')
+    implementation 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
 
     implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
 
@@ -36,7 +37,9 @@ dependencies {
     implementation group: 'com.typesafe.akka', name: 'akka-actor-typed_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-distributed-data_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-typed_2.12', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion

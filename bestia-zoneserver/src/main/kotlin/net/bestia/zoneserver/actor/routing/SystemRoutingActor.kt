@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.routing
 
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.config.HousekeepingActor
+import net.bestia.zoneserver.actor.config.WatchdogActor
 import net.bestia.zoneserver.actor.config.RuntimeConfigActor
 
 /**
@@ -15,7 +15,7 @@ class SystemRoutingActor : DynamicMessageRoutingActor() {
 
   override fun preStart() {
     SpringExtension.actorOf(context, RuntimeConfigActor::class.java)
-    SpringExtension.actorOf(context, HousekeepingActor::class.java)
+    SpringExtension.actorOf(context, WatchdogActor::class.java)
   }
 
   companion object {

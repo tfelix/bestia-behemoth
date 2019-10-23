@@ -7,7 +7,6 @@ import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
 import mu.KotlinLogging
 import net.bestia.messages.AuthMessageProto
-import net.bestia.messages.login.LoginAuthRequestMessage
 import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.LoginService
 import net.bestia.zoneserver.actor.Actor
