@@ -6,6 +6,7 @@ import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 import net.bestia.zoneserver.entity.movement.MovingService
 import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.component.PositionComponent
 import java.time.Duration
 
 /**
@@ -22,8 +23,11 @@ class MoveComponentActor(
     private val movingService: MovingService
 ) : ComponentActor<MoveComponent>(moveComponent) {
 
+  // TODO Make delta measure real value of tilme
+  private val DELTA = 1000f / UPDATE_RATE_HZ
+
   init {
-    timers.startPeriodicTimer(MOVE_TICK_KEY, TICK_MSG, Duration.ofMillis(10))
+    timers.startPeriodicTimer(MOVE_TICK_KEY, TICK_MSG, Duration.ofMillis(1000 / UPDATE_RATE_HZ))
   }
 
   private var tick: Cancellable? = null
@@ -32,61 +36,23 @@ class MoveComponentActor(
     builder.matchEquals(TICK_MSG) { handleMoveTick() }
   }
 
-  override fun preStart() {
-    val nextPos = component.path.firstOrNull() ?: run {
-      context.stop(self)
-      return
-    }
-
-    fetchEntity {
-      val moveDelay = movingService.getMoveDelayMs(it, nextPos) / 2
-      setupMoveTick(moveDelay)
-    }
-  }
-
   override fun postStop() {
     tick?.cancel()
   }
 
   private fun handleMoveTick() {
-    // Path empty and can we terminate now?
-    if (component.path.isEmpty()) {
-      context.stop(self)
-      return
-    }
-
     fetchEntity { entity ->
-      val newPosition = component.path[0]
-
-      val newPositionComp = movingService.moveToPosition(entity, newPosition)
+      val posComp = entity.getComponent(PositionComponent::class.java)
+      val d = component.speed * DELTA
+      val newPos = posComp.position + d
+      // FIXME Do this via a service. Handle collisions with e.g. script entities.
+      val newPositionComp = movingService.moveToPosition(entity, newPos)
       context.parent.tell(UpdateComponentMessage(newPositionComp), self)
-
-      val nextPosition = component.path.getOrNull(1)
-          ?: run {
-            context.stop(self)
-            return@fetchEntity
-          }
-      val moveDelay = movingService.getMoveDelayMs(entity, nextPosition)
-      setupMoveTick(moveDelay)
     }
-  }
-
-  /**
-   * Setup a new movement tick based on the delay. If the delay is negative we
-   * know that we can not move and thus end the movement and this actor.
-   */
-  private fun setupMoveTick(delayMs: Long) {
-    if (delayMs < 0) {
-      context.stop(self)
-      return
-    }
-
-    val shed = context.system().scheduler()
-    tick = shed.scheduleOnce(Duration.ofMillis(delayMs),
-        self, TICK_MSG, context.dispatcher(), null)
   }
 
   companion object {
+    private const val UPDATE_RATE_HZ = 5L
     private const val MOVE_TICK_KEY = "MoveTickKey";
     private const val TICK_MSG = "onTick"
     const val NAME = "moveComponent"

@@ -18,7 +18,6 @@ import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
 import net.bestia.zoneserver.actor.client.ClientMessageRoutingActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
-import net.bestia.zoneserver.actor.routing.EntityRoutingActor
 import net.bestia.zoneserver.actor.routing.SystemRoutingActor
 import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
@@ -32,6 +31,7 @@ import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.connection.SocketServerActor
+import net.bestia.zoneserver.actor.entity.SendToEntityActor
 
 private val LOG = KotlinLogging.logger { }
 
@@ -113,9 +113,9 @@ class AkkaConfiguration {
   }
 
   @Bean
-  @Qualifier(ENTITY_ROUTER_QUALIFIER)
+  @Qualifier(ENTITY_FORWARDER_QUALIFIER)
   fun entityRouterActor(system: ActorSystem): ActorRef {
-    return SpringExtension.actorOf(system, EntityRoutingActor::class.java)
+    return SpringExtension.actorOf(system, SendToEntityActor::class.java)
   }
 
   @Bean
@@ -137,7 +137,7 @@ class AkkaConfiguration {
     private const val AKKA_CONFIG_NAME = "akka"
 
     const val RUNTIME_CONFIG_QUALIFIER = "runtimeConfig"
-    const val ENTITY_ROUTER_QUALIFIER = "entityRouter"
+    const val ENTITY_FORWARDER_QUALIFIER = "entityForward"
     const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
     const val CONNECTION_MANAGER = "clientConnectionManager"
   }

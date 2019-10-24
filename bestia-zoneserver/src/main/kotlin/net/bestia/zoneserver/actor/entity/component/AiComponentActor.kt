@@ -3,9 +3,10 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.DeleteComponentMessage
 import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
 import net.bestia.zoneserver.entity.component.AiComponent
-import net.bestia.zoneserver.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.component.MoveComponent
 import java.time.Duration
 import java.util.*
 
@@ -40,10 +41,10 @@ class AiComponentActor(
   }
 
   private fun handleAiTick() {
-    fetchEntity {
-      val positionComponent = it.getComponent(PositionComponent::class.java)
+    fetchEntity { entity ->
+      val speed = 1.5f // entity.getComponent(OriginalStatusComponent::class.java)
 
-      val moveDelta = when (rand.nextInt(10)) {
+      val moveDirectionNormal = when (rand.nextInt(10)) {
         0 -> Vec3(0, -1, 0)
         1 -> Vec3(0, 1, 0)
         2 -> Vec3(1, 0, 0)
@@ -52,12 +53,18 @@ class AiComponentActor(
         5 -> Vec3(1, -1, 0)
         6 -> Vec3(-1, 1, 0)
         7 -> Vec3(-1, -1, 0)
-        else -> Vec3(0, 0, 0)
+        else -> null
       }
 
-      val newPos = positionComponent.position - moveDelta
-      val newPositionComp = positionComponent.copy(shape = positionComponent.shape.moveTo(newPos))
-      context.parent.tell(UpdateComponentMessage(newPositionComp), self)
+      if(moveDirectionNormal == null) {
+        context.parent.tell(DeleteComponentMessage(MoveComponent::class.java), self)
+        return@fetchEntity
+      }
+
+      val direction = moveDirectionNormal * speed
+      val moveComponent = MoveComponent(entityId = entity.id, speed = direction)
+
+      context.parent.tell(UpdateComponentMessage(moveComponent), self)
     }
   }
 

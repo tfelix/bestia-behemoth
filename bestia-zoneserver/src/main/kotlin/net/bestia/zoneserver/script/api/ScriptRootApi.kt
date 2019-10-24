@@ -74,8 +74,7 @@ class ScriptRootApi(
   }
 
   fun commitEntityUpdates(messageApi: MessageApi) {
-    commands.map { messageApi.send(it) }.also {
-      LOG.trace { "Send ${it.size} commands for exec $scriptName" }
-    }
+    LOG.trace { "Sending ${commands.size} commands from script '$scriptName'" }
+    commands.forEach { messageApi.send(it.toEntityEnvelope()) }
   }
 }

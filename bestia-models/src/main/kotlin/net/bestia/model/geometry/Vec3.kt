@@ -82,4 +82,20 @@ data class Vec3(
         z - rhs.z
     )
   }
+
+  operator fun times(speed: Float): Vec3 {
+    return Vec3(
+        (x * speed).toLong(),
+        (y * speed).toLong(),
+        (z * speed).toLong()
+    )
+  }
+
+  operator fun plus(rhs: Vec3): Vec3 {
+    return Vec3(
+        x * rhs.x,
+        y * rhs.y,
+        z * rhs.z
+    )
+  }
 }

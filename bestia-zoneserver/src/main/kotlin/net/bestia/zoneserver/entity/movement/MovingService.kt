@@ -6,6 +6,7 @@ import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
+import kotlin.math.sqrt
 
 private val LOG = KotlinLogging.logger { }
 
@@ -73,6 +74,6 @@ class MovingService {
 
   companion object {
     private const val TILES_PER_SECOND = 1.4f
-    private val SQRT_TWO = Math.sqrt(2.0)
+    private val SQRT_TWO = sqrt(2.0)
   }
 }

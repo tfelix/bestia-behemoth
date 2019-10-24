@@ -5,8 +5,8 @@ import java.util.Optional
 import akka.cluster.ddata.*
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.config.RuntimeConfig
+import java.lang.IllegalStateException
 import java.time.Duration
 import java.util.function.Function
 
@@ -25,11 +25,16 @@ class RuntimeConfigurationActor : AbstractActor() {
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(SaveRuntimeConfig::class.java, this::sendUpdatedRuntimeConfigToCluster)
+        .match(SaveRuntimeConfig::class.java, this::saveRuntimeConfig)
+        .matchEquals(GetRuntimeConfig, { getRuntimeConfig() })
         .build()
   }
 
-  private fun sendUpdatedRuntimeConfigToCluster(msg: SaveRuntimeConfig) {
+  private fun getRuntimeConfig() {
+    throw IllegalStateException("Not implemented yet.")
+  }
+
+  private fun saveRuntimeConfig(msg: SaveRuntimeConfig) {
     LOG.debug { "Saving config: $msg" }
     val register = LWWRegister.create(node, msg.newConfig)
     val key = LWWRegisterKey.create<RuntimeConfig>(KEY)

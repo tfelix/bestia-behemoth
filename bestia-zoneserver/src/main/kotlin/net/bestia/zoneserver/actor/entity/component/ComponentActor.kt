@@ -15,6 +15,7 @@ import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
 
+// TODO Might better placed at entity actor
 data class SubscribeForComponentUpdates(
     val componentType: Class<out Component>,
     val sendUpdateTo: ActorRef
@@ -48,8 +49,9 @@ abstract class ComponentActor<T : Component>(
   protected var component = component
     set(value) {
       LOG.trace { "Set component $component on ${this.self.path()}" }
-      handleComponentSet(value)
+      val oldComponent = field
       field = value
+      notifyComponentChanged(oldComponent, value)
     }
 
   final override fun createReceive(): Receive {
@@ -60,7 +62,7 @@ abstract class ComponentActor<T : Component>(
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdate)
         .match(RequestComponentMessage::class.java, this::sendComponent)
         .match(SaveAndKillEntity::class.java) { onSave() }
-        .match(component.javaClass, this::handleComponentSet)
+        .match(component.javaClass) { component = it }
 
     return builder.build()
   }
@@ -73,15 +75,13 @@ abstract class ComponentActor<T : Component>(
     componentUpdateSubscriber.add(msg.sendUpdateTo)
   }
 
-  private fun handleComponentSet(newComponent: T) {
-    if (component == newComponent) {
+  private fun notifyComponentChanged(oldComponent: T, newComponent: T) {
+    if (oldComponent == newComponent) {
       return
     }
 
-    val oldComponent = component
-    component = newComponent
-    onComponentChanged(oldComponent, component)
-    componentUpdateSubscriber.forEach { it.tell(component, self) }
+    onComponentChanged(oldComponent, newComponent)
+    componentUpdateSubscriber.forEach { it.tell(newComponent, self) }
   }
 
   private fun sendComponent(msg: RequestComponentMessage) {

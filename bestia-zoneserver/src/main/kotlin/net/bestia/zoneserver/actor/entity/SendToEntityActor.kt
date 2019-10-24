@@ -18,10 +18,10 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class SendToEntityActor : AbstractActor() {
 
-  private var entityActorShard: ActorRef = ClusterSharding.get(context.system)
+  private val entityActorShard: ActorRef = ClusterSharding.get(context.system)
           .shardRegion(ShardActorNames.SHARD_ENTITY)
 
-  override fun createReceive(): AbstractActor.Receive {
+  override fun createReceive(): Receive {
     return receiveBuilder()
             .match(EntityEnvelope::class.java) { msg ->
               LOG.debug("Sending to entity: {}", msg)

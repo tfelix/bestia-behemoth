@@ -13,6 +13,7 @@ import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.actor.entity.component.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
+import net.bestia.zoneserver.script.api.NewEntityCommand
 
 private val LOG = KotlinLogging.logger { }
 
@@ -69,6 +70,7 @@ class EntityActor(
 
   override fun createReceive(): Receive {
     return receiveBuilder()
+        .match(NewEntityCommand::class.java, this::setupEntity)
         .match(AddComponentMessage::class.java, this::addComponentActor)
         .match(DeleteComponentMessage::class.java, this::removeComponentActor)
         .match(UpdateComponentMessage::class.java, this::updateComponentActor)
@@ -77,6 +79,7 @@ class EntityActor(
         .match(Terminated::class.java, this::handleTerminated)
         .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
         .match(EntityRequest::class.java, this::handleEntityRequest)
+        // TODO Do this with a become/ctx change
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
   }
@@ -88,6 +91,12 @@ class EntityActor(
    */
   private fun subscribeForComponentUpdates(msg: SubscribeForComponentUpdates) {
     componentUpdateSubscriberCache.add(msg)
+  }
+
+  fun setupEntity(msg: NewEntityCommand) {
+    LOG.trace { "Creating entity actor: $msg" }
+    entityId = msg.entity.id
+    msg.entity.allComponents.forEach { createComponentActor(it) }
   }
 
   private fun handleEntityRequest(msg: EntityRequest) {

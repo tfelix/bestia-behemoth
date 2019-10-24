@@ -23,6 +23,8 @@ data class Entity(
 
   private val components = mutableMapOf<Class<out Component>, Component>()
 
+  val allComponents get() = components.values.toSet()
+
   /**
    * Adds a given component reference to this entity. Note that the component
    * must be saved independently in the system, only the reference to it is
