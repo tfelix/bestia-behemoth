@@ -29,6 +29,7 @@ import akka.cluster.singleton.ClusterSingletonProxySettings
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
+import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.connection.SocketServerActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
@@ -119,6 +120,12 @@ class AkkaConfiguration {
   }
 
   @Bean
+  @Qualifier(CLIENT_FORWARDER_QUALIFIER)
+  fun clientRouterActor(system: ActorSystem): ActorRef {
+    return SpringExtension.actorOf(system, SendToClientActor::class.java)
+  }
+
+  @Bean
   @Qualifier(RUNTIME_CONFIG_QUALIFIER)
   fun runtimeConfigActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, RuntimeConfigurationActor::class.java)
@@ -138,6 +145,7 @@ class AkkaConfiguration {
 
     const val RUNTIME_CONFIG_QUALIFIER = "runtimeConfig"
     const val ENTITY_FORWARDER_QUALIFIER = "entityForward"
+    const val CLIENT_FORWARDER_QUALIFIER = "clientForward"
     const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
     const val CONNECTION_MANAGER = "clientConnectionManager"
   }

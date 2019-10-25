@@ -16,12 +16,14 @@ data class ClientDisconnectedEvent(
 )
 
 data class ClientSocketRequest(
-    val accountId: Long
+    val accountId: Long,
+    val context: Any?
 )
 
 data class ClientSocketResponse(
     val accountId: Long,
-    val socketActor: ActorRef?
+    val socketActor: ActorRef?,
+    val context: Any?
 )
 
 /**
@@ -73,7 +75,8 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
   private fun requestClientSocket(msg: ClientSocketRequest) {
     val response = ClientSocketResponse(
         accountId = msg.accountId,
-        socketActor = connections[msg.accountId]
+        socketActor = connections[msg.accountId],
+        context = msg.context
     )
 
     sender.tell(response, self)
@@ -101,6 +104,6 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
   companion object {
     const val NAME = "clusterClientConnectionManager"
     // Perform an actor snapshot after 1000 updates.
-    private val SNAPSHOT_AFTER_UPDATES = 1000
+    private const val SNAPSHOT_AFTER_UPDATES = 1000
   }
 }

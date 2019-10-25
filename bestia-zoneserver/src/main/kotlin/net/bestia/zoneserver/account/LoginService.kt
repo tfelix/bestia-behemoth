@@ -56,13 +56,11 @@ class LoginService(
    * @return The logged in Account or NULL if login failed.
    */
   fun login(accId: Long): Account? {
-    if (accId < 0) {
-      throw IllegalArgumentException("Account ID must be positive.")
-    }
+    require(accId >= 0) { "Account ID must be positive." }
 
     val account = accountRepository.findOneOrThrow(accId)
     val master = playerBestiaRepository.findMasterBestiaForAccount(accId)
-        ?: throw IllegalArgumentException("Account had no BestiaMaster assigned")
+        ?: throw IllegalArgumentException("Account has no master assigned")
 
     LOG.debug { "Login of account: $account" }
 

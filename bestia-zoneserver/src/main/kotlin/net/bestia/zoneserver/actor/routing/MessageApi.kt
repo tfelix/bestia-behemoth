@@ -19,7 +19,9 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class MessageApi(
     @Qualifier(AkkaConfiguration.ENTITY_FORWARDER_QUALIFIER)
-    private val entityForwarder: ActorRef
+    private val entityForwarder: ActorRef,
+    @Qualifier(AkkaConfiguration.CLIENT_FORWARDER_QUALIFIER)
+    private val clientForwarder: ActorRef
 ) {
 
   fun send(message: EntityEnvelope) {
@@ -29,6 +31,6 @@ class MessageApi(
 
   fun send(message: ClientEnvelope) {
     LOG.debug { "Sending: $message" }
-    LOG.warn { "NOT IMPLEMENTED" }
+    clientForwarder.tell(message, ActorRef.noSender())
   }
 }
