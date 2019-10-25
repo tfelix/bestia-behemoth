@@ -1,11 +1,7 @@
 package net.bestia.zoneserver.actor.client
 
 import akka.actor.AbstractActor
-import akka.cluster.sharding.ClusterSharding
-import net.bestia.zoneserver.ShardActorNames
 import mu.KotlinLogging
-import net.bestia.messages.AccountMessage
-import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.Actor
 
 private val LOG = KotlinLogging.logger { }
@@ -23,7 +19,6 @@ class SendToClientActor : AbstractActor() {
     return receiveBuilder()
         .build()
   }
-
 
   companion object {
     const val NAME = "sendToClient"

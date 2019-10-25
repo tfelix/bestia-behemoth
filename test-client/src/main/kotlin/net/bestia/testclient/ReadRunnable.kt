@@ -10,6 +10,7 @@ class ReadRunnable(
   override fun run() {
     val inScanner = Scanner(System.`in`)
     while(inScanner.hasNext()) {
+      print("> ")
       val line = inScanner.nextLine()
 
       if (line.equals("q", true)) {

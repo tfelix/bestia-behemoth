@@ -5,6 +5,7 @@ import akka.actor.ActorRef
 import akka.io.Tcp
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
+import com.google.protobuf.InvalidProtocolBufferException
 import mu.KotlinLogging
 import net.bestia.messages.AuthMessageProto
 import net.bestia.zoneserver.account.AuthenticationService
@@ -30,7 +31,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Actor
-class SocketActor(
+final class SocketActor(
     private val connection: ActorRef,
     private val authenticationService: AuthenticationService,
     private val loginService: LoginService,
@@ -40,9 +41,16 @@ class SocketActor(
 
   private val buffer = ByteBuffer.allocate(1024 * 4)
 
+  private val authenticatedSocket: Receive
+
   init {
-    // this actor stops when the connection is closed
+    // Stop this actor if the client closes the socket.
     context.watch(connection)
+
+    authenticatedSocket = receiveBuilder()
+        .match(Tcp.Received::class.java, this::receiveClientMessage)
+        .match(ConnectionClosed::class.java) { context.stop(self) }
+        .build()
   }
 
   override fun createReceive(): Receive {
@@ -52,29 +60,40 @@ class SocketActor(
         .build()
   }
 
-  /**
-   * State if the connection became authenticated with the client.
-   */
-  private fun authenticated(): Receive {
-    return receiveBuilder()
-        .match(Tcp.Received::class.java, this::receiveClientMessage)
-        .match(ConnectionClosed::class.java) { context.stop(self) }
-        .build()
+  private fun waitForAuthMessage(msg: Tcp.Received) {
+    val authMsgBytes = extractMessageBytes(msg)
+    try {
+      val authMessage = AuthMessageProto.AuthMessage.parseFrom(authMsgBytes)
+      LOG.trace { "Received auth: $authMessage" }
+
+      val isAuthenticated = authenticationService.isUserAuthenticated(
+          authMessage.accountId,
+          authMessage.token
+      )
+      val isLoginAllowed = loginService.isLoginAllowedForAccount(authMessage.accountId, authMessage.token)
+
+      if (isAuthenticated && isLoginAllowed) {
+        context.become(authenticatedSocket, true)
+        announceNewClientConnection(authMessage.accountId)
+      } else {
+        LOG.info { "Client send invalid login or server does not allow login. Disconnecting client." }
+        context.stop(self)
+      }
+    } catch (e: InvalidProtocolBufferException) {
+      LOG.info { "Could not parse auth message. Disconnecting client." }
+      context.stop(self)
+    }
   }
 
-  private fun waitForAuthMessage(msg: Tcp.Received) {
+  private fun extractMessageBytes(msg: Tcp.Received): ByteArray? {
     buffer.put(msg.data().asByteBuffer())
-
     if (buffer.position() < Int.SIZE_BYTES) {
-      return
+      return null
     }
-
     val messageSize = buffer.getInt(0)
-
     LOG.debug { "Buffer: ${buffer.position()} bytes, next message size: $messageSize bytes" }
-
     if (buffer.position() < messageSize) {
-      return
+      return null
     }
 
     buffer.position(Int.SIZE_BYTES)
@@ -83,27 +102,11 @@ class SocketActor(
     messageBuffer.get(messageBytes)
     messageBuffer.position(0)
 
-    val authMessage = AuthMessageProto.AuthMessage.parseFrom(messageBytes)
-    LOG.debug { authMessage }
-
-    val isAuthenticated = authenticationService.isUserAuthenticated(
-        authMessage.accountId,
-        authMessage.token
-    )
-    val isLoginAllowed = loginService.isLoginAllowedForAccount(authMessage.accountId)
-
-    if (isAuthenticated && isLoginAllowed) {
-      context.become(authenticated(), true)
-      announceNewClientConnection(authMessage.accountId)
-    } else {
-      // TODO Check if we need so send some kind of reason first. Currently in maintenance mode?
-      connection.tell(TcpMessage.close(), self)
-    }
+    return messageBytes
   }
 
   override fun postStop() {
     super.postStop()
-    LOG.trace { "Actor stopped, closing socket" }
     connection.tell(TcpMessage.close(), self)
   }
 
@@ -117,7 +120,8 @@ class SocketActor(
   }
 
   private fun receiveClientMessage(msg: Tcp.Received) {
-    // Deserialize and feed it into the system.
-    LOG.debug { "Received: ${msg.data()}" }
+    extractMessageBytes(msg)?.let {
+      LOG.info { "Received: $it" }
+    }
   }
 }

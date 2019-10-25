@@ -22,6 +22,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class LoginService(
+    private val authConfig: AuthenticationConfig,
     private val accountRepository: AccountRepository,
     private val playerBestiaRepository: PlayerBestiaRepository,
     private val playerEntityService: PlayerEntityService,
@@ -29,7 +30,11 @@ class LoginService(
     private val runtimeConfigService: RuntimeConfigService
 ) {
 
-  fun isLoginAllowedForAccount(accountId: Long): Boolean {
+  fun isLoginAllowedForAccount(accountId: Long, token: String): Boolean {
+    if (authConfig.rootAuthToken != null && authConfig.rootAuthToken == token) {
+      return true
+    }
+
     val currentMaintenanceLevel = runtimeConfigService.getRuntimeConfig().maintenanceLevel
     val account = accountRepository.findOne(accountId)
         ?: return false

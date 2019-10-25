@@ -2,6 +2,7 @@ package net.bestia.testclient
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.io.IOException
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingQueue
@@ -17,6 +18,7 @@ class RxTxSocket(
   private val dIn: DataInputStream
 
   private val sendRunnable: SendRunnable
+  private val receiveRunnable: ReceiveRunnable
   private val rxThread: Thread
   private val txThread: Thread
 
@@ -27,8 +29,9 @@ class RxTxSocket(
     dIn = DataInputStream(socket.getInputStream())
 
     sendRunnable = SendRunnable()
+    receiveRunnable = ReceiveRunnable()
     txThread = Thread(sendRunnable)
-    rxThread = Thread(ReceiveThread())
+    rxThread = Thread(receiveRunnable)
 
     txThread.start()
     rxThread.start()
@@ -47,16 +50,21 @@ class RxTxSocket(
           sendBuffer.putInt(element.size)
           sendBuffer.put(element)
 
-          dOut.write(sendBuffer.array())
-          dOut.flush()
+          try {
+            dOut.write(sendBuffer.array())
+            dOut.flush()
+          } catch (e: IOException) {
+            System.err.println(e.message)
+            isRunning = false
+          }
         } catch (e: InterruptedException) {
-          // no op
+          close()
         }
       }
     }
   }
 
-  private inner class ReceiveThread : Runnable {
+  private inner class ReceiveRunnable : Runnable {
     override fun run() {
       printRunnable.outputQueue.put("output")
     }
@@ -67,6 +75,8 @@ class RxTxSocket(
   }
 
   fun close() {
+    dOut.close()
+    dIn.close()
     socket.close()
     sendRunnable.isRunning = false
     txThread.interrupt()

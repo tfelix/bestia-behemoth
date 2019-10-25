@@ -8,6 +8,7 @@ logging:
     net.bestia: TRACE
     de.tfelix.bestia: TRACE
     net.bestia.entity.EntityService: INFO
+    net.bestia.zoneserver.actor.entity.component.ComponentActor: DEBUG
 
 # ===============================
 # = LIBRARIES

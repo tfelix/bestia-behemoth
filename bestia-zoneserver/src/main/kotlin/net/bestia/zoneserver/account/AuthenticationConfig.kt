@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component
 
 @Component
 data class AuthenticationConfig(
-    @Value("server.root-auth-token")
+    @Value("\${server.root-auth-token}")
     val rootAuthToken: String?
 )

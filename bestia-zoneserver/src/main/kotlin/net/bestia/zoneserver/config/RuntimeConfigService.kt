@@ -3,6 +3,7 @@ package net.bestia.zoneserver.config
 import akka.actor.ActorRef
 import akka.pattern.Patterns
 import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.config.GetRuntimeConfig
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.routing.SystemMessageService
 import org.springframework.beans.factory.annotation.Qualifier
@@ -19,7 +20,7 @@ class RuntimeConfigService(
   private var runtimeConfig: RuntimeConfig = RuntimeConfig()
 
   fun getRuntimeConfig(): RuntimeConfig {
-    val response = Patterns.ask(runtimeConfigActor, RuntimeConfigurationActor.GetRuntimeConfig, defaultTimeout)
+    val response = Patterns.ask(runtimeConfigActor, GetRuntimeConfig, defaultTimeout)
     return response.toCompletableFuture().get() as RuntimeConfig
   }
 

@@ -3,11 +3,11 @@ package net.bestia.testclient
 import net.bestia.testclient.commands.LoginCommand
 import java.util.concurrent.LinkedBlockingQueue
 
-fun main() {
+fun main(args: Array<String>) {
   println("Bestia CLI Client")
 
-  val ip = "localhost"
-  val port = 8990
+  val ip = args.toList().getOrElse(1) { "localhost" }
+  val port = args.toList().getOrNull(2)?.toInt() ?: 8990
 
   val commands = listOf(
       LoginCommand()
