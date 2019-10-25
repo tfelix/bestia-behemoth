@@ -4,5 +4,7 @@ include 'bestia-messages'
 include 'bestia-zoneserver'
 include 'bestia-proto-messages'
 include 'bestia-worldgen'
+include 'bestia-voxel'
+include 'bestia-ai'
 include 'test-client'
 

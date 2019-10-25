@@ -41,7 +41,7 @@ class PublicChatActorTest : AbstractActorTest() {
       probes["sendActiveRange"]!!.expectMsg(SendInRange(entity, chatMessage))
 
       it.awaitAssert {
-        verify(messageApi).send(any())
+        verify(messageApi).send(any<EntityEnvelope>())
       }
     }
   }

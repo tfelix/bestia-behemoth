@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import com.nhaarman.mockitokotlin2.any
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.account.Account
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
@@ -49,16 +50,16 @@ class MapMoveCommandTest {
   fun executeCommand_wrongArgs_sendsMessage() {
     cmd.executeCommand(acc, "/mm bla bla")
 
-    verify(akkaApi).send(any())
+    verify(akkaApi).send(any<ClientEnvelope>())
   }
 
   @Test
   fun executeCommand_invalidCords_dontSetPosition() {
     cmd.executeCommand(acc, "/mm -10 11")
-    verify(akkaApi).send(any())
+    verify(akkaApi).send(any<ClientEnvelope>())
 
     cmd.executeCommand(acc, "/mm 100000 11")
-    verify(akkaApi, times(2)).send(any())
+    verify(akkaApi, times(2)).send(any<ClientEnvelope>())
   }
 
   @Test

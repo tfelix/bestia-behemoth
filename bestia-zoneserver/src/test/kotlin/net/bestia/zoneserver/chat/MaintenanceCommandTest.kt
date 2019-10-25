@@ -3,6 +3,7 @@ package net.bestia.zoneserver.chat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
@@ -57,7 +58,7 @@ class MaintenanceCommandTest {
   fun executeCommand_wrongArgs_sendsMessage() {
     cmd.executeCommand(acc, "/maintenance bla")
 
-    verify(akkaApi).send(any())
+    verify(akkaApi).send(any<ClientEnvelope>())
     verify(config, times(0)).setRuntimeConfig(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())
   }
