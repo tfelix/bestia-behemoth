@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.spring'
 }
 
+description = 'bestia-messages'
+
 dependencies {
     implementation project(':bestia-models')
 
@@ -13,5 +15,3 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     implementation group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
 }
-
-description = 'bestia-messages'

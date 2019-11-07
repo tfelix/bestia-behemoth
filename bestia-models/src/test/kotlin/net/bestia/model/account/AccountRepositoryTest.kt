@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired
 class AccountRepositoryTest {
 
   @Autowired
-  private lateinit var accountDao: AccountRepository
+  private lateinit var accountRepository: AccountRepository
 
   @Test
   fun findByEmail_test() {
-    val a = AccountFixture.createAccount()
-    accountDao.save(a)
+    AccountFixture.createAccount(accountRepository)
 
-    val found = accountDao.findByEmail(AccountFixture.email)
+    val found = accountRepository.findByEmail(AccountFixture.email)
     assertNotNull(found)
   }
 }

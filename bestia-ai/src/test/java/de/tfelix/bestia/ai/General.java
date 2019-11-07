@@ -21,8 +21,7 @@ public class General {
 		
 		// Some api tests.
 		AIManager manager = new AIManager(engine);
-		
-		
+
 		RandomStateTransformer transformer = new RandomStateTransformer();
 		
 		transformer.registerState(new SimpleState("idle"));

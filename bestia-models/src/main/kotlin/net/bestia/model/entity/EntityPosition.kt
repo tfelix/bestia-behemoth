@@ -2,6 +2,7 @@ package net.bestia.model.entity
 
 import net.bestia.model.AbstractEntity
 import net.bestia.model.geometry.Vec3
+import java.io.Serializable
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -15,7 +16,7 @@ class EntityPosition(
     val x: Long,
     val y: Long,
     val z: Long
-) {
+): Serializable {
   fun toPoint(): Vec3 {
     return Vec3(x, y, z)
   }

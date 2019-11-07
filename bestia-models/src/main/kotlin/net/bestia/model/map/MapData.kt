@@ -52,7 +52,10 @@ class MapData(
       val y: Long,
       val width: Long,
       val height: Long
-  ) : Serializable
+  ) : Serializable {
+    // Needed for Hibernate
+    private constructor() : this(0, 0, 0, 0)
+  }
 
   override fun toString(): String {
     return "MapData[x: $x, y: $y, w: $width, h: $height, data: ${data.size} bytes]"

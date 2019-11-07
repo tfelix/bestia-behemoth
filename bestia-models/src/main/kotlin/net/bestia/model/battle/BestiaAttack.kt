@@ -1,7 +1,5 @@
 package net.bestia.model.battle
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.Bestia
 import java.io.Serializable
@@ -15,7 +13,7 @@ import javax.persistence.*
  */
 @Entity
 @Table(name = "bestia_attacks")
-class BestiaAttack(
+data class BestiaAttack(
     @ManyToOne
     val attack: Attack,
 
@@ -28,9 +26,4 @@ class BestiaAttack(
      * @return The minimum level until the bestia can use this attack.
      */
     val minLevel: Int = 0
-) : AbstractEntity(), Serializable {
-
-  override fun toString(): String {
-    return "BestiaAttack[attack_db_name: ${attack.databaseName}, bestia: ${bestia.databaseName}, minLevel: $minLevel]"
-  }
-}
+) : AbstractEntity(), Serializable

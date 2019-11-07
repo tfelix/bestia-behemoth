@@ -1,11 +1,12 @@
 package net.bestia.model.battle
 
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface BestiaAttackRepository : org.springframework.data.repository.Repository<BestiaAttack, Long> {
+interface BestiaAttackRepository : JpaRepository<BestiaAttack, Long> {
 
   /**
    * Return all usable attacks for a given Bestia. The attacks are sorted by

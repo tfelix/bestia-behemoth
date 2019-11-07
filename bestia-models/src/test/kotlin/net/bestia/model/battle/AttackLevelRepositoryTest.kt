@@ -1,33 +1,48 @@
 package net.bestia.model.battle
 
+import net.bestia.model.IntegrationTest
+import net.bestia.model.bestia.Bestia
+import net.bestia.model.bestia.BestiaRepository
+import net.bestia.model.test.AttackFixture
+import net.bestia.model.test.BestiaFixture
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestExecutionListeners
-import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest
-@TestExecutionListeners(DependencyInjectionTestExecutionListener::class)
-@DataJpaTest
+@IntegrationTest
 class AttackLevelRepositoryTest {
   @Autowired
-  private lateinit var attackLevelDao: BestiaAttackRepository
+  private lateinit var bestiaAttackRepository: BestiaAttackRepository
+
+  @Autowired
+  private lateinit var attackRepository: AttackRepository
+
+  @Autowired
+  private lateinit var bestiaRepository: BestiaRepository
+
+  private lateinit var sut: BestiaAttack
+  private lateinit var bestia: Bestia
+  private lateinit var attack: Attack
+
+  @BeforeEach
+  fun setup() {
+    attack = AttackFixture.createAttack(attackRepository = attackRepository)
+    bestia = BestiaFixture.createBestia(bestiaRepository)
+    sut = BestiaAttack(attack, bestia)
+    bestiaAttackRepository.save(sut)
+  }
 
   @Test
   fun getAllAttacksForBestia_existingId_list() {
-    val atks = attackLevelDao.getAllAttacksForBestia(1)
+    val atks = bestiaAttackRepository.getAllAttacksForBestia(bestia.id)
     assertNotNull(atks)
     assertEquals(1, atks.size.toLong())
   }
 
   @Test
   fun getAllAttacksForBestia_notExistingId_null() {
-    val atks = attackLevelDao.getAllAttacksForBestia(1337)
+    val atks = bestiaAttackRepository.getAllAttacksForBestia(1337)
     assertTrue(atks.isEmpty())
   }
 }

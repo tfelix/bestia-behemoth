@@ -1,10 +1,10 @@
 package net.bestia.model.bestia
 
 import net.bestia.model.IntegrationTest
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.test.AccountFixture
 import net.bestia.model.test.BestiaFixture
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -12,15 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired
 class PlayerBestiaDAOTest {
 
   @Autowired
-  private lateinit var playerDao: PlayerBestiaRepository
+  private lateinit var playerRepo: PlayerBestiaRepository
 
-  @BeforeEach
-  fun setup() {
+  @Autowired
+  private lateinit var accountRepo: AccountRepository
 
-    val acc = AccountFixture.createAccount()
+  @Autowired
+  private lateinit var bestiaRepository: BestiaRepository
+
+  fun setupDatabase() {
+    val acc = AccountFixture.createAccount(accountRepo)
+
     val pb = PlayerBestia(
         owner = acc,
-        origin = BestiaFixture.bestia
+        origin = BestiaFixture.createBestia(bestiaRepository)
     )
 
     val sv = ConditionValues(
@@ -31,31 +36,35 @@ class PlayerBestiaDAOTest {
     pb.conditionValues = sv
     pb.level = 10
 
-    playerDao.save(pb)
+    playerRepo.save(pb)
   }
 
   @Test
   fun findPlayerBestiasForAccount_unknownAcc_null() {
-    val bestias = playerDao.findPlayerBestiasForAccount(1337)
-    assertTrue(bestias.size == 0)
+    setupDatabase()
+    val bestias = playerRepo.findPlayerBestiasForAccount(1337)
+    assertTrue(bestias.isEmpty())
   }
 
   @Test
   fun findPlayerBestiasForAccount_knownAcc_bestias() {
-    val bestias = playerDao.findPlayerBestiasForAccount(1337)
+    setupDatabase()
+    val bestias = playerRepo.findPlayerBestiasForAccount(1337)
     assertTrue(bestias.size == 0)
   }
 
   @Test
   fun findMasterBestiaWithName_knownName_bestia() {
-    val pb = playerDao.findMasterBestiaWithName(BESTIA_NAME)
+    setupDatabase()
+    val pb = playerRepo.findMasterBestiaWithName(BESTIA_NAME)
 
     assertNotNull(pb)
   }
 
   @Test
   fun findMasterBestiaWithName_unknownName_null() {
-    val pb = playerDao.findMasterBestiaWithName(BESTIA_UNKNOWN_NAME)
+    setupDatabase()
+    val pb = playerRepo.findMasterBestiaWithName(BESTIA_UNKNOWN_NAME)
     assertNull(pb)
   }
 

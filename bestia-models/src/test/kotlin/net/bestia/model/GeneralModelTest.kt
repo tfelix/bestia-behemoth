@@ -3,6 +3,7 @@ package net.bestia.model
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.bestia.model.account.LoginInfo
+import net.bestia.model.bestia.PlayerBestia
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.reflections.Reflections
@@ -68,6 +69,9 @@ class GeneralModelTest {
   }
 
   companion object {
-    private val WHITELIST = setOf(LoginInfo::class.java)
+    private val WHITELIST = setOf(
+        LoginInfo::class.java,
+        PlayerBestia::class.java
+    )
   }
 }

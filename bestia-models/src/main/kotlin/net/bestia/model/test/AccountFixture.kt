@@ -1,6 +1,7 @@
 package net.bestia.model.test
 
 import net.bestia.model.account.Account
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.Gender
 import java.time.Instant
 
@@ -12,13 +13,13 @@ object AccountFixture {
   const val password = "sample123"
 
   @JvmStatic
-  fun createAccount(): Account {
+  fun createAccount(accountRepository: AccountRepository? = null): Account {
     return Account(
         email = email,
         username = username,
         registerDate = registeredOn,
         password = password,
         gender = Gender.MALE
-    )
+    ).also { accountRepository?.save(it) }
   }
 }

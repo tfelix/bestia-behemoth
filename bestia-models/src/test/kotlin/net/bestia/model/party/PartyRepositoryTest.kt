@@ -1,24 +1,29 @@
 package net.bestia.model.party
 
+import net.bestia.model.IntegrationTest
+import net.bestia.model.account.AccountRepository
+import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.test.AccountFixture
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest
-@DataJpaTest
+@IntegrationTest
 class PartyRepositoryTest {
 
   @Autowired
-  private lateinit var dao: PartyRepository
+  private lateinit var partyRepository: PartyRepository
+
+  @BeforeEach
+  fun setup() {
+    val p = Party("party")
+    partyRepository.save(p)
+  }
 
   @Test
   fun findPartyByMembership_accountIsMember_party() {
-    val p = dao.findPartyByMembership(ACC_ID)
+    val p = partyRepository.findPartyByMembership(ACC_ID)
     assertNotNull(p)
   }
 

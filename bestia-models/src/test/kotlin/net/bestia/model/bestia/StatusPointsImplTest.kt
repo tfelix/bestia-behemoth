@@ -29,15 +29,15 @@ class StatusPointsImplTest {
   }
 
   @Test
-  fun test_instanciation() {
+  fun test_creation() {
     val sut = BasicStatusValues()
 
-    assertEquals(0, sut.agility)
-    assertEquals(0, sut.vitality)
-    assertEquals(0, sut.intelligence)
-    assertEquals(0, sut.agility)
-    assertEquals(0, sut.willpower)
-    assertEquals(0, sut.strength)
+    assertEquals(1, sut.agility)
+    assertEquals(1, sut.vitality)
+    assertEquals(1, sut.intelligence)
+    assertEquals(1, sut.agility)
+    assertEquals(1, sut.willpower)
+    assertEquals(1, sut.strength)
 
     assertEquals(0, sut.physicalDefense)
     assertEquals(0, sut.magicDefense)

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package net.bestia.messages.component;
+
+option java_outer_classname = "ComponentMessageProto";
+
+message Component {
+    int64 entityId = 1;
+    int64 componentId = 2;
+}
+
+message PositionComponent {
+    Component component = 1;
+    int64 x = 2;
+    int64 y = 3;
+    int64 z = 4;
+}
+
+message TemperatureComponent {
+    Component component = 1;
+    int32 maxTolerableTemp = 2;
+    int32 minTolerableTemp = 3;
+    int32 currentTemp = 4;
+}

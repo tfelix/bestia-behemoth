@@ -3,13 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.spring'
     id 'org.jetbrains.kotlin.plugin.jpa'
     id 'org.jetbrains.kotlin.jvm'
-    id 'io.gitlab.arturbosch.detekt' version '1.0.0-RC12'
-}
-
-detekt {
-    toolVersion = "1.0.0-RC12"
-    input = files("src/main/kotlin")
-    filters = ".*/resources/.*,.*/build/.*"
 }
 
 repositories {
@@ -75,4 +68,8 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
+}
+
+test {
+    useJUnitPlatform()
 }
