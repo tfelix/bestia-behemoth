@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.map.generator
 
 import de.tfelix.bestia.worldgen.io.MapGenDAO
+import de.tfelix.bestia.worldgen.map.MapCoordinate
 import de.tfelix.bestia.worldgen.map.MapDataPart
 import de.tfelix.bestia.worldgen.random.NoiseVector
 import de.tfelix.bestia.worldgen.workload.Job
@@ -18,8 +19,7 @@ class TileGenerationJob : Job() {
   private var waterCount = 0
   private var landCount = 0
 
-  override fun foreachNoiseVector(dao: MapGenDAO, data: MapDataPart, vec: NoiseVector) {
-
+  override fun foreachNoiseVector(dao: MapGenDAO, data: MapDataPart, vec: NoiseVector, cord: MapCoordinate) {
     val heightLevel = vec.getValueDouble(MapGeneratorConstants.HEIGHT_MAP)
 
     if (heightLevel < WATERLEVEL) {
@@ -31,11 +31,8 @@ class TileGenerationJob : Job() {
       vec.setValue(MapGeneratorConstants.TILE_MAP, 79)
       landCount++
     }
-  }
 
-  override fun onFinish(dao: MapGenDAO?, data: MapDataPart?) {
-    LOG.debug("Finished tile generation job.")
-    LOG.debug("Land tiles: {}, water tiles: {}", landCount, waterCount)
+    LOG.debug { "Generated land tiles: $landCount, water tiles: $waterCount" }
   }
 
   override fun onStart() {

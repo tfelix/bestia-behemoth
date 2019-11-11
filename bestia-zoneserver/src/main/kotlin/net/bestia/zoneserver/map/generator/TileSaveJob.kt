@@ -1,13 +1,11 @@
 package net.bestia.zoneserver.map.generator
 
 import de.tfelix.bestia.worldgen.io.MapGenDAO
-import de.tfelix.bestia.worldgen.map.Map2DDiscreteCoordinate
-import de.tfelix.bestia.worldgen.map.Map2DDiscretePart
+import de.tfelix.bestia.worldgen.map.MapCoordinate
 import de.tfelix.bestia.worldgen.map.MapDataPart
 import de.tfelix.bestia.worldgen.random.NoiseVector
 import de.tfelix.bestia.worldgen.workload.Job
 import mu.KotlinLogging
-import net.bestia.model.geometry.Rect
 
 private val LOG = KotlinLogging.logger { }
 
@@ -17,12 +15,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 class TileSaveJob : Job() {
-
-  override fun foreachNoiseVector(dao: MapGenDAO, data: MapDataPart, vec: NoiseVector) {
-    // no op.
-  }
-
-  override fun onFinish(dao: MapGenDAO?, data: MapDataPart?) {
+  override fun foreachNoiseVector(dao: MapGenDAO, data: MapDataPart, vec: NoiseVector, cord: MapCoordinate) {
     LOG.debug("Starting tile saving job.")
 
     /*

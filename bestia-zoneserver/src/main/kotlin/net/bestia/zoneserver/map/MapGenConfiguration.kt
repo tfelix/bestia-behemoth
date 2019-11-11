@@ -78,8 +78,8 @@ class MapGenConfiguration {
     //nodeGenerator.addWorkload(work);
 
     val work = Workload(MapGeneratorConstants.WORK_GEN_TILES)
-    work.addJob(MultiplyJob(1500.0, MapGeneratorConstants.HEIGHT_MAP))
-    work.addJob(TileGenerationJob())
+    work.jobs.add(MultiplyJob(1500.0, MapGeneratorConstants.HEIGHT_MAP))
+    work.jobs.add(TileGenerationJob())
     // work.addJob(TileSaveJob(mapService))
 
     nodeGenerator.addWorkload(work)

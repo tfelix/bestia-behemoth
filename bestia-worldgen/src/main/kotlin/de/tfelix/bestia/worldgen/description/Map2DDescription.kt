@@ -11,16 +11,13 @@ import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
  *
  * @author Thomas Felix
  */
-class Map2DDescription(
-    builder: Builder
+data class Map2DDescription(
+    override val noiseVectorBuilder: NoiseVectorBuilder,
+    val width: Long = 0,
+    val height: Long = 0,
+    val chunkWidth: Long = 0,
+    val chunkHeight: Long = 0
 ) : MapDescription {
-
-  private val width = builder.width
-  private val height = builder.height
-  private val chunkWidth = builder.partWidth
-  private val chunkHeight = builder.partHeight
-  override val noiseVectorBuilder = builder.noiseVectorBuilder
-
   override val mapParts: Iterator<MapChunk>
     get() = Map2DIterator()
 
@@ -31,7 +28,6 @@ class Map2DDescription(
     }
 
   private inner class Map2DIterator : Iterator<MapChunk> {
-
     private var i: Long = 0
 
     override fun hasNext(): Boolean {
@@ -49,23 +45,6 @@ class Map2DDescription(
           chunkHeight,
           Map2DDiscreteInfo(width, height)
       )
-    }
-  }
-
-  /**
-   * Builder pattern used for the [Map2DDescription]. Use this builder
-   * to create an instance of the [MapDescription].
-   *
-   */
-  class Builder(
-      var noiseVectorBuilder: NoiseVectorBuilder,
-      var width: Long = 0,
-      var height: Long = 0,
-      var partWidth: Long = 0,
-      var partHeight: Long = 0
-  ) {
-    fun build(): Map2DDescription {
-      return Map2DDescription(this)
     }
   }
 

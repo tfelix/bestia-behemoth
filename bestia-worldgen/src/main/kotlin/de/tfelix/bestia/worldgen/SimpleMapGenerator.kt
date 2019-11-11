@@ -41,13 +41,13 @@ class SimpleMapGenerator(
 
     addWorkloadsToNode(localNode)
 
-    val builder = Map2DDescription.Builder(getMapDataVector())
-    builder.height = 1000
-    builder.width = 1000
-    builder.partHeight = 10
-    builder.partWidth = 10
-
-    mapDescription = builder.build()
+    mapDescription = Map2DDescription(
+        height = 1000,
+        width = 1000,
+        chunkWidth = 10,
+        chunkHeight = 10,
+        noiseVectorBuilder = getMapDataVector()
+    )
   }
 
   private fun getMapDataVector(): NoiseVectorBuilder {

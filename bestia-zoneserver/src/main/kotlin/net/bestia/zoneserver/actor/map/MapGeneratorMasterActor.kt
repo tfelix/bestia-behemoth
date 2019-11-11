@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.actor.Identify
 import de.tfelix.bestia.worldgen.description.MapDescription
 import de.tfelix.bestia.worldgen.io.NodeConnector
-import de.tfelix.bestia.worldgen.map.MapPart
+import de.tfelix.bestia.worldgen.map.MapChunk
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import mu.KotlinLogging
 import net.bestia.model.map.MapParameter
@@ -41,9 +41,8 @@ class MapGeneratorMasterActor(
   private inner class AkkaMapGenClient(
       private val generatorNode: ActorRef
   ) : NodeConnector {
-
-    override fun sendClient(part: MapPart) {
-      generatorNode.tell(part, self)
+    override fun sendClient(chunk: MapChunk) {
+      generatorNode.tell(chunk, self)
     }
 
     override fun sendClient(desc: MapDescription) {
@@ -61,7 +60,7 @@ class MapGeneratorMasterActor(
     mapGenService.setOnFinishCallback(Runnable { self().tell(FINISH_MSG, self) })
   }
 
-  override fun createReceive(): AbstractActor.Receive {
+  override fun createReceive(): Receive {
     return receiveBuilder()
         .match(MapParameter::class.java, this::handleMapParameter)
         .match(WorkstateMessage::class.java, mapGenService::consumeNodeMessage)

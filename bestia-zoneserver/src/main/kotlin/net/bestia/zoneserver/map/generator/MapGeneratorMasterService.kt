@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.map.generator
 
+import de.tfelix.bestia.worldgen.MapGeneratorMaster
 import de.tfelix.bestia.worldgen.MapMasterCallbacks
 import de.tfelix.bestia.worldgen.MapMasterGenerator
 import de.tfelix.bestia.worldgen.description.Map2DDescription
@@ -55,19 +56,11 @@ class MapGeneratorMasterService(
     // Add all the nodes.
     nodes.forEach { masterGenerator.addNode(it) }
 
-    // Setup the map configuration object.
-    val descBuilder = Map2DDescription.Builder()
-    descBuilder.setHeight(height)
-    descBuilder.setWidth(width)
-    descBuilder.setPartHeight(100)
-    descBuilder.setPartWidth(100)
-
     // Prepare the data.
     val noiseBuilder = NoiseVectorBuilder()
     noiseBuilder.addDimension(MapGeneratorConstants.HEIGHT_MAP,
         Float::class.java,
         SimplexNoiseProvider(rand.nextLong(), 0.0001))
-
     noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
         Float::class.java,
         SimplexNoiseProvider(rand.nextLong(), 0.0001))
@@ -78,11 +71,18 @@ class MapGeneratorMasterService(
         Float::class.java,
         SimplexNoiseProvider(rand.nextLong(), 0.0001))
 
-    descBuilder.setNoiseVectorBuilder(noiseBuilder)
+    // Setup the map configuration object.
+    val descBuilder = Map2DDescription(
+        height =  height,
+        width =  width,
+        chunkHeight = 100,
+        chunkWidth = 100,
+        noiseVectorBuilder = noiseBuilder
+    )
 
     LOG.debug("Sending map configuration to all nodes.")
 
-    masterGenerator.start(descBuilder.build())
+    masterGenerator.start(descBuilder)
   }
 
   /**
@@ -106,7 +106,7 @@ class MapGeneratorMasterService(
     masterGenerator.consumeNodeMessage(workstate)
   }
 
-  override fun onWorkloadFinished(label: String) {
+  override fun onWorkloadFinished(master: MapGeneratorMaster, label: String) {
     LOG.info("Map job '{}' was finished.", label)
 
     // TODO We currently only use one test job which also saves the map to
@@ -135,7 +135,7 @@ class MapGeneratorMasterService(
     }
   }
 
-  override fun onNoiseGenerationFinished() {
+  override fun onNoiseGenerationFinished(master: MapGeneratorMaster) {
     LOG.info("Map noise was generated.")
     masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_TILES)
   }

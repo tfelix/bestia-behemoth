@@ -19,8 +19,7 @@ dependencies {
     implementation project(':bestia-models')
     implementation project(':bestia-ai')
     implementation project(':bestia-voxel')
-    // implementation project(':bestia-worldgen')
-    implementation 'de.tfelix.bestia:worldgen:1.0.0-ALPHA'
+    implementation project(':bestia-worldgen')
 
     implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
 
