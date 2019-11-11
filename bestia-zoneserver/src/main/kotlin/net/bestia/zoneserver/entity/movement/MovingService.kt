@@ -4,8 +4,10 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.MoveComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
+import kotlin.math.floor
 import kotlin.math.sqrt
 
 private val LOG = KotlinLogging.logger { }
@@ -48,7 +50,7 @@ class MovingService {
       else -> 1.0
     }
 
-    return Math.floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed) * diagMult).toLong()
+    return floor(1 / TILES_PER_SECOND * 1000f * (1 / walkspeed) * diagMult).toLong()
   }
 
   /**
@@ -62,14 +64,25 @@ class MovingService {
    * @return Updated position component
    */
   fun moveToPosition(entity: Entity, newPos: Vec3): PositionComponent {
+    LOG.trace { "moveToPosition: Entity(${entity.id}) to pos: $newPos" }
     val positionComp = entity.getComponent(PositionComponent::class.java)
-    val oldPos = positionComp.position
-    LOG.trace { "Moving entity $entity to pos: $newPos." }
 
     return positionComp.copy(
         shape = positionComp.shape.moveTo(newPos),
         facing = Vec3(1, 0, 0)
     )
+  }
+
+  /**
+   * Moves the Bestia for the distance it also checks for trigger entities in the given area.
+   */
+  fun tickMovement(entity: Entity, delta: Long): PositionComponent {
+    val oldPosComp = entity.getComponent(PositionComponent::class.java)
+    val moveComp = entity.getComponent(MoveComponent::class.java)
+    val newPos = oldPosComp.position + moveComp.speed * (delta / 1000f)
+    LOG.trace { "tickMovement: Entity(${entity.id}) to new pos: $newPos" }
+
+    return oldPosComp.copy(shape = oldPosComp.shape.moveTo(newPos))
   }
 
   companion object {

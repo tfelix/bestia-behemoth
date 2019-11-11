@@ -19,9 +19,7 @@ data class Sphere(
 ) : Shape {
 
   init {
-    if (radius < 0) {
-      throw IllegalArgumentException("Radius can not be negative.")
-    }
+    require(radius >= 0) { "Radius can not be negative." }
 
     checkAnchor(anchor.x, anchor.y)
   }
@@ -82,6 +80,6 @@ data class Sphere(
     val cY = y + dY
     val cZ = z + dZ
 
-    return Sphere(cX, cY, dZ, radius, x, y, z)
+    return Sphere(cX, cY, cZ, radius, x, y, z)
   }
 }

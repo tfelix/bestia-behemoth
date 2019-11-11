@@ -14,8 +14,8 @@ class SphereTest {
 
   @Test
   fun getCenter_ok() {
-    val (center) = Sphere(3, 10, 10, 2)
-    assertTrue(center == Vec3(3, 10, 2))
+    val center = Sphere(10, 10, 10, 2)
+    assertEquals(Vec3(10, 10, 10), center.center)
   }
 
   @Test
@@ -56,12 +56,9 @@ class SphereTest {
   @Test
   fun moveByAnchor_ok() {
     var c1 = Sphere(10, 10, 10, 2)
-    var c2 = Sphere(10, 10, 10, 2)
 
-    c1 = c1.moveTo(15, 16, 7)
-    c2 = c2.moveTo(10, 10, 10)
+    c1 = c1.moveTo(15, 15, 6)
 
-    assertTrue(c1.center == Vec3(15, 16, 0))
-    assertTrue(c2.center == Vec3(8, 8, 0))
+    assertEquals(c1.center, Vec3(15, 15, 6))
   }
 }

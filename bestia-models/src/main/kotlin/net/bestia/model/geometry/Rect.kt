@@ -35,8 +35,8 @@ data class Rect(
       depth: Long
   ) : this(
       Vec3(x, y, z),
-      Size(width, height),
-      Vec3(x + width / 2, y + height / 2, depth / 2)
+      Size(width, height, depth),
+      Vec3(x + width / 2, y + height / 2, z + depth / 2)
   )
 
   constructor(
@@ -110,15 +110,11 @@ data class Rect(
   private fun checkAnchor(aX: Long, aY: Long) {
     val isXInside = origin.x <= aX && aX <= origin.x + size.width
 
-    if (!isXInside) {
-      throw IllegalArgumentException("Anchor X must be inside the rectangle.")
-    }
+    require(isXInside) { "Anchor X must be inside the rectangle." }
 
     val isYInside = origin.y <= aY && aY <= origin.y + size.height
 
-    if (!isYInside) {
-      throw IllegalArgumentException("Anchor Y must be inside the rectangle.")
-    }
+    require(isYInside) { "Anchor Y must be inside the rectangle." }
   }
 
   private fun checkNotNegative(width: Long, height: Long) {
@@ -150,10 +146,10 @@ data class Rect(
   }
 
   override fun moveTo(x: Long, y: Long, z: Long): Rect {
-    val cX = x + x - anchor.x
-    val cY = y + y - anchor.y
-    val cZ = z + z - anchor.z
+    val cX = origin.x + x - anchor.x
+    val cY = origin.y + y - anchor.y
+    val cZ = origin.z + z - anchor.z
 
-    return Rect(Vec3(cX, cY, cZ), Size(width, height), Vec3(x, y, z))
+    return Rect(Vec3(cX, cY, cZ), Size(width, height, depth), anchor)
   }
 }

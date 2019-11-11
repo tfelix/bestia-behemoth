@@ -4,6 +4,8 @@ import akka.actor.AbstractActorWithTimers
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
+import net.bestia.model.geometry.Rect
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.entity.RequestComponentMessage
 import net.bestia.zoneserver.actor.entity.EntityRequest
 import net.bestia.zoneserver.actor.entity.EntityResponse
@@ -11,6 +13,7 @@ import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -20,6 +23,24 @@ data class SubscribeForComponentUpdates(
     val componentType: Class<out Component>,
     val sendUpdateTo: ActorRef
 )
+
+interface ComponentBroadcaster<T : Component> {
+  fun broadcast(component: T)
+}
+
+class ClientInRangeBroadcaster(
+    private val entityCollisionService: EntityCollisionService,
+    private val range: Rect
+) : ComponentBroadcaster<Component> {
+
+  var currentPosition: Vec3 = Vec3.ZERO
+
+  override fun broadcast(component: Component) {
+    val rangeOnPos = range.moveTo(currentPosition)
+    val entityIds = entityCollisionService.getAllCollidingEntityIds(rangeOnPos)
+    // TODO Check if this IDs are player? are they logged in? send them the update
+  }
+}
 
 abstract class ComponentActor<T : Component>(
     component: T

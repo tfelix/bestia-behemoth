@@ -5,7 +5,7 @@ import java.io.Serializable
 import javax.persistence.Embeddable
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import java.util.*
+import kotlin.math.sqrt
 
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
@@ -72,7 +72,7 @@ data class Vec3(
     val dx = x - p.x
     val dy = y - p.y
 
-    return Math.sqrt((dx * dx + dy * dy).toDouble())
+    return sqrt((dx * dx + dy * dy).toDouble())
   }
 
   operator fun minus(rhs: Vec3): Vec3 {
@@ -97,5 +97,9 @@ data class Vec3(
         y * rhs.y,
         z * rhs.z
     )
+  }
+
+  companion object {
+      val ZERO = Vec3(0, 0, 0)
   }
 }

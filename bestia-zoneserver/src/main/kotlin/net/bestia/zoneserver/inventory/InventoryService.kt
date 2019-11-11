@@ -22,10 +22,8 @@ private val LOG = KotlinLogging.logger { }
  * bestias on multiple servers at the same time) no items can be cached. They
  * must be returned from the server all the time.
  *
- *
  * With the help of this class this is archived. When inventory changes notice
  * messages will be generated which can later be retrieved by the server.
- *
  *
  * @author Thomas Felix
  */
