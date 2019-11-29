@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor
 import akka.actor.AbstractActor
 import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
+import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -18,10 +19,12 @@ import java.util.*
 class GeneralActorTest {
 
   /**
-   * These actors wont be tested for existence of annotations.
+   * These actors wont be tested for existence of annotations as these are possibly
+   * handled in a special way.
    */
   private val whitelist = setOf(
-      AwaitResponseActor::class.java
+      AwaitResponseActor::class.java,
+      ClusterClientConnectionManagerActor::class.java
   )
 
   /**

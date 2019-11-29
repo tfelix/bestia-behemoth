@@ -1,20 +1,16 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
 
-@ActorComponent(PositionComponent::class)
+@ActorComponent(PositionComponent::class, broadcastToClients = true)
 class PositionComponentActor(
-    positionComponent: PositionComponent
+    positionComponent: PositionComponent,
+    private val entityCollisionService: EntityCollisionService
 ) : ComponentActor<PositionComponent>(positionComponent) {
 
-  override fun createReceive(builder: ReceiveBuilder) {
-    //builder.match(PositionToMessage::class.java, this::positionTo)
+  override fun onComponentChanged(oldComponent: PositionComponent, newComponent: PositionComponent) {
+    entityCollisionService.updateEntityCollision(newComponent.entityId, newComponent.shape)
   }
-
-  /*
-  private fun positionTo(msg: PositionToMessage) {
-    component = component.copy(shape = component.shape.moveTo(msg.position))
-  }*/
 }

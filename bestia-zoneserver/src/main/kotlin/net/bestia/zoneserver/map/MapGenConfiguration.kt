@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.map
 
-import de.tfelix.bestia.worldgen.MapNodeGenerator
+import de.tfelix.bestia.worldgen.MapGeneratorNode
 import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO
 import de.tfelix.bestia.worldgen.io.MapGenDAO
 import de.tfelix.bestia.worldgen.io.MasterConnector
@@ -68,9 +68,9 @@ class MapGenConfiguration {
       config: ZoneserverNodeConfig,
       connector: MasterConnector,
       dao: MapGenDAO
-  ): MapNodeGenerator {
+  ): MapGeneratorNode {
 
-    val nodeGenerator = MapNodeGenerator(config.serverName, connector, dao)
+    val nodeGenerator = MapGeneratorNode(config.serverName, connector, dao)
 
     //Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
     //work.addJob(new AddJob(1.0, MapGeneratorConstants.HEIGHT_MAP));

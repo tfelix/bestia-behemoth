@@ -4,16 +4,15 @@ import akka.actor.AbstractActorWithTimers
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
-import net.bestia.model.geometry.Rect
-import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.entity.RequestComponentMessage
-import net.bestia.zoneserver.actor.entity.EntityRequest
-import net.bestia.zoneserver.actor.entity.EntityResponse
-import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
+import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
+import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.entity.*
+import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
+import net.bestia.zoneserver.actor.entity.broadcast.BroadcastComponentMessage
+import net.bestia.zoneserver.actor.entity.broadcast.ClientComponentBroadcastActor
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -24,29 +23,14 @@ data class SubscribeForComponentUpdates(
     val sendUpdateTo: ActorRef
 )
 
-interface ComponentBroadcaster<T : Component> {
-  fun broadcast(component: T)
-}
-
-class ClientInRangeBroadcaster(
-    private val entityCollisionService: EntityCollisionService,
-    private val range: Rect
-) : ComponentBroadcaster<Component> {
-
-  var currentPosition: Vec3 = Vec3.ZERO
-
-  override fun broadcast(component: Component) {
-    val rangeOnPos = range.moveTo(currentPosition)
-    val entityIds = entityCollisionService.getAllCollidingEntityIds(rangeOnPos)
-    // TODO Check if this IDs are player? are they logged in? send them the update
-  }
-}
-
 abstract class ComponentActor<T : Component>(
     component: T
 ) : AbstractActorWithTimers() {
 
-  private val componentUpdateSubscriber = mutableSetOf<ActorRef>()
+  private val broadcastToClientsOnChange = javaClass.getAnnotation(ActorComponent::class.java)?.broadcastToClients
+      ?: false
+  private val updateComponentSubscriber = mutableSetOf<ActorRef>()
+  private val broadcastToClients = SpringExtension.actorOf(context, ClientComponentBroadcastActor::class.java)
 
   protected fun fetchEntity(
       callback: (Entity) -> Unit
@@ -93,7 +77,7 @@ abstract class ComponentActor<T : Component>(
     if (msg.componentType != component::class.java) {
       return
     }
-    componentUpdateSubscriber.add(msg.sendUpdateTo)
+    updateComponentSubscriber.add(msg.sendUpdateTo)
   }
 
   private fun notifyComponentChanged(oldComponent: T, newComponent: T) {
@@ -102,7 +86,8 @@ abstract class ComponentActor<T : Component>(
     }
 
     onComponentChanged(oldComponent, newComponent)
-    componentUpdateSubscriber.forEach { it.tell(newComponent, self) }
+    updateComponentSubscriber.forEach { it.tell(newComponent, self) }
+    updateConnectedClients(newComponent)
   }
 
   private fun sendComponent(msg: RequestComponentMessage) {
@@ -117,8 +102,15 @@ abstract class ComponentActor<T : Component>(
    */
   protected open fun onSave() {}
 
-  protected fun announceComponentChange() {
-    LOG.warn { "announceComponentChange(): Not implemented." }
+  private fun updateConnectedClients(newComponent: T) {
+    if (!broadcastToClientsOnChange) {
+      return
+    }
+
+    fetchEntity {
+      val msg = BroadcastComponentMessage(newComponent, it)
+      broadcastToClients.tell(msg, self)
+    }
   }
 
   protected open fun createReceive(builder: ReceiveBuilder) {}

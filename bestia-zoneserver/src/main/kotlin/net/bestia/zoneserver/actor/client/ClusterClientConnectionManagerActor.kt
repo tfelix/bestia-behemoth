@@ -31,7 +31,6 @@ data class ClientSocketResponse(
  * The nodes will have their own NodeClientConnectionManager which will be queried first if there is data to
  * be send to a client. But if they get a client request they dont know they will request this connection actor
  * here.
- *
  */
 class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
 

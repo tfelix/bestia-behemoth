@@ -4,6 +4,8 @@ import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import net.bestia.zoneserver.actor.MockActorProducer
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.routing.MessageApi
+import net.bestia.zoneserver.actor.routing.SystemMessageService
 import net.bestia.zoneserver.config.RuntimeConfigService
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -32,6 +34,12 @@ class TestZoneConfiguration {
 
     return system
   }
+
+  @MockBean
+  lateinit var messageApi: MessageApi
+
+  @MockBean
+  lateinit var systemMessageService: SystemMessageService
 
   @MockBean
   lateinit var runtimeConfigService: RuntimeConfigService

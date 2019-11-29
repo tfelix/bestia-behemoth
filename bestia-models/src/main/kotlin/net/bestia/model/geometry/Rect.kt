@@ -146,10 +146,13 @@ data class Rect(
   }
 
   override fun moveTo(x: Long, y: Long, z: Long): Rect {
-    val cX = origin.x + x - anchor.x
-    val cY = origin.y + y - anchor.y
-    val cZ = origin.z + z - anchor.z
+    val dX = anchor.x - origin.x
+    val dY = anchor.y - origin.y
+    val dZ = anchor.z - origin.z
+    val cX = x - dX
+    val cY = y - dY
+    val cZ = z - dZ
 
-    return Rect(Vec3(cX, cY, cZ), Size(width, height, depth), anchor)
+    return Rect(Vec3(cX, cY, cZ), Size(width, height, depth), Vec3(x, y, z))
   }
 }

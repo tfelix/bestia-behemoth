@@ -11,7 +11,8 @@ import net.bestia.zoneserver.entity.component.Component as BestiaComponent
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 annotation class ActorComponent(
-    val component: KClass<out BestiaComponent>
+    val component: KClass<out BestiaComponent>,
+    val broadcastToClients: Boolean = false
 )
 
 /**

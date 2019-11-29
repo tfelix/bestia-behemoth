@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component
 
 @Component
 data class ScriptConfig(
-    @Value("script.path")
+    @Value("\${script.path}")
     val scriptPath: String?
 )

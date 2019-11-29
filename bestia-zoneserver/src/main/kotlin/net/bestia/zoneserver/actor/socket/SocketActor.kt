@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.connection
+package net.bestia.zoneserver.actor.socket
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
@@ -75,6 +75,7 @@ final class SocketActor(
       if (isAuthenticated && isLoginAllowed) {
         context.become(authenticatedSocket, true)
         announceNewClientConnection(authMessage.accountId)
+        loginService.login(authMessage.accountId)
       } else {
         LOG.info { "Client send invalid login or server does not allow login. Disconnecting client." }
         context.stop(self)

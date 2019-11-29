@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -23,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension as SpringJ
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Tag("actor")
+@SpringBootTest
 abstract class AbstractActorTest {
 
   @Autowired
@@ -57,7 +59,7 @@ abstract class AbstractActorTest {
 
     val mappedProbed = probes.map { it to TestProbe(system) }.toMap()
 
-    mappedProbed.forEach { fieldName, probe ->
+    mappedProbed.forEach { (fieldName, probe) ->
       val field = rawActor.javaClass.getDeclaredField(fieldName)
       field.isAccessible = true
       field.set(rawActor, probe.ref())

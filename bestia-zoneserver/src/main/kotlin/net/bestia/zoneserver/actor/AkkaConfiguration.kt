@@ -31,8 +31,9 @@ import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
 import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
-import net.bestia.zoneserver.actor.connection.SocketServerActor
+import net.bestia.zoneserver.actor.socket.SocketServerActor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
+import org.springframework.context.annotation.Profile
 
 private val LOG = KotlinLogging.logger { }
 
@@ -44,6 +45,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
+@Profile("!test")
 @Configuration
 class AkkaConfiguration {
 
@@ -63,7 +65,7 @@ class AkkaConfiguration {
     setupClusterDiscovery(system)
 
     setupSharding(system)
-    // setupSingeltons(system)
+    setupSingeltons(system)
 
     SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
     SpringExtension.actorOf(system, NodeBootstrapActor::class.java)

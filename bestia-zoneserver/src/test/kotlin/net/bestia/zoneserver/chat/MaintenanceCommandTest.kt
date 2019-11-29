@@ -3,11 +3,13 @@ package net.bestia.zoneserver.chat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.account.LogoutService
+import net.bestia.zoneserver.config.RuntimeConfig
 import net.bestia.zoneserver.config.RuntimeConfigService
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -65,6 +67,8 @@ class MaintenanceCommandTest {
 
   @Test
   fun executeCommand_true_switchesServerModeLogoutUsers() {
+    whenever(config.getRuntimeConfig()).thenReturn(RuntimeConfig())
+
     cmd.executeCommand(acc, "/maintenance true")
     verify(config).setRuntimeConfig(any())
     verify(logoutService).logoutAllUsersBelow(AccountType.SUPER_GM)
@@ -72,6 +76,8 @@ class MaintenanceCommandTest {
 
   @Test
   fun executeCommand_false_switchesServerModeLogoutUsers() {
+    whenever(config.getRuntimeConfig()).thenReturn(RuntimeConfig())
+
     cmd.executeCommand(acc, "/maintenance false")
     verify(config).setRuntimeConfig(any())
     verify(logoutService, times(0)).logoutAllUsersBelow(any())

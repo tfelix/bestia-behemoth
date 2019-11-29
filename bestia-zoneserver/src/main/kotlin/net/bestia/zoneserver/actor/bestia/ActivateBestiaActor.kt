@@ -4,9 +4,13 @@ import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaActivateMessage
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.entity.awaitEntityResponse
+import net.bestia.zoneserver.actor.entity.AddComponentMessage
+import net.bestia.zoneserver.actor.entity.DeleteComponentMessage
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.PlayerEntityService
+import net.bestia.zoneserver.entity.component.ActivePlayerBestiaComponent
 
 private val LOG = KotlinLogging.logger { }
 
@@ -28,17 +32,22 @@ class ActivateBestiaActor(
   }
 
   private fun handleActivateBestia(msg: BestiaActivateMessage) {
-    awaitEntityResponse(messageApi, context, msg.entityId) {
-      try {
-        playerService.setActiveEntity(msg.accountId, it)
-        LOG.debug("Activated player bestia from accId: {}, entityId: {}",
-            msg.accountId,
-            msg.entityId)
+    val playerEntityIds = playerService.getPlayerEntities(msg.accountId) - setOf(msg.playerBestiaId)
 
-      } catch (ex: IllegalArgumentException) {
-        LOG.warn { "Can not activate entity: $msg" }
-      }
+    val deleteMsg = DeleteComponentMessage(componentClass = ActivePlayerBestiaComponent::class.java)
+    val componentEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, deleteMsg)
+    val entityEnvelope = EntityEnvelope(0, componentEnvelope)
+
+    playerEntityIds.forEach {
+      messageApi.send(entityEnvelope.copy(entityId = it))
     }
+
+    val addMsg = AddComponentMessage(ActivePlayerBestiaComponent(msg.entityId))
+    val componentAddEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, addMsg)
+    val entityActiveEnvelope = EntityEnvelope(msg.entityId, componentAddEnvelope)
+
+    LOG.debug { "Activated player bestia from accId: ${msg.accountId}, entityId: ${msg.entityId}" }
+    messageApi.send(entityActiveEnvelope)
   }
 
   companion object {

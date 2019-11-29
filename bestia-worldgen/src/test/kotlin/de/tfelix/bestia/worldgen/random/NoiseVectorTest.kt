@@ -8,16 +8,6 @@ import java.util.*
 
 class NoiseVectorTest {
 
-  @Test(expected = NullPointerException::class)
-  fun ctor_nullCoordinate_throws() {
-    NoiseVector(null!!, HashMap<String, Number>())
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun ctor_nullValue_throws() {
-    NoiseVector(null!!, null!!)
-  }
-
   @Test
   fun ctor_ok() {
     NoiseVector(mock(MapCoordinate::class.java), HashMap())

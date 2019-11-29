@@ -29,13 +29,13 @@ class MapMasterGeneratorTest {
     }
   }
 
-  private val description = Map2DDescription.Builder(
-      partHeight = 10,
-      partWidth = 10,
+  private val description = Map2DDescription(
+      chunkHeight = 10,
+      chunkWidth = 10,
       width = 100,
       height = 100,
       noiseVectorBuilder = NoiseVectorBuilder()
-  ).build()
+  )
 
   @Mock
   private lateinit var masterCom: NodeConnector

@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.guild
 
 import mu.KotlinLogging
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
@@ -17,11 +18,12 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class GuildService(
     private val guildRepository: GuildRepository,
+    private val accountRepository: AccountRepository,
     private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
-  fun addPlayerToGuild(playerBestiaId: Long, guildId: Long) {
-    val pb = playerBestiaRepository.findOneOrThrow(playerBestiaId)
+  fun addPlayerToGuild(accountId: Long, guildId: Long) {
+    val pb = accountRepository.findOneOrThrow(accountId)
     val guild = guildRepository.findOneOrThrow(guildId)
     if (guild.addGuildMember(pb)) {
       guildRepository.save(guild)

@@ -17,8 +17,7 @@ data class Account(
     @Enumerated(EnumType.STRING)
     val gender: Gender,
     var isActivated: Boolean = false,
-    var language: String = "en",
-    var hairstyle: Hairstyle = Hairstyle.FEMALE_01
+    var language: String = "en"
 ) : AbstractEntity(), Serializable {
   @Enumerated(EnumType.STRING)
   var userLevel = AccountType.USER

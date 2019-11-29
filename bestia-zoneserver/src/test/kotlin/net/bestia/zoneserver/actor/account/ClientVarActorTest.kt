@@ -37,7 +37,6 @@ class ClientVarActorTest : AbstractActorTest() {
 
   @Test
   fun `anwers with cvar when requested`() {
-
     testKit {
       val sender = TestProbe(system)
       val cvarActor = testActorOf(ClientVarActor::class)

@@ -2,7 +2,7 @@ package net.bestia.messages.attack
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-import net.bestia.messages.AccountMessage
+import net.bestia.messages.EntityMessage
 import net.bestia.messages.MessageId
 
 /**
@@ -11,7 +11,7 @@ import net.bestia.messages.MessageId
  * @author Thomas Felix
  */
 data class AttackUseMessage(
-    override val accountId: Long,
+    override val entityId: Long,
 
     @JsonProperty("aid")
     var attackId: Long,
@@ -24,7 +24,7 @@ data class AttackUseMessage(
 
     @JsonProperty("tid")
     var targetEntityId: Long = 0
-) : AccountMessage, MessageId {
+) : EntityMessage, MessageId {
 
   override val messageId: String
     get() = MESSAGE_ID

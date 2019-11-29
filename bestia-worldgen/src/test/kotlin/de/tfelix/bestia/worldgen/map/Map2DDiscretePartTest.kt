@@ -27,8 +27,6 @@ class Map2DDiscretePartTest {
     val c = Map2DDiscreteChunk(5, 5, 2, 2, info)
     val it = c.iterator
 
-    val i: Long = 1
-
     while (it.hasNext()) {
       val cord = it.next() as Map2DDiscreteCoordinate
 

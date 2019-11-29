@@ -49,17 +49,15 @@ internal class MaintenanceCommand(
 
     if (isMaintenance) {
       sendSystemMessage(account.id, "Server maintenance: true")
-      configService.setRuntimeConfig(
-          configService.getRuntimeConfig()
-              .copy(maintenanceLevel = MaintenanceLevel.PARTIAL)
-      )
+      val newConfig = configService.getRuntimeConfig()
+          .copy(maintenanceLevel = MaintenanceLevel.PARTIAL)
+      configService.setRuntimeConfig(newConfig)
       logoutService.logoutAllUsersBelow(AccountType.SUPER_GM)
     } else {
       sendSystemMessage(account.id, "Server maintenance: false")
-      configService.setRuntimeConfig(
-          configService.getRuntimeConfig()
-              .copy(maintenanceLevel = MaintenanceLevel.NONE)
-      )
+      val newConfig = configService.getRuntimeConfig()
+          .copy(maintenanceLevel = MaintenanceLevel.NONE)
+      configService.setRuntimeConfig(newConfig)
     }
   }
 

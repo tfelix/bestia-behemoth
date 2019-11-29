@@ -12,15 +12,14 @@ class Map2DDescriptionTest {
 
       val nb = NoiseVectorBuilder()
       nb.addDimension("chunkHeight", Double::class.java, SimplexNoiseProvider(123))
-      val b = Map2DDescription.Builder(
+
+      return Map2DDescription(
           noiseVectorBuilder = nb,
           height = 100,
           width = 100,
-          partHeight = 10,
-          partWidth = 10
+          chunkHeight = 10,
+          chunkWidth = 10
       )
-
-      return b.build()
     }
 
   @Test
@@ -35,14 +34,13 @@ class Map2DDescriptionTest {
     val nb = NoiseVectorBuilder()
     nb.addDimension("chunkHeight", Double::class.java, SimplexNoiseProvider(123))
 
-    val b = Map2DDescription.Builder(
+    val d = Map2DDescription(
         noiseVectorBuilder = nb,
         height = 100,
         width = 100,
-        partHeight = 1000,
-        partWidth = 1000
+        chunkHeight = 1000,
+        chunkWidth = 1000
     )
-    val d = b.build()
 
     Assert.assertEquals(1, d.mapPartCount)
   }

@@ -31,11 +31,6 @@ class MapDataPartTest {
     MapDataPart("test", mapPart)
   }
 
-  @Test(expected = NullPointerException::class)
-  fun ctor_null_throws() {
-    MapDataPart(null!!, mapPart)
-  }
-
   @Test(expected = IllegalArgumentException::class)
   fun ctor_empty_throws() {
     MapDataPart("", mapPart)
@@ -45,18 +40,6 @@ class MapDataPartTest {
   fun getIdent_ok() {
     val (ident) = MapDataPart("test", mapPart)
     Assert.assertEquals("test", ident)
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun addCoordinateNoise_nullCord_throws() {
-    val p = MapDataPart("test", mapPart)
-    p.addCoordinateNoise(null!!, noise)
-  }
-
-  @Test(expected = NullPointerException::class)
-  fun getCoordinateNoise_unknownCord_null() {
-    val p = MapDataPart("test", mapPart)
-    p.addCoordinateNoise(cord, null!!)
   }
 
   @Test

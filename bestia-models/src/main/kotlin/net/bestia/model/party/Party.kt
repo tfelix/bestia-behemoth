@@ -1,10 +1,9 @@
 package net.bestia.model.party
 
 import net.bestia.model.AbstractEntity
-import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.account.Account
 import java.io.Serializable
 import javax.persistence.*
-
 
 /**
  * Holds all the players which are temporarily can form parties in order to
@@ -19,10 +18,10 @@ data class Party(
     var name: String
 ) : AbstractEntity(), Serializable {
 
-  @OneToMany(cascade = [CascadeType.ALL], mappedBy = "party")
-  private val members: MutableSet<PlayerBestia> = mutableSetOf()
+  @OneToMany(cascade = [CascadeType.ALL])
+  private val members: MutableSet<Account> = mutableSetOf()
 
-  fun getMembers(): Set<PlayerBestia> {
+  fun getMembers(): Set<Account> {
     return members.toSet()
   }
 
@@ -33,7 +32,7 @@ data class Party(
    * The new member to be added to the party.
    * @return TRUE if the member could be added. FALSE if it could not.
    */
-  fun addMember(member: PlayerBestia): Boolean {
+  fun addMember(member: Account): Boolean {
     return if (members.size < MAX_PARTY_MEMBER && !members.contains(member)) {
       members.add(member)
       true
@@ -42,8 +41,8 @@ data class Party(
     }
   }
 
-  fun removeMember(removeMember: PlayerBestia) {
-    members.remove(removeMember)
+  fun removeMember(removeMember: Account) {
+    members.removeIf { it.id == removeMember.id }
   }
 
   companion object {

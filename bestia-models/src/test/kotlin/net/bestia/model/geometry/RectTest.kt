@@ -12,8 +12,7 @@ class RectTest {
 
     assertEquals(14, r.x)
     assertEquals(14, r.y)
-    assertEquals(15, r.anchor.x)
-    assertEquals(15, r.anchor.y)
+    assertEquals(Vec3(15, 15, 15), r.anchor)
   }
 
   @Test

@@ -92,14 +92,13 @@ class ITTest : MapMasterCallbacks {
     noiseBuilder.addDimension("chunkHeight", Double::class.java, SimplexNoiseProvider(rand.nextLong()))
     noiseBuilder.addDimension("humidity", Double::class.java, SimplexNoiseProvider(rand.nextLong()))
 
-    val builder = Map2DDescription.Builder(
+    val desc = Map2DDescription(
         noiseVectorBuilder = NoiseVectorBuilder(),
         height = 100,
         width = 100,
-        partWidth = 10,
-        partHeight = 10
+        chunkHeight = 10,
+        chunkWidth = 10
     )
-    val desc = builder.build()
 
     master.start(desc)
   }

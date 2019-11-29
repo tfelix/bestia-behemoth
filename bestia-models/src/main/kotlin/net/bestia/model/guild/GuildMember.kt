@@ -1,6 +1,7 @@
 package net.bestia.model.guild
 
 import net.bestia.model.AbstractEntity
+import net.bestia.model.account.Account
 import net.bestia.model.bestia.PlayerBestia
 import javax.persistence.*
 
@@ -17,7 +18,7 @@ data class GuildMember(
     var guild: Guild,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    val member: PlayerBestia,
+    val member: Account,
 
     @ManyToOne(fetch = FetchType.LAZY)
     val rank: GuildRank

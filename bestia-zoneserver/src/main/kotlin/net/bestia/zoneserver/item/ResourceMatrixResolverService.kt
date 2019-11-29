@@ -5,12 +5,17 @@ import net.bestia.model.item.*
 import org.springframework.stereotype.Service
 import kotlin.math.ceil
 import kotlin.math.log2
+import kotlin.math.max
 
 @Service
 class ResourceMatrixResolverService(
     private val itemRepository: ItemRepository
 ) {
-  private val lsh = LSHMinHash(LSH_STAGES, (itemRepository.count() / 100).toInt(), TOTAL_ARRAY_SIZE, LSH_SEED)
+  private val lsh = LSHMinHash(
+      LSH_STAGES,
+      max(10, itemRepository.count() / 100).toInt(),
+      TOTAL_ARRAY_SIZE, LSH_SEED
+  )
   private var hashedItem: Map<CraftType, Map<Int, List<Long>>> = emptyMap()
 
   private fun Int.toBinaryString(): String {
@@ -37,7 +42,10 @@ class ResourceMatrixResolverService(
     itemRepository
         .findAll()
         .forEach { item ->
-          val vectors = item.recepies.map { Triple(it.recipe.craftType, matrixToVector(it.recipe), item) }
+          val vectors = item.recepies.map {
+            Triple(it.recipe.craftType, matrixToVector(it.recipe), item)
+          }
+
           vectors.forEach { (type, vector, item) ->
             val bucketNum = lsh.hash(vector).last()
 
@@ -96,6 +104,5 @@ class ResourceMatrixResolverService(
     private val ARRAY_SLOT_SIZE = nextExpOf2(ResourceEntry.MAX_RESOURCE_AMOUNT_PER_SLOT) *
         nextExpOf2(Resource.values().size)
     private val TOTAL_ARRAY_SIZE = ResourceMatrix.MAX_SIZE * ResourceMatrix.MAX_SIZE * ARRAY_SLOT_SIZE
-
   }
 }

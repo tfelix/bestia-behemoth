@@ -29,11 +29,9 @@ class AttackPlayerUseActor(
    * @param msg
    */
   private fun handleAttackMessage(msg: AttackUseMessage) {
-    val activeEntityId = playerEntityService.getActivePlayerEntityId(msg.accountId) ?: return
-
     // Does the target of the attack matches the target provided in the
     // message? If this is not the case by the user send data dont perform the attack.
-    val skillMsg = EntitySkillUseMessage(activeEntityId,
+    val skillMsg = EntitySkillUseMessage(msg.targetEntityId,
         msg.attackId,
         msg.targetEntityId)
 

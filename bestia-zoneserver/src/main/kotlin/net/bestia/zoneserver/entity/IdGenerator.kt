@@ -32,9 +32,9 @@ class IdGenerator(
 
   // Block and wait till next millisecond
   private fun waitNextMillis(currentTimestamp: Long): Long {
-    var currentTimestamp = currentTimestamp
-    while (currentTimestamp == lastTimestamp) {
-      currentTimestamp = timestamp()
+    var ts = currentTimestamp
+    while (ts == lastTimestamp) {
+      ts = timestamp()
     }
     return currentTimestamp
   }

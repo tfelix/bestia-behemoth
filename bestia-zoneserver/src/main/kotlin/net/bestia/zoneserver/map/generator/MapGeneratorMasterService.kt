@@ -2,8 +2,8 @@ package net.bestia.zoneserver.map.generator
 
 import de.tfelix.bestia.worldgen.MapGeneratorMaster
 import de.tfelix.bestia.worldgen.MapMasterCallbacks
-import de.tfelix.bestia.worldgen.MapMasterGenerator
 import de.tfelix.bestia.worldgen.description.Map2DDescription
+import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
@@ -23,7 +23,7 @@ class MapGeneratorMasterService(
 ) : MapMasterCallbacks {
 
   private val isGenerating = AtomicBoolean(false)
-  private var masterGenerator = MapMasterGenerator(this)
+  private var masterGenerator = MapGeneratorMaster(this)
 
   private var onFinishCallback: Runnable? = null
 

@@ -1,9 +1,8 @@
 package net.bestia.model.guild
 
 import net.bestia.model.AbstractEntity
-import net.bestia.model.bestia.PlayerBestia
+import net.bestia.model.account.Account
 import java.io.Serializable
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -46,11 +45,11 @@ class Guild(
    */
   val created = Instant.now()
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(cascade = [CascadeType.ALL])
   @JoinColumn(name = "guild_id")
   private val members: MutableSet<GuildMember> = mutableSetOf()
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+  @OneToMany(cascade = [CascadeType.ALL])
   @JoinColumn(name = "guild_id")
   private val ranks: MutableSet<GuildRank> = mutableSetOf()
 
@@ -59,15 +58,15 @@ class Guild(
   }
 
   fun getMember(accountId: Long): GuildMember? {
-    throw IllegalArgumentException("Not implemented")
+    return members.firstOrNull { it.member.id == accountId }
   }
 
-  fun addGuildMember(playerBestia: PlayerBestia): Boolean {
+  fun addGuildMember(account: Account): Boolean {
     if (members.size >= MAX_GUILD_LEVEL) {
       return false
     }
 
-    members.add(GuildMember(this, playerBestia, GuildRank(GuildRank.DEFAULT_RANK_NAME)))
+    members.add(GuildMember(this, account, GuildRank(GuildRank.DEFAULT_RANK_NAME)))
 
     return true
   }

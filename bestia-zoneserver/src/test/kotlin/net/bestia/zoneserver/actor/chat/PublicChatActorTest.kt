@@ -12,10 +12,11 @@ import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 
 class PublicChatActorTest : AbstractActorTest() {
-  @MockBean
+  @Autowired
   lateinit var messageApi: MessageApi
 
   @MockBean

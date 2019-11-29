@@ -17,38 +17,8 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class PlayerEntityService(
-    private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaRepository
 ) {
-
-  /**
-   * Sets the entity id as the active player bestia for the given account id.
-   * This will throw if the given entity id does not exist in the system.
-   *
-   * @throws IllegalArgumentException If the entity does not belong to the given account id.
-   */
-  fun setActiveEntity(accId: Long, entity: Entity) {
-
-    val playerComp = entity.getComponent(PlayerComponent::class.java)
-    if (playerComp.ownerAccountId != accId) {
-      throw IllegalArgumentException("Account ID does not own entity id. Can not activate.")
-    }
-
-    LOG.debug { "Activating entity id: ${entity.id} for account: $accId." }
-  }
-
-  /**
-   * Checks if the given entity id is the current active entity of the
-   * account.
-   *
-   * @param entityId The entity which should be checked if its active.
-   * @return TRUE if this is the active entity. FALSE otherwise.
-   */
-  private fun isActiveEntity(accountId: Long, entityId: Long): Boolean {
-    val account = accountDao.findOne(accountId) ?: return false
-
-    return false
-  }
 
   /**
    * Returns the active entity id for the given account.
@@ -71,21 +41,6 @@ class PlayerEntityService(
   }
 
   /**
-   * Inserts the given player bestias into the cache. The player bestias are
-   * not required be from the same player account. This will be taken care
-   * off.
-   *
-   *
-   * This registers the given entities as player bestias. Only entities owning
-   * the component [PlayerComponent] will be processed by this call.
-   *
-   * @param pb A collection of player bestias.
-   */
-  fun updatePlayerBestiaWithEntityId(playerBestias: Collection<Entity>) {
-    playerBestias.forEach { updatePlayerBestiaWithEntityId(it) }
-  }
-
-  /**
    * Puts a single [Entity] into the cache.
    *
    * @param entity The player entity to put into the cache.
@@ -101,18 +56,6 @@ class PlayerEntityService(
     val playerBestia = playerBestiaDao.findOneOrThrow(playerComponent.playerBestiaId)
     playerBestia.entityId = entityId
     playerBestiaDao.save(playerBestia)
-  }
-
-  /**
-   * Checks if the given account owns this entity.
-   *
-   * @param accId    An account id.
-   * @param entityId The entity for which ownership should be checked.
-   * @return TRUE if the player owns this entity. FALSE if not or the
-   * account/entity was not found.
-   */
-  fun hasPlayerEntity(accId: Long, entityId: Long): Boolean {
-    return playerBestiaDao.findPlayerBestiasForAccount(accId).any { it.entityId == entityId }
   }
 
   /**

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.connection
+package net.bestia.zoneserver.actor.socket
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef

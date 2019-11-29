@@ -4,7 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.connection.SocketServerActor
+import net.bestia.zoneserver.actor.socket.SocketServerActor
 import java.time.Duration
 import java.time.Instant
 import kotlin.system.exitProcess
