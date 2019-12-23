@@ -4,6 +4,49 @@ package net.bestia.messages.component;
 
 option java_outer_classname = "ComponentMessageProto";
 
+enum Element {
+    NORMAL = 0;
+    WATER = 1;
+    EARTH = 2;
+    FIRE = 3;
+    WIND = 4;
+    POISON = 5;
+    HOLY = 6;
+    SHADOW = 7;
+    GHOST = 8;
+    UNDEAD = 9;
+    NORMAL_2 = 10;
+    WATER_2 = 11;
+    EARTH_2 = 12;
+    FIRE_2 = 13;
+    WIND_2 = 14;
+    POISON_2 = 15;
+    HOLY_2 = 16;
+    SHADOW_2 = 17;
+    GHOST_2 = 18;
+    UNDEAD_2 = 19;
+    NORMAL_3 = 20;
+    WATER_3 = 21;
+    EARTH_3 = 22;
+    FIRE_3 = 23;
+    WIND_3 = 24;
+    POISON_3 = 25;
+    HOLY_3 = 26;
+    SHADOW_3 = 27;
+    GHOST_3 = 28;
+    UNDEAD_3 = 29;
+    NORMAL_4 = 30;
+    WATER_4 = 31;
+    EARTH_4 = 32;
+    FIRE_4 = 33;
+    WIND_4 = 34;
+    POISON_4 = 35;
+    HOLY_4 = 36;
+    SHADOW_4 = 37;
+    GHOST_4 = 38;
+    UNDEAD_4 = 39;
+}
+
 message Component {
     int64 entityId = 1;
     int64 componentId = 2;
@@ -21,4 +64,28 @@ message TemperatureComponent {
     int32 maxTolerableTemp = 2;
     int32 minTolerableTemp = 3;
     int32 currentTemp = 4;
+}
+
+message StatusComponent {
+    Component component = 1;
+    int32 physicalDefense = 2;
+    int32 magicDefense = 3;
+    int32 strength = 4;
+    int32 vitality = 5;
+    int32 intelligence = 6;
+    int32 agility = 7;
+    int32 willpower = 8;
+    int32 dexterity = 9;
+    float hpRegenRate = 10;
+    float manaRegenRate = 11;
+    float staminaRegenRate = 12;
+    float criticalHitrate = 13;
+    float dodge = 14;
+    float casttimeMod = 15;
+    float cooldownMod = 16;
+    float spellDurationMod = 17;
+    float hitrate = 18;
+    float attackSpeed = 19;
+    float walkspeed = 20;
+    Element element = 21;
 }
