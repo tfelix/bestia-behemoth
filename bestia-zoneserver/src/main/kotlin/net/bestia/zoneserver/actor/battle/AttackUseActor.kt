@@ -2,8 +2,8 @@ package net.bestia.zoneserver.actor.battle
 
 import mu.KotlinLogging
 import net.bestia.messages.attack.AttackUseMessage
-import net.bestia.messages.entity.EntityDamageMessage
-import net.bestia.messages.entity.EntitySkillUseMessage
+import net.bestia.messages.entity.EntityDamage
+import net.bestia.messages.entity.SkillUsePosition
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackRepository
 import net.bestia.model.findOneOrThrow
@@ -35,7 +35,7 @@ class AttackUseActor(
 
   override fun createReceive(builder: BuilderFacade) {
     builder.matchRedirect(AttackUseMessage::class.java, this::handleAttackMessage)
-    builder.matchRedirect(EntitySkillUseMessage::class.java, this::handleEntitySkillMessage)
+    builder.matchRedirect(SkillUsePosition::class.java, this::handleEntitySkillMessage)
   }
 
   /**
@@ -55,7 +55,7 @@ class AttackUseActor(
    * @param msg
    * The message describing the attack.
    */
-  private fun handleEntitySkillMessage(msg: EntitySkillUseMessage) {
+  private fun handleEntitySkillMessage(msg: SkillUsePosition) {
     LOG.debug { "Use skill: $msg" }
 
     val attack = attackDao.findOneOrThrow(msg.attackId)
@@ -71,7 +71,7 @@ class AttackUseActor(
     awaitEntityResponse(messageApi, context, setOf(attackerId, defenderId)) {
       val dmg = battleService.attackEntity(attack, it[attackerId], it[defenderId])
           ?: return@awaitEntityResponse
-      val dmgMsg = EntityDamageMessage(defenderId, dmg)
+      val dmgMsg = EntityDamage(defenderId, dmg)
       sendActiveRange.tell(dmgMsg, self)
     }
   }

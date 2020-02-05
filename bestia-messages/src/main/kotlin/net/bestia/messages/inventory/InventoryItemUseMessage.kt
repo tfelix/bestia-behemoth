@@ -1,9 +1,6 @@
 package net.bestia.messages.inventory
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
-import net.bestia.messages.AccountMessage
-import net.bestia.messages.MessageId
+import net.bestia.messages.EntityMessage
 
 /**
  * Signals the server to use an castable item on the map possibly spawning map
@@ -12,24 +9,15 @@ import net.bestia.messages.MessageId
  * @author Thomas Felix
  */
 data class InventoryItemUseMessage(
-    override val accountId: Long,
+    override val entityId: Long,
 
-    @JsonProperty("piid")
     val playerItemId: Int,
     /**
      * Token for identifying the cast request on the client and receive the
      * confirm message.
      */
-    @JsonProperty("t")
     val token: String,
-    val x: Int = 0,
-    val y: Int = 0
-) : AccountMessage, MessageId {
-
-  override val messageId: String
-    get() = MESSAGE_ID
-
-  companion object {
-    const val MESSAGE_ID = "inventory.item.cast"
-  }
-}
+    val x: Long = 0,
+    val y: Long = 0,
+    val z: Long = 0
+) : EntityMessage

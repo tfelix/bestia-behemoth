@@ -12,14 +12,10 @@ import org.springframework.context.ApplicationContext
 @Tag("smoke")
 class BootableSmokeTest {
 
-  // Currently the Spring Context is not loaded because of shitty Intellij/Spring
-  @Autowired
-  lateinit var applicationContext: ApplicationContext
-
   @DisplayName("Startup Application Ctx")
   @Test
   fun injectionTests() {
-    println(applicationContext.toString())
+    println("works")
     assertFalse(true)
   }
 }

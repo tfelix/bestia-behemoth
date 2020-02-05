@@ -4,7 +4,6 @@ import de.tfelix.bestia.worldgen.MapGeneratorNode
 import de.tfelix.bestia.worldgen.description.MapDescription
 import de.tfelix.bestia.worldgen.map.MapChunk
 
-
 /**
  * This class can be used for local map generation purposes. There is no over
  * the wire transport of the messages. They are delivered to the same process

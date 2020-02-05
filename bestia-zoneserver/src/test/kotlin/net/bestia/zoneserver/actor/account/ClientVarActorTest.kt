@@ -1,13 +1,12 @@
 package net.bestia.zoneserver.actor.account
 
 import akka.testkit.TestProbe
-import akka.testkit.javadsl.TestKit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.ui.ClientVarRequestMessage
-import net.bestia.messages.ui.ClientVarResponseMessage
+import net.bestia.messages.ui.ClientVarRequest
+import net.bestia.messages.ui.ClientVarResponse
 import net.bestia.model.account.ClientVar
 import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.AbstractActorTest
@@ -45,10 +44,10 @@ class ClientVarActorTest : AbstractActorTest() {
           "sendClient"
       ))
 
-      val msg = ClientVarRequestMessage(ACC_ID, KEY, UUID)
+      val msg = ClientVarRequest(ACC_ID, KEY, UUID)
       cvarActor.tell(msg, sender.ref())
 
-      probes["sendClient"]!!.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponseMessage(UUID, DATA)))
+      probes["sendClient"]!!.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponse(UUID, DATA)))
       verify(cvarService).find(ACC_ID, KEY)
     }
   }

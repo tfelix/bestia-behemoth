@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.entity
 
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityInteractionMessage
-import net.bestia.messages.entity.EntityInteractionRequestMessage
+import net.bestia.messages.entity.EntityInteractionRequest
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
@@ -29,10 +29,10 @@ class EntityInteractionRequestActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchRedirect(EntityInteractionRequestMessage::class.java, this::onInteractionRequest)
+    builder.matchRedirect(EntityInteractionRequest::class.java, this::onInteractionRequest)
   }
 
-  private fun onInteractionRequest(msg: EntityInteractionRequestMessage) {
+  private fun onInteractionRequest(msg: EntityInteractionRequest) {
     LOG.debug("Received message: {}", msg)
 
     val activeEntityId = playerEntityService.getActivePlayerEntityId(msg.accountId) ?: return

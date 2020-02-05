@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.actor.client
 
 import net.bestia.messages.client.ClientEnvelope
-import net.bestia.messages.ui.ClientVarRequestMessage
-import net.bestia.messages.ui.ClientVarResponseMessage
+import net.bestia.messages.ui.ClientVarRequest
+import net.bestia.messages.ui.ClientVarResponse
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.account.ClientVarService
@@ -22,7 +22,7 @@ class ClientVarActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchRedirect(ClientVarRequestMessage::class.java, this::handleCvarRequest)
+    builder.matchRedirect(ClientVarRequest::class.java, this::handleCvarRequest)
   }
 
   /**
@@ -30,7 +30,7 @@ class ClientVarActor(
    *
    * @param msg The request.
    */
-  private fun handleCvarRequest(msg: ClientVarRequestMessage) {
+  private fun handleCvarRequest(msg: ClientVarRequest) {
     val accId = msg.accountId
     val key = msg.key
 
@@ -39,7 +39,7 @@ class ClientVarActor(
     }
 
     val cvar = cvarService.find(accId, key)
-    val cvarMsg = ClientVarResponseMessage(msg.uuid, cvar.getDataAsString())
+    val cvarMsg = ClientVarResponse(msg.uuid, cvar.getDataAsString())
     sendClient.tell(ClientEnvelope(accId, cvarMsg), self)
   }
 

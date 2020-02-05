@@ -11,8 +11,6 @@ import net.bestia.model.account.Account
 import net.bestia.model.bestia.PlayerBestia
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
 private val LOG = KotlinLogging.logger { }
@@ -74,9 +72,7 @@ class AccountService(
    *
    */
   fun createNewAccount(data: AccountRegistration) {
-    if (data.username.isEmpty()) {
-      throw IllegalArgumentException("Mastername can not be null or empty.")
-    }
+    require(data.username.isNotEmpty()) { "Mastername can not be null or empty." }
 
     playerBestiaDao.findMasterBestiaWithName(data.username) ?: run {
       LOG.warn { "Can not create account. Master name already exists: ${data.username}" }

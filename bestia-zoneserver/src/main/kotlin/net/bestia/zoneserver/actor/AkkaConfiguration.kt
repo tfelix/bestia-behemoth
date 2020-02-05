@@ -95,7 +95,7 @@ class AkkaConfiguration {
     val settings = ClusterSingletonManagerSettings.create(system)
     startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "bootstrap")
     LOG.info { "Starting the client connection manager actor" }
-    startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, ClusterClientConnectionManagerActor.NAME)
+    // startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, ClusterClientConnectionManagerActor.NAME)
   }
 
   private fun <T : AbstractActor> startAsSingelton(
@@ -135,7 +135,7 @@ class AkkaConfiguration {
 
   @Bean
   @Qualifier(CONNECTION_MANAGER)
-  fun connectionManager(system: ActorSystem): ActorRef {
+  fun clientConnectionManager(system: ActorSystem): ActorRef {
     val proxySettings = ClusterSingletonProxySettings.create(system)
     val props = ClusterSingletonProxy.props("/user/${ClusterClientConnectionManagerActor.NAME}", proxySettings)
 

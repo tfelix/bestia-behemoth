@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.bestia
 
 import mu.KotlinLogging
-import net.bestia.messages.bestia.BestiaActivateMessage
+import net.bestia.messages.bestia.BestiaSetActive
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.AddComponentMessage
@@ -28,10 +28,10 @@ class ActivateBestiaActor(
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchRedirect(BestiaActivateMessage::class.java, this::handleActivateBestia)
+    builder.matchRedirect(BestiaSetActive::class.java, this::handleActivateBestia)
   }
 
-  private fun handleActivateBestia(msg: BestiaActivateMessage) {
+  private fun handleActivateBestia(msg: BestiaSetActive) {
     val playerEntityIds = playerService.getPlayerEntities(msg.accountId) - setOf(msg.playerBestiaId)
 
     val deleteMsg = DeleteComponentMessage(componentClass = ActivePlayerBestiaComponent::class.java)

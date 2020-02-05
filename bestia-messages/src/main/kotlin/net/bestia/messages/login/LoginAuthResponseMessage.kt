@@ -1,15 +1,5 @@
 package net.bestia.messages.login
 
-import net.bestia.messages.MessageId
-
 data class LoginAuthResponseMessage(
-        val response: LoginResponse
-): MessageId {
-
-  override val messageId: String
-    get() = MESSAGE_ID
-
-  companion object {
-    const val MESSAGE_ID = "system.authresp"
-  }
-}
+    val response: LoginResponse
+)

@@ -12,6 +12,7 @@ import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.LoginService
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CONNECTION_MANAGER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
@@ -35,7 +36,7 @@ final class SocketActor(
     private val connection: ActorRef,
     private val authenticationService: AuthenticationService,
     private val loginService: LoginService,
-    @Qualifier(AkkaConfiguration.CONNECTION_MANAGER)
+    @Qualifier(CONNECTION_MANAGER)
     private val clusterClientConnectionManager: ActorRef
 ) : AbstractActor() {
 

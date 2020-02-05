@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.guild
 
-import net.bestia.messages.guild.GuildRequestMessage
-import net.bestia.messages.guild.GuildResponseMessage
+import net.bestia.messages.guild.GuildRequest
+import net.bestia.messages.guild.GuildResponse
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.guild.GuildRepository
 import net.bestia.zoneserver.actor.Actor
@@ -24,10 +24,10 @@ class GuildRequestActor(
   private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchRedirect(GuildRequestMessage::class.java, this::onRequest)
+    builder.matchRedirect(GuildRequest::class.java, this::onRequest)
   }
 
-  private fun onRequest(msg: GuildRequestMessage) {
+  private fun onRequest(msg: GuildRequest) {
     val guildId = msg.requestedGuildId
 
     val isRequesterInGuild = guildService.isInGuild(msg.accountId, guildId)
@@ -36,7 +36,7 @@ class GuildRequestActor(
     }
 
     val guild = guildDao.findOneOrThrow(guildId)
-    val gmsg = GuildResponseMessage(msg.accountId, guild)
+    val gmsg = GuildResponse(msg.accountId, guild)
     sendClient.tell(gmsg, self)
   }
 

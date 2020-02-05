@@ -6,12 +6,11 @@ plugins {
 description = 'bestia-messages'
 
 dependencies {
-    implementation project(':bestia-models')
+    // implementation project(':bestia-models')
 
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
 
     implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     implementation group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
 }

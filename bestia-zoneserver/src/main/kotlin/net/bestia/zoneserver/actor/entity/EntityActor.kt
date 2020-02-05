@@ -151,17 +151,17 @@ class EntityActor(
         ?: createComponentActor(msg.component)
         ?: return
 
-    LOG.debug { "Updating component: $msg on entity: $entityId." }
+    LOG.trace { "Updating component: $msg on entity: $entityId." }
     componentActor.tell(msg.component, sender())
   }
 
   private fun addComponentActor(msg: AddComponentMessage<*>) {
-    LOG.debug { "Installing component: ${msg.component::class.java.simpleName} on entity: $entityId." }
+    LOG.trace { "Adding component: ${msg.component::class.java.simpleName} on entity: $entityId." }
     createComponentActor(msg.component)
   }
 
   private fun removeComponentActor(msg: DeleteComponentMessage<*>) {
-    LOG.debug { "Removing component: ${msg.componentClass.simpleName} on entity: $entityId" }
+    LOG.trace { "Removing component: ${msg.componentClass.simpleName} on entity: $entityId" }
     componentActorCache.get(msg.componentClass)?.tell(PoisonPill.getInstance(), self)
   }
 
