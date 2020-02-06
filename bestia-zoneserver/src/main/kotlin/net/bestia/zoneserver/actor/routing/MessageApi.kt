@@ -2,9 +2,9 @@ package net.bestia.zoneserver.actor.routing
 
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.messages.client.ClientEnvelope
+import net.bestia.messages.AccountMessage
+import net.bestia.messages.EntityMessage
 import net.bestia.zoneserver.actor.AkkaConfiguration
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
@@ -24,12 +24,12 @@ class MessageApi(
     private val clientForwarder: ActorRef
 ) {
 
-  fun send(message: EntityEnvelope) {
+  fun send(message: EntityMessage) {
     LOG.debug { "Sending: $message" }
     entityForwarder.tell(message, ActorRef.noSender())
   }
 
-  fun send(message: ClientEnvelope) {
+  fun send(message: AccountMessage) {
     LOG.debug { "Sending: $message" }
     clientForwarder.tell(message, ActorRef.noSender())
   }

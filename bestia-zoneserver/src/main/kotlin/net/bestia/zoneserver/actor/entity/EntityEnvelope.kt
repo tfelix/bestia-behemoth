@@ -1,13 +1,14 @@
 package net.bestia.zoneserver.actor.entity
 
+import net.bestia.messages.EntityMessage
 import net.bestia.messages.Envelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.entity.component.Component
 
 data class EntityEnvelope(
-    val entityId: Long,
+    override val entityId: Long,
     override val content: Any
-) : Envelope
+) : Envelope, EntityMessage
 
 internal inline fun <reified T : Component> makeEntityComponentEnvelope(
     entityId: Long,

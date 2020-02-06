@@ -7,7 +7,7 @@ import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CONNECTION_MANAGER
+import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CLIENT_CONNECTION_MANAGER
 import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class SendToClientActor(
-    @Qualifier(CONNECTION_MANAGER)
+    @Qualifier(CLIENT_CONNECTION_MANAGER)
     private val clusterClientConnectionManagerActor: ActorRef
 ) : AbstractActor() {
   private val clientCache = HashBiMap.create<Long, ActorRef>()

@@ -43,10 +43,12 @@ class EntityInteractionRequestActor(
           it[msg.interactedEntityId]
       )
 
+      // FIXME Supply the right interactions
+
       val reply = EntityInteractionMessage(
           msg.accountId,
           msg.entityId,
-          interactions
+          emptySet()
       )
 
       sendClient.tell(reply, self)

@@ -7,12 +7,10 @@ import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
 import com.google.protobuf.InvalidProtocolBufferException
 import mu.KotlinLogging
-import net.bestia.messages.AuthMessageProto
-import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.LoginService
+import net.bestia.messages.AccountMessage
+import net.bestia.messages.AuthProtos
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.AkkaConfiguration
-import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CONNECTION_MANAGER
+import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CLIENT_CONNECTION_MANAGER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
@@ -34,9 +32,8 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 final class SocketActor(
     private val connection: ActorRef,
-    private val authenticationService: AuthenticationService,
-    private val loginService: LoginService,
-    @Qualifier(CONNECTION_MANAGER)
+    private val authenticationCheckActor: ActorRef,
+    @Qualifier(CLIENT_CONNECTION_MANAGER)
     private val clusterClientConnectionManager: ActorRef
 ) : AbstractActor() {
 
@@ -50,6 +47,7 @@ final class SocketActor(
 
     authenticatedSocket = receiveBuilder()
         .match(Tcp.Received::class.java, this::receiveClientMessage)
+        .match(AccountMessage::class.java, this::sendClientMessage)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
   }
@@ -57,30 +55,29 @@ final class SocketActor(
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(Tcp.Received::class.java, this::waitForAuthMessage)
+        .match(AuthResponse::class.java, this::checkAuthResponse)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
+  }
+
+  private fun checkAuthResponse(msg: AuthResponse) {
+    if (msg.response == LoginResponse.SUCCESS) {
+      announceNewClientConnection(msg.accountId)
+    } else {
+      LOG.info { "Client send invalid login or server does not allow login. Disconnecting client." }
+      context.stop(self)
+    }
   }
 
   private fun waitForAuthMessage(msg: Tcp.Received) {
     val authMsgBytes = extractMessageBytes(msg)
     try {
-      val authMessage = AuthMessageProto.AuthMessage.parseFrom(authMsgBytes)
-      LOG.trace { "Received auth: $authMessage" }
+      val authMessage = AuthProtos.Auth.parseFrom(authMsgBytes)
+      // Translate to authMessage PROFIT
 
-      val isAuthenticated = authenticationService.isUserAuthenticated(
-          authMessage.accountId,
-          authMessage.token
-      )
-      val isLoginAllowed = loginService.isLoginAllowedForAccount(authMessage.accountId, authMessage.token)
+      val authRequest = AuthRequest(accountId = 0, token = "test123")
+      authenticationCheckActor.tell(authRequest, self)
 
-      if (isAuthenticated && isLoginAllowed) {
-        context.become(authenticatedSocket, true)
-        announceNewClientConnection(authMessage.accountId)
-        loginService.login(authMessage.accountId)
-      } else {
-        LOG.info { "Client send invalid login or server does not allow login. Disconnecting client." }
-        context.stop(self)
-      }
     } catch (e: InvalidProtocolBufferException) {
       LOG.info { "Could not parse auth message. Disconnecting client." }
       context.stop(self)
@@ -119,6 +116,10 @@ final class SocketActor(
     )
 
     clusterClientConnectionManager.tell(event, self)
+  }
+
+  private fun sendClientMessage(msg: AccountMessage) {
+    LOG.info { "Send: $msg" }
   }
 
   private fun receiveClientMessage(msg: Tcp.Received) {

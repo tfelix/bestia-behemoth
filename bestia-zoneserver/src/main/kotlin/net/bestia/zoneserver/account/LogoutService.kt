@@ -4,12 +4,12 @@ import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
-import net.bestia.messages.login.LogoutMessage
-import net.bestia.messages.login.LoginResponse
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOne
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
+import net.bestia.zoneserver.actor.socket.LoginResponse
+import net.bestia.zoneserver.actor.socket.LogoutMessage
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
@@ -31,9 +31,8 @@ class LogoutService(
    * The account id to logout.
    */
   fun logout(accId: Long) {
-    if (accId <= 0) {
-      throw IllegalArgumentException("Account ID must be positive.")
-    }
+    require(accId > 0) { "Account ID must be positive." }
+
     // Unregister connection.
     LOG.debug("Logout account: {}.", accId)
 

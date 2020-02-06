@@ -8,6 +8,7 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
+import net.bestia.model.account.Gender
 import net.bestia.model.bestia.PlayerBestia
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -96,7 +97,7 @@ class AccountService(
         email = data.email,
         password = passwordEncoder.encode(data.password),
         username = data.username,
-        gender = data.gender,
+        gender = Gender.MALE,
         registerDate = Instant.now()
     )
 

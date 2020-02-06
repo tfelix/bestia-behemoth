@@ -36,7 +36,7 @@ class GuildRequestActor(
     }
 
     val guild = guildDao.findOneOrThrow(guildId)
-    val gmsg = GuildResponse(msg.accountId, guild)
+    val gmsg = GuildResponse(msg.accountId)
     sendClient.tell(gmsg, self)
   }
 

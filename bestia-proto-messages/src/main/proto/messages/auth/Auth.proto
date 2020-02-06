@@ -9,3 +9,10 @@ message Auth {
     int64 accountId = 1;
     string token = 2;
 }
+
+message Wrapper {
+    oneof WrapperOneOf {
+        string name = 1;
+        Auth auth = 2;
+    }
+}
