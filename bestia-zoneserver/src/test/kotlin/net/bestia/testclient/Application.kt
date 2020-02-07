@@ -1,6 +1,7 @@
 package testclient
 
-import testclient.commands.LoginCommand
+import net.bestia.testclient.RxTxSocket
+import net.bestia.testclient.commands.LoginCommand
 import java.util.concurrent.LinkedBlockingQueue
 
 fun main(args: Array<String>) {

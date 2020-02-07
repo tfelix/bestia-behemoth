@@ -1,12 +1,13 @@
 package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.account.AccountService
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BQualifier
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -18,10 +19,10 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class WhisperChatActor(
-    private val accService: AccountService
+    private val accService: AccountService,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : AbstractActor() {
-
-  private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
@@ -49,7 +50,7 @@ class WhisperChatActor(
     }
 
     val reply = chatMsg.copy(acc.id)
-    sendToClientActor.tell(reply, self)
+    sendClientActor.tell(reply, self)
   }
 
   companion object {

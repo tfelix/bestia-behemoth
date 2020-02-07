@@ -2,7 +2,8 @@ package net.bestia.zoneserver.config
 
 import akka.actor.ActorRef
 import akka.pattern.Patterns
-import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.BQualifier
+import net.bestia.zoneserver.actor.BQualifier.RUNTIME_CONFIG
 import net.bestia.zoneserver.actor.config.GetRuntimeConfig
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.routing.SystemMessageService
@@ -13,7 +14,7 @@ import java.time.Duration
 @Service
 class RuntimeConfigService(
     private val systemMsgService: SystemMessageService,
-    @Qualifier(AkkaConfiguration.RUNTIME_CONFIG_QUALIFIER)
+    @Qualifier(RUNTIME_CONFIG)
     private val runtimeConfigActor: ActorRef
 ) {
   private val defaultTimeout = Duration.ofMillis(500)

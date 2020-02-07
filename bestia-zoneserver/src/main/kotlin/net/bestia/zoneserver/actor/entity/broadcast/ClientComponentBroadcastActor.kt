@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.actor.entity.broadcast
 
 import akka.actor.AbstractActor
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.SendToClientActor
+import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
@@ -14,6 +14,7 @@ import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.map.MapService
+import org.springframework.beans.factory.annotation.Qualifier
 
 data class BroadcastComponentMessage(
     val changedComponent: Component,
@@ -25,10 +26,10 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class ClientComponentBroadcastActor(
     private val entityCollisionService: EntityCollisionService,
-    private val messageApi: MessageApi
+    private val messageApi: MessageApi,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClient: ActorRef
 ) : AbstractActor() {
-
-  private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): Receive {
     return receiveBuilder()

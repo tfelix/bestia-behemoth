@@ -1,5 +1,6 @@
-package testclient
+package net.bestia.testclient
 
+import testclient.PrintRunnable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException

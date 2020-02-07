@@ -1,10 +1,12 @@
 package net.bestia.zoneserver.actor.client
 
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
@@ -13,6 +15,7 @@ import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PlayerComponent
 import net.bestia.zoneserver.map.MapService
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -32,14 +35,14 @@ internal data class SendInRange(
 @Actor
 class SendClientsInRangeActor(
     private val entityCollisionService: EntityCollisionService,
-    private val messageApi: MessageApi
+    private val messageApi: MessageApi,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
     builder.matchRedirect(SendInRange::class.java, this::handleSendToActiveInRange)
   }
-
-  private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   /**
    * Sends to all active players in range. Maybe automatically detecting this
@@ -61,7 +64,7 @@ class SendClientsInRangeActor(
       val playerAccountIds = entities.all
           .mapNotNull { it.tryGetComponent(PlayerComponent::class.java)?.ownerAccountId }
       playerAccountIds.forEach {
-        sendClient.tell(ClientEnvelope(it, msg.content), self)
+        sendClientActor.tell(ClientEnvelope(it, msg.content), self)
       }
     }
   }

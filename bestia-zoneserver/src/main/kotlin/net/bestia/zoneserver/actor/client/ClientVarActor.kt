@@ -1,12 +1,14 @@
 package net.bestia.zoneserver.actor.client
 
+import akka.actor.ActorRef
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequest
 import net.bestia.messages.ui.ClientVarResponse
-import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BQualifier
+import org.springframework.beans.factory.annotation.Qualifier
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
@@ -16,10 +18,10 @@ import net.bestia.zoneserver.actor.Actor
  */
 @Actor
 class ClientVarActor(
-    private val cvarService: ClientVarService
+    private val cvarService: ClientVarService,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : DynamicMessageRoutingActor() {
-
-  private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
     builder.matchRedirect(ClientVarRequest::class.java, this::handleCvarRequest)
@@ -40,7 +42,7 @@ class ClientVarActor(
 
     val cvar = cvarService.find(accId, key)
     val cvarMsg = ClientVarResponse(msg.uuid, cvar.getDataAsString())
-    sendClient.tell(ClientEnvelope(accId, cvarMsg), self)
+    sendClientActor.tell(ClientEnvelope(accId, cvarMsg), self)
   }
 
   companion object {

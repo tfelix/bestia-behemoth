@@ -24,18 +24,11 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class AccountService(
-    /*
     private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaRepository,
     private val bestiaDao: BestiaRepository,
     private val passwordEncoder: PasswordEncoder
-    */
 ) {
-
-  private lateinit var accountDao: AccountRepository
-  private lateinit var playerBestiaDao: PlayerBestiaRepository
-  private lateinit var bestiaDao: BestiaRepository
-  private lateinit var passwordEncoder: PasswordEncoder
 
   private fun getStarterBestiaId(): Long {
     return 1L

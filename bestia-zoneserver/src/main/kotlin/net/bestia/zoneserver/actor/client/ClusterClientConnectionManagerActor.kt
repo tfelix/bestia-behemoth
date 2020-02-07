@@ -5,6 +5,7 @@ import akka.actor.PoisonPill
 import akka.persistence.AbstractPersistentActor
 import akka.persistence.SaveSnapshotSuccess
 import akka.persistence.SnapshotOffer
+import net.bestia.zoneserver.actor.Actor
 
 data class ClientConnectedEvent(
     val accountId: Long,
@@ -17,13 +18,14 @@ data class ClientDisconnectedEvent(
 
 data class ClientSocketRequest(
     val accountId: Long,
-    val context: Any?
+    val originalSender: ActorRef,
+    val originalMessage: Any
 )
 
 data class ClientSocketResponse(
     val accountId: Long,
-    val socketActor: ActorRef?,
-    val context: Any?
+    val originalSender: ActorRef,
+    val socketActor: ActorRef?
 )
 
 /**
@@ -32,6 +34,7 @@ data class ClientSocketResponse(
  * be send to a client. But if they get a client request they dont know they will request this connection actor
  * here.
  */
+@Actor
 class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
 
   private val connections = mutableMapOf<Long, ActorRef>()
@@ -75,7 +78,7 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
     val response = ClientSocketResponse(
         accountId = msg.accountId,
         socketActor = connections[msg.accountId],
-        context = msg.context
+        originalSender = msg.originalSender
     )
 
     sender.tell(response, self)
@@ -84,7 +87,7 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
   private fun addClientConnection(msg: ClientConnectedEvent) {
     persist(msg) {
       connections[msg.accountId]?.let { existingSocketActor ->
-        if(existingSocketActor != msg.socketActor) {
+        if (existingSocketActor != msg.socketActor) {
           existingSocketActor.tell(PoisonPill.getInstance(), self)
         }
       }

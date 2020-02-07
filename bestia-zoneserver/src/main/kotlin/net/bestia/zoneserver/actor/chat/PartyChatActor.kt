@@ -1,12 +1,13 @@
 package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.model.party.PartyRepository
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.SendToClientActor
+import net.bestia.zoneserver.actor.BQualifier
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -17,10 +18,10 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class PartyChatActor(
-    private val partyRepository: PartyRepository
+    private val partyRepository: PartyRepository,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : AbstractActor() {
-
-  private val sendToClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
@@ -47,13 +48,13 @@ class PartyChatActor(
       LOG.debug { "Account ${chatMsg.accountId} is no member of any party." }
       val replyMsg = ChatMessage.getSystemMessage(chatMsg.accountId,
           "Not a member of a party.")
-      sendToClient.tell(replyMsg, self)
+      sendClientActor.tell(replyMsg, self)
       return
     }
 
     party.getMembers().forEach { member ->
       val reply = chatMsg.copy(accountId = member.id)
-      sendToClient.tell(reply, self)
+      sendClientActor.tell(reply, self)
     }
   }
 

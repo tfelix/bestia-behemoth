@@ -25,15 +25,15 @@ class ClusterBootstrapActor : AbstractActor() {
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-            .match(Terminated::class.java, this::onWatchedActorTerminated)
-            .build()
+        .match(Terminated::class.java, this::onWatchedActorTerminated)
+        .build()
   }
 
   override fun preStart() {
     LOG.info { "Starting bootstrapping the zone." }
 
     val bootActors = listOf(
-            BootMapCreationActor::class.java
+        BootMapCreationActor::class.java
     )
 
     bootActors.forEach {
@@ -45,7 +45,7 @@ class ClusterBootstrapActor : AbstractActor() {
 
   private fun onWatchedActorTerminated(msg: Terminated) {
     watchedActorSet.remove(msg.actor)
-    if(watchedActorSet.isEmpty()) {
+    if (watchedActorSet.isEmpty()) {
       LOG.info { "All init actors have stopped. Initialization finished." }
       context.stop(self)
     }

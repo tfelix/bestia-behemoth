@@ -9,31 +9,36 @@ import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
 import akka.cluster.singleton.ClusterSingletonProxy
+import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.javadsl.AkkaManagement
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
+import net.bestia.zoneserver.actor.BQualifier.CLIENT_CONNECTION_MANAGER
+import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
+import net.bestia.zoneserver.actor.BQualifier.ENTITY_FORWARDER
+import net.bestia.zoneserver.actor.BQualifier.RUNTIME_CONFIG
+import net.bestia.zoneserver.actor.BQualifier.SYSTEM_ROUTER
 import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
+import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
+import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClientMessageRoutingActor
+import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
+import net.bestia.zoneserver.actor.client.SendClientActor
+import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
+import net.bestia.zoneserver.actor.entity.SendToEntityActor
 import net.bestia.zoneserver.actor.routing.SystemRoutingActor
+import net.bestia.zoneserver.actor.socket.SocketServerActor
 import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.net.UnknownHostException
-import akka.cluster.singleton.ClusterSingletonProxySettings
-import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
-import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
-import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
-import net.bestia.zoneserver.actor.client.SendToClientActor
-import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
-import net.bestia.zoneserver.actor.socket.SocketServerActor
-import net.bestia.zoneserver.actor.entity.SendToEntityActor
 import org.springframework.context.annotation.Profile
+import java.net.UnknownHostException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -65,7 +70,7 @@ class AkkaConfiguration {
     setupClusterDiscovery(system)
 
     setupSharding(system)
-    setupSingeltons(system)
+    setupClusterSingeltons(system)
 
     SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
     SpringExtension.actorOf(system, NodeBootstrapActor::class.java)
@@ -90,7 +95,7 @@ class AkkaConfiguration {
     SpringExtension.actorOf(system, ClusterMonitorActor::class.java)
   }
 
-  private fun setupSingeltons(system: ActorSystem) {
+  private fun setupClusterSingeltons(system: ActorSystem) {
     LOG.info { "Starting the bootstrap actor" }
     val settings = ClusterSingletonManagerSettings.create(system)
     startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "bootstrap")
@@ -111,45 +116,30 @@ class AkkaConfiguration {
   }
 
   @Bean
-  @Qualifier(SYSTEM_ROUTER_QUALIFIER)
+  @Qualifier(SYSTEM_ROUTER)
   fun systemRouterActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, SystemRoutingActor::class.java)
   }
 
   @Bean
-  @Qualifier(ENTITY_FORWARDER_QUALIFIER)
+  @Qualifier(ENTITY_FORWARDER)
   fun entityRouterActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, SendToEntityActor::class.java)
   }
 
   @Bean
-  @Qualifier(CLIENT_FORWARDER_QUALIFIER)
+  @Qualifier(CLIENT_FORWARDER)
   fun clientRouterActor(system: ActorSystem): ActorRef {
-    return SpringExtension.actorOf(system, SendToClientActor::class.java)
+    return SpringExtension.actorOf(system, SendClientActor::class.java)
   }
 
   @Bean
-  @Qualifier(RUNTIME_CONFIG_QUALIFIER)
+  @Qualifier(RUNTIME_CONFIG)
   fun runtimeConfigActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, RuntimeConfigurationActor::class.java)
   }
 
-  @Bean
-  @Qualifier(CLIENT_CONNECTION_MANAGER)
-  fun clientConnectionManager(system: ActorSystem): ActorRef {
-    val proxySettings = ClusterSingletonProxySettings.create(system)
-    val props = ClusterSingletonProxy.props("/user/${ClusterClientConnectionManagerActor.NAME}", proxySettings)
-
-    return system.actorOf(props, "clientConnectionProxy")
-  }
-
   companion object {
     private const val AKKA_CONFIG_NAME = "akka"
-
-    const val RUNTIME_CONFIG_QUALIFIER = "runtimeConfig"
-    const val ENTITY_FORWARDER_QUALIFIER = "entityForward"
-    const val CLIENT_FORWARDER_QUALIFIER = "clientForward"
-    const val SYSTEM_ROUTER_QUALIFIER = "systemRouter"
-    const val CLIENT_CONNECTION_MANAGER = "clientConnectionManager"
   }
 }

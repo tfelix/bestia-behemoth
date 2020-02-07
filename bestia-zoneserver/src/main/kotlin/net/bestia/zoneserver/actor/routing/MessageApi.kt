@@ -4,7 +4,8 @@ import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.EntityMessage
-import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
+import net.bestia.zoneserver.actor.BQualifier.ENTITY_FORWARDER
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
@@ -18,9 +19,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class MessageApi(
-    @Qualifier(AkkaConfiguration.ENTITY_FORWARDER_QUALIFIER)
+    @Qualifier(ENTITY_FORWARDER)
     private val entityForwarder: ActorRef,
-    @Qualifier(AkkaConfiguration.CLIENT_FORWARDER_QUALIFIER)
+    @Qualifier(CLIENT_FORWARDER)
     private val clientForwarder: ActorRef
 ) {
 

@@ -1,15 +1,16 @@
 package net.bestia.zoneserver.actor.entity
 
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityInteractionMessage
 import net.bestia.messages.entity.EntityInteractionRequest
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.SendToClientActor
+import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.InteractionService
 import net.bestia.zoneserver.entity.PlayerEntityService
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -23,10 +24,10 @@ private val LOG = KotlinLogging.logger { }
 class EntityInteractionRequestActor(
     private val interactService: InteractionService,
     private val playerEntityService: PlayerEntityService,
-    private val messageApi: MessageApi
+    private val messageApi: MessageApi,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : DynamicMessageRoutingActor() {
-
-  private val sendClient = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
     builder.matchRedirect(EntityInteractionRequest::class.java, this::onInteractionRequest)
@@ -51,7 +52,7 @@ class EntityInteractionRequestActor(
           emptySet()
       )
 
-      sendClient.tell(reply, self)
+      sendClientActor.tell(reply, self)
     }
   }
 

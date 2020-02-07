@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.socket
 import akka.actor.AbstractActor
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.LoginService
+import net.bestia.zoneserver.account.LoginServiceImpl
 import net.bestia.zoneserver.account.PlayerEntitySetupService
 import net.bestia.zoneserver.actor.Actor
 
@@ -62,7 +62,7 @@ enum class LoginResponse {
 @Actor
 class AuthenticationCheckActor(
     private val authenticationService: AuthenticationService,
-    private val loginService: LoginService,
+    private val loginService: LoginServiceImpl,
     private val setupService: PlayerEntitySetupService
 ) : AbstractActor() {
   override fun createReceive(): Receive {

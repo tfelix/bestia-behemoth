@@ -9,6 +9,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.config.SocketBindNetworkError
@@ -23,7 +24,7 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class SocketServerActor(
     private val socketConfig: SocketConfig,
-    @Qualifier(AkkaConfiguration.SYSTEM_ROUTER_QUALIFIER)
+    @Qualifier(BQualifier.SYSTEM_ROUTER)
     private val systemRouter: ActorRef
 ) : AbstractActor() {
 

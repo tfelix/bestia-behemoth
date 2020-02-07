@@ -1,15 +1,16 @@
 package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
+import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.client.SendToClientActor
+import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.chat.GuildChatService
 import net.bestia.zoneserver.entity.component.GuildComponent
+import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
 
@@ -23,10 +24,10 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class GuildChatActor(
     private val guildChatService: GuildChatService,
-    private val messageApi: MessageApi
+    private val messageApi: MessageApi,
+    @Qualifier(BQualifier.CLIENT_FORWARDER)
+    private val sendClientActor: ActorRef
 ) : AbstractActor() {
-
-  private val sendToClientActor = SpringExtension.actorOf(context, SendToClientActor::class.java)
 
   override fun createReceive(): Receive {
     return receiveBuilder()
@@ -43,12 +44,12 @@ class GuildChatActor(
       return
     }
 
-    awaitEntityResponse(messageApi, context, 5) {e ->
+    awaitEntityResponse(messageApi, context, 5) { e ->
       val guildComp = e.tryGetComponent(GuildComponent::class.java)
           ?: return@awaitEntityResponse
       val copiedMessages = guildChatService.copyChatMessageToAllGuildMembers(guildComp.guildId, chatMsg)
       copiedMessages.forEach {
-        sendToClientActor.tell(it, self)
+        sendClientActor.tell(it, self)
       }
     }
   }

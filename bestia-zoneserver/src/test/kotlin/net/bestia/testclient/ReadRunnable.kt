@@ -1,5 +1,6 @@
 package testclient
 
+import net.bestia.testclient.RxTxSocket
 import testclient.commands.Command
 import java.util.*
 

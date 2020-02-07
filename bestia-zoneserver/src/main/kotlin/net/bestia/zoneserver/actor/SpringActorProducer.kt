@@ -135,14 +135,15 @@ internal class SpringActorProducer(
     }
 
   override fun produce(): Actor {
-    return if (args.isEmpty()) {
-      applicationContext.getBean(actorBeanClass)
-    } else {
-      try {
+    try {
+      return if (args.isEmpty()) {
+        applicationContext.getBean(actorBeanClass)
+      } else {
         applicationContext.getBean(actorBeanClass, *allCtorArgs)
-      } catch (e: ClassNotFoundException) {
-        throw BeanCreationException("Class for mixed argument list not found.", e)
       }
+    } catch (e: Exception) {
+      LOG.error { "Could not init actor of type $actorBeanClass" }
+      throw e
     }
   }
 

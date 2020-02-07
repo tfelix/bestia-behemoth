@@ -10,7 +10,7 @@ import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.AuthProtos
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.AkkaConfiguration.Companion.CLIENT_CONNECTION_MANAGER
+import net.bestia.zoneserver.actor.BQualifier.CLIENT_CONNECTION_MANAGER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
@@ -73,9 +73,10 @@ final class SocketActor(
     val authMsgBytes = extractMessageBytes(msg)
     try {
       val authMessage = AuthProtos.Auth.parseFrom(authMsgBytes)
-      // Translate to authMessage PROFIT
-
-      val authRequest = AuthRequest(accountId = 0, token = "test123")
+      val authRequest = AuthRequest(
+          accountId = authMessage.accountId,
+          token = authMessage.token
+      )
       authenticationCheckActor.tell(authRequest, self)
 
     } catch (e: InvalidProtocolBufferException) {

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.routing
 
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.AkkaConfiguration
+import net.bestia.zoneserver.actor.BQualifier.SYSTEM_ROUTER
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
@@ -16,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class SystemMessageService(
-    @Qualifier(AkkaConfiguration.SYSTEM_ROUTER_QUALIFIER)
+    @Qualifier(SYSTEM_ROUTER)
     private val router: ActorRef
 ) {
 

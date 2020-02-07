@@ -1,6 +1,7 @@
-package testclient.commands
+package net.bestia.testclient.commands
 
 import net.bestia.messages.AuthMessageProto
+import testclient.commands.Command
 
 class LoginCommand : Command {
   private val commandName = "login"

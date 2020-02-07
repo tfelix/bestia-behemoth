@@ -8,10 +8,13 @@ import net.bestia.zoneserver.actor.chat.ChatActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 
+/**
+ * Actor which handles the normal client incoming messages.
+ */
 @Actor
 class ClientMessageRoutingActor : DynamicMessageRoutingActor() {
 
-  override fun createReceive(builder: BuilderFacade) { }
+  override fun createReceive(builder: BuilderFacade) {}
 
   override fun preStart() {
     // === Bestias ===
