@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.actor.socket
 
 import akka.actor.AbstractActor
+import akka.actor.Props
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.LoginServiceImpl
 import net.bestia.zoneserver.account.PlayerEntitySetupService
-import net.bestia.zoneserver.actor.Actor
 
 /**
  * This message is send to the player in order to signal a (forced) logout from
@@ -59,7 +59,6 @@ enum class LoginResponse {
 /**
  * Tries to authenticate a client.
  */
-@Actor
 class AuthenticationCheckActor(
     private val authenticationService: AuthenticationService,
     private val loginService: LoginServiceImpl,
@@ -87,5 +86,17 @@ class AuthenticationCheckActor(
     setupService.setup(msg.accountId)
 
     sender.tell(AuthResponse(accountId = msg.accountId, response = LoginResponse.SUCCESS), self)
+  }
+
+  companion object {
+    fun props(
+        authenticationService: AuthenticationService,
+        loginService: LoginServiceImpl,
+        setupService: PlayerEntitySetupService
+    ): Props {
+      return Props.create(AuthenticationCheckActor::class.java) {
+        AuthenticationCheckActor(authenticationService, loginService, setupService)
+      }
+    }
   }
 }

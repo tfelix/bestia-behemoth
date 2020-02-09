@@ -26,10 +26,7 @@ class SendClientActor : AbstractActor() {
   }
 
   override fun preStart() {
-    val proxySettings = ClusterSingletonProxySettings.create(context.system)
-    val props = ClusterSingletonProxy.props("/user/${ClusterClientConnectionManagerActor.NAME}", proxySettings)
-
-    context.actorOf(props, "clientConnectionProxy")
+    clusterConnectionManager = ClusterClientConnectionManagerActor.getProxyRef(context)
   }
 
   private fun receiveUpstreamSocketResponse(msg: ClientSocketResponse) {

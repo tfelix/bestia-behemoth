@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component
 
 @Component
 data class SocketConfig(
-    @Value("\${server.bind-address}")
+    @Value("\${zone.bind-address}")
     val bindAddress: String,
-    @Value("\${server.port}")
+    @Value("\${zone.port}")
     val port: Int,
-    @Value("\${server.max-connections}")
-    val maxConnections: Int
+    @Value("\${zone.max-connections}")
+    val maxConnections: Long
 )

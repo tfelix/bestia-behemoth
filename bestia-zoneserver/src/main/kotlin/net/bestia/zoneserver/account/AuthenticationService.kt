@@ -23,8 +23,11 @@ class AuthenticationService(
 
   fun isUserAuthenticated(accountId: Long, token: String): Boolean {
     if(authConfig.rootAuthToken == token && authConfig.rootAuthToken != null) {
+      LOG.debug { "Account ID $accountId with token ${token.take(5)}*** authenticated" }
       return true
     }
+
+    LOG.debug { "Account ID $accountId with token ${token.take(5)}*** not authenticated" }
     return false
   }
 
@@ -107,9 +110,6 @@ class AuthenticationService(
    * @return
    */
   fun changePasswordWithoutCheck(accountName: String, newPassword: String): Boolean {
-    Objects.requireNonNull(accountName)
-    Objects.requireNonNull(newPassword)
-
     val acc = accountRepository.findByUsername(accountName)
         ?: accountRepository.findByEmail(accountName)
         ?: return false

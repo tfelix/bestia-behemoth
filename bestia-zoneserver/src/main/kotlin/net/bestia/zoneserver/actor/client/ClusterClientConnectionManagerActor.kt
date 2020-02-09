@@ -2,6 +2,8 @@ package net.bestia.zoneserver.actor.client
 
 import akka.actor.ActorRef
 import akka.actor.PoisonPill
+import akka.cluster.singleton.ClusterSingletonProxy
+import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.persistence.AbstractPersistentActor
 import akka.persistence.SaveSnapshotSuccess
 import akka.persistence.SnapshotOffer
@@ -107,5 +109,12 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
     const val NAME = "clusterClientConnectionManager"
     // Perform an actor snapshot after 1000 updates.
     private const val SNAPSHOT_AFTER_UPDATES = 1000
+
+    fun getProxyRef(ctx: ActorContext): ActorRef {
+      val proxySettings = ClusterSingletonProxySettings.create(ctx.system)
+      val props = ClusterSingletonProxy.props("/user/${ClusterClientConnectionManagerActor.NAME}", proxySettings)
+
+      return ctx.actorOf(props, "clientConnectionProxy")
+    }
   }
 }

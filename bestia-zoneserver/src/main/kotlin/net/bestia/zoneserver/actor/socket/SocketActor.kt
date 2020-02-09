@@ -2,6 +2,8 @@ package net.bestia.zoneserver.actor.socket
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
+import akka.cluster.singleton.ClusterSingletonProxy
+import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.io.Tcp
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
@@ -10,8 +12,10 @@ import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.messages.AuthProtos
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_CONNECTION_MANAGER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
+import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
 
@@ -32,12 +36,13 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 final class SocketActor(
     private val connection: ActorRef,
-    private val authenticationCheckActor: ActorRef,
-    @Qualifier(CLIENT_CONNECTION_MANAGER)
-    private val clusterClientConnectionManager: ActorRef
+    @Qualifier(AUTH_CHECK)
+    private val authenticationCheckActor: ActorRef
 ) : AbstractActor() {
 
   private val buffer = ByteBuffer.allocate(1024 * 4)
+
+  private lateinit var clusterClientConnectionManager: ActorRef
 
   private val authenticatedSocket: Receive
 
@@ -50,6 +55,10 @@ final class SocketActor(
         .match(AccountMessage::class.java, this::sendClientMessage)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
+  }
+
+  override fun preStart() {
+    clusterClientConnectionManager = ClusterClientConnectionManagerActor.getProxyRef(context)
   }
 
   override fun createReceive(): Receive {

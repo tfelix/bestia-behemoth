@@ -8,14 +8,15 @@ import akka.cluster.sharding.ClusterSharding
 import akka.cluster.sharding.ClusterShardingSettings
 import akka.cluster.singleton.ClusterSingletonManager
 import akka.cluster.singleton.ClusterSingletonManagerSettings
-import akka.cluster.singleton.ClusterSingletonProxy
-import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.javadsl.AkkaManagement
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
-import net.bestia.zoneserver.actor.BQualifier.CLIENT_CONNECTION_MANAGER
+import net.bestia.zoneserver.account.AuthenticationService
+import net.bestia.zoneserver.account.LoginServiceImpl
+import net.bestia.zoneserver.account.PlayerEntitySetupService
+import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
 import net.bestia.zoneserver.actor.BQualifier.ENTITY_FORWARDER
 import net.bestia.zoneserver.actor.BQualifier.RUNTIME_CONFIG
@@ -31,6 +32,7 @@ import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
 import net.bestia.zoneserver.actor.routing.SystemRoutingActor
+import net.bestia.zoneserver.actor.socket.AuthenticationCheckActor
 import net.bestia.zoneserver.actor.socket.SocketServerActor
 import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
@@ -113,6 +115,19 @@ class AkkaConfiguration {
     val props = SpringExtension.getSpringProps(system, actorClass)
     val clusterProbs = ClusterSingletonManager.props(props, PoisonPill.getInstance(), settings)
     system.actorOf(clusterProbs, name)
+  }
+
+  @Bean
+  @Qualifier(AUTH_CHECK)
+  fun authenticationCheckActor(
+      system: ActorSystem,
+      authenticationService: AuthenticationService,
+      loginService: LoginServiceImpl,
+      setupService: PlayerEntitySetupService
+  ): ActorRef {
+    val props = AuthenticationCheckActor.props(authenticationService, loginService, setupService)
+
+    return system.actorOf(props, "authCheck")
   }
 
   @Bean

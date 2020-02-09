@@ -30,7 +30,7 @@ class MapGenConfiguration {
   @Throws(IOException::class)
   fun localFileMapGenDAO(
           @Value("\${mapgen.tempDir:#{null}}") tempDir: String?,
-          @Value("\${server.name}") nodeName: String): MapGenDAO {
+          @Value("\${zone.name}") nodeName: String): MapGenDAO {
 
     val tempPath: Path
 

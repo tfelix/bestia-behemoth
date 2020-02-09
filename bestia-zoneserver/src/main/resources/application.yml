@@ -33,20 +33,21 @@ spring:
       ddl-auto: update
     # Allows Hibernate to generate SQL optimized for a particular DBMS
     properties.hibernate.dialect: org.hibernate.dialect.MariaDB53Dialect
+
 flyway:
   enabled: false
 
 # ===============================
 # = ZONE
 # ===============================
-server:
+zone:
   # The version property expansion is currently broken with gradle
   version: 1.0.0-ALPHA
   name: zoneserver-${random.uuid}
   node-id: 1
   bind-address: localhost
   port: 8990
-  max-connections: 1000
+  max-connections: 1123
   root-auth-token: 50cb5740-c390-4d48-932f-eef7cbc113c1
 
 mapgen:
