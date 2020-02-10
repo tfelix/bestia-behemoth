@@ -8,19 +8,21 @@ import net.bestia.model.battle.Element
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
-import net.bestia.model.geometry.Rect
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.random.Random
 
 private val LOG = KotlinLogging.logger { }
 
+interface AttackCheckFactory {
+  fun buildCheckFor(battleCtx: BattleContext): AttackCheck
+  fun canBuildFor(battleCtx: BattleContext): Boolean
+}
+
 /**
- * This service is used to perform attacks and damage calculation for battle
+ * This high level service which is used to perform attacks and damage calculation for battle
  * related tasks.
  *
  * @author Thomas Felix
@@ -28,6 +30,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class BattleService(
     private val damageCalculator: DamageCalculator,
+    private val checkFactory: AttackCheckFactoryImpl,
     private val random: Random
 ) {
 
@@ -212,75 +215,9 @@ class BattleService(
    * @return TRUE if the attack action is possible. FALSE otherwise.
    */
   private fun isAttackPossible(battleCtx: BattleContext): Boolean {
-    return (isInRange(battleCtx)
-        && hasLineOfSight(battleCtx)
-        && hasAttackerEnoughMana(battleCtx)
-        && hasAmmo(battleCtx))
-  }
+    val check = checkFactory.buildChecker(battleCtx)
 
-  /**
-   * Checks if a given attack is in range for a target position. It is
-   * important to ask the attached entity scripts as these can alter the
-   * effective range.
-   *
-   * @return TRUE if the attack is in range. FALSE otherwise.
-   */
-  private fun isInRange(battleCtx: BattleContext): Boolean {
-    val atkPosition = getPosition(battleCtx.attacker)
-    val defPosition = getPosition(battleCtx.defender)
-
-    val effectiveRange = getEffectiveSkillRange(battleCtx.usedAttack, battleCtx.attacker)
-
-    LOG.trace("Effective attack range: {}", effectiveRange)
-
-    return effectiveRange >= atkPosition.getDistance(defPosition)
-  }
-
-  /**
-   * Checks if there is a direct line of sight between the two points. This
-   * does not only take static map features into account but also dynamic
-   * effects like entities which might block the direct line of sight.
-   *
-   * @return Returns TRUE if there is a direct line of sight. FALSE if there
-   * is no direct line of sight.
-   */
-  private fun hasLineOfSight(battleCtx: BattleContext): Boolean {
-    val attack = battleCtx.usedAttack
-    val attacker = battleCtx.attacker
-    val defender = battleCtx.defender
-
-    if (!attack.needsLineOfSight) {
-      LOG.trace("Attack does not need los.")
-      return true
-    }
-
-    val start = attacker.getComponent(PositionComponent::class.java).position
-    val end = defender.getComponent(PositionComponent::class.java).position
-
-    val x1 = min(start.x, end.x)
-    val x2 = max(start.x, end.x)
-    val y1 = min(start.y, end.y)
-    val y2 = max(start.y, end.y)
-    val z1 = min(start.z, end.z)
-    val z2 = max(start.z, end.z)
-
-    val width = x2 - x1
-    val depth = y2 - y1
-    val height = z2 - z1
-
-    val bbox = Rect(x1, y1, z1, width, depth, height)
-
-    return true
-    /*
-    val map = mapService.getMap(bbox)
-
-    val lineOfSight = lineOfSight(start, end)
-    val doesMapBlock = lineOfSight.any { map.blocksSight(it) }
-    val doesEntityBlock = entityCollisionService.getAllCollidingEntityIds(lineOfSight).isNotEmpty()
-
-    val hasLos = !doesMapBlock && !doesEntityBlock
-    LOG.trace("Entity has line of sight: {}", hasLos)
-    return hasLos*/
+    return check.isAttackPossible()
   }
 
   /**
@@ -330,33 +267,6 @@ class BattleService(
       dmgVars.isCriticalHit = false
       false
     }
-  }
-
-  /**
-   * Calculates the needed mana for an attack. Mana cost can be reduced by
-   * effects or scripts.
-   *
-   * @param battleCtx The [BattleContext].
-   * @return The actual mana costs for this attack.
-   */
-  private fun getNeededMana(battleCtx: BattleContext): Int {
-    val attack = battleCtx.usedAttack
-    val neededManaMod = battleCtx.damageVariables.neededManaMod
-    val neededMana = Math.ceil((attack.manaCost * neededManaMod).toDouble()).toInt()
-    LOG.trace("Needed mana: {}/{}", neededMana, attack.manaCost)
-
-    return neededMana
-  }
-
-  /**
-   * Check if the entity has the mana needed for the attack.
-   *
-   * @return TRUE if the entity has enough mana to perform the attack. FALSE
-   * otherwise.
-   */
-  private fun hasAttackerEnoughMana(battleCtx: BattleContext): Boolean {
-    val neededMana = getNeededMana(battleCtx)
-    return battleCtx.attackerCondition.currentMana >= neededMana
   }
 
   private fun hasAmmo(battleCtx: BattleContext): Boolean {
@@ -460,15 +370,6 @@ class BattleService(
   }
 
   /**
-   * Calculates the effective range of the attack. A skill range can be
-   * altered by an equipment or a buff for example.
-   */
-  private fun getEffectiveSkillRange(attack: Attack, entity: Entity): Int {
-    // TODO Take status modifications into account.
-    return attack.range
-  }
-
-  /**
    * @return The [StatusValues] of a entity.
    */
   private fun getStatusPoints(e: Entity): StatusValues {
@@ -494,9 +395,5 @@ class BattleService(
    */
   private fun getLevel(e: Entity): Int {
     return e.getComponent(LevelComponent::class.java).level
-  }
-
-  private fun getPosition(e: Entity): Vec3 {
-    return e.getComponent(PositionComponent::class.java).position
   }
 }

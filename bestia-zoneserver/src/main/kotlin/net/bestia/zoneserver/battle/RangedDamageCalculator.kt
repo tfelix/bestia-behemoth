@@ -27,7 +27,7 @@ class RangedDamageCalculator : DamageCalculator {
    * controlled by a script this wont get checked by this method anymore. Only
    * raw damage calculation is performed.
    */
-  override fun calculateDamage(battleCtx: BattleContext): RawDamage {
+  override fun calculateDamage(battleCtx: BattleContext): Damage {
     val baseAtk = getBaseAttack(battleCtx)
     val atkMod = getAttackModifier(battleCtx)
     val hardDefMod = getHardDefenseModifier(battleCtx)

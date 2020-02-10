@@ -10,9 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Thomas Felix
  */
 data class Damage(
-    @JsonProperty("dmg")
     val damage: Int,
-    @JsonProperty("t")
     val type: DamageType
 ) : Serializable {
 
