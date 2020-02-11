@@ -14,7 +14,7 @@ import kotlin.random.Random
 
 internal class MeleeDamageCalculatorTest {
 
-  private val sut = MeleeDamageCalculator(random = Random(1234))
+  private val sut = PhysicalDamageCalculator(random = Random(1234))
 
   @Test
   fun calculateDamage() {

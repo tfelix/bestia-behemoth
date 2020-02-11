@@ -10,6 +10,7 @@ class MeleeAttackCheckFactory : AttackCheckFactory {
 
   override fun buildCheckFor(battleCtx: BattleContext): AttackCheck {
     return listOfNotNull(
+        IsEntityAttackableCheck(battleCtx),
         ManaAttackCheck(battleCtx),
         DistanceAttackCheck(battleCtx),
         if (battleCtx.usedAttack.needsLineOfSight) {

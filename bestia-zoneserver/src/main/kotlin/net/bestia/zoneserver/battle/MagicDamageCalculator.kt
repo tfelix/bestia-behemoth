@@ -3,8 +3,10 @@ package net.bestia.zoneserver.battle
 import mu.KotlinLogging
 import net.bestia.model.battle.AttackType
 import org.springframework.stereotype.Component
+import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.floor
+import kotlin.math.min
 
 private val LOG = KotlinLogging.logger { }
 
@@ -16,9 +18,9 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
-class MagicDamageCalculator : DamageCalculator {
-  private val rand = ThreadLocalRandom.current()
+class MagicDamageCalculator(
+    private val rand: Random
+) : DamageCalculator {
 
   /**
    * This calculates the taken battle damage. Currently this is only a
@@ -57,7 +59,7 @@ class MagicDamageCalculator : DamageCalculator {
 
     var baseAtk = 2f * statusAtk * varMod + weaponAtk * varModRed + ammoAtk + bonusAtk.toFloat()
     baseAtk *= elementMod * elementBonusMod
-    baseAtk = Math.min(1f, baseAtk)
+    baseAtk = min(1f, baseAtk)
 
     LOG.trace("BaseAtk: {}.", baseAtk)
 
@@ -71,8 +73,7 @@ class MagicDamageCalculator : DamageCalculator {
     val lvMod = (battleCtx.attackerLevel / 4).toFloat()
     val sp = battleCtx.attackerStatusPoints
 
-    LOG.trace("StatusAtk (magic)")
-    return lvMod + sp.strength.toFloat() + (sp.dexterity / 5).toFloat()
+    return lvMod + sp.strength + sp.dexterity / 5f
   }
 
   private fun getSoftDefense(battleCtx: BattleContext): Float {
@@ -135,7 +136,7 @@ class MagicDamageCalculator : DamageCalculator {
 
     LOG.trace("AttackMod: {}.", atkMod)
 
-    return Math.min(0f, atkMod)
+    return min(0f, atkMod)
   }
 
   /**

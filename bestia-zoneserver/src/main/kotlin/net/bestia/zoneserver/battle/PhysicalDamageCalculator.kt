@@ -4,10 +4,9 @@ import mu.KotlinLogging
 import net.bestia.model.battle.AttackType
 import net.bestia.zoneserver.entity.component.LevelComponent
 import org.springframework.stereotype.Component
-import java.util.concurrent.ThreadLocalRandom
+import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
-import kotlin.random.Random
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Component
-class MeleeDamageCalculator(
+class PhysicalDamageCalculator(
     private val random: Random
 ) : DamageCalculator {
 
@@ -71,19 +70,15 @@ class MeleeDamageCalculator(
    * @return The attack value based solely on the status of the entity.
    */
   private fun getStatusAttack(battleCtx: BattleContext): Float {
-    val attackerLevel = battleCtx.attacker.tryGetComponent(LevelComponent::class.java)?.level ?: 1
-    val lvMod = attackerLevel / 4f
+    val lvMod = (battleCtx.attackerLevel / 4).toFloat() / 4f
     val sp = battleCtx.attackerStatusPoints
 
-    val statusAtk = lvMod + sp.strength + sp.dexterity / 5f
-    LOG.trace { "StatusAtk (melee physical): $statusAtk" }
-
-    return statusAtk
+    return lvMod + sp.strength + sp.dexterity / 5f
   }
 
   private fun getSoftDefense(battleCtx: BattleContext): Float {
     val defStatus = battleCtx.defenderStatusPoints
-    val defenderLevel = battleCtx.defender.tryGetComponent(LevelComponent::class.java)?.level ?: 1
+    val defenderLevel =  battleCtx.defenderLevel
 
     val softDef = max(0f, defenderLevel / 2f + defStatus.vitality + defStatus.strength / 3f)
 

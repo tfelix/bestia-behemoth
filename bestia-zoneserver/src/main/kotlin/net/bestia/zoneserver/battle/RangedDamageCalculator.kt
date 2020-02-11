@@ -3,7 +3,6 @@ package net.bestia.zoneserver.battle
 import mu.KotlinLogging
 import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Damage
-import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.floor
 
@@ -15,7 +14,6 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-@Component
 class RangedDamageCalculator : DamageCalculator {
   private val rand = ThreadLocalRandom.current()
 
