@@ -7,7 +7,7 @@ private val LOG = KotlinLogging.logger { }
 
 abstract class PhysicalAttackStrategy(
     private val random: Random
-) : AttackStrategy {
+) : AttackStrategy() {
   override fun isCriticalHit(battleCtx: BattleContext): Boolean {
     val dmgVars = battleCtx.damageVariables
 

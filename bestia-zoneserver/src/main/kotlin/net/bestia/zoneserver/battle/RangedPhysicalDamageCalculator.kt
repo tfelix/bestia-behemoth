@@ -8,15 +8,23 @@ private val LOG = KotlinLogging.logger { }
 
 /**
  * This calculates the raw damage of an attack if all other variables are known.
- * Even though no member state is saved this calculator is instanced as an
- * object in order to perform some kind of strategy pattern so the damage
- * calculation can be switched during runtime.
+ * This calculates the damage of ranged weapons.
  *
  * @author Thomas Felix
  */
-class MagicDamageCalculator() : BaseDamageCalculator() {
+class RangedPhysicalDamageCalculator() : BaseDamageCalculator() {
   override fun getBonusAttack(battleCtx: BattleContext): Float {
-    return battleCtx.damageVariables.attackMagicBonus
+    return battleCtx.damageVariables.attackRangedBonus
+  }
+
+  // Same as MeleePhysicalDamageCalculator
+  override fun getSoftDefense(battleCtx: BattleContext): Float {
+    val defStatus = battleCtx.defenderStatusPoints
+    val lv = battleCtx.defenderLevel
+
+    val softDef = lv / 2f + defStatus.vitality + defStatus.strength / 3f
+
+    return min(0f, softDef)
   }
 
   /**
@@ -26,31 +34,20 @@ class MagicDamageCalculator() : BaseDamageCalculator() {
     val lvMod = battleCtx.attackerLevel / 4f
     val sp = battleCtx.attackerStatusPoints
 
-    return lvMod + sp.intelligence + sp.willpower / 5f
-  }
-
-  override fun getSoftDefense(battleCtx: BattleContext): Float {
-    val defStatus = battleCtx.defenderStatusPoints
-    val lv = battleCtx.defenderLevel
-
-    val softDef = lv / 2f + defStatus.vitality +
-        defStatus.willpower / 4f +
-        defStatus.intelligence / 5f
-
-    return min(0f, softDef)
+    return lvMod + sp.dexterity + sp.strength / 5f
   }
 
   override fun getHardDefenseModifier(battleCtx: BattleContext): Float {
-    val magicDefenseMod = battleCtx.damageVariables.magicDefenseMod
+    val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
     val defStatus = battleCtx.defenderStatusPoints
 
-    return (1 - (defStatus.magicDefense / 100f + magicDefenseMod)).clamp(0.05f, 1.0f)
+    return (1 - (defStatus.physicalDefense / 100f + physicalDefenseMod)).clamp(0.05f, 1.0f)
   }
 
   override fun getAttackModifier(battleCtx: BattleContext): Float {
     val dmgVars = battleCtx.damageVariables
 
-    return max(0f, dmgVars.attackMagicMod)
+    return max(0f, dmgVars.attackMeleeMod)
   }
 
   override fun calculateWeaponAtk(): Float {
@@ -58,8 +55,8 @@ class MagicDamageCalculator() : BaseDamageCalculator() {
     return 0f
   }
 
-  // Magic does not use ammo
   override fun getAmmoAttack(battleCtx: BattleContext): Float {
+    // TODO Use proper ammo attack dmg when its implemented
     return 0f
   }
 }

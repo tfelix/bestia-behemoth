@@ -8,7 +8,7 @@ sealed class Damage {
   }
 }
 
-data class NormalHit(
+data class Hit(
     override val amount: Int
 ) : Damage()
 

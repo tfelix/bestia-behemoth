@@ -22,7 +22,7 @@ class AttackStrategyFactory {
       if (usedAttack.isRanged) {
         throw IllegalStateException("Not supported")
       } else {
-        return MeleePhysicalAttackStrategy(ctx, PhysicalDamageCalculator(random), random)
+        return MeleePhysicalAttackStrategy(ctx, MeleePhysicalDamageCalculator(), random)
       }
     }
   }

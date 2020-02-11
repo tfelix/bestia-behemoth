@@ -2,24 +2,12 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Attack
-import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.bestia.StatusValues
-import net.bestia.model.entity.StatusBasedValues
-import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
-import kotlin.random.Random
 
 private val LOG = KotlinLogging.logger { }
-
-interface AttackCheckFactory {
-  fun buildCheckFor(battleCtx: BattleContext): AttackCheck
-  fun canBuildFor(battleCtx: BattleContext): Boolean
-}
 
 /**
  * This high level service which is used to perform attacks and damage calculation for battle
@@ -55,6 +43,8 @@ class BattleService(
     val damages = strategy.doAttack()
 
     // TODO Perform possible damage reductions/hooks then apply the damage or do this in strategy? Possibly not
+
+    return damages
   }
 
   private fun createBattleContext(usedAttack: Attack, attacker: Entity, defender: Entity): BattleContext {
@@ -94,86 +84,5 @@ class BattleService(
   private fun getDamageVars(e: Entity): DamageVariables {
     // FIXME Implementieren.
     return DamageVariables()
-  }
-
-  /**
-   * The true damage is applied directly to the entity without further
-   * reducing the damage via armor.
-   *
-   * @param defender
-   * @param trueDamage
-   */
-  fun takeTrueDamage(defender: Entity, trueDamage: Damage): Entity {
-    val damage = trueDamage.damage
-
-    val statusComp = defender.getComponent(ConditionComponent::class.java)
-
-    statusComp.conditionValues.addHealth(-damage)
-
-    if (statusComp.conditionValues.currentHealth == 0) {
-      killEntity(defender)
-    }
-
-    return defender
-  }
-
-  /**
-   * This will perform a check damage for reducing it and alter all possible
-   * status effects and then apply the damage to the entity. If its health
-   * sinks below 0 then the [.killEntity] method will be triggered. It will
-   * also trigger any attached script trigger for received damage this is
-   * onTakeDamage and onApplyDamage.
-   *
-   * @param primaryDamage The damage to apply to this entity.
-   * @return The actually applied damage.
-   */
-  fun takeDamage(defender: Entity, primaryDamage: Damage, attacker: Entity? = null): Triple<Entity?, Entity, Damage> {
-    LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage)
-
-    val conditionComp = defender.getComponent(ConditionComponent::class.java)
-
-    // TODO Possibly reduce the damage via effects or scripts.
-    val damage = primaryDamage.damage
-    val reducedDamage = Damage(damage, primaryDamage.type)
-
-    // Hit the entity and add the origin entity into the list of received
-    // damage dealers.
-    val battleComp = defender.tryGetComponent(BattleDamageComponent::class.java)
-        ?: BattleDamageComponent(defender.id)
-
-    attacker?.let {
-      battleComp.addDamageReceived(it.id, damage.toLong())
-    }
-
-    val condValues = conditionComp.conditionValues
-    condValues.addHealth(-damage)
-
-    if (condValues.currentHealth == 0) {
-      killEntity(defender)
-    }
-
-    return Triple(attacker, defender, reducedDamage)
-  }
-
-  /**
-   * Entity received damage with not entity as origin. Just plain damage.
-   *
-   * @param defender
-   * @param damage
-   * @return
-   */
-  fun takeDamage(defender: Entity, damage: Int): Pair<Entity, Damage> {
-    val dmg = Damage.getHit(damage)
-    val (_, defender, damageTaken) = takeDamage(defender, dmg)
-
-    return Pair(defender, damageTaken)
-  }
-
-  fun killEntity(entity: Entity) {
-    LOG.debug { "Entity ${entity.id} killed" }
-
-    // Entity will play death animation.
-
-    // If its player entity then set
   }
 }

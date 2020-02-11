@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.model.battle.Element
-
 /**
  * A set of variables which are used to modify a running damage calculation
  * operation. These variable set is piped through a script environment and can
@@ -14,9 +12,14 @@ data class DamageVariables(
     // Attack
     var attackMagicBonus: Float = 0f,
     var attackMagicMod: Float = 1f,
+
     var attackPhysicalBonus: Float = 0f,
     var attackPhysicalMod: Float = 1f,
+
+    var attackRangedBonus: Float = 0f,
     var attackRangedMod: Float = 1f,
+
+    var attackMeleeBonus: Int = 0,
     var attackMeleeMod: Float = 1f,
 
     // Weapon
@@ -32,8 +35,6 @@ data class DamageVariables(
 
     // Misc
     var neededManaMod: Float = 1f,
-    var attackRangeMod: Float = 1f,
-    var attackRangeBonus: Int = 0,
 
     var isCriticalHit: Boolean = false
 ) {
@@ -86,7 +87,7 @@ data class DamageVariables(
     // Misc
     vars.neededManaMod = neededManaMod + rhs.neededManaMod
     vars.attackRangedMod = attackRangedMod + rhs.attackRangedMod
-    vars.attackRangeBonus = attackRangeBonus + rhs.attackRangeBonus
+    vars.attackRangedBonus = attackRangedBonus + rhs.attackRangedBonus
 
     return vars
   }

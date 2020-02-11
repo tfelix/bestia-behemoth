@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.battle
 
-abstract class MagicAttackStrategy : AttackStrategy {
+abstract class MagicAttackStrategy : AttackStrategy() {
   // Magic attacks usually always hits.
   override fun doesAttackHit(battleCtx: BattleContext): Boolean {
     return true

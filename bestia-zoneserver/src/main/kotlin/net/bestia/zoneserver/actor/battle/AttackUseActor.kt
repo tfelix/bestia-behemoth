@@ -68,7 +68,6 @@ class AttackUseActor(
     awaitEntityResponse(messageApi, context, setOf(attackerId, defenderId)) {
 
       val dmg = battleService.attackEntity(attack, it[attackerId], it[defenderId])
-          ?: return@awaitEntityResponse
 
       if (dmg.size == 1) {
         val dmgMsg = EntityDamage(defenderId, dmg.single().damage, DamageType.DAMAGE)

@@ -44,7 +44,7 @@ data class BattleDamageComponent(
       return damageDealers.map { (k, v) -> k to v.damage / totalDmg }.toMap()
     }*/
 
-  fun addDamageReceived(damageDealer: EntityId, damage: Long): BattleDamageComponent {
+  fun addDamageReceived(damageDealer: EntityId, damage: Int): BattleDamageComponent {
     if (damage <= 0) {
       return this
     }
@@ -52,7 +52,7 @@ data class BattleDamageComponent(
     val now = Instant.now()
     val newDmg = damageDealers.firstOrNull { it.entityId == damageDealer }?.let {
       it.copy(time = now, damage = it.damage + damage)
-    } ?: DamageEntry(entityId, now, damage)
+    } ?: DamageEntry(entityId, now, damage.toLong())
 
     val newDamages = (damageDealers + newDmg).take(ENTITY_DAMAGE_TRACK_COUNT)
 
