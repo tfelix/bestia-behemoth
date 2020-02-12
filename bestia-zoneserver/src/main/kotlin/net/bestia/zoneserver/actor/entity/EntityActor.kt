@@ -6,7 +6,6 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
@@ -33,10 +32,10 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
+// TODO Make this an PersistentActor
 @Actor
 class EntityActor(
-    private val factory: EntityComponentActorFactory,
-    private val messageApi: MessageApi
+    private val factory: EntityComponentActorFactory
 ) : AbstractActor() {
 
   private class ComponentActorCache {
@@ -71,13 +70,14 @@ class EntityActor(
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(NewEntityCommand::class.java, this::setupEntity)
-        .match(AddComponentMessage::class.java, this::addComponentActor)
-        .match(DeleteComponentMessage::class.java, this::removeComponentActor)
-        .match(UpdateComponentMessage::class.java, this::updateComponentActor)
+        .match(AddComponentCommand::class.java, this::addComponentActor)
+        .match(DeleteComponentCommand::class.java, this::removeComponentActor)
+        .match(UpdateComponentCommand::class.java, this::updateComponentActor)
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
 
-        .match(Terminated::class.java, this::handleTerminated)
+        .match(Terminated::class.java, this::handleTerminatedComponentActor)
         .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
+        .match(KillEntityCommand::class.java) { context.stop(self) }
         .match(EntityRequest::class.java, this::handleEntityRequest)
         // TODO Do this with a become/ctx change
         .matchAny(this::terminateIfNoSuitableMessage)
@@ -128,13 +128,13 @@ class EntityActor(
     val waitResponseActor = context.actorOf(waitResponseProps)
 
     componentActorCache.allActors().forEach {
-      val requestMsg = RequestComponentMessage(replyTo = waitResponseActor)
+      val requestMsg = RequestComponent(replyTo = waitResponseActor)
       it.tell(requestMsg, self)
     }
   }
 
   private fun terminateIfNoSuitableMessage(msg: Any) {
-    if (entityId == 0L && msg !is AddComponentMessage<*>) {
+    if (entityId == 0L && msg !is AddComponentCommand<*>) {
       LOG.info { "Uninitialized EntityActor received message: $msg but awaited Component. Terminate." }
       context.stop(self)
     }
@@ -142,7 +142,7 @@ class EntityActor(
     unhandled(msg)
   }
 
-  private fun updateComponentActor(msg: UpdateComponentMessage<*>) {
+  private fun updateComponentActor(msg: UpdateComponentCommand<*>) {
     if (entityId == 0L) {
       entityId = msg.component.entityId
     }
@@ -155,12 +155,12 @@ class EntityActor(
     componentActor.tell(msg.component, sender())
   }
 
-  private fun addComponentActor(msg: AddComponentMessage<*>) {
+  private fun addComponentActor(msg: AddComponentCommand<*>) {
     LOG.trace { "Adding component: ${msg.component::class.java.simpleName} on entity: $entityId." }
     createComponentActor(msg.component)
   }
 
-  private fun removeComponentActor(msg: DeleteComponentMessage<*>) {
+  private fun removeComponentActor(msg: DeleteComponentCommand<*>) {
     LOG.trace { "Removing component: ${msg.componentClass.simpleName} on entity: $entityId" }
     componentActorCache.get(msg.componentClass)?.tell(PoisonPill.getInstance(), self)
   }
@@ -174,9 +174,20 @@ class EntityActor(
   }
 
   /**
+   * After we have stopped we must notify the clients in range that we can be removed.
+   *
+   * TODO How can we inform clients which are not in range? Like player clients might need infos about far away entities?
+   */
+  override fun postStop() {
+    // IMPLEMENT CLIENT NOTIFICATION
+    // - Clients need only be notified if the Entity contained a client replicating component.
+    // - There might be special clients subscribed for notification
+  }
+
+  /**
    * Terminate itself when there is no active component anymore.
    */
-  private fun handleTerminated(term: Terminated) {
+  private fun handleTerminatedComponentActor(term: Terminated) {
     componentActorCache.remove(term.actor)
     if (componentActorCache.activeComponentActorCount == 0) {
       context.stop(self)
@@ -184,15 +195,11 @@ class EntityActor(
   }
 
   private fun handleSaveAndKill(msg: SaveAndKillEntity) {
-    awaitEntityResponse(messageApi, context, entityId) { entity ->
-      // TODO Persist the given entity.
-      LOG.error { "Persisting $entity entities/components is not yet implemented." }
-
-      componentActorCache.allActors().forEach {
-        it.tell(msg, sender)
-      }
-
-      context.stop(self)
+    // TODO Persist the given entity.
+    componentActorCache.allActors().forEach {
+      it.tell(msg, sender)
     }
+
+    context.stop(self)
   }
 }

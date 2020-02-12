@@ -19,11 +19,6 @@ sealed class ScriptCommand : EntityCommand {
   }
 }
 
-data class SetLifetimeCommand(
-    override val entityId: Long,
-    val lifetime: Duration
-) : ScriptCommand()
-
 data class SetTimeoutCommand(
     override val entityId: Long,
     val timeout: Duration,
@@ -40,16 +35,6 @@ class ScriptApi(
     private val entityId: Long,
     private val commands: MutableList<EntityCommand>
 ) {
-
-  fun setLivetime(livetimeMs: Long): ScriptApi {
-    require(livetimeMs > 0) { "livetimeMs must be bigger then 0" }
-    commands.add(SetLifetimeCommand(
-        entityId = entityId,
-        lifetime = Duration.ofMillis(livetimeMs)
-    ))
-
-    return this
-  }
 
   fun timeout(delayMs: Long, callback: String): ScriptApi {
     require(delayMs > 0) { "delayMs must be bigger then 0" }

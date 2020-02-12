@@ -15,10 +15,6 @@ import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
-data class ScriptLifetime(
-    val lifetimeMs: Long
-)
-
 /**
  * Manages the [ScriptComponent] for an entity.
  *
@@ -35,11 +31,6 @@ class ScriptComponentActor(
     builder
         .match(Terminated::class.java, this::handlePeriodicActorTerminated)
         .match(IntervalScriptCallback::class.java, this::addIntervalCallback)
-        .match(ScriptLifetime::class.java, this::setScriptLifetime)
-  }
-
-  private fun setScriptLifetime(msg: ScriptLifetime) {
-    throw IllegalStateException("No implemented")
   }
 
   private fun addIntervalCallback(msg: IntervalScriptCallback) {

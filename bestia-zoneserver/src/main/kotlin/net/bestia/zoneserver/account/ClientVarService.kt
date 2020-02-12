@@ -5,9 +5,7 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVarRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.ClientVar
-import net.bestia.model.findOne
 import org.springframework.stereotype.Service
-import java.util.*
 
 private val LOG = KotlinLogging.logger { }
 
@@ -107,8 +105,7 @@ constructor(
     if (cvar != null) {
       cvar.setData(data)
     } else {
-      val acc = accDao.findOne(accountId)
-          ?: throw java.lang.IllegalArgumentException("Account $accountId was not found")
+      val acc = accDao.findOneOrThrow(accountId)
       cvar = ClientVar(acc, key, data)
     }
 

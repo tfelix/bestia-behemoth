@@ -3,7 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.Cancellable
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.UpdateComponentMessage
+import net.bestia.zoneserver.actor.entity.UpdateComponentCommand
 import net.bestia.zoneserver.entity.movement.MovingService
 import net.bestia.zoneserver.entity.component.MoveComponent
 import java.time.Duration
@@ -44,7 +44,7 @@ class MoveComponentActor(
       lastTick = now
 
       val newPosComp = movingService.tickMovement(entity, delta)
-      context.parent.tell(UpdateComponentMessage(newPosComp), self)
+      context.parent.tell(UpdateComponentCommand(newPosComp), self)
     }
   }
 

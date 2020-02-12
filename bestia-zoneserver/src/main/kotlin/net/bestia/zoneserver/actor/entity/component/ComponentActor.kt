@@ -65,7 +65,7 @@ abstract class ComponentActor<T : Component>(
 
     builder
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdate)
-        .match(RequestComponentMessage::class.java, this::sendComponent)
+        .match(RequestComponent::class.java, this::sendComponent)
         .match(SaveAndKillEntity::class.java) { onSave() }
         .match(component.javaClass) { component = it }
 
@@ -90,7 +90,7 @@ abstract class ComponentActor<T : Component>(
     updateConnectedClients(newComponent)
   }
 
-  private fun sendComponent(msg: RequestComponentMessage) {
+  private fun sendComponent(msg: RequestComponent) {
     msg.replyTo.tell(component, self)
   }
 

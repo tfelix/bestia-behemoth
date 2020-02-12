@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
-import net.bestia.model.bestia.BasicStatusValues
-import net.bestia.model.bestia.Bestia
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository

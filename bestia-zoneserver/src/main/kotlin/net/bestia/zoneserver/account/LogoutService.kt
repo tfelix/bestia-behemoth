@@ -5,12 +5,12 @@ import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.findOne
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.socket.LoginResponse
 import net.bestia.zoneserver.actor.socket.LogoutMessage
 import net.bestia.zoneserver.entity.PlayerEntityService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
 
@@ -36,7 +36,7 @@ class LogoutService(
     // Unregister connection.
     LOG.debug("Logout account: {}.", accId)
 
-    val acc = accountDao.findOne(accId) ?: return
+    val acc = accountDao.findByIdOrNull(accId) ?: return
 
     // Send disconnect message to the webserver.
     // Depending on the logout state the actor might have already been

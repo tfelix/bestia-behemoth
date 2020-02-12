@@ -66,6 +66,7 @@ class Attack(
      */
     const val DEFAULT_MELEE_ATTACK_ID = -1L
     const val DEFAULT_RANGE_ATTACK_ID = -2L
+
     val DEFAULT_MELEE_ATTACK: Attack = Attack(
         databaseName = "default_melee_attack",
         strength = 5,

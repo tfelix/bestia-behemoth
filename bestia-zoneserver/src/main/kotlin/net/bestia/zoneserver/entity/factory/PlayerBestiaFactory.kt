@@ -21,46 +21,42 @@ private val LOG = KotlinLogging.logger { }
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
     private val originalStatusComponentFactory: GeneralOriginalStatusComponentFactory,
-    private val idGenerator: IdGenerator
-) {
+    idGenerator: IdGenerator
+) : EntityFactory(idGenerator) {
 
   fun build(playerBestiaId: Long): Entity {
     val playerBestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
 
-    val entityId = idGenerator.newId()
-    val entity = Entity(entityId)
-
-    entity.apply {
+    val entity = newEntity().apply {
       addComponent(PositionComponent(
-          entityId = entity.id,
+          entityId = id,
           shape = playerBestia.currentPosition
       ))
       addComponent(VisualComponent(
-          entityId = entity.id,
+          entityId = id,
           mesh = playerBestia.origin.mesh
       ))
       addComponent(EquipComponent(
-          entityId = entity.id
+          entityId = id
       ))
       addComponent(InventoryComponent(
-          entityId = entity.id
+          entityId = id
       ))
       addComponent(PlayerComponent(
-          entityId = entity.id,
+          entityId = id,
           ownerAccountId = playerBestia.owner.id,
           playerBestiaId = playerBestia.id
       ))
       addComponent(LevelComponent(
-          entityId = entity.id,
+          entityId = id,
           level = playerBestia.level,
           exp = playerBestia.exp
       ))
       addComponent(TagComponent(
-          entityId = entity.id,
+          entityId = id,
           tags = setOf(TagComponent.PLAYER)
       ))
-
-      addComponent(originalStatusComponentFactory.buildComponent(entity))
+      addComponent(originalStatusComponentFactory.buildComponent(this))
     }
 
     LOG.debug { "Build PlayerBestia $entity" }

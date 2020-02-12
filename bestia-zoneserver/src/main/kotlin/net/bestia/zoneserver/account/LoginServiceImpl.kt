@@ -2,9 +2,9 @@ package net.bestia.zoneserver.account
 
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.AccountType
-import net.bestia.model.findOne
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.config.RuntimeConfigService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 /**
@@ -20,7 +20,7 @@ class LoginServiceImpl(
 
   override fun isLoginAllowedForAccount(accountId: Long): Boolean {
     val currentMaintenanceLevel = runtimeConfigService.getRuntimeConfig().maintenanceLevel
-    val account = accountRepository.findOne(accountId)
+    val account = accountRepository.findByIdOrNull(accountId)
         ?: return false
 
     return when (currentMaintenanceLevel) {

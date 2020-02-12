@@ -2,10 +2,9 @@ package net.bestia.zoneserver.guild
 
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
-import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.guild.*
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -18,8 +17,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class GuildService(
     private val guildRepository: GuildRepository,
-    private val accountRepository: AccountRepository,
-    private val playerBestiaRepository: PlayerBestiaRepository
+    private val accountRepository: AccountRepository
 ) {
 
   fun addPlayerToGuild(accountId: Long, guildId: Long) {
@@ -44,7 +42,7 @@ class GuildService(
   }
 
   fun addExpToGuild(guildId: Long, accountId: Long, earnedTotalExp: Int): Int {
-    return guildRepository.findOne(guildId)?.let { guild ->
+    return guildRepository.findByIdOrNull(guildId)?.let { guild ->
       val member = guild.getMember(accountId) ?: return 0
       val rank = member.rank
       val taxExp = Math.ceil((rank.taxRate * earnedTotalExp).toDouble()).toInt()
@@ -63,7 +61,7 @@ class GuildService(
   }
 
   fun getNeededNextLevelExp(guildId: Long): Int {
-    return guildRepository.findOne(guildId)?.let { this.getNeededNextLevelExp(it) } ?: 0
+    return guildRepository.findByIdOrNull(guildId)?.let { this.getNeededNextLevelExp(it) } ?: 0
   }
 
   fun getSkillpointsToSpend(guildId: Int): Int {
@@ -78,7 +76,7 @@ class GuildService(
    * @return TRUE if the account id has at least one bestia inside this guild.
    */
   fun isInGuild(accountId: Long, guildId: Long): Boolean {
-    return guildRepository.findOne(guildId)?.getPlayerBestiaIds()?.contains(accountId) ?: false
+    return guildRepository.findByIdOrNull(guildId)?.getPlayerBestiaIds()?.contains(accountId) ?: false
   }
 
   companion object {

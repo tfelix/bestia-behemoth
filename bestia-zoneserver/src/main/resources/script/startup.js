@@ -4,6 +4,7 @@
  */
 
 Bestia.info("Bestia Behemoth startup script");
+
 Bestia.spawnMob("blob", 12 ,15, 10)
 
 Bestia.newEntity()

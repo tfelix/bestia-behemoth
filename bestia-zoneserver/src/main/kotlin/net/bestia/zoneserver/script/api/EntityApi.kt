@@ -2,10 +2,13 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.actor.entity.AddComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
+import net.bestia.zoneserver.entity.component.LivetimeComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import java.lang.IllegalStateException
+import java.time.Instant
 
 private val LOG = KotlinLogging.logger { }
 
@@ -35,6 +38,15 @@ class EntityApi(
     return this
   }
 
+  fun setLivetime(durationMs: Long): EntityApi {
+    require(durationMs > 0) { "durationMs must be bigger then 0" }
+    val livetimeComponent = LivetimeComponent(entityId = entityId, killOn = Instant.now().plusMillis(durationMs))
+    val addComponentCommand = AddComponentCommand(livetimeComponent)
+    commands.add(addComponentCommand)
+
+    return this
+  }
+
   fun getPosition(): Vec3 {
     throw IllegalStateException("not implemented")
   }
@@ -44,7 +56,6 @@ class EntityApi(
   }
 
   fun script(): ScriptApi {
-
     return ScriptApi(entityId = entityId, commands = commands)
   }
 }

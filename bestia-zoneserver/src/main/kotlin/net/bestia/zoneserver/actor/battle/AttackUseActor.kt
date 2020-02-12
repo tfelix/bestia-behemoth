@@ -5,9 +5,7 @@ import net.bestia.messages.entity.DamageType
 import net.bestia.messages.entity.EntityDamage
 import net.bestia.messages.entity.SkillUseEntity
 import net.bestia.messages.entity.SkillUsePosition
-import net.bestia.model.battle.Attack
-import net.bestia.model.battle.AttackRepository
-import net.bestia.model.findOneOrThrow
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
@@ -15,7 +13,10 @@ import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.battle.BattleService
-import java.lang.IllegalStateException
+import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.AttackListComponent
+import net.bestia.zoneserver.entity.factory.ActiveSkillFactory
+import net.bestia.zoneserver.script.api.NewEntityCommand
 
 private val LOG = KotlinLogging.logger { }
 
@@ -28,7 +29,7 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class AttackUseActor(
     private val battleService: BattleService,
-    private val attackDao: AttackRepository,
+    private val activeSkillFactory: ActiveSkillFactory,
     private val messageApi: MessageApi
 ) : DynamicMessageRoutingActor() {
 
@@ -48,9 +49,20 @@ class AttackUseActor(
   private fun handleAttackOnEntity(msg: SkillUseEntity) {
     LOG.debug { "Use skill: $msg" }
 
-    val attack = attackDao.findOneOrThrow(msg.attackId)
+    val attackerId = msg.entityId
+    val defenderId = msg.targetEntityId
 
-    handleEntityAttack(attack, msg.entityId, msg.targetEntityId)
+    awaitEntityResponse(messageApi, context, setOf(attackerId, defenderId)) {
+      val attacker = it[attackerId]
+      verifyAttackerKnowsAttack(attacker, msg.attackId)
+
+      val dmgs = battleService.attackEntity(msg.attackId, it[attackerId], it[defenderId])
+
+      dmgs.forEach { dmg ->
+        val dmgMsg = EntityDamage(defenderId, dmg.amount, DamageType.DAMAGE)
+        sendActiveRange.tell(dmgMsg, self)
+      }
+    }
   }
 
   /**
@@ -60,21 +72,23 @@ class AttackUseActor(
    * The message describing the attack.
    */
   private fun handleAttackOnPosition(msg: SkillUsePosition) {
-    LOG.debug("Received message: {}.", msg)
-    throw IllegalStateException("Attack not supported")
+    LOG.debug { "Use skill: $msg" }
+
+    val attackerId = msg.entityId
+
+    awaitEntityResponse(messageApi, context, attackerId) { attacker ->
+      verifyAttackerKnowsAttack(attacker, msg.attackId)
+
+      val skillEntity = activeSkillFactory.build(msg.attackId, Vec3(msg.x, msg.y, msg.z))
+      val newEntityCmd = NewEntityCommand(skillEntity)
+      messageApi.send(newEntityCmd.toEntityEnvelope())
+    }
   }
 
-  private fun handleEntityAttack(attack: Attack, attackerId: Long, defenderId: Long) {
-    awaitEntityResponse(messageApi, context, setOf(attackerId, defenderId)) {
-
-      val dmg = battleService.attackEntity(attack, it[attackerId], it[defenderId])
-
-      if (dmg.size == 1) {
-        val dmgMsg = EntityDamage(defenderId, dmg.single().damage, DamageType.DAMAGE)
-        sendActiveRange.tell(dmgMsg, self)
-      } else {
-        throw IllegalStateException("Multi DMG not supported")
-      }
+  private fun verifyAttackerKnowsAttack(attacker: Entity, attackId: Long) {
+    val knownAttackComp = attacker.getComponent(AttackListComponent::class.java)
+    check(!knownAttackComp.knownAttacks.contains(attackId)) {
+      "Attacker $attacker does not know attack ${attackId} only: $knownAttackComp"
     }
   }
 

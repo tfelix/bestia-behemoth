@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaSetActive
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.entity.AddComponentMessage
-import net.bestia.zoneserver.actor.entity.DeleteComponentMessage
+import net.bestia.zoneserver.actor.entity.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.DeleteComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
@@ -34,7 +34,7 @@ class ActivateBestiaActor(
   private fun handleActivateBestia(msg: BestiaSetActive) {
     val playerEntityIds = playerService.getPlayerEntities(msg.accountId) - setOf(msg.playerBestiaId)
 
-    val deleteMsg = DeleteComponentMessage(componentClass = ActivePlayerBestiaComponent::class.java)
+    val deleteMsg = DeleteComponentCommand(componentClass = ActivePlayerBestiaComponent::class.java)
     val componentEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, deleteMsg)
     val entityEnvelope = EntityEnvelope(0, componentEnvelope)
 
@@ -42,7 +42,7 @@ class ActivateBestiaActor(
       messageApi.send(entityEnvelope.copy(entityId = it))
     }
 
-    val addMsg = AddComponentMessage(ActivePlayerBestiaComponent(msg.entityId))
+    val addMsg = AddComponentCommand(ActivePlayerBestiaComponent(msg.entityId))
     val componentAddEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, addMsg)
     val entityActiveEnvelope = EntityEnvelope(msg.entityId, componentAddEnvelope)
 

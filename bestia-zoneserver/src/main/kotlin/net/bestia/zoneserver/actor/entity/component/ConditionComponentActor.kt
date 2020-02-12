@@ -15,6 +15,7 @@ class ConditionComponentActor(
 ) : ComponentActor<ConditionComponent>(conditionComponent) {
 
   private val currentIncrements = ConditionIncrements()
+  // TODO This name confuses as its somehow not a component of its own
   private var statusComponent: StatusComponent? = null
 
   private val tick = context.system.scheduler().schedule(

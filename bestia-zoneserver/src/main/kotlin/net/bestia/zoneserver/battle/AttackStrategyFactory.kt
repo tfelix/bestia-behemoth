@@ -9,6 +9,7 @@ class AttackStrategyFactory {
 
   private val random = ThreadLocalRandom.current()
 
+  // FIXME Implement the missing strategies
   fun getAttackStrategy(ctx: BattleContext): AttackStrategy {
     val usedAttack = ctx.usedAttack
 
@@ -27,4 +28,3 @@ class AttackStrategyFactory {
     }
   }
 }
-

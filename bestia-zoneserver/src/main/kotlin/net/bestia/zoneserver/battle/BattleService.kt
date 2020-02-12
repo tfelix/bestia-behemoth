@@ -2,8 +2,10 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Attack
+import net.bestia.model.battle.AttackRepository
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
+import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import org.springframework.stereotype.Service
 
@@ -18,6 +20,7 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class BattleService(
     private val checkFactory: AttackCheckFactoryImpl,
+    private val attackRepository: AttackRepository,
     private val attackStrategyFactory: AttackStrategyFactory
 ) {
 
@@ -29,7 +32,8 @@ class BattleService(
    * @param defender   The defending entity.
    * @return The calculated damage object or null if the attack failed or was not possible.
    */
-  fun attackEntity(attack: Attack, attacker: Entity, defender: Entity): List<Damage> {
+  fun attackEntity(attackId: Long, attacker: Entity, defender: Entity): List<Damage> {
+    val attack = attackRepository.findOneOrThrow(attackId)
     LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, attack)
 
     // Prepare the battle context since this is needed to carry all information.

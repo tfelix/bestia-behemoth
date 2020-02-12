@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.entity.factory
 
 import mu.KotlinLogging
-import net.bestia.model.findOne
 import net.bestia.model.geometry.Vec3
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
 import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -19,37 +19,36 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class ItemFactory(
     private val itemDao: ItemRepository,
-    private val idGenerator: IdGenerator,
+    idGenerator: IdGenerator,
     private val originalStatusComponentFactory: GeneralOriginalStatusComponentFactory
-) {
+): EntityFactory(idGenerator) {
 
   fun build(itemDbName: String, position: Vec3, amount: Int = 1): Entity {
     val item = itemDao.findItemByName(itemDbName)
-        ?: itemDao.findOne(itemDbName.toLongOrNull() ?: 0)
+        ?: itemDao.findByIdOrNull(itemDbName.toLongOrNull() ?: 0)
         ?: throw IllegalArgumentException("Item in blueprint $itemDbName was not found in database.")
 
     LOG.info { "Create Entity(Item): $item, amount: $amount at $position." }
 
-    val entityId = idGenerator.newId()
-    val entity = Entity(entityId)
+    val entity = newEntity()
     val posComp = PositionComponent(
-        entityId = entityId,
+        entityId = entity.id,
         shape = position
     )
     val visualComp = VisualComponent(
-        entityId = entityId,
+        entityId = entity.id,
         mesh = item.mesh
     )
     val tagComp = TagComponent(
-        entityId = entityId,
+        entityId = entity.id,
         tags = setOf(TagComponent.ITEM)
     )
     val levelComp = LevelComponent(
-        entityId = entityId,
+        entityId = entity.id,
         level = item.level
     )
     val itemComp = ItemComponent(
-        entityId = entityId,
+        entityId = entity.id,
         itemId = item.id,
         itemDbName = item.databaseName
     )

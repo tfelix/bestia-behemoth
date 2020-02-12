@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
-import net.bestia.model.account.AccountRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.model.findOne
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
