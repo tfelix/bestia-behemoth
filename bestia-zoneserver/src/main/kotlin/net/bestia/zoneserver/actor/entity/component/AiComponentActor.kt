@@ -57,7 +57,7 @@ class AiComponentActor(
       }
 
       if(moveDirectionNormal == null) {
-        context.parent.tell(DeleteComponentCommand(MoveComponent::class.java), self)
+        context.parent.tell(DeleteComponentCommand(component.entityId, MoveComponent::class.java), self)
         return@fetchEntity
       }
 

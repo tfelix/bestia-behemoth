@@ -1,4 +1,4 @@
-package net.bestia.model.entity
+package net.bestia.messages.entity
 
 /**
  * Interaction types give the client hints how the player is able to interact
@@ -7,7 +7,7 @@ package net.bestia.model.entity
  *
  * @author Thomas Felix
  */
-enum class Interactions {
+enum class Interaction {
   /**
    * The player can possibly attack this entity.
    */

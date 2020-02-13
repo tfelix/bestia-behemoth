@@ -1,9 +1,10 @@
 package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Rect
+import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
@@ -24,7 +25,7 @@ class ScriptRootApi(
     private val entityCollisionService: EntityCollisionService
 ) {
 
-  val commands = mutableListOf<EntityCommand>()
+  val commands = mutableListOf<EntityMessage>()
 
   fun info(text: String) {
     LOG.info { "${scriptName}: $text" }
@@ -35,10 +36,10 @@ class ScriptRootApi(
   }
 
   fun findEntity(entityId: Long): EntityApi {
-    require(entityId > 0L) { "Entity ID can not be null. This is probably a wrong call." }
+    require(entityId > 0L) { "Entity ID can not be null" }
     LOG.debug { "${scriptName}: findEntity($entityId)" }
 
-    return EntityApi(entityId = entityId, commands = commands)
+    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName)
   }
 
   fun spawnMob(
@@ -49,10 +50,21 @@ class ScriptRootApi(
   ): EntityApi {
     val position = Vec3(x, y, z)
     LOG.debug { "spawnMob: $mobName pos: $position" }
+
     val entity = mobFactory.build(mobName, position)
     commands.add(NewEntityCommand(entity))
 
-    return EntityApi(entityId = entity.id, commands = commands)
+    return EntityApi(entityId = entity.id, commands = commands, scriptName = scriptName)
+  }
+
+  fun findEntities(shape: Shape): Array<EntityApi> {
+    LOG.debug { "${scriptName}: findEntities($shape)" }
+
+    val entities = entityCollisionService.getAllCollidingEntityIds(shape)
+
+    return entities.map {
+      EntityApi(entityId = it, commands = commands, scriptName = scriptName)
+    }.toTypedArray()
   }
 
   fun findEntitiesBbox(x1: Long, y1: Long, z1: Long, x2: Long, y2: Long, z2: Long): Array<EntityApi> {
@@ -62,7 +74,7 @@ class ScriptRootApi(
     val entities = entityCollisionService.getAllCollidingEntityIds(rect)
 
     return entities.map {
-      EntityApi(entityId = it, commands = commands)
+      EntityApi(entityId = it, commands = commands, scriptName = scriptName)
     }.toTypedArray()
   }
 
@@ -70,11 +82,6 @@ class ScriptRootApi(
     val entityId = idGeneratorService.newId()
     commands.add(NewEntityCommand(Entity(entityId)))
 
-    return EntityApi(entityId = entityId, commands = commands)
-  }
-
-  fun commitEntityUpdates(messageApi: MessageApi) {
-    LOG.trace { "Sending ${commands.size} commands from script '$scriptName'" }
-    commands.forEach { messageApi.send(it.toEntityEnvelope()) }
+    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName)
   }
 }

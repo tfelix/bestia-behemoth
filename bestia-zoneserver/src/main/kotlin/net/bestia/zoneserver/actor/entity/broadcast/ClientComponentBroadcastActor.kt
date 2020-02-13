@@ -44,7 +44,7 @@ class ClientComponentBroadcastActor(
 
   private fun broadcastToClientsReceivingMisc(msg: BroadcastComponentMessage): Set<Long> {
     // For each component there might be a factory/service whatever who decides which client gets
-    // and update regardless of size
+    // and update regardless of distance
     return emptySet()
   }
 

@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
 
 @Service
-class EntityCollisionService(
-    private val entityPositionRepository: EntityPositionRepository
-) {
+class EntityCollisionService {
 
   private val cache = mutableMapOf<Long, Shape>()
 

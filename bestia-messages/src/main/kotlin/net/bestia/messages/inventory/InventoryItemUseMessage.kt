@@ -1,6 +1,6 @@
 package net.bestia.messages.inventory
 
-import net.bestia.messages.EntityMessage
+import net.bestia.messages.entity.EntityMessage
 
 /**
  * Signals the server to use an castable item on the map possibly spawning map

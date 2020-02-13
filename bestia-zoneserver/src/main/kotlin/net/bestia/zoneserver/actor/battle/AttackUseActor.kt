@@ -5,7 +5,6 @@ import net.bestia.messages.entity.DamageType
 import net.bestia.messages.entity.EntityDamage
 import net.bestia.messages.entity.SkillUseEntity
 import net.bestia.messages.entity.SkillUsePosition
-import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
@@ -15,8 +14,6 @@ import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.battle.BattleService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.AttackListComponent
-import net.bestia.zoneserver.entity.factory.ActiveSkillFactory
-import net.bestia.zoneserver.script.api.NewEntityCommand
 
 private val LOG = KotlinLogging.logger { }
 
@@ -29,7 +26,6 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 class AttackUseActor(
     private val battleService: BattleService,
-    private val activeSkillFactory: ActiveSkillFactory,
     private val messageApi: MessageApi
 ) : DynamicMessageRoutingActor() {
 
@@ -76,13 +72,14 @@ class AttackUseActor(
 
     val attackerId = msg.entityId
 
+    /*
     awaitEntityResponse(messageApi, context, attackerId) { attacker ->
       verifyAttackerKnowsAttack(attacker, msg.attackId)
 
       val skillEntity = activeSkillFactory.build(msg.attackId, Vec3(msg.x, msg.y, msg.z))
       val newEntityCmd = NewEntityCommand(skillEntity)
       messageApi.send(newEntityCmd.toEntityEnvelope())
-    }
+    }*/
   }
 
   private fun verifyAttackerKnowsAttack(attacker: Entity, attackId: Long) {

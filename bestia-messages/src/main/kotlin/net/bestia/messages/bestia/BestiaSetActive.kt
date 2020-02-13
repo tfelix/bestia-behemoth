@@ -2,7 +2,7 @@ package net.bestia.messages.bestia
 
 import net.bestia.messages.AccountMessage
 
-import net.bestia.messages.EntityMessage
+import net.bestia.messages.entity.EntityMessage
 
 /**
  * Client sends this message if it wants to switch to another active bestia.

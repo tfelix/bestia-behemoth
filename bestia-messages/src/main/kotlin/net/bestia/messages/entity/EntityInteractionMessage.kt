@@ -1,14 +1,6 @@
 package net.bestia.messages.entity
 
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.EntityMessage
-
-enum class Interaction {
-  TALK,
-  ATTACK,
-  LOOT,
-  GENERIC
-}
 
 /**
  * By sending this message to the client the client is informed how

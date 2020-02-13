@@ -11,13 +11,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @author Thomas Felix
  */
 data class Rect(
-    @JsonProperty("o")
     val origin: Vec3,
-
-    @JsonProperty("s")
     private val size: Size,
-
-    @JsonProperty("a")
     override val anchor: Vec3
 ) : Shape, Serializable {
 

@@ -5,6 +5,7 @@ import net.bestia.zoneserver.actor.bootstrap.NodeBootStep
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
+import kotlin.system.measureTimeMillis
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,11 +21,15 @@ class ScriptCompilerBootStep(
 
   override fun execute() {
     var i = 0
-    fileProvider.forEach { scriptFile ->
-      val compiled = scriptCompiler.compile(scriptFile.resource)
-      scriptCache.addScript(scriptFile.key, compiled)
-      i++
+    val compileDurationMs = measureTimeMillis {
+      fileProvider.forEach { scriptFile ->
+        val compiled = scriptCompiler.compile(scriptFile.resource)
+        LOG.debug { "Adding ${scriptFile.key}: ${scriptFile.resource.file.absolutePath}" }
+        scriptCache.addScript(scriptFile.key, compiled)
+        i++
+      }
     }
-    LOG.info { "Compiled $i scripts" }
+
+    LOG.info { "Compiled $i scripts in $compileDurationMs ms" }
   }
 }

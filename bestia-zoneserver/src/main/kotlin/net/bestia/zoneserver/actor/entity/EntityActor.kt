@@ -8,6 +8,7 @@ import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
+import net.bestia.zoneserver.actor.entity.component.ComponentRequest
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.actor.entity.component.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.Entity
@@ -128,7 +129,7 @@ class EntityActor(
     val waitResponseActor = context.actorOf(waitResponseProps)
 
     componentActorCache.allActors().forEach {
-      val requestMsg = RequestComponent(replyTo = waitResponseActor)
+      val requestMsg = ComponentRequest(replyTo = waitResponseActor)
       it.tell(requestMsg, self)
     }
   }

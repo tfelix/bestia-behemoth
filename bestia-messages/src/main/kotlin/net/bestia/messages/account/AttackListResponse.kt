@@ -1,6 +1,6 @@
 package net.bestia.messages.account
 
-import net.bestia.messages.EntityMessage
+import net.bestia.messages.entity.EntityMessage
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the

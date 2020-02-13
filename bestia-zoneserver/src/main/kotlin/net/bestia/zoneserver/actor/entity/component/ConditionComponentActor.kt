@@ -1,12 +1,23 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.battle.ConditionIncrements
 import net.bestia.zoneserver.battle.RegenerationService
 import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import java.time.Duration
+
+open abstract class ConditionCommand() : ComponentMessage<ConditionComponent>, EntityMessage {
+  override val componentType: Class<out ConditionComponent>
+    get() = ConditionComponent::class.java
+}
+
+data class AddHp(override val entityId: Long, val hpDelta: Long) : ConditionCommand()
+data class SetHp(override val entityId: Long, val hp: Long) : ConditionCommand()
+data class AddMana(override val entityId: Long, val manaDelta: Long) : ConditionCommand()
+data class SetMana(override val entityId: Long, val mana: Long) : ConditionCommand()
 
 @ActorComponent(ConditionComponent::class)
 class ConditionComponentActor(

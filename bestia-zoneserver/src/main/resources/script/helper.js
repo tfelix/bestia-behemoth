@@ -2,10 +2,6 @@
  * Script file contains helper function which should be globally available to all scripts.
  */
 
-// Global ctors.
-var BRect = Java.type('net.bestia.model.geometry.Rect');
-var BPoint = Java.type('net.bestia.model.geometry.Point');
-
 /**
  * Creates a rectangular collision shape.
  * 
@@ -19,8 +15,8 @@ var BPoint = Java.type('net.bestia.model.geometry.Point');
  *            The height of the rect.
  * @returns A net.bestia.model.geometry.Rect object for use with the BAPI.
  */
-function rect(x, y, width, height) {
-	return new BRect(x, y, width, height);
+function rect(x, y, z, width, height, depth) {
+	return new Rect(x, y, z, width, height, depth);
 }
 
 /**
@@ -32,6 +28,6 @@ function rect(x, y, width, height) {
  *            The y-coordinate.
  * @returns The created point.
  */
-function point(x, y) {
-	return new BPoint(x, y);
+function vec3(x, y, z) {
+	return new Vec3(x, y, z);
 }

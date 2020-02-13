@@ -1,6 +1,6 @@
 package net.bestia.messages.inventory
 
-import net.bestia.messages.EntityMessage
+import net.bestia.messages.entity.EntityMessage
 
 /**
  * Send if the player wants to drop an item to the ground.

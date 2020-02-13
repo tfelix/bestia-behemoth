@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity
 
+import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
@@ -10,6 +11,11 @@ import net.bestia.zoneserver.entity.Entity
  * Message is send back if the requested entity does not exist.
  */
 object EntityDoesNotExist
+
+data class EntityRequest(
+    val replyTo: ActorRef,
+    val context: Any? = null
+)
 
 fun awaitEntityResponse(
     messageApi: MessageApi,

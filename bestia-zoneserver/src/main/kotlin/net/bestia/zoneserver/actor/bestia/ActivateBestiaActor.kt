@@ -34,7 +34,10 @@ class ActivateBestiaActor(
   private fun handleActivateBestia(msg: BestiaSetActive) {
     val playerEntityIds = playerService.getPlayerEntities(msg.accountId) - setOf(msg.playerBestiaId)
 
-    val deleteMsg = DeleteComponentCommand(componentClass = ActivePlayerBestiaComponent::class.java)
+    val deleteMsg = DeleteComponentCommand(
+        entityId = 0,
+        componentClass = ActivePlayerBestiaComponent::class.java
+    )
     val componentEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, deleteMsg)
     val entityEnvelope = EntityEnvelope(0, componentEnvelope)
 

@@ -1,4 +1,4 @@
-package net.bestia.messages
+package net.bestia.messages.entity
 
 /**
  * Class can be send to a client and contains an entity id.

@@ -1,7 +1,6 @@
 package net.bestia.messages.entity
 
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.EntityMessage
 
 /**
  * This message is send if a component has changed and the clients data model

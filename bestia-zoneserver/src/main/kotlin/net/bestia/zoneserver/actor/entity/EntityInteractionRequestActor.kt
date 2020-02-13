@@ -34,7 +34,7 @@ class EntityInteractionRequestActor(
   }
 
   private fun onInteractionRequest(msg: EntityInteractionRequest) {
-    LOG.debug("Received message: {}", msg)
+    LOG.debug{ "Received message: $msg" }
 
     val activeEntityId = playerEntityService.getActivePlayerEntityId(msg.accountId) ?: return
 
@@ -44,12 +44,10 @@ class EntityInteractionRequestActor(
           it[msg.interactedEntityId]
       )
 
-      // FIXME Supply the right interactions
-
       val reply = EntityInteractionMessage(
           msg.accountId,
           msg.entityId,
-          emptySet()
+          interactions
       )
 
       sendClientActor.tell(reply, self)

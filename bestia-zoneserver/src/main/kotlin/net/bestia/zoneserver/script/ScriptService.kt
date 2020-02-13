@@ -1,14 +1,14 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.routing.MessageApi
-import net.bestia.zoneserver.entity.EntityCollisionService
-import net.bestia.zoneserver.entity.IdGenerator
-import net.bestia.zoneserver.entity.factory.MobFactory
-import net.bestia.zoneserver.script.api.ScriptRootApi
 import net.bestia.zoneserver.script.exec.ScriptExec
 import org.springframework.stereotype.Service
-import javax.script.*
+import javax.script.Bindings
+import javax.script.Invocable
+import javax.script.ScriptContext
+import javax.script.SimpleBindings
+import javax.script.SimpleScriptContext
+import net.bestia.zoneserver.script.api.ScriptRootApi
 
 private val LOG = KotlinLogging.logger { }
 
@@ -25,47 +25,44 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class ScriptService(
     private val scriptCache: ScriptCache,
-    private val mobFactory: MobFactory,
-    private val messageApi: MessageApi,
-    private val idGenerator: IdGenerator,
-    private val entityCollisionService: EntityCollisionService
+    private val scriptCommandProcessor: ScriptCommandProcessor,
+    private val scriptRootApiFactory: ScriptRootApiFactory
 ) {
 
-  // All script execution should be done inside a own actor to avoid blocking the system
-
+  // Enable per thread context here https://stackoverflow.com/questions/33620318/executing-a-function-in-a-specific-context-in-nashorn
+  @Synchronized
   fun execute(scriptExec: ScriptExec) {
     LOG.trace { "Call Script: $scriptExec" }
     val (bindings, rootApi) = setupEnvironment(scriptExec)
+
+    val context = SimpleScriptContext()
+
     try {
       val script = scriptCache.getScript(scriptExec.scriptKey)
+      // TODO Improve this binding handling and make it thread safe
+      val globalBindings = script.engine.getBindings(ScriptContext.ENGINE_SCOPE)
+      context.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
+      context.setBindings(globalBindings, ScriptContext.GLOBAL_SCOPE)
+
       // Check if function invoke is needed or just call the script.
       scriptExec.callFunction?.let { fnName ->
-        script.engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+        script.eval(context) // < Broken! Fix context handling
         (script.engine as Invocable).invokeFunction(fnName)
       } ?: run {
-        script.eval(bindings)
+        script.eval(context)
       }
 
-      rootApi.commitEntityUpdates(messageApi)
+      scriptCommandProcessor.processCommands(rootApi.commands)
     } catch (e: NoSuchMethodException) {
-      LOG.error(e) { "Function ${scriptExec.callFunction} is missing in script ${scriptExec.scriptKey}" }
+      throw BestiaScriptException("Function ${scriptExec.callFunction} is missing in script ${scriptExec.scriptKey}", e)
     } catch (e: Exception) {
-      LOG.error(e) { "Error during script '${scriptExec.scriptKey}' execution." }
+      throw BestiaScriptException("Error during script '${scriptExec.scriptKey}' execution.", e)
     }
   }
 
   private fun setupEnvironment(exec: ScriptExec): Pair<Bindings, ScriptRootApi> {
     val bindings = SimpleBindings()
-
-    exec.setupEnvironment(bindings)
-
-    val rootApi = ScriptRootApi(
-        scriptName = exec.scriptKey,
-        idGeneratorService = idGenerator,
-        mobFactory = mobFactory,
-        entityCollisionService = entityCollisionService
-    )
-    bindings["Bestia"] = rootApi
+    val rootApi = scriptRootApiFactory.buildScriptRootApi(bindings, exec)
 
     return Pair(bindings, rootApi)
   }

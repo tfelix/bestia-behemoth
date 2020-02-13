@@ -6,8 +6,6 @@ plugins {
 description = 'bestia-messages'
 
 dependencies {
-    // implementation project(':bestia-models')
-
     implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
 

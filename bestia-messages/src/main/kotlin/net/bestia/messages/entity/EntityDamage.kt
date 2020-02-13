@@ -1,7 +1,5 @@
 package net.bestia.messages.entity
 
-import net.bestia.messages.EntityMessage
-
 /**
  * This message can be used to communicate a received damage to an entity. If
  * more then one damage is returned it will be a multi damage display. Otherwise

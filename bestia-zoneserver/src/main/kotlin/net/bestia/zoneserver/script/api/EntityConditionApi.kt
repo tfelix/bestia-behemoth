@@ -1,31 +1,14 @@
 package net.bestia.zoneserver.script.api
 
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
-import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
-import net.bestia.zoneserver.entity.component.StatusComponent
-
-sealed class EntityConditionCommand : EntityCommand {
-  abstract val entityId: Long
-
-  override fun toEntityEnvelope(): EntityEnvelope {
-    return EntityEnvelope(
-        entityId = entityId,
-        content = ComponentEnvelope(
-            componentType = StatusComponent::class.java,
-            content = this
-        )
-    )
-  }
-}
-
-data class AddHp(override val entityId: Long, val hpDelta: Long) : EntityConditionCommand()
-data class SetHp(override val entityId: Long, val hp: Long) : EntityConditionCommand()
-data class AddMana(override val entityId: Long, val manaDelta: Long) : EntityConditionCommand()
-data class SetMana(override val entityId: Long, val mana: Long) : EntityConditionCommand()
+import net.bestia.messages.entity.EntityMessage
+import net.bestia.zoneserver.actor.entity.component.AddHp
+import net.bestia.zoneserver.actor.entity.component.AddMana
+import net.bestia.zoneserver.actor.entity.component.SetHp
+import net.bestia.zoneserver.actor.entity.component.SetMana
 
 class EntityConditionApi(
     private val entityId: Long,
-    private val commands: MutableList<EntityCommand>
+    private val commands: MutableList<EntityMessage>
 ) {
   fun addHp(hp: Long): EntityConditionApi {
     commands.add(AddHp(entityId, hp))

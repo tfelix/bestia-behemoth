@@ -6,15 +6,13 @@ import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
 import org.junit.jupiter.api.Test
-import kotlin.random.Random
 
 internal class MeleeDamageCalculatorTest {
 
-  private val sut = PhysicalDamageCalculator(random = Random(1234))
+  private val sut = MeleePhysicalDamageCalculator()
 
   @Test
   fun calculateDamage() {
@@ -85,40 +83,6 @@ internal class MeleeDamageCalculatorTest {
             target = AttackTarget.ENEMY_ENTITY,
             type = AttackType.MELEE_PHYSICAL
         ),
-        attackerCondition = attackerCondition,
-        defenderCondition = defenderCondition,
-        attackerStatusBased = BasicStatusBasedValues(
-            statusValues = defenderStatusValues,
-            conditionValues = attackerCondition,
-            attackSpeed = 10f,
-            baseWalkspeed = 10f,
-            casttimeMod = 1.0f,
-            cooldownMod = 1.0f,
-            criticalHitrate = 20,
-            dodge = 10,
-            hitrate = 10,
-            level = attackerLevel,
-            minDamage = 60,
-            rangedBonusDamage = 0,
-            spellDurationMod = 1.0f
-        ),
-        defenderStatusBased = BasicStatusBasedValues(
-            statusValues = defenderStatusValues,
-            conditionValues = defenderCondition,
-            attackSpeed = 10f,
-            baseWalkspeed = 10f,
-            casttimeMod = 1.0f,
-            cooldownMod = 1.0f,
-            criticalHitrate = 20,
-            dodge = 10,
-            hitrate = 10,
-            level = defenderLevel,
-            minDamage = 60,
-            rangedBonusDamage = 0,
-            spellDurationMod = 1.0f
-        ),
-        attackerStatusPoints = attackerStatusValues,
-        defenderStatusPoints = defenderStatusValues,
         attacker = attacker,
         defender = defender
     )

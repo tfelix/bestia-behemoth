@@ -6,14 +6,34 @@ import akka.actor.Terminated
 import akka.japi.pf.ReceiveBuilder
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.entity.component.ScriptCallback
 import net.bestia.zoneserver.entity.component.ScriptComponent
 import java.lang.IllegalStateException
+import java.time.Duration
 
 private val LOG = KotlinLogging.logger { }
+
+data class SetTimeoutCommand(
+    override val entityId: Long,
+    val timeout: Duration,
+    val callbackFn: String
+) : EntityMessage, ComponentMessage<ScriptComponent> {
+  override val componentType: Class<out ScriptComponent>
+    get() = ScriptComponent::class.java
+}
+
+data class SetIntervalCommand(
+    override val entityId: Long,
+    val timeout: Duration,
+    val callbackFn: String
+) : EntityMessage, ComponentMessage<ScriptComponent> {
+  override val componentType: Class<out ScriptComponent>
+    get() = ScriptComponent::class.java
+}
 
 /**
  * Manages the [ScriptComponent] for an entity.
