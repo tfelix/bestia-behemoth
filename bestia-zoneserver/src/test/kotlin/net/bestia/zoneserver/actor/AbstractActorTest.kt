@@ -51,6 +51,9 @@ abstract class AbstractActorTest {
     }
   }
 
+  /**
+   * Replaces fields inside the actor with probes.
+   */
   protected fun <T : AbstractActor> injectProbeMembers(
       actor: TestActorRef<T>,
       probes: List<String>
@@ -68,8 +71,8 @@ abstract class AbstractActorTest {
     return mappedProbed
   }
 
-  protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>): TestActorRef<T> {
-    val props = SpringNoMockExtension.getSpringProps(system, actorClass.java)
+  protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>, vararg args: Any): TestActorRef<T> {
+    val props = SpringNoMockExtension.getSpringProps(system, actorClass.java, args)
 
     return TestActorRef.create<T>(system, props)
   }

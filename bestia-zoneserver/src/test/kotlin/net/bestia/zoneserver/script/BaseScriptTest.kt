@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.mock
 import net.bestia.zoneserver.Fixtures
+import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.TestInstance
 abstract class BaseScriptTest {
   protected val mobFactory: MobFactory = mock { }
   protected val entityCollisionService: EntityCollisionService = mock { }
+  protected val entityRequestService: EntityRequestService = mock { }
 
   private val idGenerator = IdGenerator(Fixtures.zoneserverNodeConfig)
   protected val interceptor = ScriptCommandProcessorTestInterceptor()
@@ -22,7 +24,8 @@ abstract class BaseScriptTest {
   private val rootApiFactory = ScriptRootApiFactory(
       mobFactory = mobFactory,
       entityCollisionService = entityCollisionService,
-      idGenerator = idGenerator
+      idGenerator = idGenerator,
+      entityRequestService = entityRequestService
   )
 
   private val bootStep = ScriptCompilerBootStep(
@@ -38,7 +41,7 @@ abstract class BaseScriptTest {
   )
 
   @BeforeAll
-  fun setup() {
+  fun baseSetup() {
     // This will compile all the scripts in the classpath
     bootStep.execute()
   }

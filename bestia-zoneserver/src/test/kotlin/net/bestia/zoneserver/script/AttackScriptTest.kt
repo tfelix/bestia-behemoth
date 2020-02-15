@@ -1,10 +1,22 @@
 package net.bestia.zoneserver.script
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
+import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.ConditionValues
+import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.actor.entity.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.component.SetIntervalCommand
+import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.script.api.SetPositionToCommand
+import net.bestia.zoneserver.entity.component.PositionComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
+import net.bestia.zoneserver.script.api.NewEntityCommand
 import net.bestia.zoneserver.script.exec.AttackScriptExec
+import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class AttackScriptTest : BaseScriptTest() {
@@ -13,6 +25,24 @@ class AttackScriptTest : BaseScriptTest() {
       AttackFixture.EMBER,
       userEntity
   )
+
+  @BeforeAll
+  fun setup() {
+    whenever(entityRequestService.requestEntity(any())).thenReturn(Entity(10).apply {
+      addComponent(PositionComponent(entityId = 10, shape = Vec3(5, 6, 7)))
+      val statusValues = BasicStatusValues()
+      val level = 5
+      addComponent(StatusComponent(
+          entityId = 10,
+          statusValues = statusValues,
+          statusBasedValues = BasicStatusBasedValues(
+              conditionValues = ConditionValues(),
+              level = level,
+              statusValues = statusValues
+          )
+      ))
+    })
+  }
 
   @Test
   fun `basic attack script api calls work`() {
@@ -24,9 +54,23 @@ class AttackScriptTest : BaseScriptTest() {
 
     val commandClasses = interceptor.lastIssuedCommands.map { it.javaClass }.toSet()
     Assertions.assertEquals(
-        setOf(SetPositionToCommand::class.java),
+        setOf(
+            SetPositionToAbsolute::class.java,
+            SetIntervalCommand::class.java,
+            NewEntityCommand::class.java,
+            AddComponentCommand::class.java
+        ),
         commandClasses
     )
+
+    val setIntervalCommand = interceptor.lastIssuedCommands.first { it.javaClass == SetIntervalCommand::class.java } as SetIntervalCommand
+    val scriptCallbackExec = ScriptCallbackExec.Builder(
+        ownerEntityId = setIntervalCommand.entityId,
+        scriptCallFunction = setIntervalCommand.callbackFn,
+        uuid = setIntervalCommand.uuid
+    ).build()
+
+    scriptService.execute(scriptCallbackExec)
   }
 
   @Test

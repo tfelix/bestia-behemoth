@@ -1,11 +1,9 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.actor.Cancellable
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.UpdateComponentCommand
-import net.bestia.zoneserver.entity.movement.MovingService
 import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.movement.MovingService
 import java.time.Duration
 
 /**
@@ -27,24 +25,23 @@ class MoveComponentActor(
   }
 
   private var lastTick = System.currentTimeMillis()
-  private var tick: Cancellable? = null
 
   override fun createReceive(builder: ReceiveBuilder) {
     builder.matchEquals(TICK_MSG) { handleMoveTick() }
   }
 
-  override fun postStop() {
-    tick?.cancel()
-  }
-
   private fun handleMoveTick() {
     fetchEntity { entity ->
-      var now = System.currentTimeMillis()
+      val now = System.currentTimeMillis()
       val delta = now - lastTick
       lastTick = now
 
-      val newPosComp = movingService.tickMovement(entity, delta)
-      context.parent.tell(UpdateComponentCommand(newPosComp), self)
+      // FIXME das hier sollte wohl besser in die position comp und dort geprüft werden.
+      movingService.tickMovement(entity, delta)
+
+      val offset = component.speed * (delta / 1000f)
+      val updatePosition = SetPositionToOffset(entity.id, offset)
+      context.parent.tell(updatePosition, self)
     }
   }
 

@@ -22,9 +22,9 @@ import javax.script.ScriptEngineManager
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ScriptServiceTest: BaseScriptTest() {
+
   @Throws(Exception::class)
   @Test
-  @Disabled
   fun test() {
     val engine = ScriptEngineManager().getEngineByName("nashorn")
     val scriptInput = this.javaClass.classLoader.getResourceAsStream("script/test.js")

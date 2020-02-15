@@ -1,16 +1,22 @@
 function onTick() {
-	// var entitiesInRange = Bestia.findEntities(shape);
-	Bestia.info("geht")
-	// entitiesInRange.forEach(e => Attack.calculateDamage(e));
+	var self = Bestia.findEntity(SELF);
+
+
+
+	/*entitiesInRange.forEach(e =>
+	    // Attack.calculateDamage(e);
+	    // Bestia.log(e.getPosition());
+	);*/
 }
 
-function main() {
+var e = Bestia.findEntity(10);
+Bestia.info(e.getPosition());
+
 Bestia.newEntity()
     .setVisual('atk_ember')
     .setLivetime(10000)
-    .setShape(rect(0, 0, 0, 5, 5, 5))
+    //.setShape(rect(0, 0, 0, 5, 5, 5))
     .setPosition(TARGET_POSITION)
-    .setStatusValuesFrom(OWNER)
+    .copyStatusValuesFrom(OWNER)
     .scriptApi()
         .setInterval(1000, 'onTick');
-}

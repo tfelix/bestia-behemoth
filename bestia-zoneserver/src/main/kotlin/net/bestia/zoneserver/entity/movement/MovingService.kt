@@ -74,7 +74,9 @@ class MovingService {
   }
 
   /**
-   * Moves the Bestia for the distance it also checks for trigger entities in the given area.
+   * Moves the Bestia for the distance it also checks for entities which might have been triggered in the area
+   * which was moved over.
+   * Returns offset in position.
    */
   fun tickMovement(entity: Entity, delta: Long): PositionComponent {
     val oldPosComp = entity.getComponent(PositionComponent::class.java)
