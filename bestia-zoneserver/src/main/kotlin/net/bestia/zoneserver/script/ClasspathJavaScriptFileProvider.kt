@@ -28,10 +28,19 @@ class ClasspathJavaScriptFileProvider : ScriptFileProvider {
     return resolveClasspathSearch("classpath*:script/attack/*.js", ScriptType.ATTACK)
   }
 
+  private fun fetchRuntimeScripts(): List<ScriptFile> {
+    return listOf(ScriptFile(
+        ScriptCache.RUNTIME_KEY,
+        resolver.getResource("script/helper.js")
+    ))
+  }
+
   override fun iterator(): Iterator<ScriptFile> {
     val scriptFiles = fetchItemScripts() +
         fetchAttackScripts() +
-        fetchBasicScripts()
+        fetchBasicScripts() +
+        fetchRuntimeScripts()
+
     return scriptFiles.iterator()
   }
 }

@@ -5,6 +5,7 @@ import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Rect
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
@@ -22,24 +23,25 @@ class ScriptRootApi(
     val scriptName: String,
     private val idGeneratorService: IdGenerator,
     private val mobFactory: MobFactory,
-    private val entityCollisionService: EntityCollisionService
+    private val entityCollisionService: EntityCollisionService,
+    private val entityRequestService: EntityRequestService
 ) {
 
   val commands = mutableListOf<EntityMessage>()
 
-  fun info(text: String) {
+  fun info(text: Any) {
     LOG.info { "${scriptName}: $text" }
   }
 
-  fun debug(text: String) {
+  fun debug(text: Any) {
     LOG.debug { "${scriptName}: $text" }
   }
 
   fun findEntity(entityId: Long): EntityApi {
+    LOG.trace { "${scriptName}: findEntity($entityId)" }
     require(entityId > 0L) { "Entity ID can not be null" }
-    LOG.debug { "${scriptName}: findEntity($entityId)" }
 
-    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName)
+    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
   }
 
   fun spawnMob(
@@ -49,39 +51,33 @@ class ScriptRootApi(
       z: Long
   ): EntityApi {
     val position = Vec3(x, y, z)
-    LOG.debug { "spawnMob: $mobName pos: $position" }
+    LOG.trace { "spawnMob: $mobName pos: $position" }
+    require(x > 0L) { "X must be greater then 0" }
+    require(y > 0L) { "Y must be greater then 0" }
+    require(z > 0L) { "Z must be greater then 0" }
 
     val entity = mobFactory.build(mobName, position)
     commands.add(NewEntityCommand(entity))
 
-    return EntityApi(entityId = entity.id, commands = commands, scriptName = scriptName)
+    return EntityApi(entityId = entity.id, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
   }
 
   fun findEntities(shape: Shape): Array<EntityApi> {
-    LOG.debug { "${scriptName}: findEntities($shape)" }
+    LOG.trace { "${scriptName}: findEntities($shape)" }
 
     val entities = entityCollisionService.getAllCollidingEntityIds(shape)
 
     return entities.map {
-      EntityApi(entityId = it, commands = commands, scriptName = scriptName)
-    }.toTypedArray()
-  }
-
-  fun findEntitiesBbox(x1: Long, y1: Long, z1: Long, x2: Long, y2: Long, z2: Long): Array<EntityApi> {
-    LOG.debug { "${scriptName}: findEntitiesBbox($x1: Long, $y1: Long, $z1: Long, $x2: Long, $y2: Long, $z2: Long)" }
-
-    val rect = Rect(x1, y1, z1, x2, y2, z2)
-    val entities = entityCollisionService.getAllCollidingEntityIds(rect)
-
-    return entities.map {
-      EntityApi(entityId = it, commands = commands, scriptName = scriptName)
+      EntityApi(entityId = it, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
     }.toTypedArray()
   }
 
   fun newEntity(): EntityApi {
+    LOG.trace { "${scriptName}: newEntity" }
+
     val entityId = idGeneratorService.newId()
     commands.add(NewEntityCommand(Entity(entityId)))
 
-    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName)
+    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
   }
 }

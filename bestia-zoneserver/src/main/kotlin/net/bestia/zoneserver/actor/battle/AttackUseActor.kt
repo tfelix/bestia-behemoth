@@ -5,6 +5,7 @@ import net.bestia.messages.entity.DamageType
 import net.bestia.messages.entity.EntityDamage
 import net.bestia.messages.entity.SkillUseEntity
 import net.bestia.messages.entity.SkillUsePosition
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.client.SendClientsInRangeActor
@@ -62,24 +63,20 @@ class AttackUseActor(
   }
 
   /**
-   * Handles an attack by an entity to the ground or another entity.
+   * Handles an attack to the ground by calling the attack script.
    *
    * @param msg
    * The message describing the attack.
    */
   private fun handleAttackOnPosition(msg: SkillUsePosition) {
-    LOG.debug { "Use skill: $msg" }
+    LOG.trace { "handleAttackOnPosition: $msg" }
 
-    val attackerId = msg.entityId
-
-    /*
-    awaitEntityResponse(messageApi, context, attackerId) { attacker ->
+    awaitEntityResponse(messageApi, context, msg.entityId) { attacker ->
       verifyAttackerKnowsAttack(attacker, msg.attackId)
 
-      val skillEntity = activeSkillFactory.build(msg.attackId, Vec3(msg.x, msg.y, msg.z))
-      val newEntityCmd = NewEntityCommand(skillEntity)
-      messageApi.send(newEntityCmd.toEntityEnvelope())
-    }*/
+      val pos = Vec3(msg.x, msg.y, msg.z)
+      battleService.attackGround(msg.attackId, attacker, pos)
+    }
   }
 
   private fun verifyAttackerKnowsAttack(attacker: Entity, attackId: Long) {

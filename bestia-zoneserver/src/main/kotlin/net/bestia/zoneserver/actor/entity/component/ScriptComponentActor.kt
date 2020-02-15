@@ -28,6 +28,7 @@ data class SetTimeoutCommand(
 
 data class SetIntervalCommand(
     override val entityId: Long,
+    val uuid: String,
     val timeout: Duration,
     val callbackFn: String
 ) : EntityMessage, ComponentMessage<ScriptComponent> {
@@ -50,11 +51,21 @@ class ScriptComponentActor(
   override fun createReceive(builder: ReceiveBuilder) {
     builder
         .match(Terminated::class.java, this::handlePeriodicActorTerminated)
-        .match(IntervalScriptCallback::class.java, this::addIntervalCallback)
+        .match(SetIntervalCommand::class.java, this::addInterval)
+        .match(SetTimeoutCommand::class.java, this::addTimeout)
   }
 
-  private fun addIntervalCallback(msg: IntervalScriptCallback) {
+  private fun addTimeout(msg: SetTimeoutCommand) {
     throw IllegalStateException("No implemented")
+  }
+
+  private fun addInterval(msg: SetIntervalCommand) {
+    val intervalCallback = IntervalScriptCallback(
+        uuid = msg.uuid,
+        interval = msg.timeout,
+        scriptKeyCallback = msg.callbackFn
+    )
+    addPeriodicScriptActor(intervalCallback)
   }
 
   private fun handlePeriodicActorTerminated(msg: Terminated) {
@@ -65,21 +76,15 @@ class ScriptComponentActor(
   override fun onComponentChanged(oldComponent: ScriptComponent, newComponent: ScriptComponent) {
     val periodicScriptActorsToRemove = periodicScriptActor.keys - component.scripts.keys
     periodicScriptActorsToRemove.forEach { killPeriodicActor(it) }
-
-    val periodicScriptActorToAdd = component.scripts.keys - periodicScriptActor.keys
-    periodicScriptActorToAdd.forEach {
-      component.scripts[it]?.let { scriptCallback -> addPeriodicScriptActor(scriptCallback) }
-    }
   }
 
   private fun killPeriodicActor(key: String) {
     periodicScriptActor[key]?.tell(PoisonPill.getInstance(), self)
-    periodicScriptActor.remove(key)
   }
 
   private fun addPeriodicScriptActor(scriptCallback: ScriptCallback) {
     LOG.debug { "PeriodicScriptActor $scriptCallback added" }
-    val periodicActor = SpringExtension.actorOf(context, PeriodicScriptActor::class.java)
+    val periodicActor = SpringExtension.actorOf(context, IntervalScriptActor::class.java)
     periodicScriptActor[scriptCallback.uuid] = periodicActor
   }
 

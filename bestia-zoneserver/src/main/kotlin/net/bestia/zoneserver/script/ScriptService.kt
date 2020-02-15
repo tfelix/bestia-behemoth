@@ -36,17 +36,19 @@ class ScriptService(
     val (bindings, rootApi) = setupEnvironment(scriptExec)
 
     val context = SimpleScriptContext()
+    context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
 
     try {
+      val runtimeScript = scriptCache.getScript(ScriptCache.RUNTIME_KEY)
+      runtimeScript.eval(context);
+
       val script = scriptCache.getScript(scriptExec.scriptKey)
-      // TODO Improve this binding handling and make it thread safe
-      val globalBindings = script.engine.getBindings(ScriptContext.ENGINE_SCOPE)
-      context.setBindings(bindings, ScriptContext.ENGINE_SCOPE)
-      context.setBindings(globalBindings, ScriptContext.GLOBAL_SCOPE)
 
       // Check if function invoke is needed or just call the script.
       scriptExec.callFunction?.let { fnName ->
-        script.eval(context) // < Broken! Fix context handling
+        script.eval(context)
+        // This does not look like as its thread safe.
+        script.engine.context = context
         (script.engine as Invocable).invokeFunction(fnName)
       } ?: run {
         script.eval(context)

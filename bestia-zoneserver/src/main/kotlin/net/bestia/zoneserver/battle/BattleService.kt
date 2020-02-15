@@ -6,6 +6,7 @@ import net.bestia.model.battle.AttackRepository
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
 import net.bestia.model.findOneOrThrow
+import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
 import org.springframework.stereotype.Service
 
@@ -49,6 +50,10 @@ class BattleService(
     // TODO Perform possible damage reductions/hooks then apply the damage or do this in strategy? Possibly not
 
     return damages
+  }
+
+  fun attackGround(attackId: Long, attacker: Entity, pos: Vec3) {
+
   }
 
   private fun createBattleContext(usedAttack: Attack, attacker: Entity, defender: Entity): BattleContext {

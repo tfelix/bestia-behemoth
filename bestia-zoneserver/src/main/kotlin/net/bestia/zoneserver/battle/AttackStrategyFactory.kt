@@ -1,30 +1,22 @@
 package net.bestia.zoneserver.battle
 
 import org.springframework.stereotype.Component
-import java.lang.IllegalStateException
 import java.util.concurrent.ThreadLocalRandom
 
 @Component
 class AttackStrategyFactory {
 
   private val random = ThreadLocalRandom.current()
+  private val magicCalculator = MagicDamageCalculator()
+  private val meleeCalculator = MeleePhysicalDamageCalculator()
 
-  // FIXME Implement the missing strategies
   fun getAttackStrategy(ctx: BattleContext): AttackStrategy {
     val usedAttack = ctx.usedAttack
 
-    if (usedAttack.isMagic) {
-      if (usedAttack.isRanged) {
-        throw IllegalStateException("Not supported")
-      } else {
-        throw IllegalStateException("Not supported")
-      }
+    return if (usedAttack.isMagic) {
+      MagicPhysicalAttackStrategy(ctx, magicCalculator)
     } else {
-      if (usedAttack.isRanged) {
-        throw IllegalStateException("Not supported")
-      } else {
-        return MeleePhysicalAttackStrategy(ctx, MeleePhysicalDamageCalculator(), random)
-      }
+      MeleePhysicalAttackStrategy(ctx, meleeCalculator, random)
     }
   }
 }

@@ -158,6 +158,7 @@ class EntityActor(
 
   private fun addComponentActor(msg: AddComponentCommand<*>) {
     LOG.trace { "Adding component: ${msg.component::class.java.simpleName} on entity: $entityId." }
+
     createComponentActor(msg.component)
   }
 
@@ -167,6 +168,12 @@ class EntityActor(
   }
 
   private fun createComponentActor(component: Component): ActorRef? {
+    val existingCompActor = componentActorCache.get(component.javaClass)
+
+    if (existingCompActor != null) {
+      return existingCompActor
+    }
+
     return factory.startActor(context, component)?.also {
       context().watch(it)
       componentActorCache.add(component, it)

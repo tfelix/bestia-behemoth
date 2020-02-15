@@ -16,4 +16,8 @@ class ScriptCache {
     return cache[key]
         ?: throw IllegalArgumentException("There is no compiled script with key '$key'")
   }
+
+  companion object {
+    const val RUNTIME_KEY = "runtime"
+  }
 }

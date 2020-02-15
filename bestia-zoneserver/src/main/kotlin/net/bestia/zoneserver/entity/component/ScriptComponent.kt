@@ -1,32 +1,32 @@
 package net.bestia.zoneserver.entity.component
 
-import java.util.*
+import java.time.Duration
 
 sealed class ScriptCallback {
   abstract val uuid: String
-  abstract val script: String
+  abstract val scriptKeyCallback: String
 }
 
-data class DelayScriptCallback(
+data class TimeoutScriptCallback(
     override val uuid: String,
-    override val script: String,
+    override val scriptKeyCallback: String,
     val delayMs: Long
 ) : ScriptCallback()
 
 data class IntervalScriptCallback(
     override val uuid: String,
-    override val script: String,
-    val intervalMs: Long
+    override val scriptKeyCallback: String,
+    val interval: Duration
 ) : ScriptCallback()
 
 data class OnEnterScriptCallback(
     override val uuid: String,
-    override val script: String
+    override val scriptKeyCallback: String
 ) : ScriptCallback()
 
 data class OnLeaveScriptCallback(
     override val uuid: String,
-    override val script: String
+    override val scriptKeyCallback: String
 ) : ScriptCallback()
 
 /**
@@ -36,16 +36,6 @@ data class OnLeaveScriptCallback(
  */
 data class ScriptComponent(
     override val entityId: Long,
-    val scripts: Map<String, ScriptCallback>
-) : Component {
-
-  companion object {
-    fun interval(scriptName: String, intervalMs: Long): IntervalScriptCallback {
-      return IntervalScriptCallback(
-          UUID.randomUUID().toString(),
-          scriptName,
-          intervalMs
-      )
-    }
-  }
-}
+    val scripts: Map<String, ScriptCallback> = emptyMap(),
+    val scriptVars: Map<String, Map<String, Any>> = emptyMap()
+) : Component

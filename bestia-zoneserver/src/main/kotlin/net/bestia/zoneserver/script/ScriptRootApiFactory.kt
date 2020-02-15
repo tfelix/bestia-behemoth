@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
+import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
@@ -15,18 +16,21 @@ private val LOG = KotlinLogging.logger { }
 class ScriptRootApiFactory(
     private val mobFactory: MobFactory,
     private val idGenerator: IdGenerator,
-    private val entityCollisionService: EntityCollisionService
+    private val entityCollisionService: EntityCollisionService,
+    private val entityRequestService: EntityRequestService
 ) {
 
   fun buildScriptRootApi(bindings: Bindings, exec: ScriptExec): ScriptRootApi {
     LOG.trace { "Building ScriptRoot for ${exec.scriptKey} [${exec.javaClass.simpleName}]" }
+
     exec.setupEnvironment(bindings)
 
     val rootApi = ScriptRootApi(
         scriptName = exec.scriptKey,
         idGeneratorService = idGenerator,
         mobFactory = mobFactory,
-        entityCollisionService = entityCollisionService
+        entityCollisionService = entityCollisionService,
+        entityRequestService = entityRequestService
     )
 
     bindings["Bestia"] = rootApi
