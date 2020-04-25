@@ -3,12 +3,11 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
-import net.bestia.zoneserver.actor.entity.broadcast.TransmitRequest
-import net.bestia.zoneserver.actor.entity.broadcast.ClientComponentTransmitActor
+import net.bestia.zoneserver.actor.entity.transmit.TransmitRequest
+import net.bestia.zoneserver.actor.entity.transmit.ClientComponentTransmitActor
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -17,8 +16,6 @@ abstract class ComponentActor<T : Component>(
     component: T
 ) : EntityRequestingActor() {
 
-  private val broadcastToClientsOnChange = javaClass.getAnnotation(ActorComponent::class.java)?.broadcastToClients
-      ?: false
   private val updateComponentSubscriber = mutableSetOf<ActorRef>()
   private val broadcastToClients = SpringExtension.actorOf(context, ClientComponentTransmitActor::class.java)
 
@@ -74,10 +71,6 @@ abstract class ComponentActor<T : Component>(
   protected open fun onSave() {}
 
   private fun updateConnectedClients(newComponent: T) {
-    if (!broadcastToClientsOnChange) {
-      return
-    }
-
     requestOwnerEntity {
       val msg = TransmitRequest(newComponent, it)
       broadcastToClients.tell(msg, self)

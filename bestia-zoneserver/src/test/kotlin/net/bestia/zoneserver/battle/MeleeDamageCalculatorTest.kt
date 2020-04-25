@@ -6,6 +6,8 @@ import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
+import net.bestia.zoneserver.battle.damage.DamageVariables
+import net.bestia.zoneserver.battle.damage.MeleePhysicalDamageCalculator
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
 import org.junit.jupiter.api.Test
@@ -21,8 +23,6 @@ internal class MeleeDamageCalculatorTest {
         agility = 10,
         dexterity = 10,
         intelligence = 10,
-        magicDefense = 5,
-        physicalDefense = 5,
         vitality = 10,
         willpower = 10
     )
@@ -45,8 +45,6 @@ internal class MeleeDamageCalculatorTest {
         agility = 10,
         dexterity = 10,
         intelligence = 10,
-        magicDefense = 0,
-        physicalDefense = 0,
         vitality = 10,
         willpower = 10
     )

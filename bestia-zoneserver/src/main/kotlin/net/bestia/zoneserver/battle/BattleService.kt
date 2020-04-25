@@ -7,6 +7,7 @@ import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.entity.Entity
 import org.springframework.stereotype.Service
 

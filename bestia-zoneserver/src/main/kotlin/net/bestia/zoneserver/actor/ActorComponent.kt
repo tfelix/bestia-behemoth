@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor
 
-import net.bestia.zoneserver.actor.entity.broadcast.NoOpTransmitFilter
-import net.bestia.zoneserver.actor.entity.broadcast.TransmitFilter
+import net.bestia.zoneserver.actor.entity.transmit.NoOpTransmitFilter
+import net.bestia.zoneserver.actor.entity.transmit.TransmitFilter
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component

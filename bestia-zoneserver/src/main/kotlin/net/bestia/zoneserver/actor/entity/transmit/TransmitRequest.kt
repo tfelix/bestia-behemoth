@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity.broadcast
+package net.bestia.zoneserver.actor.entity.transmit
 
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component

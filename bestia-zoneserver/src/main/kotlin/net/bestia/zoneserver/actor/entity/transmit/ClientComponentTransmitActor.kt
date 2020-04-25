@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity.broadcast
+package net.bestia.zoneserver.actor.entity.transmit
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef

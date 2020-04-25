@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
 import net.bestia.model.battle.*

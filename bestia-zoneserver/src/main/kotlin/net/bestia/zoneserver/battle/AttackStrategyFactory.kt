@@ -1,5 +1,9 @@
 package net.bestia.zoneserver.battle
 
+import net.bestia.zoneserver.battle.damage.MagicDamageCalculator
+import net.bestia.zoneserver.battle.damage.MagicPhysicalAttackStrategy
+import net.bestia.zoneserver.battle.damage.MeleePhysicalAttackStrategy
+import net.bestia.zoneserver.battle.damage.MeleePhysicalDamageCalculator
 import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 

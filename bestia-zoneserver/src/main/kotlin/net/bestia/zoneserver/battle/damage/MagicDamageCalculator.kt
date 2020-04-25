@@ -1,6 +1,9 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
+import net.bestia.zoneserver.battle.BaseDamageCalculator
+import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.clamp
 import kotlin.math.max
 import kotlin.math.min
 
@@ -42,9 +45,9 @@ class MagicDamageCalculator() : BaseDamageCalculator() {
 
   override fun getHardDefenseModifier(battleCtx: BattleContext): Float {
     val magicDefenseMod = battleCtx.damageVariables.magicDefenseMod
-    val defStatus = battleCtx.defenderStatusPoints
+    val defDefense = battleCtx.defenderDefense.magicDefense
 
-    return (1 - (defStatus.magicDefense / 100f + magicDefenseMod)).clamp(0.05f, 1.0f)
+    return (1 - (defDefense / 100f + magicDefenseMod)).clamp(0.05f, 1.0f)
   }
 
   override fun getAttackModifier(battleCtx: BattleContext): Float {

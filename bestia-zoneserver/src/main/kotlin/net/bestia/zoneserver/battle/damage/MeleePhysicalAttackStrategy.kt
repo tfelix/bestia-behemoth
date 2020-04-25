@@ -1,10 +1,12 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
 import net.bestia.model.battle.CriticalHit
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Miss
 import net.bestia.model.battle.Hit
+import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.PhysicalAttackStrategy
 import java.util.*
 
 private val LOG = KotlinLogging.logger { }

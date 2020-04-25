@@ -2,6 +2,7 @@ package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.battle.Element
 import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.Defense
 import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
 
@@ -22,6 +23,8 @@ data class StatusComponent(
      * @return The current status points of the entity.
      */
     val statusValues: StatusValues,
+
+    val defense: Defense,
 
     /**
      * Sets the status based values.

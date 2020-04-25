@@ -2,6 +2,7 @@ package net.bestia.zoneserver.battle
 
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.Element
+import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
@@ -24,6 +25,9 @@ data class BattleContext(
 
   val attackerStatusPoints get() = attacker.getComponent(StatusComponent::class.java).statusValues
   val defenderStatusPoints get() = defender.getComponent(StatusComponent::class.java).statusValues
+
+  val attackerDefense get() = attacker.getComponent(StatusComponent::class.java).defense
+  val defenderDefense get() = defender.getComponent(StatusComponent::class.java).defense
 
   val attackerStatusBased get() = attacker.getComponent(StatusComponent::class.java).statusBasedValues
   val defenderStatusBased get() = defender.getComponent(StatusComponent::class.java).statusBasedValues
