@@ -2,15 +2,13 @@ package net.bestia.model.geometry
 
 import java.io.Serializable
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 /**
  * Rectangle. Immutable. Can be used as collision bounding box shape and other
  * things.
  *
  * @author Thomas Felix
  */
-data class Rect(
+data class Cube(
     val origin: Vec3,
     private val size: Size,
     override val anchor: Vec3
@@ -99,7 +97,7 @@ data class Rect(
   val z: Long
     get() = origin.z
 
-  override val boundingBox: Rect
+  override val boundingBox: Cube
     get() = this
 
   private fun checkAnchor(aX: Long, aY: Long) {
@@ -132,7 +130,7 @@ data class Rect(
     return CollisionHelper.collide(s, this)
   }
 
-  override fun collide(s: Rect): Boolean {
+  override fun collide(s: Cube): Boolean {
     return CollisionHelper.collide(s, this)
   }
 
@@ -140,7 +138,7 @@ data class Rect(
     return s.collide(this)
   }
 
-  override fun moveTo(x: Long, y: Long, z: Long): Rect {
+  override fun moveTo(x: Long, y: Long, z: Long): Cube {
     val dX = anchor.x - origin.x
     val dY = anchor.y - origin.y
     val dZ = anchor.z - origin.z
@@ -148,6 +146,6 @@ data class Rect(
     val cY = y - dY
     val cZ = z - dZ
 
-    return Rect(Vec3(cX, cY, cZ), Size(width, height, depth), Vec3(x, y, z))
+    return Cube(Vec3(cX, cY, cZ), Size(width, height, depth), Vec3(x, y, z))
   }
 }

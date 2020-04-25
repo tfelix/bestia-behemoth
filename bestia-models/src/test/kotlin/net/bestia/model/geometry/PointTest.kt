@@ -54,7 +54,7 @@ class PointTest {
   @Test
   fun collide_rect_success() {
     val p1 = Vec3(10, 10, 10)
-    val r = Rect(9, 9, 9, 5, 5, 5)
+    val r = Cube(9, 9, 9, 5, 5, 5)
 
     assertTrue(p1.collide(r))
   }
@@ -62,7 +62,7 @@ class PointTest {
   @Test
   fun collide_rect_fail() {
     val p1 = Vec3(10, 10, 10)
-    val r = Rect(11, 10, 10, 5, 5, 5)
+    val r = Cube(11, 10, 10, 5, 5, 5)
 
     assertFalse(p1.collide(r))
   }

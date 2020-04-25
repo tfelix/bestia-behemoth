@@ -8,14 +8,25 @@ import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
+import net.bestia.zoneserver.actor.entity.commands.*
+import net.bestia.zoneserver.actor.entity.commands.KillEntityCommand
+import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.zoneserver.actor.entity.component.ComponentRequest
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
-import net.bestia.zoneserver.actor.entity.component.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
 import net.bestia.zoneserver.script.api.NewEntityCommand
 
 private val LOG = KotlinLogging.logger { }
+
+/**
+ * When send to the [EntityActor] it will update the given actor ref if a component
+ * has changed.
+ */
+data class SubscribeForComponentUpdates(
+    val componentType: Class<out Component>,
+    val sendUpdateTo: ActorRef
+)
 
 /**
  * The [EntityActor] is a persistent actor managing all aspects of a
@@ -77,7 +88,7 @@ class EntityActor(
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
 
         .match(Terminated::class.java, this::handleTerminatedComponentActor)
-        .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
+        .match(SaveAndKillEntityCommand::class.java, this::handleSaveAndKill)
         .match(KillEntityCommand::class.java) { context.stop(self) }
         .match(EntityRequest::class.java, this::handleEntityRequest)
         // TODO Do this with a become/ctx change
@@ -202,7 +213,7 @@ class EntityActor(
     }
   }
 
-  private fun handleSaveAndKill(msg: SaveAndKillEntity) {
+  private fun handleSaveAndKill(msg: SaveAndKillEntityCommand) {
     // TODO Persist the given entity.
     componentActorCache.allActors().forEach {
       it.tell(msg, sender)

@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaSetActive
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.entity.AddComponentCommand
-import net.bestia.zoneserver.actor.entity.DeleteComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.DeleteComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor

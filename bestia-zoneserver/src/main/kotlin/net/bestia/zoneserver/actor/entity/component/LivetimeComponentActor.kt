@@ -4,7 +4,7 @@ import akka.actor.*
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.KillEntityCommand
+import net.bestia.zoneserver.actor.entity.commands.KillEntityCommand
 import net.bestia.zoneserver.entity.component.*
 import java.time.Duration
 import java.time.Instant

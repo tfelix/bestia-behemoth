@@ -2,8 +2,6 @@ package net.bestia.zoneserver.actor.socket
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import akka.cluster.singleton.ClusterSingletonProxy
-import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.io.Tcp
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
@@ -13,7 +11,6 @@ import net.bestia.messages.AccountMessage
 import net.bestia.messages.AuthProtos
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
-import net.bestia.zoneserver.actor.BQualifier.CLIENT_CONNECTION_MANAGER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import org.springframework.beans.factory.annotation.Qualifier

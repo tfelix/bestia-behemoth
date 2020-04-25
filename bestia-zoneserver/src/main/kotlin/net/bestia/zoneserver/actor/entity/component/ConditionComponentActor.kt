@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.battle.ConditionIncrements
 import net.bestia.zoneserver.battle.RegenerationService
 import net.bestia.zoneserver.entity.component.ConditionComponent

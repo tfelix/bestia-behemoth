@@ -44,9 +44,9 @@ class SphereTest {
   @Test
   fun collide_rect_ok() {
     val c = Sphere(10, 10, 10, 2)
-    val r1 = Rect(3, 3, 3, 20, 20, 20)
-    val r2 = Rect(12, 10, 10, 4, 4, 4)
-    val r3 = Rect(10, 13, 10, 5, 5, 5)
+    val r1 = Cube(3, 3, 3, 20, 20, 20)
+    val r2 = Cube(12, 10, 10, 4, 4, 4)
+    val r3 = Cube(10, 13, 10, 5, 5, 5)
 
     assertTrue(c.collide(r1))
     assertTrue(c.collide(r2))

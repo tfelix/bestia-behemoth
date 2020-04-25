@@ -3,8 +3,8 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.DeleteComponentCommand
-import net.bestia.zoneserver.actor.entity.UpdateComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.DeleteComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.UpdateComponentCommand
 import net.bestia.zoneserver.entity.component.AiComponent
 import net.bestia.zoneserver.entity.component.MoveComponent
 import java.time.Duration
@@ -41,7 +41,7 @@ class AiComponentActor(
   }
 
   private fun handleAiTick() {
-    fetchEntity { entity ->
+    requestOwnerEntity { entity ->
       val speed = 1.5f // entity.getComponent(OriginalStatusComponent::class.java)
 
       val moveDirectionNormal = when (rand.nextInt(10)) {
@@ -58,7 +58,7 @@ class AiComponentActor(
 
       if(moveDirectionNormal == null) {
         context.parent.tell(DeleteComponentCommand(component.entityId, MoveComponent::class.java), self)
-        return@fetchEntity
+        return@requestOwnerEntity
       }
 
       val direction = moveDirectionNormal * speed

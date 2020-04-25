@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.entity.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
 import net.bestia.zoneserver.entity.Entity

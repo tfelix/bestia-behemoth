@@ -2,7 +2,6 @@ package net.bestia.zoneserver.script.api
 
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
-import net.bestia.model.geometry.Rect
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.entity.EntityRequestService

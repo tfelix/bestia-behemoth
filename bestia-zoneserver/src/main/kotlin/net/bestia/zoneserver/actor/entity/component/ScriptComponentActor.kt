@@ -84,7 +84,7 @@ class ScriptComponentActor(
 
   private fun addPeriodicScriptActor(scriptCallback: ScriptCallback) {
     LOG.debug { "PeriodicScriptActor $scriptCallback added" }
-    val periodicActor = SpringExtension.actorOf(context, IntervalScriptActor::class.java)
+    val periodicActor = SpringExtension.actorOf(context, IntervalScriptActor::class.java, scriptCallback)
     periodicScriptActor[scriptCallback.uuid] = periodicActor
   }
 

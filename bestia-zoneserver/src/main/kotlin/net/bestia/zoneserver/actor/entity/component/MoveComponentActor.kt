@@ -31,7 +31,7 @@ class MoveComponentActor(
   }
 
   private fun handleMoveTick() {
-    fetchEntity { entity ->
+    requestOwnerEntity { entity ->
       val now = System.currentTimeMillis()
       val delta = now - lastTick
       lastTick = now

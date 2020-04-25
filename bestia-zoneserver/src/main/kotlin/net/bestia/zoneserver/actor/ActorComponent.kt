@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.actor
 
+import net.bestia.zoneserver.actor.entity.broadcast.NoOpTransmitFilter
+import net.bestia.zoneserver.actor.entity.broadcast.TransmitFilter
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -12,7 +14,7 @@ import net.bestia.zoneserver.entity.component.Component as BestiaComponent
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 annotation class ActorComponent(
     val component: KClass<out BestiaComponent>,
-    val broadcastToClients: Boolean = false
+    val transmitFilter: KClass<out TransmitFilter> = NoOpTransmitFilter::class
 )
 
 /**

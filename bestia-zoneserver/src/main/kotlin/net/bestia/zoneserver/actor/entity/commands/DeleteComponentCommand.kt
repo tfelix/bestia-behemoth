@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity
+package net.bestia.zoneserver.actor.entity.commands
 
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.entity.component.Component

@@ -2,11 +2,10 @@ package net.bestia.zoneserver.script
 
 import mu.KotlinLogging
 import org.springframework.core.io.Resource
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Service
 import java.io.InputStreamReader
 import jdk.internal.dynalink.beans.StaticClass
-import net.bestia.model.geometry.Rect
+import net.bestia.model.geometry.Cube
 import net.bestia.model.geometry.Vec3
 import javax.script.*
 
@@ -18,7 +17,7 @@ class JavascriptScriptCompiler : ScriptCompiler {
 
   init {
     // Add global java types
-    engine.put("Rect", StaticClass.forClass(Rect::class.java))
+    engine.put("Rect", StaticClass.forClass(Cube::class.java))
     engine.put("Vec3", StaticClass.forClass(Vec3::class.java))
   }
 

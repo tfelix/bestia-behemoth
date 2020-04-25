@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.model.geometry.Rect
+import net.bestia.model.geometry.Cube
 import net.bestia.zoneserver.entity.component.PositionComponent
 import kotlin.math.max
 import kotlin.math.min
@@ -46,7 +46,7 @@ class LineOfSightAttackCheck() : AttackCheck() {
     val depth = y2 - y1
     val height = z2 - z1
 
-    val bbox = Rect(x1, y1, z1, width, depth, height)
+    val bbox = Cube(x1, y1, z1, width, depth, height)
 
     return true
     /*

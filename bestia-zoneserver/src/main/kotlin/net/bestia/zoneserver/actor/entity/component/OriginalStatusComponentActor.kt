@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.OriginalStatusComponent
 import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
@@ -30,7 +31,7 @@ class OriginalStatusComponentActor(
   }
 
   private fun onLevelComponentChanged(levelComponent: LevelComponent) {
-    fetchEntity {
+    requestOwnerEntity {
       component = originalStatusComponentFactory.buildComponent(it)
     }
   }

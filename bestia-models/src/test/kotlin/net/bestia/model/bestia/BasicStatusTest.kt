@@ -3,7 +3,7 @@ package net.bestia.model.bestia
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class StatusPointsImplTest {
+class BasicStatusTest {
 
   @Test
   fun check_add() {
@@ -13,15 +13,10 @@ class StatusPointsImplTest {
         intelligence = 10,
         willpower = 10,
         agility = 10,
-        dexterity = 10,
-        magicDefense = 10,
-        physicalDefense = 10
+        dexterity = 10
     )
 
     val restult = sp1 + sp1
-
-    assertEquals(20, restult.physicalDefense)
-    assertEquals(20, restult.magicDefense)
 
     assertEquals(20, restult.intelligence)
     assertEquals(20, restult.vitality)
@@ -38,8 +33,5 @@ class StatusPointsImplTest {
     assertEquals(1, sut.agility)
     assertEquals(1, sut.willpower)
     assertEquals(1, sut.strength)
-
-    assertEquals(0, sut.physicalDefense)
-    assertEquals(0, sut.magicDefense)
   }
 }

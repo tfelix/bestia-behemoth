@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.entity
 
-import net.bestia.model.entity.EntityPositionRepository
 import net.bestia.model.geometry.Shape
 import org.springframework.stereotype.Service
-import java.lang.IllegalStateException
 
 @Service
 class EntityCollisionService {

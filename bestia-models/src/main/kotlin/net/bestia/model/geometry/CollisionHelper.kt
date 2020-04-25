@@ -11,7 +11,7 @@ package net.bestia.model.geometry
 internal object CollisionHelper {
 
   /**
-   * Checks if a [Vec3] and a [Rect] collide.
+   * Checks if a [Vec3] and a [Cube] collide.
    *
    * @param s
    * Vector.
@@ -19,7 +19,7 @@ internal object CollisionHelper {
    * Rect.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(s: Vec3, r: Rect): Boolean {
+  fun collide(s: Vec3, r: Cube): Boolean {
 
     val xLeft = s.x < r.x
     val yTop = s.y < r.y
@@ -30,7 +30,7 @@ internal object CollisionHelper {
   }
 
   /**
-   * Checks if a [Sphere] and a [Rect] collide.
+   * Checks if a [Sphere] and a [Cube] collide.
    *
    * @param s
    * Circle.
@@ -38,7 +38,7 @@ internal object CollisionHelper {
    * Rect.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(s: Sphere, r: Rect): Boolean {
+  fun collide(s: Sphere, r: Cube): Boolean {
 
     val cc = s.center
 
@@ -103,7 +103,7 @@ internal object CollisionHelper {
   }
 
   /**
-   * Checks if two [Rect] collides.
+   * Checks if two [Cube] collides.
    *
    * @param r1
    * First Rect.
@@ -111,7 +111,7 @@ internal object CollisionHelper {
    * Second Rect.
    * @return TRUE if they collide. FALSE otherwise.
    */
-  fun collide(r1: Rect, r2: Rect): Boolean {
+  fun collide(r1: Cube, r2: Cube): Boolean {
     val xCheck1 = r1.x < r2.x + r2.width
     val xCheck2 = r1.x + r1.width > r2.x
     val yCheck1 = r1.y < r2.y + r2.height

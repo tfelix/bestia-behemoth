@@ -14,7 +14,7 @@ interface Shape {
    * @param s Collding shape.
    * @return TRUE if it collides. FALSE otherwise.
    */
-  val boundingBox: Rect
+  val boundingBox: Cube
 
   /**
    * Returns the anchor coordinates for this shape. These are absolute
@@ -49,7 +49,7 @@ interface Shape {
    * Collding shape.
    * @return TRUE if it collides. FALSE otherwise.
    */
-  fun collide(s: Rect): Boolean
+  fun collide(s: Cube): Boolean
 
   /**
    * Checks if this shape collides with the given vector.

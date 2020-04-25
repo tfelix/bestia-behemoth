@@ -1,8 +1,5 @@
 package net.bestia.zoneserver.entity.component
 
-import net.bestia.model.item.EquipmentSlot
-import net.bestia.model.item.PlayerItemId
-
 /**
  * Entities owning this component are able to equip items.
  *

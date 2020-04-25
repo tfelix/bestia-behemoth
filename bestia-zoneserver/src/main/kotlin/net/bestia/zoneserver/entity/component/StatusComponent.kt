@@ -6,10 +6,7 @@ import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.StatusBasedValues
 
 /**
- * Entities having this component can be participate in the attacking system. It
- * holds all data needed to perform status values changes. Since the
- * calculations of the status values are non trivial it is important to use the
- * [net.bestia.zoneserver.battle.MobStatusService] to access the values inside this component.
+ * Entities having this component can be participate in the attacking system.
  *
  * @author Thomas Felix
  */

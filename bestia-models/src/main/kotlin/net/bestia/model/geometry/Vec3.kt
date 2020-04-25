@@ -33,9 +33,9 @@ data class Vec3(
 
   constructor() : this(0, 0, 0)
 
-  override val boundingBox: Rect
+  override val boundingBox: Cube
     @JsonIgnore
-    get() = Rect(x, y, z, 1, 1, 1)
+    get() = Cube(x, y, z, 1, 1, 1)
 
   override val anchor: Vec3
     @JsonIgnore
@@ -49,7 +49,7 @@ data class Vec3(
     return CollisionHelper.collide(s, this)
   }
 
-  override fun collide(s: Rect): Boolean {
+  override fun collide(s: Cube): Boolean {
     return CollisionHelper.collide(this, s)
   }
 

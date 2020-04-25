@@ -24,13 +24,13 @@ data class Sphere(
     checkAnchor(anchor.x, anchor.y)
   }
 
-  override val boundingBox: Rect
+  override val boundingBox: Cube
     get() {
       val dX = center.x - radius
       val dY = center.y - radius
       val dZ = center.z - radius
 
-      return Rect(dX, dY, dZ, (2 * radius).toLong(), (2 * radius).toLong(), (2 * radius).toLong())
+      return Cube(dX, dY, dZ, (2 * radius).toLong(), (2 * radius).toLong(), (2 * radius).toLong())
     }
 
   /**
@@ -63,7 +63,7 @@ data class Sphere(
     return CollisionHelper.collide(this, s)
   }
 
-  override fun collide(s: Rect): Boolean {
+  override fun collide(s: Cube): Boolean {
     return CollisionHelper.collide(this, s)
   }
 

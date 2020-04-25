@@ -1,55 +1,26 @@
 package net.bestia.zoneserver.actor.entity.component
 
-import akka.actor.AbstractActorWithTimers
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.AwaitResponseActor
-import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.entity.*
-import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
-import net.bestia.zoneserver.actor.entity.broadcast.BroadcastComponentMessage
-import net.bestia.zoneserver.actor.entity.broadcast.ClientComponentBroadcastActor
-import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
+import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
+import net.bestia.zoneserver.actor.entity.broadcast.TransmitRequest
+import net.bestia.zoneserver.actor.entity.broadcast.ClientComponentTransmitActor
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
 
-// TODO Might better placed at entity actor
-data class SubscribeForComponentUpdates(
-    val componentType: Class<out Component>,
-    val sendUpdateTo: ActorRef
-)
-
 abstract class ComponentActor<T : Component>(
     component: T
-) : AbstractActorWithTimers() {
+) : EntityRequestingActor() {
 
   private val broadcastToClientsOnChange = javaClass.getAnnotation(ActorComponent::class.java)?.broadcastToClients
       ?: false
   private val updateComponentSubscriber = mutableSetOf<ActorRef>()
-  private val broadcastToClients = SpringExtension.actorOf(context, ClientComponentBroadcastActor::class.java)
-
-  protected fun fetchEntity(
-      callback: (Entity) -> Unit
-  ) {
-    val hasReceived: (List<Any>) -> Boolean = {
-      true
-    }
-    val transformResponse = { response: Responses ->
-      val entityResponse = response.getResponse(EntityResponse::class)
-      callback(entityResponse.entity)
-    }
-    val props = AwaitResponseActor.props(
-        checkResponseReceived = hasReceived,
-        action = transformResponse
-    )
-    val requestActor = context.actorOf(props)
-    val requestMsg = EntityRequest(requestActor)
-    context.parent.tell(requestMsg, requestActor)
-  }
+  private val broadcastToClients = SpringExtension.actorOf(context, ClientComponentTransmitActor::class.java)
 
   protected var component = component
     set(value) {
@@ -66,7 +37,7 @@ abstract class ComponentActor<T : Component>(
     builder
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdate)
         .match(ComponentRequest::class.java, this::sendComponent)
-        .match(SaveAndKillEntity::class.java) { onSave() }
+        .match(SaveAndKillEntityCommand::class.java) { onSave() }
         .match(component.javaClass) { component = it }
 
     return builder.build()
@@ -107,8 +78,8 @@ abstract class ComponentActor<T : Component>(
       return
     }
 
-    fetchEntity {
-      val msg = BroadcastComponentMessage(newComponent, it)
+    requestOwnerEntity {
+      val msg = TransmitRequest(newComponent, it)
       broadcastToClients.tell(msg, self)
     }
   }

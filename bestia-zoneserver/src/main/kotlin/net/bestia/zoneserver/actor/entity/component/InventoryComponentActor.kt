@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.component.InventoryComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
@@ -27,7 +28,7 @@ class InventoryComponentActor(
   }
 
   private fun recalculateMaxWeight() {
-    fetchEntity {
+    requestOwnerEntity {
       component = inventoryService.updateMaxWeight(it)
     }
   }

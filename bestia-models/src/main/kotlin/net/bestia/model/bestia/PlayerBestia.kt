@@ -14,8 +14,6 @@ import javax.persistence.*
  * Entity for the PlayerBestias these are Bestias which are directly controlled
  * by the player.
  *
- * TODO: Important: equals must only check ID equality.
- *
  * @author Thomas Felix
  */
 @Entity

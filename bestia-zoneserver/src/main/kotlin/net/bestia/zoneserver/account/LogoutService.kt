@@ -3,7 +3,7 @@ package net.bestia.zoneserver.account
 import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
-import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
+import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
@@ -46,7 +46,7 @@ class LogoutService(
 
     val playerEntities = playerEntityService.getPlayerEntities(accId)
     playerEntities.forEach { entityId ->
-      messageApi.send(EntityEnvelope(entityId, SaveAndKillEntity))
+      messageApi.send(EntityEnvelope(entityId, SaveAndKillEntityCommand))
     }
 
     playerEntityService.removeEntityIdsFromAccount(accId)

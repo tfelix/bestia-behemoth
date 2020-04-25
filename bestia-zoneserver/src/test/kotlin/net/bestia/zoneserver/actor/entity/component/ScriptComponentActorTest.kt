@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import java.time.Duration
 
-class ScriptComponentActorTest : AbstractActorTest() {
+class ScriptComponentActorTest : AbstractActorTest(createMockedActors = false) {
 
   @MockBean
   lateinit var scriptService: ScriptService
@@ -30,7 +30,12 @@ class ScriptComponentActorTest : AbstractActorTest() {
 
       script.tell(cmd, ActorRef.noSender())
 
-      it.within(Duration.ofSeconds(1)) {
+      Thread.sleep(30000)
+
+      val msgs = it.receiveN(1)
+      println(msgs)
+
+      it.within(Duration.ofSeconds(10)) {
         verify(scriptService).execute(any())
       }
     }

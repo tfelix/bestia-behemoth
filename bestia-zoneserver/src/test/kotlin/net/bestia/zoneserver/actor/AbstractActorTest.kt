@@ -19,13 +19,19 @@ import org.springframework.test.context.ContextConfiguration
 import kotlin.reflect.KClass
 import org.springframework.test.context.junit.jupiter.SpringExtension as SpringJunitExtension
 
+/**
+ * The createMockedActors flag determines if real actors are created inside the tested actores or if only mocks
+ * should be build. Mocks might be better if the internal messaging should be tested.
+ */
 @ExtendWith(SpringJunitExtension::class)
 @ContextConfiguration(classes = [TestZoneConfiguration::class])
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Tag("actor")
 @SpringBootTest
-abstract class AbstractActorTest {
+abstract class AbstractActorTest(
+    private val createMockedActors: Boolean = true
+) {
 
   @Autowired
   protected lateinit var appCtx: ApplicationContext
@@ -34,8 +40,13 @@ abstract class AbstractActorTest {
   @BeforeAll
   fun initialize() {
     system = ActorSystem.create()
-    SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
-    SpringNoMockExtension.initialize(system, appCtx)
+
+    if (createMockedActors) {
+      SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
+      SpringNoMockExtension.initialize(system, appCtx)
+    } else {
+      SpringExtension.initialize(system, appCtx, SpringActorProducer::class.java)
+    }
   }
 
   @AfterAll
@@ -72,7 +83,11 @@ abstract class AbstractActorTest {
   }
 
   protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>, vararg args: Any): TestActorRef<T> {
-    val props = SpringNoMockExtension.getSpringProps(system, actorClass.java, args)
+    val props = if (createMockedActors) {
+      SpringNoMockExtension.getSpringProps(system, actorClass.java, *args)
+    } else {
+      SpringExtension.getSpringProps(system, actorClass.java, *args)
+    }
 
     return TestActorRef.create<T>(system, props)
   }

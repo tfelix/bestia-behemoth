@@ -6,7 +6,7 @@ import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.entity.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
 import net.bestia.zoneserver.actor.entity.component.SetIntervalCommand
 import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
 import net.bestia.zoneserver.entity.Entity

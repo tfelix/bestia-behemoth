@@ -8,7 +8,7 @@ import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
 
 /**
- * Message is send back if the requested entity does not exist.
+ * This message is send back if the requested entity does not exist.
  */
 object EntityDoesNotExist
 
@@ -46,5 +46,6 @@ fun awaitEntityResponse(
   val props = AwaitResponseActor.props(checkResponseReceived = hasReceivedAll, action = transformResponse)
   val requestActor = ctx.actorOf(props)
   val requestMsg = EntityRequest(requestActor)
+
   entitiyIds.forEach { messageApi.send(EntityEnvelope(it, requestMsg)) }
 }
