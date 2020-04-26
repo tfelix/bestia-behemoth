@@ -17,7 +17,7 @@ class DefenseServices {
 
 @Service
 class StatusValueService(
-    private val originalStatusComponentFactories: List<OriginalStatusComponentFactory>,
+    private val originalStatusComponentFactories: List<StatusComponentFactory>,
     private val defenseService: DefenseServices
 ) {
 

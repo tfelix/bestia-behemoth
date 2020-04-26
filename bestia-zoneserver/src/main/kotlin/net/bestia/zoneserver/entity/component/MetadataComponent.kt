@@ -9,6 +9,10 @@ data class MetadataComponent(
     return data[key]?.toLongOrNull()
   }
 
+  fun containsKey(key: String): Boolean {
+    return data.containsKey(key)
+  }
+
   companion object {
     const val MOB_BESTIA_ID = "mob.bestia_id"
     const val MOB_PLAYER_BESTIA_ID = "mob.player_bestia_id"

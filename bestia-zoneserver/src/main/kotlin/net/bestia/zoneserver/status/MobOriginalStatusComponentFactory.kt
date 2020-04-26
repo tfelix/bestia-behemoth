@@ -1,11 +1,14 @@
 package net.bestia.zoneserver.status
 
 import mu.KotlinLogging
+import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.BestiaRepository
+import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.MetadataComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
 import java.lang.IllegalStateException
 
@@ -14,14 +17,16 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class MobOriginalStatusComponentFactory(
     private val bestiaDao: BestiaRepository
-) : OriginalStatusComponentFactory {
+) : StatusComponentFactory {
   override fun canBuildStatusFor(entity: Entity): Boolean {
-    return entity.tryGetComponent(TagComponent::class.java)?.tags?.contains(TagComponent.MOB)
-        ?: entity.tryGetComponent(MetadataComponent::class.java)?.data?.get(MetadataComponent.MOB_BESTIA_ID) != null
+    return entity.tryGetComponent(MetadataComponent::class.java)?.let {
+      it.containsKey(MetadataComponent.MOB_BESTIA_ID) &&
+          !it.containsKey(MetadataComponent.MOB_PLAYER_BESTIA_ID)
+    }
         ?: false
   }
 
-  override fun buildComponent(entity: Entity): OriginalStatusComponent {
+  override fun buildComponent(entity: Entity): StatusComponent {
     val mobId = entity.getComponent(MetadataComponent::class.java).data[MetadataComponent.MOB_BESTIA_ID]?.toLong()
         ?: throw IllegalStateException("MetaDataComponent did not contain MOB_BESTIA_ID")
     val bestia = bestiaDao.findOneOrThrow(mobId)
@@ -46,10 +51,18 @@ class MobOriginalStatusComponentFactory(
 
     LOG.trace { "Build mob '${bestia.databaseName}' status: $statusValues" }
 
-    return OriginalStatusComponent(
+    return StatusComponent(
         entityId = entity.id,
         element = bestia.element,
-        statusValues = statusValues
+        statusValues = statusValues,
+        defense = BasicDefense(
+            magicDefense = 0, // TODO Add this defense values to the bestia
+            physicalDefense = 0
+        ),
+        statusBasedValues = BasicStatusBasedValues(
+            statusValues = statusValues,
+            level = bestia.level
+        )
     )
   }
 }

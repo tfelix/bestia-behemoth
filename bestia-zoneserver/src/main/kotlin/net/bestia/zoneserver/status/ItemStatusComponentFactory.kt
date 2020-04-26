@@ -2,26 +2,28 @@ package net.bestia.zoneserver.status
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Element
+import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.ItemComponent
-import net.bestia.zoneserver.entity.component.OriginalStatusComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
 @Component
-class ItemOriginalStatusComponentFactory(
+class ItemStatusComponentFactory(
     private val itemDao: ItemRepository
-) : OriginalStatusComponentFactory {
+) : StatusComponentFactory {
 
   override fun canBuildStatusFor(entity: Entity): Boolean {
     return entity.hasComponent(ItemComponent::class.java)
   }
 
-  override fun buildComponent(entity: Entity): OriginalStatusComponent {
+  override fun buildComponent(entity: Entity): StatusComponent {
     val itemComp = entity.getComponent(ItemComponent::class.java)
     val item = itemDao.findOneOrThrow(itemComp.itemId)
     val lv = item.level
@@ -47,10 +49,12 @@ class ItemOriginalStatusComponentFactory(
 
     LOG.trace { "Build item '${item.databaseName}' status: $statusValues" }
 
-    return OriginalStatusComponent(
+    return StatusComponent(
         entityId = entity.id,
         element = element,
-        statusValues = statusValues
+        statusValues = statusValues,
+        defense = BasicDefense(0, 0),
+        statusBasedValues = BasicStatusBasedValues(level = lv, statusValues = statusValues)
     )
   }
 }
