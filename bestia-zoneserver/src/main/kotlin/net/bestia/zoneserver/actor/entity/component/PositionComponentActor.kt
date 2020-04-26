@@ -4,7 +4,7 @@ import akka.japi.pf.ReceiveBuilder
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.transmit.TransmitInRangeFilter
+import net.bestia.zoneserver.actor.entity.transmit.InRangeTransmitFilter
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
 
@@ -24,7 +24,7 @@ data class SetPositionToOffset(
 
 @ActorComponent(
     component = PositionComponent::class,
-    transmitFilter = TransmitInRangeFilter::class
+    transmitFilter = InRangeTransmitFilter::class
 )
 class PositionComponentActor(
     positionComponent: PositionComponent,

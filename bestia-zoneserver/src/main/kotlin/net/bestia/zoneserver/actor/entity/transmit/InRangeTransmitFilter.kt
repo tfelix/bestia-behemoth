@@ -6,7 +6,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.EntityCollisionService
-import net.bestia.zoneserver.entity.component.PlayerComponent
+import net.bestia.zoneserver.entity.component.OwnerComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.map.MapService
 import org.springframework.stereotype.Component
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 private val LOG = KotlinLogging.logger { }
 
 @Component
-class TransmitInRangeFilter(
+class InRangeTransmitFilter(
     private val entityCollisionService: EntityCollisionService,
     private val messageApi: MessageApi
 ) : TransmitFilter {
@@ -30,7 +30,9 @@ class TransmitInRangeFilter(
 
     awaitEntityResponse(messageApi, ctx, activeIds) { entities ->
       val receivingClientIds = entities.all
-          .mapNotNull { it.tryGetComponent(PlayerComponent::class.java)?.ownerAccountId }
+          .mapNotNull { it.tryGetComponent(OwnerComponent::class.java)?.ownerAccountIds }
+          .flatten()
+          .toSet()
 
       parent.tell(TransmitCommand(
           entity = transmit.entity,

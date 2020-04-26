@@ -27,37 +27,38 @@ class PlayerBestiaFactory(
   fun build(playerBestiaId: Long): Entity {
     val playerBestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
 
-    val entity = newEntity().apply {
-      addComponent(PositionComponent(
-          entityId = id,
-          shape = playerBestia.currentPosition
-      ))
-      addComponent(VisualComponent(
-          entityId = id,
-          mesh = playerBestia.origin.mesh
-      ))
-      addComponent(EquipComponent(
-          entityId = id
-      ))
-      addComponent(InventoryComponent(
-          entityId = id
-      ))
-      addComponent(PlayerComponent(
-          entityId = id,
-          ownerAccountId = playerBestia.owner.id,
-          playerBestiaId = playerBestia.id
-      ))
-      addComponent(LevelComponent(
-          entityId = id,
-          level = playerBestia.level,
-          exp = playerBestia.exp
-      ))
-      addComponent(TagComponent(
-          entityId = id,
-          tags = setOf(TagComponent.PLAYER)
-      ))
-      addComponent(originalStatusComponentFactory.buildComponent(this))
-    }
+    val entity = newEntity()
+    val components = listOf(
+        PositionComponent(
+            entityId = entity.id,
+            shape = playerBestia.currentPosition
+        ),
+        VisualComponent(
+            entityId = entity.id,
+            mesh = playerBestia.origin.mesh
+        ),
+        EquipComponent(
+            entityId = entity.id
+        ),
+        InventoryComponent(
+            entityId = entity.id
+        ),
+        PlayerComponent(
+            entityId = entity.id,
+            playerBestiaId = playerBestia.id
+        ),
+        OwnerComponent(
+            entityId = entity.id,
+            ownerAccountIds = setOf(playerBestia.owner.id)
+        ),
+        LevelComponent(
+            entityId = entity.id,
+            level = playerBestia.level,
+            exp = playerBestia.exp
+        ),
+        originalStatusComponentFactory.buildComponent(entity)
+    )
+    components.forEach { entity.addComponent(it) }
 
     LOG.debug { "Build PlayerBestia $entity" }
 
