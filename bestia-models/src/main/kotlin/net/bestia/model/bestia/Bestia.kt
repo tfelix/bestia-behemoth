@@ -37,6 +37,8 @@ class Bestia(
     val level: Int,
     val isBoss: Boolean = false,
 
+    val temperatureKind: TemperatureKind = TemperatureKind.MEDIUM,
+
     @Embedded
     val baseValues: BaseValues,
 

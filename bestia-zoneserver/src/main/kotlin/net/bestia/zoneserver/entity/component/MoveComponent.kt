@@ -7,6 +7,8 @@ import net.bestia.model.geometry.Vec3
  * saved into this component. If the path is completely resolved the component
  * is removed.
  *
+ * FIXME Rename to speed component
+ *
  * @author Thomas Felix
  */
 data class MoveComponent(

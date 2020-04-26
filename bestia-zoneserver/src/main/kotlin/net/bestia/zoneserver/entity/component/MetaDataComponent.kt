@@ -11,5 +11,6 @@ data class MetaDataComponent(
 
   companion object {
     const val MOB_BESTIA_ID = "mob.bestia_id"
+    const val ENTITY_TYPE = "entity.type"
   }
 }

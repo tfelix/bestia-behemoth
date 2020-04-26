@@ -55,6 +55,10 @@ data class Entity(
     return components.containsKey(compClass)
   }
 
+  override fun toString(): String {
+    return "Entity[id: $id, components: [${components.map { it.key.simpleName.toUpperCase() }.joinToString(", ")}]]"
+  }
+
   companion object {
     fun withComponents(entityId: Long, components: Collection<Component>): Entity {
       return Entity(entityId).apply {

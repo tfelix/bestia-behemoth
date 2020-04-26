@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.entity.component
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 /**
  * The entity can be visualized by the engine. In order to do this some means of
  * information about the display visual art must be provided. Usually this is an
