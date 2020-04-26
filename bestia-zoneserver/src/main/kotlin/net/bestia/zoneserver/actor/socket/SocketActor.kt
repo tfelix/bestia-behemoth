@@ -8,11 +8,12 @@ import akka.io.TcpMessage
 import com.google.protobuf.InvalidProtocolBufferException
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.AuthProtos
+import net.bestia.messages.proto.AuthProto
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
+import net.bestia.zoneserver.messages.MessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
 
@@ -34,7 +35,8 @@ private val LOG = KotlinLogging.logger { }
 final class SocketActor(
     private val connection: ActorRef,
     @Qualifier(AUTH_CHECK)
-    private val authenticationCheckActor: ActorRef
+    private val authenticationCheckActor: ActorRef,
+    private val messageConverter: MessageConverterService
 ) : AbstractActor() {
 
   private val buffer = ByteBuffer.allocate(1024 * 4)
@@ -49,7 +51,7 @@ final class SocketActor(
 
     authenticatedSocket = receiveBuilder()
         .match(Tcp.Received::class.java, this::receiveClientMessage)
-        .match(AccountMessage::class.java, this::sendClientMessage)
+        .match(AccountMessage::class.java, this::sendToClientMessage)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
   }
@@ -78,7 +80,7 @@ final class SocketActor(
   private fun waitForAuthMessage(msg: Tcp.Received) {
     val authMsgBytes = extractMessageBytes(msg)
     try {
-      val authMessage = AuthProtos.Auth.parseFrom(authMsgBytes)
+      val authMessage = AuthProto.Auth.parseFrom(authMsgBytes)
       val authRequest = AuthRequest(
           accountId = authMessage.accountId,
           token = authMessage.token
@@ -125,8 +127,11 @@ final class SocketActor(
     clusterClientConnectionManager.tell(event, self)
   }
 
-  private fun sendClientMessage(msg: AccountMessage) {
+  private fun sendToClientMessage(msg: AccountMessage) {
     LOG.info { "Send: $msg" }
+    val output = messageConverter.fromBestia(msg)
+    val buffer = akka.util.ByteString.fromArray(output.toByteArray())
+    connection.tell(TcpMessage.write(buffer), self)
   }
 
   private fun receiveClientMessage(msg: Tcp.Received) {

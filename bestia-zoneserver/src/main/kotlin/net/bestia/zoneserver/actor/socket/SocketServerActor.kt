@@ -19,7 +19,8 @@ import java.net.InetSocketAddress
 private val LOG = KotlinLogging.logger { }
 
 /**
- * Keeps and manages the socket connection to a client.
+ * Keeps and manages the socket connection to clients. It accepts new incoming
+ * connections and prepares the socket actor instances.
  */
 @Actor
 class SocketServerActor(

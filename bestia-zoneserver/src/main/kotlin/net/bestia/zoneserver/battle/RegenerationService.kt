@@ -1,33 +1,36 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.zoneserver.entity.component.ConditionComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
-
-data class ConditionIncrements(
-    var manaIncrement: Float = 0f,
-    var healthIncrement: Float = 0f,
-    var staminaIncrement: Float = 0f
-)
+import net.bestia.model.bestia.ConditionValues
+import net.bestia.model.entity.BasicStatusBasedValues
+import net.bestia.model.entity.StatusBasedValues
 
 class RegenerationService {
 
-  fun addIncrements(
-      conditionComponent: ConditionComponent,
-      currentIncrements: ConditionIncrements,
-      statusComponent: StatusComponent
-  ): ConditionComponent {
-    var healthIncrement = statusComponent.statusBasedValues.hpRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    var manaIncrement = statusComponent.statusBasedValues.manaRegenRate * REGENERATION_TICK_RATE_MS / 1000
-    var staminaIncrement = statusComponent.statusBasedValues.staminaRegenRate * REGENERATION_TICK_RATE_MS / 1000
+  data class ConditionIncrements(
+      var manaIncrement: Float = 0f,
+      var healthIncrement: Float = 0f,
+      var staminaIncrement: Float = 0f
+  )
 
-    val condValues = conditionComponent.conditionValues
-    if (condValues.currentHealth == condValues.maxHealth) {
+  fun addIncrements(
+      conditionValues: ConditionValues,
+      statusBasedValues: StatusBasedValues,
+      currentIncrements: ConditionIncrements
+  ): ConditionValues {
+    val hpRegenStaminaInfluenced = getStaminaInfluencedHPTick(conditionValues, statusBasedValues)
+    val manaRegenStaminaInfluenced = getStaminaInfluencedManaTick(conditionValues, statusBasedValues)
+
+    var healthIncrement = hpRegenStaminaInfluenced * REGENERATION_TICK_RATE_MS / 1000
+    var manaIncrement = manaRegenStaminaInfluenced * REGENERATION_TICK_RATE_MS / 1000
+    var staminaIncrement = statusBasedValues.staminaRegenRate * REGENERATION_TICK_RATE_MS / 1000
+
+    if (conditionValues.currentHealth == conditionValues.maxHealth) {
       healthIncrement = 0f
     }
-    if (condValues.currentMana == condValues.maxMana) {
+    if (conditionValues.currentMana == conditionValues.maxMana) {
       manaIncrement = 0f
     }
-    if (condValues.currentStamina == condValues.maxStamina) {
+    if (conditionValues.currentStamina == conditionValues.maxStamina) {
       staminaIncrement = 0f
     }
 
@@ -35,13 +38,13 @@ class RegenerationService {
     currentIncrements.manaIncrement += manaIncrement
     currentIncrements.staminaIncrement += staminaIncrement
 
-    return transferIncrementsToCondition(currentIncrements, conditionComponent)
+    return transferIncrementsToCondition(currentIncrements, conditionValues)
   }
 
   private fun transferIncrementsToCondition(
       currentIncrements: ConditionIncrements,
-      conditionComponent: ConditionComponent
-  ): ConditionComponent {
+      conditionValues: ConditionValues
+  ): ConditionValues {
     val hpRound = currentIncrements.healthIncrement.toInt()
     currentIncrements.healthIncrement -= hpRound.toFloat()
 
@@ -51,13 +54,59 @@ class RegenerationService {
     val staminaRound = currentIncrements.staminaIncrement.toInt()
     currentIncrements.staminaIncrement -= staminaRound.toFloat()
 
-    val updatedConditionValues = conditionComponent.conditionValues.copy(
-        currentMana = conditionComponent.conditionValues.currentMana + manaRound,
-        currentHealth = conditionComponent.conditionValues.currentHealth + hpRound,
-        currentStamina = conditionComponent.conditionValues.currentStamina + staminaRound
+    val updatedConditionValues = conditionValues.copy(
+        currentMana = conditionValues.currentMana + manaRound,
+        currentHealth = conditionValues.currentHealth + hpRound,
+        currentStamina = conditionValues.currentStamina + staminaRound
     )
 
-    return conditionComponent.copy(conditionValues = updatedConditionValues)
+    return updatedConditionValues
+  }
+
+  private fun getStaminaPerc(conValues: ConditionValues): Float {
+    return conValues.currentStamina.toFloat() / conValues.maxStamina
+  }
+
+  /**
+   * Returns the mana value ticked per regeneration step. Note that this value
+   * might be smaller then 1. We use this to save the value between the ticks
+   * until we have at least 1 mana and can add this to the user status.
+   *
+   * @param entity The entity.
+   * @return The ticked mana value.
+   */
+  private fun getStaminaInfluencedManaTick(
+      conValues: ConditionValues,
+      statusBasedValues: StatusBasedValues
+  ): Float {
+    val staminaPerc = getStaminaPerc(conValues)
+
+    return when {
+      staminaPerc < 0.1f -> 0f
+      staminaPerc < 0.5f -> conValues.maxMana * -0.03f
+      else -> statusBasedValues.manaRegenRate
+    }
+  }
+
+  /**
+   * Returns the health value ticked per regeneration step. Note that this
+   * value might be smaller then 1. We use this to save the value between the
+   * ticks until we have at least 1 health and can add this to the user
+   * status.
+   *
+   * @param entity The entity.
+   * @return The ticked health value.
+   */
+  private fun getStaminaInfluencedHPTick(
+      conValues: ConditionValues,
+      statusBasedValues: StatusBasedValues
+  ): Float {
+    val staminaPerc = getStaminaPerc(conValues)
+    return when {
+      staminaPerc < 0.1f -> 0f
+      staminaPerc < 0.5f -> conValues.maxHealth * -0.03f
+      else -> statusBasedValues.hpRegenRate / 1000 * 8000
+    }
   }
 
   companion object {

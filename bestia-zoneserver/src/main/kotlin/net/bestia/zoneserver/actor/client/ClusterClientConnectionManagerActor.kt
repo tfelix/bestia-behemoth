@@ -107,8 +107,6 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
 
   companion object {
     const val NAME = "clusterClientConnectionManager"
-    // Perform an actor snapshot after 1000 updates.
-    private const val SNAPSHOT_AFTER_UPDATES = 1000
 
     fun getProxyRef(ctx: ActorContext): ActorRef {
       val proxySettings = ClusterSingletonProxySettings.create(ctx.system)

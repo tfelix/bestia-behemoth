@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.entity.component
 
+import net.bestia.zoneserver.battle.KnownAttack
+
 /**
  * These attacks are checked if the bestia wants to perform an attack. It also
  * uses this information when calculating the AI reactions of the bestia.
@@ -8,5 +10,5 @@ package net.bestia.zoneserver.entity.component
  */
 data class AttackListComponent(
     override val entityId: Long,
-    val knownAttacks: Set<Long>
+    val knownAttacks: Set<KnownAttack>
 ) : Component

@@ -2,29 +2,32 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.entity.component.OriginalStatusComponent
+import net.bestia.zoneserver.entity.component.EquipComponent
+import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
+import net.bestia.zoneserver.status.StatusValueService
 
-/**
- * The actor checks an entity with a status component attached and will
- * periodically calculate (usually every second) the hp and mana regeneration.
- * It will then update the current Mana and current HP values.
- *
- * @author Thomas Felix
- */
 @ActorComponent(StatusComponent::class)
 class StatusComponentActor(
-    component: StatusComponent
+    component: StatusComponent,
+    val statusValueService: StatusValueService
 ) : ComponentActor<StatusComponent>(component) {
 
   override fun createReceive(builder: ReceiveBuilder) {
     builder
-        .match(OriginalStatusComponent::class.java, this::onOriginalStatusComponentChanged)
+        .match(LevelComponent::class.java) { calculateStatusValues() }
+        .match(EquipComponent::class.java) { calculateStatusValues() }
   }
 
-  private fun onOriginalStatusComponentChanged(originalStatusComponent: OriginalStatusComponent) {
-    // TODO Update the status values with the modified version via equip, scripts, buffs etc.
-    component = component.copy(statusValues = originalStatusComponent.statusValues)
+  override fun preStart() {
+    createComponentUpdateSubscription(LevelComponent::class.java)
+    createComponentUpdateSubscription(EquipComponent::class.java)
+  }
+
+  private fun calculateStatusValues() {
+    requestOwnerEntity {
+      component = statusValueService.buildComponent(it)
+    }
   }
 
   companion object {

@@ -26,7 +26,7 @@ import net.bestia.zoneserver.actor.bootstrap.ClusterMonitorActor
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
 import net.bestia.zoneserver.actor.client.ClientMessageRoutingActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
-import net.bestia.zoneserver.actor.client.SendClientActor
+import net.bestia.zoneserver.actor.client.SendToClientActor
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor
 import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
@@ -145,7 +145,7 @@ class AkkaConfiguration {
   @Bean
   @Qualifier(CLIENT_FORWARDER)
   fun clientRouterActor(system: ActorSystem): ActorRef {
-    return SpringExtension.actorOf(system, SendClientActor::class.java)
+    return SpringExtension.actorOf(system, SendToClientActor::class.java)
   }
 
   @Bean

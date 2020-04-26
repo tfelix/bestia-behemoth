@@ -5,9 +5,7 @@ import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.MetaDataComponent
-import net.bestia.zoneserver.entity.component.OriginalStatusComponent
-import net.bestia.zoneserver.entity.component.TagComponent
+import net.bestia.zoneserver.entity.component.MetadataComponent
 import org.springframework.stereotype.Component
 import java.lang.IllegalStateException
 
@@ -19,12 +17,12 @@ class MobOriginalStatusComponentFactory(
 ) : OriginalStatusComponentFactory {
   override fun canBuildStatusFor(entity: Entity): Boolean {
     return entity.tryGetComponent(TagComponent::class.java)?.tags?.contains(TagComponent.MOB)
-        ?: entity.tryGetComponent(MetaDataComponent::class.java)?.data?.get(MetaDataComponent.MOB_BESTIA_ID) != null
+        ?: entity.tryGetComponent(MetadataComponent::class.java)?.data?.get(MetadataComponent.MOB_BESTIA_ID) != null
         ?: false
   }
 
   override fun buildComponent(entity: Entity): OriginalStatusComponent {
-    val mobId = entity.getComponent(MetaDataComponent::class.java).data[MetaDataComponent.MOB_BESTIA_ID]?.toLong()
+    val mobId = entity.getComponent(MetadataComponent::class.java).data[MetadataComponent.MOB_BESTIA_ID]?.toLong()
         ?: throw IllegalStateException("MetaDataComponent did not contain MOB_BESTIA_ID")
     val bestia = bestiaDao.findOneOrThrow(mobId)
     val bVals = bestia.baseValues

@@ -1,12 +1,11 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.model.battle.BestiaAttackRepository
-import net.bestia.model.battle.PlayerAttackRepository
+import net.bestia.model.battle.*
+import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.MetaDataComponent
-import net.bestia.zoneserver.entity.component.PlayerComponent
-import net.bestia.zoneserver.entity.component.TagComponent
+import net.bestia.zoneserver.entity.component.AttackListComponent
+import net.bestia.zoneserver.entity.component.MetadataComponent
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -17,42 +16,40 @@ private val LOG = KotlinLogging.logger { }
 @Service
 class AttackListService(
     private val bestiaAttackRepository: BestiaAttackRepository,
-    private val playerAttackRepository: PlayerAttackRepository
+    private val playerAttackRepository: PlayerAttackRepository,
+    private val attackRepository: AttackRepository
 ) {
 
-  fun getLearnableAttacks(entity: Entity): List<LearnedAttack> {
-    val bestiaAttacks = if (isMobEntity(entity)) {
-      val bestiaId = entity.tryGetComponent(MetaDataComponent::class.java)
-          ?.let { it.data[MetaDataComponent.MOB_BESTIA_ID] }
-          ?.toLong()
-      bestiaId?.let { bestiaAttackRepository.getAllAttacksForBestia(bestiaId) }
-          ?: emptyList()
-    } else {
-      emptyList()
-    }.map { LearnedAttack(minLevel = it.minLevel, attack = it.attack) }
+  /**
+   * Returns a list of known attacks of this entity. It will first check if this
+   * is a player entity and return the saved attacks from database and the mobs
+   * default attacks.
+   */
+  fun getKnownAttacks(entity: Entity): List<KnownAttack> {
+    val bestiaAttacks = getDefaultBestiaAttacks(entity)
+        .map { KnownAttack(minLevel = it.minLevel, attackId = it.attack.id) }
 
-    val playerAttacks = if (isPlayerEntity(entity)) {
-      val pbId = entity.tryGetComponent(PlayerComponent::class.java)
-          ?.playerBestiaId
-      pbId?.let { playerAttackRepository.getAllAttacksForBestia(pbId) }
-          ?: emptyList()
-    } else {
-      emptyList()
-    }.map { LearnedAttack(minLevel = it.minLevel, attack = it.attack) }
+    val playerAttacks = getLearnedPlayerAttacks(entity)
+        .map { KnownAttack(minLevel = it.minLevel, attackId = it.attack.id) }
 
     return (bestiaAttacks + playerAttacks).sortedBy { it.minLevel }
   }
 
-  private fun isPlayerEntity(entity: Entity): Boolean {
-    val tagComp = entity.tryGetComponent(TagComponent::class.java)
-        ?: return false
-    return tagComp.tags.contains(TagComponent.PLAYER)
+  private fun getDefaultBestiaAttacks(entity: Entity): List<BestiaAttack> {
+    val bestiaId = entity.tryGetComponent(MetadataComponent::class.java)
+        ?.let { it.tryGetAsLong(MetadataComponent.MOB_BESTIA_ID) }
+        ?: return emptyList()
+
+    return bestiaAttackRepository.getAllAttacksForBestia(bestiaId)
   }
 
-  private fun isMobEntity(entity: Entity): Boolean {
-    val tagComp = entity.tryGetComponent(TagComponent::class.java)
-        ?: return false
-    return tagComp.tags.contains(TagComponent.MOB)
+  private fun getLearnedPlayerAttacks(entity: Entity): List<PlayerAttack> {
+    val playerBestiaId = entity.tryGetComponent(MetadataComponent::class.java)
+        ?.let { it.data[MetadataComponent.MOB_PLAYER_BESTIA_ID] }
+        ?.toLong()
+        ?: return emptyList()
+
+    return playerAttackRepository.getAllAttacksForBestia(playerBestiaId)
   }
 
   /**
@@ -61,8 +58,10 @@ class AttackListService(
    * as a [PositionComponent]. If it has not a
    * [AttackListComponent] this component will be added.
    */
-  fun learnAttack(entity: Entity, attackId: Int) {
-    LOG.debug("Entity {} learns attack {}.")
-    // TODO Implementieren
+  fun learnAttack(entity: Entity, attackId: Long): AttackListComponent {
+    LOG.debug("Entity $entity learns attack $attackId")
+    // TODO If it is a player entity persist learned attack
+    // otherwise just put it into component.
+    return entity.getComponent(AttackListComponent::class.java)
   }
 }

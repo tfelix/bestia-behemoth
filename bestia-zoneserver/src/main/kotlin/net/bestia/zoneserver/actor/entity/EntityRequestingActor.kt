@@ -1,10 +1,8 @@
-package net.bestia.zoneserver.actor.entity.component
+package net.bestia.zoneserver.actor.entity
 
 import akka.actor.AbstractActorWithTimers
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
-import net.bestia.zoneserver.actor.entity.EntityRequest
-import net.bestia.zoneserver.actor.entity.EntityResponse
 import net.bestia.zoneserver.entity.Entity
 
 abstract class EntityRequestingActor : AbstractActorWithTimers() {

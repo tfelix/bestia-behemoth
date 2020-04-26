@@ -72,7 +72,4 @@ interface StatusBasedValues {
    */
   val attackSpeed: Float
   val walkspeed: WalkspeedFloat
-  val healthTick: Float
-  val manaTick: Float
-  val staminaTick: Float
 }

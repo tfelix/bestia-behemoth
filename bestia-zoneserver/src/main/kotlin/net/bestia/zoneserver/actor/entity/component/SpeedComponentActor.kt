@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.component.SpeedComponent
 import net.bestia.zoneserver.entity.movement.MovingService
 import java.time.Duration
 
@@ -14,11 +14,11 @@ import java.time.Duration
  *
  * @author Thomas Felix
  */
-@ActorComponent(MoveComponent::class)
-class MoveComponentActor(
-    moveComponent: MoveComponent,
+@ActorComponent(SpeedComponent::class)
+class SpeedComponentActor(
+    moveComponent: SpeedComponent,
     private val movingService: MovingService
-) : ComponentActor<MoveComponent>(moveComponent) {
+) : ComponentActor<SpeedComponent>(moveComponent) {
 
   init {
     timers.startPeriodicTimer(MOVE_TICK_KEY, TICK_MSG, TICK_DELAY)
@@ -36,11 +36,10 @@ class MoveComponentActor(
       val delta = now - lastTick
       lastTick = now
 
-      // FIXME das hier sollte wohl besser in die position comp und dort geprüft werden.
-      movingService.tickMovement(entity, delta)
+      val speedComp = entity.getComponent(SpeedComponent::class.java)
+      val deltaPos = speedComp.speed * (delta / 1000f)
 
-      val offset = component.speed * (delta / 1000f)
-      val updatePosition = SetPositionToOffset(entity.id, offset)
+      val updatePosition = SetPositionToOffset(entity.id, deltaPos)
       context.parent.tell(updatePosition, self)
     }
   }

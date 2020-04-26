@@ -6,7 +6,7 @@ import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.entity.commands.DeleteComponentCommand
 import net.bestia.zoneserver.actor.entity.commands.UpdateComponentCommand
 import net.bestia.zoneserver.entity.component.AiComponent
-import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.component.SpeedComponent
 import java.time.Duration
 import java.util.*
 
@@ -57,14 +57,14 @@ class AiComponentActor(
       }
 
       if(moveDirectionNormal == null) {
-        context.parent.tell(DeleteComponentCommand(component.entityId, MoveComponent::class.java), self)
+        context.parent.tell(DeleteComponentCommand(component.entityId, SpeedComponent::class.java), self)
         return@requestOwnerEntity
       }
 
       val direction = moveDirectionNormal * speed
-      val moveComponent = MoveComponent(entityId = entity.id, speed = direction)
+      val speedComponent = SpeedComponent(entityId = entity.id, speed = direction)
 
-      context.parent.tell(UpdateComponentCommand(moveComponent), self)
+      context.parent.tell(UpdateComponentCommand(speedComponent), self)
     }
   }
 

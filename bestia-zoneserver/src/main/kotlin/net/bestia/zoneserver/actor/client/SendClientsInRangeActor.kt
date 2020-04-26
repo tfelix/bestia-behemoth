@@ -8,12 +8,11 @@ import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.entity.component.PositionComponent
-import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.PlayerComponent
+import net.bestia.zoneserver.entity.component.OwnerComponent
 import net.bestia.zoneserver.map.MapService
 import org.springframework.beans.factory.annotation.Qualifier
 
@@ -62,7 +61,9 @@ class SendClientsInRangeActor(
 
     awaitEntityResponse(messageApi, context, activeIds) { entities ->
       val playerAccountIds = entities.all
-          .mapNotNull { it.tryGetComponent(PlayerComponent::class.java)?.ownerAccountId }
+          .mapNotNull { it.tryGetComponent(OwnerComponent::class.java)?.ownerAccountIds }
+          .flatten()
+          .toSet()
       playerAccountIds.forEach {
         sendClientActor.tell(ClientEnvelope(it, msg.content), self)
       }

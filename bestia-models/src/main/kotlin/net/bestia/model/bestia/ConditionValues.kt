@@ -1,6 +1,5 @@
 package net.bestia.model.bestia
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import javax.persistence.Embeddable
 
@@ -71,7 +70,7 @@ data class ConditionValues(
     return copy(currentMana = currentMana + mana)
   }
 
-  fun setMaximumValues(
+  private fun setMaximumValues(
       maxHp: Int,
       maxMana: Int,
       maxStamina: Int

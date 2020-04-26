@@ -2,8 +2,6 @@ package net.bestia.zoneserver.actor.client
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import akka.cluster.singleton.ClusterSingletonProxy
-import akka.cluster.singleton.ClusterSingletonProxySettings
 import net.bestia.zoneserver.actor.Actor
 
 /**
@@ -11,7 +9,7 @@ import net.bestia.zoneserver.actor.Actor
  * when needed.
  */
 @Actor
-class SendClientActor : AbstractActor() {
+class SendToClientActor : AbstractActor() {
 
   private lateinit var clusterConnectionManager: ActorRef
   private val connections = mutableMapOf<Long, ActorRef>()

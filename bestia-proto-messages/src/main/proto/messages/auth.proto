@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "AuthProto";
+
+message Auth {
+    int64 accountId = 1;
+    string token = 2;
+}

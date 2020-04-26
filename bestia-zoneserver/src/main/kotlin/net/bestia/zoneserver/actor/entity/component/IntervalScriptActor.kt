@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity.component
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.entity.EntityRequestingActor
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.script.ScriptService
 import net.bestia.zoneserver.script.exec.ScriptCallbackExec

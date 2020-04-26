@@ -6,8 +6,8 @@ import net.bestia.zoneserver.entity.component.*
 import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.IdGenerator
-import net.bestia.zoneserver.entity.component.MetaDataComponent
-import net.bestia.zoneserver.entity.component.MetaDataComponent.Companion.MOB_BESTIA_ID
+import net.bestia.zoneserver.entity.component.MetadataComponent
+import net.bestia.zoneserver.entity.component.MetadataComponent.Companion.MOB_BESTIA_ID
 import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
@@ -37,7 +37,7 @@ class MobFactory(
     val entityId = idGenerator.newId()
     val entity = Entity(entityId)
 
-    val metaDataComponent = MetaDataComponent(entity.id, mapOf(MOB_BESTIA_ID to bestia.id.toString()))
+    val metaDataComponent = MetadataComponent(entity.id, mapOf(MOB_BESTIA_ID to bestia.id.toString()))
     entity.addComponent(metaDataComponent)
     val posComp = PositionComponent(
         entityId = entity.id,

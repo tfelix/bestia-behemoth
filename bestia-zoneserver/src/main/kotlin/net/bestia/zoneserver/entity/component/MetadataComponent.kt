@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.component
 
-data class MetaDataComponent(
+data class MetadataComponent(
     override val entityId: Long,
     val data: Map<String, String>
 ) : Component {
@@ -11,6 +11,6 @@ data class MetaDataComponent(
 
   companion object {
     const val MOB_BESTIA_ID = "mob.bestia_id"
-    const val ENTITY_TYPE = "entity.type"
+    const val MOB_PLAYER_BESTIA_ID = "mob.player_bestia_id"
   }
 }

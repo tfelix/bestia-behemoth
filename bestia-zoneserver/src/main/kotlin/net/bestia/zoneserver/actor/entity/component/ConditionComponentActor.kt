@@ -3,19 +3,19 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
-import net.bestia.zoneserver.battle.ConditionIncrements
 import net.bestia.zoneserver.battle.RegenerationService
 import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import java.time.Duration
 
-open abstract class ConditionCommand() : ComponentMessage<ConditionComponent>, EntityMessage {
+open abstract class ConditionCommand : ComponentMessage<ConditionComponent>, EntityMessage {
   override val componentType: Class<out ConditionComponent>
     get() = ConditionComponent::class.java
 }
 
+// FIXME react on mana or hp changes
 data class AddHp(override val entityId: Long, val hpDelta: Long) : ConditionCommand()
+
 data class SetHp(override val entityId: Long, val hp: Long) : ConditionCommand()
 data class AddMana(override val entityId: Long, val manaDelta: Long) : ConditionCommand()
 data class SetMana(override val entityId: Long, val mana: Long) : ConditionCommand()
@@ -26,7 +26,7 @@ class ConditionComponentActor(
     private val regenerationService: RegenerationService
 ) : ComponentActor<ConditionComponent>(conditionComponent) {
 
-  private val currentIncrements = ConditionIncrements()
+  private val currentIncrements = RegenerationService.ConditionIncrements()
   // TODO This name confuses as its somehow not a component of its own
   private var statusComponent: StatusComponent? = null
 
@@ -40,8 +40,7 @@ class ConditionComponentActor(
   )
 
   override fun preStart() {
-    val subscribeStatusComponent = SubscribeForComponentUpdates(StatusComponent::class.java, self)
-    context.parent.tell(subscribeStatusComponent, self)
+    createComponentUpdateSubscription(StatusComponent::class.java)
   }
 
   override fun createReceive(builder: ReceiveBuilder) {
@@ -52,7 +51,12 @@ class ConditionComponentActor(
 
   private fun tickRegeneration() {
     statusComponent?.let {
-      component = regenerationService.addIncrements(component, currentIncrements, it)
+      val conditionValues = regenerationService.addIncrements(
+          component.conditionValues,
+          it.statusBasedValues,
+          currentIncrements
+      )
+      component = component.copy(conditionValues = conditionValues)
     }
   }
 

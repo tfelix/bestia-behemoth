@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.MoveComponent
+import net.bestia.zoneserver.entity.component.SpeedComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
 import kotlin.math.floor
@@ -71,20 +71,6 @@ class MovingService {
         shape = positionComp.shape.moveTo(newPos),
         facing = Vec3(1, 0, 0)
     )
-  }
-
-  /**
-   * Moves the Bestia for the distance it also checks for entities which might have been triggered in the area
-   * which was moved over.
-   * Returns offset in position.
-   */
-  fun tickMovement(entity: Entity, delta: Long): PositionComponent {
-    val oldPosComp = entity.getComponent(PositionComponent::class.java)
-    val moveComp = entity.getComponent(MoveComponent::class.java)
-    val newPos = oldPosComp.position + moveComp.speed * (delta / 1000f)
-    LOG.trace { "tickMovement: Entity(${entity.id}) to new pos: $newPos" }
-
-    return oldPosComp.copy(shape = oldPosComp.shape.moveTo(newPos))
   }
 
   companion object {

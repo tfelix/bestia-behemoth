@@ -1,8 +1,30 @@
 syntax = "proto3";
 
-package net.bestia.messages.component;
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "ComponentsProto";
 
-option java_outer_classname = "ComponentMessageProto";
+message Component {
+    int64 entityId = 1;
+    int64 componentId = 2;
+}
+
+message Vec3 {
+    int64 x = 1;
+    int64 y = 2;
+    int64 z = 3;
+}
+
+message PositionComponent {
+    Component component = 1;
+    Vec3 position = 2;
+}
+
+message TemperatureComponent {
+    Component component = 1;
+    int32 max_tolerable_temp = 2;
+    int32 min_tolerable_temp = 3;
+    int32 current_temp = 4;
+}
 
 enum Element {
     NORMAL = 0;
@@ -45,25 +67,6 @@ enum Element {
     SHADOW_4 = 37;
     GHOST_4 = 38;
     UNDEAD_4 = 39;
-}
-
-message Component {
-    int64 entityId = 1;
-    int64 componentId = 2;
-}
-
-message PositionComponent {
-    Component component = 1;
-    int64 x = 2;
-    int64 y = 3;
-    int64 z = 4;
-}
-
-message TemperatureComponent {
-    Component component = 1;
-    int32 max_tolerable_temp = 2;
-    int32 min_tolerable_temp = 3;
-    int32 current_temp = 4;
 }
 
 message StatusComponent {

@@ -4,6 +4,7 @@ import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.entity.EntityRequestingActor
 import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.actor.entity.transmit.TransmitRequest
@@ -38,6 +39,11 @@ abstract class ComponentActor<T : Component>(
         .match(component.javaClass) { component = it }
 
     return builder.build()
+  }
+
+  protected fun createComponentUpdateSubscription(clazz: Class<out Component>) {
+    val subscribeForComponentUpdates = SubscribeForComponentUpdates(clazz, self)
+    context.parent.tell(subscribeForComponentUpdates, self)
   }
 
   private fun subscribeForComponentUpdate(msg: SubscribeForComponentUpdates) {

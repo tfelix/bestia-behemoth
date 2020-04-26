@@ -2,7 +2,6 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.entity.component.InventoryComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
@@ -15,10 +14,8 @@ class InventoryComponentActor(
     ) : ComponentActor<InventoryComponent>(inventoryComponent) {
 
   override fun preStart() {
-    val statusCompSubscribeMsg = SubscribeForComponentUpdates(StatusComponent::class.java, self)
-    context.parent.tell(statusCompSubscribeMsg, self)
-    val levelCompSubscribeMsg = SubscribeForComponentUpdates(LevelComponent::class.java, self)
-    context.parent.tell(levelCompSubscribeMsg, self)
+    createComponentUpdateSubscription(LevelComponent::class.java)
+    createComponentUpdateSubscription(LevelComponent::class.java)
   }
 
   override fun createReceive(builder: ReceiveBuilder) {

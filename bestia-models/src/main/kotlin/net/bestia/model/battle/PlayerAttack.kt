@@ -24,9 +24,9 @@ class PlayerAttack(
     val playerBestia: PlayerBestia,
 
     /**
-     * Returns the minimum level required until the bestia can use this attack.
+     * Returns the minimum level required until the Bestia can use this attack.
      *
-     * @return The minimum level until the bestia can use this attack.
+     * @return The minimum level until the Bestia can use this attack.
      */
     val minLevel: Int = 0
 ) : AbstractEntity(), Serializable {
