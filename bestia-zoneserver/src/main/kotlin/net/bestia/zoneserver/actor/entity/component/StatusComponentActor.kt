@@ -26,7 +26,7 @@ class StatusComponentActor(
 
   private fun calculateStatusValues() {
     requestOwnerEntity {
-      component = statusValueService.buildComponent(it)
+      component = statusValueService.buildStatusComponent(it)
     }
   }
 

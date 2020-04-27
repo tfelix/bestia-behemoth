@@ -25,6 +25,7 @@ class StatusValueService(
     val statusValues = buildBaseStatusValues()
     val defense = defenseService.getDefense()
 
+    // FIXME The whole status calculation
     val factory = originalStatusComponentFactories.find { it.canBuildStatusFor(entity) }
         ?: throw IllegalArgumentException("No factory found responsible for $entity")
 

@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity
 
 import net.bestia.messages.entity.Interaction
-import net.bestia.zoneserver.entity.component.TagComponent
 import org.springframework.stereotype.Service
 
 import java.util.*
@@ -35,29 +34,10 @@ class InteractionService {
    */
   fun getPossibleInteractions(source: Entity, target: Entity): Set<Interaction> {
     // We cant interact with untagged entity.
-    val tagComp = target.tryGetComponent(TagComponent::class.java) ?: return emptySet()
-
-    val interactTypes = HashSet<Interaction>()
-
-    // Check if the target is an item.
-    if (tagComp.has(TagComponent.ITEM)) {
-      interactTypes.add(Interaction.PICKUP)
-      interactTypes.add(Interaction.ATTACK)
-    }
-
-    if (tagComp.has(TagComponent.MOB)) {
-      interactTypes.add(Interaction.ATTACK)
-    }
-
-    if (tagComp.has(TagComponent.NPC)) {
-      interactTypes.add(Interaction.INTERACT)
-    }
-
     // FIXME The distance between the interaction requester and the entity should also be considered. Via script?
     // NPC und NPC
     // PC und NPC
     // TODO Call the script calculating the correct interactions.
-
-    return interactTypes
+    return emptySet()
   }
 }

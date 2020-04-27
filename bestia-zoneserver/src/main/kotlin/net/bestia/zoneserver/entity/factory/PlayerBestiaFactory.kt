@@ -6,7 +6,7 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
+import net.bestia.zoneserver.status.StatusValueService
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -20,7 +20,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
-    private val originalStatusComponentFactory: GeneralOriginalStatusComponentFactory,
+    private val statusValueService: StatusValueService,
     idGenerator: IdGenerator
 ) : EntityFactory(idGenerator) {
 
@@ -43,9 +43,12 @@ class PlayerBestiaFactory(
         InventoryComponent(
             entityId = entity.id
         ),
-        PlayerComponent(
+        MetadataComponent(
             entityId = entity.id,
-            playerBestiaId = playerBestia.id
+            data = mapOf(
+                MetadataComponent.MOB_PLAYER_BESTIA_ID to playerBestia.id,
+                MetadataComponent.MOB_PLAYER_BESTIA_ID to playerBestia.origin.id
+            ).mapValues { it.toString() }
         ),
         OwnerComponent(
             entityId = entity.id,
@@ -56,7 +59,7 @@ class PlayerBestiaFactory(
             level = playerBestia.level,
             exp = playerBestia.exp
         ),
-        originalStatusComponentFactory.buildComponent(entity)
+        statusValueService.buildStatusComponent(entity)
     )
     components.forEach { entity.addComponent(it) }
 

@@ -6,7 +6,7 @@ import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
+import net.bestia.zoneserver.status.StatusValueService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -20,8 +20,8 @@ private val LOG = KotlinLogging.logger { }
 class ItemFactory(
     private val itemDao: ItemRepository,
     idGenerator: IdGenerator,
-    private val originalStatusComponentFactory: GeneralOriginalStatusComponentFactory
-): EntityFactory(idGenerator) {
+    private val statusValueService: StatusValueService
+) : EntityFactory(idGenerator) {
 
   fun build(itemDbName: String, position: Vec3, amount: Int = 1): Entity {
     val item = itemDao.findItemByName(itemDbName)
@@ -39,10 +39,6 @@ class ItemFactory(
         entityId = entity.id,
         mesh = item.mesh
     )
-    val tagComp = TagComponent(
-        entityId = entity.id,
-        tags = setOf(TagComponent.ITEM)
-    )
     val levelComp = LevelComponent(
         entityId = entity.id,
         level = item.level
@@ -56,12 +52,11 @@ class ItemFactory(
     entity.addAllComponents(listOf(
         posComp,
         visualComp,
-        tagComp,
         levelComp,
         itemComp
     ))
 
-    val statusComp = originalStatusComponentFactory.buildComponent(entity)
+    val statusComp = statusValueService.buildStatusComponent(entity)
     entity.addComponent(statusComp)
 
     return entity

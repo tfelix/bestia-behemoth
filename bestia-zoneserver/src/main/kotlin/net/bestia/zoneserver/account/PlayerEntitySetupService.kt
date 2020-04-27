@@ -1,17 +1,20 @@
 package net.bestia.zoneserver.account
 
+import mu.KotlinLogging
 import net.bestia.model.bestia.PlayerBestiaRepository
-import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.factory.PlayerBestiaFactory
 import org.springframework.stereotype.Service
 
+private val LOG = KotlinLogging.logger { }
+
 /**
  * Prepares and setup all player entities so the player can access them after wards.
+ *
+ * TODO Check if this service is justified with only one method.
  */
 @Service
 class PlayerEntitySetupService(
     private val playerBestiaRepository: PlayerBestiaRepository,
-    private val playerEntityService: PlayerEntityService,
     private val playerBestiaFactory: PlayerBestiaFactory
 ) {
 
@@ -31,13 +34,10 @@ class PlayerEntitySetupService(
         ?: throw IllegalArgumentException("Account $accId has no master assigned")
 
     val masterEntity = playerBestiaFactory.build(master.id)
-    playerEntityService.updatePlayerBestiaWithEntityId(masterEntity)
+
+    LOG.debug { "Adding player entity: accId: $accId, entityId: masterEntity.id" }
 
     master.entityId = masterEntity.id
     playerBestiaRepository.save(master)
-  }
-
-  fun teardown(accId: Long) {
-    // FIXME IMPLEMENT
   }
 }

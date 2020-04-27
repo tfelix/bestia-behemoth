@@ -81,8 +81,8 @@ class AttackUseActor(
 
   private fun verifyAttackerKnowsAttack(attacker: Entity, attackId: Long) {
     val knownAttackComp = attacker.getComponent(AttackListComponent::class.java)
-    check(!knownAttackComp.knownAttacks.contains(attackId)) {
-      "Attacker $attacker does not know attack ${attackId} only: $knownAttackComp"
+    check(knownAttackComp.knownAttacks.none { it.attackId == attackId }) {
+      "Attacker $attacker does not know attack $attackId only: $knownAttackComp"
     }
   }
 

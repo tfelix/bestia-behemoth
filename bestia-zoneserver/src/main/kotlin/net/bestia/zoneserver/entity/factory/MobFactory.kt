@@ -8,7 +8,7 @@ import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.MetadataComponent
 import net.bestia.zoneserver.entity.component.MetadataComponent.Companion.MOB_BESTIA_ID
-import net.bestia.zoneserver.status.GeneralOriginalStatusComponentFactory
+import net.bestia.zoneserver.status.StatusValueService
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
 
@@ -23,7 +23,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class MobFactory(
     private val bestiaDao: BestiaRepository,
-    private val originalStatusComponentFactory: GeneralOriginalStatusComponentFactory,
+    private val statusValueService: StatusValueService,
     private val idGenerator: IdGenerator
 ) {
 
@@ -60,7 +60,7 @@ class MobFactory(
     entity.addComponent(equipComp)
     entity.addComponent(InventoryComponent(entityId = entity.id))
     entity.addComponent(AiComponent(entityId = entity.id))
-    entity.addComponent(originalStatusComponentFactory.buildComponent(entity))
+    entity.addComponent(statusValueService.buildStatusComponent(entity))
 
     LOG.debug { "Created Entity(Mob): $bestia, at $pos" }
 

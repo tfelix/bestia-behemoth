@@ -1,14 +1,11 @@
 package net.bestia.zoneserver.battle
 
-import mu.KotlinLogging
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
-
-private val LOG = KotlinLogging.logger { }
 
 /**
  * Provides all access to let entities learn attacks.
@@ -39,9 +36,8 @@ class AttackService(
    * @return TRUE if the entity knows the attack FALSE otherwise.
    */
   fun knowsAttack(entity: Entity, attack: Attack): Boolean {
-
     return entity.tryGetComponent(AttackListComponent::class.java)
-        ?.knownAttacks?.contains(attack.id) ?: false
+        ?.knownAttacks?.any { it.attackId == attack.id } ?: false
   }
 
   /**

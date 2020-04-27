@@ -5,6 +5,7 @@ import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.component.*
 import org.springframework.stereotype.Service
+import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -15,7 +16,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class PlayerEntityService(
-    private val playerBestiaDao: PlayerBestiaRepository
+    private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
   /**
@@ -32,28 +33,9 @@ class PlayerEntityService(
    * Returns all player bestia entity ids for a given account.
    */
   fun getPlayerEntities(accountId: Long): Set<Long> {
-    return playerBestiaDao.findPlayerBestiasForAccount(accountId)
-        .asSequence()
+    return playerBestiaRepository.findPlayerBestiasForAccount(accountId)
         .map { it.entityId }
         .toSet()
-  }
-
-  /**
-   * Puts a single [Entity] into the cache.
-   *
-   * @param entity The player entity to put into the cache.
-   */
-  fun updatePlayerBestiaWithEntityId(entity: Entity) {
-    // Can only add entities with player component.
-    val playerComponent = entity.getComponent(PlayerComponent::class.java)
-    val accId = playerComponent.ownerAccountId
-    val entityId = entity.id
-
-    LOG.debug("Adding player entity: accId: {}, entityId: {}.", accId, entityId)
-
-    val playerBestia = playerBestiaDao.findOneOrThrow(playerComponent.playerBestiaId)
-    playerBestia.entityId = entityId
-    playerBestiaDao.save(playerBestia)
   }
 
   /**
@@ -64,12 +46,12 @@ class PlayerEntityService(
   fun removeEntityIdsFromAccount(accountId: Long) {
     LOG.trace { "removeEntityIdsFromAccount(): For account $accountId." }
 
-    val updatedPlayerBestias = playerBestiaDao.findPlayerBestiasForAccount(accountId)
+    val updatedPlayerBestias = playerBestiaRepository.findPlayerBestiasForAccount(accountId)
         .map {
           it.entityId = 0
           it
         }
-    playerBestiaDao.saveAll(updatedPlayerBestias)
+    playerBestiaRepository.saveAll(updatedPlayerBestias)
   }
 
   /**
@@ -77,8 +59,10 @@ class PlayerEntityService(
    * entity and persists them back into the database.
    */
   fun save(playerEntity: Entity) {
-    val playerComp = playerEntity.getComponent(PlayerComponent::class.java)
-    val playerBestia = playerBestiaDao.findOneOrThrow(playerComp.playerBestiaId)
+    val metaComp = playerEntity.getComponent(MetadataComponent::class.java)
+    val playerBestiaId = metaComp.tryGetAsLong(MetadataComponent.MOB_PLAYER_BESTIA_ID)
+        ?: throw IllegalArgumentException("MOB_PLAYER_BESTIA_ID was not present")
+    val playerBestia = playerBestiaRepository.findOneOrThrow(playerBestiaId)
 
     // Current status values (HP/Mana)
     val conditionComp = playerEntity.getComponent(ConditionComponent::class.java)
@@ -93,6 +77,6 @@ class PlayerEntityService(
     playerBestia.exp = levelComp.exp
     playerBestia.level = levelComp.level
 
-    playerBestiaDao.save(playerBestia)
+    playerBestiaRepository.save(playerBestia)
   }
 }

@@ -2,15 +2,15 @@ package net.bestia.zoneserver.actor.bestia
 
 import mu.KotlinLogging
 import net.bestia.messages.bestia.BestiaSetActive
-import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
-import net.bestia.zoneserver.actor.entity.commands.DeleteComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.awaitEntityResponse
+import net.bestia.zoneserver.actor.entity.commands.UpdateComponentCommand
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
-import net.bestia.zoneserver.entity.component.ActivePlayerBestiaComponent
+import net.bestia.zoneserver.entity.component.MetadataComponent
 
 private val LOG = KotlinLogging.logger { }
 
@@ -32,25 +32,34 @@ class ActivateBestiaActor(
   }
 
   private fun handleActivateBestia(msg: BestiaSetActive) {
-    val playerEntityIds = playerService.getPlayerEntities(msg.accountId) - setOf(msg.playerBestiaId)
-
-    val deleteMsg = DeleteComponentCommand(
-        entityId = 0,
-        componentClass = ActivePlayerBestiaComponent::class.java
-    )
-    val componentEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, deleteMsg)
-    val entityEnvelope = EntityEnvelope(0, componentEnvelope)
-
-    playerEntityIds.forEach {
-      messageApi.send(entityEnvelope.copy(entityId = it))
+    playerService.getActivePlayerEntityId(msg.accountId)?.let { currentActiveId ->
+      awaitEntityResponse(messageApi, context, currentActiveId) {
+        val currentMetaData = it.tryGetComponent(MetadataComponent::class.java)
+            ?: MetadataComponent(entityId = it.id)
+        val updateMsg = UpdateComponentCommand(
+            currentMetaData.copyWithoutKey(MetadataComponent.PLAYER_IS_ACTIVE)
+        )
+        val componentEnvelope = ComponentEnvelope(
+            MetadataComponent::class.java,
+            updateMsg
+        )
+        val entityEnvelope = EntityEnvelope(currentActiveId, componentEnvelope)
+        messageApi.send(entityEnvelope)
+      }
     }
 
-    val addMsg = AddComponentCommand(ActivePlayerBestiaComponent(msg.entityId))
-    val componentAddEnvelope = ComponentEnvelope(ActivePlayerBestiaComponent::class.java, addMsg)
-    val entityActiveEnvelope = EntityEnvelope(msg.entityId, componentAddEnvelope)
+    awaitEntityResponse(messageApi, context, msg.entityId) {
+      val currentMetaData = it.tryGetComponent(MetadataComponent::class.java)
+          ?: MetadataComponent(entityId = it.id)
+      val updateMsg = UpdateComponentCommand(
+          currentMetaData.copyWith(MetadataComponent.PLAYER_IS_ACTIVE, true)
+      )
+      val componentAddEnvelope = ComponentEnvelope(MetadataComponent::class.java, updateMsg)
+      val entityActiveEnvelope = EntityEnvelope(msg.entityId, componentAddEnvelope)
 
-    LOG.debug { "Activated player bestia from accId: ${msg.accountId}, entityId: ${msg.entityId}" }
-    messageApi.send(entityActiveEnvelope)
+      LOG.debug { "Activated player Bestia from accId: ${msg.accountId}, entityId: ${msg.entityId}" }
+      messageApi.send(entityActiveEnvelope)
+    }
   }
 
   companion object {
