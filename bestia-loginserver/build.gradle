@@ -1,0 +1,38 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.jetbrains.kotlin.plugin.jpa'
+    id 'org.jetbrains.kotlin.plugin.spring'
+}
+
+description = 'bestia-loginserver'
+
+dependencies {
+    // implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+    // implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8'
+
+    compile group: 'com.google.zxing', name: 'javase', version: '3.4.0'
+
+    // runtimeOnly group: 'mysql', name: 'mysql-connector-java'
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation group: 'org.springframework.security', name: 'spring-security-test'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}

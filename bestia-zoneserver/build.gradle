@@ -5,12 +5,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-repositories {
-    maven {
-        url  'https://dl.bintray.com/tfelix/worldgen'
-    }
-}
-
 description = 'bestia-zoneserver'
 
 dependencies {
@@ -72,4 +66,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
 }
