@@ -13,7 +13,7 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
-import net.bestia.zoneserver.messages.MessageConverterService
+import net.bestia.zoneserver.messages.ProtobufMessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
 import java.nio.ByteBuffer
 
@@ -36,7 +36,7 @@ final class SocketActor(
     private val connection: ActorRef,
     @Qualifier(AUTH_CHECK)
     private val authenticationCheckActor: ActorRef,
-    private val messageConverter: MessageConverterService
+    private val messageConverter: ProtobufMessageConverterService
 ) : AbstractActor() {
 
   private val buffer = ByteBuffer.allocate(1024 * 4)
@@ -130,7 +130,7 @@ final class SocketActor(
   private fun sendToClientMessage(msg: AccountMessage) {
     LOG.info { "Send: $msg" }
     val output = messageConverter.fromBestia(msg)
-    val buffer = akka.util.ByteString.fromArray(output.toByteArray())
+    val buffer = akka.util.ByteString.fromArray(output)
     connection.tell(TcpMessage.write(buffer), self)
   }
 

@@ -8,7 +8,7 @@ import java.lang.IllegalStateException
 private val LOG = KotlinLogging.logger { }
 
 @Service
-class MessageConverterService(
+class ProtobufMessageConverterService(
     existingConverters: List<MessageConverter<Any>>
 ) {
 
@@ -16,22 +16,15 @@ class MessageConverterService(
       .map { it.canConvert to it }
       .toMap()
 
-  fun fromBestia(msg: Any): Messages.Wrapper {
+  fun fromBestia(msg: Any): ByteArray {
     val foundConverter = fromBestiaConverter[msg.javaClass]
         ?: throw IllegalStateException("Had no converter registered for ${msg.javaClass.simpleName}")
 
     return foundConverter.convertFromBestia(msg)
   }
 
-  fun fromWire(msg: Messages.Wrapper): Any {
-    val foundConverter = fromWireConverter[msg.javaClass]
-        ?: throw IllegalStateException("Had no converter registered for ${msg.javaClass.simpleName}")
-
-    return foundConverter.convertFromWire(msg)
-  }
-
-  fun fromByteBuffer(buffer: ByteArray): Any? {
-    val wrapper = Messages.Wrapper.parseFrom(buffer)
+  fun fromWire(msg: ByteArray): Any? {
+    val wrapper = Messages.Wrapper.parseFrom(msg)
 
     return when (wrapper.payloadCase) {
       Messages.Wrapper.PayloadCase.AUTH -> wrapper.auth

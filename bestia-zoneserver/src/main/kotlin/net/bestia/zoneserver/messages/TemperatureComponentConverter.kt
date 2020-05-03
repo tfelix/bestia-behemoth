@@ -5,7 +5,7 @@ import net.bestia.zoneserver.entity.component.TemperatureComponent
 import org.springframework.stereotype.Component
 
 @Component
-class TemperatureComponentConverter : OnlyToClientConverter<TemperatureComponent>() {
+class TemperatureComponentConverter : MessageConverter<TemperatureComponent>() {
 
   override fun convertFromBestia(msg: TemperatureComponent): ByteArray {
     val builder = ComponentsProto.TemperatureComponent.newBuilder()

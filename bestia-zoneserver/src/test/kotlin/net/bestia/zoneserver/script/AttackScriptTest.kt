@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
-import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
@@ -37,7 +36,6 @@ class AttackScriptTest : BaseScriptTest() {
           entityId = 10,
           statusValues = statusValues,
           statusBasedValues = BasicStatusBasedValues(
-              conditionValues = ConditionValues(),
               level = level,
               statusValues = statusValues
           ),
