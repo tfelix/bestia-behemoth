@@ -43,17 +43,16 @@ class ItemFactory(
         entityId = entity.id,
         level = item.level
     )
-    val itemComp = ItemComponent(
+    val metaComp = MetadataComponent(
         entityId = entity.id,
-        itemId = item.id,
-        itemDbName = item.databaseName
+        data = mapOf(MetadataComponent.ITEM_ID to item.id.toString())
     )
 
     entity.addAllComponents(listOf(
         posComp,
         visualComp,
         levelComp,
-        itemComp
+        metaComp
     ))
 
     val statusComp = statusValueService.buildStatusComponent(entity)

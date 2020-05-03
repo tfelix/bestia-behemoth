@@ -52,7 +52,7 @@ internal class MapMoveCommand(
     val y = match.group(2).toLong()
 
     if (x < 0 || y < 0) {
-      sendSystemMessage(account.id, "Illegal coordinates. Must be positive.")
+      sendSystemMessage(account.id, "Coordinates must be positive.")
       throw IllegalArgumentException("X and Y can not be negative.")
     }
 

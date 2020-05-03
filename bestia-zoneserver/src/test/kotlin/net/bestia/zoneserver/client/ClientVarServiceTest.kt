@@ -6,7 +6,6 @@ import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVar
 import net.bestia.model.account.ClientVarRepository
 import net.bestia.zoneserver.account.ClientVarService
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

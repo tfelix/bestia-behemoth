@@ -25,5 +25,6 @@ data class MetadataComponent(
     const val MOB_BESTIA_ID = "mob.bestia_id"
     const val MOB_PLAYER_BESTIA_ID = "mob.player_bestia_id"
     const val PLAYER_IS_ACTIVE = "player.is_active"
+    const val ITEM_ID = "item.id"
   }
 }

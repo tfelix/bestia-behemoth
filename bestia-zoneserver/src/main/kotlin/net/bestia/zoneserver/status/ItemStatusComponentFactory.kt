@@ -8,9 +8,10 @@ import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.ItemComponent
+import net.bestia.zoneserver.entity.component.MetadataComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,12 +21,17 @@ class ItemStatusComponentFactory(
 ) : StatusComponentFactory {
 
   override fun canBuildStatusFor(entity: Entity): Boolean {
-    return entity.hasComponent(ItemComponent::class.java)
+    val metaComp = entity.tryGetComponent(MetadataComponent::class.java)
+        ?: return false
+
+    return metaComp.containsKey(MetadataComponent.ITEM_ID)
   }
 
   override fun buildComponent(entity: Entity): StatusComponent {
-    val itemComp = entity.getComponent(ItemComponent::class.java)
-    val item = itemDao.findOneOrThrow(itemComp.itemId)
+    val metaComp = entity.getComponent(MetadataComponent::class.java)
+    val itemId = metaComp.tryGetAsLong(MetadataComponent.ITEM_ID)
+        ?: throw IllegalArgumentException("No item id found in entity")
+    val item = itemDao.findOneOrThrow(itemId)
     val lv = item.level
 
     val vitality = 10
