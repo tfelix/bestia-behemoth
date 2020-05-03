@@ -2,11 +2,23 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.messages.entity.EntityMessage
+import net.bestia.model.geometry.Vec2
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.entity.transmit.InRangeTransmitFilter
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.PositionComponent
+
+/**
+ * By receiving this command the z coordiante is automatically derived from the
+ * ground height at this position.
+ */
+data class SetPositionToAbsoluteNoZ(
+    override val entityId: Long,
+    val position: Vec2
+) : EntityMessage, ComponentMessage<PositionComponent> {
+  override val componentType = PositionComponent::class.java
+}
 
 data class SetPositionToAbsolute(
     override val entityId: Long,

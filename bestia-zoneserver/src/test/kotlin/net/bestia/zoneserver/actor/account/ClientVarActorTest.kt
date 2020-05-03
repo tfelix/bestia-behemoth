@@ -38,16 +38,13 @@ class ClientVarActorTest : AbstractActorTest() {
   fun `anwers with cvar when requested`() {
     testKit {
       val sender = TestProbe(system)
-      val cvarActor = testActorOf(ClientVarActor::class)
-
-      val probes = injectProbeMembers(cvarActor, listOf(
-          "sendClient"
-      ))
+      val sendClientActor = TestProbe(system)
+      val cvarActor = testActorOf(ClientVarActor::class, sendClientActor.ref())
 
       val msg = ClientVarRequest(ACC_ID, KEY, UUID)
       cvarActor.tell(msg, sender.ref())
 
-      probes["sendClient"]!!.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponse(UUID, DATA)))
+      sendClientActor.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponse(UUID, DATA)))
       verify(cvarService).find(ACC_ID, KEY)
     }
   }

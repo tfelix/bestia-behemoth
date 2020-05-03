@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
-import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.routing.MessageApi
+import net.bestia.model.geometry.Vec2
+import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.component.ComponentEnvelope
-import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
+import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsoluteNoZ
+import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import net.bestia.zoneserver.entity.component.PositionComponent
 import org.springframework.stereotype.Component
@@ -26,7 +26,7 @@ internal class MapMoveCommand(
     private val playerBestiaService: PlayerEntityService
 ) : BaseChatCommand(messageApi) {
   override val helpText: String
-    get() = "Usage: /mm <X> <Y>"
+    get() = "Usage: /mm <X> <Y> <Z>"
 
   override fun isCommand(text: String): Boolean {
     return text.startsWith("/mm ")
@@ -50,7 +50,6 @@ internal class MapMoveCommand(
 
     val x = match.group(1).toLong()
     val y = match.group(2).toLong()
-    val z = match.group(3).toLong()
 
     if (x < 0 || y < 0) {
       sendSystemMessage(account.id, "Illegal coordinates. Must be positive.")
@@ -61,9 +60,9 @@ internal class MapMoveCommand(
       messageApi.send(
           EntityEnvelope(
               activePlayerBestia,
-              ComponentEnvelope(PositionComponent::class.java, SetPositionToAbsolute(
+              ComponentEnvelope(PositionComponent::class.java, SetPositionToAbsoluteNoZ(
                   entityId = activePlayerBestia,
-                  position = Vec3(x, y, z)
+                  position = Vec2(x, y)
               ))
           )
       )

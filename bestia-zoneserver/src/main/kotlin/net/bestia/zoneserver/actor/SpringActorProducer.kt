@@ -80,7 +80,7 @@ internal class SpringActorProducer(
       availableArgsClasses.forEachIndexed { i, availCls ->
         val idx = neededParams.indexOfFirst { it.isAssignableFrom(availCls) }
         if (idx != -1) {
-          beanParams[i] = null
+          beanParams[idx] = null
         }
       }
 

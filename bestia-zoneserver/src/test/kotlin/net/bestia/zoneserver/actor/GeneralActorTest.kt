@@ -5,6 +5,8 @@ import net.bestia.model.util.PackageLoader
 import net.bestia.zoneserver.actor.bootstrap.ClusterBootstrapActor
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.actor.entity.EntityActor
+import net.bestia.zoneserver.actor.entity.OctreeActor
+import net.bestia.zoneserver.actor.socket.AuthenticationCheckActor
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -24,7 +26,8 @@ class GeneralActorTest {
    */
   private val whitelist = setOf(
       AwaitResponseActor::class.java,
-      ClusterClientConnectionManagerActor::class.java
+      ClusterClientConnectionManagerActor::class.java,
+      OctreeActor::class.java
   )
 
   /**
@@ -86,11 +89,10 @@ class GeneralActorTest {
 
   companion object {
 
-    private val IGNORED_ACTORS = HashSet<Class<out AbstractActor>>()
-
-    init {
-      IGNORED_ACTORS.add(ClusterBootstrapActor::class.java)
-      IGNORED_ACTORS.add(EntityActor::class.java)
-    }
+    private val IGNORED_ACTORS = setOf(
+        ClusterBootstrapActor::class.java,
+        EntityActor::class.java,
+        AuthenticationCheckActor::class.java
+    )
   }
 }

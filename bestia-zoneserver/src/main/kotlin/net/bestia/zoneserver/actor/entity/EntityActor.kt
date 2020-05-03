@@ -120,8 +120,7 @@ class EntityActor(
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
 
     val hasAllResponses = { receivedResponses: List<Any> ->
-      receivedResponses.asSequence()
-          .map { it.javaClass }
+      receivedResponses.map { it.javaClass }
           .toSet() == awaitedComponentClasses
     }
 

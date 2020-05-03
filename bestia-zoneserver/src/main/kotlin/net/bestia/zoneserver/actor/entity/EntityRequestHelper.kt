@@ -6,6 +6,7 @@ import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
+import java.util.*
 
 /**
  * This message is send back if the requested entity does not exist.
@@ -35,17 +36,20 @@ fun awaitEntityResponse(
     callback: (EntitiesResponse) -> Unit
 ) {
   val hasReceivedAll = { responses: List<Any> ->
-    responses.toSet() == entitiyIds
+    responses.filterIsInstance(EntityResponse::class.java)
+        .map { it.entity.id }
+        .toSet() == entitiyIds
   }
   val transformResponse = { response: Responses ->
     val mappedEntities = response.receivedResponses
-        .filterIsInstance(Entity::class.java)
-        .map { it.id to it }.toMap()
+        .filterIsInstance(EntityResponse::class.java)
+        .map { it.entity.id to it.entity }
+        .toMap()
     callback(EntitiesResponse(mappedEntities))
   }
   val props = AwaitResponseActor.props(checkResponseReceived = hasReceivedAll, action = transformResponse)
-  val requestActor = ctx.actorOf(props)
+  val requestActor = ctx.actorOf(props, "awaitrespo-entity-${UUID.randomUUID()}")
   val requestMsg = EntityRequest(requestActor)
 
-  entitiyIds.forEach { messageApi.send(EntityEnvelope(it, requestMsg)) }
+  entitiyIds.forEach { entityId -> messageApi.send(EntityEnvelope(entityId, requestMsg)) }
 }

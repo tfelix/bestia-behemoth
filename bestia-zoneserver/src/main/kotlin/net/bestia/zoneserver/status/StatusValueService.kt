@@ -1,19 +1,13 @@
 package net.bestia.zoneserver.status
 
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.*
+import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.StatusValues
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Service
-
-class DefenseServices {
-
-  fun getDefense(): Defense {
-    return BasicDefense()
-  }
-}
 
 @Service
 class StatusValueService(

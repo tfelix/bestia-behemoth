@@ -1,31 +1,26 @@
 package net.bestia.zoneserver.actor.chat
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.messages.chat.ChatMessage
 import net.bestia.zoneserver.actor.AbstractActorTest
-import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.client.SendInRange
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 
 class PublicChatActorTest : AbstractActorTest() {
-  @Autowired
-  lateinit var messageApi: MessageApi
 
   @MockBean
   lateinit var playerEntityService: PlayerEntityService
 
   @Test
   fun `public messages are sent to players near by`() {
-    val entity = Entity(id = 10)
     val activeEntityId = 1L
+    val entity = Entity(id = activeEntityId)
     val chatMessage = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
     whenever(playerEntityService.getActivePlayerEntityId(any())).thenReturn(activeEntityId)
 
@@ -33,9 +28,7 @@ class PublicChatActorTest : AbstractActorTest() {
       val chat = testActorOf(PublicChatActor::class)
       val probes = injectProbeMembers(chat, listOf("sendActiveRange"))
 
-      whenever(messageApi.send(any<EntityEnvelope>())).doAnswer {
-        // val msg = it.getArgument<EntityEnvelope>(0)
-      }
+      whenAskedForEntity(activeEntityId, entity)
 
       chat.tell(chatMessage, it.ref)
 
