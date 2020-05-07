@@ -5,8 +5,6 @@ package net.bestia.model.account
  *
  * @author Thomas Felix
  */
-enum class Gender {
-  MALE,
-  FEMALE,
-  NEUTRAL
+enum class Hairstyle {
+  MALE_01
 }

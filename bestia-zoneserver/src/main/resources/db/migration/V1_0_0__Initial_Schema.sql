@@ -19,24 +19,36 @@ DROP TABLE IF EXISTS `accounts`;
 CREATE TABLE `accounts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `additional_bestia_slots` int(11) NOT NULL,
-  `banned_until_date` date DEFAULT NULL,
   `email` varchar(64) COLLATE utf8_bin NOT NULL,
   `username` varchar(32) COLLATE utf8_bin NOT NULL,
   `is_activated` bit(1) NOT NULL,
-  `language` varchar(5) COLLATE utf8_bin NOT NULL,
   `login_token` varchar(255) COLLATE utf8_bin DEFAULT "",
   `password` varchar(255) COLLATE utf8_bin NOT NULL,
   `register_date` date DEFAULT NULL,
-  `remarks` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `user_level` varchar(20) COLLATE utf8_bin DEFAULT NULL,
+  `account_type` varchar(20) COLLATE utf8_bin DEFAULT NULL,
   `party_id` bigint(20) DEFAULT NULL,
   `gender` varchar(6) COLLATE utf8_bin DEFAULT NULL,
   `banned_until` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_email` (`email`),
   UNIQUE KEY `UK_username` (`username`),
   KEY `FK_account_party_id` (`party_id`),
   CONSTRAINT `FK_account_party_id` FOREIGN KEY (`party_id`) REFERENCES `parties` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+DROP TABLE IF EXISTS `basic_logins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `basic_logins` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `email` varchar(64) COLLATE utf8_bin NOT NULL,
+  `password` varchar(255) COLLATE utf8_bin NOT NULL,
+  `account_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_email` (`email`),
+  KEY `FK_basic_logins_account_id` (`account_id`),
+  CONSTRAINT `FK_basic_logins_account_id` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -415,7 +427,7 @@ CREATE TABLE `status_effect` (
   `armor_sum_mod` int(11) NOT NULL,
   `atk_mult_mod` float NOT NULL,
   `atk_sum_mod` int(11) NOT NULL,
-  `datebase_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `database_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `def_mult_mod` float NOT NULL,
   `def_sum_mod` int(11) NOT NULL,
   `sp_armor_mult_mod` float NOT NULL,

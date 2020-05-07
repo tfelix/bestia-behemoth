@@ -1,8 +1,7 @@
 package net.bestia.loginserver.error
 
-import net.bestia.loginserver.error.BestiaExceptionCode
-
-abstract class BestiaException(
+open class BestiaException(
     val code: BestiaExceptionCode,
-    open val extra: String = ""
-) : Exception()
+    open val extra: String = "",
+    cause: Throwable? = null
+) : Exception(cause = cause)

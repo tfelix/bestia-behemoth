@@ -9,8 +9,8 @@ import javax.persistence.Table
 /**
  * Saves information for basic authentication via password and email.
  */
-// @Entity
-// @Table(name = "accounts")
+@Entity
+@Table(name = "basic_logins")
 class BasicLogin(
     @Column(length = 64, unique = true, nullable = false)
     var email: String,

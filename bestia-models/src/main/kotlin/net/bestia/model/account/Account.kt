@@ -4,25 +4,33 @@ import net.bestia.model.AbstractEntity
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.ZonedDateTime
 import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
 data class Account(
     val username: String,
-    var registerDate: Instant = Instant.now(),
+
+    val registerDate: Instant = Instant.now(),
+
     @Enumerated(EnumType.STRING)
-    val gender: Gender,
-    var isActivated: Boolean = false,
-    var language: String = "en"
+    val gender: Gender = Gender.NEUTRAL,
+
+    @Enumerated(EnumType.STRING)
+    val hairstyle: Hairstyle,
+
+    var isActivated: Boolean = false
 ) : AbstractEntity(), Serializable {
   @Enumerated(EnumType.STRING)
-  var userLevel = AccountType.USER
+  var accountType = AccountType.USER
+
   var additionalBestiaSlots: Int = 0
+
   var loginToken = ""
 
   @Column(nullable = true)
-  var bannedUntil: Instant? = null
+  var bannedUntil: ZonedDateTime? = null
 
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
