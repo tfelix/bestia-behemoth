@@ -4,8 +4,7 @@ import net.bestia.zoneserver.script.ScriptKeyBuilder
 import net.bestia.zoneserver.script.ScriptType
 
 data class BasicScriptExec private constructor(
-    override val scriptKey: String,
-    override val callFunction: String?
+    override val scriptKey: String
 ) : ScriptExec {
 
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
@@ -19,8 +18,7 @@ data class BasicScriptExec private constructor(
       require(scriptName != null) { "ScriptName must be given" }
 
       return BasicScriptExec(
-          scriptKey = ScriptKeyBuilder.getScriptKey(ScriptType.BASIC, scriptName!!),
-          callFunction = null
+          scriptKey = ScriptKeyBuilder.getScriptKey(ScriptType.BASIC, scriptName!!)
       )
     }
   }

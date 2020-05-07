@@ -35,7 +35,8 @@ class IntervalScriptActor(
     requestOwnerEntity { owner ->
       val scriptCallback = ScriptCallbackExec.Builder(
           uuid = callback.uuid,
-          scriptCallFunction = callback.scriptKeyCallback
+          scriptCallFunction = callback.scriptKeyCallback,
+          scriptEntityId = callback.scriptEntityId
       ).build()
 
       try {

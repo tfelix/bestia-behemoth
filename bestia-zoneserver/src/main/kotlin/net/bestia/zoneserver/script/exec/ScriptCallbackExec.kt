@@ -6,16 +6,19 @@ package net.bestia.zoneserver.script.exec
  */
 data class ScriptCallbackExec private constructor(
     override val scriptKey: String,
-    override val callFunction: String?,
-    val uuid: String
+    val callFunction: String,
+    val uuid: String,
+    val entityId: Long
 ) : ScriptExec {
 
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
-    bindings["UUID"] = uuid
+    bindings["SCRIPT_UUID"] = uuid
+    bindings["SELF"] = entityId
   }
 
   class Builder(
       val scriptCallFunction: String,
+      val scriptEntityId: Long,
       val uuid: String
   ) {
     fun build(): ScriptCallbackExec {
@@ -27,7 +30,8 @@ data class ScriptCallbackExec private constructor(
       return ScriptCallbackExec(
           scriptKey = splittedScriptCallFn[0],
           callFunction = splittedScriptCallFn[1],
-          uuid = uuid
+          uuid = uuid,
+          entityId = scriptEntityId
       )
     }
   }

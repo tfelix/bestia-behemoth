@@ -11,7 +11,7 @@ import javax.persistence.Table
  */
 // @Entity
 // @Table(name = "accounts")
-class BasicLink(
+class BasicLogin(
     @Column(length = 64, unique = true, nullable = false)
     var email: String,
     var password: String,

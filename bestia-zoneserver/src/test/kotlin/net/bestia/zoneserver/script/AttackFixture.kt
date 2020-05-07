@@ -16,7 +16,7 @@ object AttackFixture {
       target = AttackTarget.GROUND,
       element = Element.FIRE,
       strength = 10,
-      type = AttackType.RANGED_MAGIC,
+      type = AttackType.MAGIC,
       casttime = 3000
   )
 }

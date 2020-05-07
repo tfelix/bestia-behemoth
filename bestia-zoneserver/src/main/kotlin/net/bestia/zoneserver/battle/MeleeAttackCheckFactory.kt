@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component
 @Component
 class MeleeAttackCheckFactory : AttackCheckFactory {
   override fun canBuildFor(battleCtx: BattleContext): Boolean {
-    return battleCtx.usedAttack.type == AttackType.MELEE_PHYSICAL ||
-        battleCtx.usedAttack.type == AttackType.MELEE_MAGIC
+    return battleCtx.usedAttack.attackType == AttackType.MELEE_PHYSICAL
   }
 
   override fun buildCheckFor(battleCtx: BattleContext): AttackCheck {

@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.zoneserver.battle.damage.MagicDamageCalculator
-import net.bestia.zoneserver.battle.damage.MagicPhysicalAttackStrategy
-import net.bestia.zoneserver.battle.damage.MeleePhysicalAttackStrategy
-import net.bestia.zoneserver.battle.damage.MeleePhysicalDamageCalculator
+import net.bestia.model.battle.AttackType
+import net.bestia.zoneserver.battle.damage.*
 import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom
 
@@ -15,12 +13,11 @@ class AttackStrategyFactory {
   private val meleeCalculator = MeleePhysicalDamageCalculator()
 
   fun getAttackStrategy(ctx: BattleContext): AttackStrategy {
-    val usedAttack = ctx.usedAttack
-
-    return if (usedAttack.isMagic) {
-      MagicPhysicalAttackStrategy(ctx, magicCalculator)
-    } else {
-      MeleePhysicalAttackStrategy(ctx, meleeCalculator, random)
+    return when (ctx.usedAttack.attackType) {
+      AttackType.MELEE_PHYSICAL -> MeleePhysicalAttackStrategy(ctx, meleeCalculator, random)
+      AttackType.RANGED_PHYSICAL -> RangedPhysicalAttackStrategy(ctx, meleeCalculator, random)
+      AttackType.MAGIC -> MagicAttackStrategy(ctx, magicCalculator)
+      AttackType.NO_DAMAGE -> NoDamageAttackStrategy(ctx)
     }
   }
 }

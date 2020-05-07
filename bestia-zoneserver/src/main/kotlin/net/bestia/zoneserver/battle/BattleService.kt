@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
-import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackRepository
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
@@ -36,7 +35,13 @@ class BattleService(
    */
   fun attackEntity(attackId: Long, attacker: Entity, defender: Entity): List<Damage> {
     val attack = attackRepository.findOneOrThrow(attackId)
-    LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, attack)
+    val battleAttack = BattleAttack.fromAttack(attack)
+
+    return attackEntity(battleAttack, attacker, defender)
+  }
+
+  fun attackEntity(attack: BattleAttack, attacker: Entity, defender: Entity): List<Damage> {
+    LOG.trace { "Entity $attacker attacks entity $defender with $attack" }
 
     // Prepare the battle context since this is needed to carry all information.
     val battleCtx = createBattleContext(attack, attacker, defender)
@@ -53,11 +58,12 @@ class BattleService(
     return damages
   }
 
+
   fun attackGround(attackId: Long, attacker: Entity, pos: Vec3) {
 
   }
 
-  private fun createBattleContext(usedAttack: Attack, attacker: Entity, defender: Entity): BattleContext {
+  private fun createBattleContext(usedAttack: BattleAttack, attacker: Entity, defender: Entity): BattleContext {
     val dmgVars = getDamageVars(attacker)
 
     return BattleContext(
@@ -67,7 +73,7 @@ class BattleService(
         damageVariables = dmgVars,
         attackElement = Element.NORMAL, // FIXME, Depends on Weapon, Ammunition, Buff
         defenderElement = Element.NORMAL,
-        weaponAtk = 1f // FIXME When Equipment is implemented use this to get meaningful value
+        weaponAtk = 0f // FIXME When Equipment is implemented use this to get meaningful value
     )
   }
 

@@ -63,7 +63,8 @@ class ScriptComponentActor(
     val intervalCallback = IntervalScriptCallback(
         uuid = msg.uuid,
         interval = msg.timeout,
-        scriptKeyCallback = msg.callbackFn
+        scriptKeyCallback = msg.callbackFn,
+        scriptEntityId = component.entityId
     )
     addPeriodicScriptActor(intervalCallback)
   }

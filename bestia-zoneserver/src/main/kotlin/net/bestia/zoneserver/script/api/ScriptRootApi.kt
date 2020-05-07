@@ -89,4 +89,8 @@ class ScriptRootApi(
 
     return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
   }
+
+  override fun toString(): String {
+    return this::class.java.simpleName
+  }
 }

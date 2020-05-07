@@ -15,7 +15,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-class RangedPhysicalDamageCalculator() : BaseDamageCalculator() {
+class RangedPhysicalDamageCalculator : BaseDamageCalculator() {
   override fun getBonusAttack(battleCtx: BattleContext): Float {
     return battleCtx.damageVariables.attackRangedBonus
   }

@@ -37,7 +37,7 @@ class DistanceAttackCheck(
    * Calculates the effective range of the attack. A skill range can be
    * altered by an equipment or a buff for example.
    */
-  private fun getEffectiveSkillRange(attack: Attack, entity: Entity): Int {
+  private fun getEffectiveSkillRange(attack: BattleAttack, entity: Entity): Long {
     // TODO Take status modifications into account.
     return attack.range
   }

@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.model.battle.Attack
 import net.bestia.model.battle.Element
 import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.entity.Entity
@@ -14,7 +13,7 @@ import net.bestia.zoneserver.entity.component.StatusComponent
  * @author Thomas Felix
  */
 data class BattleContext(
-    val usedAttack: Attack,
+    val usedAttack: BattleAttack,
     val attacker: Entity,
     val damageVariables: DamageVariables,
     val defender: Entity,

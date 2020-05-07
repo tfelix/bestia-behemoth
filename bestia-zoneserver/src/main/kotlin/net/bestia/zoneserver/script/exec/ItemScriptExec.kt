@@ -7,7 +7,6 @@ import net.bestia.zoneserver.script.ScriptType
 
 data class ItemScriptExec private constructor(
     override val scriptKey: String,
-    override val callFunction: String?,
     val userId: Long,
     val targetId: Long?,
     val targetPosition: Vec3?
@@ -31,7 +30,6 @@ data class ItemScriptExec private constructor(
 
       return ItemScriptExec(
           scriptKey = ScriptKeyBuilder.getScriptKey(ScriptType.ITEM, itemDbName!!),
-          callFunction = null,
           userId = user!!.id,
           targetId = targetEntity?.id,
           targetPosition = targetPoint

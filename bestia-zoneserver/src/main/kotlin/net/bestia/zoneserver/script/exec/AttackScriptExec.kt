@@ -9,7 +9,6 @@ import net.bestia.zoneserver.script.ScriptType
 
 data class AttackScriptExec private constructor(
     override val scriptKey: String,
-    override val callFunction: String?,
     val userId: Long,
     val targetId: Long?,
     val targetPosition: Vec3?,
@@ -29,7 +28,6 @@ data class AttackScriptExec private constructor(
   ) {
     var targetEntity: Entity? = null
     var targetPoint: Vec3? = null
-    var callFunction: String? = null
 
     fun build(): AttackScriptExec {
       require(!((attack.target == AttackTarget.ENEMY_ENTITY || attack.target == AttackTarget.FRIENDLY_ENTITY)
@@ -38,7 +36,6 @@ data class AttackScriptExec private constructor(
 
       return AttackScriptExec(
           scriptKey = ScriptKeyBuilder.getScriptKey(ScriptType.ATTACK, attack.databaseName),
-          callFunction = callFunction,
           userId = owner.id,
           targetId = targetEntity?.id,
           targetPosition = targetPoint,

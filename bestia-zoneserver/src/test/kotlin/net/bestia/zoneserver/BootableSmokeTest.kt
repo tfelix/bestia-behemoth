@@ -1,7 +1,6 @@
-package net.bestia.zoneserver.it
+package net.bestia.zoneserver
 
 import net.bestia.messages.proto.AuthProto
-import net.bestia.zoneserver.RxTxSocket
 import net.bestia.zoneserver.account.LoginService
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse

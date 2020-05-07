@@ -1,15 +1,17 @@
 package net.bestia.zoneserver.battle
 
-import net.bestia.model.battle.Attack
-import net.bestia.model.battle.AttackTarget
 import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Element
+import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
+import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.battle.damage.MeleePhysicalDamageCalculator
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.LevelComponent
+import net.bestia.zoneserver.entity.component.StatusComponent
 import org.junit.jupiter.api.Test
 
 internal class MeleeDamageCalculatorTest {
@@ -37,8 +39,19 @@ internal class MeleeDamageCalculatorTest {
     )
     val defenderLevel = 5
 
-    val defender = Entity(id = 1)
-    defender.addComponent(LevelComponent(entityId = 1, level = defenderLevel, exp = 0))
+    val defender = Entity(id = 1).apply {
+      addComponent(LevelComponent(entityId = 1, level = defenderLevel, exp = 0))
+      addComponent(StatusComponent(
+          entityId = 1,
+          statusValues = defenderStatusValues,
+          statusBasedValues = BasicStatusBasedValues(defenderStatusValues, defenderLevel),
+          defense = BasicDefense()
+      ))
+      addComponent(ConditionComponent(
+          entityId = 1,
+          conditionValues = defenderCondition
+      ))
+    }
 
     val attackerStatusValues = BasicStatusValues(
         strength = 99,
@@ -60,26 +73,32 @@ internal class MeleeDamageCalculatorTest {
 
     val attackerLevel = 5
 
-    val attacker = Entity(id = 1)
-    attacker.addComponent(LevelComponent(entityId = 1, level = attackerLevel, exp = 0))
+    val attacker = Entity(id = 2).apply {
+      addComponent(LevelComponent(entityId = 2, level = attackerLevel, exp = 0))
+      addComponent(StatusComponent(
+          entityId = 2,
+          statusValues = attackerStatusValues,
+          statusBasedValues = BasicStatusBasedValues(attackerStatusValues, attackerLevel),
+          defense = BasicDefense()
+      ))
+      addComponent(ConditionComponent(
+          entityId = 2,
+          conditionValues = attackerCondition
+      ))
+    }
+
 
     val ctx = BattleContext(
         attackElement = Element.FIRE,
         defenderElement = Element.FIRE,
         weaponAtk = 10f,
         damageVariables = DamageVariables(),
-        usedAttack = Attack(
-            databaseName = "test",
-            casttime = 100,
-            cooldown = 100,
-            element = Element.NORMAL,
-            hasScript = false,
-            manaCost = 10,
-            needsLineOfSight = false,
-            range = 10,
-            strength = 10,
-            target = AttackTarget.ENEMY_ENTITY,
-            type = AttackType.MELEE_PHYSICAL
+        usedAttack = BattleAttack(
+            10,
+            10,
+            10,
+            AttackType.MAGIC,
+            false
         ),
         attacker = attacker,
         defender = defender

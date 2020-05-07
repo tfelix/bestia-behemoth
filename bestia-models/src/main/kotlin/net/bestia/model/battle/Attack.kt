@@ -16,7 +16,7 @@ class Attack(
     @Column(nullable = false)
     val element: Element,
 
-     val manaCost: Int = 0,
+    val manaCost: Int = 0,
 
     /**
      * Flag tells if the attack has a script which needs to get executed upon
@@ -29,7 +29,7 @@ class Attack(
      * Range is in meter.
      */
     @Column(name = "atkRange", nullable = false)
-    val range: Int = 0,
+    val range: Long = 0,
 
     /**
      * Check if a line of sight to the target is necessairy.
@@ -48,16 +48,16 @@ class Attack(
 
     @Enumerated(EnumType.STRING)
     val target: AttackTarget
-): AbstractEntity(), Serializable {
+) : AbstractEntity(), Serializable {
 
   val isRanged: Boolean
-    get() = type == AttackType.RANGED_MAGIC || type == AttackType.RANGED_PHYSICAL
+    get() = type == AttackType.RANGED_PHYSICAL
 
   /**
    * @return TRUE if the attack is magic or FALSE if its physical.
    */
   val isMagic: Boolean
-    get() = type == AttackType.RANGED_MAGIC || type == AttackType.MELEE_MAGIC
+    get() = type == AttackType.MAGIC
 
   companion object {
     /**

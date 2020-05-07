@@ -4,12 +4,7 @@ enum class AttackType {
   /**
    * Attack is based on special attack stat its nature is a magic one.
    */
-  MELEE_MAGIC,
-
-  /**
-   * A ranged magic attack.
-   */
-  RANGED_MAGIC,
+  MAGIC,
 
   /**
    * Attack is based on normal attack stat since its a physical attack.

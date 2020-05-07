@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.battle.damage
 
+import kotlin.math.max
+
 /**
  * A set of variables which are used to modify a running damage calculation
  * operation. These variable set is piped through a script environment and can
@@ -48,9 +50,22 @@ data class DamageVariables(
    *
    * @return
    */
-  // FIXME Das hier noch machen.
-  fun capValues(): DamageVariables {
-    return this
+  fun limitValues() {
+    attackMagicMod = max(0f, attackMagicMod)
+    attackPhysicalMod = max(0f, attackPhysicalMod)
+    attackRangedMod = max(0f, attackRangedMod)
+    attackMeleeMod = max(0f, attackMeleeMod)
+
+    // Critical
+    criticalChanceMod = max(0f, criticalChanceMod)
+    criticalDamageMod = max(0f, criticalDamageMod)
+
+    // Defenses
+    physicalDefenseMod = max(0f, physicalDefenseMod)
+    magicDefenseMod = max(0f, magicDefenseMod)
+
+    // Misc
+    neededManaMod = max(0f, neededManaMod)
   }
 
   /**

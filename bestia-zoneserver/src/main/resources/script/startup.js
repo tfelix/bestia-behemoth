@@ -3,13 +3,15 @@
  * cluster.
  */
 
-Bestia.info("Bestia Behemoth startup script");
+function main() {
+    Bestia.info("Bestia Behemoth startup script");
 
-Bestia.spawnMob("blob", 12 ,15, 10)
+    Bestia.spawnMob("blob", 12 ,15, 10)
 
-Bestia.newEntity()
-    .script()
-    .setInterval(5000, 'checkEntities')
+    Bestia.newEntity()
+        .script()
+        .setInterval(5000, 'checkEntities')
+}
 
 function checkEntities() {
     Bestia.info("in checkEntities()")

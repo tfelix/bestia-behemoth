@@ -18,9 +18,11 @@ import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class AttackScriptTest : BaseScriptTest() {
   private val userEntity = Entity(id = 100)
+
   private val emberBuilder = AttackScriptExec.Builder(
       AttackFixture.EMBER,
       userEntity
@@ -66,7 +68,8 @@ class AttackScriptTest : BaseScriptTest() {
     val setIntervalCommand = interceptor.lastIssuedCommands.first { it.javaClass == SetIntervalCommand::class.java } as SetIntervalCommand
     val scriptCallbackExec = ScriptCallbackExec.Builder(
         scriptCallFunction = setIntervalCommand.callbackFn,
-        uuid = setIntervalCommand.uuid
+        uuid = setIntervalCommand.uuid,
+        scriptEntityId = setIntervalCommand.entityId
     ).build()
 
     scriptService.execute(scriptCallbackExec)
@@ -74,10 +77,11 @@ class AttackScriptTest : BaseScriptTest() {
 
   @Test
   fun `call into function`() {
-    val exec = emberBuilder.apply {
-      callFunction = "onTick"
-      targetPoint = Vec3(10, 10, 0)
-    }.build()
+    val exec = ScriptCallbackExec.Builder(
+        scriptCallFunction = "attack_ember::onTick",
+        scriptEntityId = 10,
+        uuid = UUID.randomUUID().toString()
+    ).build()
 
     scriptService.execute(exec)
   }

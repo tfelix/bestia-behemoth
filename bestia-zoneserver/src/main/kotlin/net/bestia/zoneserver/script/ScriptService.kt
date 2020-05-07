@@ -9,6 +9,7 @@ import javax.script.ScriptContext
 import javax.script.SimpleBindings
 import javax.script.SimpleScriptContext
 import net.bestia.zoneserver.script.api.ScriptRootApi
+import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 
 private val LOG = KotlinLogging.logger { }
 
@@ -32,11 +33,18 @@ class ScriptService(
   // Enable per thread context here https://stackoverflow.com/questions/33620318/executing-a-function-in-a-specific-context-in-nashorn
   @Synchronized
   fun execute(scriptExec: ScriptExec) {
-    LOG.trace { "Call Script: $scriptExec" }
     val (bindings, rootApi) = setupEnvironment(scriptExec)
+
+    LOG.debug { "Call Script: $scriptExec with bindings: ${bindings.entries}"  }
 
     val context = SimpleScriptContext()
     context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+
+    // Check if function invoke is needed or just call the script.
+    val functionCall = when(scriptExec) {
+      is ScriptCallbackExec -> scriptExec.callFunction
+      else -> "main"
+    }
 
     try {
       val runtimeScript = scriptCache.getScript(ScriptCache.RUNTIME_KEY)
@@ -44,19 +52,13 @@ class ScriptService(
 
       val script = scriptCache.getScript(scriptExec.scriptKey)
 
-      // Check if function invoke is needed or just call the script.
-      scriptExec.callFunction?.let { fnName ->
-        script.eval(context)
-        // This does not look like as its thread safe.
-        script.engine.context = context
-        (script.engine as Invocable).invokeFunction(fnName)
-      } ?: run {
-        script.eval(context)
-      }
+      script.eval(context)
+      script.engine.context = context
+      (script.engine as Invocable).invokeFunction(functionCall)
 
       scriptCommandProcessor.processCommands(rootApi.commands)
     } catch (e: NoSuchMethodException) {
-      throw BestiaScriptException("Function ${scriptExec.callFunction} is missing in script ${scriptExec.scriptKey}", e)
+      throw BestiaScriptException("Function $functionCall is missing in script ${scriptExec.scriptKey}", e)
     } catch (e: Exception) {
       throw BestiaScriptException("Error during script '${scriptExec.scriptKey}' execution.", e)
     }
