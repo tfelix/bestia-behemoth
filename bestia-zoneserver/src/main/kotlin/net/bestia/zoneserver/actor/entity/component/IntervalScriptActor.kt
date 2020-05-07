@@ -34,7 +34,6 @@ class IntervalScriptActor(
   private fun onTick() {
     requestOwnerEntity { owner ->
       val scriptCallback = ScriptCallbackExec.Builder(
-          ownerEntityId = owner.id,
           uuid = callback.uuid,
           scriptCallFunction = callback.scriptKeyCallback
       ).build()

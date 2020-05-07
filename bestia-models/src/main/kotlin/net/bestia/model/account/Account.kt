@@ -9,9 +9,6 @@ import javax.persistence.*
 @Entity
 @Table(name = "accounts")
 data class Account(
-    @Column(length = 64, unique = true, nullable = false)
-    var email: String,
-    var password: String,
     val username: String,
     var registerDate: Instant = Instant.now(),
     @Enumerated(EnumType.STRING)
@@ -22,7 +19,6 @@ data class Account(
   @Enumerated(EnumType.STRING)
   var userLevel = AccountType.USER
   var additionalBestiaSlots: Int = 0
-  var remarks = ""
   var loginToken = ""
 
   @Column(nullable = true)

@@ -15,10 +15,8 @@ object AccountFixture {
   @JvmStatic
   fun createAccount(accountRepository: AccountRepository? = null): Account {
     return Account(
-        email = email,
         username = username,
         registerDate = registeredOn,
-        password = password,
         gender = Gender.MALE
     ).also { accountRepository?.save(it) }
   }

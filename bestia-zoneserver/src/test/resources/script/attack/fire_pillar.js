@@ -5,9 +5,9 @@ function onTick() {
 	// Make fire Damage
 }
 
-Bestia.info('Script: main().');
-
-var entityId = Bestia.createEntity();
-
-Bestia.setLivetime(entityId, 12000);
-Bestia.setInterval(entityId, 1000, 'onTick');
+function main() {
+    Bestia.info('Script: main().');
+    var entityId = Bestia.createEntity();
+    Bestia.setLivetime(entityId, 12000);
+    Bestia.setInterval(entityId, 1000, 'onTick');
+}

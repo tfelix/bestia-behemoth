@@ -3,7 +3,6 @@ package net.bestia.zoneserver.account
 import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
-import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.server.MaintenanceLevel
 import net.bestia.zoneserver.config.RuntimeConfigService
@@ -29,29 +28,6 @@ class AuthenticationService(
 
     LOG.debug { "Account ID $accountId with token ${token.take(5)}*** not authenticated" }
     return false
-  }
-
-  /**
-   * This will return a [Account] with the needed, new access token. If
-   * the wrong credentials where provided null is returned instead.
-   *
-   * @param accName
-   * @return The account with the new token, or null if wrong credentials.
-   */
-  fun createLoginToken(accName: String, password: String): Account? {
-    val acc = accountRepository.findByEmail(accName) ?: return null
-
-    if (!acc.isActivated) {
-      return null
-    }
-
-    if (!passwordEncoder.matches(password, acc.password)) {
-      return null
-    }
-
-    acc.loginToken = UUID.randomUUID().toString()
-    accountRepository.save(acc)
-    return acc
   }
 
   /**
@@ -99,46 +75,6 @@ class AuthenticationService(
       }
     }
     LOG.trace("Account {} login permitted.", accId)
-    return true
-  }
-
-  /**
-   * Sets the password without checking the old password first.
-   *
-   * @param accountName
-   * @param newPassword
-   * @return
-   */
-  fun changePasswordWithoutCheck(accountName: String, newPassword: String): Boolean {
-    val acc = accountRepository.findByUsername(accountName)
-        ?: accountRepository.findByEmail(accountName)
-        ?: return false
-
-    acc.password = passwordEncoder.encode(newPassword)
-    accountRepository.save(acc)
-    return true
-  }
-
-  /**
-   * Tries to change the password for the given account. The old password must
-   * match first before this method executes.
-   */
-  fun changePassword(accountName: String, oldPassword: String, newPassword: String): Boolean {
-    if (newPassword.isEmpty()) {
-      return false
-    }
-
-    val acc = accountRepository.findByUsername(accountName)
-        ?: accountRepository.findByEmail(accountName)
-        ?: return false
-    val password = acc.password
-
-    if (!passwordEncoder.matches(password, oldPassword)) {
-      return false
-    }
-
-    acc.password = passwordEncoder.encode(newPassword)
-    accountRepository.save(acc)
     return true
   }
 }

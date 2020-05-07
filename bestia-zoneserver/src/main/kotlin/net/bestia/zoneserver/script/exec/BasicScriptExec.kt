@@ -12,7 +12,7 @@ data class BasicScriptExec private constructor(
     // no op
   }
 
-  class Builder() {
+  class Builder {
     var scriptName: String? = null
 
     fun build(): BasicScriptExec {

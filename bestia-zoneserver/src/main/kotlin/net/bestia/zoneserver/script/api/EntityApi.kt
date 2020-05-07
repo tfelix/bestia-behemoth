@@ -96,11 +96,11 @@ class EntityApi(
     return this
   }
 
-  fun conditionApi(): EntityConditionApi {
+  fun condition(): EntityConditionApi {
     return EntityConditionApi(entityId = entityId, commands = commands)
   }
 
-  fun scriptApi(): ScriptApi {
+  fun script(): ScriptApi {
     val scriptComponent = ScriptComponent(
         entityId = entityId
     )

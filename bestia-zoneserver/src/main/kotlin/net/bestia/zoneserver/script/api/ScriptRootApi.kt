@@ -40,7 +40,12 @@ class ScriptRootApi(
     LOG.trace { "${scriptName}: findEntity($entityId)" }
     require(entityId > 0L) { "Entity ID can not be null" }
 
-    return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
+    return EntityApi(
+        entityId = entityId,
+        commands = commands,
+        scriptName = scriptName,
+        entityRequestService = entityRequestService
+    )
   }
 
   fun spawnMob(
@@ -58,7 +63,12 @@ class ScriptRootApi(
     val entity = mobFactory.build(mobName, position)
     commands.add(NewEntityCommand(entity))
 
-    return EntityApi(entityId = entity.id, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
+    return EntityApi(
+        entityId = entity.id,
+        commands = commands,
+        scriptName = scriptName,
+        entityRequestService = entityRequestService
+    )
   }
 
   fun findEntities(shape: Shape): Array<EntityApi> {

@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.script.exec
 
-import net.bestia.zoneserver.entity.Entity
-
 /**
  * This script exec is used when a script is executed in an entity context. For example
  * an spawned item script, or an attack script which "lives" in an entity.
@@ -9,17 +7,14 @@ import net.bestia.zoneserver.entity.Entity
 data class ScriptCallbackExec private constructor(
     override val scriptKey: String,
     override val callFunction: String?,
-    val selfId: Long,
     val uuid: String
 ) : ScriptExec {
 
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
-    bindings["SELF"] = selfId
     bindings["UUID"] = uuid
   }
 
   class Builder(
-      val ownerEntityId: Long,
       val scriptCallFunction: String,
       val uuid: String
   ) {
@@ -32,7 +27,6 @@ data class ScriptCallbackExec private constructor(
       return ScriptCallbackExec(
           scriptKey = splittedScriptCallFn[0],
           callFunction = splittedScriptCallFn[1],
-          selfId = ownerEntityId,
           uuid = uuid
       )
     }

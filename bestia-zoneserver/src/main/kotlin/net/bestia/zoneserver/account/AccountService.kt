@@ -10,7 +10,6 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.model.account.Account
 import net.bestia.model.account.Gender
 import net.bestia.model.bestia.PlayerBestia
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -26,8 +25,7 @@ private val LOG = KotlinLogging.logger { }
 class AccountService(
     private val accountDao: AccountRepository,
     private val playerBestiaDao: PlayerBestiaRepository,
-    private val bestiaDao: BestiaRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val bestiaDao: BestiaRepository
 ) {
 
   private fun getStarterBestiaId(): Long {
@@ -81,14 +79,7 @@ class AccountService(
       throw IllegalArgumentException("Starter bestia was not found.")
     }
 
-    if (accountDao.findByEmail(data.email) != null) {
-      LOG.debug("Could not create account because of duplicate mail: {}", data.email)
-      throw AccountRegistrationException(AccountRegistrationError.EMAIL_INVALID)
-    }
-
     val account = Account(
-        email = data.email,
-        password = passwordEncoder.encode(data.password),
         username = data.username,
         gender = Gender.MALE,
         registerDate = Instant.now()

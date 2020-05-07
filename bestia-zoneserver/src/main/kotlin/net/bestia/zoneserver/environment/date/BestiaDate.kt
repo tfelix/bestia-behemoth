@@ -1,12 +1,19 @@
 package net.bestia.zoneserver.environment.date
 
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
+import kotlin.math.ceil
 
 class BestiaDate(
-    private val startTime: Instant,
-    private val clock: Clock? = null
+    startTime: Instant,
+    clock: Clock? = null
 ) {
+  private val sinceStart = Duration.between(
+      startTime,
+      clock?.let { Instant.now(it) } ?: Instant.now()
+  )
+
   /**
    * Returns the progress in percentage of the month. Starting at the first
    * day of the month with 0.0 and then going up to 1.0 for the last day.
@@ -14,22 +21,22 @@ class BestiaDate(
    * @return The current progress of the month.
    */
   val monthProgress: Float
-    get() = dayOfMonth.toFloat() * MINUTES_OF_DAY / MINUTES_OF_MONTH
+    get() = dayOfMonth / MONTH_DAYS.toFloat()
 
   val hourOfDay: Int
-    get() = 0
+    get() = (sinceStart.toHours() % DAY_HOURS).toInt()
 
   val minutesOfHour: Int
-    get() = (((minutesSinceStart() % MINUTES_OF_YEAR) % MINUTES_OF_DAY) % HOUR_MINUTES).toInt()
+    get() = (sinceStart.toMinutes() % HOUR_MINUTES).toInt()
 
   val dayOfMonth: Int
-    get() = ((minutesSinceStart() % MINUTES_OF_YEAR) / MINUTES_OF_MONTH).toInt()
+    get() = (sinceStart.toDays() % (MONTH_DAYS + 1)).toInt()
 
   val monthOfYear: Int
-    get() = ((minutesSinceStart() % MINUTES_OF_YEAR) / MINUTES_OF_MONTH).toInt()
+    get() = ((sinceStart.toMinutes() % BMINUTES_OF_YEAR) / BMINUTES_OF_MONTH).toInt() + 1
 
   val year: Int
-    get() = (minutesSinceStart() / MINUTES_OF_YEAR).toInt()
+    get() = (sinceStart.toMinutes() / BMINUTES_OF_YEAR).toInt() + 1
 
   /**
    * Returns the current season.
@@ -38,16 +45,9 @@ class BestiaDate(
    */
   val season: Season
     get() {
-      val seasonNumber = (monthOfYear / MONTHS_PER_SEASON).toInt()
+      val seasonNumber = monthOfYear / MONTHS_PER_SEASON
       return Season.values()[seasonNumber]
     }
-
-  private fun daysSinceStart(): Long  = minutesSinceStart() / MINUTES_OF_DAY
-
-  private fun minutesSinceStart(): Long {
-    val now = clock?.let { Instant.now(it) } ?: Instant.now()
-    return (now.epochSecond - startTime.epochSecond) / 60
-  }
 
   override fun toString(): String {
     return "BestiaDate[$year-$monthOfYear-$dayOfMonth $hourOfDay:$minutesOfHour]"
@@ -58,10 +58,10 @@ class BestiaDate(
     private const val DAY_HOURS = 16
     private const val MONTH_DAYS = 30
     private const val YEAR_MONTHS = 8
-    private const val MONTHS_PER_SEASON = YEAR_MONTHS / 4.0f
+    private const val MONTHS_PER_SEASON = YEAR_MONTHS / 4
 
-    private const val MINUTES_OF_DAY = HOUR_MINUTES * DAY_HOURS
-    private const val MINUTES_OF_MONTH = MONTH_DAYS * MINUTES_OF_DAY
-    private const val MINUTES_OF_YEAR = YEAR_MONTHS * MINUTES_OF_MONTH
+    private const val BMINUTES_OF_DAY = HOUR_MINUTES * DAY_HOURS
+    private const val BMINUTES_OF_MONTH = MONTH_DAYS * BMINUTES_OF_DAY
+    private const val BMINUTES_OF_YEAR = YEAR_MONTHS * BMINUTES_OF_MONTH
   }
 }

@@ -65,7 +65,6 @@ class AttackScriptTest : BaseScriptTest() {
 
     val setIntervalCommand = interceptor.lastIssuedCommands.first { it.javaClass == SetIntervalCommand::class.java } as SetIntervalCommand
     val scriptCallbackExec = ScriptCallbackExec.Builder(
-        ownerEntityId = setIntervalCommand.entityId,
         scriptCallFunction = setIntervalCommand.callbackFn,
         uuid = setIntervalCommand.uuid
     ).build()

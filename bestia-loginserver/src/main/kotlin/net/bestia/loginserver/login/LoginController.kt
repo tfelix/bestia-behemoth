@@ -15,4 +15,11 @@ class LoginController {
   fun basicCredentials(@RequestBody credentials: BasicCredentials): BestiaToken {
     return BestiaToken(UUID.randomUUID().toString())
   }
+
+  @GetMapping(
+      path = ["test"]
+  )
+  fun test(): String {
+    return "helloworld"
+  }
 }

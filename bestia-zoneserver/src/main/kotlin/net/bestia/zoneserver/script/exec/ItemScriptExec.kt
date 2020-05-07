@@ -14,7 +14,7 @@ data class ItemScriptExec private constructor(
 ) : ScriptExec {
 
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
-    bindings["SELF"] = userId
+    bindings["USER_ENTITY_ID"] = userId
     bindings["TARGET_ENTITY"] = targetId
     bindings["TARGET_POSITION"] = targetPosition
   }

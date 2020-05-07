@@ -1,15 +1,7 @@
 package net.bestia.zoneserver.script
 
-import com.nhaarman.mockitokotlin2.mock
-import net.bestia.zoneserver.Fixtures
-import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.EntityCollisionService
-import net.bestia.zoneserver.entity.IdGenerator
-import net.bestia.zoneserver.entity.factory.MobFactory
 import net.bestia.zoneserver.script.exec.ItemScriptExec
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.InputStreamReader
@@ -23,6 +15,8 @@ import javax.script.ScriptEngineManager
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ScriptServiceTest: BaseScriptTest() {
 
+  /*
+  Only there for testing calling of scripts
   @Throws(Exception::class)
   @Test
   fun test() {
@@ -35,7 +29,7 @@ class ScriptServiceTest: BaseScriptTest() {
     script.eval()
     val invocable = script.engine as Invocable
     invocable.invokeFunction("test")
-  }
+  }*/
 
   private val userEntity = Entity(id = 100)
 
