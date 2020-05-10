@@ -41,7 +41,7 @@ class LogoutService(
     // Send disconnect message to the webserver.
     // Depending on the logout state the actor might have already been
     // stopped.
-    val logoutMsg = LogoutMessage(LoginResponse.NO_REASON)
+    val logoutMsg = LogoutMessage(LoginResponse.DENIED_NO_REASON)
     messageApi.send(ClientEnvelope(acc.id, logoutMsg))
 
     val playerEntities = playerEntityService.getPlayerEntities(accId)

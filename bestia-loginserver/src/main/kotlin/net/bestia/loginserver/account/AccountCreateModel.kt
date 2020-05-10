@@ -13,8 +13,3 @@ data class AccountCreateModel(
     val promoCode: String? = null,
     val basicLogin: BasicLoginCreateModel
 )
-
-data class BasicLoginCreateModel(
-    val email: String,
-    val password: String
-)

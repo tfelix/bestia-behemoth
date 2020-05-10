@@ -23,3 +23,14 @@ message PickupItem {
     uint64 player_item_id = 2;
     uint32 amount = 3;
 }
+
+message GetClientVar {
+    Client client = 1;
+    string key = 2;
+}
+
+message ClientVar {
+    Client client = 1;
+    string key = 2;
+    string value = 3;
+}

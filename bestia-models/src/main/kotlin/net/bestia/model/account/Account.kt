@@ -1,6 +1,7 @@
 package net.bestia.model.account
 
 import net.bestia.model.AbstractEntity
+import net.bestia.model.party.Party
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -31,6 +32,9 @@ data class Account(
 
   @Column(nullable = true)
   var bannedUntil: ZonedDateTime? = null
+
+  @ManyToOne
+  var party: Party? = null
 
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)

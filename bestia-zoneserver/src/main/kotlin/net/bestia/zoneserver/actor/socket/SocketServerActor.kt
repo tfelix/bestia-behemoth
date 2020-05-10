@@ -8,7 +8,6 @@ import akka.io.TcpMessage
 import mu.KotlinLogging
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.AkkaConfiguration
 import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
@@ -61,12 +60,12 @@ class SocketServerActor(
   }
 
   private fun onTcpBoundFail(msg: Tcp.CommandFailed) {
-    LOG.error { "Could not bind to $socketAddress" }
+    LOG.error { "Could not bind to $msg" }
     systemRouter.tell(SocketBindNetworkError, self)
   }
 
   private fun onTcpBound(msg: Tcp.Bound) {
-    LOG.info { "Successful bound address to: ${msg.localAddress()}" }
+    LOG.info { "Successful bound address to: $msg" }
     // Notify boot manager about success to proceed boot process
     tellNodeBootstrapManager(NodeBootstrapActor.BootReportSuccess(SocketServerActor::class.java))
   }
@@ -80,11 +79,13 @@ class SocketServerActor(
   }
 
   private fun onChildActorConnectionClosed(msg: Terminated) {
+    LOG.debug { "Connection closed to $msg" }
     // For now we assume that we only get terminated messages for child connections
     currentConnection--
   }
 
   private fun acceptConnection(conn: Tcp.Connected) {
+
     val connectionActor = sender
     if (currentConnection >= socketConfig.maxConnections) {
       LOG.info { "Dropping connection request: connection limit reached" }
@@ -93,10 +94,16 @@ class SocketServerActor(
     }
 
     currentConnection++
-    val handler = SpringExtension.actorOf(context, SocketActor::class.java, connectionActor)
+    var actorName = "client-${conn.remoteAddress().hostString}-${conn.remoteAddress().port}"
+    val handler = SpringExtension.actorOfWithName(
+        context,
+        SocketActor::class.java,
+        actorName,
+        connectionActor
+    )
     context.watch(handler)
     connectionActor.tell(TcpMessage.register(handler), self)
-    LOG.debug { "Connected client: ${conn.remoteAddress()}" }
+    LOG.debug { "Connected client: $conn" }
   }
 
   companion object {

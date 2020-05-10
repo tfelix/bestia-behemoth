@@ -21,7 +21,7 @@ class SpeedComponentActor(
 ) : ComponentActor<SpeedComponent>(moveComponent) {
 
   init {
-    timers.startPeriodicTimer(MOVE_TICK_KEY, TICK_MSG, TICK_DELAY)
+    timers.startTimerWithFixedDelay(MOVE_TICK_KEY, TICK_MSG, TICK_DELAY)
   }
 
   private var lastTick = System.currentTimeMillis()

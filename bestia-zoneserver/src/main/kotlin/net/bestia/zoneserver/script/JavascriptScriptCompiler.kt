@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.script
 
+import jdk.dynalink.beans.StaticClass
 import mu.KotlinLogging
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
 import java.io.InputStreamReader
-import jdk.internal.dynalink.beans.StaticClass
 import net.bestia.model.geometry.Cube
 import net.bestia.model.geometry.Vec3
 import javax.script.*

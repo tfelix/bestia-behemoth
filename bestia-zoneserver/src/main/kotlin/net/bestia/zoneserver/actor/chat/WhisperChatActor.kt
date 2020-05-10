@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.messages.chat.ChatMessage
-import net.bestia.zoneserver.account.AccountService
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import org.springframework.beans.factory.annotation.Qualifier
@@ -19,7 +18,6 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class WhisperChatActor(
-    private val accService: AccountService,
     @Qualifier(BQualifier.CLIENT_FORWARDER)
     private val sendClientActor: ActorRef
 ) : AbstractActor() {
@@ -42,14 +40,15 @@ class WhisperChatActor(
 
     // Cant handle with no receiver name.
     val receiverNickname = chatMsg.receiverNickname ?: return
+    /*
     val acc = accService.getOnlineAccountByName(receiverNickname)
 
     if (acc == null) {
       LOG.debug { "Whisper receiver ${chatMsg.receiverNickname} not found." }
       return
-    }
+    }*/
 
-    val reply = chatMsg.copy(acc.id)
+    val reply = chatMsg.copy(10)
     sendClientActor.tell(reply, self)
   }
 

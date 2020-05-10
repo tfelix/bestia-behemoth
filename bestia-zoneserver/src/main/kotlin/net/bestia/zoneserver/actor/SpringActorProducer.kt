@@ -77,7 +77,7 @@ internal class SpringActorProducer(
 
       val beanParams = neededParams.toMutableList<Class<*>?>()
 
-      availableArgsClasses.forEachIndexed { i, availCls ->
+      availableArgsClasses.forEachIndexed { _, availCls ->
         val idx = neededParams.indexOfFirst { it.isAssignableFrom(availCls) }
         if (idx != -1) {
           beanParams[idx] = null

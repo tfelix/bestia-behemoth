@@ -2,23 +2,27 @@ syntax = "proto3";
 
 import "messages/auth.proto";
 import "messages/commands.proto";
-import "messages/component.proto";
+// import "messages/component.proto";
 
 option java_package = "net.bestia.messages.proto";
 option java_outer_classname = "Messages";
 
 message Wrapper {
     oneof payload {
-        // AUTH
+        // SYSTEM
         Auth auth = 1;
 
         // COMMANDS
         UseItem cmd_use_item = 100;
         DropItem cmd_drop_item = 101;
         PickupItem cmd_pickup_item = 102;
+        GetClientVar cmd_get_client_var = 103;
+
+        // RESPONSES
+        ClientVar resp_client_var = 200;
 
         // COMPONENTS
-        PositionComponent comp_position = 300;
-        TemperatureComponent comp_temperature = 301;
+        // PositionComponent comp_position = 300;
+        // TemperatureComponent comp_temperature = 301;
     }
 }

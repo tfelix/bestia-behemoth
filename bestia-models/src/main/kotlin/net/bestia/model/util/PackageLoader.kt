@@ -43,7 +43,7 @@ class PackageLoader<BaseT>(
         }
 
         try {
-          val extra = clazz.newInstance()
+          val extra = clazz.getDeclaredConstructor().newInstance()
           objInstances.add(extra)
         } catch (e: InstantiationException) {
           LOG.error("Can not instantiate (has no std. ctor.): {}", clazz.toString(), e)

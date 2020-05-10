@@ -24,7 +24,7 @@ internal abstract class SubCommandModule(messageApi: MessageApi) : BaseChatComma
   protected abstract fun executeCheckedCommand(account: Account, text: String, matcher: Matcher)
 
   override fun executeCommand(account: Account, text: String) {
-    if (account.userLevel < requiredUserLevel()) {
+    if (account.accountType < requiredUserLevel()) {
       return
     }
 

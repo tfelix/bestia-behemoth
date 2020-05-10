@@ -2,7 +2,6 @@ package net.bestia.zoneserver.battle
 
 import mu.KotlinLogging
 import net.bestia.model.battle.*
-import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.AttackListComponent
 import net.bestia.zoneserver.entity.component.MetadataComponent
@@ -43,7 +42,7 @@ class AttackListService(
     return bestiaAttackRepository.getAllAttacksForBestia(bestiaId)
   }
 
-  private fun getLearnedPlayerAttacks(entity: Entity): List<PlayerAttack> {
+  private fun getLearnedPlayerAttacks(entity: Entity): List<PlayerBestiaAttack> {
     val playerBestiaId = entity.tryGetComponent(MetadataComponent::class.java)
         ?.let { it.data[MetadataComponent.MOB_PLAYER_BESTIA_ID] }
         ?.toLong()

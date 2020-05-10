@@ -18,7 +18,7 @@ data class Party(
     var name: String
 ) : AbstractEntity(), Serializable {
 
-  @OneToMany(cascade = [CascadeType.ALL])
+  @OneToMany(cascade = [CascadeType.ALL], mappedBy = "party")
   private val members: MutableSet<Account> = mutableSetOf()
 
   fun getMembers(): Set<Account> {

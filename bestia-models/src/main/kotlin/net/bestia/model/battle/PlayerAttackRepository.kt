@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface PlayerAttackRepository : JpaRepository<PlayerAttack, Long> {
+interface PlayerAttackRepository : JpaRepository<PlayerBestiaAttack, Long> {
 
   /**
    * Return all usable attacks for a given Bestia. The attacks are sorted by
@@ -14,6 +14,6 @@ interface PlayerAttackRepository : JpaRepository<PlayerAttack, Long> {
    * list is returned.
    *
    */
-  @Query("FROM PlayerAttack pa WHERE pa.playerBestia.id = :pbId ORDER BY pa.minLevel ASC")
-  fun getAllAttacksForBestia(@Param("pbId") playerBestiaId: Long): List<PlayerAttack>
+  @Query("FROM PlayerBestiaAttack pa WHERE pa.playerBestia.id = :pbId ORDER BY pa.minLevel ASC")
+  fun getAllAttacksForBestia(@Param("pbId") playerBestiaId: Long): List<PlayerBestiaAttack>
 }

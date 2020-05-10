@@ -1,19 +1,20 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 buildscript {
     ext {
-        springBootVersion = '2.1.2.RELEASE'
         javaConnectorVersion = '8.0.14'
-        jacksonVersion = '2.9.9'
+        jacksonVersion = '2.11.0'
         reflectionsVersion = '0.9.11'
         kotlinLoggingVersion = '1.6.22'
-        akkaVersion = '2.5.25'
-        akkaHttpVersion = '10.1.5'
+        akkaVersion = '2.6.5'
+        akkaHttpVersion = '10.1.11'
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.1.2.RELEASE'
+    id 'org.springframework.boot' version '2.2.7.RELEASE' apply false
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.3.50'
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.50'
     id 'com.palantir.git-version' version '0.12.2'
@@ -30,22 +31,30 @@ allprojects {
         mavenLocal()
     }
 
+    apply plugin: 'io.spring.dependency-management'
+
     compileKotlin {
         kotlinOptions {
             freeCompilerArgs = ['-Xjsr305=strict']
-            jvmTarget = '1.8'
+            jvmTarget = '12'
         }
     }
 
     compileTestKotlin {
         kotlinOptions {
             freeCompilerArgs = ['-Xjsr305=strict']
-            jvmTarget = '1.8'
+            jvmTarget = '12'
         }
     }
 
     test {
         useJUnitPlatform()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom SpringBootPlugin.BOM_COORDINATES
+        }
     }
 }
 

@@ -23,7 +23,7 @@ class AiComponentActor(
 
   private val rand = Random()
 
-  private val tick = context.system().scheduler().schedule(
+  private val tick = context.system().scheduler().scheduleAtFixedRate(
       Duration.ofSeconds(5),
       Duration.ofSeconds(5),
       self,

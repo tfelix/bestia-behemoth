@@ -2,7 +2,6 @@ package net.bestia.zoneserver.config
 
 import akka.actor.ActorRef
 import akka.pattern.Patterns
-import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.BQualifier.RUNTIME_CONFIG
 import net.bestia.zoneserver.actor.config.GetRuntimeConfig
 import net.bestia.zoneserver.actor.config.RuntimeConfigurationActor

@@ -12,7 +12,7 @@ class AccountController(
     private val accountCreateService: AccountCreateService
 ) {
 
-  @PostMapping(consumes = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+  @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   fun createAccount(@RequestBody accountCreate: AccountCreateModel) {
     accountCreateService.createAccount(accountCreate)
   }

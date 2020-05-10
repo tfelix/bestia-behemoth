@@ -37,6 +37,7 @@ class Bestia(
     val level: Int,
     val isBoss: Boolean = false,
 
+    @Enumerated(EnumType.STRING)
     val temperatureKind: TemperatureKind = TemperatureKind.MEDIUM,
 
     @Embedded

@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.Props
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.LoginServiceImpl
 import net.bestia.zoneserver.account.PlayerEntitySetupService
 
 /**
@@ -14,7 +13,7 @@ import net.bestia.zoneserver.account.PlayerEntitySetupService
  * @author Thomas Felix
  */
 data class LogoutMessage(
-    val state: LoginResponse = LoginResponse.NO_REASON,
+    val state: LoginResponse = LoginResponse.DENIED_NO_REASON,
     val reason: String = ""
 )
 
@@ -53,7 +52,10 @@ enum class LoginResponse {
    */
   NO_LOGINS_ALLOWED,
 
-  NO_REASON
+  /**
+   * Login was denied for not specific reason.
+   */
+  DENIED_NO_REASON
 }
 
 /**
@@ -61,8 +63,7 @@ enum class LoginResponse {
  */
 class AuthenticationCheckActor(
     private val authenticationService: AuthenticationService,
-    private val loginService: LoginServiceImpl,
-    private val setupService: PlayerEntitySetupService
+    private val playerSetupService: PlayerEntitySetupService
 ) : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
@@ -72,18 +73,12 @@ class AuthenticationCheckActor(
 
   private fun authenticate(msg: AuthRequest) {
     val isAuthenticated = authenticationService.isUserAuthenticated(msg.accountId, msg.token)
-    if (!isAuthenticated) {
-      sender.tell(AuthResponse(accountId = msg.accountId, response = LoginResponse.UNAUTHORIZED), self)
+    if (isAuthenticated != LoginResponse.SUCCESS) {
+      sender.tell(AuthResponse(accountId = msg.accountId, response = isAuthenticated), self)
       return
     }
 
-    val isLoginAllowed = loginService.isLoginAllowedForAccount(msg.accountId)
-    if (!isLoginAllowed) {
-      sender.tell(AuthResponse(accountId = msg.accountId, response = LoginResponse.NO_LOGINS_ALLOWED), self)
-      return
-    }
-
-    setupService.setup(msg.accountId)
+    playerSetupService.setup(msg.accountId)
 
     sender.tell(AuthResponse(accountId = msg.accountId, response = LoginResponse.SUCCESS), self)
   }
@@ -91,11 +86,10 @@ class AuthenticationCheckActor(
   companion object {
     fun props(
         authenticationService: AuthenticationService,
-        loginService: LoginServiceImpl,
         setupService: PlayerEntitySetupService
     ): Props {
       return Props.create(AuthenticationCheckActor::class.java) {
-        AuthenticationCheckActor(authenticationService, loginService, setupService)
+        AuthenticationCheckActor(authenticationService, setupService)
       }
     }
   }

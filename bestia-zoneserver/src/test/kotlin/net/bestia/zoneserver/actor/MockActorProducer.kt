@@ -13,7 +13,7 @@ class MockActorProducer(
    * It is used by Spring. We need this ctor as Spring internally matches it against this signature.
    * If it has not this signature spring wont instance this MockActorProducer.
    */
-  @Suppress("unused")
+  @Suppress("unused", "UNUSED_PARAMETER")
   constructor(
       applicationContext: ApplicationContext,
       actorBeanClass: Class<out Actor>,

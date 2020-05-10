@@ -48,7 +48,7 @@ class ChatCommandServiceTest {
     whenever(accDao.findById(ACC_ID)).thenReturn(Optional.of(acc))
     whenever(chatCmd.isCommand(CMD_TXT)).thenReturn(true)
     whenever(chatCmd.requiredUserLevel()).thenReturn(AccountType.USER)
-    whenever(acc.userLevel).thenReturn(AccountType.GM)
+    whenever(acc.accountType).thenReturn(AccountType.GM)
     chatService.executeChatCommand(ACC_ID, CMD_TXT)
 
     verify(chatCmd).executeCommand(acc, CMD_TXT)

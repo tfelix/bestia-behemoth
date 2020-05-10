@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import org.springframework.stereotype.Service
-import java.util.*
 
 private val LOG = KotlinLogging.logger { }
 
@@ -51,7 +50,7 @@ class ChatCommandService(
     val acc = accDao.findOneOrThrow(accId)
 
     chatCommands
-        .firstOrNull { it.isCommand(text) && acc.userLevel >= it.requiredUserLevel() }
+        .firstOrNull { it.isCommand(text) && acc.accountType >= it.requiredUserLevel() }
         ?.executeCommand(acc, text)
   }
 

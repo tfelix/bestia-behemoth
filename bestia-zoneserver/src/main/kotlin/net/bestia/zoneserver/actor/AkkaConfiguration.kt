@@ -14,7 +14,6 @@ import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
 import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.LoginServiceImpl
 import net.bestia.zoneserver.account.PlayerEntitySetupService
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
@@ -122,10 +121,9 @@ class AkkaConfiguration {
   fun authenticationCheckActor(
       system: ActorSystem,
       authenticationService: AuthenticationService,
-      loginService: LoginServiceImpl,
       setupService: PlayerEntitySetupService
   ): ActorRef {
-    val props = AuthenticationCheckActor.props(authenticationService, loginService, setupService)
+    val props = AuthenticationCheckActor.props(authenticationService, setupService)
 
     return system.actorOf(props, "authCheck")
   }

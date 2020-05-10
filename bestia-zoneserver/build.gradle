@@ -17,29 +17,29 @@ dependencies {
 
     implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
 
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: springBootVersion
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
 
-    implementation group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-actor-typed_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-distributed-data_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-cluster-typed_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-discovery_2.12', version: akkaVersion
-    implementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra_2.12', version: '0.99'
-    // Nice Gradle! Forcing another implementation DSL layout because your syntax sucks.
-    implementation('com.typesafe.akka:akka-persistence-query_2.12:2.5.25') {
-        // Force this version as akka-persistence-cassandra_2.12 uses 2.5.23
-        force = true
-    }
+    implementation group: 'com.typesafe.akka', name: 'akka-actor_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-actor-typed_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-slf4j_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-distributed-data_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-typed_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-cluster-sharding-typed_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-persistence-typed_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-discovery_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra_2.13', version: '1.0.0'
+    // persistence-cassandra uses the older version ofc again from persistence-query, we need to manually
+    // set it to match akka version.
+    implementation group: 'com.typesafe.akka', name: 'akka-persistence-query_2.13', version: akkaVersion
 
-    implementation group: 'com.lightbend.akka.management', name: 'akka-management_2.12', version: '1.0.0-RC2'
-    implementation group: 'com.lightbend.akka.management', name: 'akka-management-cluster-bootstrap_2.12', version: '1.0.0-RC2'
+    implementation group: 'com.lightbend.akka.management', name: 'akka-management_2.13', version: '1.0.7'
+    implementation group: 'com.lightbend.akka.management', name: 'akka-management-cluster-bootstrap_2.13', version: '1.0.7'
 
     implementation group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
 
@@ -49,7 +49,7 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.5'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
-    // implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+    implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
@@ -57,7 +57,7 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.12', version: '0.92'
-    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion) {
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
         // Test if this wroks
         // exclude group: 'junit', module: 'junit'
     }

@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="de.tfelix.bestia-voxel.main" target="1.8" />
-      <module name="de.tfelix.bestia-voxel.test" target="1.8" />
-      <module name="net.bestia.test-client.main" target="1.8" />
-      <module name="net.bestia.test-client.test" target="1.8" />
-      <module name="net.bestia.voxel.bestia-voxel.main" target="1.8" />
-      <module name="net.bestia.voxel.bestia-voxel.test" target="1.8" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8" />
   </component>
 </project>

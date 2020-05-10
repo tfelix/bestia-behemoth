@@ -30,8 +30,8 @@ class MobFactory(
   fun build(mobDbName: String, pos: Vec3): Entity {
     val bestia = bestiaDao.findByDatabaseName(mobDbName)
         ?: run {
-          LOG.warn { "Could not find Bestia in database: '$mobDbName'" }
-          throw IllegalArgumentException()
+          LOG.warn { "Could not find mob '$mobDbName' in database" }
+          throw IllegalArgumentException("Could not find mob '$mobDbName' in database")
         }
 
     val entityId = idGenerator.newId()

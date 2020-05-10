@@ -21,6 +21,10 @@ spring:
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: validate
-    # Allows Hibernate to generate SQL optimized for a particular DBMS
+      ddl-auto: update
+      jdbc.time_zone: UTC
     properties.hibernate.dialect: org.hibernate.dialect.MariaDB53Dialect
+
+  flyway:
+    enabled: true
+    baselineOnMigrate: true

@@ -47,6 +47,7 @@ class RuntimeConfigurationActor : AbstractActor() {
     @Suppress("UNCHECKED_CAST")
     msg as Replicator.GetSuccess<LWWRegister<RuntimeConfig>>
     val data = msg.dataValue().value
+
     @Suppress("UNCHECKED_CAST")
     val replyTo = msg.request.get() as ActorRef
     replyTo.tell(data, self)

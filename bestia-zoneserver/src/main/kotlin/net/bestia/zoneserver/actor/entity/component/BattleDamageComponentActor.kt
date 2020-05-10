@@ -11,9 +11,9 @@ class BattleDamageComponentActor(
 ) : ComponentActor<BattleDamageComponent>(battleComponent) {
 
   init {
-    context.system().scheduler().schedule(
-        Duration.ofSeconds(CHECK_DAMAGE_RETAIN_S),
-        Duration.ofSeconds(CHECK_DAMAGE_RETAIN_S),
+    context.system().scheduler().scheduleAtFixedRate(
+        CHECK_DAMAGE_RETAIN,
+        CHECK_DAMAGE_RETAIN,
         self,
         CHECK_DAMAGE_RETAIN_MSG,
         context.dispatcher(),
@@ -30,7 +30,7 @@ class BattleDamageComponentActor(
   }
 
   companion object {
-    private const val CHECK_DAMAGE_RETAIN_S = 30L
+    private val CHECK_DAMAGE_RETAIN = Duration.ofSeconds(30)
     private const val CHECK_DAMAGE_RETAIN_MSG = "checkdmgretain"
   }
 }

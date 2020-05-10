@@ -2,7 +2,6 @@ package net.bestia.model
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.ObjectMapper
-import net.bestia.model.account.LoginInfo
 import net.bestia.model.bestia.PlayerBestia
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -46,7 +45,7 @@ class GeneralModelTest {
   @Throws(InstantiationException::class, IllegalAccessException::class)
   fun all_std_ctor() {
     for (clazz in allEntities) {
-      clazz.newInstance()
+      clazz.getDeclaredConstructor().newInstance()
     }
   }
 
@@ -63,14 +62,13 @@ class GeneralModelTest {
         continue
       }
 
-      val obj = clazz.newInstance()
+      val obj = clazz.getDeclaredConstructor().newInstance()
       mapper.writeValueAsString(obj)
     }
   }
 
   companion object {
     private val WHITELIST = setOf(
-        LoginInfo::class.java,
         PlayerBestia::class.java
     )
   }

@@ -1,18 +1,13 @@
 package net.bestia.zoneserver
 
 import net.bestia.messages.proto.AuthProto
-import net.bestia.zoneserver.account.LoginService
+import net.bestia.zoneserver.account.LoginCheck
+import net.bestia.zoneserver.actor.socket.LoginResponse
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-
-class AllAuthenticatingLoginService : LoginService {
-  override fun isLoginAllowedForAccount(accountId: Long): Boolean {
-    return true
-  }
-}
 
 @SpringBootTest
 // @ActiveProfiles(profiles = ["test"])
@@ -21,11 +16,17 @@ class BootableSmokeTest {
 
   private lateinit var socket: RxTxSocket
 
+  private class AllAuthenticatingLoginService : LoginCheck {
+    override fun isLoginAllowedForAccount(accountId: Long, token: String): LoginResponse {
+      return LoginResponse.SUCCESS
+    }
+  }
+
   @TestConfiguration
   class SmokeTestConfig {
 
     @Bean
-    fun allAuthenticatingLoginService(): LoginService {
+    fun allAuthenticatingLoginService(): LoginCheck {
       return AllAuthenticatingLoginService()
     }
   }
@@ -35,9 +36,9 @@ class BootableSmokeTest {
 
   }
 
-  @DisplayName("Startup Application Ctx")
+  @DisplayName("Client can login to server")
   @Test
-  fun injectionTests() {
+  fun simpleLogin() {
     Thread.sleep(5000)
     socket = RxTxSocket("127.0.0.1", 8990)
     // Setup an auth message.

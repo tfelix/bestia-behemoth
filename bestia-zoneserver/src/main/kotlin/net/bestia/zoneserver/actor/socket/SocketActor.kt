@@ -15,7 +15,9 @@ import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.messages.ProtobufMessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
+import java.lang.IllegalStateException
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 private val LOG = KotlinLogging.logger { }
 
@@ -39,7 +41,7 @@ final class SocketActor(
     private val messageConverter: ProtobufMessageConverterService
 ) : AbstractActor() {
 
-  private val buffer = ByteBuffer.allocate(1024 * 4)
+  private val buffer = ByteBuffer.allocate(MAX_MESSAGE_SIZE)
 
   private lateinit var clusterClientConnectionManager: ActorRef
 
@@ -72,7 +74,7 @@ final class SocketActor(
     if (msg.response == LoginResponse.SUCCESS) {
       announceNewClientConnection(msg.accountId)
     } else {
-      LOG.info { "Client send invalid login or server does not allow login. Disconnecting client." }
+      LOG.info { "Client send invalid login or server does not allow login: $msg. Disconnecting client." }
       context.stop(self)
     }
   }
@@ -98,8 +100,15 @@ final class SocketActor(
     if (buffer.position() < Int.SIZE_BYTES) {
       return null
     }
+    buffer.order(ByteOrder.LITTLE_ENDIAN)
     val messageSize = buffer.getInt(0)
-    LOG.debug { "Buffer: ${buffer.position()} bytes, next message size: $messageSize bytes" }
+
+    LOG.debug { "Current buffer: ${buffer.position()} bytes, next message size: $messageSize bytes" }
+
+    if (messageSize > MAX_MESSAGE_SIZE) {
+      throw IllegalStateException("Client requested message size $messageSize, max size is $MAX_MESSAGE_SIZE")
+    }
+
     if (buffer.position() < messageSize) {
       return null
     }
@@ -138,5 +147,9 @@ final class SocketActor(
     extractMessageBytes(msg)?.let {
       LOG.info { "Received: $it" }
     }
+  }
+
+  companion object {
+    private const val MAX_MESSAGE_SIZE = 1024 * 4 // 4kb
   }
 }

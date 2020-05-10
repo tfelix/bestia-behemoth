@@ -47,8 +47,10 @@ class AwaitResponseActor(
 
   private fun gatherResponses(msg: Any) {
     if (msg is ReceiveTimeout) {
-      LOG.debug { "Received response timeout in ${context.self().path()}. " +
-          "Received so far: ${receivedResponses.map { it.javaClass.simpleName }}" }
+      LOG.debug {
+        "Received response timeout in ${context.self().path()}. " +
+            "Received so far: ${receivedResponses.map { it.javaClass.simpleName }}"
+      }
       context.stop(self)
       return
     }

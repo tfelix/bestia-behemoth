@@ -1,12 +1,11 @@
 package net.bestia.model.battle
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
-import net.bestia.model.bestia.Bestia
 import net.bestia.model.bestia.PlayerBestia
 import java.io.Serializable
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.ManyToOne
+import javax.persistence.Table
 
 /**
  * Lists the default attacks a Bestia will learn when it gains more
@@ -15,8 +14,8 @@ import javax.persistence.*
  * @author Thomas Felix
  */
 @Entity
-@Table(name = "player_bestia_attacks")
-class PlayerAttack(
+@Table
+class PlayerBestiaAttack(
     @ManyToOne
     val attack: Attack,
 

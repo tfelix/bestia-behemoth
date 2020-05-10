@@ -96,10 +96,10 @@ class SpringExtension private constructor() : AbstractExtensionId<SpringExtensio
         clazz: Class<out AbstractActor>,
         vararg args: Any
     ): ActorRef {
-      return actorOf(actorCtx, clazz, null, *args)
+      return actorOfWithName(actorCtx, clazz, null, *args)
     }
 
-    fun actorOf(
+    fun actorOfWithName(
         actorCtx: ActorRefFactory,
         clazz: Class<out AbstractActor>,
         name: String? = null,
