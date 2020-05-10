@@ -9,7 +9,7 @@ class LoginController(
     private val loginService: BasicLoginService
 ) {
 
-  @PostMapping(consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+  @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   fun basicCredentials(@RequestBody credentials: BasicCredentials): BestiaToken {
     return loginService.login(credentials)
   }
