@@ -1,6 +1,0 @@
-{
-  "terminal.integrated.env.linux": {
-	"PATH": "/home/thomas/.platformio/penv/bin:/home/thomas/.sdkman/candidates/gradle/current/bin:/home/thomas/bin:/home/thomas/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
-  },
-  "java.configuration.updateBuildConfiguration": "automatic"
-}
