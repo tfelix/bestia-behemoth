@@ -2,7 +2,6 @@ package net.bestia.voxel.io
 
 import net.bestia.voxel.Chunk
 import net.bestia.voxel.DEFAULT_CHUNK_SIZE
-import net.bestia.voxel.Vector3
 import net.bestia.voxel.Voxel
 import java.nio.ByteBuffer
 import kotlin.experimental.or
@@ -27,7 +26,7 @@ internal class ChunkBinaryWriter(
     val totalSize = chunkSize * chunkSize * chunkSize
     var i = 1
     var processed = 0
-    var sameCount = 0
+    var sameCount = 1
 
     do {
       val x = (i / (chunkSize * chunkSize)) % chunkSize
@@ -36,14 +35,14 @@ internal class ChunkBinaryWriter(
 
       currentVoxelData = chunk.getVoxel(x, y, z)
 
-      if(currentVoxelData == lastVoxelData) {
+      if (currentVoxelData == lastVoxelData) {
         sameCount += 1
       }
 
       if (sameCount == 255 || currentVoxelData != lastVoxelData) {
-        writeRLEData(currentVoxelData, sameCount.toUByte())
+        writeRLEData(lastVoxelData, sameCount.toUByte())
         processed += sameCount
-        sameCount = 0
+        sameCount = 1
         lastVoxelData = currentVoxelData
       }
     } while (i++ < totalSize)
@@ -62,19 +61,27 @@ internal class ChunkBinaryWriter(
   private fun writeRLEData(voxel: Voxel, count: UByte) {
     val hasCount = count > 1.toUByte()
 
-    val flagHasRle = when (hasCount) {
+    val storeCount = when (hasCount) {
       true -> 0b10000000.toByte()
       false -> 0b00000000.toByte()
     }
-    val materialUpper = (voxel.material shr 2).toByte()
-    val materialLower = ((voxel.material and 0b11) shl 6).toByte()
+
+    val hasOccupancy = voxel.occupancy != Voxel.NOT_OCCUIPIED && voxel.occupancy != Voxel.FULL_OCCUPIED
+    val storeOccupancy = when (hasOccupancy) {
+      true -> 0b01000000.toByte()
+      false -> 0.toByte()
+    }
+
+    val material = (voxel.material and 0b00111111).toByte()
     val occupancy = voxel.occupancy
 
-    val b1 = flagHasRle or materialUpper
-    val b2 = materialLower or occupancy
+    val b1 = storeCount or storeOccupancy or material
 
     buffer.put(b1)
-    buffer.put(b2)
+
+    if(hasOccupancy) {
+      buffer.put(occupancy.toByte())
+    }
     if (hasCount) {
       buffer.put(count.toByte())
     }
