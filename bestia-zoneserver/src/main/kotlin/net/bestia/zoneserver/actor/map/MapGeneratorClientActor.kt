@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.map
 
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
-import de.tfelix.bestia.worldgen.description.MapDescription
+import de.tfelix.bestia.worldgen.map.MapDescription
 import de.tfelix.bestia.worldgen.io.MapGenDAO
 import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.message.WorkstateMessage

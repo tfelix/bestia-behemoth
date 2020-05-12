@@ -4,7 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.ActorIdentity
 import akka.actor.ActorRef
 import akka.actor.Identify
-import de.tfelix.bestia.worldgen.description.MapDescription
+import de.tfelix.bestia.worldgen.map.MapDescription
 import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.map.MapChunk
 import de.tfelix.bestia.worldgen.message.WorkstateMessage

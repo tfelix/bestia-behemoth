@@ -1,6 +1,8 @@
 package de.tfelix.bestia.worldgen.random
 
 import de.tfelix.bestia.worldgen.map.Map2DDiscreteCoordinate
+import de.tfelix.bestia.worldgen.noise.OpenSimplexNoise
+import de.tfelix.bestia.worldgen.noise.SimplexNoiseProvider
 import org.junit.Assert
 import org.junit.Test
 

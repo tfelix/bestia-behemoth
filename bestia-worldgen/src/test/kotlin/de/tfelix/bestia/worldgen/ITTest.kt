@@ -1,6 +1,6 @@
 package de.tfelix.bestia.worldgen
 
-import de.tfelix.bestia.worldgen.description.Map2DDescription
+import de.tfelix.bestia.worldgen.map.Map2DDescription
 import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO
 import de.tfelix.bestia.worldgen.io.LocalMasterConnector
 import de.tfelix.bestia.worldgen.io.LocalNodeConnector
@@ -9,7 +9,7 @@ import de.tfelix.bestia.worldgen.map.MapCoordinate
 import de.tfelix.bestia.worldgen.map.MapDataPart
 import de.tfelix.bestia.worldgen.random.NoiseVector
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
-import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider
+import de.tfelix.bestia.worldgen.noise.SimplexNoiseProvider
 import de.tfelix.bestia.worldgen.workload.Job
 import de.tfelix.bestia.worldgen.workload.Workload
 import org.junit.After
@@ -94,8 +94,8 @@ class ITTest : MapMasterCallbacks {
 
     val desc = Map2DDescription(
         noiseVectorBuilder = NoiseVectorBuilder(),
-        height = 100,
-        width = 100,
+        mapHeight = 100,
+        mapWidth = 100,
         chunkHeight = 10,
         chunkWidth = 10
     )

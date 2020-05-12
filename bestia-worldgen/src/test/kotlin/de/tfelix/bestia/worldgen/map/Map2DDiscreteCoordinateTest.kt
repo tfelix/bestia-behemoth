@@ -1,7 +1,7 @@
 package de.tfelix.bestia.worldgen.map
 
 import com.nhaarman.mockitokotlin2.*
-import de.tfelix.bestia.worldgen.random.NoiseProvider
+import de.tfelix.bestia.worldgen.noise.NoiseProvider
 import org.junit.Assert
 import org.junit.Test
 

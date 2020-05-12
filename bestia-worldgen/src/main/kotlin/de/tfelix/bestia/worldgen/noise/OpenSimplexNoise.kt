@@ -1,4 +1,4 @@
-package de.tfelix.bestia.worldgen.random
+package de.tfelix.bestia.worldgen.noise
 
 import kotlin.experimental.and
 

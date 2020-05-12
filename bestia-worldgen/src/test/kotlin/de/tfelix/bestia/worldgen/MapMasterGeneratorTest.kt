@@ -1,6 +1,6 @@
 package de.tfelix.bestia.worldgen
 
-import de.tfelix.bestia.worldgen.description.Map2DDescription
+import de.tfelix.bestia.worldgen.map.Map2DDescription
 import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.message.Workstate
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
@@ -32,8 +32,8 @@ class MapMasterGeneratorTest {
   private val description = Map2DDescription(
       chunkHeight = 10,
       chunkWidth = 10,
-      width = 100,
-      height = 100,
+      mapWidth = 100,
+      mapHeight = 100,
       noiseVectorBuilder = NoiseVectorBuilder()
   )
 

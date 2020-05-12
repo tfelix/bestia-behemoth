@@ -4,7 +4,6 @@ import net.bestia.voxel.Chunk
 import net.bestia.voxel.Vector3
 import net.bestia.voxel.Voxel
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 @ExperimentalUnsignedTypes

@@ -2,12 +2,12 @@ package net.bestia.zoneserver.map.generator
 
 import de.tfelix.bestia.worldgen.MapGeneratorMaster
 import de.tfelix.bestia.worldgen.MapMasterCallbacks
-import de.tfelix.bestia.worldgen.description.Map2DDescription
+import de.tfelix.bestia.worldgen.map.Map2DDescription
 import de.tfelix.bestia.worldgen.io.MasterConnector
 import de.tfelix.bestia.worldgen.io.NodeConnector
 import de.tfelix.bestia.worldgen.message.WorkstateMessage
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
-import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider
+import de.tfelix.bestia.worldgen.noise.SimplexNoiseProvider
 import mu.KotlinLogging
 import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.map.MapParameter
@@ -73,8 +73,8 @@ class MapGeneratorMasterService(
 
     // Setup the map configuration object.
     val descBuilder = Map2DDescription(
-        height =  height,
-        width =  width,
+        mapHeight = height,
+        mapWidth = width,
         chunkHeight = 100,
         chunkWidth = 100,
         noiseVectorBuilder = noiseBuilder

@@ -1,6 +1,8 @@
-package de.tfelix.bestia.worldgen.random
+package de.tfelix.bestia.worldgen.noise
 
-import de.tfelix.bestia.worldgen.map.Map2DDiscreteCoordinate
+import de.tfelix.bestia.worldgen.map.Point
+import de.tfelix.bestia.worldgen.noise.NoiseProvider
+import de.tfelix.bestia.worldgen.noise.OpenSimplexNoise
 
 /**
  * Provides simplex noise type generation. This simply wraps the
@@ -26,7 +28,7 @@ class SimplexNoiseProvider(
    * We want outputs between 0 and 1. Thus we need to re-norm the simplex
    * output.
    */
-  override fun getRandom(coordinate: Map2DDiscreteCoordinate): Double {
+  override fun getRandom(coordinate: Point): Double {
     val x = coordinate.x * scale
     val y = coordinate.y * scale
     return (simplexNoise.eval(x, y) + 1.0) / 2

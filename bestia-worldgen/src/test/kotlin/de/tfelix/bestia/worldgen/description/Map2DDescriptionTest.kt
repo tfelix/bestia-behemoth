@@ -1,7 +1,8 @@
 package de.tfelix.bestia.worldgen.description
 
+import de.tfelix.bestia.worldgen.map.Map2DDescription
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
-import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider
+import de.tfelix.bestia.worldgen.noise.SimplexNoiseProvider
 import org.junit.Assert
 import org.junit.Test
 
@@ -15,8 +16,8 @@ class Map2DDescriptionTest {
 
       return Map2DDescription(
           noiseVectorBuilder = nb,
-          height = 100,
-          width = 100,
+          mapHeight = 100,
+          mapWidth = 100,
           chunkHeight = 10,
           chunkWidth = 10
       )
@@ -25,7 +26,7 @@ class Map2DDescriptionTest {
   @Test
   fun getMapPartCount_100() {
     val d = desc
-    Assert.assertEquals(100, d.mapPartCount)
+    Assert.assertEquals(100, d.chunkCount)
   }
 
   @Test
@@ -36,13 +37,13 @@ class Map2DDescriptionTest {
 
     val d = Map2DDescription(
         noiseVectorBuilder = nb,
-        height = 100,
-        width = 100,
+        mapHeight = 100,
+        mapWidth = 100,
         chunkHeight = 1000,
         chunkWidth = 1000
     )
 
-    Assert.assertEquals(1, d.mapPartCount)
+    Assert.assertEquals(1, d.chunkCount)
   }
 
   @Test

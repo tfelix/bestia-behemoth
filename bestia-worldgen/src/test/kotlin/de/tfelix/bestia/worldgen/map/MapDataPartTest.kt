@@ -1,6 +1,6 @@
 package de.tfelix.bestia.worldgen.map
 
-import de.tfelix.bestia.worldgen.random.NoiseProvider
+import de.tfelix.bestia.worldgen.noise.NoiseProvider
 import de.tfelix.bestia.worldgen.random.NoiseVector
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder
 import org.junit.Assert

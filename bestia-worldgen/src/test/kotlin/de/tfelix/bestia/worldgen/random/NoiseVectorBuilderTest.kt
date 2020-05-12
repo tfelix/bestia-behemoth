@@ -2,6 +2,7 @@ package de.tfelix.bestia.worldgen.random
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
+import de.tfelix.bestia.worldgen.noise.NoiseProvider
 import org.junit.Test
 import org.mockito.Mockito.mock
 
