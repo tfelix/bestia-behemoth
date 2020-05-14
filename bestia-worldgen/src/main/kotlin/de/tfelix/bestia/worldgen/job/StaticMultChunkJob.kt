@@ -8,16 +8,16 @@ import de.tfelix.bestia.worldgen.noise.NoiseMap2D
  *
  * @author Thomas Felix
  */
-class StaticAddChunkJob(
-    private val offset: Double
+class StaticMultChunkJob(
+    private val factor: Double
 ) : ChunkJob {
 
   override val name: String
-    get() = "Static add $offset"
+    get() = "Static multiply by $factor"
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
     chunk.getIterator().forEach {
-      noiseMap[it] =+ offset
+      noiseMap[it] *= factor
     }
 
     return noiseMap

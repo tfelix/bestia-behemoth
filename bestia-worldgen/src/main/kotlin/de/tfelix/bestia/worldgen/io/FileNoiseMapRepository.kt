@@ -1,6 +1,6 @@
 package de.tfelix.bestia.worldgen.io
 
-import de.tfelix.bestia.worldgen.noise.NoiseMap
+import de.tfelix.bestia.worldgen.noise.NoiseMap2D
 import mu.KotlinLogging
 import java.io.*
 import java.nio.file.Files
@@ -21,7 +21,7 @@ class FileNoiseMapRepository(
     file.delete()
   }
 
-  override fun save(identifier: String, map: NoiseMap) {
+  override fun save(identifier: String, map: NoiseMap2D) {
     val filename = "$identifier$FILE_EXT"
     val filePath = Paths.get(saveDir.toAbsolutePath().toString(), filename)
 
@@ -46,7 +46,8 @@ class FileNoiseMapRepository(
     }
   }
 
-  override fun load(identifier: String): NoiseMap? {
+  override fun load(identifier: String): NoiseMap2D? {
+    /*
     val file = Paths
         .get(saveDir.toAbsolutePath().toString(), identifier + FILE_EXT)
         .toFile()
@@ -74,7 +75,9 @@ class FileNoiseMapRepository(
     } catch (e: ClassNotFoundException) {
       LOG.error("Error while serializing map part.", e)
       throw NoSuchElementException()
-    }
+    }*/
+
+    return null
   }
 
   companion object {

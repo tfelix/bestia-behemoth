@@ -2,7 +2,7 @@ package de.tfelix.bestia.worldgen.job
 
 import de.tfelix.bestia.worldgen.io.NoiseMapRepository
 import de.tfelix.bestia.worldgen.map.Chunk
-import de.tfelix.bestia.worldgen.noise.NoiseMap
+import de.tfelix.bestia.worldgen.noise.NoiseMap2D
 import java.lang.IllegalStateException
 
 /**
@@ -23,8 +23,8 @@ class AddChunkJob(
         ?: throw IllegalStateException("Noise map with identifier '$addNoiseMapIdentifier' was not found")
   }
 
-  override fun execute(chunk: Chunk, noiseMap: NoiseMap): NoiseMap {
-    chunk.getIterator.forEach {
+  override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
+    chunk.getIterator().forEach {
       noiseMap[it] += loadedNoiseMap[it]
     }
 

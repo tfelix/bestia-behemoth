@@ -1,13 +1,13 @@
 package de.tfelix.bestia.worldgen.map
 
-class Map2DChunk(
+data class Map2DChunk(
     private val point: Point,
-    private val width: Long,
-    private val height: Long
+    override val width: Int,
+    override val height: Int
 ) : Chunk {
 
   private inner class Map2DChunkIterator : Iterator<Point> {
-    private var i: Long = 0
+    private var i: Int = 0
 
     override fun hasNext(): Boolean {
       return i < width * height

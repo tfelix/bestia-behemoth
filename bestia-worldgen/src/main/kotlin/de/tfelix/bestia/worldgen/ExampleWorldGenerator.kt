@@ -3,7 +3,12 @@ package de.tfelix.bestia.worldgen
 import de.tfelix.bestia.worldgen.io.InMemoryNoiseMapRepository
 import de.tfelix.bestia.worldgen.job.*
 import de.tfelix.bestia.worldgen.map.Chunk
+import de.tfelix.bestia.worldgen.noise.NoiseMap2D
+import de.tfelix.bestia.worldgen.pipeline.CompositePipeline
+import de.tfelix.bestia.worldgen.pipeline.Pipeline
+import de.tfelix.bestia.worldgen.pipeline.SimplePipeline
 import mu.KotlinLogging
+import java.io.File
 
 private val LOG = KotlinLogging.logger { }
 
@@ -33,8 +38,9 @@ data class Workload(
 ) {
 
   fun execute(chunk: Chunk) {
-    // LOG.info{ "Starting workload '$identifier' for chunk $chunk"  }
-    // generate empty noise map
+    LOG.info { "Starting workload '$identifier' for chunk $chunk" }
+    val noiseMap = NoiseMap2D(chunk.width, chunk.height)
+    pipeline.execute(noiseMap, chunk)
   }
 }
 
@@ -42,19 +48,22 @@ class ExampleWorkloadFactory : WorkloadFactory {
   override fun buildWorkload(): List<Workload> {
     val inMemoryRepo = InMemoryNoiseMapRepository()
 
-    val generateHightmaps = ParallelPipeline(
+    val generateHightmaps = CompositePipeline(
         SimplePipeline(
-            GenerateSimplexNoiseChunkJob(1234, 0.1),
+            GenerateSimplexNoiseChunkJob(1234, 0.2),
+            StaticMultChunkJob(0.1),
             SaveNoiseChunkJob("height-hf", inMemoryRepo)
         ),
         SimplePipeline(
-            GenerateSimplexNoiseChunkJob(1234, 1.0),
+            GenerateSimplexNoiseChunkJob(1234, 0.06),
+            StaticMultChunkJob(0.5),
             SaveNoiseChunkJob("height-mf", inMemoryRepo)
         ),
         SimplePipeline(
-            GenerateSimplexNoiseChunkJob(1234, 5.0),
+            GenerateSimplexNoiseChunkJob(1234, 0.01),
             SaveNoiseChunkJob("height-lf", inMemoryRepo)
-        ),
+        )
+        /*
         SimplePipeline(
             GenerateSimplexNoiseChunkJob(1234, 0.5),
             SaveNoiseChunkJob("temperature", inMemoryRepo)
@@ -66,7 +75,7 @@ class ExampleWorkloadFactory : WorkloadFactory {
         SimplePipeline(
             GenerateSimplexNoiseChunkJob(3333, 0.5),
             SaveNoiseChunkJob("population", inMemoryRepo)
-        )
+        )*/
     )
 
     val addHeightmaps = SimplePipeline(
@@ -76,18 +85,24 @@ class ExampleWorkloadFactory : WorkloadFactory {
         DeleteNoiseChunkJob("height-hf", inMemoryRepo),
         DeleteNoiseChunkJob("height-mf", inMemoryRepo),
         DeleteNoiseChunkJob("height-lf", inMemoryRepo),
-        StaticDivChunkJob(3.0),
-        SaveNoiseChunkJob("height", inMemoryRepo)
+        NormalizeChunkJob(),
+        SaveNoiseChunkJob("height", inMemoryRepo),
+        ImageOutputJob(File("D:\\output.png"))
     )
 
     val generatNoiseWorkload = Workload(
         "generate-noise",
-        ParallelPipeline(
-            generateHightmaps,
-            addHeightmaps
-        )
+        generateHightmaps
     )
 
-    return listOf(generatNoiseWorkload)
+    val addHeightWorkload = Workload(
+        "add-height",
+        addHeightmaps
+    )
+
+    return listOf(
+        generatNoiseWorkload,
+        addHeightWorkload
+    )
   }
 }

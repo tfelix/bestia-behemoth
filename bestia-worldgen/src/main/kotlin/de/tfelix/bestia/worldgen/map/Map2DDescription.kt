@@ -9,8 +9,9 @@ package de.tfelix.bestia.worldgen.map
 data class Map2DDescription(
     val mapWidth: Long = 0,
     val mapHeight: Long = 0,
-    val chunkWidth: Long = 0,
-    val chunkHeight: Long = 0
+    val chunkWidth: Int = 0,
+    val chunkHeight: Int = 0,
+    val seed: Long = 0
 ) : MapDescription {
 
   private val chunksX = mapWidth / chunkWidth
@@ -39,7 +40,7 @@ data class Map2DDescription(
       i += 1
 
       return Map2DChunk(
-          Point(curX, curY, 0),
+          Point(curX.toInt(), curY.toInt(), 0),
           chunkWidth,
           chunkHeight
       )

@@ -2,22 +2,17 @@ package de.tfelix.bestia.worldgen.job
 
 import de.tfelix.bestia.worldgen.map.Chunk
 import de.tfelix.bestia.worldgen.noise.NoiseMap2D
+import de.tfelix.bestia.worldgen.noise.NoiseProvider
 
-/**
- * This job adds a static offset value to the returned noise.
- *
- * @author Thomas Felix
- */
-class StaticAddChunkJob(
-    private val offset: Double
+open class GenerateNoiseMapJob(
+    private val noiseProvider: NoiseProvider,
+    override val name: String = "Generate noise map"
 ) : ChunkJob {
-
-  override val name: String
-    get() = "Static add $offset"
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
     chunk.getIterator().forEach {
-      noiseMap[it] =+ offset
+      val noise = noiseProvider.getRandom(it)
+      noiseMap[it] = noise
     }
 
     return noiseMap

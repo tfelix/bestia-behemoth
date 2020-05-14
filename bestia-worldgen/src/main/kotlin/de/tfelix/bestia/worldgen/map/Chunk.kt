@@ -2,6 +2,8 @@ package de.tfelix.bestia.worldgen.map
 
 interface Chunk {
   val identifier: String
+  val width: Int
+  val height: Int
 
   /**
    * Iterator to iterate over all the contained map coordinates contained in

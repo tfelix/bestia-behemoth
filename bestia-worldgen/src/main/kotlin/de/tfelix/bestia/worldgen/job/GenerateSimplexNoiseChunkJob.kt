@@ -5,7 +5,7 @@ import de.tfelix.bestia.worldgen.noise.SimplexNoiseProvider
 class GenerateSimplexNoiseChunkJob(
     seed: Long,
     scale: Double
-) : GenerateNoiseChunkJob(
+) : GenerateNoiseMapJob(
     name = "Simplex Noise Job",
     noiseProvider = SimplexNoiseProvider(seed, scale)
 )

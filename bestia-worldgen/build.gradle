@@ -9,10 +9,6 @@ dependencies {
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: '1.6.10'
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
-
-    testCompileOnly 'junit:junit:4.12'
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.1.0'
-    testImplementation group: 'junit', name: 'junit', version: '4.11'
     testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.24'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.0.31-beta'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.0.0-RC1'
