@@ -16,8 +16,8 @@ class NormalizeChunkJob : ChunkJob {
     get() = "Normalize"
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
-    val min = max(0.0, noiseMap.map { it.second }.min() ?: 0.0)
-    val max = min(1.0, noiseMap.map { it.second }.max() ?: 1.0)
+    val min = noiseMap.map { it.second }.min() ?: 0.0
+    val max = noiseMap.map { it.second }.max() ?: 1.0
 
     noiseMap.forEach {
       noiseMap[it.first] = (it.second - min) / max

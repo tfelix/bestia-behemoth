@@ -12,8 +12,8 @@ class SimpleMapGeneratorTest {
   @Test
   fun `general test`() {
     val generator = WorldGeneratorClient(ExampleWorkloadFactory())
-    val chunk = Map2DChunk(point = Point(0, 0, 0), width = 500, height = 500)
+    val chunk = Map2DChunk(chunkPos = Point(0, 0, 0), width = 500, height = 500)
     generator.executeWorkload("generate-noise", chunk)
-    generator.executeWorkload("add-height", chunk)
+    // generator.executeWorkload("add-height", chunk)
   }
 }

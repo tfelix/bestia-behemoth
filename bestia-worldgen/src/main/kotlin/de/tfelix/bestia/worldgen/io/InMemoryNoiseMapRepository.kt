@@ -1,6 +1,7 @@
 package de.tfelix.bestia.worldgen.io
 
 import de.tfelix.bestia.worldgen.noise.NoiseMap2D
+import java.lang.IllegalStateException
 
 class InMemoryNoiseMapRepository : NoiseMapRepository {
   private val memoryMap = mutableMapOf<String, NoiseMap2D>()
@@ -13,7 +14,8 @@ class InMemoryNoiseMapRepository : NoiseMapRepository {
     memoryMap[identifier] = map
   }
 
-  override fun load(identifier: String): NoiseMap2D? {
+  override fun load(identifier: String): NoiseMap2D {
     return memoryMap[identifier]
+        ?: throw IllegalStateException("Map with identifier '$identifier' not found")
   }
 }

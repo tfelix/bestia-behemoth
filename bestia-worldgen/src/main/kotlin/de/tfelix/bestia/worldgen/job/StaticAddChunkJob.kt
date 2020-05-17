@@ -17,7 +17,7 @@ class StaticAddChunkJob(
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
     chunk.getIterator().forEach {
-      noiseMap[it] =+ offset
+      noiseMap[it] += offset
     }
 
     return noiseMap

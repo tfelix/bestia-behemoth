@@ -9,7 +9,7 @@ import javax.imageio.ImageIO
 import kotlin.math.max
 import kotlin.math.min
 
-class ImageOutputJob(
+open class ImageOutputJob(
     private val bitmapFile: File
 ) : ChunkJob {
 
@@ -26,19 +26,24 @@ class ImageOutputJob(
     graphics.fillRect(0, 0, image.width, image.height)
 
     noiseMap.forEach {
-      image.setRGB(it.first.x, it.first.y, grayScale(it.second))
+      image.setRGB(it.first.x, it.first.y, getColor(it.second))
     }
+
     ImageIO.write(image, "png", bitmapFile)
 
     return noiseMap
   }
 
-  private fun grayScale(scale: Double): Int {
+  protected open fun getColor(value: Double): Int {
+    return grayScale(value)
+  }
+
+  protected fun grayScale(scale: Double): Int {
     val rgb = max(0.0, min(255.0, 255 * scale)).toInt()
     return toRGB(rgb, rgb, rgb)
   }
 
-  private fun toRGB(r: Int, g: Int, b: Int): Int {
+  protected fun toRGB(r: Int, g: Int, b: Int): Int {
     val rs = r shl 16
     val gr = (g shl 8)
     return rs or gr or b

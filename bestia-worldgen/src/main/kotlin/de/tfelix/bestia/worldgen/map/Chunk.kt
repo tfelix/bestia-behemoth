@@ -13,5 +13,5 @@ interface Chunk {
    */
   fun getIterator(): Iterator<Point>
 
-  // fun toGlobalCoordinates(localCords: Point): Point
+  fun toGlobalCoordinates(localCords: Point): Point
 }

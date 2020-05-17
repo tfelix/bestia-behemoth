@@ -3,6 +3,8 @@ package de.tfelix.bestia.worldgen.noise
 import de.tfelix.bestia.worldgen.map.Point
 import de.tfelix.bestia.worldgen.map.Size
 
+
+
 class NoiseMap2D(
     private val width: Int,
     private val height: Int
@@ -13,10 +15,6 @@ class NoiseMap2D(
 
   // Must add 1 since coordinate 0 is still 1px.
   val size get() = Size(width, height)
-
-  fun createNew(): NoiseMap2D {
-    return NoiseMap2D(width, height)
-  }
 
   operator fun get(point: Point): Double {
     return data[point.x][point.y]

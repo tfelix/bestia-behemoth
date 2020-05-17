@@ -1,7 +1,7 @@
 package de.tfelix.bestia.worldgen.map
 
 data class Map2DChunk(
-    private val point: Point,
+    private val chunkPos: Point,
     override val width: Int,
     override val height: Int
 ) : Chunk {
@@ -26,5 +26,13 @@ data class Map2DChunk(
     return Map2DChunkIterator()
   }
 
-  override val identifier = "chunk-${point.x}-${point.y}-${point.z}"
+  override fun toGlobalCoordinates(localCords: Point): Point {
+    return Point(
+        chunkPos.x * width + localCords.x,
+        chunkPos.y * height + localCords.y,
+        0
+    )
+  }
+
+  override val identifier = "chunk-${chunkPos.x}-${chunkPos.y}-${chunkPos.z}"
 }

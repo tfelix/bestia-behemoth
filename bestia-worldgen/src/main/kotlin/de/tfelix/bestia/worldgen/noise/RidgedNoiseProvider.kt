@@ -1,14 +1,12 @@
 package de.tfelix.bestia.worldgen.noise
 
 import de.tfelix.bestia.worldgen.map.Point
+import kotlin.math.abs
 
 /**
- * Provides simplex noise type generation. This simply wraps the
- * [OpenSimplexNoise] implementation.
- *
- * @author Thomas Felix
+ * Provides noise with a more riged edge. Can be used e.g. for mountains.
  */
-class SimplexNoiseProvider(
+class RidgedNoiseProvider(
     /**
      * Seed value for the simplex noise implementation.
      */
@@ -29,6 +27,7 @@ class SimplexNoiseProvider(
   override fun getRandom(coordinate: Point): Double {
     val x = coordinate.x * scale
     val y = coordinate.y * scale
-    return (simplexNoise.eval(x, y) + 1.0) / 2
+
+    return 2 * (0.5 - abs(0.5 - simplexNoise.eval(x, y)))
   }
 }

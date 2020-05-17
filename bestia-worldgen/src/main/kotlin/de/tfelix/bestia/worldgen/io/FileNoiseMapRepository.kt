@@ -3,6 +3,7 @@ package de.tfelix.bestia.worldgen.io
 import de.tfelix.bestia.worldgen.noise.NoiseMap2D
 import mu.KotlinLogging
 import java.io.*
+import java.lang.IllegalStateException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -46,7 +47,7 @@ class FileNoiseMapRepository(
     }
   }
 
-  override fun load(identifier: String): NoiseMap2D? {
+  override fun load(identifier: String): NoiseMap2D {
     /*
     val file = Paths
         .get(saveDir.toAbsolutePath().toString(), identifier + FILE_EXT)
@@ -77,7 +78,7 @@ class FileNoiseMapRepository(
       throw NoSuchElementException()
     }*/
 
-    return null
+    throw IllegalStateException("")
   }
 
   companion object {

@@ -9,10 +9,8 @@ class SimplePipeline(
 ) : Pipeline {
   constructor(vararg jobs: ChunkJob) : this(jobs.toList())
 
-  // TODO NoiseMap ggf durch eine Factory ersetzen?
-  override fun execute(initialNoiseMap: NoiseMap2D, chunk: Chunk) {
-    val copiedNoiseMap = initialNoiseMap.createNew()
-    chunkJobs.fold(copiedNoiseMap, { noiseMap, job ->
+  override fun execute(noiseMap: NoiseMap2D, chunk: Chunk) {
+    chunkJobs.fold(noiseMap, { noiseMap, job ->
       job.execute(chunk, noiseMap)
     })
   }

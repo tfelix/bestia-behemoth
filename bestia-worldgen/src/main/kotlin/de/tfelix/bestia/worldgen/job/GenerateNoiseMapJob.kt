@@ -11,8 +11,7 @@ open class GenerateNoiseMapJob(
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
     chunk.getIterator().forEach {
-      val noise = noiseProvider.getRandom(it)
-      noiseMap[it] = noise
+      noiseMap[it] = noiseProvider.getRandom(it)
     }
 
     return noiseMap
