@@ -26,3 +26,4 @@ services:
       - 7687:7687 # Bolt
     environment:
       NEO4J_AUTH: neo4j/bestia
+      NEO4J_dbms_connector_bolt_advertised__address: "localhost:7687"
