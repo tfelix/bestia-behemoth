@@ -5,6 +5,8 @@ logging:
   level:
     ROOT: WARN
     akka.management.cluster: INFO
+    # org.neo4j.driver.GraphDatabase: debug
+    # org.neo4j.driver.Driver: debug
     net.bestia: DEBUG
     de.tfelix.bestia: DEBUG
     net.bestia.entity.EntityService: INFO
@@ -33,6 +35,11 @@ spring:
       ddl-auto: update
     # Allows Hibernate to generate SQL optimized for a particular DBMS
     properties.hibernate.dialect: org.hibernate.dialect.MariaDB53Dialect
+  data:
+    neo4j:
+      uri: bolt://192.168.178.220:7687
+      username: neo4j
+      password: bestia
 
 flyway:
   enabled: false

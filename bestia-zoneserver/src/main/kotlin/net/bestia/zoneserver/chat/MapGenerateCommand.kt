@@ -8,7 +8,6 @@ import net.bestia.model.account.AccountType
 import net.bestia.model.map.MapParameter
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.routing.MessageApi
-import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
 
@@ -68,9 +67,9 @@ internal class MapGenerateCommand(
     LOG.info("New map parameter: {}", baseParams)
 
     // Perform the map generation.
-    val nodeName = AkkaCluster.getNodeName(MapGeneratorMasterActor.NAME)
-    val selection = system.actorSelection(nodeName)
-    selection.tell(baseParams, ActorRef.noSender())
+    // val nodeName = AkkaCluster.getNodeName(MapGeneratorMasterActor.NAME)
+    // val selection = system.actorSelection(nodeName)
+    // selection.tell(baseParams, ActorRef.noSender())
   }
 
   private fun printError(accId: Long) {

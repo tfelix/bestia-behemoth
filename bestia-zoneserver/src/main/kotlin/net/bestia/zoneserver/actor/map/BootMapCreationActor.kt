@@ -29,7 +29,7 @@ class BootMapCreationActor(
 
   private fun createMap() {
     LOG.info { "No map data found! Creating a new default map." }
-    val mapCreationMaster = SpringExtension.actorOf(context, MapGeneratorMasterActor::class.java)
-    context.watch(mapCreationMaster)
+    // val mapCreationMaster = SpringExtension.actorOf(context, MapGeneratorMasterActor::class.java)
+    // context.watch(mapCreationMaster)
   }
 }
