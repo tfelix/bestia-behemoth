@@ -1,28 +1,29 @@
 syntax = "proto3";
+package bestia.messages;
 
-import "messages/auth.proto";
-import "messages/commands.proto";
-// import "messages/component.proto";
+import "messages/account.proto";
+import "messages/inventory.proto";
+import "messages/component.proto";
 
 option java_package = "net.bestia.messages.proto";
-option java_outer_classname = "Messages";
+option java_outer_classname = "MessageProtos";
 
 message Wrapper {
     oneof payload {
-        // SYSTEM
+        // SYSTEM & ACCOUNT
         Auth auth = 1;
+        AccountVarRequest account_var_request = 2;
+        AccountVarResponse account_var_response = 3;
 
-        // COMMANDS
+        // INVENTORY
         UseItem cmd_use_item = 100;
         DropItem cmd_drop_item = 101;
         PickupItem cmd_pickup_item = 102;
-        GetClientVar cmd_get_client_var = 103;
-
-        // RESPONSES
-        ClientVar resp_client_var = 200;
 
         // COMPONENTS
-        // PositionComponent comp_position = 300;
-        // TemperatureComponent comp_temperature = 301;
+        PositionComponent comp_position = 300;
+        TemperatureComponent comp_temperature = 301;
+
+        // MISC
     }
 }

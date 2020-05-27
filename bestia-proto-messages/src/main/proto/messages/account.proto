@@ -1,0 +1,23 @@
+syntax = "proto3";
+package bestia.messages;
+
+import "messages/model.proto";
+
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "AccountProtos";
+
+message Auth {
+  int64 accountId = 1;
+  string token = 2;
+}
+
+message AccountVarRequest {
+    Account account = 1;
+    string key = 2;
+}
+
+message AccountVarResponse {
+    Account account = 1;
+    string key = 2;
+    string value = 3;
+}

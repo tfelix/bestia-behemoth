@@ -1,76 +1,35 @@
 syntax = "proto3";
+package bestia.messages;
+
+import "messages/model.proto";
 
 option java_package = "net.bestia.messages.proto";
-option java_outer_classname = "ComponentsProto";
+option java_outer_classname = "ComponentProtos";
 
-message BComponent {
-    int64 entityId = 1;
-    int64 componentId = 2;
-}
-
-message Vec3 {
-    int64 x = 1;
-    int64 y = 2;
-    int64 z = 3;
-}
-
-enum Element {
-    NORMAL = 0;
-    WATER = 1;
-    EARTH = 2;
-    FIRE = 3;
-    WIND = 4;
-    POISON = 5;
-    HOLY = 6;
-    SHADOW = 7;
-    GHOST = 8;
-    UNDEAD = 9;
-    NORMAL_2 = 10;
-    WATER_2 = 11;
-    EARTH_2 = 12;
-    FIRE_2 = 13;
-    WIND_2 = 14;
-    POISON_2 = 15;
-    HOLY_2 = 16;
-    SHADOW_2 = 17;
-    GHOST_2 = 18;
-    UNDEAD_2 = 19;
-    NORMAL_3 = 20;
-    WATER_3 = 21;
-    EARTH_3 = 22;
-    FIRE_3 = 23;
-    WIND_3 = 24;
-    POISON_3 = 25;
-    HOLY_3 = 26;
-    SHADOW_3 = 27;
-    GHOST_3 = 28;
-    UNDEAD_3 = 29;
-    NORMAL_4 = 30;
-    WATER_4 = 31;
-    EARTH_4 = 32;
-    FIRE_4 = 33;
-    WIND_4 = 34;
-    POISON_4 = 35;
-    HOLY_4 = 36;
-    SHADOW_4 = 37;
-    GHOST_4 = 38;
-    UNDEAD_4 = 39;
+message Component {
+    int64 entity_id = 1;
+    int64 component_id = 2;
 }
 
 message PositionComponent {
-    BComponent component = 1;
+    Component component = 1;
     Vec3 position = 2;
 }
 
 message TemperatureComponent {
-    BComponent component = 1;
+    Component component = 1;
     int32 max_tolerable_temp = 2;
     int32 min_tolerable_temp = 3;
     int32 current_temp = 4;
 }
 
+message VisualComponent {
+  Component component = 1;
+  string visual = 2;
+}
+
 message StatusComponent {
-    BComponent component = 1;
+    Component component = 1;
     int32 physical_defense = 2;
     int32 magic_defense = 3;
     int32 strength = 4;

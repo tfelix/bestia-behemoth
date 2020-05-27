@@ -1,0 +1,24 @@
+syntax = "proto3";
+package bestia.messages;
+
+import "messages/model.proto";
+
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "InventoryProtos";
+
+message UseItem {
+    Account account = 1;
+    uint64 player_item_id = 2;
+}
+
+message DropItem {
+    Account account = 1;
+    uint64 player_item_id = 2;
+    uint32 amount = 3;
+}
+
+message PickupItem {
+    Account account = 1;
+    uint64 player_item_id = 2;
+    uint32 amount = 3;
+}

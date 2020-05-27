@@ -1,7 +1,14 @@
 syntax = "proto3";
+package bestia.messages;
+
+import "messages/model.proto";
 
 option java_package = "net.bestia.messages.proto";
-option java_outer_classname = "AttacksProto";
+option java_outer_classname = "AttackProtos";
+
+message AttackListRequest {
+    Account account = 1;
+}
 
 message LearnedAttack {
     uint64 attack_id = 1;
