@@ -1,4 +1,6 @@
-<img style="display: block; margin-left: auto; margin-right: auto; width: 50%; height: auto;" src="img/logo.png">
+<p align="center">
+  <img width="50%" src="img/logo.png">
+</p>
 
 # Bestia - Behemoth Server
 
