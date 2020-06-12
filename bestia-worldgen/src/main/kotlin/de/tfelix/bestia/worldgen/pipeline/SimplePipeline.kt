@@ -10,8 +10,8 @@ class SimplePipeline(
   constructor(vararg jobs: ChunkJob) : this(jobs.toList())
 
   override fun execute(noiseMap: NoiseMap2D, chunk: Chunk) {
-    chunkJobs.fold(noiseMap, { noiseMap, job ->
-      job.execute(chunk, noiseMap)
+    chunkJobs.fold(noiseMap, { nm, job ->
+      job.execute(chunk, nm)
     })
   }
 }

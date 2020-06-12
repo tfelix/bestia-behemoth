@@ -21,7 +21,8 @@ class EntityTemperatureService {
   fun calculateTemperatureComponent(entity: Entity, temperatureKind: TemperatureKind): TemperatureComponent {
     val tempComp = entity.getComponent(TemperatureComponent::class.java)
 
-    val minMax = temperatureTable[temperatureKind]!!
+    val minMax = temperatureTable[temperatureKind]
+        ?: error("Temperature lookup missing for $temperatureKind")
 
     return tempComp.copy(
         minTolerableTemperature = minMax.first,

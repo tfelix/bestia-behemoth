@@ -2,6 +2,8 @@ package net.bestia.zoneserver.entity.component
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import mu.KotlinLogging
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 private val LOG = KotlinLogging.logger { }
 
@@ -47,7 +49,8 @@ data class LevelComponent(
     const val MAX_LEVEL = 10
 
     private fun checkLevelup(levelComponent: LevelComponent): LevelComponent {
-      val neededExp = Math.round(Math.pow(levelComponent.level.toDouble(), 3.0) / 10 + 15.0 + levelComponent.level * 1.5).toInt()
+      val level = levelComponent.level.toDouble()
+      val neededExp = (level.pow(3.0) / 3 + 15.0 + level * 1.5).roundToInt()
 
       LOG.trace { "checkLevelup(): ${levelComponent.entityId} has ${levelComponent.exp}/$neededExp exp for levelup" }
 

@@ -40,7 +40,7 @@ class BattleService(
     return attackEntity(battleAttack, attacker, defender)
   }
 
-  fun attackEntity(attack: BattleAttack, attacker: Entity, defender: Entity): List<Damage> {
+  private fun attackEntity(attack: BattleAttack, attacker: Entity, defender: Entity): List<Damage> {
     LOG.trace { "Entity $attacker attacks entity $defender with $attack" }
 
     // Prepare the battle context since this is needed to carry all information.
@@ -58,21 +58,45 @@ class BattleService(
     return damages
   }
 
-
   fun attackGround(attackId: Long, attacker: Entity, pos: Vec3) {
+    val attack = attackRepository.findOneOrThrow(attackId)
+    val battleAttack = BattleAttack.fromAttack(attack)
 
+    return attackGround(battleAttack, attacker, pos)
   }
 
-  private fun createBattleContext(usedAttack: BattleAttack, attacker: Entity, defender: Entity): BattleContext {
+  private fun attackGround(attack: BattleAttack, attacker: Entity, pos: Vec3) {
+    LOG.trace { "Entity $attacker attacks ground $pos with $attack" }
+
+    val battleCtx = createBattleContext(attack, attacker)
+
+    if (!isAttackPossible(battleCtx)) {
+      return
+    }
+  }
+
+  private fun createBattleContext(usedAttack: BattleAttack, attacker: Entity, defender: Entity): EntityBattleContext {
     val dmgVars = getDamageVars(attacker)
 
-    return BattleContext(
+    return EntityBattleContext(
         usedAttack = usedAttack,
         attacker = attacker,
         defender = defender,
         damageVariables = dmgVars,
         attackElement = Element.NORMAL, // FIXME, Depends on Weapon, Ammunition, Buff
         defenderElement = Element.NORMAL,
+        weaponAtk = 0f // FIXME When Equipment is implemented use this to get meaningful value
+    )
+  }
+
+  private fun createBattleContext(usedAttack: BattleAttack, attacker: Entity): GroundBattleContext {
+    val dmgVars = getDamageVars(attacker)
+
+    return GroundBattleContext(
+        usedAttack = usedAttack,
+        attacker = attacker,
+        damageVariables = dmgVars,
+        attackElement = Element.NORMAL, // FIXME, Depends on Weapon, Ammunition, Buff
         weaponAtk = 0f // FIXME When Equipment is implemented use this to get meaningful value
     )
   }
@@ -85,6 +109,7 @@ class BattleService(
    */
   private fun isAttackPossible(battleCtx: BattleContext): Boolean {
     val check = checkFactory.buildChecker(battleCtx)
+
     return check.isAttackPossible()
   }
 

@@ -19,7 +19,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
    * controlled by a script this wont get checked by this method anymore. Only
    * raw damage calculation is performed.
    */
-  override fun calculateDamage(battleCtx: BattleContext): Int {
+  override fun calculateDamage(battleCtx: EntityBattleContext): Int {
     val baseAtk = getBaseAttack(battleCtx)
     val atkMod = getAttackModifier(battleCtx)
     val hardDefMod = getHardDefenseModifier(battleCtx)
@@ -33,7 +33,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
     return damage
   }
 
-  private fun getBaseAttack(battleCtx: BattleContext): Float {
+  private fun getBaseAttack(battleCtx: EntityBattleContext): Float {
     val statusAtk = getStatusAttack(battleCtx)
     val varMod = if (battleCtx.damageVariables.isCriticalHit) 1f else calculateVarMod()
     val weaponAtk = calculateWeaponAtk()
@@ -52,7 +52,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
     return baseAtk
   }
 
-  private fun getElementMod(battleCtx: BattleContext): Float {
+  private fun getElementMod(battleCtx: EntityBattleContext): Float {
     val atkEle = battleCtx.attackElement
     val defEle = battleCtx.defenderElement
 
@@ -61,7 +61,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
     return eleMod
   }
 
-  private fun getElementBonusMod(battleCtx: BattleContext): Float {
+  private fun getElementBonusMod(battleCtx: EntityBattleContext): Float {
     val atkEle = battleCtx.attackElement
     val defEle = battleCtx.defenderElement
 
@@ -71,7 +71,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
   /**
    * @return The critical modifier.
    */
-  private fun getCritModifier(battleCtx: BattleContext): Float {
+  private fun getCritModifier(battleCtx: EntityBattleContext): Float {
     val dmgVars = battleCtx.damageVariables
 
     val critMod = (if (dmgVars.isCriticalHit) 1.4f * dmgVars.criticalDamageMod else 1.0f).clamp(1.0f)
@@ -91,10 +91,10 @@ abstract class BaseDamageCalculator : DamageCalculator {
   }
 
   protected abstract fun calculateWeaponAtk(): Float
-  protected abstract fun getStatusAttack(battleCtx: BattleContext): Float
-  protected abstract fun getBonusAttack(battleCtx: BattleContext): Float
-  protected abstract fun getAmmoAttack(battleCtx: BattleContext): Float
-  protected abstract fun getSoftDefense(battleCtx: BattleContext): Float
-  protected abstract fun getHardDefenseModifier(battleCtx: BattleContext): Float
-  protected abstract fun getAttackModifier(battleCtx: BattleContext): Float
+  protected abstract fun getStatusAttack(battleCtx: EntityBattleContext): Float
+  protected abstract fun getBonusAttack(battleCtx: EntityBattleContext): Float
+  protected abstract fun getAmmoAttack(battleCtx: EntityBattleContext): Float
+  protected abstract fun getSoftDefense(battleCtx: EntityBattleContext): Float
+  protected abstract fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float
+  protected abstract fun getAttackModifier(battleCtx: EntityBattleContext): Float
 }

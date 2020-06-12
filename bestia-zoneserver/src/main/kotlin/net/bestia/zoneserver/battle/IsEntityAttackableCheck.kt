@@ -8,7 +8,7 @@ import net.bestia.zoneserver.entity.component.StatusComponent
 private val LOG = KotlinLogging.logger { }
 
 class IsEntityAttackableCheck(
-    private val battleCtx: BattleContext
+    private val battleCtx: EntityBattleContext
 ) : AttackCheck() {
   /**
    * It must be checked if an entity is eligible for receiving damage. This

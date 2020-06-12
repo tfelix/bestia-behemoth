@@ -8,7 +8,7 @@ import net.bestia.zoneserver.entity.component.PositionComponent
 private val LOG = KotlinLogging.logger { }
 
 class DistanceAttackCheck(
-    private val battleCtx: BattleContext
+    private val battleCtx: EntityBattleContext
 ) : AttackCheck() {
   /**
    * Checks if a given attack is in range for a target position. It is

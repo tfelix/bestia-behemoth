@@ -5,14 +5,14 @@ import net.bestia.model.battle.CriticalHit
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Miss
 import net.bestia.model.battle.Hit
-import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.battle.PhysicalAttackStrategy
 import java.util.*
 
 private val LOG = KotlinLogging.logger { }
 
 class MeleePhysicalAttackStrategy(
-    private val battleCtx: BattleContext,
+    private val battleCtx: EntityBattleContext,
     private val damageCalculator: MeleePhysicalDamageCalculator,
     random: Random
 ) : PhysicalAttackStrategy(random) {

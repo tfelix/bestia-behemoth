@@ -88,7 +88,7 @@ internal class MeleeDamageCalculatorTest {
     }
 
 
-    val ctx = BattleContext(
+    val ctx = EntityBattleContext(
         attackElement = Element.FIRE,
         defenderElement = Element.FIRE,
         weaponAtk = 10f,

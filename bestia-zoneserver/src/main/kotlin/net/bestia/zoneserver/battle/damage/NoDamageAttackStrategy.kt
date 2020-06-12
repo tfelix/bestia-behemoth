@@ -2,16 +2,16 @@ package net.bestia.zoneserver.battle.damage
 
 import net.bestia.model.battle.Damage
 import net.bestia.zoneserver.battle.AttackStrategy
-import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.EntityBattleContext
 
 class NoDamageAttackStrategy(
-    private val battleCtx: BattleContext
+    private val battleCtx: EntityBattleContext
 ) : AttackStrategy() {
-  override fun doesAttackHit(battleCtx: BattleContext): Boolean {
+  override fun doesAttackHit(battleCtx: EntityBattleContext): Boolean {
     return true
   }
 
-  override fun isCriticalHit(battleCtx: BattleContext): Boolean {
+  override fun isCriticalHit(battleCtx: EntityBattleContext): Boolean {
     return false
   }
 

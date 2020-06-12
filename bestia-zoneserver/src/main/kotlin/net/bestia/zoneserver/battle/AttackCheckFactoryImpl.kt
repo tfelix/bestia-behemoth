@@ -2,7 +2,6 @@ package net.bestia.zoneserver.battle
 
 import org.springframework.stereotype.Component
 
-// TODO find besser name
 @Component
 class AttackCheckFactoryImpl(
     private val attackCheckFactories: List<AttackCheckFactory>

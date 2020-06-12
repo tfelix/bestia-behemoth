@@ -1,35 +1,27 @@
-# Bestia-Behemoth
+<img style="display: block; margin-left: auto; margin-right: auto; width: 50%; height: auto;" src="img/logo.png">
+
+# Bestia - Behemoth Server
 
 [![Build Status](https://travis-ci.org/tfelix/bestia-behemoth.svg)](https://travis-ci.org/tfelix/bestia-behmoth)
 [![Codecov](https://codecov.io/github/tfelix/bestia-behemoth/coverage.svg)](https://codecov.io/gh/tfelix/bestia-behemoth)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
-> Massive scalable Zoneserver for the [Bestia Browsergame](https://bestia-game.net) using Akka Actors and written 
+> Massive scalable game server for the [Bestia MMORPG](https://bestia-game.net) using Akka Actors and written 
 > in Kotlin.
 
-The zoneserver is the backend game server for the Bestia Browsergame. 
-It provides all needed business logic in order to play the game and is able to support huge tile maps
-of several thousands square kilometers and thousands of entities.
+The Behemoth server is the backend game server for the Bestia MMORPG. 
+It provides all needed business logic in order to play the game and is able to support huge tile maps of several thousands square kilometers and thousands of entities.
 
-Detailed documentation about the game mechanics and server architecture can be found in the official
+A detailed documentation about the game mechanics and server architecture can be found in the official
 [documentation](https://docs.bestia-game.net).
 
 The server is open source so bug fixes and feature can be community driven which is a declared goal
 of the whole Bestia game project.
 
-## Bestia-Zoneserver
-
-The zoneserver is the backend game server for the Bestia Browsergame. 
-It provides all needed business logic in order to play the game and supports game logic written in
-JavaScript.
-
-Detailed documentation about the game mechanics and server architecture can be found in the official
-[documentation](https://docs.bestia-game.net).
-
 ## Contributing
 
 Contributions are always welcome! If you want to get into it a lot of code is still untested and might be
-a good starting point. If you want to change or work an game related stuff please consult the 
+a good starting point. If you want to change or work a game related stuff please consult the 
 [documentation](https://docs.bestia-game.net) first to stick to the general manifests of this game.
  
  Anyways to start up the develop environment there is a `docker-compose.yml` inside 

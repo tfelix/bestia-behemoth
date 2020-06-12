@@ -2,7 +2,7 @@ package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
 import net.bestia.zoneserver.battle.BaseDamageCalculator
-import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.battle.clamp
 import kotlin.math.max
 import kotlin.math.min
@@ -23,17 +23,17 @@ class MeleePhysicalDamageCalculator() : BaseDamageCalculator() {
     return 0f
   }
 
-  override fun getBonusAttack(battleCtx: BattleContext): Float {
+  override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
     // if (usedAttack.isMagic) attackMagicBonus else attackPhysicalBonus
 
     return battleCtx.damageVariables.attackMeleeBonus + battleCtx.damageVariables.attackPhysicalBonus
   }
 
-  override fun getAmmoAttack(battleCtx: BattleContext): Float {
+  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float {
     return 0f
   }
 
-  override fun getStatusAttack(battleCtx: BattleContext): Float {
+  override fun getStatusAttack(battleCtx: EntityBattleContext): Float {
     val lvMod = battleCtx.attackerLevel / 4f
     val sp = battleCtx.attackerStatusPoints
 
@@ -41,7 +41,7 @@ class MeleePhysicalDamageCalculator() : BaseDamageCalculator() {
   }
 
   // Same as RangedDamageCalculator
-  override fun getSoftDefense(battleCtx: BattleContext): Float {
+  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
     val defStatus = battleCtx.defenderStatusPoints
     val lv = battleCtx.defenderLevel
 
@@ -50,14 +50,14 @@ class MeleePhysicalDamageCalculator() : BaseDamageCalculator() {
     return min(0f, softDef)
   }
 
-  override fun getHardDefenseModifier(battleCtx: BattleContext): Float {
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float {
     val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
     val defDefense = battleCtx.defenderDefense.physicalDefense
 
     return (1 - (defDefense / 100f + physicalDefenseMod)).clamp(0.05f, 1.0f)
   }
 
-  override fun getAttackModifier(battleCtx: BattleContext): Float {
+  override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
     val dmgVars = battleCtx.damageVariables
 
     return max(0f, dmgVars.attackMeleeMod)

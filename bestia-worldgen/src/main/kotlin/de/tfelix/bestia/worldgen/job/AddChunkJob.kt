@@ -20,7 +20,6 @@ class AddChunkJob(
 
   private val loadedNoiseMap by lazy {
     noiseMapRepository.load(addNoiseMapIdentifier)
-        ?: throw IllegalStateException("Noise map with identifier '$addNoiseMapIdentifier' was not found")
   }
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {

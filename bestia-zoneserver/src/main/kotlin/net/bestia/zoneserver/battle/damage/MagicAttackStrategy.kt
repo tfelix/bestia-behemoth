@@ -4,21 +4,21 @@ import mu.KotlinLogging
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Hit
 import net.bestia.zoneserver.battle.AttackStrategy
-import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.EntityBattleContext
 
 private val LOG = KotlinLogging.logger { }
 
 class MagicAttackStrategy(
-    private val battleCtx: BattleContext,
+    private val battleCtx: EntityBattleContext,
     private val damageCalculator: MagicDamageCalculator
 ) : AttackStrategy() {
   // Magic always hits
-  override fun doesAttackHit(battleCtx: BattleContext): Boolean {
+  override fun doesAttackHit(battleCtx: EntityBattleContext): Boolean {
     return true
   }
 
   // Magic never does a crit
-  override fun isCriticalHit(battleCtx: BattleContext): Boolean {
+  override fun isCriticalHit(battleCtx: EntityBattleContext): Boolean {
     return false
   }
 

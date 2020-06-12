@@ -22,7 +22,7 @@ class LineOfSightAttackCheck() : AttackCheck() {
    * @return Returns TRUE if there is a direct line of sight. FALSE if there
    * is no direct line of sight.
    */
-  private fun hasLineOfSight(battleCtx: BattleContext): Boolean {
+  private fun hasLineOfSight(battleCtx: EntityBattleContext): Boolean {
     val attack = battleCtx.usedAttack
     val attacker = battleCtx.attacker
     val defender = battleCtx.defender

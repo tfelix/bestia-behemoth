@@ -12,7 +12,7 @@ class AttackStrategyFactory {
   private val magicCalculator = MagicDamageCalculator()
   private val meleeCalculator = MeleePhysicalDamageCalculator()
 
-  fun getAttackStrategy(ctx: BattleContext): AttackStrategy {
+  fun getAttackStrategy(ctx: EntityBattleContext): AttackStrategy {
     return when (ctx.usedAttack.attackType) {
       AttackType.MELEE_PHYSICAL -> MeleePhysicalAttackStrategy(ctx, meleeCalculator, random)
       AttackType.RANGED_PHYSICAL -> RangedPhysicalAttackStrategy(ctx, meleeCalculator, random)

@@ -5,7 +5,7 @@ import mu.KotlinLogging
 private val LOG = KotlinLogging.logger { }
 
 class ManaAttackCheck(
-    private val battleCtx: BattleContext
+    private val battleCtx: EntityBattleContext
 ) : AttackCheck() {
   /**
    * Check if the entity has the mana needed for the attack.
@@ -22,10 +22,10 @@ class ManaAttackCheck(
    * Calculates the needed mana for an attack. Mana cost can be reduced by
    * effects or scripts.
    *
-   * @param battleCtx The [BattleContext].
+   * @param battleCtx The [EntityBattleContext].
    * @return The actual mana costs for this attack.
    */
-  private fun getNeededMana(battleCtx: BattleContext): Int {
+  private fun getNeededMana(battleCtx: EntityBattleContext): Int {
     val attack = battleCtx.usedAttack
     val neededManaMod = battleCtx.damageVariables.neededManaMod
     val neededMana = Math.ceil((attack.manaCost * neededManaMod).toDouble()).toInt()

@@ -17,8 +17,8 @@ open class ImageOutputJob(
 
   override fun execute(chunk: Chunk, noiseMap: NoiseMap2D): NoiseMap2D {
     val image = BufferedImage(
-        noiseMap.size.width.toInt(),
-        noiseMap.size.height.toInt(),
+        noiseMap.width,
+        noiseMap.height,
         BufferedImage.TYPE_INT_RGB
     )
     val graphics = image.graphics

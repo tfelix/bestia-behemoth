@@ -3,7 +3,6 @@ package de.tfelix.bestia.worldgen
 import de.tfelix.bestia.worldgen.io.InMemoryNoiseMapRepository
 import de.tfelix.bestia.worldgen.job.*
 import de.tfelix.bestia.worldgen.map.Chunk
-import de.tfelix.bestia.worldgen.map.Point
 import de.tfelix.bestia.worldgen.noise.NoiseMap2D
 import de.tfelix.bestia.worldgen.noise.RidgedNoiseProvider
 import de.tfelix.bestia.worldgen.pipeline.NewNoisePipeline
@@ -42,16 +41,6 @@ class NoiseMapFactory() {
 class ExampleWorkloadFactory : WorkloadFactory {
   override fun buildWorkload(): List<Workload> {
     val inMemoryRepo = InMemoryNoiseMapRepository()
-
-    /*
-        SimplePipeline(
-            GenerateSimplexNoiseChunkJob(2222, 0.5),
-            SaveNoiseChunkJob("humidity", inMemoryRepo)
-        ),
-        SimplePipeline(
-            GenerateSimplexNoiseChunkJob(3333, 0.5),
-            SaveNoiseChunkJob("population", inMemoryRepo)
-        )*/
 
     val noiseFactory = NoiseMapFactory()
     val generatNoiseWorkload = Workload(
@@ -100,19 +89,28 @@ class ExampleWorkloadFactory : WorkloadFactory {
                 AdaptHeatToElevationJob("height", inMemoryRepo),
                 ImageOutputJob(File("D:\\heat.png")),
                 SaveNoiseChunkJob("temperature", inMemoryRepo)
+            ),
+            SimplePipeline(
+                GenerateSimplexNoiseChunkJob(78, 0.01),
+                NormalizeChunkJob(),
+                AdaptHumidityToElevationJob("height", inMemoryRepo),
+                ImageOutputJob(File("D:\\humidity.png")),
+                SaveNoiseChunkJob("humidity", inMemoryRepo)
             )
         )
     )
-
-    /*
-    val addHeightWorkload = Workload(
-        "add-height",
-        addHeightmaps
-    )*/
+    val generatRiversWorkload = Workload(
+        "generate-rivers",
+        NoiseMapFactory(),
+        SimplePipeline(
+            LoadNoiseChunkJob("height", inMemoryRepo),
+            CreateWaterSourceChunkJob(12, 3000, "humidity", inMemoryRepo)
+        )
+    )
 
     return listOf(
-        generatNoiseWorkload
-        // addHeightWorkload
+        generatNoiseWorkload,
+        generatRiversWorkload
     )
   }
 }
