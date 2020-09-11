@@ -5,7 +5,6 @@ import net.bestia.model.item.ItemRepository
 import net.bestia.model.item.ItemType
 
 object ItemFixture {
-  @JvmStatic
   fun createItem(
       itemDbName: String,
       itemRepository: ItemRepository

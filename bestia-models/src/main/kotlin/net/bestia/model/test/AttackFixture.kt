@@ -3,7 +3,6 @@ package net.bestia.model.test
 import net.bestia.model.battle.*
 
 object AttackFixture {
-  @JvmStatic
   fun createAttack(
       attackDbName: String = "Tackle",
       attackRepository: AttackRepository

@@ -104,7 +104,7 @@ class ExampleWorkloadFactory : WorkloadFactory {
         NoiseMapFactory(),
         SimplePipeline(
             LoadNoiseChunkJob("height", inMemoryRepo),
-            CreateWaterSourceChunkJob(12, 3000, "humidity", inMemoryRepo)
+            CreateWaterSourceChunkJob(12, 3000, "height", "humidity", inMemoryRepo)
         )
     )
 

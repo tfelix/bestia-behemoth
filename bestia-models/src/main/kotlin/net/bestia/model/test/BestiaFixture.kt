@@ -7,8 +7,6 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.BestiaType
 
 object BestiaFixture {
-
-  @JvmStatic
   fun createBestia(bestiaRepository: BestiaRepository): Bestia {
     return Bestia(
         databaseName = "testBestia",

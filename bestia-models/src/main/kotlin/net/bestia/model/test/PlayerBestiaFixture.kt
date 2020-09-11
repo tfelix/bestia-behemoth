@@ -7,7 +7,6 @@ import net.bestia.model.bestia.PlayerBestiaRepository
 
 object PlayerBestiaFixture {
 
-  @JvmStatic
   fun createPlayerBestiaWithoutMaster(
       playerBestiaRepository: PlayerBestiaRepository,
       accountRepository: AccountRepository,

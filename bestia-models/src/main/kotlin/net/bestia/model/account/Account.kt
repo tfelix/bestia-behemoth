@@ -38,7 +38,7 @@ data class Account(
 
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
-    return "Account[id: $id, registerDate: $dateStr]"
+    return "Account[id: $id, username: ${username.take(5)}, registerDate: $dateStr]"
   }
 }
 
