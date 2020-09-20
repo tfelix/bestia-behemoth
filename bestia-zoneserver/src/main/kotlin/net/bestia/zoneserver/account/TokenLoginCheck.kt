@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 private val LOG = KotlinLogging.logger { }
 
 @Component
-class AuthenticationLoginCheck(
+class TokenLoginCheck(
     private val authConfig: AuthenticationConfig,
     private val accountRepository: AccountRepository
 ) : LoginCheck {
@@ -19,7 +19,7 @@ class AuthenticationLoginCheck(
     }
 
     if (authConfig.rootAuthToken == token && authConfig.rootAuthToken != null) {
-      LOG.debug { "Account ID $accountId with token ${token.take(5)}*** authenticated" }
+      LOG.debug { "Account ID $accountId with root token ${token.take(5)}*** authenticated" }
       return LoginResponse.SUCCESS
     }
 

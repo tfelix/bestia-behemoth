@@ -11,7 +11,7 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.bootstrap.NodeBootstrapActor
-import net.bestia.zoneserver.actor.config.SocketBindNetworkError
+import net.bestia.zoneserver.actor.SocketBindNetworkError
 import org.springframework.beans.factory.annotation.Qualifier
 import java.net.InetSocketAddress
 
@@ -44,18 +44,19 @@ class SocketServerActor(
 
     val tcp = Tcp.get(context.system).manager()
 
-    LOG.info { "Listening for clients on $socketAddress" }
+    LOG.info { "Try to bind to $socketAddress" }
     tcp.tell(TcpMessage.bind(self, socketAddress, 100), self)
   }
 
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(NodeBootstrapActor.BootCompleted::class.java) {
-          LOG.debug { "Server is now ready to accept client connections" }
+          LOG.info { "Server is now ready to accept client connections" }
           context.become(readyForConnections())
         }
         .match(Tcp.Bound::class.java, this::onTcpBound)
         .match(Tcp.CommandFailed::class.java, this::onTcpBoundFail)
+        .match(Tcp.Connected::class.java, this::dropConnection)
         .build()
   }
 
@@ -65,7 +66,7 @@ class SocketServerActor(
   }
 
   private fun onTcpBound(msg: Tcp.Bound) {
-    LOG.info { "Successful bound address to: $msg" }
+    LOG.info { "Bound address to: $msg" }
     // Notify boot manager about success to proceed boot process
     tellNodeBootstrapManager(NodeBootstrapActor.BootReportSuccess(SocketServerActor::class.java))
   }
@@ -84,17 +85,21 @@ class SocketServerActor(
     currentConnection--
   }
 
-  private fun acceptConnection(conn: Tcp.Connected) {
+  private fun dropConnection(conn: Tcp.Connected) {
+    LOG.debug { "Not ready yet for connections. Closing: $conn" }
+    sender.tell(TcpMessage.close(), self)
+  }
 
+  private fun acceptConnection(conn: Tcp.Connected) {
     val connectionActor = sender
     if (currentConnection >= socketConfig.maxConnections) {
       LOG.info { "Dropping connection request: connection limit reached" }
-      connectionActor.tell(TcpMessage.abort(), self)
+      connectionActor.tell(TcpMessage.close(), self)
       return
     }
 
     currentConnection++
-    var actorName = "client-${conn.remoteAddress().hostString}-${conn.remoteAddress().port}"
+    val actorName = "client-${conn.remoteAddress().hostString}-${conn.remoteAddress().port}"
     val handler = SpringExtension.actorOfWithName(
         context,
         SocketActor::class.java,

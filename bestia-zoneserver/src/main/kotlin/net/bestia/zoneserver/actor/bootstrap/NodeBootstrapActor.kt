@@ -4,10 +4,12 @@ import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BQualifier
+import net.bestia.zoneserver.actor.BootStepFailedError
 import net.bestia.zoneserver.actor.socket.SocketServerActor
+import org.springframework.beans.factory.annotation.Qualifier
 import java.time.Duration
 import java.time.Instant
-import kotlin.system.exitProcess
 
 private val LOG = KotlinLogging.logger { }
 
@@ -19,7 +21,9 @@ private val LOG = KotlinLogging.logger { }
  */
 @Actor
 class NodeBootstrapActor(
-    private val bootSteps: List<NodeBootStep>
+    private val bootSteps: List<NodeBootStep>,
+    @Qualifier(BQualifier.SYSTEM_ROUTER)
+    private val router: ActorRef
 ) : AbstractActor() {
 
   override fun createReceive(): Receive {
@@ -42,8 +46,12 @@ class NodeBootstrapActor(
   }
 
   private fun checkBootStepsStart() {
+    if (bootStepsRun) {
+      return
+    }
+
     if (expectingBootReady.isNotEmpty()) {
-      LOG.debug { "Actors bootreport registration missing : ${expectingBootReady.joinToString(", ")}" }
+      LOG.debug { "Bootreport missing from: ${expectingBootReady.joinToString(", ")}" }
       return
     }
 
@@ -55,8 +63,10 @@ class NodeBootstrapActor(
         LOG.info { "Boot Step: ${step.bootStepName}" }
         step.execute()
       } catch (e: Exception) {
-        LOG.error(e) { "There was an error during booting the node. Terminating." }
-        exitProcess(1)
+        LOG.error(e) { "There was an error during a bootstep" }
+        router.tell(BootStepFailedError(e), self)
+        context.stop(self)
+        return
       }
     }
 
@@ -77,8 +87,13 @@ class NodeBootstrapActor(
   }
 
   private fun registerForBootCompleted(msg: RegisterForBootCompleted) {
-    LOG.debug { "Actor ${msg.actorRef} has subscribed for boot completed notification" }
-    bootreportListener.add(msg.actorRef)
+    if (bootStepsRun) {
+      LOG.debug { "Actor ${msg.actorRef} subscribed for boot completed notification but bootsteps already finished" }
+      msg.actorRef.tell(BootCompleted, self)
+    } else {
+      LOG.debug { "Actor ${msg.actorRef} has subscribed for boot completed notification" }
+      bootreportListener.add(msg.actorRef)
+    }
   }
 
   private fun notifyBootCompletedListener() {
@@ -87,8 +102,6 @@ class NodeBootstrapActor(
     }
 
     LOG.debug { "Notified ${bootreportListener.size} actors with BootCompleted" }
-
-    context.stop(self)
   }
 
   /**

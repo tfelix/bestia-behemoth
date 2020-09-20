@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.messages
 
 import mu.KotlinLogging
-import net.bestia.messages.proto.Messages
+import net.bestia.messages.proto.MessageProtos
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
 
@@ -24,11 +24,11 @@ class ProtobufMessageConverterService(
   }
 
   fun fromWire(msg: ByteArray): Any? {
-    val wrapper = Messages.Wrapper.parseFrom(msg)
+    val wrapper = MessageProtos.Wrapper.parseFrom(msg)
 
     return when (wrapper.payloadCase) {
-      Messages.Wrapper.PayloadCase.AUTH -> wrapper.auth
-      Messages.Wrapper.PayloadCase.PAYLOAD_NOT_SET -> {
+      MessageProtos.Wrapper.PayloadCase.AUTH -> wrapper.auth
+      MessageProtos.Wrapper.PayloadCase.PAYLOAD_NOT_SET -> {
         LOG.warn { "No payload present in parsed message" }
         null
       }

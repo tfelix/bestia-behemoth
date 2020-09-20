@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity.component
 
+import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.ActorComponent
@@ -36,7 +37,7 @@ class ConditionComponentActor(
       self,
       ON_REGEN_TICK_MSG,
       context.dispatcher(),
-      null
+      ActorRef.noSender()
   )
 
   override fun preStart() {

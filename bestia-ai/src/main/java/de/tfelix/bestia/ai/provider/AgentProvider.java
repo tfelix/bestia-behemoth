@@ -24,5 +24,4 @@ public interface AgentProvider {
 	 * @return The found agent or NULL if the ID did not match any agent.
 	 */
 	Agent findAgend(long id);
-
 }

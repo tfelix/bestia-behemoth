@@ -8,7 +8,7 @@ import akka.io.TcpMessage
 import com.google.protobuf.InvalidProtocolBufferException
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.proto.AuthProto
+import net.bestia.messages.proto.AccountProtos
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
@@ -42,6 +42,7 @@ final class SocketActor(
 ) : AbstractActor() {
 
   private val buffer = ByteBuffer.allocate(MAX_MESSAGE_SIZE)
+  private var nextPackageSize: Int = 0
 
   private lateinit var clusterClientConnectionManager: ActorRef
 
@@ -82,7 +83,7 @@ final class SocketActor(
   private fun waitForAuthMessage(msg: Tcp.Received) {
     val authMsgBytes = extractMessageBytes(msg)
     try {
-      val authMessage = AuthProto.Auth.parseFrom(authMsgBytes)
+      val authMessage = AccountProtos.Auth.parseFrom(authMsgBytes)
       val authRequest = AuthRequest(
           accountId = authMessage.accountId,
           token = authMessage.token
@@ -100,24 +101,30 @@ final class SocketActor(
     if (buffer.position() < Int.SIZE_BYTES) {
       return null
     }
-    buffer.order(ByteOrder.LITTLE_ENDIAN)
-    val messageSize = buffer.getInt(0)
 
-    LOG.debug { "Current buffer: ${buffer.position()} bytes, next message size: $messageSize bytes" }
+    // buffer.order(ByteOrder.LITTLE_ENDIAN)
 
-    if (messageSize > MAX_MESSAGE_SIZE) {
-      throw IllegalStateException("Client requested message size $messageSize, max size is $MAX_MESSAGE_SIZE")
+    if(nextPackageSize == 0) {
+      nextPackageSize = buffer.getInt(0)
+
+      if (nextPackageSize > MAX_MESSAGE_SIZE) {
+        throw IllegalStateException("Client requested message size $nextPackageSize, max size is $MAX_MESSAGE_SIZE")
+      }
     }
 
-    if (buffer.position() < messageSize) {
+    LOG.debug { "Current buffer size: ${buffer.position()} bytes, next message size: $nextPackageSize bytes" }
+
+    if (buffer.position() < nextPackageSize) {
       return null
     }
 
     buffer.position(Int.SIZE_BYTES)
     val messageBuffer = buffer.slice()
-    val messageBytes = ByteArray(messageSize)
+    val messageBytes = ByteArray(nextPackageSize)
+
     messageBuffer.get(messageBytes)
     messageBuffer.position(0)
+    nextPackageSize = 0
 
     return messageBytes
   }
@@ -145,7 +152,7 @@ final class SocketActor(
 
   private fun receiveClientMessage(msg: Tcp.Received) {
     extractMessageBytes(msg)?.let {
-      LOG.info { "Received: $it" }
+      LOG.trace { "Received: $it" }
     }
   }
 

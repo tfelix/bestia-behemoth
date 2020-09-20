@@ -1,17 +1,18 @@
 package net.bestia.zoneserver
 
-import net.bestia.messages.proto.AuthProto
+import net.bestia.messages.proto.AccountProtos
 import net.bestia.zoneserver.account.LoginCheck
 import net.bestia.zoneserver.actor.socket.LoginResponse
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@SpringBootTest
-// @ActiveProfiles(profiles = ["test"])
-@Tag("smoke")
+@IntegrationTest
 class BootableSmokeTest {
 
   private lateinit var socket: RxTxSocket
@@ -42,7 +43,7 @@ class BootableSmokeTest {
     Thread.sleep(5000)
     socket = RxTxSocket("127.0.0.1", 8990)
     // Setup an auth message.
-    val msg = AuthProto.Auth.newBuilder()
+    val msg = AccountProtos.Auth.newBuilder()
         .setAccountId(1)
         .setToken("50cb5740-c390-4d48-932f-eef7cbc113c1")
         .build()

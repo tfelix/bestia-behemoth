@@ -29,7 +29,6 @@ public class Agent implements Serializable {
 	private Queue<Action> currentActionQueue = new LinkedList<>();
 	
 	public Agent(long id) {
-
 		this.id = id;
 	}
 
@@ -84,5 +83,4 @@ public class Agent implements Serializable {
 	public StateData getStateData() {
 		return stateData;
 	}
-
 }

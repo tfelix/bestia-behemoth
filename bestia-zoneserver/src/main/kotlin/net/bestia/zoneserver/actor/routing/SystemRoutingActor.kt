@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.routing
 
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
-import net.bestia.zoneserver.actor.config.WatchdogActor
+import net.bestia.zoneserver.actor.TerminationActor
 
 /**
  * Contains routing message logic for system messages which might get send from Services.
@@ -13,7 +13,7 @@ class SystemRoutingActor : DynamicMessageRoutingActor() {
   override fun createReceive(builder: BuilderFacade) {}
 
   override fun preStart() {
-    SpringExtension.actorOf(context, WatchdogActor::class.java)
+    SpringExtension.actorOf(context, TerminationActor::class.java)
   }
 
   companion object {

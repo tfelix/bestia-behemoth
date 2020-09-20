@@ -8,13 +8,13 @@ class VoxelTest {
   @Test
   fun `voxel percent returns the correct amount in percent`() {
     val v = Voxel.of(1, 2f)
-    Assertions.assertEquals(1f, v.occupancyPercent, 0.001f)
+    Assertions.assertEquals(1f, v.occupancyPercent, 0.02f)
 
     val v2 = Voxel.of(1, 0f)
-    Assertions.assertEquals(0f, v2.occupancyPercent, 0.001f)
+    Assertions.assertEquals(0f, v2.occupancyPercent, 0.02f)
 
     val v3 = Voxel.of(1, 0.5f)
-    Assertions.assertEquals(0.5f, v3.occupancyPercent, 0.001f)
+    Assertions.assertEquals(0.5f, v3.occupancyPercent, 0.02f)
   }
 
   @Test

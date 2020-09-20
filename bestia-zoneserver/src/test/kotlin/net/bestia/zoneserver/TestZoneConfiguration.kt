@@ -2,8 +2,7 @@ package net.bestia.zoneserver
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import net.bestia.zoneserver.actor.MockActorProducer
-import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.account.LoginCheck
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.routing.SystemMessageService
 import net.bestia.zoneserver.config.RuntimeConfigService
@@ -32,6 +31,11 @@ class TestZoneConfiguration {
     // SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
 
     return system
+  }
+
+  @Bean
+  fun allAuthenticatingLoginService(): LoginCheck {
+    return AllAuthenticatingLoginService()
   }
 
   @MockBean
