@@ -15,12 +15,11 @@ dependencies {
     implementation project(':bestia-voxel')
     implementation project(':bestia-worldgen')
 
-    implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
-
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-neo4j'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 
     implementation group: 'com.typesafe.akka', name: 'akka-actor_2.13', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-actor-typed_2.13', version: akkaVersion
@@ -43,7 +42,6 @@ dependencies {
     implementation group: 'com.lightbend.akka.management', name: 'akka-management-cluster-bootstrap_2.13', version: '1.0.7'
 
     implementation group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
-
     implementation group: 'org.reflections', name: 'reflections', version: reflectionsVersion
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jacksonVersion
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: jacksonVersion
@@ -51,6 +49,8 @@ dependencies {
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.28'
     implementation group: 'io.github.microutils', name: 'kotlin-logging', version: kotlinLoggingVersion
     implementation group: 'org.flywaydb', name: 'flyway-core', version: '5.2.4'
+    implementation group: 'info.debatty', name: 'java-lsh', version: '0.12'
+    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus'
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'

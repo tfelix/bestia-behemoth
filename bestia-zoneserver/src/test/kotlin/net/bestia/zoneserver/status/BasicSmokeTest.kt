@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.status
 
-import net.bestia.messages.proto.AccountProtos
 import net.bestia.zoneserver.ClientSocket
 import net.bestia.zoneserver.IntegrationTest
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -13,9 +12,10 @@ class BasicSmokeTest {
   @Test
   fun simpleLogin() {
     ClientSocket("127.0.0.1", 8990).use { socket ->
-      socket.auth()
+      socket.connectAndAuth()
       Thread.sleep(10000)
-      socket.receivePacket()
+      val p = socket.receivePacket()
+      println(p)
 
       assertFalse(true)
     }

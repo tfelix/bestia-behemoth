@@ -4,6 +4,7 @@ package bestia.messages;
 import "messages/account.proto";
 import "messages/inventory.proto";
 import "messages/component.proto";
+import "messages/system.proto";
 
 option java_package = "net.bestia.messages.proto";
 option java_outer_classname = "MessageProtos";
@@ -11,9 +12,11 @@ option java_outer_classname = "MessageProtos";
 message Wrapper {
     oneof payload {
         // SYSTEM & ACCOUNT
-        Auth auth = 1;
+        AuthRequest auth = 1;
         AccountVarRequest account_var_request = 2;
         AccountVarResponse account_var_response = 3;
+
+        ServerLoginStatus sys_login_status = 10;
 
         // INVENTORY
         UseItem cmd_use_item = 100;

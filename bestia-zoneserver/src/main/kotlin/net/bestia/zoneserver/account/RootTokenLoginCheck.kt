@@ -4,27 +4,24 @@ import mu.KotlinLogging
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.actor.socket.LoginResponse
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.annotation.Order
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
 
-@Order(1)
+@Order(Int.MIN_VALUE)
 @Component
-class TokenLoginCheck(
-    private val accountRepository: AccountRepository
+@ConditionalOnProperty("zone.root-auth-token", matchIfMissing = false)
+class RootTokenLoginCheck(
+    private val authConfig: AuthenticationConfig
 ) : LoginCheck {
   override fun isLoginAllowedForAccount(accountId: Long, token: String): LoginResponse? {
-    val account = accountRepository.findByIdOrNull(accountId)
-        ?: return LoginResponse.DENIED_NO_REASON
-
-    return if (account.loginToken == token) {
-      LOG.debug { "Account ID $accountId with token ${token.take(5)}*** authenticated" }
+    return if (authConfig.rootAuthToken == token) {
+      LOG.warn { "Account ID $accountId with root token ${token.take(5)}*** authenticated" }
       LoginResponse.SUCCESS
     } else {
-      LOG.debug { "Account ID $accountId with token ${token.take(5)}*** not authenticated" }
-      LoginResponse.UNAUTHORIZED
+      return null
     }
   }
 }

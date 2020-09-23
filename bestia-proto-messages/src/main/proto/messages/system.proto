@@ -1,0 +1,13 @@
+syntax = "proto3";
+package bestia.messages;
+
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "SystemProtos";
+
+enum ServerState {
+    NO_LOGINS = 0;
+}
+
+message ServerLoginStatus {
+    ServerState server_state = 1;
+}

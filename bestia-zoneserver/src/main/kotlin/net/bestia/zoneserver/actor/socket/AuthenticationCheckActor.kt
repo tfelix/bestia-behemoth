@@ -7,17 +7,6 @@ import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.PlayerEntitySetupService
 
 /**
- * This message is send to the player in order to signal a (forced) logout from
- * the system.
- *
- * @author Thomas Felix
- */
-data class LogoutMessage(
-    val state: LoginResponse = LoginResponse.DENIED_NO_REASON,
-    val reason: String = ""
-)
-
-/**
  * Message is send if a webserver wants to authenticate a pending connection. It
  * will send the given access token from the request to the login server which
  * must respond accordingly.
@@ -34,6 +23,7 @@ data class AuthRequest(
     val accountId: Long
 )
 
+// MAKE SEALED CLASS
 data class AuthResponse(
     override val accountId: Long,
     val response: LoginResponse

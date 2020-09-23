@@ -1,6 +1,9 @@
 package net.bestia.zoneserver
 
+import mu.KotlinLogging
 import net.bestia.messages.proto.AccountProtos
+import net.bestia.messages.proto.MessageProtos
+import net.bestia.messages.proto.SystemProtos
 import java.io.Closeable
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -9,6 +12,8 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.time.Duration
 import java.time.Instant
+
+private val LOG = KotlinLogging.logger { }
 
 class ClientSocket(
     private val ip: String,
@@ -62,31 +67,37 @@ class ClientSocket(
     socket.close()
   }
 
-  fun auth() {
-    val msg = AccountProtos.Auth.newBuilder()
+  fun connectAndAuth() {
+    val msg = AccountProtos.AuthRequest.newBuilder()
         .setAccountId(1)
         .setToken("50cb5740-c390-4d48-932f-eef7cbc113c1")
         .build()
         .toByteArray()
 
-    Thread.sleep(5000)
-    connect()
-    Thread.sleep(5000)
-    send(msg)
-
-    /*
     var isConnected = false
     while (!isConnected) {
       connect()
-      Thread.sleep(5000)
+      Thread.sleep(50)
+      val connectionErrorMsg = receivePacket()
+
+      if (connectionErrorMsg != null) {
+        val response = MessageProtos.Wrapper.parseFrom(connectionErrorMsg)
+
+        if (response.payloadCase == MessageProtos.Wrapper.PayloadCase.SYS_LOGIN_STATUS) {
+          if (response.sysLoginStatus.serverState == SystemProtos.ServerState.NO_LOGINS) {
+            LOG.debug { "Server accepts no logins" }
+            continue
+          }
+        }
+      }
+
       try {
         send(msg)
       } catch (e: IOException) {
         // no op
-        println("geht")
       }
       isConnected = true
-    }*/
+    }
   }
 }
 

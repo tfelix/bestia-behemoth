@@ -56,3 +56,7 @@ enum Element {
 message Account {
   uint64 account_id = 1;
 }
+
+message Entity {
+    uint64 entity_id = 1;
+}

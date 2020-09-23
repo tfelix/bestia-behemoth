@@ -6,6 +6,7 @@ import akka.actor.Terminated
 import akka.io.Tcp
 import akka.io.TcpMessage
 import mu.KotlinLogging
+import net.bestia.messages.proto.SystemProtos
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
@@ -25,17 +26,17 @@ private val LOG = KotlinLogging.logger { }
 class SocketServerActor(
     private val socketConfig: SocketConfig,
     @Qualifier(BQualifier.SYSTEM_ROUTER)
-    private val systemRouter: ActorRef
+    private val systemRouter: ActorRef,
+    private val metrics: SocketMetricsReporter
 ) : AbstractActor() {
 
   private var currentConnection = 0
-  private val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
+    set(value) {
+      metrics.setConnectionCount(value)
+      field = value
+    }
 
-  private fun tellNodeBootstrapManager(msg: Any) {
-    val bootStrapPath = AkkaCluster.getNodeName(NodeBootstrapActor.NAME)
-    val selector = context.actorSelection(bootStrapPath)
-    selector.tell(msg, self)
-  }
+  private val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
 
   @Throws(Exception::class)
   override fun preStart() {
@@ -65,6 +66,12 @@ class SocketServerActor(
     systemRouter.tell(SocketBindNetworkError, self)
   }
 
+  private fun tellNodeBootstrapManager(msg: Any) {
+    val bootStrapPath = AkkaCluster.getNodeName(NodeBootstrapActor.NAME)
+    val selector = context.actorSelection(bootStrapPath)
+    selector.tell(msg, self)
+  }
+
   private fun onTcpBound(msg: Tcp.Bound) {
     LOG.info { "Bound address to: $msg" }
     // Notify boot manager about success to proceed boot process
@@ -87,6 +94,8 @@ class SocketServerActor(
 
   private fun dropConnection(conn: Tcp.Connected) {
     LOG.debug { "Not ready yet for connections. Closing: $conn" }
+
+    sender.tell(NO_LOGIN_PAYLOAD.toTcpMessage(), self)
     sender.tell(TcpMessage.close(), self)
   }
 
@@ -99,6 +108,7 @@ class SocketServerActor(
     }
 
     currentConnection++
+
     val actorName = "client-${conn.remoteAddress().hostString}-${conn.remoteAddress().port}"
     val handler = SpringExtension.actorOfWithName(
         context,
@@ -113,5 +123,9 @@ class SocketServerActor(
 
   companion object {
     const val NAME = "socketServer"
+    private val NO_LOGIN_PAYLOAD = SystemProtos.ServerLoginStatus.newBuilder()
+        .setServerState(SystemProtos.ServerState.NO_LOGINS)
+        .build()
+        .toByteArray()
   }
 }

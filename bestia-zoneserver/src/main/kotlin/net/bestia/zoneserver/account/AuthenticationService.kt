@@ -9,13 +9,15 @@ class AuthenticationService(
 ) {
 
   fun isUserAuthenticated(accountId: Long, token: String): LoginResponse {
-    loginChecks.forEach {
-      val status = it.isLoginAllowedForAccount(accountId, token)
-      if (status != LoginResponse.SUCCESS) {
-        return status
+    for (loginCheck in loginChecks) {
+      val loginResult = loginCheck.isLoginAllowedForAccount(accountId, token)
+          ?: continue
+
+      if (loginResult == LoginResponse.SUCCESS) {
+        return loginResult
       }
     }
 
-    return LoginResponse.SUCCESS
+    return LoginResponse.UNAUTHORIZED
   }
 }

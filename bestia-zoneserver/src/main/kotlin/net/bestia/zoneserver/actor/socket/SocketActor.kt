@@ -17,7 +17,6 @@ import net.bestia.zoneserver.messages.ProtobufMessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
 import java.lang.IllegalStateException
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 private val LOG = KotlinLogging.logger { }
 
@@ -83,7 +82,7 @@ final class SocketActor(
   private fun waitForAuthMessage(msg: Tcp.Received) {
     val authMsgBytes = extractMessageBytes(msg)
     try {
-      val authMessage = AccountProtos.Auth.parseFrom(authMsgBytes)
+      val authMessage = AccountProtos.AuthRequest.parseFrom(authMsgBytes)
       val authRequest = AuthRequest(
           accountId = authMessage.accountId,
           token = authMessage.token
@@ -146,8 +145,7 @@ final class SocketActor(
   private fun sendToClientMessage(msg: AccountMessage) {
     LOG.info { "Send: $msg" }
     val output = messageConverter.fromBestia(msg)
-    val buffer = akka.util.ByteString.fromArray(output)
-    connection.tell(TcpMessage.write(buffer), self)
+    connection.tell(output.toTcpMessage(), self)
   }
 
   private fun receiveClientMessage(msg: Tcp.Received) {

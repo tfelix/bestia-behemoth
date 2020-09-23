@@ -18,16 +18,7 @@ class PlayerEntitySetupService(
     private val playerBestiaFactory: PlayerBestiaFactory
 ) {
 
-  /**
-   * Performs a login for this account. This prepares the bestia server system
-   * for upcoming commands from this player. The player bestia entity is
-   * spawned on the server.
-   *
-   * @param accId
-   * The account id to perform a login.
-   * @return The logged in Account or NULL if login failed.
-   */
-  fun setup(accId: Long) {
+  fun setup(accId: Long): PlayerEntitySetupResult {
     require(accId >= 0) { "Account ID must be positive." }
 
     val master = playerBestiaRepository.findMasterBestiaForAccount(accId)
@@ -39,5 +30,12 @@ class PlayerEntitySetupService(
 
     master.entityId = masterEntity.id
     playerBestiaRepository.save(master)
+
+    // FIXME Also build/discover the player bestia
+
+    return PlayerEntitySetupResult(
+        masterEntityId = master.entityId,
+        playerBestiaIds = emptyList()
+    )
   }
 }

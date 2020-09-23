@@ -1,0 +1,35 @@
+syntax = "proto3";
+package bestia.messages;
+
+import "messages/model.proto";
+
+option java_package = "net.bestia.messages.proto";
+option java_outer_classname = "ChatProtos";
+
+enum ChatMode {
+    PUBLIC = 0;
+    PARTY = 1;
+    GUILD = 2;
+    WHISPER = 3;
+    SYSTEM = 4;
+    GM_BROADCAST = 5;
+    ERROR = 6;
+    COMMAND = 7;
+    BATTLE = 8;
+}
+
+message ChatRequest {
+    Account account = 1;
+    ChatMode mode = 2;
+    string text = 3;
+    string receiverNickname = 4;
+}
+
+message ChatResponse {
+    Account account = 1;
+    Entity entity = 2;
+    ChatMode mode = 3;
+    string text = 4;
+    string senderNickname = 5;
+    uint64 time = 6;
+}

@@ -16,6 +16,10 @@ class ProtobufMessageConverterService(
       .map { it.canConvert to it }
       .toMap()
 
+  init {
+    LOG.debug { "Registered message converter: $fromBestiaConverter" }
+  }
+
   fun fromBestia(msg: Any): ByteArray {
     val foundConverter = fromBestiaConverter[msg.javaClass]
         ?: throw IllegalStateException("Had no converter registered for ${msg.javaClass.simpleName}")

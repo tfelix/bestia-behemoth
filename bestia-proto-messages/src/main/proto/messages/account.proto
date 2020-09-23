@@ -6,7 +6,7 @@ import "messages/model.proto";
 option java_package = "net.bestia.messages.proto";
 option java_outer_classname = "AccountProtos";
 
-message Auth {
+message AuthRequest {
   int64 accountId = 1;
   string token = 2;
 }

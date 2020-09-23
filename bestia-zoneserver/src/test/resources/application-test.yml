@@ -46,6 +46,7 @@ server:
   bind-address: localhost
   port: 8990
   max-connections: 1100
+  # Allows login automatically
   root-auth-token: 50cb5740-c390-4d48-932f-eef7cbc113c1
 
 mapgen:
