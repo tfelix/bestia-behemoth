@@ -53,7 +53,7 @@ final class SocketActor(
 
     authenticatedSocket = receiveBuilder()
         .match(Tcp.Received::class.java, this::receiveClientMessage)
-        .match(AccountMessage::class.java, this::sendToClientMessage)
+        .match(AccountMessage::class.java, this::sendToClient)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
   }
@@ -101,8 +101,6 @@ final class SocketActor(
       return null
     }
 
-    // buffer.order(ByteOrder.LITTLE_ENDIAN)
-
     if(nextPackageSize == 0) {
       nextPackageSize = buffer.getInt(0)
 
@@ -142,7 +140,7 @@ final class SocketActor(
     clusterClientConnectionManager.tell(event, self)
   }
 
-  private fun sendToClientMessage(msg: AccountMessage) {
+  private fun sendToClient(msg: AccountMessage) {
     LOG.info { "Send: $msg" }
     val output = messageConverter.fromBestia(msg)
     connection.tell(output.toTcpMessage(), self)

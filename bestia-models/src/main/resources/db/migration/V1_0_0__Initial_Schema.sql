@@ -96,19 +96,71 @@ CREATE TABLE `bestias` (
   `mesh` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `temperature_kind` varchar(50) COLLATE utf8_bin NOT NULL,
-  `b_agi` int(11) DEFAULT NULL,
-  `b_dex` int(11) DEFAULT NULL,
-  `b_hp` int(11) DEFAULT NULL,
-  `b_sta` int(11) DEFAULT NULL,
-  `b_int` int(11) DEFAULT NULL,
-  `b_mana` int(11) DEFAULT NULL,
-  `b_str` int(11) DEFAULT NULL,
-  `b_vit` int(11) DEFAULT NULL,
-  `b_will` int(11) DEFAULT NULL,
+  `b_hp` int(11) NOT NULL DEFAULT 0,
+  `b_mana` int(11) NOT NULL DEFAULT 0,
+  `b_stamina` int(11) NOT NULL DEFAULT 0,
+  `b_str` int(11) NOT NULL DEFAULT 0,
+  `b_vit` int(11) NOT NULL DEFAULT 0,
+  `b_int` int(11) NOT NULL DEFAULT 0,
+  `b_will` int(11) NOT NULL DEFAULT 0,
+  `b_agi` int(11) NOT NULL DEFAULT 0,
+  `b_dex` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_bestia_bestia_db_name` (`bestia_db_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+CREATE TABLE `player_bestias` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `current_health` int(11) NOT NULL,
+  `current_mana` int(11) NOT NULL,
+  `current_stamina` int(11) NOT NULL,
+  `max_health` int(11) NOT NULL,
+  `max_mana` int(11) NOT NULL,
+  `max_stamina` int(11) NOT NULL,
+  `x` bigint(20) NOT NULL,
+  `y` bigint(20) NOT NULL,
+  `z` bigint(20) NOT NULL,
+  `ev_hp` int(11) NOT NULL DEFAULT 0,
+  `ev_mana` int(11) NOT NULL DEFAULT 0,
+  `ev_stamina` int(11) NOT NULL DEFAULT 0,
+  `ev_str` int(11) NOT NULL DEFAULT 0,
+  `ev_vit` int(11) NOT NULL DEFAULT 0,
+  `ev_int` int(11) NOT NULL DEFAULT 0,
+  `ev_will` int(11) NOT NULL DEFAULT 0,
+  `ev_agi` int(11) NOT NULL DEFAULT 0,
+  `ev_dex` int(11) NOT NULL DEFAULT 0,
+  `entity_id` bigint(20) NOT NULL DEFAULT 0,
+  `exp` bigint(20) NOT NULL,
+  `gender` varchar(10) DEFAULT NULL,
+  `iv_hp` int(11) NOT NULL DEFAULT 0,
+  `iv_mana` int(11) NOT NULL DEFAULT 0,
+  `iv_stamina` int(11) NOT NULL DEFAULT 0,
+  `iv_str` int(11) NOT NULL DEFAULT 0,
+  `iv_vit` int(11) NOT NULL DEFAULT 0,
+  `iv_int` int(11) NOT NULL DEFAULT 0,
+  `iv_will` int(11) NOT NULL DEFAULT 0,
+  `iv_agi` int(11) NOT NULL DEFAULT 0,
+  `iv_dex` int(11) NOT NULL DEFAULT 0,
+  `level` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) DEFAULT NULL,
+  `save_x` bigint(20) NOT NULL DEFAULT 0,
+  `save_y` bigint(20) NOT NULL DEFAULT 0,
+  `save_z` bigint(20) NOT NULL DEFAULT 0,
+  `master_id` bigint(20) DEFAULT NULL,
+  `bestia_id` bigint(20) NOT NULL,
+  `account_id` bigint(20) NOT NULL,
+  `party_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `key_player_bestias_master_id` (`master_id`),
+  KEY `fk_player_bestias_bestia_id` (`bestia_id`),
+  KEY `fk_player_bestias_account_id` (`account_id`),
+  KEY `fk_player_bestias_party_id` (`party_id`),
+  CONSTRAINT `player_bestias_account_id` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`),
+  CONSTRAINT `player_bestias_party_id` FOREIGN KEY (`party_id`) REFERENCES `parties` (`id`),
+  CONSTRAINT `player_bestias_bestia_id` FOREIGN KEY (`bestia_id`) REFERENCES `bestias` (`id`),
+  CONSTRAINT `player_bestias_master_id` FOREIGN KEY (`master_id`) REFERENCES `accounts` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 DROP TABLE IF EXISTS `client_vars`;
@@ -369,3 +421,13 @@ CREATE TABLE `guild_ranks` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 SET FOREIGN_KEY_CHECKS=1;
+
+INSERT INTO `accounts` (`id`, `additional_bestia_slots`, `username`, `is_activated`, `account_type`, `gender`, `hairstyle`)
+VALUES ('1', '0', 'rocket', 1, 'ADMIN', 'MALE', 'MALE_01');
+
+INSERT INTO `bestias` (`id`, `bestia_db_name`, `default_name`, `element`, `exp_gained`, `is_boss`, `level`, `mesh`, `type`, `temperature_kind`, `b_agi`, `b_dex`, `b_hp`, `b_stamina`, `b_int`, `b_mana`, `b_str`, `b_vit`, `b_will`)
+VALUES ('1', 'doom_master', 'Doom Master', 'NORMAL', '10000', true, '100', 'doom_master', 'DEMI_HUMAN', 'MEDIUM', '10', '10', '10', '10', '10', '10', '10', '10', '10');
+
+INSERT INTO `player_bestias` (`id`, `current_health`, `current_mana`, `current_stamina`, `max_health`, `max_mana`, `max_stamina`, `x`, `y`, `z`, `exp`, `gender`, `level`, `save_x`, `save_y`, `save_z`, `master_id`, `bestia_id`, `account_id`)
+VALUES ('1', '100', '100', '100', '100', '100', '100', '0', '0', '0', '10', 'MALE', '1', '0', '0', '0', '1', '1', '1');
+

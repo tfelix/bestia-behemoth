@@ -1,7 +1,6 @@
 package net.bestia.model.bestia
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
 import net.bestia.model.account.Gender
@@ -43,9 +42,9 @@ data class PlayerBestia(
     }
 
   @AttributeOverrides(
-      AttributeOverride(name = "x", column = Column(name = "saveX")),
-      AttributeOverride(name = "y", column = Column(name = "saveY")),
-      AttributeOverride(name = "z", column = Column(name = "saveZ"))
+      AttributeOverride(name = "x", column = Column(name = "save_x")),
+      AttributeOverride(name = "y", column = Column(name = "save_y")),
+      AttributeOverride(name = "z", column = Column(name = "save_z"))
   )
   @Embedded
   var savePosition = Vec3(0, 0, 0)
@@ -58,6 +57,7 @@ data class PlayerBestia(
 
   var level: Int = 1
 
+  @Enumerated(EnumType.STRING)
   var gender: Gender = Gender.MALE
 
   /**
@@ -77,30 +77,30 @@ data class PlayerBestia(
    */
   @Embedded
   @AttributeOverrides(
-      AttributeOverride(name = "hp", column = Column(name = "evHp")),
-      AttributeOverride(name = "mana", column = Column(name = "evMana")),
-      AttributeOverride(name = "stamina", column = Column(name = "evStamina")),
-      AttributeOverride(name = "strength", column = Column(name = "evStr")),
-      AttributeOverride(name = "defense", column = Column(name = "evDef")),
-      AttributeOverride(name = "intelligence", column = Column(name = "evInt")),
-      AttributeOverride(name = "willpower", column = Column(name = "evWill")),
-      AttributeOverride(name = "agility", column = Column(name = "evAgi")),
-      AttributeOverride(name = "dexterity", column = Column(name = "evDex"))
+      AttributeOverride(name = "hp", column = Column(name = "ev_hp")),
+      AttributeOverride(name = "mana", column = Column(name = "ev_mana")),
+      AttributeOverride(name = "stamina", column = Column(name = "ev_stamina")),
+      AttributeOverride(name = "strength", column = Column(name = "ev_str")),
+      AttributeOverride(name = "vitality", column = Column(name = "ev_vit")),
+      AttributeOverride(name = "intelligence", column = Column(name = "ev_int")),
+      AttributeOverride(name = "willpower", column = Column(name = "ev_will")),
+      AttributeOverride(name = "agility", column = Column(name = "ev_agi")),
+      AttributeOverride(name = "dexterity", column = Column(name = "ev_dex"))
   )
   @JsonIgnore
   val effortValues: BaseValues = BaseValues.NULL_VALUES
 
   @Embedded
   @AttributeOverrides(
-      AttributeOverride(name = "hp", column = Column(name = "ivHp")),
-      AttributeOverride(name = "mana", column = Column(name = "ivMana")),
-      AttributeOverride(name = "stamina", column = Column(name = "ivStamina")),
-      AttributeOverride(name = "strength", column = Column(name = "ivAtk")),
-      AttributeOverride(name = "vitality", column = Column(name = "ivDef")),
-      AttributeOverride(name = "intelligence", column = Column(name = "ivSpAtk")),
-      AttributeOverride(name = "willpower", column = Column(name = "ivSpDef")),
-      AttributeOverride(name = "agility", column = Column(name = "ivSpd")),
-      AttributeOverride(name = "dexterity", column = Column(name = "ivDex"))
+      AttributeOverride(name = "hp", column = Column(name = "iv_hp")),
+      AttributeOverride(name = "mana", column = Column(name = "iv_mana")),
+      AttributeOverride(name = "stamina", column = Column(name = "iv_stamina")),
+      AttributeOverride(name = "strength", column = Column(name = "iv_str")),
+      AttributeOverride(name = "vitality", column = Column(name = "iv_vit")),
+      AttributeOverride(name = "intelligence", column = Column(name = "iv_int")),
+      AttributeOverride(name = "willpower", column = Column(name = "iv_will")),
+      AttributeOverride(name = "agility", column = Column(name = "iv_agi")),
+      AttributeOverride(name = "dexterity", column = Column(name = "iv_dex"))
   )
   var individualValue: BaseValues = BaseValues.newIndividualValues()
 

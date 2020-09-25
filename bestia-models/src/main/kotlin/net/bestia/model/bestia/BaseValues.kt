@@ -15,31 +15,31 @@ import javax.persistence.Transient
  */
 @Embeddable
 data class BaseValues(
-    @Column(name = "bHp")
+    @Column(name = "b_hp")
     val hp: Int = 0,
 
-    @Column(name = "bMana")
+    @Column(name = "b_mana")
     val mana: Int = 0,
 
-    @Column(name = "bSta")
+    @Column(name = "b_stamina")
     val stamina: Int = 0,
 
-    @Column(name = "bStr")
+    @Column(name = "b_str")
     val strength: Int = 0,
 
-    @Column(name = "bVit")
+    @Column(name = "b_vit")
     val vitality: Int = 0,
 
-    @Column(name = "bInt")
+    @Column(name = "b_int")
     val intelligence: Int = 0,
 
-    @Column(name = "bWill")
+    @Column(name = "b_will")
     val willpower: Int = 0,
 
-    @Column(name = "bAgi")
+    @Column(name = "b_agi")
     val agility: Int = 0,
 
-    @Column(name = "bDex")
+    @Column(name = "b_dex")
     val dexterity: Int = 0
 ) : Serializable {
 

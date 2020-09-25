@@ -1,13 +1,10 @@
-package net.bestia.zoneserver.status
+package net.bestia.zoneserver.entity.component
 
 import mu.KotlinLogging
 import net.bestia.model.bestia.*
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.MetadataComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -15,17 +12,13 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class PlayerStatusComponentFactory(
     private val playerBestiaDao: PlayerBestiaRepository
-) : StatusComponentFactory {
-
-  override fun canBuildStatusFor(entity: Entity): Boolean {
-    return entity.tryGetComponent(MetadataComponent::class.java)
-        ?.containsKey(MetadataComponent.MOB_PLAYER_BESTIA_ID)
-        ?: false
-  }
+) : ComponentFactory<StatusComponent> {
 
   override fun buildComponent(entity: Entity): StatusComponent {
-    LOG.trace("Calculate status points for player entity {}.", entity)
-    val playerBestiaId = entity.getComponent(MetadataComponent::class.java).tryGetAsLong(MetadataComponent.MOB_PLAYER_BESTIA_ID)
+    LOG.trace { "Calculate status points for player entity $entity." }
+
+    val playerBestiaId = entity.getComponent(MetadataComponent::class.java)
+        .tryGetAsLong(MetadataComponent.MOB_PLAYER_BESTIA_ID)
         ?: error("MetadataComponent did not contain MOB_PLAYER_BESTIA_ID")
     val levelComp = entity.getComponent(LevelComponent::class.java)
 

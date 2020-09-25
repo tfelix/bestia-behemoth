@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.status
+package net.bestia.zoneserver.entity.component
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Element
@@ -8,24 +8,14 @@ import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.MetadataComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
-import java.lang.IllegalArgumentException
 
 private val LOG = KotlinLogging.logger { }
 
 @Component
 class ItemStatusComponentFactory(
     private val itemDao: ItemRepository
-) : StatusComponentFactory {
-
-  override fun canBuildStatusFor(entity: Entity): Boolean {
-    val metaComp = entity.tryGetComponent(MetadataComponent::class.java)
-        ?: return false
-
-    return metaComp.containsKey(MetadataComponent.ITEM_ID)
-  }
+) : ComponentFactory<StatusComponent> {
 
   override fun buildComponent(entity: Entity): StatusComponent {
     val metaComp = entity.getComponent(MetadataComponent::class.java)

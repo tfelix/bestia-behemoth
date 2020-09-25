@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.Terminated
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.SpringExtension
 
 private val LOG = KotlinLogging.logger { }
 

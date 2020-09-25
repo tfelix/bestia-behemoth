@@ -1,8 +1,5 @@
 package net.bestia.model.bestia
 
-import javax.persistence.Embeddable
-
-@Embeddable
 data class BasicDefense(
     /**
      * Sets the defense. Must be between 0 and 1000 (which increments in

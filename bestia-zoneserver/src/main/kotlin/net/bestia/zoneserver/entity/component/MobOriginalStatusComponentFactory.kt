@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.status
+package net.bestia.zoneserver.entity.component
 
 import mu.KotlinLogging
 import net.bestia.model.bestia.BasicDefense
@@ -7,8 +7,6 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
-import net.bestia.zoneserver.entity.component.MetadataComponent
-import net.bestia.zoneserver.entity.component.StatusComponent
 import org.springframework.stereotype.Component
 import java.lang.IllegalStateException
 
@@ -17,14 +15,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class MobOriginalStatusComponentFactory(
     private val bestiaDao: BestiaRepository
-) : StatusComponentFactory {
-  override fun canBuildStatusFor(entity: Entity): Boolean {
-    return entity.tryGetComponent(MetadataComponent::class.java)?.let {
-      it.containsKey(MetadataComponent.MOB_BESTIA_ID) &&
-          !it.containsKey(MetadataComponent.MOB_PLAYER_BESTIA_ID)
-    }
-        ?: false
-  }
+) : ComponentFactory<StatusComponent> {
 
   override fun buildComponent(entity: Entity): StatusComponent {
     val mobId = entity.getComponent(MetadataComponent::class.java).data[MetadataComponent.MOB_BESTIA_ID]?.toLong()

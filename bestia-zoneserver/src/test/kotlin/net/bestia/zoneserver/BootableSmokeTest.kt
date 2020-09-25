@@ -32,11 +32,6 @@ class BootableSmokeTest {
     }
   }
 
-  @BeforeEach
-  fun setup() {
-
-  }
-
   @DisplayName("Client can login to server")
   @Test
   fun simpleLogin() {

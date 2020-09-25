@@ -6,7 +6,6 @@ import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.status.StatusValueService
 import org.springframework.stereotype.Component
 
 private val LOG = KotlinLogging.logger { }
@@ -20,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 @Component
 class PlayerBestiaFactory(
     private val playerBestiaDao: PlayerBestiaRepository,
-    private val statusValueService: StatusValueService,
+    private val statusComponentFactory: PlayerStatusComponentFactory,
     idGenerator: IdGenerator
 ) : EntityFactory(idGenerator) {
 
@@ -47,8 +46,8 @@ class PlayerBestiaFactory(
             entityId = entity.id,
             data = mapOf(
                 MetadataComponent.MOB_PLAYER_BESTIA_ID to playerBestia.id,
-                MetadataComponent.MOB_PLAYER_BESTIA_ID to playerBestia.origin.id
-            ).mapValues { it.toString() }
+                MetadataComponent.MOB_BESTIA_ID to playerBestia.origin.id
+            ).mapValues { it.value.toString() }
         ),
         OwnerComponent(
             entityId = entity.id,
@@ -58,12 +57,15 @@ class PlayerBestiaFactory(
             entityId = entity.id,
             level = playerBestia.level,
             exp = playerBestia.exp
-        ),
-        statusValueService.buildStatusComponent(entity)
+        )
     )
-    components.forEach { entity.addComponent(it) }
+    entity.addAllComponents(components)
 
-    LOG.debug { "Build PlayerBestia $entity" }
+    val status = statusComponentFactory.buildComponent(entity)
+
+    entity.addComponent(status)
+
+    LOG.debug { "Build PlayerBestia: $entity" }
 
     return entity
   }

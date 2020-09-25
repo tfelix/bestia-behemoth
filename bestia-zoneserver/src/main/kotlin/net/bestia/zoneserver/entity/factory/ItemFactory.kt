@@ -6,7 +6,6 @@ import net.bestia.model.item.ItemRepository
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.component.*
-import net.bestia.zoneserver.status.StatusValueService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
@@ -20,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 class ItemFactory(
     private val itemDao: ItemRepository,
     idGenerator: IdGenerator,
-    private val statusValueService: StatusValueService
+    private val itemStatusComponentFactory: ItemStatusComponentFactory
 ) : EntityFactory(idGenerator) {
 
   fun build(itemDbName: String, position: Vec3, amount: Int = 1): Entity {
@@ -55,7 +54,7 @@ class ItemFactory(
         metaComp
     ))
 
-    val statusComp = statusValueService.buildStatusComponent(entity)
+    val statusComp = itemStatusComponentFactory.buildComponent(entity)
     entity.addComponent(statusComp)
 
     return entity
