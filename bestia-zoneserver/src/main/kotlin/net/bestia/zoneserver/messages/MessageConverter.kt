@@ -1,6 +1,11 @@
 package net.bestia.zoneserver.messages
 
-abstract class MessageConverter<T> {
-  abstract fun convertFromBestia(msg: T): ByteArray
-  abstract val canConvert: Class<T>
+import net.bestia.messages.proto.MessageProtos
+
+interface MessageConverter<T> {
+  fun convertToPayload(msg: T): ByteArray
+  fun convertToMessage(msg: MessageProtos.Wrapper): T
+
+  val fromMessage: Class<T>
+  val fromPayload: MessageProtos.Wrapper.PayloadCase
 }

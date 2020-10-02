@@ -4,7 +4,6 @@ import akka.actor.AbstractActor
 import akka.actor.Props
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.PlayerEntitySetupService
 
 /**
  * Message is send if a webserver wants to authenticate a pending connection. It
@@ -23,7 +22,6 @@ data class AuthRequest(
     val accountId: Long
 )
 
-// MAKE SEALED CLASS
 data class AuthResponse(
     override val accountId: Long,
     val response: LoginResponse
@@ -40,20 +38,14 @@ enum class LoginResponse {
   /**
    * Currently no logins are allowed. Client should not retry.
    */
-  NO_LOGINS_ALLOWED,
-
-  /**
-   * Login was denied for not specific reason.
-   */
-  DENIED_NO_REASON
+  NO_LOGINS_ALLOWED
 }
 
 /**
  * Tries to authenticate a client.
  */
 class AuthenticationCheckActor(
-    private val authenticationService: AuthenticationService,
-    private val playerSetupService: PlayerEntitySetupService
+    private val authenticationService: AuthenticationService
 ) : AbstractActor() {
   override fun createReceive(): Receive {
     return receiveBuilder()
@@ -68,18 +60,15 @@ class AuthenticationCheckActor(
       return
     }
 
-    playerSetupService.setup(msg.accountId)
-
     sender.tell(AuthResponse(accountId = msg.accountId, response = LoginResponse.SUCCESS), self)
   }
 
   companion object {
     fun props(
-        authenticationService: AuthenticationService,
-        setupService: PlayerEntitySetupService
+        authenticationService: AuthenticationService
     ): Props {
       return Props.create(AuthenticationCheckActor::class.java) {
-        AuthenticationCheckActor(authenticationService, setupService)
+        AuthenticationCheckActor(authenticationService)
       }
     }
   }

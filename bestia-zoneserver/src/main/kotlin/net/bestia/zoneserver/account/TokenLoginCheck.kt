@@ -17,7 +17,7 @@ class TokenLoginCheck(
 ) : LoginCheck {
   override fun isLoginAllowedForAccount(accountId: Long, token: String): LoginResponse? {
     val account = accountRepository.findByIdOrNull(accountId)
-        ?: return LoginResponse.DENIED_NO_REASON
+        ?: return LoginResponse.UNAUTHORIZED
 
     return if (account.loginToken == token) {
       LOG.debug { "Account ID $accountId with token ${token.take(5)}*** authenticated" }

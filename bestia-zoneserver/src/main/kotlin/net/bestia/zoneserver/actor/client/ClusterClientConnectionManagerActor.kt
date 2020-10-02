@@ -8,32 +8,33 @@ import akka.persistence.AbstractPersistentActor
 import akka.persistence.SaveSnapshotSuccess
 import akka.persistence.SnapshotOffer
 import net.bestia.zoneserver.actor.Actor
+import net.bestia.zoneserver.actor.BSerializable
 
 data class ClientConnectedEvent(
     val accountId: Long,
     val socketActor: ActorRef
-)
+) : BSerializable
 
 data class ClientDisconnectedEvent(
     val accountId: Long
-)
+) : BSerializable
 
 data class ClientSocketRequest(
     val accountId: Long,
     val originalSender: ActorRef,
     val originalMessage: Any
-)
+) : BSerializable
 
 data class ClientSocketResponse(
     val accountId: Long,
     val originalSender: ActorRef,
     val socketActor: ActorRef?
-)
+) : BSerializable
 
 /**
  * This is the cluster wide connection manager. It keeps track of all the current connection to the cluster.
  * The nodes will have their own NodeClientConnectionManager which will be queried first if there is data to
- * be send to a client. But if they get a client request they dont know they will request this connection actor
+ * be send to a client. But if they get a client request they don't know they will request this connection actor
  * here.
  */
 @Actor

@@ -56,7 +56,7 @@ data class Entity(
   }
 
   override fun toString(): String {
-    return "Entity[id: $id, components: [${components.map { it.key.simpleName.toUpperCase() }.joinToString(", ")}]]"
+    return "Entity[id: $id, components: [${components.map { it.key.simpleName.toUpperCase().replace("COMPONENT", "") }.joinToString(", ")}]]"
   }
 
   companion object {

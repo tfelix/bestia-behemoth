@@ -3,7 +3,6 @@ package net.bestia.zoneserver.messages
 import mu.KotlinLogging
 import net.bestia.messages.proto.MessageProtos
 import org.springframework.stereotype.Service
-import java.lang.IllegalStateException
 
 private val LOG = KotlinLogging.logger { }
 
@@ -12,34 +11,31 @@ class ProtobufMessageConverterService(
     existingConverters: List<MessageConverter<Any>>
 ) {
 
-  private val fromBestiaConverter = existingConverters
-      .map { it.canConvert to it }
+  private val toPayload = existingConverters
+      .map { it.fromMessage to it }
+      .toMap()
+
+  private val toMessage = existingConverters
+      .map { it.fromPayload to it }
       .toMap()
 
   init {
-    LOG.debug { "Registered message converter: $fromBestiaConverter" }
+    LOG.debug { "Registered message converter: $existingConverters" }
   }
 
-  fun fromBestia(msg: Any): ByteArray {
-    val foundConverter = fromBestiaConverter[msg.javaClass]
-        ?: throw IllegalStateException("Had no converter registered for ${msg.javaClass.simpleName}")
+  fun convertToPayload(msg: Any): ByteArray {
+    val foundConverter = toPayload[msg.javaClass]
+        ?: error("Had no payload converter registered for ${msg.javaClass.simpleName}")
 
-    return foundConverter.convertFromBestia(msg)
+    return foundConverter.convertToPayload(msg)
   }
 
-  fun fromWire(msg: ByteArray): Any? {
+  fun convertToMessage(msg: ByteArray): Any? {
     val wrapper = MessageProtos.Wrapper.parseFrom(msg)
 
-    return when (wrapper.payloadCase) {
-      MessageProtos.Wrapper.PayloadCase.AUTH -> wrapper.auth
-      MessageProtos.Wrapper.PayloadCase.PAYLOAD_NOT_SET -> {
-        LOG.warn { "No payload present in parsed message" }
-        null
-      }
-      else -> {
-        LOG.warn { "Unknown payload '${wrapper.payloadCase}' present in parsed message" }
-        null
-      }
-    }
+    val converter = toMessage[wrapper.payloadCase]
+        ?: error("Had no message converter registered for ${msg.javaClass.simpleName}")
+
+    return converter.convertToMessage(wrapper)
   }
 }

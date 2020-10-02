@@ -5,5 +5,6 @@ object BQualifier {
   const val ENTITY_FORWARDER = "entityForward"
   const val CLIENT_FORWARDER = "clientForward"
   const val SYSTEM_ROUTER = "systemRouter"
+  const val CLIENT_MESSAGE_ROUTER = "clientMessageRouter"
   const val AUTH_CHECK = "authCheck"
 }

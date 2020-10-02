@@ -3,10 +3,10 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 buildscript {
     ext {
         javaConnectorVersion = '8.0.14'
-        jacksonVersion = '2.11.0'
+        jacksonVersion = '2.10.0'
         reflectionsVersion = '0.9.11'
         kotlinLoggingVersion = '1.6.22'
-        akkaVersion = '2.6.5'
+        akkaVersion = '2.6.9'
         akkaHttpVersion = '10.1.11'
     }
 }
@@ -21,7 +21,7 @@ plugins {
 }
 
 allprojects {
-    version = 'alpha-0.6.0-SNAPSHOT'
+    version = 'alpha-0.7.0-SNAPSHOT'
     group = 'net.bestia'
     sourceCompatibility = '1.8'
 

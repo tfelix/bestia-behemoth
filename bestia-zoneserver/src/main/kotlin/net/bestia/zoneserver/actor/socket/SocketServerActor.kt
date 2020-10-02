@@ -6,7 +6,7 @@ import akka.actor.Terminated
 import akka.io.Tcp
 import akka.io.TcpMessage
 import mu.KotlinLogging
-import net.bestia.messages.proto.SystemProtos
+import net.bestia.messages.proto.AccountProtos
 import net.bestia.zoneserver.AkkaCluster
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
@@ -123,8 +123,8 @@ class SocketServerActor(
 
   companion object {
     const val NAME = "socketServer"
-    private val NO_LOGIN_PAYLOAD = SystemProtos.ServerLoginStatus.newBuilder()
-        .setServerState(SystemProtos.ServerState.NO_LOGINS)
+    private val NO_LOGIN_PAYLOAD = AccountProtos.AuthResponse.newBuilder()
+        .setLoginStatus(AccountProtos.LoginStatus.NO_LOGINS_ALLOWED)
         .build()
         .toByteArray()
   }

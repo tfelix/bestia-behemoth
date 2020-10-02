@@ -6,10 +6,9 @@ import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.AccountType
+import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.zoneserver.actor.routing.MessageApi
-import net.bestia.zoneserver.actor.socket.LoginResponse
 import net.bestia.zoneserver.actor.socket.LogoutMessage
-import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.lang.IllegalStateException
@@ -20,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
 class LogoutService(
     private val accountDao: AccountRepository,
     private val messageApi: MessageApi,
-    private val playerEntityService: PlayerEntityService
+    private val playerBestiaRepository: PlayerBestiaRepository
 ) {
 
   /**
@@ -41,15 +40,37 @@ class LogoutService(
     // Send disconnect message to the webserver.
     // Depending on the logout state the actor might have already been
     // stopped.
-    val logoutMsg = LogoutMessage(LoginResponse.DENIED_NO_REASON)
-    messageApi.send(ClientEnvelope(acc.id, logoutMsg))
+    messageApi.send(ClientEnvelope(acc.id, LogoutMessage))
 
-    val playerEntities = playerEntityService.getPlayerEntities(accId)
+    val playerEntities = getPlayerEntities(accId)
     playerEntities.forEach { entityId ->
       messageApi.send(EntityEnvelope(entityId, SaveAndKillEntityCommand))
     }
+  }
 
-    playerEntityService.removeEntityIdsFromAccount(accId)
+  /**
+   * Returns all player bestia entity ids for a given account.
+   */
+  private fun getPlayerEntities(accountId: Long): Set<Long> {
+    return playerBestiaRepository.findPlayerBestiasForAccount(accountId)
+        .map { it.entityId }
+        .toSet()
+  }
+
+  /**
+   * Deletes all player bestias for this given account id from the system.
+   *
+   * @param accId The account id to delete all bestias from.
+   */
+  private fun removeEntityIdsFromAccount(accountId: Long) {
+    LOG.trace { "removeEntityIdsFromAccount(): For account $accountId." }
+
+    val updatedPlayerBestias = playerBestiaRepository.findPlayerBestiasForAccount(accountId)
+        .map {
+          it.entityId = 0
+          it
+        }
+    playerBestiaRepository.saveAll(updatedPlayerBestias)
   }
 
   /**

@@ -17,6 +17,7 @@ import net.bestia.zoneserver.account.AuthenticationService
 import net.bestia.zoneserver.account.PlayerEntitySetupService
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
+import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.BQualifier.ENTITY_FORWARDER
 import net.bestia.zoneserver.actor.BQualifier.RUNTIME_CONFIG
 import net.bestia.zoneserver.actor.BQualifier.SYSTEM_ROUTER
@@ -73,7 +74,6 @@ class AkkaConfiguration {
     setupSharding(system)
     setupClusterSingeltons(system)
 
-    SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
     SpringExtension.actorOf(system, NodeBootstrapActor::class.java)
     SpringExtension.actorOf(system, SocketServerActor::class.java)
 
@@ -123,9 +123,15 @@ class AkkaConfiguration {
       authenticationService: AuthenticationService,
       setupService: PlayerEntitySetupService
   ): ActorRef {
-    val props = AuthenticationCheckActor.props(authenticationService, setupService)
+    val props = AuthenticationCheckActor.props(authenticationService)
 
     return system.actorOf(props, "authCheck")
+  }
+
+  @Bean
+  @Qualifier(CLIENT_MESSAGE_ROUTER)
+  fun clientMessageRouterActor(system: ActorSystem): ActorRef  {
+    return SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
   }
 
   @Bean

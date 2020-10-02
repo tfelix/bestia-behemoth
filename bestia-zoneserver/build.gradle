@@ -33,6 +33,7 @@ dependencies {
     implementation group: 'com.typesafe.akka', name: 'akka-persistence_2.13', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence-typed_2.13', version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-discovery_2.13', version: akkaVersion
+    implementation group: 'com.typesafe.akka', name: "akka-serialization-jackson_2.13", version: akkaVersion
     implementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra_2.13', version: '1.0.0'
     // persistence-cassandra uses the older version ofc again from persistence-query, we need to manually
     // set it to match akka version.

@@ -9,7 +9,7 @@ class SocketMetricsReporter(
     registry: MeterRegistry
 ) {
 
-  private val connections = registry.gauge("numberGauge", AtomicInteger(0))!!
+  private val connections = registry.gauge("clientConnections", AtomicInteger(0))!!
 
   fun setConnectionCount(currentConnections: Int) {
     connections.set(currentConnections)

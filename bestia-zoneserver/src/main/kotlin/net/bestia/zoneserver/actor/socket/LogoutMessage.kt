@@ -6,6 +6,4 @@ package net.bestia.zoneserver.actor.socket
  *
  * @author Thomas Felix
  */
-data class LogoutMessage(
-    val state: LoginResponse = LoginResponse.DENIED_NO_REASON
-)
+object LogoutMessage

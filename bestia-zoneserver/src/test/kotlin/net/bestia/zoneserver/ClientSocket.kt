@@ -3,15 +3,14 @@ package net.bestia.zoneserver
 import mu.KotlinLogging
 import net.bestia.messages.proto.AccountProtos
 import net.bestia.messages.proto.MessageProtos
-import net.bestia.messages.proto.SystemProtos
 import java.io.Closeable
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.io.IOException
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.time.Duration
-import java.time.Instant
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
 
 private val LOG = KotlinLogging.logger { }
 
@@ -19,37 +18,44 @@ class ClientSocket(
     private val ip: String,
     private val port: Int
 ) : Closeable {
-  private var socket: Socket = Socket()
-  private var dOut: DataOutputStream? = null
-  private var dIn: DataInputStream? = null
+  class ReceiverThread(
+      private var dIn: DataInputStream
+  ) : Thread() {
+    var isRunning = true
 
-  private fun connect() {
-    socket = Socket(ip, port)
-    dOut = DataOutputStream(socket.getOutputStream())
-    dIn = DataInputStream(socket.getInputStream())
-  }
+    val packets = LinkedBlockingQueue<ByteArray>()
 
-  fun receivePacket(timeout: Duration = Duration.ofSeconds(1)): ByteArray? {
-    val start = Instant.now()
+    override fun run() {
+      while (isRunning) {
+        receivePacket()?.let {
+          packets.add(it)
+        }
+      }
+    }
 
-    while (Duration.between(start, Instant.now()) < timeout) {
-      if (dIn!!.available() <= 4) {
-        continue
+    private fun receivePacket(): ByteArray? {
+      if (dIn.available() <= 4) {
+        return null
       }
 
-      val packetSize = dIn!!.readInt()
+      val packetSize = dIn.readInt()
       val buffer = ByteArray(packetSize)
-
-      if (dIn!!.available() < packetSize) {
-        continue
-      }
-
-      dIn!!.read(buffer, 0, packetSize)
+      dIn.readFully(buffer)
 
       return buffer
     }
+  }
 
-    return null
+  private var isConnected = false
+  private lateinit var socket: Socket
+  private lateinit var dOut: DataOutputStream
+  private lateinit var receiverThread: ReceiverThread
+
+  private fun connectSocket() {
+    socket = Socket(ip, port)
+    dOut = DataOutputStream(socket.getOutputStream())
+    receiverThread = ReceiverThread(DataInputStream(socket.getInputStream()))
+    receiverThread.start()
   }
 
   fun send(data: ByteArray) {
@@ -57,57 +63,62 @@ class ClientSocket(
     sendBuffer.putInt(data.size)
     sendBuffer.put(data)
 
-    dOut?.write(sendBuffer.array())
-    dOut?.flush()
+    dOut.write(sendBuffer.array())
+    dOut.flush()
+  }
+
+  fun <T> receive(
+      messageType: MessageProtos.Wrapper.PayloadCase,
+      timeout: Duration = Duration.ofSeconds(5)
+  ): T? {
+    val packageBytes = receiverThread.packets.poll(timeout.seconds, TimeUnit.SECONDS)
+        ?: return null
+    val wrapper = MessageProtos.Wrapper.parseFrom(packageBytes)
+
+    @Suppress("UNCHECKED_CAST")
+    return when (messageType) {
+      MessageProtos.Wrapper.PayloadCase.AUTH_RESPONSE -> wrapper.authResponse
+      MessageProtos.Wrapper.PayloadCase.ACCOUNT_VAR_RESPONSE -> wrapper.accountVarResponse
+      MessageProtos.Wrapper.PayloadCase.COMP_POSITION -> wrapper.compPosition
+      else -> error("No matching packet found for $messageType")
+    } as T
   }
 
   override fun close() {
-    dOut?.close()
-    dIn?.close()
+    if (!isConnected) {
+      return
+    }
+    dOut.close()
     socket.close()
+    receiverThread.isRunning = false
   }
 
-  fun connectAndAuth() {
-    val msg = AccountProtos.AuthRequest.newBuilder()
+  fun connect() {
+    val authMessage = AccountProtos.AuthRequest.newBuilder()
         .setAccountId(1)
         .setToken("50cb5740-c390-4d48-932f-eef7cbc113c1")
         .build()
         .toByteArray()
 
-    var isConnected = false
     while (!isConnected) {
-      connect()
-      Thread.sleep(50)
-      val connectionErrorMsg = receivePacket()
+      connectSocket()
+      send(authMessage)
 
-      if (connectionErrorMsg != null) {
-        val response = MessageProtos.Wrapper.parseFrom(connectionErrorMsg)
+      val authResponse = receive<AccountProtos.AuthResponse>(MessageProtos.Wrapper.PayloadCase.AUTH_RESPONSE)
 
-        if (response.payloadCase == MessageProtos.Wrapper.PayloadCase.SYS_LOGIN_STATUS) {
-          if (response.sysLoginStatus.serverState == SystemProtos.ServerState.NO_LOGINS) {
-            LOG.debug { "Server accepts no logins" }
-            continue
-          }
+      if (authResponse != null) {
+        if (authResponse.loginStatus == AccountProtos.LoginStatus.NO_LOGINS_ALLOWED) {
+          LOG.debug { "Server accepts no logins" }
+          Thread.sleep(100)
+          continue
         }
-      }
 
-      try {
-        send(msg)
-      } catch (e: IOException) {
-        // no op
+        if (authResponse.loginStatus == AccountProtos.LoginStatus.UNAUTHORIZED) {
+          error("Server does not accept the credentials. Abort.")
+        }
+
+        isConnected = true
       }
-      isConnected = true
     }
   }
 }
-
-/*
-inline fun <T> ClientSocket.receive(): AccountProtos.AccountVarResponse? {
-  val packageBytes = receivePacket()
-  val wrapper = MessageProtos.Wrapper.parseFrom(packageBytes)
-
-  return when (wrapper.payloadCase) {
-    MessageProtos.Wrapper.PayloadCase.ACCOUNT_VAR_RESPONSE -> wrapper.accountVarResponse
-    MessageProtos.Wrapper.PayloadCase.COMP_POSITION -> wrapper.compPosition
-  }
-}*/

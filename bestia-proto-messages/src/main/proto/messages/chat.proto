@@ -19,17 +19,17 @@ enum ChatMode {
 }
 
 message ChatRequest {
-    Account account = 1;
+    uint64 account_id = 1;
     ChatMode mode = 2;
     string text = 3;
-    string receiverNickname = 4;
+    string receiver_nickname = 4;
 }
 
 message ChatResponse {
-    Account account = 1;
-    Entity entity = 2;
+    uint64 account_id = 1;
+    uint64 entity_id = 2;
     ChatMode mode = 3;
     string text = 4;
-    string senderNickname = 5;
+    string sender_nickname = 5;
     uint64 time = 6;
 }

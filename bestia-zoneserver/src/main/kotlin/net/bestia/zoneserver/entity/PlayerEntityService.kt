@@ -30,31 +30,6 @@ class PlayerEntityService(
   }
 
   /**
-   * Returns all player bestia entity ids for a given account.
-   */
-  fun getPlayerEntities(accountId: Long): Set<Long> {
-    return playerBestiaRepository.findPlayerBestiasForAccount(accountId)
-        .map { it.entityId }
-        .toSet()
-  }
-
-  /**
-   * Deletes all player bestias for this given account id from the system.
-   *
-   * @param accId The account id to delete all bestias from.
-   */
-  fun removeEntityIdsFromAccount(accountId: Long) {
-    LOG.trace { "removeEntityIdsFromAccount(): For account $accountId." }
-
-    val updatedPlayerBestias = playerBestiaRepository.findPlayerBestiasForAccount(accountId)
-        .map {
-          it.entityId = 0
-          it
-        }
-    playerBestiaRepository.saveAll(updatedPlayerBestias)
-  }
-
-  /**
    * This method extracts all variable and important data from the player
    * entity and persists them back into the database.
    */

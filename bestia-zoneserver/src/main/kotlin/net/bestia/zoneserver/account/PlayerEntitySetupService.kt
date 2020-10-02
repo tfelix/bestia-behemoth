@@ -26,7 +26,7 @@ class PlayerEntitySetupService(
 
     val masterEntity = playerBestiaFactory.build(master.id)
 
-    LOG.debug { "Adding player entity: accId: $accId, entityId: masterEntity.id" }
+    LOG.debug { "Adding player entity: accId: $accId, entityId: ${master.entityId}" }
 
     master.entityId = masterEntity.id
     playerBestiaRepository.save(master)
