@@ -3,7 +3,8 @@ package net.bestia.zoneserver.actor.chat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatResponse
 import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.client.SendInRange
 import net.bestia.zoneserver.actor.entity.EntityEnvelope
@@ -21,7 +22,7 @@ class PublicChatActorTest : AbstractActorTest() {
   fun `public messages are sent to players near by`() {
     val activeEntityId = 1L
     val entity = Entity(id = activeEntityId)
-    val chatMessage = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello World")
+    val chatMessage = ChatResponse(1, ChatMode.PUBLIC, "Hello World")
     whenever(playerEntityService.getActivePlayerEntityId(any())).thenReturn(activeEntityId)
 
     testKit {

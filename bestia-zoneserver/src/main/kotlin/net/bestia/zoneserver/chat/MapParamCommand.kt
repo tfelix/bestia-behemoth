@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.chat
 
 import mu.KotlinLogging
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatResponse
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.map.MapParameterRepository
 import net.bestia.model.account.Account
@@ -43,12 +43,12 @@ internal class MapParamCommand(
     when (mapParam) {
       null -> {
         LOG.warn("No map parameter found inside database.")
-        val msg = ChatMessage.getSystemMessage(account.id, "No map info found in database.")
+        val msg = ChatResponse.getSystemMessage(account.id, "No map info found in database.")
         val envelope = ClientEnvelope(account.id, msg)
         messageApi.send(envelope)
       }
       else -> {
-        val msg = ChatMessage.getSystemMessage(account.id, mapParam.toDetailString())
+        val msg = ChatResponse.getSystemMessage(account.id, mapParam.toDetailString())
         val envelope = ClientEnvelope(account.id, msg)
         messageApi.send(envelope)
       }

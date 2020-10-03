@@ -2,10 +2,18 @@ package net.bestia.zoneserver.messages
 
 import net.bestia.messages.proto.MessageProtos
 
-interface MessageConverter<T> {
-  fun convertToPayload(msg: T): ByteArray
-  fun convertToMessage(msg: MessageProtos.Wrapper): T
+abstract class MessageConverter<T> {
+  abstract fun convertToPayload(msg: T): ByteArray
+  open fun convertToMessage(msg: MessageProtos.Wrapper): T {
+    error("Conversion to Bestia Message not implemented for $fromMessage")
+  }
 
-  val fromMessage: Class<T>
-  val fromPayload: MessageProtos.Wrapper.PayloadCase
+  abstract val fromMessage: Class<T>
+  abstract val fromPayload: MessageProtos.Wrapper.PayloadCase
+
+  protected fun wrap(fn: (builder: MessageProtos.Wrapper.Builder) -> Unit): ByteArray {
+    val b = MessageProtos.Wrapper.newBuilder()
+    fn(b)
+    return b.build().toByteArray()
+  }
 }

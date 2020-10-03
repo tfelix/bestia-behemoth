@@ -3,7 +3,9 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatRequest
+import net.bestia.messages.chat.ChatResponse
 import net.bestia.model.party.PartyRepository
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
@@ -25,7 +27,7 @@ class PartyChatActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-        .match(ChatMessage::class.java, this::handleParty)
+        .match(ChatRequest::class.java, this::handleParty)
         .build()
   }
 
@@ -33,27 +35,27 @@ class PartyChatActor(
    * Handles the party message. Finds all member in this party and then send
    * the message to them.
    */
-  private fun handleParty(chatMsg: ChatMessage) {
+  private fun handleParty(chat: ChatRequest) {
     // Sanity check.
-    if (chatMsg.chatMode != ChatMessage.Mode.PARTY) {
-      LOG.warn { "Can not handle non party chat messages: $chatMsg" }
-      unhandled(chatMsg)
+    if (chat.chatMode != ChatMode.PARTY) {
+      LOG.warn { "Can not handle non party chat messages: $chat" }
+      unhandled(chat)
       return
     }
 
-    val party = partyRepository.findPartyByMembership(chatMsg.accountId)
+    val party = partyRepository.findPartyByMembership(chat.accountId)
 
     if (party == null) {
       // not a member of a party.
-      LOG.debug { "Account ${chatMsg.accountId} is no member of any party." }
-      val replyMsg = ChatMessage.getSystemMessage(chatMsg.accountId,
+      LOG.debug { "Account ${chat.accountId} is no member of any party." }
+      val replyMsg = ChatResponse.getSystemMessage(chat.accountId,
           "Not a member of a party.")
       sendClientActor.tell(replyMsg, self)
       return
     }
 
     party.getMembers().forEach { member ->
-      val reply = chatMsg.copy(accountId = member.id)
+      val reply = chat.copy(accountId = member.id)
       sendClientActor.tell(reply, self)
     }
   }

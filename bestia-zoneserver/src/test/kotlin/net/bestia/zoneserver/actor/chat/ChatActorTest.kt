@@ -1,7 +1,8 @@
 package net.bestia.zoneserver.actor.chat
 
 import akka.actor.ActorRef
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatResponse
 import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.chat.ChatCommandService
 import org.junit.jupiter.api.Test
@@ -24,13 +25,13 @@ class ChatActorTest : AbstractActorTest() {
           "partyChatActor"
       ))
 
-      val pubChat = ChatMessage(1, ChatMessage.Mode.PUBLIC, "Hello PUBLIC")
+      val pubChat = ChatResponse(1, ChatMode.PUBLIC, "Hello PUBLIC")
       chat.tell(pubChat, ActorRef.noSender())
-      val chatMessage = ChatMessage(1, ChatMessage.Mode.SYSTEM, "Hello SYSTEM")
+      val chatMessage = ChatResponse(1, ChatMode.SYSTEM, "Hello SYSTEM")
       chat.tell(chatMessage, ActorRef.noSender())
-      val guildMessage = ChatMessage(1, ChatMessage.Mode.GUILD, "Hello GUILD")
+      val guildMessage = ChatResponse(1, ChatMode.GUILD, "Hello GUILD")
       chat.tell(guildMessage, ActorRef.noSender())
-      val partyMessage = ChatMessage(1, ChatMessage.Mode.PARTY, "Hello PARTY")
+      val partyMessage = ChatResponse(1, ChatMode.PARTY, "Hello PARTY")
       chat.tell(partyMessage, ActorRef.noSender())
 
       probes["publicChatActor"]!!.expectMsg(pubChat)

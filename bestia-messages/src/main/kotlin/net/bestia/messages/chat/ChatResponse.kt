@@ -7,9 +7,9 @@ import net.bestia.messages.AccountMessage
  *
  * @author Thomas Felix
  */
-data class ChatMessage(
+data class ChatResponse(
     override val accountId: Long,
-    val chatMode: Mode,
+    val chatMode: ChatMode,
     val text: String,
     private var senderNickname: String? = null,
     val receiverNickname: String? = null,
@@ -17,10 +17,6 @@ data class ChatMessage(
     val time: Long = 0,
     val entityId: Long? = null
 ) : AccountMessage {
-
-  enum class Mode {
-    PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND, BATTLE
-  }
 
   companion object {
     /**
@@ -32,10 +28,10 @@ data class ChatMessage(
      * A text to send to the client.
      * @return The generated message.
      */
-    fun getSystemMessage(accId: Long, text: String): ChatMessage {
-      return ChatMessage(
+    fun getSystemMessage(accId: Long, text: String): ChatResponse {
+      return ChatResponse(
           accountId = accId,
-          chatMode = Mode.SYSTEM,
+          chatMode = ChatMode.SYSTEM,
           text = text,
           time = System.currentTimeMillis() / 1000L
       )

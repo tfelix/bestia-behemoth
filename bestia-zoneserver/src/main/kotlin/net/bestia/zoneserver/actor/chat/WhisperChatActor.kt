@@ -3,7 +3,8 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatRequest
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import org.springframework.beans.factory.annotation.Qualifier
@@ -22,24 +23,24 @@ class WhisperChatActor(
     private val sendClientActor: ActorRef
 ) : AbstractActor() {
 
-  override fun createReceive(): AbstractActor.Receive {
+  override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(ChatMessage::class.java, this::handleWhisper)
+        .match(ChatRequest::class.java, this::handleWhisper)
         .build()
   }
 
   /**
    * Handles an incoming whisper message.
    */
-  private fun handleWhisper(chatMsg: ChatMessage) {
-    if (chatMsg.chatMode != ChatMessage.Mode.WHISPER) {
-      LOG.warn { "Can not handle non whisper chat messages: $chatMsg." }
-      unhandled(chatMsg)
+  private fun handleWhisper(chat: ChatRequest) {
+    if (chat.chatMode != ChatMode.WHISPER) {
+      LOG.warn { "Can not handle non whisper chat messages: $chat." }
+      unhandled(chat)
       return
     }
 
     // Cant handle with no receiver name.
-    val receiverNickname = chatMsg.receiverNickname ?: return
+    val receiverNickname = chat.receiverNickname ?: return
     /*
     val acc = accService.getOnlineAccountByName(receiverNickname)
 
@@ -48,7 +49,7 @@ class WhisperChatActor(
       return
     }*/
 
-    val reply = chatMsg.copy(10)
+    val reply = chat.copy(10)
     sendClientActor.tell(reply, self)
   }
 

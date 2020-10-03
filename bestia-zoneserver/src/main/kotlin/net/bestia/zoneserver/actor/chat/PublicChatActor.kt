@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.actor.chat
 
 import akka.actor.AbstractActor
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatRequest
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
@@ -26,19 +26,19 @@ class PublicChatActor(
 
   override fun createReceive(): AbstractActor.Receive {
     return receiveBuilder()
-        .match(ChatMessage::class.java, this::handlePublic)
+        .match(ChatRequest::class.java, this::handlePublic)
         .build()
   }
 
   /**
    * Sends a public message to all clients in sight.
    */
-  private fun handlePublic(chatMsg: ChatMessage) {
-    val accId = chatMsg.accountId
+  private fun handlePublic(chat: ChatRequest) {
+    val accId = chat.accountId
     val activeEntityId = playerEntityService.getActivePlayerEntityId(accId) ?: return
 
     awaitEntityResponse(messageApi, context, activeEntityId) {
-      val sendInRange = SendInRange(it, chatMsg)
+      val sendInRange = SendInRange(it, chat)
 
       // We dont need to send a echo back because the player entity is also
       // active in the area so this call also includes the sender of the chat

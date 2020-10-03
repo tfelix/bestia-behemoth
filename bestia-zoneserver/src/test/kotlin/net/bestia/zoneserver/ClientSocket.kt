@@ -98,11 +98,14 @@ class ClientSocket(
         .setAccountId(1)
         .setToken("50cb5740-c390-4d48-932f-eef7cbc113c1")
         .build()
+    val payload = MessageProtos.Wrapper.newBuilder()
+        .setAuthRequest(authMessage)
+        .build()
         .toByteArray()
 
     while (!isConnected) {
       connectSocket()
-      send(authMessage)
+      send(payload)
 
       val authResponse = receive<AccountProtos.AuthResponse>(MessageProtos.Wrapper.PayloadCase.AUTH_RESPONSE)
 

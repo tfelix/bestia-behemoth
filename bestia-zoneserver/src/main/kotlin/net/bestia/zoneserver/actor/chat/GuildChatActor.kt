@@ -3,7 +3,8 @@ package net.bestia.zoneserver.actor.chat
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import mu.KotlinLogging
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatRequest
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import net.bestia.zoneserver.actor.entity.awaitEntityResponse
@@ -31,15 +32,15 @@ class GuildChatActor(
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(ChatMessage::class.java, this::handleGuild)
+        .match(ChatRequest::class.java, this::handleGuild)
         .build()
   }
 
   /**
    * Sends a public message to all clients in sight.
    */
-  private fun handleGuild(chatMsg: ChatMessage) {
-    if (chatMsg.chatMode != ChatMessage.Mode.GUILD) {
+  private fun handleGuild(chat: ChatRequest) {
+    if (chat.chatMode != ChatMode.GUILD) {
       LOG.warn { "Can not send non guild chat to guild" }
       return
     }
@@ -47,7 +48,7 @@ class GuildChatActor(
     awaitEntityResponse(messageApi, context, 5) { e ->
       val guildComp = e.tryGetComponent(GuildComponent::class.java)
           ?: return@awaitEntityResponse
-      val copiedMessages = guildChatService.copyChatMessageToAllGuildMembers(guildComp.guildId, chatMsg)
+      val copiedMessages = guildChatService.copyChatMessageToAllGuildMembers(guildComp.guildId, chat)
       copiedMessages.forEach {
         sendClientActor.tell(it, self)
       }

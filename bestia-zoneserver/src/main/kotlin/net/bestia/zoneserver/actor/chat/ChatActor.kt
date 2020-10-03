@@ -1,7 +1,8 @@
 package net.bestia.zoneserver.actor.chat
 
 import mu.KotlinLogging
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatMode
+import net.bestia.messages.chat.ChatRequest
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
@@ -28,23 +29,23 @@ class ChatActor(
   private val partyChatActor = SpringExtension.actorOf(context, PartyChatActor::class.java)
 
   override fun createReceive(builder: BuilderFacade) {
-    builder.matchRedirect(ChatMessage::class.java, this::onChatMessage)
+    builder.matchRedirect(ChatRequest::class.java, this::onChatMessage)
   }
 
-  private fun onChatMessage(chatMsg: ChatMessage) {
-    if (chatCmdService.isChatCommand(chatMsg.text)) {
-      chatCmdService.executeChatCommand(chatMsg.accountId, chatMsg.text)
+  private fun onChatMessage(chat: ChatRequest) {
+    if (chatCmdService.isChatCommand(chat.text)) {
+      chatCmdService.executeChatCommand(chat.accountId, chat.text)
       return
     }
 
-    when (chatMsg.chatMode) {
-      ChatMessage.Mode.PUBLIC -> publicChatActor.tell(chatMsg, self)
-      ChatMessage.Mode.WHISPER -> whisperChatActor.tell(chatMsg, self)
-      ChatMessage.Mode.PARTY -> partyChatActor.tell(chatMsg, self)
-      ChatMessage.Mode.GUILD -> guildChatActor.tell(chatMsg, self)
+    when (chat.chatMode) {
+      ChatMode.PUBLIC -> publicChatActor.tell(chat, self)
+      ChatMode.WHISPER -> whisperChatActor.tell(chat, self)
+      ChatMode.PARTY -> partyChatActor.tell(chat, self)
+      ChatMode.GUILD -> guildChatActor.tell(chat, self)
       else -> {
-        LOG.warn { "Message type ${chatMsg.chatMode} not yet supported." }
-        unhandled(chatMsg)
+        LOG.warn { "Message type ${chat.chatMode} not yet supported." }
+        unhandled(chat)
       }
     }
   }

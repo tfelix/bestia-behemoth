@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.chat
 
-import net.bestia.messages.chat.ChatMessage
+import net.bestia.messages.chat.ChatResponse
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.routing.MessageApi
 
@@ -22,7 +22,7 @@ internal abstract class BaseChatCommand(
    * @param accId The account id to send the text to.
    */
   protected fun sendSystemMessage(accId: Long, text: String) {
-    val replyMsg = ChatMessage.getSystemMessage(accId, text)
+    val replyMsg = ChatResponse.getSystemMessage(accId, text)
     messageApi.send(ClientEnvelope(accId, replyMsg))
   }
 }

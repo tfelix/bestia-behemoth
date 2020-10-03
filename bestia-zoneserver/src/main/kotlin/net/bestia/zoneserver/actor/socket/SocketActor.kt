@@ -5,23 +5,17 @@ import akka.actor.ActorRef
 import akka.io.Tcp
 import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
-import com.google.protobuf.InvalidProtocolBufferException
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
-import net.bestia.messages.chat.ChatMessage
-import net.bestia.messages.proto.AccountProtos
-import net.bestia.messages.proto.ChatProtos
-import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
-import net.bestia.zoneserver.messages.ProtobufMessageConverterService
+import net.bestia.zoneserver.messages.MessageConvertException
+import net.bestia.zoneserver.messages.MessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
-import java.lang.IllegalStateException
 import java.nio.ByteBuffer
-import java.time.Instant
 
 private val LOG = KotlinLogging.logger { }
 
@@ -44,7 +38,7 @@ final class SocketActor(
     private val authenticationCheckActor: ActorRef,
     @Qualifier(CLIENT_MESSAGE_ROUTER)
     private val messageRouter: ActorRef,
-    private val messageConverter: ProtobufMessageConverterService
+    private val messageConverter: MessageConverterService
 ) : AbstractActor() {
 
   private val buffer = ByteBuffer.allocate(MAX_MESSAGE_SIZE)
@@ -85,77 +79,49 @@ final class SocketActor(
   }
 
   private fun checkAuthResponse(msg: AuthResponse) {
-    val authResponseBuilder = AccountProtos.AuthResponse.newBuilder()
-        .setAccountId(msg.accountId)
-
-    when (msg.response) {
-      LoginResponse.SUCCESS -> authResponseBuilder.loginStatus = AccountProtos.LoginStatus.SUCCESS
-      LoginResponse.UNAUTHORIZED -> authResponseBuilder.loginStatus = AccountProtos.LoginStatus.UNAUTHORIZED
-      LoginResponse.NO_LOGINS_ALLOWED -> authResponseBuilder.loginStatus = AccountProtos.LoginStatus.NO_LOGINS_ALLOWED
-    }
-
-    val authResponse = MessageProtos.Wrapper.newBuilder()
-        .setAuthResponse(authResponseBuilder.build())
-        .build()
-        .toByteArray()
-
     when (msg.response) {
       LoginResponse.SUCCESS -> {
-        announceNewClientConnection(msg.accountId)
         context.become(authenticated())
-
-        sendToClient(authResponse)
+        announceNewClientConnection(msg.accountId)
       }
       LoginResponse.UNAUTHORIZED, LoginResponse.NO_LOGINS_ALLOWED -> {
         LOG.info { "Client send invalid login or server does not allow login: $msg. Disconnecting client." }
-
-        sendToClient(authResponse)
         context.stop(self)
       }
     }
+    // Make sure this is invoced even after the context stop self
+    val payload = messageConverter.convertToPayload(msg)
+    sendToClient(payload)
   }
 
   private fun waitForAuthMessage(msg: Tcp.Received) {
-    val authMsgBytes = extractMessageBytes(msg)
     try {
-      val authMessage = AccountProtos.AuthRequest.parseFrom(authMsgBytes)
-      // Possibly an invalid message. We exit here.
+      val authMsgBytes = extractMessageBytes(msg)
+          ?: return
+      val authMessage = messageConverter.convertToMessage(authMsgBytes)
           ?: return
 
-      val authRequest = AuthRequest(
-          accountId = authMessage.accountId,
-          token = authMessage.token
-      )
-      authenticationCheckActor.tell(authRequest, self)
+      if (authMessage !is AuthRequest) {
+        context.stop(self)
+        return
+      }
 
-    } catch (e: InvalidProtocolBufferException) {
+      authenticationCheckActor.tell(authMessage, self)
+    } catch (e: MessageConvertException) {
       LOG.info { "Could not parse auth message. Disconnecting client." }
       context.stop(self)
     }
   }
 
   private fun onClientMessage(msg: Tcp.Received) {
-    val msgBytes = extractMessageBytes(msg)
-
-    if (msgBytes == null) {
-      LOG.trace { "Package not complete" }
-      return
-    }
-
     try {
-      // TODO Insert service here to create messages
-      val message = ChatProtos.ChatRequest.parseFrom(msgBytes)
-      val test = ChatMessage(
-          accountId = message.accountId,
-          chatMode = ChatMessage.Mode.PUBLIC,
-          text = message.text,
-          time = Instant.now().toEpochMilli(),
-          chatMessageId = 1
-      )
-      messageRouter.tell(test, self)
-
-    } catch (e: InvalidProtocolBufferException) {
-      LOG.info { "Could not parse auth message. Disconnecting client." }
+      val msgBytes = extractMessageBytes(msg)
+          ?: return
+      val message = messageConverter.convertToMessage(msgBytes)
+          ?: return
+      messageRouter.tell(message, self)
+    } catch (e: MessageConvertException) {
+      LOG.info(e) { "Could not parse auth message. Disconnecting client." }
       context.stop(self)
     }
   }
@@ -206,16 +172,12 @@ final class SocketActor(
   }
 
   private fun sendToClient(data: ByteArray) {
-    val sendBuffer = ByteBuffer.allocate(data.size + Int.SIZE_BYTES)
-    sendBuffer.putInt(data.size)
-    sendBuffer.put(data)
-
-    connection.tell(sendBuffer.array().toTcpMessage(), self)
+    connection.tell(data.toTcpMessage(), self)
   }
 
   private fun sendToClient(msg: AccountMessage) {
     LOG.info { "Send: $msg" }
-    val output = messageConverter.fromBestia(msg)
+    val output = messageConverter.convertToPayload(msg)
     connection.tell(output.toTcpMessage(), self)
   }
 
