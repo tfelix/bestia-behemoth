@@ -37,6 +37,7 @@ class SocketServerActor(
     }
 
   private val socketAddress = InetSocketAddress(socketConfig.bindAddress, socketConfig.port)
+  private val authCheckActor = SpringExtension.actorOf(context, AuthenticationCheckActor::class.java)
 
   @Throws(Exception::class)
   override fun preStart() {
@@ -114,7 +115,8 @@ class SocketServerActor(
         context,
         SocketActor::class.java,
         actorName,
-        connectionActor
+        connectionActor,
+        authCheckActor
     )
     context.watch(handler)
     connectionActor.tell(TcpMessage.register(handler), self)

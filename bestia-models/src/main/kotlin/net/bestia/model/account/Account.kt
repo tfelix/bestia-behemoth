@@ -1,6 +1,7 @@
 package net.bestia.model.account
 
 import net.bestia.model.AbstractEntity
+import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.party.Party
 import java.io.Serializable
 import java.text.SimpleDateFormat
@@ -22,7 +23,7 @@ data class Account(
     val hairstyle: Hairstyle,
 
     var isActivated: Boolean = false
-) : AbstractEntity(), Serializable {
+    ) : AbstractEntity(), Serializable {
   @Enumerated(EnumType.STRING)
   var accountType = AccountType.USER
 
@@ -36,9 +37,22 @@ data class Account(
   @ManyToOne
   var party: Party? = null
 
+  @OneToOne
+  var activeBestia: PlayerBestia? = null
+
+  @OneToMany(cascade = [CascadeType.ALL], mappedBy = "owner")
+  var playerBestias: MutableList<PlayerBestia> = mutableListOf()
+
+  @OneToOne(cascade = [CascadeType.ALL], mappedBy = "master")
+  var masterBestia: PlayerBestia? = null
+
   override fun toString(): String {
     val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
     return "Account[id: $id, username: ${username.take(5)}, registerDate: $dateStr]"
+  }
+
+  companion object {
+    const val NUM_BESTIA_SLOTS = 4
   }
 }
 

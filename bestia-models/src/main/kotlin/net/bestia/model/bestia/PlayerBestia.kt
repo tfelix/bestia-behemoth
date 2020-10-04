@@ -18,7 +18,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "player_bestias")
 data class PlayerBestia(
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     var owner: Account,
 
@@ -26,7 +26,7 @@ data class PlayerBestia(
     @JoinColumn(name = "bestia_id", nullable = false)
     val origin: Bestia,
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "master_id", nullable = true, unique = true)
     private val master: Account? = null,
 

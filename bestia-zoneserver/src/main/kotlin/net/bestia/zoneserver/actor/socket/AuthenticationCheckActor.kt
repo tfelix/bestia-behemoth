@@ -4,6 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.Props
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.account.AuthenticationService
+import net.bestia.zoneserver.actor.Actor
 
 /**
  * Message is send if a webserver wants to authenticate a pending connection. It
@@ -44,6 +45,7 @@ enum class LoginResponse {
 /**
  * Tries to authenticate a client.
  */
+@Actor
 class AuthenticationCheckActor(
     private val authenticationService: AuthenticationService
 ) : AbstractActor() {
@@ -71,5 +73,7 @@ class AuthenticationCheckActor(
         AuthenticationCheckActor(authenticationService)
       }
     }
+
+    const val NAME = "authCheck"
   }
 }

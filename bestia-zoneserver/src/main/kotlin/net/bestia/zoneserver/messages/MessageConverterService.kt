@@ -24,7 +24,7 @@ class MessageConverterService(
       .toMap()
 
   init {
-    LOG.debug { "Registered message converter: $existingConverters" }
+    LOG.trace { "Registered message converter: $existingConverters" }
   }
 
   fun convertToPayload(msg: Any): ByteArray {
@@ -32,6 +32,8 @@ class MessageConverterService(
         ?: error("Had no payload converter registered for ${msg.javaClass.simpleName}")
 
     val payload = foundConverter.convertToPayload(msg)
+
+    LOG.trace { "Encoded from server: ${msg.javaClass.simpleName}" }
 
     val sendBuffer = ByteBuffer.allocate(payload.size + Int.SIZE_BYTES)
     sendBuffer.putInt(payload.size)
@@ -43,6 +45,8 @@ class MessageConverterService(
   fun convertToMessage(msg: ByteArray): Any? {
     try {
       val wrapper = MessageProtos.Wrapper.parseFrom(msg)
+
+      LOG.debug { "Decoded from client: ${wrapper.payloadCase}" }
 
       val converter = toMessage[wrapper.payloadCase]
           ?: error("Had no message converter registered for ${wrapper.payloadCase}")

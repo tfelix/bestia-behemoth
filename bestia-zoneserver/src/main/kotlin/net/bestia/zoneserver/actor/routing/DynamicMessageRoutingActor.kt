@@ -3,6 +3,9 @@ package net.bestia.zoneserver.actor.routing
 import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
+import mu.KotlinLogging
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This class is the base class to register basic message receiving on its parent actor.
@@ -23,7 +26,7 @@ abstract class DynamicMessageRoutingActor(
   protected class BuilderFacade(
       private val builder: ReceiveBuilder
   ) {
-    private val receivedMessages = mutableListOf<Class<*>>()
+    val receivedMessages = mutableListOf<Class<*>>()
 
     /**
      * This function will request a redirect of this kind of messages from its parent.
@@ -58,28 +61,35 @@ abstract class DynamicMessageRoutingActor(
 
   private val redirects = mutableMapOf<Class<*>, MutableList<ActorRef>>()
 
-  @Throws(Exception::class)
-  override fun preStart() {
+  private fun registerMessageRedirects(receivedMessageClasses: List<Class<*>>) {
     if (!propagateRedirectToParent) {
       return
     }
-    redirects.forEach { (clazz: Class<*>, actors: MutableList<ActorRef>) ->
-      actors.forEach { actor ->
-        val msg = RedirectMessage(clazz, actor)
-        context().parent().tell(msg, self)
-      }
+
+    LOG.trace { "Started: '${self.path()}' registering at parent for ${redirects.keys}" }
+
+    receivedMessageClasses.forEach { clazz ->
+      val msg = RedirectMessage(clazz, self)
+      context().parent().tell(msg, self)
     }
   }
 
   final override fun createReceive(): Receive {
     val builder = receiveBuilder()
     val facade = BuilderFacade(builder)
+
     createReceive(facade)
+
     builder.matchAny(this::handleMessage)
+
+    registerMessageRedirects(facade.receivedMessages)
 
     return builder.build()
   }
 
+  /**
+   * Override this method in children to register message receivers.
+   */
   protected abstract fun createReceive(builder: BuilderFacade)
 
   private fun handleMessage(msg: Any) {
@@ -90,12 +100,17 @@ abstract class DynamicMessageRoutingActor(
   }
 
   private fun routeMessage(msg: Any) {
-    redirects[msg]?.forEach {
+    val registeredRedirects = redirects[msg.javaClass]
+
+    LOG.trace { "routeMessage received: ${msg.javaClass.simpleName}, redirecting to: $registeredRedirects" }
+
+    registeredRedirects?.forEach {
       it.tell(msg, sender)
     }
   }
 
   private fun handleRedirectMessage(msg: RedirectMessage) {
+    LOG.trace { "Registered redirect for ${msg.requestedMessageClass} to '${msg.receiver}'" }
     redirects.getOrPut(msg.requestedMessageClass) { mutableListOf() }.add(msg.receiver)
   }
 }

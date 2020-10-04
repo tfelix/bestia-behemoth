@@ -57,7 +57,7 @@ class ActivateBestiaActor(
       val componentAddEnvelope = ComponentEnvelope(MetadataComponent::class.java, updateMsg)
       val entityActiveEnvelope = EntityEnvelope(msg.entityId, componentAddEnvelope)
 
-      LOG.debug { "Activated player Bestia from accId: ${msg.accountId}, entityId: ${msg.entityId}" }
+      LOG.debug { "Activated Player Bestia from accId: ${msg.accountId}, entityId: ${msg.entityId}" }
       messageApi.send(entityActiveEnvelope)
     }
   }

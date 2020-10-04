@@ -8,9 +8,9 @@ import akka.io.TcpMessage
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
 import net.bestia.zoneserver.actor.Actor
-import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
+import net.bestia.zoneserver.actor.client.ClientDisconnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
 import net.bestia.zoneserver.messages.MessageConvertException
 import net.bestia.zoneserver.messages.MessageConverterService
@@ -34,7 +34,6 @@ private val LOG = KotlinLogging.logger { }
 @Actor
 final class SocketActor(
     private val connection: ActorRef,
-    @Qualifier(AUTH_CHECK)
     private val authenticationCheckActor: ActorRef,
     @Qualifier(CLIENT_MESSAGE_ROUTER)
     private val messageRouter: ActorRef,
@@ -43,20 +42,13 @@ final class SocketActor(
 
   private val buffer = ByteBuffer.allocate(MAX_MESSAGE_SIZE)
   private var nextPackageSize: Int = 0
+  private var connectedAccountId = 0L
 
   private lateinit var clusterClientConnectionManager: ActorRef
-
-  private val authenticatedSocket: Receive
 
   init {
     // Stop this actor if the client closes the socket.
     context.watch(connection)
-
-    authenticatedSocket = receiveBuilder()
-        .match(Tcp.Received::class.java, this::receiveClientMessage)
-        .match(AccountMessage::class.java, this::sendToClient)
-        .match(ConnectionClosed::class.java) { context.stop(self) }
-        .build()
   }
 
   override fun preStart() {
@@ -74,6 +66,7 @@ final class SocketActor(
   private fun authenticated(): Receive {
     return receiveBuilder()
         .match(Tcp.Received::class.java, this::onClientMessage)
+        .match(AccountMessage::class.java, this::sendToClient)
         .match(ConnectionClosed::class.java) { context.stop(self) }
         .build()
   }
@@ -82,7 +75,8 @@ final class SocketActor(
     when (msg.response) {
       LoginResponse.SUCCESS -> {
         context.become(authenticated())
-        announceNewClientConnection(msg.accountId)
+        connectedAccountId = msg.accountId
+        announceClientConnected(msg.accountId)
       }
       LoginResponse.UNAUTHORIZED, LoginResponse.NO_LOGINS_ALLOWED -> {
         LOG.info { "Client send invalid login or server does not allow login: $msg. Disconnecting client." }
@@ -140,7 +134,7 @@ final class SocketActor(
       }
     }
 
-    LOG.debug { "Current buffer size: ${buffer.position()} bytes, next message size: $nextPackageSize bytes" }
+    LOG.debug { "Current buffer size: ${buffer.position()} bytes, next message size (header:payload): ${Int.SIZE_BYTES}:$nextPackageSize bytes" }
 
     if (buffer.position() < nextPackageSize) {
       return null
@@ -158,11 +152,22 @@ final class SocketActor(
   }
 
   override fun postStop() {
-    super.postStop()
     connection.tell(TcpMessage.close(), self)
+    announceClientDisconnected()
   }
 
-  private fun announceNewClientConnection(accountId: Long) {
+  private fun announceClientDisconnected() {
+    if (connectedAccountId == 0L) {
+      return
+    }
+    val event = ClientDisconnectedEvent(
+        accountId = connectedAccountId
+    )
+
+    clusterClientConnectionManager.tell(event, self)
+  }
+
+  private fun announceClientConnected(accountId: Long) {
     val event = ClientConnectedEvent(
         accountId = accountId,
         socketActor = self
@@ -179,12 +184,6 @@ final class SocketActor(
     LOG.info { "Send: $msg" }
     val output = messageConverter.convertToPayload(msg)
     connection.tell(output.toTcpMessage(), self)
-  }
-
-  private fun receiveClientMessage(msg: Tcp.Received) {
-    extractMessageBytes(msg)?.let {
-      LOG.trace { "Received: $it" }
-    }
   }
 
   companion object {

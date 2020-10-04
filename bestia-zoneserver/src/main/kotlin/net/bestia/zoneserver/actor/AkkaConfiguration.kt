@@ -13,9 +13,6 @@ import akka.management.javadsl.AkkaManagement
 import com.typesafe.config.ConfigFactory
 import mu.KotlinLogging
 import net.bestia.zoneserver.ShardActorNames
-import net.bestia.zoneserver.account.AuthenticationService
-import net.bestia.zoneserver.account.PlayerEntitySetupService
-import net.bestia.zoneserver.actor.BQualifier.AUTH_CHECK
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_FORWARDER
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.BQualifier.ENTITY_FORWARDER
@@ -32,7 +29,6 @@ import net.bestia.zoneserver.actor.entity.EntityActor
 import net.bestia.zoneserver.actor.entity.EntityShardMessageExtractor
 import net.bestia.zoneserver.actor.entity.SendToEntityActor
 import net.bestia.zoneserver.actor.routing.SystemRoutingActor
-import net.bestia.zoneserver.actor.socket.AuthenticationCheckActor
 import net.bestia.zoneserver.actor.socket.SocketServerActor
 import net.bestia.zoneserver.config.ZoneserverNodeConfig
 import org.springframework.beans.factory.annotation.Qualifier
@@ -117,20 +113,8 @@ class AkkaConfiguration {
   }
 
   @Bean
-  @Qualifier(AUTH_CHECK)
-  fun authenticationCheckActor(
-      system: ActorSystem,
-      authenticationService: AuthenticationService,
-      setupService: PlayerEntitySetupService
-  ): ActorRef {
-    val props = AuthenticationCheckActor.props(authenticationService)
-
-    return system.actorOf(props, "authCheck")
-  }
-
-  @Bean
   @Qualifier(CLIENT_MESSAGE_ROUTER)
-  fun clientMessageRouterActor(system: ActorSystem): ActorRef  {
+  fun clientMessageRouterActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, ClientMessageRoutingActor::class.java)
   }
 
@@ -140,18 +124,28 @@ class AkkaConfiguration {
     return SpringExtension.actorOf(system, SystemRoutingActor::class.java)
   }
 
+  /**
+   * Sends messages specific to entity actors.I
+   */
   @Bean
   @Qualifier(ENTITY_FORWARDER)
   fun entityRouterActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, SendToEntityActor::class.java)
   }
 
+  /**
+   * Sends messages to a connected client.
+   */
   @Bean
   @Qualifier(CLIENT_FORWARDER)
   fun clientRouterActor(system: ActorSystem): ActorRef {
     return SpringExtension.actorOf(system, SendToClientActor::class.java)
   }
 
+  /**
+   * Enables access and interaction with the runtime configuration.
+   * The runtime config is replicated between the cluster.
+   */
   @Bean
   @Qualifier(RUNTIME_CONFIG)
   fun runtimeConfigActor(system: ActorSystem): ActorRef {

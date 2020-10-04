@@ -33,6 +33,8 @@ class ChatActor(
   }
 
   private fun onChatMessage(chat: ChatRequest) {
+    LOG.trace { "Received: $chat" }
+
     if (chatCmdService.isChatCommand(chat.text)) {
       chatCmdService.executeChatCommand(chat.accountId, chat.text)
       return

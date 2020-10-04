@@ -7,8 +7,8 @@ option java_package = "net.bestia.messages.proto";
 option java_outer_classname = "AccountProtos";
 
 message AuthRequest {
-  int64 account_id = 1;
-  string token = 2;
+    int64 account_id = 1;
+    string token = 2;
 }
 
 enum LoginStatus {
@@ -22,13 +22,21 @@ message AuthResponse {
     LoginStatus login_status = 2;
 }
 
+message ClientInfoRequest {
+    // no op
+}
+
+message ClientInfoResponse {
+    uint32 bestia_slot_count = 1;
+    uint64 master_entity_id = 2;
+    repeated uint64 owned_bestia_entity_ids = 3;
+}
+
 message AccountVarRequest {
-    Account account = 1;
-    string key = 2;
+    string key = 1;
 }
 
 message AccountVarResponse {
-    Account account = 1;
-    string key = 2;
-    string value = 3;
+    string key = 1;
+    string value = 2;
 }

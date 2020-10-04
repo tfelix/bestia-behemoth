@@ -7,7 +7,7 @@ import net.bestia.model.bestia.BestiaRepository
 import net.bestia.model.bestia.BestiaType
 
 object BestiaFixture {
-  fun createBestia(bestiaRepository: BestiaRepository): Bestia {
+  fun createBestia(bestiaRepository: BestiaRepository? = null): Bestia {
     return Bestia(
         databaseName = "testBestia",
         defaultName = "Test",
@@ -17,6 +17,6 @@ object BestiaFixture {
         type = BestiaType.DEMI_HUMAN,
         level = 10,
         baseValues = BaseValues.NULL_VALUES
-    ).also { bestiaRepository.save(it) }
+    ).also { bestiaRepository?.save(it) }
   }
 }

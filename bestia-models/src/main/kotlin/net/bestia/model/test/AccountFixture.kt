@@ -18,7 +18,10 @@ object AccountFixture {
         username = username,
         registerDate = registeredOn,
         gender = Gender.MALE,
-        hairstyle = Hairstyle.MALE_01
-    ).also { accountRepository?.save(it) }
+        hairstyle = Hairstyle.MALE_01,
+        isActivated = true
+    ).apply {
+      masterBestia = PlayerBestiaFixture.createPlayerBestia(this)
+    }.also { accountRepository?.save(it) }
   }
 }

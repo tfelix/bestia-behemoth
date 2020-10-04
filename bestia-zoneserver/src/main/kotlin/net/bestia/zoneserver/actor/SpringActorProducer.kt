@@ -57,7 +57,6 @@ internal class SpringActorProducer(
     @Throws(ClassNotFoundException::class)
     get() {
       val ctors = actorBeanClass.constructors
-
       val availableArgsClasses = args
           .asSequence()
           .map { it!!.javaClass }
@@ -75,12 +74,25 @@ internal class SpringActorProducer(
           .map { boxPrimitiveClass(it) }
           .toList()
 
+      // We need a modifiable params list where we can remove the params we have found as provided
+      // argument so we can inject multiples of the same type.
+      val tempNeededParams = neededParams.toMutableList<Class<*>?>()
       val beanParams = neededParams.toMutableList<Class<*>?>()
 
+      // Stuff in the params we need to inject.
       availableArgsClasses.forEachIndexed { _, availCls ->
-        val idx = neededParams.indexOfFirst { it.isAssignableFrom(availCls) }
+        var idx = -1
+        for ((i, neededParam) in tempNeededParams.withIndex()) {
+          if (neededParam != null && neededParam.isAssignableFrom(availCls)) {
+            idx = i
+            break
+          }
+        }
+
         if (idx != -1) {
           beanParams[idx] = null
+          // null it out so in case we have multiples of the
+          tempNeededParams[idx] = null
         }
       }
 
