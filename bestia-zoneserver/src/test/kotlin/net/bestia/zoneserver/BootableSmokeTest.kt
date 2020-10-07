@@ -1,5 +1,6 @@
 package net.bestia.zoneserver
 
+import net.bestia.messages.proto.AccountProtos
 import net.bestia.messages.proto.ChatProtos
 import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.account.LoginCheck
@@ -22,6 +23,24 @@ class BootableSmokeTest {
           .setText("Hello World1234")
           .build()
   ).build().toByteArray()
+
+  private val clientVarRequestSetValue = MessageProtos.Wrapper.newBuilder().setClientVarRequest(
+      AccountProtos.ClientVarRequest.newBuilder()
+          .setKey("testkey")
+          .setValueToSet("newvalue")
+          .build()
+  ).build().toByteArray()
+
+  private val clientVarRequestValue = MessageProtos.Wrapper.newBuilder().setClientVarRequest(
+      AccountProtos.ClientVarRequest.newBuilder()
+          .setKey("testkey")
+          .build()
+  ).build().toByteArray()
+
+  private val clientInfoRequest = MessageProtos.Wrapper.newBuilder().setClientInfoRequest(
+      AccountProtos.ClientInfoRequest.newBuilder().build()
+  ).build().toByteArray()
+
 
   private class AllAuthenticatingLoginService : LoginCheck {
     override fun isLoginAllowedForAccount(accountId: Long, token: String): LoginResponse {
@@ -46,12 +65,22 @@ class BootableSmokeTest {
     // Request and check for bestia overview message
 
     // Send chat message
-    socket.send(chatPayload)
-    val response = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
-    Assert.assertNotNull(response)
+    // socket.send(chatPayload)
+    // val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+    // Assert.assertNotNull(resp1)
 
     // Set and request client vars
+    socket.send(clientVarRequestSetValue)
+    val resp2 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+    Assert.assertNotNull(resp2)
+    socket.send(clientVarRequestValue)
+    val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+    Assert.assertNotNull(resp3)
 
+    // Send client info request
+    socket.send(clientInfoRequest)
+    val resp4 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
+    println(resp4)
     // Move player bestia and await component updates
 
     // Logout

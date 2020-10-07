@@ -14,10 +14,12 @@ message Wrapper {
         // SYSTEM & ACCOUNT
         AuthRequest auth_request = 1;
         AuthResponse auth_response = 2;
-        AccountVarRequest account_var_request = 3;
-        AccountVarResponse account_var_response = 4;
+        ClientVarRequest client_var_request = 3;
+        ClientVarResponse client_var_response = 4;
         ChatRequest chat_request = 5;
         ChatResponse chat_response = 6;
+        ClientInfoRequest client_info_request = 7;
+        ClientInfoResponse client_info_response = 8;
 
         // INVENTORY
         UseItem cmd_use_item = 100;

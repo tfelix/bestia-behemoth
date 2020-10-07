@@ -10,7 +10,7 @@ logging:
     net.bestia: DEBUG
     de.tfelix.bestia: DEBUG
     net.bestia.entity.EntityService: INFO
-    net.bestia.zoneserver.actor.routing: TRACE
+    net.bestia.zoneserver.actor: TRACE
     net.bestia.zoneserver.messages: TRACE
 
 # ===============================

@@ -4,11 +4,14 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import akka.cluster.singleton.ClusterSingletonProxy
 import akka.cluster.singleton.ClusterSingletonProxySettings
-import akka.persistence.AbstractPersistentActor
-import akka.persistence.SaveSnapshotSuccess
-import akka.persistence.SnapshotOffer
+import akka.persistence.*
+import mu.KotlinLogging
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BSerializable
+import scala.Option
+import java.io.InvalidClassException
+
+private val LOG = KotlinLogging.logger { }
 
 data class ClientConnectedEvent(
     val accountId: Long,
@@ -27,6 +30,7 @@ data class ClientSocketRequest(
 
 data class ClientSocketResponse(
     val accountId: Long,
+    val originalMessage: Any,
     val originalSender: ActorRef,
     val socketActor: ActorRef?
 ) : BSerializable
@@ -55,6 +59,19 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
         }.build()
   }
 
+  override fun recovery(): Recovery {
+    return Recovery.none()
+  }
+
+  override fun onRecoveryFailure(cause: Throwable, event: Option<Any>) {
+    if (cause is InvalidClassException) {
+      LOG.warn(cause) { "Class was probably changed and can not be recovered. Trying to recover by deleting journal." }
+      deleteSnapshots(SnapshotSelectionCriteria.latest())
+      return
+    }
+    super.onRecoveryFailure(cause, event)
+  }
+
   /**
    * Make sure this manager is a singelton so we can actually use its name as the persistence id.
    */
@@ -72,22 +89,29 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
   }
 
   private fun onSnapshotSuccess(msg: SaveSnapshotSuccess) {
+    LOG.trace { "Received: $msg" }
+
     val meta = msg.metadata()
     deleteMessages(meta.sequenceNr())
     // TODO Delete upon a special sequence number
   }
 
   private fun requestClientSocket(msg: ClientSocketRequest) {
+    LOG.trace { "Received: $msg" }
+
     val response = ClientSocketResponse(
         accountId = msg.accountId,
         socketActor = connections[msg.accountId],
-        originalSender = msg.originalSender
+        originalSender = msg.originalSender,
+        originalMessage = msg.originalMessage
     )
 
     sender.tell(response, self)
   }
 
   private fun addClientConnection(msg: ClientConnectedEvent) {
+    LOG.trace { "Received: $msg" }
+
     persist(msg) {
       connections[msg.accountId]?.let { existingSocketActor ->
         if (existingSocketActor != msg.socketActor) {
@@ -100,6 +124,8 @@ class ClusterClientConnectionManagerActor : AbstractPersistentActor() {
   }
 
   private fun removeClientConnection(msg: ClientDisconnectedEvent) {
+    LOG.trace { "Received: $msg" }
+
     persist(msg) {
       connections.remove(msg.accountId)
       updateCount++

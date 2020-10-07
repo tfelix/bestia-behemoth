@@ -32,11 +32,12 @@ message ClientInfoResponse {
     repeated uint64 owned_bestia_entity_ids = 3;
 }
 
-message AccountVarRequest {
+message ClientVarRequest {
     string key = 1;
+    string value_to_set = 2;
 }
 
-message AccountVarResponse {
+message ClientVarResponse {
     string key = 1;
     string value = 2;
 }

@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.client
 
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.whenever
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountRepository
@@ -28,19 +29,33 @@ class ClientVarServiceTest {
   @Mock
   private lateinit var account: Account
 
+  private lateinit var notOwnedCvar: ClientVar
+
   @Mock
-  private lateinit var existingCvar: ClientVar
+  private lateinit var ownedCvar: ClientVar
 
   private lateinit var cvarService: ClientVarService
 
   @BeforeEach
   fun setup() {
+    notOwnedCvar = ClientVar(
+        account = account,
+        key = EXISTING_KEY
+    ).apply { setData("test") }
+
     cvarService = ClientVarService(cvarDao, accDao)
   }
 
   @Test
   fun isOwnerOfVar_nonOwnerAccId_false() {
+    whenever(cvarDao.findByKey(eq(EXISTING_KEY))).thenReturn(null)
     assertFalse(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
+  }
+
+  @Test
+  fun isOwnerOfVar_notExistingKey_true() {
+    whenever(cvarDao.findByKey(eq(NOT_EXISTING_KEY))).thenReturn(null)
+    assertTrue(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, NOT_EXISTING_KEY))
   }
 
   @Test
@@ -50,7 +65,7 @@ class ClientVarServiceTest {
 
   @Test
   fun isOwnerOfVar_owningAccId_true() {
-    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar)
+    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(notOwnedCvar)
 
     assertTrue(cvarService.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
   }
@@ -85,7 +100,7 @@ class ClientVarServiceTest {
 
   @Test
   fun set_existingAccountExistingDataAndKey_works() {
-    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)).thenReturn(existingCvar)
+    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)).thenReturn(ownedCvar)
 
     cvarService[EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
 

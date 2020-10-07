@@ -9,6 +9,8 @@ import net.bestia.model.account.ClientVar
 @Repository
 interface ClientVarRepository : CrudRepository<ClientVar, Long> {
 
+  fun findByKey(key: String): ClientVar?
+
   /**
    * Searches for a client variable.
    *

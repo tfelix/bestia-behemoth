@@ -11,6 +11,7 @@ import net.bestia.zoneserver.entity.component.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
+import javax.transaction.Transactional
 
 private val LOG = KotlinLogging.logger { }
 
@@ -20,6 +21,7 @@ private val LOG = KotlinLogging.logger { }
  * @author Thomas Felix
  */
 @Service
+@Transactional
 class PlayerEntityService(
     private val playerBestiaRepository: PlayerBestiaRepository,
     private val accountRepository: AccountRepository

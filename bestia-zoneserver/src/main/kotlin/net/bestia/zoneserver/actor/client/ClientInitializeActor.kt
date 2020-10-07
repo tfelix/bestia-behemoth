@@ -19,7 +19,11 @@ data class ClientInfoRequest(
 
 data class ClientInfoResponse(
     val bestiaSlotCount: Int,
-    val masterBestiaEntityId: Long,
+    /**
+     * Master can be null, the client must then first start to create
+     * a account.
+     */
+    val masterBestiaEntityId: Long?,
     val ownedBestiaEntityIds: List<Long>
 )
 
@@ -54,6 +58,11 @@ class ClientInitializeActor(
 
   private fun requestClientInfo(msg: ClientInfoRequest) {
     LOG.trace { "Received: $msg" }
+
+    val clientInfo = playerEntityService.getClientInfo(msg.accountId)
+    val clientMsg = ClientEnvelope(msg.accountId, clientInfo)
+
+    clientForwarder.tell(clientMsg, self)
   }
 
   companion object {

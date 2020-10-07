@@ -3,12 +3,9 @@ package net.bestia.model.account
 import net.bestia.model.AbstractEntity
 import java.io.Serializable
 import java.nio.charset.Charset
-import java.util.Objects
 
 import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
 import javax.persistence.Index
 import javax.persistence.JoinColumn
 import javax.persistence.OneToOne

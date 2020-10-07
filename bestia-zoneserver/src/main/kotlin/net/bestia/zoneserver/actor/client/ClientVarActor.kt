@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.client
 
 import akka.actor.ActorRef
+import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.messages.ui.ClientVarRequest
 import net.bestia.messages.ui.ClientVarResponse
@@ -9,6 +10,8 @@ import net.bestia.zoneserver.account.ClientVarService
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
 import org.springframework.beans.factory.annotation.Qualifier
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * This actor manages the handling of shortcuts for saving them onto the server
@@ -33,6 +36,8 @@ class ClientVarActor(
    * @param msg The request.
    */
   private fun handleCvarRequest(msg: ClientVarRequest) {
+    LOG.trace { "Received: $msg" }
+
     val accId = msg.accountId
     val key = msg.key
 
@@ -40,8 +45,12 @@ class ClientVarActor(
       return
     }
 
+    if (msg.valueToSet != null) {
+      cvarService.set(accId, key, msg.valueToSet!!)
+    }
+
     val cvar = cvarService.find(accId, key)
-    val cvarMsg = ClientVarResponse(msg.uuid, cvar.getDataAsString())
+    val cvarMsg = ClientVarResponse(msg.key, cvar.getDataAsString())
     sendClientActor.tell(ClientEnvelope(accId, cvarMsg), self)
   }
 

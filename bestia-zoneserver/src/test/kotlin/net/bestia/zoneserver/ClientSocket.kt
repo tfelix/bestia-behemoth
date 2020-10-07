@@ -78,8 +78,9 @@ class ClientSocket(
     @Suppress("UNCHECKED_CAST")
     return when (messageType) {
       MessageProtos.Wrapper.PayloadCase.AUTH_RESPONSE -> wrapper.authResponse
-      MessageProtos.Wrapper.PayloadCase.ACCOUNT_VAR_RESPONSE -> wrapper.accountVarResponse
+      MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE -> wrapper.clientVarResponse
       MessageProtos.Wrapper.PayloadCase.COMP_POSITION -> wrapper.compPosition
+      MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE -> wrapper.clientInfoResponse
       else -> error("No matching packet found for $messageType")
     } as T
   }

@@ -7,6 +7,7 @@ import akka.io.Tcp.ConnectionClosed
 import akka.io.TcpMessage
 import mu.KotlinLogging
 import net.bestia.messages.AccountMessage
+import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
@@ -181,8 +182,16 @@ final class SocketActor(
   }
 
   private fun sendToClient(msg: AccountMessage) {
-    LOG.info { "Send: $msg" }
-    val output = messageConverter.convertToPayload(msg)
+    LOG.trace { "Received: $msg" }
+
+    // TODO Saftey check account id here from the message
+
+    val rawMessage = when(msg) {
+      is ClientEnvelope -> msg.content
+      else -> msg
+    }
+
+    val output = messageConverter.convertToPayload(rawMessage)
     connection.tell(output.toTcpMessage(), self)
   }
 

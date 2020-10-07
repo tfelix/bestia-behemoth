@@ -32,7 +32,9 @@ constructor(
    * @return TRUE if the account owns this variable. FALSE otherwise.
    */
   fun isOwnerOfVar(accId: Long, key: String): Boolean {
-    return cvarDao.findByKeyAndAccountId(key, accId) !== null
+    val data = cvarDao.findByKey(key)
+        ?: return true
+    return data.account.id == accId
   }
 
   /**
@@ -89,6 +91,7 @@ constructor(
    * The data payload.
    */
   operator fun set(accountId: Long, key: String, data: String) {
+    LOG.debug { "Set for accId: $accountId, key: $key -> $data" }
     if (data.length > MAX_DATA_ENTRY_LENGTH_BYTES) {
       val errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_ENTRY_LENGTH_BYTES)
       throw IllegalArgumentException(errMsg)

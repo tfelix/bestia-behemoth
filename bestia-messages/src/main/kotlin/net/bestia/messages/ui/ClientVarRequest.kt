@@ -11,5 +11,5 @@ import net.bestia.messages.AccountMessage
 data class ClientVarRequest(
     override val accountId: Long,
     val key: String,
-    var uuid: String
+    val valueToSet: String? = null
 ) : AccountMessage
