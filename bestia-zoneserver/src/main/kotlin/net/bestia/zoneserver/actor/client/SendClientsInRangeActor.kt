@@ -50,6 +50,8 @@ class SendClientsInRangeActor(
    * be better idea anyways.
    */
   private fun handleSendToActiveInRange(msg: SendInRange) {
+    LOG.trace { "Received: $msg" }
+
     val posComp = msg.entity.tryGetComponent(PositionComponent::class.java)
         ?: run {
           LOG.warn { "Position component of entity in message $msg not present. Can not send range update." }

@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity
 
 import akka.actor.ActorRef
 import akka.actor.ActorRefFactory
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.AwaitResponseActor
 import net.bestia.zoneserver.actor.Responses
 import net.bestia.zoneserver.actor.routing.MessageApi
@@ -14,6 +15,16 @@ import java.util.*
 object EntityDoesNotExist
 
 data class EntityRequest(
+    override val entityId: Long,
+    val replyTo: ActorRef,
+    val context: Any? = null
+) : EntityMessage
+
+/**
+ * Is send directly to the entity from one of its child.
+ * The entity ID can therefore be omitted.
+ */
+data class LocalEntityRequest(
     val replyTo: ActorRef,
     val context: Any? = null
 )
@@ -49,7 +60,6 @@ fun awaitEntityResponse(
   }
   val props = AwaitResponseActor.props(checkResponseReceived = hasReceivedAll, action = transformResponse)
   val requestActor = ctx.actorOf(props, "awaitrespo-entity-${UUID.randomUUID()}")
-  val requestMsg = EntityRequest(requestActor)
 
-  entitiyIds.forEach { entityId -> messageApi.send(EntityEnvelope(entityId, requestMsg)) }
+  entitiyIds.forEach { entityId -> messageApi.send(EntityRequest(entityId, requestActor)) }
 }

@@ -3,15 +3,27 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.SpringExtension
+import net.bestia.zoneserver.actor.entity.DeleteComponent
 import net.bestia.zoneserver.actor.entity.EntityRequestingActor
-import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
+import net.bestia.zoneserver.actor.entity.SaveAndKillEntity
 import net.bestia.zoneserver.actor.entity.SubscribeForComponentUpdates
 import net.bestia.zoneserver.actor.entity.transmit.TransmitRequest
 import net.bestia.zoneserver.actor.entity.transmit.ClientComponentTransmitActor
 import net.bestia.zoneserver.entity.component.Component
 
 private val LOG = KotlinLogging.logger { }
+
+data class UpdateComponent<T : Component>(
+    val component: T
+) : EntityMessage, ComponentMessage<T> {
+  override val entityId: Long
+    get() = component.entityId
+
+  override val componentType: Class<out T>
+    get() = component.javaClass
+}
 
 abstract class ComponentActor<T : Component>(
     component: T
@@ -28,6 +40,8 @@ abstract class ComponentActor<T : Component>(
       notifyComponentChanged(oldComponent, value)
     }
 
+  protected val entityId: Long get() = component.entityId
+
   final override fun createReceive(): Receive {
     val builder = receiveBuilder()
     createReceive(builder)
@@ -35,7 +49,7 @@ abstract class ComponentActor<T : Component>(
     builder
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdate)
         .match(ComponentRequest::class.java, this::sendComponent)
-        .match(SaveAndKillEntityCommand::class.java) { onSave() }
+        .match(SaveAndKillEntity::class.java) { onSave() }
         .match(component.javaClass) { component = it }
 
     return builder.build()
@@ -69,6 +83,21 @@ abstract class ComponentActor<T : Component>(
   }
 
   protected open fun onComponentChanged(oldComponent: T, newComponent: T) {}
+
+  /**
+   * Deletes this component from the entity. The actor is then stopped by the parent.
+   */
+  protected fun deleteSelf() {
+    LOG.trace { "DeleteSelf component ${component.javaClass.simpleName}" }
+    context.parent.tell(DeleteComponent(component.entityId, component::class.java), self)
+  }
+
+  /**
+   * Deletes this component from the entity. The actor is then stopped by the parent.
+   */
+  protected fun deleteComponent(componentClass: Class<out Component>) {
+    context.parent.tell(DeleteComponent(component.entityId, componentClass), self)
+  }
 
   /**
    * Actor should save the component to a persistent storage because the actor is getting killed

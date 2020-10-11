@@ -7,6 +7,10 @@ plugins {
 
 description = 'bestia-zoneserver'
 
+springBoot {
+    buildInfo()
+}
+
 dependencies {
     implementation project(':bestia-messages')
     implementation project(':bestia-proto-messages')
@@ -56,7 +60,7 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     testImplementation group: 'com.nhaarman.mockitokotlin2', name: 'mockito-kotlin', version: '2.1.0'
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.23.4'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+    testApi group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.12', version: '0.92'
     testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {

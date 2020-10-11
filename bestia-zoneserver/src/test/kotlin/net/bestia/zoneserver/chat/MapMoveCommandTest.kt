@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.check
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.model.account.Account
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
+import net.bestia.zoneserver.actor.entity.component.UpdateComponent
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.PlayerEntityService
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -62,15 +62,11 @@ class MapMoveCommandTest {
     })
 
     cmd.executeCommand(acc, "/mm 100000 11")
-    verify(akkaApi).send(any<EntityEnvelope>())
+    verify(akkaApi).send(any<UpdateComponent<*>>())
   }
 
   @Test
   fun executeCommand_entityWithNoPositionComp_doesNothing() {
     cmd.executeCommand(acc, "/mm 10 11")
-  }
-
-  companion object {
-    private const val ACC_ID: Long = 123
   }
 }

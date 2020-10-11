@@ -42,34 +42,14 @@ class PlayerBestiaDAOTest {
   @Test
   fun findPlayerBestiasForAccount_unknownAcc_null() {
     setupDatabase()
-    val bestias = playerRepo.findPlayerBestiasForAccount(1337)
+    val bestias = playerRepo.findAllByOwnerId(1337)
     assertTrue(bestias.isEmpty())
   }
 
   @Test
   fun findPlayerBestiasForAccount_knownAcc_bestias() {
     setupDatabase()
-    val bestias = playerRepo.findPlayerBestiasForAccount(1337)
+    val bestias = playerRepo.findAllByOwnerId(1337)
     assertTrue(bestias.size == 0)
-  }
-
-  @Test
-  fun findMasterBestiaWithName_knownName_bestia() {
-    setupDatabase()
-    val pb = playerRepo.findMasterBestiaWithName(BESTIA_NAME)
-
-    assertNotNull(pb)
-  }
-
-  @Test
-  fun findMasterBestiaWithName_unknownName_null() {
-    setupDatabase()
-    val pb = playerRepo.findMasterBestiaWithName(BESTIA_UNKNOWN_NAME)
-    assertNull(pb)
-  }
-
-  companion object {
-    private const val BESTIA_NAME = "test"
-    private const val BESTIA_UNKNOWN_NAME = "blablitest"
   }
 }

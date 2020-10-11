@@ -5,8 +5,8 @@ import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
+import net.bestia.zoneserver.actor.entity.NewEntity
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
-import net.bestia.zoneserver.entity.PlayerEntityService
 import org.springframework.beans.factory.annotation.Qualifier
 
 data class InitializeClient(
@@ -31,12 +31,16 @@ private val LOG = KotlinLogging.logger { }
 
 /**
  * Initializes a client connection if a client has newly connected.
+ * Is also responsible for setting up the player entities.
  */
 @Actor
-class ClientInitializeActor(
-    private val playerEntityService: PlayerEntityService,
+class ClientInitActor(
+    private val clientInitService: ClientInitService,
+    private val clientInfoService: ClientInfoService,
     @Qualifier(BQualifier.CLIENT_FORWARDER)
-    private val clientForwarder: ActorRef
+    private val clientForwarder: ActorRef,
+    @Qualifier(BQualifier.ENTITY_FORWARDER)
+    private val entityForwarder: ActorRef
 ) : DynamicMessageRoutingActor() {
 
   override fun createReceive(builder: BuilderFacade) {
@@ -47,10 +51,16 @@ class ClientInitializeActor(
 
   private fun initializeClient(msg: InitializeClient) {
     LOG.trace { "Received: $msg" }
-    playerEntityService.setDefaultActivePlayerBestia(msg.accountId)
+    val initResult = clientInitService.setupDefaultActivePlayerBestia(msg.accountId)
 
-    // TODO possibly spawn entities?
-    val clientInfo = playerEntityService.getClientInfo(msg.accountId)
+    if (initResult is InitResultNewEntity) {
+      entityForwarder.tell(
+          NewEntity(initResult.spawnedActiveEntity),
+          self
+      )
+    }
+
+    val clientInfo = clientInfoService.getClientInfo(msg.accountId)
     val clientMsg = ClientEnvelope(msg.accountId, clientInfo)
 
     clientForwarder.tell(clientMsg, self)
@@ -59,7 +69,7 @@ class ClientInitializeActor(
   private fun requestClientInfo(msg: ClientInfoRequest) {
     LOG.trace { "Received: $msg" }
 
-    val clientInfo = playerEntityService.getClientInfo(msg.accountId)
+    val clientInfo = clientInfoService.getClientInfo(msg.accountId)
     val clientMsg = ClientEnvelope(msg.accountId, clientInfo)
 
     clientForwarder.tell(clientMsg, self)

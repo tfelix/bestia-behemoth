@@ -7,6 +7,7 @@ import java.io.Closeable
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
+import java.net.SocketException
 import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.concurrent.LinkedBlockingQueue
@@ -34,15 +35,21 @@ class ClientSocket(
     }
 
     private fun receivePacket(): ByteArray? {
-      if (dIn.available() <= 4) {
+      try {
+        if (dIn.available() <= 4) {
+          return null
+        }
+
+        val packetSize = dIn.readInt()
+        val buffer = ByteArray(packetSize)
+        dIn.readFully(buffer)
+
+        return buffer
+      } catch (e: SocketException) {
+        // socket was closed. abort.
+        isRunning = false
         return null
       }
-
-      val packetSize = dIn.readInt()
-      val buffer = ByteArray(packetSize)
-      dIn.readFully(buffer)
-
-      return buffer
     }
   }
 
@@ -89,9 +96,9 @@ class ClientSocket(
     if (!isConnected) {
       return
     }
+    receiverThread.isRunning = false
     dOut.close()
     socket.close()
-    receiverThread.isRunning = false
   }
 
   fun connect() {

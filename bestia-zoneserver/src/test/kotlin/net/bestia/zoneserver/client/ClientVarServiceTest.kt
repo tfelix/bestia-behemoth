@@ -48,7 +48,7 @@ class ClientVarServiceTest {
 
   @Test
   fun isOwnerOfVar_nonOwnerAccId_false() {
-    whenever(cvarDao.findByKey(eq(EXISTING_KEY))).thenReturn(null)
+    whenever(cvarDao.findByKey(eq(EXISTING_KEY))).thenReturn(notOwnedCvar)
     assertFalse(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, EXISTING_KEY))
   }
 
@@ -56,11 +56,6 @@ class ClientVarServiceTest {
   fun isOwnerOfVar_notExistingKey_true() {
     whenever(cvarDao.findByKey(eq(NOT_EXISTING_KEY))).thenReturn(null)
     assertTrue(cvarService.isOwnerOfVar(NON_OWNING_ACC_ID, NOT_EXISTING_KEY))
-  }
-
-  @Test
-  fun isOwnerOfVar_notExistingAccId_false() {
-    assertFalse(cvarService.isOwnerOfVar(NOT_EXISTING_ACC, EXISTING_KEY))
   }
 
   @Test
@@ -72,7 +67,7 @@ class ClientVarServiceTest {
 
   @Test
   fun delete_existingAccId_deletes() {
-    cvarService.delete(EXISTING_ACC_ID, EXISTING_KEY)
+    cvarService.deleteCvar(EXISTING_ACC_ID, EXISTING_KEY)
 
     verify(cvarDao).deleteByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
   }
@@ -87,14 +82,14 @@ class ClientVarServiceTest {
   @Test
   fun set_longData_throws() {
     assertThrows(IllegalArgumentException::class.java) {
-      cvarService[EXISTING_ACC_ID, EXISTING_KEY] = LONG_DATA_STR
+      cvarService.setCvar(EXISTING_ACC_ID, EXISTING_KEY, LONG_DATA_STR)
     }
   }
 
   @Test
   fun set_nonExistingAccountExistingDataAndKey_throws() {
     assertThrows(IllegalArgumentException::class.java) {
-      cvarService[NOT_EXISTING_ACC, EXISTING_KEY] = DATA_STR
+      cvarService.setCvar(NOT_EXISTING_ACC, EXISTING_KEY, DATA_STR)
     }
   }
 
@@ -102,7 +97,7 @@ class ClientVarServiceTest {
   fun set_existingAccountExistingDataAndKey_works() {
     whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)).thenReturn(ownedCvar)
 
-    cvarService[EXISTING_ACC_ID, EXISTING_KEY] = DATA_STR
+    cvarService.setCvar(EXISTING_ACC_ID, EXISTING_KEY, DATA_STR)
 
     verify(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID)
     verify(cvarDao).save(any(ClientVar::class.java))
@@ -112,7 +107,7 @@ class ClientVarServiceTest {
   fun set_existingAccountNotExistingDataAndKey_works() {
     whenever(accDao.findById(EXISTING_ACC_ID)).thenReturn(Optional.of(account))
 
-    cvarService[EXISTING_ACC_ID, NOT_EXISTING_KEY] = DATA_STR
+    cvarService.setCvar(EXISTING_ACC_ID, NOT_EXISTING_KEY, DATA_STR)
 
     verify(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID)
     verify(cvarDao).save(any(ClientVar::class.java))

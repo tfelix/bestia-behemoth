@@ -45,7 +45,7 @@ constructor(
    * @param key
    * The key of the cvar.
    */
-  fun delete(accId: Long, key: String) {
+  fun deleteCvar(accId: Long, key: String) {
     LOG.debug("Deleting cvar with accID: {} and key: {}.", accId, key)
     cvarDao.deleteByKeyAndAccountId(key, accId)
   }
@@ -69,7 +69,7 @@ constructor(
    * @param key A key.
    * @return The associated cvar variable.
    */
-  fun find(accId: Long, key: String): ClientVar {
+  fun findCvar(accId: Long, key: String): ClientVar {
     return tryFind(accId, key)
         ?: throw IllegalArgumentException("No cvar for account $accId with key: $key")
   }
@@ -90,17 +90,17 @@ constructor(
    * @param data
    * The data payload.
    */
-  operator fun set(accountId: Long, key: String, data: String) {
+  fun setCvar(accountId: Long, key: String, data: String) {
     LOG.debug { "Set for accId: $accountId, key: $key -> $data" }
-    if (data.length > MAX_DATA_ENTRY_LENGTH_BYTES) {
-      val errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_ENTRY_LENGTH_BYTES)
-      throw IllegalArgumentException(errMsg)
-    }
 
-    if (getTotalBytesUsedByAccount(accountId) + data.length >= MAX_DATA_LENGTH_TOTAL_BYTES) {
-      val errMsg = String.format("Max data stored can not be longer then %d bytes.",
-          MAX_DATA_LENGTH_TOTAL_BYTES)
-      throw IllegalArgumentException(errMsg)
+    require(data.isNotEmpty()) {
+      "Data can not be empty. Use delete() to delete cvars."
+    }
+    require(data.length < MAX_DATA_ENTRY_LENGTH_BYTES) {
+      "Data can not be longer then $MAX_DATA_ENTRY_LENGTH_BYTES bytes, was: ${data.length}."
+    }
+    require(getTotalBytesUsedByAccount(accountId) + data.length <= MAX_DATA_LENGTH_TOTAL_BYTES) {
+      "Max data stored can not be longer then $MAX_DATA_LENGTH_TOTAL_BYTES bytes."
     }
 
     var cvar: ClientVar? = tryFind(accountId, key)

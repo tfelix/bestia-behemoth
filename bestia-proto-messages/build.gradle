@@ -1,5 +1,5 @@
 plugins {
-    id 'com.google.protobuf' version '0.8.10'
+    id 'com.google.protobuf' version '0.8.13'
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
     id 'idea'
@@ -14,13 +14,13 @@ repositories {
 }
 
 dependencies {
-    api 'com.google.protobuf:protobuf-java:3.0.0'
+    api 'com.google.protobuf:protobuf-java:3.13.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
-        artifact = 'com.google.protobuf:protoc:3.0.0'
+        artifact = 'com.google.protobuf:protoc:3.13.0'
     }
 }

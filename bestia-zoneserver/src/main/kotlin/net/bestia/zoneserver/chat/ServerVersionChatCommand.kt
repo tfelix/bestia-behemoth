@@ -3,8 +3,10 @@ package net.bestia.zoneserver.chat
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.zoneserver.actor.routing.MessageApi
-import net.bestia.zoneserver.config.ZoneserverNodeConfig
+import org.springframework.boot.info.BuildProperties
 import org.springframework.stereotype.Component
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Sends the server version to the client.
@@ -14,14 +16,14 @@ import org.springframework.stereotype.Component
 @Component
 internal class ServerVersionChatCommand(
     msgApi: MessageApi,
-    private val config: ZoneserverNodeConfig
+    private val buildProperties: BuildProperties
 ) : BaseChatCommand(msgApi) {
 
   override val helpText: String
-    get() = "Usage: /server"
+    get() = "Usage: /serverinfo"
 
   override fun isCommand(text: String): Boolean {
-    return text.startsWith("/server ") || text == "/server"
+    return text.startsWith("/serverinfo ") || text == "/serverinfo"
   }
 
   override fun requiredUserLevel(): AccountType {
@@ -29,7 +31,8 @@ internal class ServerVersionChatCommand(
   }
 
   override fun executeCommand(account: Account, text: String) {
-    val replyText = "Bestia Behemoth Server: ${config.serverName} v.${config.serverVersion}"
+    val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date.from(buildProperties.time))
+    val replyText = "Bestia Behemoth Server: v.${buildProperties.version} ($dateStr)"
     sendSystemMessage(account.id, replyText)
   }
 }

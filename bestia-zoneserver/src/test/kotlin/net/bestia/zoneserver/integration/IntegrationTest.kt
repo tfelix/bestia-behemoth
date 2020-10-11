@@ -1,4 +1,4 @@
-package net.bestia.zoneserver
+package net.bestia.zoneserver.integration
 
 import org.junit.jupiter.api.Tag
 import org.springframework.boot.test.context.SpringBootTest

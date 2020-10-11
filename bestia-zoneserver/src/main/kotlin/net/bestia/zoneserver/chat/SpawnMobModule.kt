@@ -4,8 +4,8 @@ import mu.KotlinLogging
 import net.bestia.model.account.Account
 import net.bestia.model.account.AccountType
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.actor.entity.NewEntity
 import net.bestia.zoneserver.actor.routing.MessageApi
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.entity.factory.MobFactory
 
 import java.util.regex.Matcher
@@ -44,7 +44,7 @@ internal class SpawnMobModule(
     LOG.info { "Command: /spawn mob $mobName $x $y triggered by account ${account.id}" }
 
     val entity = mobFactory.build(mobName, Vec3(x, y, z))
-    messageApi.send(EntityEnvelope(entity.id, entity))
+    messageApi.send(NewEntity(entity))
   }
 
   companion object {

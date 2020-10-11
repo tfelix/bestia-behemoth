@@ -45,11 +45,11 @@ class ClientVarActor(
       return
     }
 
-    if (msg.valueToSet != null) {
-      cvarService.set(accId, key, msg.valueToSet!!)
+    if (!msg.valueToSet.isNullOrEmpty()) {
+      cvarService.setCvar(accId, key, msg.valueToSet!!)
     }
 
-    val cvar = cvarService.find(accId, key)
+    val cvar = cvarService.findCvar(accId, key)
     val cvarMsg = ClientVarResponse(msg.key, cvar.getDataAsString())
     sendClientActor.tell(ClientEnvelope(accId, cvarMsg), self)
   }

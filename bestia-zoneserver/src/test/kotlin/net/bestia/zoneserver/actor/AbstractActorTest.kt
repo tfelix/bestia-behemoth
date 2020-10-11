@@ -6,25 +6,21 @@ import akka.actor.ActorSystem
 import akka.testkit.TestActorRef
 import akka.testkit.TestProbe
 import akka.testkit.javadsl.TestKit
-import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.isA
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.zoneserver.TestZoneConfiguration
-import net.bestia.zoneserver.actor.client.ClientVarActor
-import net.bestia.zoneserver.actor.entity.EntityEnvelope
 import net.bestia.zoneserver.actor.entity.EntityRequest
 import net.bestia.zoneserver.actor.entity.EntityResponse
 import net.bestia.zoneserver.actor.routing.MessageApi
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.integration.TestZoneConfiguration
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
@@ -44,6 +40,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension as SpringJ
 abstract class AbstractActorTest(
     private val createMockedActors: Boolean = true
 ) {
+
+  protected class InjectedProbes(
+      private val probes: Map<String, TestProbe>
+  ) {
+
+    operator fun get(key: String): TestProbe {
+      return probes[key] ?: error("Probe $key was not injected")
+    }
+  }
 
   @Autowired
   protected lateinit var appCtx: ApplicationContext
@@ -79,11 +84,8 @@ abstract class AbstractActorTest(
   }
 
   protected fun whenAskedForEntity(entityId: Long, responseEntity: Entity) {
-    whenever(messageApi.send(argThat<EntityEnvelope> {
-      this.content is EntityRequest && this.entityId == entityId
-    })).doAnswer {
-      val envelope = it.getArgument(0) as EntityEnvelope
-      val request = envelope.content as EntityRequest
+    whenever(messageApi.send(isA<EntityRequest>())).doAnswer {
+      val request = it.getArgument(0) as EntityRequest
       val response = EntityResponse(responseEntity)
       request.replyTo.tell(response, ActorRef.noSender())
     }
@@ -95,7 +97,7 @@ abstract class AbstractActorTest(
   protected fun <T : AbstractActor> injectProbeMembers(
       actor: TestActorRef<T>,
       probes: List<String>
-  ): Map<String, TestProbe> {
+  ): InjectedProbes {
     val rawActor = actor.underlyingActor()
 
     val mappedProbed = probes.map { it to TestProbe(system) }.toMap()
@@ -106,7 +108,7 @@ abstract class AbstractActorTest(
       field.set(rawActor, probe.ref())
     }
 
-    return mappedProbed
+    return InjectedProbes(mappedProbed)
   }
 
   protected fun <T : AbstractActor> testActorOf(actorClass: KClass<T>, vararg args: Any): TestActorRef<T> {

@@ -13,6 +13,7 @@ import net.bestia.zoneserver.actor.BQualifier.CLIENT_MESSAGE_ROUTER
 import net.bestia.zoneserver.actor.client.ClientConnectedEvent
 import net.bestia.zoneserver.actor.client.ClientDisconnectedEvent
 import net.bestia.zoneserver.actor.client.ClusterClientConnectionManagerActor
+import net.bestia.zoneserver.actor.client.InitializeClient
 import net.bestia.zoneserver.messages.MessageConvertException
 import net.bestia.zoneserver.messages.MessageConverterService
 import org.springframework.beans.factory.annotation.Qualifier
@@ -161,10 +162,10 @@ final class SocketActor(
     if (connectedAccountId == 0L) {
       return
     }
+
     val event = ClientDisconnectedEvent(
         accountId = connectedAccountId
     )
-
     clusterClientConnectionManager.tell(event, self)
   }
 
@@ -173,8 +174,10 @@ final class SocketActor(
         accountId = accountId,
         socketActor = self
     )
-
     clusterClientConnectionManager.tell(event, self)
+
+    val initClient = InitializeClient(accountId)
+    messageRouter.tell(initClient, self)
   }
 
   private fun sendToClient(data: ByteArray) {
@@ -186,7 +189,7 @@ final class SocketActor(
 
     // TODO Saftey check account id here from the message
 
-    val rawMessage = when(msg) {
+    val rawMessage = when (msg) {
       is ClientEnvelope -> msg.content
       else -> msg
     }

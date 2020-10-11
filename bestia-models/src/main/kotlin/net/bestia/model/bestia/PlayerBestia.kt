@@ -33,12 +33,18 @@ data class PlayerBestia(
     var exp: Long = 0
 ) : AbstractEntity(), Serializable {
 
-  var name: String? = null
+  @Column(name = "name")
+  private var name_override: String? = null
+
+  var name: String
     get() {
       return when {
-        field.isNullOrEmpty() -> origin.defaultName
-        else -> field
+        name_override.isNullOrEmpty() -> origin.defaultName
+        else -> name_override!!
       }
+    }
+    set(value) {
+      name_override = value
     }
 
   @AttributeOverrides(

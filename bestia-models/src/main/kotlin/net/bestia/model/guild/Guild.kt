@@ -61,6 +61,10 @@ class Guild(
     return members.firstOrNull { it.member.id == accountId }
   }
 
+  fun allMembers(): Set<GuildMember> {
+    return members
+  }
+
   fun addGuildMember(account: Account): Boolean {
     if (members.size >= MAX_GUILD_LEVEL) {
       return false
@@ -78,7 +82,7 @@ class Guild(
     this.members.remove(member)
   }
 
-  fun getRanks(): Set<GuildRank> {
+  fun allRanks(): Set<GuildRank> {
     return Collections.unmodifiableSet(ranks)
   }
 

@@ -5,6 +5,7 @@ import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.entity.EntityRequestService
+import net.bestia.zoneserver.actor.entity.NewEntity
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
@@ -61,7 +62,7 @@ class ScriptRootApi(
     require(z > 0L) { "Z must be greater then 0" }
 
     val entity = mobFactory.build(mobName, position)
-    commands.add(NewEntityCommand(entity))
+    commands.add(NewEntity(entity))
 
     return EntityApi(
         entityId = entity.id,
@@ -85,7 +86,7 @@ class ScriptRootApi(
     LOG.trace { "${scriptName}: newEntity" }
 
     val entityId = idGeneratorService.newId()
-    commands.add(NewEntityCommand(Entity(entityId)))
+    commands.add(NewEntity(Entity(entityId)))
 
     return EntityApi(entityId = entityId, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
   }

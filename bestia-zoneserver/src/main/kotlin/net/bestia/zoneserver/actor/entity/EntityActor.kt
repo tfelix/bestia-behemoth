@@ -6,16 +6,14 @@ import akka.actor.PoisonPill
 import akka.actor.Terminated
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
-import net.bestia.zoneserver.actor.entity.commands.*
-import net.bestia.zoneserver.actor.entity.commands.KillEntityCommand
-import net.bestia.zoneserver.actor.entity.commands.SaveAndKillEntityCommand
 import net.bestia.zoneserver.actor.entity.component.ComponentRequest
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
+import net.bestia.zoneserver.actor.entity.component.UpdateComponent
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.Component
-import net.bestia.zoneserver.script.api.NewEntityCommand
 
 private val LOG = KotlinLogging.logger { }
 
@@ -27,6 +25,24 @@ data class SubscribeForComponentUpdates(
     val componentType: Class<out Component>,
     val sendUpdateTo: ActorRef
 )
+
+/**
+ * Deletes a component from the Entity.
+ */
+data class DeleteComponent<T : Component>(
+    override val entityId: Long,
+    val componentClass: Class<T>
+) : EntityMessage
+
+data class NewEntity(
+    val entity: Entity
+) : EntityMessage {
+  override val entityId: Long
+    get() = entity.id
+}
+
+data class KillEntity(override val entityId: Long) : EntityMessage
+data class SaveAndKillEntity(override val entityId: Long) : EntityMessage
 
 /**
  * The [EntityActor] is a persistent actor managing all aspects of a
@@ -81,16 +97,16 @@ class EntityActor(
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-        .match(NewEntityCommand::class.java, this::setupEntity)
-        .match(AddComponentCommand::class.java, this::addComponentActor)
-        .match(DeleteComponentCommand::class.java, this::removeComponentActor)
-        .match(UpdateComponentCommand::class.java, this::updateComponentActor)
+        .match(NewEntity::class.java, this::setupEntity)
+        .match(DeleteComponent::class.java, this::removeComponentActor)
+        .match(UpdateComponent::class.java, this::updateComponentActor)
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
 
         .match(Terminated::class.java, this::handleTerminatedComponentActor)
-        .match(SaveAndKillEntityCommand::class.java, this::handleSaveAndKill)
-        .match(KillEntityCommand::class.java) { context.stop(self) }
-        .match(EntityRequest::class.java, this::handleEntityRequest)
+        .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
+        .match(KillEntity::class.java) { context.stop(self) }
+        .match(EntityRequest::class.java, this::handleExternalEntityRequest)
+        .match(LocalEntityRequest::class.java, this::handleLocalEntityRequest)
         // TODO Do this with a become/ctx change
         .matchAny(this::terminateIfNoSuitableMessage)
         .build()
@@ -105,16 +121,25 @@ class EntityActor(
     componentUpdateSubscriberCache.add(msg)
   }
 
-  fun setupEntity(msg: NewEntityCommand) {
+  fun setupEntity(msg: NewEntity) {
     LOG.trace { "Creating entity actor: $msg" }
     entityId = msg.entity.id
     msg.entity.allComponents.forEach { createComponentActor(it) }
   }
 
-  private fun handleEntityRequest(msg: EntityRequest) {
+  private fun handleLocalEntityRequest(msg: LocalEntityRequest) {
+    handleEntityRequest(msg.replyTo, msg.context)
+  }
+
+  private fun handleExternalEntityRequest(msg: EntityRequest) {
+    handleEntityRequest(msg.replyTo, msg.context)
+  }
+
+  private fun handleEntityRequest(requester: ActorRef, requestCtx: Any?) {
     if (entityId == 0L) {
-      LOG.debug { "${msg.replyTo} requested not existing entity" }
-      msg.replyTo.tell(EntityDoesNotExist, self)
+      LOG.debug { "$requester requested not existing entity" }
+      requester.tell(EntityDoesNotExist, self)
+      return
     }
 
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
@@ -132,9 +157,9 @@ class EntityActor(
       )
       val entityResponse = EntityResponse(
           entity,
-          msg.context
+          requestCtx
       )
-      msg.replyTo.tell(entityResponse, self)
+      requester.tell(entityResponse, self)
     }
     val waitResponseActor = context.actorOf(waitResponseProps)
 
@@ -145,7 +170,7 @@ class EntityActor(
   }
 
   private fun terminateIfNoSuitableMessage(msg: Any) {
-    if (entityId == 0L && msg !is AddComponentCommand<*>) {
+    if (entityId == 0L && msg !is UpdateComponent<*>) {
       LOG.info { "Uninitialized EntityActor received message: $msg but awaited Component. Terminate." }
       context.stop(self)
     }
@@ -153,7 +178,7 @@ class EntityActor(
     unhandled(msg)
   }
 
-  private fun updateComponentActor(msg: UpdateComponentCommand<*>) {
+  private fun updateComponentActor(msg: UpdateComponent<*>) {
     if (entityId == 0L) {
       entityId = msg.component.entityId
     }
@@ -162,17 +187,11 @@ class EntityActor(
         ?: createComponentActor(msg.component)
         ?: return
 
-    LOG.trace { "Updating component: $msg on entity: $entityId." }
+    LOG.trace { "Updating component: $msg on entity: $entityId" }
     componentActor.tell(msg.component, sender())
   }
 
-  private fun addComponentActor(msg: AddComponentCommand<*>) {
-    LOG.trace { "Adding component: ${msg.component::class.java.simpleName} on entity: $entityId." }
-
-    createComponentActor(msg.component)
-  }
-
-  private fun removeComponentActor(msg: DeleteComponentCommand<*>) {
+  private fun removeComponentActor(msg: DeleteComponent<*>) {
     LOG.trace { "Removing component: ${msg.componentClass.simpleName} on entity: $entityId" }
     componentActorCache.get(msg.componentClass)?.tell(PoisonPill.getInstance(), self)
   }
@@ -212,9 +231,10 @@ class EntityActor(
     }
   }
 
-  private fun handleSaveAndKill(msg: SaveAndKillEntityCommand) {
+  private fun handleSaveAndKill(msg: SaveAndKillEntity) {
     // TODO Persist the given entity.
     componentActorCache.allActors().forEach {
+      // Make own message
       it.tell(msg, sender)
     }
 

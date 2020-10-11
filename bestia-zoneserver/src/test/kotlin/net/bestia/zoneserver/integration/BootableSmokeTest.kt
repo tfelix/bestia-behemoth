@@ -1,15 +1,12 @@
-package net.bestia.zoneserver
+package net.bestia.zoneserver.integration
 
 import net.bestia.messages.proto.AccountProtos
 import net.bestia.messages.proto.ChatProtos
 import net.bestia.messages.proto.MessageProtos
-import net.bestia.zoneserver.account.LoginCheck
-import net.bestia.zoneserver.actor.socket.LoginResponse
+import net.bestia.zoneserver.ClientSocket
 import org.junit.Assert
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.context.annotation.Bean
+import java.util.*
 
 @IntegrationTest
 class BootableSmokeTest {
@@ -24,16 +21,35 @@ class BootableSmokeTest {
           .build()
   ).build().toByteArray()
 
+  private val chatMapMoveCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
+      ChatProtos.ChatRequest.newBuilder()
+          .setAccountId(1)
+          .setMode(ChatProtos.ChatMode.PUBLIC)
+          .setText("/mm 10 10")
+          .build()
+  ).build().toByteArray()
+
+  private val chatServerCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
+      ChatProtos.ChatRequest.newBuilder()
+          .setAccountId(1)
+          .setMode(ChatProtos.ChatMode.PUBLIC)
+          .setText("/serverinfo")
+          .build()
+  ).build().toByteArray()
+
+  private val randomVarValue = UUID.randomUUID().toString().take(5)
+
   private val clientVarRequestSetValue = MessageProtos.Wrapper.newBuilder().setClientVarRequest(
       AccountProtos.ClientVarRequest.newBuilder()
           .setKey("testkey")
-          .setValueToSet("newvalue")
+          .setValueToSet(randomVarValue)
           .build()
   ).build().toByteArray()
 
   private val clientVarRequestValue = MessageProtos.Wrapper.newBuilder().setClientVarRequest(
       AccountProtos.ClientVarRequest.newBuilder()
           .setKey("testkey")
+          .setValueToSet("")
           .build()
   ).build().toByteArray()
 
@@ -41,46 +57,32 @@ class BootableSmokeTest {
       AccountProtos.ClientInfoRequest.newBuilder().build()
   ).build().toByteArray()
 
-
-  private class AllAuthenticatingLoginService : LoginCheck {
-    override fun isLoginAllowedForAccount(accountId: Long, token: String): LoginResponse {
-      return LoginResponse.SUCCESS
-    }
-  }
-
-  @TestConfiguration
-  class SmokeTestConfig {
-
-    @Bean
-    fun allAuthenticatingLoginService(): LoginCheck {
-      return AllAuthenticatingLoginService()
-    }
-  }
-
-  @DisplayName("Client can login to server")
   @Test
-  fun simpleLogin() {
+  fun `client can login to server and request essential data`() {
     socket.connect()
 
-    // Request and check for bestia overview message
-
     // Send chat message
-    // socket.send(chatPayload)
+    socket.send(chatPayload)
     // val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
     // Assert.assertNotNull(resp1)
+    // socket.send(chatMapMoveCommandPayload)
 
     // Set and request client vars
     socket.send(clientVarRequestSetValue)
     val resp2 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
     Assert.assertNotNull(resp2)
+    Assert.assertEquals(randomVarValue, resp2!!.value)
+
     socket.send(clientVarRequestValue)
     val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
     Assert.assertNotNull(resp3)
+    Assert.assertEquals(randomVarValue, resp3!!.value)
 
     // Send client info request
     socket.send(clientInfoRequest)
     val resp4 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
     println(resp4)
+
     // Move player bestia and await component updates
 
     // Logout

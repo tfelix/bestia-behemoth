@@ -3,8 +3,6 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.japi.pf.ReceiveBuilder
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.commands.DeleteComponentCommand
-import net.bestia.zoneserver.actor.entity.commands.UpdateComponentCommand
 import net.bestia.zoneserver.entity.component.AiComponent
 import net.bestia.zoneserver.entity.component.SpeedComponent
 import java.time.Duration
@@ -57,14 +55,14 @@ class AiComponentActor(
       }
 
       if(moveDirectionNormal == null) {
-        context.parent.tell(DeleteComponentCommand(component.entityId, SpeedComponent::class.java), self)
+        deleteComponent(SpeedComponent::class.java)
         return@requestOwnerEntity
       }
 
       val direction = moveDirectionNormal * speed
       val speedComponent = SpeedComponent(entityId = entity.id, speed = direction)
 
-      context.parent.tell(UpdateComponentCommand(speedComponent), self)
+      context.parent.tell(UpdateComponent(speedComponent), self)
     }
   }
 

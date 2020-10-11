@@ -6,13 +6,13 @@ import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
+import net.bestia.zoneserver.actor.entity.NewEntity
 import net.bestia.zoneserver.actor.entity.component.SetIntervalCommand
 import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
+import net.bestia.zoneserver.actor.entity.component.UpdateComponent
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.zoneserver.script.api.NewEntityCommand
 import net.bestia.zoneserver.script.exec.AttackScriptExec
 import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 import org.junit.jupiter.api.Assertions
@@ -59,8 +59,8 @@ class AttackScriptTest : BaseScriptTest() {
         setOf(
             SetPositionToAbsolute::class.java,
             SetIntervalCommand::class.java,
-            NewEntityCommand::class.java,
-            AddComponentCommand::class.java
+            NewEntity::class.java,
+            UpdateComponent::class.java
         ),
         commandClasses
     )

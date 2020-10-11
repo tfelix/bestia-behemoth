@@ -4,7 +4,7 @@ import akka.actor.*
 import akka.japi.pf.ReceiveBuilder
 import mu.KotlinLogging
 import net.bestia.zoneserver.actor.ActorComponent
-import net.bestia.zoneserver.actor.entity.commands.KillEntityCommand
+import net.bestia.zoneserver.actor.entity.KillEntity
 import net.bestia.zoneserver.entity.component.*
 import java.time.Duration
 import java.time.Instant
@@ -55,8 +55,8 @@ class LivetimeComponentActor(
   }
 
   private fun killEntity() {
-    LOG.debug { "Livetime for entity is over" }
-    context.parent.tell(KillEntityCommand, self)
+    LOG.debug { "kill entity: livetime is over" }
+    context.parent.tell(KillEntity(entityId), self)
   }
 
   companion object {

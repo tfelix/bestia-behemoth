@@ -4,6 +4,7 @@ import akka.actor.AbstractActor
 import akka.actor.ActorRef
 import akka.cluster.sharding.ClusterSharding
 import mu.KotlinLogging
+import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.ShardActorNames
 import net.bestia.zoneserver.actor.Actor
 
@@ -19,15 +20,15 @@ private val LOG = KotlinLogging.logger { }
 class SendToEntityActor : AbstractActor() {
 
   private val entityActorShard: ActorRef = ClusterSharding.get(context.system)
-          .shardRegion(ShardActorNames.SHARD_ENTITY)
+      .shardRegion(ShardActorNames.SHARD_ENTITY)
 
   override fun createReceive(): Receive {
     return receiveBuilder()
-            .match(EntityEnvelope::class.java) { msg ->
-              LOG.debug("Sending to entity: {}", msg)
-              entityActorShard.tell(msg, sender)
-            }
-            .build()
+        .match(EntityMessage::class.java) { msg ->
+          LOG.debug("Sending to entity: {}", msg)
+          entityActorShard.tell(msg, sender)
+        }
+        .build()
   }
 
   companion object {

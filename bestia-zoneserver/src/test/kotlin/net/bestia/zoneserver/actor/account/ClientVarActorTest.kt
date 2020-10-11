@@ -29,8 +29,8 @@ class ClientVarActorTest : AbstractActorTest() {
     whenever(cvar.dataLength).thenReturn(DATA.length)
     whenever(cvar.key).thenReturn(KEY)
 
-    whenever(cvarService.find(ACC_ID, KEY)).thenReturn(cvar)
-    whenever(cvarService.find(WRONG_ACC_ID, KEY)).thenReturn(null)
+    whenever(cvarService.findCvar(ACC_ID, KEY)).thenReturn(cvar)
+    whenever(cvarService.findCvar(WRONG_ACC_ID, KEY)).thenReturn(null)
     whenever(cvarService.isOwnerOfVar(any(), any())).thenReturn(true)
   }
 
@@ -45,7 +45,7 @@ class ClientVarActorTest : AbstractActorTest() {
       cvarActor.tell(msg, sender.ref())
 
       sendClientActor.expectMsg(ClientEnvelope(ACC_ID, ClientVarResponse(UUID, DATA)))
-      verify(cvarService).find(ACC_ID, KEY)
+      verify(cvarService).findCvar(ACC_ID, KEY)
     }
   }
 

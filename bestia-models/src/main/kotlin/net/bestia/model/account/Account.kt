@@ -7,6 +7,7 @@ import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -23,7 +24,7 @@ data class Account(
     val hairstyle: Hairstyle,
 
     var isActivated: Boolean = false
-    ) : AbstractEntity(), Serializable {
+) : AbstractEntity(), Serializable {
   @Enumerated(EnumType.STRING)
   var accountType = AccountType.USER
 
@@ -47,12 +48,22 @@ data class Account(
   var masterBestia: PlayerBestia? = null
 
   override fun toString(): String {
-    val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate)
+    val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date.from(registerDate))
     return "Account[id: $id, username: ${username.take(5)}, registerDate: $dateStr]"
   }
 
   companion object {
     const val NUM_BESTIA_SLOTS = 4
+
+    fun test(): Account {
+      return Account(
+          username = "test-" + UUID.randomUUID().toString().take(5).replace("-", ""),
+          isActivated = true,
+          gender = Gender.MALE,
+          hairstyle = Hairstyle.MALE_01,
+          registerDate = Instant.now()
+      )
+    }
   }
 }
 

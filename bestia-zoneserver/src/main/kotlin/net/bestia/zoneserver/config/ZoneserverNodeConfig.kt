@@ -13,24 +13,8 @@ import org.springframework.stereotype.Component
 @Component
 data class ZoneserverNodeConfig(
     /**
-     * Returns the name of this server.
-     *
-     * @return The server name.
-     */
-    @Value("\${zone.name}")
-    val serverName: String,
-
-    /**
      * Id of this server. Must be unique in the cluster.
      */
     @Value("\${zone.node-id}")
-    val nodeId: Int,
-
-    /**
-     * Returns the server string of its version.
-     *
-     * @return The server version.
-     */
-    @Value("\${zone.version}")
-    val serverVersion: String
+    val nodeId: Int
 )

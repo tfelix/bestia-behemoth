@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.entity
 
 import mu.KotlinLogging
+import net.bestia.model.account.AccountRepository
 import net.bestia.model.battle.BestiaAttackRepository
 import net.bestia.model.bestia.PlayerBestiaRepository
 import net.bestia.model.findOneOrThrow
@@ -22,7 +23,8 @@ private val LOG = KotlinLogging.logger { }
 @Transactional
 class PlayerBestiaService(
     private val playerBestiaDao: PlayerBestiaRepository,
-    private val attackRepository: BestiaAttackRepository
+    private val attackRepository: BestiaAttackRepository,
+    private val accountRepository: AccountRepository
 ) {
   /**
    * Returns all attacks for a certain player bestia with the given player
@@ -68,12 +70,9 @@ class PlayerBestiaService(
    * empty set if this account does not exist.
    */
   fun getAllBestias(accId: Long): Set<PlayerBestia> {
-    val bestias = playerBestiaDao.findPlayerBestiasForAccount(accId).toMutableSet()
-    // Add master as well since its not listed as a "player bestia".
-    val master = playerBestiaDao.findMasterBestiaForAccount(accId)
-    master?.let { bestias.add(it) }
+    val account = accountRepository.findOneOrThrow(accId)
 
-    return bestias
+    return account.playerBestias.toSet()
   }
 
   companion object {

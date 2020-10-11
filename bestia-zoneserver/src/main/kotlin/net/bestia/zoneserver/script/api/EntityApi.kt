@@ -4,9 +4,9 @@ import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
-import net.bestia.zoneserver.actor.entity.commands.AddComponentCommand
 import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.actor.entity.component.SetPositionToAbsolute
+import net.bestia.zoneserver.actor.entity.component.UpdateComponent
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.*
 import java.time.Instant
@@ -69,7 +69,7 @@ class EntityApi(
         isVisible = true
     )
 
-    commands.add(AddComponentCommand(visualComponent))
+    commands.add(UpdateComponent(visualComponent))
 
     return this
   }
@@ -79,7 +79,7 @@ class EntityApi(
     val entity = entityRequestService.requestEntity(copyEntityId)
     val statusComp = entity.getComponent(StatusComponent::class.java)
 
-    commands.add(AddComponentCommand(statusComp))
+    commands.add(UpdateComponent(statusComp))
 
     return this
   }
@@ -89,7 +89,7 @@ class EntityApi(
     require(durationMs > 0) { "durationMs must be bigger then 0" }
 
     val livetimeComponent = LivetimeComponent(entityId = entityId, killOn = Instant.now().plusMillis(durationMs))
-    val addComponentCommand = AddComponentCommand(livetimeComponent)
+    val addComponentCommand = UpdateComponent(livetimeComponent)
 
     commands.add(addComponentCommand)
 
@@ -105,7 +105,7 @@ class EntityApi(
         entityId = entityId
     )
 
-    commands.add(AddComponentCommand(scriptComponent))
+    commands.add(UpdateComponent(scriptComponent))
 
     return ScriptApi(entityId = entityId, commands = commands, scriptKey = scriptName)
   }

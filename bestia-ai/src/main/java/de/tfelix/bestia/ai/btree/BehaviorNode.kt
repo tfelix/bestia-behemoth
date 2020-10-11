@@ -1,6 +1,6 @@
 package de.tfelix.bestia.ai.btree
 
-abstract sealed class BehaviorResult
+sealed class BehaviorResult
 object BehaviorSuccess : BehaviorResult()
 data class BehaviorRunning(
     val nodePath: String

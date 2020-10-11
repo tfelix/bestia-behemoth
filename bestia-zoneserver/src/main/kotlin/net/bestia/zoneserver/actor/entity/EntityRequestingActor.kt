@@ -21,7 +21,7 @@ abstract class EntityRequestingActor : AbstractActorWithTimers() {
         action = transformResponse
     )
     val requestActor = context.actorOf(props)
-    val requestMsg = EntityRequest(requestActor)
+    val requestMsg = LocalEntityRequest(requestActor)
     context.parent.tell(requestMsg, requestActor)
   }
 }
