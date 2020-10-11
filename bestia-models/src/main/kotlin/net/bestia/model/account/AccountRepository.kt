@@ -1,9 +1,10 @@
 package net.bestia.model.account
 
-import net.bestia.model.account.Account
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.util.stream.Stream
 
 @Repository
 interface AccountRepository : CrudRepository<Account, Long> {
@@ -16,4 +17,7 @@ interface AccountRepository : CrudRepository<Account, Long> {
    * @return Account with the master with this nickname or `null`.
    */
   fun findByUsername(@Param("username") username: String): Account?
+
+  @Query("SELECT a FROM Account a")
+  fun findAllStream(): Stream<Account>
 }

@@ -28,7 +28,7 @@ class ClientInitService(
 ) {
 
   fun setupDefaultActivePlayerBestia(accountId: Long): InitResult {
-    LOG.trace { "setupDefaultActivePlayerBestia($accountId)" }
+    LOG.trace { "Setting default active Player Bestia for account $accountId" }
 
     val account = accountRepository.findOneOrThrow(accountId)
     val master = account.masterBestia
@@ -38,14 +38,19 @@ class ClientInitService(
     }
 
     account.activeBestia = master
-    accountRepository.save(account)
 
-    return if (master.entityId == 0L) {
+    val result = if (master.entityId == 0L) {
+      LOG.debug { "Account $accountId has no active master entity, spawning it" }
       val entity = playerBestiaFactory.build(master.id)
+      master.entityId = entity.id
 
       InitResultNewEntity(entity)
     } else {
       InitResultExistingEntity(master.entityId)
     }
+
+    accountRepository.save(account)
+
+    return result
   }
 }

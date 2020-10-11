@@ -23,10 +23,12 @@ class TransmitFilterService(
 
   fun sendToReceivers(transmit: TransmitRequest, ctx: ActorRefFactory, parent: ActorRef) {
     val compFilterClass = transmit.changedComponent.javaClass.getAnnotation(ActorComponent::class.java)
-    val filter = this.transmitFilterGroupedByClass[compFilterClass.transmitFilter.java]
+        ?: return
+    LOG.trace { "Looking for transmit filter ${compFilterClass.transmitFilter} on component '${transmit.changedComponent.javaClass.simpleName}'" }
+    val filter = transmitFilterGroupedByClass[compFilterClass.transmitFilter.java]
 
     if (filter == null) {
-      LOG.warn { "Did not find matching transmit filter for ${compFilterClass.transmitFilter}" }
+      LOG.warn { "Did not find matching transmit filter for ${compFilterClass.transmitFilter}, available filters: ${transmitFilterGroupedByClass.keys}" }
       return
     }
 

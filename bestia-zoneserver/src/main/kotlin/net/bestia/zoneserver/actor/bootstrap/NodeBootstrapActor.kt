@@ -56,7 +56,7 @@ class NodeBootstrapActor(
     }
 
     val start = Instant.now()
-    LOG.info { "Booting the local node with ${bootSteps.size} steps: ${bootSteps.map { it.bootStepName }}" }
+    LOG.info { "Executing ${bootSteps.size} node boot steps: ${bootSteps.map { it.bootStepName }}" }
 
     bootSteps.forEach { step ->
       try {
@@ -119,6 +119,6 @@ class NodeBootstrapActor(
   )
 
   companion object {
-    const val NAME = "nodeBootstrapActor"
+    const val NAME = "nodeBootstrap"
   }
 }

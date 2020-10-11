@@ -55,6 +55,13 @@ abstract class ComponentActor<T : Component>(
     return builder.build()
   }
 
+  override fun preStart() {
+    // initial notification about the new component set
+    onComponentChanged(component, component)
+    updateComponentSubscriber.forEach { it.tell(component, self) }
+    updateConnectedClients(component)
+  }
+
   protected fun createComponentUpdateSubscription(clazz: Class<out Component>) {
     val subscribeForComponentUpdates = SubscribeForComponentUpdates(clazz, self)
     context.parent.tell(subscribeForComponentUpdates, self)

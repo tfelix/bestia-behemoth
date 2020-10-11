@@ -60,6 +60,8 @@ class BootableSmokeTest {
   @Test
   fun `client can login to server and request essential data`() {
     socket.connect()
+    val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
+    Assert.assertNotNull(initialClientInfo)
 
     // Send chat message
     socket.send(chatPayload)

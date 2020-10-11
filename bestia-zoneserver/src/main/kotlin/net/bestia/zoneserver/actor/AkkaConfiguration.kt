@@ -95,7 +95,7 @@ class AkkaConfiguration {
   private fun setupClusterSingeltons(system: ActorSystem) {
     LOG.info { "Starting the bootstrap actor" }
     val settings = ClusterSingletonManagerSettings.create(system)
-    startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "bootstrap")
+    startAsSingelton(system, settings, ClusterBootstrapActor::class.java, "clusterBootstrap")
 
     LOG.info { "Starting the client connection manager actor" }
     startAsSingelton(system, settings, ClusterClientConnectionManagerActor::class.java, ClusterClientConnectionManagerActor.NAME)

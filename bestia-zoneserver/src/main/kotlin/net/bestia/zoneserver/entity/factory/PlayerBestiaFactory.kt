@@ -24,6 +24,8 @@ class PlayerBestiaFactory(
 ) : EntityFactory(idGenerator) {
 
   fun build(playerBestiaId: Long): Entity {
+    LOG.trace { "Spawning Player Bestia: $playerBestiaId" }
+
     val playerBestia = playerBestiaDao.findOneOrThrow(playerBestiaId)
 
     val entity = newEntity()

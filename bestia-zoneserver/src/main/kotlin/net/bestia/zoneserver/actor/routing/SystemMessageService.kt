@@ -10,7 +10,10 @@ private val LOG = KotlinLogging.logger { }
 
 /**
  * This is the central interface for any external component like services or
- * components to interact with the system router.
+ * components to interact with the system router of the zone server.
+ *
+ * Use it to send messages to the system without dealing with Akka injects or
+ * messages.
  *
  * @author Thomas Felix
  */
