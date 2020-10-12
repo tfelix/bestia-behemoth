@@ -7,19 +7,12 @@ import net.bestia.messages.proto.MessageProtos
 import org.springframework.stereotype.Component
 
 @Component
-class ChatMessageConverter : MessageConverter<ChatRequest>() {
-  override val fromMessage: Class<ChatRequest> = ChatRequest::class.java
-  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.CHAT_REQUEST
-
-  override fun convertToPayload(msg: ChatRequest): ByteArray {
-    error("ChatRequest is not supposed to get send to the client")
-  }
-
-  override fun convertToMessage(msg: MessageProtos.Wrapper): ChatRequest {
+class ChatRequestConverter : MessageConverterIn<ChatRequest> {
+  override fun convertToMessage(accountId: Long, msg: MessageProtos.Wrapper): ChatRequest {
     val proto = msg.chatRequest
 
     return ChatRequest(
-        accountId = proto.accountId,
+        accountId = accountId,
         text = proto.text,
         receiverNickname = proto.receiverNickname,
         chatMode = when (proto.mode) {
@@ -36,4 +29,6 @@ class ChatMessageConverter : MessageConverter<ChatRequest>() {
         }
     )
   }
+
+  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.CHAT_REQUEST
 }

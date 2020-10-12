@@ -10,21 +10,23 @@ private val LOG = KotlinLogging.logger { }
 
 @Service
 class MessageConverterService(
-    existingConverters: List<MessageConverter<*>>
+    convertersIncoming: List<MessageConverterIn<*>>,
+    convertersOutgoing: List<MessageConverterOut<*>>
 ) {
 
   @Suppress("UNCHECKED_CAST")
-  private val toPayload = (existingConverters as List<MessageConverter<Any>>)
+  private val toPayload = (convertersOutgoing as List<MessageConverterOut<Any>>)
       .map { it.fromMessage to it }
       .toMap()
 
   @Suppress("UNCHECKED_CAST")
-  private val toMessage = (existingConverters as List<MessageConverter<Any>>)
+  private val toMessage = (convertersIncoming as List<MessageConverterIn<Any>>)
       .map { it.fromPayload to it }
       .toMap()
 
   init {
-    LOG.trace { "Registered message converter: $existingConverters" }
+    LOG.trace { "Registered message converter (out): $toPayload" }
+    LOG.trace { "Registered message converter (in): $toMessage" }
   }
 
   fun convertToPayload(msg: Any): ByteArray {
@@ -42,7 +44,7 @@ class MessageConverterService(
     return sendBuffer.array()
   }
 
-  fun convertToMessage(msg: ByteArray): Any? {
+  fun convertToMessage(accountId: Long, msg: ByteArray): Any? {
     try {
       val wrapper = MessageProtos.Wrapper.parseFrom(msg)
 
@@ -51,7 +53,7 @@ class MessageConverterService(
       val converter = toMessage[wrapper.payloadCase]
           ?: error("Had no message converter registered for ${wrapper.payloadCase}")
 
-      return converter.convertToMessage(wrapper)
+      return converter.convertToMessage(accountId, wrapper)
     } catch (e: InvalidProtocolBufferException) {
       throw MessageConvertException(e)
     }

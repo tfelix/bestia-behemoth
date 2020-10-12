@@ -1,15 +1,11 @@
 package net.bestia.zoneserver.messages
 
 import net.bestia.messages.proto.ComponentProtos
-import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.entity.component.TemperatureComponent
 import org.springframework.stereotype.Component
 
 @Component
-class TemperatureComponentConverter : MessageConverter<TemperatureComponent>() {
-  override val fromMessage: Class<TemperatureComponent> = TemperatureComponent::class.java
-  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.COMP_TEMPERATURE
-
+class TemperatureComponentConverter : MessageConverterOut<TemperatureComponent> {
   override fun convertToPayload(msg: TemperatureComponent): ByteArray {
     val builder = ComponentProtos.TemperatureComponent.newBuilder()
     val protoMsg = builder.apply {
@@ -20,4 +16,6 @@ class TemperatureComponentConverter : MessageConverter<TemperatureComponent>() {
 
     return wrap { it.compTemperature = protoMsg }
   }
+
+  override val fromMessage = TemperatureComponent::class.java
 }

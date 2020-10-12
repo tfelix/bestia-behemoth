@@ -5,18 +5,18 @@ import net.bestia.zoneserver.actor.socket.AuthRequest
 import org.springframework.stereotype.Component
 
 @Component
-class AuthRequestConverter : MessageConverter<AuthRequest>() {
-  override val fromMessage: Class<AuthRequest> = AuthRequest::class.java
-  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.AUTH_REQUEST
+class AuthRequestConverter : MessageConverterIn<AuthRequest> {
 
-  override fun convertToPayload(msg: AuthRequest): ByteArray {
-    error("Sending AuthRequest to client is not supported")
-  }
-
-  override fun convertToMessage(msg: MessageProtos.Wrapper): AuthRequest {
+  /**
+   * This is a bit special one, the account id here is provided via the message and not
+   * with the external parameter.I
+   */
+  override fun convertToMessage(accountId: Long, msg: MessageProtos.Wrapper): AuthRequest {
     return AuthRequest(
         accountId = msg.authRequest.accountId,
         token = msg.authRequest.token
     )
   }
+
+  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.AUTH_REQUEST
 }

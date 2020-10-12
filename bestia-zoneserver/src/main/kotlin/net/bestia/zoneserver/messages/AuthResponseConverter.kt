@@ -1,17 +1,13 @@
 package net.bestia.zoneserver.messages
 
 import net.bestia.messages.proto.AccountProtos
-import net.bestia.messages.proto.ComponentProtos
 import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.actor.socket.AuthResponse
 import net.bestia.zoneserver.actor.socket.LoginResponse
-import net.bestia.zoneserver.entity.component.TemperatureComponent
 import org.springframework.stereotype.Component
 
 @Component
-class AuthResponseConverter : MessageConverter<AuthResponse>() {
-  override val fromMessage: Class<AuthResponse> = AuthResponse::class.java
-  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.AUTH_RESPONSE
+class AuthResponseConverter : MessageConverterOut<AuthResponse> {
 
   override fun convertToPayload(msg: AuthResponse): ByteArray {
     val authResponseBuilder = AccountProtos.AuthResponse.newBuilder()
@@ -25,4 +21,6 @@ class AuthResponseConverter : MessageConverter<AuthResponse>() {
 
     return wrap { it.authResponse = authResponseBuilder.build() }
   }
+
+  override val fromMessage = AuthResponse::class.java
 }

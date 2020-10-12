@@ -94,7 +94,7 @@ final class SocketActor(
     try {
       val authMsgBytes = extractMessageBytes(msg)
           ?: return
-      val authMessage = messageConverter.convertToMessage(authMsgBytes)
+      val authMessage = messageConverter.convertToMessage(connectedAccountId, authMsgBytes)
           ?: return
 
       if (authMessage !is AuthRequest) {
@@ -113,7 +113,7 @@ final class SocketActor(
     try {
       val msgBytes = extractMessageBytes(msg)
           ?: return
-      val message = messageConverter.convertToMessage(msgBytes)
+      val message = messageConverter.convertToMessage(connectedAccountId, msgBytes)
           ?: return
       messageRouter.tell(message, self)
     } catch (e: MessageConvertException) {

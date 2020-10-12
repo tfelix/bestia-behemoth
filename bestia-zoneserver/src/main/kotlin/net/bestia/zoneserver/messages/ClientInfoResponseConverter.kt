@@ -6,10 +6,7 @@ import net.bestia.zoneserver.actor.client.ClientInfoResponse
 import org.springframework.stereotype.Component
 
 @Component
-class ClientInfoResponseConverter : MessageConverter<ClientInfoResponse>() {
-  override val fromMessage: Class<ClientInfoResponse> = ClientInfoResponse::class.java
-  override val fromPayload: MessageProtos.Wrapper.PayloadCase = MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE
-
+class ClientInfoResponseConverter : MessageConverterOut<ClientInfoResponse> {
   override fun convertToPayload(msg: ClientInfoResponse): ByteArray {
     val clientInfoResponse = AccountProtos.ClientInfoResponse.newBuilder()
         .apply {
@@ -20,4 +17,6 @@ class ClientInfoResponseConverter : MessageConverter<ClientInfoResponse>() {
 
     return wrap { it.clientInfoResponse = clientInfoResponse.build() }
   }
+
+  override val fromMessage = ClientInfoResponse::class.java
 }
