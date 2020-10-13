@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @SpringBootApplication(scanBasePackages = ["net.bestia.zoneserver"])
 @EnableJpaRepositories(basePackages = ["net.bestia.model"])
-@EntityScan(basePackages = ["net.bestia.model"])
-@EnableNeo4jRepositories(basePackages = ["net.bestia.zoneserver"])
+@EntityScan(basePackages = ["net.bestia.model", "net.bestia.zoneserver.map.path"])
+@EnableNeo4jRepositories
 @EnableTransactionManagement
 class Application
 

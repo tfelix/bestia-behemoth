@@ -2,11 +2,13 @@ package net.bestia.zoneserver.map.path
 
 import org.neo4j.ogm.annotation.*
 
-@NodeEntity(label = "Waypoint")
+@NodeEntity
 class Waypoint {
+  // neo4j requires the id to be nullable
+  // otherwise it does not save
   @Id
   @GeneratedValue
-  val id: Long = 0
+  val id: Long? = null
 
   @Property
   var x: Long = 0
