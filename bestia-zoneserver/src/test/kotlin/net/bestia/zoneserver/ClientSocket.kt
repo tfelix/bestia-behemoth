@@ -58,6 +58,10 @@ class ClientSocket(
   private lateinit var dOut: DataOutputStream
   private lateinit var receiverThread: ReceiverThread
 
+  private var bytesSend = 0
+  private var bytesReceived = 0
+  private var packetsReceived = 0
+
   private fun connectSocket() {
     socket = Socket(ip, port)
     dOut = DataOutputStream(socket.getOutputStream())
@@ -71,6 +75,7 @@ class ClientSocket(
     sendBuffer.put(data)
 
     dOut.write(sendBuffer.array())
+    bytesSend += sendBuffer.position()
     dOut.flush()
   }
 
@@ -81,6 +86,8 @@ class ClientSocket(
     val packageBytes = receiverThread.packets.poll(timeout.seconds, TimeUnit.SECONDS)
         ?: return null
     val wrapper = MessageProtos.Wrapper.parseFrom(packageBytes)
+    bytesReceived += packageBytes.size
+    packetsReceived += 1
 
     @Suppress("UNCHECKED_CAST")
     return when (messageType) {
@@ -88,6 +95,7 @@ class ClientSocket(
       MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE -> wrapper.clientVarResponse
       MessageProtos.Wrapper.PayloadCase.COMP_POSITION -> wrapper.compPosition
       MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE -> wrapper.clientInfoResponse
+      MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE -> wrapper.chatResponse
       else -> error("No matching packet found for $messageType")
     } as T
   }
@@ -99,6 +107,14 @@ class ClientSocket(
     receiverThread.isRunning = false
     dOut.close()
     socket.close()
+  }
+
+  fun printStatistics() {
+    println()
+    println("Client Socket Statistics:\n")
+    println("Send: $bytesSend bytes, Received: $bytesReceived bytes")
+    println("Packets received: $packetsReceived")
+    println()
   }
 
   fun connect() {

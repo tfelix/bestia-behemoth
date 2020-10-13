@@ -28,7 +28,6 @@ class PublicChatService(
         senderNickname = senderNick,
         text = chatRequest.text,
         time = Instant.now().epochSecond,
-        chatMessageId = chatRequest.chatMessageId,
         entityId = senderEntityId
     )
   }

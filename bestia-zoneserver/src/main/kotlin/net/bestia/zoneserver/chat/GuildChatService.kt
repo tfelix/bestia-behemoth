@@ -42,7 +42,6 @@ class GuildChatService(
           senderNickname = senderNick,
           text = chatMessage.text,
           time = now,
-          chatMessageId = chatMessage.chatMessageId,
           entityId = senderEntityId
       )
     }

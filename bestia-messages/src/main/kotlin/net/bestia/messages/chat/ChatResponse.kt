@@ -11,9 +11,7 @@ data class ChatResponse(
     override val accountId: Long,
     val chatMode: ChatMode,
     val text: String,
-    private var senderNickname: String? = null,
-    val receiverNickname: String? = null,
-    val chatMessageId: Int = 0,
+    var senderNickname: String? = null,
     val time: Long = 0,
     val entityId: Long? = null
 ) : AccountMessage {

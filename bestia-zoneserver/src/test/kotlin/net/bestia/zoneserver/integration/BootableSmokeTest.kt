@@ -11,19 +11,15 @@ import java.util.*
 @IntegrationTest
 class BootableSmokeTest {
 
-  private val socket = ClientSocket("127.0.0.1", 8990)
-
   private val chatPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
       ChatProtos.ChatRequest.newBuilder()
-          .setAccountId(1)
           .setMode(ChatProtos.ChatMode.PUBLIC)
-          .setText("Hello World1234")
+          .setText("Hello World")
           .build()
   ).build().toByteArray()
 
   private val chatMapMoveCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
       ChatProtos.ChatRequest.newBuilder()
-          .setAccountId(1)
           .setMode(ChatProtos.ChatMode.PUBLIC)
           .setText("/mm 10 10")
           .build()
@@ -59,36 +55,50 @@ class BootableSmokeTest {
 
   @Test
   fun `client can login to server and request essential data`() {
-    socket.connect()
-    val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
-    Assert.assertNotNull(initialClientInfo)
+    ClientSocket("127.0.0.1", 8990).use { socket ->
+      socket.connect()
+      val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
+      Assert.assertNotNull(initialClientInfo)
+      Assert.assertEquals(4, initialClientInfo!!.bestiaSlotCount)
+      Assert.assertEquals(1, initialClientInfo.ownedBestiaEntityIdsList.size)
 
-    // Send chat message
-    socket.send(chatPayload)
-    // val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
-    // Assert.assertNotNull(resp1)
-    // socket.send(chatMapMoveCommandPayload)
+      // Send chat message
+      socket.send(chatPayload)
+      val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+      Assert.assertNotNull(resp1)
+      Assert.assertEquals("Doom Master", resp1!!.senderNickname)
+      Assert.assertEquals("Hello World", resp1.text)
+      Assert.assertTrue(initialClientInfo.ownedBestiaEntityIdsList.contains(resp1.entityId))
 
-    // Set and request client vars
-    socket.send(clientVarRequestSetValue)
-    val resp2 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
-    Assert.assertNotNull(resp2)
-    Assert.assertEquals(randomVarValue, resp2!!.value)
+      socket.send(chatServerCommandPayload)
+      val resp2 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+      Assert.assertNotNull(resp2)
+      Assert.assertTrue(resp2!!.senderNickname.isEmpty())
+      Assert.assertTrue(resp2.senderNickname.isEmpty())
+      Assert.assertNotEquals(0, resp2.time)
+      Assert.assertTrue(resp2.text.contains("Bestia Behemoth Server: v"))
 
-    socket.send(clientVarRequestValue)
-    val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
-    Assert.assertNotNull(resp3)
-    Assert.assertEquals(randomVarValue, resp3!!.value)
+      // Set and request client vars
+      socket.send(clientVarRequestSetValue)
+      val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+      Assert.assertNotNull(resp3)
+      Assert.assertEquals(randomVarValue, resp3!!.value)
 
-    // Send client info request
-    socket.send(clientInfoRequest)
-    val resp4 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
-    println(resp4)
+      socket.send(clientVarRequestValue)
+      val resp4 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+      Assert.assertNotNull(resp4)
+      Assert.assertEquals(randomVarValue, resp4!!.value)
 
-    // Move player bestia and await component updates
+      // Send client info request
+      socket.send(clientInfoRequest)
+      val resp5 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
+      println(resp5)
 
-    // Logout
+      // Move player bestia and await component updates
 
-    socket.close()
+      // Logout
+
+      socket.printStatistics()
+    }
   }
 }

@@ -9,6 +9,11 @@ interface MessageConverterOut<T> {
   fun wrap(fn: (builder: MessageProtos.Wrapper.Builder) -> Unit): ByteArray {
     val b = MessageProtos.Wrapper.newBuilder()
     fn(b)
+
+    require(b.payloadCase != MessageProtos.Wrapper.PayloadCase.PAYLOAD_NOT_SET) {
+      "No payload was set! Please call assign a Wrapper payload during the wrap callback."
+    }
+
     return b.build().toByteArray()
   }
 }

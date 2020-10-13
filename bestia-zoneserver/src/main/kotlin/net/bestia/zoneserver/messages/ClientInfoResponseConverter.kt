@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.messages
 
 import net.bestia.messages.proto.AccountProtos
-import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.actor.client.ClientInfoResponse
 import org.springframework.stereotype.Component
 
