@@ -33,6 +33,7 @@ class ClientMessageRoutingActor : DynamicMessageRoutingActor() {
     // === UI/Client ===
     SpringExtension.actorOf(context, ClientVarActor::class.java)
     SpringExtension.actorOf(context, ClientInitActor::class.java)
+    SpringExtension.actorOf(context, ClientPingActor::class.java)
 
     // === Chat ===
     SpringExtension.actorOf(context, ChatActor::class.java)

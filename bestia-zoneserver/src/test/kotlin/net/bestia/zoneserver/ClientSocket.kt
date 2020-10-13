@@ -96,6 +96,7 @@ class ClientSocket(
       MessageProtos.Wrapper.PayloadCase.COMP_POSITION -> wrapper.compPosition
       MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE -> wrapper.clientInfoResponse
       MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE -> wrapper.chatResponse
+      MessageProtos.Wrapper.PayloadCase.PING_RESPONSE -> wrapper.pingResponse
       else -> error("No matching packet found for $messageType")
     } as T
   }

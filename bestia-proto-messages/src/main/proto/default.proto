@@ -20,6 +20,8 @@ message Wrapper {
         ChatResponse chat_response = 6;
         ClientInfoRequest client_info_request = 7;
         ClientInfoResponse client_info_response = 8;
+        PingRequest ping_request = 9;
+        PingResponse ping_response = 10;
 
         // INVENTORY
         UseItem cmd_use_item = 100;

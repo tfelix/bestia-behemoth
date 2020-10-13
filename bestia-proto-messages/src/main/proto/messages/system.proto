@@ -1,6 +1,0 @@
-syntax = "proto3";
-package bestia.messages;
-
-option java_package = "net.bestia.messages.proto";
-option java_outer_classname = "SystemProtos";
-

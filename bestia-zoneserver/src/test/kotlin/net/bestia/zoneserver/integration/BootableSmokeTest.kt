@@ -18,6 +18,12 @@ class BootableSmokeTest {
           .build()
   ).build().toByteArray()
 
+  private val pingPayload = MessageProtos.Wrapper.newBuilder().setPingRequest(
+      AccountProtos.PingRequest.newBuilder()
+          .setSequenceNumber(123)
+          .build()
+  ).build().toByteArray()
+
   private val chatMapMoveCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
       ChatProtos.ChatRequest.newBuilder()
           .setMode(ChatProtos.ChatMode.PUBLIC)
@@ -78,6 +84,13 @@ class BootableSmokeTest {
       Assert.assertNotEquals(0, resp2.time)
       Assert.assertTrue(resp2.text.contains("Bestia Behemoth Server: v"))
 
+      val send = System.currentTimeMillis()
+      socket.send(pingPayload)
+      val pong = socket.receive<AccountProtos.PingResponse>(MessageProtos.Wrapper.PayloadCase.PING_RESPONSE)
+      Assert.assertNotNull(pong)
+      val received = System.currentTimeMillis()
+      println("Behemeoth Roundtrip Time: ${received - send}")
+
       // Set and request client vars
       socket.send(clientVarRequestSetValue)
       val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
@@ -94,7 +107,7 @@ class BootableSmokeTest {
       val resp5 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
       println(resp5)
 
-      // Move player bestia and await component updates
+      // Move player bestia and await component updates via a Script ticking damage entity.
 
       // Logout
 
