@@ -28,8 +28,6 @@ class TestZoneConfiguration {
     val akkaConfig = ConfigFactory.load("akka-test")
     val system = ActorSystem.create("testSystem", akkaConfig)
 
-    // SpringExtension.initialize(system, appCtx, MockActorProducer::class.java)
-
     return system
   }
 

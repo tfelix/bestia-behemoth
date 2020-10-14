@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component
 
 import akka.japi.pf.ReceiveBuilder
+import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.ActorComponent
@@ -22,6 +23,8 @@ data class SetPositionToOffset(
   override val componentType = PositionComponent::class.java
 }
 
+private val LOG = KotlinLogging.logger { }
+
 @ActorComponent(
     component = PositionComponent::class,
     transmitFilter = InRangeTransmitFilter::class
@@ -37,6 +40,7 @@ class PositionComponentActor(
   }
 
   private fun setPosition(newPos: Vec3) {
+    LOG.trace { "setPosition: $newPos" }
     component = component.copy(shape = component.shape.moveTo(newPos))
   }
 

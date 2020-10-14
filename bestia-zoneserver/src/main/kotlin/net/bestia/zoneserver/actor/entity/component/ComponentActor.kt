@@ -80,6 +80,8 @@ abstract class ComponentActor<T : Component>(
       return
     }
 
+    LOG.trace { "Updating onComponentChanged subscriber: $updateComponentSubscriber" }
+
     onComponentChanged(oldComponent, newComponent)
     updateComponentSubscriber.forEach { it.tell(newComponent, self) }
     updateConnectedClients(newComponent)

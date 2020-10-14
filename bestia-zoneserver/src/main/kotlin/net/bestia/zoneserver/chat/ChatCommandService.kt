@@ -51,7 +51,10 @@ class ChatCommandService(
 
     chatCommands
         .firstOrNull { it.isCommand(text) && acc.accountType >= it.requiredUserLevel() }
-        ?.executeCommand(acc, text)
+        ?.let { cmd ->
+          // TODO echo back the message so the client can see it.
+          cmd.executeCommand(acc, text)
+        }
   }
 
   companion object {

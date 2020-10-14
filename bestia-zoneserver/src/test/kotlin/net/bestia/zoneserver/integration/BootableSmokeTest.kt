@@ -4,8 +4,10 @@ import net.bestia.messages.proto.AccountProtos
 import net.bestia.messages.proto.ChatProtos
 import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.ClientSocket
+import org.awaitility.Awaitility.await
 import org.junit.Assert
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.*
 
 @IntegrationTest
@@ -27,7 +29,7 @@ class BootableSmokeTest {
   private val chatMapMoveCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
       ChatProtos.ChatRequest.newBuilder()
           .setMode(ChatProtos.ChatMode.PUBLIC)
-          .setText("/mm 10 10")
+          .setText("/mm 0 20")
           .build()
   ).build().toByteArray()
 
@@ -61,6 +63,8 @@ class BootableSmokeTest {
 
   @Test
   fun `client can login to server and request essential data`() {
+    Thread.sleep(5000)
+
     ClientSocket("127.0.0.1", 8990).use { socket ->
       socket.connect()
       val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
@@ -68,6 +72,7 @@ class BootableSmokeTest {
       Assert.assertEquals(4, initialClientInfo!!.bestiaSlotCount)
       Assert.assertEquals(1, initialClientInfo.ownedBestiaEntityIdsList.size)
 
+      /*
       // Send chat message
       socket.send(chatPayload)
       val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
@@ -84,13 +89,6 @@ class BootableSmokeTest {
       Assert.assertNotEquals(0, resp2.time)
       Assert.assertTrue(resp2.text.contains("Bestia Behemoth Server: v"))
 
-      val send = System.currentTimeMillis()
-      socket.send(pingPayload)
-      val pong = socket.receive<AccountProtos.PingResponse>(MessageProtos.Wrapper.PayloadCase.PING_RESPONSE)
-      Assert.assertNotNull(pong)
-      val received = System.currentTimeMillis()
-      println("Behemeoth Roundtrip Time: ${received - send}")
-
       // Set and request client vars
       socket.send(clientVarRequestSetValue)
       val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
@@ -104,14 +102,35 @@ class BootableSmokeTest {
 
       // Send client info request
       socket.send(clientInfoRequest)
-      val resp5 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
-      println(resp5)
+      val resp5 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)*/
 
-      // Move player bestia and await component updates via a Script ticking damage entity.
+      // Move player Bestia and await component updates via a Script ticking damage entity.
+      socket.send(chatMapMoveCommandPayload)
+      val test = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+
+      // await().atMost(Duration.ofSeconds(30)).until { false }
+
+      val responseTimeMs = getResponseTime(socket, 10)
+      println("Avg. Behemeoth Roundtrip Time: $responseTimeMs ms")
 
       // Logout
-
       socket.printStatistics()
+
+      Thread.sleep(30000)
     }
+  }
+
+  private fun getResponseTime(socket: ClientSocket, repeats: Int = 5): Int {
+    val times = mutableListOf<Double>()
+    for (i in 1..repeats) {
+      val send = System.currentTimeMillis().toDouble()
+      socket.send(pingPayload)
+      val pong = socket.receive<AccountProtos.PingResponse>(MessageProtos.Wrapper.PayloadCase.PING_RESPONSE)
+      Assert.assertNotNull(pong)
+      val received = System.currentTimeMillis().toDouble()
+      times.add(received - send)
+    }
+
+    return (times.sum() / times.size).toInt()
   }
 }

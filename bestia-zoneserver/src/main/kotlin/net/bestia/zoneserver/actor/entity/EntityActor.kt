@@ -9,6 +9,7 @@ import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.AwaitResponseActor
+import net.bestia.zoneserver.actor.entity.component.ComponentMessage
 import net.bestia.zoneserver.actor.entity.component.ComponentRequest
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.actor.entity.component.UpdateComponent
@@ -100,6 +101,7 @@ class EntityActor(
         .match(NewEntity::class.java, this::setupEntity)
         .match(DeleteComponent::class.java, this::removeComponentActor)
         .match(UpdateComponent::class.java, this::updateComponentActor)
+        .match(ComponentMessage::class.java, this::onComponentMessage)
         .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
 
         .match(Terminated::class.java, this::handleTerminatedComponentActor)
@@ -119,6 +121,17 @@ class EntityActor(
    */
   private fun subscribeForComponentUpdates(msg: SubscribeForComponentUpdates) {
     componentUpdateSubscriberCache.add(msg)
+  }
+
+  private fun onComponentMessage(msg: ComponentMessage<*>) {
+    val componentActor = componentActorCache.get(msg.componentType)
+
+    if(componentActor == null) {
+      LOG.debug { "Component missing: ${msg.componentType}" }
+      return
+    }
+    
+    componentActor.tell(msg, self)
   }
 
   fun setupEntity(msg: NewEntity) {

@@ -1,7 +1,10 @@
 package net.bestia.zoneserver.entity
 
+import mu.KotlinLogging
 import net.bestia.model.geometry.Shape
 import org.springframework.stereotype.Service
+
+private val LOG = KotlinLogging.logger { }
 
 @Service
 class EntityCollisionService {
@@ -9,6 +12,7 @@ class EntityCollisionService {
   private val cache = mutableMapOf<Long, Shape>()
 
   fun updateEntityCollision(entityId: Long, shape: Shape) {
+    LOG.trace { "updateEntityCollision - entityId: $entityId, shape: $shape" }
     cache[entityId] = shape
   }
 

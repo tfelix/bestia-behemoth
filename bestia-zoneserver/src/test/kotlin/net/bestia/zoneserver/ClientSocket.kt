@@ -21,7 +21,7 @@ class ClientSocket(
 ) : Closeable {
   class ReceiverThread(
       private var dIn: DataInputStream
-  ) : Thread() {
+  ) : Thread("clientSocket") {
     var isRunning = true
 
     val packets = LinkedBlockingQueue<ByteArray>()

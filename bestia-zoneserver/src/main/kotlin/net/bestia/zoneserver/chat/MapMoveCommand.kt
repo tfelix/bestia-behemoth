@@ -56,14 +56,17 @@ internal class MapMoveCommand(
 
     LOG.info { "Command: /mm triggered by account ${account.id}" }
 
-    playerBestiaService.getActivePlayerEntityId(account.id)?.let { activePlayerBestia ->
-      messageApi.send(
-          SetPositionToAbsolute(
-              entityId = activePlayerBestia,
-              position = Vec3(x, y, z)
-          )
-      )
+    val activeBestiaEntityId = playerBestiaService.getActivePlayerEntityId(account.id)
+    if (activeBestiaEntityId == null) {
+      LOG.warn { "No Player Bestia is active" }
+      return
     }
+    messageApi.send(
+        SetPositionToAbsolute(
+            entityId = activeBestiaEntityId,
+            position = Vec3(x, y, z)
+        )
+    )
   }
 
   companion object {
