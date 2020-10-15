@@ -2,10 +2,11 @@ package net.bestia.zoneserver.battle
 
 import net.bestia.model.battle.AttackType
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.ConditionValues
+import net.bestia.model.bestia.Defense
 import net.bestia.model.entity.BasicStatusBasedValues
+import net.bestia.zoneserver.battle.attack.BattleAttack
 import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.battle.damage.MeleePhysicalDamageCalculator
 import net.bestia.zoneserver.entity.Entity
@@ -45,7 +46,7 @@ internal class MeleeDamageCalculatorTest {
           entityId = 1,
           statusValues = defenderStatusValues,
           statusBasedValues = BasicStatusBasedValues(defenderStatusValues, defenderLevel),
-          defense = BasicDefense()
+          defense = Defense()
       ))
       addComponent(ConditionComponent(
           entityId = 1,
@@ -79,7 +80,7 @@ internal class MeleeDamageCalculatorTest {
           entityId = 2,
           statusValues = attackerStatusValues,
           statusBasedValues = BasicStatusBasedValues(attackerStatusValues, attackerLevel),
-          defense = BasicDefense()
+          defense = Defense()
       ))
       addComponent(ConditionComponent(
           entityId = 2,

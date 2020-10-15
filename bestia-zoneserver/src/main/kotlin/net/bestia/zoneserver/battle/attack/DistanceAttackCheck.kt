@@ -1,7 +1,8 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PositionComponent
 

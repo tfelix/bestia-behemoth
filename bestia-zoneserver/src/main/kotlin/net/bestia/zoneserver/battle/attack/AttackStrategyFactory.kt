@@ -1,6 +1,7 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import net.bestia.model.battle.AttackType
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.battle.damage.*
 import org.springframework.stereotype.Component
 import java.util.concurrent.ThreadLocalRandom

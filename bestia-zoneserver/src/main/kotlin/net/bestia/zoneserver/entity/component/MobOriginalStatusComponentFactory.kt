@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.entity.component
 
 import mu.KotlinLogging
-import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
 import net.bestia.model.bestia.BestiaRepository
+import net.bestia.model.bestia.Defense
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.zoneserver.entity.Entity
@@ -46,7 +46,7 @@ class MobOriginalStatusComponentFactory(
         entityId = entity.id,
         element = bestia.element,
         statusValues = statusValues,
-        defense = BasicDefense(
+        defense = Defense(
             magicDefense = 0, // TODO Add this defense values to the bestia
             physicalDefense = 0
         ),

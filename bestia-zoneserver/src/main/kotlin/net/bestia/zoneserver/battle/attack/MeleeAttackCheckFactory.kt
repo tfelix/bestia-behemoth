@@ -1,6 +1,8 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import net.bestia.model.battle.AttackType
+import net.bestia.zoneserver.battle.BattleContext
+import net.bestia.zoneserver.battle.EntityBattleContext
 import org.springframework.stereotype.Component
 
 @Component

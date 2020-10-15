@@ -6,6 +6,9 @@ import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Element
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.battle.attack.AttackStrategyFactory
+import net.bestia.zoneserver.battle.attack.AttackableCheckFactory
+import net.bestia.zoneserver.battle.attack.BattleAttack
 import net.bestia.zoneserver.battle.damage.DamageVariables
 import net.bestia.zoneserver.entity.Entity
 import org.springframework.stereotype.Service
@@ -20,7 +23,7 @@ private val LOG = KotlinLogging.logger { }
  */
 @Service
 class BattleService(
-    private val checkFactory: AttackCheckFactoryImpl,
+    private val checkFactory: AttackableCheckFactory,
     private val attackRepository: AttackRepository,
     private val attackStrategyFactory: AttackStrategyFactory
 ) {

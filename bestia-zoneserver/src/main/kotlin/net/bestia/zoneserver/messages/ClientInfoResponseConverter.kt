@@ -9,6 +9,10 @@ class ClientInfoResponseConverter : MessageConverterOut<ClientInfoResponse> {
   override fun convertToPayload(msg: ClientInfoResponse): ByteArray {
     val clientInfoResponse = AccountProtos.ClientInfoResponse.newBuilder()
         .apply {
+          val ob = AccountProtos.OwnedBestiaInfo.newBuilder()
+
+          msg.ownedBestiaEntityIds
+
           addAllOwnedBestiaEntityIds(msg.ownedBestiaEntityIds)
           msg.masterBestiaEntityId?.let { masterEntityId = it }
           bestiaSlotCount = msg.bestiaSlotCount

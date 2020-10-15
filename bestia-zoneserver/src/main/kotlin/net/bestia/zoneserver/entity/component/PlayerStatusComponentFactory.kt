@@ -35,7 +35,7 @@ class PlayerStatusComponentFactory(
         entityId = entity.id,
         statusValues = statusValues,
         element = pb.origin.element,
-        defense = BasicDefense(
+        defense = Defense(
             magicDefense = 0, // TODO Add this defense values to the bestia
             physicalDefense = 0
         ),

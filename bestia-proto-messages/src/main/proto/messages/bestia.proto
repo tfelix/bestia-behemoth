@@ -5,5 +5,5 @@ option java_outer_classname = "BestiaProtos";
 
 message OwnedBestia {
     uint64 player_bestia_id = 1;
-    string name = 2;
+    string nme = 2;
 }

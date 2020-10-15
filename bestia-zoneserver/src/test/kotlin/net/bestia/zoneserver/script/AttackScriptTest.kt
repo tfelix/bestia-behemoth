@@ -2,8 +2,8 @@ package net.bestia.zoneserver.script
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
-import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.Defense
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.geometry.Vec3
 import net.bestia.zoneserver.actor.entity.NewEntity
@@ -41,7 +41,7 @@ class AttackScriptTest : BaseScriptTest() {
               level = level,
               statusValues = statusValues
           ),
-          defense = BasicDefense()
+          defense = Defense()
       ))
     })
   }

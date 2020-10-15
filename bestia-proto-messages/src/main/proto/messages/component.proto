@@ -20,7 +20,7 @@ message TemperatureComponent {
     Component component = 1;
     int32 max_tolerable_temp = 2;
     int32 min_tolerable_temp = 3;
-    int32 current_temp = 4;
+    float current_temp = 4;
 }
 
 message VisualComponent {

@@ -1,9 +1,10 @@
 package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.battle.BaseDamageCalculator
 import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.battle.clamp
+import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 import kotlin.math.min
 
@@ -17,7 +18,9 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-class MagicDamageCalculator() : BaseDamageCalculator() {
+class MagicDamageCalculator(
+    random: Random = ThreadLocalRandom.current()
+) : BaseDamageCalculator(random) {
   override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
     return battleCtx.damageVariables.attackMagicBonus
   }

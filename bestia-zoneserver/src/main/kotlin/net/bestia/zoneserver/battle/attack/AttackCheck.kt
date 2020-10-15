@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 abstract class AttackCheck {
 

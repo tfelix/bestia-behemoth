@@ -9,5 +9,5 @@ data class TemperatureComponent(
     override val entityId: Long,
     val minTolerableTemperature: Int,
     val maxTolerableTemperature: Int,
-    val currentTemperature: Int
+    val currentTemperature: Float
 ) : Component

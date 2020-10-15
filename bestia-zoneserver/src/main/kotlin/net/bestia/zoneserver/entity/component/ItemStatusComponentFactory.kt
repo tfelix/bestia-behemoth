@@ -2,8 +2,8 @@ package net.bestia.zoneserver.entity.component
 
 import mu.KotlinLogging
 import net.bestia.model.battle.Element
-import net.bestia.model.bestia.BasicDefense
 import net.bestia.model.bestia.BasicStatusValues
+import net.bestia.model.bestia.Defense
 import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.findOneOrThrow
 import net.bestia.model.item.ItemRepository
@@ -49,7 +49,7 @@ class ItemStatusComponentFactory(
         entityId = entity.id,
         element = element,
         statusValues = statusValues,
-        defense = BasicDefense(0, 0),
+        defense = Defense(0, 0),
         statusBasedValues = BasicStatusBasedValues(level = lv, statusValues = statusValues)
     )
   }

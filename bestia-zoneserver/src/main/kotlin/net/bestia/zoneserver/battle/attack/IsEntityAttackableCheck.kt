@@ -1,6 +1,7 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import mu.KotlinLogging
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.entity.component.LevelComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent

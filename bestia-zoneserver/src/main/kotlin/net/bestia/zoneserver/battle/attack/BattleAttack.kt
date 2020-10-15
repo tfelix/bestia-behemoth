@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import net.bestia.model.battle.Attack
 import net.bestia.model.battle.AttackType

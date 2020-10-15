@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.integration
 
 import net.bestia.messages.proto.AccountProtos
+import net.bestia.messages.proto.AttackProtos
 import net.bestia.messages.proto.ChatProtos
 import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.ClientSocket
@@ -61,6 +62,12 @@ class BootableSmokeTest {
       AccountProtos.ClientInfoRequest.newBuilder().build()
   ).build().toByteArray()
 
+  private fun getAttackListRequest(playerBestiaId: Long): MessageProtos.Wrapper? {
+    return MessageProtos.Wrapper.newBuilder().setAttackListRequest(
+        AttackProtos.AttackListRequest.newBuilder().setPlayerBestiaId(playerBestiaId).build()
+    ).build()
+  }
+
   @Test
   fun `client can login to server and request essential data`() {
     Thread.sleep(5000)
@@ -70,7 +77,7 @@ class BootableSmokeTest {
       val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
       Assert.assertNotNull(initialClientInfo)
       Assert.assertEquals(4, initialClientInfo!!.bestiaSlotCount)
-      Assert.assertEquals(1, initialClientInfo.ownedBestiaEntityIdsList.size)
+      Assert.assertEquals(1, initialClientInfo.ownedBestiasList.size)
 
       /*
       // Send chat message

@@ -7,16 +7,16 @@ option java_package = "net.bestia.messages.proto";
 option java_outer_classname = "AttackProtos";
 
 message AttackListRequest {
-    Account account = 1;
+    uint64 player_bestia_id = 1;
+}
+
+message AttackListResponse {
+    uint64 player_bestia_id = 1;
+    repeated LearnedAttack attacks = 2;
 }
 
 message LearnedAttack {
     uint64 attack_id = 1;
     string attack_db_name = 2;
     uint32 min_level = 3;
-}
-
-message LearnedAttacks {
-    uint64 player_bestia_id = 1;
-    repeated LearnedAttack attacks = 2;
 }

@@ -4,6 +4,7 @@ package bestia.messages;
 import "messages/account.proto";
 import "messages/chat.proto";
 import "messages/inventory.proto";
+import "messages/attack.proto";
 import "messages/component.proto";
 
 option java_package = "net.bestia.messages.proto";
@@ -27,6 +28,10 @@ message Wrapper {
         UseItem cmd_use_item = 100;
         DropItem cmd_drop_item = 101;
         PickupItem cmd_pickup_item = 102;
+
+        // BESTIA
+        AttackListRequest attack_List_request = 201;
+        AttackListResponse attack_list_response = 202;
 
         // COMPONENTS
         PositionComponent comp_position = 300;

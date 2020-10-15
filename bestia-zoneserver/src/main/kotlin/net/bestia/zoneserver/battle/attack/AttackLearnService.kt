@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import mu.KotlinLogging
 import net.bestia.model.battle.*
@@ -13,10 +13,9 @@ private val LOG = KotlinLogging.logger { }
  * Fetches the list of learnable attacks from the server.
  */
 @Service
-class AttackListService(
+class AttackLearnService(
     private val bestiaAttackRepository: BestiaAttackRepository,
-    private val playerAttackRepository: PlayerAttackRepository,
-    private val attackRepository: AttackRepository
+    private val playerAttackRepository: PlayerAttackRepository
 ) {
 
   /**
@@ -26,10 +25,10 @@ class AttackListService(
    */
   fun getKnownAttacks(entity: Entity): List<KnownAttack> {
     val bestiaAttacks = getDefaultBestiaAttacks(entity)
-        .map { KnownAttack(minLevel = it.minLevel, attackId = it.attack.id) }
+        .map { KnownAttack(minLevel = it.minLevel, databaseName = it.attack.databaseName, attackId = it.attack.id) }
 
     val playerAttacks = getLearnedPlayerAttacks(entity)
-        .map { KnownAttack(minLevel = it.minLevel, attackId = it.attack.id) }
+        .map { KnownAttack(minLevel = it.minLevel, databaseName = it.attack.databaseName, attackId = it.attack.id) }
 
     return (bestiaAttacks + playerAttacks).sortedBy { it.minLevel }
   }
@@ -54,8 +53,8 @@ class AttackListService(
   /**
    * Teaches the given entity the given attack via its ID. In order for the
    * entity to learn the attack it must have a [StatusComponent] as well
-   * as a [PositionComponent]. If it has not a
-   * [AttackListComponent] this component will be added.
+   * as a [PositionComponent].
+   * If it has not a [AttackListComponent] this component will be added.
    */
   fun learnAttack(entity: Entity, attackId: Long): AttackListComponent {
     LOG.debug("Entity $entity learns attack $attackId")

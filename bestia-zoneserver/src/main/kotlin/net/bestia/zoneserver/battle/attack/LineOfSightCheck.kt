@@ -1,7 +1,8 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
 import mu.KotlinLogging
 import net.bestia.model.geometry.Cube
+import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.entity.component.PositionComponent
 import kotlin.math.max
 import kotlin.math.min

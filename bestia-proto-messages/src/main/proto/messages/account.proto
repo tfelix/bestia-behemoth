@@ -26,10 +26,15 @@ message ClientInfoRequest {
     // no op
 }
 
+message OwnedBestiaInfo {
+    int64 entity_id = 1;
+    int64 player_bestia_id = 2;
+}
+
 message ClientInfoResponse {
     uint32 bestia_slot_count = 1;
     uint64 master_entity_id = 2;
-    repeated uint64 owned_bestia_entity_ids = 3;
+    repeated OwnedBestiaInfo owned_bestias = 3;
 }
 
 message ClientVarRequest {

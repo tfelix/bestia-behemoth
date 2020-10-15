@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.battle
 
 import net.bestia.model.bestia.ConditionValues
-import net.bestia.model.entity.BasicStatusBasedValues
 import net.bestia.model.entity.StatusBasedValues
 
 class RegenerationService {

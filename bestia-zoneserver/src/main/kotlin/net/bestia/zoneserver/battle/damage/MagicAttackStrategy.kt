@@ -3,7 +3,7 @@ package net.bestia.zoneserver.battle.damage
 import mu.KotlinLogging
 import net.bestia.model.battle.Damage
 import net.bestia.model.battle.Hit
-import net.bestia.zoneserver.battle.AttackStrategy
+import net.bestia.zoneserver.battle.attack.AttackStrategy
 import net.bestia.zoneserver.battle.EntityBattleContext
 
 private val LOG = KotlinLogging.logger { }
@@ -11,7 +11,7 @@ private val LOG = KotlinLogging.logger { }
 class MagicAttackStrategy(
     private val battleCtx: EntityBattleContext,
     private val damageCalculator: MagicDamageCalculator
-) : AttackStrategy() {
+) : AttackStrategy {
   // Magic always hits
   override fun doesAttackHit(battleCtx: EntityBattleContext): Boolean {
     return true

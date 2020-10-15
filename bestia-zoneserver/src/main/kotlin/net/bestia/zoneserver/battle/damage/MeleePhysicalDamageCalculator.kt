@@ -1,9 +1,10 @@
 package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.battle.BaseDamageCalculator
 import net.bestia.zoneserver.battle.EntityBattleContext
 import net.bestia.zoneserver.battle.clamp
+import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 import kotlin.math.min
 
@@ -17,15 +18,15 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-class MeleePhysicalDamageCalculator() : BaseDamageCalculator() {
+class MeleePhysicalDamageCalculator(
+    random: Random = ThreadLocalRandom.current()
+) : BaseDamageCalculator(random) {
   override fun calculateWeaponAtk(): Float {
     LOG.warn("calculateWeaponAtk is currently not implemented.")
     return 0f
   }
 
   override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
-    // if (usedAttack.isMagic) attackMagicBonus else attackPhysicalBonus
-
     return battleCtx.damageVariables.attackMeleeBonus + battleCtx.damageVariables.attackPhysicalBonus
   }
 
@@ -45,16 +46,16 @@ class MeleePhysicalDamageCalculator() : BaseDamageCalculator() {
     val defStatus = battleCtx.defenderStatusPoints
     val lv = battleCtx.defenderLevel
 
-    val softDef = lv / 2f + defStatus.vitality + defStatus.strength / 3f
+    val softDef = lv / 2f + defStatus.vitality / 2f + defStatus.strength / 4f
 
-    return min(0f, softDef)
+    return max(0f, softDef)
   }
 
   override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float {
     val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
     val defDefense = battleCtx.defenderDefense.physicalDefense
 
-    return (1 - (defDefense / 100f + physicalDefenseMod)).clamp(0.05f, 1.0f)
+    return (1 - ((defDefense / 100f) * physicalDefenseMod)).clamp(0.05f, 1.0f)
   }
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float {

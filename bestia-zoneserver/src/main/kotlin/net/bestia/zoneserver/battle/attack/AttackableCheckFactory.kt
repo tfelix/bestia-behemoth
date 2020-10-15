@@ -1,9 +1,10 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.attack
 
+import net.bestia.zoneserver.battle.BattleContext
 import org.springframework.stereotype.Component
 
 @Component
-class AttackCheckFactoryImpl(
+class AttackableCheckFactory(
     private val attackCheckFactories: List<AttackCheckFactory>
 ) {
 

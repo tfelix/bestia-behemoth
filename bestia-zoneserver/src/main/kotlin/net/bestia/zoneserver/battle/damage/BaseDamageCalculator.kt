@@ -1,15 +1,18 @@
-package net.bestia.zoneserver.battle
+package net.bestia.zoneserver.battle.damage
 
 import mu.KotlinLogging
-import net.bestia.zoneserver.battle.damage.DamageCalculator
-import java.util.concurrent.ThreadLocalRandom
+import net.bestia.zoneserver.battle.ElementModifier
+import net.bestia.zoneserver.battle.EntityBattleContext
+import net.bestia.zoneserver.battle.clamp
+import java.util.*
 import kotlin.math.floor
-import kotlin.math.min
+import kotlin.math.max
 
 private val LOG = KotlinLogging.logger { }
 
-abstract class BaseDamageCalculator : DamageCalculator {
-  private val random = ThreadLocalRandom.current()
+abstract class BaseDamageCalculator(
+    private val random: Random
+) : DamageCalculator {
 
   /**
    * This calculates the taken battle damage. Currently this is only a
@@ -45,7 +48,7 @@ abstract class BaseDamageCalculator : DamageCalculator {
 
     var baseAtk = 2f * statusAtk * varMod + weaponAtk * varModRed + ammoAtk + bonusAtk
     baseAtk *= elementMod * elementBonusMod
-    baseAtk = min(1f, baseAtk)
+    baseAtk = max(1f, baseAtk)
 
     LOG.trace("BaseAtk: {}.", baseAtk)
 
