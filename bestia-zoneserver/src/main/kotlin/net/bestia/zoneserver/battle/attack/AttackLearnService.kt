@@ -35,7 +35,7 @@ class AttackLearnService(
 
   private fun getDefaultBestiaAttacks(entity: Entity): List<BestiaAttack> {
     val bestiaId = entity.tryGetComponent(MetadataComponent::class.java)
-        ?.let { it.tryGetAsLong(MetadataComponent.MOB_BESTIA_ID) }
+        ?.tryGetAsLong(MetadataComponent.MOB_BESTIA_ID)
         ?: return emptyList()
 
     return bestiaAttackRepository.getAllAttacksForBestia(bestiaId)

@@ -5,10 +5,9 @@ import net.bestia.messages.proto.AttackProtos
 import net.bestia.messages.proto.ChatProtos
 import net.bestia.messages.proto.MessageProtos
 import net.bestia.zoneserver.ClientSocket
-import org.awaitility.Awaitility.await
+import net.bestia.zoneserver.receive
 import org.junit.Assert
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.*
 
 @IntegrationTest
@@ -62,10 +61,10 @@ class BootableSmokeTest {
       AccountProtos.ClientInfoRequest.newBuilder().build()
   ).build().toByteArray()
 
-  private fun getAttackListRequest(playerBestiaId: Long): MessageProtos.Wrapper? {
+  private fun getAttackListRequest(playerBestiaId: Long): ByteArray {
     return MessageProtos.Wrapper.newBuilder().setAttackListRequest(
         AttackProtos.AttackListRequest.newBuilder().setPlayerBestiaId(playerBestiaId).build()
-    ).build()
+    ).build().toByteArray()
   }
 
   @Test
@@ -74,22 +73,22 @@ class BootableSmokeTest {
 
     ClientSocket("127.0.0.1", 8990).use { socket ->
       socket.connect()
-      val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)
+      val initialClientInfo = socket.receive<AccountProtos.ClientInfoResponse>()
       Assert.assertNotNull(initialClientInfo)
       Assert.assertEquals(4, initialClientInfo!!.bestiaSlotCount)
       Assert.assertEquals(1, initialClientInfo.ownedBestiasList.size)
+      Assert.assertEquals("Master is the active entity", initialClientInfo.masterEntityId, initialClientInfo.activeEntityId)
 
-      /*
       // Send chat message
       socket.send(chatPayload)
-      val resp1 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+      val resp1 = socket.receive<ChatProtos.ChatResponse>()
       Assert.assertNotNull(resp1)
       Assert.assertEquals("Doom Master", resp1!!.senderNickname)
       Assert.assertEquals("Hello World", resp1.text)
-      Assert.assertTrue(initialClientInfo.ownedBestiaEntityIdsList.contains(resp1.entityId))
+      Assert.assertTrue(initialClientInfo.ownedBestiasList.any { it.entityId == resp1.entityId })
 
       socket.send(chatServerCommandPayload)
-      val resp2 = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+      val resp2 = socket.receive<ChatProtos.ChatResponse>()
       Assert.assertNotNull(resp2)
       Assert.assertTrue(resp2!!.senderNickname.isEmpty())
       Assert.assertTrue(resp2.senderNickname.isEmpty())
@@ -98,24 +97,36 @@ class BootableSmokeTest {
 
       // Set and request client vars
       socket.send(clientVarRequestSetValue)
-      val resp3 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+      val resp3 = socket.receive<AccountProtos.ClientVarResponse>()
       Assert.assertNotNull(resp3)
       Assert.assertEquals(randomVarValue, resp3!!.value)
 
       socket.send(clientVarRequestValue)
-      val resp4 = socket.receive<AccountProtos.ClientVarResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_VAR_RESPONSE)
+      val resp4 = socket.receive<AccountProtos.ClientVarResponse>()
       Assert.assertNotNull(resp4)
       Assert.assertEquals(randomVarValue, resp4!!.value)
 
       // Send client info request
       socket.send(clientInfoRequest)
-      val resp5 = socket.receive<AccountProtos.ClientInfoResponse>(MessageProtos.Wrapper.PayloadCase.CLIENT_INFO_RESPONSE)*/
+      val clientInfoResponse = socket.receive<AccountProtos.ClientInfoResponse>()
+      Assert.assertNotNull(clientInfoResponse)
+      // TODO Perform more tests on response
+
+      socket.send(getAttackListRequest(initialClientInfo.activeEntityId))
+      val attackListResponse = socket.receive<AttackProtos.AttackListResponse>()
+      Assert.assertNotNull(attackListResponse)
+      // TODO Test more attacks
+
 
       // Move player Bestia and await component updates via a Script ticking damage entity.
       socket.send(chatMapMoveCommandPayload)
-      val test = socket.receive<ChatProtos.ChatResponse>(MessageProtos.Wrapper.PayloadCase.CHAT_RESPONSE)
+      val test = socket.receive<ChatProtos.ChatResponse>()
 
-      // await().atMost(Duration.ofSeconds(30)).until { false }
+      // TODO check the component updates
+
+      // TODO switch active bestia to another bestia
+      // TODO later request map data from the server
+
 
       val responseTimeMs = getResponseTime(socket, 10)
       println("Avg. Behemeoth Roundtrip Time: $responseTimeMs ms")
@@ -132,7 +143,7 @@ class BootableSmokeTest {
     for (i in 1..repeats) {
       val send = System.currentTimeMillis().toDouble()
       socket.send(pingPayload)
-      val pong = socket.receive<AccountProtos.PingResponse>(MessageProtos.Wrapper.PayloadCase.PING_RESPONSE)
+      val pong = socket.receive<AccountProtos.PingResponse>()
       Assert.assertNotNull(pong)
       val received = System.currentTimeMillis().toDouble()
       times.add(received - send)

@@ -6,19 +6,28 @@ import org.springframework.stereotype.Component
 
 @Component
 class ClientInfoResponseConverter : MessageConverterOut<ClientInfoResponse> {
+
+  private val ownedBestiaBuilder = AccountProtos.OwnedBestiaInfo.newBuilder()
+  private val builder = AccountProtos.ClientInfoResponse.newBuilder()
+
   override fun convertToPayload(msg: ClientInfoResponse): ByteArray {
-    val clientInfoResponse = AccountProtos.ClientInfoResponse.newBuilder()
-        .apply {
-          val ob = AccountProtos.OwnedBestiaInfo.newBuilder()
+    builder.clear()
+    ownedBestiaBuilder.clear()
 
-          msg.ownedBestiaEntityIds
+    val ownedBestias = msg.ownedBestias.map { ob ->
+      ownedBestiaBuilder
+          .setEntityId(ob.entityId)
+          .setPlayerBestiaId(ob.playerBestiaId)
+          .build()
+    }
 
-          addAllOwnedBestiaEntityIds(msg.ownedBestiaEntityIds)
-          msg.masterBestiaEntityId?.let { masterEntityId = it }
-          bestiaSlotCount = msg.bestiaSlotCount
-        }
-
-    return wrap { it.clientInfoResponse = clientInfoResponse.build() }
+    return wrap {
+      it.clientInfoResponse = builder.setMasterEntityId(msg.masterBestiaEntityId ?: 0)
+          .setActiveEntityId(msg.activeEntityId)
+          .setBestiaSlotCount(msg.bestiaSlotCount)
+          .addAllOwnedBestias(ownedBestias)
+          .build()
+    }
   }
 
   override val fromMessage = ClientInfoResponse::class.java

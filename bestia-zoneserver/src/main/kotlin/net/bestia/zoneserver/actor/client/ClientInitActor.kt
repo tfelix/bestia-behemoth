@@ -24,8 +24,14 @@ data class ClientInfoResponse(
      * a account.
      */
     val masterBestiaEntityId: Long?,
-    val ownedBestiaEntityIds: List<Long>
-)
+    val activeEntityId: Long,
+    val ownedBestias: List<OwnedBestias>
+) {
+  data class OwnedBestias(
+      val entityId: Long,
+      val playerBestiaId: Long
+  )
+}
 
 private val LOG = KotlinLogging.logger { }
 

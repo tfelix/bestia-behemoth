@@ -4,6 +4,7 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.actor.battle.AttackUseActor
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor
+import net.bestia.zoneserver.actor.bestia.AttackListActor
 import net.bestia.zoneserver.actor.chat.ChatActor
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor
 import net.bestia.zoneserver.actor.routing.DynamicMessageRoutingActor
@@ -19,6 +20,7 @@ class ClientMessageRoutingActor : DynamicMessageRoutingActor() {
   override fun preStart() {
     // === Bestias ===
     SpringExtension.actorOf(context, ActivateBestiaActor::class.java)
+    SpringExtension.actorOf(context, AttackListActor::class.java)
 
     // === Map ===
     // SpringExtension.actorOf(context, MapRequestChunkActor::class.java)

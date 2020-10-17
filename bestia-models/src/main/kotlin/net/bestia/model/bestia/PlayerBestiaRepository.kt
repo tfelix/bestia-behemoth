@@ -18,4 +18,6 @@ interface PlayerBestiaRepository : CrudRepository<PlayerBestia, Long> {
    * @return A set of all found [PlayerBestia]s for this account.
    */
   fun findAllByOwnerId(accId: Long): Set<PlayerBestia>
+
+  fun findByOwnerIdAndId(accountId: Long, id: Long): PlayerBestia?
 }

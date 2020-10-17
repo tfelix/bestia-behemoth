@@ -104,6 +104,10 @@ abstract class DynamicMessageRoutingActor(
 
     LOG.trace { "routeMessage received: ${msg.javaClass.simpleName}, redirecting to: $registeredRedirects" }
 
+    if (registeredRedirects == null) {
+      LOG.warn { "Received message ${msg.javaClass.simpleName} but actor ${self.path()} has not target route" }
+    }
+
     registeredRedirects?.forEach {
       it.tell(msg, sender)
     }

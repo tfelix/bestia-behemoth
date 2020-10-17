@@ -15,10 +15,21 @@ class ClientInfoService(
   fun getClientInfo(accountId: Long): ClientInfoResponse {
     val account = accountRepository.findOneOrThrow(accountId)
 
+    val master = account.masterBestia
+    requireNotNull(master) {
+      "Master for account $account is not set"
+    }
+
     return ClientInfoResponse(
         bestiaSlotCount = Account.NUM_BESTIA_SLOTS + account.additionalBestiaSlots,
-        masterBestiaEntityId = account.masterBestia!!.entityId,
-        ownedBestiaEntityIds = account.playerBestias.map { it.entityId }
+        masterBestiaEntityId = master.entityId,
+        ownedBestias = account.playerBestias.map {
+          ClientInfoResponse.OwnedBestias(
+              entityId = it.entityId,
+              playerBestiaId = it.id
+          )
+        },
+        activeEntityId = account.activeBestia?.entityId ?: 0
     )
   }
 }

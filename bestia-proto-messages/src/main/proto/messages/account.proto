@@ -35,6 +35,7 @@ message ClientInfoResponse {
     uint32 bestia_slot_count = 1;
     uint64 master_entity_id = 2;
     repeated OwnedBestiaInfo owned_bestias = 3;
+    uint64 active_entity_id = 4;
 }
 
 message ClientVarRequest {
