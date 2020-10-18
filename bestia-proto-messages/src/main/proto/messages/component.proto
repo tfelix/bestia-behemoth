@@ -8,11 +8,10 @@ option java_outer_classname = "ComponentProtos";
 
 message Component {
     int64 entity_id = 1;
-    int64 component_id = 2;
 }
 
 message PositionComponent {
-    Component component = 1;
+    int64 entity_id = 1;
     Vec3 position = 2;
 }
 

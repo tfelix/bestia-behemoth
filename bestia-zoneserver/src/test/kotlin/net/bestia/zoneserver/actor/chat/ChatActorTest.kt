@@ -34,9 +34,9 @@ class ChatActorTest : AbstractActorTest() {
       val partyMessage = ChatResponse(1, ChatMode.PARTY, "Hello PARTY")
       chat.tell(partyMessage, ActorRef.noSender())
 
-      probes["publicChatActor"]!!.expectMsg(pubChat)
-      probes["guildChatActor"]!!.expectMsg(guildMessage)
-      probes["partyChatActor"]!!.expectMsg(partyMessage)
+      probes["publicChatActor"].expectMsg(pubChat)
+      probes["guildChatActor"].expectMsg(guildMessage)
+      probes["partyChatActor"].expectMsg(partyMessage)
     }
   }
 }

@@ -116,8 +116,8 @@ abstract class ComponentActor<T : Component>(
 
   private fun updateConnectedClients(newComponent: T) {
     requestOwnerEntity {
-      val msg = TransmitRequest(newComponent, it)
-      broadcastToClients.tell(msg, self)
+      val transmitRequest = TransmitRequest(newComponent, it)
+      broadcastToClients.tell(transmitRequest, self)
     }
   }
 

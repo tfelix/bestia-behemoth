@@ -26,8 +26,7 @@ data class SetPositionToOffset(
 private val LOG = KotlinLogging.logger { }
 
 @ActorComponent(
-    component = PositionComponent::class,
-    transmitFilter = InRangeTransmitFilter::class
+    component = PositionComponent::class
 )
 class PositionComponentActor(
     positionComponent: PositionComponent,

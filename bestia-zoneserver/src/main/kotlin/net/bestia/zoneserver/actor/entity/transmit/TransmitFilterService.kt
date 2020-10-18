@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.actor.entity.transmit
 
-import akka.actor.ActorRef
-import akka.actor.ActorRefFactory
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.entity.Entity
 import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
@@ -21,17 +19,44 @@ class TransmitFilterService(
       .map { it.javaClass to it }
       .toMap()
 
-  fun sendToReceivers(transmit: TransmitRequest, ctx: ActorRefFactory, parent: ActorRef) {
-    val compFilterClass = transmit.changedComponent.javaClass.getAnnotation(ActorComponent::class.java)
-        ?: return
-    LOG.trace { "Looking for transmit filter ${compFilterClass.transmitFilter} on component '${transmit.changedComponent.javaClass.simpleName}'" }
-    val filter = transmitFilterGroupedByClass[compFilterClass.transmitFilter.java]
+  private fun getFilter(transmit: TransmitRequest): TransmitFilter? {
+    val compFilterClass = transmit.changedComponent.javaClass.getAnnotation(ClientTransmitFilter::class.java)
+        ?: return null
+    LOG.trace { "Looking for transmit filter ${compFilterClass.value} on component '${transmit.changedComponent.javaClass.simpleName}'" }
+
+    return transmitFilterGroupedByClass[compFilterClass.value.java]
+  }
+
+  fun findTransmitCandidates(transmit: TransmitRequest): Set<Long> {
+    val filter = getFilter(transmit)
+        ?: return emptySet()
 
     if (filter == null) {
-      LOG.warn { "Did not find matching transmit filter for ${compFilterClass.transmitFilter}, available filters: ${transmitFilterGroupedByClass.keys}" }
-      return
+      LOG.warn { "Did not find matching transmit filter for $transmit, available filters: ${transmitFilterGroupedByClass.keys}" }
+      return emptySet()
     }
 
-    filter.findTransmitTargets(transmit, ctx, parent)
+    val candidates = filter.findTransmitCandidates(transmit)
+
+    LOG.trace { "Found transmit candidates entity ids: $candidates" }
+
+    return candidates
+  }
+
+  fun selectTransmitCandidates(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
+    LOG.trace { "Selecting transmit candidates: $candidates" }
+
+    val filter = getFilter(transmit)
+
+    if (filter == null) {
+      LOG.warn { "No transmit filter found for request: I$transmit" }
+      return emptySet()
+    }
+
+    val candidates = filter.selectTransmitTargets(candidates, transmit)
+
+    LOG.debug { "Transmit: $transmit, candidates: $candidates" }
+
+    return candidates
   }
 }

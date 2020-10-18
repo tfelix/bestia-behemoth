@@ -1,10 +1,8 @@
 package net.bestia.zoneserver.actor.entity.transmit
 
-import akka.actor.ActorRef
-import akka.actor.ActorRefFactory
 import mu.KotlinLogging
-import net.bestia.zoneserver.actor.entity.awaitEntityResponse
 import net.bestia.zoneserver.actor.routing.MessageApi
+import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.component.OwnerComponent
 import net.bestia.zoneserver.entity.component.PositionComponent
@@ -18,27 +16,23 @@ class InRangeTransmitFilter(
     private val entityCollisionService: EntityCollisionService,
     private val messageApi: MessageApi
 ) : TransmitFilter {
-  override fun findTransmitTargets(transmit: TransmitRequest, ctx: ActorRefFactory, parent: ActorRef) {
+
+  override fun findTransmitCandidates(transmit: TransmitRequest): Set<Long> {
     val posComp = transmit.entity.tryGetComponent(PositionComponent::class.java)
         ?: run {
           LOG.warn { "Position component of entity '${transmit.entity}' not present" }
-          return
+          return emptySet()
         }
 
     val updateRect = MapService.getUpdateRect(posComp.position)
-    val activeIds = entityCollisionService.getAllCollidingEntityIds(updateRect)
 
-    awaitEntityResponse(messageApi, ctx, activeIds) { entities ->
-      val receivingClientIds = entities.all
-          .mapNotNull { it.tryGetComponent(OwnerComponent::class.java)?.ownerAccountIds }
-          .flatten()
-          .toSet()
+    return entityCollisionService.getAllCollidingEntityIds(updateRect)
+  }
 
-      parent.tell(TransmitCommand(
-          entity = transmit.entity,
-          changedComponent = transmit.changedComponent,
-          receivingClientIds = receivingClientIds
-      ), ActorRef.noSender())
-    }
+  override fun selectTransmitTargets(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
+    return candidates
+        .mapNotNull { it.tryGetComponent(OwnerComponent::class.java)?.ownerAccountIds }
+        .flatten()
+        .toSet()
   }
 }

@@ -60,7 +60,7 @@ class ClientVarServiceTest {
 
   @Test
   fun isOwnerOfVar_owningAccId_true() {
-    whenever(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(notOwnedCvar)
+    whenever(cvarDao.findByKey(EXISTING_KEY)).thenReturn(notOwnedCvar)
 
     assertTrue(cvarService.isOwnerOfVar(OWNING_ACC_ID, EXISTING_KEY))
   }

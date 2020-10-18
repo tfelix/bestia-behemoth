@@ -46,6 +46,10 @@ fun awaitEntityResponse(
     entitiyIds: Set<Long>,
     callback: (EntitiesResponse) -> Unit
 ) {
+  if (entitiyIds.isEmpty()) {
+    callback(EntitiesResponse(emptyMap()))
+  }
+
   val hasReceivedAll = { responses: List<Any> ->
     responses.filterIsInstance(EntityResponse::class.java)
         .map { it.entity.id }

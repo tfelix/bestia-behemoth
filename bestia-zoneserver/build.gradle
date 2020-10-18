@@ -68,7 +68,7 @@ dependencies {
         // Test if this wroks
         // exclude group: 'junit', module: 'junit'
     }
-    testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: akkaVersion
+    testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.13', version: akkaVersion
 }
 
 test {

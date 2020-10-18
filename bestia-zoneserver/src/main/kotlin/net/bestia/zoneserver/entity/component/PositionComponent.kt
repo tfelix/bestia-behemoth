@@ -2,6 +2,8 @@ package net.bestia.zoneserver.entity.component
 
 import net.bestia.model.geometry.Shape
 import net.bestia.model.geometry.Vec3
+import net.bestia.zoneserver.actor.entity.transmit.ClientTransmitFilter
+import net.bestia.zoneserver.actor.entity.transmit.InRangeTransmitFilter
 
 /**
  * Entity with this component have a defined position in the world. Point refers
@@ -9,6 +11,7 @@ import net.bestia.model.geometry.Vec3
  *
  * @author Thomas Felix
  */
+@ClientTransmitFilter(InRangeTransmitFilter::class)
 data class PositionComponent(
     override val entityId: Long,
 

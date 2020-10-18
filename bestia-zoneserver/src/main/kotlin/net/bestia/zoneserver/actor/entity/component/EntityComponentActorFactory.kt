@@ -3,12 +3,15 @@ package net.bestia.zoneserver.actor.entity.component
 import akka.actor.AbstractActor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
+import mu.KotlinLogging
 import net.bestia.zoneserver.actor.ActorComponent
 import net.bestia.zoneserver.actor.SpringExtension
 import net.bestia.zoneserver.entity.component.Component
 import org.reflections.Reflections
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
+
+private val LOG = KotlinLogging.logger { }
 
 /**
  * Depending on the given component class this factory will create an actor
@@ -36,6 +39,11 @@ class EntityComponentActorFactory {
           annotation.component to it
         }.toList()
         .toMap()
+
+    LOG.debug {
+      val content = componentToActorClass.entries.map { "${it.key.simpleName} => ${it.value.simpleName}" }.joinToString("\n")
+      "Registered component actors:\n$content"
+    }
   }
 
   fun startActor(ctx: ActorContext, component: Component): ActorRef? {

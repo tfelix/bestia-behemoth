@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.integration
 
-import net.bestia.messages.proto.AccountProtos
-import net.bestia.messages.proto.AttackProtos
-import net.bestia.messages.proto.ChatProtos
-import net.bestia.messages.proto.MessageProtos
+import net.bestia.messages.proto.*
 import net.bestia.zoneserver.ClientSocket
 import net.bestia.zoneserver.receive
 import org.junit.Assert
@@ -26,10 +23,11 @@ class BootableSmokeTest {
           .build()
   ).build().toByteArray()
 
+  private val chatCommandText = "/mm 10 20"
   private val chatMapMoveCommandPayload = MessageProtos.Wrapper.newBuilder().setChatRequest(
       ChatProtos.ChatRequest.newBuilder()
           .setMode(ChatProtos.ChatMode.PUBLIC)
-          .setText("/mm 0 20")
+          .setText(chatCommandText)
           .build()
   ).build().toByteArray()
 
@@ -115,12 +113,18 @@ class BootableSmokeTest {
       socket.send(getAttackListRequest(initialClientInfo.activeEntityId))
       val attackListResponse = socket.receive<AttackProtos.AttackListResponse>()
       Assert.assertNotNull(attackListResponse)
-      // TODO Test more attacks
-
+      // TODO Test content of attack list response
 
       // Move player Bestia and await component updates via a Script ticking damage entity.
       socket.send(chatMapMoveCommandPayload)
-      val test = socket.receive<ChatProtos.ChatResponse>()
+      val posComp = socket.receive<ComponentProtos.PositionComponent>()
+      Assert.assertNotNull(posComp)
+      Assert.assertEquals(10L, posComp!!.position.x)
+      Assert.assertEquals(20L, posComp.position.y)
+      val commandChatResponse = socket.receive<ChatProtos.ChatResponse>()
+      Assert.assertNotNull(commandChatResponse)
+      Assert.assertEquals(chatCommandText, commandChatResponse!!.text)
+      Assert.assertEquals(ChatProtos.ChatMode.SYSTEM, commandChatResponse.mode)
 
       // TODO check the component updates
 
@@ -131,10 +135,7 @@ class BootableSmokeTest {
       val responseTimeMs = getResponseTime(socket, 10)
       println("Avg. Behemeoth Roundtrip Time: $responseTimeMs ms")
 
-      // Logout
       socket.printStatistics()
-
-      Thread.sleep(30000)
     }
   }
 

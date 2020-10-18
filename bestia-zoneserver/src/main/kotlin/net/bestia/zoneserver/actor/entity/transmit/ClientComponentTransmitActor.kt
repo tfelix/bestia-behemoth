@@ -6,6 +6,9 @@ import mu.KotlinLogging
 import net.bestia.messages.client.ClientEnvelope
 import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.BQualifier
+import net.bestia.zoneserver.actor.entity.awaitEntityResponse
+import net.bestia.zoneserver.actor.routing.MessageApi
+import net.bestia.zoneserver.entity.component.Component
 import org.springframework.beans.factory.annotation.Qualifier
 
 private val LOG = KotlinLogging.logger { }
@@ -18,25 +21,31 @@ private val LOG = KotlinLogging.logger { }
 class ClientComponentTransmitActor(
     @Qualifier(BQualifier.CLIENT_FORWARDER)
     private val sendClient: ActorRef,
+    private val messageApi: MessageApi,
     private val transmitFilterService: TransmitFilterService
 ) : AbstractActor() {
 
   override fun createReceive(): Receive {
     return receiveBuilder()
         .match(TransmitRequest::class.java, this::broadcastComponent)
-        .match(TransmitCommand::class.java, this::transmitToClients)
         .build()
   }
 
   private fun broadcastComponent(msg: TransmitRequest) {
-    transmitFilterService.sendToReceivers(msg, context, self)
+    LOG.trace { "Received: $msg" }
+    val candidateEntityIds = transmitFilterService.findTransmitCandidates(msg)
+
+    awaitEntityResponse(messageApi, context, candidateEntityIds) { entities ->
+      val accountIds = transmitFilterService.selectTransmitCandidates(entities.all.toSet(), msg)
+      transmitToClients(accountIds, msg.changedComponent)
+    }
   }
 
-  private fun transmitToClients(msg: TransmitCommand) {
-    LOG.trace { "Sending component update ${msg.changedComponent.javaClass.simpleName} to: ${msg.receivingClientIds}" }
+  private fun transmitToClients(accountIds: Set<Long>, changedComponent: Component) {
+    LOG.trace { "Sending component update ${changedComponent} to: $accountIds" }
 
-    msg.receivingClientIds.forEach {
-      sendClient.tell(ClientEnvelope(it, msg.changedComponent), self)
+    accountIds.forEach {
+      sendClient.tell(ClientEnvelope(it, changedComponent), self)
     }
   }
 
