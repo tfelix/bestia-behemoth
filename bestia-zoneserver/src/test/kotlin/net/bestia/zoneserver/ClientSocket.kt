@@ -104,6 +104,12 @@ class ClientSocket(
     dOut.flush()
   }
 
+  fun clear(msgClass: Class<out Message>) {
+    synchronized(receiverThread.packets) {
+      receiverThread.packets.removeIf { it.javaClass == msgClass }
+    }
+  }
+
   fun receive(
       msgClass: Class<out Message>,
       timeout: Duration = Duration.ofSeconds(5)

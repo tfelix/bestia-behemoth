@@ -116,6 +116,7 @@ class BootableSmokeTest {
       // TODO Test content of attack list response
 
       // Move player Bestia and await component updates via a Script ticking damage entity.
+      socket.clear(ComponentProtos.PositionComponent::class.java)
       socket.send(chatMapMoveCommandPayload)
       val posComp = socket.receive<ComponentProtos.PositionComponent>()
       Assert.assertNotNull(posComp)

@@ -42,7 +42,7 @@ class ClientComponentTransmitActor(
   }
 
   private fun transmitToClients(accountIds: Set<Long>, changedComponent: Component) {
-    LOG.trace { "Sending component update ${changedComponent} to: $accountIds" }
+    LOG.trace { "Sending component update $changedComponent to: $accountIds" }
 
     accountIds.forEach {
       sendClient.tell(ClientEnvelope(it, changedComponent), self)
