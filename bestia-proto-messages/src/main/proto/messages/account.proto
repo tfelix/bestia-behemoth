@@ -36,6 +36,7 @@ message ClientInfoResponse {
     uint64 master_entity_id = 2;
     repeated OwnedBestiaInfo owned_bestias = 3;
     uint64 active_entity_id = 4;
+    string player_name = 5;
 }
 
 message ClientVarRequest {
