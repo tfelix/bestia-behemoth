@@ -20,6 +20,7 @@ class Agent(
    * TODO: Add time and execution management.
    */
   fun tick() {
+    /*
     sensors.forEach { it.detect(blackboard) }
 
     val currentActionStatus = currentAction?.getCurrentStatus()
@@ -28,11 +29,12 @@ class Agent(
       null, ActionStatus.FINISHED, ActionStatus.FAILED -> plan()
       ActionStatus.RUNNING -> cu
     }
+     */
   }
 
   private fun plan() {
     val considerations = behavior.consider()
     currentAction = planner.plan(considerations)
-    currentAction?.run()
+    // currentAction?.run()
   }
 }
