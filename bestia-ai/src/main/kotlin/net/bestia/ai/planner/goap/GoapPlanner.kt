@@ -1,50 +1,92 @@
 package net.bestia.ai.planner.goap
 
+import mu.KotlinLogging
+import net.bestia.ai.planner.goap.condition.Condition
+import java.time.Duration
+import java.time.Instant
+
+private val LOG = KotlinLogging.logger { }
+
 class GoapPlanner(
     private val initialState: Set<Condition>,
     private val goalState: Set<Condition>,
     private val availableActions: MutableList<Action>
 ) {
 
-  private class Node(
-      val parent: Node?,
+  private data class TransitionNode(
+      val parent: TransitionNode?,
       val action: Action,
       val cost: Int,
-      val heuristic: Int,
-      val next: Node?
+      val heuristic: Int
   )
 
-  fun plan(): Action? {
+  @ExperimentalStdlibApi
+  fun plan(maxPlanningDuration: Duration): List<Action> {
+    val start = Instant.now()
+
     // Find all possible actions for the initial state. Please note that set of actions can not change anymore
     // after they have been set so actually all possible actions must be given here.
-    val possibleActions = availableActions.filter { it.isPossible(initialState) }
+    val initialPossibleActions = availableActions.filter { it.isPossible(initialState) }
+    val openNodes = makeNodesFromActions(initialPossibleActions, null).toMutableList()
 
-    // sort them by cost, lowest cost first.
-    val sortedActions = possibleActions.sortedBy { it.cost }
+    var goalReached = false
+    val bestActionPath = mutableListOf<Action>()
 
-    // mutate worldstate by all actions and determine how "far" the new world state is away from the goal
-    // set this as heuristic.
-    val currentState = initialState.toMutableSet()
-    /*
-    val mutatedStates = sortedActions
-        .map {
-          it.applyEffects(currentState)
-          Triple(it, currentState)
-        }
-        .map { }
-*/
+    while (!goalReached && openNodes.isNotEmpty() && Duration.between(start, Instant.now()) < maxPlanningDuration) {
+      openNodes.sortBy { it.cost + it.heuristic }
+      val bestCandidateNode = openNodes.removeFirst()
 
-    // set this as the start action and sort them for total cost.
+      // get all actions to the start from this candidate
+      val actionsFromStart = getActionsFromStart(bestCandidateNode)
 
-    // start to expand from the lowest cost
+      // apply all action effects to get current world state
+      val currentState = actionsFromStart.foldRight(initialState) { action, currentState -> action.applyEffects(currentState) }
 
-    // pick lowest cost action
+      if (isGoalReached(currentState)) {
+        goalReached = true
+        bestActionPath.addAll(getActionsFromStart(bestCandidateNode))
+        break
+      }
 
-    val action = possibleActions.first()
-    // action.applyEffects(initialState)
+      val currentPossibleActions = availableActions.filter { it.isPossible(currentState) }
+      val currentPossibleTransitions = makeNodesFromActions(currentPossibleActions, bestCandidateNode)
 
-    // Gather world variables
-    return null
+      openNodes.addAll(currentPossibleTransitions)
+    }
+
+    if (!goalReached) {
+      val timeUsed = Duration.between(start, Instant.now())
+      LOG.debug { "Goal $goalState was not reached after $timeUsed" }
+    }
+
+    return bestActionPath
+  }
+
+  private fun makeNodesFromActions(actions: Collection<Action>, parent: TransitionNode?): List<TransitionNode> {
+    return actions.map { a ->
+      TransitionNode(
+          parent = parent,
+          action = a,
+          cost = a.cost,
+          heuristic = 0
+      )
+    }
+  }
+
+  private fun isGoalReached(currentState: Set<Condition>): Boolean {
+    return goalState.all { gs -> gs.isFulfilledBy(currentState) }
+  }
+
+  private fun getActionsFromStart(node: TransitionNode): List<Action> {
+    var t: TransitionNode? = node
+    val path = mutableListOf<TransitionNode>()
+
+    do {
+      path.add(t!!)
+      t = t.parent
+    } while (t != null)
+
+    return path.map { it.action }.reversed()
   }
 
   private fun getAccumulatedDistance(currentState: Set<Condition>): Int {
