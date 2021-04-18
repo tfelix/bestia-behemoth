@@ -18,7 +18,7 @@ data class ItemScriptExec private constructor(
     bindings["TARGET_POSITION"] = targetPosition
   }
 
-  class Builder() {
+  class Builder {
     var itemDbName: String? = null
     var user: Entity? = null
     var targetEntity: Entity? = null

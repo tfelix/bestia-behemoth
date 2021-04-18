@@ -12,6 +12,10 @@ class ScriptCache {
     cache[key] = script
   }
 
+  fun clear() {
+    cache.clear()
+  }
+
   fun getScript(key: String): CompiledScript {
     return cache[key]
         ?: throw IllegalArgumentException("There is no compiled script with key '$key'")
