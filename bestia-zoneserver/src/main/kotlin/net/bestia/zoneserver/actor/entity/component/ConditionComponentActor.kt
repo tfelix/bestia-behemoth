@@ -2,23 +2,27 @@ package net.bestia.zoneserver.actor.entity.component
 
 import akka.actor.ActorRef
 import akka.japi.pf.ReceiveBuilder
+import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
+import net.bestia.model.entity.StatusBasedValues
 import net.bestia.zoneserver.actor.ActorComponent
+import net.bestia.zoneserver.actor.entity.ComponentUpdated
 import net.bestia.zoneserver.battle.RegenerationService
 import net.bestia.zoneserver.entity.component.ConditionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
 import java.time.Duration
 
-abstract class ConditionCommand : ComponentMessage<ConditionComponent>, EntityMessage {
+sealed class ConditionCommand : ComponentMessage<ConditionComponent>, EntityMessage {
   override val componentType: Class<out ConditionComponent>
     get() = ConditionComponent::class.java
 }
 
-// FIXME react on mana or hp changes
 data class AddHp(override val entityId: Long, val hpDelta: Long) : ConditionCommand()
 data class SetHp(override val entityId: Long, val hp: Long) : ConditionCommand()
 data class AddMana(override val entityId: Long, val manaDelta: Long) : ConditionCommand()
 data class SetMana(override val entityId: Long, val mana: Long) : ConditionCommand()
+
+private val LOG = KotlinLogging.logger { }
 
 @ActorComponent(ConditionComponent::class)
 class ConditionComponentActor(
@@ -28,8 +32,10 @@ class ConditionComponentActor(
 
   private val currentIncrements = RegenerationService.ConditionIncrements()
 
-  // TODO This name confuses as its somehow not a component of its own
-  private var statusComponent: StatusComponent? = null
+  /**
+   * We keep a reference to the status based values in order to increment them.
+   */
+  private var statusBasedValues: StatusBasedValues? = null
 
   private val tick = context.system.scheduler().scheduleAtFixedRate(
       REGEN_TICK_INTERVAL,
@@ -47,14 +53,34 @@ class ConditionComponentActor(
   override fun createReceive(builder: ReceiveBuilder) {
     builder
         .matchEquals(ON_REGEN_TICK_MSG) { tickRegeneration() }
-        .match(StatusComponent::class.java) { statusComponent = it }
+        .match(ConditionCommand::class.java, this::onConditionCommand)
+        .match(ComponentUpdated::class.java, this::dependentComponentUpdated)
+  }
+
+  private fun onConditionCommand(cmd: ConditionCommand) {
+    LOG.trace { "Received: $cmd" }
+
+    val currentCondValues = component.conditionValues
+
+    component = when (cmd) {
+      is AddHp -> component.copy(conditionValues = currentCondValues.addHealth(cmd.hpDelta.toInt()))
+      is SetHp -> component.copy(conditionValues = currentCondValues.copy(currentHealth = cmd.hp.toInt()))
+      is AddMana -> component.copy(conditionValues = currentCondValues.addHealth(cmd.manaDelta.toInt()))
+      is SetMana -> component.copy(conditionValues = currentCondValues.copy(currentMana = cmd.mana.toInt()))
+    }
+  }
+
+  private fun dependentComponentUpdated(componentUpdated: ComponentUpdated<*>) {
+    when (val c = componentUpdated.component) {
+      is StatusComponent -> statusBasedValues = c.statusBasedValues
+    }
   }
 
   private fun tickRegeneration() {
-    statusComponent?.let {
+    statusBasedValues?.let {
       val conditionValues = regenerationService.addIncrements(
           component.conditionValues,
-          it.statusBasedValues,
+          it,
           currentIncrements
       )
       component = component.copy(conditionValues = conditionValues)
@@ -67,7 +93,6 @@ class ConditionComponentActor(
 
   companion object {
     private val REGEN_TICK_INTERVAL = Duration.ofMillis(RegenerationService.REGENERATION_TICK_RATE_MS)
-    private const val ON_REGEN_TICK_MSG = "tickStatus"
-    const val NAME = "conditionComponent"
+    const val ON_REGEN_TICK_MSG = "tickStatus"
   }
 }

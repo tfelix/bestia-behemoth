@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.actor.entity.transmit
 
-import akka.actor.ActorRef
-import akka.actor.ActorRefFactory
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityId
 import net.bestia.zoneserver.entity.component.OwnerComponent
 import org.springframework.stereotype.Component
 
@@ -11,11 +10,11 @@ import org.springframework.stereotype.Component
  */
 @Component
 class OwnerTransmitFilter : TransmitFilter {
-  override fun findTransmitCandidates(transmit: TransmitRequest): Set<Long> {
+  override fun findTransmitCandidates(transmit: TransmitRequest): Set<EntityId> {
     return emptySet()
   }
 
-  override fun selectTransmitTargets(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
+  override fun selectTransmitTargetAccountIds(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
     val ownerComp = transmit.entity.tryGetComponent(OwnerComponent::class.java)
         ?: return emptySet()
 

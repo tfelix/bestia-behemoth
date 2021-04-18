@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import java.time.Duration
 import kotlin.reflect.KClass
 import org.springframework.test.context.junit.jupiter.SpringExtension as SpringJunitExtension
 
@@ -119,5 +120,15 @@ abstract class AbstractActorTest(
     }
 
     return TestActorRef.create<T>(system, props)
+  }
+
+  protected fun <T : AbstractActor> TestKit.actorOf(actorClass: KClass<T>, vararg args: Any): ActorRef {
+    val props = if (createMockedActors) {
+      SpringNoMockExtension.getSpringProps(system, actorClass.java, *args)
+    } else {
+      SpringExtension.getSpringProps(system, actorClass.java, *args)
+    }
+
+    return this.childActorOf(props)
   }
 }

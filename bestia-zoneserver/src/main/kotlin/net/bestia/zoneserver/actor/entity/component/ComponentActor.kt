@@ -62,6 +62,11 @@ abstract class ComponentActor<T : Component>(
     updateConnectedClients(component)
   }
 
+  /**
+   * The actor registers to get notified if a certain component gets updated on the entity. This is usefull to calculate
+   * dependent properties e.g. if the level components has changes you probably want to update the status value component
+   * with the new values.
+   */
   protected fun createComponentUpdateSubscription(clazz: Class<out Component>) {
     val subscribeForComponentUpdates = SubscribeForComponentUpdates(clazz, self)
     context.parent.tell(subscribeForComponentUpdates, self)
@@ -104,7 +109,7 @@ abstract class ComponentActor<T : Component>(
   /**
    * Deletes this component from the entity. The actor is then stopped by the parent.
    */
-  protected fun deleteComponent(componentClass: Class<out Component>) {
+  protected fun deleteComponentFromEntity(componentClass: Class<out Component>) {
     context.parent.tell(DeleteComponent(component.entityId, componentClass), self)
   }
 

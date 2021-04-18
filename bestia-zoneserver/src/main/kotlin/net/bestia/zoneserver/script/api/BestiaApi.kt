@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger { }
  *
  * @author Thomas Felix
  */
-class ScriptRootApi(
+class BestiaApi(
     val scriptName: String,
     private val idGeneratorService: IdGenerator,
     private val mobFactory: MobFactory,
@@ -51,17 +51,14 @@ class ScriptRootApi(
 
   fun spawnMob(
       mobName: String,
-      x: Long,
-      y: Long,
-      z: Long
+      pos: Vec3
   ): EntityApi {
-    val position = Vec3(x, y, z)
-    LOG.trace { "spawnMob: $mobName pos: $position" }
-    require(x > 0L) { "X must be greater then 0" }
-    require(y > 0L) { "Y must be greater then 0" }
-    require(z > 0L) { "Z must be greater then 0" }
+    LOG.trace { "spawnMob: $mobName pos: $pos" }
+    require(pos.x > 0L) { "X must be greater then 0" }
+    require(pos.y > 0L) { "Y must be greater then 0" }
+    require(pos.z > 0L) { "Z must be greater then 0" }
 
-    val entity = mobFactory.build(mobName, position)
+    val entity = mobFactory.build(mobName, pos)
     commands.add(NewEntity(entity))
 
     return EntityApi(
@@ -72,14 +69,14 @@ class ScriptRootApi(
     )
   }
 
-  fun findEntities(shape: Shape): Array<EntityApi> {
+  fun findEntities(shape: Shape): List<EntityApi> {
     LOG.trace { "${scriptName}: findEntities($shape)" }
 
     val entities = entityCollisionService.getAllCollidingEntityIds(shape)
 
     return entities.map {
       EntityApi(entityId = it, commands = commands, scriptName = scriptName, entityRequestService = entityRequestService)
-    }.toTypedArray()
+    }
   }
 
   fun newEntity(): EntityApi {

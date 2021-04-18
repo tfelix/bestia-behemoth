@@ -2,7 +2,9 @@ package net.bestia.zoneserver.battle
 
 import net.bestia.model.bestia.ConditionValues
 import net.bestia.model.entity.StatusBasedValues
+import org.springframework.stereotype.Service
 
+@Service
 class RegenerationService {
 
   data class ConditionIncrements(

@@ -7,13 +7,13 @@ import net.bestia.zoneserver.script.ScriptType
 
 data class ItemScriptExec private constructor(
     override val scriptKey: String,
-    val userId: Long,
+    val userEntityId: Long,
     val targetId: Long?,
     val targetPosition: Vec3?
 ) : ScriptExec {
 
   override fun setupEnvironment(bindings: MutableMap<String, Any?>) {
-    bindings["USER_ENTITY_ID"] = userId
+    bindings["USER_ENTITY_ID"] = userEntityId
     bindings["TARGET_ENTITY"] = targetId
     bindings["TARGET_POSITION"] = targetPosition
   }
@@ -30,7 +30,7 @@ data class ItemScriptExec private constructor(
 
       return ItemScriptExec(
           scriptKey = ScriptKeyBuilder.getScriptKey(ScriptType.ITEM, itemDbName!!),
-          userId = user!!.id,
+          userEntityId = user!!.id,
           targetId = targetEntity?.id,
           targetPosition = targetPoint
       )

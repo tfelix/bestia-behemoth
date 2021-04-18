@@ -31,11 +31,6 @@ class TransmitFilterService(
     val filter = getFilter(transmit)
         ?: return emptySet()
 
-    if (filter == null) {
-      LOG.warn { "Did not find matching transmit filter for $transmit, available filters: ${transmitFilterGroupedByClass.keys}" }
-      return emptySet()
-    }
-
     val candidates = filter.findTransmitCandidates(transmit)
 
     LOG.trace { "Found transmit candidates entity ids: $candidates" }
@@ -53,7 +48,7 @@ class TransmitFilterService(
       return emptySet()
     }
 
-    val candidates = filter.selectTransmitTargets(candidates, transmit)
+    val candidates = filter.selectTransmitTargetAccountIds(candidates, transmit)
 
     LOG.debug { "Transmit: $transmit, candidates: $candidates" }
 

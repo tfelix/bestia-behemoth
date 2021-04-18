@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.actor.entity
 
-import akka.actor.AbstractActor
-import akka.actor.ActorRef
-import akka.actor.PoisonPill
-import akka.actor.Terminated
+import akka.actor.*
 import com.google.common.collect.HashBiMap
 import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
@@ -28,6 +25,13 @@ data class SubscribeForComponentUpdates(
 )
 
 /**
+ * Used to notify all subscribers about a changed component.
+ */
+data class ComponentUpdated<T : Component>(
+    val component: T
+)
+
+/**
  * Deletes a component from the Entity.
  */
 data class DeleteComponent<T : Component>(
@@ -42,7 +46,15 @@ data class NewEntity(
     get() = entity.id
 }
 
+/**
+ * Entity actor is stopped and all data also removed from database. This effectivly
+ * deletes the entity.
+ */
 data class KillEntity(override val entityId: Long) : EntityMessage
+
+/**
+ * Entity actor is stopped but it is saved to the database before.
+ */
 data class SaveAndKillEntity(override val entityId: Long) : EntityMessage
 
 /**
@@ -61,11 +73,30 @@ data class SaveAndKillEntity(override val entityId: Long) : EntityMessage
  *
  * @author Thomas Felix
  */
-// TODO Make this an PersistentActor
 @Actor
 class EntityActor(
     private val factory: EntityComponentActorFactory
 ) : AbstractActor() {
+
+  private val uninitialized: Receive = receiveBuilder()
+      .match(NewEntity::class.java, this::setupEntity)
+      .match(EntityRequest::class.java, this::handleUninitializedEntityRequest)
+      .matchAny { context.stop(self) }
+      .build()
+
+  private val initialized: Receive = receiveBuilder()
+      .match(NewEntity::class.java, this::setupEntity)
+      .match(DeleteComponent::class.java, this::removeComponentActor)
+      .match(UpdateComponent::class.java, this::updateComponentActor)
+      .match(ComponentMessage::class.java, this::onComponentMessage)
+      .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
+
+      .match(Terminated::class.java, this::handleTerminatedComponentActor)
+      .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
+      .match(KillEntity::class.java) { context.stop(self) }
+      .match(EntityRequest::class.java, this::handleExternalEntityRequest)
+      .match(LocalEntityRequest::class.java, this::handleLocalEntityRequest)
+      .build()
 
   private class ComponentActorCache {
     private val classToActor = HashBiMap.create<Class<Component>, ActorRef>()
@@ -97,21 +128,7 @@ class EntityActor(
   private var entityId: Long = 0
 
   override fun createReceive(): Receive {
-    return receiveBuilder()
-        .match(NewEntity::class.java, this::setupEntity)
-        .match(DeleteComponent::class.java, this::removeComponentActor)
-        .match(UpdateComponent::class.java, this::updateComponentActor)
-        .match(ComponentMessage::class.java, this::onComponentMessage)
-        .match(SubscribeForComponentUpdates::class.java, this::subscribeForComponentUpdates)
-
-        .match(Terminated::class.java, this::handleTerminatedComponentActor)
-        .match(SaveAndKillEntity::class.java, this::handleSaveAndKill)
-        .match(KillEntity::class.java) { context.stop(self) }
-        .match(EntityRequest::class.java, this::handleExternalEntityRequest)
-        .match(LocalEntityRequest::class.java, this::handleLocalEntityRequest)
-        // TODO Do this with a become/ctx change
-        .matchAny(this::terminateIfNoSuitableMessage)
-        .build()
+    return uninitialized
   }
 
   /**
@@ -126,18 +143,25 @@ class EntityActor(
   private fun onComponentMessage(msg: ComponentMessage<*>) {
     val componentActor = componentActorCache.get(msg.componentType)
 
-    if(componentActor == null) {
+    if (componentActor == null) {
       LOG.debug { "Component missing: ${msg.componentType}" }
       return
     }
-    
+
     componentActor.tell(msg, self)
   }
 
-  fun setupEntity(msg: NewEntity) {
+  private fun setupEntity(msg: NewEntity) {
     LOG.trace { "Creating entity actor: $msg" }
     entityId = msg.entity.id
     msg.entity.allComponents.forEach { createComponentActor(it) }
+
+    context.become(initialized)
+  }
+
+  private fun handleUninitializedEntityRequest(msg: EntityRequest) {
+    msg.replyTo.tell(EntityDoesNotExist, self)
+    context.stop(self)
   }
 
   private fun handleLocalEntityRequest(msg: LocalEntityRequest) {
@@ -149,12 +173,6 @@ class EntityActor(
   }
 
   private fun handleEntityRequest(requester: ActorRef, requestCtx: Any?) {
-    if (entityId == 0L) {
-      LOG.debug { "$requester requested not existing entity" }
-      requester.tell(EntityDoesNotExist, self)
-      return
-    }
-
     val awaitedComponentClasses = componentActorCache.getAllCachedComponentClasses()
 
     val hasAllResponses = { receivedResponses: List<Any> ->
@@ -182,20 +200,7 @@ class EntityActor(
     }
   }
 
-  private fun terminateIfNoSuitableMessage(msg: Any) {
-    if (entityId == 0L && msg !is UpdateComponent<*>) {
-      LOG.info { "Uninitialized EntityActor received message: $msg but awaited Component. Terminate." }
-      context.stop(self)
-    }
-
-    unhandled(msg)
-  }
-
   private fun updateComponentActor(msg: UpdateComponent<*>) {
-    if (entityId == 0L) {
-      entityId = msg.component.entityId
-    }
-
     val componentActor = componentActorCache.get(msg.component.javaClass)
         ?: createComponentActor(msg.component)
         ?: return
@@ -221,17 +226,6 @@ class EntityActor(
       componentActorCache.add(component, it)
       componentUpdateSubscriberCache.forEach { subMsg -> it.tell(subMsg, self) }
     }
-  }
-
-  /**
-   * After we have stopped we must notify the clients in range that we can be removed.
-   *
-   * TODO How can we inform clients which are not in range? Like player clients might need infos about far away entities?
-   */
-  override fun postStop() {
-    // IMPLEMENT CLIENT NOTIFICATION
-    // - Clients need only be notified if the Entity contained a client replicating component.
-    // - There might be special clients subscribed for notification
   }
 
   /**

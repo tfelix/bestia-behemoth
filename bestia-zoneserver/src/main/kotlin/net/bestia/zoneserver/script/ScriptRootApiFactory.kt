@@ -5,7 +5,7 @@ import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
-import net.bestia.zoneserver.script.api.ScriptRootApi
+import net.bestia.zoneserver.script.api.BestiaApi
 import net.bestia.zoneserver.script.exec.ScriptExec
 import org.springframework.stereotype.Component
 import javax.script.Bindings
@@ -20,12 +20,12 @@ class ScriptRootApiFactory(
     private val entityRequestService: EntityRequestService
 ) {
 
-  fun buildScriptRootApi(bindings: Bindings, exec: ScriptExec): ScriptRootApi {
+  fun buildScriptRootApi(bindings: Bindings, exec: ScriptExec): BestiaApi {
     LOG.trace { "Building ScriptRoot for ${exec.scriptKey} [${exec.javaClass.simpleName}]" }
 
     exec.setupEnvironment(bindings)
 
-    val rootApi = ScriptRootApi(
+    val rootApi = BestiaApi(
         scriptName = exec.scriptKey,
         idGeneratorService = idGenerator,
         mobFactory = mobFactory,

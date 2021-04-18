@@ -8,7 +8,7 @@ import javax.script.Invocable
 import javax.script.ScriptContext
 import javax.script.SimpleBindings
 import javax.script.SimpleScriptContext
-import net.bestia.zoneserver.script.api.ScriptRootApi
+import net.bestia.zoneserver.script.api.BestiaApi
 import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 
 private val LOG = KotlinLogging.logger { }
@@ -64,7 +64,7 @@ class ScriptService(
     }
   }
 
-  private fun setupEnvironment(exec: ScriptExec): Pair<Bindings, ScriptRootApi> {
+  private fun setupEnvironment(exec: ScriptExec): Pair<Bindings, BestiaApi> {
     val bindings = SimpleBindings()
     val rootApi = scriptRootApiFactory.buildScriptRootApi(bindings, exec)
 

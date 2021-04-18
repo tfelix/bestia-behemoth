@@ -13,8 +13,7 @@ private val LOG = KotlinLogging.logger { }
 
 @Component
 class InRangeTransmitFilter(
-    private val entityCollisionService: EntityCollisionService,
-    private val messageApi: MessageApi
+    private val entityCollisionService: EntityCollisionService
 ) : TransmitFilter {
 
   override fun findTransmitCandidates(transmit: TransmitRequest): Set<Long> {
@@ -29,7 +28,7 @@ class InRangeTransmitFilter(
     return entityCollisionService.getAllCollidingEntityIds(updateRect)
   }
 
-  override fun selectTransmitTargets(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
+  override fun selectTransmitTargetAccountIds(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long> {
     return candidates
         .mapNotNull { it.tryGetComponent(OwnerComponent::class.java)?.ownerAccountIds }
         .flatten()

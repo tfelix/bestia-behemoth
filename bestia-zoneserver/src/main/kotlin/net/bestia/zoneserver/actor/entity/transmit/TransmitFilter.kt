@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.actor.entity.transmit
 
-import akka.actor.ActorRef
-import akka.actor.ActorRefFactory
 import net.bestia.zoneserver.entity.Entity
+import net.bestia.zoneserver.entity.EntityId
 
 /**
  * This filter determines if a component should be transmitted to one
@@ -21,10 +20,10 @@ interface TransmitFilter {
   /**
    * @returns A list with entity IDs which belong to clients and might receive this component
    * update. If null is returned no lookup is performed and only the component
-   * owning entity is provided as a candidate to the [selectTransmitTargets] method.
+   * owning entity is provided as a candidate to the [selectTransmitTargetAccountIds] method.
    */
-  fun findTransmitCandidates(transmit: TransmitRequest): Set<Long>
+  fun findTransmitCandidates(transmit: TransmitRequest): Set<EntityId>
 
-  fun selectTransmitTargets(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long>
+  fun selectTransmitTargetAccountIds(candidates: Set<Entity>, transmit: TransmitRequest): Set<Long>
 }
 

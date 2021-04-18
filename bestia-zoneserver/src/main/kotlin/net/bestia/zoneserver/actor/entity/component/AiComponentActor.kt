@@ -55,7 +55,7 @@ class AiComponentActor(
       }
 
       if(moveDirectionNormal == null) {
-        deleteComponent(SpeedComponent::class.java)
+        deleteComponentFromEntity(SpeedComponent::class.java)
         return@requestOwnerEntity
       }
 
