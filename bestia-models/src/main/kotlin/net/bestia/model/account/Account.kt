@@ -1,14 +1,13 @@
 package net.bestia.model.account
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.PlayerBestia
 import net.bestia.model.party.Party
-import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.*
-import javax.persistence.*
 
 @Entity
 @Table(name = "accounts")
@@ -24,7 +23,7 @@ data class Account(
     val hairstyle: Hairstyle,
 
     var isActivated: Boolean = false
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
   @Enumerated(EnumType.STRING)
   var accountType = AccountType.USER
 

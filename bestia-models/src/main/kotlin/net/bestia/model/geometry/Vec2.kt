@@ -1,7 +1,6 @@
 package net.bestia.model.geometry
 
-import java.io.Serializable
-import javax.persistence.Embeddable
+import jakarta.persistence.Embeddable
 import kotlin.math.sqrt
 
 /**
@@ -24,7 +23,7 @@ data class Vec2(
      * @return Y
      */
     val y: Long
-) : Serializable {
+) {
 
   constructor() : this(0, 0)
 

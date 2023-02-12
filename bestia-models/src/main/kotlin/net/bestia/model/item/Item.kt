@@ -1,9 +1,8 @@
 package net.bestia.model.item
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
-import java.io.Serializable
-import javax.persistence.*
 
 /**
  * Items can be added to a players inventory. They can be used, traded, sold,
@@ -42,7 +41,7 @@ data class Item(
     @OneToMany
     @JoinColumn(name="itemId")
     val recepies: MutableList<CraftRecipe> = mutableListOf()
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
   override fun toString(): String {
     return "Item[dbName: $databaseName, id: $id, type: $type]"
   }

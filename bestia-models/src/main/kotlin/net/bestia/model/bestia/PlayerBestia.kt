@@ -1,13 +1,12 @@
 package net.bestia.model.bestia
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
 import net.bestia.model.account.Gender
 import net.bestia.model.party.Party
 import net.bestia.model.geometry.Vec3
-import java.io.Serializable
-import javax.persistence.*
 
 /**
  * Entity for the PlayerBestias these are Bestias which are directly controlled
@@ -31,7 +30,7 @@ data class PlayerBestia(
     private val master: Account? = null,
 
     var exp: Long = 0
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   @Column(name = "name")
   private var name_override: String? = null
@@ -111,7 +110,6 @@ data class PlayerBestia(
   var individualValue: BaseValues = BaseValues.newIndividualValues()
 
   @get:JsonIgnore
-  @get:Transient
   val baseValues
     get() = origin.baseValues
 

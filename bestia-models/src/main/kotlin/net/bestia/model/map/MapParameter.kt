@@ -1,12 +1,12 @@
 package net.bestia.model.map
 
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 import net.bestia.model.AbstractEntity
 import net.bestia.model.geometry.Size
-import java.io.Serializable
 import java.time.Instant
 import java.util.concurrent.ThreadLocalRandom
-import javax.persistence.Entity
-import javax.persistence.Table
+import kotlin.math.max
 
 /**
  * Creates the base parameter of a newly generated map.
@@ -63,7 +63,7 @@ class MapParameter(
      * @return The world seed.
      */
     val seed: Int = 0
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   override fun toString(): String {
     return "MapParameter[name: $name, size: $worldSize, population: $population]"
@@ -118,7 +118,7 @@ class MapParameter(
       val worldSize = Size(1000, 3000, depth = 1000)
 
       val population = 6L * user
-      val numberOfSettlements = Math.max(30, 2 * population / 55) * (rand.nextFloat() * 40).toInt()
+      val numberOfSettlements = max(30, 2 * population / 55) * (rand.nextFloat() * 40).toInt()
       val minSettleDistance = rand.nextInt(4000, 6001)
 
       return MapParameter(

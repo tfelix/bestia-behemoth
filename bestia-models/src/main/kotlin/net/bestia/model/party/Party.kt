@@ -1,9 +1,8 @@
 package net.bestia.model.party
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
-import java.io.Serializable
-import javax.persistence.*
 
 /**
  * Holds all the players which are temporarily can form parties in order to
@@ -16,7 +15,7 @@ import javax.persistence.*
 data class Party(
     @Column(nullable = false, unique = true, length = 25)
     var name: String
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   @OneToMany(cascade = [CascadeType.ALL], mappedBy = "party")
   private val members: MutableSet<Account> = mutableSetOf()
@@ -46,7 +45,6 @@ data class Party(
   }
 
   companion object {
-    @Transient
     const val MAX_PARTY_MEMBER = 12
   }
 }

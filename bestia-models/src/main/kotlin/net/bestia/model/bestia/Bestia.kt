@@ -1,10 +1,8 @@
 package net.bestia.model.bestia
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.battle.Element
-import java.io.Serializable
-import javax.persistence.*
 
 @Entity
 @Table(name = "bestias")
@@ -47,7 +45,7 @@ class Bestia(
      * Script which will be attached to this bestia.
      */
     val scriptExec: String? = null
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   override fun toString(): String {
     return "Bestia[db: $databaseName, id: $id, level: $level]"

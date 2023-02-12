@@ -2,12 +2,12 @@ package net.bestia.model
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.persistence.Entity
 import net.bestia.model.bestia.PlayerBestia
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.reflections.Reflections
 import java.io.Serializable
-import javax.persistence.Entity
 
 class GeneralModelTest {
   private val mapper = ObjectMapper().apply {

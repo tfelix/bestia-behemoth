@@ -1,11 +1,10 @@
 package net.bestia.model.battle
 
+import jakarta.persistence.Entity
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.PlayerBestia
-import java.io.Serializable
-import javax.persistence.Entity
-import javax.persistence.ManyToOne
-import javax.persistence.Table
 
 /**
  * Lists the default attacks a Bestia will learn when it gains more
@@ -28,7 +27,7 @@ class PlayerBestiaAttack(
      * @return The minimum level until the Bestia can use this attack.
      */
     val minLevel: Int = 0
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   override fun toString(): String {
     return "PlayerAttack[attack_db_name: ${attack.databaseName}, pbId: ${playerBestia.id}, minLevel: $minLevel]"

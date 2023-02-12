@@ -1,11 +1,11 @@
 package net.bestia.model.guild
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
-import java.io.Serializable
 import java.time.Instant
 import java.util.*
-import javax.persistence.*
+import kotlin.jvm.Transient
 
 /**
  * Representation of a guild for the bestia game.
@@ -22,7 +22,7 @@ class Guild(
     private var leader: GuildMember
     // @Column(nullable = true)
     // var emblem: String? = null
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   var level = 1
     set(level) {

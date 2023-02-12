@@ -1,11 +1,11 @@
 package net.bestia.model.login
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.ManyToOne
-import javax.persistence.Table
 
 /**
  * Saves information for basic authentication via password and email.

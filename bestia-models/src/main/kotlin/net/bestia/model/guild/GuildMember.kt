@@ -1,9 +1,10 @@
 package net.bestia.model.guild
 
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.ManyToOne
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
-import net.bestia.model.bestia.PlayerBestia
-import javax.persistence.*
 
 /**
  * Describes a member of a guild. This needs to be an extra entity because we

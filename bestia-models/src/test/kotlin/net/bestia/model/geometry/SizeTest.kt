@@ -7,11 +7,6 @@ import java.io.Serializable
 class SizeTest {
 
   @Test
-  fun is_serializable() {
-    assertTrue(Serializable::class.java.isAssignableFrom(Size::class.java))
-  }
-
-  @Test
   fun ctor_negativeValue_throws() {
     assertThrows(java.lang.IllegalArgumentException::class.java) {
       Size(0, -10)

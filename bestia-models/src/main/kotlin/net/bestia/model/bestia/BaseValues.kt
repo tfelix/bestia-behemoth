@@ -1,11 +1,8 @@
 package net.bestia.model.bestia
 
-import java.io.Serializable
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
 import java.util.concurrent.ThreadLocalRandom
-
-import javax.persistence.Column
-import javax.persistence.Embeddable
-import javax.persistence.Transient
 
 /**
  * Saves holds the basic bestia status values. Can be used to represent effort
@@ -41,7 +38,7 @@ data class BaseValues(
 
     @Column(name = "b_dex")
     val dexterity: Int = 0
-) : Serializable {
+) {
 
   operator fun minus(rhs: BaseValues) = copy(
       hp = hp - rhs.hp,

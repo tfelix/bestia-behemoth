@@ -1,9 +1,9 @@
 package net.bestia.model.item
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.bestia.Bestia
 import java.io.Serializable
-import javax.persistence.*
 
 /**
  * Contains a list with items which are dropped by a bestia for a certain
@@ -32,7 +32,7 @@ data class DropItem(
     val bestia: Bestia,
 
     val probability: Int = 0
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   /**
    * Ctor.

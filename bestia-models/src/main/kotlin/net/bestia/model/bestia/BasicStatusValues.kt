@@ -1,7 +1,6 @@
 package net.bestia.model.bestia
 
-import java.io.Serializable
-import javax.persistence.Embeddable
+import jakarta.persistence.Embeddable
 
 /**
  * Status values for Bestia entities.
@@ -16,7 +15,7 @@ data class BasicStatusValues(
     override val willpower: Int = 1,
     override val agility: Int = 1,
     override val dexterity: Int = 1
-) : Serializable, StatusValues {
+) : StatusValues {
   init {
     require(strength >= 1) { "Strength can not be less than 1" }
     require(vitality >= 1) { "Vitality can not be less than 1" }

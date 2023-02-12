@@ -1,7 +1,7 @@
 package net.bestia.model.item
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
-import javax.persistence.*
 
 @Entity
 class CraftRecipe(

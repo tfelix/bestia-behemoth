@@ -2,12 +2,9 @@ package net.bestia.model.item
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
 import net.bestia.model.account.Account
-import java.io.Serializable
-import javax.persistence.*
-
-typealias PlayerItemId = Long
 
 @Entity
 @Table(name = "player_items", uniqueConstraints = [
@@ -37,7 +34,7 @@ data class PlayerItem(
     @JoinColumn(name = "ITEM_ID", nullable = false)
     @JsonProperty("i")
     val item: Item
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   /**
    * Sets the amount of the owned item. Amount must be bigger then 0.

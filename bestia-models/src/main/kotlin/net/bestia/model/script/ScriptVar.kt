@@ -1,14 +1,12 @@
 package net.bestia.model.script
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 import net.bestia.model.AbstractEntity
 import java.io.Serializable
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Index
-import javax.persistence.Table
-import javax.persistence.Transient
 
 /**
  * This will save script variables to the database. These variables can be used

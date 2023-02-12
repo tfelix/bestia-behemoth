@@ -1,15 +1,9 @@
 package net.bestia.model.account
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
-import java.io.Serializable
 import java.nio.charset.Charset
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Index
-import javax.persistence.JoinColumn
-import javax.persistence.OneToOne
-import javax.persistence.Table
 
 /**
  * Clients can save data to the server in order to persist values.
@@ -27,7 +21,7 @@ data class ClientVar(
 
     @Column(name = "cvar_key")
     val key: String
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   /**
    * Data containing this shortcut.

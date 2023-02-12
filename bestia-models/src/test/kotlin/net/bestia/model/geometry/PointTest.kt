@@ -2,14 +2,8 @@ package net.bestia.model.geometry
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.io.Serializable
 
 class PointTest {
-
-  @Test
-  fun is_serializable() {
-    assertTrue(Serializable::class.java.isAssignableFrom(Vec3::class.java))
-  }
 
   @Test
   fun moveAnchor() {

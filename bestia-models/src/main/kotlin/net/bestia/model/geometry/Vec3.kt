@@ -2,9 +2,8 @@ package net.bestia.model.geometry
 
 import java.io.Serializable
 
-import javax.persistence.Embeddable
-
 import com.fasterxml.jackson.annotation.JsonIgnore
+import jakarta.persistence.Embeddable
 import kotlin.math.sqrt
 
 /**
@@ -29,7 +28,7 @@ data class Vec3(
     val y: Long,
 
     val z: Long
-) : Shape, Serializable {
+) : Shape {
 
   constructor() : this(0, 0, 0)
 

@@ -1,7 +1,9 @@
 package net.bestia.model.guild
 
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 import net.bestia.model.AbstractEntity
-import javax.persistence.*
 
 /**
  * A rank in a guild allows the leader to give certain member different

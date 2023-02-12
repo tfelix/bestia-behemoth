@@ -1,9 +1,7 @@
 package net.bestia.model.bestia
 
+import jakarta.persistence.Entity
 import net.bestia.model.AbstractEntity
-import java.io.Serializable
-
-import javax.persistence.Entity
 
 @Entity
 data class StatusEffect(
@@ -16,4 +14,4 @@ data class StatusEffect(
      * @return TRUE if the status effect should be visible to the client.
      */
     val isClientVisible: Boolean = true
-) : AbstractEntity(), Serializable
+) : AbstractEntity()

@@ -1,7 +1,6 @@
 package net.bestia.model.bestia
 
-import java.io.Serializable
-import javax.persistence.Embeddable
+import jakarta.persistence.Embeddable
 
 /**
  * Status values contain all variable status values of a Bestia. Usually these
@@ -44,7 +43,7 @@ data class ConditionValues(
      * Returns the max mana.
      */
     val maxStamina: Int = 0
-) : Serializable {
+) {
 
   /**
    * This will add or subtract HP from the current HP (depending if the

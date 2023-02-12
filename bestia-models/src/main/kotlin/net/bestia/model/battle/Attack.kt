@@ -1,8 +1,7 @@
 package net.bestia.model.battle
 
+import jakarta.persistence.*
 import net.bestia.model.AbstractEntity
-import java.io.Serializable
-import javax.persistence.*
 
 @Entity
 @Table(name = "attacks")
@@ -48,7 +47,7 @@ class Attack(
 
     @Enumerated(EnumType.STRING)
     val target: AttackTarget
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   val isRanged: Boolean
     get() = type == AttackType.RANGED_PHYSICAL
