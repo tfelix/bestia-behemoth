@@ -19,7 +19,7 @@ import javax.persistence.Transient
  *  * NPC-Only Variables
  *  * Zone Global Variables
  *  * Server Global Variables
- * *NPC-Player Bestia** These variables will relate to bestias to certain NPCs/Entities.
+ *  * NPC-Player Bestia** These variables will relate to bestias to certain NPCs/Entities.
  *
  *
  * @author Thomas Felix

@@ -1,9 +1,8 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package net.bestia.voxel
 
 typealias MaterialRef = Int
 
+@OptIn(ExperimentalUnsignedTypes::class)
 data class Voxel private constructor(
     val material: MaterialRef,
     val occupancy: UByte
@@ -20,7 +19,7 @@ data class Voxel private constructor(
 
   companion object {
     val FULL_OCCUPIED = 255.toUByte()
-    val NOT_OCCUIPIED = 0.toUByte()
+    val NOT_OCCUPIED = 0.toUByte()
     val EMPTY = Voxel(0, 0.toUByte())
 
     fun of(material: MaterialRef, occupancy: Float): Voxel {

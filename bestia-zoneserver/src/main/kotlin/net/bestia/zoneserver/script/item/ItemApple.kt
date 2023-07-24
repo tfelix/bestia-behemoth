@@ -1,11 +1,13 @@
 package net.bestia.zoneserver.script.item
 
 import net.bestia.zoneserver.script.api.BestiaApi
-import net.bestia.zoneserver.script.exec.ItemScriptExec
+import net.bestia.zoneserver.script.ItemEntityScriptExec
 
-class ItemApple : ItemScript {
-  override fun useItem(api: BestiaApi, ctx: ItemScriptExec) {
-    api.findEntity(ctx.userEntityId)
+class AppleItemScript : ItemScript {
+  override val itemDatabaseName = "apple"
+
+    override fun executeItemOnEntity(api: BestiaApi, exec: ItemEntityScriptExec) {
+    api.findEntity(exec.userEntityId)
         .condition()
         .addHp(10)
   }

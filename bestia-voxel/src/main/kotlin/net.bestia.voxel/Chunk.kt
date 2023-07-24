@@ -1,7 +1,5 @@
 package net.bestia.voxel
 
-import java.util.*
-
 internal const val DEFAULT_CHUNK_SIZE = 32
 
 typealias Box = Array<Array<Array<Voxel>>>

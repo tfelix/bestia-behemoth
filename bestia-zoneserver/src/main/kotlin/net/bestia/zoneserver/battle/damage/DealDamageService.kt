@@ -16,6 +16,7 @@ class DealDamageService() {
       is TrueDamage -> takeTrueDamage(receiver, damage, sender)
       is Hit, is CriticalHit -> takeNormalDamage(receiver, damage, sender)
       is Heal -> takeHeal(receiver, damage, sender)
+      Miss -> TODO()
     }
   }
 

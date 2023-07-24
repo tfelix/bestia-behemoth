@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service
 
 private val LOG = KotlinLogging.logger { }
 
+/**
+ * Just a quick hack. Later we must think about registering entities and their collision into some
+ * better scaling approach like a quad tree or something.
+ */
 @Service
 class EntityCollisionService {
 

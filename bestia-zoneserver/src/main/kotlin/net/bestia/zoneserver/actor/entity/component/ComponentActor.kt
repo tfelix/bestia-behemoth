@@ -63,7 +63,7 @@ abstract class ComponentActor<T : Component>(
   }
 
   /**
-   * The actor registers to get notified if a certain component gets updated on the entity. This is usefull to calculate
+   * The actor registers to get notified if a certain component gets updated on the entity. This is useful to calculate
    * dependent properties e.g. if the level components has changes you probably want to update the status value component
    * with the new values.
    */
@@ -107,7 +107,7 @@ abstract class ComponentActor<T : Component>(
   }
 
   /**
-   * Deletes this component from the entity. The actor is then stopped by the parent.
+   * Deletes the specified component from the entity. The actor is then stopped by the parent.
    */
   protected fun deleteComponentFromEntity(componentClass: Class<out Component>) {
     context.parent.tell(DeleteComponent(component.entityId, componentClass), self)

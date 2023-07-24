@@ -2,7 +2,7 @@ package net.bestia.loginserver.error
 
 import org.springframework.http.ResponseEntity
 
-internal fun handleExceptionResponse(ex: BestiaException): ResponseEntity<BestiaErrorMessage> {
+internal fun handleExceptionResponse(ex: BestiaHttpException): ResponseEntity<BestiaErrorMessage> {
   val errorMessage = BestiaErrorMessage(
       errorCode = ex.errorCode,
       errorMessage = ex.message ?: ""

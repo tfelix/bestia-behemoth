@@ -4,9 +4,7 @@ import net.bestia.voxel.Chunk
 import net.bestia.voxel.DEFAULT_CHUNK_SIZE
 import net.bestia.voxel.Vector3
 import net.bestia.voxel.Voxel
-import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
-import kotlin.experimental.and
 
 @ExperimentalUnsignedTypes
 class ChunkBinaryReader(
@@ -34,7 +32,7 @@ class ChunkBinaryReader(
         buffer.get().toUByte()
       } else {
         if (material == 0) {
-          Voxel.NOT_OCCUIPIED
+          Voxel.NOT_OCCUPIED
         } else {
           Voxel.FULL_OCCUPIED
         }

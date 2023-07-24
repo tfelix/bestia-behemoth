@@ -66,7 +66,7 @@ internal class ChunkBinaryWriter(
       false -> 0b00000000.toByte()
     }
 
-    val hasOccupancy = voxel.occupancy != Voxel.NOT_OCCUIPIED && voxel.occupancy != Voxel.FULL_OCCUPIED
+    val hasOccupancy = voxel.occupancy != Voxel.NOT_OCCUPIED && voxel.occupancy != Voxel.FULL_OCCUPIED
     val storeOccupancy = when (hasOccupancy) {
       true -> 0b01000000.toByte()
       false -> 0.toByte()

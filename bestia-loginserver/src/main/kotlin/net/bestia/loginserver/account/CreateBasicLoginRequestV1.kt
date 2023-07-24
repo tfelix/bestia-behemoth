@@ -1,6 +1,6 @@
 package net.bestia.loginserver.account
 
-data class BasicLoginCreateModel(
+data class CreateBasicLoginRequestV1(
     val email: String,
     val password: String
 )

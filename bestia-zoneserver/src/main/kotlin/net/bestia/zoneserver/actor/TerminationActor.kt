@@ -31,6 +31,7 @@ class TerminationActor : DynamicMessageRoutingActor() {
   private fun handleError(msg: ErrorReport) {
     when (msg) {
       is SocketBindNetworkError -> terminateNode(msg)
+      is BootStepFailedError -> TODO()
     }
   }
 

@@ -13,7 +13,7 @@ class AccountController(
 ) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
-  fun createAccount(@RequestBody accountCreate: AccountCreateModel) {
+  fun createAccount(@RequestBody accountCreate: CreateAccountRequestV1) {
     accountCreateService.createAccount(accountCreate)
   }
 }

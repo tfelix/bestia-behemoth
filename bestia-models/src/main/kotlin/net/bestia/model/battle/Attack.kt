@@ -1,7 +1,6 @@
 package net.bestia.model.battle
 
 import net.bestia.model.AbstractEntity
-import java.io.Serializable
 import javax.persistence.*
 
 @Entity
@@ -48,7 +47,7 @@ class Attack(
 
     @Enumerated(EnumType.STRING)
     val target: AttackTarget
-) : AbstractEntity(), Serializable {
+) : AbstractEntity() {
 
   val isRanged: Boolean
     get() = type == AttackType.RANGED_PHYSICAL

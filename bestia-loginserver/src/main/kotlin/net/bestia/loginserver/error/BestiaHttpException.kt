@@ -2,7 +2,7 @@ package net.bestia.loginserver.error
 
 import org.springframework.http.HttpStatus
 
-open class BestiaException(
+open class BestiaHttpException(
     val httpCode: HttpStatus,
     val errorCode: BestiaError,
     message: String? = null,

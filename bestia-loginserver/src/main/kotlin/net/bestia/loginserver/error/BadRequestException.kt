@@ -2,7 +2,7 @@ package net.bestia.loginserver.error
 
 import org.springframework.http.HttpStatus
 
-object BadRequestException : BestiaException(
+object BadRequestException : BestiaHttpException(
     httpCode = HttpStatus.BAD_REQUEST,
     errorCode = BestiaError.BAD_REQUEST
 )

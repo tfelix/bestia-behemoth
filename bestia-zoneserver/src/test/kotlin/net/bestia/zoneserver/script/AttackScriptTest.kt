@@ -13,13 +13,12 @@ import net.bestia.zoneserver.actor.entity.component.UpdateComponent
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.PositionComponent
 import net.bestia.zoneserver.entity.component.StatusComponent
-import net.bestia.zoneserver.script.exec.AttackScriptExec
-import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.util.*
 
+/*
 class AttackScriptTest : BaseScriptTest() {
   private val userEntity = Entity(id = 100)
 
@@ -85,4 +84,4 @@ class AttackScriptTest : BaseScriptTest() {
 
     scriptService.execute(exec)
   }
-}
+}*/

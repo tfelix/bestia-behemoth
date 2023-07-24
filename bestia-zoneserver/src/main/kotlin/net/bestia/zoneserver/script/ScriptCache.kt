@@ -1,27 +1,36 @@
 package net.bestia.zoneserver.script
 
+import mu.KotlinLogging
+import net.bestia.zoneserver.script.item.ItemScript
 import org.springframework.stereotype.Component
-import java.lang.IllegalArgumentException
-import javax.script.CompiledScript
+
+private val LOG = KotlinLogging.logger { }
 
 @Component
-class ScriptCache {
-  private val cache = mutableMapOf<String, CompiledScript>()
+class ScriptCache(
+    itemScripts: List<ItemScript>
+) {
 
-  fun addScript(key: String, script: CompiledScript) {
-    cache[key] = script
+  private val scriptInstances: Map<String, Script>
+
+  init {
+    LOG.info { "Found ${itemScripts.size}" }
+
+    scriptInstances = itemScripts.associateBy { PREFIX_ITEM_SCRIPT + it.itemDatabaseName }
   }
 
-  fun clear() {
-    cache.clear()
-  }
+  fun getScriptInstance(exec: ScriptContext): Script {
+    val scriptIdentifier = when(exec) {
+      is ItemScriptContext -> PREFIX_ITEM_SCRIPT + exec.itemDatabaseName
+      is AttackScriptContext -> PREFIX_ATTACK_SCRIPT + exec.attack.databaseName
+    }
 
-  fun getScript(key: String): CompiledScript {
-    return cache[key]
-        ?: throw IllegalArgumentException("There is no compiled script with key '$key'")
+    return scriptInstances[scriptIdentifier]
+        ?: throw BestiaScriptException("Script instance with identifier '$scriptIdentifier' not found")
   }
 
   companion object {
-    const val RUNTIME_KEY = "runtime"
+    private const val PREFIX_ITEM_SCRIPT = "item-"
+    private const val PREFIX_ATTACK_SCRIPT = "attack-"
   }
 }

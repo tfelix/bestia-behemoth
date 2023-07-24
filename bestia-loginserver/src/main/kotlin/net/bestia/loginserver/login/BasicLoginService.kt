@@ -14,7 +14,7 @@ class BasicLoginService(
 
   private val passwordEncoder = BCryptPasswordEncoder()
 
-  fun login(credentials: BasicCredentials): BestiaToken {
+  fun login(credentials: BasicCredentials): BestiaLoginToken {
     val basicLogin = basicLoginRepository.findByEmail(credentials.username)
         ?: throw AuthenticationException
 
@@ -24,11 +24,11 @@ class BasicLoginService(
 
     basicLogin.account.bannedUntil?.let {
       if (it > ZonedDateTime.now(Clock.systemUTC())) {
-        throw BannedAuthenticationException(until = it)
+        throw BannedAccountException(until = it)
       }
     }
 
-    val token = BestiaToken(UUID.randomUUID().toString())
+    val token = BestiaLoginToken(UUID.randomUUID().toString())
     basicLogin.account.loginToken = token.token
     basicLoginRepository.save(basicLogin)
 

@@ -66,6 +66,8 @@ dependencies {
     testImplementation group: 'com.typesafe.akka', name: 'akka-persistence-cassandra-launcher_2.13', version: '1.0.3'
     testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test')
     testImplementation group: 'com.typesafe.akka', name: 'akka-testkit_2.13', version: akkaVersion
+    testImplementation group: 'io.mockk', name: 'mockk', version: '1.13.5'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 test {
@@ -75,6 +77,14 @@ test {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
+    }
+}
+repositories {
+    mavenCentral()
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

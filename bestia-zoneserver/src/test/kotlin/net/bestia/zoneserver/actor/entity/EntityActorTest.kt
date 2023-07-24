@@ -5,7 +5,7 @@ import net.bestia.zoneserver.actor.AbstractActorTest
 import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory
 import net.bestia.zoneserver.entity.Entity
 import net.bestia.zoneserver.entity.component.LevelComponent
-import net.bestia.zoneserver.entity.component.LivetimeComponent
+import net.bestia.zoneserver.entity.component.LifetimeComponent
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -26,7 +26,7 @@ internal class EntityActorTest : AbstractActorTest() {
       sut.tell(NewEntity(Entity(1)), ActorRef.noSender())
 
       sut.tell(SubscribeForComponentUpdates(LevelComponent::class.java, it.ref), ActorRef.noSender())
-      sut.tell(ComponentUpdated(LivetimeComponent(1, Instant.now().plusSeconds(60))), ActorRef.noSender())
+      sut.tell(ComponentUpdated(LifetimeComponent(1, Instant.now().plusSeconds(60))), ActorRef.noSender())
 
       it.expectNoMessage()
 

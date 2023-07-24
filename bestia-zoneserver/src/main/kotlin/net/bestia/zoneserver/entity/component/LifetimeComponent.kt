@@ -3,11 +3,11 @@ package net.bestia.zoneserver.entity.component
 import java.time.Instant
 
 /**
- * Livetime is used to control the live of an entity. When the instant is reached the entity
- * is killed.
+ * Lifetime is used to control the time to live for an entity.
+ * When the instant is reached the entity is killed.
  * @author Thomas Felix
  */
-data class LivetimeComponent(
+data class LifetimeComponent(
     override val entityId: Long,
     val killOn: Instant
 ) : Component {

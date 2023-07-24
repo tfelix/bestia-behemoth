@@ -17,12 +17,7 @@ class EntityApi(
     private val entityId: Long,
     private val scriptName: String,
     private val commands: MutableList<EntityMessage>,
-    private val entityRequestService: EntityRequestService
 ) {
-
-  private val entity: Entity by lazy {
-    entityRequestService.requestEntity(entityId)
-  }
 
   fun calculateDamage(): EntityApi {
 
@@ -88,8 +83,8 @@ class EntityApi(
     LOG.trace { "${scriptName}: setLivetime($durationMs: Long)" }
     require(durationMs > 0) { "durationMs must be bigger then 0" }
 
-    val livetimeComponent = LivetimeComponent(entityId = entityId, killOn = Instant.now().plusMillis(durationMs))
-    val addComponentCommand = UpdateComponent(livetimeComponent)
+    val lifetimeComponent = LifetimeComponent(entityId = entityId, killOn = Instant.now().plusMillis(durationMs))
+    val addComponentCommand = UpdateComponent(lifetimeComponent)
 
     commands.add(addComponentCommand)
 

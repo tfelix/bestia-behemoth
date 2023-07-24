@@ -10,9 +10,7 @@ import net.bestia.model.item.PlayerItemId
  */
 data class EquipComponent(
     override val entityId: Long,
-    val slots: Map<EquipmentSlot, PlayerItemId?> = EquipmentSlot.values()
-        .map { it to null }
-        .toMap()
+    val slots: Map<EquipmentSlot, PlayerItemId?> = EquipmentSlot.values().associate { it to null }
 ) : Component {
 
   /**

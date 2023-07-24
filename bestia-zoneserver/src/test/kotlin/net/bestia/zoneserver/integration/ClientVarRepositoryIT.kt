@@ -4,7 +4,7 @@ import net.bestia.model.account.Account
 import net.bestia.model.account.AccountRepository
 import net.bestia.model.account.ClientVar
 import net.bestia.model.account.ClientVarRepository
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
@@ -26,7 +26,7 @@ class ClientVarRepositoryIT {
     clientVarRepository.save(sut)
 
     val found = clientVarRepository.findByKeyAndAccountId("key", acc.id)
-    Assert.assertNotNull(found)
-    Assert.assertEquals("abc123", found!!.getDataAsString())
+    Assertions.assertNotNull(found)
+    Assertions.assertEquals("abc123", found!!.getDataAsString())
   }
 }

@@ -62,6 +62,3 @@ mapgen:
   temp-dir: D:/bestia_map
   # Size of the data transfer object which are used to store the map.
   dto-size: 100
-
-script:
-  path: classpath:script

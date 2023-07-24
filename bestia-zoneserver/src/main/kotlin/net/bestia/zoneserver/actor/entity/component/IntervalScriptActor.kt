@@ -5,7 +5,6 @@ import net.bestia.zoneserver.actor.Actor
 import net.bestia.zoneserver.actor.entity.EntityRequestingActor
 import net.bestia.zoneserver.entity.component.IntervalScriptCallback
 import net.bestia.zoneserver.script.ScriptService
-import net.bestia.zoneserver.script.exec.ScriptCallbackExec
 import java.time.Duration
 
 private val LOG = KotlinLogging.logger { }
@@ -33,6 +32,7 @@ class IntervalScriptActor(
 
   private fun onTick() {
     requestOwnerEntity { owner ->
+      /*
       val scriptCallback = ScriptCallbackExec.Builder(
           uuid = callback.uuid,
           scriptCallFunction = callback.scriptKeyCallback,
@@ -44,7 +44,7 @@ class IntervalScriptActor(
       } catch (e: Exception) {
         LOG.warn("Error during script interval execution. Stopping callback interval.", e)
         context().stop(self)
-      }
+      }*/
     }
   }
 

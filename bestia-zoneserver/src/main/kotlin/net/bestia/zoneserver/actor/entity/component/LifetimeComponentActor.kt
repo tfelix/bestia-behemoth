@@ -11,10 +11,10 @@ import java.time.Instant
 
 private val LOG = KotlinLogging.logger { }
 
-@ActorComponent(LivetimeComponent::class)
-class LivetimeComponentActor(
-    livetimeComponent: LivetimeComponent
-) : ComponentActor<LivetimeComponent>(livetimeComponent) {
+@ActorComponent(LifetimeComponent::class)
+class LifetimeComponentActor(
+    lifetimeComponent: LifetimeComponent
+) : ComponentActor<LifetimeComponent>(lifetimeComponent) {
 
   private var tick: Cancellable? = null
 
@@ -27,7 +27,7 @@ class LivetimeComponentActor(
     setupKillTimer()
   }
 
-  override fun onComponentChanged(oldComponent: LivetimeComponent, newComponent: LivetimeComponent) {
+  override fun onComponentChanged(oldComponent: LifetimeComponent, newComponent: LifetimeComponent) {
     setupKillTimer()
   }
 

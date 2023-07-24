@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.bestia.messages.entity.EntityMessage
 import net.bestia.zoneserver.actor.entity.component.SetIntervalCommand
 import net.bestia.zoneserver.actor.entity.component.SetTimeoutCommand
+import net.bestia.zoneserver.script.ScriptExec
 import java.time.Duration
 import java.util.*
 
@@ -29,16 +30,17 @@ class ScriptApi(
     return this
   }
 
-  fun setInterval(delayMs: Long, callback: String): ScriptApi {
-    LOG.trace { "${scriptKey}: setInterval($delayMs: Long, $callback: String)" }
+  fun setInterval(delayMs: Long, callbackFn: (api: BestiaApi, exec: ScriptExec) -> Unit): ScriptApi {
+    LOG.trace { "${scriptKey}: setInterval($delayMs, $callbackFn)" }
     require(delayMs > 0) { "delayMs must be bigger then 0" }
 
+      /*
     commands.add(SetIntervalCommand(
         entityId = entityId,
         timeout = Duration.ofMillis(delayMs),
         callbackFn = "$scriptKey::$callback",
         uuid = uuid
-    ))
+    ))*/
 
     return this
   }

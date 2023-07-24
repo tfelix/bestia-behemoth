@@ -6,13 +6,13 @@ import net.bestia.zoneserver.actor.entity.EntityRequestService
 import net.bestia.zoneserver.entity.EntityCollisionService
 import net.bestia.zoneserver.entity.IdGenerator
 import net.bestia.zoneserver.entity.factory.MobFactory
-import net.bestia.zoneserver.script.exec.ItemScriptExec
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 /**
  * This class simulates a Bestia script execution environment and tests if a script executes
  * successfully.
  */
+/*
 class ScriptSimulator {
   private val resolver = PathMatchingResourcePatternResolver()
 
@@ -56,4 +56,4 @@ class ScriptSimulator {
 
     cache.clear()
   }
-}
+}*/

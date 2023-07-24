@@ -12,10 +12,11 @@ class AccountCreateService(
     private val playerItemFactory: PlayerItemFactory
 ) {
 
-  fun createAccount(newAccount: AccountCreateModel) {
+  fun createAccount(newAccount: CreateAccountRequestV1) {
     val account = accountFactory.createAccount(newAccount)
 
     masterFactory.createBestiaMaster(account, newAccount)
+
     playerItemFactory.addStarterItems(account)
   }
 }
