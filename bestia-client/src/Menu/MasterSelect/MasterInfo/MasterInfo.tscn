@@ -1,0 +1,70 @@
+[gd_scene load_steps=4 format=3 uid="uid://dy8byfwofun6c"]
+
+[ext_resource type="Script" uid="uid://dhi8u236he6jh" path="res://Menu/MasterSelect/MasterInfo/master_info.gd" id="1_kpukv"]
+[ext_resource type="PackedScene" uid="uid://cycbux25m2as5" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/MasterProfileImage.tscn" id="2_5yp0s"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_5ufew"]
+viewport_path = NodePath("PortraitViewport")
+
+[node name="MasterInfo" type="MarginContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 158.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+script = ExtResource("1_kpukv")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="MasterProfileImage" parent="HBoxContainer" instance=ExtResource("2_5yp0s")]
+layout_mode = 2
+texture = SubResource("ViewportTexture_5ufew")
+expand_mode = 3
+
+[node name="InfoMargin" type="MarginContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 6
+
+[node name="Info" type="VBoxContainer" parent="HBoxContainer/InfoMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MasterName" type="Label" parent="HBoxContainer/InfoMargin/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Name"
+
+[node name="Position" type="Label" parent="HBoxContainer/InfoMargin/Info"]
+layout_mode = 2
+text = "Position"
+
+[node name="PosSplit" type="HSplitContainer" parent="HBoxContainer/InfoMargin/Info"]
+layout_mode = 2
+mouse_filter = 2
+dragging_enabled = false
+
+[node name="PosX" type="Label" parent="HBoxContainer/InfoMargin/Info/PosSplit"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "X: 49"
+
+[node name="PosY" type="Label" parent="HBoxContainer/InfoMargin/Info/PosSplit"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Y: 120"
+
+[node name="SelectButton" type="Button" parent="HBoxContainer/InfoMargin/Info"]
+custom_minimum_size = Vector2(200, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+text = "Select"
+
+[connection signal="pressed" from="HBoxContainer/InfoMargin/Info/SelectButton" to="." method="_on_select_button_pressed"]

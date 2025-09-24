@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GetSelfProto";
+
+/**
+ * Returns self info like the currently selected master as well as a list of all available
+ * bestia to the player. Might be handy if the engine got confused and needs to refresh
+ * the current information. (Maybe we can drop this message?)
+ */
+message GetSelfCMSG {
+
+}

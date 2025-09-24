@@ -1,0 +1,16 @@
+plugins {
+    id 'com.google.protobuf' version '0.9.4'
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+description = 'bestia-bnet-messages'
+
+dependencies {
+  api 'com.google.protobuf:protobuf-kotlin:4.29.3'
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:4.29.3"
+	}
+}

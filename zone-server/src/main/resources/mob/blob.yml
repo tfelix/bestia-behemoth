@@ -1,0 +1,11 @@
+identifier: blob
+# Statuswerte
+# AI setup
+health: 10
+mana: 8
+experience: 5
+loot:
+  - item: jelly
+    chance: 2000
+  - item: apple
+    chance: 2000

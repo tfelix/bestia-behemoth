@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://dk7ot7y2i1qgr"]
+
+[ext_resource type="Script" uid="uid://xtrv0k2dd2pm" path="res://Game/SpringArmCamera/camera_spring_arm.gd" id="1_u6lsw"]
+[ext_resource type="Script" uid="uid://b27dmakyrpyer" path="res://Game/SpringArmCamera/camera_follow.gd" id="2_v0sth"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_dxhch"]
+radius = 0.3
+
+[node name="SpringArmPivot" type="Node3D"]
+script = ExtResource("1_u6lsw")
+max_vertical_angle = 0.0
+min_cam_distance = 8
+max_cam_distance = 20
+
+[node name="SpringArm3D" type="SpringArm3D" parent="."]
+shape = SubResource("SphereShape3D_dxhch")
+spring_length = 10.0
+
+[node name="SpringPosition" type="Node3D" parent="SpringArm3D"]
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("spring_arm_position")]
+fov = 50.0
+script = ExtResource("2_v0sth")
+spring_arm_position = NodePath("../SpringArm3D/SpringPosition")
+lerp_power = 8.0

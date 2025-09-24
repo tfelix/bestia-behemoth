@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaInfoProto";
+
+
+message BestiaInfo {
+  fixed64 entity_id = 1;
+  uint32 mob_id = 2;
+  string name = 3;
+  uint32 level = 4;
+  Vec3 position = 5;
+}

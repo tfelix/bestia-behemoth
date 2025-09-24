@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3 uid="uid://cycbux25m2as5"]
+
+[ext_resource type="Script" uid="uid://ci3n7kl1ekwb" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/master_profile_image.gd" id="1_gci1q"]
+[ext_resource type="PackedScene" uid="uid://c37w2gscf0xed" path="res://Game/Entity/Master/Master.tscn" id="1_hf55m"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_hf55m"]
+viewport_path = NodePath("PortraitViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hf55m"]
+albedo_color = Color(0.8474744, 0.84747446, 0.84747446, 1)
+emission_enabled = true
+emission = Color(0.8992584, 0.8992584, 0.8992584, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_gci1q"]
+material = SubResource("StandardMaterial3D_hf55m")
+size = Vector2(10, 10)
+subdivide_width = 5
+subdivide_depth = 5
+
+[node name="MasterProfileImage" type="TextureRect"]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = SubResource("ViewportTexture_hf55m")
+script = ExtResource("1_gci1q")
+
+[node name="PortraitViewport" type="SubViewport" parent="."]
+msaa_3d = 1
+size = Vector2i(200, 300)
+render_target_update_mode = 1
+
+[node name="MasterProfile" type="Node3D" parent="PortraitViewport"]
+unique_name_in_owner = true
+
+[node name="Camera3D" type="Camera3D" parent="PortraitViewport/MasterProfile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6063129, 2.4673893)
+fov = 50.0
+
+[node name="Background" type="MeshInstance3D" parent="PortraitViewport/MasterProfile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9105343, -3.2554116)
+mesh = SubResource("QuadMesh_gci1q")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="PortraitViewport/MasterProfile"]
+transform = Transform3D(0.40162477, 0.63154244, -0.66321355, -0.3271371, 0.77534145, 0.54021007, 0.8553825, 0, 0.51799726, -3.528058, 0, 2.2842603)
+
+[node name="RimLight" type="SpotLight3D" parent="PortraitViewport/MasterProfile"]
+transform = Transform3D(-0.7835199, 0, 0.6213666, 0, 1, 0, -0.6213666, 0, -0.7835199, 1.9327126, 1.4045181, -2.535157)
+light_energy = 2.0
+spot_range = 4.0
+spot_angle = 33.32798
+
+[node name="Master" parent="PortraitViewport/MasterProfile" instance=ExtResource("1_hf55m")]

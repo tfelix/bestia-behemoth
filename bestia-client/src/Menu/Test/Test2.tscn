@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://bu6llyp3y8mts"]
+
+[ext_resource type="Script" uid="uid://cffdrwwuf38my" path="res://Menu/Test/test_2.gd" id="1_ao26t"]
+
+[node name="Test2" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ao26t")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 481.0
+offset_top = 198.0
+offset_right = 521.0
+offset_bottom = 221.0
+text = "TEST 2"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 487.0
+offset_top = 300.0
+offset_right = 532.0
+offset_bottom = 331.0
+text = "Back"
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

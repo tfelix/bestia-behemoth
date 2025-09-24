@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GetAllEntitiesProto";
+
+/**
+ * Requests all entities and map data in range. Engine sends this e.g. after a load or if it thinks
+ * it needs to re-sync the whole environment.
+ */
+message GetAllEntities {
+
+}

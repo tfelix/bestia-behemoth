@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DamageSMSGProto";
+
+enum DamageType {
+  MISS = 0;
+  HIT = 1;
+  MULTI_HIT = 3;
+  CRITICAL = 4;
+  HEAL = 5;
+}
+
+message DamageSMSG {
+  fixed64 entity_id = 1;
+  uint32 damage = 2;
+  DamageType type = 3;
+}

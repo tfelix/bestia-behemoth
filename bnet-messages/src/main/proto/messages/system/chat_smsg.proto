@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/system/chat_cmsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChatSmsgProto";
+
+message ChatSMSG {
+  string text = 1;
+  Mode mode = 2;
+  optional string sender_name = 3;
+  optional uint64 sender_entity_id = 4;
+}

@@ -1,0 +1,4 @@
+identifier: heal
+type: NO_DAMAGE
+script: Heal
+needsLineOfSight: true

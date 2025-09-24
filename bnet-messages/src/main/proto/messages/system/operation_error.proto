@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OperationErrorProto";
+
+enum OpError {
+  MASTER_NAME_ALREADY_TAKEN = 0;
+  MASTER_MAX_MASTERS_REACHED = 1;
+  MASTER_INVALID_NAME = 2;
+  MASTER_GENERAL_ERROR = 3;
+}
+
+message OperationError {
+  OpError code = 1;
+}
+

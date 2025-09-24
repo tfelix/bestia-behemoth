@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+
+message Vec3 {
+  int64 x = 1;
+  int64 y = 2;
+  int64 z = 3;
+}

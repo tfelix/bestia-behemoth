@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AuthenticationProto";
+
+message Authentication {
+    string token = 1;
+    string client_version = 2;
+}

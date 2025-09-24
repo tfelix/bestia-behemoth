@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/component/position_component.proto";
+import "messages/component/bestia_visual_component.proto";
+import "messages/component/item_visual_component.proto";
+import "messages/system/ping.proto";
+import "messages/system/chat_cmsg.proto";
+import "messages/system/chat_smsg.proto";
+import "messages/system/authentication.proto";
+import "messages/system/operation_error.proto";
+import "messages/system/operation_success.proto";
+import "messages/entity/move_active_entity.proto";
+import "messages/entity/get_all_entities.proto";
+import "messages/entity/select_active_entity.proto";
+import "messages/system/authentication_success.proto";
+import "messages/system/disconnected.proto";
+import "messages/master/get_master_cmsg.proto";
+import "messages/master/get_self_cmsg.proto";
+import "messages/master/self_smsg.proto";
+import "messages/master/master.proto";
+import "messages/master/select_master_cmsg.proto";
+import "messages/battle/damage_smsg.proto";
+import "messages/component/master_visual_component_smsg.proto";
+import "messages/component/path_component_smsg.proto";
+import "messages/component/speed_component_smsg.proto";
+import "messages/entity/attack_entity_cmsg.proto";
+import "messages/entity/vanish_entity_smsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EnvelopeProto";
+
+message Envelope {
+  oneof message {
+    // SYSTEM & ACCOUNT 100
+    OperationSuccess operation_success = 1;
+    OperationError operation_error = 2;
+
+    Authentication authentication = 100;
+    Disconnected disconnected = 101;
+    AuthenticationSuccess authentication_success = 102;
+
+    Ping ping = 120;
+    Pong pong = 121;
+
+    ChatCMSG chat_cmsg = 122;
+    ChatSMSG chat_smsg = 123;
+
+    // MAP 200
+    // TBD
+
+    // INVENTORY 300
+    // TBD
+
+    // MASTER & BESTIA 400
+    GetMasterCMSG get_master = 401;
+    Master master = 402;
+    SelectMasterCMSG select_master = 403;
+    GetSelfCMSG get_self = 404;
+    SelfSMSG self = 405;
+
+    // ENTITY & COMPONENTS 500
+    SelectActiveEntity select_active_entity = 500;
+    MoveActiveEntity move_active_entity = 501;
+    GetAllEntities get_all_entities = 502;
+    AttackEntityCMSG attack_entity = 503;
+    VanishEntityCMSG vanish_entity = 504;
+    PositionComponent comp_position = 510;
+    BestiaVisualComponent comp_bestia_visual = 511;
+    ItemVisualComponent compo_item_visual = 512;
+    MasterVisualComponentSMSG comp_master_visual = 514;
+    PathComponentSMSG comp_path = 515;
+    SpeedComponentSMSG comp_speed = 516;
+
+    // BATTLE 600
+    DamageSMSG damage = 601;
+
+    // MISC
+  }
+}

@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvsnnhm7x6i4t"]
+
+[ext_resource type="Script" uid="uid://dkapsthja003w" path="res://Game/Entity/chat_text.gd" id="1_q2acm"]
+
+[node name="ChatText" type="Node3D"]
+script = ExtResource("1_q2acm")
+
+[node name="Label3D" type="Label3D" parent="."]
+text = "Text"
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

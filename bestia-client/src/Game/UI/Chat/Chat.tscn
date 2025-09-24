@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3 uid="uid://cabh7yua8bb6t"]
+
+[ext_resource type="Script" uid="uid://bjwh2mwvksb8b" path="res://Game/UI/Chat/chat.gd" id="1_bvrp1"]
+
+[node name="Chat" type="VBoxContainer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -303.0
+offset_right = 766.0
+offset_bottom = -14.0
+grow_vertical = 0
+script = ExtResource("1_bvrp1")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 0
+
+[node name="Scroll" type="ScrollContainer" parent="PanelContainer/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Lines" type="VBoxContainer" parent="PanelContainer/MarginContainer/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Bottom" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="UserWhisper" type="LineEdit" parent="Bottom"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="ChatInput" type="LineEdit" parent="Bottom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+
+[node name="Chat" type="Control" parent="."]
+layout_mode = 2
+mouse_filter = 1

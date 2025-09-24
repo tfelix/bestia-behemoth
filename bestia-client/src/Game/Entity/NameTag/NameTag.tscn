@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://g1nu1oan0ehe"]
+
+[node name="NameTag" type="Label3D"]
+pixel_size = 0.0012
+billboard = 1
+no_depth_test = true
+fixed_size = true
+text = "Name Tag"
+font_size = 18
+outline_size = 8

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChatCmsgProto";
+
+enum Mode {
+  PARTY = 0;
+  GUILD = 1;
+  WHISPER = 2;
+  PUBLIC = 3;
+  ERROR = 4;
+  GM = 5;
+  BROADCAST = 6;
+}
+
+message ChatCMSG {
+  string text = 1;
+  Mode mode = 2;
+  optional string target_player_name = 3;
+}

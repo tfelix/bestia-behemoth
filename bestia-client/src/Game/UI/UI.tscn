@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://coopsp0c6tacr"]
+
+[ext_resource type="Script" uid="uid://q4ttbgw8tpr" path="res://Game/UI/ui.gd" id="1_ob0eg"]
+[ext_resource type="PackedScene" uid="uid://bxvkt1edgyru7" path="res://Game/UI/MasterProfile/MasterProfile.tscn" id="1_tk4wv"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_ob0eg")
+
+[node name="MasterProfile" parent="." instance=ExtResource("1_tk4wv")]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 388.0
+offset_bottom = 200.0

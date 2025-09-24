@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:login
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create
+    show-sql: false  # Optional: Show SQL statements in logs
+
+eip712:
+  name: "Bestia Login"
+  version: "1"
+  chain-id: 1
+
+jwt:
+  secret: "your-secret-key-here-change-in-production"
+  expiration-days: 5
+
+ethereum:
+  rpc-url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
+  nft-contract-address: "0x0000000000000000000000000000000000000000"
+  # Set to false to completely disable NFT ownership checks
+  enable-nft-verification: false

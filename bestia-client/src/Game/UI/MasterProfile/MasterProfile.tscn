@@ -1,0 +1,109 @@
+[gd_scene load_steps=4 format=3 uid="uid://bxvkt1edgyru7"]
+
+[ext_resource type="PackedScene" uid="uid://c6kjgkk50wajl" path="res://Game/UI/MasterProfile/ProfileBar/ProfileBar.tscn" id="1_73hi0"]
+[ext_resource type="Script" uid="uid://dcv74etn3ylxs" path="res://Game/UI/MasterProfile/master_profile.gd" id="1_c5uss"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2wskm"]
+size = Vector2(100, 100)
+
+[node name="MasterProfile" type="PanelContainer"]
+offset_right = 362.0
+offset_bottom = 178.0
+script = ExtResource("1_c5uss")
+
+[node name="M" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Profile" type="HBoxContainer" parent="M"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="M/Profile"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = SubResource("PlaceholderTexture2D_2wskm")
+expand_mode = 5
+stretch_mode = 3
+
+[node name="M" type="MarginContainer" parent="M/Profile"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+
+[node name="Info" type="VBoxContainer" parent="M/Profile/M"]
+layout_mode = 2
+
+[node name="MasterRow1" type="HBoxContainer" parent="M/Profile/M/Info"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MasterName" type="Label" parent="M/Profile/M/Info/MasterRow1"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Master Name"
+
+[node name="Level" type="Label" parent="M/Profile/M/Info/MasterRow1"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5609549, 0.5609549, 0.5609549, 1)
+text = "Lv 1"
+
+[node name="MasterRow2" type="HBoxContainer" parent="M/Profile/M/Info"]
+layout_mode = 2
+
+[node name="AreaName" type="Label" parent="M/Profile/M/Info/MasterRow2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Area Name"
+
+[node name="Position" type="Label" parent="M/Profile/M/Info/MasterRow2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "(X: 100, Y: 200, Z: 20)"
+
+[node name="HealthBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+layout_mode = 2
+color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+
+[node name="Health" type="Label" parent="M/Profile/M/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "HP: 30 / 120"
+
+[node name="ManaBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+layout_mode = 2
+color = Color(0, 0.6774106, 0.84963536, 0.4)
+
+[node name="Mana" type="Label" parent="M/Profile/M/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Mana: 17 / 89"
+
+[node name="StaminaBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+layout_mode = 2
+color = Color(0.9492088, 0.958286, 0.958049, 0.4)
+
+[node name="Stamina" type="Label" parent="M/Profile/M/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Stamina: 90 / 156"
+
+[node name="Row1" type="HBoxContainer" parent="M/Profile/M/Info"]
+layout_mode = 2
+
+[node name="Inventory" type="Button" parent="M/Profile/M/Info/Row1"]
+layout_mode = 2
+text = "Inventory"
+
+[node name="Skills" type="Button" parent="M/Profile/M/Info/Row1"]
+layout_mode = 2
+text = "Skills"
+
+[node name="Equipment" type="Button" parent="M/Profile/M/Info/Row1"]
+layout_mode = 2
+text = "Equipment"

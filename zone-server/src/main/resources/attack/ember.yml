@@ -1,0 +1,4 @@
+identifier: ember
+type: NO_DAMAGE
+script: Ember
+needsLineOfSight: true

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AuthenticationSuccessProto";
+
+enum ClientPermissions {
+    KILL = 0;
+    MAP_MOVE = 1;
+}
+
+message AuthenticationSuccess {
+    string serverVersion = 1;
+    ClientPermissions permissions = 2;
+}

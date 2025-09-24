@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/bestia_info.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SelfSMSGProto";
+
+
+/**
+ * Contains information about the currently selected master and its associated entity id. Also returns the information
+ * about available bestia to this master to the player.
+ */
+message SelfSMSG {
+  uint64 master_id = 1;
+  uint64 master_entity_id = 2;
+  repeated BestiaInfo available_bestias = 3;
+}

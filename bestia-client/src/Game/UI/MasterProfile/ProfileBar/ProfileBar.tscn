@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6kjgkk50wajl"]
+
+[ext_resource type="Script" uid="uid://fjwopidr1lhd" path="res://Game/UI/MasterProfile/ProfileBar/profile_bar.gd" id="1_u1i54"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xtir2"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+corner_detail = 6
+
+[node name="ProfileBar" type="ProgressBar"]
+custom_minimum_size = Vector2(0, 8)
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 4.0
+grow_horizontal = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_xtir2")
+value = 30.0
+show_percentage = false
+script = ExtResource("1_u1i54")

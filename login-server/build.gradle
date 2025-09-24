@@ -1,0 +1,42 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.plugin.spring'
+    id 'org.jetbrains.kotlin.plugin.jpa'
+}
+
+group = 'net.bestia.login'
+description = 'login-server'
+
+dependencies {
+    implementation project(':shared')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.web3j:core:4.10.3'
+    implementation 'org.web3j:crypto:4.10.3'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.mockk:mockk:1.14.5'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+/**
+ * Enable resource filtering to fill in the version number
+ */
+processResources {
+    filesMatching("**/application.yml") {
+        expand(version: project.version)
+    }
+}

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://1hqxpsd1i3ot"]
+
+[ext_resource type="Script" uid="uid://bcje74o2ve5tv" path="res://Game/Entity/entity.gd" id="1_675qa"]
+
+[node name="Entity" type="Node3D"]
+script = ExtResource("1_675qa")
+
+[node name="ChatAnchor" type="Node3D" parent="."]

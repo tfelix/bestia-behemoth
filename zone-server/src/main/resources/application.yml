@@ -1,0 +1,41 @@
+zone:
+  version: ${version}
+  # Slot Count which can be increased via a per account setting.
+  bestia-base-slot-count: 4
+  # The max amount of bestia slot a single master can have.
+  bestia-max-slot-count: 8
+  jwt-auth-secret-key: "your-secret-key-here-change-in-production"
+  # Must be different for every zone which starts. So this probably needs to be overwritten
+  # during deployment. This hard coded value is for development purposes.
+  shard-id: 1
+  # Allow expired JWT tokens to be accepted during authentication (for development/testing)
+  allow-expired-tokens: true
+
+world:
+  tick-rate: 20
+
+socket:
+  ip-address: 127.0.0.1
+  port: 8090
+  authentication-timeout-seconds: 5
+
+logging:
+  level:
+    root: INFO
+    net.bestia.zone: TRACE
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:behemoth  # Example for H2 in-memory database
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: create  # This setting will drop and recreate the schema on every start
+    show-sql: false  # Optional: Show SQL statements in logs
+
+  h2:
+    console:
+      enabled: true  # Optional: Enable H2 console for accessing the database

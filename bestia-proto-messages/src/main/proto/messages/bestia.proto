@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-option java_package = "net.bestia.messages.proto";
-option java_outer_classname = "BestiaProtos";
-
-message OwnedBestia {
-    uint64 player_bestia_id = 1;
-    string nme = 2;
-}

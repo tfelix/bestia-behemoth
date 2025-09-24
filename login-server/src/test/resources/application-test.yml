@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+ethereum:
+  rpc-url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
+  nft-contract-address: "0x0000000000000000000000000000000000000000"
+  # Set to false to completely disable NFT ownership checks
+  enable-nft-verification: false

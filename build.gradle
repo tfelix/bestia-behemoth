@@ -1,60 +1,36 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
-buildscript {
-    ext {
-        javaConnectorVersion = '8.0.14'
-        jacksonVersion = '2.10.0'
-        reflectionsVersion = '0.9.11'
-        kotlinLoggingVersion = '1.6.22'
-        akkaVersion = '2.6.9'
-        akkaHttpVersion = '10.1.11'
-    }
-}
-
 plugins {
-    id 'org.springframework.boot' version '2.2.7.RELEASE' apply false
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.3.50'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.3.50'
-    id 'com.palantir.git-version' version '0.12.2'
+	id 'org.jetbrains.kotlin.jvm' version '1.9.25' apply false
+	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25' apply false
+	id 'org.springframework.boot' version '3.4.2' apply false
+	id 'io.spring.dependency-management' version '1.1.7' apply false
+	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25' apply false
 }
 
-allprojects {
-    version = 'alpha-0.7.0-SNAPSHOT'
-    group = 'net.bestia'
-    sourceCompatibility = '1.8'
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'org.jetbrains.kotlin.jvm'
+	apply plugin: 'org.jetbrains.kotlin.plugin.jpa'
 
-    repositories {
-        mavenCentral()
-        jcenter()
-        mavenLocal()
-    }
+	repositories {
+		mavenCentral()
+	}
 
-    apply plugin: 'io.spring.dependency-management'
+	group = 'net.bestia'
+	version = '0.0.1-SNAPSHOT'
 
-    compileKotlin {
-        kotlinOptions {
-            freeCompilerArgs = ['-Xjsr305=strict']
-            jvmTarget = '12'
-        }
-    }
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(20)
+		}
+	}
 
-    compileTestKotlin {
-        kotlinOptions {
-            freeCompilerArgs = ['-Xjsr305=strict']
-            jvmTarget = '12'
-        }
-    }
+	kotlin {
+		compilerOptions {
+			freeCompilerArgs.addAll '-Xjsr305=strict'
+		}
+	}
 
-    test {
-        useJUnitPlatform()
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom SpringBootPlugin.BOM_COORDINATES
-        }
-    }
+	dependencies {
+		implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+	}
 }
-

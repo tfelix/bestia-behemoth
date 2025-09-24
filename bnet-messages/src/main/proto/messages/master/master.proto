@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+import "messages/master/bestia_info.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MasterProto";
+
+
+enum BodyType {
+  BODY_M_1 = 0;
+}
+
+enum Face {
+  FACE_1 = 0;
+}
+
+enum Hairstyle {
+  HAIR_1 = 0;
+}
+
+message Color {
+  uint32 r = 1;
+  uint32 g = 2;
+  uint32 b = 3;
+}
+
+/**
+ * A list of all available master.
+ */
+message Master {
+  uint32 max_available_master_slots = 1;
+  uint32 max_available_bestia_slots = 2;
+
+  repeated MasterInfo master = 3;
+}
+
+message MasterInfo {
+  uint64 master_id = 1;
+  string name = 3;
+  uint32 level = 4;
+  Vec3 position = 5;
+  BodyType body = 6;
+  Face face = 7;
+  Color skin_color = 8;
+  Color hair_color = 9;
+  repeated BestiaInfo bestias = 10;
+  // TODO add an equipment list
+}

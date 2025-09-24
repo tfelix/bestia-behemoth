@@ -2,8 +2,9 @@ HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**
-!**/src/test/**
+!**/src/main/**/build/
+!**/src/test/**/build/
+assets-raw/
 
 ### STS ###
 .apt_generated
@@ -20,6 +21,8 @@ build/
 *.iml
 *.ipr
 out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -30,3 +33,50 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Kotlin ###
+.kotlin
+
+### Java/Gradle Build Artifacts ###
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### C++/SCons Build Artifacts ###
+# SCons build artifacts
+.sconsign.dblite
+.scons_env.json
+
+# Compiled object files
+*.obj
+*.o
+*.lib
+*.a
+*.dll
+*.so
+*.dylib
+*.pdb
+
+# Visual Studio / IDE files
+.vs/
+*.vcxproj*
+*.sln
+*.user
+*.suo
+
+### Godot ###
+.godot/
+/android/
+
+# Custom Godot ignores
+*.blend1
+raw_assets
+Godot_*.exe
+
+### Platform-specific ###
+Thumbs.db
+.DS_Store
+
+### Project-specific exceptions ###
+# Allow tracking of .gdextension files
+!**/*.gdextension

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/vec3.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "MoveActiveEntityProto";
+
+/**
+ * Sends the active selected entity to the server.
+ */
+message MoveActiveEntity {
+  repeated Vec3 path = 1;
+}
