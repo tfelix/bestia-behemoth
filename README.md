@@ -1,38 +1,57 @@
 <p align="center">
-  <img width="50%" src="img/logo.png">
+  <img width="50%" src=".github/logo.png">
 </p>
 
-# Bestia - Behemoth Server
+# Bestia Behemoth - MMORPG Server & Client
 
-[![Build Status](https://travis-ci.org/tfelix/bestia-behemoth.svg)](https://travis-ci.org/tfelix/bestia-behmoth)
-[![Codecov](https://codecov.io/github/tfelix/bestia-behemoth/coverage.svg)](https://codecov.io/gh/tfelix/bestia-behemoth)
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)
 
-> Massive scalable game server for the [Bestia MMORPG](https://bestia-game.net) using Akka Actors and written 
-> in Kotlin.
+> **Forge your destiny in a world reborn from chaos.** An open-source fantasy MMORPG where emergent gameplay meets innovative game design, built with Kotlin and Godot.
 
-The Behemoth server is the backend game server for the Bestia MMORPG. 
-It provides all needed business logic in order to play the game and is able to support huge tile maps of several thousands square kilometers and thousands of entities.
+## 🌍 Welcome to a World Torn Apart
 
-A detailed documentation about the game mechanics and server architecture can be found in the official
-[documentation](https://docs.bestia-game.net).
+In the aftermath of the **Rift** - a cataclysmic event that merged realities and unleashed uncontrolled magic - survivors emerge into a harsh new world. **Bestia** is more than just another MMORPG; it's a living, breathing ecosystem where your choices will ripple across vast procedurally generated landscapes spanning thousands of square kilometers. Inspired by [Ragnarök Online](https://en.wikipedia.org/wiki/Ragnarok_Online) and [Pokémon](https://en.wikipedia.org/wiki/Pok%C3%A9mon).
 
-The server is open source so bug fixes and feature can be community driven which is a declared goal
-of the whole Bestia game project.
+This monorepo contains the complete technical foundation for the Bestia universe:
 
-## Contributing
+- **High-performance server backend** engineered in Kotlin together with Spring Boot
+- **Open source game client** powered by the [Godot engine](https://godotengine.org)
+- **Scalable architecture** will support thousands of concurrent players and entities
 
-Contributions are always welcome! If you want to get into it a lot of code is still untested and might be
-a good starting point. If you want to change or work a game related stuff please consult the 
-[documentation](https://docs.bestia-game.net) first to stick to the general manifests of this game.
- 
- Anyways to start up the develop environment there is a `docker-compose.yml` inside 
-the `/bestia-zonserver` folder which will setup all the needed database and server infrastructure.
+## 🎮 Game Philosophy
 
-```
-cd bestia-zoneserver
-sudo docker-compose up
-```
+**Bestia** embraces emergent gameplay where player actions shape the world's destiny. Choose your path:
 
-After the server has started you can startup the zoneserver. It will automatically setup all the needed 
-database schemas and you can start right ahead.
+- **Builders** who reconstruct civilization from the ruins
+- **Adventurers** exploring dangerous, magic-warped territories
+- **Survivors** forging alliances in a world where cooperation means survival
+- **Faction Leaders** determining whether to hasten the world's transformation or preserve what remains
+
+The game world evolves dynamically based on collective player decisions, creating unique experiences that can't be found anywhere else.
+
+## 📚 Architecture & Documentation
+
+Comprehensive documentation covering game mechanics, server architecture, and API references can be found at [docs.bestia-game.net](https://docs.bestia-game.net).
+
+## 🚀 Getting Started
+
+> **Status**: Currently undergoing major architectural improvements for enhanced scalability and performance.
+
+The project is being restructured to support the massive scale and complex interactions that make Bestia unique. Stable builds and quickstart guides will be available soon.
+
+## 🤝 Contributing
+
+**Join the Rebellion Against Bad MMORPGs!**
+
+The best games are built by passionate communities. Whether you're a seasoned developer or just getting started:
+
+- **🧪 Testing**: Much of our codebase needs comprehensive test coverage - perfect for newcomers!
+- **🔧 Bug Fixes**: Help us squash issues and improve stability
+- **✨ Features**: Add new gameplay mechanics and systems
+- **📖 Documentation**: Help other developers understand our architecture
+
+Before contributing game-related changes, please review our [manifesto and design guidelines](https://docs.bestia-game.net) to ensure consistency with Bestia's core philosophy.
+
+---
+
+> *"In a world remade by chaos, only the bold will write the next chapter."*
