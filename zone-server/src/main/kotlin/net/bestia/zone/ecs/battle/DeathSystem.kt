@@ -32,7 +32,7 @@ class DeathSystem(
     val damageDealer = entity.getOrThrow(TakenDamage::class).damagePercentages()
 
     assignExp(givenExp, damageDealer, zone)
-    // spawnLoot(entity) // Uncomment and implement if needed
+    spawnLoot(entity)
     sendDeathAnimation(entity, zone)
 
     zone.removeEntity(entity.id)
@@ -77,7 +77,6 @@ class DeathSystem(
     zone.queueExternalJob {
       outMessageProcessor.sendToAllPlayersInRange(position, vanishMsg)
     }
-
   }
 
   companion object {

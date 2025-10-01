@@ -188,7 +188,7 @@ class ZoneServer(
 
   override fun <T> withEntityReadLockOrThrow(entityId: Long, action: (Entity) -> T): T {
     return entityManager.withEntityReadLock(entityId, action)
-      ?: throw NoReadLockForEntity(entityId)
+      ?: throw NoReadLockForEntityException(entityId)
   }
 
   override fun <T> withEntityWriteLock(entityId: Long, action: (Entity) -> T): T? {
@@ -197,7 +197,7 @@ class ZoneServer(
 
   private fun <T> withEntityWriteLockOrThrow(entityId: Long, action: (Entity) -> T): T {
     return entityManager.withEntityWriteLock(entityId, action)
-      ?: throw NoReadLockForEntity(entityId)
+      ?: throw NoReadLockForEntityException(entityId)
   }
 
   companion object {
