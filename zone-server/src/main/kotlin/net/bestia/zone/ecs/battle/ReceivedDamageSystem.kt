@@ -1,46 +1,35 @@
 package net.bestia.zone.ecs.battle
 
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World
-import com.github.quillraven.fleks.World.Companion.inject
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.item.ItemEntityFactory
-import net.bestia.zone.message.entity.VanishEntitySMSG
-import net.bestia.zone.message.processor.OutMessageProcessor
-import net.bestia.zone.ecs.EntityRegistry
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.visual.BestiaVisual
-import kotlin.math.floor
+import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs2.ZoneServer
+import org.springframework.stereotype.Component
 
+/**
+ * Distributes the
+ */
+@Component
 class ReceivedDamageSystem : IteratingSystem(
-  World.family { all(Damage) }
+  Damage::class
 ) {
-
-  override fun onTickEntity(entity: Entity) {
-    val receivedDamage = entity[Damage]
-
-    entity.configure {
-      it -= Damage
+  override fun update(
+    deltaTime: Long,
+    entity: Entity,
+    zone: ZoneServer
+  ) {
+    val receivedDamage = entity.getOrThrow(Damage::class)
+    entity.remove(Damage::class)
+    if (!entity.has(TakenDamage::class)) {
+      entity.add(TakenDamage())
     }
-
-    if (entity.hasNo(TakenDamage)) {
-      entity.configure {
-        it += TakenDamage()
-      }
-    }
-
-    // Entity vs entity id... urg
-    // val takenDamage = entity[TakenDamage]
-    // takenDamage.addDamage()
-
-    if (entity.has(Health)) {
-      val health = entity[Health]
+    if (entity.has(Health::class)) {
+      val health = entity.getOrThrow(Health::class)
       health.current -= receivedDamage.total()
+
       if (health.current == 0) {
-        entity.configure {
-          it += Dead
-        }
+        LOG.trace { "$entity died due to damage." }
+        entity.add(Dead)
       }
     }
   }

@@ -1,13 +1,8 @@
 package net.bestia.zone.ecs.movement
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs.ComponentNotFoundException
-import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.WorldAcessor
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.entity.PositionSMSG
 
@@ -16,7 +11,7 @@ data class Position(
   private var _y: Long,
   private var _z: Long,
   var fraction: Float = 0f
-) : Component<Position>, Dirtyable {
+) : Component, Dirtyable {
 
   private var dirty: Boolean = true
 
@@ -47,25 +42,6 @@ data class Position(
       }
     }
 
-  class PositionAcessor(
-    private val entity: Entity
-  ) : WorldAcessor {
-
-    var position: Vec3L = Vec3L.ZERO
-      private set
-
-    override fun doWithWorld(world: World) {
-      val comp = with(world) {
-        entity.getOrNull(Position)
-          ?: throw ComponentNotFoundException(Position)
-      }
-
-      position = comp.toVec3L()
-    }
-  }
-
-  override fun type(): ComponentType<Position> = Position
-
   fun toVec3L(): Vec3L {
     return Vec3L(x, y, z)
   }
@@ -85,7 +61,7 @@ data class Position(
     )
   }
 
-  companion object : ComponentType<Position>() {
+  companion object {
     fun fromVec3(pos: Vec3L): Position {
       return Position(
         pos.x,

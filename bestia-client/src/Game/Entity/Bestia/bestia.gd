@@ -4,7 +4,12 @@ var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 
 @onready var _name_tag = $NameTag
+@onready var _anim_player = $AnimationPlayer
 
+
+func _ready() -> void:
+	_anim_player.play("appear")
+	
 
 func setup_visual(msg: BestiaVisualComponent) -> void:
 	print("TODO: Set the bestia visuals here")

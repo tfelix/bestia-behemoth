@@ -13,7 +13,7 @@ enum VanishKind {
 /**
  * Sends the active selected entity to the server.
  */
-message VanishEntityCMSG {
+message VanishEntitySMSG {
   uint64 entity_id = 1;
   VanishKind kind = 2;
 }

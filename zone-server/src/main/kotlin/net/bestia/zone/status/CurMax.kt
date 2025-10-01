@@ -3,7 +3,7 @@ package net.bestia.zone.status
 import kotlin.math.max
 import kotlin.math.min
 
-class CurMax {
+open class CurMax {
   var current: Int = 0
     set(value) {
       field = max(0, min(value, max))

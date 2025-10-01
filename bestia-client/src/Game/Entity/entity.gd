@@ -49,9 +49,9 @@ const _VISUAL_NODE_NAME = "Visual"
 const _CHAT_NODE_NAME = "ChatText"
 
 
-func _ready() -> void:
+#func _ready() -> void:
 	# Start movement processing
-	set_process(true)
+	#set_process(true)
 
 
 func _process(delta: float) -> void:
@@ -237,6 +237,15 @@ func show_damage() -> void:
 func select_for_active() -> void:
 	_camera = Camera.instantiate()
 	add_child(_camera)
+
+
+func vanish(msg: VanishEntitySMSG) -> void:
+	if msg.IsDead():
+		print("Entity %s died" % [entity_id])
+		queue_free()
+	else:
+		print("Entity %s has vanished" % [entity_id])
+		queue_free()
 
 
 func remove_as_active() -> void:

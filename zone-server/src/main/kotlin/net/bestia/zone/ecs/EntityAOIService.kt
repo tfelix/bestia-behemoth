@@ -3,6 +3,5 @@ package net.bestia.zone.ecs
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 
-@ZoneInjectable
 @Service
 class EntityAOIService: AreaOfInterestService<EntityId>()

@@ -1,10 +1,11 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.ecs2
 
 import net.bestia.zone.message.entity.EntitySMSG
 
-/**
- * Signals if a component is dirty and needs to be send over the network.
- */
+interface Component {
+
+}
+
 interface Dirtyable {
   fun isDirty(): Boolean
   fun clearDirty()

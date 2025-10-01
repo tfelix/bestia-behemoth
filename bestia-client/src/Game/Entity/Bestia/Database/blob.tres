@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="BestiaStats" load_steps=2 format=3 uid="uid://bu1boki277fox"]
-
-[ext_resource type="Script" uid="uid://bo1qh3tpwvl41" path="res://Game/Entity/Bestia/BestiaData.gd" id="1_b7fv3"]
-
-[resource]
-script = ExtResource("1_b7fv3")
-name = "Blob"
-metadata/_custom_type_script = "uid://bo1qh3tpwvl41"

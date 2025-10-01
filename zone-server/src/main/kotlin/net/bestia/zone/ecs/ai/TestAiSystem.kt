@@ -1,35 +1,33 @@
 package net.bestia.zone.ecs.ai
 
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs2.ZoneServer
 import kotlin.random.Random
 
-/**
- * Lets the entities wander around in a -10 to 10 square.
- */
 class TestAiSystem : IteratingSystem(
-  World.family { all(Position, Speed, BestiaVisual) }
+  Position::class,
+  Speed::class,
+  BestiaVisual::class
 ) {
-
-  override fun onTickEntity(entity: Entity) {
-    // if still moving, do nothing.
-    if (entity.has(Path)) {
+  override fun update(
+    deltaTime: Long,
+    entity: Entity,
+    zone: ZoneServer
+  ) {
+    if (entity.has(Path::class)) {
       return
     }
-
-    var curPos = entity[Position].toVec3L()
+    var curPos = entity.getOrThrow(Position::class).toVec3L()
     val newPath = mutableListOf(curPos)
-
     while (newPath.size < 8) {
       val nextPos = getNextPosition(curPos)
-
       if (!isValidPosition(nextPos)) {
         continue
       } else {
@@ -37,12 +35,8 @@ class TestAiSystem : IteratingSystem(
         curPos = nextPos
       }
     }
-
-    // Create movement path with the target position
-    entity.configure {
-      it += Path(newPath)
-    }
-
+    entity.add(Path(newPath))
+    LOG.debug { "Entity ${entity.id} moving now: $newPath" }
 
     LOG.debug { "Entity $entity moving now: $newPath" }
   }

@@ -9,6 +9,16 @@ data class AttackEntityCMSG(
   val usedAttackId: Long,
   val usedSkillLevel: Int
 ) : CMSG {
+  init {
+    require(usedSkillLevel >= 1) {
+      "usedSkillLevel must be >= 1"
+    }
+
+    require(usedAttackId >= 0) {
+      "usedAttackId must be >= 0"
+    }
+  }
+
   companion object {
     fun fromBnet(
       accountId: Long,

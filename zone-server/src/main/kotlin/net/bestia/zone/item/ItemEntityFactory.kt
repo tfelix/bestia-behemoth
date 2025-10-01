@@ -3,10 +3,9 @@ package net.bestia.zone.item
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.ZoneInjectable
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import kotlin.random.Random
@@ -15,7 +14,6 @@ import kotlin.random.Random
  * Spawns an item entity in the world which can be used to pickup.
  */
 @Component
-@ZoneInjectable
 class ItemEntityFactory(
   private val zoneServer: ZoneServer,
   private val lootItemRepository: LootItemRepository
@@ -34,15 +32,15 @@ class ItemEntityFactory(
     LOG.debug { "Spawning loot $spawnItems for bestia $bestiaId on pos $pos" }
 
     return spawnItems.map { spawnItem ->
-      zoneServer.addEntity(
-        components = listOf(
+      zoneServer.addEntityWithWriteLock {
+        it.addAll(
           Position.fromVec3(pos),
           Loot(
             itemId = spawnItem.item.id,
             amount = 1,
           )
-        ),
-      )
+        )
+      }
     }
   }
 

@@ -65,10 +65,10 @@ message Envelope {
     MoveActiveEntity move_active_entity = 501;
     GetAllEntities get_all_entities = 502;
     AttackEntityCMSG attack_entity = 503;
-    VanishEntityCMSG vanish_entity = 504;
+    VanishEntitySMSG vanish_entity = 504;
     PositionComponent comp_position = 510;
     BestiaVisualComponent comp_bestia_visual = 511;
-    ItemVisualComponent compo_item_visual = 512;
+    ItemVisualComponent comp_item_visual = 512;
     MasterVisualComponentSMSG comp_master_visual = 514;
     PathComponentSMSG comp_path = 515;
     SpeedComponentSMSG comp_speed = 516;

@@ -1,25 +1,31 @@
 package net.bestia.zone.ecs.player
 
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World.Companion.family
-import com.github.quillraven.fleks.World.Companion.inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.network.IsDirty
+import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs2.ZoneServer
 
 /**
  * Updates the AOI service for player entities.
  */
 class PlayerAOIUpdateSystem(
-  private val playerAOIService: ActivePlayerAOIService = inject(),
+  private val playerAOIService: ActivePlayerAOIService
 ) : IteratingSystem(
-  family { all(Position, Account, IsDirty, ActivePlayer) }
+  Position::class,
+  Account::class,
+  IsDirty::class,
+  ActivePlayer::class
 ) {
-  override fun onTickEntity(entity: Entity) {
-    val account = entity[Account]
-    val position = entity[Position].toVec3L()
+  override fun update(
+    deltaTime: Long,
+    entity: Entity,
+    zone: ZoneServer
+  ) {
+    val account = entity.getOrThrow(Account::class)
+    val position = entity.getOrThrow(Position::class).toVec3L()
 
     LOG.trace { "Updating entity ${entity.id} (account: ${account.accountId}) AOI to $position" }
 

@@ -1,14 +1,13 @@
 package net.bestia.zone.party
 
-import com.github.quillraven.fleks.Entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -194,24 +193,21 @@ class PartyService(
     val partyMembers = party.member.mapNotNull { partyMemberMaster ->
       val partyMemberEntityId = findEntityIdByMaster(partyMemberMaster)
         ?: return@mapNotNull null
-      val partyMemberEntity = findEntityByEntityId(partyMemberEntityId)
-        ?: return@mapNotNull null
 
-      val posReader = Position.PositionAcessor(partyMemberEntity)
-      zoneServer.accessWorld(posReader)
+      zoneServer.withEntityReadLock(partyMemberEntityId) { entity ->
+        val health = entity.getOrThrow(Health::class)
+        val position = entity.getOrThrow(Position::class)
 
-      val healthReader = Health.HealthAcessor(partyMemberEntity)
-      zoneServer.accessWorld(healthReader)
-
-      PartyInfoSMSG.PartyMember(
-        masterName = partyMemberMaster.name,
-        onlineData = PartyInfoSMSG.PartyMember.OnlineData(
-          entityId = partyMemberEntityId,
-          areaName = "", // TODO: Get from ECS when this is implemented
-          position = posReader.position,
-          hp = healthReader.health
+        PartyInfoSMSG.PartyMember(
+          masterName = partyMemberMaster.name,
+          onlineData = PartyInfoSMSG.PartyMember.OnlineData(
+            entityId = partyMemberEntityId,
+            areaName = "", // TODO: Get from ECS when this is implemented
+            position = position.toVec3L(),
+            hp = health
+          )
         )
-      )
+      }
     }
 
     return PartyInfoSMSG(
@@ -219,21 +215,6 @@ class PartyService(
       partyName = party.name,
       member = partyMembers
     )
-  }
-
-  private fun findEntityByEntityId(partyMasterEntityId: EntityId): Entity? {
-    val entity = try {
-      masterResolver.getEntityByMasterEntityId(partyMasterEntityId)
-    } catch (_: Exception) {
-      // master was not found
-      null
-    }
-
-    if (entity == null) {
-      LOG.debug { "Entity for partyMasterEntityId $partyMasterEntityId not found" }
-    }
-
-    return entity
   }
 
   private fun findEntityIdByMaster(partyMaster: Master): EntityId? {

@@ -1,13 +1,10 @@
 package net.bestia.zone.account
 
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.World
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.WorldAcessor
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 
@@ -25,18 +22,6 @@ class AccountEntityControlService(
   private val masterResolver: MasterResolver,
   private val zoneServer: ZoneServer
 ) {
-
-  class AddPersistAndRemoveWriter(
-    private val entity: Entity
-  ) : WorldAcessor {
-    override fun doWithWorld(world: World) {
-      with(world) {
-        entity.configure {
-          entity += PersistAndRemove
-        }
-      }
-    }
-  }
 
   /**
    * Main socket server event when a new account got connected.
@@ -56,10 +41,12 @@ class AccountEntityControlService(
   fun handleAccountDisconnected(event: AccountDisconnectedEvent) {
     LOG.debug { "handleAccountDisconnected account: ${event.accountId}" }
 
-    val masterEntity = masterResolver.getSelectedMasterEntityByAccountId(event.accountId)
+    val masterEntity = masterResolver.getSelectedMasterEntityIdByAccountId(event.accountId)
       ?: return
 
-    zoneServer.accessWorld(AddPersistAndRemoveWriter(masterEntity))
+    zoneServer.withEntityWriteLock(masterEntity) {
+      it.add(PersistAndRemove)
+    }
 
     // Technically I guess it would be better if the session only gets deactivated if the entity was confirmed removed
     // from the ecs...

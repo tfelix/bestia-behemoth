@@ -1,14 +1,10 @@
 package net.bestia.zone.ecs.item
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
+import net.bestia.zone.ecs2.Component
+
 
 data class Loot(
   val itemId: Long,
   val amount: Int,
   val uniqueId: Long = 0 // 0 means nothing special.
-) : Component<Loot> {
-  override fun type(): ComponentType<Loot> = Loot
-
-  companion object : ComponentType<Loot>()
-}
+) : Component

@@ -21,7 +21,7 @@ var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
 var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
-var AttackEntity = load("res://Bnet/Message/Entity/AttackEntity.cs")
+var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -64,7 +64,7 @@ func send_chat(text: String) -> void:
 
 func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> void:
 	assert(_is_ready_to_send())
-	var msg = AttackEntity.new()
+	var msg = AttackEntityCMSG.new()
 	msg.EntityId = entity_id
 	msg.UsedAttackId = attack_id
 	msg.SkillLevel = skill_level

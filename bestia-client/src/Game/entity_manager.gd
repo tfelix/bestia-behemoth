@@ -68,6 +68,9 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_path(msg)
 	elif msg is SpeedComponentSMSG:
 		entity.update_speed(msg)
+	elif msg is VanishEntitySMSG:
+		entity.vanish(msg)
+		_entities.erase(msg.EntityId)
 	else:
 		printerr("EntityManager: An EntitySMSG was not handled: ", typeof(msg))
 	# Server sends vanish information -> remove the node + potentially buffered stuff

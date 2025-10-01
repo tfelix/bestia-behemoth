@@ -3,11 +3,9 @@ package net.bestia.zone.message.processor
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.socket.OutMessageHandler
-import net.bestia.zone.ecs.ZoneInjectable
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import org.springframework.stereotype.Component
 
-@ZoneInjectable
 @Component
 class OutMessageProcessor(
   private val playerAOIService: ActivePlayerAOIService,

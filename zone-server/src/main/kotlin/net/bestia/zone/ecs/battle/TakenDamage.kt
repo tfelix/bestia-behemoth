@@ -1,12 +1,17 @@
 package net.bestia.zone.ecs.battle
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
-import com.github.quillraven.fleks.Entity
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Entity
+import java.time.Duration
 
-class TakenDamage() : Component<TakenDamage> {
+class TakenDamage(): Component {
 
-  private val value: MutableMap<Entity, Int> = mutableMapOf()
+  private data class DamageEntry(
+    var damage: Int,
+    var damageTakenAt: Long
+  )
+
+  private val value: MutableMap<Entity, DamageEntry> = mutableMapOf()
 
   fun damagePercentages(): Map<Entity, Float> {
     val total = totalDamage
@@ -14,27 +19,42 @@ class TakenDamage() : Component<TakenDamage> {
     return if (totalDamage == 0) {
       value.mapValues { 0f }
     } else {
-      value.mapValues { it.value.toFloat() / total }
+      value.mapValues { it.value.damage.toFloat() / total }
     }
   }
 
   fun addDamage(entity: Entity, damage: Int) {
-    // Add or update damage
-    value[entity] = (value[entity] ?: 0) + damage
+    val currentTime = System.currentTimeMillis()
+
+    // Add or update damage and timestamp
+    val existingEntry = value[entity]
+    if (existingEntry != null) {
+      existingEntry.damage += damage
+      existingEntry.damageTakenAt = currentTime
+    } else {
+      value[entity] = DamageEntry(damage, currentTime)
+    }
+
     // If more than 10 entries, remove the one with the least damage
     if (value.size > MAX_DAMAGE_ENTRIES) {
-      val minEntry = value.minByOrNull { it.value }
+      val minEntry = value.minByOrNull { it.value.damage }
       if (minEntry != null) {
         value.remove(minEntry.key)
       }
     }
   }
 
-  private val totalDamage get() = value.values.sum()
+  fun removeOldEntries() {
+    val currentTime = System.currentTimeMillis()
+    val cutoffTime = currentTime - MAX_DAMAGE_RETAIN_TIME_MS
 
-  override fun type() = TakenDamage
+    value.entries.removeIf { it.value.damageTakenAt < cutoffTime }
+  }
 
-  companion object : ComponentType<TakenDamage>() {
+  private val totalDamage get() = value.values.sumOf { it.damage }
+
+  companion object {
     private const val MAX_DAMAGE_ENTRIES = 10
+    private val MAX_DAMAGE_RETAIN_TIME_MS = Duration.ofMinutes(5).toMillis()
   }
 }

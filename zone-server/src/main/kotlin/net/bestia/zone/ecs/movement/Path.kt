@@ -1,19 +1,14 @@
 package net.bestia.zone.ecs.movement
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs.ComponentNotFoundException
-import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.WorldAcessor
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.entity.PathSMSG
 
 data class Path(
   private var _path: MutableList<Vec3L>
-) : Component<Path>, Dirtyable {
+) : Component, Dirtyable {
 
   init {
     require(_path.isNotEmpty()) { "Path must not be empty on creation." }
@@ -50,25 +45,6 @@ data class Path(
     }
   }
 
-  class PathAcessor(
-    private val entity: Entity
-  ) : WorldAcessor {
-
-    var path: List<Vec3L> = emptyList()
-      private set
-
-    override fun doWithWorld(world: World) {
-      val comp = with(world) {
-        entity.getOrNull(Path)
-          ?: throw ComponentNotFoundException(Path)
-      }
-
-      path = comp.path
-    }
-  }
-
-  override fun type(): ComponentType<Path> = Path
-
   override fun isDirty(): Boolean {
     return dirty
   }
@@ -83,6 +59,4 @@ data class Path(
       path = path
     )
   }
-
-  companion object : ComponentType<Path>()
 }

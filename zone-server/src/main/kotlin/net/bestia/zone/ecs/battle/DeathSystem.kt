@@ -1,49 +1,38 @@
 package net.bestia.zone.ecs.battle
 
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World
-import com.github.quillraven.fleks.World.Companion.inject
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.visual.BestiaVisual
+import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.item.ItemEntityFactory
 import net.bestia.zone.message.entity.VanishEntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
-import net.bestia.zone.ecs.EntityRegistry
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.visual.BestiaVisual
+import org.springframework.stereotype.Component
 import kotlin.math.floor
 
+@Component
 class DeathSystem(
-  private val outMessageProcessor: OutMessageProcessor = inject(),
-  private val entityRegistry: EntityRegistry = inject(),
-  private val itemEntityFactory: ItemEntityFactory = inject()
+  private val outMessageProcessor: OutMessageProcessor,
+  private val itemEntityFactory: ItemEntityFactory
 ) : IteratingSystem(
-  World.family { all(Dead) }
+  Dead::class
 ) {
-
-  override fun onTickEntity(entity: Entity) {
+  override fun update(
+    deltaTime: Long,
+    entity: Entity,
+    zone: ZoneServer
+  ) {
     LOG.debug { "Entity $entity is dead" }
+    val givenExp = entity.getOrThrow(GivenExp::class).value
+    val damageDealer = entity.getOrThrow(TakenDamage::class).damagePercentages()
 
-    val givenExp = getExp(entity)
-    val damageDealer = getDamageDealer(entity)
     assignExp(givenExp, damageDealer)
-
-    // get loot table and spawn item entities in the world.
-    spawnLoot(entity)
-
-    // send death animation
+    // spawnLoot(entity) // Uncomment and implement if needed
     sendDeathAnimation(entity)
 
-    // Now remove dead entity from the world
-    world -= entity
-  }
-
-  private fun getExp(entity: Entity): Int {
-    return entity.getOrNull(GivenExp)?.value ?: 0
-  }
-
-  private fun getDamageDealer(entity: Entity): Map<Entity, Float> {
-    return entity.getOrNull(TakenDamage)?.damagePercentages() ?: emptyMap()
+    zone.removeEntity(entity)
   }
 
   private fun assignExp(
@@ -55,43 +44,30 @@ class DeathSystem(
     damageDealer.forEach { (entity, percent) ->
       val receivedExp = floor(givenExp * percent).toInt()
 
-      entity.configure {
-        val addExp = it.getOrAdd(AddExp) {
-          AddExp()
-        }
-        addExp.expToAdd += receivedExp
-      }
+      val addExp = entity.getOrDefault(Exp::class) { Exp() }
+
+      addExp.value += receivedExp
     }
   }
 
   private fun spawnLoot(entity: Entity) {
-    val bestiaId = entity.getOrNull(BestiaVisual)?.id?.toLong()
+    val bestiaId = entity.get(BestiaVisual::class)?.id?.toLong()
       ?: return
 
-    val pos = entity.getOrNull(Position)?.toVec3L()
+    val pos = entity.get(Position::class)?.toVec3L()
       ?: return
 
     itemEntityFactory.createLootEntities(bestiaId, pos)
   }
 
   private fun sendDeathAnimation(entity: Entity) {
-    val pos = entity.getOrNull(Position)?.toVec3L()
-      ?: return
-
-    val entityId = entityRegistry.getEntityId(entity)
-
-    if (entityId == null) {
-      LOG.warn { "No entityId found in registry for entity $entity" }
-      return
-    }
-
-    // TODO this here runs inside the ECS thread... ugs. we certainly need a better model here.
+    val position = entity.getOrThrow(Position::class).toVec3L()
+    val entityId = entity.id
     val vanishMsg = VanishEntitySMSG(
       entityId = entityId,
-      kind = VanishEntitySMSG.VanishKind.GONE
+      kind = VanishEntitySMSG.VanishKind.DEATH
     )
-
-    outMessageProcessor.sendToAllPlayersInRange(pos, vanishMsg)
+    outMessageProcessor.sendToAllPlayersInRange(position, vanishMsg)
   }
 
   companion object {

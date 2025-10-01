@@ -3,11 +3,9 @@ package net.bestia.zone.message.processor.handler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.ecs.EntityRegistry
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.message.ChatCMSG
 import net.bestia.zone.message.ChatSMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
@@ -19,7 +17,6 @@ class ChatHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val masterOperations: MasterResolver,
   private val connectionInfoService: ConnectionInfoService,
-  private val entityRegistry: EntityRegistry,
   private val zoneServer: ZoneServer
 ) : InMessageProcessor.IncomingMessageHandler<ChatCMSG> {
   override val handles = ChatCMSG::class
@@ -50,11 +47,6 @@ class ChatHandler(
     // TODO if this section here is needed more often (position of active entity) check if it make sense
     //   to encapsulate this.
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-    val activeEntity = entityRegistry.getEntity(activeEntityId)
-      ?: return
-
-    val positionAccessor = Position.PositionAcessor(activeEntity)
-    zoneServer.accessWorld(positionAccessor)
 
     val chatSMSG = ChatSMSG(
       text = msg.text,
@@ -63,7 +55,13 @@ class ChatHandler(
       senderEntityId = activeEntityId
     )
 
-    outMessageProcessor.sendToAllPlayersInRange(positionAccessor.position, chatSMSG)
+    val position = zoneServer.withEntityReadLock(activeEntityId) { entity ->
+      entity.get(Position::class)?.toVec3L()
+    }
+
+    if(position != null) {
+      outMessageProcessor.sendToAllPlayersInRange(position, chatSMSG)
+    }
   }
 
   private fun handleWhisperChat(msg: ChatCMSG) {

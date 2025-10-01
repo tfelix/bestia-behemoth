@@ -1,20 +1,21 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.entity
 
-import com.github.quillraven.fleks.Entity
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.message.GetAllEntitiesCMSG
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.ComponentNotFoundException
+import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.session.ActiveEntityResolver
+import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs.visual.BestiaVisualComponentSMSG
 import net.bestia.zone.ecs.visual.MasterVisual
+import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.entity.PositionSMSG
 import net.bestia.zone.message.entity.PathSMSG
+import net.bestia.zone.message.entity.PositionSMSG
 import net.bestia.zone.message.entity.SpeedSMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.message.processor.OutMessageProcessor
@@ -29,8 +30,7 @@ import kotlin.reflect.KClass
 @Component
 class RequestEntitiesHandler(
   private val outMessageProcessor: OutMessageProcessor,
-  private val activeEntityResolver: ActiveEntityResolver,
-  private val entityRegistry: EntityRegistry,
+  private val connectionInfoService: ConnectionInfoService,
   private val aoiService: EntityAOIService,
   private val zoneServer: ZoneServer,
 ) : InMessageProcessor.IncomingMessageHandler<GetAllEntitiesCMSG> {
@@ -43,13 +43,13 @@ class RequestEntitiesHandler(
     val entitiesInRange = getEntitiesInRange(queryPos)
 
     // Extract the component information to send out as an update.
-    val outMessages = entitiesInRange.flatMap { (eid, e) ->
+    val outMessages = entitiesInRange.flatMap { eid ->
       listOfNotNull(
-        tryBuildBestiaComponent(eid, e),
-        tryBuildPositionComponent(eid, e),
-        tryBuildMasterComponent(eid, e),
-        tryBuildPathComponent(eid, e),
-        tryBuildSpeedComponent(eid, e)
+        tryBuildBestiaComponent(eid),
+        tryBuildPositionComponent(eid),
+        tryBuildMasterComponent(eid),
+        tryBuildPathComponent(eid),
+        tryBuildSpeedComponent(eid)
       )
     }
 
@@ -60,68 +60,68 @@ class RequestEntitiesHandler(
 
   private fun tryBuildMasterComponent(
     entityId: EntityId,
-    entity: Entity
   ): SMSG? {
     return withComponentNotFoundCatch {
-      val masterReader = MasterVisual.MasterVisualAcessor(entity)
-      zoneServer.accessWorld(masterReader)
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val masterComp = entity.getOrThrow(MasterVisual::class)
 
-      MasterVisualComponentSMSG(
-        entityId = entityId,
-        skinColor = masterReader.skinColor,
-        hairColor = masterReader.hairColor,
-        face = masterReader.face,
-        body = masterReader.body,
-        hair = masterReader.hair
-      )
+        MasterVisualComponentSMSG(
+          entityId = entityId,
+          skinColor = masterComp.skinColor,
+          hairColor = masterComp.hairColor,
+          face = masterComp.face,
+          body = masterComp.body,
+          hair = masterComp.hair
+        )
+      }
     }
   }
 
   private fun tryBuildBestiaComponent(
     entityId: EntityId,
-    entity: Entity
   ): SMSG? {
     return withComponentNotFoundCatch {
-      val bestiaReader = BestiaVisual.BestiaVisualAcessor(entity)
-      zoneServer.accessWorld(bestiaReader)
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val bestiaComp = entity.getOrThrow(BestiaVisual::class)
 
-      BestiaVisualComponentSMSG(entityId, bestiaReader.id)
+        BestiaVisualComponentSMSG(entityId, bestiaComp.id)
+      }
     }
   }
 
   private fun tryBuildPositionComponent(
     entityId: EntityId,
-    entity: Entity
   ): SMSG? {
     return withComponentNotFoundCatch {
-      val posReader = Position.PositionAcessor(entity)
-      zoneServer.accessWorld(posReader)
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val positionComp = entity.getOrThrow(Position::class)
 
-      PositionSMSG(entityId, posReader.position)
+        PositionSMSG(entityId, positionComp.toVec3L())
+      }
     }
   }
 
   private fun tryBuildPathComponent(
     entityId: EntityId,
-    entity: Entity
   ): SMSG? {
     return withComponentNotFoundCatch {
-      val pathReader = Path.PathAcessor(entity)
-      zoneServer.accessWorld(pathReader)
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val pathComp = entity.getOrThrow(Path::class)
 
-      PathSMSG(entityId, pathReader.path)
+        PathSMSG(entityId, pathComp.path)
+      }
     }
   }
 
   private fun tryBuildSpeedComponent(
     entityId: EntityId,
-    entity: Entity
   ): SMSG? {
     return withComponentNotFoundCatch {
-      val speedReader = Speed.SpeedAcessor(entity)
-      zoneServer.accessWorld(speedReader)
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val speedComp = entity.getOrThrow(Speed::class)
 
-      SpeedSMSG(entityId, speedReader.speed)
+        SpeedSMSG(entityId, speedComp.speed)
+      }
     }
   }
 
@@ -134,28 +134,19 @@ class RequestEntitiesHandler(
   }
 
   private fun findPositionOfActive(accountId: AccountId): Vec3L {
-    val activeEntity = activeEntityResolver.findActiveEntityByAccountIdOrThrow(accountId)
+    val activeEntity = connectionInfoService.getActiveEntityId(accountId)
 
-    val activeEntityPosReader = Position.PositionAcessor(activeEntity)
-    zoneServer.accessWorld(activeEntityPosReader)
-
-    return activeEntityPosReader.position
+    return zoneServer.withEntityReadLockOrThrow(activeEntity) { entity ->
+      val positionComp = entity.getOrThrow(Position::class)
+      positionComp.toVec3L()
+    }
   }
 
-  private fun getEntitiesInRange(queryPos: Vec3L): List<Pair<EntityId, Entity>> {
+  private fun getEntitiesInRange(queryPos: Vec3L): List<EntityId> {
     val entityIdsInRange = aoiService.queryEntitiesInCube(queryPos, ENTITY_QUERY_RANGE)
     LOG.debug { "Entities in query range: $entityIdsInRange" }
 
-    val entitiesInRange = entityIdsInRange
-      .mapNotNull { eir ->
-        entityRegistry.getEntity(eir)?.let { Pair(eir, it) }
-      }
-
-    if (entitiesInRange.size != entityIdsInRange.size) {
-      LOG.warn { "Resolved entities $entitiesInRange do not match range queried IDs: $entitiesInRange!" }
-    }
-
-    return entitiesInRange
+    return entityIdsInRange.toList()
   }
 
   companion object {

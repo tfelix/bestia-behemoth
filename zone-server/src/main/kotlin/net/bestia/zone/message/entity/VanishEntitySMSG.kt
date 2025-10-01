@@ -27,7 +27,7 @@ data class VanishEntitySMSG(
       VanishKind.DEATH -> VanishEntitySmsgProto.VanishKind.DEATH
     }
 
-    val vanishMsg = VanishEntitySmsgProto.VanishEntityCMSG.newBuilder()
+    val vanishMsg = VanishEntitySmsgProto.VanishEntitySMSG.newBuilder()
       .setEntityId(entityId)
       .setKind(kind)
 

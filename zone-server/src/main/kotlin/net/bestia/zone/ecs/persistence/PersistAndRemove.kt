@@ -1,9 +1,9 @@
 package net.bestia.zone.ecs.persistence
 
-import com.github.quillraven.fleks.EntityTag
+import net.bestia.zone.ecs2.Component
 
 
 /**
  * Entities with this tag are included in the persistence process.
  */
-data object PersistAndRemove : EntityTag()
+data object PersistAndRemove : Component

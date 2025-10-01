@@ -1,13 +1,12 @@
 package net.bestia.zone.ecs.battle
 
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
+import net.bestia.zone.ecs2.Component
 import net.bestia.zone.status.CurMax
 
 class Mana(
   current: Int,
   max: Int
-) : Component<Mana> {
+) : Component {
 
   private val data = CurMax().apply {
     this.max = max
@@ -25,8 +24,4 @@ class Mana(
     set(value) {
       data.max = value
     }
-
-  override fun type() = Mana
-
-  companion object : ComponentType<Mana>()
 }
