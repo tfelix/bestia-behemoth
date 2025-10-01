@@ -11,11 +11,13 @@ import kotlin.random.Random
 @Component
 class SpawnerSystem(
   private val bestiaEntityFactory: BestiaEntityFactory,
-) : IteratingSystem(
-  Spawner::class
-) {
+) : IteratingSystem() {
+  override val requiredComponents = setOf(
+    Spawner::class
+  )
+
   override fun update(
-    deltaTime: Long,
+    deltaTime: Float,
     entity: Entity,
     zone: ZoneServer
   ) {

@@ -6,21 +6,24 @@ import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs2.Entity
 import net.bestia.zone.ecs2.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
-import net.bestia.zone.item.ItemEntityFactory
+import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.entity.VanishEntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.math.floor
 
 @Component
 class DeathSystem(
   private val outMessageProcessor: OutMessageProcessor,
-  private val itemEntityFactory: ItemEntityFactory
-) : IteratingSystem(
-  Dead::class
-) {
+  private val itemEntityFactory: LootEntityFactory
+) : IteratingSystem() {
+  override val requiredComponents = setOf(
+    Dead::class
+  )
+
   override fun update(
-    deltaTime: Long,
+    deltaTime: Float,
     entity: Entity,
     zone: ZoneServer
   ) {
@@ -28,25 +31,28 @@ class DeathSystem(
     val givenExp = entity.getOrThrow(GivenExp::class).value
     val damageDealer = entity.getOrThrow(TakenDamage::class).damagePercentages()
 
-    assignExp(givenExp, damageDealer)
+    assignExp(givenExp, damageDealer, zone)
     // spawnLoot(entity) // Uncomment and implement if needed
-    sendDeathAnimation(entity)
+    sendDeathAnimation(entity, zone)
 
-    zone.removeEntity(entity)
+    zone.removeEntity(entity.id)
   }
 
   private fun assignExp(
     givenExp: Int,
-    damageDealer: Map<Entity, Float>
+    damageDealer: Map<EntityId, Float>,
+    zone: ZoneServer
   ) {
     LOG.debug { "Distribute $givenExp EXP to $damageDealer" }
 
-    damageDealer.forEach { (entity, percent) ->
+    damageDealer.forEach { (entityId, percent) ->
       val receivedExp = floor(givenExp * percent).toInt()
 
-      val addExp = entity.getOrDefault(Exp::class) { Exp() }
+      zone.withEntityWriteLock(entityId) { entity ->
+        val addExp = entity.getOrDefault(Exp::class) { Exp() }
 
-      addExp.value += receivedExp
+        addExp.value += receivedExp
+      }
     }
   }
 
@@ -60,14 +66,18 @@ class DeathSystem(
     itemEntityFactory.createLootEntities(bestiaId, pos)
   }
 
-  private fun sendDeathAnimation(entity: Entity) {
+  private fun sendDeathAnimation(entity: Entity, zone: ZoneServer) {
     val position = entity.getOrThrow(Position::class).toVec3L()
     val entityId = entity.id
     val vanishMsg = VanishEntitySMSG(
       entityId = entityId,
       kind = VanishEntitySMSG.VanishKind.DEATH
     )
-    outMessageProcessor.sendToAllPlayersInRange(position, vanishMsg)
+
+    zone.queueExternalJob {
+      outMessageProcessor.sendToAllPlayersInRange(position, vanishMsg)
+    }
+
   }
 
   companion object {

@@ -41,6 +41,7 @@ func _get_or_create_entity(entity_id: int) -> Entity:
 		_entities[entity_id] = new_entity
 		new_entity.entity_id = entity_id
 		add_child(new_entity)
+		_check_player_controllable_entity()
 	
 	return _entities[entity_id]
 
@@ -82,5 +83,10 @@ func _on_chat_message_received(msg: ChatSMSG) -> void:
 	if msg.IsPublic() && msg.SenderEntityId != 0:
 		var entity = _get_or_create_entity(msg.SenderEntityId)
 		entity.show_chat(msg)
-	
-	
+
+
+func resync_entities() -> void:
+	_entities.clear()
+	for child in get_children():
+		child.queue_free()
+	ConnectionManager.get_all_entities()

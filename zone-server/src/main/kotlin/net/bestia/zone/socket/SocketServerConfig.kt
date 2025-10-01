@@ -8,5 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 class SocketServerConfig(
   val ipAddress: String,
   val port: Int,
-  val authenticationTimeoutSeconds: Long = 30L
+  val authenticationTimeoutSeconds: Long = 30L,
+  val filterLogMessages: List<String>
 )

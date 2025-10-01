@@ -5,15 +5,19 @@ import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs2.Entity
 import net.bestia.zone.ecs2.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
+import org.springframework.stereotype.Component
 
-class MoveSystem : IteratingSystem(
-  Position::class,
-  Speed::class,
-  Path::class
-) {
+@Component
+class MoveSystem : IteratingSystem() {
+
+  override val requiredComponents: Set<kotlin.reflect.KClass<out net.bestia.zone.ecs2.Component>> = setOf(
+    Position::class,
+    Speed::class,
+    Path::class
+  )
 
   override fun update(
-    deltaTime: Long,
+    deltaTime: Float,
     entity: Entity,
     zone: ZoneServer
   ) {

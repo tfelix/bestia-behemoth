@@ -5,7 +5,8 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs2.ZoneOperations
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import kotlin.random.Random
@@ -14,8 +15,9 @@ import kotlin.random.Random
  * Spawns an item entity in the world which can be used to pickup.
  */
 @Component
-class ItemEntityFactory(
-  private val zoneServer: ZoneServer,
+class LootEntityFactory(
+  @Lazy
+  private val zoneServer: ZoneOperations,
   private val lootItemRepository: LootItemRepository
 ) {
 

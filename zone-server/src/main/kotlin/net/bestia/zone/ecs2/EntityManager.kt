@@ -32,7 +32,6 @@ class EntityManager {
     return entities.values
   }
 
-
   // Thread-safe entity access
   fun <T> withEntityReadLock(entityId: EntityId, action: (Entity) -> T): T? {
     val entity = entities[entityId] ?: return null
@@ -59,6 +58,6 @@ class EntityManager {
   }
 
   fun hasEntity(entityId: EntityId): Boolean {
-    return entities.contains(entityId)
+    return entities.containsKey(entityId)
   }
 }

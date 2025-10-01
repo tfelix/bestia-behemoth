@@ -25,7 +25,7 @@ func setup_visual(msg: BestiaVisualComponent) -> void:
 func _on_area_3d_input_event(camera: Node, event: InputEvent, event_position: Vector3, normal: Vector3, shape_idx: int) -> void:
 	if event.is_action_pressed("normal_action"):
 		print("bestia %s was clicked" % _bestia_entity_id)
-		ConnectionManager.send_attack_entity(_bestia_entity_id, 0, 0)
+		ConnectionManager.send_attack_entity(_bestia_entity_id, 0, 1)
 
 
 func _on_area_3d_mouse_entered() -> void:

@@ -5,10 +5,10 @@ import net.bestia.zone.util.EntityId
 
 class Damage() : Component {
 
-  private val amounts: MutableList<DamageAmount> = mutableListOf()
+  val amounts: MutableList<DamageAmount> = mutableListOf()
 
   data class DamageAmount(
-    val value: Int,
+    val amount: Int,
     val sourceEntityId: EntityId
   )
 
@@ -17,6 +17,6 @@ class Damage() : Component {
   }
 
   fun total(): Int {
-    return amounts.sumOf { it.value }
+    return amounts.sumOf { it.amount }
   }
 }

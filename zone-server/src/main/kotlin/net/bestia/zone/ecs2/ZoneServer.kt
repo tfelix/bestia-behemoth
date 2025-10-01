@@ -6,19 +6,19 @@ import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.*
-import net.bestia.zone.ecs2.IteratingSystem as ECSSystem
-
 
 @Service
 class ZoneServer(
   private val config: ZoneConfig,
-  private val systems: List<ECSSystem>
-) {
+  private val iteratingSystems: List<IteratingSystem>,
+  private val periodicSystems: List<PeriodicSystem>,
+  private val onEntityRemovedListener: List<OnEntityRemovedListener>
+) : ZoneOperations {
   private val ecsThreadPool = Executors.newFixedThreadPool(1)
   private val externalThreadPool = Executors.newFixedThreadPool(2)
   private val scheduledExecutor = Executors.newScheduledThreadPool(2)
   private val entityManager = EntityManager()
-  private val jobQueue = LinkedBlockingQueue<Runnable>()
+  private val removeEntityJobQueue = LinkedBlockingQueue<Runnable>()
 
   @Volatile
   private var running = false
@@ -27,7 +27,10 @@ class ZoneServer(
   init {
     LOG.info {
       "ZoneServer loaded the following systems:\n" +
-              systems.joinToString("\n") { " - ${it.javaClass.simpleName}" }
+              "Iterating Systems:\n" +
+              iteratingSystems.joinToString("\n") { " - ${it.javaClass.simpleName}" } +
+              "\nPeriodic Systems:\n" +
+              periodicSystems.joinToString("\n") { " - ${it.javaClass.simpleName}" }
     }
   }
 
@@ -42,22 +45,23 @@ class ZoneServer(
 
     // Start main ECS loop
     ecsThreadPool.submit {
+      LOG.info { "Zone ECS system started" }
+
       while (running) {
         val currentTime = System.currentTimeMillis()
-        val deltaTime = currentTime - lastTickTime
+        val deltaTime = (currentTime - lastTickTime) / 1000.0f
         lastTickTime = currentTime
 
         try {
           // Process queued jobs, these run inside the ECS context. Maybe this is not even required and
           // they could just run in parallel.
-          while (jobQueue.isNotEmpty()) {
-            val job = jobQueue.poll()
+          while (removeEntityJobQueue.isNotEmpty()) {
+            val job = removeEntityJobQueue.poll()
             job?.run()
           }
 
-          // Process each system with entity-by-entity updates, this can be improved for sure to give
-          // quicker access to entities in the system.
-          systems.forEach { system ->
+          // Process iterating systems (run every tick)
+          iteratingSystems.forEach { system ->
             val allEntities = entityManager.getAllEntities()
 
             allEntities.forEach { entity ->
@@ -65,6 +69,22 @@ class ZoneServer(
               if (system.entityMatches(entity)) {
                 withEntityWriteLock(entity.id) {
                   system.update(deltaTime, it, this)
+                }
+              }
+            }
+          }
+
+          // Process periodic systems (run only when their delay has passed)
+          periodicSystems.forEach { system ->
+            if (system.shouldExecute(deltaTime)) {
+              val allEntities = entityManager.getAllEntities()
+
+              allEntities.forEach { entity ->
+                // Re-check if entity still matches after potential component changes
+                if (system.entityMatches(entity)) {
+                  withEntityWriteLock(entity.id) {
+                    system.update(deltaTime, it, this)
+                  }
                 }
               }
             }
@@ -106,17 +126,12 @@ class ZoneServer(
     }
   }
 
-  fun queueJob(action: (ZoneServer) -> Unit) {
-    jobQueue.offer {
-      action(this@ZoneServer)
-    }
-  }
-
-  fun scheduleJob(delaySeconds: Long, action: (ZoneServer) -> Unit) {
+  /*
+  override fun scheduleJob(delaySeconds: Long, action: (ZoneOperations) -> Unit) {
     scheduledExecutor.schedule({
       action(this)
     }, delaySeconds, TimeUnit.SECONDS)
-  }
+  }*/
 
   fun scheduleRepeatingJob(initialDelaySeconds: Long, periodSeconds: Long, action: (ZoneServer) -> Unit) {
     scheduledExecutor.scheduleAtFixedRate({
@@ -124,7 +139,7 @@ class ZoneServer(
     }, initialDelaySeconds, periodSeconds, TimeUnit.SECONDS)
   }
 
-  fun queueExternalJob(action: () -> Unit) {
+  override fun queueExternalJob(action: () -> Unit) {
     externalThreadPool.submit(action)
   }
 
@@ -145,22 +160,21 @@ class ZoneServer(
   }
 
   // Convenience methods for common operations
-  fun addEntity(): EntityId = entityManager.createEntity().id
+  override fun addEntity(): EntityId = entityManager.createEntity().id
 
-  fun removeEntity(entityId: EntityId) {
-    queueJob { entityManager.removeEntity(entityId) }
+  override fun removeEntity(entityId: EntityId) {
+    removeEntityJobQueue.offer {
+      entityManager.removeEntity(entityId)
+      onEntityRemovedListener.forEach { it.onEntityRemoved(entityId) }
+    }
   }
 
-  fun removeEntity(entity: Entity) {
-    removeEntity(entity.id)
-  }
-
-  fun hasEntity(entityId: EntityId): Boolean {
+  override fun hasEntity(entityId: EntityId): Boolean {
     return entityManager.hasEntity(entityId)
   }
 
   // TODO Maybe return Unit as you should only write here?
-  fun <T> addEntityWithWriteLock(action: (Entity) -> T): EntityId {
+  override fun <T> addEntityWithWriteLock(action: (Entity) -> T): EntityId {
     val entityId = addEntity()
 
     withEntityWriteLockOrThrow(entityId, action)
@@ -168,20 +182,20 @@ class ZoneServer(
     return entityId
   }
 
-  fun <T> withEntityReadLock(entityId: Long, action: (Entity) -> T): T? {
+  override fun <T> withEntityReadLock(entityId: Long, action: (Entity) -> T): T? {
     return entityManager.withEntityReadLock(entityId, action)
   }
 
-  fun <T> withEntityReadLockOrThrow(entityId: Long, action: (Entity) -> T): T {
+  override fun <T> withEntityReadLockOrThrow(entityId: Long, action: (Entity) -> T): T {
     return entityManager.withEntityReadLock(entityId, action)
       ?: throw NoReadLockForEntity(entityId)
   }
 
-  fun <T> withEntityWriteLock(entityId: Long, action: (Entity) -> T): T? {
+  override fun <T> withEntityWriteLock(entityId: Long, action: (Entity) -> T): T? {
     return entityManager.withEntityWriteLock(entityId, action)
   }
 
-  fun <T> withEntityWriteLockOrThrow(entityId: Long, action: (Entity) -> T): T {
+  private fun <T> withEntityWriteLockOrThrow(entityId: Long, action: (Entity) -> T): T {
     return entityManager.withEntityWriteLock(entityId, action)
       ?: throw NoReadLockForEntity(entityId)
   }
@@ -190,5 +204,3 @@ class ZoneServer(
     private val LOG = KotlinLogging.logger { }
   }
 }
-
-

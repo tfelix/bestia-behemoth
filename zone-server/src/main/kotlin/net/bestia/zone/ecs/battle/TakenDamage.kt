@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle
 
 import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.util.EntityId
 import java.time.Duration
 
 class TakenDamage(): Component {
@@ -11,9 +11,9 @@ class TakenDamage(): Component {
     var damageTakenAt: Long
   )
 
-  private val value: MutableMap<Entity, DamageEntry> = mutableMapOf()
+  private val value: MutableMap<EntityId, DamageEntry> = mutableMapOf()
 
-  fun damagePercentages(): Map<Entity, Float> {
+  fun damagePercentages(): Map<EntityId, Float> {
     val total = totalDamage
 
     return if (totalDamage == 0) {
@@ -23,7 +23,7 @@ class TakenDamage(): Component {
     }
   }
 
-  fun addDamage(entity: Entity, damage: Int) {
+  fun addDamage(entity: EntityId, damage: Int) {
     val currentTime = System.currentTimeMillis()
 
     // Add or update damage and timestamp

@@ -6,36 +6,38 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.transaction.annotation.Transactional
 import net.bestia.zone.ecs2.Entity
 import net.bestia.zone.ecs2.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
+import org.springframework.stereotype.Component
 
 /**
  * This will identify what type of entity it is and then remove it as some
  * entities like player bestia and  master have different DB tables and are not
  * stored like the regular entities.
  */
+@Component
 class PersistAndRemoveSystem(
   private val masterRepository: MasterRepository
-) : IteratingSystem(
-  PersistAndRemove::class
-) {
+) : IteratingSystem() {
+  override val requiredComponents = setOf(
+    PersistAndRemove::class
+  )
+
   override fun update(
-    deltaTime: Long,
+    deltaTime: Float,
     entity: Entity,
     zone: ZoneServer
   ) {
     if (entity.has(Master::class)) {
       persistMasterEntity(entity)
     } else {
-      LOG.warn { "Found no persistence handler for entity: $entity, will remove it not" }
+      LOG.warn { "Found no persistence handler for entity: $entity, it will not be persisted" }
     }
     // Remove the entity from the world
-    zone.removeEntity(entity)
+    zone.removeEntity(entity.id)
   }
 
-  @Transactional
   private fun persistMasterEntity(entity: Entity) {
     val masterComponent = entity.getOrThrow(Master::class)
     val positionComponent = entity.getOrThrow(Position::class)

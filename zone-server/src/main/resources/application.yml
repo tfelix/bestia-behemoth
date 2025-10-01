@@ -18,11 +18,15 @@ socket:
   ip-address: 127.0.0.1
   port: 8090
   authentication-timeout-seconds: 5
+  filter-log-messages:
+    - "!comp_path"
+    - "!comp_position"
 
 logging:
   level:
     root: INFO
     net.bestia.zone: TRACE
+    net.bestia.zone.ecs.movement.MoveSystem: INFO # disable movement, too spammy
 
 spring:
   datasource:

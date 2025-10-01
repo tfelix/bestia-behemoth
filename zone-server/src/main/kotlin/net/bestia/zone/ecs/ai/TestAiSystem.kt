@@ -7,17 +7,23 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs2.PeriodicSystem
 import net.bestia.zone.ecs2.ZoneServer
+import org.springframework.stereotype.Component
 import kotlin.random.Random
 
-class TestAiSystem : IteratingSystem(
-  Position::class,
-  Speed::class,
-  BestiaVisual::class
+// @Component
+class TestAiSystem : PeriodicSystem(
+  delay = 10f, // Run every 2 seconds instead of every tick
+  setOf(
+    Position::class,
+    Speed::class,
+    BestiaVisual::class
+  )
 ) {
+
   override fun update(
-    deltaTime: Long,
+    deltaTime: Float,
     entity: Entity,
     zone: ZoneServer
   ) {
@@ -25,7 +31,9 @@ class TestAiSystem : IteratingSystem(
       return
     }
     var curPos = entity.getOrThrow(Position::class).toVec3L()
+
     val newPath = mutableListOf(curPos)
+
     while (newPath.size < 8) {
       val nextPos = getNextPosition(curPos)
       if (!isValidPosition(nextPos)) {
@@ -37,8 +45,6 @@ class TestAiSystem : IteratingSystem(
     }
     entity.add(Path(newPath))
     LOG.debug { "Entity ${entity.id} moving now: $newPath" }
-
-    LOG.debug { "Entity $entity moving now: $newPath" }
   }
 
   private fun getNextPosition(cur: Vec3L): Vec3L {
@@ -62,7 +68,6 @@ class TestAiSystem : IteratingSystem(
   private fun isValidPosition(pos: Vec3L): Boolean {
     return pos.x > -10 && pos.x < 10 && pos.y > -10 && pos.y < 10
   }
-
 
   companion object {
     private val LOG = KotlinLogging.logger { }

@@ -20,21 +20,6 @@ points = PackedVector3Array(0.4578707, 0.19807906, 0.01578243, -0.48873997, -0.0
 [sub_resource type="ViewportTexture" id="ViewportTexture_b5q2y"]
 viewport_path = NodePath("SubViewport")
 
-[sub_resource type="Animation" id="Animation_b5q2y"]
-resource_name = "appear"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Model:mesh:material:albedo_color")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
-}
-
 [sub_resource type="Animation" id="Animation_waw44"]
 length = 0.001
 tracks/0/type = "value"
@@ -48,6 +33,21 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Color(0.8156863, 0.54509807, 0.101960786, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_b5q2y"]
+resource_name = "appear"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_q60hp"]
