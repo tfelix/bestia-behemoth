@@ -1,6 +1,7 @@
-package net.bestia.zone.message
+package net.bestia.zone.system
 
 import net.bestia.bnet.proto.ChatCmsgProto
+import net.bestia.zone.message.CMSG
 
 data class ChatCMSG(
   override val playerId: Long,

@@ -1,10 +1,8 @@
-package net.bestia.zone.message.processor.handler
+package net.bestia.zone.system
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.PingCMSG
-import net.bestia.zone.message.PongSMSG
-import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.processor.OutMessageProcessor
 import org.springframework.stereotype.Component
 
 @Component

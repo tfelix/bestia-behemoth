@@ -1,9 +1,9 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.zone.message.GetBestiasCMSG
-import net.bestia.zone.message.MoveActiveEntityCMSG
 import net.bestia.zone.message.SelectEntityCMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.entity.MoveActiveEntityCMSG
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertNotEquals

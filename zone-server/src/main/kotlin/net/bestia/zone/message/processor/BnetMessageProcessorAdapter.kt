@@ -3,6 +3,8 @@ package net.bestia.zone.message.processor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.message.*
+import net.bestia.zone.system.ChatCMSG
+import net.bestia.zone.system.PingCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 

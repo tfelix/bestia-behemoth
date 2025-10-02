@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://2utnspaewyar"]
+[gd_scene load_steps=3 format=3 uid="uid://2utnspaewyar"]
 
 [ext_resource type="Script" uid="uid://d0wgy6dui6vqy" path="res://Menu/CreateNewMaster/create_new_master.gd" id="1_83cya"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_83cya"]
+size = Vector2(250, 300)
 
 [node name="CreateNewMaster" type="Control"]
 layout_mode = 3
@@ -19,20 +22,303 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="P" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="M" type="MarginContainer" parent="CenterContainer/P"]
 layout_mode = 2
-text = "Create New Master"
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
-[node name="CreateButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="Main" type="VBoxContainer" parent="CenterContainer/P/M"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Title" type="Label" parent="CenterContainer/P/M/Main"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Create A New Character"
+
+[node name="Creation" type="HBoxContainer" parent="CenterContainer/P/M/Main"]
+layout_mode = 2
+theme_override_constants/separation = 80
+
+[node name="Left" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GenderLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry1"]
+layout_mode = 2
+text = "Gender"
+
+[node name="Row" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry1"]
+layout_mode = 2
+
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "<"
+
+[node name="GenderButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 3
+popup/item_0/text = "Male"
+popup/item_0/id = 0
+popup/item_1/text = "Female"
+popup/item_1/id = 1
+popup/item_2/text = "Diverse"
+popup/item_2/id = 2
+
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = ">"
+
+[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry2"]
+layout_mode = 2
+text = "Body"
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry2"]
+layout_mode = 2
+
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "<"
+
+[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 1
+popup/item_0/text = "Type 1"
+popup/item_0/id = 0
+
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = ">"
+
+[node name="Entry3" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry3"]
+layout_mode = 2
+text = "Face"
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry3"]
+layout_mode = 2
+
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "<"
+
+[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 1
+popup/item_0/text = "Type 1"
+popup/item_0/id = 0
+
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = ">"
+
+[node name="Entry4" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry4"]
+layout_mode = 2
+text = "Hair"
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry4"]
+layout_mode = 2
+
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "<"
+
+[node name="Options" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 1
+popup/item_0/text = "Type 1"
+popup/item_0/id = 0
+
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = ">"
+
+[node name="Middle" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Preview" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle"]
+layout_mode = 2
+
+[node name="RotL" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_vertical = 0
+text = "->"
+
+[node name="Image" type="TextureRect" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+layout_mode = 2
+texture = SubResource("PlaceholderTexture2D_83cya")
+
+[node name="RotR" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_vertical = 0
+text = "<-"
+
+[node name="Name" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/Name"]
+layout_mode = 2
+text = "Character Name"
+
+[node name="NameEdit" type="LineEdit" parent="CenterContainer/P/M/Main/Creation/Middle/Name"]
+layout_mode = 2
+placeholder_text = "Enter Name"
+
+[node name="Right" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HairCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry1"]
+layout_mode = 2
+text = "Hair Color"
+
+[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry1"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(0.49398458, 0.99999994, 0.8300373, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(1, 0, 0, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(0.3689821, 0.21426192, 0.0357328, 1)
+
+[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SkinCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry2"]
+layout_mode = 2
+text = "Skin"
+
+[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry2"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 5
+
+[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(0.49398458, 0.99999994, 0.8300373, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(1, 0, 0, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+color = Color(0.3689821, 0.21426192, 0.0357328, 1)
+
+[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="Bottom" type="HBoxContainer" parent="CenterContainer/P/M/Main"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/separation = 18
+
+[node name="CreateButton" type="Button" parent="CenterContainer/P/M/Main/Bottom"]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Create"
 
-[node name="CancelButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="CancelButton" type="Button" parent="CenterContainer/P/M/Main/Bottom"]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Cancel"
 
-[connection signal="pressed" from="CenterContainer/VBoxContainer/CreateButton" to="." method="_on_create_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="CenterContainer/P/M/Main/Bottom/CreateButton" to="." method="_on_create_button_pressed"]
+[connection signal="pressed" from="CenterContainer/P/M/Main/Bottom/CancelButton" to="." method="_on_cancel_button_pressed"]

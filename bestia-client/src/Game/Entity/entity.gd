@@ -22,7 +22,7 @@ var BestiaModelScn = preload("res://Game/Entity/Bestia/Bestia.tscn")
 
 var MasterModelScn = preload("res://Game/Entity/Master/Master.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
-var ChatText = preload("res://Game/Entity/ChatText.tscn")
+var ChatText = preload("res://Game/Entity/ChatText/ChatText.tscn")
 
 var entity_id: int = 0
 

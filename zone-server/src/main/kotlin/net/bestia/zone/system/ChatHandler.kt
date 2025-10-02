@@ -1,15 +1,13 @@
-package net.bestia.zone.message.processor.handler
+package net.bestia.zone.system
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.MasterNotFoundException
+import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs2.ZoneServer
-import net.bestia.zone.message.ChatCMSG
-import net.bestia.zone.message.ChatSMSG
-import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.processor.OutMessageProcessor
 import org.springframework.stereotype.Component
 
 @Component
@@ -78,12 +76,12 @@ class ChatHandler(
 
       outMessageProcessor.sendToPlayer(targetAccountId, chatSMSG)
     } catch (e: MasterNotFoundException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, ChatSMSG.ERROR_UNKNOWN_USER)
+      outMessageProcessor.sendToPlayer(msg.playerId, ChatSMSG.Companion.ERROR_UNKNOWN_USER)
     }
   }
 
   private fun sendNotYetSupported(playerId: Long) {
-    outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
+    outMessageProcessor.sendToPlayer(playerId, ChatSMSG.Companion.ERROR_NOT_SUPPORTED)
   }
 
   companion object {

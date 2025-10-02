@@ -1,9 +1,9 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.message.ChatCMSG
-import net.bestia.zone.message.ChatSMSG
-import net.bestia.zone.message.PingCMSG
-import net.bestia.zone.message.PongSMSG
+import net.bestia.zone.system.ChatCMSG
+import net.bestia.zone.system.ChatSMSG
+import net.bestia.zone.system.PingCMSG
+import net.bestia.zone.system.PongSMSG
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

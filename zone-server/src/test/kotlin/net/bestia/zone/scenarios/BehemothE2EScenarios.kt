@@ -2,11 +2,11 @@ package net.bestia.zone.scenarios
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.message.GetBestiasCMSG
-import net.bestia.zone.message.MoveActiveEntityCMSG
-import net.bestia.zone.message.PingCMSG
-import net.bestia.zone.message.PongSMSG
+import net.bestia.zone.system.PingCMSG
+import net.bestia.zone.system.PongSMSG
 import net.bestia.zone.message.entity.PositionSMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import org.awaitility.Awaitility
 import org.junit.jupiter.api.Assertions.*

@@ -1,8 +1,9 @@
-package net.bestia.zone.message
+package net.bestia.zone.system
 
 import net.bestia.bnet.proto.ChatCmsgProto
 import net.bestia.bnet.proto.ChatSmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
+import net.bestia.zone.message.SMSG
 import java.lang.IllegalStateException
 
 data class ChatSMSG(
