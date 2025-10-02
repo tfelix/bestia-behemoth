@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.stereotype.Component
 
@@ -28,6 +28,7 @@ class ReceivedDamageSystem : IteratingSystem() {
 
     val takenDamage = entity.getOrDefault(TakenDamage::class) { TakenDamage() }
     receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
+    takenDamage.removeOldEntries()
 
     val health = entity.getOrThrow(Health::class)
     health.current -= receivedDamage.total()

@@ -2,15 +2,15 @@ package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.stereotype.Component
 
 @Component
 class MoveSystem : IteratingSystem() {
 
-  override val requiredComponents: Set<kotlin.reflect.KClass<out net.bestia.zone.ecs2.Component>> = setOf(
+  override val requiredComponents: Set<kotlin.reflect.KClass<out net.bestia.zone.ecs.Component>> = setOf(
     Position::class,
     Speed::class,
     Path::class

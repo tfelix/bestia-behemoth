@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Damage
-import net.bestia.zone.ecs2.Entity
 import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.message.AttackEntityCMSG
 import net.bestia.zone.message.processor.InMessageProcessor

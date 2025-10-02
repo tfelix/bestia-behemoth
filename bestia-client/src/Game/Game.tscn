@@ -1,7 +1,6 @@
-[gd_scene load_steps=18 format=3 uid="uid://duthbfpw73f8g"]
+[gd_scene load_steps=17 format=3 uid="uid://duthbfpw73f8g"]
 
 [ext_resource type="Script" uid="uid://b2nfrhehpmm6p" path="res://Game/game.gd" id="1_oscxy"]
-[ext_resource type="PackedScene" uid="uid://cabh7yua8bb6t" path="res://Game/UI/Chat/Chat.tscn" id="1_vrr3t"]
 [ext_resource type="PackedScene" uid="uid://coopsp0c6tacr" path="res://Game/UI/UI.tscn" id="2_eqev2"]
 [ext_resource type="Texture2D" uid="uid://bro17wt5kprll" path="res://Game/Terrain/grass_02/hp_03.png" id="2_fuqhk"]
 [ext_resource type="Texture2D" uid="uid://chdqoe308les5" path="res://Game/Terrain/grass_02/hp_03_h.png" id="3_oscxy"]
@@ -74,8 +73,6 @@ environment = SubResource("Environment_iv3md")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
 shadow_enabled = true
-
-[node name="Chat" parent="." instance=ExtResource("1_vrr3t")]
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3

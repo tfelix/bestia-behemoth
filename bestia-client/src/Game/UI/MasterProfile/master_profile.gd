@@ -15,7 +15,7 @@ func _ready() -> void:
 	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
 	_master_name.text = _master_info.Name
-	_level.text = "Lv. %s" % _master_info.Level
+	_update_level(_master_info.Level)
 	_update_position(_master_info.Position)
 
 
@@ -29,6 +29,12 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		return
 	if msg is PositionComponent:
 		_update_position(msg.Position)
+	if msg is LevelComponentSMSG:
+		_update_level(msg.Level)
+
+
+func _update_level(level: int) -> void:
+	_level.text = "Lv. %s" % level
 
 
 func _update_position(pos: Vector3) -> void:

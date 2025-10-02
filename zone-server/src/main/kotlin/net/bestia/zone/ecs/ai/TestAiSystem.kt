@@ -6,10 +6,9 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.PeriodicSystem
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.PeriodicSystem
 import net.bestia.zone.ecs2.ZoneServer
-import org.springframework.stereotype.Component
 import kotlin.random.Random
 
 // @Component

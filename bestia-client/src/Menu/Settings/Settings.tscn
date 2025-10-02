@@ -17,4 +17,12 @@ offset_right = 8.0
 offset_bottom = 8.0
 text = "Back"
 
+[node name="ColorPickerButton" type="ColorPickerButton" parent="."]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 93.0
+offset_right = 106.0
+offset_bottom = 124.0
+text = "Color"
+
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

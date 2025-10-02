@@ -6,8 +6,8 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
 import org.springframework.data.repository.findByIdOrNull
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.stereotype.Component
 

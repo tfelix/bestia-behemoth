@@ -1,6 +1,9 @@
 extends ProgressBar
 
-@export var color: Color
+@export var color: Color = Color.WEB_GREEN
 
-func  _ready() -> void:
-	pass
+@onready var style := get("theme_override_styles/fill") as StyleBoxFlat
+
+
+func _process(_delta: float) -> void:
+	style.bg_color = color

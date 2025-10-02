@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.spawn
 
-import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs.Component
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 

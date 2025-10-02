@@ -5,7 +5,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.ZoneOperations
+import net.bestia.zone.ecs.ZoneOperations
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -26,12 +26,12 @@ class LootEntityFactory(
     val lootItems = lootItemRepository.findAllByBestiaId(bestiaId)
 
     val spawnItems = lootItems.filter { lootItem ->
-      val roll = Random.nextInt(1, 100001) // 1 to 100000 inclusive
+      val roll = Random.nextInt(1, 1_001) // 1 to 100000 inclusive
 
       roll <= lootItem.dropChance
     }
 
-    LOG.debug { "Spawning loot $spawnItems for bestia $bestiaId on pos $pos" }
+    LOG.debug { "Spawning loot $spawnItems for bestia $bestiaId ($lootItems) on pos $pos" }
 
     return spawnItems.map { spawnItem ->
       zoneServer.addEntityWithWriteLock {

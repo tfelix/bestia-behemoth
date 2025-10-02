@@ -59,6 +59,8 @@ namespace BestiaBehemothClient.Bnet.Message
       // Process any complete messages from the queue
       while (_messageQueue.TryDequeue(out Envelope envelope))
       {
+        GD.Print("BnetSocket RX: ", envelope.ToString());
+
         if (envelope.Disconnected != null)
         {
           GD.Print($"Disconnected by server: {envelope.Disconnected.Reason}");
@@ -87,6 +89,16 @@ namespace BestiaBehemothClient.Bnet.Message
         else if (envelope.Self != null)
         {
           var msg = Master.SelfSMSG.FromProto(envelope.Self);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompLevel != null)
+        {
+          var msg = Entity.LevelComponentSMSG.FromBnet(envelope.CompLevel);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompExp != null)
+        {
+          var msg = Entity.ExpComponentSMSG.FromBnet(envelope.CompExp);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.CompMasterVisual != null)
@@ -133,8 +145,6 @@ namespace BestiaBehemothClient.Bnet.Message
         {
           GD.PrintErr("BnetSocket: Envelope message was not handled! Please add handling and type conversion.");
         }
-
-        GD.Print("BnetSocket RX: ", envelope.ToString());
       }
     }
 

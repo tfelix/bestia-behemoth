@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle
 
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Entity
+import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.Entity
 
 data class Target(
   var entity: Entity,

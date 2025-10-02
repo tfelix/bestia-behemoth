@@ -1,6 +1,5 @@
-package net.bestia.zone.ecs2
+package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs.EntityIdGenerator
 import net.bestia.zone.util.EntityId
 import java.util.concurrent.ConcurrentHashMap
 

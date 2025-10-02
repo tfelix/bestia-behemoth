@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.visual
 import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs.Component
 import java.awt.Color
 
 data class MasterVisual(

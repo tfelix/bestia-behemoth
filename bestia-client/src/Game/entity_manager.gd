@@ -72,6 +72,12 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is VanishEntitySMSG:
 		entity.vanish(msg)
 		_entities.erase(msg.EntityId)
+	elif msg is LevelComponentSMSG:
+		# no handling so far
+		pass
+	elif msg is ExpComponentSMSG:
+		# no handling so far
+		pass
 	else:
 		printerr("EntityManager: An EntitySMSG was not handled: ", typeof(msg))
 	# Server sends vanish information -> remove the node + potentially buffered stuff

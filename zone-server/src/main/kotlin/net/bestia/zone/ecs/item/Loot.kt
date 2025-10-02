@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs.Component
 
 
 data class Loot(

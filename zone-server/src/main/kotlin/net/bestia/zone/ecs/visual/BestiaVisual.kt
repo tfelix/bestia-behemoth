@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.visual
 
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Dirtyable
+import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 
 data class BestiaVisual(

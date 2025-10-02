@@ -3,7 +3,7 @@ package net.bestia.zone.bestia
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.battle.GivenExp
+import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed

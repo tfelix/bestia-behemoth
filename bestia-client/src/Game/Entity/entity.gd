@@ -49,11 +49,6 @@ const _VISUAL_NODE_NAME = "Visual"
 const _CHAT_NODE_NAME = "ChatText"
 
 
-#func _ready() -> void:
-	# Start movement processing
-	#set_process(true)
-
-
 func _process(delta: float) -> void:
 	_update_movement(delta)
 
@@ -117,18 +112,6 @@ func _resume_path_movement(current_time: float) -> void:
 		_movement_start_time = current_time
 		_is_moving = true
 
-
-# Debug function to check movement state
-func get_movement_info() -> Dictionary:
-	return {
-		"is_moving": _is_moving,
-		"speed": _speed,
-		"path_size": _current_path.size(),
-		"path_index": _path_index,
-		"server_correction": _server_position_correction,
-		"current_position": position,
-		"target_position": _target_position if _is_moving else Vector3.ZERO
-	}
 
 # This does not work out. we add the visual which contains the model only later
 # so we either hand over the chat message to the visual to handle it (what happens

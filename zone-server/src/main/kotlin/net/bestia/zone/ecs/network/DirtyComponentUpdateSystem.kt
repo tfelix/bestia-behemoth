@@ -9,9 +9,11 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
 import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.Dirtyable
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.IteratingSystem
+import net.bestia.zone.ecs.status.Exp
+import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.entity.EntitySMSG
@@ -43,30 +45,56 @@ class DirtyComponentUpdateSystem(
     val posComp = entity.getOrThrow(Position::class)
     val position = posComp.toVec3L()
 
+    val isEntityActivePlayer = entity.has(ActivePlayer::class)
+
     if (posComp.isDirty()) {
       aoiService.setEntityPosition(entity.id, position)
 
-      if (entity.has(ActivePlayer::class)) {
+      if (isEntityActivePlayer) {
         updatePlayerAOI(entity, position)
       }
     }
 
     // TODO How to make sure to add other dirtyable components in here. Maybe add a unit test to check this?
-    val updateMessages = listOfNotNull(
-      makeMessageIfDirty(entity.id, posComp),
-      makeMessageIfDirty(entity.id, entity.get(Speed::class)),
-      makeMessageIfDirty(entity.id, entity.get(Path::class)),
-      makeMessageIfDirty(entity.id, entity.get(BestiaVisual::class))
-    )
-
-    zone.queueExternalJob {
-      outMessageProcessor.sendToAllPlayersInRange(
-        position,
-        updateMessages
-      )
-    }
+    updatePublicBroadcastableDirtyComponents(entity, zone, position)
+    updatePrivateBroadcastableDirtyComponents(entity, zone, position)
 
     entity.remove(IsDirty::class)
+  }
+
+  private fun updatePublicBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer, position: Vec3L) {
+    val broadcastUpdateMessages = listOfNotNull(
+      makeMessageIfDirty(entity.id, entity.get(Position::class)),
+      makeMessageIfDirty(entity.id, entity.get(Speed::class)),
+      makeMessageIfDirty(entity.id, entity.get(Path::class)),
+      makeMessageIfDirty(entity.id, entity.get(BestiaVisual::class)),
+      makeMessageIfDirty(entity.id, entity.get(Exp::class)),
+      makeMessageIfDirty(entity.id, entity.get(Level::class))
+    )
+
+    if (broadcastUpdateMessages.isNotEmpty()) {
+      zone.queueExternalJob {
+        outMessageProcessor.sendToAllPlayersInRange(
+          position,
+          broadcastUpdateMessages
+        )
+      }
+    }
+  }
+
+  private fun updatePrivateBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer, position: Vec3L) {
+    val ownedByAccountId = entity.get(Account::class)?.accountId
+      ?: return
+
+    val broadcastUpdateMessages = listOfNotNull(
+      makeMessageIfDirty(entity.id, entity.get(Exp::class)),
+    )
+
+    if (broadcastUpdateMessages.isNotEmpty()) {
+      zone.queueExternalJob {
+        outMessageProcessor.sendToPlayer(ownedByAccountId, broadcastUpdateMessages)
+      }
+    }
   }
 
   private fun updatePlayerAOI(entity: Entity, position: Vec3L) {

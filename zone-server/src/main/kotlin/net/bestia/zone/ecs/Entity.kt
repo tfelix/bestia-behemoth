@@ -1,6 +1,5 @@
-package net.bestia.zone.ecs2
+package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs.ComponentNotFoundException
 import kotlin.reflect.KClass
 
 data class Entity(

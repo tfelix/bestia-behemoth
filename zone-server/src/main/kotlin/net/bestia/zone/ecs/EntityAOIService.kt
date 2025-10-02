@@ -1,6 +1,5 @@
 package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs2.OnEntityRemovedListener
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 

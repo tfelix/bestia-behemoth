@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs2
+package net.bestia.zone.ecs
 
 import java.util.concurrent.locks.ReentrantReadWriteLock
 

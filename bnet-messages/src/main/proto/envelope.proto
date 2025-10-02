@@ -5,6 +5,8 @@ package bnet;
 import "messages/component/position_component.proto";
 import "messages/component/bestia_visual_component.proto";
 import "messages/component/item_visual_component.proto";
+import "messages/component/exp_component_smsg.proto";
+import "messages/component/level_component_smsg.proto";
 import "messages/system/ping.proto";
 import "messages/system/chat_cmsg.proto";
 import "messages/system/chat_smsg.proto";
@@ -72,6 +74,8 @@ message Envelope {
     MasterVisualComponentSMSG comp_master_visual = 514;
     PathComponentSMSG comp_path = 515;
     SpeedComponentSMSG comp_speed = 516;
+    ExpComponentSMSG comp_exp = 517;
+    LevelComponentSMSG comp_level = 518;
 
     // BATTLE 600
     DamageSMSG damage = 601;

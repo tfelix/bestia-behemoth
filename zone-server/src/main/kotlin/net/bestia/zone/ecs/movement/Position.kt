@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.movement
 
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Dirtyable
+import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.entity.PositionSMSG
 

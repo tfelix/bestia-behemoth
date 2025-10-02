@@ -3,8 +3,11 @@ package net.bestia.zone.ecs.battle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.Entity
-import net.bestia.zone.ecs2.IteratingSystem
+import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.IteratingSystem
+import net.bestia.zone.ecs.network.IsDirty
+import net.bestia.zone.ecs.status.Exp
+import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.entity.VanishEntitySMSG
@@ -32,7 +35,7 @@ class DeathSystem(
     val damageDealer = entity.getOrThrow(TakenDamage::class).damagePercentages()
 
     assignExp(givenExp, damageDealer, zone)
-    spawnLoot(entity)
+    spawnLoot(entity, zone)
     sendDeathAnimation(entity, zone)
 
     zone.removeEntity(entity.id)
@@ -52,18 +55,21 @@ class DeathSystem(
         val addExp = entity.getOrDefault(Exp::class) { Exp() }
 
         addExp.value += receivedExp
+        entity.add(IsDirty)
       }
     }
   }
 
-  private fun spawnLoot(entity: Entity) {
+  private fun spawnLoot(entity: Entity, zone: ZoneServer) {
     val bestiaId = entity.get(BestiaVisual::class)?.id?.toLong()
       ?: return
 
     val pos = entity.get(Position::class)?.toVec3L()
       ?: return
 
-    itemEntityFactory.createLootEntities(bestiaId, pos)
+    zone.queueExternalJob {
+      itemEntityFactory.createLootEntities(bestiaId, pos)
+    }
   }
 
   private fun sendDeathAnimation(entity: Entity, zone: ZoneServer) {

@@ -6,6 +6,6 @@ mana: 8
 experience: 5
 loot:
   - item: jelly
-    chance: 2000
+    chance: 1000
   - item: apple
-    chance: 2000
+    chance: 1000

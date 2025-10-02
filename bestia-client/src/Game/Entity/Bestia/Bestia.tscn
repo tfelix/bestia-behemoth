@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_b5q2y"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
-transparency = 1
 albedo_color = Color(0.8156863, 0.54509807, 0.101960786, 0)
 stencil_flags = 2
 stencil_color = Color(0.86025685, 0.5340028, 0.82494587, 1)

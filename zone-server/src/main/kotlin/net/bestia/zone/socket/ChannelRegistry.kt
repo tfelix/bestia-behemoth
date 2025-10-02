@@ -44,9 +44,9 @@ class ChannelRegistry(
       // Quite some complex log filtering if trace is enabled
       if (LOG.isTraceEnabled()) {
         val envelopeTxt = envelope.toString()
-        val isLogMessage = logMessages.isNotEmpty() && logMessages.any { envelopeTxt.contains(it) }
-        val isNotLogMessage = notLogMessages.isNotEmpty() && notLogMessages.any { envelopeTxt.contains(it) }
-        if (isLogMessage && !isNotLogMessage) {
+        val isLogMessage = logMessages.isEmpty() || logMessages.any { envelopeTxt.contains(it) }
+        val isNotLogMessage = notLogMessages.isEmpty() || notLogMessages.none { envelopeTxt.contains(it) }
+        if (isLogMessage && isNotLogMessage) {
           LOG.trace {
             "TX player: $playerId - ${channel.remoteAddress()}: $envelope"
           }

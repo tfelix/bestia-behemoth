@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle
 
 import net.bestia.zone.status.CurMax
-import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs.Component
 
 class Health(
   current: Int,

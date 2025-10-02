@@ -1,14 +1,38 @@
-[gd_scene load_steps=4 format=3 uid="uid://bxvkt1edgyru7"]
+[gd_scene load_steps=7 format=3 uid="uid://bxvkt1edgyru7"]
 
-[ext_resource type="PackedScene" uid="uid://c6kjgkk50wajl" path="res://Game/UI/MasterProfile/ProfileBar/ProfileBar.tscn" id="1_73hi0"]
 [ext_resource type="Script" uid="uid://dcv74etn3ylxs" path="res://Game/UI/MasterProfile/master_profile.gd" id="1_c5uss"]
+[ext_resource type="Script" uid="uid://fjwopidr1lhd" path="res://Game/UI/MasterProfile/ProfileBar/profile_bar.gd" id="2_c5uss"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2wskm"]
 size = Vector2(100, 100)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_puc4o"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+corner_detail = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_urjgt"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+corner_detail = 6
+
 [node name="MasterProfile" type="PanelContainer"]
-offset_right = 362.0
-offset_bottom = 178.0
+offset_right = 377.0
+offset_bottom = 167.0
 script = ExtResource("1_c5uss")
 
 [node name="M" type="MarginContainer" parent="."]
@@ -66,44 +90,59 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "(X: 100, Y: 200, Z: 20)"
 
-[node name="HealthBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+[node name="HealthBar" type="ProgressBar" parent="M/Profile/M/Info"]
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-color = Color(0.101960786, 0.7411765, 0.09411765, 0.4)
+theme_override_styles/fill = SubResource("StyleBoxFlat_c5uss")
+value = 80.0
+show_percentage = false
+script = ExtResource("2_c5uss")
+color = Color(0.3043059, 0.7200483, 0.432429, 0.7411765)
 
 [node name="Health" type="Label" parent="M/Profile/M/Info"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "HP: 30 / 120"
 
-[node name="ManaBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+[node name="ManaBar" type="ProgressBar" parent="M/Profile/M/Info"]
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-color = Color(0, 0.6774106, 0.84963536, 0.4)
+theme_override_styles/fill = SubResource("StyleBoxFlat_puc4o")
+value = 80.0
+show_percentage = false
+script = ExtResource("2_c5uss")
+color = Color(0.15658718, 0.4828896, 0.82301164, 0.6509804)
 
 [node name="Mana" type="Label" parent="M/Profile/M/Info"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Mana: 17 / 89"
 
-[node name="StaminaBar" parent="M/Profile/M/Info" instance=ExtResource("1_73hi0")]
+[node name="StaminaBar" type="ProgressBar" parent="M/Profile/M/Info"]
+custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-color = Color(0.9492088, 0.958286, 0.958049, 0.4)
+theme_override_styles/fill = SubResource("StyleBoxFlat_urjgt")
+value = 80.0
+show_percentage = false
+script = ExtResource("2_c5uss")
+color = Color(0.9254902, 0.92941177, 0.93333334, 0.8235294)
 
 [node name="Stamina" type="Label" parent="M/Profile/M/Info"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Stamina: 90 / 156"
 
-[node name="Row1" type="HBoxContainer" parent="M/Profile/M/Info"]
+[node name="Row1" type="VBoxContainer" parent="M/Profile"]
 layout_mode = 2
 
-[node name="Inventory" type="Button" parent="M/Profile/M/Info/Row1"]
+[node name="Inventory" type="Button" parent="M/Profile/Row1"]
 layout_mode = 2
 text = "Inventory"
 
-[node name="Skills" type="Button" parent="M/Profile/M/Info/Row1"]
+[node name="Skills" type="Button" parent="M/Profile/Row1"]
 layout_mode = 2
 text = "Skills"
 
-[node name="Equipment" type="Button" parent="M/Profile/M/Info/Row1"]
+[node name="Equipment" type="Button" parent="M/Profile/Row1"]
 layout_mode = 2
 text = "Equipment"

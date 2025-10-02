@@ -19,10 +19,14 @@ class LootItem(
   val item: Item,
 
   @Column(nullable = false)
-  val dropChance: Int  // It is fixed point: 100000 means 100%, 10000 is 10% and 1 is 0.001%.
+  val dropChance: Int  // It is fixed point: 1_000 means 100%, 100 is 10%, 10 is 1% and 1 0.1%
 
 ) {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
+
+  override fun toString(): String {
+    return "LootItem(item=${item.id}, chance=${dropChance / 10.0}%)"
+  }
 }

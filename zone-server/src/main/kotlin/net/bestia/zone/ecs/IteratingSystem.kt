@@ -1,6 +1,9 @@
-package net.bestia.zone.ecs2
+package net.bestia.zone.ecs
 
+import net.bestia.zone.ecs2.ZoneServer
 import kotlin.reflect.KClass
+
+typealias ComponentSet = Set<KClass<out Component>>
 
 // System interface for ECS systems
 abstract class IteratingSystem {
