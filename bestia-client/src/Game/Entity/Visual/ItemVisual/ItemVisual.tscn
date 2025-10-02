@@ -1,0 +1,63 @@
+[gd_scene load_steps=9 format=3 uid="uid://coo3pwtr7jc6e"]
+
+[ext_resource type="Script" uid="uid://cx7nxcrglgel7" path="res://Game/Entity/Visual/ItemVisual/item_visual.gd" id="1_oy7wx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ah5xf"]
+vertex_color_use_as_albedo = true
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 3.0
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_ed4pm"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5744681, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_g6xyw"]
+curve = SubResource("Curve_ed4pm")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_n0gxs"]
+lifetime_randomness = 0.5
+emission_shape = 1
+emission_sphere_radius = 1.5
+direction = Vector3(0, 1, 0)
+spread = 19.038
+initial_velocity_min = 1.0
+initial_velocity_max = 2.0
+gravity = Vector3(0, 0.1, 0)
+scale_curve = SubResource("CurveTexture_g6xyw")
+
+[sub_resource type="QuadMesh" id="QuadMesh_iygyh"]
+size = Vector2(0.2, 0.2)
+
+[sub_resource type="Animation" id="Animation_gmycm"]
+resource_name = "appear"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_o721o"]
+_data = {
+&"appear": SubResource("Animation_gmycm")
+}
+
+[node name="ItemVisual" type="Node3D"]
+script = ExtResource("1_oy7wx")
+
+[node name="Sparkles" type="GPUParticles3D" parent="."]
+visible = false
+material_override = SubResource("StandardMaterial3D_ah5xf")
+cast_shadow = 0
+lifetime = 1.5
+process_material = SubResource("ParticleProcessMaterial_n0gxs")
+draw_pass_1 = SubResource("QuadMesh_iygyh")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_o721o")
+}
+
+[connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]

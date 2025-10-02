@@ -23,12 +23,14 @@ import "messages/master/get_self_cmsg.proto";
 import "messages/master/self_smsg.proto";
 import "messages/master/master.proto";
 import "messages/master/select_master_cmsg.proto";
-import "messages/battle/damage_smsg.proto";
 import "messages/component/master_visual_component_smsg.proto";
 import "messages/component/path_component_smsg.proto";
 import "messages/component/speed_component_smsg.proto";
+import "messages/component/health_component_smsg.proto";
+import "messages/component/mana_component_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
+import "messages/entity/damage_entity_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -68,6 +70,7 @@ message Envelope {
     GetAllEntities get_all_entities = 502;
     AttackEntityCMSG attack_entity = 503;
     VanishEntitySMSG vanish_entity = 504;
+    DamageEntitySMSG damage_entity = 505;
     PositionComponent comp_position = 510;
     BestiaVisualComponent comp_bestia_visual = 511;
     ItemVisualComponent comp_item_visual = 512;
@@ -76,9 +79,8 @@ message Envelope {
     SpeedComponentSMSG comp_speed = 516;
     ExpComponentSMSG comp_exp = 517;
     LevelComponentSMSG comp_level = 518;
-
-    // BATTLE 600
-    DamageSMSG damage = 601;
+    ManaComponentSMSG comp_mana = 519;
+    HealthComponentSMSG comp_health = 520;
 
     // MISC
   }

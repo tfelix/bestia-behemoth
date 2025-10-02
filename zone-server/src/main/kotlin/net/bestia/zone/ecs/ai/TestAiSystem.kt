@@ -9,9 +9,10 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.PeriodicSystem
 import net.bestia.zone.ecs2.ZoneServer
+import org.springframework.stereotype.Component
 import kotlin.random.Random
 
-// @Component
+@Component
 class TestAiSystem : PeriodicSystem(
   delay = 10f, // Run every 2 seconds instead of every tick
   setOf(

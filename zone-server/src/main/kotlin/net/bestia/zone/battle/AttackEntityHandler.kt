@@ -5,7 +5,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs2.ZoneServer
-import net.bestia.zone.message.AttackEntityCMSG
+import net.bestia.zone.entity.AttackEntityCMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component

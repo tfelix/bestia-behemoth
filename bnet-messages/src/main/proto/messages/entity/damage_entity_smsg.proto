@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DamageEntitySMSGProto";
+
+enum DamageType {
+  MISS = 0;
+  NORMAL = 1;
+  CRIT = 2;
+  DODGE = 3;
+  HEAL = 4;
+}
+
+/**
+ * Sends the active selected entity to the server.
+ */
+message DamageEntitySMSG {
+  uint64 entity_id = 1;
+  uint64 source_entity_id = 2;
+  int32  attack_id = 3;
+  uint32 damage = 4;
+  /**
+   * Divisions of the damage if a skill triggered multiple hits.
+   */
+  uint32 div = 5;
+  uint32 skill_level = 6;
+  DamageType type = 7;
+}

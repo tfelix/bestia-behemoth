@@ -18,7 +18,7 @@ class_name Entity extends Node3D
 # never for fractional positions. Client handles smooth movement between tiles.
 
 
-var BestiaModelScn = preload("res://Game/Entity/Bestia/Bestia.tscn")
+var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
 
 var MasterModelScn = preload("res://Game/Entity/Master/Master.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
@@ -129,7 +129,7 @@ func update_bestia_visual(msg: BestiaVisualComponent) -> void:
 	var existing = get_node_or_null(_VISUAL_NODE_NAME)
 	if existing != null:
 		existing.queue_free()
-	var visual = BestiaModelScn.instantiate() as Bestia
+	var visual = BestiaModelScn.instantiate() as BestiaVisual
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
@@ -223,11 +223,12 @@ func select_for_active() -> void:
 
 
 func vanish(msg: VanishEntitySMSG) -> void:
-	if msg.IsDead():
-		print("Entity %s died" % [entity_id])
-		queue_free()
+	# Check if a visual node can handle the vanish.
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null && visual.has_method("vanish"):
+		visual.vanish(msg)
 	else:
-		print("Entity %s has vanished" % [entity_id])
+		print("Entity %s vanish not handled, removing it" % [entity_id])
 		queue_free()
 
 

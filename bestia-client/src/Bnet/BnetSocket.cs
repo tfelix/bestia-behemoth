@@ -81,6 +81,21 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Master.MasterSMSG.FromProto(envelope.Master);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.DamageEntity != null)
+        {
+          var msg = Entity.DamageEntityCMSG.FromProto(envelope.DamageEntity);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompMana != null)
+        {
+          var msg = Entity.ManaComponentSMSG.FromProto(envelope.CompMana);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompHealth != null)
+        {
+          var msg = Entity.HealthComponentSMSG.FromProto(envelope.CompHealth);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompBestiaVisual != null)
         {
           var msg = Entity.BestiaVisualComponent.FromProto(envelope.CompBestiaVisual);

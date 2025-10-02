@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemSceneResource" load_steps=3 format=3 uid="uid://bbmtvqw1n3fes"]
+
+[ext_resource type="PackedScene" uid="uid://dqu0btcd80v8u" path="res://Game/Entity/Visual/ItemVisual/Items/Apple.tscn" id="1_d3s1g"]
+[ext_resource type="Script" uid="uid://dadyyu56nmthb" path="res://Game/Entity/Visual/ItemVisual/ItemSceneResource.gd" id="2_vw4yd"]
+
+[resource]
+script = ExtResource("2_vw4yd")
+item_scenes = Dictionary[int, PackedScene]({
+1: ExtResource("1_d3s1g")
+})
+metadata/_custom_type_script = "uid://dadyyu56nmthb"

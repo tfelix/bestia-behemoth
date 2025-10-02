@@ -1,8 +1,6 @@
-package net.bestia.zone.message
+package net.bestia.zone.account.master
 
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
+import net.bestia.zone.message.CMSG
 import java.awt.Color
 
 data class CreateMasterCMSG(

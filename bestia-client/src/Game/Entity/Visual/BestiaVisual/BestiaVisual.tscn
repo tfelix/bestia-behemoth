@@ -1,8 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://dq2qxxr0sgm43"]
+[gd_scene load_steps=12 format=3 uid="uid://dq2qxxr0sgm43"]
 
-[ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Bestia/bestia.gd" id="1_nxc77"]
-[ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_j45w2"]
-[ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_b5q2y"]
+[ext_resource type="Script" uid="uid://8nkwmodo4q61" path="res://Game/Entity/Visual/BestiaVisual/bestia_visual.gd" id="1_n7t7g"]
+[ext_resource type="PackedScene" uid="uid://doxvjridoygcr" path="res://Game/VFX/HealthBar/HealthBar.tscn" id="2_wtcd1"]
+[ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
 albedo_color = Color(0.8156863, 0.54509807, 0.101960786, 0)
@@ -28,10 +28,22 @@ tracks/0/path = NodePath("Model:mesh:material:albedo_color")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0009999999),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(0.8156863, 0.54509807, 0.101960786, 0)]
+"update": 1,
+"values": [0]
 }
 
 [sub_resource type="Animation" id="Animation_b5q2y"]
@@ -48,15 +60,56 @@ tracks/0/keys = {
 "update": 0,
 "values": [Color(0.8156863, 0.54509807, 0.101960786, 0), Color(0.8156863, 0.54509807, 0.101960786, 1)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [1, 0]
+}
+
+[sub_resource type="Animation" id="Animation_h56g7"]
+resource_name = "death"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Model:mesh:material:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(0.8156863, 0.54509807, 0.101960786, 1), Color(0.93766236, 0.00039705462, 0.12404562, 1), Color(0, 0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Model:mesh:material:transparency")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [1]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_q60hp"]
 _data = {
 &"RESET": SubResource("Animation_waw44"),
-&"appear": SubResource("Animation_b5q2y")
+&"appear": SubResource("Animation_b5q2y"),
+&"death": SubResource("Animation_h56g7")
 }
 
-[node name="Bestia" type="Node3D"]
-script = ExtResource("1_nxc77")
+[node name="BestiaVisual" type="Node3D"]
+script = ExtResource("1_n7t7g")
 
 [node name="Model" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37640834, 0)
@@ -67,12 +120,12 @@ mesh = SubResource("SphereMesh_nxc77")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Model/Area3D"]
 shape = SubResource("ConvexPolygonShape3D_j45w2")
 
-[node name="HealthBar" parent="." instance=ExtResource("2_j45w2")]
+[node name="HealthBar" parent="." instance=ExtResource("2_wtcd1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4495666, 0)
 pixel_size = 0.002
 texture = SubResource("ViewportTexture_b5q2y")
 
-[node name="NameTag" parent="." instance=ExtResource("3_b5q2y")]
+[node name="NameTag" parent="." instance=ExtResource("3_358an")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2949905, 0)
 visible = false
 text = "Blob"

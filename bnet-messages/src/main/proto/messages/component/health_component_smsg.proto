@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "HealthComponentSMSGProto";
+
+
+message HealthComponentSMSG {
+  fixed64 entity_id = 1;
+  uint32 current = 2;
+  uint32 max = 3;
+}

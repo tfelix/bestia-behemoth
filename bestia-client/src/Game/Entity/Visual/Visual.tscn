@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmv848nrmdopm"]
+
+[ext_resource type="Script" uid="uid://ctfrn2yvnhkiw" path="res://Game/Entity/Visual/visual.gd" id="1_50pq7"]
+
+[node name="Visual" type="Node3D"]
+script = ExtResource("1_50pq7")

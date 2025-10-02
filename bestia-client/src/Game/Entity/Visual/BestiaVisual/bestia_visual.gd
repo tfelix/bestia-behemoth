@@ -1,15 +1,17 @@
-class_name Bestia extends Node3D
+class_name BestiaVisual extends Visual
 
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 
 @onready var _name_tag = $NameTag
-@onready var _anim_player = $AnimationPlayer
+@onready var _anim_player = $AnimationPlayer as AnimationPlayer
+@onready var _health_bar = $HealthBar as HealthBar
 
 
 func _ready() -> void:
 	_anim_player.play("appear")
-	
+	_health_bar.value = 100
+
 
 func setup_visual(msg: BestiaVisualComponent) -> void:
 	print("TODO: Set the bestia visuals here")
@@ -22,7 +24,18 @@ func setup_visual(msg: BestiaVisualComponent) -> void:
 	#_bestia_data = BestiaResourceManager.get_bestia_data(_bestia_id)
 
 
-func _on_area_3d_input_event(camera: Node, event: InputEvent, event_position: Vector3, normal: Vector3, shape_idx: int) -> void:
+func vanish(msg: VanishEntitySMSG) -> void:
+	if msg.IsDead():
+		_anim_player.play("death")
+		await _anim_player.animation_finished
+		get_parent().queue_free()
+	else:
+		_anim_player.play("appear", -1, 1.0, true)
+		await _anim_player.animation_finished
+		get_parent().queue_free()
+
+
+func _on_area_3d_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
 	if event.is_action_pressed("normal_action"):
 		print("bestia %s was clicked" % _bestia_entity_id)
 		ConnectionManager.send_attack_entity(_bestia_entity_id, 0, 1)

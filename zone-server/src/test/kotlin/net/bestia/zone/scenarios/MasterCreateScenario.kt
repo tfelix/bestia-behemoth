@@ -7,11 +7,10 @@ import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterErrorSMSG
 import net.bestia.zone.extensions.test
-import net.bestia.zone.message.AvailableMasterSMSG
-import net.bestia.zone.message.CMSG
-import net.bestia.zone.message.CreateMasterCMSG
-import net.bestia.zone.message.GetMasterCMSG
-import net.bestia.zone.message.SelectMasterCMSG
+import net.bestia.zone.account.master.AvailableMasterSMSG
+import net.bestia.zone.account.master.CreateMasterCMSG
+import net.bestia.zone.account.master.GetMasterCMSG
+import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import org.junit.jupiter.api.AfterAll

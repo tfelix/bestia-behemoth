@@ -4,8 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
-import net.bestia.zone.message.AvailableMasterSMSG
-import net.bestia.zone.message.GetMasterCMSG
+import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.util.AccountId

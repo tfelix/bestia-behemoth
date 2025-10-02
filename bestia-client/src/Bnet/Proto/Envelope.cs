@@ -43,47 +43,52 @@ namespace Bnet {
             "c3NhZ2VzL21hc3Rlci9nZXRfc2VsZl9jbXNnLnByb3RvGh9tZXNzYWdlcy9t",
             "YXN0ZXIvc2VsZl9zbXNnLnByb3RvGhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVy",
             "LnByb3RvGihtZXNzYWdlcy9tYXN0ZXIvc2VsZWN0X21hc3Rlcl9jbXNnLnBy",
-            "b3RvGiFtZXNzYWdlcy9iYXR0bGUvZGFtYWdlX3Ntc2cucHJvdG8aNW1lc3Nh",
-            "Z2VzL2NvbXBvbmVudC9tYXN0ZXJfdmlzdWFsX2NvbXBvbmVudF9zbXNnLnBy",
-            "b3RvGixtZXNzYWdlcy9jb21wb25lbnQvcGF0aF9jb21wb25lbnRfc21zZy5w",
-            "cm90bxotbWVzc2FnZXMvY29tcG9uZW50L3NwZWVkX2NvbXBvbmVudF9zbXNn",
-            "LnByb3RvGihtZXNzYWdlcy9lbnRpdHkvYXR0YWNrX2VudGl0eV9jbXNnLnBy",
-            "b3RvGihtZXNzYWdlcy9lbnRpdHkvdmFuaXNoX2VudGl0eV9zbXNnLnByb3Rv",
-            "IrMKCghFbnZlbG9wZRIzChFvcGVyYXRpb25fc3VjY2VzcxgBIAEoCzIWLmJu",
-            "ZXQuT3BlcmF0aW9uU3VjY2Vzc0gAEi8KD29wZXJhdGlvbl9lcnJvchgCIAEo",
-            "CzIULmJuZXQuT3BlcmF0aW9uRXJyb3JIABIuCg5hdXRoZW50aWNhdGlvbhhk",
-            "IAEoCzIULmJuZXQuQXV0aGVudGljYXRpb25IABIqCgxkaXNjb25uZWN0ZWQY",
-            "ZSABKAsyEi5ibmV0LkRpc2Nvbm5lY3RlZEgAEj0KFmF1dGhlbnRpY2F0aW9u",
-            "X3N1Y2Nlc3MYZiABKAsyGy5ibmV0LkF1dGhlbnRpY2F0aW9uU3VjY2Vzc0gA",
-            "EhoKBHBpbmcYeCABKAsyCi5ibmV0LlBpbmdIABIaCgRwb25nGHkgASgLMgou",
-            "Ym5ldC5Qb25nSAASIwoJY2hhdF9jbXNnGHogASgLMg4uYm5ldC5DaGF0Q01T",
-            "R0gAEiMKCWNoYXRfc21zZxh7IAEoCzIOLmJuZXQuQ2hhdFNNU0dIABIqCgpn",
-            "ZXRfbWFzdGVyGJEDIAEoCzITLmJuZXQuR2V0TWFzdGVyQ01TR0gAEh8KBm1h",
-            "c3RlchiSAyABKAsyDC5ibmV0Lk1hc3RlckgAEjAKDXNlbGVjdF9tYXN0ZXIY",
-            "kwMgASgLMhYuYm5ldC5TZWxlY3RNYXN0ZXJDTVNHSAASJgoIZ2V0X3NlbGYY",
-            "lAMgASgLMhEuYm5ldC5HZXRTZWxmQ01TR0gAEh8KBHNlbGYYlQMgASgLMg4u",
-            "Ym5ldC5TZWxmU01TR0gAEjkKFHNlbGVjdF9hY3RpdmVfZW50aXR5GPQDIAEo",
-            "CzIYLmJuZXQuU2VsZWN0QWN0aXZlRW50aXR5SAASNQoSbW92ZV9hY3RpdmVf",
-            "ZW50aXR5GPUDIAEoCzIWLmJuZXQuTW92ZUFjdGl2ZUVudGl0eUgAEjEKEGdl",
-            "dF9hbGxfZW50aXRpZXMY9gMgASgLMhQuYm5ldC5HZXRBbGxFbnRpdGllc0gA",
-            "EjAKDWF0dGFja19lbnRpdHkY9wMgASgLMhYuYm5ldC5BdHRhY2tFbnRpdHlD",
-            "TVNHSAASMAoNdmFuaXNoX2VudGl0eRj4AyABKAsyFi5ibmV0LlZhbmlzaEVu",
-            "dGl0eVNNU0dIABIxCg1jb21wX3Bvc2l0aW9uGP4DIAEoCzIXLmJuZXQuUG9z",
-            "aXRpb25Db21wb25lbnRIABI6ChJjb21wX2Jlc3RpYV92aXN1YWwY/wMgASgL",
-            "MhsuYm5ldC5CZXN0aWFWaXN1YWxDb21wb25lbnRIABI2ChBjb21wX2l0ZW1f",
-            "dmlzdWFsGIAEIAEoCzIZLmJuZXQuSXRlbVZpc3VhbENvbXBvbmVudEgAEj4K",
-            "EmNvbXBfbWFzdGVyX3Zpc3VhbBiCBCABKAsyHy5ibmV0Lk1hc3RlclZpc3Vh",
-            "bENvbXBvbmVudFNNU0dIABItCgljb21wX3BhdGgYgwQgASgLMhcuYm5ldC5Q",
-            "YXRoQ29tcG9uZW50U01TR0gAEi8KCmNvbXBfc3BlZWQYhAQgASgLMhguYm5l",
-            "dC5TcGVlZENvbXBvbmVudFNNU0dIABIrCghjb21wX2V4cBiFBCABKAsyFi5i",
-            "bmV0LkV4cENvbXBvbmVudFNNU0dIABIvCgpjb21wX2xldmVsGIYEIAEoCzIY",
-            "LmJuZXQuTGV2ZWxDb21wb25lbnRTTVNHSAASIwoGZGFtYWdlGNkEIAEoCzIQ",
-            "LmJuZXQuRGFtYWdlU01TR0gAQgkKB21lc3NhZ2VCJgoVbmV0LmJlc3RpYS5i",
-            "bmV0LnByb3RvQg1FbnZlbG9wZVByb3RvYgZwcm90bzM="));
+            "b3RvGjVtZXNzYWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25l",
+            "bnRfc21zZy5wcm90bxosbWVzc2FnZXMvY29tcG9uZW50L3BhdGhfY29tcG9u",
+            "ZW50X3Ntc2cucHJvdG8aLW1lc3NhZ2VzL2NvbXBvbmVudC9zcGVlZF9jb21w",
+            "b25lbnRfc21zZy5wcm90bxoubWVzc2FnZXMvY29tcG9uZW50L2hlYWx0aF9j",
+            "b21wb25lbnRfc21zZy5wcm90bxosbWVzc2FnZXMvY29tcG9uZW50L21hbmFf",
+            "Y29tcG9uZW50X3Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS9hdHRhY2tf",
+            "ZW50aXR5X2Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS92YW5pc2hfZW50",
+            "aXR5X3Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS9kYW1hZ2VfZW50aXR5",
+            "X3Ntc2cucHJvdG8iogsKCEVudmVsb3BlEjMKEW9wZXJhdGlvbl9zdWNjZXNz",
+            "GAEgASgLMhYuYm5ldC5PcGVyYXRpb25TdWNjZXNzSAASLwoPb3BlcmF0aW9u",
+            "X2Vycm9yGAIgASgLMhQuYm5ldC5PcGVyYXRpb25FcnJvckgAEi4KDmF1dGhl",
+            "bnRpY2F0aW9uGGQgASgLMhQuYm5ldC5BdXRoZW50aWNhdGlvbkgAEioKDGRp",
+            "c2Nvbm5lY3RlZBhlIAEoCzISLmJuZXQuRGlzY29ubmVjdGVkSAASPQoWYXV0",
+            "aGVudGljYXRpb25fc3VjY2VzcxhmIAEoCzIbLmJuZXQuQXV0aGVudGljYXRp",
+            "b25TdWNjZXNzSAASGgoEcGluZxh4IAEoCzIKLmJuZXQuUGluZ0gAEhoKBHBv",
+            "bmcYeSABKAsyCi5ibmV0LlBvbmdIABIjCgljaGF0X2Ntc2cYeiABKAsyDi5i",
+            "bmV0LkNoYXRDTVNHSAASIwoJY2hhdF9zbXNnGHsgASgLMg4uYm5ldC5DaGF0",
+            "U01TR0gAEioKCmdldF9tYXN0ZXIYkQMgASgLMhMuYm5ldC5HZXRNYXN0ZXJD",
+            "TVNHSAASHwoGbWFzdGVyGJIDIAEoCzIMLmJuZXQuTWFzdGVySAASMAoNc2Vs",
+            "ZWN0X21hc3RlchiTAyABKAsyFi5ibmV0LlNlbGVjdE1hc3RlckNNU0dIABIm",
+            "CghnZXRfc2VsZhiUAyABKAsyES5ibmV0LkdldFNlbGZDTVNHSAASHwoEc2Vs",
+            "ZhiVAyABKAsyDi5ibmV0LlNlbGZTTVNHSAASOQoUc2VsZWN0X2FjdGl2ZV9l",
+            "bnRpdHkY9AMgASgLMhguYm5ldC5TZWxlY3RBY3RpdmVFbnRpdHlIABI1ChJt",
+            "b3ZlX2FjdGl2ZV9lbnRpdHkY9QMgASgLMhYuYm5ldC5Nb3ZlQWN0aXZlRW50",
+            "aXR5SAASMQoQZ2V0X2FsbF9lbnRpdGllcxj2AyABKAsyFC5ibmV0LkdldEFs",
+            "bEVudGl0aWVzSAASMAoNYXR0YWNrX2VudGl0eRj3AyABKAsyFi5ibmV0LkF0",
+            "dGFja0VudGl0eUNNU0dIABIwCg12YW5pc2hfZW50aXR5GPgDIAEoCzIWLmJu",
+            "ZXQuVmFuaXNoRW50aXR5U01TR0gAEjAKDWRhbWFnZV9lbnRpdHkY+QMgASgL",
+            "MhYuYm5ldC5EYW1hZ2VFbnRpdHlTTVNHSAASMQoNY29tcF9wb3NpdGlvbhj+",
+            "AyABKAsyFy5ibmV0LlBvc2l0aW9uQ29tcG9uZW50SAASOgoSY29tcF9iZXN0",
+            "aWFfdmlzdWFsGP8DIAEoCzIbLmJuZXQuQmVzdGlhVmlzdWFsQ29tcG9uZW50",
+            "SAASNgoQY29tcF9pdGVtX3Zpc3VhbBiABCABKAsyGS5ibmV0Lkl0ZW1WaXN1",
+            "YWxDb21wb25lbnRIABI+ChJjb21wX21hc3Rlcl92aXN1YWwYggQgASgLMh8u",
+            "Ym5ldC5NYXN0ZXJWaXN1YWxDb21wb25lbnRTTVNHSAASLQoJY29tcF9wYXRo",
+            "GIMEIAEoCzIXLmJuZXQuUGF0aENvbXBvbmVudFNNU0dIABIvCgpjb21wX3Nw",
+            "ZWVkGIQEIAEoCzIYLmJuZXQuU3BlZWRDb21wb25lbnRTTVNHSAASKwoIY29t",
+            "cF9leHAYhQQgASgLMhYuYm5ldC5FeHBDb21wb25lbnRTTVNHSAASLwoKY29t",
+            "cF9sZXZlbBiGBCABKAsyGC5ibmV0LkxldmVsQ29tcG9uZW50U01TR0gAEi0K",
+            "CWNvbXBfbWFuYRiHBCABKAsyFy5ibmV0Lk1hbmFDb21wb25lbnRTTVNHSAAS",
+            "MQoLY29tcF9oZWFsdGgYiAQgASgLMhkuYm5ldC5IZWFsdGhDb21wb25lbnRT",
+            "TVNHSABCCQoHbWVzc2FnZUImChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CDUVu",
+            "dmVsb3BlUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.DamageSmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "Damage" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -183,6 +188,9 @@ namespace Bnet {
         case MessageOneofCase.VanishEntity:
           VanishEntity = other.VanishEntity.Clone();
           break;
+        case MessageOneofCase.DamageEntity:
+          DamageEntity = other.DamageEntity.Clone();
+          break;
         case MessageOneofCase.CompPosition:
           CompPosition = other.CompPosition.Clone();
           break;
@@ -207,8 +215,11 @@ namespace Bnet {
         case MessageOneofCase.CompLevel:
           CompLevel = other.CompLevel.Clone();
           break;
-        case MessageOneofCase.Damage:
-          Damage = other.Damage.Clone();
+        case MessageOneofCase.CompMana:
+          CompMana = other.CompMana.Clone();
+          break;
+        case MessageOneofCase.CompHealth:
+          CompHealth = other.CompHealth.Clone();
           break;
       }
 
@@ -458,6 +469,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "damage_entity" field.</summary>
+    public const int DamageEntityFieldNumber = 505;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.DamageEntitySMSG DamageEntity {
+      get { return messageCase_ == MessageOneofCase.DamageEntity ? (global::Bnet.DamageEntitySMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.DamageEntity;
+      }
+    }
+
     /// <summary>Field number for the "comp_position" field.</summary>
     public const int CompPositionFieldNumber = 510;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -554,18 +577,27 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "damage" field.</summary>
-    public const int DamageFieldNumber = 601;
-    /// <summary>
-    /// BATTLE 600
-    /// </summary>
+    /// <summary>Field number for the "comp_mana" field.</summary>
+    public const int CompManaFieldNumber = 519;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.DamageSMSG Damage {
-      get { return messageCase_ == MessageOneofCase.Damage ? (global::Bnet.DamageSMSG) message_ : null; }
+    public global::Bnet.ManaComponentSMSG CompMana {
+      get { return messageCase_ == MessageOneofCase.CompMana ? (global::Bnet.ManaComponentSMSG) message_ : null; }
       set {
         message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.Damage;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CompMana;
+      }
+    }
+
+    /// <summary>Field number for the "comp_health" field.</summary>
+    public const int CompHealthFieldNumber = 520;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.HealthComponentSMSG CompHealth {
+      get { return messageCase_ == MessageOneofCase.CompHealth ? (global::Bnet.HealthComponentSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CompHealth;
       }
     }
 
@@ -592,6 +624,7 @@ namespace Bnet {
       GetAllEntities = 502,
       AttackEntity = 503,
       VanishEntity = 504,
+      DamageEntity = 505,
       CompPosition = 510,
       CompBestiaVisual = 511,
       CompItemVisual = 512,
@@ -600,7 +633,8 @@ namespace Bnet {
       CompSpeed = 516,
       CompExp = 517,
       CompLevel = 518,
-      Damage = 601,
+      CompMana = 519,
+      CompHealth = 520,
     }
     private MessageOneofCase messageCase_ = MessageOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -650,6 +684,7 @@ namespace Bnet {
       if (!object.Equals(GetAllEntities, other.GetAllEntities)) return false;
       if (!object.Equals(AttackEntity, other.AttackEntity)) return false;
       if (!object.Equals(VanishEntity, other.VanishEntity)) return false;
+      if (!object.Equals(DamageEntity, other.DamageEntity)) return false;
       if (!object.Equals(CompPosition, other.CompPosition)) return false;
       if (!object.Equals(CompBestiaVisual, other.CompBestiaVisual)) return false;
       if (!object.Equals(CompItemVisual, other.CompItemVisual)) return false;
@@ -658,7 +693,8 @@ namespace Bnet {
       if (!object.Equals(CompSpeed, other.CompSpeed)) return false;
       if (!object.Equals(CompExp, other.CompExp)) return false;
       if (!object.Equals(CompLevel, other.CompLevel)) return false;
-      if (!object.Equals(Damage, other.Damage)) return false;
+      if (!object.Equals(CompMana, other.CompMana)) return false;
+      if (!object.Equals(CompHealth, other.CompHealth)) return false;
       if (MessageCase != other.MessageCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -686,6 +722,7 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.GetAllEntities) hash ^= GetAllEntities.GetHashCode();
       if (messageCase_ == MessageOneofCase.AttackEntity) hash ^= AttackEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.VanishEntity) hash ^= VanishEntity.GetHashCode();
+      if (messageCase_ == MessageOneofCase.DamageEntity) hash ^= DamageEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompPosition) hash ^= CompPosition.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompBestiaVisual) hash ^= CompBestiaVisual.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompItemVisual) hash ^= CompItemVisual.GetHashCode();
@@ -694,7 +731,8 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompSpeed) hash ^= CompSpeed.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompExp) hash ^= CompExp.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompLevel) hash ^= CompLevel.GetHashCode();
-      if (messageCase_ == MessageOneofCase.Damage) hash ^= Damage.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CompMana) hash ^= CompMana.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CompHealth) hash ^= CompHealth.GetHashCode();
       hash ^= (int) messageCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -790,6 +828,10 @@ namespace Bnet {
         output.WriteRawTag(194, 31);
         output.WriteMessage(VanishEntity);
       }
+      if (messageCase_ == MessageOneofCase.DamageEntity) {
+        output.WriteRawTag(202, 31);
+        output.WriteMessage(DamageEntity);
+      }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         output.WriteRawTag(242, 31);
         output.WriteMessage(CompPosition);
@@ -822,9 +864,13 @@ namespace Bnet {
         output.WriteRawTag(178, 32);
         output.WriteMessage(CompLevel);
       }
-      if (messageCase_ == MessageOneofCase.Damage) {
-        output.WriteRawTag(202, 37);
-        output.WriteMessage(Damage);
+      if (messageCase_ == MessageOneofCase.CompMana) {
+        output.WriteRawTag(186, 32);
+        output.WriteMessage(CompMana);
+      }
+      if (messageCase_ == MessageOneofCase.CompHealth) {
+        output.WriteRawTag(194, 32);
+        output.WriteMessage(CompHealth);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -912,6 +958,10 @@ namespace Bnet {
         output.WriteRawTag(194, 31);
         output.WriteMessage(VanishEntity);
       }
+      if (messageCase_ == MessageOneofCase.DamageEntity) {
+        output.WriteRawTag(202, 31);
+        output.WriteMessage(DamageEntity);
+      }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         output.WriteRawTag(242, 31);
         output.WriteMessage(CompPosition);
@@ -944,9 +994,13 @@ namespace Bnet {
         output.WriteRawTag(178, 32);
         output.WriteMessage(CompLevel);
       }
-      if (messageCase_ == MessageOneofCase.Damage) {
-        output.WriteRawTag(202, 37);
-        output.WriteMessage(Damage);
+      if (messageCase_ == MessageOneofCase.CompMana) {
+        output.WriteRawTag(186, 32);
+        output.WriteMessage(CompMana);
+      }
+      if (messageCase_ == MessageOneofCase.CompHealth) {
+        output.WriteRawTag(194, 32);
+        output.WriteMessage(CompHealth);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -1015,6 +1069,9 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.VanishEntity) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(VanishEntity);
       }
+      if (messageCase_ == MessageOneofCase.DamageEntity) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(DamageEntity);
+      }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompPosition);
       }
@@ -1039,8 +1096,11 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompLevel) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompLevel);
       }
-      if (messageCase_ == MessageOneofCase.Damage) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Damage);
+      if (messageCase_ == MessageOneofCase.CompMana) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompMana);
+      }
+      if (messageCase_ == MessageOneofCase.CompHealth) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompHealth);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1169,6 +1229,12 @@ namespace Bnet {
           }
           VanishEntity.MergeFrom(other.VanishEntity);
           break;
+        case MessageOneofCase.DamageEntity:
+          if (DamageEntity == null) {
+            DamageEntity = new global::Bnet.DamageEntitySMSG();
+          }
+          DamageEntity.MergeFrom(other.DamageEntity);
+          break;
         case MessageOneofCase.CompPosition:
           if (CompPosition == null) {
             CompPosition = new global::Bnet.PositionComponent();
@@ -1217,11 +1283,17 @@ namespace Bnet {
           }
           CompLevel.MergeFrom(other.CompLevel);
           break;
-        case MessageOneofCase.Damage:
-          if (Damage == null) {
-            Damage = new global::Bnet.DamageSMSG();
+        case MessageOneofCase.CompMana:
+          if (CompMana == null) {
+            CompMana = new global::Bnet.ManaComponentSMSG();
           }
-          Damage.MergeFrom(other.Damage);
+          CompMana.MergeFrom(other.CompMana);
+          break;
+        case MessageOneofCase.CompHealth:
+          if (CompHealth == null) {
+            CompHealth = new global::Bnet.HealthComponentSMSG();
+          }
+          CompHealth.MergeFrom(other.CompHealth);
           break;
       }
 
@@ -1411,6 +1483,15 @@ namespace Bnet {
             VanishEntity = subBuilder;
             break;
           }
+          case 4042: {
+            global::Bnet.DamageEntitySMSG subBuilder = new global::Bnet.DamageEntitySMSG();
+            if (messageCase_ == MessageOneofCase.DamageEntity) {
+              subBuilder.MergeFrom(DamageEntity);
+            }
+            input.ReadMessage(subBuilder);
+            DamageEntity = subBuilder;
+            break;
+          }
           case 4082: {
             global::Bnet.PositionComponent subBuilder = new global::Bnet.PositionComponent();
             if (messageCase_ == MessageOneofCase.CompPosition) {
@@ -1483,13 +1564,22 @@ namespace Bnet {
             CompLevel = subBuilder;
             break;
           }
-          case 4810: {
-            global::Bnet.DamageSMSG subBuilder = new global::Bnet.DamageSMSG();
-            if (messageCase_ == MessageOneofCase.Damage) {
-              subBuilder.MergeFrom(Damage);
+          case 4154: {
+            global::Bnet.ManaComponentSMSG subBuilder = new global::Bnet.ManaComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompMana) {
+              subBuilder.MergeFrom(CompMana);
             }
             input.ReadMessage(subBuilder);
-            Damage = subBuilder;
+            CompMana = subBuilder;
+            break;
+          }
+          case 4162: {
+            global::Bnet.HealthComponentSMSG subBuilder = new global::Bnet.HealthComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompHealth) {
+              subBuilder.MergeFrom(CompHealth);
+            }
+            input.ReadMessage(subBuilder);
+            CompHealth = subBuilder;
             break;
           }
         }
@@ -1678,6 +1768,15 @@ namespace Bnet {
             VanishEntity = subBuilder;
             break;
           }
+          case 4042: {
+            global::Bnet.DamageEntitySMSG subBuilder = new global::Bnet.DamageEntitySMSG();
+            if (messageCase_ == MessageOneofCase.DamageEntity) {
+              subBuilder.MergeFrom(DamageEntity);
+            }
+            input.ReadMessage(subBuilder);
+            DamageEntity = subBuilder;
+            break;
+          }
           case 4082: {
             global::Bnet.PositionComponent subBuilder = new global::Bnet.PositionComponent();
             if (messageCase_ == MessageOneofCase.CompPosition) {
@@ -1750,13 +1849,22 @@ namespace Bnet {
             CompLevel = subBuilder;
             break;
           }
-          case 4810: {
-            global::Bnet.DamageSMSG subBuilder = new global::Bnet.DamageSMSG();
-            if (messageCase_ == MessageOneofCase.Damage) {
-              subBuilder.MergeFrom(Damage);
+          case 4154: {
+            global::Bnet.ManaComponentSMSG subBuilder = new global::Bnet.ManaComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompMana) {
+              subBuilder.MergeFrom(CompMana);
             }
             input.ReadMessage(subBuilder);
-            Damage = subBuilder;
+            CompMana = subBuilder;
+            break;
+          }
+          case 4162: {
+            global::Bnet.HealthComponentSMSG subBuilder = new global::Bnet.HealthComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompHealth) {
+              subBuilder.MergeFrom(CompHealth);
+            }
+            input.ReadMessage(subBuilder);
+            CompHealth = subBuilder;
             break;
           }
         }

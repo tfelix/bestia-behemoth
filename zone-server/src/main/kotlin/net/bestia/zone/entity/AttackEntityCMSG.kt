@@ -1,6 +1,7 @@
-package net.bestia.zone.message
+package net.bestia.zone.entity
 
 import net.bestia.bnet.proto.AttackEntityCmsgProto
+import net.bestia.zone.message.CMSG
 import net.bestia.zone.util.EntityId
 
 data class AttackEntityCMSG(

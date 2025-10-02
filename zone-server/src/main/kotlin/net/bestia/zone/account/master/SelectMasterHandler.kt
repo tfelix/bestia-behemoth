@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.SelectMasterCMSG
+import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import org.springframework.stereotype.Component

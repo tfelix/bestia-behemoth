@@ -4,7 +4,7 @@ import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.SelectMasterCMSG
+import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import org.springframework.context.ApplicationEventPublisher
 import java.lang.IllegalStateException
