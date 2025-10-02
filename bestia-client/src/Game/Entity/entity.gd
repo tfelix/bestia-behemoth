@@ -22,14 +22,12 @@ var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual
 
 var MasterModelScn = preload("res://Game/Entity/Master/Master.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
-var ChatText = preload("res://Game/Entity/ChatText/ChatText.tscn")
 
 var entity_id: int = 0
 
 var _camera: Node3D = null
 var _speed: float = 1.0
 
-@onready var _chat_anchor: Node3D = $ChatAnchor
 
 # Movement prediction system
 var _current_path: Array[Vector3] = []
@@ -46,7 +44,6 @@ const _CORRECTION_DURATION: float = 0.2  # Quick correction to server position
 const _POSITION_THRESHOLD: float = 0.05  # Threshold for server position corrections
 
 const _VISUAL_NODE_NAME = "Visual"
-const _CHAT_NODE_NAME = "ChatText"
 
 
 func _process(delta: float) -> void:
@@ -113,16 +110,10 @@ func _resume_path_movement(current_time: float) -> void:
 		_is_moving = true
 
 
-# This does not work out. we add the visual which contains the model only later
-# so we either hand over the chat message to the visual to handle it (what happens
-# if visual not yet loaded?).
 func show_chat(msg: ChatSMSG) -> void:
-	for x in _chat_anchor.get_children():
-		x.queue_free()
-	var chat_text = ChatText.instantiate()
-	chat_text.chat_msg = msg
-	chat_text.name = _CHAT_NODE_NAME
-	_chat_anchor.add_child(chat_text)
+	var visual = _get_visual_for_method("show_chat")
+	if visual != null:
+		visual.show_chat(msg)
 
 
 func update_bestia_visual(msg: BestiaVisualComponent) -> void:
@@ -213,13 +204,30 @@ func update_speed(msg: SpeedComponentSMSG) -> void:
 		_is_moving = false
 
 
-func show_damage() -> void:
-	pass
+func show_damage(msg: DamageEntitySMSG) -> void:
+	var visual = _get_visual_for_method("show_damage")
+	if visual != null:
+		visual.show_damage(msg)
+
+
+func update_health(msg: HealthComponentSMSG) -> void:
+	var visual = _get_visual_for_method("update_health")
+	if visual != null:
+		visual.update_health(msg)
 
 
 func select_for_active() -> void:
 	_camera = Camera.instantiate()
 	add_child(_camera)
+
+
+func _get_visual_for_method(method_name: String) -> Visual:
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual != null && visual.has_method(method_name):
+		return visual
+	else:
+		print("Entity %s visual method %s missing, dropping message" % [entity_id, method_name])
+		return null
 
 
 func vanish(msg: VanishEntitySMSG) -> void:

@@ -83,7 +83,7 @@ namespace BestiaBehemothClient.Bnet.Message
         }
         else if (envelope.DamageEntity != null)
         {
-          var msg = Entity.DamageEntityCMSG.FromProto(envelope.DamageEntity);
+          var msg = Entity.DamageEntitySMSG.FromProto(envelope.DamageEntity);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.CompMana != null)

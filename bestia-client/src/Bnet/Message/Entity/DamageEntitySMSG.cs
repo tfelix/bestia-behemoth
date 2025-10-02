@@ -15,9 +15,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// Message to send damage information to the server.
   /// </summary>
   [GlobalClass]
-  public partial class DamageEntityCMSG : ISMSG
+  public partial class DamageEntitySMSG : EntitySMSG
   {
-    [Export] public ulong EntityId { get; set; }
     [Export] public ulong SourceEntityId { get; set; }
     [Export] public int AttackId { get; set; }
     [Export] public uint Damage { get; set; }
@@ -25,7 +24,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint SkillLevel { get; set; }
     [Export] public DamageType Type { get; set; }
 
-    public DamageEntityCMSG()
+    public DamageEntitySMSG()
     {
     }
 
@@ -34,9 +33,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoDamageEntity">The protobuf DamageEntitySMSG message from the server</param>
     /// <returns>A new DamageEntityCMSG instance</returns>
-    public static DamageEntityCMSG FromProto(global::Bnet.DamageEntitySMSG protoDamageEntity)
+    public static DamageEntitySMSG FromProto(global::Bnet.DamageEntitySMSG protoDamageEntity)
     {
-      return new DamageEntityCMSG()
+      return new DamageEntitySMSG()
       {
         EntityId = protoDamageEntity.EntityId,
         SourceEntityId = protoDamageEntity.SourceEntityId,

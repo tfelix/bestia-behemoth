@@ -3,12 +3,13 @@ package net.bestia.zone.component
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.HealthComponentSMSGProto
 import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.entity.EntitySMSG
 
 data class HealthComponentSMSG(
-  val entityId: Long,
+  override val entityId: Long,
   val current: Int,
   val max: Int
-) : SMSG {
+) : EntitySMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val healthComponent = HealthComponentSMSGProto.HealthComponentSMSG.newBuilder()

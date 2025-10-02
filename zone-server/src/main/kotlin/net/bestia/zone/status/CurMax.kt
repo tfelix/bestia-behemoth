@@ -4,12 +4,12 @@ import kotlin.math.max
 import kotlin.math.min
 
 open class CurMax {
-  var current: Int = 0
+  open var current: Int = 0
     set(value) {
       field = max(0, min(value, max))
     }
 
-  var max: Int = 0
+  open var max: Int = 0
     set(value) {
       require(value >= 0)
       field = value

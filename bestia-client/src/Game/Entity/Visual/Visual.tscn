@@ -4,3 +4,5 @@
 
 [node name="Visual" type="Node3D"]
 script = ExtResource("1_50pq7")
+
+[node name="ChatAnchor" type="Node3D" parent="."]

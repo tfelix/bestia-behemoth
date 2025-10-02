@@ -4,9 +4,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Damage
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs2.ZoneServer
 import net.bestia.zone.entity.AttackEntityCMSG
+import net.bestia.zone.entity.DamageEntitySMSG
 import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
@@ -17,6 +20,7 @@ import kotlin.random.Random
  */
 @Component
 class AttackEntityHandler(
+  private val messageProcessor: OutMessageProcessor,
   private val zoneServer: ZoneServer,
   private val masterResolver: MasterResolver
 ) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
@@ -47,6 +51,21 @@ class AttackEntityHandler(
       val damage = entity.getOrDefault(Damage::class) { Damage() }
       damage.add(damageTaken, masterEntityId)
     }
+
+    val position = zoneServer.withEntityReadLockOrThrow(masterEntityId) {
+      it.getOrThrow(Position::class).toVec3L()
+    }
+
+    val damageMsg = DamageEntitySMSG(
+      entityId = msg.targetEntityId,
+      sourceEntityId = masterEntityId,
+      attackId = 0,
+      div = 1,
+      damage = damageTaken,
+      skillLevel = 1,
+      type = DamageEntitySMSG.DamageType.NORMAL
+    )
+    messageProcessor.sendToAllPlayersInRange(position, damageMsg)
 
     return true
   }

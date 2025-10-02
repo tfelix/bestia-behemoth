@@ -7,21 +7,13 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// Health component message from server containing entity health information.
   /// </summary>
   [GlobalClass]
-  public partial class HealthComponentSMSG : ISMSG
+  public partial class HealthComponentSMSG : EntitySMSG
   {
-    [Export] public ulong EntityId { get; set; }
     [Export] public uint Current { get; set; }
     [Export] public uint Max { get; set; }
 
     public HealthComponentSMSG()
     {
-    }
-
-    public HealthComponentSMSG(global::Bnet.HealthComponentSMSG healthComponent)
-    {
-      EntityId = healthComponent.EntityId;
-      Current = healthComponent.Current;
-      Max = healthComponent.Max;
     }
 
     /// <summary>

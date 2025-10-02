@@ -78,6 +78,10 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is ExpComponentSMSG:
 		# no handling so far
 		pass
+	elif msg is HealthComponentSMSG:
+		entity.update_health(msg)
+	elif msg is DamageEntitySMSG:
+		entity.show_damage(msg)
 	else:
 		printerr("EntityManager: An EntitySMSG was not handled: ", typeof(msg))
 	# Server sends vanish information -> remove the node + potentially buffered stuff

@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
+import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs2.ZoneServer
@@ -57,7 +58,7 @@ class DirtyComponentUpdateSystem(
 
     // TODO How to make sure to add other dirtyable components in here. Maybe add a unit test to check this?
     updatePublicBroadcastableDirtyComponents(entity, zone, position)
-    updatePrivateBroadcastableDirtyComponents(entity, zone, position)
+    updatePrivateBroadcastableDirtyComponents(entity, zone)
 
     entity.remove(IsDirty::class)
   }
@@ -72,22 +73,35 @@ class DirtyComponentUpdateSystem(
       makeMessageIfDirty(entity.id, entity.get(Level::class))
     )
 
-    if (broadcastUpdateMessages.isNotEmpty()) {
+    // These messages are optional, depending on if the entity is a master or not. Some messages e.g. health should
+    // only be broadcasted for non player controlled entities.
+    val optionalMessages = if (!entity.has(Account::class)) {
+      listOfNotNull(
+        makeMessageIfDirty(entity.id, entity.get(Health::class))
+      )
+    } else {
+      emptyList()
+    }
+
+    val allMessagesToBroadcast = broadcastUpdateMessages + optionalMessages
+
+    if (allMessagesToBroadcast.isNotEmpty()) {
       zone.queueExternalJob {
         outMessageProcessor.sendToAllPlayersInRange(
           position,
-          broadcastUpdateMessages
+          allMessagesToBroadcast
         )
       }
     }
   }
 
-  private fun updatePrivateBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer, position: Vec3L) {
+  private fun updatePrivateBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer) {
     val ownedByAccountId = entity.get(Account::class)?.accountId
       ?: return
 
     val broadcastUpdateMessages = listOfNotNull(
       makeMessageIfDirty(entity.id, entity.get(Exp::class)),
+      makeMessageIfDirty(entity.id, entity.get(Health::class))
     )
 
     if (broadcastUpdateMessages.isNotEmpty()) {

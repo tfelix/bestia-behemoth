@@ -122,6 +122,7 @@ shape = SubResource("ConvexPolygonShape3D_j45w2")
 
 [node name="HealthBar" parent="." instance=ExtResource("2_wtcd1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4495666, 0)
+visible = false
 pixel_size = 0.002
 texture = SubResource("ViewportTexture_b5q2y")
 
@@ -134,6 +135,9 @@ text = "Blob"
 libraries = {
 &"": SubResource("AnimationLibrary_q60hp")
 }
+
+[node name="DamageTagAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.256696, 0)
 
 [connection signal="input_event" from="Model/Area3D" to="." method="_on_area_3d_input_event"]
 [connection signal="mouse_entered" from="Model/Area3D" to="." method="_on_area_3d_mouse_entered"]

@@ -1,20 +1,21 @@
 class_name BestiaVisual extends Visual
 
+var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
+
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 
 @onready var _name_tag = $NameTag
 @onready var _anim_player = $AnimationPlayer as AnimationPlayer
-@onready var _health_bar = $HealthBar as HealthBar
+@onready var _health_bar: HealthBar = $HealthBar
+@onready var _damage_tag_anchor: Node3D = $DamageTagAnchor
 
 
 func _ready() -> void:
 	_anim_player.play("appear")
-	_health_bar.value = 100
 
 
 func setup_visual(msg: BestiaVisualComponent) -> void:
-	print("TODO: Set the bestia visuals here")
 	_bestia_entity_id = msg.EntityId
 	_bestia_id = msg.BestiaId
 	# Load bestia data on-demand
@@ -22,6 +23,16 @@ func setup_visual(msg: BestiaVisualComponent) -> void:
 	# about a sperate scene for every bestia and just enter the values there and move around the different
 	# items for a easier and more visual approach in handling data. Then this can be removed again.
 	#_bestia_data = BestiaResourceManager.get_bestia_data(_bestia_id)
+
+
+func show_damage(msg: DamageEntitySMSG) -> void:
+	var damage_tag: DamageTag = DamageTagScn.instantiate()
+	damage_tag.damage_msg = msg
+	_damage_tag_anchor.add_child(damage_tag)
+
+
+func update_health(msg: HealthComponentSMSG) -> void:
+	_health_bar.update_health(msg)
 
 
 func vanish(msg: VanishEntitySMSG) -> void:

@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.battle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
+import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs2.ZoneServer
 import org.springframework.stereotype.Component
 
@@ -37,6 +38,8 @@ class ReceivedDamageSystem : IteratingSystem() {
       LOG.trace { "$entity died due to damage." }
       entity.add(Dead)
     }
+
+    entity.add(IsDirty)
   }
 
   companion object {

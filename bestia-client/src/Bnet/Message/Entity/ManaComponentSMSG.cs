@@ -7,21 +7,13 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// Mana component message from server containing entity mana information.
   /// </summary>
   [GlobalClass]
-  public partial class ManaComponentSMSG : ISMSG
+  public partial class ManaComponentSMSG : EntitySMSG
   {
-    [Export] public ulong EntityId { get; set; }
     [Export] public uint Current { get; set; }
     [Export] public uint Max { get; set; }
 
     public ManaComponentSMSG()
     {
-    }
-
-    public ManaComponentSMSG(global::Bnet.ManaComponentSMSG manaComponent)
-    {
-      EntityId = manaComponent.EntityId;
-      Current = manaComponent.Current;
-      Max = manaComponent.Max;
     }
 
     /// <summary>

@@ -4,5 +4,3 @@
 
 [node name="Entity" type="Node3D"]
 script = ExtResource("1_675qa")
-
-[node name="ChatAnchor" type="Node3D" parent="."]
