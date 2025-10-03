@@ -36,6 +36,8 @@ func update_health(msg: HealthComponentSMSG) -> void:
 
 
 func vanish(msg: VanishEntitySMSG) -> void:
+	_health_bar.visible = false
+	_name_tag.visible = false
 	if msg.IsDead():
 		_anim_player.play("death")
 		await _anim_player.animation_finished

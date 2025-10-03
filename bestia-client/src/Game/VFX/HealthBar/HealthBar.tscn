@@ -11,16 +11,16 @@ content_margin_top = 3.0
 content_margin_right = 3.0
 content_margin_bottom = 3.0
 bg_color = Color(0.19434929, 0.19434926, 0.19434926, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 border_color = Color(0, 0, 0, 1)
 corner_detail = 6
-expand_margin_left = 1.0
-expand_margin_top = 1.0
-expand_margin_right = 1.0
-expand_margin_bottom = 1.0
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b8sk5"]
 content_margin_left = 2.0
@@ -32,24 +32,30 @@ border_color = Color(0, 0, 0, 1)
 corner_detail = 6
 
 [node name="HealthBar" type="Sprite3D"]
+pixel_size = 0.001
 billboard = 1
 no_depth_test = true
 fixed_size = true
-texture_filter = 0
 texture = SubResource("ViewportTexture_drj2e")
 script = ExtResource("1_krqqp")
 
 [node name="SubViewport" type="SubViewport" parent="."]
 transparent_bg = true
-size = Vector2i(100, 6)
+size = Vector2i(60, 10)
 
 [node name="Control" type="Control" parent="SubViewport"]
+custom_minimum_size = Vector2(100, 8)
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = -3.0
+offset_bottom = 3.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="SubViewport/Control"]
 custom_minimum_size = Vector2(0, 10)

@@ -58,7 +58,7 @@ class DevDataBootstrapRunner(
         Spawner(
           position = Vec3L.ZERO,
           bestiaId = 1,
-          maxSpawnCount = 1,
+          maxSpawnCount = 3,
           range = 10,
         )
       )

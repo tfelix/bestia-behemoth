@@ -31,6 +31,10 @@ window/size/initial_position_type=3
 
 project/assembly_name="Bestia Behemoth Client"
 
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+
 [input]
 
 camera_mouse_capture={

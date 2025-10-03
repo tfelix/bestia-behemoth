@@ -5,12 +5,14 @@
 [ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="3_358an"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0ia3"]
+resource_local_to_scene = true
 albedo_color = Color(0.8156863, 0.54509807, 0.101960786, 0)
 stencil_flags = 2
 stencil_color = Color(0.86025685, 0.5340028, 0.82494587, 1)
 stencil_outline_thickness = 0.096
 
-[sub_resource type="SphereMesh" id="SphereMesh_nxc77"]
+[sub_resource type="SphereMesh" id="SphereMesh_h56g7"]
+resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_x0ia3")
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_j45w2"]
@@ -113,7 +115,7 @@ script = ExtResource("1_n7t7g")
 
 [node name="Model" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37640834, 0)
-mesh = SubResource("SphereMesh_nxc77")
+mesh = SubResource("SphereMesh_h56g7")
 
 [node name="Area3D" type="Area3D" parent="Model"]
 
@@ -121,13 +123,11 @@ mesh = SubResource("SphereMesh_nxc77")
 shape = SubResource("ConvexPolygonShape3D_j45w2")
 
 [node name="HealthBar" parent="." instance=ExtResource("2_wtcd1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4495666, 0)
-visible = false
-pixel_size = 0.002
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6437862, 0)
 texture = SubResource("ViewportTexture_b5q2y")
 
 [node name="NameTag" parent="." instance=ExtResource("3_358an")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2949905, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3281729, 0)
 visible = false
 text = "Blob"
 
