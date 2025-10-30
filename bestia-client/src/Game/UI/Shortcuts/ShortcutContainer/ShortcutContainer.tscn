@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://bj2gh3l07bh1s"]
+
+[ext_resource type="Script" uid="uid://d4clrvlvvv58e" path="res://Game/UI/Shortcuts/ShortcutContainer/shortcut_container.gd" id="1_3hfsk"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_mnkdf"]
+
+[node name="ShortcutContainer" type="PanelContainer"]
+custom_minimum_size = Vector2(64, 64)
+script = ExtResource("1_3hfsk")
+
+[node name="MarginIcon" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="Icon" type="TextureRect" parent="MarginIcon"]
+layout_mode = 2
+texture = SubResource("PlaceholderTexture2D_mnkdf")
+stretch_mode = 4
+
+[node name="MOuter" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="ShortcutBg" type="PanelContainer" parent="MOuter"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+
+[node name="MInner" type="MarginContainer" parent="MOuter/ShortcutBg"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
+
+[node name="Shortcut" type="Label" parent="MOuter/ShortcutBg/MInner"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+text = "-"

@@ -1,4 +1,14 @@
-[gd_scene format=3 uid="uid://cwbs83nwsc1m3"]
+[gd_scene load_steps=5 format=3 uid="uid://cwbs83nwsc1m3"]
+
+[ext_resource type="Script" uid="uid://c2b3bhtie8fk4" path="res://Game/UI/Inventory/inventory.gd" id="1_vui42"]
+[ext_resource type="Script" uid="uid://cnpglbw76xdfs" path="res://Game/UI/Inventory/inventory_item_resource.gd" id="2_sngo4"]
+[ext_resource type="Resource" uid="uid://dprdikdkiksa3" path="res://Game/Item/DB/1_apple.tres" id="3_sngo4"]
+
+[sub_resource type="Resource" id="Resource_ajivq"]
+script = ExtResource("2_sngo4")
+amount = 3
+item = ExtResource("3_sngo4")
+metadata/_custom_type_script = "uid://cnpglbw76xdfs"
 
 [node name="Inventory" type="Control"]
 layout_mode = 3
@@ -8,43 +18,63 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 1
+script = ExtResource("1_vui42")
+items = Array[ExtResource("2_sngo4")]([SubResource("Resource_ajivq")])
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
-offset_left = 83.0
-offset_top = 88.0
-offset_right = 738.0
-offset_bottom = 415.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -379.5
+offset_top = -203.5
+offset_right = 379.5
+offset_bottom = 203.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_bottom = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="TabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+text = "X"
+
+[node name="ItemTabs" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="Usable" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer"]
+[node name="Usable" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
 layout_mode = 2
-item_count = 3
-max_columns = 6
-same_column_width = true
-item_0/text = "Apple"
-item_1/text = "Jelly"
-item_2/text = "Small Heal Potion"
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 metadata/_tab_index = 0
 
-[node name="Equip" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer"]
+[node name="UsableGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs/Usable"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 8
+
+[node name="Equip" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Etc" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/TabContainer"]
+[node name="Etc" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2

@@ -15,6 +15,7 @@ func _input(event):
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ENTER:
 			_handle_enter()
+			get_viewport().set_input_as_handled()
 
 
 func _handle_enter() -> void:

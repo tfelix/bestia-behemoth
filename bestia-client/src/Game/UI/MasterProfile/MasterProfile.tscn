@@ -144,5 +144,9 @@ layout_mode = 2
 text = "Skills"
 
 [node name="Equipment" type="Button" parent="M/Profile/Row1"]
+visible = false
 layout_mode = 2
 text = "Equipment"
+
+[connection signal="pressed" from="M/Profile/Row1/Inventory" to="." method="_on_inventory_pressed"]
+[connection signal="pressed" from="M/Profile/Row1/Skills" to="." method="_on_skills_pressed"]

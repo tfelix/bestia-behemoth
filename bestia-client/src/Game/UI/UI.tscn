@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://coopsp0c6tacr"]
+[gd_scene load_steps=7 format=3 uid="uid://coopsp0c6tacr"]
 
 [ext_resource type="Script" uid="uid://q4ttbgw8tpr" path="res://Game/UI/ui.gd" id="1_ob0eg"]
 [ext_resource type="PackedScene" uid="uid://bxvkt1edgyru7" path="res://Game/UI/MasterProfile/MasterProfile.tscn" id="1_tk4wv"]
 [ext_resource type="PackedScene" uid="uid://cabh7yua8bb6t" path="res://Game/UI/Chat/Chat.tscn" id="3_owqpw"]
+[ext_resource type="PackedScene" uid="uid://rcjqqxi34fvy" path="res://Game/UI/Shortcuts/Shortcuts.tscn" id="4_i53xh"]
+[ext_resource type="PackedScene" uid="uid://cwbs83nwsc1m3" path="res://Game/UI/Inventory/Inventory.tscn" id="5_3d66e"]
+[ext_resource type="PackedScene" uid="uid://cpr86ux66vb8e" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
 
-[node name="Control" type="Control"]
+[node name="UI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,14 +17,42 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_ob0eg")
 
+[node name="Inventory" parent="." instance=ExtResource("5_3d66e")]
+visible = false
+layout_mode = 1
+
+[node name="Skills" parent="." instance=ExtResource("6_61e43")]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -183.0
+offset_top = -193.0
+offset_right = 183.0
+offset_bottom = 193.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="MasterProfile" parent="." instance=ExtResource("1_tk4wv")]
-layout_mode = 0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 387.0
-offset_bottom = 177.0
+layout_mode = 1
+offset_left = 8.0
+offset_top = 7.0
+offset_right = 375.0
+offset_bottom = 169.0
 
 [node name="Chat" parent="." instance=ExtResource("3_owqpw")]
 layout_mode = 1
 offset_left = 16.0
 offset_right = 770.0
+
+[node name="Shortcuts" parent="." instance=ExtResource("4_i53xh")]
+layout_mode = 1
+offset_left = -168.0
+offset_top = -136.0
+offset_right = 168.0
+
+[connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
+[connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

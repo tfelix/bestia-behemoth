@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=3 uid="uid://rcjqqxi34fvy"]
+
+[ext_resource type="PackedScene" uid="uid://bj2gh3l07bh1s" path="res://Game/UI/Shortcuts/ShortcutContainer/ShortcutContainer.tscn" id="1_s6d63"]
+
+[node name="Shortcuts" type="VBoxContainer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -32.0
+offset_top = -64.0
+offset_right = 32.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Row1" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ShortcutContainer" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+
+[node name="ShortcutContainer2" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 1
+
+[node name="ShortcutContainer3" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 2
+
+[node name="ShortcutContainer4" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 3
+
+[node name="ShortcutContainer5" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 4
+
+[node name="Row2" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ShortcutContainer" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+
+[node name="ShortcutContainer2" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 1
+
+[node name="ShortcutContainer3" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 2
+
+[node name="ShortcutContainer4" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 3
+
+[node name="ShortcutContainer5" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 4

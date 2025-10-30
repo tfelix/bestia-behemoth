@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3 uid="uid://dprdikdkiksa3"]
+
+[ext_resource type="Texture2D" uid="uid://0s1umvnvun3w" path="res://Game/Item/DB/1_apple.png" id="1_hr7y5"]
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="2_oa1wq"]
+
+[resource]
+script = ExtResource("2_oa1wq")
+item_id = 1
+icon = ExtResource("1_hr7y5")
+name = "Apple"
+description = "Juicy, sweet apple."
+weight = 10
+metadata/_custom_type_script = "uid://bn4gvq3ayku4r"
