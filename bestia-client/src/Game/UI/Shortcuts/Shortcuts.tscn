@@ -1,5 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://rcjqqxi34fvy"]
+[gd_scene load_steps=3 format=3 uid="uid://rcjqqxi34fvy"]
 
+[ext_resource type="Script" uid="uid://bmx0alwocm62s" path="res://Game/UI/Shortcuts/shortcuts.gd" id="1_2k0wl"]
 [ext_resource type="PackedScene" uid="uid://bj2gh3l07bh1s" path="res://Game/UI/Shortcuts/ShortcutContainer/ShortcutContainer.tscn" id="1_s6d63"]
 
 [node name="Shortcuts" type="VBoxContainer"]
@@ -13,6 +14,7 @@ offset_top = -64.0
 offset_right = 32.0
 grow_horizontal = 2
 grow_vertical = 0
+script = ExtResource("1_2k0wl")
 
 [node name="Row1" type="HBoxContainer" parent="."]
 layout_mode = 2

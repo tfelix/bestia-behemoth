@@ -48,11 +48,12 @@ layout_mode = 1
 offset_left = 16.0
 offset_right = 770.0
 
-[node name="Shortcuts" parent="." instance=ExtResource("4_i53xh")]
+[node name="Shortcuts" parent="." node_paths=PackedStringArray("inventory") instance=ExtResource("4_i53xh")]
 layout_mode = 1
 offset_left = -168.0
 offset_top = -136.0
 offset_right = 168.0
+inventory = NodePath("../Inventory")
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

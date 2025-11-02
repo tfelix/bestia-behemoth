@@ -2,28 +2,26 @@
 
 [ext_resource type="Script" uid="uid://d4clrvlvvv58e" path="res://Game/UI/Shortcuts/ShortcutContainer/shortcut_container.gd" id="1_3hfsk"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_mnkdf"]
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3hfsk"]
 
 [node name="ShortcutContainer" type="PanelContainer"]
 custom_minimum_size = Vector2(64, 64)
 script = ExtResource("1_3hfsk")
 
-[node name="MarginIcon" type="MarginContainer" parent="."]
+[node name="MOuter" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="Icon" type="TextureRect" parent="MarginIcon"]
+[node name="Icon" type="TextureRect" parent="MOuter"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_mnkdf")
-stretch_mode = 4
-
-[node name="MOuter" type="MarginContainer" parent="."]
-layout_mode = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_bottom = 2
+texture = SubResource("PlaceholderTexture2D_3hfsk")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="ShortcutBg" type="PanelContainer" parent="MOuter"]
 layout_mode = 2
@@ -33,9 +31,30 @@ size_flags_vertical = 8
 [node name="MInner" type="MarginContainer" parent="MOuter/ShortcutBg"]
 layout_mode = 2
 theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 4
 
-[node name="Shortcut" type="Label" parent="MOuter/ShortcutBg/MInner"]
+[node name="Count" type="Label" parent="MOuter/ShortcutBg/MInner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 12
+text = "99"
+
+[node name="PanelShortcut" type="PanelContainer" parent="MOuter"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="MShortcut" type="MarginContainer" parent="MOuter/PanelShortcut"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
+
+[node name="Shortcut" type="Label" parent="MOuter/PanelShortcut/MShortcut"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
