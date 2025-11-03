@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.GivenExp
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.entity.VanishEntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor

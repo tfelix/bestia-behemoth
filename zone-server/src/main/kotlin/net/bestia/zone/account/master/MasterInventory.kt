@@ -13,14 +13,12 @@ class MasterInventory {
   internal lateinit var master: Master
 
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL])
-  private val items: MutableSet<InventoryItem> = mutableSetOf()
+  private val _items: MutableSet<InventoryItem> = mutableSetOf()
 
-  val ownedItems: List<InventoryItem> get() = items.toList()
+  val items: List<InventoryItem> get() = _items.toList()
 
-  fun addItem(item: Item, inventoryPolicy: InventoryPolicy) {
-    inventoryPolicy.checkPolicy(master, item)
-
-    items.add(InventoryItem(master, item))
+  fun addItem(item: Item) {
+    _items.add(InventoryItem(master, item))
   }
 
   fun removeItem(itemIdentifier: String, amount: Int): Boolean {
@@ -38,7 +36,7 @@ class MasterInventory {
       ownedItem.amount -= amount
 
       if (ownedItem.amount <= 0) {
-        items.remove(ownedItem)
+        _items.remove(ownedItem)
       }
 
       return true

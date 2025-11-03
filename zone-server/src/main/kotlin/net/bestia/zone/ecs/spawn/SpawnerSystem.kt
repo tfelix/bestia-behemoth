@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.spawn
 import net.bestia.zone.bestia.BestiaEntityFactory
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import kotlin.random.Random

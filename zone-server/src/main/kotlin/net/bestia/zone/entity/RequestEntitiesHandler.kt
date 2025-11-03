@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs.visual.BestiaVisualComponentSMSG
 import net.bestia.zone.ecs.visual.MasterVisual
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG

@@ -21,7 +21,9 @@ var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
 var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
+var GetInventory = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
+var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -44,26 +46,26 @@ func login() -> void:
 
 
 func list_bestia_master() -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	var msg = GetMasterCMSG.new()
 	socket.SendMessage(msg)
 
 
 func get_self() -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	var msg = GetSelfCMSG.new()
 	socket.SendMessage(msg)
-	
+
 
 func send_chat(text: String) -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	var msg = ChatCMSG.new()
 	msg.Text = text
 	socket.SendMessage(msg)
 
 
 func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	var msg = AttackEntityCMSG.new()
 	msg.EntityId = entity_id
 	msg.UsedAttackId = attack_id
@@ -73,7 +75,7 @@ func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> voi
 
 ## Select the bestia master given by the id
 func select_bestia_master(master_info: MasterInfo) -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	selected_master_info = master_info
 	var msg = SelectMasterCMSG.new()
 	msg.MasterId = master_info.MasterId
@@ -84,8 +86,14 @@ func select_bestia_master(master_info: MasterInfo) -> void:
 # Is it maybe a better approach to just call into C# instead of building the msg
 # object here and then calling in? Could also save a few messages we would need to build.
 func get_all_entities() -> void:
-	assert(_is_ready_to_send())
+	assert(is_ready_to_send())
 	var msg = GetAllEntities.new()
+	socket.SendMessage(msg)
+
+
+func get_inventory() -> void:
+	assert(is_ready_to_send())
+	var msg = GetInventory.new()
 	socket.SendMessage(msg)
 
 
@@ -115,7 +123,7 @@ func _on_pong() -> void:
 	print("pong received")
 
 
-func _is_ready_to_send() -> bool:
+func is_ready_to_send() -> bool:
 	return _connection_state == ConnectionState.CONNECTED_AUTHED
 
 

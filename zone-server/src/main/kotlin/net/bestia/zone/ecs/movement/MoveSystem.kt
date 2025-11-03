@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import org.springframework.stereotype.Component
 
 @Component

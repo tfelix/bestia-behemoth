@@ -53,31 +53,45 @@ For mocking use mockk and extend the Junit 5 classes with `@ExtendWith(MockKExte
 
 The object which is tested inside a test should be kept in a class property name `sut` (service under test).
 
-# Extending the Message Protocol
+# Extending the Protobuf Message Protocol
+
+## General Guidelines
 
 * Messages send FROM the client TO the server are postfixed with `CMSG` (client message).
-* Messages send FROM the server TO the client are postfiex with `SMSG` (server message).
+* Messages send FROM the server TO the client are postfixed with `SMSG` (server message).
+* `envelope.proto` variable names MUST NOT have this postfix. Example: `GetInventoryCMSG get_inventory = 301;`
+* For component messages in `envelope.proto` are some special patterns. Inside the `envelope.proto` they look like 
+this: `BestiaVisualComponentSMSG comp_bestia_visual`. They start with `comp_` but do NOT end with `_component`.
 
-The workflow to add or modify a message goes like this:
+The workflow to add or modify a message goes like this, Point 1 is usually already done:
 
-* Adapt the protobuf sources inside `/bnet-messages` according to the requirement.
-* Generate the C# files via `./gen-protobuf.bat`
-* Add the interaction and Godot API friendly layer in `/bestia-client/src/Bnet/Message`
-* Add the messages in the zone server backend. The messages there are placed in a domain sorted module structure where it makes most sense. But also here they must inherit from their respective `SMSG` or `CMSG` interfaces.
-* Please note that depending on the interface some implementations must have helper methods which will produce a Bnet (this means the protobuf envelope) message when getting called. This must be implemented too.
-* On the server side you also must also add a handler which derived from `InMessageProcessor.IncomingMessageHandler<T>`. You can leave the body out and just add a `TODO()`.
-* On the server side you also must adapt the `BnetMessageProcessorAdapter` which will convert from the Bnet protobuf message into a server internal message format.
-* For components there are some special patterns. Inside the `envelope.proto` they look like this: `BestiaVisualComponentSMSG comp_bestia_visual`. They start with `comp_` but do NOT end with `_component`.
-* Properties inside the envelope don't have the SMSG or CMSG postfix.
+1. Add the new messages as *.proto files into the respective folders according to the requirement.
+2. Add the new messages to the `envelope.proto`.
+3. Add the new messages to the `./gen-protobuf.bat` file so their code can be auto-generated.
+4. Generate the C# files by executing `./gen-protobuf.bat` (use Windows Powershell command syntax, keep this in mind)
+5. Add the interaction and Godot API friendly layer in `/bestia-client/src/Bnet/Message`, by adding the *.cs files. They 
+translate the Protobuf message in a Godot friendly format. Make sure the message inherit from `EntitySMSG` (when 
+addressing an entity, entityId present) or ISMSG (when it is a generic message coming from the server) or `ICMSG` when
+the message is sent to the server.
+6. Make sure the message is also added in the conversion section in `BenetSocket.cs`.
+7. Add the messages in the zone server backend. The messages there are placed in a domain aligned module structure where 
+it makes most sense. But also here they must inherit from their respective `SMSG` or `CMSG` interfaces. Please note that 
+depending on the interface some implementations must have helper methods which will produce a Bnet (the protobuf envelope) 
+message when getting called. This must be implemented too. Especially if this conversion is more complex.
+8. On the server side you also must also add a handler which derived from `InMessageProcessor.IncomingMessageHandler<T>`. 
+You can leave the body out and just add a `TODO()`.
+9. On the server side you also must adapt the `BnetMessageProcessorAdapter` which will convert from the Bnet protobuf 
+message into a server internal message format.
 
 # Project Specific Instructions
 
 ## zone-server
 
-1. When adding a new exception always extend from `BestiaException` and assign a specific error code.
+* When adding a new exception always extend from `BestiaException` and assign a specific error code.
 
 # Running Tests
 
 The game is developed on different operating systems. When executing commands in the shell DO NOT use platform
-specifics like the '&&' to combine to commands. This will not work on windows developer machines.
+specifics like the '&&' to combine to commands. This will not work on windows developer machines. Assume you are
+on a Windows Powershell or determine the platform first.
 

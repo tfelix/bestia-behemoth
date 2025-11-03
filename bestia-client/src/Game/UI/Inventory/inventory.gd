@@ -10,10 +10,10 @@ var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem
 @onready var _usable_grid: GridContainer = %UsableGrid
 
 func _ready() -> void:
-	# request inventory from server
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.get_inventory()
 	# if bestia has changed, request again from server
 	_render_items()
-	pass
 
 
 func _render_items() -> void:

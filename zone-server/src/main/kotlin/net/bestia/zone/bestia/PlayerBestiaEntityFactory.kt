@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

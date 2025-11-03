@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.status.Level
 import org.springframework.data.repository.findByIdOrNull
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import org.springframework.stereotype.Component
 
 /**

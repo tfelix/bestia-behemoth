@@ -5,7 +5,7 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.message.SelfSMSG
 import org.springframework.stereotype.Component
 

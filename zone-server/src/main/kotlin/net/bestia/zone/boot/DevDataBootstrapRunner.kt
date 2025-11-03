@@ -6,8 +6,9 @@ import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.ecs.spawn.Spawner
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.InventoryItemFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -24,6 +25,7 @@ import kotlin.String
 class DevDataBootstrapRunner(
   private val accountFactory: AccountFactory,
   private val masterFactory: MasterFactory,
+  private val inventoryItemFactory: InventoryItemFactory,
   private val zoneServer: ZoneServer
 ) : CommandLineRunner {
 
@@ -44,7 +46,9 @@ class DevDataBootstrapRunner(
       body = BodyType.BODY_M_1
     )
 
-    masterFactory.create(account, createMasterData)
+    val master = masterFactory.create(account, createMasterData)
+
+    inventoryItemFactory.addItem(master, "apple", 12)
 
     // val blobBestia = bestiaRepository.findByIdentifierOrThrow("blob")
     // val doommasterBestia = bestiaRepository.findByIdentifierOrThrow("doom_master_of_doom")

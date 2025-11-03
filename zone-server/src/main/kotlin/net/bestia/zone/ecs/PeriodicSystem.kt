@@ -1,6 +1,5 @@
 package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs2.ZoneServer
 import kotlin.reflect.KClass
 
 /**

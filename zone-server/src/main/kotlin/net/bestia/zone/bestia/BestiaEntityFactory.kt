@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 

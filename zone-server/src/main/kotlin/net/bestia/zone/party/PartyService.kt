@@ -7,7 +7,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

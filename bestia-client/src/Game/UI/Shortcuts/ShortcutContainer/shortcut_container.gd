@@ -118,7 +118,7 @@ func _update_display() -> void:
 				item_count_requested.emit(shortcut_row, shortcut_number, _shortcut_data.reference_id)
 				_count.visible = true
 			else:
-				printerr("Item ID %s not found in item_db, can not display it." % [_shortcut_data.reference_id])
+				printerr("Item ID %s not found in item_db, can not display it" % [_shortcut_data.reference_id])
 		ShortcutData.ShortcutType.ATTACK:
 			# TODO: Implement attack database similar to ItemDB
 			# For now just show a placeholder
@@ -126,12 +126,12 @@ func _update_display() -> void:
 
 
 func _use_item() -> void:
-	# TODO: Send message to server to use item
 	print("Using item with ID: ", _shortcut_data.reference_id)
-	# Placeholder for server communication
-	# var use_item_msg = UseItemCMSG.new()
-	# use_item_msg.item_id = _shortcut_data.reference_id
-	# BnetSocket.send_message(use_item_msg)
+	var item_res = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
+	if item_res == null:
+		printerr("ShortcutContainer: Can not use item, no item returned for ID: %s" % [_shortcut_data.reference_id])
+		return
+	item_res.use_item()
 
 
 func _use_attack() -> void:

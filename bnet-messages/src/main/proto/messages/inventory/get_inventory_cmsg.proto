@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "GetInventoryCmsgProto";
+
+/**
+ * Requests the inventory of the currently selected entity/bestia.
+ */
+message GetInventoryCMSG {
+
+}

@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs2.ZoneServer
+import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor

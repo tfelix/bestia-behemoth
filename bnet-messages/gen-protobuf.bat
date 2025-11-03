@@ -51,6 +51,10 @@ protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLD
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\entity\vanish_entity_smsg.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\entity\damage_entity_smsg.proto"
 
+REM Inventory messages
+protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\get_inventory_cmsg.proto"
+protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\inventory_smsg.proto"
+
 REM Master messages
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\bestia_info.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\get_master_cmsg.proto"
@@ -60,4 +64,3 @@ protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLD
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\select_master_cmsg.proto"
 
 echo Protobuf compilation complete.
-pause

@@ -18,7 +18,7 @@ class SelectMasterHandler(
 
     val masterEntityId = masterEntityFactory.createMasterEntity(msg.selectedMasterId)
 
-    LOG.debug { "handleAccountConnected account: ${msg.playerId}" }
+    LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }
 
     connectionInfoService.activateSession(
       accountId = msg.playerId,

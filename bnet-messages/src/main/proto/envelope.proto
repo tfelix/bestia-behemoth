@@ -18,6 +18,8 @@ import "messages/entity/get_all_entities.proto";
 import "messages/entity/select_active_entity.proto";
 import "messages/system/authentication_success.proto";
 import "messages/system/disconnected.proto";
+import "messages/inventory/get_inventory_cmsg.proto";
+import "messages/inventory/inventory_smsg.proto";
 import "messages/master/get_master_cmsg.proto";
 import "messages/master/get_self_cmsg.proto";
 import "messages/master/self_smsg.proto";
@@ -55,7 +57,8 @@ message Envelope {
     // TBD
 
     // INVENTORY 300
-    // TBD
+    GetInventoryCMSG get_inventory = 301;
+    InventorySMSG inventory = 302;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;

@@ -8,8 +8,7 @@ import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.PeriodicSystem
-import net.bestia.zone.ecs2.ZoneServer
-import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.ZoneServer
 import kotlin.random.Random
 
 // @Component

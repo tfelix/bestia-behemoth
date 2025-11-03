@@ -156,6 +156,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = System.ChatSMSG.FromProto(envelope.ChatSmsg);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.Inventory != null)
+        {
+          var msg = Inventory.InventorySMSG.FromProto(envelope.Inventory);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr("BnetSocket: Envelope message was not handled! Please add handling and type conversion.");
