@@ -35,7 +35,7 @@ class BnetMessageProcessorAdapter(
       // envelope.hasMoveActiveEntity() -> MoveActiveEntityCMSG.fromBnet(accountId, envelope.moveActiveEntity)
       envelope.hasGetAllEntities() -> GetAllEntitiesCMSG(accountId)
       envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)
-      envelope.hasGetInventory() -> GetInventoryCMSG.fromBnet(accountId, envelope.getInventory)
+      envelope.hasGetInventory() -> GetInventoryCMSG(accountId)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

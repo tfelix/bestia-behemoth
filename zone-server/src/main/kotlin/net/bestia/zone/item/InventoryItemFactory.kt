@@ -31,7 +31,7 @@ class InventoryItemFactory(
    */
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-    master.inventory.addItem(item)
+    master.inventory.addItem(item, amount)
     // TODO check if entity exists and add the item to its inventory component
     // TODO send message to update the connected entity client
     masterRepository.save(master)

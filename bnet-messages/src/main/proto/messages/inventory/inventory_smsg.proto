@@ -7,6 +7,7 @@ option java_outer_classname = "InventoryCmsgProto";
 
 /**
  * Returns the inventory content of the currently selected entity/bestia.
+ * TODO turn this into a component message as inventory items are now handled via a component.
  */
 message InventorySMSG {
   uint64 entity_id = 1;

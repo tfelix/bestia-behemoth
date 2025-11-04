@@ -17,8 +17,8 @@ class MasterInventory {
 
   val items: List<InventoryItem> get() = _items.toList()
 
-  fun addItem(item: Item) {
-    _items.add(InventoryItem(master, item))
+  fun addItem(item: Item, amount: Int) {
+    _items.add(InventoryItem(master, item, amount))
   }
 
   fun removeItem(itemIdentifier: String, amount: Int): Boolean {

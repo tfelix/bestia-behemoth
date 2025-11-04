@@ -25,13 +25,12 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CittZXNzYWdlcy9pbnZlbnRvcnkvZ2V0X2ludmVudG9yeV9jbXNnLnByb3Rv",
-            "EgRibmV0IiUKEEdldEludmVudG9yeUNNU0cSEQoJZW50aXR5X2lkGAEgASgE",
-            "Qi4KFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVR2V0SW52ZW50b3J5Q21zZ1By",
-            "b3RvYgZwcm90bzM="));
+            "EgRibmV0IhIKEEdldEludmVudG9yeUNNU0dCLgoVbmV0LmJlc3RpYS5ibmV0",
+            "LnByb3RvQhVHZXRJbnZlbnRvcnlDbXNnUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GetInventoryCMSG), global::Bnet.GetInventoryCMSG.Parser, new[]{ "EntityId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.GetInventoryCMSG), global::Bnet.GetInventoryCMSG.Parser, null, null, null, null, null)
           }));
     }
     #endregion
@@ -77,7 +76,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public GetInventoryCMSG(GetInventoryCMSG other) : this() {
-      entityId_ = other.entityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -85,18 +83,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public GetInventoryCMSG Clone() {
       return new GetInventoryCMSG(this);
-    }
-
-    /// <summary>Field number for the "entity_id" field.</summary>
-    public const int EntityIdFieldNumber = 1;
-    private ulong entityId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong EntityId {
-      get { return entityId_; }
-      set {
-        entityId_ = value;
-      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -114,7 +100,6 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (EntityId != other.EntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -122,7 +107,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -141,10 +125,6 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -155,10 +135,6 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(EntityId);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -169,9 +145,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(EntityId);
-      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -183,9 +156,6 @@ namespace Bnet {
     public void MergeFrom(GetInventoryCMSG other) {
       if (other == null) {
         return;
-      }
-      if (other.EntityId != 0UL) {
-        EntityId = other.EntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -202,10 +172,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
         }
       }
     #endif
@@ -221,10 +187,6 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            EntityId = input.ReadUInt64();
-            break;
-          }
         }
       }
     }
