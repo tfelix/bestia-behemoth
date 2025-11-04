@@ -21,9 +21,7 @@ var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
 var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
-var GetInventory = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
-var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -88,12 +86,6 @@ func select_bestia_master(master_info: MasterInfo) -> void:
 func get_all_entities() -> void:
 	assert(is_ready_to_send())
 	var msg = GetAllEntities.new()
-	socket.SendMessage(msg)
-
-
-func get_inventory() -> void:
-	assert(is_ready_to_send())
-	var msg = GetInventory.new()
 	socket.SendMessage(msg)
 
 

@@ -34,4 +34,8 @@ data class Speed(
       speed = speed
     )
   }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.PUBLIC
+  }
 }

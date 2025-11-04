@@ -59,4 +59,8 @@ data class Path(
       path = path
     )
   }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.PUBLIC
+  }
 }

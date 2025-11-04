@@ -13,6 +13,7 @@ var shortcut_number: int = 0
 @onready var shortcut: Label = %Shortcut
 @onready var _icon: TextureRect = %Icon
 @onready var _count: Label = %Count
+@onready var _count_bg: PanelContainer = %ShortcutBg
 
 var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
@@ -91,7 +92,7 @@ func set_shortcut_data(data: ShortcutData) -> void:
 func update_item_count(count: int) -> void:
 	if _shortcut_data.type == ShortcutData.ShortcutType.ITEM:
 		_count.text = str(count) if count > 1 else ""
-		_count.visible = count > 0
+		_count_bg.visible = count > 0
 
 
 func clear_shortcut() -> void:
@@ -104,7 +105,7 @@ func _update_display() -> void:
 	if _shortcut_data.is_empty():
 		_icon.texture = null
 		_icon.visible = false
-		_count.visible = false
+		_count_bg.visible = false
 		return
 
 	_icon.visible = true

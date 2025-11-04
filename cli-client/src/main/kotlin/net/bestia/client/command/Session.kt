@@ -14,8 +14,6 @@ class Session : Closeable {
   data class Data(
     var pos: Position = Position()
   ) {
-    var jwtLoginToken: String? = null
-
     data class Position(
       var x: Long = 0,
       var y: Long = 0,
@@ -71,10 +69,6 @@ class Session : Closeable {
   fun sendEnvelope(envelope: EnvelopeProto.Envelope) {
     return client?.sendEnvelope(envelope)
       ?: throw CLIException("Client not connected, please call 'connect' first")
-  }
-
-  fun redirectEnvelope(fn: EnvelopeHandlerFn?) {
-    envelopeRedirectionFn = fn
   }
 
   override fun close() {

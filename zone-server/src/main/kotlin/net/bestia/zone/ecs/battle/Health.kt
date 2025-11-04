@@ -52,4 +52,8 @@ class Health(
       max = max
     )
   }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.ONLY_OWNER
+  }
 }

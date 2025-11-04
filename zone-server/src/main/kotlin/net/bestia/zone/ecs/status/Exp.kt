@@ -28,4 +28,8 @@ data class Exp(
   override fun toEntityMessage(entityId: Long): EntitySMSG {
     return ExpSMSG(entityId = entityId, exp = value)
   }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.ONLY_OWNER
+  }
 }

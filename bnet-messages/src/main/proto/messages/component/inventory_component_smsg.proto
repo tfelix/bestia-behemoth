@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InventoryComponentSMSGProto";
+
+/**
+ * Inventory component containing items for an entity/bestia.
+ */
+message InventoryComponentSMSG {
+  fixed64 entity_id = 1;
+  repeated InventoryItem items = 2;
+}
+
+message InventoryItem {
+  uint32 item_id = 1;
+  uint64 unique_id = 2;
+  uint32 amount = 3;
+}
+

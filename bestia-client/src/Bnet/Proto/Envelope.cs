@@ -39,60 +39,58 @@ namespace Bnet {
             "aXRpZXMucHJvdG8aKm1lc3NhZ2VzL2VudGl0eS9zZWxlY3RfYWN0aXZlX2Vu",
             "dGl0eS5wcm90bxosbWVzc2FnZXMvc3lzdGVtL2F1dGhlbnRpY2F0aW9uX3N1",
             "Y2Nlc3MucHJvdG8aIm1lc3NhZ2VzL3N5c3RlbS9kaXNjb25uZWN0ZWQucHJv",
-            "dG8aK21lc3NhZ2VzL2ludmVudG9yeS9nZXRfaW52ZW50b3J5X2Ntc2cucHJv",
-            "dG8aJ21lc3NhZ2VzL2ludmVudG9yeS9pbnZlbnRvcnlfc21zZy5wcm90bxol",
-            "bWVzc2FnZXMvbWFzdGVyL2dldF9tYXN0ZXJfY21zZy5wcm90bxojbWVzc2Fn",
-            "ZXMvbWFzdGVyL2dldF9zZWxmX2Ntc2cucHJvdG8aH21lc3NhZ2VzL21hc3Rl",
-            "ci9zZWxmX3Ntc2cucHJvdG8aHG1lc3NhZ2VzL21hc3Rlci9tYXN0ZXIucHJv",
-            "dG8aKG1lc3NhZ2VzL21hc3Rlci9zZWxlY3RfbWFzdGVyX2Ntc2cucHJvdG8a",
-            "NW1lc3NhZ2VzL2NvbXBvbmVudC9tYXN0ZXJfdmlzdWFsX2NvbXBvbmVudF9z",
-            "bXNnLnByb3RvGixtZXNzYWdlcy9jb21wb25lbnQvcGF0aF9jb21wb25lbnRf",
-            "c21zZy5wcm90bxotbWVzc2FnZXMvY29tcG9uZW50L3NwZWVkX2NvbXBvbmVu",
-            "dF9zbXNnLnByb3RvGi5tZXNzYWdlcy9jb21wb25lbnQvaGVhbHRoX2NvbXBv",
-            "bmVudF9zbXNnLnByb3RvGixtZXNzYWdlcy9jb21wb25lbnQvbWFuYV9jb21w",
-            "b25lbnRfc21zZy5wcm90bxoobWVzc2FnZXMvZW50aXR5L2F0dGFja19lbnRp",
-            "dHlfY21zZy5wcm90bxoobWVzc2FnZXMvZW50aXR5L3ZhbmlzaF9lbnRpdHlf",
-            "c21zZy5wcm90bxoobWVzc2FnZXMvZW50aXR5L2RhbWFnZV9lbnRpdHlfc21z",
-            "Zy5wcm90byL/CwoIRW52ZWxvcGUSMwoRb3BlcmF0aW9uX3N1Y2Nlc3MYASAB",
-            "KAsyFi5ibmV0Lk9wZXJhdGlvblN1Y2Nlc3NIABIvCg9vcGVyYXRpb25fZXJy",
-            "b3IYAiABKAsyFC5ibmV0Lk9wZXJhdGlvbkVycm9ySAASLgoOYXV0aGVudGlj",
-            "YXRpb24YZCABKAsyFC5ibmV0LkF1dGhlbnRpY2F0aW9uSAASKgoMZGlzY29u",
-            "bmVjdGVkGGUgASgLMhIuYm5ldC5EaXNjb25uZWN0ZWRIABI9ChZhdXRoZW50",
-            "aWNhdGlvbl9zdWNjZXNzGGYgASgLMhsuYm5ldC5BdXRoZW50aWNhdGlvblN1",
-            "Y2Nlc3NIABIaCgRwaW5nGHggASgLMgouYm5ldC5QaW5nSAASGgoEcG9uZxh5",
-            "IAEoCzIKLmJuZXQuUG9uZ0gAEiMKCWNoYXRfY21zZxh6IAEoCzIOLmJuZXQu",
-            "Q2hhdENNU0dIABIjCgljaGF0X3Ntc2cYeyABKAsyDi5ibmV0LkNoYXRTTVNH",
-            "SAASMAoNZ2V0X2ludmVudG9yeRitAiABKAsyFi5ibmV0LkdldEludmVudG9y",
-            "eUNNU0dIABIpCglpbnZlbnRvcnkYrgIgASgLMhMuYm5ldC5JbnZlbnRvcnlT",
-            "TVNHSAASKgoKZ2V0X21hc3RlchiRAyABKAsyEy5ibmV0LkdldE1hc3RlckNN",
-            "U0dIABIfCgZtYXN0ZXIYkgMgASgLMgwuYm5ldC5NYXN0ZXJIABIwCg1zZWxl",
-            "Y3RfbWFzdGVyGJMDIAEoCzIWLmJuZXQuU2VsZWN0TWFzdGVyQ01TR0gAEiYK",
-            "CGdldF9zZWxmGJQDIAEoCzIRLmJuZXQuR2V0U2VsZkNNU0dIABIfCgRzZWxm",
-            "GJUDIAEoCzIOLmJuZXQuU2VsZlNNU0dIABI5ChRzZWxlY3RfYWN0aXZlX2Vu",
-            "dGl0eRj0AyABKAsyGC5ibmV0LlNlbGVjdEFjdGl2ZUVudGl0eUgAEjUKEm1v",
-            "dmVfYWN0aXZlX2VudGl0eRj1AyABKAsyFi5ibmV0Lk1vdmVBY3RpdmVFbnRp",
-            "dHlIABIxChBnZXRfYWxsX2VudGl0aWVzGPYDIAEoCzIULmJuZXQuR2V0QWxs",
-            "RW50aXRpZXNIABIwCg1hdHRhY2tfZW50aXR5GPcDIAEoCzIWLmJuZXQuQXR0",
-            "YWNrRW50aXR5Q01TR0gAEjAKDXZhbmlzaF9lbnRpdHkY+AMgASgLMhYuYm5l",
-            "dC5WYW5pc2hFbnRpdHlTTVNHSAASMAoNZGFtYWdlX2VudGl0eRj5AyABKAsy",
-            "Fi5ibmV0LkRhbWFnZUVudGl0eVNNU0dIABIxCg1jb21wX3Bvc2l0aW9uGP4D",
-            "IAEoCzIXLmJuZXQuUG9zaXRpb25Db21wb25lbnRIABI6ChJjb21wX2Jlc3Rp",
-            "YV92aXN1YWwY/wMgASgLMhsuYm5ldC5CZXN0aWFWaXN1YWxDb21wb25lbnRI",
-            "ABI2ChBjb21wX2l0ZW1fdmlzdWFsGIAEIAEoCzIZLmJuZXQuSXRlbVZpc3Vh",
-            "bENvbXBvbmVudEgAEj4KEmNvbXBfbWFzdGVyX3Zpc3VhbBiCBCABKAsyHy5i",
-            "bmV0Lk1hc3RlclZpc3VhbENvbXBvbmVudFNNU0dIABItCgljb21wX3BhdGgY",
-            "gwQgASgLMhcuYm5ldC5QYXRoQ29tcG9uZW50U01TR0gAEi8KCmNvbXBfc3Bl",
-            "ZWQYhAQgASgLMhguYm5ldC5TcGVlZENvbXBvbmVudFNNU0dIABIrCghjb21w",
-            "X2V4cBiFBCABKAsyFi5ibmV0LkV4cENvbXBvbmVudFNNU0dIABIvCgpjb21w",
-            "X2xldmVsGIYEIAEoCzIYLmJuZXQuTGV2ZWxDb21wb25lbnRTTVNHSAASLQoJ",
-            "Y29tcF9tYW5hGIcEIAEoCzIXLmJuZXQuTWFuYUNvbXBvbmVudFNNU0dIABIx",
-            "Cgtjb21wX2hlYWx0aBiIBCABKAsyGS5ibmV0LkhlYWx0aENvbXBvbmVudFNN",
-            "U0dIAEIJCgdtZXNzYWdlQiYKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0INRW52",
-            "ZWxvcGVQcm90b2IGcHJvdG8z"));
+            "dG8aJW1lc3NhZ2VzL21hc3Rlci9nZXRfbWFzdGVyX2Ntc2cucHJvdG8aI21l",
+            "c3NhZ2VzL21hc3Rlci9nZXRfc2VsZl9jbXNnLnByb3RvGh9tZXNzYWdlcy9t",
+            "YXN0ZXIvc2VsZl9zbXNnLnByb3RvGhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVy",
+            "LnByb3RvGihtZXNzYWdlcy9tYXN0ZXIvc2VsZWN0X21hc3Rlcl9jbXNnLnBy",
+            "b3RvGjVtZXNzYWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25l",
+            "bnRfc21zZy5wcm90bxosbWVzc2FnZXMvY29tcG9uZW50L3BhdGhfY29tcG9u",
+            "ZW50X3Ntc2cucHJvdG8aLW1lc3NhZ2VzL2NvbXBvbmVudC9zcGVlZF9jb21w",
+            "b25lbnRfc21zZy5wcm90bxoubWVzc2FnZXMvY29tcG9uZW50L2hlYWx0aF9j",
+            "b21wb25lbnRfc21zZy5wcm90bxosbWVzc2FnZXMvY29tcG9uZW50L21hbmFf",
+            "Y29tcG9uZW50X3Ntc2cucHJvdG8aMW1lc3NhZ2VzL2NvbXBvbmVudC9pbnZl",
+            "bnRvcnlfY29tcG9uZW50X3Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS9h",
+            "dHRhY2tfZW50aXR5X2Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS92YW5p",
+            "c2hfZW50aXR5X3Ntc2cucHJvdG8aKG1lc3NhZ2VzL2VudGl0eS9kYW1hZ2Vf",
+            "ZW50aXR5X3Ntc2cucHJvdG8i2wsKCEVudmVsb3BlEjMKEW9wZXJhdGlvbl9z",
+            "dWNjZXNzGAEgASgLMhYuYm5ldC5PcGVyYXRpb25TdWNjZXNzSAASLwoPb3Bl",
+            "cmF0aW9uX2Vycm9yGAIgASgLMhQuYm5ldC5PcGVyYXRpb25FcnJvckgAEi4K",
+            "DmF1dGhlbnRpY2F0aW9uGGQgASgLMhQuYm5ldC5BdXRoZW50aWNhdGlvbkgA",
+            "EioKDGRpc2Nvbm5lY3RlZBhlIAEoCzISLmJuZXQuRGlzY29ubmVjdGVkSAAS",
+            "PQoWYXV0aGVudGljYXRpb25fc3VjY2VzcxhmIAEoCzIbLmJuZXQuQXV0aGVu",
+            "dGljYXRpb25TdWNjZXNzSAASGgoEcGluZxh4IAEoCzIKLmJuZXQuUGluZ0gA",
+            "EhoKBHBvbmcYeSABKAsyCi5ibmV0LlBvbmdIABIjCgljaGF0X2Ntc2cYeiAB",
+            "KAsyDi5ibmV0LkNoYXRDTVNHSAASIwoJY2hhdF9zbXNnGHsgASgLMg4uYm5l",
+            "dC5DaGF0U01TR0gAEioKCmdldF9tYXN0ZXIYkQMgASgLMhMuYm5ldC5HZXRN",
+            "YXN0ZXJDTVNHSAASHwoGbWFzdGVyGJIDIAEoCzIMLmJuZXQuTWFzdGVySAAS",
+            "MAoNc2VsZWN0X21hc3RlchiTAyABKAsyFi5ibmV0LlNlbGVjdE1hc3RlckNN",
+            "U0dIABImCghnZXRfc2VsZhiUAyABKAsyES5ibmV0LkdldFNlbGZDTVNHSAAS",
+            "HwoEc2VsZhiVAyABKAsyDi5ibmV0LlNlbGZTTVNHSAASOQoUc2VsZWN0X2Fj",
+            "dGl2ZV9lbnRpdHkY9AMgASgLMhguYm5ldC5TZWxlY3RBY3RpdmVFbnRpdHlI",
+            "ABI1ChJtb3ZlX2FjdGl2ZV9lbnRpdHkY9QMgASgLMhYuYm5ldC5Nb3ZlQWN0",
+            "aXZlRW50aXR5SAASMQoQZ2V0X2FsbF9lbnRpdGllcxj2AyABKAsyFC5ibmV0",
+            "LkdldEFsbEVudGl0aWVzSAASMAoNYXR0YWNrX2VudGl0eRj3AyABKAsyFi5i",
+            "bmV0LkF0dGFja0VudGl0eUNNU0dIABIwCg12YW5pc2hfZW50aXR5GPgDIAEo",
+            "CzIWLmJuZXQuVmFuaXNoRW50aXR5U01TR0gAEjAKDWRhbWFnZV9lbnRpdHkY",
+            "+QMgASgLMhYuYm5ldC5EYW1hZ2VFbnRpdHlTTVNHSAASMQoNY29tcF9wb3Np",
+            "dGlvbhj+AyABKAsyFy5ibmV0LlBvc2l0aW9uQ29tcG9uZW50SAASOgoSY29t",
+            "cF9iZXN0aWFfdmlzdWFsGP8DIAEoCzIbLmJuZXQuQmVzdGlhVmlzdWFsQ29t",
+            "cG9uZW50SAASNgoQY29tcF9pdGVtX3Zpc3VhbBiABCABKAsyGS5ibmV0Lkl0",
+            "ZW1WaXN1YWxDb21wb25lbnRIABI+ChJjb21wX21hc3Rlcl92aXN1YWwYggQg",
+            "ASgLMh8uYm5ldC5NYXN0ZXJWaXN1YWxDb21wb25lbnRTTVNHSAASLQoJY29t",
+            "cF9wYXRoGIMEIAEoCzIXLmJuZXQuUGF0aENvbXBvbmVudFNNU0dIABIvCgpj",
+            "b21wX3NwZWVkGIQEIAEoCzIYLmJuZXQuU3BlZWRDb21wb25lbnRTTVNHSAAS",
+            "KwoIY29tcF9leHAYhQQgASgLMhYuYm5ldC5FeHBDb21wb25lbnRTTVNHSAAS",
+            "LwoKY29tcF9sZXZlbBiGBCABKAsyGC5ibmV0LkxldmVsQ29tcG9uZW50U01T",
+            "R0gAEi0KCWNvbXBfbWFuYRiHBCABKAsyFy5ibmV0Lk1hbmFDb21wb25lbnRT",
+            "TVNHSAASMQoLY29tcF9oZWFsdGgYiAQgASgLMhkuYm5ldC5IZWFsdGhDb21w",
+            "b25lbnRTTVNHSAASNwoOY29tcF9pbnZlbnRvcnkYiQQgASgLMhwuYm5ldC5J",
+            "bnZlbnRvcnlDb21wb25lbnRTTVNHSABCCQoHbWVzc2FnZUImChVuZXQuYmVz",
+            "dGlhLmJuZXQucHJvdG9CDUVudmVsb3BlUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.InventorySmsgReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetInventory", "Inventory", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -162,12 +160,6 @@ namespace Bnet {
         case MessageOneofCase.ChatSmsg:
           ChatSmsg = other.ChatSmsg.Clone();
           break;
-        case MessageOneofCase.GetInventory:
-          GetInventory = other.GetInventory.Clone();
-          break;
-        case MessageOneofCase.Inventory:
-          Inventory = other.Inventory.Clone();
-          break;
         case MessageOneofCase.GetMaster:
           GetMaster = other.GetMaster.Clone();
           break;
@@ -230,6 +222,9 @@ namespace Bnet {
           break;
         case MessageOneofCase.CompHealth:
           CompHealth = other.CompHealth.Clone();
+          break;
+        case MessageOneofCase.CompInventory:
+          CompInventory = other.CompInventory.Clone();
           break;
       }
 
@@ -350,33 +345,6 @@ namespace Bnet {
       set {
         message_ = value;
         messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.ChatSmsg;
-      }
-    }
-
-    /// <summary>Field number for the "get_inventory" field.</summary>
-    public const int GetInventoryFieldNumber = 301;
-    /// <summary>
-    /// INVENTORY 300
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.GetInventoryCMSG GetInventory {
-      get { return messageCase_ == MessageOneofCase.GetInventory ? (global::Bnet.GetInventoryCMSG) message_ : null; }
-      set {
-        message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.GetInventory;
-      }
-    }
-
-    /// <summary>Field number for the "inventory" field.</summary>
-    public const int InventoryFieldNumber = 302;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Bnet.InventorySMSG Inventory {
-      get { return messageCase_ == MessageOneofCase.Inventory ? (global::Bnet.InventorySMSG) message_ : null; }
-      set {
-        message_ = value;
-        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.Inventory;
       }
     }
 
@@ -638,6 +606,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "comp_inventory" field.</summary>
+    public const int CompInventoryFieldNumber = 521;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.InventoryComponentSMSG CompInventory {
+      get { return messageCase_ == MessageOneofCase.CompInventory ? (global::Bnet.InventoryComponentSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CompInventory;
+      }
+    }
+
     private object message_;
     /// <summary>Enum of possible cases for the "message" oneof.</summary>
     public enum MessageOneofCase {
@@ -651,8 +631,6 @@ namespace Bnet {
       Pong = 121,
       ChatCmsg = 122,
       ChatSmsg = 123,
-      GetInventory = 301,
-      Inventory = 302,
       GetMaster = 401,
       Master = 402,
       SelectMaster = 403,
@@ -674,6 +652,7 @@ namespace Bnet {
       CompLevel = 518,
       CompMana = 519,
       CompHealth = 520,
+      CompInventory = 521,
     }
     private MessageOneofCase messageCase_ = MessageOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -713,8 +692,6 @@ namespace Bnet {
       if (!object.Equals(Pong, other.Pong)) return false;
       if (!object.Equals(ChatCmsg, other.ChatCmsg)) return false;
       if (!object.Equals(ChatSmsg, other.ChatSmsg)) return false;
-      if (!object.Equals(GetInventory, other.GetInventory)) return false;
-      if (!object.Equals(Inventory, other.Inventory)) return false;
       if (!object.Equals(GetMaster, other.GetMaster)) return false;
       if (!object.Equals(Master, other.Master)) return false;
       if (!object.Equals(SelectMaster, other.SelectMaster)) return false;
@@ -736,6 +713,7 @@ namespace Bnet {
       if (!object.Equals(CompLevel, other.CompLevel)) return false;
       if (!object.Equals(CompMana, other.CompMana)) return false;
       if (!object.Equals(CompHealth, other.CompHealth)) return false;
+      if (!object.Equals(CompInventory, other.CompInventory)) return false;
       if (MessageCase != other.MessageCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -753,8 +731,6 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.Pong) hash ^= Pong.GetHashCode();
       if (messageCase_ == MessageOneofCase.ChatCmsg) hash ^= ChatCmsg.GetHashCode();
       if (messageCase_ == MessageOneofCase.ChatSmsg) hash ^= ChatSmsg.GetHashCode();
-      if (messageCase_ == MessageOneofCase.GetInventory) hash ^= GetInventory.GetHashCode();
-      if (messageCase_ == MessageOneofCase.Inventory) hash ^= Inventory.GetHashCode();
       if (messageCase_ == MessageOneofCase.GetMaster) hash ^= GetMaster.GetHashCode();
       if (messageCase_ == MessageOneofCase.Master) hash ^= Master.GetHashCode();
       if (messageCase_ == MessageOneofCase.SelectMaster) hash ^= SelectMaster.GetHashCode();
@@ -776,6 +752,7 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompLevel) hash ^= CompLevel.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompMana) hash ^= CompMana.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompHealth) hash ^= CompHealth.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CompInventory) hash ^= CompInventory.GetHashCode();
       hash ^= (int) messageCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -831,14 +808,6 @@ namespace Bnet {
         output.WriteRawTag(218, 7);
         output.WriteMessage(ChatSmsg);
       }
-      if (messageCase_ == MessageOneofCase.GetInventory) {
-        output.WriteRawTag(234, 18);
-        output.WriteMessage(GetInventory);
-      }
-      if (messageCase_ == MessageOneofCase.Inventory) {
-        output.WriteRawTag(242, 18);
-        output.WriteMessage(Inventory);
-      }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         output.WriteRawTag(138, 25);
         output.WriteMessage(GetMaster);
@@ -922,6 +891,10 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompHealth) {
         output.WriteRawTag(194, 32);
         output.WriteMessage(CompHealth);
+      }
+      if (messageCase_ == MessageOneofCase.CompInventory) {
+        output.WriteRawTag(202, 32);
+        output.WriteMessage(CompInventory);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -969,14 +942,6 @@ namespace Bnet {
         output.WriteRawTag(218, 7);
         output.WriteMessage(ChatSmsg);
       }
-      if (messageCase_ == MessageOneofCase.GetInventory) {
-        output.WriteRawTag(234, 18);
-        output.WriteMessage(GetInventory);
-      }
-      if (messageCase_ == MessageOneofCase.Inventory) {
-        output.WriteRawTag(242, 18);
-        output.WriteMessage(Inventory);
-      }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         output.WriteRawTag(138, 25);
         output.WriteMessage(GetMaster);
@@ -1061,6 +1026,10 @@ namespace Bnet {
         output.WriteRawTag(194, 32);
         output.WriteMessage(CompHealth);
       }
+      if (messageCase_ == MessageOneofCase.CompInventory) {
+        output.WriteRawTag(202, 32);
+        output.WriteMessage(CompInventory);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1097,12 +1066,6 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.ChatSmsg) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(ChatSmsg);
-      }
-      if (messageCase_ == MessageOneofCase.GetInventory) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(GetInventory);
-      }
-      if (messageCase_ == MessageOneofCase.Inventory) {
-        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Inventory);
       }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(GetMaster);
@@ -1166,6 +1129,9 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.CompHealth) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompHealth);
+      }
+      if (messageCase_ == MessageOneofCase.CompInventory) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompInventory);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1233,18 +1199,6 @@ namespace Bnet {
             ChatSmsg = new global::Bnet.ChatSMSG();
           }
           ChatSmsg.MergeFrom(other.ChatSmsg);
-          break;
-        case MessageOneofCase.GetInventory:
-          if (GetInventory == null) {
-            GetInventory = new global::Bnet.GetInventoryCMSG();
-          }
-          GetInventory.MergeFrom(other.GetInventory);
-          break;
-        case MessageOneofCase.Inventory:
-          if (Inventory == null) {
-            Inventory = new global::Bnet.InventorySMSG();
-          }
-          Inventory.MergeFrom(other.Inventory);
           break;
         case MessageOneofCase.GetMaster:
           if (GetMaster == null) {
@@ -1372,6 +1326,12 @@ namespace Bnet {
           }
           CompHealth.MergeFrom(other.CompHealth);
           break;
+        case MessageOneofCase.CompInventory:
+          if (CompInventory == null) {
+            CompInventory = new global::Bnet.InventoryComponentSMSG();
+          }
+          CompInventory.MergeFrom(other.CompInventory);
+          break;
       }
 
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1470,24 +1430,6 @@ namespace Bnet {
             ChatSmsg = subBuilder;
             break;
           }
-          case 2410: {
-            global::Bnet.GetInventoryCMSG subBuilder = new global::Bnet.GetInventoryCMSG();
-            if (messageCase_ == MessageOneofCase.GetInventory) {
-              subBuilder.MergeFrom(GetInventory);
-            }
-            input.ReadMessage(subBuilder);
-            GetInventory = subBuilder;
-            break;
-          }
-          case 2418: {
-            global::Bnet.InventorySMSG subBuilder = new global::Bnet.InventorySMSG();
-            if (messageCase_ == MessageOneofCase.Inventory) {
-              subBuilder.MergeFrom(Inventory);
-            }
-            input.ReadMessage(subBuilder);
-            Inventory = subBuilder;
-            break;
-          }
           case 3210: {
             global::Bnet.GetMasterCMSG subBuilder = new global::Bnet.GetMasterCMSG();
             if (messageCase_ == MessageOneofCase.GetMaster) {
@@ -1675,6 +1617,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             CompHealth = subBuilder;
+            break;
+          }
+          case 4170: {
+            global::Bnet.InventoryComponentSMSG subBuilder = new global::Bnet.InventoryComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompInventory) {
+              subBuilder.MergeFrom(CompInventory);
+            }
+            input.ReadMessage(subBuilder);
+            CompInventory = subBuilder;
             break;
           }
         }
@@ -1773,24 +1724,6 @@ namespace Bnet {
             ChatSmsg = subBuilder;
             break;
           }
-          case 2410: {
-            global::Bnet.GetInventoryCMSG subBuilder = new global::Bnet.GetInventoryCMSG();
-            if (messageCase_ == MessageOneofCase.GetInventory) {
-              subBuilder.MergeFrom(GetInventory);
-            }
-            input.ReadMessage(subBuilder);
-            GetInventory = subBuilder;
-            break;
-          }
-          case 2418: {
-            global::Bnet.InventorySMSG subBuilder = new global::Bnet.InventorySMSG();
-            if (messageCase_ == MessageOneofCase.Inventory) {
-              subBuilder.MergeFrom(Inventory);
-            }
-            input.ReadMessage(subBuilder);
-            Inventory = subBuilder;
-            break;
-          }
           case 3210: {
             global::Bnet.GetMasterCMSG subBuilder = new global::Bnet.GetMasterCMSG();
             if (messageCase_ == MessageOneofCase.GetMaster) {
@@ -1978,6 +1911,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             CompHealth = subBuilder;
+            break;
+          }
+          case 4170: {
+            global::Bnet.InventoryComponentSMSG subBuilder = new global::Bnet.InventoryComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompInventory) {
+              subBuilder.MergeFrom(CompInventory);
+            }
+            input.ReadMessage(subBuilder);
+            CompInventory = subBuilder;
             break;
           }
         }

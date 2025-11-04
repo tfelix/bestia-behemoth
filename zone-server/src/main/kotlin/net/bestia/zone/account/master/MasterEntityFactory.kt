@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.visual.MasterVisual
 import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.session.ConnectionInfoService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,8 +24,14 @@ import org.springframework.transaction.annotation.Transactional
 class MasterEntityFactory(
   private val zoneServer: ZoneServer,
   private val masterRepository: MasterRepository,
+  private val connectionInfoService: ConnectionInfoService,
 ) {
 
+  /**
+   * Creating a master is usually a two step process as we need to register him for the current
+   * session before we start adding him to the zone server. Otherwise we would start sending out
+   * updated and the master entity id is not yet registered to the session.
+   */
   @Transactional(readOnly = true)
   fun createMasterEntity(masterId: Long): EntityId {
     val master = masterRepository.findByIdOrThrow(masterId)
@@ -32,6 +39,13 @@ class MasterEntityFactory(
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
     return zoneServer.addEntityWithWriteLock { entity ->
+      connectionInfoService.activateSession(
+        accountId = master.account.id,
+        masterId = masterId,
+        masterEntityId = entity.id,
+        authorities = emptySet()
+      )
+
       entity.addAll(
         Account(master.account.id),
         MasterComponent(master.id),

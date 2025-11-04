@@ -30,4 +30,8 @@ class Level(
   override fun toEntityMessage(entityId: Long): EntitySMSG {
     return LevelSMSG(entityId = entityId, level = level)
   }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.PUBLIC
+  }
 }

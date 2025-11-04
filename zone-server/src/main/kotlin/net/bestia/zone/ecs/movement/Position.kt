@@ -61,6 +61,10 @@ data class Position(
     )
   }
 
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.PUBLIC
+  }
+
   companion object {
     fun fromVec3(pos: Vec3L): Position {
       return Position(

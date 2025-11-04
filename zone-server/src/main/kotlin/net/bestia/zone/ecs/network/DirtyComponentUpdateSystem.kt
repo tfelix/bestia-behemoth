@@ -3,24 +3,20 @@ package net.bestia.zone.ecs.network
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
-import net.bestia.zone.ecs.visual.BestiaVisual
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.IteratingSystem
 import net.bestia.zone.ecs.battle.Health
-import net.bestia.zone.ecs.status.Exp
-import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
-import net.bestia.zone.util.EntityId
+import org.reflections.Reflections
 import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.Component as EcsComponent
+import kotlin.reflect.KClass
 
 /**
  * Responsible for filtering every entity which needs to be sent over the network as fast as possible.
@@ -37,6 +33,19 @@ class DirtyComponentUpdateSystem(
     Position::class,
     IsDirty::class
   )
+
+  // Cache all Dirtyable component classes discovered via reflection at initialization
+  private val dirtyableComponentClasses: Set<KClass<out Dirtyable>>
+
+  init {
+    val reflections = Reflections("net.bestia.zone.ecs")
+    dirtyableComponentClasses = reflections.getSubTypesOf(Dirtyable::class.java)
+      .filter { EcsComponent::class.java.isAssignableFrom(it) }
+      .map { it.kotlin }
+      .toSet()
+
+    LOG.info { "Discovered ${dirtyableComponentClasses.size} Dirtyable component classes: ${dirtyableComponentClasses.map { it.simpleName }}" }
+  }
 
   override fun update(
     deltaTime: Float,
@@ -56,59 +65,68 @@ class DirtyComponentUpdateSystem(
       }
     }
 
-    // TODO How to make sure to add other dirtyable components in here. Maybe add a unit test to check this?
-    updatePublicBroadcastableDirtyComponents(entity, zone, position)
-    updatePrivateBroadcastableDirtyComponents(entity, zone)
+    val allDirtyComponents = collectAllDirtyComponents(entity)
+
+    // Group components by broadcast type
+    val publicComponents = mutableListOf<Dirtyable>()
+    val privateComponents = mutableListOf<Dirtyable>()
+
+    for (component in allDirtyComponents) {
+      when (component.broadcastType()) {
+        Dirtyable.BroadcastType.PUBLIC -> publicComponents.add(component)
+        Dirtyable.BroadcastType.ONLY_OWNER -> {
+          // Special case: Health should be PUBLIC for non-player entities. Maybe this must be
+          // refactored to be more specific e.g. like member of party. The system probably needs
+          // and upgrade then.
+          if (component is Health && !entity.has(Account::class)) {
+            publicComponents.add(component)
+          } else {
+            privateComponents.add(component)
+          }
+        }
+      }
+    }
+
+    // Broadcast public components to all in range
+    if (publicComponents.isNotEmpty()) {
+      val publicMessages = publicComponents.map { component ->
+        component.clearDirty()
+        component.toEntityMessage(entity.id)
+      }
+
+      zone.queueExternalJob {
+        outMessageProcessor.sendToAllPlayersInRange(position, publicMessages)
+      }
+    }
+
+    // Send private components only to the entity owner
+    if (privateComponents.isNotEmpty()) {
+      val ownedByAccountId = entity.get(Account::class)?.accountId
+
+      if (ownedByAccountId != null) {
+        val privateMessages = privateComponents.map { component ->
+          component.clearDirty()
+          component.toEntityMessage(entity.id)
+        }
+
+        zone.queueExternalJob {
+          outMessageProcessor.sendToPlayer(ownedByAccountId, privateMessages)
+        }
+      }
+    }
 
     entity.remove(IsDirty::class)
   }
 
-  private fun updatePublicBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer, position: Vec3L) {
-    val broadcastUpdateMessages = listOfNotNull(
-      makeMessageIfDirty(entity.id, entity.get(Position::class)),
-      makeMessageIfDirty(entity.id, entity.get(Speed::class)),
-      makeMessageIfDirty(entity.id, entity.get(Path::class)),
-      makeMessageIfDirty(entity.id, entity.get(BestiaVisual::class)),
-      makeMessageIfDirty(entity.id, entity.get(Exp::class)),
-      makeMessageIfDirty(entity.id, entity.get(Level::class))
-    )
-
-    // These messages are optional, depending on if the entity is a master or not. Some messages e.g. health should
-    // only be broadcasted for non player controlled entities.
-    val optionalMessages = if (!entity.has(Account::class)) {
-      listOfNotNull(
-        makeMessageIfDirty(entity.id, entity.get(Health::class))
-      )
-    } else {
-      emptyList()
-    }
-
-    val allMessagesToBroadcast = broadcastUpdateMessages + optionalMessages
-
-    if (allMessagesToBroadcast.isNotEmpty()) {
-      zone.queueExternalJob {
-        outMessageProcessor.sendToAllPlayersInRange(
-          position,
-          allMessagesToBroadcast
-        )
-      }
-    }
-  }
-
-  private fun updatePrivateBroadcastableDirtyComponents(entity: Entity, zone: ZoneServer) {
-    val ownedByAccountId = entity.get(Account::class)?.accountId
-      ?: return
-
-    val broadcastUpdateMessages = listOfNotNull(
-      makeMessageIfDirty(entity.id, entity.get(Exp::class)),
-      makeMessageIfDirty(entity.id, entity.get(Health::class))
-    )
-
-    if (broadcastUpdateMessages.isNotEmpty()) {
-      zone.queueExternalJob {
-        outMessageProcessor.sendToPlayer(ownedByAccountId, broadcastUpdateMessages)
-      }
-    }
+  /**
+   * Collects all dirtyable components from an entity using the cached list
+   * of Dirtyable component classes discovered at initialization.
+   */
+  private fun collectAllDirtyComponents(entity: Entity): List<Dirtyable> {
+    return dirtyableComponentClasses.mapNotNull { componentClass ->
+      @Suppress("UNCHECKED_CAST")
+      entity.get(componentClass as KClass<out EcsComponent>) as? Dirtyable
+    }.filter { it.isDirty() }
   }
 
   private fun updatePlayerAOI(entity: Entity, position: Vec3L) {
@@ -122,19 +140,6 @@ class DirtyComponentUpdateSystem(
     LOG.trace { "Updating entity ${entity.id} (account: ${account.accountId}) AOI to $position" }
 
     playerAOIService.setEntityPosition(account.accountId, position)
-  }
-
-  private fun makeMessageIfDirty(entityId: EntityId, dirtyable: Dirtyable?): EntitySMSG? {
-    if (dirtyable == null) {
-      return null
-    }
-
-    return if (dirtyable.isDirty()) {
-      dirtyable.clearDirty()
-      dirtyable.toEntityMessage(entityId)
-    } else {
-      null
-    }
   }
 
   companion object {
