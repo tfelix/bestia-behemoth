@@ -32,6 +32,8 @@ import "messages/component/inventory_component_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
+import "messages/inventory/get_inventory_cmsg.proto";
+import "messages/inventory/use_item_cmsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -56,7 +58,8 @@ message Envelope {
     // TBD
 
     // INVENTORY 300
-    // Removed - now handled via component
+    GetInventoryCMSG get_inventory = 301;
+    UseItemCMSG use_item = 302;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;

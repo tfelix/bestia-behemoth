@@ -18,12 +18,19 @@ func _ready() -> void:
 	# currently selected entity instead.
 	ConnectionManager.connect("self_received", _on_self_received)
 	ConnectionManager.connect("entity_received", _on_entity_received)
-	# if bestia has changed, request again from server
+	
+	# We usually overlook the first inventory update because we did not yet
+	# fully load but the server already send it out. So we request it again to be
+	# sure.
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.get_inventory()
+
 	_render_items()
 
 
 func _on_self_received(msg: SelfSMSG) -> void:
 	selected_entity_id = msg.MasterEntityId
+	_render_items()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
