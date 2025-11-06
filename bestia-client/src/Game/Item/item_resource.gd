@@ -16,7 +16,7 @@ static var _script_instance_cache: Dictionary = {}
 
 
 func use_item() -> void:
-	print("Using item: %s" % [name])
+	print("ItemResource: Using item: %s" % [name])
 	if item_script:
 		var item_use_instance: ItemUse = _get_or_create_item_use_instance()
 		if item_use_instance:
@@ -24,7 +24,7 @@ func use_item() -> void:
 		else:
 			printerr("ItemResource: Failed to load or instantiate item script for item: %s" % [name])
 	elif ConnectionManager.is_ready_to_send():
-		print("ConnectionManager autoload exists!")
+		ConnectionManager.use_item(item_id)
 	else:
 		printerr("ItemResource: No global connection manager found")
 

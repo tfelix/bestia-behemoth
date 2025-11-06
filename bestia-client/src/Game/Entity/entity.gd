@@ -19,7 +19,6 @@ class_name Entity extends Node3D
 
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
-
 var MasterModelScn = preload("res://Game/Entity/Master/Master.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
@@ -40,9 +39,10 @@ var _server_position_correction: bool = false
 var _correction_start_position: Vector3 = Vector3.ZERO
 var _correction_target_position: Vector3 = Vector3.ZERO
 var _correction_start_time: float = 0.0
+
+
 const _CORRECTION_DURATION: float = 0.2  # Quick correction to server position
 const _POSITION_THRESHOLD: float = 0.05  # Threshold for server position corrections
-
 const _VISUAL_NODE_NAME = "Visual"
 
 

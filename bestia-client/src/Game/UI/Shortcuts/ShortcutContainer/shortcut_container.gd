@@ -52,11 +52,6 @@ func trigger_shortcut() -> void:
 	if _shortcut_data.is_empty():
 		return
 
-	# Execute custom script if available
-	if _shortcut_data.custom_script:
-		_execute_custom_script()
-		return
-
 	# Default handling based on type
 	match _shortcut_data.type:
 		ShortcutData.ShortcutType.ITEM:
@@ -127,7 +122,6 @@ func _update_display() -> void:
 
 
 func _use_item() -> void:
-	print("Using item with ID: ", _shortcut_data.reference_id)
 	var item_res = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
 	if item_res == null:
 		printerr("ShortcutContainer: Can not use item, no item returned for ID: %s" % [_shortcut_data.reference_id])
@@ -137,17 +131,8 @@ func _use_item() -> void:
 
 func _use_attack() -> void:
 	# TODO: Send attack message to server
-	print("Using attack with ID: ", _shortcut_data.reference_id)
+	print("ShortcutContainer: Using attack with ID: ", _shortcut_data.reference_id)
 	# Placeholder for server communication
 	# var attack_msg = AttackEntityCMSG.new()
 	# attack_msg.UsedAttackId = _shortcut_data.reference_id
 	# BnetSocket.send_message(attack_msg)
-
-
-func _execute_custom_script() -> void:
-	# Execute custom script behavior
-	if _shortcut_data.custom_script and _shortcut_data.custom_script.has_method("execute"):
-		var script_instance = _shortcut_data.custom_script.new()
-		script_instance.execute(_shortcut_data)
-	else:
-		printerr("Custom script doesn't have 'execute' method")

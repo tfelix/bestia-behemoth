@@ -11,6 +11,9 @@ import net.bestia.zone.util.requireValidIdentifier
   ]
 )
 class Item(
+  @Id
+  var id: Long = 0,
+
   val identifier: String,
   /**
    * 10 weight roughly equals 1kg.
@@ -23,12 +26,8 @@ class Item(
     requireValidIdentifier(identifier)
   }
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long = 0
-
   enum class ItemType {
-    CONSUMABLE,
+    USABLE,
     EQUIP,
     ETC
   }

@@ -4,13 +4,13 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
 {
   public partial class UseItemCMSG : ICMSG
   {
-    public ulong UniqueId { get; set; }
+    public ulong ItemId { get; set; }
 
     public override Envelope ToEnvelope()
     {
       var useItem = new global::Bnet.UseItemCMSG
       {
-        UniqueId = UniqueId
+        ItemId = ItemId
       };
 
       return new Envelope
@@ -20,4 +20,3 @@ namespace BestiaBehemothClient.Bnet.Message.Inventory
     }
   }
 }
-

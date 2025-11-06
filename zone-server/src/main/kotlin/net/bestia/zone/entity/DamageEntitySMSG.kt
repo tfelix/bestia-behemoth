@@ -15,6 +15,14 @@ data class DamageEntitySMSG(
   val type: DamageType
 ) : SMSG {
 
+  enum class DamageType {
+    MISS,
+    NORMAL,
+    CRIT,
+    DODGE,
+    HEAL
+  }
+
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val damageEntitySMSG = DamageEntitySMSGProto.DamageEntitySMSG.newBuilder()
       .setEntityId(entityId)
@@ -41,11 +49,17 @@ data class DamageEntitySMSG(
     }
   }
 
-  enum class DamageType {
-    MISS,
-    NORMAL,
-    CRIT,
-    DODGE,
-    HEAL
+  companion object {
+    fun fromItemHeal(receiverEntityId: Long, amount: Int): DamageEntitySMSG {
+      return DamageEntitySMSG(
+        entityId = receiverEntityId,
+        sourceEntityId = receiverEntityId,
+        attackId = 0,
+        damage = amount,
+        div = 0,
+        skillLevel = 0,
+        type = DamageType.HEAL
+      )
+    }
   }
 }

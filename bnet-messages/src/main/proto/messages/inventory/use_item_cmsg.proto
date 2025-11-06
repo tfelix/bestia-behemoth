@@ -9,5 +9,5 @@ option java_outer_classname = "UseItemCMSGProto";
  * Requests inventory of the currently selected entity.
  */
 message UseItemCMSG {
-  uint64 unique_id = 1;
+  uint64 item_id = 1;
 }

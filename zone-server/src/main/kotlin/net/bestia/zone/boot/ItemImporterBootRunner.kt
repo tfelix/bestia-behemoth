@@ -26,6 +26,7 @@ class ItemImporterBootRunner(
   data class ItemYamlDto(
     @JsonProperty("item-db-name")
     val identifier: String,
+    val id: Long,
     val weight: Int,
     val type: String
   )
@@ -33,7 +34,7 @@ class ItemImporterBootRunner(
   override fun tryUpdate(dto: ItemYamlDto, entity: Item): Boolean {
     val needsUpdate = entity.weight != dto.weight || entity.type != getType(dto)
 
-    return if(needsUpdate) {
+    return if (needsUpdate) {
       // TODO this is a bit tricky because we need to preserve IDs but still might want to update. Maybe once this
       //   is in place we want to use a proper schema migration mechanism instead?
       true
@@ -51,11 +52,11 @@ class ItemImporterBootRunner(
   }
 
   override fun newEntity(dto: ItemYamlDto): Item {
-    return Item(dto.identifier, dto.weight, getType(dto))
+    return Item(dto.id, dto.identifier, dto.weight, getType(dto))
   }
 
   private fun getType(dto: ItemYamlDto): Item.ItemType {
-   return try {
+    return try {
       Item.ItemType.valueOf(dto.type.uppercase())
     } catch (ex: IllegalArgumentException) {
       LOG.warn { "Unknown item type '${dto.type}' for item '${dto.identifier}'" }

@@ -83,7 +83,7 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is DamageEntitySMSG:
 		entity.show_damage(msg)
 	else:
-		printerr("EntityManager: An EntitySMSG was not handled: ", typeof(msg))
+		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [typeof(msg), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff
 	# Server sends damage -> lookup entity node and attach damage scn to entity node
 	# server sends chat -> lookup entity node and attach chat scn to entity

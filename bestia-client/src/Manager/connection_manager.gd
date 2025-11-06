@@ -63,10 +63,10 @@ func get_inventory() -> void:
 	socket.SendMessage(msg)
 
 
-func use_item(unique_item_id: int) -> void:
+func use_item(item_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = UseItemCMSG.new()
-	msg.UniqueId = unique_item_id
+	msg.ItemId = item_id
 	socket.SendMessage(msg)
 
 

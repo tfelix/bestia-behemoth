@@ -5,7 +5,6 @@ import net.bestia.zone.ecs.Component
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 
-
 data class Inventory(
   private val items: MutableList<Item>
 ) : Component, Dirtyable {
@@ -13,7 +12,7 @@ data class Inventory(
 
   class Item(
     val itemId: Int,
-    val amount: Int,
+    var amount: Int,
     val uniqueId: Long = 0 // 0 means nothing special.
   )
 
@@ -58,7 +57,6 @@ data class Inventory(
   // Get item by itemId (returns first match)
   fun getItem(itemId: Int): Item? = items.find { it.itemId == itemId }
 
-
   // Get number of items
   fun size(): Int = items.size
 
@@ -77,6 +75,34 @@ data class Inventory(
       markDirty()
       return true
     }
+    return false
+  }
+
+  fun decItem(itemId: Int): Boolean {
+    val item = items.singleOrNull { it.itemId == itemId }
+    if (item != null) {
+      item.amount -= 1
+
+      if (item.amount <= 0) {
+        removeItem(itemId)
+      }
+
+      markDirty()
+      return true
+    }
+
+    return false
+  }
+
+  fun incItem(itemId: Int): Boolean {
+    val item = items.singleOrNull { it.itemId == itemId }
+    if (item != null) {
+      item.amount += 1
+
+      markDirty()
+      return true
+    }
+
     return false
   }
 
