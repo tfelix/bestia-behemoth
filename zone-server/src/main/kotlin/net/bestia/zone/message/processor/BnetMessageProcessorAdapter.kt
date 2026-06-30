@@ -8,7 +8,7 @@ import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.item.GetInventoryCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.message.*
-import net.bestia.zone.system.ChatCMSG
+import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.system.PingCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component

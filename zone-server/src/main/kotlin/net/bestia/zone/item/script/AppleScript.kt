@@ -23,6 +23,8 @@ class AppleScript(
 
     val pos = user.get(Position::class)
 
+    // TODO this should not be send inside the lock. But where else put this? ideally this call should
+    // be ???
     if (pos != null) {
       val healMsg = DamageEntitySMSG.fromItemHeal(user.id, healAmount)
       messageProcessor.sendToAllPlayersInRange(pos.toVec3L(), healMsg)

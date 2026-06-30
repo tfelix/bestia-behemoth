@@ -26,13 +26,17 @@ class JwtAuthenticationProcessor(
       ?: return AuthenticationProcessor.AuthenticationFailed
 
     val jwtToken = authRequest.token
+
     LOG.trace { "Authenticating token: $jwtToken" }
+
     val data = try {
       validateAndExtract(jwtToken)
     } catch (e: Exception) {
       LOG.debug(e) { "Authentication failed." }
       return AuthenticationProcessor.AuthenticationFailed
     }
+
+    LOG.trace { "Authentication data: $data" }
 
     return AuthenticationProcessor.AuthenticationSuccess(accountId = data.accountId)
   }
@@ -41,7 +45,8 @@ class JwtAuthenticationProcessor(
     val parserBuilder = Jwts.parser()
       .verifyWith(key)
 
-    // If configured to allow expired tokens, ignore expiration during parsing
+    // If configured to allow expired tokens, ignore expiration during parsing, for testing only to
+    // allow configuring old tokens until we have a working login server.
     if (zoneConfig.allowExpiredTokens) {
       parserBuilder.clock { java.util.Date(0) }
     }
@@ -53,7 +58,7 @@ class JwtAuthenticationProcessor(
     val claims = jws.payload
     val subject = claims.subject.toLong()
 
-    // TODO extract permissions
+    // FIXME extract permissions from the token into the auth data.
     return AuthData(accountId = subject)
   }
 

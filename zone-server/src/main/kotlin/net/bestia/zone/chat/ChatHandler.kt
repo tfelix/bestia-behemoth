@@ -1,4 +1,4 @@
-package net.bestia.zone.system
+package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterNotFoundException
@@ -15,7 +15,8 @@ class ChatHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val masterOperations: MasterResolver,
   private val connectionInfoService: ConnectionInfoService,
-  private val zoneServer: ZoneServer
+  private val zoneServer: ZoneServer,
+  private val chatCommandHandler: ChatCommandHandler
 ) : InMessageProcessor.IncomingMessageHandler<ChatCMSG> {
   override val handles = ChatCMSG::class
 
@@ -32,7 +33,7 @@ class ChatHandler(
       ChatCMSG.Type.WHISPER -> handleWhisperChat(msg)
       ChatCMSG.Type.PARTY -> sendNotYetSupported(msg.playerId)
       ChatCMSG.Type.GUILD -> sendNotYetSupported(msg.playerId)
-      ChatCMSG.Type.COMMAND -> sendNotYetSupported(msg.playerId)
+      ChatCMSG.Type.COMMAND -> handleChatCommand(msg)
       else -> {
         LOG.warn { "Received unsupported chat type: ${msg.type} from player ${msg.playerId}" }
       }
@@ -57,7 +58,7 @@ class ChatHandler(
       entity.get(Position::class)?.toVec3L()
     }
 
-    if(position != null) {
+    if (position != null) {
       outMessageProcessor.sendToAllPlayersInRange(position, chatSMSG)
     }
   }
@@ -76,12 +77,16 @@ class ChatHandler(
 
       outMessageProcessor.sendToPlayer(targetAccountId, chatSMSG)
     } catch (e: MasterNotFoundException) {
-      outMessageProcessor.sendToPlayer(msg.playerId, ChatSMSG.Companion.ERROR_UNKNOWN_USER)
+      outMessageProcessor.sendToPlayer(msg.playerId, ChatSMSG.ERROR_UNKNOWN_USER)
     }
   }
 
+  private fun handleChatCommand(msg: ChatCMSG) {
+    chatCommandHandler.handleChatCommand(msg.playerId, msg.text)
+  }
+
   private fun sendNotYetSupported(playerId: Long) {
-    outMessageProcessor.sendToPlayer(playerId, ChatSMSG.Companion.ERROR_NOT_SUPPORTED)
+    outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
   }
 
   companion object {

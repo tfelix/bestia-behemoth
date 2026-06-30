@@ -59,9 +59,9 @@ class JwtServiceTest {
     }
 
     @Test
-    fun `createLoginToken with AUTH_ALL permission returns valid JWT string`() {
+    fun `createLoginToken with ITEM permission returns valid JWT string`() {
         val accountId = 789L
-        val permissions = listOf(Authority.AUTH_ALL)
+        val permissions = listOf(Authority.ITEM)
 
         val loginToken = jwtService.createLoginToken(accountId, permissions)
 

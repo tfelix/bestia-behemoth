@@ -1,4 +1,4 @@
-package net.bestia.zone.system
+package net.bestia.zone.chat
 
 import net.bestia.bnet.proto.ChatCmsgProto
 import net.bestia.zone.message.CMSG
@@ -50,7 +50,7 @@ data class ChatCMSG(
           ChatCmsgProto.Mode.PARTY -> Type.PARTY
           ChatCmsgProto.Mode.GUILD -> Type.GUILD
           ChatCmsgProto.Mode.WHISPER -> Type.WHISPER
-          ChatCmsgProto.Mode.PUBLIC -> Type.PUBLIC
+          ChatCmsgProto.Mode.PUBLIC -> if (chat.text.startsWith("/")) Type.COMMAND else Type.PUBLIC
           else -> throw IllegalStateException("Unknown chat mode: ${chat.mode}")
         },
         text = chat.text,

@@ -1,6 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dxb2e62g0eqfb"]
 
 [ext_resource type="Script" uid="uid://rsg51hifbndf" path="res://Game/UI/Inventory/InventoryItem/inventory_item.gd" id="1_2a2sk"]
+[ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="2_fb7w5"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2a2sk"]
 content_margin_left = 0.0
@@ -13,9 +14,6 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 corner_detail = 5
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2a2sk"]
-size = Vector2(64, 64)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fb7w5"]
 content_margin_left = 4.0
@@ -47,7 +45,7 @@ theme_override_constants/margin_bottom = 4
 [node name="Icon" type="TextureRect" parent="MarginContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_2a2sk")
+texture = ExtResource("2_fb7w5")
 expand_mode = 2
 stretch_mode = 5
 

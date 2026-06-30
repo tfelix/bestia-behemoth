@@ -12,7 +12,7 @@ class AccountFactory(
 ) {
 
   fun createAccount(
-    loginAccountId: Long
+    loginAccountId: Long,
   ): Account {
     val account = Account(loginAccountId)
 

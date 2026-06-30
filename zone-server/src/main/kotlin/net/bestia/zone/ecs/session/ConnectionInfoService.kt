@@ -172,13 +172,12 @@ class ConnectionInfoService {
     return session.currentActiveEntity
   }
 
-  fun hasAuthority(
-    accountId: AccountId,
-    authority: Authority
-  ): Boolean {
+  fun getAuthorities(
+    accountId: AccountId
+  ): Set<Authority> {
     return when (val session = getSession(accountId)) {
-      is ActiveConnection -> session.authorities.contains(authority)
-      is InactiveConnection -> false
+      is ActiveConnection -> session.authorities
+      is InactiveConnection -> emptySet()
     }
   }
 

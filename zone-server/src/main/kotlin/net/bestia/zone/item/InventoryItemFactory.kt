@@ -27,7 +27,7 @@ class InventoryItemFactory(
   }
 
   /**
-   * Adds item directly to a master entity.
+   * Adds item directly to a master entity. Ideally there should be no difference and those commends should be unified.
    */
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)

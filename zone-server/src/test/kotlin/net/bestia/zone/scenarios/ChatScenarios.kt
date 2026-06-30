@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.system.ChatCMSG
-import net.bestia.zone.system.ChatSMSG
+import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.system.PingCMSG
 import net.bestia.zone.system.PongSMSG
 import org.junit.jupiter.api.Test

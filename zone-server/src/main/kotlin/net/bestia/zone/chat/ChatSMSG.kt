@@ -1,4 +1,4 @@
-package net.bestia.zone.system
+package net.bestia.zone.chat
 
 import net.bestia.bnet.proto.ChatCmsgProto
 import net.bestia.bnet.proto.ChatSmsgProto

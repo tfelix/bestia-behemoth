@@ -18,7 +18,7 @@ import kotlin.String
 
 /**
  * DEV: Populates the game and database with initial data for testing.
- * TODO Later should be moved to the test when we establish a proer initial data setup.
+ * TODO Later should be moved to the test when we establish a proper initial data setup.
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)

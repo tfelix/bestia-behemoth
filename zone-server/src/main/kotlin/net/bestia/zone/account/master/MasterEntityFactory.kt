@@ -1,6 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.account.Authority
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.player.Account
@@ -43,7 +44,11 @@ class MasterEntityFactory(
         accountId = master.account.id,
         masterId = masterId,
         masterEntityId = entity.id,
-        authorities = emptySet()
+        // FIXME add a proper way to find the authorities of the current account either via JWT token
+        //   or saved in the account object.
+        authorities = setOf(
+          Authority.ITEM
+        )
       )
 
       entity.addAll(
