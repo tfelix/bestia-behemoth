@@ -18,14 +18,24 @@ data class Inventory(
 
   // Add a single item
   fun addItem(item: Item) {
-    items.add(item)
+    val isStackable = item.uniqueId == 0L
+    if (isStackable) {
+      val existing = items.find { it.itemId == item.itemId && it.uniqueId == 0L }
+      if (existing != null) {
+        existing.amount += item.amount
+      } else {
+        items.add(item)
+      }
+    } else {
+      items.add(item)
+    }
+
     markDirty()
   }
 
   // Add multiple items
   fun addItems(itemsToAdd: Collection<Item>) {
-    items.addAll(itemsToAdd)
-    markDirty()
+    itemsToAdd.forEach { addItem(it) }
   }
 
   // Remove item by itemId (removes first match)

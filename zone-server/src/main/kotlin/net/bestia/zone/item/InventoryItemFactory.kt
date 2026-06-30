@@ -3,6 +3,11 @@ package net.bestia.zone.item
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
+import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.network.IsDirty
+import net.bestia.zone.ecs.player.Master as MasterComponent
 import org.springframework.stereotype.Component
 
 /**
@@ -16,14 +21,25 @@ import org.springframework.stereotype.Component
 class InventoryItemFactory(
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
+  private val zoneServer: ZoneServer,
 ) {
 
   fun addItem(entityId: Long, itemIdentifier: String, amount: Int) {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-    // check if entity exists
-    // check if entity is a player bestia or ingame entity.
-    // if it is a player bestia add item as inventory item and to inventory component. if its ingame entity only add to inventory component.
-    // if player bestia send message to update the connected entity client
+
+    val accessed = zoneServer.withEntityWriteLock(entityId) { entity ->
+      val inventory = entity.get(Inventory::class) ?: run {
+        LOG.warn { "Entity $entityId has no Inventory component, cannot add item $itemIdentifier" }
+        return@withEntityWriteLock
+      }
+
+      inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount))
+      entity.add(IsDirty)
+    }
+
+    if (accessed == null) {
+      LOG.warn { "Entity $entityId not found, cannot add item $itemIdentifier" }
+    }
   }
 
   /**

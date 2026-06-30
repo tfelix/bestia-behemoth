@@ -10,6 +10,7 @@ extends Control
 @export var max_chat_history: int = 10
 
 var _history: Array[String] = []
+var _history_index: int = -1
 
 ## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Public=3).
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
@@ -25,6 +26,21 @@ func _input(event):
 		if event.keycode == KEY_ENTER:
 			_handle_enter()
 			get_viewport().set_input_as_handled()
+		elif chat_input.has_focus() and _history.size() > 0:
+			if event.keycode == KEY_UP:
+				_history_index = min(_history_index + 1, _history.size() - 1)
+				chat_input.text = _history[_history_index]
+				chat_input.caret_column = chat_input.text.length()
+				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_DOWN:
+				_history_index -= 1
+				if _history_index < 0:
+					_history_index = -1
+					chat_input.text = ""
+				else:
+					chat_input.text = _history[_history_index]
+					chat_input.caret_column = chat_input.text.length()
+				get_viewport().set_input_as_handled()
 
 
 func _handle_enter() -> void:
@@ -41,6 +57,9 @@ func _handle_enter() -> void:
 ## ChatCMSG.cs detects the leading slash and overrides the mode to Command(7).
 func _handle_chat_send() -> void:
 	var chat_text = chat_input.text
+	_history.push_front(chat_text)
+	if _history.size() > max_chat_history:
+		_history.pop_back()
 
 	# Detect internal mode switches.
 	if chat_text.begins_with("/s "):
@@ -74,6 +93,7 @@ func _handle_chat_send() -> void:
 func _clear_input() -> void:
 	chat_input.text = ""
 	chat_input.release_focus()
+	_history_index = -1
 
 
 func _handle_clear_chat() -> void:

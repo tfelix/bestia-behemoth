@@ -62,6 +62,9 @@ func _render_items() -> void:
 		printerr("No items for selected entity %s" % [selected_entity_id])
 		return
 
+	for child in _usable_grid.get_children():
+		child.queue_free()
+
 	var selected_entity_items = _items[selected_entity_id]
 
 	for item in selected_entity_items:
