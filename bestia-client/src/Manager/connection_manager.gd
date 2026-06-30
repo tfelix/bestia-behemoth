@@ -70,10 +70,13 @@ func use_item(item_id: int) -> void:
 	socket.SendMessage(msg)
 
 
-func send_chat(text: String) -> void:
+func send_chat(text: String, mode: int = 3, target_player: String = "") -> void:
 	assert(is_ready_to_send())
 	var msg = ChatCMSG.new()
 	msg.Text = text
+	msg.ChatMode = mode
+	if target_player != "":
+		msg.TargetPlayerName = target_player
 	socket.SendMessage(msg)
 
 

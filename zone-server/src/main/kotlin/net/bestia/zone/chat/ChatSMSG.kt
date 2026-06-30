@@ -28,9 +28,7 @@ data class ChatSMSG(
       ChatCMSG.Type.ERROR -> ChatCmsgProto.Mode.ERROR
       ChatCMSG.Type.GM -> ChatCmsgProto.Mode.GM
       ChatCMSG.Type.BROADCAST -> ChatCmsgProto.Mode.BROADCAST
-      ChatCMSG.Type.COMMAND -> {
-        throw IllegalStateException("No bnet representation for type $type")
-      }
+      ChatCMSG.Type.COMMAND -> ChatCmsgProto.Mode.COMMAND
     }
 
     val chat = ChatSmsgProto.ChatSMSG.newBuilder()

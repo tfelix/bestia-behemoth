@@ -1,14 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://cwbs83nwsc1m3"]
+[gd_scene load_steps=2 format=3 uid="uid://cwbs83nwsc1m3"]
 
 [ext_resource type="Script" uid="uid://c2b3bhtie8fk4" path="res://Game/UI/Inventory/inventory.gd" id="1_vui42"]
-[ext_resource type="Script" uid="uid://cnpglbw76xdfs" path="res://Game/UI/Inventory/inventory_item_resource.gd" id="2_sngo4"]
-[ext_resource type="Resource" uid="uid://dprdikdkiksa3" path="res://Game/Item/DB/1_apple.tres" id="3_sngo4"]
-
-[sub_resource type="Resource" id="Resource_ajivq"]
-script = ExtResource("2_sngo4")
-amount = 3
-item = ExtResource("3_sngo4")
-metadata/_custom_type_script = "uid://cnpglbw76xdfs"
 
 [node name="Inventory" type="Control"]
 layout_mode = 3
@@ -21,7 +13,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 mouse_filter = 1
 script = ExtResource("1_vui42")
-items = Array[ExtResource("2_sngo4")]([SubResource("Resource_ajivq")])
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1

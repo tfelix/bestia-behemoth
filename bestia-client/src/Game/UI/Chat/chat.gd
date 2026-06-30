@@ -3,8 +3,17 @@ extends Control
 @onready var chat_input: LineEdit = %ChatInput
 @onready var lines_container: VBoxContainer = %Lines
 @onready var scroll_container: ScrollContainer = %Scroll
+@onready var chat_mode_option: OptionButton = %ChatMode
+@onready var user_whisper_input: LineEdit = %UserWhisper
 
 @export_range(0, 150, 1) var max_chat_lines: int = 100
+@export var max_chat_history: int = 10
+
+var _history: Array[String] = []
+
+## Maps ChatMode OptionButton index to Bnet.Mode enum int values (Party=0, Guild=1, Public=3).
+## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
+const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 
 
 func _ready() -> void:
@@ -27,40 +36,55 @@ func _handle_enter() -> void:
 	else:
 		chat_input.call_deferred("grab_focus")
 
-## We need to handle some special cases here like if a command was executed
-## or if the user switched into public or guild chat for example.
+## Handles sending chat. Mode-switch prefixes (/s /p /g) update the UI and strip
+## the prefix before sending. Plain /commands are passed as-is; ToEnvelope() in
+## ChatCMSG.cs detects the leading slash and overrides the mode to Command(7).
 func _handle_chat_send() -> void:
-	# Chat has text. Send it.
 	var chat_text = chat_input.text
-	
+
+	# Detect internal mode switches.
 	if chat_text.begins_with("/s "):
-		# public chat mode
 		_switch_chat_mode(0)
+		chat_text = chat_text.substr(3)
 	elif chat_text.begins_with("/p "):
-		# party chat mode
 		_switch_chat_mode(1)
+		chat_text = chat_text.substr(3)
 	elif chat_text.begins_with("/g "):
-		# guild chat mode
 		_switch_chat_mode(2)
+		chat_text = chat_text.substr(3)
 	elif chat_text.begins_with("/w "):
-		# FIXME whisper a user (not implemented)
-		pass
+		# FIXME whisper not yet implemented, we need to extract the username
+		_clear_input()
+		return
+	
+	# Special case handling for internal commands.
+	if chat_text == "/clear":
+		_handle_clear_chat()
 	elif chat_text.begins_with("/"):
-		# a command
-		ConnectionManager.send_chat(chat_input.text)
+		# Mode 7 is the command type as this is a command for the server.
+		ConnectionManager.send_chat(chat_input.text, 7)
+	else:
+		# Regular send to the server
+		var bnet_mode = BNET_MODE_MAP[chat_mode_option.selected]
+		ConnectionManager.send_chat(chat_text, bnet_mode)
 	
-	# depending on the selected mode extract the type of the chat and call send_chat.
-	ConnectionManager.send_chat(chat_input.text)
-	
-	# clear the chat
+	_clear_input()
+
+
+func _clear_input() -> void:
 	chat_input.text = ""
 	chat_input.release_focus()
 
 
+func _handle_clear_chat() -> void:
+	for n in lines_container.get_children():
+		n.queue_free()
+
+
 func _switch_chat_mode(modeIdx: int) -> void:
-	%ChatMode.select(modeIdx)
-	%ChatMode.show()
-	%UserWhisper.hide()
+	chat_mode_option.select(modeIdx)
+	chat_mode_option.show()
+	user_whisper_input.hide()
 
 
 ## Adds a new chat line and make sure not more than the allowed lines are added.
@@ -97,7 +121,7 @@ func _scroll_to_bottom() -> void:
 
 
 func _on_chat_received(message: ChatSMSG) -> void:
-	# TODO handle different colors for different chats
+	# TODO handle different colors for different chat modes and error code translations.
 	if message.SenderName != "":
 		_add_chat_line("%s: %s" % [message.SenderName, message.Text])
 	else:
