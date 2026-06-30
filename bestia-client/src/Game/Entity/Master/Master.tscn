@@ -7,10 +7,7 @@
 [node name="Master" instance=ExtResource("1_sq51e")]
 script = ExtResource("1_hgxny")
 
-[node name="ChatAnchor" parent="." index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.3570948, 0)
-
-[node name="Mage" parent="." index="1" instance=ExtResource("3_p5q8h")]
+[node name="Mage" parent="." index="0" instance=ExtResource("3_p5q8h")]
 
 [node name="Skeleton3D" parent="Mage/Rig" index="0"]
 bones/1/position = Vector3(0, 0.39206383, 0)

@@ -27,10 +27,10 @@ namespace Bnet {
             "Ch9tZXNzYWdlcy9zeXN0ZW0vY2hhdF9jbXNnLnByb3RvEgRibmV0ImoKCENo",
             "YXRDTVNHEgwKBHRleHQYASABKAkSGAoEbW9kZRgCIAEoDjIKLmJuZXQuTW9k",
             "ZRIfChJ0YXJnZXRfcGxheWVyX25hbWUYAyABKAlIAIgBAUIVChNfdGFyZ2V0",
-            "X3BsYXllcl9uYW1lKlcKBE1vZGUSCQoFUEFSVFkQABIJCgVHVUlMRBABEgsK",
+            "X3BsYXllcl9uYW1lKmQKBE1vZGUSCQoFUEFSVFkQABIJCgVHVUlMRBABEgsK",
             "B1dISVNQRVIQAhIKCgZQVUJMSUMQAxIJCgVFUlJPUhAEEgYKAkdNEAUSDQoJ",
-            "QlJPQURDQVNUEAZCJgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg1DaGF0Q21z",
-            "Z1Byb3RvYgZwcm90bzM="));
+            "QlJPQURDQVNUEAYSCwoHQ09NTUFORBAHQiYKFW5ldC5iZXN0aWEuYm5ldC5w",
+            "cm90b0INQ2hhdENtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.Mode), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -49,6 +49,7 @@ namespace Bnet {
     [pbr::OriginalName("ERROR")] Error = 4,
     [pbr::OriginalName("GM")] Gm = 5,
     [pbr::OriginalName("BROADCAST")] Broadcast = 6,
+    [pbr::OriginalName("COMMAND")] Command = 7,
   }
 
   #endregion

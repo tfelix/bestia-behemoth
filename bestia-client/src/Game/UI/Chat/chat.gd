@@ -23,12 +23,44 @@ func _handle_enter() -> void:
 		if chat_input.text == "":
 			chat_input.release_focus()
 		else:
-			# Chat has text. Send it.
-			ConnectionManager.send_chat(chat_input.text)
-			chat_input.text = ""
-			chat_input.release_focus()
+			_handle_chat_send()
 	else:
 		chat_input.call_deferred("grab_focus")
+
+## We need to handle some special cases here like if a command was executed
+## or if the user switched into public or guild chat for example.
+func _handle_chat_send() -> void:
+	# Chat has text. Send it.
+	var chat_text = chat_input.text
+	
+	if chat_text.begins_with("/s "):
+		# public chat mode
+		_switch_chat_mode(0)
+	elif chat_text.begins_with("/p "):
+		# party chat mode
+		_switch_chat_mode(1)
+	elif chat_text.begins_with("/g "):
+		# guild chat mode
+		_switch_chat_mode(2)
+	elif chat_text.begins_with("/w "):
+		# FIXME whisper a user (not implemented)
+		pass
+	elif chat_text.begins_with("/"):
+		# a command
+		ConnectionManager.send_chat(chat_input.text)
+	
+	# depending on the selected mode extract the type of the chat and call send_chat.
+	ConnectionManager.send_chat(chat_input.text)
+	
+	# clear the chat
+	chat_input.text = ""
+	chat_input.release_focus()
+
+
+func _switch_chat_mode(modeIdx: int) -> void:
+	%ChatMode.select(modeIdx)
+	%ChatMode.show()
+	%UserWhisper.hide()
 
 
 ## Adds a new chat line and make sure not more than the allowed lines are added.

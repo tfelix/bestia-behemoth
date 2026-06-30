@@ -8,7 +8,7 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
 offset_top = -303.0
-offset_right = 766.0
+offset_right = 665.0
 offset_bottom = -14.0
 grow_vertical = 0
 script = ExtResource("1_bvrp1")
@@ -35,14 +35,29 @@ size_flags_horizontal = 3
 [node name="Bottom" type="HBoxContainer" parent="."]
 layout_mode = 2
 
+[node name="ChatMode" type="OptionButton" parent="Bottom"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "Public"
+popup/item_0/id = 0
+popup/item_1/text = "Party"
+popup/item_1/id = 1
+popup/item_2/text = "Guild"
+popup/item_2/id = 2
+
 [node name="UserWhisper" type="LineEdit" parent="Bottom"]
+unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 
 [node name="ChatInput" type="LineEdit" parent="Bottom"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(600, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Chat" type="Control" parent="."]
 layout_mode = 2

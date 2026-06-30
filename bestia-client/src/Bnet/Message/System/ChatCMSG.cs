@@ -40,10 +40,11 @@ namespace BestiaBehemothClient.Bnet.Message.System
     /// <returns>The Envelope containing this chat message</returns>
     public override Envelope ToEnvelope()
     {
+      var effectiveMode = Text.StartsWith("/") ? Mode.Command : ChatMode;
       var chatCmsg = new global::Bnet.ChatCMSG
       {
         Text = Text,
-        Mode = ChatMode
+        Mode = effectiveMode
       };
 
       // Only set target player name for whisper messages

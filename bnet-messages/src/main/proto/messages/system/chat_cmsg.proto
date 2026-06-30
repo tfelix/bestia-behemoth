@@ -13,6 +13,7 @@ enum Mode {
   ERROR = 4;
   GM = 5;
   BROADCAST = 6;
+  COMMAND = 7;
 }
 
 message ChatCMSG {

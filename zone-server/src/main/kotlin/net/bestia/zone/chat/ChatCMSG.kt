@@ -50,7 +50,8 @@ data class ChatCMSG(
           ChatCmsgProto.Mode.PARTY -> Type.PARTY
           ChatCmsgProto.Mode.GUILD -> Type.GUILD
           ChatCmsgProto.Mode.WHISPER -> Type.WHISPER
-          ChatCmsgProto.Mode.PUBLIC -> if (chat.text.startsWith("/")) Type.COMMAND else Type.PUBLIC
+          ChatCmsgProto.Mode.PUBLIC -> Type.PUBLIC
+          ChatCmsgProto.Mode.COMMAND -> Type.COMMAND
           else -> throw IllegalStateException("Unknown chat mode: ${chat.mode}")
         },
         text = chat.text,
