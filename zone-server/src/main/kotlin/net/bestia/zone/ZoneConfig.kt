@@ -9,6 +9,5 @@ data class ZoneConfig(
   val bestiaBaseSlotCount: Int,
   val bestiaMaxSlotCount: Int,
   val jwtAuthSecretKey: String,
-  val shardId: Int,
-  val allowExpiredTokens: Boolean
+  val shardId: Int
 )

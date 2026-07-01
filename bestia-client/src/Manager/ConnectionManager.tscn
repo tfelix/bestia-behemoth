@@ -13,6 +13,9 @@ metadata/_custom_type_script = "uid://b6fewlw5bpykm"
 [node name="PingTimer" type="Timer" parent="."]
 wait_time = 10.0
 
+[node name="LoginRequest" type="HTTPRequest" parent="."]
+
 [connection signal="ConnectionStatusChanged" from="BnetSocket" to="." method="_on_bnet_socket_connection_status_changed"]
 [connection signal="MessageReceived" from="BnetSocket" to="." method="_on_bnet_socket_message_received"]
 [connection signal="timeout" from="PingTimer" to="." method="_on_ping_timer_timeout"]
+[connection signal="request_completed" from="LoginRequest" to="." method="_on_login_request_completed"]

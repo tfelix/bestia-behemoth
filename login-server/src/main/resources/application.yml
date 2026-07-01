@@ -23,7 +23,11 @@ eip712:
 
 jwt:
   secret: "your-secret-key-here-change-in-production"
+  # Validity (days) of the long-lived refresh token.
   expiration-days: 5
+  # Validity (minutes) of the short-lived zone login token. Kept generous for development
+  # so the client does not need a refresh loop yet.
+  login-token-minutes: 60
 
 ethereum:
   rpc-url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"

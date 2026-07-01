@@ -5,7 +5,7 @@ import io.jsonwebtoken.security.Keys
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import net.bestia.account.Authority
+import net.bestia.account.Role
 import net.bestia.zone.ZoneConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,56 +32,74 @@ class LoginTokenValidatorTest {
 
   @BeforeEach
   fun setUp() {
-    every { config.jwtAuthSecretKey } returns "test-secret-key-that-is-at-least-32-characters-long-for-hmac-sha256"
+    every { config.jwtAuthSecretKey } returns secret
 
     sut = LoginTokenValidator(config)
   }
 
   @Test
-  fun `validateLoginToken with valid token returns correct claims`() {
+  fun `validateLoginToken with valid token returns role and derived authorities`() {
     // Given
     val accountId = 12345L
-    val permissions = listOf(Authority.KILL, Authority.MAP_MOVE)
-    val token = createValidLoginToken(accountId, permissions)
+    val token = createValidLoginToken(accountId, Role.GM)
 
     // When
     val result = sut.validateLoginToken(token)
 
     // Then
     assertEquals(accountId, result.accountId)
-    assertEquals(permissions.size, result.permissions.size)
-    assertTrue(result.permissions.containsAll(permissions))
+    assertEquals(Role.GM, result.role)
+    assertEquals(Role.GM.authorities, result.authorities)
   }
 
   @Test
-  fun `validateLoginToken with empty permissions returns empty permissions list`() {
+  fun `validateLoginToken with USER role returns the user authorities`() {
     // Given
     val accountId = 12345L
-    val permissions = emptyList<Authority>()
-    val token = createValidLoginToken(accountId, permissions)
+    val token = createValidLoginToken(accountId, Role.USER)
 
     // When
     val result = sut.validateLoginToken(token)
 
     // Then
-    assertEquals(accountId, result.accountId)
-    assertTrue(result.permissions.isEmpty())
+    assertEquals(Role.USER.authorities, result.authorities)
   }
 
   @Test
-  fun `validateLoginToken with all permissions returns all permissions`() {
+  fun `validateLoginToken with SUPER_GM role returns all authorities`() {
     // Given
     val accountId = 12345L
-    val permissions = Authority.values().toList()
-    val token = createValidLoginToken(accountId, permissions)
+    val token = createValidLoginToken(accountId, Role.SUPER_GM)
 
     // When
     val result = sut.validateLoginToken(token)
 
     // Then
-    assertEquals(accountId, result.accountId)
-    assertEquals(permissions.size, result.permissions.size)
-    assertTrue(result.permissions.containsAll(permissions))
+    assertEquals(Role.SUPER_GM.authorities, result.authorities)
+  }
+
+  @Test
+  fun `validateLoginToken with unknown role throws JwtLoginException`() {
+    // Given
+    val token = createTokenWithRoleClaim("NOT_A_ROLE")
+
+    // When & Then
+    val exception = assertThrows<JwtLoginException> {
+      sut.validateLoginToken(token)
+    }
+    assertTrue(exception.message!!.contains("Unknown role"))
+  }
+
+  @Test
+  fun `validateLoginToken with missing role claim throws JwtLoginException`() {
+    // Given
+    val token = createTokenWithoutRoleClaim()
+
+    // When & Then
+    val exception = assertThrows<JwtLoginException> {
+      sut.validateLoginToken(token)
+    }
+    assertTrue(exception.message!!.contains("Missing role claim"))
   }
 
   @Test
@@ -146,112 +164,89 @@ class LoginTokenValidatorTest {
     assertTrue(exception.message!!.contains("Token validation failed"))
   }
 
-  @Test
-  fun `validateLoginToken with unknown permissions filters them out`() {
-    // Given
-    val token = createTokenWithUnknownPermissions()
+  private fun futureExpiration(): Date =
+    Date.from(LocalDateTime.now().plusMinutes(2).atZone(ZoneId.systemDefault()).toInstant())
 
-    // When
-    val result = sut.validateLoginToken(token)
-
-    // Then
-    assertEquals(12345L, result.accountId)
-    assertEquals(1, result.permissions.size) // Only KILL should remain
-    assertTrue(result.permissions.contains(Authority.KILL))
-  }
-
-  private fun createValidLoginToken(accountId: Long, permissions: List<Authority>): String {
-    val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
-    val expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant())
-
+  private fun createValidLoginToken(accountId: Long, role: Role): String {
     return Jwts.builder()
       .subject(accountId.toString())
       .issuer("login")
       .audience().add("zone").and()
-      .claim("permissions", permissions.map { it.name })
-      .issuedAt(now)
-      .expiration(expiration)
+      .claim("role", role.name)
+      .issuedAt(Date())
+      .expiration(futureExpiration())
+      .signWith(secretKey)
+      .compact()
+  }
+
+  private fun createTokenWithRoleClaim(role: String): String {
+    return Jwts.builder()
+      .subject("12345")
+      .issuer("login")
+      .audience().add("zone").and()
+      .claim("role", role)
+      .issuedAt(Date())
+      .expiration(futureExpiration())
+      .signWith(secretKey)
+      .compact()
+  }
+
+  private fun createTokenWithoutRoleClaim(): String {
+    return Jwts.builder()
+      .subject("12345")
+      .issuer("login")
+      .audience().add("zone").and()
+      .issuedAt(Date())
+      .expiration(futureExpiration())
       .signWith(secretKey)
       .compact()
   }
 
   private fun createTokenWithIssuer(issuer: String): String {
-    val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
-    val expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant())
-
     return Jwts.builder()
       .subject("12345")
       .issuer(issuer)
       .audience().add("zone").and()
-      .claim("permissions", listOf("KILL"))
-      .issuedAt(now)
-      .expiration(expiration)
+      .claim("role", "GM")
+      .issuedAt(Date())
+      .expiration(futureExpiration())
       .signWith(secretKey)
       .compact()
   }
 
   private fun createTokenWithAudience(audience: String): String {
-    val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
-    val expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant())
-
     return Jwts.builder()
       .subject("12345")
       .issuer("login")
       .audience().add(audience).and()
-      .claim("permissions", listOf("KILL"))
-      .issuedAt(now)
-      .expiration(expiration)
+      .claim("role", "GM")
+      .issuedAt(Date())
+      .expiration(futureExpiration())
       .signWith(secretKey)
       .compact()
   }
 
   private fun createExpiredToken(): String {
-    val now = Date()
-    val expiration = Date.from(LocalDateTime.now().minusMinutes(5).atZone(ZoneId.systemDefault()).toInstant())
-
     return Jwts.builder()
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
-      .claim("permissions", listOf("KILL"))
-      .issuedAt(now)
-      .expiration(expiration)
+      .claim("role", "GM")
+      .issuedAt(Date())
+      .expiration(Date.from(LocalDateTime.now().minusMinutes(5).atZone(ZoneId.systemDefault()).toInstant()))
       .signWith(secretKey)
       .compact()
   }
 
   private fun createTokenWithDifferentKey(differentKey: SecretKey): String {
-    val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
-    val expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant())
-
     return Jwts.builder()
       .subject("12345")
       .issuer("login")
       .audience().add("zone").and()
-      .claim("permissions", listOf("KILL"))
-      .issuedAt(now)
-      .expiration(expiration)
+      .claim("role", "GM")
+      .issuedAt(Date())
+      .expiration(futureExpiration())
       .signWith(differentKey)
-      .compact()
-  }
-
-  private fun createTokenWithUnknownPermissions(): String {
-    val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
-    val expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant())
-
-    return Jwts.builder()
-      .subject("12345")
-      .issuer("login")
-      .audience().add("zone").and()
-      .claim("permissions", listOf("KILL", "UNKNOWN_PERMISSION", "ANOTHER_UNKNOWN"))
-      .issuedAt(now)
-      .expiration(expiration)
-      .signWith(secretKey)
       .compact()
   }
 }

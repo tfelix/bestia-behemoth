@@ -29,15 +29,12 @@ class LoginService(
         throw NftOwnershipVerificationFailedException()
       }
 
-      // Get permissions for the account
-      val permissions = account.permissions.map { it.authority }
-
       // Update last login time
       account.lastLogin = LocalDateTime.now()
       accountRepository.save(account)
 
-      // Create and return JWT login token
-      return jwtService.createLoginToken(refreshClaims.accountId, permissions)
+      // Create and return JWT login token carrying the account role.
+      return jwtService.createLoginToken(refreshClaims.accountId, account.role)
     } catch (e: LoginException) {
       LOG.warn(e) { "Login attempt failed: ${e.message}" }
 

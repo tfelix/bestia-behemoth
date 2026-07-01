@@ -1,5 +1,6 @@
 package net.bestia.zone.mocks
 
+import net.bestia.account.Authority
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.message.CMSG
@@ -18,7 +19,9 @@ class GameClientMock(
   val connectedPlayerId: Long,
   private val inMessageProcessor: InMessageProcessor,
   private val applicationEventPublisher: ApplicationEventPublisher,
-  private val rxBuffer: MutableList<SMSG>
+  private val rxBuffer: MutableList<SMSG>,
+  // Authorities granted to the mocked client. Defaults to all so authority-gated commands work.
+  private val authorities: Set<Authority> = Authority.entries.toSet()
 ) {
 
   private var isConnected = false
@@ -29,6 +32,7 @@ class GameClientMock(
       val accountConnectedEvent = AccountConnectedEvent(
         source = this,
         accountId = connectedPlayerId,
+        authorities = authorities,
       )
       applicationEventPublisher.publishEvent(accountConnectedEvent)
 

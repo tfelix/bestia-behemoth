@@ -2,7 +2,7 @@ package net.bestia.login.jwt
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import net.bestia.account.Authority
+import net.bestia.account.Role
 import net.bestia.login.InternalLoginException
 import net.bestia.login.LoginException
 import org.springframework.stereotype.Service
@@ -64,10 +64,10 @@ class JwtService(
 
   fun createLoginToken(
     accountId: Long,
-    permissions: List<Authority>
+    role: Role
   ): String {
     val now = Date()
-    val expirationDate = LocalDateTime.now().plusMinutes(2)
+    val expirationDate = LocalDateTime.now().plusMinutes(jwtConfig.loginTokenMinutes)
     val expiration = Date.from(
       expirationDate.atZone(ZoneId.systemDefault()).toInstant()
     )
@@ -76,7 +76,7 @@ class JwtService(
       .subject(accountId.toString())
       .issuer("login")
       .audience().add("zone").and()
-      .claim("permissions", permissions.map { it.name })
+      .claim("role", role.name)
       .issuedAt(now)
       .expiration(expiration)
       .signWith(secretKey)

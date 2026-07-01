@@ -3,6 +3,7 @@ package net.bestia.zone.jwt
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Authority
+import net.bestia.account.Role
 import net.bestia.zone.ZoneConfig
 import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
@@ -19,7 +20,8 @@ class LoginTokenValidator(
 
   data class LoginTokenClaims(
     val accountId: Long,
-    val permissions: List<Authority>
+    val role: Role,
+    val authorities: Set<Authority>
   )
 
   fun validateLoginToken(token: String): LoginTokenClaims {
@@ -38,19 +40,19 @@ class LoginTokenValidator(
         throw JwtLoginException("Wrong audience: ${claims.audience}")
       }
 
-      val permissionNames = claims.get("permissions", List::class.java) as List<String>
+      val roleName = claims.get("role", String::class.java)
+        ?: throw JwtLoginException("Missing role claim")
 
-      val permissions = permissionNames.mapNotNull { permissionName ->
-        try {
-          Authority.valueOf(permissionName)
-        } catch (e: IllegalArgumentException) {
-          null // Skip unknown authorities for forward compatibility
-        }
+      val role = try {
+        Role.valueOf(roleName)
+      } catch (e: IllegalArgumentException) {
+        throw JwtLoginException("Unknown role: $roleName")
       }
 
       return LoginTokenClaims(
         accountId = claims.subject.toLong(),
-        permissions = permissions
+        role = role,
+        authorities = role.authorities
       )
     } catch (e: JwtLoginException) {
       throw e

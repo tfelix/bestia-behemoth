@@ -28,9 +28,13 @@ class AccountEntityControlService(
    */
   @EventListener
   fun handleAccountConnected(event: AccountConnectedEvent) {
-    // There is not much to do right now because we are now connected but still in somewhat of a "limbo".
-    // The client now needs to list its masters and decide to select one via the SelectMasterHandler otherwise
-    // no command involving a master will work.
+    // Remember the authorities established during authentication so they are available once the
+    // player selects a master and the session gets activated.
+    connectionInfoService.registerAuthenticatedConnection(event.accountId, event.authorities)
+
+    // Other than that there is not much to do right now because we are now connected but still in
+    // somewhat of a "limbo". The client now needs to list its masters and decide to select one via
+    // the SelectMasterHandler otherwise no command involving a master will work.
   }
 
   /**

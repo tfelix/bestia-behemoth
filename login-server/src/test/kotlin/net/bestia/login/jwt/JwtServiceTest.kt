@@ -1,13 +1,19 @@
 package net.bestia.login.jwt
 
-import net.bestia.account.Authority
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.security.Keys
+import net.bestia.account.Role
 import net.bestia.login.InternalLoginException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
+import java.util.Date
 
 class JwtServiceTest {
+
+    private val secret = "test-secret-key-that-is-long-enough-for-hmac-sha256-algorithm-requirements"
 
     private lateinit var jwtService: JwtService
     private lateinit var jwtConfig: JwtConfig
@@ -15,8 +21,9 @@ class JwtServiceTest {
     @BeforeEach
     fun setUp() {
         jwtConfig = JwtConfig(
-            secret = "test-secret-key-that-is-long-enough-for-hmac-sha256-algorithm-requirements",
-            expirationDays = 7
+            secret = secret,
+            expirationDays = 7,
+            loginTokenMinutes = 60
         )
         jwtService = JwtService(jwtConfig)
     }
@@ -38,9 +45,8 @@ class JwtServiceTest {
     @Test
     fun `createLoginToken with valid parameters returns valid JWT string`() {
         val accountId = 789L
-        val permissions = listOf(Authority.KILL, Authority.MAP_MOVE)
 
-        val loginToken = jwtService.createLoginToken(accountId, permissions)
+        val loginToken = jwtService.createLoginToken(accountId, Role.GM)
 
         assertNotNull(loginToken)
         assertTrue(loginToken.isNotEmpty())
@@ -48,25 +54,22 @@ class JwtServiceTest {
     }
 
     @Test
-    fun `createLoginToken with empty permissions returns valid JWT string`() {
+    fun `createLoginToken embeds the role, issuer, audience and a future expiration`() {
         val accountId = 789L
-        val permissions = emptyList<Authority>()
 
-        val loginToken = jwtService.createLoginToken(accountId, permissions)
+        val loginToken = jwtService.createLoginToken(accountId, Role.SUPER_GM)
 
-        assertNotNull(loginToken)
-        assertTrue(loginToken.isNotEmpty())
-    }
+        val claims = Jwts.parser()
+            .verifyWith(Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8)))
+            .build()
+            .parseSignedClaims(loginToken)
+            .payload
 
-    @Test
-    fun `createLoginToken with ITEM permission returns valid JWT string`() {
-        val accountId = 789L
-        val permissions = listOf(Authority.ITEM)
-
-        val loginToken = jwtService.createLoginToken(accountId, permissions)
-
-        assertNotNull(loginToken)
-        assertTrue(loginToken.isNotEmpty())
+        assertEquals(accountId.toString(), claims.subject)
+        assertEquals("login", claims.issuer)
+        assertTrue(claims.audience.contains("zone"))
+        assertEquals("SUPER_GM", claims.get("role", String::class.java))
+        assertTrue(claims.expiration.after(Date()))
     }
 
     @Test
@@ -118,7 +121,8 @@ class JwtServiceTest {
         // Create a service with different config to simulate wrong issuer
         val differentConfig = JwtConfig(
             secret = "different-secret-key-that-is-long-enough-for-hmac-sha256-algorithm-requirements",
-            expirationDays = 7
+            expirationDays = 7,
+            loginTokenMinutes = 60
         )
         val differentService = JwtService(differentConfig)
 
@@ -180,22 +184,19 @@ class JwtServiceTest {
     fun `createLoginToken generates different tokens for different account IDs`() {
         val accountId1 = 123L
         val accountId2 = 124L
-        val permissions = listOf(Authority.KILL)
 
-        val loginToken1 = jwtService.createLoginToken(accountId1, permissions)
-        val loginToken2 = jwtService.createLoginToken(accountId2, permissions)
+        val loginToken1 = jwtService.createLoginToken(accountId1, Role.USER)
+        val loginToken2 = jwtService.createLoginToken(accountId2, Role.USER)
 
         assertNotEquals(loginToken1, loginToken2)
     }
 
     @Test
-    fun `createLoginToken generates different tokens for different permissions`() {
+    fun `createLoginToken generates different tokens for different roles`() {
         val accountId = 123L
-        val permissions1 = listOf(Authority.KILL)
-        val permissions2 = listOf(Authority.MAP_MOVE)
 
-        val loginToken1 = jwtService.createLoginToken(accountId, permissions1)
-        val loginToken2 = jwtService.createLoginToken(accountId, permissions2)
+        val loginToken1 = jwtService.createLoginToken(accountId, Role.USER)
+        val loginToken2 = jwtService.createLoginToken(accountId, Role.SUPER_GM)
 
         assertNotEquals(loginToken1, loginToken2)
     }

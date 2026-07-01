@@ -3,13 +3,14 @@ package net.bestia.login.eip712
 import io.mockk.*
 import net.bestia.login.account.Account
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.account.loginmethod.NftLoginMethod
+import net.bestia.login.account.loginmethod.NftLoginMethodRepository
 import net.bestia.login.jwt.JwtService
 import net.bestia.login.ethereum.EthereumService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.time.LocalDateTime
-import java.util.Optional
 
 class Eip712AuthenticationServiceTest {
 
@@ -17,6 +18,7 @@ class Eip712AuthenticationServiceTest {
   private val ethereumService = mockk<EthereumService>()
   private val jwtService = mockk<JwtService>()
   private val accountRepository = mockk<AccountRepository>()
+  private val nftLoginMethodRepository = mockk<NftLoginMethodRepository>()
 
   private lateinit var loginService: Eip712AuthenticationService
 
@@ -30,6 +32,9 @@ class Eip712AuthenticationServiceTest {
   private val testExpirationDate = LocalDateTime.now().plusDays(5)
   private val testRefreshToken = JwtService.RefreshToken(testJwtToken, testJwtHash, testExpirationDate)
 
+  private fun nftLoginMethodFor(account: Account, nftTokenId: Long) =
+    NftLoginMethod(account = account, nftTokenId = nftTokenId)
+
   @BeforeEach
   fun setUp() {
     clearAllMocks()
@@ -38,6 +43,7 @@ class Eip712AuthenticationServiceTest {
       ethereumService,
       jwtService,
       accountRepository,
+      nftLoginMethodRepository,
     )
   }
 
@@ -45,7 +51,7 @@ class Eip712AuthenticationServiceTest {
   fun `successful login flow should return Success with JWT token and account ID`() {
     // Given
     val request = Eip712AuthenticationController.AuthRequest(testWallet, testTokenId, testSignature)
-    val testAccount = Account(testTokenId)
+    val testAccount = Account()
 
     every {
       eip712Verifier.verifySignature(
@@ -55,7 +61,7 @@ class Eip712AuthenticationServiceTest {
     } returns Eip712Verifier.VerificationResult.Success(testWallet, testTokenId)
 
     every { ethereumService.verifyNftOwnership(testWallet, testTokenId) } returns true
-    every { accountRepository.findByNftTokenId(testTokenId) } returns Optional.of(testAccount)
+    every { nftLoginMethodRepository.findByNftTokenId(testTokenId) } returns nftLoginMethodFor(testAccount, testTokenId)
     every { accountRepository.save(any<Account>()) } returns testAccount
     every { jwtService.createRefreshToken(testAccount.id, testWallet, testTokenId) } returns testRefreshToken
 
@@ -75,15 +81,16 @@ class Eip712AuthenticationServiceTest {
       )
     }
     verify(exactly = 1) { ethereumService.verifyNftOwnership(testWallet, testTokenId) }
-    verify(exactly = 1) { accountRepository.findByNftTokenId(testTokenId) }
+    verify(exactly = 1) { nftLoginMethodRepository.findByNftTokenId(testTokenId) }
+    verify(exactly = 0) { nftLoginMethodRepository.save(any<NftLoginMethod>()) }
     verify(exactly = 1) { jwtService.createRefreshToken(testAccount.id, testWallet, testTokenId) }
   }
 
   @Test
-  fun `successful login flow should create new account if none exists`() {
+  fun `successful login flow should create new account and login method if none exists`() {
     // Given
     val request = Eip712AuthenticationController.AuthRequest(testWallet, testTokenId, testSignature)
-    val newAccount = Account(testTokenId)
+    val newAccount = Account()
 
     every {
       eip712Verifier.verifySignature(
@@ -93,8 +100,9 @@ class Eip712AuthenticationServiceTest {
     } returns Eip712Verifier.VerificationResult.Success(testWallet, testTokenId)
 
     every { ethereumService.verifyNftOwnership(testWallet, testTokenId) } returns true
-    every { accountRepository.findByNftTokenId(testTokenId) } returns Optional.empty()
+    every { nftLoginMethodRepository.findByNftTokenId(testTokenId) } returns null
     every { accountRepository.save(any<Account>()) } returns newAccount
+    every { nftLoginMethodRepository.save(any<NftLoginMethod>()) } returns nftLoginMethodFor(newAccount, testTokenId)
     every { jwtService.createRefreshToken(newAccount.id, testWallet, testTokenId) } returns testRefreshToken
 
     // When
@@ -106,8 +114,9 @@ class Eip712AuthenticationServiceTest {
     assertEquals(testJwtToken, successResult.jwtToken)
     assertEquals(newAccount.id, successResult.accountId)
 
-    verify(exactly = 1) { accountRepository.findByNftTokenId(testTokenId) }
+    verify(exactly = 1) { nftLoginMethodRepository.findByNftTokenId(testTokenId) }
     verify(exactly = 2) { accountRepository.save(any<Account>()) } // Once for create, once for update lastLogin
+    verify(exactly = 1) { nftLoginMethodRepository.save(any<NftLoginMethod>()) }
     verify(exactly = 1) { jwtService.createRefreshToken(newAccount.id, testWallet, testTokenId) }
   }
 
@@ -182,7 +191,7 @@ class Eip712AuthenticationServiceTest {
   fun `login should fail when database save fails`() {
     // Given
     val request = Eip712AuthenticationController.AuthRequest(testWallet, testTokenId, testSignature)
-    val testAccount = Account(testTokenId)
+    val testAccount = Account()
 
     every {
       eip712Verifier.verifySignature(
@@ -192,7 +201,7 @@ class Eip712AuthenticationServiceTest {
     } returns Eip712Verifier.VerificationResult.Success(testWallet, testTokenId)
 
     every { ethereumService.verifyNftOwnership(testWallet, testTokenId) } returns true
-    every { accountRepository.findByNftTokenId(testTokenId) } returns Optional.of(testAccount)
+    every { nftLoginMethodRepository.findByNftTokenId(testTokenId) } returns nftLoginMethodFor(testAccount, testTokenId)
     every { accountRepository.save(any<Account>()) } throws RuntimeException("Database connection failed")
 
     // When & Then
@@ -201,7 +210,7 @@ class Eip712AuthenticationServiceTest {
     }
 
     verify(exactly = 1) { ethereumService.verifyNftOwnership(testWallet, testTokenId) }
-    verify(exactly = 1) { accountRepository.findByNftTokenId(testTokenId) }
+    verify(exactly = 1) { nftLoginMethodRepository.findByNftTokenId(testTokenId) }
   }
 
   @Test
@@ -234,7 +243,7 @@ class Eip712AuthenticationServiceTest {
     val differentWallet = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef"
     val differentTokenId = 456L
     val request = Eip712AuthenticationController.AuthRequest(differentWallet, differentTokenId, testSignature)
-    val differentAccount = Account(differentTokenId)
+    val differentAccount = Account()
 
     every {
       eip712Verifier.verifySignature(
@@ -244,7 +253,7 @@ class Eip712AuthenticationServiceTest {
     } returns Eip712Verifier.VerificationResult.Success(differentWallet, differentTokenId)
 
     every { ethereumService.verifyNftOwnership(differentWallet, differentTokenId) } returns true
-    every { accountRepository.findByNftTokenId(differentTokenId) } returns Optional.of(differentAccount)
+    every { nftLoginMethodRepository.findByNftTokenId(differentTokenId) } returns nftLoginMethodFor(differentAccount, differentTokenId)
     every { accountRepository.save(any<Account>()) } returns differentAccount
     every { jwtService.createRefreshToken(differentAccount.id, differentWallet, differentTokenId) } returns testRefreshToken
 
@@ -269,7 +278,7 @@ class Eip712AuthenticationServiceTest {
   fun `login should update lastLogin timestamp on existing account`() {
     // Given
     val request = Eip712AuthenticationController.AuthRequest(testWallet, testTokenId, testSignature)
-    val existingAccount = Account(testTokenId)
+    val existingAccount = Account()
     val updatedAccount = slot<Account>()
 
     every {
@@ -280,7 +289,7 @@ class Eip712AuthenticationServiceTest {
     } returns Eip712Verifier.VerificationResult.Success(testWallet, testTokenId)
 
     every { ethereumService.verifyNftOwnership(testWallet, testTokenId) } returns true
-    every { accountRepository.findByNftTokenId(testTokenId) } returns Optional.of(existingAccount)
+    every { nftLoginMethodRepository.findByNftTokenId(testTokenId) } returns nftLoginMethodFor(existingAccount, testTokenId)
     every { accountRepository.save(capture(updatedAccount)) } returns existingAccount
     every { jwtService.createRefreshToken(existingAccount.id, testWallet, testTokenId) } returns testRefreshToken
 

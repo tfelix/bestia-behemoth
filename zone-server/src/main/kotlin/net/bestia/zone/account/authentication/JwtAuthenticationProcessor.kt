@@ -1,27 +1,22 @@
 package net.bestia.zone.account.authentication
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.jsonwebtoken.*
-import io.jsonwebtoken.security.Keys
-import net.bestia.zone.ZoneConfig
+import net.bestia.account.Authority
+import net.bestia.zone.jwt.LoginTokenValidator
 import net.bestia.bnet.proto.EnvelopeProto
 import org.springframework.stereotype.Component
-import java.nio.charset.StandardCharsets
-import javax.crypto.SecretKey
 
 @Component
 class JwtAuthenticationProcessor(
-  private val zoneConfig: ZoneConfig
+  private val loginTokenValidator: LoginTokenValidator
 ) : AuthenticationProcessor {
-
-  private val key: SecretKey = Keys.hmacShaKeyFor(zoneConfig.jwtAuthSecretKey.toByteArray(StandardCharsets.UTF_8))
 
   private data class AuthData(
     val accountId: Long,
+    val authorities: Set<Authority>
   )
 
   override fun authenticate(msg: EnvelopeProto.Envelope): AuthenticationProcessor.Authentication {
-    // Dummy implementation for now.
     val authRequest = msg.authentication
       ?: return AuthenticationProcessor.AuthenticationFailed
 
@@ -38,28 +33,19 @@ class JwtAuthenticationProcessor(
 
     LOG.trace { "Authentication data: $data" }
 
-    return AuthenticationProcessor.AuthenticationSuccess(accountId = data.accountId)
+    return AuthenticationProcessor.AuthenticationSuccess(
+      accountId = data.accountId,
+      authorities = data.authorities
+    )
   }
 
   private fun validateAndExtract(jwtToken: String): AuthData {
-    val parserBuilder = Jwts.parser()
-      .verifyWith(key)
+    val claims = loginTokenValidator.validateLoginToken(jwtToken)
 
-    // If configured to allow expired tokens, ignore expiration during parsing, for testing only to
-    // allow configuring old tokens until we have a working login server.
-    if (zoneConfig.allowExpiredTokens) {
-      parserBuilder.clock { java.util.Date(0) }
-    }
-
-    val jws: Jws<Claims> = parserBuilder
-      .build()
-      .parseSignedClaims(jwtToken)
-
-    val claims = jws.payload
-    val subject = claims.subject.toLong()
-
-    // FIXME extract permissions from the token into the auth data.
-    return AuthData(accountId = subject)
+    return AuthData(
+      accountId = claims.accountId,
+      authorities = claims.authorities
+    )
   }
 
   companion object {

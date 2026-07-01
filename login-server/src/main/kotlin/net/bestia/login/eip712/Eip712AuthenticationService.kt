@@ -2,6 +2,8 @@ package net.bestia.login.eip712
 
 import net.bestia.login.account.Account
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.account.loginmethod.NftLoginMethod
+import net.bestia.login.account.loginmethod.NftLoginMethodRepository
 import net.bestia.login.ethereum.EthereumService
 import net.bestia.login.jwt.JwtService
 import org.springframework.stereotype.Service
@@ -14,6 +16,7 @@ class Eip712AuthenticationService(
   private val ethereumService: EthereumService,
   private val jwtService: JwtService,
   private val accountRepository: AccountRepository,
+  private val nftLoginMethodRepository: NftLoginMethodRepository,
 ) {
 
   sealed class AuthResult {
@@ -70,13 +73,20 @@ class Eip712AuthenticationService(
   }
 
   private fun findOrCreateAccount(nftTokenId: Long): Account {
-    return accountRepository.findByNftTokenId(nftTokenId)
-      .orElseGet {
-        val newAccount = Account(
-          nftTokenId = nftTokenId
-        )
-        accountRepository.save(newAccount)
-      }
+    val existing = nftLoginMethodRepository.findByNftTokenId(nftTokenId)
+    if (existing != null) {
+      return existing.account
+    }
+
+    val account = accountRepository.save(Account())
+    nftLoginMethodRepository.save(
+      NftLoginMethod(
+        account = account,
+        nftTokenId = nftTokenId
+      )
+    )
+
+    return account
   }
 
   private fun updateLastLogin(account: Account) {

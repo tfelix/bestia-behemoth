@@ -8,8 +8,6 @@ zone:
   # Must be different for every zone which starts. So this probably needs to be overwritten
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
-  # Allow expired JWT tokens to be accepted during authentication (for development/testing)
-  allow-expired-tokens: true
 
 world:
   tick-rate: 20

@@ -37,18 +37,23 @@ class ConnectionInfoService {
 
     fun deactivate(): InactiveConnection {
       return InactiveConnection(
-        playerEntitiesByMaster = playerEntitiesByMaster
+        playerEntitiesByMaster = playerEntitiesByMaster,
+        authorities = authorities
       )
     }
   }
 
   private data class InactiveConnection(
-    override val playerEntitiesByMaster: MutableMap<MasterEntityId, MutableSet<PlayerEntity>> = mutableMapOf()
+    override val playerEntitiesByMaster: MutableMap<MasterEntityId, MutableSet<PlayerEntity>> = mutableMapOf(),
+    /**
+     * Authorities granted to the account, established when the connection authenticates
+     * (derived from the JWT role) and carried into the active session on master selection.
+     */
+    val authorities: Set<Authority> = emptySet()
   ) : Session() {
     fun activate(
       masterId: Long,
-      masterEntityId: MasterEntityId,
-      authorities: Set<Authority>
+      masterEntityId: MasterEntityId
     ): ActiveConnection {
       return ActiveConnection(
         playerEntitiesByMaster = playerEntitiesByMaster,
@@ -75,26 +80,43 @@ class ConnectionInfoService {
   private val sessions = ConcurrentHashMap<AccountId, Session>()
 
   /**
-   * Fully activating a session with a selected master.
+   * Registers the authorities granted to a freshly authenticated account. Must be called on
+   * successful authentication, before a master is selected, so the authorities are available
+   * when the session is later activated.
+   */
+  fun registerAuthenticatedConnection(
+    accountId: Long,
+    authorities: Set<Authority>
+  ) {
+    LOG.info { "Register authenticated connection for account: $accountId with authorities: $authorities" }
+
+    sessions[accountId] = when (val session = getSession(accountId)) {
+      is InactiveConnection -> session.copy(authorities = authorities)
+      is ActiveConnection -> session.copy(authorities = authorities)
+    }
+  }
+
+  /**
+   * Fully activating a session with a selected master. The authorities established at
+   * authentication time (see [registerAuthenticatedConnection]) are carried over.
    */
   fun activateSession(
     accountId: Long,
     masterId: Long,
-    masterEntityId: MasterEntityId,
-    authorities: Set<Authority>
+    masterEntityId: MasterEntityId
   ) {
     LOG.info { "Activate session for account: $accountId with master entity id: $masterEntityId" }
 
     when (val session = getSession(accountId)) {
       is InactiveConnection -> {
-        sessions[accountId] = session.activate(masterId, masterEntityId, authorities)
+        sessions[accountId] = session.activate(masterId, masterEntityId)
       }
 
       is ActiveConnection -> {
         if (session.master.entityId != masterEntityId) {
           deactivateSession(accountId)
           val newInactiveConnection = getSession(accountId) as InactiveConnection
-          sessions[accountId] = newInactiveConnection.activate(masterId, masterEntityId, authorities)
+          sessions[accountId] = newInactiveConnection.activate(masterId, masterEntityId)
         }
       }
     }

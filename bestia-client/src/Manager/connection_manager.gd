@@ -13,6 +13,7 @@ signal chat_received(message: ChatSMSG)
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 
 @onready var socket = $BnetSocket
+@onready var login_request = $LoginRequest
 
 # I am still undecided if we should skip this message generation and instead
 # just directly call into the C# side so we can skip this message generation here.
@@ -28,6 +29,9 @@ var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 
+# Signed JWT obtained from the login server, sent to the zone during the auth handshake.
+var _login_token: String = ""
+
 
 var selected_master_info: MasterInfo = null
 
@@ -38,11 +42,41 @@ func disconnect_from_server() -> void:
 
 func login() -> void:
 	assert(_connection_state == ConnectionState.DISCONNECTED)
+	# Exchange the configured static development credentials for a signed JWT at the login server.
+	# Once we have the token we connect to the zone and send it during the auth handshake.
+	var url = SettingsManager.login_server_url + "/api/v1/auth/static"
+	var headers = ["Content-Type: application/json"]
+	var payload = JSON.stringify({
+		"username": SettingsManager.dev_username,
+		"token": SettingsManager.dev_static_token
+	})
+	var err = login_request.request(url, headers, HTTPClient.METHOD_POST, payload)
+	if err != OK:
+		printerr("ConnectionManager: could not start login request: ", err)
+		_goto_connection_lost()
+
+
+func _on_login_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		printerr("ConnectionManager: login failed (result=%s, code=%s)" % [result, response_code])
+		_goto_connection_lost()
+		return
+
+	var json = JSON.new()
+	if json.parse(body.get_string_from_utf8()) != OK or typeof(json.data) != TYPE_DICTIONARY or not json.data.has("token"):
+		printerr("ConnectionManager: could not parse login response")
+		_goto_connection_lost()
+		return
+
+	_login_token = json.data["token"]
+
+	# We have a valid JWT now. Go to master select (blocked until the zone confirms auth) and connect.
 	SceneManager.goto_scene("res://Menu/MasterSelect/MasterSelect.tscn", true)
-	# TODO REST handshake with the login server fetch refresh token.
-	# TODO Save refresh token for later, in secure enclave? locally in setting?
-	# TODO Perform login to zone, periodically send Ping to avoid DC
 	socket.ConnectToServer()
+
+
+func _goto_connection_lost() -> void:
+	SceneManager.goto_scene("res://Menu/ConnectionLost/ConnectionLost.tscn")
 
 
 func list_bestia_master() -> void:
@@ -148,7 +182,7 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 			# we are connected now send auth, please handle this better.
 			_connection_state = ConnectionState.CONNECTED_NOT_AUTHED
 			var auth_msg = Authentication.new(
-				"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaXNzIjoibG9naW4iLCJhdWQiOlsiem9uZSJdLCJwZXJtaXNzaW9ucyI6W10sImlhdCI6MTc1ODIzNjQzMCwiZXhwIjoxNzU4MjM2NTUwfQ.otC5qKJPZh4EMxi2V3lDokgTaNINc5g42ErGbE5U-s0",
+				_login_token,
 				SettingsManager.version
 			)
 			socket.SendMessage(auth_msg)

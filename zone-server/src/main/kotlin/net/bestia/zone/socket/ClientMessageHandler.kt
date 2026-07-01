@@ -124,6 +124,7 @@ class ClientMessageHandler(
       AccountConnectedEvent(
         source = this,
         accountId = result.accountId,
+        authorities = result.authorities,
       )
     )
   }
