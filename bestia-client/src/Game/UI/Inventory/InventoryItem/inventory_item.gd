@@ -20,7 +20,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.rotation_degrees = 10
 	set_drag_preview(preview)
 	preview.texture = _icon.texture
-	return {"type": "item", "id": item.item_id}
+	return {"type": "item", "id": item.item_id, "source": "inventory_item"}
 
 
 func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:

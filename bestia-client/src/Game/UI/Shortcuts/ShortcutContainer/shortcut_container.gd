@@ -17,6 +17,7 @@ var shortcut_number: int = 0
 
 var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
+var _is_dragging_self: bool = false
 
 
 func _ready() -> void:
@@ -37,7 +38,20 @@ func _shortcut_input(event: InputEvent) -> void:
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
-	set_shortcut(data)
+	var source_container = data.get("source_container", null)
+
+	# Dragged from another shortcut slot: move it here, swapping if this slot
+	# is already occupied, instead of leaving a copy behind.
+	if source_container is ShortcutContainer and source_container != self:
+		var previous_data: ShortcutData = _shortcut_data.duplicate()
+		set_shortcut(data)
+
+		if previous_data.is_empty():
+			source_container.clear_shortcut()
+		else:
+			source_container.set_shortcut(_to_shortcut_dict(previous_data))
+	else:
+		set_shortcut(data)
 
 
 # Accepts items as well as skills/attacks.
@@ -46,6 +60,50 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 		return false
 
 	return data["type"] == "item" or data["type"] == "attack"
+
+
+# Allows an assigned shortcut to be picked up and dragged elsewhere.
+func _get_drag_data(_at_position: Vector2) -> Variant:
+	if _shortcut_data.is_empty():
+		return null
+
+	var preview: TextureRect = TextureRect.new()
+	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	preview.size = Vector2(50, 50)
+	preview.pivot_offset = preview.size / 2.0
+	preview.texture = _icon.texture
+	set_drag_preview(preview)
+
+	_is_dragging_self = true
+
+	var drag_data := _to_shortcut_dict(_shortcut_data)
+	if drag_data.is_empty():
+		return null
+
+	drag_data["source_container"] = self
+	return drag_data
+
+
+# Converts shortcut data into the dictionary format used both for drag data
+# and for set_shortcut(), so a slot's contents can be handed off to another.
+func _to_shortcut_dict(data: ShortcutData) -> Dictionary:
+	match data.type:
+		ShortcutData.ShortcutType.ITEM:
+			return {"type": "item", "id": data.reference_id}
+		ShortcutData.ShortcutType.ATTACK:
+			return {"type": "attack", "id": data.reference_id}
+
+	return {}
+
+
+# NOTIFICATION_DRAG_END is broadcast to every control in the viewport, so only
+# react when this container was the one that started the drag. If it wasn't
+# dropped onto a valid target (e.g. dropped on the game background), remove it.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_DRAG_END and _is_dragging_self:
+		_is_dragging_self = false
+		if not get_viewport().gui_is_drag_successful():
+			clear_shortcut()
 
 
 func trigger_shortcut() -> void:
@@ -86,7 +144,7 @@ func set_shortcut_data(data: ShortcutData) -> void:
 
 func update_item_count(count: int) -> void:
 	if _shortcut_data.type == ShortcutData.ShortcutType.ITEM:
-		_count.text = str(count) if count > 1 else ""
+		_count.text = str(count)
 		_count_bg.visible = count > 0
 
 

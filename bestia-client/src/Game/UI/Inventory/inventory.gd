@@ -44,7 +44,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			# Get the ItemResource from the database
 			var item_resource = item_db.get_item(itemMsg.ItemId)
 			if item_resource == null:
-				printerr("Item with ID %s not found in ItemDB" % [itemMsg.ItemId])
+				printerr("Inventory: Item with ID %s not found in ItemDB" % [itemMsg.ItemId])
 				continue
 
 			# Create an InventoryItemResource
@@ -59,7 +59,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 
 func _render_items() -> void:
 	if !_items.has(selected_entity_id):
-		printerr("No items for selected entity %s" % [selected_entity_id])
+		printerr("Inventory: No items for selected entity %s" % [selected_entity_id])
 		return
 
 	for child in _usable_grid.get_children():
@@ -89,7 +89,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	return typeof(data) == TYPE_DICTIONARY and data["type"] == "item"
+	return typeof(data) == TYPE_DICTIONARY and data.get("source") == "inventory_item"
 
 
 func get_item_count(item_id: int) -> int:
@@ -138,3 +138,7 @@ func remove_item(item_id: int, amount: int) -> bool:
 				return true
 			return false
 	return false
+
+
+func _on_close_button_pressed() -> void:
+	hide()
