@@ -1,4 +1,4 @@
-class_name Master extends Entity
+class_name MasterVisual extends Visual
 
 
 func setup_visual(msg: MasterVisualComponentSMSG) -> void:

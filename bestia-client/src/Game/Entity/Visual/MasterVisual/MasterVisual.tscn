@@ -1,13 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://c37w2gscf0xed"]
+[gd_scene load_steps=3 format=3 uid="uid://lv2fhhdrpcii"]
 
-[ext_resource type="Script" uid="uid://b8olmibwk4st4" path="res://Game/Entity/Master/master.gd" id="1_hgxny"]
-[ext_resource type="PackedScene" uid="uid://1hqxpsd1i3ot" path="res://Game/Entity/Entity.tscn" id="1_sq51e"]
-[ext_resource type="PackedScene" uid="uid://3d10kmwvr52c" path="res://Game/Master/Mage.glb" id="3_p5q8h"]
+[ext_resource type="Script" uid="uid://mj7o7ml2h0gd" path="res://Game/Entity/Visual/MasterVisual/master_visual.gd" id="1_biohp"]
+[ext_resource type="PackedScene" uid="uid://3d10kmwvr52c" path="res://Game/Master/Mage.glb" id="2_1txkv"]
 
-[node name="Master" instance=ExtResource("1_sq51e")]
-script = ExtResource("1_hgxny")
+[node name="MasterVisual" type="Node3D"]
+script = ExtResource("1_biohp")
 
-[node name="Mage" parent="." index="0" instance=ExtResource("3_p5q8h")]
+[node name="Mage" parent="." instance=ExtResource("2_1txkv")]
 
 [node name="Skeleton3D" parent="Mage/Rig" index="0"]
 bones/1/position = Vector3(0, 0.39206383, 0)
@@ -73,5 +72,8 @@ transform = Transform3D(0.9962748, -5.1496167e-09, 0.08623532, 5.1304343e-09, 0.
 
 [node name="AnimationPlayer" parent="Mage" index="1"]
 autoplay = "Idle"
+
+[node name="ChatAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.912204, 0)
 
 [editable path="Mage"]

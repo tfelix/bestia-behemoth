@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cycbux25m2as5"]
 
 [ext_resource type="Script" uid="uid://ci3n7kl1ekwb" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/master_profile_image.gd" id="1_gci1q"]
-[ext_resource type="PackedScene" uid="uid://c37w2gscf0xed" path="res://Game/Entity/Master/Master.tscn" id="1_hf55m"]
+[ext_resource type="PackedScene" uid="uid://lv2fhhdrpcii" path="res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn" id="2_dklve"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_hf55m"]
 viewport_path = NodePath("PortraitViewport")
@@ -48,4 +48,4 @@ light_energy = 2.0
 spot_range = 4.0
 spot_angle = 33.32798
 
-[node name="Master" parent="PortraitViewport/MasterProfile" instance=ExtResource("1_hf55m")]
+[node name="MasterVisual" parent="PortraitViewport/MasterProfile" instance=ExtResource("2_dklve")]

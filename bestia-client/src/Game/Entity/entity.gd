@@ -19,7 +19,7 @@ class_name Entity extends Node3D
 
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
-var MasterModelScn = preload("res://Game/Entity/Master/Master.tscn")
+var MasterModelScn = preload("res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn")
 var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
@@ -146,7 +146,7 @@ func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 	var existing = get_node_or_null(_VISUAL_NODE_NAME)
 	if existing != null:
 		existing.queue_free()
-	var visual = MasterModelScn.instantiate() as Master
+	var visual = MasterModelScn.instantiate() as MasterVisual
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
