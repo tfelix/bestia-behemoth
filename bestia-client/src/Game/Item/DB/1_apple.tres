@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3 uid="uid://dprdikdkiksa3"]
+[gd_resource type="Resource" script_class="ItemResource" load_steps=4 format=3 uid="uid://dprdikdkiksa3"]
 
 [ext_resource type="Texture2D" uid="uid://0s1umvnvun3w" path="res://Game/Item/DB/1_apple.png" id="1_hr7y5"]
 [ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="2_oa1wq"]
+[ext_resource type="PackedScene" uid="uid://dqu0btcd80v8u" path="res://Game/Entity/Visual/ItemVisual/Items/Apple.tscn" id="3_apple_visual"]
 
 [resource]
 script = ExtResource("2_oa1wq")
 item_id = 1
 icon = ExtResource("1_hr7y5")
-name = "Apple"
-description = "Juicy, sweet apple."
+name_key = "ITEM_1_NAME"
+description_key = "ITEM_1_DESC"
 weight = 10
+item_visual = ExtResource("3_apple_visual")
 metadata/_custom_type_script = "uid://bn4gvq3ayku4r"

@@ -5,24 +5,25 @@ enum ItemType {USABLE, EQUIP, ETC}
 
 @export var item_id: int
 @export var icon: Texture2D
-@export var name: String
-@export var description: String
+@export var name_key: String
+@export var description_key: String
 @export var weight: int
 @export var item_script: GDScript
 @export var type: ItemType
+@export var item_visual: PackedScene
 
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
 
 
 func use_item() -> void:
-	print("ItemResource: Using item: %s" % [name])
+	print("ItemResource: Using item: %s" % [tr(name_key)])
 	if item_script:
 		var item_use_instance: ItemUse = _get_or_create_item_use_instance()
 		if item_use_instance:
 			item_use_instance.on_item_used(self)
 		else:
-			printerr("ItemResource: Failed to load or instantiate item script for item: %s" % [name])
+			printerr("ItemResource: Failed to load or instantiate item script for item: %s" % [tr(name_key)])
 	elif ConnectionManager.is_ready_to_send():
 		ConnectionManager.use_item(item_id)
 	else:

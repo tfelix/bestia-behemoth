@@ -15,8 +15,8 @@ func execute(shortcut_data: ShortcutData) -> void:
 		return
 
 	# Example: Check if it's a health potion
-	if "potion" in item.name.to_lower():
-		print("Using potion with special effect: ", item.name)
+	if "potion" in tr(item.name_key).to_lower():
+		print("Using potion with special effect: ", tr(item.name_key))
 		# Play sound effect
 		# Show visual effect
 		# Send to server

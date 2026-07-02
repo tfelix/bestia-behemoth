@@ -118,6 +118,10 @@ toggle_skills={
 ]
 }
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://Localization/items.csv")
+
 [rendering]
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3

@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3 uid="uid://ctyip7ychsigs"]
+[gd_resource type="Resource" script_class="ItemResource" load_steps=4 format=3 uid="uid://ctyip7ychsigs"]
 
 [ext_resource type="Texture2D" uid="uid://5o8k1ijvpla1" path="res://Game/Item/DB/3_small-health-potion.png" id="1_cw0r6"]
 [ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_otq61"]
+[ext_resource type="PackedScene" uid="uid://xser33852l3l" path="res://Game/Entity/Visual/ItemVisual/Items/SmallHealthPotion.tscn" id="3_potion_visual"]
 
 [resource]
 script = ExtResource("1_otq61")
 item_id = 3
 icon = ExtResource("1_cw0r6")
-name = "Small Health Potion"
-description = "A tiny vial filled with shimmering red liquid. Instantly mends minor wounds and brings a gentle warmth to the soul. Heals 45 HP."
+name_key = "ITEM_3_NAME"
+description_key = "ITEM_3_DESC"
 weight = 20
+item_visual = ExtResource("3_potion_visual")
 metadata/_custom_type_script = "uid://bn4gvq3ayku4r"

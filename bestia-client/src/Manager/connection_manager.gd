@@ -15,8 +15,7 @@ enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 @onready var socket = $BnetSocket
 @onready var login_request = $LoginRequest
 
-# I am still undecided if we should skip this message generation and instead
-# just directly call into the C# side so we can skip this message generation here.
+
 var Authentication = load("res://Bnet/Message/Authentication.cs")
 var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
 var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
