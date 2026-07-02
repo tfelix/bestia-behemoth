@@ -1,9 +1,6 @@
-package net.bestia.zone.voxel.io
+package net.bestia.zone.voxel
 
 import net.bestia.zone.geometry.Vec3I
-import net.bestia.zone.voxel.Chunk
-import net.bestia.zone.voxel.DEFAULT_CHUNK_SIZE
-import net.bestia.zone.voxel.Voxel
 import java.nio.ByteBuffer
 
 @ExperimentalUnsignedTypes

@@ -24,6 +24,7 @@ var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
+var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -55,6 +56,7 @@ func login() -> void:
 		_goto_connection_lost()
 
 
+# TODO move the code into a seperate script on the LoginRequest node to tidy the connection manager up.
 func _on_login_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		printerr("ConnectionManager: login failed (result=%s, code=%s)" % [result, response_code])
@@ -100,6 +102,14 @@ func use_item(item_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = UseItemCMSG.new()
 	msg.ItemId = item_id
+	socket.SendMessage(msg)
+
+
+func drop_item(item_id: int, amount: int) -> void:
+	assert(is_ready_to_send())
+	var msg = DropItemCMSG.new()
+	msg.ItemId = item_id
+	msg.Amount = amount
 	socket.SendMessage(msg)
 
 

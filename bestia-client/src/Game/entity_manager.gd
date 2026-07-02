@@ -82,8 +82,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_health(msg)
 	elif msg is DamageEntitySMSG:
 		entity.show_damage(msg)
+	elif msg is ItemVisualComponentSMSG:
+		entity.update_item_visual(msg)
+	elif msg is InventoryComponentSMSG:
+		# no handling so far. The inventory of our entity is handled via a own handler
+		# directly in the inventory node. On an per entity level it is not handled.
+		pass
 	else:
-		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [typeof(msg), msg.EntityId])
+		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [msg.GetMessageName(), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff
 	# Server sends damage -> lookup entity node and attach damage scn to entity node
 	# server sends chat -> lookup entity node and attach chat scn to entity

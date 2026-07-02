@@ -3,12 +3,14 @@ package net.bestia.zone.entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ComponentNotFoundException
 import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs.visual.BestiaVisualComponentSMSG
+import net.bestia.zone.ecs.visual.ItemVisualComponentSMSG
 import net.bestia.zone.ecs.visual.MasterVisual
 import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
@@ -49,7 +51,8 @@ class RequestEntitiesHandler(
         tryBuildPositionComponent(eid),
         tryBuildMasterComponent(eid),
         tryBuildPathComponent(eid),
-        tryBuildSpeedComponent(eid)
+        tryBuildSpeedComponent(eid),
+        tryBuildLootComponent(eid)
       )
     }
 
@@ -121,6 +124,18 @@ class RequestEntitiesHandler(
         val speedComp = entity.getOrThrow(Speed::class)
 
         SpeedSMSG(entityId, speedComp.speed)
+      }
+    }
+  }
+
+  private fun tryBuildLootComponent(
+    entityId: EntityId,
+  ): SMSG? {
+    return withComponentNotFoundCatch {
+      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
+        val lootComp = entity.getOrThrow(Loot::class)
+
+        ItemVisualComponentSMSG(entityId, lootComp.itemId.toInt(), lootComp.amount, lootComp.uniqueId)
       }
     }
   }

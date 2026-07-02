@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.player.Master as MasterComponent
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Adds an item to a player inventory. This must check if there is an active connection and the item is
@@ -51,6 +52,23 @@ class InventoryItemFactory(
     // TODO check if entity exists and add the item to its inventory component
     // TODO send message to update the connected entity client
     masterRepository.save(master)
+  }
+
+  /**
+   * Removes an item directly from a master's DB inventory and saves immediately. Used for
+   * critical item transactions (e.g. dropping items) where the removal must be durable before
+   * the corresponding ECS/in-memory state is mutated, to avoid item duplication on a crash.
+   */
+  @Transactional
+  fun removeItem(masterId: Long, itemIdentifier: String, amount: Int): Boolean {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val removed = master.inventory.removeItem(itemIdentifier, amount)
+
+    if (removed) {
+      masterRepository.save(master)
+    }
+
+    return removed
   }
 
   companion object {

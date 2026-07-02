@@ -5,6 +5,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.ZoneOperations
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
@@ -34,15 +35,24 @@ class LootEntityFactory(
     LOG.debug { "Spawning loot $spawnItems for bestia $bestiaId ($lootItems) on pos $pos" }
 
     return spawnItems.map { spawnItem ->
-      zoneServer.addEntityWithWriteLock {
-        it.addAll(
-          Position.fromVec3(pos),
-          Loot(
-            itemId = spawnItem.item.id,
-            amount = 1,
-          )
-        )
-      }
+      createLootEntity(itemId = spawnItem.item.id, amount = 1, pos = pos)
+    }
+  }
+
+  /**
+   * Spawns a single ground item entity at the given position which can be picked up.
+   */
+  fun createLootEntity(itemId: Long, amount: Int, pos: Vec3L, uniqueId: Long = 0): EntityId {
+    return zoneServer.addEntityWithWriteLock {
+      it.addAll(
+        Position.fromVec3(pos),
+        Loot(
+          itemId = itemId,
+          amount = amount,
+          uniqueId = uniqueId
+        ),
+        IsDirty
+      )
     }
   }
 

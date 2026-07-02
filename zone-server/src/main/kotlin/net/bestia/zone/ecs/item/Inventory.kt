@@ -88,6 +88,22 @@ data class Inventory(
     return false
   }
 
+  fun removeAmount(itemId: Int, amount: Int): Boolean {
+    require(amount > 0)
+    val item = items.singleOrNull { it.itemId == itemId } ?: return false
+    if (item.amount < amount) return false
+
+    item.amount -= amount
+
+    if (item.amount <= 0) {
+      removeItem(itemId)
+    } else {
+      markDirty()
+    }
+
+    return true
+  }
+
   fun decItem(itemId: Int): Boolean {
     val item = items.singleOrNull { it.itemId == itemId }
     if (item != null) {

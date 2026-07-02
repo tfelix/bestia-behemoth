@@ -35,6 +35,7 @@ func _connect_signals() -> void:
 			container.item_count_requested.connect(_on_item_count_requested)
 	if inventory:
 		inventory.inventory_updated.connect(_on_inventory_updated)
+		print_debug("Shortcuts: Inventory update signal connected")
 
 
 func _on_shortcut_changed(_row: int, _number: int, _data: ShortcutData) -> void:
@@ -59,7 +60,11 @@ func _on_inventory_updated() -> void:
 
 func _get_item_count_from_inventory(item_id: int) -> int:
 	if not inventory:
+		print_debug("Shortcuts: Item count updated too early, inventory not set yet")
 		return 0
+	if inventory.is_initialized_for_current_entity() == false:
+		print_debug("Shortcuts: Item count updated too early, inventory not initialized yet")
+		pass
 	return inventory.get_item_count(item_id)
 
 

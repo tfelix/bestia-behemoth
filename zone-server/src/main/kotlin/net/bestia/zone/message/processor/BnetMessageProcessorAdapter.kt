@@ -5,6 +5,7 @@ import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.entity.AttackEntityCMSG
 import net.bestia.zone.entity.GetAllEntitiesCMSG
+import net.bestia.zone.item.DropItemCMSG
 import net.bestia.zone.item.GetInventoryCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.message.*
@@ -38,6 +39,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasAttackEntity() -> AttackEntityCMSG.fromBnet(accountId, envelope.attackEntity)
       envelope.hasGetInventory() -> GetInventoryCMSG(accountId)
       envelope.hasUseItem() -> UseItemCMSG.fromBnet(accountId, envelope.useItem)
+      envelope.hasDropItem() -> DropItemCMSG.fromBnet(accountId, envelope.dropItem)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

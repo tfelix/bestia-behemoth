@@ -1,9 +1,9 @@
 package net.bestia.zone.voxel.io
 
-import net.bestia.zone.geometry.Vec3
 import net.bestia.zone.geometry.Vec3I
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.voxel.Chunk
+import net.bestia.zone.voxel.ChunkCompressReader
+import net.bestia.zone.voxel.ChunkCompressWriter
 import net.bestia.zone.voxel.Voxel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

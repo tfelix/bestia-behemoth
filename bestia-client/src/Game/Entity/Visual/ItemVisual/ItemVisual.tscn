@@ -21,11 +21,11 @@ point_count = 3
 curve = SubResource("Curve_ed4pm")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_n0gxs"]
-lifetime_randomness = 0.5
+lifetime_randomness = 0.2
 emission_shape = 1
-emission_sphere_radius = 1.5
+emission_sphere_radius = 1.0
 direction = Vector3(0, 1, 0)
-spread = 19.038
+spread = 20.0
 initial_velocity_min = 1.0
 initial_velocity_max = 2.0
 gravity = Vector3(0, 0.1, 0)
@@ -46,9 +46,9 @@ _data = {
 script = ExtResource("1_oy7wx")
 
 [node name="Sparkles" type="GPUParticles3D" parent="."]
-visible = false
 material_override = SubResource("StandardMaterial3D_ah5xf")
 cast_shadow = 0
+amount = 6
 lifetime = 1.5
 process_material = SubResource("ParticleProcessMaterial_n0gxs")
 draw_pass_1 = SubResource("QuadMesh_iygyh")

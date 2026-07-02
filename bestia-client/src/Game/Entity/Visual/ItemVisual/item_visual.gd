@@ -8,6 +8,11 @@ var _item_id: int = 0
 @onready var player = $AnimationPlayer
 @onready var sparkles = $Sparkles
 
+
+func setup_visual(msg: ItemVisualComponentSMSG) -> void:
+	_item_id = msg.ItemId
+
+
 func _ready() -> void:
 	player.play("appear")
 	await player.animation_finished

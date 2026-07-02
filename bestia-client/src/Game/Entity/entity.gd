@@ -114,6 +114,8 @@ func show_chat(msg: ChatSMSG) -> void:
 	var visual = _get_visual_for_method("show_chat")
 	if visual != null:
 		visual.show_chat(msg)
+	else:
+		printerr("Entity %s has no show_chat visual", [entity_id])
 
 
 func update_bestia_visual(msg: BestiaVisualComponent) -> void:
@@ -121,6 +123,20 @@ func update_bestia_visual(msg: BestiaVisualComponent) -> void:
 	if existing != null:
 		existing.queue_free()
 	var visual = BestiaModelScn.instantiate() as BestiaVisual
+	visual.setup_visual(msg)
+	visual.name = _VISUAL_NODE_NAME
+	add_child(visual)
+
+
+func update_item_visual(msg: ItemVisualComponentSMSG) -> void:
+	var existing = get_node_or_null(_VISUAL_NODE_NAME)
+	if existing != null:
+		existing.queue_free()
+	var item_resource = ItemDB.get_instance().get_item(msg.ItemId)
+	if item_resource == null or item_resource.item_visual == null:
+		printerr("Entity %s: no item_visual PackedScene for item %s" % [entity_id, msg.ItemId])
+		return
+	var visual = item_resource.item_visual.instantiate() as ItemVisual
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
@@ -226,7 +242,7 @@ func _get_visual_for_method(method_name: String) -> Visual:
 	if visual != null && visual.has_method(method_name):
 		return visual
 	else:
-		print("Entity %s visual method %s missing, dropping message" % [entity_id, method_name])
+		printerr("Entity %s visual method %s handler missing, dropping message" % [entity_id, method_name])
 		return null
 
 

@@ -7,5 +7,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   {
     [Export]
     public ulong EntityId { get; set; } = 0;
+
+    public string GetMessageName() => GetType().Name;
   }
 }

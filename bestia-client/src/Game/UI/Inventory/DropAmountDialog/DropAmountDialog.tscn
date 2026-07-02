@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Inventory/DropAmountDialog/drop_amount_dialog.gd" id="1"]
+
+[node name="DropAmountDialog" type="ConfirmationDialog"]
+title = "Drop Item"
+size = Vector2i(260, 120)
+script = ExtResource("1")
+
+[node name="AmountSpinBox" type="SpinBox" parent="."]
+unique_name_in_owner = true
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 252.0
+offset_bottom = 39.0
+select_all_on_focus = true
+
+[connection signal="confirmed" from="." to="." method="_on_confirmed"]
