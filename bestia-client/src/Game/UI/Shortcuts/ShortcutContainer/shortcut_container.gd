@@ -15,9 +15,12 @@ var shortcut_number: int = 0
 @onready var _count: Label = %Count
 @onready var _count_bg: PanelContainer = %ShortcutBg
 
+const DISABLED_MODULATE: Color = Color(0.4, 0.4, 0.4, 0.6)
+
 var _prompt_action: String = ""
 var _shortcut_data: ShortcutData = ShortcutData.new()
 var _is_dragging_self: bool = false
+var _disabled: bool = false
 
 
 func _ready() -> void:
@@ -110,6 +113,12 @@ func trigger_shortcut() -> void:
 	if _shortcut_data.is_empty():
 		return
 
+	# Precondition no longer met (e.g. item left the inventory while offline).
+	# Keep the assignment so it lights back up if the player gets the item
+	# again, but don't let it fire.
+	if _disabled:
+		return
+
 	# Default handling based on type
 	match _shortcut_data.type:
 		ShortcutData.ShortcutType.ITEM:
@@ -146,6 +155,14 @@ func update_item_count(count: int) -> void:
 	if _shortcut_data.type == ShortcutData.ShortcutType.ITEM:
 		_count.text = str(count)
 		_count_bg.visible = count > 0
+		set_disabled(count <= 0)
+
+
+# Grays out the icon and blocks trigger_shortcut() while keeping the
+# assignment, drag/drop, and clearing fully functional.
+func set_disabled(disabled: bool) -> void:
+	_disabled = disabled
+	_icon.modulate = DISABLED_MODULATE if disabled else Color.WHITE
 
 
 func clear_shortcut() -> void:
@@ -159,6 +176,7 @@ func _update_display() -> void:
 		_icon.texture = null
 		_icon.visible = false
 		_count_bg.visible = false
+		set_disabled(false)
 		return
 
 	_icon.visible = true
@@ -168,7 +186,7 @@ func _update_display() -> void:
 			var item = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
 			if item:
 				_icon.texture = item.icon
-				# Request initial count update
+				# Request initial count update, which also refreshes the disabled state
 				item_count_requested.emit(shortcut_row, shortcut_number, _shortcut_data.reference_id)
 				_count.visible = true
 			else:
@@ -177,6 +195,7 @@ func _update_display() -> void:
 			# TODO: Implement attack database similar to ItemDB
 			# For now just show a placeholder
 			_count.visible = false
+			set_disabled(false)
 
 
 func _use_item() -> void:

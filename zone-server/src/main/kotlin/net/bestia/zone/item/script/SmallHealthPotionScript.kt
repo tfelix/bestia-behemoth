@@ -1,13 +1,35 @@
 package net.bestia.zone.item.script
 
 import net.bestia.zone.ecs.Entity
+import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.entity.DamageEntitySMSG
+import net.bestia.zone.message.processor.OutMessageProcessor
 import org.springframework.stereotype.Component
 
 @Component
-class SmallHealthPotionScript : ItemScript {
+class SmallHealthPotionScript(
+  private val messageProcessor: OutMessageProcessor
+) : ItemScript {
   override val itemId = 3L
 
   override fun execute(user: Entity): Boolean {
-    TODO("Not yet implemented")
+    val hpComp = user.get(Health::class)
+      ?: return false
+
+    val healAmount = 45
+
+    hpComp.current += healAmount
+
+    val pos = user.get(Position::class)
+
+    // TODO this should not be send inside the lock. But where else put this? ideally this call should
+    // be ???
+    if (pos != null) {
+      val healMsg = DamageEntitySMSG.fromItemHeal(user.id, healAmount)
+      messageProcessor.sendToAllPlayersInRange(pos.toVec3L(), healMsg)
+    }
+
+    return true
   }
 }
