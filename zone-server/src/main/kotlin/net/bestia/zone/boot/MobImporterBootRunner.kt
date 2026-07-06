@@ -31,7 +31,8 @@ class MobImporterBootRunner(
     val health: Int,
     val mana: Int,
     val experience: Int,
-    val loot: List<Loot>
+    val loot: List<Loot>,
+    val ai: String? = null
   ) {
     data class Loot(
       @JsonProperty("item")
@@ -46,7 +47,8 @@ class MobImporterBootRunner(
       level = dto.level,
       mana = dto.mana,
       health = dto.health,
-      experienceReward = dto.experience
+      experienceReward = dto.experience,
+      aiProfile = dto.ai
     )
 
     createLootItem(bestia, dto)

@@ -1,0 +1,22 @@
+identifier: aggressive_melee
+faction: wild_beasts
+traits: { aggression: 0.8, courage: 0.6 }
+perception:
+  sight_radius: 8
+  sight_interval: 0.5
+  reacts_to: [enemy_seen, damaged]
+goals:
+  - name: kill_enemy          # bound to KillEnemyGoal (desired: TARGET_DEAD)
+    combine: product
+    considerations:
+      - { input: enemy_in_sight,   curve: identity }
+      - { input: own_health_pct,   curve: linear_rising }  # low HP => less eager
+      - { input: trait_aggression, curve: identity }
+  - name: flee                # bound to FleeGoal (desired: SELF_SAFE)
+    combine: product
+    considerations:
+      - { input: own_health_pct, curve: inverse }          # low HP => flee
+      - { input: trait_courage,  curve: inverse }
+  - name: idle_wander         # bound to WanderGoal
+    base_score: 0.1           # floor so wandering wins when nothing else scores
+actions: [approach_target, melee_attack, flee_to_safety, wander]

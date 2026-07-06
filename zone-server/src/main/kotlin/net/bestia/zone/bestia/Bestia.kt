@@ -16,7 +16,12 @@ class Bestia(
   val level: Int,
   val experienceReward: Int,
   val health: Int,
-  val mana: Int
+  val mana: Int,
+  /**
+   * Identifier of the AI archetype (`resources/ai/<name>.yml`) that drives this mob, or null for a
+   * mob without AI. H2 is in-memory and rebuilt on every boot, so no migration is needed.
+   */
+  val aiProfile: String? = null
 ) {
 
   init {

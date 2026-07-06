@@ -1,6 +1,6 @@
 identifier: blob
 # Statuswerte
-# AI setup
+ai: aggressive_melee
 health: 10
 mana: 8
 experience: 5

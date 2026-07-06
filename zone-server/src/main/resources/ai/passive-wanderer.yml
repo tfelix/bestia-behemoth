@@ -1,0 +1,13 @@
+identifier: passive_wanderer
+faction: critters
+traits: { aggression: 0.0, courage: 0.2 }
+perception: { sight_radius: 6, sight_interval: 1.0, reacts_to: [damaged] }
+goals:
+  - name: flee
+    combine: product
+    considerations:
+      - { input: enemy_in_sight, curve: identity }
+      - { input: trait_courage,  curve: inverse }
+  - name: idle_wander
+    base_score: 0.2
+actions: [flee_to_safety, wander]
