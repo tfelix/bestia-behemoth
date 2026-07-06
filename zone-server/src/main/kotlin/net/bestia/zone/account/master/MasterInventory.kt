@@ -9,15 +9,12 @@ import net.bestia.zone.item.Item
 @Embeddable
 class MasterInventory {
 
-  @Transient
-  internal lateinit var master: Master
-
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL])
   private val _items: MutableSet<InventoryItem> = mutableSetOf()
 
   val items: List<InventoryItem> get() = _items.toList()
 
-  fun addItem(item: Item, amount: Int) {
+  fun addItem(master: Master, item: Item, amount: Int) {
     _items.add(InventoryItem(master, item, amount))
   }
 

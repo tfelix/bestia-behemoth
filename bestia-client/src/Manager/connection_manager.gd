@@ -25,6 +25,7 @@ var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
+var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -110,6 +111,13 @@ func drop_item(item_id: int, amount: int) -> void:
 	var msg = DropItemCMSG.new()
 	msg.ItemId = item_id
 	msg.Amount = amount
+	socket.SendMessage(msg)
+
+
+func loot_item(entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = LootItemCMSG.new()
+	msg.EntityId = entity_id
 	socket.SendMessage(msg)
 
 

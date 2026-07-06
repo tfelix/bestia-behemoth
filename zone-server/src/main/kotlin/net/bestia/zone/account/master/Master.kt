@@ -64,9 +64,7 @@ class Master(
   var position: Vec3L = Vec3L.ZERO
 
   @Embedded
-  val inventory = MasterInventory().apply {
-    master = this@Master
-  }
+  val inventory = MasterInventory()
 
   val bestias = MasterBestias()
 

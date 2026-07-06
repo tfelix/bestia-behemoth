@@ -252,7 +252,7 @@ func vanish(msg: VanishEntitySMSG) -> void:
 	if visual != null && visual.has_method("vanish"):
 		visual.vanish(msg)
 	else:
-		print("Entity %s vanish not handled, removing it" % [entity_id])
+		print("Entity: Entity %s no vanish handler, simply remove it" % [entity_id])
 		queue_free()
 
 

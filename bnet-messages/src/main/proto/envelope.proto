@@ -35,6 +35,7 @@ import "messages/entity/damage_entity_smsg.proto";
 import "messages/inventory/get_inventory_cmsg.proto";
 import "messages/inventory/use_item_cmsg.proto";
 import "messages/inventory/drop_item_cmsg.proto";
+import "messages/inventory/loot_item_cmsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -62,6 +63,7 @@ message Envelope {
     GetInventoryCMSG get_inventory = 301;
     UseItemCMSG use_item = 302;
     DropItemCMSG drop_item = 303;
+    LootItemCMSG loot_item = 304;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;

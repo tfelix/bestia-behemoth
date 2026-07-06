@@ -48,9 +48,23 @@ class InventoryItemFactory(
    */
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-    master.inventory.addItem(item, amount)
+    master.inventory.addItem(master, item, amount)
     // TODO check if entity exists and add the item to its inventory component
     // TODO send message to update the connected entity client
+    masterRepository.save(master)
+  }
+
+  /**
+   * Adds an item directly to a master's DB inventory (by masterId) and saves immediately.
+   * Used for critical item transactions (e.g. looting) where the corresponding ECS/ground
+   * entity has already been removed first to avoid item duplication.
+   */
+  @Transactional
+  fun addItemToMaster(masterId: Long, itemIdentifier: String, amount: Int) {
+    val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
+    val master = masterRepository.findByIdOrThrow(masterId)
+
+    master.inventory.addItem(master, item, amount)
     masterRepository.save(master)
   }
 
