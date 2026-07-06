@@ -15,7 +15,13 @@ class MasterInventory {
   val items: List<InventoryItem> get() = _items.toList()
 
   fun addItem(master: Master, item: Item, amount: Int) {
-    _items.add(InventoryItem(master, item, amount))
+    val existing = _items.firstOrNull { it.item.identifier == item.identifier && it.playerBestia == null }
+
+    if (existing != null) {
+      existing.amount += amount
+    } else {
+      _items.add(InventoryItem(master, item, amount))
+    }
   }
 
   fun removeItem(itemIdentifier: String, amount: Int): Boolean {

@@ -4,7 +4,6 @@ class_name Inventory
 signal inventory_updated()
 
 var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem.tscn")
-var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/DropAmountDialog.tscn")
 
 ## This is only for testing. In reality you will receive the items from the server.
 @export var preset_items: Array[InventoryItemResource]
@@ -79,29 +78,6 @@ func _render_items() -> void:
 				pass
 			ItemResource.ItemType.EQUIP:
 				pass
-
-
-func _drop_data(_at_position: Vector2, data: Variant) -> void:
-	var item_id: int = data.get("id")
-	var owned_amount = get_item_count(item_id)
-	if owned_amount <= 0:
-		return
-
-	if owned_amount == 1:
-		ConnectionManager.drop_item(item_id, 1)
-		return
-
-	var item_resource = ItemDB.get_instance().get_item(item_id)
-	var dialog = DropAmountDialogScn.instantiate() as DropAmountDialog
-	add_child(dialog)
-	dialog.amount_confirmed.connect(func(id: int, amount: int) -> void: ConnectionManager.drop_item(id, amount))
-	dialog.confirmed.connect(dialog.queue_free)
-	dialog.canceled.connect(dialog.queue_free)
-	dialog.open_for(item_resource, owned_amount)
-
-
-func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	return typeof(data) == TYPE_DICTIONARY and data.get("source") == "inventory_item"
 
 
 func is_initialized_for_current_entity() -> bool:

@@ -2,11 +2,8 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.account.master.MasterNotFoundException
-import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.item.InventoryItemFactory
-import net.bestia.zone.item.ItemNotFoundException
 import net.bestia.zone.item.ItemRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -43,6 +40,7 @@ class ItemChatCommand(
     val amount = match.groupValues[2].toInt()
 
     val activeEntityId = connectionInfoService.getActiveEntityId(playerId)
+    val masterId = connectionInfoService.getMasterId(playerId)
 
     val item = itemArg.toLongOrNull()
       ?.let { itemRepository.findByIdOrNull(it) }
@@ -53,8 +51,8 @@ class ItemChatCommand(
       return false
     }
 
-    inventoryItemFactory.addItem(activeEntityId, item.identifier, amount)
-    LOG.info { "Added ${amount}x ${item.identifier} to master of active entity $activeEntityId" }
+    inventoryItemFactory.addItemToMasterAndEntity(masterId, activeEntityId, item.identifier, amount)
+    LOG.info { "Added ${amount}x ${item.identifier} to master $masterId (active entity $activeEntityId)" }
 
     return true
   }

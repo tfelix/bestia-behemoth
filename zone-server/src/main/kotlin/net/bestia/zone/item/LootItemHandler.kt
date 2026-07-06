@@ -2,10 +2,8 @@ package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.ZoneServer
-import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.entity.VanishEntitySMSG
@@ -77,19 +75,13 @@ class LootItemHandler(
 
     // Persist to the DB first (durable), then sync the ECS inventory + mark dirty so the
     // owner receives the updated InventoryComponentSMSG via the existing dirty pipeline.
-    inventoryItemFactory.addItemToMaster(masterId, item.identifier, claimed.amount)
-
-    zoneServer.withEntityWriteLock(activeEntityId) { entity ->
-      val inventory = entity.get(Inventory::class)
-
-      if (inventory == null) {
-        LOG.warn { "Entity $activeEntityId has no Inventory component, cannot sync looted item ${item.identifier}" }
-        return@withEntityWriteLock
-      }
-
-      inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = claimed.amount, uniqueId = claimed.uniqueId))
-      entity.add(IsDirty)
-    }
+    inventoryItemFactory.addItemToMasterAndEntity(
+      masterId = masterId,
+      activeEntityId = activeEntityId,
+      itemIdentifier = item.identifier,
+      amount = claimed.amount,
+      uniqueId = claimed.uniqueId
+    )
 
     return true
   }

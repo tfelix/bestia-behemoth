@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://coopsp0c6tacr"]
+[gd_scene load_steps=8 format=3 uid="uid://coopsp0c6tacr"]
 
 [ext_resource type="Script" uid="uid://q4ttbgw8tpr" path="res://Game/UI/ui.gd" id="1_ob0eg"]
 [ext_resource type="PackedScene" uid="uid://bxvkt1edgyru7" path="res://Game/UI/MasterProfile/MasterProfile.tscn" id="1_tk4wv"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://rcjqqxi34fvy" path="res://Game/UI/Shortcuts/Shortcuts.tscn" id="4_i53xh"]
 [ext_resource type="PackedScene" uid="uid://cwbs83nwsc1m3" path="res://Game/UI/Inventory/Inventory.tscn" id="5_3d66e"]
 [ext_resource type="PackedScene" uid="uid://cpr86ux66vb8e" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
+[ext_resource type="PackedScene" path="res://Game/UI/GroundDropZone/GroundDropZone.tscn" id="7_gdz01"]
 
 [node name="UI" type="Control"]
 layout_mode = 3
@@ -17,16 +18,20 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_ob0eg")
 
+[node name="GroundDropZone" parent="." node_paths=PackedStringArray("inventory") instance=ExtResource("7_gdz01")]
+layout_mode = 1
+inventory = NodePath("../Inventory")
+
+[node name="Inventory" parent="." instance=ExtResource("5_3d66e")]
+visible = false
+layout_mode = 1
+
 [node name="Shortcuts" parent="." node_paths=PackedStringArray("inventory") instance=ExtResource("4_i53xh")]
 layout_mode = 1
 offset_left = -168.0
 offset_top = -136.0
 offset_right = 168.0
 inventory = NodePath("../Inventory")
-
-[node name="Inventory" parent="." instance=ExtResource("5_3d66e")]
-visible = false
-layout_mode = 1
 
 [node name="Skills" parent="." instance=ExtResource("6_61e43")]
 visible = false

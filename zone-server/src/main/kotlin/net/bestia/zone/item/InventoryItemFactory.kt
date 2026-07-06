@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.player.Master as MasterComponent
+import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,32 +26,13 @@ class InventoryItemFactory(
   private val zoneServer: ZoneServer,
 ) {
 
-  fun addItem(entityId: Long, itemIdentifier: String, amount: Int) {
-    val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-
-    val accessed = zoneServer.withEntityWriteLock(entityId) { entity ->
-      val inventory = entity.get(Inventory::class) ?: run {
-        LOG.warn { "Entity $entityId has no Inventory component, cannot add item $itemIdentifier" }
-        return@withEntityWriteLock
-      }
-
-      inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount))
-      entity.add(IsDirty)
-    }
-
-    if (accessed == null) {
-      LOG.warn { "Entity $entityId not found, cannot add item $itemIdentifier" }
-    }
-  }
-
   /**
-   * Adds item directly to a master entity. Ideally there should be no difference and those commends should be unified.
+   * Adds an item directly to a master entity that has no live ECS entity yet (e.g. during
+   * DB seeding/bootstrapping). Does not touch any ECS inventory component.
    */
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
     master.inventory.addItem(master, item, amount)
-    // TODO check if entity exists and add the item to its inventory component
-    // TODO send message to update the connected entity client
     masterRepository.save(master)
   }
 
@@ -60,12 +42,43 @@ class InventoryItemFactory(
    * entity has already been removed first to avoid item duplication.
    */
   @Transactional
-  fun addItemToMaster(masterId: Long, itemIdentifier: String, amount: Int) {
+  fun addItemToMaster(masterId: Long, itemIdentifier: String, amount: Int): Item {
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
     val master = masterRepository.findByIdOrThrow(masterId)
 
     master.inventory.addItem(master, item, amount)
     masterRepository.save(master)
+
+    return item
+  }
+
+  /**
+   * Adds an item to a master's DB inventory and mirrors it into the currently active entity's
+   * ECS inventory component (master's own entity, or whichever bestia entity the player has
+   * selected). This is the DB-first, then-ECS ordering used everywhere items are granted, so
+   * that a crash between the two steps never loses the durable DB write.
+   */
+  @Transactional
+  fun addItemToMasterAndEntity(
+    masterId: Long,
+    activeEntityId: EntityId,
+    itemIdentifier: String,
+    amount: Int,
+    uniqueId: Long = 0
+  ) {
+    val item = addItemToMaster(masterId, itemIdentifier, amount)
+
+    zoneServer.withEntityWriteLock(activeEntityId) { entity ->
+      val inventory = entity.get(Inventory::class)
+
+      if (inventory == null) {
+        LOG.warn { "Entity $activeEntityId has no Inventory component, cannot sync item $itemIdentifier" }
+        return@withEntityWriteLock
+      }
+
+      inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount, uniqueId = uniqueId))
+      entity.add(IsDirty)
+    }
   }
 
   /**
