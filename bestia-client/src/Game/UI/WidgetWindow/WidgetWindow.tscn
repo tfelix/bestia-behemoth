@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b1nffouceksfy"]
+
+[ext_resource type="Script" uid="uid://dw58wys6ugg2g" path="res://Game/UI/WidgetWindow/widget_window.gd" id="1_1n0w0"]
+
+[node name="Window" type="Window" unique_id=434596666]
+oversampling_override = 1.0
+title = "Apple"
+initial_position = 2
+popup_window = true
+script = ExtResource("1_1n0w0")

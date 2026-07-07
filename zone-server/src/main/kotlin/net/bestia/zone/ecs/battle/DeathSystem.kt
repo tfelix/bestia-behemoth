@@ -31,8 +31,9 @@ class DeathSystem(
     zone: ZoneServer
   ) {
     LOG.debug { "Entity $entity is dead" }
-    val givenExp = entity.getOrThrow(GivenExp::class).value
-    val damageDealer = entity.getOrThrow(TakenDamage::class).damagePercentages()
+
+    val givenExp = entity.get(GivenExp::class)?.value ?: 0
+    val damageDealer = entity.get(TakenDamage::class)?.damagePercentages() ?: emptyMap()
 
     assignExp(givenExp, damageDealer, zone)
     spawnLoot(entity, zone)

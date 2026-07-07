@@ -11,10 +11,10 @@ spring:
     console:
       enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create
     show-sql: false  # Optional: Show SQL statements in logs
+    open-in-view: false
 
 eip712:
   name: "Bestia Login"

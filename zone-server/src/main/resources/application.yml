@@ -37,7 +37,11 @@ spring:
     hibernate:
       ddl-auto: create  # This setting will drop and recreate the schema on every start
     show-sql: false  # Optional: Show SQL statements in logs
+    open-in-view: false
 
   h2:
     console:
       enabled: true  # Optional: Enable H2 console for accessing the database
+
+  main:
+    web-application-type: none

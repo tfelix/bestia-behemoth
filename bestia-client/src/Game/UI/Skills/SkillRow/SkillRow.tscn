@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://dw3cq4i6mv37x"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3agn1"]
+
+[node name="SkillRow" type="MarginContainer" unique_id=2050178806]
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_bottom = 0
+
+[node name="Row" type="HBoxContainer" parent="." unique_id=2056366901]
+layout_mode = 2
+
+[node name="IconMargin" type="MarginContainer" parent="Row" unique_id=2096059820]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 8
+
+[node name="TextureRect" type="TextureRect" parent="Row/IconMargin" unique_id=610906410]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("PlaceholderTexture2D_3agn1")
+
+[node name="SkillTextMargin" type="MarginContainer" parent="Row" unique_id=1576502014]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+
+[node name="SkillText" type="VBoxContainer" parent="Row/SkillTextMargin" unique_id=1219972526]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="SkillName" type="Label" parent="Row/SkillTextMargin/SkillText" unique_id=685417144]
+layout_mode = 2
+text = "Skill Name"
+
+[node name="DetailRow" type="HBoxContainer" parent="Row/SkillTextMargin/SkillText" unique_id=1145346994]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="LevelContainer" type="HBoxContainer" parent="Row/SkillTextMargin/SkillText/DetailRow" unique_id=1445451820]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LevelMinusButton" type="Button" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=652773603]
+layout_mode = 2
+text = "<"
+
+[node name="SkillLevel" type="Label" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=2134942359]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Lv: 10 / 10"
+horizontal_alignment = 1
+
+[node name="LevelPlusButton" type="Button" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=1627854384]
+layout_mode = 2
+text = ">"
+
+[node name="ManaLabel" type="Label" parent="Row/SkillTextMargin/SkillText/DetailRow" unique_id=431671648]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Mana: 10"

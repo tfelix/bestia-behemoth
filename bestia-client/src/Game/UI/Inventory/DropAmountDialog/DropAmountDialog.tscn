@@ -1,18 +1,22 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bmeiynq50flya"]
 
-[ext_resource type="Script" path="res://Game/UI/Inventory/DropAmountDialog/drop_amount_dialog.gd" id="1"]
+[ext_resource type="Script" uid="uid://268mgw42g5v7" path="res://Game/UI/Inventory/DropAmountDialog/drop_amount_dialog.gd" id="1"]
 
-[node name="DropAmountDialog" type="ConfirmationDialog"]
+[node name="DropAmountDialog" type="ConfirmationDialog" unique_id=934601456]
+oversampling_override = 1.0
 title = "Drop Item"
-size = Vector2i(260, 120)
+visible = true
 script = ExtResource("1")
 
-[node name="AmountSpinBox" type="SpinBox" parent="."]
+[node name="AmountSpinBox" type="SpinBox" parent="." unique_id=418567536]
 unique_name_in_owner = true
 offset_left = 8.0
 offset_top = 8.0
-offset_right = 252.0
-offset_bottom = 39.0
+offset_right = 192.0
+offset_bottom = 51.0
+min_value = 1.0
+max_value = 1000.0
+value = 1.0
 select_all_on_focus = true
 
 [connection signal="confirmed" from="." to="." method="_on_confirmed"]

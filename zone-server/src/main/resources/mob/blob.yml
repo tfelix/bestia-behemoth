@@ -1,6 +1,6 @@
 identifier: blob
 # Statuswerte
-ai: aggressive_melee
+ai: passive_wanderer
 health: 10
 mana: 8
 experience: 5
