@@ -1,3 +1,8 @@
+---
+name: gen-protobuf
+description: Regenerate the C# protobuf client files after editing any .proto file in bnet-messages/src/main/proto/. Use this whenever a .proto message definition changed, before committing — otherwise the Godot client (bestia-client) keeps stale generated code that no longer matches the schema. Triggers on: .proto, protobuf, protoc, Envelope, CMSG, SMSG, bnet-messages, regenerate proto, gen-protobuf.
+---
+
 # Regenerate Protobuf Messages
 
 Run this skill after modifying any `.proto` file in `bnet-messages/src/main/proto/` to regenerate the C# files used by the Godot client.
