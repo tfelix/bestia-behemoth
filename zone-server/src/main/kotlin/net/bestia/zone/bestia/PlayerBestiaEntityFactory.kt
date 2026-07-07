@@ -1,20 +1,20 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.util.PlayerBestiaId
-import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.World
+import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PlayerBestiaEntityFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
-  private val zoneServer: ZoneServer,
+  private val world: World,
   private val connectionInfoService: ConnectionInfoService
 ) {
 
@@ -35,13 +35,11 @@ class PlayerBestiaEntityFactory(
     playerBestia: PlayerBestia,
   ) {
     // spawn the entity into the world
-    val entityId = zoneServer.addEntityWithWriteLock { entity ->
-      entity.addAll(
-        Position.fromVec3(playerBestia.position),
-        Level(playerBestia.level),
-        Speed(),
-        BestiaVisual(playerBestia.bestia.id.toInt())
-      )
+    val entityId = world.createEntity { id ->
+      world.add(id, Position.fromVec3(playerBestia.position))
+      world.add(id, Level(playerBestia.level))
+      world.add(id, Speed())
+      world.add(id, BestiaVisual(playerBestia.bestia.id.toInt()))
     }
 
     val accountId = playerBestia.master.account.id
@@ -62,4 +60,3 @@ class PlayerBestiaEntityFactory(
     private val LOG = KotlinLogging.logger { }
   }
 }
-

@@ -1,8 +1,8 @@
 package net.bestia.zone.item.script
 
-import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.network.IsDirty
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.item.Item
 import org.springframework.stereotype.Service
 
@@ -13,16 +13,16 @@ class ItemScriptExecutionService(
 
   private val itemScriptsById = itemScripts.associateBy { it.itemId }
 
-  fun useItem(entity: Entity, item: Item) {
+  fun useItem(world: World, userId: EntityId, item: Item) {
     val itemScript = itemScriptsById[item.id]
       ?: throw ItemScriptNotFoundException(item)
 
-    val isSuccess = itemScript.execute(entity)
+    val isSuccess = itemScript.execute(world, userId)
 
     if (isSuccess) {
-      val inventory = entity.getOrThrow(Inventory::class)
+      val inventory = world.getOrThrow(userId, Inventory::class)
       inventory.decItem(item.id.toInt())
-      entity.add(IsDirty)
+      world.markChanged<Inventory>(userId)
     }
   }
 }

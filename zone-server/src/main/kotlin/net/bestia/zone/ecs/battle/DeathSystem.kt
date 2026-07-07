@@ -2,87 +2,62 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.network.IsDirty
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.GivenExp
-import net.bestia.zone.ecs.ZoneServer
-import net.bestia.zone.item.LootEntityFactory
-import net.bestia.zone.message.entity.VanishEntitySMSG
-import net.bestia.zone.message.processor.OutMessageProcessor
-import net.bestia.zone.util.EntityId
-import org.springframework.stereotype.Component
+import net.bestia.zone.ecs.visual.BestiaVisual
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
+import net.bestia.zone.engine.EntityDiedEvent
+import org.springframework.core.annotation.Order
 import kotlin.math.floor
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
-@Component
-class DeathSystem(
-  private val outMessageProcessor: OutMessageProcessor,
-  private val itemEntityFactory: LootEntityFactory
-) : IteratingSystem() {
-  override val requiredComponents = setOf(
-    Dead::class
-  )
+@SpringComponent
+@Order(70)
+class DeathSystem : Ecs2System {
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    LOG.debug { "Entity $entity is dead" }
+  override val reads: Set<KClass<out Component>> =
+    setOf(Dead::class, GivenExp::class, TakenDamage::class, BestiaVisual::class, Position::class)
+  override val writes: Set<KClass<out Component>> = setOf(Exp::class)
 
-    val givenExp = entity.get(GivenExp::class)?.value ?: 0
-    val damageDealer = entity.get(TakenDamage::class)?.damagePercentages() ?: emptyMap()
+  override fun update(world: World, deltaTime: Float) {
+    // Snapshot the dead entities first: iteration mutates other entities (exp) and destroys these.
+    val dead = ArrayList<EntityId>()
+    world.query(Dead::class).each { id, _ -> dead.add(id) }
 
-    assignExp(givenExp, damageDealer, zone)
-    spawnLoot(entity, zone)
-    sendDeathAnimation(entity, zone)
+    for (id in dead) {
+      LOG.debug { "Entity $id is dead" }
+      val givenExp = world.getOrThrow(id, GivenExp::class).value
+      val damageDealer = world.getOrThrow(id, TakenDamage::class).damagePercentages()
 
-    zone.removeEntity(entity.id)
+      assignExp(world, givenExp, damageDealer)
+
+      val position = world.getOrThrow(id, Position::class).toVec3L()
+      val lootBestiaId = world.get(id, BestiaVisual::class)?.id?.toLong()
+
+      world.emit(EntityDiedEvent(entityId = id, position = position, lootBestiaId = lootBestiaId))
+
+      world.destroy(id)
+    }
   }
 
   private fun assignExp(
+    world: World,
     givenExp: Int,
     damageDealer: Map<EntityId, Float>,
-    zone: ZoneServer
   ) {
     LOG.debug { "Distribute $givenExp EXP to $damageDealer" }
 
     damageDealer.forEach { (entityId, percent) ->
+      if (!world.isAlive(entityId)) return@forEach
       val receivedExp = floor(givenExp * percent).toInt()
 
-      zone.withEntityWriteLock(entityId) { entity ->
-        val addExp = entity.getOrDefault(Exp::class) { Exp() }
-
-        addExp.value += receivedExp
-        entity.add(IsDirty)
-      }
-    }
-  }
-
-  private fun spawnLoot(entity: Entity, zone: ZoneServer) {
-    val bestiaId = entity.get(BestiaVisual::class)?.id?.toLong()
-      ?: return
-
-    val pos = entity.get(Position::class)?.toVec3L()
-      ?: return
-
-    zone.queueExternalJob {
-      itemEntityFactory.createLootEntities(bestiaId, pos)
-    }
-  }
-
-  private fun sendDeathAnimation(entity: Entity, zone: ZoneServer) {
-    val position = entity.getOrThrow(Position::class).toVec3L()
-    val entityId = entity.id
-    val vanishMsg = VanishEntitySMSG(
-      entityId = entityId,
-      kind = VanishEntitySMSG.VanishKind.DEATH
-    )
-
-    zone.queueExternalJob {
-      outMessageProcessor.sendToAllPlayersInRange(position, vanishMsg)
+      val exp = world.get(entityId, Exp::class) ?: world.add(entityId, Exp())
+      exp.value += receivedExp
+      world.markChanged<Exp>(entityId)
     }
   }
 

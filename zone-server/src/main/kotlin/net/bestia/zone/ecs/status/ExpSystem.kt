@@ -1,38 +1,33 @@
 package net.bestia.zone.ecs.status
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.ComponentSet
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs.ZoneServer
-import org.springframework.stereotype.Component
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.World
+import org.springframework.core.annotation.Order
 import kotlin.math.pow
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
-@Component
-class ExpSystem : IteratingSystem() {
-  override val requiredComponents: ComponentSet = setOf(
-    Exp::class,
-    Level::class
-  )
+@SpringComponent
+@Order(60)
+class ExpSystem : Ecs2System {
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    val levelComp = entity.getOrThrow(Level::class)
-    val expComp = entity.getOrThrow(Exp::class)
+  override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class)
 
-    var requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
-    while (expComp.value >= requiredExpNextLevel) {
-      expComp.value -= requiredExpNextLevel
-      levelComp.inc()
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Exp::class, Level::class).each { id, expComp, levelComp ->
+      var requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
+      while (expComp.value >= requiredExpNextLevel) {
+        expComp.value -= requiredExpNextLevel
+        levelComp.inc()
 
-      requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
-      entity.add(IsDirty)
+        requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
+        world.markChanged<Level>(id)
+        world.markChanged<Exp>(id)
 
-      LOG.debug { "$entity got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
+        LOG.debug { "$id got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
+      }
     }
   }
 

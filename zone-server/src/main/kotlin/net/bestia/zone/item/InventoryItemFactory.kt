@@ -4,11 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs.player.Master as MasterComponent
-import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 class InventoryItemFactory(
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
-  private val zoneServer: ZoneServer,
+  private val world: World,
 ) {
 
   /**
@@ -68,16 +66,16 @@ class InventoryItemFactory(
   ) {
     val item = addItemToMaster(masterId, itemIdentifier, amount)
 
-    zoneServer.withEntityWriteLock(activeEntityId) { entity ->
-      val inventory = entity.get(Inventory::class)
+    world.modify(activeEntityId) { id ->
+      val inventory = world.get(id, Inventory::class)
 
       if (inventory == null) {
         LOG.warn { "Entity $activeEntityId has no Inventory component, cannot sync item $itemIdentifier" }
-        return@withEntityWriteLock
+        return@modify
       }
 
       inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount, uniqueId = uniqueId))
-      entity.add(IsDirty)
+      world.markChanged<Inventory>(id)
     }
   }
 

@@ -6,7 +6,7 @@ import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.ecs.spawn.Spawner
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.InventoryItemFactory
 import org.springframework.boot.CommandLineRunner
@@ -28,7 +28,7 @@ class DevDataBootstrapRunner(
   private val accountFactory: AccountFactory,
   private val masterFactory: MasterFactory,
   private val inventoryItemFactory: InventoryItemFactory,
-  private val zoneServer: ZoneServer
+  private val world: World
 ) : CommandLineRunner {
 
   override fun run(vararg args: String?) {
@@ -59,8 +59,9 @@ class DevDataBootstrapRunner(
   }
 
   private fun spawnMobs() {
-    zoneServer.addEntityWithWriteLock {
-      it.add(
+    world.createEntity { id ->
+      world.add(
+        id,
         Spawner(
           position = Vec3L.ZERO,
           bestiaId = 1,

@@ -5,43 +5,47 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
+import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.ZoneServer
-import org.springframework.stereotype.Component
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * This will identify what type of entity it is and then remove it as some
  * entities like player bestia and  master have different DB tables and are not
  * stored like the regular entities.
  */
-@Component
+@SpringComponent
+@Order(90)
 class PersistAndRemoveSystem(
   private val masterRepository: MasterRepository
-) : IteratingSystem() {
-  override val requiredComponents = setOf(
-    PersistAndRemove::class
-  )
+) : Ecs2System {
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    if (entity.has(Master::class)) {
-      persistMasterEntity(entity)
-    } else {
-      LOG.warn { "Found no persistence handler for entity: $entity, it will not be persisted" }
+  override val reads: Set<KClass<out Component>> =
+    setOf(PersistAndRemove::class, Master::class, Position::class, Level::class)
+
+  override fun update(world: World, deltaTime: Float) {
+    val toRemove = ArrayList<EntityId>()
+    world.query(PersistAndRemove::class).each { id, _ -> toRemove.add(id) }
+
+    for (id in toRemove) {
+      if (world.has(id, Master::class)) {
+        persistMasterEntity(world, id)
+      } else {
+        LOG.warn { "Found no persistence handler for entity: $id, it will not be persisted" }
+      }
+      world.destroy(id)
     }
-    // Remove the entity from the world
-    zone.removeEntity(entity.id)
   }
 
-  private fun persistMasterEntity(entity: Entity) {
-    val masterComponent = entity.getOrThrow(Master::class)
-    val positionComponent = entity.getOrThrow(Position::class)
-    val levelComponent = entity.getOrThrow(Level::class)
+  private fun persistMasterEntity(world: World, id: EntityId) {
+    val masterComponent = world.getOrThrow(id, Master::class)
+    val positionComponent = world.getOrThrow(id, Position::class)
+    val levelComponent = world.getOrThrow(id, Level::class)
 
     val masterEntity = masterRepository.findByIdOrNull(masterComponent.masterId)
 

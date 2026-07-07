@@ -1,29 +1,29 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.ecs2
 
-class EntityIdGenerator(
-  private val nodeId: Int,
-  private val epochMillis: Long = 1704067200000L // 2024-01-01 as custom epoch
+/**
+ * Snowflake-style [EntityId] generator (timestamp | node | sequence). Produces ids in the same
+ * space the project used before (via the old `net.bestia.zone.ecs.EntityIdGenerator`) so entity ids
+ * stay unique and roughly monotonic across the zone.
+ */
+class SnowflakeEntityIdGenerator(
+  private val nodeId: Int = 1,
+  private val epochMillis: Long = 1704067200000L, // 2024-01-01 as custom epoch
 ) {
   init {
     require(nodeId in 0..255) { "Node ID must be between 0 and 255" }
   }
 
-  // Bit allocation
-  private val nodeBits = 8
   private val sequenceBits = 11
-
+  private val nodeBits = 8
   private val maxSequence = (1 shl sequenceBits) - 1 // 2047
   private val nodeShift = sequenceBits
   private val timestampShift = sequenceBits + nodeBits
 
-  @Volatile
   private var lastTimestamp = -1L
-
-  @Volatile
   private var sequence = 0
 
   @Synchronized
-  fun nextId(): Long {
+  fun nextId(): EntityId {
     val currentTimestamp = System.currentTimeMillis()
 
     if (currentTimestamp < lastTimestamp) {
@@ -33,7 +33,6 @@ class EntityIdGenerator(
     if (currentTimestamp == lastTimestamp) {
       sequence++
       if (sequence > maxSequence) {
-        // Sequence overflow → keine weiteren IDs in diesem ms
         throw IllegalStateException("Too many IDs generated in the same millisecond")
       }
     } else {

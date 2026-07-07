@@ -2,6 +2,7 @@ package net.bestia.zone.ecs2.spring
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs2.World
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -23,8 +24,12 @@ class Ecs2Configuration {
   fun ecs2World(
     systems: List<Ecs2System>,
     @Value("\${ecs2.parallel-systems:false}") parallelSystems: Boolean,
+    @Value("\${zone.shard-id:1}") shardId: Int,
   ): World {
-    val world = World(parallelSystems = parallelSystems)
+    val idGenerator = SnowflakeEntityIdGenerator(nodeId = shardId.coerceIn(0, 255))
+    // Spring orders the injected list by @Order, giving a deterministic system execution order
+    // (single-threaded => execution order == registration order).
+    val world = World(parallelSystems = parallelSystems, idGenerator = idGenerator::nextId)
     world.addSystems(systems)
     LOG.info {
       "ecs2 World initialised (parallel=$parallelSystems) with ${systems.size} system(s) " +

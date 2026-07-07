@@ -1,17 +1,17 @@
 package net.bestia.zone.ai.behavior
 
 import net.bestia.zone.ai.ecs.Brain
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 
 /**
- * Everything a behaviour-tree leaf needs while ticking: the NPC's own [entity] (already held under
- * its write lock by the act system), its [brain], the [zone] (for the single sanctioned foreign
- * write — applying damage to the target), and the frame [deltaTime].
+ * Everything a behaviour-tree leaf needs while ticking: the [world], the NPC's own [entityId], its
+ * [brain] and the frame [deltaTime]. Leaves read/write ECS state directly through the world (which
+ * is already locked by the running act system on the tick thread).
  */
 class BtContext(
-  val entity: Entity,
+  val world: World,
+  val entityId: EntityId,
   val brain: Brain,
-  val zone: ZoneServer,
   val deltaTime: Float
 )

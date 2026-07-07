@@ -5,12 +5,12 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.entity.AttackEntityCMSG
 import net.bestia.zone.entity.DamageEntitySMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.message.processor.OutMessageProcessor
-import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 
@@ -21,7 +21,7 @@ import kotlin.random.Random
 @Component
 class AttackEntityHandler(
   private val messageProcessor: OutMessageProcessor,
-  private val zoneServer: ZoneServer,
+  private val world: World,
   private val masterResolver: MasterResolver
 ) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
   override val handles = AttackEntityCMSG::class
@@ -37,24 +37,14 @@ class AttackEntityHandler(
       return true
     }
 
-    // TODO: Implement attack logic
-    // - Validate that the player can attack the target entity
-    // - Check if the target is in range
-
-    // TODO check if we need to go into the ECS for this or if we can do this from the outside?
-    // - Process attack mechanics
-    // - Send damage/combat result messages
-
     val damageTaken = Random.nextInt(1, 7)
 
-    zoneServer.withEntityWriteLock(msg.targetEntityId) { entity ->
-      val damage = entity.getOrDefault(Damage::class) { Damage() }
+    world.modify(msg.targetEntityId) { id ->
+      val damage = world.get(id, Damage::class) ?: world.add(id, Damage())
       damage.add(damageTaken, masterEntityId)
     }
 
-    val position = zoneServer.withEntityReadLockOrThrow(masterEntityId) {
-      it.getOrThrow(Position::class).toVec3L()
-    }
+    val position = world.getOrThrow(masterEntityId, Position::class).toVec3L()
 
     val damageMsg = DamageEntitySMSG(
       entityId = msg.targetEntityId,
@@ -79,10 +69,8 @@ class AttackEntityHandler(
     return if (usedAttackId == 0L) {
       true
     } else {
-      zoneServer.withEntityReadLockOrThrow(attackingEntityId) {
-        it.getOrThrow(AvailableAttacks::class)
-          .knowsAttack(usedAttackId, usedSkillLevel)
-      }
+      world.getOrThrow(attackingEntityId, AvailableAttacks::class)
+        .knowsAttack(usedAttackId, usedSkillLevel)
     }
   }
 

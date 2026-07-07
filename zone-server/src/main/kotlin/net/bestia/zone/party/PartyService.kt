@@ -7,7 +7,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.World
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 class PartyService(
   private val partyRepository: PartyRepository,
   private val masterResolver: MasterResolver,
-  private val zoneServer: ZoneServer,
+  private val world: World,
 ) {
   companion object {
     const val MAX_PARTY_SIZE = 12
@@ -194,9 +194,9 @@ class PartyService(
       val partyMemberEntityId = findEntityIdByMaster(partyMemberMaster)
         ?: return@mapNotNull null
 
-      zoneServer.withEntityReadLock(partyMemberEntityId) { entity ->
-        val health = entity.getOrThrow(Health::class)
-        val position = entity.getOrThrow(Position::class)
+      world.modify(partyMemberEntityId) { id ->
+        val health = world.getOrThrow(id, Health::class)
+        val position = world.getOrThrow(id, Position::class)
 
         PartyInfoSMSG.PartyMember(
           masterName = partyMemberMaster.name,

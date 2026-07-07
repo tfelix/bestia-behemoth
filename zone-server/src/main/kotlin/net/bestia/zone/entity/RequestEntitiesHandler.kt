@@ -1,7 +1,6 @@
 package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.ComponentNotFoundException
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Path
@@ -12,7 +11,8 @@ import net.bestia.zone.ecs.visual.BestiaVisual
 import net.bestia.zone.ecs.visual.BestiaVisualComponentSMSG
 import net.bestia.zone.ecs.visual.ItemVisualComponentSMSG
 import net.bestia.zone.ecs.visual.MasterVisual
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
@@ -22,7 +22,6 @@ import net.bestia.zone.message.entity.SpeedSMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.util.AccountId
-import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 
@@ -34,7 +33,7 @@ class RequestEntitiesHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
   private val aoiService: EntityAOIService,
-  private val zoneServer: ZoneServer,
+  private val world: World,
 ) : InMessageProcessor.IncomingMessageHandler<GetAllEntitiesCMSG> {
   override val handles: KClass<GetAllEntitiesCMSG> = GetAllEntitiesCMSG::class
 
@@ -61,100 +60,53 @@ class RequestEntitiesHandler(
     return true
   }
 
-  private fun tryBuildMasterComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val masterComp = entity.getOrThrow(MasterVisual::class)
+  private fun tryBuildMasterComponent(entityId: EntityId): SMSG? {
+    val masterComp = world.get(entityId, MasterVisual::class) ?: return null
 
-        MasterVisualComponentSMSG(
-          entityId = entityId,
-          skinColor = masterComp.skinColor,
-          hairColor = masterComp.hairColor,
-          face = masterComp.face,
-          body = masterComp.body,
-          hair = masterComp.hair
-        )
-      }
-    }
+    return MasterVisualComponentSMSG(
+      entityId = entityId,
+      skinColor = masterComp.skinColor,
+      hairColor = masterComp.hairColor,
+      face = masterComp.face,
+      body = masterComp.body,
+      hair = masterComp.hair
+    )
   }
 
-  private fun tryBuildBestiaComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val bestiaComp = entity.getOrThrow(BestiaVisual::class)
+  private fun tryBuildBestiaComponent(entityId: EntityId): SMSG? {
+    val bestiaComp = world.get(entityId, BestiaVisual::class) ?: return null
 
-        BestiaVisualComponentSMSG(entityId, bestiaComp.id)
-      }
-    }
+    return BestiaVisualComponentSMSG(entityId, bestiaComp.id)
   }
 
-  private fun tryBuildPositionComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val positionComp = entity.getOrThrow(Position::class)
+  private fun tryBuildPositionComponent(entityId: EntityId): SMSG? {
+    val positionComp = world.get(entityId, Position::class) ?: return null
 
-        PositionSMSG(entityId, positionComp.toVec3L())
-      }
-    }
+    return PositionSMSG(entityId, positionComp.toVec3L())
   }
 
-  private fun tryBuildPathComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val pathComp = entity.getOrThrow(Path::class)
+  private fun tryBuildPathComponent(entityId: EntityId): SMSG? {
+    val pathComp = world.get(entityId, Path::class) ?: return null
 
-        PathSMSG(entityId, pathComp.path)
-      }
-    }
+    return PathSMSG(entityId, pathComp.path)
   }
 
-  private fun tryBuildSpeedComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val speedComp = entity.getOrThrow(Speed::class)
+  private fun tryBuildSpeedComponent(entityId: EntityId): SMSG? {
+    val speedComp = world.get(entityId, Speed::class) ?: return null
 
-        SpeedSMSG(entityId, speedComp.speed)
-      }
-    }
+    return SpeedSMSG(entityId, speedComp.speed)
   }
 
-  private fun tryBuildLootComponent(
-    entityId: EntityId,
-  ): SMSG? {
-    return withComponentNotFoundCatch {
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val lootComp = entity.getOrThrow(Loot::class)
+  private fun tryBuildLootComponent(entityId: EntityId): SMSG? {
+    val lootComp = world.get(entityId, Loot::class) ?: return null
 
-        ItemVisualComponentSMSG(entityId, lootComp.itemId.toInt(), lootComp.amount, lootComp.uniqueId)
-      }
-    }
-  }
-
-  private fun withComponentNotFoundCatch(fn: () -> SMSG): SMSG? {
-    return try {
-      fn()
-    } catch (_: ComponentNotFoundException) {
-      null
-    }
+    return ItemVisualComponentSMSG(entityId, lootComp.itemId.toInt(), lootComp.amount, lootComp.uniqueId)
   }
 
   private fun findPositionOfActive(accountId: AccountId): Vec3L {
     val activeEntity = connectionInfoService.getActiveEntityId(accountId)
 
-    return zoneServer.withEntityReadLockOrThrow(activeEntity) { entity ->
-      val positionComp = entity.getOrThrow(Position::class)
-      positionComp.toVec3L()
-    }
+    return world.getOrThrow(activeEntity, Position::class).toVec3L()
   }
 
   private fun getEntitiesInRange(queryPos: Vec3L): List<EntityId> {

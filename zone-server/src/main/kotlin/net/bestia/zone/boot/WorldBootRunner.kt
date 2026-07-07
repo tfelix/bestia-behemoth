@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.engine.ZoneEngine
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.Ordered
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 class WorldBootRunner(
-  private val ecsZoneServer: ZoneServer
+  private val zoneEngine: ZoneEngine
 ) : ApplicationRunner {
   override fun run(args: ApplicationArguments?) {
-    ecsZoneServer.start()
+    zoneEngine.start()
   }
 }

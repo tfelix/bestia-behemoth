@@ -5,14 +5,14 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.message.SelfSMSG
 import org.springframework.stereotype.Component
 
 @Component
 class BestiaInfoFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
-  private val zoneServer: ZoneServer
+  private val world: World
 ) {
 
   fun getBestiaInfo(playerEntities: Collection<ConnectionInfoService.PlayerEntity>): List<SelfSMSG.BestiaInfo> {
@@ -24,9 +24,9 @@ class BestiaInfoFactory(
       val playerBestia = playerBestiasById[playerBestiaId]
         ?: throw PlayerBestiaNotFoundException(playerBestiaId)
 
-      zoneServer.withEntityReadLockOrThrow(entityId) { entity ->
-        val position = entity.getOrThrow(Position::class).toVec3L()
-        val level = entity.getOrThrow(Level::class).level
+      world.modifyOrThrow(entityId) { id ->
+        val position = world.getOrThrow(id, Position::class).toVec3L()
+        val level = world.getOrThrow(id, Level::class).level
 
         SelfSMSG.BestiaInfo(
           entityId = entityId,

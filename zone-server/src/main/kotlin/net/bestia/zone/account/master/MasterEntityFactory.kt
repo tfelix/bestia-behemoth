@@ -1,19 +1,18 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.Health
-import net.bestia.zone.ecs.player.Account
+import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.network.IsDirty
+import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
 import net.bestia.zone.ecs.player.Master as MasterComponent
+import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.visual.MasterVisual
-import net.bestia.zone.ecs.ZoneServer
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Component
 class MasterEntityFactory(
-  private val zoneServer: ZoneServer,
+  private val world: World,
   private val masterRepository: MasterRepository,
   private val connectionInfoService: ConnectionInfoService,
 ) {
@@ -38,23 +37,21 @@ class MasterEntityFactory(
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
-    return zoneServer.addEntityWithWriteLock { entity ->
+    return world.createEntity { id ->
       connectionInfoService.activateSession(
         accountId = master.account.id,
         masterId = masterId,
-        masterEntityId = entity.id
+        masterEntityId = id
       )
 
-      entity.addAll(
-        Account(master.account.id),
-        MasterComponent(master.id),
-        Position.fromVec3(master.position),
-        Level(master.level),
-        Speed(),
-        Health(
-          current = 10,
-          max = 10
-        ),
+      world.add(id, Account(master.account.id))
+      world.add(id, MasterComponent(master.id))
+      world.add(id, Position.fromVec3(master.position))
+      world.add(id, Level(master.level))
+      world.add(id, Speed())
+      world.add(id, Health(current = 10, max = 10))
+      world.add(
+        id,
         MasterVisual(
           id = master.id.toInt(),
           skinColor = master.skinColor,
@@ -62,11 +59,10 @@ class MasterEntityFactory(
           face = master.face,
           body = master.body,
           hair = master.hair
-        ),
-        buildInventory(master),
-        IsDirty,
-        ActivePlayer,
+        )
       )
+      world.add(id, buildInventory(master))
+      world.add(id, ActivePlayer)
     }
   }
 

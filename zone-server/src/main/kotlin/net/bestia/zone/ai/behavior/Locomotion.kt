@@ -1,8 +1,9 @@
 package net.bestia.zone.ai.behavior
 
-import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.geometry.Vec3L
 import kotlin.random.Random
 
@@ -20,43 +21,43 @@ object Locomotion {
     Vec3L(-1, 1, 0), Vec3L(0, 1, 0), Vec3L(1, 1, 0)
   )
 
-  fun position(entity: Entity): Vec3L = entity.getOrThrow(Position::class).toVec3L()
+  fun position(world: World, entityId: EntityId): Vec3L = world.getOrThrow(entityId, Position::class).toVec3L()
 
-  fun distanceTo(entity: Entity, target: Vec3L): Long = position(entity).distance(target)
+  fun distanceTo(world: World, entityId: EntityId, target: Vec3L): Long = position(world, entityId).distance(target)
 
-  fun isMoving(entity: Entity): Boolean = entity.has(Path::class)
+  fun isMoving(world: World, entityId: EntityId): Boolean = world.has(entityId, Path::class)
 
   /** Step one tile toward [target]. No-op if already moving or already on the target tile. */
-  fun stepToward(entity: Entity, target: Vec3L) {
-    if (isMoving(entity)) {
+  fun stepToward(world: World, entityId: EntityId, target: Vec3L) {
+    if (isMoving(world, entityId)) {
       return
     }
-    val cur = position(entity)
+    val cur = position(world, entityId)
     val next = cur + stepDelta(target.x - cur.x, target.y - cur.y)
     if (next != cur) {
-      entity.add(Path(mutableListOf(next)))
+      world.add(entityId, Path(mutableListOf(next)))
     }
   }
 
   /** Step one tile directly away from [threat]. No-op if already moving. */
-  fun stepAwayFrom(entity: Entity, threat: Vec3L) {
-    if (isMoving(entity)) {
+  fun stepAwayFrom(world: World, entityId: EntityId, threat: Vec3L) {
+    if (isMoving(world, entityId)) {
       return
     }
-    val cur = position(entity)
+    val cur = position(world, entityId)
     val next = cur + stepDelta(cur.x - threat.x, cur.y - threat.y)
     if (next != cur) {
-      entity.add(Path(mutableListOf(next)))
+      world.add(entityId, Path(mutableListOf(next)))
     }
   }
 
   /** Set a random short wander path. No-op if already moving. */
-  fun wanderStep(entity: Entity) {
-    if (isMoving(entity)) {
+  fun wanderStep(world: World, entityId: EntityId) {
+    if (isMoving(world, entityId)) {
       return
     }
-    val next = position(entity) + DIRECTIONS.random(Random.Default)
-    entity.add(Path(mutableListOf(next)))
+    val next = position(world, entityId) + DIRECTIONS.random(Random.Default)
+    world.add(entityId, Path(mutableListOf(next)))
   }
 
   private fun stepDelta(dx: Long, dy: Long): Vec3L =

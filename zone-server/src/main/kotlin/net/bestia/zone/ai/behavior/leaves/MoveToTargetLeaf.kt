@@ -13,11 +13,11 @@ class MoveToTargetLeaf : BtNode {
   override fun tick(context: BtContext): Status {
     val targetPos = context.brain.targetPosition ?: return Status.FAILURE
 
-    if (Locomotion.distanceTo(context.entity, targetPos) <= context.brain.meleeRange) {
+    if (Locomotion.distanceTo(context.world, context.entityId, targetPos) <= context.brain.meleeRange) {
       return Status.SUCCESS
     }
 
-    Locomotion.stepToward(context.entity, targetPos)
+    Locomotion.stepToward(context.world, context.entityId, targetPos)
     return Status.RUNNING
   }
 }

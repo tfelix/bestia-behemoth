@@ -1,34 +1,31 @@
 package net.bestia.zone.ecs.spawn
 
 import net.bestia.zone.bestia.BestiaEntityFactory
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.ZoneServer
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.geometry.Vec3L
-import org.springframework.stereotype.Component
+import org.springframework.core.annotation.Order
 import kotlin.random.Random
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
-@Component
+@SpringComponent
+@Order(80)
 class SpawnerSystem(
   private val bestiaEntityFactory: BestiaEntityFactory,
-) : IteratingSystem() {
-  override val requiredComponents = setOf(
-    Spawner::class
-  )
+) : Ecs2System {
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    val spawner = entity.getOrThrow(Spawner::class)
+  override val writes: Set<KClass<out Component>> = setOf(Spawner::class)
 
-    removeDeadEntities(spawner, zone)
-
-    spawnMissingEntities(spawner, zone)
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Spawner::class).each { _, spawner ->
+      removeDeadEntities(spawner, world)
+      spawnMissingEntities(spawner)
+    }
   }
 
-  private fun spawnMissingEntities(spawner: Spawner, zone: ZoneServer) {
+  private fun spawnMissingEntities(spawner: Spawner) {
     if (spawner.spawnedEntities.size >= spawner.maxSpawnCount) {
       return
     }
@@ -42,8 +39,8 @@ class SpawnerSystem(
     spawner.spawnedEntities.add(spawnedEntityId)
   }
 
-  private fun removeDeadEntities(spawner: Spawner, zone: ZoneServer) {
-    spawner.spawnedEntities.removeIf { entityId -> !zone.hasEntity(entityId) }
+  private fun removeDeadEntities(spawner: Spawner, world: World) {
+    spawner.spawnedEntities.removeIf { entityId -> !world.hasEntity(entityId) }
   }
 
   fun randomBetween(x: Long, y: Long): Long {

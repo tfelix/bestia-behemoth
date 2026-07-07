@@ -18,7 +18,7 @@ class FleeLeaf : BtNode {
       return Status.SUCCESS
     }
 
-    Locomotion.stepAwayFrom(context.entity, threat)
+    Locomotion.stepAwayFrom(context.world, context.entityId, threat)
     return Status.RUNNING
   }
 }

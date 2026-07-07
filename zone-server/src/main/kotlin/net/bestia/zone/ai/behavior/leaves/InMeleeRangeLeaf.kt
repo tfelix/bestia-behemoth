@@ -13,7 +13,7 @@ class InMeleeRangeLeaf : BtNode {
   override fun tick(context: BtContext): Status {
     val targetPos = context.brain.targetPosition ?: return Status.FAILURE
 
-    return if (Locomotion.distanceTo(context.entity, targetPos) <= context.brain.meleeRange) {
+    return if (Locomotion.distanceTo(context.world, context.entityId, targetPos) <= context.brain.meleeRange) {
       Status.SUCCESS
     } else {
       Status.FAILURE

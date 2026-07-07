@@ -10,9 +10,9 @@ import kotlin.random.Random
  * Strikes the current target once, respecting the attack cooldown. RUNNING while on cooldown,
  * SUCCESS immediately after a strike lands, FAILURE if the target is gone.
  *
- * This is the one place the AI writes to a foreign entity. It uses `withEntityWriteLock(targetId)`
- * — the exact pattern DeathSystem uses — and never nests a second foreign lock. A null result means
- * the target no longer exists, which is treated as target-lost.
+ * This is where the AI writes to a foreign entity: it stacks a [Damage] component on the target,
+ * which the [net.bestia.zone.ecs.battle.ReceivedDamageSystem] applies. If the target no longer
+ * exists it is treated as target-lost.
  */
 class MeleeAttackLeaf : BtNode {
   override fun tick(context: BtContext): Status {
@@ -23,19 +23,19 @@ class MeleeAttackLeaf : BtNode {
       return Status.RUNNING
     }
 
-    val selfId = context.entity.id
-    val damage = Random.nextInt(MIN_DAMAGE, MAX_DAMAGE + 1)
-
-    val applied = context.zone.withEntityWriteLock(targetId) { target ->
-      target.getOrDefault(Damage::class) { Damage() }.add(damage, selfId)
-    }
-
-    if (applied == null) {
+    val world = context.world
+    if (!world.isAlive(targetId)) {
       // Target vanished (e.g. already dead / despawned) -> treat as target lost.
       brain.targetId = null
       brain.targetPosition = null
       return Status.FAILURE
     }
+
+    val selfId = context.entityId
+    val damageAmount = Random.nextInt(MIN_DAMAGE, MAX_DAMAGE + 1)
+
+    val damage = world.get(targetId, Damage::class) ?: world.add(targetId, Damage())
+    damage.add(damageAmount, selfId)
 
     brain.attackCooldownRemaining = brain.attackCooldownSeconds
     return Status.SUCCESS

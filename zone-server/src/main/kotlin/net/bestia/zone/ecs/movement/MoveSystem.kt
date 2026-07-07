@@ -1,51 +1,42 @@
 package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.ZoneServer
-import org.springframework.stereotype.Component
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.World
+import org.springframework.core.annotation.Order
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
-@Component
-class MoveSystem : IteratingSystem() {
+@SpringComponent
+@Order(40)
+class MoveSystem : Ecs2System {
 
-  override val requiredComponents: Set<kotlin.reflect.KClass<out net.bestia.zone.ecs.Component>> = setOf(
-    Position::class,
-    Speed::class,
-    Path::class
-  )
+  override val reads: Set<KClass<out Component>> = setOf(Speed::class)
+  override val writes: Set<KClass<out Component>> = setOf(Position::class, Path::class)
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    // calculate the movement advances of the entity since the last call.
-    val speed = entity.getOrThrow(Speed::class)
-    val d = speed.speed * deltaTime
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Position::class, Speed::class, Path::class).each { id, position, speed, movementPath ->
+      // calculate the movement advances of the entity since the last call.
+      position.fraction += speed.speed * deltaTime
 
-    val position = entity.getOrThrow(Position::class)
-    position.fraction += d
+      // entity has moved more than one tile so its position can be updated.
+      while (position.fraction > 1) {
+        val nextPoint = movementPath.removeFirst()
+        position.x = nextPoint.x
+        position.y = nextPoint.y
+        position.z = nextPoint.z
 
-    // entity has moved more than one tile so its position can be updated.
-    while (position.fraction > 1) {
-      val movementPath = entity.getOrThrow(Path::class)
+        world.markChanged<Position>(id)
 
-      val nextPoint = movementPath.removeFirst()
-      position.x = nextPoint.x
-      position.y = nextPoint.y
-      position.z = nextPoint.z
+        LOG.trace { "Entity $id on $nextPoint" }
 
-      entity.add(IsDirty)
+        if (movementPath.path.isEmpty()) {
+          world.remove<Path>(id)
+        }
 
-      LOG.trace { "Entity ${entity.id} on $nextPoint" }
-
-      if (movementPath.path.isEmpty()) {
-        entity.remove(Path::class)
+        position.fraction -= 1
       }
-
-      position.fraction -= 1
     }
   }
 

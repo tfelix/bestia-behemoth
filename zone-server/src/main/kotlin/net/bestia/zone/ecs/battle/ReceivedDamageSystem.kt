@@ -1,45 +1,41 @@
 package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.Entity
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs.ZoneServer
-import org.springframework.stereotype.Component
+import net.bestia.zone.ecs2.Component
+import net.bestia.zone.ecs2.Ecs2System
+import net.bestia.zone.ecs2.World
+import org.springframework.core.annotation.Order
+import kotlin.reflect.KClass
+import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Distributes the damage to the entity. It is not yet clear if we should go this approach or rather
  * go the one that a message directly attempts to calculate the damage. However it is important to
  * handle also damage this directly came from ecs entities e.g. like AOE attacks.
  */
-@Component
-class ReceivedDamageSystem : IteratingSystem() {
-  override val requiredComponents = setOf(
-    Damage::class,
-    Health::class
-  )
+@SpringComponent
+@Order(50)
+class ReceivedDamageSystem : Ecs2System {
 
-  override fun update(
-    deltaTime: Float,
-    entity: Entity,
-    zone: ZoneServer
-  ) {
-    val receivedDamage = entity.getOrThrow(Damage::class)
-    entity.remove(Damage::class)
+  override val reads: Set<KClass<out Component>> = setOf(Damage::class)
+  override val writes: Set<KClass<out Component>> = setOf(Health::class, TakenDamage::class, Dead::class)
 
-    val takenDamage = entity.getOrDefault(TakenDamage::class) { TakenDamage() }
-    receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
-    takenDamage.removeOldEntries()
+  override fun update(world: World, deltaTime: Float) {
+    world.query(Damage::class, Health::class).each { id, receivedDamage, health ->
+      world.remove<Damage>(id)
 
-    val health = entity.getOrThrow(Health::class)
-    health.current -= receivedDamage.total()
+      val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
+      receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
+      takenDamage.removeOldEntries()
 
-    if (health.current == 0) {
-      LOG.trace { "$entity died due to damage." }
-      entity.add(Dead)
+      health.current -= receivedDamage.total()
+      world.markChanged<Health>(id)
+
+      if (health.current == 0) {
+        LOG.trace { "$id died due to damage." }
+        world.add(id, Dead)
+      }
     }
-
-    entity.add(IsDirty)
   }
 
   companion object {

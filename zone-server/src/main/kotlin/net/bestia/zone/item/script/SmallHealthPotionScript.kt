@@ -1,8 +1,9 @@
 package net.bestia.zone.item.script
 
-import net.bestia.zone.ecs.Entity
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.entity.DamageEntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -13,20 +14,19 @@ class SmallHealthPotionScript(
 ) : ItemScript {
   override val itemId = 3L
 
-  override fun execute(user: Entity): Boolean {
-    val hpComp = user.get(Health::class)
+  override fun execute(world: World, userId: EntityId): Boolean {
+    val hpComp = world.get(userId, Health::class)
       ?: return false
 
     val healAmount = 45
 
     hpComp.current += healAmount
+    world.markChanged<Health>(userId)
 
-    val pos = user.get(Position::class)
+    val pos = world.get(userId, Position::class)
 
-    // TODO this should not be send inside the lock. But where else put this? ideally this call should
-    // be ???
     if (pos != null) {
-      val healMsg = DamageEntitySMSG.fromItemHeal(user.id, healAmount)
+      val healMsg = DamageEntitySMSG.fromItemHeal(userId, healAmount)
       messageProcessor.sendToAllPlayersInRange(pos.toVec3L(), healMsg)
     }
 

@@ -23,10 +23,6 @@ import net.bestia.zone.ai.planner.actions.MeleeAttackAction
 import net.bestia.zone.ai.planner.actions.WanderAction
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.IteratingSystem
-import net.bestia.zone.ecs.PeriodicSystem
-import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.battle.ReceivedDamageSystem
@@ -34,8 +30,9 @@ import net.bestia.zone.ecs.movement.MoveSystem
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Master
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -47,29 +44,21 @@ import org.junit.jupiter.api.Test
  * low health.
  *
  * Unlike [AiBehaviorScenarioTest] (which ticks the AI stages once to check a single transition),
- * this test runs a faithful mini game-loop: the real AI systems plus the real [MoveSystem] and
- * [ReceivedDamageSystem], stepped at 20 tps, with perception/think refreshed every 0.5s exactly as
- * the live [ZoneServer] loop does. It doubles as usage documentation for the module.
+ * this test runs a faithful mini game-loop: all the real AI systems plus the real [MoveSystem] and
+ * [ReceivedDamageSystem] registered in an ecs2 [World] and stepped at 20 tps, with
+ * perception/think refreshed every ~0.5s exactly as the live engine loop does.
  */
 class AiLifecycleE2ETest {
 
   private val tickRate = 20
-  private val dt = 1f / tickRate               // 0.05s per tick
-  private val brainEveryNTicks = 10            // perception + think run every 0.5s
+  private val dt = 1f / tickRate // 0.05s per tick
 
-  private lateinit var zone: ZoneServer
+  private lateinit var world: World
   private lateinit var aoi: EntityAOIService
-
-  private lateinit var perceptionSystem: PerceptionSystem
-  private lateinit var thinkSystem: AiThinkSystem
-  private lateinit var actSystem: AiActSystem
-  private lateinit var moveSystem: MoveSystem
-  private lateinit var damageSystem: ReceivedDamageSystem
-
-  private var tickCount = 0
 
   @BeforeEach
   fun setup() {
+    world = World()
     aoi = EntityAOIService()
 
     val curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve()))
@@ -81,18 +70,20 @@ class AiLifecycleE2ETest {
     val profileRegistry = AiProfileRegistry(curveRegistry, inputRegistry, goalRegistry, actionRegistry)
     profileRegistry.load()
 
-    zone = ZoneServer(ZoneConfig(tickRate = tickRate), emptyList(), emptyList(), emptyList())
-    perceptionSystem = PerceptionSystem(profileRegistry, aoi)
-    thinkSystem = AiThinkSystem(
-      profileRegistry,
-      UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
-      WorldStateBuilder(),
-      GoapPlanner(),
-      actionRegistry
+    // Register the whole pipeline in the world; the scheduler runs them in registration order.
+    world.addSystem(PerceptionSystem(profileRegistry, aoi))
+    world.addSystem(
+      AiThinkSystem(
+        profileRegistry,
+        UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
+        WorldStateBuilder(),
+        GoapPlanner(),
+        actionRegistry
+      )
     )
-    actSystem = AiActSystem()
-    moveSystem = MoveSystem()
-    damageSystem = ReceivedDamageSystem()
+    world.addSystem(AiActSystem())
+    world.addSystem(MoveSystem())
+    world.addSystem(ReceivedDamageSystem())
   }
 
   @Test
@@ -101,15 +92,14 @@ class AiLifecycleE2ETest {
     val blob = spawnBlob(Vec3L(0, 0, 0), health = 10)
 
     // Phase 1 — IDLE: with no enemy perceived, utility scoring falls back to wandering.
-    run(ticks = 20, entities = listOf(blob))
+    run(ticks = 30)
     assertEquals("idle_wander", goalNameOf(blob), "a blob with nobody around should wander")
 
     // ---- A player appears within sight. ----
     val player = spawnPlayer(Vec3L(4, 0, 0), health = 30)
-    val entities = listOf(blob, player)
 
     // Phase 2 — HUNT: the blob perceives the player, adopts kill_enemy, chases and hits it in melee.
-    run(ticks = 160, entities = entities)
+    run(ticks = 200)
 
     assertEquals("kill_enemy", goalNameOf(blob), "with a healthy body and a target, the blob hunts")
     assertTrue(
@@ -124,10 +114,10 @@ class AiLifecycleE2ETest {
     val distanceWhenHurt = distanceBetween(blob, player)
 
     // Phase 3 — FLEE: low health flips the winning goal and the blob retreats from the threat.
-    run(ticks = 4, entities = entities) // one brain tick to re-decide
+    run(ticks = 20) // enough ticks to guarantee a perception/think re-decision
     assertEquals("flee", goalNameOf(blob), "a wounded blob should decide to flee")
 
-    run(ticks = 40, entities = entities)
+    run(ticks = 60)
     assertTrue(
       distanceBetween(blob, player) > distanceWhenHurt,
       "the fleeing blob should increase its distance from the player " +
@@ -135,67 +125,42 @@ class AiLifecycleE2ETest {
     )
   }
 
-  // ---- Mini game-loop: mirrors ZoneServer's tick ordering for the entities under test. ----
+  // ---- Mini game-loop: the world scheduler runs the registered systems each tick. ----
 
-  private fun run(ticks: Int, entities: List<EntityId>) {
-    repeat(ticks) {
-      val brainTick = tickCount % brainEveryNTicks == 0
-      if (brainTick) {
-        periodic(perceptionSystem, entities)
-        periodic(thinkSystem, entities)
-      }
-      iterating(actSystem, entities)
-      iterating(moveSystem, entities)
-      iterating(damageSystem, entities)
-      tickCount++
-    }
-  }
-
-  private fun periodic(system: PeriodicSystem, entities: List<EntityId>) {
-    entities.forEach { id ->
-      zone.withEntityWriteLock(id) { e -> if (system.entityMatches(e)) system.update(0.5f, e, zone) }
-    }
-  }
-
-  private fun iterating(system: IteratingSystem, entities: List<EntityId>) {
-    entities.forEach { id ->
-      zone.withEntityWriteLock(id) { e -> if (system.entityMatches(e)) system.update(dt, e, zone) }
-    }
+  private fun run(ticks: Int) {
+    repeat(ticks) { world.tick(dt) }
   }
 
   // ---- Spawn + inspection helpers ----
 
   private fun spawnBlob(pos: Vec3L, health: Int): EntityId =
-    zone.addEntityWithWriteLock { entity ->
-      entity.addAll(
-        Position.fromVec3(pos),
-        Health(health, 10),
-        Speed(),
-        Brain("aggressive_melee"),
-        AvailableAttacks(mutableMapOf(0L to 1))
-      )
+    world.createEntity { id ->
+      world.add(id, Position.fromVec3(pos))
+      world.add(id, Health(health, 10))
+      world.add(id, Speed())
+      world.add(id, Brain("aggressive_melee"))
+      world.add(id, AvailableAttacks(mutableMapOf(0L to 1)))
     }
 
   private fun spawnPlayer(pos: Vec3L, health: Int): EntityId {
-    val id = zone.addEntityWithWriteLock { entity ->
-      entity.addAll(Position.fromVec3(pos), Health(health, health), Master(1L))
+    val id = world.createEntity { eid ->
+      world.add(eid, Position.fromVec3(pos))
+      world.add(eid, Health(health, health))
+      world.add(eid, Master(1L))
     }
     aoi.setEntityPosition(id, pos) // players remain stationary in this scenario
     return id
   }
 
-  private fun goalNameOf(id: EntityId): String? =
-    zone.withEntityReadLockOrThrow(id) { it.getOrThrow(Brain::class).currentGoal?.name }
+  private fun goalNameOf(id: EntityId): String? = world.getOrThrow(id, Brain::class).currentGoal?.name
 
-  private fun healthOf(id: EntityId): Int =
-    zone.withEntityReadLockOrThrow(id) { it.getOrThrow(Health::class).current }
+  private fun healthOf(id: EntityId): Int = world.getOrThrow(id, Health::class).current
 
   private fun setHealth(id: EntityId, value: Int) {
-    zone.withEntityWriteLock(id) { it.getOrThrow(Health::class).current = value }
+    world.getOrThrow(id, Health::class).current = value
   }
 
-  private fun positionOf(id: EntityId): Vec3L =
-    zone.withEntityReadLockOrThrow(id) { it.getOrThrow(Position::class).toVec3L() }
+  private fun positionOf(id: EntityId): Vec3L = world.getOrThrow(id, Position::class).toVec3L()
 
   private fun distanceBetween(a: EntityId, b: EntityId): Long = positionOf(a).distance(positionOf(b))
 }

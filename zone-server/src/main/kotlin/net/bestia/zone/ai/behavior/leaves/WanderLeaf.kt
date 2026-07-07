@@ -13,7 +13,7 @@ import net.bestia.zone.ai.behavior.Status
  */
 class WanderLeaf : BtNode {
   override fun tick(context: BtContext): Status {
-    Locomotion.wanderStep(context.entity)
+    Locomotion.wanderStep(context.world, context.entityId)
     return Status.RUNNING
   }
 }

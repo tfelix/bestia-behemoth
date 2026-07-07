@@ -1,13 +1,11 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.item.Loot
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.network.IsDirty
-import net.bestia.zone.ecs.ZoneOperations
-import org.springframework.context.annotation.Lazy
+import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs2.World
+import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import kotlin.random.Random
@@ -17,8 +15,7 @@ import kotlin.random.Random
  */
 @Component
 class LootEntityFactory(
-  @Lazy
-  private val zoneServer: ZoneOperations,
+  private val world: World,
   private val lootItemRepository: LootItemRepository
 ) {
 
@@ -43,15 +40,15 @@ class LootEntityFactory(
    * Spawns a single ground item entity at the given position which can be picked up.
    */
   fun createLootEntity(itemId: Long, amount: Int, pos: Vec3L, uniqueId: Long = 0): EntityId {
-    return zoneServer.addEntityWithWriteLock {
-      it.addAll(
-        Position.fromVec3(pos),
+    return world.createEntity { id ->
+      world.add(id, Position.fromVec3(pos))
+      world.add(
+        id,
         Loot(
           itemId = itemId,
           amount = amount,
           uniqueId = uniqueId
-        ),
-        IsDirty
+        )
       )
     }
   }
