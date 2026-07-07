@@ -92,7 +92,7 @@ class ScenarioDataSetup(
     val account1 = accountFactory.createAccount(1L)
 
     val createMasterData1 = MasterFactory.CreateMasterData(
-      name = "account1-1",
+      name = "player1",
       hairColor = Color.BLUE,
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
@@ -124,7 +124,7 @@ class ScenarioDataSetup(
     )
 
     val createMasterData2 = MasterFactory.CreateMasterData(
-      name = "account1-2",
+      name = "player1-alt",
       hairColor = Color.BLUE,
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
@@ -159,7 +159,7 @@ class ScenarioDataSetup(
     LOG.info { "Account 2 (ID: ${account2.id}) created" }
 
     val createMasterData = MasterFactory.CreateMasterData(
-      name = "account2",
+      name = "player2",
       hairColor = Color.BLUE,
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
@@ -180,7 +180,7 @@ class ScenarioDataSetup(
     val account3 = accountFactory.createAccount(3L)
 
     val createMasterData = MasterFactory.CreateMasterData(
-      name = "account3",
+      name = "player3",
       hairColor = Color.BLUE,
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,

@@ -9,7 +9,8 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class CreateMasterHandler(
   private val masterFactory: MasterFactory,
-  private val outMessageProcessor: OutMessageProcessor
+  private val outMessageProcessor: OutMessageProcessor,
+  private val availableMasterResolver: AvailableMasterResolver
 ) : InMessageProcessor.IncomingMessageHandler<CreateMasterCMSG> {
   override val handles = CreateMasterCMSG::class
 
@@ -30,6 +31,7 @@ class CreateMasterHandler(
       masterFactory.create(msg.playerId, masterCreateData)
 
       outMessageProcessor.sendToPlayer(msg.playerId, MasterCreatedSMSG)
+      outMessageProcessor.sendToPlayer(msg.playerId, availableMasterResolver.getAvailableMaster(msg.playerId))
     } catch (e: MasterCreateException) {
       outMessageProcessor.sendToPlayer(msg.playerId, MasterErrorSMSG(e.errorCode))
     } catch (_: Exception) {

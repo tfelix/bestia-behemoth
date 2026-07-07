@@ -42,7 +42,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @BeforeAll
   fun setupMaster() {
-    accountNoMaster = accountFactory.createAccount(1L)
+    accountNoMaster = accountFactory.createAccount(4L)
 
     clientPlayerNoMaster = gameClientFactory.getGameClient(
       accountId = accountNoMaster.id,

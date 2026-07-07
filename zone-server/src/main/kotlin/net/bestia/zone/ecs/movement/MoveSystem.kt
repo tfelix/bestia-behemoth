@@ -43,8 +43,6 @@ class MoveSystem : IteratingSystem() {
 
       if (movementPath.path.isEmpty()) {
         entity.remove(Path::class)
-
-        position.fraction = 0f
       }
 
       position.fraction -= 1

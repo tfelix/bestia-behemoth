@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.ZoneServer
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.InventoryItemFactory
 import org.springframework.boot.CommandLineRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -22,6 +23,7 @@ import kotlin.String
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
+@Profile("!test")
 class DevDataBootstrapRunner(
   private val accountFactory: AccountFactory,
   private val masterFactory: MasterFactory,

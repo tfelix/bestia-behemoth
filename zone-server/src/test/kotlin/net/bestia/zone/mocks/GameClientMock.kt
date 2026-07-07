@@ -59,7 +59,9 @@ class GameClientMock(
   }
 
   fun disconnect() {
-    applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, connectedPlayerId))
-    isConnected = false
+    if (isConnected) {
+      applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, connectedPlayerId))
+      isConnected = false
+    }
   }
 }

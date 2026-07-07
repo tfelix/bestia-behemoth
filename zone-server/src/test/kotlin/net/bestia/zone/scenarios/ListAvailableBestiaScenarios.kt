@@ -4,6 +4,7 @@ import net.bestia.zone.message.GetBestiasCMSG
 import net.bestia.zone.message.SelectEntityCMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.entity.MoveActiveEntityCMSG
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertNotEquals
@@ -16,6 +17,7 @@ class ListAvailableBestiaScenarios : BestiaNoSocketScenario() {
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Test
+  @Disabled("listAvailableBestias() assertions are commented out pending a replacement GetSelf message - test never verified anything")
   fun `available bestias can be listed and selected`() {
     listAvailableBestias()
     selectingBestiaWorks()

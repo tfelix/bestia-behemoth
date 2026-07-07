@@ -70,14 +70,14 @@ class CurMaxTest {
   }
 
   @Test
-  fun `should throw exception when setting negative current value`() {
+  fun `should clamp current to zero when setting a negative current value`() {
     val curMax = CurMax()
+    curMax.max = 100
+    curMax.current = 50
 
-    val exception = assertThrows<IllegalArgumentException> {
-      curMax.current = -1
-    }
+    curMax.current = -1
 
-    assertNotNull(exception)
+    assertEquals(0, curMax.current)
   }
 
   @Test

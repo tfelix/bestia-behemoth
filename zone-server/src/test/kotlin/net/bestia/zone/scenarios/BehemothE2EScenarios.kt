@@ -6,6 +6,7 @@ import net.bestia.zone.system.PingCMSG
 import net.bestia.zone.system.PongSMSG
 import net.bestia.zone.message.entity.PositionSMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.session.NoActiveSessionException
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.geometry.Vec3L
 import org.awaitility.Awaitility
@@ -45,13 +46,13 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
   @Test
   @Order(2)
   fun `before connection no master is active`() {
-    assertThrows<IllegalArgumentException> {
+    assertThrows<NoActiveSessionException> {
       connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
     }
-    assertThrows<IllegalArgumentException> {
+    assertThrows<NoActiveSessionException> {
       connectionInfoService.getSelectedMasterEntityId(clientPlayer2.connectedPlayerId)
     }
-    assertThrows<IllegalArgumentException> {
+    assertThrows<NoActiveSessionException> {
       connectionInfoService.getSelectedMasterEntityId(clientPlayer3.connectedPlayerId)
     }
   }
@@ -59,7 +60,7 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
   @Test
   @Order(4)
   fun `connecting and requesting a list of current bestias work`() {
-    clientPlayer1.connect()
+    clientPlayer1.connect(testData.account1.masterIds.first())
 
     val expectedPlayerBestiaIds = playerBestiaRepository.findAllByMasterId(testData.account1.masterIds.first())
       .map { it.id }

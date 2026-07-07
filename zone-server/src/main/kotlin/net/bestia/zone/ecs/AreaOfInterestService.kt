@@ -133,25 +133,54 @@ open class AreaOfInterestService<T> {
   // We need to think about how we want to cut the coordinate system. Do we want to go into negative numbers?
   // Probably not as this would make wrapping around harder. But if not we need to come up with a translation of coords
   // from the global into the engine local space.
-  private val root = OctreeNode(
+  private var root = OctreeNode(
     Cube(-ROOT_SIZE / 2, -ROOT_SIZE / 2, -ROOT_SIZE / 2, ROOT_SIZE, ROOT_SIZE, ROOT_SIZE)
   )
 
   private val entityNodeMap = mutableMapOf<T, OctreeNode>()
+  private val entityPositions = mutableMapOf<T, Vec3L>()
 
   fun setEntityPosition(entity: T, pos: Vec3L) {
     // Remove from previous node if exists
     entityNodeMap[entity]?.remove(entity)
 
+    growRootToContain(pos)
+
     // Insert into octree
     if (root.insert(entity, pos)) {
       entityNodeMap[entity] = root // For simplicity, always point to root
+      entityPositions[entity] = pos
     }
   }
 
   fun removeEntityPosition(entityId: T) {
     entityNodeMap[entityId]?.remove(entityId)
     entityNodeMap.remove(entityId)
+    entityPositions.remove(entityId)
+  }
+
+  /**
+   * The octree root has a fixed size. Entities placed outside of it would otherwise be
+   * silently dropped, so we double the root extent (re-inserting all known entities) until
+   * it contains the given position.
+   */
+  private fun growRootToContain(pos: Vec3L) {
+    while (!isInsideBounds(pos, root.bounds)) {
+      val newSize = root.bounds.size.width * 2
+      val newRoot = OctreeNode(Cube(-newSize / 2, -newSize / 2, -newSize / 2, newSize, newSize, newSize))
+      for ((id, existingPos) in entityPositions) {
+        if (newRoot.insert(id, existingPos)) {
+          entityNodeMap[id] = newRoot
+        }
+      }
+      root = newRoot
+    }
+  }
+
+  private fun isInsideBounds(pos: Vec3L, bounds: Cube): Boolean {
+    return pos.x >= bounds.origin.x && pos.x < bounds.origin.x + bounds.size.width &&
+            pos.y >= bounds.origin.y && pos.y < bounds.origin.y + bounds.size.height &&
+            pos.z >= bounds.origin.z && pos.z < bounds.origin.z + bounds.size.depth
   }
 
   fun queryEntitiesInCube(center: Vec3L, size: Long): Set<T> {

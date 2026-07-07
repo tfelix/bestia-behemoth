@@ -37,6 +37,7 @@ class ChatCommandHandler(
       }
 
       LOG.debug { "No chat command found for player $playerId with '$cmdText'" }
+      outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
     }
   }
 

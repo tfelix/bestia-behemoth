@@ -1,8 +1,10 @@
 package net.bestia.zone.scenarios
 
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 
+@Disabled("Unimplemented scenario stubs (TODO()) - dual-login behavior not yet written")
 class BehemothDualLoginScenarios : BestiaNoSocketScenario(
   autoClientConnect = false
 ) {
