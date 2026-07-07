@@ -4,13 +4,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
 /**
- * Marker for external intent enqueued into the simulation. Commands are the
- * *only* way for other threads (network, chat, scripting, ...) to influence ECS
- * state: they never mutate components directly.
- */
-interface Command
-
-/**
  * Thread-safe inbound command queue with per-type handler dispatch.
  *
  * Producers (any thread) call [enqueue]; the queue is drained once at the start
