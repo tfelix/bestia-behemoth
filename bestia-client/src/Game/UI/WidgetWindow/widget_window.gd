@@ -26,6 +26,10 @@ func _update_size_to_content() -> void:
 	size = Vector2i(_content_control.size.ceil())
 
 
+func get_content() -> Control:
+	return _content_control
+
+
 func _process(_delta: float) -> void:
 	if not visible:
 		return

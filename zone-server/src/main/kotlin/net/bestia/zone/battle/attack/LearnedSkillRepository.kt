@@ -8,6 +8,8 @@ interface LearnedSkillRepository : JpaRepository<LearnedSkill, Long> {
 
   fun findByPlayerBestiaIdAndSkillId(playerBestiaId: Long, skillId: Long): LearnedSkill?
 
+  fun findAllByPlayerBestiaId(playerBestiaId: Long): List<LearnedSkill>
+
   fun findAllByMasterId(masterId: Long): List<LearnedSkill>
 
   fun findByMasterIdAndSkillId(masterId: Long, skillId: Long): LearnedSkill?

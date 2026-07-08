@@ -12,12 +12,14 @@ script = ExtResource("1_10nyf")
 [node name="Row" type="HBoxContainer" parent="." unique_id=2056366901]
 layout_mode = 2
 
-[node name="IconMargin" type="MarginContainer" parent="Row" unique_id=2096059820]
+[node name="SpendSkillPointButton" type="Button" parent="Row" unique_id=1049175566]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 8
+text = "+"
 
-[node name="TextureRect" type="TextureRect" parent="Row/IconMargin" unique_id=610906410]
+[node name="TextureRect" type="TextureRect" parent="Row" unique_id=610906410]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -35,6 +37,7 @@ size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
 
 [node name="SkillName" type="Label" parent="Row/SkillTextMargin/SkillText" unique_id=685417144]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Skill Name"
 
@@ -47,20 +50,24 @@ layout_mode = 2
 theme_override_constants/separation = 10
 
 [node name="LevelMinusButton" type="Button" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=652773603]
+unique_name_in_owner = true
 layout_mode = 2
 text = "<"
 
 [node name="SkillLevel" type="Label" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=2134942359]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Lv: 10 / 10"
 horizontal_alignment = 1
 
 [node name="LevelPlusButton" type="Button" parent="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer" unique_id=1627854384]
+unique_name_in_owner = true
 layout_mode = 2
 text = ">"
 
 [node name="ManaLabel" type="Label" parent="Row/SkillTextMargin/SkillText/DetailRow" unique_id=431671648]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Mana: 10"

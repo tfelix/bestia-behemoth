@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SkillListSMSGProto";
+
+/**
+ * The full merged skill list of an entity: its regular/fixed skill catalog (a bestia species'
+ * level-gated table, or a bestia master's full skill tree) merged with its individually learned
+ * skills (item-taught custom skills, or invested skill-tree points). Entries that are part of the
+ * catalog but not yet learned are still included so the client can render them
+ * disabled/greyed-out rather than hiding them.
+ */
+message SkillListSMSG {
+  fixed64 entity_id = 1;
+  repeated SkillListEntry skills = 2;
+}
+
+message SkillListEntry {
+  uint64 attack_id = 1;
+  uint32 level = 2;
+  uint32 max_level = 3;
+  bool learned = 4;
+}

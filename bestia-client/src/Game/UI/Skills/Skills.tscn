@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://dh4io5biq60uv"]
 
 [ext_resource type="Script" uid="uid://olpunab8ao3a" path="res://Game/UI/Skills/skills.gd" id="1_unn6u"]
-[ext_resource type="PackedScene" uid="uid://dw3cq4i6mv37x" path="res://Game/UI/Skills/SkillRow/SkillRow.tscn" id="2_3dyhx"]
 
 [node name="Skills" type="PanelContainer" unique_id=396406679]
 offset_right = 400.0
@@ -34,24 +33,6 @@ custom_minimum_size = Vector2(0, 500)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SkillRow1" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=2050178806 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
-[node name="SkillRow2" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=2105697750 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
-[node name="SkillRow3" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=1343203364 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
-[node name="SkillRow4" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=317233530 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
-[node name="SkillRow5" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=1912725689 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
-[node name="SkillRow6" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=200467219 instance=ExtResource("2_3dyhx")]
-layout_mode = 2
-
 [node name="FooterMargin" type="MarginContainer" parent="VBoxContainer" unique_id=580821116]
 layout_mode = 2
 theme_override_constants/margin_left = 6
@@ -61,10 +42,11 @@ theme_override_constants/margin_bottom = 6
 [node name="FooterRow" type="HBoxContainer" parent="VBoxContainer/FooterMargin" unique_id=2129207716]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1019027413]
+[node name="SkillPointsLabel" type="Label" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1019027413]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Skill Points: 2"
+text = "Skill Points: 0"
 
 [node name="UseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=748753310]
 layout_mode = 2

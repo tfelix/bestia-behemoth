@@ -44,12 +44,13 @@ offset_bottom = 169.0
 [node name="Chat" parent="." unique_id=2020462949 instance=ExtResource("3_owqpw")]
 layout_mode = 1
 offset_left = 16.0
-offset_right = 770.0
+offset_right = 586.0
 
 [node name="SkillsWin" type="Window" parent="." unique_id=2084369024]
 oversampling_override = 1.0
 title = "Skills"
 initial_position = 2
+visible = false
 unresizable = true
 script = ExtResource("7_x5yep")
 content = ExtResource("6_61e43")

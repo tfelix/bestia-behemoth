@@ -1,8 +1,63 @@
 extends PanelContainer
+class_name Skills
 
+const SkillRowScene = preload("res://Game/UI/Skills/SkillRow/SkillRow.tscn")
 
-@onready var _search_line_edit = %SearchLineEdit 
+@onready var _search_line_edit = %SearchLineEdit
 @onready var _skill_rows = %SkillRows
+@onready var _skill_points_label: Label = %SkillPointsLabel
+
+# The account's own master entity id, used to tell whether the entity a SkillListSMSG describes
+# is the master (show Skill Points) or one of its bestias (hide it) - bestias never learn skills
+# via spendable points, only via level-up or item-taught custom skills.
+var _master_entity_id: int = 0
+var _current_entity_id: int = 0
+
+
+func _ready() -> void:
+	_skill_points_label.visible = false
+	ConnectionManager.connect("self_received", _on_self_received)
+	ConnectionManager.connect("entity_received", _on_entity_received)
+
+
+## Called by Game/UI/ui.gd whenever the Skills window is opened, since the window content is
+## a Control nested inside a Window - a Window's own visibility does not propagate as a
+## visibility_changed signal to its content the way regular Control nesting would.
+func request_refresh() -> void:
+	if ConnectionManager.is_ready_to_send():
+		ConnectionManager.get_skills()
+
+
+func _on_self_received(msg: SelfSMSG) -> void:
+	_master_entity_id = msg.MasterEntityId
+
+
+func _on_entity_received(msg: EntitySMSG) -> void:
+	if msg is SkillListSMSG:
+		_current_entity_id = msg.EntityId
+		_skill_points_label.visible = msg.EntityId == _master_entity_id
+		_populate_rows(msg)
+	elif msg is SkillPointsComponentSMSG:
+		if msg.EntityId == _current_entity_id:
+			_skill_points_label.text = "Skill Points: %s" % [msg.Points]
+
+
+func _populate_rows(msg: SkillListSMSG) -> void:
+	for child in _skill_rows.get_children():
+		child.queue_free()
+
+	for entry in msg.Skills:
+		var attack: AttackResource = AttackDB.get_instance().get_attack(entry.AttackId)
+		var row = SkillRowScene.instantiate()
+		_skill_rows.add_child(row)
+
+		if attack:
+			row.set_data(entry.AttackId, attack.name, attack.icon, entry.Level, entry.MaxLevel, attack.mana_cost)
+		else:
+			printerr("Skills: Attack ID %s not found in AttackDB, can not display it" % [entry.AttackId])
+			row.set_data(entry.AttackId, "Unknown Skill", null, entry.Level, entry.MaxLevel, 0)
+
+		row.set_disabled(!entry.Learned)
 
 
 func _on_clear_button_pressed() -> void:

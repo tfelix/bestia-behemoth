@@ -45,6 +45,7 @@ protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLD
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\inventory_component_smsg.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\learned_skills_smsg.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\skill_points_smsg.proto"
+protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\skill_list_smsg.proto"
 
 REM Entity messages
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\entity\attack_entity_cmsg.proto"
@@ -68,5 +69,6 @@ protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLD
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\master.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\select_master_cmsg.proto"
 protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\invest_skill_point_cmsg.proto"
+protoc.exe --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\get_skills_cmsg.proto"
 
 echo Protobuf compilation complete.

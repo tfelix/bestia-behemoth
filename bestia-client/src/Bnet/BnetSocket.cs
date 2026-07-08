@@ -101,6 +101,16 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.InventoryComponentSMSG.FromProto(envelope.CompInventory);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompSkillList != null)
+        {
+          var msg = Entity.SkillListSMSG.FromProto(envelope.CompSkillList);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompSkillPoints != null)
+        {
+          var msg = Entity.SkillPointsComponentSMSG.FromProto(envelope.CompSkillPoints);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompBestiaVisual != null)
         {
           var msg = Entity.BestiaVisualComponent.FromProto(envelope.CompBestiaVisual);
@@ -168,7 +178,7 @@ namespace BestiaBehemothClient.Bnet.Message
         }
         else
         {
-          GD.PrintErr("BnetSocket: Envelope message was not handled! Please add handling and type conversion.");
+          GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");
         }
       }
     }
