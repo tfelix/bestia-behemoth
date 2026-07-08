@@ -2,9 +2,11 @@ package net.bestia.zone.party
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
+import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.PartyMembershipLookup
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World
@@ -19,9 +21,10 @@ import java.util.concurrent.TimeUnit
 @Service
 class PartyService(
   private val partyRepository: PartyRepository,
+  private val masterRepository: MasterRepository,
   private val masterResolver: MasterResolver,
   private val world: World,
-) {
+) : PartyMembershipLookup {
   companion object {
     const val MAX_PARTY_SIZE = 12
     const val INVITATION_TIMEOUT_SECONDS = 60L
@@ -52,6 +55,7 @@ class PartyService(
     return partyRepository.save(party)
   }
 
+  @Transactional
   fun disbandParty(requesterId: Long, partyId: Long): List<Long> {
     val party = partyRepository.findByIdOrThrow(partyId)
     val requester = masterResolver.getSelectedMasterByAccountId(requesterId)
@@ -71,6 +75,7 @@ class PartyService(
     return oldPartyMemberAccountIds
   }
 
+  @Transactional(readOnly = true)
   fun invitePlayerToParty(inviterAccountId: Long, invitedEntityId: Long): PartyInvitationSMSG {
     if (pendingInvitations.size > MAX_INVITATIONS_IN_FLIGHT) {
       throw TooManyPartyInvitationsInFlightException()
@@ -125,6 +130,7 @@ class PartyService(
     return invitation
   }
 
+  @Transactional
   fun acceptInvitation(playerId: AccountId, invitationId: Long) {
     val openInvitation = pendingInvitations.remove(invitationId)
       ?: throw PartyInvitationExpired()
@@ -156,9 +162,10 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
-    // Add player to party
-    party.member.add(player)
-    partyRepository.save(party)
+    // Master.party is the owning side of the relationship (Party.member is mappedBy) - it must be
+    // set on the member itself for the membership to actually persist.
+    player.party = party
+    masterRepository.save(player)
   }
 
   fun declineInvitation(playerId: Long, invitationId: Long): Long {
@@ -215,6 +222,19 @@ class PartyService(
       partyName = party.name,
       member = partyMembers
     )
+  }
+
+  @Transactional(readOnly = true)
+  override fun partyMemberAccountIds(accountId: Long): Set<Long> {
+    val master = try {
+      masterResolver.getSelectedMasterByAccountId(accountId)
+    } catch (_: Exception) {
+      return emptySet()
+    }
+
+    val party = master.ownedParty ?: master.party ?: return emptySet()
+
+    return (party.member.map { it.account.id } + party.owner.account.id).toSet() - accountId
   }
 
   private fun findEntityIdByMaster(partyMaster: Master): EntityId? {

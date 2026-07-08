@@ -1,7 +1,10 @@
 package net.bestia.zone.ecs.bestia
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.entity.EntitySMSG
 
 data class BestiaVisual(
@@ -22,7 +25,5 @@ data class BestiaVisual(
     return BestiaVisualComponentSMSG(entityId, id)
   }
 
-  override fun broadcastType(): Dirtyable.BroadcastType {
-    return Dirtyable.BroadcastType.PUBLIC
-  }
+  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
 }

@@ -2,7 +2,11 @@ package net.bestia.zone.ecs.battle
 
 import net.bestia.zone.component.ManaComponentSMSG
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.status.CurMax
 
@@ -53,7 +57,9 @@ class Mana(
     )
   }
 
-  override fun broadcastType(): Dirtyable.BroadcastType {
-    return Dirtyable.BroadcastType.ONLY_OWNER
+  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets {
+    val owner = context.world.get(entityId, Account::class)?.accountId
+      ?: return SyncTargets.Accounts(emptySet())
+    return SyncTargets.Accounts(setOf(owner) + context.partyMembersOf(owner))
   }
 }

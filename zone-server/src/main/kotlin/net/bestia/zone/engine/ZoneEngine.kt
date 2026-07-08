@@ -5,20 +5,14 @@ import jakarta.annotation.PostConstruct
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.ActivePlayerAOIService
 import net.bestia.zone.ecs.EntityAOIService
+import net.bestia.zone.ecs.PartyMembershipLookup
+import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.ecs.battle.Health
-import net.bestia.zone.ecs.battle.Mana
-import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ItemVisual
-import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
-import net.bestia.zone.ecs.status.Exp
-import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs.bestia.BestiaVisual
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.DirtyableRegistry
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.LootEntityFactory
@@ -29,7 +23,6 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,
@@ -37,9 +30,9 @@ import kotlin.reflect.KClass
  * `DirtyComponentUpdateSystem`:
  *
  *  - **component sync**: for each changed (marked) syncable component it builds the matching
- *    [net.bestia.zone.message.entity.EntitySMSG] and routes it (public -> players in range,
- *    only-owner -> the owning account), and it keeps the area-of-interest services up to date from
- *    changed positions.
+ *    [net.bestia.zone.message.entity.EntitySMSG] and routes it to whatever [SyncTargets] the
+ *    component resolves (all players in range, or a specific set of accounts), and it keeps the
+ *    area-of-interest services up to date from changed positions.
  *  - **domain events**: it drains the world outbox ([ZoneEvent]s emitted by systems, e.g. death)
  *    and performs their side effects (loot spawn, vanish broadcast).
  *
@@ -53,6 +46,8 @@ class ZoneEngine(
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val dirtyableRegistry: DirtyableRegistry,
+  private val partyMembershipLookup: PartyMembershipLookup,
   @Lazy private val lootEntityFactory: LootEntityFactory,
 ) {
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
@@ -125,12 +120,12 @@ class ZoneEngine(
 
   private fun flush() {
     val sends = ArrayList<() -> Unit>()
+    val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
 
     world.locked {
-      val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
       val positionChanged = HashSet<EntityId>()
 
-      for (type in SYNC_TYPES) {
+      for (type in dirtyableRegistry.syncTypes) {
         world.drainChanges(type) { id ->
           val comp = world.get(id, type) as? Dirtyable ?: return@drainChanges
           perEntity.getOrPut(id) { ArrayList() }.add(comp)
@@ -139,6 +134,8 @@ class ZoneEngine(
       }
 
       // Keep the area-of-interest services in sync with any moved entity.
+      // TODO i dont see the advantage to do this here vs doing this from the inside from the movement system
+      //   where we could just update this AOI service (ideally with a queued job)
       for (id in positionChanged) {
         val pos = world.get(id, Position::class)?.toVec3L() ?: continue
         entityAOIService.setEntityPosition(id, pos)
@@ -147,33 +144,32 @@ class ZoneEngine(
           if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)
         }
       }
+    }
 
-      // Build the outbound component update messages (old system required a Position to sync).
-      for ((id, comps) in perEntity) {
-        val pos = world.get(id, Position::class)?.toVec3L() ?: continue
-        val hasAccount = world.has(id, Account::class)
-        val ownerAccountId = world.get(id, Account::class)?.accountId
+    // Build the outbound component update messages outside the world lock: resolving sync
+    // targets (e.g. party membership) may hit the database and must not block the tick thread.
+    val syncContext = SyncContext(world, partyMembershipLookup)
+    for ((id, comps) in perEntity) {
+      val pos = world.get(id, Position::class)?.toVec3L() ?: continue
 
-        val publicMsgs = ArrayList<SMSG>()
-        val privateMsgs = ArrayList<SMSG>()
+      val publicMsgs = ArrayList<SMSG>()
+      val byAccount = LinkedHashMap<Long, MutableList<SMSG>>()
 
-        for (c in comps) {
-          val msg = c.toEntityMessage(id)
-          when (c.broadcastType()) {
-            Dirtyable.BroadcastType.PUBLIC -> publicMsgs.add(msg)
-            Dirtyable.BroadcastType.ONLY_OWNER -> {
-              // Health is public for non-account (mob) entities so nearby players see mob HP.
-              if (c is Health && !hasAccount) publicMsgs.add(msg) else privateMsgs.add(msg)
-            }
+      for (c in comps) {
+        val msg = c.toEntityMessage(id)
+        when (val target = c.syncTargets(syncContext, id)) {
+          is SyncTargets.PublicInRange -> publicMsgs.add(msg)
+          is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
+            byAccount.getOrPut(accountId) { ArrayList() }.add(msg)
           }
         }
+      }
 
-        if (publicMsgs.isNotEmpty()) {
-          sends.add { outMessageProcessor.sendToAllPlayersInRange(pos, publicMsgs) }
-        }
-        if (privateMsgs.isNotEmpty() && ownerAccountId != null) {
-          sends.add { outMessageProcessor.sendToPlayer(ownerAccountId, privateMsgs) }
-        }
+      if (publicMsgs.isNotEmpty()) {
+        sends.add { outMessageProcessor.sendToAllPlayersInRange(pos, publicMsgs) }
+      }
+      byAccount.forEach { (accountId, msgs) ->
+        sends.add { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }
 
@@ -185,6 +181,7 @@ class ZoneEngine(
 
   private fun handleEvent(event: Any, sends: MutableList<() -> Unit>) {
     when (event) {
+      // TODO this should probably be handled inside the damage system.
       is EntityDiedEvent -> {
         sends.add {
           outMessageProcessor.sendToAllPlayersInRange(
@@ -201,19 +198,5 @@ class ZoneEngine(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-
-    /** All syncable ([Dirtyable]) component types, drained each tick to produce client updates. */
-    private val SYNC_TYPES: List<KClass<out Component>> = listOf(
-      Position::class,
-      Speed::class,
-      Path::class,
-      Health::class,
-      Mana::class,
-      Inventory::class,
-      ItemVisual::class,
-      Exp::class,
-      Level::class,
-      BestiaVisual::class,
-    )
   }
 }

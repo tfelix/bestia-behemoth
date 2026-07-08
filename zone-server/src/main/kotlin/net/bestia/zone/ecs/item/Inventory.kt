@@ -2,7 +2,11 @@ package net.bestia.zone.ecs.item
 
 import net.bestia.zone.component.InventoryComponentSMSG
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.message.entity.EntitySMSG
 
 data class Inventory(
@@ -153,8 +157,9 @@ data class Inventory(
     )
   }
 
-  override fun broadcastType(): Dirtyable.BroadcastType {
-    return Dirtyable.BroadcastType.ONLY_OWNER
+  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets {
+    val owner = context.world.get(entityId, Account::class)?.accountId
+    return SyncTargets.Accounts(setOfNotNull(owner))
   }
 
   fun markDirty() {

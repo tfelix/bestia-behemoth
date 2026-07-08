@@ -54,6 +54,13 @@ class GameClientMock(
     return rxBuffer.filterIsInstance(type.java).lastOrNull()
   }
 
+  /** Unlike [tryGetLastReceived], checks the whole buffer rather than only the most recent message
+   * of [type] - useful when unrelated background traffic (e.g. periodic regen) of the same type
+   * may arrive after the message under test. */
+  fun <T : SMSG> receivedAny(type: KClass<T>, predicate: (T) -> Boolean): Boolean {
+    return rxBuffer.filterIsInstance(type.java).any(predicate)
+  }
+
   fun <T : SMSG> getLastReceived(type: KClass<T>): T {
     return tryGetLastReceived(type) ?: throw IllegalStateException("No message of type $type in buffer")
   }

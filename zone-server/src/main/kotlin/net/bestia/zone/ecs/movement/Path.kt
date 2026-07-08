@@ -2,7 +2,10 @@ package net.bestia.zone.ecs.movement
 
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.entity.EntitySMSG
 import net.bestia.zone.message.entity.PathSMSG
 
@@ -60,7 +63,5 @@ data class Path(
     )
   }
 
-  override fun broadcastType(): Dirtyable.BroadcastType {
-    return Dirtyable.BroadcastType.PUBLIC
-  }
+  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
 }
