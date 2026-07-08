@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -11,16 +12,17 @@ import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.EntityDiedEvent
 import org.springframework.core.annotation.Order
-import kotlin.math.floor
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
 @Order(70)
-class DeathSystem : System {
+class DeathSystem(
+  private val experienceCalculator: ExperienceCalculator,
+) : System {
 
   override val reads: Set<KClass<out Component>> =
-    setOf(Dead::class, GivenExp::class, TakenDamage::class, BestiaVisual::class, Position::class)
+    setOf(Dead::class, GivenExp::class, TakenDamage::class, BestiaVisual::class, Position::class, Account::class)
 
   override val writes: Set<KClass<out Component>> = setOf(Exp::class)
 
@@ -52,9 +54,15 @@ class DeathSystem : System {
   ) {
     LOG.debug { "Distribute $givenExp EXP to $damageDealer" }
 
-    damageDealer.forEach { (entityId, percent) ->
+    val attackingPlayerCount = damageDealer.keys
+      .mapNotNull { world.get(it, Account::class)?.accountId }
+      .distinct()
+      .size
+
+    val earnedExp = experienceCalculator.calculate(givenExp, damageDealer, attackingPlayerCount)
+
+    earnedExp.forEach { (entityId, receivedExp) ->
       if (!world.isAlive(entityId)) return@forEach
-      val receivedExp = floor(givenExp * percent).toInt()
 
       val exp = world.get(entityId, Exp::class) ?: world.add(entityId, Exp())
       exp.value += receivedExp

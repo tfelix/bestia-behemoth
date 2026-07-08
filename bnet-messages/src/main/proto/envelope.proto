@@ -29,7 +29,6 @@ import "messages/component/speed_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/mana_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
-import "messages/component/learned_skills_smsg.proto";
 import "messages/component/skill_points_smsg.proto";
 import "messages/component/skill_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
@@ -97,7 +96,6 @@ message Envelope {
     ManaComponentSMSG comp_mana = 519;
     HealthComponentSMSG comp_health = 520;
     InventoryComponentSMSG comp_inventory = 521;
-    LearnedSkillsSMSG comp_learned_skills = 522;
     SkillPointsSMSG comp_skill_points = 523;
     SkillListSMSG comp_skill_list = 524;
 

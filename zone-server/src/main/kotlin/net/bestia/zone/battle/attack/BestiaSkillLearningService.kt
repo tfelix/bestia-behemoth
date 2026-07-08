@@ -2,8 +2,6 @@ package net.bestia.zone.battle.attack
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
-import net.bestia.zone.ecs.battle.AvailableAttacks
-import net.bestia.zone.ecs.battle.LearnedSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId
@@ -59,9 +57,8 @@ class BestiaSkillLearningService(
 
     if (entityId != null) {
       world.modify(entityId) { id ->
-        world.get(id, AvailableAttacks::class)?.learnOrUpdate(skillId, skillLevel)
-        world.get(id, LearnedSkills::class)?.learnOrUpdate(skillId, skillLevel)
-        world.markChanged(id, LearnedSkills::class)
+        // FIXME properly learn the attack. also inform the owner via a skill messag.e
+        // world.get(id, AvailableAttacks::class)?.learnOrUpdate(skillId, skillLevel)
       }
     }
 

@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Health
-import net.bestia.zone.ecs.battle.LearnedSkills
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -59,7 +58,6 @@ class MasterEntityFactory(
       world.add(id, Speed())
       world.add(id, Health(current = 10, max = 10))
       world.add(id, AvailableAttacks(learnedSkillIds.toMutableMap()))
-      world.add(id, LearnedSkills(learnedSkillIds.toMutableMap()))
       world.add(id, SkillPoints(master.skillPoints))
       world.add(
         id,

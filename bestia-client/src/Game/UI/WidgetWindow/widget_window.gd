@@ -8,6 +8,8 @@ var _content_control: Control
 
 
 func _ready() -> void:
+	close_requested.connect(hide)
+
 	var content_scn = content.instantiate()
 	add_child(content_scn)
 	if content_scn is Control:

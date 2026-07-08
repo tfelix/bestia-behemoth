@@ -88,6 +88,14 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# no handling so far. The inventory of our entity is handled via a own handler
 		# directly in the inventory node. On an per entity level it is not handled.
 		pass
+	elif msg is SkillListSMSG:
+		# no handling so far. The skill list is handled via a own handler
+		# directly in the skills node. On an per entity level it is not handled.
+		pass
+	elif msg is SkillPointsComponentSMSG:
+		# no handling so far. Skill points are handled via a own handler
+		# directly in the skills node. On an per entity level it is not handled.
+		pass
 	else:
 		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [msg.GetMessageName(), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff

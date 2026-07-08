@@ -35,7 +35,7 @@ class BestiaEntityFactory(
 
     return world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
-      world.add(id, GivenExp(200))
+      world.add(id, GivenExp(bestia.experienceReward))
       world.add(id, BestiaVisual(bestiaId.toInt()))
       world.add(id, Health(bestia.health, bestia.health))
       world.add(id, Speed())

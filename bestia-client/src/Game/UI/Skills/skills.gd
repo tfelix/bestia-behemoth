@@ -12,6 +12,7 @@ const SkillRowScene = preload("res://Game/UI/Skills/SkillRow/SkillRow.tscn")
 # via spendable points, only via level-up or item-taught custom skills.
 var _master_entity_id: int = 0
 var _current_entity_id: int = 0
+var _available_skill_points: int = 0
 
 
 func _ready() -> void:
@@ -40,6 +41,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	elif msg is SkillPointsComponentSMSG:
 		if msg.EntityId == _current_entity_id:
 			_skill_points_label.text = "Skill Points: %s" % [msg.Points]
+			_available_skill_points = msg.Points
+			_update_skill_row_buttons()
 
 
 func _populate_rows(msg: SkillListSMSG) -> void:
@@ -58,6 +61,15 @@ func _populate_rows(msg: SkillListSMSG) -> void:
 			row.set_data(entry.AttackId, "Unknown Skill", null, entry.Level, entry.MaxLevel, 0)
 
 		row.set_disabled(!entry.Learned)
+		row.set_can_spend_points(_available_skill_points > 0)
+
+
+## Broadcasts the current spendable skill point count to every row so a SpendSkillPointButton
+## can hide itself once there are no points left to spend - rows have no standing connection
+## to this state on their own since they're plain instantiated children.
+func _update_skill_row_buttons() -> void:
+	for row in _skill_rows.get_children():
+		row.set_can_spend_points(_available_skill_points > 0)
 
 
 func _on_clear_button_pressed() -> void:

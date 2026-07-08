@@ -9,8 +9,7 @@ import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.message.EntitySMSG
 
 /**
- * A bestia master's unspent skill points, available to invest into their skill tree
- * (see [net.bestia.zone.ecs.battle.LearnedSkills]).
+ * A bestia master's unspent skill points, available to invest into their skill tree.
  */
 data class SkillPoints(
   private var _value: Int = 0
