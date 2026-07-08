@@ -1,9 +1,9 @@
 package net.bestia.zone.ecs.status
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.math.pow
 import kotlin.reflect.KClass
@@ -16,7 +16,10 @@ class ExpSystem : Ecs2System {
   override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Exp::class, Level::class).each { id, expComp, levelComp ->
+    world.query(Exp::class, Level::class).each { id ->
+      val expComp = get<Exp>()
+      val levelComp = get<Level>()
+
       var requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
       while (expComp.value >= requiredExpNextLevel) {
         expComp.value -= requiredExpNextLevel

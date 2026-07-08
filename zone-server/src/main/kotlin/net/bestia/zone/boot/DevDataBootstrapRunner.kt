@@ -6,7 +6,7 @@ import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.ecs.spawn.Spawner
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.InventoryItemFactory
 import org.springframework.boot.CommandLineRunner

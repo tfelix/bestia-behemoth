@@ -1,0 +1,28 @@
+package net.bestia.zone.ecs.bestia
+
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.message.entity.EntitySMSG
+
+data class BestiaVisual(
+  val id: Int
+) : Component, Dirtyable {
+
+  private var dirty = true
+
+  override fun isDirty(): Boolean {
+    return dirty
+  }
+
+  override fun clearDirty() {
+    dirty = false
+  }
+
+  override fun toEntityMessage(entityId: Long): EntitySMSG {
+    return BestiaVisualComponentSMSG(entityId, id)
+  }
+
+  override fun broadcastType(): Dirtyable.BroadcastType {
+    return Dirtyable.BroadcastType.PUBLIC
+  }
+}

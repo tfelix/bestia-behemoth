@@ -4,9 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.behavior.BtContext
 import net.bestia.zone.ai.behavior.Status
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
@@ -25,7 +25,10 @@ class AiActSystem : Ecs2System {
   override val writes: Set<KClass<out Component>> = setOf(net.bestia.zone.ecs.movement.Path::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Brain::class, Position::class).each { id, brain, _ ->
+    world.query(Brain::class, Position::class).each { id ->
+      val brain = get<Brain>()
+      // Position is unused here but must stay in the query: it enforces the
+      // "only entities that also have Position" join filter.
       val node = brain.currentActionNode ?: return@each
 
       if (brain.attackCooldownRemaining > 0f) {

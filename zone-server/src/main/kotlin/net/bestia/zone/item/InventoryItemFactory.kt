@@ -5,8 +5,8 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

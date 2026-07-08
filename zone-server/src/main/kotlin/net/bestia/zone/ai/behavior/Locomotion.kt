@@ -2,8 +2,8 @@ package net.bestia.zone.ai.behavior
 
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import kotlin.random.Random
 

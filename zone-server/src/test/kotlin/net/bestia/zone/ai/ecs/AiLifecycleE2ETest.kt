@@ -30,8 +30,8 @@ import net.bestia.zone.ecs.movement.MoveSystem
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Master
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test
  *
  * Unlike [AiBehaviorScenarioTest] (which ticks the AI stages once to check a single transition),
  * this test runs a faithful mini game-loop: all the real AI systems plus the real [MoveSystem] and
- * [ReceivedDamageSystem] registered in an ecs2 [World] and stepped at 20 tps, with
+ * [ReceivedDamageSystem] registered in an ecs [World] and stepped at 20 tps, with
  * perception/think refreshed every ~0.5s exactly as the live engine loop does.
  */
 class AiLifecycleE2ETest {

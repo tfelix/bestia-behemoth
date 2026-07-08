@@ -30,8 +30,8 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.player.Master
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
- * In-process exercise of the full AI pipeline against a real ecs2 [World]: spawn a brain-equipped
+ * In-process exercise of the full AI pipeline against a real ecs [World]: spawn a brain-equipped
  * mob and a player entity, run perception -> think -> act by hand, and assert the mob acquires the
  * target, plans, moves, attacks in melee range, and flips to fleeing at low health.
  */

@@ -1,8 +1,8 @@
 package net.bestia.zone.ai.behavior
 
 import net.bestia.zone.ai.ecs.Brain
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 
 /**
  * Everything a behaviour-tree leaf needs while ticking: the [world], the NPC's own [entityId], its

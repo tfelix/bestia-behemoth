@@ -1,9 +1,10 @@
 package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.battle.Dead
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
@@ -16,7 +17,11 @@ class MoveSystem : Ecs2System {
   override val writes: Set<KClass<out Component>> = setOf(Position::class, Path::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Position::class, Speed::class, Path::class).each { id, position, speed, movementPath ->
+    world.query(Position::class, Speed::class, Path::class).each { id ->
+      val position = get<Position>()
+      val speed = get<Speed>()
+      val movementPath = get<Path>()
+
       // calculate the movement advances of the entity since the last call.
       position.fraction += speed.speed * deltaTime
 
@@ -27,7 +32,7 @@ class MoveSystem : Ecs2System {
         position.y = nextPoint.y
         position.z = nextPoint.z
 
-        world.markChanged<Position>(id)
+        world.markChanged(id, Position::class)
 
         LOG.trace { "Entity $id on $nextPoint" }
 

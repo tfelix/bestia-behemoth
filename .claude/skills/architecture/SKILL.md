@@ -1,6 +1,6 @@
 ---
 name: architecture
-description: Explains the bestia-behemoth server architecture — protobuf message contracts (bnet-messages), the Envelope wire format, Netty socket handling, message dispatch/handlers, the ECS (entity/component/system) game loop and the parallel ecs2 rewrite, the login-server↔zone-server JWT handoff, and the AI module. Read this BEFORE investigating "how does message X travel from client to server", "where does system Y live", "how do I add a new message type", or any other cross-cutting networking/ECS question — it gives file:line pointers so the answer doesn't have to be re-derived from scratch. Triggers on: protobuf, .proto, Envelope, CMSG, SMSG, Netty, socket server, zone-server, login-server, ECS, ecs2, entity component system, message handler, JWT auth, bnet-messages, ChannelRegistry, World tick, gen-protobuf.
+description: Explains the bestia-behemoth server architecture — protobuf message contracts (bnet-messages), the Envelope wire format, Netty socket handling, message dispatch/handlers, the ECS (entity/component/system) game loop with parallel "wave" scheduling, the login-server↔zone-server JWT handoff, and the AI module. Read this BEFORE investigating "how does message X travel from client to server", "where does system Y live", "how do I add a new message type", or any other cross-cutting networking/ECS question — it gives file:line pointers so the answer doesn't have to be re-derived from scratch. Triggers on: protobuf, .proto, Envelope, CMSG, SMSG, Netty, socket server, zone-server, login-server, ECS, ecs/core, entity component system, message handler, JWT auth, bnet-messages, ChannelRegistry, World tick, gen-protobuf.
 ---
 
 # bestia-behemoth server architecture
@@ -102,33 +102,26 @@ two session maps — there is no single unified `Session` object.
 
 ## zone-server ECS (game loop)
 
-Two ECS implementations currently coexist under `zone-server/src/main/kotlin/net/bestia/zone/`:
+`zone-server/src/main/kotlin/net/bestia/zone/ecs/` is the hand-rolled ECS (no external
+ECS library):
 
-- **`ecs/`** — the production implementation, hand-rolled (no external ECS library).
-  `Entity` (`ecs/Entity.kt`) is a data class over `MutableMap<KClass<out Component>, Component>`.
-  `EntityManager` (`ecs/EntityManager.kt`) is a `ConcurrentHashMap<EntityId, Entity>`
-  with per-entity read/write locks. `ZoneServer` (`ecs/ZoneServer.kt`, `@Service`) runs
-  a **single dedicated thread** (`Executors.newFixedThreadPool(1)`) doing a fixed-tick
-  loop — `world.tick-rate: 20` (Hz) in `application.yml` — over Spring-injected
-  `List<IteratingSystem>` (every tick) and `List<PeriodicSystem>` (own cadence), each
-  entity processed under `withEntityWriteLock`. Subpackages: `battle/`, `item/`,
-  `movement/`, `network/`, `persistence/`, `player/`, `session/`, `spawn/`, `status/`,
-  `visual/`.
-- **`ecs2/`** — a newer, experimental rewrite added in commit `99ea8a1` ("Testing a
-  seperate ECS implementation"). Centered on `ecs2/World.kt`: `ComponentStore`,
-  `SystemScheduler` (parallel "wave" scheduling), `CommandQueue`, `ChangeTracker`,
-  `Outbox`, with Spring wiring in `ecs2/spring/`. As of this writing it is **not yet
-  wired into the live game loop** — it coexists alongside `ecs/` rather than replacing
-  it. Check `ecs2/spring/Ecs2Runner.kt` / recent commits before assuming which one is
-  live in a given area of code.
+- **`ecs/core/`** — the engine itself (formerly the standalone `ecs2` package, merged in).
+  Centered on `ecs/core/World.kt`: `ComponentStore`, `SystemScheduler` (parallel "wave"
+  scheduling based on declared read/write component sets), `CommandQueue`,
+  `ChangeTracker`, `Outbox`, with Spring wiring in `ecs/core/spring/` (`Ecs2Configuration`
+  collects every `Ecs2System` bean into a `World`; `Ecs2Runner` is the optional tick
+  driver). Game logic implements `Ecs2System` (`update(world, deltaTime)`, declaring
+  `reads`/`writes` component sets) and registers as a Spring `@Component` bean.
+- Domain subpackages sit alongside `core/`: `battle/`, `bestia/`, `item/`, `movement/`,
+  `persistence/`, `player/`, `session/`, `spawn/`, `status/` — components + systems per
+  gameplay area, all built on `ecs/core/World`/`Ecs2System`.
 
-To add game logic: prefer `ecs/` unless you've confirmed `ecs2/` has since become the
-live loop — implement `IteratingSystem` or `PeriodicSystem`, register as a Spring bean,
-mutate/read entities via the injected `ZoneOperations`/`ZoneServer`.
+To add game logic: implement `Ecs2System` (`ecs/core/Ecs2System.kt`), register it as a
+Spring bean, mutate/read entities via the injected `World`.
 
 ## AI module
 
-`net.bestia.zone.ai` (added in `6ff0a6f4`, built on top of `ecs/`, not `ecs2/`) layers
+`net.bestia.zone.ai` (added in `6ff0a6f4`, built on top of `ecs/core/`) layers
 several classic game-AI techniques on the tick loop:
 
 - `ai/perception` — `PerceptionSystem`, `Percept`, `AiEvent`

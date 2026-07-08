@@ -1,10 +1,10 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.item.Loot
+import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -44,7 +44,7 @@ class LootEntityFactory(
       world.add(id, Position.fromVec3(pos))
       world.add(
         id,
-        Loot(
+        ItemVisual(
           itemId = itemId,
           amount = amount,
           uniqueId = uniqueId

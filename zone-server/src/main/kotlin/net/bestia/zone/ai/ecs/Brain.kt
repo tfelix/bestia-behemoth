@@ -5,7 +5,7 @@ import net.bestia.zone.ai.goal.Goal
 import net.bestia.zone.ai.memory.IndividualMemory
 import net.bestia.zone.ai.perception.AiEvent
 import net.bestia.zone.ai.planner.Plan
-import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 

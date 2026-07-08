@@ -1,7 +1,7 @@
 extends Control
 
 @onready var _inventory: Control = $Inventory
-@onready var _skills: Control = $Skills
+@onready var _skills: Window = $Skills
 
 
 func _on_master_profile_inventory_win_toggled() -> void:

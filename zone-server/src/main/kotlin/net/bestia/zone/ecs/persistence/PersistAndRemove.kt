@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.persistence
 
-import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.core.Component
 
 
 /**

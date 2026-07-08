@@ -1,7 +1,7 @@
 package net.bestia.zone.message.entity
 
 import net.bestia.bnet.proto.*
-import net.bestia.zone.ecs.visual.Animation as AnimationComponent
+import net.bestia.zone.ecs.bestia.Animation as AnimationComponent
 
 data class AnimationSMSG(
   override val entityId: Long,

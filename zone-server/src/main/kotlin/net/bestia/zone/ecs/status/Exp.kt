@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.status
 
-import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.message.entity.EntitySMSG
 

@@ -1,9 +1,9 @@
 package net.bestia.zone.ecs.spawn
 
 import net.bestia.zone.bestia.BestiaEntityFactory
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.core.annotation.Order
 import kotlin.random.Random
@@ -19,7 +19,8 @@ class SpawnerSystem(
   override val writes: Set<KClass<out Component>> = setOf(Spawner::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Spawner::class).each { _, spawner ->
+    world.query(Spawner::class).each {
+      val spawner = get<Spawner>()
       removeDeadEntities(spawner, world)
       spawnMissingEntities(spawner)
     }

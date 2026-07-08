@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.player
 
-import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.core.Component
 
 /**
  * Marks the entity as an active player.

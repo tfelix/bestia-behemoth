@@ -1,10 +1,10 @@
 package net.bestia.zone.engine
 
-import net.bestia.zone.ecs2.EntityId
+import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.geometry.Vec3L
 
 /**
- * Domain events emitted by ECS systems onto the [net.bestia.zone.ecs2.World] outbox and consumed by
+ * Domain events emitted by ECS systems onto the [net.bestia.zone.ecs.core.World] outbox and consumed by
  * the [ZoneEngine] after each tick. This replaces the old `ZoneServer.queueExternalJob` calls that
  * systems used to fan work out to the network / other services: systems now only emit data and the
  * engine turns it into the (thread-offloaded) side effects.

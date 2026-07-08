@@ -1,10 +1,10 @@
 package net.bestia.zone.item
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.item.Loot
+import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.entity.VanishEntitySMSG
 import net.bestia.zone.message.processor.InMessageProcessor
@@ -41,15 +41,15 @@ class LootItemHandler(
     // same access sees no Loot component and aborts. This removes the item from the ECS first,
     // before it is ever granted, avoiding duplication.
     val claimed = world.modify(msg.targetEntityId) { id ->
-      val loot = world.get(id, Loot::class) ?: return@modify null
+      val itemVisual = world.get(id, ItemVisual::class) ?: return@modify null
       val lootPos = world.getOrThrow(id, Position::class).toVec3L()
 
       if (playerPos.distance(lootPos) > MAX_LOOT_RANGE) {
         return@modify null
       }
 
-      world.remove<Loot>(id)
-      ClaimedLoot(loot.itemId, loot.amount, loot.uniqueId, lootPos)
+      world.remove<ItemVisual>(id)
+      ClaimedLoot(itemVisual.itemId, itemVisual.amount, itemVisual.uniqueId, lootPos)
     }
 
     if (claimed == null) {

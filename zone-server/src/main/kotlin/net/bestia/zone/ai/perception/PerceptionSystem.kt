@@ -9,11 +9,11 @@ import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.Schedule
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.Schedule
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
@@ -36,7 +36,10 @@ class PerceptionSystem(
   override val reads: Set<KClass<out Component>> = setOf(Position::class, Health::class, Master::class, Brain::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Brain::class, Position::class).each { id, brain, position ->
+    world.query(Brain::class, Position::class).each { id ->
+      val brain = get<Brain>()
+      val position = get<Position>()
+
       val profile = profileRegistry.get(brain.profileId) ?: return@each
       val selfPos = position.toVec3L()
       val now = System.currentTimeMillis()

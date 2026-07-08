@@ -5,8 +5,8 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.AttackEntityCMSG
 import net.bestia.zone.entity.DamageEntitySMSG
 import net.bestia.zone.message.processor.InMessageProcessor

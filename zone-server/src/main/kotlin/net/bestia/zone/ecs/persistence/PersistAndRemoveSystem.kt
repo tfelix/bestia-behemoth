@@ -5,10 +5,10 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
 import kotlin.reflect.KClass
@@ -29,8 +29,8 @@ class PersistAndRemoveSystem(
     setOf(PersistAndRemove::class, Master::class, Position::class, Level::class)
 
   override fun update(world: World, deltaTime: Float) {
-    val toRemove = ArrayList<EntityId>()
-    world.query(PersistAndRemove::class).each { id, _ -> toRemove.add(id) }
+    val toRemove = mutableListOf<EntityId>()
+    world.query(PersistAndRemove::class).each { id -> toRemove.add(id) }
 
     for (id in toRemove) {
       if (world.has(id, Master::class)) {

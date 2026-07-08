@@ -2,17 +2,17 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.item.Loot
+import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs.visual.BestiaVisualComponentSMSG
-import net.bestia.zone.ecs.visual.ItemVisualComponentSMSG
-import net.bestia.zone.ecs.visual.MasterVisual
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.bestia.BestiaVisualComponentSMSG
+import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
+import net.bestia.zone.ecs.player.MasterVisual
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
@@ -98,9 +98,9 @@ class RequestEntitiesHandler(
   }
 
   private fun tryBuildLootComponent(entityId: EntityId): SMSG? {
-    val lootComp = world.get(entityId, Loot::class) ?: return null
+    val itemVisualComp = world.get(entityId, ItemVisual::class) ?: return null
 
-    return ItemVisualComponentSMSG(entityId, lootComp.itemId.toInt(), lootComp.amount, lootComp.uniqueId)
+    return ItemVisualComponentSMSG(entityId, itemVisualComp.itemId.toInt(), itemVisualComp.amount, itemVisualComp.uniqueId)
   }
 
   private fun findPositionOfActive(accountId: AccountId): Vec3L {

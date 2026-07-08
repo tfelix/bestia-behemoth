@@ -9,10 +9,10 @@ import net.bestia.zone.ai.planner.WorldStateBuilder
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.Ecs2System
-import net.bestia.zone.ecs2.Schedule
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.Schedule
+import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
@@ -37,7 +37,11 @@ class AiThinkSystem(
   override val reads: Set<KClass<out Component>> = setOf(Position::class, Health::class, Brain::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Brain::class, Position::class, Health::class).each { id, brain, position, health ->
+    world.query(Brain::class, Position::class, Health::class).each { id ->
+      val brain = get<Brain>()
+      val position = get<Position>()
+      val health = get<Health>()
+
       val profile = profileRegistry.get(brain.profileId) ?: return@each
       val selfPos = position.toVec3L()
 

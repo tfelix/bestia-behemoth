@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle
 
-import net.bestia.zone.ecs.Component
+import net.bestia.zone.ecs.core.Component
 
 /**
  * Entities with this tag are considered dead and their death logic will be executed.

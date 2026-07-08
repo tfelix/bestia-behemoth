@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.battle.Mana
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.Loot
+import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -17,10 +17,10 @@ import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.Component
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.entity.VanishEntitySMSG
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
- * Owns the running ecs2 [World]: it drives the single-threaded tick loop and, after every tick,
+ * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,
  * flushes ECS state changes to the outside world. This replaces the old `ZoneServer` tick loop plus
  * `DirtyComponentUpdateSystem`:
  *
@@ -210,7 +210,7 @@ class ZoneEngine(
       Health::class,
       Mana::class,
       Inventory::class,
-      Loot::class,
+      ItemVisual::class,
       Exp::class,
       Level::class,
       BestiaVisual::class,

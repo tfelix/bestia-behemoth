@@ -3,7 +3,7 @@ package net.bestia.zone.entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.processor.InMessageProcessor
 import org.springframework.stereotype.Component
 

@@ -10,9 +10,9 @@ import net.bestia.zone.ecs.player.ActivePlayer
 import net.bestia.zone.ecs.player.Master as MasterComponent
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs.visual.MasterVisual
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.player.MasterVisual
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

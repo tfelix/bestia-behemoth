@@ -8,9 +8,9 @@ import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.status.GivenExp
-import net.bestia.zone.ecs.visual.BestiaVisual
-import net.bestia.zone.ecs2.EntityId
-import net.bestia.zone.ecs2.World
+import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
