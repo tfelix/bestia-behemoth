@@ -10,8 +10,8 @@ import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.entity.VanishEntitySMSG
-import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.entity.VanishEntitySMSG
+import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import java.util.concurrent.Executors

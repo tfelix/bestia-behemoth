@@ -14,13 +14,13 @@ import net.bestia.zone.ecs.player.MasterVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.MasterVisualComponentSMSG
+import net.bestia.zone.ecs.player.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.ecs.movement.PathSMSG
 import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.ecs.movement.SpeedSMSG
-import net.bestia.zone.message.processor.InMessageProcessor
-import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * Handles the client message that sends out all entities.
  */
 @Component
-class RequestEntitiesHandler(
+class GetAllEntitiesHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
   private val aoiService: EntityAOIService,

@@ -1,10 +1,9 @@
-package net.bestia.zone.message.processor.handler
+package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.message.SelectEntityCMSG
-import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.ecs.session.EntityNotOwnedSessionException
+import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
 /**

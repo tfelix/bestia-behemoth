@@ -1,9 +1,8 @@
-package net.bestia.zone.message.processor
+package net.bestia.zone.message
 
-import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.SMSG
-import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.ecs.ActivePlayerAOIService
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.socket.OutMessageHandler
 import org.springframework.stereotype.Component
 
 @Component

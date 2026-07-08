@@ -2,10 +2,10 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.message.GetSelfCMSG
+import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.message.SelfSMSG
-import net.bestia.zone.message.processor.InMessageProcessor
-import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

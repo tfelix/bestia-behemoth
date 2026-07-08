@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
 @Component

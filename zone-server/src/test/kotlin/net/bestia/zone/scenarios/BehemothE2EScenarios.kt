@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
-import net.bestia.zone.message.GetBestiasCMSG
+import net.bestia.zone.bestia.GetBestiasCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.ecs.movement.PositionSMSG

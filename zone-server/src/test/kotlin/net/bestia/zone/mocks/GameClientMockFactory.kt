@@ -3,7 +3,7 @@ package net.bestia.zone.mocks
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.util.AccountId
 import org.springframework.context.ApplicationEventPublisher

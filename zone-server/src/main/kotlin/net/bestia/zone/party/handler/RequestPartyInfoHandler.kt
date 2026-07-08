@@ -1,8 +1,8 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.processor.InMessageProcessor
-import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.RequestPartyInfoCMSG

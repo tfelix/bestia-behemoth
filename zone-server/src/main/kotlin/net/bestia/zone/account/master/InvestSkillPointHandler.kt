@@ -3,7 +3,7 @@ package net.bestia.zone.account.master
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.MasterSkillTreeService
 import net.bestia.zone.battle.attack.SkillPointInvestment
-import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
 /**

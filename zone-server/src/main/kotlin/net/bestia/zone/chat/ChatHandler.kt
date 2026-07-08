@@ -6,8 +6,8 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.message.processor.InMessageProcessor
-import net.bestia.zone.message.processor.OutMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 
 @Component

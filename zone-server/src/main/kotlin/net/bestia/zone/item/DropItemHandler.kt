@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import kotlin.random.Random

@@ -1,4 +1,4 @@
-package net.bestia.zone.message.entity
+package net.bestia.zone.entity
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.VanishEntitySmsgProto

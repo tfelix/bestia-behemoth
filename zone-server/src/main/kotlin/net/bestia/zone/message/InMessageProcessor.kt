@@ -1,7 +1,6 @@
-package net.bestia.zone.message.processor
+package net.bestia.zone.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.CMSG
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 
@@ -70,4 +69,3 @@ class InMessageProcessor(
     private val LOG = KotlinLogging.logger { }
   }
 }
-

@@ -1,7 +1,7 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.message.processor.InMessageProcessor
+import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component

@@ -1,4 +1,4 @@
-package net.bestia.zone.message
+package net.bestia.zone.ecs.player
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.MasterProto
@@ -6,6 +6,7 @@ import net.bestia.bnet.proto.MasterVisualComponentSMSGProto
 import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
+import net.bestia.zone.message.SMSG
 import java.awt.Color
 
 data class MasterVisualComponentSMSG(
