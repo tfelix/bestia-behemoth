@@ -1,4 +1,4 @@
-package net.bestia.zone.system
+package net.bestia.zone.socket
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.processor.InMessageProcessor

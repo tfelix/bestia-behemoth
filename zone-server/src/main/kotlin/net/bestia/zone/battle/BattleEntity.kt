@@ -1,9 +1,9 @@
 package net.bestia.zone.battle
 
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.status.DefenseValues
-import net.bestia.zone.status.DerivedStatusValues
-import net.bestia.zone.status.StatusValues
+import net.bestia.zone.battle.status.DefenseValues
+import net.bestia.zone.battle.status.DerivedStatusValues
+import net.bestia.zone.battle.status.StatusValues
 
 data class BattleEntity(
   val id: Long,

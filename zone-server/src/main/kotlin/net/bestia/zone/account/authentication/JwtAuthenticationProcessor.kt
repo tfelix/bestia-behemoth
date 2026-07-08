@@ -2,7 +2,7 @@ package net.bestia.zone.account.authentication
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.jwt.LoginTokenValidator
+import net.bestia.zone.account.authentication.LoginTokenValidator
 import net.bestia.bnet.proto.EnvelopeProto
 import org.springframework.stereotype.Component
 

@@ -191,9 +191,9 @@ class World(
     store(type as KClass<Component>)
 
   // ------------------------------------------------------------------ systems
-  fun addSystem(system: Ecs2System) = scheduler.register(system)
+  fun addSystem(system: System) = scheduler.register(system)
 
-  fun addSystems(systems: Iterable<Ecs2System>) = scheduler.registerAll(systems)
+  fun addSystems(systems: Iterable<System>) = scheduler.registerAll(systems)
 
   // ------------------------------------------------------------- messaging in
   /** Enqueue external intent from any thread. Applied at the start of next tick. */

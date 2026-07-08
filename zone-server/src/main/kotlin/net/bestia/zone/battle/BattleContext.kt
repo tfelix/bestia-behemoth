@@ -29,27 +29,6 @@ data class EntityBattleContext(
   val defender: BattleEntity,
 ) : BattleContext() {
 
-  companion object {
-    /*
-    fun test(): EntityBattleContext {
-      return EntityBattleContext(
-        usedAttack = BattleSkill(
-          strength = 10,
-          manaCost = 5,
-          range = 10,
-          skillType = SkillType.MELEE_PHYSICAL,
-          needsLineOfSight = false
-        ),
-        attackElement = Element.NORMAL,
-        defenderElement = Element.NORMAL,
-        weaponAtk = 10f,
-        attacker = 1L,
-        defender = 2L,
-        damageVariables = DamageVariables()
-      )
-    }*/
-  }
-
   override fun targetPosition(): Vec3L {
     return defender.position
   }

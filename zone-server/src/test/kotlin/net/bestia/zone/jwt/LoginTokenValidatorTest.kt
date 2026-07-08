@@ -7,6 +7,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import net.bestia.account.Role
 import net.bestia.zone.ZoneConfig
+import net.bestia.zone.account.authentication.JwtLoginException
+import net.bestia.zone.account.authentication.LoginTokenValidator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

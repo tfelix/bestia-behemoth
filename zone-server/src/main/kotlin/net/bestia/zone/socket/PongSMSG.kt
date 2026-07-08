@@ -1,4 +1,4 @@
-package net.bestia.zone.system
+package net.bestia.zone.socket
 
 import net.bestia.bnet.proto.EnvelopeProto.Envelope
 import net.bestia.bnet.proto.PingOuterClass

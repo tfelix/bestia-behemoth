@@ -1,15 +1,16 @@
-package net.bestia.zone.jwt
+package net.bestia.zone.account.authentication
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import net.bestia.account.Authority
 import net.bestia.account.Role
 import net.bestia.zone.ZoneConfig
-import org.springframework.stereotype.Service
+import net.bestia.zone.account.authentication.JwtLoginException
+import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 import javax.crypto.SecretKey
 
-@Service
+@Component
 class LoginTokenValidator(
   config: ZoneConfig
 ) {

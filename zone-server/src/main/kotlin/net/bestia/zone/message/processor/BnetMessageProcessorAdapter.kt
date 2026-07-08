@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.InvestSkillPointCMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
-import net.bestia.zone.entity.AttackEntityCMSG
+import net.bestia.zone.battle.attack.AttackEntityCMSG
 import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.item.DropItemCMSG
 import net.bestia.zone.item.GetInventoryCMSG
@@ -12,7 +12,7 @@ import net.bestia.zone.item.LootItemCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.message.*
 import net.bestia.zone.chat.ChatCMSG
-import net.bestia.zone.system.PingCMSG
+import net.bestia.zone.socket.PingCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 

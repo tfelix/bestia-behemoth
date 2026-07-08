@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.engine.ZoneEngine
+import net.bestia.zone.ecs.ZoneEngine
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.Ordered

@@ -1,14 +1,7 @@
-package net.bestia.zone.engine
+package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
-import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.ActivePlayerAOIService
-import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.PartyMembershipLookup
-import net.bestia.zone.ecs.SyncContext
-import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.player.ActivePlayer
@@ -23,6 +16,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.collections.iterator
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,

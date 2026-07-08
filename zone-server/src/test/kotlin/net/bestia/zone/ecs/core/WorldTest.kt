@@ -101,7 +101,7 @@ class WorldTest {
     world.add(e, Health(1))
 
     // a system that "kills" entities at 0 hp by removing Health mid-iteration
-    world.addSystem(object : Ecs2System {
+    world.addSystem(object : System {
       override val writes = setOf(Health::class)
       override fun update(world: World, deltaTime: Float) {
         world.query(Health::class).each { id ->

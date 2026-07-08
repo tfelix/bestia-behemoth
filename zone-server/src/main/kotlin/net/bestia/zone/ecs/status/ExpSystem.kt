@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.status
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.player.Master
 import org.springframework.core.annotation.Order
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
 @Order(60)
-class ExpSystem : Ecs2System {
+class ExpSystem : System {
 
   override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class, SkillPoints::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Exp::class, Level::class).each { id ->
+    world.query(Exp::class, Level::class).each { entityId ->
       val expComp = get<Exp>()
       val levelComp = get<Level>()
-      val isMaster = world.has(id, Master::class)
+      val isMaster = world.has(entityId, Master::class)
 
       var requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
       while (expComp.value >= requiredExpNextLevel) {
@@ -28,17 +28,17 @@ class ExpSystem : Ecs2System {
         levelComp.inc()
 
         if (isMaster) {
-          world.get(id, SkillPoints::class)?.let { skillPoints ->
+          world.get(entityId, SkillPoints::class)?.let { skillPoints ->
             skillPoints.value += 1
-            world.markChanged<SkillPoints>(id)
+            world.markChanged<SkillPoints>(entityId)
           }
         }
 
         requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
-        world.markChanged<Level>(id)
-        world.markChanged<Exp>(id)
+        world.markChanged<Level>(entityId)
+        world.markChanged<Exp>(entityId)
 
-        LOG.debug { "$id got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
+        LOG.debug { "$entityId got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
       }
     }
   }

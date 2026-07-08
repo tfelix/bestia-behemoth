@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.spawn
 
 import net.bestia.zone.bestia.BestiaEntityFactory
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.core.annotation.Order
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(80)
 class SpawnerSystem(
   private val bestiaEntityFactory: BestiaEntityFactory,
-) : Ecs2System {
+) : System {
 
   override val writes: Set<KClass<out Component>> = setOf(Spawner::class)
 

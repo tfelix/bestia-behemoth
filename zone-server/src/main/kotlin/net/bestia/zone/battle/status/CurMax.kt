@@ -1,4 +1,4 @@
-package net.bestia.zone.status
+package net.bestia.zone.battle.status
 
 import kotlin.math.max
 import kotlin.math.min

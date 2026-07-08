@@ -1,4 +1,4 @@
-package net.bestia.zone.entity
+package net.bestia.zone.battle.damage
 
 import net.bestia.bnet.proto.DamageEntitySMSGProto
 import net.bestia.bnet.proto.EnvelopeProto

@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.core.spring
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
 import org.springframework.beans.factory.annotation.Value
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * Spring wiring for the ecs [World]. Collects every [Ecs2System] bean and
+ * Spring wiring for the ecs [World]. Collects every [System] bean and
  * registers it into a single [World] — the same `List<T>` bean-collection
  * mechanism the existing `ZoneServer` uses for its systems.
  *
@@ -21,7 +21,7 @@ class Ecs2Configuration {
 
   @Bean
   fun ecsWorld(
-    systems: List<Ecs2System>,
+    systems: List<System>,
     @Value("\${ecs.core.parallel-systems:false}") parallelSystems: Boolean,
     @Value("\${zone.shard-id:1}") shardId: Int,
   ): World {

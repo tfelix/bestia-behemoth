@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle
 
 import net.bestia.zone.component.HealthComponentSMSG
-import net.bestia.zone.status.CurMax
+import net.bestia.zone.battle.status.CurMax
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable

@@ -14,7 +14,7 @@ import java.util.concurrent.ForkJoinPool
  */
 class SystemScheduler(private val parallel: Boolean = false) {
 
-  private class Entry(val system: Ecs2System) {
+  private class Entry(val system: System) {
     var tickCounter = 0
     var accumulator = 0f
   }
@@ -28,12 +28,12 @@ class SystemScheduler(private val parallel: Boolean = false) {
   /** Number of parallel waves; exposed for testing/introspection. */
   val waveCount: Int get() = waves.size
 
-  fun register(system: Ecs2System) {
+  fun register(system: System) {
     entries.add(Entry(system))
     recomputeWaves()
   }
 
-  fun registerAll(systems: Iterable<Ecs2System>) {
+  fun registerAll(systems: Iterable<System>) {
     systems.forEach { entries.add(Entry(it)) }
     recomputeWaves()
   }
@@ -101,7 +101,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
     waves = result.filter { it.isNotEmpty() }
   }
 
-  private fun conflicts(a: Ecs2System, b: Ecs2System): Boolean =
+  private fun conflicts(a: System, b: System): Boolean =
     a.writes.any { it in b.reads || it in b.writes } ||
       b.writes.any { it in a.reads || it in a.writes }
 }

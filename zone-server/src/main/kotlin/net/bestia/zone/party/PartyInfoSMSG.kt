@@ -2,7 +2,7 @@ package net.bestia.zone.party
 
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.status.CurMax
+import net.bestia.zone.battle.status.CurMax
 import net.bestia.zone.util.EntityId
 import net.bestia.bnet.proto.EnvelopeProto
 

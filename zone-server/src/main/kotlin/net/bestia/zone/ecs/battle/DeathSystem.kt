@@ -6,10 +6,10 @@ import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.engine.EntityDiedEvent
+import net.bestia.zone.ecs.EntityDiedEvent
 import org.springframework.core.annotation.Order
 import kotlin.math.floor
 import kotlin.reflect.KClass
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
 @Order(70)
-class DeathSystem : Ecs2System {
+class DeathSystem : System {
 
   override val reads: Set<KClass<out Component>> =
     setOf(Dead::class, GivenExp::class, TakenDamage::class, BestiaVisual::class, Position::class)

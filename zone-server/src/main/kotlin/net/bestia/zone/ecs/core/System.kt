@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
  * multithreading possible — leave them empty only for systems that touch no
  * shared component state.
  */
-interface Ecs2System {
+interface System {
   val schedule: Schedule
     get() = Schedule.EveryTick
 

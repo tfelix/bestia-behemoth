@@ -4,7 +4,7 @@ import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.entity.DamageEntitySMSG
+import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.message.processor.OutMessageProcessor
 import org.springframework.stereotype.Component
 

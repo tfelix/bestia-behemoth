@@ -1,4 +1,4 @@
-package net.bestia.zone.status
+package net.bestia.zone.battle.status
 
 data class StatusValues(
   val strength: Int,

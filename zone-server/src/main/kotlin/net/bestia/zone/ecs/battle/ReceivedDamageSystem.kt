@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 @Order(50)
-class ReceivedDamageSystem : Ecs2System {
+class ReceivedDamageSystem : System {
 
   override val reads: Set<KClass<out Component>> = setOf(Damage::class)
   override val writes: Set<KClass<out Component>> = setOf(Health::class, TakenDamage::class, Dead::class)

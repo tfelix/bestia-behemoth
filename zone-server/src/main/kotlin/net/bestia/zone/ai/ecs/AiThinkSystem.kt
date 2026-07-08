@@ -10,7 +10,7 @@ import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
@@ -31,7 +31,7 @@ class AiThinkSystem(
   private val worldStateBuilder: WorldStateBuilder,
   private val planner: Planner,
   private val actionRegistry: GoapActionRegistry
-) : Ecs2System {
+) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
   override val reads: Set<KClass<out Component>> = setOf(Position::class, Health::class, Brain::class)

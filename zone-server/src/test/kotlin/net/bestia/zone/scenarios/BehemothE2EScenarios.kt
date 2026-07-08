@@ -2,8 +2,8 @@ package net.bestia.zone.scenarios
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.message.GetBestiasCMSG
-import net.bestia.zone.system.PingCMSG
-import net.bestia.zone.system.PongSMSG
+import net.bestia.zone.socket.PingCMSG
+import net.bestia.zone.socket.PongSMSG
 import net.bestia.zone.message.entity.PositionSMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.session.NoActiveSessionException

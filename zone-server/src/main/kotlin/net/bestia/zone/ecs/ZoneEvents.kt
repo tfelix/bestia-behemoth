@@ -1,4 +1,4 @@
-package net.bestia.zone.engine
+package net.bestia.zone.ecs
 
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.geometry.Vec3L

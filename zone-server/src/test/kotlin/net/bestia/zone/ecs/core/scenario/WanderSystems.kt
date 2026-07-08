@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component as SpringComponent
@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  * movement integrates.
  */
 @SpringComponent
-class WanderSystem : Ecs2System {
+class WanderSystem : System {
   override val schedule = Schedule.EverySeconds(0.05f)
   override val reads: Set<KClass<out Component>> = setOf(Wander::class)
   override val writes: Set<KClass<out Component>> = setOf(Velocity::class)
@@ -45,7 +45,7 @@ class WanderSystem : Ecs2System {
  * writes Position, reads Velocity.
  */
 @SpringComponent
-class MovementSystem : Ecs2System {
+class MovementSystem : System {
   override val schedule = Schedule.EveryTick
   override val reads: Set<KClass<out Component>> = setOf(Velocity::class)
   override val writes: Set<KClass<out Component>> = setOf(Position::class)
@@ -70,7 +70,7 @@ class MovementSystem : Ecs2System {
  * share a parallel wave with [MovementSystem].
  */
 @SpringComponent
-class HealthRegenSystem : Ecs2System {
+class HealthRegenSystem : System {
   override val schedule = Schedule.EverySeconds(0.1f)
   override val writes: Set<KClass<out Component>> = setOf(Health::class)
 

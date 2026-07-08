@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.status.SkillPoints
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(90)
 class PersistAndRemoveSystem(
   private val masterRepository: MasterRepository
-) : Ecs2System {
+) : System {
 
   override val reads: Set<KClass<out Component>> =
     setOf(PersistAndRemove::class, Master::class, Position::class, Level::class, SkillPoints::class)

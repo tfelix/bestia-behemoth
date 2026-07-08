@@ -1,4 +1,4 @@
-package net.bestia.zone.jwt
+package net.bestia.zone.account.authentication
 
 import net.bestia.zone.BestiaException
 

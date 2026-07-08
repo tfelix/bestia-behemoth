@@ -12,7 +12,7 @@ private class CountingSystem(
   override val schedule: Schedule,
   override val reads: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
   override val writes: Set<kotlin.reflect.KClass<out Component>> = emptySet(),
-) : Ecs2System {
+) : System {
   var runs = 0
   override fun update(world: World, deltaTime: Float) {
     runs++

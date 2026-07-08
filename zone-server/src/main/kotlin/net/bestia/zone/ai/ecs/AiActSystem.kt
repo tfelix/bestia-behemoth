@@ -5,7 +5,7 @@ import net.bestia.zone.ai.behavior.BtContext
 import net.bestia.zone.ai.behavior.Status
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.Ecs2System
+import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import kotlin.reflect.KClass
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 @Order(30)
-class AiActSystem : Ecs2System {
+class AiActSystem : System {
 
   override val reads: Set<KClass<out Component>> = setOf(Position::class, Brain::class)
   override val writes: Set<KClass<out Component>> = setOf(net.bestia.zone.ecs.movement.Path::class)
