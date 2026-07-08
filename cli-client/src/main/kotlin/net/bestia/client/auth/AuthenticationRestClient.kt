@@ -10,11 +10,40 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
+sealed class StaticAuthResult {
+    data class Success(val token: String) : StaticAuthResult()
+    data class Failure(val error: String) : StaticAuthResult()
+}
+
 class AuthenticationRestClient(
     private val baseUrl: String = "http://localhost:8080"
 ) {
     private val client = OkHttpClient()
     private val objectMapper = jacksonObjectMapper()
+
+    @Throws(IOException::class)
+    fun authenticateStatic(username: String, token: String): StaticAuthResult {
+        val jsonBody = objectMapper.writeValueAsString(mapOf("username" to username, "token" to token))
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
+
+        val httpRequest = Request.Builder()
+            .url("$baseUrl/api/v1/auth/static")
+            .post(requestBody)
+            .build()
+
+        client.newCall(httpRequest).execute().use { response ->
+            val responseBody = response.body?.string()
+                ?: throw IOException("Empty response body")
+
+            return if (response.isSuccessful) {
+                val successResponse: Map<String, String> = objectMapper.readValue(responseBody)
+                StaticAuthResult.Success(token = successResponse["token"] ?: throw IOException("Missing token in response"))
+            } else {
+                val errorResponse: Map<String, String> = objectMapper.readValue(responseBody)
+                StaticAuthResult.Failure(error = errorResponse["error"] ?: "Unknown error")
+            }
+        }
+    }
 
     @Throws(IOException::class)
     fun authenticate(request: Eip712AuthRequest): Eip712AuthResponse {

@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.bestia
 
 import net.bestia.bnet.proto.BestiaVisualComponentProto
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 data class BestiaVisualComponentSMSG(
   override val entityId: Long,

@@ -10,7 +10,7 @@ import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.System
+import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class PerceptionSystem(
   private val profileRegistry: AiProfileRegistry,
   private val aoiService: EntityAOIService
-) : System {
+) : EcsSystem {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
   override val reads: Set<KClass<out Component>> = setOf(Position::class, Health::class, Master::class, Brain::class)

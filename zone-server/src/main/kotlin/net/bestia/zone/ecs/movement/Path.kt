@@ -6,8 +6,8 @@ import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncContext
 import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.message.entity.EntitySMSG
-import net.bestia.zone.message.entity.PathSMSG
+import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.ecs.movement.PathSMSG
 
 data class Path(
   private var _path: MutableList<Vec3L>

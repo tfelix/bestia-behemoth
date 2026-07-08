@@ -24,7 +24,7 @@ class SnowflakeEntityIdGenerator(
 
   @Synchronized
   fun nextId(): EntityId {
-    val currentTimestamp = System.currentTimeMillis()
+    val currentTimestamp = java.lang.System.currentTimeMillis()
 
     if (currentTimestamp < lastTimestamp) {
       throw IllegalStateException("Clock moved backwards. Refusing to generate id")

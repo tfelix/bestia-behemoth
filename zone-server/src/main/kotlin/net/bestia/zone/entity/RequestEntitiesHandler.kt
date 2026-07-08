@@ -16,9 +16,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.entity.PathSMSG
-import net.bestia.zone.message.entity.PositionSMSG
-import net.bestia.zone.message.entity.SpeedSMSG
+import net.bestia.zone.ecs.movement.PathSMSG
+import net.bestia.zone.ecs.movement.PositionSMSG
+import net.bestia.zone.ecs.movement.SpeedSMSG
 import net.bestia.zone.message.processor.InMessageProcessor
 import net.bestia.zone.message.processor.OutMessageProcessor
 import net.bestia.zone.util.AccountId

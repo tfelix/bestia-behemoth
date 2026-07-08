@@ -70,6 +70,13 @@ class PartyService(
       member.account.id
     }
 
+    // Master.party/ownedParty still reference this party - clear them first, otherwise Hibernate
+    // flushes those managed Masters with a dangling reference to the row we're about to delete.
+    party.member.forEach { member -> member.party = null }
+    party.owner.party = null
+    party.owner.ownedParty = null
+    masterRepository.saveAll(party.member + party.owner)
+
     partyRepository.delete(party)
 
     return oldPartyMemberAccountIds

@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.item
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.ItemVisualComponentProto
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
 
 class ItemVisualComponentSMSG(

@@ -4,7 +4,7 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.message.GetBestiasCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
-import net.bestia.zone.message.entity.PositionSMSG
+import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.session.NoActiveSessionException
 import net.bestia.zone.entity.MoveActiveEntityCMSG

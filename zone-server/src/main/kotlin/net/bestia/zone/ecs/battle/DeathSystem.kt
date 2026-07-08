@@ -58,6 +58,7 @@ class DeathSystem : System {
 
       val exp = world.get(entityId, Exp::class) ?: world.add(entityId, Exp())
       exp.value += receivedExp
+
       world.markChanged<Exp>(entityId)
     }
   }

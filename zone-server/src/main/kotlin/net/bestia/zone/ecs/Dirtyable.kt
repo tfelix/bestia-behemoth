@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs
 
 import net.bestia.zone.ecs.core.EntityId
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 interface Dirtyable {
   fun isDirty(): Boolean

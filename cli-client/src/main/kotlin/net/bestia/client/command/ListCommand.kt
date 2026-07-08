@@ -1,7 +1,7 @@
 package net.bestia.client.command
 
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.bnet.proto.ListAvailableBestiasProto
+import net.bestia.bnet.proto.ListMasterProto
 import java.lang.IllegalStateException
 
 class ListCommand(
@@ -19,10 +19,10 @@ class ListCommand(
 
     val envelope = when (val listCmd = tokens[1]) {
       "bestia" -> {
-        val listBestias = ListAvailableBestiasProto.ListAvailableBestias.newBuilder()
+        val getMaster = ListMasterProto.GetMasterCMSG.newBuilder()
 
         EnvelopeProto.Envelope.newBuilder()
-          .setListBestias(listBestias)
+          .setGetMaster(getMaster)
           .build()
       }
 

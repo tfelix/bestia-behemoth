@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 /**
  * The custom/individually-learned skills of an entity - attackId -> current level. This is the

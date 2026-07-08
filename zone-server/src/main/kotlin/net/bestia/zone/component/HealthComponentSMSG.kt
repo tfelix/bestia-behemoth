@@ -3,7 +3,7 @@ package net.bestia.zone.component
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.HealthComponentSMSGProto
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 data class HealthComponentSMSG(
   override val entityId: Long,

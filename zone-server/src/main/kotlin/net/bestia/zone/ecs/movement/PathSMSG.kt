@@ -1,9 +1,10 @@
-package net.bestia.zone.message.entity
+package net.bestia.zone.ecs.movement
 
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.PathComponentSMSGProto
 import net.bestia.bnet.proto.Vec3OuterClass
+import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.message.EntitySMSG
 
 data class PathSMSG(
   override val entityId: Long,

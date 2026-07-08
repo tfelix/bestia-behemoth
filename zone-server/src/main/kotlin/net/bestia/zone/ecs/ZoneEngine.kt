@@ -24,7 +24,7 @@ import kotlin.collections.iterator
  * `DirtyComponentUpdateSystem`:
  *
  *  - **component sync**: for each changed (marked) syncable component it builds the matching
- *    [net.bestia.zone.message.entity.EntitySMSG] and routes it to whatever [SyncTargets] the
+ *    [net.bestia.zone.message.EntitySMSG] and routes it to whatever [SyncTargets] the
  *    component resolves (all players in range, or a specific set of accounts), and it keeps the
  *    area-of-interest services up to date from changed positions.
  *  - **domain events**: it drains the world outbox ([ZoneEvent]s emitted by systems, e.g. death)
@@ -113,7 +113,6 @@ class ZoneEngine(
   }
 
   private fun flush() {
-    val sends = ArrayList<() -> Unit>()
     val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
 
     world.locked {
@@ -151,6 +150,7 @@ class ZoneEngine(
 
       for (c in comps) {
         val msg = c.toEntityMessage(id)
+
         when (val target = c.syncTargets(syncContext, id)) {
           is SyncTargets.PublicInRange -> publicMsgs.add(msg)
           is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
@@ -160,31 +160,29 @@ class ZoneEngine(
       }
 
       if (publicMsgs.isNotEmpty()) {
-        sends.add { outMessageProcessor.sendToAllPlayersInRange(pos, publicMsgs) }
+        externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, publicMsgs) }
       }
       byAccount.forEach { (accountId, msgs) ->
-        sends.add { outMessageProcessor.sendToPlayer(accountId, msgs) }
+        externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }
 
     // Discrete domain events emitted by systems (death, ...).
-    world.drainOutbox { event -> handleEvent(event, sends) }
-
-    sends.forEach { externalExecutor.submit(it) }
+    world.drainOutbox { event -> handleEvent(event) }
   }
 
-  private fun handleEvent(event: Any, sends: MutableList<() -> Unit>) {
+  private fun handleEvent(event: Any) {
     when (event) {
       // TODO this should probably be handled inside the damage system.
       is EntityDiedEvent -> {
-        sends.add {
+        externalExecutor.submit {
           outMessageProcessor.sendToAllPlayersInRange(
             event.position,
             VanishEntitySMSG(entityId = event.entityId, kind = VanishEntitySMSG.VanishKind.DEATH)
           )
         }
         if (event.lootBestiaId != null) {
-          sends.add { lootEntityFactory.createLootEntities(event.lootBestiaId, event.position) }
+          externalExecutor.submit { lootEntityFactory.createLootEntities(event.lootBestiaId, event.position) }
         }
       }
     }

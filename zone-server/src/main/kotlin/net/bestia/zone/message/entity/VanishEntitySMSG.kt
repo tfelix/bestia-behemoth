@@ -2,6 +2,7 @@ package net.bestia.zone.message.entity
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.VanishEntitySmsgProto
+import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
 
 data class VanishEntitySMSG(

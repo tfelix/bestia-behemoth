@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.status
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.LevelComponentSMSGProto
 import net.bestia.bnet.proto.SpeedComponentSMSGProto
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 data class LevelSMSG(
   override val entityId: Long,

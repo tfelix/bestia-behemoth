@@ -5,19 +5,19 @@ import net.bestia.bnet.proto.EnvelopeProto
 
 class ChatFormatter : Formatter {
   override fun canHandle(envelope: EnvelopeProto.Envelope): Boolean {
-    return envelope.hasChat()
+    return envelope.hasChatSmsg()
   }
 
   override fun format(envelope: EnvelopeProto.Envelope): String {
-    val chat = envelope.chat
+    val chat = envelope.chatSmsg
 
     val mode = "[${chat.mode.name.uppercase()}]"
-    val username = if (chat.hasTargetPlayerName()) {
-      "${chat.targetPlayerName}: "
+    val sender = if (chat.hasSenderName()) {
+      "${chat.senderName}: "
     } else {
       ""
     }
 
-    return "CHAT $mode $username${chat.text}"
+    return "CHAT $mode $sender${chat.text}"
   }
 }

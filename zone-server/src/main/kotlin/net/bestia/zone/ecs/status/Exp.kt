@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncContext
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.message.entity.EntitySMSG
+import net.bestia.zone.message.EntitySMSG
 
 data class Exp(
   private var _value: Int = 0

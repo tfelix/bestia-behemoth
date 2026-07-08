@@ -1,7 +1,8 @@
-package net.bestia.zone.message.entity
+package net.bestia.zone.ecs.movement
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SpeedComponentSMSGProto
+import net.bestia.zone.message.EntitySMSG
 
 data class SpeedSMSG(
   override val entityId: Long,

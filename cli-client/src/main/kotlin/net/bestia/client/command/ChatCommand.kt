@@ -1,6 +1,6 @@
 package net.bestia.client.command
 
-import net.bestia.bnet.proto.ChatMessageProto
+import net.bestia.bnet.proto.ChatCmsgProto
 import net.bestia.bnet.proto.EnvelopeProto
 
 class ChatCommand(
@@ -19,19 +19,19 @@ class ChatCommand(
     val mode = tokens[1].lowercase()
     val text = tokens.drop(2).joinToString(" ")
 
-    val messageBuilder = ChatMessageProto.ChatMessage.newBuilder()
+    val messageBuilder = ChatCmsgProto.ChatCMSG.newBuilder()
       .setText(text)
 
     if(mode == "public") {
-      messageBuilder.setMode(ChatMessageProto.Mode.PUBLIC)
+      messageBuilder.setMode(ChatCmsgProto.Mode.PUBLIC)
     } else if(mode == "party") {
-      messageBuilder.setMode(ChatMessageProto.Mode.PARTY)
+      messageBuilder.setMode(ChatCmsgProto.Mode.PARTY)
     } else if(mode == "guild") {
-      messageBuilder.setMode(ChatMessageProto.Mode.GUILD)
+      messageBuilder.setMode(ChatCmsgProto.Mode.GUILD)
     } else if(mode.startsWith("whisper:")) {
       val username = mode.substring("whisper:".length)
       if(username.isNotEmpty()) {
-        messageBuilder.setMode(ChatMessageProto.Mode.WHISPER)
+        messageBuilder.setMode(ChatCmsgProto.Mode.WHISPER)
         messageBuilder.setTargetPlayerName(username)
       } else {
         session.print("Usage: $usage")
@@ -43,7 +43,7 @@ class ChatCommand(
     }
 
     val envelope = EnvelopeProto.Envelope.newBuilder()
-      .setChat(messageBuilder)
+      .setChatCmsg(messageBuilder)
       .build()
 
     session.sendEnvelope(envelope)

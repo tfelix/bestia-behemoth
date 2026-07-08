@@ -40,15 +40,16 @@ class LootItemHandler(
     // Claim the loot atomically: strip the Loot component so a concurrent pickup racing for the
     // same access sees no Loot component and aborts. This removes the item from the ECS first,
     // before it is ever granted, avoiding duplication.
-    val claimed = world.modify(msg.targetEntityId) { id ->
-      val itemVisual = world.get(id, ItemVisual::class) ?: return@modify null
-      val lootPos = world.getOrThrow(id, Position::class).toVec3L()
+    val claimed = world.modify(msg.targetEntityId) { entityId ->
+      val itemVisual = world.get(entityId, ItemVisual::class) ?: return@modify null
+      val lootPos = world.getOrThrow(entityId, Position::class).toVec3L()
 
       if (playerPos.distance(lootPos) > MAX_LOOT_RANGE) {
         return@modify null
       }
 
-      world.remove<ItemVisual>(id)
+      world.remove<ItemVisual>(entityId)
+
       ClaimedLoot(itemVisual.itemId, itemVisual.amount, itemVisual.uniqueId, lootPos)
     }
 
