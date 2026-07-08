@@ -44,13 +44,13 @@ class PartySyncScenarios : BestiaNoSocketScenario() {
       val health = world.get(id, Health::class)!!
       val healthBefore = health.current
       health.current -= 1
-      world.markChanged<Health>(id)
+      world.markChanged(id, Health::class)
 
       // No game content attaches Mana to a master yet - add one directly to exercise the sync path.
       val mana = world.get(id, Mana::class) ?: world.add(id, Mana(current = 10, max = 10))
       val manaBefore = mana.current
       mana.current -= 1
-      world.markChanged<Mana>(id)
+      world.markChanged(id, Mana::class)
 
       healthBefore to manaBefore
     }!!

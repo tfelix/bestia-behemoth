@@ -75,7 +75,7 @@ class InventoryItemFactory(
       }
 
       inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount, uniqueId = uniqueId))
-      world.markChanged<Inventory>(id)
+      world.markChanged(id, Inventory::class)
     }
   }
 

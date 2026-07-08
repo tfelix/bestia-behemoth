@@ -21,7 +21,7 @@ class AppleScript(
     val healAmount = 25
 
     hpComp.current += healAmount
-    world.markChanged<Health>(userId)
+    world.markChanged(userId, Health::class)
 
     val pos = world.get(userId, Position::class)
 

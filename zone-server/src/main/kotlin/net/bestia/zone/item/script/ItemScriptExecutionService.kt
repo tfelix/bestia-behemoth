@@ -22,7 +22,7 @@ class ItemScriptExecutionService(
     if (isSuccess) {
       val inventory = world.getOrThrow(userId, Inventory::class)
       inventory.decItem(item.id.toInt())
-      world.markChanged<Inventory>(userId)
+      world.markChanged(userId, Inventory::class)
     }
   }
 }

@@ -25,7 +25,7 @@ class GetInventoryHandler(
       val inventory = world.get(id, Inventory::class)
 
       if (inventory != null) {
-        world.markChanged<Inventory>(id)
+        world.markChanged(id, Inventory::class)
         LOG.debug { "Marked inventory as dirty for entity $activeEntityId" }
       } else {
         LOG.debug { "Entity $activeEntityId has no inventory component" }

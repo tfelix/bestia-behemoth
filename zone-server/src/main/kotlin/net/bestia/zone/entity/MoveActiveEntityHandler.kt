@@ -27,12 +27,12 @@ class MoveActiveEntityHandler(
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {
         // An empty path is a stop request: drop any current path.
-        world.remove<Path>(id)
+        world.remove(id, Path::class)
       } else {
         val existing = world.get(id, Path::class)
         if (existing != null) {
           existing.setPath(msg.path)
-          world.markChanged<Path>(id)
+          world.markChanged(id, Path::class)
         } else {
           world.add(id, Path(msg.path.toMutableList()))
         }

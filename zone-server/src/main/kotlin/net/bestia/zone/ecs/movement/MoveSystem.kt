@@ -36,7 +36,7 @@ class MoveSystem : System {
         LOG.trace { "Entity $id on $nextPoint" }
 
         if (movementPath.path.isEmpty()) {
-          world.remove<Path>(id)
+          world.remove(id, Path::class)
         }
 
         position.fraction -= 1

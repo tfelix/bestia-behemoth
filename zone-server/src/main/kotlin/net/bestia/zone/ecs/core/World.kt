@@ -168,12 +168,6 @@ class World(
   /** Flags a component of [id] as changed this tick (for outbound sync). */
   fun markChanged(id: EntityId, type: KClass<out Component>) = changes.mark(type, id)
 
-  // reified conveniences
-  inline fun <reified T : Component> get(id: EntityId): T? = get(id, T::class)
-  inline fun <reified T : Component> has(id: EntityId): Boolean = has(id, T::class)
-  inline fun <reified T : Component> remove(id: EntityId): T? = remove(id, T::class)
-  inline fun <reified T : Component> markChanged(id: EntityId) = markChanged(id, T::class)
-
   // ------------------------------------------------------------------ queries
   fun query(vararg types: KClass<out Component>): Query {
     val byType = LinkedHashMap<KClass<out Component>, ComponentStore<out Component>>(types.size)

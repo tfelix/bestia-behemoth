@@ -48,7 +48,7 @@ class LootItemHandler(
         return@modify null
       }
 
-      world.remove<ItemVisual>(entityId)
+      world.remove(entityId, ItemVisual::class)
 
       ClaimedLoot(itemVisual.itemId, itemVisual.amount, itemVisual.uniqueId, lootPos)
     }

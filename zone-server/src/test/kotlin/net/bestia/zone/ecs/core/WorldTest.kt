@@ -19,12 +19,12 @@ class WorldTest {
     assertTrue(world.isAlive(e))
 
     world.add(e, Position(1f, 2f))
-    assertTrue(world.has<Position>(e))
-    assertEquals(1f, world.get<Position>(e)!!.x)
+    assertTrue(world.has(e, Position::class))
+    assertEquals(1f, world.get(e, Position::class)!!.x)
 
     world.destroy(e)
     assertFalse(world.isAlive(e))
-    assertNull(world.get<Position>(e))
+    assertNull(world.get(e, Position::class))
     assertEquals(0, world.entityCount)
   }
 
@@ -50,14 +50,14 @@ class WorldTest {
     val e = world.create()
     world.add(e, Velocity(0f, 0f))
 
-    world.onCommand<SetVelocity> { w, c -> w.get<Velocity>(c.entity)?.apply { dx = c.dx; dy = c.dy } }
+    world.onCommand<SetVelocity> { w, c -> w.get(c.entity, Velocity::class)?.apply { dx = c.dx; dy = c.dy } }
 
     world.send(SetVelocity(e, 5f, 0f))
     // not drained yet
-    assertEquals(0f, world.get<Velocity>(e)!!.dx)
+    assertEquals(0f, world.get(e, Velocity::class)!!.dx)
 
     world.tick(0.1f)
-    assertEquals(5f, world.get<Velocity>(e)!!.dx)
+    assertEquals(5f, world.get(e, Velocity::class)!!.dx)
   }
 
   @Test
@@ -78,7 +78,7 @@ class WorldTest {
     // push
     val observed = mutableListOf<EntityId>()
     world.onChanged<Position> { observed.add(it) }
-    world.markChanged<Position>(e)
+    world.markChanged(e, Position::class)
     world.publishChanges()
     assertEquals(listOf(e), observed)
   }
@@ -107,14 +107,14 @@ class WorldTest {
         world.query(Health::class).each { id ->
           val hp = get<Health>()
           hp.value -= 1
-          if (hp.value <= 0) world.remove<Health>(id) // deferred, safe during iteration
+          if (hp.value <= 0) world.remove(id, Health::class) // deferred, safe during iteration
         }
       }
     })
 
     world.tick(0.1f)
     // removal applied at end-of-tick sync point
-    assertFalse(world.has<Health>(e))
+    assertFalse(world.has(e, Health::class))
   }
 
   private class SetVelocity(val entity: EntityId, val dx: Float, val dy: Float) : Command

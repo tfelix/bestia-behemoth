@@ -28,7 +28,7 @@ class ParallelDeterminismTest {
     repeat(200) { world.tick(0.05f) }
 
     return ids.associateWith { id ->
-      val p = world.get<Position>(id)!!
+      val p = world.get(id, Position::class)!!
       p.x to p.y
     }
   }

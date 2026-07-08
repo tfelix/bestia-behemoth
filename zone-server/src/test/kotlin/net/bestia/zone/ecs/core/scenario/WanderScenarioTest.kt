@@ -36,7 +36,7 @@ class WanderScenarioTest {
     world = ctx.getBean(World::class.java)
     // Register the command handler that turns external intent into ECS state.
     world.onCommand<MoveCommand> { w, cmd ->
-      w.get<Velocity>(cmd.entity)?.apply { dx = cmd.dx; dy = cmd.dy }
+      w.get(cmd.entity, Velocity::class)?.apply { dx = cmd.dx; dy = cmd.dy }
     }
   }
 
@@ -98,12 +98,12 @@ class WanderScenarioTest {
     net.shutdown()
 
     // not applied until the tick drains the queue
-    assertEquals(0f, world.get<Velocity>(player)!!.dx)
+    assertEquals(0f, world.get(player, Velocity::class)!!.dx)
 
     world.tick(0.1f)
 
-    assertEquals(10f, world.get<Velocity>(player)!!.dx)
-    assertTrue(world.get<Position>(player)!!.x > 0f, "player should have moved after the command")
+    assertEquals(10f, world.get(player, Velocity::class)!!.dx)
+    assertTrue(world.get(player, Position::class)!!.x > 0f, "player should have moved after the command")
   }
 
   @Test

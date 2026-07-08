@@ -58,7 +58,7 @@ class MovementSystem : System {
       if (vel.dx == 0f && vel.dy == 0f) return@each
       pos.x += vel.dx * deltaTime
       pos.y += vel.dy * deltaTime
-      world.markChanged<Position>(id)
+      world.markChanged(id, Position::class)
       world.emit(EntityMoved(id, pos.x, pos.y))
     }
   }
@@ -79,7 +79,7 @@ class HealthRegenSystem : System {
       val hp = get<Health>()
       if (hp.value < hp.max) {
         hp.value = minOf(hp.max, hp.value + 1)
-        world.markChanged<Health>(id)
+        world.markChanged(id, Health::class)
       }
     }
   }

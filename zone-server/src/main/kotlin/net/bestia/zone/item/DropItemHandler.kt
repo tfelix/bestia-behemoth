@@ -64,7 +64,7 @@ class DropItemHandler(
 
       // 2. Mutate the ECS inventory and sync it back to the owner via the existing dirty pipeline.
       inventory.removeAmount(msg.itemId.toInt(), msg.amount)
-      world.markChanged<Inventory>(id)
+      world.markChanged(id, Inventory::class)
 
       val pos = world.getOrThrow(id, Position::class).toVec3L()
       Vec3L(

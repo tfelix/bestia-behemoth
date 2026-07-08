@@ -99,8 +99,8 @@ class MasterSkillTreeService(
         world.get(id, LearnedSkills::class)?.learnOrUpdate(learnedSkill.skill.id, learnedSkill.level)
       }
       world.get(id, SkillPoints::class)?.let { it.value = master.skillPoints }
-      world.markChanged<LearnedSkills>(id)
-      world.markChanged<SkillPoints>(id)
+      world.markChanged(id, LearnedSkills::class)
+      world.markChanged(id, SkillPoints::class)
     }
   }
 }

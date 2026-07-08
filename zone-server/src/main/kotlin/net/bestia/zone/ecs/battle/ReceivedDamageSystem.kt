@@ -25,14 +25,14 @@ class ReceivedDamageSystem : System {
       val receivedDamage = get<Damage>()
       val health = get<Health>()
 
-      world.remove<Damage>(id)
+      world.remove(id, Damage::class)
 
       val takenDamage = world.get(id, TakenDamage::class) ?: world.add(id, TakenDamage())
       receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
       takenDamage.removeOldEntries()
 
       health.current -= receivedDamage.total()
-      world.markChanged<Health>(id)
+      world.markChanged(id, Health::class)
 
       if (health.current == 0) {
         LOG.trace { "$id died due to damage." }

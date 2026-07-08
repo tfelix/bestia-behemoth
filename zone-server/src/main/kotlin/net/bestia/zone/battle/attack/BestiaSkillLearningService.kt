@@ -61,7 +61,7 @@ class BestiaSkillLearningService(
       world.modify(entityId) { id ->
         world.get(id, AvailableAttacks::class)?.learnOrUpdate(skillId, skillLevel)
         world.get(id, LearnedSkills::class)?.learnOrUpdate(skillId, skillLevel)
-        world.markChanged<LearnedSkills>(id)
+        world.markChanged(id, LearnedSkills::class)
       }
     }
 
