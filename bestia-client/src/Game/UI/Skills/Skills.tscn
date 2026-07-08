@@ -5,7 +5,7 @@
 
 [node name="Skills" type="PanelContainer" unique_id=396406679]
 offset_right = 400.0
-offset_bottom = 581.0
+offset_bottom = 580.0
 script = ExtResource("1_unn6u")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1511033010]

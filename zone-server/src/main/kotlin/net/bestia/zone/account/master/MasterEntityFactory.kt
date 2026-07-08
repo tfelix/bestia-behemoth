@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.attack.MasterLearnedSkillRepository
+import net.bestia.zone.battle.attack.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.battle.LearnedSkills
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional
 class MasterEntityFactory(
   private val world: World,
   private val masterRepository: MasterRepository,
-  private val masterLearnedSkillRepository: MasterLearnedSkillRepository,
+  private val learnedSkillRepository: LearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
 ) {
 
@@ -42,7 +42,7 @@ class MasterEntityFactory(
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
-    val learnedSkillIds = masterLearnedSkillRepository.findAllByMasterId(masterId)
+    val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
     return world.createEntity { id ->

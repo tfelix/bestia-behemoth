@@ -39,9 +39,9 @@ class PlayerBestiaEntityFactory(
   ) {
     val accountId = playerBestia.master.account.id
 
-    val fixedAttackIds = playerBestia.bestia.attacks
+    val fixedAttackIds = playerBestia.bestia.skills
       .filter { it.requiredLevel <= playerBestia.level }
-      .associate { it.attack.id to 1 }
+      .associate { it.skill.id to 1 }
     val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
 
     // spawn the entity into the world

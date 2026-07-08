@@ -1,0 +1,14 @@
+skills:
+  - skill: ember
+    maxLevel: 3
+
+  - skill: heal
+    maxLevel: 3
+
+  - skill: tackle
+    maxLevel: 5
+    prerequisites:
+      - skill: ember
+        level: 2
+      - skill: heal
+        level: 1

@@ -32,7 +32,7 @@ class Bestia(
   val lootTable: MutableSet<LootItem> = mutableSetOf()
 
   @OneToMany(mappedBy = "bestia", cascade = [CascadeType.ALL], orphanRemoval = true)
-  val attacks: MutableSet<BestiaAttack> = mutableSetOf()
+  val skills: MutableSet<BestiaSkill> = mutableSetOf()
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

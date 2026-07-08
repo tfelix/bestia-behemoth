@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * Lets a captured bestia learn a custom skill on top of its species' fixed level-up table
- * ([net.bestia.zone.bestia.BestiaAttack]). This is content-driven: intended to be called by
+ * ([net.bestia.zone.bestia.BestiaSkill]). This is content-driven: intended to be called by
  * whatever grants the skill (e.g. an item-use effect), not directly by a player action.
  */
 @Service
