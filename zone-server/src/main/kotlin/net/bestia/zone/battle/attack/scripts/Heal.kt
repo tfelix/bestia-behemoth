@@ -4,14 +4,14 @@ import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.GroundBattleContext
-import net.bestia.zone.battle.attack.BasicMagicAttackStrategy
+import net.bestia.zone.battle.attack.BasicMagicSkillStrategy
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
 
 class Heal(
   losService: LineOfSightService,
-) : BasicMagicAttackStrategy(losService) {
+) : BasicMagicSkillStrategy(losService) {
 
   override fun doAttack(ctx: BattleContext): Damage {
     return when (ctx) {

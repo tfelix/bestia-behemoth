@@ -4,7 +4,6 @@
 
 [node name="Window" type="Window" unique_id=434596666]
 oversampling_override = 1.0
-title = "Apple"
 initial_position = 2
 popup_window = true
 script = ExtResource("1_1n0w0")

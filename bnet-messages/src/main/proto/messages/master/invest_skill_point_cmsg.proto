@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InvestSkillPointCmsgProto";
+
+/**
+ * Sent by the client to spend one or more of the master's available skill points across one or
+ * more skill tree nodes in a single request.
+ */
+message InvestSkillPointCMSG {
+  repeated InvestedSkillPoint invested_points = 1;
+}
+
+message InvestedSkillPoint {
+  uint64 attack_id = 1;
+  uint32 amount = 2;
+}

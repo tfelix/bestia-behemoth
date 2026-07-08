@@ -1,8 +1,11 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.LearnedSkills
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -34,15 +37,24 @@ class PlayerBestiaEntityFactory(
   fun createPlayerBestiaEntity(
     playerBestia: PlayerBestia,
   ) {
+    val accountId = playerBestia.master.account.id
+
+    val fixedAttackIds = playerBestia.bestia.attacks
+      .filter { it.requiredLevel <= playerBestia.level }
+      .associate { it.attack.id to 1 }
+    val customAttackIds = playerBestia.learnedSkills.associate { it.skill.id to it.level }
+
     // spawn the entity into the world
     val entityId = world.createEntity { id ->
       world.add(id, Position.fromVec3(playerBestia.position))
       world.add(id, Level(playerBestia.level))
       world.add(id, Speed())
       world.add(id, BestiaVisual(playerBestia.bestia.id.toInt()))
+      world.add(id, Account(accountId))
+      world.add(id, AvailableAttacks((fixedAttackIds + customAttackIds).toMutableMap()))
+      world.add(id, LearnedSkills(customAttackIds.toMutableMap()))
     }
 
-    val accountId = playerBestia.master.account.id
     val playerBestiaId = playerBestia.id
     val masterId = playerBestia.master.id
 

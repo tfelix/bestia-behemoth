@@ -5,10 +5,10 @@ import net.bestia.zone.battle.*
 import net.bestia.zone.util.clamp
 import java.util.*
 
-abstract class PhysicalAttackStrategy(
+abstract class PhysicalSkillStrategy(
   private val losService: LineOfSightService,
   private val random: Random
-) : AttackStrategy {
+) : SkillStrategy {
   protected fun isCriticalHit(ctx: BattleContext): Boolean {
     return when (ctx) {
       is EntityBattleContext -> isCriticalHit(ctx)

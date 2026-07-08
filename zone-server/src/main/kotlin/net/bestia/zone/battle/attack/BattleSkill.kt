@@ -2,11 +2,11 @@ package net.bestia.zone.battle.attack
 
 import net.bestia.zone.battle.Element
 
-data class BattleAttack(
+data class BattleSkill(
   val strength: Int,
   val manaCost: Int,
   val range: Long,
-  val attackType: AttackType,
+  val skillType: SkillType,
   val needsLineOfSight: Boolean,
   val attackElement: Element,
   val level: Int,
@@ -14,12 +14,12 @@ data class BattleAttack(
 ) {
   companion object {
 
-    fun getBasicMeleeAttack(element: Element): BattleAttack {
-      return BattleAttack(
+    fun getBasicMeleeAttack(element: Element): BattleSkill {
+      return BattleSkill(
         strength = 5,
         manaCost = 0,
         range = 1,
-        attackType = AttackType.MELEE_PHYSICAL,
+        skillType = SkillType.MELEE_PHYSICAL,
         needsLineOfSight = false,
         attackElement = element,
         script = null,
@@ -29,17 +29,17 @@ data class BattleAttack(
   }
 
   constructor(
-    attack: Attack,
+    skill: Skill,
     attackElement: Element = Element.NORMAL,
     level: Int = 1
   ) : this(
-    strength = attack.strength ?: 0,
-    manaCost = attack.manaCost,
-    range = attack.range?.toLong() ?: 1L,
-    attackType = attack.type,
-    needsLineOfSight = attack.needsLineOfSight,
+    strength = skill.strength ?: 0,
+    manaCost = skill.manaCost,
+    range = skill.range?.toLong() ?: 1L,
+    skillType = skill.type,
+    needsLineOfSight = skill.needsLineOfSight,
     attackElement = attackElement,
     level = level,
-    script = attack.script
+    script = skill.script
   )
 }

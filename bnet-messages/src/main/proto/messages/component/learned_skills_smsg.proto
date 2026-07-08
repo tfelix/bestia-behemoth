@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "LearnedSkillsSMSGProto";
+
+/**
+ * The custom/individually-learned skills of an entity, e.g. an item-taught custom skill on a
+ * captured bestia, or invested skill-tree points on a bestia master. The client merges this
+ * list with its own hardcoded fixed skill table (keyed off the entity's level, which is synced
+ * separately) to determine the full set of usable skills.
+ */
+message LearnedSkillsSMSG {
+  fixed64 entity_id = 1;
+  repeated SkillEntry skills = 2;
+}
+
+message SkillEntry {
+  uint64 attack_id = 1;
+  uint32 level = 2;
+}

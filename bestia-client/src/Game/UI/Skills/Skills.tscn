@@ -1,42 +1,77 @@
-[gd_scene format=3 uid="uid://cpr86ux66vb8e"]
+[gd_scene format=3 uid="uid://dh4io5biq60uv"]
 
-[ext_resource type="Script" uid="uid://bw7wsdybud27b" path="res://Game/UI/Skills/skills.gd" id="1_unn6u"]
+[ext_resource type="Script" uid="uid://olpunab8ao3a" path="res://Game/UI/Skills/skills.gd" id="1_unn6u"]
 [ext_resource type="PackedScene" uid="uid://dw3cq4i6mv37x" path="res://Game/UI/Skills/SkillRow/SkillRow.tscn" id="2_3dyhx"]
 
-[node name="Window" type="Window" unique_id=972318032]
-oversampling_override = 1.0
-title = "Skill Tree"
-initial_position = 2
-size = Vector2i(350, 350)
+[node name="Skills" type="PanelContainer" unique_id=396406679]
+offset_right = 400.0
+offset_bottom = 581.0
 script = ExtResource("1_unn6u")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=108468672]
-unique_name_in_owner = true
-offset_right = 344.0
-offset_bottom = 320.0
-
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer" unique_id=785948323]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1511033010]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/ScrollContainer" unique_id=860658613]
+[node name="SearchRow" type="HBoxContainer" parent="VBoxContainer" unique_id=1501841049]
+layout_mode = 2
+
+[node name="SearchLineEdit" type="LineEdit" parent="VBoxContainer/SearchRow" unique_id=1494106174]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search"
+
+[node name="ClearButton" type="Button" parent="VBoxContainer/SearchRow" unique_id=709497981]
+layout_mode = 2
+text = "Clear"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=2039718388]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SkillRows" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=1166289017]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 500)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SkillRow1" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=2050178806 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow1" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=2050178806 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
 
-[node name="SkillRow2" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=1004312410 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow2" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=2105697750 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
 
-[node name="SkillRow3" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=1464537140 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow3" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=1343203364 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
 
-[node name="SkillRow4" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=20985944 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow4" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=317233530 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
 
-[node name="SkillRow5" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=1144206012 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow5" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=1912725689 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
 
-[node name="SkillRow6" parent="PanelContainer/ScrollContainer/VBoxContainer" unique_id=739575938 instance=ExtResource("2_3dyhx")]
+[node name="SkillRow6" parent="VBoxContainer/ScrollContainer/SkillRows" unique_id=200467219 instance=ExtResource("2_3dyhx")]
 layout_mode = 2
+
+[node name="FooterMargin" type="MarginContainer" parent="VBoxContainer" unique_id=580821116]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="FooterRow" type="HBoxContainer" parent="VBoxContainer/FooterMargin" unique_id=2129207716]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1019027413]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skill Points: 2"
+
+[node name="UseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=748753310]
+layout_mode = 2
+text = "Use"
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1832136977]
+layout_mode = 2
+text = "Close"
+
+[connection signal="pressed" from="VBoxContainer/SearchRow/ClearButton" to="." method="_on_clear_button_pressed"]

@@ -29,6 +29,9 @@ import "messages/component/speed_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/mana_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
+import "messages/component/learned_skills_smsg.proto";
+import "messages/component/skill_points_smsg.proto";
+import "messages/master/invest_skill_point_cmsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
@@ -71,6 +74,7 @@ message Envelope {
     SelectMasterCMSG select_master = 403;
     GetSelfCMSG get_self = 404;
     SelfSMSG self = 405;
+    InvestSkillPointCMSG invest_skill_point = 406;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;
@@ -90,6 +94,8 @@ message Envelope {
     ManaComponentSMSG comp_mana = 519;
     HealthComponentSMSG comp_health = 520;
     InventoryComponentSMSG comp_inventory = 521;
+    LearnedSkillsSMSG comp_learned_skills = 522;
+    SkillPointsSMSG comp_skill_points = 523;
 
     // MISC
   }

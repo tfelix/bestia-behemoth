@@ -5,6 +5,7 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs.status.SkillPoints
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.Ecs2System
 import net.bestia.zone.ecs.core.EntityId
@@ -26,7 +27,7 @@ class PersistAndRemoveSystem(
 ) : Ecs2System {
 
   override val reads: Set<KClass<out Component>> =
-    setOf(PersistAndRemove::class, Master::class, Position::class, Level::class)
+    setOf(PersistAndRemove::class, Master::class, Position::class, Level::class, SkillPoints::class)
 
   override fun update(world: World, deltaTime: Float) {
     val toRemove = mutableListOf<EntityId>()
@@ -46,6 +47,7 @@ class PersistAndRemoveSystem(
     val masterComponent = world.getOrThrow(id, Master::class)
     val positionComponent = world.getOrThrow(id, Position::class)
     val levelComponent = world.getOrThrow(id, Level::class)
+    val skillPointsComponent = world.get(id, SkillPoints::class)
 
     val masterEntity = masterRepository.findByIdOrNull(masterComponent.masterId)
 
@@ -56,6 +58,7 @@ class PersistAndRemoveSystem(
 
     masterEntity.position = positionComponent.toVec3L()
     masterEntity.level = levelComponent.level
+    skillPointsComponent?.let { masterEntity.skillPoints = it.value }
     masterRepository.save(masterEntity)
     LOG.info { "Successfully persisted master ${masterEntity.id} at position ${masterEntity.position} with level ${masterEntity.level}" }
   }

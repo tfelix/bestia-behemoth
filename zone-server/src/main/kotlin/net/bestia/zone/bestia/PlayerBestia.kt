@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.InventoryItem
-import net.bestia.zone.battle.attack.LearnedAttack
+import net.bestia.zone.battle.attack.LearnedSkill
 
 @Entity
 @Table(
@@ -37,7 +37,7 @@ class PlayerBestia(
   val inventory: MutableSet<InventoryItem> = mutableSetOf()
 
   @OneToMany(mappedBy = "playerBestia", cascade = [CascadeType.ALL], orphanRemoval = true)
-  val learnedAttacks: MutableSet<LearnedAttack> = mutableSetOf()
+  val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

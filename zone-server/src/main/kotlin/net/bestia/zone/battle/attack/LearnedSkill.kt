@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.attack
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -12,24 +13,29 @@ import jakarta.persistence.UniqueConstraint
 import net.bestia.zone.bestia.PlayerBestia
 
 /**
- * Internally it is called attack, but it also contains the skills of the bestia master.
+ * A custom skill an individual captured bestia has learned, on top of whatever its species'
+ * fixed level-up table grants. It also contains the skills of the bestia master (see
+ * [net.bestia.zone.battle.attack.MasterLearnedSkill]).
  */
 @Entity
 @Table(
-  name = "learned_attack",
+  name = "learned_skill",
   uniqueConstraints = [
-    UniqueConstraint(columnNames = ["player_bestia_id", "attack_id"])
+    UniqueConstraint(columnNames = ["player_bestia_id", "skill_id"])
   ]
 )
-class LearnedAttack(
+class LearnedSkill(
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "attack_id", nullable = false)
-  val attack: Attack,
+  @JoinColumn(name = "skill_id", nullable = false)
+  val skill: Skill,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_bestia_id", nullable = false)
   val playerBestia: PlayerBestia
 ) {
+
+  @Column(name = "level", nullable = false)
+  var level: Int = 1
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

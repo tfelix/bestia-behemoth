@@ -6,9 +6,9 @@ import net.bestia.zone.battle.EntityBattleContext
 import net.bestia.zone.battle.GroundBattleContext
 import net.bestia.zone.geometry.Vec3L
 
-abstract class BasicMagicAttackStrategy(
+abstract class BasicMagicSkillStrategy(
   private val losService: LineOfSightService,
-) : AttackStrategy {
+) : SkillStrategy {
 
   override fun isAttackPossible(ctx: BattleContext): Boolean {
     val targetPos = getTargetPosition(ctx)

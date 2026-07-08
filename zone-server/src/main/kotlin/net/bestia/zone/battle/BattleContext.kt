@@ -1,6 +1,6 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.attack.BattleAttack
+import net.bestia.zone.battle.attack.BattleSkill
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.geometry.Vec3L
 
@@ -10,7 +10,7 @@ import net.bestia.zone.geometry.Vec3L
  * @author Thomas Felix
  */
 sealed class BattleContext {
-  abstract val usedAttack: BattleAttack
+  abstract val usedAttack: BattleSkill
   abstract val attacker: BattleEntity
   abstract val damageVariables: DamageVariables
   abstract val weapon: Weapon
@@ -22,7 +22,7 @@ sealed class BattleContext {
  * Context used when damage is calculated between entities.
  */
 data class EntityBattleContext(
-  override val usedAttack: BattleAttack,
+  override val usedAttack: BattleSkill,
   override val attacker: BattleEntity,
   override val weapon: Weapon,
   override val damageVariables: DamageVariables,
@@ -33,11 +33,11 @@ data class EntityBattleContext(
     /*
     fun test(): EntityBattleContext {
       return EntityBattleContext(
-        usedAttack = BattleAttack(
+        usedAttack = BattleSkill(
           strength = 10,
           manaCost = 5,
           range = 10,
-          attackType = AttackType.MELEE_PHYSICAL,
+          skillType = SkillType.MELEE_PHYSICAL,
           needsLineOfSight = false
         ),
         attackElement = Element.NORMAL,
@@ -59,7 +59,7 @@ data class EntityBattleContext(
  * Context used if we choose to attack the ground.
  */
 data class GroundBattleContext(
-  override val usedAttack: BattleAttack,
+  override val usedAttack: BattleSkill,
   override val attacker: BattleEntity,
   override val weapon: Weapon,
   override val damageVariables: DamageVariables,

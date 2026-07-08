@@ -5,8 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://cabh7yua8bb6t" path="res://Game/UI/Chat/Chat.tscn" id="3_owqpw"]
 [ext_resource type="PackedScene" uid="uid://rcjqqxi34fvy" path="res://Game/UI/Shortcuts/Shortcuts.tscn" id="4_i53xh"]
 [ext_resource type="PackedScene" uid="uid://cwbs83nwsc1m3" path="res://Game/UI/Inventory/Inventory.tscn" id="5_3d66e"]
-[ext_resource type="PackedScene" uid="uid://cpr86ux66vb8e" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
+[ext_resource type="PackedScene" uid="uid://dh4io5biq60uv" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
 [ext_resource type="PackedScene" path="res://Game/UI/GroundDropZone/GroundDropZone.tscn" id="7_gdz01"]
+[ext_resource type="Script" uid="uid://dw58wys6ugg2g" path="res://Game/UI/WidgetWindow/widget_window.gd" id="7_x5yep"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -33,21 +34,6 @@ offset_top = -136.0
 offset_right = 168.0
 inventory = NodePath("../Inventory")
 
-[node name="Skills" parent="." unique_id=2070387433 instance=ExtResource("6_61e43")]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -183.0
-offset_top = -193.0
-offset_right = 183.0
-offset_bottom = 193.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="MasterProfile" parent="." unique_id=1531017005 instance=ExtResource("1_tk4wv")]
 layout_mode = 1
 offset_left = 8.0
@@ -59,6 +45,15 @@ offset_bottom = 169.0
 layout_mode = 1
 offset_left = 16.0
 offset_right = 770.0
+
+[node name="SkillsWin" type="Window" parent="." unique_id=2084369024]
+oversampling_override = 1.0
+title = "Skills"
+initial_position = 2
+unresizable = true
+script = ExtResource("7_x5yep")
+content = ExtResource("6_61e43")
+metadata/_custom_type_script = "uid://dw58wys6ugg2g"
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

@@ -1,12 +1,12 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.attack.AttackRepository
+import net.bestia.zone.battle.attack.SkillRepository
 import net.bestia.zone.battle.attack.findByIdOrThrow
 import net.bestia.zone.util.EntityId
 
 
 class BattleService(
-  private val attackRepository: AttackRepository,
+  private val skillRepository: SkillRepository,
 ) {
 
   fun attackEntity(
@@ -14,7 +14,7 @@ class BattleService(
     target: EntityId,
     usedAttackId: Long,
   ) {
-    val usedAttack = attackRepository.findByIdOrThrow(usedAttackId)
+    val usedAttack = skillRepository.findByIdOrThrow(usedAttackId)
 
     // Which element is used by the attack? is it a spell (no direct element)
 

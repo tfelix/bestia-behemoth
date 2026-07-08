@@ -1,7 +1,7 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.attack.AttackType
-import net.bestia.zone.battle.attack.BattleAttack
+import net.bestia.zone.battle.attack.SkillType
+import net.bestia.zone.battle.attack.BattleSkill
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.geometry.Vec3
 import net.bestia.zone.geometry.Vec3L
@@ -12,7 +12,7 @@ import net.bestia.zone.status.StatusValues
 object BattleContextFixture {
 
   fun entityCtx(
-    attack: BattleAttack = attack(),
+    attack: BattleSkill = attack(),
     attackerEntity: BattleEntity = battleEntity()
   ): BattleContext {
     return EntityBattleContext(
@@ -26,12 +26,12 @@ object BattleContextFixture {
 
   fun attack(
     level: Int = 1
-  ): BattleAttack {
-    return BattleAttack(
+  ): BattleSkill {
+    return BattleSkill(
       strength = 0,
       manaCost = 10,
       range = 5,
-      attackType = AttackType.NO_DAMAGE,
+      skillType = SkillType.NO_DAMAGE,
       needsLineOfSight = false,
       attackElement = Element.NORMAL,
       level = level,

@@ -1,6 +1,6 @@
 package net.bestia.zone.battle.attack
 
-enum class AttackType {
+enum class SkillType {
   /**
    * Attack is based on special attack stat its nature is a magic one.
    */

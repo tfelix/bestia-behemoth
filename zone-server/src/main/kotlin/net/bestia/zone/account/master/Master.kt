@@ -2,6 +2,7 @@ package net.bestia.zone.account.master
 
 import jakarta.persistence.*
 import net.bestia.zone.account.Account
+import net.bestia.zone.battle.attack.MasterLearnedSkill
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.PlayerBestia
 import net.bestia.zone.geometry.Vec3L
@@ -48,6 +49,17 @@ class Master(
 
       field = value
     }
+
+  @Column(name = "skill_points", nullable = false)
+  var skillPoints: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
+  val learnedSkills: MutableSet<MasterLearnedSkill> = mutableSetOf()
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

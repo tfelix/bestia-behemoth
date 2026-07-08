@@ -1,9 +1,9 @@
 package net.bestia.zone.boot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.attack.Attack
-import net.bestia.zone.battle.attack.AttackRepository
-import net.bestia.zone.battle.attack.AttackType
+import net.bestia.zone.battle.attack.Skill
+import net.bestia.zone.battle.attack.SkillRepository
+import net.bestia.zone.battle.attack.SkillType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -13,28 +13,28 @@ import org.springframework.stereotype.Component
  */
 @Component
 @Order(102)
-class AttackImporterBootRunner(
-  attackRepository: AttackRepository,
+class SkillImporterBootRunner(
+  skillRepository: SkillRepository,
 ) : CommandLineRunner,
-  YmlImporterBootRunner<AttackImporterBootRunner.AttackYmlDto, Attack>(
-    "Attack",
-    "attack",
-    attackRepository,
-    AttackYmlDto::class.java
+  YmlImporterBootRunner<SkillImporterBootRunner.SkillYmlDto, Skill>(
+    "Skill",
+    "skill",
+    skillRepository,
+    SkillYmlDto::class.java
   ) {
-  data class AttackYmlDto(
+  data class SkillYmlDto(
     val identifier: String,
     val strength: Int?,
     val manaCost: Int,
-    val type: AttackType,
+    val type: SkillType,
     val script: String?,
     val range: Int?,
     val needsLineOfSight: Boolean
   )
 
-  override fun newEntity(dto: AttackYmlDto): Attack {
+  override fun newEntity(dto: SkillYmlDto): Skill {
 
-    return Attack(
+    return Skill(
       identifier = dto.identifier,
       strength = dto.strength,
       type = dto.type,
@@ -45,21 +45,21 @@ class AttackImporterBootRunner(
     )
   }
 
-  override fun getEntityIdentifier(entity: Attack): String {
+  override fun getEntityIdentifier(entity: Skill): String {
     return entity.identifier
   }
 
-  override fun getYmlIdentifier(dto: AttackYmlDto): String {
+  override fun getYmlIdentifier(dto: SkillYmlDto): String {
     return dto.identifier
   }
 
-  override fun tryUpdate(dto: AttackYmlDto, entity: Attack): Boolean {
+  override fun tryUpdate(dto: SkillYmlDto, entity: Skill): Boolean {
     // TODO no sure if we should even support updates
     return false
   }
 
-  override fun postImport(entities: List<Attack>) {
-    // TODO verify all attacks which required a script actually have a script.
+  override fun postImport(entities: List<Skill>) {
+    // TODO verify all skills which required a script actually have a script.
   }
 
   companion object {

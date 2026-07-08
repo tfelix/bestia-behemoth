@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.Ecs2System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.player.Master
 import org.springframework.core.annotation.Order
 import kotlin.math.pow
 import kotlin.reflect.KClass
@@ -13,17 +14,25 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(60)
 class ExpSystem : Ecs2System {
 
-  override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class)
+  override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class, SkillPoints::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Exp::class, Level::class).each { id ->
       val expComp = get<Exp>()
       val levelComp = get<Level>()
+      val isMaster = world.has(id, Master::class)
 
       var requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
       while (expComp.value >= requiredExpNextLevel) {
         expComp.value -= requiredExpNextLevel
         levelComp.inc()
+
+        if (isMaster) {
+          world.get(id, SkillPoints::class)?.let { skillPoints ->
+            skillPoints.value += 1
+            world.markChanged<SkillPoints>(id)
+          }
+        }
 
         requiredExpNextLevel = getRequiredExperience(levelComp.level + 1)
         world.markChanged<Level>(id)

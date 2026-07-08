@@ -2,6 +2,7 @@ package net.bestia.zone.ecs.core
 
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.LearnedSkills
 import net.bestia.zone.ecs.battle.Mana
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.item.ItemVisual
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.status.Exp
 import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs.status.SkillPoints
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -30,6 +32,8 @@ class DirtyableRegistryTest {
       Exp::class,
       Level::class,
       BestiaVisual::class,
+      LearnedSkills::class,
+      SkillPoints::class,
     )
 
     assertTrue(

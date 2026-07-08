@@ -1,7 +1,10 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.attack.MasterLearnedSkillRepository
+import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.LearnedSkills
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -10,6 +13,7 @@ import net.bestia.zone.ecs.player.ActivePlayer
 import net.bestia.zone.ecs.player.Master as MasterComponent
 import net.bestia.zone.ecs.session.ConnectionInfoService
 import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs.status.SkillPoints
 import net.bestia.zone.ecs.player.MasterVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional
 class MasterEntityFactory(
   private val world: World,
   private val masterRepository: MasterRepository,
+  private val masterLearnedSkillRepository: MasterLearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
 ) {
 
@@ -37,6 +42,9 @@ class MasterEntityFactory(
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
+    val learnedSkillIds = masterLearnedSkillRepository.findAllByMasterId(masterId)
+      .associate { it.skill.id to it.level }
+
     return world.createEntity { id ->
       connectionInfoService.activateSession(
         accountId = master.account.id,
@@ -50,6 +58,9 @@ class MasterEntityFactory(
       world.add(id, Level(master.level))
       world.add(id, Speed())
       world.add(id, Health(current = 10, max = 10))
+      world.add(id, AvailableAttacks(learnedSkillIds.toMutableMap()))
+      world.add(id, LearnedSkills(learnedSkillIds.toMutableMap()))
+      world.add(id, SkillPoints(master.skillPoints))
       world.add(
         id,
         MasterVisual(

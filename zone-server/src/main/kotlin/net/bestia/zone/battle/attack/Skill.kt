@@ -5,12 +5,12 @@ import net.bestia.zone.util.requireValidIdentifier
 
 @Entity
 @Table(
-  name = "attack",
+  name = "skill",
   indexes = [
     Index(columnList = "identifier", unique = true)
   ]
 )
-class Attack(
+class Skill(
   @Column(nullable = false)
   val identifier: String,
 
@@ -18,7 +18,7 @@ class Attack(
   val strength: Int?,
 
   @Column(nullable = false)
-  val type: AttackType,
+  val type: SkillType,
 
   @Column(nullable = true)
   val script: String?,
@@ -35,13 +35,13 @@ class Attack(
   init {
     requireValidIdentifier(identifier)
 
-    // No damage attacks are required to have a script and strength set to null.
-    if (type == AttackType.NO_DAMAGE) {
+    // No damage skills are required to have a script and strength set to null.
+    if (type == SkillType.NO_DAMAGE) {
       requireNotNull(script) {
-        "Attack $identifier is NO_DAMAGE and must have a script attached"
+        "Skill $identifier is NO_DAMAGE and must have a script attached"
       }
       require(strength == null) {
-        "Attack $identifier is NO_DAMAGE and must have strength set to null"
+        "Skill $identifier is NO_DAMAGE and must have strength set to null"
       }
     }
   }

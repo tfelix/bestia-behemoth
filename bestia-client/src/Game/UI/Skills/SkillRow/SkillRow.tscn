@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://dw3cq4i6mv37x"]
 
+[ext_resource type="Script" uid="uid://bs56yjanu2rub" path="res://Game/UI/Skills/SkillRow/skill_row.gd" id="1_10nyf"]
+
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3agn1"]
 
 [node name="SkillRow" type="MarginContainer" unique_id=2050178806]
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_bottom = 0
+script = ExtResource("1_10nyf")
 
 [node name="Row" type="HBoxContainer" parent="." unique_id=2056366901]
 layout_mode = 2
