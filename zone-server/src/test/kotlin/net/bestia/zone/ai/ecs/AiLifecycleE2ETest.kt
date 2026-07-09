@@ -138,7 +138,7 @@ class AiLifecycleE2ETest {
       world.add(id, Position.fromVec3(pos))
       world.add(id, Health(health, 10))
       world.add(id, Speed())
-      world.add(id, Brain("aggressive_melee"))
+      world.add(id, Brain("aggressive_melee", homePosition = pos))
       world.add(id, AvailableAttacks(mutableMapOf(0L to 1)))
     }
 

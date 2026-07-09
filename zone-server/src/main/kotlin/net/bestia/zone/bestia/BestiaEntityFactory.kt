@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.AvailableAttacks
-import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -38,16 +38,17 @@ class BestiaEntityFactory(
       world.add(id, Health(bestia.health, bestia.health))
       world.add(id, Speed())
 
-      attachAi(id, bestia)
+      attachAi(id, bestia, pos)
     }
   }
 
   /**
    * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [Brain] lives
    * under `net.bestia.zone.ai.*` so it is never network-synced; [AvailableAttacks] seeds the basic
-   * attack the melee action uses.
+   * attack the melee action uses. [spawnPosition] becomes the [Brain.homePosition] the NPC wanders
+   * around.
    */
-  private fun attachAi(id: EntityId, bestia: Bestia) {
+  private fun attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
     val profileId = bestia.aiProfile ?: return
 
     val profile = aiProfileRegistry.get(profileId)
@@ -56,7 +57,7 @@ class BestiaEntityFactory(
       return
     }
 
-    world.add(id, Brain(profileId = profileId))
+    world.add(id, Brain(profileId = profileId, homePosition = spawnPosition))
     world.add(id, AvailableAttacks(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 

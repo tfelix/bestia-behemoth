@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle
 
 import net.bestia.zone.component.HealthComponentSMSG
+import net.bestia.zone.ecs.battle.status.Health
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

@@ -23,6 +23,9 @@ import net.bestia.zone.util.EntityId
  */
 class Brain(
   val profileId: String,
+  /** Spawn tile the NPC wanders around; wandering is clamped to within [wanderRadius] tiles of it. */
+  val homePosition: Vec3L,
+  val wanderRadius: Long = 5,
   val memory: IndividualMemory = IndividualMemory(),
   val meleeRange: Long = 1,
   val lowHealthThreshold: Double = 0.35,

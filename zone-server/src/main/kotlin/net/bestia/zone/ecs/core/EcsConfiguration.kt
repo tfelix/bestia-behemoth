@@ -1,10 +1,8 @@
-package net.bestia.zone.ecs.core.spring
+package net.bestia.zone.ecs.core
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
-import net.bestia.zone.ecs.core.World
-import org.springframework.beans.factory.annotation.Value
+import net.bestia.zone.ZoneConfig as ZoneShardConfig
+import net.bestia.zone.ecs.ZoneConfig as WorldConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -13,23 +11,23 @@ import org.springframework.context.annotation.Configuration
  * registers it into a single [World] — the same `List<T>` bean-collection
  * mechanism the existing `ZoneServer` uses for its systems.
  *
- * This deliberately does NOT start a tick loop; wire an [Ecs2Runner] (or drive
+ * This deliberately does NOT start a tick loop; wire an [EcsRunner] (or drive
  * [World.tick] yourself) when you want it to actually run.
  */
 @Configuration
-class Ecs2Configuration {
+class EcsConfiguration {
 
   @Bean
   fun ecsWorld(
     systems: List<System>,
-    @Value("\${ecs.core.parallel-systems:false}") parallelSystems: Boolean,
-    @Value("\${zone.shard-id:1}") shardId: Int,
+    worldConfig: WorldConfig,
+    zoneShardConfig: ZoneShardConfig,
   ): World {
-    val idGenerator = SnowflakeEntityIdGenerator(nodeId = shardId.coerceIn(0, 255))
-    val world = World(parallelSystems = parallelSystems, idGenerator = idGenerator::nextId)
+    val idGenerator = SnowflakeEntityIdGenerator(nodeId = zoneShardConfig.shardId.coerceIn(0, 255))
+    val world = World(parallelSystems = worldConfig.parallelSystems, idGenerator = idGenerator::nextId)
     world.addSystems(systems)
     LOG.info {
-      "ecs World initialised (parallel=$parallelSystems) with ${systems.size} system(s) " +
+      "ECS initialised (parallel=${worldConfig.parallelSystems}) with ${systems.size} system(s) " +
         "across ${world.waveCount} wave(s):\n" +
         systems.joinToString("\n") { " - ${it.name} [${it.schedule}]" }
     }

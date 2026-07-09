@@ -7,7 +7,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.PartyMembershipLookup
-import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World
 import org.springframework.data.repository.findByIdOrNull
@@ -25,6 +25,7 @@ class PartyService(
   private val masterResolver: MasterResolver,
   private val world: World,
 ) : PartyMembershipLookup {
+
   companion object {
     const val MAX_PARTY_SIZE = 12
     const val INVITATION_TIMEOUT_SECONDS = 60L

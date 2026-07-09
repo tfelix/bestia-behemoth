@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.session
+package net.bestia.zone.ecs.core.session
 
 import net.bestia.zone.BestiaException
 

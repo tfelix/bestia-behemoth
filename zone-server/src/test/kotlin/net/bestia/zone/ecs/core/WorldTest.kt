@@ -84,17 +84,6 @@ class WorldTest {
   }
 
   @Test
-  fun `emitted events are drainable from the outbox`() {
-    val world = World()
-    world.emit("hello")
-    world.emit(42)
-
-    val events = mutableListOf<Any>()
-    world.drainOutbox { events.add(it) }
-    assertEquals(listOf("hello", 42), events)
-  }
-
-  @Test
   fun `structural changes requested inside a system are deferred`() {
     val world = World()
     val e = world.create()

@@ -7,9 +7,8 @@ import net.bestia.zone.ai.planner.GoapActionRegistry
 import net.bestia.zone.ai.planner.Planner
 import net.bestia.zone.ai.planner.WorldStateBuilder
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.Schedule

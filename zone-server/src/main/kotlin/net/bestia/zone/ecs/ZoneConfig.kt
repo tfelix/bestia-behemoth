@@ -6,5 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 @ConfigurationProperties(prefix = "world")
 @ConfigurationPropertiesScan
 data class ZoneConfig(
-  val tickRate: Int
+  val tickRate: Int,
+  val parallelSystems: Boolean = false
 )

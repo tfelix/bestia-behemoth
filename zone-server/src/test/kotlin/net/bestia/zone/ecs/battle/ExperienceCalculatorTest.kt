@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class ExperienceCalculatorTest {
 
-  private val calculator = ExperienceCalculator()
+  private val calculator = ExperienceGainCalculator()
 
   @Test
   fun `solo kill grants exactly the given exp`() {

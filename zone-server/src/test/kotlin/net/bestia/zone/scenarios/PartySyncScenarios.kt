@@ -2,10 +2,10 @@ package net.bestia.zone.scenarios
 
 import net.bestia.zone.component.HealthComponentSMSG
 import net.bestia.zone.component.ManaComponentSMSG
-import net.bestia.zone.ecs.battle.Health
-import net.bestia.zone.ecs.battle.Mana
+import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.party.PartyService
 import org.junit.jupiter.api.AfterAll

@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.status
+package net.bestia.zone.ecs.battle.status
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SkillPointsSMSGProto

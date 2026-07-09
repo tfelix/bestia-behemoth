@@ -11,6 +11,7 @@ zone:
 
 world:
   tick-rate: 20
+  parallel-systems: false
 
 socket:
   ip-address: 127.0.0.1

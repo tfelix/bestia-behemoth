@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.player
+package net.bestia.zone.ecs.account
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.MasterProto

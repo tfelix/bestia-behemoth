@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.session
+package net.bestia.zone.ecs.core.session
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority

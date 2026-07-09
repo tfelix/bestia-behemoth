@@ -6,10 +6,9 @@ import net.bestia.zone.ai.memory.MemoryEntry
 import net.bestia.zone.ai.memory.MemoryScope
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.player.Master
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.EntityId

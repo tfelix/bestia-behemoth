@@ -20,12 +20,10 @@ import kotlin.reflect.KClass
  *   3. run due systems          -> scheduler (parallel waves)
  *   4. apply deferred structural changes emitted by systems
  * ```
- * Component-change marks and emitted events are left populated for the messaging
- * layer to [drainChanges] / [publishChanges] / [drainOutbox] after each tick.
  *
  * ### Threading
  * Only the tick thread mutates ECS state. Other threads may [send] commands,
- * [drainOutbox], and [drainChanges] (all thread-safe). Structural changes
+ * and [drainChanges] (all thread-safe). Structural changes
  * requested while systems are iterating are automatically deferred to a safe
  * sync point.
  */
@@ -38,7 +36,6 @@ class World(
   private val scheduler = SystemScheduler(parallelSystems)
   private val commands = CommandQueue()
   private val changes = ChangeTracker()
-  private val outbox = Outbox()
   private val deferred = ConcurrentLinkedQueue<() -> Unit>()
 
   /**
@@ -109,7 +106,6 @@ class World(
       @Suppress("UNCHECKED_CAST")
       (store as ComponentStore<Component>).remove(id)
     }
-    changes.forget(id)
     for (listener in destroyListeners) listener(id)
   }
 
@@ -137,7 +133,6 @@ class World(
   private fun <T : Component> addNow(id: EntityId, component: T) {
     require(entities.isAlive(id)) { "Cannot add component to dead entity $id" }
     store(component::class as KClass<T>).set(id, component)
-    changes.mark(component::class, id)
   }
 
   fun <T : Component> get(id: EntityId, type: KClass<T>): T? = lock.withLock { store(type).get(id) }
@@ -171,23 +166,27 @@ class World(
 
     val component = get(id, T::class) ?: add(id, default())
     block(component)
-    markChanged(id, T::class)
   }
 
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
-    val removed = store(type).remove(id)
-    if (removed != null) changes.mark(type, id)
-    return removed
+    return store(type).remove(id)
   }
-
-  /** Flags a component of [id] as changed this tick (for outbound sync). */
-  fun markChanged(id: EntityId, type: KClass<out Component>) = changes.mark(type, id)
 
   // ------------------------------------------------------------------ queries
   fun query(vararg types: KClass<out Component>): Query {
     val byType = LinkedHashMap<KClass<out Component>, ComponentStore<out Component>>(types.size)
     for (type in types) byType[type] = storeErased(type)
     return Query(byType)
+  }
+
+  /** Flags a component of [id] as changed this tick (for outbound sync). */
+  fun markChanged(id: EntityId, type: KClass<out Component>) {
+    changes.mark(type, id)
+  }
+
+  /** Pull model: consume + clear the entities whose [type] component changed. */
+  fun drainChanges(type: KClass<out Component>, action: (EntityId) -> Unit) {
+    changes.drain(type, action)
   }
 
   /**
@@ -212,26 +211,6 @@ class World(
 
   inline fun <reified T : Command> onCommand(noinline handler: (World, T) -> Unit) =
     onCommand(T::class, handler)
-
-  // ------------------------------------------------------------ messaging out
-  /** Emit a discrete domain event for external consumption. */
-  fun emit(event: Any) = outbox.emit(event)
-
-  fun onChanged(type: KClass<out Component>, handler: (EntityId) -> Unit) = changes.on(type, handler)
-
-  inline fun <reified T : Component> onChanged(noinline handler: (EntityId) -> Unit) =
-    onChanged(T::class, handler)
-
-  /** Pull model: consume + clear the entities whose [type] component changed. */
-  fun drainChanges(type: KClass<out Component>, action: (EntityId) -> Unit) = changes.drain(type, action)
-
-  inline fun <reified T : Component> drainChanges(noinline action: (EntityId) -> Unit) =
-    drainChanges(T::class, action)
-
-  /** Push model: fan all pending component changes out to registered observers. */
-  fun publishChanges() = changes.publish()
-
-  fun drainOutbox(action: (Any) -> Unit) = outbox.drain(action)
 
   // --------------------------------------------------- deferred structural ops
   /** Run [block] now, or defer it to the next safe sync point if mid-tick. */

@@ -3,17 +3,17 @@ package net.bestia.zone.account.master
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.attack.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.AvailableAttacks
-import net.bestia.zone.ecs.battle.Health
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.ecs.player.ActivePlayer
-import net.bestia.zone.ecs.player.Master as MasterComponent
-import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.status.Level
-import net.bestia.zone.ecs.status.SkillPoints
-import net.bestia.zone.ecs.player.MasterVisual
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.ecs.account.Master as MasterComponent
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component

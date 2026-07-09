@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.spring.Ecs2Configuration
+import net.bestia.zone.ecs.core.EcsConfiguration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -24,7 +24,7 @@ class WanderScenarioTest {
 
   @Configuration
   @ComponentScan(basePackageClasses = [WanderSystem::class])
-  @Import(Ecs2Configuration::class)
+  @Import(EcsConfiguration::class)
   class ScenarioConfig
 
   private lateinit var ctx: AnnotationConfigApplicationContext

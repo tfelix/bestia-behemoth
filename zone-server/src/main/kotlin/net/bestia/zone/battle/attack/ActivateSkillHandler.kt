@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component

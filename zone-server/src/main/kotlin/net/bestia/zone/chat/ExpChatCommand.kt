@@ -3,8 +3,8 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.status.Exp
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.battle.status.Exp
 import org.springframework.stereotype.Component
 
 /**

@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.message.SelfSMSG
 import net.bestia.zone.message.InMessageProcessor

@@ -1,16 +1,16 @@
-package net.bestia.zone.ecs.battle
+package net.bestia.zone.ecs.battle.status
 
-import net.bestia.zone.component.HealthComponentSMSG
-import net.bestia.zone.battle.status.CurMax
+import net.bestia.zone.component.ManaComponentSMSG
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncContext
 import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.player.Account
+import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.battle.status.CurMax
 
-class Health(
+class Mana(
   current: Int,
   max: Int
 ) : CurMax(), Component, Dirtyable {
@@ -50,7 +50,7 @@ class Health(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return HealthComponentSMSG(
+    return ManaComponentSMSG(
       entityId = entityId,
       current = current,
       max = max
@@ -59,7 +59,7 @@ class Health(
 
   override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets {
     val owner = context.world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.PublicInRange // mobs have no owner: HP stays visible to everyone nearby
+      ?: return SyncTargets.Accounts(emptySet())
     return SyncTargets.Accounts(setOf(owner) + context.partyMembersOf(owner))
   }
 }

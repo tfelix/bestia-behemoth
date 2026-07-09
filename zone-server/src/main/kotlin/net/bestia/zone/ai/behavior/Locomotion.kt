@@ -51,12 +51,19 @@ object Locomotion {
     }
   }
 
-  /** Set a random short wander path. No-op if already moving. */
-  fun wanderStep(world: World, entityId: EntityId) {
+  /**
+   * Set a random short wander path, staying within [radius] tiles of [home] on both axes. No-op if
+   * already moving or if every adjacent tile would leave that box (shouldn't happen for radius >= 1).
+   */
+  fun wanderStep(world: World, entityId: EntityId, home: Vec3L, radius: Long = 5) {
     if (isMoving(world, entityId)) {
       return
     }
-    val next = position(world, entityId) + DIRECTIONS.random(Random.Default)
+    val cur = position(world, entityId)
+    val candidates = DIRECTIONS
+      .map { cur + it }
+      .filter { (it.x - home.x) in -radius..radius && (it.y - home.y) in -radius..radius }
+    val next = candidates.randomOrNull(Random.Default) ?: return
     world.add(entityId, Path(mutableListOf(next)))
   }
 

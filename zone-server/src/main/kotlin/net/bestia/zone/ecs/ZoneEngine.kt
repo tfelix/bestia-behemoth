@@ -3,20 +3,20 @@ package net.bestia.zone.ecs
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.ecs.player.ActivePlayer
-import net.bestia.zone.ecs.core.DirtyableRegistry
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.item.LootEntityFactory
 import net.bestia.zone.message.SMSG
-import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.OutMessageProcessor
-import org.springframework.context.annotation.Lazy
+import org.reflections.Reflections
+import org.reflections.scanners.Scanners
 import org.springframework.stereotype.Service
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
+import kotlin.reflect.KClass
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,
@@ -40,9 +40,20 @@ class ZoneEngine(
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val dirtyableRegistry: DirtyableRegistry,
-  private val partyMembershipLookup: PartyMembershipLookup,
 ) {
+
+  private val syncableComponentTypes: List<KClass<out Component>> by lazy {
+    Reflections("net.bestia.zone", Scanners.SubTypes)
+      .getSubTypesOf(Dirtyable::class.java)
+      .asSequence()
+      .filter { Component::class.java.isAssignableFrom(it) && !it.isInterface }
+      .map {
+        @Suppress("UNCHECKED_CAST")
+        it.kotlin as KClass<out Component>
+      }
+      .toList()
+  }
+
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val externalExecutor = Executors.newFixedThreadPool(2) { r -> Thread(r, "zone-external") }
 
@@ -50,12 +61,11 @@ class ZoneEngine(
   private var running = false
   private var lastTickTime = System.currentTimeMillis()
 
-  @PostConstruct
-  fun registerHooks() {
+  init {
     // Clean the area-of-interest services when an entity leaves the world.
-    world.onDestroy { id ->
-      entityAOIService.removeEntityPosition(id)
-      playerAOIService.removeEntityPosition(id)
+    world.onDestroy { entityId ->
+      entityAOIService.removeEntityPosition(entityId)
+      playerAOIService.removeEntityPosition(entityId)
     }
   }
 
@@ -72,8 +82,7 @@ class ZoneEngine(
         lastTickTime = now
 
         try {
-          world.tick(deltaTime)
-          flush()
+          tickOnce(deltaTime)
         } catch (e: Exception) {
           LOG.error(e) { "Error in zone tick: ${e.message}" }
         }
@@ -117,11 +126,13 @@ class ZoneEngine(
     world.locked {
       val positionChanged = HashSet<EntityId>()
 
-      for (type in dirtyableRegistry.syncTypes) {
+      for (type in syncableComponentTypes) {
         world.drainChanges(type) { id ->
           val comp = world.get(id, type) as? Dirtyable ?: return@drainChanges
           perEntity.getOrPut(id) { ArrayList() }.add(comp)
-          if (type == Position::class) positionChanged.add(id)
+          if (type == Position::class) {
+            positionChanged.add(id)
+          }
         }
       }
 
@@ -140,11 +151,10 @@ class ZoneEngine(
 
     // Build the outbound component update messages outside the world lock: resolving sync
     // targets (e.g. party membership) may hit the database and must not block the tick thread.
-    val syncContext = SyncContext(world, partyMembershipLookup)
     for ((id, comps) in perEntity) {
       val pos = world.get(id, Position::class)?.toVec3L() ?: continue
 
-      val publicMsgs = ArrayList<SMSG>()
+      val publicMsgs = mutableListOf<SMSG>()
       val byAccount = LinkedHashMap<Long, MutableList<SMSG>>()
 
       for (c in comps) {

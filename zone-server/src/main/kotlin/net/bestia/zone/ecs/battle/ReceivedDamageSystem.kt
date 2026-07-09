@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World

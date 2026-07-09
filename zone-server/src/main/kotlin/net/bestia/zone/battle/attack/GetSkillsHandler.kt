@@ -6,8 +6,8 @@ import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.component.SkillListSMSG
-import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.session.EntityNotOwnedSessionException
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.EntityNotOwnedSessionException
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component

@@ -4,9 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.PlayerBestiaId
@@ -48,7 +48,7 @@ class PlayerBestiaEntityFactory(
       world.add(id, Position.fromVec3(playerBestia.position))
       world.add(id, Level(playerBestia.level))
       world.add(id, Speed())
-      world.add(id, BestiaVisual(playerBestia.bestia.id.toInt()))
+      world.add(id, BestiaVisual(playerBestia.bestia.id))
       world.add(id, Account(accountId))
       world.add(id, AvailableAttacks((fixedAttackIds + customAttackIds).toMutableMap()))
     }

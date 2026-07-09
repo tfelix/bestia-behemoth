@@ -27,7 +27,9 @@ class Party(
   val size: Int get() = member.size + 1 // + 1 is the owner himself.
 
   init {
+    require(owner.party == null) {
+      "Owner already has a party, remove party first"
+    }
     owner.party = this
-    owner.ownedParty = this
   }
 }

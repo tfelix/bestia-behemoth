@@ -3,7 +3,7 @@ package net.bestia.zone.battle.attack
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

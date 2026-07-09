@@ -3,7 +3,7 @@ package net.bestia.zone.account.master
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Component
 

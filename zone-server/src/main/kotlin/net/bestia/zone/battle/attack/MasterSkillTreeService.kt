@@ -6,7 +6,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.status.SkillPoints
+import net.bestia.zone.ecs.battle.status.SkillPoints
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

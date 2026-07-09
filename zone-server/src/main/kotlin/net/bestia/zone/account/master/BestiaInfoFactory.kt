@@ -3,8 +3,8 @@ package net.bestia.zone.account.master
 import net.bestia.zone.bestia.PlayerBestiaNotFoundException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.session.ConnectionInfoService
-import net.bestia.zone.ecs.status.Level
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SelfSMSG
 import org.springframework.stereotype.Component

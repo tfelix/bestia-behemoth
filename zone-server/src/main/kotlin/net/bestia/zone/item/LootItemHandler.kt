@@ -3,7 +3,7 @@ package net.bestia.zone.item
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.session.ConnectionInfoService
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.entity.VanishEntitySMSG

@@ -2,8 +2,8 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.player.Account
-import net.bestia.zone.ecs.status.Exp
+import net.bestia.zone.ecs.account.Account
+import net.bestia.zone.ecs.battle.status.Exp
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 @Order(70)
 class DeathSystem(
-  private val experienceCalculator: ExperienceCalculator,
+  private val experienceGainCalculator: ExperienceGainCalculator,
 ) : System {
 
   override val reads: ComponentClassSet =
@@ -57,7 +57,7 @@ class DeathSystem(
 
     // the experience calculator requires a DB lookup so we defer the call.
     world.defer {
-      val earnedExp = experienceCalculator.calculate(bestiaId, damageDealer, attackingPlayerCount)
+      val earnedExp = experienceGainCalculator.calculate(bestiaId, damageDealer, attackingPlayerCount)
 
       earnedExp.forEach { (entityId, receivedExp) ->
         LOG.debug { "Entity $entityId received $receivedExp EXP" }

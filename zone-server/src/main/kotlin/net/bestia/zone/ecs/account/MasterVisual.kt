@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.player
+package net.bestia.zone.ecs.account
 
 import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face

@@ -1,7 +1,7 @@
-package net.bestia.zone.ecs.core.spring
+package net.bestia.zone.ecs.core
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.core.World
+import java.lang.System
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
  * on the classpath never starts a second simulation loop — construct and
  * [start] it explicitly when you want it to run.
  */
-class Ecs2Runner(
+class EcsRunner(
   private val world: World,
   private val tickRate: Int = 20,
 ) {
