@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle.status
 
-import net.bestia.zone.component.ManaComponentSMSG
+import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable

@@ -34,7 +34,6 @@ import "messages/component/skill_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
-import "messages/master/skill_activated_smsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
 import "messages/entity/vanish_entity_smsg.proto";
 import "messages/entity/damage_entity_smsg.proto";
@@ -88,7 +87,6 @@ message Envelope {
     AttackEntityCMSG attack_entity = 503;
     VanishEntitySMSG vanish_entity = 504;
     DamageEntitySMSG damage_entity = 505;
-    SkillActivatedSMSG skill_activated = 506;
     PositionComponent comp_position = 510;
     BestiaVisualComponent comp_bestia_visual = 511;
     ItemVisualComponent comp_item_visual = 512;

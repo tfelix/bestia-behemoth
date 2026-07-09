@@ -1,7 +1,7 @@
 package net.bestia.zone.bestia
 
 import jakarta.persistence.*
-import net.bestia.zone.battle.attack.Skill
+import net.bestia.zone.battle.skill.Skill
 
 @Entity
 @Table(

@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle
 
-import net.bestia.zone.component.ManaComponentSMSG
+import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
 import net.bestia.zone.ecs.battle.status.Mana
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

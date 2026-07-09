@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.bestia.BestiaVisual
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class PlayerBestiaEntityFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
-  private val world: World,
+  private val world: WorldView,
   private val connectionInfoService: ConnectionInfoService
 ) {
 
@@ -45,12 +45,12 @@ class PlayerBestiaEntityFactory(
 
     // spawn the entity into the world
     val entityId = world.createEntity { id ->
-      world.add(id, Position.fromVec3(playerBestia.position))
-      world.add(id, Level(playerBestia.level))
-      world.add(id, Speed())
-      world.add(id, BestiaVisual(playerBestia.bestia.id))
-      world.add(id, Account(accountId))
-      world.add(id, AvailableSkills((fixedAttackIds + customAttackIds).toMutableMap()))
+      add(id, Position.fromVec3(playerBestia.position))
+      add(id, Level(playerBestia.level))
+      add(id, Speed())
+      add(id, BestiaVisual(playerBestia.bestia.id))
+      add(id, Account(accountId))
+      add(id, AvailableSkills((fixedAttackIds + customAttackIds).toMutableMap()))
     }
 
     val playerBestiaId = playerBestia.id

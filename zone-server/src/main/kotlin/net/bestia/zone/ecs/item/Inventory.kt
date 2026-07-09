@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.component.InventoryComponentSMSG
+import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable

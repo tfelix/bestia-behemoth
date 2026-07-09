@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
@@ -18,11 +19,11 @@ import org.springframework.stereotype.Component
 class BestiaEntityFactory(
   // Resolved lazily via a provider to break the World -> SpawnerSystem -> BestiaEntityFactory ->
   // World construction cycle (World is a final class, so a @Lazy CGLIB proxy is not possible).
-  private val worldProvider: ObjectProvider<World>,
+  private val worldProvider: ObjectProvider<WorldView>,
   private val bestiaRepository: BestiaRepository,
   private val aiProfileRegistry: AiProfileRegistry
 ) {
-  private val world: World get() = worldProvider.getObject()
+  private val world: WorldView get() = worldProvider.getObject()
 
   fun createMobEntity(
     bestiaId: Long,
@@ -33,10 +34,10 @@ class BestiaEntityFactory(
     val bestia = bestiaRepository.findByIdOrThrow(bestiaId)
 
     return world.createEntity { id ->
-      world.add(id, Position.fromVec3(pos))
-      world.add(id, BestiaVisual(bestiaId))
-      world.add(id, Health(bestia.health, bestia.health))
-      world.add(id, Speed())
+      add(id, Position.fromVec3(pos))
+      add(id, BestiaVisual(bestiaId))
+      add(id, Health(bestia.health, bestia.health))
+      add(id, Speed())
 
       attachAi(id, bestia, pos)
     }
@@ -48,7 +49,7 @@ class BestiaEntityFactory(
    * attack the melee action uses. [spawnPosition] becomes the [Brain.homePosition] the NPC wanders
    * around.
    */
-  private fun attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
+  private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
     val profileId = bestia.aiProfile ?: return
 
     val profile = aiProfileRegistry.get(profileId)
@@ -57,8 +58,8 @@ class BestiaEntityFactory(
       return
     }
 
-    world.add(id, Brain(profileId = profileId, homePosition = spawnPosition))
-    world.add(id, AvailableSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
+    add(id, Brain(profileId = profileId, homePosition = spawnPosition))
+    add(id, AvailableSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 
   fun createMobEntity(

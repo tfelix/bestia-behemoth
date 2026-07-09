@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.EntityId
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +15,7 @@ import kotlin.random.Random
  */
 @Component
 class LootEntityFactory(
-  private val world: World,
+  private val world: WorldView,
   private val lootItemRepository: LootItemRepository
 ) {
 
@@ -41,8 +41,8 @@ class LootEntityFactory(
    */
   fun createLootEntity(itemId: Long, amount: Int, pos: Vec3L, uniqueId: Long = 0): EntityId {
     return world.createEntity { id ->
-      world.add(id, Position.fromVec3(pos))
-      world.add(
+      add(id, Position.fromVec3(pos))
+      add(
         id,
         ItemVisual(
           itemId = itemId,

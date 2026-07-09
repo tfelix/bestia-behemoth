@@ -3,7 +3,7 @@ package net.bestia.zone.item
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.item.script.ItemScriptExecutionService
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
@@ -14,7 +14,7 @@ class UseItemHandler(
   private val itemScriptExecutionService: ItemScriptExecutionService,
   private val itemRepository: ItemRepository,
   private val connectionInfoService: ConnectionInfoService,
-  private val world: World
+  private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<UseItemCMSG> {
   override val handles = UseItemCMSG::class
 
@@ -38,7 +38,7 @@ class UseItemHandler(
 
     // Access the entity and verify inventory ownership
     world.modify(activeEntityId) { id ->
-      val inventory = world.get(id, Inventory::class)
+      val inventory = get(id, Inventory::class)
 
       if (inventory == null) {
         LOG.warn { "Entity $activeEntityId had no Inventory component but tried to use item" }
@@ -53,7 +53,8 @@ class UseItemHandler(
 
       LOG.debug { "Item ${msg.itemId} found in inventory for entity $activeEntityId" }
 
-      itemScriptExecutionService.useItem(world, id, item)
+      // `this` is the full World, valid only within this lock-held scope.
+      itemScriptExecutionService.useItem(this, id, item)
     }
 
     return true

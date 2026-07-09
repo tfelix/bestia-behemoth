@@ -5,7 +5,7 @@ import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ class ChatHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val masterOperations: MasterResolver,
   private val connectionInfoService: ConnectionInfoService,
-  private val world: World,
+  private val world: WorldView,
   private val chatCommandHandler: ChatCommandHandler
 ) : InMessageProcessor.IncomingMessageHandler<ChatCMSG> {
   override val handles = ChatCMSG::class
@@ -55,7 +55,7 @@ class ChatHandler(
     )
 
     val position = world.modify(activeEntityId) { id ->
-      world.get(id, Position::class)?.toVec3L()
+      get(id, Position::class)?.toVec3L()
     }
 
     if (position != null) {

@@ -1,7 +1,7 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.component.HealthComponentSMSG
-import net.bestia.zone.component.ManaComponentSMSG
+import net.bestia.zone.ecs.battle.status.HealthComponentSMSG
+import net.bestia.zone.ecs.battle.status.ManaComponentSMSG
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.World

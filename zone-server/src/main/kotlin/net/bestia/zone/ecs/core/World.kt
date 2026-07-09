@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
 class World(
   parallelSystems: Boolean = false,
   idGenerator: (() -> EntityId)? = null,
-) {
+) : WorldView {
   private val entities = if (idGenerator != null) EntityRegistry(idGenerator) else EntityRegistry()
   private val stores = ConcurrentHashMap<KClass<out Component>, ComponentStore<out Component>>()
   private val scheduler = SystemScheduler(parallelSystems)
@@ -54,12 +54,18 @@ class World(
   /** Runs [block] holding the world lock; used to make external ECS access thread-safe. */
   fun <T> locked(block: () -> T): T = lock.withLock(block)
 
+  /**
+   * [WorldView] read scope: runs [block] against this world while holding the lock. Intended for
+   * pure reads from off-tick threads; return values/DTOs rather than leaking components out.
+   */
+  override fun <T> read(block: World.() -> T): T = lock.withLock { this.block() }
+
   /** Registers a hook fired (on the tick thread) whenever an entity is destroyed. */
   fun onDestroy(handler: (EntityId) -> Unit) {
     destroyListeners.add(handler)
   }
 
-  val entityCount: Int get() = entities.count
+  override val entityCount: Int get() = entities.count
   val systemCount: Int get() = scheduler.systemCount
   val waveCount: Int get() = scheduler.waveCount
 
@@ -68,18 +74,18 @@ class World(
 
   fun create(id: EntityId): EntityId = lock.withLock { entities.create(id) }
 
-  fun isAlive(id: EntityId): Boolean = lock.withLock { entities.isAlive(id) }
+  override fun isAlive(id: EntityId): Boolean = lock.withLock { entities.isAlive(id) }
 
   /** Alias for [isAlive] preserving the previous `ZoneServer.hasEntity` naming. */
-  fun hasEntity(id: EntityId): Boolean = isAlive(id)
+  override fun hasEntity(id: EntityId): Boolean = isAlive(id)
 
   /**
    * Atomically creates an entity and runs [configure] on it (typically a batch of [add]s) while
    * holding the world lock, then returns the new id. Replaces `ZoneServer.addEntityWithWriteLock`.
    */
-  fun createEntity(configure: (EntityId) -> Unit): EntityId = lock.withLock {
+  override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = lock.withLock {
     val id = entities.create()
-    configure(id)
+    this.configure(id)
     id
   }
 
@@ -88,12 +94,12 @@ class World(
    * alive. Replaces `ZoneServer.withEntityWriteLock` / `withEntityReadLock` (a single tick thread
    * makes read/write locks unnecessary).
    */
-  fun <T> modify(id: EntityId, block: (EntityId) -> T): T? = lock.withLock {
-    if (!entities.isAlive(id)) null else block(id)
+  override fun <T> modify(id: EntityId, block: World.(EntityId) -> T): T? = lock.withLock {
+    if (!entities.isAlive(id)) null else this.block(id)
   }
 
   /** Like [modify] but throws [EntityNotAliveException] if [id] is not alive. */
-  fun <T> modifyOrThrow(id: EntityId, block: (EntityId) -> T): T =
+  override fun <T> modifyOrThrow(id: EntityId, block: World.(EntityId) -> T): T =
     modify(id, block) ?: throw EntityNotAliveException(id)
 
   fun destroy(id: EntityId) = lock.withLock {
@@ -137,7 +143,7 @@ class World(
 
   fun <T : Component> get(id: EntityId, type: KClass<T>): T? = lock.withLock { store(type).get(id) }
 
-  fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = lock.withLock { store(type).has(id) }
+  override fun <T : Component> has(id: EntityId, type: KClass<T>): Boolean = lock.withLock { store(type).has(id) }
 
   fun <T : Component> remove(id: EntityId, type: KClass<T>): T? = lock.withLock {
     if (iterating) {
@@ -209,7 +215,7 @@ class World(
 
   // ------------------------------------------------------------- messaging in
   /** Enqueue external intent from any thread. Applied at the start of next tick. */
-  fun send(command: Command) {
+  override fun send(command: Command) {
     commands.enqueue(command)
   }
 

@@ -3,7 +3,7 @@ package net.bestia.zone.entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class MoveActiveEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: World,
+  private val world: WorldView,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -27,14 +27,14 @@ class MoveActiveEntityHandler(
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {
         // An empty path is a stop request: drop any current path.
-        world.remove(id, Path::class)
+        remove(id, Path::class)
       } else {
-        val existing = world.get(id, Path::class)
+        val existing = get(id, Path::class)
         if (existing != null) {
           existing.setPath(msg.path)
-          world.markChanged(id, Path::class)
+          markChanged(id, Path::class)
         } else {
-          world.add(id, Path(msg.path.toMutableList()))
+          add(id, Path(msg.path.toMutableList()))
         }
       }
     }

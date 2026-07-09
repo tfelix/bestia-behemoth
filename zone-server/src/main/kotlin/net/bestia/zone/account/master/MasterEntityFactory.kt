@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.attack.LearnedSkillRepository
+import net.bestia.zone.battle.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.item.Inventory
@@ -15,7 +15,7 @@ import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.core.EntityId
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Component
 class MasterEntityFactory(
-  private val world: World,
+  private val world: WorldView,
   private val masterRepository: MasterRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
@@ -51,15 +51,15 @@ class MasterEntityFactory(
         masterEntityId = id
       )
 
-      world.add(id, Account(master.account.id))
-      world.add(id, MasterComponent(master.id))
-      world.add(id, Position.fromVec3(master.currentPosition))
-      world.add(id, Level(master.level))
-      world.add(id, Speed())
-      world.add(id, Health(current = 10, max = 10))
-      world.add(id, AvailableSkills(learnedSkillIds.toMutableMap()))
-      world.add(id, SkillPoints(master.skillPoints))
-      world.add(
+      add(id, Account(master.account.id))
+      add(id, MasterComponent(master.id))
+      add(id, Position.fromVec3(master.currentPosition))
+      add(id, Level(master.level))
+      add(id, Speed())
+      add(id, Health(current = 10, max = 10))
+      add(id, AvailableSkills(learnedSkillIds.toMutableMap()))
+      add(id, SkillPoints(master.skillPoints))
+      add(
         id,
         MasterVisual(
           id = master.id.toInt(),
@@ -70,8 +70,8 @@ class MasterEntityFactory(
           hair = master.hair
         )
       )
-      world.add(id, buildInventory(master))
-      world.add(id, ActivePlayer)
+      add(id, buildInventory(master))
+      add(id, ActivePlayer)
     }
   }
 

@@ -2,7 +2,7 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.status.Exp
 import org.springframework.stereotype.Component
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 @Component
 class ExpChatCommand(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: World
+  private val world: WorldView
 ) : ChatCommand() {
 
   companion object {
@@ -37,9 +37,11 @@ class ExpChatCommand(
 
     val activeEntityId = connectionInfoService.getActiveEntityId(playerId)
 
-    val exp = world.get(activeEntityId, Exp::class) ?: world.add(activeEntityId, Exp())
-    exp.value += amount
-    world.markChanged(activeEntityId, Exp::class)
+    world.modify(activeEntityId) { id ->
+      val exp = get(id, Exp::class) ?: add(id, Exp())
+      exp.value += amount
+      markChanged(id, Exp::class)
+    }
 
     LOG.info { "Added $amount EXP to active entity $activeEntityId (player $playerId)" }
 

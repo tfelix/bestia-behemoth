@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
@@ -17,7 +17,7 @@ class DropItemHandler(
   private val inventoryItemFactory: InventoryItemFactory,
   private val lootEntityFactory: LootEntityFactory,
   private val connectionInfoService: ConnectionInfoService,
-  private val world: World
+  private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<DropItemCMSG> {
   override val handles = DropItemCMSG::class
 
@@ -42,7 +42,7 @@ class DropItemHandler(
     // Access the entity, verify preconditions from ECS info and persist the removal to the
     // database immediately (critical item transaction - must not risk duplication).
     val dropPos: Vec3L? = world.modify(activeEntityId) { id ->
-      val inventory = world.get(id, Inventory::class)
+      val inventory = get(id, Inventory::class)
 
       if (inventory == null) {
         LOG.warn { "Entity $activeEntityId had no Inventory component but tried to drop an item" }
@@ -64,9 +64,9 @@ class DropItemHandler(
 
       // 2. Mutate the ECS inventory and sync it back to the owner via the existing dirty pipeline.
       inventory.removeAmount(msg.itemId.toInt(), msg.amount)
-      world.markChanged(id, Inventory::class)
+      markChanged(id, Inventory::class)
 
-      val pos = world.getOrThrow(id, Position::class).toVec3L()
+      val pos = getOrThrow(id, Position::class).toVec3L()
       Vec3L(
         pos.x + Random.nextLong(-1, 2),
         pos.y + Random.nextLong(-1, 2),

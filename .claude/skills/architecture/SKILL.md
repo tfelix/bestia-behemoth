@@ -103,9 +103,9 @@ two session maps — there is no single unified `Session` object.
 ## Adding a new message type end-to-end
 
 Every step below, worked through once already for a real feature: `ActivateSkillCMSG`
-/ `SkillActivatedSMSG` / `ActivateSkillHandler` (`zone-server/.../battle/attack/`),
-added for player-triggered skill activation. Use those three files as a template
-instead of re-deriving the shape from scratch.
+/ `ActivateSkillHandler` (`zone-server/.../battle/attack/`), added for
+player-triggered skill activation, plus an SMSG example such as `DamageEntitySMSG`.
+Use those files as a template instead of re-deriving the shape from scratch.
 
 1. **Proto**: new file under `bnet-messages/src/main/proto/messages/<domain>/`
    (`*_cmsg.proto` / `*_smsg.proto`), then wire it into `envelope.proto`: an `import`

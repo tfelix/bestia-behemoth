@@ -1,6 +1,6 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.attack.BattleSkill
+import net.bestia.zone.battle.skill.BattleSkill
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.geometry.Vec3L
 

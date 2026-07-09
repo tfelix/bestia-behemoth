@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.attack.MasterSkillPrerequisite
-import net.bestia.zone.battle.attack.MasterSkillTreeNode
-import net.bestia.zone.battle.attack.MasterSkillTreeRegistry
-import net.bestia.zone.battle.attack.SkillRepository
+import net.bestia.zone.battle.skill.MasterSkillPrerequisite
+import net.bestia.zone.battle.skill.MasterSkillTreeNode
+import net.bestia.zone.battle.skill.MasterSkillTreeRegistry
+import net.bestia.zone.battle.skill.SkillRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource

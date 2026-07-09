@@ -1,7 +1,7 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.attack.SkillRepository
-import net.bestia.zone.battle.attack.findByIdOrThrow
+import net.bestia.zone.battle.skill.SkillRepository
+import net.bestia.zone.battle.skill.findByIdOrThrow
 import net.bestia.zone.util.EntityId
 
 

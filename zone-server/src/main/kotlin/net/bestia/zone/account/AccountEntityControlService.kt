@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.persistence.PersistAndRemove
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 class AccountEntityControlService(
   private val connectionInfoService: ConnectionInfoService,
   private val masterResolver: MasterResolver,
-  private val world: World
+  private val world: WorldView
 ) {
 
   /**
@@ -49,7 +49,7 @@ class AccountEntityControlService(
       ?: return
 
     world.modify(masterEntity) { id ->
-      world.add(id, PersistAndRemove)
+      add(id, PersistAndRemove)
     }
 
     // Technically I guess it would be better if the session only gets deactivated if the entity was confirmed removed

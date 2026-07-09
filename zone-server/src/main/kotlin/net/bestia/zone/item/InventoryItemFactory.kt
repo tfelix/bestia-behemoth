@@ -6,7 +6,7 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.core.EntityId
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 class InventoryItemFactory(
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
-  private val world: World,
+  private val world: WorldView,
 ) {
 
   /**
@@ -67,7 +67,7 @@ class InventoryItemFactory(
     val item = addItemToMaster(masterId, itemIdentifier, amount)
 
     world.modify(activeEntityId) { id ->
-      val inventory = world.get(id, Inventory::class)
+      val inventory = get(id, Inventory::class)
 
       if (inventory == null) {
         LOG.warn { "Entity $activeEntityId has no Inventory component, cannot sync item $itemIdentifier" }
@@ -75,7 +75,7 @@ class InventoryItemFactory(
       }
 
       inventory.addItem(Inventory.Item(itemId = item.id.toInt(), amount = amount, uniqueId = uniqueId))
-      world.markChanged(id, Inventory::class)
+      markChanged(id, Inventory::class)
     }
   }
 

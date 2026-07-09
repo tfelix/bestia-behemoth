@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.InMessageProcessor
@@ -18,7 +18,7 @@ class LootItemHandler(
   private val inventoryItemFactory: InventoryItemFactory,
   private val connectionInfoService: ConnectionInfoService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val world: World
+  private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<LootItemCMSG> {
   override val handles = LootItemCMSG::class
 
@@ -35,20 +35,22 @@ class LootItemHandler(
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
-    val playerPos = world.getOrThrow(activeEntityId, Position::class).toVec3L()
+    val playerPos = world.read { getOrThrow(activeEntityId, Position::class).toVec3L() }
 
-    // Claim the loot atomically: strip the Loot component so a concurrent pickup racing for the
-    // same access sees no Loot component and aborts. This removes the item from the ECS first,
-    // before it is ever granted, avoiding duplication.
+    // Claim the loot atomically inside a single lock-held scope: strip the ItemVisual so a
+    // concurrent pickup racing for the same access sees no loot and aborts, then fully destroy the
+    // ground entity. Doing both under the same lock removes the item from the ECS before it is ever
+    // granted, avoiding duplication.
     val claimed = world.modify(msg.targetEntityId) { entityId ->
-      val itemVisual = world.get(entityId, ItemVisual::class) ?: return@modify null
-      val lootPos = world.getOrThrow(entityId, Position::class).toVec3L()
+      val itemVisual = get(entityId, ItemVisual::class) ?: return@modify null
+      val lootPos = getOrThrow(entityId, Position::class).toVec3L()
 
       if (playerPos.distance(lootPos) > MAX_LOOT_RANGE) {
         return@modify null
       }
 
-      world.remove(entityId, ItemVisual::class)
+      remove(entityId, ItemVisual::class)
+      destroy(entityId)
 
       ClaimedLoot(itemVisual.itemId, itemVisual.amount, itemVisual.uniqueId, lootPos)
     }
@@ -58,8 +60,7 @@ class LootItemHandler(
       return true
     }
 
-    // Fully remove the now loot-less ground entity and tell nearby clients it's gone.
-    world.destroy(msg.targetEntityId)
+    // The ground entity is gone; tell nearby clients.
     outMessageProcessor.sendToAllPlayersInRange(
       claimed.pos,
       VanishEntitySMSG(entityId = msg.targetEntityId, kind = VanishEntitySMSG.VanishKind.GONE)

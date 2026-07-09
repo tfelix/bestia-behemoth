@@ -29,7 +29,7 @@ data class Exp(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return ExpSMSG(entityId = entityId, exp = value)
+    return ExpComponentSMSG(entityId = entityId, exp = value)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

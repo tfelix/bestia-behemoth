@@ -13,6 +13,7 @@ import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.account.MasterVisualComponentSMSG
 import net.bestia.zone.message.SMSG
@@ -33,7 +34,7 @@ class GetAllEntitiesHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
   private val aoiService: EntityAOIService,
-  private val world: World,
+  private val world: WorldView,
 ) : InMessageProcessor.IncomingMessageHandler<GetAllEntitiesCMSG> {
   override val handles: KClass<GetAllEntitiesCMSG> = GetAllEntitiesCMSG::class
 
@@ -43,16 +44,19 @@ class GetAllEntitiesHandler(
     val queryPos = findPositionOfActive(msg.playerId)
     val entitiesInRange = getEntitiesInRange(queryPos)
 
-    // Extract the component information to send out as an update.
-    val outMessages = entitiesInRange.flatMap { eid ->
-      listOfNotNull(
-        tryBuildBestiaComponent(eid),
-        tryBuildPositionComponent(eid),
-        tryBuildMasterComponent(eid),
-        tryBuildPathComponent(eid),
-        tryBuildSpeedComponent(eid),
-        tryBuildLootComponent(eid)
-      )
+    // Extract the component information to send out as an update. All component reads happen inside
+    // a single lock-held read scope so nothing is touched off the tick thread.
+    val outMessages = world.read {
+      entitiesInRange.flatMap { eid ->
+        listOfNotNull(
+          tryBuildBestiaComponent(eid),
+          tryBuildPositionComponent(eid),
+          tryBuildMasterComponent(eid),
+          tryBuildPathComponent(eid),
+          tryBuildSpeedComponent(eid),
+          tryBuildLootComponent(eid)
+        )
+      }
     }
 
     outMessageProcessor.sendToPlayer(msg.playerId, outMessages)
@@ -60,8 +64,8 @@ class GetAllEntitiesHandler(
     return true
   }
 
-  private fun tryBuildMasterComponent(entityId: EntityId): SMSG? {
-    val masterComp = world.get(entityId, MasterVisual::class) ?: return null
+  private fun World.tryBuildMasterComponent(entityId: EntityId): SMSG? {
+    val masterComp = get(entityId, MasterVisual::class) ?: return null
 
     return MasterVisualComponentSMSG(
       entityId = entityId,
@@ -73,32 +77,32 @@ class GetAllEntitiesHandler(
     )
   }
 
-  private fun tryBuildBestiaComponent(entityId: EntityId): SMSG? {
-    val bestiaComp = world.get(entityId, BestiaVisual::class) ?: return null
+  private fun World.tryBuildBestiaComponent(entityId: EntityId): SMSG? {
+    val bestiaComp = get(entityId, BestiaVisual::class) ?: return null
 
     return BestiaVisualComponentSMSG(entityId, bestiaComp.id)
   }
 
-  private fun tryBuildPositionComponent(entityId: EntityId): SMSG? {
-    val positionComp = world.get(entityId, Position::class) ?: return null
+  private fun World.tryBuildPositionComponent(entityId: EntityId): SMSG? {
+    val positionComp = get(entityId, Position::class) ?: return null
 
     return PositionSMSG(entityId, positionComp.toVec3L())
   }
 
-  private fun tryBuildPathComponent(entityId: EntityId): SMSG? {
-    val pathComp = world.get(entityId, Path::class) ?: return null
+  private fun World.tryBuildPathComponent(entityId: EntityId): SMSG? {
+    val pathComp = get(entityId, Path::class) ?: return null
 
     return PathSMSG(entityId, pathComp.path)
   }
 
-  private fun tryBuildSpeedComponent(entityId: EntityId): SMSG? {
-    val speedComp = world.get(entityId, Speed::class) ?: return null
+  private fun World.tryBuildSpeedComponent(entityId: EntityId): SMSG? {
+    val speedComp = get(entityId, Speed::class) ?: return null
 
     return SpeedSMSG(entityId, speedComp.speed)
   }
 
-  private fun tryBuildLootComponent(entityId: EntityId): SMSG? {
-    val itemVisualComp = world.get(entityId, ItemVisual::class) ?: return null
+  private fun World.tryBuildLootComponent(entityId: EntityId): SMSG? {
+    val itemVisualComp = get(entityId, ItemVisual::class) ?: return null
 
     return ItemVisualComponentSMSG(entityId, itemVisualComp.itemId.toInt(), itemVisualComp.amount, itemVisualComp.uniqueId)
   }
@@ -106,7 +110,7 @@ class GetAllEntitiesHandler(
   private fun findPositionOfActive(accountId: AccountId): Vec3L {
     val activeEntity = connectionInfoService.getActiveEntityId(accountId)
 
-    return world.getOrThrow(activeEntity, Position::class).toVec3L()
+    return world.read { getOrThrow(activeEntity, Position::class).toVec3L() }
   }
 
   private fun getEntitiesInRange(queryPos: Vec3L): List<EntityId> {

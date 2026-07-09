@@ -6,8 +6,8 @@ import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.EntityId
-import net.bestia.zone.ecs.core.World
-import net.bestia.zone.battle.attack.AttackEntityCMSG
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.battle.skill.AttackEntityCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
@@ -21,7 +21,7 @@ import kotlin.random.Random
 @Component
 class AttackEntityHandler(
   private val messageProcessor: OutMessageProcessor,
-  private val world: World,
+  private val world: WorldView,
   private val masterResolver: MasterResolver
 ) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
   override val handles = AttackEntityCMSG::class
@@ -40,11 +40,11 @@ class AttackEntityHandler(
     val damageTaken = Random.nextInt(1, 7)
 
     world.modify(msg.targetEntityId) { id ->
-      val damage = world.get(id, Damage::class) ?: world.add(id, Damage())
+      val damage = get(id, Damage::class) ?: add(id, Damage())
       damage.add(damageTaken, masterEntityId)
     }
 
-    val position = world.getOrThrow(masterEntityId, Position::class).toVec3L()
+    val position = world.read { getOrThrow(masterEntityId, Position::class).toVec3L() }
 
     val damageMsg = DamageEntitySMSG(
       entityId = msg.targetEntityId,
@@ -62,15 +62,16 @@ class AttackEntityHandler(
 
   private fun checkAttackAvailable(
     attackingEntityId: EntityId,
-    usedAttackId: Long,
+    usedSkillId: Long,
     usedSkillLevel: Int
   ): Boolean {
     // Basic attack is always possible
-    return if (usedAttackId == 0L) {
+    return if (usedSkillId == 0L) {
       true
     } else {
-      world.getOrThrow(attackingEntityId, AvailableSkills::class)
-        .knowsAttack(usedAttackId, usedSkillLevel)
+      world.read {
+        getOrThrow(attackingEntityId, AvailableSkills::class).knowsSkill(usedSkillId, usedSkillLevel)
+      }
     }
   }
 

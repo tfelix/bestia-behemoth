@@ -8,7 +8,7 @@ import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.WorldView
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,7 +22,7 @@ class PartyService(
   private val partyRepository: PartyRepository,
   private val masterRepository: MasterRepository,
   private val masterResolver: MasterResolver,
-  private val world: World,
+  private val world: WorldView,
 ) {
 
   companion object {
@@ -208,8 +208,8 @@ class PartyService(
         ?: return@mapNotNull null
 
       world.modify(partyMemberEntityId) { id ->
-        val health = world.getOrThrow(id, Health::class)
-        val position = world.getOrThrow(id, Position::class)
+        val health = getOrThrow(id, Health::class)
+        val position = getOrThrow(id, Position::class)
 
         PartyInfoSMSG.PartyMember(
           masterName = partyMemberMaster.name,
