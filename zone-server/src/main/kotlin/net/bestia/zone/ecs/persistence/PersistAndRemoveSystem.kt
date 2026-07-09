@@ -7,12 +7,12 @@ import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.status.Level
 import net.bestia.zone.ecs.status.SkillPoints
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -26,7 +26,7 @@ class PersistAndRemoveSystem(
   private val masterRepository: MasterRepository
 ) : System {
 
-  override val reads: Set<KClass<out Component>> =
+  override val reads: ComponentClassSet =
     setOf(PersistAndRemove::class, Master::class, Position::class, Level::class, SkillPoints::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -56,11 +56,11 @@ class PersistAndRemoveSystem(
       return
     }
 
-    masterEntity.position = positionComponent.toVec3L()
+    masterEntity.currentPosition = positionComponent.toVec3L()
     masterEntity.level = levelComponent.level
     skillPointsComponent?.let { masterEntity.skillPoints = it.value }
     masterRepository.save(masterEntity)
-    LOG.info { "Successfully persisted master ${masterEntity.id} at position ${masterEntity.position} with level ${masterEntity.level}" }
+    LOG.info { "Successfully persisted master ${masterEntity.id} at position ${masterEntity.currentPosition} with level ${masterEntity.level}" }
   }
 
   companion object {

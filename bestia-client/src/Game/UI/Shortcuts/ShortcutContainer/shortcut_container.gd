@@ -57,12 +57,12 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		set_shortcut(data)
 
 
-# Accepts items as well as skills/attacks.
+# Accepts items as well as skills.
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false
 
-	return data["type"] == "item" or data["type"] == "attack"
+	return data["type"] == "item" or data["type"] == "skill"
 
 
 # Allows an assigned shortcut to be picked up and dragged elsewhere.
@@ -93,8 +93,8 @@ func _to_shortcut_dict(data: ShortcutData) -> Dictionary:
 	match data.type:
 		ShortcutData.ShortcutType.ITEM:
 			return {"type": "item", "id": data.reference_id}
-		ShortcutData.ShortcutType.ATTACK:
-			return {"type": "attack", "id": data.reference_id, "level": data.skill_level}
+		ShortcutData.ShortcutType.SKILL:
+			return {"type": "skill", "id": data.reference_id, "level": data.skill_level}
 
 	return {}
 
@@ -123,8 +123,8 @@ func trigger_shortcut() -> void:
 	match _shortcut_data.type:
 		ShortcutData.ShortcutType.ITEM:
 			_use_item()
-		ShortcutData.ShortcutType.ATTACK:
-			_use_attack()
+		ShortcutData.ShortcutType.SKILL:
+			_use_skill()
 
 
 # Sets the shortcut depending on the dropped class.
@@ -134,8 +134,8 @@ func set_shortcut(data: Dictionary) -> void:
 	if data["type"] == "item":
 		_shortcut_data.type = ShortcutData.ShortcutType.ITEM
 		_shortcut_data.reference_id = data["id"]
-	elif data["type"] == "attack":
-		_shortcut_data.type = ShortcutData.ShortcutType.ATTACK
+	elif data["type"] == "skill":
+		_shortcut_data.type = ShortcutData.ShortcutType.SKILL
 		_shortcut_data.reference_id = data["id"]
 		_shortcut_data.skill_level = data.get("level", 1)
 
@@ -192,9 +192,12 @@ func _update_display() -> void:
 				_count.visible = true
 			else:
 				printerr("Item ID %s not found in item_db, can not display it" % [_shortcut_data.reference_id])
-		ShortcutData.ShortcutType.ATTACK:
-			# TODO: Implement attack database similar to ItemDB
-			# For now just show a placeholder
+		ShortcutData.ShortcutType.SKILL:
+			var attack = AttackDB.get_instance().get_attack(_shortcut_data.reference_id)
+			if attack:
+				_icon.texture = attack.icon
+			else:
+				printerr("Attack ID %s not found in AttackDB, can not display it" % [_shortcut_data.reference_id])
 			_count.visible = false
 			set_disabled(false)
 
@@ -207,5 +210,5 @@ func _use_item() -> void:
 	item_res.use_item()
 
 
-func _use_attack() -> void:
+func _use_skill() -> void:
 	ConnectionManager.activate_skill(_shortcut_data.reference_id, _shortcut_data.skill_level)

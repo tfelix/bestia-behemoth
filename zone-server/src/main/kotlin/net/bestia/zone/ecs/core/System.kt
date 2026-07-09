@@ -22,10 +22,10 @@ interface System {
   val schedule: Schedule
     get() = Schedule.EveryTick
 
-  val reads: Set<KClass<out Component>>
+  val reads: ComponentClassSet
     get() = emptySet()
 
-  val writes: Set<KClass<out Component>>
+  val writes: ComponentClassSet
     get() = emptySet()
 
   val name: String
@@ -33,3 +33,5 @@ interface System {
 
   fun update(world: World, deltaTime: Float)
 }
+
+typealias ComponentClassSet = Set<KClass<out Component>>

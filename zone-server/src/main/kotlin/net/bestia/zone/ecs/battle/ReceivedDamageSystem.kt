@@ -2,10 +2,10 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(50)
 class ReceivedDamageSystem : System {
 
-  override val reads: Set<KClass<out Component>> = setOf(Damage::class)
-  override val writes: Set<KClass<out Component>> = setOf(Health::class, TakenDamage::class, Dead::class)
+  override val reads: ComponentClassSet = setOf(Damage::class)
+  override val writes: ComponentClassSet = setOf(Health::class, TakenDamage::class, Dead::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Damage::class, Health::class).each { id ->

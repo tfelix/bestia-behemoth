@@ -10,12 +10,12 @@ import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Master
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -33,7 +33,7 @@ class PerceptionSystem(
 ) : EcsSystem {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
-  override val reads: Set<KClass<out Component>> = setOf(Position::class, Health::class, Master::class, Brain::class)
+  override val reads: ComponentClassSet = setOf(Position::class, Health::class, Master::class, Brain::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Brain::class, Position::class).each { id ->

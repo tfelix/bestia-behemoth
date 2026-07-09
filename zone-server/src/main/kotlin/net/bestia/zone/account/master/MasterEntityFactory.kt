@@ -53,7 +53,7 @@ class MasterEntityFactory(
 
       world.add(id, Account(master.account.id))
       world.add(id, MasterComponent(master.id))
-      world.add(id, Position.fromVec3(master.position))
+      world.add(id, Position.fromVec3(master.currentPosition))
       world.add(id, Level(master.level))
       world.add(id, Speed())
       world.add(id, Health(current = 10, max = 10))

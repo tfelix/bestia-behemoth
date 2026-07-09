@@ -5,6 +5,7 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3agn1"]
 
 [node name="SkillRow" type="MarginContainer" unique_id=2050178806]
+mouse_filter = 1
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_bottom = 0
 script = ExtResource("1_10nyf")

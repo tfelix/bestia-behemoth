@@ -159,6 +159,21 @@ class World(
 
   inline fun <reified T : Component> getOrThrow(id: EntityId): T = getOrThrow(id, T::class)
 
+  /**
+   * Convenience for the common "fetch [T] on [id], creating it via [default] if missing, mutate
+   * it, then mark it changed" pattern seen across systems (e.g. `get(id, Exp::class) ?: add(id,
+   * Exp())` followed by a manual [markChanged]).
+   */
+  inline fun <reified T : Component> update(id: EntityId, default: () -> T, block: (T) -> Unit) {
+    if (!isAlive(id)) {
+      return
+    }
+
+    val component = get(id, T::class) ?: add(id, default())
+    block(component)
+    markChanged(id, T::class)
+  }
+
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
     val removed = store(type).remove(id)
     if (removed != null) changes.mark(type, id)
@@ -216,7 +231,6 @@ class World(
   /** Push model: fan all pending component changes out to registered observers. */
   fun publishChanges() = changes.publish()
 
-  /** Consume all emitted domain events. */
   fun drainOutbox(action: (Any) -> Unit) = outbox.drain(action)
 
   // --------------------------------------------------- deferred structural ops

@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 
 data class BestiaVisual(
-  val id: Int
+  val id: Long
 ) : Component, Dirtyable {
 
   private var dirty = true

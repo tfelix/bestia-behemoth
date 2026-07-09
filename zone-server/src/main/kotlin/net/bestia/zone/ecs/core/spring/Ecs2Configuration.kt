@@ -26,8 +26,6 @@ class Ecs2Configuration {
     @Value("\${zone.shard-id:1}") shardId: Int,
   ): World {
     val idGenerator = SnowflakeEntityIdGenerator(nodeId = shardId.coerceIn(0, 255))
-    // Spring orders the injected list by @Order, giving a deterministic system execution order
-    // (single-threaded => execution order == registration order).
     val world = World(parallelSystems = parallelSystems, idGenerator = idGenerator::nextId)
     world.addSystems(systems)
     LOG.info {

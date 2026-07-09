@@ -33,7 +33,7 @@ class AvailableMasterResolver(
         hair = master.hair,
         face = master.face,
         body = master.body,
-        position = master.position,
+        position = master.currentPosition,
         bestias = masterBestiaInfos
       )
     }

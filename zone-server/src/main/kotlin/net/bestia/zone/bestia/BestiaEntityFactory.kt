@@ -7,7 +7,6 @@ import net.bestia.zone.ecs.battle.AvailableAttacks
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
@@ -35,8 +34,7 @@ class BestiaEntityFactory(
 
     return world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
-      world.add(id, GivenExp(bestia.experienceReward))
-      world.add(id, BestiaVisual(bestiaId.toInt()))
+      world.add(id, BestiaVisual(bestiaId))
       world.add(id, Health(bestia.health, bestia.health))
       world.add(id, Speed())
 

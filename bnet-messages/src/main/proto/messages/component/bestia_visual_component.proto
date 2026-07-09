@@ -8,5 +8,5 @@ option java_outer_classname = "BestiaVisualComponentProto";
 
 message BestiaVisualComponent {
   fixed64 entity_id = 1;
-  sfixed32 bestiaId = 2;
+  uint64 bestiaId = 2;
 }

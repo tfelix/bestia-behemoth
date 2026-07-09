@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CjBtZXNzYWdlcy9jb21wb25lbnQvYmVzdGlhX3Zpc3VhbF9jb21wb25lbnQu",
             "cHJvdG8SBGJuZXQiPAoVQmVzdGlhVmlzdWFsQ29tcG9uZW50EhEKCWVudGl0",
-            "eV9pZBgBIAEoBhIQCghiZXN0aWFJZBgCIAEoD0IzChVuZXQuYmVzdGlhLmJu",
+            "eV9pZBgBIAEoBhIQCghiZXN0aWFJZBgCIAEoBEIzChVuZXQuYmVzdGlhLmJu",
             "ZXQucHJvdG9CGkJlc3RpYVZpc3VhbENvbXBvbmVudFByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -98,10 +98,10 @@ namespace Bnet {
 
     /// <summary>Field number for the "bestiaId" field.</summary>
     public const int BestiaIdFieldNumber = 2;
-    private int bestiaId_;
+    private ulong bestiaId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int BestiaId {
+    public ulong BestiaId {
       get { return bestiaId_; }
       set {
         bestiaId_ = value;
@@ -133,7 +133,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
-      if (BestiaId != 0) hash ^= BestiaId.GetHashCode();
+      if (BestiaId != 0UL) hash ^= BestiaId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -156,9 +156,9 @@ namespace Bnet {
         output.WriteRawTag(9);
         output.WriteFixed64(EntityId);
       }
-      if (BestiaId != 0) {
-        output.WriteRawTag(21);
-        output.WriteSFixed32(BestiaId);
+      if (BestiaId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(BestiaId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -174,9 +174,9 @@ namespace Bnet {
         output.WriteRawTag(9);
         output.WriteFixed64(EntityId);
       }
-      if (BestiaId != 0) {
-        output.WriteRawTag(21);
-        output.WriteSFixed32(BestiaId);
+      if (BestiaId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(BestiaId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -191,8 +191,8 @@ namespace Bnet {
       if (EntityId != 0UL) {
         size += 1 + 8;
       }
-      if (BestiaId != 0) {
-        size += 1 + 4;
+      if (BestiaId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BestiaId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -209,7 +209,7 @@ namespace Bnet {
       if (other.EntityId != 0UL) {
         EntityId = other.EntityId;
       }
-      if (other.BestiaId != 0) {
+      if (other.BestiaId != 0UL) {
         BestiaId = other.BestiaId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -231,8 +231,8 @@ namespace Bnet {
             EntityId = input.ReadFixed64();
             break;
           }
-          case 21: {
-            BestiaId = input.ReadSFixed32();
+          case 16: {
+            BestiaId = input.ReadUInt64();
             break;
           }
         }
@@ -254,8 +254,8 @@ namespace Bnet {
             EntityId = input.ReadFixed64();
             break;
           }
-          case 21: {
-            BestiaId = input.ReadSFixed32();
+          case 16: {
+            BestiaId = input.ReadUInt64();
             break;
           }
         }

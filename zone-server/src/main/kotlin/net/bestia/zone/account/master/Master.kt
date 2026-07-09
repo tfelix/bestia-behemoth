@@ -69,11 +69,21 @@ class Master(
   @JoinColumn(name = "party_id", nullable = true)
   var party: Party? = null
 
-  @OneToOne(mappedBy = "owner")
-  var ownedParty: Party? = null
+  @Embedded
+  @AttributeOverrides(
+    AttributeOverride(name = "x", column = Column(name = "current_position_x")),
+    AttributeOverride(name = "y", column = Column(name = "current_position_y")),
+    AttributeOverride(name = "z", column = Column(name = "current_position_z"))
+  )
+  var currentPosition: Vec3L = Vec3L.ZERO
 
   @Embedded
-  var position: Vec3L = Vec3L.ZERO
+  @AttributeOverrides(
+    AttributeOverride(name = "x", column = Column(name = "spawn_position_x")),
+    AttributeOverride(name = "y", column = Column(name = "spawn_position_y")),
+    AttributeOverride(name = "z", column = Column(name = "spawn_position_z"))
+  )
+  var spawnPosition: Vec3L = Vec3L.ZERO
 
   @Embedded
   val inventory = MasterInventory()
@@ -89,7 +99,7 @@ class Master(
   }
 
   override fun toString(): String {
-    return "Master(id=$id, name=$name, pos=$position)"
+    return "Master(id=$id, name=$name, pos=$currentPosition)"
   }
 
   companion object {

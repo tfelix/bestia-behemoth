@@ -42,7 +42,6 @@ class ZoneEngine(
   private val outMessageProcessor: OutMessageProcessor,
   private val dirtyableRegistry: DirtyableRegistry,
   private val partyMembershipLookup: PartyMembershipLookup,
-  @Lazy private val lootEntityFactory: LootEntityFactory,
 ) {
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val externalExecutor = Executors.newFixedThreadPool(2) { r -> Thread(r, "zone-external") }
@@ -164,26 +163,6 @@ class ZoneEngine(
       }
       byAccount.forEach { (accountId, msgs) ->
         externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msgs) }
-      }
-    }
-
-    // Discrete domain events emitted by systems (death, ...).
-    world.drainOutbox { event -> handleEvent(event) }
-  }
-
-  private fun handleEvent(event: Any) {
-    when (event) {
-      // TODO this should probably be handled inside the damage system.
-      is EntityDiedEvent -> {
-        externalExecutor.submit {
-          outMessageProcessor.sendToAllPlayersInRange(
-            event.position,
-            VanishEntitySMSG(entityId = event.entityId, kind = VanishEntitySMSG.VanishKind.DEATH)
-          )
-        }
-        if (event.lootBestiaId != null) {
-          externalExecutor.submit { lootEntityFactory.createLootEntities(event.lootBestiaId, event.position) }
-        }
       }
     }
   }

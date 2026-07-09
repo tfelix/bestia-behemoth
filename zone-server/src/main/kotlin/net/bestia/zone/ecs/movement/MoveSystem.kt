@@ -2,18 +2,18 @@ package net.bestia.zone.ecs.movement
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
 @Order(40)
 class MoveSystem : System {
 
-  override val reads: Set<KClass<out Component>> = setOf(Speed::class)
-  override val writes: Set<KClass<out Component>> = setOf(Position::class, Path::class)
+  override val reads: ComponentClassSet = setOf(Speed::class)
+  override val writes: ComponentClassSet = setOf(Position::class, Path::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Position::class, Speed::class, Path::class).each { id ->

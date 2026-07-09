@@ -74,7 +74,6 @@ class PartyService(
     // flushes those managed Masters with a dangling reference to the row we're about to delete.
     party.member.forEach { member -> member.party = null }
     party.owner.party = null
-    party.owner.ownedParty = null
     masterRepository.saveAll(party.member + party.owner)
 
     partyRepository.delete(party)
@@ -239,7 +238,7 @@ class PartyService(
       return emptySet()
     }
 
-    val party = master.ownedParty ?: master.party ?: return emptySet()
+    val party = master.party ?: return emptySet()
 
     return (party.member.map { it.account.id } + party.owner.account.id).toSet() - accountId
   }

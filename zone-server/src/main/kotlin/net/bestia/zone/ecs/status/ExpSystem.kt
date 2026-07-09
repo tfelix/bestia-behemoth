@@ -2,19 +2,23 @@ package net.bestia.zone.ecs.status
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.player.Master
 import org.springframework.core.annotation.Order
 import kotlin.math.pow
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
 @Order(60)
 class ExpSystem : System {
 
-  override val writes: Set<KClass<out Component>> = setOf(Exp::class, Level::class, SkillPoints::class)
+  override val writes: ComponentClassSet = setOf(
+    Exp::class,
+    Level::class,
+    SkillPoints::class
+  )
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Exp::class, Level::class).each { entityId ->

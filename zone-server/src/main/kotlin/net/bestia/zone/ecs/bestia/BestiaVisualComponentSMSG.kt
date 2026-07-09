@@ -6,7 +6,7 @@ import net.bestia.zone.message.EntitySMSG
 
 data class BestiaVisualComponentSMSG(
   override val entityId: Long,
-  val bestiaId: Int
+  val bestiaId: Long
 ) : EntitySMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

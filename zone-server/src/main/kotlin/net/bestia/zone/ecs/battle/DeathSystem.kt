@@ -4,15 +4,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.player.Account
 import net.bestia.zone.ecs.status.Exp
-import net.bestia.zone.ecs.status.GivenExp
 import net.bestia.zone.ecs.bestia.BestiaVisual
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.EntityDiedEvent
 import org.springframework.core.annotation.Order
-import kotlin.reflect.KClass
 import org.springframework.stereotype.Component as SpringComponent
 
 @SpringComponent
@@ -21,53 +18,51 @@ class DeathSystem(
   private val experienceCalculator: ExperienceCalculator,
 ) : System {
 
-  override val reads: Set<KClass<out Component>> =
-    setOf(Dead::class, GivenExp::class, TakenDamage::class, BestiaVisual::class, Position::class, Account::class)
+  override val reads: ComponentClassSet =
+    setOf(Dead::class, TakenDamage::class, BestiaVisual::class, Position::class, Account::class)
 
-  override val writes: Set<KClass<out Component>> = setOf(Exp::class)
+  override val writes: ComponentClassSet = setOf(Exp::class)
 
   override fun update(world: World, deltaTime: Float) {
-    // Snapshot the dead entities first: iteration mutates other entities (exp) and destroys these.
-    val dead = ArrayList<EntityId>()
-    world.query(Dead::class).each { id -> dead.add(id) }
+    world.query(Dead::class).each { entityId ->
+      LOG.debug { "Entity $entityId is dead" }
+      val damageDealer = world.get(entityId, TakenDamage::class)?.damagePercentages()
+        ?: return@each
 
-    for (id in dead) {
-      LOG.debug { "Entity $id is dead" }
-      val givenExp = world.getOrThrow(id, GivenExp::class).value
-      val damageDealer = world.getOrThrow(id, TakenDamage::class).damagePercentages()
+      val bestiaVisual = world.get(entityId, BestiaVisual::class)
+        ?: return@each
 
-      assignExp(world, givenExp, damageDealer)
+      assignExp(world, bestiaVisual.id, damageDealer)
 
-      val position = world.getOrThrow(id, Position::class).toVec3L()
-      val lootBestiaId = world.get(id, BestiaVisual::class)?.id?.toLong()
+      val position = world.get(entityId, Position::class)?.toVec3L()
+        ?: return@each
+      val lootBestiaId = world.get(entityId, BestiaVisual::class)?.id?.toLong()
 
-      world.emit(EntityDiedEvent(entityId = id, position = position, lootBestiaId = lootBestiaId))
+      // TODO SPAWN LOOT       spawnLoot(world, position, lootBestiaId)
 
-      world.destroy(id)
+      world.destroy(entityId)
     }
   }
 
   private fun assignExp(
     world: World,
-    givenExp: Int,
+    bestiaId: Long,
     damageDealer: Map<EntityId, Float>,
   ) {
-    LOG.debug { "Distribute $givenExp EXP to $damageDealer" }
-
+    // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
       .mapNotNull { world.get(it, Account::class)?.accountId }
       .distinct()
       .size
 
-    val earnedExp = experienceCalculator.calculate(givenExp, damageDealer, attackingPlayerCount)
+    // the experience calculator requires a DB lookup so we defer the call.
+    world.defer {
+      val earnedExp = experienceCalculator.calculate(bestiaId, damageDealer, attackingPlayerCount)
 
-    earnedExp.forEach { (entityId, receivedExp) ->
-      if (!world.isAlive(entityId)) return@forEach
-
-      val exp = world.get(entityId, Exp::class) ?: world.add(entityId, Exp())
-      exp.value += receivedExp
-
-      world.markChanged(entityId, Exp::class)
+      earnedExp.forEach { (entityId, receivedExp) ->
+        LOG.debug { "Entity $entityId received $receivedExp EXP" }
+        world.update(entityId, { Exp() }) { exp -> exp.value += receivedExp }
+      }
     }
   }
 

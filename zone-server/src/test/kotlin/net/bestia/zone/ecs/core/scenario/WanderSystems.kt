@@ -1,11 +1,11 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import org.springframework.stereotype.Component as SpringComponent
-import kotlin.reflect.KClass
 
 /**
  * Idle-wander AI: periodically picks a new deterministic direction and writes it
@@ -18,8 +18,8 @@ import kotlin.reflect.KClass
 @SpringComponent
 class WanderSystem : System {
   override val schedule = Schedule.EverySeconds(0.05f)
-  override val reads: Set<KClass<out Component>> = setOf(Wander::class)
-  override val writes: Set<KClass<out Component>> = setOf(Velocity::class)
+  override val reads: ComponentClassSet = setOf(Wander::class)
+  override val writes: ComponentClassSet = setOf(Velocity::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Velocity::class, Wander::class).each { id ->
@@ -47,8 +47,8 @@ class WanderSystem : System {
 @SpringComponent
 class MovementSystem : System {
   override val schedule = Schedule.EveryTick
-  override val reads: Set<KClass<out Component>> = setOf(Velocity::class)
-  override val writes: Set<KClass<out Component>> = setOf(Position::class)
+  override val reads: ComponentClassSet = setOf(Velocity::class)
+  override val writes: ComponentClassSet = setOf(Position::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Position::class, Velocity::class).each { id ->
@@ -72,7 +72,7 @@ class MovementSystem : System {
 @SpringComponent
 class HealthRegenSystem : System {
   override val schedule = Schedule.EverySeconds(0.1f)
-  override val writes: Set<KClass<out Component>> = setOf(Health::class)
+  override val writes: ComponentClassSet = setOf(Health::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Health::class).each { id ->

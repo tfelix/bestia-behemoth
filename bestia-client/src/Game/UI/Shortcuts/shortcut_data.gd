@@ -1,11 +1,11 @@
 extends Resource
 class_name ShortcutData
 
-enum ShortcutType { NONE, ITEM, ATTACK }
+enum ShortcutType { NONE, ITEM, SKILL }
 
 @export var type: ShortcutType = ShortcutType.NONE
 @export var reference_id: int = -1  # item_id or attack_id
-@export var skill_level: int = 1  # only meaningful when type == ATTACK
+@export var skill_level: int = 1  # only meaningful when type == SKILL
 
 
 func is_empty() -> bool:

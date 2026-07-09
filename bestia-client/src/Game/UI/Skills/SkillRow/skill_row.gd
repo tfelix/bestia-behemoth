@@ -101,10 +101,10 @@ func _gui_input(event: InputEvent) -> void:
 
 
 ## Allows a learned skill to be dragged onto a hotbar shortcut slot at the currently
-## selected level (see ShortcutContainer._can_drop_data, which already accepts "attack").
+## selected level (see ShortcutContainer._can_drop_data, which already accepts "skill").
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if _disabled:
-		return null
+	#if _disabled:
+	#	return null
 
 	var preview: TextureRect = TextureRect.new()
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -113,4 +113,4 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.texture = _icon.texture
 	set_drag_preview(preview)
 
-	return {"type": "attack", "id": attack_id, "level": _selected_skill_level}
+	return {"type": "skill", "id": attack_id, "level": _selected_skill_level}
