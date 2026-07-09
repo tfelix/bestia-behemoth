@@ -94,7 +94,7 @@ func _to_shortcut_dict(data: ShortcutData) -> Dictionary:
 		ShortcutData.ShortcutType.ITEM:
 			return {"type": "item", "id": data.reference_id}
 		ShortcutData.ShortcutType.ATTACK:
-			return {"type": "attack", "id": data.reference_id}
+			return {"type": "attack", "id": data.reference_id, "level": data.skill_level}
 
 	return {}
 
@@ -137,6 +137,7 @@ func set_shortcut(data: Dictionary) -> void:
 	elif data["type"] == "attack":
 		_shortcut_data.type = ShortcutData.ShortcutType.ATTACK
 		_shortcut_data.reference_id = data["id"]
+		_shortcut_data.skill_level = data.get("level", 1)
 
 	_update_display()
 	shortcut_changed.emit(shortcut_row, shortcut_number, _shortcut_data)
@@ -207,9 +208,4 @@ func _use_item() -> void:
 
 
 func _use_attack() -> void:
-	# TODO: Send attack message to server
-	print("ShortcutContainer: Using attack with ID: ", _shortcut_data.reference_id)
-	# Placeholder for server communication
-	# var attack_msg = AttackEntityCMSG.new()
-	# attack_msg.UsedAttackId = _shortcut_data.reference_id
-	# BnetSocket.send_message(attack_msg)
+	ConnectionManager.activate_skill(_shortcut_data.reference_id, _shortcut_data.skill_level)

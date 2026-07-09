@@ -53,60 +53,65 @@ namespace Bnet {
             "dC9za2lsbF9wb2ludHNfc21zZy5wcm90bxoobWVzc2FnZXMvY29tcG9uZW50",
             "L3NraWxsX2xpc3Rfc21zZy5wcm90bxotbWVzc2FnZXMvbWFzdGVyL2ludmVz",
             "dF9za2lsbF9wb2ludF9jbXNnLnByb3RvGiVtZXNzYWdlcy9tYXN0ZXIvZ2V0",
-            "X3NraWxsc19jbXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvYXR0YWNrX2Vu",
-            "dGl0eV9jbXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvdmFuaXNoX2VudGl0",
-            "eV9zbXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvZGFtYWdlX2VudGl0eV9z",
-            "bXNnLnByb3RvGittZXNzYWdlcy9pbnZlbnRvcnkvZ2V0X2ludmVudG9yeV9j",
-            "bXNnLnByb3RvGiZtZXNzYWdlcy9pbnZlbnRvcnkvdXNlX2l0ZW1fY21zZy5w",
-            "cm90bxonbWVzc2FnZXMvaW52ZW50b3J5L2Ryb3BfaXRlbV9jbXNnLnByb3Rv",
-            "GidtZXNzYWdlcy9pbnZlbnRvcnkvbG9vdF9pdGVtX2Ntc2cucHJvdG8i1g4K",
-            "CEVudmVsb3BlEjMKEW9wZXJhdGlvbl9zdWNjZXNzGAEgASgLMhYuYm5ldC5P",
-            "cGVyYXRpb25TdWNjZXNzSAASLwoPb3BlcmF0aW9uX2Vycm9yGAIgASgLMhQu",
-            "Ym5ldC5PcGVyYXRpb25FcnJvckgAEi4KDmF1dGhlbnRpY2F0aW9uGGQgASgL",
-            "MhQuYm5ldC5BdXRoZW50aWNhdGlvbkgAEioKDGRpc2Nvbm5lY3RlZBhlIAEo",
-            "CzISLmJuZXQuRGlzY29ubmVjdGVkSAASPQoWYXV0aGVudGljYXRpb25fc3Vj",
-            "Y2VzcxhmIAEoCzIbLmJuZXQuQXV0aGVudGljYXRpb25TdWNjZXNzSAASGgoE",
-            "cGluZxh4IAEoCzIKLmJuZXQuUGluZ0gAEhoKBHBvbmcYeSABKAsyCi5ibmV0",
-            "LlBvbmdIABIjCgljaGF0X2Ntc2cYeiABKAsyDi5ibmV0LkNoYXRDTVNHSAAS",
-            "IwoJY2hhdF9zbXNnGHsgASgLMg4uYm5ldC5DaGF0U01TR0gAEjAKDWdldF9p",
-            "bnZlbnRvcnkYrQIgASgLMhYuYm5ldC5HZXRJbnZlbnRvcnlDTVNHSAASJgoI",
-            "dXNlX2l0ZW0YrgIgASgLMhEuYm5ldC5Vc2VJdGVtQ01TR0gAEigKCWRyb3Bf",
-            "aXRlbRivAiABKAsyEi5ibmV0LkRyb3BJdGVtQ01TR0gAEigKCWxvb3RfaXRl",
-            "bRiwAiABKAsyEi5ibmV0Lkxvb3RJdGVtQ01TR0gAEioKCmdldF9tYXN0ZXIY",
-            "kQMgASgLMhMuYm5ldC5HZXRNYXN0ZXJDTVNHSAASHwoGbWFzdGVyGJIDIAEo",
-            "CzIMLmJuZXQuTWFzdGVySAASMAoNc2VsZWN0X21hc3RlchiTAyABKAsyFi5i",
-            "bmV0LlNlbGVjdE1hc3RlckNNU0dIABImCghnZXRfc2VsZhiUAyABKAsyES5i",
-            "bmV0LkdldFNlbGZDTVNHSAASHwoEc2VsZhiVAyABKAsyDi5ibmV0LlNlbGZT",
-            "TVNHSAASOQoSaW52ZXN0X3NraWxsX3BvaW50GJYDIAEoCzIaLmJuZXQuSW52",
-            "ZXN0U2tpbGxQb2ludENNU0dIABIqCgpnZXRfc2tpbGxzGJcDIAEoCzITLmJu",
-            "ZXQuR2V0U2tpbGxzQ01TR0gAEjkKFHNlbGVjdF9hY3RpdmVfZW50aXR5GPQD",
-            "IAEoCzIYLmJuZXQuU2VsZWN0QWN0aXZlRW50aXR5SAASNQoSbW92ZV9hY3Rp",
-            "dmVfZW50aXR5GPUDIAEoCzIWLmJuZXQuTW92ZUFjdGl2ZUVudGl0eUgAEjEK",
-            "EGdldF9hbGxfZW50aXRpZXMY9gMgASgLMhQuYm5ldC5HZXRBbGxFbnRpdGll",
-            "c0gAEjAKDWF0dGFja19lbnRpdHkY9wMgASgLMhYuYm5ldC5BdHRhY2tFbnRp",
-            "dHlDTVNHSAASMAoNdmFuaXNoX2VudGl0eRj4AyABKAsyFi5ibmV0LlZhbmlz",
-            "aEVudGl0eVNNU0dIABIwCg1kYW1hZ2VfZW50aXR5GPkDIAEoCzIWLmJuZXQu",
-            "RGFtYWdlRW50aXR5U01TR0gAEjEKDWNvbXBfcG9zaXRpb24Y/gMgASgLMhcu",
-            "Ym5ldC5Qb3NpdGlvbkNvbXBvbmVudEgAEjoKEmNvbXBfYmVzdGlhX3Zpc3Vh",
-            "bBj/AyABKAsyGy5ibmV0LkJlc3RpYVZpc3VhbENvbXBvbmVudEgAEjYKEGNv",
-            "bXBfaXRlbV92aXN1YWwYgAQgASgLMhkuYm5ldC5JdGVtVmlzdWFsQ29tcG9u",
-            "ZW50SAASPgoSY29tcF9tYXN0ZXJfdmlzdWFsGIIEIAEoCzIfLmJuZXQuTWFz",
-            "dGVyVmlzdWFsQ29tcG9uZW50U01TR0gAEi0KCWNvbXBfcGF0aBiDBCABKAsy",
-            "Fy5ibmV0LlBhdGhDb21wb25lbnRTTVNHSAASLwoKY29tcF9zcGVlZBiEBCAB",
-            "KAsyGC5ibmV0LlNwZWVkQ29tcG9uZW50U01TR0gAEisKCGNvbXBfZXhwGIUE",
-            "IAEoCzIWLmJuZXQuRXhwQ29tcG9uZW50U01TR0gAEi8KCmNvbXBfbGV2ZWwY",
-            "hgQgASgLMhguYm5ldC5MZXZlbENvbXBvbmVudFNNU0dIABItCgljb21wX21h",
-            "bmEYhwQgASgLMhcuYm5ldC5NYW5hQ29tcG9uZW50U01TR0gAEjEKC2NvbXBf",
-            "aGVhbHRoGIgEIAEoCzIZLmJuZXQuSGVhbHRoQ29tcG9uZW50U01TR0gAEjcK",
-            "DmNvbXBfaW52ZW50b3J5GIkEIAEoCzIcLmJuZXQuSW52ZW50b3J5Q29tcG9u",
-            "ZW50U01TR0gAEjMKEWNvbXBfc2tpbGxfcG9pbnRzGIsEIAEoCzIVLmJuZXQu",
-            "U2tpbGxQb2ludHNTTVNHSAASLwoPY29tcF9za2lsbF9saXN0GIwEIAEoCzIT",
-            "LmJuZXQuU2tpbGxMaXN0U01TR0gAQgkKB21lc3NhZ2VCJgoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQg1FbnZlbG9wZVByb3RvYgZwcm90bzM="));
+            "X3NraWxsc19jbXNnLnByb3RvGiltZXNzYWdlcy9tYXN0ZXIvYWN0aXZhdGVf",
+            "c2tpbGxfY21zZy5wcm90bxoqbWVzc2FnZXMvbWFzdGVyL3NraWxsX2FjdGl2",
+            "YXRlZF9zbXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvYXR0YWNrX2VudGl0",
+            "eV9jbXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvdmFuaXNoX2VudGl0eV9z",
+            "bXNnLnByb3RvGihtZXNzYWdlcy9lbnRpdHkvZGFtYWdlX2VudGl0eV9zbXNn",
+            "LnByb3RvGittZXNzYWdlcy9pbnZlbnRvcnkvZ2V0X2ludmVudG9yeV9jbXNn",
+            "LnByb3RvGiZtZXNzYWdlcy9pbnZlbnRvcnkvdXNlX2l0ZW1fY21zZy5wcm90",
+            "bxonbWVzc2FnZXMvaW52ZW50b3J5L2Ryb3BfaXRlbV9jbXNnLnByb3RvGidt",
+            "ZXNzYWdlcy9pbnZlbnRvcnkvbG9vdF9pdGVtX2Ntc2cucHJvdG8iwA8KCEVu",
+            "dmVsb3BlEjMKEW9wZXJhdGlvbl9zdWNjZXNzGAEgASgLMhYuYm5ldC5PcGVy",
+            "YXRpb25TdWNjZXNzSAASLwoPb3BlcmF0aW9uX2Vycm9yGAIgASgLMhQuYm5l",
+            "dC5PcGVyYXRpb25FcnJvckgAEi4KDmF1dGhlbnRpY2F0aW9uGGQgASgLMhQu",
+            "Ym5ldC5BdXRoZW50aWNhdGlvbkgAEioKDGRpc2Nvbm5lY3RlZBhlIAEoCzIS",
+            "LmJuZXQuRGlzY29ubmVjdGVkSAASPQoWYXV0aGVudGljYXRpb25fc3VjY2Vz",
+            "cxhmIAEoCzIbLmJuZXQuQXV0aGVudGljYXRpb25TdWNjZXNzSAASGgoEcGlu",
+            "Zxh4IAEoCzIKLmJuZXQuUGluZ0gAEhoKBHBvbmcYeSABKAsyCi5ibmV0LlBv",
+            "bmdIABIjCgljaGF0X2Ntc2cYeiABKAsyDi5ibmV0LkNoYXRDTVNHSAASIwoJ",
+            "Y2hhdF9zbXNnGHsgASgLMg4uYm5ldC5DaGF0U01TR0gAEjAKDWdldF9pbnZl",
+            "bnRvcnkYrQIgASgLMhYuYm5ldC5HZXRJbnZlbnRvcnlDTVNHSAASJgoIdXNl",
+            "X2l0ZW0YrgIgASgLMhEuYm5ldC5Vc2VJdGVtQ01TR0gAEigKCWRyb3BfaXRl",
+            "bRivAiABKAsyEi5ibmV0LkRyb3BJdGVtQ01TR0gAEigKCWxvb3RfaXRlbRiw",
+            "AiABKAsyEi5ibmV0Lkxvb3RJdGVtQ01TR0gAEioKCmdldF9tYXN0ZXIYkQMg",
+            "ASgLMhMuYm5ldC5HZXRNYXN0ZXJDTVNHSAASHwoGbWFzdGVyGJIDIAEoCzIM",
+            "LmJuZXQuTWFzdGVySAASMAoNc2VsZWN0X21hc3RlchiTAyABKAsyFi5ibmV0",
+            "LlNlbGVjdE1hc3RlckNNU0dIABImCghnZXRfc2VsZhiUAyABKAsyES5ibmV0",
+            "LkdldFNlbGZDTVNHSAASHwoEc2VsZhiVAyABKAsyDi5ibmV0LlNlbGZTTVNH",
+            "SAASOQoSaW52ZXN0X3NraWxsX3BvaW50GJYDIAEoCzIaLmJuZXQuSW52ZXN0",
+            "U2tpbGxQb2ludENNU0dIABIqCgpnZXRfc2tpbGxzGJcDIAEoCzITLmJuZXQu",
+            "R2V0U2tpbGxzQ01TR0gAEjIKDmFjdGl2YXRlX3NraWxsGJgDIAEoCzIXLmJu",
+            "ZXQuQWN0aXZhdGVTa2lsbENNU0dIABI5ChRzZWxlY3RfYWN0aXZlX2VudGl0",
+            "eRj0AyABKAsyGC5ibmV0LlNlbGVjdEFjdGl2ZUVudGl0eUgAEjUKEm1vdmVf",
+            "YWN0aXZlX2VudGl0eRj1AyABKAsyFi5ibmV0Lk1vdmVBY3RpdmVFbnRpdHlI",
+            "ABIxChBnZXRfYWxsX2VudGl0aWVzGPYDIAEoCzIULmJuZXQuR2V0QWxsRW50",
+            "aXRpZXNIABIwCg1hdHRhY2tfZW50aXR5GPcDIAEoCzIWLmJuZXQuQXR0YWNr",
+            "RW50aXR5Q01TR0gAEjAKDXZhbmlzaF9lbnRpdHkY+AMgASgLMhYuYm5ldC5W",
+            "YW5pc2hFbnRpdHlTTVNHSAASMAoNZGFtYWdlX2VudGl0eRj5AyABKAsyFi5i",
+            "bmV0LkRhbWFnZUVudGl0eVNNU0dIABI0Cg9za2lsbF9hY3RpdmF0ZWQY+gMg",
+            "ASgLMhguYm5ldC5Ta2lsbEFjdGl2YXRlZFNNU0dIABIxCg1jb21wX3Bvc2l0",
+            "aW9uGP4DIAEoCzIXLmJuZXQuUG9zaXRpb25Db21wb25lbnRIABI6ChJjb21w",
+            "X2Jlc3RpYV92aXN1YWwY/wMgASgLMhsuYm5ldC5CZXN0aWFWaXN1YWxDb21w",
+            "b25lbnRIABI2ChBjb21wX2l0ZW1fdmlzdWFsGIAEIAEoCzIZLmJuZXQuSXRl",
+            "bVZpc3VhbENvbXBvbmVudEgAEj4KEmNvbXBfbWFzdGVyX3Zpc3VhbBiCBCAB",
+            "KAsyHy5ibmV0Lk1hc3RlclZpc3VhbENvbXBvbmVudFNNU0dIABItCgljb21w",
+            "X3BhdGgYgwQgASgLMhcuYm5ldC5QYXRoQ29tcG9uZW50U01TR0gAEi8KCmNv",
+            "bXBfc3BlZWQYhAQgASgLMhguYm5ldC5TcGVlZENvbXBvbmVudFNNU0dIABIr",
+            "Cghjb21wX2V4cBiFBCABKAsyFi5ibmV0LkV4cENvbXBvbmVudFNNU0dIABIv",
+            "Cgpjb21wX2xldmVsGIYEIAEoCzIYLmJuZXQuTGV2ZWxDb21wb25lbnRTTVNH",
+            "SAASLQoJY29tcF9tYW5hGIcEIAEoCzIXLmJuZXQuTWFuYUNvbXBvbmVudFNN",
+            "U0dIABIxCgtjb21wX2hlYWx0aBiIBCABKAsyGS5ibmV0LkhlYWx0aENvbXBv",
+            "bmVudFNNU0dIABI3Cg5jb21wX2ludmVudG9yeRiJBCABKAsyHC5ibmV0Lklu",
+            "dmVudG9yeUNvbXBvbmVudFNNU0dIABIzChFjb21wX3NraWxsX3BvaW50cxiL",
+            "BCABKAsyFS5ibmV0LlNraWxsUG9pbnRzU01TR0gAEi8KD2NvbXBfc2tpbGxf",
+            "bGlzdBiMBCABKAsyEy5ibmV0LlNraWxsTGlzdFNNU0dIAEIJCgdtZXNzYWdl",
+            "QiYKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0INRW52ZWxvcGVQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.SkillActivatedSmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetInventory", "UseItem", "DropItem", "LootItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "GetInventory", "UseItem", "DropItem", "LootItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "SkillActivated", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -209,6 +214,9 @@ namespace Bnet {
         case MessageOneofCase.GetSkills:
           GetSkills = other.GetSkills.Clone();
           break;
+        case MessageOneofCase.ActivateSkill:
+          ActivateSkill = other.ActivateSkill.Clone();
+          break;
         case MessageOneofCase.SelectActiveEntity:
           SelectActiveEntity = other.SelectActiveEntity.Clone();
           break;
@@ -226,6 +234,9 @@ namespace Bnet {
           break;
         case MessageOneofCase.DamageEntity:
           DamageEntity = other.DamageEntity.Clone();
+          break;
+        case MessageOneofCase.SkillActivated:
+          SkillActivated = other.SkillActivated.Clone();
           break;
         case MessageOneofCase.CompPosition:
           CompPosition = other.CompPosition.Clone();
@@ -526,6 +537,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "activate_skill" field.</summary>
+    public const int ActivateSkillFieldNumber = 408;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ActivateSkillCMSG ActivateSkill {
+      get { return messageCase_ == MessageOneofCase.ActivateSkill ? (global::Bnet.ActivateSkillCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.ActivateSkill;
+      }
+    }
+
     /// <summary>Field number for the "select_active_entity" field.</summary>
     public const int SelectActiveEntityFieldNumber = 500;
     /// <summary>
@@ -598,6 +621,18 @@ namespace Bnet {
       set {
         message_ = value;
         messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.DamageEntity;
+      }
+    }
+
+    /// <summary>Field number for the "skill_activated" field.</summary>
+    public const int SkillActivatedFieldNumber = 506;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SkillActivatedSMSG SkillActivated {
+      get { return messageCase_ == MessageOneofCase.SkillActivated ? (global::Bnet.SkillActivatedSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SkillActivated;
       }
     }
 
@@ -781,12 +816,14 @@ namespace Bnet {
       Self = 405,
       InvestSkillPoint = 406,
       GetSkills = 407,
+      ActivateSkill = 408,
       SelectActiveEntity = 500,
       MoveActiveEntity = 501,
       GetAllEntities = 502,
       AttackEntity = 503,
       VanishEntity = 504,
       DamageEntity = 505,
+      SkillActivated = 506,
       CompPosition = 510,
       CompBestiaVisual = 511,
       CompItemVisual = 512,
@@ -850,12 +887,14 @@ namespace Bnet {
       if (!object.Equals(Self, other.Self)) return false;
       if (!object.Equals(InvestSkillPoint, other.InvestSkillPoint)) return false;
       if (!object.Equals(GetSkills, other.GetSkills)) return false;
+      if (!object.Equals(ActivateSkill, other.ActivateSkill)) return false;
       if (!object.Equals(SelectActiveEntity, other.SelectActiveEntity)) return false;
       if (!object.Equals(MoveActiveEntity, other.MoveActiveEntity)) return false;
       if (!object.Equals(GetAllEntities, other.GetAllEntities)) return false;
       if (!object.Equals(AttackEntity, other.AttackEntity)) return false;
       if (!object.Equals(VanishEntity, other.VanishEntity)) return false;
       if (!object.Equals(DamageEntity, other.DamageEntity)) return false;
+      if (!object.Equals(SkillActivated, other.SkillActivated)) return false;
       if (!object.Equals(CompPosition, other.CompPosition)) return false;
       if (!object.Equals(CompBestiaVisual, other.CompBestiaVisual)) return false;
       if (!object.Equals(CompItemVisual, other.CompItemVisual)) return false;
@@ -897,12 +936,14 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.Self) hash ^= Self.GetHashCode();
       if (messageCase_ == MessageOneofCase.InvestSkillPoint) hash ^= InvestSkillPoint.GetHashCode();
       if (messageCase_ == MessageOneofCase.GetSkills) hash ^= GetSkills.GetHashCode();
+      if (messageCase_ == MessageOneofCase.ActivateSkill) hash ^= ActivateSkill.GetHashCode();
       if (messageCase_ == MessageOneofCase.SelectActiveEntity) hash ^= SelectActiveEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.MoveActiveEntity) hash ^= MoveActiveEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.GetAllEntities) hash ^= GetAllEntities.GetHashCode();
       if (messageCase_ == MessageOneofCase.AttackEntity) hash ^= AttackEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.VanishEntity) hash ^= VanishEntity.GetHashCode();
       if (messageCase_ == MessageOneofCase.DamageEntity) hash ^= DamageEntity.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SkillActivated) hash ^= SkillActivated.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompPosition) hash ^= CompPosition.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompBestiaVisual) hash ^= CompBestiaVisual.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompItemVisual) hash ^= CompItemVisual.GetHashCode();
@@ -1015,6 +1056,10 @@ namespace Bnet {
         output.WriteRawTag(186, 25);
         output.WriteMessage(GetSkills);
       }
+      if (messageCase_ == MessageOneofCase.ActivateSkill) {
+        output.WriteRawTag(194, 25);
+        output.WriteMessage(ActivateSkill);
+      }
       if (messageCase_ == MessageOneofCase.SelectActiveEntity) {
         output.WriteRawTag(162, 31);
         output.WriteMessage(SelectActiveEntity);
@@ -1038,6 +1083,10 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.DamageEntity) {
         output.WriteRawTag(202, 31);
         output.WriteMessage(DamageEntity);
+      }
+      if (messageCase_ == MessageOneofCase.SkillActivated) {
+        output.WriteRawTag(210, 31);
+        output.WriteMessage(SkillActivated);
       }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         output.WriteRawTag(242, 31);
@@ -1181,6 +1230,10 @@ namespace Bnet {
         output.WriteRawTag(186, 25);
         output.WriteMessage(GetSkills);
       }
+      if (messageCase_ == MessageOneofCase.ActivateSkill) {
+        output.WriteRawTag(194, 25);
+        output.WriteMessage(ActivateSkill);
+      }
       if (messageCase_ == MessageOneofCase.SelectActiveEntity) {
         output.WriteRawTag(162, 31);
         output.WriteMessage(SelectActiveEntity);
@@ -1204,6 +1257,10 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.DamageEntity) {
         output.WriteRawTag(202, 31);
         output.WriteMessage(DamageEntity);
+      }
+      if (messageCase_ == MessageOneofCase.SkillActivated) {
+        output.WriteRawTag(210, 31);
+        output.WriteMessage(SkillActivated);
       }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         output.WriteRawTag(242, 31);
@@ -1327,6 +1384,9 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.GetSkills) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(GetSkills);
       }
+      if (messageCase_ == MessageOneofCase.ActivateSkill) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(ActivateSkill);
+      }
       if (messageCase_ == MessageOneofCase.SelectActiveEntity) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(SelectActiveEntity);
       }
@@ -1344,6 +1404,9 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.DamageEntity) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(DamageEntity);
+      }
+      if (messageCase_ == MessageOneofCase.SkillActivated) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SkillActivated);
       }
       if (messageCase_ == MessageOneofCase.CompPosition) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompPosition);
@@ -1517,6 +1580,12 @@ namespace Bnet {
           }
           GetSkills.MergeFrom(other.GetSkills);
           break;
+        case MessageOneofCase.ActivateSkill:
+          if (ActivateSkill == null) {
+            ActivateSkill = new global::Bnet.ActivateSkillCMSG();
+          }
+          ActivateSkill.MergeFrom(other.ActivateSkill);
+          break;
         case MessageOneofCase.SelectActiveEntity:
           if (SelectActiveEntity == null) {
             SelectActiveEntity = new global::Bnet.SelectActiveEntity();
@@ -1552,6 +1621,12 @@ namespace Bnet {
             DamageEntity = new global::Bnet.DamageEntitySMSG();
           }
           DamageEntity.MergeFrom(other.DamageEntity);
+          break;
+        case MessageOneofCase.SkillActivated:
+          if (SkillActivated == null) {
+            SkillActivated = new global::Bnet.SkillActivatedSMSG();
+          }
+          SkillActivated.MergeFrom(other.SkillActivated);
           break;
         case MessageOneofCase.CompPosition:
           if (CompPosition == null) {
@@ -1828,6 +1903,15 @@ namespace Bnet {
             GetSkills = subBuilder;
             break;
           }
+          case 3266: {
+            global::Bnet.ActivateSkillCMSG subBuilder = new global::Bnet.ActivateSkillCMSG();
+            if (messageCase_ == MessageOneofCase.ActivateSkill) {
+              subBuilder.MergeFrom(ActivateSkill);
+            }
+            input.ReadMessage(subBuilder);
+            ActivateSkill = subBuilder;
+            break;
+          }
           case 4002: {
             global::Bnet.SelectActiveEntity subBuilder = new global::Bnet.SelectActiveEntity();
             if (messageCase_ == MessageOneofCase.SelectActiveEntity) {
@@ -1880,6 +1964,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             DamageEntity = subBuilder;
+            break;
+          }
+          case 4050: {
+            global::Bnet.SkillActivatedSMSG subBuilder = new global::Bnet.SkillActivatedSMSG();
+            if (messageCase_ == MessageOneofCase.SkillActivated) {
+              subBuilder.MergeFrom(SkillActivated);
+            }
+            input.ReadMessage(subBuilder);
+            SkillActivated = subBuilder;
             break;
           }
           case 4082: {
@@ -2194,6 +2287,15 @@ namespace Bnet {
             GetSkills = subBuilder;
             break;
           }
+          case 3266: {
+            global::Bnet.ActivateSkillCMSG subBuilder = new global::Bnet.ActivateSkillCMSG();
+            if (messageCase_ == MessageOneofCase.ActivateSkill) {
+              subBuilder.MergeFrom(ActivateSkill);
+            }
+            input.ReadMessage(subBuilder);
+            ActivateSkill = subBuilder;
+            break;
+          }
           case 4002: {
             global::Bnet.SelectActiveEntity subBuilder = new global::Bnet.SelectActiveEntity();
             if (messageCase_ == MessageOneofCase.SelectActiveEntity) {
@@ -2246,6 +2348,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             DamageEntity = subBuilder;
+            break;
+          }
+          case 4050: {
+            global::Bnet.SkillActivatedSMSG subBuilder = new global::Bnet.SkillActivatedSMSG();
+            if (messageCase_ == MessageOneofCase.SkillActivated) {
+              subBuilder.MergeFrom(SkillActivated);
+            }
+            input.ReadMessage(subBuilder);
+            SkillActivated = subBuilder;
             break;
           }
           case 4082: {

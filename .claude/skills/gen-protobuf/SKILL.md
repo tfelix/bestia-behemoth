@@ -9,14 +9,16 @@ Run this skill after modifying any `.proto` file in `bnet-messages/src/main/prot
 
 ## How to run
 
-Open a terminal (Powershell), navigate into the `bnet-messages` directory, and execute the batch file:
+Run the batch file from anywhere — it does not need `bnet-messages/` to be the
+current directory:
 
 ```
-cd bnet-messages
-.\gen-protobuf.bat
+bnet-messages/gen-protobuf.bat
 ```
 
-`protoc.exe` lives in `bnet-messages/` alongside the script — it must be run from that directory so the executable is found.
+`protoc.exe` lives in `bnet-messages/` alongside the script. The script resolves it
+(and every proto/output path) via `%~dp0`, its own location, so it does **not** rely
+on `protoc.exe` being on `PATH` or on the caller's working directory.
 
 ## What it does
 

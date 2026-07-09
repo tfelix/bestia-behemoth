@@ -5,6 +5,7 @@ enum ShortcutType { NONE, ITEM, ATTACK }
 
 @export var type: ShortcutType = ShortcutType.NONE
 @export var reference_id: int = -1  # item_id or attack_id
+@export var skill_level: int = 1  # only meaningful when type == ATTACK
 
 
 func is_empty() -> bool:
@@ -14,12 +15,14 @@ func is_empty() -> bool:
 func clear() -> void:
 	type = ShortcutType.NONE
 	reference_id = -1
+	skill_level = 1
 
 
 func to_dict() -> Dictionary:
 	return {
 		"type": ShortcutType.keys()[type],
-		"reference_id": reference_id
+		"reference_id": reference_id,
+		"skill_level": skill_level
 	}
 
 
@@ -32,5 +35,8 @@ static func from_dict(data: Dictionary) -> ShortcutData:
 
 	if data.has("reference_id"):
 		shortcut.reference_id = data["reference_id"]
+
+	if data.has("skill_level"):
+		shortcut.skill_level = data["skill_level"]
 
 	return shortcut

@@ -13,6 +13,7 @@ const SkillRowScene = preload("res://Game/UI/Skills/SkillRow/SkillRow.tscn")
 var _master_entity_id: int = 0
 var _current_entity_id: int = 0
 var _available_skill_points: int = 0
+var _selected_row: Control = null
 
 
 func _ready() -> void:
@@ -48,6 +49,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 func _populate_rows(msg: SkillListSMSG) -> void:
 	for child in _skill_rows.get_children():
 		child.queue_free()
+	_selected_row = null
 
 	for entry in msg.Skills:
 		var attack: AttackResource = AttackDB.get_instance().get_attack(entry.AttackId)
@@ -62,8 +64,24 @@ func _populate_rows(msg: SkillListSMSG) -> void:
 
 		row.set_disabled(!entry.Learned)
 		row.set_can_spend_points(_available_skill_points > 0)
+		row.row_selected.connect(_on_row_selected)
 
 	_perform_skill_search()
+
+
+## Highlights whichever row was last clicked so the footer's Use button knows what to
+## activate - rows have no standing selection state of their own beyond this.
+func _on_row_selected(row: Control) -> void:
+	if _selected_row and is_instance_valid(_selected_row):
+		_selected_row.set_selected(false)
+	_selected_row = row
+	_selected_row.set_selected(true)
+
+
+func _on_use_button_pressed() -> void:
+	if _selected_row == null or not is_instance_valid(_selected_row):
+		return
+	ConnectionManager.activate_skill(_selected_row.attack_id, _selected_row.get_selected_level())
 
 
 ## Broadcasts the current spendable skill point count to every row so a SpendSkillPointButton
@@ -77,6 +95,13 @@ func _update_skill_row_buttons() -> void:
 func _on_clear_button_pressed() -> void:
 	_search_line_edit.text = ""
 	_perform_skill_search()
+
+
+## Skills is instantiated as a WidgetWindow's content (see ui.gd), so hiding
+## this panel alone would leave the surrounding window visible - hide the
+## parent WidgetWindow instead, mirroring its own title bar close button.
+func _on_close_button_pressed() -> void:
+	get_parent().hide()
 
 
 func _on_search_line_edit_text_changed(_new_text: String) -> void:

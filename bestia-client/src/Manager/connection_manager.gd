@@ -24,6 +24,7 @@ var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
+var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
@@ -103,6 +104,14 @@ func get_inventory() -> void:
 func get_skills() -> void:
 	assert(is_ready_to_send())
 	var msg = GetSkillsCMSG.new()
+	socket.SendMessage(msg)
+
+
+func activate_skill(attack_id: int, skill_level: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ActivateSkillCMSG.new()
+	msg.AttackId = attack_id
+	msg.SkillLevel = skill_level
 	socket.SendMessage(msg)
 
 

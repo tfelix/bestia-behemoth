@@ -146,6 +146,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.VanishEntitySMSG.FromProto(envelope.VanishEntity);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.SkillActivated != null)
+        {
+          var msg = Entity.SkillActivatedSMSG.FromProto(envelope.SkillActivated);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompPosition != null)
         {
           var msg = Entity.PositionComponent.FromProto(envelope.CompPosition);
