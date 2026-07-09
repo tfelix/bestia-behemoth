@@ -3,7 +3,7 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.item.InventoryItemFactory
+import net.bestia.zone.item.inventory.InventoryItemFactory
 import net.bestia.zone.item.ItemRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component

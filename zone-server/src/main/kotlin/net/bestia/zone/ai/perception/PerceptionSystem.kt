@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System as EcsSystem
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order

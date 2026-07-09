@@ -3,7 +3,7 @@ package net.bestia.zone.bestia
 import jakarta.persistence.*
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.InventoryItem
+import net.bestia.zone.item.inventory.InventoryItem
 import net.bestia.zone.battle.skill.LearnedSkill
 
 @Entity

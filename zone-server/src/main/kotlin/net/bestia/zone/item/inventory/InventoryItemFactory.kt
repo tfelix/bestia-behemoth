@@ -1,12 +1,15 @@
-package net.bestia.zone.item
+package net.bestia.zone.item.inventory
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.item.Item
+import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.findByIdentifierOrThrow
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

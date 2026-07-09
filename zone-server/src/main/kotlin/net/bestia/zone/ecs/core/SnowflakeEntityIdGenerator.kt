@@ -1,5 +1,7 @@
 package net.bestia.zone.ecs.core
 
+import net.bestia.zone.util.EntityId
+
 /**
  * Snowflake-style [EntityId] generator (timestamp | node | sequence). Produces ids in the same
  * space the project used before (via the old `net.bestia.zone.ecs.EntityIdGenerator`) so entity ids

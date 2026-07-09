@@ -1,4 +1,4 @@
-package net.bestia.zone.item
+package net.bestia.zone.item.loot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.ItemVisual
@@ -7,6 +7,8 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.entity.VanishEntitySMSG
+import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.data.repository.findByIdOrNull

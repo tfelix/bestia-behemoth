@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaRepository
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import kotlin.math.floor

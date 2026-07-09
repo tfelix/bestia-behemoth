@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.ecs.spawn.Spawner
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.InventoryItemFactory
+import net.bestia.zone.item.inventory.InventoryItemFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.core.Ordered

@@ -5,7 +5,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor

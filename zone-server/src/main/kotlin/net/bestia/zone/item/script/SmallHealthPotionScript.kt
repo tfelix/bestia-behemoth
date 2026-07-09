@@ -2,7 +2,7 @@ package net.bestia.zone.item.script
 
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.message.OutMessageProcessor

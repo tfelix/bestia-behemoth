@@ -3,7 +3,7 @@ package net.bestia.zone.account.master
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Embeddable
 import jakarta.persistence.OneToMany
-import net.bestia.zone.item.InventoryItem
+import net.bestia.zone.item.inventory.InventoryItem
 import net.bestia.zone.item.Item
 
 @Embeddable
@@ -15,7 +15,7 @@ class MasterInventory {
   val items: List<InventoryItem> get() = _items.toList()
 
   fun addItem(master: Master, item: Item, amount: Int) {
-    val existing = _items.firstOrNull { it.item.identifier == item.identifier && it.playerBestia == null }
+    val existing = _items.firstOrNull { it.playerItem.identifier == item.identifier && it.playerBestia == null }
 
     if (existing != null) {
       existing.amount += amount
@@ -29,7 +29,7 @@ class MasterInventory {
       "Amount must be bigger or equal than 0"
     }
 
-    val ownedItem = items.firstOrNull { it.item.identifier == itemIdentifier }
+    val ownedItem = items.firstOrNull { it.playerItem.identifier == itemIdentifier }
     if (ownedItem == null) {
       return false
     } else {
@@ -47,7 +47,7 @@ class MasterInventory {
   }
 
   fun hasItem(itemIdentifier: String, minAmount: Int): Boolean {
-    val ownedAmount = items.firstOrNull { it.item.identifier == itemIdentifier }?.amount
+    val ownedAmount = items.firstOrNull { it.playerItem.identifier == itemIdentifier }?.amount
       ?: return false
 
     return ownedAmount >= minAmount

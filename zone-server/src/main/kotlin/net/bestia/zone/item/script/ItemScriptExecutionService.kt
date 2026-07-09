@@ -1,7 +1,7 @@
 package net.bestia.zone.item.script
 
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.item.Item
 import org.springframework.stereotype.Service

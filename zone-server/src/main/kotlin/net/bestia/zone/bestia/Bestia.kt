@@ -1,7 +1,7 @@
 package net.bestia.zone.bestia
 
 import jakarta.persistence.*
-import net.bestia.zone.item.LootItem
+import net.bestia.zone.item.loot.LootItem
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity

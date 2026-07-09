@@ -5,7 +5,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.item.ItemRepository
-import net.bestia.zone.item.LootItem
+import net.bestia.zone.item.loot.LootItem
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component

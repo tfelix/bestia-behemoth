@@ -5,7 +5,7 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.battle.skill.AttackEntityCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG

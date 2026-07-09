@@ -14,7 +14,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.account.MasterVisual
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -79,7 +79,7 @@ class MasterEntityFactory(
     return Inventory(
       items = master.inventory.items.map { invItem ->
         Inventory.Item(
-          itemId = invItem.item.id.toInt(),
+          itemId = invItem.playerItem.id.toInt(),
           amount = invItem.amount,
           uniqueId = 0
         )

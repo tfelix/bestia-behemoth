@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.behavior
 
 import net.bestia.zone.ai.ecs.Brain
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 
 /**

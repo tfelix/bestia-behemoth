@@ -6,6 +6,8 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -15,7 +17,7 @@ import kotlin.random.Random
 class DropItemHandler(
   private val itemRepository: ItemRepository,
   private val inventoryItemFactory: InventoryItemFactory,
-  private val lootEntityFactory: LootEntityFactory,
+  private val lootItemEntityFactory: LootItemEntityFactory,
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<DropItemCMSG> {
@@ -76,7 +78,7 @@ class DropItemHandler(
 
     // 3. Spawn the ground item entity outside of the entity access block.
     if (dropPos != null) {
-      lootEntityFactory.createLootEntity(itemId = item.id, amount = msg.amount, pos = dropPos)
+      lootItemEntityFactory.createLootEntity(itemId = item.id, amount = msg.amount, pos = dropPos)
     }
 
     return true

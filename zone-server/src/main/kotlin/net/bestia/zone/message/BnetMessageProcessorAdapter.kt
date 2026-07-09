@@ -12,8 +12,8 @@ import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
 import net.bestia.zone.item.DropItemCMSG
-import net.bestia.zone.item.GetInventoryCMSG
-import net.bestia.zone.item.LootItemCMSG
+import net.bestia.zone.item.inventory.GetInventoryCMSG
+import net.bestia.zone.item.loot.LootItemCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.socket.PingCMSG
 import org.springframework.context.event.EventListener

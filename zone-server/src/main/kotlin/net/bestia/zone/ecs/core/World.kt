@@ -1,5 +1,7 @@
 package net.bestia.zone.ecs.core
 
+import net.bestia.zone.util.EntityId
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList

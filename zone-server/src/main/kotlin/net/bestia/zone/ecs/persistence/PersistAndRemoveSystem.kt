@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull

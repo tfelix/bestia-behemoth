@@ -1,0 +1,33 @@
+skills:
+  - id: 1
+    identifier: BLESSING
+    type: NO_DAMAGE
+    script: Blessing
+    needsLineOfSight: true
+
+  - id: 1
+    identifier: DIVINE_PROTECTION
+    type: PASSIVE
+    script: DivineProtection
+
+  - id: 1
+    identifier: COOKING
+    type: NO_DAMAGE
+    script: Cooking
+
+  - id: 2
+    identifier: HEAL
+    type: NO_DAMAGE
+    script: Heal
+    needsLineOfSight: false
+
+  - id: 100
+    identifier: ember
+    type: NO_DAMAGE
+    script: Ember
+    needsLineOfSight: true
+
+  - id: 101
+    identifier: tackle
+    strength: 4
+    type: MELEE_PHYSICAL

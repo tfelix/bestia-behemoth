@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.bestia.BestiaVisualComponentSMSG
 import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
 import net.bestia.zone.ecs.account.MasterVisual
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L

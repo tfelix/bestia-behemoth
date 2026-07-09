@@ -1,0 +1,5 @@
+id: 1
+identifier: BLESSING
+type: NO_DAMAGE
+script: Blessing
+needsLineOfSight: true

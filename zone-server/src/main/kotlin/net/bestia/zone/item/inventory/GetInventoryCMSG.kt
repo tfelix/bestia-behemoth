@@ -1,4 +1,4 @@
-package net.bestia.zone.item
+package net.bestia.zone.item.inventory
 
 import net.bestia.zone.message.CMSG
 

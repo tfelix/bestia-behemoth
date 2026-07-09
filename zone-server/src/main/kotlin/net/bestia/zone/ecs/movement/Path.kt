@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.movement
 
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets

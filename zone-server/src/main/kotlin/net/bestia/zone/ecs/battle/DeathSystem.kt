@@ -7,8 +7,9 @@ import net.bestia.zone.ecs.battle.status.Exp
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
-import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(70)
 class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
+  private val lootItemEntityFactory: LootItemEntityFactory
 ) : System {
 
   override val reads: ComponentClassSet =
@@ -26,19 +28,9 @@ class DeathSystem(
   override fun update(world: World, deltaTime: Float) {
     world.query(Dead::class).each { entityId ->
       LOG.debug { "Entity $entityId is dead" }
-      val damageDealer = world.get(entityId, TakenDamage::class)?.damagePercentages()
-        ?: return@each
 
-      val bestiaVisual = world.get(entityId, BestiaVisual::class)
-        ?: return@each
-
-      assignExp(world, bestiaVisual.id, damageDealer)
-
-      val position = world.get(entityId, Position::class)?.toVec3L()
-        ?: return@each
-      val lootBestiaId = world.get(entityId, BestiaVisual::class)?.id?.toLong()
-
-      // TODO SPAWN LOOT       spawnLoot(world, position, lootBestiaId)
+      assignExp(world, entityId)
+      spawnLoot(world, entityId)
 
       world.destroy(entityId)
     }
@@ -46,9 +38,14 @@ class DeathSystem(
 
   private fun assignExp(
     world: World,
-    bestiaId: Long,
-    damageDealer: Map<EntityId, Float>,
+    entityId: EntityId
   ) {
+    val damageDealer = world.get(entityId, TakenDamage::class)?.damagePercentages()
+      ?: return
+
+    val bestiaVisual = world.get(entityId, BestiaVisual::class)
+      ?: return
+
     // Check which of those are an actual player. Every player bestia has an Account component.
     val attackingPlayerCount = damageDealer.keys
       .mapNotNull { world.get(it, Account::class)?.accountId }
@@ -57,13 +54,30 @@ class DeathSystem(
 
     // the experience calculator requires a DB lookup so we defer the call.
     world.defer {
-      val earnedExp = experienceGainCalculator.calculate(bestiaId, damageDealer, attackingPlayerCount)
+      val earnedExp = experienceGainCalculator.calculate(
+        bestiaVisual.id,
+        damageDealer,
+        attackingPlayerCount
+      )
 
       earnedExp.forEach { (entityId, receivedExp) ->
         LOG.debug { "Entity $entityId received $receivedExp EXP" }
         world.update(entityId, { Exp() }) { exp -> exp.value += receivedExp }
       }
     }
+  }
+
+  private fun spawnLoot(
+    world: World,
+    entityId: Long,
+  ) {
+    val position = world.get(entityId, Position::class)?.toVec3L()
+      ?: return
+
+    val bestiaVisual = world.get(entityId, BestiaVisual::class)
+      ?: return
+
+    lootItemEntityFactory.createLootEntities(bestiaVisual.id, position)
   }
 
   companion object {

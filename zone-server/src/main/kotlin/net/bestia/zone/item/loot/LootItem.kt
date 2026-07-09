@@ -1,7 +1,8 @@
-package net.bestia.zone.item
+package net.bestia.zone.item.loot
 
 import jakarta.persistence.*
 import net.bestia.zone.bestia.Bestia
+import net.bestia.zone.item.Item
 
 /**
  * Items which can be dropped by a bestia when it is killed.
@@ -19,7 +20,7 @@ class LootItem(
   val item: Item,
 
   @Column(nullable = false)
-  val dropChance: Int  // It is fixed point: 1_000 means 100%, 100 is 10%, 10 is 1% and 1 0.1%
+  val dropChance: Int  // It is fixed point: 10_000 means 100%, 1000 is 10%, 100 is 1%, 10 is 1 0.1% and 1 is 0.01%
 
 ) {
   @Id

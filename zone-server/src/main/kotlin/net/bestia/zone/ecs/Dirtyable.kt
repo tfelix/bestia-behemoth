@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs
 
-import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 

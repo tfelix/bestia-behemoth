@@ -1,4 +1,4 @@
-package net.bestia.zone.item
+package net.bestia.zone.item.inventory
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.item.Inventory
