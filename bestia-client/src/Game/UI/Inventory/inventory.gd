@@ -1,4 +1,4 @@
-extends Control
+extends PanelContainer
 class_name Inventory
 
 signal inventory_updated()
@@ -130,7 +130,3 @@ func remove_item(item_id: int, amount: int) -> bool:
 				return true
 			return false
 	return false
-
-
-func _on_close_button_pressed() -> void:
-	hide()

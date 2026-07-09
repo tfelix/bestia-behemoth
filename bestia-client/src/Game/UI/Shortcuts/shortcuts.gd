@@ -3,7 +3,14 @@ class_name Shortcuts
 
 const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
 
-@export var inventory: Inventory = null
+## Assigned by Game/UI/ui.gd after WidgetWindow instantiates the Inventory content, which
+## happens later than this node's own _ready() - so the signal connection can't happen
+## inline here and is deferred to the setter instead.
+@export var inventory: Inventory = null:
+	set(value):
+		inventory = value
+		if is_node_ready():
+			_connect_inventory_signal()
 
 var _shortcut_containers: Array[ShortcutContainer] = []
 
@@ -33,7 +40,11 @@ func _connect_signals() -> void:
 			container.shortcut_changed.connect(_on_shortcut_changed)
 		if not container.item_count_requested.is_connected(_on_item_count_requested):
 			container.item_count_requested.connect(_on_item_count_requested)
-	if inventory:
+	_connect_inventory_signal()
+
+
+func _connect_inventory_signal() -> void:
+	if inventory and not inventory.inventory_updated.is_connected(_on_inventory_updated):
 		inventory.inventory_updated.connect(_on_inventory_updated)
 		print_debug("Shortcuts: Inventory update signal connected")
 

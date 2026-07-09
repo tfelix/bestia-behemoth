@@ -63,6 +63,8 @@ func _populate_rows(msg: SkillListSMSG) -> void:
 		row.set_disabled(!entry.Learned)
 		row.set_can_spend_points(_available_skill_points > 0)
 
+	_perform_skill_search()
+
 
 ## Broadcasts the current spendable skill point count to every row so a SpendSkillPointButton
 ## can hide itself once there are no points left to spend - rows have no standing connection
@@ -77,6 +79,11 @@ func _on_clear_button_pressed() -> void:
 	_perform_skill_search()
 
 
+func _on_search_line_edit_text_changed(_new_text: String) -> void:
+	_perform_skill_search()
+
+
 func _perform_skill_search() -> void:
-	# todo
-	pass
+	var query = _search_line_edit.text.strip_edges().to_lower()
+	for row in _skill_rows.get_children():
+		row.visible = query.is_empty() or row.get_skill_name().to_lower().contains(query)

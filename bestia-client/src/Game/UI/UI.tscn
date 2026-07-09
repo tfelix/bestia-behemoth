@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://cwbs83nwsc1m3" path="res://Game/UI/Inventory/Inventory.tscn" id="5_3d66e"]
 [ext_resource type="PackedScene" uid="uid://dh4io5biq60uv" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
 [ext_resource type="PackedScene" path="res://Game/UI/GroundDropZone/GroundDropZone.tscn" id="7_gdz01"]
-[ext_resource type="Script" uid="uid://dw58wys6ugg2g" path="res://Game/UI/WidgetWindow/widget_window.gd" id="7_x5yep"]
+[ext_resource type="PackedScene" uid="uid://b1nffouceksfy" path="res://Game/UI/WidgetWindow/WidgetWindow.tscn" id="8_wdgtw"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -19,20 +19,20 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_ob0eg")
 
-[node name="GroundDropZone" parent="." unique_id=1787018619 node_paths=PackedStringArray("inventory") instance=ExtResource("7_gdz01")]
+[node name="GroundDropZone" parent="." unique_id=1787018619 instance=ExtResource("7_gdz01")]
 layout_mode = 1
-inventory = NodePath("../Inventory")
 
-[node name="Inventory" parent="." unique_id=1285057893 instance=ExtResource("5_3d66e")]
+[node name="InventoryWin" parent="." unique_id=1285057893 instance=ExtResource("8_wdgtw")]
+layout_mode = 1
 visible = false
-layout_mode = 1
+content = ExtResource("5_3d66e")
+window_title = "Inventory"
 
-[node name="Shortcuts" parent="." unique_id=2132139166 node_paths=PackedStringArray("inventory") instance=ExtResource("4_i53xh")]
+[node name="Shortcuts" parent="." unique_id=2132139166 instance=ExtResource("4_i53xh")]
 layout_mode = 1
 offset_left = -168.0
 offset_top = -136.0
 offset_right = 168.0
-inventory = NodePath("../Inventory")
 
 [node name="MasterProfile" parent="." unique_id=1531017005 instance=ExtResource("1_tk4wv")]
 layout_mode = 1
@@ -46,15 +46,11 @@ layout_mode = 1
 offset_left = 16.0
 offset_right = 586.0
 
-[node name="SkillsWin" type="Window" parent="." unique_id=2084369024]
-oversampling_override = 1.0
-title = "Skills"
-initial_position = 2
+[node name="SkillsWin" parent="." unique_id=2084369024 instance=ExtResource("8_wdgtw")]
+layout_mode = 1
 visible = false
-unresizable = true
-script = ExtResource("7_x5yep")
 content = ExtResource("6_61e43")
-metadata/_custom_type_script = "uid://dw58wys6ugg2g"
+window_title = "Skills"
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

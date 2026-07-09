@@ -2,50 +2,24 @@
 
 [ext_resource type="Script" uid="uid://c2b3bhtie8fk4" path="res://Game/UI/Inventory/inventory.gd" id="1_vui42"]
 
-[node name="Inventory" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-mouse_filter = 2
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="Inventory" type="PanelContainer"]
+offset_right = 759.0
+offset_bottom = 407.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_vui42")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -379.5
-offset_top = -203.5
-offset_right = 379.5
-offset_bottom = 203.5
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(40, 0)
-layout_mode = 2
-size_flags_horizontal = 8
-text = "X"
-
-[node name="ItemTabs" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="ItemTabs" type="TabContainer" parent="MarginContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="Usable" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
+[node name="Usable" type="MarginContainer" parent="MarginContainer/ItemTabs"]
 layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 6
@@ -53,21 +27,19 @@ theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 metadata/_tab_index = 0
 
-[node name="UsableGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs/Usable"]
+[node name="UsableGrid" type="GridContainer" parent="MarginContainer/ItemTabs/Usable"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 8
 
-[node name="Equip" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
+[node name="Equip" type="ItemList" parent="MarginContainer/ItemTabs"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Etc" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/ItemTabs"]
+[node name="Etc" type="ItemList" parent="MarginContainer/ItemTabs"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 2
-
-[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/CloseButton" to="." method="_on_close_button_pressed"]

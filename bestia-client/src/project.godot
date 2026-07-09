@@ -124,7 +124,7 @@ toggle_skills={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://Localization/items.csv")
+locale/translations=PackedStringArray("res://Localization/items.en.translation")
 
 [rendering]
 

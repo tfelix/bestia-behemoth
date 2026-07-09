@@ -16,6 +16,10 @@ var _max_skill_level: int = 1
 var _selected_skill_level: int = 1
 
 
+func get_skill_name() -> String:
+	return _skill_name.text
+
+
 func set_data(p_attack_id: int, p_name: String, p_icon: Texture2D, p_level: int, p_max_level: int, p_mana_cost: int) -> void:
 	attack_id = p_attack_id
 	_skill_name.text = p_name

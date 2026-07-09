@@ -2,9 +2,13 @@
 
 [ext_resource type="Script" uid="uid://olpunab8ao3a" path="res://Game/UI/Skills/skills.gd" id="1_unn6u"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
 [node name="Skills" type="PanelContainer" unique_id=396406679]
 offset_right = 400.0
 offset_bottom = 580.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
 script = ExtResource("1_unn6u")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1511033010]
@@ -56,4 +60,5 @@ text = "Use"
 layout_mode = 2
 text = "Close"
 
+[connection signal="text_changed" from="VBoxContainer/SearchRow/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="pressed" from="VBoxContainer/SearchRow/ClearButton" to="." method="_on_clear_button_pressed"]

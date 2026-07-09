@@ -46,12 +46,14 @@ func _update_position(pos: Vector3) -> void:
 	_position.text = "X: %s, Y: %s, Z: %s" % [pos.x, pos.y, pos.z]
 
 
-func _shortcut_input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_inventory"):
-		get_viewport().set_input_as_handled()
+## Polls the global Input state instead of overriding _shortcut_input: the Skills window is a
+## separate Window (its own viewport), so once it has OS focus, input events are delivered to
+## its viewport and never reach this node - Input.is_action_just_pressed reflects key state
+## application-wide regardless of which window/viewport currently has focus.
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("toggle_inventory"):
 		_toggle_inventory()
-	if event.is_action_pressed("toggle_skills"):
-		get_viewport().set_input_as_handled()
+	if Input.is_action_just_pressed("toggle_skills"):
 		_toggle_skills()
 
 
