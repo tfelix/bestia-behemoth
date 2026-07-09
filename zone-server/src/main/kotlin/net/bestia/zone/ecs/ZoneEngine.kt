@@ -1,7 +1,6 @@
 package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import jakarta.annotation.PostConstruct
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -117,20 +116,20 @@ class ZoneEngine(
    */
   fun tickOnce(deltaTime: Float) {
     world.tick(deltaTime)
-    flush()
+    syncDirtyComponents()
   }
 
-  private fun flush() {
+  private fun syncDirtyComponents() {
     val perEntity = LinkedHashMap<EntityId, MutableList<Dirtyable>>()
 
     world.locked {
       val positionChanged = HashSet<EntityId>()
 
-      for (type in syncableComponentTypes) {
-        world.drainChanges(type) { id ->
-          val comp = world.get(id, type) as? Dirtyable ?: return@drainChanges
-          perEntity.getOrPut(id) { ArrayList() }.add(comp)
-          if (type == Position::class) {
+      for (syncableComponentType in syncableComponentTypes) {
+        world.drainChanges(syncableComponentType) { id ->
+          val comp = world.get(id, syncableComponentType) as? Dirtyable ?: return@drainChanges
+          perEntity.getOrPut(id) { mutableListOf() }.add(comp)
+          if (syncableComponentType == Position::class) {
             positionChanged.add(id)
           }
         }
@@ -151,27 +150,33 @@ class ZoneEngine(
 
     // Build the outbound component update messages outside the world lock: resolving sync
     // targets (e.g. party membership) may hit the database and must not block the tick thread.
-    for ((id, comps) in perEntity) {
-      val pos = world.get(id, Position::class)?.toVec3L() ?: continue
+    for ((entityId, comps) in perEntity) {
+      val pos = world.get(entityId, Position::class)?.toVec3L() ?: continue
 
-      val publicMsgs = mutableListOf<SMSG>()
-      val byAccount = LinkedHashMap<Long, MutableList<SMSG>>()
+      val broadcastMsgs = mutableListOf<SMSG>()
+      val byAccountMsgs = LinkedHashMap<Long, MutableList<SMSG>>()
 
       for (c in comps) {
-        val msg = c.toEntityMessage(id)
+        val msg = c.toEntityMessage(entityId)
 
-        when (val target = c.syncTargets(syncContext, id)) {
-          is SyncTargets.PublicInRange -> publicMsgs.add(msg)
+        when (val target = c.syncTargets(world, entityId)) {
+          is SyncTargets.PublicInRange -> broadcastMsgs.add(msg)
+          is SyncTargets.OwnerOnly -> {
+            val ownerAccountId = world.get(entityId, Account::class)
+              ?.accountId
+              ?: continue
+            byAccountMsgs.getOrPut(ownerAccountId) { mutableListOf() }.add(msg)
+          }
           is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
-            byAccount.getOrPut(accountId) { ArrayList() }.add(msg)
+            byAccountMsgs.getOrPut(accountId) { ArrayList() }.add(msg)
           }
         }
       }
 
-      if (publicMsgs.isNotEmpty()) {
-        externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, publicMsgs) }
+      if (broadcastMsgs.isNotEmpty()) {
+        externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, broadcastMsgs) }
       }
-      byAccount.forEach { (accountId, msgs) ->
+      byAccountMsgs.forEach { (accountId, msgs) ->
         externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }

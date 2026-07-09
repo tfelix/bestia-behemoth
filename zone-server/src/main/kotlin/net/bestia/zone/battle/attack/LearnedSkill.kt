@@ -34,6 +34,9 @@ class LearnedSkill(
   @JoinColumn(name = "skill_id", nullable = false)
   val skill: Skill,
 
+  @Column(name = "level", nullable = false)
+  var level: Int = 1,
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_bestia_id", nullable = true)
   val playerBestia: PlayerBestia? = null,
@@ -48,9 +51,6 @@ class LearnedSkill(
       "LearnedSkill must have exactly one owner: either a playerBestia or a master"
     }
   }
-
-  @Column(name = "level", nullable = false)
-  var level: Int = 1
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -23,25 +23,29 @@ class SkillImporterBootRunner(
     SkillYmlDto::class.java
   ) {
   data class SkillYmlDto(
+    val id: Long,
     val identifier: String,
     val strength: Int?,
     val manaCost: Int,
     val type: SkillType,
     val script: String?,
     val range: Int?,
-    val needsLineOfSight: Boolean
+    val needsLineOfSight: Boolean,
+    val requiredLevel: Int = 0
   )
 
   override fun newEntity(dto: SkillYmlDto): Skill {
 
     return Skill(
+      id = dto.id,
       identifier = dto.identifier,
       strength = dto.strength,
       type = dto.type,
       script = dto.script,
       manaCost = dto.manaCost,
       range = dto.range,
-      needsLineOfSight = dto.needsLineOfSight
+      needsLineOfSight = dto.needsLineOfSight,
+      requiredLevel = dto.requiredLevel
     )
   }
 
@@ -51,6 +55,10 @@ class SkillImporterBootRunner(
 
   override fun getYmlIdentifier(dto: SkillYmlDto): String {
     return dto.identifier
+  }
+
+  override fun getYmlId(dto: SkillYmlDto): Long {
+    return dto.id
   }
 
   override fun tryUpdate(dto: SkillYmlDto, entity: Skill): Boolean {

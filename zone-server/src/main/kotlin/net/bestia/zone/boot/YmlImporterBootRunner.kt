@@ -32,6 +32,8 @@ abstract class YmlImporterBootRunner<T, EntityT : Any>(
 
   fun import(): ImportResult {
     val yamlItems = loadYmlItems()
+    validateNoDuplicateIds(yamlItems)
+
     val existingEntities = repository.findAll().associateBy { getEntityIdentifier(it) }
     val currentIdentifiers = yamlItems.map { getYmlIdentifier(it) }.toSet()
 
@@ -84,11 +86,33 @@ abstract class YmlImporterBootRunner<T, EntityT : Any>(
     }
   }
 
+  /**
+   * Fails startup with a descriptive error if two YML files declare the same `id`, since ids are
+   * now sourced directly from the YML and are no longer assigned by the database.
+   */
+  private fun validateNoDuplicateIds(yamlItems: List<T>) {
+    val duplicates = yamlItems
+      .groupBy { getYmlId(it) }
+      .filterValues { it.size > 1 }
+
+    if (duplicates.isNotEmpty()) {
+      val details = duplicates.entries.joinToString("; ") { (id, items) ->
+        "id $id used by [${items.joinToString(", ") { getYmlIdentifier(it) }}]"
+      }
+
+      throw IllegalStateException(
+        "$importItemName import found duplicate ids in classpath:$classpathFolder/*.yml: $details"
+      )
+    }
+  }
+
   protected abstract fun newEntity(dto: T): EntityT
 
   protected abstract fun getEntityIdentifier(entity: EntityT): String
 
   protected abstract fun getYmlIdentifier(dto: T): String
+
+  protected abstract fun getYmlId(dto: T): Long
 
   protected abstract fun tryUpdate(dto: T, entity: EntityT): Boolean
 

@@ -2,6 +2,7 @@ package net.bestia.zone.battle.attack
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
  * whatever grants the skill (e.g. an item-use effect), not directly by a player action.
  */
 @Service
-class BestiaSkillLearningService(
+class BestiaSkillLearnService(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val skillRepository: SkillRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
@@ -22,31 +23,27 @@ class BestiaSkillLearningService(
   private val connectionInfoService: ConnectionInfoService
 ) {
 
-  /**
-   * Teaches [playerBestiaId] the skill [skillId] at [skillLevel], provided the bestia has
-   * reached [requiredLevel]. Throws [InsufficientLevelException] if the level requirement isn't
-   * met, or [SkillAlreadyLearnedException] if the skill is already known.
-   */
   @Transactional
   fun learnCustomSkill(
     playerBestiaId: PlayerBestiaId,
     skillId: Long,
-    requiredLevel: Int,
-    skillLevel: Int = 1
   ): LearnedSkill {
     val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
+    val skillToLearn = skillRepository.findByIdOrThrow(skillId)
 
-    if (playerBestia.level < requiredLevel) {
-      throw InsufficientLevelException(requiredLevel, playerBestia.level)
+    if (playerBestia.level < skillToLearn.requiredLevel) {
+      throw InsufficientLevelException(skillToLearn.requiredLevel, playerBestia.level)
     }
 
     if (learnedSkillRepository.findByPlayerBestiaIdAndSkillId(playerBestiaId, skillId) != null) {
       throw SkillAlreadyLearnedException(skillId)
     }
 
-    val skill = skillRepository.findByIdOrThrow(skillId)
-    val learned = learnedSkillRepository.save(
-      LearnedSkill(skill = skill, playerBestia = playerBestia).apply { level = skillLevel }
+    val learnedSkill = learnedSkillRepository.save(
+      LearnedSkill(
+        skill = skillToLearn,
+        playerBestia = playerBestia,
+      )
     )
 
     val accountId = playerBestia.master.account.id
@@ -56,12 +53,12 @@ class BestiaSkillLearningService(
       ?.entityId
 
     if (entityId != null) {
-      world.modify(entityId) { id ->
-        // FIXME properly learn the attack. also inform the owner via a skill messag.e
-        // world.get(id, AvailableAttacks::class)?.learnOrUpdate(skillId, skillLevel)
+      world.modify(entityId) { entityId ->
+        world.get(entityId, AvailableSkills::class)?.learnOrUpdate(skillId)
+        world.markChanged(entityId, AvailableSkills::class)
       }
     }
 
-    return learned
+    return learnedSkill
   }
 }

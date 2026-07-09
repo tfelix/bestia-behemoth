@@ -4,7 +4,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.ecs.movement.PathSMSG
@@ -63,5 +63,5 @@ data class Path(
     )
   }
 
-  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
 }

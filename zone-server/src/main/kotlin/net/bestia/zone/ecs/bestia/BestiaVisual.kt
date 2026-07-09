@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.bestia
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 
@@ -25,5 +25,5 @@ data class BestiaVisual(
     return BestiaVisualComponentSMSG(entityId, id)
   }
 
-  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
 }

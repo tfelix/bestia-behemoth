@@ -4,7 +4,7 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.findByIdOrThrow
-import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import org.springframework.stereotype.Service
@@ -94,7 +94,7 @@ class MasterSkillTreeService(
 
     world.modify(entityId) { id ->
       updatedSkills.forEach { learnedSkill ->
-        world.get(id, AvailableAttacks::class)?.learnOrUpdate(learnedSkill.skill.id, learnedSkill.level)
+        world.get(id, AvailableSkills::class)?.learnOrUpdate(learnedSkill.skill.id, learnedSkill.level)
       }
       world.get(id, SkillPoints::class)?.let { it.value = master.skillPoints }
       world.markChanged(id, SkillPoints::class)

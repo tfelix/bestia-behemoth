@@ -2,10 +2,9 @@ package net.bestia.zone.ecs.battle.status
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.SyncContext
 import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.message.EntitySMSG
 
 data class Exp(
@@ -33,8 +32,7 @@ data class Exp(
     return ExpSMSG(entityId = entityId, exp = value)
   }
 
-  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets {
-    val owner = context.world.get(entityId, Account::class)?.accountId
-    return SyncTargets.Accounts(setOfNotNull(owner))
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
+    return SyncTargets.OwnerOnly
   }
 }

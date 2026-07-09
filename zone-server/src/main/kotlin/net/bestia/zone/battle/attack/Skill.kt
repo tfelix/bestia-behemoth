@@ -11,6 +11,9 @@ import net.bestia.zone.util.requireValidIdentifier
   ]
 )
 class Skill(
+  @Id
+  var id: Long = 0,
+
   @Column(nullable = false)
   val identifier: String,
 
@@ -29,11 +32,20 @@ class Skill(
   @Column(nullable = true)
   val range: Int?,
 
-  val needsLineOfSight: Boolean
+  val needsLineOfSight: Boolean,
+
+  /**
+   * 0 means this skill is immediately learnable.
+   */
+  val requiredLevel: Int
 ) {
 
   init {
     requireValidIdentifier(identifier)
+
+    require(requiredLevel >= 0) {
+      "requiredLevel must be >= 0"
+    }
 
     // No damage skills are required to have a script and strength set to null.
     if (type == SkillType.NO_DAMAGE) {
@@ -45,8 +57,4 @@ class Skill(
       }
     }
   }
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long = 0
 }

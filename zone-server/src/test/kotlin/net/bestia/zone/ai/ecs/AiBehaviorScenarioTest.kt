@@ -23,7 +23,7 @@ import net.bestia.zone.ai.planner.actions.MeleeAttackAction
 import net.bestia.zone.ai.planner.actions.WanderAction
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.battle.Health
 import net.bestia.zone.ecs.movement.Path
@@ -83,7 +83,7 @@ class AiBehaviorScenarioTest {
       world.add(id, Health(health, 10))
       world.add(id, Speed())
       world.add(id, Brain("aggressive_melee", homePosition = pos))
-      world.add(id, AvailableAttacks(mutableMapOf(0L to 1)))
+      world.add(id, AvailableSkills(mutableMapOf(0L to 1)))
     }
 
   private fun spawnPlayer(pos: Vec3L): EntityId {

@@ -4,7 +4,7 @@ import net.bestia.zone.component.ManaComponentSMSG
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.EntityId
 import net.bestia.zone.ecs.Dirtyable
-import net.bestia.zone.ecs.SyncContext
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.message.EntitySMSG
@@ -57,9 +57,11 @@ class Mana(
     )
   }
 
-  override fun syncTargets(context: SyncContext, entityId: EntityId): SyncTargets {
-    val owner = context.world.get(entityId, Account::class)?.accountId
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
+    val owner = world.get(entityId, Account::class)?.accountId
       ?: return SyncTargets.Accounts(emptySet())
-    return SyncTargets.Accounts(setOf(owner) + context.partyMembersOf(owner))
+    // TODO: also sync to party members once party membership can be resolved via a component
+    //  read instead of the removed SyncContext/PartyMembershipLookup DB lookup.
+    return SyncTargets.Accounts(setOf(owner))
   }
 }

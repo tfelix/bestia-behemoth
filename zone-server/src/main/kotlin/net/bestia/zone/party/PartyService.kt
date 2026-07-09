@@ -6,7 +6,6 @@ import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.util.AccountId
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.PartyMembershipLookup
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.World
@@ -24,7 +23,7 @@ class PartyService(
   private val masterRepository: MasterRepository,
   private val masterResolver: MasterResolver,
   private val world: World,
-) : PartyMembershipLookup {
+) {
 
   companion object {
     const val MAX_PARTY_SIZE = 12
@@ -229,19 +228,6 @@ class PartyService(
       partyName = party.name,
       member = partyMembers
     )
-  }
-
-  @Transactional(readOnly = true)
-  override fun partyMemberAccountIds(accountId: Long): Set<Long> {
-    val master = try {
-      masterResolver.getSelectedMasterByAccountId(accountId)
-    } catch (_: Exception) {
-      return emptySet()
-    }
-
-    val party = master.party ?: return emptySet()
-
-    return (party.member.map { it.account.id } + party.owner.account.id).toSet() - accountId
   }
 
   private fun findEntityIdByMaster(partyMaster: Master): EntityId? {

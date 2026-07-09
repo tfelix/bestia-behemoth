@@ -1,7 +1,7 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Account
@@ -50,7 +50,7 @@ class PlayerBestiaEntityFactory(
       world.add(id, Speed())
       world.add(id, BestiaVisual(playerBestia.bestia.id))
       world.add(id, Account(accountId))
-      world.add(id, AvailableAttacks((fixedAttackIds + customAttackIds).toMutableMap()))
+      world.add(id, AvailableSkills((fixedAttackIds + customAttackIds).toMutableMap()))
     }
 
     val playerBestiaId = playerBestia.id

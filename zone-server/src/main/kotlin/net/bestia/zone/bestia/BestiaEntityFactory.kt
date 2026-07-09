@@ -3,7 +3,7 @@ package net.bestia.zone.bestia
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.ecs.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -44,7 +44,7 @@ class BestiaEntityFactory(
 
   /**
    * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [Brain] lives
-   * under `net.bestia.zone.ai.*` so it is never network-synced; [AvailableAttacks] seeds the basic
+   * under `net.bestia.zone.ai.*` so it is never network-synced; [AvailableSkills] seeds the basic
    * attack the melee action uses. [spawnPosition] becomes the [Brain.homePosition] the NPC wanders
    * around.
    */
@@ -58,7 +58,7 @@ class BestiaEntityFactory(
     }
 
     world.add(id, Brain(profileId = profileId, homePosition = spawnPosition))
-    world.add(id, AvailableAttacks(mutableMapOf(BASIC_ATTACK_ID to 1)))
+    world.add(id, AvailableSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 
   fun createMobEntity(

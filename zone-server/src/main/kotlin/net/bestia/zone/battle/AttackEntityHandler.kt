@@ -2,7 +2,7 @@ package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.battle.AvailableAttacks
+import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.EntityId
@@ -69,7 +69,7 @@ class AttackEntityHandler(
     return if (usedAttackId == 0L) {
       true
     } else {
-      world.getOrThrow(attackingEntityId, AvailableAttacks::class)
+      world.getOrThrow(attackingEntityId, AvailableSkills::class)
         .knowsAttack(usedAttackId, usedSkillLevel)
     }
   }

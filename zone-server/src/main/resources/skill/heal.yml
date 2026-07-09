@@ -1,3 +1,4 @@
+id: 2
 identifier: heal
 type: NO_DAMAGE
 script: Heal

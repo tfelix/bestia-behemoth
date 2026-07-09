@@ -199,18 +199,27 @@ class World(
     store(type as KClass<Component>)
 
   // ------------------------------------------------------------------ systems
-  fun addSystem(system: System) = scheduler.register(system)
+  fun addSystem(system: System) {
+    scheduler.register(system)
+  }
 
-  fun addSystems(systems: Iterable<System>) = scheduler.registerAll(systems)
+  fun addSystems(systems: Iterable<System>) {
+    scheduler.registerAll(systems)
+  }
 
   // ------------------------------------------------------------- messaging in
   /** Enqueue external intent from any thread. Applied at the start of next tick. */
-  fun send(command: Command) = commands.enqueue(command)
+  fun send(command: Command) {
+    commands.enqueue(command)
+  }
 
-  fun <T : Command> onCommand(type: KClass<T>, handler: (World, T) -> Unit) = commands.on(type, handler)
+  fun <T : Command> onCommand(type: KClass<T>, handler: (World, T) -> Unit) {
+    commands.on(type, handler)
+  }
 
-  inline fun <reified T : Command> onCommand(noinline handler: (World, T) -> Unit) =
+  inline fun <reified T : Command> onCommand(noinline handler: (World, T) -> Unit) {
     onCommand(T::class, handler)
+  }
 
   // --------------------------------------------------- deferred structural ops
   /** Run [block] now, or defer it to the next safe sync point if mid-tick. */

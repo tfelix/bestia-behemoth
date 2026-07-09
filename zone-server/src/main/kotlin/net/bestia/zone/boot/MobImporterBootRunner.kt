@@ -26,6 +26,7 @@ class MobImporterBootRunner(
     MobYmlDto::class.java
   ) {
   data class MobYmlDto(
+    val id: Long,
     val identifier: String,
     val level: Int,
     val health: Int,
@@ -43,6 +44,7 @@ class MobImporterBootRunner(
 
   override fun newEntity(dto: MobYmlDto): Bestia {
     val bestia = Bestia(
+      id = dto.id,
       identifier = dto.identifier,
       level = dto.level,
       mana = dto.mana,
@@ -81,6 +83,10 @@ class MobImporterBootRunner(
 
   override fun getYmlIdentifier(dto: MobYmlDto): String {
     return dto.identifier
+  }
+
+  override fun getYmlId(dto: MobYmlDto): Long {
+    return dto.id
   }
 
   override fun tryUpdate(dto: MobYmlDto, entity: Bestia): Boolean {

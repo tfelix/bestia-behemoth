@@ -51,6 +51,10 @@ class ItemImporterBootRunner(
     return entity.identifier
   }
 
+  override fun getYmlId(dto: ItemYamlDto): Long {
+    return dto.id
+  }
+
   override fun newEntity(dto: ItemYamlDto): Item {
     return Item(dto.id, dto.identifier, dto.weight, getType(dto))
   }

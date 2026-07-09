@@ -12,6 +12,9 @@ import net.bestia.zone.util.requireValidIdentifier
   ]
 )
 class Bestia(
+  @Id
+  var id: Long = 0,
+
   val identifier: String,
   val level: Int,
   val experienceReward: Int,
@@ -33,8 +36,4 @@ class Bestia(
 
   @OneToMany(mappedBy = "bestia", cascade = [CascadeType.ALL], orphanRemoval = true)
   val skills: MutableSet<BestiaSkill> = mutableSetOf()
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long = 0
 }
