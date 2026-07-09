@@ -73,6 +73,10 @@ bin/
 raw_assets
 Godot_*.exe
 
+# Generated protobuf C# files get their .uid regenerated on every gen-protobuf.bat
+# run (the output dir is wiped and recreated), and nothing references them by uid://.
+bestia-client/src/Bnet/Proto/*.cs.uid
+
 ### Platform-specific ###
 Thumbs.db
 .DS_Store
