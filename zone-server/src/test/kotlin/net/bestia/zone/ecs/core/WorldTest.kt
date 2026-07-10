@@ -63,26 +63,24 @@ class WorldTest {
   }
 
   @Test
-  fun `component changes can be drained (pull) and observed (push)`() {
+  fun `component changes can be drained`() {
     val world = World()
     val e = world.create()
     world.add(e, Position(0f, 0f)) // add marks it changed
 
-    // pull
     val pulled = mutableListOf<EntityId>()
-    world.drainChanges<Position> { pulled.add(it) }
+    world.drainChanges(Position::class) { pulled.add(it) }
     assertEquals(listOf(e), pulled)
     // draining consumed the marks
     val pulledAgain = mutableListOf<EntityId>()
-    world.drainChanges<Position> { pulledAgain.add(it) }
+    world.drainChanges(Position::class) { pulledAgain.add(it) }
     assertTrue(pulledAgain.isEmpty())
 
-    // push
-    val observed = mutableListOf<EntityId>()
-    world.onChanged<Position> { observed.add(it) }
+    // markChanged also flags a component for the next drain
     world.markChanged(e, Position::class)
-    world.publishChanges()
-    assertEquals(listOf(e), observed)
+    val pulledAfterManualMark = mutableListOf<EntityId>()
+    world.drainChanges(Position::class) { pulledAfterManualMark.add(it) }
+    assertEquals(listOf(e), pulledAfterManualMark)
   }
 
   @Test

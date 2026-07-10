@@ -3,6 +3,8 @@ package net.bestia.zone.ecs.core.scenario
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.EcsConfiguration
+import net.bestia.zone.ZoneConfig as ZoneShardConfig
+import net.bestia.zone.ecs.ZoneConfig as WorldConfig
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -18,14 +21,28 @@ import java.util.concurrent.Executors
 /**
  * End-to-end scenario proving the whole ecs pipeline through the real Spring
  * wiring: systems are collected as beans, external commands come in on another
- * thread, and component changes + domain events go back out.
+ * thread, and component changes go back out (pull model).
  */
 class WanderScenarioTest {
 
   @Configuration
   @ComponentScan(basePackageClasses = [WanderSystem::class])
   @Import(EcsConfiguration::class)
-  class ScenarioConfig
+  class ScenarioConfig {
+
+    // ecsWorld() takes these as typed config beans rather than @Value properties; this minimal
+    // context has no property source to bind them from, so supply plain test instances directly.
+    @Bean
+    fun worldConfig(): WorldConfig = WorldConfig(tickRate = 20, parallelSystems = false)
+
+    @Bean
+    fun zoneShardConfig(): ZoneShardConfig = ZoneShardConfig(
+      bestiaBaseSlotCount = 4,
+      bestiaMaxSlotCount = 4,
+      jwtAuthSecretKey = "test-secret",
+      shardId = 1,
+    )
+  }
 
   private lateinit var ctx: AnnotationConfigApplicationContext
   private lateinit var world: World
@@ -63,26 +80,18 @@ class WanderScenarioTest {
   }
 
   @Test
-  fun `wandering critters move and their changes and events flow outward`() {
+  fun `wandering critters move and their changes flow outward`() {
     val critters = (1..10).map { spawnCritter() }
     // drain the "component added" marks from spawn so we only observe movement
-    world.drainChanges<Position> { }
+    world.drainChanges(Position::class) { }
 
     repeat(20) { world.tick(0.05f) }
 
     // pull model: which positions changed
     val movedIds = mutableSetOf<EntityId>()
-    world.drainChanges<Position> { movedIds.add(it) }
+    world.drainChanges(Position::class) { movedIds.add(it) }
     assertTrue(movedIds.isNotEmpty(), "wandering critters should have moved")
     assertTrue(critters.containsAll(movedIds))
-
-    // outbox: discrete movement events were emitted
-    var eventCount = 0
-    world.drainOutbox { event ->
-      assertTrue(event is EntityMoved)
-      eventCount++
-    }
-    assertTrue(eventCount > 0, "expected EntityMoved events in the outbox")
   }
 
   @Test
@@ -107,16 +116,15 @@ class WanderScenarioTest {
   }
 
   @Test
-  fun `push model fans component changes out to a registered observer`() {
-    val observed = mutableListOf<EntityId>()
-    world.onChanged<Health> { observed.add(it) }
-
+  fun `health regen marks the component changed for pull-model consumers`() {
     val e = spawnCritter()
-    world.drainChanges<Health> { } // clear spawn marks
+    world.drainChanges(Health::class) { } // clear spawn marks
 
     // regen fires every 0.1s; 5 ticks of 0.05s = 0.25s -> at least two regen passes
     repeat(5) { world.tick(0.05f) }
-    world.publishChanges()
+
+    val observed = mutableListOf<EntityId>()
+    world.drainChanges(Health::class) { observed.add(it) }
 
     assertTrue(observed.contains(e), "health regen should have marked the critter changed")
     assertFalse(world.isAlive(-1L))

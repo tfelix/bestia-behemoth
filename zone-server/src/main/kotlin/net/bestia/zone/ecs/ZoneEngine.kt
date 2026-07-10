@@ -9,8 +9,6 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
-import org.reflections.Reflections
-import org.reflections.scanners.Scanners
 import org.springframework.stereotype.Service
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -42,15 +40,7 @@ class ZoneEngine(
 ) {
 
   private val syncableComponentTypes: List<KClass<out Component>> by lazy {
-    Reflections("net.bestia.zone", Scanners.SubTypes)
-      .getSubTypesOf(Dirtyable::class.java)
-      .asSequence()
-      .filter { Component::class.java.isAssignableFrom(it) && !it.isInterface }
-      .map {
-        @Suppress("UNCHECKED_CAST")
-        it.kotlin as KClass<out Component>
-      }
-      .toList()
+    scanDirtyableComponentTypes()
   }
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }

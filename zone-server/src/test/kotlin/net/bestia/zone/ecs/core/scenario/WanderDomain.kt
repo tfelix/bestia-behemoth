@@ -17,8 +17,3 @@ class Wander(var step: Int = 0) : Component
 
 /** Sent from a "network" thread to steer an entity. */
 class MoveCommand(val entity: EntityId, val dx: Float, val dy: Float) : Command
-
-// --- Outbound event -----------------------------------------------------------
-
-/** Emitted whenever an entity actually moved; drained by the messaging layer. */
-data class EntityMoved(val entity: EntityId, val x: Float, val y: Float)

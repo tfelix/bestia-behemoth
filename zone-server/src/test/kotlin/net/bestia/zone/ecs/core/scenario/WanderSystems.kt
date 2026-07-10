@@ -39,8 +39,8 @@ class WanderSystem : System {
 }
 
 /**
- * Integrates [Position] from [Velocity] every tick, marks moved entities as
- * changed (for outbound component sync) and emits an [EntityMoved] event.
+ * Integrates [Position] from [Velocity] every tick and marks moved entities as
+ * changed (for outbound component sync).
  *
  * writes Position, reads Velocity.
  */
@@ -59,7 +59,6 @@ class MovementSystem : System {
       pos.x += vel.dx * deltaTime
       pos.y += vel.dy * deltaTime
       world.markChanged(id, Position::class)
-      world.emit(EntityMoved(id, pos.x, pos.y))
     }
   }
 }

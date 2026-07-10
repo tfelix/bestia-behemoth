@@ -11,6 +11,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.battle.status.Exp
 import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.scanDirtyableComponentTypes
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -18,7 +19,7 @@ class DirtyableRegistryTest {
 
   @Test
   fun `discovers every known Dirtyable component type`() {
-    val syncTypes = DirtyableComponentRegistry().syncTypes
+    val syncTypes = scanDirtyableComponentTypes()
 
     val expected = setOf(
       Position::class,

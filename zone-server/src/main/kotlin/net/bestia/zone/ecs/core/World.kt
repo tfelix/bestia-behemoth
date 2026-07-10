@@ -114,6 +114,7 @@ class World(
       @Suppress("UNCHECKED_CAST")
       (store as ComponentStore<Component>).remove(id)
     }
+    changes.forget(id)
     for (listener in destroyListeners) listener(id)
   }
 
@@ -130,7 +131,9 @@ class World(
   /** Adds a component to [id], marking it changed. Deferred if called mid-tick. */
   fun <T : Component> add(id: EntityId, component: T): T = lock.withLock {
     if (iterating) {
-      deferred.add { addNow(id, component) }
+      deferred.add {
+        addNow(id, component)
+      }
     } else {
       addNow(id, component)
     }
@@ -141,6 +144,7 @@ class World(
   private fun <T : Component> addNow(id: EntityId, component: T) {
     require(entities.isAlive(id)) { "Cannot add component to dead entity $id" }
     store(component::class as KClass<T>).set(id, component)
+    changes.mark(component::class, id)
   }
 
   fun <T : Component> get(id: EntityId, type: KClass<T>): T? = lock.withLock { store(type).get(id) }
@@ -174,10 +178,13 @@ class World(
 
     val component = get(id, T::class) ?: add(id, default())
     block(component)
+    markChanged(id, T::class)
   }
 
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
-    return store(type).remove(id)
+    val removed = store(type).remove(id)
+    if (removed != null) changes.mark(type, id)
+    return removed
   }
 
   // ------------------------------------------------------------------ queries

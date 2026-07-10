@@ -39,7 +39,9 @@ class ComponentStore<T : Component>(
 
   val size: Int get() = count
 
-  fun has(entity: EntityId): Boolean = sparse.containsKey(entity)
+  fun has(entity: EntityId): Boolean {
+    return sparse.containsKey(entity)
+  }
 
   fun get(entity: EntityId): T? {
     val i = sparse.get(entity)
@@ -53,7 +55,11 @@ class ComponentStore<T : Component>(
       components[existing] = component
       return
     }
-    if (count == entities.size) grow()
+
+    if (count == entities.size) {
+      grow()
+    }
+
     entities[count] = entity
     components[count] = component
     sparse.put(entity, count)
@@ -63,12 +69,13 @@ class ComponentStore<T : Component>(
   /**
    * Obtains a (possibly recycled) instance, attaches it to [entity] and returns
    * it for in-place mutation. Requires the store to have been created with a
-   * [factory] (see [World.registerPooled]).
+   * [factory].
    */
   fun obtain(entity: EntityId): T {
     val f = factory ?: error("ComponentStore<${type.simpleName}> has no factory; use set() instead")
     val instance = pool?.removeLastOrNull() ?: f()
     set(entity, instance)
+
     return instance
   }
 

@@ -1,0 +1,25 @@
+items:
+  - id: 1
+    item-db-name: apple
+    weight: 1
+    type: USABLE
+    script: AppleScript
+    description: |
+      A fresh apple. 
+      
+      Restores a small amount of health when eaten.
+
+  - id: 2
+    item-db-name: jelly
+    weight: 1
+    type: ETC
+
+  - id: 3
+    item-db-name: small_health_potion
+    weight: 1
+    type: USABLE
+    script: SmallHealthPotionScript
+    description: |
+      A small vial of transparent slight red liquid. 
+      
+      Heals a modest amount of health when consumed.

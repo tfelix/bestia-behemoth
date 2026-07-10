@@ -6,10 +6,11 @@ import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 /**
- * Imports the items from the YML resources into the database.
+ * Imports the items from the single `items.yml` resource into the database.
  */
 @Component
 @Order(100)
@@ -28,11 +29,31 @@ class ItemImporterBootRunner(
     val identifier: String,
     val id: Long,
     val weight: Int,
-    val type: String
+    val type: String,
+    val script: String? = null,
+    val description: String? = null
   )
 
+  /**
+   * Wrapper for the single `items.yml` file which holds all items under a top-level `items` list.
+   */
+  data class ItemsYmlFile(
+    val items: List<ItemYamlDto> = emptyList()
+  )
+
+  override fun loadYmlItems(): List<ItemYamlDto> {
+    val objectMapper = createYmlMapper()
+
+    ClassPathResource(ITEMS_RESOURCE).inputStream.use { stream ->
+      return objectMapper.readValue(stream, ItemsYmlFile::class.java).items
+    }
+  }
+
   override fun tryUpdate(dto: ItemYamlDto, entity: Item): Boolean {
-    val needsUpdate = entity.weight != dto.weight || entity.type != getType(dto)
+    val needsUpdate = entity.weight != dto.weight
+      || entity.type != getType(dto)
+      || entity.script != dto.script
+      || entity.description != dto.description
 
     return if (needsUpdate) {
       // TODO this is a bit tricky because we need to preserve IDs but still might want to update. Maybe once this
@@ -56,7 +77,14 @@ class ItemImporterBootRunner(
   }
 
   override fun newEntity(dto: ItemYamlDto): Item {
-    return Item(dto.id, dto.identifier, dto.weight, getType(dto))
+    return Item(
+      id = dto.id,
+      identifier = dto.identifier,
+      weight = dto.weight,
+      type = getType(dto),
+      script = dto.script,
+      description = dto.description
+    )
   }
 
   private fun getType(dto: ItemYamlDto): Item.ItemType {
@@ -69,6 +97,8 @@ class ItemImporterBootRunner(
   }
 
   companion object {
+    private const val ITEMS_RESOURCE = "items.yml"
+
     private val LOG = KotlinLogging.logger { }
   }
 }

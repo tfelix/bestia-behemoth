@@ -12,24 +12,17 @@ import kotlin.reflect.KClass
  * + `DirtyComponentUpdateSystem` pair does, so the network layer no longer needs
  * every component to implement its own dirty bookkeeping.
  *
- * Two consumption styles share the same buffers:
- *  - **pull**: [drain] a type after the tick (e.g. a test or a bespoke sender).
- *  - **push**: register an observer via [on] and call [publish] once per tick to
- *    fan changes out to it.
+ * Pull model only: [drain] a type after the tick (e.g. a test or a bespoke
+ * sender) to consume and clear the entities marked changed for it.
  *
  * Marking is thread-safe (systems in a parallel wave may each mark their own
- * component types). Draining/publishing happen single-threaded between ticks.
+ * component types). Draining happens single-threaded between ticks.
  */
 class ChangeTracker {
   private val marks = ConcurrentHashMap<KClass<out Component>, MutableSet<EntityId>>()
-  private val observers = HashMap<KClass<out Component>, MutableList<(EntityId) -> Unit>>()
 
   fun mark(type: KClass<out Component>, id: EntityId) {
     marks.computeIfAbsent(type) { ConcurrentHashMap.newKeySet() }.add(id)
-  }
-
-  fun on(type: KClass<out Component>, handler: (EntityId) -> Unit) {
-    observers.getOrPut(type) { ArrayList() }.add(handler)
   }
 
   /** Consumes and clears the changed ids for [type] (pull model). */
@@ -38,18 +31,6 @@ class ChangeTracker {
     val snapshot = set.toLongArray()
     set.clear()
     for (id in snapshot) action(id)
-  }
-
-  /** Fires registered observers for all marked ids, then clears them (push model). */
-  fun publish() {
-    for ((type, set) in marks) {
-      val obs = observers[type] ?: continue
-      val snapshot = set.toLongArray()
-      set.clear()
-      for (id in snapshot) {
-        for (handler in obs) handler(id)
-      }
-    }
   }
 
   fun forget(id: EntityId) {
