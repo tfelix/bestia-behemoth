@@ -9,7 +9,7 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.ecs.movement.SpeedSMSG
 
 data class Speed(
-  private var _speed: Float = 1.5f
+  private var _speed: Float = 2.5f
 ) : Component, Dirtyable {
 
   private var dirty: Boolean = true
