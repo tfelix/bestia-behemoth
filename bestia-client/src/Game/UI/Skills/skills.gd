@@ -52,17 +52,10 @@ func _populate_rows(msg: SkillListSMSG) -> void:
 	_selected_row = null
 
 	for entry in msg.Skills:
-		var attack: AttackResource = AttackDB.get_instance().get_attack(entry.AttackId)
 		var row = SkillRowScene.instantiate()
 		_skill_rows.add_child(row)
 
-		if attack:
-			row.set_data(entry.AttackId, attack.name, attack.icon, entry.Level, entry.MaxLevel, attack.mana_cost)
-		else:
-			printerr("Skills: Attack ID %s not found in AttackDB, can not display it" % [entry.AttackId])
-			row.set_data(entry.AttackId, "Unknown Skill", null, entry.Level, entry.MaxLevel, 0)
-
-		row.set_disabled(!entry.Learned)
+		row.initialize(entry)
 		row.set_can_spend_points(_available_skill_points > 0)
 		row.row_selected.connect(_on_row_selected)
 
@@ -81,7 +74,7 @@ func _on_row_selected(row: Control) -> void:
 func _on_use_button_pressed() -> void:
 	if _selected_row == null or not is_instance_valid(_selected_row):
 		return
-	ConnectionManager.activate_skill(_selected_row.attack_id, _selected_row.get_selected_level())
+	ConnectionManager.activate_skill(_selected_row.skill_id, _selected_row.get_selected_level())
 
 
 ## Broadcasts the current spendable skill point count to every row so a SpendSkillPointButton

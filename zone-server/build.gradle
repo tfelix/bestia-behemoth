@@ -52,3 +52,29 @@ processResources {
 		expand(version: project.version)
 	}
 }
+
+
+/**
+ * Cross-checks (and optionally fixes) skill ids/max levels between zone-server's skill config
+ * and the Godot client's Attack DB. See buildSrc/src/main/kotlin/SkillDbSyncTask.kt and
+ * .claude/skills/skill-system/SKILL.md.
+ */
+tasks.register('checkSkillDb', SkillDbSyncTask) {
+    group = 'verification'
+    description = 'Fails if skills.yml/master_skill_tree.yml and the client Attack DB (.tres + skills.csv) disagree on ids, max levels, or descriptions.'
+    skillsYml = layout.projectDirectory.file('src/main/resources/skills.yml')
+    masterSkillTreeYml = layout.projectDirectory.file('src/main/resources/master_skill_tree.yml')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Attack/DB')
+    skillsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/skills.csv')
+    fix = false
+}
+
+tasks.register('syncSkillDb', SkillDbSyncTask) {
+    group = 'other'
+    description = 'Patches max_level/description_key in existing client .tres files, syncs English descriptions into skills.csv, and creates stubs for missing skills, from skills.yml/master_skill_tree.yml.'
+    skillsYml = layout.projectDirectory.file('src/main/resources/skills.yml')
+    masterSkillTreeYml = layout.projectDirectory.file('src/main/resources/master_skill_tree.yml')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Attack/DB')
+    skillsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/skills.csv')
+    fix = true
+}

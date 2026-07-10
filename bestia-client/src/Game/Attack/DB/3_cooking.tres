@@ -2,13 +2,14 @@
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_tackle"]
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_cooking"]
 
 [resource]
 script = ExtResource("1_script")
-attack_id = 3
-icon = SubResource("PlaceholderTexture2D_tackle")
-name = "Tackle"
-description = "A basic physical charge attack."
+skill_id = 3
+icon = SubResource("PlaceholderTexture2D_cooking")
+name = "Cooking"
+description_key = "SKILL_3_DESC"
 mana_cost = 0
-cooldown = 0.5
+cooldown = 5.0
+max_level = 3

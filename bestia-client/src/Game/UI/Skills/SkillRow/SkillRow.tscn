@@ -5,7 +5,6 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3agn1"]
 
 [node name="SkillRow" type="MarginContainer" unique_id=2050178806]
-mouse_filter = 1
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_bottom = 0
 script = ExtResource("1_10nyf")
@@ -43,6 +42,7 @@ layout_mode = 2
 text = "Skill Name"
 
 [node name="DetailRow" type="HBoxContainer" parent="Row/SkillTextMargin/SkillText" unique_id=1145346994]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 24
 
@@ -73,5 +73,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Mana: 10"
 
+[node name="NotAvailable" type="Label" parent="Row/SkillTextMargin/SkillText" unique_id=314877802]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Not Available"
+
+[connection signal="pressed" from="Row/SpendSkillPointButton" to="." method="_on_spend_skill_point_button_pressed"]
 [connection signal="pressed" from="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer/LevelMinusButton" to="." method="_on_level_minus_button_pressed"]
 [connection signal="pressed" from="Row/SkillTextMargin/SkillText/DetailRow/LevelContainer/LevelPlusButton" to="." method="_on_level_plus_button_pressed"]

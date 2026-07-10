@@ -69,10 +69,8 @@ abstract class YmlImporterBootRunner<T, EntityT : Any>(
     return ImportResult(created, updated, itemsToDelete.size, notChanged)
   }
 
-  private fun loadYmlItems(): List<T> {
-    val objectMapper = ObjectMapper(YAMLFactory()).apply {
-      registerKotlinModule()
-    }
+  protected open fun loadYmlItems(): List<T> {
+    val objectMapper = createYmlMapper()
 
     val resourcePattern = "classpath:$classpathFolder/*.yml"
     val resolver = PathMatchingResourcePatternResolver()
@@ -84,6 +82,10 @@ abstract class YmlImporterBootRunner<T, EntityT : Any>(
     return resources.map { resource ->
       objectMapper.readValue(resource.inputStream, type)
     }
+  }
+
+  protected fun createYmlMapper(): ObjectMapper = ObjectMapper(YAMLFactory()).apply {
+    registerKotlinModule()
   }
 
   /**

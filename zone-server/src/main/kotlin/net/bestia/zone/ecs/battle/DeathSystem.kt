@@ -77,7 +77,7 @@ class DeathSystem(
     val bestiaVisual = world.get(entityId, BestiaVisual::class)
       ?: return
 
-    lootItemEntityFactory.createLootEntities(bestiaVisual.id, position)
+    lootItemEntityFactory.createLootEntities(world, bestiaVisual.id, position)
   }
 
   companion object {

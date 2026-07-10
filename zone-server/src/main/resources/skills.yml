@@ -1,26 +1,36 @@
 skills:
+# MASTER SKILLS
   - id: 1
     identifier: BLESSING
     type: NO_DAMAGE
     script: Blessing
     needsLineOfSight: true
-
-  - id: 1
+    description: |
+      Blesses the target with divine power.
+      
+      Temporary increase of STR, DEX, INT and HIT. Versus Undead property and Demon race
+      Bestia halves their DEX and INT instead.
+      
+      [table=5]
+      [cell]Level[/cell][cell]Stat Increase[/cell][cell]HIT Increase[/cell][cell]Duration[/cell][cell]Mana[/cell]
+      [cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]
+  - id: 2
     identifier: DIVINE_PROTECTION
     type: PASSIVE
     script: DivineProtection
 
-  - id: 1
+  - id: 3
     identifier: COOKING
     type: NO_DAMAGE
     script: Cooking
 
-  - id: 2
+  - id: 4
     identifier: HEAL
     type: NO_DAMAGE
     script: Heal
     needsLineOfSight: false
 
+# BESTIA SKILLS
   - id: 100
     identifier: ember
     type: NO_DAMAGE

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_divine_protection"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 2
+icon = SubResource("PlaceholderTexture2D_divine_protection")
+name = "Divine Protection"
+description_key = "SKILL_2_DESC"
+mana_cost = 0
+cooldown = 0.0
+max_level = 10

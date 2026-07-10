@@ -4,7 +4,7 @@ class_name ShortcutData
 enum ShortcutType { NONE, ITEM, SKILL }
 
 @export var type: ShortcutType = ShortcutType.NONE
-@export var reference_id: int = -1  # item_id or attack_id
+@export var reference_id: int = -1  # item_id or skill_id
 @export var skill_level: int = 1  # only meaningful when type == SKILL
 
 

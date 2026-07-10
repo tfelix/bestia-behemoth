@@ -6,6 +6,7 @@ import net.bestia.zone.battle.skill.SkillRepository
 import net.bestia.zone.battle.skill.SkillType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 /**
@@ -25,14 +26,30 @@ class SkillImporterBootRunner(
   data class SkillYmlDto(
     val id: Long,
     val identifier: String,
-    val strength: Int?,
-    val manaCost: Int,
+    val strength: Int? = null,
+    val manaCost: Int = 0,
     val type: SkillType,
-    val script: String?,
-    val range: Int?,
-    val needsLineOfSight: Boolean,
-    val requiredLevel: Int = 0
+    val script: String? = null,
+    val range: Int? = null,
+    val needsLineOfSight: Boolean = false,
+    val requiredLevel: Int = 0,
+    val description: String? = null
   )
+
+  /**
+   * Wrapper for the single `skills.yml` file which holds all skills under a top-level `skills` list.
+   */
+  data class SkillsYmlFile(
+    val skills: List<SkillYmlDto> = emptyList()
+  )
+
+  override fun loadYmlItems(): List<SkillYmlDto> {
+    val objectMapper = createYmlMapper()
+
+    ClassPathResource(SKILLS_RESOURCE).inputStream.use { stream ->
+      return objectMapper.readValue(stream, SkillsYmlFile::class.java).skills
+    }
+  }
 
   override fun newEntity(dto: SkillYmlDto): Skill {
 
@@ -45,7 +62,8 @@ class SkillImporterBootRunner(
       manaCost = dto.manaCost,
       range = dto.range,
       needsLineOfSight = dto.needsLineOfSight,
-      requiredLevel = dto.requiredLevel
+      requiredLevel = dto.requiredLevel,
+      description = dto.description
     )
   }
 
@@ -71,6 +89,8 @@ class SkillImporterBootRunner(
   }
 
   companion object {
+    private const val SKILLS_RESOURCE = "skills.yml"
+
     private val LOG = KotlinLogging.logger { }
   }
 }

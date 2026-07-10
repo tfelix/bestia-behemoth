@@ -10,6 +10,9 @@ import jakarta.persistence.Table
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.item.Item
 
+/**
+ * This holds special information for unique items
+ */
 @Entity
 @Table(
   name = "player_item",
@@ -19,6 +22,8 @@ class PlayerItem(
   @JoinColumn(name = "item_id", nullable = false)
   val item: Item,
 
+  @ManyToOne
+  @JoinColumn(name = "crafted_by_master_id", nullable = true)
   val craftedBy: Master? = null,
 
   val upgradeLevel: Int = 0,

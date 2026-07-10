@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_blessing"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 1
+icon = SubResource("PlaceholderTexture2D_blessing")
+name = "Blessing"
+description_key = "SKILL_1_DESC"
+mana_cost = 10
+cooldown = 3.0
+max_level = 10

@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.OneToMany
 import net.bestia.zone.item.inventory.InventoryItem
 import net.bestia.zone.item.Item
+import net.bestia.zone.item.inventory.PlayerItem
 
 @Embeddable
 class MasterInventory {
@@ -15,12 +16,13 @@ class MasterInventory {
   val items: List<InventoryItem> get() = _items.toList()
 
   fun addItem(master: Master, item: Item, amount: Int) {
-    val existing = _items.firstOrNull { it.playerItem.identifier == item.identifier && it.playerBestia == null }
+    val existing = _items.firstOrNull { it.playerItem.item.identifier == item.identifier && it.playerBestia == null }
 
     if (existing != null) {
       existing.amount += amount
     } else {
-      _items.add(InventoryItem(master, item, amount))
+      val playerItem = PlayerItem(item = item)
+      _items.add(InventoryItem(master, playerItem, amount))
     }
   }
 
@@ -29,7 +31,7 @@ class MasterInventory {
       "Amount must be bigger or equal than 0"
     }
 
-    val ownedItem = items.firstOrNull { it.playerItem.identifier == itemIdentifier }
+    val ownedItem = items.firstOrNull { it.playerItem.item.identifier == itemIdentifier }
     if (ownedItem == null) {
       return false
     } else {
@@ -47,7 +49,7 @@ class MasterInventory {
   }
 
   fun hasItem(itemIdentifier: String, minAmount: Int): Boolean {
-    val ownedAmount = items.firstOrNull { it.playerItem.identifier == itemIdentifier }?.amount
+    val ownedAmount = items.firstOrNull { it.playerItem.item.identifier == itemIdentifier }?.amount
       ?: return false
 
     return ownedAmount >= minAmount

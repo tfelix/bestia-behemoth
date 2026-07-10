@@ -160,7 +160,10 @@ class ConnectionInfoService {
     return session.master.masterId
   }
 
-  fun getOwnedEntitiesByMaster(accountId: AccountId, masterId: Long): Set<PlayerEntity> {
+  fun getOwnedEntitiesByMaster(
+    accountId: AccountId,
+    masterId: Long
+  ): Set<PlayerEntity> {
     val session = getSession(accountId)
 
     return session.playerEntitiesByMaster[masterId] ?: emptySet()

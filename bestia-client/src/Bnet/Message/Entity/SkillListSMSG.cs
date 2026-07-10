@@ -40,30 +40,4 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       return $"SkillListSMSG(EntityId={EntityId}, SkillCount={Skills.Count})";
     }
   }
-
-  /// <summary>
-  /// Represents a single entry in an entity's merged skill list.
-  /// </summary>
-  [GlobalClass]
-  public partial class SkillListEntry : GodotObject
-  {
-    [Export] public ulong AttackId { get; set; }
-    [Export] public uint Level { get; set; }
-    [Export] public uint MaxLevel { get; set; }
-    [Export] public bool Learned { get; set; }
-
-    /// <summary>
-    /// Creates a SkillListEntry from protobuf data
-    /// </summary>
-    public static SkillListEntry FromProto(global::Bnet.SkillListEntry protoEntry)
-    {
-      return new SkillListEntry
-      {
-        AttackId = protoEntry.AttackId,
-        Level = protoEntry.Level,
-        MaxLevel = protoEntry.MaxLevel,
-        Learned = protoEntry.Learned
-      };
-    }
-  }
 }

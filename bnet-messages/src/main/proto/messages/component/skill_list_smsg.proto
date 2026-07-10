@@ -18,8 +18,8 @@ message SkillListSMSG {
 }
 
 message SkillListEntry {
-  uint64 attack_id = 1;
+  uint64 skill_id = 1;
   uint32 level = 2;
-  uint32 max_level = 3;
-  bool learned = 4;
+  reserved 3, 4;
+  reserved "max_level", "learned";
 }

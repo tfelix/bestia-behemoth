@@ -26,15 +26,15 @@ namespace Bnet {
           string.Concat(
             "CihtZXNzYWdlcy9jb21wb25lbnQvc2tpbGxfbGlzdF9zbXNnLnByb3RvEgRi",
             "bmV0IkgKDVNraWxsTGlzdFNNU0cSEQoJZW50aXR5X2lkGAEgASgGEiQKBnNr",
-            "aWxscxgCIAMoCzIULmJuZXQuU2tpbGxMaXN0RW50cnkiVgoOU2tpbGxMaXN0",
-            "RW50cnkSEQoJYXR0YWNrX2lkGAEgASgEEg0KBWxldmVsGAIgASgNEhEKCW1h",
-            "eF9sZXZlbBgDIAEoDRIPCgdsZWFybmVkGAQgASgIQisKFW5ldC5iZXN0aWEu",
-            "Ym5ldC5wcm90b0ISU2tpbGxMaXN0U01TR1Byb3RvYgZwcm90bzM="));
+            "aWxscxgCIAMoCzIULmJuZXQuU2tpbGxMaXN0RW50cnkiUQoOU2tpbGxMaXN0",
+            "RW50cnkSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA1KBAgDEARK",
+            "BAgEEAVSCW1heF9sZXZlbFIHbGVhcm5lZEIrChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CElNraWxsTGlzdFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListSMSG), global::Bnet.SkillListSMSG.Parser, new[]{ "EntityId", "Skills" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListEntry), global::Bnet.SkillListEntry.Parser, new[]{ "AttackId", "Level", "MaxLevel", "Learned" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SkillListEntry), global::Bnet.SkillListEntry.Parser, new[]{ "SkillId", "Level" }, null, null, null, null)
           }));
     }
     #endregion
@@ -300,10 +300,8 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SkillListEntry(SkillListEntry other) : this() {
-      attackId_ = other.attackId_;
+      skillId_ = other.skillId_;
       level_ = other.level_;
-      maxLevel_ = other.maxLevel_;
-      learned_ = other.learned_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -313,15 +311,15 @@ namespace Bnet {
       return new SkillListEntry(this);
     }
 
-    /// <summary>Field number for the "attack_id" field.</summary>
-    public const int AttackIdFieldNumber = 1;
-    private ulong attackId_;
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 1;
+    private ulong skillId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong AttackId {
-      get { return attackId_; }
+    public ulong SkillId {
+      get { return skillId_; }
       set {
-        attackId_ = value;
+        skillId_ = value;
       }
     }
 
@@ -334,30 +332,6 @@ namespace Bnet {
       get { return level_; }
       set {
         level_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "max_level" field.</summary>
-    public const int MaxLevelFieldNumber = 3;
-    private uint maxLevel_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint MaxLevel {
-      get { return maxLevel_; }
-      set {
-        maxLevel_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "learned" field.</summary>
-    public const int LearnedFieldNumber = 4;
-    private bool learned_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Learned {
-      get { return learned_; }
-      set {
-        learned_ = value;
       }
     }
 
@@ -376,10 +350,8 @@ namespace Bnet {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (AttackId != other.AttackId) return false;
+      if (SkillId != other.SkillId) return false;
       if (Level != other.Level) return false;
-      if (MaxLevel != other.MaxLevel) return false;
-      if (Learned != other.Learned) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -387,10 +359,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (AttackId != 0UL) hash ^= AttackId.GetHashCode();
+      if (SkillId != 0UL) hash ^= SkillId.GetHashCode();
       if (Level != 0) hash ^= Level.GetHashCode();
-      if (MaxLevel != 0) hash ^= MaxLevel.GetHashCode();
-      if (Learned != false) hash ^= Learned.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -409,21 +379,13 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (AttackId != 0UL) {
+      if (SkillId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(AttackId);
+        output.WriteUInt64(SkillId);
       }
       if (Level != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Level);
-      }
-      if (MaxLevel != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(MaxLevel);
-      }
-      if (Learned != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(Learned);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -435,21 +397,13 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (AttackId != 0UL) {
+      if (SkillId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(AttackId);
+        output.WriteUInt64(SkillId);
       }
       if (Level != 0) {
         output.WriteRawTag(16);
         output.WriteUInt32(Level);
-      }
-      if (MaxLevel != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(MaxLevel);
-      }
-      if (Learned != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(Learned);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -461,17 +415,11 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (AttackId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(AttackId);
+      if (SkillId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SkillId);
       }
       if (Level != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Level);
-      }
-      if (MaxLevel != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxLevel);
-      }
-      if (Learned != false) {
-        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -485,17 +433,11 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.AttackId != 0UL) {
-        AttackId = other.AttackId;
+      if (other.SkillId != 0UL) {
+        SkillId = other.SkillId;
       }
       if (other.Level != 0) {
         Level = other.Level;
-      }
-      if (other.MaxLevel != 0) {
-        MaxLevel = other.MaxLevel;
-      }
-      if (other.Learned != false) {
-        Learned = other.Learned;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -513,19 +455,11 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            AttackId = input.ReadUInt64();
+            SkillId = input.ReadUInt64();
             break;
           }
           case 16: {
             Level = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            MaxLevel = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            Learned = input.ReadBool();
             break;
           }
         }
@@ -544,19 +478,11 @@ namespace Bnet {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            AttackId = input.ReadUInt64();
+            SkillId = input.ReadUInt64();
             break;
           }
           case 16: {
             Level = input.ReadUInt32();
-            break;
-          }
-          case 24: {
-            MaxLevel = input.ReadUInt32();
-            break;
-          }
-          case 32: {
-            Learned = input.ReadBool();
             break;
           }
         }

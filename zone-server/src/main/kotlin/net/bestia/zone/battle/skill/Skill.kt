@@ -37,7 +37,14 @@ class Skill(
   /**
    * 0 means this skill is immediately learnable.
    */
-  val requiredLevel: Int
+  val requiredLevel: Int,
+
+  /**
+   * Long-form BBCode flavor text, English only. Synced to the client's translation CSV by
+   * `./gradlew syncSkillDb` - see `.claude/skills/skill-system/SKILL.md`.
+   */
+  @Column(columnDefinition = "TEXT", nullable = true)
+  val description: String? = null
 ) {
 
   init {

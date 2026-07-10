@@ -6,9 +6,10 @@
 
 [resource]
 script = ExtResource("1_script")
-attack_id = 2
+skill_id = 4
 icon = SubResource("PlaceholderTexture2D_heal")
 name = "Heal"
-description = "Restores a small amount of health to the target."
+description_key = "SKILL_4_DESC"
 mana_cost = 8
 cooldown = 2.0
+max_level = 10

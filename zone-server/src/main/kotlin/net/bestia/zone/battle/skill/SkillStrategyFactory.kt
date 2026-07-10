@@ -27,6 +27,7 @@ class SkillStrategyFactory(
       SkillType.RANGED_PHYSICAL -> rangedPhysicalStrategy
       SkillType.MAGIC -> TODO()
       SkillType.NO_DAMAGE -> getScriptBasedStrategy(ctx)
+      SkillType.PASSIVE -> throw IllegalStateException("PASSIVE skills are always-on and cannot be used as an active attack")
     }
   }
 

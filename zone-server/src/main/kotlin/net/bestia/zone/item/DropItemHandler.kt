@@ -78,7 +78,7 @@ class DropItemHandler(
 
     // 3. Spawn the ground item entity outside of the entity access block.
     if (dropPos != null) {
-      lootItemEntityFactory.createLootEntity(itemId = item.id, amount = msg.amount, pos = dropPos)
+      lootItemEntityFactory.createLootEntity(world, itemId = item.id, amount = msg.amount, pos = dropPos)
     }
 
     return true

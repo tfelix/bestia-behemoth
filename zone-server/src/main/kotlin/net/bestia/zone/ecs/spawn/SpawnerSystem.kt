@@ -22,11 +22,11 @@ class SpawnerSystem(
     world.query(Spawner::class).each {
       val spawner = get<Spawner>()
       removeDeadEntities(spawner, world)
-      spawnMissingEntities(spawner)
+      spawnMissingEntities(spawner, world)
     }
   }
 
-  private fun spawnMissingEntities(spawner: Spawner) {
+  private fun spawnMissingEntities(spawner: Spawner, world: World) {
     if (spawner.spawnedEntities.size >= spawner.maxSpawnCount) {
       return
     }
@@ -35,7 +35,7 @@ class SpawnerSystem(
     val y = randomBetween(spawner.position.y - spawner.range / 2, spawner.position.y + spawner.range / 2)
 
     // TODO add high check if we get more complex maps
-    val spawnedEntityId = bestiaEntityFactory.createMobEntity("blob", Vec3L(x, y, 0L))
+    val spawnedEntityId = bestiaEntityFactory.createMobEntity(world, "blob", Vec3L(x, y, 0L))
 
     spawner.spawnedEntities.add(spawnedEntityId)
   }

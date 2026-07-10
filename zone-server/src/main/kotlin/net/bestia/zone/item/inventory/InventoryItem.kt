@@ -1,14 +1,17 @@
 package net.bestia.zone.item.inventory
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.bestia.PlayerBestia
+import net.bestia.zone.ecs.item.Inventory
 
 @Entity
 @Table(
@@ -19,7 +22,7 @@ class InventoryItem(
   @JoinColumn(name = "master_id", nullable = false)
   val master: Master,
 
-  @ManyToOne
+  @ManyToOne(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
   @JoinColumn(name = "player_item_id", nullable = false)
   val playerItem: PlayerItem,
 

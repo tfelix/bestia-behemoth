@@ -12,20 +12,16 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
 
 @Component
 class BestiaEntityFactory(
-  // Resolved lazily via a provider to break the World -> SpawnerSystem -> BestiaEntityFactory ->
-  // World construction cycle (World is a final class, so a @Lazy CGLIB proxy is not possible).
-  private val worldProvider: ObjectProvider<WorldView>,
   private val bestiaRepository: BestiaRepository,
   private val aiProfileRegistry: AiProfileRegistry
 ) {
-  private val world: WorldView get() = worldProvider.getObject()
 
   fun createMobEntity(
+    world: WorldView,
     bestiaId: Long,
     pos: Vec3L,
   ): EntityId {
@@ -63,12 +59,14 @@ class BestiaEntityFactory(
   }
 
   fun createMobEntity(
+    world: WorldView,
     identifier: String,
     pos: Vec3L,
   ): EntityId {
     val bestia = bestiaRepository.findByIdentifierOrThrow(identifier)
 
     return createMobEntity(
+      world,
       bestiaId = bestia.id,
       pos,
     )

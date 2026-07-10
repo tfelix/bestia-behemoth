@@ -36,12 +36,12 @@ func _load_attacks() -> void:
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var attack = load(_attack_db_dir + file_name)
-				if attack and "attack_id" in attack:
-					_attacks[attack.attack_id] = attack
+				if attack and "skill_id" in attack:
+					_attacks[attack.skill_id] = attack
 					loaded_attacks_count += 1
 			file_name = dir.get_next()
 		dir.list_dir_end()
 	print("AttackDB: Loaded %s attacks" % [loaded_attacks_count])
 
-func get_attack(attack_id: int) -> AttackResource:
-	return _attacks.get(attack_id, null)
+func get_attack(skill_id: int) -> AttackResource:
+	return _attacks.get(skill_id, null)

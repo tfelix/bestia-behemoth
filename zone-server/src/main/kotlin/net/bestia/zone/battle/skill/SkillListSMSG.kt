@@ -12,10 +12,8 @@ data class SkillListSMSG(
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val protoSkills = skills.map { skill ->
       SkillListSMSGProto.SkillListEntry.newBuilder()
-        .setAttackId(skill.attackId)
+        .setSkillId(skill.skillId)
         .setLevel(skill.level)
-        .setMaxLevel(skill.maxLevel)
-        .setLearned(skill.learned)
         .build()
     }
 
@@ -30,9 +28,7 @@ data class SkillListSMSG(
   }
 
   data class SkillListEntry(
-    val attackId: Long,
+    val skillId: Long,
     val level: Int,
-    val maxLevel: Int,
-    val learned: Boolean
   )
 }

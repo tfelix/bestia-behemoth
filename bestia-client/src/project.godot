@@ -37,6 +37,7 @@ project/assembly_name="Bestia Behemoth Client"
 
 [gui]
 
+timers/tooltip_delay_sec=1.0
 theme/default_font_multichannel_signed_distance_field=true
 
 [input]
@@ -124,7 +125,7 @@ toggle_skills={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://Localization/items.en.translation")
+locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation")
 
 [rendering]
 

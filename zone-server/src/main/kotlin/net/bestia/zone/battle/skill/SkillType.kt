@@ -21,5 +21,12 @@ enum class SkillType {
    * none of the battle based stats). All effects or damage is done via
    * scripts which are deployed upon usage of this attack.
    */
-  NO_DAMAGE
+  NO_DAMAGE,
+
+  /**
+   * Always-on effect that is never actively cast in battle - a master just invests
+   * skill points into it. Not implemented yet; exists so PASSIVE skills can be
+   * catalogued and learned.
+   */
+  PASSIVE
 }

@@ -1,5 +1,0 @@
-id: 2
-identifier: HEAL
-type: NO_DAMAGE
-script: Heal
-needsLineOfSight: false

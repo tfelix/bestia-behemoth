@@ -10,7 +10,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   public partial class BestiaVisualComponent : EntitySMSG
   {
     [Export]
-    public long BestiaId { get; set; } = 0;
+    public ulong BestiaId { get; set; } = 0;
 
     public static BestiaVisualComponent FromProto(global::Bnet.BestiaVisualComponent protoBestiaVisual)
     {

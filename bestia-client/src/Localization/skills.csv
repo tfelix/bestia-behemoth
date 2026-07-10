@@ -1,0 +1,14 @@
+keys,en
+SKILL_1_DESC,"Blesses the target with divine power.
+
+Temporary increase of STR, DEX, INT and HIT. Versus Undead property and Demon race
+Bestia halves their DEX and INT instead.
+
+[table=5]
+[cell]Level[/cell][cell]Stat Increase[/cell][cell]HIT Increase[/cell][cell]Duration[/cell][cell]Mana[/cell]
+[cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]"
+SKILL_2_DESC,A passive ward that shields the master from harm.
+SKILL_3_DESC,Prepares a meal from gathered ingredients.
+SKILL_4_DESC,Restores a small amount of health to the target.
+SKILL_100_DESC,A weak fire spark that scorches the target.
+SKILL_101_DESC,A basic physical charge attack.
