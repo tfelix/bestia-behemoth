@@ -21,6 +21,9 @@ func _ready() -> void:
 	sparkles.visible = true
 
 
-func _on_area_3d_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	if event.is_action_pressed("normal_action"):
-		ConnectionManager.loot_item(_entity_id)
+func get_item_entity_id() -> int:
+	return _entity_id
+
+
+func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	MouseManager.object_clicked(self, event, event_position)

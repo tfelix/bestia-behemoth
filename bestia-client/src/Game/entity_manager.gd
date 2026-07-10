@@ -15,12 +15,20 @@ var _owned_master_entity_id: int = 0
 
 
 func _ready() -> void:
+	add_to_group("entity_manager")
 	ConnectionManager.connect("entity_received", _on_entity_message_received)
 	ConnectionManager.connect("chat_received", _on_chat_message_received)
 	ConnectionManager.connect("self_received", _on_self_message_received)
 	# After a load we request all entities and information about ourself.
 	ConnectionManager.get_all_entities()
 	ConnectionManager.get_self()
+
+
+## Returns the Entity node the player currently controls (their bestia master), or
+## null before the initial self/entity sync has arrived.
+func get_owned_entity() -> Entity:
+	return _entities.get(_owned_master_entity_id)
+
 
 ## Checks if we have proper controll attached to the entity we currently control.
 func _check_player_controllable_entity() -> void:

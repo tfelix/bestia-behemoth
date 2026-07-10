@@ -22,6 +22,7 @@ var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
+var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.cs")
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
@@ -107,11 +108,31 @@ func get_skills() -> void:
 	socket.SendMessage(msg)
 
 
-func activate_skill(attack_id: int, skill_level: int) -> void:
+func activate_skill(attack_id: int, skill_level: int, target_position: Vector3 = Vector3.ZERO) -> void:
 	assert(is_ready_to_send())
 	var msg = ActivateSkillCMSG.new()
 	msg.AttackId = attack_id
 	msg.SkillLevel = skill_level
+	msg.TargetPosition = target_position
+	socket.SendMessage(msg)
+
+
+## Moves the active entity towards a ground position, walking there tile by tile.
+func move_to(destination: Vector3) -> void:
+	assert(is_ready_to_send())
+
+	var entity_manager = get_tree().get_first_node_in_group("entity_manager")
+	var owned_entity = entity_manager.get_owned_entity() if entity_manager else null
+	if owned_entity == null:
+		printerr("ConnectionManager: cannot move, no owned entity yet")
+		return
+
+	var path := PathCalculator.calculate_tile_path(owned_entity.global_position, destination)
+	if path.is_empty():
+		return
+
+	var msg = MoveActiveEntityCMSG.new()
+	msg.Path = path
 	socket.SendMessage(msg)
 
 

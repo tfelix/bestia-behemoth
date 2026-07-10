@@ -211,4 +211,8 @@ func _use_item() -> void:
 
 
 func _use_skill() -> void:
-	ConnectionManager.activate_skill(_shortcut_data.reference_id, _shortcut_data.skill_level)
+	var attack = AttackDB.get_instance().get_attack(_shortcut_data.reference_id)
+	if attack == null:
+		printerr("ShortcutContainer: Can not use skill, no attack returned for ID: %s" % [_shortcut_data.reference_id])
+		return
+	attack.use_skill(_shortcut_data.skill_level)

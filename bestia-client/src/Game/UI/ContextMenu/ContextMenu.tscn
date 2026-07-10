@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3k7x0m4v8n2q"]
+
+[ext_resource type="Script" path="res://Game/UI/ContextMenu/context_menu.gd" id="1_ctxmn"]
+
+[node name="ContextMenu" type="PopupMenu"]
+script = ExtResource("1_ctxmn")

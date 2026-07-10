@@ -14,6 +14,10 @@ func update_health(_msg: HealthComponentSMSG) -> void:
 	pass
 
 
+func set_selected(_selected: bool) -> void:
+	pass
+
+
 func show_chat(msg: ChatSMSG) -> void:
 	var chat_anchor = get_node("ChatAnchor")
 

@@ -4,6 +4,8 @@ var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
 
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
+var _hovered: bool = false
+var _selected: bool = false
 
 @onready var _name_tag = $NameTag
 @onready var _anim_player = $AnimationPlayer as AnimationPlayer
@@ -48,15 +50,26 @@ func vanish(msg: VanishEntitySMSG) -> void:
 		get_parent().queue_free()
 
 
-func _on_area_3d_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	if event.is_action_pressed("normal_action"):
-		print("bestia %s was clicked" % _bestia_entity_id)
-		ConnectionManager.send_attack_entity(_bestia_entity_id, 0, 1)
+func get_bestia_entity_id() -> int:
+	return _bestia_entity_id
+
+
+func set_selected(selected: bool) -> void:
+	_selected = selected
+	_name_tag.visible = _selected or _hovered
+
+
+func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	MouseManager.object_clicked(self, event, event_position)
 
 
 func _on_area_3d_mouse_entered() -> void:
+	_hovered = true
 	_name_tag.visible = true
+	MouseManager.object_hover(self, true)
 
 
 func _on_area_3d_mouse_exited() -> void:
-	_name_tag.visible = false
+	_hovered = false
+	_name_tag.visible = _selected
+	MouseManager.object_hover(self, false)

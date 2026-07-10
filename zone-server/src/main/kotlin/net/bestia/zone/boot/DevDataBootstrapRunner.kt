@@ -33,7 +33,7 @@ class DevDataBootstrapRunner(
 
   override fun run(vararg args: String?) {
     setupAccounts()
-    spawnMobs()
+    // spawnMobs()
   }
 
   private fun setupAccounts() {

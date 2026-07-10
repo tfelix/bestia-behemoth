@@ -25,7 +25,7 @@ var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 var entity_id: int = 0
 
 var _camera: Node3D = null
-var _speed: float = 1.0
+var _speed: float = 1.5
 
 
 # Movement prediction system
@@ -35,79 +35,125 @@ var _movement_start_time: float = 0.0
 var _movement_start_position: Vector3 = Vector3.ZERO
 var _target_position: Vector3 = Vector3.ZERO
 var _is_moving: bool = false
-var _server_position_correction: bool = false
-var _correction_start_position: Vector3 = Vector3.ZERO
-var _correction_target_position: Vector3 = Vector3.ZERO
+
+# Server reconciliation: rather than snapping/pausing on every authoritative position
+# update, small desyncs are ignored outright and larger ones are folded in as a
+# decaying visual offset on top of the predicted path position, so the entity keeps
+# walking its path instead of jerking or freezing.
+var _correction_offset: Vector3 = Vector3.ZERO
+var _correction_start_offset: Vector3 = Vector3.ZERO
 var _correction_start_time: float = 0.0
+var _correcting: bool = false
+
+# Visual facing rotation
+var _visual_rotation_start_basis: Basis = Basis.IDENTITY
+var _visual_rotation_target_basis: Basis = Basis.IDENTITY
+var _visual_rotation_start_time: float = 0.0
+var _visual_rotating: bool = false
 
 
-const _CORRECTION_DURATION: float = 0.2  # Quick correction to server position
-const _POSITION_THRESHOLD: float = 0.05  # Threshold for server position corrections
+const _CORRECTION_DURATION: float = 0.4  # Time for a larger desync's visual offset to fade out
+const _POSITION_IGNORE_THRESHOLD: float = 0.25  # Desyncs below this (in tiles) are trusted local prediction, not corrected
+const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 
 
 func _process(delta: float) -> void:
 	_update_movement(delta)
+	_update_visual_rotation()
 
 
 func _update_movement(_delta: float) -> void:
 	var current_time = Time.get_ticks_msec() / 1000.0  # More reliable time source
 
-	# Handle server position correction first (higher priority)
-	if _server_position_correction:
-		var correction_progress = (current_time - _correction_start_time) / _CORRECTION_DURATION
-		if correction_progress >= 1.0:
-			# Correction complete
-			position = _correction_target_position
-			_server_position_correction = false
-			# Resume normal movement if we have a path
-			if _current_path.size() > 0 and _path_index < _current_path.size():
-				_resume_path_movement(current_time)
-		else:
-			# Smooth lerp to server position
-			var eased_progress = _ease_out_cubic(correction_progress)
-			position = _correction_start_position.lerp(_correction_target_position, eased_progress)
-		return
+	_update_correction_offset(current_time)
 
-	# Handle normal path movement
+	# Handle normal path movement. The correction offset above rides on top of
+	# whatever position this computes, it never interrupts or replaces it.
 	if _is_moving and _current_path.size() > _path_index and _speed > 0.0:
 		var movement_progress = (current_time - _movement_start_time) * _speed
 		var distance_to_target = _movement_start_position.distance_to(_target_position)
 
 		if movement_progress >= distance_to_target:
 			# Reached current waypoint
-			position = _target_position
+			var reached_position = _target_position
+			position = reached_position + _correction_offset
 			_path_index += 1
 
 			# Check if there are more waypoints
 			if _path_index < _current_path.size():
-				_start_movement_to_next_waypoint(current_time)
+				_start_movement_to_next_waypoint(current_time, reached_position)
 			else:
 				# Path complete
 				_is_moving = false
 		else:
 			# Move towards target
 			var t = movement_progress / distance_to_target if distance_to_target > 0 else 1.0
-			position = _movement_start_position.lerp(_target_position, t)
+			position = _movement_start_position.lerp(_target_position, t) + _correction_offset
 
 
-func _start_movement_to_next_waypoint(current_time: float) -> void:
+## Fades [_correction_offset] out over [_CORRECTION_DURATION] so a larger desync nudges
+## the rendered position smoothly back in sync instead of snapping to it.
+func _update_correction_offset(current_time: float) -> void:
+	if not _correcting:
+		return
+
+	var progress = (current_time - _correction_start_time) / _CORRECTION_DURATION
+	if progress >= 1.0:
+		_correction_offset = Vector3.ZERO
+		_correcting = false
+	else:
+		_correction_offset = _correction_start_offset * (1.0 - _ease_out_cubic(progress))
+
+
+func _start_movement_to_next_waypoint(current_time: float, from_position: Vector3) -> void:
 	if _path_index >= _current_path.size():
 		_is_moving = false
 		return
 
-	_movement_start_position = position
+	_movement_start_position = from_position
 	_target_position = _current_path[_path_index]
 	_movement_start_time = current_time
 	_is_moving = true
+	_face_direction(_target_position - _movement_start_position)
 
 
-func _resume_path_movement(current_time: float) -> void:
-	if _path_index < _current_path.size():
-		_movement_start_position = position
-		_target_position = _current_path[_path_index]
-		_movement_start_time = current_time
-		_is_moving = true
+func _face_direction(direction: Vector3) -> void:
+	# Only yaw the model towards the movement direction, ignore any vertical
+	# component so it doesn't pitch up/down on sloped waypoint segments.
+	var flat_direction = Vector3(direction.x, 0.0, direction.z)
+	if flat_direction.length_squared() < 0.0001:
+		return
+
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual == null:
+		return
+
+	# use_model_front = true since the model's forward axis is +Z, not Godot's default -Z.
+	var target_basis = Basis.looking_at(flat_direction, Vector3.UP, true)
+	_visual_rotation_start_basis = visual.transform.basis
+	_visual_rotation_target_basis = target_basis
+	_visual_rotation_start_time = Time.get_ticks_msec() / 1000.0
+	_visual_rotating = true
+
+
+func _update_visual_rotation() -> void:
+	if not _visual_rotating:
+		return
+
+	var visual = get_node_or_null(_VISUAL_NODE_NAME)
+	if visual == null:
+		_visual_rotating = false
+		return
+
+	var current_time = Time.get_ticks_msec() / 1000.0
+	var progress = (current_time - _visual_rotation_start_time) / _ROTATION_DURATION
+
+	if progress >= 1.0:
+		visual.transform.basis = _visual_rotation_target_basis
+		_visual_rotating = false
+	else:
+		visual.transform.basis = _visual_rotation_start_basis.slerp(_visual_rotation_target_basis, _ease_out_cubic(progress))
 
 
 func show_chat(msg: ChatSMSG) -> void:
@@ -152,24 +198,34 @@ func update_master_visual(msg: MasterVisualComponentSMSG) -> void:
 	add_child(visual)
 
 
+func set_selected(is_selected: bool) -> void:
+	print("Entity: set_selected: %s" % [is_selected])
+
+
 func update_position(msg: PositionComponent) -> void:
 	var new_position = msg.Position
 
-	# If we're currently moving and the server position is different from our prediction,
-	# start a correction lerp
-	if _is_moving and position.distance_to(new_position) > _POSITION_THRESHOLD:
-		var current_time = Time.get_ticks_msec() / 1000.0
-
-		_server_position_correction = true
-		_correction_start_position = position
-		_correction_target_position = new_position
-		_correction_start_time = current_time
-	else:
-		# Direct position update (entity not moving or positions match)
+	if not _is_moving:
+		# Nothing to preserve continuity with, just snap and clear any leftover offset.
 		position = new_position
-		# If we were doing a correction, cancel it
-		if _server_position_correction:
-			_server_position_correction = false
+		_correction_offset = Vector3.ZERO
+		_correcting = false
+		return
+
+	# _correction_offset is a decaying nudge on top of the path-predicted position (see
+	# _update_correction_offset), so subtracting it back out recovers that pure prediction.
+	var predicted_position = position - _correction_offset
+	var error = predicted_position.distance_to(new_position)
+
+	if error <= _POSITION_IGNORE_THRESHOLD:
+		# Small desync: trust our own prediction rather than correcting every tiny drift.
+		return
+
+	# Larger desync: fold it into a decaying offset instead of snapping/pausing, so the
+	# entity keeps walking its current path while the visual position eases back in sync.
+	_correction_start_offset = new_position - predicted_position
+	_correction_start_time = Time.get_ticks_msec() / 1000.0
+	_correcting = true
 
 
 func update_path(msg: PathComponentSMSG) -> void:
@@ -183,9 +239,10 @@ func update_path(msg: PathComponentSMSG) -> void:
 		var current_time = Time.get_ticks_msec() / 1000.0
 
 		_path_index = 0
-		# Cancel any ongoing correction as we have a new path
-		_server_position_correction = false
-		_start_movement_to_next_waypoint(current_time)
+		# A new path starts clean from the current rendered position, no leftover correction.
+		_correction_offset = Vector3.ZERO
+		_correcting = false
+		_start_movement_to_next_waypoint(current_time, position)
 	else:
 		# No path, stop movement
 		_is_moving = false
@@ -211,7 +268,7 @@ func update_speed(msg: SpeedComponentSMSG) -> void:
 			# Update movement parameters
 			_movement_start_position = current_pos
 			_movement_start_time = current_time
-			position = current_pos
+			position = current_pos + _correction_offset
 
 	_speed = new_speed
 

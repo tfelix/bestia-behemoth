@@ -1,26 +1,27 @@
-[gd_scene load_steps=17 format=3 uid="uid://duthbfpw73f8g"]
+[gd_scene format=3 uid="uid://duthbfpw73f8g"]
 
 [ext_resource type="Script" uid="uid://b2nfrhehpmm6p" path="res://Game/game.gd" id="1_oscxy"]
 [ext_resource type="PackedScene" uid="uid://coopsp0c6tacr" path="res://Game/UI/UI.tscn" id="2_eqev2"]
-[ext_resource type="Texture2D" uid="uid://bro17wt5kprll" path="res://Game/Terrain/grass_02/hp_03.png" id="2_fuqhk"]
+[ext_resource type="Texture2D" uid="uid://b631nkxlqbyxh" path="res://Game/Ground/grid_texture.png" id="3_eqev2"]
 [ext_resource type="Texture2D" uid="uid://dx276c222v4da" path="res://Game/Terrain/grass_02/hp_03_s.png" id="4_eqev2"]
 [ext_resource type="Texture2D" uid="uid://c7qkh2bfivt5k" path="res://Game/Terrain/grass_02/hp_03_n.png" id="5_q6w4l"]
 [ext_resource type="Texture2D" uid="uid://cnwg4ybgbvqnb" path="res://Game/Terrain/grass_02/hp_03_r.png" id="6_gp3ee"]
 [ext_resource type="Script" uid="uid://cnjm7a2eprhpj" path="res://Game/entity_manager.gd" id="9_eqev2"]
 [ext_resource type="PackedScene" uid="uid://dqu0btcd80v8u" path="res://Game/Entity/Visual/ItemVisual/Items/Apple.tscn" id="9_q6w4l"]
+[ext_resource type="Script" uid="uid://0pwnf86p2brp" path="res://Game/Ground/walkable_floor.gd" id="10_wlkfl"]
+[ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/MouseMarker/mouse_marker.gd" id="11_msmrk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eqev2"]
-albedo_texture = ExtResource("2_fuqhk")
+albedo_texture = ExtResource("3_eqev2")
 metallic_specular = 0.3
 metallic_texture = ExtResource("4_eqev2")
 roughness_texture = ExtResource("6_gp3ee")
-normal_enabled = true
 normal_scale = 1.32
 normal_texture = ExtResource("5_q6w4l")
-uv1_scale = Vector3(5, 5, 5)
+uv1_scale = Vector3(90, 60, 3)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q6w4l"]
-size = Vector3(30, 30, 10)
+size = Vector3(30, 3, 30)
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gp3ee"]
 points = PackedVector3Array(14.999998, 14.999998, 5, 14.999998, 14.999998, -5, -15, 14.999998, 5, 14.999998, -15, 5, 14.999998, -15, -5, -15, 14.999998, -5, -15, -15, 5, -15, -15, -5)
@@ -32,15 +33,11 @@ sky_top_color = Color(0.84507084, 0.90585876, 0.98905593, 1)
 sky_material = SubResource("ProceduralSkyMaterial_hqwdr")
 
 [sub_resource type="Environment" id="Environment_iv3md"]
-background_mode = 2
 sky = SubResource("Sky_vrr3t")
-ambient_light_color = Color(0.796243, 0.796243, 0.796243, 1)
-glow_enabled = true
 glow_levels/2 = 6.0
 fog_mode = 1
 fog_light_color = Color(0.6304211, 0.7294453, 0.8286436, 1)
 fog_density = 1.0
-fog_aerial_perspective = 0.8
 fog_depth_begin = 100.0
 fog_depth_end = 200.0
 
@@ -52,41 +49,45 @@ disable_receive_shadows = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_eqev2"]
 material = SubResource("StandardMaterial3D_oscxy")
-size = Vector3(1, 0.3, 1)
+size = Vector3(1, 0.2, 1)
 
-[node name="Game" type="Node3D"]
+[node name="Game" type="Node3D" unique_id=681863742]
 script = ExtResource("1_oscxy")
 
-[node name="UI" parent="." instance=ExtResource("2_eqev2")]
+[node name="UI" parent="." unique_id=426573470 instance=ExtResource("2_eqev2")]
 
-[node name="Ground" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -5, 0)
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=1769737986]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
 material_override = SubResource("StandardMaterial3D_eqev2")
 mesh = SubResource("BoxMesh_q6w4l")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Ground" unique_id=98500977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.1855695e-07, 5)
+script = ExtResource("10_wlkfl")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1855695e-07, -5)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D" unique_id=250671934]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7311924e-07, -8.535974)
 shape = SubResource("ConvexPolygonShape3D_gp3ee")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1346274885]
 environment = SubResource("Environment_iv3md")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=297546982]
 transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
 shadow_enabled = true
 
-[node name="EntityManager" type="Node" parent="."]
+[node name="EntityManager" type="Node" parent="." unique_id=432959366]
 script = ExtResource("9_eqev2")
 
-[node name="MouseMarker" type="Node3D" parent="."]
+[node name="MouseMarker" type="Node3D" parent="." unique_id=1320338604]
+script = ExtResource("11_msmrk")
 
-[node name="MoverMarker" type="MeshInstance3D" parent="MouseMarker"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4002205, 0.117854, 1.6559885)
+[node name="MoverMarker" type="MeshInstance3D" parent="MouseMarker" unique_id=1079159696]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.118, 0.5)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_eqev2")
 
-[node name="ItemVisual" parent="." instance=ExtResource("9_q6w4l")]
+[node name="ItemVisual" parent="." unique_id=473031306 instance=ExtResource("9_q6w4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.177413, 0.18417144, 5.493434)
+
+[connection signal="input_event" from="Ground/StaticBody3D" to="Ground/StaticBody3D" method="_on_input_event"]

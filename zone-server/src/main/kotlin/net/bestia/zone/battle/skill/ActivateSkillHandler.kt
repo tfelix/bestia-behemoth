@@ -41,7 +41,7 @@ class ActivateSkillHandler(
       return true
     }
 
-    LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel}" }
+    LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
     return true
   }

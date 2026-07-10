@@ -24,6 +24,7 @@ config/icon="uid://dc0oxq2bg1lcb"
 SceneManager="*res://Manager/SceneManager.gd"
 SettingsManager="*res://Manager/SettingsManager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
+MouseManager="*res://Manager/mouse_manager.gd"
 
 [display]
 

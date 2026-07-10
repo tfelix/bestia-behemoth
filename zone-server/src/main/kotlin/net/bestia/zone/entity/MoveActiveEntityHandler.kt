@@ -2,10 +2,13 @@ package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
+import kotlin.math.abs
 
 /**
  * Applies a movement request from a client by attaching a [Path] to the player's currently active
@@ -28,14 +31,25 @@ class MoveActiveEntityHandler(
       if (msg.path.isEmpty()) {
         // An empty path is a stop request: drop any current path.
         remove(id, Path::class)
-      } else {
-        val existing = get(id, Path::class)
-        if (existing != null) {
-          existing.setPath(msg.path)
-          markChanged(id, Path::class)
-        } else {
-          add(id, Path(msg.path.toMutableList()))
+        return@modify
+      }
+
+      val position = get(id, Position::class)
+      val firstStep = msg.path.first()
+      if (position != null && !isAdjacent(position, firstStep)) {
+        LOG.warn {
+          "Dropping move for entity $id: path start $firstStep is not adjacent to current position " +
+            "(${position.x}, ${position.y}, ${position.z})"
         }
+        return@modify
+      }
+
+      val existing = get(id, Path::class)
+      if (existing != null) {
+        existing.setPath(msg.path)
+        markChanged(id, Path::class)
+      } else {
+        add(id, Path(msg.path.toMutableList()))
       }
     }
 
@@ -44,5 +58,9 @@ class MoveActiveEntityHandler(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+
+    private fun isAdjacent(position: Position, target: Vec3L): Boolean {
+      return abs(position.x - target.x) <= 1 && abs(position.y - target.y) <= 1
+    }
   }
 }
