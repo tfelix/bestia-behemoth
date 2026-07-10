@@ -39,7 +39,7 @@ func enter_default() -> void:
 
 
 func enter_item_targeting(item: ItemResource, item_use: ItemUse, cursor_texture: Texture2D = null) -> void:
-	print_debug("MM: enter_item_targeting %s" % [item.name])
+	print_debug("MouseManager.enter_item_targeting: %s" % [item.name])
 	var state := MouseStateItemTargeting.new()
 	state.item = item
 	state.item_use = item_use
@@ -48,7 +48,7 @@ func enter_item_targeting(item: ItemResource, item_use: ItemUse, cursor_texture:
 
 
 func enter_skill_targeting(skill: AttackResource, skill_level: int, indicator_scene: PackedScene = null) -> void:
-	print_debug("MM: enter_skill_targeting %s" % [skill.name])
+	print_debug("MouseManager.enter_skill_targeting: %s" % [skill.name])
 	var state := MouseStateSkillTargeting.new()
 	state.attack = skill
 	state.skill_level = skill_level
@@ -69,19 +69,17 @@ func cancel_targeting() -> void:
 
 
 func object_clicked(object: Node3D, event: InputEvent, click_position: Vector3) -> void:
+	print_debug("object_clicked: object: %s" % [object.name])
 	current_state.handle_object_clicked(self, object, event, click_position)
 
 
-func object_hover(object: Node3D, entered: bool) -> void:
+func on_object_hover(object: Node3D, entered: bool) -> void:
 	current_state.handle_object_hover(self, object, entered)
 
 
-func ground_clicked(click_position: Vector3, event: InputEvent) -> void:
-	current_state.handle_ground_clicked(self, click_position, event)
-
-
-func right_clicked(screen_position: Vector2) -> void:
-	current_state.handle_right_click(self, screen_position)
+func on_ground_input_event(position: Vector3, event: InputEvent) -> void:
+	# print_debug("on_ground_input_event: position: %s" % [position])
+	current_state.handle_ground_input_event(self, position, event)
 
 
 func open_context_menu(screen_position: Vector2) -> void:

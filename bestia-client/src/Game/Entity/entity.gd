@@ -25,6 +25,7 @@ var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 var entity_id: int = 0
 
 var _camera: Node3D = null
+##
 var _speed: float = 1.5
 
 
@@ -202,6 +203,13 @@ func set_selected(is_selected: bool) -> void:
 	print("Entity: set_selected: %s" % [is_selected])
 
 
+### This is called if you clicked on an entity via the mouse_manager. You
+### can implement a further delegation maybe against the visual component how
+### to handle the click.
+func on_interact() -> void:
+	print("Entity: on_interact")
+
+
 func update_position(msg: PositionComponent) -> void:
 	var new_position = msg.Position
 
@@ -214,11 +222,12 @@ func update_position(msg: PositionComponent) -> void:
 
 	# _correction_offset is a decaying nudge on top of the path-predicted position (see
 	# _update_correction_offset), so subtracting it back out recovers that pure prediction.
-	var predicted_position = position - _correction_offset
+	var predicted_position := position - _correction_offset
 	var error = predicted_position.distance_to(new_position)
 
 	if error <= _POSITION_IGNORE_THRESHOLD:
 		# Small desync: trust our own prediction rather than correcting every tiny drift.
+		print_debug("Small error, ignoring correction: %s" % [error])
 		return
 
 	# Larger desync: fold it into a decaying offset instead of snapping/pausing, so the
@@ -226,6 +235,7 @@ func update_position(msg: PositionComponent) -> void:
 	_correction_start_offset = new_position - predicted_position
 	_correction_start_time = Time.get_ticks_msec() / 1000.0
 	_correcting = true
+	print_debug("Entity.update_position: Offset too large pos: %s, predicted_pos: %s" % [new_position, predicted_position])
 
 
 func update_path(msg: PathComponentSMSG) -> void:

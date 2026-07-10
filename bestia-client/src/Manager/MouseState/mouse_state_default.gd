@@ -10,13 +10,13 @@ func enter(mgr) -> void:
 	mgr.reset_os_cursor()
 
 
-func handle_object_clicked(mgr, object: Node3D, event: InputEvent, click_position: Vector3) -> void:
+func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent, click_position: Vector3) -> void:
 	if not event.is_action_pressed("normal_action"):
 		return
 
-	var interactable := _find_interactable(object)
-	if interactable:
-		interactable.on_interact()
+	var entity := _find_entity(object)
+	if entity:
+		entity.on_interact()
 		return
 
 	if object is BestiaVisual:
@@ -26,8 +26,8 @@ func handle_object_clicked(mgr, object: Node3D, event: InputEvent, click_positio
 		ConnectionManager.loot_item(object.get_item_entity_id())
 
 
-func handle_object_hover(mgr, object: Node3D, entered: bool) -> void:
-	var interactable := _find_interactable(object)
+func handle_object_hover(mgr: MouseManager, object: Node3D, entered: bool) -> void:
+	var interactable := _find_entity(object)
 	if interactable == null:
 		return
 	if entered:
@@ -36,19 +36,19 @@ func handle_object_hover(mgr, object: Node3D, entered: bool) -> void:
 		mgr.reset_os_cursor()
 
 
-func handle_ground_clicked(mgr, click_position: Vector3, event: InputEvent) -> void:
+func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event: InputEvent) -> void:
 	if event.is_action_pressed("normal_action"):
 		ConnectionManager.move_to(click_position)
 
 
-func handle_right_click(mgr, screen_position: Vector2) -> void:
-	mgr.open_context_menu(screen_position)
+func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
+	pass
+	# TODO not sure if I want a right click menu... 
+	# mgr.open_context_menu(screen_position)
 
 
-func _find_interactable(object: Node3D) -> Interactable:
-	if object == null:
-		return null
-	for child in object.get_children():
-		if child is Interactable:
-			return child
+func _find_entity(object: Node3D) -> Entity:
+	# I think this makes no sense. If an entity is clicked find the
+	# entity and then call on_interact() on the entity. The visual must
+	# then react. 
 	return null

@@ -23,8 +23,8 @@ uv1_scale = Vector3(90, 60, 3)
 [sub_resource type="BoxMesh" id="BoxMesh_q6w4l"]
 size = Vector3(30, 3, 30)
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_gp3ee"]
-points = PackedVector3Array(14.999998, 14.999998, 5, 14.999998, 14.999998, -5, -15, 14.999998, 5, 14.999998, -15, 5, 14.999998, -15, -5, -15, 14.999998, -5, -15, -15, 5, -15, -15, -5)
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_q6w4l"]
+data = PackedVector3Array(-15, 1.5, 15, 15, 1.5, 15, -15, -1.5, 15, 15, 1.5, 15, 15, -1.5, 15, -15, -1.5, 15, 15, 1.5, -15, -15, 1.5, -15, 15, -1.5, -15, -15, 1.5, -15, -15, -1.5, -15, 15, -1.5, -15, 15, 1.5, 15, 15, 1.5, -15, 15, -1.5, 15, 15, 1.5, -15, 15, -1.5, -15, 15, -1.5, 15, -15, 1.5, -15, -15, 1.5, 15, -15, -1.5, -15, -15, 1.5, 15, -15, -1.5, 15, -15, -1.5, -15, 15, 1.5, 15, -15, 1.5, 15, 15, 1.5, -15, -15, 1.5, 15, -15, 1.5, -15, 15, 1.5, -15, -15, -1.5, 15, 15, -1.5, 15, -15, -1.5, -15, 15, -1.5, 15, 15, -1.5, -15, -15, -1.5, -15)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hqwdr"]
 sky_top_color = Color(0.84507084, 0.90585876, 0.98905593, 1)
@@ -65,9 +65,9 @@ mesh = SubResource("BoxMesh_q6w4l")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.1855695e-07, 5)
 script = ExtResource("10_wlkfl")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D" unique_id=250671934]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7311924e-07, -8.535974)
-shape = SubResource("ConvexPolygonShape3D_gp3ee")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D" unique_id=2147015633]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3841858e-07, -5)
+shape = SubResource("ConcavePolygonShape3D_q6w4l")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1346274885]
 environment = SubResource("Environment_iv3md")

@@ -4,7 +4,7 @@ extends Node3D
 
 @export var mouse_sensibility :=  0.0035
 @export_range(-90.0, 0.0, 0.1, "radians_as_degrees") var min_vertical_angle: float = -PI/2
-@export_range(0.0, 90.0, 0.1, "radians_as_degrees") var max_vertical_angle: float = PI/4
+@export_range(-40, 0.0, 0.1, "radians_as_degrees") var max_vertical_angle: float = PI/4
 @export_range(1, 15, 1, "min_camera_distance_as_meter") var min_cam_distance: int = 3
 @export_range(15, 30, 1, "max_camera_distance_as_meter") var max_cam_distance: int = 10
 
