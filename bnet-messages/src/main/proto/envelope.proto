@@ -32,6 +32,7 @@ import "messages/component/inventory_component_smsg.proto";
 import "messages/component/skill_points_smsg.proto";
 import "messages/component/skill_list_smsg.proto";
 import "messages/component/animation_component_smsg.proto";
+import "messages/component/buff_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
@@ -102,6 +103,7 @@ message Envelope {
     SkillPointsSMSG comp_skill_points = 523;
     SkillListSMSG comp_skill_list = 524;
     AnimationComponentSMSG comp_animation = 525;
+    BuffListSMSG comp_buffs = 526;
 
     // MISC
   }

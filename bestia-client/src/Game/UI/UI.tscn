@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dh4io5biq60uv" path="res://Game/UI/Skills/Skills.tscn" id="6_61e43"]
 [ext_resource type="PackedScene" path="res://Game/UI/GroundDropZone/GroundDropZone.tscn" id="7_gdz01"]
 [ext_resource type="PackedScene" uid="uid://b1nffouceksfy" path="res://Game/UI/WidgetWindow/WidgetWindow.tscn" id="8_wdgtw"]
+[ext_resource type="PackedScene" uid="uid://cip6lbglf50vh" path="res://Game/UI/BuffList/BuffList.tscn" id="9_74y3c"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -23,8 +24,8 @@ script = ExtResource("1_ob0eg")
 layout_mode = 1
 
 [node name="InventoryWin" parent="." unique_id=1285057893 instance=ExtResource("8_wdgtw")]
-layout_mode = 1
 visible = false
+layout_mode = 1
 content = ExtResource("5_3d66e")
 window_title = "Inventory"
 
@@ -47,10 +48,17 @@ offset_left = 16.0
 offset_right = 586.0
 
 [node name="SkillsWin" parent="." unique_id=2084369024 instance=ExtResource("8_wdgtw")]
-layout_mode = 1
 visible = false
+layout_mode = 1
 content = ExtResource("6_61e43")
 window_title = "Skills"
+
+[node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
+layout_mode = 1
+offset_left = -80.0
+offset_top = 250.0
+offset_right = -16.0
+offset_bottom = 450.0
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

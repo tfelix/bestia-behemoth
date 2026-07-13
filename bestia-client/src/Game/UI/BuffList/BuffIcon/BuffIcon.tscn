@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://b00uedqnq8tum"]
+
+[ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="1_mtpa7"]
+
+[node name="BuffIcon" type="VBoxContainer" unique_id=1724107923]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 0
+
+[node name="BuffIconButton" type="TextureButton" parent="." unique_id=1171179767]
+custom_maximum_size = Vector2(64, 64)
+layout_mode = 2
+texture_normal = ExtResource("1_mtpa7")
+texture_pressed = ExtResource("1_mtpa7")
+stretch_mode = 5
+
+[node name="DurationLabel" type="Label" parent="." unique_id=695985219]
+layout_mode = 2
+text = "2m"
+horizontal_alignment = 1

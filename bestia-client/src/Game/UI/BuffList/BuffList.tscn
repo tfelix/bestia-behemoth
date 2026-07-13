@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cip6lbglf50vh"]
+
+[ext_resource type="PackedScene" uid="uid://b00uedqnq8tum" path="res://Game/UI/BuffList/BuffIcon/BuffIcon.tscn" id="1_4nuue"]
+
+[node name="BuffList" type="VBoxContainer" unique_id=1141227662]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -64.0
+offset_bottom = 200.0
+grow_horizontal = 0
+
+[node name="BuffIcon1" parent="." unique_id=1171179767 instance=ExtResource("1_4nuue")]
+layout_mode = 2
+
+[node name="BuffIcon2" parent="." unique_id=1724107923 instance=ExtResource("1_4nuue")]
+layout_mode = 2

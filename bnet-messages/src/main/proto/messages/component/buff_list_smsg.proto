@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BuffListSMSGProto";
+
+/**
+ * Every currently visible buff/debuff active on an entity. Buffs marked internal-only
+ * (`showIcon = false` server-side) are filtered out before this message is built, so they never
+ * appear here.
+ */
+message BuffListSMSG {
+  fixed64 entity_id = 1;
+  repeated BuffEntry buffs = 2;
+}
+
+message BuffEntry {
+  uint32 buff_id = 1;
+  uint32 level = 2;
+  float remaining_seconds = 3;
+  bool debuff = 4;
+}
