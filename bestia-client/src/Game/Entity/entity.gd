@@ -254,7 +254,7 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 
 
 func _update_animation_direct(animation_name: String) -> void:
-	print_debug("Entity: _update_animation_direct set animation: %s" % [animation_name])
+	# print_debug("Entity: _update_animation_direct set animation: %s" % [animation_name])
 	var visual = _get_visual_for_method("update_animation_direct")
 	if visual != null:
 		visual.update_animation_direct(animation_name)

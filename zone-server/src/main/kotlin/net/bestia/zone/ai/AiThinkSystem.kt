@@ -1,4 +1,4 @@
-package net.bestia.zone.ai.ecs
+package net.bestia.zone.ai
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.goal.UtilityScorer

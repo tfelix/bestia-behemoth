@@ -1,6 +1,6 @@
 package net.bestia.zone.ai.planner
 
-import net.bestia.zone.ai.ecs.Brain
+import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.goal.consideration.DecisionContext
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Service

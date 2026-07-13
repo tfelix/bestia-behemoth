@@ -2,8 +2,14 @@ extends MarginContainer
 
 signal row_selected(row)
 
+## Emitted whenever this row's buffered (not-yet-confirmed) point investment changes, so the
+## owning Skills list can recompute how many skill points are still available to spend across
+## all rows and whether the footer's Confirm/Cancel buttons should show.
+signal investment_changed(row)
+
 const DISABLED_MODULATE: Color = Color(0.4, 0.4, 0.4, 0.6)
 const SELECTED_MODULATE: Color = Color(0.75, 0.85, 1.0)
+const PENDING_MODULATE: Color = Color(1.0, 0.9, 0.6)
 
 @onready var _spend_skill_point_button = %SpendSkillPointButton
 @onready var _icon: TextureRect = %TextureRect
@@ -16,9 +22,29 @@ const SELECTED_MODULATE: Color = Color(0.75, 0.85, 1.0)
 @onready var _detail_row: HBoxContainer = %DetailRow
 
 var skill_id: int = -1
-var _disabled: bool = false
 var _selected: bool = false
 var _max_skill_level: int = 1
+
+# The level the server has confirmed as learned/invested (from the last SkillListSMSG) - this,
+# not _max_skill_level, is the ceiling for what can be selected to actually Use or drag onto a
+# shortcut, since a pending investment isn't real until the server has accepted it.
+var _base_level: int = 0
+
+# Points spent on this row via the "+" button since the last confirm/cancel - buffered locally,
+# only sent to the server (InvestSkillPointCMSG) when the owning Skills list's Confirm button is
+# pressed. Cleared on Cancel, and implicitly cleared for good on confirm since the resulting
+# SkillListSMSG rebuild tears down and reinstantiates every row from scratch.
+var _pending_points: int = 0
+
+# Whether the entity this row belongs to is the account's own master - only a master invests
+# skill points into the tree, so bestia rows (single-level, level-gated by species) must never
+# offer the spend button even if the master still has unspent points lying around.
+var _is_master_row: bool = false
+
+# Whether the master (account-wide) still has skill points left to spend, broadcast in from
+# Skills._update_skill_row_buttons - a row has no standing connection to that count otherwise.
+var _can_spend_globally: bool = false
+
 var _selected_skill_level: int = 1
 
 
@@ -31,12 +57,13 @@ func get_selected_level() -> int:
 
 
 ## Sets up the row from a single SkillListEntry - looks up the matching AttackDB entry
-## itself (falling back to a placeholder "Unknown Skill" display if it's missing) and
-## disables the row when the entry isn't learned yet (Level == 0).
+## itself (falling back to a placeholder "Unknown Skill" display if it's missing).
 func initialize(entry: SkillListEntry) -> void:
 	var attack: AttackResource = AttackDB.get_instance().get_attack(entry.SkillId)
 
 	skill_id = entry.SkillId
+	_base_level = entry.Level
+	_pending_points = 0
 
 	if attack:
 		_skill_name.text = attack.name
@@ -54,8 +81,7 @@ func initialize(entry: SkillListEntry) -> void:
 		tooltip_text = ""
 		_max_skill_level = 1
 
-	_selected_skill_level = clampi(entry.Level, 1, _max_skill_level)
-	_update_skill_level_label()
+	_selected_skill_level = clampi(_base_level, 1, maxi(_base_level, 1))
 
 	# Regular bestia skills are always single-level (max_level == 1) - only a bestia
 	# master's skill tree has multiple ranks worth choosing between, so the selector
@@ -64,43 +90,62 @@ func initialize(entry: SkillListEntry) -> void:
 	_level_minus_button.visible = show_level_selector
 	_level_plus_button.visible = show_level_selector
 
-	_set_disabled(entry.Level == 0)
+	_refresh_display()
+
+
+## Called by Skills (the owning list) so a row knows whether it belongs to the account's own
+## master (the only entity that can spend skill points) or one of its bestias.
+func set_is_master_row(is_master_row: bool) -> void:
+	_is_master_row = is_master_row
+	_refresh_display()
 
 
 func _update_skill_level_label() -> void:
-	_skill_level.text = "Lv: %s / %s" % [_selected_skill_level, _max_skill_level]
+	if _pending_points > 0:
+		_skill_level.text = "Lv: %s / %s (+%s pending)" % [_selected_skill_level, _max_skill_level, _pending_points]
+	else:
+		_skill_level.text = "Lv: %s / %s" % [_selected_skill_level, _max_skill_level]
 
 
 func _on_level_minus_button_pressed() -> void:
-	_selected_skill_level = clampi(_selected_skill_level - 1, 1, _max_skill_level)
+	_selected_skill_level = clampi(_selected_skill_level - 1, 1, maxi(_base_level, 1))
 	_update_skill_level_label()
 
 
 func _on_level_plus_button_pressed() -> void:
-	_selected_skill_level = clampi(_selected_skill_level + 1, 1, _max_skill_level)
+	# Capped at _base_level (server-confirmed), not _max_skill_level (the tree's overall cap) -
+	# a pending, unconfirmed investment isn't usable yet.
+	_selected_skill_level = clampi(_selected_skill_level + 1, 1, maxi(_base_level, 1))
 	_update_skill_level_label()
 
 
-func _set_disabled(disabled: bool) -> void:
-	_disabled = disabled
-	_spend_skill_point_button.disabled = disabled
-	_level_minus_button.disabled = disabled
-	_level_plus_button.disabled = disabled
-	
-	if disabled:
-		_detail_row.hide()
-		_not_available_label.show()
-	else:
+## Recomputes every part of the row's display from _base_level/_pending_points/_max_skill_level -
+## called after initialize(), a pending investment change, or a Cancel reset.
+func _refresh_display() -> void:
+	var effective_level = _base_level + _pending_points
+	var learned = effective_level > 0
+
+	_selected_skill_level = clampi(_selected_skill_level, 1, maxi(_base_level, 1))
+	_update_skill_level_label()
+
+	if learned:
 		_detail_row.show()
 		_not_available_label.hide()
-	
+	else:
+		_detail_row.hide()
+		_not_available_label.show()
+
+	var can_invest_more = _is_master_row and effective_level < _max_skill_level
+	_spend_skill_point_button.visible = _can_spend_globally and can_invest_more
+
 	_update_modulate()
 
 
 ## Called by Skills (the owning list) whenever the account's spendable skill point count
 ## changes, since a row has no standing connection to that state otherwise.
 func set_can_spend_points(can_spend: bool) -> void:
-	_spend_skill_point_button.visible = can_spend
+	_can_spend_globally = can_spend
+	_refresh_display()
 
 
 ## Called by Skills (the owning list) to highlight whichever row was last clicked, so the
@@ -110,9 +155,32 @@ func set_selected(selected: bool) -> void:
 	_update_modulate()
 
 
+func has_pending_investment() -> bool:
+	return _pending_points > 0
+
+
+## Returns the {attack_id, amount} this row wants to invest, for Skills to batch into a single
+## InvestSkillPointCMSG on Confirm. Empty if nothing is buffered.
+func get_pending_investment() -> Dictionary:
+	if _pending_points <= 0:
+		return {}
+	return {"attack_id": skill_id, "amount": _pending_points}
+
+
+## Called by Skills (the owning list) when Cancel is pressed, discarding any buffered,
+## not-yet-confirmed investment on this row.
+func reset_pending_investment() -> void:
+	if _pending_points == 0:
+		return
+	_pending_points = 0
+	_refresh_display()
+
+
 func _update_modulate() -> void:
-	if _disabled:
+	if _base_level + _pending_points == 0:
 		self_modulate = DISABLED_MODULATE
+	elif _pending_points > 0:
+		self_modulate = PENDING_MODULATE
 	elif _selected:
 		self_modulate = SELECTED_MODULATE
 	else:
@@ -140,7 +208,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 
 
 func _gui_input(event: InputEvent) -> void:
-	if _disabled:
+	if _base_level == 0:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		row_selected.emit(self)
@@ -150,7 +218,7 @@ func _gui_input(event: InputEvent) -> void:
 ## Allows a learned skill to be dragged onto a hotbar shortcut slot at the currently
 ## selected level (see ShortcutContainer._can_drop_data, which already accepts "skill").
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if _disabled:
+	if _base_level == 0:
 		return null
 
 	var preview: TextureRect = TextureRect.new()
@@ -163,15 +231,13 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	return {"type": "skill", "id": skill_id, "level": _selected_skill_level}
 
 
+## Buffers a level-up locally - nothing is sent to the server until Skills' Confirm button is
+## pressed and batches every row's pending investment into one InvestSkillPointCMSG.
 func _on_spend_skill_point_button_pressed() -> void:
-	# TODO
-	# save the level up intend temporary in the node here
-	# tell the parent skill to decrement available skill points (how? maybe emit signal?)
-	# when apply is clicked new skill are send to the server, server validates it
-	# server send new skill list with updated level
-	# client updates available skill points 
-	# when cancel is clicked on the parent available skill points are resettet and all childs are told
-	# to reset back their temp. skill points.
-	# important: must mimic the dep graph of skills. If a pre-req is leveld up with some initial avail skill points
-	# then the newly added skills must be set as active.
-	print("geht")
+	var effective_level = _base_level + _pending_points
+	if not _is_master_row or not _can_spend_globally or effective_level >= _max_skill_level:
+		return
+
+	_pending_points += 1
+	_refresh_display()
+	investment_changed.emit(self)

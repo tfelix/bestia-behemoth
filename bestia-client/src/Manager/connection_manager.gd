@@ -26,6 +26,7 @@ var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.
 var GetInventoryCMSG = load("res://Bnet/Message/Inventory/GetInventoryCMSG.cs")
 var GetSkillsCMSG = load("res://Bnet/Message/Master/GetSkillsCMSG.cs")
 var ActivateSkillCMSG = load("res://Bnet/Message/Master/ActivateSkillCMSG.cs")
+var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.cs")
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
@@ -114,6 +115,18 @@ func activate_skill(attack_id: int, skill_level: int, target_position: Vector3 =
 	msg.AttackId = attack_id
 	msg.SkillLevel = skill_level
 	msg.TargetPosition = target_position
+	socket.SendMessage(msg)
+
+
+## Spends one or more skill points across one or more skill tree nodes in a single batch.
+## [param investments] is an Array of {"attack_id": int, "amount": int} dictionaries.
+func invest_skill_points(investments: Array) -> void:
+	assert(is_ready_to_send())
+	var msg = InvestSkillPointCMSG.new()
+	var points: Array = []
+	for investment in investments:
+		points.append({"attack_id": investment["attack_id"], "amount": investment["amount"]})
+	msg.InvestedPoints = points
 	socket.SendMessage(msg)
 
 

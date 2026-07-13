@@ -1,7 +1,7 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ai.ecs.Brain
+import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.status.Health

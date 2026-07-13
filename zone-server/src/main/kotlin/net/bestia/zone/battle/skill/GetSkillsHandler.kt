@@ -1,8 +1,6 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.PlayerBestiaNotFoundException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
@@ -24,10 +22,9 @@ import org.springframework.transaction.annotation.Transactional
 class GetSkillsHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val outMessageProcessor: OutMessageProcessor,
-  private val masterRepository: MasterRepository,
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
-  private val masterSkillTreeRegistry: MasterSkillTreeRegistry
+  private val masterSkillListBuilder: MasterSkillListBuilder
 ) : InMessageProcessor.IncomingMessageHandler<GetSkillsCMSG> {
   override val handles = GetSkillsCMSG::class
 
@@ -40,7 +37,7 @@ class GetSkillsHandler(
     val masterId = connectionInfoService.getMasterId(msg.playerId)
 
     val entries = if (activeEntityId == masterEntityId) {
-      buildMasterSkillEntries(masterId)
+      masterSkillListBuilder.buildMasterSkillEntries(masterId)
     } else {
       buildBestiaSkillEntries(msg.playerId, masterId, activeEntityId)
     }
@@ -48,26 +45,6 @@ class GetSkillsHandler(
     outMessageProcessor.sendToPlayer(msg.playerId, SkillListSMSG(activeEntityId, entries))
 
     return true
-  }
-
-  /**
-   * A master's regular catalog is its whole skill tree (config, not player state) — every node
-   * is shown, dimmed on the client until points are invested into it.
-   */
-  private fun buildMasterSkillEntries(masterId: Long): List<SkillListSMSG.SkillListEntry> {
-    // safety check if the master exists we can not see this alone by selecting all learned skills
-    masterRepository.findByIdOrThrow(masterId)
-
-    val learnedBySkillId = learnedSkillRepository.findAllByMasterId(masterId)
-      .associateBy { it.skill.id }
-
-    return masterSkillTreeRegistry.all().map { node ->
-      val investedLevel = learnedBySkillId[node.skillId]?.level ?: 0
-      SkillListSMSG.SkillListEntry(
-        skillId = node.skillId,
-        level = investedLevel,
-      )
-    }
   }
 
   /**

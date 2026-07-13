@@ -52,6 +52,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Skill Points: 0"
 
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1832136978]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=1832136979]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
 [node name="UseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow" unique_id=748753310]
 layout_mode = 2
 text = "Use"
@@ -62,5 +72,7 @@ text = "Close"
 
 [connection signal="text_changed" from="VBoxContainer/SearchRow/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="pressed" from="VBoxContainer/SearchRow/ClearButton" to="." method="_on_clear_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/UseButton" to="." method="_on_use_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/CloseButton" to="." method="_on_close_button_pressed"]

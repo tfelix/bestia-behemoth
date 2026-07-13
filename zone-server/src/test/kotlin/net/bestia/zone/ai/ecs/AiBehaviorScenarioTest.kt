@@ -1,5 +1,8 @@
 package net.bestia.zone.ai.ecs
 
+import net.bestia.zone.ai.AiActSystem
+import net.bestia.zone.ai.AiThinkSystem
+import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.goal.GoalRegistry
 import net.bestia.zone.ai.goal.UtilityScorer
 import net.bestia.zone.ai.goal.consideration.ConsiderationInputRegistry

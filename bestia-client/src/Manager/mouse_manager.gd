@@ -50,7 +50,7 @@ func enter_item_targeting(item: ItemResource, item_use: ItemUse, cursor_texture:
 func enter_skill_targeting(skill: AttackResource, skill_level: int, indicator_scene: PackedScene = null) -> void:
 	print_debug("MouseManager.enter_skill_targeting: %s" % [skill.name])
 	var state := MouseStateSkillTargeting.new()
-	state.attack = skill
+	state.skill = skill
 	state.skill_level = skill_level
 	if indicator_scene:
 		state.indicator_scene = indicator_scene
@@ -110,6 +110,14 @@ func reset_os_cursor() -> void:
 ## clicks don't need this - they get their world position for free from the
 ## physics-picking input_event signal on the clicked object.
 func get_floor_hit_at_mouse() -> Variant:
+	# While the camera has captured the mouse (RMB drag to rotate), the OS
+	# cursor is hidden and its reported position no longer follows the real
+	# mouse - it sticks near screen center, which would raycast right next
+	# to the character. Every floor-tracking indicator shares this function,
+	# so suppressing it here hides them all instead of patching each caller.
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		return null
+
 	var viewport := get_viewport()
 	var camera := viewport.get_camera_3d()
 	if camera == null:

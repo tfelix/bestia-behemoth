@@ -102,7 +102,7 @@ func save_shortcuts() -> void:
 	if file:
 		file.store_string(json_string)
 		file.close()
-		print("Shortcuts saved to: ", SHORTCUTS_SAVE_PATH)
+		print("Shortcuts %s saved to: %s" % [json_string, SHORTCUTS_SAVE_PATH])
 	else:
 		push_error("Failed to save shortcuts configuration")
 
@@ -142,7 +142,7 @@ func load_shortcuts() -> void:
 			var shortcut_data = ShortcutData.from_dict(data_dict)
 			container.set_shortcut_data(shortcut_data)
 
-	print("Shortcuts loaded from: ", SHORTCUTS_SAVE_PATH)
+	print("Shortcuts loaded from: %s", [SHORTCUTS_SAVE_PATH])
 
 
 func clear_all_shortcuts() -> void:

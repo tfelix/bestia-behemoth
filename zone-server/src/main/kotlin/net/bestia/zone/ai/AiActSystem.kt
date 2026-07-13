@@ -1,13 +1,13 @@
-package net.bestia.zone.ai.ecs
+package net.bestia.zone.ai
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.behavior.BtContext
 import net.bestia.zone.ai.behavior.Status
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.movement.Path
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class AiActSystem : System {
 
   override val reads: ComponentClassSet = setOf(Position::class, Brain::class)
-  override val writes: ComponentClassSet = setOf(net.bestia.zone.ecs.movement.Path::class)
+  override val writes: ComponentClassSet = setOf(Path::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Brain::class, Position::class).each { id ->

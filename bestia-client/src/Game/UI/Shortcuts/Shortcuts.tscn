@@ -38,6 +38,14 @@ shortcut_number = 3
 layout_mode = 2
 shortcut_number = 4
 
+[node name="ShortcutContainer6" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 5
+
+[node name="ShortcutContainer7" parent="Row1" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_number = 6
+
 [node name="Row2" type="HBoxContainer" parent="."]
 layout_mode = 2
 
@@ -64,3 +72,13 @@ shortcut_number = 3
 layout_mode = 2
 shortcut_row = 1
 shortcut_number = 4
+
+[node name="ShortcutContainer6" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 5
+
+[node name="ShortcutContainer7" parent="Row2" instance=ExtResource("1_s6d63")]
+layout_mode = 2
+shortcut_row = 1
+shortcut_number = 6

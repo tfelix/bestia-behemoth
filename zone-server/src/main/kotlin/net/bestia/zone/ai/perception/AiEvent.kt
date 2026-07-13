@@ -13,8 +13,3 @@ data class AiEvent(
   val timestampMs: Long
 )
 
-enum class AiEventType {
-  ENEMY_SEEN,
-  DAMAGED,
-  ENEMY_LOST
-}

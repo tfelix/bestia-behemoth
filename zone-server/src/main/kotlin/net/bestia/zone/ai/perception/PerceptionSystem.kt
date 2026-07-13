@@ -1,7 +1,7 @@
 package net.bestia.zone.ai.perception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ai.ecs.Brain
+import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.memory.MemoryEntry
 import net.bestia.zone.ai.memory.MemoryScope
 import net.bestia.zone.ai.profile.AiProfileRegistry
