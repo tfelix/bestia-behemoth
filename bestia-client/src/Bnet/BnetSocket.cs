@@ -161,6 +161,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.SpeedComponentSMSG.FromProto(envelope.CompSpeed);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompAnimation != null)
+        {
+          var msg = Entity.AnimationComponentSMSG.FromProto(envelope.CompAnimation);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.OperationSuccess != null)
         {
           var msg = OperationSuccess.FromProto(envelope.OperationSuccess);

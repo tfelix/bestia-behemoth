@@ -37,6 +37,13 @@ func update_health(msg: HealthComponentSMSG) -> void:
 	_health_bar.update_health(msg)
 
 
+func update_animation(msg: AnimationComponentSMSG) -> void:
+	if _anim_player.current_animation == msg.Kind:
+		return
+	if _anim_player.has_animation(msg.Kind):
+		_anim_player.play(msg.Kind)
+
+
 func vanish(msg: VanishEntitySMSG) -> void:
 	_health_bar.visible = false
 	_name_tag.visible = false

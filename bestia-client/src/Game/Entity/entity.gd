@@ -45,6 +45,10 @@ var _visual_rotation_start_basis: Basis = Basis.IDENTITY
 var _visual_rotation_target_basis: Basis = Basis.IDENTITY
 var _visual_rotation_start_time: float = 0.0
 var _visual_rotating: bool = false
+# This flag prevents resetting the walk animation twice so we do not run into
+# the problem that we might cancel out any other animation that comes in from
+# the server.
+var _has_reset_walk_anim: bool = false
 
 
 const _CORRECTION_IGNORE: float = 0.4    # steps of desync trusted as latency, not error
@@ -62,7 +66,13 @@ func _process(delta: float) -> void:
 
 func _update_movement(delta: float) -> void:
 	if not _is_moving or _nodes.size() < 2 or _speed <= 0.0:
+		if not _has_reset_walk_anim:
+			_has_reset_walk_anim = true
+			_update_animation_direct("IDLE")
 		return
+	else:
+		_has_reset_walk_anim = false
+		_update_animation_direct("WALK")
 
 	var last := _nodes.size() - 1
 
@@ -231,6 +241,23 @@ func update_speed(msg: SpeedComponentSMSG) -> void:
 	_speed = msg.Speed
 	if _speed <= 0.0:
 		_is_moving = false
+
+
+## This is only used if you play an enum. Other animations are often indirectly 
+## sourced from the current action. For example if an entity is activly moving 
+## it automatically played the move animation. This avoids server desyncs.
+func update_animation(msg: AnimationComponentSMSG) -> void:
+	print_debug("Entity: %s set animation: %s" % [msg.Kind, entity_id])
+	var visual = _get_visual_for_method("update_animation")
+	if visual != null:
+		visual.update_animation(msg)
+
+
+func _update_animation_direct(animation_name: String) -> void:
+	print_debug("Entity: _update_animation_direct set animation: %s" % [animation_name])
+	var visual = _get_visual_for_method("update_animation_direct")
+	if visual != null:
+		visual.update_animation_direct(animation_name)
 
 
 func _index_of_node(p: Vector3) -> int:

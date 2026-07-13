@@ -14,6 +14,10 @@ func update_health(_msg: HealthComponentSMSG) -> void:
 	pass
 
 
+func update_animation(_msg: AnimationComponentSMSG) -> void:
+	pass
+
+
 func set_selected(_selected: bool) -> void:
 	pass
 

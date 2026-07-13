@@ -23,11 +23,17 @@ on `protoc.exe` being on `PATH` or on the caller's working directory.
 ## What it does
 
 - Clears `bestia-client/src/Bnet/Proto/`
-- Runs `protoc.exe` on every `.proto` file
+- Runs one hardcoded `protoc.exe` invocation per `.proto` file (a manually maintained
+  list inside the `.bat`, **not** a glob over the proto directory)
 - Writes the regenerated C# classes back to `bestia-client/src/Bnet/Proto/`
 
 ## Important notes
 
+- **Brand-new `.proto` file: add a line to `gen-protobuf.bat` first.** The script does
+  not discover files automatically — if you create a new `.proto` and don't add its
+  `protoc.exe` line, the script runs successfully but silently produces no C# class
+  for it (no error, no warning). Only editing an *existing* `.proto` file needs no
+  `.bat` change.
 - The Kotlin/JVM classes (used by the zone-server) are generated at build time by Gradle via the `com.google.protobuf` plugin — no manual step needed there.
 - The C# output files are committed to the repo; always regenerate and commit them together with any `.proto` change.
 - After regenerating, verify the expected types exist in the output (e.g. `grep COMMAND bestia-client/src/Bnet/Proto/ChatCmsg.cs`).
