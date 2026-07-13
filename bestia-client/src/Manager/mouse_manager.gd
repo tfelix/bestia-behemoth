@@ -82,6 +82,12 @@ func on_ground_input_event(position: Vector3, event: InputEvent) -> void:
 	current_state.handle_ground_input_event(self, position, event)
 
 
+## Called by camera_spring_arm.gd on a "clean" right-click (press+release with
+## no drag) that wasn't already consumed by cancel_targeting().
+func right_clicked(screen_position: Vector2) -> void:
+	current_state.handle_right_click(self, screen_position)
+
+
 func open_context_menu(screen_position: Vector2) -> void:
 	if _context_menu == null:
 		_context_menu = _ContextMenuScene.instantiate()

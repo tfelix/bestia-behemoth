@@ -48,7 +48,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_rmb_dragged = false
 		_rmb_press_position = get_viewport().get_mouse_position()
 
-	if event.is_action_released("camera_mouse_capture"):
+	if event.is_action_released("camera_mouse_capture") and _rmb_pressed:
 		_rmb_pressed = false
 		if _rmb_dragged:
 			_rmb_dragged = false
