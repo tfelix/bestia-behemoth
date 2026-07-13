@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b00uedqnq8tum"]
 
 [ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="1_mtpa7"]
-[ext_resource type="Script" path="res://Game/UI/BuffList/BuffIcon/buff_icon.gd" id="2_bfic0"]
+[ext_resource type="Script" uid="uid://dsn4pdpudawha" path="res://Game/UI/BuffList/BuffIcon/buff_icon.gd" id="2_bfic0"]
 
 [node name="BuffIcon" type="VBoxContainer" unique_id=1724107923]
 offset_right = 40.0

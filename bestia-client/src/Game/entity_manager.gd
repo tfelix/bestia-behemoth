@@ -1,4 +1,5 @@
 extends Node
+class_name EntityManager
 ## Keeps track of all entities and their updates. Also removes entities. Its
 ## up to the scenes to register to this manager to fetch information about entities.
 ##
@@ -12,6 +13,17 @@ var EntityScn = preload("res://Game/Entity/Entity.tscn")
 var _entities: Dictionary[int, Entity] = {}
 var _owned_master_id: int = 0
 var _owned_master_entity_id: int = 0
+
+
+## EntityManager isn't an autoload (see the TODO above - its lifecycle is tied to the
+## Game scene, reset via resync_entities() on zone changes, unlike the true global
+## singletons in project.godot), so there's no direct global name for it. This is the
+## one place that knows how to find it, so callers don't each duplicate the group lookup.
+## May return null if called before the current scene's EntityManager node has run its
+## own _ready() - always guard the result.
+static func get_instance() -> EntityManager:
+	var loop := Engine.get_main_loop() as SceneTree
+	return loop.get_first_node_in_group("entity_manager") as EntityManager
 
 
 func _ready() -> void:
@@ -143,9 +155,7 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# directly in the skills node. On an per entity level it is not handled.
 		pass
 	elif msg is SkillPointsComponentSMSG:
-		# no handling so far. Skill points are handled via a own handler
-		# directly in the skills node. On an per entity level it is not handled.
-		pass
+		entity.update_skill_points(msg)
 	else:
 		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [msg.GetMessageName(), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff

@@ -29,6 +29,12 @@ var entity_id: int = 0
 # without waiting for the next BuffListSMSG to arrive.
 var _buffs: Array = []
 
+# Latest known available skill points (master entities only - bestias never spend
+# points via this system), cached here for the same reason as _buffs: the Skills
+# window may not be open (or may be showing a different bestia's tree) when the
+# server pushes an update, so it needs somewhere durable to seed itself from.
+var _skill_points: int = 0
+
 var _camera: Node3D = null
 ##
 var _speed: float = 2.5
@@ -294,6 +300,14 @@ func update_buffs(msg: BuffListSMSG) -> void:
 
 func get_buffs() -> Array:
 	return _buffs
+
+
+func update_skill_points(msg: SkillPointsComponentSMSG) -> void:
+	_skill_points = msg.Points
+
+
+func get_skill_points() -> int:
+	return _skill_points
 
 
 func select_for_active() -> void:

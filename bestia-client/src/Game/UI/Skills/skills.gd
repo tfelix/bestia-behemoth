@@ -42,11 +42,28 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is SkillListSMSG:
 		_current_entity_id = msg.EntityId
 		_skill_points_label.visible = msg.EntityId == _master_entity_id
+		if msg.EntityId == _master_entity_id:
+			_seed_skill_points_from_cache()
 		_populate_rows(msg)
 	elif msg is SkillPointsComponentSMSG:
-		if msg.EntityId == _current_entity_id:
+		# Gated on the master entity, not on whatever tree happens to be open
+		# (_current_entity_id): skill points only ever belong to the master, and
+		# this must stay accurate even while browsing a bestia's tree or with the
+		# window closed entirely, so it's correct as soon as it becomes visible again.
+		if msg.EntityId == _master_entity_id:
 			_available_skill_points = msg.Points
 			_update_skill_row_buttons()
+
+
+## Seeds the displayed point count from the master Entity's cache (kept up to date by
+## entity_manager.gd/entity.gd regardless of whether this window has ever been open),
+## so the label is correct the moment the window opens instead of only after the next
+## live SkillPointsComponentSMSG happens to arrive.
+func _seed_skill_points_from_cache() -> void:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_entity(_master_entity_id) if entity_manager else null
+	if entity:
+		_available_skill_points = entity.get_skill_points()
 
 
 func _populate_rows(msg: SkillListSMSG) -> void:
