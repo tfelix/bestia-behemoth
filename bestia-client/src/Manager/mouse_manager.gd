@@ -9,6 +9,11 @@ extends Node
 const _FLOOR_GROUP: String = "floor"
 const _ContextMenuScene := preload("res://Game/UI/ContextMenu/ContextMenu.tscn")
 
+## Emitted whenever the selected entity changes, carrying the newly selected entity's
+## id (0 if the selection was cleared). UI panels that show per-entity state (e.g.
+## BuffList) listen to this instead of polling selected_entity every frame.
+signal entity_selected(entity_id: int)
+
 var current_state: MouseState
 var selected_entity: Node3D = null
 var _context_menu: PopupMenu = null
@@ -101,6 +106,16 @@ func select_entity(entity: Node3D) -> void:
 	selected_entity = entity
 	if selected_entity and selected_entity.has_method("set_selected"):
 		selected_entity.set_selected(true)
+	entity_selected.emit(_get_selected_entity_id())
+
+
+## Visual nodes (BestiaVisual, MasterVisual, ...) expose the entity id they belong
+## to via get_bestia_entity_id() - see BestiaVisual.get_bestia_entity_id(). Falls
+## back to 0 ("no entity"), the same sentinel used across entity_manager.gd.
+func _get_selected_entity_id() -> int:
+	if selected_entity and selected_entity.has_method("get_bestia_entity_id"):
+		return selected_entity.get_bestia_entity_id()
+	return 0
 
 
 func set_os_cursor(texture: Texture2D, hotspot: Vector2 = Vector2.ZERO) -> void:

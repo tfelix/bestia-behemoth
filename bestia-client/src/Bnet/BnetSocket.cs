@@ -96,6 +96,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.HealthComponentSMSG.FromProto(envelope.CompHealth);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompBuffs != null)
+        {
+          var msg = Entity.BuffListSMSG.FromProto(envelope.CompBuffs);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompInventory != null)
         {
           var msg = Entity.InventoryComponentSMSG.FromProto(envelope.CompInventory);

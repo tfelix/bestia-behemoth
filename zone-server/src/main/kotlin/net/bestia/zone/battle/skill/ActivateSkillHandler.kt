@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.BuffService
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Component
 @Component
 class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
-  private val world: WorldView
+  private val world: WorldView,
+  private val buffService: BuffService
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
@@ -43,10 +45,23 @@ class ActivateSkillHandler(
 
     LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
+    // TEMPORARY: Heal (skills.yml id 4) doesn't have real damage/effect resolution wired up yet
+    // (see class doc), so it's a convenient place to exercise the still-untested buff sync
+    // end-to-end - grants SWIFTNESS on cast. Self-targets when no target was picked, since Heal
+    // is FRIENDLY-targeted. Replace with Heal's actual effect resolution once that lands.
+    if (msg.attackId == HEAL_SKILL_ID) {
+      val targetId = if (msg.targetEntityId != 0L) msg.targetEntityId else activeEntityId
+      world.modify(targetId) { id ->
+        buffService.applyBuff(this, id, definitionId = SWIFTNESS_BUFF_ID, level = msg.skillLevel, sourceEntityId = activeEntityId)
+      }
+    }
+
     return true
   }
 
   companion object {
     private val LOG = KotlinLogging.logger { }
+    private const val HEAL_SKILL_ID = 4L
+    private const val SWIFTNESS_BUFF_ID = 1L
   }
 }

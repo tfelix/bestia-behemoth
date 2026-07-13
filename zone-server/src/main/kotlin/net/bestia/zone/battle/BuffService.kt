@@ -38,6 +38,7 @@ class BuffService(
         sourceEntityId = sourceEntityId,
         durationSeconds = durationSeconds
       )
+      world.markChanged(targetId, Buffs::class)
     }
 
     // Pre-provision StatModifiers synchronously (this call always runs outside a System) so

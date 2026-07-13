@@ -24,6 +24,11 @@ var Camera = preload("res://Game/SpringArmCamera/SpringArmCamera.tscn")
 
 var entity_id: int = 0
 
+# Latest known buff/debuff list (BuffListEntry), cached here so BuffList can seed
+# itself with whatever we already know as soon as this entity gets selected,
+# without waiting for the next BuffListSMSG to arrive.
+var _buffs: Array = []
+
 var _camera: Node3D = null
 ##
 var _speed: float = 2.5
@@ -281,6 +286,14 @@ func update_health(msg: HealthComponentSMSG) -> void:
 	var visual = _get_visual_for_method("update_health")
 	if visual != null:
 		visual.update_health(msg)
+
+
+func update_buffs(msg: BuffListSMSG) -> void:
+	_buffs = msg.Buffs
+
+
+func get_buffs() -> Array:
+	return _buffs
 
 
 func select_for_active() -> void:

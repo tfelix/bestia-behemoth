@@ -30,6 +30,12 @@ func get_owned_entity() -> Entity:
 	return _entities.get(_owned_master_entity_id)
 
 
+## Returns the Entity node for entity_id, or null if it is not currently known
+## (out of range / not yet synced).
+func get_entity(entity_id: int) -> Entity:
+	return _entities.get(entity_id)
+
+
 ## Client-side friend/enemy heuristic. Currently: "owned by the local player" = friendly,
 ## everything else = enemy. TODO(party/guild): once bestias carry a party/guild flag,
 ## fold that check in here (e.g. matching party/guild id against the local player's).
@@ -122,6 +128,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		pass
 	elif msg is HealthComponentSMSG:
 		entity.update_health(msg)
+	elif msg is BuffListSMSG:
+		entity.update_buffs(msg)
 	elif msg is DamageEntitySMSG:
 		entity.show_damage(msg)
 	elif msg is ItemVisualComponentSMSG:
