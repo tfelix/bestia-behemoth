@@ -1,9 +1,14 @@
 skills:
+# targetType: GROUND | AOE_GROUND | ENEMY | FRIENDLY - who/what the skill is aimed at
+#   (GROUND = a plain ground point, AOE_GROUND = a ground point with an area of effect,
+#   see aoeRadius below; ENEMY/FRIENDLY = a single entity, defaulting to hostile/friendly
+#   respectively). aoeRadius is only read when targetType is AOE_GROUND.
 # MASTER SKILLS
   - id: 1
     identifier: BLESSING
     type: NO_DAMAGE
     script: Blessing
+    targetType: FRIENDLY
     needsLineOfSight: true
     description: |
       Blesses the target with divine power.
@@ -18,16 +23,19 @@ skills:
     identifier: DIVINE_PROTECTION
     type: PASSIVE
     script: DivineProtection
+    targetType: FRIENDLY
 
   - id: 3
     identifier: COOKING
     type: NO_DAMAGE
     script: Cooking
+    targetType: GROUND
 
   - id: 4
     identifier: HEAL
     type: NO_DAMAGE
     script: Heal
+    targetType: FRIENDLY
     needsLineOfSight: false
 
 # BESTIA SKILLS
@@ -35,9 +43,11 @@ skills:
     identifier: ember
     type: NO_DAMAGE
     script: Ember
+    targetType: ENEMY
     needsLineOfSight: true
 
   - id: 101
     identifier: tackle
     strength: 4
     type: MELEE_PHYSICAL
+    targetType: ENEMY

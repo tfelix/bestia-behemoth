@@ -13,3 +13,4 @@ description_key = "SKILL_2_DESC"
 mana_cost = 0
 cooldown = 0.0
 max_level = 10
+target_type = "FRIENDLY"

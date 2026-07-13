@@ -32,6 +32,12 @@ class Skill(
   @Column(nullable = true)
   val range: Int?,
 
+  @Column(nullable = false)
+  val targetType: SkillTargetType,
+
+  @Column(nullable = true)
+  val aoeRadius: Double? = null,
+
   val needsLineOfSight: Boolean,
 
   /**
@@ -62,6 +68,11 @@ class Skill(
       require(strength == null) {
         "Skill $identifier is NO_DAMAGE and must have strength set to null"
       }
+    }
+
+    val radius = aoeRadius
+    require((targetType == SkillTargetType.AOE_GROUND) == (radius != null && radius > 0.0)) {
+      "Skill $identifier: aoeRadius must be set (>0) iff targetType is AOE_GROUND"
     }
   }
 }

@@ -25,14 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiltZXNzYWdlcy9tYXN0ZXIvYWN0aXZhdGVfc2tpbGxfY21zZy5wcm90bxIE",
-            "Ym5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJgChFBY3RpdmF0ZVNraWxsQ01T",
+            "Ym5ldBoTbWVzc2FnZXMvdmVjMy5wcm90byJ6ChFBY3RpdmF0ZVNraWxsQ01T",
             "RxIRCglhdHRhY2tfaWQYASABKAQSEwoLc2tpbGxfbGV2ZWwYAiABKA0SIwoP",
-            "dGFyZ2V0X3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzQi8KFW5ldC5iZXN0",
-            "aWEuYm5ldC5wcm90b0IWQWN0aXZhdGVTa2lsbENtc2dQcm90b2IGcHJvdG8z"));
+            "dGFyZ2V0X3Bvc2l0aW9uGAMgASgLMgouYm5ldC5WZWMzEhgKEHRhcmdldF9l",
+            "bnRpdHlfaWQYBCABKARCLwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhZBY3Rp",
+            "dmF0ZVNraWxsQ21zZ1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ActivateSkillCMSG), global::Bnet.ActivateSkillCMSG.Parser, new[]{ "AttackId", "SkillLevel", "TargetPosition" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ActivateSkillCMSG), global::Bnet.ActivateSkillCMSG.Parser, new[]{ "AttackId", "SkillLevel", "TargetPosition", "TargetEntityId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -77,6 +78,7 @@ namespace Bnet {
       attackId_ = other.attackId_;
       skillLevel_ = other.skillLevel_;
       targetPosition_ = other.targetPosition_ != null ? other.targetPosition_.Clone() : null;
+      targetEntityId_ = other.targetEntityId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -122,6 +124,21 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "target_entity_id" field.</summary>
+    public const int TargetEntityIdFieldNumber = 4;
+    private ulong targetEntityId_;
+    /// <summary>
+    /// 0 = no entity target (ground/AOE skill, or unsnapped)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong TargetEntityId {
+      get { return targetEntityId_; }
+      set {
+        targetEntityId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -140,6 +157,7 @@ namespace Bnet {
       if (AttackId != other.AttackId) return false;
       if (SkillLevel != other.SkillLevel) return false;
       if (!object.Equals(TargetPosition, other.TargetPosition)) return false;
+      if (TargetEntityId != other.TargetEntityId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -150,6 +168,7 @@ namespace Bnet {
       if (AttackId != 0UL) hash ^= AttackId.GetHashCode();
       if (SkillLevel != 0) hash ^= SkillLevel.GetHashCode();
       if (targetPosition_ != null) hash ^= TargetPosition.GetHashCode();
+      if (TargetEntityId != 0UL) hash ^= TargetEntityId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -180,6 +199,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteMessage(TargetPosition);
       }
+      if (TargetEntityId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(TargetEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -202,6 +225,10 @@ namespace Bnet {
         output.WriteRawTag(26);
         output.WriteMessage(TargetPosition);
       }
+      if (TargetEntityId != 0UL) {
+        output.WriteRawTag(32);
+        output.WriteUInt64(TargetEntityId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -220,6 +247,9 @@ namespace Bnet {
       }
       if (targetPosition_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(TargetPosition);
+      }
+      if (TargetEntityId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(TargetEntityId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -244,6 +274,9 @@ namespace Bnet {
           TargetPosition = new global::Bnet.Vec3();
         }
         TargetPosition.MergeFrom(other.TargetPosition);
+      }
+      if (other.TargetEntityId != 0UL) {
+        TargetEntityId = other.TargetEntityId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -275,6 +308,10 @@ namespace Bnet {
             input.ReadMessage(TargetPosition);
             break;
           }
+          case 32: {
+            TargetEntityId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -303,6 +340,10 @@ namespace Bnet {
               TargetPosition = new global::Bnet.Vec3();
             }
             input.ReadMessage(TargetPosition);
+            break;
+          }
+          case 32: {
+            TargetEntityId = input.ReadUInt64();
             break;
           }
         }

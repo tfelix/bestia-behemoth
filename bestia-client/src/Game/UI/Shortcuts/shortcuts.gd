@@ -102,7 +102,7 @@ func save_shortcuts() -> void:
 	if file:
 		file.store_string(json_string)
 		file.close()
-		print("Shortcuts %s saved to: %s" % [json_string, SHORTCUTS_SAVE_PATH])
+		print("Shortcuts to: %s" % [SHORTCUTS_SAVE_PATH])
 	else:
 		push_error("Failed to save shortcuts configuration")
 

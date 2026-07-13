@@ -13,3 +13,4 @@ description_key = "SKILL_100_DESC"
 mana_cost = 5
 cooldown = 1.0
 max_level = 1
+target_type = "ENEMY"

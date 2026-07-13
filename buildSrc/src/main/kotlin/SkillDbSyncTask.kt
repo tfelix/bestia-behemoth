@@ -14,14 +14,15 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 /**
- * Cross-checks (and optionally fixes) skill ids/max levels/descriptions between the server's skill
- * config (`skills.yml` + `master_skill_tree.yml`) and the Godot client's Attack DB (`*.tres` files
- * under `bestia-client/src/Game/Attack/DB/`). See `.claude/skills/skill-system/SKILL.md` for the
- * full relationship between these files.
+ * Cross-checks (and optionally fixes) skill ids/max levels/descriptions/target types between the
+ * server's skill config (`skills.yml` + `master_skill_tree.yml`) and the Godot client's Attack DB
+ * (`*.tres` files under `bestia-client/src/Game/Attack/DB/`). See
+ * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
- * Only `skill_id`/`max_level`/`description_key` are touched on a `.tres` file — every other field
- * (icon, name, mana_cost, cooldown) is hand-authored client presentation with no server equivalent
- * and is left alone.
+ * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius` are touched on a
+ * `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
+ * presentation with no server equivalent and is left alone. `aoe_radius` is only checked/patched
+ * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all.
  *
  * `description_key` points into `bestia-client/src/Localization/skills.csv`, a Godot CSV
  * translation source (same mechanism as `items.csv`). Whenever `skills.yml` declares a
@@ -47,11 +48,23 @@ abstract class SkillDbSyncTask : DefaultTask() {
   @get:Input
   abstract val fix: Property<Boolean>
 
-  private data class SkillDto(val id: Long, val identifier: String, val description: String? = null)
+  private data class SkillDto(
+    val id: Long,
+    val identifier: String,
+    val description: String? = null,
+    val targetType: String,
+    val aoeRadius: Double? = null
+  )
   private data class SkillsFile(val skills: List<SkillDto> = emptyList())
   private data class TreeNodeDto(val skill: String, val maxLevel: Int)
   private data class TreeFile(val skills: List<TreeNodeDto> = emptyList())
-  private data class Expected(val identifier: String, val maxLevel: Int, val description: String?)
+  private data class Expected(
+    val identifier: String,
+    val maxLevel: Int,
+    val description: String?,
+    val targetType: String,
+    val aoeRadius: Double?
+  )
 
   @TaskAction
   fun run() {
@@ -68,7 +81,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
       skill.id to Expected(
         skill.identifier,
         maxLevelByIdentifier[skill.identifier] ?: 1,
-        skill.description?.trim()?.takeIf { it.isNotEmpty() }
+        skill.description?.trim()?.takeIf { it.isNotEmpty() },
+        skill.targetType,
+        skill.aoeRadius
       )
     }
 
@@ -78,6 +93,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val skillIdPattern = Regex("""skill_id\s*=\s*(\d+)""")
     val maxLevelPattern = Regex("""max_level\s*=\s*(\d+)""")
     val descriptionKeyPattern = Regex("description_key\\s*=\\s*\"([^\"]*)\"")
+    val targetTypePattern = Regex("target_type\\s*=\\s*\"([^\"]*)\"")
+    val aoeRadiusPattern = Regex("""aoe_radius\s*=\s*([\d.]+)""")
 
     val fileBySkillId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -140,6 +157,44 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
+      val currentTargetType = targetTypePattern.find(text)?.groupValues?.get(1)
+
+      if (currentTargetType != expected.targetType) {
+        if (shouldFix) {
+          val patched = file.readText()
+          val newText = if (targetTypePattern.containsMatchIn(patched)) {
+            targetTypePattern.replace(patched) { "target_type = \"${expected.targetType}\"" }
+          } else {
+            patched.trimEnd('\n') + "\ntarget_type = \"${expected.targetType}\"\n"
+          }
+          file.writeText(newText)
+          logger.lifecycle("SkillDbSync: patched ${file.name}: target_type ${currentTargetType ?: "<missing>"} -> ${expected.targetType}")
+        } else {
+          problems += "${file.name}: target_type=${currentTargetType ?: "<missing>"} but expected ${expected.targetType} (id=$id)"
+        }
+      }
+
+      // aoe_radius is only meaningful (and thus only checked/patched) for AOE_GROUND skills - every
+      // other target type never needs the line at all.
+      if (expected.targetType == "AOE_GROUND") {
+        val currentText = file.readText()
+        val currentAoeRadius = aoeRadiusPattern.find(currentText)?.groupValues?.get(1)?.toDoubleOrNull()
+
+        if (currentAoeRadius != expected.aoeRadius) {
+          if (shouldFix) {
+            val newText = if (aoeRadiusPattern.containsMatchIn(currentText)) {
+              aoeRadiusPattern.replace(currentText) { "aoe_radius = ${expected.aoeRadius}" }
+            } else {
+              currentText.trimEnd('\n') + "\naoe_radius = ${expected.aoeRadius}\n"
+            }
+            file.writeText(newText)
+            logger.lifecycle("SkillDbSync: patched ${file.name}: aoe_radius $currentAoeRadius -> ${expected.aoeRadius}")
+          } else {
+            problems += "${file.name}: aoe_radius=$currentAoeRadius but skills.yml expects ${expected.aoeRadius} (id=$id)"
+          }
+        }
+      }
+
       // The English text itself is only server-sourced (and thus only checked/patched here) once
       // skills.yml actually declares a description for this skill - until then it's hand-authored
       // straight in skills.csv, same as every other still-unsynced client field.
@@ -176,8 +231,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
     }
   }
 
-  private fun stubTres(id: Long, expected: Expected, descriptionKey: String): String =
-    """
+  private fun stubTres(id: Long, expected: Expected, descriptionKey: String): String {
+    val aoeRadiusLine = if (expected.aoeRadius != null) "\naoe_radius = ${expected.aoeRadius}" else ""
+    return """
     [gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
     [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
@@ -190,7 +246,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
     mana_cost = 0
     cooldown = 0.0
     max_level = ${expected.maxLevel}
-    """.trimIndent() + "\n"
+    target_type = "${expected.targetType}"
+    """.trimIndent() + aoeRadiusLine + "\n"
+  }
 }
 
 /**

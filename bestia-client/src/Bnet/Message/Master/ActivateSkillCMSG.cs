@@ -14,6 +14,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
 
     [Export] public Vector3 TargetPosition { get; set; }
 
+    [Export] public ulong TargetEntityId { get; set; }
+
     public ActivateSkillCMSG()
     {
     }
@@ -24,7 +26,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       {
         AttackId = AttackId,
         SkillLevel = SkillLevel,
-        TargetPosition = Vec3Convert.ToProto(TargetPosition)
+        TargetPosition = Vec3Convert.ToProto(TargetPosition),
+        TargetEntityId = TargetEntityId
       };
 
       return new Envelope

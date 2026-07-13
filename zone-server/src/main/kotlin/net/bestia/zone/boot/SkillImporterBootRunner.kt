@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.Skill
 import net.bestia.zone.battle.skill.SkillRepository
+import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.battle.skill.SkillType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -31,6 +32,8 @@ class SkillImporterBootRunner(
     val type: SkillType,
     val script: String? = null,
     val range: Int? = null,
+    val targetType: SkillTargetType,
+    val aoeRadius: Double? = null,
     val needsLineOfSight: Boolean = false,
     val requiredLevel: Int = 0,
     val description: String? = null
@@ -61,6 +64,8 @@ class SkillImporterBootRunner(
       script = dto.script,
       manaCost = dto.manaCost,
       range = dto.range,
+      targetType = dto.targetType,
+      aoeRadius = dto.aoeRadius,
       needsLineOfSight = dto.needsLineOfSight,
       requiredLevel = dto.requiredLevel,
       description = dto.description

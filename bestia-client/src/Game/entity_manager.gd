@@ -30,6 +30,38 @@ func get_owned_entity() -> Entity:
 	return _entities.get(_owned_master_entity_id)
 
 
+## Client-side friend/enemy heuristic. Currently: "owned by the local player" = friendly,
+## everything else = enemy. TODO(party/guild): once bestias carry a party/guild flag,
+## fold that check in here (e.g. matching party/guild id against the local player's).
+## This is the ONLY place disposition should be decided - no other code should inline
+## its own friend/enemy check.
+func is_entity_friendly(entity: Entity) -> bool:
+	return entity == get_owned_entity()
+
+
+## Closest Entity to world_position within max_distance whose disposition matches
+## filter ("enemy" or "friendly"), or null if none qualify. Used by
+## MouseStateSkillTargeting to snap an entity-target skill onto a nearby valid target.
+## Simple O(n) scan over all known entities - matches this codebase's existing style
+## (no spatial partitioning exists anywhere) and entity counts are small.
+func get_closest_entity(world_position: Vector3, max_distance: float, filter: String) -> Entity:
+	var best: Entity = null
+	var best_dist_sq: float = max_distance * max_distance
+	for value in _entities.values():
+		var entity: Entity = value
+		var friendly: bool = is_entity_friendly(entity)
+		if filter == "enemy" and friendly:
+			continue
+		if filter == "friendly" and not friendly:
+			continue
+		var entity_pos: Vector3 = entity.global_position
+		var d_sq: float = entity_pos.distance_squared_to(world_position)
+		if d_sq <= best_dist_sq:
+			best_dist_sq = d_sq
+			best = entity
+	return best
+
+
 ## Checks if we have proper controll attached to the entity we currently control.
 func _check_player_controllable_entity() -> void:
 	# In the future this must not only checked for master entity id but rather

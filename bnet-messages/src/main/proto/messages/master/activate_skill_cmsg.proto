@@ -10,4 +10,5 @@ message ActivateSkillCMSG {
   uint64 attack_id = 1;
   uint32 skill_level = 2;
   Vec3 target_position = 3;
+  uint64 target_entity_id = 4; // 0 = no entity target (ground/AOE skill, or unsnapped)
 }

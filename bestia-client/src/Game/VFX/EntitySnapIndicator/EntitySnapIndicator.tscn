@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://Game/VFX/AOECastIndicator/cast_indicator.png" id="1_tex"]
+
+[node name="Decal" type="Decal"]
+size = Vector3(1.2, 1.2, 1.2)
+texture_emission = ExtResource("1_tex")
+emission_energy = 2.64

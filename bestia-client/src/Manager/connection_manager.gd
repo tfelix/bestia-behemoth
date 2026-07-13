@@ -109,12 +109,13 @@ func get_skills() -> void:
 	socket.SendMessage(msg)
 
 
-func activate_skill(attack_id: int, skill_level: int, target_position: Vector3 = Vector3.ZERO) -> void:
+func activate_skill(attack_id: int, skill_level: int, target_position: Vector3 = Vector3.ZERO, target_entity_id: int = 0) -> void:
 	assert(is_ready_to_send())
 	var msg = ActivateSkillCMSG.new()
 	msg.AttackId = attack_id
 	msg.SkillLevel = skill_level
 	msg.TargetPosition = target_position
+	msg.TargetEntityId = target_entity_id
 	socket.SendMessage(msg)
 
 

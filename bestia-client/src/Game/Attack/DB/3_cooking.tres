@@ -13,3 +13,4 @@ description_key = "SKILL_3_DESC"
 mana_cost = 0
 cooldown = 5.0
 max_level = 3
+target_type = "GROUND"

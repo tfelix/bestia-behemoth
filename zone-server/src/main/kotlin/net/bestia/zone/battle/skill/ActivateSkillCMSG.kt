@@ -8,7 +8,8 @@ data class ActivateSkillCMSG(
   override val playerId: Long,
   val attackId: Long,
   val skillLevel: Int,
-  val targetPosition: Vec3L
+  val targetPosition: Vec3L,
+  val targetEntityId: Long
 ) : CMSG {
   companion object {
     fun fromBnet(
@@ -19,7 +20,8 @@ data class ActivateSkillCMSG(
         accountId,
         activateSkill.attackId,
         activateSkill.skillLevel,
-        Vec3L(activateSkill.targetPosition.x, activateSkill.targetPosition.y, activateSkill.targetPosition.z)
+        Vec3L(activateSkill.targetPosition.x, activateSkill.targetPosition.y, activateSkill.targetPosition.z),
+        activateSkill.targetEntityId
       )
     }
   }

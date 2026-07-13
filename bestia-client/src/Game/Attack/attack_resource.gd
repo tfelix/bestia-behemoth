@@ -1,6 +1,14 @@
 extends Resource
 class_name AttackResource
 
+## target_type values - kept as spelled-out strings (not an int-backed enum) so they
+## stay human-readable in .tres files and match the server's SkillTargetType by name,
+## not by ordinal (see buildSrc/src/main/kotlin/SkillDbSyncTask.kt).
+const TARGET_TYPE_GROUND := "GROUND"
+const TARGET_TYPE_AOE_GROUND := "AOE_GROUND"
+const TARGET_TYPE_ENEMY := "ENEMY"
+const TARGET_TYPE_FRIENDLY := "FRIENDLY"
+
 @export var skill_id: int
 @export var icon: Texture2D
 @export var name: String
@@ -9,6 +17,8 @@ class_name AttackResource
 @export var cooldown: float
 @export var max_level: int = 1
 @export var attack_script: GDScript
+@export_enum("GROUND", "AOE_GROUND", "ENEMY", "FRIENDLY") var target_type: String = TARGET_TYPE_GROUND
+@export var aoe_radius: float = 0.0
 
 ## Cache for instantiated AttackUse objects. Key: GDScript path, Value: AttackUse instance
 static var _script_instance_cache: Dictionary = {}

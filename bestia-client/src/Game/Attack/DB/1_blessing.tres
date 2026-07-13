@@ -13,3 +13,4 @@ description_key = "SKILL_1_DESC"
 mana_cost = 10
 cooldown = 3.0
 max_level = 10
+target_type = "FRIENDLY"
