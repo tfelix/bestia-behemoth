@@ -18,7 +18,7 @@ class QueryTest {
 
   @Test
   fun `query joins across four component stores`() {
-    val world = World()
+    val world = testWorld()
     val fullEntities = mutableSetOf<EntityId>()
 
     repeat(200) { i ->
@@ -42,7 +42,7 @@ class QueryTest {
 
   @Test
   fun `Row get for a type outside the query throws`() {
-    val world = World()
+    val world = testWorld()
     val e = world.create()
     world.add(e, QPosition(1f))
 
@@ -56,7 +56,7 @@ class QueryTest {
 
   @Test
   fun `parallelEach gives each entity a consistent row across worker threads`() {
-    val world = World()
+    val world = testWorld()
     val expectedX = ConcurrentHashMap<EntityId, Float>()
 
     repeat(5000) { i ->

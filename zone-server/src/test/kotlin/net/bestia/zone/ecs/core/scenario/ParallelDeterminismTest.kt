@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.testWorld
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -13,9 +13,11 @@ import org.junit.jupiter.api.Test
 class ParallelDeterminismTest {
 
   private fun runSimulation(parallel: Boolean): Map<EntityId, Pair<Float, Float>> {
-    val world = World(parallelSystems = parallel)
     // deterministic registration order: wander decides velocity, movement integrates
-    world.addSystems(listOf(WanderSystem(), MovementSystem(), HealthRegenSystem()))
+    val world = testWorld(
+      parallelSystems = parallel,
+      systems = listOf(WanderSystem(), MovementSystem(), HealthRegenSystem()),
+    )
 
     val ids = (1..64).map { world.create(it.toLong()) }
     ids.forEach { id ->

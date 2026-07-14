@@ -47,7 +47,6 @@ class MoveActiveEntityHandler(
       val existing = get(id, Path::class)
       if (existing != null) {
         existing.setPath(msg.path)
-        markChanged(id, Path::class)
       } else {
         add(id, Path(msg.path.toMutableList()))
       }

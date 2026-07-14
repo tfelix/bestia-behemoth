@@ -143,6 +143,10 @@ data class Inventory(
     dirty = false
   }
 
+  override fun markDirty() {
+    dirty = true
+  }
+
   override fun toEntityMessage(entityId: Long): EntitySMSG {
     return InventoryComponentSMSG(
       entityId = entityId,
@@ -158,9 +162,5 @@ data class Inventory(
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
     return SyncTargets.OwnerOnly
-  }
-
-  fun markDirty() {
-    dirty = true
   }
 }

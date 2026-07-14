@@ -45,6 +45,10 @@ class Health(
     return dirty
   }
 
+  override fun markDirty() {
+    dirty = true
+  }
+
   override fun clearDirty() {
     dirty = false
   }

@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
  * [parallelEach] splits the driving store's dense range across the common
  * fork-join pool. It must only be used by systems that do not perform structural
  * changes on the involved stores during iteration (mutating existing component
- * fields and calling [World.markChanged] are both safe).
+ * fields, which also flips their own dirty flag, is safe).
  */
 class Query internal constructor(
   private val stores: Map<KClass<out Component>, ComponentStore<out Component>>,

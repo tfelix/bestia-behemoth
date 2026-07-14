@@ -40,7 +40,6 @@ class ExpChatCommand(
     world.modify(activeEntityId) { id ->
       val exp = get(id, Exp::class) ?: add(id, Exp())
       exp.value += amount
-      markChanged(id, Exp::class)
     }
 
     LOG.info { "Added $amount EXP to active entity $activeEntityId (player $playerId)" }

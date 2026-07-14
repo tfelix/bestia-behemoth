@@ -16,7 +16,7 @@ class WorldTest {
 
   @Test
   fun `entities and components lifecycle`() {
-    val world = World()
+    val world = testWorld()
     val e = world.create()
     assertTrue(world.isAlive(e))
 
@@ -32,7 +32,7 @@ class WorldTest {
 
   @Test
   fun `query joins on the smaller store`() {
-    val world = World()
+    val world = testWorld()
     // 100 entities with Position, only 3 also have Velocity
     repeat(100) {
       val e = world.create()
@@ -48,7 +48,7 @@ class WorldTest {
 
   @Test
   fun `commands are applied at the next tick, not immediately`() {
-    val world = World()
+    val world = testWorld()
     val e = world.create()
     world.add(e, Velocity(0f, 0f))
 
@@ -63,34 +63,25 @@ class WorldTest {
   }
 
   @Test
-  fun `component changes can be drained`() {
-    val world = World()
-    val e = world.create()
-    world.add(e, Position(0f, 0f)) // add marks it changed
+  fun `each visits every stored component of a type`() {
+    val world = testWorld()
+    val e1 = world.create()
+    val e2 = world.create()
+    world.add(e1, Position(1f, 2f))
+    world.add(e2, Position(3f, 4f))
 
-    val pulled = mutableListOf<EntityId>()
-    world.drainChanges(Position::class) { pulled.add(it) }
-    assertEquals(listOf(e), pulled)
-    // draining consumed the marks
-    val pulledAgain = mutableListOf<EntityId>()
-    world.drainChanges(Position::class) { pulledAgain.add(it) }
-    assertTrue(pulledAgain.isEmpty())
+    val visited = mutableMapOf<EntityId, Float>()
+    world.each(Position::class) { id, pos -> visited[id] = pos.x }
 
-    // markChanged also flags a component for the next drain
-    world.markChanged(e, Position::class)
-    val pulledAfterManualMark = mutableListOf<EntityId>()
-    world.drainChanges(Position::class) { pulledAfterManualMark.add(it) }
-    assertEquals(listOf(e), pulledAfterManualMark)
+    assertEquals(setOf(e1, e2), visited.keys)
+    assertEquals(1f, visited[e1])
+    assertEquals(3f, visited[e2])
   }
 
   @Test
   fun `structural changes requested inside a system are deferred`() {
-    val world = World()
-    val e = world.create()
-    world.add(e, Health(1))
-
     // a system that "kills" entities at 0 hp by removing Health mid-iteration
-    world.addSystem(object : System {
+    val hpKiller = object : System {
       override val writes = setOf(Health::class)
       override fun update(world: World, deltaTime: Float) {
         world.query(Health::class).each { id ->
@@ -99,7 +90,10 @@ class WorldTest {
           if (hp.value <= 0) world.remove(id, Health::class) // deferred, safe during iteration
         }
       }
-    })
+    }
+    val world = testWorld(systems = listOf(hpKiller))
+    val e = world.create()
+    world.add(e, Health(1))
 
     world.tick(0.1f)
     // removal applied at end-of-tick sync point

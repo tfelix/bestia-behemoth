@@ -80,18 +80,20 @@ class WanderScenarioTest {
   }
 
   @Test
-  fun `wandering critters move and their changes flow outward`() {
+  fun `wandering critters actually move over several ticks`() {
     val critters = (1..10).map { spawnCritter() }
-    // drain the "component added" marks from spawn so we only observe movement
-    world.drainChanges(Position::class) { }
+    val startPositions = critters.associateWith {
+      val p = world.get(it, Position::class)!!
+      p.x to p.y
+    }
 
     repeat(20) { world.tick(0.05f) }
 
-    // pull model: which positions changed
-    val movedIds = mutableSetOf<EntityId>()
-    world.drainChanges(Position::class) { movedIds.add(it) }
+    val movedIds = critters.filter { id ->
+      val p = world.get(id, Position::class)!!
+      (p.x to p.y) != startPositions[id]
+    }
     assertTrue(movedIds.isNotEmpty(), "wandering critters should have moved")
-    assertTrue(critters.containsAll(movedIds))
   }
 
   @Test
@@ -116,17 +118,15 @@ class WanderScenarioTest {
   }
 
   @Test
-  fun `health regen marks the component changed for pull-model consumers`() {
-    val e = spawnCritter()
-    world.drainChanges(Health::class) { } // clear spawn marks
+  fun `health regen increases a damaged critter's HP over several ticks`() {
+    val e = spawnCritter() // spawns with Health(50), max 100
+    val before = world.get(e, Health::class)!!.value
 
     // regen fires every 0.1s; 5 ticks of 0.05s = 0.25s -> at least two regen passes
     repeat(5) { world.tick(0.05f) }
 
-    val observed = mutableListOf<EntityId>()
-    world.drainChanges(Health::class) { observed.add(it) }
-
-    assertTrue(observed.contains(e), "health regen should have marked the critter changed")
+    val after = world.get(e, Health::class)!!.value
+    assertTrue(after > before, "health regen should have increased the critter's HP")
     assertFalse(world.isAlive(-1L))
   }
 }

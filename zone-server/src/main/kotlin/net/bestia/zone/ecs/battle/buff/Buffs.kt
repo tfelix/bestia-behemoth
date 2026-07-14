@@ -17,11 +17,9 @@ import net.bestia.zone.util.EntityId
  * buffs with `showIcon = false` so internal bookkeeping buffs never reach the client (see
  * [ActiveBuff.showIcon]).
  *
- * Sync is driven entirely by [net.bestia.zone.ecs.core.ChangeTracker] marks
- * (`world.markChanged`/`world.add`/`world.remove`), not by [isDirty]/[clearDirty] - those exist
- * only for interface compliance. Any code that mutates an already-fetched [Buffs] instance in
- * place (as opposed to going through [net.bestia.zone.ecs.core.World.update]) must call
- * `world.markChanged(id, Buffs::class)` itself or the change silently never reaches the client.
+ * Sync is driven by this component's own dirty flag: [applyBuff]/[tickDown]/[consume] mark it
+ * dirty as they mutate, and a freshly added instance starts dirty, so changes reach the client
+ * without any external bookkeeping. To force a resend when nothing changed, call [markDirty].
  */
 class Buffs(
   val activeBuffs: MutableList<ActiveBuff> = mutableListOf()
@@ -93,6 +91,10 @@ class Buffs(
   }
 
   override fun isDirty(): Boolean = dirty
+
+  override fun markDirty() {
+    dirty = true
+  }
 
   override fun clearDirty() {
     dirty = false

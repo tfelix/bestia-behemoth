@@ -20,12 +20,13 @@ class GetInventoryHandler(
     // Get the currently selected entity for this player
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    // Access the entity and mark its inventory for a resync to the client if present
+    // Access the entity and force its inventory to resync to the client if present. Nothing
+    // changed, so the component isn't dirty on its own - markDirty() requests the resend.
     world.modify(activeEntityId) { id ->
       val inventory = get(id, Inventory::class)
 
       if (inventory != null) {
-        markChanged(id, Inventory::class)
+        inventory.markDirty()
         LOG.debug { "Marked inventory as dirty for entity $activeEntityId" }
       } else {
         LOG.debug { "Entity $activeEntityId has no inventory component" }

@@ -35,6 +35,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -61,7 +62,6 @@ class AiLifecycleE2ETest {
 
   @BeforeEach
   fun setup() {
-    world = World()
     aoi = EntityAOIService()
 
     val curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve()))
@@ -74,19 +74,21 @@ class AiLifecycleE2ETest {
     profileRegistry.load()
 
     // Register the whole pipeline in the world; the scheduler runs them in registration order.
-    world.addSystem(PerceptionSystem(profileRegistry, aoi))
-    world.addSystem(
-      AiThinkSystem(
-        profileRegistry,
-        UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
-        WorldStateBuilder(),
-        GoapPlanner(),
-        actionRegistry
+    world = testWorld(
+      systems = listOf(
+        PerceptionSystem(profileRegistry, aoi),
+        AiThinkSystem(
+          profileRegistry,
+          UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
+          WorldStateBuilder(),
+          GoapPlanner(),
+          actionRegistry
+        ),
+        AiActSystem(),
+        MoveSystem(),
+        ReceivedDamageSystem(),
       )
     )
-    world.addSystem(AiActSystem())
-    world.addSystem(MoveSystem())
-    world.addSystem(ReceivedDamageSystem())
   }
 
   @Test

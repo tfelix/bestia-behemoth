@@ -54,8 +54,8 @@ class BestiaSkillLearnService(
 
     if (entityId != null) {
       world.modify(entityId) { entityId ->
+        // AvailableSkills is internal (not client-synced), so no dirty flag is involved.
         get(entityId, AvailableSkills::class)?.learnOrUpdate(skillId)
-        markChanged(entityId, AvailableSkills::class)
       }
     }
 

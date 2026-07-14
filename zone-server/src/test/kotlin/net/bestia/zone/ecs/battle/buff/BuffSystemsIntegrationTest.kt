@@ -14,6 +14,7 @@ import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.battle.ReceivedDamageSystem
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Speed
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -72,9 +73,8 @@ class BuffSystemsIntegrationTest {
     val registry = BuffDefinitionRegistry()
     registry.load(listOf(speedBuff, reflectBuff, persistentReflectBuff))
 
-    val world = World()
-    world.addSystems(
-      listOf(
+    val world = testWorld(
+      systems = listOf(
         BuffDamageInterceptSystem(registry),
         BuffDurationSystem(),
         StatAggregationSystem(registry),

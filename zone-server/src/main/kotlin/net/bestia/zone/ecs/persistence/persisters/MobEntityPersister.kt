@@ -93,8 +93,7 @@ class MobEntityPersister(
       if (snap.currentHp != NO_HP) {
         world.modify(snap.entityId) { id ->
           get(id, Health::class)?.let {
-            it.current = snap.currentHp
-            markChanged(id, Health::class)
+            it.current = snap.currentHp // the setter marks Health dirty itself
           }
         }
       }

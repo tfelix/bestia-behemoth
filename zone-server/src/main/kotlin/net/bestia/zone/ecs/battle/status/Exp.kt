@@ -24,6 +24,10 @@ data class Exp(
 
   override fun isDirty(): Boolean = dirty
 
+  override fun markDirty() {
+    dirty = true
+  }
+
   override fun clearDirty() {
     dirty = false
   }

@@ -32,7 +32,6 @@ class ReceivedDamageSystem : System {
       takenDamage.removeOldEntries()
 
       health.current -= receivedDamage.total()
-      world.markChanged(id, Health::class)
 
       if (health.current == 0) {
         LOG.trace { "$id died due to damage." }

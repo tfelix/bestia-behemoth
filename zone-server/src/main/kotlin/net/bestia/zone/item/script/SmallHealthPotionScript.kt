@@ -21,7 +21,6 @@ class SmallHealthPotionScript(
     val healAmount = 45
 
     hpComp.current += healAmount
-    world.markChanged(userId, Health::class)
 
     val pos = world.get(userId, Position::class)
 

@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
  * ```
  * The read is locked, but `learnOrUpdate` runs unlocked and can corrupt state concurrently ticked
  * by a system. To make that impossible by construction, [WorldView] exposes **no** top-level
- * component accessor (`get`/`add`/`remove`/`destroy`/`markChanged`/`query`/...). The only way to
+ * component accessor (`get`/`add`/`remove`/`destroy`/`each`/`query`/...). The only way to
  * reach a component is through a lock-holding scope ([read]/[modify]/[modifyOrThrow]/[createEntity]),
  * whose block receives the full [World] as its receiver — so everything you do to a component
  * happens while the world lock is held and cannot interleave with the tick.

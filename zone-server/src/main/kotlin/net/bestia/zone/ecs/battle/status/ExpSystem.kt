@@ -35,13 +35,10 @@ class ExpSystem(
         if (isMaster) {
           world.get(entityId, SkillPoints::class)?.let { skillPoints ->
             skillPoints.value += 1
-            world.markChanged(entityId, SkillPoints::class)
           }
         }
 
         requiredExpNextLevel = levelUpExpCalc.getRequiredExperience(levelComp.level + 1)
-        world.markChanged(entityId, Level::class)
-        world.markChanged(entityId, Exp::class)
 
         LOG.debug { "$entityId got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
       }

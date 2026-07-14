@@ -97,7 +97,6 @@ class MasterSkillTreeService(
         get(id, AvailableSkills::class)?.learnOrUpdate(learnedSkill.skill.id, learnedSkill.level)
       }
       get(id, SkillPoints::class)?.let { it.value = master.skillPoints }
-      markChanged(id, SkillPoints::class)
     }
   }
 }

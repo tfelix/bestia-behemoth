@@ -20,7 +20,8 @@ import kotlin.reflect.KClass
  * flushes ECS state changes to the outside world. This replaces the old `ZoneServer` tick loop plus
  * `DirtyComponentUpdateSystem`:
  *
- *  - **component sync**: for each changed (marked) syncable component it builds the matching
+ *  - **component sync**: for each dirty syncable component (each component tracks its own dirty
+ *    state via [Dirtyable]) it builds the matching
  *    [net.bestia.zone.message.EntitySMSG] and routes it to whatever [SyncTargets] the
  *    component resolves (all players in range, or a specific set of accounts), and it keeps the
  *    area-of-interest services up to date from changed positions.
@@ -116,12 +117,14 @@ class ZoneEngine(
       val positionChanged = HashSet<EntityId>()
 
       for (syncableComponentType in syncableComponentTypes) {
-        world.drainChanges(syncableComponentType) { id ->
-          val comp = world.get(id, syncableComponentType) as? Dirtyable ?: return@drainChanges
-          perEntity.getOrPut(id) { mutableListOf() }.add(comp)
+        world.each(syncableComponentType) { id, comp ->
+          val dirtyable = comp as Dirtyable
+          if (!dirtyable.isDirty()) return@each
+          perEntity.getOrPut(id) { mutableListOf() }.add(dirtyable)
           if (syncableComponentType == Position::class) {
             positionChanged.add(id)
           }
+          dirtyable.clearDirty()
         }
       }
 

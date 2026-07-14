@@ -35,6 +35,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -57,7 +58,7 @@ class AiBehaviorScenarioTest {
 
   @BeforeEach
   fun setup() {
-    world = World()
+    world = testWorld()
     aoi = EntityAOIService()
 
     val curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve()))

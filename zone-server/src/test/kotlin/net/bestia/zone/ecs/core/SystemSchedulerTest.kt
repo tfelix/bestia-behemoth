@@ -23,11 +23,10 @@ class SystemSchedulerTest {
 
   @Test
   fun `EveryTick runs each tick, EveryTicks and EverySeconds respect cadence`() {
-    val world = World()
     val everyTick = CountingSystem(Schedule.EveryTick)
     val everyThird = CountingSystem(Schedule.EveryTicks(3))
     val everySecond = CountingSystem(Schedule.EverySeconds(1.0f))
-    world.addSystems(listOf(everyTick, everyThird, everySecond))
+    val world = testWorld(systems = listOf(everyTick, everyThird, everySecond))
 
     // 6 ticks of 0.5s each = 3.0s total
     repeat(6) { world.tick(0.5f) }
@@ -39,10 +38,9 @@ class SystemSchedulerTest {
 
   @Test
   fun `non-conflicting systems share a wave, conflicting ones are serialised`() {
-    val world = World()
     // writes A, writes B, reads A (conflicts with writer of A)
-    world.addSystems(
-      listOf(
+    val world = testWorld(
+      systems = listOf(
         CountingSystem(Schedule.EveryTick, writes = setOf(CompA::class)),
         CountingSystem(Schedule.EveryTick, writes = setOf(CompB::class)),
         CountingSystem(Schedule.EveryTick, reads = setOf(CompA::class)),
@@ -54,9 +52,8 @@ class SystemSchedulerTest {
 
   @Test
   fun `fully independent systems collapse into a single wave`() {
-    val world = World()
-    world.addSystems(
-      listOf(
+    val world = testWorld(
+      systems = listOf(
         CountingSystem(Schedule.EveryTick, writes = setOf(CompA::class)),
         CountingSystem(Schedule.EveryTick, writes = setOf(CompB::class)),
         CountingSystem(Schedule.EveryTick, writes = setOf(CompC::class)),
@@ -67,10 +64,9 @@ class SystemSchedulerTest {
 
   @Test
   fun `parallel execution produces the same counts as sequential`() {
-    val world = World(parallelSystems = true)
     val a = CountingSystem(Schedule.EveryTick, writes = setOf(CompA::class))
     val b = CountingSystem(Schedule.EveryTick, writes = setOf(CompB::class))
-    world.addSystems(listOf(a, b))
+    val world = testWorld(parallelSystems = true, systems = listOf(a, b))
 
     repeat(10) { world.tick(0.1f) }
 

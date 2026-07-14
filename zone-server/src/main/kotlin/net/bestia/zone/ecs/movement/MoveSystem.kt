@@ -31,8 +31,6 @@ class MoveSystem : System {
         position.y = nextPoint.y
         position.z = nextPoint.z
 
-        world.markChanged(id, Position::class)
-
         LOG.trace { "Entity $id on $nextPoint" }
 
         if (movementPath.path.isEmpty()) {

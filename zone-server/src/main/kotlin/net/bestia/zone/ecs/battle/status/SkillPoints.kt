@@ -27,6 +27,10 @@ data class SkillPoints(
 
   override fun isDirty(): Boolean = dirty
 
+  override fun markDirty() {
+    dirty = true
+  }
+
   override fun clearDirty() {
     dirty = false
   }
