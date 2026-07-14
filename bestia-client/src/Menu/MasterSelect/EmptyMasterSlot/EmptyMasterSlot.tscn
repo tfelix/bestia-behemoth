@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dyc4c1l2p0iho"]
+
+[ext_resource type="Script" uid="uid://be3tkfa7m2fkk" path="res://Menu/MasterSelect/EmptyMasterSlot/empty_master_slot.gd" id="1_ds7cu"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="1_jvv08"]
+
+[node name="EmptyMasterSlot" type="Control" unique_id=1841555960]
+custom_minimum_size = Vector2(200, 350)
+custom_maximum_size = Vector2(200, 350)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 350.0
+script = ExtResource("1_ds7cu")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2128162937]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer" unique_id=751261442]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SlotLabel" type="Label" parent="VBoxContainer" unique_id=293868698]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Slot 1"
+label_settings = ExtResource("1_jvv08")
+horizontal_alignment = 1
+
+[node name="EmptySlotLabel2" type="Label" parent="VBoxContainer" unique_id=338685068]
+layout_mode = 2
+text = "< Empty >"
+horizontal_alignment = 1
