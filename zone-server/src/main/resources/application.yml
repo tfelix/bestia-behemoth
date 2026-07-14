@@ -9,6 +9,10 @@ zone:
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
 
+persistence:
+  initial-delay-ms: 90000
+  interval-ms: 90000
+
 world:
   tick-rate: 20
   parallel-systems: false

@@ -31,14 +31,19 @@ import kotlin.reflect.KClass
  */
 class World(
   parallelSystems: Boolean = false,
-  idGenerator: (() -> EntityId)? = null,
+  idGenerator: EntityIdGenerator,
+  systems: Iterable<System>
 ) : WorldView {
-  private val entities = if (idGenerator != null) EntityRegistry(idGenerator) else EntityRegistry()
+  private val entities = EntityRegistry(idGenerator)
   private val stores = ConcurrentHashMap<KClass<out Component>, ComponentStore<out Component>>()
   private val scheduler = SystemScheduler(parallelSystems)
   private val commands = CommandQueue()
   private val changes = ChangeTracker()
   private val deferred = ConcurrentLinkedQueue<() -> Unit>()
+
+  init {
+    scheduler.registerAll(systems)
+  }
 
   /**
    * Guards all structural changes, component access and the tick against concurrent access from
@@ -87,6 +92,12 @@ class World(
    */
   override fun createEntity(configure: World.(EntityId) -> Unit): EntityId = lock.withLock {
     val id = entities.create()
+    this.configure(id)
+    id
+  }
+
+  override fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId = lock.withLock {
+    entities.create(id)
     this.configure(id)
     id
   }
@@ -213,15 +224,6 @@ class World(
   private fun storeErased(type: KClass<out Component>): ComponentStore<out Component> =
     store(type as KClass<Component>)
 
-  // ------------------------------------------------------------------ systems
-  fun addSystem(system: System) {
-    scheduler.register(system)
-  }
-
-  fun addSystems(systems: Iterable<System>) {
-    scheduler.registerAll(systems)
-  }
-
   // ------------------------------------------------------------- messaging in
   /** Enqueue external intent from any thread. Applied at the start of next tick. */
   override fun send(command: Command) {
@@ -239,7 +241,11 @@ class World(
   // --------------------------------------------------- deferred structural ops
   /** Run [block] now, or defer it to the next safe sync point if mid-tick. */
   fun defer(block: () -> Unit) {
-    if (iterating) deferred.add(block) else block()
+    if (iterating) {
+      deferred.add(block)
+    } else {
+      block()
+    }
   }
 
   private fun applyDeferred() {

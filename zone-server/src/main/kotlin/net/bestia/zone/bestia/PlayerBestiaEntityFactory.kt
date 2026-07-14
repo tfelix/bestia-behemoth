@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -51,6 +52,7 @@ class PlayerBestiaEntityFactory(
       add(id, BestiaVisual(playerBestia.bestia.id))
       add(id, Account(accountId))
       add(id, AvailableSkills((fixedAttackIds + customAttackIds).toMutableMap()))
+      add(id, Persistent)
     }
 
     val playerBestiaId = playerBestia.id

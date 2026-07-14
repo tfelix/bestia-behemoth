@@ -103,6 +103,13 @@ class ClientMessageHandler(
     // Cancel auth timeout since authentication was successful
     authTimeoutTask?.cancel(false)
 
+    // Gate: refuse logins until the zone has finished loading (entity reload, world gen, ...).
+    if (!handlerCtx.zoneReadinessService.isReady()) {
+      LOG.info { "Zone not ready yet, rejecting login for account ${result.accountId}" }
+      sendDisconnectMessageAndClose(ctx.channel(), reason = "SERVER_NOT_READY")
+      return
+    }
+
     accountId = result.accountId
     handlerCtx.channelRegistry.registerChannel(result.accountId, ctx.channel())
 
@@ -134,12 +141,12 @@ class ClientMessageHandler(
     sendDisconnectMessageAndClose(ctx.channel())
   }
 
-  private fun sendDisconnectMessageAndClose(channel: io.netty.channel.Channel) {
+  private fun sendDisconnectMessageAndClose(channel: io.netty.channel.Channel, reason: String = "AUTH_FAILED") {
     try {
       if (channel.isActive) {
         val disconnected = DisconnectedProto.Disconnected
           .newBuilder()
-          .setReason("AUTH_FAILED")
+          .setReason(reason)
 
         val envelope = EnvelopeProto.Envelope.newBuilder()
           .setDisconnected(disconnected)

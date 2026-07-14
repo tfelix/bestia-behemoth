@@ -10,7 +10,7 @@ import net.bestia.zone.util.EntityId
 class SnowflakeEntityIdGenerator(
   private val nodeId: Int = 1,
   private val epochMillis: Long = 1704067200000L, // 2024-01-01 as custom epoch
-) {
+): EntityIdGenerator {
   init {
     require(nodeId in 0..255) { "Node ID must be between 0 and 255" }
   }
@@ -25,7 +25,7 @@ class SnowflakeEntityIdGenerator(
   private var sequence = 0
 
   @Synchronized
-  fun nextId(): EntityId {
+  override fun nextId(): EntityId {
     val currentTimestamp = java.lang.System.currentTimeMillis()
 
     if (currentTimestamp < lastTimestamp) {

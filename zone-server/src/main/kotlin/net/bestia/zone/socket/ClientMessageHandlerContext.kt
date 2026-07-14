@@ -13,6 +13,7 @@ class ClientMessageHandlerContext(
   val authProcessor: AuthenticationProcessor,
   val socketConfig: SocketServerConfig,
   val channelRegistry: ChannelRegistry,
+  val zoneReadinessService: ZoneReadinessService,
   @Value("\${zone.version}")
   val version: String,
 )

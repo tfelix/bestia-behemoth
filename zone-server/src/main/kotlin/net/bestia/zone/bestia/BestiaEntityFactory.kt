@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
@@ -24,19 +25,24 @@ class BestiaEntityFactory(
     world: WorldView,
     bestiaId: Long,
     pos: Vec3L,
+    entityId: EntityId? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
     val bestia = bestiaRepository.findByIdOrThrow(bestiaId)
 
-    return world.createEntity { id ->
+    val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
       add(id, BestiaVisual(bestiaId))
       add(id, Health(bestia.health, bestia.health))
       add(id, Speed())
+      add(id, Persistent)
 
       attachAi(id, bestia, pos)
     }
+
+    // Rehydrated mobs keep their persisted id; freshly spawned ones get a new one.
+    return if (entityId != null) world.createEntity(entityId, configure) else world.createEntity(configure)
   }
 
   /**

@@ -2,9 +2,11 @@ package net.bestia.zone.item.loot
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -43,9 +45,10 @@ class LootItemEntityFactory(
     itemId: Long,
     amount: Int,
     pos: Vec3L,
-    playerItemUniqueId: Long = 0
+    playerItemUniqueId: Long = 0,
+    entityId: EntityId? = null,
   ): EntityId {
-    return world.createEntity { id ->
+    val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
       add(
         id,
@@ -55,7 +58,11 @@ class LootItemEntityFactory(
           uniqueId = playerItemUniqueId
         )
       )
+      add(id, Persistent)
     }
+
+    // Rehydrated ground items keep their persisted id; freshly dropped ones get a new one.
+    return if (entityId != null) world.createEntity(entityId, configure) else world.createEntity(configure)
   }
 
   companion object {

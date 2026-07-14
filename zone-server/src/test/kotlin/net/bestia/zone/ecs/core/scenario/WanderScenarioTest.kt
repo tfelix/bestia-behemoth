@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.core.scenario
 
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.EcsConfiguration
+import net.bestia.zone.ecs.EcsConfiguration
 import net.bestia.zone.ZoneConfig as ZoneShardConfig
 import net.bestia.zone.ecs.ZoneConfig as WorldConfig
 import org.junit.jupiter.api.AfterEach

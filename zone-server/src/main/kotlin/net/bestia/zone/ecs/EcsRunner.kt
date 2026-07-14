@@ -1,12 +1,13 @@
-package net.bestia.zone.ecs.core
+package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.core.World
 import java.lang.System
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 /**
- * Optional single-threaded tick driver for an ecs [World], modelled on
+ * Optional single-threaded tick driver for an ecs [net.bestia.zone.ecs.core.World], modelled on
  * `ZoneServer.start()`. Not a Spring bean by default so that merely having it
  * on the classpath never starts a second simulation loop — construct and
  * [start] it explicitly when you want it to run.

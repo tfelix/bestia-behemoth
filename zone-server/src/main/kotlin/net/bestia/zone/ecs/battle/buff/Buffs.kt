@@ -43,7 +43,7 @@ class Buffs(
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
       showIcon = definition.showIcon,
-      debuff = definition.polarity == BuffPolarity.DEBUFF,
+      isDebuff = definition.polarity == BuffPolarity.DEBUFF,
       sourceEntityId = sourceEntityId
     )
 
@@ -107,7 +107,7 @@ class Buffs(
           buffId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,
-          debuff = it.debuff
+          debuff = it.isDebuff
         )
       }
     )

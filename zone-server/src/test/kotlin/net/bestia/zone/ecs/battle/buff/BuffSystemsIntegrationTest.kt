@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Exercises the buff systems wired together against a real [World], the same way
- * [net.bestia.zone.ecs.core.EcsConfiguration] wires them in production (minus Spring) - to verify
+ * [net.bestia.zone.ecs.EcsConfiguration] wires them in production (minus Spring) - to verify
  * the cross-system ordering and tick-lag behavior called out in the design plan, not just each
  * component in isolation.
  */

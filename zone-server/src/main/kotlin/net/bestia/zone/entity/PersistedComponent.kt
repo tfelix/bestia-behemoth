@@ -2,9 +2,19 @@ package net.bestia.zone.entity
 
 import jakarta.persistence.*
 
+/**
+ * A single serialized component blob belonging to a [PersistedEntity]. [type] is a stable
+ * discriminator (e.g. the snapshot kind) the owning persister uses to deserialize [data],
+ * which holds the JSON of the minimal mutable state.
+ */
 @Entity
 @Table(name = "entity_component")
 class PersistedComponent(
+  @Column(nullable = false, length = 64)
+  var type: String,
+
+  @Lob
+  @Column(nullable = false)
   var data: String
 ) {
   @Id

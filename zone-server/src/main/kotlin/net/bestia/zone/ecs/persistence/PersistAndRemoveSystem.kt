@@ -1,65 +1,56 @@
 package net.bestia.zone.ecs.persistence
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.item.ItemVisual
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * This will identify what type of entity it is and then remove it as some
- * entities like player bestia and  master have different DB tables and are not
- * stored like the regular entities.
+ * Persists-then-removes entities tagged [PersistAndRemove] (added on disconnect). It dispatches
+ * through the shared [EntityPersister] registry — the same strategies the periodic
+ * [EntityPersistenceService] uses — so each entity kind is written to its own store. Persistence
+ * happens synchronously here because the entity is destroyed immediately afterwards; disconnect is
+ * infrequent so the brief tick-thread DB write is acceptable.
  */
 @SpringComponent
 @Order(90)
 class PersistAndRemoveSystem(
-  private val masterRepository: MasterRepository
+  private val persisters: List<EntityPersister>
 ) : System {
 
-  override val reads: ComponentClassSet =
-    setOf(PersistAndRemove::class, Master::class, Position::class, Level::class, SkillPoints::class)
+  override val reads: ComponentClassSet = setOf(
+    PersistAndRemove::class, Master::class, Account::class, Position::class,
+    Level::class, SkillPoints::class, Health::class, BestiaVisual::class, ItemVisual::class,
+  )
 
   override fun update(world: World, deltaTime: Float) {
     val toRemove = mutableListOf<EntityId>()
     world.query(PersistAndRemove::class).each { id -> toRemove.add(id) }
+    if (toRemove.isEmpty()) return
 
+    val byPersister = LinkedHashMap<EntityPersister, MutableList<EntitySnapshot>>()
     for (id in toRemove) {
-      if (world.has(id, Master::class)) {
-        persistMasterEntity(world, id)
-      } else {
+      val persister = persisters.firstOrNull { it.supports(world, id) }
+      if (persister == null) {
         LOG.warn { "Found no persistence handler for entity: $id, it will not be persisted" }
+      } else {
+        persister.snapshot(world, id)?.let { byPersister.getOrPut(persister) { mutableListOf() }.add(it) }
       }
       world.destroy(id)
     }
-  }
 
-  private fun persistMasterEntity(world: World, id: EntityId) {
-    val masterComponent = world.getOrThrow(id, Master::class)
-    val positionComponent = world.getOrThrow(id, Position::class)
-    val levelComponent = world.getOrThrow(id, Level::class)
-    val skillPointsComponent = world.get(id, SkillPoints::class)
-
-    val masterEntity = masterRepository.findByIdOrNull(masterComponent.masterId)
-
-    if (masterEntity == null) {
-      LOG.warn { "Master ${masterComponent.masterId} was not found, can not persist it" }
-      return
-    }
-
-    masterEntity.currentPosition = positionComponent.toVec3L()
-    masterEntity.level = levelComponent.level
-    skillPointsComponent?.let { masterEntity.skillPoints = it.value }
-    masterRepository.save(masterEntity)
-    LOG.info { "Successfully persisted master ${masterEntity.id} at position ${masterEntity.currentPosition} with level ${masterEntity.level}" }
+    byPersister.forEach { (persister, snapshots) -> persister.persist(snapshots) }
   }
 
   companion object {

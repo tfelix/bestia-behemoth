@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(70)
 class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
-  private val lootItemEntityFactory: LootItemEntityFactory
+  private val lootItemEntityFactory: LootItemEntityFactory,
+  private val deletionQueue: PersistedEntityDeletionQueue
 ) : System {
 
   override val reads: ComponentClassSet =
@@ -31,6 +33,10 @@ class DeathSystem(
 
       assignExp(world, entityId)
       spawnLoot(world, entityId)
+
+      // A dead entity is gone for good — drop any persisted row so it is not resurrected on reload.
+      // The actual DB delete is batched off the tick thread by the persistence sync.
+      deletionQueue.enqueue(entityId)
 
       world.destroy(entityId)
     }

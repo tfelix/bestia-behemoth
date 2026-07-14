@@ -57,6 +57,13 @@ interface WorldView {
   /** Atomically creates an entity and configures it (typically a batch of `add`s) under the lock. */
   fun createEntity(configure: World.(EntityId) -> Unit): EntityId
 
+  /**
+   * Like [createEntity] but reuses a caller-supplied [id] rather than generating a new one — used
+   * when rehydrating a persisted entity so its original (Snowflake) id is preserved. Throws if [id]
+   * is already alive.
+   */
+  fun createEntity(id: EntityId, configure: World.(EntityId) -> Unit): EntityId
+
   /** Enqueue external intent from any thread. Applied at the start of the next tick. */
   fun send(command: Command)
 }

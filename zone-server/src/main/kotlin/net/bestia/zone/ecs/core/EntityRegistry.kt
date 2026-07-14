@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong
  * [World] when they happen mid-iteration).
  */
 class EntityRegistry(
-  private val idGenerator: () -> EntityId = defaultGenerator(),
+  private val idGenerator: EntityIdGenerator
 ) {
   private val alive = Long2IntOpenHashMap()
 
@@ -22,7 +22,7 @@ class EntityRegistry(
 
   /** Creates a new entity using the configured generator. */
   fun create(): EntityId {
-    val id = idGenerator()
+    val id = idGenerator.nextId()
     register(id)
     return id
   }
@@ -49,11 +49,5 @@ class EntityRegistry(
 
   companion object {
     private const val ALIVE = 1
-
-    /** Simple monotonic generator; replace with a snowflake generator for interop. */
-    fun defaultGenerator(): () -> EntityId {
-      val counter = AtomicLong(1L)
-      return { counter.getAndIncrement() }
-    }
   }
 }
