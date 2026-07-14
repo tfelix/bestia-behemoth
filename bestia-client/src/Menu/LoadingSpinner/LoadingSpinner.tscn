@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://b7u80lkxlhxom"]
+
+[ext_resource type="Texture2D" uid="uid://doj6v7xoiuwmn" path="res://Menu/LoadingSpinner/ring-loader.svg" id="1_nroay"]
+
+[sub_resource type="Animation" id="Animation_s2bqq"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_37f4d"]
+resource_name = "rotate"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.2831855]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_42dgx"]
+_data = {
+&"RESET": SubResource("Animation_s2bqq"),
+&"rotate": SubResource("Animation_37f4d")
+}
+
+[node name="LoadingSpinner" type="Control" unique_id=647747631]
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1469219577]
+layout_mode = 1
+offset_right = 100.0
+offset_bottom = 100.0
+pivot_offset = Vector2(50, 50)
+texture = ExtResource("1_nroay")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=372984043]
+libraries/ = SubResource("AnimationLibrary_42dgx")
+autoplay = &"rotate"

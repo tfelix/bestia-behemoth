@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dhi8u236he6jh" path="res://Menu/MasterSelect/MasterInfo/master_info.gd" id="1_kpukv"]
 [ext_resource type="PackedScene" uid="uid://cycbux25m2as5" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/MasterProfileImage.tscn" id="2_5yp0s"]
+[ext_resource type="LabelSettings" uid="uid://k7yxyg5xi86r" path="res://Menu/Shared/muted_text_label_settings.tres" id="3_5ufew"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_5yp0s"]
 viewport_path = NodePath("PortraitViewport")
@@ -9,6 +10,7 @@ viewport_path = NodePath("PortraitViewport")
 [node name="MasterInfo" type="MarginContainer" unique_id=1570766094]
 anchors_preset = 10
 anchor_right = 1.0
+offset_right = -965.0
 offset_bottom = 158.0
 grow_horizontal = 2
 theme_override_constants/margin_left = 4
@@ -35,37 +37,45 @@ theme_override_constants/margin_left = 6
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MasterName" type="Label" parent="HBoxContainer/InfoMargin/Info" unique_id=1318411831]
+[node name="NameLine" type="HBoxContainer" parent="HBoxContainer/InfoMargin/Info" unique_id=1834734826]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MasterName" type="Label" parent="HBoxContainer/InfoMargin/Info/NameLine" unique_id=1318411831]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Name"
 
+[node name="Level" type="Label" parent="HBoxContainer/InfoMargin/Info/NameLine" unique_id=1988549297]
+layout_mode = 2
+text = "Lv. 10"
+label_settings = ExtResource("3_5ufew")
+
 [node name="Position" type="Label" parent="HBoxContainer/InfoMargin/Info" unique_id=2147371563]
+visible = false
 layout_mode = 2
 text = "Position"
 
-[node name="PosSplit" type="HSplitContainer" parent="HBoxContainer/InfoMargin/Info" unique_id=1986367446]
+[node name="PosLine" type="HBoxContainer" parent="HBoxContainer/InfoMargin/Info" unique_id=1887750509]
 layout_mode = 2
-mouse_filter = 2
-dragging_enabled = false
 
-[node name="PosX" type="Label" parent="HBoxContainer/InfoMargin/Info/PosSplit" unique_id=1096054409]
+[node name="PosX" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=1096054409]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "X: 49"
+label_settings = ExtResource("3_5ufew")
 
-[node name="PosY" type="Label" parent="HBoxContainer/InfoMargin/Info/PosSplit" unique_id=724731545]
+[node name="PosY" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=724731545]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Y: 120"
+label_settings = ExtResource("3_5ufew")
 
-[node name="SelectButton" type="Button" parent="HBoxContainer/InfoMargin/Info" unique_id=1540475815]
-custom_minimum_size = Vector2(200, 40)
+[node name="PosZ" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=714579953]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 10
-text = "Select"
-
-[connection signal="pressed" from="HBoxContainer/InfoMargin/Info/SelectButton" to="." method="_on_select_button_pressed"]
+size_flags_horizontal = 3
+text = "Z: 0"
+label_settings = ExtResource("3_5ufew")
