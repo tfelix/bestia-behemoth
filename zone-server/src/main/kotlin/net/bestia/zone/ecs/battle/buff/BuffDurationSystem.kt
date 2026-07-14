@@ -20,15 +20,9 @@ class BuffDurationSystem : System {
   override val writes: ComponentClassSet = setOf(Buffs::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Buffs::class).each { id ->
-      val buffs = get<Buffs>()
-      val before = buffs.activeBuffs.size
-
-      buffs.tickDown(deltaTime)
-
-      if (buffs.activeBuffs.size != before) {
-        world.markChanged(id, Buffs::class)
-      }
+    world.query(Buffs::class).each {
+      // tickDown marks the component dirty itself if any buff expired.
+      get<Buffs>().tickDown(deltaTime)
     }
   }
 }

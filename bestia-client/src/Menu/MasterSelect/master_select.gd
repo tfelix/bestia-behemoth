@@ -1,7 +1,7 @@
 extends Control
 
 
-@onready var _master_list = %MasterList
+@onready var _master_slots = %MasterSlots
 @onready var _loading_label = %LoadingLabel
 
 func _ready() -> void:
@@ -16,7 +16,7 @@ func _on_new_master_button_pressed() -> void:
 
 
 func _clear_master_list() -> void:
-	for child in _master_list.get_children():
+	for child in _master_slots.get_children():
 		child.queue_free()
 
 
@@ -24,5 +24,5 @@ func _on_master_received(master: MasterSMSG) -> void:
 	_loading_label.hide()
 	for master_info in master.Masters:
 		var master_info_scene = MasterInfoScn.create(master_info)
-		_master_list.add_child(master_info_scene)
+		_master_slots.add_child(master_info_scene)
 		

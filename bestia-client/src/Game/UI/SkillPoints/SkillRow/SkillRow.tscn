@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://cdo38bn2thlee"]
+
+[ext_resource type="Script" uid="uid://bw5iw7nfcdpd4" path="res://Game/UI/SkillPoints/SkillRow/skill_row.gd" id="1_83hdq"]
+
+[node name="SkillRow" type="HBoxContainer" unique_id=1197666840]
+offset_right = 145.0
+offset_bottom = 31.0
+theme_override_constants/separation = 8
+script = ExtResource("1_83hdq")
+
+[node name="SkillLabel" type="Label" parent="." unique_id=1419107417]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Str"
+
+[node name="ValueLabel" type="Label" parent="." unique_id=224379711]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "5"
+
+[node name="LevelButton" type="Button" parent="." unique_id=328014075]
+layout_mode = 2
+text = "+"
+
+[node name="RequiredGainPoints" type="Label" parent="." unique_id=1919715180]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+text = "2"
+horizontal_alignment = 2
+
+[connection signal="pressed" from="LevelButton" to="." method="_on_level_button_pressed"]

@@ -24,10 +24,15 @@ import kotlin.reflect.KClass
  * ```
  *
  * ### Threading
- * Only the tick thread mutates ECS state. Other threads may [send] commands,
- * and [drainChanges] (all thread-safe). Structural changes
- * requested while systems are iterating are automatically deferred to a safe
- * sync point.
+ * Only the tick thread mutates ECS state. Other threads may [send] commands
+ * (thread-safe). Structural changes requested while systems are iterating are
+ * automatically deferred to a safe sync point.
+ *
+ * ### Outbound sync
+ * The world keeps no separate "changed" bookkeeping: a component is the single source of
+ * truth for whether it needs re-sending (see [net.bestia.zone.ecs.Dirtyable]). Mutating a
+ * component through its own setters marks it dirty; the flush scans stores via [each] and
+ * sends whatever reports dirty.
  */
 class World(
   parallelSystems: Boolean = false,
@@ -38,7 +43,6 @@ class World(
   private val stores = ConcurrentHashMap<KClass<out Component>, ComponentStore<out Component>>()
   private val scheduler = SystemScheduler(parallelSystems)
   private val commands = CommandQueue()
-  private val changes = ChangeTracker()
   private val deferred = ConcurrentLinkedQueue<() -> Unit>()
 
   init {
@@ -125,7 +129,6 @@ class World(
       @Suppress("UNCHECKED_CAST")
       (store as ComponentStore<Component>).remove(id)
     }
-    changes.forget(id)
     for (listener in destroyListeners) listener(id)
   }
 
@@ -139,7 +142,10 @@ class World(
     stores[componentType.type] = ComponentStore(componentType.type, componentType.factory, componentType.reset)
   }
 
-  /** Adds a component to [id], marking it changed. Deferred if called mid-tick. */
+  /**
+   * Adds a component to [id]. Deferred if called mid-tick. A freshly created component starts
+   * dirty (see [net.bestia.zone.ecs.Dirtyable]), so adding one already queues it for sync.
+   */
   fun <T : Component> add(id: EntityId, component: T): T = lock.withLock {
     if (iterating) {
       deferred.add {
@@ -155,7 +161,6 @@ class World(
   private fun <T : Component> addNow(id: EntityId, component: T) {
     require(entities.isAlive(id)) { "Cannot add component to dead entity $id" }
     store(component::class as KClass<T>).set(id, component)
-    changes.mark(component::class, id)
   }
 
   fun <T : Component> get(id: EntityId, type: KClass<T>): T? = lock.withLock { store(type).get(id) }
@@ -178,9 +183,11 @@ class World(
   inline fun <reified T : Component> getOrThrow(id: EntityId): T = getOrThrow(id, T::class)
 
   /**
-   * Convenience for the common "fetch [T] on [id], creating it via [default] if missing, mutate
-   * it, then mark it changed" pattern seen across systems (e.g. `get(id, Exp::class) ?: add(id,
-   * Exp())` followed by a manual [markChanged]).
+   * Convenience for the common "fetch [T] on [id], creating it via [default] if missing, then
+   * mutate it" pattern seen across systems (e.g. `get(id, Exp::class) ?: add(id, Exp())`). The
+   * mutation in [block] marks the component dirty through its own setters (see
+   * [net.bestia.zone.ecs.Dirtyable]), and a freshly created default starts dirty, so no explicit
+   * change flag is needed.
    */
   inline fun <reified T : Component> update(id: EntityId, default: () -> T, block: (T) -> Unit) {
     if (!isAlive(id)) {
@@ -189,13 +196,10 @@ class World(
 
     val component = get(id, T::class) ?: add(id, default())
     block(component)
-    markChanged(id, T::class)
   }
 
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
-    val removed = store(type).remove(id)
-    if (removed != null) changes.mark(type, id)
-    return removed
+    return store(type).remove(id)
   }
 
   // ------------------------------------------------------------------ queries
@@ -205,14 +209,9 @@ class World(
     return Query(byType)
   }
 
-  /** Flags a component of [id] as changed this tick (for outbound sync). */
-  fun markChanged(id: EntityId, type: KClass<out Component>) {
-    changes.mark(type, id)
-  }
-
-  /** Pull model: consume + clear the entities whose [type] component changed. */
-  fun drainChanges(type: KClass<out Component>, action: (EntityId) -> Unit) {
-    changes.drain(type, action)
+  /** Visits every `(entity, component)` pair currently stored for [type]. */
+  fun <T : Component> each(type: KClass<T>, action: (EntityId, T) -> Unit) = lock.withLock {
+    store(type).each(action)
   }
 
   /**

@@ -40,7 +40,6 @@ class BuffDamageInterceptSystem(
 
       if (buffs.activeBuffs.isEmpty() || damage.amounts.isEmpty()) return@each
 
-      var buffsChanged = false
       val resultAmounts = mutableListOf<Damage.DamageAmount>()
 
       for (incoming in damage.amounts) {
@@ -66,9 +65,8 @@ class BuffDamageInterceptSystem(
           }
         }
 
-        toConsume.forEach { instanceId ->
-          if (buffs.consume(instanceId)) buffsChanged = true
-        }
+        // consume() marks the Buffs component dirty itself when it removes an instance.
+        toConsume.forEach { instanceId -> buffs.consume(instanceId) }
 
         if (remaining.amount > 0) {
           resultAmounts.add(remaining)
@@ -77,10 +75,6 @@ class BuffDamageInterceptSystem(
 
       damage.amounts.clear()
       damage.amounts.addAll(resultAmounts)
-
-      if (buffsChanged) {
-        world.markChanged(id, Buffs::class)
-      }
     }
   }
 }
