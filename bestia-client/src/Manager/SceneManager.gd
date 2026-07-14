@@ -3,7 +3,7 @@ extends Node
 var current_scene = null
 
 
-var loading_screen: LoadingScreen
+var _loading_screen: LoadingScreen
 var _loading_screen_scene: PackedScene = preload("res://Menu/LoadingScreen/LoadingScreen.tscn")
 
 var _is_blocking: bool = false
@@ -26,10 +26,10 @@ func goto_scene(content_path: String, is_blocking: bool = false) -> void:
 	_content_path = content_path
 
 	# Create and start new loading screen
-	loading_screen = _loading_screen_scene.instantiate() as LoadingScreen
-	get_tree().root.add_child(loading_screen)
-	loading_screen.start_transition()
-	await loading_screen.anim_player.animation_finished
+	_loading_screen = _loading_screen_scene.instantiate() as LoadingScreen
+	get_tree().root.add_child(_loading_screen)
+	_loading_screen.start_transition()
+	await _loading_screen.anim_player.animation_finished
 
 	# Check if this transition was cancelled while waiting for animation
 	if current_transition_id != _transition_id:
@@ -51,9 +51,9 @@ func _cancel_current_transition() -> void:
 		_content_path = ""
 
 	# Clean up current loading screen if it exists
-	if loading_screen != null:
-		loading_screen.queue_free()
-		loading_screen = null
+	if _loading_screen != null:
+		_loading_screen.queue_free()
+		_loading_screen = null
 
 	# Reset state (this will also clear _loaded_resource)
 	_reset_transition_state()
@@ -104,12 +104,12 @@ func _finalize_transition() -> void:
 	if _is_loading:
 		return
 
-	if loading_screen != null:
-		loading_screen.finish_transition()
+	if _loading_screen != null:
+		_loading_screen.finish_transition()
 		# wait for LoadingScreen's transition to finish playing
-		await loading_screen.anim_player.animation_finished
-		loading_screen.queue_free()
-		loading_screen = null
+		await _loading_screen.anim_player.animation_finished
+		_loading_screen.queue_free()
+		_loading_screen = null
 
 
 # We observe the current loading state of the requsted file.

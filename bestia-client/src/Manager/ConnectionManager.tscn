@@ -1,19 +1,20 @@
-[gd_scene load_steps=3 format=3 uid="uid://p5c05u7yiwij"]
+[gd_scene format=3 uid="uid://p5c05u7yiwij"]
 
 [ext_resource type="Script" uid="uid://d0nk10l8vv8au" path="res://Manager/connection_manager.gd" id="1_so4ce"]
 [ext_resource type="Script" uid="uid://b6fewlw5bpykm" path="res://Bnet/BnetSocket.cs" id="2_ofxgg"]
 
-[node name="ConnectionManager" type="Node"]
+[node name="ConnectionManager" type="Node" unique_id=124796652]
 script = ExtResource("1_so4ce")
 
-[node name="BnetSocket" type="Node" parent="."]
+[node name="BnetSocket" type="Node" parent="." unique_id=1026462761]
 script = ExtResource("2_ofxgg")
 metadata/_custom_type_script = "uid://b6fewlw5bpykm"
 
-[node name="PingTimer" type="Timer" parent="."]
+[node name="PingTimer" type="Timer" parent="." unique_id=1223624401]
 wait_time = 10.0
 
-[node name="LoginRequest" type="HTTPRequest" parent="."]
+[node name="LoginRequest" type="HTTPRequest" parent="." unique_id=1556636665]
+timeout = 3.0
 
 [connection signal="ConnectionStatusChanged" from="BnetSocket" to="." method="_on_bnet_socket_connection_status_changed"]
 [connection signal="MessageReceived" from="BnetSocket" to="." method="_on_bnet_socket_message_received"]

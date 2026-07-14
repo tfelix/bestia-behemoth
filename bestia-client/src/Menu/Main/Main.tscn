@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dl02wrbq4cv2l"]
+[gd_scene format=3 uid="uid://dl02wrbq4cv2l"]
 
 [ext_resource type="Script" uid="uid://mmrfu0moui5f" path="res://Menu/Main/main.gd" id="1_rv483"]
 [ext_resource type="Texture2D" uid="uid://cqqbv00yp7hu5" path="res://Menu/Main/bestia_logo.png" id="2_3d38s"]
@@ -17,7 +17,7 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" unique_id=152235978]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,10 +26,10 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_rv483")
 
-[node name="Background" parent="." instance=ExtResource("2_sevqj")]
+[node name="Background" parent="." unique_id=295748759 instance=ExtResource("2_sevqj")]
 layout_mode = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1443877778]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -37,29 +37,29 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer" unique_id=1054713258]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_k6b14")
 
-[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer" unique_id=1946286998]
 layout_mode = 2
 theme_override_constants/margin_left = 40
 theme_override_constants/margin_top = 40
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 40
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer" unique_id=22301815]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="BestiaLogo" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="BestiaLogo" type="TextureRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1017895085]
 layout_mode = 2
 texture = ExtResource("2_3d38s")
 expand_mode = 4
 stretch_mode = 4
 
-[node name="VersionLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="VersionLabel" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=206621182]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.59717613, 0.59717613, 0.5971761, 1)
@@ -67,20 +67,21 @@ theme_override_font_sizes/font_size = 12
 text = "VERSION"
 horizontal_alignment = 2
 
-[node name="PlayButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="PlayButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2117604501]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Play"
 
-[node name="SettingsButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="SettingsButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1861132775]
 layout_mode = 2
 text = "Settings"
 
-[node name="QuitButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+[node name="QuitButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2110034528]
 layout_mode = 2
 text = "Quit
 "
 
-[node name="BuildOnEth" type="TextureRect" parent="."]
+[node name="BuildOnEth" type="TextureRect" parent="." unique_id=322066921]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
