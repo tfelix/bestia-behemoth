@@ -10,7 +10,7 @@ class StatusEffectDefinitionTest {
     val def = StatusEffectDefinition(
       id = 1L,
       identifier = "BLESSING",
-      polarity = StatusEffectPolarity.BUFF,
+      polarity = StatusEffectSource.BUFF,
       showIcon = true,
       baseDurationSeconds = 60.0,
       durationPerLevel = 20.0
@@ -25,7 +25,7 @@ class StatusEffectDefinitionTest {
     val def = StatusEffectDefinition(
       id = 2L,
       identifier = "CONST",
-      polarity = StatusEffectPolarity.DEBUFF,
+      polarity = StatusEffectSource.DEBUFF,
       showIcon = true,
       baseDurationSeconds = 15.0
     )

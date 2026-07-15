@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.buff
 
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffectEffect
+import net.bestia.zone.battle.buff.StatusEffect
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -32,7 +32,7 @@ class StatAggregationSystem(
       for (active in effects.activeEffects) {
         val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
         for (effect in definition.effects) {
-          if (effect is StatusEffectEffect.StatModifierEffect) {
+          if (effect is StatusEffect.StatModifierEffect) {
             modifiers.addModifier(effect.stat, effect.mode, effect.valuePerLevel * active.level)
           }
         }

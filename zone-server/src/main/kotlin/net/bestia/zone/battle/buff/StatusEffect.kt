@@ -9,16 +9,16 @@ import net.bestia.zone.battle.status.StatType
  * [net.bestia.zone.ecs.battle.buff.StatusEffectDamageInterceptSystem]; a future effect kind is a new
  * sealed subtype plus one new consumer system.
  */
-sealed interface StatusEffectEffect {
+sealed interface StatusEffect {
   data class StatModifierEffect(
     val stat: StatType,
     val mode: ModifierMode,
     val valuePerLevel: Double
-  ) : StatusEffectEffect
+  ) : StatusEffect
 
   data class TriggerEffect(
     val on: StatusEffectTriggerEvent,
     val action: StatusEffectTriggerAction,
     val consumeOnTrigger: Boolean = true
-  ) : StatusEffectEffect
+  ) : StatusEffect
 }

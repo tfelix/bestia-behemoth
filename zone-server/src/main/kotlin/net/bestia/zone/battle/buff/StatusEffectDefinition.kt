@@ -10,12 +10,12 @@ package net.bestia.zone.battle.buff
 data class StatusEffectDefinition(
   val id: Long,
   val identifier: String,
-  val polarity: StatusEffectPolarity,
+  val polarity: StatusEffectSource,
   val showIcon: Boolean,
   val baseDurationSeconds: Double,
   val durationPerLevel: Double = 0.0,
   val stackBehavior: StackBehavior = StackBehavior.REFRESH_DURATION,
-  val effects: List<StatusEffectEffect> = emptyList()
+  val effects: List<StatusEffect> = emptyList()
 ) {
   fun durationSeconds(level: Int): Double {
     return baseDurationSeconds + durationPerLevel * (level - 1)

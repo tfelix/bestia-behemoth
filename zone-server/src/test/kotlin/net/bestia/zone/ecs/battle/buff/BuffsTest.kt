@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.buff
 
 import net.bestia.zone.battle.buff.StatusEffectDefinition
-import net.bestia.zone.battle.buff.StatusEffectPolarity
+import net.bestia.zone.battle.buff.StatusEffectSource
 import net.bestia.zone.battle.buff.StackBehavior
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -12,7 +12,7 @@ class StatusEffectsTest {
   private fun definition(
     id: Long = 1L,
     showIcon: Boolean = true,
-    polarity: StatusEffectPolarity = StatusEffectPolarity.BUFF,
+    polarity: StatusEffectSource = StatusEffectSource.BUFF,
     stackBehavior: StackBehavior = StackBehavior.REFRESH_DURATION
   ) = StatusEffectDefinition(
     id = id,
@@ -130,7 +130,7 @@ class StatusEffectsTest {
   @Test
   fun `toEntityMessage marks debuffs`() {
     val effects = StatusEffects()
-    val debuff = definition(id = 1L, polarity = StatusEffectPolarity.DEBUFF)
+    val debuff = definition(id = 1L, polarity = StatusEffectSource.DEBUFF)
 
     effects.applyEffect(debuff, level = 1, instanceId = 1L, sourceEntityId = null, durationSeconds = 10.0)
 

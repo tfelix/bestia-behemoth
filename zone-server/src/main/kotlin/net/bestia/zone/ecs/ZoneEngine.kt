@@ -41,6 +41,12 @@ class ZoneEngine(
   private val outMessageProcessor: OutMessageProcessor,
 ) {
 
+  private data class RemovedComponentRecord(
+    val entityId: EntityId,
+    val type: RemovableComponentType,
+    val targets: SyncTargets,
+  )
+
   private val syncableComponentTypes: List<KClass<out Component>> by lazy {
     scanDirtyableComponentTypes()
   }
@@ -202,6 +208,7 @@ class ZoneEngine(
    * that need it works exactly as in the dirty flush.
    */
   private fun flushRemovedComponents() {
+    // TODO isnt there a nicer pattern in kotlin? maybe foreach() ?
     while (true) {
       val record = removedComponentOutbox.poll() ?: break
       val msg = ComponentRemovedSMSG(record.entityId, record.type)
@@ -226,9 +233,3 @@ class ZoneEngine(
     private val LOG = KotlinLogging.logger { }
   }
 }
-
-private data class RemovedComponentRecord(
-  val entityId: EntityId,
-  val type: RemovableComponentType,
-  val targets: SyncTargets,
-)

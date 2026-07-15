@@ -1,7 +1,7 @@
 package net.bestia.zone.battle
 
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffectEffect
+import net.bestia.zone.battle.buff.StatusEffect
 import net.bestia.zone.ecs.battle.buff.StatusEffects
 import net.bestia.zone.ecs.battle.buff.StatAggregationSystem
 import net.bestia.zone.ecs.core.World
@@ -43,7 +43,7 @@ class StatusEffectService(
     // Pre-provision StatModifiers synchronously (this call always runs outside a System) so
     // StatAggregationSystem/SpeedModifierSystem don't hit a one-tick lag creating it themselves
     // mid-tick - see StatAggregationSystem.ensureStatModifiers.
-    if (definition.effects.any { it is StatusEffectEffect.StatModifierEffect }) {
+    if (definition.effects.any { it is StatusEffect.StatModifierEffect }) {
       StatAggregationSystem.ensureStatModifiers(world, targetId)
     }
   }

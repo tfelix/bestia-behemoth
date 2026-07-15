@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.buff
 
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffectEffect
+import net.bestia.zone.battle.buff.StatusEffect
 import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -11,7 +11,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Reacts to pending [Damage] against entities carrying an `ON_DAMAGE_TAKEN` [StatusEffectEffect.TriggerEffect]
+ * Reacts to pending [Damage] against entities carrying an `ON_DAMAGE_TAKEN` [StatusEffect.TriggerEffect]
  * (e.g. reflect) before [net.bestia.zone.ecs.battle.ReceivedDamageSystem] (`@Order(50)`) applies it
  * to [net.bestia.zone.ecs.battle.status.Health]. Ordered at 45 so this runs first in the same tick.
  *
@@ -54,7 +54,7 @@ class StatusEffectDamageInterceptSystem(
         for (active in effects.activeEffects.toList()) {
           val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
           for (effect in definition.effects) {
-            if (effect !is StatusEffectEffect.TriggerEffect || effect.on != StatusEffectTriggerEvent.ON_DAMAGE_TAKEN) continue
+            if (effect !is StatusEffect.TriggerEffect || effect.on != StatusEffectTriggerEvent.ON_DAMAGE_TAKEN) continue
 
             val mitigated = effect.action.apply(world, active, id, remaining)
             remaining = remaining.copy(amount = mitigated)

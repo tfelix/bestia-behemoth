@@ -17,6 +17,8 @@ class SystemScheduler(private val parallel: Boolean = false) {
   private class Entry(val system: System) {
     var tickCounter = 0
     var accumulator = 0f
+    /** Real elapsed time since this entry last ran; what actually gets passed to [System.update]. */
+    var effectiveDelta = 0f
   }
 
   private val entries = ArrayList<Entry>()
@@ -51,23 +53,36 @@ class SystemScheduler(private val parallel: Boolean = false) {
       if (toRun.isEmpty()) continue
 
       if (pool == null || toRun.size == 1) {
-        toRun.forEach { it.system.update(world, deltaTime) }
+        toRun.forEach { it.system.update(world, it.effectiveDelta) }
       } else {
         // Run this wave's systems concurrently and wait for completion before
         // advancing to the next (dependent) wave.
         pool.submit {
-          toRun.parallelStream().forEach { it.system.update(world, deltaTime) }
+          toRun.parallelStream().forEach { it.system.update(world, it.effectiveDelta) }
         }.get()
       }
     }
   }
 
+  /**
+   * Determines whether [e] runs this tick. For schedules that skip ticks, [Entry.effectiveDelta] is
+   * set to the real elapsed time accumulated since the entry last ran (not just this tick's
+   * [deltaTime]), so systems that integrate over time (countdowns, decay, etc.) stay correct
+   * regardless of how often they're scheduled to run.
+   */
   private fun isDue(e: Entry, deltaTime: Float): Boolean = when (val s = e.system.schedule) {
-    is Schedule.EveryTick -> true
+    is Schedule.EveryTick -> {
+      e.effectiveDelta = deltaTime
+      true
+    }
+
     is Schedule.EveryTicks -> {
       e.tickCounter++
+      e.accumulator += deltaTime
       if (e.tickCounter >= s.n) {
         e.tickCounter = 0
+        e.effectiveDelta = e.accumulator
+        e.accumulator = 0f
         true
       } else false
     }
@@ -75,6 +90,7 @@ class SystemScheduler(private val parallel: Boolean = false) {
     is Schedule.EverySeconds -> {
       e.accumulator += deltaTime
       if (e.accumulator >= s.seconds) {
+        e.effectiveDelta = e.accumulator
         e.accumulator -= s.seconds
         true
       } else false

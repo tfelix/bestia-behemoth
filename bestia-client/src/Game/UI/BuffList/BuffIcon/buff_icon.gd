@@ -1,7 +1,7 @@
 extends VBoxContainer
 ## A single buff/debuff icon. Ticks its own remaining duration down between server
 ## updates (the server only re-syncs the buff list when it changes, not every
-## tick - see Buffs.kt/BuffDurationSystem.kt), and reflects it in DurationLabel:
+## tick - see StatusEffects.kt/BuffDurationSystem.kt), and reflects it in DurationLabel:
 ## minutes ("2m") while there's more than a minute left, a plain countdown of
 ## seconds once under a minute, slowly pulsing to warn the buff is about to expire.
 

@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.buff
 
 import net.bestia.zone.battle.buff.StatusEffectDefinition
-import net.bestia.zone.battle.buff.StatusEffectPolarity
+import net.bestia.zone.battle.buff.StatusEffectSource
 import net.bestia.zone.battle.buff.StackBehavior
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
@@ -41,7 +41,7 @@ class StatusEffects(
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
       showIcon = definition.showIcon,
-      isDebuff = definition.polarity == StatusEffectPolarity.DEBUFF,
+      isDebuff = definition.polarity == StatusEffectSource.DEBUFF,
       sourceEntityId = sourceEntityId
     )
 

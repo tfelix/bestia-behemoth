@@ -3,8 +3,8 @@ package net.bestia.zone.ecs.battle.buff
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.buff.StatusEffectDefinition
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffectEffect
-import net.bestia.zone.battle.buff.StatusEffectPolarity
+import net.bestia.zone.battle.buff.StatusEffect
+import net.bestia.zone.battle.buff.StatusEffectSource
 import net.bestia.zone.battle.buff.StatusEffectTriggerAction
 import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.battle.buff.ModifierMode
@@ -31,21 +31,21 @@ class StatusEffectSystemsIntegrationTest {
   private val speedEffect = StatusEffectDefinition(
     id = 1L,
     identifier = "SWIFTNESS",
-    polarity = StatusEffectPolarity.BUFF,
+    polarity = StatusEffectSource.BUFF,
     showIcon = true,
     baseDurationSeconds = 1.0,
-    effects = listOf(StatusEffectEffect.StatModifierEffect(StatType.SPEED, ModifierMode.MULTIPLICATIVE, 0.5))
+    effects = listOf(StatusEffect.StatModifierEffect(StatType.SPEED, ModifierMode.MULTIPLICATIVE, 0.5))
   )
 
   private val reflectEffect = StatusEffectDefinition(
     id = 2L,
     identifier = "THORNS",
-    polarity = StatusEffectPolarity.BUFF,
+    polarity = StatusEffectSource.BUFF,
     showIcon = true,
     baseDurationSeconds = 10.0,
     stackBehavior = StackBehavior.IGNORE_IF_PRESENT,
     effects = listOf(
-      StatusEffectEffect.TriggerEffect(
+      StatusEffect.TriggerEffect(
         on = StatusEffectTriggerEvent.ON_DAMAGE_TAKEN,
         action = StatusEffectTriggerAction.ReflectDamage(percent = 0.5),
         consumeOnTrigger = true
@@ -56,12 +56,12 @@ class StatusEffectSystemsIntegrationTest {
   private val persistentReflectEffect = StatusEffectDefinition(
     id = 3L,
     identifier = "PERSISTENT_THORNS",
-    polarity = StatusEffectPolarity.BUFF,
+    polarity = StatusEffectSource.BUFF,
     showIcon = true,
     baseDurationSeconds = 100.0,
     stackBehavior = StackBehavior.IGNORE_IF_PRESENT,
     effects = listOf(
-      StatusEffectEffect.TriggerEffect(
+      StatusEffect.TriggerEffect(
         on = StatusEffectTriggerEvent.ON_DAMAGE_TAKEN,
         action = StatusEffectTriggerAction.ReflectDamage(percent = 1.0),
         consumeOnTrigger = false

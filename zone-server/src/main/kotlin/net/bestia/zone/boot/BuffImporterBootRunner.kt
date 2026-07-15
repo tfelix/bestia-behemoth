@@ -6,8 +6,8 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.buff.StatusEffectDefinition
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffectEffect
-import net.bestia.zone.battle.buff.StatusEffectPolarity
+import net.bestia.zone.battle.buff.StatusEffect
+import net.bestia.zone.battle.buff.StatusEffectSource
 import net.bestia.zone.battle.buff.StatusEffectTriggerAction
 import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.battle.buff.ModifierMode
@@ -36,7 +36,7 @@ class StatusEffectImporterBootRunner(
     data class StatusEffectDto(
       val id: Long,
       val identifier: String,
-      val polarity: StatusEffectPolarity,
+      val effectSource: StatusEffectSource,
       val showIcon: Boolean,
       val baseDurationSeconds: Double,
       val durationPerLevel: Double = 0.0,
@@ -76,7 +76,7 @@ class StatusEffectImporterBootRunner(
     return StatusEffectDefinition(
       id = dto.id,
       identifier = dto.identifier,
-      polarity = dto.polarity,
+      polarity = dto.effectSource,
       showIcon = dto.showIcon,
       baseDurationSeconds = dto.baseDurationSeconds,
       durationPerLevel = dto.durationPerLevel,
@@ -85,14 +85,14 @@ class StatusEffectImporterBootRunner(
     )
   }
 
-  private fun toEffect(dto: StatusEffectYmlDto.EffectDto): StatusEffectEffect {
+  private fun toEffect(dto: StatusEffectYmlDto.EffectDto): StatusEffect {
     return when (dto.type) {
-      "STAT_MODIFIER" -> StatusEffectEffect.StatModifierEffect(
+      "STAT_MODIFIER" -> StatusEffect.StatModifierEffect(
         stat = dto.stat ?: error("STAT_MODIFIER effect missing 'stat'"),
         mode = dto.mode ?: error("STAT_MODIFIER effect missing 'mode'"),
         valuePerLevel = dto.valuePerLevel ?: error("STAT_MODIFIER effect missing 'valuePerLevel'")
       )
-      "TRIGGER" -> StatusEffectEffect.TriggerEffect(
+      "TRIGGER" -> StatusEffect.TriggerEffect(
         on = dto.on ?: error("TRIGGER effect missing 'on'"),
         action = toTriggerAction(dto),
         consumeOnTrigger = dto.consumeOnTrigger
