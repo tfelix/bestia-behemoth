@@ -9,6 +9,7 @@ import net.bestia.zone.account.master.MasterErrorSMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.account.master.AvailableMasterSMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
+import net.bestia.zone.account.master.MasterCreatedSMSG
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.mocks.GameClientMock
@@ -79,17 +80,9 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     )
 
     await {
-      val masterList = clientPlayerNoMaster.getLastReceived(AvailableMasterSMSG::class)
-
-      assertEquals(1, masterList.master.size)
-
-      val master = masterList.master.first()
-      assertEquals("mast0r", master.name)
-      assertEquals(Color.BLUE, master.hairColor)
-      assertEquals(Color.BLUE, master.skinColor)
-      assertEquals(Hairstyle.HAIR_1, master.hair)
-      assertEquals(Face.FACE_1, master.face)
-      assertEquals(BodyType.BODY_M_1, master.body)
+      // Creation is acknowledged with a success message only; the created master's data is
+      // verified via an explicit GetMaster in the next test (mirroring the real client flow).
+      clientPlayerNoMaster.getLastReceived(MasterCreatedSMSG::class)
     }
   }
 

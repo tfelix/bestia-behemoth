@@ -61,6 +61,7 @@ data class AvailableMasterSMSG(
         .setSkinColor(skinColor)
         .setHairColor(hairColor)
         .setFace(mapFace(masterInfo.face))
+        .setHair(mapHairstyle(masterInfo.hair))
 
       // Add bestias for this master
       masterInfo.bestias.forEach { bestia ->
@@ -98,6 +99,12 @@ data class AvailableMasterSMSG(
   private fun mapFace(face: Face): MasterProto.Face {
     return when (face) {
       Face.FACE_1 -> MasterProto.Face.FACE_1
+    }
+  }
+
+  private fun mapHairstyle(hair: Hairstyle): MasterProto.Hairstyle {
+    return when (hair) {
+      Hairstyle.HAIR_1 -> MasterProto.Hairstyle.HAIR_1
     }
   }
 }

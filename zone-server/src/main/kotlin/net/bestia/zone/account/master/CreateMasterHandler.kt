@@ -9,8 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class CreateMasterHandler(
   private val masterFactory: MasterFactory,
-  private val outMessageProcessor: OutMessageProcessor,
-  private val availableMasterResolver: AvailableMasterResolver
+  private val outMessageProcessor: OutMessageProcessor
 ) : InMessageProcessor.IncomingMessageHandler<CreateMasterCMSG> {
   override val handles = CreateMasterCMSG::class
 
@@ -30,8 +29,9 @@ class CreateMasterHandler(
 
       masterFactory.create(msg.playerId, masterCreateData)
 
+      // Only acknowledge the creation. The client re-fetches the master list via GetMaster
+      // when it navigates back to the selection screen, so pushing it here would be redundant.
       outMessageProcessor.sendToPlayer(msg.playerId, MasterCreatedSMSG)
-      outMessageProcessor.sendToPlayer(msg.playerId, availableMasterResolver.getAvailableMaster(msg.playerId))
     } catch (e: MasterCreateException) {
       outMessageProcessor.sendToPlayer(msg.playerId, MasterErrorSMSG(e.errorCode))
     } catch (_: Exception) {

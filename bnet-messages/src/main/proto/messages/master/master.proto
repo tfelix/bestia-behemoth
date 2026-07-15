@@ -47,5 +47,6 @@ message MasterInfo {
   Color skin_color = 8;
   Color hair_color = 9;
   repeated BestiaInfo bestias = 10;
+  Hairstyle hair = 11;
   // TODO add an equipment list
 }

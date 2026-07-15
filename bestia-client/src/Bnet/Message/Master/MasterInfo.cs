@@ -27,6 +27,9 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     public int Face { get; set; }
 
     [Export]
+    public int Hair { get; set; }
+
+    [Export]
     public Godot.Color SkinColor { get; set; }
 
     [Export]
@@ -48,7 +51,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Name = protoMasterInfo.Name,
         Level = protoMasterInfo.Level,
         BodyType = (int)protoMasterInfo.Body,
-        Face = (int)protoMasterInfo.Face
+        Face = (int)protoMasterInfo.Face,
+        Hair = (int)protoMasterInfo.Hair
       };
 
       // Convert Vec3 to Godot Vector3 (swap Y and Z: server z-up to Godot y-up)

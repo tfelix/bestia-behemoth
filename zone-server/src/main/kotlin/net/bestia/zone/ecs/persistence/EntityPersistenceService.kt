@@ -28,8 +28,8 @@ class EntityPersistenceService(
 ) {
 
   @Scheduled(
-    initialDelayString = "\${persistence.initial-delay-ms:90000}",
-    fixedDelayString = "\${persistence.interval-ms:90000}"
+    initialDelayString = "\${persistence.initial-delay-ms}",
+    fixedDelayString = "\${persistence.interval-ms}"
   )
   fun scheduledSync() {
     try {

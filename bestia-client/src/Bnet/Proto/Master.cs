@@ -29,21 +29,22 @@ namespace Bnet {
             "dG8iKAoFQ29sb3ISCQoBchgBIAEoDRIJCgFnGAIgASgNEgkKAWIYAyABKA0i",
             "cgoGTWFzdGVyEiIKGm1heF9hdmFpbGFibGVfbWFzdGVyX3Nsb3RzGAEgASgN",
             "EiIKGm1heF9hdmFpbGFibGVfYmVzdGlhX3Nsb3RzGAIgASgNEiAKBm1hc3Rl",
-            "chgDIAMoCzIQLmJuZXQuTWFzdGVySW5mbyL3AQoKTWFzdGVySW5mbxIRCglt",
+            "chgDIAMoCzIQLmJuZXQuTWFzdGVySW5mbyKWAgoKTWFzdGVySW5mbxIRCglt",
             "YXN0ZXJfaWQYASABKAQSDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIc",
             "Cghwb3NpdGlvbhgFIAEoCzIKLmJuZXQuVmVjMxIcCgRib2R5GAYgASgOMg4u",
             "Ym5ldC5Cb2R5VHlwZRIYCgRmYWNlGAcgASgOMgouYm5ldC5GYWNlEh8KCnNr",
             "aW5fY29sb3IYCCABKAsyCy5ibmV0LkNvbG9yEh8KCmhhaXJfY29sb3IYCSAB",
             "KAsyCy5ibmV0LkNvbG9yEiEKB2Jlc3RpYXMYCiADKAsyEC5ibmV0LkJlc3Rp",
-            "YUluZm8qGAoIQm9keVR5cGUSDAoIQk9EWV9NXzEQACoSCgRGYWNlEgoKBkZB",
-            "Q0VfMRAAKhcKCUhhaXJzdHlsZRIKCgZIQUlSXzEQAEIkChVuZXQuYmVzdGlh",
-            "LmJuZXQucHJvdG9CC01hc3RlclByb3RvYgZwcm90bzM="));
+            "YUluZm8SHQoEaGFpchgLIAEoDjIPLmJuZXQuSGFpcnN0eWxlKhgKCEJvZHlU",
+            "eXBlEgwKCEJPRFlfTV8xEAAqEgoERmFjZRIKCgZGQUNFXzEQACoXCglIYWly",
+            "c3R5bGUSCgoGSEFJUl8xEABCJAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgtN",
+            "YXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Color), global::Bnet.Color.Parser, new[]{ "R", "G", "B" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair" }, null, null, null, null)
           }));
     }
     #endregion
@@ -630,6 +631,7 @@ namespace Bnet {
       skinColor_ = other.skinColor_ != null ? other.skinColor_.Clone() : null;
       hairColor_ = other.hairColor_ != null ? other.hairColor_.Clone() : null;
       bestias_ = other.bestias_.Clone();
+      hair_ = other.hair_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -740,13 +742,25 @@ namespace Bnet {
     private static readonly pb::FieldCodec<global::Bnet.BestiaInfo> _repeated_bestias_codec
         = pb::FieldCodec.ForMessage(82, global::Bnet.BestiaInfo.Parser);
     private readonly pbc::RepeatedField<global::Bnet.BestiaInfo> bestias_ = new pbc::RepeatedField<global::Bnet.BestiaInfo>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.BestiaInfo> Bestias {
+      get { return bestias_; }
+    }
+
+    /// <summary>Field number for the "hair" field.</summary>
+    public const int HairFieldNumber = 11;
+    private global::Bnet.Hairstyle hair_ = global::Bnet.Hairstyle.Hair1;
     /// <summary>
     /// TODO add an equipment list
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Bnet.BestiaInfo> Bestias {
-      get { return bestias_; }
+    public global::Bnet.Hairstyle Hair {
+      get { return hair_; }
+      set {
+        hair_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -773,6 +787,7 @@ namespace Bnet {
       if (!object.Equals(SkinColor, other.SkinColor)) return false;
       if (!object.Equals(HairColor, other.HairColor)) return false;
       if(!bestias_.Equals(other.bestias_)) return false;
+      if (Hair != other.Hair) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -789,6 +804,7 @@ namespace Bnet {
       if (skinColor_ != null) hash ^= SkinColor.GetHashCode();
       if (hairColor_ != null) hash ^= HairColor.GetHashCode();
       hash ^= bestias_.GetHashCode();
+      if (Hair != global::Bnet.Hairstyle.Hair1) hash ^= Hair.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -840,6 +856,10 @@ namespace Bnet {
         output.WriteMessage(HairColor);
       }
       bestias_.WriteTo(output, _repeated_bestias_codec);
+      if (Hair != global::Bnet.Hairstyle.Hair1) {
+        output.WriteRawTag(88);
+        output.WriteEnum((int) Hair);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -883,6 +903,10 @@ namespace Bnet {
         output.WriteMessage(HairColor);
       }
       bestias_.WriteTo(ref output, _repeated_bestias_codec);
+      if (Hair != global::Bnet.Hairstyle.Hair1) {
+        output.WriteRawTag(88);
+        output.WriteEnum((int) Hair);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -918,6 +942,9 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(HairColor);
       }
       size += bestias_.CalculateSize(_repeated_bestias_codec);
+      if (Hair != global::Bnet.Hairstyle.Hair1) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Hair);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -964,6 +991,9 @@ namespace Bnet {
         HairColor.MergeFrom(other.HairColor);
       }
       bestias_.Add(other.bestias_);
+      if (other.Hair != global::Bnet.Hairstyle.Hair1) {
+        Hair = other.Hair;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1024,6 +1054,10 @@ namespace Bnet {
             bestias_.AddEntriesFrom(input, _repeated_bestias_codec);
             break;
           }
+          case 88: {
+            Hair = (global::Bnet.Hairstyle) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -1082,6 +1116,10 @@ namespace Bnet {
           }
           case 82: {
             bestias_.AddEntriesFrom(ref input, _repeated_bestias_codec);
+            break;
+          }
+          case 88: {
+            Hair = (global::Bnet.Hairstyle) input.ReadEnum();
             break;
           }
         }

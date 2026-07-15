@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/master.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CreateMasterProto";
+
+/**
+ * Requests the server to create a new master (character) for the current account.
+ * The result is reported back via OperationSuccess (MASTER_CREATED) or OperationError.
+ */
+message CreateMasterCMSG {
+  string name = 1;
+  BodyType body = 2;
+  Face face = 3;
+  Hairstyle hair = 4;
+  Color skin_color = 5;
+  Color hair_color = 6;
+}

@@ -2,6 +2,7 @@ package net.bestia.zone.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.GetSelfCMSG
+import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.InvestSkillPointCMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
@@ -39,6 +40,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasPing() -> PingCMSG(accountId)
       envelope.hasChatCmsg() -> ChatCMSG.Companion.fromBnet(accountId, envelope.chatCmsg)
       envelope.hasSelectMaster() -> SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
+      envelope.hasCreateMaster() -> CreateMasterCMSG.fromBnet(accountId, envelope.createMaster)
       envelope.hasInvestSkillPoint() -> InvestSkillPointCMSG.Companion.fromBnet(accountId, envelope.investSkillPoint)
       envelope.hasGetSkills() -> GetSkillsCMSG(accountId)
       envelope.hasActivateSkill() -> ActivateSkillCMSG.Companion.fromBnet(accountId, envelope.activateSkill)
