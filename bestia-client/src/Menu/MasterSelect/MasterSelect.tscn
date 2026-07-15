@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://fevomu0ug42t" path="res://Menu/MasterSelect/master_select.gd" id="1_5datu"]
 [ext_resource type="Texture2D" uid="uid://6agwh7nujv76" path="res://Menu/Main/Background/landscape-nature-clouds-cloudy.jpg" id="2_lqhqb"]
-[ext_resource type="PackedScene" uid="uid://dyc4c1l2p0iho" path="res://Menu/MasterSelect/EmptyMasterSlot/EmptyMasterSlot.tscn" id="3_lqhqb"]
 
 [node name="MasterSelect" type="Control" unique_id=1412103480]
 layout_mode = 3
@@ -62,12 +61,4 @@ text = "Loading ..."
 [node name="MasterSlots" type="HBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/MasterList" unique_id=1602895489]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="EmptyMasterSlot1" parent="CenterContainer/PanelContainer/MarginContainer/MasterList/MasterSlots" unique_id=1841555960 instance=ExtResource("3_lqhqb")]
-layout_mode = 2
-
-[node name="EmptyMasterSlot2" parent="CenterContainer/PanelContainer/MarginContainer/MasterList/MasterSlots" unique_id=1948427756 instance=ExtResource("3_lqhqb")]
-layout_mode = 2
-
-[node name="EmptyMasterSlot3" parent="CenterContainer/PanelContainer/MarginContainer/MasterList/MasterSlots" unique_id=1366451784 instance=ExtResource("3_lqhqb")]
-layout_mode = 2
+theme_override_constants/separation = 20

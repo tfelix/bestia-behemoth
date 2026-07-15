@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dy8byfwofun6c"]
+[gd_scene load_steps=6 format=3 uid="uid://dy8byfwofun6c"]
 
 [ext_resource type="Script" uid="uid://dhi8u236he6jh" path="res://Menu/MasterSelect/MasterInfo/master_info.gd" id="1_kpukv"]
 [ext_resource type="PackedScene" uid="uid://cycbux25m2as5" path="res://Menu/MasterSelect/MasterInfo/MasterProfileImage/MasterProfileImage.tscn" id="2_5yp0s"]
@@ -7,75 +7,89 @@
 [sub_resource type="ViewportTexture" id="ViewportTexture_5yp0s"]
 viewport_path = NodePath("PortraitViewport")
 
-[node name="MasterInfo" type="MarginContainer" unique_id=1570766094]
-anchors_preset = 10
-anchor_right = 1.0
-offset_right = -965.0
-offset_bottom = 158.0
-grow_horizontal = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hl"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.85, 0.4, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="MasterInfo" type="Control" unique_id=1570766094]
+custom_minimum_size = Vector2(200, 350)
+custom_maximum_size = Vector2(200, 350)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 350.0
+mouse_default_cursor_shape = 2
 script = ExtResource("1_kpukv")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=718290951]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="MasterProfileImage" parent="HBoxContainer" unique_id=741905923 instance=ExtResource("2_5yp0s")]
+[node name="MasterProfileImage" parent="VBoxContainer" unique_id=741905923 instance=ExtResource("2_5yp0s")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("ViewportTexture_5yp0s")
 expand_mode = 3
+mouse_filter = 2
 
-[node name="InfoMargin" type="MarginContainer" parent="HBoxContainer" unique_id=146190246]
+[node name="MasterName" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 6
+mouse_filter = 2
+text = "Name"
+horizontal_alignment = 1
 
-[node name="Info" type="VBoxContainer" parent="HBoxContainer/InfoMargin" unique_id=1690953832]
+[node name="Level" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+mouse_filter = 2
+text = "Lv. 1"
+label_settings = ExtResource("3_5ufew")
+horizontal_alignment = 1
 
-[node name="NameLine" type="HBoxContainer" parent="HBoxContainer/InfoMargin/Info" unique_id=1834734826]
+[node name="PosLine" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
+mouse_filter = 2
+alignment = 1
 theme_override_constants/separation = 10
 
-[node name="MasterName" type="Label" parent="HBoxContainer/InfoMargin/Info/NameLine" unique_id=1318411831]
+[node name="PosX" type="Label" parent="VBoxContainer/PosLine"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Name"
-
-[node name="Level" type="Label" parent="HBoxContainer/InfoMargin/Info/NameLine" unique_id=1988549297]
-layout_mode = 2
-text = "Lv. 10"
+mouse_filter = 2
+text = "X: 0"
 label_settings = ExtResource("3_5ufew")
 
-[node name="Position" type="Label" parent="HBoxContainer/InfoMargin/Info" unique_id=2147371563]
+[node name="PosY" type="Label" parent="VBoxContainer/PosLine"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+text = "Y: 0"
+label_settings = ExtResource("3_5ufew")
+
+[node name="Highlight" type="Panel" parent="."]
+unique_name_in_owner = true
 visible = false
-layout_mode = 2
-text = "Position"
-
-[node name="PosLine" type="HBoxContainer" parent="HBoxContainer/InfoMargin/Info" unique_id=1887750509]
-layout_mode = 2
-
-[node name="PosX" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=1096054409]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "X: 49"
-label_settings = ExtResource("3_5ufew")
-
-[node name="PosY" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=724731545]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Y: 120"
-label_settings = ExtResource("3_5ufew")
-
-[node name="PosZ" type="Label" parent="HBoxContainer/InfoMargin/Info/PosLine" unique_id=714579953]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Z: 0"
-label_settings = ExtResource("3_5ufew")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hl")
