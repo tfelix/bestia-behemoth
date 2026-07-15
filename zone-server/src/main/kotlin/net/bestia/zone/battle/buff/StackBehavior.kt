@@ -1,8 +1,8 @@
 package net.bestia.zone.battle.buff
 
 /**
- * Determines what happens when a buff is (re-)applied to a target that may already carry
- * an active instance of the same [BuffDefinition].
+ * Determines what happens when a status effect is (re-)applied to a target that may already carry
+ * an active instance of the same [StatusEffectDefinition].
  */
 enum class StackBehavior {
   /** Only one instance may be active; re-applying resets its remaining duration. */

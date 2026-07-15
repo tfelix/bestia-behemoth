@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.battle.buff
 
-import net.bestia.zone.battle.buff.BuffDefinitionRegistry
-import net.bestia.zone.battle.buff.BuffEffect
-import net.bestia.zone.battle.buff.BuffTriggerEvent
+import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.buff.StatusEffectEffect
+import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.ecs.battle.Damage
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -11,13 +11,13 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Reacts to pending [Damage] against entities carrying an `ON_DAMAGE_TAKEN` [BuffEffect.TriggerEffect]
+ * Reacts to pending [Damage] against entities carrying an `ON_DAMAGE_TAKEN` [StatusEffectEffect.TriggerEffect]
  * (e.g. reflect) before [net.bestia.zone.ecs.battle.ReceivedDamageSystem] (`@Order(50)`) applies it
  * to [net.bestia.zone.ecs.battle.status.Health]. Ordered at 45 so this runs first in the same tick.
  *
  * Works per [Damage.DamageAmount] entry, not the aggregate total, so simultaneous hits from
  * multiple attackers attribute correctly. Only evaluates non-reflected amounts (see
- * [Damage.DamageAmount.isReflected]) to stop a pair of reflect buffs bouncing damage forever.
+ * [Damage.DamageAmount.isReflected]) to stop a pair of reflect effects bouncing damage forever.
  *
  * Known, deliberate limitation: if an action schedules new [Damage] on an entity that doesn't
  * already have one this tick (e.g. reflecting onto an attacker), `World.add` defers that to after
@@ -26,19 +26,19 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 @Order(45)
-class BuffDamageInterceptSystem(
-  private val buffDefinitionRegistry: BuffDefinitionRegistry
+class StatusEffectDamageInterceptSystem(
+  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(Damage::class, Buffs::class)
-  override val writes: ComponentClassSet = setOf(Damage::class, Buffs::class)
+  override val reads: ComponentClassSet = setOf(Damage::class, StatusEffects::class)
+  override val writes: ComponentClassSet = setOf(Damage::class, StatusEffects::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Damage::class, Buffs::class).each { id ->
+    world.query(Damage::class, StatusEffects::class).each { id ->
       val damage = get<Damage>()
-      val buffs = get<Buffs>()
+      val effects = get<StatusEffects>()
 
-      if (buffs.activeBuffs.isEmpty() || damage.amounts.isEmpty()) return@each
+      if (effects.activeEffects.isEmpty() || damage.amounts.isEmpty()) return@each
 
       val resultAmounts = mutableListOf<Damage.DamageAmount>()
 
@@ -51,10 +51,10 @@ class BuffDamageInterceptSystem(
         var remaining = incoming
         val toConsume = mutableListOf<Long>()
 
-        for (active in buffs.activeBuffs.toList()) {
-          val definition = buffDefinitionRegistry.findById(active.definitionId) ?: continue
+        for (active in effects.activeEffects.toList()) {
+          val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
           for (effect in definition.effects) {
-            if (effect !is BuffEffect.TriggerEffect || effect.on != BuffTriggerEvent.ON_DAMAGE_TAKEN) continue
+            if (effect !is StatusEffectEffect.TriggerEffect || effect.on != StatusEffectTriggerEvent.ON_DAMAGE_TAKEN) continue
 
             val mitigated = effect.action.apply(world, active, id, remaining)
             remaining = remaining.copy(amount = mitigated)
@@ -65,8 +65,8 @@ class BuffDamageInterceptSystem(
           }
         }
 
-        // consume() marks the Buffs component dirty itself when it removes an instance.
-        toConsume.forEach { instanceId -> buffs.consume(instanceId) }
+        // consume() marks the StatusEffects component dirty itself when it removes an instance.
+        toConsume.forEach { instanceId -> effects.consume(instanceId) }
 
         if (remaining.amount > 0) {
           resultAmounts.add(remaining)

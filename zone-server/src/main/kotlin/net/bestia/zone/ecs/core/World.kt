@@ -58,6 +58,7 @@ class World(
    */
   private val lock = ReentrantLock()
   private val destroyListeners = CopyOnWriteArrayList<(EntityId) -> Unit>()
+  private val componentRemovedListeners = CopyOnWriteArrayList<(EntityId, Component) -> Unit>()
 
   @Volatile
   private var iterating = false
@@ -74,6 +75,17 @@ class World(
   /** Registers a hook fired (on the tick thread) whenever an entity is destroyed. */
   fun onDestroy(handler: (EntityId) -> Unit) {
     destroyListeners.add(handler)
+  }
+
+  /**
+   * Registers a hook fired whenever a single component is *explicitly* removed from a still-alive
+   * entity (via [remove]), receiving the removed instance. It deliberately does NOT fire when a
+   * whole entity is destroyed ([destroy] wipes stores directly) — that case is a vanish, not a
+   * per-component removal. Used by the sync layer to notify clients of component removals without
+   * the ECS core needing to know anything about the wire format.
+   */
+  fun onComponentRemoved(handler: (EntityId, Component) -> Unit) {
+    componentRemovedListeners.add(handler)
   }
 
   override val entityCount: Int get() = entities.count
@@ -199,7 +211,11 @@ class World(
   }
 
   private fun <T : Component> removeNow(id: EntityId, type: KClass<T>): T? {
-    return store(type).remove(id)
+    val removed = store(type).remove(id) ?: return null
+    if (entities.isAlive(id)) {
+      for (listener in componentRemovedListeners) listener(id, removed)
+    }
+    return removed
   }
 
   // ------------------------------------------------------------------ queries

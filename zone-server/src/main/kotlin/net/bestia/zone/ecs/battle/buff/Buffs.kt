@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.buff
 
-import net.bestia.zone.battle.buff.BuffDefinition
-import net.bestia.zone.battle.buff.BuffPolarity
+import net.bestia.zone.battle.buff.StatusEffectDefinition
+import net.bestia.zone.battle.buff.StatusEffectPolarity
 import net.bestia.zone.battle.buff.StackBehavior
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
@@ -12,57 +12,57 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
 
 /**
- * Every buff/debuff currently active on an entity. Synced to the client via the generic
+ * Every status effect currently active on an entity. Synced to the client via the generic
  * [Dirtyable] pipeline ([net.bestia.zone.ecs.ZoneEngine]); [toEntityMessage] is what filters out
- * buffs with `showIcon = false` so internal bookkeeping buffs never reach the client (see
- * [ActiveBuff.showIcon]).
+ * effects with `showIcon = false` so internal bookkeeping effects never reach the client (see
+ * [ActiveStatusEffect.showIcon]).
  *
- * Sync is driven by this component's own dirty flag: [applyBuff]/[tickDown]/[consume] mark it
+ * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown]/[consume] mark it
  * dirty as they mutate, and a freshly added instance starts dirty, so changes reach the client
  * without any external bookkeeping. To force a resend when nothing changed, call [markDirty].
  */
-class Buffs(
-  val activeBuffs: MutableList<ActiveBuff> = mutableListOf()
+class StatusEffects(
+  val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
 ) : Component, Dirtyable {
 
   private var dirty = true
 
   /** Applies [definition] at [level], resolving [StackBehavior] against any existing instance. */
-  fun applyBuff(
-    definition: BuffDefinition,
+  fun applyEffect(
+    definition: StatusEffectDefinition,
     level: Int,
     instanceId: Long,
     sourceEntityId: EntityId?,
     durationSeconds: Double
   ) {
-    fun newInstance() = ActiveBuff(
+    fun newInstance() = ActiveStatusEffect(
       instanceId = instanceId,
       definitionId = definition.id,
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
       showIcon = definition.showIcon,
-      isDebuff = definition.polarity == BuffPolarity.DEBUFF,
+      isDebuff = definition.polarity == StatusEffectPolarity.DEBUFF,
       sourceEntityId = sourceEntityId
     )
 
-    val existing = activeBuffs.firstOrNull { it.definitionId == definition.id }
+    val existing = activeEffects.firstOrNull { it.definitionId == definition.id }
 
     when (definition.stackBehavior) {
-      StackBehavior.STACK_INDEPENDENT -> activeBuffs.add(newInstance())
-      StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) activeBuffs.add(newInstance())
+      StackBehavior.STACK_INDEPENDENT -> activeEffects.add(newInstance())
+      StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) activeEffects.add(newInstance())
       StackBehavior.REFRESH_DURATION -> {
         if (existing != null) {
           existing.remainingSeconds = durationSeconds.toFloat()
         } else {
-          activeBuffs.add(newInstance())
+          activeEffects.add(newInstance())
         }
       }
       StackBehavior.REPLACE_IF_STRONGER -> {
         if (existing == null) {
-          activeBuffs.add(newInstance())
+          activeEffects.add(newInstance())
         } else if (level > existing.level) {
-          activeBuffs.remove(existing)
-          activeBuffs.add(newInstance())
+          activeEffects.remove(existing)
+          activeEffects.add(newInstance())
         }
       }
     }
@@ -72,11 +72,11 @@ class Buffs(
 
   /** Ticks down every active instance by [deltaTime] and removes any that expired. */
   fun tickDown(deltaTime: Float) {
-    val iterator = activeBuffs.iterator()
+    val iterator = activeEffects.iterator()
     while (iterator.hasNext()) {
-      val buff = iterator.next()
-      buff.remainingSeconds -= deltaTime
-      if (buff.remainingSeconds <= 0f) {
+      val effect = iterator.next()
+      effect.remainingSeconds -= deltaTime
+      if (effect.remainingSeconds <= 0f) {
         iterator.remove()
         dirty = true
       }
@@ -85,7 +85,7 @@ class Buffs(
 
   /** Removes a single active instance (e.g. a trigger effect consuming itself). */
   fun consume(instanceId: Long): Boolean {
-    val removed = activeBuffs.removeIf { it.instanceId == instanceId }
+    val removed = activeEffects.removeIf { it.instanceId == instanceId }
     if (removed) dirty = true
     return removed
   }
@@ -101,12 +101,12 @@ class Buffs(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    val visible = activeBuffs.filter { it.showIcon }
-    return BuffListSMSG(
+    val visible = activeEffects.filter { it.showIcon }
+    return StatusEffectListSMSG(
       entityId = entityId,
-      buffs = visible.map {
-        BuffListSMSG.BuffEntry(
-          buffId = it.definitionId,
+      effects = visible.map {
+        StatusEffectListSMSG.StatusEffectEntry(
+          effectId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,
           debuff = it.isDebuff

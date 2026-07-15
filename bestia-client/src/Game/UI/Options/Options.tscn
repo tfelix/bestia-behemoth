@@ -1,14 +1,19 @@
 [gd_scene format=3 uid="uid://df51h0nyi66q4"]
 
-[node name="Options" type="Control"]
+[ext_resource type="Script" uid="uid://cklgm57r2xjdv" path="res://Game/UI/Options/options.gd" id="1_n6rr4"]
+
+[node name="Options" type="Control" unique_id=249081915]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_n6rr4")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="Menu" type="Control" parent="." unique_id=110000001]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -16,25 +21,93 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer"]
+[node name="Scrim" type="ColorRect" parent="Menu" unique_id=110000002]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="Menu" unique_id=419957788]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Menu/CenterContainer" unique_id=919429513]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/CenterContainer/PanelContainer" unique_id=1917213033]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Label" type="Label" parent="PanelContainer/CenterContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=1873035729]
 layout_mode = 2
 text = "BESTIA"
+horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="PanelContainer/CenterContainer/VBoxContainer"]
+[node name="ContinueButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=1262907589]
 layout_mode = 2
 text = "Continue"
 
-[node name="BackToMain" type="Button" parent="PanelContainer/CenterContainer/VBoxContainer"]
+[node name="RespawnButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=565484407]
+visible = false
 layout_mode = 2
-text = "Disconnect"
+text = "Respawn"
 
-[node name="Quit" type="Button" parent="PanelContainer/CenterContainer/VBoxContainer"]
+[node name="MasterSelectButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=324027276]
 layout_mode = 2
-text = "Quite Game"
+text = "Master Select"
+
+[node name="DisconnectButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=627058952]
+layout_mode = 2
+text = "Logout"
+
+[node name="ExitGameButton" type="Button" parent="Menu/CenterContainer/PanelContainer/VBoxContainer" unique_id=317265259]
+layout_mode = 2
+text = "Exit Game"
+
+[node name="Countdown" type="Control" parent="." unique_id=110000010]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Countdown" unique_id=110000011]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Countdown/CenterContainer" unique_id=110000012]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Countdown/CenterContainer/PanelContainer" unique_id=110000013]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CountdownLabel" type="Label" parent="Countdown/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000014]
+layout_mode = 2
+text = "Logging out..."
+horizontal_alignment = 1
+
+[node name="CancelLogoutButton" type="Button" parent="Countdown/CenterContainer/PanelContainer/VBoxContainer" unique_id=110000015]
+layout_mode = 2
+text = "Cancel"
+
+[node name="ConfirmExitDialog" type="ConfirmationDialog" parent="." unique_id=110000020]
+initial_position = 2
+size = Vector2i(280, 100)
+ok_button_text = "Yes"
+cancel_button_text = "No"
+dialog_text = "Really exit the game?"

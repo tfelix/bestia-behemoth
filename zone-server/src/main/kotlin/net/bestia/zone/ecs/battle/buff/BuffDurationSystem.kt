@@ -8,21 +8,21 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Ticks down every active buff's remaining duration and removes expired ones. Ordered after
- * [BuffDamageInterceptSystem] (45) so a buff whose duration reaches zero this tick still gets a
+ * Ticks down every active effect's remaining duration and removes expired ones. Ordered after
+ * [StatusEffectDamageInterceptSystem] (45) so an effect whose duration reaches zero this tick still gets a
  * chance to trigger before it expires.
  */
 @SpringComponent
 @Order(46)
-class BuffDurationSystem : System {
+class StatusEffectDurationSystem : System {
 
   override val schedule: Schedule = Schedule.EveryTick
-  override val writes: ComponentClassSet = setOf(Buffs::class)
+  override val writes: ComponentClassSet = setOf(StatusEffects::class)
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Buffs::class).each {
-      // tickDown marks the component dirty itself if any buff expired.
-      get<Buffs>().tickDown(deltaTime)
+    world.query(StatusEffects::class).each {
+      // tickDown marks the component dirty itself if any effect expired.
+      get<StatusEffects>().tickDown(deltaTime)
     }
   }
 }

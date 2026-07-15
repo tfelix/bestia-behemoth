@@ -3,11 +3,11 @@ package net.bestia.zone.ecs.battle.buff
 import net.bestia.zone.util.EntityId
 
 /**
- * A single active instance of a buff/debuff on an entity. Denormalizes [showIcon] and [isDebuff]
- * from the owning `BuffDefinition` at application time so [Buffs.toEntityMessage] never needs a
+ * A single active instance of a status effect on an entity. Denormalizes [showIcon] and [isDebuff]
+ * from the owning `StatusEffectDefinition` at application time so [StatusEffects.toEntityMessage] never needs a
  * registry lookup at sync time - components stay plain data, per [net.bestia.zone.ecs.core.Component].
  */
-data class ActiveBuff(
+data class ActiveStatusEffect(
   val instanceId: Long,
   val definitionId: Long,
   val level: Int,

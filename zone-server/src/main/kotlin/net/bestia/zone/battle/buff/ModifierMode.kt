@@ -1,6 +1,6 @@
 package net.bestia.zone.battle.buff
 
-/** How a [BuffEffect.StatModifierEffect] combines its value with a stat's base value. */
+/** How a [StatusEffectEffect.StatModifierEffect] combines its value with a stat's base value. */
 enum class ModifierMode {
   /** Summed with other additive modifiers, then added to the base value. */
   ADDITIVE,

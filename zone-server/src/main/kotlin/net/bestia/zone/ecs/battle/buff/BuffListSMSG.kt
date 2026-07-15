@@ -1,28 +1,28 @@
 package net.bestia.zone.ecs.battle.buff
 
-import net.bestia.bnet.proto.BuffListSMSGProto
+import net.bestia.bnet.proto.StatusEffectListSMSGProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.EntitySMSG
 
-data class BuffListSMSG(
+data class StatusEffectListSMSG(
   override val entityId: Long,
-  val buffs: List<BuffEntry>
+  val effects: List<StatusEffectEntry>
 ) : EntitySMSG {
 
-  data class BuffEntry(
-    val buffId: Long,
+  data class StatusEffectEntry(
+    val effectId: Long,
     val level: Int,
     val remainingSeconds: Float,
     val debuff: Boolean
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
-    val buffList = BuffListSMSGProto.BuffListSMSG.newBuilder()
+    val effectList = StatusEffectListSMSGProto.StatusEffectListSMSG.newBuilder()
       .setEntityId(entityId)
-      .addAllBuffs(
-        buffs.map { entry ->
-          BuffListSMSGProto.BuffEntry.newBuilder()
-            .setBuffId(entry.buffId.toInt())
+      .addAllEffects(
+        effects.map { entry ->
+          StatusEffectListSMSGProto.StatusEffectEntry.newBuilder()
+            .setEffectId(entry.effectId.toInt())
             .setLevel(entry.level)
             .setRemainingSeconds(entry.remainingSeconds)
             .setDebuff(entry.debuff)
@@ -31,7 +31,7 @@ data class BuffListSMSG(
       )
 
     return EnvelopeProto.Envelope.newBuilder()
-      .setCompBuffs(buffList)
+      .setCompEffects(effectList)
       .build()
   }
 }

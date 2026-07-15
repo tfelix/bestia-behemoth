@@ -42,6 +42,13 @@ func get_owned_entity() -> Entity:
 	return _entities.get(_owned_master_entity_id)
 
 
+## The entity id of the player's own master, or 0 before the initial self sync. Kept accessible so
+## the logout flow can recognise its own master's vanish (= logout complete) even after the node is
+## already gone from the entity table.
+func get_owned_master_entity_id() -> int:
+	return _owned_master_entity_id
+
+
 ## Returns the Entity node for entity_id, or null if it is not currently known
 ## (out of range / not yet synced).
 func get_entity(entity_id: int) -> Entity:

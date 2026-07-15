@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
@@ -47,6 +48,13 @@ class ZoneEngine(
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val externalExecutor = Executors.newFixedThreadPool(2) { r -> Thread(r, "zone-external") }
 
+  /**
+   * Removals of [RemovalNotifiable] components accumulated during a tick, flushed as
+   * [ComponentRemovedSMSG]s in [syncDirtyComponents]. The [SyncTargets] are captured at removal time
+   * (while the component instance and its owner are still available) so the flush needs only the id.
+   */
+  private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
+
   @Volatile
   private var running = false
   private var lastTickTime = System.currentTimeMillis()
@@ -56,6 +64,17 @@ class ZoneEngine(
     world.onDestroy { entityId ->
       entityAOIService.removeEntityPosition(entityId)
       playerAOIService.removeEntityPosition(entityId)
+    }
+
+    // Turn removals of opted-in components into client notifications. Fires only for explicit
+    // single-component removals (not whole-entity destroy), resolving the sync targets while the
+    // world lock is still held and the owner is still reachable.
+    world.onComponentRemoved { entityId, component ->
+      if (component is RemovalNotifiable && component is Dirtyable) {
+        removedComponentOutbox.add(
+          RemovedComponentRecord(entityId, component.removableComponentType, component.syncTargets(world, entityId))
+        )
+      }
     }
   }
 
@@ -173,9 +192,43 @@ class ZoneEngine(
         externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }
+
+    flushRemovedComponents()
+  }
+
+  /**
+   * Drains component removals accumulated this tick and notifies the captured targets. The entity is
+   * still alive here (only a single component was removed), so owner resolution for [SyncTargets]
+   * that need it works exactly as in the dirty flush.
+   */
+  private fun flushRemovedComponents() {
+    while (true) {
+      val record = removedComponentOutbox.poll() ?: break
+      val msg = ComponentRemovedSMSG(record.entityId, record.type)
+
+      when (val targets = record.targets) {
+        is SyncTargets.PublicInRange -> {
+          val pos = world.get(record.entityId, Position::class)?.toVec3L() ?: continue
+          externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
+        }
+        is SyncTargets.OwnerOnly -> {
+          val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
+          externalExecutor.submit { outMessageProcessor.sendToPlayer(owner, msg) }
+        }
+        is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
+          externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msg) }
+        }
+      }
+    }
   }
 
   companion object {
     private val LOG = KotlinLogging.logger { }
   }
 }
+
+private data class RemovedComponentRecord(
+  val entityId: EntityId,
+  val type: RemovableComponentType,
+  val targets: SyncTargets,
+)

@@ -7,5 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 @ConfigurationPropertiesScan
 data class ZoneConfig(
   val tickRate: Int,
-  val parallelSystems: Boolean = false
+  val parallelSystems: Boolean = false,
+  val logoutProtectionSeconds: Float
 )

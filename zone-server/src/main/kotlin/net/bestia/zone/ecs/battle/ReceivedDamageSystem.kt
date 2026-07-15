@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.logout.LogoutIntent
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -31,7 +32,14 @@ class ReceivedDamageSystem : System {
       receivedDamage.amounts.forEach { takenDamage.addDamage(it.sourceEntityId, it.amount) }
       takenDamage.removeOldEntries()
 
-      health.current -= receivedDamage.total()
+      val total = receivedDamage.total()
+      health.current -= total
+
+      // Taking damage aborts a pending logout. Removing the component is what notifies the client
+      // (via the generic component-removed message); done inline since we already hold the world.
+      if (total > 0 && world.has(id, LogoutIntent::class)) {
+        world.remove(id, LogoutIntent::class)
+      }
 
       if (health.current == 0) {
         LOG.trace { "$id died due to damage." }

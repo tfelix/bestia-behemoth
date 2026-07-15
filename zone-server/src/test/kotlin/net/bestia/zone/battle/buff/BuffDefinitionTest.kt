@@ -3,14 +3,14 @@ package net.bestia.zone.battle.buff
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class BuffDefinitionTest {
+class StatusEffectDefinitionTest {
 
   @Test
   fun `durationSeconds scales linearly with level`() {
-    val def = BuffDefinition(
+    val def = StatusEffectDefinition(
       id = 1L,
       identifier = "BLESSING",
-      polarity = BuffPolarity.BUFF,
+      polarity = StatusEffectPolarity.BUFF,
       showIcon = true,
       baseDurationSeconds = 60.0,
       durationPerLevel = 20.0
@@ -22,10 +22,10 @@ class BuffDefinitionTest {
 
   @Test
   fun `durationSeconds with no per-level scaling stays constant`() {
-    val def = BuffDefinition(
+    val def = StatusEffectDefinition(
       id = 2L,
       identifier = "CONST",
-      polarity = BuffPolarity.DEBUFF,
+      polarity = StatusEffectPolarity.DEBUFF,
       showIcon = true,
       baseDurationSeconds = 15.0
     )

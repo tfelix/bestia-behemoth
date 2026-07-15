@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/GroundDropZone/GroundDropZone.tscn" id="7_gdz01"]
 [ext_resource type="PackedScene" uid="uid://b1nffouceksfy" path="res://Game/UI/WidgetWindow/WidgetWindow.tscn" id="8_wdgtw"]
 [ext_resource type="PackedScene" uid="uid://cip6lbglf50vh" path="res://Game/UI/BuffList/BuffList.tscn" id="9_74y3c"]
+[ext_resource type="PackedScene" uid="uid://df51h0nyi66q4" path="res://Game/UI/Options/Options.tscn" id="10_opts"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -59,6 +60,9 @@ offset_left = -80.0
 offset_top = 250.0
 offset_right = -16.0
 offset_bottom = 450.0
+
+[node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
+layout_mode = 1
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

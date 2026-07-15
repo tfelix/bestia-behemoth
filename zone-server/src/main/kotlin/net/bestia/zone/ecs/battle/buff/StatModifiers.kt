@@ -5,11 +5,11 @@ import net.bestia.zone.battle.status.StatType
 import net.bestia.zone.ecs.core.Component
 
 /**
- * Aggregated additive/multiplicative buff modifiers per [StatType], recomputed each tick from an
- * entity's [Buffs] by [StatAggregationSystem]. Internal bookkeeping only - deliberately not
+ * Aggregated additive/multiplicative status effect modifiers per [StatType], recomputed each tick from an
+ * entity's [StatusEffects] by [StatAggregationSystem]. Internal bookkeeping only - deliberately not
  * [net.bestia.zone.ecs.Dirtyable], the client never sees this directly.
  *
- * The extensibility seam for stat-modifying buffs: a future buffable stat is a new [StatType]
+ * The extensibility seam for stat-modifying effects: a future buffable stat is a new [StatType]
  * member plus one small consumer system reading [effective], not a redesign of this component.
  */
 class StatModifiers : Component {

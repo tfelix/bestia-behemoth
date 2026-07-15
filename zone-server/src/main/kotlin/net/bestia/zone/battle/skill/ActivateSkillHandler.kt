@@ -1,10 +1,11 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.BuffService
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.logout.LogoutService
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Component
 class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
-  private val buffService: BuffService
+  private val statusEffectService: StatusEffectService,
+  private val logoutService: LogoutService,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
@@ -26,6 +28,9 @@ class ActivateSkillHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    // Using a skill is player activity — abort any pending logout.
+    logoutService.cancelLogout(activeEntityId)
 
     // Resolve the skill knowledge inside a lock-held read scope so the component is never touched
     // (or mutated) off the tick thread. Returns null when the entity has no AvailableSkills at all.
@@ -46,13 +51,13 @@ class ActivateSkillHandler(
     LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
     // TEMPORARY: Heal (skills.yml id 4) doesn't have real damage/effect resolution wired up yet
-    // (see class doc), so it's a convenient place to exercise the still-untested buff sync
+    // (see class doc), so it's a convenient place to exercise the still-untested status effect sync
     // end-to-end - grants SWIFTNESS on cast. Self-targets when no target was picked, since Heal
     // is FRIENDLY-targeted. Replace with Heal's actual effect resolution once that lands.
     if (msg.attackId == HEAL_SKILL_ID) {
       val targetId = if (msg.targetEntityId != 0L) msg.targetEntityId else activeEntityId
       world.modify(targetId) { id ->
-        buffService.applyBuff(this, id, definitionId = SWIFTNESS_BUFF_ID, level = msg.skillLevel, sourceEntityId = activeEntityId)
+        statusEffectService.applyEffect(this, id, definitionId = SWIFTNESS_EFFECT_ID, level = msg.skillLevel, sourceEntityId = activeEntityId)
       }
     }
 
@@ -62,6 +67,6 @@ class ActivateSkillHandler(
   companion object {
     private val LOG = KotlinLogging.logger { }
     private const val HEAL_SKILL_ID = 4L
-    private const val SWIFTNESS_BUFF_ID = 1L
+    private const val SWIFTNESS_EFFECT_ID = 1L
   }
 }

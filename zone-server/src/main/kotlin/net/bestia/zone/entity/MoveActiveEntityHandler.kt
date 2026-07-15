@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.logout.LogoutService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
@@ -19,6 +20,7 @@ import kotlin.math.abs
 class MoveActiveEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
+  private val logoutService: LogoutService,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -26,6 +28,10 @@ class MoveActiveEntityHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
+
+    // Any movement command (including an empty-path "stop", which the client's logout Cancel button
+    // sends) counts as player activity and aborts a pending logout.
+    logoutService.cancelLogout(activeEntityId)
 
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {

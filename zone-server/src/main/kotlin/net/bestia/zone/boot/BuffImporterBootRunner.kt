@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.buff.BuffDefinition
-import net.bestia.zone.battle.buff.BuffDefinitionRegistry
-import net.bestia.zone.battle.buff.BuffEffect
-import net.bestia.zone.battle.buff.BuffPolarity
-import net.bestia.zone.battle.buff.BuffTriggerAction
-import net.bestia.zone.battle.buff.BuffTriggerEvent
+import net.bestia.zone.battle.buff.StatusEffectDefinition
+import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.buff.StatusEffectEffect
+import net.bestia.zone.battle.buff.StatusEffectPolarity
+import net.bestia.zone.battle.buff.StatusEffectTriggerAction
+import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.battle.buff.ModifierMode
 import net.bestia.zone.battle.buff.StackBehavior
 import net.bestia.zone.battle.status.StatType
@@ -19,24 +19,24 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 /**
- * Loads the buff/debuff catalog from `buffs.yml` into [BuffDefinitionRegistry]. This is config,
+ * Loads the status effect catalog from `status_effects.yml` into [StatusEffectDefinitionRegistry]. This is config,
  * not player state, so it lives entirely in memory and is never persisted to the database - same
  * shape as [MasterSkillTreeImporterBootRunner]. Ordered after the skill importers since nothing
- * here references them, but buffs are conceptually "skill-adjacent" content.
+ * here references them, but status effects are conceptually "skill-adjacent" content.
  */
 @Component
 @Order(104)
-class BuffImporterBootRunner(
-  private val buffDefinitionRegistry: BuffDefinitionRegistry
+class StatusEffectImporterBootRunner(
+  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry
 ) : CommandLineRunner {
 
-  data class BuffYmlDto(
-    val buffs: List<BuffDto>
+  data class StatusEffectYmlDto(
+    val statusEffects: List<StatusEffectDto>
   ) {
-    data class BuffDto(
+    data class StatusEffectDto(
       val id: Long,
       val identifier: String,
-      val polarity: BuffPolarity,
+      val polarity: StatusEffectPolarity,
       val showIcon: Boolean,
       val baseDurationSeconds: Double,
       val durationPerLevel: Double = 0.0,
@@ -51,7 +51,7 @@ class BuffImporterBootRunner(
       val mode: ModifierMode? = null,
       val valuePerLevel: Double? = null,
       // TRIGGER fields
-      val on: BuffTriggerEvent? = null,
+      val on: StatusEffectTriggerEvent? = null,
       val action: String? = null,
       val percent: Double? = null,
       val consumeOnTrigger: Boolean = true
@@ -63,17 +63,17 @@ class BuffImporterBootRunner(
       registerKotlinModule()
     }
 
-    val resource = ClassPathResource("buffs.yml")
-    val dto = resource.inputStream.use { objectMapper.readValue(it, BuffYmlDto::class.java) }
+    val resource = ClassPathResource("status_effects.yml")
+    val dto = resource.inputStream.use { objectMapper.readValue(it, StatusEffectYmlDto::class.java) }
 
-    val definitions = dto.buffs.map { toDefinition(it) }
-    buffDefinitionRegistry.load(definitions)
+    val definitions = dto.statusEffects.map { toDefinition(it) }
+    statusEffectDefinitionRegistry.load(definitions)
 
-    LOG.info { "Buff catalog loaded: ${definitions.size} definitions" }
+    LOG.info { "Status effect catalog loaded: ${definitions.size} definitions" }
   }
 
-  private fun toDefinition(dto: BuffYmlDto.BuffDto): BuffDefinition {
-    return BuffDefinition(
+  private fun toDefinition(dto: StatusEffectYmlDto.StatusEffectDto): StatusEffectDefinition {
+    return StatusEffectDefinition(
       id = dto.id,
       identifier = dto.identifier,
       polarity = dto.polarity,
@@ -85,28 +85,28 @@ class BuffImporterBootRunner(
     )
   }
 
-  private fun toEffect(dto: BuffYmlDto.EffectDto): BuffEffect {
+  private fun toEffect(dto: StatusEffectYmlDto.EffectDto): StatusEffectEffect {
     return when (dto.type) {
-      "STAT_MODIFIER" -> BuffEffect.StatModifierEffect(
+      "STAT_MODIFIER" -> StatusEffectEffect.StatModifierEffect(
         stat = dto.stat ?: error("STAT_MODIFIER effect missing 'stat'"),
         mode = dto.mode ?: error("STAT_MODIFIER effect missing 'mode'"),
         valuePerLevel = dto.valuePerLevel ?: error("STAT_MODIFIER effect missing 'valuePerLevel'")
       )
-      "TRIGGER" -> BuffEffect.TriggerEffect(
+      "TRIGGER" -> StatusEffectEffect.TriggerEffect(
         on = dto.on ?: error("TRIGGER effect missing 'on'"),
         action = toTriggerAction(dto),
         consumeOnTrigger = dto.consumeOnTrigger
       )
-      else -> error("Unknown buff effect type '${dto.type}'")
+      else -> error("Unknown status effect type '${dto.type}'")
     }
   }
 
-  private fun toTriggerAction(dto: BuffYmlDto.EffectDto): BuffTriggerAction {
+  private fun toTriggerAction(dto: StatusEffectYmlDto.EffectDto): StatusEffectTriggerAction {
     return when (dto.action) {
-      "REFLECT_DAMAGE" -> BuffTriggerAction.ReflectDamage(
+      "REFLECT_DAMAGE" -> StatusEffectTriggerAction.ReflectDamage(
         percent = dto.percent ?: error("REFLECT_DAMAGE action missing 'percent'")
       )
-      else -> error("Unknown buff trigger action '${dto.action}'")
+      else -> error("Unknown status effect trigger action '${dto.action}'")
     }
   }
 

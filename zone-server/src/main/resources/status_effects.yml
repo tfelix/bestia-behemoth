@@ -1,4 +1,4 @@
-buffs:
+statusEffects:
   - id: 1
     identifier: SWIFTNESS
     polarity: BUFF

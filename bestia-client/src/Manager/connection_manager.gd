@@ -11,6 +11,10 @@ signal self_received(message: SelfSMSG)
 signal chat_received(message: ChatSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
+## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
+signal logout_countdown_received(remaining_seconds: float)
+## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
+signal logout_cancelled()
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 enum ConnectionError {NO_ERROR, LOGIN_OFFLINE, LOGIN_ERROR, ZONE_CONNECTION_LOST}
@@ -34,6 +38,7 @@ var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
+var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
@@ -44,8 +49,34 @@ var _login_token: String = ""
 var last_connection_error: ConnectionError = ConnectionError.NO_ERROR
 var selected_master_info: MasterInfo = null
 
+# Set while we deliberately drop the connection (logout to main menu) so the socket-closed handler
+# routes to the main menu instead of the "connection lost" screen.
+var _intentional_disconnect: bool = false
+
 
 func disconnect_from_server() -> void:
+	_socket.DisconnectFromServer()
+
+
+## Requests the delayed logout countdown to start for the active master. Progress arrives via
+## [signal logout_countdown_received]; completion is the master vanishing; abort via
+## [signal logout_cancelled].
+func request_logout() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(RequestLogoutCMSG.new())
+
+
+## Cancels a pending logout. Reuses an empty-path move ("stop where I stand"), which the server
+## already treats as player activity and so removes the logout intent — no dedicated message needed.
+func cancel_logout() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(MoveActiveEntityCMSG.new())
+
+
+## Deliberately disconnects and returns to the main menu (used by the logout flow), bypassing the
+## connection-lost screen.
+func disconnect_to_main_menu() -> void:
+	_intentional_disconnect = true
 	_socket.DisconnectFromServer()
 
 
@@ -252,6 +283,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		operation_success.emit(message)
 	elif message is OperationError:
 		operation_error.emit(message)
+	elif message is LogoutIntentSMSG:
+		logout_countdown_received.emit(message.RemainingSeconds)
+	elif message is ComponentRemovedSMSG:
+		# Removal of the logout intent component is the server's "logout aborted" signal.
+		if message.IsLogoutIntent():
+			logout_cancelled.emit()
 	else:
 		printerr("ConnectionManager: message was not identified and processed.")
 
@@ -269,7 +306,12 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 	if status == 0:
 		# connection was closed, perform cleanup and inform the user.
 		_connection_state = ConnectionState.DISCONNECTED
-		_goto_connection_lost(ConnectionError.ZONE_CONNECTION_LOST)
+		if _intentional_disconnect:
+			# Player-initiated logout: go home quietly instead of showing "connection lost".
+			_intentional_disconnect = false
+			SceneManager.goto_scene("res://Menu/Main/Main.tscn")
+		else:
+			_goto_connection_lost(ConnectionError.ZONE_CONNECTION_LOST)
 	elif status == 1:
 		if _connection_state == ConnectionState.DISCONNECTED:
 			# we are initially connected now send auth, please handle this better.

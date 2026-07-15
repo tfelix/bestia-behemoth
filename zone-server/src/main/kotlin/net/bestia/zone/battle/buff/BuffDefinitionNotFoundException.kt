@@ -2,7 +2,7 @@ package net.bestia.zone.battle.buff
 
 import net.bestia.zone.BestiaException
 
-class BuffDefinitionNotFoundException(id: Long) : BestiaException(
-  code = "BUFF_DEFINITION_NOT_FOUND",
-  message = "Buff definition $id not found"
+class StatusEffectDefinitionNotFoundException(id: Long) : BestiaException(
+  code = "STATUS_EFFECT_DEFINITION_NOT_FOUND",
+  message = "Status effect definition $id not found"
 )
