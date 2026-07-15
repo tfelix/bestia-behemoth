@@ -20,37 +20,18 @@ import net.bestia.zone.util.EntityId
  * emits a `ComponentRemovedSMSG` the client reads as "logout aborted".
  */
 class LogoutIntent(
-  var remainingSeconds: Float = DEFAULT_LOGOUT_SECONDS
+  remainingSeconds: Float = DEFAULT_LOGOUT_SECONDS
 ) : Component, Dirtyable, RemovalNotifiable {
 
+  var remainingSeconds: Float = remainingSeconds
+    set(value) {
+      if (field != value) {
+        field = value
+        dirty = true
+      }
+    }
+
   private var dirty = true
-  private var sinceSync = 0f
-
-  /**
-   * Advances the countdown by [deltaTime] and returns true on the single tick it first reaches zero,
-   * so the caller finalises the logout exactly once. Marks itself dirty about every
-   * [SYNC_INTERVAL_SECONDS] to keep the client corrected.
-   */
-  fun tick(deltaTime: Float): Boolean {
-    if (finalized) return false
-
-    remainingSeconds -= deltaTime
-    sinceSync += deltaTime
-    if (sinceSync >= SYNC_INTERVAL_SECONDS) {
-      sinceSync = 0f
-      dirty = true
-    }
-
-    if (remainingSeconds <= 0f) {
-      remainingSeconds = 0f
-      finalized = true
-      return true
-    }
-    return false
-  }
-
-  /** Guards against re-finalising on later ticks before the entity is actually destroyed. */
-  private var finalized = false
 
   override val removableComponentType = RemovableComponentType.LOGOUT_INTENT
 
@@ -72,6 +53,5 @@ class LogoutIntent(
 
   companion object {
     const val DEFAULT_LOGOUT_SECONDS = 20f
-    private const val SYNC_INTERVAL_SECONDS = 5f
   }
 }

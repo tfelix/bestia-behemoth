@@ -5,7 +5,7 @@ import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.logout.LogoutService
+import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -20,7 +20,7 @@ class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val statusEffectService: StatusEffectService,
-  private val logoutService: LogoutService,
+  private val logoutCancelService: LogoutCancelService,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
@@ -30,7 +30,7 @@ class ActivateSkillHandler(
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
     // Using a skill is player activity — abort any pending logout.
-    logoutService.cancelLogout(activeEntityId)
+    logoutCancelService.cancelLogout(activeEntityId)
 
     // Resolve the skill knowledge inside a lock-held read scope so the component is never touched
     // (or mutated) off the tick thread. Returns null when the entity has no AvailableSkills at all.

@@ -96,9 +96,9 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.HealthComponentSMSG.FromProto(envelope.CompHealth);
           EmitSignal(SignalName.MessageReceived, msg);
         }
-        else if (envelope.CompBuffs != null)
+        else if (envelope.CompEffects != null)
         {
-          var msg = Entity.BuffListSMSG.FromProto(envelope.CompBuffs);
+          var msg = Entity.BuffListSMSG.FromProto(envelope.CompEffects);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.CompInventory != null)
@@ -153,7 +153,7 @@ namespace BestiaBehemothClient.Bnet.Message
         }
         else if (envelope.CompLogoutIntent != null)
         {
-          var msg = Entity.LogoutIntentSMSG.FromProto(envelope.CompLogoutIntent);
+          var msg = Entity.LogoutIntentComponentSMSG.FromProto(envelope.CompLogoutIntent);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.CompRemoved != null)

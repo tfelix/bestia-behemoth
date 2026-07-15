@@ -9,6 +9,8 @@ import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
+import org.reflections.Reflections
+import org.reflections.scanners.Scanners
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
@@ -47,18 +49,18 @@ class ZoneEngine(
     val targets: SyncTargets,
   )
 
-  private val syncableComponentTypes: List<KClass<out Component>> by lazy {
-    scanDirtyableComponentTypes()
-  }
+  private val syncableComponentTypes = Reflections("net.bestia.zone", Scanners.SubTypes)
+    .getSubTypesOf(Dirtyable::class.java)
+    .asSequence()
+    .filter { Component::class.java.isAssignableFrom(it) && !it.isInterface }
+    .map {
+      @Suppress("UNCHECKED_CAST")
+      it.kotlin as KClass<out Component>
+    }
+    .toList()
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
   private val externalExecutor = Executors.newFixedThreadPool(2) { r -> Thread(r, "zone-external") }
-
-  /**
-   * Removals of [RemovalNotifiable] components accumulated during a tick, flushed as
-   * [ComponentRemovedSMSG]s in [syncDirtyComponents]. The [SyncTargets] are captured at removal time
-   * (while the component instance and its owner are still available) so the flush needs only the id.
-   */
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
 
   @Volatile
@@ -78,7 +80,11 @@ class ZoneEngine(
     world.onComponentRemoved { entityId, component ->
       if (component is RemovalNotifiable && component is Dirtyable) {
         removedComponentOutbox.add(
-          RemovedComponentRecord(entityId, component.removableComponentType, component.syncTargets(world, entityId))
+          RemovedComponentRecord(
+            entityId,
+            component.removableComponentType,
+            component.syncTargets(world, entityId)
+          )
         )
       }
     }
@@ -185,6 +191,7 @@ class ZoneEngine(
               ?: continue
             byAccountMsgs.getOrPut(ownerAccountId) { mutableListOf() }.add(msg)
           }
+
           is SyncTargets.Accounts -> target.accountIds.forEach { accountId ->
             byAccountMsgs.getOrPut(accountId) { ArrayList() }.add(msg)
           }
@@ -218,10 +225,12 @@ class ZoneEngine(
           val pos = world.get(record.entityId, Position::class)?.toVec3L() ?: continue
           externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
         }
+
         is SyncTargets.OwnerOnly -> {
           val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
           externalExecutor.submit { outMessageProcessor.sendToPlayer(owner, msg) }
         }
+
         is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
           externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msg) }
         }

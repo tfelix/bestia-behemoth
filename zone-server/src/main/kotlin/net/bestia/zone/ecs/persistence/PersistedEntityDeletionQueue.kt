@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * item pickup) and whose persisted blob rows should be pruned. Producers (systems on the tick
  * thread) [enqueue] without blocking; the [EntityPersistenceService] [drainAll]s and deletes the
  * rows off the tick thread on its next sync cycle, so no DB I/O ever happens during a tick.
+ *
+ * TODO check how and if this works because this seems not like a good design
  */
 @Service
 class PersistedEntityDeletionQueue {

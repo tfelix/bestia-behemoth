@@ -6,9 +6,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// Represents a single active buff/debuff in an entity's buff list.
   /// </summary>
   [GlobalClass]
-  public partial class BuffListEntry : GodotObject
+  public partial class StatusEffectListEntry : GodotObject
   {
-    [Export] public uint BuffId { get; set; }
+    [Export] public uint EffectId { get; set; }
     [Export] public uint Level { get; set; }
     [Export] public float RemainingSeconds { get; set; }
     [Export] public bool Debuff { get; set; }
@@ -16,11 +16,11 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// <summary>
     /// Creates a BuffListEntry from protobuf data
     /// </summary>
-    public static BuffListEntry FromProto(global::Bnet.BuffEntry protoEntry)
+    public static StatusEffectListEntry FromProto(global::Bnet.StatusEffectEntry protoEntry)
     {
-      return new BuffListEntry
+      return new StatusEffectListEntry
       {
-        BuffId = protoEntry.BuffId,
+        EffectId = protoEntry.EffectId,
         Level = protoEntry.Level,
         RemainingSeconds = protoEntry.RemainingSeconds,
         Debuff = protoEntry.Debuff

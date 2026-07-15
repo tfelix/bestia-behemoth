@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.logout
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.ComponentClassSet
+import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * Ordered before [net.bestia.zone.ecs.persistence.PersistAndRemoveSystem] (@90) so the tag is picked
  * up on the next tick. Cancellation is not handled here — it happens by removing the component (see
- * [LogoutService]).
+ * [LogoutCancelService]).
  */
 @SpringComponent
 @Order(85)
@@ -30,27 +31,26 @@ class LogoutSystem(
   private val connectionInfoService: ConnectionInfoService,
 ) : System {
 
+  override val schedule: Schedule = Schedule.EverySeconds(1f)
   override val reads: ComponentClassSet = setOf(Account::class)
   override val writes: ComponentClassSet = setOf(LogoutIntent::class, PersistAndRemove::class)
 
   override fun update(world: World, deltaTime: Float) {
-    val elapsed = mutableListOf<EntityId>()
-
     world.query(LogoutIntent::class).each { id ->
       val intent = get<LogoutIntent>()
-      if (intent.tick(deltaTime)) {
-        elapsed.add(id)
-      }
-    }
+      intent.remainingSeconds -= deltaTime
 
-    for (id in elapsed) {
-      finalizeLogout(world, id)
+      if(intent.remainingSeconds <= 0.0) {
+        finalizeLogout(world, id)
+      }
     }
   }
 
   private fun finalizeLogout(world: World, entityId: EntityId) {
     LOG.debug { "Logout countdown elapsed for entity $entityId, despawning" }
 
+    // TODO This is not ideal. We need to check if the VanishEntitySMSG is not send anyways when we
+    //   remove the entity via the persist and remove system?
     val accountId = world.get(entityId, Account::class)?.accountId
     if (accountId != null) {
       // The owner treats their own master vanishing as "logout complete".

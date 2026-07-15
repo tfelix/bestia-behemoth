@@ -9,7 +9,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   [GlobalClass]
   public partial class BuffListSMSG : EntitySMSG
   {
-    [Export] public Godot.Collections.Array<BuffListEntry> Buffs { get; set; } = [];
+    [Export] public Godot.Collections.Array<StatusEffectListEntry> Effects { get; set; } = [];
 
     public BuffListSMSG()
     {
@@ -20,16 +20,16 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     /// <param name="protoBuffList">The protobuf BuffListSMSG message from the server</param>
     /// <returns>A new BuffListSMSG instance</returns>
-    public static BuffListSMSG FromProto(global::Bnet.BuffListSMSG protoBuffList)
+    public static BuffListSMSG FromProto(StatusEffectListSMSG protoBuffList)
     {
       var buffList = new BuffListSMSG()
       {
         EntityId = protoBuffList.EntityId
       };
 
-      foreach (var protoBuff in protoBuffList.Buffs)
+      foreach (var protoBuff in protoBuffList.Effects)
       {
-        buffList.Buffs.Add(BuffListEntry.FromProto(protoBuff));
+        buffList.Effects.Add(StatusEffectListEntry.FromProto(protoBuff));
       }
 
       return buffList;
@@ -37,7 +37,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 
     public override string ToString()
     {
-      return $"BuffListSMSG(EntityId={EntityId}, BuffCount={Buffs.Count})";
+      return $"BuffListSMSG(EntityId={EntityId}, BuffCount={Effects.Count})";
     }
   }
 }

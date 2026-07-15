@@ -17,14 +17,9 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// entity vanishing). For logout, a removed LOGOUT_INTENT means the pending logout was cancelled.
   /// </summary>
   [GlobalClass]
-  public partial class ComponentRemovedSMSG : ISMSG
+  public partial class ComponentRemovedSMSG : EntitySMSG
   {
-    [Export] public ulong EntityId { get; set; }
     [Export] public RemovableComponent Component { get; set; }
-
-    public ComponentRemovedSMSG()
-    {
-    }
 
     public static ComponentRemovedSMSG FromProto(global::Bnet.ComponentRemovedSMSG proto)
     {

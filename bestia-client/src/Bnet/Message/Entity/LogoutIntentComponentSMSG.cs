@@ -4,22 +4,18 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 {
   /// <summary>
   /// Server-driven logout countdown for the local player's master. Re-sent periodically; the client
-  /// interpolates locally between updates. Not an EntitySMSG on purpose so it can be routed straight
-  /// to the logout UI rather than through the per-entity component pipeline.
+  /// interpolates locally between updates. It IS an EntitySMSG (carries EntityId), but is routed
+  /// straight to the logout UI rather than through the generic per-entity dispatch — see the
+  /// ordering note in connection_manager.gd's message dispatch.
   /// </summary>
   [GlobalClass]
-  public partial class LogoutIntentSMSG : ISMSG
+  public partial class LogoutIntentComponentSMSG : EntitySMSG
   {
-    [Export] public ulong EntityId { get; set; }
     [Export] public float RemainingSeconds { get; set; }
 
-    public LogoutIntentSMSG()
+    public static LogoutIntentComponentSMSG FromProto(global::Bnet.LogoutIntentSMSG proto)
     {
-    }
-
-    public static LogoutIntentSMSG FromProto(global::Bnet.LogoutIntentSMSG proto)
-    {
-      return new LogoutIntentSMSG()
+      return new LogoutIntentComponentSMSG()
       {
         EntityId = proto.EntityId,
         RemainingSeconds = proto.RemainingSeconds

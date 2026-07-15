@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "Ci9tZXNzYWdlcy9jb21wb25lbnQvY29tcG9uZW50X3JlbW92ZWRfc21zZy5w",
             "cm90bxIEYm5ldCJWChRDb21wb25lbnRSZW1vdmVkU01TRxIRCgllbnRpdHlf",
-            "aWQYASABKAMSKwoJY29tcG9uZW50GAIgASgOMhguYm5ldC5SZW1vdmFibGVD",
+            "aWQYASABKAYSKwoJY29tcG9uZW50GAIgASgOMhguYm5ldC5SZW1vdmFibGVD",
             "b21wb25lbnQqTAoSUmVtb3ZhYmxlQ29tcG9uZW50EiMKH1JFTU9WQUJMRV9D",
             "T01QT05FTlRfVU5TUEVDSUZJRUQQABIRCg1MT0dPVVRfSU5URU5UEAFCMgoV",
             "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhlDb21wb25lbnRSZW1vdmVkU21zZ1By",
@@ -106,10 +106,10 @@ namespace Bnet {
 
     /// <summary>Field number for the "entity_id" field.</summary>
     public const int EntityIdFieldNumber = 1;
-    private long entityId_;
+    private ulong entityId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long EntityId {
+    public ulong EntityId {
       get { return entityId_; }
       set {
         entityId_ = value;
@@ -152,7 +152,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (EntityId != 0L) hash ^= EntityId.GetHashCode();
+      if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (Component != global::Bnet.RemovableComponent.Unspecified) hash ^= Component.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -172,9 +172,9 @@ namespace Bnet {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (EntityId != 0L) {
-        output.WriteRawTag(8);
-        output.WriteInt64(EntityId);
+      if (EntityId != 0UL) {
+        output.WriteRawTag(9);
+        output.WriteFixed64(EntityId);
       }
       if (Component != global::Bnet.RemovableComponent.Unspecified) {
         output.WriteRawTag(16);
@@ -190,9 +190,9 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (EntityId != 0L) {
-        output.WriteRawTag(8);
-        output.WriteInt64(EntityId);
+      if (EntityId != 0UL) {
+        output.WriteRawTag(9);
+        output.WriteFixed64(EntityId);
       }
       if (Component != global::Bnet.RemovableComponent.Unspecified) {
         output.WriteRawTag(16);
@@ -208,8 +208,8 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (EntityId != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(EntityId);
+      if (EntityId != 0UL) {
+        size += 1 + 8;
       }
       if (Component != global::Bnet.RemovableComponent.Unspecified) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Component);
@@ -226,7 +226,7 @@ namespace Bnet {
       if (other == null) {
         return;
       }
-      if (other.EntityId != 0L) {
+      if (other.EntityId != 0UL) {
         EntityId = other.EntityId;
       }
       if (other.Component != global::Bnet.RemovableComponent.Unspecified) {
@@ -247,8 +247,8 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
-            EntityId = input.ReadInt64();
+          case 9: {
+            EntityId = input.ReadFixed64();
             break;
           }
           case 16: {
@@ -270,8 +270,8 @@ namespace Bnet {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            EntityId = input.ReadInt64();
+          case 9: {
+            EntityId = input.ReadFixed64();
             break;
           }
           case 16: {

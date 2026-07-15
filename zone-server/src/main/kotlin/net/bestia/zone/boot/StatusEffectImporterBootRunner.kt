@@ -36,7 +36,7 @@ class StatusEffectImporterBootRunner(
     data class StatusEffectDto(
       val id: Long,
       val identifier: String,
-      val effectSource: StatusEffectSource,
+      val polarity: StatusEffectSource,
       val showIcon: Boolean,
       val baseDurationSeconds: Double,
       val durationPerLevel: Double = 0.0,
@@ -76,7 +76,7 @@ class StatusEffectImporterBootRunner(
     return StatusEffectDefinition(
       id = dto.id,
       identifier = dto.identifier,
-      polarity = dto.effectSource,
+      polarity = dto.polarity,
       showIcon = dto.showIcon,
       baseDurationSeconds = dto.baseDurationSeconds,
       durationPerLevel = dto.durationPerLevel,

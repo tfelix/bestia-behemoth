@@ -273,6 +273,16 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		_on_pong()
 	elif message is MasterSMSG:
 		master_info_received.emit(message)
+	elif message is LogoutIntentComponentSMSG:
+		# Must be checked before the generic EntitySMSG branch below, since
+		# LogoutIntentSMSG is itself an EntitySMSG subtype.
+		logout_countdown_received.emit(message.RemainingSeconds)
+	elif message is ComponentRemovedSMSG:
+		# Also an EntitySMSG subtype; must precede the generic branch for the same
+		# reason. Removal of the logout intent component is the server's "logout
+		# aborted" signal.
+		if message.IsLogoutIntent():
+			logout_cancelled.emit()
 	elif message is EntitySMSG:
 		entity_received.emit(message)
 	elif message is SelfSMSG:
@@ -283,12 +293,6 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		operation_success.emit(message)
 	elif message is OperationError:
 		operation_error.emit(message)
-	elif message is LogoutIntentSMSG:
-		logout_countdown_received.emit(message.RemainingSeconds)
-	elif message is ComponentRemovedSMSG:
-		# Removal of the logout intent component is the server's "logout aborted" signal.
-		if message.IsLogoutIntent():
-			logout_cancelled.emit()
 	else:
 		printerr("ConnectionManager: message was not identified and processed.")
 

@@ -16,7 +16,7 @@ var _remaining_seconds: float = 0.0
 var _fade_tween: Tween = null
 
 
-func setup(entry: BuffListEntry) -> void:
+func setup(entry: StatusEffectListEntry) -> void:
 	_button.modulate = Color(1.0, 0.55, 0.55) if entry.Debuff else Color(1.0, 1.0, 1.0)
 	_remaining_seconds = entry.RemainingSeconds
 	_refresh()

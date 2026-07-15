@@ -9,7 +9,7 @@ option java_outer_classname = "ComponentRemovedSmsgProto";
 // entity vanishing, which is VanishEntitySMSG). Sent to the same targets the component itself synced
 // to. The client maps the enum back to whatever local state that component drove and clears it.
 message ComponentRemovedSMSG {
-  int64 entity_id = 1;
+  fixed64 entity_id = 1;
   RemovableComponent component = 2;
 }
 

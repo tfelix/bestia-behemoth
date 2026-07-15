@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component
 class RequestLogoutHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
-  private val zoneConfig: ZoneConfig,
 ) : InMessageProcessor.IncomingMessageHandler<RequestLogoutCMSG> {
   override val handles = RequestLogoutCMSG::class
 
@@ -26,7 +25,7 @@ class RequestLogoutHandler(
 
     world.modify(activeEntityId) { id ->
       if (get(id, LogoutIntent::class) == null) {
-        add(id, LogoutIntent(zoneConfig.logoutProtectionSeconds))
+        add(id, LogoutIntent())
       }
     }
 
