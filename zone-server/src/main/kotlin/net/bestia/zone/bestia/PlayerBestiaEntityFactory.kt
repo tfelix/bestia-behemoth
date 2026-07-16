@@ -2,6 +2,10 @@ package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.status.Attributes
+import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.ecs.item.CarryCapacityService
+import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Account
@@ -18,7 +22,8 @@ import org.springframework.transaction.annotation.Transactional
 class PlayerBestiaEntityFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val world: WorldView,
-  private val connectionInfoService: ConnectionInfoService
+  private val connectionInfoService: ConnectionInfoService,
+  private val carryCapacityService: CarryCapacityService,
 ) {
 
   /**
@@ -52,6 +57,32 @@ class PlayerBestiaEntityFactory(
       add(id, BestiaVisual(playerBestia.bestia.id))
       add(id, Account(accountId))
       add(id, KnownSkills((fixedAttackIds + customAttackIds).toMutableMap()))
+
+      val inventory = buildInventory(playerBestia)
+      add(id, inventory)
+
+      val attributes = Attributes(
+        strength = 10,
+        intelligence = 10,
+        vitality = 10,
+        dexterity = 10,
+        willpower = 10,
+        agility = 10
+      )
+      add(id, attributes)
+
+      add(
+        id,
+        CarryCapacity(
+          current = carryCapacityService.computeCurrentWeight(inventory.getItems()),
+          max = carryCapacityService.computeWeightLimit(
+            strength = attributes.strength,
+            vitality = attributes.vitality,
+            level = playerBestia.level
+          )
+        )
+      )
+
       add(id, Persistent)
     }
 
@@ -65,6 +96,18 @@ class PlayerBestiaEntityFactory(
       masterId = masterId,
       playerBestiaId = playerBestiaId,
       playerBestiaEntityId = entityId
+    )
+  }
+
+  private fun buildInventory(playerBestia: PlayerBestia): Inventory {
+    return Inventory(
+      items = playerBestia.inventory.map { invItem ->
+        Inventory.Item(
+          itemId = invItem.playerItem.item.id,
+          amount = invItem.amount,
+          playerItemId = null
+        )
+      }.toMutableList()
     )
   }
 

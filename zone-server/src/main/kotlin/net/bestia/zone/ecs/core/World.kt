@@ -137,11 +137,15 @@ class World(
 
   private fun destroyNow(id: EntityId) {
     if (!entities.destroy(id)) return
+    // Notify before wiping: listeners (e.g. the vanish-broadcast hook) need to inspect which
+    // components the entity still carries and read its last known state.
+    for (listener in destroyListeners) {
+      listener(id)
+    }
     for (store in stores.values) {
       @Suppress("UNCHECKED_CAST")
       (store as ComponentStore<Component>).remove(id)
     }
-    for (listener in destroyListeners) listener(id)
   }
 
   // -------------------------------------------------------------- components

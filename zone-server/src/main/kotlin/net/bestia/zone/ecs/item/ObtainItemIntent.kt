@@ -31,6 +31,5 @@ sealed class ObtainItemIntent : Component {
   class CreateItemIntent(
     val itemId: Long,
     val amount: Int,
-    val uniqueId: Long = 0,
   ) : ObtainItemIntent()
 }

@@ -6,17 +6,17 @@ import net.bestia.bnet.proto.MasterVisualComponentSMSGProto
 import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.message.SMSG
+import net.bestia.zone.message.EntitySMSG
 import java.awt.Color
 
 data class MasterVisualComponentSMSG(
-  val entityId: Long,
+  override val entityId: Long,
   val skinColor: Color,
   val hairColor: Color,
   val face: Face,
   val body: BodyType,
   val hair: Hairstyle
-) : SMSG {
+) : EntitySMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val skinColorProto = MasterProto.Color.newBuilder()

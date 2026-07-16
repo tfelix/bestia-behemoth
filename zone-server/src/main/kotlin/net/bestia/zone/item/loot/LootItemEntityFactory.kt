@@ -55,7 +55,7 @@ class LootItemEntityFactory(
         ItemVisual(
           itemId = itemId,
           amount = amount,
-          uniqueId = playerItemUniqueId
+          playerItemId = playerItemUniqueId
         )
       )
       add(id, Persistent)

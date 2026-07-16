@@ -4,9 +4,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
+import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Service
@@ -57,10 +59,12 @@ class ZoneEngine(
   private var lastTickTime = System.currentTimeMillis()
 
   init {
-    // Clean the area-of-interest services when an entity leaves the world.
+    // Clean the area-of-interest services when an entity leaves the world, and broadcast a vanish
+    // to whoever the entity was ever synced to (see notifyVanishOnDestroy).
     world.onDestroy { entityId ->
       entityAOIService.removeEntityPosition(entityId)
       playerAOIService.removeEntityPosition(entityId)
+      notifyVanishOnDestroy(entityId)
     }
 
     // Turn removals of opted-in components into client notifications. Fires only for explicit
@@ -222,6 +226,55 @@ class ZoneEngine(
         }
       }
     }
+  }
+
+  /**
+   * An entity that was never synced to any client (no [Dirtyable] component) never told a client it
+   * existed either, so it needs no vanish. One that was gets a [VanishEntitySMSG] broadcast to the
+   * superset of every synced component's [SyncTargets] - called from [World.onDestroy] while the
+   * entity's components are still readable (see the ordering note on [World.destroyNow]).
+   */
+  private fun notifyVanishOnDestroy(entityId: EntityId) {
+    val syncedComponents = syncableComponentTypes.mapNotNull { type -> world.get(entityId, type) as? Dirtyable }
+    if (syncedComponents.isEmpty()) return
+
+    val targets = mergeSyncTargets(entityId, syncedComponents.map { it.syncTargets(world, entityId) }) ?: return
+    val kind = if (world.has(entityId, Dead::class)) VanishEntitySMSG.VanishKind.DEATH else VanishEntitySMSG.VanishKind.GONE
+    val msg = VanishEntitySMSG(entityId, kind)
+
+    when (targets) {
+      is SyncTargets.PublicInRange -> {
+        val pos = world.get(entityId, Position::class)?.toVec3L() ?: return
+        asyncJobExecutor.submit(key = entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
+      }
+
+      is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
+        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
+      }
+
+      is SyncTargets.OwnerOnly -> Unit // never produced by mergeSyncTargets, kept for exhaustiveness
+    }
+  }
+
+  /**
+   * Collapses several components' [SyncTargets] into one: [SyncTargets.PublicInRange] subsumes
+   * everything else, so it wins outright; otherwise every [SyncTargets.OwnerOnly] (resolved via the
+   * entity's [Account]) and [SyncTargets.Accounts] are unioned into a single [SyncTargets.Accounts].
+   * Returns null if nothing resolves to an actual target (e.g. `OwnerOnly` with no `Account`).
+   */
+  private fun mergeSyncTargets(entityId: EntityId, targets: List<SyncTargets>): SyncTargets? {
+    if (targets.any { it is SyncTargets.PublicInRange }) return SyncTargets.PublicInRange
+
+    val accountIds = mutableSetOf<Long>()
+    for (target in targets) {
+      when (target) {
+        is SyncTargets.OwnerOnly -> world.get(entityId, Account::class)?.accountId?.let { accountIds.add(it) }
+        is SyncTargets.Accounts -> accountIds.addAll(target.accountIds)
+        is SyncTargets.PublicInRange -> Unit
+      }
+    }
+
+    return if (accountIds.isEmpty()) null else SyncTargets.Accounts(accountIds)
   }
 
   companion object {

@@ -43,7 +43,7 @@ class LootItemEntityPersister(
       entityId = id,
       itemId = visual.itemId,
       amount = visual.amount,
-      uniqueId = visual.uniqueId,
+      uniqueId = visual.playerItemId,
       x = pos.x, y = pos.y, z = pos.z,
     )
   }

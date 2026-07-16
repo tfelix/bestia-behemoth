@@ -115,7 +115,7 @@ class MasterEntityFactory(
         Inventory.Item(
           itemId = invItem.playerItem.item.id,
           amount = invItem.amount,
-          uniqueId = 0
+          playerItemId = invItem.playerItem.id
         )
       }.toMutableList()
     )

@@ -8,13 +8,10 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.entity.VanishEntitySMSG
-import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.inventory.InventoryItemFactory
 import net.bestia.zone.item.loot.LootItemEntityFactory
-import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
@@ -42,14 +39,12 @@ class ObtainItemIntentSystem(
   private val inventoryItemFactory: InventoryItemFactory,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
-  private val outMessageProcessor: OutMessageProcessor,
 ) : System {
 
   private data class ClaimedLoot(
     val item: Item,
     val amount: Int,
-    val uniqueId: Long,
-    val pos: Vec3L
+    val playerItemId: Long,
   )
 
   override val reads: ComponentClassSet = setOf(
@@ -110,10 +105,11 @@ class ObtainItemIntentSystem(
         return@modify null // over capacity (or no inventory at all) - leave the stack on the ground
       }
 
-      // Make sure this sends a vanish message to the looted entity to all players in range.
+      // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever ItemVisual
+      // was synced to.
       destroy(itemStackEntityId)
 
-      ClaimedLoot(item, itemVisual.amount, itemVisual.uniqueId, lootPos)
+      ClaimedLoot(item, itemVisual.amount, itemVisual.playerItemId)
     }
 
     if (claimed == null) {
@@ -121,12 +117,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId)
-
-    outMessageProcessor.sendToAllPlayersInRange(
-      claimed.pos,
-      VanishEntitySMSG(entityId = intent.sourceEntityItemStackId, kind = VanishEntitySMSG.VanishKind.GONE)
-    )
+    grantItem(world, entityId, claimed.item, claimed.amount, claimed.playerItemId)
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
@@ -137,7 +128,7 @@ class ObtainItemIntentSystem(
     }
 
     if (canObtain(world, entityId, item.weight * intent.amount)) {
-      grantItem(world, entityId, item, intent.amount, intent.uniqueId)
+      grantItem(world, entityId, item, intent.amount)
       return
     }
 
@@ -154,7 +145,6 @@ class ObtainItemIntentSystem(
       itemId = item.id,
       amount = intent.amount,
       pos = pos,
-      playerItemUniqueId = intent.uniqueId
     )
   }
 
@@ -167,13 +157,13 @@ class ObtainItemIntentSystem(
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
-  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long) {
+  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, playerItemId: Long? = null) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
       LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.identifier} lost" }
       return
     }
-    inventory.addItem(Inventory.Item(itemId = item.id, amount = amount, uniqueId = uniqueId))
+    inventory.addItem(Inventory.Item(itemId = item.id, amount = amount))
 
     schedulePersist(world, entityId, item, amount)
   }

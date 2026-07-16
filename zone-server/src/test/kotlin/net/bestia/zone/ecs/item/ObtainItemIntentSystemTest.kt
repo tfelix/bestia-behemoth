@@ -12,13 +12,11 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.inventory.InventoryItemFactory
 import net.bestia.zone.item.loot.LootItemEntityFactory
-import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -35,7 +33,6 @@ class ObtainItemIntentSystemTest {
   private val lootItemEntityFactory = mockk<LootItemEntityFactory>(relaxed = true)
   private val inventoryItemFactory = mockk<InventoryItemFactory>(relaxed = true)
   private val connectionInfoService = mockk<ConnectionInfoService>()
-  private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
 
   // A real executor (single worker) rather than a mock: the async persist hand-off is exactly the
   // behavior under test, so it should actually run off-thread instead of being stubbed away.
@@ -58,7 +55,6 @@ class ObtainItemIntentSystemTest {
     inventoryItemFactory = inventoryItemFactory,
     asyncJobExecutor = asyncJobExecutor,
     connectionInfoService = connectionInfoService,
-    outMessageProcessor = outMessageProcessor,
   )
 
   private fun stub(item: Item) {
@@ -152,7 +148,7 @@ class ObtainItemIntentSystemTest {
   }
 
   @Test
-  fun `loot item intent within range grants the item, destroys the ground stack, and broadcasts a vanish`() {
+  fun `loot item intent within range grants the item and destroys the ground stack`() {
     stub(sword)
     every { inventoryItemFactory.addItemToMaster(MASTER_ID, sword.identifier, 2) } returns sword
     val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
@@ -164,17 +160,13 @@ class ObtainItemIntentSystemTest {
     world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
     world.tick(0.1f)
 
+    // Broadcasting the vanish for the destroyed ground stack is ZoneEngine's job now (see
+    // ZoneEngineTest), not this system's - it only needs to destroy the entity.
     assertFalse(world.isAlive(groundStack))
     assertEquals(2, world.get(looter, Inventory::class)!!.getItem(sword.id.toInt())?.amount)
     assertFalse(world.has(looter, ObtainItemIntent.LootItemIntent::class))
 
     verify(timeout = 1000) { inventoryItemFactory.addItemToMaster(MASTER_ID, sword.identifier, 2) }
-    verify {
-      outMessageProcessor.sendToAllPlayersInRange(
-        Vec3L(0, 0, 0),
-        VanishEntitySMSG(entityId = groundStack, kind = VanishEntitySMSG.VanishKind.GONE)
-      )
-    }
   }
 
   @Test
@@ -190,7 +182,6 @@ class ObtainItemIntentSystemTest {
 
     assertTrue(world.isAlive(groundStack))
     assertTrue(world.get(looter, Inventory::class)!!.isEmpty())
-    verify(exactly = 0) { outMessageProcessor.sendToAllPlayersInRange(any<Vec3L>(), any<net.bestia.zone.message.SMSG>()) }
     verifyNoItemGranted()
   }
 

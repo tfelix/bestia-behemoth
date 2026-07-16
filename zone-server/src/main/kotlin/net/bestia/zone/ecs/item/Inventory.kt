@@ -15,14 +15,14 @@ data class Inventory(
   class Item(
     val itemId: Long,
     var amount: Int,
-    val uniqueId: Long = 0 // 0 means nothing special.
+    val playerItemId: Long? = null // null means the item is not uniquely identifiable as a player item
   )
 
   // Add a single item
   fun addItem(item: Item) {
-    val isStackable = item.uniqueId == 0L
+    val isStackable = item.playerItemId == 0L
     if (isStackable) {
-      val existing = items.find { it.itemId == item.itemId && it.uniqueId == 0L }
+      val existing = items.find { it.itemId == item.itemId && it.playerItemId == 0L }
       if (existing != null) {
         existing.amount += item.amount
       } else {
@@ -86,7 +86,7 @@ data class Inventory(
     val item = items.find { it.itemId == itemId.toLong() }
     if (item != null) {
       val index = items.indexOf(item)
-      items[index] = Item(item.itemId, newAmount, item.uniqueId)
+      items[index] = Item(item.itemId, newAmount, item.playerItemId)
       markDirty()
       return true
     }
@@ -155,7 +155,7 @@ data class Inventory(
       items = items.map { item ->
         InventoryComponentSMSG.InventoryItem(
           itemId = item.itemId.toInt(),
-          uniqueId = item.uniqueId,
+          uniqueId = item.playerItemId ?: 0,
           amount = item.amount
         )
       }
