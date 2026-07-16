@@ -5,6 +5,7 @@ import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -35,6 +36,7 @@ class BestiaEntityFactory(
       add(id, Position.fromVec3(pos))
       add(id, BestiaVisual(bestiaId))
       add(id, Health(bestia.health, bestia.health))
+      add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
       add(id, Persistent)
 

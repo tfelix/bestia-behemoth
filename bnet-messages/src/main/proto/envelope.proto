@@ -29,6 +29,8 @@ import "messages/component/path_component_smsg.proto";
 import "messages/component/speed_component_smsg.proto";
 import "messages/component/health_component_smsg.proto";
 import "messages/component/mana_component_smsg.proto";
+import "messages/component/stamina_component_smsg.proto";
+import "messages/component/carry_capacity_component_smsg.proto";
 import "messages/component/inventory_component_smsg.proto";
 import "messages/component/skill_points_smsg.proto";
 import "messages/component/skill_list_smsg.proto";
@@ -120,6 +122,8 @@ message Envelope {
     StatusEffectListSMSG comp_effects = 526;
     LogoutIntentSMSG comp_logout_intent = 527;
     ComponentRemovedSMSG comp_removed = 528;
+    StaminaComponentSMSG comp_stamina = 529;
+    CarryCapacityComponentSMSG comp_carry_capacity = 530;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

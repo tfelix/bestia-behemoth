@@ -6,8 +6,20 @@ class_name MasterVisual extends Visual
 @onready var _anim_player: AnimationPlayer = $Mage/AnimationPlayer
 
 
+## Only BodyType.BODY_M_1 (0) exists today, so this always resolves to the static $Mage
+## child - the match is structured so a future body can be added as its own branch without
+## touching the dispatch here. Skin/hair color application (msg.SkinColor/msg.HairColor) is
+## deferred until there's more than one body to apply them to.
 func setup_visual(msg: MasterVisualComponentSMSG) -> void:
-	print("TODO: Set the master visuals here")
+	match msg.Body:
+		0: # BodyType.BODY_M_1
+			_apply_mage_body(msg)
+		_:
+			printerr("MasterVisual: unhandled BodyType %s, falling back to Mage" % [msg.Body])
+			_apply_mage_body(msg)
+
+
+func _apply_mage_body(_msg: MasterVisualComponentSMSG) -> void:
 	pass
 
 

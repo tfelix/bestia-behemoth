@@ -3,7 +3,12 @@ package net.bestia.zone.account.master
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.status.Attributes
+import net.bestia.zone.ecs.battle.status.CarryCapacity
+import net.bestia.zone.ecs.battle.status.CarryCapacityService
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Mana
+import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -29,6 +34,7 @@ class MasterEntityFactory(
   private val masterRepository: MasterRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
+  private val carryCapacityService: CarryCapacityService,
 ) {
 
   /**
@@ -58,6 +64,8 @@ class MasterEntityFactory(
       add(id, Level(master.level))
       add(id, Speed())
       add(id, Health(current = 10, max = 10))
+      add(id, Mana(current = 10, max = 10))
+      add(id, Stamina(current = 10, max = 10))
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, SkillPoints(master.skillPoints))
       add(
@@ -71,7 +79,34 @@ class MasterEntityFactory(
           hair = master.hair
         )
       )
-      add(id, buildInventory(master))
+      val inventory = buildInventory(master)
+      add(id, inventory)
+
+      val attributes = Attributes(
+        strength = 10,
+        intelligence = 10,
+        vitality = 10,
+        dexterity = 10,
+        willpower = 10,
+        agility = 10
+      )
+      add(id, attributes)
+      add(
+        id,
+        CarryCapacity(
+          current = carryCapacityService.computeCurrentWeight(inventory.getItems()),
+          max = carryCapacityService.computeWeightLimit(
+            strength = attributes.strength,
+            vitality = attributes.vitality,
+            level = master.level
+          )
+        ).also {
+          it.lastKnownStrength = attributes.strength
+          it.lastKnownVitality = attributes.vitality
+          it.lastKnownLevel = master.level
+        }
+      )
+
       add(id, ActivePlayer)
       add(id, Persistent)
     }

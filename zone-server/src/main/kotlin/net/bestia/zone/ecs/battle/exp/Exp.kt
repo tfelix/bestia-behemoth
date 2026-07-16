@@ -8,7 +8,8 @@ import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
 
 data class Exp(
-  private var _value: Int = 0
+  private var _value: Int = 0,
+  private var _requiredExpNextLevel: Int = 0
 ) : Component, Dirtyable {
 
   var value: Int
@@ -16,6 +17,15 @@ data class Exp(
     set(newValue) {
       if (_value != newValue) {
         _value = newValue
+        dirty = true
+      }
+    }
+
+  var requiredExpNextLevel: Int
+    get() = _requiredExpNextLevel
+    set(newValue) {
+      if (_requiredExpNextLevel != newValue) {
+        _requiredExpNextLevel = newValue
         dirty = true
       }
     }
@@ -33,7 +43,7 @@ data class Exp(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return ExpComponentSMSG(entityId = entityId, exp = value)
+    return ExpComponentSMSG(entityId = entityId, exp = value, requiredExpNextLevel = requiredExpNextLevel)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

@@ -8,4 +8,5 @@ option java_outer_classname = "ExpComponentSMSGProto";
 message ExpComponentSMSG {
   fixed64 entity_id = 1;
   fixed32 exp = 2;
+  fixed32 required_exp_next_level = 3;
 }

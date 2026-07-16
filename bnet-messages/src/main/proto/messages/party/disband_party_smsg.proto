@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DisbandPartySmsgProto";
+
+// Sent to every account that was affected by a party ending - either the whole party was disbanded
+// (owner disbanded it, or the owner left, which disbands the party since there is no ownership
+// transfer) or this specific recipient was removed/left while the party continues for the rest.
+message DisbandPartySMSG {
+  uint64 party_id = 1;
+}

@@ -6,6 +6,15 @@ var _master_entity_id: int = 0
 @onready var _master_name: Label = %MasterName
 @onready var _level: Label = %Level
 @onready var _position: Label = %Position
+@onready var _health_bar: ProgressBar = %HealthBar
+@onready var _hp_value: Label = %HPValue
+@onready var _mana_bar: ProgressBar = %ManaBar
+@onready var _mana_value: Label = %ManaValue
+@onready var _stamina_bar: ProgressBar = %StaminaBar
+@onready var _stamina_value: Label = %StaminaValue
+@onready var _exp_bar: ProgressBar = %ExpBar
+@onready var _weight_label: Label = %WeightLabel
+@onready var _profile_portrait = %ProfileImage
 
 signal inventory_win_toggled
 signal skills_win_toggled
@@ -36,6 +45,18 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		_update_position(msg.Position)
 	if msg is LevelComponentSMSG:
 		_update_level(msg.Level)
+	if msg is HealthComponentSMSG:
+		_update_bar(_health_bar, _hp_value, msg.Current, msg.Max)
+	if msg is ManaComponentSMSG:
+		_update_bar(_mana_bar, _mana_value, msg.Current, msg.Max)
+	if msg is StaminaComponentSMSG:
+		_update_bar(_stamina_bar, _stamina_value, msg.Current, msg.Max)
+	if msg is ExpComponentSMSG:
+		_update_exp(msg.Exp, msg.RequiredExpNextLevel)
+	if msg is CarryCapacityComponentSMSG:
+		_weight_label.text = "Weight: %s / %s" % [msg.Current, msg.Max]
+	if msg is MasterVisualComponentSMSG:
+		_profile_portrait.apply_visual(msg)
 
 
 func _update_level(level: int) -> void:
@@ -44,6 +65,17 @@ func _update_level(level: int) -> void:
 
 func _update_position(pos: Vector3) -> void:
 	_position.text = "X: %s, Y: %s, Z: %s" % [pos.x, pos.y, pos.z]
+
+
+func _update_bar(bar: ProgressBar, value_label: Label, current: int, max_value: int) -> void:
+	bar.max_value = max_value
+	bar.value = current
+	value_label.text = "%s / %s" % [current, max_value]
+
+
+func _update_exp(exp: int, required_exp_next_level: int) -> void:
+	_exp_bar.max_value = required_exp_next_level
+	_exp_bar.value = exp
 
 
 ## Polls the global Input state instead of overriding _shortcut_input: the Skills window is a

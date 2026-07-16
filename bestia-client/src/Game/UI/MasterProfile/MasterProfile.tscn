@@ -2,9 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dcv74etn3ylxs" path="res://Game/UI/MasterProfile/master_profile.gd" id="1_c5uss"]
 [ext_resource type="Script" uid="uid://fjwopidr1lhd" path="res://Game/UI/MasterProfile/ProfileBar/profile_bar.gd" id="2_c5uss"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_2wskm"]
-size = Vector2(100, 120)
+[ext_resource type="PackedScene" path="res://Game/UI/MasterProfile/ProfilePortrait/ProfilePortrait.tscn" id="3_pp01"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
 content_margin_left = 2.0
@@ -58,11 +56,11 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ProfileImage" type="TextureRect" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=1809820968]
+[node name="ProfileImage" parent="TopMargin/ProfileDetails/ProfilContainer" instance=ExtResource("3_pp01")]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 100)
 custom_maximum_size = Vector2(100, 120)
 layout_mode = 2
-texture = SubResource("PlaceholderTexture2D_2wskm")
 expand_mode = 5
 stretch_mode = 3
 
@@ -71,6 +69,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="HealthBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1891134381]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_c5uss")
@@ -91,12 +90,14 @@ layout_mode = 2
 text = "HP"
 
 [node name="HPValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/HPMargin/HPLabelRow" unique_id=1128937717]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "1240 / 2100"
 horizontal_alignment = 2
 
 [node name="ManaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=271089587]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_puc4o")
@@ -117,12 +118,14 @@ layout_mode = 2
 text = "Mana"
 
 [node name="ManaValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/ManaMargin/ManaLabelRow" unique_id=2098229289]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "789 / 820"
 horizontal_alignment = 2
 
 [node name="StaminaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1649866667]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_urjgt")
@@ -143,6 +146,7 @@ layout_mode = 2
 text = "Stamina"
 
 [node name="StaminaValue" type="Label" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer/StaminaMargin/ManaLabelRow" unique_id=58232129]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "100 / 100"
@@ -210,6 +214,7 @@ theme_override_colors/font_color = Color(0.5609549, 0.5609549, 0.5609549, 1)
 text = "Lv 1"
 
 [node name="ExpBar" type="ProgressBar" parent="TopMargin/ProfileDetails/VBoxContainer/ExpDetails" unique_id=1448991662]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -226,6 +231,7 @@ layout_mode = 2
 theme_override_constants/separation = 18
 
 [node name="WeightLabel" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/InventoryDetails" unique_id=39569458]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Weight: 100 / 2400"

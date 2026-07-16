@@ -30,6 +30,7 @@ class ExpSystem(
       val isMaster = world.has(entityId, Master::class)
 
       var requiredExpNextLevel = levelUpExpCalc.getRequiredExperience(levelComp.level + 1)
+      expComp.requiredExpNextLevel = requiredExpNextLevel
       while (expComp.value >= requiredExpNextLevel) {
         expComp.value -= requiredExpNextLevel
         levelComp.inc()
@@ -41,6 +42,7 @@ class ExpSystem(
         }
 
         requiredExpNextLevel = levelUpExpCalc.getRequiredExperience(levelComp.level + 1)
+        expComp.requiredExpNextLevel = requiredExpNextLevel
 
         LOG.debug { "$entityId got level up: ${levelComp.level} (next req. exp: $requiredExpNextLevel)" }
       }

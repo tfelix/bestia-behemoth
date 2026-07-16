@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "PartyInvitationSmsgProto";
+
+// The join-request prompt: sent to the invited player, asking whether they want to join the
+// inviting master's party. Answered with AcceptPartyInviteCMSG / DeclinePartyInviteCMSG, both
+// referencing invitation_id.
+message PartyInvitationSMSG {
+  string invited_by_master = 1;
+  uint64 party_id = 2;
+  string party_name = 3;
+  uint64 invitation_id = 4;
+}

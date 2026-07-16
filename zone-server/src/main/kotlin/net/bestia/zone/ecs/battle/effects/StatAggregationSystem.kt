@@ -33,7 +33,7 @@ class StatAggregationSystem(
         val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
         for (effect in definition.effects) {
           if (effect is StatusEffect.StatModifierEffect) {
-            modifiers.addModifier(effect.stat, effect.mode, effect.valuePerLevel * active.level)
+            modifiers.addModifier(effect.stat, effect.mode, (effect.valuePerLevel * active.level).toFloat())
           }
         }
       }
