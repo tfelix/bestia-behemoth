@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.persistence.Persistent

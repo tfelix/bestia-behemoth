@@ -36,7 +36,7 @@ data class SkillPoints(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return SkillPointsSMSG(entityId = entityId, points = value)
+    return SkillPointsComponentSMSG(entityId = entityId, points = value)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {

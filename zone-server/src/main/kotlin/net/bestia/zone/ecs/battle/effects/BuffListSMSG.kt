@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.buff
+package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.bnet.proto.StatusEffectListSMSGProto
 import net.bestia.bnet.proto.EnvelopeProto

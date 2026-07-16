@@ -1,14 +1,14 @@
 package net.bestia.zone.battle.buff
 
-import net.bestia.zone.ecs.battle.Damage
-import net.bestia.zone.ecs.battle.buff.ActiveStatusEffect
+import net.bestia.zone.ecs.battle.damage.Damage
+import net.bestia.zone.ecs.battle.effects.ActiveStatusEffect
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
 /**
  * A pluggable reaction to a [StatusEffectTriggerEvent]. Each concrete action implements its own logic, so
  * adding a new one never touches a central dispatch `when` in the system that invokes it (see
- * [net.bestia.zone.ecs.battle.buff.StatusEffectDamageInterceptSystem]).
+ * [net.bestia.zone.ecs.battle.effects.StatusEffectDamageInterceptSystem]).
  */
 sealed interface StatusEffectTriggerAction {
   /**
@@ -29,7 +29,7 @@ sealed interface StatusEffectTriggerAction {
       val reflected = (incoming.amount * percent).toInt().coerceIn(0, incoming.amount)
       if (reflected > 0) {
         world.update(incoming.sourceEntityId, default = { Damage() }) {
-          it.add(reflected, targetId, isReflected = true)
+          it.add(reflected, targetId)
         }
       }
       return incoming.amount - reflected

@@ -5,8 +5,8 @@ import net.bestia.zone.battle.status.StatType
 /**
  * A single effect a [StatusEffectDefinition] applies while active. Extensible without touching any
  * dispatch system: [StatModifierEffect] is consumed by
- * [net.bestia.zone.ecs.battle.buff.StatAggregationSystem], [TriggerEffect] by
- * [net.bestia.zone.ecs.battle.buff.StatusEffectDamageInterceptSystem]; a future effect kind is a new
+ * [net.bestia.zone.ecs.battle.effects.StatAggregationSystem], [TriggerEffect] by
+ * [net.bestia.zone.ecs.battle.effects.StatusEffectDamageInterceptSystem]; a future effect kind is a new
  * sealed subtype plus one new consumer system.
  */
 sealed interface StatusEffect {

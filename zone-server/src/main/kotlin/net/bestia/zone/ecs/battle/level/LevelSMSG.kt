@@ -1,21 +1,20 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.battle.level
 
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.bnet.proto.SkillPointsSMSGProto
+import net.bestia.bnet.proto.LevelComponentSMSGProto
 import net.bestia.zone.message.EntitySMSG
 
-data class SkillPointsSMSG(
+data class LevelSMSG(
   override val entityId: Long,
-  val points: Int
+  val level: Int,
 ) : EntitySMSG {
-
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
-    val skillPoints = SkillPointsSMSGProto.SkillPointsSMSG.newBuilder()
+    val levelComponent = LevelComponentSMSGProto.LevelComponentSMSG.newBuilder()
       .setEntityId(entityId)
-      .setPoints(points)
+      .setLevel(level)
 
     return EnvelopeProto.Envelope.newBuilder()
-      .setCompSkillPoints(skillPoints)
+      .setCompLevel(levelComponent)
       .build()
   }
 }

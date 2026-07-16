@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.buff
+package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule

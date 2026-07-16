@@ -18,6 +18,8 @@ import net.bestia.zone.item.inventory.GetInventoryCMSG
 import net.bestia.zone.item.loot.LootItemCMSG
 import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
+import net.bestia.zone.party.AcceptPartyInviteCMSG
+import net.bestia.zone.party.DeclinePartyInviteCMSG
 import net.bestia.zone.socket.PingCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -54,6 +56,8 @@ class BnetMessageProcessorAdapter(
       envelope.hasDropItem() -> DropItemCMSG.Companion.fromBnet(accountId, envelope.dropItem)
       envelope.hasLootItem() -> LootItemCMSG.Companion.fromBnet(accountId, envelope.lootItem)
       envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
+      envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
+      envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

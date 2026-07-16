@@ -30,6 +30,7 @@ class Party(
     require(owner.party == null) {
       "Owner already has a party, remove party first"
     }
+    require(name.isNotBlank()) { "Party name must not be blank" }
     owner.party = this
   }
 }

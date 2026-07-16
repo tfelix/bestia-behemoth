@@ -1,9 +1,9 @@
-package net.bestia.zone.ecs.battle.buff
+package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.buff.StatusEffect
 import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
-import net.bestia.zone.ecs.battle.Damage
+import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Reacts to pending [Damage] against entities carrying an `ON_DAMAGE_TAKEN` [StatusEffect.TriggerEffect]
- * (e.g. reflect) before [net.bestia.zone.ecs.battle.ReceivedDamageSystem] (`@Order(50)`) applies it
+ * (e.g. reflect) before [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (`@Order(50)`) applies it
  * to [net.bestia.zone.ecs.battle.status.Health]. Ordered at 45 so this runs first in the same tick.
  *
  * Works per [Damage.DamageAmount] entry, not the aggregate total, so simultaneous hits from
@@ -43,10 +43,6 @@ class StatusEffectDamageInterceptSystem(
       val resultAmounts = mutableListOf<Damage.DamageAmount>()
 
       for (incoming in damage.amounts) {
-        if (incoming.isReflected) {
-          resultAmounts.add(incoming)
-          continue
-        }
 
         var remaining = incoming
         val toConsume = mutableListOf<Long>()

@@ -3,7 +3,7 @@ package net.bestia.zone.ai.behavior.leaves
 import net.bestia.zone.ai.behavior.BtContext
 import net.bestia.zone.ai.behavior.BtNode
 import net.bestia.zone.ai.behavior.Status
-import net.bestia.zone.ecs.battle.Damage
+import net.bestia.zone.ecs.battle.damage.Damage
 import kotlin.random.Random
 
 /**
@@ -11,7 +11,7 @@ import kotlin.random.Random
  * SUCCESS immediately after a strike lands, FAILURE if the target is gone.
  *
  * This is where the AI writes to a foreign entity: it stacks a [Damage] component on the target,
- * which the [net.bestia.zone.ecs.battle.ReceivedDamageSystem] applies. If the target no longer
+ * which the [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] applies. If the target no longer
  * exists it is treated as target-lost.
  */
 class MeleeAttackLeaf : BtNode {

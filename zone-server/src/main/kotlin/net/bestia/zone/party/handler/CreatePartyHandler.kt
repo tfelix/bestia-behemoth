@@ -7,6 +7,7 @@ import net.bestia.zone.party.CreatePartyCMSG
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.AlreadyInPartyException
+import net.bestia.zone.party.InvalidPartyNameException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 
@@ -34,6 +35,9 @@ class CreatePartyHandler(
     } catch (_: AlreadyInPartyException) {
       LOG.debug { "Player ${msg.playerId} tried to create a party but is already in one." }
       outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.ALREADY_IN_PARTY))
+    } catch (_: InvalidPartyNameException) {
+      LOG.debug { "Player ${msg.playerId} tried to create a party with invalid name '${msg.partyName}'." }
+      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.INVALID_PARTY_NAME))
     } catch (_: DataIntegrityViolationException) {
       LOG.debug { "Player ${msg.playerId} tried to create a party but name ${msg.partyName} is already in use." }
       outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.PARTY_NAME_IN_USE))

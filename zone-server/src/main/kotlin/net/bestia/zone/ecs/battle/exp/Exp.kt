@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.battle.exp
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId

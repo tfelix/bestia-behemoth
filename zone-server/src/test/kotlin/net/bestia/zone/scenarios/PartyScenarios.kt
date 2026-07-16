@@ -2,7 +2,6 @@ package net.bestia.zone.scenarios
 
 import net.bestia.zone.party.*
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -106,11 +105,6 @@ class PartyScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(7)
-  @Disabled(
-    "RequestInvitePlayerToPartyHandler never sends PartyInvitationCreatedSMSG to the inviter, and that " +
-      "message's toBnetEnvelope() is itself unimplemented (TODO) - wiring it up would only pass this test " +
-      "while leaving a message type that crashes over the real socket."
-  )
   fun `inviting a player while inside a party forwards invite to player`() {
     clientPlayer1.sendMessage(
       RequestPartyInvitationCMSG(
@@ -121,19 +115,18 @@ class PartyScenarios : BestiaNoSocketScenario() {
 
     partyInvitationCreatedSMSG = clientPlayer1.tryGetLastReceived(PartyInvitationCreatedSMSG::class)
     assertNotNull(partyInvitationCreatedSMSG)
-    assertEquals(clientPlayer2.connectedPlayerId, partyInvitationCreatedSMSG!!.invitedPlayerEntityId)
+    assertEquals(clientPlayer2.connectedPlayerId, partyInvitationCreatedSMSG!!.invitedAccountId)
     assertEquals(PartyInvitationCreatedSMSG.InvitationStatus.CREATED, partyInvitationCreatedSMSG!!.status)
 
     partyInvitationSMSGToDeclined = clientPlayer2.tryGetLastReceived(PartyInvitationSMSG::class)
 
     assertNotNull(partyInvitationSMSGToDeclined)
     assertEquals("myParty", partyInvitationSMSGToDeclined!!.partyName)
-    assertEquals("masterName", partyInvitationSMSGToDeclined!!.invitedByMaster)
+    assertEquals("player1", partyInvitationSMSGToDeclined!!.invitedByMaster)
   }
 
   @Test
   @Order(8)
-  @Disabled("Depends on partyInvitationSMSGToDeclined being set by the disabled Order(7) test")
   fun `when player declines invitation an error is send to original requester`() {
     clientPlayer2.sendMessage(
       DeclinePartyInviteCMSG(
@@ -150,7 +143,6 @@ class PartyScenarios : BestiaNoSocketScenario() {
 
   @Test
   @Order(9)
-  @Disabled("Depends on partyInvitationSMSGToDeclined being set by the disabled Order(7) test")
   fun `when player waits for too long and the invitation expired he gets an error on accept`() {
     clientPlayer1.sendMessage(
       RequestPartyInvitationCMSG(

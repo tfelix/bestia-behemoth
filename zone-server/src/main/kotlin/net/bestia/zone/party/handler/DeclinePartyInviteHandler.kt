@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.DeclinePartyInviteCMSG
+import net.bestia.zone.party.PartyErrorSMSG
 import net.bestia.zone.party.PartyException
+import net.bestia.zone.party.PartyInvitationExpired
 import net.bestia.zone.party.PartyInviteDeclinedSMSG
 import net.bestia.zone.party.PartyService
 import org.springframework.stereotype.Component
@@ -20,9 +22,11 @@ class DeclinePartyInviteHandler(
   override fun handle(msg: DeclinePartyInviteCMSG): Boolean {
     LOG.trace { "RX: $msg" }
     try {
-      partyService.declineInvitation(msg.playerId, msg.invitationId)
+      val inviterAccountId = partyService.declineInvitation(msg.playerId, msg.invitationId)
 
-      outMessageProcessor.sendToPlayer(0, PartyInviteDeclinedSMSG(msg.invitationId))
+      outMessageProcessor.sendToPlayer(inviterAccountId, PartyInviteDeclinedSMSG(msg.invitationId))
+    } catch (_: PartyInvitationExpired) {
+      outMessageProcessor.sendToPlayer(msg.playerId, PartyErrorSMSG(PartyErrorSMSG.PartyErrorCode.INVITE_EXPIRED))
     } catch (e: PartyException) {
       LOG.error(e) { "Failed to process party invitation decline from player ${msg.playerId}" }
     }

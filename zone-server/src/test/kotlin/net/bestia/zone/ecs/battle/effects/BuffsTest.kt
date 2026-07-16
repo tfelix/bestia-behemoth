@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.buff
+package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.buff.StatusEffectDefinition
 import net.bestia.zone.battle.buff.StatusEffectSource

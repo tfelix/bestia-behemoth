@@ -1,21 +1,21 @@
 package net.bestia.zone.ecs.battle.status
 
 import net.bestia.bnet.proto.EnvelopeProto
-import net.bestia.bnet.proto.LevelComponentSMSGProto
-import net.bestia.bnet.proto.SpeedComponentSMSGProto
+import net.bestia.bnet.proto.SkillPointsSMSGProto
 import net.bestia.zone.message.EntitySMSG
 
-data class LevelSMSG(
+data class SkillPointsComponentSMSG(
   override val entityId: Long,
-  val level: Int,
+  val points: Int
 ) : EntitySMSG {
+
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
-    val levelComponent = LevelComponentSMSGProto.LevelComponentSMSG.newBuilder()
+    val skillPoints = SkillPointsSMSGProto.SkillPointsSMSG.newBuilder()
       .setEntityId(entityId)
-      .setLevel(level)
+      .setPoints(points)
 
     return EnvelopeProto.Envelope.newBuilder()
-      .setCompLevel(levelComponent)
+      .setCompSkillPoints(skillPoints)
       .build()
   }
 }

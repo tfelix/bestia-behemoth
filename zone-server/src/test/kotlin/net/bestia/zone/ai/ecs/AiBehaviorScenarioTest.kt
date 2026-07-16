@@ -27,7 +27,7 @@ import net.bestia.zone.ai.planner.actions.WanderAction
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.AvailableSkills
-import net.bestia.zone.ecs.battle.Damage
+import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position

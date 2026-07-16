@@ -5,6 +5,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaRepository
+import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

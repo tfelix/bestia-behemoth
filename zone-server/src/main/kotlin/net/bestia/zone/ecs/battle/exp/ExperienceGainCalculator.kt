@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle
+package net.bestia.zone.ecs.battle.exp
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaRepository

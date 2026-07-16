@@ -4,7 +4,7 @@ import net.bestia.zone.bestia.PlayerBestiaNotFoundException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.SelfSMSG
 import org.springframework.stereotype.Component

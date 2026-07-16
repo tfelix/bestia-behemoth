@@ -50,3 +50,13 @@ class PartyInvitationExpired() : PartyException(
   code = "PARTY_INVITATION_EXPIRED",
   message = "The invitation did expire"
 )
+
+class InvalidPartyNameException : PartyException(
+  code = "INVALID_PARTY_NAME",
+  message = "Party name is blank, too long or contains non-ASCII characters"
+)
+
+class NotPartyMemberException(accountId: Long) : PartyException(
+  code = "NOT_PARTY_MEMBER",
+  message = "Player $accountId is not a member of the party"
+)

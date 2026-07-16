@@ -8,6 +8,7 @@ zone:
   # Must be different for every zone which starts. So this probably needs to be overwritten
   # during deployment. This hard coded value is for development purposes.
   shard-id: 1
+  party-name-max-length: 20
 
 persistence:
   initial-delay-ms: 90000
@@ -16,6 +17,7 @@ persistence:
 world:
   tick-rate: 20
   parallel-systems: false
+  logout-protection-seconds: 20
 
 socket:
   ip-address: 127.0.0.1

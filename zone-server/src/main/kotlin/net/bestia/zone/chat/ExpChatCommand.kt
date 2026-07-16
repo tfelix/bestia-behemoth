@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.battle.status.Exp
+import net.bestia.zone.ecs.battle.exp.Exp
 import org.springframework.stereotype.Component
 
 /**

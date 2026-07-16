@@ -16,11 +16,14 @@ abstract class ChatCommand {
   }
 
   fun isAvailable(playerAuthorities: Set<Authority>): Boolean {
-    return playerAuthorities.contains(requiredAuthority)
+    val required = requiredAuthority ?: return true
+    return playerAuthorities.contains(required)
   }
 
   abstract fun getHelpText(): String
-  abstract val requiredAuthority: Authority
+
+  /** Authority needed to use this command, or null if every player may use it. */
+  open val requiredAuthority: Authority? = null
 
   protected abstract fun isMatch(cmdText: String): Boolean
   protected abstract fun execute(playerId: Long, cmdText: String): Boolean

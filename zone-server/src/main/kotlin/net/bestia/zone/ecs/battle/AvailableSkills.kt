@@ -10,10 +10,6 @@ class AvailableSkills(
   private var availableSkills: MutableMap<Long, Int>
 ) : Component {
 
-  constructor(
-    skillIds: Set<Long> = emptySet()
-  ) : this(skillIds.associateWith { 1 }.toMutableMap())
-
   fun knowsSkill(skillId: Long, skillLevel: Int = 0): Boolean {
     assert(skillLevel >= 0)
 

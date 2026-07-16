@@ -1,6 +1,7 @@
 package net.bestia.zone.party
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ZoneConfig
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
@@ -22,6 +23,7 @@ class PartyService(
   private val partyRepository: PartyRepository,
   private val masterRepository: MasterRepository,
   private val masterResolver: MasterResolver,
+  private val zoneConfig: ZoneConfig,
   private val world: WorldView,
 ) {
 
@@ -30,6 +32,13 @@ class PartyService(
     const val INVITATION_TIMEOUT_SECONDS = 60L
     const val MAX_INVITATIONS_IN_FLIGHT = 100
     private val LOG = KotlinLogging.logger { }
+  }
+
+  /** Result of [leaveParty]: distinguishes a full disband (requester was the owner) from a plain
+   * self-removal, since the handler needs to notify a different set of accounts either way. */
+  sealed class LeavePartyResult {
+    data class Disbanded(val partyId: Long, val notifiedAccountIds: List<Long>) : LeavePartyResult()
+    data class Left(val partyId: Long, val remainingMemberAccountIds: Set<Long>) : LeavePartyResult()
   }
 
   private class OpenPartyInvitation(
@@ -50,9 +59,20 @@ class PartyService(
       throw AlreadyInPartyException()
     }
 
-    val party = Party(owner = owner, name = partyName)
+    val trimmedName = partyName.trim()
+    if (trimmedName.isEmpty() ||
+      trimmedName.length > zoneConfig.partyNameMaxLength ||
+      !trimmedName.all { it.code in 32..126 }
+    ) {
+      throw InvalidPartyNameException()
+    }
 
-    return partyRepository.save(party)
+    val party = Party(owner = owner, name = trimmedName)
+    val saved = partyRepository.save(party)
+
+    syncPartyMembershipComponents(saved)
+
+    return saved
   }
 
   @Transactional
@@ -69,6 +89,7 @@ class PartyService(
     val oldPartyMemberAccountIds = party.member.map { member ->
       member.account.id
     }
+    val allAffectedAccountIds = oldPartyMemberAccountIds + party.owner.account.id
 
     // Master.party/ownedParty still reference this party - clear them first, otherwise Hibernate
     // flushes those managed Masters with a dangling reference to the row we're about to delete.
@@ -78,11 +99,13 @@ class PartyService(
 
     partyRepository.delete(party)
 
+    allAffectedAccountIds.forEach { clearPartyMembershipComponent(it) }
+
     return oldPartyMemberAccountIds
   }
 
   @Transactional(readOnly = true)
-  fun invitePlayerToParty(inviterAccountId: Long, invitedEntityId: Long): PartyInvitationSMSG {
+  fun invitePlayerToParty(inviterAccountId: Long, invitedAccountId: Long): PartyInvitationSMSG {
     if (pendingInvitations.size > MAX_INVITATIONS_IN_FLIGHT) {
       throw TooManyPartyInvitationsInFlightException()
     }
@@ -100,8 +123,7 @@ class PartyService(
       throw PartyFullException()
     }
 
-    // Find invited player by entity ID - we need to add this lookup
-    val invited = masterResolver.getSelectedMasterByAccountId(invitedEntityId)
+    val invited = masterResolver.getSelectedMasterByAccountId(invitedAccountId)
 
     val existingParty = partyRepository.findByMember(invited)
     if (existingParty != null) {
@@ -118,8 +140,8 @@ class PartyService(
     )
 
     pendingInvitations[invitationId] = OpenPartyInvitation(
-      invitedAccountId = invited.id,
-      inviterAccountId = inviter.id,
+      invitedAccountId = invited.account.id,
+      inviterAccountId = inviter.account.id,
       invitation = invitation
     )
 
@@ -130,7 +152,7 @@ class PartyService(
 
     LOG.debug {
       "Created party invite $invitationId (${invitation.partyName}) for player" +
-              " ${invited.id} by player ${inviter.id}"
+              " ${invited.account.id} by player ${inviter.account.id}"
     }
 
     return invitation
@@ -143,7 +165,7 @@ class PartyService(
 
     val player = masterResolver.getSelectedMasterByAccountId(playerId)
 
-    if (openInvitation.invitedAccountId != player.id) {
+    if (openInvitation.invitedAccountId != player.account.id) {
       LOG.warn { "Invitation $openInvitation was attempted to be accepted by player $player" }
 
       throw PartyInviteForbiddenException(playerId, invitationId)
@@ -172,6 +194,9 @@ class PartyService(
     // set on the member itself for the membership to actually persist.
     player.party = party
     masterRepository.save(player)
+    party.member.add(player)
+
+    syncPartyMembershipComponents(party)
   }
 
   fun declineInvitation(playerId: Long, invitationId: Long): Long {
@@ -185,6 +210,53 @@ class PartyService(
     return invitation.inviterAccountId
   }
 
+  /** Owner-initiated removal of a party member. The owner cannot remove themself this way - use
+   * [leaveParty], which disbands the party instead since there is no ownership transfer. */
+  @Transactional
+  fun removeMember(requesterId: Long, partyId: Long, memberAccountId: Long): Long {
+    val party = partyRepository.findByIdOrThrow(partyId)
+    val requester = masterResolver.getSelectedMasterByAccountId(requesterId)
+
+    if (party.owner.id != requester.id) {
+      throw NotPartyOwnerException()
+    }
+
+    val member = party.member.find { it.account.id == memberAccountId }
+      ?: throw NotPartyMemberException(memberAccountId)
+
+    party.member.remove(member)
+    member.party = null
+    masterRepository.save(member)
+
+    clearPartyMembershipComponent(memberAccountId)
+    syncPartyMembershipComponents(party)
+
+    return member.account.id
+  }
+
+  /** A member (or the owner) leaves their current party. There is no ownership transfer: if the
+   * owner leaves, the whole party is disbanded instead. */
+  @Transactional
+  fun leaveParty(playerId: Long): LeavePartyResult {
+    val player = masterResolver.getSelectedMasterByAccountId(playerId)
+    val party = player.party ?: throw NotPartyException()
+
+    return if (party.owner.id == player.id) {
+      val notified = disbandParty(playerId, party.id)
+      LeavePartyResult.Disbanded(party.id, notified)
+    } else {
+      party.member.remove(player)
+      player.party = null
+      masterRepository.save(player)
+
+      clearPartyMembershipComponent(playerId)
+      syncPartyMembershipComponents(party)
+
+      val remaining = party.member.map { it.account.id }.toSet() + party.owner.account.id
+      LeavePartyResult.Left(party.id, remaining)
+    }
+  }
+
   @Transactional(readOnly = true)
   fun getPartyInfo(partyId: Long): PartyInfoSMSG? {
     val party = partyRepository.findByIdOrNull(partyId)
@@ -195,31 +267,42 @@ class PartyService(
 
   @Transactional(readOnly = true)
   fun getPartyInfoForAccount(accountId: Long): PartyInfoSMSG? {
-    val activeMaster = masterResolver.getSelectedMasterByAccountId(accountId)
-    val party = partyRepository.findByMember(activeMaster)
-      ?: return null
+    val party = findPartyOfAccount(accountId) ?: return null
 
     return buildPartyInfo(party)
   }
 
+  /** Resolves the party of [accountId]'s active master, whether they are the owner or a plain
+   * member - [PartyRepository.findByMember] alone misses the owner, who isn't in `Party.member`. */
+  @Transactional(readOnly = true)
+  fun findPartyOfAccount(accountId: Long): Party? {
+    val activeMaster = masterResolver.getSelectedMasterByAccountId(accountId)
+
+    return partyRepository.findByOwner(activeMaster) ?: partyRepository.findByMember(activeMaster)
+  }
+
   private fun buildPartyInfo(party: Party): PartyInfoSMSG {
-    val partyMembers = party.member.mapNotNull { partyMemberMaster ->
+    val allMembers = party.member + party.owner
+    val partyMembers = allMembers.map { partyMemberMaster ->
       val partyMemberEntityId = findEntityIdByMaster(partyMemberMaster)
-        ?: return@mapNotNull null
 
-      world.modify(partyMemberEntityId) { id ->
-        val health = getOrThrow(id, Health::class)
-        val position = getOrThrow(id, Position::class)
+      if (partyMemberEntityId == null) {
+        PartyInfoSMSG.PartyMember(masterName = partyMemberMaster.name, onlineData = null)
+      } else {
+        world.modify(partyMemberEntityId) { id ->
+          val health = getOrThrow(id, Health::class)
+          val position = getOrThrow(id, Position::class)
 
-        PartyInfoSMSG.PartyMember(
-          masterName = partyMemberMaster.name,
-          onlineData = PartyInfoSMSG.PartyMember.OnlineData(
-            entityId = partyMemberEntityId,
-            areaName = "", // TODO: Get from ECS when this is implemented
-            position = position.toVec3L(),
-            hp = health
+          PartyInfoSMSG.PartyMember(
+            masterName = partyMemberMaster.name,
+            onlineData = PartyInfoSMSG.PartyMember.OnlineData(
+              entityId = partyMemberEntityId,
+              areaName = "", // TODO: Get from ECS when this is implemented
+              position = position.toVec3L(),
+              hp = health
+            )
           )
-        )
+        } ?: PartyInfoSMSG.PartyMember(masterName = partyMemberMaster.name, onlineData = null)
       }
     }
 
@@ -243,5 +326,23 @@ class PartyService(
     }
 
     return entityId
+  }
+
+  /** Refreshes the [PartyMembership] component on every currently-online member's (owner
+   * included) entity with the current roster. Offline members are skipped - they pick up the
+   * current roster the next time they log in and their master entity is spawned. */
+  private fun syncPartyMembershipComponents(party: Party) {
+    val allAccountIds = (party.member.map { it.account.id } + party.owner.account.id).toSet()
+
+    allAccountIds.forEach { accountId ->
+      val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return@forEach
+      world.modify(entityId) { id -> add(id, PartyMembership(party.id, allAccountIds)) }
+    }
+  }
+
+  /** Removes the [PartyMembership] component from a specific (now former) member's entity. */
+  private fun clearPartyMembershipComponent(accountId: Long) {
+    val entityId = masterResolver.getSelectedMasterEntityIdByAccountId(accountId) ?: return
+    world.modify(entityId) { id -> remove(id, PartyMembership::class) }
   }
 }

@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.Persistent

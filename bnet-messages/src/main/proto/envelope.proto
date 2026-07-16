@@ -47,6 +47,14 @@ import "messages/inventory/loot_item_cmsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/component_removed_smsg.proto";
+import "messages/party/accept_party_invite_cmsg.proto";
+import "messages/party/decline_party_invite_cmsg.proto";
+import "messages/party/party_invitation_smsg.proto";
+import "messages/party/party_invitation_created_smsg.proto";
+import "messages/party/party_invite_declined_smsg.proto";
+import "messages/party/party_info_smsg.proto";
+import "messages/party/party_error_smsg.proto";
+import "messages/party/disband_party_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -112,6 +120,16 @@ message Envelope {
     StatusEffectListSMSG comp_effects = 526;
     LogoutIntentSMSG comp_logout_intent = 527;
     ComponentRemovedSMSG comp_removed = 528;
+
+    // SOCIAL & PARTY 600
+    AcceptPartyInviteCMSG accept_party_invite = 600;
+    DeclinePartyInviteCMSG decline_party_invite = 601;
+    PartyInvitationSMSG party_invitation = 602;
+    PartyInvitationCreatedSMSG party_invitation_created = 603;
+    PartyInviteDeclinedSMSG party_invite_declined = 604;
+    PartyInfoSMSG party_info = 605;
+    PartyErrorSMSG party_error = 606;
+    DisbandPartySMSG disband_party = 607;
 
     // MISC
   }

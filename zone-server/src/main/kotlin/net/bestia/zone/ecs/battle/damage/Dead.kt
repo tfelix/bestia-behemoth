@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle
+package net.bestia.zone.ecs.battle.damage
 
 import net.bestia.zone.ecs.core.Component
 

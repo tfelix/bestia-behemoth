@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.buff
+package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.buff.StatusEffectDefinition
@@ -10,8 +10,8 @@ import net.bestia.zone.battle.buff.StatusEffectTriggerEvent
 import net.bestia.zone.battle.buff.ModifierMode
 import net.bestia.zone.battle.buff.StackBehavior
 import net.bestia.zone.battle.status.StatType
-import net.bestia.zone.ecs.battle.Damage
-import net.bestia.zone.ecs.battle.ReceivedDamageSystem
+import net.bestia.zone.ecs.battle.damage.Damage
+import net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld

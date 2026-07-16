@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.persistence.persisters
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Master as MasterComponent
-import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position

@@ -8,8 +8,8 @@ import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.battle.status.Exp
-import net.bestia.zone.ecs.battle.status.Level
+import net.bestia.zone.ecs.battle.exp.Exp
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.scanDirtyableComponentTypes
 import org.junit.jupiter.api.Assertions.assertTrue

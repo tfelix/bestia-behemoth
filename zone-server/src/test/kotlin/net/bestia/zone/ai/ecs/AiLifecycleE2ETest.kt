@@ -28,7 +28,7 @@ import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.AvailableSkills
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.ReceivedDamageSystem
+import net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem
 import net.bestia.zone.ecs.movement.MoveSystem
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed

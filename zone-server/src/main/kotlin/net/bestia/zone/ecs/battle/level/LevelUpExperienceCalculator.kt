@@ -1,4 +1,4 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.battle.level
 
 import org.springframework.stereotype.Component
 import kotlin.math.pow

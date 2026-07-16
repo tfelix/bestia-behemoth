@@ -2,8 +2,8 @@ package net.bestia.zone.battle
 
 import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.buff.StatusEffect
-import net.bestia.zone.ecs.battle.buff.StatusEffects
-import net.bestia.zone.ecs.battle.buff.StatAggregationSystem
+import net.bestia.zone.ecs.battle.effects.StatusEffects
+import net.bestia.zone.ecs.battle.effects.StatAggregationSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service

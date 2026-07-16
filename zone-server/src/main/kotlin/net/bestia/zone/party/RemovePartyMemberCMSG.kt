@@ -5,5 +5,5 @@ import net.bestia.zone.message.CMSG
 data class RemovePartyMemberCMSG(
   override val playerId: Long,
   val partyId: Long,
-  val playerEntityIdToRemove: Long
+  val memberAccountId: Long
 ) : CMSG
