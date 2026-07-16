@@ -1,6 +1,5 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.Dirtyable
@@ -14,7 +13,7 @@ data class Inventory(
   private var dirty = true
 
   class Item(
-    val itemId: Int,
+    val itemId: Long,
     var amount: Int,
     val uniqueId: Long = 0 // 0 means nothing special.
   )
@@ -42,7 +41,7 @@ data class Inventory(
   }
 
   // Remove item by itemId (removes first match)
-  fun removeItem(itemId: Int): Boolean {
+  fun removeItem(itemId: Long): Boolean {
     val removed = items.removeIf { it.itemId == itemId }
     if (removed) {
       markDirty()
@@ -68,7 +67,10 @@ data class Inventory(
   }
 
   // Get item by itemId (returns first match)
-  fun getItem(itemId: Int): Item? = items.find { it.itemId == itemId }
+  fun getItem(itemId: Int): Item? = items.find { it.itemId == itemId.toLong() }
+
+  // Get all items currently held
+  fun getItems(): List<Item> = items.toList()
 
   // Get number of items
   fun size(): Int = items.size
@@ -77,11 +79,11 @@ data class Inventory(
   fun isEmpty(): Boolean = items.isEmpty()
 
   // Check if inventory contains an item with the given itemId
-  fun hasItem(itemId: Int): Boolean = items.any { it.itemId == itemId }
+  fun hasItem(itemId: Int): Boolean = items.any { it.itemId == itemId.toLong() }
 
   // Update item amount by itemId (updates first match)
   fun updateItemAmount(itemId: Int, newAmount: Int): Boolean {
-    val item = items.find { it.itemId == itemId }
+    val item = items.find { it.itemId == itemId.toLong() }
     if (item != null) {
       val index = items.indexOf(item)
       items[index] = Item(item.itemId, newAmount, item.uniqueId)
@@ -92,14 +94,14 @@ data class Inventory(
   }
 
   fun removeAmount(itemId: Int, amount: Int): Boolean {
-    require(amount > 0)
-    val item = items.singleOrNull { it.itemId == itemId } ?: return false
+    require(amount > 0) { "amount > 0 required, was $amount" }
+    val item = items.singleOrNull { it.itemId == itemId.toLong() } ?: return false
     if (item.amount < amount) return false
 
     item.amount -= amount
 
     if (item.amount <= 0) {
-      removeItem(itemId)
+      removeItem(itemId.toLong())
     } else {
       markDirty()
     }
@@ -108,12 +110,12 @@ data class Inventory(
   }
 
   fun decItem(itemId: Int): Boolean {
-    val item = items.singleOrNull { it.itemId == itemId }
+    val item = items.singleOrNull { it.itemId == itemId.toLong() }
     if (item != null) {
       item.amount -= 1
 
       if (item.amount <= 0) {
-        removeItem(itemId)
+        removeItem(itemId.toLong())
       }
 
       markDirty()
@@ -124,7 +126,7 @@ data class Inventory(
   }
 
   fun incItem(itemId: Int): Boolean {
-    val item = items.singleOrNull { it.itemId == itemId }
+    val item = items.singleOrNull { it.itemId == itemId.toLong() }
     if (item != null) {
       item.amount += 1
 
@@ -152,7 +154,7 @@ data class Inventory(
       entityId = entityId,
       items = items.map { item ->
         InventoryComponentSMSG.InventoryItem(
-          itemId = item.itemId,
+          itemId = item.itemId.toInt(),
           uniqueId = item.uniqueId,
           amount = item.amount
         )

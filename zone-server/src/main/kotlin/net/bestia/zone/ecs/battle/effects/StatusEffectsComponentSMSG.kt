@@ -9,8 +9,6 @@ data class StatusEffectsComponentSMSG(
   val effects: List<StatusEffectEntry>
 ) : EntitySMSG {
 
-
-
   data class StatusEffectEntry(
     val effectId: Long,
     val level: Int,

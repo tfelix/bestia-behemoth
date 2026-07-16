@@ -1,15 +1,26 @@
 package net.bestia.zone.status
 
 import net.bestia.zone.battle.status.CurMax
+import net.bestia.zone.ecs.SyncTargets
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.message.EntitySMSG
+import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+
+private class TestCurMax(current: Int, max: Int) : CurMax(current, max) {
+  override fun toEntityMessage(entityId: Long): EntitySMSG =
+    throw UnsupportedOperationException("not needed for these tests")
+
+  override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.OwnerOnly
+}
 
 class CurMaxTest {
 
   @Test
   fun `should initialize with default values`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     assertEquals(0, curMax.current)
     assertEquals(0, curMax.max)
@@ -17,7 +28,7 @@ class CurMaxTest {
 
   @Test
   fun `should set max value correctly`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     curMax.max = 100
 
@@ -27,7 +38,7 @@ class CurMaxTest {
 
   @Test
   fun `should set current value correctly when less than max`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
     curMax.current = 50
 
@@ -37,7 +48,7 @@ class CurMaxTest {
 
   @Test
   fun `should clamp current to max when current is set higher than max`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 50
 
     curMax.current = 100
@@ -48,7 +59,7 @@ class CurMaxTest {
 
   @Test
   fun `should adjust current when max is reduced below current`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
     curMax.current = 80
 
@@ -60,7 +71,7 @@ class CurMaxTest {
 
   @Test
   fun `should not adjust current when max is increased above current`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 50
     curMax.current = 30
 
@@ -72,7 +83,7 @@ class CurMaxTest {
 
   @Test
   fun `should clamp current to zero when setting a negative current value`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
     curMax.current = 50
 
@@ -83,7 +94,7 @@ class CurMaxTest {
 
   @Test
   fun `should throw exception when setting negative max value`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     val exception = assertThrows<IllegalArgumentException> {
       curMax.max = -1
@@ -94,7 +105,7 @@ class CurMaxTest {
 
   @Test
   fun `should allow setting current equal to max`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
 
     curMax.current = 100
@@ -105,7 +116,7 @@ class CurMaxTest {
 
   @Test
   fun `should allow setting max equal to current`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
     curMax.current = 50
 
@@ -117,7 +128,7 @@ class CurMaxTest {
 
   @Test
   fun `should handle zero values correctly`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     curMax.max = 0
     curMax.current = 0
@@ -128,7 +139,7 @@ class CurMaxTest {
 
   @Test
   fun `toString should return correct format`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
     curMax.max = 100
     curMax.current = 75
 
@@ -137,14 +148,14 @@ class CurMaxTest {
 
   @Test
   fun `toString should work with zero values`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     assertEquals("0/0", curMax.toString())
   }
 
   @Test
   fun `should handle edge case where current is set before max`() {
-    val curMax = CurMax()
+    val curMax = TestCurMax(0, 0)
 
     curMax.current = 50  // This should be clamped to 0 since max is 0
 

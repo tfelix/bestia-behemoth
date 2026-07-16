@@ -1,6 +1,5 @@
 package net.bestia.zone.ecs.battle.status
 
-import net.bestia.zone.ecs.battle.status.HealthComponentSMSG
 import net.bestia.zone.battle.status.CurMax
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
@@ -14,45 +13,7 @@ import net.bestia.zone.party.PartyMembership
 class Health(
   current: Int,
   max: Int
-) : CurMax(), Component, Dirtyable {
-  private var dirty = true
-
-  override var current: Int
-    get() = super.current
-    set(value) {
-      val oldValue = super.current
-      super.current = value
-      if (super.current != oldValue) {
-        dirty = true
-      }
-    }
-
-  override var max: Int
-    get() = super.max
-    set(value) {
-      val oldValue = super.max
-      super.max = value
-      if (super.max != oldValue) {
-        dirty = true
-      }
-    }
-
-  init {
-    this.max = max
-    this.current = current
-  }
-
-  override fun isDirty(): Boolean {
-    return dirty
-  }
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
-  }
+) : CurMax(current, max), Component, Dirtyable {
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
     return HealthComponentSMSG(

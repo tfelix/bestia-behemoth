@@ -4,8 +4,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Attributes
-import net.bestia.zone.ecs.battle.status.CarryCapacity
-import net.bestia.zone.ecs.battle.status.CarryCapacityService
+import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.ecs.item.CarryCapacityService
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
@@ -91,6 +91,7 @@ class MasterEntityFactory(
         agility = 10
       )
       add(id, attributes)
+
       add(
         id,
         CarryCapacity(
@@ -100,11 +101,7 @@ class MasterEntityFactory(
             vitality = attributes.vitality,
             level = master.level
           )
-        ).also {
-          it.lastKnownStrength = attributes.strength
-          it.lastKnownVitality = attributes.vitality
-          it.lastKnownLevel = master.level
-        }
+        )
       )
 
       add(id, ActivePlayer)
@@ -116,7 +113,7 @@ class MasterEntityFactory(
     return Inventory(
       items = master.inventory.items.map { invItem ->
         Inventory.Item(
-          itemId = invItem.playerItem.id.toInt(),
+          itemId = invItem.playerItem.item.id,
           amount = invItem.amount,
           uniqueId = 0
         )

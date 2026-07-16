@@ -29,7 +29,7 @@ sealed interface StatusEffectTriggerAction {
       val reflected = (incoming.amount * percent).toInt().coerceIn(0, incoming.amount)
       if (reflected > 0) {
         world.update(incoming.sourceEntityId, default = { Damage() }) {
-          it.add(reflected, targetId)
+          it.add(reflected, targetId, isReflected = true)
         }
       }
       return incoming.amount - reflected

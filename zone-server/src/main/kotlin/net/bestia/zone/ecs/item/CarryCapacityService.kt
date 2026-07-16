@@ -1,6 +1,5 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.ItemRepository
 import org.springframework.stereotype.Component
 
@@ -19,7 +18,7 @@ class CarryCapacityService(
 
   fun computeCurrentWeight(items: List<Inventory.Item>): Int {
     return items.sumOf { item ->
-      val itemDef = itemRepository.findById(item.itemId.toLong()).orElse(null) ?: return@sumOf 0
+      val itemDef = itemRepository.findById(item.itemId).orElse(null) ?: return@sumOf 0
       itemDef.weight * item.amount
     }
   }

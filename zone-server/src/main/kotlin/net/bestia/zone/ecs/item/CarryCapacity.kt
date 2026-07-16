@@ -1,21 +1,28 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.battle.status.CurMax
-import net.bestia.zone.party.PartyMembership
 
-class Mana(
+/**
+ * Tracks carried inventory weight (current) against the weight limit derived from
+ * Attributes/Level (max). [lastKnownStrength]/[lastKnownVitality]/[lastKnownLevel] let
+ * [CarryCapacitySystem] skip recomputing max every tick.
+ */
+class CarryCapacity(
   current: Int,
-  max: Int
+  max: Int,
 ) : CurMax(current, max), Component {
 
+  var lastKnownStrength: Int = -1
+  var lastKnownVitality: Int = -1
+  var lastKnownLevel: Int = -1
+
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return ManaComponentSMSG(
+    return CarryCapacityComponentSMSG(
       entityId = entityId,
       current = current,
       max = max
@@ -23,9 +30,6 @@ class Mana(
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets {
-    val owner = world.get(entityId, Account::class)?.accountId
-      ?: return SyncTargets.Accounts(emptySet())
-    val partyMemberAccountIds = world.get(entityId, PartyMembership::class)?.memberAccountIds ?: emptySet()
-    return SyncTargets.Accounts(partyMemberAccountIds + owner)
+    return SyncTargets.OwnerOnly
   }
 }

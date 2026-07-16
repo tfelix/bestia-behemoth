@@ -3,19 +3,22 @@ package net.bestia.zone.chat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.item.ItemRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
- * Spawns items.
+ * Spawns items via [ObtainItemIntent.CreateItemIntent], the same "create an item out of thin air"
+ * mechanism used for e.g. quest rewards - so it gets the same capacity checks and drop-to-ground
+ * fallback as everything else instead of bypassing them.
  */
 @Component
 class ItemChatCommand(
   private val itemRepository: ItemRepository,
-  private val inventoryItemFactory: InventoryItemFactory,
-  private val connectionInfoService: ConnectionInfoService
+  private val connectionInfoService: ConnectionInfoService,
+  private val world: WorldView
 ) : ChatCommand() {
 
   companion object {
@@ -40,7 +43,6 @@ class ItemChatCommand(
     val amount = match.groupValues[2].toInt()
 
     val activeEntityId = connectionInfoService.getActiveEntityId(playerId)
-    val masterId = connectionInfoService.getMasterId(playerId)
 
     val item = itemArg.toLongOrNull()
       ?.let { itemRepository.findByIdOrNull(it) }
@@ -51,8 +53,11 @@ class ItemChatCommand(
       return false
     }
 
-    inventoryItemFactory.addItemToMasterAndEntity(masterId, activeEntityId, item.identifier, amount)
-    LOG.info { "Added ${amount}x ${item.identifier} to master $masterId (active entity $activeEntityId)" }
+    world.modify(activeEntityId) { id ->
+      add(id, ObtainItemIntent.CreateItemIntent(itemId = item.id, amount = amount))
+    }
+
+    LOG.info { "Queued create-item intent: ${amount}x ${item.identifier} for entity $activeEntityId (player $playerId)" }
 
     return true
   }

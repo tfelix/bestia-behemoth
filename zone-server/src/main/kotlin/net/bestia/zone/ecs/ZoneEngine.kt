@@ -4,19 +4,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
-import org.reflections.Reflections
-import org.reflections.scanners.Scanners
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.iterator
-import kotlin.reflect.KClass
 
 /**
  * Owns the running ecs [World]: it drives the single-threaded tick loop and, after every tick,
@@ -41,6 +38,7 @@ class ZoneEngine(
   private val entityAOIService: EntityAOIService,
   private val playerAOIService: ActivePlayerAOIService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
   private data class RemovedComponentRecord(
@@ -49,18 +47,9 @@ class ZoneEngine(
     val targets: SyncTargets,
   )
 
-  private val syncableComponentTypes = Reflections("net.bestia.zone", Scanners.SubTypes)
-    .getSubTypesOf(Dirtyable::class.java)
-    .asSequence()
-    .filter { Component::class.java.isAssignableFrom(it) && !it.isInterface }
-    .map {
-      @Suppress("UNCHECKED_CAST")
-      it.kotlin as KClass<out Component>
-    }
-    .toList()
+  private val syncableComponentTypes = scanDirtyableComponentTypes()
 
   private val tickExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, "zone-tick") }
-  private val externalExecutor = Executors.newFixedThreadPool(2) { r -> Thread(r, "zone-external") }
   private val removedComponentOutbox = ConcurrentLinkedQueue<RemovedComponentRecord>()
 
   @Volatile
@@ -117,19 +106,16 @@ class ZoneEngine(
   fun stop() {
     running = false
     tickExecutor.shutdown()
-    externalExecutor.shutdown()
     try {
       if (!tickExecutor.awaitTermination(5, TimeUnit.SECONDS)) tickExecutor.shutdownNow()
-      if (!externalExecutor.awaitTermination(5, TimeUnit.SECONDS)) externalExecutor.shutdownNow()
     } catch (_: InterruptedException) {
       tickExecutor.shutdownNow()
-      externalExecutor.shutdownNow()
     }
   }
 
-  /** Runs [action] on the external worker pool (network sends, loot spawn, ...). */
+  /** Runs [action] on the shared [AsyncJobExecutor] pool (network sends, loot spawn, ...). */
   fun queueExternalJob(action: () -> Unit) {
-    externalExecutor.submit(action)
+    asyncJobExecutor.submit(action)
   }
 
   /**
@@ -199,10 +185,10 @@ class ZoneEngine(
       }
 
       if (broadcastMsgs.isNotEmpty()) {
-        externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, broadcastMsgs) }
+        asyncJobExecutor.submit(key = entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, broadcastMsgs) }
       }
       byAccountMsgs.forEach { (accountId, msgs) ->
-        externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msgs) }
+        asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msgs) }
       }
     }
 
@@ -223,16 +209,16 @@ class ZoneEngine(
       when (val targets = record.targets) {
         is SyncTargets.PublicInRange -> {
           val pos = world.get(record.entityId, Position::class)?.toVec3L() ?: continue
-          externalExecutor.submit { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
+          asyncJobExecutor.submit(key = record.entityId) { outMessageProcessor.sendToAllPlayersInRange(pos, msg) }
         }
 
         is SyncTargets.OwnerOnly -> {
           val owner = world.get(record.entityId, Account::class)?.accountId ?: continue
-          externalExecutor.submit { outMessageProcessor.sendToPlayer(owner, msg) }
+          asyncJobExecutor.submit(key = owner) { outMessageProcessor.sendToPlayer(owner, msg) }
         }
 
         is SyncTargets.Accounts -> targets.accountIds.forEach { accountId ->
-          externalExecutor.submit { outMessageProcessor.sendToPlayer(accountId, msg) }
+          asyncJobExecutor.submit(key = accountId) { outMessageProcessor.sendToPlayer(accountId, msg) }
         }
       }
     }

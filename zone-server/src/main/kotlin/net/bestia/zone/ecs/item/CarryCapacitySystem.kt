@@ -1,16 +1,16 @@
-package net.bestia.zone.ecs.battle.status
+package net.bestia.zone.ecs.item
 
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.Attributes
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.item.Inventory
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Keeps [CarryCapacity] up to date without recomputing it every tick: [CarryCapacity.max] is only
- * recalculated when [Attributes] or [Level] actually changed since the last check (tracked via
+ * recalculated when [net.bestia.zone.ecs.battle.status.Attributes] or [Level] actually changed since the last check (tracked via
  * [CarryCapacity]'s own lastKnown* fields), and [CarryCapacity.current] is only recalculated when
  * [Inventory.isDirty] is true. Runs after [net.bestia.zone.ecs.battle.exp.ExpSystem] (60) so a
  * same-tick level-up is already reflected in [Level].
