@@ -35,7 +35,7 @@ class Level(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return LevelSMSG(entityId = entityId, level = level)
+    return LevelComponentSMSG(entityId = entityId, level = level)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange

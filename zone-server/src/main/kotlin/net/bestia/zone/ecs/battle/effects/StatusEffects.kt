@@ -102,10 +102,10 @@ class StatusEffects(
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
     val visible = activeEffects.filter { it.showIcon }
-    return StatusEffectListSMSG(
+    return StatusEffectsComponentSMSG(
       entityId = entityId,
       effects = visible.map {
-        StatusEffectListSMSG.StatusEffectEntry(
+        StatusEffectsComponentSMSG.StatusEffectEntry(
           effectId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,

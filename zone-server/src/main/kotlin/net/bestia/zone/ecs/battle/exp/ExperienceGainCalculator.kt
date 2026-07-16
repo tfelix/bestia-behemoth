@@ -6,6 +6,7 @@ import net.bestia.zone.util.EntityId
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import kotlin.math.floor
+import kotlin.math.max
 
 /**
  * Splits a mob's given exp across its attackers proportionally to the damage they
@@ -18,14 +19,14 @@ class ExperienceGainCalculator(
 ) {
 
   fun calculate(
-    bestiaId: Long,
+    killedBestiaId: Long,
     damagePercentages: Map<EntityId, Float>,
     attackingPlayerCount: Int,
   ): Map<EntityId, Int> {
-    val killedBestia = bestiaRepository.findByIdOrNull(bestiaId)
+    val killedBestia = bestiaRepository.findByIdOrNull(killedBestiaId)
 
     if (killedBestia == null) {
-      LOG.warn { "Bestia $bestiaId not found, can not determine earned EXP" }
+      LOG.warn { "Bestia $killedBestiaId not found, can not determine earned EXP" }
       return emptyMap()
     }
 

@@ -13,26 +13,27 @@ import net.bestia.zone.ecs.core.Component
  * member plus one small consumer system reading [effective], not a redesign of this component.
  */
 class StatModifiers : Component {
-  private val additive = mutableMapOf<StatType, Double>()
-  private val multiplicative = mutableMapOf<StatType, Double>()
+  private val additive = mutableMapOf<StatType, Float>()
+  private val multiplicative = mutableMapOf<StatType, Float>()
 
   fun clear() {
     additive.clear()
     multiplicative.clear()
   }
 
-  fun addModifier(stat: StatType, mode: ModifierMode, value: Double) {
+  fun addModifier(stat: StatType, mode: ModifierMode, value: Float) {
     val target = when (mode) {
       ModifierMode.ADDITIVE -> additive
       ModifierMode.MULTIPLICATIVE -> multiplicative
     }
-    target.merge(stat, value, Double::plus)
+    target.merge(stat, value, Float::plus)
   }
 
   /** Applies all aggregated modifiers for [stat] to [base]: additive first, then multiplicative. */
   fun effective(base: Float, stat: StatType): Float {
-    val flat = additive[stat] ?: 0.0
-    val pct = multiplicative[stat] ?: 0.0
-    return ((base + flat) * (1.0 + pct)).toFloat()
+    val flat = additive[stat] ?: 0.0f
+    val pct = multiplicative[stat] ?: 0.0f
+
+    return (base + flat) * (1.0f + pct)
   }
 }

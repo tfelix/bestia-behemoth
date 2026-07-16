@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.core.Component
  * This contains the known skill ids and is mostly important for NPC controlled bestia where the AI needs to access
  * the known skills without doing a DB lookup for attack calculations.
  */
-class AvailableSkills(
+class KnownSkills(
   private var availableSkills: MutableMap<Long, Int>
 ) : Component {
 

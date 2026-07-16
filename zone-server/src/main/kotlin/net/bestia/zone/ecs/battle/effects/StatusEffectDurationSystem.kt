@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(46)
 class StatusEffectDurationSystem : System {
 
-  override val schedule: Schedule = Schedule.EveryTick
+  override val schedule: Schedule = Schedule.EverySeconds(1f)
   override val writes: ComponentClassSet = setOf(StatusEffects::class)
 
   override fun update(world: World, deltaTime: Float) {

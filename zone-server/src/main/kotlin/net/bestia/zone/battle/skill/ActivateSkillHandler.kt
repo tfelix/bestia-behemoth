@@ -2,7 +2,7 @@ package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.StatusEffectService
-import net.bestia.zone.ecs.battle.AvailableSkills
+import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
@@ -35,7 +35,7 @@ class ActivateSkillHandler(
     // Resolve the skill knowledge inside a lock-held read scope so the component is never touched
     // (or mutated) off the tick thread. Returns null when the entity has no AvailableSkills at all.
     val knowsSkill = world.read {
-      get(activeEntityId, AvailableSkills::class)?.knowsSkill(msg.attackId, msg.skillLevel)
+      get(activeEntityId, KnownSkills::class)?.knowsSkill(msg.attackId, msg.skillLevel)
     }
 
     if (knowsSkill == null) {

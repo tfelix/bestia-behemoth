@@ -4,7 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.LevelComponentSMSGProto
 import net.bestia.zone.message.EntitySMSG
 
-data class LevelSMSG(
+data class LevelComponentSMSG(
   override val entityId: Long,
   val level: Int,
 ) : EntitySMSG {

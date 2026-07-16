@@ -4,10 +4,12 @@ import net.bestia.bnet.proto.StatusEffectListSMSGProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.message.EntitySMSG
 
-data class StatusEffectListSMSG(
+data class StatusEffectsComponentSMSG(
   override val entityId: Long,
   val effects: List<StatusEffectEntry>
 ) : EntitySMSG {
+
+
 
   data class StatusEffectEntry(
     val effectId: Long,

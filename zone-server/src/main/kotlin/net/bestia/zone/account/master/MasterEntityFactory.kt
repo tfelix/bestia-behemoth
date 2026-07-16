@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.LearnedSkillRepository
-import net.bestia.zone.ecs.battle.AvailableSkills
+import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
@@ -58,7 +58,7 @@ class MasterEntityFactory(
       add(id, Level(master.level))
       add(id, Speed())
       add(id, Health(current = 10, max = 10))
-      add(id, AvailableSkills(learnedSkillIds.toMutableMap()))
+      add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, SkillPoints(master.skillPoints))
       add(
         id,

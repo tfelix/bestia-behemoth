@@ -46,7 +46,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 1,
     )
@@ -59,7 +59,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 0.75f, 2L to 0.25f),
       attackingPlayerCount = 1,
     )
@@ -73,7 +73,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 0.5f, 2L to 0.5f),
       attackingPlayerCount = 2,
     )
@@ -88,7 +88,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 11,
     )
@@ -102,7 +102,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 50,
     )
@@ -115,7 +115,7 @@ class ExperienceCalculatorTest {
     givenBestiaExpReward(100)
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 0,
     )
@@ -128,7 +128,7 @@ class ExperienceCalculatorTest {
     every { bestiaRepository.findById(bestiaId) } returns Optional.empty()
 
     val result = calculator.calculate(
-      bestiaId = bestiaId,
+      killedBestiaId = bestiaId,
       damagePercentages = mapOf(1L to 1f),
       attackingPlayerCount = 1,
     )

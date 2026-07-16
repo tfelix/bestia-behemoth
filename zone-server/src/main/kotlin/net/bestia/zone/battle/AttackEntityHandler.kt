@@ -2,7 +2,7 @@ package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.battle.AvailableSkills
+import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.util.EntityId
@@ -70,7 +70,7 @@ class AttackEntityHandler(
       true
     } else {
       world.read {
-        getOrThrow(attackingEntityId, AvailableSkills::class).knowsSkill(usedSkillId, usedSkillLevel)
+        getOrThrow(attackingEntityId, KnownSkills::class).knowsSkill(usedSkillId, usedSkillLevel)
       }
     }
   }

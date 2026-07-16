@@ -120,7 +120,7 @@ class StatusEffectsTest {
     effects.applyEffect(visible, level = 1, instanceId = 1L, sourceEntityId = null, durationSeconds = 10.0)
     effects.applyEffect(hidden, level = 1, instanceId = 2L, sourceEntityId = null, durationSeconds = 10.0)
 
-    val message = effects.toEntityMessage(entityId = 42L) as StatusEffectListSMSG
+    val message = effects.toEntityMessage(entityId = 42L) as StatusEffectsComponentSMSG
 
     assertEquals(42L, message.entityId)
     assertEquals(1, message.effects.size)
@@ -134,7 +134,7 @@ class StatusEffectsTest {
 
     effects.applyEffect(debuff, level = 1, instanceId = 1L, sourceEntityId = null, durationSeconds = 10.0)
 
-    val message = effects.toEntityMessage(entityId = 1L) as StatusEffectListSMSG
+    val message = effects.toEntityMessage(entityId = 1L) as StatusEffectsComponentSMSG
     assertTrue(message.effects.first().debuff)
   }
 }

@@ -2,7 +2,7 @@ package net.bestia.zone.battle.skill
 
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
-import net.bestia.zone.ecs.battle.AvailableSkills
+import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId
@@ -55,7 +55,7 @@ class BestiaSkillLearnService(
     if (entityId != null) {
       world.modify(entityId) { entityId ->
         // AvailableSkills is internal (not client-synced), so no dirty flag is involved.
-        get(entityId, AvailableSkills::class)?.learnOrUpdate(skillId)
+        get(entityId, KnownSkills::class)?.learnOrUpdate(skillId)
       }
     }
 
