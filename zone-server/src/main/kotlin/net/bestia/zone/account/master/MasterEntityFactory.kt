@@ -5,7 +5,7 @@ import net.bestia.zone.battle.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Attributes
 import net.bestia.zone.ecs.item.CarryCapacity
-import net.bestia.zone.ecs.item.CarryCapacityService
+import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
@@ -34,7 +34,7 @@ class MasterEntityFactory(
   private val masterRepository: MasterRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
-  private val carryCapacityService: CarryCapacityService,
+  private val weightLimitCalculator: WeightLimitCalculator,
 ) {
 
   /**
@@ -95,8 +95,8 @@ class MasterEntityFactory(
       add(
         id,
         CarryCapacity(
-          current = carryCapacityService.computeCurrentWeight(inventory.getItems()),
-          max = carryCapacityService.computeWeightLimit(
+          current = inventory.totalWeight,
+          max = weightLimitCalculator.computeWeightLimit(
             strength = attributes.strength,
             vitality = attributes.vitality,
             level = master.level
@@ -114,6 +114,7 @@ class MasterEntityFactory(
       items = master.inventory.items.map { invItem ->
         Inventory.Item(
           itemId = invItem.playerItem.item.id,
+          weight = invItem.playerItem.item.weight,
           amount = invItem.amount,
           playerItemId = invItem.playerItem.id
         )

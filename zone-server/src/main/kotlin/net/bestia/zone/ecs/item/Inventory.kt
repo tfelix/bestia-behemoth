@@ -14,9 +14,14 @@ data class Inventory(
 
   class Item(
     val itemId: Long,
+    val weight: Int,
     var amount: Int,
     val playerItemId: Long? = null // null means the item is not uniquely identifiable as a player item
-  )
+  ) {
+    val totalWeight get() = amount * weight
+  }
+
+  val totalWeight get() = items.sumOf { it.totalWeight }
 
   // Add a single item
   fun addItem(item: Item) {

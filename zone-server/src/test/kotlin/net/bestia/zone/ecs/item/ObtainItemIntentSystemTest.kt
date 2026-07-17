@@ -207,8 +207,8 @@ class ObtainItemIntentSystemTest {
   fun `granting an item is reflected in carry capacity in the same tick`() {
     // Wires the real CarryCapacitySystem alongside it (Order 61, after ObtainItemIntentSystem's
     // 59) to prove the intended same-tick ordering actually holds, not just document it.
-    val carryCapacityService = CarryCapacityService(itemRepository)
-    world = testWorld(systems = listOf(newSystem(), CarryCapacitySystem(carryCapacityService)))
+    val weightLimitCalculator = WeightLimitCalculator(itemRepository)
+    world = testWorld(systems = listOf(newSystem(), CarryCapacitySystem(weightLimitCalculator)))
     stub(sword)
     every { inventoryItemFactory.addItemToMaster(MASTER_ID, sword.identifier, 1) } returns sword
 

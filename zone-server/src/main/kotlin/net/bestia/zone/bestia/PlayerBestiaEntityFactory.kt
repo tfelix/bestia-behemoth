@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Attributes
 import net.bestia.zone.ecs.item.CarryCapacity
-import net.bestia.zone.ecs.item.CarryCapacityService
+import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -23,7 +23,7 @@ class PlayerBestiaEntityFactory(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val world: WorldView,
   private val connectionInfoService: ConnectionInfoService,
-  private val carryCapacityService: CarryCapacityService,
+  private val weightLimitCalculator: WeightLimitCalculator,
 ) {
 
   /**
@@ -74,8 +74,8 @@ class PlayerBestiaEntityFactory(
       add(
         id,
         CarryCapacity(
-          current = carryCapacityService.computeCurrentWeight(inventory.getItems()),
-          max = carryCapacityService.computeWeightLimit(
+          current = inventory.totalWeight,
+          max = weightLimitCalculator.computeWeightLimit(
             strength = attributes.strength,
             vitality = attributes.vitality,
             level = playerBestia.level
@@ -105,6 +105,7 @@ class PlayerBestiaEntityFactory(
         Inventory.Item(
           itemId = invItem.playerItem.item.id,
           amount = invItem.amount,
+          weight = invItem.playerItem.item.weight,
           playerItemId = null
         )
       }.toMutableList()

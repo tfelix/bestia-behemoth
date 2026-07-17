@@ -9,12 +9,10 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.Item
-import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.inventory.InventoryItemFactory
 import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -25,24 +23,18 @@ import org.springframework.stereotype.Component
  * change is already reflected in [CarryCapacity] this tick (same pattern as `ExpSystem` (60) ->
  * [CarryCapacitySystem] for level-ups).
  *
- * The durable DB write (a master's persisted inventory row) is intentionally not done here: it is
- * a JPA/DB call, and the ECS tick thread must never block on I/O. It is handed off to
- * [AsyncJobExecutor] instead, keyed by masterId so concurrent grants for the same master never
- * race each other, and runs immediately on a background worker rather than waiting for the next
- * periodic [net.bestia.zone.ecs.persistence.EntityPersistenceService] sync cycle.
  */
 @Component
 @Order(59)
 class ObtainItemIntentSystem(
-  private val itemRepository: ItemRepository,
   private val lootItemEntityFactory: LootItemEntityFactory,
+  private val itemWeightRegistry: ItemWeightRegistry,
   private val inventoryItemFactory: InventoryItemFactory,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
 ) : System {
 
   private data class ClaimedLoot(
-    val item: Item,
     val amount: Int,
     val playerItemId: Long,
   )
@@ -94,14 +86,14 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      val item = itemRepository.findByIdOrNull(itemVisual.itemId)
-      if (item == null) {
+      val itemWeight = itemWeightRegistry.getWeight(itemVisual.itemId)
+      if (itemWeight == null) {
         LOG.error { "Ground item $itemStackEntityId references unknown item ${itemVisual.itemId}; destroying it" }
         destroy(itemStackEntityId)
         return@modify null
       }
 
-      if (!canObtain(this, entityId, item.weight * itemVisual.amount)) {
+      if (!canObtain(this, entityId, itemWeight * itemVisual.amount)) {
         return@modify null // over capacity (or no inventory at all) - leave the stack on the ground
       }
 
@@ -121,13 +113,13 @@ class ObtainItemIntentSystem(
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
-    val item = itemRepository.findByIdOrNull(intent.itemId)
-    if (item == null) {
+    val itemWeight = itemWeightRegistry.getWeight(intent.itemId)
+    if (itemWeight == null) {
       LOG.warn { "CreateItemIntent for entity $entityId references unknown item ${intent.itemId}, ignoring" }
       return
     }
 
-    if (canObtain(world, entityId, item.weight * intent.amount)) {
+    if (canObtain(world, entityId, itemWeight * intent.amount)) {
       grantItem(world, entityId, item, intent.amount)
       return
     }
@@ -136,10 +128,11 @@ class ObtainItemIntentSystem(
     // drop it on the ground at the entity's feet instead of losing it.
     val pos = world.get(entityId, Position::class)?.toVec3L()
     if (pos == null) {
-      LOG.warn { "Entity $entityId can not carry item ${item.identifier} and has no Position to drop it at; item lost" }
+      LOG.warn { "Entity $entityId can not carry item ${intent.itemId} and has no Position to drop it at; item lost" }
       return
     }
 
+    // FIXME DO NOT RE_CREATE THE LOOT ITEM ENITIY THIS WILL RESPAWN. PLEASE JUST DO NOT DESTROY THE EXISTING ENTITY.
     lootItemEntityFactory.createLootEntity(
       world = world,
       itemId = item.id,
@@ -157,32 +150,33 @@ class ObtainItemIntentSystem(
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
-  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, playerItemId: Long? = null) {
+  private fun grantItem(world: World, entityId: EntityId, itemId: Long, amount: Int, playerItemId: Long? = null) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
-      LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.identifier} lost" }
+      LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item $itemId lost" }
       return
     }
-    inventory.addItem(Inventory.Item(itemId = item.id, amount = amount))
+    inventory.addItem(Inventory.Item(itemId = itemId, amount = amount))
 
     schedulePersist(world, entityId, item, amount)
   }
 
-  private fun schedulePersist(world: World, entityId: EntityId, item: Item, amount: Int) {
+  private fun schedulePersist(world: World, entityId: EntityId, itemId: Long, amount: Int) {
     val accountId = world.get(entityId, Account::class)?.accountId
     if (accountId == null) {
-      LOG.warn { "Entity $entityId has no Account component, granted item ${item.identifier} will not be persisted" }
+      LOG.warn { "Entity $entityId has no Account component, granted item $itemId will not be persisted" }
       return
     }
 
     val masterId = try {
       connectionInfoService.getMasterId(accountId)
     } catch (e: Exception) {
-      LOG.warn(e) { "Could not resolve master for account $accountId, granted item ${item.identifier} will not be persisted" }
+      LOG.warn(e) { "Could not resolve master for account $accountId, granted item $itemId will not be persisted" }
       return
     }
 
     asyncJobExecutor.submit(key = masterId) {
+      // TODO look into how this would work with an item inventory
       inventoryItemFactory.addItemToMaster(masterId, item.identifier, amount)
     }
   }
