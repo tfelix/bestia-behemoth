@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle.effects
 
-import net.bestia.zone.battle.buff.ModifierMode
+import net.bestia.zone.battle.status.ModifierMode
 import net.bestia.zone.battle.status.StatType
 import net.bestia.zone.ecs.core.Component
 

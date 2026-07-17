@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.battle.effects
 
-import net.bestia.zone.battle.buff.StatusEffectDefinition
-import net.bestia.zone.battle.buff.StatusEffectSource
-import net.bestia.zone.battle.buff.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectDefinition
+import net.bestia.zone.battle.status.StatusEffectSource
+import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.account.Account

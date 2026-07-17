@@ -1,8 +1,8 @@
 package net.bestia.zone.ecs.battle.effects
 
-import net.bestia.zone.battle.buff.StatusEffectDefinition
-import net.bestia.zone.battle.buff.StatusEffectSource
-import net.bestia.zone.battle.buff.StackBehavior
+import net.bestia.zone.battle.status.StatusEffectDefinition
+import net.bestia.zone.battle.status.StatusEffectSource
+import net.bestia.zone.battle.status.StackBehavior
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

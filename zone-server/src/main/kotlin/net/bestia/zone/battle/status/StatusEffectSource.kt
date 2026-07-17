@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 /**
  * Purely descriptive classification of a [StatusEffectDefinition] (client icon styling, future

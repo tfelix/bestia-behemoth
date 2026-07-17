@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 /**
  * Gameplay events a [net.bestia.zone.ecs.battle.effects.StatusEffectDamageInterceptSystem]-style system

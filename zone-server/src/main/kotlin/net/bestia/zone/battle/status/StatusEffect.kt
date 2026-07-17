@@ -1,6 +1,4 @@
-package net.bestia.zone.battle.buff
-
-import net.bestia.zone.battle.status.StatType
+package net.bestia.zone.battle.status
 
 /**
  * A single effect a [StatusEffectDefinition] applies while active. Extensible without touching any

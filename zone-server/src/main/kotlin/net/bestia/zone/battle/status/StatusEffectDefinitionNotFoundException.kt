@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 import net.bestia.zone.BestiaException
 

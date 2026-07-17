@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 /** How a [StatusEffect.StatModifierEffect] combines its value with a stat's base value. */
 enum class ModifierMode {

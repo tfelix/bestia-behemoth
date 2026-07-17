@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 /**
  * Determines what happens when a status effect is (re-)applied to a target that may already carry

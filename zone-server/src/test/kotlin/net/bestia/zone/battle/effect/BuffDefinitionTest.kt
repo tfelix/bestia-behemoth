@@ -1,5 +1,7 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.effect
 
+import net.bestia.zone.battle.status.StatusEffectDefinition
+import net.bestia.zone.battle.status.StatusEffectSource
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

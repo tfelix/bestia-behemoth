@@ -1,7 +1,7 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffect
+import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffect
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.effects.StatAggregationSystem
 import net.bestia.zone.ecs.core.World
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Entry point for applying a status effect to a target entity - what skill scripts and attack
- * handlers call. Resolves the [net.bestia.zone.battle.buff.StatusEffectDefinition], generates a fresh
+ * handlers call. Resolves the [net.bestia.zone.battle.status.StatusEffectDefinition], generates a fresh
  * instance id, and delegates stacking rules to [StatusEffects.applyEffect].
  */
 @Service

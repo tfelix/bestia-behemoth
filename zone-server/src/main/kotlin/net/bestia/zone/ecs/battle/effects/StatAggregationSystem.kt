@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.effects
 
-import net.bestia.zone.battle.buff.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.buff.StatusEffect
+import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffect
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World

@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.buff
+package net.bestia.zone.battle.status
 
 /**
  * Static, in-memory definition of a status effect (buff/debuff): what it's called, how it scales with level, how
