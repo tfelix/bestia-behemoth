@@ -14,3 +14,17 @@ data class Attributes(
   var willpower: Int,
   var agility: Int
 ) : Component
+
+data class AttributeMod(
+  val dAdd: Int,
+  val dMultiply: Float
+)
+
+interface AttributesTest {
+  fun getStrength(): Int
+  fun getIntelligence(): Int
+  fun getVitality(): Int
+  fun getDexterity(): Int
+  fun getWillpower(): Int
+  fun getAgility(): Int
+}

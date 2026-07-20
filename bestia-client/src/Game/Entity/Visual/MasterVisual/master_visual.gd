@@ -4,6 +4,7 @@ class_name MasterVisual extends Visual
 #  if it thinks after a certain time not all entities are there e.g. the master.
 
 @onready var _anim_player: AnimationPlayer = $Mage/AnimationPlayer
+@onready var _cast_bar: CastBar = $CastBar
 
 
 ## Only BodyType.BODY_M_1 (0) exists today, so this always resolves to the static $Mage
@@ -21,6 +22,14 @@ func setup_visual(msg: MasterVisualComponentSMSG) -> void:
 
 func _apply_mage_body(_msg: MasterVisualComponentSMSG) -> void:
 	pass
+
+
+func update_casting(msg: CastingComponentSMSG) -> void:
+	_cast_bar.update_casting(msg)
+
+
+func clear_casting() -> void:
+	_cast_bar.clear_casting()
 
 
 func update_animation(msg: AnimationComponentSMSG) -> void:

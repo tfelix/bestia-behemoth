@@ -160,6 +160,13 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# no handling so far. The local player's carry capacity is handled directly by
 		# MasterProfile, same as InventoryComponentSMSG below.
 		pass
+	elif msg is CastingComponentSMSG:
+		entity.update_casting(msg)
+	elif msg is ComponentRemovedSMSG:
+		# Only cast removals are routed here (see connection_manager.gd); a completed and an
+		# interrupted cast are indistinguishable on the wire and both just end the bar.
+		if msg.IsCasting():
+			entity.clear_casting()
 	elif msg is BuffListSMSG:
 		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:

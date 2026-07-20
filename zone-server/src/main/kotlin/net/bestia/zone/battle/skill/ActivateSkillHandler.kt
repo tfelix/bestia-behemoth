@@ -1,25 +1,29 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
 
 /**
- * Handles a player activating a learned skill from the UI (Skills window or hotbar),
- * for whichever entity (master or an owned bestia) is currently active. Only validates
- * that the skill is known at the requested level and announces the activation to nearby
- * players - target selection and damage/effect resolution are handled elsewhere/later.
+ * Handles a player activating a learned skill from the UI (Skills window or hotbar), for whichever
+ * entity (master or an owned bestia) is currently active.
+ *
+ * Validates that the skill is known at the requested level, then either resolves it immediately or -
+ * when the skill has a cast time - attaches a [Casting] component and lets
+ * [net.bestia.zone.ecs.battle.skill.CastingSystem] resolve it when the channel finishes.
  */
 @Component
 class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
-  private val statusEffectService: StatusEffectService,
+  private val skillRepository: SkillRepository,
+  private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
@@ -48,16 +52,40 @@ class ActivateSkillHandler(
       return true
     }
 
+    val skill = skillRepository.findById(msg.attackId).orElse(null)
+    if (skill == null) {
+      LOG.warn { "Entity $activeEntityId activated unknown skill ${msg.attackId}, ignoring" }
+      return true
+    }
+
     LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
-    // TEMPORARY: Heal (skills.yml id 4) doesn't have real damage/effect resolution wired up yet
-    // (see class doc), so it's a convenient place to exercise the still-untested status effect sync
-    // end-to-end - grants SWIFTNESS on cast. Self-targets when no target was picked, since Heal
-    // is FRIENDLY-targeted. Replace with Heal's actual effect resolution once that lands.
-    if (msg.attackId == HEAL_SKILL_ID) {
-      val targetId = if (msg.targetEntityId != 0L) msg.targetEntityId else activeEntityId
-      world.modify(targetId) { id ->
-        statusEffectService.applyEffect(this, id, definitionId = SWIFTNESS_EFFECT_ID, level = msg.skillLevel, sourceEntityId = activeEntityId)
+    // An entity-targeted skill carries a target id (the client sends 0 when nothing was picked); a
+    // ground-targeted one falls back to the position, which is always present on the wire.
+    val targetEntityId = msg.targetEntityId.takeIf { it != 0L }
+    val targetPosition: Vec3L? = if (targetEntityId == null) msg.targetPosition else null
+
+    world.modify(activeEntityId) { id ->
+      if (skill.castTime > 0f) {
+        // Starting a new cast supersedes whatever was being cast before.
+        add(
+          id, Casting(
+            skillId = skill.id,
+            skillLevel = msg.skillLevel,
+            targetEntityId = targetEntityId,
+            targetPosition = targetPosition,
+            totalSeconds = skill.castTime
+          )
+        )
+      } else {
+        skillExecutionService.execute(
+          world = this,
+          casterId = id,
+          skillId = skill.id,
+          skillLevel = msg.skillLevel,
+          targetEntityId = targetEntityId,
+          targetPosition = targetPosition
+        )
       }
     }
 
@@ -66,7 +94,5 @@ class ActivateSkillHandler(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val HEAL_SKILL_ID = 4L
-    private const val SWIFTNESS_EFFECT_ID = 1L
   }
 }

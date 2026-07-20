@@ -10,7 +10,8 @@ data class BattleSkill(
   val needsLineOfSight: Boolean,
   val attackElement: Element,
   val level: Int,
-  val script: String?
+  val script: String?,
+  val castTime: Float = 0f
 ) {
   companion object {
 
@@ -40,6 +41,7 @@ data class BattleSkill(
     needsLineOfSight = skill.needsLineOfSight,
     attackElement = attackElement,
     level = level,
-    script = skill.script
+    script = skill.script,
+    castTime = skill.castTime
   )
 }

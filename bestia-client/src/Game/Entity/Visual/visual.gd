@@ -18,6 +18,16 @@ func update_animation(_msg: AnimationComponentSMSG) -> void:
 	pass
 
 
+## Shows/updates the cast bar while this entity channels a skill.
+func update_casting(_msg: CastingComponentSMSG) -> void:
+	pass
+
+
+## Hides the cast bar - the cast either completed or was interrupted.
+func clear_casting() -> void:
+	pass
+
+
 func set_selected(_selected: bool) -> void:
 	pass
 

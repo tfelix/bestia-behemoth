@@ -2,6 +2,10 @@
 
 [ext_resource type="Script" uid="uid://mj7o7ml2h0gd" path="res://Game/Entity/Visual/MasterVisual/master_visual.gd" id="1_biohp"]
 [ext_resource type="PackedScene" uid="uid://3d10kmwvr52c" path="res://Game/Master/Mage.glb" id="2_1txkv"]
+[ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="3_castb"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_castb"]
+viewport_path = NodePath("SubViewport")
 
 [node name="MasterVisual" type="Node3D" unique_id=922268045]
 script = ExtResource("1_biohp")
@@ -82,5 +86,9 @@ autoplay = &"Idle"
 
 [node name="ChatAnchor" type="Node3D" parent="." unique_id=946323673]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.912204, 0)
+
+[node name="CastBar" parent="." instance=ExtResource("3_castb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
+texture = SubResource("ViewportTexture_castb")
 
 [editable path="Mage"]

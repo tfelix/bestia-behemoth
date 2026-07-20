@@ -30,5 +30,6 @@ data class ComponentRemovedSMSG(
   private fun RemovableComponentType.toProto(): ComponentRemovedSmsgProto.RemovableComponent =
     when (this) {
       RemovableComponentType.LOGOUT_INTENT -> ComponentRemovedSmsgProto.RemovableComponent.LOGOUT_INTENT
+      RemovableComponentType.CASTING -> ComponentRemovedSmsgProto.RemovableComponent.CASTING
     }
 }

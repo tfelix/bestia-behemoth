@@ -8,7 +8,10 @@ import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.Miss
+import org.springframework.stereotype.Component
 
+/** Registered under the script name `Heal` (see `skills.yml` id 4) via [net.bestia.zone.battle.skill.SkillScriptRegistry]. */
+@Component
 class Heal(
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService) {

@@ -19,10 +19,12 @@ import java.io.File
  * (`*.tres` files under `bestia-client/src/Game/Attack/DB/`). See
  * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
- * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius` are touched on a
- * `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
+ * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time` are touched
+ * on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
  * presentation with no server equivalent and is left alone. `aoe_radius` is only checked/patched
- * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all.
+ * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all. `cast_time` is
+ * likewise only checked/patched for skills that declare a non-zero `castTime` server-side; an
+ * instant-cast skill never needs the line.
  *
  * `description_key` points into `bestia-client/src/Localization/skills.csv`, a Godot CSV
  * translation source (same mechanism as `items.csv`). Whenever `skills.yml` declares a
@@ -53,7 +55,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val identifier: String,
     val description: String? = null,
     val targetType: String,
-    val aoeRadius: Double? = null
+    val aoeRadius: Double? = null,
+    val castTime: Double = 0.0
   )
   private data class SkillsFile(val skills: List<SkillDto> = emptyList())
   private data class TreeNodeDto(val skill: String, val maxLevel: Int)
@@ -63,7 +66,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val maxLevel: Int,
     val description: String?,
     val targetType: String,
-    val aoeRadius: Double?
+    val aoeRadius: Double?,
+    val castTime: Double
   )
 
   @TaskAction
@@ -83,7 +87,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
         maxLevelByIdentifier[skill.identifier] ?: 1,
         skill.description?.trim()?.takeIf { it.isNotEmpty() },
         skill.targetType,
-        skill.aoeRadius
+        skill.aoeRadius,
+        skill.castTime
       )
     }
 
@@ -95,6 +100,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val descriptionKeyPattern = Regex("description_key\\s*=\\s*\"([^\"]*)\"")
     val targetTypePattern = Regex("target_type\\s*=\\s*\"([^\"]*)\"")
     val aoeRadiusPattern = Regex("""aoe_radius\s*=\s*([\d.]+)""")
+    val castTimePattern = Regex("""cast_time\s*=\s*([\d.]+)""")
 
     val fileBySkillId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -195,6 +201,27 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
+      // cast_time only needs to exist client-side for skills that actually channel; an instant skill
+      // is fine relying on the resource default of 0.0.
+      if (expected.castTime > 0.0) {
+        val currentText = file.readText()
+        val currentCastTime = castTimePattern.find(currentText)?.groupValues?.get(1)?.toDoubleOrNull()
+
+        if (currentCastTime != expected.castTime) {
+          if (shouldFix) {
+            val newText = if (castTimePattern.containsMatchIn(currentText)) {
+              castTimePattern.replace(currentText) { "cast_time = ${expected.castTime}" }
+            } else {
+              currentText.trimEnd('\n') + "\ncast_time = ${expected.castTime}\n"
+            }
+            file.writeText(newText)
+            logger.lifecycle("SkillDbSync: patched ${file.name}: cast_time $currentCastTime -> ${expected.castTime}")
+          } else {
+            problems += "${file.name}: cast_time=$currentCastTime but skills.yml expects ${expected.castTime} (id=$id)"
+          }
+        }
+      }
+
       // The English text itself is only server-sourced (and thus only checked/patched here) once
       // skills.yml actually declares a description for this skill - until then it's hand-authored
       // straight in skills.csv, same as every other still-unsynced client field.
@@ -233,6 +260,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
   private fun stubTres(id: Long, expected: Expected, descriptionKey: String): String {
     val aoeRadiusLine = if (expected.aoeRadius != null) "\naoe_radius = ${expected.aoeRadius}" else ""
+    val castTimeLine = if (expected.castTime > 0.0) "\ncast_time = ${expected.castTime}" else ""
     return """
     [gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
@@ -247,7 +275,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     cooldown = 0.0
     max_level = ${expected.maxLevel}
     target_type = "${expected.targetType}"
-    """.trimIndent() + aoeRadiusLine + "\n"
+    """.trimIndent() + aoeRadiusLine + castTimeLine + "\n"
   }
 }
 

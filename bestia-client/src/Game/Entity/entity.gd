@@ -35,6 +35,11 @@ var _effects: Array = []
 # server pushes an update, so it needs somewhere durable to seed itself from.
 var _skill_points: int = 0
 
+# True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
+# a ComponentRemovedSMSG for Casting). For the owned entity this also gates movement input, since
+# moving cancels the cast server-side.
+var _casting: bool = false
+
 var _camera: Node3D = null
 ##
 var _speed: float = 2.5
@@ -292,6 +297,27 @@ func update_health(msg: HealthComponentSMSG) -> void:
 	var visual = _get_visual_for_method("update_health")
 	if visual != null:
 		visual.update_health(msg)
+
+
+func update_casting(msg: CastingComponentSMSG) -> void:
+	_casting = true
+	var visual = _get_visual_for_method("update_casting")
+	if visual != null:
+		visual.update_casting(msg)
+
+
+## The Casting component was removed: the cast either completed or was interrupted. Both look the
+## same on the wire, since either way the bar just goes away and movement is unblocked again.
+func clear_casting() -> void:
+	_casting = false
+	var visual = _get_visual_for_method("clear_casting")
+	if visual != null:
+		visual.clear_casting()
+
+
+## Movement clicks are suppressed while this is true - see ConnectionManager.move_to.
+func is_casting() -> bool:
+	return _casting
 
 
 func update_effects(msg: BuffListSMSG) -> void:

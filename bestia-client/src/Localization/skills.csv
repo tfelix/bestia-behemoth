@@ -12,3 +12,6 @@ SKILL_3_DESC,Prepares a meal from gathered ingredients.
 SKILL_4_DESC,Restores a small amount of health to the target.
 SKILL_100_DESC,A weak fire spark that scorches the target.
 SKILL_101_DESC,A basic physical charge attack.
+SKILL_5_DESC,"Hurls a bolt of searing fire at a single enemy.
+
+Must be channelled - moving or taking damage interrupts the cast."

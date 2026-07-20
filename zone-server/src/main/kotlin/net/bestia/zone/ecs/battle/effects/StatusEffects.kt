@@ -73,6 +73,7 @@ class StatusEffects(
   /** Ticks down every active instance by [deltaTime] and removes any that expired. */
   fun tickDown(deltaTime: Float) {
     val iterator = activeEffects.iterator()
+
     while (iterator.hasNext()) {
       val effect = iterator.next()
       effect.remainingSeconds -= deltaTime
@@ -86,7 +87,10 @@ class StatusEffects(
   /** Removes a single active instance (e.g. a trigger effect consuming itself). */
   fun consume(instanceId: Long): Boolean {
     val removed = activeEffects.removeIf { it.instanceId == instanceId }
-    if (removed) dirty = true
+    if (removed) {
+      dirty = true
+    }
+
     return removed
   }
 

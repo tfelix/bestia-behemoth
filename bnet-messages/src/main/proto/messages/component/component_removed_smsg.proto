@@ -18,4 +18,5 @@ message ComponentRemovedSMSG {
 enum RemovableComponent {
   REMOVABLE_COMPONENT_UNSPECIFIED = 0;
   LOGOUT_INTENT = 1;
+  CASTING = 2;
 }

@@ -9,7 +9,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   public enum RemovableComponent
   {
     Unspecified = 0,
-    LogoutIntent = 1
+    LogoutIntent = 1,
+    Casting = 2
   }
 
   /// <summary>
@@ -34,11 +35,16 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// Exposed as a method because nested C# enums are awkward to reference from GDScript.</summary>
     public bool IsLogoutIntent() => Component == RemovableComponent.LogoutIntent;
 
+    /// <summary>True if this ends a cast — either completed or interrupted, which look identical on
+    /// the wire since visually both just remove the cast bar.</summary>
+    public bool IsCasting() => Component == RemovableComponent.Casting;
+
     private static RemovableComponent MapComponentFromProto(global::Bnet.RemovableComponent proto)
     {
       return proto switch
       {
         global::Bnet.RemovableComponent.LogoutIntent => RemovableComponent.LogoutIntent,
+        global::Bnet.RemovableComponent.Casting => RemovableComponent.Casting,
         _ => RemovableComponent.Unspecified
       };
     }

@@ -11,6 +11,9 @@ skills:
   - skill: DIVINE_PROTECTION
     maxLevel: 10
 
+  - skill: FIREBOLT
+    maxLevel: 10
+
   # CRAFTSMANSHIP
   - skill: COOKING
     maxLevel: 3

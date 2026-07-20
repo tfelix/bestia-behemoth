@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_firebolt"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = 5
+icon = SubResource("PlaceholderTexture2D_firebolt")
+name = "Firebolt"
+description_key = "SKILL_5_DESC"
+mana_cost = 12
+cooldown = 1.5
+max_level = 10
+target_type = "ENEMY"
+cast_time = 2.0

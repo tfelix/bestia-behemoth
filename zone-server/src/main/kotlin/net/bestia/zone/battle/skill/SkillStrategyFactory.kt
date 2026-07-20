@@ -3,7 +3,6 @@ package net.bestia.zone.battle.skill
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.damage.MeleePhysicalDamageCalculator
-import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 import java.lang.IllegalStateException
 import java.util.concurrent.ThreadLocalRandom
@@ -11,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom
 @Component
 class SkillStrategyFactory(
   lineOfSightService: LineOfSightService,
-  private val applicationContext: ApplicationContext
+  private val skillScriptRegistry: SkillScriptRegistry
 ) {
 
   private val random = ThreadLocalRandom.current()
@@ -33,9 +32,8 @@ class SkillStrategyFactory(
 
   private fun getScriptBasedStrategy(ctx: BattleContext): SkillStrategy {
     val atkScript = ctx.usedAttack.script ?: throw NoSkillScriptException()
-    val scriptClassName = "net.bestia.behemoth.battle.attack.scripts.${atkScript}"
 
-    return applicationContext.getBean(scriptClassName) as? SkillStrategy
-      ?: throw IllegalStateException("Class $scriptClassName is not of type SkillStrategy")
+    return skillScriptRegistry.get(atkScript)
+      ?: throw IllegalStateException("No SkillStrategy bean registered for script '$atkScript'")
   }
 }

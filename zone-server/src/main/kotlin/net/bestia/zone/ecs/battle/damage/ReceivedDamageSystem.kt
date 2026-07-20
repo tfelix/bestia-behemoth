@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.damage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -19,7 +20,8 @@ import org.springframework.stereotype.Component as SpringComponent
 class ReceivedDamageSystem : System {
 
   override val reads: ComponentClassSet = setOf(Damage::class)
-  override val writes: ComponentClassSet = setOf(Health::class, TakenDamage::class, Dead::class)
+  override val writes: ComponentClassSet =
+    setOf(Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Damage::class, Health::class).each { id ->
@@ -35,10 +37,16 @@ class ReceivedDamageSystem : System {
       val total = receivedDamage.total()
       health.current -= total
 
-      // Taking damage aborts a pending logout. Removing the component is what notifies the client
-      // (via the generic component-removed message); done inline since we already hold the world.
-      if (total > 0 && world.has(id, LogoutIntent::class)) {
-        world.remove(id, LogoutIntent::class)
+      // Taking damage aborts a pending logout and interrupts a running cast. Removing the component
+      // is what notifies the client (via the generic component-removed message); done inline since we
+      // already hold the world rather than going through the cancel services.
+      if (total > 0) {
+        if (world.has(id, LogoutIntent::class)) {
+          world.remove(id, LogoutIntent::class)
+        }
+        if (world.has(id, Casting::class)) {
+          world.remove(id, Casting::class)
+        }
       }
 
       if (health.current == 0) {

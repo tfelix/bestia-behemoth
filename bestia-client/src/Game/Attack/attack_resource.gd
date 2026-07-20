@@ -15,6 +15,10 @@ const TARGET_TYPE_FRIENDLY := "FRIENDLY"
 @export var description_key: String
 @export var mana_cost: int
 @export var cooldown: float
+## Seconds the caster channels before the skill resolves; 0 means instant. Mirrors the server's
+## castTime (skills.yml) and is synced by SkillDbSyncTask. The bar itself is driven by the server's
+## Casting component, so this is presentation/prediction only.
+@export var cast_time: float = 0.0
 @export var max_level: int = 1
 @export var attack_script: GDScript
 @export_enum("GROUND", "AOE_GROUND", "ENEMY", "FRIENDLY") var target_type: String = TARGET_TYPE_GROUND

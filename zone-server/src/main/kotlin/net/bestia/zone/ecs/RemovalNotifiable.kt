@@ -18,5 +18,6 @@ interface RemovalNotifiable {
  * three in sync when adding a new removable component.
  */
 enum class RemovableComponentType {
-  LOGOUT_INTENT
+  LOGOUT_INTENT,
+  CASTING
 }

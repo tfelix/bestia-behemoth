@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.battle.skill.CastCancelService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
@@ -21,6 +22,7 @@ class MoveActiveEntityHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val logoutCancelService: LogoutCancelService,
+  private val castCancelService: CastCancelService,
 ) : InMessageProcessor.IncomingMessageHandler<MoveActiveEntityCMSG> {
   override val handles = MoveActiveEntityCMSG::class
 
@@ -32,6 +34,11 @@ class MoveActiveEntityHandler(
     // Any movement command (including an empty-path "stop", which the client's logout Cancel button
     // sends) counts as player activity and aborts a pending logout.
     logoutCancelService.cancelLogout(activeEntityId)
+
+    // Casting is stationary: any movement command interrupts it. Deliberately done before the path is
+    // validated - the player expressed intent to move, so the cast dies even if the path is rejected
+    // below. The client blocks movement clicks while casting, so this is the authoritative backstop.
+    castCancelService.cancelCast(activeEntityId)
 
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {

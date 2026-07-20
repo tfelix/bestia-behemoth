@@ -3,6 +3,8 @@ skills:
 #   (GROUND = a plain ground point, AOE_GROUND = a ground point with an area of effect,
 #   see aoeRadius below; ENEMY/FRIENDLY = a single entity, defaulting to hostile/friendly
 #   respectively). aoeRadius is only read when targetType is AOE_GROUND.
+# castTime: seconds the caster channels before the skill resolves (default 0 = instant). While
+#   channelling the entity carries a Casting component; moving or taking damage cancels it.
 # MASTER SKILLS
   - id: 1
     identifier: BLESSING
@@ -37,6 +39,20 @@ skills:
     script: Heal
     targetType: FRIENDLY
     needsLineOfSight: false
+
+  - id: 5
+    identifier: FIREBOLT
+    type: NO_DAMAGE
+    script: Firebolt
+    targetType: ENEMY
+    needsLineOfSight: true
+    range: 8
+    manaCost: 12
+    castTime: 2.0
+    description: |
+      Hurls a bolt of searing fire at a single enemy.
+
+      Must be channelled - moving or taking damage interrupts the cast.
 
 # BESTIA SKILLS
   - id: 100

@@ -49,6 +49,7 @@ import "messages/inventory/loot_item_cmsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/component_removed_smsg.proto";
+import "messages/component/casting_component_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
 import "messages/party/decline_party_invite_cmsg.proto";
 import "messages/party/party_invitation_smsg.proto";
@@ -124,6 +125,7 @@ message Envelope {
     ComponentRemovedSMSG comp_removed = 528;
     StaminaComponentSMSG comp_stamina = 529;
     CarryCapacityComponentSMSG comp_carry_capacity = 530;
+    CastingComponentSMSG comp_casting = 531;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

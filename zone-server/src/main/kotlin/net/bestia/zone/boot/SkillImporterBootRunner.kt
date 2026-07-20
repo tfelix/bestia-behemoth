@@ -35,6 +35,7 @@ class SkillImporterBootRunner(
     val targetType: SkillTargetType,
     val aoeRadius: Double? = null,
     val needsLineOfSight: Boolean = false,
+    val castTime: Float = 0f,
     val requiredLevel: Int = 0,
     val description: String? = null
   )
@@ -67,6 +68,7 @@ class SkillImporterBootRunner(
       targetType = dto.targetType,
       aoeRadius = dto.aoeRadius,
       needsLineOfSight = dto.needsLineOfSight,
+      castTime = dto.castTime,
       requiredLevel = dto.requiredLevel,
       description = dto.description
     )

@@ -10,6 +10,7 @@ var _selected: bool = false
 @onready var _name_tag = $NameTag
 @onready var _anim_player = $AnimationPlayer as AnimationPlayer
 @onready var _health_bar: HealthBar = $HealthBar
+@onready var _cast_bar: CastBar = $CastBar
 @onready var _damage_tag_anchor: Node3D = $DamageTagAnchor
 
 
@@ -37,6 +38,14 @@ func update_health(msg: HealthComponentSMSG) -> void:
 	_health_bar.update_health(msg)
 
 
+func update_casting(msg: CastingComponentSMSG) -> void:
+	_cast_bar.update_casting(msg)
+
+
+func clear_casting() -> void:
+	_cast_bar.clear_casting()
+
+
 func update_animation(msg: AnimationComponentSMSG) -> void:
 	if _anim_player.current_animation == msg.Kind:
 		return
@@ -46,6 +55,7 @@ func update_animation(msg: AnimationComponentSMSG) -> void:
 
 func vanish(msg: VanishEntitySMSG) -> void:
 	_health_bar.visible = false
+	_cast_bar.clear_casting()
 	_name_tag.visible = false
 	if msg.IsDead():
 		_anim_player.play("death")

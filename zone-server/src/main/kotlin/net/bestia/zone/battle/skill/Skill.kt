@@ -41,6 +41,13 @@ class Skill(
   val needsLineOfSight: Boolean,
 
   /**
+   * Seconds the caster must channel before the skill resolves. 0 means it resolves instantly.
+   * While casting the entity carries a `Casting` component; moving cancels it.
+   */
+  @Column(nullable = false)
+  val castTime: Float = 0f,
+
+  /**
    * 0 means this skill is immediately learnable.
    */
   val requiredLevel: Int,
@@ -58,6 +65,10 @@ class Skill(
 
     require(requiredLevel >= 0) {
       "requiredLevel must be >= 0"
+    }
+
+    require(castTime >= 0f) {
+      "Skill $identifier: castTime must be >= 0"
     }
 
     // No damage skills are required to have a script and strength set to null.

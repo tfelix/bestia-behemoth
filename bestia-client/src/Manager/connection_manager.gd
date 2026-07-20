@@ -179,6 +179,12 @@ func move_to(destination: Vector3) -> void:
 		printerr("ConnectionManager: cannot move, no owned entity yet")
 		return
 
+	# Moving cancels a cast server-side, so movement clicks are swallowed while channelling rather
+	# than silently throwing the cast away. Gated here rather than in the mouse state so every caller
+	# is covered; cancel_logout() sends its empty-path stop directly and is deliberately unaffected.
+	if owned_entity.is_casting():
+		return
+
 	var path := PathCalculator.calculate_tile_path(owned_entity.global_position, destination)
 	if path.is_empty():
 		return
@@ -283,6 +289,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		# aborted" signal.
 		if message.IsLogoutIntent():
 			logout_cancelled.emit()
+		elif message.IsCasting():
+			# Unlike the logout intent (which is owner-only UI state), a removed cast belongs to a
+			# specific world entity, so it goes through the normal per-entity dispatch.
+			entity_received.emit(message)
 	elif message is EntitySMSG:
 		entity_received.emit(message)
 	elif message is SelfSMSG:
