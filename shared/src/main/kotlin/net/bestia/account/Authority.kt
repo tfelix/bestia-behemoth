@@ -4,5 +4,6 @@ enum class Authority {
   KILL,
   MAP_MOVE,
   ITEM,
-  EXP
+  EXP,
+  SPAWN
 }

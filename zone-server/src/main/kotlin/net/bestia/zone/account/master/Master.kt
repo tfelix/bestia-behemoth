@@ -59,6 +59,14 @@ class Master(
       field = value
     }
 
+  @Column(name = "exp", nullable = false)
+  var exp: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
   @OneToMany(mappedBy = "master", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()
 

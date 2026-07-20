@@ -5,6 +5,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
+import net.bestia.zone.ecs.battle.exp.GainExp
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -77,7 +78,7 @@ class DeathSystem(
 
         recipients.forEach { recipientEntityId ->
           LOG.debug { "Entity $recipientEntityId received $share EXP (party share of $receivedExp)" }
-          world.update(recipientEntityId, { Exp() }) { exp -> exp.value += share }
+          world.update(recipientEntityId, { GainExp() }) { exp -> exp.value += share }
         }
       }
     }

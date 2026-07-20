@@ -5,6 +5,7 @@ import net.bestia.account.Authority
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.exp.Exp
+import net.bestia.zone.ecs.battle.exp.GainExp
 import org.springframework.stereotype.Component
 
 /**
@@ -38,7 +39,7 @@ class ExpChatCommand(
     val activeEntityId = connectionInfoService.getActiveEntityId(playerId)
 
     world.modify(activeEntityId) { id ->
-      val exp = get(id, Exp::class) ?: add(id, Exp())
+      val exp = get(id, GainExp::class) ?: add(id, GainExp())
       exp.value += amount
     }
 

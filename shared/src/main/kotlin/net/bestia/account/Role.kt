@@ -6,6 +6,6 @@ package net.bestia.account
  */
 enum class Role(val authorities: Set<Authority>) {
   USER(setOf(Authority.ITEM, Authority.MAP_MOVE)),
-  GM(setOf(Authority.ITEM, Authority.MAP_MOVE, Authority.KILL, Authority.EXP)),
+  GM(setOf(Authority.ITEM, Authority.MAP_MOVE, Authority.KILL, Authority.EXP, Authority.SPAWN)),
   SUPER_GM(Authority.entries.toSet())
 }

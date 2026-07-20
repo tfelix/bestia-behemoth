@@ -1,12 +1,14 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.account.master.Master
+import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,29 +32,46 @@ class MasterSkillTreeService(
    * entry can satisfy the prerequisite of a later one in the same request. If any entry can't be
    * applied (no points left, max level reached, prerequisite unmet, ...) the whole batch is
    * rolled back.
+   *
+   * Unspent points are read from - and spent against - the live [SkillPoints] ECS component
+   * rather than [Master.skillPoints]: that DB field only mirrors the component (via periodic
+   * entity persistence and `MasterExpPersistService` on level-up), so the component is the
+   * up-to-date source of truth while the master is online. This requires an active entity for the
+   * master; there is no offline spending path.
    */
   @Transactional
   fun investSkillPoints(masterId: Long, investments: List<SkillPointInvestment>): List<LearnedSkill> {
     val master = masterRepository.findByIdOrThrow(masterId)
+    val entityId = masterResolver.getEntityIdByMasterId(masterId)
+      ?: throw MasterNotFoundException()
+
+    var remainingSkillPoints = world.read { get(entityId, SkillPoints::class)?.value } ?: 0
     val updatedSkills = LinkedHashMap<Long, LearnedSkill>()
+    var spentSkillPoints = 0
 
     for (investment in investments) {
       repeat(investment.amount) {
+        if (remainingSkillPoints <= 0) {
+          throw NoSkillPointsAvailableException(master.id)
+        }
+
         updatedSkills[investment.skillId] = investSingleLevel(master, investment.skillId)
+        remainingSkillPoints -= 1
+        spentSkillPoints += 1
       }
     }
 
-    masterRepository.save(master)
-    syncToEcs(master, updatedSkills.values)
+    syncToEcs(entityId, updatedSkills.values, spentSkillPoints)
 
     return updatedSkills.values.toList()
   }
 
+  /**
+   * Validates and persists a single level-up of [skillId] for [master]. Does not touch the ECS
+   * world - [investSkillPoints] applies every world-visible effect of the whole batch (points
+   * spent, skills learned) in one go via [syncToEcs] once all entries have been validated.
+   */
   private fun investSingleLevel(master: Master, skillId: Long): LearnedSkill {
-    if (master.skillPoints <= 0) {
-      throw NoSkillPointsAvailableException(master.id)
-    }
-
     val node = masterSkillTreeRegistry.findBySkillId(skillId)
       ?: throw SkillTreeNodeNotFoundException(skillId)
 
@@ -82,21 +101,20 @@ class MasterSkillTreeService(
     learnedSkill.level = currentLevel + 1
     learnedSkillRepository.save(learnedSkill)
 
-    master.skillPoints -= 1
-
     return learnedSkill
   }
 
-  private fun syncToEcs(master: Master, updatedSkills: Collection<LearnedSkill>) {
+  /** The single place [investSkillPoints] mutates the ECS world, once per batch. */
+  private fun syncToEcs(entityId: EntityId, updatedSkills: Collection<LearnedSkill>, spentSkillPoints: Int) {
     if (updatedSkills.isEmpty()) return
-
-    val entityId = masterResolver.getEntityIdByMasterId(master.id) ?: return
 
     world.modify(entityId) { id ->
       updatedSkills.forEach { learnedSkill ->
         get(id, KnownSkills::class)?.learnOrUpdate(learnedSkill.skill.id, learnedSkill.level)
       }
-      get(id, SkillPoints::class)?.let { it.value = master.skillPoints }
+      if (spentSkillPoints > 0) {
+        get(id, SkillPoints::class)?.let { it.value -= spentSkillPoints }
+      }
     }
   }
 }

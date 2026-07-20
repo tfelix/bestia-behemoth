@@ -19,6 +19,8 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.account.MasterVisual
+import net.bestia.zone.ecs.battle.exp.Exp
+import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
@@ -35,6 +37,7 @@ class MasterEntityFactory(
   private val learnedSkillRepository: LearnedSkillRepository,
   private val connectionInfoService: ConnectionInfoService,
   private val weightLimitCalculator: WeightLimitCalculator,
+  private val levelUpExpCalculator: LevelUpExperienceCalculator,
 ) {
 
   /**
@@ -62,6 +65,7 @@ class MasterEntityFactory(
       add(id, MasterComponent(master.id))
       add(id, Position.fromVec3(master.currentPosition))
       add(id, Level(master.level))
+      add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(master.level)))
       add(id, Speed())
       add(id, Health(current = 10, max = 10))
       add(id, Mana(current = 10, max = 10))
