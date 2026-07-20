@@ -25,17 +25,17 @@ func _on_self_received(msg: SelfSMSG) -> void:
 
 	var entity_manager := EntityManager.get_instance()
 	var entity: Entity = entity_manager.get_entity(_master_entity_id) if entity_manager else null
-	_populate(entity.get_buffs() if entity else [])
+	_populate(entity.get_effects() if entity else [])
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is BuffListSMSG and msg.EntityId == _master_entity_id and _master_entity_id != 0:
-		_populate(msg.Buffs)
+		_populate(msg.Effects)
 
 
-func _populate(buffs: Array) -> void:
+func _populate(effects: Array) -> void:
 	_clear_icons()
-	for entry in buffs:
+	for entry in effects:
 		var icon = BuffIconScene.instantiate()
 		add_child(icon)
 		icon.setup(entry)

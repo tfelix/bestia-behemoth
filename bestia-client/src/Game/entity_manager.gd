@@ -159,7 +159,7 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		# MasterProfile, same as InventoryComponentSMSG below.
 		pass
 	elif msg is BuffListSMSG:
-		entity.update_buffs(msg)
+		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:
 		entity.show_damage(msg)
 	elif msg is ItemVisualComponentSMSG:

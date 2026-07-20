@@ -27,7 +27,7 @@ var entity_id: int = 0
 # Latest known buff/debuff list (BuffListEntry), cached here so BuffList can seed
 # itself with whatever we already know as soon as this entity gets selected,
 # without waiting for the next BuffListSMSG to arrive.
-var _buffs: Array = []
+var _effects: Array = []
 
 # Latest known available skill points (master entities only - bestias never spend
 # points via this system), cached here for the same reason as _buffs: the Skills
@@ -294,12 +294,12 @@ func update_health(msg: HealthComponentSMSG) -> void:
 		visual.update_health(msg)
 
 
-func update_buffs(msg: BuffListSMSG) -> void:
-	_buffs = msg.Buffs
+func update_effects(msg: BuffListSMSG) -> void:
+	_effects = msg.Effects
 
 
-func get_buffs() -> Array:
-	return _buffs
+func get_effects() -> Array:
+	return _effects
 
 
 func update_skill_points(msg: SkillPointsComponentSMSG) -> void:
