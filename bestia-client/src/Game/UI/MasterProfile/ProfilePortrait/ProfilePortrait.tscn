@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://yplf5hm7dgv3"]
 
-[ext_resource type="Script" path="res://Game/UI/MasterProfile/ProfilePortrait/profile_portrait.gd" id="1_pp01"]
-[ext_resource type="PackedScene" path="res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn" id="2_pp01"]
+[ext_resource type="Script" uid="uid://dqv4t5cicurbq" path="res://Game/UI/MasterProfile/ProfilePortrait/profile_portrait.gd" id="1_pp01"]
+[ext_resource type="PackedScene" uid="uid://lv2fhhdrpcii" path="res://Game/Entity/Visual/MasterVisual/MasterVisual.tscn" id="2_pp01"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_pp01"]
 viewport_path = NodePath("PortraitViewport")
@@ -17,35 +17,37 @@ size = Vector2(10, 10)
 subdivide_width = 5
 subdivide_depth = 5
 
-[node name="ProfilePortrait" type="TextureRect"]
+[node name="ProfilePortrait" type="TextureRect" unique_id=196212172]
 offset_right = 100.0
 offset_bottom = 120.0
 texture = SubResource("ViewportTexture_pp01")
 script = ExtResource("1_pp01")
 
-[node name="PortraitViewport" type="SubViewport" parent="."]
+[node name="PortraitViewport" type="SubViewport" parent="." unique_id=1247717207]
+unique_name_in_owner = true
+own_world_3d = true
 msaa_3d = 1
 size = Vector2i(200, 300)
 render_target_update_mode = 1
 
-[node name="PortraitScene" type="Node3D" parent="PortraitViewport"]
+[node name="PortraitScene" type="Node3D" parent="PortraitViewport" unique_id=912094639]
 
-[node name="Camera3D" type="Camera3D" parent="PortraitViewport/PortraitScene"]
+[node name="Camera3D" type="Camera3D" parent="PortraitViewport/PortraitScene" unique_id=111437483]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6063129, 2.4673893)
 fov = 50.0
 
-[node name="Background" type="MeshInstance3D" parent="PortraitViewport/PortraitScene"]
+[node name="Background" type="MeshInstance3D" parent="PortraitViewport/PortraitScene" unique_id=1187175508]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9105343, -3.2554116)
 mesh = SubResource("QuadMesh_pp01")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="PortraitViewport/PortraitScene"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="PortraitViewport/PortraitScene" unique_id=839152374]
 transform = Transform3D(0.40162477, 0.63154244, -0.66321355, -0.3271371, 0.77534145, 0.54021007, 0.8553825, 0, 0.51799726, -3.528058, 0, 2.2842603)
 
-[node name="RimLight" type="SpotLight3D" parent="PortraitViewport/PortraitScene"]
+[node name="RimLight" type="SpotLight3D" parent="PortraitViewport/PortraitScene" unique_id=654131117]
 transform = Transform3D(-0.7835199, 0, 0.6213666, 0, 1, 0, -0.6213666, 0, -0.7835199, 1.9327126, 1.4045181, -2.535157)
 light_energy = 2.0
 spot_range = 4.0
 spot_angle = 33.32798
 
-[node name="MasterVisual" parent="PortraitViewport/PortraitScene" instance=ExtResource("2_pp01")]
+[node name="MasterVisual" parent="PortraitViewport/PortraitScene" unique_id=336713815 instance=ExtResource("2_pp01")]
 unique_name_in_owner = true
