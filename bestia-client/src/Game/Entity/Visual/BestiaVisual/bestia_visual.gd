@@ -83,10 +83,10 @@ func _on_area_3d_input_event(_camera: Node, event: InputEvent, event_position: V
 func _on_area_3d_mouse_entered() -> void:
 	_hovered = true
 	_name_tag.visible = true
-	MouseManager.object_hover(self, true)
+	MouseManager.on_object_hover(self, true)
 
 
 func _on_area_3d_mouse_exited() -> void:
 	_hovered = false
 	_name_tag.visible = _selected
-	MouseManager.object_hover(self, false)
+	MouseManager.on_object_hover(self, false)
