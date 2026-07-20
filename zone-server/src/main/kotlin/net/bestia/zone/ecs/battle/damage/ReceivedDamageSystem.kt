@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.battle.damage
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.InCombat
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -21,7 +22,7 @@ class ReceivedDamageSystem : System {
 
   override val reads: ComponentClassSet = setOf(Damage::class)
   override val writes: ComponentClassSet =
-    setOf(Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class)
+    setOf(Health::class, TakenDamage::class, Dead::class, LogoutIntent::class, Casting::class, InCombat::class)
 
   override fun update(world: World, deltaTime: Float) {
     world.query(Damage::class, Health::class).each { id ->
@@ -41,6 +42,8 @@ class ReceivedDamageSystem : System {
       // is what notifies the client (via the generic component-removed message); done inline since we
       // already hold the world rather than going through the cancel services.
       if (total > 0) {
+        world.update(id, { InCombat() }) { it.remainingSeconds = InCombat.TIMEOUT_SECONDS }
+
         if (world.has(id, LogoutIntent::class)) {
           world.remove(id, LogoutIntent::class)
         }
