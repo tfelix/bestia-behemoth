@@ -43,5 +43,6 @@ func _load_attacks() -> void:
 		dir.list_dir_end()
 	print("AttackDB: Loaded %s attacks" % [loaded_attacks_count])
 
+
 func get_attack(skill_id: int) -> AttackResource:
 	return _attacks.get(skill_id, null)

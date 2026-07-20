@@ -64,6 +64,8 @@ func is_entity_friendly(entity: Entity) -> bool:
 	return entity == get_owned_entity()
 
 
+## DEPRECATED We need to come up with a better solution this can not work and scale. We need certain
+##    mouse over fields that send their position so this then decides what is the closes, best entity.
 ## Closest Entity to world_position within max_distance whose disposition matches
 ## filter ("enemy" or "friendly"), or null if none qualify. Used by
 ## MouseStateSkillTargeting to snap an entity-target skill onto a nearby valid target.
