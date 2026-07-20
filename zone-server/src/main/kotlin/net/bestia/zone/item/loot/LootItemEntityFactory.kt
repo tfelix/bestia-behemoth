@@ -45,7 +45,7 @@ class LootItemEntityFactory(
     itemId: Long,
     amount: Int,
     pos: Vec3L,
-    playerItemUniqueId: Long = 0,
+    uniqueId: Long = 0,
     entityId: EntityId? = null,
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
@@ -55,7 +55,7 @@ class LootItemEntityFactory(
         ItemVisual(
           itemId = itemId,
           amount = amount,
-          playerItemId = playerItemUniqueId
+          uniqueId = uniqueId
         )
       )
       add(id, Persistent)

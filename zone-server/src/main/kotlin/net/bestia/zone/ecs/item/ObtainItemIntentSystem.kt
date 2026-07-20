@@ -9,10 +9,12 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.Item
-import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 /**
@@ -22,21 +24,21 @@ import org.springframework.stereotype.Component
  * component immediately. Runs before [CarryCapacitySystem] (`@Order(61)`) so a same-tick inventory
  * change is already reflected in [CarryCapacity] this tick (same pattern as `ExpSystem` (60) ->
  * [CarryCapacitySystem] for level-ups).
- *
  */
 @Component
 @Order(59)
 class ObtainItemIntentSystem(
+  private val itemRepository: ItemRepository,
   private val lootItemEntityFactory: LootItemEntityFactory,
-  private val itemWeightRegistry: ItemWeightRegistry,
-  private val inventoryItemFactory: InventoryItemFactory,
+  private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
 ) : System {
 
   private data class ClaimedLoot(
+    val item: Item,
     val amount: Int,
-    val playerItemId: Long,
+    val uniqueId: Long,
   )
 
   override val reads: ComponentClassSet = setOf(
@@ -86,14 +88,14 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      val itemWeight = itemWeightRegistry.getWeight(itemVisual.itemId)
-      if (itemWeight == null) {
+      val item = itemRepository.findByIdOrNull(itemVisual.itemId)
+      if (item == null) {
         LOG.error { "Ground item $itemStackEntityId references unknown item ${itemVisual.itemId}; destroying it" }
         destroy(itemStackEntityId)
         return@modify null
       }
 
-      if (!canObtain(this, entityId, itemWeight * itemVisual.amount)) {
+      if (!canObtain(this, entityId, item.weight * itemVisual.amount)) {
         return@modify null // over capacity (or no inventory at all) - leave the stack on the ground
       }
 
@@ -101,7 +103,7 @@ class ObtainItemIntentSystem(
       // was synced to.
       destroy(itemStackEntityId)
 
-      ClaimedLoot(item, itemVisual.amount, itemVisual.playerItemId)
+      ClaimedLoot(item, itemVisual.amount, itemVisual.uniqueId)
     }
 
     if (claimed == null) {
@@ -109,17 +111,17 @@ class ObtainItemIntentSystem(
       return
     }
 
-    grantItem(world, entityId, claimed.item, claimed.amount, claimed.playerItemId)
+    grantItem(world, entityId, claimed.item, claimed.amount, claimed.uniqueId)
   }
 
   private fun tryCreateItem(world: World, entityId: EntityId, intent: ObtainItemIntent.CreateItemIntent) {
-    val itemWeight = itemWeightRegistry.getWeight(intent.itemId)
-    if (itemWeight == null) {
+    val item = itemRepository.findByIdOrNull(intent.itemId)
+    if (item == null) {
       LOG.warn { "CreateItemIntent for entity $entityId references unknown item ${intent.itemId}, ignoring" }
       return
     }
 
-    if (canObtain(world, entityId, itemWeight * intent.amount)) {
+    if (canObtain(world, entityId, item.weight * intent.amount)) {
       grantItem(world, entityId, item, intent.amount)
       return
     }
@@ -132,7 +134,6 @@ class ObtainItemIntentSystem(
       return
     }
 
-    // FIXME DO NOT RE_CREATE THE LOOT ITEM ENITIY THIS WILL RESPAWN. PLEASE JUST DO NOT DESTROY THE EXISTING ENTITY.
     lootItemEntityFactory.createLootEntity(
       world = world,
       itemId = item.id,
@@ -150,34 +151,41 @@ class ObtainItemIntentSystem(
   }
 
   /** Adds [item] to [entityId]'s live ECS inventory and schedules the durable DB write. */
-  private fun grantItem(world: World, entityId: EntityId, itemId: Long, amount: Int, playerItemId: Long? = null) {
+  private fun grantItem(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long = 0L) {
     val inventory = world.get(entityId, Inventory::class)
     if (inventory == null) {
-      LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item $itemId lost" }
+      LOG.warn { "Entity $entityId lost its Inventory component before the grant could be applied, item ${item.id} lost" }
       return
     }
-    inventory.addItem(Inventory.Item(itemId = itemId, amount = amount))
+    inventory.addItem(
+      Inventory.Item(
+        itemId = item.id,
+        amount = amount,
+        weight = item.weight,
+        uniqueId = uniqueId,
+        stackable = item.stackable
+      )
+    )
 
-    schedulePersist(world, entityId, item, amount)
+    schedulePersist(world, entityId, item, amount, uniqueId)
   }
 
-  private fun schedulePersist(world: World, entityId: EntityId, itemId: Long, amount: Int) {
+  private fun schedulePersist(world: World, entityId: EntityId, item: Item, amount: Int, uniqueId: Long) {
     val accountId = world.get(entityId, Account::class)?.accountId
     if (accountId == null) {
-      LOG.warn { "Entity $entityId has no Account component, granted item $itemId will not be persisted" }
+      LOG.warn { "Entity $entityId has no Account component, granted item ${item.id} will not be persisted" }
       return
     }
 
-    val masterId = try {
-      connectionInfoService.getMasterId(accountId)
-    } catch (e: Exception) {
-      LOG.warn(e) { "Could not resolve master for account $accountId, granted item $itemId will not be persisted" }
-      return
-    }
+    asyncJobExecutor.submit {
+      val masterId = try {
+        connectionInfoService.getMasterId(accountId)
+      } catch (e: Exception) {
+        LOG.warn(e) { "Could not resolve master for account $accountId, granted item ${item.id} will not be persisted" }
+        return@submit
+      }
 
-    asyncJobExecutor.submit(key = masterId) {
-      // TODO look into how this would work with an item inventory
-      inventoryItemFactory.addItemToMaster(masterId, item.identifier, amount)
+      inventoryService.grantToMaster(masterId, item, amount, uniqueId)
     }
   }
 

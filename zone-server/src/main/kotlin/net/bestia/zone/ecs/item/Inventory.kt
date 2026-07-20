@@ -12,12 +12,21 @@ data class Inventory(
 ) : Component, Dirtyable {
   private var dirty = true
 
+  /**
+   * A single held stack. [uniqueId] is the id of the backing
+   * [net.bestia.zone.item.instance.ItemInstance] (unique, upgradable/forgeable items); `0` means a
+   * plain stackable item with no per-instance identity. [stackable] guards against merging a
+   * freshly obtained instance item (e.g. equipment) whose backing instance id is not yet known
+   * this session - such an item has [uniqueId] `0` but must still not stack.
+   */
   class Item(
     val itemId: Long,
-    val weight: Int,
     var amount: Int,
-    val playerItemId: Long? = null // null means the item is not uniquely identifiable as a player item
+    val weight: Int = 0,
+    val uniqueId: Long = 0L,
+    val stackable: Boolean = true
   ) {
+    val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
   }
 
@@ -25,9 +34,8 @@ data class Inventory(
 
   // Add a single item
   fun addItem(item: Item) {
-    val isStackable = item.playerItemId == 0L
-    if (isStackable) {
-      val existing = items.find { it.itemId == item.itemId && it.playerItemId == 0L }
+    if (item.isStackable) {
+      val existing = items.find { it.itemId == item.itemId && it.isStackable }
       if (existing != null) {
         existing.amount += item.amount
       } else {
@@ -54,6 +62,16 @@ data class Inventory(
     return removed
   }
 
+  /** Removes the unique item with the given [uniqueId] (a non-stackable instance). */
+  fun removeByUniqueId(uniqueId: Long): Boolean {
+    if (uniqueId == 0L) return false
+    val removed = items.removeIf { it.uniqueId == uniqueId }
+    if (removed) {
+      markDirty()
+    }
+    return removed
+  }
+
   // Remove items matching predicate
   fun removeItemsIf(predicate: (Item) -> Boolean): Boolean {
     val removed = items.removeIf(predicate)
@@ -74,6 +92,14 @@ data class Inventory(
   // Get item by itemId (returns first match)
   fun getItem(itemId: Int): Item? = items.find { it.itemId == itemId.toLong() }
 
+  /**
+   * Returns one held stack matching [itemId] to be dropped, preferring a unique instance so its
+   * identity can be preserved on the ground.
+   */
+  fun findDroppable(itemId: Int): Item? =
+    items.firstOrNull { it.itemId == itemId.toLong() && !it.isStackable }
+      ?: items.firstOrNull { it.itemId == itemId.toLong() }
+
   // Get all items currently held
   fun getItems(): List<Item> = items.toList()
 
@@ -90,8 +116,7 @@ data class Inventory(
   fun updateItemAmount(itemId: Int, newAmount: Int): Boolean {
     val item = items.find { it.itemId == itemId.toLong() }
     if (item != null) {
-      val index = items.indexOf(item)
-      items[index] = Item(item.itemId, newAmount, item.playerItemId)
+      item.amount = newAmount
       markDirty()
       return true
     }
@@ -160,7 +185,7 @@ data class Inventory(
       items = items.map { item ->
         InventoryComponentSMSG.InventoryItem(
           itemId = item.itemId.toInt(),
-          uniqueId = item.playerItemId ?: 0,
+          uniqueId = item.uniqueId,
           amount = item.amount
         )
       }

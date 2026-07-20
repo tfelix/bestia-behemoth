@@ -104,7 +104,7 @@ class GetAllEntitiesHandler(
   private fun World.tryBuildLootComponent(entityId: EntityId): SMSG? {
     val itemVisualComp = get(entityId, ItemVisual::class) ?: return null
 
-    return ItemVisualComponentSMSG(entityId, itemVisualComp.itemId.toInt(), itemVisualComp.amount, itemVisualComp.playerItemId)
+    return ItemVisualComponentSMSG(entityId, itemVisualComp.itemId.toInt(), itemVisualComp.amount, itemVisualComp.uniqueId)
   }
 
   private fun findPositionOfActive(accountId: AccountId): Vec3L {

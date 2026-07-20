@@ -11,7 +11,7 @@ import net.bestia.zone.message.EntitySMSG
 data class ItemVisual(
   val itemId: Long,
   val amount: Int,
-  val playerItemId: Long = 0 // 0 means nothing special.
+  val uniqueId: Long = 0 // id of the backing ItemInstance; 0 means a plain item with no instance.
 ) : Component, Dirtyable {
 
   private var dirty = true
@@ -29,7 +29,7 @@ data class ItemVisual(
   }
 
   override fun toEntityMessage(entityId: Long): EntitySMSG {
-    return ItemVisualComponentSMSG(entityId, itemId.toInt(), amount, playerItemId)
+    return ItemVisualComponentSMSG(entityId, itemId.toInt(), amount, uniqueId)
   }
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange

@@ -101,12 +101,13 @@ class PlayerBestiaEntityFactory(
 
   private fun buildInventory(playerBestia: PlayerBestia): Inventory {
     return Inventory(
-      items = playerBestia.inventory.map { invItem ->
+      items = playerBestia.container.slots.map { slot ->
         Inventory.Item(
-          itemId = invItem.playerItem.item.id,
-          amount = invItem.amount,
-          weight = invItem.playerItem.item.weight,
-          playerItemId = null
+          itemId = slot.template.id,
+          amount = slot.amount,
+          weight = slot.template.weight,
+          uniqueId = slot.uniqueId,
+          stackable = slot.isStackable
         )
       }.toMutableList()
     )

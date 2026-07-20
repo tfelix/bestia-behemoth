@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://fjwopidr1lhd" path="res://Game/UI/MasterProfile/ProfileBar/profile_bar.gd" id="2_c5uss"]
 [ext_resource type="PackedScene" path="res://Game/UI/MasterProfile/ProfilePortrait/ProfilePortrait.tscn" id="3_pp01"]
 
+[sub_resource type="ViewportTexture" id="ViewportTexture_puc4o"]
+viewport_path = NodePath("PortraitViewport")
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c5uss"]
 content_margin_left = 2.0
 content_margin_top = 2.0
@@ -56,13 +59,14 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ProfileImage" parent="TopMargin/ProfileDetails/ProfilContainer" instance=ExtResource("3_pp01")]
+[node name="ProfileImage" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=1688068968 instance=ExtResource("3_pp01")]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 100)
 custom_maximum_size = Vector2(100, 120)
 layout_mode = 2
+texture = SubResource("ViewportTexture_puc4o")
 expand_mode = 5
-stretch_mode = 3
+stretch_mode = 5
 
 [node name="BarContainer" type="VBoxContainer" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=1514887576]
 layout_mode = 2

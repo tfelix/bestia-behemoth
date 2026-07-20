@@ -8,7 +8,7 @@ import net.bestia.zone.account.master.MasterFactory
 import net.bestia.zone.ecs.spawn.Spawner
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.item.container.InventoryService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.core.Ordered
@@ -27,7 +27,7 @@ import kotlin.String
 class DevDataBootstrapRunner(
   private val accountFactory: AccountFactory,
   private val masterFactory: MasterFactory,
-  private val inventoryItemFactory: InventoryItemFactory,
+  private val inventoryService: InventoryService,
   private val world: WorldView
 ) : CommandLineRunner {
 
@@ -50,7 +50,7 @@ class DevDataBootstrapRunner(
 
     val master = masterFactory.create(account, createMasterData)
 
-    inventoryItemFactory.addItem(master, "apple", 12)
+    inventoryService.addItem(master, "apple", 12)
 
     // val blobBestia = bestiaRepository.findByIdentifierOrThrow("blob")
     // val doommasterBestia = bestiaRepository.findByIdentifierOrThrow("doom_master_of_doom")

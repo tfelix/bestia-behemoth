@@ -43,7 +43,7 @@ class LootItemEntityPersister(
       entityId = id,
       itemId = visual.itemId,
       amount = visual.amount,
-      uniqueId = visual.playerItemId,
+      uniqueId = visual.uniqueId,
       x = pos.x, y = pos.y, z = pos.z,
     )
   }
@@ -77,7 +77,7 @@ class LootItemEntityPersister(
         itemId = snap.itemId,
         amount = snap.amount,
         pos = Vec3L(snap.x, snap.y, snap.z),
-        playerItemUniqueId = snap.uniqueId,
+        uniqueId = snap.uniqueId,
         entityId = snap.entityId,
       )
       loaded++

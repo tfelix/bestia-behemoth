@@ -13,7 +13,13 @@ class ItemScriptExecutionService(
 
   private val itemScriptsById = itemScripts.associateBy { it.itemId }
 
-  fun useItem(world: World, userId: EntityId, item: Item) {
+  /**
+   * Executes [item]'s script for the given user and, on success, consumes one from the user's live
+   * ECS [Inventory]. Returns true if an item was consumed, so the caller can persist the matching
+   * DB decrement (this service deliberately stays ECS-only, like the rest of the obtain/consume
+   * pipeline).
+   */
+  fun useItem(world: World, userId: EntityId, item: Item): Boolean {
     val itemScript = itemScriptsById[item.id]
       ?: throw ItemScriptNotFoundException(item)
 
@@ -23,5 +29,7 @@ class ItemScriptExecutionService(
       val inventory = world.getOrThrow(userId, Inventory::class)
       inventory.decItem(item.id.toInt())
     }
+
+    return isSuccess
   }
 }

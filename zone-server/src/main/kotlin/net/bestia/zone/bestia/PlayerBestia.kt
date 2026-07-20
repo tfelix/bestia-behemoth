@@ -3,7 +3,7 @@ package net.bestia.zone.bestia
 import jakarta.persistence.*
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.inventory.InventoryItem
+import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.battle.skill.LearnedSkill
 
 @Entity
@@ -33,8 +33,9 @@ class PlayerBestia(
   @Embedded
   var position: Vec3L = Vec3L.ZERO
 
-  @OneToMany(mappedBy = "playerBestia")
-  val inventory: MutableSet<InventoryItem> = mutableSetOf()
+  @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
+  @JoinColumn(name = "container_id", nullable = false)
+  val container: ItemContainer = ItemContainer(ItemContainer.Type.BESTIA)
 
   @OneToMany(mappedBy = "playerBestia", cascade = [CascadeType.ALL], orphanRemoval = true)
   val learnedSkills: MutableSet<LearnedSkill> = mutableSetOf()

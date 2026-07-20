@@ -111,12 +111,13 @@ class MasterEntityFactory(
 
   private fun buildInventory(master: Master): Inventory {
     return Inventory(
-      items = master.inventory.items.map { invItem ->
+      items = master.container.slots.map { slot ->
         Inventory.Item(
-          itemId = invItem.playerItem.item.id,
-          weight = invItem.playerItem.item.weight,
-          amount = invItem.amount,
-          playerItemId = invItem.playerItem.id
+          itemId = slot.template.id,
+          weight = slot.template.weight,
+          amount = slot.amount,
+          uniqueId = slot.uniqueId,
+          stackable = slot.isStackable
         )
       }.toMutableList()
     )

@@ -6,6 +6,7 @@ import net.bestia.zone.battle.skill.LearnedSkill
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.PlayerBestia
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.item.container.ItemContainer
 import net.bestia.zone.party.Party
 import java.awt.Color
 
@@ -85,8 +86,9 @@ class Master(
   )
   var spawnPosition: Vec3L = Vec3L.ZERO
 
-  @Embedded
-  val inventory = MasterInventory()
+  @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
+  @JoinColumn(name = "container_id", nullable = false)
+  val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)
 
   val bestias = MasterBestias()
 

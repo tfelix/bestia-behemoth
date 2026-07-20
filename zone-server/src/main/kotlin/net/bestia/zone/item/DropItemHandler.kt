@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.inventory.InventoryItemFactory
+import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
@@ -16,7 +16,7 @@ import kotlin.random.Random
 @Component
 class DropItemHandler(
   private val itemRepository: ItemRepository,
-  private val inventoryItemFactory: InventoryItemFactory,
+  private val inventoryService: InventoryService,
   private val lootItemEntityFactory: LootItemEntityFactory,
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView
@@ -43,7 +43,7 @@ class DropItemHandler(
 
     // Access the entity, verify preconditions from ECS info and persist the removal to the
     // database immediately (critical item transaction - must not risk duplication).
-    val dropPos: Vec3L? = world.modify(activeEntityId) { id ->
+    val dropped: Dropped? = world.modify(activeEntityId) { id ->
       val inventory = get(id, Inventory::class)
 
       if (inventory == null) {
@@ -56,32 +56,56 @@ class DropItemHandler(
         return@modify null
       }
 
-      // 1. Persist the removal to the DB first - this is the durable, crash-safe commit.
-      val dbRemoved = inventoryItemFactory.removeItem(masterId, item.identifier, msg.amount)
+      // 1. Persist the removal to the DB first - this is the durable, crash-safe commit. The DB is
+      //    the source of truth for which physical item leaves the inventory: it prefers a unique
+      //    instance and hands back its uniqueId so the dropped item keeps its identity.
+      val removed = inventoryService.removeOneFromMaster(masterId, item.id, msg.amount)
 
-      if (!dbRemoved) {
-        LOG.warn { "Could not remove $msg.amount of item ${item.identifier} from master $masterId in DB" }
+      if (removed == null) {
+        LOG.warn { "Could not remove ${msg.amount} of item ${item.identifier} from master $masterId in DB" }
         return@modify null
       }
 
-      // 2. Mutate the ECS inventory; it marks itself dirty and syncs back to the owner.
-      inventory.removeAmount(msg.itemId.toInt(), msg.amount)
+      // 2. Mirror the removal in the ECS inventory; it marks itself dirty and syncs back to the owner.
+      val groundAmount = if (removed.uniqueId != 0L) {
+        inventory.removeByUniqueId(removed.uniqueId)
+        1
+      } else {
+        inventory.removeAmount(msg.itemId.toInt(), msg.amount)
+        msg.amount
+      }
 
       val pos = getOrThrow(id, Position::class).toVec3L()
-      Vec3L(
-        pos.x + Random.nextLong(-1, 2),
-        pos.y + Random.nextLong(-1, 2),
-        pos.z
+      Dropped(
+        uniqueId = removed.uniqueId,
+        amount = groundAmount,
+        pos = Vec3L(
+          pos.x + Random.nextLong(-1, 2),
+          pos.y + Random.nextLong(-1, 2),
+          pos.z
+        )
       )
     }
 
     // 3. Spawn the ground item entity outside of the entity access block.
-    if (dropPos != null) {
-      lootItemEntityFactory.createLootEntity(world, itemId = item.id, amount = msg.amount, pos = dropPos)
+    if (dropped != null) {
+      lootItemEntityFactory.createLootEntity(
+        world,
+        itemId = item.id,
+        amount = dropped.amount,
+        pos = dropped.pos,
+        uniqueId = dropped.uniqueId
+      )
     }
 
     return true
   }
+
+  private data class Dropped(
+    val uniqueId: Long,
+    val amount: Int,
+    val pos: Vec3L,
+  )
 
   companion object {
     private val LOG = KotlinLogging.logger { }

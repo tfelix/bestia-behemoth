@@ -22,6 +22,14 @@ class Item(
   val type: ItemType,
 
   /**
+   * Whether fresh grants of this item merge into a single stack. Items that carry per-instance
+   * state ([net.bestia.zone.item.instance.ItemInstance] - upgrade level, forged-by-master, ...)
+   * are never stacked regardless of this flag; this only decides how a plain, freshly obtained
+   * item is stored. Equipment defaults to non-stackable.
+   */
+  val stackable: Boolean = (type != ItemType.EQUIP),
+
+  /**
    * Name of the [net.bestia.zone.item.script.ItemScript] implementation used to execute this
    * item's usage effect. Required for [ItemType.USABLE] items.
    */
