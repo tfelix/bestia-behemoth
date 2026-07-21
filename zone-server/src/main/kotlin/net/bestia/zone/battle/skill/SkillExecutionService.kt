@@ -2,6 +2,8 @@ package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.damage.Buff
 import net.bestia.zone.battle.damage.CriticalHit
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
@@ -37,6 +39,7 @@ class SkillExecutionService(
   private val skillStrategyFactory: SkillStrategyFactory,
   private val battleContextFactory: BattleContextFactory,
   private val outMessageProcessor: OutMessageProcessor,
+  private val statusEffectService: StatusEffectService,
 ) {
 
   /**
@@ -111,11 +114,19 @@ class SkillExecutionService(
     // Ground-targeted skills have no single entity to apply a number to yet (no AOE resolution).
     val targetId = targetEntityId ?: return
 
+    // A buff has no health delta to broadcast as a DamageEntitySMSG - the client learns about it
+    // via the StatusEffects component's own dirty-sync (StatusEffectsComponentSMSG) instead.
+    if (result is Buff) {
+      statusEffectService.applyEffect(world, targetId, result.effectId, skillLevel, casterId)
+      return
+    }
+
     val type = when (result) {
       is Miss -> DamageEntitySMSG.DamageType.MISS
       is CriticalHit -> DamageEntitySMSG.DamageType.CRIT
       is Heal -> DamageEntitySMSG.DamageType.HEAL
       is HitDamage, is TrueDamage -> DamageEntitySMSG.DamageType.NORMAL
+      is Buff -> return // unreachable (handled above); keeps the `when` exhaustive
     }
 
     val position = world.get(casterId, Position::class)?.toVec3L() ?: return

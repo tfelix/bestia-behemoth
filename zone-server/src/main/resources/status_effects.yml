@@ -49,3 +49,19 @@ statusEffects:
     durationPerLevel: 0
     stackBehavior: IGNORE_IF_PRESENT
     effects: []
+
+  # Applied by the BLESSING skill (skills.yml id 1). The flavor text describes a STR/DEX/INT/HIT
+  # boost, but StatType currently only models SPEED - see StatType.kt - so this reuses the same
+  # SPEED-multiplier shape as SWIFTNESS until a broader stat-modifier system exists.
+  - id: 5
+    identifier: BLESSING
+    polarity: BUFF
+    showIcon: true
+    baseDurationSeconds: 4
+    durationPerLevel: 0
+    stackBehavior: REFRESH_DURATION
+    effects:
+      - type: STAT_MODIFIER
+        stat: SPEED
+        mode: MULTIPLICATIVE
+        valuePerLevel: 0.1

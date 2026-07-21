@@ -44,3 +44,14 @@ data object Miss : Damage() {
   override val amount: Int
     get() = 0
 }
+
+/**
+ * The skill applies a status effect rather than a health change - [net.bestia.zone.battle.skill.SkillExecutionService]
+ * dispatches this to [net.bestia.zone.battle.StatusEffectService] instead of broadcasting a
+ * [DamageEntitySMSG].
+ */
+data class Buff(
+  val effectId: Long
+) : Damage() {
+  override val amount: Int = 0
+}
