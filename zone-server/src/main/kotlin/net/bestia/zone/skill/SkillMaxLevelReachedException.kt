@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 import net.bestia.zone.BestiaException
 

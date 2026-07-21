@@ -1,6 +1,7 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
@@ -8,6 +9,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.skill.SkillRepository
 import org.springframework.stereotype.Component
 
 /**

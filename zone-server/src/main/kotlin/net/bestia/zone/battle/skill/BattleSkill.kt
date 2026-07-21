@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.skill.Skill
 
 data class BattleSkill(
   val strength: Int,

@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.battle
 
 import net.bestia.bnet.proto.ActivateSkillCmsgProto
 import net.bestia.zone.geometry.Vec3L

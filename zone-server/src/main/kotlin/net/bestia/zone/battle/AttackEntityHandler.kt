@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.battle.skill.AttackEntityCMSG
+import net.bestia.zone.battle.AttackEntityCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor

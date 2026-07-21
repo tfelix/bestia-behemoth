@@ -1,5 +1,6 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
+import net.bestia.zone.battle.skill.InsufficientLevelException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.battle.KnownSkills

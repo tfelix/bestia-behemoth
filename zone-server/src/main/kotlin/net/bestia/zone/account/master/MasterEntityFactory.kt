@@ -1,7 +1,7 @@
 package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.LearnedSkillRepository
+import net.bestia.zone.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.KnownSkills
 import net.bestia.zone.ecs.battle.status.Attributes
 import net.bestia.zone.ecs.item.CarryCapacity

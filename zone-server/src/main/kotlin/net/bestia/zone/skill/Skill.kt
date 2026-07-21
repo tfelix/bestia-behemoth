@@ -1,6 +1,8 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 import jakarta.persistence.*
+import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.battle.skill.SkillType
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity

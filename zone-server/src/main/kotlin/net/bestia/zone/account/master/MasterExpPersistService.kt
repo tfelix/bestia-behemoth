@@ -12,29 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * The single durable entry point for [Master.level]/[Master.exp]/[Master.skillPoints].
- * [schedulePersistExperience] resolves [masterEntityId]'s DB id up front (cheap, and stable for as
- * long as the entity is online, so there is nothing to go stale) and uses it as the
- * [AsyncJobExecutor] key, so writes for the same master never run concurrently with each other on
- * this JVM. The [Level]/[Exp]/[SkillPoints] values themselves are deliberately re-read from [world]
- * only once the job actually runs, not here: a queued job may sit behind others for the same
- * master, and by the time it is its turn further gains could already have landed on the entity -
- * reading eagerly would risk persisting a stale snapshot and clobbering a newer one.
- *
- * Skill points are persisted alongside level/exp because a level-up grants one (see
- * `GainExpSystem`); persisting them here makes that gain durable immediately rather than only at
- * the next full entity snapshot. The live [SkillPoints] component is the source of truth - spends
- * (`MasterSkillTreeService.investSkillPoints`) keep it in sync too - so writing its current value
- * is always correct.
- *
- * The actual write ([MasterExpWriter.persist]) lives on a separate bean rather than a private
- * method here so `@Transactional` actually applies: Spring's transactional advice is proxy-based
- * and does not intercept self-invocation (a method calling another method on `this`), so a
- * `@Transactional` method called from within the same class would silently run with no
- * transaction. That would matter a lot here: `SELECT ... FOR UPDATE`
- * ([MasterRepository.findByIdForUpdate]) only guards against a concurrent read-modify-write if the
- * lock is held for the whole find-mutate-save sequence - without a real transaction wrapping all
- * three, the lock would already be released again before the mutated row is saved.
+ * A single entry point for persisting highly valuable
  */
 @Service
 class MasterExpPersistService(

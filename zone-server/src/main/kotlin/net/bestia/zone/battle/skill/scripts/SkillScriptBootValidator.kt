@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill.scripts
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.SkillRepository
+import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.battle.skill.SkillScriptRegistry
 import net.bestia.zone.battle.skill.SkillType
 import org.springframework.boot.context.event.ApplicationReadyEvent

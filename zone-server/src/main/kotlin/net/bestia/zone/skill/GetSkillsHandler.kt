@@ -1,7 +1,7 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.PlayerBestiaNotFoundException
+import net.bestia.zone.account.master.skill.MasterSkillListBuilder
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.core.session.ConnectionInfoService

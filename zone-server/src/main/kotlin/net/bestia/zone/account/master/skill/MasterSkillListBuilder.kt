@@ -1,13 +1,15 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.account.master.skill
 
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.skill.LearnedSkillRepository
+import net.bestia.zone.skill.SkillListSMSG
 import org.springframework.stereotype.Service
 
 /**
  * Builds a master's merged skill list - the whole skill tree (config, not player state), every
  * node shown and dimmed on the client until points are invested into it. Shared by
- * [GetSkillsHandler] (client-requested refresh) and [InvestSkillPointHandler] (proactive push
+ * [net.bestia.zone.skill.GetSkillsHandler] (client-requested refresh) and [InvestSkillPointHandler] (proactive push
  * right after an investment is confirmed) so both read the same source of truth.
  */
 @Service

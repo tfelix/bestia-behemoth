@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.container.ItemContainer
-import net.bestia.zone.battle.skill.LearnedSkill
+import net.bestia.zone.skill.LearnedSkill
 
 @Entity
 @Table(

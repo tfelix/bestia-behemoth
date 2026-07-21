@@ -1,4 +1,4 @@
-package net.bestia.zone.account.master
+package net.bestia.zone.account.master.skill
 
 import net.bestia.bnet.proto.InvestSkillPointCmsgProto
 import net.bestia.zone.message.CMSG

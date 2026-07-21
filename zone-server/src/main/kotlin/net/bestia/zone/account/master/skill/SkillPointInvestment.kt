@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.account.master.skill
 
 /**
  * A request to spend [amount] skill points on the tree node for [skillId].

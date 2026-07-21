@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.account.master.skill
 
 /**
  * Static, in-memory definition of a single skill in the bestia master's skill tree: which skill

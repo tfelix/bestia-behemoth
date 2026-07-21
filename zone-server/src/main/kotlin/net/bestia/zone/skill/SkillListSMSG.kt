@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.SkillListSMSGProto

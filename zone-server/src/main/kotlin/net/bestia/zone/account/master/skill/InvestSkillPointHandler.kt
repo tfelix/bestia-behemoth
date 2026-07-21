@@ -1,10 +1,8 @@
-package net.bestia.zone.account.master
+package net.bestia.zone.account.master.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.MasterSkillListBuilder
-import net.bestia.zone.battle.skill.MasterSkillTreeService
-import net.bestia.zone.battle.skill.SkillListSMSG
-import net.bestia.zone.battle.skill.SkillPointInvestment
+import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.skill.SkillListSMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component

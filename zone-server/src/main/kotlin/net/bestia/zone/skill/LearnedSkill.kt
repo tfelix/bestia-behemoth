@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.skill
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -18,7 +18,7 @@ import org.hibernate.annotations.Check
  * A single learned skill, owned by exactly one of [playerBestia] or [master]: either a custom
  * skill an individual captured bestia has learned on top of its species' fixed level-up table, or
  * a bestia master's invested level in a node of the master skill tree (see
- * [net.bestia.zone.battle.skill.MasterSkillTreeRegistry]).
+ * [net.bestia.zone.account.master.skill.MasterSkillTreeRegistry]).
  */
 @Entity
 @Table(

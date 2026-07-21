@@ -2,7 +2,7 @@ package net.bestia.zone.account.master
 
 import jakarta.persistence.*
 import net.bestia.zone.account.Account
-import net.bestia.zone.battle.skill.LearnedSkill
+import net.bestia.zone.skill.LearnedSkill
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.PlayerBestia
 import net.bestia.zone.geometry.Vec3L

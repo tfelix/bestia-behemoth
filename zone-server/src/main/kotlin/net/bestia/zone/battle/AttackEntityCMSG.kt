@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.skill
+package net.bestia.zone.battle
 
 import net.bestia.bnet.proto.AttackEntityCmsgProto
 import net.bestia.zone.message.CMSG

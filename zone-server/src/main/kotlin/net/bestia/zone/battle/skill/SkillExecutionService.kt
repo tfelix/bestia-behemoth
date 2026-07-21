@@ -15,6 +15,9 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdOrThrow
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
