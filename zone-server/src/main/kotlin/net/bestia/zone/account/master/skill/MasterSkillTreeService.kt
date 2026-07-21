@@ -42,7 +42,7 @@ class MasterSkillTreeService(
    *
    * Unspent points are read from - and spent against - the live [SkillPoints] ECS component
    * rather than [Master.skillPoints]: that DB field only mirrors the component (via periodic
-   * entity persistence and `MasterExpPersistService` on level-up), so the component is the
+   * entity persistence and `MasterEntityPersistenceService` on level-up), so the component is the
    * up-to-date source of truth while the master is online. This requires an active entity for the
    * master; there is no offline spending path.
    */

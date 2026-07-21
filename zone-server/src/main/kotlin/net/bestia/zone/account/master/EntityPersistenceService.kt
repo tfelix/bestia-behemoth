@@ -6,18 +6,23 @@ import net.bestia.zone.util.EntityId
 import org.springframework.transaction.annotation.Transactional
 
 abstract class EntityPersistenceService<T>(
-  private val worldView: WorldView,
   private val writers: List<ComponentEntityWriter<*, T>>,
 ) {
 
   /**
+   * Takes [world] as a parameter rather than injecting it: callers driven from inside an ECS
+   * [net.bestia.zone.ecs.core.System] (collected into the `ecsWorld` bean's `List<System>`)
+   * already hold a [WorldView] on the call stack, and injecting one here instead would make this
+   * service depend on the `ecsWorld` bean while also being one of its indirect dependents - an
+   * unresolvable circular reference.
+   *
    * Must be open so springs proxy can override it in the child classes and properly open
    * a transaction.
    */
   @Transactional
-  open fun persistEntity(entityId: EntityId, dbEntityId: Long) {
+  open fun persistEntity(world: WorldView, entityId: EntityId, dbEntityId: Long) {
     val dbEntity = loadEntity(dbEntityId)
-    worldView.read {
+    world.read {
       writers.forEach { writer ->
         writer.persistChanges(this, entityId, dbEntity)
       }

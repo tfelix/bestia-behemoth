@@ -6,7 +6,7 @@ import net.bestia.zone.ecs.persistence.ComponentEntityWriter
 import org.springframework.stereotype.Component
 
 @Component
-class ExpComponentEntityWriter : ComponentEntityWriter<Exp, Master>(Exp::class) {
+class ExpComponentMasterWriter : ComponentEntityWriter<Exp, Master>(Exp::class) {
   override fun updateEntity(comp: Exp, entity: Master) {
     entity.exp = comp.value
   }

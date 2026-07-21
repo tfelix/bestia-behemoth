@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.battle.exp
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterExpPersistService
+import net.bestia.zone.account.master.persistence.MasterEntityPersistenceService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(60)
 class GainExpSystem(
   private val levelUpExpCalc: LevelUpExperienceCalculator,
-  private val masterExpPersistService: MasterExpPersistService,
+  private val masterEntityPersistenceService: MasterEntityPersistenceService,
 ) : System {
 
   override val reads: ComponentClassSet = setOf(
@@ -55,7 +55,14 @@ class GainExpSystem(
       }
 
       if (isMaster) {
-        masterExpPersistService.schedulePersistExperience(world, entityId)
+        val masterId = world.get(entityId, Master::class)?.masterId
+        if (masterId == null) {
+          LOG.warn { "Entity $entityId has no Master component, cannot persist its level/exp" }
+        } else {
+          // Runs synchronously on the tick thread (blocking DB write) until this gets a
+          // centralized async dispatch mechanism.
+          masterEntityPersistenceService.persistEntity(world, entityId, masterId)
+        }
       }
     }
   }
