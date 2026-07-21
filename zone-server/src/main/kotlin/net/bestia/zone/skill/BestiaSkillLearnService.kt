@@ -3,7 +3,7 @@ package net.bestia.zone.skill
 import net.bestia.zone.battle.skill.InsufficientLevelException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
-import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId

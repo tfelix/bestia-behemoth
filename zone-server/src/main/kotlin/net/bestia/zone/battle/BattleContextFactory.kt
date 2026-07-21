@@ -3,10 +3,9 @@ package net.bestia.zone.battle
 import net.bestia.zone.battle.skill.BattleSkill
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.battle.status.DerivedStatusValues
-import net.bestia.zone.battle.status.StatusValues
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.Attributes
+import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
@@ -65,10 +64,10 @@ class BattleContextFactory {
     }
 
     val position = world.get(entityId, Position::class)?.toVec3L() ?: return null
-    val attributes = world.get(entityId, Attributes::class) ?: return null
+    val attributes = world.get(entityId, StatusValues::class) ?: return null
     val level = world.get(entityId, Level::class)?.level ?: 1
 
-    val statusValues = StatusValues(
+    val statusValues = net.bestia.zone.battle.status.StatusValues(
       strength = attributes.strength,
       vitality = attributes.vitality,
       intelligence = attributes.intelligence,

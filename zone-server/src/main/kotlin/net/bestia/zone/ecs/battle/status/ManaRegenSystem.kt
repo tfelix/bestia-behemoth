@@ -17,7 +17,7 @@ import kotlin.math.roundToInt
 class ManaRegenSystem : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(8f)
-  override val reads: ComponentClassSet = setOf(Attributes::class, InCombat::class)
+  override val reads: ComponentClassSet = setOf(StatusValues::class, InCombat::class)
   override val writes: ComponentClassSet = setOf(Mana::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -27,7 +27,7 @@ class ManaRegenSystem : System {
       val mana = get<Mana>()
       if (mana.current >= mana.max) return@each
 
-      val intelligence = world.get(id, Attributes::class)?.intelligence ?: 0
+      val intelligence = world.get(id, StatusValues::class)?.intelligence ?: 0
       val regen = (mana.max * intelligence / 99.0 + 3.0 / 40.0).roundToInt()
       mana.current += regen
     }

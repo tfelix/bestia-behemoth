@@ -12,7 +12,7 @@ import kotlin.math.sqrt
   constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
   constructor() : this(0f, 0f)
 
-  fun distance(p: Vec2F): Float {
+  fun distanceTo(p: Vec2F): Float {
     val dx = x - p.x
     val dy = y - p.y
     return sqrt(dx * dx + dy * dy)

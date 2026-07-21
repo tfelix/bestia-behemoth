@@ -2,7 +2,7 @@ package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.SkillExecutionService
-import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService

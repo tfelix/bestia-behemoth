@@ -6,13 +6,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.status.StatusEffect
-import net.bestia.zone.battle.status.StatusEffectSource
-import net.bestia.zone.battle.status.StatusEffectTriggerAction
-import net.bestia.zone.battle.status.StatusEffectTriggerEvent
-import net.bestia.zone.battle.status.ModifierMode
-import net.bestia.zone.battle.status.StackBehavior
-import net.bestia.zone.battle.status.StatType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -36,25 +29,13 @@ class StatusEffectImporterBootRunner(
     data class StatusEffectDto(
       val id: Long,
       val identifier: String,
-      val polarity: StatusEffectSource,
-      val showIcon: Boolean,
-      val baseDurationSeconds: Double,
-      val durationPerLevel: Double = 0.0,
-      val stackBehavior: StackBehavior = StackBehavior.REFRESH_DURATION,
-      val effects: List<EffectDto> = emptyList()
-    )
-
-    data class EffectDto(
-      val type: String,
-      // STAT_MODIFIER fields
-      val stat: StatType? = null,
-      val mode: ModifierMode? = null,
-      val valuePerLevel: Double? = null,
-      // TRIGGER fields
-      val on: StatusEffectTriggerEvent? = null,
-      val action: String? = null,
-      val percent: Double? = null,
-      val consumeOnTrigger: Boolean = true
+      val isSyncedToClient: Boolean = true,
+      val script: String,
+      // Not read into StatusEffectDefinition - zone-server has no runtime use for buff/debuff
+      // polarity or icon visibility, but these stay parseable here for a possible future
+      // Godot-resource generation step (same relationship skills.yml has to the client Attack DB).
+      val polarity: String? = null,
+      val showIcon: Boolean = true
     )
   }
 
@@ -76,38 +57,9 @@ class StatusEffectImporterBootRunner(
     return StatusEffectDefinition(
       id = dto.id,
       identifier = dto.identifier,
-      polarity = dto.polarity,
-      showIcon = dto.showIcon,
-      baseDurationSeconds = dto.baseDurationSeconds,
-      durationPerLevel = dto.durationPerLevel,
-      stackBehavior = dto.stackBehavior,
-      effects = dto.effects.map { toEffect(it) }
+      isSyncedToClient = dto.isSyncedToClient,
+      script = dto.script
     )
-  }
-
-  private fun toEffect(dto: StatusEffectYmlDto.EffectDto): StatusEffect {
-    return when (dto.type) {
-      "STAT_MODIFIER" -> StatusEffect.StatModifierEffect(
-        stat = dto.stat ?: error("STAT_MODIFIER effect missing 'stat'"),
-        mode = dto.mode ?: error("STAT_MODIFIER effect missing 'mode'"),
-        valuePerLevel = dto.valuePerLevel ?: error("STAT_MODIFIER effect missing 'valuePerLevel'")
-      )
-      "TRIGGER" -> StatusEffect.TriggerEffect(
-        on = dto.on ?: error("TRIGGER effect missing 'on'"),
-        action = toTriggerAction(dto),
-        consumeOnTrigger = dto.consumeOnTrigger
-      )
-      else -> error("Unknown status effect type '${dto.type}'")
-    }
-  }
-
-  private fun toTriggerAction(dto: StatusEffectYmlDto.EffectDto): StatusEffectTriggerAction {
-    return when (dto.action) {
-      "REFLECT_DAMAGE" -> StatusEffectTriggerAction.ReflectDamage(
-        percent = dto.percent ?: error("REFLECT_DAMAGE action missing 'percent'")
-      )
-      else -> error("Unknown status effect trigger action '${dto.action}'")
-    }
   }
 
   companion object {

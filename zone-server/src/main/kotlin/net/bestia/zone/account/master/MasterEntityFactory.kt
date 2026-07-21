@@ -2,8 +2,9 @@ package net.bestia.zone.account.master
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.LearnedSkillRepository
-import net.bestia.zone.ecs.battle.KnownSkills
-import net.bestia.zone.ecs.battle.status.Attributes
+import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
@@ -86,7 +87,7 @@ class MasterEntityFactory(
       val inventory = buildInventory(master)
       add(id, inventory)
 
-      val attributes = Attributes(
+      val baseStatusValues = BaseStatusValues(
         strength = 10,
         intelligence = 10,
         vitality = 10,
@@ -94,15 +95,26 @@ class MasterEntityFactory(
         willpower = 10,
         agility = 10
       )
-      add(id, attributes)
+      add(id, baseStatusValues)
+      add(
+        id,
+        StatusValues(
+          strength = baseStatusValues.strength,
+          intelligence = baseStatusValues.intelligence,
+          vitality = baseStatusValues.vitality,
+          dexterity = baseStatusValues.dexterity,
+          willpower = baseStatusValues.willpower,
+          agility = baseStatusValues.agility
+        )
+      )
 
       add(
         id,
         CarryCapacity(
           current = inventory.totalWeight,
           max = weightLimitCalculator.computeWeightLimit(
-            strength = attributes.strength,
-            vitality = attributes.vitality,
+            strength = baseStatusValues.strength,
+            vitality = baseStatusValues.vitality,
             level = master.level
           )
         )

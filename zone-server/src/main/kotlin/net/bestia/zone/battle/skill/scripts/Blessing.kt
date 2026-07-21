@@ -14,9 +14,10 @@ import org.springframework.stereotype.Component
  * Registered under the script name `Blessing` (see `skills.yml` id 1) via
  * [net.bestia.zone.battle.skill.SkillScriptRegistry].
  *
- * `skills.yml`'s description talks about boosting STR/DEX/INT/HIT, but [net.bestia.zone.battle.status.StatType]
- * only models `SPEED` so far - this applies the `BLESSING` status effect (`status_effects.yml` id 5), which
- * reuses the same SPEED-multiplier shape as `SWIFTNESS` until a broader stat-modifier system exists.
+ * `skills.yml`'s description talks about boosting STR/DEX/INT/HIT, but only speed is modeled as a
+ * buffable stat so far - this applies the `BLESSING` status effect (`status_effects.yml` id 5),
+ * whose script (`net.bestia.zone.battle.status.scripts.Blessing`) reuses the same
+ * speed-multiplier shape as `SWIFTNESS` until a broader stat-modifier is needed.
  */
 @Component
 class Blessing(

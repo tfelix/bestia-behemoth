@@ -1,22 +1,23 @@
 package net.bestia.zone.battle
 
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
-import net.bestia.zone.battle.status.StatusEffect
+import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.effects.StatAggregationSystem
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Entry point for applying a status effect to a target entity - what skill scripts and attack
- * handlers call. Resolves the [net.bestia.zone.battle.status.StatusEffectDefinition], generates a fresh
- * instance id, and delegates stacking rules to [StatusEffects.applyEffect].
+ * handlers call. Resolves the [net.bestia.zone.battle.status.StatusEffectDefinition] and its
+ * [net.bestia.zone.battle.status.StatusEffectScript], delegates stacking rules to
+ * [StatusEffects.applyEffect], and marks the target for a status value recalc.
  */
 @Service
 class StatusEffectService(
-  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry
+  private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
+  private val statusEffectScriptRegistry: StatusEffectScriptRegistry
 ) {
 
   fun applyEffect(
@@ -27,28 +28,20 @@ class StatusEffectService(
     sourceEntityId: EntityId? = null
   ) {
     val definition = statusEffectDefinitionRegistry.getOrThrow(definitionId)
-    val durationSeconds = definition.durationSeconds(level)
-    val instanceId = instanceIdGenerator.getAndIncrement()
+    val script = statusEffectScriptRegistry.getOrThrow(definition.script)
+    val durationSeconds = script.durationSeconds(level)
 
     world.update(targetId, default = { StatusEffects() }) { effects ->
       effects.applyEffect(
-        definition = definition,
+        definitionId = definition.id,
+        stackBehavior = script.stackBehavior,
         level = level,
-        instanceId = instanceId,
         sourceEntityId = sourceEntityId,
-        durationSeconds = durationSeconds
+        durationSeconds = durationSeconds,
+        isSyncedToClient = definition.isSyncedToClient
       )
     }
 
-    // Pre-provision StatModifiers synchronously (this call always runs outside a System) so
-    // StatAggregationSystem/SpeedModifierSystem don't hit a one-tick lag creating it themselves
-    // mid-tick - see StatAggregationSystem.ensureStatModifiers.
-    if (definition.effects.any { it is StatusEffect.StatModifierEffect }) {
-      StatAggregationSystem.ensureStatModifiers(world, targetId)
-    }
-  }
-
-  companion object {
-    private val instanceIdGenerator = AtomicLong(1)
+    world.add(targetId, IsStatusValueDirty)
   }
 }

@@ -1,7 +1,5 @@
 package net.bestia.zone.ecs.battle.effects
 
-import net.bestia.zone.battle.status.StatusEffectDefinition
-import net.bestia.zone.battle.status.StatusEffectSource
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.ecs.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
@@ -13,13 +11,11 @@ import net.bestia.zone.util.EntityId
 
 /**
  * Every status effect currently active on an entity. Synced to the client via the generic
- * [Dirtyable] pipeline ([net.bestia.zone.ecs.ZoneEngine]); [toEntityMessage] is what filters out
- * effects with `showIcon = false` so internal bookkeeping effects never reach the client (see
- * [ActiveStatusEffect.showIcon]).
+ * [Dirtyable] pipeline ([net.bestia.zone.ecs.ZoneEngine]).
  *
- * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown]/[consume] mark it
- * dirty as they mutate, and a freshly added instance starts dirty, so changes reach the client
- * without any external bookkeeping. To force a resend when nothing changed, call [markDirty].
+ * Sync is driven by this component's own dirty flag: [applyEffect]/[tickDown] mark it dirty as
+ * they mutate, and a freshly added instance starts dirty, so changes reach the client without any
+ * external bookkeeping.
  */
 class StatusEffects(
   val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
@@ -27,27 +23,26 @@ class StatusEffects(
 
   private var dirty = true
 
-  /** Applies [definition] at [level], resolving [StackBehavior] against any existing instance. */
+  /** Applies [definitionId] at [level], resolving [stackBehavior] against any existing instance. */
   fun applyEffect(
-    definition: StatusEffectDefinition,
+    definitionId: Long,
+    stackBehavior: StackBehavior,
     level: Int,
-    instanceId: Long,
     sourceEntityId: EntityId?,
-    durationSeconds: Double
+    durationSeconds: Double,
+    isSyncedToClient: Boolean
   ) {
     fun newInstance() = ActiveStatusEffect(
-      instanceId = instanceId,
-      definitionId = definition.id,
+      definitionId = definitionId,
       level = level,
       remainingSeconds = durationSeconds.toFloat(),
-      showIcon = definition.showIcon,
-      isDebuff = definition.polarity == StatusEffectSource.DEBUFF,
-      sourceEntityId = sourceEntityId
+      sourceEntityId = sourceEntityId,
+      isSyncedToClient = isSyncedToClient
     )
 
-    val existing = activeEffects.firstOrNull { it.definitionId == definition.id }
+    val existing = activeEffects.firstOrNull { it.definitionId == definitionId }
 
-    when (definition.stackBehavior) {
+    when (stackBehavior) {
       StackBehavior.STACK_INDEPENDENT -> activeEffects.add(newInstance())
       StackBehavior.IGNORE_IF_PRESENT -> if (existing == null) activeEffects.add(newInstance())
       StackBehavior.REFRESH_DURATION -> {
@@ -70,9 +65,10 @@ class StatusEffects(
     dirty = true
   }
 
-  /** Ticks down every active instance by [deltaTime] and removes any that expired. */
-  fun tickDown(deltaTime: Float) {
+  /** Ticks down every active instance by [deltaTime] and removes any that expired. Returns whether anything expired. */
+  fun tickDown(deltaTime: Float): Boolean {
     val iterator = activeEffects.iterator()
+    var expired = false
 
     while (iterator.hasNext()) {
       val effect = iterator.next()
@@ -80,18 +76,11 @@ class StatusEffects(
       if (effect.remainingSeconds <= 0f) {
         iterator.remove()
         dirty = true
+        expired = true
       }
     }
-  }
 
-  /** Removes a single active instance (e.g. a trigger effect consuming itself). */
-  fun consume(instanceId: Long): Boolean {
-    val removed = activeEffects.removeIf { it.instanceId == instanceId }
-    if (removed) {
-      dirty = true
-    }
-
-    return removed
+    return expired
   }
 
   override fun isDirty(): Boolean = dirty
@@ -105,7 +94,7 @@ class StatusEffects(
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
-    val visible = activeEffects.filter { it.showIcon }
+    val visible = activeEffects.filter { it.isSyncedToClient }
     return StatusEffectsComponentSMSG(
       entityId = entityId,
       effects = visible.map {
@@ -113,7 +102,11 @@ class StatusEffects(
           effectId = it.definitionId,
           level = it.level,
           remainingSeconds = it.remainingSeconds,
-          debuff = it.isDebuff
+          // No server-side source of truth for buff/debuff polarity anymore - the client
+          // classifies icons by looking effectId up in its own local status effect DB (mirrors
+          // how the Godot Attack DB works for skills). Candidate for removal from the wire
+          // message in a later, separate proto change.
+          debuff = false
         )
       }
     )

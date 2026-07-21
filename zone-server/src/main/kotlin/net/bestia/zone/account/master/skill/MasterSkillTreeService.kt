@@ -12,7 +12,7 @@ import net.bestia.zone.skill.SkillMaxLevelReachedException
 import net.bestia.zone.skill.SkillPrerequisiteNotMetException
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdOrThrow
-import net.bestia.zone.ecs.battle.KnownSkills
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.util.EntityId

@@ -3,65 +3,33 @@ statusEffects:
     identifier: SWIFTNESS
     polarity: BUFF
     showIcon: true
-    baseDurationSeconds: 30
-    durationPerLevel: 5
-    stackBehavior: REFRESH_DURATION
-    effects:
-      - type: STAT_MODIFIER
-        stat: SPEED
-        mode: MULTIPLICATIVE
-        valuePerLevel: 0.1
+    isSyncedToClient: true
+    script: Swiftness
 
   - id: 2
     identifier: CRIPPLE
     polarity: DEBUFF
     showIcon: true
-    baseDurationSeconds: 15
-    durationPerLevel: 0
-    stackBehavior: REFRESH_DURATION
-    effects:
-      - type: STAT_MODIFIER
-        stat: SPEED
-        mode: MULTIPLICATIVE
-        valuePerLevel: -0.15
+    isSyncedToClient: true
+    script: Cripple
 
-  - id: 3
-    identifier: THORNS
-    polarity: BUFF
-    showIcon: true
-    baseDurationSeconds: 20
-    durationPerLevel: 0
-    stackBehavior: IGNORE_IF_PRESENT
-    effects:
-      - type: TRIGGER
-        on: ON_DAMAGE_TAKEN
-        action: REFLECT_DAMAGE
-        percent: 0.3
-        consumeOnTrigger: true
+  # THORNS (reflect-on-damage) is removed pending a redesigned trigger/reaction hook on
+  # StatusEffectScript - the old StatusEffectDamageInterceptSystem/StatusEffectTriggerAction
+  # mechanism it depended on was dropped as out of scope for the stat-recalc refactor.
 
   # Internal bookkeeping only - tracks that this bestia already resisted a debuff once this
-  # encounter. Never shown to the client (showIcon: false).
+  # encounter. Never shown to the client (isSyncedToClient: false).
   - id: 4
     identifier: RESISTED_ONCE_MARKER
     polarity: DEBUFF
     showIcon: false
-    baseDurationSeconds: 5
-    durationPerLevel: 0
-    stackBehavior: IGNORE_IF_PRESENT
-    effects: []
+    isSyncedToClient: false
+    script: ResistedOnceMarker
 
-  # Applied by the BLESSING skill (skills.yml id 1). The flavor text describes a STR/DEX/INT/HIT
-  # boost, but StatType currently only models SPEED - see StatType.kt - so this reuses the same
-  # SPEED-multiplier shape as SWIFTNESS until a broader stat-modifier system exists.
+  # Applied by the BLESSING skill (skills.yml id 1).
   - id: 5
     identifier: BLESSING
     polarity: BUFF
     showIcon: true
-    baseDurationSeconds: 4
-    durationPerLevel: 0
-    stackBehavior: REFRESH_DURATION
-    effects:
-      - type: STAT_MODIFIER
-        stat: SPEED
-        mode: MULTIPLICATIVE
-        valuePerLevel: 0.1
+    isSyncedToClient: true
+    script: BlessingStatusEffect

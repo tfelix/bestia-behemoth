@@ -17,7 +17,7 @@ import kotlin.math.roundToInt
 class HpRegenSystem : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(6f)
-  override val reads: ComponentClassSet = setOf(Attributes::class, InCombat::class)
+  override val reads: ComponentClassSet = setOf(StatusValues::class, InCombat::class)
   override val writes: ComponentClassSet = setOf(Health::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -27,7 +27,7 @@ class HpRegenSystem : System {
       val health = get<Health>()
       if (health.current >= health.max) return@each
 
-      val vitality = world.get(id, Attributes::class)?.vitality ?: 0
+      val vitality = world.get(id, StatusValues::class)?.vitality ?: 0
       val regen = (health.max * vitality / 99.0 + 2.0 / 100.0).roundToInt()
       health.current += regen
     }
