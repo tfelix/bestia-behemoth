@@ -12,7 +12,7 @@ class Stamina(
   max: Int
 ) : CurMax(current, max), Component {
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return StaminaComponentSMSG(
       entityId = entityId,
       current = current,

@@ -171,11 +171,6 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.LogoutIntentComponentSMSG.FromProto(envelope.CompLogoutIntent);
           EmitSignal(SignalName.MessageReceived, msg);
         }
-        else if (envelope.CompRemoved != null)
-        {
-          var msg = Entity.ComponentRemovedSMSG.FromProto(envelope.CompRemoved);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
         else if (envelope.CompPosition != null)
         {
           var msg = Entity.PositionComponent.FromProto(envelope.CompPosition);

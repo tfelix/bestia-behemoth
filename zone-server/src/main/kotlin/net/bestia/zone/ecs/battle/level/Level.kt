@@ -34,7 +34,7 @@ class Level(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return LevelComponentSMSG(entityId = entityId, level = level)
   }
 

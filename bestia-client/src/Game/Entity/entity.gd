@@ -36,8 +36,8 @@ var _effects: Array = []
 var _skill_points: int = 0
 
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
-# a ComponentRemovedSMSG for Casting). For the owned entity this also gates movement input, since
-# moving cancels the cast server-side.
+# a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
+# since moving cancels the cast server-side.
 var _casting: bool = false
 
 var _camera: Node3D = null

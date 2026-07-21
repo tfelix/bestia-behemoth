@@ -14,7 +14,7 @@ class Mana(
   max: Int
 ) : CurMax(current, max), Component {
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return ManaComponentSMSG(
       entityId = entityId,
       current = current,

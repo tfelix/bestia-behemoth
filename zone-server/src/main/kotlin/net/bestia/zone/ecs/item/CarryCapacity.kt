@@ -21,7 +21,7 @@ class CarryCapacity(
   var lastKnownVitality: Int = -1
   var lastKnownLevel: Int = -1
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return CarryCapacityComponentSMSG(
       entityId = entityId,
       current = current,

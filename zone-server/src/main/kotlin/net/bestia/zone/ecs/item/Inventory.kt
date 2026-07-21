@@ -179,7 +179,7 @@ data class Inventory(
     dirty = true
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return InventoryComponentSMSG(
       entityId = entityId,
       items = items.map { item ->

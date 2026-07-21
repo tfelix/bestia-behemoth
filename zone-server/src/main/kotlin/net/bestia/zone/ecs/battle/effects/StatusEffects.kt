@@ -104,7 +104,7 @@ class StatusEffects(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     val visible = activeEffects.filter { it.showIcon }
     return StatusEffectsComponentSMSG(
       entityId = entityId,

@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci9tZXNzYWdlcy9jb21wb25lbnQvY2FzdGluZ19jb21wb25lbnRfc21zZy5w",
-            "cm90bxIEYm5ldCJbChRDYXN0aW5nQ29tcG9uZW50U01TRxIRCgllbnRpdHlf",
+            "cm90bxIEYm5ldCJsChRDYXN0aW5nQ29tcG9uZW50U01TRxIRCgllbnRpdHlf",
             "aWQYASABKAYSGQoRcmVtYWluaW5nX3NlY29uZHMYAiABKAISFQoNdG90YWxf",
-            "c2Vjb25kcxgDIAEoAkIyChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CGUNhc3Rp",
-            "bmdDb21wb25lbnRTbXNnUHJvdG9iBnByb3RvMw=="));
+            "c2Vjb25kcxgDIAEoAhIPCgdyZW1vdmVkGAQgASgIQjIKFW5ldC5iZXN0aWEu",
+            "Ym5ldC5wcm90b0IZQ2FzdGluZ0NvbXBvbmVudFNtc2dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CastingComponentSMSG), global::Bnet.CastingComponentSMSG.Parser, new[]{ "EntityId", "RemainingSeconds", "TotalSeconds" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CastingComponentSMSG), global::Bnet.CastingComponentSMSG.Parser, new[]{ "EntityId", "RemainingSeconds", "TotalSeconds", "Removed" }, null, null, null, null)
           }));
     }
     #endregion
@@ -42,9 +42,9 @@ namespace Bnet {
   /// <summary>
   /// Broadcast to everyone in range while an entity channels a skill, driving the cast bar above its
   /// head. Re-sent periodically so the client stays corrected against clock drift; the client
-  /// interpolates remaining_seconds locally in between. Removal of the underlying component is
-  /// signalled separately via ComponentRemovedSMSG - which covers both a completed and an interrupted
-  /// cast, since either way the bar simply goes away.
+  /// interpolates remaining_seconds locally in between. Removal of the underlying component re-sends
+  /// this same message with removed = true - covering both a completed and an interrupted cast, since
+  /// either way the bar simply goes away.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class CastingComponentSMSG : pb::IMessage<CastingComponentSMSG>
@@ -84,6 +84,7 @@ namespace Bnet {
       entityId_ = other.entityId_;
       remainingSeconds_ = other.remainingSeconds_;
       totalSeconds_ = other.totalSeconds_;
+      removed_ = other.removed_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -129,6 +130,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "removed" field.</summary>
+    public const int RemovedFieldNumber = 4;
+    private bool removed_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Removed {
+      get { return removed_; }
+      set {
+        removed_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -147,6 +160,7 @@ namespace Bnet {
       if (EntityId != other.EntityId) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(RemainingSeconds, other.RemainingSeconds)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TotalSeconds, other.TotalSeconds)) return false;
+      if (Removed != other.Removed) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -157,6 +171,7 @@ namespace Bnet {
       if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
       if (RemainingSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(RemainingSeconds);
       if (TotalSeconds != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TotalSeconds);
+      if (Removed != false) hash ^= Removed.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -187,6 +202,10 @@ namespace Bnet {
         output.WriteRawTag(29);
         output.WriteFloat(TotalSeconds);
       }
+      if (Removed != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Removed);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -209,6 +228,10 @@ namespace Bnet {
         output.WriteRawTag(29);
         output.WriteFloat(TotalSeconds);
       }
+      if (Removed != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Removed);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -227,6 +250,9 @@ namespace Bnet {
       }
       if (TotalSeconds != 0F) {
         size += 1 + 4;
+      }
+      if (Removed != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -248,6 +274,9 @@ namespace Bnet {
       }
       if (other.TotalSeconds != 0F) {
         TotalSeconds = other.TotalSeconds;
+      }
+      if (other.Removed != false) {
+        Removed = other.Removed;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -276,6 +305,10 @@ namespace Bnet {
             TotalSeconds = input.ReadFloat();
             break;
           }
+          case 32: {
+            Removed = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -301,6 +334,10 @@ namespace Bnet {
           }
           case 29: {
             TotalSeconds = input.ReadFloat();
+            break;
+          }
+          case 32: {
+            Removed = input.ReadBool();
             break;
           }
         }

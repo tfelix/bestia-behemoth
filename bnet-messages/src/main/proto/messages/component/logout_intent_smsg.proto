@@ -7,9 +7,10 @@ option java_outer_classname = "LogoutIntentSmsgProto";
 
 // Owner-only sync of a pending logout countdown living on the master entity. Re-sent periodically
 // (every few seconds) so the client countdown stays corrected against clock drift; the client
-// interpolates locally between updates. Removal of the underlying component is signalled separately
-// via ComponentRemovedSMSG (= logout cancelled).
+// interpolates locally between updates. Removal of the underlying component re-sends this same
+// message with removed = true (= logout cancelled).
 message LogoutIntentSMSG {
   fixed64 entity_id = 1;
   float remaining_seconds = 2;
+  bool removed = 3;
 }

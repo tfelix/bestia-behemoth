@@ -19,7 +19,12 @@ interface Dirtyable {
   fun clearDirty()
 
 
-  fun toEntityMessage(entityId: Long): EntitySMSG
+  /**
+   * [removed] is true only for the one extra call [ZoneEngine] makes when this component
+   * implements [Removable] and was just taken off an entity; every regular dirty-flush call
+   * uses the default.
+   */
+  fun toEntityMessage(entityId: Long, removed: Boolean = false): EntitySMSG
 
   /**
    * Who should receive this change this tick, resolved fresh every flush so it can depend on

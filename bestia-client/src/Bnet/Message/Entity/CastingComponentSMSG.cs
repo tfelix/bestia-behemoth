@@ -5,13 +5,15 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
   /// <summary>
   /// An entity is channelling a skill. Broadcast to everyone in range so bystanders see the cast bar
   /// too. Re-sent while the cast runs; the client interpolates RemainingSeconds locally in between.
-  /// The end of the cast — completed or interrupted — arrives as a ComponentRemovedSMSG for Casting.
+  /// The end of the cast — completed or interrupted — arrives as this same message with
+  /// Removed = true.
   /// </summary>
   [GlobalClass]
   public partial class CastingComponentSMSG : EntitySMSG
   {
     [Export] public float RemainingSeconds { get; set; }
     [Export] public float TotalSeconds { get; set; }
+    [Export] public bool Removed { get; set; }
 
     public static CastingComponentSMSG FromProto(global::Bnet.CastingComponentSMSG proto)
     {
@@ -19,13 +21,14 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       {
         EntityId = proto.EntityId,
         RemainingSeconds = proto.RemainingSeconds,
-        TotalSeconds = proto.TotalSeconds
+        TotalSeconds = proto.TotalSeconds,
+        Removed = proto.Removed
       };
     }
 
     public override string ToString()
     {
-      return $"CastingComponentSMSG(EntityId={EntityId}, RemainingSeconds={RemainingSeconds}, TotalSeconds={TotalSeconds})";
+      return $"CastingComponentSMSG(EntityId={EntityId}, RemainingSeconds={RemainingSeconds}, TotalSeconds={TotalSeconds}, Removed={Removed})";
     }
   }
 }

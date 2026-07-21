@@ -15,7 +15,7 @@ class Health(
   max: Int
 ) : CurMax(current, max), Component, Dirtyable {
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return HealthComponentSMSG(
       entityId = entityId,
       current = current,

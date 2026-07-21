@@ -5,8 +5,8 @@ class_name CastBar
 ##
 ## The server broadcasts CastingComponentSMSG with the remaining and total cast time; between those
 ## updates the bar ticks down locally in _process so the fill stays smooth regardless of how often
-## the server re-syncs. The cast ending — completed *or* interrupted — arrives as a
-## ComponentRemovedSMSG for Casting and simply hides the bar again.
+## the server re-syncs. The cast ending — completed *or* interrupted — arrives as the same
+## CastingComponentSMSG with Removed = true, and simply hides the bar again.
 
 var _total_seconds: float = 0.0
 var _remaining_seconds: float = 0.0

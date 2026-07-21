@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.entity.VanishEntitySMSG
+import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Service
@@ -45,7 +46,7 @@ class ZoneEngine(
 
   private data class RemovedComponentRecord(
     val entityId: EntityId,
-    val type: RemovableComponentType,
+    val msg: EntitySMSG,
     val targets: SyncTargets,
   )
 
@@ -69,13 +70,14 @@ class ZoneEngine(
 
     // Turn removals of opted-in components into client notifications. Fires only for explicit
     // single-component removals (not whole-entity destroy), resolving the sync targets while the
-    // world lock is still held and the owner is still reachable.
+    // world lock is still held and the owner is still reachable. The removal is the component's own
+    // message type re-sent with removed = true, not a separate generic notification - see Removable.
     world.onComponentRemoved { entityId, component ->
-      if (component is RemovalNotifiable && component is Dirtyable) {
+      if (component is Removable) {
         removedComponentOutbox.add(
           RemovedComponentRecord(
             entityId,
-            component.removableComponentType,
+            component.toEntityMessage(entityId, removed = true),
             component.syncTargets(world, entityId)
           )
         )
@@ -208,7 +210,7 @@ class ZoneEngine(
     // TODO isnt there a nicer pattern in kotlin? maybe foreach() ?
     while (true) {
       val record = removedComponentOutbox.poll() ?: break
-      val msg = ComponentRemovedSMSG(record.entityId, record.type)
+      val msg = record.msg
 
       when (val targets = record.targets) {
         is SyncTargets.PublicInRange -> {

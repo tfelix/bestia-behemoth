@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class TestCurMax(current: Int, max: Int) : CurMax(current, max) {
-  override fun toEntityMessage(entityId: Long): EntitySMSG =
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG =
     throw UnsupportedOperationException("not needed for these tests")
 
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.OwnerOnly

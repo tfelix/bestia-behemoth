@@ -7,11 +7,12 @@ option java_outer_classname = "CastingComponentSmsgProto";
 
 // Broadcast to everyone in range while an entity channels a skill, driving the cast bar above its
 // head. Re-sent periodically so the client stays corrected against clock drift; the client
-// interpolates remaining_seconds locally in between. Removal of the underlying component is
-// signalled separately via ComponentRemovedSMSG - which covers both a completed and an interrupted
-// cast, since either way the bar simply goes away.
+// interpolates remaining_seconds locally in between. Removal of the underlying component re-sends
+// this same message with removed = true - covering both a completed and an interrupted cast, since
+// either way the bar simply goes away.
 message CastingComponentSMSG {
   fixed64 entity_id = 1;
   float remaining_seconds = 2;
   float total_seconds = 3;
+  bool removed = 4;
 }

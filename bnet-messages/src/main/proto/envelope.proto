@@ -48,7 +48,6 @@ import "messages/inventory/drop_item_cmsg.proto";
 import "messages/inventory/loot_item_cmsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/component/logout_intent_smsg.proto";
-import "messages/component/component_removed_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
 import "messages/party/decline_party_invite_cmsg.proto";
@@ -63,6 +62,10 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
 
 message Envelope {
+  // 528 was ComponentRemovedSMSG - superseded by a `removed` field on each removable component's
+  // own message (see Removable.kt); left reserved so the tag is never reused for something else.
+  reserved 528;
+
   oneof message {
     // SYSTEM & ACCOUNT 100
     OperationSuccess operation_success = 1;
@@ -122,7 +125,6 @@ message Envelope {
     AnimationComponentSMSG comp_animation = 525;
     StatusEffectListSMSG comp_effects = 526;
     LogoutIntentSMSG comp_logout_intent = 527;
-    ComponentRemovedSMSG comp_removed = 528;
     StaminaComponentSMSG comp_stamina = 529;
     CarryCapacityComponentSMSG comp_carry_capacity = 530;
     CastingComponentSMSG comp_casting = 531;

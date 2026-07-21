@@ -11,7 +11,8 @@ import net.bestia.zone.message.EntitySMSG
 data class CastingComponentSMSG(
   override val entityId: Long,
   val remainingSeconds: Float,
-  val totalSeconds: Float
+  val totalSeconds: Float,
+  val removed: Boolean = false
 ) : EntitySMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -19,6 +20,7 @@ data class CastingComponentSMSG(
       .setEntityId(entityId)
       .setRemainingSeconds(remainingSeconds)
       .setTotalSeconds(totalSeconds)
+      .setRemoved(removed)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

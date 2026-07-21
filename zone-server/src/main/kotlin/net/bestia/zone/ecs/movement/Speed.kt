@@ -41,7 +41,7 @@ data class Speed(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return SpeedSMSG(
       entityId = entityId,
       speed = speed

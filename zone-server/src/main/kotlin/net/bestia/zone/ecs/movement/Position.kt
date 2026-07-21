@@ -60,7 +60,7 @@ data class Position(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return PositionSMSG(
       entityId = entityId,
       position = Vec3L(x, y, z)

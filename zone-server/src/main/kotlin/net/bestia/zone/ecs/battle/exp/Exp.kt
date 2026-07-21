@@ -42,7 +42,7 @@ data class Exp(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return ExpComponentSMSG(entityId = entityId, exp = value, requiredExpNextLevel = requiredExpNextLevel)
   }
 

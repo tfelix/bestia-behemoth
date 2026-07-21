@@ -57,7 +57,6 @@ REM Component messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\animation_component_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\status_effect_list_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\logout_intent_smsg.proto"
-"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\component_removed_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\casting_component_smsg.proto"
 
 REM Entity messages

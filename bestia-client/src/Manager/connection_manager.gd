@@ -281,18 +281,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		master_info_received.emit(message)
 	elif message is LogoutIntentComponentSMSG:
 		# Must be checked before the generic EntitySMSG branch below, since
-		# LogoutIntentSMSG is itself an EntitySMSG subtype.
-		logout_countdown_received.emit(message.RemainingSeconds)
-	elif message is ComponentRemovedSMSG:
-		# Also an EntitySMSG subtype; must precede the generic branch for the same
-		# reason. Removal of the logout intent component is the server's "logout
-		# aborted" signal.
-		if message.IsLogoutIntent():
+		# LogoutIntentSMSG is itself an EntitySMSG subtype. Removed = true is the
+		# server's "logout aborted" signal, sent as the same message type re-sent once more.
+		if message.Removed:
 			logout_cancelled.emit()
-		elif message.IsCasting():
-			# Unlike the logout intent (which is owner-only UI state), a removed cast belongs to a
-			# specific world entity, so it goes through the normal per-entity dispatch.
-			entity_received.emit(message)
+		else:
+			logout_countdown_received.emit(message.RemainingSeconds)
 	elif message is EntitySMSG:
 		entity_received.emit(message)
 	elif message is SelfSMSG:

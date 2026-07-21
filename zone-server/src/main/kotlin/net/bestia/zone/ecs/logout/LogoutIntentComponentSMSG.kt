@@ -10,13 +10,15 @@ import net.bestia.zone.message.EntitySMSG
  */
 data class LogoutIntentComponentSMSG(
   override val entityId: Long,
-  val remainingSeconds: Float
+  val remainingSeconds: Float,
+  val removed: Boolean = false
 ) : EntitySMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val proto = LogoutIntentSmsgProto.LogoutIntentSMSG.newBuilder()
       .setEntityId(entityId)
       .setRemainingSeconds(remainingSeconds)
+      .setRemoved(removed)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

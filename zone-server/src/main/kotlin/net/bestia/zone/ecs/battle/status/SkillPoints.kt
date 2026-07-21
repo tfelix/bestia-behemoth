@@ -35,7 +35,7 @@ data class SkillPoints(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return SkillPointsComponentSMSG(entityId = entityId, points = value)
   }
 

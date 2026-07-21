@@ -1,7 +1,5 @@
 package net.bestia.zone.scenarios
 
-import net.bestia.zone.ecs.ComponentRemovedSMSG
-import net.bestia.zone.ecs.RemovableComponentType
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
@@ -73,10 +71,10 @@ class LogoutScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     clientPlayer2.clearMessages()
     clientPlayer2.sendMessage(MoveActiveEntityCMSG(clientPlayer2.connectedPlayerId, emptyList()))
 
-    // Cancellation is signalled by the logout-intent component being removed.
+    // Cancellation is signalled by a LogoutIntentComponentSMSG with removed = true.
     await {
-      val removed = clientPlayer2.tryGetLastReceived(ComponentRemovedSMSG::class)
-      assertEquals(RemovableComponentType.LOGOUT_INTENT, removed?.component)
+      val removed = clientPlayer2.tryGetLastReceived(LogoutIntentComponentSMSG::class)
+      assertEquals(true, removed?.removed)
       assertEquals(masterEntityId, removed?.entityId)
     }
 

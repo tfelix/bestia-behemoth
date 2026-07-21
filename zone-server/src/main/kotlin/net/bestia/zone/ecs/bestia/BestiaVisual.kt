@@ -25,7 +25,7 @@ data class BestiaVisual(
     dirty = false
   }
 
-  override fun toEntityMessage(entityId: Long): EntitySMSG {
+  override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {
     return BestiaVisualComponentSMSG(entityId, id)
   }
 
