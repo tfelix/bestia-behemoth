@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/StatusPoints/status_points.gd" id="1_st_pts"]
+[ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusRow/StatusRow.tscn" id="2_st_row"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="StatusPoints" type="PanelContainer"]
+offset_right = 240.0
+offset_bottom = 320.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+script = ExtResource("1_st_pts")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="RowsMargin" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+
+[node name="Rows" type="VBoxContainer" parent="VBoxContainer/RowsMargin"]
+layout_mode = 2
+
+[node name="StrengthRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 0
+
+[node name="AgilityRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 1
+
+[node name="VitalityRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 2
+
+[node name="IntelligenceRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 3
+
+[node name="DexterityRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 4
+
+[node name="WillpowerRow" parent="VBoxContainer/RowsMargin/Rows" instance=ExtResource("2_st_row")]
+layout_mode = 2
+attribute = 5
+
+[node name="FooterMargin" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="FooterRow" type="HBoxContainer" parent="VBoxContainer/FooterMargin"]
+layout_mode = 2
+
+[node name="StatusPointsLabel" type="Label" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Status Points: 0"
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="CloseButton" type="Button" parent="VBoxContainer/FooterMargin/FooterRow"]
+layout_mode = 2
+text = "Close"
+
+[connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/ConfirmButton" to="." method="_on_confirm_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/CancelButton" to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/FooterMargin/FooterRow/CloseButton" to="." method="_on_close_button_pressed"]

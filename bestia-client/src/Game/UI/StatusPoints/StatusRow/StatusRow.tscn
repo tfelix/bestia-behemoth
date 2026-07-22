@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/StatusPoints/StatusRow/status_row.gd" id="1_st_row"]
+
+[node name="StatusRow" type="HBoxContainer"]
+offset_right = 145.0
+offset_bottom = 31.0
+theme_override_constants/separation = 8
+script = ExtResource("1_st_row")
+
+[node name="AttributeLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "STR"
+
+[node name="ValueLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "10"
+
+[node name="SpendPointButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+"
+
+[connection signal="pressed" from="SpendPointButton" to="." method="_on_spend_point_button_pressed"]

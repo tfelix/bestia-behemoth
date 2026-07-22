@@ -170,6 +170,19 @@ func invest_skill_points(investments: Array) -> void:
 	_socket.SendMessage(msg)
 
 
+## Spends one or more status points across one or more base status attributes in a single batch.
+## [param investments] is an Array of {"attribute": StatusAttribute ordinal, "amount": int}
+## dictionaries (see Game/UI/StatusPoints/status_attribute.gd for the ordinal values).
+func invest_status_points(investments: Array) -> void:
+	assert(is_ready_to_send())
+	var msg = InvestStatusPointCMSG.new()
+	var points: Array = []
+	for investment in investments:
+		points.append({"attribute": investment["attribute"], "amount": investment["amount"]})
+	msg.InvestedPoints = points
+	_socket.SendMessage(msg)
+
+
 ## Moves the active entity towards a ground position, walking there tile by tile.
 ## TODO this is bullshit to do this in the connection manager !!! do this in the game and only send the path.
 func move_to(destination: Vector3) -> void:

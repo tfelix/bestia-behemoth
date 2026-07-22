@@ -22,6 +22,7 @@ import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
@@ -74,6 +75,7 @@ class MasterEntityFactory(
       add(id, Speed())
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, SkillPoints(master.skillPoints))
+      add(id, StatusPoints(master.statusPoints))
       add(
         id,
         MasterVisual(
@@ -90,12 +92,12 @@ class MasterEntityFactory(
       add(id, buildEquipment(master))
 
       val baseStatusValues = BaseStatusValues(
-        strength = 10,
-        intelligence = 10,
-        vitality = 10,
-        dexterity = 10,
-        willpower = 10,
-        agility = 10
+        strength = master.strength,
+        intelligence = master.intelligence,
+        vitality = master.vitality,
+        dexterity = master.dexterity,
+        willpower = master.willpower,
+        agility = master.agility
       )
       add(id, baseStatusValues)
       add(

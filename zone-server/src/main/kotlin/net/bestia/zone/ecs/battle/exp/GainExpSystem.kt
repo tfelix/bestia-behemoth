@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.battle.status.StatusPoints
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -29,6 +30,7 @@ class GainExpSystem(
     Exp::class,
     Level::class,
     SkillPoints::class,
+    StatusPoints::class,
     IsStatusValueDirty::class
   )
 
@@ -52,6 +54,9 @@ class GainExpSystem(
         if (isMaster) {
           world.get(entityId, SkillPoints::class)?.let { skillPoints ->
             skillPoints.value += 1
+          }
+          world.get(entityId, StatusPoints::class)?.let { statusPoints ->
+            statusPoints.value += 1
           }
         }
 

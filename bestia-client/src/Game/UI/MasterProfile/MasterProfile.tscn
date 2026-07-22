@@ -162,7 +162,6 @@ columns = 2
 
 [node name="Status" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=574212427]
 layout_mode = 2
-disabled = true
 text = "Status"
 
 [node name="Option" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=404043903]
@@ -247,3 +246,4 @@ text = "Gold: 1.067"
 [connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Items" to="." method="_on_inventory_pressed"]
 [connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Equip" to="." method="_on_equipment_pressed"]
 [connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Skills" to="." method="_on_skills_pressed"]
+[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Status" to="." method="_on_status_pressed"]

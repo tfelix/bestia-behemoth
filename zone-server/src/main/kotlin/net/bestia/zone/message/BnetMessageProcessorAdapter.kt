@@ -5,6 +5,7 @@ import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
+import net.bestia.zone.account.master.status.InvestStatusPointCMSG
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.battle.ActivateSkillCMSG
 import net.bestia.zone.battle.AttackEntityCMSG
@@ -47,6 +48,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasSelectMaster() -> SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
       envelope.hasCreateMaster() -> CreateMasterCMSG.fromBnet(accountId, envelope.createMaster)
       envelope.hasInvestSkillPoint() -> InvestSkillPointCMSG.Companion.fromBnet(accountId, envelope.investSkillPoint)
+      envelope.hasInvestStatusPoint() -> InvestStatusPointCMSG.Companion.fromBnet(accountId, envelope.investStatusPoint)
       envelope.hasGetSkills() -> GetSkillsCMSG(accountId)
       envelope.hasActivateSkill() -> ActivateSkillCMSG.Companion.fromBnet(accountId, envelope.activateSkill)
       envelope.hasSelectActiveEntity() -> SelectEntityCMSG(accountId, envelope.selectActiveEntity.entityId)

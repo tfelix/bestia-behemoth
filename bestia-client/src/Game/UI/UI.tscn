@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://cip6lbglf50vh" path="res://Game/UI/BuffList/BuffList.tscn" id="9_74y3c"]
 [ext_resource type="PackedScene" uid="uid://df51h0nyi66q4" path="res://Game/UI/Options/Options.tscn" id="10_opts"]
 [ext_resource type="PackedScene" uid="uid://cq1eqwin0001" path="res://Game/UI/Equipment/Equipment.tscn" id="11_equip"]
+[ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusPoints.tscn" id="12_status"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -61,6 +62,12 @@ layout_mode = 1
 content = ExtResource("11_equip")
 window_title = "Equipment"
 
+[node name="StatusWin" parent="." unique_id=2084369026 instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("12_status")
+window_title = "Status"
+
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
 layout_mode = 1
 offset_left = -80.0
@@ -74,3 +81,4 @@ layout_mode = 1
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]
 [connection signal="equipment_win_toggled" from="MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
+[connection signal="status_win_toggled" from="MasterProfile" to="." method="_on_master_profile_status_win_toggled"]

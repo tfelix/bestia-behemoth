@@ -185,6 +185,10 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_skill_points(msg)
 	elif msg is EquipmentComponentSMSG:
 		entity.update_equipment(msg)
+	elif msg is StatusValuesComponentSMSG:
+		entity.update_status_values(msg)
+	elif msg is StatusPointsComponentSMSG:
+		entity.update_status_points(msg)
 	else:
 		printerr("EntityManager: An EntitySMSG type %s for entity %s was not handled" % [msg.GetMessageName(), msg.EntityId])
 	# Server sends vanish information -> remove the node + potentially buffered stuff

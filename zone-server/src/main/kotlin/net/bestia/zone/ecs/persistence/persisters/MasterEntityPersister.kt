@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Master as MasterComponent
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.SkillPoints
+import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
@@ -24,6 +26,13 @@ data class MasterSnapshot(
   val z: Long,
   val level: Int,
   val skillPoints: Int,
+  val statusPoints: Int,
+  val strength: Int,
+  val vitality: Int,
+  val intelligence: Int,
+  val dexterity: Int,
+  val willpower: Int,
+  val agility: Int,
 ) : EntitySnapshot
 
 /**
@@ -47,12 +56,21 @@ class MasterEntityPersister(
     val pos = world.get(id, Position::class) ?: return null
     val level = world.get(id, Level::class)?.level ?: 1
     val skillPoints = world.get(id, SkillPoints::class)?.value ?: 0
+    val statusPoints = world.get(id, StatusPoints::class)?.value ?: 0
+    val baseStatusValues = world.get(id, BaseStatusValues::class)
     return MasterSnapshot(
       entityId = id,
       masterId = master.masterId,
       x = pos.x, y = pos.y, z = pos.z,
       level = level,
       skillPoints = skillPoints,
+      statusPoints = statusPoints,
+      strength = baseStatusValues?.strength ?: 10,
+      vitality = baseStatusValues?.vitality ?: 10,
+      intelligence = baseStatusValues?.intelligence ?: 10,
+      dexterity = baseStatusValues?.dexterity ?: 10,
+      willpower = baseStatusValues?.willpower ?: 10,
+      agility = baseStatusValues?.agility ?: 10,
     )
   }
 
@@ -68,6 +86,13 @@ class MasterEntityPersister(
       master.currentPosition = Vec3L(snap.x, snap.y, snap.z)
       master.level = snap.level
       master.skillPoints = snap.skillPoints
+      master.statusPoints = snap.statusPoints
+      master.strength = snap.strength
+      master.vitality = snap.vitality
+      master.intelligence = snap.intelligence
+      master.dexterity = snap.dexterity
+      master.willpower = snap.willpower
+      master.agility = snap.agility
       masterRepository.save(master)
       LOG.debug { "Persisted master ${master.id} at ${master.currentPosition} (level ${master.level})" }
     }

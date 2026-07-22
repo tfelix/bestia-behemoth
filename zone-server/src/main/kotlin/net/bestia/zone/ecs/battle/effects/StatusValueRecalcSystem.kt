@@ -91,6 +91,7 @@ class StatusValueRecalcSystem(
         values.dexterity = context.dexterity
         values.willpower = context.willpower
         values.agility = context.agility
+        values.markDirty()
       }
 
       world.get(id, Speed::class)?.let { speed -> speed.speed = context.speed }

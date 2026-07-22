@@ -37,6 +37,7 @@ import "messages/component/skill_list_smsg.proto";
 import "messages/component/animation_component_smsg.proto";
 import "messages/component/status_effect_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
+import "messages/master/invest_status_point_cmsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
@@ -49,6 +50,8 @@ import "messages/inventory/loot_item_cmsg.proto";
 import "messages/inventory/equip_item_cmsg.proto";
 import "messages/inventory/unequip_item_cmsg.proto";
 import "messages/component/equipment_component_smsg.proto";
+import "messages/component/status_values_smsg.proto";
+import "messages/component/status_points_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
@@ -106,6 +109,7 @@ message Envelope {
     GetSkillsCMSG get_skills = 407;
     ActivateSkillCMSG activate_skill = 408;
     CreateMasterCMSG create_master = 409;
+    InvestStatusPointCMSG invest_status_point = 410;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;
@@ -134,6 +138,8 @@ message Envelope {
     CarryCapacityComponentSMSG comp_carry_capacity = 530;
     CastingComponentSMSG comp_casting = 531;
     EquipmentComponentSMSG comp_equipment = 532;
+    StatusValuesSMSG comp_status_values = 533;
+    StatusPointsSMSG comp_status_points = 534;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

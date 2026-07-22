@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StatusValuesSMSGProto";
+
+/**
+ * An entity's current, effective status values (base values with equipment and active status
+ * effects applied).
+ */
+message StatusValuesSMSG {
+  fixed64 entity_id = 1;
+  uint32 strength = 2;
+  uint32 vitality = 3;
+  uint32 intelligence = 4;
+  uint32 dexterity = 5;
+  uint32 willpower = 6;
+  uint32 agility = 7;
+}

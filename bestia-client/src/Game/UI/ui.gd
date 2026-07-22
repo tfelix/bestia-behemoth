@@ -3,6 +3,7 @@ extends Control
 @onready var _inventory_win: WidgetWindow = $InventoryWin
 @onready var _skills: WidgetWindow = $SkillsWin
 @onready var _equipment_win: WidgetWindow = $EquipmentWin
+@onready var _status_win: WidgetWindow = $StatusWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
 
@@ -43,3 +44,13 @@ func _on_master_profile_skills_win_toggled() -> void:
 func _on_master_profile_equipment_win_toggled() -> void:
 	_equipment_win.visible = !_equipment_win.visible
 	_skills.visible = false
+
+
+func _on_master_profile_status_win_toggled() -> void:
+	_status_win.visible = !_status_win.visible
+	_inventory_win.visible = false
+	_skills.visible = false
+	if _status_win.visible:
+		var status_content := _status_win.get_content() as StatusPoints
+		if status_content:
+			status_content.request_refresh()

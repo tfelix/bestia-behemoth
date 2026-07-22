@@ -41,6 +41,15 @@ var _skill_points: int = 0
 # somewhere durable to seed itself from.
 var _equipment: Dictionary = {}
 
+# Latest known effective base status values ({"strength": int, "vitality": int, "intelligence":
+# int, "dexterity": int, "willpower": int, "agility": int}), cached here for the same reason as
+# _skill_points: the StatusPoints window may not be open when the server pushes an update, so it
+# needs somewhere durable to seed itself from.
+var _status_values: Dictionary = {}
+
+# Latest known available status points (master entities only, same reason as _skill_points).
+var _status_points: int = 0
+
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
 # a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
 # since moving cancels the cast server-side.
@@ -354,6 +363,29 @@ func update_equipment(msg: EquipmentComponentSMSG) -> void:
 
 func get_equipment() -> Dictionary:
 	return _equipment
+
+
+func update_status_values(msg: StatusValuesComponentSMSG) -> void:
+	_status_values = {
+		"strength": msg.Strength,
+		"vitality": msg.Vitality,
+		"intelligence": msg.Intelligence,
+		"dexterity": msg.Dexterity,
+		"willpower": msg.Willpower,
+		"agility": msg.Agility,
+	}
+
+
+func get_status_values() -> Dictionary:
+	return _status_values
+
+
+func update_status_points(msg: StatusPointsComponentSMSG) -> void:
+	_status_points = msg.Points
+
+
+func get_status_points() -> int:
+	return _status_points
 
 
 func select_for_active() -> void:

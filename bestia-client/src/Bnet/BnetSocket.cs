@@ -136,6 +136,16 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.SkillPointsComponentSMSG.FromProto(envelope.CompSkillPoints);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CompStatusValues != null)
+        {
+          var msg = Entity.StatusValuesComponentSMSG.FromProto(envelope.CompStatusValues);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.CompStatusPoints != null)
+        {
+          var msg = Entity.StatusPointsComponentSMSG.FromProto(envelope.CompStatusPoints);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.CompBestiaVisual != null)
         {
           var msg = Entity.BestiaVisualComponent.FromProto(envelope.CompBestiaVisual);

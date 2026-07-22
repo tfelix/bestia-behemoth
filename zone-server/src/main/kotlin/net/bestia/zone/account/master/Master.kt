@@ -59,6 +59,62 @@ class Master(
       field = value
     }
 
+  @Column(name = "status_points", nullable = false)
+  var statusPoints: Int = 0
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "strength", nullable = false)
+  var strength: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "vitality", nullable = false)
+  var vitality: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "intelligence", nullable = false)
+  var intelligence: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "dexterity", nullable = false)
+  var dexterity: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "willpower", nullable = false)
+  var willpower: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
+  @Column(name = "agility", nullable = false)
+  var agility: Int = 10
+    set(value) {
+      require(value >= 0)
+
+      field = value
+    }
+
   @Column(name = "exp", nullable = false)
   var exp: Int = 0
     set(value) {

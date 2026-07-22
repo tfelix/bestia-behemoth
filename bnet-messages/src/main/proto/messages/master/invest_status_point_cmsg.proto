@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "InvestStatusPointCmsgProto";
+
+enum StatusAttribute {
+  STRENGTH = 0;
+  AGILITY = 1;
+  VITALITY = 2;
+  INTELLIGENCE = 3;
+  DEXTERITY = 4;
+  WILLPOWER = 5;
+}
+
+/**
+ * Sent by the client to spend one or more of the master's available status points across one or
+ * more base status attributes in a single request.
+ */
+message InvestStatusPointCMSG {
+  repeated InvestedStatusPoint invested_points = 1;
+}
+
+message InvestedStatusPoint {
+  StatusAttribute attribute = 1;
+  uint32 amount = 2;
+}
