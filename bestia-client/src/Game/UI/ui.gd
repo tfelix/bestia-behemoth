@@ -2,6 +2,7 @@ extends Control
 
 @onready var _inventory_win: WidgetWindow = $InventoryWin
 @onready var _skills: WidgetWindow = $SkillsWin
+@onready var _equipment_win: WidgetWindow = $EquipmentWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
 
@@ -9,10 +10,18 @@ extends Control
 ## GroundDropZone and Shortcuts can't get their Inventory reference from an editor-wired
 ## NodePath: the Inventory node only comes into existence at runtime, when WidgetWindow
 ## instantiates its content in _ready(). So it's fetched here and assigned in code instead.
+## The Inventory <-> Equipment pair is wired the same way and for the same reason: the inventory
+## needs to know whether the equipment window is open (double-click then equips instead of uses)
+## and which items are currently worn.
 func _ready() -> void:
 	var inventory := _inventory_win.get_content() as Inventory
 	_ground_drop_zone.inventory = inventory
 	_shortcuts.inventory = inventory
+
+	var equipment := _equipment_win.get_content() as Equipment
+	inventory.equipment = equipment
+	inventory.equipment_window = _equipment_win
+	equipment.equipment_updated.connect(inventory.refresh)
 
 
 func _on_master_profile_inventory_win_toggled() -> void:
@@ -27,3 +36,10 @@ func _on_master_profile_skills_win_toggled() -> void:
 		var skills_content := _skills.get_content() as Skills
 		if skills_content:
 			skills_content.request_refresh()
+
+
+## Unlike Skills, the equipment window deliberately does not close the inventory: equipping works by
+## dragging from one into the other, so both have to be visible at the same time.
+func _on_master_profile_equipment_win_toggled() -> void:
+	_equipment_win.visible = !_equipment_win.visible
+	_skills.visible = false

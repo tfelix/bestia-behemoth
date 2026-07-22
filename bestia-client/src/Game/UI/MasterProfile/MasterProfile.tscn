@@ -177,7 +177,6 @@ text = "Items"
 
 [node name="Equip" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=1407597260]
 layout_mode = 2
-disabled = true
 text = "Equip"
 
 [node name="Skills" type="Button" parent="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2" unique_id=292675588]
@@ -246,4 +245,5 @@ size_flags_horizontal = 3
 text = "Gold: 1.067"
 
 [connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Items" to="." method="_on_inventory_pressed"]
+[connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Equip" to="." method="_on_equipment_pressed"]
 [connection signal="pressed" from="TopMargin/ProfileDetails/ProfilContainer/MenuGrid2/Skills" to="." method="_on_skills_pressed"]

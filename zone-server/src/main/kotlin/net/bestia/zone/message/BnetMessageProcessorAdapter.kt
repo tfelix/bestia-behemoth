@@ -14,6 +14,8 @@ import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
 import net.bestia.zone.item.DropItemCMSG
+import net.bestia.zone.item.equip.EquipItemCMSG
+import net.bestia.zone.item.equip.UnequipItemCMSG
 import net.bestia.zone.item.inventory.GetInventoryCMSG
 import net.bestia.zone.item.loot.LootItemCMSG
 import net.bestia.zone.item.UseItemCMSG
@@ -55,11 +57,21 @@ class BnetMessageProcessorAdapter(
       envelope.hasUseItem() -> UseItemCMSG.Companion.fromBnet(accountId, envelope.useItem)
       envelope.hasDropItem() -> DropItemCMSG.Companion.fromBnet(accountId, envelope.dropItem)
       envelope.hasLootItem() -> LootItemCMSG.Companion.fromBnet(accountId, envelope.lootItem)
+      envelope.hasEquipItem() -> EquipItemCMSG.Companion.fromBnet(accountId, envelope.equipItem)
+      envelope.hasUnequipItem() -> UnequipItemCMSG.Companion.fromBnet(accountId, envelope.unequipItem)
       envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
       envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
 
       else -> throw UnknownBnetMessageException(envelope)
+    }
+
+    // A `fromBnet` may return null when the payload is well-formed protobuf but semantically
+    // invalid (e.g. an equip slot ordinal this server version does not know). That is a misbehaving
+    // client, not a server bug - drop the message instead of tearing the connection down.
+    if (internalMessage == null) {
+      LOG.warn { "handleMessageEnvelopeReceived: dropping unparsable message from account $accountId" }
+      return
     }
 
     LOG.trace { "handleMessageEnvelopeReceived: Received internal message $internalMessage" }

@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.battle.status.EquipmentScriptRegistry
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
@@ -14,6 +15,7 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -21,9 +23,11 @@ import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * Rebuilds [StatusValues] (and [Speed.speed]) from scratch for every entity marked
- * [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), runs every active
+ * [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), folds in every worn
+ * item's [net.bestia.zone.battle.status.EquipmentScript.apply], then runs every active
  * [StatusEffects] instance's [net.bestia.zone.battle.status.StatusEffectScript.apply] over the
- * result in turn, then writes the final values back and clears the dirty marker.
+ * result in turn, then writes the final values back and clears the dirty marker. Equipment is
+ * applied before effects so a percentage buff scales the geared value, not the naked one.
  *
  * Mirrors rAthena's `status_calc_bl`: the whole value is recomputed from base + all active
  * modifiers every time, rather than incrementally aggregating individual modifier deltas (the
@@ -36,12 +40,14 @@ import org.springframework.stereotype.Component as SpringComponent
 class StatusValueRecalcSystem(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
+  private val equipmentScriptRegistry: EquipmentScriptRegistry,
   private val conditionValueCalculator: ConditionValueCalculator
 ) : System {
 
   override val reads: ComponentClassSet = setOf(
     BaseStatusValues::class,
     StatusEffects::class,
+    Equipment::class,
     IsStatusValueDirty::class,
     Level::class
   )
@@ -63,6 +69,13 @@ class StatusValueRecalcSystem(
       val baseSpeed = world.get(id, Speed::class)?.baseSpeed ?: 0f
 
       val context = StatusValueRecalcContext(base, baseSpeed)
+
+      val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
+      for ((slot, item) in worn) {
+        val script = equipmentScriptRegistry.getByItemId(item.itemId) ?: continue
+        script.apply(context, slot, item.upgradeLevel)
+      }
+
       val activeEffects = world.get(id, StatusEffects::class)?.activeEffects.orEmpty()
 
       for (active in activeEffects) {

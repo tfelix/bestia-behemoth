@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EquipItemCMSGProto";
+
+/**
+ * Asks the server to wear a held item in a slot. The server decides whether that is allowed and,
+ * when it is not, re-sends the authoritative EquipmentComponentSMSG plus an OperationError.
+ */
+message EquipItemCMSG {
+  uint64 item_id = 1;
+  // Id of the backing ItemInstance, or 0 when the client does not know it yet - the server then
+  // falls back to picking a held instance of item_id.
+  uint64 unique_id = 2;
+  // EquipmentSlot ordinal.
+  uint32 slot = 3;
+}

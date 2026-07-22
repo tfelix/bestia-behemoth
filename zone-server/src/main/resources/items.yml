@@ -20,6 +20,17 @@ items:
     type: USABLE
     script: SmallHealthPotionScript
     description: |
-      A small vial of transparent slight red liquid. 
-      
+      A small vial of transparent slight red liquid.
+
       Heals a modest amount of health when consumed.
+
+  - id: 4
+    item-db-name: shoes
+    weight: 20
+    type: EQUIP
+    equip-slot: FOOTGEAR
+    script: ShoesScript
+    description: |
+      A sturdy pair of leather shoes.
+
+      Light enough to keep you nimble on your feet.

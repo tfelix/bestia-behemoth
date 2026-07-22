@@ -9,7 +9,13 @@ var InventoryItem = preload("res://Game/UI/Inventory/InventoryItem/InventoryItem
 @export var preset_items: Array[InventoryItemResource]
 @export var selected_entity_id: int
 
+## Assigned at runtime by Game/UI/ui.gd - both live inside WidgetWindows that only instantiate
+## their content in _ready(), so neither can be reached through an editor-wired NodePath.
+var equipment: Equipment = null
+var equipment_window: WidgetWindow = null
+
 @onready var _usable_grid: GridContainer = %UsableGrid
+@onready var _equip_grid: GridContainer = %EquipGrid
 
 var _items: Dictionary[int, Array]
 
@@ -57,6 +63,12 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 		inventory_updated.emit()
 
 
+## Re-renders from the last known server state. Also connected to Equipment.equipment_updated, since
+## putting an item on takes it out of this list without the inventory itself changing.
+func refresh() -> void:
+	_render_items()
+
+
 func _render_items() -> void:
 	if !_items.has(selected_entity_id):
 		# Items for this entity are probably not loaded yet.
@@ -64,20 +76,41 @@ func _render_items() -> void:
 
 	for child in _usable_grid.get_children():
 		child.queue_free()
+	for child in _equip_grid.get_children():
+		child.queue_free()
 
 	var selected_entity_items = _items[selected_entity_id]
 
 	for item in selected_entity_items:
+		# A worn item is still held (the server keeps it in the same container, only flagged), but
+		# showing it in both places would let the player drag the same physical item twice.
+		if equipment != null and equipment.is_worn(item.player_item_id):
+			continue
+
 		var inv_item = InventoryItem.instantiate()
 		inv_item.amount = item.amount
 		inv_item.item = item.item
+		inv_item.unique_id = item.player_item_id
+		inv_item.inventory = self
 		match item.item.type:
 			ItemResource.ItemType.USABLE:
 				_usable_grid.add_child(inv_item)
+			ItemResource.ItemType.EQUIP:
+				_equip_grid.add_child(inv_item)
 			ItemResource.ItemType.ETC:
 				pass
-			ItemResource.ItemType.EQUIP:
-				pass
+
+
+## Double-clicking an equipment item while the equipment window is open equips it into the slot the
+## item itself declares, instead of falling through to "use". Returns false when that didn't apply,
+## so the caller can do the normal use-item thing.
+func try_quick_equip(item: ItemResource, unique_id: int) -> bool:
+	if equipment == null or equipment_window == null or not equipment_window.visible:
+		return false
+	if item.type != ItemResource.ItemType.EQUIP:
+		return false
+
+	return equipment.equip_to_own_slot(item.item_id, unique_id)
 
 
 func is_initialized_for_current_entity() -> bool:

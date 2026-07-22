@@ -58,6 +58,7 @@ REM Component messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\status_effect_list_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\logout_intent_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\casting_component_smsg.proto"
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\component\equipment_component_smsg.proto"
 
 REM Entity messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\entity\attack_entity_cmsg.proto"
@@ -72,6 +73,8 @@ REM Inventory messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\use_item_cmsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\drop_item_cmsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\loot_item_cmsg.proto"
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\equip_item_cmsg.proto"
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\inventory\unequip_item_cmsg.proto"
 
 REM Master messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\master\bestia_info.proto"

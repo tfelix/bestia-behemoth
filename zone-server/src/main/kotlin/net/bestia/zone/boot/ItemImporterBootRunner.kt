@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.EquipmentSlot
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -31,6 +32,8 @@ class ItemImporterBootRunner(
     val weight: Int,
     val type: String,
     val script: String? = null,
+    @JsonProperty("equip-slot")
+    val equipSlot: String? = null,
     val description: String? = null
   )
 
@@ -53,6 +56,7 @@ class ItemImporterBootRunner(
     val needsUpdate = entity.weight != dto.weight
       || entity.type != getType(dto)
       || entity.script != dto.script
+      || entity.equipSlot != getEquipSlot(dto)
       || entity.description != dto.description
 
     return if (needsUpdate) {
@@ -83,6 +87,7 @@ class ItemImporterBootRunner(
       weight = dto.weight,
       type = getType(dto),
       script = dto.script,
+      equipSlot = getEquipSlot(dto),
       description = dto.description
     )
   }
@@ -92,6 +97,17 @@ class ItemImporterBootRunner(
       Item.ItemType.valueOf(dto.type.uppercase())
     } catch (ex: IllegalArgumentException) {
       LOG.warn { "Unknown item type '${dto.type}' for item '${dto.identifier}'" }
+      throw ex
+    }
+  }
+
+  private fun getEquipSlot(dto: ItemYamlDto): EquipmentSlot? {
+    val slotName = dto.equipSlot ?: return null
+
+    return try {
+      EquipmentSlot.valueOf(slotName.uppercase())
+    } catch (ex: IllegalArgumentException) {
+      LOG.warn { "Unknown equip slot '$slotName' for item '${dto.identifier}'" }
       throw ex
     }
   }

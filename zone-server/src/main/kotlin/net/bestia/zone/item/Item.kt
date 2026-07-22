@@ -1,6 +1,7 @@
 package net.bestia.zone.item
 
 import jakarta.persistence.*
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity
@@ -37,6 +38,13 @@ class Item(
   val script: String? = null,
 
   /**
+   * The single slot this item is worn in. Required for [ItemType.EQUIP] and always null otherwise.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  val equipSlot: EquipmentSlot? = null,
+
+  /**
    * Long-form flavor text, English only.
    */
   @Column(columnDefinition = "TEXT", nullable = true)
@@ -49,6 +57,16 @@ class Item(
     if (type == ItemType.USABLE) {
       requireNotNull(script) {
         "Item $identifier is USABLE and must have a script attached"
+      }
+    }
+
+    if (type == ItemType.EQUIP) {
+      requireNotNull(equipSlot) {
+        "Item $identifier is EQUIP and must declare which equipSlot it is worn in"
+      }
+    } else {
+      require(equipSlot == null) {
+        "Item $identifier is $type and must not declare an equipSlot"
       }
     }
   }

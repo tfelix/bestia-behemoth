@@ -197,6 +197,26 @@ class ConnectionInfoService {
     return session.currentActiveEntity
   }
 
+  /**
+   * The player bestia the account currently acts as, or null when that is the master itself.
+   * Lets a handler write durable state to the right owner ([net.bestia.zone.bestia.PlayerBestia] vs
+   * [net.bestia.zone.account.master.Master]) without the caller re-deriving it from the entity id.
+   */
+  fun getActivePlayerBestiaId(accountId: AccountId): PlayerBestiaId? {
+    val session = getSession(accountId)
+
+    requireActiveSession(session, accountId)
+
+    val activeEntityId = session.currentActiveEntity
+    if (activeEntityId == session.master.entityId) {
+      return null
+    }
+
+    return session.playerEntitiesByMaster[session.master.masterId]
+      ?.firstOrNull { it.entityId == activeEntityId }
+      ?.playerBestiaId
+  }
+
   fun getAuthorities(
     accountId: AccountId
   ): Set<Authority> {

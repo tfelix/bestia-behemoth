@@ -5,6 +5,10 @@ ai: passive_wanderer
 health: 10
 mana: 8
 experience: 5
+# A blob has no head, hands or accessories - only these two slots exist for it.
+equip-slots:
+  - ARMOR
+  - GARMENT
 loot:
   - item: jelly
     chance: 1000

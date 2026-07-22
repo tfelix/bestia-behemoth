@@ -34,10 +34,21 @@ theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 8
 
-[node name="Equip" type="ItemList" parent="MarginContainer/ItemTabs"]
+[node name="Equip" type="MarginContainer" parent="MarginContainer/ItemTabs"]
 visible = false
 layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 metadata/_tab_index = 1
+
+[node name="EquipGrid" type="GridContainer" parent="MarginContainer/ItemTabs/Equip"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 8
 
 [node name="Etc" type="ItemList" parent="MarginContainer/ItemTabs"]
 visible = false

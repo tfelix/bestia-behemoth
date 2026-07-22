@@ -18,6 +18,7 @@ var _master_entity_id: int = 0
 
 signal inventory_win_toggled
 signal skills_win_toggled
+signal equipment_win_toggled
 
 func _ready() -> void:
 	ConnectionManager.connect("self_received", _on_self_received)
@@ -87,6 +88,8 @@ func _process(_delta: float) -> void:
 		_toggle_inventory()
 	if Input.is_action_just_pressed("toggle_skills"):
 		_toggle_skills()
+	if Input.is_action_just_pressed("toggle_equipment"):
+		_toggle_equipment()
 
 
 func _toggle_inventory() -> void:
@@ -97,9 +100,17 @@ func _toggle_skills() -> void:
 	emit_signal("skills_win_toggled")
 
 
+func _toggle_equipment() -> void:
+	emit_signal("equipment_win_toggled")
+
+
 func _on_inventory_pressed() -> void:
 	_toggle_inventory()
 
 
 func _on_skills_pressed() -> void:
 	_toggle_skills()
+
+
+func _on_equipment_pressed() -> void:
+	_toggle_equipment()

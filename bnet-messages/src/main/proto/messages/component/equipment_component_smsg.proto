@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "EquipmentComponentSMSGProto";
+
+/**
+ * The items an entity currently wears, one entry per occupied slot. Owner-only.
+ *
+ * Deliberately carries no "which slots does this entity even have" mask: that is static content
+ * derived from the bestia species and lives in the client's own bestia DB (see the syncBestiaDb
+ * Gradle task), so it is never streamed online.
+ */
+message EquipmentComponentSMSG {
+  fixed64 entity_id = 1;
+  repeated EquippedItem items = 2;
+}
+
+message EquippedItem {
+  // EquipmentSlot ordinal - see net.bestia.zone.item.equip.EquipmentSlot, whose declaration order
+  // is the contract for this value.
+  uint32 slot = 1;
+  uint32 item_id = 2;
+  uint64 unique_id = 3;
+}

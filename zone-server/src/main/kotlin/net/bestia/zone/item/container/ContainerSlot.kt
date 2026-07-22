@@ -1,6 +1,9 @@
 package net.bestia.zone.item.container
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -8,6 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import net.bestia.zone.item.Item
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.instance.ItemInstance
 
 /**
@@ -36,6 +40,20 @@ class ContainerSlot(
 
   var amount: Int = 1,
 ) {
+
+  /**
+   * The equipment slot this item is currently worn in, or null when it just sits in the inventory.
+   * Worn gear deliberately stays in its owner's container rather than moving somewhere else: carry
+   * weight keeps counting it and the existing `Master`/`PlayerBestia` container persistence covers
+   * equipment for free. Only [ItemContainer] ever writes this, so the "one item per slot" rule
+   * lives in exactly one place.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "equipped_in", nullable = true)
+  var equippedIn: EquipmentSlot? = null
+    internal set
+
+  val isEquipped: Boolean get() = equippedIn != null
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,0 +1,93 @@
+[gd_scene load_steps=4 format=3 uid="uid://cq1eqwin0001"]
+
+[ext_resource type="Script" path="res://Game/UI/Equipment/equipment.gd" id="1_equip"]
+[ext_resource type="PackedScene" uid="uid://cq1eqslot0001" path="res://Game/UI/Equipment/EquipSlot/EquipSlot.tscn" id="2_eqslot"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eqbg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="Equipment" type="PanelContainer"]
+offset_right = 340.0
+offset_bottom = 380.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_eqbg")
+script = ExtResource("1_equip")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Columns" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/Columns"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeadUpper" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 0
+
+[node name="HeadMid" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 1
+
+[node name="HeadLower" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 2
+
+[node name="Armor" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 3
+
+[node name="Garment" parent="MarginContainer/Columns/LeftColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 4
+
+[node name="Center" type="VBoxContainer" parent="MarginContainer/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="MarginContainer/Columns/Center"]
+layout_mode = 2
+text = "Equipment"
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="MarginContainer/Columns/Center"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Drag an item here to equip it.
+Double click a slot to take it off."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/Columns"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RightHand" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 6
+
+[node name="LeftHand" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 7
+
+[node name="Footgear" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 5
+
+[node name="Accessory1" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 8
+
+[node name="Accessory2" parent="MarginContainer/Columns/RightColumn" instance=ExtResource("2_eqslot")]
+layout_mode = 2
+slot = 9

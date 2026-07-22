@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.ecs.item.WeightLimitCalculator
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -70,6 +71,7 @@ class PlayerBestiaEntityFactory(
 
       val inventory = buildInventory(playerBestia)
       add(id, inventory)
+      add(id, buildEquipment(playerBestia))
 
       val baseStatusValues = BaseStatusValues(
         strength = 10,
@@ -127,6 +129,24 @@ class PlayerBestiaEntityFactory(
       masterId = masterId,
       playerBestiaId = playerBestiaId,
       playerBestiaEntityId = entityId
+    )
+  }
+
+  /**
+   * Unlike a master, a bestia only has the slots its species declares (`equip-slots` in the mob
+   * YML). The client knows the same mask from its static bestia DB and greys the rest out; this is
+   * the server-side half of that rule.
+   */
+  private fun buildEquipment(playerBestia: PlayerBestia): Equipment {
+    return Equipment(
+      availableSlotMask = playerBestia.bestia.equipSlotMask,
+      worn = playerBestia.container.equipped().mapValues { (_, slot) ->
+        Equipment.EquippedItem(
+          itemId = slot.template.id,
+          uniqueId = slot.uniqueId,
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+        )
+      }.toMutableMap()
     )
   }
 

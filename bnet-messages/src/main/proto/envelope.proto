@@ -46,6 +46,9 @@ import "messages/inventory/get_inventory_cmsg.proto";
 import "messages/inventory/use_item_cmsg.proto";
 import "messages/inventory/drop_item_cmsg.proto";
 import "messages/inventory/loot_item_cmsg.proto";
+import "messages/inventory/equip_item_cmsg.proto";
+import "messages/inventory/unequip_item_cmsg.proto";
+import "messages/component/equipment_component_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
@@ -90,6 +93,8 @@ message Envelope {
     UseItemCMSG use_item = 302;
     DropItemCMSG drop_item = 303;
     LootItemCMSG loot_item = 304;
+    EquipItemCMSG equip_item = 305;
+    UnequipItemCMSG unequip_item = 306;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;
@@ -128,6 +133,7 @@ message Envelope {
     StaminaComponentSMSG comp_stamina = 529;
     CarryCapacityComponentSMSG comp_carry_capacity = 530;
     CastingComponentSMSG comp_casting = 531;
+    EquipmentComponentSMSG comp_equipment = 532;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

@@ -1,5 +1,15 @@
 keys,en
 ITEM_1_NAME,Apple
-ITEM_1_DESC,"Juicy, sweet apple."
+ITEM_1_DESC,"A fresh apple. 
+
+Restores a small amount of health when eaten."
 ITEM_3_NAME,Small Health Potion
-ITEM_3_DESC,"A tiny vial filled with shimmering red liquid. Instantly mends minor wounds and brings a gentle warmth to the soul. Heals 45 HP."
+ITEM_3_DESC,"A small vial of transparent slight red liquid.
+
+Heals a modest amount of health when consumed."
+ITEM_2_NAME,Jelly
+ITEM_2_DESC,A quivering lump of blob residue. Someone probably buys these.
+ITEM_4_NAME,Shoes
+ITEM_4_DESC,"A sturdy pair of leather shoes.
+
+Light enough to keep you nimble on your feet."

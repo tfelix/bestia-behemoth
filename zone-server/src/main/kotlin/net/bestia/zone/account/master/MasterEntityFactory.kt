@@ -11,7 +11,9 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.account.Account
@@ -85,6 +87,7 @@ class MasterEntityFactory(
       )
       val inventory = buildInventory(master)
       add(id, inventory)
+      add(id, buildEquipment(master))
 
       val baseStatusValues = BaseStatusValues(
         strength = 10,
@@ -133,6 +136,24 @@ class MasterEntityFactory(
       add(id, ActivePlayer)
       add(id, Persistent)
     }
+  }
+
+  /**
+   * A master physically has every slot - whether it may actually wear a given item is decided at
+   * equip time by [net.bestia.zone.item.equip.EquipmentService] (later: by its learned skills),
+   * not by a static mask like a bestia species has.
+   */
+  private fun buildEquipment(master: Master): Equipment {
+    return Equipment(
+      availableSlotMask = EquipmentSlots.ALL,
+      worn = master.container.equipped().mapValues { (_, slot) ->
+        Equipment.EquippedItem(
+          itemId = slot.template.id,
+          uniqueId = slot.uniqueId,
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+        )
+      }.toMutableMap()
+    )
   }
 
   private fun buildInventory(master: Master): Inventory {

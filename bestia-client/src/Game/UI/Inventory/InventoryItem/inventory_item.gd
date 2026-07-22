@@ -3,6 +3,14 @@ extends Panel
 @export var item: ItemResource
 @export var amount: int
 
+## Id of the backing item instance, or 0 for a plain stackable pile. Needed to name *which*
+## physical item to equip when several copies are held.
+@export var unique_id: int = 0
+
+## Assigned by Inventory when this node is instantiated - used for the double-click-to-equip
+## shortcut, which has to know whether the equipment window is currently open.
+var inventory: Inventory = null
+
 @onready var _count: Label = %Count
 @onready var _icon: TextureRect = %Icon
 
@@ -20,7 +28,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.rotation_degrees = 10
 	set_drag_preview(preview)
 	preview.texture = _icon.texture
-	return {"type": "item", "id": item.item_id, "source": "inventory_item"}
+	return {"type": "item", "id": item.item_id, "unique_id": unique_id, "source": "inventory_item"}
 
 
 func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
@@ -30,7 +38,10 @@ func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
-			# use the item.
-			print("Panel was double-clicked with left mouse button!")
+			# With the equipment window open, double clicking a piece of gear puts it on; anything
+			# else (or a closed window) falls through to the normal "use this item".
+			if inventory != null and inventory.try_quick_equip(item, unique_id):
+				return
+			item.use_item()
 		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			print("Panel was right-clicked!")

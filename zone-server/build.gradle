@@ -78,3 +78,46 @@ tasks.register('syncSkillDb', SkillDbSyncTask) {
     skillsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/skills.csv')
     fix = true
 }
+
+/**
+ * Same idea as check/syncSkillDb, for items: item_id/type/weight/equip_slot plus the English
+ * description in items.csv. See buildSrc/src/main/kotlin/ItemDbSyncTask.kt.
+ */
+tasks.register('checkItemDb', ItemDbSyncTask) {
+    group = 'verification'
+    description = 'Fails if items.yml and the client Item DB (.tres + items.csv) disagree on ids, type, weight, equip slot, or descriptions.'
+    itemsYml = layout.projectDirectory.file('src/main/resources/items.yml')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Item/DB')
+    itemsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/items.csv')
+    fix = false
+}
+
+tasks.register('syncItemDb', ItemDbSyncTask) {
+    group = 'other'
+    description = 'Patches type/weight/equip_slot in existing client item .tres files, syncs English descriptions into items.csv, and creates stubs for missing items, from items.yml.'
+    itemsYml = layout.projectDirectory.file('src/main/resources/items.yml')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Item/DB')
+    itemsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/items.csv')
+    fix = true
+}
+
+/**
+ * Exports each bestia species' equipment slot mask into the client's static bestia DB - the client
+ * needs it to grey out slots a species does not have, and it is static content that is deliberately
+ * never sent over the wire. See buildSrc/src/main/kotlin/BestiaDbSyncTask.kt.
+ */
+tasks.register('checkBestiaDb', BestiaDbSyncTask) {
+    group = 'verification'
+    description = 'Fails if the mob YMLs and the client bestia DB (.tres) disagree on equipment slot masks.'
+    mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
+    fix = false
+}
+
+tasks.register('syncBestiaDb', BestiaDbSyncTask) {
+    group = 'other'
+    description = 'Patches equip_slots in existing client bestia .tres files and creates stubs for missing bestias, from the mob YMLs.'
+    mobYmlDir = layout.projectDirectory.dir('src/main/resources/mob')
+    clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
+    fix = true
+}

@@ -1,9 +1,11 @@
 package net.bestia.zone.item.container
 
 import net.bestia.zone.item.Item
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.instance.ItemInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -14,7 +16,14 @@ class ItemContainerTest {
 
   private val apple = Item(id = 1L, identifier = "apple", weight = 2, type = Item.ItemType.ETC)
   private val potion = Item(id = 2L, identifier = "potion", weight = 3, type = Item.ItemType.USABLE, script = "NoopScript")
-  private val sword = Item(id = 3L, identifier = "sword", weight = 10, type = Item.ItemType.EQUIP)
+  private val sword = Item(
+    id = 3L, identifier = "sword", weight = 10, type = Item.ItemType.EQUIP,
+    equipSlot = EquipmentSlot.RIGHT_HAND
+  )
+  private val boots = Item(
+    id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
+    equipSlot = EquipmentSlot.FOOTGEAR
+  )
 
   private lateinit var container: ItemContainer
 
@@ -116,5 +125,80 @@ class ItemContainerTest {
     assertTrue(container.hasItem(apple.id, 4))
     assertFalse(container.hasItem(apple.id, 5))
     assertTrue(container.hasItem(sword.id, 1))
+  }
+
+  @Test
+  fun `equip marks the holding slot and unequip clears it again`() {
+    container.addInstance(ItemInstance(item = sword))
+
+    assertTrue(container.equip(sword.id, uniqueId = 0L, slot = EquipmentSlot.RIGHT_HAND))
+    assertEquals(EquipmentSlot.RIGHT_HAND, container.slots.single().equippedIn)
+    assertEquals(setOf(EquipmentSlot.RIGHT_HAND), container.equipped().keys)
+
+    assertSame(container.slots.single(), container.unequip(EquipmentSlot.RIGHT_HAND))
+    assertNull(container.slots.single().equippedIn)
+    assertTrue(container.equipped().isEmpty())
+  }
+
+  @Test
+  fun `equip refuses a slot that is already occupied`() {
+    container.addInstance(ItemInstance(item = sword))
+    container.addInstance(ItemInstance(item = sword))
+
+    assertTrue(container.equip(sword.id, 0L, EquipmentSlot.RIGHT_HAND))
+    assertFalse(container.equip(sword.id, 0L, EquipmentSlot.RIGHT_HAND))
+    assertEquals(1, container.equipped().size)
+  }
+
+  @Test
+  fun `equip refuses an item that belongs in a different slot`() {
+    container.addInstance(ItemInstance(item = boots))
+
+    assertFalse(container.equip(boots.id, 0L, EquipmentSlot.RIGHT_HAND))
+    assertTrue(container.equipped().isEmpty())
+  }
+
+  @Test
+  fun `equip refuses a non-equipment item`() {
+    container.addInstance(ItemInstance(item = potion))
+
+    assertFalse(container.equip(potion.id, 0L, EquipmentSlot.RIGHT_HAND))
+    assertTrue(container.equipped().isEmpty())
+  }
+
+  @Test
+  fun `equip refuses an item that is not held at all`() {
+    assertFalse(container.equip(sword.id, 0L, EquipmentSlot.RIGHT_HAND))
+  }
+
+  @Test
+  fun `unequip returns null for an empty slot`() {
+    assertNull(container.unequip(EquipmentSlot.ARMOR))
+  }
+
+  @Test
+  fun `worn items can not be removed - you have to take them off first`() {
+    container.addInstance(ItemInstance(item = sword))
+    container.equip(sword.id, 0L, EquipmentSlot.RIGHT_HAND)
+
+    assertNull(container.removeOne(sword.id, 1))
+    assertEquals(1, container.slots.size)
+
+    container.unequip(EquipmentSlot.RIGHT_HAND)
+    assertNotNull(container.removeOne(sword.id, 1))
+    assertTrue(container.slots.isEmpty())
+  }
+
+  @Test
+  fun `equipping a second copy picks a not-yet-worn one`() {
+    container.addInstance(ItemInstance(item = sword))
+    container.addInstance(ItemInstance(item = boots))
+
+    assertTrue(container.equip(sword.id, 0L, EquipmentSlot.RIGHT_HAND))
+    assertTrue(container.equip(boots.id, 0L, EquipmentSlot.FOOTGEAR))
+
+    assertEquals(2, container.equipped().size)
+    assertEquals(sword.id, container.equipped()[EquipmentSlot.RIGHT_HAND]?.template?.id)
+    assertEquals(boots.id, container.equipped()[EquipmentSlot.FOOTGEAR]?.template?.id)
   }
 }

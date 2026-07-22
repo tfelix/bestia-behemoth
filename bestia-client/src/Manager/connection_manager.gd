@@ -38,6 +38,8 @@ var InvestSkillPointCMSG = load("res://Bnet/Message/Master/InvestSkillPointCMSG.
 var UseItemCMSG = load("res://Bnet/Message/Inventory/UseItemCMSG.cs")
 var DropItemCMSG = load("res://Bnet/Message/Inventory/DropItemCMSG.cs")
 var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
+var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
+var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 
@@ -213,6 +215,26 @@ func loot_item(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = LootItemCMSG.new()
 	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
+## Asks the server to wear a held item. [param slot] is an EquipmentSlot ordinal (see
+## Game/Item/equipment_slot.gd). [param unique_id] may be 0 when the client does not know the
+## item instance id yet - the server then picks any held copy. The server may refuse: it answers
+## with an OperationError plus a fresh EquipmentComponentSMSG, so never assume success locally.
+func equip_item(item_id: int, unique_id: int, slot: int) -> void:
+	assert(is_ready_to_send())
+	var msg = EquipItemCMSG.new()
+	msg.ItemId = item_id
+	msg.UniqueId = unique_id
+	msg.Slot = slot
+	_socket.SendMessage(msg)
+
+
+func unequip_item(slot: int) -> void:
+	assert(is_ready_to_send())
+	var msg = UnequipItemCMSG.new()
+	msg.Slot = slot
 	_socket.SendMessage(msg)
 
 

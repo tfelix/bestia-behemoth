@@ -5,6 +5,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.item.loot.LootItem
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -33,7 +35,9 @@ class MobImporterBootRunner(
     val mana: Int,
     val experience: Int,
     val loot: List<Loot>,
-    val ai: String? = null
+    val ai: String? = null,
+    @JsonProperty("equip-slots")
+    val equipSlots: List<String> = emptyList()
   ) {
     data class Loot(
       @JsonProperty("item")
@@ -50,12 +54,26 @@ class MobImporterBootRunner(
       mana = dto.mana,
       health = dto.health,
       experienceReward = dto.experience,
-      aiProfile = dto.ai
+      aiProfile = dto.ai,
+      equipSlotMask = parseEquipSlotMask(dto)
     )
 
     createLootItem(bestia, dto)
 
     return bestia
+  }
+
+  private fun parseEquipSlotMask(dto: MobYmlDto): Int {
+    val slots = dto.equipSlots.map { name ->
+      try {
+        EquipmentSlot.valueOf(name.uppercase())
+      } catch (ex: IllegalArgumentException) {
+        LOG.error { "Unknown equip slot '$name' for mob '${dto.identifier}'" }
+        throw ex
+      }
+    }
+
+    return EquipmentSlots.maskOf(slots)
   }
 
   private fun createLootItem(bestia: Bestia, dto: MobYmlDto) {

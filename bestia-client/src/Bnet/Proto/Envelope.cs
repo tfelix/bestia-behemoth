@@ -66,86 +66,92 @@ namespace Bnet {
             "bnRvcnkvZ2V0X2ludmVudG9yeV9jbXNnLnByb3RvGiZtZXNzYWdlcy9pbnZl",
             "bnRvcnkvdXNlX2l0ZW1fY21zZy5wcm90bxonbWVzc2FnZXMvaW52ZW50b3J5",
             "L2Ryb3BfaXRlbV9jbXNnLnByb3RvGidtZXNzYWdlcy9pbnZlbnRvcnkvbG9v",
-            "dF9pdGVtX2Ntc2cucHJvdG8aKW1lc3NhZ2VzL3N5c3RlbS9yZXF1ZXN0X2xv",
-            "Z291dF9jbXNnLnByb3RvGittZXNzYWdlcy9jb21wb25lbnQvbG9nb3V0X2lu",
-            "dGVudF9zbXNnLnByb3RvGi9tZXNzYWdlcy9jb21wb25lbnQvY2FzdGluZ19j",
-            "b21wb25lbnRfc21zZy5wcm90bxotbWVzc2FnZXMvcGFydHkvYWNjZXB0X3Bh",
-            "cnR5X2ludml0ZV9jbXNnLnByb3RvGi5tZXNzYWdlcy9wYXJ0eS9kZWNsaW5l",
-            "X3BhcnR5X2ludml0ZV9jbXNnLnByb3RvGiptZXNzYWdlcy9wYXJ0eS9wYXJ0",
-            "eV9pbnZpdGF0aW9uX3Ntc2cucHJvdG8aMm1lc3NhZ2VzL3BhcnR5L3BhcnR5",
-            "X2ludml0YXRpb25fY3JlYXRlZF9zbXNnLnByb3RvGi9tZXNzYWdlcy9wYXJ0",
-            "eS9wYXJ0eV9pbnZpdGVfZGVjbGluZWRfc21zZy5wcm90bxokbWVzc2FnZXMv",
-            "cGFydHkvcGFydHlfaW5mb19zbXNnLnByb3RvGiVtZXNzYWdlcy9wYXJ0eS9w",
-            "YXJ0eV9lcnJvcl9zbXNnLnByb3RvGidtZXNzYWdlcy9wYXJ0eS9kaXNiYW5k",
-            "X3BhcnR5X3Ntc2cucHJvdG8ikBYKCEVudmVsb3BlEjMKEW9wZXJhdGlvbl9z",
-            "dWNjZXNzGAEgASgLMhYuYm5ldC5PcGVyYXRpb25TdWNjZXNzSAASLwoPb3Bl",
-            "cmF0aW9uX2Vycm9yGAIgASgLMhQuYm5ldC5PcGVyYXRpb25FcnJvckgAEi4K",
-            "DmF1dGhlbnRpY2F0aW9uGGQgASgLMhQuYm5ldC5BdXRoZW50aWNhdGlvbkgA",
-            "EioKDGRpc2Nvbm5lY3RlZBhlIAEoCzISLmJuZXQuRGlzY29ubmVjdGVkSAAS",
-            "PQoWYXV0aGVudGljYXRpb25fc3VjY2VzcxhmIAEoCzIbLmJuZXQuQXV0aGVu",
-            "dGljYXRpb25TdWNjZXNzSAASGgoEcGluZxh4IAEoCzIKLmJuZXQuUGluZ0gA",
-            "EhoKBHBvbmcYeSABKAsyCi5ibmV0LlBvbmdIABIjCgljaGF0X2Ntc2cYeiAB",
-            "KAsyDi5ibmV0LkNoYXRDTVNHSAASIwoJY2hhdF9zbXNnGHsgASgLMg4uYm5l",
-            "dC5DaGF0U01TR0gAEjEKDnJlcXVlc3RfbG9nb3V0GHwgASgLMhcuYm5ldC5S",
-            "ZXF1ZXN0TG9nb3V0Q01TR0gAEjAKDWdldF9pbnZlbnRvcnkYrQIgASgLMhYu",
-            "Ym5ldC5HZXRJbnZlbnRvcnlDTVNHSAASJgoIdXNlX2l0ZW0YrgIgASgLMhEu",
-            "Ym5ldC5Vc2VJdGVtQ01TR0gAEigKCWRyb3BfaXRlbRivAiABKAsyEi5ibmV0",
-            "LkRyb3BJdGVtQ01TR0gAEigKCWxvb3RfaXRlbRiwAiABKAsyEi5ibmV0Lkxv",
-            "b3RJdGVtQ01TR0gAEioKCmdldF9tYXN0ZXIYkQMgASgLMhMuYm5ldC5HZXRN",
-            "YXN0ZXJDTVNHSAASHwoGbWFzdGVyGJIDIAEoCzIMLmJuZXQuTWFzdGVySAAS",
-            "MAoNc2VsZWN0X21hc3RlchiTAyABKAsyFi5ibmV0LlNlbGVjdE1hc3RlckNN",
-            "U0dIABImCghnZXRfc2VsZhiUAyABKAsyES5ibmV0LkdldFNlbGZDTVNHSAAS",
-            "HwoEc2VsZhiVAyABKAsyDi5ibmV0LlNlbGZTTVNHSAASOQoSaW52ZXN0X3Nr",
-            "aWxsX3BvaW50GJYDIAEoCzIaLmJuZXQuSW52ZXN0U2tpbGxQb2ludENNU0dI",
-            "ABIqCgpnZXRfc2tpbGxzGJcDIAEoCzITLmJuZXQuR2V0U2tpbGxzQ01TR0gA",
-            "EjIKDmFjdGl2YXRlX3NraWxsGJgDIAEoCzIXLmJuZXQuQWN0aXZhdGVTa2ls",
-            "bENNU0dIABIwCg1jcmVhdGVfbWFzdGVyGJkDIAEoCzIWLmJuZXQuQ3JlYXRl",
-            "TWFzdGVyQ01TR0gAEjkKFHNlbGVjdF9hY3RpdmVfZW50aXR5GPQDIAEoCzIY",
-            "LmJuZXQuU2VsZWN0QWN0aXZlRW50aXR5SAASNQoSbW92ZV9hY3RpdmVfZW50",
-            "aXR5GPUDIAEoCzIWLmJuZXQuTW92ZUFjdGl2ZUVudGl0eUgAEjEKEGdldF9h",
-            "bGxfZW50aXRpZXMY9gMgASgLMhQuYm5ldC5HZXRBbGxFbnRpdGllc0gAEjAK",
-            "DWF0dGFja19lbnRpdHkY9wMgASgLMhYuYm5ldC5BdHRhY2tFbnRpdHlDTVNH",
-            "SAASMAoNdmFuaXNoX2VudGl0eRj4AyABKAsyFi5ibmV0LlZhbmlzaEVudGl0",
-            "eVNNU0dIABIwCg1kYW1hZ2VfZW50aXR5GPkDIAEoCzIWLmJuZXQuRGFtYWdl",
-            "RW50aXR5U01TR0gAEjEKDWNvbXBfcG9zaXRpb24Y/gMgASgLMhcuYm5ldC5Q",
-            "b3NpdGlvbkNvbXBvbmVudEgAEjoKEmNvbXBfYmVzdGlhX3Zpc3VhbBj/AyAB",
-            "KAsyGy5ibmV0LkJlc3RpYVZpc3VhbENvbXBvbmVudEgAEjYKEGNvbXBfaXRl",
-            "bV92aXN1YWwYgAQgASgLMhkuYm5ldC5JdGVtVmlzdWFsQ29tcG9uZW50SAAS",
-            "PgoSY29tcF9tYXN0ZXJfdmlzdWFsGIIEIAEoCzIfLmJuZXQuTWFzdGVyVmlz",
-            "dWFsQ29tcG9uZW50U01TR0gAEi0KCWNvbXBfcGF0aBiDBCABKAsyFy5ibmV0",
-            "LlBhdGhDb21wb25lbnRTTVNHSAASLwoKY29tcF9zcGVlZBiEBCABKAsyGC5i",
-            "bmV0LlNwZWVkQ29tcG9uZW50U01TR0gAEisKCGNvbXBfZXhwGIUEIAEoCzIW",
-            "LmJuZXQuRXhwQ29tcG9uZW50U01TR0gAEi8KCmNvbXBfbGV2ZWwYhgQgASgL",
-            "MhguYm5ldC5MZXZlbENvbXBvbmVudFNNU0dIABItCgljb21wX21hbmEYhwQg",
-            "ASgLMhcuYm5ldC5NYW5hQ29tcG9uZW50U01TR0gAEjEKC2NvbXBfaGVhbHRo",
-            "GIgEIAEoCzIZLmJuZXQuSGVhbHRoQ29tcG9uZW50U01TR0gAEjcKDmNvbXBf",
-            "aW52ZW50b3J5GIkEIAEoCzIcLmJuZXQuSW52ZW50b3J5Q29tcG9uZW50U01T",
-            "R0gAEjMKEWNvbXBfc2tpbGxfcG9pbnRzGIsEIAEoCzIVLmJuZXQuU2tpbGxQ",
-            "b2ludHNTTVNHSAASLwoPY29tcF9za2lsbF9saXN0GIwEIAEoCzITLmJuZXQu",
-            "U2tpbGxMaXN0U01TR0gAEjcKDmNvbXBfYW5pbWF0aW9uGI0EIAEoCzIcLmJu",
-            "ZXQuQW5pbWF0aW9uQ29tcG9uZW50U01TR0gAEjMKDGNvbXBfZWZmZWN0cxiO",
-            "BCABKAsyGi5ibmV0LlN0YXR1c0VmZmVjdExpc3RTTVNHSAASNQoSY29tcF9s",
-            "b2dvdXRfaW50ZW50GI8EIAEoCzIWLmJuZXQuTG9nb3V0SW50ZW50U01TR0gA",
-            "EjMKDGNvbXBfc3RhbWluYRiRBCABKAsyGi5ibmV0LlN0YW1pbmFDb21wb25l",
-            "bnRTTVNHSAASQAoTY29tcF9jYXJyeV9jYXBhY2l0eRiSBCABKAsyIC5ibmV0",
-            "LkNhcnJ5Q2FwYWNpdHlDb21wb25lbnRTTVNHSAASMwoMY29tcF9jYXN0aW5n",
-            "GJMEIAEoCzIaLmJuZXQuQ2FzdGluZ0NvbXBvbmVudFNNU0dIABI7ChNhY2Nl",
-            "cHRfcGFydHlfaW52aXRlGNgEIAEoCzIbLmJuZXQuQWNjZXB0UGFydHlJbnZp",
-            "dGVDTVNHSAASPQoUZGVjbGluZV9wYXJ0eV9pbnZpdGUY2QQgASgLMhwuYm5l",
-            "dC5EZWNsaW5lUGFydHlJbnZpdGVDTVNHSAASNgoQcGFydHlfaW52aXRhdGlv",
-            "bhjaBCABKAsyGS5ibmV0LlBhcnR5SW52aXRhdGlvblNNU0dIABJFChhwYXJ0",
-            "eV9pbnZpdGF0aW9uX2NyZWF0ZWQY2wQgASgLMiAuYm5ldC5QYXJ0eUludml0",
-            "YXRpb25DcmVhdGVkU01TR0gAEj8KFXBhcnR5X2ludml0ZV9kZWNsaW5lZBjc",
-            "BCABKAsyHS5ibmV0LlBhcnR5SW52aXRlRGVjbGluZWRTTVNHSAASKgoKcGFy",
-            "dHlfaW5mbxjdBCABKAsyEy5ibmV0LlBhcnR5SW5mb1NNU0dIABIsCgtwYXJ0",
-            "eV9lcnJvchjeBCABKAsyFC5ibmV0LlBhcnR5RXJyb3JTTVNHSAASMAoNZGlz",
-            "YmFuZF9wYXJ0eRjfBCABKAsyFi5ibmV0LkRpc2JhbmRQYXJ0eVNNU0dIAEIJ",
-            "CgdtZXNzYWdlSgYIkAQQkQRCJgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQg1F",
-            "bnZlbG9wZVByb3RvYgZwcm90bzM="));
+            "dF9pdGVtX2Ntc2cucHJvdG8aKG1lc3NhZ2VzL2ludmVudG9yeS9lcXVpcF9p",
+            "dGVtX2Ntc2cucHJvdG8aKm1lc3NhZ2VzL2ludmVudG9yeS91bmVxdWlwX2l0",
+            "ZW1fY21zZy5wcm90bxoxbWVzc2FnZXMvY29tcG9uZW50L2VxdWlwbWVudF9j",
+            "b21wb25lbnRfc21zZy5wcm90bxopbWVzc2FnZXMvc3lzdGVtL3JlcXVlc3Rf",
+            "bG9nb3V0X2Ntc2cucHJvdG8aK21lc3NhZ2VzL2NvbXBvbmVudC9sb2dvdXRf",
+            "aW50ZW50X3Ntc2cucHJvdG8aL21lc3NhZ2VzL2NvbXBvbmVudC9jYXN0aW5n",
+            "X2NvbXBvbmVudF9zbXNnLnByb3RvGi1tZXNzYWdlcy9wYXJ0eS9hY2NlcHRf",
+            "cGFydHlfaW52aXRlX2Ntc2cucHJvdG8aLm1lc3NhZ2VzL3BhcnR5L2RlY2xp",
+            "bmVfcGFydHlfaW52aXRlX2Ntc2cucHJvdG8aKm1lc3NhZ2VzL3BhcnR5L3Bh",
+            "cnR5X2ludml0YXRpb25fc21zZy5wcm90bxoybWVzc2FnZXMvcGFydHkvcGFy",
+            "dHlfaW52aXRhdGlvbl9jcmVhdGVkX3Ntc2cucHJvdG8aL21lc3NhZ2VzL3Bh",
+            "cnR5L3BhcnR5X2ludml0ZV9kZWNsaW5lZF9zbXNnLnByb3RvGiRtZXNzYWdl",
+            "cy9wYXJ0eS9wYXJ0eV9pbmZvX3Ntc2cucHJvdG8aJW1lc3NhZ2VzL3BhcnR5",
+            "L3BhcnR5X2Vycm9yX3Ntc2cucHJvdG8aJ21lc3NhZ2VzL3BhcnR5L2Rpc2Jh",
+            "bmRfcGFydHlfc21zZy5wcm90byKlFwoIRW52ZWxvcGUSMwoRb3BlcmF0aW9u",
+            "X3N1Y2Nlc3MYASABKAsyFi5ibmV0Lk9wZXJhdGlvblN1Y2Nlc3NIABIvCg9v",
+            "cGVyYXRpb25fZXJyb3IYAiABKAsyFC5ibmV0Lk9wZXJhdGlvbkVycm9ySAAS",
+            "LgoOYXV0aGVudGljYXRpb24YZCABKAsyFC5ibmV0LkF1dGhlbnRpY2F0aW9u",
+            "SAASKgoMZGlzY29ubmVjdGVkGGUgASgLMhIuYm5ldC5EaXNjb25uZWN0ZWRI",
+            "ABI9ChZhdXRoZW50aWNhdGlvbl9zdWNjZXNzGGYgASgLMhsuYm5ldC5BdXRo",
+            "ZW50aWNhdGlvblN1Y2Nlc3NIABIaCgRwaW5nGHggASgLMgouYm5ldC5QaW5n",
+            "SAASGgoEcG9uZxh5IAEoCzIKLmJuZXQuUG9uZ0gAEiMKCWNoYXRfY21zZxh6",
+            "IAEoCzIOLmJuZXQuQ2hhdENNU0dIABIjCgljaGF0X3Ntc2cYeyABKAsyDi5i",
+            "bmV0LkNoYXRTTVNHSAASMQoOcmVxdWVzdF9sb2dvdXQYfCABKAsyFy5ibmV0",
+            "LlJlcXVlc3RMb2dvdXRDTVNHSAASMAoNZ2V0X2ludmVudG9yeRitAiABKAsy",
+            "Fi5ibmV0LkdldEludmVudG9yeUNNU0dIABImCgh1c2VfaXRlbRiuAiABKAsy",
+            "ES5ibmV0LlVzZUl0ZW1DTVNHSAASKAoJZHJvcF9pdGVtGK8CIAEoCzISLmJu",
+            "ZXQuRHJvcEl0ZW1DTVNHSAASKAoJbG9vdF9pdGVtGLACIAEoCzISLmJuZXQu",
+            "TG9vdEl0ZW1DTVNHSAASKgoKZXF1aXBfaXRlbRixAiABKAsyEy5ibmV0LkVx",
+            "dWlwSXRlbUNNU0dIABIuCgx1bmVxdWlwX2l0ZW0YsgIgASgLMhUuYm5ldC5V",
+            "bmVxdWlwSXRlbUNNU0dIABIqCgpnZXRfbWFzdGVyGJEDIAEoCzITLmJuZXQu",
+            "R2V0TWFzdGVyQ01TR0gAEh8KBm1hc3RlchiSAyABKAsyDC5ibmV0Lk1hc3Rl",
+            "ckgAEjAKDXNlbGVjdF9tYXN0ZXIYkwMgASgLMhYuYm5ldC5TZWxlY3RNYXN0",
+            "ZXJDTVNHSAASJgoIZ2V0X3NlbGYYlAMgASgLMhEuYm5ldC5HZXRTZWxmQ01T",
+            "R0gAEh8KBHNlbGYYlQMgASgLMg4uYm5ldC5TZWxmU01TR0gAEjkKEmludmVz",
+            "dF9za2lsbF9wb2ludBiWAyABKAsyGi5ibmV0LkludmVzdFNraWxsUG9pbnRD",
+            "TVNHSAASKgoKZ2V0X3NraWxscxiXAyABKAsyEy5ibmV0LkdldFNraWxsc0NN",
+            "U0dIABIyCg5hY3RpdmF0ZV9za2lsbBiYAyABKAsyFy5ibmV0LkFjdGl2YXRl",
+            "U2tpbGxDTVNHSAASMAoNY3JlYXRlX21hc3RlchiZAyABKAsyFi5ibmV0LkNy",
+            "ZWF0ZU1hc3RlckNNU0dIABI5ChRzZWxlY3RfYWN0aXZlX2VudGl0eRj0AyAB",
+            "KAsyGC5ibmV0LlNlbGVjdEFjdGl2ZUVudGl0eUgAEjUKEm1vdmVfYWN0aXZl",
+            "X2VudGl0eRj1AyABKAsyFi5ibmV0Lk1vdmVBY3RpdmVFbnRpdHlIABIxChBn",
+            "ZXRfYWxsX2VudGl0aWVzGPYDIAEoCzIULmJuZXQuR2V0QWxsRW50aXRpZXNI",
+            "ABIwCg1hdHRhY2tfZW50aXR5GPcDIAEoCzIWLmJuZXQuQXR0YWNrRW50aXR5",
+            "Q01TR0gAEjAKDXZhbmlzaF9lbnRpdHkY+AMgASgLMhYuYm5ldC5WYW5pc2hF",
+            "bnRpdHlTTVNHSAASMAoNZGFtYWdlX2VudGl0eRj5AyABKAsyFi5ibmV0LkRh",
+            "bWFnZUVudGl0eVNNU0dIABIxCg1jb21wX3Bvc2l0aW9uGP4DIAEoCzIXLmJu",
+            "ZXQuUG9zaXRpb25Db21wb25lbnRIABI6ChJjb21wX2Jlc3RpYV92aXN1YWwY",
+            "/wMgASgLMhsuYm5ldC5CZXN0aWFWaXN1YWxDb21wb25lbnRIABI2ChBjb21w",
+            "X2l0ZW1fdmlzdWFsGIAEIAEoCzIZLmJuZXQuSXRlbVZpc3VhbENvbXBvbmVu",
+            "dEgAEj4KEmNvbXBfbWFzdGVyX3Zpc3VhbBiCBCABKAsyHy5ibmV0Lk1hc3Rl",
+            "clZpc3VhbENvbXBvbmVudFNNU0dIABItCgljb21wX3BhdGgYgwQgASgLMhcu",
+            "Ym5ldC5QYXRoQ29tcG9uZW50U01TR0gAEi8KCmNvbXBfc3BlZWQYhAQgASgL",
+            "MhguYm5ldC5TcGVlZENvbXBvbmVudFNNU0dIABIrCghjb21wX2V4cBiFBCAB",
+            "KAsyFi5ibmV0LkV4cENvbXBvbmVudFNNU0dIABIvCgpjb21wX2xldmVsGIYE",
+            "IAEoCzIYLmJuZXQuTGV2ZWxDb21wb25lbnRTTVNHSAASLQoJY29tcF9tYW5h",
+            "GIcEIAEoCzIXLmJuZXQuTWFuYUNvbXBvbmVudFNNU0dIABIxCgtjb21wX2hl",
+            "YWx0aBiIBCABKAsyGS5ibmV0LkhlYWx0aENvbXBvbmVudFNNU0dIABI3Cg5j",
+            "b21wX2ludmVudG9yeRiJBCABKAsyHC5ibmV0LkludmVudG9yeUNvbXBvbmVu",
+            "dFNNU0dIABIzChFjb21wX3NraWxsX3BvaW50cxiLBCABKAsyFS5ibmV0LlNr",
+            "aWxsUG9pbnRzU01TR0gAEi8KD2NvbXBfc2tpbGxfbGlzdBiMBCABKAsyEy5i",
+            "bmV0LlNraWxsTGlzdFNNU0dIABI3Cg5jb21wX2FuaW1hdGlvbhiNBCABKAsy",
+            "HC5ibmV0LkFuaW1hdGlvbkNvbXBvbmVudFNNU0dIABIzCgxjb21wX2VmZmVj",
+            "dHMYjgQgASgLMhouYm5ldC5TdGF0dXNFZmZlY3RMaXN0U01TR0gAEjUKEmNv",
+            "bXBfbG9nb3V0X2ludGVudBiPBCABKAsyFi5ibmV0LkxvZ291dEludGVudFNN",
+            "U0dIABIzCgxjb21wX3N0YW1pbmEYkQQgASgLMhouYm5ldC5TdGFtaW5hQ29t",
+            "cG9uZW50U01TR0gAEkAKE2NvbXBfY2FycnlfY2FwYWNpdHkYkgQgASgLMiAu",
+            "Ym5ldC5DYXJyeUNhcGFjaXR5Q29tcG9uZW50U01TR0gAEjMKDGNvbXBfY2Fz",
+            "dGluZxiTBCABKAsyGi5ibmV0LkNhc3RpbmdDb21wb25lbnRTTVNHSAASNwoO",
+            "Y29tcF9lcXVpcG1lbnQYlAQgASgLMhwuYm5ldC5FcXVpcG1lbnRDb21wb25l",
+            "bnRTTVNHSAASOwoTYWNjZXB0X3BhcnR5X2ludml0ZRjYBCABKAsyGy5ibmV0",
+            "LkFjY2VwdFBhcnR5SW52aXRlQ01TR0gAEj0KFGRlY2xpbmVfcGFydHlfaW52",
+            "aXRlGNkEIAEoCzIcLmJuZXQuRGVjbGluZVBhcnR5SW52aXRlQ01TR0gAEjYK",
+            "EHBhcnR5X2ludml0YXRpb24Y2gQgASgLMhkuYm5ldC5QYXJ0eUludml0YXRp",
+            "b25TTVNHSAASRQoYcGFydHlfaW52aXRhdGlvbl9jcmVhdGVkGNsEIAEoCzIg",
+            "LmJuZXQuUGFydHlJbnZpdGF0aW9uQ3JlYXRlZFNNU0dIABI/ChVwYXJ0eV9p",
+            "bnZpdGVfZGVjbGluZWQY3AQgASgLMh0uYm5ldC5QYXJ0eUludml0ZURlY2xp",
+            "bmVkU01TR0gAEioKCnBhcnR5X2luZm8Y3QQgASgLMhMuYm5ldC5QYXJ0eUlu",
+            "Zm9TTVNHSAASLAoLcGFydHlfZXJyb3IY3gQgASgLMhQuYm5ldC5QYXJ0eUVy",
+            "cm9yU01TR0gAEjAKDWRpc2JhbmRfcGFydHkY3wQgASgLMhYuYm5ldC5EaXNi",
+            "YW5kUGFydHlTTVNHSABCCQoHbWVzc2FnZUoGCJAEEJEEQiYKFW5ldC5iZXN0",
+            "aWEuYm5ldC5wcm90b0INRW52ZWxvcGVQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInvitationCreatedSmsgReflection.Descriptor, global::Bnet.PartyInviteDeclinedSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.PartyErrorSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.BestiaVisualComponentReflection.Descriptor, global::Bnet.ItemVisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.EquipmentComponentSmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInvitationCreatedSmsgReflection.Descriptor, global::Bnet.PartyInviteDeclinedSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.PartyErrorSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "GetInventory", "UseItem", "DropItem", "LootItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList", "CompAnimation", "CompEffects", "CompLogoutIntent", "CompStamina", "CompCarryCapacity", "CompCasting", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInvitationCreated", "PartyInviteDeclined", "PartyInfo", "PartyError", "DisbandParty" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompBestiaVisual", "CompItemVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList", "CompAnimation", "CompEffects", "CompLogoutIntent", "CompStamina", "CompCarryCapacity", "CompCasting", "CompEquipment", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInvitationCreated", "PartyInviteDeclined", "PartyInfo", "PartyError", "DisbandParty" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -229,6 +235,12 @@ namespace Bnet {
           break;
         case MessageOneofCase.LootItem:
           LootItem = other.LootItem.Clone();
+          break;
+        case MessageOneofCase.EquipItem:
+          EquipItem = other.EquipItem.Clone();
+          break;
+        case MessageOneofCase.UnequipItem:
+          UnequipItem = other.UnequipItem.Clone();
           break;
         case MessageOneofCase.GetMaster:
           GetMaster = other.GetMaster.Clone();
@@ -331,6 +343,9 @@ namespace Bnet {
           break;
         case MessageOneofCase.CompCasting:
           CompCasting = other.CompCasting.Clone();
+          break;
+        case MessageOneofCase.CompEquipment:
+          CompEquipment = other.CompEquipment.Clone();
           break;
         case MessageOneofCase.AcceptPartyInvite:
           AcceptPartyInvite = other.AcceptPartyInvite.Clone();
@@ -538,6 +553,30 @@ namespace Bnet {
       set {
         message_ = value;
         messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.LootItem;
+      }
+    }
+
+    /// <summary>Field number for the "equip_item" field.</summary>
+    public const int EquipItemFieldNumber = 305;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.EquipItemCMSG EquipItem {
+      get { return messageCase_ == MessageOneofCase.EquipItem ? (global::Bnet.EquipItemCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.EquipItem;
+      }
+    }
+
+    /// <summary>Field number for the "unequip_item" field.</summary>
+    public const int UnequipItemFieldNumber = 306;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.UnequipItemCMSG UnequipItem {
+      get { return messageCase_ == MessageOneofCase.UnequipItem ? (global::Bnet.UnequipItemCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.UnequipItem;
       }
     }
 
@@ -955,6 +994,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "comp_equipment" field.</summary>
+    public const int CompEquipmentFieldNumber = 532;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.EquipmentComponentSMSG CompEquipment {
+      get { return messageCase_ == MessageOneofCase.CompEquipment ? (global::Bnet.EquipmentComponentSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CompEquipment;
+      }
+    }
+
     /// <summary>Field number for the "accept_party_invite" field.</summary>
     public const int AcceptPartyInviteFieldNumber = 600;
     /// <summary>
@@ -1072,6 +1123,8 @@ namespace Bnet {
       UseItem = 302,
       DropItem = 303,
       LootItem = 304,
+      EquipItem = 305,
+      UnequipItem = 306,
       GetMaster = 401,
       Master = 402,
       SelectMaster = 403,
@@ -1106,6 +1159,7 @@ namespace Bnet {
       CompStamina = 529,
       CompCarryCapacity = 530,
       CompCasting = 531,
+      CompEquipment = 532,
       AcceptPartyInvite = 600,
       DeclinePartyInvite = 601,
       PartyInvitation = 602,
@@ -1158,6 +1212,8 @@ namespace Bnet {
       if (!object.Equals(UseItem, other.UseItem)) return false;
       if (!object.Equals(DropItem, other.DropItem)) return false;
       if (!object.Equals(LootItem, other.LootItem)) return false;
+      if (!object.Equals(EquipItem, other.EquipItem)) return false;
+      if (!object.Equals(UnequipItem, other.UnequipItem)) return false;
       if (!object.Equals(GetMaster, other.GetMaster)) return false;
       if (!object.Equals(Master, other.Master)) return false;
       if (!object.Equals(SelectMaster, other.SelectMaster)) return false;
@@ -1192,6 +1248,7 @@ namespace Bnet {
       if (!object.Equals(CompStamina, other.CompStamina)) return false;
       if (!object.Equals(CompCarryCapacity, other.CompCarryCapacity)) return false;
       if (!object.Equals(CompCasting, other.CompCasting)) return false;
+      if (!object.Equals(CompEquipment, other.CompEquipment)) return false;
       if (!object.Equals(AcceptPartyInvite, other.AcceptPartyInvite)) return false;
       if (!object.Equals(DeclinePartyInvite, other.DeclinePartyInvite)) return false;
       if (!object.Equals(PartyInvitation, other.PartyInvitation)) return false;
@@ -1222,6 +1279,8 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.UseItem) hash ^= UseItem.GetHashCode();
       if (messageCase_ == MessageOneofCase.DropItem) hash ^= DropItem.GetHashCode();
       if (messageCase_ == MessageOneofCase.LootItem) hash ^= LootItem.GetHashCode();
+      if (messageCase_ == MessageOneofCase.EquipItem) hash ^= EquipItem.GetHashCode();
+      if (messageCase_ == MessageOneofCase.UnequipItem) hash ^= UnequipItem.GetHashCode();
       if (messageCase_ == MessageOneofCase.GetMaster) hash ^= GetMaster.GetHashCode();
       if (messageCase_ == MessageOneofCase.Master) hash ^= Master.GetHashCode();
       if (messageCase_ == MessageOneofCase.SelectMaster) hash ^= SelectMaster.GetHashCode();
@@ -1256,6 +1315,7 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompStamina) hash ^= CompStamina.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompCarryCapacity) hash ^= CompCarryCapacity.GetHashCode();
       if (messageCase_ == MessageOneofCase.CompCasting) hash ^= CompCasting.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CompEquipment) hash ^= CompEquipment.GetHashCode();
       if (messageCase_ == MessageOneofCase.AcceptPartyInvite) hash ^= AcceptPartyInvite.GetHashCode();
       if (messageCase_ == MessageOneofCase.DeclinePartyInvite) hash ^= DeclinePartyInvite.GetHashCode();
       if (messageCase_ == MessageOneofCase.PartyInvitation) hash ^= PartyInvitation.GetHashCode();
@@ -1338,6 +1398,14 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.LootItem) {
         output.WriteRawTag(130, 19);
         output.WriteMessage(LootItem);
+      }
+      if (messageCase_ == MessageOneofCase.EquipItem) {
+        output.WriteRawTag(138, 19);
+        output.WriteMessage(EquipItem);
+      }
+      if (messageCase_ == MessageOneofCase.UnequipItem) {
+        output.WriteRawTag(146, 19);
+        output.WriteMessage(UnequipItem);
       }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         output.WriteRawTag(138, 25);
@@ -1474,6 +1542,10 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CompCasting) {
         output.WriteRawTag(154, 33);
         output.WriteMessage(CompCasting);
+      }
+      if (messageCase_ == MessageOneofCase.CompEquipment) {
+        output.WriteRawTag(162, 33);
+        output.WriteMessage(CompEquipment);
       }
       if (messageCase_ == MessageOneofCase.AcceptPartyInvite) {
         output.WriteRawTag(194, 37);
@@ -1573,6 +1645,14 @@ namespace Bnet {
         output.WriteRawTag(130, 19);
         output.WriteMessage(LootItem);
       }
+      if (messageCase_ == MessageOneofCase.EquipItem) {
+        output.WriteRawTag(138, 19);
+        output.WriteMessage(EquipItem);
+      }
+      if (messageCase_ == MessageOneofCase.UnequipItem) {
+        output.WriteRawTag(146, 19);
+        output.WriteMessage(UnequipItem);
+      }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         output.WriteRawTag(138, 25);
         output.WriteMessage(GetMaster);
@@ -1709,6 +1789,10 @@ namespace Bnet {
         output.WriteRawTag(154, 33);
         output.WriteMessage(CompCasting);
       }
+      if (messageCase_ == MessageOneofCase.CompEquipment) {
+        output.WriteRawTag(162, 33);
+        output.WriteMessage(CompEquipment);
+      }
       if (messageCase_ == MessageOneofCase.AcceptPartyInvite) {
         output.WriteRawTag(194, 37);
         output.WriteMessage(AcceptPartyInvite);
@@ -1792,6 +1876,12 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.LootItem) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(LootItem);
+      }
+      if (messageCase_ == MessageOneofCase.EquipItem) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(EquipItem);
+      }
+      if (messageCase_ == MessageOneofCase.UnequipItem) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(UnequipItem);
       }
       if (messageCase_ == MessageOneofCase.GetMaster) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(GetMaster);
@@ -1894,6 +1984,9 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.CompCasting) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompCasting);
+      }
+      if (messageCase_ == MessageOneofCase.CompEquipment) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CompEquipment);
       }
       if (messageCase_ == MessageOneofCase.AcceptPartyInvite) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(AcceptPartyInvite);
@@ -2015,6 +2108,18 @@ namespace Bnet {
             LootItem = new global::Bnet.LootItemCMSG();
           }
           LootItem.MergeFrom(other.LootItem);
+          break;
+        case MessageOneofCase.EquipItem:
+          if (EquipItem == null) {
+            EquipItem = new global::Bnet.EquipItemCMSG();
+          }
+          EquipItem.MergeFrom(other.EquipItem);
+          break;
+        case MessageOneofCase.UnequipItem:
+          if (UnequipItem == null) {
+            UnequipItem = new global::Bnet.UnequipItemCMSG();
+          }
+          UnequipItem.MergeFrom(other.UnequipItem);
           break;
         case MessageOneofCase.GetMaster:
           if (GetMaster == null) {
@@ -2220,6 +2325,12 @@ namespace Bnet {
           }
           CompCasting.MergeFrom(other.CompCasting);
           break;
+        case MessageOneofCase.CompEquipment:
+          if (CompEquipment == null) {
+            CompEquipment = new global::Bnet.EquipmentComponentSMSG();
+          }
+          CompEquipment.MergeFrom(other.CompEquipment);
+          break;
         case MessageOneofCase.AcceptPartyInvite:
           if (AcceptPartyInvite == null) {
             AcceptPartyInvite = new global::Bnet.AcceptPartyInviteCMSG();
@@ -2409,6 +2520,24 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             LootItem = subBuilder;
+            break;
+          }
+          case 2442: {
+            global::Bnet.EquipItemCMSG subBuilder = new global::Bnet.EquipItemCMSG();
+            if (messageCase_ == MessageOneofCase.EquipItem) {
+              subBuilder.MergeFrom(EquipItem);
+            }
+            input.ReadMessage(subBuilder);
+            EquipItem = subBuilder;
+            break;
+          }
+          case 2450: {
+            global::Bnet.UnequipItemCMSG subBuilder = new global::Bnet.UnequipItemCMSG();
+            if (messageCase_ == MessageOneofCase.UnequipItem) {
+              subBuilder.MergeFrom(UnequipItem);
+            }
+            input.ReadMessage(subBuilder);
+            UnequipItem = subBuilder;
             break;
           }
           case 3210: {
@@ -2715,6 +2844,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             CompCasting = subBuilder;
+            break;
+          }
+          case 4258: {
+            global::Bnet.EquipmentComponentSMSG subBuilder = new global::Bnet.EquipmentComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompEquipment) {
+              subBuilder.MergeFrom(CompEquipment);
+            }
+            input.ReadMessage(subBuilder);
+            CompEquipment = subBuilder;
             break;
           }
           case 4802: {
@@ -2930,6 +3068,24 @@ namespace Bnet {
             LootItem = subBuilder;
             break;
           }
+          case 2442: {
+            global::Bnet.EquipItemCMSG subBuilder = new global::Bnet.EquipItemCMSG();
+            if (messageCase_ == MessageOneofCase.EquipItem) {
+              subBuilder.MergeFrom(EquipItem);
+            }
+            input.ReadMessage(subBuilder);
+            EquipItem = subBuilder;
+            break;
+          }
+          case 2450: {
+            global::Bnet.UnequipItemCMSG subBuilder = new global::Bnet.UnequipItemCMSG();
+            if (messageCase_ == MessageOneofCase.UnequipItem) {
+              subBuilder.MergeFrom(UnequipItem);
+            }
+            input.ReadMessage(subBuilder);
+            UnequipItem = subBuilder;
+            break;
+          }
           case 3210: {
             global::Bnet.GetMasterCMSG subBuilder = new global::Bnet.GetMasterCMSG();
             if (messageCase_ == MessageOneofCase.GetMaster) {
@@ -3234,6 +3390,15 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             CompCasting = subBuilder;
+            break;
+          }
+          case 4258: {
+            global::Bnet.EquipmentComponentSMSG subBuilder = new global::Bnet.EquipmentComponentSMSG();
+            if (messageCase_ == MessageOneofCase.CompEquipment) {
+              subBuilder.MergeFrom(CompEquipment);
+            }
+            input.ReadMessage(subBuilder);
+            CompEquipment = subBuilder;
             break;
           }
           case 4802: {

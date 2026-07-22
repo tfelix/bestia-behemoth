@@ -1,6 +1,8 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.status.EquipmentScript
+import net.bestia.zone.battle.status.EquipmentScriptRegistry
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
@@ -9,12 +11,16 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
-import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.item.Item
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.EquipmentSlots
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -37,6 +43,15 @@ class StatusEffectSystemsIntegrationTest {
     override fun durationSeconds(level: Int): Double = duration
     override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
       context.speed *= speedMultiplier
+    }
+  }
+
+  /** A stand-in [EquipmentScript] for a flat agility bonus, registered by simple class name. */
+  private class AgilityBootsScript(
+    private val agilityBonus: Int = 5
+  ) : EquipmentScript {
+    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
+      context.agility += agilityBonus
     }
   }
 
@@ -68,7 +83,10 @@ class StatusEffectSystemsIntegrationTest {
 
   private val conditionValueCalculator = ConditionValueCalculator()
 
-  private fun newWorld(script: StatusEffectScript): Pair<World, StatusEffectDefinitionRegistry> {
+  private fun newWorld(
+    script: StatusEffectScript,
+    equipmentScriptRegistry: EquipmentScriptRegistry = EquipmentScriptRegistry(emptyList())
+  ): Pair<World, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
     definitionRegistry.load(listOf(speedEffect, vitalityEffect))
 
@@ -77,7 +95,7 @@ class StatusEffectSystemsIntegrationTest {
     val world = testWorld(
       systems = listOf(
         StatusEffectDurationSystem(),
-        StatusValueRecalcSystem(definitionRegistry, scriptRegistry, conditionValueCalculator)
+        StatusValueRecalcSystem(definitionRegistry, scriptRegistry, equipmentScriptRegistry, conditionValueCalculator)
       )
     )
     return world to definitionRegistry
@@ -113,7 +131,6 @@ class StatusEffectSystemsIntegrationTest {
     val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
     val entity = world.create()
     world.seedStatusValues(entity)
-    world.add(entity, FormulaDrivenVitals)
 
     val baseMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 10)
     val buffedMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 30)
@@ -130,6 +147,57 @@ class StatusEffectSystemsIntegrationTest {
     world.tick(1.0f) // fully expires the 1s duration
     world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
     assertEquals(baseMaxHp, world.get(entity, Health::class)!!.max)
+  }
+
+  @Test
+  fun `worn equipment raises effective status values and reverts when taken off`() {
+    val bootsItem = Item(
+      id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
+      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR
+    )
+    val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(AgilityBootsScript()))
+    equipmentScriptRegistry.bind(listOf(bootsItem))
+
+    val (world, _) = newWorld(SpeedBuffScript(), equipmentScriptRegistry)
+    val entity = world.create()
+    world.seedStatusValues(entity)
+    val equipment = Equipment(EquipmentSlots.ALL)
+    world.add(entity, equipment)
+
+    equipment.equip(EquipmentSlot.FOOTGEAR, Equipment.EquippedItem(itemId = bootsItem.id, uniqueId = 1L))
+    world.add(entity, IsStatusValueDirty)
+    world.tick(0.1f)
+    assertEquals(15, world.get(entity, StatusValues::class)!!.agility)
+
+    equipment.unequip(EquipmentSlot.FOOTGEAR)
+    world.add(entity, IsStatusValueDirty)
+    world.tick(0.1f)
+    assertEquals(10, world.get(entity, StatusValues::class)!!.agility)
+  }
+
+  @Test
+  fun `a status effect stacks on top of the equipment bonus rather than replacing it`() {
+    val bootsItem = Item(
+      id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
+      script = "AgilityBootsScript", equipSlot = EquipmentSlot.FOOTGEAR
+    )
+    val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(AgilityBootsScript()))
+    equipmentScriptRegistry.bind(listOf(bootsItem))
+
+    val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20), equipmentScriptRegistry)
+    val entity = world.create()
+    world.seedStatusValues(entity)
+    val equipment = Equipment(EquipmentSlots.ALL)
+    world.add(entity, equipment)
+    equipment.equip(EquipmentSlot.FOOTGEAR, Equipment.EquippedItem(itemId = bootsItem.id, uniqueId = 1L))
+
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(VitalityBuffScript(vitalityBonus = 20))))
+      .applyEffect(world, entity, definitionId = vitalityEffect.id, level = 1)
+
+    world.tick(0.1f)
+    val values = world.get(entity, StatusValues::class)!!
+    assertEquals(15, values.agility) // from the boots
+    assertEquals(30, values.vitality) // from the buff
   }
 
   @Test

@@ -12,6 +12,11 @@ enum ItemType {USABLE, EQUIP, ETC}
 @export var type: ItemType
 @export var item_visual: PackedScene
 
+## Which slot this item is worn in, as an [enum EquipmentSlot.Slot] ordinal [b]+ 1[/b] - 0 means
+## "not equipment". Kept in sync with items.yml by './gradlew syncItemDb'; use
+## [method EquipmentSlot.from_item_value] to turn it into a real slot.
+@export var equip_slot: int = 0
+
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
 

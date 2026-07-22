@@ -3,12 +3,16 @@ package net.bestia.zone.item.container
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
+import net.bestia.zone.bestia.PlayerBestiaRepository
+import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.findByIdentifierOrThrow
 import net.bestia.zone.item.instance.ItemInstance
 import net.bestia.zone.item.instance.ItemInstanceRepository
 import net.bestia.zone.item.instance.findByIdOrThrow
+import net.bestia.zone.util.PlayerBestiaId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class InventoryService(
   private val masterRepository: MasterRepository,
+  private val playerBestiaRepository: PlayerBestiaRepository,
   private val itemRepository: ItemRepository,
   private val itemInstanceRepository: ItemInstanceRepository,
 ) {
@@ -68,6 +73,43 @@ class InventoryService(
     val removed = master.container.removeOne(itemId, amount) ?: return null
     masterRepository.save(master)
     return removed
+  }
+
+  /**
+   * Durably marks an item as worn in [slot] by the given owner - a master when
+   * [playerBestiaId] is null, otherwise that player bestia. The ECS
+   * [net.bestia.zone.ecs.item.Equipment] component has already been mutated by the caller on the
+   * tick thread; this is the write-behind half, so a mismatch here (item gone, slot taken) only
+   * means the change does not survive a restart, it never corrupts live state.
+   */
+  @Transactional
+  fun equip(
+    masterId: Long,
+    playerBestiaId: PlayerBestiaId?,
+    itemId: Long,
+    uniqueId: Long,
+    slot: EquipmentSlot
+  ): Boolean {
+    return withOwnerContainer(masterId, playerBestiaId) { it.equip(itemId, uniqueId, slot) }
+  }
+
+  @Transactional
+  fun unequip(masterId: Long, playerBestiaId: PlayerBestiaId?, slot: EquipmentSlot): Boolean {
+    return withOwnerContainer(masterId, playerBestiaId) { it.unequip(slot) != null }
+  }
+
+  private fun <T> withOwnerContainer(masterId: Long, playerBestiaId: PlayerBestiaId?, block: (ItemContainer) -> T): T {
+    return if (playerBestiaId == null) {
+      val master = masterRepository.findByIdOrThrow(masterId)
+      val result = block(master.container)
+      masterRepository.save(master)
+      result
+    } else {
+      val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
+      val result = block(playerBestia.container)
+      playerBestiaRepository.save(playerBestia)
+      result
+    }
   }
 
   private fun grant(container: ItemContainer, item: Item, amount: Int, uniqueId: Long) {

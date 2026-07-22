@@ -26,11 +26,12 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3IqewoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9BTFJFQURZX1RBS0VOEAAS",
-            "HgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQARIXChNNQVNURVJfSU5W",
-            "QUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxfRVJST1IQA0IsChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "b3IqygEKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
+            "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
+            "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
+            "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
+            "TkQQBRIVChFFUVVJUF9OT1RfQUxMT1dFRBAGQiwKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -46,6 +47,9 @@ namespace Bnet {
     [pbr::OriginalName("MASTER_MAX_MASTERS_REACHED")] MasterMaxMastersReached = 1,
     [pbr::OriginalName("MASTER_INVALID_NAME")] MasterInvalidName = 2,
     [pbr::OriginalName("MASTER_GENERAL_ERROR")] MasterGeneralError = 3,
+    [pbr::OriginalName("EQUIP_SLOT_NOT_AVAILABLE")] EquipSlotNotAvailable = 4,
+    [pbr::OriginalName("EQUIP_ITEM_NOT_FOUND")] EquipItemNotFound = 5,
+    [pbr::OriginalName("EQUIP_NOT_ALLOWED")] EquipNotAllowed = 6,
   }
 
   #endregion
