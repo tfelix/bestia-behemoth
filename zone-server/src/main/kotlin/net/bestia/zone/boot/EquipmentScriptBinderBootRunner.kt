@@ -1,6 +1,6 @@
 package net.bestia.zone.boot
 
-import net.bestia.zone.battle.status.EquipmentScriptRegistry
+import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import org.springframework.boot.CommandLineRunner

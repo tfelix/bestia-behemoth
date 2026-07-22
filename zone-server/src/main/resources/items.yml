@@ -34,3 +34,14 @@ items:
       A sturdy pair of leather shoes.
 
       Light enough to keep you nimble on your feet.
+
+  - id: 5
+    item-db-name: boots
+    weight: 40
+    type: EQUIP
+    equip-slot: FOOTGEAR
+    script: BootsScript
+    description: |
+      A pair of heavy iron-shod boots.
+
+      Their weight is a burden, but lends surprising resilience.

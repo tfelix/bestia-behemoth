@@ -1,9 +1,9 @@
 package net.bestia.zone.item.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.status.EquipmentScriptRegistry
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
+import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
@@ -65,7 +65,7 @@ class ItemScriptValidator(
 
   /**
    * Equip items may legitimately have no script at all (plain gear with no stat effect), but one
-   * that names a script must resolve to a registered [net.bestia.zone.battle.status.EquipmentScript].
+   * that names a script must resolve to a registered [net.bestia.zone.item.equip.script.EquipmentScript].
    */
   private fun validateEquipScripts() {
     val equipItems = itemRepository.findItemByType(Item.ItemType.EQUIP)

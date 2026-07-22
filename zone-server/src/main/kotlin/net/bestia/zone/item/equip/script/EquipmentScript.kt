@@ -1,12 +1,13 @@
-package net.bestia.zone.battle.status
+package net.bestia.zone.item.equip.script
 
+import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.item.equip.EquipmentSlot
 
 /**
  * What wearing one item does to its wearer's status values. Registered under its simple class name
  * (see [EquipmentScriptRegistry]) and referenced by `Item.script` for
  * [net.bestia.zone.item.Item.ItemType.EQUIP] items - the same script-name-to-bean pattern as
- * [StatusEffectScript] / [StatusEffectScriptRegistry].
+ * [net.bestia.zone.battle.status.StatusEffectScript] / [net.bestia.zone.battle.status.StatusEffectScriptRegistry].
  *
  * Applied by [net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem] on the tick thread while
  * it rebuilds [net.bestia.zone.ecs.battle.status.StatusValues] from scratch, so implementations

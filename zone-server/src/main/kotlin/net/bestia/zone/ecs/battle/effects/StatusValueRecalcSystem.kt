@@ -1,7 +1,6 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.status.ConditionValueCalculator
-import net.bestia.zone.battle.status.EquipmentScriptRegistry
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
@@ -17,6 +16,7 @@ import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component as SpringComponent
 /**
  * Rebuilds [StatusValues] (and [Speed.speed]) from scratch for every entity marked
  * [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), folds in every worn
- * item's [net.bestia.zone.battle.status.EquipmentScript.apply], then runs every active
+ * item's [net.bestia.zone.item.equip.script.EquipmentScript.apply], then runs every active
  * [StatusEffects] instance's [net.bestia.zone.battle.status.StatusEffectScript.apply] over the
  * result in turn, then writes the final values back and clears the dirty marker. Equipment is
  * applied before effects so a percentage buff scales the geared value, not the naked one.

@@ -1,4 +1,4 @@
-package net.bestia.zone.battle.status
+package net.bestia.zone.item.equip.script
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.item.Item
@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component
 
 /**
  * Resolves the `script` name on an [Item.ItemType.EQUIP] item (e.g. `ShoesScript`) to the
- * [EquipmentScript] bean implementing it - identical shape to [StatusEffectScriptRegistry].
+ * [EquipmentScript] bean implementing it - identical shape to
+ * [net.bestia.zone.battle.status.StatusEffectScriptRegistry].
  *
  * On top of the name lookup it also resolves scripts straight by **item id**. That mapping is not
  * derivable from the beans alone (it lives in `items.yml`), so it is injected once at boot by

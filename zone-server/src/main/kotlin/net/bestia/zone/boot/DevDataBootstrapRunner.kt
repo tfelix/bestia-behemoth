@@ -52,6 +52,7 @@ class DevDataBootstrapRunner(
 
     inventoryService.addItem(master, "apple", 12)
     inventoryService.addItem(master, "shoes", 1)
+    inventoryService.addItem(master, "boots", 1)
 
     // val blobBestia = bestiaRepository.findByIdentifierOrThrow("blob")
     // val doommasterBestia = bestiaRepository.findByIdentifierOrThrow("doom_master_of_doom")

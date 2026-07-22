@@ -1,6 +1,5 @@
-package net.bestia.zone.battle.status.scripts
+package net.bestia.zone.item.equip.script
 
-import net.bestia.zone.battle.status.EquipmentScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.item.equip.EquipmentSlot
 import org.springframework.stereotype.Component

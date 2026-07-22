@@ -1,8 +1,6 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
-import net.bestia.zone.battle.status.EquipmentScript
-import net.bestia.zone.battle.status.EquipmentScriptRegistry
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
@@ -21,6 +19,8 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.EquipmentSlots
+import net.bestia.zone.item.equip.script.EquipmentScript
+import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
