@@ -12,8 +12,6 @@ signal equipment_updated()
 
 @onready var _slot_nodes: Array = _collect_slot_nodes()
 
-## Worn items per entity id: { entity_id: { slot: {"item_id": int, "unique_id": int} } }
-var _worn: Dictionary = {}
 var _master_entity_id: int = 0
 var _selected_entity_id: int = 0
 ## Bestia template id per entity, cached from BestiaVisualComponent so the slot mask survives the
@@ -40,6 +38,9 @@ func _collect_slot_nodes() -> Array:
 	return found
 
 
+## Seeds from whatever the Entity node already has cached (see entity.gd/entity_manager.gd) so
+## this is correct immediately, without waiting for the next live EquipmentComponentSMSG -
+## mirrors Skills._seed_skill_points_from_cache / BuffList._on_self_received.
 func _on_self_received(msg: SelfSMSG) -> void:
 	_master_entity_id = msg.MasterEntityId
 	# TODO Follow the actually selected entity once entity selection exists client side; until then
@@ -50,13 +51,6 @@ func _on_self_received(msg: SelfSMSG) -> void:
 
 func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is EquipmentComponentSMSG:
-		var by_slot: Dictionary = {}
-		for equipped in msg.Items:
-			by_slot[int(equipped.Slot)] = {
-				"item_id": int(equipped.ItemId),
-				"unique_id": int(equipped.UniqueId),
-			}
-		_worn[msg.EntityId] = by_slot
 		if msg.EntityId == _selected_entity_id:
 			_render()
 		equipment_updated.emit()
@@ -79,9 +73,17 @@ func _available_mask() -> int:
 	return BestiaDB.get_instance().get_equip_slots(bestia_id)
 
 
+## Worn items of the currently shown entity, by EquipmentSlot ordinal - cached on the Entity
+## node itself (entity.gd/entity_manager.gd), not here, so it survives this window being closed.
+func _worn_by_slot() -> Dictionary:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_entity(_selected_entity_id) if entity_manager else null
+	return entity.get_equipment() if entity else {}
+
+
 func _render() -> void:
 	var mask := _available_mask()
-	var by_slot: Dictionary = _worn.get(_selected_entity_id, {})
+	var by_slot: Dictionary = _worn_by_slot()
 	var item_db = ItemDB.get_instance()
 
 	for slot_node in _slot_nodes:
@@ -116,7 +118,7 @@ func _on_unequip_requested(slot: int) -> void:
 func is_worn(unique_id: int) -> bool:
 	if unique_id == 0:
 		return false
-	for equipped in _worn.get(_selected_entity_id, {}).values():
+	for equipped in _worn_by_slot().values():
 		if equipped["unique_id"] == unique_id:
 			return true
 	return false

@@ -35,6 +35,12 @@ var _effects: Array = []
 # server pushes an update, so it needs somewhere durable to seed itself from.
 var _skill_points: int = 0
 
+# Latest known worn items, by EquipmentSlot ordinal ({slot: {"item_id": int, "unique_id":
+# int}}), cached here for the same reason as _skill_points: the Equipment window may not be
+# open (or may be showing a different entity) when the server pushes an update, so it needs
+# somewhere durable to seed itself from.
+var _equipment: Dictionary = {}
+
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
 # a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
 # since moving cancels the cast server-side.
@@ -334,6 +340,20 @@ func update_skill_points(msg: SkillPointsComponentSMSG) -> void:
 
 func get_skill_points() -> int:
 	return _skill_points
+
+
+func update_equipment(msg: EquipmentComponentSMSG) -> void:
+	var by_slot: Dictionary = {}
+	for equipped in msg.Items:
+		by_slot[int(equipped.Slot)] = {
+			"item_id": int(equipped.ItemId),
+			"unique_id": int(equipped.UniqueId),
+		}
+	_equipment = by_slot
+
+
+func get_equipment() -> Dictionary:
+	return _equipment
 
 
 func select_for_active() -> void:
