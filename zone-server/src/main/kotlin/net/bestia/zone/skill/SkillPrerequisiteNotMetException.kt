@@ -3,12 +3,12 @@ package net.bestia.zone.skill
 import net.bestia.zone.BestiaException
 
 class SkillPrerequisiteNotMetException(
-  skillId: Long,
-  prerequisiteSkillId: Long,
+  skillIdentifier: String,
+  prerequisiteSkillIdentifier: String,
   requiredLevel: Int,
   currentLevel: Int
 ) : BestiaException(
   code = "SKILL_PREREQUISITE_NOT_MET",
-  message = "Skill $skillId requires prerequisite $prerequisiteSkillId at level " +
+  message = "Skill $skillIdentifier requires prerequisite $prerequisiteSkillIdentifier at level " +
     "$requiredLevel, but it is currently at level $currentLevel"
 )

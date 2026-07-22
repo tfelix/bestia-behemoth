@@ -95,8 +95,8 @@ class MasterSkillTreeService(
 
       if (prerequisiteLevel < prerequisite.requiredLevel) {
         throw SkillPrerequisiteNotMetException(
-          skillId = skillId,
-          prerequisiteSkillId = prerequisite.prerequisiteSkillId,
+          skillIdentifier = skillRepository.findByIdOrThrow(skillId).identifier,
+          prerequisiteSkillIdentifier = skillRepository.findByIdOrThrow(prerequisite.prerequisiteSkillId).identifier,
           requiredLevel = prerequisite.requiredLevel,
           currentLevel = prerequisiteLevel
         )

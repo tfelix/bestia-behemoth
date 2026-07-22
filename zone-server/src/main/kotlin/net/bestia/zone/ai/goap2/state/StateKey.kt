@@ -10,8 +10,13 @@ package net.bestia.zone.ai.goap2.state
  * (Int 0..100) and complex objects (Vector2, item/location collections).
  *
  * Equality/hash are by [name] only, so two `StateKey<Int>("hunger")` created in
- * different places refer to the same slot.
+ * different places refer to the same slot. [scope] does *not* participate in
+ * that equality — it is metadata [net.bestia.zone.ai.goap2.planner.PlanExecutor]
+ * reads to decide how far a write to this key should propagate (see
+ * [MemoryScope]), not part of the key's identity.
  */
-data class StateKey<T>(val name: String) {
+class StateKey<T>(val name: String, val scope: MemoryScope = MemoryScope.INDIVIDUAL) {
+  override fun equals(other: Any?): Boolean = this === other || (other is StateKey<*> && name == other.name)
+  override fun hashCode(): Int = name.hashCode()
   override fun toString(): String = name
 }

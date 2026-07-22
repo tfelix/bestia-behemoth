@@ -12,15 +12,15 @@ import net.bestia.zone.ai.goap2.state.WorldState
  *    [Precondition]s that the planner searches to satisfy, and it doubles as the
  *    A* goal test and heuristic source.
  *
- * [basePriority] is a `Float` in `0..100` and all priority math is done in
- * floating point, fixing the integer-division truncation in the original.
+ * [priority] is a small declarative formula (see the [priority] DSL) rather than a bare number, and
+ * all priority math is done in floating point, fixing the integer-division truncation in the
+ * original.
  */
 class Goal(
   val name: String,
-  val basePriority: Float,
+  val priority: Priority,
   val availability: Precondition,
   val desiredState: List<Precondition>,
-  val curves: List<Curve> = emptyList(),
 ) {
 
   fun isAvailable(state: WorldState): Boolean = availability.isSatisfied(state)
@@ -35,15 +35,12 @@ class Goal(
    */
   fun heuristic(state: WorldState): Int = desiredState.count { !it.isSatisfied(state) }
 
-  /**
-   * Dynamic priority = base priority scaled by the mean of the goal's curves
-   * (each in `0.0..1.0`). With no curves the goal simply uses its base priority.
-   */
-  fun evaluatePriority(state: WorldState): Float {
-    if (curves.isEmpty()) return basePriority
-    val meanWeight = curves.sumOf { it.evaluate(state) } / curves.size
-    return (basePriority * meanWeight).toFloat()
-  }
+  /** Dynamic priority for the current [state] — see [Priority.evaluate]. */
+  fun evaluatePriority(state: WorldState): Float = priority.evaluate(state)
+
+  /** A copy of this goal with its priority's base value overridden, e.g. per-archetype tuning. */
+  fun withBasePriority(base: Float): Goal =
+    Goal(name, Priority(base, priority.combine, priority.considerations), availability, desiredState)
 
   override fun toString(): String = name
 }

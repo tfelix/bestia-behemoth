@@ -92,7 +92,7 @@ object MarketDomain {
         Action(
           name = "sleepAtHome",
           preconditions = listOf(
-            Preconditions.satisfies(POSITION, "at home") { atHome(state) },
+            Preconditions.satisfies(POSITION, "at home") { state.get(POSITION)?.let { it.distanceTo(HOME) <= ARRIVAL_RADIUS } ?: false },
           ),
           effects = listOf(
             Effects.modify(TIREDNESS) { (it ?: 0) - 25 },

@@ -10,6 +10,7 @@ import net.bestia.zone.ai.goap2.agent.Agent
 import net.bestia.zone.ai.goap2.goal.Goal
 import net.bestia.zone.ai.goap2.goal.InverseLinearCurve
 import net.bestia.zone.ai.goap2.goal.LinearCurve
+import net.bestia.zone.ai.goap2.goal.priority
 import net.bestia.zone.ai.goap2.planner.PlanExecutor
 import net.bestia.zone.ai.goap2.planner.Planner
 import net.bestia.zone.ai.goap2.precondition.Preconditions
@@ -36,26 +37,23 @@ class MarketSimulationE2ETest {
 
   private val eatGoal = Goal(
     name = "Eat",
-    basePriority = 80f,
+    priority = priority(base = 80f) { consider(InverseLinearCurve(SATIATION)) },
     availability = Preconditions.atMost(SATIATION, 99),
     desiredState = listOf(Preconditions.atLeast(SATIATION, 80)),
-    curves = listOf(InverseLinearCurve(SATIATION)),
   )
 
   private val getRichGoal = Goal(
     name = "GetRich",
-    basePriority = 40f,
+    priority = priority(base = 40f) { consider(LinearCurve(GOLD)) },
     availability = Preconditions.atLeast(GOLD, 0),
     desiredState = listOf(Preconditions.atLeast(GOLD, 1_000)),
-    curves = listOf(LinearCurve(GOLD)),
   )
 
   private val sleepGoal = Goal(
     name = "Sleep",
-    basePriority = 80f,
+    priority = priority(base = 80f) { consider(LinearCurve(TIREDNESS)) },
     availability = Preconditions.atLeast(TIREDNESS, 80),
     desiredState = listOf(Preconditions.atMost(TIREDNESS, 20)),
-    curves = listOf(LinearCurve(TIREDNESS)),
   )
 
   @Test

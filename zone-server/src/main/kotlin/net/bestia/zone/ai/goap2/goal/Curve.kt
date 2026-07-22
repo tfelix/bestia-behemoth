@@ -43,3 +43,9 @@ class InverseLinearCurve(
   override fun evaluate(state: WorldState): Double =
     (1.0 - (state.get(key) ?: 0).toDouble() / maxValue).clamp01()
 }
+
+/** `HUNGER.linear()` — reads naturally inside a [priority] block. */
+fun StateKey<Int>.linear(maxValue: Int = 100): Curve = LinearCurve(this, maxValue)
+
+/** `HUNGER.inverseLinear()` — the emptier the stat, the more urgent the goal. */
+fun StateKey<Int>.inverseLinear(maxValue: Int = 100): Curve = InverseLinearCurve(this, maxValue)

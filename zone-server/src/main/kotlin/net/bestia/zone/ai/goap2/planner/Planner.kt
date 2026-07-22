@@ -29,7 +29,7 @@ class Planner(
   private val log = LoggerFactory.getLogger(Planner::class.java)
 
   fun makePlanForAgent(agent: Agent, worldState: Blackboard): Plan? {
-    val start = worldState.snapshotMergedWith(agent.memory)
+    val start = agent.snapshotState(worldState)
     log.info("[{}] planning from state {}", agent.name, start)
 
     val goal = selectCurrentGoal(agent, start) ?: run {

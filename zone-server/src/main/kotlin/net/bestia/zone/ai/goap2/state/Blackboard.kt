@@ -54,13 +54,13 @@ class Blackboard {
     WorldState.Companion.from(entries.mapValues { it.value.value })
 
   /**
-   * Snapshot this blackboard and layer [other] on top of it. Used by the
-   * planner to enrich the world state with an agent's private memory; entries
-   * in [other] win on conflict. This is the correct replacement for the old
-   * `appendState` stub.
+   * Snapshot this blackboard and layer [others] on top of it in order, so the
+   * last board wins on conflict. Used by the planner to layer world -> team ->
+   * individual memory into one state (see `Agent.snapshotState`); this is the
+   * correct replacement for the old `appendState` stub.
    */
-  fun snapshotMergedWith(other: Blackboard): WorldState =
-    snapshot().mergedWith(other.snapshot())
+  fun snapshotMergedWith(vararg others: Blackboard): WorldState =
+    others.fold(snapshot()) { acc, board -> acc.mergedWith(board.snapshot()) }
 
   companion object {
     const val DEFAULT_RETAIN_TIME_SECONDS = 600f

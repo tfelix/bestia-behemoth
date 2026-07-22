@@ -1,0 +1,26 @@
+identifier: wolf
+faction: wolf_pack
+wander_radius: 6
+hunger_threshold: 80
+tiredness_threshold: 75
+melee_range: 1
+goals:
+  - name: EatVegetation
+    base_priority: 70
+  - name: Sleep
+    base_priority: 90
+  - name: ReturnHome
+    base_priority: 75
+  - name: KillAttacker
+    base_priority: 95
+actions:
+  - returnHome
+  - walkToVegetation
+  - eatVegetation
+  - sleep
+  - approachTarget
+  - attack
+attacks:
+  - id: bite
+    range: 1
+    base_cost: 5
