@@ -4,8 +4,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -38,6 +40,29 @@ class BestiaEntityFactory(
       add(id, Health(bestia.health, bestia.health))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())
+      // Placeholder primary attributes (no per-species table yet) so a mob can be projected into a
+      // BattleEntity - BattleContextFactory returns null without StatusValues. No FormulaDrivenVitals
+      // marker: mobs keep their authored Bestia.health rather than a formula-driven pool.
+      val baseStatusValues = BaseStatusValues(
+        strength = 10,
+        intelligence = 10,
+        vitality = 10,
+        dexterity = 10,
+        willpower = 10,
+        agility = 10
+      )
+      add(id, baseStatusValues)
+      add(
+        id,
+        StatusValues(
+          strength = baseStatusValues.strength,
+          intelligence = baseStatusValues.intelligence,
+          vitality = baseStatusValues.vitality,
+          dexterity = baseStatusValues.dexterity,
+          willpower = baseStatusValues.willpower,
+          agility = baseStatusValues.agility
+        )
+      )
       add(id, Persistent)
 
       attachAi(id, bestia, pos)

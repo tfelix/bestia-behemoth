@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -27,7 +28,8 @@ class GainExpSystem(
   override val writes: ComponentClassSet = setOf(
     Exp::class,
     Level::class,
-    SkillPoints::class
+    SkillPoints::class,
+    IsStatusValueDirty::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -40,9 +42,11 @@ class GainExpSystem(
       expComp.value += gainExpComp.value
       world.remove(entityId, GainExp::class)
 
+      var leveledUp = false
       while (expComp.value >= expComp.requiredExpNextLevel) {
         expComp.value -= expComp.requiredExpNextLevel
         levelComp.inc()
+        leveledUp = true
         expComp.requiredExpNextLevel = levelUpExpCalc.getRequiredExperience(levelComp.level)
 
         if (isMaster) {
@@ -52,6 +56,12 @@ class GainExpSystem(
         }
 
         LOG.debug { "$entityId got level up: ${levelComp.level} (next req. exp: ${expComp.requiredExpNextLevel})" }
+      }
+
+      // A higher level raises the formula-driven condition pools; flag a recalc so
+      // StatusValueRecalcSystem rebuilds max HP/Mana/Stamina from the new level next tick.
+      if (leveledUp) {
+        world.add(entityId, IsStatusValueDirty)
       }
 
       if (isMaster) {

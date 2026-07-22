@@ -80,12 +80,9 @@ class BattleContextFactory {
       id = entityId,
       position = position,
       level = level,
-      // TODO No equipment/defense system exists yet, so defense is derived from raw attributes
-      //  instead of gear. Replace once armour lands.
-      defense = DefenseValues(
-        defense = attributes.vitality,
-        magicDefense = attributes.willpower
-      ),
+      // Soft defense per the docs' SoftDEF/SoftMDEF formulas. Hard (equipment) defense is a
+      // separate term still missing until an armour system lands.
+      defense = DefenseValues.fromStatusValues(level, statusValues),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
       // TODO No element component exists yet; everything is NORMAL until elements are modelled.

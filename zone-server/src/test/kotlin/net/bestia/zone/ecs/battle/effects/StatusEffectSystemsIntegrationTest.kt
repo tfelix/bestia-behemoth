@@ -6,8 +6,11 @@ import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
+import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -37,6 +40,18 @@ class StatusEffectSystemsIntegrationTest {
     }
   }
 
+  /** A stand-in [StatusEffectScript] for a flat vitality bonus, registered by simple class name. */
+  private class VitalityBuffScript(
+    override val stackBehavior: StackBehavior = StackBehavior.REFRESH_DURATION,
+    private val vitalityBonus: Int = 20,
+    private val duration: Double = 1.0
+  ) : StatusEffectScript {
+    override fun durationSeconds(level: Int): Double = duration
+    override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+      context.vitality += vitalityBonus
+    }
+  }
+
   private val speedEffect = StatusEffectDefinition(
     id = 1L,
     identifier = "TEST_SPEED_BUFF",
@@ -44,16 +59,25 @@ class StatusEffectSystemsIntegrationTest {
     script = "SpeedBuffScript"
   )
 
+  private val vitalityEffect = StatusEffectDefinition(
+    id = 2L,
+    identifier = "TEST_VIT_BUFF",
+    isSyncedToClient = true,
+    script = "VitalityBuffScript"
+  )
+
+  private val conditionValueCalculator = ConditionValueCalculator()
+
   private fun newWorld(script: StatusEffectScript): Pair<World, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
-    definitionRegistry.load(listOf(speedEffect))
+    definitionRegistry.load(listOf(speedEffect, vitalityEffect))
 
     val scriptRegistry = StatusEffectScriptRegistry(listOf(script))
 
     val world = testWorld(
       systems = listOf(
         StatusEffectDurationSystem(),
-        StatusValueRecalcSystem(definitionRegistry, scriptRegistry)
+        StatusValueRecalcSystem(definitionRegistry, scriptRegistry, conditionValueCalculator)
       )
     )
     return world to definitionRegistry
@@ -82,6 +106,30 @@ class StatusEffectSystemsIntegrationTest {
 
     world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
     assertEquals(2.0f, world.get(entity, Speed::class)!!.speed, 0.001f)
+  }
+
+  @Test
+  fun `a vitality buff raises formula-driven max HP and reverts once it expires`() {
+    val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
+    val entity = world.create()
+    world.seedStatusValues(entity)
+    world.add(entity, FormulaDrivenVitals)
+
+    val baseMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 10)
+    val buffedMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 30)
+    world.add(entity, Health(current = baseMaxHp, max = baseMaxHp))
+    // Guard: the buff must actually move the number, otherwise the assertions below prove nothing.
+    assertTrue(buffedMaxHp > baseMaxHp)
+
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(VitalityBuffScript(duration = 1.0))))
+      .applyEffect(world, entity, definitionId = vitalityEffect.id, level = 1)
+
+    world.tick(0.1f)
+    assertEquals(buffedMaxHp, world.get(entity, Health::class)!!.max)
+
+    world.tick(1.0f) // fully expires the 1s duration
+    world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
+    assertEquals(baseMaxHp, world.get(entity, Health::class)!!.max)
   }
 
   @Test

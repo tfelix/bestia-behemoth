@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -39,6 +40,7 @@ class MasterEntityFactory(
   private val connectionInfoService: ConnectionInfoService,
   private val weightLimitCalculator: WeightLimitCalculator,
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
+  private val conditionValueCalculator: ConditionValueCalculator,
 ) {
 
   /**
@@ -68,9 +70,6 @@ class MasterEntityFactory(
       add(id, Level(master.level))
       add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(master.level)))
       add(id, Speed())
-      add(id, Health(current = 10, max = 10))
-      add(id, Mana(current = 10, max = 10))
-      add(id, Stamina(current = 10, max = 10))
       add(id, KnownSkills(learnedSkillIds.toMutableMap()))
       add(id, SkillPoints(master.skillPoints))
       add(
@@ -107,6 +106,17 @@ class MasterEntityFactory(
           agility = baseStatusValues.agility
         )
       )
+
+      // Formula-driven pools: seeded full from level + attributes and kept fresh by
+      // StatusValueRecalcSystem (gated on FormulaDrivenVitals) as level/attributes change.
+      val maxHp = conditionValueCalculator.computeMaxHp(master.level, baseStatusValues.vitality)
+      val maxMana = conditionValueCalculator.computeMaxMana(master.level, baseStatusValues.intelligence)
+      val maxStamina = conditionValueCalculator.computeMaxStamina(
+        master.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
+      )
+      add(id, Health(current = maxHp, max = maxHp))
+      add(id, Mana(current = maxMana, max = maxMana))
+      add(id, Stamina(current = maxStamina, max = maxStamina))
 
       add(
         id,

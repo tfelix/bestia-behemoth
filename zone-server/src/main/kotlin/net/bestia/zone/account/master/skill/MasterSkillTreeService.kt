@@ -18,6 +18,8 @@ import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 
 /**
  * Spends a bestia master's unspent skill points to invest levels into nodes of the master skill
@@ -40,11 +42,14 @@ class MasterSkillTreeService(
    * applied (no points left, max level reached, prerequisite unmet, ...) the whole batch is
    * rolled back.
    *
-   * Unspent points are read from - and spent against - the live [SkillPoints] ECS component
-   * rather than [Master.skillPoints]: that DB field only mirrors the component (via periodic
-   * entity persistence and `MasterEntityPersistenceService` on level-up), so the component is the
-   * up-to-date source of truth while the master is online. This requires an active entity for the
-   * master; there is no offline spending path.
+   * Unspent points are read from the live [SkillPoints] ECS component (the up-to-date source of
+   * truth while the master is online) but the spend is now made durable atomically: the same
+   * transaction that saves the levelled [LearnedSkill] rows also writes the decremented balance to
+   * [Master.skillPoints], and the ECS component is only decremented **after commit** (see
+   * [syncToEcs] registered as an after-commit callback). This mirrors how level-up exp persists
+   * synchronously before the gained points become spendable, and closes the window where a crash
+   * between commit and the periodic snapshot would refund an already-spent point. Requires an
+   * active entity for the master; there is no offline spending path.
    */
   @Transactional
   fun investSkillPoints(masterId: Long, investments: List<SkillPointInvestment>): List<LearnedSkill> {
@@ -68,9 +73,32 @@ class MasterSkillTreeService(
       }
     }
 
-    syncToEcs(entityId, updatedSkills.values, spentSkillPoints)
+    // Persist the point deduction in the SAME transaction as the LearnedSkill rows so the skill
+    // level and the spent point can never diverge across a crash. Master.skillPoints is re-seeded
+    // into the SkillPoints component on the next spawn (MasterEntityFactory), so it must be correct
+    // even if the process dies before the periodic ECS snapshot runs.
+    master.skillPoints = remainingSkillPoints
+    masterRepository.save(master)
+
+    // Only touch the (non-transactional) ECS world once the DB spend is durably committed, so a
+    // rollback can never leave the in-memory component ahead of the persisted balance.
+    afterCommit { syncToEcs(entityId, updatedSkills.values, spentSkillPoints) }
 
     return updatedSkills.values.toList()
+  }
+
+  /**
+   * Runs [block] after the current transaction commits, or immediately if there is no active
+   * transaction synchronization (e.g. in a unit test calling the service outside a transaction).
+   */
+  private fun afterCommit(block: () -> Unit) {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+        override fun afterCommit() = block()
+      })
+    } else {
+      block()
+    }
   }
 
   /**

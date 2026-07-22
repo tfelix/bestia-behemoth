@@ -3,8 +3,12 @@ package net.bestia.zone.bestia
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.Mana
+import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.item.CarryCapacity
+import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.ecs.movement.Position
@@ -28,6 +32,7 @@ class PlayerBestiaEntityFactory(
   private val connectionInfoService: ConnectionInfoService,
   private val weightLimitCalculator: WeightLimitCalculator,
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
+  private val conditionValueCalculator: ConditionValueCalculator,
 ) {
 
   /**
@@ -86,6 +91,16 @@ class PlayerBestiaEntityFactory(
           agility = baseStatusValues.agility
         )
       )
+
+      // Formula-driven pools, kept fresh by StatusValueRecalcSystem (gated on FormulaDrivenVitals).
+      val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
+      val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
+      val maxStamina = conditionValueCalculator.computeMaxStamina(
+        playerBestia.level, baseStatusValues.vitality, baseStatusValues.strength, baseStatusValues.willpower
+      )
+      add(id, Health(current = maxHp, max = maxHp))
+      add(id, Mana(current = maxMana, max = maxMana))
+      add(id, Stamina(current = maxStamina, max = maxStamina))
 
       add(
         id,

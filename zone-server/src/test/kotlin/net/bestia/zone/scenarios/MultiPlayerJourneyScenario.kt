@@ -4,7 +4,9 @@ import net.bestia.zone.account.master.AvailableMasterSMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.MasterCreatedSMSG
+import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
+import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
 import net.bestia.zone.battle.ActivateSkillCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
@@ -70,6 +72,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
   @Autowired
   private lateinit var world: WorldView
+
+  @Autowired
+  private lateinit var masterRepository: MasterRepository
 
   private var newMasterId: Long = 0
   private val newMasterName = "journeyM1"
@@ -305,6 +310,17 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       val points = clientPlayer1.getLastReceived(SkillPointsComponentSMSG::class)
       skillPointsAfterInvestment = points.points
     }
+
+    // The spend must be durable in the master row *immediately* after investing - not only once a
+    // logout snapshot runs (see @Order(12) for the relogin path). By the time the client observed
+    // the decremented SkillPointsComponentSMSG, MasterSkillTreeService's transaction (LearnedSkill
+    // rows + Master.skillPoints) has committed, so a crash right here could not refund the points.
+    val persistedSkillPoints = masterRepository.findByIdOrThrow(newMasterId).skillPoints
+    assertEquals(
+      skillPointsAfterInvestment,
+      persistedSkillPoints,
+      "skill-point spend must be persisted to the DB in the invest transaction, not only on logout"
+    )
   }
 
   @Test
