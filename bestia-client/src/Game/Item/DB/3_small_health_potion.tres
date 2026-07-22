@@ -8,8 +8,8 @@
 script = ExtResource("1_otq61")
 item_id = 3
 icon = ExtResource("1_cw0r6")
-name_key = "ITEM_3_NAME"
-description_key = "ITEM_3_DESC"
+name_key = "SMALL_HEALTH_POTION"
+description_key = "SMALL_HEALTH_POTION_DESC"
 weight = 1
 item_visual = ExtResource("3_potion_visual")
 metadata/_custom_type_script = "uid://bn4gvq3ayku4r"

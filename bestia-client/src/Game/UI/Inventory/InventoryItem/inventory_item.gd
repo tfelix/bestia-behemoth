@@ -9,7 +9,10 @@ extends Panel
 
 ## Assigned by Inventory when this node is instantiated - used for the double-click-to-equip
 ## shortcut, which has to know whether the equipment window is currently open.
-var inventory: Inventory = null
+## Untyped on purpose: statically typing this as Inventory forces inventory_item.gd to resolve
+## the Inventory class while it's parsed, and Inventory in turn preloads InventoryItem.tscn -
+## a load cycle that Godot rejects with a "Busy" parse error.
+var inventory = null
 
 @onready var _count: Label = %Count
 @onready var _icon: TextureRect = %Icon

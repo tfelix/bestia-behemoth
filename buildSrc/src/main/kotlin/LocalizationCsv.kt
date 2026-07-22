@@ -36,6 +36,18 @@ internal class LocalizationCsv(
     return upsert(key, enValue)
   }
 
+  /**
+   * Renames [oldKey] to [newKey] in place, preserving its row (translations included). No-op if
+   * [oldKey] isn't present or [newKey] is already taken. Returns true if the CSV content changed.
+   */
+  fun renameKey(oldKey: String, newKey: String): Boolean {
+    if (oldKey == newKey) return false
+    if (rows.any { it["keys"] == newKey }) return false
+    val row = rows.firstOrNull { it["keys"] == oldKey } ?: return false
+    row["keys"] = newKey
+    return true
+  }
+
   fun render(): String {
     val sb = StringBuilder()
     sb.append(header.joinToString(",") { csvField(it) }).append("\n")

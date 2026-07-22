@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 item_id = 2
-name_key = "ITEM_2_NAME"
-description_key = "ITEM_2_DESC"
+name_key = "JELLY"
+description_key = "JELLY_DESC"
 weight = 1
 type = 2

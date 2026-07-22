@@ -1,15 +1,15 @@
 keys,en
-ITEM_1_NAME,Apple
-ITEM_1_DESC,"A fresh apple. 
+APPLE,Apple
+APPLE_DESC,"A fresh apple. 
 
 Restores a small amount of health when eaten."
-ITEM_3_NAME,Small Health Potion
-ITEM_3_DESC,"A small vial of transparent slight red liquid.
+SMALL_HEALTH_POTION,Small Health Potion
+SMALL_HEALTH_POTION_DESC,"A small vial of transparent slight red liquid.
 
 Heals a modest amount of health when consumed."
-ITEM_2_NAME,Jelly
-ITEM_2_DESC,A quivering lump of blob residue. Someone probably buys these.
-ITEM_4_NAME,Shoes
-ITEM_4_DESC,"A sturdy pair of leather shoes.
+JELLY,Jelly
+JELLY_DESC,A quivering lump of blob residue. Someone probably buys these.
+SHOES,Shoes
+SHOES_DESC,"A sturdy pair of leather shoes.
 
 Light enough to keep you nimble on your feet."

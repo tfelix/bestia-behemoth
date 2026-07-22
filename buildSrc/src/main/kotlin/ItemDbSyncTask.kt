@@ -19,14 +19,19 @@ import java.io.File
  * against the Godot client's Item DB (the `.tres` files under `bestia-client/src/Game/Item/DB/`),
  * the exact check/sync split [SkillDbSyncTask] uses for skills.
  *
- * Only `item_id`, `type`, `weight` and `equip_slot` are touched - every other field (`icon`,
- * `name_key`, `item_script`, `item_visual`) is hand-authored client presentation with no server
- * equivalent and is left alone. `equip_slot` is only checked/patched for `EQUIP` items; anything
- * else is fine relying on the resource default of 0 ("not equipment").
+ * `item_id`, `type`, `weight`, `equip_slot`, `name_key` and `description_key` are touched - every
+ * other field (`icon`, `item_script`, `item_visual`) is hand-authored client presentation with no
+ * server equivalent and is left alone. `equip_slot` is only checked/patched for `EQUIP` items;
+ * anything else is fine relying on the resource default of 0 ("not equipment").
+ *
+ * `name_key`/`description_key` are derived from `items.yml`'s `item-db-name` identifier
+ * (uppercased), not the numeric id - e.g. `jelly` -> `name_key = "JELLY"`,
+ * `description_key = "JELLY_DESC"`. This keeps the localization keys stable across id
+ * renumbering and readable in `items.csv`.
  *
  * `description_key` points into `bestia-client/src/Localization/items.csv`, a Godot CSV translation
  * source. Whenever `items.yml` declares a `description`, that text is synced into the CSV's `en`
- * column - the *only* column this task ever writes. Name rows (`ITEM_<id>_NAME`) get a placeholder
+ * column - the *only* column this task ever writes. Name rows (`<IDENTIFIER>`) get a placeholder
  * when missing and are then hand-authored, since the server has no display name for an item.
  *
  * `equip_slot` values are `EquipmentSlot` **ordinals + 1** (0 means "none"), matching
@@ -94,6 +99,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
     val weightPattern = Regex("""^weight\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val nameKeyPattern = Regex("""^name_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
+    val descriptionKeyPattern = Regex("""^description_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
 
     val fileByItemId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -110,8 +117,8 @@ abstract class ItemDbSyncTask : DefaultTask() {
 
     for ((id, expected) in expectedById) {
       val file = fileByItemId[id]
-      val nameKey = "ITEM_${id}_NAME"
-      val descriptionKey = "ITEM_${id}_DESC"
+      val nameKey = expected.identifier.uppercase()
+      val descriptionKey = "${expected.identifier.uppercase()}_DESC"
 
       if (file == null) {
         if (shouldFix) {
@@ -136,6 +143,18 @@ abstract class ItemDbSyncTask : DefaultTask() {
       // Only equipment needs the line at all; a usable/etc item is fine relying on the default 0.
       if (expected.equipSlot != 0) {
         patchNumericField(file, "equip_slot", equipSlotPattern, expected.equipSlot, id, shouldFix, problems)
+      }
+
+      // name_key/description_key are derived from the identifier, not hand-authored - keep them in
+      // sync too, and carry over any existing translations if the key itself changes (e.g. after a
+      // rename in items.yml, or migrating off the old ITEM_<id>_NAME/DESC scheme).
+      val oldNameKey = patchStringField(file, "name_key", nameKeyPattern, nameKey, id, shouldFix, problems)
+      if (shouldFix && oldNameKey != null && oldNameKey != nameKey) {
+        csvDirty = csv.renameKey(oldNameKey, nameKey) || csvDirty
+      }
+      val oldDescriptionKey = patchStringField(file, "description_key", descriptionKeyPattern, descriptionKey, id, shouldFix, problems)
+      if (shouldFix && oldDescriptionKey != null && oldDescriptionKey != descriptionKey) {
+        csvDirty = csv.renameKey(oldDescriptionKey, descriptionKey) || csvDirty
       }
 
       // The English text is only server-sourced (and thus only checked/patched here) once items.yml
@@ -193,6 +212,37 @@ abstract class ItemDbSyncTask : DefaultTask() {
       logger.lifecycle("ItemDbSync: patched ${file.name}: $name ${current ?: "<missing>"} -> $expected")
     } else {
       problems += "${file.name}: $name=${current ?: "<missing>"} but items.yml expects $expected (id=$id)"
+    }
+  }
+
+  /** Same idea as [patchNumericField], for a quoted string field. Returns the previous value
+   *  (or null if the field was missing/already correct/not fixed), so callers can migrate
+   *  anything keyed off the old value (e.g. renaming a CSV row). */
+  private fun patchStringField(
+    file: File,
+    name: String,
+    pattern: Regex,
+    expected: String,
+    id: Long,
+    shouldFix: Boolean,
+    problems: MutableList<String>
+  ): String? {
+    val text = file.readText()
+    val current = pattern.find(text)?.groupValues?.get(1)
+    if (current == expected) return null
+
+    if (shouldFix) {
+      val newText = if (pattern.containsMatchIn(text)) {
+        pattern.replace(text) { "$name = \"$expected\"" }
+      } else {
+        text.trimEnd('\n') + "\n$name = \"$expected\"\n"
+      }
+      file.writeText(newText)
+      logger.lifecycle("ItemDbSync: patched ${file.name}: $name ${current ?: "<missing>"} -> $expected")
+      return current
+    } else {
+      problems += "${file.name}: $name=${current ?: "<missing>"} but items.yml expects $expected (id=$id)"
+      return null
     }
   }
 

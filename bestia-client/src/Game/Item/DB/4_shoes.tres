@@ -7,8 +7,8 @@
 script = ExtResource("1_script")
 item_id = 4
 icon = ExtResource("2_icon")
-name_key = "ITEM_4_NAME"
-description_key = "ITEM_4_DESC"
+name_key = "SHOES"
+description_key = "SHOES_DESC"
 weight = 20
 type = 1
 equip_slot = 6
