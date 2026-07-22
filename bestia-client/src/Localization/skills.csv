@@ -8,10 +8,188 @@ Bestia halves their DEX and INT instead.
 [cell]Level[/cell][cell]Stat Increase[/cell][cell]HIT Increase[/cell][cell]Duration[/cell][cell]Mana[/cell]
 [cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]"
 SKILL_2_DESC,A passive ward that shields the master from harm.
-SKILL_3_DESC,Prepares a meal from gathered ingredients.
+SKILL_3_DESC,"The Master and his Bestia can start to cook meals on fire places. These meals apply
+certain buff effects when they are eaten.
+
+`-10%/lv` cooking time
+`+10%/lv` success chance"
 SKILL_4_DESC,Restores a small amount of health to the target.
-SKILL_100_DESC,A weak fire spark that scorches the target.
-SKILL_101_DESC,A basic physical charge attack.
+SKILL_1000_DESC,A weak fire spark that scorches the target.
+SKILL_1001_DESC,A basic physical charge attack.
 SKILL_5_DESC,"Hurls a bolt of searing fire at a single enemy.
 
 Must be channelled - moving or taking damage interrupts the cast."
+SKILL_6_DESC,"Enables the use of the basic user interface.
+
+Lv.1 Allows to trade with other players.
+Lv.2 Allows to chat with other players via public and whisper chat.
+Lv.3 Allows to express emotes.
+Lv.4 Allows sitting to double HP & Mana recovery.
+Lv.5 Allows to join and create parties.
+Lv.6 Allows to use trade posts.
+Lv.7 Allows the user to perform the ""Master Ritual""."
+SKILL_7_DESC,"Feigns death to avoid menace of nearby enemies. This skill can be switched on and off.
+
+After performing the ritual to become a Bestia Master this skill can not be used anymore."
+SKILL_8_DESC,"Apply bandages to a Bestia and channel a healing effect over 10s. The cooldown of this
+skill is 5 minutes. A Bestia can only receive a single First Aid every 60 secs.
+
+`+20%/lv` HP healed or `+100 HP/lv` healed"
+SKILL_9_DESC,"Automatically enabled once Lv. 7 in Basic Skill is reached. Can only be used as long as
+you are a Novice. Converts 25 Void Essence, 5 Mana Dust and 3 Clay into a Seal of Mastery."
+SKILL_10_DESC,"Allows you to construct useful items of daily use and structures which can be placed in
+the world.
+
+`+5%/lv` success chance
+`+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank"
+SKILL_11_DESC,"You are very skilled in working with tools and raw material. Building structures in the
+world is very quick for you and the Bestia under your command.
+
+`-10%/lv` construction time of structures"
+SKILL_12_DESC,"You are able to rework items to put slots in them in which runes can be slotted.
+Requires an Engraving Set which will be consumed in the process."
+SKILL_13_DESC,"Enables the smith to refine the finest ores. A must have to produce the raw materials
+for weapon or armor forging.
+
+`+30 ore lv/lv` that can be refined, up to ore level 90+ at max rank"
+SKILL_14_DESC,"Able to forge weaponry from raw ingredients. Higher skill level unlocks forging
+higher-level weapons."
+SKILL_15_DESC,"The counterpart to Blacksmith: forges plate, mail and shields from smelted ingots.
+Higher skill level unlocks forging higher-level armor."
+SKILL_16_DESC,"You can repair damaged or broken equipment to refurbish and make it usable again.
+Higher levels unlock repairing equipment of a higher item level.
+
+`+20 item lv/lv` of equipment that can be repaired, up to item level 100+ at max rank"
+SKILL_17_DESC,"Deeper knowledge of weapons and armor that raises the odds of successfully refining
+either one further after forging. If an upgrade fails the equipment can be destroyed.
+
+`+4%/lv` success chance when upgrading a weapon or armor"
+SKILL_18_DESC,"The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
+rarest ore.
+
+`+5%/lv` Weapon/Armor forging chance
+`+5%/lv` upgrade chance"
+SKILL_19_DESC,"Build and operate Mana Harvesters which channel mana from the environment into raw
+crystals - the source of magic for many use cases.
+
+Level 1 enables you to place a Mana Harvester
+`-5%/lv` harvesting time
+`+3%/lv` crystal yield"
+SKILL_20_DESC,"Refine the raw and unstable mana crystals harvested by a Mana Harvester into the finest
+arcane raw materials used to build powerful magic artifacts.
+
+`-4%/lv` chance a crystal shatters during refinement
+Higher levels unlock refining higher-grade crystals"
+SKILL_21_DESC,"Create runes from Bestia essences. These runes are imbued with the power of the Bestia
+and can be slotted into a weapon or piece of equipment that has been prepared with Item
+Customization. An attempt to convert a Bestia into an essence destroys the Bestia.
+
+`+5%/lv` chance of success"
+SKILL_22_DESC,"Can create magic artefacts by binding sustained enchantments to an item, going well
+beyond what a single etched rune can hold.
+
+`+4%/lv` enchantment chance
+`-7%/lv` chance to destroy the item if the binding fails"
+SKILL_23_DESC,"Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
+keep them potent until they reach the cauldron.
+
+Lv.1 Can collect herbs up to level 20
+Lv.2 Can collect herbs up to level 40
+Lv.3 Can collect herbs up to level 60
+Lv.4 Can collect herbs up to level 80
+Lv.5 Can collect herbs up to level 100+"
+SKILL_24_DESC,"The core craft of the Alchemist: brewing reagents down into potions, tonics and other
+consumables. Builds directly on what Herbalism teaches about picking the right ingredient.
+
+Lv.1 Can craft basic potions and elixirs up to level 10 at a workbench cauldron.
+Lv.2 Can craft potions and elixirs up to level 20.
+Lv.3 Can craft potions and elixirs up to level 30.
+Lv.4 Can craft potions and elixirs up to level 40.
+Lv.5 Can craft potions and elixirs up to level 50. Failed brews return half of the raw
+reagents used instead of losing them entirely.
+Lv.6 Can craft potions and elixirs up to level 60.
+Lv.7 Can craft potions and elixirs up to level 70.
+Lv.8 Can craft potions and elixirs up to level 80.
+Lv.9 Can craft potions and elixirs up to level 90.
+Lv.10 Can craft potions and elixirs up to level 100+, unlocking the highest-level potion
+and elixir blueprints."
+SKILL_25_DESC,"The Alchemist's capstone. Where Alchemy brews what nature already provides,
+Transmutation reshapes mundane matter itself into the rare magically-infused resources
+needed for strong artifact creation and weapon refinements.
+
+Higher levels unlock transmuting higher-grade infused resources"
+SKILL_26_DESC,Increased yield and success chance for Alchemy.
+SKILL_27_DESC,"Your Bestia and Master gain an increased HP and Mana regeneration rate.
+
+`+3% effect/lv`"
+SKILL_28_DESC,"Your Bestia and Master gain an increased tolerance against high and low environment
+temperatures.
+
+`+3%` higher tolerance/lv"
+SKILL_29_DESC,"You and your Bestia know every kind of terrain.
+
+`+3%` higher movement speed/lv"
+SKILL_30_DESC,"With this skill you are able to catch fish. Fish can be cooked and are used for food and
+trading.
+
+`+20 fish lv/lv` that can be caught, up to fish level 100+ at max rank"
+SKILL_31_DESC,"The player is able to gather wood resources faster.
+
+`-3%/lv` wood gathering time
+`+2%/lv` resource drop chance"
+SKILL_32_DESC,"Sets snares and deadfalls that keep working for the master even while they're off doing
+something else, passively catching small game over time for meat and pelts on a later
+check-in.
+
+`+4%/lv` chance a snare yields a catch
+Higher levels unlock snares for larger game"
+SKILL_33_DESC,"Bestia under your control gain faster experience and require less food to maintain their
+stamina out in the open.
+
+`+5%/lv` EXP gain
+`-2%/lv` stamina loss"
+SKILL_34_DESC,"Detailed knowledge of the Bestia and their behavior makes it easier for you to tame and
+catch them.
+
+`+5%/lv` chance to tame"
+SKILL_35_DESC,"Raises the carrying capacity of your own Master.
+
+`+10%/lv` weight limit"
+SKILL_36_DESC,"Raises the carrying capacity of every Bestia under your control.
+
+`+10%/lv` weight limit"
+SKILL_37_DESC,"Enables the player to chart unexplored land, revealing terrain that can be shared,
+traded on, or built on.
+
+Each level reduces the difficulty of surveying unexplored land."
+SKILL_38_DESC,"Hardens the master and their Bestia against travel through hostile terrain, far from the
+comfort of a settlement. Reduces the stamina and HP drain caused by hostile terrain and
+environmental hazards.
+
+`-10%/lv` stamina drain in hostile terrain
+`-10%/lv` environmental hazard damage"
+SKILL_39_DESC,"An instinct for reading the sky and wind well before a storm ever arrives, letting the
+Prospector plan a route or a dig around what's coming.
+
+`+5min/lv` how far ahead upcoming weather changes can be sensed. Level 1 shows you the
+current wind direction and speed."
+SKILL_40_DESC,"Specialized in digging mine shafts and gathering mineral resources.
+
+Level 1 enables you to place a mining shaft
+`-10%/lv` mining time
+`+20 resource lv/lv` that can be mined, up to resource level 100+ at max rank"
+SKILL_41_DESC,"Turns the rough gemstones a Miner digs up into cut stones fit for an Artificer's socket
+or a Trader's scale. Can cut raw gems recovered from mining into faceted gemstones,
+increasing their value and unlocking their use in socketed equipment.
+
+Higher levels unlock cutting higher-grade gems
+`-8%/lv` chance to shatter a gem while cutting"
+SKILL_42_DESC,"Lets a Miner push shafts deeper than good sense would recommend, into ground that pays
+off precisely because nobody else risks it. Grants access to deeper, more dangerous mine
+shafts holding rarer ore veins and the odd buried structure.
+
+`+10% more resources/lv`"
+SKILL_43_DESC,"The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
+the first swing of the pick.
+
+Can sense ore and gem deposits through solid rock within 5m / Lv."

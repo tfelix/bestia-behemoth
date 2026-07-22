@@ -32,8 +32,14 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
   in `skills.csv` until someone backfills one.
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
-skills after under `# BESTIA SKILLS`, by ascending id (masters reserved 1-99, bestia
-skills 100+) — not enforced by code, just keep following it.
+skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
+reserved at id 1000+**; master skills use the open range below that, currently 1-43) —
+not enforced by code, just keep following it. The 1000+ split was chosen when the master
+skill tree grew past the original "masters 1-99" convention (see
+`docs/mechanics/master.md` for the full master skill tree design) — if it ever needs
+renumbering again, check that no other file hardcodes a raw skill id first (as of this
+writing, nothing outside `skills.yml`/`master_skill_tree.yml`/the `.tres` files/
+`skills.csv` does).
 
 ## 2. `zone-server/src/main/resources/master_skill_tree.yml` — the learnable subset
 
@@ -54,9 +60,14 @@ by `identifier`.
   points until every listed prerequisite skill is invested to at least `level`.
   Enforced entirely server-side in `MasterSkillTreeService` — **the client never receives or
   evaluates the prerequisite graph**, it just follows its own cataloge generated from this file.
-- A skill in `skills.yml` with no entry here (e.g. bestia skills 100+, `ember`,
+- A skill in `skills.yml` with no entry here (e.g. bestia skills 1000+, `ember`,
   `tackle`) is not master-investable at all — masters never see a level-up option for
   it.
+- This file has **no representation of the "tree mastery" mechanics** described in
+  `docs/mechanics/master.md` (a sub-tree unlocking once 5+ points are spent in its parent
+  tree, or a master capping out at 3 tree masteries) — only explicit skill-to-skill
+  `prerequisites` edges exist today. Enforcing the point-gated sub-tree unlock is a
+  separate `MasterSkillTreeService` feature, not a YAML content change.
 
 **Every** `master_skill_tree.yml` node must have a corresponding `skills.yml` entry, but not vice versa.
 
@@ -71,7 +82,7 @@ auto-loaded by `AttackDB` (`bestia-client/src/Game/Attack/attack_db.gd`) from ev
 (not a crash) if it's missing — so an unsynced skill silently shows as "Unknown Skill"
 instead of failing loudly.
 
-File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `100_ember.tres`),
+File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `1000_ember.tres`),
 matching `skills.yml`'s `id`/`identifier` — not required by any loader code (only
 `skill_id` inside the file matters), but keep it for greppability.
 

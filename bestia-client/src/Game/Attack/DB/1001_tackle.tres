@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 101
+skill_id = 1001
 icon = SubResource("PlaceholderTexture2D_tackle")
 name = "Tackle"
-description_key = "SKILL_101_DESC"
+description_key = "SKILL_1001_DESC"
 mana_cost = 0
 cooldown = 0.5
 max_level = 1

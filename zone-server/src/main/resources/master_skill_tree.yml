@@ -1,4 +1,212 @@
 skills:
+  # --- Novice Tree ---
+  - skill: BASIC_SKILL
+    maxLevel: 10
+
+  - skill: PLAY_DEAD
+    maxLevel: 1
+    prerequisites:
+      - skill: BASIC_SKILL
+        level: 2
+
+  - skill: FIRST_AID
+    maxLevel: 3
+    prerequisites:
+      - skill: BASIC_SKILL
+        level: 3
+
+  - skill: COOKING
+    maxLevel: 3
+    prerequisites:
+      - skill: BASIC_SKILL
+        level: 4
+
+  - skill: MASTER_RITUAL
+    maxLevel: 1
+    prerequisites:
+      - skill: BASIC_SKILL
+        level: 7
+
+  # --- Craftsman Tree ---
+  - skill: CARPENTRY
+    maxLevel: 10
+
+  - skill: TINKERER
+    maxLevel: 5
+    prerequisites:
+      - skill: CARPENTRY
+        level: 3
+
+  - skill: ITEM_CUSTOMIZATION
+    maxLevel: 10
+    prerequisites:
+      - skill: CARPENTRY
+        level: 3
+
+  # Blacksmith (unlocked at 5+ pts in Craftsman Tree)
+  - skill: ORE_REFINEMENT
+    maxLevel: 3
+
+  - skill: FORGE_WEAPON
+    maxLevel: 10
+    prerequisites:
+      - skill: ORE_REFINEMENT
+        level: 1
+      - skill: ITEM_CUSTOMIZATION
+        level: 5
+
+  - skill: FORGE_ARMOR
+    maxLevel: 10
+    prerequisites:
+      - skill: ORE_REFINEMENT
+        level: 1
+      - skill: ITEM_CUSTOMIZATION
+        level: 5
+
+  - skill: WEAPON_REPAIR
+    maxLevel: 5
+    prerequisites:
+      - skill: ORE_REFINEMENT
+        level: 3
+
+  - skill: WEAPONRY_RESEARCH
+    maxLevel: 10
+    prerequisites:
+      - skill: WEAPON_REPAIR
+        level: 3
+
+  - skill: MASTER_SMITH
+    maxLevel: 5
+    prerequisites:
+      - skill: FORGE_WEAPON
+        level: 8
+      - skill: FORGE_ARMOR
+        level: 8
+
+  # Artificer (unlocked at 5+ pts in Craftsman Tree)
+  - skill: MANA_HARVESTER
+    maxLevel: 10
+
+  - skill: MANAFLOW_EXPERT
+    maxLevel: 5
+    prerequisites:
+      - skill: MANA_HARVESTER
+        level: 3
+
+  - skill: RUNIC_ETCHING
+    maxLevel: 10
+    prerequisites:
+      - skill: ITEM_CUSTOMIZATION
+        level: 3
+
+  - skill: MAGIC_ARTISAN
+    maxLevel: 10
+    prerequisites:
+      - skill: RUNIC_ETCHING
+        level: 5
+
+  # Alchemist (unlocked at 5+ pts in Craftsman Tree)
+  - skill: HERBALISM
+    maxLevel: 5
+
+  - skill: ALCHEMY
+    maxLevel: 10
+    prerequisites:
+      - skill: HERBALISM
+        level: 2
+
+  - skill: TRANSMUTATION
+    maxLevel: 10
+    prerequisites:
+      - skill: ALCHEMY
+        level: 5
+
+  - skill: ALCHEMY_MASTERY
+    maxLevel: 5
+    prerequisites:
+      - skill: ALCHEMY
+        level: 5
+
+  # --- Survival Tree ---
+  - skill: INNER_PEACE
+    maxLevel: 10
+
+  - skill: WEATHER_RESISTANCE
+    maxLevel: 5
+
+  - skill: QUICK_TRAVEL
+    maxLevel: 5
+
+  - skill: FISHING
+    maxLevel: 5
+
+  # Forester (unlocked at 5+ pts in Survival Tree)
+  - skill: LUMBERJACK
+    maxLevel: 5
+
+  - skill: TRAPPING
+    maxLevel: 5
+
+  - skill: EXPERT_TAMING
+    maxLevel: 5
+
+  - skill: BEASTFRIEND
+    maxLevel: 5
+    prerequisites:
+      - skill: EXPERT_TAMING
+        level: 3
+
+  # Prospector (unlocked at 5+ pts in Survival Tree)
+  - skill: MAXIMIZE_CARRY_CAPACITY
+    maxLevel: 5
+
+  # Note: master.md's "Enlarge Weight Limit" lists its requirement as "Power Maximize Lv. 3",
+  # which doesn't match any skill name in this tree - treated as Maximize Carry Capacity per
+  # the doc's own note.
+  - skill: ENLARGE_WEIGHT_LIMIT
+    maxLevel: 5
+    prerequisites:
+      - skill: MAXIMIZE_CARRY_CAPACITY
+        level: 3
+
+  - skill: CARTOGRAPHY
+    maxLevel: 5
+
+  - skill: WILDERNESS_SURVIVAL
+    maxLevel: 5
+    prerequisites:
+      - skill: ENLARGE_WEIGHT_LIMIT
+        level: 3
+
+  - skill: WEATHER_SENSE
+    maxLevel: 3
+
+  # Miner (unlocked at 5+ pts in Survival Tree)
+  - skill: MINING
+    maxLevel: 5
+
+  - skill: GEM_CUTTING
+    maxLevel: 5
+    prerequisites:
+      - skill: MINING
+        level: 3
+
+  - skill: DEEP_DELVER
+    maxLevel: 5
+    prerequisites:
+      - skill: MINING
+        level: 3
+
+  - skill: RESOURCE_SONAR
+    maxLevel: 3
+    prerequisites:
+      - skill: GEM_CUTTING
+        level: 3
+      - skill: DEEP_DELVER
+        level: 3
+
+  # --- Scholar Tree (Priest sub-tree partially catalogued below; Trader/Sage/Warrior tree
+  # skills from master.md are not yet added - see docs/mechanics/master.md for the full design) ---
   - skill: BLESSING
     maxLevel: 10
     prerequisites:
@@ -13,7 +221,3 @@ skills:
 
   - skill: FIREBOLT
     maxLevel: 10
-
-  # CRAFTSMANSHIP
-  - skill: COOKING
-    maxLevel: 3

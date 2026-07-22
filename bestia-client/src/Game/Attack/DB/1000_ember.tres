@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 100
+skill_id = 1000
 icon = SubResource("PlaceholderTexture2D_ember")
 name = "Ember"
-description_key = "SKILL_100_DESC"
+description_key = "SKILL_1000_DESC"
 mana_cost = 5
 cooldown = 1.0
 max_level = 1
