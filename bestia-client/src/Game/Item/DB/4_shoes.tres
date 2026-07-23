@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ItemResource" format=3 uid="uid://dtqj86p8kvlln"]
 
-[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://rf0qc2ivqgdm" path="res://Game/Item/DB/4_shoes.png" id="1_gtrwn"]
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 item_id = 4
-icon = ExtResource("2_icon")
+icon = ExtResource("1_gtrwn")
 name_key = "SHOES"
 description_key = "SHOES_DESC"
 weight = 20

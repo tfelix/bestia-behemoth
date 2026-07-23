@@ -51,6 +51,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint ItemId { get; set; }
     [Export] public ulong UniqueId { get; set; }
     [Export] public uint Amount { get; set; }
+    [Export] public bool Equipped { get; set; }
 
     /// <summary>
     /// Creates an InventoryItem from protobuf data
@@ -61,7 +62,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       {
         ItemId = protoItem.ItemId,
         UniqueId = protoItem.UniqueId,
-        Amount = protoItem.Amount
+        Amount = protoItem.Amount,
+        Equipped = protoItem.Equipped
       };
     }
   }

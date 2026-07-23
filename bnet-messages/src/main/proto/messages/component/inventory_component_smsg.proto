@@ -17,5 +17,6 @@ message InventoryItem {
   uint32 item_id = 1;
   uint64 unique_id = 2;
   uint32 amount = 3;
+  bool equipped = 4;
 }
 

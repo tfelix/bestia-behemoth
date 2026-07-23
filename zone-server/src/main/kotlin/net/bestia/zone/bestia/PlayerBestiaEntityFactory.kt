@@ -158,7 +158,8 @@ class PlayerBestiaEntityFactory(
           amount = slot.amount,
           weight = slot.template.weight,
           uniqueId = slot.uniqueId,
-          stackable = slot.isStackable
+          stackable = slot.isStackable,
+          equipped = slot.isEquipped
         )
       }.toMutableList()
     )

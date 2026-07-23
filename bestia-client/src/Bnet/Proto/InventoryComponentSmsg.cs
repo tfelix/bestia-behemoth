@@ -27,14 +27,15 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0Ik8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50",
             "aXR5X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJ",
-            "dGVtIkMKDUludmVudG9yeUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlx",
-            "dWVfaWQYAiABKAQSDgoGYW1vdW50GAMgASgNQjQKFW5ldC5iZXN0aWEuYm5l",
-            "dC5wcm90b0IbSW52ZW50b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "dGVtIlUKDUludmVudG9yeUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlx",
+            "dWVfaWQYAiABKAQSDgoGYW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgI",
+            "QjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52ZW50b3J5Q29tcG9uZW50",
+            "U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped" }, null, null, null, null)
           }));
     }
     #endregion
@@ -299,6 +300,7 @@ namespace Bnet {
       itemId_ = other.itemId_;
       uniqueId_ = other.uniqueId_;
       amount_ = other.amount_;
+      equipped_ = other.equipped_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -344,6 +346,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "equipped" field.</summary>
+    public const int EquippedFieldNumber = 4;
+    private bool equipped_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equipped {
+      get { return equipped_; }
+      set {
+        equipped_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -362,6 +376,7 @@ namespace Bnet {
       if (ItemId != other.ItemId) return false;
       if (UniqueId != other.UniqueId) return false;
       if (Amount != other.Amount) return false;
+      if (Equipped != other.Equipped) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -372,6 +387,7 @@ namespace Bnet {
       if (ItemId != 0) hash ^= ItemId.GetHashCode();
       if (UniqueId != 0UL) hash ^= UniqueId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
+      if (Equipped != false) hash ^= Equipped.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -402,6 +418,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Amount);
       }
+      if (Equipped != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Equipped);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -424,6 +444,10 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(Amount);
       }
+      if (Equipped != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Equipped);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -442,6 +466,9 @@ namespace Bnet {
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
+      }
+      if (Equipped != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -463,6 +490,9 @@ namespace Bnet {
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
+      }
+      if (other.Equipped != false) {
+        Equipped = other.Equipped;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -491,6 +521,10 @@ namespace Bnet {
             Amount = input.ReadUInt32();
             break;
           }
+          case 32: {
+            Equipped = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -516,6 +550,10 @@ namespace Bnet {
           }
           case 24: {
             Amount = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            Equipped = input.ReadBool();
             break;
           }
         }

@@ -15,6 +15,7 @@ data class InventoryComponentSMSG(
         .setItemId(item.itemId)
         .setUniqueId(item.uniqueId)
         .setAmount(item.amount)
+        .setEquipped(item.equipped)
         .build()
     }
 
@@ -31,6 +32,7 @@ data class InventoryComponentSMSG(
   data class InventoryItem(
     val itemId: Int,
     val uniqueId: Long,
-    val amount: Int
+    val amount: Int,
+    val equipped: Boolean = false
   )
 }

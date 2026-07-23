@@ -26,7 +26,7 @@ import net.bestia.zone.item.instance.ItemInstance
  * [net.bestia.zone.item.container.InventoryService].
  *
  * Worn equipment is *also* held here, marked by [ContainerSlot.equippedIn] rather than moved
- * elsewhere - see [equip]. Consequently every removal path refuses to hand out a slot that is
+ * elsewhere - see [equip]. Consequently, every removal path refuses to hand out a slot that is
  * currently worn: you cannot drop, trade away or consume what you are wearing without taking it
  * off first.
  */

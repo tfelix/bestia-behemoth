@@ -1,6 +1,7 @@
 package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -10,6 +11,7 @@ import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -93,6 +95,10 @@ class EquipItemHandler(
       // Gear feeds StatusValueRecalcSystem, so the derived values have to be rebuilt next tick.
       add(id, IsStatusValueDirty)
 
+      // Keep the inventory view's equipped marker in step with what actually got worn/swapped out.
+      previous?.let { inventory.setEquipped(it.uniqueId, false) }
+      inventory.setEquipped(held?.uniqueId ?: 0L, true)
+
       Applied(uniqueId = held?.uniqueId ?: 0L, replacedUniqueId = previous?.uniqueId)
     }
 
@@ -126,7 +132,13 @@ class EquipItemHandler(
   }
 
   private fun sendDenial(playerId: Long, denial: EquipmentService.Denial) {
-    outMessageProcessor.sendToPlayer(playerId, EquipItemErrorSMSG(denial))
+    val code = when (denial) {
+      EquipmentService.Denial.SLOT_NOT_AVAILABLE -> OperationErrorProto.OpError.EQUIP_SLOT_NOT_AVAILABLE
+      EquipmentService.Denial.ITEM_NOT_FOUND -> OperationErrorProto.OpError.EQUIP_ITEM_NOT_FOUND
+      EquipmentService.Denial.NOT_ALLOWED -> OperationErrorProto.OpError.EQUIP_NOT_ALLOWED
+    }
+
+    outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(code))
   }
 
   private data class Applied(

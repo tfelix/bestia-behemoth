@@ -17,6 +17,7 @@ import net.bestia.zone.ecs.battle.level.LevelComponentSMSG
 import net.bestia.zone.ecs.battle.status.SkillPointsComponentSMSG
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.item.EquipmentComponentSMSG
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
 import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
@@ -28,6 +29,10 @@ import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.extensions.test
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.DropItemCMSG
+import net.bestia.zone.item.container.InventoryService
+import net.bestia.zone.item.equip.EquipItemCMSG
+import net.bestia.zone.item.equip.EquipmentSlot
+import net.bestia.zone.item.equip.UnequipItemCMSG
 import net.bestia.zone.item.loot.LootItemCMSG
 import net.bestia.zone.item.loot.LootItemEntityFactory
 import net.bestia.zone.party.AcceptPartyInviteCMSG
@@ -76,6 +81,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Autowired
   private lateinit var masterRepository: MasterRepository
 
+  @Autowired
+  private lateinit var inventoryService: InventoryService
+
   private var newMasterId: Long = 0
   private val newMasterName = "journeyM1"
 
@@ -86,6 +94,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   private var skillPointsAfterInvestment: Int = 0
 
   private var groundItemEntityId: Long = 0
+  private var shoesUniqueId: Long = 0
+  private var bootsUniqueId: Long = 0
 
   companion object {
     private const val DIVINE_PROTECTION_ID = 2L
@@ -93,6 +103,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     private const val BLESSING_ID = 1L
     private const val BLESSING_EFFECT_ID = 5L
     private const val APPLE_ITEM_ID = 1L
+    private const val SHOES_ITEM_ID = 4L
+    private const val BOOTS_ITEM_ID = 5L
   }
 
   @Test
@@ -112,6 +124,18 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       assertNotNull(created)
       newMasterId = created.id
     }
+
+    // Granted before selection so MasterEntityFactory hydrates them straight into the live ECS
+    // Inventory/Equipment components - the equip scenario tests further down rely on both already
+    // being held. InventoryService.addItem deliberately does not weight-check (that is the
+    // caller's job); shoes (20) + boots (40) alone would blow past the default level-1 carry limit
+    // (22), so strength is bumped enough to comfortably carry both plus the apple picked up later
+    // (Order 16/17) without perturbing any of this file's other level/skill-point assertions.
+    val newMaster = masterRepository.findByIdOrThrow(newMasterId)
+    inventoryService.addItem(newMaster, "shoes", 1)
+    inventoryService.addItem(newMaster, "boots", 1)
+    newMaster.strength = 100
+    masterRepository.save(newMaster)
 
     clientPlayer1.sendMessage(SelectMasterCMSG(clientPlayer1.connectedPlayerId, newMasterId))
     await {
@@ -471,6 +495,97 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     await {
       val inventory = clientPlayer1.getLastReceived(InventoryComponentSMSG::class)
       assertTrue(inventory.items.any { it.itemId == APPLE_ITEM_ID.toInt() && it.amount >= 1 })
+    }
+  }
+
+  @Test
+  @Order(18)
+  fun `equipping the shoes succeeds and marks them worn in both inventory and equipment`() {
+    val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+
+    clientPlayer1.sendMessage(
+      EquipItemCMSG(
+        playerId = clientPlayer1.connectedPlayerId,
+        itemId = SHOES_ITEM_ID,
+        uniqueId = 0L,
+        slot = EquipmentSlot.FOOTGEAR
+      )
+    )
+
+    await {
+      val equipment = clientPlayer1.getLastReceived(EquipmentComponentSMSG::class)
+      assertEquals(activeEntityId, equipment.entityId)
+      val worn = equipment.items.firstOrNull { it.itemId == SHOES_ITEM_ID.toInt() }
+      assertNotNull(worn, "expected the shoes to show up as worn")
+      assertEquals(EquipmentSlot.FOOTGEAR.ordinal, worn.slot)
+      shoesUniqueId = worn.uniqueId
+    }
+
+    await {
+      val inventory = clientPlayer1.getLastReceived(InventoryComponentSMSG::class)
+      val shoes = inventory.items.firstOrNull { it.itemId == SHOES_ITEM_ID.toInt() }
+      assertNotNull(shoes, "expected the shoes to still be listed in the inventory")
+      assertTrue(shoes.equipped, "expected the shoes to be marked as equipped in the inventory view")
+    }
+  }
+
+  @Test
+  @Order(19)
+  fun `equipping the boots swaps the shoes back to a plain inventory item`() {
+    val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+
+    clientPlayer1.sendMessage(
+      EquipItemCMSG(
+        playerId = clientPlayer1.connectedPlayerId,
+        itemId = BOOTS_ITEM_ID,
+        uniqueId = 0L,
+        slot = EquipmentSlot.FOOTGEAR
+      )
+    )
+
+    await {
+      val equipment = clientPlayer1.getLastReceived(EquipmentComponentSMSG::class)
+      assertEquals(activeEntityId, equipment.entityId)
+      assertFalse(equipment.items.any { it.itemId == SHOES_ITEM_ID.toInt() }, "shoes must no longer be worn")
+      val worn = equipment.items.firstOrNull { it.itemId == BOOTS_ITEM_ID.toInt() }
+      assertNotNull(worn, "expected the boots to show up as worn")
+      assertEquals(EquipmentSlot.FOOTGEAR.ordinal, worn.slot)
+      bootsUniqueId = worn.uniqueId
+    }
+
+    await {
+      val inventory = clientPlayer1.getLastReceived(InventoryComponentSMSG::class)
+
+      val shoes = inventory.items.firstOrNull { it.itemId == SHOES_ITEM_ID.toInt() }
+      assertNotNull(shoes, "expected the shoes to still be listed in the inventory")
+      assertFalse(shoes.equipped, "expected the shoes to be back to a plain inventory item")
+
+      val boots = inventory.items.firstOrNull { it.itemId == BOOTS_ITEM_ID.toInt() }
+      assertNotNull(boots, "expected the boots to still be listed in the inventory")
+      assertTrue(boots.equipped, "expected the boots to be marked as equipped in the inventory view")
+    }
+  }
+
+  @Test
+  @Order(20)
+  fun `unequipping the boots returns them to a plain inventory item`() {
+    val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+
+    clientPlayer1.sendMessage(
+      UnequipItemCMSG(playerId = clientPlayer1.connectedPlayerId, slot = EquipmentSlot.FOOTGEAR)
+    )
+
+    await {
+      val equipment = clientPlayer1.getLastReceived(EquipmentComponentSMSG::class)
+      assertEquals(activeEntityId, equipment.entityId)
+      assertFalse(equipment.items.any { it.itemId == BOOTS_ITEM_ID.toInt() }, "boots must no longer be worn")
+    }
+
+    await {
+      val inventory = clientPlayer1.getLastReceived(InventoryComponentSMSG::class)
+      val boots = inventory.items.firstOrNull { it.itemId == BOOTS_ITEM_ID.toInt() }
+      assertNotNull(boots, "expected the boots to still be listed in the inventory")
+      assertFalse(boots.equipped, "expected the boots to be marked as unequipped again")
     }
   }
 }

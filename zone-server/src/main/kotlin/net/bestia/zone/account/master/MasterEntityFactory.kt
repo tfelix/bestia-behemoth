@@ -166,7 +166,8 @@ class MasterEntityFactory(
           weight = slot.template.weight,
           amount = slot.amount,
           uniqueId = slot.uniqueId,
-          stackable = slot.isStackable
+          stackable = slot.isStackable,
+          equipped = slot.isEquipped
         )
       }.toMutableList()
     )

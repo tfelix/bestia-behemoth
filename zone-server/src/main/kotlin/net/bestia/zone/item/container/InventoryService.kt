@@ -38,12 +38,21 @@ class InventoryService(
   /**
    * Adds an item directly to a managed master's container (e.g. during DB seeding). Does not touch
    * any ECS inventory component.
+   *
+   * Always re-fetches [master] fresh by id rather than trusting the passed-in instance: callers
+   * (e.g. `DevDataBootstrapRunner`) may reuse the same `Master` reference across several of these
+   * calls, each its own transaction. Since `save()` on an already-persisted entity goes through
+   * `merge()` - which returns a new managed copy rather than updating the argument in place - a
+   * reused, once-already-saved instance would still show its previously-added slots with `id == 0`
+   * from this method's point of view, and cascading persist would re-insert them as new rows on
+   * every subsequent call.
    */
   @Transactional
   fun addItem(master: Master, itemIdentifier: String, amount: Int) {
+    val freshMaster = masterRepository.findByIdOrThrow(master.id)
     val item = itemRepository.findByIdentifierOrThrow(itemIdentifier)
-    grant(master.container, item, amount, uniqueId = 0L)
-    masterRepository.save(master)
+    grant(freshMaster.container, item, amount, uniqueId = 0L)
+    masterRepository.save(freshMaster)
   }
 
   /**

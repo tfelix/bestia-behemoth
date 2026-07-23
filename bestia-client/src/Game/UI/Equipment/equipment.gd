@@ -18,6 +18,16 @@ var _selected_entity_id: int = 0
 ## window being closed when the component arrives.
 var _bestia_id_by_entity: Dictionary = {}
 
+## Worn items of the currently shown entity, by EquipmentSlot ordinal. Built directly from the
+## live EquipmentComponentSMSG payload (see _on_entity_received) rather than re-read from
+## EntityManager's Entity cache on every render: EntityManager updates that cache from the very
+## same signal, and since EntityManager node readies after this one (see Game.tscn - UI is an
+## earlier sibling than EntityManager, and Godot fires signal listeners in connection order),
+## reading through the cache on the live path meant this window always rendered one equip change
+## behind. The cache is still used, but only to seed _worn on first show / entity switch, mirroring
+## Skills._seed_skill_points_from_cache / BuffList._on_self_received.
+var _worn: Dictionary = {}
+
 
 func _ready() -> void:
 	ConnectionManager.connect("self_received", _on_self_received)
@@ -46,18 +56,39 @@ func _on_self_received(msg: SelfSMSG) -> void:
 	# TODO Follow the actually selected entity once entity selection exists client side; until then
 	#   the master is always the acting entity, matching what the server resolves.
 	_selected_entity_id = msg.MasterEntityId
+	_seed_worn_from_cache()
 	_render()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg is EquipmentComponentSMSG:
 		if msg.EntityId == _selected_entity_id:
+			_worn = _to_worn_by_slot(msg.Items)
 			_render()
 		equipment_updated.emit()
 	elif msg is BestiaVisualComponent:
 		_bestia_id_by_entity[msg.EntityId] = int(msg.BestiaId)
 		if msg.EntityId == _selected_entity_id:
+			_seed_worn_from_cache()
 			_render()
+
+
+## Seeds _worn from whatever EntityManager already has cached for the now-shown entity - used
+## on entity selection change, when there is no live EquipmentComponentSMSG payload at hand.
+func _seed_worn_from_cache() -> void:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_entity(_selected_entity_id) if entity_manager else null
+	_worn = entity.get_equipment() if entity else {}
+
+
+func _to_worn_by_slot(items: Array) -> Dictionary:
+	var by_slot: Dictionary = {}
+	for equipped in items:
+		by_slot[int(equipped.Slot)] = {
+			"item_id": int(equipped.ItemId),
+			"unique_id": int(equipped.UniqueId),
+		}
+	return by_slot
 
 
 ## The slot mask of the currently shown entity. A master physically has every slot (whether it may
@@ -73,12 +104,9 @@ func _available_mask() -> int:
 	return BestiaDB.get_instance().get_equip_slots(bestia_id)
 
 
-## Worn items of the currently shown entity, by EquipmentSlot ordinal - cached on the Entity
-## node itself (entity.gd/entity_manager.gd), not here, so it survives this window being closed.
+## Worn items of the currently shown entity, by EquipmentSlot ordinal.
 func _worn_by_slot() -> Dictionary:
-	var entity_manager := EntityManager.get_instance()
-	var entity: Entity = entity_manager.get_entity(_selected_entity_id) if entity_manager else null
-	return entity.get_equipment() if entity else {}
+	return _worn
 
 
 func _render() -> void:

@@ -24,7 +24,8 @@ data class Inventory(
     var amount: Int,
     val weight: Int = 0,
     val uniqueId: Long = 0L,
-    val stackable: Boolean = true
+    val stackable: Boolean = true,
+    var equipped: Boolean = false
   ) {
     val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
@@ -155,6 +156,23 @@ data class Inventory(
     return false
   }
 
+  /**
+   * Flips the equipped marker on the held item backed by [uniqueId], mirroring what
+   * [net.bestia.zone.item.equip.EquipmentSlot] it now sits in (or was taken out of) so the client's
+   * inventory view can show gear as worn without cross-referencing the Equipment component. No-op
+   * (and does not dirty) when the item is not held or already at the requested state.
+   */
+  fun setEquipped(uniqueId: Long, equipped: Boolean): Boolean {
+    if (uniqueId == 0L) return false
+    val item = items.find { it.uniqueId == uniqueId } ?: return false
+    if (item.equipped == equipped) return false
+
+    item.equipped = equipped
+    markDirty()
+
+    return true
+  }
+
   fun incItem(itemId: Int): Boolean {
     val item = items.singleOrNull { it.itemId == itemId.toLong() }
     if (item != null) {
@@ -186,7 +204,8 @@ data class Inventory(
         InventoryComponentSMSG.InventoryItem(
           itemId = item.itemId.toInt(),
           uniqueId = item.uniqueId,
-          amount = item.amount
+          amount = item.amount,
+          equipped = item.equipped
         )
       }
     )

@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ItemResource" format=3 uid="uid://dc34v6p57rh77"]
 
-[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="2_icon"]
+[ext_resource type="Texture2D" uid="uid://bplev6w0bw7ll" path="res://Game/Item/DB/5_boots.png" id="1_f5kx3"]
+[ext_resource type="Script" uid="uid://bn4gvq3ayku4r" path="res://Game/Item/item_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 item_id = 5
-icon = ExtResource("2_icon")
+icon = ExtResource("1_f5kx3")
 name_key = "BOOTS"
 description_key = "BOOTS_DESC"
 weight = 40

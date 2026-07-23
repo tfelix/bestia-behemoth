@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.Equipment
+import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.InMessageProcessor
 import org.springframework.stereotype.Component
@@ -43,6 +44,8 @@ class UnequipItemHandler(
 
       // Losing gear changes the derived values just as gaining it does.
       add(id, IsStatusValueDirty)
+
+      get(id, Inventory::class)?.setEquipped(removed.uniqueId, false)
 
       removed
     }

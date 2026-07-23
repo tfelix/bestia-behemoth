@@ -58,6 +58,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.item = item_resource
 			inv_item.amount = itemMsg.Amount
 			inv_item.player_item_id = itemMsg.UniqueId
+			inv_item.equipped = itemMsg.Equipped
 			selected_entity_items.append(inv_item)
 		_render_items()
 		inventory_updated.emit()
@@ -84,7 +85,7 @@ func _render_items() -> void:
 	for item in selected_entity_items:
 		# A worn item is still held (the server keeps it in the same container, only flagged), but
 		# showing it in both places would let the player drag the same physical item twice.
-		if equipment != null and equipment.is_worn(item.player_item_id):
+		if item.equipped:
 			continue
 
 		var inv_item = InventoryItem.instantiate()
