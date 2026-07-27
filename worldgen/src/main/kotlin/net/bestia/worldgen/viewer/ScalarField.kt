@@ -56,6 +56,20 @@ interface ScalarField {
   }
 }
 
+/**
+ * A field whose availability is limited by how many chunks it would have to generate for one frame.
+ *
+ * The ceiling is adjustable because the two callers have completely different deadlines: the interactive
+ * viewer has to finish between two frames of a drag, and an export has no deadline at all. Holding the
+ * export to the interactive budget is what used to force the voxel views down to half a metre per pixel -
+ * a sub-voxel picture of a quarter of the area, when one pixel per voxel was the entire point.
+ */
+interface ChunkBudgeted {
+
+  /** Generating more than this many chunks for one frame is a hang, not a render. */
+  var chunkBudget: Int
+}
+
 /** How a raster is sampled between cell centres. */
 enum class Interpolation {
   /** Shows the true cell structure. Use it to see whether a raster stage is doing what you think. */
@@ -139,9 +153,8 @@ class ChunkHeightField(
   override val palette: Palette,
   override val name: String = "chunk heights",
   override val unit: String = "m",
-  /** Generating more than this many chunks for one frame is a hang, not a render. */
-  private val chunkBudget: Int = 4096
-) : ScalarField {
+  override var chunkBudget: Int = 4096
+) : ScalarField, ChunkBudgeted {
 
   /** Access-ordered, so panning evicts the chunks you have left rather than the ones on screen. */
   private val cache = object : LinkedHashMap<ChunkPos, ColumnHeights>(256, 0.75f, true) {
@@ -205,9 +218,8 @@ class ChunkSurfaceField(
   private val materializer: ChunkMaterializer,
   override val palette: Palette = BlockPalette(),
   override val name: String = "surface block",
-  /** Materialising more than this many chunks for one frame is a hang, not a render. */
-  private val chunkBudget: Int = 1024
-) : ScalarField {
+  override var chunkBudget: Int = 1024
+) : ScalarField, ChunkBudgeted {
 
   /** Access-ordered, so panning evicts the chunks you have left rather than the ones on screen. */
   private val cache = object : LinkedHashMap<Long, IntArray>(64, 0.75f, true) {
@@ -252,13 +264,78 @@ class ChunkSurfaceField(
   @Synchronized
   private fun surfaceOf(chunkX: Int, chunkY: Int): IntArray =
     cache.getOrPut((chunkX.toLong() shl 32) or (chunkY.toLong() and 0xFFFFFFFFL)) {
-      val voxels = materializer.materializeSurface(chunkX, chunkY)
-      IntArray(config.chunkSize * config.chunkSize) { i ->
-        val localX = i % config.chunkSize
-        val localY = i / config.chunkSize
-        val z = voxels.highestNonAir(localX, localY)
-        if (z < 0) -1 else voxels.rawAt(localX, localY, z)
-      }
+      // surfaceColumns rather than materializeSurface: the latter reads whatever is at the top of one
+      // grid-aligned slab, which for a chunk whose relief straddles a vertical boundary is the slab ceiling
+      // rather than the ground - so this view used to show bedrock on ridges and call it the surface.
+      materializer.surfaceColumns(chunkX, chunkY).block
+    }
+
+  private companion object {
+    const val CACHE_SIZE = 2048
+  }
+}
+
+/**
+ * How full the topmost voxel of each column is, in `[0,1]`.
+ *
+ * The view that makes occupancy visible, and the only one that can tell whether the sub-voxel precision the
+ * pipeline computes is actually reaching the voxels. On a slope it should read as a sawtooth: the fill climbs
+ * from nothing to full, then resets as the surface crosses into the next voxel up. Flat bands of exactly 1.0
+ * over sloping ground would mean the fraction is being discarded somewhere and the terrain has gone back to
+ * metre stair-steps, which is precisely the regression that is otherwise invisible - the block view and the
+ * height view both look identical either way.
+ */
+class SurfaceOccupancyField(
+  private val config: WorldConfig,
+  private val materializer: ChunkMaterializer,
+  // Not shadeable: this is a sawtooth over a slope, not a height, and hillshading it would read as relief.
+  override val palette: Palette = ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0, shadeable = false),
+  override val name: String = "surface fill",
+  override var chunkBudget: Int = 1024
+) : ScalarField, ChunkBudgeted {
+
+  override val unit get() = "of a voxel"
+
+  private val cache = object : LinkedHashMap<Long, DoubleArray>(64, 0.75f, true) {
+    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, DoubleArray>) = size > CACHE_SIZE
+  }
+
+  override fun availabilityFor(view: Viewport): String? {
+    val bounds = view.bounds
+    val across = bounds.width / config.chunkExtent + 1.0
+    val down = bounds.height / config.chunkExtent + 1.0
+    val needed = (across * down).coerceAtMost(Int.MAX_VALUE.toDouble()).toInt()
+
+    return if (needed <= chunkBudget) {
+      null
+    } else {
+      "zoom in to materialise chunks - this view spans ${"%,d".format(needed)} chunks, budget $chunkBudget"
+    }
+  }
+
+  override fun valueAt(worldX: Double, worldY: Double): Double {
+    val chunkX = floor(worldX / config.chunkExtent).toInt()
+    val chunkY = floor(worldY / config.chunkExtent).toInt()
+    val fills = fillsOf(chunkX, chunkY)
+
+    val localX = floor((worldX - chunkX * config.chunkExtent) / config.voxelSize)
+      .toInt().coerceIn(0, config.chunkSize - 1)
+    val localY = floor((worldY - chunkY * config.chunkExtent) / config.voxelSize)
+      .toInt().coerceIn(0, config.chunkSize - 1)
+
+    return fills[localY * config.chunkSize + localX]
+  }
+
+  override fun format(value: Double) = if (value.isNaN()) "-" else "%.3f".format(value)
+
+  @Synchronized
+  private fun fillsOf(chunkX: Int, chunkY: Int): DoubleArray =
+    cache.getOrPut((chunkX.toLong() shl 32) or (chunkY.toLong() and 0xFFFFFFFFL)) {
+      // NO_FILL where the air interface is above what was materialised - a deep ocean column is water for
+      // hundreds of metres, and its ceiling voxel reads a completely truthful 1.0 that means something
+      // entirely different from "the surface landed on a voxel boundary". No answer beats a number that looks
+      // comparable with its neighbours and is not.
+      materializer.surfaceColumns(chunkX, chunkY).fill
     }
 
   private companion object {

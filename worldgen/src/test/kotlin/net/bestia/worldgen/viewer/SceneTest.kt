@@ -177,6 +177,26 @@ class SceneTest {
   }
 
   @Test
+  fun `the export budget lets the voxel fields render at exactly one pixel per voxel`() {
+    // The regression this guards: with only the interactive budget, a 1400x1400 export of 'surface block'
+    // needs ~2000 chunks, is refused, and gets halved to 0.5 m/px - a sub-voxel picture of a quarter of the
+    // area that looks identical to a 1:1 one. The scale a voxel picture was measured at is not optional.
+    val scene = pipelineScene()
+    val voxelView = Viewport(0.0, 0.0, scene.config.voxelSize, 1400, 1400)
+    val surface = scene.field("surface block")
+
+    assertNotNull(surface.availabilityFor(voxelView), "the interactive budget should refuse this view")
+
+    ViewerExport.withVoxelScaleBudget(scene, 1400, 1400) {
+      assertNull(surface.availabilityFor(voxelView), "the export budget must allow a 1:1 voxel view")
+      assertNull(scene.field("surface fill").availabilityFor(voxelView))
+    }
+
+    // And put back, so exporting a scene cannot leave the interactive viewer able to hang itself.
+    assertNotNull(surface.availabilityFor(voxelView), "the budget must be restored after the export")
+  }
+
+  @Test
   fun `every field renders to a png without a display`() {
     // The headless half has to keep working: it is what runs over SSH and in CI.
     val scene = pipelineScene()

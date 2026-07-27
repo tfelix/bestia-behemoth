@@ -2,6 +2,7 @@ package net.bestia.worldgen.derived
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
@@ -50,7 +51,7 @@ class DerivedStructureTest {
     assertEquals(3, summary.shelteredFloorAt(2, 2))
 
     assertEquals(5, summary.waterAt(5, 5))
-    assertEquals(2, summary.waterDepthAt(5, 5))
+    assertEquals(2.0, summary.waterDepthAt(5, 5), 1e-9)
     assertFalse(summary.isSheltered(5, 5), "water is not a roof")
   }
 
@@ -60,7 +61,7 @@ class DerivedStructureTest {
 
     assertEquals(-1, summary.surfaceAt(0, 0))
     assertEquals(-1, summary.waterAt(0, 0))
-    assertEquals(0, summary.waterDepthAt(0, 0))
+    assertEquals(0.0, summary.waterDepthAt(0, 0), 1e-9)
   }
 
   // --- Opacity ---------------------------------------------------------------------------------------
@@ -129,8 +130,9 @@ class DerivedStructureTest {
 
     val tile = WalkableTile.of(chunk)
 
-    val floors = tile.floorsAt(3, 3)
-    assertEquals(listOf(3, 7), floors.toList(), "both the ground and the storey should be standable")
+    // Surfaces are the *tops* of the floor voxels: standing on a full voxel 3 puts your feet at 4.0.
+    val surfaces = tile.surfacesAt(3, 3)
+    assertEquals(listOf(4.0, 8.0), surfaces.toList(), "both the ground and the storey should be standable")
   }
 
   @Test
@@ -153,7 +155,7 @@ class DerivedStructureTest {
     for (z in 4..4) chunk[6, 6, z] = BlockType.WATER
     for (z in 4..6) chunk[7, 7, z] = BlockType.WATER
 
-    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxWadeDepth = 1))
+    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxWadeDepth = 1.0))
 
     assertTrue(tile.isWalkable(6, 6, 3), "one voxel of water should be wadeable")
     assertFalse(tile.isWalkable(7, 7, 3), "three voxels of water should not be")
@@ -166,10 +168,87 @@ class DerivedStructureTest {
     for (z in 0..4) chunk[4, 0, z] = BlockType.GRANITE
     for (z in 0..7) chunk[5, 0, z] = BlockType.GRANITE
 
-    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxStep = 1))
+    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxStep = 1.0))
 
-    assertEquals(4, tile.stepTarget(4, 0, fromFloor = 3), "a one-voxel step should connect")
-    assertEquals(-1, tile.stepTarget(5, 0, fromFloor = 3), "a four-voxel wall should not")
+    assertEquals(5.0, tile.stepTarget(4, 0, fromSurface = 4.0), 1e-9, "a one-voxel step should connect")
+    assertEquals(-1.0, tile.stepTarget(5, 0, fromSurface = 4.0), 1e-9, "a four-voxel wall should not")
+  }
+
+  // --- Occupancy -------------------------------------------------------------------------------------
+
+  @Test
+  fun `a partly filled surface voxel gives a fractional column height`() {
+    val chunk = flatGround()
+    chunk.set(1, 1, 4, BlockType.DIRT, Occupancy.of(0.25))
+
+    val summary = ColumnSummary.of(chunk)
+
+    // The voxel index is unchanged - it is still voxel 4 - but the height is a quarter of the way up it.
+    assertEquals(4, summary.surfaceAt(1, 1))
+    assertEquals(4.25, summary.surfaceHeightAt(1, 1), 0.01)
+    // A full voxel's top is its upper face: voxel 3 completely full reads 4.0, not 3.0.
+    assertEquals(4.0, summary.surfaceHeightAt(0, 0), 1e-9)
+  }
+
+  @Test
+  fun `a gentle slope is walkable where integer steps would have walled it off`() {
+    // The payoff, and the reason occupancy had to reach the derived structures rather than stopping at the wire
+    // format. A slope rising a fifth of a voxel per column is a ramp. Rounded to voxel indices it is either
+    // dead flat or a sequence of one-voxel cliffs, and with a strict step limit the second reads as a wall - so
+    // an agent would refuse to walk up a gradient of one in five.
+    val chunk = flatGround()
+    for (x in 0 until size) {
+      chunk.set(x, 0, 4, BlockType.DIRT, Occupancy.of(0.1 + 0.1 * x))
+    }
+    // A ledge a full voxel above the ramp's foot, to check the step limit still refuses something.
+    for (z in 4..5) chunk[0, 1, z] = BlockType.GRANITE
+
+    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxStep = 0.25))
+
+    var previous = tile.surfaceAt(0, 0, 0)
+    for (x in 1 until size) {
+      val here = tile.stepTarget(x, 0, previous)
+      assertTrue(here > 0.0, "column $x should be reachable from ${"%.2f".format(previous)}")
+      previous = here
+    }
+
+    // And the limit still bites.
+    assertEquals(-1.0, tile.stepTarget(0, 1, tile.surfaceAt(0, 0, 0)), 1e-9, "a full voxel is still a wall")
+  }
+
+  @Test
+  fun `opacity is weighted by how full a voxel is`() {
+    val half = VoxelChunk(pos, size, height)
+    val full = VoxelChunk(pos, size, height)
+    for (z in 0..3) {
+      for (y in 0 until size) {
+        for (x in 0 until size) {
+          half.set(x, y, z, BlockType.GRANITE, Occupancy.of(0.5))
+          full[x, y, z] = BlockType.GRANITE
+        }
+      }
+    }
+
+    val halfOpacity = OpacityGrid.of(half, factor = 4).opacityAt(0, 0, 0)
+    val fullOpacity = OpacityGrid.of(full, factor = 4).opacityAt(0, 0, 0)
+
+    // A cell half full of stone occludes half as much. Rounding occupancy back to solid-or-empty here would put
+    // the resolution cliff straight back after paying a byte per voxel to remove it.
+    assertEquals(fullOpacity * 0.5, halfOpacity, 0.01)
+  }
+
+  @Test
+  fun `a delta carries occupancy and merges it`() {
+    val base = flatGround()
+    val delta = ChunkDelta(pos, size, height)
+
+    delta.set(2, 2, 4, BlockType.DIRT, Occupancy.of(0.4))
+    val merged = delta.mergedOnto(base)
+
+    assertEquals(BlockType.DIRT, merged[2, 2, 4])
+    assertEquals(0.4, merged.fillAt(2, 2, 4), 0.01)
+    // And the merged chunk still satisfies the invariant every derived structure relies on.
+    merged.validate()
   }
 
   // --- Deltas ----------------------------------------------------------------------------------------
@@ -300,7 +379,7 @@ class DerivedStructureTest {
     // from two tiles, so an edit in one chunk never touches the other. That keeps the blast radius of placing
     // one block to exactly one tile.
     val east = ChunkPos(1, 0, 0)
-    val store = DerivedStore(voxels = { at -> flatGround().let { VoxelChunk(at, size, height, it.blocks) } })
+    val store = DerivedStore(voxels = { at -> flatGround().let { VoxelChunk(at, size, height, it.blocks, it.occupancy) } })
 
     store.walkableOf(pos)
     store.walkableOf(east)
@@ -313,10 +392,10 @@ class DerivedStructureTest {
   @Test
   fun `a step across a chunk border is resolved from both tiles`() {
     val east = ChunkPos(1, 0, 0)
-    val store = DerivedStore(voxels = { at -> VoxelChunk(at, size, height, flatGround().blocks) })
+    val store = DerivedStore(voxels = { at -> flatGround().let { VoxelChunk(at, size, height, it.blocks, it.occupancy) } })
 
     assertTrue(
-      store.canStep(pos, size - 1, 0, 3, east, 0, 0),
+      store.canStep(pos, size - 1, 0, 4.0, east, 0, 0),
       "flat ground either side of a border should connect"
     )
   }

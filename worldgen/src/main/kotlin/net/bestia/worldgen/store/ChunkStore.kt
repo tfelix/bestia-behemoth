@@ -20,9 +20,16 @@ import net.bestia.worldgen.voxel.VoxelChunk
 object BaseHash {
 
   fun of(voxels: VoxelChunk): Long {
-    // FNV-1a over the block bytes, folded through the mixer so that similar chunks are not similar hashes.
+    // FNV-1a over material and then occupancy, folded through the mixer so that similar chunks are not
+    // similar hashes. Occupancy has to be in here: it is the sub-voxel half of the geometry, so a client
+    // whose floats put a surface one 255th of a voxel off would otherwise pass the check and then disagree
+    // with the server about exactly the thing this hash exists to catch.
     var h = -0x340d631b7bdddcdbL
     for (b in voxels.blocks) {
+      h = h xor (b.toLong() and 0xFF)
+      h *= 0x100000001b3L
+    }
+    for (b in voxels.occupancy) {
       h = h xor (b.toLong() and 0xFF)
       h *= 0x100000001b3L
     }

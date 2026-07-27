@@ -59,6 +59,10 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
   private var dragFrom: MouseEvent? = null
   private var fitted = false
 
+  /** Where the pointer last was, so the voxel-scale snap zooms into what you are looking at. */
+  private var cursorX = -1
+  private var cursorY = -1
+
   init {
     background = Color(MapRenderer.NO_DATA)
     preferredSize = Dimension(1100, 760)
@@ -67,6 +71,7 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     val mouse = object : MouseAdapter() {
       override fun mousePressed(e: MouseEvent) {
         dragFrom = e
+        rememberCursor(e)
         requestFocusInWindow()
       }
 
@@ -78,14 +83,17 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
         val from = dragFrom ?: return
         view = view.pannedByPixels(e.x - from.x, e.y - from.y)
         dragFrom = e
+        rememberCursor(e)
         invalidateRender()
       }
 
       override fun mouseMoved(e: MouseEvent) {
+        rememberCursor(e)
         onProbe(view.worldX(e.x), view.worldY(e.y))
       }
 
       override fun mouseWheelMoved(e: MouseWheelEvent) {
+        rememberCursor(e)
         val factor = if (e.wheelRotation < 0) ZOOM_STEP else 1.0 / ZOOM_STEP
         zoomAt(e.x, e.y, factor)
       }
@@ -120,6 +128,26 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     invalidateRender()
   }
 
+  /**
+   * Snaps to exactly one pixel per voxel, anchored under the cursor.
+   *
+   * The scale at which the voxel views stop being a summary: every pixel is one column the materialiser
+   * actually produced, so a single wrong block is a single wrong pixel rather than something averaged
+   * away. Reaching it by wheel notches is luck - 1.25 to the power of anything is not 1 - and being a
+   * few percent off voxel scale makes even a perfect surface look like it has uneven columns.
+   */
+  fun zoomToVoxelScale() {
+    view = view.scaledAt(
+      px = if (cursorX in 0 until width) cursorX else width / 2,
+      py = if (cursorY in 0 until height) cursorY else height / 2,
+      metresPerPixel = Viewport.clampScale(scene.config.voxelSize, scene.bounds)
+    )
+    invalidateRender()
+  }
+
+  /** True when the current view is at voxel scale - the status bar says so, so it is not guesswork. */
+  fun isVoxelScale() = view.metresPerPixel == scene.config.voxelSize
+
   /** Runs the boundary check over what is on screen and marks every disagreeing column. */
   fun runSeamCheck(): ChunkSeamCheck.Report? {
     val report = scene.seamCheck(view)
@@ -141,6 +169,11 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
       val value = if (f.availabilityFor(view) == null) f.valueAt(worldX, worldY) else Double.NaN
       f.name to "${f.format(value)} ${f.unit}".trim()
     }
+
+  private fun rememberCursor(e: MouseEvent) {
+    cursorX = e.x
+    cursorY = e.y
+  }
 
   private fun invalidateRender() {
     val request = requestCounter.incrementAndGet()

@@ -6,9 +6,45 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.WorldConfig
 import java.util.Arrays
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
+
+/**
+ * The surface of one horizontal chunk: what is on top of each column, and how full that voxel is.
+ *
+ * Deliberately not a [VoxelChunk]. The columns here can come from different vertical chunks, so there is no
+ * single `z` that the values share and pretending otherwise is what made [ChunkMaterializer.materializeSurface]
+ * misleading in the first place.
+ */
+class SurfaceColumns(
+  val size: Int,
+  /** Raw block id per column, or -1 where nothing was found at all. */
+  val block: IntArray,
+  /** Fill fraction of the topmost voxel, or [NO_FILL] where it is not knowable. */
+  val fill: DoubleArray,
+  /**
+   * World elevation of the top of that voxel in metres, or [NO_FILL] where it is not knowable.
+   *
+   * The value worth testing against, because it is directly comparable with what the column source said the
+   * surface height was. A column read off the ceiling of the wrong vertical chunk disagrees with that by tens
+   * of metres, which no amount of looking at a colour map reliably shows.
+   */
+  val elevation: DoubleArray
+) {
+
+  fun blockAt(localX: Int, localY: Int) = block[localY * size + localX]
+
+  fun fillAt(localX: Int, localY: Int) = fill[localY * size + localX]
+
+  fun elevationAt(localX: Int, localY: Int) = elevation[localY * size + localX]
+
+  companion object {
+    /** No answer, as distinct from a fill of zero. */
+    const val NO_FILL = Double.NaN
+  }
+}
 
 /**
  * Turns column heights into blocks: step 3 of `generate_chunk` in the architecture document.
@@ -71,16 +107,18 @@ class ChunkMaterializer(
   }
 
   /**
-   * Materialises the vertical chunk that contains the ground at a horizontal chunk coordinate.
+   * Materialises the vertical chunk that contains the *lowest* ground at a horizontal chunk coordinate.
    *
-   * What tooling wants: "show me the ground here" without having to know which of the thirty vertical
-   * chunks at this coordinate the ground happens to be in.
+   * Anchored low so the floor of a valley is never the thing that gets lost, since valleys are what you open
+   * a surface view to look at.
    *
-   * Anchored on the *lowest* column rather than the middle of the range. That matters: anchoring on the
-   * middle loses the valley floor of any chunk whose surface happens to straddle a chunk boundary, and
-   * since valleys are exactly what you open this view to look at, the failure is both common and
-   * maximally annoying. Anchoring low can only lose ground more than a chunk height *above* the lowest
-   * point, which inside thirty-two metres of horizontal extent is a slope no terrain reaches.
+   * **This clips columns near the top of its slab, so do not use it to ask what is on the surface** - use
+   * [surfaceColumns], which is what tooling wants. The reason is that vertical chunks are grid aligned:
+   * anchoring on the lowest column snaps down to a multiple of the chunk height, so the headroom above that
+   * column is whatever is left before the next boundary and can be a single voxel rather than a whole chunk.
+   * A chunk with thirty metres of relief whose valley floor happens to sit twenty metres below a boundary
+   * therefore loses its ridge, and what a caller reads at those columns is the slab ceiling - bedrock, or the
+   * water above an ocean floor - reported as though it were the ground.
    */
   fun materializeSurface(chunkX: Int, chunkY: Int): VoxelChunk {
     val heights = columns.heights(ChunkPos(chunkX, chunkY), 0)
@@ -97,6 +135,77 @@ class ChunkMaterializer(
     // the chunk floor has its surface voxel in the chunk *below* this one, and comes back as a sliver of
     // empty air - which in the surface view is a hole in the bottom of every valley.
     return materialize(ChunkPos(chunkX, chunkY, config.chunkZOf(lowest - config.voxelSize)))
+  }
+
+  /**
+   * The topmost non-air voxel of every column at a horizontal chunk coordinate, wherever vertically it lives.
+   *
+   * What "show me the ground here" actually means, and the honest version of [materializeSurface]: the answer
+   * per column is taken from whichever vertical chunk that column's surface is in, so a chunk whose relief
+   * straddles a vertical boundary reports its ridge and its valley floor rather than one of them and a lie
+   * about the other.
+   *
+   * Costs at most two materialisations, because a horizontal chunk is thirty-two metres across and terrain
+   * does not have a chunk height of relief inside that - the earlier failure was never about relief, it was
+   * about grid alignment.
+   *
+   * A column whose air interface is above both slabs - a deep ocean column, whose water surface can be
+   * hundreds of metres up - reports the block at the top of the upper slab, which is the water above it, and
+   * [SurfaceColumns.NO_FILL] for its fill. That is the truthful pair: there *is* water over this column, and
+   * how full its topmost voxel is is not a question this has looked high enough to answer.
+   */
+  fun surfaceColumns(chunkX: Int, chunkY: Int): SurfaceColumns {
+    val size = config.chunkSize
+    val heights = columns.heights(ChunkPos(chunkX, chunkY), 0)
+
+    var lowest = Double.MAX_VALUE
+    var highest = -Double.MAX_VALUE
+    for (localY in 0 until size) {
+      for (localX in 0 until size) {
+        val h = heights[localX, localY]
+        if (h < lowest) lowest = h
+        if (h > highest) highest = h
+      }
+    }
+
+    val block = IntArray(size * size) { -1 }
+    val fill = DoubleArray(size * size) { SurfaceColumns.NO_FILL }
+    val elevation = DoubleArray(size * size) { SurfaceColumns.NO_FILL }
+
+    val bottomZ = config.chunkZOf(lowest - config.voxelSize)
+    val topZ = config.chunkZOf(highest)
+
+    // Downwards, so the first slab that has anything in a column is the highest one that does.
+    for (chunkZ in topZ downTo bottomZ) {
+      val slab = materialize(ChunkPos(chunkX, chunkY, chunkZ))
+      val baseZ = config.voxelBaseOf(slab.chunk)
+      var remaining = 0
+
+      for (localY in 0 until size) {
+        for (localX in 0 until size) {
+          val i = localY * size + localX
+          if (block[i] >= 0) continue
+
+          val z = slab.highestNonAir(localX, localY)
+          if (z < 0) {
+            remaining++
+            continue
+          }
+
+          block[i] = slab.rawAt(localX, localY, z)
+          // Full to the ceiling of the topmost slab means the interface is higher still, so neither the fill
+          // nor the elevation is knowable from here even though the material is.
+          if (z == slab.height - 1 && chunkZ == topZ) continue
+
+          fill[i] = slab.fillAt(localX, localY, z)
+          elevation[i] = config.elevationOfVoxel(baseZ + z) + fill[i] * config.voxelSize
+        }
+      }
+
+      if (remaining == 0) break
+    }
+
+    return SurfaceColumns(size, block, fill, elevation)
   }
 
   private fun fillColumn(
@@ -128,14 +237,30 @@ class ChunkMaterializer(
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
 
-    // Global voxel indices of the top of each interval. `highest` is the last voxel whose *centre* is at
-    // or below the elevation, which is the same rule the rest of the pipeline uses for "is this voxel
-    // inside the ground".
-    val capTop = highestVoxelAtOrBelow(top)
+    /*
+     * Two rules for two different kinds of boundary, and the distinction is the whole of the occupancy
+     * change.
+     *
+     * Boundaries *inside* the ground - basement to sediment, bed to bed, rock to soil - separate two
+     * materials, and a voxel straddling one has to pick a single material. The rule there is the centre
+     * rule: the voxel belongs to whichever material contains its centre. Nothing is lost, because there is
+     * no way to represent half a voxel of sandstone and half of limestone anyway.
+     *
+     * The boundary at the *air interface* is different: it separates a material from nothing, and that is
+     * exactly what an occupancy fraction can carry. So it uses the fill rule instead - the top voxel is the
+     * one the surface elevation falls inside, and it is filled by however much of it lies below the surface.
+     * A surface at 40.3 m is voxel 40 at thirty percent, rather than voxel 39 at a hundred and a tenth of a
+     * metre of terrain quietly discarded.
+     */
+    val submerged = water > top
+    val airInterface = if (submerged) water else top
+
+    // Global voxel indices of the top of each interval.
+    val capTop = if (submerged) highestVoxelAtOrBelow(top) else topFilledVoxel(top)
     val soilTop = capTop - 1
     val rockTop = min(soilTop, highestVoxelAtOrBelow(top - soilDepth))
     val basementTop = min(rockTop, highestVoxelAtOrBelow(rock.basementTop))
-    val waterTop = highestVoxelAtOrBelow(water)
+    val waterTop = if (submerged) topFilledVoxel(water) else highestVoxelAtOrBelow(water)
 
     // Basement, as one fill.
     var cursor = fill(out, offset, baseZ, height, 0, basementTop, rock.basementRock.id.toByte())
@@ -161,6 +286,9 @@ class ChunkMaterializer(
     cursor = fill(out, offset, baseZ, height, cursor, soilTop, soilBlock)
     cursor = fill(out, offset, baseZ, height, cursor, capTop, capBlock)
 
+    // Where the ground stops, so the occupancy below can tell whether any water was actually written.
+    val groundCursor = cursor
+
     if (temperature < FREEZING && waterTop > capTop) {
       val iceBottom = highestVoxelAtOrBelow(water - ICE_THICKNESS)
       cursor = fill(out, offset, baseZ, height, cursor, iceBottom, WATER)
@@ -170,6 +298,20 @@ class ChunkMaterializer(
     }
 
     Arrays.fill(out.blocks, offset + cursor, offset + height, AIR)
+
+    // Everything written so far is below the air interface and therefore completely filled; only the single
+    // voxel the interface falls inside is partial. Air is left at zero, which the fresh array already is.
+    Arrays.fill(out.occupancy, offset, offset + cursor, Occupancy.FULL_BYTE)
+    if (cursor > 0) {
+      // Whichever elevation actually bounds the topmost voxel written. Usually [airInterface], but water
+      // shallower than one voxel rounds away to no water voxel at all - and then the top voxel is ground, and
+      // filling it to the waterline would report the ground standing up to a voxel higher than it is. A player
+      // would be walking on the surface of a puddle.
+      val bounding = if (cursor > groundCursor) water else top
+      out.occupancy[offset + cursor - 1] = Occupancy.byteOf(
+        fillFractionOf(bounding, baseZ + cursor - 1)
+      )
+    }
 
     // Ore replaces rock in place, so it has to come after the strata are laid rather than during. It also
     // must not eat the soil or the surface cap: an outcrop is bedrock showing through, not ore instead of
@@ -190,9 +332,14 @@ class ChunkMaterializer(
       val deck = bridges.deckAt(worldX, worldY)
       if (!deck.isNaN()) {
         val from = highestVoxelAtOrBelow(deck - bridges.thickness) + 1 - baseZ
-        val to = highestVoxelAtOrBelow(deck) - baseZ
+        val to = topFilledVoxel(deck) - baseZ
         for (localZ in max(0, from)..min(height - 1, to)) {
           out.blocks[offset + localZ] = MASONRY
+          // A deck is written over whatever was there, air included, so its occupancy has to be written too
+          // - leaving air's zero behind would be masonry that is not there. The running surface is the top
+          // of the deck, so that voxel is partial for the same reason the ground's is.
+          out.occupancy[offset + localZ] =
+            if (localZ == to) Occupancy.byteOf(fillFractionOf(deck, baseZ + localZ)) else Occupancy.FULL_BYTE
         }
       }
     }
@@ -219,9 +366,22 @@ class ChunkMaterializer(
     return end
   }
 
-  /** Highest global voxel index whose centre is at or below [elevation]. */
+  /** Highest global voxel index whose centre is at or below [elevation]. For interior material boundaries. */
   private fun highestVoxelAtOrBelow(elevation: Double): Int =
     floor(elevation / config.voxelSize - 0.5).toInt()
+
+  /**
+   * Highest global voxel index with any material below [elevation] - the voxel the elevation falls inside.
+   *
+   * For the air interface. An elevation landing exactly on a voxel boundary belongs to the voxel *below* it,
+   * so a surface at exactly 40 m is a completely full voxel 39 rather than a completely empty voxel 40.
+   */
+  private fun topFilledVoxel(elevation: Double): Int =
+    ceil(elevation / config.voxelSize).toInt() - 1
+
+  /** How much of global voxel [globalZ] lies below [elevation], in `[0,1]` before clamping. */
+  private fun fillFractionOf(elevation: Double, globalZ: Int): Double =
+    (elevation - config.elevationOfVoxel(globalZ)) / config.voxelSize
 
   private companion object {
     val AIR = BlockType.AIR.id.toByte()

@@ -55,8 +55,11 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
         append(map.unavailable ?: "${map.field.name}: ${map.field.format(map.low)} .. ")
         if (map.unavailable == null) append(map.field.format(map.high))
         append("   |   ${"%.2f".format(canvas.view.metresPerPixel)} m/px")
-        append("   |   drag pan, wheel zoom, F fit, H shade, C chunks, G cells, V features, ")
-        append("A auto-range, S seam check, [ ] relief")
+        // Worth stating outright rather than leaving to be inferred from the number: at voxel scale every
+        // pixel is one materialised column, which is the only scale at which a single wrong block is visible.
+        if (canvas.isVoxelScale()) append(" - 1 px = 1 voxel")
+        append("   |   drag pan, wheel zoom, 1 voxel scale, F fit, H shade, C chunks, G cells, ")
+        append("V features, A auto-range, S seam check, [ ] relief")
       }
     }
 
@@ -138,6 +141,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
   private fun handleKey(e: KeyEvent) {
     when (e.keyCode) {
       KeyEvent.VK_F -> canvas.fitWorld()
+      KeyEvent.VK_1, KeyEvent.VK_NUMPAD1 -> canvas.zoomToVoxelScale()
       KeyEvent.VK_H -> { hillshade = !hillshade; applyOptions() }
       KeyEvent.VK_V -> { showFeatures = !showFeatures; applyOptions() }
       KeyEvent.VK_C -> { chunkGrid = !chunkGrid; applyOptions() }

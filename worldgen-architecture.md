@@ -13,7 +13,7 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–7** and **11** are implemented, along with the parts of **12** and **13** that
-belong in a module with no I/O in it. Steps **8–10** are not started. 217 unit tests, plus a seed-sweep
+belong in a module with no I/O in it. Steps **8–10** are not started. 227 unit tests, plus a seed-sweep
 regression harness.
 
 | # | Step | Status | Where |
@@ -22,7 +22,7 @@ regression harness.
 | 2 | Vector primitives | **done** | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviations 3, 4 | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviations 1, 2, 6 | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt` |
-| 5 | Chunk materialization + RLE + feature stamping | **done** — no scatter pass, no caves | `voxel/` |
+| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy — no scatter pass, no caves | `voxel/` |
 | 6 | Derived structures | **done** | `derived/` |
 | 7 | Resources + habitability + settlements + roads | **done** — deviations 5, 7 | `resource/`, `civ/` |
 | 8 | Town layout + buildings | **not started** | — |
@@ -78,10 +78,20 @@ The whole module depends on the Kotlin stdlib and the JDK, nothing else. That is
 coincidence: it is intended to be linked into the zone-server and possibly the client, so it must not drag
 in Spring, JPA or any I/O.
 
-**Nothing consumes it yet.** `settings.gradle` includes `worldgen`, but no other module depends on it — the
-zone-server does not generate or serve chunks from this pipeline. Everything below is exercised by tests,
-the invariant sweep and the viewer, and by nothing else. Wiring it into the zone-server is the next
-integration step and is not part of any build-order item.
+**Integration is in progress.** The zone-server now depends on `worldgen` and its own parallel voxel package
+is gone — that package had a `Voxel(material, occupancy)`, a boxed `Array<Array<Array<Voxel>>>` chunk and two
+serializer pairs, none of it referenced outside its own tests, and keeping two incompatible voxel
+representations in one repo was a bigger problem than anything either of them solved. Occupancy came across
+into `worldgen`, which is where the idea belonged; the 32³ boxed layout did not.
+
+What is *not* yet done: nothing in the zone-server calls into the pipeline. There is no chunk message in
+`bnet-messages`, no handler, no delta persistence and no client-side rendering. Until that exists, everything
+below is exercised by tests, the invariant sweep and the viewer, and by nothing else.
+
+`zone-server/src/main/kotlin/net/bestia/zone/navigation/` is a separate unused stack — a 2.5D `NavGrid` of
+`Tile(height, canWalkLeft/Right/Up/Down)` with an A* over it — which `derived/WalkableTile` supersedes for
+voxel terrain but which has not been touched, since agent pathing is a different job from the world-scale
+route finding in `civ/RouteFinder`.
 
 ### The standard pipeline
 
@@ -190,6 +200,25 @@ So the world is stored as **three complementary representations**:
 | **Raster fields** | Elevation, temperature, precipitation, biome, soil, rock stratigraphy | ~1 km cells, global | Dense arrays, immutable after world creation |
 | **Vector features** | Rivers, glacial troughs, fjords, roads, coastlines, faults, cave systems, settlement footprints | Polylines/polygons with per-station attributes, resolution-independent | Sparse geometry + spatial index |
 | **Voxel chunks** | Materialized blocks | 32×32×256 voxels | Generated on demand, cached, RLE-encoded |
+
+> **Implemented with one addition: a voxel is a material *and an occupancy fraction*,** not a material alone.
+> `Occupancy` stores how much of the voxel its material fills, 0–255.
+>
+> The reason is that this table's own logic demands it. The whole point of the vector tier is that a feature's
+> geometry is resolution-independent: a river channel is carved to sub-metre precision against one continuous
+> polyline. Materialising that to a solid-or-empty voxel throws the precision away at the very last step and
+> replaces it with metre stair-steps - which is a strange thing to do after three sections of argument about
+> preserving it. A surface at 40.3 m is thirty percent of the voxel spanning 40 to 41, and the client can
+> reconstruct the original height to a fifth of a centimetre. `StandardWorldTest` asserts exactly that,
+> end to end against the real pipeline.
+>
+> It is also the same argument the [derived structures](#derived-structures--never-query-voxels-in-hot-paths)
+> section makes about the opacity grid one level up, so the two tiers now agree.
+>
+> Consequences worth knowing: heights in `ColumnSummary` and surfaces in `WalkableTile` are continuous rather
+> than voxel indices, `AgentProfile.maxStep` is fractional, and the opacity grid is occupancy-weighted. The
+> last one matters most - an agent would otherwise refuse to walk up a one-in-five gradient, because rounded
+> to voxel indices a gentle ramp is a sequence of one-voxel cliffs.
 
 Raster fields carry the things that need global coherence and are genuinely smooth at kilometre scale. Vector features carry the things that are narrow, linear, and whose *shape* matters more than their exact grid alignment. Voxels are the final materialization, produced by evaluating both.
 
@@ -947,6 +976,24 @@ Add a **chunk-boundary stress view**: render a 4×4 block of chunks generated in
 > be added without the viewer being taught to draw it, because the compiler refuses. That has already caught
 > three kinds that would otherwise have shipped invisible.
 >
+> **A caution the hard way.** The surface views originally read the top voxel of a single vertical chunk,
+> anchored on the chunk's lowest column. Vertical chunks are grid aligned, so that anchor snaps *down* to a
+> multiple of the chunk height and leaves only the headroom that happens to remain before the next boundary -
+> sometimes one voxel. Any column above it read full to the ceiling, so the view reported deep bedrock as the
+> ground for about one column in twenty, and rather more than that over a valley. It looked entirely plausible:
+> broad clay-and-sand banks along a river, which is exactly what banks should look like. They were not there.
+>
+> `ChunkMaterializer.surfaceColumns` now resolves each column from whichever vertical chunk that column's
+> surface is actually in, and the property is asserted two ways - that every land column resolves at all, and
+> that the elevation it reports matches what the column source said to within a quantisation step. Both
+> assertions were checked against the old behaviour to confirm they fail on it, which is worth doing for any
+> regression test and was worth doing twice here: the first two attempts passed against the bug, because they
+> sampled flat upland and a channel floor rather than the valley walls where the relief is.
+>
+> The general lesson for the tool, since it is the thing every judgement about the pipeline rests on: **a view
+> that cannot answer must say so rather than return its nearest guess.** Both surface views now report no-data
+> where the answer is outside what they looked at, and that change is what made the artefact visible.
+>
 > The chunk-boundary stress view is `core/ChunkSeamCheck.kt`; it runs on every viewer export and prints
 > `SeamCheck: clean - 64 chunks, 3584 shared columns agree`.
 >
@@ -1020,17 +1067,22 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 > **Implemented** in `derived/`, with two design choices worth recording because both cut against the obvious.
 >
 > **Walkability is stored as spans with no links.** `WalkableTile.kt` holds, per column, the set of walkable
-> floor heights for an `AgentProfile` (height, max step, max wade depth) in CSR layout. It stores no edges.
-> Two spans connect if their floors are within `maxStep`, which is an integer comparison — cheaper to
-> evaluate than to look up, and it means cross-chunk connectivity is answered at query time from two tiles
+> surface *heights* for an `AgentProfile` (height, max step, max wade depth) in CSR layout. It stores no edges.
+> Two spans connect if their surfaces are within `maxStep`, which is a subtraction — cheaper to evaluate than
+> to look up, and it means cross-chunk connectivity is answered at query time from two tiles
 > (`DerivedStore.canStep`). The payoff is the invalidation blast radius: one block placement invalidates
 > exactly one tile, never its neighbours. Recast-style stored links would have made it nine.
 >
-> **The opacity grid stores a fraction, not a boolean.** `OpacityGrid.kt` downsamples 4× and records what
-> proportion of each coarse cell is solid. A boolean forces a bad choice at exactly the resolution boundary
-> the downsampling creates: round up and a fence post blocks four metres of sight; round down and players
-> see through a one-voxel wall. The second is the one they will build specifically to exploit. Rays
-> accumulate opacity against a threshold instead.
+> Surfaces and `maxStep` are fractional, not voxel indices, and that turned out to be load bearing rather than
+> cosmetic: rounded to indices a one-in-five gradient becomes a sequence of one-voxel cliffs, and a strict
+> step limit then reads them as a wall, so agents would refuse to walk up a gentle slope.
+>
+> **The opacity grid stores a fraction, not a boolean.** `OpacityGrid.kt` downsamples 4× and records how full
+> of opaque material each coarse cell is — occupancy-weighted, so a voxel thirty percent full of stone occludes
+> thirty percent as much. A boolean forces a bad choice at exactly the resolution boundary the downsampling
+> creates: round up and a fence post blocks four metres of sight; round down and players see through a
+> one-voxel wall. The second is the one they will build specifically to exploit. Rays accumulate opacity
+> against a threshold instead.
 >
 > `ColumnSummary.kt` answers the section's "other candidates" — surface height, water depth, and whether a
 > column is sheltered (a floor exists below an air gap, i.e. indoors) — in one downward pass per column.

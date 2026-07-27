@@ -150,7 +150,10 @@ class WorldScene(
         }
       }
 
-      materializer?.let { fields.add(ChunkSurfaceField(world.config, it)) }
+      materializer?.let {
+        fields.add(ChunkSurfaceField(world.config, it))
+        fields.add(SurfaceOccupancyField(world.config, it))
+      }
 
       return WorldScene(name, world.config, fields, world.features, chunkSource)
     }

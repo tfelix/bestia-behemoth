@@ -50,6 +50,34 @@ class ViewportTest {
   }
 
   @Test
+  fun `setting the scale lands on it exactly and keeps the cursor fixed`() {
+    // Exactly, not nearly: at voxel scale a scale that is off by a rounding error turns every voxel into a
+    // ragged run of one-or-two pixels, which reads as a materialiser producing uneven columns.
+    for (target in doubleArrayOf(1.0, 0.3, 7.0)) {
+      for (px in intArrayOf(0, 37, 199)) {
+        for (py in intArrayOf(0, 61, 99)) {
+          val before = view.worldX(px) to view.worldY(py)
+          val scaled = view.scaledAt(px, py, target)
+
+          assertEquals(target, scaled.metresPerPixel, 0.0, "scale at ($px,$py) -> $target")
+          assertEquals(before.first, scaled.worldX(px), 1e-9, "x at ($px,$py) -> $target")
+          assertEquals(before.second, scaled.worldY(py), 1e-9, "y at ($px,$py) -> $target")
+        }
+      }
+    }
+  }
+
+  @Test
+  fun `a pixel spans exactly one voxel at voxel scale`() {
+    // The property the whole voxel view rests on: pixel n and pixel n+1 are adjacent columns, one metre apart.
+    val voxel = view.scaledAt(100, 50, 1.0)
+
+    assertEquals(1.0, voxel.worldX(1) - voxel.worldX(0), 0.0)
+    assertEquals(1.0, voxel.worldY(0) - voxel.worldY(1), 0.0)
+    assertEquals(200.0, voxel.bounds.width, 1e-9)
+  }
+
+  @Test
   fun `zooming in shows less of the world`() {
     val zoomed = view.zoomedAtCenter(2.0)
 

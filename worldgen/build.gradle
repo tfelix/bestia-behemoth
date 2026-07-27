@@ -29,7 +29,7 @@ description = 'worldgen'
  *   bio       biome classification, soil
  *   resource  ore, coal, salt and placer deposits
  *   civ       habitability, cultures, settlements, route finding, roads
- *   voxel     block palette, stratigraphy, chunk materialisation, the RLE codec
+ *   voxel     block palette, occupancy, stratigraphy, chunk materialisation, the RLE codec
  *
  *   derived   column summaries, opacity grid, walkable tiles, chunk deltas
  *   store     tiered chunk cache, delta and baking, base hashing, the version gate

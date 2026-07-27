@@ -2,6 +2,7 @@ package net.bestia.worldgen.derived
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
 
@@ -24,8 +25,14 @@ class ChunkDelta(
   val height: Int
 ) {
 
-  /** Voxel index within the chunk to the block now there. */
-  private val edits = LinkedHashMap<Int, Byte>()
+  /**
+   * Voxel index within the chunk to the voxel now there, packed as `material shl 8 or occupancy`.
+   *
+   * Packed rather than two maps so that an edit is one entry with one hash lookup, and so that material and
+   * occupancy cannot get out of step - a delta holding a material for a voxel but no occupancy for it would
+   * merge as a block with zero fill, which the chunk invariant forbids and which would be a hole.
+   */
+  private val edits = LinkedHashMap<Int, Int>()
 
   val editCount get() = edits.size
 
@@ -38,15 +45,29 @@ class ChunkDelta(
 
   fun index(localX: Int, localY: Int, localZ: Int) = (localY * size + localX) * height + localZ
 
+  /** Records a completely filled block, or air. What a player placing or breaking a block produces. */
   fun set(localX: Int, localY: Int, localZ: Int, block: BlockType) {
+    set(localX, localY, localZ, block, if (block == BlockType.AIR) Occupancy.EMPTY else Occupancy.FULL)
+  }
+
+  /** Records a partially filled block - a slope, a ramp, the result of a terrain-shaping tool. */
+  fun set(localX: Int, localY: Int, localZ: Int, block: BlockType, occupancy: Int) {
     require(localX in 0 until size && localY in 0 until size && localZ in 0 until height) {
       "($localX,$localY,$localZ) is outside a ${size}x${size}x$height chunk"
     }
-    edits[index(localX, localY, localZ)] = block.id.toByte()
+    require(occupancy in 0..255) { "Occupancy must fit a byte, was $occupancy" }
+    require((block == BlockType.AIR) == (occupancy == Occupancy.EMPTY)) {
+      "Air must have occupancy 0 and everything else must not; got $block at $occupancy"
+    }
+    edits[index(localX, localY, localZ)] = (block.id shl 8) or occupancy
   }
 
   fun get(localX: Int, localY: Int, localZ: Int): BlockType? =
-    edits[index(localX, localY, localZ)]?.let { BlockType.of(it.toInt() and 0xFF) }
+    edits[index(localX, localY, localZ)]?.let { BlockType.of(it ushr 8) }
+
+  /** Occupancy of an edited voxel, or null where this delta does not cover it. */
+  fun occupancyOf(localX: Int, localY: Int, localZ: Int): Int? =
+    edits[index(localX, localY, localZ)]?.and(0xFF)
 
   /** Forgets an edit, so the base shows through again. */
   fun clear(localX: Int, localY: Int, localZ: Int) {
@@ -72,8 +93,9 @@ class ChunkDelta(
     }
 
     val merged = base.copy()
-    for ((position, block) in edits) {
-      merged.blocks[position] = block
+    for ((position, packed) in edits) {
+      merged.blocks[position] = (packed ushr 8).toByte()
+      merged.occupancy[position] = (packed and 0xFF).toByte()
     }
     return merged
   }
@@ -100,7 +122,7 @@ class ChunkDelta(
   fun shouldBake(mergedEncodedBytes: Int): Boolean =
     coverage >= BAKE_COVERAGE || estimatedBytes() >= mergedEncodedBytes
 
-  /** Rough wire size of this delta: a varint position and a block id per edit. */
+  /** Rough wire size of this delta: a varint position, a block id and an occupancy per edit. */
   fun estimatedBytes(): Int = editCount * BYTES_PER_EDIT
 
   override fun toString() =
@@ -111,8 +133,8 @@ class ChunkDelta(
     /** Fraction of a chunk's voxels beyond which it is baked rather than kept as a delta. */
     const val BAKE_COVERAGE = 0.30
 
-    /** Position varint plus block id. Generous, so the size test errs towards baking. */
-    private const val BYTES_PER_EDIT = 4
+    /** Position varint plus block id plus occupancy. Generous, so the size test errs towards baking. */
+    private const val BYTES_PER_EDIT = 5
 
     /**
      * Bakes a delta into a new base: the merged chunk, RLE encoded, ready to store under the chunk

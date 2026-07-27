@@ -3,6 +3,7 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.vector.FeatureKind
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.math.ceil
 
 /**
  * Renders a scene to PNG files instead of opening a window.
@@ -29,29 +30,63 @@ object ViewerExport {
     val view = Viewport.fit(scene.bounds, widthPx, heightPx)
     val written = ArrayList<File>()
 
-    for (field in scene.fields) {
-      val target = viewFor(field, scene, view, widthPx, heightPx)
-      val features = if (options.features) scene.featuresIn(target.bounds) else emptyList()
-      val map = renderer.render(field, target, options, features)
+    withVoxelScaleBudget(scene, widthPx, heightPx) {
+      for (field in scene.fields) {
+        val target = viewFor(field, scene, view, widthPx, heightPx)
+        val features = if (options.features) scene.featuresIn(target.bounds) else emptyList()
+        val map = renderer.render(field, target, options, features)
 
-      if (map.unavailable != null) {
-        println("skipped ${field.name}: ${map.unavailable}")
-        continue
+        if (map.unavailable != null) {
+          println("skipped ${field.name}: ${map.unavailable}")
+          continue
+        }
+
+        written.add(write(map, directory, field.name))
       }
-
-      written.add(write(map, directory, field.name))
     }
 
     return written
   }
 
   /**
+   * Runs [body] with every chunk-backed field allowed to generate what a one-pixel-per-voxel picture of
+   * this size costs, then puts the budgets back.
+   *
+   * Restored rather than raised for good: the fields belong to the scene, and a scene that has been
+   * exported once must not then hang the interactive viewer because its budgets were left wide open.
+   */
+  internal fun <T> withVoxelScaleBudget(scene: WorldScene, widthPx: Int, heightPx: Int, body: () -> T): T {
+    val budget = voxelScaleBudget(scene, widthPx, heightPx)
+    val budgeted = scene.fields.filterIsInstance<ChunkBudgeted>()
+    val previous = budgeted.map { it.chunkBudget }
+
+    budgeted.forEach { it.chunkBudget = maxOf(it.chunkBudget, budget) }
+    try {
+      return body()
+    } finally {
+      budgeted.forEachIndexed { i, field -> field.chunkBudget = previous[i] }
+    }
+  }
+
+  /** How many chunks a [widthPx] x [heightPx] image at one pixel per voxel covers. */
+  internal fun voxelScaleBudget(scene: WorldScene, widthPx: Int, heightPx: Int): Int {
+    val extent = scene.config.chunkExtent
+    val across = widthPx * scene.config.voxelSize / extent + 1.0
+    val down = heightPx * scene.config.voxelSize / extent + 1.0
+
+    return ceil(across * down).toInt().coerceAtMost(MAX_EXPORT_CHUNKS)
+  }
+
+  /**
    * The tightest view of the world that this field can actually be rendered at.
    *
-   * Chunk-scale fields refuse a whole-world view, and the voxel field refuses even a kilometre-wide one -
-   * materialising two thousand chunks for one picture is a hang, not a render. Rather than dropping those
-   * fields from the export, zoom in until each one is affordable. An export that quietly omits the voxel
-   * view is worse than a small one: it reads as "the voxel tier produced nothing".
+   * Chunk-scale fields refuse a whole-world view, so rather than dropping them from the export, fall back
+   * to the voxel-scale close-up. An export that quietly omits the voxel view is worse than a small one: it
+   * reads as "the voxel tier produced nothing".
+   *
+   * The halving loop only bites when the image is large enough that even the raised budget cannot cover it,
+   * and it says so - a sub-voxel picture of a quarter of the area looks exactly like a 1:1 one and would
+   * otherwise silently misrepresent the scale everything in it was measured at.
    */
   private fun viewFor(
     field: ScalarField,
@@ -66,6 +101,13 @@ object ViewerExport {
     var attempts = 0
     while (field.availabilityFor(candidate) != null && attempts++ < MAX_ZOOM_STEPS) {
       candidate = candidate.zoomedAtCenter(2.0)
+    }
+
+    if (candidate.metresPerPixel < scene.config.voxelSize) {
+      println(
+        "${field.name}: ${"%.3f".format(candidate.metresPerPixel)} m/px, finer than one pixel per voxel - " +
+            "${widthPx}x$heightPx at voxel scale exceeds the $MAX_EXPORT_CHUNKS chunk export budget"
+      )
     }
 
     return candidate
@@ -103,4 +145,13 @@ object ViewerExport {
 
   /** Enough halvings to take a kilometre-wide view down to a few tens of metres. */
   private const val MAX_ZOOM_STEPS = 8
+
+  /**
+   * The ceiling on a voxel-scale export, in chunks - about a 4 km square at one metre per voxel.
+   *
+   * An offline render has no frame deadline, but it does have a person waiting for it, and every chunk here
+   * is a thousand columns materialised. Past this the export falls back to a sub-voxel view of a smaller
+   * area, which is a slow picture rather than one nobody waits for.
+   */
+  private const val MAX_EXPORT_CHUNKS = 16_384
 }

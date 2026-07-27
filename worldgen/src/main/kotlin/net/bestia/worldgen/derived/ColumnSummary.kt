@@ -1,8 +1,11 @@
 package net.bestia.worldgen.derived
 
-import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.VoxelChunk
+import net.bestia.worldgen.core.ChunkPos
+import kotlin.math.ceil
+import kotlin.math.max
 
 /**
  * Per-column summaries of a chunk: the top of the column, the water in it, and whether anything is
@@ -14,36 +17,55 @@ import net.bestia.worldgen.voxel.VoxelChunk
  *
  * All three come out of one downward pass per column instead of a raycast per query, which is the design
  * rule for this whole package: hot-path queries never touch voxels.
+ *
+ * ### Heights are continuous
+ *
+ * Each of the three is stored as a height in **voxel units above the chunk floor**, not as a voxel index:
+ * `39.3`, not `39`. Voxels carry an occupancy fraction, so the information is there, and the callers all
+ * want the continuous value - a spawn point half a metre inside the ground and a swimming check that
+ * disagrees with the visible waterline are both worse than an extra `ceil`. [voxelOf] converts back for the
+ * callers that genuinely need an index, using the same rule the materializer used to write it.
  */
 class ColumnSummary(
   val chunk: ChunkPos,
   val size: Int,
-  /** Local z of the highest solid block per column, or -1 for a column with none. */
-  private val surfaceZ: IntArray,
-  /** Local z of the water surface per column, or -1 where there is no water. */
-  private val waterZ: IntArray,
+  /** Top of the highest solid material per column in voxel units, or -1.0 for a column with none. */
+  private val surfaceHeight: DoubleArray,
+  /** Water surface per column in voxel units, or -1.0 where there is no water. */
+  private val waterHeight: DoubleArray,
   /**
-   * Local z of the highest solid block that lies *below* an air gap, or -1 where there is none.
+   * Top of the highest solid material that lies *below* an air gap, or -1.0 where there is none.
    *
    * In other words: the floor you would be standing on if you were underneath something. A column of open
    * terrain has no such floor; a column inside a building, a cave or under a bridge does.
    */
-  private val shelteredFloorZ: IntArray
+  private val shelteredFloorHeight: DoubleArray
 ) {
 
   private fun index(localX: Int, localY: Int) = localY * size + localX
 
-  /** Highest solid block - the top of the column, roof included. -1 for pure air and water. */
-  fun surfaceAt(localX: Int, localY: Int) = surfaceZ[index(localX, localY)]
+  /** Top of the column's solid material, roof included, in voxel units. -1.0 for pure air and water. */
+  fun surfaceHeightAt(localX: Int, localY: Int) = surfaceHeight[index(localX, localY)]
 
-  /** Water surface, or -1 where the column is dry. */
-  fun waterAt(localX: Int, localY: Int) = waterZ[index(localX, localY)]
+  /** Local z of the voxel the solid surface lives in, or -1 for a column with none. */
+  fun surfaceAt(localX: Int, localY: Int) = voxelOf(surfaceHeight[index(localX, localY)])
 
-  /** Depth of standing water over the column's solid top, in voxels. Zero where dry. */
-  fun waterDepthAt(localX: Int, localY: Int): Int {
+  /** Water surface in voxel units, or -1.0 where the column is dry. */
+  fun waterHeightAt(localX: Int, localY: Int) = waterHeight[index(localX, localY)]
+
+  /** Local z of the voxel the water surface lives in, or -1 where dry. */
+  fun waterAt(localX: Int, localY: Int) = voxelOf(waterHeight[index(localX, localY)])
+
+  /**
+   * Depth of standing water over the column's solid top, in voxels. Zero where dry.
+   *
+   * A column with water but no solid material at all is measured from the chunk floor, because that is where
+   * the water starts as far as this chunk can tell.
+   */
+  fun waterDepthAt(localX: Int, localY: Int): Double {
     val i = index(localX, localY)
-    if (waterZ[i] < 0) return 0
-    return (waterZ[i] - surfaceZ[i]).coerceAtLeast(0)
+    if (waterHeight[i] < 0.0) return 0.0
+    return (waterHeight[i] - max(surfaceHeight[i], 0.0)).coerceAtLeast(0.0)
   }
 
   /**
@@ -52,33 +74,44 @@ class ColumnSummary(
    * What makes "is it raining on this NPC" free. Answering it by raycast per NPC per tick is exactly the
    * kind of query that quietly consumes a zone thread.
    */
-  fun isSheltered(localX: Int, localY: Int) = shelteredFloorZ[index(localX, localY)] >= 0
+  fun isSheltered(localX: Int, localY: Int) = shelteredFloorHeight[index(localX, localY)] >= 0.0
 
-  fun shelteredFloorAt(localX: Int, localY: Int) = shelteredFloorZ[index(localX, localY)]
+  fun shelteredFloorHeightAt(localX: Int, localY: Int) = shelteredFloorHeight[index(localX, localY)]
+
+  fun shelteredFloorAt(localX: Int, localY: Int) = voxelOf(shelteredFloorHeight[index(localX, localY)])
 
   override fun toString() = "ColumnSummary[$chunk]"
 
   companion object {
 
+    /**
+     * Which voxel a height in voxel units lives in, or -1 for the "nothing here" sentinel.
+     *
+     * A height landing exactly on a voxel boundary belongs to the voxel below it - the same rule the
+     * materializer writes with, so a full voxel 39 reads back as 39 rather than as an empty 40.
+     */
+    fun voxelOf(height: Double): Int = if (height < 0.0) -1 else ceil(height).toInt() - 1
+
     fun of(voxels: VoxelChunk): ColumnSummary {
       val size = voxels.size
-      val surface = IntArray(size * size) { -1 }
-      val water = IntArray(size * size) { -1 }
-      val sheltered = IntArray(size * size) { -1 }
+      val surface = DoubleArray(size * size) { -1.0 }
+      val water = DoubleArray(size * size) { -1.0 }
+      val sheltered = DoubleArray(size * size) { -1.0 }
 
       for (localY in 0 until size) {
         for (localX in 0 until size) {
           val i = localY * size + localX
           val offset = voxels.columnOffset(localX, localY)
 
-          var topSolid = -1
+          var topSolid = -1.0
           var gapBelowTop = false
 
           for (z in voxels.height - 1 downTo 0) {
             val block = BlockType.ofOrNull(voxels.blocks[offset + z].toInt() and 0xFF) ?: continue
+            val top = z + Occupancy.fractionOf(voxels.occupancy[offset + z].toInt() and 0xFF)
 
             if (block == BlockType.WATER || block == BlockType.ICE) {
-              if (water[i] < 0) water[i] = z
+              if (water[i] < 0.0) water[i] = top
             }
 
             // Ice is solid but it is the surface of water, not a roof over anything, so it does not count
@@ -86,16 +119,16 @@ class ColumnSummary(
             val structural = block.solid && block != BlockType.ICE
 
             when {
-              structural && topSolid < 0 -> topSolid = z
+              structural && topSolid < 0.0 -> topSolid = top
 
               // The first structural block below a gap is the sheltered floor. Nothing lower matters:
               // deeper gaps are caves under caves, and the shallowest one is the one you stand in.
               structural && gapBelowTop -> {
-                sheltered[i] = z
+                sheltered[i] = top
                 break
               }
 
-              !structural && topSolid >= 0 -> gapBelowTop = true
+              !structural && topSolid >= 0.0 -> gapBelowTop = true
             }
           }
 

@@ -105,21 +105,23 @@ class DerivedStore(
   /**
    * Whether a step from one column to a neighbouring column is possible, across a chunk border if need be.
    *
-   * The query that the "do not store links" decision exists to serve: it reads two tiles and compares two
-   * integers, and it never needed either tile to know about the other when it was built.
+   * The query that the "do not store links" decision exists to serve: it reads two tiles and subtracts two
+   * numbers, and it never needed either tile to know about the other when it was built.
+   *
+   * @param fromSurface the surface height being stepped off, in voxel units - see [WalkableTile]
    */
   fun canStep(
     from: ChunkPos,
     fromLocalX: Int,
     fromLocalY: Int,
-    fromFloor: Int,
+    fromSurface: Double,
     to: ChunkPos,
     toLocalX: Int,
     toLocalY: Int
   ): Boolean {
-    val target = walkableOf(to).stepTarget(toLocalX, toLocalY, fromFloor)
-    if (target < 0) return false
-    return walkableOf(from).isWalkable(fromLocalX, fromLocalY, fromFloor)
+    val target = walkableOf(to).stepTarget(toLocalX, toLocalY, fromSurface)
+    if (target < 0.0) return false
+    return walkableOf(from).isWalkable(fromLocalX, fromLocalY, ColumnSummary.voxelOf(fromSurface))
   }
 
   private fun entryOf(chunk: ChunkPos): Entry = entries.getOrPut(chunk) { build(chunk) }

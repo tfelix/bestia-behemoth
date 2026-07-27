@@ -54,16 +54,27 @@ data class Viewport(
    */
   fun zoomedAt(px: Int, py: Int, factor: Double): Viewport {
     require(factor > 0.0) { "zoom factor must be positive, was $factor" }
+    return scaledAt(px, py, metresPerPixel / factor)
+  }
+
+  /**
+   * Sets the scale to exactly [metresPerPixel], keeping the world position under a pixel fixed.
+   *
+   * Exists so the viewer can land on one pixel per voxel *exactly*, which wheel notches cannot: a
+   * factor that only nearly gets there leaves each voxel a ragged run of one-or-two pixels, and a
+   * view that is 7% off voxel scale looks like a materialiser that emits uneven columns.
+   */
+  fun scaledAt(px: Int, py: Int, metresPerPixel: Double): Viewport {
+    require(metresPerPixel > 0.0) { "metresPerPixel must be positive, was $metresPerPixel" }
 
     val anchorX = worldX(px)
     val anchorY = worldY(py)
-    val scale = metresPerPixel / factor
 
     // The anchor must stay at the same pixel, so solve for the centre that puts it there.
     return copy(
-      centerX = anchorX - (px + 0.5 - widthPx / 2.0) * scale,
-      centerY = anchorY - (heightPx - py - 0.5 - heightPx / 2.0) * scale,
-      metresPerPixel = scale
+      centerX = anchorX - (px + 0.5 - widthPx / 2.0) * metresPerPixel,
+      centerY = anchorY - (heightPx - py - 0.5 - heightPx / 2.0) * metresPerPixel,
+      metresPerPixel = metresPerPixel
     )
   }
 

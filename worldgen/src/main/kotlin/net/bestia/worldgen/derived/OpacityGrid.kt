@@ -78,7 +78,11 @@ class OpacityGrid(
       val height = (voxels.height + factor - 1) / factor
       val cells = ByteArray(width * depth * height)
 
-      val counts = IntArray(cells.size)
+      // Occupancy-weighted, not a count of opaque voxels. A voxel thirty percent full of stone occludes
+      // thirty percent as much, which is the same argument as the fraction-not-boolean choice above, applied
+      // one level down: having gone to the trouble of storing how full a voxel is, rounding it back to solid
+      // or empty here would put the resolution cliff straight back.
+      val filled = IntArray(cells.size)
       val totals = IntArray(cells.size)
 
       for (localY in 0 until voxels.size) {
@@ -92,13 +96,15 @@ class OpacityGrid(
             val cell = column + localZ / factor
             totals[cell]++
             val block = BlockType.ofOrNull(voxels.blocks[offset + localZ].toInt() and 0xFF)
-            if (block != null && block.opaque) counts[cell]++
+            if (block != null && block.opaque) {
+              filled[cell] += voxels.occupancy[offset + localZ].toInt() and 0xFF
+            }
           }
         }
       }
 
       for (i in cells.indices) {
-        cells[i] = if (totals[i] == 0) 0 else (counts[i] * 255 / totals[i]).toByte()
+        cells[i] = if (totals[i] == 0) 0 else (filled[i] / totals[i]).toByte()
       }
 
       return OpacityGrid(voxels.chunk, factor, width, depth, height, cells)

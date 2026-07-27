@@ -252,6 +252,181 @@ class StandardWorldTest {
     assertTrue(checked > 100, "only $checked columns were testable")
   }
 
+  /**
+   * Chunk coordinates over dry, lake-free land, spread across the map.
+   *
+   * Sampled from the elevation and lake rasters so it follows the seed rather than assuming where the
+   * continents came out.
+   */
+  private fun dryLandChunks(count: Int): List<Pair<Int, Int>> {
+    val config = world.config
+    val elevation = world.world.layers.require<FloatLayer>(LayerId.ELEVATION)
+    val lakeId = world.world.layers.require<IntLayer>(LayerId.LAKE_ID)
+    val metres = config.baseResolution.metresPerCell
+
+    val found = ArrayList<Pair<Int, Int>>(count)
+    // A coarse stride, so the samples are far apart and not all on the same hillside.
+    val stride = (config.widthCells / (count + 2)).coerceAtLeast(1)
+    var cy = stride
+    while (cy < config.heightCells - 1 && found.size < count) {
+      var cx = stride
+      while (cx < config.widthCells - 1 && found.size < count) {
+        // Comfortably above sea level, so the column is dry even after a channel is carved through it.
+        if (elevation[cx, cy] > config.seaLevel + 40.0 && lakeId[cx, cy] == 0) {
+          val worldX = (cx + 0.5) * metres
+          val worldY = (cy + 0.5) * metres
+          found.add(
+            Math.floorDiv(worldX.toLong(), config.chunkExtent.toLong()).toInt() to
+                Math.floorDiv(worldY.toLong(), config.chunkExtent.toLong()).toInt()
+          )
+        }
+        cx += stride
+      }
+      cy += stride
+    }
+
+    assertTrue(found.size >= 2, "the test world has almost no dry land: found ${found.size} samples")
+    return found
+  }
+
+  /**
+   * Chunk coordinates strung along the largest river channel.
+   *
+   * Deliberately high-relief ground. A flat upland chunk has a few metres of relief and almost never straddles
+   * a vertical chunk boundary, so sampling flat land tests the easy case and reports success - which is exactly
+   * how the first version of the surface-height test passed while the bug it was written for was still there.
+   * A valley has tens of metres of relief across thirty-two metres, and it is also the terrain anyone actually
+   * points this view at.
+   */
+  private fun chunksAlongTheLargestRiver(count: Int): List<Pair<Int, Int>> {
+    val config = world.config
+    val river = world.world.features.all()
+      .filterIsInstance<net.bestia.worldgen.vector.PolylineFeature>()
+      .filter { it.kind == FeatureKind.RIVER_CHANNEL }
+      .maxByOrNull { it.centerline.length }
+    val line = requireNotNull(river) { "the test world has no rivers" }.centerline
+
+    // A block around each sampled point rather than the point itself. The channel floor is the flattest ground
+    // in a valley; the relief that straddles a vertical chunk boundary is on the *walls*, so sampling only the
+    // centreline misses the case entirely - which is how an earlier version of this test passed against the bug.
+    val found = LinkedHashSet<Pair<Int, Int>>()
+    var step = 0.0
+    val points = (count / (SPREAD * SPREAD)).coerceAtLeast(2)
+    val stride = line.length / (points * 2)
+    while (step < line.length && found.size < count) {
+      val point = line.pointAt(step)
+      step += stride
+      val cx = Math.floorDiv(point.x.toLong(), config.chunkExtent.toLong()).toInt()
+      val cy = Math.floorDiv(point.y.toLong(), config.chunkExtent.toLong()).toInt()
+      for (dy in -(SPREAD / 2)..(SPREAD / 2)) {
+        for (dx in -(SPREAD / 2)..(SPREAD / 2)) found.add(cx + dx to cy + dy)
+      }
+    }
+
+    assertTrue(found.size > 4, "only ${found.size} river chunks found")
+    return found.toList()
+  }
+
+  /** Edge of the chunk block sampled around each river point. */
+  private val SPREAD = 7
+
+  @Test
+  fun `the surface view spans vertical chunks instead of clipping at one slab ceiling`() {
+    // Vertical chunks are grid aligned, so anchoring a surface view on a chunk's lowest column snaps *down* to
+    // a multiple of the chunk height and leaves only whatever headroom happens to remain before the next
+    // boundary - possibly a single voxel. Any column above that reads full to the ceiling, and what a caller
+    // gets is deep bedrock, or the water over an ocean floor, presented as the ground.
+    //
+    // Provoked with a deliberately shallow chunk height rather than by hunting for terrain that happens to
+    // straddle a boundary. At sixteen voxels a slab nearly always straddles, so the case is the common one
+    // instead of a few percent of columns somewhere on the map - and the mechanism is what is being tested,
+    // not the seed.
+    val shallow = StandardWorld.build(config(0xC0FFEEL).copy(chunkHeight = 16))
+    val size = shallow.config.chunkSize
+
+    var answered = 0
+    var unanswered = 0
+    for ((chunkX, chunkY) in dryLandChunks(count = 8)) {
+      val surface = shallow.materializer.surfaceColumns(chunkX, chunkY)
+      for (i in 0 until size * size) {
+        if (surface.elevation[i].isNaN()) unanswered++ else answered++
+      }
+    }
+
+    assertTrue(answered > 1000, "only $answered columns resolved at all")
+    assertTrue(
+      unanswered == 0,
+      "$unanswered of ${answered + unanswered} land columns have no surface: the view is clipping at a slab"
+    )
+  }
+
+  @Test
+  fun `the surface view reports the real surface height, to within a quantisation step`() {
+    // One property, two bugs.
+    //
+    // It is the claim occupancy exists to make good on: the vector tier carves terrain to sub-metre precision
+    // as a continuous function of world position, and materialisation is the one place that precision can be
+    // silently dropped. A height view cannot show the loss, because a stair-stepped surface and a smooth one
+    // plot the same.
+    //
+    // It also catches a bug in the tooling that mattered more than a pipeline bug would, because this is the
+    // view used to judge whether the pipeline is right. Vertical chunks are grid aligned, so anchoring a
+    // surface slab on a chunk's lowest column snaps *down* to a multiple of the chunk height and leaves
+    // whatever headroom happens to remain before the next boundary - possibly one voxel. A chunk with thirty
+    // metres of relief whose valley floor sits twenty metres below a boundary lost its ridge, and reading the
+    // top of that slab returned deep bedrock reported as though it were the ground.
+    val config = world.config
+
+    // One 255th of a voxel for the byte, and a whisker for the divide.
+    val tolerance = config.voxelSize / 255.0 + 1e-9
+    var checked = 0
+    var unanswered = 0
+    var columns = 0
+    var worst = 0.0
+    var worstAt = ""
+
+    for ((chunkX, chunkY) in chunksAlongTheLargestRiver(count = 200)) {
+      val surface = world.materializer.surfaceColumns(chunkX, chunkY)
+      val heights = world.columns.heights(ChunkPos(chunkX, chunkY), 0)
+
+      for (localY in 0 until config.chunkSize) {
+        for (localX in 0 until config.chunkSize) {
+          val expected = heights[localX, localY]
+          val actual = surface.elevationAt(localX, localY)
+          columns++
+          // No answer at all is the other way this used to fail. A single grid-aligned slab leaves the columns
+          // it clipped reading full to their ceiling, which is honest but useless, and over a valley that was
+          // one column in twenty. Land always resolves once both straddled slabs are consulted.
+          if (actual.isNaN()) {
+            unanswered++
+            continue
+          }
+          // Dry columns only: where there is water the air interface is the waterline, not the ground, and the
+          // submerged ground voxel is deliberately left full - see the two rules in ChunkMaterializer.
+          val block = BlockType.ofOrNull(surface.blockAt(localX, localY)) ?: continue
+          if (block == BlockType.WATER || block == BlockType.ICE) continue
+          // Nor a bridge: a deck sits *on* the terrain at its own elevation, so the topmost voxel of that
+          // column is legitimately not the ground and the column source never claimed it was.
+          if (block == BlockType.MASONRY) continue
+
+          val error = kotlin.math.abs(actual - expected)
+          if (error > worst) {
+            worst = error
+            worstAt = "chunk ($chunkX,$chunkY) column ($localX,$localY): wanted $expected, got $actual, block=$block fill=${surface.fillAt(localX, localY)}"
+          }
+          checked++
+        }
+      }
+    }
+
+    assertTrue(checked > 1000, "only $checked dry columns were testable")
+    assertTrue(
+      unanswered < columns / 100,
+      "$unanswered of $columns columns over a river valley have no surface at all"
+    )
+    assertTrue(worst <= tolerance, "worst surface error was $worst - $worstAt")
+  }
+
   @Test
   fun `water sits at the water level and never above it`() {
     val config = world.config
