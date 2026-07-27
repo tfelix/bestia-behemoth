@@ -34,8 +34,21 @@ data class HydrologyParams(
   /** Fraction of precipitation that becomes runoff rather than evaporating or recharging aquifers. */
   val runoffCoefficient: Double = 0.34,
 
-  /** Discharge in cubic metres per second at which a cell starts carrying a channel, at mean rainfall. */
-  val channelDischarge: Double = 0.9,
+  /**
+   * Catchment area in square metres at which a cell starts carrying a channel, at mean rainfall.
+   *
+   * A *catchment area* rather than a discharge, and that is the fix for small worlds rather than a refactor of
+   * one. Channel initiation is scale-free in nature - drainage density is roughly constant, and real channels
+   * begin after well under a square kilometre - so expressing the threshold as an area makes it mean the same
+   * thing on a world of any size. The equivalent discharge is derived from this and the world's own mean
+   * rainfall, which is what keeps the arid-versus-humid distinction that [aridityExponent] exists for.
+   *
+   * Written as an absolute discharge, as it was, the threshold quietly encoded "and the world is four thousand
+   * kilometres across": a 128 km world has catchments a fiftieth of the size, so nothing reached it and the
+   * world came out with two rivers. Scaled by [WorldConfig.scaleByArea], so a small world's detail scale brings
+   * it down further still.
+   */
+  val channelCatchmentArea: Double = 93_000_000.0,
 
   /**
    * How strongly the channel threshold rises in dry regions.
@@ -84,7 +97,7 @@ data class HydrologyParams(
 ) {
   init {
     require(runoffCoefficient in 0.0..1.0) { "runoffCoefficient must be in [0,1]" }
-    require(channelDischarge > 0.0) { "channelDischarge must be positive" }
+    require(channelCatchmentArea > 0.0) { "channelCatchmentArea must be positive" }
     require(stationSpacing > 0.0) { "stationSpacing must be positive" }
   }
 }
@@ -143,9 +156,16 @@ class HydrologyStage(
     )
 
     val meanPrecipitation = precipitation.mean().coerceAtLeast(1.0)
+    // The discharge that the threshold catchment area yields at this world's mean rainfall. Derived rather than
+    // configured, so the same number means the same thing on a world of any size or wetness.
+    val channelDischarge = runoffAt(
+      meanPrecipitation,
+      ctx.config.scaleByArea(params.channelCatchmentArea)
+    ).coerceAtLeast(MIN_CHANNEL_DISCHARGE)
+
     val graph = RiverNetwork.extract(network, discharge, lakes.lakeId) { i ->
       // Higher threshold where it is drier, so the network thins out towards the deserts.
-      params.channelDischarge *
+      channelDischarge *
           (meanPrecipitation / precipitation.data[i].coerceAtLeast(1.0)).pow(params.aridityExponent)
     }
 
@@ -288,6 +308,15 @@ class HydrologyStage(
 
   companion object {
     val ID = StageId("hydrology")
+
+    /**
+     * Floor on the derived channel threshold, in cubic metres per second.
+     *
+     * A world that is both tiny and arid can derive a threshold so low that every cell qualifies, and a raster
+     * where every cell is a river is not a drainage network - it is a flooded plain with a graph over it, and
+     * the feature count that comes out of it will exhaust memory before anybody looks at it.
+     */
+    const val MIN_CHANNEL_DISCHARGE = 0.02
 
     private const val SMOOTHING_PASSES = 2
 

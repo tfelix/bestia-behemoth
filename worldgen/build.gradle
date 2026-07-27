@@ -48,7 +48,19 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-/** Interactive layer/feature inspector: `./gradlew :worldgen:viewer`. */
+/**
+ * Forwards the world-shaping properties to ViewerMain.
+ *
+ * Both viewer tasks need this and neither had it, which is worse than it sounds: `-Pcells=128` was accepted
+ * without complaint and quietly generated the default world instead, so a measurement taken that way looked
+ * like a real answer about a small world and was an answer about a large one.
+ */
+def worldArgs = { task ->
+    if (project.hasProperty('seed')) task.args '--seed', project.property('seed')
+    if (project.hasProperty('cells')) task.args '--cells', project.property('cells')
+}
+
+/** Interactive layer/feature inspector: `./gradlew :worldgen:viewer -Pcells=128 -Pseed=42`. */
 tasks.register('viewer', JavaExec) {
     group = 'worldgen'
     description = 'Generates a world and opens the offline viewer on it'
@@ -57,6 +69,7 @@ tasks.register('viewer', JavaExec) {
     // Without this JavaExec runs on the Gradle daemon's JVM, which is older than the toolchain the
     // classes were compiled against.
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    worldArgs(it)
 }
 
 /** Same world, rendered to PNGs - works over SSH and in CI: `./gradlew :worldgen:viewerExport`. */
@@ -69,6 +82,7 @@ tasks.register('viewerExport', JavaExec) {
     // classes were compiled against.
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     args '--export', project.findProperty('out') ?: "$buildDir/viewer"
+    worldArgs(it)
 }
 
 /**

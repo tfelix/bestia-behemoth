@@ -235,6 +235,10 @@ class SettlementStage(
   ): List<Site> {
     val bounds = region.toWorld()
     val areaSquareKm = bounds.width * bounds.height / 1_000_000.0
+    // Deliberately *not* scaled by detailScale, unlike the terrain thresholds. Measured: scaling it takes a
+    // 128 km world from 28 settlements to 216, which is one per 20 square kilometres of land - close enough to
+    // the hamlet separation limit that the map becomes a single continuous suburb. Terrain wants to be denser on
+    // a small world; the number of places worth walking to does not.
     val cityTarget = max(1, (areaSquareKm / params.areaPerCity).toInt())
 
     val targets = mapOf(
@@ -613,9 +617,17 @@ class SettlementStage(
     // all is the sum of the two, so a road with no carriageway and a six metre shoulder still stamps - and the
     // shoulder profile eases from the road surface at the centreline, which is exactly the channel-filling this
     // gap exists to prevent.
-    fun inGap(s: Double) = crossings.any {
-      kotlin.math.abs(s - it.roadArcLength) < it.channelWidth * 0.5 + BRIDGE_GAP
+    //
+    // The window is at least a station wide, which is not a detail. Width is sampled per station and
+    // interpolated between them, so a window narrower than the spacing can fall entirely between two stations:
+    // every sample says "not in the gap", the interpolated width never reaches zero, and the road dams the river
+    // anyway. That is how this failed once the detail scale made channels narrow enough for the window to shrink
+    // below the 60 m station spacing - a bug that only appears on small worlds and only for thin rivers.
+    val halfWindow = { crossing: Crossing ->
+      max(crossing.channelWidth * 0.5 + BRIDGE_GAP, params.roadSpacing * MIN_GAP_STATIONS)
     }
+
+    fun inGap(s: Double) = crossings.any { kotlin.math.abs(s - it.roadArcLength) < halfWindow(it) }
 
     return LinearFeatures.road(
       id = id,
@@ -644,7 +656,11 @@ class SettlementStage(
       position = crossing.point,
       attributes = StationTable.Builder(1)
         .channel(BridgeChannels.DECK_ELEVATION) { deck }
-        .channel(BridgeChannels.SPAN) { crossing.channelWidth + BRIDGE_GAP * 2.0 }
+        // Matches the road's gap window, including its station-spacing floor: a deck narrower than the gap
+        // leaves a strip of nothing between the carriageway and the bridge.
+        .channel(BridgeChannels.SPAN) {
+          max(crossing.channelWidth + BRIDGE_GAP * 2.0, params.roadSpacing * MIN_GAP_STATIONS * 2.0)
+        }
         .channel(BridgeChannels.HALF_WIDTH) { tier.halfWidth }
         // Stored rather than recomputed, so that a chunk laying the deck needs only the marker.
         .channel(BridgeChannels.BEARING_X) { bearing.x }
@@ -705,6 +721,15 @@ class SettlementStage(
     val ID = StageId("settlements")
 
     private const val POPULATION_STREAM = 1L
+
+    /**
+     * Stations either side of a crossing that must be inside the gap.
+     *
+     * More than one, because station values are interpolated with a cubic spline. A single zeroed station is a
+     * notch the spline smooths straight through, leaving a positive corridor at the crossing itself; two or more
+     * hold it down across the whole gap.
+     */
+    private const val MIN_GAP_STATIONS = 1.5
 
     private const val ROAD_SMOOTHING = 2
 

@@ -32,7 +32,14 @@ data class ClimateParams(
   /** Degrees lost per kilometre of elevation. */
   val lapseRate: Double = 6.2,
 
-  /** Distance over which the ocean's moderating influence decays, in metres. */
+  /**
+   * Distance over which the ocean's moderating influence decays, in metres.
+   *
+   * Scaled down on a small world, because otherwise every cell is coastal. At 420 km a 128 km world is entirely
+   * within the sea's reach, so its seasonal temperature range is flat everywhere and the biome classifier - which
+   * leans on that range to tell a continental interior from a maritime one - has nothing to work with and returns
+   * one biome over the whole map. Shrinking it is unphysical and is exactly what buys the variety.
+   */
   val maritimeRange: Double = 420_000.0,
 
   /** Rain per metre of forced ascent, as a fraction of the moisture present. */
@@ -119,8 +126,12 @@ class ClimateStage(
     }
     capUnreachable(oceanDistance, max(bounds.width, bounds.height))
 
-    val temperature = temperatureField(ctx, region, elevation, latitudes, oceanDistance, seaLevel)
-    val range = temperatureRange(latitudes, oceanDistance, region)
+    // Shrunk on a small world: at its reference value every cell of a 128 km world is within the ocean's reach,
+    // which flattens the seasonal range everywhere and leaves the biome classifier unable to tell a continental
+    // interior from a coast. See WorldConfig.detailScale.
+    val maritimeRange = ctx.config.scaleByLength(params.maritimeRange)
+    val temperature = temperatureField(ctx, region, elevation, latitudes, oceanDistance, seaLevel, maritimeRange)
+    val range = temperatureRange(latitudes, oceanDistance, region, maritimeRange)
     val seasonal = seasonalPrecipitation(elevation, temperature, latitudes, seaLevel, region)
 
     val precipitation = Grid(region.width, region.height)
@@ -148,7 +159,8 @@ class ClimateStage(
     elevation: Grid,
     latitudes: DoubleArray,
     oceanDistance: Grid,
-    seaLevel: Double
+    seaLevel: Double,
+    maritimeRange: Double
   ): Grid {
     val metres = region.resolution.metresPerCell
     val noiseSeed = GenRng.mix64(ctx.seed xor TEMPERATURE_SALT)
@@ -166,7 +178,7 @@ class ClimateStage(
 
         // Maritime moderation: the sea is a flywheel, so coasts sit closer to the ocean temperature
         // than their elevation alone would suggest.
-        val maritime = exp(-oceanDistance.data[i] / params.maritimeRange)
+        val maritime = exp(-oceanDistance.data[i] / maritimeRange)
         t += (seaSurface - t) * maritime * MARITIME_PULL
 
         t += Noise.fbm(
@@ -191,7 +203,12 @@ class ClimateStage(
    * same latitude and differ by thirty degrees of annual range, and that difference decides which
    * biome each of them gets.
    */
-  private fun temperatureRange(latitudes: DoubleArray, oceanDistance: Grid, region: CellRegion): Grid {
+  private fun temperatureRange(
+    latitudes: DoubleArray,
+    oceanDistance: Grid,
+    region: CellRegion,
+    maritimeRange: Double
+  ): Grid {
     val grid = Grid(region.width, region.height)
 
     for (y in 0 until region.height) {
@@ -199,7 +216,7 @@ class ClimateStage(
 
       for (x in 0 until region.width) {
         val i = grid.index(x, y)
-        val continentality = 1.0 - exp(-oceanDistance.data[i] / params.maritimeRange)
+        val continentality = 1.0 - exp(-oceanDistance.data[i] / maritimeRange)
         grid.data[i] = byLatitude * (MARITIME_RANGE_FLOOR + (1.0 - MARITIME_RANGE_FLOOR) * continentality)
       }
     }

@@ -173,7 +173,11 @@ class ChunkMaterializer(
     val elevation = DoubleArray(size * size) { SurfaceColumns.NO_FILL }
 
     val bottomZ = config.chunkZOf(lowest - config.voxelSize)
-    val topZ = config.chunkZOf(highest)
+    // One slab above the highest column, so that a column whose surface lands in the very top voxel of the
+    // highest slab is not mistaken for one whose surface is above everything scanned. Without the extra slab
+    // that case reads as "no answer", which at a chunk height of 256 is a rare curiosity and at 16 is one column
+    // in sixteen.
+    val topZ = config.chunkZOf(highest) + 1
 
     // Downwards, so the first slab that has anything in a column is the highest one that does.
     for (chunkZ in topZ downTo bottomZ) {
@@ -193,8 +197,9 @@ class ChunkMaterializer(
           }
 
           block[i] = slab.rawAt(localX, localY, z)
-          // Full to the ceiling of the topmost slab means the interface is higher still, so neither the fill
-          // nor the elevation is knowable from here even though the material is.
+          // Full to the ceiling of the topmost slab means the interface really is higher than anything scanned -
+          // a deep ocean column, whose water surface can be hundreds of metres up - so neither the fill nor the
+          // elevation is knowable from here even though the material is.
           if (z == slab.height - 1 && chunkZ == topZ) continue
 
           fill[i] = slab.fillAt(localX, localY, z)

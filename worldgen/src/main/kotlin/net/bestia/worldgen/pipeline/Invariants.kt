@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
@@ -241,6 +242,48 @@ object Invariants {
       val bad = layer.data.indexOfFirst { !it.isFinite() }
       if (bad >= 0) {
         fail("finite layers", "$id has ${layer.data[bad]} at index $bad")
+      }
+    }
+  }
+
+  /**
+   * The forced ocean margin really is ocean, and nothing was built or routed into it.
+   *
+   * The margin is what makes the east-west wrap invisible, and it only works if it is *completely* water: one
+   * island poking out of it, or one road running into it, and a player at the seam sees the world change under
+   * them as they cross. Cheap to assert and impossible to eyeball, since it is the part of the map nobody looks
+   * at until they walk off the edge of it.
+   */
+  private fun checkOceanBorderIsOcean(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val config = generated.config
+    if (config.oceanBorderMetres <= 0.0) return
+
+    val wrap = WorldWrap(config)
+    val elevation = generated.world.layers.require<FloatLayer>(LayerId.ELEVATION)
+    val metres = elevation.region.resolution.metresPerCell
+
+    for (y in 0 until elevation.region.height) {
+      for (x in 0 until elevation.region.width) {
+        val worldX = (elevation.region.minX + x + 0.5) * metres
+        val worldY = (elevation.region.minY + y + 0.5) * metres
+        if (!wrap.isInOceanBorder(worldX, worldY)) continue
+
+        if (elevation[elevation.region.minX + x, elevation.region.minY + y] > config.seaLevel) {
+          fail(
+            "ocean border",
+            "land at (${worldX.toInt()},${worldY.toInt()}), which is inside the ${config.oceanBorderMetres.toInt()} m margin"
+          )
+          return
+        }
+      }
+    }
+
+    // Settlements are the ones that would actually be noticed, being visible from a long way off.
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.SETTLEMENT) continue
+      if (wrap.isInOceanBorder(feature.bbox.centerX, feature.bbox.centerY)) {
+        fail("ocean border", "a settlement sits in the ocean margin at ${feature.bbox.centerX.toInt()}")
+        return
       }
     }
   }

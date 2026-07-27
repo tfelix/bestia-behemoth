@@ -144,17 +144,22 @@ object StandardWorld {
   }
 
   /**
-   * Climate runs four times coarser than the heightfield, except on worlds too small for that to leave
-   * a usable grid.
+   * Climate runs four times coarser than the heightfield, unless coarsening would leave too few cells.
    *
-   * Advection over a fine grid is wasted work - the process has a scale of hundreds of kilometres - but a
-   * test world sixteen cells across would end up with a four-by-four climate grid, on which the wind
-   * belts and the orographic sweep both stop meaning anything. Below the threshold it is better to spend
-   * the cycles than to produce a climate field that is four numbers.
+   * Advection over a fine grid is wasted work - the process has a scale of hundreds of kilometres - but the
+   * orographic sweep is a *march across cells*, so what it can express depends on how many cells there are to
+   * march over. Below about a hundred, rain shadows have no room to develop: moisture is neither depleted
+   * crossing a range nor recovered behind it, and the precipitation field comes out nearly flat, which in turn
+   * leaves the biome classifier with one axis fewer to separate biomes on.
+   *
+   * The test is therefore on the *result* rather than on the input. A 128-cell world keeps full resolution and
+   * gets 128 climate cells; a 512-cell world coarsens to 128; a 4096-cell world coarsens to 1024. Judging by
+   * the input, as this did, sent a 128-cell world to a 32-cell climate grid - four times cheaper and much the
+   * poorer for it, on a world that takes half a second to build anyway.
    */
   fun climateResolutionFor(config: WorldConfig): Resolution {
     val shortEdge = min(config.widthCells, config.heightCells)
-    return if (shortEdge >= MIN_CELLS_FOR_COARSE_CLIMATE) {
+    return if (shortEdge / CLIMATE_COARSENING >= MIN_CLIMATE_CELLS) {
       Resolution(config.baseResolution.metresPerCell * CLIMATE_COARSENING)
     } else {
       config.baseResolution
@@ -180,5 +185,7 @@ object StandardWorld {
   const val DEFAULT_SEED = 0xB3571AL
 
   private const val CLIMATE_COARSENING = 4.0
-  private const val MIN_CELLS_FOR_COARSE_CLIMATE = 64
+
+  /** Fewest climate cells across which the orographic sweep still produces a rain shadow worth having. */
+  private const val MIN_CLIMATE_CELLS = 96
 }

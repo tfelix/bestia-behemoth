@@ -14,6 +14,24 @@ persistence:
   initial-delay-ms: 90000
   interval-ms: 90000
 
+# Settings a *new* world is born with. Ignored once a world exists: what gets generated then comes from the
+# stored record, because that is what its chunks and any player edits were built against.
+worldgen:
+  name: Genesis
+  # Left unset: a seed is drawn at random on first boot and then persisted, so the world stays reproducible
+  # even though nobody chose it. Set it to generate a known world.
+  # seed: 11836698
+  # World extent in cells. A cell is `cell-size-metres` across, so at the default these are kilometres.
+  width-cells: 128
+  height-cells: 128
+  cell-size-metres: 1000.0
+  chunk-size: 32
+  chunk-height: 256
+  voxel-size-metres: 1.0
+  sea-level-metres: 0.0
+  # Abort the boot if this build would generate different terrain than the stored world was born with.
+  refuse-on-pipeline-mismatch: true
+
 world:
   tick-rate: 20
   parallel-systems: false

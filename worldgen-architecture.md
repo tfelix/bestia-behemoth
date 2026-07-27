@@ -84,9 +84,24 @@ serializer pairs, none of it referenced outside its own tests, and keeping two i
 representations in one repo was a bigger problem than anything either of them solved. Occupancy came across
 into `worldgen`, which is where the idea belonged; the 32³ boxed layout did not.
 
-What is *not* yet done: nothing in the zone-server calls into the pipeline. There is no chunk message in
-`bnet-messages`, no handler, no delta persistence and no client-side rendering. Until that exists, everything
-below is exercised by tests, the invariant sweep and the viewer, and by nothing else.
+The zone-server now **owns a world**. `net.bestia.zone.world` holds a `PersistedWorld` row - name, seed,
+dimensions, creation instant, and the three version numbers - and `WorldGenerationBootRunner` finds it or
+creates it as the first step of the boot sequence, before item import, entity loading, the ECS loop or the
+socket server, so nothing can observe a world that does not exist yet. The first world of any server is called
+Genesis.
+
+The terrain itself is **regenerated at boot rather than stored**, which looks like a missing feature and is not
+one: rasters and vector features are a pure function of the seed and the dimensions in that row, so persisting
+them would be persisting a cache whose stale copies are indistinguishable from fresh ones. A 128 km world takes
+about half a second. What players change is stored; what the seed implies is computed.
+
+The row's version vector is checked against the running build on every boot, and a mismatch **refuses to
+start** by default. That is the enforcement of this document's "once you ship, freeze the pipeline version"
+rule: player edits are deltas over a generated base, so booting against a shifted base would move the ground
+under them, and by the time anyone noticed the old base would be gone.
+
+What is *not* yet done: no chunk message in `bnet-messages`, no chunk handler, no delta persistence and no
+client-side rendering.
 
 `zone-server/src/main/kotlin/net/bestia/zone/navigation/` is a separate unused stack — a 2.5D `NavGrid` of
 `Tile(height, canWalkLeft/Right/Up/Down)` with an A* over it — which `derived/WalkableTile` supersedes for
@@ -118,6 +133,76 @@ beyond the dependencies the stages already state. Emitted layers and feature kin
 
 Climate runs four times coarser than the heightfield, as the design calls for, except on worlds too
 small for that to leave a usable grid.
+
+### World size, wrapping, and the ocean margin
+
+None of this is in the design above; all of it came out of running the pipeline at a size the design
+never considered. `WorldConfig` is 4096×4096 km on paper and the stage thresholds were tuned against a
+512 km demo world, but the first world the server actually boots is 128 km. At that size the world came
+out as a plain with two rivers on it.
+
+**Detail scale.** Most of what makes a world interesting is gated on absolute size — a river needs
+roughly a hundred square kilometres of catchment before it cuts a channel, a glacier needs enough ice
+flux to gouge a trough. Those numbers are right, and they are exactly why a small world is dull: it does
+not *deserve* the features. `WorldConfig.detailScale` is the knob that hands them over anyway. At 4, every
+gating threshold behaves as though each length were four times what it is — `scaleByLength` divides a
+length, `scaleByArea` divides by the square. It is deliberately unphysical, and it is the difference
+between a test world you can see something in and a plain with a stream on it.
+
+The default is `512 km / shortEdge`, clamped to `[1, 8]`. The reference extent is 512 km rather than the
+4096 the design sizes for, because 512 is the size every threshold was tuned at by eye — so it must come
+out at a scale of exactly 1, or this scaling would silently rework the one world already known to be
+right. The clamp at 8 is where river networks become a fractal mat.
+
+`detailScale` is a **computed property, not a stored field.** Stored, it goes stale under `copy()`: a
+config derived for 512 then copied to `widthCells = 128` keeps the 512 world's scale, which is how the
+invariant sweep spent a while passing on a config nothing would ever ship.
+
+**What scales and what does not.** Terrain thresholds scale; *settlement density does not*, and that is
+a decision rather than an omission. `cityTarget` is `worldArea / areaPerCity`, so settlements are already
+a density — measured, 512 km gives 292 and 1024 km gives 1171, which is 4.01× for 4× the area. Ore
+deposits track area the same way (133 → 508). Putting `detailScale` on top of that takes a 128 km world
+from 28 settlements to 216, one per 20 km² of land, and the map becomes a continuous suburb. Terrain
+wants to be denser on a small world; the number of *places worth walking to* does not.
+
+Build time is linear in area — 512 km takes 3.7 s and 1024 km takes 14.6 s. Extrapolated, the design's
+4096 km world is about four minutes and, at ~16.7M cells across roughly twenty `DoubleArray` layers,
+a few gigabytes of heap. That is the real ceiling on world size, and it is a memory ceiling rather than
+an algorithmic one.
+
+River *counts* are not a target and swing hard on the seed — 44, 79 and 207 channels at 512 km across
+three seeds with identical parameters. They emerge from the terrain rather than being placed to a quota,
+so read them as a range. Channel initiation is a threshold *catchment area* rather than an absolute
+discharge, which is what makes it scale-free in principle — drainage density is roughly scale-invariant
+in nature. The measurements are consistent with that but do not confirm it: going 512 → 1024 km, so 4×
+the area, gave 7.2×, 3.5× and 6.1× the channels on three seeds. Two of the three sit well above 4.
+Against a 44–207 spread at a single size, three samples cannot separate mild superlinearity from noise,
+so this is **an open question, not a settled one** — if it matters later, it wants a dozen seeds per
+size, not three.
+
+**Continuity.** A player walking east off the eastern edge has to arrive from the west. Making the terrain
+genuinely periodic would mean every stage running on a toroidal domain — wrapping Voronoi, noise, flow
+routing, distance transforms — and, fatally, vector features whose geometry crosses the seam, which
+breaks the single continuous polyline the entire seam-free argument rests on.
+
+So the seam is *hidden* instead. `TectonicsStage` forces a margin around all four edges below sea level
+with a smoothstep blend (`geo/OceanBorder.kt` — a blend, not a clamp, or the margin has a cliff at its
+inner edge), and `normaliseLandFraction` counts interior cells only so the margin does not eat into the
+land budget. The wrap then happens between two stretches of featureless deep ocean, which look alike
+because there is nothing there to look at. This is honestly not continuity, and it only works while the
+margin is wider than the client's view distance.
+
+The margin is therefore **2.5 km flat, not a share of the world.** What it has to beat is view distance,
+which is a few hundred metres and has nothing to do with world size; sizing it as a share made a big
+world's margin enormous while hiding the seam no better. A share cap of 6% still applies, but only binds
+below about a 42 km world — the margin goes as the perimeter while land goes as the area, so on a tiny
+world a fixed margin would eat the place.
+
+`wrapX` is on by default and `wrapY` is off, and not merely for want of implementing it: temperature comes
+from latitude, so wrapping north to south walks one pole straight into the other. `core/WorldWrap.kt` holds
+the coordinate maths — floor-mod normalisation, signed shortest-path deltas, chunk normalisation (never on
+z; up is not a loop). **The ECS does not call it yet**: movement, interest management and pathing still use
+naive subtraction, so two players ten metres apart across the seam currently read as a world apart.
 
 ### Deliberate deviations
 
@@ -174,8 +259,8 @@ independently and fails if adjacent chunks disagree on any shared column's heigh
 Invariants currently asserted per seed: layers are finite; the land fraction is plausible; normalised
 layers stay in range; discharge grows downstream; river beds descend; lakes stand above their beds;
 water is where the biome says it is; feature bounds contain their geometry; no settlement is in the
-sea; settlements respect their tier's separation; deposits are well formed; and every fjord sill is
-shallower than its landward basin.
+sea; settlements respect their tier's separation; deposits are well formed; every fjord sill is
+shallower than its landward basin; and the ocean margin contains neither land nor settlements.
 
 ---
 

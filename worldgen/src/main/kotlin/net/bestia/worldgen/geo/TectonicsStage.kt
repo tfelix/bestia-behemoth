@@ -55,6 +55,14 @@ data class TectonicsParams(
    */
   val targetLandFraction: Double = 0.32,
 
+  /**
+   * How far below sea level the forced ocean margin is taken, in metres.
+   *
+   * Deep enough to be unmistakably open sea rather than shallows a player might mistake for a wadeable shelf,
+   * and deep enough that erosion and hydrology treat it as the sink it is. See [OceanBorder].
+   */
+  val oceanBorderDepth: Double = 400.0,
+
   /** Wavelength of the ridged relief noise in metres - the spacing of individual ridge crests. */
   val reliefWavelength: Double = 38_000.0,
 
@@ -255,7 +263,14 @@ class TectonicsStage(
     }
 
     addHotspotChains(ctx, region, bounds, plates, spacing, elevation)
-    normaliseLandFraction(elevation, ctx.config.seaLevel)
+
+    // The ocean margin is decided here, before the land fraction is normalised against the interior and well
+    // before anything downstream runs. That ordering is the whole point of putting it in this stage: erosion,
+    // hydrology, biomes and settlement all see nothing but deep water at the world edge, so no river tries to
+    // drain across the seam and no town gets founded on ground a player would walk off.
+    val border = OceanBorder.of(ctx.config, params.oceanBorderDepth, region, metres, region.width)
+    normaliseLandFraction(elevation, ctx.config.seaLevel, border::isInteriorCell)
+    border.applyTo(elevation, ctx.config.seaLevel)
 
     val hardness = rockHardness(ctx, region, elevation, crustAge, oceanicity, intensity)
     val faults = traceFaults(plateId, region, plates)
@@ -360,18 +375,25 @@ class TectonicsStage(
    * than the rest of this stage put together, and a bin width of a few metres is far finer than the
    * question being asked.
    */
-  private fun normaliseLandFraction(elevation: Grid, seaLevel: Double) {
+  private fun normaliseLandFraction(elevation: Grid, seaLevel: Double, interior: (Int) -> Boolean) {
     val low = elevation.min()
     val high = elevation.max()
     if (high - low < 1e-9) return
 
     val bins = IntArray(QUANTILE_BINS)
     val scale = QUANTILE_BINS / (high - low)
-    for (z in elevation.data) {
-      bins[((z - low) * scale).toInt().coerceIn(0, QUANTILE_BINS - 1)]++
+    // Interior cells only. Counting the forced ocean margin would have the quantile see a world that is mostly
+    // sea and raise everything to compensate, which lifts the margin back above the waterline - the normaliser
+    // undoing the very thing the margin is for.
+    var counted = 0L
+    for (i in elevation.data.indices) {
+      if (!interior(i)) continue
+      bins[((elevation.data[i] - low) * scale).toInt().coerceIn(0, QUANTILE_BINS - 1)]++
+      counted++
     }
+    if (counted == 0L) return
 
-    val targetBelow = ((1.0 - params.targetLandFraction) * elevation.size).toLong()
+    val targetBelow = ((1.0 - params.targetLandFraction) * counted).toLong()
     var cumulative = 0L
     var bin = 0
     while (bin < QUANTILE_BINS - 1 && cumulative + bins[bin] < targetBelow) {

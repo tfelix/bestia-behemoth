@@ -30,17 +30,104 @@ data class WorldConfig(
   val chunkHeight: Int = 256,
 
   /** Edge length of one voxel in metres. */
-  val voxelSize: Double = 1.0
+  val voxelSize: Double = 1.0,
+
+  /**
+   * Width of the ocean margin forced around the world edge, in metres. Zero disables it.
+   *
+   * The world is finite but has to behave as though it is not: a player walking east off the eastern edge
+   * arrives from the west. Making the *terrain* continuous across that seam would mean every stage running on a
+   * periodic domain - wrapping Voronoi, wrapping noise, wrapping flow routing, wrapping distance transforms -
+   * and, worst of all, vector features whose geometry crosses the seam, which breaks the single continuous
+   * polyline that the whole seam-free design rests on.
+   *
+   * So the seam is *hidden* rather than removed. Force the margin below sea level and the wrap happens between
+   * two stretches of featureless deep ocean, which look alike because there is nothing there to look at. The
+   * cost is honest: this is not continuity, and it only works while the margin is wider than how far a player
+   * can see. Narrower than the view distance and they watch the world end.
+   */
+  val oceanBorderOverride: Double? = null,
+
+  /** Whether east and west are the same place. See [oceanBorderMetres]. */
+  val wrapX: Boolean = true,
+
+  /**
+   * Whether north and south are the same place.
+   *
+   * Off by default, and not merely for want of implementing it: temperature comes from latitude, so wrapping
+   * north to south walks from one pole straight into the other. The poles being cold ocean is a better edge
+   * than a teleport across sixty degrees of latitude.
+   */
+  val wrapY: Boolean = false,
+
+  /**
+   * How much finer than physical realism this world's features are.
+   *
+   * Most of the interesting things a world can have are gated on absolute size: a river needs about a hundred
+   * square kilometres of catchment before it carries a channel, a glacier needs enough ice flux to gouge a
+   * trough, a city needs a hinterland to feed it. Those numbers are right, and they are why a 128 km world
+   * comes out with two rivers, no glaciers and hardly any biome variety - it is not big enough to *deserve*
+   * them.
+   *
+   * This is the knob that says "give me them anyway". At 4 the thresholds behave as though every length were
+   * four times larger than it is, so a small world gets the feature density of a big one. It is deliberately
+   * unphysical, and it is the difference between a test world you can see something in and one that is a
+   * plain with a stream on it. See [scaleByLength] and [scaleByArea], and [defaultDetailScaleFor] for the
+   * value a world of a given size gets if none is set.
+   */
+  val detailScaleOverride: Double? = null
 ) {
 
   init {
     require(widthCells > 0 && heightCells > 0) { "World must have a positive extent" }
     require(chunkSize > 0 && chunkHeight > 0) { "Chunk dimensions must be positive" }
     require(voxelSize > 0.0) { "Voxel size must be positive" }
+    require(detailScale > 0.0) { "detailScale must be positive, was $detailScale" }
+    require(oceanBorderMetres >= 0.0) { "oceanBorderMetres must not be negative" }
+    require(oceanBorderMetres * 2.0 < minOf(widthMetres, heightMetres)) {
+      "An ocean border of $oceanBorderMetres m leaves no land in a " +
+          "${widthMetres.toInt()}x${heightMetres.toInt()} m world"
+    }
   }
+
+  /**
+   * How much finer than realism this world's features are, derived from its size unless overridden.
+   *
+   * **Computed, not stored, and that is deliberate.** Stored, it goes stale: `config.copy(widthCells = 128)`
+   * on a config derived for 512 keeps the 512 world's scale, and the result is a small world configured as
+   * though it were large - which silently produced two rivers, and did so in the invariant sweep, so the sweep
+   * was passing on a config nothing would ever ship. Anything derived from a field has to be derived at the
+   * point of use or it is a copy waiting to disagree with its source.
+   */
+  val detailScale: Double
+    get() = detailScaleOverride ?: defaultDetailScaleFor(widthCells, heightCells, baseResolution)
+
+  /** Width of the forced ocean margin, derived from the world's size unless overridden. Zero disables it. */
+  val oceanBorderMetres: Double
+    get() = oceanBorderOverride ?: defaultOceanBorderFor(widthCells, heightCells, baseResolution)
+
+  val widthMetres: Double get() = widthCells * baseResolution.metresPerCell
+
+  val heightMetres: Double get() = heightCells * baseResolution.metresPerCell
 
   /** Horizontal edge length of a chunk in metres. */
   val chunkExtent: Double get() = chunkSize * voxelSize
+
+  /**
+   * Shrinks a length that gates a feature on the world being big enough.
+   *
+   * A threshold of "at least this many metres" becomes easier to meet as [detailScale] rises.
+   */
+  fun scaleByLength(referenceMetres: Double): Double = referenceMetres / detailScale
+
+  /**
+   * Shrinks an area that gates a feature on the world being big enough.
+   *
+   * Squared, because an area shrinks with the square of a length. This is what takes a river's hundred square
+   * kilometres of required catchment down to six at a detail scale of four.
+   */
+  fun scaleByArea(referenceSquareMetres: Double): Double =
+    referenceSquareMetres / (detailScale * detailScale)
 
   val worldRegion: CellRegion
     get() = CellRegion.world(widthCells, heightCells, baseResolution)
@@ -78,5 +165,62 @@ data class WorldConfig(
     val x = chunk.x * chunkExtent + (localX + 0.5) * voxelSize
     val y = chunk.y * chunkExtent + (localY + 0.5) * voxelSize
     return x to y
+  }
+
+  companion object {
+
+    /**
+     * World extent the stage defaults were tuned against.
+     *
+     * 512 km, not the 4096 km the architecture document sizes for, and the difference matters. Every threshold
+     * in every stage was arrived at by generating the 512 km demo world and looking at it, so 512 km is the size
+     * at which those numbers are correct *by construction* - and therefore the size that must come out with a
+     * detail scale of exactly one, or this scaling would silently rework the one world already known to be right.
+     */
+    const val REFERENCE_EXTENT_METRES = 512_000.0
+
+    /** Detail scale beyond which a world stops looking like terrain and starts looking like noise. */
+    const val MAX_DETAIL_SCALE = 8.0
+
+    /**
+     * The detail scale a world of a given extent gets when none is chosen.
+     *
+     * Exactly enough to undo the world's smallness, capped. A world at or above the reference extent gets 1,
+     * because it is already big enough to earn its features honestly. The cap is where it stops: past about
+     * eight, river networks become a fractal mat and settlements a continuous suburb, which is a different
+     * kind of uninteresting from the one this exists to fix.
+     */
+    fun defaultDetailScaleFor(widthCells: Int, heightCells: Int, resolution: Resolution): Double {
+      val shortEdge = minOf(widthCells, heightCells) * resolution.metresPerCell
+      return (REFERENCE_EXTENT_METRES / shortEdge).coerceIn(1.0, MAX_DETAIL_SCALE)
+    }
+
+    /**
+     * Width of the ocean margin, in metres.
+     *
+     * A constant, and not for want of a formula: what the margin has to beat is the *client's view distance*,
+     * which is a few hundred metres and has nothing to do with how big the world is. A margin sized as a share
+     * of the world was solving a problem nobody has - it made a big world's margin enormous while hiding the
+     * seam no better than a small one's, because the seam is only ever seen from a few hundred metres away.
+     *
+     * 2.5 km is roughly an order of magnitude of headroom over the view distance, so the far shore stays out of
+     * sight even if draw distance grows several times over, and it is still only a couple of minutes' swim.
+     */
+    const val OCEAN_BORDER_METRES = 2_500.0
+
+    /** Largest share of the short edge the margin may take on each side. */
+    const val MAX_OCEAN_BORDER_SHARE = 0.06
+
+    /**
+     * Ocean margin for a world of a given extent.
+     *
+     * [OCEAN_BORDER_METRES] everywhere it fits. The share cap only binds below about a 42 km world, where a
+     * fixed margin would start eating the place - four edges of it, so it goes as the perimeter while the land
+     * goes as the area, and a tiny test world would be all margin.
+     */
+    fun defaultOceanBorderFor(widthCells: Int, heightCells: Int, resolution: Resolution): Double {
+      val shortEdge = minOf(widthCells, heightCells) * resolution.metresPerCell
+      return minOf(OCEAN_BORDER_METRES, shortEdge * MAX_OCEAN_BORDER_SHARE)
+    }
   }
 }

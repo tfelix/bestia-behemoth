@@ -235,7 +235,11 @@ class GlacialStage(
     val flux = network.accumulate { if (ice.data[it] >= params.minIceThickness) ice.data[it] * cellArea else 0.0 }
 
     val glaciated = BooleanArray(ice.size) { ice.data[it] >= params.minIceThickness }
-    val channel = BooleanArray(ice.size) { glaciated[it] && flux.data[it] >= params.troughFlux }
+    // Both thresholds are gated on the world being big enough to grow a real glacier, so both are scaled: flux
+    // as an area (it accumulates over cells), trough length as a length.
+    val troughFlux = ctx.config.scaleByArea(params.troughFlux)
+    val minTroughLength = ctx.config.scaleByLength(params.minTroughLength)
+    val channel = BooleanArray(ice.size) { glaciated[it] && flux.data[it] >= troughFlux }
 
     // A trough runs from a source - a glaciated cell with no glaciated cell above it - to wherever the ice
     // stops. The same reach-tracing shape as the river network, on a different network.
@@ -276,12 +280,12 @@ class GlacialStage(
       }
 
       val raw = runCatching { Polyline(path.map(centre)) }.getOrNull() ?: continue
-      if (raw.length < params.minTroughLength) continue
+      if (raw.length < minTroughLength) continue
 
       val line = raw.chaikin(SMOOTHING).resample(STATION_SPACING)
       features.add(troughFeature(nextId(), line, path, region, elevation, flux, seaLevel, metres))
       features.add(cirqueFeature(nextId(), centre(path.first()), path, elevation, flux, region))
-      moraineFeature(nextId(), line, path, region, elevation, metres)?.let { features.add(it) }
+      moraineFeature(nextId(), line, path, region, elevation, metres, minTroughLength)?.let { features.add(it) }
     }
 
     return features
@@ -404,9 +408,10 @@ class GlacialStage(
     path: List<Int>,
     region: CellRegion,
     elevation: Grid,
-    metres: Double
+    metres: Double,
+    minTroughLength: Double
   ): VectorFeature? {
-    if (line.length < params.minTroughLength) return null
+    if (line.length < minTroughLength) return null
 
     val snout = line.pointAt(line.length)
     val bearing = line.tangentAt(line.length)
