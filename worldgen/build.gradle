@@ -1,0 +1,93 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+description = 'worldgen'
+
+/**
+ * Deterministic world generation: pipeline framework, vector features, field primitives and the
+ * offline viewer. See worldgen-architecture.md.
+ *
+ * Deliberately dependency-light - kotlin stdlib and the JDK, nothing else. This module is meant to be
+ * linked into the zone-server and possibly into the client, so it must not drag in Spring, JPA or any
+ * I/O. Everything outside the `viewer` package is a pure function over plain data; the viewer is the
+ * one place allowed to touch Swing and the filesystem, and nothing depends on it.
+ *
+ * Nothing consumes it yet: no other module declares a dependency on it, so today its only callers are
+ * the tests, the invariant sweep and the viewer.
+ *
+ * The internal layering is expressed as packages rather than as separate Gradle modules. Each layer
+ * may use the ones above it and nothing below:
+ *
+ *   vector    geometry, polylines, station tables, profiles, blending, the spatial index
+ *   core      Stage, GenContext, RNG, layer and feature stores, pipeline, chunk column sampling
+ *   fields    noise, grids, distance transforms, Poisson disk, heaps - the numerical toolbox
+ *
+ *   geo       tectonics, plates, orogeny, erosion, glacial flow, the base heightfield
+ *   climate   temperature, wind, orographic precipitation
+ *   hydro     flow routing, lakes, the river graph, meandering
+ *   bio       biome classification, soil
+ *   resource  ore, coal, salt and placer deposits
+ *   civ       habitability, cultures, settlements, route finding, roads
+ *   voxel     block palette, stratigraphy, chunk materialisation, the RLE codec
+ *
+ *   derived   column summaries, opacity grid, walkable tiles, chunk deltas
+ *   store     tiered chunk cache, delta and baking, base hashing, the version gate
+ *   pipeline  assembles the stages into a world; the regression invariants
+ *   viewer    tooling, not shipped to the server
+ *
+ * The stage packages are siblings: they depend on the three foundation layers and on each other only
+ * through declared stage dependencies, never by calling into one another.
+ */
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+/** Interactive layer/feature inspector: `./gradlew :worldgen:viewer`. */
+tasks.register('viewer', JavaExec) {
+    group = 'worldgen'
+    description = 'Generates a world and opens the offline viewer on it'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.ViewerMain'
+    // Without this JavaExec runs on the Gradle daemon's JVM, which is older than the toolchain the
+    // classes were compiled against.
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+/** Same world, rendered to PNGs - works over SSH and in CI: `./gradlew :worldgen:viewerExport`. */
+tasks.register('viewerExport', JavaExec) {
+    group = 'worldgen'
+    description = 'Renders every layer to PNG files instead of opening a window'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.ViewerMain'
+    // Without this JavaExec runs on the Gradle daemon's JVM, which is older than the toolchain the
+    // classes were compiled against.
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    args '--export', project.findProperty('out') ?: "$buildDir/viewer"
+}
+
+/**
+ * The regression harness: generate many worlds and assert the invariants on each.
+ *
+ * `./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256`
+ *
+ * Worldgen bugs are rare-seed bugs, so the sweep is the tool that actually finds them - the unit tests
+ * cover a handful of seeds, and the failures that matter show up in one world in a few hundred.
+ */
+tasks.register('invariants', JavaExec) {
+    group = 'worldgen'
+    description = 'Generates N worlds and checks the regression invariants on each'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.pipeline.InvariantsMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    args '--seeds', project.findProperty('seeds') ?: '25'
+    args '--cells', project.findProperty('cells') ?: '192'
+    if (project.hasProperty('firstSeed')) {
+        args '--first-seed', project.property('firstSeed')
+    }
+}

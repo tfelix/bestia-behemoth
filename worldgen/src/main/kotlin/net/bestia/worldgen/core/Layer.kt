@@ -1,0 +1,267 @@
+package net.bestia.worldgen.core
+
+import kotlin.math.floor
+
+/**
+ * Name of a raster layer produced by a stage. Layer names are part of the dependency contract, so
+ * they are declared, not conjured at the call site.
+ */
+data class LayerId(val name: String) {
+  override fun toString() = name
+
+  companion object {
+
+    // --- Tectonics -------------------------------------------------------------------------------
+
+    /**
+     * The heightfield tectonics produces, before erosion has touched it.
+     *
+     * Deliberately not [ELEVATION]: the layer store refuses to let two stages write the same id, and
+     * that refusal is load bearing. Erosion consumes this and produces [ELEVATION], so "the shape of
+     * the land" and "the shape of the land before a hundred million years of rain" stay separable -
+     * which is what lets a stage state which of the two it means.
+     */
+    val BEDROCK_ELEVATION = LayerId("bedrock_elevation")
+    val PLATE_ID = LayerId("plate_id")
+
+    /** 0 = weak mudstone, 1 = fresh granite. Erodibility is derived from it, not the other way round. */
+    val ROCK_HARDNESS = LayerId("rock_hardness")
+    val CRUST_AGE = LayerId("crust_age")
+
+    /** Tectonic uplift rate in metres per timestep - the `U` of the stream power law. */
+    val UPLIFT = LayerId("uplift")
+
+    // --- Climate ---------------------------------------------------------------------------------
+
+    /** Mean annual temperature in degrees Celsius. */
+    val TEMPERATURE = LayerId("temperature")
+
+    /** Summer-to-winter swing in degrees. Continentality; drives biome seasonality scoring. */
+    val TEMPERATURE_RANGE = LayerId("temperature_range")
+
+    /** Annual precipitation in millimetres. */
+    val PRECIPITATION = LayerId("precipitation")
+
+    /** 0 = evenly spread over the year, 1 = it all falls in one season. Monsoon versus maritime. */
+    val PRECIPITATION_SEASONALITY = LayerId("precipitation_seasonality")
+
+    /** Metres to the nearest ocean cell. Computed once by climate; wanted by half the pipeline. */
+    val DISTANCE_TO_OCEAN = LayerId("distance_to_ocean")
+
+    // --- Erosion ---------------------------------------------------------------------------------
+
+    /** The land surface everything downstream means when it says "elevation". */
+    val ELEVATION = LayerId("elevation")
+
+    /** Thickness of deposited sediment in metres: alluvium, valley fill, deltas. */
+    val SEDIMENT = LayerId("sediment")
+
+    // --- Hydrology -------------------------------------------------------------------------------
+
+    /** D8 index into [net.bestia.worldgen.fields.D8], or -1 where the cell drains out of the world. */
+    val FLOW_DIRECTION = LayerId("flow_direction")
+
+    /** Upslope contributing area in square metres. */
+    val FLOW_ACCUMULATION = LayerId("flow_accumulation")
+
+    /** Mean discharge in cubic metres per second - accumulation weighted by local precipitation. */
+    val DISCHARGE = LayerId("discharge")
+
+    /** Surface elevation of standing water, or NaN where there is none. Sea, lakes, reservoirs. */
+    val WATER_LEVEL = LayerId("water_level")
+
+    /** Basin label, 0 for none. Negative labels mark endorheic basins - salt lakes. */
+    val LAKE_ID = LayerId("lake_id")
+
+    // --- Biomes ----------------------------------------------------------------------------------
+
+    val BIOME = LayerId("biome")
+
+    /** How well the chosen biome fit: low where two biomes scored alike, i.e. in a transition. */
+    val BIOME_CONFIDENCE = LayerId("biome_confidence")
+    val SOIL_FERTILITY = LayerId("soil_fertility")
+
+    /** Depth of soil over bedrock in metres. Thin on crests and steep ground, deep in valley floors. */
+    val SOIL_DEPTH = LayerId("soil_depth")
+
+    // --- Glaciation ------------------------------------------------------------------------------
+
+    /**
+     * Ice thickness in metres at the glacial maximum.
+     *
+     * The coarse pass of glacial erosion, which decides *where* glaciers are rather than what they look like -
+     * the shape of a trough is a vector feature, because a kilometre cell cannot hold one.
+     */
+    val ICE_THICKNESS = LayerId("ice_thickness")
+
+    // --- Resources -------------------------------------------------------------------------------
+
+    /**
+     * Extractable value within reach, 0 to 1.
+     *
+     * A smoothed field rather than the deposits themselves, because what settlement placement wants to know
+     * is "is there anything worth having near here" - and answering that from the deposit index would be a
+     * spatial query per cell.
+     */
+    val RESOURCE_VALUE = LayerId("resource_value")
+
+    // --- Civilisation ----------------------------------------------------------------------------
+
+    /** Suitability for settlement, 0 to 1. Weighted differently per culture; see HabitabilityStage. */
+    val HABITABILITY = LayerId("habitability")
+
+    /** Cost of moving one metre across a cell, relative to easy flat ground. Drives road routing. */
+    val MOVEMENT_COST = LayerId("movement_cost")
+  }
+}
+
+sealed interface LayerData {
+  val id: LayerId
+  val region: CellRegion
+}
+
+/**
+ * A dense scalar raster over a [CellRegion].
+ *
+ * Stored as a flat array in row-major order. Sampling takes world coordinates in metres rather than
+ * cell indices, because everything downstream of the raster tier thinks in world space - only the
+ * raster itself knows what its cell size is.
+ */
+class FloatLayer(
+  override val id: LayerId,
+  override val region: CellRegion,
+  val data: FloatArray
+) : LayerData {
+
+  init {
+    require(data.size.toLong() == region.cellCount) {
+      "Layer $id has ${data.size} values but region $region has ${region.cellCount} cells"
+    }
+  }
+
+  operator fun get(x: Int, y: Int): Float {
+    val cx = x.coerceIn(region.minX, region.maxX)
+    val cy = y.coerceIn(region.minY, region.maxY)
+    return data[(cy - region.minY) * region.width + (cx - region.minX)]
+  }
+
+  operator fun set(x: Int, y: Int, value: Float) {
+    require(region.contains(x, y)) { "($x,$y) is outside $region" }
+    data[(y - region.minY) * region.width + (x - region.minX)] = value
+  }
+
+  /** Bilinear sample at a world position in metres. Cheap, C0, good enough for most fields. */
+  fun sampleBilinear(worldX: Double, worldY: Double): Double {
+    val fx = worldX / region.resolution.metresPerCell - 0.5
+    val fy = worldY / region.resolution.metresPerCell - 0.5
+    val x0 = floor(fx).toInt()
+    val y0 = floor(fy).toInt()
+    val tx = fx - x0
+    val ty = fy - y0
+
+    val v00 = this[x0, y0].toDouble()
+    val v10 = this[x0 + 1, y0].toDouble()
+    val v01 = this[x0, y0 + 1].toDouble()
+    val v11 = this[x0 + 1, y0 + 1].toDouble()
+
+    val bottom = v00 + (v10 - v00) * tx
+    val top = v01 + (v11 - v01) * tx
+
+    return bottom + (top - bottom) * ty
+  }
+
+  /**
+   * Bicubic (Catmull-Rom) sample at a world position in metres.
+   *
+   * This is what chunk generation uses to lift the coarse world map into a chunk: bilinear leaves
+   * visible facets where the 1 km cells meet, and those facets are exactly the kind of grid artefact
+   * the whole three-representation split exists to avoid.
+   */
+  fun sampleBicubic(worldX: Double, worldY: Double): Double {
+    val fx = worldX / region.resolution.metresPerCell - 0.5
+    val fy = worldY / region.resolution.metresPerCell - 0.5
+    val x0 = floor(fx).toInt()
+    val y0 = floor(fy).toInt()
+    val tx = fx - x0
+    val ty = fy - y0
+
+    val rows = DoubleArray(4)
+    for (j in -1..2) {
+      rows[j + 1] = catmullRom(
+        this[x0 - 1, y0 + j].toDouble(),
+        this[x0, y0 + j].toDouble(),
+        this[x0 + 1, y0 + j].toDouble(),
+        this[x0 + 2, y0 + j].toDouble(),
+        tx
+      )
+    }
+
+    return catmullRom(rows[0], rows[1], rows[2], rows[3], ty)
+  }
+
+  fun copy() = FloatLayer(id, region, data.copyOf())
+
+  override fun toString() = "FloatLayer[$id, $region]"
+
+  companion object {
+    fun filled(id: LayerId, region: CellRegion, value: Float = 0f) =
+      FloatLayer(id, region, FloatArray(region.cellCount.toInt()) { value })
+
+    private fun catmullRom(p0: Double, p1: Double, p2: Double, p3: Double, t: Double): Double {
+      val t2 = t * t
+      val t3 = t2 * t
+      return 0.5 * (
+          2.0 * p1 +
+              (-p0 + p2) * t +
+              (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 +
+              (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
+          )
+    }
+  }
+}
+
+/**
+ * A dense integer raster - plate ids, biome ids, D8 flow directions.
+ *
+ * Deliberately has no interpolating sampler: interpolating a category id is meaningless, and
+ * offering the method would guarantee somebody eventually did it.
+ */
+class IntLayer(
+  override val id: LayerId,
+  override val region: CellRegion,
+  val data: IntArray
+) : LayerData {
+
+  init {
+    require(data.size.toLong() == region.cellCount) {
+      "Layer $id has ${data.size} values but region $region has ${region.cellCount} cells"
+    }
+  }
+
+  operator fun get(x: Int, y: Int): Int {
+    val cx = x.coerceIn(region.minX, region.maxX)
+    val cy = y.coerceIn(region.minY, region.maxY)
+    return data[(cy - region.minY) * region.width + (cx - region.minX)]
+  }
+
+  operator fun set(x: Int, y: Int, value: Int) {
+    require(region.contains(x, y)) { "($x,$y) is outside $region" }
+    data[(y - region.minY) * region.width + (x - region.minX)] = value
+  }
+
+  /** Nearest-cell lookup at a world position in metres. */
+  fun sampleNearest(worldX: Double, worldY: Double): Int {
+    val cx = floor(worldX / region.resolution.metresPerCell).toInt()
+    val cy = floor(worldY / region.resolution.metresPerCell).toInt()
+    return this[cx, cy]
+  }
+
+  fun copy() = IntLayer(id, region, data.copyOf())
+
+  override fun toString() = "IntLayer[$id, $region]"
+
+  companion object {
+    fun filled(id: LayerId, region: CellRegion, value: Int = 0) =
+      IntLayer(id, region, IntArray(region.cellCount.toInt()) { value })
+  }
+}
