@@ -34,3 +34,49 @@ subprojects {
 		implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 	}
 }
+
+// --- Godot client -----------------------------------------------------------------------------------------
+//
+// bestia-client is not a Gradle subproject: it is a Godot .NET project, built by the dotnet SDK. These tasks
+// exist so it is reachable from the same place as everything else - `./gradlew clientTest` rather than
+// remembering a path under bestia-client/tests.
+//
+// The tests need the dotnet SDK and nothing else. No Godot binary, no headless export, no display: the mesher
+// only touches Vector3, Color and Mathf, which are plain managed value types. That is a property the code keeps
+// on purpose - BlockAppearance takes palette entries rather than the GodotObject-derived message so that the
+// whole meshing path stays runnable outside the engine. Anything that does need the engine cannot be tested
+// this way and should not try.
+
+def clientTestProject = 'bestia-client/tests/BestiaClient.Tests/BestiaClient.Tests.csproj'
+
+def dotnetExecutable = org.gradle.internal.os.OperatingSystem.current().windows ? 'dotnet.exe' : 'dotnet'
+
+tasks.register('clientTest', Exec) {
+	group = 'verification'
+	description = 'Runs the Godot client C# tests (terrain meshing). Requires the dotnet SDK.'
+
+	commandLine dotnetExecutable, 'test', clientTestProject,
+			'-c', 'Release', '--nologo',
+			'--filter', 'Category!=Benchmark'
+}
+
+tasks.register('clientBenchmark', Exec) {
+	group = 'verification'
+	description = 'Runs the client mesh throughput benchmarks and prints their timings.'
+
+	// Excluded from clientTest because a wall-clock assertion on shared CI hardware fails for reasons that have
+	// nothing to do with the code. Detailed logging, because the numbers are the point of running it.
+	commandLine dotnetExecutable, 'test', clientTestProject,
+			'-c', 'Release', '--nologo',
+			'--filter', 'Category=Benchmark',
+			'-l', 'console;verbosity=detailed'
+}
+
+// So `./gradlew check` covers the client too once a CI job exists to run it.
+tasks.register('check') {
+	group = 'verification'
+	description = 'Runs all checks, including the Godot client tests.'
+
+	dependsOn subprojects.collect { ":${it.name}:check" }
+	dependsOn 'clientTest'
+}

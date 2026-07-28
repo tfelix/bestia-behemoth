@@ -15,9 +15,9 @@ namespace BestiaBehemothClient.Game.World
   /// <see cref="SocketPath"/>, or call <see cref="Attach"/> directly.
   ///
   /// <para>
-  /// Rendering is not this class's job and is not done anywhere yet - the deliverable for this step is a text
-  /// report proving the wire format works end to end. <see cref="Store"/> is the substrate any later mesh
-  /// building sits on.
+  /// Rendering belongs to <see cref="TerrainRenderer"/>, which this class only tells what changed. The split is
+  /// deliberate: everything here is about agreeing with the server on what is held, and none of it should have to
+  /// know how a chunk is drawn.
   /// </para>
   ///
   /// <para><b>Decoding is budgeted.</b> <c>BnetSocket._Process</c> drains its whole receive queue in one frame,
@@ -38,7 +38,16 @@ namespace BestiaBehemothClient.Game.World
     [Export] public int DecodesPerFrame { get; set; } = 4;
 
     /// <summary>Print a line per chunk. Useful while there is nothing to look at; noisy once there is.</summary>
-    [Export] public bool VerboseChunkLog { get; set; } = true;
+    [Export] public bool VerboseChunkLog { get; set; } = false;
+
+    /// <summary>
+    /// The renderer to notify, or unset to stream without drawing anything.
+    /// </summary>
+    /// <remarks>
+    /// Optional so that the decode path can still be exercised headlessly, which is how the wire format was
+    /// verified before there was anything to look at.
+    /// </remarks>
+    [Export] public TerrainRenderer Renderer { get; set; }
 
     public ClientChunkStore Store { get; } = new();
 
@@ -103,6 +112,7 @@ namespace BestiaBehemothClient.Game.World
 
         case BlockPaletteSMSG palette:
           Palette = palette;
+          Renderer?.SetPalette(palette);
           GD.Print($"[world] palette: {palette.Count} materials");
           break;
 
@@ -138,11 +148,30 @@ namespace BestiaBehemothClient.Game.World
       // A new world, or a reconnect: nothing held can be assumed to still be right.
       Store.Clear();
       _toDecode.Clear();
+
+      Renderer?.Configure(Store, info, Palette);
     }
 
     private void OnManifest(ChunkManifestSMSG manifest)
     {
+      // A reset manifest can silently drop anything it does not re-list, so the candidates are everything held
+      // rather than just what Removed names.
+      var candidates = manifest.Reset ? Store.HeldKeys() : manifest.Removed;
+
       var wanted = Store.Reconcile(manifest);
+
+      if (Renderer != null)
+      {
+        // Dropped after reconciling, so a reset manifest that re-lists a chunk does not tear down geometry it is
+        // about to want back.
+        foreach (var key in candidates)
+        {
+          if (Store.Get(key) == null)
+          {
+            Renderer.Remove(key);
+          }
+        }
+      }
 
       GD.Print(
         $"[manifest] reset={manifest.Reset} +{manifest.Added.Count} -{manifest.Removed.Count}: " +
@@ -164,6 +193,7 @@ namespace BestiaBehemothClient.Game.World
       {
         var chunk = data.Decode();
         Store.Put(data.Key, chunk, data.Revision);
+        Renderer?.Invalidate(data.Key);
 
         _decoded++;
         _payloadBytes += data.PayloadBytes;
@@ -190,6 +220,7 @@ namespace BestiaBehemothClient.Game.World
       if (Store.ApplyPatch(patch))
       {
         _patched++;
+        Renderer?.Invalidate(patch.Key);
 
         if (VerboseChunkLog)
         {

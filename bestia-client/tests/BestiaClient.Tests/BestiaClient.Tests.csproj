@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Sibling of src/ rather than inside it, deliberately: src/ is the Godot project root, and Godot imports
+    everything under it. A test project in there would be scanned, given .uid files, and offered as scripts.
+
+    Note what is *not* here: any reference to Godot itself. Vector3, Color and Mathf are plain managed value
+    types, so the mesher runs anywhere .NET does - no engine, no display, no headless export. That is a property
+    of the code under test rather than a lucky accident: BlockAppearance takes palette entries instead of the
+    GodotObject-derived message precisely so this stays true.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>BestiaBehemothClient.Tests</RootNamespace>
+    <AssemblyName>BestiaClient.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Bestia Behemoth Client.csproj" />
+  </ItemGroup>
+
+</Project>

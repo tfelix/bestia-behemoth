@@ -42,6 +42,11 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+### .NET Build Artifacts ###
+# The Godot client project keeps its intermediates under .godot/mono, but a plain SDK project - the client
+# test project - puts them in obj/ beside the csproj.
+obj/
+
 ### C++/SCons Build Artifacts ###
 # SCons build artifacts
 .sconsign.dblite

@@ -1228,8 +1228,39 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 >
 > The *client* column holds only its first row: the Godot client keeps a local copy of merged voxels for the
 > session, decoding `RleCodec` payloads in C# and applying patches against a per-chunk revision. It does not
-> generate base terrain, holds no vector features, and renders nothing yet — it prints what it decodes. Delta
-> storage is received and never trusted, which is free here because the client cannot write to it at all.
+> generate base terrain and holds no vector features. Delta storage is received and never trusted, which is free
+> here because the client cannot write to it at all.
+>
+> **It now renders them.** `Game/World/Mesh/` meshes chunks with surface nets — one vertex per cell straddling
+> the surface, quads across each lattice edge that crosses it — on the thread pool, and `TerrainRenderer` installs
+> the results a couple per frame. Two points are worth recording because both cut against the obvious.
+>
+> **The scalar field is sampled at cell corners, each the average of the eight cells meeting there.** That is what
+> reads `Occupancy` correctly, and it is not interchangeable with sampling at cell centres. A surface written at
+> 40.3 m gives cells `1.0, 0.3, 0.0`, hence corners `0.65` and `0.15`, and the crossing at 0.5 lands on exactly
+> 40.3 — the averaging is linear and the interpolation inverts it, so the reconstruction is exact for every value,
+> tested to a tenth of a millimetre. Read as centred density samples the same cells put the surface at 40.21 and,
+> worse, could never place it above `topCell + 0.5`. The corollary is the useful part: **nothing has to declare
+> which way a fraction fills.** A half-full cell with rock below and one with rock above both cross at the same
+> place with the normal reversed, because the neighbours decide. A cave ceiling therefore needs no convention that
+> a hillside does not, which is why this generalises to caves where a heightfield mesher cannot.
+>
+> **Cost tracks surface area, not volume.** `ChunkBands` records, per column, which cells sit near an occupancy run
+> boundary — found with a vectorised run walk over the contiguous vertical axis, three SIMD calls for open terrain
+> rather than 256 comparisons, about 30 µs per chunk. A chunk with no interior boundary is solid rock, open air or
+> open water and is skipped before anything is allocated for it, which is most of a view volume. What survives is
+> ~2 ms per chunk and ~5 500 triangles; a 121-chunk view is 236 ms of single-threaded meshing and 655 k triangles.
+>
+> Two things the design did not anticipate. **Sea level is a chunk boundary**, so a coastal plain is a chunk of air
+> over a chunk of rock with no interior boundary in either — the surface between them belongs to neither chunk's
+> bands and rendered as nothing until `ChunkBands.SeamAtFloor` existed. Each chunk owns the lattice edges at its own
+> floor and not its ceiling, which splits every shared face between exactly one of the two. And **the store is read
+> from more than one thread** now, so `_held` is a `ConcurrentDictionary`; the voxels inside a chunk are left
+> unsynchronised on purpose, since a mesh mixing two revisions is superseded by the re-mesh the patch already queues.
+>
+> Not implemented: textures (vertex colour from the palette stands in), LOD (unnecessary at this triangle count),
+> and any blocky pass for player-placed voxels — corner averaging collapses one-cell-thick features, so structures
+> want their own meshes rather than single voxels.
 >
 > The one row that does not hold as written is **delta storage being persisted**: `ChunkStore` keeps deltas in
 > a `LinkedHashMap` and the database is in-memory with `ddl-auto: create`, so edits die with the process. That
