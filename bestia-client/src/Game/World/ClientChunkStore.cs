@@ -1,0 +1,202 @@
+using System.Collections.Generic;
+using System.Linq;
+using BestiaBehemothClient.Bnet.Message.Map;
+using Godot;
+
+namespace BestiaBehemothClient.Game.World
+{
+  /// <summary>
+  /// The client's copy of the terrain it has been sent, and the bookkeeping that keeps it honest.
+  /// </summary>
+  /// <remarks>
+  /// Three jobs, all of which are really the same job - knowing exactly what is held and at what revision.
+  ///
+  /// <list type="number">
+  /// <item><b>Answer a manifest.</b> Chunks already held at the announced revision are not requested, which is
+  /// what turns a 375 kB re-entry into an area into nothing at all.</item>
+  /// <item><b>Apply patches.</b> An edit is fifty bytes where the chunk is three thousand.</item>
+  /// <item><b>Notice divergence.</b> A patch whose <c>FromRevision</c> is not what is held means this copy and
+  /// the server's have parted company. The chunk is dropped and re-requested rather than patched, because a
+  /// wrongly-patched chunk is invisible: the player walks into a wall that is not there and the bug report is
+  /// incomprehensible.</item>
+  /// </list>
+  ///
+  /// <para>
+  /// In memory for the session only. Persisting it across sessions is what the revision numbers were designed
+  /// for and is a straightforward addition, but it should wait for the server to persist its deltas - a cache
+  /// keyed on a revision the server forgets on restart would eventually be trusted when it should not be.
+  /// </para>
+  /// </remarks>
+  public sealed class ClientChunkStore
+  {
+    private readonly Dictionary<ChunkKey, Held> _held = new();
+
+    /// <summary>Announced by the most recent manifest, whether held yet or not.</summary>
+    private readonly Dictionary<ChunkKey, uint> _announced = new();
+
+    private sealed class Held
+    {
+      internal VoxelChunk Chunk { get; init; }
+      internal uint Revision { get; set; }
+    }
+
+    public int HeldCount => _held.Count;
+
+    public int AnnouncedCount => _announced.Count;
+
+    public VoxelChunk Get(ChunkKey key) => _held.TryGetValue(key, out var held) ? held.Chunk : null;
+
+    public bool Holds(ChunkKey key, uint revision) =>
+      _held.TryGetValue(key, out var held) && held.Revision == revision;
+
+    /// <summary>
+    /// Applies a manifest and returns what still has to be asked for.
+    /// </summary>
+    /// <remarks>
+    /// A <c>Reset</c> manifest replaces the set outright, so anything held and not re-listed is dropped. That
+    /// is the case that would otherwise leak: the server has stopped tracking those chunks and will send no
+    /// more patches for them, so keeping them would mean holding terrain that quietly goes stale.
+    /// </remarks>
+    public List<ChunkKey> Reconcile(ChunkManifestSMSG manifest)
+    {
+      if (manifest.Reset)
+      {
+        _announced.Clear();
+
+        var listed = manifest.Added.Select(added => added.Key).ToHashSet();
+        foreach (var key in _held.Keys.Where(key => !listed.Contains(key)).ToList())
+        {
+          _held.Remove(key);
+        }
+      }
+
+      foreach (var key in manifest.Removed)
+      {
+        _announced.Remove(key);
+        _held.Remove(key);
+      }
+
+      var wanted = new List<ChunkKey>();
+
+      foreach (var added in manifest.Added)
+      {
+        _announced[added.Key] = added.Revision;
+
+        if (Holds(added.Key, added.Revision))
+        {
+          continue;
+        }
+
+        // Held at the wrong revision is not usable - drop it rather than keep something that will disagree
+        // with the next patch.
+        _held.Remove(added.Key);
+        wanted.Add(added.Key);
+      }
+
+      return wanted;
+    }
+
+    /// <summary>Stores a decoded chunk. Replaces whatever was held at that position.</summary>
+    public void Put(ChunkKey key, VoxelChunk chunk, uint revision)
+    {
+      _held[key] = new Held { Chunk = chunk, Revision = revision };
+    }
+
+    /// <summary>
+    /// Applies a patch, or reports that the chunk must be re-requested.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if the patch was applied; <c>false</c> if the chunk is not held or has diverged, in which
+    /// case it has been dropped and the caller should request it again.
+    /// </returns>
+    public bool ApplyPatch(ChunkPatchSMSG patch)
+    {
+      if (!_held.TryGetValue(patch.Key, out var held))
+      {
+        // Not a fault. A patch can legitimately arrive for a chunk that was announced but never requested,
+        // and there is nothing to do about it - the manifest will offer the new revision.
+        return false;
+      }
+
+      if (held.Revision != patch.FromRevision)
+      {
+        GD.PushWarning(
+          $"[chunk] {patch.Key} diverged: holding rev {held.Revision}, patch builds on {patch.FromRevision}. " +
+          "Discarding and re-requesting.");
+
+        _held.Remove(patch.Key);
+        return false;
+      }
+
+      foreach (var edit in patch.Decode())
+      {
+        held.Chunk.ApplyEdit(edit.Index, edit.BlockId, edit.Occupancy);
+      }
+
+      held.Revision = patch.ToRevision;
+      return true;
+    }
+
+    /// <summary>Whether this position is currently on offer, so a re-request is worth sending.</summary>
+    public bool IsAnnounced(ChunkKey key) => _announced.ContainsKey(key);
+
+    public void Clear()
+    {
+      _held.Clear();
+      _announced.Clear();
+    }
+
+    /// <summary>
+    /// A one-line summary of a chunk's contents, for the debug output.
+    /// </summary>
+    public string Describe(ChunkKey key, BlockPaletteSMSG palette)
+    {
+      var chunk = Get(key);
+      if (chunk == null)
+      {
+        return $"{key} not held";
+      }
+
+      var lowest = double.PositiveInfinity;
+      var highest = double.NegativeInfinity;
+      var empties = 0;
+
+      for (var localY = 0; localY < chunk.Size; localY++)
+      {
+        for (var localX = 0; localX < chunk.Size; localX++)
+        {
+          var surface = chunk.SurfaceHeightAt(localX, localY);
+
+          if (surface < 0.0)
+          {
+            empties++;
+            continue;
+          }
+
+          if (surface < lowest) lowest = surface;
+          if (surface > highest) highest = surface;
+        }
+      }
+
+      var counts = new Dictionary<int, int>();
+      foreach (var block in chunk.Blocks)
+      {
+        counts.TryGetValue(block, out var seen);
+        counts[block] = seen + 1;
+      }
+
+      var top = counts
+        .OrderByDescending(entry => entry.Value)
+        .Take(4)
+        .Select(entry => $"{palette?.NameOf(entry.Key) ?? entry.Key.ToString()}x{entry.Value}");
+
+      var surfaces = double.IsInfinity(lowest)
+        ? "no solid columns"
+        : $"surface {lowest:F1}..{highest:F1} above chunk floor";
+
+      var emptyNote = empties > 0 ? $", {empties} empty columns" : "";
+
+      return $"{surfaces}{emptyNote}  {string.Join(" ", top)}";
+    }
+  }
+}

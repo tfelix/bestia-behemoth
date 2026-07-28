@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BlockPaletteSMSGProto";
+
+/**
+ * The block palette, sent once per connection alongside the world info.
+ *
+ * Sending it rather than hardcoding it on the client is what keeps a rename or a new material from
+ * being a client release. It is also the readable counterpart to `block_palette_version`: the version
+ * says two parties disagree, this says about what.
+ *
+ * Two dozen entries and change, so a few hundred bytes.
+ */
+message BlockPaletteSMSG {
+  repeated BlockPaletteEntry blocks = 1;
+}
+
+message BlockPaletteEntry {
+  /**
+   * The id that appears in chunk payloads and in stored deltas. Ids are sparse and permanent - they
+   * are grouped by material family with gaps left inside each family - so this is emphatically not an
+   * index into `blocks`.
+   */
+  uint32 id = 1;
+  string name = 2;
+  bool solid = 3;
+  bool opaque = 4;
+}

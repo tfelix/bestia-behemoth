@@ -1,0 +1,101 @@
+package net.bestia.zone.world.stream
+
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.core.ChunkPos
+import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
+
+/**
+ * Carries client-originated chunk work from the Netty threads onto the zone tick thread.
+ *
+ * Incoming messages are dispatched on the connection's Netty worker thread - `ClientMessageHandler` publishes
+ * a Spring event and the listener runs inline - so a handler is *not* on `zone-tick`. Everything the
+ * streaming layer owns is documented as single-threaded: `ChunkStore`, `ChunkDelta` and `DerivedStore` all
+ * assume one owner, and [ChunkSubscriptionService] holds plain `HashMap`s.
+ *
+ * So handlers do no work. They enqueue here, and [ChunkStreamSystem] drains this once per tick and does
+ * everything on the thread that owns the data. That is cheaper than locking - the alternative would put a
+ * lock around the store on the path of every voxel read the server ever makes - and it makes the ordering
+ * explicit: a request is served in the tick after it arrived, never halfway through one.
+ *
+ * ### Bounded, and it drops rather than blocks
+ *
+ * A queue fed by the network and drained by a fixed budget is a queue a client can grow on purpose. Past
+ * [MAX_PENDING] the oldest entries are discarded: a dropped request costs the client one round trip, because
+ * the next manifest re-offers whatever it still lacks, whereas an unbounded queue costs the server its heap.
+ */
+@Service
+class ChunkStreamInbox {
+
+  data class Request(val accountId: Long, val chunks: List<ChunkPos>)
+
+  data class Edit(val accountId: Long, val x: Long, val y: Long, val z: Long, val blockId: Int)
+
+  private val requests = ConcurrentLinkedQueue<Request>()
+  private val requestCount = AtomicInteger()
+
+  private val edits = ConcurrentLinkedQueue<Edit>()
+  private val editCount = AtomicInteger()
+
+  val pendingRequests get() = requestCount.get()
+
+  val pendingEdits get() = editCount.get()
+
+  fun offerRequest(request: Request) {
+    if (request.chunks.isEmpty()) return
+
+    requests.add(request)
+    trim(requests, requestCount, "chunk requests")
+  }
+
+  fun offerEdit(edit: Edit) {
+    edits.add(edit)
+    trim(edits, editCount, "debug edits")
+  }
+
+  fun drainRequests(): List<Request> = drain(requests, requestCount)
+
+  fun drainEdits(): List<Edit> = drain(edits, editCount)
+
+  /** Called when a connection goes away, so its queued work does not get served to nobody. */
+  fun forget(accountId: Long) {
+    requestCount.addAndGet(-requests.count { it.accountId == accountId })
+    requests.removeIf { it.accountId == accountId }
+
+    editCount.addAndGet(-edits.count { it.accountId == accountId })
+    edits.removeIf { it.accountId == accountId }
+  }
+
+  private fun <T> trim(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger, what: String) {
+    if (counter.incrementAndGet() <= MAX_PENDING) return
+
+    var dropped = 0
+    while (counter.get() > MAX_PENDING && queue.poll() != null) {
+      counter.decrementAndGet()
+      dropped++
+    }
+
+    if (dropped > 0) LOG.warn { "Inbox over $MAX_PENDING $what; dropped $dropped oldest" }
+  }
+
+  private fun <T> drain(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger): List<T> {
+    if (queue.isEmpty()) return emptyList()
+
+    val drained = ArrayList<T>()
+    while (true) {
+      val next = queue.poll() ?: break
+      counter.decrementAndGet()
+      drained.add(next)
+    }
+
+    return drained
+  }
+
+  private companion object {
+    /** Generous enough that a legitimate whole-manifest request never trips it. */
+    const val MAX_PENDING = 4096
+
+    private val LOG = KotlinLogging.logger { }
+  }
+}

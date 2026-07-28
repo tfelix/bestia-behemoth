@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkPatchSMSGProto";
+
+/**
+ * The voxels that changed in one chunk, rather than the chunk that contains them.
+ *
+ * This is the message that makes a busy area affordable. Thirty players standing together while one of
+ * them digs ten voxels costs thirty copies of about fifty bytes; re-sending the chunk instead would cost
+ * thirty copies of three kilobytes, and thirty separate serialisations of it. The server encodes this
+ * once and writes the same buffer to every subscriber.
+ *
+ * A voxel belongs to exactly one chunk, so there is no fan-out across chunk borders to pay for. An edit
+ * that genuinely spans chunks - a large terraform - becomes one patch per chunk, and each client
+ * receives only the patches for chunks it is subscribed to.
+ */
+message ChunkPatchSMSG {
+  ChunkPos pos = 1;
+
+  /**
+   * The revision this patch applies to, and the one it produces.
+   *
+   * Ordering is already guaranteed - one client is one ordered TCP stream, and the server enqueues a
+   * snapshot before any patch that builds on it - so these are an assertion rather than a mechanism. A
+   * client whose held revision is not [from_revision] has diverged somehow and should discard the chunk
+   * and re-request it instead of applying edits to the wrong base.
+   */
+  uint32 from_revision = 2;
+  uint32 to_revision = 3;
+
+  /**
+   * Packed edits, five bytes each:
+   *
+   * ```
+   * repeated: uvar voxelIndex, u8 blockId, u8 occupancy
+   * ```
+   *
+   * `voxelIndex` is `(localY * size + localX) * height + localZ`, the same layout the chunk payload uses
+   * - so the vertical axis is contiguous here too. Occupancy travels with the block id in every edit
+   * because the two can never be allowed to disagree: air is occupancy zero and everything else is not.
+   *
+   * Edits within one patch are already coalesced per voxel, so an index appears at most once.
+   */
+  bytes edits = 4;
+}

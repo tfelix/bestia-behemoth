@@ -30,6 +30,15 @@ namespace BestiaBehemothClient.Bnet.Message
     [Export]
     public int Port { get; set; } = 8090;
 
+    /// <summary>
+    /// Largest inbound frame accepted, matching <c>SocketServer.MAX_FRAME_LENGTH</c> on the server.
+    /// </summary>
+    /// <remarks>
+    /// The two must stay in step. The server refuses anything larger inbound and never frames anything larger
+    /// outbound, so a frame over this size cannot be legitimate.
+    /// </remarks>
+    private const int MaxFrameLength = 1048576;
+
     [Signal]
     public delegate void MessageReceivedEventHandler(ISMSG message);
 
@@ -59,7 +68,7 @@ namespace BestiaBehemothClient.Bnet.Message
       // Process any complete messages from the queue
       while (_messageQueue.TryDequeue(out Envelope envelope))
       {
-        GD.Print("BnetSocket RX: ", envelope.ToString());
+        GD.Print("BnetSocket RX: ", Describe(envelope));
 
         if (envelope.Disconnected != null)
         {
@@ -221,11 +230,72 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = System.ChatSMSG.FromProto(envelope.ChatSmsg);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.WorldInfo != null)
+        {
+          var msg = Map.WorldInfoSMSG.FromProto(envelope.WorldInfo);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.BlockPalette != null)
+        {
+          var msg = Map.BlockPaletteSMSG.FromProto(envelope.BlockPalette);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.ChunkManifest != null)
+        {
+          var msg = Map.ChunkManifestSMSG.FromProto(envelope.ChunkManifest);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.ChunkData != null)
+        {
+          // Converted but not decoded. Decoding here would put a whole login's worth of chunks into the one
+          // frame that drains the queue; ChunkStreamManager spreads it instead.
+          var msg = Map.ChunkDataSMSG.FromProto(envelope.ChunkData);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.ChunkPatch != null)
+        {
+          var msg = Map.ChunkPatchSMSG.FromProto(envelope.ChunkPatch);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");
         }
       }
+    }
+
+    /// <summary>
+    /// A loggable description of an envelope.
+    /// </summary>
+    /// <remarks>
+    /// Protobuf's own <c>ToString</c> escapes every byte of a <c>bytes</c> field, so printing a chunk payload
+    /// that way turns three kilobytes of terrain into some fifteen kilobytes of log - per chunk, and a login
+    /// streams over a hundred of them. That is enough to stall the frame that prints it. Chunk-carrying
+    /// envelopes therefore get a summary; everything else keeps the full dump it always had.
+    /// </remarks>
+    private static string Describe(Envelope envelope)
+    {
+      if (envelope.ChunkData != null)
+      {
+        var chunk = envelope.ChunkData;
+        return $"ChunkData({chunk.Pos.X},{chunk.Pos.Y},{chunk.Pos.Z}) rev {chunk.Revision}, " +
+               $"{chunk.Payload.Length} B {chunk.Compression}";
+      }
+
+      if (envelope.ChunkPatch != null)
+      {
+        var patch = envelope.ChunkPatch;
+        return $"ChunkPatch({patch.Pos.X},{patch.Pos.Y},{patch.Pos.Z}) " +
+               $"rev {patch.FromRevision}->{patch.ToRevision}, {patch.Edits.Length} B";
+      }
+
+      if (envelope.ChunkManifest != null)
+      {
+        var manifest = envelope.ChunkManifest;
+        return $"ChunkManifest(reset={manifest.Reset}, +{manifest.Added.Count}, -{manifest.Removed.Count})";
+      }
+
+      return envelope.ToString();
     }
 
     public void SendMessage(ICMSG message)
@@ -425,6 +495,22 @@ namespace BestiaBehemothClient.Bnet.Message
                            data[offset + 3];
 
         offset += 4;
+
+        // A length read off the wire must never size an allocation unchecked. The server frames nothing above
+        // MaxFrameLength and refuses anything larger inbound, so a length outside that range means the stream
+        // is desynchronised or hostile - and either way the framing is unrecoverable, because there is no way
+        // to know where the next real frame begins. Drop the connection instead of allocating what it asked
+        // for. Chunk payloads are the first frames here big enough for this to be worth stating.
+        if (messageLength < 0 || messageLength > MaxFrameLength)
+        {
+          GD.PrintErr(
+            $"BnetSocket: frame claims {messageLength} bytes, over the {MaxFrameLength} limit. " +
+            "The stream is desynchronised; disconnecting.");
+
+          _receiveBuffer.SetLength(0);
+          _shouldStop = true;
+          return;
+        }
 
         // Check if we have enough data for the complete message
         if (offset + messageLength > data.Length)

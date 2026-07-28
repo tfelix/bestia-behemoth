@@ -29,8 +29,8 @@ regression harness.
 | 9 | Economy + NPC distribution | **not started** | — |
 | 10 | History simulation | **not started** | — |
 | 11 | Glacial features | **done** | `geo/GlacialStage.kt` |
-| 12 | Distribution & caching | **partial** — cache tiers, delta, baking done; sharding/queue/gRPC not | `store/` |
-| 13 | Client-side base generation | **partial** — base hashing and version gate done; wire format not | `store/` |
+| 12 | Distribution & caching | **partial** — cache tiers, delta, baking done and wired to the server; no delta persistence, no sharding/queue/gRPC | `store/`, zone-server `world/stream/` |
+| 13 | Client-side base generation | **partial** — merged-RLE wire format, base hashing and version gate done; no client-side generator | `store/`, zone-server `world/stream/`, client `Game/World/` |
 
 Steps 8, 9 and 10 are one subsystem in practice and are deferred as a unit: buildings need zoning,
 zoning needs an economy, and the economy's shape comes out of the history. Doing any one of them
@@ -100,8 +100,18 @@ start** by default. That is the enforcement of this document's "once you ship, f
 rule: player edits are deltas over a generated base, so booting against a shifted base would move the ground
 under them, and by the time anyone noticed the old base would be gone.
 
-What is *not* yet done: no chunk message in `bnet-messages`, no chunk handler, no delta persistence and no
-client-side rendering.
+**Chunk streaming is wired.** `net.bestia.zone.world.stream` owns the `ChunkCache` → `ChunkStore` →
+`DerivedStore` chain that this module had never been asked for, and streams merged RLE chunks to the client
+over seven new `bnet-messages` in the MAP range. The protocol is *announce, then serve on request*: a
+`ChunkManifestSMSG` lists `(position, revision)` pairs for the view volume — about 1.5 kB for 121 chunks
+against ~375 kB of payload — and the client asks only for what it does not already hold. Edits travel as
+`ChunkPatchSMSG`, five bytes per voxel, serialised once and fanned out to the chunk's subscriber set as
+retained Netty duplicates: thirty players in range of a ten-voxel edit cost about 1.5 kB between them rather
+than thirty re-sent chunks. `/setblock` is the development trigger, gated on a new `Authority.TERRAIN`.
+
+What is *not* yet done: no delta persistence, and no client-side rendering — the Godot client decodes chunks
+and prints them. Nothing yet *queries* the derived structures for gameplay, though the streaming layer does
+invalidate them on every edit and pays for their rebuild out of a per-tick budget.
 
 `zone-server/src/main/kotlin/net/bestia/zone/navigation/` is a separate unused stack — a 2.5D `NavGrid` of
 `Tile(height, canWalkLeft/Right/Up/Down)` with an A* over it — which `derived/WalkableTile` supersedes for
@@ -201,8 +211,10 @@ world a fixed margin would eat the place.
 `wrapX` is on by default and `wrapY` is off, and not merely for want of implementing it: temperature comes
 from latitude, so wrapping north to south walks one pole straight into the other. `core/WorldWrap.kt` holds
 the coordinate maths — floor-mod normalisation, signed shortest-path deltas, chunk normalisation (never on
-z; up is not a loop). **The ECS does not call it yet**: movement, interest management and pathing still use
-naive subtraction, so two players ten metres apart across the seam currently read as a world apart.
+z; up is not a loop). **Chunk streaming is its first caller** — every chunk address, computed or client-supplied,
+goes through `normalise` before it reaches the generator, so walking off the eastern edge streams the western
+terrain. **The rest of the ECS still does not call it**: movement, interest management and pathing use naive
+subtraction, so two players ten metres apart across the seam read as a world apart.
 
 ### Deliberate deviations
 
@@ -1099,8 +1111,11 @@ Anything the server is authoritative over needs the server's own view of geometr
 
 > **Implemented** as `store/ChunkStore.merged()`, which is the only way to read a chunk — there is no API
 > that hands out a base without its delta, so the authoritative view is the default rather than the
-> disciplined choice. **Not yet wired into the zone-server**, which is the step that makes this true of the
-> running game rather than only of the module.
+> disciplined choice. **Now wired into the zone-server** by `world/stream/ChunkService`, which owns the one
+> `ChunkStore` for the running world and is the only path to a voxel edit — so the state the client is shown
+> and the state the server will answer line of sight from are the same object rather than two that agree.
+> It lives on the `zone-tick` thread, because `ChunkStore`, `ChunkDelta` and `DerivedStore` each assume a
+> single owner; inbound requests and edits are queued on the Netty threads and drained by the tick.
 
 The delta-merge cost itself is a non-issue. A chunk is 32×32×256 ≈ 262k voxels; overlaying a few hundred or few thousand edits onto a decoded base is microseconds. Even 100k edits in one chunk is memcpy-scale. **The expensive part is regenerating the base** (erosion, feature stamping, scatter — milliseconds to tens of milliseconds), which is why the cache tiers exist. Optimize base regeneration and caching; ignore merge cost.
 
@@ -1114,10 +1129,19 @@ Given the server holds merged state anyway, the wire format is a separate questi
 
 **The hard prerequisite:** the client must produce bit-identical base chunks to the server. Same pipeline version, same RNG, same float behaviour, forever, across every platform shipped. If the client is C++/Rust everywhere you can probably hold that line. A WASM or mobile client with a different FP path, or a client one patch behind, gives you **silent desyncs** — the player sees ground where the server sees air, walks into a wall that isn't there, and the bug reports are incomprehensible.
 
-> **Partly implemented.** `store/VersionGate.kt` and `BaseHash` in `store/ChunkStore.kt` are the two
-> mitigations below. The wire format is not here and neither is any client-side generator — this is the
-> safety apparatus, built first so that shipping base-plus-delta later is a protocol change rather than a
-> correctness gamble.
+> **Merged RLE chunks ship, as advised.** `ChunkDataSMSG` carries `RleCodec`'s output verbatim, deflated only
+> when that helps — a surface chunk is ~14.7 kB encoded and ~3.1 kB deflated, while a uniform underground one
+> is thirteen bytes and *grows* to nineteen if compressed, so the compression choice is a per-payload flag
+> rather than a policy. The `Encoding` field exists so the format can move without consuming a
+> `PipelineVersion` component.
+>
+> **Base-plus-delta is still deferred**, as this section says it should be. There is no client-side generator,
+> so `base_hash` rides along in every chunk message unused: it is there from the start so that shipping
+> base-plus-delta later is a protocol addition rather than a correctness gamble. The Godot client is C#, which
+> is exactly the "different FP path" case this section warns about, so the deferral is not merely about
+> traffic numbers.
+>
+> `store/VersionGate.kt` and `BaseHash` are the two mitigations below.
 >
 > `PipelineVersion` is deliberately **three separately-diagnosable components** rather than one opaque
 > number, because they fail for different reasons and have different remedies: a pipeline mismatch is
@@ -1177,10 +1201,14 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 > tiles per call. So the zone thread never takes a rebuild hitch, at the cost of pathing being briefly
 > wrong — which is the trade this section argues for, made explicit and testable.
 >
+> `ChunkService` is now the `invalidate`/`rebuild` half of that loop for real: `ChunkStore`'s `onChanged` hook
+> marks the edited chunk stale and `ChunkStreamSystem` spends `derived-rebuilds-per-tick` on the queue every
+> tick, so the budget is a running property of the server rather than a tested capability.
+>
 > Not implemented: a settlement occupancy grid (nothing occupies settlements yet), navmesh
 > *polygonisation* — walkable spans are the substrate a navmesh would be built from, not the mesh itself —
-> and any consumer at all. Nothing in the zone-server queries these yet; they are built and tested but not
-> yet wired to movement validation, line of sight or pathing.
+> and any *reader*. The structures are kept fresh but nothing consults them: movement validation, line of
+> sight and pathing still do not query them, so they are maintained for a consumer that does not exist yet.
 
 ### Summary of the split
 
@@ -1194,10 +1222,20 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 | Vector feature set | Full, in RAM | Full, in RAM if generating base |
 | History / NPC state | Authoritative, LOD-expanded | Received as needed |
 
-> Of this table, the module currently provides the *server* column for merged state, base generation, delta
-> storage, and the vector feature set, plus walkable tiles and an opacity grid standing in for navmesh and
-> LOS. The client column is entirely unbuilt, and nothing in either column is connected to the zone-server
-> yet — `worldgen/` is a library that has never been asked a question by the running game.
+> The *server* column holds for merged state, base generation, delta storage (in memory — see below) and the
+> vector feature set, plus walkable tiles and an opacity grid standing in for navmesh and LOS, and all of it
+> is now connected to the running game through `world/stream/`.
+>
+> The *client* column holds only its first row: the Godot client keeps a local copy of merged voxels for the
+> session, decoding `RleCodec` payloads in C# and applying patches against a per-chunk revision. It does not
+> generate base terrain, holds no vector features, and renders nothing yet — it prints what it decodes. Delta
+> storage is received and never trusted, which is free here because the client cannot write to it at all.
+>
+> The one row that does not hold as written is **delta storage being persisted**: `ChunkStore` keeps deltas in
+> a `LinkedHashMap` and the database is in-memory with `ddl-auto: create`, so edits die with the process. That
+> is consistent rather than broken for now — a restart resets the delta *and* the revision to zero together,
+> which is what a cached client would be holding. It stops being consistent the moment deltas outlive a
+> restart, so **whatever persists a delta must persist its revision with it.**
 
 ---
 
@@ -1214,7 +1252,15 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 9. ⬜ **Economy + NPC distribution.** Settlements come alive.
 10. ⬜ **History simulation.** Retrofit ruins, artifacts, and grudges into the existing world.
 11. ✅ **Glacial features.** Optional; the vector machinery already exists by now, so it's one stage rather than a subsystem. *Also held — one stage, and fjord sills fell out of flux-proportional overdeepening rather than needing their own rule.*
-12. ◐ **Distribution & caching.** A single-node pipeline that's a pure function distributes almost mechanically once the purity discipline is in place from step 1. *Caching, delta and baking done; sharding, work queue and gRPC belong to the server.*
-13. ◐ **Client-side base generation.** Bandwidth optimization only, with base hashing and version gating, once you have real traffic numbers. *Base hashing and the version gate are built; the wire format waits on traffic numbers, as advised.*
+12. ◐ **Distribution & caching.** A single-node pipeline that's a pure function distributes almost mechanically once the purity discipline is in place from step 1. *Caching, delta and baking done and now driven by the zone-server; sharding, work queue and gRPC belong to the server. Delta persistence still missing.*
+13. ◐ **Client-side base generation.** Bandwidth optimization only, with base hashing and version gating, once you have real traffic numbers. *Merged RLE chunks ship, which is what this step said to do first; base hashing and the version gate are built and ride along unused. A client-side generator waits on traffic numbers — and on the client not being C#, whose float path is the risk this step names.*
+
+The one thing the ordering did not anticipate: **announcing before sending.** Step 13 frames bandwidth as a
+choice between merged chunks and base-plus-delta, but most of the saving turned out to be available without
+either — a manifest of `(position, revision)` pairs costs about 1.5 kB where the chunks it describes cost
+375 kB, so a client re-entering somewhere it has been downloads nothing. That needs no client-side generator
+and no bit-identical floats; it needs only that the server know what each client holds. It is also what makes
+patches possible at all, which is the larger win: an edit seen by thirty players costs thirty copies of fifty
+bytes instead of thirty re-sent chunks.
 
 The ordering matters. Step 1's determinism discipline is what makes step 12 nearly free — defer purity and you'll rewrite everything. Step 2's vector primitives are what make rivers, roads, glaciers, and settlement grading all one problem instead of four, and what make chunk seams a non-issue rather than a permanent source of bugs.

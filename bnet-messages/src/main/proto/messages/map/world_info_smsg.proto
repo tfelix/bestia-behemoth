@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WorldInfoSMSGProto";
+
+/**
+ * The world's shape and identity, sent once per connection as soon as it is authenticated.
+ *
+ * Everything here is needed before a chunk payload means anything: the client cannot turn a position
+ * into a chunk address without the chunk dimensions, and cannot turn a voxel index back into an
+ * elevation without the voxel size and the fact that index zero is sea level.
+ *
+ * ### The seed is deliberately absent
+ *
+ * The client does not generate base terrain, so it has no use for the seed - and the seed is exactly
+ * what would let it precompute every ore deposit in the world without prospecting for any of them.
+ * It becomes sendable if and when client-side base generation ships, and not before.
+ */
+message WorldInfoSMSG {
+  string name = 1;
+
+  int32 width_cells = 2;
+  int32 height_cells = 3;
+  double cell_size_metres = 4;
+
+  int32 chunk_size = 10;
+  int32 chunk_height = 11;
+  double voxel_size_metres = 12;
+  double sea_level_metres = 13;
+
+  /** East and west are the same place. */
+  bool wrap_x = 20;
+  /** North and south are the same place. Off in every world so far - latitude drives temperature. */
+  bool wrap_y = 21;
+
+  /**
+   * The three separately-diagnosable components of the version vector, not one opaque number: a
+   * pipeline mismatch is different terrain, a palette mismatch is the same terrain made of the wrong
+   * rock, and a format mismatch cannot be decoded at all. A client that only ever receives merged
+   * chunks - which is every client today - can ignore the first two and must honour the third.
+   */
+  uint64 pipeline_version = 30;
+  uint64 block_palette_version = 31;
+  uint32 chunk_format_version = 32;
+
+  /** How far the server will stream, in chunks from the player's own. Informational; the server decides. */
+  int32 view_radius_chunks = 40;
+}

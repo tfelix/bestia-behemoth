@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkProto";
+
+/**
+ * A chunk address.
+ *
+ * Three signed ints rather than the folded `ChunkPos.key()` the server uses internally: that key masks
+ * each axis to 21 *unsigned* bits, and z is routinely negative because voxel index 0 sits at sea level
+ * rather than at a world floor. A folded key cannot carry that, so it stays a cache key and never
+ * reaches the wire.
+ */
+message ChunkPos {
+  sint32 x = 1;
+  sint32 y = 2;
+  sint32 z = 3;
+}
+
+/**
+ * A chunk address plus the revision of its content, which is what a manifest is made of.
+ *
+ * The revision starts at zero for an untouched chunk and increments once per applied edit batch. A
+ * client that already holds this (position, revision) pair needs nothing sent; that comparison is the
+ * entire point of announcing a manifest before shipping any payload.
+ */
+message ChunkRef {
+  ChunkPos pos = 1;
+  uint32 revision = 2;
+}
+
+/**
+ * How the bytes in a chunk payload are encoded.
+ *
+ * Deliberately separate from the pipeline/palette/format version vector: the encoding can be replaced
+ * without invalidating a single stored chunk, so it must not consume a version component.
+ */
+enum ChunkEncoding {
+  /** A payload that does not say how it was encoded cannot be decoded; refuse rather than guess. */
+  CHUNK_ENCODING_UNSPECIFIED = 0;
+
+  /** Run-length encoding, version 2 - the format `RleCodec` writes. Self-describing about its dimensions. */
+  CHUNK_ENCODING_RLE_V2 = 1;
+}
+
+/**
+ * Whether a payload was compressed on top of its encoding.
+ *
+ * Zero is `NONE` on purpose, mirroring the framing byte in `DeflatedBlobStore`: a uniform underground
+ * chunk encodes to thirteen bytes and *grows* to nineteen if deflated, and there are a very great many
+ * of those. Compressing unconditionally would make the commonest chunk in the world bigger.
+ */
+enum ChunkCompression {
+  CHUNK_COMPRESSION_NONE = 0;
+  CHUNK_COMPRESSION_DEFLATE = 1;
+}

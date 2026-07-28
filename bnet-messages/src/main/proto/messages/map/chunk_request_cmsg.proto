@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkRequestCMSGProto";
+
+/**
+ * Asks for the payloads of chunks the client does not hold at the revision the manifest announced.
+ *
+ * The server answers only for positions currently in this account's own announced set, and drops the
+ * rest without an error: a stale request is a legitimate race - the manifest can move while this
+ * message is in flight - as often as it is an abuse, and the client recovers from either by acting on
+ * the next manifest. Sustained over-asking is rate-limited by a token bucket rather than answered.
+ *
+ * Also the repair path. A client whose chunk state has diverged - a patch arrived whose `from_revision`
+ * did not match what it held - discards that chunk and asks for it again here.
+ */
+message ChunkRequestCMSG {
+  repeated ChunkPos chunks = 1;
+}

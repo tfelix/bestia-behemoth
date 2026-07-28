@@ -24,6 +24,7 @@ import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.DeclinePartyInviteCMSG
 import net.bestia.zone.socket.PingCMSG
+import net.bestia.zone.world.stream.ChunkRequestCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
@@ -64,6 +65,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasRequestLogout() -> RequestLogoutCMSG.Companion.fromBnet(accountId, envelope.requestLogout)
       envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
+      envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

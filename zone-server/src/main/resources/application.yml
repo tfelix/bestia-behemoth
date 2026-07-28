@@ -32,6 +32,45 @@ worldgen:
   # Abort the boot if this build would generate different terrain than the stored world was born with.
   refuse-on-pipeline-mismatch: true
 
+# Terrain streaming to the client. Runtime settings: unlike `worldgen` above, none of these affect what the
+# terrain *is*, so they can change on a restart with no consequence.
+chunk-stream:
+  # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 5 gives an 11x11 disc -
+  # a 352 m square, 176 m from centre to edge. Cost is quadratic: 7 would be 225 chunks rather than 121.
+  view-radius-chunks: 5
+  # Chunk payloads one connection may be sent per tick. At tick-rate 20 that is 80/s, so a first load of ~121
+  # chunks spreads over about a second and a half. The cap is as much for the client - it drains its whole
+  # receive queue in one frame - as for the socket.
+  chunks-per-tick-per-player: 4
+  # Token bucket for chunk requests. The burst has to cover a client legitimately asking for a whole manifest
+  # at once on login; the refill is what limits sustained asking.
+  request-burst: 512
+  request-refill-per-tick: 2
+  # Payloads below this are not compressed: deflate has a fixed overhead and a uniform underground chunk is
+  # 13 bytes encoded and 19 deflated.
+  deflate-minimum-bytes: 64
+  deflate-level: 9
+  # Encoded wire payloads kept (~3 kB each). This is what makes thirty players entering the same area cost one
+  # encode between them rather than thirty, so it should exceed one view volume comfortably.
+  encoded-cache-capacity: 1024
+  # Decoded chunks kept for the server's own voxel queries. Half a megabyte each, so this sets the footprint:
+  # 128 is about 64 MB.
+  hot-chunk-capacity: 128
+  # Cached vertical slab ranges, one per horizontal chunk column (two ints each, so this can be generous).
+  # Computing one means a feature query plus ~1000 noise evaluations; never invalidated, because the
+  # heightfield it derives from is immutable and player edits change voxels rather than terrain height.
+  slab-cache-capacity: 16384
+  # New slab ranges computed per tick, across all players. The cache makes a repeated manifest free, but the
+  # first one over fresh ground still has to sample every column in the view volume - doing all 121 in one
+  # tick stalls the zone thread for whole ticks. So a manifest grows over a second or so instead, which the
+  # protocol already supports since it is a diff. The player's own column is never deferred.
+  slab-computations-per-tick: 4
+  # Derived structures (walkable spans, opacity) rebuilt per tick. Queries serve the stale copy until then,
+  # which beats a rebuild hitch on the zone thread every time somebody places a block.
+  derived-rebuilds-per-tick: 2
+  # Whether the /setblock chat command is honoured. It also needs the TERRAIN authority.
+  allow-debug-edits: true
+
 world:
   tick-rate: 20
   parallel-systems: false

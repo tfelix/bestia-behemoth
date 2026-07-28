@@ -42,8 +42,17 @@ var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
+var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
+
+## Client-side terrain streaming: reconciles chunk manifests, decodes payloads, applies patches.
+##
+## Created here in code rather than added to ConnectionManager.tscn, because a scene node needs a
+## resource uid that only the Godot editor can mint. It subscribes to BnetSocket's MessageReceived
+## itself, so no signal wiring in the scene is needed either, and chunk messages never pass through
+## _on_bnet_socket_message_received below.
+var chunk_stream: Node = null
 
 # Signed JWT obtained from the login server, sent to the zone during the auth handshake.
 var _login_token: String = ""
@@ -54,6 +63,13 @@ var selected_master_info: MasterInfo = null
 # Set while we deliberately drop the connection (logout to main menu) so the socket-closed handler
 # routes to the main menu instead of the "connection lost" screen.
 var _intentional_disconnect: bool = false
+
+
+func _ready() -> void:
+	chunk_stream = ChunkStreamManagerScript.new()
+	chunk_stream.name = "ChunkStreamManager"
+	add_child(chunk_stream)
+	chunk_stream.Attach(_socket)
 
 
 func disconnect_from_server() -> void:

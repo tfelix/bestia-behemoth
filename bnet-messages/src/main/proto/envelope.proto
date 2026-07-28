@@ -63,6 +63,12 @@ import "messages/party/party_invite_declined_smsg.proto";
 import "messages/party/party_info_smsg.proto";
 import "messages/party/party_error_smsg.proto";
 import "messages/party/disband_party_smsg.proto";
+import "messages/map/world_info_smsg.proto";
+import "messages/map/block_palette_smsg.proto";
+import "messages/map/chunk_manifest_smsg.proto";
+import "messages/map/chunk_request_cmsg.proto";
+import "messages/map/chunk_data_smsg.proto";
+import "messages/map/chunk_patch_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -89,7 +95,12 @@ message Envelope {
     RequestLogoutCMSG request_logout = 124;
 
     // MAP 200
-    // TBD
+    WorldInfoSMSG world_info = 200;
+    BlockPaletteSMSG block_palette = 201;
+    ChunkManifestSMSG chunk_manifest = 202;
+    ChunkRequestCMSG chunk_request = 203;
+    ChunkDataSMSG chunk_data = 204;
+    ChunkPatchSMSG chunk_patch = 205;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;

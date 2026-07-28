@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkManifestSMSGProto";
+
+/**
+ * The authoritative set of chunks this client is entitled to, as `(position, revision)` pairs.
+ *
+ * This is the cheap half of the protocol and the reason the expensive half is rarely needed: a hundred
+ * and twenty-one refs is about one and a half kilobytes, against roughly three hundred and seventy-five
+ * kilobytes of payload for the same chunks. A client that already holds a listed revision asks for
+ * nothing.
+ *
+ * It is also the gate. The server serves a [ChunkRequestCMSG] only for positions it has announced to
+ * *that* account, so a manifest is simultaneously the client's shopping list and the server's
+ * authorisation set - which is what keeps a pull-based transport from being a way to scrape the map or
+ * to make the server generate arbitrary terrain.
+ */
+message ChunkManifestSMSG {
+  /**
+   * Replace the client's whole set rather than amending it. Set on the first manifest of a session and
+   * after a teleport; a step of ordinary movement sends an amendment instead.
+   *
+   * When set, [removed] is empty and [added] is the complete set - anything the client holds and does
+   * not find in [added] is no longer subscribed.
+   */
+  bool reset = 1;
+
+  /** Chunks entering the set, or already in it at a new revision. */
+  repeated ChunkRef added = 2;
+
+  /** Chunks leaving the set. Empty when [reset] is set, because [added] then says everything. */
+  repeated ChunkPos removed = 3;
+}

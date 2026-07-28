@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkDataSMSGProto";
+
+/**
+ * A whole chunk: the merged authoritative voxels, encoded and optionally compressed.
+ *
+ * "Merged" means base terrain with every player edit already applied. The server has no API that hands
+ * out a base without its delta, so this is the same view it answers line-of-sight and movement
+ * validation from - the client cannot be shown a world the server does not believe in.
+ *
+ * A surface chunk is about fourteen and a half kilobytes encoded and three deflated; a chunk entirely
+ * underground or entirely air is thirteen bytes. Well under the one-megabyte frame ceiling either way,
+ * and one chunk per message keeps it that way regardless of how many are in flight.
+ */
+message ChunkDataSMSG {
+  ChunkPos pos = 1;
+
+  /** The revision these bytes represent. Patches after this one build on it. */
+  uint32 revision = 2;
+
+  ChunkEncoding encoding = 3;
+  ChunkCompression compression = 4;
+
+  bytes payload = 5;
+
+  /**
+   * Hash of the *base* voxels this chunk was generated from, before any delta.
+   *
+   * Unused by a client that does not generate its own base, which is every client today. It is here
+   * from the start so that shipping base-plus-delta later is a protocol addition rather than a
+   * correctness gamble: a client that does generate can compare, and turn what would have been a
+   * silent desync - ground where the server sees air - into a request for the full payload.
+   */
+  fixed64 base_hash = 6;
+}
