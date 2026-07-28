@@ -19,7 +19,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// </para>
   /// </remarks>
   [GlobalClass]
-  public partial class ChunkDataSMSG : ISMSG
+  public partial class ChunkDataSMSG : MapSMSG
   {
     public ChunkKey Key { get; private init; }
 

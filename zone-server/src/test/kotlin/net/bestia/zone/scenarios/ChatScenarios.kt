@@ -145,13 +145,22 @@ class ChatScenarios : BestiaNoSocketScenario() {
     assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
   }
 
+  /**
+   * These two used to send `/mm 10 10` and expect `error.not_supported`, which held only because nothing
+   * implemented `/mm`. They were named as privilege tests but never were: `GameClientMockFactory` gives every
+   * mock client the full authority set, so player1 and player3 are equally privileged and both were simply
+   * failing to match any command. Implementing `/mm` turned that into a failure and exposed it.
+   *
+   * Renamed to say what they check, and pointed at a string nothing will ever claim. Real coverage of the
+   * authority gate needs a client built with a restricted set, which the factory does not expose yet.
+   */
   @Test
-  fun `send privileged chat command when not connected as privileged player echos error`() {
+  fun `an unrecognised chat command echos an error`() {
     clientPlayer3.sendMessage(
       ChatCMSG(
         playerId = clientPlayer3.connectedPlayerId,
         type = ChatCMSG.Type.COMMAND,
-        text = "/mm 10 10",
+        text = "/nosuchcommand 10 10",
       )
     )
 
@@ -162,8 +171,13 @@ class ChatScenarios : BestiaNoSocketScenario() {
     assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
   }
 
+  /**
+   * The other half of the same contract, and the part no test covered: a command that *is* recognised must be
+   * consumed silently. Only the chat layer is under test here - `/mm` queues the move and answers nothing, so
+   * this passes or fails on whether the command was matched at all, not on whether the player ends up anywhere.
+   */
   @Test
-  fun `send privileged chat command when connected as privileged player executes command`() {
+  fun `a recognised chat command is consumed without an error reply`() {
     clientPlayer1.sendMessage(
       ChatCMSG(
         playerId = clientPlayer1.connectedPlayerId,
@@ -172,11 +186,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
       )
     )
 
-    val whisperChatErrorRx = clientPlayer1.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertNull(clientPlayer1.tryGetLastReceived(ChatSMSG::class))
   }
 }
 

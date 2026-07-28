@@ -4,6 +4,8 @@ import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.GetBestiasCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
+import net.bestia.zone.ecs.core.WorldView
+import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.PositionSMSG
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
@@ -29,6 +31,9 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
 
   @Autowired
   private lateinit var playerBestiaRepository: PlayerBestiaRepository
+
+  @Autowired
+  private lateinit var world: WorldView
 
   @Test
   @Order(1)
@@ -95,12 +100,19 @@ class BehemothE2EScenarios : BestiaNoSocketScenario(
   @Test
   @Order(6)
   fun `moving around works and position updates are received`() {
+    // Relative to wherever the master actually is, rather than to the origin. Masters used to start at
+    // Vec3L.ZERO and now start in the middle of the map, so an absolute path was a ninety-kilometre walk that
+    // never produced an update. What this test is about is that a path is accepted and echoed back, and that
+    // holds wherever the player stands.
+    val entityId = connectionInfoService.getSelectedMasterEntityId(clientPlayer1.connectedPlayerId)
+    val from = world.read { get(entityId, Position::class)!!.toVec3L() }
+
     val msg = MoveActiveEntityCMSG(
       playerId = clientPlayer1.connectedPlayerId,
       path = listOf(
-        Vec3L(0, 1, 0),
-        Vec3L(0, 2, 0),
-        Vec3L(0, 3, 0)
+        Vec3L(from.x, from.y + 1, from.z),
+        Vec3L(from.x, from.y + 2, from.z),
+        Vec3L(from.x, from.y + 3, from.z)
       )
     )
 

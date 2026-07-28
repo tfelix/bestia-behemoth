@@ -32,18 +32,20 @@ message WorldInfoSMSG {
 
   /** East and west are the same place. */
   bool wrap_x = 20;
-  /** North and south are the same place. Off in every world so far - latitude drives temperature. */
+  /** North and south are the same place. */
   bool wrap_y = 21;
 
   /**
-   * The three separately-diagnosable components of the version vector, not one opaque number: a
-   * pipeline mismatch is different terrain, a palette mismatch is the same terrain made of the wrong
-   * rock, and a format mismatch cannot be decoded at all. A client that only ever receives merged
-   * chunks - which is every client today - can ignore the first two and must honour the third.
+   * One number covering everything a client has to agree with the server about to read a chunk: the
+   * RLE encoding and the block palette the ids in it index into.
+   *
+   * The server tracks the two separately, plus a third for the generation pipeline, because it has to
+   * diagnose them separately - a stale cache entry is a different problem from an unreadable blob. A
+   * client that receives only merged chunks, which is every client today, cannot act on that
+   * distinction: either it can decode what arrives and name the materials, or it must be updated.
+   * Sending the vector would only invite it to make a decision it has no basis for.
    */
-  uint64 pipeline_version = 30;
-  uint64 block_palette_version = 31;
-  uint32 chunk_format_version = 32;
+  uint32 chunk_engine_version = 30;
 
   /** How far the server will stream, in chunks from the player's own. Informational; the server decides. */
   int32 view_radius_chunks = 40;

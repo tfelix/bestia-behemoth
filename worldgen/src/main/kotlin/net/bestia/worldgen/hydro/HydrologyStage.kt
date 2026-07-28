@@ -72,6 +72,15 @@ data class HydrologyParams(
   val shoulderCoefficient: Double = 24.0,
 
   /**
+   * Narrowest and shallowest channel worth cutting, in voxels. See [ChannelGauge] for why these exist.
+   *
+   * In voxels rather than metres because what they defend against is the grid's resolution, not anything about
+   * water: the hydraulic geometry above is correct and still produces channels this pipeline cannot draw.
+   */
+  val minChannelWidthVoxels: Double = 3.0,
+  val minChannelDepthVoxels: Double = 2.0,
+
+  /**
    * Station and vertex spacing along a river centerline, in metres.
    *
    * Also the finest meander the geometry can hold, which is what really sets it: at 1 km cells the
@@ -99,6 +108,9 @@ data class HydrologyParams(
     require(runoffCoefficient in 0.0..1.0) { "runoffCoefficient must be in [0,1]" }
     require(channelCatchmentArea > 0.0) { "channelCatchmentArea must be positive" }
     require(stationSpacing > 0.0) { "stationSpacing must be positive" }
+    require(minChannelWidthVoxels >= 0.0 && minChannelDepthVoxels >= 0.0) {
+      "channel gauge floors must not be negative"
+    }
   }
 }
 
@@ -214,6 +226,10 @@ class HydrologyStage(
     val nextId = FeatureIds.allocator(id)
     val features = ArrayList<VectorFeature>(graph.reachCount + graph.confluences.size)
 
+    // The one place the world's voxel size reaches into hydrology: a channel the grid cannot hold is a channel
+    // that renders as a dashed line rather than as a river. See ChannelGauge.
+    val gauge = ChannelGauge(params, ctx.config.voxelSize)
+
     fun centreOf(cell: Int) = Vec2d(
       (region.minX + cell % region.width + 0.5) * metres,
       (region.minY + cell / region.width + 0.5) * metres
@@ -239,7 +255,7 @@ class HydrologyStage(
       val flow = DoubleArray(cellCount) { discharge.data[reach.cells[it]] }
 
       val meanFlow = flow.average()
-      val meanWidth = widthOf(meanFlow)
+      val meanWidth = gauge.widthOf(meanFlow)
       val meanSlope = (bed.first() - bed.last()) / raw.length
       val amplitude = Meander.amplitudeFor(
         meanWidth, meanSlope, params.meanderWidthFactor, params.meanderAmplitudeCap
@@ -266,17 +282,17 @@ class HydrologyStage(
           centerline = centerline,
           stationSpacing = params.stationSpacing,
           bedElevation = { s -> Tables.linear(bed, positionOf(s)) },
-          width = { s -> widthOf(Tables.linear(flow, positionOf(s))) },
-          depth = { s -> depthOf(Tables.linear(flow, positionOf(s))) },
-          shoulder = { s -> shoulderOf(Tables.linear(flow, positionOf(s))) }
+          width = { s -> gauge.widthOf(Tables.linear(flow, positionOf(s))) },
+          depth = { s -> gauge.depthOf(Tables.linear(flow, positionOf(s))) },
+          shoulder = { s -> gauge.shoulderOf(Tables.linear(flow, positionOf(s))) }
         )
       )
     }
 
     for (cell in graph.confluences) {
       val flow = discharge.data[cell]
-      val width = widthOf(flow)
-      val depth = depthOf(flow)
+      val width = gauge.widthOf(flow)
+      val depth = gauge.depthOf(flow)
       val floor = network.filled.data[cell] - depth
       val radius = max(params.stationSpacing, width * params.confluenceRadiusFactor)
 
@@ -295,16 +311,6 @@ class HydrologyStage(
 
     return features
   }
-
-  /** Hydraulic geometry: wetted width in metres from discharge in cubic metres per second. */
-  private fun widthOf(discharge: Double) =
-    params.widthCoefficient * discharge.coerceAtLeast(0.0).pow(0.5)
-
-  private fun depthOf(discharge: Double) =
-    params.depthCoefficient * discharge.coerceAtLeast(0.0).pow(0.4)
-
-  private fun shoulderOf(discharge: Double) =
-    max(widthOf(discharge), params.shoulderCoefficient * discharge.coerceAtLeast(0.0).pow(0.35))
 
   companion object {
     val ID = StageId("hydrology")

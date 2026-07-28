@@ -2,6 +2,7 @@ package net.bestia.worldgen.store
 
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
 
 /**
@@ -17,16 +18,15 @@ import net.bestia.worldgen.voxel.RleCodec
  * A single opaque number would be simpler to compare and useless to diagnose; a mismatch would say only
  * "incompatible", and the difference between "your client is one patch behind" and "your client cannot read
  * this format" is the difference between a useful message and a support ticket.
+ *
+ * **Server-side only.** This is a cache key and a boot gate; what goes over the wire is the single
+ * [ChunkEngine.VERSION], because a client that receives merged chunks cannot act on the distinction.
  */
 data class PipelineVersion(
   val pipelineVersion: Long,
   val blockPaletteVersion: Long,
   val chunkFormatVersion: Int
 ) {
-
-  /** One number for a log line or a metric label. Never for the comparison itself. */
-  fun fingerprint(): Long =
-    GenRng.hash(pipelineVersion, blockPaletteVersion, chunkFormatVersion.toLong())
 
   override fun toString() =
     "pipeline=${pipelineVersion.toString(16)} palette=${blockPaletteVersion.toString(16)} " +

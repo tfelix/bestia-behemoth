@@ -527,6 +527,59 @@ class StandardWorldTest {
   }
 
   @Test
+  fun `the sea surface is in the vertical chunk below sea level, not the one chunkZOf names`() {
+    // A subscriber that wants to draw the sea has to be told which vertical chunk it is in, and the obvious
+    // answer - `chunkZOf(seaLevel)` - is wrong by one slab. Water fills *up to* sea level, so at the default
+    // sea level of zero the topmost water voxel is -1 and `chunkZOf(0.0)` is 0: a caller using it subscribes to
+    // a slab of pure air and never receives the surface. Asserted against the materialiser rather than derived
+    // on paper, because the whole point is that the two conventions disagree.
+    val config = world.config
+    assertEquals(0, config.chunkZOf(config.seaLevel), "the premise: chunkZOf names slab 0")
+
+    val ocean = deepOceanChunk()
+    val topWaterVoxel = Math.ceil(config.seaLevel / config.voxelSize).toInt() - 1
+
+    assertEquals(
+      -1,
+      Math.floorDiv(topWaterVoxel, config.chunkHeight),
+      "the slab holding the topmost water voxel"
+    )
+
+    // Slab -1 has water at its ceiling; slab 0 has nothing at all. Those two together are what the client needs:
+    // the full voxels below the interface and the empty one above it, or the mesher has no sign change to find.
+    val below = world.materializer.materialize(ChunkPos(ocean.first, ocean.second, -1))
+    val above = world.materializer.materialize(ChunkPos(ocean.first, ocean.second, 0))
+
+    // Ice rather than water where the sea is cold enough, which the polar ocean margin makes likely - either way
+    // it is the sea surface, and either way it is in slab -1.
+    assertTrue(
+      below[0, 0, config.chunkHeight - 1] in setOf(BlockType.WATER, BlockType.ICE),
+      "the top voxel of slab -1 over deep ocean should be the sea surface, was " +
+          below[0, 0, config.chunkHeight - 1]
+    )
+    assertEquals(
+      0,
+      above.countOf(BlockType.WATER) + above.countOf(BlockType.ICE),
+      "slab 0 is above the waterline and holds no sea at all - which is why subscribing to it draws nothing"
+    )
+  }
+
+  /** A chunk column whose terrain is far enough below sea level that the water surface is nowhere near it. */
+  private fun deepOceanChunk(): Pair<Int, Int> {
+    val config = world.config
+    val chunksAcross = (config.widthMetres / config.chunkExtent).toInt()
+
+    for (chunkY in 0 until chunksAcross step 13) {
+      for (chunkX in 0 until chunksAcross step 13) {
+        val heights = world.columns.heights(ChunkPos(chunkX, chunkY, 0), 0)
+        if (heights[0, 0] < -config.chunkHeight) return chunkX to chunkY
+      }
+    }
+
+    throw AssertionError("no column deeper than one slab below sea level; the ocean margin should guarantee one")
+  }
+
+  @Test
   fun `soil never appears below bedrock in a column`() {
     val chunk = world.materializer.materializeSurface(60, 44)
     val config = world.config

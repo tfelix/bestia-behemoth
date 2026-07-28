@@ -46,14 +46,57 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// Optional so that the decode path can still be exercised headlessly, which is how the wire format was
     /// verified before there was anything to look at.
+    ///
+    /// <para><b>Assigning this replays everything already received</b>, and that is not a convenience - it is
+    /// the only thing that makes the renderer work at all. The server sends the world info the instant a
+    /// connection authenticates, which is during master selection; the Game scene that owns the renderer does
+    /// not exist until a master has been chosen. So the renderer is always attached *after* the message that
+    /// configures it has come and gone, and a plain setter would leave it permanently unconfigured -
+    /// silently, because an unconfigured renderer discards chunks rather than failing.
+    /// </para>
     /// </remarks>
-    [Export] public TerrainRenderer Renderer { get; set; }
+    [Export]
+    public TerrainRenderer Renderer
+    {
+      get => IsUsable(_renderer) ? _renderer : null;
+
+      set
+      {
+        _renderer = value;
+
+        if (!IsUsable(value))
+        {
+          return;
+        }
+
+        value.Configure(Store, WorldInfo);
+
+        // Anything decoded before the renderer existed is held but undrawn, and no further message will
+        // mention it. Without this a player sees terrain only from wherever they happen to walk next.
+        foreach (var key in Store.HeldKeys())
+        {
+          value.Invalidate(key);
+        }
+      }
+    }
+
+    private TerrainRenderer _renderer;
+
+    /// <summary>
+    /// Whether a renderer reference is still safe to call.
+    /// </summary>
+    /// <remarks>
+    /// The renderer belongs to the Game scene and is freed when that scene is torn down on logout, but this
+    /// manager is an autoload and outlives it. A freed Godot object leaves its C# wrapper non-null, so
+    /// <c>?.</c> does not protect against it and the next call throws <c>ObjectDisposedException</c> - on the
+    /// second login of a session, which is a long way from the code that caused it.
+    /// </remarks>
+    private static bool IsUsable(TerrainRenderer renderer) =>
+      renderer != null && GodotObject.IsInstanceValid(renderer);
 
     public ClientChunkStore Store { get; } = new();
 
     public WorldInfoSMSG WorldInfo { get; private set; }
-
-    public BlockPaletteSMSG Palette { get; private set; }
 
     private BnetSocket _socket;
 
@@ -110,12 +153,6 @@ namespace BestiaBehemothClient.Game.World
           OnWorldInfo(info);
           break;
 
-        case BlockPaletteSMSG palette:
-          Palette = palette;
-          Renderer?.SetPalette(palette);
-          GD.Print($"[world] palette: {palette.Count} materials");
-          break;
-
         case ChunkManifestSMSG manifest:
           OnManifest(manifest);
           break;
@@ -135,21 +172,22 @@ namespace BestiaBehemothClient.Game.World
       WorldInfo = info;
       GD.Print($"[world] {info}");
 
-      if (info.ChunkFormatVersion != RleCodec.Version)
+      if (info.ChunkEngineVersion != ChunkEngine.Version)
       {
-        // The one version component that matters to a client which does not generate its own terrain: a
-        // pipeline or palette mismatch would give it different rock, but a format mismatch means it cannot
-        // read a single chunk. Say so plainly instead of failing later, once per chunk, inside the decoder.
+        // Said plainly here rather than discovered later, once per chunk, inside the decoder - and it covers
+        // the quieter half too: a palette this client disagrees with decodes perfectly and draws the wrong
+        // rock, which looks like a rendering bug rather than a version mismatch.
         GD.PushError(
-          $"[world] server sends chunk format {info.ChunkFormatVersion}, this client reads " +
-          $"{RleCodec.Version}. No chunk will decode until the client is updated.");
+          $"[world] server speaks chunk engine v{info.ChunkEngineVersion}, this client speaks " +
+          $"v{ChunkEngine.Version}. Terrain will not decode, or will decode to the wrong materials, " +
+          "until the client is updated.");
       }
 
       // A new world, or a reconnect: nothing held can be assumed to still be right.
       Store.Clear();
       _toDecode.Clear();
 
-      Renderer?.Configure(Store, info, Palette);
+      Renderer?.Configure(Store, info);
     }
 
     private void OnManifest(ChunkManifestSMSG manifest)
@@ -204,7 +242,7 @@ namespace BestiaBehemothClient.Game.World
           GD.Print(
             $"[chunk] {data.Key} rev {data.Revision}  {data.PayloadBytes} B" +
             $"{(data.Deflated ? " deflated" : "")} -> {chunk.Volume} voxels\n" +
-            $"        {Store.Describe(data.Key, Palette)}");
+            $"        {Store.Describe(data.Key)}");
         }
       }
       catch (Exception ex)
@@ -228,7 +266,7 @@ namespace BestiaBehemothClient.Game.World
           GD.Print(
             $"[patch] {patch.Key} rev {patch.FromRevision}->{patch.ToRevision}  " +
             $"{patch.Edits.Length} B, up to {edits} edits\n" +
-            $"        {Store.Describe(patch.Key, Palette)}");
+            $"        {Store.Describe(patch.Key)}");
         }
 
         return;

@@ -24,20 +24,19 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0ItQC",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IpsC",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
             "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhgKEGNlbGxfc2l6ZV9tZXRy",
             "ZXMYBCABKAESEgoKY2h1bmtfc2l6ZRgKIAEoBRIUCgxjaHVua19oZWlnaHQY",
             "CyABKAUSGQoRdm94ZWxfc2l6ZV9tZXRyZXMYDCABKAESGAoQc2VhX2xldmVs",
             "X21ldHJlcxgNIAEoARIOCgZ3cmFwX3gYFCABKAgSDgoGd3JhcF95GBUgASgI",
-            "EhgKEHBpcGVsaW5lX3ZlcnNpb24YHiABKAQSHQoVYmxvY2tfcGFsZXR0ZV92",
-            "ZXJzaW9uGB8gASgEEhwKFGNodW5rX2Zvcm1hdF92ZXJzaW9uGCAgASgNEhoK",
-            "EnZpZXdfcmFkaXVzX2NodW5rcxgoIAEoBUIrChVuZXQuYmVzdGlhLmJuZXQu",
-            "cHJvdG9CEldvcmxkSW5mb1NNU0dQcm90b2IGcHJvdG8z"));
+            "EhwKFGNodW5rX2VuZ2luZV92ZXJzaW9uGB4gASgNEhoKEnZpZXdfcmFkaXVz",
+            "X2NodW5rcxgoIAEoBUIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEldvcmxk",
+            "SW5mb1NNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "PipelineVersion", "BlockPaletteVersion", "ChunkFormatVersion", "ViewRadiusChunks" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks" }, null, null, null, null)
           }));
     }
     #endregion
@@ -103,9 +102,7 @@ namespace Bnet {
       seaLevelMetres_ = other.seaLevelMetres_;
       wrapX_ = other.wrapX_;
       wrapY_ = other.wrapY_;
-      pipelineVersion_ = other.pipelineVersion_;
-      blockPaletteVersion_ = other.blockPaletteVersion_;
-      chunkFormatVersion_ = other.chunkFormatVersion_;
+      chunkEngineVersion_ = other.chunkEngineVersion_;
       viewRadiusChunks_ = other.viewRadiusChunks_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -231,7 +228,7 @@ namespace Bnet {
     public const int WrapYFieldNumber = 21;
     private bool wrapY_;
     /// <summary>
-    ///* North and south are the same place. Off in every world so far - latitude drives temperature. 
+    ///* North and south are the same place. 
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -242,46 +239,26 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "pipeline_version" field.</summary>
-    public const int PipelineVersionFieldNumber = 30;
-    private ulong pipelineVersion_;
+    /// <summary>Field number for the "chunk_engine_version" field.</summary>
+    public const int ChunkEngineVersionFieldNumber = 30;
+    private uint chunkEngineVersion_;
     /// <summary>
     ///*
-    /// The three separately-diagnosable components of the version vector, not one opaque number: a
-    /// pipeline mismatch is different terrain, a palette mismatch is the same terrain made of the wrong
-    /// rock, and a format mismatch cannot be decoded at all. A client that only ever receives merged
-    /// chunks - which is every client today - can ignore the first two and must honour the third.
+    /// One number covering everything a client has to agree with the server about to read a chunk: the
+    /// RLE encoding and the block palette the ids in it index into.
+    ///
+    /// The server tracks the two separately, plus a third for the generation pipeline, because it has to
+    /// diagnose them separately - a stale cache entry is a different problem from an unreadable blob. A
+    /// client that receives only merged chunks, which is every client today, cannot act on that
+    /// distinction: either it can decode what arrives and name the materials, or it must be updated.
+    /// Sending the vector would only invite it to make a decision it has no basis for.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong PipelineVersion {
-      get { return pipelineVersion_; }
+    public uint ChunkEngineVersion {
+      get { return chunkEngineVersion_; }
       set {
-        pipelineVersion_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "block_palette_version" field.</summary>
-    public const int BlockPaletteVersionFieldNumber = 31;
-    private ulong blockPaletteVersion_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong BlockPaletteVersion {
-      get { return blockPaletteVersion_; }
-      set {
-        blockPaletteVersion_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "chunk_format_version" field.</summary>
-    public const int ChunkFormatVersionFieldNumber = 32;
-    private uint chunkFormatVersion_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint ChunkFormatVersion {
-      get { return chunkFormatVersion_; }
-      set {
-        chunkFormatVersion_ = value;
+        chunkEngineVersion_ = value;
       }
     }
 
@@ -325,9 +302,7 @@ namespace Bnet {
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(SeaLevelMetres, other.SeaLevelMetres)) return false;
       if (WrapX != other.WrapX) return false;
       if (WrapY != other.WrapY) return false;
-      if (PipelineVersion != other.PipelineVersion) return false;
-      if (BlockPaletteVersion != other.BlockPaletteVersion) return false;
-      if (ChunkFormatVersion != other.ChunkFormatVersion) return false;
+      if (ChunkEngineVersion != other.ChunkEngineVersion) return false;
       if (ViewRadiusChunks != other.ViewRadiusChunks) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -346,9 +321,7 @@ namespace Bnet {
       if (SeaLevelMetres != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(SeaLevelMetres);
       if (WrapX != false) hash ^= WrapX.GetHashCode();
       if (WrapY != false) hash ^= WrapY.GetHashCode();
-      if (PipelineVersion != 0UL) hash ^= PipelineVersion.GetHashCode();
-      if (BlockPaletteVersion != 0UL) hash ^= BlockPaletteVersion.GetHashCode();
-      if (ChunkFormatVersion != 0) hash ^= ChunkFormatVersion.GetHashCode();
+      if (ChunkEngineVersion != 0) hash ^= ChunkEngineVersion.GetHashCode();
       if (ViewRadiusChunks != 0) hash ^= ViewRadiusChunks.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -408,17 +381,9 @@ namespace Bnet {
         output.WriteRawTag(168, 1);
         output.WriteBool(WrapY);
       }
-      if (PipelineVersion != 0UL) {
+      if (ChunkEngineVersion != 0) {
         output.WriteRawTag(240, 1);
-        output.WriteUInt64(PipelineVersion);
-      }
-      if (BlockPaletteVersion != 0UL) {
-        output.WriteRawTag(248, 1);
-        output.WriteUInt64(BlockPaletteVersion);
-      }
-      if (ChunkFormatVersion != 0) {
-        output.WriteRawTag(128, 2);
-        output.WriteUInt32(ChunkFormatVersion);
+        output.WriteUInt32(ChunkEngineVersion);
       }
       if (ViewRadiusChunks != 0) {
         output.WriteRawTag(192, 2);
@@ -474,17 +439,9 @@ namespace Bnet {
         output.WriteRawTag(168, 1);
         output.WriteBool(WrapY);
       }
-      if (PipelineVersion != 0UL) {
+      if (ChunkEngineVersion != 0) {
         output.WriteRawTag(240, 1);
-        output.WriteUInt64(PipelineVersion);
-      }
-      if (BlockPaletteVersion != 0UL) {
-        output.WriteRawTag(248, 1);
-        output.WriteUInt64(BlockPaletteVersion);
-      }
-      if (ChunkFormatVersion != 0) {
-        output.WriteRawTag(128, 2);
-        output.WriteUInt32(ChunkFormatVersion);
+        output.WriteUInt32(ChunkEngineVersion);
       }
       if (ViewRadiusChunks != 0) {
         output.WriteRawTag(192, 2);
@@ -530,14 +487,8 @@ namespace Bnet {
       if (WrapY != false) {
         size += 2 + 1;
       }
-      if (PipelineVersion != 0UL) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt64Size(PipelineVersion);
-      }
-      if (BlockPaletteVersion != 0UL) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt64Size(BlockPaletteVersion);
-      }
-      if (ChunkFormatVersion != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(ChunkFormatVersion);
+      if (ChunkEngineVersion != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(ChunkEngineVersion);
       }
       if (ViewRadiusChunks != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ViewRadiusChunks);
@@ -584,14 +535,8 @@ namespace Bnet {
       if (other.WrapY != false) {
         WrapY = other.WrapY;
       }
-      if (other.PipelineVersion != 0UL) {
-        PipelineVersion = other.PipelineVersion;
-      }
-      if (other.BlockPaletteVersion != 0UL) {
-        BlockPaletteVersion = other.BlockPaletteVersion;
-      }
-      if (other.ChunkFormatVersion != 0) {
-        ChunkFormatVersion = other.ChunkFormatVersion;
+      if (other.ChunkEngineVersion != 0) {
+        ChunkEngineVersion = other.ChunkEngineVersion;
       }
       if (other.ViewRadiusChunks != 0) {
         ViewRadiusChunks = other.ViewRadiusChunks;
@@ -652,15 +597,7 @@ namespace Bnet {
             break;
           }
           case 240: {
-            PipelineVersion = input.ReadUInt64();
-            break;
-          }
-          case 248: {
-            BlockPaletteVersion = input.ReadUInt64();
-            break;
-          }
-          case 256: {
-            ChunkFormatVersion = input.ReadUInt32();
+            ChunkEngineVersion = input.ReadUInt32();
             break;
           }
           case 320: {
@@ -723,15 +660,7 @@ namespace Bnet {
             break;
           }
           case 240: {
-            PipelineVersion = input.ReadUInt64();
-            break;
-          }
-          case 248: {
-            BlockPaletteVersion = input.ReadUInt64();
-            break;
-          }
-          case 256: {
-            ChunkFormatVersion = input.ReadUInt32();
+            ChunkEngineVersion = input.ReadUInt32();
             break;
           }
           case 320: {

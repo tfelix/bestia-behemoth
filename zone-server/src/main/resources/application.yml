@@ -29,15 +29,30 @@ worldgen:
   chunk-height: 256
   voxel-size-metres: 1.0
   sea-level-metres: 0.0
-  # Abort the boot if this build would generate different terrain than the stored world was born with.
-  refuse-on-pipeline-mismatch: true
+  # Whether the edges join up. Both on: the seam is hidden inside the 2.5 km ocean margin that `OceanBorder`
+  # forces around all four edges, which is wider than the client can see. Y costs a climate discontinuity -
+  # latitude is a linear ramp, so temperature and wind direction jump at the seam - but that lands in
+  # unreachable polar ocean, and the alternative is a wall.
+  wrap-x: true
+  wrap-y: true
+  # What to do when the stored world is not the world these settings and this build describe.
+  #   REFUSE     - abort the boot. The safe answer, and what a live server wants.
+  #   REGENERATE - delete the world and make the one that was asked for, moving every master to the new
+  #                spawn. DESTRUCTIVE, no backup. Set here because this is the development configuration:
+  #                the settings above are the thing being changed, and the H2 datasource is in-memory anyway.
+  #   IGNORE     - boot regardless and log it.
+  on-mismatch: REGENERATE
 
 # Terrain streaming to the client. Runtime settings: unlike `worldgen` above, none of these affect what the
 # terrain *is*, so they can change on a restart with no consequence.
 chunk-stream:
-  # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 5 gives an 11x11 disc -
-  # a 352 m square, 176 m from centre to edge. Cost is quadratic: 7 would be 225 chunks rather than 121.
+  # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 5 gives an 11x11 square -
+  # 352 m across, 176 m from centre to edge. Cost is quadratic: 7 would be 225 chunks rather than 121.
   view-radius-chunks: 5
+  # Vertical radius in slabs. A slab is 256 m tall, so 1 is already a 768 m column - far more than the camera
+  # shows. This caps what the surface rule may offer; it is not subscribed to as a box. Without it a login in
+  # deep water offered every slab from the seabed up to the waterline, 726 chunks where 121 was the answer.
+  view-radius-chunks-vertical: 1
   # Chunk payloads one connection may be sent per tick. At tick-rate 20 that is 80/s, so a first load of ~121
   # chunks spreads over about a second and a half. The cap is as much for the client - it drains its whole
   # receive queue in one frame - as for the socket.

@@ -1,8 +1,6 @@
 package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.worldgen.pipeline.StandardWorld
-import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.message.OutMessageProcessor
@@ -14,8 +12,8 @@ import org.springframework.stereotype.Component
  * Tells a freshly authenticated connection what world it is in, and cleans up after it when it leaves.
  *
  * Sent on connect rather than on master selection, because none of it depends on having an entity: a client
- * needs the chunk dimensions and the palette to make sense of *any* payload, and getting them out of the way
- * early means the first manifest can be acted on the moment it arrives.
+ * needs the chunk dimensions to make sense of *any* payload, and getting them out of the way early means the
+ * first manifest can be acted on the moment it arrives.
  */
 @Component
 class WorldInfoSender(
@@ -34,17 +32,12 @@ class WorldInfoSender(
       return
     }
 
-    val record = worldService.record
-    val config = worldService.config
-    val version = PipelineVersion.current(StandardWorld.pipeline(config).pipelineVersion)
-
     outMessageProcessor.sendToPlayer(
       event.accountId,
-      WorldInfoSMSG.of(record, config, version, settings.viewRadiusChunks)
+      WorldInfoSMSG.of(worldService.record, worldService.config, settings.viewRadiusChunks)
     )
-    outMessageProcessor.sendToPlayer(event.accountId, BlockPaletteSMSG.current())
 
-    LOG.debug { "Sent world info and block palette to account ${event.accountId}" }
+    LOG.debug { "Sent world info to account ${event.accountId}" }
   }
 
   /**

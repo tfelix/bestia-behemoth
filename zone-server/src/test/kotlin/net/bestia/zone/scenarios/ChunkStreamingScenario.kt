@@ -2,9 +2,9 @@ package net.bestia.zone.scenarios
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.zone.chat.ChatCMSG
-import net.bestia.zone.world.stream.BlockPaletteSMSG
 import net.bestia.zone.world.stream.ChunkCoords
 import net.bestia.zone.world.stream.ChunkDataSMSG
 import net.bestia.zone.world.stream.ChunkManifestSMSG
@@ -76,7 +76,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Test
   @Order(1)
-  fun `connecting gets the world info and the block palette`() {
+  fun `connecting gets the world info`() {
     clientPlayer1.connect(testData.account1.masterIds.first())
 
     await {
@@ -85,22 +85,14 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
         "a client needs the chunk dimensions before any payload means anything"
       )
 
-      assertEquals(RleCodec.VERSION, info.chunkFormatVersion)
+      // One number, not the server's three-part version vector. The client holds a static palette and a
+      // decoder; either they match what is being sent or it must be updated, and it has no use for knowing
+      // which half disagreed.
+      assertEquals(ChunkEngine.VERSION, info.chunkEngineVersion)
       assertEquals(settings.viewRadiusChunks, info.viewRadiusChunks)
       assertTrue(info.chunkSize > 0 && info.chunkHeight > 0)
       assertTrue(info.name.isNotBlank())
     }
-
-    val palette = assertNotNull(clientPlayer1.tryGetLastReceived(BlockPaletteSMSG::class))
-
-    assertEquals(
-      BlockType.entries.size, palette.blocks.size,
-      "every material must be described, or the client cannot name what it decodes"
-    )
-    assertEquals(
-      BlockType.entries.map { it.id }.sorted(), palette.blocks.map { it.id },
-      "the palette is ordered by id, matching how its version hash is folded"
-    )
   }
 
   @Test
@@ -298,17 +290,17 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Test
   @Order(7)
-  fun `the slab range actually contains the terrain surface`() {
+  fun `the slabs actually contain the terrain surface`() {
     val anchor = assertNotNull(subscriptions.anchorOf(clientPlayer1.connectedPlayerId))
     val config = chunkService.config
 
     // The correctness half of the vertical rule. Being thin is only worth anything if it is thin around the
-    // right place - a range that missed the surface would send a player bedrock and look like working code.
+    // right place - a set that missed the surface would send a player bedrock and look like working code.
     val slabs = chunkService.surfaceSlabsOf(anchor)
 
     assertTrue(
       config.chunkZOf(config.seaLevel) in slabs,
-      "sea level must always be inside the range, so a coastal column offers the water surface too"
+      "sea level must always be offered, so a coastal column offers the water surface too"
     )
 
     for (z in slabs) {
@@ -319,6 +311,42 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Test
   @Order(8)
+  fun `the view volume is bounded vertically however deep the water is`() {
+    val anchor = chunkService.normalise(assertNotNull(subscriptions.anchorOf(clientPlayer1.connectedPlayerId)))
+    val vertical = settings.viewRadiusChunksVertical
+    val announced = subscriptions.announcedTo(clientPlayer1.connectedPlayerId)
+
+    // The 726-chunk regression, stated as the invariant that would have caught it rather than as a claim
+    // about one column - the seed is drawn at random on each boot, so how deep any particular piece of
+    // seabed is varies between runs and is not a thing to assert on.
+    //
+    // What used to happen: `computeSurfaceSlabs` returned the *span* from a column's seabed up to the
+    // waterline, and `desiredChunks` unioned the player's own slab ±1 on top. In the 2.5 km ocean margin
+    // that is six slabs per column, five of them solid water the client meshes to nothing - and it grew by
+    // one more for every 256 m of depth. 726 chunks offered for a view that draws 121.
+    val outside = announced.filter { it.z < anchor.z - vertical || it.z > anchor.z + vertical }
+    assertTrue(
+      outside.isEmpty(),
+      "nothing outside ${anchor.z} ± $vertical may be offered, however far the surface rule reaches; " +
+          "got ${outside.take(5)}"
+    )
+
+    val perColumn = announced.groupingBy { it.x to it.y }.eachCount()
+    assertTrue(
+      perColumn.values.all { it <= 2 * vertical + 1 },
+      "a column may cost at most ${2 * vertical + 1} slabs, but one cost ${perColumn.values.max()}"
+    )
+
+    // The other half of the rule, and the reason the clip is safe: the player's own slab survives it
+    // unconditionally, so there is ground underfoot even where the heightfield describes something else.
+    assertTrue(
+      anchor in announced,
+      "the chunk the player is standing in must always be offered"
+    )
+  }
+
+  @Test
+  @Order(9)
   fun `the edit is visible in the server's own authoritative view`() {
     val held = subscriptions.sentTo(clientPlayer1.connectedPlayerId).first()
 

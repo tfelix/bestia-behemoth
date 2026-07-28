@@ -50,8 +50,11 @@ var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 ##
 ## Created here in code rather than added to ConnectionManager.tscn, because a scene node needs a
 ## resource uid that only the Godot editor can mint. It subscribes to BnetSocket's MessageReceived
-## itself, so no signal wiring in the scene is needed either, and chunk messages never pass through
-## _on_bnet_socket_message_received below.
+## itself, so no signal wiring in the scene is needed.
+##
+## Note that a signal fans out to every listener, so terrain messages DO also reach
+## _on_bnet_socket_message_received below - which is why that handler has a MapSMSG branch. It went
+## without one for a while and reported every chunk as unidentified.
 var chunk_stream: Node = null
 
 # Signed JWT obtained from the login server, sent to the zone during the auth handshake.
@@ -348,8 +351,12 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		operation_success.emit(message)
 	elif message is OperationError:
 		operation_error.emit(message)
+	elif message is MapSMSG:
+		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
+		# every listener, so these reach this handler too and have to be ignored rather than reported.
+		pass
 	else:
-		printerr("ConnectionManager: message was not identified and processed.")
+		printerr("ConnectionManager: message was not identified and processed: %s" % message)
 
 
 ### If we dont receive a periodically pong from the server after we send out a ping assume a disconnect.

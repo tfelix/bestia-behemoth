@@ -62,6 +62,19 @@ class PersistedWorld(
   val seaLevelMetres: Double,
 
   /**
+   * Whether the world's east/west and north/south edges are the same place.
+   *
+   * Stored rather than read from configuration for the same reason the dimensions are: the ocean margin that
+   * hides the seam is baked into the terrain, so a world generated unwrapped stays unwrapped whatever the
+   * config file says afterwards.
+   */
+  @Column(nullable = false, updatable = false)
+  val wrapX: Boolean,
+
+  @Column(nullable = false, updatable = false)
+  val wrapY: Boolean,
+
+  /**
    * Version vector of the pipeline that generated this world, folded over every stage and its upstreams.
    *
    * Not `updatable`: if the running build disagrees with it, that is a fact to report rather than a field to
@@ -77,6 +90,17 @@ class PersistedWorld(
   /** Chunk encoding version. A chunk written under a different one cannot even be decoded. */
   @Column(nullable = false, updatable = false)
   val chunkFormatVersion: Int,
+
+  /**
+   * [net.bestia.worldgen.core.WorldConfig.shapeVersion] of the config this world was generated from.
+   *
+   * The three versions above say whether this build's *generator* still matches. This says whether this
+   * *row* still does - whether the columns here can rebuild the config the world was born with. They can
+   * only disagree one way: a `WorldConfig` field that decides terrain and has no column here, which comes
+   * back as its default and moves the coastline. See [WorldService].
+   */
+  @Column(nullable = false, updatable = false)
+  val shapeVersion: Long,
 
   @Column(nullable = false, updatable = false)
   val createdAt: Instant

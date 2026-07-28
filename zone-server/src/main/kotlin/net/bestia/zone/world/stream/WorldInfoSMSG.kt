@@ -3,7 +3,7 @@ package net.bestia.zone.world.stream
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.WorldInfoSMSGProto
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.store.PipelineVersion
+import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.PersistedWorld
 
@@ -24,9 +24,7 @@ data class WorldInfoSMSG(
   val seaLevelMetres: Double,
   val wrapX: Boolean,
   val wrapY: Boolean,
-  val pipelineVersion: Long,
-  val blockPaletteVersion: Long,
-  val chunkFormatVersion: Int,
+  val chunkEngineVersion: Int,
   val viewRadiusChunks: Int
 ) : SMSG {
 
@@ -42,9 +40,7 @@ data class WorldInfoSMSG(
       .setSeaLevelMetres(seaLevelMetres)
       .setWrapX(wrapX)
       .setWrapY(wrapY)
-      .setPipelineVersion(pipelineVersion)
-      .setBlockPaletteVersion(blockPaletteVersion)
-      .setChunkFormatVersion(chunkFormatVersion)
+      .setChunkEngineVersion(chunkEngineVersion)
       .setViewRadiusChunks(viewRadiusChunks)
       .build()
 
@@ -55,17 +51,17 @@ data class WorldInfoSMSG(
 
   companion object {
     /**
-     * Built from the *stored* record for identity and dimensions and from the *running* build for the
-     * version vector.
+     * Built from the *stored* record for identity and dimensions, from the running config for geometry, and
+     * from this build for the engine version.
      *
-     * They agree or the server refused to boot ([net.bestia.zone.world.WorldService.load]), so which one
-     * a field comes from is a matter of which is the authority rather than of which happens to be handy:
-     * the record owns what the world is, the build owns what this process can generate.
+     * The record and the config agree or the server refused to boot
+     * ([net.bestia.zone.world.WorldService.load]), so which one a field comes from is a matter of which is the
+     * authority rather than of which happens to be handy: the record owns what the world is, the build owns
+     * what this process can generate.
      */
     fun of(
       record: PersistedWorld,
       config: WorldConfig,
-      version: PipelineVersion,
       viewRadiusChunks: Int
     ) = WorldInfoSMSG(
       name = record.name,
@@ -78,9 +74,7 @@ data class WorldInfoSMSG(
       seaLevelMetres = config.seaLevel,
       wrapX = config.wrapX,
       wrapY = config.wrapY,
-      pipelineVersion = version.pipelineVersion,
-      blockPaletteVersion = version.blockPaletteVersion,
-      chunkFormatVersion = version.chunkFormatVersion,
+      chunkEngineVersion = ChunkEngine.VERSION,
       viewRadiusChunks = viewRadiusChunks
     )
   }

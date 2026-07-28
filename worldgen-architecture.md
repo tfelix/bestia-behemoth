@@ -100,9 +100,33 @@ start** by default. That is the enforcement of this document's "once you ship, f
 rule: player edits are deltas over a generated base, so booting against a shifted base would move the ground
 under them, and by the time anyone noticed the old base would be gone.
 
+Three distinct things can be wrong at boot, and they are not one check:
+
+| Wrong thing | What it means | Answer |
+| --- | --- | --- |
+| The row cannot rebuild its own config | A terrain-deciding `WorldConfig` field has no column, so the row silently describes a *different* world | **Always fatal.** Regenerating writes the same incomplete row |
+| This build generates different terrain | Pipeline, palette or format version moved | `worldgen.on-mismatch`: `REFUSE` (default) / `REGENERATE` / `IGNORE` |
+| The settings ask for a different world | Somebody edited `worldgen` in the configuration | Warned always; acted on only by `REGENERATE` |
+
+The first is caught by `WorldConfig.shapeVersion`, a hash over every field that decides terrain, written at
+birth and recomputed from the columns on each boot. Nothing else was checking that the persistence layer had
+kept up with the generator, and it had not: `wrapX`/`wrapY` decided where the coastline went and had no column
+for as long as the row existed, so every stored world rebuilt with the default wrap and said nothing.
+
+The third is deliberately *not* fatal under `REFUSE`. Birth settings are documented as ignored once a world
+exists, and a world quietly keeping its own dimensions is honouring that — making it a failed start would stop
+running servers over an edit meant for the next world. It is reported as a named field diff
+(`wrap-y: false -> true`) rather than a hash, because the question it has to answer is whether you are about to
+throw a world away over something you did not mean to change.
+
+`REGENERATE` is destructive and is what the development configuration ships with: it deletes the world row and
+everything derived from it, and publishes `WorldRecreatedEvent` so `MasterWorldResetListener` can move every
+player to the new spawn — their stored coordinates point into terrain that no longer exists, which otherwise
+fails silently by burying them in a hill.
+
 **Chunk streaming is wired.** `net.bestia.zone.world.stream` owns the `ChunkCache` → `ChunkStore` →
 `DerivedStore` chain that this module had never been asked for, and streams merged RLE chunks to the client
-over seven new `bnet-messages` in the MAP range. The protocol is *announce, then serve on request*: a
+over five new `bnet-messages` in the MAP range. The protocol is *announce, then serve on request*: a
 `ChunkManifestSMSG` lists `(position, revision)` pairs for the view volume — about 1.5 kB for 121 chunks
 against ~375 kB of payload — and the client asks only for what it does not already hold. Edits travel as
 `ChunkPatchSMSG`, five bytes per voxel, serialised once and fanned out to the chunk's subscriber set as
@@ -209,12 +233,60 @@ below about a 42 km world — the margin goes as the perimeter while land goes a
 world a fixed margin would eat the place.
 
 `wrapX` is on by default and `wrapY` is off, and not merely for want of implementing it: temperature comes
-from latitude, so wrapping north to south walks one pole straight into the other. `core/WorldWrap.kt` holds
+from latitude, so wrapping north to south walks one pole straight into the other — `ClimateStage` makes
+latitude a linear ramp in y, so the seam jumps the world's whole latitude span, `Winds.zonalSign` flips
+hemisphere with it, and the orographic rain pattern `BiomeStage` classifies on reverses.
+
+> **Genesis turns `wrapY` on regardless** (`zone-server`'s `worldgen.wrap-y`), because the alternative is a
+> wall a player can walk into. The discontinuity lands inside the same 2.5 km ocean margin that hides the X
+> seam — `OceanBorder` forces all four edges underwater — so what is reachable either side of it is
+> featureless polar sea, where a climate that makes no sense has nothing to be inconsistent with. Both flags
+> are stored on `PersistedWorld` rather than read from configuration each boot: the margin is baked into the
+> terrain, so a world generated unwrapped stays unwrapped. Making the seam genuinely continuous means giving
+> latitude a periodic profile, at which point the world has two equators and two poles — a bigger change than
+> it sounds, and not needed to stop a player finding the edge.
+
+`core/WorldWrap.kt` holds
 the coordinate maths — floor-mod normalisation, signed shortest-path deltas, chunk normalisation (never on
 z; up is not a loop). **Chunk streaming is its first caller** — every chunk address, computed or client-supplied,
 goes through `normalise` before it reaches the generator, so walking off the eastern edge streams the western
 terrain. **The rest of the ECS still does not call it**: movement, interest management and pathing use naive
 subtraction, so two players ten metres apart across the seam read as a world apart.
+
+### The voxel grid has a resolution floor, and features have to respect it
+
+Found by looking at the client rather than at a map, which is the point of the story. The ground was sand with
+thin green streaks across it, dashed like a badly drawn line, and no view in `viewer/` could show why: every
+view renders the whole world into a few hundred pixels, so the streaks were a pixel or were nothing.
+`viewer/ProbeMain.kt` was written for this — it prints one 48 m window as text, one character per voxel column,
+which is the scale the complaint lives at. `./gradlew :worldgen:probe -Pchannels=1` reports the numbers below.
+
+The streaks were rivers. Hydraulic geometry is `width = 4.2 Q^0.5` and `depth = 0.36 Q^0.4`, which are correct
+and which need `Q` of about 13 m³/s before a channel is one metre deep. Nothing in a world of a few hundred
+kilometres carries that. Measured, at 512 km with `detailScale` exactly 1 — the reference world, nothing scaled
+— **every channel station in the world was shallower than one voxel**: median 32 cm, deepest 91 cm. At 128 km,
+a median of 15 cm.
+
+The failure that produces is not "shallow rivers". `ChunkMaterializer` writes a water voxel only where the
+water surface crosses a voxel boundary, so a channel 15 cm deep gets water in the columns where its bed happens
+to sit just below a boundary and none in the columns where it does not — and the bed descends continuously
+along the reach, so that alternates. A dashed line of water on sand.
+
+`hydro/ChannelGauge.kt` floors width and depth at 3 and 2 voxels. Deliberately unphysical, in the same way
+`detailScale` is: below the grid's resolution the choice is not between accurate and inaccurate, it is between
+visible and absent. Two things worth knowing about the result:
+
+- **The depth floor binds everywhere**, because the physical depth never reaches two metres in any world tested.
+  Depth is now effectively constant and **width** carries river size — 3–9 m at 128 km, 3–13 m at 512 km. That
+  is the honest outcome rather than a shortfall: real channels span 0.1–0.9 m of depth across this whole size
+  range, which is less than one voxel of spread, so the grid cannot express river size vertically whatever
+  formula is used.
+- At a metre per voxel **there is no such thing as a shallow brook**. Every channel is deep enough to swim in
+  and `AgentProfile.maxWadeDepth` of 1 m means agents wade none of them.
+
+The general lesson is the one the ocean margin and `detailScale` also teach: a threshold expressed in metres is
+a claim about how big the world is, and a cross-section expressed in metres is a claim about how fine the grid
+is. Neither survives being pointed at a world it was not tuned for.
 
 ### Deliberate deviations
 
@@ -258,7 +330,15 @@ edges, and the place → route → regrow → replace settlement iteration (sing
 ./gradlew :worldgen:viewer                                  # interactive layer/feature inspector
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # same, rendered to PNGs; works over SSH
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256      # seed sweep against the invariants
+./gradlew :worldgen:probe -Pcells=128 -Px=32000 -Py=32000   # one 48 m window as text, a character per voxel
+./gradlew :worldgen:probe -Pon=river_channel -Pnth=0        # ...centred on a feature too thin to find otherwise
+./gradlew :worldgen:probe -Pchannels=1                      # channel width and depth against the voxel grid
+./gradlew :worldgen:probe -Psurvey=12                       # the most mixed surface patches in the world
 ```
+
+The probe is the companion to the viewer and covers its blind spot: the viewer renders the whole world, so it
+cannot show anything narrower than a kilometre, which is exactly the size of thing that looks wrong once the
+client draws it at a metre per voxel. Rivers rendering as dashed lines were found this way.
 
 The viewer is the primary debugging tool and has earned it — a road running dead straight across open
 ocean and a mis-classification of inland troughs as fjords were both found by looking at an exported
@@ -1150,9 +1230,24 @@ Given the server holds merged state anyway, the wire format is a separate questi
 >
 > The palette version hashes block **ids and names**, not enum ordinals, so reordering the declaration is
 > harmless while renumbering an id invalidates everything — the ids are what end up in stored data, so they
-> are what the hash must be over. A client that does not generate base chunks short-circuits to
-> `ServerAuthoritativeOnly` and needs no version agreement at all; it is always sent merged chunks, so none
-> of the three can hurt it.
+> are what the hash must be over.
+>
+> **The vector is server-side only.** It is a cache key and a boot gate, and both of those are decisions the
+> server makes. What goes over the wire is a single hand-incremented `ChunkEngine.VERSION`, covering the two
+> things a merged-chunk client actually does — decode the payload and name the materials in it. Such a client
+> short-circuits to `ServerAuthoritativeOnly` and has no base to generate, so it cannot act on the
+> distinction between the three; sending it the vector would only invite a decision it has no basis for. The
+> auto-derived hashes stay where they are load bearing (`ChunkCache` keys on `pipelineVersion`, so forgetting
+> to bump it there would silently serve terrain from another build) and the hand-incremented number covers
+> the boundary where a hash cannot: the client is a separately released artefact, so the value has to be one
+> a human can copy. `ChunkStoreTest` pins `paletteVersion()` to catch the forgetting, which is the failure
+> mode a manual number reintroduces.
+>
+> **The block palette is not sent either.** It was, briefly — `BlockPaletteSMSG`, a few hundred bytes per
+> login — on the argument that a renamed material should not be a client release. It bought nothing: a *new*
+> material is a client release regardless, because nothing on the client can invent a colour for it that
+> looks like rock rather than like a bug, and a renamed one changes nothing the player sees. The client holds
+> a static table (`BlockAppearance.Palette`) keyed to the engine version instead.
 
 Two mitigations, both cheap, neither optional:
 

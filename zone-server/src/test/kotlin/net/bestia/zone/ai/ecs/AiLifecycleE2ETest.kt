@@ -85,7 +85,9 @@ class AiLifecycleE2ETest {
           actionRegistry
         ),
         AiActSystem(),
-        MoveSystem(),
+        // No terrain in this scenario, so no ground to snap to; null keeps the waypoint's own z, which is what
+        // the AI's flat Locomotion produces anyway.
+        MoveSystem { _, _ -> null },
         ReceivedDamageSystem(),
       )
     )

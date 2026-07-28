@@ -192,7 +192,7 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>
     /// A one-line summary of a chunk's contents, for the debug output.
     /// </summary>
-    public string Describe(ChunkKey key, BlockPaletteSMSG palette)
+    public string Describe(ChunkKey key)
     {
       var chunk = Get(key);
       if (chunk == null)
@@ -231,7 +231,7 @@ namespace BestiaBehemothClient.Game.World
       var top = counts
         .OrderByDescending(entry => entry.Value)
         .Take(4)
-        .Select(entry => $"{palette?.NameOf(entry.Key) ?? entry.Key.ToString()}x{entry.Value}");
+        .Select(entry => $"{BlockAppearance.Current.NameOf(entry.Key)}x{entry.Value}");
 
       var surfaces = double.IsInfinity(lowest)
         ? "no solid columns"

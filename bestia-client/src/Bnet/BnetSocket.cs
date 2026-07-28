@@ -235,11 +235,6 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.WorldInfoSMSG.FromProto(envelope.WorldInfo);
           EmitSignal(SignalName.MessageReceived, msg);
         }
-        else if (envelope.BlockPalette != null)
-        {
-          var msg = Map.BlockPaletteSMSG.FromProto(envelope.BlockPalette);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
         else if (envelope.ChunkManifest != null)
         {
           var msg = Map.ChunkManifestSMSG.FromProto(envelope.ChunkManifest);

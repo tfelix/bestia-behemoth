@@ -32,15 +32,29 @@ class ChunkStreamInbox {
 
   data class Edit(val accountId: Long, val x: Long, val y: Long, val z: Long, val blockId: Int)
 
+  /**
+   * Put this account's active entity down at a horizontal position, on whatever the ground there is.
+   *
+   * No `z`: the point of the command that produces this is to go and look at terrain, and a caller who had to
+   * name the elevation would have to know it first. [ChunkStreamSystem] resolves it against the heightfield -
+   * which is also why this cannot be done in the chat handler, where the terrain is another thread's to read.
+   */
+  data class Teleport(val accountId: Long, val x: Long, val y: Long)
+
   private val requests = ConcurrentLinkedQueue<Request>()
   private val requestCount = AtomicInteger()
 
   private val edits = ConcurrentLinkedQueue<Edit>()
   private val editCount = AtomicInteger()
 
+  private val teleports = ConcurrentLinkedQueue<Teleport>()
+  private val teleportCount = AtomicInteger()
+
   val pendingRequests get() = requestCount.get()
 
   val pendingEdits get() = editCount.get()
+
+  val pendingTeleports get() = teleportCount.get()
 
   fun offerRequest(request: Request) {
     if (request.chunks.isEmpty()) return
@@ -54,9 +68,16 @@ class ChunkStreamInbox {
     trim(edits, editCount, "debug edits")
   }
 
+  fun offerTeleport(teleport: Teleport) {
+    teleports.add(teleport)
+    trim(teleports, teleportCount, "teleports")
+  }
+
   fun drainRequests(): List<Request> = drain(requests, requestCount)
 
   fun drainEdits(): List<Edit> = drain(edits, editCount)
+
+  fun drainTeleports(): List<Teleport> = drain(teleports, teleportCount)
 
   /** Called when a connection goes away, so its queued work does not get served to nobody. */
   fun forget(accountId: Long) {
@@ -65,6 +86,9 @@ class ChunkStreamInbox {
 
     editCount.addAndGet(-edits.count { it.accountId == accountId })
     edits.removeIf { it.accountId == accountId }
+
+    teleportCount.addAndGet(-teleports.count { it.accountId == accountId })
+    teleports.removeIf { it.accountId == accountId }
   }
 
   private fun <T> trim(queue: ConcurrentLinkedQueue<T>, counter: AtomicInteger, what: String) {

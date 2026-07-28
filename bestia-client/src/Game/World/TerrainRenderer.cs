@@ -62,9 +62,62 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     [Export] public int CollisionRadiusChunks { get; set; } = 2;
 
+    /// <summary>
+    /// Material for the opaque terrain surface. Left unset, a default that honours vertex colour is built.
+    /// </summary>
+    /// <remarks>
+    /// The default is not a nicety. Godot's fallback material ignores vertex colour entirely, and vertex colour
+    /// is currently where every scrap of terrain colour lives - so an unset material does not render plain
+    /// terrain, it renders a white world. Nothing in the scene wires these up, because the renderer is created
+    /// in code rather than placed in <c>Game.tscn</c>.
+    /// </remarks>
     [Export] public Material TerrainMaterial { get; set; }
 
+    /// <summary>Material for the water surface. Left unset, a transparent default is built.</summary>
     [Export] public Material WaterMaterial { get; set; }
+
+    /// <summary>
+    /// Vertex colour as albedo, and rough: this is rock, soil and grass rather than anything polished.
+    /// </summary>
+    /// <remarks>
+    /// Built once and shared by every chunk, so the whole terrain is one material and Godot can batch it.
+    /// Replacing this with a <c>Texture2DArray</c> blended per vertex is the intended next step, and the vertex
+    /// data already carries what that needs - see <see cref="Mesh.BlockAppearance"/>.
+    /// </remarks>
+    private static Material DefaultTerrainMaterial() => new StandardMaterial3D
+    {
+      VertexColorUseAsAlbedo = true,
+      Roughness = 1.0f,
+
+      // Fully matte, and that is the point rather than a taste call. The scene's sky is near-white, and any
+      // specular on a large flat surface reflects it straight back into the camera - which reads as "the material
+      // did not apply" because the result is indistinguishable from Godot's white fallback.
+      MetallicSpecular = 0.0f,
+      SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled
+    };
+
+    /// <summary>
+    /// Water: vertex colour again, but transparent and visible from underneath.
+    /// </summary>
+    /// <remarks>
+    /// Back-face culling is off because the surface of a lake is a single sheet with no underside of its own,
+    /// and a swimming player looking up at it would otherwise see straight through into the sky. The alpha comes
+    /// from the palette's own colour for <c>WATER</c>, so the depth of the tint is a data question rather than a
+    /// shader one.
+    /// </remarks>
+    private static Material DefaultWaterMaterial() => new StandardMaterial3D
+    {
+      VertexColorUseAsAlbedo = true,
+      Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+      CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+
+      // Matte for now, for the same reason as the terrain. A shiny sheet of water is the right look eventually,
+      // but it belongs to a shader that controls its own reflection rather than to a StandardMaterial3D mirroring
+      // a placeholder procedural sky - which turns the sea white and hides whether anything else is wrong.
+      Roughness = 1.0f,
+      MetallicSpecular = 0.0f,
+      SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled
+    };
 
     private sealed class Tile
     {
@@ -90,7 +143,6 @@ namespace BestiaBehemothClient.Game.World
     private readonly System.Collections.Concurrent.ConcurrentQueue<ChunkMesh> _finished = new();
 
     private ClientChunkStore _store;
-    private BlockAppearance _appearance;
     private float _voxelSize = 1.0f;
     private int _chunkSize = 32;
     private int _chunkHeight = 256;
@@ -98,6 +150,12 @@ namespace BestiaBehemothClient.Game.World
 
     private ChunkKey _collisionAnchor;
     private bool _hasAnchor;
+
+    /// <summary>So the unconfigured complaint is made once rather than sixty times a second.</summary>
+    private bool _warnedUnconfigured;
+
+    /// <summary>Surface kinds already described in the log, so the diagnostic prints twice and not 242 times.</summary>
+    private readonly HashSet<string> _described = new();
 
     public int TileCount => _tiles.Count;
 
@@ -111,10 +169,12 @@ namespace BestiaBehemothClient.Game.World
     /// login or a reconnect, and in both cases the voxel size and chunk dimensions the existing meshes were built
     /// against can no longer be assumed.
     /// </remarks>
-    public void Configure(ClientChunkStore store, WorldInfoSMSG worldInfo, BlockPaletteSMSG palette)
+    public void Configure(ClientChunkStore store, WorldInfoSMSG worldInfo)
     {
       _store = store;
-      _appearance = BlockAppearance.From(palette);
+
+      TerrainMaterial ??= DefaultTerrainMaterial();
+      WaterMaterial ??= DefaultWaterMaterial();
 
       if (worldInfo != null)
       {
@@ -124,19 +184,6 @@ namespace BestiaBehemothClient.Game.World
       }
 
       Clear();
-    }
-
-    /// <summary>Updates the palette without discarding meshes, for a palette that arrives after the world info.</summary>
-    public void SetPalette(BlockPaletteSMSG palette)
-    {
-      _appearance = BlockAppearance.From(palette);
-
-      // Colours come from the palette, so everything already built is drawn with the fallback. Re-mesh rather than
-      // leave a world in placeholder grey; on a normal login this queue is empty because the palette lands first.
-      foreach (var key in _tiles.Keys)
-      {
-        Enqueue(key);
-      }
     }
 
     public void Clear()
@@ -235,6 +282,16 @@ namespace BestiaBehemothClient.Game.World
 
     private void StartJobs()
     {
+      // An unconfigured renderer used to discard the whole queue here without a word, which is how it managed to
+      // draw nothing at all while the log showed chunks arriving and decoding perfectly. Say it once, loudly.
+      if (_store == null && _pending.Count > 0 && !_warnedUnconfigured)
+      {
+        _warnedUnconfigured = true;
+        GD.PushError(
+          $"[terrain] {_pending.Count} chunks are queued but Configure() was never called, so none of them " +
+          "can be meshed. The renderer was attached without the world info being replayed to it.");
+      }
+
       while (_running < Math.Max(1, MeshJobs) && _pending.Count > 0)
       {
         var key = _pending.Dequeue();
@@ -247,7 +304,6 @@ namespace BestiaBehemothClient.Game.World
         }
 
         var source = _store;
-        var appearance = _appearance;
         var voxelSize = _voxelSize;
 
         // Incremented with an interlock even though only this thread increments it: the workers decrement it, and a
@@ -258,7 +314,7 @@ namespace BestiaBehemothClient.Game.World
         {
           try
           {
-            var mesh = SurfaceNets.Build(source, key, appearance, voxelSize);
+            var mesh = SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize);
 
             // An empty result is still a result: it means whatever used to be here must come down.
             _finished.Enqueue(mesh ?? new ChunkMesh
@@ -352,6 +408,21 @@ namespace BestiaBehemothClient.Game.World
         instance.MaterialOverride = material;
       }
 
+      // Once per surface kind. "Coloured geometry renders white" has two causes that look identical on screen -
+      // the material not applying, or the vertex colours themselves being wrong - and they are fixed in completely
+      // different places. Printing both together tells them apart without another round trip.
+      if (_described.Add(name.Split(' ')[0]))
+      {
+        var vertexColour = surface.Colours.Length > 0 ? surface.Colours[0].ToString() : "none";
+        var albedo = material is BaseMaterial3D standard
+          ? $"vertexColorAsAlbedo={standard.VertexColorUseAsAlbedo} albedo={standard.AlbedoColor}"
+          : material?.GetType().Name ?? "NO MATERIAL";
+
+        GD.Print(
+          $"[terrain] {name.Split(' ')[0]} surface: {surface.TriangleCount} tris, " +
+          $"first vertex colour {vertexColour}, material {albedo}");
+      }
+
       return instance;
     }
 
@@ -400,10 +471,33 @@ namespace BestiaBehemothClient.Game.World
       tile.Body.AddChild(tile.Shape);
     }
 
+    /// <summary>
+    /// The script every clickable floor in the game wears, loaded once.
+    /// </summary>
+    /// <remarks>
+    /// Reused rather than reimplemented, because "walkable floor" is already a contract with two halves and
+    /// missing either one fails quietly in a different way. It puts the body in the <c>floor</c> group, which is
+    /// what <c>MouseManager.get_floor_hit_at_mouse</c> filters on - a collider outside the group is hit by the ray
+    /// and then discarded, so the ground cursor flickers rather than disappearing outright. And it relays
+    /// <c>input_event</c> to the mouse state machine, which is how a click becomes a move order.
+    /// </remarks>
+    private static readonly GDScript WalkableFloor =
+      GD.Load<GDScript>("res://Game/Ground/walkable_floor.gd");
+
     private StaticBody3D NewBody(ChunkKey key)
     {
       var body = new StaticBody3D { Name = $"collision {key}" };
+
+      // Before AddChild, so the script's own _ready runs with the script attached and the group is joined.
+      body.SetScript(WalkableFloor);
+
       AddChild(body);
+
+      // Physics picking is a signal on the body, and the scene file wires this by hand for the placeholder
+      // ground. Bodies made in code have to do it themselves or clicks land on nothing.
+      body.Connect(
+        CollisionObject3D.SignalName.InputEvent,
+        new Callable(body, "_on_input_event"));
 
       return body;
     }

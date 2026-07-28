@@ -18,7 +18,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// </para>
   /// </remarks>
   [GlobalClass]
-  public partial class ChunkManifestSMSG : ISMSG
+  public partial class ChunkManifestSMSG : MapSMSG
   {
     public readonly struct Ref
     {

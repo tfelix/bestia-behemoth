@@ -16,7 +16,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// </para>
   /// </remarks>
   [GlobalClass]
-  public partial class WorldInfoSMSG : ISMSG
+  public partial class WorldInfoSMSG : MapSMSG
   {
     [Export] public string Name { get; set; } = "";
 
@@ -32,15 +32,15 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public bool WrapX { get; set; }
     [Export] public bool WrapY { get; set; }
 
-    [Export] public ulong PipelineVersion { get; set; }
-    [Export] public ulong BlockPaletteVersion { get; set; }
-
     /// <summary>
-    /// The chunk encoding version. The one component of the version vector this client must honour: a
-    /// pipeline or palette mismatch only matters to a client that generates its own terrain, but a format
-    /// mismatch cannot be decoded at all.
+    /// The chunk encoding and block palette this server speaks, as one number.
     /// </summary>
-    [Export] public uint ChunkFormatVersion { get; set; }
+    /// <remarks>
+    /// Compared against <c>ChunkEngine.Version</c>. The server tracks the encoding, the palette and the
+    /// generation pipeline separately because it has to invalidate them separately; this client either reads
+    /// what arrives or must be updated, so it is told the one thing it can act on.
+    /// </remarks>
+    [Export] public uint ChunkEngineVersion { get; set; }
 
     [Export] public int ViewRadiusChunks { get; set; }
 
@@ -58,9 +58,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         SeaLevelMetres = proto.SeaLevelMetres,
         WrapX = proto.WrapX,
         WrapY = proto.WrapY,
-        PipelineVersion = proto.PipelineVersion,
-        BlockPaletteVersion = proto.BlockPaletteVersion,
-        ChunkFormatVersion = proto.ChunkFormatVersion,
+        ChunkEngineVersion = proto.ChunkEngineVersion,
         ViewRadiusChunks = proto.ViewRadiusChunks
       };
     }
@@ -72,8 +70,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
 
       return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunks {ChunkSize}x{ChunkSize}x{ChunkHeight} " +
              $"@{VoxelSizeMetres:F1}m, sea level {SeaLevelMetres:F0}m, wrapX={WrapX} wrapY={WrapY}, " +
-             $"pipeline 0x{PipelineVersion:X}/palette 0x{BlockPaletteVersion:X}/format {ChunkFormatVersion}, " +
-             $"view radius {ViewRadiusChunks}";
+             $"chunk engine v{ChunkEngineVersion}, view radius {ViewRadiusChunks}";
     }
   }
 }

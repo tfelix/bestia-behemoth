@@ -4,6 +4,7 @@ import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import java.awt.Color
@@ -14,7 +15,8 @@ import java.awt.Color
 @Component
 class MasterFactory(
   private val accountRepository: AccountRepository,
-  private val masterRepository: MasterRepository
+  private val masterRepository: MasterRepository,
+  private val worldService: WorldService
 ) {
 
   class CreateMasterData(
@@ -53,6 +55,14 @@ class MasterFactory(
       face = createMasterData.face,
       body = createMasterData.body
     )
+
+    // The entity's own default is the origin, which is the corner of the map inside the drowned ocean margin.
+    // Guarded on the world being loaded so that a test creating a master without a world still gets one, rather
+    // than an exception from somewhere that has nothing to do with what it is testing.
+    if (worldService.isLoaded) {
+      newMaster.spawnPosition = worldService.defaultSpawn
+      newMaster.currentPosition = newMaster.spawnPosition
+    }
 
     try {
       account.master.add(newMaster)

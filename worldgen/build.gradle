@@ -13,8 +13,9 @@ description = 'worldgen'
  * I/O. Everything outside the `viewer` package is a pure function over plain data; the viewer is the
  * one place allowed to touch Swing and the filesystem, and nothing depends on it.
  *
- * Nothing consumes it yet: no other module declares a dependency on it, so today its only callers are
- * the tests, the invariant sweep and the viewer.
+ * `zone-server` depends on this module: `world/WorldService` generates and persists the world and
+ * `world/stream/ChunkService` is the caller the chunk tier was always missing. The other callers are the
+ * tests, the invariant sweep, the viewer and the probe.
  *
  * The internal layering is expressed as packages rather than as separate Gradle modules. Each layer
  * may use the ones above it and nothing below:
@@ -83,6 +84,29 @@ tasks.register('viewerExport', JavaExec) {
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     args '--export', project.findProperty('out') ?: "$buildDir/viewer"
     worldArgs(it)
+}
+
+/**
+ * Prints one player-sized patch of ground as text: `./gradlew :worldgen:probe -Px=32000 -Py=32000`.
+ *
+ * The viewer renders whole worlds, so anything narrower than a kilometre is a pixel in it. This is for the
+ * complaints that only exist at one metre per voxel.
+ */
+tasks.register('probe', JavaExec) {
+    group = 'worldgen'
+    description = 'Dumps the surface blocks and relief of a small window, one character per voxel'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.ProbeMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    worldArgs(it)
+    if (project.hasProperty('x')) args '--x', project.property('x')
+    if (project.hasProperty('y')) args '--y', project.property('y')
+    if (project.hasProperty('span')) args '--span', project.property('span')
+    if (project.hasProperty('at')) args '--at', project.property('at')
+    if (project.hasProperty('survey')) args '--survey', project.property('survey')
+    if (project.hasProperty('on')) args '--on', project.property('on')
+    if (project.hasProperty('nth')) args '--nth', project.property('nth')
+    if (project.hasProperty('channels')) args '--channels'
 }
 
 /**

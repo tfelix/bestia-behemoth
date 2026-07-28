@@ -26,10 +26,10 @@ namespace Bnet {
           string.Concat(
             "CihtZXNzYWdlcy9jb21wb25lbnQvc2tpbGxfbGlzdF9zbXNnLnByb3RvEgRi",
             "bmV0IkgKDVNraWxsTGlzdFNNU0cSEQoJZW50aXR5X2lkGAEgASgGEiQKBnNr",
-            "aWxscxgCIAMoCzIULmJuZXQuU2tpbGxMaXN0RW50cnkiUQoOU2tpbGxMaXN0",
-            "RW50cnkSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA1KBAgDEARK",
-            "BAgEEAVSCW1heF9sZXZlbFIHbGVhcm5lZEIrChVuZXQuYmVzdGlhLmJuZXQu",
-            "cHJvdG9CElNraWxsTGlzdFNNU0dQcm90b2IGcHJvdG8z"));
+            "aWxscxgCIAMoCzIULmJuZXQuU2tpbGxMaXN0RW50cnkiMQoOU2tpbGxMaXN0",
+            "RW50cnkSEAoIc2tpbGxfaWQYASABKAQSDQoFbGV2ZWwYAiABKA1CKwoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhJTa2lsbExpc3RTTVNHUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

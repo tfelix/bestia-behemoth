@@ -9,9 +9,14 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  * Separate from `worldgen`, which holds a world's *birth* settings and is ignored once a world exists.
  * These can all change on a restart without consequence, because none of them affects what the terrain is.
  *
- * @property viewRadiusChunks horizontal radius in chunks around the player's own. Five gives an 11x11 disc,
- *   a 352 m square, 176 m from centre to edge - sized against a draw distance of about 200 m. The cost is
- *   quadratic: seven would be 225 chunks rather than 121.
+ * @property viewRadiusChunks horizontal radius in chunks around the player's own. Five gives an 11x11 square,
+ *   352 m across and 176 m from centre to edge - sized against a draw distance of about 200 m. The cost is
+ *   quadratic: seven would be 225 chunks rather than 121. A square rather than a disc on purpose; the frustum
+ *   it is standing in for is rectangular.
+ * @property viewRadiusChunksVertical vertical radius in *slabs*. A view volume wants bounding in z for the
+ *   same reason it wants bounding in x and y, and a slab is 256 m tall, so one is already a 768 m column -
+ *   far more than an isometric camera can show. This is a ceiling on what the surface rule may offer, not a
+ *   box that is subscribed to outright: see [ChunkService.surfaceSlabsOf].
  * @property chunksPerTickPerPlayer how many chunk payloads one connection may be sent per tick. At the
  *   default tick rate of 20 this is 80 chunks a second, so an initial 121-chunk load spreads over about
  *   one and a half seconds. The ceiling exists for the *client's* sake as much as the socket's: it drains
@@ -31,6 +36,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 @ConfigurationPropertiesScan
 data class ChunkStreamConfig(
   val viewRadiusChunks: Int = 5,
+  val viewRadiusChunksVertical: Int = 1,
   val chunksPerTickPerPlayer: Int = 4,
   val requestBurst: Int = 512,
   val requestRefillPerTick: Int = 2,
@@ -54,18 +60,18 @@ data class ChunkStreamConfig(
   val hotChunkCapacity: Int = 128,
 
   /**
-   * Cached vertical slab ranges, one per horizontal chunk column.
+   * Cached vertical slabs, one entry per horizontal chunk column.
    *
-   * Two ints per entry, so this can be generous - and it needs to be. Computing one entry means a feature
-   * query plus a thousand noise evaluations, and a manifest asks about a whole view volume every time a
-   * player crosses a chunk boundary. 16 384 covers roughly a hundred and thirty view volumes, so a handful
-   * of players moving around a region keep hitting it. Never invalidated: the heightfield it derives from is
-   * immutable, and player edits change voxels rather than terrain height.
+   * A two- or three-element array per entry, so this can be generous - and it needs to be. Computing one
+   * means a feature query plus a thousand noise evaluations, and a manifest asks about a whole view volume
+   * every time a player crosses a chunk boundary. 16 384 covers roughly a hundred and thirty view volumes, so
+   * a handful of players moving around a region keep hitting it. Never invalidated: the heightfield it
+   * derives from is immutable, and player edits change voxels rather than terrain height.
    */
   val slabCacheCapacity: Int = 16_384,
 
   /**
-   * New slab ranges computed per tick, across all players.
+   * New columns' slabs computed per tick, across all players.
    *
    * The cache above makes a *repeated* manifest free, but the first one over fresh ground still has to sample
    * the heightfield for every column in the view volume - 121 chunks at the default radius, each a feature
@@ -92,6 +98,7 @@ data class ChunkStreamConfig(
 
   init {
     require(viewRadiusChunks >= 0) { "View radius cannot be negative" }
+    require(viewRadiusChunksVertical >= 0) { "Vertical view radius cannot be negative" }
     require(chunksPerTickPerPlayer > 0) { "A send budget of zero would never stream anything" }
     require(requestBurst > 0 && requestRefillPerTick > 0) { "The request bucket must be able to refill" }
     require(encodedCacheCapacity > 0) { "The encoded cache must hold at least one chunk" }
@@ -102,6 +109,6 @@ data class ChunkStreamConfig(
     require(derivedRebuildsPerTick >= 0) { "Rebuild budget cannot be negative" }
   }
 
-  /** Chunks in one horizontal view disc, for sizing and for logging what a login will cost. */
+  /** Chunks along one edge of the horizontal view square, for sizing and for logging what a login will cost. */
   val chunksAcrossView get() = 2 * viewRadiusChunks + 1
 }

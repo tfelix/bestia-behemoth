@@ -21,7 +21,9 @@ fun WorldGenConfig.toWorldConfig(seed: Long) = WorldConfig(
   seaLevel = seaLevelMetres,
   chunkSize = chunkSize,
   chunkHeight = chunkHeight,
-  voxelSize = voxelSizeMetres
+  voxelSize = voxelSizeMetres,
+  wrapX = wrapX,
+  wrapY = wrapY
 )
 
 /**
@@ -38,5 +40,41 @@ fun PersistedWorld.toWorldConfig() = WorldConfig(
   seaLevel = seaLevelMetres,
   chunkSize = chunkSize,
   chunkHeight = chunkHeight,
-  voxelSize = voxelSizeMetres
+  voxelSize = voxelSizeMetres,
+  wrapX = wrapX,
+  wrapY = wrapY
 )
+
+/**
+ * Which birth settings this world was *not* born with, one readable line each.
+ *
+ * The counterpart to the two mappings above, and it lives here for the same reason: adding a field to one and
+ * not the others is then a visible omission in a single file rather than an invisible one across three.
+ *
+ * A named difference beats a hash for this. [net.bestia.worldgen.core.WorldConfig.shapeVersion] can only say
+ * *that* two worlds differ, which is no help when what you need to know is whether you are about to throw one
+ * away over a sea level you did not mean to change.
+ *
+ * The world's *name* is deliberately not compared: `findFirstByOrderByIdAsc` never looks at it, so renaming
+ * one is cosmetic and should not read as a request for different terrain.
+ */
+fun PersistedWorld.driftFrom(settings: WorldGenConfig): List<String> = buildList {
+  fun compare(setting: String, stored: Any?, configured: Any?) {
+    if (stored != configured) add("$setting: $stored -> $configured")
+  }
+
+  // Only when one is set. An unset seed was drawn at random and written down, so comparing it against `null`
+  // would report every world as drifted from the moment it was created. Changing an *explicit* seed, on the
+  // other hand, is about as clear a request for a different world as there is.
+  settings.seed?.let { compare("seed", seed, it) }
+
+  compare("width-cells", widthCells, settings.widthCells)
+  compare("height-cells", heightCells, settings.heightCells)
+  compare("cell-size-metres", cellSizeMetres, settings.cellSizeMetres)
+  compare("chunk-size", chunkSize, settings.chunkSize)
+  compare("chunk-height", chunkHeight, settings.chunkHeight)
+  compare("voxel-size-metres", voxelSizeMetres, settings.voxelSizeMetres)
+  compare("sea-level-metres", seaLevelMetres, settings.seaLevelMetres)
+  compare("wrap-x", wrapX, settings.wrapX)
+  compare("wrap-y", wrapY, settings.wrapY)
+}

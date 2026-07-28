@@ -20,6 +20,4 @@ message SkillListSMSG {
 message SkillListEntry {
   uint64 skill_id = 1;
   uint32 level = 2;
-  reserved 3, 4;
-  reserved "max_level", "learned";
 }

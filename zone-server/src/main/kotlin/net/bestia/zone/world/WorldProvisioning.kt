@@ -40,6 +40,30 @@ class WorldProvisioning(
     return create()
   }
 
+  /**
+   * Throws the existing world away and writes a new one from the current settings. **Destructive.**
+   *
+   * Reached only from [WorldService] under [WorldGenConfig.OnMismatch.REGENERATE]. Everything the old world
+   * implied - terrain, chunk caches, and in time the stored player deltas over them - goes with the row,
+   * because all of it is derived from the seed and dimensions being replaced. Nothing is backed up: a world
+   * that was worth keeping should not have been booted under this policy.
+   */
+  @Transactional
+  fun recreate(): PersistedWorld {
+    val discarded = worldRepository.findFirstByOrderByIdAsc()
+
+    worldRepository.deleteAll()
+
+    // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to
+    // order a pending insert ahead of a pending delete inside one transaction, which would collide with the
+    // very row being replaced.
+    worldRepository.flush()
+
+    LOG.warn { "Discarded world '${discarded?.name}' (seed ${discarded?.seed}) and everything derived from it" }
+
+    return create()
+  }
+
   private fun create(): PersistedWorld {
     val seed = config.seed ?: Random.nextLong()
     if (config.seed == null) {
@@ -64,9 +88,12 @@ class WorldProvisioning(
         chunkHeight = config.chunkHeight,
         voxelSizeMetres = config.voxelSizeMetres,
         seaLevelMetres = config.seaLevelMetres,
+        wrapX = config.wrapX,
+        wrapY = config.wrapY,
         pipelineVersion = versions.pipelineVersion,
         blockPaletteVersion = versions.blockPaletteVersion,
         chunkFormatVersion = versions.chunkFormatVersion,
+        shapeVersion = worldConfig.shapeVersion,
         createdAt = Instant.now()
       )
     )

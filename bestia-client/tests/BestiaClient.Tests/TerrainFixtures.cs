@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using BestiaBehemothClient.Bnet.Message.Map;
 using BestiaBehemothClient.Game.World;
 using BestiaBehemothClient.Game.World.Mesh;
+using Godot;
 
 namespace BestiaBehemothClient.Tests
 {
@@ -44,19 +44,22 @@ namespace BestiaBehemothClient.Tests
     internal const byte Grass = 40;
 
     /// <summary>
-    /// The palette as the server sends it, trimmed to what these tests use.
+    /// The shipped palette, trimmed to the handful of materials these tests use.
     /// </summary>
     /// <remarks>
-    /// Built from entries rather than a <c>BlockPaletteSMSG</c>, which derives from <c>GodotObject</c> and cannot
-    /// be constructed without the engine. The nested entry type is a plain class, so it can.
+    /// A subset rather than <c>BlockAppearance.Current</c>, so a test asserting that water and terrain land on
+    /// different surfaces says which materials it means instead of depending on two dozen it does not.
     /// </remarks>
     internal static BlockAppearance Appearance() => BlockAppearance.From(new[]
     {
-      new BlockPaletteSMSG.Entry { Id = Water, Name = "WATER", Solid = false, Opaque = false },
-      new BlockPaletteSMSG.Entry { Id = 2, Name = "ICE", Solid = true, Opaque = true },
-      new BlockPaletteSMSG.Entry { Id = Granite, Name = "GRANITE", Solid = true, Opaque = true },
-      new BlockPaletteSMSG.Entry { Id = Grass, Name = "GRASS", Solid = true, Opaque = true }
+      Block(Water, "WATER", false, new Color(0.16f, 0.35f, 0.52f, 0.72f)),
+      Block(2, "ICE", true, new Color(0.78f, 0.88f, 0.93f)),
+      Block(Granite, "GRANITE", true, new Color(0.60f, 0.56f, 0.55f)),
+      Block(Grass, "GRASS", true, new Color(0.28f, 0.45f, 0.19f))
     });
+
+    private static BlockAppearance.Block Block(byte id, string name, bool solid, Color colour) =>
+      new() { Id = id, Name = name, Solid = solid, Opaque = solid, Colour = colour };
 
     /// <summary>
     /// Every column solid up to <paramref name="surface"/>, with the topmost voxel partially filled.

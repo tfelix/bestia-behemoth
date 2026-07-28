@@ -3,6 +3,7 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.core.ColumnHeights
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
@@ -107,13 +108,14 @@ class ChunkService(
   private val baseHashes = Lru<ChunkPos, Long>(settings.encodedCacheCapacity)
 
   /**
-   * Vertical slab range per horizontal chunk column. See [surfaceSlabsOf] for why this cache is load bearing.
+   * Vertical slabs per horizontal chunk column. See [surfaceSlabsOf] for why this cache is load bearing.
    *
    * Keyed on `(x, y)` only, and never invalidated, because the heightfield it derives from is immutable. Held
-   * far more generously than the chunk caches: an entry is two ints against half a megabyte for a decoded
-   * chunk, and a hit here is what keeps recomputing a manifest off the tick thread's critical path.
+   * far more generously than the chunk caches: an entry is a two- or three-element array against half a
+   * megabyte for a decoded chunk, and a hit here is what keeps recomputing a manifest off the tick thread's
+   * critical path.
    */
-  private val slabs = Lru<Pair<Int, Int>, IntRange>(settings.slabCacheCapacity)
+  private val slabs = Lru<Pair<Int, Int>, IntArray>(settings.slabCacheCapacity)
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
@@ -154,12 +156,29 @@ class ChunkService(
   fun normalise(chunk: ChunkPos): ChunkPos = loaded.wrap.normalise(chunk)
 
   /**
-   * Which vertical slabs the terrain surface passes through in this chunk column.
+   * Which vertical slabs hold a *surface* in this chunk column - somewhere the world stops being one thing and
+   * starts being another, and so somewhere there is geometry to draw.
    *
-   * Usually one value, occasionally two where a column straddles a 256 m boundary. This is what lets the
-   * subscription be vertically thin without ever being vertically wrong: it reads the *heightfield* rather
-   * than trusting the player's own `z`, so a player standing at sea level under a 300 m mountain is still
-   * sent the mountain.
+   * Two surfaces qualify: the terrain, from the column's lowest ground to its highest, and the sea, whose slabs
+   * [seaSurfaceSlabs] works out. Usually that is one or two slabs and never normally more than four, so this
+   * is what lets the subscription be vertically thin without being vertically wrong: it reads the
+   * *heightfield* rather than trusting the player's own `z`, so a player standing at sea level under a 300 m
+   * mountain is still offered the mountain.
+   *
+   * ### Not contiguous, which is the whole point
+   *
+   * An earlier version returned the span from the seabed up to the water surface, which for the 2.5 km ocean
+   * margin is a seabed 800 m down and so five slabs - four of them solid water fill that the client meshes to
+   * nothing, after the server has generated them. The gap between the two surfaces is exactly what a caller
+   * wants skipped, so the return type has to be able to express a hole.
+   *
+   * ### Sea level stands in for the water surface
+   *
+   * Real water level varies per column - lakes and rivers sit above it - but sampling that here would add a
+   * second field query to a method whose entire justification is being cheap. A mountain lake's surface is
+   * within metres of its own terrain, which the terrain term already covers; the ocean is the case where the
+   * two diverge by hundreds of metres, and there sea level is exact. Getting *which slab* that is wrong is what
+   * made open water render as nothing at all - see [seaSurfaceSlabs].
    *
    * ### Cached, and it must be
    *
@@ -174,23 +193,23 @@ class ChunkService(
    * heightfield, so no edit can invalidate this - which is why there is no invalidation path and should not
    * be one.
    */
-  fun surfaceSlabsOf(column: ChunkPos): IntRange = slabs.getOrPut(column.x to column.y) {
+  fun surfaceSlabsOf(column: ChunkPos): IntArray = slabs.getOrPut(column.x to column.y) {
     computed++
     computeSurfaceSlabs(column)
   }
 
   /**
-   * The cached slab range, or `null` if it has not been computed yet.
+   * The cached slabs, or `null` if they have not been computed yet.
    *
    * Lets a caller distinguish "free" from "expensive" and spend a budget accordingly, rather than discovering
    * the cost after paying it. See [ChunkStreamConfig.slabComputationsPerTick].
    */
-  fun cachedSlabsOf(column: ChunkPos): IntRange? = slabs[column.x to column.y]
+  fun cachedSlabsOf(column: ChunkPos): IntArray? = slabs[column.x to column.y]
 
   private var computed = 0
 
   /**
-   * How many slab ranges have actually been computed rather than served from cache.
+   * How many columns' slabs have actually been computed rather than served from cache.
    *
    * Exposed so the cache can be tested for what it is - a performance property - without a timing assertion.
    * A test that recomputes the same manifest and watches this stay still is deterministic; one that watches a
@@ -198,8 +217,25 @@ class ChunkService(
    */
   val slabComputations get() = computed
 
-  private fun computeSurfaceSlabs(column: ChunkPos): IntRange {
-    val heights = loaded.columns.heights(ChunkPos(column.x, column.y, 0), 0)
+  /**
+   * Column heights per horizontal chunk, because one lookup builds all 1 024 of them.
+   *
+   * `ChunkHeightSampler.heights` evaluates every column in the chunk and every vector feature reaching it, so
+   * asking it for one column costs the same as asking for the whole block. That was tolerable while the only
+   * callers were manifest building and the occasional teleport; it is not now that [surfaceElevationAt] is on
+   * `MoveSystem`'s per-step path, where a party walking together would rebuild the same block once per entity
+   * per tile.
+   */
+  private val columnHeights = Lru<Pair<Int, Int>, ColumnHeights>(settings.hotChunkCapacity)
+
+  private fun heightsOf(chunkX: Int, chunkY: Int): ColumnHeights =
+    columnHeights.getOrPut(chunkX to chunkY) {
+      loaded.columns.heights(ChunkPos(chunkX, chunkY, 0), 0)
+    }
+
+  private fun computeSurfaceSlabs(column: ChunkPos): IntArray {
+    val heights = heightsOf(column.x, column.y)
+    val seaSlabs = ChunkCoords.seaSurfaceSlabs(loaded.config)
 
     var lowest = Double.POSITIVE_INFINITY
     var highest = Double.NEGATIVE_INFINITY
@@ -215,19 +251,40 @@ class ChunkService(
     // A column source that produced nothing finite is a bug rather than a flat world, but refusing to guess
     // is better than subscribing to a slab chosen by an infinity.
     if (!lowest.isFinite() || !highest.isFinite()) {
-      LOG.warn { "Column heights for $column are not finite; falling back to the sea-level slab" }
-      return 0..0
+      LOG.warn { "Column heights for $column are not finite; falling back to the sea-surface slabs" }
+      return seaSlabs.sorted().toIntArray()
     }
 
-    // Sea level is included, so a coastal column offers both the seabed slab and the one holding the water
-    // surface even when the terrain itself never reaches it.
-    val floor = minOf(lowest, loaded.config.seaLevel)
-    val ceiling = maxOf(highest, loaded.config.seaLevel)
+    // A sorted set rather than arithmetic on the two ranges, because the water slabs may fall inside the
+    // terrain span, immediately above or below it, or hundreds of metres away, and the fast path is the one
+    // where it coincides and collapses to a single entry.
+    val found = sortedSetOf<Int>().apply { addAll(seaSlabs) }
+    for (z in loaded.config.chunkZOf(lowest)..loaded.config.chunkZOf(highest)) {
+      found.add(z)
+    }
 
-    return loaded.config.chunkZOf(floor)..loaded.config.chunkZOf(ceiling)
+    return found.toIntArray()
   }
 
   /** The authoritative merged chunk: base with every edit applied, or the baked blob. */
+  /**
+   * Ground elevation in metres at a world voxel column, straight from the heightfield.
+   *
+   * Read from the *heightfield* rather than by scanning voxels, which is what makes it affordable: it is a
+   * raster sample plus a feature query, not a chunk generation. It therefore reports the top of the **base
+   * terrain** and knows nothing about player edits - fine for putting somebody on the ground, wrong for
+   * anything that has to agree with what the player can walk on. Use [derived] for that.
+   *
+   * Sea level is not applied here. A submarine column reports its seabed, and it is the caller's business to
+   * decide whether standing there makes sense.
+   */
+  fun surfaceElevationAt(voxelX: Long, voxelY: Long): Double? {
+    val localised = ChunkCoords.localise(loaded.config, voxelX, voxelY, 0) ?: return null
+    val column = normalise(localised.chunk)
+
+    return heightsOf(column.x, column.y)[localised.localX, localised.localY]
+  }
+
   fun merged(chunk: ChunkPos): VoxelChunk = loaded.store.merged(chunk)
 
   fun revisionOf(chunk: ChunkPos): Int = revisions[chunk] ?: 0

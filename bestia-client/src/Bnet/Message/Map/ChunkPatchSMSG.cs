@@ -21,7 +21,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
   /// </para>
   /// </remarks>
   [GlobalClass]
-  public partial class ChunkPatchSMSG : ISMSG
+  public partial class ChunkPatchSMSG : MapSMSG
   {
     public ChunkKey Key { get; private init; }
 

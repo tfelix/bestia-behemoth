@@ -8,8 +8,11 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.movement.Grounded
+import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -44,7 +47,16 @@ class ChunkStreamSystem(
   private val settings: ChunkStreamConfig
 ) : System {
 
-  override val reads: ComponentClassSet = setOf(Position::class, Account::class, ActivePlayer::class)
+  override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class)
+
+  /**
+   * [Position] and [Path] are written, not just read, because a teleport moves a player.
+   *
+   * Declaring them matters beyond documentation: the scheduler runs systems in parallel unless their read/write
+   * sets conflict, so leaving `Position` in `reads` alone would let this run concurrently with `MoveSystem`,
+   * which writes it. `@Order` fixes the sequence only among systems that already conflict.
+   */
+  override val writes: ComponentClassSet = setOf(Position::class, Path::class, Grounded::class)
 
   /** Chunks a client has asked for and not yet been sent, nearest first. */
   private val queued = HashMap<Long, LinkedHashSet<ChunkPos>>()
@@ -56,6 +68,13 @@ class ChunkStreamSystem(
     if (!chunkService.isReady) return
 
     applyEdits()
+
+    // Before the subscriptions, so a teleport and the manifest that answers it happen in the same tick. The
+    // other order would offer the player a view volume around where they used to be and correct it one tick
+    // later, which is a visible flash of the wrong terrain.
+    groundNewcomers(world)
+    applyTeleports(world)
+
     updateSubscriptions(world)
     broadcastChanges()
     serveRequests()
@@ -92,6 +111,105 @@ class ChunkStreamSystem(
         localised.localZ,
         block
       )
+    }
+  }
+
+  /**
+   * Puts every entity that has never been reconciled with the terrain onto the ground.
+   *
+   * This is the tick-thread half of a problem the request thread cannot solve: `WorldService.defaultSpawn` has to
+   * name a `z` when a master is created, the ground elevation is only knowable here, so it used sea level and
+   * documented the consequence. The consequence is severe - on a world whose centre is dry land, a new player
+   * spawns *inside* the terrain, where every surrounding chunk is uniform rock, encodes to twelve bytes, meshes
+   * to no surface and renders as a black screen. It looks exactly like the terrain failing to load.
+   *
+   * Runs before the subscriptions for the same reason the teleport does: the manifest that follows should describe
+   * where the player actually is, not where they were for the first tick of their session.
+   *
+   * @see Grounded for why this is a marker rather than a "snap anything below the surface" rule
+   */
+  private fun groundNewcomers(world: World) {
+    val config = chunkService.config
+    val ungrounded = ArrayList<EntityId>()
+
+    world.query(Position::class).each { id ->
+      if (world.get(id, Grounded::class) == null) ungrounded.add(id)
+    }
+
+    for (entityId in ungrounded) {
+      val position = world.get(entityId, Position::class) ?: continue
+      val ground = chunkService.surfaceElevationAt(position.x, position.y)
+
+      if (ground == null) {
+        // Off the grid. Marked anyway: retrying every tick would ask the same unanswerable question sixty times
+        // a second, and a position outside the world is a different bug from a position at the wrong height.
+        world.add(entityId, Grounded)
+        continue
+      }
+
+      val z = ChunkCoords.standingZ(config, ground)
+      if (z != position.z) {
+        LOG.info {
+          "Grounded entity $entityId at (${position.x},${position.y}): z ${position.z} -> $z, " +
+              "ground ${"%.1f".format(ground)} m"
+        }
+        position.z = z
+      }
+
+      world.add(entityId, Grounded)
+    }
+  }
+
+  /**
+   * Puts a player down somewhere else, on the ground rather than at whatever elevation they were.
+   *
+   * Here rather than in the chat command for two reasons that both come down to thread ownership: the ground
+   * elevation is [ChunkService]'s to answer and it has one owning thread, and the position write wants to land
+   * in the same tick as the manifest that follows it.
+   *
+   * Any [Path] is discarded. A player who was walking has a queue of waypoints back where they came from, and
+   * `MoveSystem` would otherwise spend the next few seconds dragging them home across the world.
+   */
+  private fun applyTeleports(world: World) {
+    val teleports = inbox.drainTeleports()
+    if (teleports.isEmpty()) return
+
+    val config = chunkService.config
+
+    val entities = HashMap<Long, EntityId>()
+    world.query(Position::class, Account::class, ActivePlayer::class).each { id ->
+      entities[get<Account>().accountId] = id
+    }
+
+    for (teleport in teleports) {
+      val entityId = entities[teleport.accountId]
+      if (entityId == null) {
+        LOG.warn { "Account ${teleport.accountId} asked to move but has no active entity" }
+        continue
+      }
+
+      val ground = chunkService.surfaceElevationAt(teleport.x, teleport.y)
+      if (ground == null) {
+        LOG.warn { "Account ${teleport.accountId} asked to move to (${teleport.x},${teleport.y}), off the grid" }
+        continue
+      }
+
+      // Shared with MoveSystem's per-step snap, so a teleport and a walk agree about where the ground is. It also
+      // clamps to the waterline; see ChunkCoords.standingZ for that and for why it rounds.
+      val z = ChunkCoords.standingZ(config, ground)
+
+      world.get(entityId, Position::class)?.let { position ->
+        position.x = teleport.x
+        position.y = teleport.y
+        position.z = z
+      }
+
+      world.remove(entityId, Path::class)
+
+      LOG.info {
+        "Moved account ${teleport.accountId} to (${teleport.x},${teleport.y},$z), " +
+            "ground ${"%.1f".format(ground)} m"
+      }
     }
   }
 
@@ -189,17 +307,35 @@ class ChunkStreamSystem(
   /**
    * The chunks a player at [anchor] should hold.
    *
-   * Horizontally a square of `viewRadiusChunks` around them. Vertically, the chunks the *terrain surface*
-   * occupies in each column, plus the player's own slab and its neighbours.
+   * Horizontally a square of `viewRadiusChunks` around them. Vertically, the slabs that hold a *surface* in
+   * each column, clipped to `viewRadiusChunksVertical` around the player's own slab, plus that slab itself:
    *
-   * The vertical rule is not the obvious `z ± 1` box, which would triple the count for nothing: a chunk is
-   * 256 m tall, so one slab almost always contains a whole column's surface. Asking the height sampler which
-   * slab that is costs a raster lookup and means the player gets ground rather than bedrock even when their
-   * own `z` is wrong - which it currently always is, because every master spawns at `Vec3L.ZERO`, at sea
-   * level, whatever the terrain under them is doing.
+   * ```
+   * slabs(column) = (surfaces(column) ∩ [anchor.z - v, anchor.z + v]) ∪ { anchor.z }
+   * ```
+   *
+   * ### Why the surface term is a set and not a span
+   *
+   * A chunk is 256 m tall, so one slab almost always contains a whole column's surface - but not the
+   * *seabed's* and the *sea's* at once. Deep ocean puts them four slabs apart, and everything between is
+   * solid water that the client meshes to nothing. Subscribing to the span rather than to its two ends is
+   * what made a login in the ocean margin offer 726 chunks where 121 was the answer.
+   *
+   * ### Why it is clipped
+   *
+   * A view volume wants bounding in z for the same reason as in x and y, and without it a coastal column
+   * offers the seabed a kilometre below a player who cannot see it. The clip is what keeps the count
+   * proportional to what is on screen rather than to how deep the water happens to be.
+   *
+   * ### Why the player's own slab survives the clip
+   *
+   * They must have ground under them on the first tick even where the surface rule disagrees - standing on a
+   * built platform, or in a cave, or simply at an elevation the heightfield knows nothing about. It replaces
+   * an unconditional `anchor.z ± 1`, which tripled the count to buy the same guarantee.
    */
   private fun desiredChunks(anchor: ChunkPos, budget: Budget): Set<ChunkPos> {
     val radius = settings.viewRadiusChunks
+    val vertical = settings.viewRadiusChunksVertical
     val desired = LinkedHashSet<ChunkPos>()
 
     // Nearest first, so the send queue is already in the order a player wants it - and so a budget that runs
@@ -218,11 +354,11 @@ class ChunkStreamSystem(
 
       if (slabs == null) continue
 
-      for (z in slabs) {
-        desired.add(chunkService.normalise(ChunkPos(column.x, column.y, z)))
-      }
+      desired.add(chunkService.normalise(ChunkPos(column.x, column.y, anchor.z)))
 
-      for (z in (anchor.z - 1)..(anchor.z + 1)) {
+      for (z in slabs) {
+        if (z < anchor.z - vertical || z > anchor.z + vertical) continue
+
         desired.add(chunkService.normalise(ChunkPos(column.x, column.y, z)))
       }
     }

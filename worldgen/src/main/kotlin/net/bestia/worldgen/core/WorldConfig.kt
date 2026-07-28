@@ -54,9 +54,20 @@ data class WorldConfig(
   /**
    * Whether north and south are the same place.
    *
-   * Off by default, and not merely for want of implementing it: temperature comes from latitude, so wrapping
-   * north to south walks from one pole straight into the other. The poles being cold ocean is a better edge
-   * than a teleport across sixty degrees of latitude.
+   * Off by default, because unlike [wrapX] it is not free. Temperature comes from latitude and `ClimateStage`
+   * makes that a linear ramp in y, so the seam is a discontinuity rather than a join: temperature jumps by
+   * the world's whole latitude span, and `Winds.zonalSign` flips hemisphere with it, which reverses the
+   * orographic rain pattern `BiomeStage` classifies on. A player crossing it walks from one pole into the
+   * other.
+   *
+   * Turn it on anyway when the alternative is a wall. The discontinuity lands inside the ocean margin the
+   * same mechanism uses to hide the X seam - `OceanBorder.distanceToEdge` forces all four edges underwater -
+   * so what is actually reachable either side of it is featureless polar sea, where a climate that makes no
+   * sense has nothing to be inconsistent with. `zone-server` runs Genesis this way.
+   *
+   * Making it genuinely continuous means giving latitude a periodic profile, at which point the world has two
+   * equators and two poles rather than one of each. That is a bigger change than it sounds and it is not
+   * needed to stop a player finding the edge.
    */
   val wrapY: Boolean = false,
 
@@ -109,6 +120,47 @@ data class WorldConfig(
   val widthMetres: Double get() = widthCells * baseResolution.metresPerCell
 
   val heightMetres: Double get() = heightCells * baseResolution.metresPerCell
+
+  /**
+   * A hash of everything here that decides what the terrain *is*.
+   *
+   * Companion to `PipelineVersion`, and answering a different question. That one asks whether two parties run
+   * the same generator; this asks whether they are pointing it at the same world. Both can disagree
+   * independently and the remedies are not the same, so a single number could not tell them apart.
+   *
+   * ### What it is actually for
+   *
+   * A caller that persists a world has to persist enough to rebuild this config, and nothing checks that it
+   * did. Storing this hash alongside the world and recomputing it from the stored row on the next boot is
+   * that check: any field that matters to generation and was not written down comes back as its default, the
+   * hashes disagree, and the boot stops. `wrapX`/`wrapY` were exactly that bug - they lived here, decided
+   * where the coastline went, and were absent from `zone-server`'s world row for as long as the row existed.
+   *
+   * It cannot catch a field that is missing from *both* this hash and the storage, which is why the list
+   * below is spelled out rather than derived: adding a field to the constructor and not to this hash has to
+   * be a visible omission in a diff, not an invisible one.
+   *
+   * ### Effective values, not overrides
+   *
+   * [oceanBorderMetres] and [detailScale] rather than the nullable overrides they come from, because what
+   * generation reads is the resolved number. A world born with an explicit 2500 m margin and one that derived
+   * the same 2500 m are the same world and must hash alike.
+   */
+  val shapeVersion: Long
+    get() = GenRng.hash(
+      seed,
+      widthCells.toLong(),
+      heightCells.toLong(),
+      baseResolution.metresPerCell.toRawBits(),
+      seaLevel.toRawBits(),
+      chunkSize.toLong(),
+      chunkHeight.toLong(),
+      voxelSize.toRawBits(),
+      oceanBorderMetres.toRawBits(),
+      detailScale.toRawBits(),
+      if (wrapX) 1L else 0L,
+      if (wrapY) 1L else 0L
+    )
 
   /** Horizontal edge length of a chunk in metres. */
   val chunkExtent: Double get() = chunkSize * voxelSize

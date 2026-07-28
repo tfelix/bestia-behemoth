@@ -1,29 +1,36 @@
 using System.Collections.Generic;
-using BestiaBehemothClient.Bnet.Message.Map;
 using Godot;
 
 namespace BestiaBehemothClient.Game.World.Mesh
 {
   /// <summary>
-  /// Turns the server's block palette into the two things the mesher needs: which blocks belong to which
-  /// surface, and what colour each one is.
+  /// The block palette, and the two things the mesher needs from it: which blocks belong to which surface,
+  /// and what colour each one is.
   /// </summary>
   /// <remarks>
-  /// Both are lookup tables indexed directly by block id, because they are read in the mesher's innermost loop
-  /// and ids are only ever a byte on the wire. Sparse ids waste a couple of hundred entries, which is the whole
-  /// cost of not having a dictionary lookup per voxel.
+  /// <see cref="Palette"/> mirrors the server's <c>BlockType</c> enum by hand. It used to be sent over the
+  /// wire, on the argument that a renamed material should not be a client release - but a *new* material is
+  /// one regardless, because nothing here can invent a colour for it that looks like rock rather than like a
+  /// bug, and a renamed one changes nothing the player sees. So the transfer bought a few hundred bytes per
+  /// login and a whole message type in exchange for a property nobody could use. What replaces it is
+  /// <c>ChunkEngine.Version</c>: the client states which palette it holds, and the server says whether that
+  /// is the one it is encoding against.
   ///
   /// <para>
-  /// Membership comes from the palette's own <c>solid</c> flag rather than from hardcoded ids, which is the
-  /// point of the palette being sent at all: <c>ICE</c> is solid and belongs to the terrain surface, <c>WATER</c>
-  /// is not and gets its own transparent one, and a new material on the server picks the right surface without a
-  /// client release.
+  /// The lookup tables are indexed directly by block id, because they are read in the mesher's innermost loop
+  /// and ids are only ever a byte on the wire. Sparse ids waste a couple of hundred entries, which is the
+  /// whole cost of not having a dictionary lookup per voxel.
   /// </para>
   ///
   /// <para>
-  /// Vertex colour is the interim answer to texturing. It puts recognisable terrain on screen for the cost of a
-  /// lookup table, and it is deliberately not the destination: the shape of the data - one material id per vertex
-  /// - is the same shape a <c>Texture2DArray</c> blended in the shader wants, so replacing
+  /// Surface membership comes from <see cref="Block.Solid"/> rather than from hardcoded ids: <c>ICE</c> is
+  /// solid and belongs to the terrain surface, <c>WATER</c> is not and gets its own transparent one.
+  /// </para>
+  ///
+  /// <para>
+  /// Vertex colour is the interim answer to texturing. It puts recognisable terrain on screen for the cost of
+  /// a lookup table, and it is deliberately not the destination: the shape of the data - one material id per
+  /// vertex - is the same shape a <c>Texture2DArray</c> blended in the shader wants, so replacing
   /// <see cref="ColourOf"/> with a layer index in <c>ARRAY_CUSTOM0</c> changes this file and the shader and
   /// nothing else.
   /// </para>
@@ -33,6 +40,103 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>Block ids are a byte on the wire, so every table covers the whole range.</summary>
     public const int Ids = 256;
 
+    /// <summary>One material, exactly as the server's <c>BlockType</c> declares it, plus how to draw it.</summary>
+    public sealed class Block
+    {
+      /// <summary>
+      /// The id that appears in chunk payloads and in stored deltas.
+      /// </summary>
+      /// <remarks>
+      /// Sparse and permanent - grouped by material family with gaps inside each family - so this is
+      /// emphatically not an index into <see cref="Palette"/>.
+      /// </remarks>
+      public byte Id { get; init; }
+
+      public string Name { get; init; } = "";
+
+      /// <summary>Whether it belongs to the opaque terrain surface rather than the transparent water one.</summary>
+      public bool Solid { get; init; }
+
+      /// <summary>
+      /// Whether it blocks sight.
+      /// </summary>
+      /// <remarks>
+      /// Never distinct from <see cref="Solid"/> in the current palette and unread by anything here, but
+      /// mirrored because the server distinguishes them and a divergence would be silent.
+      /// </remarks>
+      public bool Opaque { get; init; }
+
+      public Color Colour { get; init; }
+    }
+
+    /// <summary>
+    /// Every material the server can put in a chunk, in id order.
+    /// </summary>
+    /// <remarks>
+    /// Must stay in step with <c>BlockType.kt</c>. <c>ChunkStoreTest.the block palette is pinned</c> is the
+    /// tripwire: it fails the server build whenever the enum's ids or names change, at which point this table
+    /// and <c>ChunkEngine.Version</c> on both sides have to move with it.
+    /// </remarks>
+    public static readonly IReadOnlyList<Block> Palette = new[]
+    {
+      // AIR (0) is absent on purpose: it is the wire format's definition of "nothing here" rather than a
+      // material, and an id with no entry is drawn by neither surface, which is what air should be.
+      Fluid(1, "WATER", 0.16f, 0.35f, 0.52f, 0.72f),
+      Terrain(2, "ICE", 0.78f, 0.88f, 0.93f),
+
+      // Basement.
+      Terrain(10, "GRANITE", 0.60f, 0.56f, 0.55f),
+      Terrain(11, "BASALT", 0.26f, 0.26f, 0.28f),
+
+      // Sedimentary cover.
+      Terrain(20, "LIMESTONE", 0.78f, 0.76f, 0.68f),
+      Terrain(21, "SANDSTONE", 0.76f, 0.62f, 0.42f),
+      Terrain(22, "SHALE", 0.34f, 0.35f, 0.36f),
+      Terrain(23, "CONGLOMERATE", 0.57f, 0.51f, 0.45f),
+
+      // Unconsolidated.
+      Terrain(30, "GRAVEL", 0.52f, 0.50f, 0.48f),
+      Terrain(31, "SAND", 0.85f, 0.76f, 0.55f),
+      Terrain(32, "CLAY", 0.60f, 0.45f, 0.36f),
+      Terrain(33, "DIRT", 0.38f, 0.28f, 0.19f),
+      Terrain(34, "PEAT", 0.22f, 0.17f, 0.13f),
+      Terrain(35, "PERMAFROST", 0.55f, 0.57f, 0.60f),
+
+      // Surface cover.
+      Terrain(40, "GRASS", 0.28f, 0.45f, 0.19f),
+      Terrain(41, "SNOW", 0.92f, 0.94f, 0.96f),
+
+      // Ore, placed per voxel at chunk generation.
+      Terrain(50, "ORE_COPPER", 0.45f, 0.55f, 0.45f),
+      Terrain(51, "ORE_TIN", 0.58f, 0.58f, 0.62f),
+      Terrain(52, "ORE_IRON", 0.53f, 0.38f, 0.30f),
+      Terrain(53, "ORE_GOLD", 0.78f, 0.66f, 0.28f),
+      Terrain(54, "ORE_SILVER", 0.72f, 0.74f, 0.76f),
+      Terrain(55, "COAL_SEAM", 0.13f, 0.13f, 0.14f),
+      Terrain(56, "ROCK_SALT", 0.86f, 0.84f, 0.82f),
+
+      // Bridge decking and other worked structure.
+      Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f)
+    };
+
+    /// <summary>
+    /// A material on the opaque terrain surface.
+    /// </summary>
+    /// <remarks>
+    /// Solid and sight-blocking together, which every terrain material in the server's enum currently is. A
+    /// material that is one and not the other needs its own factory rather than a fourth argument here, so
+    /// that the divergence is visible in the table rather than hidden in a boolean.
+    /// </remarks>
+    private static Block Terrain(byte id, string name, float r, float g, float b) =>
+      new() { Id = id, Name = name, Solid = true, Opaque = true, Colour = new Color(r, g, b) };
+
+    /// <summary>A material on the transparent water surface: neither solid nor sight-blocking.</summary>
+    private static Block Fluid(byte id, string name, float r, float g, float b, float a) =>
+      new() { Id = id, Name = name, Solid = false, Opaque = false, Colour = new Color(r, g, b, a) };
+
+    /// <summary>The tables for the palette this client ships with. Built once; nothing mutates them.</summary>
+    public static BlockAppearance Current { get; } = From(Palette);
+
     /// <summary>0xFF for blocks that belong to the opaque terrain surface, 0 otherwise.</summary>
     public byte[] TerrainMask { get; } = new byte[Ids];
 
@@ -41,126 +145,50 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     private readonly Color[] _colour = new Color[Ids];
 
+    private readonly string[] _name = new string[Ids];
+
     /// <summary>Whether any block in the palette belongs to the water surface, so an empty pass can be skipped.</summary>
     public bool HasWater { get; private set; }
 
     public Color ColourOf(byte blockId) => _colour[blockId];
 
-    /// <summary>Builds the tables from a received palette.</summary>
-    public static BlockAppearance From(BlockPaletteSMSG palette) => From(palette?.ById.Values);
+    /// <summary>The material's name, or a bare <c>#id</c> for one this palette does not know. For logging.</summary>
+    public string NameOf(int blockId) =>
+      blockId >= 0 && blockId < Ids && _name[blockId] != null ? _name[blockId] : $"#{blockId}";
 
     /// <summary>
-    /// Builds the tables from palette entries.
+    /// Builds the tables from an arbitrary set of materials.
     /// </summary>
     /// <remarks>
-    /// Takes the entries rather than the message, because <see cref="BlockPaletteSMSG"/> is a <c>GodotObject</c>
-    /// and cannot be constructed without the engine running - which would put the whole appearance and meshing
-    /// path out of reach of anything that is not a live game.
-    ///
-    /// <para>
-    /// No entries yields a usable fallback rather than a failure: block zero is air by definition of the wire
-    /// format, so treating everything else as opaque terrain draws the world in placeholder grey instead of
-    /// drawing nothing. The palette arrives alongside the world info and before any chunk, so this should not
-    /// happen; it costs nothing to not depend on that.
-    /// </para>
+    /// Public for the sake of the tests, which drive the mesher over a handful of invented materials rather
+    /// than the real two dozen. Production has exactly one instance and it is <see cref="Current"/>.
     /// </remarks>
-    public static BlockAppearance From(IEnumerable<BlockPaletteSMSG.Entry> entries)
+    public static BlockAppearance From(IEnumerable<Block> blocks)
     {
       var appearance = new BlockAppearance();
 
-      if (entries == null)
+      foreach (var block in blocks)
       {
-        for (var id = 1; id < Ids; id++)
-        {
-          appearance.TerrainMask[id] = 0xFF;
-          appearance._colour[id] = Fallback;
-        }
-
-        return appearance;
-      }
-
-      foreach (var entry in entries)
-      {
-        if (entry.Id <= VoxelChunk.AirBlockId || entry.Id >= Ids)
+        if (block.Id <= VoxelChunk.AirBlockId)
         {
           continue;
         }
 
-        if (entry.Solid)
+        if (block.Solid)
         {
-          appearance.TerrainMask[entry.Id] = 0xFF;
+          appearance.TerrainMask[block.Id] = 0xFF;
         }
         else
         {
-          appearance.WaterMask[entry.Id] = 0xFF;
+          appearance.WaterMask[block.Id] = 0xFF;
           appearance.HasWater = true;
         }
 
-        appearance._colour[entry.Id] = ColourFor(entry.Name);
+        appearance._colour[block.Id] = block.Colour;
+        appearance._name[block.Id] = block.Name;
       }
 
       return appearance;
-    }
-
-    private static readonly Color Fallback = new(0.55f, 0.53f, 0.50f);
-
-    /// <summary>
-    /// Colours by material name, so the palette stays the server's to define.
-    /// </summary>
-    /// <remarks>
-    /// Keyed on the name rather than the id because a name is what a human wrote and an id is an accident of
-    /// grouping. A material this table has not heard of falls back to a colour derived from its name, which keeps
-    /// distinct unknown materials distinguishable on screen instead of collapsing them all into one grey.
-    /// </remarks>
-    private static readonly Dictionary<string, Color> ByName = new()
-    {
-      ["WATER"] = new Color(0.16f, 0.35f, 0.52f, 0.72f),
-      ["ICE"] = new Color(0.78f, 0.88f, 0.93f),
-
-      ["GRANITE"] = new Color(0.60f, 0.56f, 0.55f),
-      ["BASALT"] = new Color(0.26f, 0.26f, 0.28f),
-
-      ["LIMESTONE"] = new Color(0.78f, 0.76f, 0.68f),
-      ["SANDSTONE"] = new Color(0.76f, 0.62f, 0.42f),
-      ["SHALE"] = new Color(0.34f, 0.35f, 0.36f),
-      ["CONGLOMERATE"] = new Color(0.57f, 0.51f, 0.45f),
-
-      ["GRAVEL"] = new Color(0.52f, 0.50f, 0.48f),
-      ["SAND"] = new Color(0.85f, 0.76f, 0.55f),
-      ["CLAY"] = new Color(0.60f, 0.45f, 0.36f),
-      ["DIRT"] = new Color(0.38f, 0.28f, 0.19f),
-      ["PEAT"] = new Color(0.22f, 0.17f, 0.13f),
-      ["PERMAFROST"] = new Color(0.55f, 0.57f, 0.60f),
-
-      ["GRASS"] = new Color(0.28f, 0.45f, 0.19f),
-      ["SNOW"] = new Color(0.92f, 0.94f, 0.96f),
-
-      ["ORE_COPPER"] = new Color(0.45f, 0.55f, 0.45f),
-      ["ORE_TIN"] = new Color(0.58f, 0.58f, 0.62f),
-      ["ORE_IRON"] = new Color(0.53f, 0.38f, 0.30f),
-      ["ORE_GOLD"] = new Color(0.78f, 0.66f, 0.28f),
-      ["ORE_SILVER"] = new Color(0.72f, 0.74f, 0.76f),
-      ["COAL_SEAM"] = new Color(0.13f, 0.13f, 0.14f),
-      ["ROCK_SALT"] = new Color(0.86f, 0.84f, 0.82f),
-
-      ["MASONRY"] = new Color(0.62f, 0.60f, 0.56f)
-    };
-
-    private static Color ColourFor(string name)
-    {
-      if (ByName.TryGetValue(name, out var known))
-      {
-        return known;
-      }
-
-      // Deterministic per name, and kept away from both extremes of value so it reads as a material under the
-      // scene's directional light rather than as a black or blown-out patch.
-      var hash = name.GetHashCode();
-
-      return Color.FromHsv(
-        ((hash >>> 8) & 0xFF) / 255.0f,
-        0.25f + ((hash >>> 16) & 0x3F) / 255.0f,
-        0.45f + ((hash >>> 24) & 0x3F) / 255.0f);
     }
   }
 }

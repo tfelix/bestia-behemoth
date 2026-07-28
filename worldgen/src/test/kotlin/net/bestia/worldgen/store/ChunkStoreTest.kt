@@ -3,6 +3,7 @@ package net.bestia.worldgen.store
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -290,5 +291,27 @@ class ChunkStoreTest {
     val once = PipelineVersion.paletteVersion()
     assertEquals(once, PipelineVersion.paletteVersion())
     assertFalse(once == 0L, "the palette hash should not be trivially zero")
+  }
+
+  @Test
+  fun `the block palette is pinned to the chunk engine version`() {
+    // The client no longer receives the palette; it holds a static copy keyed to `ChunkEngine.VERSION`, which
+    // is hand-incremented. That leaves exactly one way to break a shipped client silently: change `BlockType`
+    // and forget, so every client keeps drawing the old material for a reused id.
+    //
+    // This is the tripwire. It fails on any change to the ids or names `paletteVersion` folds, and the fix is
+    // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
+    // client's `BlockAppearance.Palette`, and then re-pin here.
+    assertEquals(
+      -4_466_186_689_024_519_943L, PipelineVersion.paletteVersion(),
+      "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
+          "client's BlockAppearance.Palette, then update this pin."
+    )
+
+    assertEquals(
+      1, ChunkEngine.VERSION,
+      "ChunkEngine.VERSION moved without the palette moving, which is fine - re-pin this and check the " +
+          "client's constant matches."
+    )
   }
 }

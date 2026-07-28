@@ -252,6 +252,52 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
+    /// Open ocean at sea level: a chunk of air over a chunk of water, which is where a player spawns.
+    /// </summary>
+    /// <remarks>
+    /// The real first-login case, and it exercises three things at once that no other test does together: the
+    /// waterline sits exactly on a chunk floor, the vertex that carries it lives in a cell that is *air*, and the
+    /// column has no solid material anywhere. If the material choice looked only at the cell holding the vertex
+    /// it would colour the sea as air; if the terrain pass did not come back empty there would be a phantom
+    /// seabed at the waterline.
+    /// </remarks>
+    [Fact]
+    public void OpenOceanDrawsAWaterSurfaceAtSeaLevelAndNoTerrain()
+    {
+      var source = new FakeChunkSource();
+
+      for (var chunkY = -1; chunkY <= 1; chunkY++)
+      {
+        for (var chunkX = -1; chunkX <= 1; chunkX++)
+        {
+          source.Put(TerrainFixtures.Uniform(chunkX, chunkY, 0, TerrainFixtures.Air, 0));
+          source.Put(TerrainFixtures.Uniform(chunkX, chunkY, -1, TerrainFixtures.Water, 255));
+        }
+      }
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh);
+      Assert.Null(mesh.Terrain);
+      Assert.NotNull(mesh.Water);
+
+      var water = Interior(mesh.Water);
+      Assert.NotEmpty(water);
+      Assert.All(water, v => Assert.InRange(v.Y, -0.0001f, 0.0001f));
+
+      // The vertex sits in an air cell with water below it, so the material has to come from a neighbour. Getting
+      // this wrong paints the sea in whatever colour air is, which is how a blue ocean renders as nothing.
+      var expected = TerrainFixtures.Appearance().ColourOf(TerrainFixtures.Water);
+
+      for (var i = 0; i < mesh.Water.Vertices.Length; i++)
+      {
+        Assert.Equal(expected, mesh.Water.Colours[i]);
+      }
+
+      Assert.All(mesh.Water.Normals, n => Assert.True(n.Y > 0.99f, $"water normal {n} is not up"));
+    }
+
+    /// <summary>
     /// A flat chunk is one quad per column - the same geometry a heightfield mesher would emit.
     /// </summary>
     /// <remarks>

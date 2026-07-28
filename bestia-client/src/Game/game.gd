@@ -23,6 +23,13 @@ func _ready() -> void:
 		push_warning("No ChunkStreamManager to render for; terrain will stay empty.")
 
 
+func _exit_tree() -> void:
+	# The renderer dies with this scene, but ConnectionManager is an autoload and outlives it. Handing
+	# back a freed node would leave the manager calling into a disposed object on the next login.
+	if ConnectionManager.chunk_stream != null:
+		ConnectionManager.chunk_stream.Renderer = null
+
+
 func _process(_delta: float) -> void:
 	# Collision follows the player rather than covering the whole streamed disc, so only the chunks
 	# they can actually click on or bump into carry a shape. Cheap to call every frame: the renderer
