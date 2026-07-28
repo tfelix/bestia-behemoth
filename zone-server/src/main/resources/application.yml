@@ -18,9 +18,16 @@ persistence:
 # stored record, because that is what its chunks and any player edits were built against.
 worldgen:
   name: Genesis
-  # Left unset: a seed is drawn at random on first boot and then persisted, so the world stays reproducible
-  # even though nobody chose it. Set it to generate a known world.
-  # seed: 11836698
+  # Fixed, so every boot is the same world. Leave it unset and a seed is drawn at random on first boot and
+  # persisted - reproducible after the fact, but useless while debugging, because the H2 datasource below is
+  # in-memory: every restart is a different planet and no bug reproduces twice.
+  #
+  # This particular number is `StandardWorld.DEFAULT_SEED` (0xB3571A), chosen for two properties:
+  #   - the viewer and the probe default to it, so `./gradlew :worldgen:viewer -Pcells=128` shows *this* world.
+  #     Any other value and the offline tooling inspects a world the server is not running.
+  #   - the world centre is dry land - tropical seasonal forest at 53 m - and the centre is where a new master
+  #     spawns. Most seeds put the centre in open ocean: of fourteen sampled, twelve did.
+  seed: 11753242
   # World extent in cells. A cell is `cell-size-metres` across, so at the default these are kilometres.
   width-cells: 128
   height-cells: 128

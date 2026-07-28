@@ -14,7 +14,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *
  * @property seed left unset, a seed is drawn at random and then persisted, so the world is reproducible
  *   afterwards even though it was not chosen. Set it to generate a known world - and note that *changing* an
- *   explicit seed is a request for a different world, which [onMismatch] governs like any other.
+ *   explicit seed is a request for a different world, which [onMismatch] governs like any other. The shipped
+ *   `application.yml` pins it: the development datasource is in-memory, so an unpinned seed makes every restart
+ *   a different planet and no terrain bug reproduces twice.
  */
 @ConfigurationProperties(prefix = "worldgen")
 data class WorldGenConfig(
