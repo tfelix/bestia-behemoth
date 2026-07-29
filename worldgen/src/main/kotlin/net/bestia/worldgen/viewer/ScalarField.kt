@@ -57,6 +57,30 @@ interface ScalarField {
 }
 
 /**
+ * A field that composes its own colour out of more than one input.
+ *
+ * The escape hatch from "one number through one palette", and it exists for exactly one kind of view: a map
+ * of what is *there*, which no single raster holds. Land cover is in the biome layer, sea depth is in the
+ * elevation layer, lake depth is the difference between two layers, and any one of them alone is a picture of
+ * a component rather than of the world - see [WorldMapField].
+ *
+ * [ScalarField.valueAt] still has to return something meaningful, because relief shading and the cursor
+ * readout are computed from it. The contract is therefore: `valueAt` is the height of the surface being
+ * coloured, `rgbAt` is what that surface looks like.
+ */
+interface CompositeField : ScalarField {
+
+  /**
+   * The colour of one position.
+   *
+   * @param value this field's own [ScalarField.valueAt] at the same position, already sampled by the
+   *   renderer. Passed in rather than re-sampled because every pixel needs both and sampling is the
+   *   expensive half.
+   */
+  fun rgbAt(worldX: Double, worldY: Double, value: Double): Int
+}
+
+/**
  * A field whose availability is limited by how many chunks it would have to generate for one frame.
  *
  * The ceiling is adjustable because the two callers have completely different deadlines: the interactive

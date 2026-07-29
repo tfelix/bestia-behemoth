@@ -5,6 +5,8 @@ import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ChunkSeamCheck
 import net.bestia.worldgen.core.FeatureStore
+import net.bestia.worldgen.core.FloatLayer
+import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
@@ -155,7 +157,32 @@ class WorldScene(
         fields.add(SurfaceOccupancyField(world.config, it))
       }
 
+      // First in the list, so the viewer opens on a map of the world rather than on whichever raster happens
+      // to sort first alphabetically - which is `bedrock_elevation`, a picture of the land before erosion, and
+      // about the least useful thing to be shown by a tool you have just opened to look at a world.
+      worldMapOf(world)?.let { fields.add(0, it) }
+
       return WorldScene(name, world.config, fields, world.features, chunkSource)
+    }
+
+    /**
+     * The composed map, or null when this world has no biomes to colour it with.
+     *
+     * Nullable rather than required because a scene is also built from partial pipelines - the stage tests
+     * each run a handful of stages - and a missing view is better than a viewer that cannot open on a world
+     * that stops before `BiomeStage`.
+     */
+    private fun worldMapOf(world: World): WorldMapField? {
+      val elevation = world.layers[LayerId.ELEVATION] as? FloatLayer ?: return null
+      val biome = world.layers[LayerId.BIOME] as? IntLayer ?: return null
+
+      return WorldMapField(
+        elevation = elevation,
+        biome = biome,
+        water = world.layers[LayerId.WATER_LEVEL] as? FloatLayer,
+        ice = world.layers[LayerId.ICE_THICKNESS] as? FloatLayer,
+        seaLevel = world.config.seaLevel
+      )
     }
   }
 }

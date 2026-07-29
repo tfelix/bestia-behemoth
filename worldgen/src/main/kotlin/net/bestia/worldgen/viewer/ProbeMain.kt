@@ -22,6 +22,7 @@ import net.bestia.worldgen.voxel.SurfaceColumns
  *
  * ```
  * ./gradlew :worldgen:probe -Pcells=128                      # land at about 400 m
+ * ./gradlew :worldgen:probe -Pgenesis                        # ...in the world zone-server boots
  * ./gradlew :worldgen:probe -Px=32000 -Py=32000 -Pspan=64    # a particular place
  * ./gradlew :worldgen:probe -Psurvey=400                     # hunt for the most mixed patch in the world
  * ```
@@ -30,42 +31,44 @@ object ProbeMain {
 
   @JvmStatic
   fun main(args: Array<String>) {
-    val seed = args.valueOf("--seed")?.toLong() ?: StandardWorld.DEFAULT_SEED
-    val cells = args.valueOf("--cells")?.toInt() ?: 128
-    val span = args.valueOf("--span")?.toInt() ?: 48
+    val cli = WorldArgs(args.toList(), extraFlags = PROBE_FLAGS)
 
-    val config = StandardWorld.demoConfig(seed).copy(widthCells = cells, heightCells = cells)
+    // A world small enough to build while you wait, unlike the viewer's: the probe prints one 48 m window,
+    // so nothing outside it is worth the seconds a large world costs.
+    val config = cli.worldConfig(
+      StandardWorld.demoConfig().copy(widthCells = 128, heightCells = 128)
+    )
+    val span = cli.int("--span") ?: 48
 
-    println("world ${config.widthCells}x${config.heightCells} cells, seed $seed")
-    println("  detailScale ${config.detailScale}, ocean margin ${config.oceanBorderMetres.toInt()} m")
+    println("world ${WorldArgs.summary(config)}")
 
     val generated = StandardWorld.build(config)
     val probe = Probe(config, generated)
 
-    val survey = args.valueOf("--survey")?.toInt()
+    val survey = cli.int("--survey")
     if (survey != null) {
       probe.survey(survey, span)
       return
     }
 
-    if (args.contains("--channels")) {
+    if (cli.has("--channels")) {
       probe.channels()
       return
     }
 
     val elevation = generated.world.layers.require<FloatLayer>(LayerId.ELEVATION)
-    val x = args.valueOf("--x")?.toDouble()
-    val y = args.valueOf("--y")?.toDouble()
-    val onFeature = args.valueOf("--on")
+    val x = cli.double("--x")
+    val y = cli.double("--y")
+    val onFeature = cli.value("--on")
 
     val centre = if (onFeature != null) {
-      probe.midpointOf(onFeature, args.valueOf("--nth")?.toInt() ?: 0)
+      probe.midpointOf(onFeature, cli.int("--nth") ?: 0)
     } else if (x != null && y != null) {
       x to y
     } else {
       // A coordinate nobody chose is nearly always the wrong one: on a world that is mostly sea, the centre is
       // the seabed four kilometres down, which says nothing at all about ground a player stands on.
-      val want = args.valueOf("--at")?.toDouble() ?: 400.0
+      val want = cli.double("--at") ?: 400.0
       probe.nearestLand(elevation, want).also {
         println("  no coordinate given, so: nearest land to ${want.toInt()} m is (${it.first.toInt()}, ${it.second.toInt()})")
       }
@@ -377,8 +380,6 @@ object ProbeMain {
   /** Distinct at a glance in a terminal, quietest glyph first so the commonest material recedes. */
   private const val GLYPHS = ".:oO#*+=%@$&~"
 
-  private fun Array<String>.valueOf(flag: String): String? {
-    val i = indexOf(flag)
-    return if (i >= 0 && i + 1 < size) this[i + 1] else null
-  }
+  /** What to look at, as opposed to which world to look at it in - see [WorldArgs]. */
+  private val PROBE_FLAGS = setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels")
 }

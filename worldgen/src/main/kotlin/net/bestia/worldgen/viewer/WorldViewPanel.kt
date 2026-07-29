@@ -255,10 +255,15 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     g2.color = Color(0, 0, 0, 150)
     g2.fillRoundRect(x - 8, y - 22, barWidth + 16, barHeight + 42, 8, 8)
 
-    val palette = map.field.palette.withRange(map.low, map.high)
-    for (i in 0 until barWidth) {
-      g2.color = Color(palette.rgb(map.low + (map.high - map.low) * i / (barWidth - 1.0)))
-      g2.fillRect(x + i, y, 1, barHeight)
+    // A composite has no single colour scale, so there is no bar that would be true - its blues mean depth
+    // and its greens mean vegetation. The range labels below still apply: they are the surface height, which
+    // is what the field's own values are, and the sidebar readout names what is under the cursor.
+    if (map.field !is CompositeField) {
+      val palette = map.field.palette.withRange(map.low, map.high)
+      for (i in 0 until barWidth) {
+        g2.color = Color(palette.rgb(map.low + (map.high - map.low) * i / (barWidth - 1.0)))
+        g2.fillRect(x + i, y, 1, barHeight)
+      }
     }
 
     g2.color = Color(235, 235, 240)

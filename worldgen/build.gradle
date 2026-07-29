@@ -49,19 +49,45 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+/** Where zone-server's birth settings for the world it boots live. */
+def genesisSettings = rootProject.layout.projectDirectory
+        .file('zone-server/src/main/resources/application.yml')
+
 /**
- * Forwards the world-shaping properties to ViewerMain.
+ * Forwards the world-shaping properties to the offline tools.
  *
  * Both viewer tasks need this and neither had it, which is worse than it sounds: `-Pcells=128` was accepted
  * without complaint and quietly generated the default world instead, so a measurement taken that way looked
  * like a real answer about a small world and was an answer about a large one.
+ *
+ * `-Pgenesis` reads zone-server's own `worldgen:` block instead of the demo world - see
+ * buildSrc/src/main/kotlin/WorldGenSettings.kt. It goes on first so that an explicit `-Pseed` or `-Pcells`
+ * still overrides it: WorldArgs takes the *last* occurrence of a flag, which is what makes "the server's
+ * world, but 256 cells across" expressible.
+ *
+ * `-Pcells` becomes the per-edge flags rather than `--cells` for the same reason. `--cells` and
+ * `--width-cells` together are a contradiction WorldArgs rejects, and combining them is exactly what
+ * `-Pgenesis -Pcells=256` would otherwise do.
  */
 def worldArgs = { task ->
+    if (project.hasProperty('genesis')) {
+        task.args WorldGenSettings.toolArgs(genesisSettings.asFile)
+    }
     if (project.hasProperty('seed')) task.args '--seed', project.property('seed')
-    if (project.hasProperty('cells')) task.args '--cells', project.property('cells')
+    if (project.hasProperty('cells')) {
+        task.args '--width-cells', project.property('cells')
+        task.args '--height-cells', project.property('cells')
+    }
 }
 
-/** Interactive layer/feature inspector: `./gradlew :worldgen:viewer -Pcells=128 -Pseed=42`. */
+/**
+ * Interactive layer/feature inspector.
+ *
+ * ```
+ * ./gradlew :worldgen:viewer -Pcells=128 -Pseed=42   # a world you describe
+ * ./gradlew :worldgen:viewer -Pgenesis               # the world zone-server boots
+ * ```
+ */
 tasks.register('viewer', JavaExec) {
     group = 'worldgen'
     description = 'Generates a world and opens the offline viewer on it'

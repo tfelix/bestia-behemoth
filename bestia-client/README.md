@@ -16,35 +16,21 @@ You can also get in touch via [Discord](https://discord.gg/zZW8M2S).
 
 ## Development
 
-The Bestia Game Client is build with [Godot Engine](https://godotengine.org) with two custom modules, the `bestia` module which
-handles the entity synchronization with the server and the [godot_voxel module](https://github.com/Zylann/godot_voxel).
+The Bestia Game Client is built with the stock [Godot Engine](https://godotengine.org) (.NET/Mono
+build, currently targeting 4.7) — no custom engine build or C++ modules are required anymore.
+Entity synchronization with the server and voxel terrain streaming/meshing are both implemented
+as regular C# code inside the project (`src/Bnet/` and `src/Game/World/` respectively) rather than
+as engine modules; there is no dependency on the third-party `godot_voxel` GDExtension.
 
-If you want to contribute or develop you will need the engine to build with these two modules. In order to do so follow these
-instructions:
+To get set up:
 
-1. Download the Godot engine stable branch. You probably need to check with the voxel_plugin which branch is supported.
+1. Install the [Godot 4.7 .NET/Mono build](https://godotengine.org/download) and the .NET SDK
+   version it requires.
+2. Open `bestia-client/src/project.godot` in the editor (or `bestia-client/src/Bestia Behemoth
+   Client.sln` in your C# IDE) — that's it, no engine compilation step needed.
 
-      ```bash
-      git clone --branch 3.2.1-stable https://github.com/godotengine/godot.git
-      ```
-
-2. Add the required modules and copy them to the right place.
-
-      ```bash
-      cd godot/modules
-      git clone https://github.com/Zylann/godot_voxel.git voxel
-      cd ../..
-      git clone https://github.com/tfelix/bestia-client.git
-      cp -r bestia-client/modules/bestia godot/modules
-      ```
-
-3. Build Godot for your designated platform, for Linux use:
-
-      ```bash
-      scons -j4 platform=x11
-      ```
-
-For additional information check the official docs, there you find information about the needed dependencies to build Godot.
+For more on how the client is structured internally, see the
+[Client docs](https://docs.bestia-game.net/docs/client/overview).
 
 ## Contributing
 

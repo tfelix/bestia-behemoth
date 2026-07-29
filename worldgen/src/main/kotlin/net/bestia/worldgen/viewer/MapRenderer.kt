@@ -72,8 +72,12 @@ class MapRenderer(private val config: WorldConfig) {
     val palette = field.palette.withRange(range.first, range.second)
 
     val pixels = (image.raster.dataBuffer as DataBufferInt).data
-    for (i in values.indices) {
-      pixels[i] = if (values[i].isNaN()) NO_DATA else palette.rgb(values[i])
+    if (field is CompositeField) {
+      colorComposite(field, view, values, pixels)
+    } else {
+      for (i in values.indices) {
+        pixels[i] = if (values[i].isNaN()) NO_DATA else palette.rgb(values[i])
+      }
     }
 
     if (options.hillshade && field.palette.shadeable) {
@@ -90,6 +94,31 @@ class MapRenderer(private val config: WorldConfig) {
     drawOverlays(image, view, options, features)
 
     return RenderedMap(image, field, range.first, range.second)
+  }
+
+  /**
+   * Colours a [CompositeField], which decides its own pixel rather than going through a palette.
+   *
+   * The hillshade path above is untouched by this: it works off [values], which a composite still produces,
+   * so relief shading applies to a composed map exactly as it does to a height field. That is the whole
+   * reason the two are separate - a categorical *palette* cannot be shaded, but a categorical *colour over a
+   * real surface* can be, and conflating the two is what left the biome map flat.
+   */
+  private fun colorComposite(
+    field: CompositeField,
+    view: Viewport,
+    values: DoubleArray,
+    pixels: IntArray
+  ) {
+    for (py in 0 until view.heightPx) {
+      val worldY = view.worldY(py)
+      val row = py * view.widthPx
+      for (px in 0 until view.widthPx) {
+        val i = row + px
+        val value = values[i]
+        pixels[i] = if (value.isNaN()) NO_DATA else field.rgbAt(view.worldX(px), worldY, value)
+      }
+    }
   }
 
   private fun sample(field: ScalarField, view: Viewport): DoubleArray {

@@ -120,6 +120,11 @@ class SceneTest {
   fun `a scene built from the real pipeline offers every tier as a field`() {
     val scene = pipelineScene()
 
+    // The composed map is first, and that is behaviour rather than tidiness: WorldViewPanel selects
+    // fields.first(), so this is what the viewer opens on.
+    assertEquals("world map", scene.fields.first().name)
+    assertTrue(scene.fields.first() is CompositeField)
+
     // One field per raster layer, and no stage is named anywhere in the viewer to make that happen.
     for (id in listOf(LayerId.ELEVATION, LayerId.BIOME, LayerId.PRECIPITATION, LayerId.DISCHARGE)) {
       assertNotNull(scene.fields.firstOrNull { it.name == id.name }, "no field for $id")

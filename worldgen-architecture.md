@@ -328,6 +328,7 @@ edges, and the place → route → regrow → replace settlement iteration (sing
 ```
 ./gradlew :worldgen:test                                    # unit tests
 ./gradlew :worldgen:viewer                                  # interactive layer/feature inspector
+./gradlew :worldgen:viewer -Pgenesis                        # ...on the world zone-server boots
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # same, rendered to PNGs; works over SSH
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256      # seed sweep against the invariants
 ./gradlew :worldgen:probe -Pcells=128 -Px=32000 -Py=32000   # one 48 m window as text, a character per voxel
@@ -336,6 +337,19 @@ edges, and the place → route → regrow → replace settlement iteration (sing
 ./gradlew :worldgen:probe -Psurvey=12                       # the most mixed surface patches in the world
 ```
 
+Every tool takes `-Pseed` and `-Pcells`; `viewer`, `viewerExport` and `probe` also take `-Pgenesis`, which
+reads `zone-server`'s `worldgen:` block and generates *that* world instead of the demo one. Combine them and
+the explicit property wins — `-Pgenesis -Pseed=42` is the server's world with another seed.
+
+`-Pgenesis` exists because matching the seed was not enough. The demo world wraps only X and Genesis wraps
+both axes, and the wrap is read by every distance transform, flow route and vector feature the pipeline lays
+down, so `-Pseed=11753242 -Pcells=128` produced a world with the server's seed, the server's size, and
+different coastlines — with nothing on screen to say so. `viewer/WorldArgs.kt` therefore carries a flag for
+every field in `WorldConfig.shapeVersion`, and `buildSrc/src/main/kotlin/WorldGenSettings.kt` fills them in
+from the server's configuration file rather than from a second copy of it. A `worldgen` setting it does not
+know how to forward fails the build, because a birth setting that silently does not reach the viewer puts it
+back to showing a world that merely resembles the one being debugged.
+
 The probe is the companion to the viewer and covers its blind spot: the viewer renders the whole world, so it
 cannot show anything narrower than a kilometre, which is exactly the size of thing that looks wrong once the
 client draws it at a metre per voxel. Rivers rendering as dashed lines were found this way.
@@ -343,6 +357,22 @@ client draws it at a metre per voxel. Rivers rendering as dashed lines were foun
 The viewer is the primary debugging tool and has earned it — a road running dead straight across open
 ocean and a mis-classification of inland troughs as fjords were both found by looking at an exported
 PNG, not by a test.
+
+The first field in the list is **`world map`**, and it is the one view that is not diagnostic. Every other
+field shows one stage in isolation, which is what makes a wrong value in it obvious and is also why a field at
+a time will tell you that precipitation is plausible and that biomes are plausible and never tell you that the
+world does not read as a place. `viewer/WorldMapField.kt` composes them: biome colours on land, bathymetry at
+sea, lakes shaded by depth, ice washed over what is under it, relief shading from the surface height, and the
+vector overlay — rivers, roads, settlements, coastlines, faults — on top, which needed no new code because
+features were always drawn over whichever field was showing. What was missing was a field worth drawing them
+on. It is a `CompositeField`, the escape hatch from one-number-through-one-palette, and the mechanism that
+makes it work is the split between colour and value: `rgbAt` decides what a place looks like, `valueAt` returns
+the height of the surface being coloured, and hillshading reads the latter. A categorical *palette* cannot be
+shaded — which is why the biome map is flat — but a categorical *colour over a real surface* can be.
+
+`valueAt` returns the water surface where there is standing water and the ground where there is not, so the
+sea shades flat and the coastline stays crisp instead of the seabed's relief showing through the water as
+though it were land. Depth does not leave the picture; it moves into the colour, where it belongs.
 
 The seam stress view runs on every export and prints, e.g.,
 `SeamCheck: clean - 64 chunks, 3584 shared columns agree`. It generates a block of chunks

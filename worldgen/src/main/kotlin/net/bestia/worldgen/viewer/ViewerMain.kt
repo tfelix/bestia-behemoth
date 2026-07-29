@@ -13,28 +13,24 @@ import javax.swing.UIManager
  * Entry point for the offline viewer.
  *
  * `./gradlew :worldgen:viewer` opens the window on a freshly generated world;
- * `./gradlew :worldgen:viewerExport -Pout=some/dir` renders it to PNGs instead.
+ * `./gradlew :worldgen:viewerExport -Pout=some/dir` renders it to PNGs instead;
+ * `./gradlew :worldgen:viewer -Pgenesis` opens the world `zone-server` boots rather than the demo one.
  *
- * Flags: `--seed <long>`, `--cells <n>` for the world's edge length in kilometre cells, and
- * `--export <dir>`.
+ * Flags: `--export <dir>`, plus every world flag in [WorldArgs] - `--seed`, `--cells`, `--wrap-y` and the
+ * rest. The default world is [StandardWorld.demoConfig].
  */
 object ViewerMain {
 
   @JvmStatic
   fun main(args: Array<String>) {
-    val seed = args.valueOf("--seed")?.toLong() ?: StandardWorld.DEFAULT_SEED
-    val cells = args.valueOf("--cells")?.toInt()
-    val exportTo = args.valueOf("--export")
+    val cli = WorldArgs(args.toList(), extraFlags = setOf(EXPORT))
+    val config = cli.worldConfig(StandardWorld.demoConfig())
+    val exportTo = cli.value(EXPORT)
 
-    var config = StandardWorld.demoConfig(seed)
-    if (cells != null) {
-      config = config.copy(widthCells = cells, heightCells = cells)
-    }
-
-    println("generating ${config.widthCells}x${config.heightCells} cells, seed $seed")
+    println("generating ${WorldArgs.summary(config)}")
     val started = System.currentTimeMillis()
     val generated = StandardWorld.build(config, Progress)
-    val scene = WorldScene.of(generated, "seed $seed")
+    val scene = WorldScene.of(generated, WorldArgs.label(config))
 
     println("world tier built in ${System.currentTimeMillis() - started} ms")
     println("  ${scene.fields.size} fields")
@@ -79,9 +75,6 @@ object ViewerMain {
     }
   }
 
-  /** `--flag value`; returns null when the flag is absent. */
-  private fun Array<String>.valueOf(flag: String): String? {
-    val i = indexOf(flag)
-    return if (i >= 0 && i + 1 < size) this[i + 1] else null
-  }
+  /** Where to write PNGs instead of opening a window. Says nothing about which world. */
+  private const val EXPORT = "--export"
 }
