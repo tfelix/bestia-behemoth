@@ -67,6 +67,20 @@ data class GlacialParams(
   /** Cirque radius as a multiple of the trough's floor half-width. */
   val cirqueRadiusFactor: Double = 3.2,
 
+  /**
+   * Largest a cirque may be, in metres of radius.
+   *
+   * A cirque is the armchair hollow a glacier gouges at the head of its own valley, and on Earth the big ones
+   * are a kilometre or two across - the landform is bounded by how much ice can sit in one bowl before it
+   * starts flowing out as a valley glacier instead.
+   *
+   * Nothing bounded it here. The radius is `floorWidthFactor * cbrt(flux) * cirqueRadiusFactor`, and a cube
+   * root grows slowly but never stops, so a world with big enough mountains produced cirques **twelve
+   * kilometres in radius** - a fifth of a 128 km world, drawn on the map as a great pale circle lying half out
+   * to sea. That is not a cirque, and the bowl profile it stamps is a crater.
+   */
+  val maxCirqueRadius: Double = 1_800.0,
+
   /** Height of a terminal moraine in metres. */
   val moraineHeight: Double = 28.0
 )
@@ -381,7 +395,12 @@ class GlacialStage(
       region.resolution.metresPerCell * 0.15,
       params.floorWidthFactor * Math.cbrt(flux.data[head].coerceAtLeast(1.0))
     )
-    val radius = floorHalf * params.cirqueRadiusFactor
+    // Capped, and capped on the *world's* scale too: a cirque wider than the ice that cut it is a crater, and
+    // one an appreciable fraction of the world across is a crater visible from orbit. See maxCirqueRadius.
+    val radius = min(
+      floorHalf * params.cirqueRadiusFactor,
+      min(params.maxCirqueRadius, region.toWorld().width * MAX_CIRQUE_WORLD_SHARE)
+    )
     val floor = elevation.data[head] - params.overdeepening * strength * CIRQUE_DEEPENING
 
     return PointFeature(
@@ -449,6 +468,15 @@ class GlacialStage(
     private const val WET_SCALE = 1_400.0
 
     /** Years of accumulation the coarse pass represents. Sets the overall ice thickness scale. */
+    /**
+     * Hard ceiling on a cirque's radius as a share of the world's width.
+     *
+     * A second cap behind [GlacialParams.maxCirqueRadius], for the case that one is raised: no landform of
+     * this kind should ever be an appreciable fraction of a world, and a test world small enough that 1800 m
+     * *is* an appreciable fraction should not get a crater either.
+     */
+    private const val MAX_CIRQUE_WORLD_SHARE = 0.02
+
     private const val ICE_YEARS = 320.0
 
     /** Fraction of the ice-surface difference moved per relaxation pass. Above 0.5 it oscillates. */

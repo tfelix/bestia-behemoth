@@ -133,11 +133,16 @@ class FloatLayerField(
     FloatLayerField(layer, palette, unit, interpolation, name)
 }
 
-/** An [IntLayer] as a field. Always nearest-cell: interpolating a category id is meaningless. */
+/**
+ * An [IntLayer] as a field. Always nearest-cell: interpolating a category id is meaningless.
+ *
+ * @param labels what an id means in words, or null where an id is genuinely just a number. See [Labels].
+ */
 class IntLayerField(
   private val layer: IntLayer,
   override val palette: Palette = CategoryPalette(),
-  override val name: String = layer.id.name
+  override val name: String = layer.id.name,
+  private val labels: ((Int) -> String?)? = null
 ) : ScalarField {
 
   override fun valueAt(worldX: Double, worldY: Double): Double {
@@ -150,7 +155,18 @@ class IntLayerField(
     return layer[cellX, cellY].toDouble()
   }
 
-  override fun format(value: Double) = if (value.isNaN()) "-" else value.roundToInt().toString()
+  /**
+   * The id's name where there is one, otherwise the id.
+   *
+   * Same three-part shape as [ChunkSurfaceField.format], and for the same reason: an id this build does not
+   * recognise has to stay readable as a number rather than becoming a question mark, because that is exactly
+   * the case where you need to know which number it was.
+   */
+  override fun format(value: Double): String {
+    if (value.isNaN()) return "-"
+    val id = value.roundToInt()
+    return labels?.invoke(id) ?: id.toString()
+  }
 }
 
 /** The continuous base heightfield, before any vector feature - what features blend against. */
@@ -421,5 +437,5 @@ fun LayerData.asField(seaLevel: Double = 0.0): ScalarField = when (this) {
     unit = if (id == LayerId.ELEVATION) "m" else ""
   )
 
-  is IntLayer -> IntLayerField(this, Palettes.forLayer(id, seaLevel))
+  is IntLayer -> IntLayerField(this, Palettes.forLayer(id, seaLevel), labels = Labels.forLayer(id))
 }

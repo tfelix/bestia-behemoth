@@ -42,17 +42,53 @@ data class ClimateParams(
    */
   val maritimeRange: Double = 420_000.0,
 
-  /** Rain per metre of forced ascent, as a fraction of the moisture present. */
-  val orographicCoefficient: Double = 0.0021,
+  /**
+   * Rain per metre of forced ascent, as a fraction of the moisture present.
+   *
+   * Lowered from 0.0021, where it was not a coefficient so much as a switch. `rain = moisture * this * rise`
+   * reaches the whole of the moisture at a rise of 476 m, and `rain` is then clamped to what is there - so on
+   * a world with 4 km climate cells and 4,500 m peaks, the *first* range a wind met stripped the air to
+   * nothing, and since nothing evaporates over land it stayed at nothing for the rest of the continent. Every
+   * interior was a rain shadow of one mountain, which is how a world ends up 29% desert and 21% cold desert
+   * with a green fringe. At 0.0009 a kilometre of ascent takes most of the moisture but not all of it, which
+   * is what a range does.
+   */
+  val orographicCoefficient: Double = 0.0009,
 
   /** Rain per cell of travel from ordinary convection, as a fraction of the moisture present. */
   val convectiveRate: Double = 0.016,
 
-  /** How much convective rain survives on the lee side of a crest. This is the rain shadow. */
-  val leeSuppression: Double = 0.22,
+  /**
+   * How much convective rain survives on the lee side of a crest. This is the rain shadow.
+   *
+   * Raised from 0.22 when the world became land-dominated and mountainous. A rain shadow is a feature; a world
+   * where *everywhere* is behind a crest is a desert. With plate boundaries every twenty-five kilometres there
+   * is no longer such a thing as an interior that is not downwind of a range, so the suppression compounds
+   * pass after pass and the continents came out as sand with a green fringe. At 0.34 a single range still casts
+   * an unmistakable shadow - which is the thing worth keeping - without the second and third ranges behind it
+   * finishing the job.
+   */
+  val leeSuppression: Double = 0.34,
 
   /** Fraction of the moisture deficit made up per cell of travel over water. */
   val evaporationRate: Double = 0.10,
+
+  /**
+   * The same, per cell of travel over **land**. Continental moisture recycling.
+   *
+   * Zero, as it was, says that once air crosses a shoreline the only thing that can happen to its water is
+   * that it falls out. That is not how a continent works: rain that lands on vegetated ground largely goes
+   * back up as evapotranspiration and falls again further downwind - the Amazon recycles something like half
+   * its rainfall that way, and it is the reason a continental interior is habitable at all rather than being
+   * a desert as a matter of arithmetic. Without the term, the model's interiors were deserts as a matter of
+   * arithmetic.
+   *
+   * A third of the ocean rate, because land gives its water back more slowly than an ocean surface does, and
+   * because this must not become a second ocean - too high and the wind arrives at the far coast wetter than
+   * it left the near one, which erases rain shadows entirely and with them the reason deserts sit where they
+   * do.
+   */
+  val landEvaporationRate: Double = 0.050,
 
   /**
    * Seasonal passes. Two - a summer and a winter wind field - is the cheapest number that produces a
@@ -62,7 +98,7 @@ data class ClimateParams(
   val seasons: Int = 2,
 
   /** Degrees the wind belts migrate between the seasonal extremes. */
-  val seasonalShift: Double = 9.0,
+  val seasonalShift: Double = 6.0,
 
   /**
    * Blur passes applied to each seasonal precipitation field.
@@ -73,8 +109,25 @@ data class ClimateParams(
    */
   val mixingPasses: Int = 3,
 
-  /** Mean annual precipitation over the whole world in millimetres, which the field is scaled to. */
-  val meanPrecipitation: Double = 880.0
+  /**
+   * Mean annual precipitation over the whole world in millimetres, which the field is scaled to.
+   *
+   * **It only became a lever once the field stopped being mostly zero.** Measured on the old model, raising it
+   * from 880 to 1150 moved the biome mix by a single percentage point, and this KDoc used to say so and send
+   * the reader elsewhere. That was a true measurement of a broken distribution: with [orographicCoefficient]
+   * at 0.0021 and no [landEvaporationRate], most of the land was at *exactly* zero rain, and scaling zero by
+   * 1.3 is still zero. Once air can cross a range and a continent can recycle its own water, the field has a
+   * spread to scale and this moves the mix as you would expect - 1250 to 1420 was worth two points of forest.
+   *
+   * Note that a change here cancels in [net.bestia.worldgen.geo.ErosionStage] and
+   * [net.bestia.worldgen.hydro.HydrologyStage], which both normalise by the field's own mean by design. So it
+   * moves biomes without moving the landscape, and it is the cheapest thing to reach for when a world is green
+   * enough in shape but not in classification.
+   *
+   * 1850 is well above Earth's ~1000 mm. Deliberate: this world is meant to be a place with forests in it.
+   * Measured across three seeds it puts closed forest plus grassland at 55%, 45% and 51% of the land.
+   */
+  val meanPrecipitation: Double = 1850.0
 ) {
   init {
     require(polewardLatitude in 1.0..90.0) { "polewardLatitude must be in (0,90]" }
@@ -98,7 +151,9 @@ class ClimateStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: belt boundaries are blended rather than stepped, and the row sweep wraps on a wrapping world.
+  override val version = 2
   override val dependencies = listOf(TectonicsStage.ID)
   override val scale = StageScale.WORLD
 
@@ -131,7 +186,8 @@ class ClimateStage(
     val maritimeRange = ctx.config.scaleByLength(params.maritimeRange)
     val temperature = temperatureField(ctx, region, elevation, latitudes, oceanDistance, seaLevel, maritimeRange)
     val range = temperatureRange(latitudes, oceanDistance, region, maritimeRange)
-    val seasonal = seasonalPrecipitation(elevation, temperature, latitudes, seaLevel, region)
+    val seasonal =
+      seasonalPrecipitation(elevation, temperature, latitudes, seaLevel, region, ctx.config.wrapX)
 
     val precipitation = Grid(region.width, region.height)
     for (season in seasonal) {
@@ -232,15 +288,22 @@ class ClimateStage(
    * mixing pass afterwards partly makes up for. The trade is deliberate: a proper two-dimensional
    * semi-Lagrangian advection would be a solver rather than a loop, and the thing it would buy -
    * moisture arriving diagonally - is second order next to getting the rain shadows on the right side.
+   *
+   * Each row is swept in **both** directions and mixed by [Winds.eastwardShare] wherever the row sits inside
+   * a wind-belt boundary. Picking one direction per row from the sign of the wind put a full-width
+   * discontinuity into the field at every belt boundary, which is the artefact that KDoc describes.
    */
   private fun seasonalPrecipitation(
     elevation: Grid,
     temperature: Grid,
     latitudes: DoubleArray,
     seaLevel: Double,
-    region: CellRegion
+    region: CellRegion,
+    cyclic: Boolean
   ): List<Grid> {
     val out = ArrayList<Grid>(params.seasons)
+    val eastward = DoubleArray(region.width)
+    val westward = DoubleArray(region.width)
 
     for (season in 0 until params.seasons) {
       // Seasons are laid out symmetrically about zero shift, so with two of them one is the summer
@@ -254,42 +317,20 @@ class ClimateStage(
       val precip = Grid(region.width, region.height)
 
       for (y in 0 until region.height) {
-        val step = Winds.zonalSign(latitudes[y], shift)
-        val start = if (step > 0) 0 else region.width - 1
-        val end = if (step > 0) region.width else -1
+        val share = Winds.eastwardShare(latitudes[y], shift)
+        val row = precip.index(0, y)
 
-        var moisture = 0.0
-        var previousElevation = elevation.data[elevation.index(start, y)]
+        // Skipping the sweep that contributes nothing keeps the deep tropics and the polar cells at exactly
+        // one sweep, which is what they had before this became a blend.
+        if (share < 1.0) sweepRow(elevation, temperature, y, -1, seaLevel, region, cyclic, westward)
+        if (share > 0.0) sweepRow(elevation, temperature, y, +1, seaLevel, region, cyclic, eastward)
 
-        var x = start
-        while (x != end) {
-          val i = precip.index(x, y)
-          val z = elevation.data[i]
-          val t = temperature.data[i]
-          val capacity = Winds.capacity(t)
-
-          if (z <= seaLevel) {
-            // Saturating: air over the middle of an ocean does not keep gaining moisture forever.
-            moisture += (capacity - moisture).coerceAtLeast(0.0) * params.evaporationRate
+        for (x in 0 until region.width) {
+          precip.data[row + x] = when {
+            share <= 0.0 -> westward[x]
+            share >= 1.0 -> eastward[x]
+            else -> westward[x] + (eastward[x] - westward[x]) * share
           }
-
-          val rise = z - previousElevation
-          var rain = 0.0
-          if (rise > 0.0) {
-            rain += moisture * params.orographicCoefficient * rise
-          }
-
-          val descending = rise < 0.0
-          rain += moisture * params.convectiveRate *
-              (capacity / Winds.capacity(REFERENCE_TEMPERATURE)) *
-              (if (descending) params.leeSuppression else 1.0)
-
-          rain = min(rain, moisture)
-          moisture -= rain
-          precip.data[i] = rain
-
-          previousElevation = z
-          x += step
         }
       }
 
@@ -298,6 +339,68 @@ class ClimateStage(
     }
 
     return out
+  }
+
+  /**
+   * The advection sweep along one row, in one direction, into [out].
+   *
+   * [cyclic] runs the row twice and records only the second lap. The sweep starts with dry air, so without
+   * it the column it happens to start at is the one column in the row with no upwind fetch at all - it always
+   * receives exactly zero rain, and since rows alternate direction the result is a dry stripe down both map
+   * edges. On a world that wraps in x there is no such column: the air that leaves the east edge is the air
+   * that arrives at the west one. The spin-up lap is what lets the row find that equilibrium. Both edges of
+   * the map are forced ocean, so the seam the lap crosses is open water on both sides.
+   */
+  private fun sweepRow(
+    elevation: Grid,
+    temperature: Grid,
+    y: Int,
+    step: Int,
+    seaLevel: Double,
+    region: CellRegion,
+    cyclic: Boolean,
+    out: DoubleArray
+  ) {
+    val width = region.width
+    val start = if (step > 0) 0 else width - 1
+    val row = elevation.index(0, y)
+
+    var moisture = 0.0
+    var previousElevation = elevation.data[row + start]
+
+    val laps = if (cyclic) 2 else 1
+    for (lap in 0 until laps) {
+      val record = lap == laps - 1
+
+      for (n in 0 until width) {
+        val x = Math.floorMod(start + step * n, width)
+        val i = row + x
+        val z = elevation.data[i]
+        val capacity = Winds.capacity(temperature.data[i])
+
+        // Saturating: air over the middle of an ocean does not keep gaining moisture forever. Land gives its
+        // water back too, more slowly - see landEvaporationRate.
+        val evaporation = if (z <= seaLevel) params.evaporationRate else params.landEvaporationRate
+        moisture += (capacity - moisture).coerceAtLeast(0.0) * evaporation
+
+        val rise = z - previousElevation
+        var rain = 0.0
+        if (rise > 0.0) {
+          rain += moisture * params.orographicCoefficient * rise
+        }
+
+        val descending = rise < 0.0
+        rain += moisture * params.convectiveRate *
+            (capacity / Winds.capacity(REFERENCE_TEMPERATURE)) *
+            (if (descending) params.leeSuppression else 1.0)
+
+        rain = min(rain, moisture)
+        moisture -= rain
+        if (record) out[x] = rain
+
+        previousElevation = z
+      }
+    }
   }
 
   /** 0 where the seasons are alike, approaching 1 where all the rain falls in one of them. */

@@ -27,6 +27,7 @@ import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /** Tuning for [HydrologyStage]. */
 data class HydrologyParams(
@@ -47,8 +48,26 @@ data class HydrologyParams(
    * kilometres across": a 128 km world has catchments a fiftieth of the size, so nothing reached it and the
    * world came out with two rivers. Scaled by [WorldConfig.scaleByArea], so a small world's detail scale brings
    * it down further still.
+   *
+   * Raised from 93 million when the world became land-dominated. This is the knob for **how many** rivers, and
+   * with half a world of land rather than a quarter the same threshold produced a great many of them - and,
+   * because a bigger threshold takes longer to reach, produced them short: the network only lit up in the last
+   * stretch before the sea, which reads on the map as a comb of little coastal streams rather than as rivers.
+   * Fewer, larger catchments is what leaves room for trunks.
+   *
+   * It is *only* the count. Where a river starts is [channelSlopeExponent]'s question and how far it runs is
+   * [aridityExponent]'s, and confusing the three costs a tuning cycle each time: the network keeps its shape
+   * across the whole usable range of this number and only thins.
+   *
+   * **It is not absolute, and it has to be re-measured whenever the climate moves.** The threshold is a
+   * *discharge* derived from this area and the world's mean rainfall, so a uniform change in rainfall cancels -
+   * but a change in how rainfall is *distributed* does not. Flattening the model's absurd rain shadows took
+   * this world from mostly-bone-dry to broadly damp, which raised the [aridityExponent] multiplier on hardly
+   * any cells any more, and the same 110 million that had given 106 channels gave 531. Hence 420 million: the
+   * count is back to 140 and there are now 52 confluences rather than 14, which is the network being genuinely
+   * dendritic rather than a set of separate coastal streams.
    */
-  val channelCatchmentArea: Double = 93_000_000.0,
+  val channelCatchmentArea: Double = 420_000_000.0,
 
   /**
    * How strongly the channel threshold rises in dry regions.
@@ -56,8 +75,47 @@ data class HydrologyParams(
    * Scaling the threshold by local rainfall rather than using one figure everywhere is what gives an
    * arid region sparse drainage. With a fixed threshold a desert gets the same dense dendritic network
    * as a rainforest, only with less water in it, and the map stops distinguishing them.
+   *
+   * This is the knob for **how long** a river is, which is not obvious and is why it was the one to move. It is
+   * an exponent on a ratio, so at 1.0 an interior receiving a third of the mean rainfall needs three times the
+   * catchment before it carries a channel - and on a continental world, where the interior *is* dry, that
+   * pushes every channel head down towards the coast and leaves the uplands with no drainage drawn at all.
+   * At 0.55 a dry interior still gets a sparser network than a wet coast, which is the whole point of the
+   * term, but a river that rises in the mountains is still drawn as rising in the mountains.
    */
-  val aridityExponent: Double = 1.0,
+  val aridityExponent: Double = 0.55,
+
+  /**
+   * How strongly the channel threshold falls on steep ground. Zero restores the area-only threshold.
+   *
+   * This is the slope-area law for channel initiation - Montgomery and Dietrich's `A * S^n > constant` - and
+   * without it the threshold is an area alone, which is wrong in the one way that shows. A hillside sheds its
+   * water into a defined channel after a few hectares; a floodplain of the same catchment carries no channel
+   * at all, because there is no gradient to cut one. Ignoring that put every channel head on the coastal plain
+   * - the only place a purely area-based threshold is ever reached first - and the map came out as combs of
+   * short parallel streams running straight off the shore, with the uplands they should have risen in blank.
+   *
+   * The ratio it is applied to is against **this world's own mean land slope**, not against a constant, for the
+   * same reason [channelCatchmentArea] is converted using this world's own mean rainfall: it makes the term a
+   * redistribution rather than a discount. A fixed reference slope has to be either above or below a given
+   * world's typical ground, and whichever it is, it moves every threshold on the map in that direction and
+   * silently becomes a second control on how many rivers there are. Measured: a reference of 0.03 on a world
+   * whose land averages nearly three times that took the river count from 93 to 270 while barely moving where
+   * the heads sat, which is the wrong axis entirely.
+   *
+   * The literature puts the exponent near 2 for debris-flow-dominated heads. That is measured at metres, not at
+   * kilometre cells where a slope is already an average over a thousand metres of ground, so the spread here
+   * would be enormous - hence 1.0 and a hard clamp rather than the textbook figure.
+   */
+  val channelSlopeExponent: Double = 1.0,
+
+  /**
+   * Largest factor the slope term may move the threshold, either way.
+   *
+   * A clamp rather than a taper because the tails are where this misbehaves: a flat lake bed approaches zero
+   * slope and would demand an infinite catchment, and a cliff face would carry a channel from its first cell.
+   */
+  val channelSlopeRange: Double = 4.0,
 
   /** Metres of water evaporated from a lake surface per year. Decides which basins are salt lakes. */
   val evaporationDepth: Double = 1.1,
@@ -132,7 +190,8 @@ class HydrologyStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: channel initiation reads slope as well as catchment area, so heads sit in the uplands.
+  override val version = 2
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID)
   override val scale = StageScale.WORLD
 
@@ -175,10 +234,25 @@ class HydrologyStage(
       ctx.config.scaleByArea(params.channelCatchmentArea)
     ).coerceAtLeast(MIN_CHANNEL_DISCHARGE)
 
+    // Both modifiers on the threshold are ratios against this world's own mean, so the base threshold keeps
+    // meaning "the catchment a channel needs on ordinary ground under ordinary rain" and each term only says
+    // how far from ordinary a cell is. Neither can move the river count on its own; that stays
+    // channelCatchmentArea's job.
+    val slope = landSlopes(elevation, region, metres, seaLevel)
+    val meanSlope = meanOverLand(slope, elevation, seaLevel)
+    val slopeFloor = 1.0 / params.channelSlopeRange
+
     val graph = RiverNetwork.extract(network, discharge, lakes.lakeId) { i ->
       // Higher threshold where it is drier, so the network thins out towards the deserts.
-      channelDischarge *
-          (meanPrecipitation / precipitation.data[i].coerceAtLeast(1.0)).pow(params.aridityExponent)
+      val aridity =
+        (meanPrecipitation / precipitation.data[i].coerceAtLeast(1.0)).pow(params.aridityExponent)
+
+      // Lower threshold where it is steep, so channels rise in the mountains rather than on the plain.
+      val steepness = (meanSlope / max(slope.data[i], MIN_SLOPE))
+        .pow(params.channelSlopeExponent)
+        .coerceIn(slopeFloor, params.channelSlopeRange)
+
+      channelDischarge * aridity * steepness
     }
 
     val features = buildFeatures(ctx, region, network, discharge, graph)
@@ -195,6 +269,46 @@ class HydrologyStage(
       ),
       features = features
     )
+  }
+
+  /**
+   * Ground slope everywhere, with everything below sea level flattened to it.
+   *
+   * [Grid.gradient] is the wrong instrument for channel initiation because at kilometre cells the steepest
+   * ground in the world is the shoreline: a cell of coast beside a cell of shelf at -400 m reads as a slope of
+   * 0.4, steeper than any mountain front the erosion model produces. Fed that, the slope term does the exact
+   * opposite of its purpose - it makes the coast the *easiest* place in the world to start a channel, and the
+   * map fills with combs of parallel streams a few cells long hanging off every shore.
+   *
+   * Clamping the neighbours at sea level asks the question that was meant: how steep is the land here. A
+   * channel head is a subaerial feature, and what is under the water offshore has nothing to do with it.
+   */
+  private fun landSlopes(elevation: Grid, region: CellRegion, metres: Double, seaLevel: Double): Grid {
+    fun dry(x: Int, y: Int) = max(seaLevel, elevation[x, y])
+
+    return Grid(region.width, region.height) { x, y ->
+      val dzdx = (dry(x + 1, y) - dry(x - 1, y)) / (2.0 * metres)
+      val dzdy = (dry(x, y + 1) - dry(x, y - 1)) / (2.0 * metres)
+      sqrt(dzdx * dzdx + dzdy * dzdy)
+    }
+  }
+
+  /**
+   * Mean of [slope] over the cells that are above sea level, or over everything on a world with no land.
+   *
+   * Land only, because the sea floor is most of a half-water world and it is nearly flat once the shoreline
+   * scarp has been clamped out. Averaging it in would drag the reference far below any real hillside and turn
+   * a redistribution back into a discount.
+   */
+  private fun meanOverLand(slope: Grid, elevation: Grid, seaLevel: Double): Double {
+    var sum = 0.0
+    var count = 0
+    for (i in slope.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      sum += slope.data[i]
+      count++
+    }
+    return if (count == 0) slope.mean().coerceAtLeast(MIN_SLOPE) else (sum / count).coerceAtLeast(MIN_SLOPE)
   }
 
   /** Runoff from one cell, in cubic metres per second. */
@@ -323,6 +437,9 @@ class HydrologyStage(
      * the feature count that comes out of it will exhaust memory before anybody looks at it.
      */
     const val MIN_CHANNEL_DISCHARGE = 0.02
+
+    /** Slope floor for the channel-initiation term, so a dead-flat cell cannot divide by zero. */
+    private const val MIN_SLOPE = 1e-4
 
     private const val SMOOTHING_PASSES = 2
 

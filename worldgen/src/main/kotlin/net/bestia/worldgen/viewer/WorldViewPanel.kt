@@ -47,7 +47,7 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
   /** Called as the pointer moves, with the world position under it. */
   var onProbe: (Double, Double) -> Unit = { _, _ -> }
 
-  private var renderer = MapRenderer(scene.config)
+  private var renderer = MapRenderer(scene.config, scene::populationOf)
   private var rendered: RenderedMap? = null
   private var seams: List<ChunkSeamCheck.Seam> = emptyList()
 
@@ -106,7 +106,7 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
 
   fun show(scene: WorldScene) {
     this.scene = scene
-    this.renderer = MapRenderer(scene.config)
+    this.renderer = MapRenderer(scene.config, scene::populationOf)
     this.activeField = scene.fields.first()
     this.seams = emptyList()
     fitWorld()
@@ -147,6 +147,9 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
 
   /** True when the current view is at voxel scale - the status bar says so, so it is not guesswork. */
   fun isVoxelScale() = view.metresPerPixel == scene.config.voxelSize
+
+  /** Grids switched on but too dense to draw at this zoom, so the status bar can say so. */
+  fun suppressedGrids() = renderer.gridsSuppressed(view, options)
 
   /** Runs the boundary check over what is on screen and marks every disagreeing column. */
   fun runSeamCheck(): ChunkSeamCheck.Report? {
@@ -245,12 +248,17 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
 
   /** A colour bar with the numbers on it. A map without one is a picture, not a measurement. */
   private fun drawLegend(g2: Graphics2D, map: RenderedMap) {
+    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+
+    if (map.field.palette.categorical && map.categories.isNotEmpty()) {
+      drawCategoryLegend(g2, map)
+      return
+    }
+
     val barWidth = 220
     val barHeight = 12
     val x = 16
     val y = height - 44
-
-    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
 
     g2.color = Color(0, 0, 0, 150)
     g2.fillRoundRect(x - 8, y - 22, barWidth + 16, barHeight + 42, 8, 8)
@@ -275,7 +283,54 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     g2.drawString(highLabel, x + barWidth - g2.fontMetrics.stringWidth(highLabel), y + barHeight + 14)
   }
 
+  /**
+   * Named swatches for a category map, commonest first, with the share of the view each covers.
+   *
+   * What used to be here was a colour *bar* for a field that has no scale: the range came from the 1st and
+   * 99th percentile of the biome **ordinals** on screen, the gradient between two ordinals meant nothing, and
+   * the two numbers under it read `0` and `21`. Worse, the percentile clipping dropped the rarest biomes
+   * entirely - so the legend was least informative exactly where the map was most interesting.
+   *
+   * Text form of the same idea already exists in `ProbeMain`; this is it on the canvas.
+   */
+  private fun drawCategoryLegend(g2: Graphics2D, map: RenderedMap) {
+    val shown = map.categories.take(MAX_LEGEND_ROWS)
+    val total = map.categories.sumOf { it.second }.coerceAtLeast(1)
+
+    g2.font = Font(Font.SANS_SERIF, Font.PLAIN, 11)
+    val rowHeight = 14
+    val width = LEGEND_WIDTH
+    val x = 16
+    val y = height - 20 - shown.size * rowHeight
+
+    g2.color = Color(0, 0, 0, 150)
+    g2.fillRoundRect(x - 8, y - 22, width + 16, shown.size * rowHeight + 30, 8, 8)
+
+    g2.color = Color(235, 235, 240)
+    g2.drawString(map.field.name, x, y - 8)
+
+    shown.forEachIndexed { row, (value, count) ->
+      val top = y + row * rowHeight
+
+      g2.color = Color(map.field.palette.rgb(value))
+      g2.fillRect(x, top, 11, 9)
+      g2.color = Color(0, 0, 0, 110)
+      g2.drawRect(x, top, 11, 9)
+
+      g2.color = Color(235, 235, 240)
+      g2.drawString(map.field.format(value), x + 18, top + 9)
+
+      val share = "${"%.0f".format(100.0 * count / total)}%"
+      g2.drawString(share, x + width - g2.fontMetrics.stringWidth(share), top + 9)
+    }
+  }
+
   private companion object {
     const val ZOOM_STEP = 1.25
+
+    /** Past a handful of rows the legend covers the map it is explaining. The rest are named on hover. */
+    const val MAX_LEGEND_ROWS = 9
+
+    const val LEGEND_WIDTH = 220
   }
 }

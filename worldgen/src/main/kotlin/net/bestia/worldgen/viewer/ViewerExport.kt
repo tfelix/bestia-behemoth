@@ -22,11 +22,18 @@ object ViewerExport {
     heightPx: Int = 1400,
     // Auto-range by default: an export is looked at without a legend to hover over, and a palette
     // stretched over a range the data does not fill produces a flat picture of a fine field.
-    options: RenderOptions = RenderOptions(autoRange = true)
+    //
+    // And the same overlay the window opens with, rather than every kind: an export nobody can click is the
+    // one place a legible default matters most, and "all kinds" means four thousand sub-pixel buildings and a
+    // second dot painted over every settlement. See RenderOptions.HIDDEN_BY_DEFAULT.
+    options: RenderOptions = RenderOptions(
+      autoRange = true,
+      featureKinds = scene.featureCensus.keys - RenderOptions.HIDDEN_BY_DEFAULT
+    )
   ): List<File> {
     directory.mkdirs()
 
-    val renderer = MapRenderer(scene.config)
+    val renderer = MapRenderer(scene.config, scene::populationOf)
     val view = Viewport.fit(scene.bounds, widthPx, heightPx)
     val written = ArrayList<File>()
 

@@ -65,23 +65,35 @@ data class TownParams(
    * What turns a population into a radius, and therefore the single number that decides how big every town
    * in the world is.
    *
-   * Eighty-five is what the layout below actually produces, measured rather than assumed: plots at nine metres
-   * of frontage and sixteen of depth, streets every thirty-odd metres, about five and a half people per
-   * building. It started at a hundred and forty - a plausible-sounding density for a dense pre-industrial town
-   * - and left every settlement wanting forty percent more buildings than its own streets had room for, which
-   * is the discrepancy the `town` view's "wanted versus built" line exists to show.
+   * It is **measured, not assumed**, and has to be re-measured whenever the plot dimensions change: it started
+   * at a hundred and forty - a plausible-sounding density for a dense pre-industrial town - and left every
+   * settlement wanting forty percent more buildings than its own streets had room for, which is the discrepancy
+   * the `town` view's "wanted versus built" line exists to show. Eighty-five was the measured answer for nine
+   * metres of frontage; fifty-eight is the measured answer for the twelve and a half below, which fits fewer
+   * plots on the same length of street.
    */
-  val peoplePerHectare: Double = 85.0,
+  val peoplePerHectare: Double = 58.0,
 
   /** Residents per building. Five and a half is a household plus the odd lodger. */
   val peoplePerBuilding: Double = 5.5,
 
-  /** Metres of street frontage per plot, and metres of depth back from it. */
-  val lotFrontage: Double = 9.0,
-  val lotDepth: Double = 16.0,
+  /**
+   * Metres of street frontage per plot, and metres of depth back from it.
+   *
+   * Three multipliers stand between these and a building's actual size - `LOT_GAP` leaves a gap between
+   * neighbouring plots, `FOOTPRINT_FILL` leaves a yard inside one, and the per-function multiplier in
+   * `TownBuildings.footprintFor` - so a nine-metre frontage produced a house **6.35 m** wide. Which is a shed:
+   * a room and a half, with no wall thickness allowed for.
+   *
+   * Twelve and a half brings that to 10.35 m by 16.2 m, or 168 m² over however many storeys the culture builds -
+   * a house a household plausibly lives in. It costs about a quarter of the plots per length of street, which is
+   * what [peoplePerHectare] absorbs, and the town simply comes out proportionally wider.
+   */
+  val lotFrontage: Double = 12.5,
+  val lotDepth: Double = 18.0,
 
   /** Metres between the street centreline and the front of a plot. */
-  val setback: Double = 3.5,
+  val setback: Double = 4.0,
 
   /**
    * Ceiling on buildings per settlement.
@@ -173,7 +185,10 @@ class TownStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: plots and footprints grown so a house is a house; per-function sizes; a shallower roof on a wide span.
+  //    The roof lives in `voxel/TownStructures` and has no version of its own, so it rides on this one.
+  // 3: a lot whose footprint the pad cannot level is skipped, and the next-best lot takes the building.
+  override val version = 3
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
   )
@@ -245,18 +260,28 @@ class TownStage(
     // what it keeps is the centre - which is the part anybody stands in.
     val wanted = min(lots.size, max(1, (town.population / params.peoplePerBuilding).toInt()))
     val functions = zoning.assign(lots)
-    val chosen = lots.indices
-      .sortedWith(compareByDescending<Int> { zoning.valueOf(lots[it]) }.thenBy { it })
-      .take(min(wanted, params.maxBuildingsPerSettlement))
+    val limit = min(wanted, params.maxBuildingsPerSettlement)
 
-    val out = ArrayList<VectorFeature>(chosen.size + graph.edges.size / 4 + 8)
+    // Walked in value order and *filled* to the limit rather than sliced at it, so that a lot rejected below
+    // costs the town a worse lot rather than a building. Slicing first and filtering after would shrink every
+    // town by however many bad sites its best lots happened to contain.
+    val placed = ArrayList<Building>(limit)
+    for (index in lots.indices.sortedWith(compareByDescending<Int> { zoning.valueOf(lots[it]) }.thenBy { it })) {
+      if (placed.size >= limit) break
+
+      // `index` is also the RNG salt for storeys, materials and roof, so it has to stay the lot's own index
+      // and not a running count - renumbering here would change every building in the town.
+      val building = zoning.buildingFor(lots[index], functions[index], index)
+      if (standsLevel(building, world, town)) placed.add(building)
+    }
+
+    val out = ArrayList<VectorFeature>(placed.size + graph.edges.size / 4 + 8)
 
     for ((rank, chain) in graph.chains().map { it.second to it.first }) {
       streetFeature(nextId(), chain, rank, frame)?.let { out.add(it) }
     }
 
-    for (index in chosen) {
-      val building = zoning.buildingFor(lots[index], functions[index], index)
+    for (building in placed) {
       out.add(buildingFeature(nextId(), building, town.index))
     }
 
@@ -265,6 +290,39 @@ class TownStage(
     }
 
     return out
+  }
+
+  /**
+   * Whether the pad can actually level this building's ground, at all four corners.
+   *
+   * The site test a lot goes through is [WorldGround.buildable], which reads the slope off the **kilometre
+   * raster**. A building is eighteen metres long. A kilometre-averaged slope cannot see a scarp shorter than
+   * itself, so a lot can pass that test and still have five metres of relief across its own footprint - and
+   * the pad, being a terrace with a 2.5 m cut and a 1.5 m fill rather than a flat replace, then leaves the
+   * floor standing metres clear of the ground at the back corners. What the materialiser does with that is
+   * build a plinth, and a plinth that tall is a house on stilts.
+   *
+   * So the check has to be made at the building's own scale, which means after the building exists and its
+   * floor is known. Predicting the residual rather than measuring it afterwards is what lets the caller fall
+   * through to the next lot instead of losing the building.
+   */
+  private fun standsLevel(building: Building, world: WorldGround, town: TownReader.Town): Boolean {
+    val floor = building.floorElevation
+    val along = building.bearing * building.halfLength
+    val across = building.bearing.perpendicular() * building.halfWidth
+
+    for (corner in CORNER_SIGNS) {
+      val at = building.centre + along * corner.first + across * corner.second
+      val ground = world.gradingFaded(at, town)
+      val padded = when {
+        ground > floor -> max(floor, ground - PAD_MAX_CUT)
+        ground < floor -> min(floor, ground + PAD_MAX_FILL)
+        else -> floor
+      }
+      if (abs(padded - floor) > PAD_MAX_RESIDUAL) return false
+    }
+
+    return true
   }
 
   /**
@@ -472,8 +530,34 @@ class TownStage(
     private const val FOOTPRINT_SHARE = 0.95
 
     /** Cut and fill a building's own pad may add on top of the settlement's grading, in metres. */
-    private const val PAD_MAX_CUT = 2.5
-    private const val PAD_MAX_FILL = 1.5
+    /**
+     * What a building's own pad may cut and fill, in metres.
+     *
+     * Raised from 2.5 and 1.5 alongside the site check in [standsLevel], and the two belong together. The
+     * check predicts the ground from the kilometre heightfield; the base the chunk actually generates adds
+     * sub-kilometre detail noise on top, which on steep ground is worth a couple of metres and which nothing
+     * at this tier can see. So the pad has to be able to swallow an error the size of that noise, or a site
+     * the check passed still comes out with its floor standing clear of its ground.
+     *
+     * Four metres over an eighteen-metre footprint is a little over one in five - an ordinary amount of
+     * digging for a house on a hillside, and far less than the settlement-wide grading's nine.
+     */
+    private const val PAD_MAX_CUT = 4.0
+    private const val PAD_MAX_FILL = 3.0
+
+    /**
+     * How far the ground may still stand from the floor once the pad has done what it can, in metres.
+     *
+     * One voxel, which is the smallest difference that can exist at all - so this says the plinth may be a
+     * single course of stone and no more. `TownStageTest.the ground under a building is level` asserts the
+     * same number against the finished chunk columns, which is the check that matters: this predicts, that
+     * one measures, and they have to agree or the prediction is worthless.
+     */
+    private const val PAD_MAX_RESIDUAL = 1.0
+
+    /** The four corners of a footprint, as multiples of its half-extents. Matches `FootprintFeature.corners`. */
+    private val CORNER_SIGNS = listOf(-1.0 to -1.0, 1.0 to -1.0, 1.0 to 1.0, -1.0 to 1.0)
+
 
     /** Metres of slack between the built extent at walling time and the circuit itself. */
     private const val WALL_MARGIN = 1.18
@@ -608,6 +692,37 @@ internal class WorldGround(
     }
   }
 
+  /**
+   * The same, but faded the way the grading disc actually fades.
+   *
+   * [gradedGround] answers "what would the grading do here if it were at full strength", which is the right
+   * question for choosing a floor height and the wrong one for asking whether a pad can level its own ground.
+   * `SettlementStage.gradingFor` builds the disc with `edgeFraction = 0.6`, so grading is at full strength
+   * only inside the innermost 40% of the radius and tapers to nothing at the rim - and `builtRadius` puts a
+   * great many buildings out in that taper. Predicting full grading out there overstates how level the ground
+   * will be by metres, which is how a check against [gradedGround] passed buildings that the finished chunk
+   * columns then showed standing four metres clear of their floors.
+   *
+   * The arithmetic mirrors `PointFeature.falloff` and `FeatureEvaluator.add`'s `REPLACE` case exactly. Two
+   * copies of one formula is a poor thing, but the alternative is running the sampler on features that do not
+   * exist yet, and the copy is at least pinned: `TownStageTest.the ground under a building is level` measures
+   * the finished columns, so if these ever drift apart it fails.
+   */
+  fun gradingFaded(at: Vec2d, town: TownReader.Town): Double {
+    val raw = elevation.sampleBicubic(at.x, at.y)
+    val radius = town.tier.footprintRadius
+    val normalized = at.distanceTo(town.position) / radius
+    if (normalized >= 1.0) return raw
+
+    val fromEdge = 1.0 - normalized
+    val weight = when {
+      fromEdge >= GRADING_EDGE_FRACTION -> 1.0
+      else -> PolylineFeature.smoothstep(fromEdge / GRADING_EDGE_FRACTION)
+    }
+
+    return raw + (gradedGround(at, town.siteElevation) - raw) * weight
+  }
+
   /** Whether anything may stand here: dry, gentle enough, inside the world, and clear of the channel. */
   fun buildable(at: Vec2d, town: TownReader.Town): Boolean {
     val cellX = Math.floor(at.x / metres).toInt()
@@ -685,5 +800,8 @@ internal class WorldGround(
 
     /** Dot product above which two approach directions count as the same one. */
     const val APPROACH_DISTINCT = 0.94
+
+    /** Must match `SettlementStage.gradingFor`'s `edgeFraction`. See [WorldGround.gradingFaded]. */
+    const val GRADING_EDGE_FRACTION = 0.6
   }
 }

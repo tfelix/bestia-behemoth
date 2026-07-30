@@ -55,11 +55,54 @@ object Winds {
   fun zonalSign(latitude: Double, seasonalShift: Double = 0.0): Int =
     sign(directionAt(latitude, seasonalShift).x).toInt().let { if (it == 0) 1 else it }
 
+  /**
+   * How much of this latitude's air arrives on an eastward wind rather than a westward one, from 0 to 1.
+   *
+   * [zonalSign] is a step function, and a step function is wrong in a way that is visible from orbit. The
+   * advection sweep runs one row at a time in the direction the wind blows, so where the sign flips between two
+   * adjacent rows the two are built from opposite upwind histories - one row's air crossed a continent, the
+   * next row's crossed an ocean - and the precipitation field acquires a **discontinuity running the entire
+   * width of the map**. It survives the mixing blur, which averages over a few cells and cannot repair a jump
+   * that large, and `BiomeStage` then thresholds on it and draws a perfectly straight stripe one climate cell
+   * tall across every continent it touches. On a world spanning 68 degrees there are six such stripes.
+   *
+   * The physics says the same thing the picture does: the boundary between the trades and the westerlies is
+   * the subtropical ridge, a broad belt of light and variable wind, not a line where the wind reverses. Air
+   * there arrives from both sides. Blending the two sweeps over [BELT_TRANSITION] degrees is what a belt
+   * boundary actually looks like, and it is why this returns a share rather than a direction.
+   *
+   * In degrees of latitude, so it spans the same slice of the planet on a world of any size or resolution.
+   */
+  fun eastwardShare(latitude: Double, seasonalShift: Double = 0.0): Double {
+    val hemisphere = if (latitude >= 0.0) 1.0 else -1.0
+    val shifted = abs(latitude) - seasonalShift * hemisphere
+
+    val intoWesterlies = smoothstep(TRADE_LIMIT - BELT_TRANSITION, TRADE_LIMIT + BELT_TRANSITION, shifted)
+    val intoPolar = smoothstep(WESTERLY_LIMIT - BELT_TRANSITION, WESTERLY_LIMIT + BELT_TRANSITION, shifted)
+
+    return intoWesterlies * (1.0 - intoPolar)
+  }
+
+  private fun smoothstep(edge0: Double, edge1: Double, x: Double): Double {
+    val t = ((x - edge0) / (edge1 - edge0)).coerceIn(0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+  }
+
   /** Poleward edge of the trade-wind belt, in degrees. */
   private const val TRADE_LIMIT = 30.0
 
   /** Poleward edge of the westerly belt, in degrees. */
   private const val WESTERLY_LIMIT = 60.0
+
+  /**
+   * Half-width of the belt boundary, in degrees of latitude. See [eastwardShare].
+   *
+   * Wide enough that the blend spans several rows of the climate grid at any resolution this pipeline runs -
+   * four rows on a 128 km world at 4 km cells, fifteen on a 512 km one - because a blend narrower than one
+   * row is a step function again. It must stay clear of [seasonalShift][ClimateParams.seasonalShift] plus the
+   * gap between the two limits, or the trade and polar transitions start eating each other.
+   */
+  private const val BELT_TRANSITION = 8.0
 
   private const val REFERENCE_TEMPERATURE = 20.0
 }

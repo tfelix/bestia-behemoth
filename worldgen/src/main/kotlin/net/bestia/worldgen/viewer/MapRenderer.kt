@@ -1,8 +1,11 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.civ.SettlementChannels
+import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ChunkSeamCheck
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.VectorFeature
 import java.awt.BasicStroke
 import java.awt.Color
@@ -15,19 +18,74 @@ import java.awt.image.BufferedImage
 import java.awt.image.DataBufferInt
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.sqrt
 
 /** What to draw on top of the field, and how. */
 data class RenderOptions(
   val hillshade: Boolean = true,
   val exaggeration: Double = 2.0,
   val features: Boolean = true,
-  val chunkGrid: Boolean = false,
+
+  /**
+   * Which feature kinds to draw, or null for all of them.
+   *
+   * Separate from [features] because the overlay stopped being one thing. A world with town layout in it emits
+   * several thousand buildings and streets, every one of them smaller than a pixel at world scale, and they
+   * bury the rivers and roads that the overlay is worth having for. All-or-nothing meant the only way to read
+   * the map was to turn the whole overlay off.
+   */
+  val featureKinds: Set<FeatureKind>? = null,
+
+  /**
+   * The world raster's cell grid - [WorldConfig.baseResolution], one line per kilometre on most worlds.
+   *
+   * This is the grid every field map is *sampled from*, and the coarseness the whole vector tier exists to
+   * escape. One trap: it always draws the world's base resolution, so while a coarser layer is showing -
+   * climate runs four times coarser - it is not that layer's own cell grid.
+   */
   val cellGrid: Boolean = false,
+
+  /**
+   * The voxel-chunk tiling - [WorldConfig.chunkExtent], 32 m where a chunk is 32 voxels of a metre.
+   *
+   * What the materialiser generates and caches in, and exactly the set of lines the `S` seam check tests for
+   * disagreement, so a red seam marker can only ever appear on one of them.
+   */
+  val chunkGrid: Boolean = false,
+
   /** Stretch the palette to the values actually on screen, ignoring its declared range. */
   val autoRange: Boolean = false,
   /** Draw markers where [ChunkSeamCheck] found disagreeing columns. */
   val seams: List<ChunkSeamCheck.Seam> = emptyList()
-)
+) {
+
+  fun draws(kind: FeatureKind) = features && (featureKinds == null || kind in featureKinds)
+
+  companion object {
+
+    /**
+     * Kinds not worth drawing until you have zoomed in far enough to ask for them.
+     *
+     * Two different reasons, and both are about ink that carries no information at map scale.
+     *
+     * `BUILDING`, `STREET` and `BUSINESS` are step 8's output: several thousand features per world, each a few
+     * metres across, so at any zoom where a world fits on screen they are a grey wash over the rivers and
+     * roads the overlay exists for.
+     *
+     * `SETTLEMENT_HISTORY` and `SETTLEMENT_ECONOMY` are worse than noise - they are **duplicates**. They are
+     * attribute records pinned to a settlement's own coordinates, not places of their own, and their priority
+     * puts them on top, so each one paints its dot squarely over the settlement dot underneath. What they know
+     * reaches the map already: the settlement's size comes from history's population.
+     */
+    val HIDDEN_BY_DEFAULT = setOf(
+      FeatureKind.BUILDING,
+      FeatureKind.STREET,
+      FeatureKind.BUSINESS,
+      FeatureKind.SETTLEMENT_HISTORY,
+      FeatureKind.SETTLEMENT_ECONOMY
+    )
+  }
+}
 
 /**
  * One rendered frame, together with the range the palette was actually stretched over.
@@ -42,7 +100,19 @@ class RenderedMap(
   val low: Double,
   val high: Double,
   /** Non-null when the field could not be evaluated for this view; the map is then blank. */
-  val unavailable: String? = null
+  val unavailable: String? = null,
+
+  /**
+   * For a categorical field, the ids actually on screen with their pixel counts, commonest first.
+   *
+   * Populated only when [Palette.categorical], because it is what the legend draws instead of a colour bar,
+   * and it has to be measured here: the renderer is the only thing that has seen every sampled value, and
+   * re-deriving it in the legend would mean sampling the field a second time.
+   *
+   * Counts are pixels, not cells - what share of the *view* each category covers, which is the question a
+   * person reading a map asks.
+   */
+  val categories: List<Pair<Double, Int>> = emptyList()
 )
 
 /**
@@ -52,7 +122,20 @@ class RenderedMap(
  * mipmapping. That is deliberate: this tool exists to show what the pipeline produces, and a
  * renderer that quietly filters the data is a renderer that hides the bug you opened it to find.
  */
-class MapRenderer(private val config: WorldConfig) {
+class MapRenderer(
+  private val config: WorldConfig,
+
+  /**
+   * How many people live at a settlement marker, for sizing its dot. Null where it cannot be known.
+   *
+   * Injected rather than read off the marker, because the number worth drawing is not the one the marker
+   * carries: placement writes the population the *site* could support, and history writes what is actually
+   * there now. Only [WorldScene] can perform that join, and a renderer should not learn how.
+   *
+   * The default reads the marker's own figure, so a caller with no scene still gets dots that mean something.
+   */
+  private val populationOf: (PointMarker) -> Double? = { it.optionalAttribute(SettlementChannels.POPULATION) }
+) {
 
   fun render(
     field: ScalarField,
@@ -93,7 +176,41 @@ class MapRenderer(private val config: WorldConfig) {
 
     drawOverlays(image, view, options, features)
 
-    return RenderedMap(image, field, range.first, range.second)
+    return RenderedMap(
+      image, field, range.first, range.second,
+      categories = if (field.palette.categorical) census(values) else emptyList()
+    )
+  }
+
+  /**
+   * Which category ids are on screen and how many pixels each covers, commonest first.
+   *
+   * Histogrammed into an array over the id span rather than a map, because this runs on every frame of a drag
+   * over roughly a million samples, and a `HashMap<Double, Int>` boxes every one of them. Gives up on a span
+   * too wide to be a category set - plate ids on a huge world - and the legend then simply has nothing to
+   * draw, which is the right outcome for a field whose ids are not a vocabulary anyway.
+   */
+  private fun census(values: DoubleArray): List<Pair<Double, Int>> {
+    var low = Int.MAX_VALUE
+    var high = Int.MIN_VALUE
+    for (v in values) {
+      if (v.isNaN()) continue
+      val id = v.toInt()
+      if (id < low) low = id
+      if (id > high) high = id
+    }
+
+    if (low > high || high - low + 1 > MAX_CATEGORIES) return emptyList()
+
+    val counts = IntArray(high - low + 1)
+    for (v in values) {
+      if (!v.isNaN()) counts[v.toInt() - low]++
+    }
+
+    return counts.indices
+      .filter { counts[it] > 0 }
+      .sortedByDescending { counts[it] }
+      .map { (it + low).toDouble() to counts[it] }
   }
 
   /**
@@ -182,7 +299,7 @@ class MapRenderer(private val config: WorldConfig) {
         drawGrid(g, view, config.chunkExtent, CHUNK_GRID_COLOR)
       }
       if (options.features) {
-        drawFeatures(g, view, features)
+        drawFeatures(g, view, options, features)
       }
       if (options.seams.isNotEmpty()) {
         drawSeams(g, view, options.seams)
@@ -191,6 +308,21 @@ class MapRenderer(private val config: WorldConfig) {
       g.dispose()
     }
   }
+
+  /**
+   * Grids that are switched on but too dense to draw at this zoom, named.
+   *
+   * Exists to answer "I ticked the box and nothing happened", which is a real and repeated confusion: the chunk
+   * grid on a metre-voxel world needs about 5 m/px before it appears, so at any view wider than a street it is
+   * silently absent. Reporting it is cheaper than explaining it.
+   */
+  fun gridsSuppressed(view: Viewport, options: RenderOptions): List<String> = buildList {
+    if (options.cellGrid && isTooDense(config.baseResolution.metresPerCell, view)) add("raster")
+    if (options.chunkGrid && isTooDense(config.chunkExtent, view)) add("chunk")
+  }
+
+  private fun isTooDense(spacing: Double, view: Viewport) =
+    spacing / view.metresPerPixel < MIN_GRID_PIXELS
 
   /** Grid lines, skipped entirely when they would be denser than a few pixels apart. */
   private fun drawGrid(g: Graphics2D, view: Viewport, spacing: Double, color: Color) {
@@ -215,10 +347,24 @@ class MapRenderer(private val config: WorldConfig) {
     }
   }
 
-  private fun drawFeatures(g: Graphics2D, view: Viewport, features: List<VectorFeature>) {
+  private fun drawFeatures(
+    g: Graphics2D,
+    view: Viewport,
+    options: RenderOptions,
+    features: List<VectorFeature>
+  ) {
     // Draw in (priority, id) order - the order they were stamped - so an overlapping pair reads the
     // way it was actually blended.
     for (feature in features) {
+      // Filtered here rather than by the caller so that every path through the renderer - window, export,
+      // town tool - honours the same set, and there is only one place for it to be got wrong.
+      if (!options.draws(feature.kind)) continue
+
+      if (feature is PointMarker) {
+        drawMarker(g, view, feature)
+        continue
+      }
+
       val outlines = feature.outline()
       if (outlines.isEmpty()) {
         drawBounds(g, view, feature)
@@ -238,6 +384,48 @@ class MapRenderer(private val config: WorldConfig) {
         g.draw(path)
       }
     }
+  }
+
+  /**
+   * A point marker as a filled dot, sized by how much it matters.
+   *
+   * These used to go through [drawBounds], and a point's bounding box is a point: `drawRect(x, y, 0, 0)` at
+   * 38% alpha, one barely-visible pixel, **identical for a forty-thousand-person city and a hamlet of twenty**.
+   * Settlements are the thing you most want to find on a world map and they were the least visible thing on it,
+   * along with every gate, bridge, tomb and business in the world.
+   *
+   * The radius is in **screen space**, not world space, which is the whole point: a dot has to stay legible at
+   * whole-world zoom, where a city's real extent is a fraction of a pixel, and must not swell into a blob when
+   * you zoom to a street. Area therefore carries population rather than radius - `sqrt` - so a city reads as
+   * bigger than a hamlet without a village becoming invisible next to it.
+   */
+  private fun drawMarker(g: Graphics2D, view: Viewport, marker: PointMarker) {
+    val radius = radiusOf(marker)
+    val cx = view.screenX(marker.position.x)
+    val cy = view.screenY(marker.position.y)
+
+    g.color = Color(colorOf(marker.kind).rgb)
+    g.fill(Ellipse2D.Double(cx - radius, cy - radius, radius * 2, radius * 2))
+
+    // A thin dark ring, so a red dot on green forest and a red dot on brown steppe both read as a dot rather
+    // than as a smudge the biome happened to make.
+    g.color = MARKER_OUTLINE
+    g.stroke = BasicStroke(1f)
+    g.draw(Ellipse2D.Double(cx - radius, cy - radius, radius * 2, radius * 2))
+  }
+
+  private fun radiusOf(marker: PointMarker): Double {
+    if (marker.kind != FeatureKind.SETTLEMENT) return MINOR_MARKER_RADIUS
+
+    val population = populationOf(marker)
+      // No population channel: fall back to the tier, which is a coarse version of the same thing. A world
+      // whose settlements carry neither still gets a visible dot rather than nothing.
+      ?: return marker.optionalAttribute(SettlementChannels.TIER)
+        ?.let { SETTLEMENT_MIN_RADIUS + (SettlementTier.entries.size - 1 - it).coerceAtLeast(0.0) }
+        ?: SETTLEMENT_MIN_RADIUS
+
+    val share = (population / CITY_POPULATION).coerceIn(0.0, 1.0)
+    return SETTLEMENT_MIN_RADIUS + (SETTLEMENT_MAX_RADIUS - SETTLEMENT_MIN_RADIUS) * sqrt(share)
   }
 
   /** A feature with no outline still gets its influence bounds, so it is not invisible. */
@@ -274,11 +462,34 @@ class MapRenderer(private val config: WorldConfig) {
     /** Where the field has no value. Deliberately not black: an empty stage must not look like sea. */
     val NO_DATA = Colors.rgb(28, 28, 34)
 
+    /**
+     * Below this many pixels apart a grid is not drawn at all.
+     *
+     * Worth knowing when a toggle appears to do nothing: on a world with kilometre cells the raster grid needs
+     * about 167 m/px or finer, and a 32 m chunk grid needs 5.3 m/px - close to voxel scale. [gridsSuppressed]
+     * reports it so the status bar can say so rather than leaving it to be inferred.
+     */
     private const val MIN_GRID_PIXELS = 6.0
 
     private val CELL_GRID_COLOR = Color(255, 255, 255, 36)
     private val CHUNK_GRID_COLOR = Color(255, 220, 120, 90)
     private val SEAM_COLOR = Color(255, 40, 40)
+
+    /** Enough contrast to read a dot on any biome colour without hiding the dot's own hue. */
+    private val MARKER_OUTLINE = Color(20, 20, 26, 200)
+
+    /** Screen-space dot radii, in pixels. A hamlet must stay visible; a city must not become a blob. */
+    private const val SETTLEMENT_MIN_RADIUS = 2.5
+    private const val SETTLEMENT_MAX_RADIUS = 9.0
+
+    /** Everything that is not a settlement: gates, bridges, tombs, monuments, businesses. */
+    private const val MINOR_MARKER_RADIUS = 2.0
+
+    /** The population a dot is drawn at full size for - [SettlementTier.CITY]'s ceiling. */
+    private const val CITY_POPULATION = 40_000.0
+
+    /** Widest id span still treated as a set of categories worth naming. */
+    private const val MAX_CATEGORIES = 4096
 
     /**
      * Deliberately an exhaustive `when` with no `else`: a stage that starts emitting a new kind of

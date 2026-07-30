@@ -10,8 +10,12 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.civ.SettlementChannels
+import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.vector.Aabb
+import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import kotlin.math.floor
@@ -32,14 +36,59 @@ class WorldScene(
   val chunkSource: ChunkColumnSource? = null
 ) {
 
-  /** Vector features grouped by kind, for the status line - "10 rivers, 34 faults" reads better. */
-  fun featureSummary(): String = features.all()
+  /**
+   * How many features of each kind this world has, in [FeatureKind] declaration order.
+   *
+   * Computed once and held, for two reasons. [FeatureStore.all] copies the whole list under a lock, which is
+   * fine at startup and not fine per repaint; and the store is frozen after the vector stages, so a census
+   * taken here can never go stale.
+   *
+   * The legend reads this rather than the whole store, and it reads it to decide *which rows exist* - only the
+   * kinds a world actually has, so a world with no glaciers has no glacier row to wonder about.
+   */
+  val featureCensus: Map<FeatureKind, Int> = features.all()
     .groupingBy { it.kind }
     .eachCount()
     .entries
     .sortedBy { it.key.ordinal }
+    .associateTo(LinkedHashMap()) { it.key to it.value }
+
+  /**
+   * Present-day population per settlement index, where history has recorded one.
+   *
+   * Keyed on [SettlementChannels.INDEX], which is the join key everything downstream of placement uses. The
+   * value comes from the `SETTLEMENT_HISTORY` marker rather than from the settlement's own marker, and the
+   * difference matters for a map: the settlement carries the population the *site* could support when it was
+   * placed, and this carries what a thousand years of history actually left there. A place that was sacked
+   * three times should not draw as big as it was zoned for.
+   *
+   * Empty when the pipeline has no history stage, in which case the marker's own figure is all there is.
+   */
+  private val livePopulations: Map<Int, Double> = features.all()
+    .asSequence()
+    .filterIsInstance<PointMarker>()
+    .filter { it.kind == FeatureKind.SETTLEMENT_HISTORY }
+    .mapNotNull { marker ->
+      val index = marker.optionalAttribute(HistoryChannels.INDEX) ?: return@mapNotNull null
+      val population = marker.optionalAttribute(HistoryChannels.POPULATION) ?: return@mapNotNull null
+      index.toInt() to population
+    }
+    .toMap()
+
+  /** Vector features grouped by kind, for the status line - "10 rivers, 34 faults" reads better. */
+  fun featureSummary(): String = featureCensus.entries
     .joinToString(", ") { "${it.value} ${it.key.name.lowercase()}" }
     .ifEmpty { "no vector features" }
+
+  /**
+   * How many people live at a settlement marker today, or null when it does not say.
+   *
+   * Prefers what history left over what placement intended; see [livePopulations].
+   */
+  fun populationOf(settlement: PointMarker): Double? {
+    val index = settlement.optionalAttribute(SettlementChannels.INDEX)?.toInt()
+    return index?.let { livePopulations[it] } ?: settlement.optionalAttribute(SettlementChannels.POPULATION)
+  }
 
   init {
     require(fields.isNotEmpty()) { "A scene needs at least one field to show" }

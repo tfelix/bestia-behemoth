@@ -80,7 +80,16 @@ object Invariants {
     seeds: Int,
     firstSeed: Long = 1L,
     config: (Long) -> WorldConfig = { StandardWorld.demoConfig(it) },
-    onSeed: (Long, Report) -> Unit = { _, _ -> }
+
+    /**
+     * Called once per world, with the world itself so a caller can measure it.
+     *
+     * The world is passed because a sweep is the only place the seed-to-seed *spread* of anything is
+     * visible, and a pass/fail is not a measurement: whether the land fraction sits at 0.50 on every seed
+     * or wanders between 0.35 and 0.65 is what decides whether a tuning change is finished, and the
+     * invariant's own loose bounds cannot tell you.
+     */
+    onSeed: (Long, Report, GeneratedWorld) -> Unit = { _, _, _ -> }
   ): Report {
     val violations = ArrayList<Violation>()
 
@@ -89,7 +98,7 @@ object Invariants {
       val generated = StandardWorld.build(config(seed), StageListener.NONE)
       val report = Report(1, check(generated))
       violations.addAll(report.violations)
-      onSeed(seed, report)
+      onSeed(seed, report, generated)
     }
 
     return Report(seeds, violations)
@@ -789,10 +798,25 @@ object Invariants {
     }
   }
 
-  private fun checkLandFraction(generated: GeneratedWorld, fail: (String, String) -> Unit) {
-    val elevation = generated.world.layers.require<FloatLayer>(LayerId.ELEVATION)
+  /**
+   * The share of a heightfield that is above sea level.
+   *
+   * Public and shared, because three callers want this number and each used to compute it: this check, the
+   * pipeline test, and - now - the viewer and the sweep, which print it. Two of those copies had already
+   * drifted, one of them testing `> 0f` rather than against the world's own sea level.
+   *
+   * @param layerId [LayerId.BEDROCK_ELEVATION] for what tectonics *aimed* at, [LayerId.ELEVATION] for what
+   *   the player gets. They differ by however far erosion and deposition moved the shoreline, and telling
+   *   the two apart is the difference between a normalisation bug and a legitimate seed.
+   */
+  fun landFraction(generated: GeneratedWorld, layerId: LayerId = LayerId.ELEVATION): Double {
+    val elevation = generated.world.layers.require<FloatLayer>(layerId)
     val seaLevel = generated.config.seaLevel
-    val land = elevation.data.count { it > seaLevel }.toDouble() / elevation.data.size
+    return elevation.data.count { it > seaLevel }.toDouble() / elevation.data.size
+  }
+
+  private fun checkLandFraction(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val land = landFraction(generated)
 
     // Loose bounds on purpose. Tectonics normalises the *bedrock* land fraction exactly; erosion and
     // deposition then move the shoreline, and how far they move it is a legitimate property of the seed.

@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.IntGrid
 import net.bestia.worldgen.fields.Noise
@@ -22,10 +23,14 @@ import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Tuning for [TectonicsStage].
@@ -43,17 +48,39 @@ data class TectonicsParams(
    */
   val plateSpacing: Double? = null,
 
-  /** Fraction of plates that are oceanic. Earth is about 0.6 by count. */
-  val oceanicShare: Double = 0.6,
+  /**
+   * Fraction of plates that are oceanic. Earth is about 0.6 by count.
+   *
+   * **The real lever on how much of the world is land**, despite the name of the one below it. Continental and
+   * oceanic crust sit in two well-separated elevation clusters - about +300 m and about -3400 m - so this
+   * decides roughly what share of the world is *capable* of being land, and [targetLandFraction] only decides
+   * where in the gap between the two the waterline falls.
+   *
+   * Ask for more land than the continental share can supply and the waterline is forced down into the oceanic
+   * cluster, where the land that surfaces is ex-seafloor: no uplift behind it, no orogenic relief, and a
+   * coastline that follows the plate diagram because the per-plate base elevation is the only thing varying
+   * there. Keep the two roughly in step and the shoreline instead lands on the boundary cross-fade, which is
+   * a domain-warped continental shelf - which is what a coast should be.
+   */
+  val oceanicShare: Double = 0.45,
 
   /**
-   * Fraction of the world that ends up above sea level.
+   * Fraction of **the whole world**, forced ocean margin included, that the bedrock leaves above sea level.
    *
-   * Enforced by shifting the whole heightfield so that the matching elevation quantile lands exactly
-   * at sea level. Without it the land fraction swings from 5% to 80% between seeds depending on how
-   * the Poisson sampler happened to place the continental plates, and most seeds are unusable.
+   * Enforced by shifting the whole heightfield until it is true. Without it the land fraction swings from 5% to
+   * 80% between seeds depending on how the Poisson sampler happened to place the continental plates, and most
+   * seeds are unusable.
+   *
+   * "The whole world" is load bearing. Measured over the interior only - which is what a quantile over the
+   * unmargined cells gives you - the number meant something different on every world size, because the margin
+   * is a sixth of a 128 km world's short edge and a fiftieth of a 512 km one's. See [normaliseLandFraction].
+   *
+   * Note this is the lever for *how much* land, not for *what kind*. Raising it alone drops the waterline into
+   * the oceanic plates' own elevation cluster, and what surfaces there is ex-seafloor: no uplift, so erosion
+   * planes it flat instead of carving it, and a coastline that follows a Voronoi contour. [oceanicShare] is the
+   * knob that decides whether the new land is continental crust.
    */
-  val targetLandFraction: Double = 0.32,
+  val targetLandFraction: Double = 0.50,
 
   /**
    * How far below sea level the forced ocean margin is taken, in metres.
@@ -62,6 +89,23 @@ data class TectonicsParams(
    * and deep enough that erosion and hydrology treat it as the sink it is. See [OceanBorder].
    */
   val oceanBorderDepth: Double = 400.0,
+
+  /**
+   * How far inland the ocean margin's outer edge is allowed to wander, in metres.
+   *
+   * The margin's *guarantee* is a rectangle - it has to be, because that is the shape of the world - but its
+   * shoreline need not be, and it was: `OceanBorder.distanceToEdge` measured distance to a rectangle, so the
+   * coast came out as four straight lines parallel to the map's edges meeting at square corners. On a small
+   * world, where the margin is a sixth of the short edge, that was most of the visible coastline.
+   *
+   * This buys a coastline back. It only ever pushes the drowning *further in*, never out, so the guarantee is
+   * untouched - see [OceanBorder.distanceToEdge] for why that is the necessary and sufficient condition.
+   *
+   * It costs land: the mean margin widens by half of this on every side, which on a 128 km world is a couple
+   * of points off the land fraction. That is accounted for rather than absorbed - the land-fraction search
+   * measures the finished heights, margin included.
+   */
+  val oceanBorderWobble: Double = 2_500.0,
 
   /** Wavelength of the ridged relief noise in metres - the spacing of individual ridge crests. */
   val reliefWavelength: Double = 38_000.0,
@@ -75,11 +119,30 @@ data class TectonicsParams(
    * The knob that decides how much the coastline owes to the plate layout. At zero the shoreline is a
    * contour of the Voronoi diagram; turned up it wanders across plate boundaries and the tectonic
    * structure shows in the mountains rather than in the outline of the land.
+   *
+   * It matters more on a land-dominated world than on an ocean-dominated one, because it is what puts bays,
+   * gulfs and peninsulas into a coastline that would otherwise run straight round the outside of a continent.
+   * Do not take it much past 900: at that point it is inventing continents of its own and the plate structure
+   * stops reading as the reason for anything.
    */
-  val continentalSwell: Double = 540.0,
+  val continentalSwell: Double = 650.0,
 
-  /** Additional crest height at the heart of an orogen, in metres. */
-  val orogenicRelief: Double = 1_750.0,
+  /**
+   * Additional crest height at the heart of an orogen, in metres.
+   *
+   * Lowered from 1750 when [oceanicShare] came down. The two multiply: a more continental world has more
+   * continent-continent convergence, and each of those is worth another 3400 m of collision uplift on top of
+   * this, so keeping both at their old values took a 128 km world to 6.5 km peaks. Which is not merely ugly -
+   * it puts most of the land above the treeline and much of it above the snowline, throws enormous ice flux
+   * into the glacial stage, and drops a rain shadow behind every ridge, so the interiors go to desert and the
+   * rivers with them.
+   *
+   * Lowered again to 820 for the flat land. This is the term that decides how much of a continent is *crest*
+   * rather than country: the ridged-noise crest field it scales is applied over the whole orogen, so raising
+   * it does not make one range taller so much as it makes a wider band of the map steep. At 1150 bare cliff
+   * was 13-14% of all land on its own, before counting the alpine and cold ground behind it.
+   */
+  val orogenicRelief: Double = 820.0,
 
   /** Hotspot chain spacing in metres. Null derives it from the plate spacing. */
   val hotspotSpacing: Double? = null,
@@ -116,7 +179,10 @@ class TectonicsStage(
 
   override val id = ID
   // 2: OceanBorder now holds the margin under the waterline and blends out over a shelf beyond it.
-  override val version = 2
+  // 3: the margin's coastline wobbles instead of being a rectangle, and the land-fraction target is measured
+  //    over the whole world after the margin rather than over the interior before it.
+  // 4: hotspot tracks curve, so a chain crossing a continent is no longer a ruled line.
+  override val version = 4
   override val dependencies: List<StageId> = emptyList()
   override val scale = StageScale.WORLD
 
@@ -132,7 +198,23 @@ class TectonicsStage(
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
     val metres = region.resolution.metresPerCell
     val bounds = region.toWorld()
-    val spacing = params.plateSpacing ?: defaultSpacing(bounds.width, bounds.height)
+    val spacing = params.plateSpacing ?: defaultSpacing(ctx.config, bounds.width, bounds.height)
+
+    /**
+     * How much of a full-size orogeny this world builds at each boundary.
+     *
+     * A deliberate, and deliberately unphysical, trade. A continent-continent collision raises 3400 m because
+     * that is what one raises on Earth, and it is right for a world with Earth's ratio of plate boundary to
+     * area. A world at detail scale four has four times that ratio - that is what detail scale *is*, a small
+     * world given a big world's feature density - so leaving the amplitude alone gives every one of those
+     * boundaries a Himalaya, and the result is not a dramatic world but a uniformly vertical one: measured,
+     * 22% of the land classified as bare `cliff` and 6% as forest and grassland together.
+     *
+     * The square root splits the difference rather than cancelling the effect: a 128 km world gets ranges at
+     * about half height, which is still the tallest thing in it by a wide margin, and gets lowland between them
+     * to put fields and forests on. Exactly 1.0 at 512 km and above, so the reference world is untouched.
+     */
+    val orogenicHeight = 1.0 / sqrt(ctx.config.detailScale)
 
     val plates = PlateSet.build(bounds, spacing, ctx.rng(PLATE_STREAM), params.oceanicShare)
 
@@ -195,19 +277,32 @@ class TectonicsStage(
           val other = plates.plates[otherId]
           val contact = plates.contact(own.id, other.id)
 
+          // Orogens are measured in *absolute* metres - a continent-continent fold belt falls off over 190 km,
+          // an arc peaks 70 km inland of its trench - because that is how wide those things are on Earth. On a
+          // world narrower than one fold belt that stops describing a mountain range and starts describing the
+          // whole map: every cell is near a convergent boundary, nothing is ever far enough away for the
+          // falloff to bite, and the continents come out as a single plateau at range height, which is above
+          // the treeline for most of it and behind a rain shadow for all of it.
+          //
+          // So the *world* is scaled instead of the numbers: pretending a cell is `detailScale` times further
+          // from the boundary than it is makes the range proportionally the size it would be on the reference
+          // world, keeping the peak where the collision actually is and putting lowland back between them.
+          // Exactly one at 512 km and above, so the world every constant here was tuned on does not move.
+          val orogenicDistance = distance * ctx.config.detailScale
+
           z = blend(
-            own.baseElevation + Orogeny.elevationAt(contact, own, other, distance),
-            other.baseElevation + Orogeny.elevationAt(contact, other, own, distance),
+            own.baseElevation + Orogeny.elevationAt(contact, own, other, orogenicDistance) * orogenicHeight,
+            other.baseElevation + Orogeny.elevationAt(contact, other, own, orogenicDistance) * orogenicHeight,
             fade
           )
           rise = blend(
-            Orogeny.upliftAt(contact, own, other, distance),
-            Orogeny.upliftAt(contact, other, own, distance),
+            Orogeny.upliftAt(contact, own, other, orogenicDistance),
+            Orogeny.upliftAt(contact, other, own, orogenicDistance),
             fade
           )
           age = blend(own.age, other.age, fade)
           oceanic = blend(own.oceanicity, other.oceanicity, fade)
-          caught = Orogeny.orogenicIntensity(contact, distance)
+          caught = Orogeny.orogenicIntensity(contact, orogenicDistance)
 
           // Oceanic crust is created at a ridge and ages as it spreads away from it, which is why the
           // sea floor gets deeper and older with distance from the mid-ocean ridge.
@@ -269,9 +364,13 @@ class TectonicsStage(
     // before anything downstream runs. That ordering is the whole point of putting it in this stage: erosion,
     // hydrology, biomes and settlement all see nothing but deep water at the world edge, so no river tries to
     // drain across the seam and no town gets founded on ground a player would walk off.
-    val border = OceanBorder.of(ctx.config, params.oceanBorderDepth, region, metres, region.width)
-    normaliseLandFraction(elevation, ctx.config.seaLevel, border::isInteriorCell)
+    val border = OceanBorder.of(
+      ctx.config, params.oceanBorderDepth, region, metres, region.width, params.oceanBorderWobble
+    )
+    normaliseLandFraction(elevation, ctx.config.seaLevel, border)
     border.applyTo(elevation, ctx.config.seaLevel)
+
+    upliftDryLand(elevation, uplift, crustAge, ctx.config.seaLevel)
 
     val hardness = rockHardness(ctx, region, elevation, crustAge, oceanicity, intensity)
     val faults = traceFaults(plateId, region, plates)
@@ -306,7 +405,17 @@ class TectonicsStage(
   ) {
     val metres = region.resolution.metresPerCell
     val rng = ctx.rng(HOTSPOT_STREAM)
+
+    // Chain *origins* follow the plates: denser plates mean more hotspots, which is right - a hotspot is a
+    // mantle plume and there are more of them under a more finely divided lithosphere.
     val origins = PoissonDisk.sample(bounds, params.hotspotSpacing ?: spacing * HOTSPOT_SPACING_FACTOR, rng)
+
+    // The islands themselves do *not*. An island's size is set by how much magma one plume delivers, which has
+    // nothing to do with how big the plate above it is - and tying it to the plate spacing means a world with
+    // finer plates silently gets smaller islands, which is not a physical consequence of anything. Floored at
+    // the unscaled plate spacing so that shrinking the floor for small worlds adds island *chains* without
+    // shrinking the islands, and so that nothing changes at all on a world where the floor never bound.
+    val islandScale = max(spacing, MIN_PLATE_SPACING)
 
     val sample = DoubleArray(3)
     val scratch = DoubleArray(4)
@@ -316,26 +425,43 @@ class TectonicsStage(
       val plate = plates.plates[sample[0].toInt()]
 
       // The chain trails *behind* the plate's motion: the island over the hotspot now is the youngest.
-      val direction = plate.drift.normalized()
-      if (direction.lengthSquared == 0.0) continue
+      val drift = plate.drift.normalized()
+      if (drift.lengthSquared == 0.0) continue
 
-      val step = spacing * HOTSPOT_STEP_FACTOR
+      val step = islandScale * HOTSPOT_STEP_FACTOR
       val peak = if (plate.isOceanic) OCEANIC_HOTSPOT_PEAK else CONTINENTAL_HOTSPOT_PEAK
-      val sideways = direction.perpendicular()
 
-      var along = 0.0
+      // The track curves, because a chain laid along a fixed heading is a ruled line and reads as one.
+      //
+      // At these factors the cones overlap - 7.5 km across at 5.5 km spacing - so a chain is not a row of
+      // separate islands but one continuous ridge about 38 km long. In open water that is a good island arc.
+      // Crossing a continental interior, which is where the denser plates put a lot of them, it is a
+      // perfectly straight 1,500 m wall running a third of the way across the landmass, with a cliff biome
+      // stamped along it and biome bands ruled off either side. It was the most conspicuous straight edge
+      // left on the map once the coastline stopped being a rectangle.
+      //
+      // Letting the heading wander is also the more truthful model: a hotspot track records the plate's
+      // motion over tens of millions of years, and that motion changes. The bend in the Hawaii-Emperor chain
+      // is sixty degrees. A random walk in heading gives the same character - locally straight, globally
+      // curved - for one extra term.
+      var heading = atan2(drift.y, drift.x)
+      var centre = origin
+
       for (k in 0 until params.hotspotChainLength) {
+        heading += (rng.nextDouble() - 0.5) * 2.0 * HOTSPOT_CURVATURE
+        val direction = Vec2d(cos(heading), sin(heading))
+
         // Jitter each island's own position along and across the track, not just the chain's spacing.
         // A single spacing per chain produces a line of perfectly evenly spaced dots, and evenly spaced
         // is the one thing a volcanic chain never is - the regularity reads as a rendering artefact
         // rather than as islands.
-        along += step * (0.75 + rng.nextDouble() * 0.5)
-        val drift = sideways * (step * (rng.nextDouble() - 0.5) * HOTSPOT_WANDER)
-        val centre = origin - direction * along + drift
+        val advance = step * (0.75 + rng.nextDouble() * 0.5)
+        val sideways = direction.perpendicular() * (step * (rng.nextDouble() - 0.5) * HOTSPOT_WANDER)
+        centre = centre - direction * advance + sideways
         if (!bounds.contains(centre.x, centre.y)) continue
 
         val height = peak * exp(-k * HOTSPOT_DECAY) * (0.7 + rng.nextDouble() * 0.6)
-        val radius = spacing * HOTSPOT_RADIUS_FACTOR * (0.75 + rng.nextDouble() * 0.5)
+        val radius = islandScale * HOTSPOT_RADIUS_FACTOR * (0.75 + rng.nextDouble() * 0.5)
 
         stampCone(elevation, region, metres, centre, radius, height)
       }
@@ -370,45 +496,136 @@ class TectonicsStage(
   }
 
   /**
-   * Shifts the whole heightfield so that exactly [params].targetLandFraction of it is above sea level.
+   * Shifts the whole heightfield so that [params].targetLandFraction **of the whole world** ends up above sea
+   * level once [border] has been applied.
    *
-   * Via a histogram rather than a sort: sorting 16 million doubles to find one quantile costs more
-   * than the rest of this stage put together, and a bin width of a few metres is far finer than the
-   * question being asked.
+   * ### Why this is not a quantile any more
+   *
+   * It used to put the target quantile of the *interior* cells at sea level, and then the margin was applied on
+   * top and drowned some of what had just been counted as land: all of the margin proper - excluded from the
+   * count, so harmless - but also about half of the coastal shelf band beyond it, which was counted. A 128 km
+   * world asking for 0.32 got 0.30 in bedrock and 0.28 after erosion.
+   *
+   * Being a couple of points out would be tolerable. Being **world-size dependent** is not: the same 0.32 was
+   * nearly honest on a 512 km world, where the margin is a fiftieth of the area rather than a sixth. So the
+   * number meant something different on every world, which defeats the point of having it - it exists so that
+   * seeds are comparable and most of them usable.
+   *
+   * ### The search
+   *
+   * The finished land count is monotone non-decreasing in the shift, so bisect on the shift directly. Cells the
+   * margin cannot touch keep the histogram - their answer is a pure function of the shift, so one `O(N)` pass
+   * serves every iteration - and the band the margin *can* touch is re-evaluated per iteration through
+   * [OceanBorder.heightAt], which is the same code that will actually be applied. The band is about a fifth of
+   * a small world and a twentieth of a large one, so this costs a small multiple of one pass, not twenty.
+   *
+   * Exact in bedrock. Erosion and deposition then move the shoreline by however much the seed's rivers build,
+   * which is a legitimate property of the seed rather than an error - see `Invariants.checkLandFraction`.
    */
-  private fun normaliseLandFraction(elevation: Grid, seaLevel: Double, interior: (Int) -> Boolean) {
+  private fun normaliseLandFraction(elevation: Grid, seaLevel: Double, border: OceanBorder) {
     val low = elevation.min()
     val high = elevation.max()
     if (high - low < 1e-9) return
 
     val bins = IntArray(QUANTILE_BINS)
     val scale = QUANTILE_BINS / (high - low)
-    // Interior cells only. Counting the forced ocean margin would have the quantile see a world that is mostly
-    // sea and raise everything to compensate, which lifts the margin back above the waterline - the normaliser
-    // undoing the very thing the margin is for.
-    var counted = 0L
+    val band = ArrayList<Int>()
+
     for (i in elevation.data.indices) {
-      if (!interior(i)) continue
-      bins[((elevation.data[i] - low) * scale).toInt().coerceIn(0, QUANTILE_BINS - 1)]++
-      counted++
-    }
-    if (counted == 0L) return
-
-    val targetBelow = ((1.0 - params.targetLandFraction) * counted).toLong()
-    var cumulative = 0L
-    var bin = 0
-    while (bin < QUANTILE_BINS - 1 && cumulative + bins[bin] < targetBelow) {
-      cumulative += bins[bin]
-      bin++
+      if (border.isInBlend(i)) {
+        band.add(i)
+      } else {
+        bins[((elevation.data[i] - low) * scale).toInt().coerceIn(0, QUANTILE_BINS - 1)]++
+      }
     }
 
-    // Linear position within the bin the quantile falls in, so the result does not snap to bin edges.
-    val within = if (bins[bin] > 0) (targetBelow - cumulative).toDouble() / bins[bin] else 0.0
-    val quantile = low + (bin + within) / scale
+    // Cumulative from the top, so `landOutsideBand(threshold)` is one lookup rather than a scan.
+    val atOrAbove = LongArray(QUANTILE_BINS + 1)
+    for (bin in QUANTILE_BINS - 1 downTo 0) {
+      atOrAbove[bin] = atOrAbove[bin + 1] + bins[bin]
+    }
 
-    val shift = seaLevel - quantile
+    /** Cells outside the margin's reach that a shift of [shift] leaves above sea level. */
+    fun landOutsideBand(shift: Double): Double {
+      // A cell is land when `z + shift > seaLevel`, i.e. `z > seaLevel - shift`.
+      val threshold = seaLevel - shift
+      val position = (threshold - low) * scale
+      if (position < 0.0) return atOrAbove[0].toDouble()
+      if (position >= QUANTILE_BINS) return 0.0
+
+      // Interpolated inside the straddling bin, so the search converges smoothly rather than in bin steps.
+      val bin = position.toInt()
+      val within = position - bin
+      return atOrAbove[bin + 1] + bins[bin] * (1.0 - within)
+    }
+
+    fun landAt(shift: Double): Double {
+      var land = landOutsideBand(shift)
+      for (i in band) {
+        if (border.heightAt(i, elevation.data[i] + shift, seaLevel) > seaLevel) land++
+      }
+      return land
+    }
+
+    val wanted = params.targetLandFraction * elevation.data.size
+
+    // Bounds: enough to drown everything, and enough to lift everything the margin will allow. The margin's
+    // own depth is added to the top so that the upper bound really is unreachable-or-better.
+    var lowShift = seaLevel - high - 1.0
+    var highShift = seaLevel - low + params.oceanBorderDepth + 1.0
+
+    // If even the highest shift cannot reach the target, the world is asking for more land than its forced
+    // margin leaves room for. Take the most it can give rather than throwing: a small world with a wide
+    // margin legitimately has a ceiling, and refusing to generate it would be worse than approximating.
+    if (landAt(highShift) < wanted) {
+      applyShift(elevation, highShift)
+      return
+    }
+
+    repeat(SHIFT_SEARCH_STEPS) {
+      val middle = (lowShift + highShift) / 2.0
+      if (landAt(middle) < wanted) lowShift = middle else highShift = middle
+    }
+
+    applyShift(elevation, (lowShift + highShift) / 2.0)
+  }
+
+  private fun applyShift(elevation: Grid, shift: Double) {
     for (i in elevation.data.indices) {
       elevation.data[i] += shift
+    }
+  }
+
+  /**
+   * Gives every cell that ended up above sea level at least an interior plate's worth of uplift.
+   *
+   * **The reason a land-heavy world does not come out flat**, and it is a physical statement rather than a
+   * cosmetic one: crust that stands above sea level is crust that is being held up, and rock that is being
+   * held up is rock that erosion has something to cut into. Stream power is `U - K A^m S`; where `U` is zero
+   * the only steady state is a plane, so the forty-five erosion timesteps *remove* whatever relief the noise
+   * put there instead of organising it into valleys and ridges.
+   *
+   * Which matters because [oceanicShare] and [targetLandFraction] cannot be kept perfectly in step across
+   * every seed. Wherever the waterline lands a little inside the oceanic cluster, the land that surfaces is
+   * ex-seafloor with `uplift = 0` (see `Plates.upliftAt`), and without this it stays a featureless shelf -
+   * unmistakable on the map as a smooth pale plain with a coastline and nothing else.
+   *
+   * Runs after the margin, on the final heights, for the same reason [rockHardness] does: "above sea level" is
+   * not a question that can be asked before the land fraction is fixed. Old crust gets less, as it does in
+   * `Plates`: a craton has finished rising.
+   */
+  private fun upliftDryLand(elevation: Grid, uplift: Grid, crustAge: Grid, seaLevel: Double) {
+    for (i in elevation.data.indices) {
+      val above = elevation.data[i] - seaLevel
+      if (above <= 0.0) continue
+
+      // Ramped in over the first couple of hundred metres rather than switched on at the waterline: a step in
+      // uplift along a contour is a step in erosion rate along a contour, and erosion turns that into an
+      // escarpment that follows the coast - a landform made by an `if`.
+      val ramp = PolylineFeature.smoothstep((above / DRY_UPLIFT_RAMP).coerceIn(0.0, 1.0))
+      val floor = Orogeny.INTERIOR_UPLIFT * (1.0 - AGE_SMOOTHING * crustAge.data[i]) * ramp
+
+      if (floor > uplift.data[i]) uplift.data[i] = floor
     }
   }
 
@@ -516,9 +733,33 @@ class TectonicsStage(
       .channel(CHANNEL_STRENGTH) { contact.strength }
       .build()
 
-  /** Plate spacing for a world too small for real plates: about five plates across the short edge. */
-  private fun defaultSpacing(width: Double, height: Double): Double =
-    (min(width, height) / 5.0).coerceIn(MIN_PLATE_SPACING, MAX_PLATE_SPACING)
+  /**
+   * Plate spacing when none is chosen: about five plates across the short edge, floored.
+   *
+   * ### Why the floor is scaled
+   *
+   * [MIN_PLATE_SPACING] is a statement about real plates - fifty kilometres is about the smallest thing that
+   * behaves like one - and on any world of a decent size it never binds, because a fifth of the short edge is
+   * larger. On a *small* world it binds hard and distorts everything: a 128 km world wants 25.6 km and is
+   * clamped up to 50 km, which leaves it six to nine plates, a boundary cross-fade a fifth of the map wide, and
+   * a continental swell (at `spacing * CONTINENT_WAVELENGTH`) whose wavelength is 75 km - **1.7 lobes across the
+   * whole world**, which is a tilt rather than a landscape. That is a large part of why a small world's interior
+   * comes out as one featureless plain.
+   *
+   * [WorldConfig.scaleByLength] is the existing answer to exactly this class of problem: it shrinks a threshold
+   * that gates a feature on the world being big enough. Applying it to the floor gives a 128 km world 12.5 km
+   * of headroom, so it keeps its natural 25.6 km spacing and gets around twenty-five plates.
+   *
+   * ### And it cannot run away on a large world
+   *
+   * `detailScale` is `(512 km / shortEdge).coerceIn(1.0, 8.0)`, so it is **exactly 1.0 for every world at or
+   * above 512 km** and the floor there is the unscaled 50 km, unchanged. It would not have mattered anyway -
+   * 512/5 is 102 km and 4096/5 is 819 km, both above the floor - but the two facts together mean this change is
+   * provably a no-op for anything the reference world's constants were tuned against. `the plate spacing of a
+   * reference world is unchanged` in `TectonicsTest` holds the line.
+   */
+  internal fun defaultSpacing(config: WorldConfig, width: Double, height: Double): Double =
+    (min(width, height) / 5.0).coerceIn(config.scaleByLength(MIN_PLATE_SPACING), MAX_PLATE_SPACING)
 
   companion object {
     val ID = StageId("tectonics")
@@ -574,6 +815,16 @@ class TectonicsStage(
 
     /** How far an island may sit off the hotspot track, as a fraction of the chain step. */
     private const val HOTSPOT_WANDER = 0.8
+
+    /**
+     * Largest heading change per island, in radians. A random walk, so the chain curves rather than turns.
+     *
+     * 0.22 is about twelve degrees a step; over a seven-island chain the track typically swings some thirty
+     * degrees and can reach ninety. Much more and the chain doubles back on itself and stops reading as a
+     * track at all, which loses the thing an island arc is *for* - it is the one feature on the map that
+     * tells a player which way the plate under them is moving.
+     */
+    private const val HOTSPOT_CURVATURE = 0.22
     private const val OCEANIC_HOTSPOT_PEAK = 3_800.0
     private const val CONTINENTAL_HOTSPOT_PEAK = 1_500.0
     private const val CONE_SHARPNESS = 1.6
@@ -582,6 +833,22 @@ class TectonicsStage(
     private const val BASIN_QUIET = 0.15
     private const val HARDNESS_WAVELENGTH = 26_000.0
 
+    /**
+     * Metres of elevation over which the dry-land uplift floor ramps in from nothing.
+     *
+     * Comparable to the coastal relief it has to not disturb: short enough that an inland plain is properly
+     * uplifted, long enough that no escarpment forms along the shoreline.
+     */
+    private const val DRY_UPLIFT_RAMP = 250.0
+
     private const val QUANTILE_BINS = 4096
+
+    /**
+     * Bisection steps for the land-fraction shift.
+     *
+     * Twenty halvings take a range of a few thousand metres to under a centimetre, which is far finer than a
+     * heightfield means anything at, and each step costs only the margin band rather than the whole world.
+     */
+    private const val SHIFT_SEARCH_STEPS = 20
   }
 }

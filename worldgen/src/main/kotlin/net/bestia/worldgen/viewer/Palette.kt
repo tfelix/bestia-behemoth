@@ -1,7 +1,9 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.voxel.BlockType
 import java.awt.Color
 
@@ -21,6 +23,19 @@ interface Palette {
 
   /** Hillshading a category map produces nonsense, so categorical palettes opt out. */
   val shadeable: Boolean get() = true
+
+  /**
+   * Whether the values this colours are labels rather than magnitudes.
+   *
+   * Drives the legend, and it has to be its own flag rather than being inferred. `shadeable` is the closest
+   * existing signal and it is not the same question - [SurfaceOccupancyField]'s palette is continuous and
+   * deliberately unshadeable - so reusing it would mislabel a real scale as a set of categories.
+   *
+   * What it prevents: a colour *bar* for a category map is nonsense end to end. The range comes from the 1st
+   * and 99th percentile of the **ordinals** on screen, the ramp between two ordinals is a fiction, and the
+   * numbers under it read `0 .. 21`. See [WorldViewPanel.drawLegend], which draws named swatches instead.
+   */
+  val categorical: Boolean get() = false
 
   /** A copy bound to a concrete range. Palettes with a fixed range may ignore it. */
   fun withRange(low: Double, high: Double): Palette
@@ -82,6 +97,7 @@ class CategoryPalette(private val salt: Long = 0L) : Palette {
 
   override val range: ClosedFloatingPointRange<Double>? get() = null
   override val shadeable get() = false
+  override val categorical get() = true
 
   override fun rgb(value: Double): Int {
     val id = value.toLong()
@@ -140,6 +156,45 @@ object Palettes {
 }
 
 /**
+ * What a category id in a layer *means*, in words. The companion to [Palettes], and deliberately its twin.
+ *
+ * An integer raster is a raster of labels, and reading `8` off the biome map tells you nothing you did not
+ * already have to look up. Every one of these ids has a vocabulary somewhere in the generator; this is the one
+ * place that knows which vocabulary belongs to which layer, so the cursor readout and the legend both say
+ * `temperate forest`.
+ *
+ * Same shape as [Palettes.forLayer] on purpose, including the `else`: a layer nobody has taught this about
+ * keeps showing its raw number rather than breaking, and a stage added tomorrow needs no viewer change.
+ */
+object Labels {
+
+  /** Null when the layer's ids are genuinely just numbers. */
+  fun forLayer(id: LayerId): ((Int) -> String?)? = when (id) {
+
+    // `getOrNull`, not `Biome.of`: that clamps an out-of-range ordinal to the last entry, so a bad id
+    // would confidently read as `cliff`. Falling back to the number is the honest answer, and it matches
+    // how BiomePalette falls back to a hashed colour rather than inventing one.
+    LayerId.BIOME -> { ordinal -> Biome.entries.getOrNull(ordinal)?.label }
+
+    LayerId.FLOW_DIRECTION -> { d -> if (d == D8.NONE) "outflow" else D8.NAMES.getOrNull(d) }
+
+    // Signed, and the sign is the information: a negative basin has no outlet to the sea, which is what
+    // makes it a salt lake. See LayerId.LAKE_ID.
+    LayerId.LAKE_ID -> { basin ->
+      when {
+        basin == 0 -> "none"
+        basin < 0 -> "${-basin} (endorheic)"
+        else -> basin.toString()
+      }
+    }
+
+    // PLATE_ID has no vocabulary - a plate is only ever "the same one as over there" - so a number is
+    // already the whole truth about it.
+    else -> null
+  }
+}
+
+/**
  * Biomes in colours that look like the thing they are.
  *
  * A hashed [CategoryPalette] would work and would be less code, but a biome map is one of the two or
@@ -151,6 +206,7 @@ class BiomePalette : Palette {
 
   override val range: ClosedFloatingPointRange<Double>? get() = null
   override val shadeable get() = false
+  override val categorical get() = true
 
   private val fallback = CategoryPalette(salt = 0xB10E5L)
 
@@ -202,6 +258,7 @@ class BlockPalette : Palette {
 
   override val range: ClosedFloatingPointRange<Double>? get() = null
   override val shadeable get() = false
+  override val categorical get() = true
 
   private val fallback = CategoryPalette(salt = 0xB10CL)
 

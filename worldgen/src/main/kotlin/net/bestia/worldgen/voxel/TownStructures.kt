@@ -307,13 +307,27 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     return when (structure.roofShape) {
       RoofShape.FLAT -> PARAPET
       RoofShape.GABLE ->
-        ROOF_PITCH * (footprint.halfWidth - abs(across)).coerceAtLeast(0.0)
-      RoofShape.HIP -> ROOF_PITCH * min(
+        pitchFor(footprint.halfWidth) * (footprint.halfWidth - abs(across)).coerceAtLeast(0.0)
+      RoofShape.HIP -> pitchFor(min(footprint.halfWidth, footprint.halfLength)) * min(
         (footprint.halfWidth - abs(across)).coerceAtLeast(0.0),
         (footprint.halfLength - abs(along)).coerceAtLeast(0.0)
       )
     }
   }
+
+  /**
+   * Rise per metre of run, shallowed on a wide span so the ridge does not become a spike.
+   *
+   * A fixed pitch is fine while every building is the same width and stops being fine the moment they are not:
+   * at forty degrees a six-metre house has a ridge 2.7 m above its eaves, and a twenty-metre market hall would
+   * have one 8.8 m up - taller than the building under it, and a shape no pre-industrial carpenter would frame
+   * because no timber spans it.
+   *
+   * Capping the *pitch* rather than the *rise* is what keeps this a roof: capping the rise flat-tops the ridge
+   * into a mesa, whereas a shallower pitch is exactly what wide-span roofs actually have.
+   */
+  private fun pitchFor(span: Double): Double =
+    if (span <= 0.0) ROOF_PITCH else min(ROOF_PITCH, MAX_ROOF_RISE / span)
 
   /**
    * Whether this column is the doorway.
@@ -457,6 +471,14 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
     /** Rise per metre of horizontal run. About forty degrees, which is what sheds snow and rain. */
     const val ROOF_PITCH = 0.85
+
+    /**
+     * Metres a ridge may stand above its eaves before the pitch is shallowed to hold it there.
+     *
+     * Does not bind on an ordinary house - a 10 m wide dwelling reaches 4.4 m and keeps a full pitch - and
+     * bites only on the wide public buildings, which is where a fixed pitch produces a spire.
+     */
+    const val MAX_ROOF_RISE = 4.5
 
     /** A flat roof is not flat: it has a parapet, or it reads as an unfinished box. */
     const val PARAPET = 0.9

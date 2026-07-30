@@ -5,6 +5,7 @@ import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
@@ -172,7 +173,7 @@ object TownMain {
       }
 
       val tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()]
-      val hectares = record.population / TOWN_PEOPLE_PER_HECTARE
+      val hectares = record.population / TOWN.peoplePerHectare
       return minOf(
         Math.sqrt(maxOf(hectares, 0.05) * 10_000.0 / Math.PI),
         tier.footprintRadius * 0.95
@@ -232,7 +233,7 @@ object TownMain {
      * or the per-settlement cap bound. Printing both makes them one glance apart.
      */
     fun layout(place: Place) {
-      val wanted = maxOf(1, (place.record.population / TOWN_PEOPLE_PER_BUILDING).toInt())
+      val wanted = maxOf(1, (place.record.population / TOWN.peoplePerBuilding).toInt())
       val built = place.buildings.size
 
       println()
@@ -243,7 +244,7 @@ object TownMain {
       line(
         "buildings", "$built built, $wanted wanted" + when {
           built >= wanted -> ""
-          built >= TOWN_BUILDING_CAP -> " - the per-settlement cap bound"
+          built >= TOWN.maxBuildingsPerSettlement -> " - the per-settlement cap bound"
           else -> " - the street layout had room for only $built plots"
         }
       )
@@ -267,6 +268,32 @@ object TownMain {
       println()
       line("mean storeys", fixed(storeys.average()))
       line("stone walled", "$stone of $built (${percent(stone, built)})")
+      footprints(place)
+    }
+
+    /**
+     * How big the buildings actually came out, in metres.
+     *
+     * The one number nothing reported, and the one that decides whether a town is a place people could live
+     * in. A footprint is three multiplications away from its parameters - lot frontage times the gap between
+     * plots times the share of a plot a building covers - so it cannot be read off the config, and "are these
+     * houses or sheds" was a question only answerable by counting voxels in the probe.
+     *
+     * Median rather than mean, and the extremes beside it, because the interesting failure is not the average
+     * drifting: it is every building in the world being the same size.
+     */
+    private fun footprints(place: Place) {
+      val sizes = place.buildings
+        .map { it.halfLength * 2.0 to it.halfWidth * 2.0 }
+        .sortedBy { it.first * it.second }
+      if (sizes.isEmpty()) return
+
+      fun describe(size: Pair<Double, Double>) =
+        "${fixed(size.first)} x ${fixed(size.second)} m (${(size.first * size.second).toInt()} m2)"
+
+      line("footprint median", describe(sizes[sizes.size / 2]))
+      line("  smallest", describe(sizes.first()))
+      line("  largest", describe(sizes.last()))
     }
 
     /**
@@ -521,10 +548,15 @@ object TownMain {
   /** Households sampled for the text view. Enough to see a spread, few enough to read. */
   private const val HOUSEHOLD_SAMPLE = 10
 
-  /** Must match `TownParams.peoplePerHectare` and `peoplePerBuilding`; see [TownView.radiusOf]. */
-  private const val TOWN_PEOPLE_PER_HECTARE = 85.0
-  private const val TOWN_PEOPLE_PER_BUILDING = 5.5
-  private const val TOWN_BUILDING_CAP = 1_200
+  /**
+   * The layout parameters this tool has to agree with, read from the source rather than copied.
+   *
+   * They used to be three constants here with a comment saying they must match `TownParams` - and the moment
+   * the plot dimensions changed they did not, which turns the "wanted versus built" line this view exists for
+   * into a confident lie. `TownParams` has no state and its defaults *are* what `StandardWorld` builds the
+   * stage with, so reading them is both correct and free.
+   */
+  private val TOWN = TownParams()
 
   /** How much beyond the built radius the map shows, so the edge of town is visible. */
   private const val MAP_MARGIN = 1.35

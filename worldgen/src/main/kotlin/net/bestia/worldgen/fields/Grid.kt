@@ -184,6 +184,14 @@ object D8 {
   val DX = intArrayOf(1, 1, 0, -1, -1, -1, 0, 1)
   val DY = intArrayOf(0, 1, 1, 1, 0, -1, -1, -1)
 
+  /**
+   * The same eight directions in words, for anything that shows a flow direction to a person.
+   *
+   * Indexed identically to [DX] and [DY], and that is the point of keeping it here rather than in the viewer:
+   * the order above is contractual, and a separate copy of it somewhere else is a copy that can disagree.
+   */
+  val NAMES = arrayOf("E", "NE", "N", "NW", "W", "SW", "S", "SE")
+
   /** Centre-to-centre distance in cells, so diagonals are not treated as one cell of travel. */
   val LENGTH = DoubleArray(8) { if (DX[it] != 0 && DY[it] != 0) SQRT_2 else 1.0 }
 

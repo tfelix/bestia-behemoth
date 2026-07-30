@@ -415,9 +415,14 @@ class StandardWorldTest {
           // submerged ground voxel is deliberately left full - see the two rules in ChunkMaterializer.
           val block = BlockType.ofOrNull(surface.blockAt(localX, localY)) ?: continue
           if (block == BlockType.WATER || block == BlockType.ICE) continue
-          // Nor a bridge: a deck sits *on* the terrain at its own elevation, so the topmost voxel of that
-          // column is legitimately not the ground and the column source never claimed it was.
-          if (block == BlockType.MASONRY) continue
+          // Nor anything built: a deck, a wall, a floor slab or a roof sits *on* the terrain at its own
+          // elevation, so the topmost voxel of that column is legitimately not the ground and the column
+          // source never claimed it was.
+          //
+          // This was a single `== MASONRY` check for bridges, written when a bridge deck was the only thing
+          // civilisation put above ground level. Step 8 now puts several thousand buildings on the map, and
+          // sampling one of their roofs failed the test with a ten-metre "error" that is a roof doing its job.
+          if (block in BUILT) continue
 
           val error = kotlin.math.abs(actual - expected)
           if (error > worst) {
@@ -638,6 +643,17 @@ class StandardWorldTest {
 
   private companion object {
     val ABOVE_SURFACE = setOf(BlockType.AIR, BlockType.WATER, BlockType.ICE)
+
+    /**
+     * Everything civilisation puts on the ground rather than everything geology puts under it.
+     *
+     * The worked materials, ids 60 and up in [BlockType]. Listed rather than tested by id range, so that a
+     * natural block added above 60 does not silently join them.
+     */
+    val BUILT = setOf(
+      BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
+      BlockType.ROOF_TILE, BlockType.PLANK, BlockType.RUBBLE, BlockType.COBBLESTONE
+    )
 
     val SOILS = setOf(
       BlockType.DIRT, BlockType.SAND, BlockType.CLAY, BlockType.PEAT,

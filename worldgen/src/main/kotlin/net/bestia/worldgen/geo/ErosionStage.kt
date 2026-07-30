@@ -29,6 +29,15 @@ data class ErosionParams(
   val oceanBorderDepth: Double = TectonicsParams().oceanBorderDepth,
 
   /**
+   * Must match [TectonicsParams.oceanBorderWobble], and defaults from it for the same reason the depth does.
+   *
+   * More sharply than the depth, in fact: the two applications of the margin must agree on *where the
+   * coastline is*, and a different wobble here would carve a step at the difference between the two - which is
+   * exactly the escarpment the second application exists to prevent.
+   */
+  val oceanBorderWobble: Double = TectonicsParams().oceanBorderWobble,
+
+  /**
    * Timesteps of geological time.
    *
    * The implicit stream power solver is stable at any timestep, so this is a quality knob rather than a
@@ -197,8 +206,9 @@ class ErosionStage(
      * around it, and this is its fix: the same continuous blend, applied to the eroded surface, before
      * hydrology and everything after it sees the layer.
      */
-    OceanBorder.of(ctx.config, params.oceanBorderDepth, region, metres, region.width)
-      .applyTo(elevation, seaLevel)
+    OceanBorder.of(
+      ctx.config, params.oceanBorderDepth, region, metres, region.width, params.oceanBorderWobble
+    ).applyTo(elevation, seaLevel)
 
     return StageResult.of(
       elevation.toLayer(LayerId.ELEVATION, region),

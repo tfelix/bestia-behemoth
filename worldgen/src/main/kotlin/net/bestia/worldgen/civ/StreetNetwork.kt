@@ -708,8 +708,14 @@ internal object LotPlanner {
   private val SIDES = doubleArrayOf(1.0, -1.0)
   private val SIGNS = doubleArrayOf(-1.0, 1.0)
 
-  /** Fraction of its frontage a plot's building actually occupies, leaving a gap between neighbours. */
-  private const val LOT_GAP = 0.86
+  /**
+   * Fraction of its frontage a plot's building actually occupies, leaving a gap between neighbours.
+   *
+   * One of three multipliers between `TownParams.lotFrontage` and a building's width - see the note there.
+   * Raised from 0.86 when the plots grew: a wider plot can afford a proportionally narrower gap and still
+   * leave two metres of air between neighbours, which is what a street of separate houses needs.
+   */
+  private const val LOT_GAP = 0.92
 }
 
 /**

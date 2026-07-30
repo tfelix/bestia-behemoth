@@ -1,15 +1,19 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.vector.FeatureKind
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Component
 import java.awt.Dimension
 import java.awt.Font
+import java.awt.Graphics
 import java.awt.GridLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
+import javax.swing.Icon
 import javax.swing.JCheckBox
 import javax.swing.JFrame
 import javax.swing.JLabel
@@ -42,12 +46,30 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
   private var autoRange = false
   private var exaggeration = 2.0
 
+  /**
+   * Which feature kinds are drawn. Only ever holds kinds this world actually has.
+   *
+   * Starts as everything the world has except [RenderOptions.HIDDEN_BY_DEFAULT] - see there for why those five
+   * are ink without information at map scale. Every one of them is one click away in the legend.
+   */
+  private val visibleKinds =
+    scene.featureCensus.keys.toMutableSet().apply { removeAll(RenderOptions.HIDDEN_BY_DEFAULT) }
+
   init {
     defaultCloseOperation = DISPOSE_ON_CLOSE
 
     contentPane.layout = BorderLayout()
     contentPane.add(canvas, BorderLayout.CENTER)
-    contentPane.add(sidePanel(), BorderLayout.EAST)
+    // Scrolled, because the side panel's height is driven by the number of fields - a full pipeline has
+    // thirty-odd, and with a feature legend under them the column is taller than a 1080p screen.
+    contentPane.add(
+      JScrollPane(sidePanel()).apply {
+        border = null
+        horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        preferredSize = Dimension(SIDEBAR_WIDTH + 18, 0)
+      },
+      BorderLayout.EAST
+    )
     contentPane.add(statusBar(), BorderLayout.SOUTH)
 
     canvas.onRendered = { map ->
@@ -58,6 +80,11 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
         // Worth stating outright rather than leaving to be inferred from the number: at voxel scale every
         // pixel is one materialised column, which is the only scale at which a single wrong block is visible.
         if (canvas.isVoxelScale()) append(" - 1 px = 1 voxel")
+
+        // Otherwise a ticked grid that is too dense to draw looks like a broken toggle.
+        val suppressed = canvas.suppressedGrids()
+        if (suppressed.isNotEmpty()) append("   |   ${suppressed.joinToString("+")} grid too dense - zoom in")
+
         append("   |   drag pan, wheel zoom, 1 voxel scale, F fit, H shade, C chunks, G cells, ")
         append("V features, A auto-range, S seam check, [ ] relief")
       }
@@ -78,7 +105,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     val panel = JPanel()
     panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
     panel.border = BorderFactory.createEmptyBorder(8, 8, 8, 8)
-    panel.preferredSize = Dimension(260, 0)
+    panel.preferredSize = Dimension(SIDEBAR_WIDTH, 0)
 
     panel.add(heading("fields"))
     val fieldList = JList(scene.fields.map { it.name }.toTypedArray())
@@ -89,15 +116,24 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
         canvas.activeField = scene.fields[fieldList.selectedIndex]
       }
     }
-    panel.add(JScrollPane(fieldList).apply { preferredSize = Dimension(240, 200) })
+    panel.add(JScrollPane(fieldList).apply { preferredSize = Dimension(SIDEBAR_WIDTH - 20, 200) })
 
     panel.add(Box.createVerticalStrut(10))
     panel.add(heading("overlays"))
     panel.add(toggle("hillshade", hillshade) { hillshade = it; applyOptions() })
     panel.add(toggle("vector features", showFeatures) { showFeatures = it; applyOptions() })
-    panel.add(toggle("chunk grid", chunkGrid) { chunkGrid = it; applyOptions() })
-    panel.add(toggle("raster cell grid", cellGrid) { cellGrid = it; applyOptions() })
+    // Labelled with their spacing, because "chunk grid" and "raster cell grid" say nothing about which is
+    // which, and both numbers are properties of this world rather than constants.
+    panel.add(toggle("chunk grid (${metres(scene.config.chunkExtent)})", chunkGrid) {
+      chunkGrid = it; applyOptions()
+    })
+    panel.add(toggle("world raster (${metres(scene.config.baseResolution.metresPerCell)})", cellGrid) {
+      cellGrid = it; applyOptions()
+    })
     panel.add(toggle("auto range", autoRange) { autoRange = it; applyOptions() })
+
+    panel.add(Box.createVerticalStrut(10))
+    panel.add(featureLegend())
 
     panel.add(Box.createVerticalStrut(10))
     panel.add(heading("under cursor"))
@@ -125,9 +161,87 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     return bar
   }
 
+  /**
+   * The vector overlay's key: which colour is which kind, how many there are, and which are drawn.
+   *
+   * Both halves of the problem in one control. The map drew coloured lines with nothing anywhere saying what
+   * they were, and the overlay was a single switch, so the only way to stop several thousand sub-pixel
+   * buildings from burying the rivers was to turn the rivers off too.
+   *
+   * Only the kinds this world has get a row, so the list is the world's own inventory rather than the
+   * generator's vocabulary. Note that five colours are shared by two kinds each - river channel with
+   * confluence, road with junction, lake with oxbow, trough with fjord, fan with delta - which is deliberate:
+   * they are one visual class and telling them apart on a map was never the point.
+   */
+  private fun featureLegend(): JPanel {
+    val section = JPanel()
+    section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
+    section.alignmentX = LEFT_ALIGNMENT
+    section.add(heading("features"))
+
+    if (scene.featureCensus.isEmpty()) {
+      section.add(JLabel("none in this world").apply {
+        font = Font(Font.SANS_SERIF, Font.ITALIC, 11)
+        alignmentX = LEFT_ALIGNMENT
+      })
+      return section
+    }
+
+    val rows = JPanel()
+    rows.layout = BoxLayout(rows, BoxLayout.Y_AXIS)
+    for ((kind, count) in scene.featureCensus) {
+      rows.add(featureRow(kind, count))
+    }
+
+    section.add(
+      JScrollPane(rows).apply {
+        preferredSize = Dimension(SIDEBAR_WIDTH - 20, LEGEND_HEIGHT)
+        maximumSize = Dimension(SIDEBAR_WIDTH - 20, LEGEND_HEIGHT)
+        alignmentX = LEFT_ALIGNMENT
+        horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+      }
+    )
+    return section
+  }
+
+  private fun featureRow(kind: FeatureKind, count: Int): JPanel {
+    val row = JPanel()
+    row.layout = BoxLayout(row, BoxLayout.X_AXIS)
+    row.alignmentX = LEFT_ALIGNMENT
+
+    // The check box keeps its own indicator, so the colour goes in a swatch beside it rather than as the
+    // box's icon - setting `icon` on a JCheckBox replaces the tick and leaves no way to see the state.
+    row.add(
+      JCheckBox("", kind in visibleKinds).apply {
+        isFocusable = false
+        isOpaque = false
+        addActionListener {
+          if (isSelected) visibleKinds.add(kind) else visibleKinds.remove(kind)
+          applyOptions()
+        }
+      }
+    )
+    row.add(JLabel(Swatch(MapRenderer.colorOf(kind))))
+    row.add(Box.createHorizontalStrut(6))
+    row.add(
+      JLabel("${kind.name.lowercase().replace('_', ' ')}  ${"%,d".format(count)}").apply {
+        font = Font(Font.SANS_SERIF, Font.PLAIN, 11)
+      }
+    )
+    row.add(Box.createHorizontalGlue())
+    return row
+  }
+
   private fun heading(text: String) = JLabel(text).apply {
     font = Font(Font.SANS_SERIF, Font.BOLD, 11)
     alignmentX = LEFT_ALIGNMENT
+  }
+
+  /** A length as the shortest thing that reads: `32 m`, `1 km`, `4 km`. */
+  private fun metres(value: Double): String = when {
+    value >= 1_000.0 && value % 1_000.0 == 0.0 -> "${(value / 1_000.0).toInt()} km"
+    value >= 1_000.0 -> "${"%.1f".format(value / 1_000.0)} km"
+    else -> "${value.toInt()} m"
   }
 
   private fun toggle(text: String, initial: Boolean, onChange: (Boolean) -> Unit) =
@@ -178,6 +292,9 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       hillshade = hillshade,
       exaggeration = exaggeration,
       features = showFeatures,
+      // A copy, not the live set: RenderOptions crosses to the render thread, and handing it a set the UI
+      // thread is still mutating is a data race that would show up as an occasional wrong overlay.
+      featureKinds = visibleKinds.toSet(),
       chunkGrid = chunkGrid,
       cellGrid = cellGrid,
       autoRange = autoRange
@@ -191,7 +308,28 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     status.toolTipText = "world (${"%.1f".format(worldX)}, ${"%.1f".format(worldY)}) m"
   }
 
+  /** A colour chip for the legend. The one hand-painted component in the side panel. */
+  private class Swatch(private val color: Color) : Icon {
+
+    override fun getIconWidth() = 11
+
+    override fun getIconHeight() = 11
+
+    override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
+      g.color = color
+      g.fillRect(x, y + 1, 11, 9)
+      // An outline, so a near-white kind - coastline, gate - is still a chip rather than a hole.
+      g.color = Color(0, 0, 0, 90)
+      g.drawRect(x, y + 1, 10, 8)
+    }
+  }
+
   companion object {
+
+    private const val SIDEBAR_WIDTH = 300
+
+    /** Tall enough for a dozen kinds; the rest scroll. A full pipeline emits about twenty. */
+    private const val LEGEND_HEIGHT = 190
 
     fun open(scene: WorldScene) {
       SwingUtilities.invokeLater {

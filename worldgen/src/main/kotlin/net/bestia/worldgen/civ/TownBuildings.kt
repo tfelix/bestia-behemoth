@@ -197,6 +197,33 @@ internal class Zoning(
     abs(atan2(a cross b, a dot b))
 
   /**
+   * How much of its plot each kind of building takes, along the street and back into the block.
+   *
+   * Before this, function decided a building's orientation, its storeys, its walls and its roof, and never its
+   * size - so a market hall, a temple and a labourer's cottage were the same box, and only the number of floors
+   * told them apart from above. A town reads wrong when its public buildings are cottage-sized.
+   *
+   * **Capped at `1 / FOOTPRINT_FILL`**, which is the rule that keeps a building inside its own plot. That is not
+   * cosmetic: `LotIndex.overlaps` is the *only* thing preventing two buildings occupying the same ground, it
+   * separates *plots*, and nothing downstream would catch a building that had grown out of its own. Anything
+   * genuinely larger has to get a larger plot instead - see the grand-plot pass in `TownStage`.
+   */
+  private fun footprintFor(function: BuildingFunction): Pair<Double, Double> = when (function) {
+    // A cottage is the reference: full plot, ordinary yard behind it.
+    BuildingFunction.RESIDENCE -> 1.0 to 1.0
+
+    // A workshop needs floor space more than frontage - the yard is where the work happens.
+    BuildingFunction.CRAFT -> 1.0 to MAX_PLOT_FILL
+
+    // A shop wants a window on the street; an inn wants both, plus a yard for horses.
+    BuildingFunction.SHOP -> 1.02 to MAX_PLOT_FILL
+    BuildingFunction.INN -> 1.06 to MAX_PLOT_FILL
+
+    // Everything public or agricultural takes what it can get, and gets the rest from a grand plot.
+    else -> MAX_PLOT_FILL to MAX_PLOT_FILL
+  }
+
+  /**
    * The building that goes on a lot: its footprint, height, materials and roof.
    *
    * The shape rule worth naming is the orientation. An ordinary dwelling stands *gable to the street* -
@@ -212,8 +239,11 @@ internal class Zoning(
     val alongStreet = lot.inwards.perpendicular()
     val bearing = if (broadFront) alongStreet else lot.inwards
 
-    val frontage = lot.halfFrontage * FOOTPRINT_FILL
-    val depth = lot.halfDepth * FOOTPRINT_FILL
+    // Applied to the plot's own axes, *before* the broad-front swap below. Getting that order wrong puts a
+    // temple's along-the-street multiplier onto its depth, which is the one direction it does not want.
+    val size = footprintFor(function)
+    val frontage = lot.halfFrontage * FOOTPRINT_FILL * size.first
+    val depth = lot.halfDepth * FOOTPRINT_FILL * size.second
     val halfLength = if (broadFront) frontage else depth
     val halfWidth = if (broadFront) depth else frontage
 
@@ -297,7 +327,15 @@ internal class Zoning(
     const val NOXIOUS_ARC = 0.9
 
     /** How much of its plot a building covers. The rest is yard, and the gap between neighbours. */
-    const val FOOTPRINT_FILL = 0.82
+    const val FOOTPRINT_FILL = 0.90
+
+    /**
+     * The most of its plot any building may take, as a multiple of [FOOTPRINT_FILL].
+     *
+     * `1 / FOOTPRINT_FILL` exactly: a building at this size fills its plot and not a millimetre more, which is
+     * the boundary the plot-overlap test guarantees. See [footprintFor].
+     */
+    const val MAX_PLOT_FILL = 1.0 / FOOTPRINT_FILL
 
     const val MAX_STOREYS = 4
 
