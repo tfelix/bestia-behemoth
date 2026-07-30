@@ -291,8 +291,10 @@ func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> voi
 
 ## Requests the server to create a new master (character) for the current account.
 ## The result arrives asynchronously via the operation_success / operation_error signals.
-## [param body], [param face] and [param hair] are the proto enum values.
-func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color) -> void:
+## [param body], [param face] and [param hair] are the proto enum values. [param spawn_point_id] is
+## the id of a MasterSpawnPointCandidate from [signal master_info_received]'s SpawnPoints, or 0 to
+## fall back to the world's default spawn.
+func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color, spawn_point_id: int = 0) -> void:
 	assert(is_ready_to_send())
 	var msg = CreateMasterCMSG.new()
 	msg.Name = character_name
@@ -301,6 +303,7 @@ func create_master(character_name: String, body: int, face: int, hair: int, hair
 	msg.Hair = hair
 	msg.HairColor = hair_color
 	msg.SkinColor = skin_color
+	msg.SpawnPointId = spawn_point_id
 	_socket.SendMessage(msg)
 
 

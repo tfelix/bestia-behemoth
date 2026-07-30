@@ -13,6 +13,7 @@ const OP_ERROR_NAME_ALREADY_TAKEN := 0
 const OP_ERROR_MAX_MASTERS_REACHED := 1
 const OP_ERROR_INVALID_NAME := 2
 const OP_ERROR_GENERAL := 3
+const OP_ERROR_INVALID_SPAWN_POINT := 7
 
 # Gender -> list of selectable body types. The body value is the proto BodyType enum int.
 # Only BODY_M_1 (0) exists so far, so every gender currently maps to that single body.
@@ -40,6 +41,7 @@ const GENDER_BODIES := {
 @onready var _hair_right: Button = $"CenterContainer/P/M/Main/Creation/Left/Entry4/Row2/R"
 
 @onready var _name_edit: LineEdit = $"CenterContainer/P/M/Main/Creation/Middle/Name/NameEdit"
+@onready var _spawn_point_button: OptionButton = $"CenterContainer/P/M/Main/Creation/Middle/SpawnPoint/SpawnPointButton"
 @onready var _hair_color_grid: GridContainer = $"CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"
 @onready var _skin_color_grid: GridContainer = $"CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"
 @onready var _create_button: Button = $"CenterContainer/P/M/Main/Bottom/CreateButton"
@@ -68,6 +70,8 @@ func _ready() -> void:
 
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.operation_error.connect(_on_operation_error)
+	ConnectionManager.master_info_received.connect(_on_master_info_received)
+	ConnectionManager.list_bestia_master()
 
 
 func _exit_tree() -> void:
@@ -75,6 +79,24 @@ func _exit_tree() -> void:
 		ConnectionManager.operation_success.disconnect(_on_operation_success)
 	if ConnectionManager.operation_error.is_connected(_on_operation_error):
 		ConnectionManager.operation_error.disconnect(_on_operation_error)
+	if ConnectionManager.master_info_received.is_connected(_on_master_info_received):
+		ConnectionManager.master_info_received.disconnect(_on_master_info_received)
+
+
+## Populates the home settlement picker from the master list response's spawn point candidates and
+## pre-selects one at random, so a player who does not care where they start can just hit Create.
+func _on_master_info_received(message: MasterSMSG) -> void:
+	_spawn_point_button.clear()
+
+	var candidates: Array = message.SpawnPoints
+	for i in candidates.size():
+		var candidate = candidates[i]
+		_spawn_point_button.add_item("%s (%s)" % [candidate.SettlementName, candidate.Tier], i)
+		_spawn_point_button.set_item_metadata(i, candidate.Id)
+
+	if candidates.size() > 0:
+		_spawn_point_button.disabled = false
+		_spawn_point_button.select(randi() % candidates.size())
 
 
 ## Rebuilds the body option list based on the currently selected gender.
@@ -154,10 +176,11 @@ func _on_create_button_pressed() -> void:
 	var hair := _hair_button.get_selected_id()
 	var hair_color := _selected_hair_swatch.color if _selected_hair_swatch != null else Color.BLACK
 	var skin_color := _selected_skin_swatch.color if _selected_skin_swatch != null else Color.BLACK
+	var spawn_point_id := int(_spawn_point_button.get_selected_metadata()) if _spawn_point_button.get_selected_metadata() != null else 0
 
 	_create_button.disabled = true
 	_show_status("Creating character...", false)
-	ConnectionManager.create_master(character_name, body, face, hair, hair_color, skin_color)
+	ConnectionManager.create_master(character_name, body, face, hair, hair_color, skin_color, spawn_point_id)
 
 
 func _on_cancel_button_pressed() -> void:
@@ -178,6 +201,8 @@ func _on_operation_error(message) -> void:
 			_show_status("You have reached the maximum number of characters.", true)
 		OP_ERROR_INVALID_NAME:
 			_show_status("That name is not valid.", true)
+		OP_ERROR_INVALID_SPAWN_POINT:
+			_show_status("That home settlement is no longer available. Please pick another.", true)
 		_:
 			_show_status("Could not create the character. Please try again.", true)
 

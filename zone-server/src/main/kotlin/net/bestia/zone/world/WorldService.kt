@@ -1,6 +1,7 @@
 package net.bestia.zone.world
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.Stage
@@ -12,7 +13,6 @@ import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.store.VersionGate
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.zone.BestiaException
-import net.bestia.zone.geometry.Vec3L
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
@@ -41,6 +41,22 @@ class IncompatibleWorldException(message: String) : BestiaException(CODE, messag
 class IncompleteWorldRecordException(message: String) : BestiaException(CODE, message) {
   companion object {
     const val CODE = "WORLD_RECORD_INCOMPLETE"
+  }
+}
+
+/**
+ * Thrown when a freshly created world has fewer than [WorldService.MIN_STANDING_SETTLEMENTS] standing
+ * settlements and nothing can be done about it: either the seed is pinned in configuration (so
+ * regenerating would produce the exact same world), or [WorldService.MAX_SETTLEMENT_RETRIES] random
+ * reseeds in a row all failed the same way, which points at the configured dimensions/density rather
+ * than bad luck.
+ *
+ * Never thrown for a world that already existed before this boot - see the three-case policy on
+ * [WorldService.load].
+ */
+class InsufficientSettlementsException(message: String) : BestiaException(CODE, message) {
+  companion object {
+    const val CODE = "WORLD_TOO_FEW_SETTLEMENTS"
   }
 }
 
@@ -93,39 +109,6 @@ class WorldService(
   val materializer: ChunkMaterializer get() = require().generated.materializer
 
   /**
-   * Where a player with nowhere else to be starts: the middle of the map, at sea level.
-   *
-   * The middle rather than the origin, and that is a correctness fix rather than a preference. The generator
-   * forces an ocean margin around the world edge - 2.5 km of it for Genesis - and deliberately drowns it several
-   * hundred metres deep so the wrap seam has nothing in it worth looking at. The origin is the *corner* of the
-   * map, which is inside that margin, so a player starting there begins in featureless deep water with the
-   * seabed far below draw distance and no land within walking range.
-   *
-   * `z` is a placeholder, not an answer. The ground elevation is
-   * [net.bestia.zone.world.stream.ChunkService]'s to give and only the tick thread may ask, whereas a master is
-   * created on a request thread - so this cannot know how high the ground is and does not try. Sea level is the
-   * value it uses, and on a world whose centre is dry land that is hundreds of metres *inside* the terrain: every
-   * chunk around the player is uniform rock, which meshes to no surface and renders as a black screen that looks
-   * exactly like terrain failing to load.
-   *
-   * What makes that safe is `ChunkStreamSystem.groundNewcomers`, which snaps any entity carrying no
-   * [net.bestia.zone.ecs.movement.Grounded] marker onto the terrain on the first tick it sees it - before the
-   * chunk manifest, so the client is never offered the view volume from inside the rock. Anything else that has
-   * to invent a position gets the same treatment for free by simply not adding the marker.
-   */
-  val defaultSpawn: Vec3L
-    get() {
-      val world = require().generated.config
-
-      // Metres to position units. They coincide at the default voxel size of one metre, but the conversion is
-      // what makes that a coincidence rather than an assumption.
-      val x = (world.widthMetres / 2.0 / world.voxelSize).toLong()
-      val y = (world.heightMetres / 2.0 / world.voxelSize).toLong()
-
-      return Vec3L(x, y, 0)
-    }
-
-  /**
    * Finds or creates the world record, checks this build can generate it, and builds the terrain.
    *
    * Idempotent: calling it again once loaded does nothing, so a second boot runner or a test that wants the
@@ -145,6 +128,8 @@ class WorldService(
    */
   fun load() {
     if (loaded != null) return
+
+    val alreadyExisted = provisioning.exists()
 
     var record = provisioning.findOrCreate()
     var recreated = false
@@ -170,8 +155,18 @@ class WorldService(
     val config = record.toWorldConfig()
 
     val startedAt = System.nanoTime()
-    val generated = StandardWorld.build(config, LoggingStageListener)
+    var generated = StandardWorld.build(config, LoggingStageListener)
     val millis = (System.nanoTime() - startedAt) / 1_000_000
+
+    if (!alreadyExisted) {
+      generated = ensureEnoughSettlements(record, generated) { reroll -> record = reroll }
+    } else if (SettlementSpawnPoints.standingSettlementCount(generated) < MIN_STANDING_SETTLEMENTS) {
+      LOG.error {
+        "!!! World '${record.name}' has fewer than $MIN_STANDING_SETTLEMENTS standing settlements. This " +
+            "world already existed before this boot, so it is not being touched - master spawn-point " +
+            "selection and anything else that assumes settlements exist may misbehave. !!!"
+      }
+    }
 
     loaded = Loaded(record, generated)
 
@@ -181,8 +176,61 @@ class WorldService(
           "${(record.widthMetres / 1000).toInt()}x${(record.heightMetres / 1000).toInt()} km"
     }
 
-    // After `loaded`, so a listener can ask this service where the new spawn is.
+    // After `loaded`, so a listener can ask this service where the new spawn is. Deliberately not raised
+    // for the settlement-count retry loop above: those regenerations happen before anyone has ever seen
+    // this world, so there is nothing for a listener to react to.
     if (recreated) events.publishEvent(WorldRecreatedEvent(record))
+  }
+
+  /**
+   * Guarantees a freshly created world has at least [MIN_STANDING_SETTLEMENTS] standing settlements,
+   * per the policy agreed for this feature:
+   * - a pinned [WorldGenConfig.seed] means regenerating would produce the exact same world, so this
+   *   throws [InsufficientSettlementsException] instead of looping forever;
+   * - no pinned seed means a new random seed is drawn and the world rebuilt, up to
+   *   [MAX_SETTLEMENT_RETRIES] times, before giving up with the same exception.
+   *
+   * [onReroll] lets the caller keep its own `record` variable in sync without this method needing to
+   * mutate anything outside itself.
+   */
+  private fun ensureEnoughSettlements(
+    initialRecord: PersistedWorld,
+    initialGenerated: GeneratedWorld,
+    onReroll: (PersistedWorld) -> Unit
+  ): GeneratedWorld {
+    var record = initialRecord
+    var generated = initialGenerated
+    var attempt = 0
+
+    while (SettlementSpawnPoints.standingSettlementCount(generated) < MIN_STANDING_SETTLEMENTS) {
+      if (settings.seed != null) {
+        throw InsufficientSettlementsException(
+          "World '${record.name}' (fixed seed ${settings.seed}) has fewer than $MIN_STANDING_SETTLEMENTS " +
+              "standing settlements. The seed is pinned in configuration, so regenerating would produce " +
+              "the exact same world; change worldgen.seed, or the world's dimensions/density, and try again."
+        )
+      }
+
+      attempt++
+      if (attempt > MAX_SETTLEMENT_RETRIES) {
+        throw InsufficientSettlementsException(
+          "Could not generate a world with at least $MIN_STANDING_SETTLEMENTS standing settlements after " +
+              "$MAX_SETTLEMENT_RETRIES random seeds. This configuration's dimensions/density may not be " +
+              "able to support that many settlements."
+        )
+      }
+
+      LOG.warn {
+        "World '${record.name}' (seed ${record.seed}) has fewer than $MIN_STANDING_SETTLEMENTS standing " +
+            "settlements; drawing a new random seed and regenerating (attempt $attempt/$MAX_SETTLEMENT_RETRIES)."
+      }
+
+      record = provisioning.recreate()
+      onReroll(record)
+      generated = StandardWorld.build(record.toWorldConfig(), LoggingStageListener)
+    }
+
+    return generated
   }
 
   /**
@@ -280,5 +328,11 @@ class WorldService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** A world must have at least this many standing settlements for master spawn-point selection to work. */
+    const val MIN_STANDING_SETTLEMENTS = 2
+
+    /** Random reseeds attempted before giving up on [MIN_STANDING_SETTLEMENTS]. */
+    const val MAX_SETTLEMENT_RETRIES = 50
   }
 }

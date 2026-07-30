@@ -12,7 +12,9 @@ import net.bestia.zone.message.SelfSMSG
 data class AvailableMasterSMSG(
   val master: List<MasterInfo>,
   val maxAvailableMasterSlots: Int,
-  val maxAvailableBestiaSlots: Int
+  val maxAvailableBestiaSlots: Int,
+  /** Settlement spawn point candidates a new master can choose to start life near. */
+  val spawnPoints: List<SpawnPointCandidate> = emptyList()
 ) : SMSG {
 
   data class MasterInfo(
@@ -28,10 +30,26 @@ data class AvailableMasterSMSG(
     val bestias: List<SelfSMSG.BestiaInfo>
   )
 
+  data class SpawnPointCandidate(
+    val id: Int,
+    val settlementName: String,
+    val tier: String
+  )
+
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
     val masterBuilder = MasterProto.Master.newBuilder()
       .setMaxAvailableMasterSlots(maxAvailableMasterSlots)
       .setMaxAvailableBestiaSlots(maxAvailableBestiaSlots)
+
+    spawnPoints.forEach { candidate ->
+      masterBuilder.addSpawnPoints(
+        MasterProto.MasterSpawnPointCandidate.newBuilder()
+          .setId(candidate.id)
+          .setSettlementName(candidate.settlementName)
+          .setTier(candidate.tier)
+          .build()
+      )
+    }
 
     master.forEach { masterInfo ->
       val position = Vec3OuterClass.Vec3.newBuilder()

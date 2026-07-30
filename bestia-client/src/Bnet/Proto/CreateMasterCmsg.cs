@@ -25,17 +25,17 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9tYXN0ZXIvY3JlYXRlX21hc3Rlcl9jbXNnLnByb3RvEgRi",
-            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvIrkBChBDcmVhdGVN",
+            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvItEBChBDcmVhdGVN",
             "YXN0ZXJDTVNHEgwKBG5hbWUYASABKAkSHAoEYm9keRgCIAEoDjIOLmJuZXQu",
             "Qm9keVR5cGUSGAoEZmFjZRgDIAEoDjIKLmJuZXQuRmFjZRIdCgRoYWlyGAQg",
             "ASgOMg8uYm5ldC5IYWlyc3R5bGUSHwoKc2tpbl9jb2xvchgFIAEoCzILLmJu",
-            "ZXQuQ29sb3ISHwoKaGFpcl9jb2xvchgGIAEoCzILLmJuZXQuQ29sb3JCKgoV",
-            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhFDcmVhdGVNYXN0ZXJQcm90b2IGcHJv",
-            "dG8z"));
+            "ZXQuQ29sb3ISHwoKaGFpcl9jb2xvchgGIAEoCzILLmJuZXQuQ29sb3ISFgoO",
+            "c3Bhd25fcG9pbnRfaWQYByABKA1CKgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
+            "QhFDcmVhdGVNYXN0ZXJQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.MasterReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor", "SpawnPointId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -88,6 +88,7 @@ namespace Bnet {
       hair_ = other.hair_;
       skinColor_ = other.skinColor_ != null ? other.skinColor_.Clone() : null;
       hairColor_ = other.hairColor_ != null ? other.hairColor_.Clone() : null;
+      spawnPointId_ = other.spawnPointId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -169,6 +170,18 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "spawn_point_id" field.</summary>
+    public const int SpawnPointIdFieldNumber = 7;
+    private uint spawnPointId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SpawnPointId {
+      get { return spawnPointId_; }
+      set {
+        spawnPointId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -190,6 +203,7 @@ namespace Bnet {
       if (Hair != other.Hair) return false;
       if (!object.Equals(SkinColor, other.SkinColor)) return false;
       if (!object.Equals(HairColor, other.HairColor)) return false;
+      if (SpawnPointId != other.SpawnPointId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -203,6 +217,7 @@ namespace Bnet {
       if (Hair != global::Bnet.Hairstyle.Hair1) hash ^= Hair.GetHashCode();
       if (skinColor_ != null) hash ^= SkinColor.GetHashCode();
       if (hairColor_ != null) hash ^= HairColor.GetHashCode();
+      if (SpawnPointId != 0) hash ^= SpawnPointId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -245,6 +260,10 @@ namespace Bnet {
         output.WriteRawTag(50);
         output.WriteMessage(HairColor);
       }
+      if (SpawnPointId != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(SpawnPointId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -279,6 +298,10 @@ namespace Bnet {
         output.WriteRawTag(50);
         output.WriteMessage(HairColor);
       }
+      if (SpawnPointId != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(SpawnPointId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -306,6 +329,9 @@ namespace Bnet {
       }
       if (hairColor_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(HairColor);
+      }
+      if (SpawnPointId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SpawnPointId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -342,6 +368,9 @@ namespace Bnet {
           HairColor = new global::Bnet.Color();
         }
         HairColor.MergeFrom(other.HairColor);
+      }
+      if (other.SpawnPointId != 0) {
+        SpawnPointId = other.SpawnPointId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -388,6 +417,10 @@ namespace Bnet {
             input.ReadMessage(HairColor);
             break;
           }
+          case 56: {
+            SpawnPointId = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -431,6 +464,10 @@ namespace Bnet {
               HairColor = new global::Bnet.Color();
             }
             input.ReadMessage(HairColor);
+            break;
+          }
+          case 56: {
+            SpawnPointId = input.ReadUInt32();
             break;
           }
         }

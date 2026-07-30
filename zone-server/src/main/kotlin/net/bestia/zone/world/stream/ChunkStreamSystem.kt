@@ -117,11 +117,11 @@ class ChunkStreamSystem(
   /**
    * Puts every entity that has never been reconciled with the terrain onto the ground.
    *
-   * This is the tick-thread half of a problem the request thread cannot solve: `WorldService.defaultSpawn` has to
-   * name a `z` when a master is created, the ground elevation is only knowable here, so it used sea level and
-   * documented the consequence. The consequence is severe - on a world whose centre is dry land, a new player
-   * spawns *inside* the terrain, where every surrounding chunk is uniform rock, encodes to twelve bytes, meshes
-   * to no surface and renders as a black screen. It looks exactly like the terrain failing to load.
+   * This is the tick-thread half of a problem the request thread cannot solve: something has to name a `z` when
+   * a master is created or a script places an entity, and the ground elevation is only knowable here. The
+   * consequence of naming it too low is severe - the entity spawns *inside* the terrain, where every surrounding
+   * chunk is uniform rock, encodes to twelve bytes, meshes to no surface and renders as a black screen. It looks
+   * exactly like the terrain failing to load.
    *
    * Runs before the subscriptions for the same reason the teleport does: the manifest that follows should describe
    * where the player actually is, not where they were for the first tick of their session.

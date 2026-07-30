@@ -30,6 +30,10 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public Godot.Color SkinColor { get; set; } = Colors.Black;
 
+    /// <summary>Id of the MasterSpawnPointCandidate the player chose. 0 falls back to the world default.</summary>
+    [Export]
+    public uint SpawnPointId { get; set; } = 0;
+
     public override Envelope ToEnvelope()
     {
       var createMaster = new global::Bnet.CreateMasterCMSG
@@ -39,7 +43,8 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Face = (global::Bnet.Face)Face,
         Hair = (global::Bnet.Hairstyle)Hair,
         SkinColor = ToProtoColor(SkinColor),
-        HairColor = ToProtoColor(HairColor)
+        HairColor = ToProtoColor(HairColor),
+        SpawnPointId = SpawnPointId
       };
 
       return new Envelope

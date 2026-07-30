@@ -47,8 +47,10 @@ namespace Bnet {
   ///*
   /// How the bytes in a chunk payload are encoded.
   ///
-  /// Deliberately separate from the pipeline/palette/format version vector: the encoding can be replaced
-  /// without invalidating a single stored chunk, so it must not consume a version component.
+  /// Deliberately separate from the server's pipeline/palette/format version vector and from the
+  /// `chunk_engine_version` the client is told: an encoding can be *added* without invalidating a single
+  /// stored chunk or obsoleting a single client, because a payload names its own. Folding it into a version
+  /// would turn a purely additive change into a forced update.
   /// </summary>
   public enum ChunkEncoding {
     /// <summary>

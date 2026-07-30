@@ -40,6 +40,13 @@ class MaxMastersReachedException
 class GeneralMasterException(message: String = "An error occurred while creating master") :
   MasterCreateException(MasterErrorSMSG.MasterErrorCode.GENERAL_ERROR, message)
 
+/**
+ * Thrown when a create-master request names a spawn_point_id that does not resolve to a
+ * [net.bestia.zone.world.MasterSpawnPoint] of the currently loaded world.
+ */
+class MasterInvalidSpawnPointException :
+  MasterCreateException(MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT, "The chosen spawn point is invalid")
+
 class MasterNotFoundException(cause: Throwable? = null) : MasterException(
   code = "NO_MASTER",
   message = "The specified master was not found",

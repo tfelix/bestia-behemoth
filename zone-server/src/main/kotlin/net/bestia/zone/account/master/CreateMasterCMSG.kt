@@ -13,7 +13,9 @@ data class CreateMasterCMSG(
   val skinColor: Color,
   val hair: Hairstyle,
   val face: Face,
-  val body: BodyType
+  val body: BodyType,
+  /** Id of the chosen [net.bestia.zone.world.MasterSpawnPoint], or null (0 on the wire) for the world default. */
+  val spawnPointId: Int? = null
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: AccountId, msg: CreateMasterProto.CreateMasterCMSG): CreateMasterCMSG {
@@ -24,7 +26,8 @@ data class CreateMasterCMSG(
         skinColor = mapColor(msg.skinColor),
         hair = mapHairstyle(msg.hair),
         face = mapFace(msg.face),
-        body = mapBodyType(msg.body)
+        body = mapBodyType(msg.body),
+        spawnPointId = msg.spawnPointId.takeIf { it != 0 }
       )
     }
 

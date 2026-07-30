@@ -35,6 +35,20 @@ message Master {
   uint32 max_available_bestia_slots = 2;
 
   repeated MasterInfo master = 3;
+
+  // Settlement spawn point candidates a new master can choose to start life near. Populated
+  // regardless of whether the account has any free master slots, so the creation screen has them
+  // ready the moment the player picks an empty slot.
+  repeated MasterSpawnPointCandidate spawn_points = 4;
+}
+
+/**
+ * One settlement a new master could choose to start life near.
+ */
+message MasterSpawnPointCandidate {
+  uint32 id = 1;
+  string settlement_name = 2;
+  string tier = 3;
 }
 
 message MasterInfo {

@@ -11,9 +11,12 @@ import net.bestia.zone.account.master.AvailableMasterSMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.MasterCreatedSMSG
 import net.bestia.zone.account.master.GetMasterCMSG
+import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
+import net.bestia.zone.world.MasterSpawnPointRepository
+import net.bestia.zone.world.findByIdOrThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -23,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.awt.Color
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * Scenario: Spawns a blob bestia entity, connects, sends a kill message, and provides a placeholder for post-kill checks.
@@ -34,6 +38,12 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
   private lateinit var gameClientFactory: GameClientMockFactory
+
+  @Autowired
+  private lateinit var masterRepository: MasterRepository
+
+  @Autowired
+  private lateinit var masterSpawnPointRepository: MasterSpawnPointRepository
 
   private lateinit var accountNoMaster: Account
 
@@ -170,6 +180,88 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
           assertEquals(MasterErrorSMSG.MasterErrorCode.MAX_MASTERS_REACHED, masterErrorSMSG.error)
         }
       }
+    }
+  }
+
+  @Test
+  @Order(7)
+  fun `listing master also returns spawn point candidates ranked below the largest settlement`() {
+    val account = accountFactory.createAccount(5L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      client.sendMessage(GetMasterCMSG(client.connectedPlayerId))
+
+      await {
+        val response = client.getLastReceived(AvailableMasterSMSG::class)
+
+        assertTrue(response.spawnPoints.isNotEmpty(), "no spawn point candidates were offered")
+        assertTrue(response.spawnPoints.size <= 4)
+        response.spawnPoints.forEach { candidate ->
+          assertTrue(candidate.settlementName.isNotBlank())
+          assertTrue(candidate.tier.isNotBlank())
+        }
+      }
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(8)
+  fun `creating a master with a chosen spawn point sets its position and home settlement`() {
+    val account = accountFactory.createAccount(6L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      client.sendMessage(GetMasterCMSG(client.connectedPlayerId))
+
+      var chosen: AvailableMasterSMSG.SpawnPointCandidate? = null
+      await {
+        val response = client.getLastReceived(AvailableMasterSMSG::class)
+        assertTrue(response.spawnPoints.isNotEmpty())
+        chosen = response.spawnPoints.first()
+      }
+      val candidate = chosen!!
+
+      client.clearMessages()
+      client.sendMessage(
+        CreateMasterCMSG.test(client.connectedPlayerId, "spawnpicker", spawnPointId = candidate.id)
+      )
+
+      await {
+        client.getLastReceived(MasterCreatedSMSG::class)
+      }
+
+      val master = masterRepository.findByName("spawnpicker")!!
+      val spawnPoint = masterSpawnPointRepository.findByIdOrThrow(candidate.id.toLong())
+
+      assertEquals(candidate.settlementName, master.homeSettlementName)
+      assertEquals(spawnPoint.position, master.spawnPosition)
+      assertEquals(spawnPoint.position, master.currentPosition)
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(9)
+  fun `creating a master with an invalid spawn point id fails`() {
+    val account = accountFactory.createAccount(7L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      client.sendMessage(
+        CreateMasterCMSG.test(client.connectedPlayerId, "badspawn", spawnPointId = Int.MAX_VALUE)
+      )
+
+      await {
+        val masterErrorSMSG = client.getLastReceived(MasterErrorSMSG::class)
+
+        assertEquals(MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT, masterErrorSMSG.error)
+      }
+    } finally {
+      client.disconnect()
     }
   }
 }

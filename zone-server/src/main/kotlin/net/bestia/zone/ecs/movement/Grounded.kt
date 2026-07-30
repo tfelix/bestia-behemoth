@@ -7,12 +7,16 @@ import net.bestia.zone.ecs.core.Component
  *
  * ### What its absence means
  *
- * That the entity's `z` is a *guess*. A master is created on a request thread, and the ground elevation belongs
- * to `ChunkService`, which only the tick thread may ask - so `WorldService.defaultSpawn` had no way to find out
- * how high the ground was and used sea level. On a world whose centre is dry land that puts a new player
- * hundreds of metres underground, inside solid rock: every chunk around them is uniform stone, which encodes to
- * twelve bytes, meshes to no surface at all, and renders as a black screen. The same applies to any position
- * loaded from the database, which was written by whatever convention was current when it was saved.
+ * That the entity's `z` is a *guess*. The authoritative ground elevation belongs to `ChunkService`, which only
+ * the tick thread may ask, so anything producing a position on a request thread - master creation, a script
+ * placing an entity - has to invent one. Get it wrong downwards and the entity is inside solid rock: every
+ * chunk around it is uniform stone, which encodes to twelve bytes, meshes to no surface at all, and renders as
+ * a black screen that looks exactly like the terrain failing to load. The same applies to any position loaded
+ * from the database, which was written by whatever convention was current when it was saved.
+ *
+ * Master spawn points do better than a guess - `MasterSpawnPointService` samples the generator's own height
+ * field when it computes them - but "sampled from the height field" and "reconciled with the chunk the player
+ * is standing in" are not the same claim, and this marker only makes the second one.
  *
  * So rather than have every producer of a position solve a problem it cannot reach the data for, an ungrounded
  * entity is snapped once on the first tick it is seen - see `ChunkStreamSystem.groundNewcomers`.

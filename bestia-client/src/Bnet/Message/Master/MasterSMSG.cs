@@ -18,6 +18,13 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     public Godot.Collections.Array<MasterInfo> Masters { get; set; } = [];
 
     /// <summary>
+    /// Settlement spawn point candidates a new master can choose to start life near. The client is
+    /// expected to pre-select one of these at random so a player who does not care can just hit Create.
+    /// </summary>
+    [Export]
+    public Godot.Collections.Array<MasterSpawnPointCandidate> SpawnPoints { get; set; } = [];
+
+    /// <summary>
     /// Creates a Master message from protobuf data
     /// </summary>
     /// <param name="protoMaster">The protobuf Master object</param>
@@ -34,6 +41,11 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       foreach (var protoMasterInfo in protoMaster.Master_)
       {
         master.Masters.Add(MasterInfo.FromProto(protoMasterInfo));
+      }
+
+      foreach (var protoCandidate in protoMaster.SpawnPoints)
+      {
+        master.SpawnPoints.Add(MasterSpawnPointCandidate.FromProto(protoCandidate));
       }
 
       return master;

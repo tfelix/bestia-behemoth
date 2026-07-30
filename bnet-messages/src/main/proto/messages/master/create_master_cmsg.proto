@@ -18,4 +18,5 @@ message CreateMasterCMSG {
   Hairstyle hair = 4;
   Color skin_color = 5;
   Color hair_color = 6;
+  uint32 spawn_point_id = 7;
 }

@@ -12,7 +12,8 @@ data class MasterErrorSMSG(
     NAME_ALREADY_TAKEN,
     MAX_MASTERS_REACHED,
     INVALID_NAME,
-    GENERAL_ERROR
+    GENERAL_ERROR,
+    INVALID_SPAWN_POINT
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -21,6 +22,7 @@ data class MasterErrorSMSG(
       MasterErrorCode.MAX_MASTERS_REACHED -> OperationErrorProto.OpError.MASTER_MAX_MASTERS_REACHED
       MasterErrorCode.INVALID_NAME -> OperationErrorProto.OpError.MASTER_INVALID_NAME
       MasterErrorCode.GENERAL_ERROR -> OperationErrorProto.OpError.MASTER_GENERAL_ERROR
+      MasterErrorCode.INVALID_SPAWN_POINT -> OperationErrorProto.OpError.MASTER_INVALID_SPAWN_POINT
     }
 
     val opError = OperationErrorProto.OperationError.newBuilder()

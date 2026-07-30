@@ -27,23 +27,27 @@ namespace Bnet {
             "ChxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvEgRibmV0GhNtZXNzYWdl",
             "cy92ZWMzLnByb3RvGiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJv",
             "dG8iKAoFQ29sb3ISCQoBchgBIAEoDRIJCgFnGAIgASgNEgkKAWIYAyABKA0i",
-            "cgoGTWFzdGVyEiIKGm1heF9hdmFpbGFibGVfbWFzdGVyX3Nsb3RzGAEgASgN",
-            "EiIKGm1heF9hdmFpbGFibGVfYmVzdGlhX3Nsb3RzGAIgASgNEiAKBm1hc3Rl",
-            "chgDIAMoCzIQLmJuZXQuTWFzdGVySW5mbyKWAgoKTWFzdGVySW5mbxIRCglt",
-            "YXN0ZXJfaWQYASABKAQSDAoEbmFtZRgDIAEoCRINCgVsZXZlbBgEIAEoDRIc",
-            "Cghwb3NpdGlvbhgFIAEoCzIKLmJuZXQuVmVjMxIcCgRib2R5GAYgASgOMg4u",
-            "Ym5ldC5Cb2R5VHlwZRIYCgRmYWNlGAcgASgOMgouYm5ldC5GYWNlEh8KCnNr",
-            "aW5fY29sb3IYCCABKAsyCy5ibmV0LkNvbG9yEh8KCmhhaXJfY29sb3IYCSAB",
-            "KAsyCy5ibmV0LkNvbG9yEiEKB2Jlc3RpYXMYCiADKAsyEC5ibmV0LkJlc3Rp",
-            "YUluZm8SHQoEaGFpchgLIAEoDjIPLmJuZXQuSGFpcnN0eWxlKhgKCEJvZHlU",
-            "eXBlEgwKCEJPRFlfTV8xEAAqEgoERmFjZRIKCgZGQUNFXzEQACoXCglIYWly",
-            "c3R5bGUSCgoGSEFJUl8xEABCJAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQgtN",
-            "YXN0ZXJQcm90b2IGcHJvdG8z"));
+            "qQEKBk1hc3RlchIiChptYXhfYXZhaWxhYmxlX21hc3Rlcl9zbG90cxgBIAEo",
+            "DRIiChptYXhfYXZhaWxhYmxlX2Jlc3RpYV9zbG90cxgCIAEoDRIgCgZtYXN0",
+            "ZXIYAyADKAsyEC5ibmV0Lk1hc3RlckluZm8SNQoMc3Bhd25fcG9pbnRzGAQg",
+            "AygLMh8uYm5ldC5NYXN0ZXJTcGF3blBvaW50Q2FuZGlkYXRlIk4KGU1hc3Rl",
+            "clNwYXduUG9pbnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVu",
+            "dF9uYW1lGAIgASgJEgwKBHRpZXIYAyABKAkilgIKCk1hc3RlckluZm8SEQoJ",
+            "bWFzdGVyX2lkGAEgASgEEgwKBG5hbWUYAyABKAkSDQoFbGV2ZWwYBCABKA0S",
+            "HAoIcG9zaXRpb24YBSABKAsyCi5ibmV0LlZlYzMSHAoEYm9keRgGIAEoDjIO",
+            "LmJuZXQuQm9keVR5cGUSGAoEZmFjZRgHIAEoDjIKLmJuZXQuRmFjZRIfCgpz",
+            "a2luX2NvbG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkg",
+            "ASgLMgsuYm5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0",
+            "aWFJbmZvEh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZSoYCghCb2R5",
+            "VHlwZRIMCghCT0RZX01fMRAAKhIKBEZhY2USCgoGRkFDRV8xEAAqFwoJSGFp",
+            "cnN0eWxlEgoKBkhBSVJfMRAAQiQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IL",
+            "TWFzdGVyUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Color), global::Bnet.Color.Parser, new[]{ "R", "G", "B" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_", "SpawnPoints" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterSpawnPointCandidate), global::Bnet.MasterSpawnPointCandidate.Parser, new[]{ "Id", "SettlementName", "Tier" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair" }, null, null, null, null)
           }));
     }
@@ -372,6 +376,7 @@ namespace Bnet {
       maxAvailableMasterSlots_ = other.maxAvailableMasterSlots_;
       maxAvailableBestiaSlots_ = other.maxAvailableBestiaSlots_;
       master_ = other.master_.Clone();
+      spawnPoints_ = other.spawnPoints_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -416,6 +421,22 @@ namespace Bnet {
       get { return master_; }
     }
 
+    /// <summary>Field number for the "spawn_points" field.</summary>
+    public const int SpawnPointsFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::Bnet.MasterSpawnPointCandidate> _repeated_spawnPoints_codec
+        = pb::FieldCodec.ForMessage(34, global::Bnet.MasterSpawnPointCandidate.Parser);
+    private readonly pbc::RepeatedField<global::Bnet.MasterSpawnPointCandidate> spawnPoints_ = new pbc::RepeatedField<global::Bnet.MasterSpawnPointCandidate>();
+    /// <summary>
+    /// Settlement spawn point candidates a new master can choose to start life near. Populated
+    /// regardless of whether the account has any free master slots, so the creation screen has them
+    /// ready the moment the player picks an empty slot.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Bnet.MasterSpawnPointCandidate> SpawnPoints {
+      get { return spawnPoints_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -434,6 +455,7 @@ namespace Bnet {
       if (MaxAvailableMasterSlots != other.MaxAvailableMasterSlots) return false;
       if (MaxAvailableBestiaSlots != other.MaxAvailableBestiaSlots) return false;
       if(!master_.Equals(other.master_)) return false;
+      if(!spawnPoints_.Equals(other.spawnPoints_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -444,6 +466,7 @@ namespace Bnet {
       if (MaxAvailableMasterSlots != 0) hash ^= MaxAvailableMasterSlots.GetHashCode();
       if (MaxAvailableBestiaSlots != 0) hash ^= MaxAvailableBestiaSlots.GetHashCode();
       hash ^= master_.GetHashCode();
+      hash ^= spawnPoints_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -471,6 +494,7 @@ namespace Bnet {
         output.WriteUInt32(MaxAvailableBestiaSlots);
       }
       master_.WriteTo(output, _repeated_master_codec);
+      spawnPoints_.WriteTo(output, _repeated_spawnPoints_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -490,6 +514,7 @@ namespace Bnet {
         output.WriteUInt32(MaxAvailableBestiaSlots);
       }
       master_.WriteTo(ref output, _repeated_master_codec);
+      spawnPoints_.WriteTo(ref output, _repeated_spawnPoints_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -507,6 +532,7 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxAvailableBestiaSlots);
       }
       size += master_.CalculateSize(_repeated_master_codec);
+      size += spawnPoints_.CalculateSize(_repeated_spawnPoints_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -526,6 +552,7 @@ namespace Bnet {
         MaxAvailableBestiaSlots = other.MaxAvailableBestiaSlots;
       }
       master_.Add(other.master_);
+      spawnPoints_.Add(other.spawnPoints_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -551,6 +578,10 @@ namespace Bnet {
           }
           case 26: {
             master_.AddEntriesFrom(input, _repeated_master_codec);
+            break;
+          }
+          case 34: {
+            spawnPoints_.AddEntriesFrom(input, _repeated_spawnPoints_codec);
             break;
           }
         }
@@ -580,6 +611,278 @@ namespace Bnet {
             master_.AddEntriesFrom(ref input, _repeated_master_codec);
             break;
           }
+          case 34: {
+            spawnPoints_.AddEntriesFrom(ref input, _repeated_spawnPoints_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  ///*
+  /// One settlement a new master could choose to start life near.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class MasterSpawnPointCandidate : pb::IMessage<MasterSpawnPointCandidate>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<MasterSpawnPointCandidate> _parser = new pb::MessageParser<MasterSpawnPointCandidate>(() => new MasterSpawnPointCandidate());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<MasterSpawnPointCandidate> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MasterSpawnPointCandidate() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MasterSpawnPointCandidate(MasterSpawnPointCandidate other) : this() {
+      id_ = other.id_;
+      settlementName_ = other.settlementName_;
+      tier_ = other.tier_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MasterSpawnPointCandidate Clone() {
+      return new MasterSpawnPointCandidate(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private uint id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "settlement_name" field.</summary>
+    public const int SettlementNameFieldNumber = 2;
+    private string settlementName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SettlementName {
+      get { return settlementName_; }
+      set {
+        settlementName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "tier" field.</summary>
+    public const int TierFieldNumber = 3;
+    private string tier_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Tier {
+      get { return tier_; }
+      set {
+        tier_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as MasterSpawnPointCandidate);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(MasterSpawnPointCandidate other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (SettlementName != other.SettlementName) return false;
+      if (Tier != other.Tier) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0) hash ^= Id.GetHashCode();
+      if (SettlementName.Length != 0) hash ^= SettlementName.GetHashCode();
+      if (Tier.Length != 0) hash ^= Tier.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (SettlementName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SettlementName);
+      }
+      if (Tier.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Tier);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (SettlementName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SettlementName);
+      }
+      if (Tier.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Tier);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Id);
+      }
+      if (SettlementName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SettlementName);
+      }
+      if (Tier.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Tier);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(MasterSpawnPointCandidate other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0) {
+        Id = other.Id;
+      }
+      if (other.SettlementName.Length != 0) {
+        SettlementName = other.SettlementName;
+      }
+      if (other.Tier.Length != 0) {
+        Tier = other.Tier;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 18: {
+            SettlementName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Tier = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 18: {
+            SettlementName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Tier = input.ReadString();
+            break;
+          }
         }
       }
     }
@@ -602,7 +905,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

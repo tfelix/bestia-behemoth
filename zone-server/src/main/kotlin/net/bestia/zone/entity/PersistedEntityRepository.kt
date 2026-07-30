@@ -24,3 +24,16 @@ interface PersistedEntityRepository : JpaRepository<PersistedEntity, Long> {
   @Query("DELETE FROM PersistedEntity e WHERE e.entityId IN :entityIds")
   fun deleteByEntityIdIn(@Param("entityIds") entityIds: Collection<Long>)
 }
+
+/**
+ * Every persisted entity of a kind, e.g. clearing stale ward entities when the world is recreated.
+ *
+ * Deliberately not a `@Query("DELETE FROM ...")` bulk statement: that bypasses the persistence
+ * context entirely, so it never cascades to the child [PersistedComponent] rows and fails the
+ * `fk_component_entity` foreign key the moment any matching entity actually has component blobs.
+ * Going through [JpaRepository.deleteAll] instead loads the entities (with [findAllByKind]'s
+ * `components` graph) and deletes them the normal JPA way, which does cascade.
+ */
+fun PersistedEntityRepository.deleteAllByKind(kind: String) {
+  deleteAll(findAllByKind(kind))
+}

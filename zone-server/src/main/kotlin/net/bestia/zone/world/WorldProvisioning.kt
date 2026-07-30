@@ -3,6 +3,9 @@ package net.bestia.zone.world
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
+import net.bestia.zone.ecs.script.ScriptComponent
+import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.entity.deleteAllByKind
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -19,8 +22,14 @@ import kotlin.random.Random
 @Service
 class WorldProvisioning(
   private val worldRepository: WorldRepository,
+  private val masterSpawnPointRepository: MasterSpawnPointRepository,
+  private val persistedEntityRepository: PersistedEntityRepository,
   private val config: WorldGenConfig
 ) {
+
+  /** Whether a world row exists yet. Lets [WorldService] tell a fresh world apart from a pre-existing one. */
+  @Transactional(readOnly = true)
+  fun exists(): Boolean = worldRepository.count() > 0
 
   /**
    * The existing world, or a newly created one.
@@ -43,16 +52,20 @@ class WorldProvisioning(
   /**
    * Throws the existing world away and writes a new one from the current settings. **Destructive.**
    *
-   * Reached only from [WorldService] under [WorldGenConfig.OnMismatch.REGENERATE]. Everything the old world
-   * implied - terrain, chunk caches, and in time the stored player deltas over them - goes with the row,
-   * because all of it is derived from the seed and dimensions being replaced. Nothing is backed up: a world
-   * that was worth keeping should not have been booted under this policy.
+   * Reached from [WorldService] both under [WorldGenConfig.OnMismatch.REGENERATE] and while retrying a fresh
+   * world that came out with too few standing settlements. Everything the old world implied - terrain, chunk
+   * caches, the cached [MasterSpawnPoint] candidates, any persisted script entities, and in time the stored
+   * player deltas over them - goes with the row, because all of it is derived from the seed and dimensions
+   * being replaced. Nothing is backed up: a world that was worth keeping should not have been booted under
+   * this policy (or, for the retry case, was never shown to a player in the first place).
    */
   @Transactional
   fun recreate(): PersistedWorld {
     val discarded = worldRepository.findFirstByOrderByIdAsc()
 
     worldRepository.deleteAll()
+    masterSpawnPointRepository.deleteAll()
+    persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
 
     // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to
     // order a pending insert ahead of a pending delete inside one transaction, which would collide with the

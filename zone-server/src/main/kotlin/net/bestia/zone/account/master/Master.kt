@@ -150,6 +150,10 @@ class Master(
   )
   var spawnPosition: Vec3L = Vec3L.ZERO
 
+  /** Name of the settlement this master chose to spawn near at creation, or blank if none was chosen. */
+  @Column(nullable = false, length = 64)
+  var homeSettlementName: String = ""
+
   @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "container_id", nullable = false)
   val container: ItemContainer = ItemContainer(ItemContainer.Type.MASTER)
