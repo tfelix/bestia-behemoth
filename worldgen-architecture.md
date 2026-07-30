@@ -13,7 +13,12 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
-module with no I/O in it. 305 unit tests, plus a seed-sweep regression harness.
+module with no I/O in it. 322 unit tests, plus a seed-sweep regression harness.
+
+> **One of the 322 is red.** `TownStageTest.the ground under a building is level` fails because the glacial
+> stage is wired to nothing downstream, so terrain the civ stages never saw carves the ground out from under
+> their buildings. It is a real defect rather than a stale assertion, and it is written up under
+> [Known defect: the glacial stage is an orphan](#known-defect-the-glacial-stage-is-an-orphan).
 
 | # | Step | Status | Where |
 |---|---|---|---|
@@ -112,11 +117,17 @@ is an index, not the reasoning. Grouped by what it would take.
 
 **Wants a stage or a pass.**
 
-- **Seasonal precipitation** — one annual orographic pass, seasonality as a scalar. Enough for biomes, not for
-  agriculture by month.
+- **Seasonal precipitation as layers.** Two seasonal orographic passes already run; only their sum and a scalar
+  spread survive, so the fields exist and are thrown away. Enough for biomes, not for agriculture by month —
+  and the cheapest unbuilt item on this list, because the machinery is a `List<Grid>` nobody reads.
 - **Top-2 biome blending** — only the winner is stored, so a consumer can dither a boundary but not blend it.
-- **Chunk-scale droplet erosion** (deviation 1), **rivers inheriting glacial trough floors** (deviation 6),
-  **sea lanes** so islands are connected (deviation 7), **road-junction and trough-tributary smoothing**.
+- **Lakes.** `LAKE_ID` is all zero and `WATER_LEVEL` is NaN off the sea, on every world at every size.
+  `hydro/Lakes.kt` is complete — endorheic balance, salt lakes, hypsometric fill — and never receives a basin,
+  because erosion conditions its output to be depression-free and nothing else digs one. Wants a basin source:
+  glacial overdeepening and tectonic subsidence, which is most of where real lakes come from anyway.
+- **Chunk-scale droplet erosion** (deviation 1), **glacial terrain being visible to anything downstream**
+  (deviation 6, and larger than that entry admits), **sea lanes** so islands are connected (deviation 7),
+  **road-junction and trough-tributary smoothing**.
 - **The place → route → regrow → replace settlement iteration** — single pass.
 - **Special sites**: mines, monasteries, forts, lighthouses. Bridges are done.
 - **Oil and gas** — skipped because nothing downstream consumes them.
@@ -133,8 +144,9 @@ is an index, not the reasoning. Grouped by what it would take.
   fresh on a per-tick budget, and movement validation, line of sight and pathing still do not consult them.
   No navmesh polygonisation. No settlement occupancy grid — though now that settlements have buildings in
   them, that one has something to occupy.
-- **`WorldWrap` has one caller.** Chunk streaming normalises addresses; movement, interest management and
-  pathing use naive subtraction, so two players ten metres apart across the seam read as a world apart.
+- **`WorldWrap` has two callers.** Chunk streaming normalises addresses and spawn-point selection normalises
+  its search; movement, interest management and pathing use naive subtraction, so two players ten metres apart
+  across the seam read as a world apart.
 - **`zone-server/navigation/`** is a separate unused 2.5D nav stack, superseded for voxel terrain and
   untouched.
 - **No disk or object-store cache tier** — `MemoryBlobStore` and a deflating wrapper, with the real tiers
@@ -150,7 +162,7 @@ superlinearity from noise. If it matters, it wants a dozen seeds per size.
 ### Actual module layout
 
 The [Module layout](#module-layout) section below plans fifteen Gradle modules. The code is **one**
-module, `worldgen/`, with those divisions expressed as packages. Fifteen modules over ~90 files buys
+module, `worldgen/`, with those divisions expressed as packages. Fifteen modules over ~110 files buys
 build-graph enforcement of a layering that a package convention and one review already enforce, at
 the cost of fifteen build files. The split is worth revisiting if the module ever grows a second
 consumer that needs only part of it.
@@ -231,6 +243,30 @@ everything derived from it, and publishes `WorldRecreatedEvent` so `MasterWorldR
 player to the new spawn — their stored coordinates point into terrain that no longer exists, which otherwise
 fails silently by burying them in a hill.
 
+**A new master picks where in the world to start.** `civ/SettlementSpawnPoints.kt` offers the settlements ranked
+second largest downwards — never the largest, which is the capital everybody already knows about — each with a
+coordinate on solid ground clear of the settlement's own built-up area. It is a pure function over the generated
+world rather than a stage: it produces nothing the pipeline consumes, so making it a stage would put it in the
+dependency graph for no one's benefit. The search walks outward on deterministic bearings derived from the world
+seed and the settlement's index, so the chosen spot is stable across regenerations without being stored, and it
+normalises through `WorldWrap` — a bearing that leaves the map has to arrive on the far side rather than be
+discarded, which makes this the coordinate maths's second caller.
+
+`zone-server` caches the result in a `master_spawn_point` table, computed once by a boot runner ordered directly
+after the world loads and before entity loading. There is no world-id column, on the same argument
+`PersistedEntity` already makes: the codebase assumes a single world row, and `WorldProvisioning.recreate`
+clears the table whenever that row is replaced, so "a row exists" already means "belongs to the current world".
+
+The spawn coordinate is sampled from the generator's own height field, which is better than the sea-level guess
+it replaced — that put a new player hundreds of metres inside solid rock on a world whose centre is dry land, and
+since every surrounding chunk is then uniform stone that encodes to twelve bytes and meshes to no surface at all,
+it rendered as a black screen indistinguishable from the terrain failing to load. But **"sampled from the height
+field" and "reconciled with the chunk the player is standing in" are not the same claim**, so the `Grounded`
+marker still applies and `ChunkStreamSystem` still snaps an ungrounded entity on the first tick it sees it. That
+is the general shape of the problem: the authoritative ground elevation belongs to `ChunkService`, which only the
+tick thread may ask, so anything producing a position on a request thread — master creation, a script placing an
+entity — has to invent one and be corrected later.
+
 **Chunk streaming is wired.** `net.bestia.zone.world.stream` owns the `ChunkCache` → `ChunkStore` →
 `DerivedStore` chain that this module had never been asked for, and streams merged RLE chunks to the client
 over five new `bnet-messages` in the MAP range. The protocol is *announce, then serve on request*: a
@@ -260,7 +296,17 @@ tectonics → climate → erosion → glacial
 
 Twelve world-tier stages, in `pipeline/StandardWorld.kt`. Each declares only what it reads and the
 scheduler enforces that, so the stage list is the entire wiring — there is no order to get right
-beyond the dependencies the stages already state. Emitted layers and feature kinds:
+beyond the dependencies the stages already state.
+
+The diagram above is the *intended* wiring and is wrong about one edge. **Glacial and hydrology are siblings:
+neither declares the other, so nothing orders them and nothing lets either see the other's work.** They
+execute glacial-first, but only because the topological sort breaks ties on stage name and `"glacial"` sorts
+before `"hydrology"` — an alphabetical accident standing where a dependency should be. It is the mechanism
+behind [the orphaned glacial stage](#known-defect-the-glacial-stage-is-an-orphan), and a reminder that the
+scheduler enforcing "read only what you declare" is only half a guarantee: it cannot tell you about something
+you *should* have declared and did not.
+
+Emitted layers and feature kinds:
 
 | Stage | Raster layers | Vector features |
 |---|---|---|
@@ -339,8 +385,7 @@ breaks the single continuous polyline the entire seam-free argument rests on.
 
 So the seam is *hidden* instead. `TectonicsStage` forces a margin around all four edges below sea level
 with a smoothstep blend (`geo/OceanBorder.kt` — a blend, not a clamp, or the margin has a cliff at its
-inner edge), and `normaliseLandFraction` counts interior cells only so the margin does not eat into the
-land budget. The wrap then happens between two stretches of featureless deep ocean, which look alike
+inner edge). The wrap then happens between two stretches of featureless deep ocean, which look alike
 because there is nothing there to look at. This is honestly not continuity, and it only works while the
 margin is wider than the client's view distance.
 
@@ -350,10 +395,28 @@ world's margin enormous while hiding the seam no better. A share cap of 6% still
 below about a 42 km world — the margin goes as the perimeter while land goes as the area, so on a tiny
 world a fixed margin would eat the place.
 
+**The margin's guarantee is a rectangle; its shoreline is not.** It has to be a rectangle, because that is the
+shape of the world — but `distanceToEdge` returning the distance to a rectangle means every contour of it is
+also a rectangle, and since everything this class does is a function of that one number, the coastline it
+produced could only ever be four straight lines meeting at square corners with a 45° crease along each
+diagonal. On a small world, where the margin is a sixth of the short edge, that was most of the visible
+coastline — and conspicuously so, because the plate boundaries beside it are domain-warped Voronoi and produce
+nothing straight. So each edge now wanders up to `oceanBorderWobble` (2.5 km) further inland, from an fbm
+sampled around a *closed circle* so it is periodic along the edge, and the four edges are combined with a
+polynomial smooth minimum that rounds the corners.
+
+The safety argument is worth stating because it is structural rather than empirical. `checkOceanBorderIsOcean`
+measures the margin with `WorldWrap`'s own *unperturbed* distance, so the only thing the wobble may not do is
+report a distance **greater** than the true one. Every term is a true distance minus a non-negative wobble, and
+a smooth minimum is never greater than a hard one, so the property holds by construction — the wobble can only
+push the drowning further *in*, never seaward. `heightAt` was extracted from `applyTo` for a related reason:
+the land-fraction search below needs to ask what a cell's finished height *would* be, and a second copy of that
+arithmetic is a copy that eventually disagrees.
+
 `wrapX` is on by default and `wrapY` is off, and not merely for want of implementing it: temperature comes
 from latitude, so wrapping north to south walks one pole straight into the other — `ClimateStage` makes
-latitude a linear ramp in y, so the seam jumps the world's whole latitude span, `Winds.zonalSign` flips
-hemisphere with it, and the orographic rain pattern `BiomeStage` classifies on reverses.
+latitude a linear ramp in y, so the seam jumps the world's whole latitude span, the wind belts flip hemisphere
+with it, and the orographic rain pattern `BiomeStage` classifies on reverses.
 
 > **Genesis turns `wrapY` on regardless** (`zone-server`'s `worldgen.wrap-y`), because the alternative is a
 > wall a player can walk into. The discontinuity lands inside the same 2.5 km ocean margin that hides the X
@@ -366,10 +429,161 @@ hemisphere with it, and the orographic rain pattern `BiomeStage` classifies on r
 
 `core/WorldWrap.kt` holds
 the coordinate maths — floor-mod normalisation, signed shortest-path deltas, chunk normalisation (never on
-z; up is not a loop). **Chunk streaming is its first caller** — every chunk address, computed or client-supplied,
+z; up is not a loop). **Chunk streaming was its first caller** — every chunk address, computed or client-supplied,
 goes through `normalise` before it reaches the generator, so walking off the eastern edge streams the western
-terrain. **The rest of the ECS still does not call it**: movement, interest management and pathing use naive
-subtraction, so two players ten metres apart across the seam read as a world apart.
+terrain. `civ/SettlementSpawnPoints` is the second: it searches outward from a settlement for solid ground, and a
+bearing that leaves the map has to come back in on the far side rather than be discarded. **The rest of the ECS
+still does not call it**: movement, interest management and pathing use naive subtraction, so two players ten
+metres apart across the seam read as a world apart.
+
+### Making the world land-dominated broke the climate, and the climate was already broken
+
+The world was a quarter land and mostly desert. Fixing the first exposed that the second had two bugs in it
+that a mostly-ocean world had been hiding, and the chain of consequences is worth recording in order, because
+almost every constant below moved for a reason that lives in a different stage from the constant.
+
+**More land.** `oceanicShare` 0.6 → 0.45 and `targetLandFraction` 0.32 → 0.50. The first is the real lever
+despite the name of the second: continental and oceanic crust sit in two well-separated elevation clusters,
+about +300 m and about −3400 m, so `oceanicShare` decides what share of the world is *capable* of being land
+and `targetLandFraction` only decides where in the gap between them the waterline falls. Ask for more land than
+the continental share can supply and the waterline is forced down into the oceanic cluster, where what surfaces
+is ex-seafloor: no uplift behind it, no orogenic relief, and a coastline that follows the plate diagram because
+per-plate base elevation is the only thing varying there.
+
+**`upliftDryLand`, so the new land is not a shelf.** Stream power is `U − K A^m S`; where `U` is zero the only
+steady state is a plane, so the forty-five erosion timesteps *removed* whatever relief the noise had put on
+ex-seafloor land instead of organising it into valleys. Every cell above sea level now gets at least an interior
+plate's uplift, ramped in over 250 m — a step in uplift along a contour is a step in erosion rate along a
+contour, and erosion turns that into an escarpment following the coast, which is a landform made by an `if`.
+
+**The land-fraction target was measuring the wrong thing.** It used to put the target quantile of the
+*interior* at sea level, and then the margin was applied on top and drowned some of what had just been counted.
+Being a couple of points out is tolerable; being **world-size dependent** is not, and it was — the margin is a
+sixth of a 128 km world's short edge and a fiftieth of a 512 km one's, so the same 0.32 meant something
+different on every world, which defeats the point of a number that exists to make seeds comparable. It is now a
+**bisection on the shift**, measured over the whole world *after* the margin, using the same `OceanBorder.heightAt`
+that will actually be applied. Cells the margin cannot reach keep a histogram, so one `O(N)` pass serves every
+iteration and only the margin band is re-evaluated.
+
+**Mountains had to stop scaling with plate count.** A continent-continent collision raises 3400 m because that
+is what one raises on Earth, and that is right for a world with Earth's ratio of plate boundary to area. A world
+at detail scale 4 has four times that ratio — that is what detail scale *is* — so leaving the amplitude alone
+gives every one of those many boundaries a Himalaya, and the result is not a dramatic world but a uniformly
+vertical one: measured, 22% of the land classified as bare cliff and 6% as forest and grassland together. So
+orogeny is scaled twice by `detailScale`: amplitude by `1/sqrt(detailScale)`, and *distance from the boundary*
+by `× detailScale`, which is what puts lowland back between the ranges rather than shrinking the ranges
+themselves. `orogenicRelief` came down 1750 → 820 alongside it. Both scalings are exactly 1.0 at 512 km and
+above, so the reference world does not move.
+
+**And the plate spacing floor was distorting small worlds.** `MIN_PLATE_SPACING` is a claim about real plates —
+fifty kilometres is about the smallest thing that behaves like one — and on any decent world it never binds. On
+a 128 km world it bound hard: 25.6 km clamped up to 50 km, leaving six to nine plates, a boundary cross-fade a
+fifth of the map wide, and a continental swell whose wavelength was **1.7 lobes across the whole world**, which
+is a tilt rather than a landscape. The floor is now `scaleByLength`d. Relatedly, hotspot *island size* was
+decoupled from plate spacing: an island's size is set by how much magma one plume delivers and has nothing to do
+with how big the plate above it is, so finer plates were silently producing smaller islands.
+
+#### The climate had a step function in it, and no way to wet a continent
+
+Two bugs, both invisible on a mostly-ocean world, both catastrophic on a land-dominated one.
+
+**`Winds.zonalSign` was a step function, and it was visible from orbit.** The advection sweep runs one row at a
+time in the direction the wind blows, so where the sign flipped between two adjacent rows the two rows were
+built from opposite upwind histories — one row's air had crossed a continent, the next row's an ocean — and the
+precipitation field acquired a **discontinuity running the entire width of the map**. It survived the mixing
+blur, which averages over a few cells and cannot repair a jump that large, and `BiomeStage` then thresholded on
+it and drew a perfectly straight stripe one climate cell tall across every continent it touched. On a world
+spanning 68 degrees there were six of them. The physics says the same thing the picture did: the boundary
+between the trades and the westerlies is the subtropical ridge, a broad belt of light and variable wind, not a
+line where the wind reverses. `Winds.eastwardShare` returns a *share* instead, each row is swept both ways, and
+the two are blended over `BELT_TRANSITION` degrees of latitude — degrees, so the blend spans the same slice of
+the planet at any world size or resolution.
+
+**Rain could not cross a mountain, and land could not give its water back.** `orographicCoefficient` at 0.0021
+was not a coefficient so much as a switch: `rain = moisture · coefficient · rise` reaches the whole of the
+moisture at a rise of 476 m, so on a world with 4 km climate cells and 4.5 km peaks the *first* range a wind met
+stripped the air to nothing — and with `landEvaporationRate` effectively zero, nothing put any back for the rest
+of the continent. Every interior was the rain shadow of one mountain, which is how a world ends up 29% desert and
+21% cold desert with a green fringe. So the coefficient came down to 0.0009, where a kilometre of ascent takes
+most of the moisture but not all of it, and **continental moisture recycling was added** at a third of the ocean
+rate: rain landing on vegetated ground largely goes back up as evapotranspiration and falls again downwind — the
+Amazon recycles something like half its rainfall that way, and it is the reason a continental interior is
+habitable rather than a desert as a matter of arithmetic. Which is exactly what the model's interiors were.
+
+`leeSuppression` 0.22 → 0.34 follows from the mountains: a rain shadow is a feature, but with plate boundaries
+every twenty-five kilometres there is no longer such a thing as an interior that is not downwind of a range, so
+the suppression compounded pass after pass. At 0.34 a single range still casts an unmistakable shadow without
+the second and third behind it finishing the job.
+
+`meanPrecipitation` 880 → 1850, and the interesting part is that **it only became a lever once the field stopped
+being mostly zero.** Measured on the old model, raising it moved the biome mix by a single percentage point —
+a true measurement of a broken distribution, because most of the land was at *exactly* zero rain and scaling
+zero by 1.3 is still zero. Note it cancels in `ErosionStage` and `HydrologyStage`, which both normalise by the
+field's own mean by design, so it moves biomes without moving the landscape.
+
+One more, found the same way: the sweep starts with dry air, so on a wrapping world the column each row happens
+to start at had no upwind fetch at all and always received exactly zero rain. Rows alternate direction, so the
+result was a **dry stripe down both map edges.** `sweepRow` now runs the row twice and records only the second
+lap, letting it find its equilibrium; both map edges are forced ocean, so the seam the spin-up lap crosses is
+open water on both sides.
+
+#### Channel initiation needed slope, not just area
+
+The river network came out as combs of short parallel streams hanging off every shore, with the uplands they
+should have risen in left blank. Two causes, and neither was the threshold's magnitude.
+
+**The threshold was an area alone.** A hillside sheds its water into a defined channel after a few hectares; a
+floodplain of the same catchment carries no channel at all, because there is no gradient to cut one. So the
+coastal plain was the only place a purely area-based threshold was ever reached first, and that is where every
+channel head sat. `channelSlopeExponent` adds the Montgomery–Dietrich slope-area law `A·S^n > constant`, as a
+ratio against **this world's own mean land slope** rather than a constant — a fixed reference slope has to be
+either above or below a given world's typical ground, and whichever it is it moves every threshold on the map in
+that direction and silently becomes a second control on how many rivers there are. Measured: a reference of 0.03
+on a world whose land averages nearly three times that took the river count from 93 to 270 while barely moving
+where the heads sat, which is the wrong axis entirely. Clamped rather than tapered, because the tails are where
+it misbehaves — a flat lake bed approaches zero slope and would demand an infinite catchment.
+
+**And `Grid.gradient` was the wrong instrument for measuring that slope.** At kilometre cells the steepest ground
+in the world is the *shoreline*: a cell of coast beside a cell of shelf at −400 m reads as a slope of 0.4,
+steeper than any mountain front the erosion model produces. Fed that, the slope term did the exact opposite of
+its purpose — it made the coast the easiest place in the world to start a channel. `landSlopes` clamps the
+neighbours at sea level, which asks the question that was meant: how steep is the *land* here. A channel head is
+a subaerial feature and what is under the water offshore has nothing to do with it. `meanOverLand` averages the
+reference over land cells only, for the same reason: the sea floor is most of a half-water world and nearly flat
+once the shoreline scarp is clamped out, so averaging it in would drag the reference below any real hillside and
+turn a redistribution back into a discount.
+
+`channelCatchmentArea` 93M → 420M is downstream of all of the above, and shows how far these couplings reach:
+**flattening the absurd rain shadows took the world from mostly-bone-dry to broadly damp, which meant the
+aridity multiplier stopped firing on hardly any cells, and the same 110 million that had given 106 channels gave
+531.** At 420 million the count is back to 140 with 52 confluences rather than 14, which is the network being
+genuinely dendritic rather than a set of separate coastal streams. `aridityExponent` 1.0 → 0.55 is the knob for
+how *long* a river is rather than how many there are: at 1.0 an interior receiving a third of the mean rainfall
+needs three times the catchment, which on a continental world pushes every channel head down towards the coast.
+
+The general lesson, and it is the same one the ocean margin and `detailScale` teach in a different key: **these
+constants are not independent, and most of them are not tunable in the stage they live in.** A change to plate
+density moves mountain height, which moves rain shadow, which moves the biome mix three stages later. That is
+why `viewer` now prints the land fraction and the biome mix on every run — see the tooling section — because a
+number nobody can read off the output is a number that drifts.
+
+#### Known defect: the glacial stage is an orphan
+
+Recorded here rather than in the deviations list, because it is a bug and not a decision. **No stage declares
+`GlacialStage` as a dependency, and nothing consumes `ICE_THICKNESS` or any of `GLACIAL_TROUGH`, `FJORD`,
+`CIRQUE` or `MORAINE`.** Outside the stage itself the only references are its construction in
+`pipeline/StandardWorld.kt`, four colours in `MapRenderer`, and one fjord-sill invariant.
+
+So the four feature kinds reach the world *only* at chunk-materialisation time — and a trough carves absolutely
+(`Profiles.glacialTrough` ignores the base height and `MIN` decides), by hundreds of metres. Which means
+hydrology, habitability, settlement placement and town layout all commit to a coarse elevation that the finished
+chunks then cut away beneath them. `TownStageTest.the ground under a building is level` catches the visible end
+of it: a town at 2463 m laid its buildings on the coarse raster and a trough carved the ground under them to
+1938 m, leaving a 525 m plinth. `WorldGround` queries only `RIVER_CHANNEL` and `ROAD`, and could not see the
+trough if it asked, because its stage does not declare glacial.
+
+[Deviation 6](#deliberate-deviations) describes the polite half of this as "rivers do not follow glacial
+troughs". The impolite half is that glacial terrain is invisible to every decision the civ stages make.
 
 ### The voxel grid has a resolution floor, and features have to respect it
 
@@ -433,6 +647,13 @@ file is one somebody will later mistake for a bug.
    in the vector tier, so a post-glacial river does not know to run along the trough floor it should
    have inherited. Fixing it means either rasterising troughs before hydrology or routing flow against
    the vector tier; both are larger than the artefact.
+
+   **This entry understates it, and the understatement was itself the bug.** Framed as a river not
+   inheriting a valley floor it reads as cosmetic, which is why it sat here. In fact *nothing downstream sees
+   glacial terrain at all* — no stage declares `GlacialStage`, so habitability, settlement placement and town
+   layout also commit to an elevation the finished chunks carve hundreds of metres out of. See
+   [Known defect: the glacial stage is an orphan](#known-defect-the-glacial-stage-is-an-orphan). A deviation
+   describing the polite half of a defect is worse than no entry, because it makes the defect look considered.
 7. **Roads do not connect across water.** A route that would cross the sea is rejected rather than
    bridged, so two settlements on different landmasses are not road-linked. They would be linked by a
    sea lane, which is a feature kind that does not exist yet.
@@ -454,8 +675,9 @@ file is one somebody will later mistake for a bug.
    (`civ/StreetNetwork.kt`)
 
 Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits),
-seasonal precipitation (one annual pass, not 3–4 monthly ones), navigable rivers as cheap trade-graph
-edges, and the place → route → regrow → replace settlement iteration (single pass).
+seasonal precipitation as stored fields (two passes run and are summed away, rather than 3–4 kept),
+navigable rivers as cheap trade-graph edges, and the place → route → regrow → replace settlement
+iteration (single pass).
 
 New with steps 8–10, and worth knowing before reading a town: **buildings are capped at 1 200 per
 settlement**, and a city of twenty thousand wants four thousand. Lots are assigned in descending land
@@ -575,6 +797,17 @@ water is where the biome says it is; feature bounds contain their geometry; no s
 sea; settlements respect their tier's separation; deposits are well formed; every fjord sill is
 shallower than its landward basin; and the ocean margin contains neither land nor settlements.
 
+`landFraction` is a single shared function rather than a measurement each caller makes: it had been
+reimplemented in the check, the pipeline test and the sweep, and the copies had drifted — one of them tested
+`> 0f` instead of against the world's actual sea level. Two of those callers now also *report* it rather than
+only asserting on it, which is what makes a bad seed visible rather than merely legal.
+
+**Two of these are currently vacuous, and that is worth knowing about a list like this.** Nothing generates a
+lake, so `lakes stand above their beds` inspects no cells and passes; and no world tested has an endorheic
+basin, so the salt-lake half of the deposit rules never fires. A check that skips its subject and reports
+success is the same failure the ocean-margin story below describes, one step further along — registered, but
+with nothing to assert against.
+
 For steps 8–10: founding and abandonment years are ordered and a ruin has nobody in it; no event names
 a settlement before it was founded or after it emptied; no surviving event cites a pruned cause; every
 artifact's provenance runs forwards and ends somewhere that exists; every ruin marker matches a
@@ -667,6 +900,15 @@ Where a nested grid is genuinely required (rare — vector features handle most 
 > time from elevation, hardness and plate id (`voxel/Stratigraphy.kt`) rather than stored per cell — a
 > descriptor stack per cell over 16M cells is a large storage cost for something that is a pure function of
 > three layers already present.
+>
+> Four things here are not in the design above and all of them came out of running it at 128 km — see
+> [Making the world land-dominated broke the climate](#making-the-world-land-dominated-broke-the-climate-and-the-climate-was-already-broken)
+> for the arguments. The land fraction is enforced by a **bisection over the finished heights** rather than a
+> quantile over the interior; `upliftDryLand` gives every dry cell an uplift floor so erosion has something to
+> carve rather than a plane to flatten; orogeny is scaled by `detailScale` in *both* amplitude and
+> boundary-distance so a small world gets ranges with lowland between them rather than one continuous plateau;
+> and the plate-spacing floor is scaled too, because at a flat 50 km it bound hard enough on a small world to
+> leave it 1.7 continental lobes across.
 
 Don't start from fractal noise — it gives you the "same everywhere" problem. Start from plates.
 
@@ -688,9 +930,20 @@ Don't start from fractal noise — it gives you the "same everywhere" problem. S
 ## Stage 2: Climate
 
 > **Implemented** in `climate/ClimateStage.kt`, `climate/Winds.kt`, at four times the heightfield's cell
-> size. One annual orographic pass rather than 3–4 seasonal ones; seasonality is emitted as a scalar
-> (`PRECIPITATION_SEASONALITY`) instead of monthly fields, which is enough for biomes but would not be
-> enough for agriculture-by-month.
+> size. Two seasonal passes are run — a summer and a winter wind field, which is the cheapest number that
+> produces a monsoon — but only their annual sum and a scalar spread survive as layers
+> (`PRECIPITATION`, `PRECIPITATION_SEASONALITY`). So the seasonal fields exist and are discarded, which is
+> enough for biomes and would not be enough for agriculture-by-month.
+>
+> **Two bugs lived in this stage that a mostly-ocean world had hidden**, and both are argued at length in
+> [Making the world land-dominated broke the climate](#making-the-world-land-dominated-broke-the-climate-and-the-climate-was-already-broken):
+> the wind model's belt boundary was a *step function*, which put a full-width discontinuity in the
+> precipitation field that `BiomeStage` then drew as six perfectly straight stripes across every continent; and
+> the orographic coefficient was steep enough to strip the air completely at the first range while nothing
+> returned any water to it, so every continental interior was the rain shadow of one mountain. The fixes are
+> `Winds.eastwardShare` — a blended share rather than a direction, swept both ways per row — and
+> `landEvaporationRate`, continental moisture recycling. `sweepRow` also gained a spin-up lap on a wrapping
+> world, without which each row's start column got exactly zero rain and both map edges had a dry stripe.
 
 Order matters: you need elevation before climate, and climate before hydrology.
 
@@ -726,6 +979,22 @@ Climate is a legitimate candidate for a **coarser** grid than the heightfield �
 > **Implemented** in `hydro/`: priority-flood in `Lakes.kt`, D8 and accumulation in `FlowRouting.kt`, the
 > river graph and its station tables in `RiverNetwork.kt`, vector-level smoothing and meandering in
 > `Meander.kt`. Lakes stay in the raster tier and oxbows are not cut — see deviations 3 and 6.
+>
+> **Channel initiation reads slope as well as catchment area.** Point 4 below says "cells where
+> `accumulation > threshold`", and an area-only threshold is first reached on the coastal plain, which is
+> where it put every channel head: the map came out as combs of short parallel streams off every shore with
+> the uplands blank. `channelSlopeExponent` adds the Montgomery–Dietrich `A·S^n > constant`, expressed as a
+> ratio against this world's own mean land slope so it redistributes thresholds rather than discounting them
+> globally. It needed its own slope field to do it — at kilometre cells the steepest ground in the world is
+> the *shoreline*, so `Grid.gradient` made the coast the easiest place to start a channel, and `landSlopes`
+> clamps the neighbours at sea level to ask how steep the *land* is.
+>
+> **No lake is currently generated.** `Lakes.kt` is complete and unit-tested, and gates a lake on
+> priority-flood having had to *raise* a cell by more than half a metre — but `ErosionStage.incise` clamps
+> every cell to at or above its receiver, so the surface it hands over is depression-free by construction and
+> there is nothing left to raise. Nothing in the pipeline creates a basin that outruns fluvial incision, which
+> is what glacial overdeepening and tectonic subsidence are for and why neither is optional.
+> `checkLakesStandAboveTheirBeds` passes vacuously, because it skips every cell with no lake in it.
 
 This is where most generators fail. The correct approach:
 
@@ -989,6 +1258,32 @@ Roads should also *feed back* into settlement growth: settlements on major route
 > Walls follow the population at the moment the town was threatened, not today's, so **later growth spills
 > outside the circuit** — which is what every walled city that survived its wars ended up with, and is visible
 > from a long way off. That is only possible because history runs first.
+>
+> **A plot is sized for a house, which it was not.** `lotFrontage` was 9 m, which after the setback, the
+> inter-building gap and the footprint fill produced a house 6.35 m wide — a shed. At 12.5 m by 18 m of depth
+> the same chain gives about 10.4 m by 16.2 m. `peoplePerHectare` was re-measured from 85 to 58 to match,
+> because wider plots mean fewer of them per length of street and the density is the thing that has to give.
+>
+> **A building's footprint now depends on its function.** Every type — market, temple, cottage — was sized
+> identically before, so a market hall was a house with a market in it. Each function gets frontage and depth
+> multipliers, capped so a building can never outgrow its plot. That in turn needed a **roof-pitch cap**: a
+> fixed 40° pitch on a 20 m market hall puts the ridge 8.8 m above the eaves, which is a spire, so wide spans
+> shallow their pitch rather than having their rise clamped. Ordinary houses are untouched by both.
+>
+> **A lot the pad cannot level is skipped**, and the next-best lot takes the building. The site test a lot
+> passes reads slope off the kilometre raster, and a building is eighteen metres long — a kilometre-averaged
+> slope cannot see a scarp shorter than itself, so a lot could pass and still have metres of relief across its
+> own footprint, leaving the materialiser to build a plinth under it. The check therefore has to run *after*
+> the building exists and its floor is known, and it predicts the residual rather than measuring it afterwards
+> so the caller can fall through instead of losing the building. It measures grading **faded the way the
+> grading disc actually fades**, because `builtRadius` puts a great many buildings out in that taper and
+> predicting full-strength grading there overstates how level the ground will be by metres.
+>
+> That prediction is a second copy of `PointFeature.falloff` and `FeatureEvaluator`'s `REPLACE` case, which is
+> a poor thing, and it is pinned by `TownStageTest.the ground under a building is level` measuring the finished
+> columns. **That test is currently red**, and the drift it caught is not in the copy: it is the orphaned
+> glacial stage carving ground the town stage cannot see. See
+> [Known defect](#known-defect-the-glacial-stage-is-an-orphan).
 
 Per settlement, generated deterministically from `hash(settlement_id)`:
 
@@ -1531,6 +1826,35 @@ Add a **chunk-boundary stress view**: render a 4×4 block of chunks generated in
 >
 > The chunk-boundary stress view is `core/ChunkSeamCheck.kt`; it runs on every viewer export and prints
 > `SeamCheck: clean - 64 chunks, 3584 shared columns agree`.
+>
+> **The viewer now measures rather than only draws**, which the climate work forced. Climate is the most
+> indirectly-tuned thing in the pipeline — a change to plate density moves mountain height, which moves rain
+> shadow, which moves the biome mix three stages later — so "there is too much desert and not enough farmland"
+> was a judgement that could only be argued about in front of a picture. Every run now prints the **land
+> fraction in both forms**, bedrock and final, because printing only the final figure makes a normalisation
+> that missed indistinguishable from a seed whose rivers built a lot of delta; and the **biome mix as a share
+> of the land**, headed by a single "green" percentage. The one number is the point: seven shares take
+> arithmetic to answer from, and a target nobody can read off the output is a target that gets tuned past in
+> both directions. Steppe, shrubland and savanna are deliberately excluded from it — they are the semi-arid
+> margin, and counting them is how a world talks itself into being green. `InvariantsMain` prints the same land
+> fraction per seed plus its median and range, which is the only place seed-to-seed spread is visible, since
+> the invariant's own bounds are deliberately loose.
+>
+> **Two viewer bugs worth recording, because both made the tool lie rather than fail.** Point features were
+> drawn through `drawBounds`, which for a zero-extent marker is a zero-size rectangle at 38% alpha — so every
+> settlement in the world was invisible, and the map of a populated continent looked like an empty one.
+> Settlements are now dots sized by population, area-proportional with an outline so they read against any
+> biome colour. And a **categorical layer was given a continuous colour bar**: biome, flow direction and lake
+> id were rendered with a 1st/99th-percentile gradient legend, which is a meaningless scale over a set of
+> labels. Those layers now get a real legend — named swatches with their share of the screen, from a census of
+> the visible cells — and `Labels` supplies the vocabulary, so the readout says `temperate forest` and `NE`
+> rather than `8` and `1`.
+>
+> The overlay also gained **per-kind filtering**, defaulting town-scale kinds off. A full pipeline emits about
+> thirty feature kinds, and buildings, streets and businesses are dense enough at world scale to bury the
+> rivers and roads underneath them; the attribute-record kinds pinned to a settlement's own coordinates
+> (`SETTLEMENT_HISTORY`, `SETTLEMENT_ECONOMY`) are hidden for a different reason, which is that they paint over
+> the settlement dot they describe.
 >
 > **History scrubbing and settlement economy inspection now exist**, as `chronicle -Pyear` and `town` — see
 > [Two tools for steps 8 to 10](#two-tools-for-steps-8-to-10-and-the-scale-that-needed-them), which also lists
