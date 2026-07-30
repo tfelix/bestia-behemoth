@@ -96,7 +96,8 @@ class SettlementStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: settlement markers carry SettlementChannels.INDEX, the join key for steps 8 to 10.
+  override val version = 2
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID
@@ -119,7 +120,10 @@ class SettlementStage(
     val habitability: Double,
     val elevation: Double,
     val population: Int
-  )
+  ) {
+    /** Filled in once placement order is final; see [SettlementChannels.INDEX]. */
+    var index: Int = -1
+  }
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
     val metres = region.resolution.metresPerCell
@@ -134,6 +138,9 @@ class SettlementStage(
 
     val siteScore = scoreSites(ctx, region, habitability, terms, rivers)
     val sites = place(ctx, region, siteScore, terms, elevation, metres)
+    // Numbered after placement, so the index is the placement order - largest tier first, then by score.
+    // Every downstream stage joins on this, so it has to be assigned in exactly one place.
+    sites.forEachIndexed { i, site -> site.index = i }
 
     val nextId = FeatureIds.allocator(id)
     val features = ArrayList<VectorFeature>()
@@ -353,6 +360,7 @@ class SettlementStage(
     kind = FeatureKind.SETTLEMENT,
     position = site.position,
     attributes = StationTable.Builder(1)
+      .channel(SettlementChannels.INDEX) { site.index.toDouble() }
       .channel(SettlementChannels.TIER) { site.tier.ordinal.toDouble() }
       .channel(SettlementChannels.CULTURE) { Culture.ALL.indexOf(site.culture).toDouble() }
       .channel(SettlementChannels.POPULATION) { site.population.toDouble() }

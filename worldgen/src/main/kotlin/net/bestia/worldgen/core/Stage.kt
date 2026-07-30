@@ -28,12 +28,23 @@ enum class StageScale { WORLD, REGION, CHUNK }
 sealed interface StageOutput {
   data class Raster(val layer: LayerId) : StageOutput
   data class Vector(val kind: FeatureKind) : StageOutput
+
+  /**
+   * The world's history log. At most one stage in a pipeline may declare it.
+   *
+   * Not parameterised by anything, unlike the other two, because there is exactly one chronicle per
+   * world - the log is a single object, not a keyed collection, and pretending otherwise would invite a
+   * second stage to write a second history of the same world.
+   */
+  data object History : StageOutput
 }
 
 /** Everything one stage invocation produced. */
 class StageResult(
   val layers: List<LayerData> = emptyList(),
-  val features: List<VectorFeature> = emptyList()
+  val features: List<VectorFeature> = emptyList(),
+  /** Non-null exactly when the stage declared [StageOutput.History]; the pipeline checks that. */
+  val chronicle: Chronicle? = null
 ) {
   companion object {
     val EMPTY = StageResult()

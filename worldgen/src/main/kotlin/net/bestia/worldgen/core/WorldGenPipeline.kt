@@ -12,7 +12,15 @@ class World(
   val layers: LayerStore,
   val features: FeatureStore,
   /** Folds in every stage's version; part of every cache key and of the client version gate. */
-  val pipelineVersion: Long
+  val pipelineVersion: Long,
+  /**
+   * The history log, or [Chronicle.EMPTY] when this pipeline had no history stage in it.
+   *
+   * Empty rather than null so that every consumer - the viewer, the chronicle tool, an invariant - can
+   * read it unconditionally. A world with no history and a world whose history was not simulated are the
+   * same thing from the outside, and both have nothing to say.
+   */
+  val chronicle: Chronicle = Chronicle.EMPTY
 )
 
 /** Called as stages start and finish, so a viewer or a build log can show progress. */
@@ -50,6 +58,14 @@ class WorldGenPipeline(stages: List<Stage>) {
 
   val pipelineVersion: Long
 
+  /**
+   * The stage that declared [StageOutput.History], or null.
+   *
+   * Resolved once here rather than searched per call, and required to be unique, because two stages
+   * writing a world's history is not a conflict the run could sensibly resolve.
+   */
+  val historyProducer: StageId?
+
   init {
     require(stages.isNotEmpty()) { "A pipeline needs at least one stage" }
 
@@ -57,6 +73,10 @@ class WorldGenPipeline(stages: List<Stage>) {
     require(duplicates.isEmpty()) { "Duplicate stage ids: $duplicates" }
 
     byId = stages.associateBy { it.id }
+
+    val historians = stages.filter { StageOutput.History in it.outputs }.map { it.id }
+    require(historians.size <= 1) { "More than one stage produces the chronicle: $historians" }
+    historyProducer = historians.firstOrNull()
 
     for (stage in stages) {
       for (dependency in stage.dependencies) {
@@ -107,21 +127,26 @@ class WorldGenPipeline(stages: List<Stage>) {
   fun generateWorld(config: WorldConfig, listener: StageListener = StageListener.NONE): World {
     val layerStore = LayerStore()
     val featureStore = FeatureStore()
+    var chronicle: Chronicle? = null
 
     for (stage in stagesAt(StageScale.WORLD)) {
       val region = config.worldRegion.at(stage.resolution)
-      val result = execute(stage, config, layerStore, featureStore, region, listener)
+      val result = execute(stage, config, layerStore, featureStore, region, listener, chronicle)
 
       layerStore.putAll(stage.id, result)
       if (result.features.isNotEmpty()) {
         featureStore.add(stage.id, result.features)
         featureStore.reindex()
       }
+      result.chronicle?.let {
+        check(chronicle == null) { "Stage ${stage.id} produced a second chronicle for the same world" }
+        chronicle = it
+      }
     }
 
     featureStore.freeze()
 
-    return World(config, layerStore, featureStore, pipelineVersion)
+    return World(config, layerStore, featureStore, pipelineVersion, chronicle ?: Chronicle.EMPTY)
   }
 
   /**
@@ -131,12 +156,16 @@ class WorldGenPipeline(stages: List<Stage>) {
    * the same dependency scoping the real run would have enforced. Deliberately not a way to *run* a stage
    * again - the layer store would refuse the duplicate output, which is the correct answer.
    */
-  fun contextFor(stage: Stage, world: World): GenContext = GenContext(
-    stage = stage,
-    config = world.config,
-    layers = world.layers.scopedFor(stage.id, transitiveDependenciesOf(stage.id)),
-    features = world.features.scopedFor(stage.id, transitiveDependenciesOf(stage.id))
-  )
+  fun contextFor(stage: Stage, world: World): GenContext {
+    val visible = transitiveDependenciesOf(stage.id)
+    return GenContext(
+      stage = stage,
+      config = world.config,
+      layers = world.layers.scopedFor(stage.id, visible),
+      features = world.features.scopedFor(stage.id, visible),
+      visibleChronicle = world.chronicle.takeIf { historyProducer in visible }
+    )
+  }
 
   /**
    * Runs a single stage against the given stores, checking that it produced exactly what it
@@ -152,14 +181,17 @@ class WorldGenPipeline(stages: List<Stage>) {
     layerStore: LayerStore,
     featureStore: FeatureStore,
     region: CellRegion,
-    listener: StageListener = StageListener.NONE
+    listener: StageListener = StageListener.NONE,
+    /** The history produced so far, if a history stage has already run. */
+    chronicle: Chronicle? = null
   ): StageResult {
     val visible = transitiveDependenciesOf(stage.id)
     val ctx = GenContext(
       stage = stage,
       config = config,
       layers = layerStore.scopedFor(stage.id, visible),
-      features = featureStore.scopedFor(stage.id, visible)
+      features = featureStore.scopedFor(stage.id, visible),
+      visibleChronicle = chronicle?.takeIf { historyProducer in visible }
     )
 
     listener.onStageStart(stage, region)
@@ -211,6 +243,15 @@ class WorldGenPipeline(stages: List<Stage>) {
 
     check(producedKinds.all { it in declaredKinds }) {
       "Stage ${stage.id} emitted undeclared feature kinds ${producedKinds - declaredKinds}"
+    }
+
+    val declaredHistory = StageOutput.History in stage.outputs
+    check(declaredHistory == (result.chronicle != null)) {
+      if (declaredHistory) {
+        "Stage ${stage.id} declared a chronicle and produced none"
+      } else {
+        "Stage ${stage.id} produced a chronicle without declaring one"
+      }
     }
   }
 

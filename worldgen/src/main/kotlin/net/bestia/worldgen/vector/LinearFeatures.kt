@@ -106,6 +106,8 @@ object LinearFeatures {
     id: FeatureId,
     centerline: Polyline,
     stationSpacing: Double = 25.0,
+    /** [FeatureKind.ROAD] between settlements, [FeatureKind.STREET] inside one. Same cross-section. */
+    kind: FeatureKind = FeatureKind.ROAD,
     surfaceElevation: (s: Double) -> Double,
     halfWidth: (s: Double) -> Double,
     shoulder: (s: Double) -> Double = { halfWidth(it) * 3.0 },
@@ -124,7 +126,7 @@ object LinearFeatures {
 
     return PolylineFeature(
       id = id,
-      kind = FeatureKind.ROAD,
+      kind = kind,
       centerline = line,
       stations = stations,
       profile = Profiles.road(stations),

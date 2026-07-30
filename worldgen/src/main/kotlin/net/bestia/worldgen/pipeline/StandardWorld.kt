@@ -16,6 +16,9 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldGenPipeline
 import net.bestia.worldgen.civ.HabitabilityStage
 import net.bestia.worldgen.civ.SettlementStage
+import net.bestia.worldgen.civ.TownStage
+import net.bestia.worldgen.history.HistoryStage
+import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
@@ -54,23 +57,36 @@ class GeneratedWorld(
  *
  * ```
  * tectonics -> climate -> erosion -> glacial
- *                              \-> hydrology -> biomes -> resources -> habitability -> settlements
+ *                              \-> hydrology -> biomes -> resources -> habitability
+ *                                                                           |
+ *                                        settlements -> history -> towns -> economy
  * ```
  *
  * Each stage declares only what it reads, and the scheduler enforces that, so this list is the entire
  * wiring - there is no order to get right here beyond the dependencies the stages already state.
  *
+ * ### Why history runs before the towns it explains
+ *
+ * The build order numbers town layout 8 and history 10, and the dependencies run the other way: a town's
+ * walls enclose the extent it had when it was threatened, its ruins are settlements history destroyed, how
+ * much of it is stone follows the wealth history gave it, and how many buildings it has follows the
+ * population history spent a thousand years deciding.
+ *
+ * History still does not *place* settlements - they are already where the land is good - which is the part
+ * of the document's "retrofit" framing that mattered. What it does is date them, hold them, burn some and
+ * empty others.
+ *
  * ### What is implemented, and what is not
  *
  * The ledger lives in the **Implementation Status** section of `worldgen-architecture.md` and is not
- * duplicated here, because two copies of it drift. In short: build-order steps 1 to 7 and 11 are here, plus
- * the parts of 12 and 13 that belong in a module with no I/O in it; steps 8 to 10 - town layout, economy and
- * history - are not started, and neither is the service half of 12.
+ * duplicated here, because two copies of it drift. In short: build-order steps 1 to 11 are here, plus the
+ * parts of 12 and 13 that belong in a module with no I/O in it; the service half of 12 is not.
  *
- * The seven deliberate deviations from the document are listed there too, and each is also noted at the
+ * The eight deliberate deviations from the document are listed there too, and each is also noted at the
  * point in the code where it happens - [WorldHeightField] for analytic rather than droplet detail erosion,
- * [ErosionStage] for raster fans and deltas, and so on. A deviation visible in only one place is one
- * somebody will later mistake for a bug.
+ * [ErosionStage] for raster fans and deltas, `civ/StreetNetwork.kt` for plots that front streets rather than
+ * subdividing blocks, and so on. A deviation visible in only one place is one somebody will later mistake
+ * for a bug.
  */
 object StandardWorld {
 
@@ -86,7 +102,10 @@ object StandardWorld {
       GlacialStage(base),
       ResourceStage(base),
       HabitabilityStage(base),
-      SettlementStage(base)
+      SettlementStage(base),
+      HistoryStage(base),
+      TownStage(base),
+      EconomyStage(base)
     )
   }
 

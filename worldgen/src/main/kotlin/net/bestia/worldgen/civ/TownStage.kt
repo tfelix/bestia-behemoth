@@ -1,0 +1,689 @@
+package net.bestia.worldgen.civ
+
+import net.bestia.worldgen.climate.ClimateStage
+import net.bestia.worldgen.climate.Winds
+import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.FeatureIds
+import net.bestia.worldgen.core.FloatLayer
+import net.bestia.worldgen.core.GenContext
+import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Resolution
+import net.bestia.worldgen.core.Stage
+import net.bestia.worldgen.core.StageId
+import net.bestia.worldgen.core.StageOutput
+import net.bestia.worldgen.core.StageResult
+import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.history.HistoryChannels
+import net.bestia.worldgen.history.HistoryStage
+import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.vector.BlendMode
+import net.bestia.worldgen.vector.FeatureId
+import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.FootprintFeature
+import net.bestia.worldgen.vector.Intersections
+import net.bestia.worldgen.vector.LinearFeatures
+import net.bestia.worldgen.vector.MarkerFeature
+import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.Polyline
+import net.bestia.worldgen.vector.PolylineFeature
+import net.bestia.worldgen.vector.Profiles
+import net.bestia.worldgen.vector.RadialProfiles
+import net.bestia.worldgen.vector.StationTable
+import net.bestia.worldgen.vector.Vec2d
+import net.bestia.worldgen.vector.VectorFeature
+import net.bestia.worldgen.voxel.BlockType
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sin
+import kotlin.math.sqrt
+
+/** Tuning for [TownStage]. */
+data class TownParams(
+
+  /**
+   * The settlement stage's grading limits.
+   *
+   * Held rather than duplicated for the same reason [SettlementParams] holds [HabitabilityParams]: this
+   * stage has to predict what the grading feature will do to the ground in order to decide a building's
+   * floor elevation, and a second copy of the two numbers would eventually disagree with the first. Both
+   * default, so both are right unless a caller overrides one and not the other.
+   */
+  val grading: SettlementParams = SettlementParams(),
+
+  val streets: StreetParamsPublic = StreetParamsPublic(),
+
+  /**
+   * People per hectare of built-up area.
+   *
+   * What turns a population into a radius, and therefore the single number that decides how big every town
+   * in the world is.
+   *
+   * Eighty-five is what the layout below actually produces, measured rather than assumed: plots at nine metres
+   * of frontage and sixteen of depth, streets every thirty-odd metres, about five and a half people per
+   * building. It started at a hundred and forty - a plausible-sounding density for a dense pre-industrial town
+   * - and left every settlement wanting forty percent more buildings than its own streets had room for, which
+   * is the discrepancy the `town` view's "wanted versus built" line exists to show.
+   */
+  val peoplePerHectare: Double = 85.0,
+
+  /** Residents per building. Five and a half is a household plus the odd lodger. */
+  val peoplePerBuilding: Double = 5.5,
+
+  /** Metres of street frontage per plot, and metres of depth back from it. */
+  val lotFrontage: Double = 9.0,
+  val lotDepth: Double = 16.0,
+
+  /** Metres between the street centreline and the front of a plot. */
+  val setback: Double = 3.5,
+
+  /**
+   * Ceiling on buildings per settlement.
+   *
+   * A cap, and an honest one: a city of forty thousand wants seven thousand buildings, and a world of
+   * three hundred settlements at that rate is a couple of million features. What the cap keeps is the
+   * *centre* - lots are assigned in descending land value, so what survives is the part a player walks
+   * through, and what is dropped is the outer residential ring. The count that was wanted and the count
+   * that was built are both reported by the `town` tool, because a silently truncated town reads as a small
+   * one.
+   */
+  val maxBuildingsPerSettlement: Int = 1_200,
+
+  /** Ground slope above which nothing is built, as a gradient. About one in four. */
+  val maxBuildableSlope: Double = 0.26,
+
+  /** Metres of clearance kept either side of a river channel's centreline, beyond its own half-width. */
+  val riverClearance: Double = 6.0,
+
+  /** Wall height and thickness in metres. */
+  val wallHeight: Double = 7.5,
+  val wallThickness: Double = 2.2,
+
+  /** Metres of opening at a gate. */
+  val gateWidth: Double = 7.0,
+
+  /** Station spacing along a street centreline, in metres. */
+  val streetSpacing: Double = 8.0
+)
+
+/**
+ * Public face of the street-growth tuning, so [TownParams] can expose it without making the internal
+ * layout classes public.
+ */
+data class StreetParamsPublic(
+  val segmentLength: Double = 34.0,
+  val angleJitter: Double = 0.28,
+  val branchChance: Double = 0.28,
+  val snapRadius: Double = 11.0,
+  val minRadials: Int = 3,
+  val maxRadials: Int = 7,
+  val maxDepth: Int = 9
+) {
+  internal fun toInternal() = StreetParams(
+    segmentLength = segmentLength,
+    angleJitter = angleJitter,
+    branchChance = branchChance,
+    snapRadius = snapRadius,
+    minRadials = minRadials,
+    maxRadials = maxRadials,
+    maxDepth = maxDepth
+  )
+}
+
+/**
+ * Step 8: town layout and buildings.
+ *
+ * For every settlement history left standing: a street network grown from the roads that arrive, blocks
+ * from the network's faces, street-fronting plots around each block, a function per plot from land value,
+ * and a building on each. Walls where history says the place was attacked, with gates where the main
+ * streets cross the circuit.
+ *
+ * ### What goes in the vector tier and what does not
+ *
+ * Streets are [PolylineFeature]s - a road with a narrower cross-section, so they reuse
+ * [LinearFeatures.road] and add no geometry code, which is the same payoff roads got from rivers.
+ *
+ * Buildings are [FootprintFeature]s, the oriented rectangle added for this stage. Each one *flattens the
+ * ground it covers* and carries the attributes the materialiser needs, in one feature: that is the
+ * document's "soft deformation applied to the heightfield before stratification, so buildings sit on graded
+ * ground rather than floating or clipping", and doing both jobs in one feature is what makes it impossible
+ * for the pad and the walls to disagree about where the building is.
+ *
+ * Walls are geometry-only markers, because a wall is a structure standing *on* the ground and a heightfield
+ * has one height per column - the same reason a bridge deck is blocks rather than terrain. The materialiser
+ * lays them from the base elevation the stations record.
+ *
+ * ### Still not a polygon
+ *
+ * The design stores a settlement as a polygon boundary with a street graph inside it. There is no polygon
+ * type, so the boundary is still the disc the grading feature already was, and the street graph is stamped
+ * rather than stored as a graph. What that costs is a query - "is this position inside the town" is a
+ * distance test against the disc rather than a point-in-polygon against the built edge - and nothing yet
+ * asks it.
+ */
+class TownStage(
+  override val resolution: Resolution = Resolution.KILOMETRE,
+  private val params: TownParams = TownParams()
+) : Stage {
+
+  override val id = ID
+  override val version = 1
+  override val dependencies = listOf(
+    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
+  )
+  override val scale = StageScale.WORLD
+
+  override val outputs = listOf(
+    StageOutput.Vector(FeatureKind.STREET),
+    StageOutput.Vector(FeatureKind.BUILDING),
+    StageOutput.Vector(FeatureKind.TOWN_WALL),
+    StageOutput.Vector(FeatureKind.GATE)
+  )
+
+  override fun generate(ctx: GenContext, region: CellRegion): StageResult {
+    val towns = TownReader.read(ctx, region)
+    if (towns.isEmpty()) return StageResult.EMPTY
+
+    val world = WorldGround(ctx, region, params)
+    val streamBase = GenRng.hash(ctx.seed, id.hash, version.toLong())
+    val nextId = FeatureIds.allocator(id)
+    val out = ArrayList<VectorFeature>()
+
+    for (town in towns) {
+      out.addAll(layOut(town, world, ctx.config, streamBase, nextId))
+    }
+
+    return StageResult(features = out)
+  }
+
+  /** Everything one settlement contributes: its streets, its buildings, and its walls if it has any. */
+  private fun layOut(
+    town: TownReader.Town,
+    world: WorldGround,
+    config: WorldConfig,
+    streamBase: Long,
+    nextId: () -> FeatureId
+  ): List<VectorFeature> {
+    val roll = townRoll(streamBase, town.index)
+    val builtRadius = builtRadiusFor(town.population, town.tier)
+    if (builtRadius < params.streets.segmentLength) return emptyList()
+
+    val frame = TownFrame(
+      centre = town.position,
+      builtRadius = builtRadius,
+      groundAt = { world.gradedGround(it, town.siteElevation) },
+      buildable = { world.buildable(it, town) },
+      approaches = world.approachesTo(town, builtRadius)
+    )
+
+    val graph = StreetPlanner.plan(frame, town.culture.layout, roll, params.streets.toInternal())
+    if (graph.edges.isEmpty()) return emptyList()
+
+    val lots = LotPlanner.subdivide(
+      graph, frame, params.lotFrontage, params.lotDepth, params.setback
+    )
+    if (lots.isEmpty()) return emptyList()
+
+    val zoning = Zoning(
+      frame = frame,
+      population = town.population,
+      wealth = town.wealth,
+      cultureIndex = town.cultureIndex,
+      coastal = town.coastal,
+      downwind = world.downwindAt(town.position, config),
+      downstream = world.downstreamAt(town.position),
+      roll = roll
+    )
+
+    // Wanted, then capped. Descending land value, so what a cap drops is the outer residential ring and
+    // what it keeps is the centre - which is the part anybody stands in.
+    val wanted = min(lots.size, max(1, (town.population / params.peoplePerBuilding).toInt()))
+    val functions = zoning.assign(lots)
+    val chosen = lots.indices
+      .sortedWith(compareByDescending<Int> { zoning.valueOf(lots[it]) }.thenBy { it })
+      .take(min(wanted, params.maxBuildingsPerSettlement))
+
+    val out = ArrayList<VectorFeature>(chosen.size + graph.edges.size / 4 + 8)
+
+    for ((rank, chain) in graph.chains().map { it.second to it.first }) {
+      streetFeature(nextId(), chain, rank, frame)?.let { out.add(it) }
+    }
+
+    for (index in chosen) {
+      val building = zoning.buildingFor(lots[index], functions[index], index)
+      out.add(buildingFeature(nextId(), building, town.index))
+    }
+
+    if (town.wallYear != 0) {
+      out.addAll(fortify(town, frame, graph, world, nextId))
+    }
+
+    return out
+  }
+
+  /**
+   * Radius of the built-up area, from population and density.
+   *
+   * From the *present* population rather than from the tier, which is the whole reason history runs first: a
+   * city that was sacked twice and never recovered is physically smaller than one that was not, and reading
+   * the radius off the tier would make them the same size and leave the sacking with no consequence anybody
+   * can see. Capped by the graded footprint, because beyond that the ground is not level and the buildings
+   * would be standing on a hillside.
+   */
+  private fun builtRadiusFor(population: Int, tier: SettlementTier): Double {
+    val hectares = population / params.peoplePerHectare
+    val radius = sqrt(max(hectares, 0.05) * SQUARE_METRES_PER_HECTARE / PI)
+    return min(radius, tier.footprintRadius * FOOTPRINT_SHARE)
+  }
+
+  // --- Features -------------------------------------------------------------------------------------
+
+  /** A street: a road with a narrower cross-section and a higher stamp priority. */
+  private fun streetFeature(
+    featureId: FeatureId,
+    chain: Polyline,
+    rank: Int,
+    frame: TownFrame
+  ): PolylineFeature? {
+    if (chain.length < params.streetSpacing * 2.0) return null
+
+    val half = when (rank) {
+      0 -> 3.2
+      1 -> 2.4
+      2 -> 1.7
+      else -> 1.3
+    }
+
+    return runCatching {
+      LinearFeatures.road(
+        id = featureId,
+        centerline = chain,
+        stationSpacing = params.streetSpacing,
+        kind = FeatureKind.STREET,
+        surfaceElevation = { s -> frame.groundAt(chain.pointAt(s)) },
+        halfWidth = { half },
+        // A narrow shoulder, not the road's threefold default: a street's kerb is a kerb, and a six-metre
+        // embankment either side would bulldoze the plots the street exists to serve.
+        shoulder = { half * 0.5 },
+        endTaper = half
+      )
+    }.getOrNull()
+  }
+
+  /**
+   * A building: an oriented pad that levels its own ground, carrying what the materialiser needs.
+   *
+   * The pad is a terrace rather than a flat replace, with limits, so that a building on ground the town's
+   * own grading could not level does not cut a ten-metre hole for itself. Where the limits bind, the
+   * building's floor is above the ground at its back corners and the materialiser fills the difference as a
+   * plinth - which is what a real building on a slope has.
+   */
+  private fun buildingFeature(featureId: FeatureId, building: Building, settlement: Int) =
+    FootprintFeature(
+      id = featureId,
+      kind = FeatureKind.BUILDING,
+      center = building.centre,
+      bearing = building.bearing,
+      halfLength = building.halfLength,
+      halfWidth = building.halfWidth,
+      profile = RadialProfiles.terrace(
+        building.floorElevation, PAD_MAX_CUT, PAD_MAX_FILL
+      ),
+      attributes = StationTable.Builder(1)
+        .channel(BuildingChannels.SETTLEMENT) { settlement.toDouble() }
+        .channel(BuildingChannels.FUNCTION) { building.function.ordinal.toDouble() }
+        .channel(BuildingChannels.STOREYS) { building.storeys.toDouble() }
+        .channel(BuildingChannels.FLOOR_ELEVATION) { building.floorElevation }
+        .channel(BuildingChannels.WALL_BLOCK) { building.wall.id.toDouble() }
+        .channel(BuildingChannels.ROOF_BLOCK) { building.roof.id.toDouble() }
+        .channel(BuildingChannels.ROOF_SHAPE) { building.roofShape.ordinal.toDouble() }
+        .channel(BuildingChannels.DOOR_X) { building.doorBearing.x }
+        .channel(BuildingChannels.DOOR_Y) { building.doorBearing.y }
+        .channel(BuildingChannels.GRAMMAR_SEED) { building.grammarSeed.toDouble() }
+        .build(),
+      blend = BlendMode.REPLACE
+    )
+
+  // --- Walls ----------------------------------------------------------------------------------------
+
+  /**
+   * The wall circuit and its gates.
+   *
+   * The circuit encloses the extent the town had *when it was threatened*, from the population recorded at
+   * that moment - so a town that kept growing has suburbs outside its own walls, which is what every walled
+   * city that survived its wars ended up with and is visible from a long way off.
+   *
+   * Gates are the *gaps* between stretches rather than features that punch through one, and that is the
+   * whole reason this is easy: nothing has to reconcile a wall with an opening at chunk time, because the
+   * opening is a place where no wall was emitted.
+   */
+  private fun fortify(
+    town: TownReader.Town,
+    frame: TownFrame,
+    graph: StreetGraph,
+    world: WorldGround,
+    nextId: () -> FeatureId
+  ): List<VectorFeature> {
+    val enclosed = builtRadiusFor(max(town.wallPopulation, MIN_WALL_POPULATION), town.tier)
+    val radius = min(enclosed * WALL_MARGIN, frame.builtRadius * WALL_MAX_SHARE)
+    if (radius < params.gateWidth * 3.0) return emptyList()
+
+    val ring = circle(frame.centre, radius, WALL_VERTICES)
+    val ringLine = runCatching { Polyline(ring) }.getOrNull() ?: return emptyList()
+
+    // Where the main streets leave: those are the gates. A gate that is not on a street is a gate nobody
+    // uses, and a street with no gate is a street that stops at a wall.
+    val crossings = ArrayList<Double>()
+    for ((chain, rank) in graph.chains()) {
+      if (rank > 1) continue
+      for (hit in Intersections.of(chain, ringLine)) crossings.add(hit.sB)
+    }
+
+    // A ring the streets never reach still needs a way in, or the town is sealed.
+    if (crossings.isEmpty()) {
+      val bearing = frame.approaches.firstOrNull() ?: Vec2d(1.0, 0.0)
+      val at = ringLine.project(frame.centre + bearing * radius)
+      crossings.add(at.s)
+    }
+    crossings.sort()
+
+    val out = ArrayList<VectorFeature>()
+    val half = params.gateWidth * 0.5
+
+    for (i in crossings.indices) {
+      val from = crossings[i] + half
+      val to = (if (i + 1 < crossings.size) crossings[i + 1] else crossings[0] + ringLine.length) - half
+      if (to - from < params.gateWidth) continue
+
+      wallStretch(nextId(), ringLine, from, to, town, world)?.let { out.add(it) }
+    }
+
+    for (s in crossings) {
+      val at = ringLine.pointAt(s)
+      val outward = (at - frame.centre).normalized()
+      out.add(
+        PointMarker(
+          id = nextId(),
+          kind = FeatureKind.GATE,
+          position = at,
+          attributes = StationTable.Builder(1)
+            .channel(GateChannels.SETTLEMENT) { town.index.toDouble() }
+            .channel(GateChannels.WIDTH) { params.gateWidth }
+            .channel(GateChannels.BEARING_X) { outward.x }
+            .channel(GateChannels.BEARING_Y) { outward.y }
+            .build()
+        )
+      )
+    }
+
+    return out
+  }
+
+  /** One stretch of wall between two gates, sampled along the ring and following the ground. */
+  private fun wallStretch(
+    featureId: FeatureId,
+    ring: Polyline,
+    from: Double,
+    to: Double,
+    town: TownReader.Town,
+    world: WorldGround
+  ): MarkerFeature? {
+    val steps = max(2, ((to - from) / WALL_STATION_SPACING).toInt())
+    val points = (0..steps).map { ring.pointAt(from + (to - from) * it / steps) }
+    val line = runCatching { Polyline(points) }.getOrNull() ?: return null
+
+    return MarkerFeature(
+      id = featureId,
+      kind = FeatureKind.TOWN_WALL,
+      centerline = line,
+      stations = StationTable.Builder(line.vertexCount)
+        .channel(WallChannels.SETTLEMENT) { town.index.toDouble() }
+        .channel(WallChannels.BASE_ELEVATION) {
+          world.gradedGround(line.points[it], town.siteElevation)
+        }
+        .channel(WallChannels.HEIGHT) { params.wallHeight * (0.7 + 0.3 * town.wealth) }
+        .channel(WallChannels.HALF_THICKNESS) { params.wallThickness * 0.5 }
+        .channel(WallChannels.BLOCK) { BlockType.MASONRY.id.toDouble() }
+        .build()
+    )
+  }
+
+  private fun circle(centre: Vec2d, radius: Double, vertices: Int): List<Vec2d> {
+    val out = ArrayList<Vec2d>(vertices + 1)
+    for (i in 0..vertices) {
+      val angle = i * 2.0 * PI / vertices
+      out.add(Vec2d(centre.x + cos(angle) * radius, centre.y + sin(angle) * radius))
+    }
+    return out
+  }
+
+  companion object {
+    val ID = StageId("towns")
+
+    private const val SQUARE_METRES_PER_HECTARE = 10_000.0
+
+    /** Largest share of the graded footprint the built area may take. Beyond it the ground is not level. */
+    private const val FOOTPRINT_SHARE = 0.95
+
+    /** Cut and fill a building's own pad may add on top of the settlement's grading, in metres. */
+    private const val PAD_MAX_CUT = 2.5
+    private const val PAD_MAX_FILL = 1.5
+
+    /** Metres of slack between the built extent at walling time and the circuit itself. */
+    private const val WALL_MARGIN = 1.18
+
+    /** Largest share of today's built radius the wall may sit at. Keeps suburbs outside, not inside. */
+    private const val WALL_MAX_SHARE = 0.92
+
+    /** Smallest population a circuit is sized for, so an early wall is not a garden fence. */
+    private const val MIN_WALL_POPULATION = 500
+
+    private const val WALL_VERTICES = 28
+    private const val WALL_STATION_SPACING = 12.0
+  }
+}
+
+/**
+ * The settlements this stage lays out, joined from the placement marker and the history marker.
+ *
+ * Separate from the stage because the join is the fiddly part and worth reading on its own: two markers per
+ * settlement, produced by two stages, matched on [SettlementChannels.INDEX] and
+ * [HistoryChannels.INDEX], with a hard failure if either side has a gap.
+ */
+internal object TownReader {
+
+  class Town(
+    val index: Int,
+    val position: Vec2d,
+    val tier: SettlementTier,
+    val cultureIndex: Int,
+    val siteElevation: Double,
+    val population: Int,
+    val wealth: Double,
+    val wallYear: Int,
+    val wallPopulation: Int,
+    val coastal: Boolean
+  ) {
+    val culture: Culture get() = Culture.byIndex(cultureIndex)
+  }
+
+  fun read(ctx: GenContext, region: CellRegion): List<Town> {
+    val bounds = region.toWorld()
+    val placed = ctx.features.query(bounds)
+      .filter { it.kind == FeatureKind.SETTLEMENT }
+      .filterIsInstance<PointMarker>()
+      .associateBy { it.attribute(SettlementChannels.INDEX).toInt() }
+
+    val history = ctx.features.query(bounds)
+      .filter { it.kind == FeatureKind.SETTLEMENT_HISTORY }
+      .filterIsInstance<PointMarker>()
+      .associateBy { it.attribute(HistoryChannels.INDEX).toInt() }
+
+    val distanceToOcean = ctx.layers.float(LayerId.DISTANCE_TO_OCEAN)
+
+    return placed.keys.sorted().mapNotNull { index ->
+      val site = placed.getValue(index)
+      val past = history[index]
+        ?: throw IllegalStateException("Settlement $index has no history marker; the stages disagree")
+
+      // A site history never founded, or destroyed, gets no town. The `SETTLEMENT` marker means "somebody
+      // would live here"; whether anybody does is the history marker's answer, and this is the one place
+      // that distinction is acted on.
+      if (past.attribute(HistoryChannels.FOUNDED_YEAR).toInt() == 0) return@mapNotNull null
+      if (past.attribute(HistoryChannels.ABANDONED_YEAR).toInt() != 0) return@mapNotNull null
+
+      val population = past.attribute(HistoryChannels.POPULATION).toInt()
+      if (population < MIN_POPULATION) return@mapNotNull null
+
+      Town(
+        index = index,
+        position = site.position,
+        tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()],
+        cultureIndex = site.attribute(SettlementChannels.CULTURE).toInt(),
+        siteElevation = site.attribute(SettlementChannels.ELEVATION),
+        population = population,
+        wealth = past.attribute(HistoryChannels.WEALTH),
+        wallYear = past.attribute(HistoryChannels.WALL_YEAR).toInt(),
+        wallPopulation = past.attribute(HistoryChannels.WALL_POPULATION).toInt(),
+        coastal = distanceToOcean.sampleBilinear(site.position.x, site.position.y) < COASTAL_RANGE
+      )
+    }
+  }
+
+  /** Fewest people worth laying out streets for. Below this it is a farmstead, not a settlement. */
+  private const val MIN_POPULATION = 12
+
+  private const val COASTAL_RANGE = 6_000.0
+}
+
+/**
+ * What the ground under a town is doing: how high, whether it may be built on, and which way things flow.
+ *
+ * ### The elevation this uses, and the one it cannot
+ *
+ * A building's floor has to be decided *here*, in a world-tier stage, and the height a chunk will actually
+ * generate comes from `ChunkHeightSampler` - which is assembled after the pipeline and reads every feature
+ * including the ones this stage is emitting. So this predicts rather than reads: the coarse elevation,
+ * terraced towards the site elevation with the same limits the settlement's own grading feature applies.
+ *
+ * What that misses is the sub-kilometre detail noise the base heightfield adds, of order a metre. The
+ * building pad absorbs it - it is a terrace with its own small cut and fill, so it levels whatever it finds
+ * - and where it cannot, the materialiser fills the gap as a plinth. Nothing depends on the prediction
+ * being exact; it decides which of two plausible floor heights a building gets, and both are plausible.
+ */
+internal class WorldGround(
+  private val ctx: GenContext,
+  private val region: CellRegion,
+  private val params: TownParams
+) {
+
+  private val elevation: FloatLayer = ctx.layers.float(LayerId.ELEVATION)
+  private val waterLevel: FloatLayer = ctx.layers.float(LayerId.WATER_LEVEL)
+  private val flowDirection = ctx.layers.int(LayerId.FLOW_DIRECTION)
+
+  /** River channels, so a street is never routed into one. Cached per world, queried per settlement. */
+  private val rivers: List<PolylineFeature> = ctx.features.query(region.toWorld())
+    .filter { it.kind == FeatureKind.RIVER_CHANNEL }
+    .filterIsInstance<PolylineFeature>()
+
+  private val roads: List<PolylineFeature> = ctx.features.query(region.toWorld())
+    .filter { it.kind == FeatureKind.ROAD }
+    .filterIsInstance<PolylineFeature>()
+
+  private val metres = region.resolution.metresPerCell
+
+  /** Coarse ground, terraced the way the settlement's grading will terrace it. */
+  fun gradedGround(at: Vec2d, siteElevation: Double): Double {
+    val raw = elevation.sampleBicubic(at.x, at.y)
+    return when {
+      raw > siteElevation -> max(siteElevation, raw - params.grading.maxCut)
+      raw < siteElevation -> min(siteElevation, raw + params.grading.maxFill)
+      else -> siteElevation
+    }
+  }
+
+  /** Whether anything may stand here: dry, gentle enough, inside the world, and clear of the channel. */
+  fun buildable(at: Vec2d, town: TownReader.Town): Boolean {
+    val cellX = Math.floor(at.x / metres).toInt()
+    val cellY = Math.floor(at.y / metres).toInt()
+    if (!region.contains(cellX, cellY)) return false
+    if (!waterLevel[cellX, cellY].isNaN()) return false
+
+    if (slopeAt(cellX, cellY) > params.maxBuildableSlope) return false
+
+    for (river in rivers) {
+      if (!river.bbox.contains(at.x, at.y)) continue
+      val projection = river.centerline.project(at)
+      val width = runCatching {
+        river.stations.sample(river.stations.channel(Profiles.CHANNEL_WIDTH), projection.u)
+      }.getOrDefault(0.0)
+      if (projection.distance < width * 0.5 + params.riverClearance) return false
+    }
+
+    return true
+  }
+
+  private fun slopeAt(cellX: Int, cellY: Int): Double {
+    val dx = (elevation[cellX + 1, cellY] - elevation[cellX - 1, cellY]) / (2.0 * metres)
+    val dy = (elevation[cellX, cellY + 1] - elevation[cellX, cellY - 1]) / (2.0 * metres)
+    return sqrt((dx * dx + dy * dy).toDouble())
+  }
+
+  /**
+   * Unit directions from which roads arrive at a town.
+   *
+   * Taken a built radius either side of where the road passes closest, so a road running *through* a town
+   * yields two approaches - which is what makes a through street rather than a dead end - and a road that
+   * terminates yields one.
+   */
+  fun approachesTo(town: TownReader.Town, builtRadius: Double): List<Vec2d> {
+    val out = ArrayList<Vec2d>()
+
+    for (road in roads) {
+      if (!road.bbox.expanded(builtRadius).contains(town.position.x, town.position.y)) continue
+      val projection = road.centerline.project(town.position)
+      if (projection.distance > builtRadius) continue
+
+      for (side in intArrayOf(-1, 1)) {
+        val reach = projection.s + side * builtRadius * APPROACH_REACH
+        if (reach < 0.0 || reach > road.centerline.length) continue
+
+        val direction = (road.centerline.pointAt(reach) - town.position).normalized()
+        if (direction.lengthSquared < 0.5) continue
+        // Two approaches within about twenty degrees leave as one wide street rather than two.
+        if (out.none { it dot direction > APPROACH_DISTINCT }) out.add(direction)
+      }
+    }
+
+    return out
+  }
+
+  /** Direction the prevailing wind blows towards. The noxious quarter goes this way. */
+  fun downwindAt(at: Vec2d, config: WorldConfig): Vec2d =
+    Winds.directionAt(ClimateStage.latitudeOf(at.y / config.heightMetres))
+
+  /** Direction surface water leaves. Tanning and dyeing go this way. */
+  fun downstreamAt(at: Vec2d): Vec2d {
+    val cellX = Math.floor(at.x / metres).toInt()
+    val cellY = Math.floor(at.y / metres).toInt()
+    if (!region.contains(cellX, cellY)) return Vec2d(0.0, -1.0)
+
+    val d = flowDirection[cellX, cellY]
+    if (d == D8.NONE) return Vec2d(0.0, -1.0)
+    return Vec2d(D8.DX[d].toDouble(), D8.DY[d].toDouble()).normalized()
+  }
+
+  private companion object {
+    /** How far past the town, in built radii, an approach direction is measured. */
+    const val APPROACH_REACH = 1.15
+
+    /** Dot product above which two approach directions count as the same one. */
+    const val APPROACH_DISTINCT = 0.94
+  }
+}

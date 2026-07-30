@@ -117,8 +117,7 @@ class ClimateStage(
 
     val bounds = region.toWorld()
     val latitudes = DoubleArray(region.height) { y ->
-      val northwards = (y + 0.5) / region.height
-      (northwards * 2.0 - 1.0) * params.polewardLatitude
+      latitudeOf((y + 0.5) / region.height, params.polewardLatitude)
     }
 
     val oceanDistance = DistanceTransform.euclideanMetres(region.width, region.height, metres) { x, y ->
@@ -353,6 +352,23 @@ class ClimateStage(
 
   companion object {
     val ID = StageId("climate")
+
+    /**
+     * Latitude in degrees at a fractional position from the south edge of the world to the north.
+     *
+     * A linear ramp, which is the whole of this pipeline's geography: it is why [net.bestia.worldgen.core.WorldConfig.wrapY]
+     * is a discontinuity rather than a join, and it is the one place the mapping is written down.
+     *
+     * Public because a downstream stage that wants the prevailing wind needs it - the noxious quarter of a
+     * town goes downwind, and the alternative was for that stage to re-derive latitude with its own idea of
+     * where the pole is, which is precisely how two stages come to disagree about the same world.
+     *
+     * @param polewardLatitude latitude at the world's north edge. Callers outside this stage cannot see the
+     *   configured value and should pass the default; the consequence of a mismatch is a craft district on
+     *   the wrong side of a town, which is cosmetic - not terrain that disagrees with itself.
+     */
+    fun latitudeOf(northwards: Double, polewardLatitude: Double = ClimateParams().polewardLatitude): Double =
+      (northwards * 2.0 - 1.0) * polewardLatitude
 
     private const val TEMPERATURE_SALT = 0x3E7A1C95D284B60L
 

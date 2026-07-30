@@ -23,6 +23,7 @@ namespace BestiaBehemothClient.Game.World
   /// </remarks>
   public static class ChunkEngine
   {
-    public const uint Version = 1;
+    // 2: the seven worked materials buildings and streets are made of - TIMBER through COBBLESTONE.
+    public const uint Version = 2;
   }
 }

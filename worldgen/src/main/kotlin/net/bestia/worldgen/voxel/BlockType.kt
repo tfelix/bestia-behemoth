@@ -46,7 +46,25 @@ enum class BlockType(val id: Int, val solid: Boolean, val opaque: Boolean = soli
   ROCK_SALT(56, solid = true),
 
   /** Bridge decking and other worked structure. */
-  MASONRY(60, solid = true);
+  MASONRY(60, solid = true),
+
+  // Worked materials, for buildings and streets. Added with step 8; the palette version moves with them,
+  // which is what the version gate exists to catch - a client one release behind cannot name these.
+  TIMBER(61, solid = true),
+
+  /** Wattle and daub, or lime render over timber. What most of a poor town is walled with. */
+  PLASTER(62, solid = true),
+  THATCH(63, solid = true),
+  ROOF_TILE(64, solid = true),
+
+  /** Floorboards and shutters. Solid but not load bearing, which nothing yet distinguishes. */
+  PLANK(65, solid = true),
+
+  /** What a razed building leaves. Distinct from GRAVEL so a ruin reads as worked stone, not scree. */
+  RUBBLE(66, solid = true),
+
+  /** A paved street surface. */
+  COBBLESTONE(67, solid = true);
 
   companion object {
     private val BY_ID = arrayOfNulls<BlockType>(entries.maxOf { it.id } + 1).also { table ->

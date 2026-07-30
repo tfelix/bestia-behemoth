@@ -239,6 +239,13 @@ class BlockPalette : Palette {
       put(BlockType.COAL_SEAM.id, Colors.rgb(44, 42, 46))
       put(BlockType.ROCK_SALT.id, Colors.rgb(238, 232, 226))
       put(BlockType.MASONRY.id, Colors.rgb(168, 160, 148))
+      put(BlockType.TIMBER.id, Colors.rgb(112, 79, 48))
+      put(BlockType.PLASTER.id, Colors.rgb(220, 210, 186))
+      put(BlockType.THATCH.id, Colors.rgb(184, 153, 76))
+      put(BlockType.ROOF_TILE.id, Colors.rgb(140, 66, 51))
+      put(BlockType.PLANK.id, Colors.rgb(153, 115, 71))
+      put(BlockType.RUBBLE.id, Colors.rgb(122, 118, 110))
+      put(BlockType.COBBLESTONE.id, Colors.rgb(107, 105, 102))
     }
   }
 }

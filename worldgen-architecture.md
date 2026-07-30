@@ -12,35 +12,140 @@ in the code where it happens — the design is the argument, the status section 
 
 ## Implementation Status
 
-Build-order steps **1–7** and **11** are implemented, along with the parts of **12** and **13** that
-belong in a module with no I/O in it. Steps **8–10** are not started. 227 unit tests, plus a seed-sweep
-regression harness.
+Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
+module with no I/O in it. 305 unit tests, plus a seed-sweep regression harness.
 
 | # | Step | Status | Where |
 |---|---|---|---|
 | 1 | Framework + offline viewer | **done** | `core/`, `viewer/` |
-| 2 | Vector primitives | **done** | `vector/` |
+| 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviations 3, 4 | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviations 1, 2, 6 | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt` |
-| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy — no scatter pass, no caves | `voxel/` |
+| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy and town structures — no scatter pass, no caves | `voxel/` |
 | 6 | Derived structures | **done** | `derived/` |
 | 7 | Resources + habitability + settlements + roads | **done** — deviations 5, 7 | `resource/`, `civ/` |
-| 8 | Town layout + buildings | **not started** | — |
-| 9 | Economy + NPC distribution | **not started** | — |
-| 10 | History simulation | **not started** | — |
+| 8 | Town layout + buildings | **done** — deviation 8 | `civ/TownStage.kt`, `civ/StreetNetwork.kt`, `civ/TownBuildings.kt`, `voxel/TownStructures.kt` |
+| 9 | Economy + NPC distribution | **done** — no live NPCs, which are a runtime concern | `pop/` |
+| 10 | History simulation | **done** | `history/`, `core/Chronicle.kt` |
 | 11 | Glacial features | **done** | `geo/GlacialStage.kt` |
 | 12 | Distribution & caching | **partial** — cache tiers, delta, baking done and wired to the server; no delta persistence, no sharding/queue/gRPC | `store/`, zone-server `world/stream/` |
 | 13 | Client-side base generation | **partial** — merged-RLE wire format, base hashing and version gate done; no client-side generator | `store/`, zone-server `world/stream/`, client `Game/World/` |
-
-Steps 8, 9 and 10 are one subsystem in practice and are deferred as a unit: buildings need zoning,
-zoning needs an economy, and the economy's shape comes out of the history. Doing any one of them
-alone means inventing a placeholder for the other two.
 
 The service half of step 12 — Hilbert sharding, consistent hashing, the distributed work queue, the
 gRPC surface — is deliberately *not* here. It belongs to the server that owns those concerns rather
 than to a module whose entire value is being a pure function over data. Likewise the wire format half
 of step 13: `store/` provides the base hash and the version gate that make client-side generation
 *safe*, and the protocol that would use them is the network layer's business.
+
+### Steps 8 to 10 run in the order 10, 8, 9
+
+The build order numbers them town layout, economy, history, and the *dependencies* run the other way.
+A town's walls enclose the extent it had when it was threatened; its ruins are settlements history
+destroyed; how much of it is stone follows the wealth history gave it; and the number of buildings it
+has follows its present population, which is what history spent a thousand years deciding. Laying the
+town out first and retrofitting history into it would mean either regenerating the layout or leaving
+the walls unexplained.
+
+So the pipeline order is `settlements → history → towns → economy`, and the build order's numbering is
+a statement about what to *implement* first rather than about what depends on what. The document's
+framing of step 10 as a retrofit still holds in the one way that mattered: **history does not place
+settlements.** They are already where the land is good, and history dates them, holds them, burns some
+and empties others. That inversion is what keeps the simulation from having to re-derive every
+habitability term in order to decide where a civ expands.
+
+The consequence to know about: a site history never founded, or destroyed, still has a `SETTLEMENT`
+marker from placement. That marker means "somebody would live here", not "somebody does". The
+`SETTLEMENT_HISTORY` marker beside it is what says which, and `TownStage` and `EconomyStage` both skip
+a site whose founding year is zero or whose abandonment year is not.
+
+### The history log is a third world-tier product
+
+`core/Chronicle.kt` is the append-only event store the scale-tier table has always listed and the
+world tier never had. It genuinely is a third kind of thing: a raster is addressed by position, a
+feature by position and kind, and an event by **year and actor** — "what happened to this town", "who
+held this sword before it was buried", "which war produced this ruin". None of those is a spatial
+query, and forcing them into the feature store would mean either a marker per event (hundreds of
+thousands of zero-extent points no chunk will ever want) or losing the causal links between them,
+which are the entire product.
+
+What *does* go in the feature store is the physical residue: `RUIN`, `BATTLEFIELD`, `TOMB`,
+`MONUMENT`. Those are places, they have extent, and chunk generation has to know about them.
+
+`StageResult` gained a `chronicle`, `StageOutput` gained `History`, and `GenContext.chronicle()` is
+scoped the same way layers and features are — a stage that reads the log without declaring the stage
+that produces it throws, rather than quietly seeing an empty history and laying out a town with no
+walls.
+
+### Names are seeds, not strings
+
+A station channel is a `Double`, so a `RUIN` marker cannot hold the name of the town it used to be. It
+can hold a 48-bit integer, and that integer plus `history/Names.kt` *is* the name — the same trick the
+document proposes for building grammars, applied to text. A name then costs eight bytes wherever it is
+mentioned, so a settlement, its ruin, its tomb and every event about it all carry it without four
+copies of a string; and any tool can print any name with no lookup table.
+
+The cost is stated plainly in that file: **changing it renames the entire world.** Which is why the
+seed is derived from the entity and the world seed rather than from a counter, so a change there is a
+cosmetic diff rather than a silent history rewrite — and is still a change nobody should make after a
+world ships.
+
+### Still missing
+
+Everything below is unbuilt or half-built, and each entry is argued where it belongs rather than here — this
+is an index, not the reasoning. Grouped by what it would take.
+
+**Wants a subsystem.**
+
+- **The polygon geometry type.** The root of deviations 2–5: alluvial fans, deltas, lakes, coastlines and
+  settlement outlines all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
+  `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds that nothing emits.
+  `FootprintFeature` closed the cheap ninety percent; the rest is clipping, offsetting and concave indexing.
+- **Caves.** No feature kind, no `carve_caves`. The client's surface-nets mesher already handles them, which
+  is the unusual part — the renderer is ahead of the generator here.
+- **The scatter pass.** No vegetation, no chunk-seeded anything, so the "chunk-seeded randomness is safe here,
+  not in profiles" rule still has no users.
+- **Live NPCs.** Schedules, rumour propagation, confidence on knowledge, expand-and-collapse. `pop/` produces
+  the substrate; nothing makes a person walk to the market.
+- **Delta persistence** (step 12) and a **client-side base generator** (step 13). Whatever persists a delta
+  must persist its per-chunk revision with it.
+- **Sharding, the work queue and the gRPC surface.** Deliberately the server's, and built nowhere.
+
+**Wants a stage or a pass.**
+
+- **Seasonal precipitation** — one annual orographic pass, seasonality as a scalar. Enough for biomes, not for
+  agriculture by month.
+- **Top-2 biome blending** — only the winner is stored, so a consumer can dither a boundary but not blend it.
+- **Chunk-scale droplet erosion** (deviation 1), **rivers inheriting glacial trough floors** (deviation 6),
+  **sea lanes** so islands are connected (deviation 7), **road-junction and trough-tributary smoothing**.
+- **The place → route → regrow → replace settlement iteration** — single pass.
+- **Special sites**: mines, monasteries, forts, lighthouses. Bridges are done.
+- **Oil and gas** — skipped because nothing downstream consumes them.
+- **Town blocks as objects** (deviation 8), **building interiors**, and a **shape grammar** that reads the
+  grammar seed every building already carries.
+- **History**: deities and monsters as entities, technology as more than a scalar, event templates with pre-
+  and postconditions.
+
+**Wants only the work.**
+
+- **Data-driven configuration.** Every tunable is a Kotlin `data class`. `BusinessCatalogue` is the most
+  tempting to extract and the clearest case for waiting.
+- **Derived structures have no readers.** Walkable tiles, the opacity grid and column summaries are kept
+  fresh on a per-tick budget, and movement validation, line of sight and pathing still do not consult them.
+  No navmesh polygonisation. No settlement occupancy grid — though now that settlements have buildings in
+  them, that one has something to occupy.
+- **`WorldWrap` has one caller.** Chunk streaming normalises addresses; movement, interest management and
+  pathing use naive subtraction, so two players ten metres apart across the seam read as a world apart.
+- **`zone-server/navigation/`** is a separate unused 2.5D nav stack, superseded for voxel terrain and
+  untouched.
+- **No disk or object-store cache tier** — `MemoryBlobStore` and a deflating wrapper, with the real tiers
+  plugging in behind an interface.
+- **No region tier.** `StageScale.REGION` is referenced by one pipeline unit test.
+- **Client rendering**: no textures (vertex colour stands in), no LOD, no blocky pass for player-placed voxels.
+- **Tooling**: no seed diffing, and no interactive inspector for a clicked river reach.
+
+**An open question rather than a gap.** River counts going 512 → 1024 km gave 7.2×, 3.5× and 6.1× for 4× the
+area across three seeds. Against a 44–207 spread at a single size, three samples cannot separate mild
+superlinearity from noise. If it matters, it wants a dozen seeds per size.
 
 ### Actual module layout
 
@@ -53,8 +158,8 @@ consumer that needs only part of it.
 Layers, each of which may use the ones above it and nothing below:
 
 ```
-vector/     geometry, polylines, station tables, profiles, blending, spatial index
-core/       Stage, GenContext, RNG, layer + feature stores, pipeline, chunk column sampling
+vector/     geometry, polylines, oriented footprints, station tables, profiles, blending, spatial index
+core/       Stage, GenContext, RNG, layer + feature + history stores, pipeline, chunk column sampling
 fields/     noise, grids, distance transforms, Poisson disk, heaps
 
 geo/        tectonics, plates, orogeny, stream-power erosion, glacial flow, base heightfield
@@ -62,8 +167,10 @@ climate/    temperature, wind belts, orographic precipitation
 hydro/      priority-flood, flow routing, lakes, river graph, meandering
 bio/        biome classification, soil
 resource/   deposit generation
-civ/        habitability, cultures, settlement placement, route finding, roads
-voxel/      block palette, stratigraphy, chunk materialisation, RLE codec
+civ/        habitability, cultures, settlement placement, route finding, roads, town layout, buildings
+history/    the thousand-year simulation, place names, ruins and artifacts
+pop/        catchments, the business catalogue and its preconditions, household expansion
+voxel/      block palette, stratigraphy, chunk materialisation, town structures, RLE codec
 
 derived/    column summaries, opacity grid, walkable tiles, chunk deltas, rebuild budget
 store/      tiered chunk cache, delta + baking, base hashing, version gate
@@ -146,10 +253,12 @@ route finding in `civ/RouteFinder`.
 
 ```
 tectonics → climate → erosion → glacial
-                          \→ hydrology → biomes → resources → habitability → settlements
+                          \→ hydrology → biomes → resources → habitability
+                                                                   ↓
+                                        settlements → history → towns → economy
 ```
 
-Nine world-tier stages, in `pipeline/StandardWorld.kt`. Each declares only what it reads and the
+Twelve world-tier stages, in `pipeline/StandardWorld.kt`. Each declares only what it reads and the
 scheduler enforces that, so the stage list is the entire wiring — there is no order to get right
 beyond the dependencies the stages already state. Emitted layers and feature kinds:
 
@@ -164,9 +273,18 @@ beyond the dependencies the stages already state. Emitted layers and feature kin
 | `resources` | `RESOURCE_VALUE` | `ORE_DEPOSIT` |
 | `habitability` | `HABITABILITY`, `MOVEMENT_COST` | — |
 | `settlements` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE` |
+| `history` | — | `SETTLEMENT_HISTORY`, `RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, **and the chronicle** |
+| `towns` | — | `STREET`, `BUILDING`, `TOWN_WALL`, `GATE` |
+| `economy` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` |
+
+`history` is the only stage that declares `StageOutput.History`, and the pipeline requires there be at
+most one — two stages writing a world's history is not a conflict a run could sensibly resolve.
 
 Climate runs four times coarser than the heightfield, as the design calls for, except on worlds too
-small for that to leave a usable grid.
+small for that to leave a usable grid. **A downstream stage must therefore read climate through world
+coordinates and never by index** — `Grid.resampled`, not `layer[x, y]`. Indexing a coarser layer with a
+kilometre-grid coordinate does not fail, it *clamps*, and the economy stage spent a while reading the
+polar temperature at the corner of the climate grid for every catchment in the world.
 
 ### World size, wrapping, and the ocean margin
 
@@ -318,10 +436,37 @@ file is one somebody will later mistake for a bug.
 7. **Roads do not connect across water.** A route that would cross the sea is rejected rather than
    bridged, so two settlements on different landmasses are not road-linked. They would be linked by a
    sea lane, which is a feature kind that does not exist yet.
+8. **Lots front the streets directly; there are no blocks.** The design goes street graph → *faces* →
+   blocks → recursive subdivision, then asks for a check that every lot has street frontage. Plots are
+   instead laid along both sides of every street by arc length and rejected where they would overlap
+   another plot or reach across a street behind them.
+
+   The first version did it the design's way, and the `town` tool found what was wrong with it. Faces
+   exist only because the ring streets close them, so a river crossing a town removed a few ring
+   segments, broke each ring's cycle, and a broken ring encloses nothing: **one channel took a city
+   from 574 plots to 68**, and every plot it lost was on a block whose boundary the river had merely
+   nicked. Both outcomes look like a town on a map. Fronting the streets has no such failure mode —
+   losing a street costs exactly the plots on it — and frontage stays a property of the construction
+   rather than something to verify. What is lost is a *block* as something to reason about: zoning a
+   whole quarter as a craft district, or putting a market in the one open face at the centre.
+   `StreetGraph.faces` and its half-edge traversal were deleted rather than left unused; the
+   planarisation they needed stays, because the chains and the overlap tests need it too.
+   (`civ/StreetNetwork.kt`)
 
 Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits),
 seasonal precipitation (one annual pass, not 3–4 monthly ones), navigable rivers as cheap trade-graph
 edges, and the place → route → regrow → replace settlement iteration (single pass).
+
+New with steps 8–10, and worth knowing before reading a town: **buildings are capped at 1 200 per
+settlement**, and a city of twenty thousand wants four thousand. Lots are assigned in descending land
+value, so what a cap keeps is the centre — the part a player walks through — and what it drops is the
+outer residential ring. `./gradlew :worldgen:town` prints wanted against built and names which of the
+two limits bound, because a silently truncated town reads as a small one. **Buildings have no interior
+detail**: four walls, a doorway, a floor and a pitched roof, from a shape grammar that is a stored seed
+and nothing that reads it yet. And **no NPC is ever instantiated** — the economy produces the
+substrate they would be made of (occupations, kinship, wealth, a small-world social graph, the events a
+household plausibly knows) as pure functions in `pop/Households.kt`, on the argument that a *runtime*
+system should own a living NPC and worldgen should own what it is made of.
 
 ### Running it
 
@@ -335,7 +480,53 @@ edges, and the place → route → regrow → replace settlement iteration (sing
 ./gradlew :worldgen:probe -Pon=river_channel -Pnth=0        # ...centred on a feature too thin to find otherwise
 ./gradlew :worldgen:probe -Pchannels=1                      # channel width and depth against the voxel grid
 ./gradlew :worldgen:probe -Psurvey=12                       # the most mixed surface patches in the world
+./gradlew :worldgen:town                                    # one settlement: layout, economy, history, a map
+./gradlew :worldgen:town -Pcensus                           # ...every settlement in one table instead
+./gradlew :worldgen:town -Pnth=3 -Pwhy                      # ...and why every trade is or is not there
+./gradlew :worldgen:town -Pruin                             # ...somewhere history destroyed
+./gradlew :worldgen:chronicle -Pall                         # the world's history, at length
+./gradlew :worldgen:chronicle -Pyear=430                    # ...as it stood in one year
+./gradlew :worldgen:chronicle -Pquests                      # ...the threads it left unresolved
 ```
+
+### Two tools for steps 8 to 10, and the scale that needed them
+
+`town` fills a gap that was structural rather than incidental. The viewer renders a whole world into a
+few hundred pixels, so a town is one pixel; the probe prints 48 metres, so a town is four hundred
+probes. **A town is 200 to 1 500 metres across — exactly between the two** — and everything step 8
+produces lives there. A street network that came out as a tree with no plots on it is indistinguishable
+from a correct one at world scale and from open ground at voxel scale.
+
+So it renders one settlement at about a metre per pixel **from the materialised voxel surface**, not
+from the plan, on the same argument the seam check rests on: a view drawn from the plan agrees with the
+plan by construction and would happily show a correct town whose chunks contain nothing.
+
+It earned itself immediately. Every one of these was found by running it and reading the output, and
+none of them was visible on a world map:
+
+| What the tool said | What was wrong |
+|---|---|
+| `1 standing, 27 never settled` | Expansion tested a civ's *aggregate* occupancy, so founding a settlement pushed the civ back under its own threshold. One city, twenty-seven empty sites, for a thousand years. |
+| eight plagues in one timeline | Plague fired about once every 66 years for a city of five thousand, which kept it below the expansion threshold permanently. |
+| `90 built, 882 wanted` | Lots were cut from street-graph faces, and one river through the town broke every ring's cycle. See deviation 8. |
+| `farm 23 132 (100.0%)` and `food capacity 0` | The catchment indexed the temperature layer with kilometre-grid coordinates. Climate runs four times coarser, so the index *clamped* and every catchment in the world read the polar temperature at the grid's corner. |
+| `craft 2 366 of 4 852` | Non-farm population was allocated in proportion to what the shop roster demanded, normalised to consume every spare hand. |
+| `road traffic 0.00` for the largest city | Road tier was read from station zero's half-width, which is driven to zero over a bridged crossing — and this city's road crossed a river near its start. |
+| a 2 400-pixel image of nothing | `ChunkSurfaceField` refuses a view over its chunk budget, correctly, and the tool wrote the blank PNG without printing the refusal. |
+
+`chronicle` is text rather than a view, and deliberately: the questions asked of a history are "what
+happened here", "who did this", "where did this sword come from", and every one is answered by
+sentences in year order. What *is* spatial about history already appears in the world viewer, because
+the exhaustive `when` over `FeatureKind` in `MapRenderer.colorOf` forced a colour for `RUIN`,
+`BATTLEFIELD`, `TOMB` and `MONUMENT` the moment those kinds existed — which is the third time that
+compiler check has paid for itself.
+
+Its `-Pyear` view is the **history scrubbing** the tooling section asks for, in the form the data
+supports. Every settlement carries a founding year and an abandonment year, so "did this place exist
+then" is a comparison; rendering it as a map per year would be a fourth view of the same comparison.
+`-Pquests` mines the log for unresolved threads — an artifact lost and never recovered, a razed
+settlement nobody reclaimed, a figure with no known grave — which is the raw material the design asks
+for and the part that has to come out of the simulation rather than out of a template.
 
 Every tool takes `-Pseed` and `-Pcells`; `viewer`, `viewerExport` and `probe` also take `-Pgenesis`, which
 reads `zone-server`'s `worldgen:` block and generates *that* world instead of the demo one. Combine them and
@@ -383,6 +574,29 @@ layers stay in range; discharge grows downstream; river beds descend; lakes stan
 water is where the biome says it is; feature bounds contain their geometry; no settlement is in the
 sea; settlements respect their tier's separation; deposits are well formed; every fjord sill is
 shallower than its landward basin; and the ocean margin contains neither land nor settlements.
+
+For steps 8–10: founding and abandonment years are ordered and a ruin has nobody in it; no event names
+a settlement before it was founded or after it emptied; no surviving event cites a pruned cause; every
+artifact's provenance runs forwards and ends somewhere that exists; every ruin marker matches a
+settlement the log emptied, and there are as many of one as the other; no structural marker reaches
+past the margin chunk generation queries with; every building names a standing settlement and stands
+inside it; nothing is built in water; a walled settlement has a gate; every standing settlement's
+catchment yields food; employment sums to the population; businesses name a real trade in a standing
+place; and a roadside inn is beside a road and clear of any town.
+
+> **The ocean-margin check had been written and never registered**, so the property this list claims is
+> asserted was failing on every seed and nothing was looking. Registering it found two real bugs, both
+> pre-existing and neither belonging to the stages added around it. Erosion adds uplift to *every* cell
+> including the margin, which has nowhere to drain to and so keeps all of it — over two hundred
+> timesteps that lifted a strip back above the waterline, so the margin is now reapplied after erosion.
+> And `OceanBorder` blended *towards* deep water reaching the natural elevation exactly at the margin's
+> inner boundary, which cannot guarantee water, because the natural elevation there is the interior and
+> the interior is land: measured, a cell a kilometre inside the margin kept about two thirds of its
+> height. The blend now runs out over a coastal shelf *beyond* the margin, and inside it a smoothly
+> rising ceiling holds the ground under the waterline.
+>
+> The lesson is not about the ocean margin. **An invariant that is written but not registered is
+> documentation, and this document was citing it as a guarantee.**
 
 ---
 
@@ -741,8 +955,40 @@ Roads should also *feed back* into settlement growth: settlements on major route
 
 ## Stage 8: Town Layout & Buildings
 
-> **Not implemented.** Settlements exist as point features with a tier, culture and population, and the
-> ground under them is graded, but there is no street graph, no lots, no zoning and no buildings.
+> **Implemented** in `civ/TownStage.kt`, `civ/StreetNetwork.kt` and `civ/TownBuildings.kt`, with the blocks
+> laid by `voxel/TownStructures.kt`. Both layouts are here — agent growth for an organic town, a clipped
+> rotated grid for a planned one, chosen by `Culture.layout` — and both end in the same planarised graph, so
+> the plots, the zoning and the buildings are written once. Zoning is one scalar and a sorted list: land value
+> from centrality *and* street rank, then functions counted out by quota, which is what makes a village get one
+> temple and a city six rather than a threshold giving the village none. The noxious trades really do go
+> downwind and downstream, from `Winds.directionAt` and the D8 flow direction at the site.
+>
+> **Blocks are not implemented, and deliberately** — plots front the streets directly. See deviation 8, and the
+> river that took a city from 574 plots to 68.
+>
+> **Three things about how this reaches the voxels are worth knowing.**
+>
+> A building is *one* feature, not a pad plus a marker. `vector/FootprintFeature.kt` is an oriented rectangle
+> that both flattens the ground it covers and carries the attributes the materialiser needs — which is this
+> section's "soft deformation applied to the heightfield before stratification" and makes it impossible for the
+> pad and the walls to disagree about where the building is. It is also the geometry type the vector tier has
+> been missing, in the ninety percent of a polygon that costs nothing: two dot products put a query point in
+> local coordinates and the distance to the boundary is a max of two absolute values. Fans, deltas, lakes and
+> coastlines still want a real polygon and still do not have one.
+>
+> Walls are geometry-only markers, because a wall stands *on* the ground and a heightfield has one height per
+> column — the same reason a bridge deck is blocks. **Gates are the gaps between wall stretches** rather than
+> features that punch through one, which is why nothing has to reconcile a wall with an opening at chunk time.
+>
+> Streets are `PolylineFeature`s using `LinearFeatures.road` with a narrower cross-section, so they added no
+> geometry code — the same payoff roads got from rivers. What they did need was **paving**: a street is
+> `REPLACE`-blended terrain, so it levels the ground and then leaves it *grass*, because the surface cap comes
+> from the biome. On a rendered town that made every street invisible, readable only as the gap between two
+> rows of buildings.
+>
+> Walls follow the population at the moment the town was threatened, not today's, so **later growth spills
+> outside the circuit** — which is what every walled city that survived its wars ended up with, and is visible
+> from a long way off. That is only possible because history runs first.
 
 Per settlement, generated deterministically from `hash(settlement_id)`:
 
@@ -762,8 +1008,40 @@ The entire settlement is stored as a **vector footprint**: a polygon boundary, a
 
 ## Stage 9: NPC Distribution
 
-> **Not implemented.** Settlements carry a population figure derived from tier and habitability, and
-> nothing else from this section exists.
+> **Implemented** in `pop/`. The chain is the one this section argues for: the agricultural catchment says
+> how many people the land feeds, the shortfall says how many must farm, culture and wealth split the rest,
+> and service ratios plus **preconditions** turn that into a roster. Nothing has a quota, which is why the
+> results come out specific — a port with four fishmongers and a shipwright, a mining town with smiths and no
+> baker, a crossroads village with more inns than its population implies.
+>
+> **Catchments are shared out between the settlements that claim them**, by proximity. Summing each
+> settlement's own disc independently double-counts every field between two villages, and a world where
+> everyone is comfortably fed has no reason for a good site to be worth having.
+>
+> **`Precondition` is an enum, not a lambda, and that is the point.** When a mining town has three smiths and
+> no baker the question is "why is there no baker", and the answer has to be a thing that can be printed -
+> `cereal is 4% of the catchment's yield, needs 35%` rather than a closure that returned false.
+> `BusinessCatalogue.evaluate` returns a decision for *every* trade including the ones that produced nothing,
+> the roster is `filter { it.exists }`, and `./gradlew :worldgen:town -Pwhy` prints the rest. That the tool
+> calls the stage's own derivation through `WorldGenPipeline.contextFor` rather than reimplementing the
+> reasoning is the only thing that keeps a "why" view honest.
+>
+> **Households are not stored.** A summary and a seed go in the `SETTLEMENT_ECONOMY` marker and
+> `Households.expand` rebuilds them on demand — this section's agent LOD, and the difference between a few
+> dozen bytes per settlement and four hundred thousand stored people. `Households.one` expands a *single*
+> household without touching the others, which is what makes it usable for the one building a player walked
+> into. The demographic pyramid, the kinship roles, the Watts-Strogatz social graph and the
+> events-a-household-plausibly-knows filter are all there as pure functions.
+>
+> **Not implemented: living NPCs.** No daily schedules, no rumour propagation, no confidence values on
+> knowledge, no expand-and-collapse lifecycle. What is here is the substrate they are made of, on the
+> argument that a *runtime* system should own a living NPC. `pop/` says what a household is; nothing yet
+> makes one walk to the market.
+>
+> One thing this section's numbers needed: the food model was **calibrated against placement**, not against a
+> textbook. The tier population ranges are the one thing about a settlement already known to look right, and a
+> divisor that said the largest city in the reference world could feed nine thousand of its twenty-three
+> thousand people was a wrong divisor rather than a discovery about the city.
 
 The rule: **NPCs are derived from economy, not sprinkled.**
 
@@ -802,7 +1080,32 @@ Generate a **household graph**, not a list of individuals. Households have: a dw
 
 ## Stage 10: History & Story Generation
 
-> **Not implemented.** The world tier has no history log, so `World` carries rasters and features only.
+> **Implemented** in `history/`, with the log itself in `core/Chronicle.kt` — see
+> [The history log is a third world-tier product](#the-history-log-is-a-third-world-tier-product) for why it
+> lives there and not in the feature store. Civilisations, settlements, wars, plagues, famines, floods,
+> eruptions, a few hundred notable figures and the artifacts they make, at settlement granularity and
+> five-year steps over a thousand years. It costs about thirty milliseconds for a 292-settlement world.
+>
+> **Every random decision is a keyed roll**, `hash(base, year, subject, salt)`, and not a draw from a stream.
+> That is not stylistic: a stream makes each result depend on how many draws happened earlier, so adding one
+> disaster type would silently rewrite every war in the world. Keyed rolls make each decision independent, so
+> a new decision is additive — and it is what lets `HistoryStageTest` assert that two runs of a seed produce
+> the same thousand years event for event.
+>
+> **Grudges cite an event, not a number.** `CivRecord.grudges` is `(other civ, event id)`, so an NPC can name
+> the wrong — "they burned Ashford in 412" — where a scalar hostility could only be complained about in the
+> abstract. Artifact provenance is the same idea: a chain of event ids ending at a *site*, which is a marker
+> in the world, which is a place a player can dig.
+>
+> **Importance pruning keeps the causal graph whole.** Everything at or above a floor is kept, the rest is
+> sampled one in twenty-four, and then the transitive closure over `causes` is added back — because a chain
+> with a hole in it is worse than a shorter chain, and a dangling id is a tool throwing rather than a world
+> looking wrong. `Chronicle.prunedEvents` reports what went, so the log is never silently truncated.
+>
+> **Not implemented:** deities and monsters as entities, technology as anything but a scalar, place names
+> changing on conquest beyond keeping the old one (`oldNameSeed`), and event templates with pre- and
+> postconditions — the causal chains here are valid because the simulation only logs what it did, not because
+> a constraint system enforced it.
 
 This is what gives you Dwarf Fortress-flavored depth. Run a **coarse-grained agent simulation** over N centuries at world scale, before the game starts.
 
@@ -860,7 +1163,14 @@ Budget: a few thousand settlements over 1000 years at 5-year steps is a few hund
 > effect). `Quantize.kt` exists solely to make the "quantize before branching on a float" rule mechanical
 > rather than remembered.
 >
-> Missing: the polygon geometry type. Everything shipped is a polyline or a point, which is why fans,
+> Added with step 8: `FootprintFeature`, an **oriented rectangle** that both imposes a height and carries
+> attributes. It is deliberately not the polygon type — it is the ninety percent of one that costs nothing,
+> since two dot products put a query point in its own axes and the signed distance to its boundary is a max of
+> two absolute values. No point-in-polygon, no clipping, no offsetting, no index that copes with concavity.
+> That is enough for the one areal thing step 8 produces, and for anything else shaped like a box at an angle:
+> a market stall, a field, a quay, a wall tower.
+>
+> Missing: the general polygon geometry type. Everything else is a polyline, a point or a rectangle, which is why fans,
 > deltas, lakes, coastlines and settlement footprints all deviate (2–5).
 
 This is the load-bearing subsystem, so it gets its own section. Rivers, glacial troughs, fjords, roads, coastlines, moraines, alluvial fans, settlement footprints, and cave systems all share one representation and one evaluation path.
@@ -1092,12 +1402,18 @@ Note the ordering: natural terrain, then vector features carved into it, then ma
 
 > **Implemented** with this ordering, in `core/ChunkHeightSampler.kt` (steps 1–2) and
 > `voxel/ChunkMaterializer.kt` (step 3), which reads `Stratigraphy`, `SurfaceSampler`, `RiverWater`,
-> `OreVeins` and `BridgeDecks`. Grading is a `REPLACE`-blended radial terrace applied with the rest of the
-> features, so it is in the heightfield before stratification as required.
+> `OreVeins`, `BridgeDecks` and `TownStructures`. Grading is a `REPLACE`-blended radial terrace applied with
+> the rest of the features, so it is in the heightfield before stratification as required, and a building's own
+> pad is another one — which is why `place_buildings` is not a scatter step here: the footprint is a *feature*,
+> so the ground under a house is level before any block is written and both halves are the same object.
 >
-> Not present: `carve_caves`, `place_vegetation`, `place_buildings`, `apply_history_marks` — the scatter
-> pass in its entirety, plus caves. Nothing chunk-seeded exists yet, which means the "chunk-seeded
-> randomness is safe here, not in profiles" line is currently a rule with no users.
+> `place_buildings` and `apply_history_marks` are done, and neither is chunk-seeded: buildings and wall
+> circuits come out of the features' own immutable attributes, and the one place randomness appears - rubble
+> scatter in a ruin field - hashes the *world* position, exactly as `OreVeins` does and for the same reason.
+>
+> Still not present: `carve_caves` and `place_vegetation`. So the scatter pass proper does not exist, there is
+> no vegetation in the block palette to place, and **nothing chunk-seeded exists anywhere** - which means the
+> "chunk-seeded randomness is safe here, not in profiles" line is still a rule with no users.
 
 ### Persistence & player modification
 
@@ -1157,16 +1473,28 @@ Keep everything above `worldgen-service` free of networking and I/O — pure fun
 > `viewer/` is the single package permitted Swing and the filesystem. `worldgen-net` and `worldgen-service`
 > do not exist; the pieces of them that are pure functions (base hashing, the version gate, cache tiering)
 > live in `store/`, and the networking they would wrap belongs to the server.
+>
+> `history/` and `pop/` exist as packages, as planned. Town layout went into `civ/` rather than its own
+> package, as this list has it. The one rule that constrains them is the sibling rule: stage packages may read
+> another's *vocabulary* - its channel names and its enums, which is what `voxel/` has always done with
+> `civ.BridgeChannels` - but may not call into its algorithms. That is why `HistorySim` duplicates the largest
+> ruin radius as a constant with a tripwire invariant instead of reading `ChunkMaterializer.MARKER_MARGIN`.
 
 ### Data-driven configuration
 
 Biome definitions, culture profiles, business types with their preconditions, building grammars, resource geology rules, feature profile parameters, and event templates all belong in **data files, not code**. Load and validate at startup. This is the difference between a system a designer can tune and one that needs an engineer for every change. Hot-reload them in the offline viewer.
 
 > **Not implemented.** Every tunable is a Kotlin `data class` with defaults — `TectonicsParams`,
-> `ClimateParams`, `GlacialParams`, `SettlementParams`, `Culture`, the biome prototype table. They are
-> already grouped and named as this section wants, so extracting them to files is a serialisation layer
-> rather than a redesign, but a designer cannot currently tune anything without a recompile. Worth doing
-> when there is a designer; not before, because the shape of the parameters is still moving.
+> `ClimateParams`, `GlacialParams`, `SettlementParams`, `TownParams`, `HistoryParams`, `EconomyParams`,
+> `Culture`, the biome prototype table, and `BusinessCatalogue.ALL`. They are already grouped and named as
+> this section wants, so extracting them to files is a serialisation layer rather than a redesign, but a
+> designer cannot currently tune anything without a recompile. Worth doing when there is a designer; not
+> before, because the shape of the parameters is still moving.
+>
+> The business catalogue is the most tempting one to extract and the clearest illustration of why not yet:
+> its shape changed twice while step 9 was being written - a per-resident cereal figure became a share of the
+> catchment's yield, and a business gained a traffic term - and a serialiser over a shape that moves is two
+> things to change instead of one.
 
 ### Tooling (build this early, not late)
 
@@ -1204,8 +1532,13 @@ Add a **chunk-boundary stress view**: render a 4×4 block of chunks generated in
 > The chunk-boundary stress view is `core/ChunkSeamCheck.kt`; it runs on every viewer export and prints
 > `SeamCheck: clean - 64 chunks, 3584 shared columns agree`.
 >
-> Not implemented: history scrubbing, settlement economy/NPC inspection, and seed diffing — the first two
-> because steps 9 and 10 do not exist.
+> **History scrubbing and settlement economy inspection now exist**, as `chronicle -Pyear` and `town` — see
+> [Two tools for steps 8 to 10](#two-tools-for-steps-8-to-10-and-the-scale-that-needed-them), which also lists
+> the seven bugs they found on first use. Neither is a *view*: a scrub is a comparison of two stored years, and
+> an economy is a table of reasons. Rendering either would have been a fourth picture of the same data.
+>
+> Still not implemented: **seed diffing**. And clicking a river reach to see its station attributes — the probe
+> answers that from the command line (`-Pon=river_channel`) but the interactive viewer has no inspector.
 
 Also: a **regression harness** that generates N seeds and asserts invariants (every river reaches the ocean or an endorheic basin; every reach's discharge is monotonically non-decreasing downstream; no settlement in the sea; every settlement has food access; every fjord sill is shallower than its landward basin; population totals within expected bounds; no NPC with a required-but-missing workplace) and reports statistical distributions. Worldgen bugs are usually rare-seed bugs — you need to generate thousands of worlds to find them.
 
@@ -1404,9 +1737,16 @@ All follow the same pattern: cheap to query, incrementally updatable, rebuilt fr
 5. ✅ **Chunk materialization + RLE + feature stamping.** Get a player standing in a river valley that is continuous across chunks. Shippable vertical slice.
 6. ✅ **Derived structures.** Navmesh tiles and opacity grid, with incremental update on delta. Do this before you have players building, not after.
 7. ✅ **Resources + habitability + settlement placement + roads.** Roads reuse the vector machinery from step 2 with no new code. *This held — roads and bridges added no geometry code, only a cost field and a route finder.*
-8. ⬜ **Town layout + buildings.**
-9. ⬜ **Economy + NPC distribution.** Settlements come alive.
-10. ⬜ **History simulation.** Retrofit ruins, artifacts, and grudges into the existing world.
+8. ✅ **Town layout + buildings.** *Built third of the three, because a town's walls, wealth and size all
+    come out of its history — see [Steps 8 to 10 run in the order 10, 8, 9](#steps-8-to-10-run-in-the-order-10-8-9).
+    The design's blocks-then-lots did not survive a river running through a town; plots front the streets
+    instead (deviation 8).*
+9. ✅ **Economy + NPC distribution.** Settlements come alive. *Businesses, sectors and household seeds do;
+    living NPCs are a runtime concern and are not here. The precondition trace behind every trade is the
+    part that turned out to matter most, because it is what makes "why is there no baker" answerable.*
+10. ✅ **History simulation.** Retrofit ruins, artifacts, and grudges into the existing world. *The retrofit
+    framing held in the way that mattered - history does not place settlements - and inverted in the way that
+    did not: it has to run before the towns it explains.*
 11. ✅ **Glacial features.** Optional; the vector machinery already exists by now, so it's one stage rather than a subsystem. *Also held — one stage, and fjord sills fell out of flux-proportional overdeepening rather than needing their own rule.*
 12. ◐ **Distribution & caching.** A single-node pipeline that's a pure function distributes almost mechanically once the purity discipline is in place from step 1. *Caching, delta and baking done and now driven by the zone-server; sharding, work queue and gRPC belong to the server. Delta persistence still missing.*
 13. ◐ **Client-side base generation.** Bandwidth optimization only, with base hashing and version gating, once you have real traffic numbers. *Merged RLE chunks ship, which is what this step said to do first; base hashing and the version gate are built and ride along unused. A client-side generator waits on traffic numbers — and on the client not being C#, whose float path is the risk this step names.*

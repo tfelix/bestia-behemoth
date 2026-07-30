@@ -1,21 +1,33 @@
 package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.civ.BuildingChannels
+import net.bestia.worldgen.civ.GateChannels
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
+import net.bestia.worldgen.civ.WallChannels
+import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.history.SiteChannels
+import net.bestia.worldgen.pop.BusinessCatalogue
+import net.bestia.worldgen.pop.BusinessChannels
+import net.bestia.worldgen.pop.EconomyChannels
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.FootprintFeature
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
+import net.bestia.worldgen.voxel.ChunkMaterializer
 
 /**
  * The regression harness: properties every generated world must have, checked over as many seeds as you
@@ -102,8 +114,497 @@ object Invariants {
     checkSettlementsAreSeparated(generated, ::fail)
     checkDepositsAreWellFormed(generated, ::fail)
     checkFjordSillsAreShallowerThanTheirBasins(generated, ::fail)
+    // Was written and never registered, so the property the architecture document lists as asserted was not
+    // being checked by anything. Registered here rather than left as documentation of an intention.
+    checkOceanBorderIsOcean(generated, ::fail)
+
+    // Steps 8 to 10.
+    checkHistoryIsSelfConsistent(generated, ::fail)
+    checkEventsRespectSettlementLifetimes(generated, ::fail)
+    checkNoEventCitesAPrunedCause(generated, ::fail)
+    checkArtifactChainsAreOrdered(generated, ::fail)
+    checkEveryRuinHasAnEvent(generated, ::fail)
+    checkStructuralMarkersFitTheQueryMargin(generated, ::fail)
+    checkBuildingsBelongToTheirSettlement(generated, ::fail)
+    checkNothingIsBuiltInWater(generated, ::fail)
+    checkWalledSettlementsHaveAGate(generated, ::fail)
+    checkEveryStandingSettlementCanEat(generated, ::fail)
+    checkEmploymentAddsUp(generated, ::fail)
+    checkBusinessesAreWellFormed(generated, ::fail)
+    checkRoadsideInnsAreOnTheRoad(generated, ::fail)
 
     return out
+  }
+
+  // --- Step 10: history ------------------------------------------------------------------------------
+
+  /**
+   * Founding and abandonment years make sense, and a settlement's population matches its state.
+   *
+   * The cheapest possible check on the simulation, and the one that catches an off-by-one in the year loop or
+   * a settlement that was abandoned and then went on growing - both of which are invisible downstream except
+   * as a ruin with two hundred people living in it.
+   */
+  private fun checkHistoryIsSelfConsistent(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    if (chronicle.events.isEmpty()) return
+
+    for (record in chronicle.settlements) {
+      if (record.wasFounded && record.foundedYear !in chronicle.span) {
+        fail("history is self consistent", "settlement ${record.index} founded in ${record.foundedYear}")
+        return
+      }
+      if (record.isRuin) {
+        if (record.abandonedYear < record.foundedYear) {
+          fail(
+            "history is self consistent",
+            "settlement ${record.index} was abandoned in ${record.abandonedYear}, before it was founded"
+          )
+          return
+        }
+        if (record.population != 0) {
+          fail("history is self consistent", "ruin ${record.index} has ${record.population} people in it")
+          return
+        }
+      } else if (record.wasFounded && record.population <= 0) {
+        fail("history is self consistent", "standing settlement ${record.index} has nobody in it")
+        return
+      }
+      if (record.wallYear != 0 && record.wallYear < record.foundedYear) {
+        fail(
+          "history is self consistent",
+          "settlement ${record.index} was walled in ${record.wallYear} before it existed"
+        )
+        return
+      }
+    }
+
+    for (civ in chronicle.civs) {
+      if (civ.foundedYear !in chronicle.span) {
+        fail("history is self consistent", "civ ${civ.index} founded in ${civ.foundedYear}")
+        return
+      }
+      if (civ.technology < 0.0 || civ.technology > 1.0) {
+        fail("history is self consistent", "civ ${civ.index} has technology ${civ.technology}")
+        return
+      }
+    }
+  }
+
+  /**
+   * Nothing happens to a settlement before it was founded or after it emptied.
+   *
+   * The invariant that makes the log usable as a story. An event outside its subject's lifetime reads as a
+   * plague in a town nobody had built yet, and once one exists the log stops being trustworthy for anything -
+   * so this is checked over every event rather than sampled.
+   *
+   * The two exemptions are the founding itself and whatever emptied the place, which are the boundary events
+   * and are *at* the boundary rather than inside it.
+   */
+  private fun checkEventsRespectSettlementLifetimes(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+
+    for (event in chronicle.events) {
+      for (actor in event.actors) {
+        if (actor.type != ActorType.SETTLEMENT) continue
+        val record = chronicle.settlements.getOrNull(actor.index) ?: continue
+
+        if (event.year == record.foundedYear || event.year == record.abandonedYear) continue
+
+        if (!record.wasFounded || event.year < record.foundedYear) {
+          fail(
+            "events respect settlement lifetimes",
+            "event ${event.id} in ${event.year} names settlement ${actor.index}, founded ${record.foundedYear}"
+          )
+          return
+        }
+        if (record.isRuin && event.year > record.abandonedYear) {
+          fail(
+            "events respect settlement lifetimes",
+            "event ${event.id} in ${event.year} names settlement ${actor.index}, empty since ${record.abandonedYear}"
+          )
+          return
+        }
+      }
+    }
+  }
+
+  /**
+   * Every cause an event cites survived the pruner.
+   *
+   * The pruner promises this - it takes the transitive closure over causes after choosing what to keep - and
+   * this is that promise asserted. A dangling cause id is a provenance chain with a hole in it, and the
+   * symptom is a tool throwing rather than a world looking wrong, which is the kind of bug that surfaces in
+   * front of somebody else.
+   */
+  private fun checkNoEventCitesAPrunedCause(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    val present = chronicle.events.mapTo(HashSet()) { it.id }
+
+    for (event in chronicle.events) {
+      for (cause in event.causes) {
+        if (cause !in present) {
+          fail("no event cites a pruned cause", "event ${event.id} cites ${cause}, which was pruned")
+          return
+        }
+      }
+    }
+  }
+
+  /**
+   * An artifact's provenance runs forwards in time and ends somewhere that exists.
+   *
+   * Both halves matter for the same reason: the chain is the thing a quest is mined from, and a chain that
+   * goes backwards or ends at site -1 is a quest that cannot be written.
+   */
+  private fun checkArtifactChainsAreOrdered(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+
+    for (relic in chronicle.artifacts) {
+      var previous = Int.MIN_VALUE
+      for (event in chronicle.provenanceOf(relic.index)) {
+        if (event.year < previous) {
+          fail(
+            "artifact chains are ordered",
+            "artifact ${relic.index} goes from year $previous back to ${event.year}"
+          )
+          return
+        }
+        previous = event.year
+      }
+
+      if (relic.restingSite >= 0 && relic.restingSite >= chronicle.sites.size) {
+        fail("artifact chains are ordered", "artifact ${relic.index} rests at site ${relic.restingSite}")
+        return
+      }
+      if (relic.forgedBy !in chronicle.figures.indices) {
+        fail("artifact chains are ordered", "artifact ${relic.index} was forged by nobody")
+        return
+      }
+    }
+  }
+
+  /** Every ruin marker corresponds to a settlement the log says was emptied, and vice versa. */
+  private fun checkEveryRuinHasAnEvent(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val chronicle = generated.world.chronicle
+    if (chronicle.events.isEmpty()) return
+
+    val ruinSites = chronicle.sitesOfKind(SiteKind.RUIN)
+    for (site in ruinSites) {
+      val record = chronicle.settlements.getOrNull(site.settlement)
+      if (record == null || !record.isRuin) {
+        fail("every ruin has an event", "ruin site ${site.index} names settlement ${site.settlement}")
+        return
+      }
+    }
+
+    val ruinedSettlements = chronicle.settlements.count { it.isRuin }
+    if (ruinSites.size != ruinedSettlements) {
+      fail(
+        "every ruin has an event",
+        "$ruinedSettlements settlements were emptied but there are ${ruinSites.size} ruin sites"
+      )
+    }
+  }
+
+  /**
+   * No structural marker reaches further than the margin chunk generation queries with.
+   *
+   * The tripwire promised by [ChunkMaterializer.MARKER_MARGIN]. A point marker has no extent, so chunk
+   * generation finds it by expanding the chunk's own bounds by a fixed margin - and a ruin field or an
+   * orebody wider than that margin is simply absent from every chunk further away than it, which materialises
+   * as a ruin with a dead straight edge down one side. The two numbers live in sibling packages that may not
+   * call into each other, so this is what keeps them in step.
+   */
+  private fun checkStructuralMarkersFitTheQueryMargin(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val structural = setOf(
+      FeatureKind.RUIN, FeatureKind.BATTLEFIELD, FeatureKind.TOMB, FeatureKind.MONUMENT
+    )
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind !in structural) continue
+      val marker = feature as? PointMarker ?: continue
+      val radius = runCatching { marker.attribute(SiteChannels.RADIUS) }.getOrNull() ?: continue
+
+      if (radius > ChunkMaterializer.MARKER_MARGIN) {
+        fail(
+          "structural markers fit the query margin",
+          "${feature.kind} ${feature.id} reaches ${radius.toInt()} m, " +
+              "past the ${ChunkMaterializer.MARKER_MARGIN.toInt()} m chunk query margin"
+        )
+        return
+      }
+    }
+  }
+
+  // --- Step 8: towns --------------------------------------------------------------------------------
+
+  /**
+   * Every building names a settlement that stands, and stands inside it.
+   *
+   * Inside its *tier's* footprint rather than inside the built radius, because the built radius is derived
+   * from the present population and a building placed when the town was larger is legitimately outside it.
+   * What this catches is a building attributed to the wrong settlement, which the join on
+   * [SettlementChannels.INDEX] makes possible in exactly one way - an index that shifted between two stages.
+   */
+  private fun checkBuildingsBelongToTheirSettlement(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val chronicle = generated.world.chronicle
+    val sites = generated.world.features.all()
+      .filter { it.kind == FeatureKind.SETTLEMENT }
+      .filterIsInstance<PointMarker>()
+      .associateBy { it.attribute(SettlementChannels.INDEX).toInt() }
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BUILDING) continue
+      val building = feature as? FootprintFeature ?: continue
+      val index = building.attribute(BuildingChannels.SETTLEMENT).toInt()
+
+      val site = sites[index]
+      if (site == null) {
+        fail("buildings belong to their settlement", "building ${feature.id} names settlement $index")
+        return
+      }
+
+      val tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()]
+      val away = building.center.distanceTo(site.position)
+      if (away > tier.footprintRadius) {
+        fail(
+          "buildings belong to their settlement",
+          "building ${feature.id} is ${away.toInt()} m from settlement $index, a $tier"
+        )
+        return
+      }
+
+      if (chronicle.events.isNotEmpty()) {
+        val record = chronicle.settlements.getOrNull(index)
+        if (record == null || !record.wasFounded || record.isRuin) {
+          fail(
+            "buildings belong to their settlement",
+            "building ${feature.id} stands in settlement $index, which history never left standing"
+          )
+          return
+        }
+      }
+    }
+  }
+
+  /**
+   * Nothing is built in water: no building, no street, no wall.
+   *
+   * The most visible possible failure of the layout, and one the buildable test is meant to prevent - so what
+   * this really checks is that the test was consulted everywhere rather than only where it was convenient.
+   */
+  private fun checkNothingIsBuiltInWater(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val water = generated.world.layers.require<FloatLayer>(LayerId.WATER_LEVEL)
+    val metres = water.region.resolution.metresPerCell
+
+    fun wet(x: Double, y: Double): Boolean {
+      val cellX = Math.floor(x / metres).toInt()
+      val cellY = Math.floor(y / metres).toInt()
+      return water.region.contains(cellX, cellY) && !water[cellX, cellY].isNaN()
+    }
+
+    for (feature in generated.world.features.all()) {
+      when (feature.kind) {
+        FeatureKind.BUILDING -> {
+          val building = feature as? FootprintFeature ?: continue
+          if (wet(building.center.x, building.center.y)) {
+            fail("nothing is built in water", "building ${feature.id} stands in water")
+            return
+          }
+        }
+
+        FeatureKind.STREET, FeatureKind.TOWN_WALL -> {
+          for (line in feature.outline()) {
+            for (point in line.points) {
+              if (wet(point.x, point.y)) {
+                fail("nothing is built in water", "${feature.kind} ${feature.id} runs through water")
+                return
+              }
+            }
+          }
+        }
+
+        else -> Unit
+      }
+    }
+  }
+
+  /**
+   * A settlement with walls has at least one gate.
+   *
+   * Cheap and catastrophic when false: the wall is emitted as the stretches *between* gates, so a circuit with
+   * no gate is a sealed ring of masonry round a town, which nothing can walk into or out of.
+   */
+  private fun checkWalledSettlementsHaveAGate(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val walls = generated.world.features.all().filter { it.kind == FeatureKind.TOWN_WALL }
+    if (walls.isEmpty()) return
+
+    val gates = generated.world.features.all()
+      .filter { it.kind == FeatureKind.GATE }
+      .filterIsInstance<PointMarker>()
+
+    val walled = walls.mapNotNull { wall ->
+      (wall as? MarkerFeature)?.let {
+        runCatching { it.stations!!.valueAt(it.channel(WallChannels.SETTLEMENT), 0).toInt() }.getOrNull()
+      }
+    }.toSet()
+
+    val gated = gates.mapNotNull {
+      runCatching { it.attribute(GateChannels.SETTLEMENT).toInt() }.getOrNull()
+    }.toSet()
+
+    val sealed = walled - gated
+    if (sealed.isNotEmpty()) {
+      fail("walled settlements have a gate", "settlements $sealed are walled with no way in")
+    }
+  }
+
+  // --- Step 9: the economy ---------------------------------------------------------------------------
+
+  /**
+   * Every standing settlement's catchment yields something.
+   *
+   * Named explicitly in the architecture document's list of invariants - "every settlement has food access" -
+   * and it earned its place: a resolution mistake in the catchment made every settlement in a test world read
+   * zero, which downstream became a population that was a hundred percent farmers and still starving. Nothing
+   * about the map looked wrong.
+   */
+  private fun checkEveryStandingSettlementCanEat(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.SETTLEMENT_ECONOMY) continue
+      val economy = feature as? PointMarker ?: continue
+
+      val capacity = economy.attribute(EconomyChannels.FOOD_CAPACITY)
+      if (capacity <= 0.0 || !capacity.isFinite()) {
+        fail(
+          "every settlement can eat",
+          "settlement ${economy.attribute(EconomyChannels.INDEX).toInt()} has a food capacity of $capacity"
+        )
+        return
+      }
+    }
+  }
+
+  /** Employment by sector sums to the population, give or take rounding. */
+  private fun checkEmploymentAddsUp(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val chronicle = generated.world.chronicle
+    if (chronicle.events.isEmpty()) return
+
+    val sectors = listOf(
+      EconomyChannels.FARMERS, EconomyChannels.CRAFTERS, EconomyChannels.TRADERS,
+      EconomyChannels.SERVANTS, EconomyChannels.ADMINISTRATORS, EconomyChannels.CLERGY,
+      EconomyChannels.SOLDIERS
+    )
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.SETTLEMENT_ECONOMY) continue
+      val economy = feature as? PointMarker ?: continue
+
+      val index = economy.attribute(EconomyChannels.INDEX).toInt()
+      val population = chronicle.settlements.getOrNull(index)?.population ?: continue
+      val employed = sectors.sumOf { economy.attribute(it).toInt() }
+
+      // A handful either way: each sector's share is truncated and the remainder goes back to farming.
+      if (Math.abs(employed - population) > EMPLOYMENT_TOLERANCE) {
+        fail(
+          "employment adds up",
+          "settlement $index has $population people and $employed jobs"
+        )
+        return
+      }
+    }
+  }
+
+  /** Businesses name a real trade, a standing settlement, and sit somewhere in it. */
+  private fun checkBusinessesAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val chronicle = generated.world.chronicle
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BUSINESS && feature.kind != FeatureKind.ROADSIDE_INN) continue
+      val business = feature as? PointMarker ?: continue
+
+      val type = business.attribute(BusinessChannels.TYPE).toInt()
+      if (type !in BusinessCatalogue.ALL.indices) {
+        fail("businesses are well formed", "${feature.kind} ${feature.id} has trade $type")
+        return
+      }
+
+      val settlement = business.attribute(BusinessChannels.SETTLEMENT).toInt()
+      if (settlement < 0) continue
+
+      if (chronicle.events.isNotEmpty() && !chronicle.settlementStood(settlement, chronicle.presentYear)) {
+        fail(
+          "businesses are well formed",
+          "${feature.kind} ${feature.id} trades in settlement $settlement, which does not stand"
+        )
+        return
+      }
+    }
+  }
+
+  /**
+   * A roadside inn is beside a road and not inside a settlement.
+   *
+   * The whole point of one: it exists because there is nowhere else to stop. An inn that ended up inside a
+   * town is one the town already had, counted twice.
+   */
+  private fun checkRoadsideInnsAreOnTheRoad(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val inns = generated.world.features.all()
+      .filter { it.kind == FeatureKind.ROADSIDE_INN }
+      .filterIsInstance<PointMarker>()
+    if (inns.isEmpty()) return
+
+    val sites = generated.world.features.all()
+      .filter { it.kind == FeatureKind.SETTLEMENT }
+      .filterIsInstance<PointMarker>()
+    val roads = generated.world.features.all()
+      .filter { it.kind == FeatureKind.ROAD }
+      .filterIsInstance<PolylineFeature>()
+
+    for (inn in inns) {
+      val nearestRoad = roads.minOfOrNull { it.centerline.project(inn.position).distance } ?: Double.MAX_VALUE
+      if (nearestRoad > INN_ROAD_TOLERANCE) {
+        fail(
+          "roadside inns are on the road",
+          "inn ${inn.id} is ${nearestRoad.toInt()} m from the nearest road"
+        )
+        return
+      }
+
+      val nearestSettlement = sites.minOfOrNull { it.position.distanceTo(inn.position) } ?: Double.MAX_VALUE
+      if (nearestSettlement < INN_SETTLEMENT_CLEARANCE) {
+        fail(
+          "roadside inns are on the road",
+          "inn ${inn.id} is only ${nearestSettlement.toInt()} m from a settlement"
+        )
+        return
+      }
+    }
   }
 
   /**
@@ -481,4 +982,18 @@ object Invariants {
    * than the nominal separation. Demanding it exactly would fail on the grid rather than on the rule.
    */
   private const val SEPARATION_TOLERANCE = 0.02
+
+  /** People a settlement's sector counts may miss by, from truncating seven shares. */
+  private const val EMPLOYMENT_TOLERANCE = 8
+
+  /** Metres a roadside inn may sit from the centreline of the road it serves. */
+  private const val INN_ROAD_TOLERANCE = 50.0
+
+  /**
+   * Metres an inn must keep from any settlement.
+   *
+   * Slack against `EconomyParams.innClearance`, which is measured against *founded* settlements only - a site
+   * history never settled is not a town and an inn beside it is correct.
+   */
+  private const val INN_SETTLEMENT_CLEARANCE = 500.0
 }

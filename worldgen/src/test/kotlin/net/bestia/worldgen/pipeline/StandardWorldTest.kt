@@ -13,6 +13,9 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldGenPipeline
 import net.bestia.worldgen.civ.HabitabilityStage
 import net.bestia.worldgen.civ.SettlementStage
+import net.bestia.worldgen.civ.TownStage
+import net.bestia.worldgen.history.HistoryStage
+import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.BoundaryType
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
@@ -67,7 +70,14 @@ class StandardWorldTest {
         BiomeStage.ID,
         ResourceStage.ID,
         HabitabilityStage.ID,
-        SettlementStage.ID
+        SettlementStage.ID,
+        // History before town layout, which inverts the build order's numbering on purpose: a town's walls
+        // enclose the extent it had when it was threatened, its ruins are settlements history destroyed, and
+        // how much of it is stone follows the wealth history gave it. Laying it out first would mean either
+        // regenerating the layout or leaving the walls unexplained.
+        HistoryStage.ID,
+        TownStage.ID,
+        EconomyStage.ID
       ),
       order
     )

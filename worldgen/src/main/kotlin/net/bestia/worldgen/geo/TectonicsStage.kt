@@ -115,7 +115,8 @@ class TectonicsStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: OceanBorder now holds the margin under the waterline and blends out over a shelf beyond it.
+  override val version = 2
   override val dependencies: List<StageId> = emptyList()
   override val scale = StageScale.WORLD
 

@@ -92,13 +92,16 @@ class ChunkMaterializer(
     val rivers = RiverWaterSampler(nearby)
     val ore = OreVeins(nearby, config.seed)
     val bridges = BridgeDecks(nearby)
+    val structures = TownStructures(nearby, config.seed)
+    // One buffer for the whole chunk, refilled per column. See StructureSpans.
+    val spans = if (structures.isEmpty) null else StructureSpans()
 
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
         val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
-          heights[localX, localY], rivers, ore, bridges
+          heights[localX, localY], rivers, ore, bridges, structures, spans
         )
       }
     }
@@ -222,7 +225,9 @@ class ChunkMaterializer(
     top: Double,
     rivers: RiverWaterSampler,
     ore: OreVeins,
-    bridges: BridgeDecks
+    bridges: BridgeDecks,
+    structures: TownStructures,
+    spans: StructureSpans?
   ) {
     // Two water surfaces, and the higher wins. The raster one is level - sea or a lake; the river one
     // descends along its channel. A river running into a lake correctly takes the lake's level, because
@@ -237,7 +242,10 @@ class ChunkMaterializer(
 
     val soilDepth = if (biome == Biome.CLIFF) 0.0 else surface.soilDepthAt(worldX, worldY)
     val soilBlock = SurfaceCover.soil(biome, temperature).id.toByte()
-    val capBlock = SurfaceCover.cap(biome, temperature, waterDepth).id.toByte()
+    // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
+    // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
+    val paving = if (spans != null && waterDepth <= 0.0) structures.pavingAt(worldX, worldY) else null
+    val capBlock = (paving ?: SurfaceCover.cap(biome, temperature, waterDepth)).id.toByte()
 
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
@@ -336,17 +344,48 @@ class ChunkMaterializer(
     if (!bridges.isEmpty) {
       val deck = bridges.deckAt(worldX, worldY)
       if (!deck.isNaN()) {
-        val from = highestVoxelAtOrBelow(deck - bridges.thickness) + 1 - baseZ
-        val to = topFilledVoxel(deck) - baseZ
-        for (localZ in max(0, from)..min(height - 1, to)) {
-          out.blocks[offset + localZ] = MASONRY
-          // A deck is written over whatever was there, air included, so its occupancy has to be written too
-          // - leaving air's zero behind would be masonry that is not there. The running surface is the top
-          // of the deck, so that voxel is partial for the same reason the ground's is.
-          out.occupancy[offset + localZ] =
-            if (localZ == to) Occupancy.byteOf(fillFractionOf(deck, baseZ + localZ)) else Occupancy.FULL_BYTE
-        }
+        writeStructure(out, offset, baseZ, height, deck - bridges.thickness, deck, MASONRY)
       }
+    }
+
+    // Buildings, wall circuits and what history left behind, for the same reason and by the same rule: a
+    // structure is a surface with air under it, which a heightfield cannot express.
+    if (spans != null) {
+      structures.columnAt(worldX, worldY, top, spans)
+      for (i in 0 until spans.count) {
+        writeStructure(
+          out, offset, baseZ, height,
+          spans.bottomOf(i), spans.topOf(i), spans.blockOf(i).toByte()
+        )
+      }
+    }
+  }
+
+  /**
+   * Writes one vertical span of worked material over whatever the column already held.
+   *
+   * Occupancy has to be written along with the blocks and not left as it was. A span written into air would
+   * otherwise be masonry at zero occupancy - which is to say masonry that is not there - and a span written
+   * into rock would keep the rock's full occupancy at its top voxel, losing the fractional surface. The top
+   * voxel is partial for exactly the reason the ground's top voxel is: it is where a surface crosses it.
+   */
+  private fun writeStructure(
+    out: VoxelChunk,
+    offset: Int,
+    baseZ: Int,
+    height: Int,
+    fromElevation: Double,
+    toElevation: Double,
+    block: Byte
+  ) {
+    val from = highestVoxelAtOrBelow(fromElevation) + 1 - baseZ
+    val to = topFilledVoxel(toElevation) - baseZ
+
+    for (localZ in max(0, from)..min(height - 1, to)) {
+      out.blocks[offset + localZ] = block
+      out.occupancy[offset + localZ] =
+        if (localZ == to) Occupancy.byteOf(fillFractionOf(toElevation, baseZ + localZ))
+        else Occupancy.FULL_BYTE
     }
   }
 
@@ -388,19 +427,24 @@ class ChunkMaterializer(
   private fun fillFractionOf(elevation: Double, globalZ: Int): Double =
     (elevation - config.elevationOfVoxel(globalZ)) / config.voxelSize
 
-  private companion object {
-    val AIR = BlockType.AIR.id.toByte()
-    val WATER = BlockType.WATER.id.toByte()
-    val ICE = BlockType.ICE.id.toByte()
-    val MASONRY = BlockType.MASONRY.id.toByte()
+  companion object {
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
      *
      * Point markers store zero-extent bounds - a point has no extent - so unlike a river they cannot be found
-     * by a bounds intersection alone. This has to cover the widest orebody and the longest bridge span.
+     * by a bounds intersection alone. This has to cover the widest orebody, the longest bridge span, and the
+     * largest ruin field: a marker whose structure reaches further than this is simply missing from every
+     * chunk more than this far from its centre, which reads as a ruin with a straight edge.
+     *
+     * `Invariants.checkStructuralMarkersAreWithinTheQueryMargin` is the tripwire.
      */
     const val MARKER_MARGIN = 320.0
+
+    private val AIR = BlockType.AIR.id.toByte()
+    private val WATER = BlockType.WATER.id.toByte()
+    private val ICE = BlockType.ICE.id.toByte()
+    private val MASONRY = BlockType.MASONRY.id.toByte()
 
     /** Mean annual temperature below which standing water carries permanent ice. */
     const val FREEZING = -2.0

@@ -12,10 +12,32 @@ class GenContext internal constructor(
   private val stage: Stage,
   val config: WorldConfig,
   val layers: ScopedLayerStore,
-  val features: ScopedFeatureStore
+  val features: ScopedFeatureStore,
+  /**
+   * The history log, or null when this stage did not declare the stage that produces it.
+   *
+   * Scoped the same way layers and features are, and for the same reason: a stage that reads history
+   * without declaring it would work by accident until the scheduler reordered the two.
+   */
+  private val visibleChronicle: Chronicle? = null
 ) {
 
   val seed: Long get() = config.seed
+
+  /**
+   * The world's history so far.
+   *
+   * @throws IllegalStateException if this stage did not declare the history stage as a dependency. A
+   *   loud failure rather than an empty chronicle, because "no history" and "history I am not allowed
+   *   to see" produce identical towns and only one of them is a bug.
+   */
+  fun chronicle(): Chronicle = visibleChronicle
+    ?: throw IllegalStateException(
+      "Stage ${stage.id} read the chronicle without declaring the stage that produces it"
+    )
+
+  /** Whether [chronicle] would succeed. For a stage that can work with or without a history. */
+  val hasChronicle: Boolean get() = visibleChronicle != null
 
   /**
    * A deterministic RNG stream for this stage at the given coordinate.

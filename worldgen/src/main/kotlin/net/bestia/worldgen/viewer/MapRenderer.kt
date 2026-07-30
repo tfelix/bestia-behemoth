@@ -298,6 +298,18 @@ class MapRenderer(private val config: WorldConfig) {
       FeatureKind.BRIDGE -> Color(255, 130, 60)
       FeatureKind.SETTLEMENT_GRADING -> Color(255, 140, 140)
       FeatureKind.SETTLEMENT -> Color(255, 60, 60)
+      FeatureKind.SETTLEMENT_HISTORY -> Color(190, 80, 80)
+      FeatureKind.SETTLEMENT_ECONOMY -> Color(90, 200, 180)
+      FeatureKind.RUIN -> Color(150, 130, 110)
+      FeatureKind.BATTLEFIELD -> Color(150, 40, 40)
+      FeatureKind.MONUMENT -> Color(240, 220, 150)
+      FeatureKind.TOMB -> Color(170, 140, 200)
+      FeatureKind.STREET -> Color(245, 215, 170)
+      FeatureKind.TOWN_WALL -> Color(200, 200, 205)
+      FeatureKind.GATE -> Color(255, 250, 230)
+      FeatureKind.BUILDING -> Color(235, 225, 205)
+      FeatureKind.BUSINESS -> Color(120, 220, 255)
+      FeatureKind.ROADSIDE_INN -> Color(255, 195, 90)
     }
   }
 }

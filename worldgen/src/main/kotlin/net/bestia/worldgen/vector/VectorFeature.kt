@@ -73,7 +73,56 @@ enum class FeatureKind(val defaultPriority: Int) {
    * flattens the ground under it is a separate feature, so that "there is a town here" and "the ground
    * here is level" can be reasoned about, cached and versioned independently.
    */
-  SETTLEMENT(620)
+  SETTLEMENT(620),
+
+  /**
+   * What history did to a settlement: when it was founded, who owns it, how often it was sacked.
+   *
+   * A separate marker from [SETTLEMENT] rather than more channels on it, because the two are produced by
+   * different stages and a stage may not amend another stage's output. They are joined on the settlement
+   * index, which is a small integer and therefore exactly representable in a station channel - unlike a
+   * [FeatureId], which is a 64-bit hash and would lose its low bits to a double.
+   */
+  SETTLEMENT_HISTORY(625),
+
+  /** The economic summary of a settlement, plus the seed its households expand from. */
+  SETTLEMENT_ECONOMY(628),
+
+  /** A settlement history destroyed or emptied. Carries a decay parameter; the ground is still graded. */
+  RUIN(630),
+  BATTLEFIELD(632),
+  MONUMENT(634),
+
+  /** The resting place of a notable figure, and often of the artifact they were buried with. */
+  TOMB(636),
+
+  /**
+   * A street inside a settlement: a road with a narrower cross-section and a higher priority.
+   *
+   * Above [SETTLEMENT_GRADING] because a street is cut into the graded ground, not under it, and above
+   * [ROAD] because where an approach road enters the town it becomes the town's street.
+   */
+  STREET(640),
+
+  /**
+   * A stretch of town wall between two gates.
+   *
+   * Geometry and attributes only. A wall is a structure standing on the ground rather than a shape of the
+   * ground, so like a bridge deck it cannot live in a heightfield - the materialiser lays it as blocks
+   * from the base elevation the stations record. Gates are simply the gaps between one stretch and the
+   * next, so no chunk has to reconcile two features to know where the opening is.
+   */
+  TOWN_WALL(650),
+  GATE(652),
+
+  /** One building: an oriented footprint, a floor elevation, a function, and a grammar seed. */
+  BUILDING(660),
+
+  /** A business occupying a building. Where the innkeeper is, once there is an innkeeper. */
+  BUSINESS(670),
+
+  /** An inn on a road, a day's travel from anywhere. Not attached to a settlement. */
+  ROADSIDE_INN(672)
 }
 
 /**

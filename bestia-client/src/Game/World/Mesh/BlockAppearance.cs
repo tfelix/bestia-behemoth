@@ -116,7 +116,17 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(56, "ROCK_SALT", 0.86f, 0.84f, 0.82f),
 
       // Bridge decking and other worked structure.
-      Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f)
+      Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f),
+
+      // Buildings and streets, added with the server's step 8. Deliberately more saturated than the natural
+      // materials they stand on: a town has to read as built from a distance at which its shape does not.
+      Terrain(61, "TIMBER", 0.44f, 0.31f, 0.19f),
+      Terrain(62, "PLASTER", 0.86f, 0.82f, 0.73f),
+      Terrain(63, "THATCH", 0.72f, 0.60f, 0.30f),
+      Terrain(64, "ROOF_TILE", 0.55f, 0.26f, 0.20f),
+      Terrain(65, "PLANK", 0.60f, 0.45f, 0.28f),
+      Terrain(66, "RUBBLE", 0.48f, 0.46f, 0.43f),
+      Terrain(67, "COBBLESTONE", 0.42f, 0.41f, 0.40f)
     };
 
     /// <summary>

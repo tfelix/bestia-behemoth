@@ -29,8 +29,10 @@ description = 'worldgen'
  *   hydro     flow routing, lakes, the river graph, meandering
  *   bio       biome classification, soil
  *   resource  ore, coal, salt and placer deposits
- *   civ       habitability, cultures, settlements, route finding, roads
- *   voxel     block palette, occupancy, stratigraphy, chunk materialisation, the RLE codec
+ *   civ       habitability, cultures, settlements, route finding, roads, town layout, buildings
+ *   history   the thousand-year simulation, place names, ruins, artifacts and the event log
+ *   pop       agricultural catchments, the business catalogue, household expansion
+ *   voxel     block palette, occupancy, stratigraphy, chunk materialisation, town structures, RLE codec
  *
  *   derived   column summaries, opacity grid, walkable tiles, chunk deltas
  *   store     tiered chunk cache, delta and baking, base hashing, the version gate
@@ -133,6 +135,70 @@ tasks.register('probe', JavaExec) {
     if (project.hasProperty('on')) args '--on', project.property('on')
     if (project.hasProperty('nth')) args '--nth', project.property('nth')
     if (project.hasProperty('channels')) args '--channels'
+}
+
+/**
+ * Inspects one settlement: its layout, its economy, its history, and a map of it.
+ *
+ * The scale between the other two tools. `viewer` renders a whole world, so a town is a pixel; `probe` prints
+ * 48 metres, so a town is four hundred probes. Everything step 8 produces lives in between.
+ *
+ * ```
+ * ./gradlew :worldgen:town                       # the largest settlement in the world
+ * ./gradlew :worldgen:town -Pnth=3 -Pwhy         # the fourth largest, with the precondition trace
+ * ./gradlew :worldgen:town -Pruin                # somewhere history destroyed
+ * ./gradlew :worldgen:town -Pcensus              # every settlement in one table
+ * ```
+ */
+tasks.register('town', JavaExec) {
+    group = 'worldgen'
+    description = 'Prints and renders one settlement: streets, buildings, economy and history'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.TownMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    worldArgs(it)
+    if (project.hasProperty('index')) args '--index', project.property('index')
+    if (project.hasProperty('nth')) args '--nth', project.property('nth')
+    if (project.hasProperty('tier')) args '--tier', project.property('tier')
+    if (project.hasProperty('out')) args '--out', project.property('out')
+    if (project.hasProperty('metresPerPixel')) {
+        args '--metres-per-pixel', project.property('metresPerPixel')
+    }
+    if (project.hasProperty('ruin')) args '--ruin'
+    if (project.hasProperty('why')) args '--why'
+    if (project.hasProperty('census')) args '--census'
+}
+
+/**
+ * Reads the world's history: the event log, the civilisations, the artifacts and their provenance.
+ *
+ * Text rather than a view, because a chronicle is prose - the questions asked of it are "what happened here"
+ * and "where did this sword come from", and both are answered by sentences in year order. What is spatial
+ * about history - ruins, battlefields, tombs - is already in `viewer`, because the renderer's exhaustive
+ * `when` over feature kinds forced a colour for each of them.
+ *
+ * ```
+ * ./gradlew :worldgen:chronicle                  # the shape of this world's history
+ * ./gradlew :worldgen:chronicle -Pall            # everything, at length
+ * ./gradlew :worldgen:chronicle -Pyear=430       # the world as it stood then
+ * ./gradlew :worldgen:chronicle -Pquests         # unresolved threads worth turning into quests
+ * ```
+ */
+tasks.register('chronicle', JavaExec) {
+    group = 'worldgen'
+    description = 'Prints the generated history: events, civilisations, figures, artifacts and sites'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.ChronicleMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    worldArgs(it)
+    if (project.hasProperty('top')) args '--top', project.property('top')
+    if (project.hasProperty('year')) args '--year', project.property('year')
+    if (project.hasProperty('civs')) args '--civs'
+    if (project.hasProperty('artifacts')) args '--artifacts'
+    if (project.hasProperty('figures')) args '--figures'
+    if (project.hasProperty('sites')) args '--sites'
+    if (project.hasProperty('quests')) args '--quests'
+    if (project.hasProperty('all')) args '--all'
 }
 
 /**

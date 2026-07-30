@@ -51,25 +51,61 @@ class OceanBorder private constructor(
   /**
    * Pushes the margin below sea level in place.
    *
-   * Weight zero at the world edge and one at the margin's inner boundary, so the transition is continuous in
-   * both value and slope and there is no step for erosion to turn into an escarpment.
+   * ### Two things at once, and it needs both
+   *
+   * A *blend* towards deep water, so the transition is continuous in value and slope and there is no step for
+   * erosion to turn into an escarpment. And a *ceiling* inside the margin proper, so that the margin is
+   * genuinely underwater rather than merely pulled towards being underwater.
+   *
+   * The first version had only the blend, reaching the natural elevation exactly at the margin's inner
+   * boundary - and that cannot guarantee water, because the natural elevation there is the interior and the
+   * interior is land. Measured, a cell a thousand metres inside the margin kept about two thirds of its
+   * height, so any bedrock above a couple of hundred metres stayed dry and every world had a strip of land at
+   * its own seam. `Invariants.checkOceanBorderIsOcean` says so in one line, and had never been registered.
+   *
+   * So the blend now runs out over [BLEND_SHARE] times the margin *beyond* it - the terrain rises out of the
+   * water over a coastal shelf rather than at the margin's edge - and inside the margin a smoothly rising
+   * ceiling holds the ground under the waterline. Where the two cross there is a crease in the slope and no
+   * step, which is the same thing every `MIN`-blended feature in the pipeline has.
    */
   fun applyTo(elevation: Grid, seaLevel: Double) {
     if (!isEnabled) return
 
     val target = seaLevel - depthBelowSeaLevel
+    val shelf = seaLevel - SHELF_DEPTH
+    val blendEnd = marginMetres * (1.0 + BLEND_SHARE)
+
     for (i in elevation.data.indices) {
       val distance = distanceToEdge(worldXOf(i), worldYOf(i))
-      if (distance >= marginMetres) continue
+      if (distance >= blendEnd) continue
 
-      val inwards = PolylineFeature.smoothstep((distance / marginMetres).coerceIn(0.0, 1.0))
+      val inwards = PolylineFeature.smoothstep((distance / blendEnd).coerceIn(0.0, 1.0))
       // Towards the target rather than clamped to it: a natural trench deeper than the target is pulled up
       // instead of down, which is harmless - it is still ocean - and keeps this a single continuous blend.
-      elevation.data[i] = target + (elevation.data[i] - target) * inwards
+      var height = target + (elevation.data[i] - target) * inwards
+
+      if (distance < marginMetres) {
+        val toShelf = PolylineFeature.smoothstep((distance / marginMetres).coerceIn(0.0, 1.0))
+        height = minOf(height, target + (shelf - target) * toShelf)
+      }
+
+      elevation.data[i] = height
     }
   }
 
   companion object {
+
+    /**
+     * How far past the margin the blend runs out, as a share of the margin's own width.
+     *
+     * This is the coastal shelf. It is what lets the ceiling inside the margin be a hard guarantee without
+     * putting a cliff at the margin's inner edge: the ground comes out of the water over this band instead of
+     * at a line.
+     */
+    const val BLEND_SHARE = 1.0
+
+    /** Metres below sea level the margin is held at its inner edge. Shallow water, but unambiguously water. */
+    const val SHELF_DEPTH = 12.0
 
     fun of(
       config: WorldConfig,

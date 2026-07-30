@@ -20,6 +20,15 @@ import kotlin.math.pow
 data class ErosionParams(
 
   /**
+   * Depth the forced ocean margin is pushed to, in metres below sea level.
+   *
+   * Must match [TectonicsParams.oceanBorderDepth], and defaults from it for that reason: this stage has to put
+   * the margin back after uplift, and two different depths would leave a step at the margin's inner edge that
+   * the next erosion pass would turn into an escarpment.
+   */
+  val oceanBorderDepth: Double = TectonicsParams().oceanBorderDepth,
+
+  /**
    * Timesteps of geological time.
    *
    * The implicit stream power solver is stable at any timestep, so this is a quality knob rather than a
@@ -134,7 +143,8 @@ class ErosionStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: the ocean margin is reapplied after uplift, which was lifting it back above sea level.
+  override val version = 2
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)
   override val scale = StageScale.WORLD
 
@@ -172,6 +182,23 @@ class ErosionStage(
       deposit(network, drainage, elevation, sediment, eroded, load, cellArea, seaLevel)
       relax(elevation, hardness, metres)
     }
+
+    /*
+     * The ocean margin, put back.
+     *
+     * Tectonics forces it below sea level, and then this stage adds uplift for every timestep - to *every*
+     * cell, including the margin, which has nowhere to drain to and so keeps all of it. Over a couple of
+     * hundred timesteps that lifts a strip of the margin back above the waterline, and a world that wraps
+     * east to west then has land at the seam a player can stand on and see the world change.
+     *
+     * Found by registering `Invariants.checkOceanBorderIsOcean`, which had been written and never added to
+     * the check list - so the property the architecture document lists as asserted was failing on every seed
+     * and nothing was looking. It is a pre-existing bug rather than one belonging to any of the stages added
+     * around it, and this is its fix: the same continuous blend, applied to the eroded surface, before
+     * hydrology and everything after it sees the layer.
+     */
+    OceanBorder.of(ctx.config, params.oceanBorderDepth, region, metres, region.width)
+      .applyTo(elevation, seaLevel)
 
     return StageResult.of(
       elevation.toLayer(LayerId.ELEVATION, region),

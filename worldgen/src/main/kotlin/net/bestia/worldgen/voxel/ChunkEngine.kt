@@ -32,5 +32,6 @@ object ChunkEngine {
    * 1 is the first value that means anything: before it the client compared the RLE version alone and had no
    * way to notice a palette it disagreed with.
    */
-  const val VERSION = 1
+  // 2: the seven worked materials buildings and streets are made of - TIMBER through COBBLESTONE.
+  const val VERSION = 2
 }
