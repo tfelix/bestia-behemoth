@@ -43,6 +43,7 @@ object ViewerMain {
     println("world tier built in ${System.currentTimeMillis() - started} ms")
     println("  ${scene.fields.size} fields")
     println("  ${describeLand(generated)}")
+    println("  ${describeLakes(generated)}")
     println("  ${describeBiomes(generated)}")
     println("  ${scene.featureSummary()}")
 
@@ -101,6 +102,39 @@ object ViewerMain {
     return "land ${"%.3f".format(Locale.ROOT, land)} of the world " +
         "(bedrock ${"%.3f".format(Locale.ROOT, bedrock)})" +
         ", ${elevation.data.min().toInt()} .. ${elevation.data.max().toInt()} m"
+  }
+
+  /**
+   * How many lakes there are, how much of the world they cover, and how many are salt.
+   *
+   * Printed because for a long time the answer was **none, on every world at every size**, and nothing said
+   * so. `hydro/Lakes.kt` had the whole endorheic balance in it and never received a basin to apply it to,
+   * because erosion conditions its output surface to be depression-free and nothing else dug one; the
+   * invariant that should have caught it skips every cell that has no lake in it, so it passed. A count that
+   * appears on every run is the cheapest possible guard against a subsystem being quietly dead.
+   *
+   * Endorheic basins are called out separately because they are the interesting half - a terminal lake
+   * concentrates salt, which is where `ResourceStage` puts its evaporite deposits - and because "some lakes,
+   * none of them terminal" and "no lakes" are different failures.
+   */
+  private fun describeLakes(generated: GeneratedWorld): String {
+    val lakes = generated.world.layers[LayerId.LAKE_ID] as? IntLayer ?: return "no lake layer"
+
+    // The count itself comes from Invariants so the sweep and this agree by construction; the breakdown is
+    // this tool's own, because a sweep wants one number per world and a single world can afford a sentence.
+    val total = Invariants.lakeCount(generated)
+    if (total == 0) return "lakes 0 - nothing in the pipeline dug a basin"
+
+    val endorheic = HashSet<Int>()
+    var cells = 0
+    for (id in lakes.data) {
+      if (id == 0) continue
+      if (id < 0) endorheic.add(id)
+      cells++
+    }
+
+    val share = 100.0 * cells / lakes.data.size
+    return "lakes $total (${endorheic.size} endorheic), ${"%.2f".format(Locale.ROOT, share)}% of the world"
   }
 
   /**

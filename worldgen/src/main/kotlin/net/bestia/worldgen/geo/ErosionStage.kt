@@ -126,10 +126,15 @@ data class ErosionParams(
 /**
  * Stage 3: erosion at world scale - stream power incision, mass wasting, and sediment deposition.
  *
- * Consumes [LayerId.BEDROCK_ELEVATION] and produces [LayerId.ELEVATION]: the two are separate layers
- * because they are separate things, and because the layer store will not let one stage overwrite
- * another's output. What comes out the far side is the surface the rest of the pipeline means when it
- * says "the land".
+ * Consumes [LayerId.BEDROCK_ELEVATION] and produces [LayerId.ERODED_ELEVATION]: the two are separate
+ * layers because they are separate things, and because the layer store will not let one stage overwrite
+ * another's output.
+ *
+ * What comes out the far side is **not** the surface the rest of the pipeline means when it says "the land".
+ * Ice still has to cut into it, so [LayerId.ELEVATION] belongs to `GlacialStage` and this stage hands it the
+ * fluvial surface to carve. The distinction is not bookkeeping: when erosion owned `ELEVATION`, nothing
+ * downstream declared glacial, so troughs existed only at chunk-materialisation time and every stage that
+ * decides where something sits had already committed to ground the finished chunks then cut away.
  *
  * The three processes each contribute something no amount of noise can fake:
  *
@@ -152,13 +157,15 @@ class ErosionStage(
 ) : Stage {
 
   override val id = ID
+
   // 2: the ocean margin is reapplied after uplift, which was lifting it back above sea level.
-  override val version = 2
+  // 3: emits ERODED_ELEVATION; ELEVATION is now the glacial stage's, so ice reaches downstream stages.
+  override val version = 3
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
-    StageOutput.Raster(LayerId.ELEVATION),
+    StageOutput.Raster(LayerId.ERODED_ELEVATION),
     StageOutput.Raster(LayerId.SEDIMENT)
   )
 
@@ -211,7 +218,7 @@ class ErosionStage(
     ).applyTo(elevation, seaLevel)
 
     return StageResult.of(
-      elevation.toLayer(LayerId.ELEVATION, region),
+      elevation.toLayer(LayerId.ERODED_ELEVATION, region),
       sediment.toLayer(LayerId.SEDIMENT, region)
     )
   }

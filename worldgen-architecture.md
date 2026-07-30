@@ -13,12 +13,7 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
-module with no I/O in it. 322 unit tests, plus a seed-sweep regression harness.
-
-> **One of the 322 is red.** `TownStageTest.the ground under a building is level` fails because the glacial
-> stage is wired to nothing downstream, so terrain the civ stages never saw carves the ground out from under
-> their buildings. It is a real defect rather than a stale assertion, and it is written up under
-> [Known defect: the glacial stage is an orphan](#known-defect-the-glacial-stage-is-an-orphan).
+module with no I/O in it. 327 unit tests, plus a seed-sweep regression harness.
 
 | # | Step | Status | Where |
 |---|---|---|---|
@@ -121,12 +116,11 @@ is an index, not the reasoning. Grouped by what it would take.
   spread survive, so the fields exist and are thrown away. Enough for biomes, not for agriculture by month —
   and the cheapest unbuilt item on this list, because the machinery is a `List<Grid>` nobody reads.
 - **Top-2 biome blending** — only the winner is stored, so a consumer can dither a boundary but not blend it.
-- **Lakes.** `LAKE_ID` is all zero and `WATER_LEVEL` is NaN off the sea, on every world at every size.
-  `hydro/Lakes.kt` is complete — endorheic balance, salt lakes, hypsometric fill — and never receives a basin,
-  because erosion conditions its output to be depression-free and nothing else digs one. Wants a basin source:
-  glacial overdeepening and tectonic subsidence, which is most of where real lakes come from anyway.
-- **Chunk-scale droplet erosion** (deviation 1), **glacial terrain being visible to anything downstream**
-  (deviation 6, and larger than that entry admits), **sea lanes** so islands are connected (deviation 7),
+- **A second source of lake basins.** Glacial overdeepening now supplies one, so a glaciated world has lakes —
+  but a small warm world has almost no ice and still has none: five of 120 seeds at 192 km come out dry. Wants
+  tectonic subsidence, which is where the Caspian and the Dead Sea come from and which would also give the
+  salt-lake and evaporite paths a subject on every world rather than only the cold ones.
+- **Chunk-scale droplet erosion** (deviation 1), **sea lanes** so islands are connected (deviation 7),
   **road-junction and trough-tributary smoothing**.
 - **The place → route → regrow → replace settlement iteration** — single pass.
 - **Special sites**: mines, monasteries, forts, lighthouses. Bridges are done.
@@ -288,23 +282,24 @@ route finding in `civ/RouteFinder`.
 ### The standard pipeline
 
 ```
-tectonics → climate → erosion → glacial
-                          \→ hydrology → biomes → resources → habitability
-                                                                   ↓
-                                        settlements → history → towns → economy
+tectonics → climate → erosion → glacial → hydrology → biomes → resources → habitability
+                                                                              ↓
+                                                   settlements → history → towns → economy
 ```
 
 Twelve world-tier stages, in `pipeline/StandardWorld.kt`. Each declares only what it reads and the
 scheduler enforces that, so the stage list is the entire wiring — there is no order to get right
 beyond the dependencies the stages already state.
 
-The diagram above is the *intended* wiring and is wrong about one edge. **Glacial and hydrology are siblings:
-neither declares the other, so nothing orders them and nothing lets either see the other's work.** They
-execute glacial-first, but only because the topological sort breaks ties on stage name and `"glacial"` sorts
-before `"hydrology"` — an alphabetical accident standing where a dependency should be. It is the mechanism
-behind [the orphaned glacial stage](#known-defect-the-glacial-stage-is-an-orphan), and a reminder that the
-scheduler enforcing "read only what you declare" is only half a guarantee: it cannot tell you about something
-you *should* have declared and did not.
+The diagram is drawn with glacial before hydrology because that is now a declared dependency. **For a long time
+it was not**: the two were siblings, neither declaring the other, and they executed in that order only because
+the topological sort breaks ties on stage name and `"glacial"` sorts before `"hydrology"` — an alphabetical
+accident standing where a dependency belonged, and the mechanism behind
+[the orphaned glacial stage](#the-glacial-stage-was-an-orphan-and-fixing-it-produced-the-worlds-first-lakes).
+The lesson generalises: the scheduler enforcing "read only what you declare" is only half a guarantee, because
+it cannot tell you about something you *should* have declared and did not. The other half comes from putting a
+layer everything reads in the hands of the last stage that changes it, so that omitting the dependency fails
+loudly instead of quietly returning a surface that is not the final answer.
 
 Emitted layers and feature kinds:
 
@@ -312,10 +307,10 @@ Emitted layers and feature kinds:
 |---|---|---|
 | `tectonics` | `BEDROCK_ELEVATION`, `PLATE_ID`, `ROCK_HARDNESS`, `CRUST_AGE`, `UPLIFT` | `FAULT` |
 | `climate` | `TEMPERATURE`, `TEMPERATURE_RANGE`, `PRECIPITATION`, `PRECIPITATION_SEASONALITY`, `DISTANCE_TO_OCEAN` | — |
-| `erosion` | `ELEVATION`, `SEDIMENT` | — |
+| `erosion` | `ERODED_ELEVATION`, `SEDIMENT` | — |
 | `hydrology` | `FLOW_DIRECTION`, `FLOW_ACCUMULATION`, `DISCHARGE`, `WATER_LEVEL`, `LAKE_ID` | `RIVER_CHANNEL`, `RIVER_CONFLUENCE` |
 | `biomes` | `BIOME`, `BIOME_CONFIDENCE`, `SOIL_FERTILITY`, `SOIL_DEPTH` | — |
-| `glacial` | `ICE_THICKNESS` | `GLACIAL_TROUGH`, `FJORD`, `CIRQUE`, `MORAINE` |
+| `glacial` | `ELEVATION`, `ICE_THICKNESS` | `GLACIAL_TROUGH`, `FJORD`, `CIRQUE`, `MORAINE` |
 | `resources` | `RESOURCE_VALUE` | `ORE_DEPOSIT` |
 | `habitability` | `HABITABILITY`, `MOVEMENT_COST` | — |
 | `settlements` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE` |
@@ -567,23 +562,64 @@ density moves mountain height, which moves rain shadow, which moves the biome mi
 why `viewer` now prints the land fraction and the biome mix on every run — see the tooling section — because a
 number nobody can read off the output is a number that drifts.
 
-#### Known defect: the glacial stage is an orphan
+#### The glacial stage was an orphan, and fixing it produced the world's first lakes
 
-Recorded here rather than in the deviations list, because it is a bug and not a decision. **No stage declares
-`GlacialStage` as a dependency, and nothing consumes `ICE_THICKNESS` or any of `GLACIAL_TROUGH`, `FJORD`,
-`CIRQUE` or `MORAINE`.** Outside the stage itself the only references are its construction in
-`pipeline/StandardWorld.kt`, four colours in `MapRenderer`, and one fjord-sill invariant.
+For most of this module's life **no stage declared `GlacialStage`, and nothing consumed `ICE_THICKNESS` or any
+of `GLACIAL_TROUGH`, `FJORD`, `CIRQUE` or `MORAINE`.** Outside the stage itself the only references were its
+construction in `pipeline/StandardWorld.kt`, four colours in `MapRenderer`, and one fjord-sill invariant.
 
-So the four feature kinds reach the world *only* at chunk-materialisation time — and a trough carves absolutely
-(`Profiles.glacialTrough` ignores the base height and `MIN` decides), by hundreds of metres. Which means
-hydrology, habitability, settlement placement and town layout all commit to a coarse elevation that the finished
-chunks then cut away beneath them. `TownStageTest.the ground under a building is level` catches the visible end
-of it: a town at 2463 m laid its buildings on the coarse raster and a trough carved the ground under them to
-1938 m, leaving a 525 m plinth. `WorldGround` queries only `RIVER_CHANNEL` and `ROAD`, and could not see the
-trough if it asked, because its stage does not declare glacial.
+So the four feature kinds reached the world *only* at chunk-materialisation time — and a trough carves
+absolutely (`Profiles.glacialTrough` ignores the base height and `MIN` decides), by hundreds of metres. Which
+meant hydrology, habitability, settlement placement and town layout all committed to a coarse elevation that
+the finished chunks then cut away beneath them. `TownStageTest.the ground under a building is level` caught the
+visible end of it: a town at 2463 m laid its buildings on the coarse raster and a trough carved the ground
+under them to 1938 m, leaving a **525 m plinth**.
 
-[Deviation 6](#deliberate-deviations) describes the polite half of this as "rivers do not follow glacial
-troughs". The impolite half is that glacial terrain is invisible to every decision the civ stages make.
+**The fix is one edge and one raster.** `ErosionStage` now emits `ERODED_ELEVATION` — the fluvial surface — and
+`GlacialStage` emits `ELEVATION`, the fluvial surface with the ice's own work cut into it. Because dependency
+scoping is transitive, adding `GlacialStage` to `HydrologyStage`'s dependencies gives *every* stage below it the
+carved ground for free, and because `ELEVATION` changed owner, a stage that reads the ground without declaring
+glacial now fails loudly instead of silently reading a surface that is not the final answer. The pipeline
+enforcing "read only what you declare" was only ever half a guarantee; it cannot tell you about something you
+*should* have declared and did not. Making the ground belong to the last stage that shapes it is what closes
+that half.
+
+The carve is evaluated through `FeatureEvaluator` itself rather than a second reading of the profiles, so the
+coarse and fine tiers cannot disagree, and it is safe to apply twice because a trough imposes an absolute floor
+under a `MIN` blend — `min(floor, floor)` is `floor`. Moraines are excluded for exactly that reason: they are
+`ADD`-blended ridges, and carving one here and stamping it again at chunk time would build it twice as tall.
+The filter is on the blend mode rather than the feature kind, so a new additive glacial feature is excluded
+automatically.
+
+**And the troughs turned out to be impossible.** This section's opening paragraph says real troughs are one to
+three kilometres wide in total; measured, the corridor half-widths on the reference world ran to a *median of
+8.7 km, a ninetieth percentile of 45 km and a maximum of 93 km* — the same unbounded cube root as the cirque
+radius, one scale up. It survived because nothing but chunk generation ever read a trough, and at 32 m a
+valley floor of impossible width looks like ordinary flat ground. The moment the carve reached the raster it
+was unmissable: the troughs' bounding boxes summed to **thirty-three times the area of the world**, they
+drowned four points of its land, and the stage went from 255 ms to six seconds. `maxFloorHalfWidth` caps it.
+
+The results, on the 512 km reference world:
+
+| | before | after |
+|---|---|---|
+| Lakes | **0** | **115**, 25 of them endorheic |
+| Land fraction | 0.507 | 0.506 (0.462 with the uncapped troughs) |
+| Glacial stage | 255 ms | 559 ms |
+| Seam check | clean | clean |
+
+**The lakes are the headline.** `hydro/Lakes.kt` was complete and unit-tested and had never once received a
+basin, because `ErosionStage.incise` clamps every cell to at or above its receiver and hands hydrology a
+depression-free surface. An overdeepened trough floor *is* a closed basin — the floor is a running minimum with
+the overdeepening subtracted on top — so the carve gave priority-flood something to fill. Endorheic basins
+appearing also turns on `ResourceStage`'s evaporite deposits and `Palette`'s salt-lake colour, both written
+long ago and never once exercised.
+
+Two things that are still true: a **128 km world has no lakes**, because it has almost no ice — that wants a
+second basin source, tectonic subsidence, and until it exists lake existence is asserted across a sweep of
+seeds rather than per seed, since a trough that runs to the sea legitimately impounds nothing. And
+[deviation 6](#deliberate-deviations) is closed for rivers but the wider lesson is the one worth keeping: a
+deviation that described the polite half of a defect made the defect look considered for a year.
 
 ### The voxel grid has a resolution floor, and features have to respect it
 
@@ -643,17 +679,19 @@ file is one somebody will later mistake for a bug.
    only the winning biome is stored, not the top-2 pair with its blend weight. (`bio/BiomeStage.kt`)
 5. **Settlement footprints are discs, not polygons** — a radial terrace rather than an outline with a
    street graph inside it. The polygon and everything it would contain is step 8.
-6. **Rivers do not follow glacial troughs.** Hydrology routes over the raster and a trough exists only
-   in the vector tier, so a post-glacial river does not know to run along the trough floor it should
-   have inherited. Fixing it means either rasterising troughs before hydrology or routing flow against
-   the vector tier; both are larger than the artefact.
+6. ~~**Rivers do not follow glacial troughs.**~~ **Closed.** Hydrology routed over the raster while a trough
+   existed only in the vector tier, so a post-glacial river did not know to run along the trough floor it
+   should have inherited. `GlacialStage` now rasterises its carve into `ELEVATION` and `HydrologyStage`
+   declares it, so flow routes over the ground ice actually left.
 
-   **This entry understates it, and the understatement was itself the bug.** Framed as a river not
-   inheriting a valley floor it reads as cosmetic, which is why it sat here. In fact *nothing downstream sees
-   glacial terrain at all* — no stage declares `GlacialStage`, so habitability, settlement placement and town
-   layout also commit to an elevation the finished chunks carve hundreds of metres out of. See
-   [Known defect: the glacial stage is an orphan](#known-defect-the-glacial-stage-is-an-orphan). A deviation
-   describing the polite half of a defect is worse than no entry, because it makes the defect look considered.
+   **The entry understated the defect, and the understatement was itself the bug.** Framed as a river not
+   inheriting a valley floor it reads as cosmetic, which is why it sat here for a year. In fact *nothing
+   downstream saw glacial terrain at all* — no stage declared `GlacialStage`, so habitability, settlement
+   placement and town layout were also deciding against an elevation the finished chunks carved hundreds of
+   metres out of, and the troughs themselves were up to 93 km wide because nothing ever looked at one. See
+   [The glacial stage was an orphan](#the-glacial-stage-was-an-orphan-and-fixing-it-produced-the-worlds-first-lakes).
+   A deviation describing the polite half of a defect is worse than no entry at all, because it makes the
+   defect look considered.
 7. **Roads do not connect across water.** A route that would cross the sea is rejected rather than
    bridged, so two settlements on different landmasses are not road-linked. They would be linked by a
    sea lane, which is a feature kind that does not exist yet.
@@ -802,11 +840,18 @@ reimplemented in the check, the pipeline test and the sweep, and the copies had 
 `> 0f` instead of against the world's actual sea level. Two of those callers now also *report* it rather than
 only asserting on it, which is what makes a bad seed visible rather than merely legal.
 
-**Two of these are currently vacuous, and that is worth knowing about a list like this.** Nothing generates a
-lake, so `lakes stand above their beds` inspects no cells and passes; and no world tested has an endorheic
-basin, so the salt-lake half of the deposit rules never fires. A check that skips its subject and reports
-success is the same failure the ocean-margin story below describes, one step further along — registered, but
-with nothing to assert against.
+**Two of these used to be vacuous, and it is worth knowing how long that went unnoticed.** Nothing generated a
+lake, so `lakes stand above their beds` inspected no cells and passed; and no world had an endorheic basin, so
+the salt-lake half of the deposit rules never fired. A check that skips its subject and reports success is the
+same failure the ocean-margin story below describes, one step further along — registered, but with nothing to
+assert against. Both have subjects now that the glacial carve reaches the raster.
+
+Lake *existence* is deliberately **not** among the per-seed invariants, and the reason is a distinction worth
+keeping. A trough that runs to the sea drains rather than impounding, so a small world with four of them
+honestly holds no water: measured over 120 seeds at 192 km, five of them have no lake. Asserting existence per
+seed would fail on honest worlds, so it is asserted across a sweep instead — and the *count* is reported by
+both `viewer` and `invariants` on every run, because what killed this for a year was not a weak assertion but
+the absence of any number at all.
 
 For steps 8–10: founding and abandonment years are ordered and a ruin has nobody in it; no event names
 a settlement before it was founded or after it emptied; no surviving event cites a pruned cause; every
@@ -989,12 +1034,13 @@ Climate is a legitimate candidate for a **coarser** grid than the heightfield �
 > the *shoreline*, so `Grid.gradient` made the coast the easiest place to start a channel, and `landSlopes`
 > clamps the neighbours at sea level to ask how steep the *land* is.
 >
-> **No lake is currently generated.** `Lakes.kt` is complete and unit-tested, and gates a lake on
-> priority-flood having had to *raise* a cell by more than half a metre — but `ErosionStage.incise` clamps
-> every cell to at or above its receiver, so the surface it hands over is depression-free by construction and
-> there is nothing left to raise. Nothing in the pipeline creates a basin that outruns fluvial incision, which
-> is what glacial overdeepening and tectonic subsidence are for and why neither is optional.
-> `checkLakesStandAboveTheirBeds` passes vacuously, because it skips every cell with no lake in it.
+> **Lakes exist, and for a long time none did.** `Lakes.kt` gates a lake on priority-flood having had to
+> *raise* a cell by more than half a metre, and `ErosionStage.incise` clamps every cell to at or above its
+> receiver — so the surface it hands over is depression-free by construction and there was nothing left to
+> raise. `Lakes.kt` was complete, unit-tested, and had never once received a basin. What supplies one now is
+> glacial overdeepening, since a trough floor is a running minimum with the overdeepening subtracted on top;
+> the reference world gets 115 lakes where it had none, 25 of them endorheic. A 128 km world still gets none,
+> because it has almost no ice, and that is what a second basin source — tectonic subsidence — is for.
 
 This is where most generators fail. The correct approach:
 
@@ -1281,9 +1327,19 @@ Roads should also *feed back* into settlement growth: settlements on major route
 >
 > That prediction is a second copy of `PointFeature.falloff` and `FeatureEvaluator`'s `REPLACE` case, which is
 > a poor thing, and it is pinned by `TownStageTest.the ground under a building is level` measuring the finished
-> columns. **That test is currently red**, and the drift it caught is not in the copy: it is the orphaned
-> glacial stage carving ground the town stage cannot see. See
-> [Known defect](#known-defect-the-glacial-stage-is-an-orphan).
+> columns. That test has now caught two real faults, neither in the copy itself. The first was the orphaned
+> glacial stage carving ground the town stage could not see — a 525 m plinth, see
+> [The glacial stage was an orphan](#the-glacial-stage-was-an-orphan-and-fixing-it-produced-the-worlds-first-lakes).
+> The second was subtler and had been latent from the start: `WorldGround` predicted the ground from the coarse
+> elevation layer, which omits the **detail noise** the chunk tier adds, so the site check predicted a residual
+> of zero for lots that finished two metres out and passed them. It now samples `WorldHeightField` — the same
+> base surface the chunks sample — so what it levels is what a player stands on.
+>
+> A third came out of the same seam sweep: `builtRadiusFor` capped the street network at 95% of the graded
+> footprint, and a plot hangs 22 m off its street. A city has 45 m of headroom for that and **a village has
+> 9.5 m**, so a village whose streets reached the cap put its outermost buildings on ungraded hillside. A share
+> was the wrong instrument, because what has to fit in the margin does not scale with the settlement; the cap
+> now reserves a plot's full reach.
 
 Per settlement, generated deterministically from `hash(settlement_id)`:
 

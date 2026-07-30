@@ -25,6 +25,11 @@ object InvariantsMain {
     // where it was aimed. The spread across seeds does, and this is the only place it can be seen.
     val land = ArrayList<Double>(seeds)
 
+    // Lake counts are here for a blunter reason: the answer used to be zero on every world and no output said
+    // so. `checkIceCarvedWorldsHaveLakes` now fails a glaciated world with none, but a *count* is what shows
+    // that a world has three where it ought to have thirty, which no pass/fail can.
+    val lakes = ArrayList<Int>(seeds)
+
     val report = Invariants.sweep(
       seeds = seeds,
       firstSeed = firstSeed,
@@ -35,7 +40,10 @@ object InvariantsMain {
         val fraction = Invariants.landFraction(generated)
         land.add(fraction)
 
-        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}"
+        val basins = Invariants.lakeCount(generated)
+        lakes.add(basins)
+
+        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -56,7 +64,17 @@ object InvariantsMain {
             "${"%.3f".format(Locale.ROOT, sorted.last())}"
       )
     }
-    println("$report in ${"%.1f".format(seconds)} s")
+    if (lakes.isNotEmpty()) {
+      val sorted = lakes.sorted()
+      val dry = sorted.count { it == 0 }
+      println(
+        "lakes: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
+            ", $dry of ${sorted.size} worlds with none"
+      )
+    }
+    // Locale.ROOT here too, for the same reason the fractions above have it - and because this line was
+    // printing "31,6 s" three lines below one that had been careful about exactly that.
+    println("$report in ${"%.1f".format(Locale.ROOT, seconds)} s")
 
     if (!report.isClean) {
       // Non-zero so CI notices. The detail is already on stdout, seed by seed.

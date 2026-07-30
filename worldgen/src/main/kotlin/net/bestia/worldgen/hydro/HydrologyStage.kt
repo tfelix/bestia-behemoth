@@ -16,6 +16,7 @@ import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.IntGrid
 import net.bestia.worldgen.fields.Tables
 import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.LinearFeatures
@@ -190,9 +191,25 @@ class HydrologyStage(
 ) : Stage {
 
   override val id = ID
+
   // 2: channel initiation reads slope as well as catchment area, so heads sit in the uplands.
-  override val version = 2
-  override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID)
+  // 3: routes over the glacially carved surface, so rivers inherit trough floors and ribbon lakes form.
+  override val version = 3
+
+  /**
+   * Note **glacial**, which is what makes a post-glacial river run down the trough it should have inherited.
+   *
+   * Before it, glacial and hydrology were siblings that neither ordered nor could see one another - they ran
+   * in the right order only because the topological sort breaks ties on stage name and `"glacial"` sorts
+   * first, which is an alphabetical accident standing where a dependency belongs. Declaring it turns that
+   * accident into a guarantee, and lets this stage read the surface ice actually left.
+   *
+   * It also feeds every stage below: dependency scoping is transitive, so habitability, settlement placement
+   * and town layout all reach glacial through this one edge and stop deciding things on ground that is not
+   * there.
+   */
+  override val dependencies =
+    listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, GlacialStage.ID)
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(

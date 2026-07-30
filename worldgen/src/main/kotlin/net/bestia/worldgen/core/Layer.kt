@@ -50,7 +50,29 @@ data class LayerId(val name: String) {
 
     // --- Erosion ---------------------------------------------------------------------------------
 
-    /** The land surface everything downstream means when it says "elevation". */
+    /**
+     * The fluvial surface: bedrock after stream power, mass wasting and deposition, before ice.
+     *
+     * Deliberately **not** the layer downstream stages read. Erosion is not the last thing that shapes the
+     * ground - the glacial stage carves troughs and cirques hundreds of metres into it - so a stage reading
+     * this one is reading a surface that is not the final answer anywhere ice went. [ELEVATION] is that
+     * answer, and it is glacial's to produce.
+     *
+     * The only legitimate readers are [GlacialStage][net.bestia.worldgen.geo.GlacialStage], which carves it,
+     * and tooling that wants to *show* what ice did by differencing the two.
+     */
+    val ERODED_ELEVATION = LayerId("eroded_elevation")
+
+    /**
+     * The land surface everything downstream means when it says "elevation".
+     *
+     * Produced by the **glacial** stage, not by erosion, and that is load bearing rather than a curiosity of
+     * the wiring. It is the last word on the ground, so every stage that decides anything about where things
+     * sit - flow routing, habitability, settlement placement, town layout - reads it and therefore has to
+     * declare a dependency reaching glacial. When erosion owned it, nothing did: the four glacial feature
+     * kinds carved the chunk ground at materialisation time and every civ stage had already committed to a
+     * surface without them in it, which put buildings on 500 m plinths.
+     */
     val ELEVATION = LayerId("elevation")
 
     /** Thickness of deposited sediment in metres: alluvium, valley fill, deltas. */

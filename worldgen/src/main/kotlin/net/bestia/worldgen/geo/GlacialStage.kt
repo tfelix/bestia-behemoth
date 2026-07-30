@@ -17,14 +17,18 @@ import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.Tables
 import net.bestia.worldgen.hydro.FlowRouting
+import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.HeightModSink
 import net.bestia.worldgen.vector.LinearFeatures
 import net.bestia.worldgen.vector.PointFeature
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.RadialProfiles
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -54,6 +58,26 @@ data class GlacialParams(
 
   /** Half-width of a trough floor as a multiple of the cube root of its ice flux. */
   val floorWidthFactor: Double = 5.5,
+
+  /**
+   * Largest a trough floor may be, in metres of half-width.
+   *
+   * The same unbounded cube root as [maxCirqueRadius], and it had the same consequence one scale up. This
+   * class's own opening paragraph says real troughs are *one to three kilometres wide in total*; measured
+   * before this cap, the corridor half-widths on the reference world ran to a **median of 8.7 km, a ninetieth
+   * percentile of 45 km and a maximum of 93 km.** A trough 186 km across is not a landform, it is a continent
+   * with a dent in it.
+   *
+   * It went unnoticed for as long as it did because nothing but chunk generation ever read a trough, and a
+   * chunk is 32 m wide - at that scale an impossibly broad valley floor looks like ordinary flat ground. It
+   * became visible the moment the carve reached the raster: the troughs' bounding boxes summed to thirty-three
+   * times the area of the world, and drowned four points of its land.
+   *
+   * 900 m of floor gives `wallSpread` a total half-width of about 2.3 km, so a major valley is a shade under
+   * five kilometres across - the upper end of what the literature describes, which is right for the largest
+   * trough on a world rather than the typical one.
+   */
+  val maxFloorHalfWidth: Double = 900.0,
 
   /** Ratio of total trough half-width to floor half-width. Sets how far the walls lean out. */
   val wallSpread: Double = 2.6,
@@ -116,11 +140,14 @@ class GlacialStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: emits ELEVATION - the troughs are carved into the raster, not only stamped at chunk time.
+  override val version = 2
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID)
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
+    StageOutput.Raster(LayerId.ELEVATION),
     StageOutput.Raster(LayerId.ICE_THICKNESS),
     StageOutput.Vector(FeatureKind.GLACIAL_TROUGH),
     StageOutput.Vector(FeatureKind.FJORD),
@@ -132,7 +159,7 @@ class GlacialStage(
     val metres = region.resolution.metresPerCell
     val seaLevel = ctx.config.seaLevel
 
-    val elevation = Grid.from(ctx.layers.float(LayerId.ELEVATION))
+    val elevation = Grid.from(ctx.layers.float(LayerId.ERODED_ELEVATION))
     val temperature = Grid.resampled(ctx.layers.float(LayerId.TEMPERATURE), region)
     val precipitation = Grid.resampled(ctx.layers.float(LayerId.PRECIPITATION), region)
 
@@ -144,10 +171,171 @@ class GlacialStage(
       emptyList()
     }
 
+    // The fluvial surface with the ice's own work cut into it. On an ice-free world this is a straight copy,
+    // which is why the layer is emitted unconditionally: a downstream stage must never have to ask whether
+    // this world had glaciers before it knows which layer holds the ground.
+    carveInto(elevation, features, region, metres)
+
     return StageResult(
-      layers = listOf(ice.toLayer(LayerId.ICE_THICKNESS, region)),
+      layers = listOf(
+        elevation.toLayer(LayerId.ELEVATION, region),
+        ice.toLayer(LayerId.ICE_THICKNESS, region)
+      ),
       features = features
     )
+  }
+
+  /**
+   * Rasterises the carving features onto [elevation], in place.
+   *
+   * ### Why the coarse tier needs this at all
+   *
+   * A trough is a vector feature evaluated at chunk scale, which is what makes its cross-section crisp at any
+   * resolution, and for a long time that was the whole story. The trouble is that *deciding* things is done on
+   * the raster: flow routing, habitability, settlement placement and town layout all read [LayerId.ELEVATION]
+   * and none of them can see a feature. So a trough that cut four hundred metres out of a valley was invisible
+   * to every one of them until chunk generation, at which point the decisions were already made - rivers routed
+   * over ground that is not there, and a town laid out on a surface the finished chunks cut away beneath it,
+   * leaving its buildings on plinths hundreds of metres tall.
+   *
+   * The design's own rule resolves it: *the coarse pass decides where a feature goes and how big it is, the
+   * fine pass decides what it looks like.* This is the coarse half, and the vector tier keeps the fine half.
+   *
+   * ### Why applying it twice is harmless
+   *
+   * Chunk generation stamps these same features over a base sampled from the layer this writes, so every
+   * carve happens twice. That is safe **only** for features that impose an absolute height under a `MIN`
+   * blend, which is exactly what a trough, a fjord and a cirque do: `Profiles.glacialTrough` ignores the base
+   * height entirely and `MIN` keeps the lower of the two, so `min(floor, floor)` is `floor` and the second
+   * application changes nothing.
+   *
+   * A moraine is the counter-example and the reason this filters rather than taking every feature: it is a
+   * ridge blended with `ADD`, so carving it here and stamping it again at chunk time would build it twice as
+   * tall. Filtering on the blend mode rather than on the feature kind keeps that reasoning attached to the
+   * property it depends on, so a new additive glacial feature is excluded automatically.
+   *
+   * The one visible consequence is that the coarse carve is bicubically smeared when the chunk tier samples
+   * it, so the ground flanking a trough dips a little more gently than the vector profile alone would say.
+   * That is the raster tier doing what the design says it does to any feature narrower than a few cells, and
+   * for a glacial valley - which really is broader than its own trough floor - it errs in the right direction.
+   *
+   * ### Accumulated in place, in the evaluator's own order
+   *
+   * The obvious implementation - query a [FeatureIndex] per cell and hand the hits to a [FeatureEvaluator] -
+   * is what this did first, and it cost twenty-four times the rest of the stage: a list allocation, a sort and
+   * a scratch buffer per cell, several hundred thousand times over.
+   *
+   * Sorting the features **once** by `(priority, id)` and accumulating each one into the grid in place is
+   * exactly equivalent, because that is the order `FeatureEvaluator` would have imposed anyway and each
+   * feature sees the height its predecessors left - which is the evaluator's contract. So the arithmetic below
+   * mirrors `FeatureEvaluator.add`'s `MIN` case rather than reimplementing a carve, and one sink and one
+   * scratch buffer serve the whole world.
+   */
+  private fun carveInto(
+    elevation: Grid,
+    features: List<VectorFeature>,
+    region: CellRegion,
+    metres: Double
+  ) {
+    val carving = features
+      .filter { it.affectsHeight && it.blend == BlendMode.MIN }
+      .sortedWith(compareBy({ it.priority }, { it.id.value }))
+    if (carving.isEmpty()) return
+
+    val originX = region.minX * metres
+    val originY = region.minY * metres
+
+    val scratch = DoubleArray(carving.maxOf { it.scratchSize })
+    val sink = MinBlendSink()
+
+    // Which feature last claimed each cell, so the corridor walk below can revisit a cell cheaply without
+    // evaluating it twice. One array for the whole world rather than a set per feature.
+    val claimed = IntArray(elevation.size) { -1 }
+
+    fun evaluate(feature: VectorFeature, ordinal: Int, cellX: Int, cellY: Int) {
+      if (cellX < 0 || cellY < 0 || cellX >= region.width || cellY >= region.height) return
+      val i = elevation.index(cellX, cellY)
+      if (claimed[i] == ordinal) return
+      claimed[i] = ordinal
+
+      sink.height = elevation.data[i]
+      feature.evaluateColumn(
+        originX + (cellX + 0.5) * metres,
+        originY + (cellY + 0.5) * metres,
+        sink.height,
+        scratch,
+        sink
+      )
+      elevation.data[i] = sink.height
+    }
+
+    for ((ordinal, feature) in carving.withIndex()) {
+      val box = feature.bbox
+      val minCellX = floor((box.minX - originX) / metres).toInt()
+      val maxCellX = ceil((box.maxX - originX) / metres).toInt()
+      val minCellY = floor((box.minY - originY) / metres).toInt()
+      val maxCellY = ceil((box.maxY - originY) / metres).toInt()
+
+      val outline = feature.outline()
+      val boxCells = (maxCellX - minCellX + 1).toLong() * (maxCellY - minCellY + 1).toLong()
+
+      // A compact feature - a cirque is a couple of cells across - is cheaper to sweep than to trace.
+      if (outline.isEmpty() || boxCells <= COMPACT_FEATURE_CELLS) {
+        for (cellY in minCellY..maxCellY) {
+          for (cellX in minCellX..maxCellX) evaluate(feature, ordinal, cellX, cellY)
+        }
+        continue
+      }
+
+      // A trough is a long thin thing lying diagonally across a large and mostly empty bounding box, and
+      // `evaluateColumn` costs a projection against every segment of the centreline whether the cell is in the
+      // corridor or a corner of the box twenty kilometres away. Tracing the geometry instead visits the
+      // corridor and nothing else: measured on the reference world, sweeping boxes cost this stage twenty-one
+      // times what the ice flow itself did.
+      val reach = feature.corridorWidthMax + metres
+      val span = ceil(reach / metres).toInt()
+
+      for (line in outline) {
+        var along = 0.0
+        while (true) {
+          val at = line.pointAt(along)
+          val centreX = floor((at.x - originX) / metres).toInt()
+          val centreY = floor((at.y - originY) / metres).toInt()
+
+          for (dy in -span..span) {
+            for (dx in -span..span) evaluate(feature, ordinal, centreX + dx, centreY + dy)
+          }
+
+          if (along >= line.length) break
+          along = min(along + metres * 0.5, line.length)
+        }
+      }
+    }
+  }
+
+  /**
+   * One column's worth of `MIN` blending, reused across every cell.
+   *
+   * `FeatureEvaluator.add`'s `MIN` case, extracted so it can be called without allocating an evaluator per
+   * cell. It is a copy of three lines, and the reason that is acceptable here where it usually is not: the
+   * features this serves are filtered to `MIN` beforehand, so there is no branch to get wrong, and
+   * `ProfileContinuityTest` pins the property that actually matters - that the coarse carve and the chunk-tier
+   * stamp of the same feature agree.
+   */
+  private class MinBlendSink : HeightModSink {
+    var height = 0.0
+
+    override fun add(
+      featureId: FeatureId,
+      priority: Int,
+      blend: BlendMode,
+      value: Double,
+      weight: Double
+    ) {
+      val w = min(1.0, weight)
+      val target = if (value < height) value else height
+      height += (target - height) * w
+    }
   }
 
   /**
@@ -339,6 +527,7 @@ class GlacialStage(
       val strength = normalisedFlux(flux.data[cell])
       erosion[k] = strength
       floorHalf[k] = max(metres * 0.12, params.floorWidthFactor * Math.cbrt(flux.data[cell].coerceAtLeast(1.0)))
+        .coerceAtMost(params.maxFloorHalfWidth)
 
       // Monotonic before overdeepening, so the trough still descends overall; the overdeepening is then
       // subtracted on top and is what breaks the monotonicity locally.
@@ -455,6 +644,16 @@ class GlacialStage(
 
   companion object {
     val ID = StageId("glacial")
+
+    /**
+     * Bounding-box cell count below which the coarse carve sweeps the box instead of tracing the geometry.
+     *
+     * A cirque's box is a handful of cells and tracing its outline ring would visit more of them than the box
+     * contains. The crossover is not delicate - anything from a dozen to a few hundred behaves the same,
+     * because what the trace exists to avoid is the *long thin diagonal* case, which is orders of magnitude
+     * past this either way.
+     */
+    private const val COMPACT_FEATURE_CELLS = 64L
 
     private const val SMOOTHING = 2
 

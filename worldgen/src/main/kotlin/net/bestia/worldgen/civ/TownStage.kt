@@ -16,7 +16,9 @@ import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.history.HistoryStage
 import net.bestia.worldgen.hydro.HydrologyStage
@@ -333,11 +335,30 @@ class TownStage(
    * the radius off the tier would make them the same size and leave the sacking with no consequence anybody
    * can see. Capped by the graded footprint, because beyond that the ground is not level and the buildings
    * would be standing on a hillside.
+   *
+   * ### The cap has to reserve a lot, not a percentage
+   *
+   * This is a radius for the *street network*, and a plot hangs off a street: its centre sits
+   * `setback + lotDepth / 2` beyond the kerb and its far edge a further `lotDepth / 2`. So a share of the
+   * footprint radius is the wrong instrument, because the margin it leaves scales with the settlement while
+   * the thing that has to fit in that margin does not. At 95% a city keeps 45 m of headroom for a 22 m plot
+   * and a **village keeps 9.5 m**, which is not enough - so a village whose streets happened to reach the cap
+   * put its outermost buildings outside the ground it had graded, standing on a hillside, which is the same
+   * plinth problem in a smaller hat. A hamlet had 4.5 m and was worse.
+   *
+   * Subtracting the plot's full reach instead makes the property true by construction and independent of tier:
+   * every lot, not merely its centre, lies inside the graded disc. `Invariants` checks the centre, which is
+   * the weaker claim; this keeps the stronger one.
    */
   private fun builtRadiusFor(population: Int, tier: SettlementTier): Double {
     val hectares = population / params.peoplePerHectare
     val radius = sqrt(max(hectares, 0.05) * SQUARE_METRES_PER_HECTARE / PI)
-    return min(radius, tier.footprintRadius * FOOTPRINT_SHARE)
+
+    // Floored above zero so a hamlet on a tight footprint still gets one ring of streets rather than none.
+    val usable = (tier.footprintRadius * FOOTPRINT_SHARE - (params.setback + params.lotDepth))
+      .coerceAtLeast(tier.footprintRadius * MIN_BUILT_SHARE)
+
+    return min(radius, usable)
   }
 
   // --- Features -------------------------------------------------------------------------------------
@@ -529,6 +550,16 @@ class TownStage(
     /** Largest share of the graded footprint the built area may take. Beyond it the ground is not level. */
     private const val FOOTPRINT_SHARE = 0.95
 
+    /**
+     * Floor on the built radius as a share of the footprint, for when reserving a plot would leave nothing.
+     *
+     * A hamlet's footprint is 90 m and a plot reaches 22 m into it, so the reservation is a quarter of the
+     * whole disc. Without a floor a change to `lotDepth` could take a small settlement's street network to
+     * zero and delete it silently; with one it comes out cramped, which is visible and is what a hamlet
+     * should look like anyway.
+     */
+    private const val MIN_BUILT_SHARE = 0.5
+
     /** Cut and fill a building's own pad may add on top of the settlement's grading, in metres. */
     /**
      * What a building's own pad may cut and fill, in metres.
@@ -649,17 +680,29 @@ internal object TownReader {
 /**
  * What the ground under a town is doing: how high, whether it may be built on, and which way things flow.
  *
- * ### The elevation this uses, and the one it cannot
+ * ### The elevation this uses, and why it is not the coarse layer
  *
- * A building's floor has to be decided *here*, in a world-tier stage, and the height a chunk will actually
- * generate comes from `ChunkHeightSampler` - which is assembled after the pipeline and reads every feature
- * including the ones this stage is emitting. So this predicts rather than reads: the coarse elevation,
- * terraced towards the site elevation with the same limits the settlement's own grading feature applies.
+ * A building's floor has to be decided *here*, in a world-tier stage, while the height a chunk will actually
+ * generate comes from `ChunkHeightSampler`, which is assembled after the pipeline and reads every feature
+ * including the ones this stage is emitting. So this has to predict. The question is how much of the real
+ * thing the prediction includes.
  *
- * What that misses is the sub-kilometre detail noise the base heightfield adds, of order a metre. The
- * building pad absorbs it - it is a terrace with its own small cut and fill, so it levels whatever it finds
- * - and where it cannot, the materialiser fills the gap as a plinth. Nothing depends on the prediction
- * being exact; it decides which of two plausible floor heights a building gets, and both are plausible.
+ * It reads [WorldHeightField], the same base surface the chunk tier samples, rather than the coarse
+ * [LayerId.ELEVATION] layer directly. The difference between the two is the sub-kilometre detail noise, and
+ * this used to skip it on the argument that the building pad would absorb it. **The pad cannot absorb what
+ * the site check cannot see.** [TownStage.standsLevel] rejects a lot whose pad would leave a residual over a
+ * metre, and it made that judgement against a surface with no noise in it, so it predicted a residual of zero
+ * for lots that finished two metres out and passed them - leaving buildings that far into the ground.
+ *
+ * Reading the real field costs an fbm evaluation per query and removes a whole class of disagreement between
+ * what this stage thinks the ground is and what a player stands on. What it still does not include is the
+ * features - rivers, roads, the town's own streets and grading - so `gradedGround` and `gradingFaded` model
+ * the grading disc's arithmetic themselves, and that remains a second copy of one formula pinned by
+ * `TownStageTest.the ground under a building is level`.
+ *
+ * A note on layering: `civ/` reaching into `geo/` for [WorldHeightField] is deliberate and narrow. It is not
+ * another stage's derivation - it is the definition of the base surface, the thing `core/ChunkHeightSampler`
+ * exists to sample, and the alternative is a third copy of the detail-noise formula in this file.
  */
 internal class WorldGround(
   private val ctx: GenContext,
@@ -670,6 +713,19 @@ internal class WorldGround(
   private val elevation: FloatLayer = ctx.layers.float(LayerId.ELEVATION)
   private val waterLevel: FloatLayer = ctx.layers.float(LayerId.WATER_LEVEL)
   private val flowDirection = ctx.layers.int(LayerId.FLOW_DIRECTION)
+
+  /**
+   * The base surface a chunk will sample, detail noise included.
+   *
+   * Constructed with default `DetailParams` because `StandardWorld.assemble` does; the two have to agree, and
+   * a disagreement would show up as buildings sitting slightly off the ground everywhere.
+   */
+  private val base: BaseHeightField = WorldHeightField(
+    elevation = elevation,
+    hardness = ctx.layers.float(LayerId.ROCK_HARDNESS),
+    seed = ctx.config.seed,
+    seaLevel = ctx.config.seaLevel
+  )
 
   /** River channels, so a street is never routed into one. Cached per world, queried per settlement. */
   private val rivers: List<PolylineFeature> = ctx.features.query(region.toWorld())
@@ -682,9 +738,9 @@ internal class WorldGround(
 
   private val metres = region.resolution.metresPerCell
 
-  /** Coarse ground, terraced the way the settlement's grading will terrace it. */
+  /** The base surface, terraced the way the settlement's grading will terrace it. */
   fun gradedGround(at: Vec2d, siteElevation: Double): Double {
-    val raw = elevation.sampleBicubic(at.x, at.y)
+    val raw = base.heightAt(at.x, at.y)
     return when {
       raw > siteElevation -> max(siteElevation, raw - params.grading.maxCut)
       raw < siteElevation -> min(siteElevation, raw + params.grading.maxFill)
@@ -709,7 +765,7 @@ internal class WorldGround(
    * the finished columns, so if these ever drift apart it fails.
    */
   fun gradingFaded(at: Vec2d, town: TownReader.Town): Double {
-    val raw = elevation.sampleBicubic(at.x, at.y)
+    val raw = base.heightAt(at.x, at.y)
     val radius = town.tier.footprintRadius
     val normalized = at.distanceTo(town.position) / radius
     if (normalized >= 1.0) return raw

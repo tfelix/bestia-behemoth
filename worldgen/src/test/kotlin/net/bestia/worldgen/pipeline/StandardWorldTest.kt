@@ -140,6 +140,9 @@ class StandardWorldTest {
         TectonicsStage(),
         ClimateStage(),
         Reversioned(ErosionStage(), version = 99),
+        // Glacial is here because hydrology depends on it - it owns ELEVATION, so it stands between the
+        // fluvial surface and everything that reads "the ground".
+        GlacialStage(),
         HydrologyStage(),
         BiomeStage()
       )
@@ -209,13 +212,27 @@ class StandardWorldTest {
   fun `the invariants hold across a sweep of seeds`() {
     // Worldgen bugs are rare-seed bugs. Four is not a thousand, but it is enough to catch the ones that
     // depend on a world having no lakes, or no rivers, or almost no land.
+    val lakes = ArrayList<Int>()
     val report = Invariants.sweep(
       seeds = 4,
       firstSeed = 700L,
-      config = { seed -> config(seed).copy(widthCells = 128, heightCells = 128) }
+      config = { seed -> config(seed).copy(widthCells = 128, heightCells = 128) },
+      onSeed = { _, _, generated -> lakes.add(Invariants.lakeCount(generated)) }
     )
 
     assertTrue(report.isClean, report.toString() + "\n" + report.violations.take(6).joinToString("\n"))
+
+    // Lake counts are asserted here, across seeds, rather than as a per-seed invariant - because per seed the
+    // property is not true. A trough that runs to the sea drains rather than impounding, so a small world with
+    // four of them legitimately holds no water, and an invariant saying otherwise fails on honest worlds.
+    //
+    // What is *not* legitimate is what the pipeline did until the glacial carve reached the raster: zero lakes
+    // on every world at every size, with `checkLakesStandAboveTheirBeds` skipping every cell and reporting
+    // success. Asserted across a handful of seeds because that is the scale the claim is true at.
+    assertTrue(
+      lakes.any { it > 0 },
+      "no seed of ${lakes.size} produced a single lake: $lakes"
+    )
   }
 
   @Test

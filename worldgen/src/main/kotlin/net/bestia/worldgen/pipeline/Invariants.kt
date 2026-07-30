@@ -815,6 +815,24 @@ object Invariants {
     return elevation.data.count { it > seaLevel }.toDouble() / elevation.data.size
   }
 
+  /**
+   * How many distinct lake basins the world holds.
+   *
+   * Public for the same reason [landFraction] is: the sweep and the viewer both print it, and a number two
+   * tools measure differently is a number neither can be trusted about. Counts distinct `LAKE_ID` values
+   * rather than cells, because "one lake the size of a sea" and "forty tarns" cover the same area and are not
+   * the same world.
+   */
+  fun lakeCount(generated: GeneratedWorld): Int {
+    val lakes = generated.world.layers[LayerId.LAKE_ID] as? IntLayer ?: return 0
+
+    val ids = HashSet<Int>()
+    for (id in lakes.data) {
+      if (id != 0) ids.add(id)
+    }
+    return ids.size
+  }
+
   private fun checkLandFraction(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     val land = landFraction(generated)
 
