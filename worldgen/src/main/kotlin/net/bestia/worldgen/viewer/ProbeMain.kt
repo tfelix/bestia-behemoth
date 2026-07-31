@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
@@ -43,7 +44,13 @@ object ProbeMain {
 
     println("world ${WorldArgs.summary(config)}")
 
-    val generated = StandardWorld.build(config)
+    // `--droplets` turns on chunk-scale droplet erosion, which ships off. This is the only way to look at it:
+    // the viewer renders whole worlds so a gully is a pixel, and the probe's 48 m window is the scale the
+    // feature exists at. A gated feature nobody can see is a gated feature nobody can judge.
+    val droplets = DropletParams(enabled = cli.has(DROPLETS))
+    if (droplets.enabled) println("droplet erosion ON - ${droplets.dropletsPerSquareKilometre.toInt()}/km2")
+
+    val generated = StandardWorld.build(config, droplets = droplets)
     val probe = Probe(config, generated)
 
     val survey = cli.int("--survey")
@@ -382,5 +389,8 @@ object ProbeMain {
   private const val GLYPHS = ".:oO#*+=%@$&~"
 
   /** What to look at, as opposed to which world to look at it in - see [WorldArgs]. */
-  private val PROBE_FLAGS = setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels")
+  private const val DROPLETS = "--droplets"
+
+  private val PROBE_FLAGS =
+    setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", DROPLETS)
 }

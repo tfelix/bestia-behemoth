@@ -10,6 +10,8 @@ import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.geo.DropletHeightField
+import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.LinearFeatures
 import net.bestia.worldgen.vector.Polyline
@@ -217,6 +219,35 @@ class ChunkSeamTest {
     val report = ChunkSeamCheck.run(perChunkMeander, blockSize = 4, threads = 4)
 
     assertTrue(!report.isClean, "the seam check failed to notice a per-chunk meander")
+  }
+
+  @Test
+  fun `the seam check catches droplet tiles keyed on the chunk`() {
+    // The negative control for `geo/DropletHeightField`, and the reason its tile lattice is fixed in world space.
+    //
+    // The tempting design is a droplet simulation per chunk with a margin, blended in the overlap. It cannot
+    // work, and this is what it looks like when it does not: each chunk offsets the lattice to its own origin,
+    // so two chunks simulate the same ground independently and their results differ. The real field takes no
+    // chunk parameter at all, which is what makes that mistake unexpressible rather than merely avoided - so
+    // the control has to be built here, at the level that *does* know which chunk it is.
+    val chunkKeyed = ChunkColumnSource { chunk, halo ->
+      val field = DropletHeightField(
+        // Shifting the inner field by the chunk origin is equivalent to shifting the lattice under it.
+        BaseHeightField { x, y ->
+          terrain.heightAt(x + chunk.x * config.chunkExtent, y + chunk.y * config.chunkExtent)
+        },
+        config.seed,
+        DropletParams(enabled = true, tileExtent = config.chunkExtent, cellSize = 2.0)
+      )
+      ColumnHeights.build(chunk, config.chunkSize, halo) { localX, localY ->
+        val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
+        field.heightAt(worldX, worldY)
+      }
+    }
+
+    val report = ChunkSeamCheck.run(chunkKeyed, blockSize = 4, threads = 4)
+
+    assertTrue(!report.isClean, "the seam check failed to notice chunk-keyed droplet tiles")
   }
 
   private fun describe(report: ChunkSeamCheck.Report) =

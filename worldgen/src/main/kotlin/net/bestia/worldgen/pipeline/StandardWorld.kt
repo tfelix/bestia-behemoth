@@ -22,6 +22,8 @@ import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.geo.DropletHeightField
+import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.resource.ResourceStage
@@ -117,23 +119,43 @@ object StandardWorld {
    * The stage graph is built from [config] rather than being a constant, because climate's resolution
    * depends on how big the world is - see [climateResolutionFor].
    */
-  fun build(config: WorldConfig, listener: StageListener = StageListener.NONE): GeneratedWorld {
+  fun build(
+    config: WorldConfig,
+    listener: StageListener = StageListener.NONE,
+    droplets: DropletParams = DropletParams()
+  ): GeneratedWorld {
     val world = pipeline(config).generateWorld(config, listener)
-    return assemble(world)
+    return assemble(world, droplets)
   }
 
-  /** The chunk tier for an already-generated world. Separate so a cached world tier can be reused. */
-  fun assemble(world: World): GeneratedWorld {
+  /**
+   * The chunk tier for an already-generated world. Separate so a cached world tier can be reused.
+   *
+   * [droplets] is a **stage-style param rather than a `WorldConfig` field**, deliberately. A `WorldConfig`
+   * field that decides terrain has to join `shapeVersion`'s explicit list and then `PersistedWorld`,
+   * `WorldConfigMapping`, `WorldGenSettings.FLAGS` and `WorldArgs` all need it - four files and a database
+   * column for a feature that ships off. A param keeps the decision at the call site, which is where the
+   * one caller that turns it on lives.
+   */
+  fun assemble(world: World, droplets: DropletParams = DropletParams()): GeneratedWorld {
     val config = world.config
     val elevation = world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val hardness = world.layers.require<FloatLayer>(LayerId.ROCK_HARDNESS)
 
-    val base = WorldHeightField(
+    val analytic = WorldHeightField(
       elevation = elevation,
       hardness = hardness,
       seed = config.seed,
       seaLevel = config.seaLevel
     )
+
+    // Wrapped, not replaced: with droplets off this returns the analytic field's own value bit for bit, so the
+    // default path is exactly what it was. See DropletHeightField for why the wrapper cannot introduce a seam.
+    val base: BaseHeightField = if (droplets.enabled) {
+      DropletHeightField(analytic, config.seed, droplets)
+    } else {
+      analytic
+    }
 
     val columns = ChunkHeightSampler(config, base, world.features)
 
