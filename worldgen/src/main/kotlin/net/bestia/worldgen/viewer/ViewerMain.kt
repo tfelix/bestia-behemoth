@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.vector.FeatureKind
 import java.awt.GraphicsEnvironment
 import java.io.File
 import java.util.Locale
@@ -116,14 +117,19 @@ object ViewerMain {
    * Endorheic basins are called out separately because they are the interesting half - a terminal lake
    * concentrates salt, which is where `ResourceStage` puts its evaporite deposits - and because "some lakes,
    * none of them terminal" and "no lakes" are different failures.
+   *
+   * The tectonic basin count is beside them because the two lake sources fail independently and at different
+   * world sizes. Ice gave the 512 km world a hundred and fifteen lakes while leaving the 128 km world with
+   * none, and a single total would have read as "lakes are working" on the world it was being read on.
    */
   private fun describeLakes(generated: GeneratedWorld): String {
     val lakes = generated.world.layers[LayerId.LAKE_ID] as? IntLayer ?: return "no lake layer"
+    val basins = generated.world.features.all().count { it.kind == FeatureKind.TECTONIC_BASIN }
 
     // The count itself comes from Invariants so the sweep and this agree by construction; the breakdown is
     // this tool's own, because a sweep wants one number per world and a single world can afford a sentence.
     val total = Invariants.lakeCount(generated)
-    if (total == 0) return "lakes 0 - nothing in the pipeline dug a basin"
+    if (total == 0) return "lakes 0 - $basins closed basins were carved and none of them holds water"
 
     val endorheic = HashSet<Int>()
     var cells = 0
@@ -134,7 +140,8 @@ object ViewerMain {
     }
 
     val share = 100.0 * cells / lakes.data.size
-    return "lakes $total (${endorheic.size} endorheic), ${"%.2f".format(Locale.ROOT, share)}% of the world"
+    return "lakes $total (${endorheic.size} endorheic), ${"%.2f".format(Locale.ROOT, share)}% of the world" +
+        ", from $basins tectonic basins and the ice"
   }
 
   /**

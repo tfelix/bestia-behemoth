@@ -13,7 +13,7 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
-module with no I/O in it. 327 unit tests, plus a seed-sweep regression harness.
+module with no I/O in it. 334 unit tests, plus a seed-sweep regression harness.
 
 | # | Step | Status | Where |
 |---|---|---|---|
@@ -116,10 +116,6 @@ is an index, not the reasoning. Grouped by what it would take.
   spread survive, so the fields exist and are thrown away. Enough for biomes, not for agriculture by month —
   and the cheapest unbuilt item on this list, because the machinery is a `List<Grid>` nobody reads.
 - **Top-2 biome blending** — only the winner is stored, so a consumer can dither a boundary but not blend it.
-- **A second source of lake basins.** Glacial overdeepening now supplies one, so a glaciated world has lakes —
-  but a small warm world has almost no ice and still has none: five of 120 seeds at 192 km come out dry. Wants
-  tectonic subsidence, which is where the Caspian and the Dead Sea come from and which would also give the
-  salt-lake and evaporite paths a subject on every world rather than only the cold ones.
 - **Chunk-scale droplet erosion** (deviation 1), **sea lanes** so islands are connected (deviation 7),
   **road-junction and trough-tributary smoothing**.
 - **The place → route → regrow → replace settlement iteration** — single pass.
@@ -307,7 +303,7 @@ Emitted layers and feature kinds:
 |---|---|---|
 | `tectonics` | `BEDROCK_ELEVATION`, `PLATE_ID`, `ROCK_HARDNESS`, `CRUST_AGE`, `UPLIFT` | `FAULT` |
 | `climate` | `TEMPERATURE`, `TEMPERATURE_RANGE`, `PRECIPITATION`, `PRECIPITATION_SEASONALITY`, `DISTANCE_TO_OCEAN` | — |
-| `erosion` | `ERODED_ELEVATION`, `SEDIMENT` | — |
+| `erosion` | `ERODED_ELEVATION`, `SEDIMENT` | `TECTONIC_BASIN` |
 | `hydrology` | `FLOW_DIRECTION`, `FLOW_ACCUMULATION`, `DISCHARGE`, `WATER_LEVEL`, `LAKE_ID` | `RIVER_CHANNEL`, `RIVER_CONFLUENCE` |
 | `biomes` | `BIOME`, `BIOME_CONFIDENCE`, `SOIL_FERTILITY`, `SOIL_DEPTH` | — |
 | `glacial` | `ELEVATION`, `ICE_THICKNESS` | `GLACIAL_TROUGH`, `FJORD`, `CIRQUE`, `MORAINE` |
@@ -615,11 +611,86 @@ the overdeepening subtracted on top — so the carve gave priority-flood somethi
 appearing also turns on `ResourceStage`'s evaporite deposits and `Palette`'s salt-lake colour, both written
 long ago and never once exercised.
 
-Two things that are still true: a **128 km world has no lakes**, because it has almost no ice — that wants a
-second basin source, tectonic subsidence, and until it exists lake existence is asserted across a sweep of
-seeds rather than per seed, since a trough that runs to the sea legitimately impounds nothing. And
+One thing that was still true and is now not: a **128 km world had no lakes**, because it has almost no ice.
+That wanted the second basin source, and it got one — see below. And
 [deviation 6](#deliberate-deviations) is closed for rivers but the wider lesson is the one worth keeping: a
 deviation that described the polite half of a defect made the defect look considered for a year.
+
+#### The second lake source, for the worlds ice never reached
+
+Glacial overdeepening gave the reference world 115 lakes and the 128 km world `zone-server` actually boots
+**none** — it has 36 glacial features and every trough runs to the sea. Five of 120 seeds at 192 km were dry for
+the same reason. So `geo/ClosedBasins.kt` supplies the other source real lakes come from: a graben dropped
+between the shoulders of a divergent boundary, or an old continental interior that has sagged. Between them
+those hold the Caspian, Baikal, the Dead Sea, Lake Eyre and every playa in the Great Basin.
+
+It runs as a **pass over the finished erosion surface**, and the precedent is a dozen lines away in the same
+file, where `OceanBorder` is reapplied because forty-five timesteps of uplift legitimately undo it. The same
+argument with the sign flipped: a basin carved *before* the loop is a basin the loop fills in, because filling
+depressions is what the loop does. `incise`'s clamp stays exactly as it was.
+
+**Raster, not vector.** A basin is five to twenty kilometres across — an order of magnitude past the three coarse
+cells that push a feature into the vector tier, and broad enough that a bicubic sample of the kilometre grid
+reproduces it at chunk scale with nothing to stitch. `TectonicsStage.addHotspotChains` makes the same call in the
+same package for the same reason. A `TECTONIC_BASIN` point marker records each one carrying no terrain effect,
+which is not for the chunks but for the invariants and the viewer: the defect this pass finishes off survived as
+long as it did because nothing counted lakes and nothing drew basins.
+
+**The depression is arithmetic rather than tuning**, which is what lets lake existence finally be asserted per
+world. Each basin is measured against a *sill ring* — the annulus just inside its radius, at least one and a half
+cells thick so no eight-connected path can step across it. The floor goes a subsidence below the ring's lowest
+cell, and the rim height is set to whichever is larger of "reaches the ring's tallest cell at the radius" and
+"is still above the sill at the ring's inner edge". The second term is the load-bearing one: with the profile
+`floor + (d/r)^n · rimHeight` it needs `rimHeight ≥ depth / q` where `q = ((r − ringThickness) / r)^n`, and
+setting it so means nothing in the ring can end up below the sill while the centre is a full subsidence under it.
+A point lower than a closed band around it is a closed depression.
+
+Three things were got wrong on the way there, and each is now a test:
+
+- **Judging a candidate on the whole disc rather than the ring** disqualified any site with a valley floor
+  anywhere inside it, and left the 512 km world with exactly **one** viable site. On the ring, a valley that
+  genuinely breaches the basin still counts — it *is* the sill — and one that merely passes nearby does not.
+- **A product of three sub-unit preferences is small almost everywhere.** Interiority × quietness × structure
+  scored a perfectly reasonable site at 0.07, so every world fell back to its single best candidate. Each factor
+  now keeps a floor and the product is a ranking rather than a filter.
+- **`quietUplift` was reasoned into place at twice the interior figure, and measurement moved it.** What the
+  candidates on nine real worlds actually look like is a cluster at 2.0–2.5, a gap, then the crests at 7–9.5.
+  Cutting at 2.4 scored that middle cluster at nothing — and the cluster is not orogen, it is orogen *flank*,
+  where a foreland basin goes. 4.0 keeps the flanks and still scores the crests at zero.
+
+A fourth was caught by a test asserting more than the design promised: the ring is not left *unchanged*, only
+never cut below its sill, and a paraboloid left the deepest **cell** 13% short of the nominal floor because the
+subsidence is defined at a world position half a cell-diagonal away. A quartic profile makes that shortfall a
+millimetre per metre of ring relief, and gives the basin the flat floor a playa actually has.
+
+**And a fifth was found by looking at the map, which is the only way it could have been.** Every test passed and
+every sweep was clean, and the reference world carried six flawless blue discs while Genesis carried seven —
+against terrain where nothing else is straight or round, they read as impact craters. This is the rectangular
+coastline and the ruled hotspot chain in a third form, and it is worth naming as a recurring failure rather than
+three separate ones: *a landform generated from one number is shaped like that number's level set.* The fix is
+`OceanBorder`'s own trick, one dimension over — the bowl's reach is pulled **inward** by up to a third at an
+angle-varying amount, sampled around a closed circle so it is periodic in the angle. Inward-only is what makes it
+free: the sill ring is measured on the unwarped radius, so shrinking the profile can only raise it at a ring
+cell, and the whole argument above survives with the same `q`.
+
+Paying for that cosmetic warp by enlarging the minimum basin was tried and reverted, and the measurement is why:
+a larger disc has a larger sill ring, more candidates have a ring dipping too near the sea, and Genesis went from
+**seven basins to three**. A third of a world's lakes is not a reasonable price for an outline.
+
+| | 512 km reference | 128 km Genesis |
+|---|---|---|
+| Basins | 8 | 7 |
+| Lakes | 115 → **121** | 0 → **7** |
+| Endorheic | 25 → 27 | 0 → **1** |
+| Land fraction | 0.506 → 0.506 | 0.525 → 0.525 |
+| Seam check | clean | clean |
+
+`Invariants.checkTheWorldHasStandingWater` is registered as a result, and it is deliberately the one lake
+property stated unconditionally — the *absence* of that check is what let a dead subsystem look healthy for a
+year, and the tooling section above records how. The per-basin claim stays a disjunction, because
+`GlacialStage` writes the same surface afterwards and a trough crossing a ring drains it. Which is a landform,
+not a bug, and the two sources cover each other: a world where ice breached every basin is a world with
+ice-carved basins of its own.
 
 ### The voxel grid has a resolution floor, and features have to respect it
 
@@ -830,10 +901,11 @@ The seam stress view runs on every export and prints, e.g.,
 independently and fails if adjacent chunks disagree on any shared column's height.
 
 Invariants currently asserted per seed: layers are finite; the land fraction is plausible; normalised
-layers stay in range; discharge grows downstream; river beds descend; lakes stand above their beds;
-water is where the biome says it is; feature bounds contain their geometry; no settlement is in the
-sea; settlements respect their tier's separation; deposits are well formed; every fjord sill is
-shallower than its landward basin; and the ocean margin contains neither land nor settlements.
+layers stay in range; discharge grows downstream; river beds descend; the world has standing water;
+lakes stand above their beds; every closed basin can hold water; water is where the biome says it is;
+feature bounds contain their geometry; no settlement is in the sea; settlements respect their tier's
+separation; deposits are well formed; every fjord sill is shallower than its landward basin; and the
+ocean margin contains neither land nor settlements.
 
 `landFraction` is a single shared function rather than a measurement each caller makes: it had been
 reimplemented in the check, the pipeline test and the sweep, and the copies had drifted — one of them tested
@@ -846,12 +918,18 @@ the salt-lake half of the deposit rules never fired. A check that skips its subj
 same failure the ocean-margin story below describes, one step further along — registered, but with nothing to
 assert against. Both have subjects now that the glacial carve reaches the raster.
 
-Lake *existence* is deliberately **not** among the per-seed invariants, and the reason is a distinction worth
-keeping. A trough that runs to the sea drains rather than impounding, so a small world with four of them
-honestly holds no water: measured over 120 seeds at 192 km, five of them have no lake. Asserting existence per
-seed would fail on honest worlds, so it is asserted across a sweep instead — and the *count* is reported by
-both `viewer` and `invariants` on every run, because what killed this for a year was not a weak assertion but
-the absence of any number at all.
+Lake *existence* is now asserted per seed, and how it got there is the more useful half. When glacial
+overdeepening was the only basin source it could only be asserted across a sweep: a trough that runs to the sea
+drains rather than impounding, so a small world with four of them honestly holds no water, and measured over 120
+seeds at 192 km, **five of them had none**. Asserting existence per seed would have failed on honest worlds. What
+made the unconditional statement available was not a stricter check but a second source with a construction
+behind it — `geo/ClosedBasins` puts a closed depression on every continent by arithmetic rather than by tuning —
+and the same 120 seeds now come out **0 of 120 dry, median 11 lakes against a previous median of 5**.
+
+The *count* is reported by both `viewer` and `invariants` on every run regardless, because what killed this for a
+year was not a weak assertion but the absence of any number at all. The two lake sources are reported separately
+for the same reason: ice gave the 512 km world 115 lakes while leaving the 128 km world with none, so a single
+total would have read as "lakes are working" on whichever world it was being read on.
 
 For steps 8–10: founding and abandonment years are ordered and a ruin has nobody in it; no event names
 a settlement before it was founded or after it emptied; no surviving event cites a pruned cause; every
@@ -1039,8 +1117,9 @@ Climate is a legitimate candidate for a **coarser** grid than the heightfield �
 > receiver — so the surface it hands over is depression-free by construction and there was nothing left to
 > raise. `Lakes.kt` was complete, unit-tested, and had never once received a basin. What supplies one now is
 > glacial overdeepening, since a trough floor is a running minimum with the overdeepening subtracted on top;
-> the reference world gets 115 lakes where it had none, 25 of them endorheic. A 128 km world still gets none,
-> because it has almost no ice, and that is what a second basin source — tectonic subsidence — is for.
+> the reference world gets 115 lakes where it had none, 25 of them endorheic. Ice alone still left a 128 km
+> world dry, so `geo/ClosedBasins.kt` supplies the second source — a graben or an interior sag, carved back into
+> the erosion surface after the loop that conditioned it flat. Genesis goes from 0 lakes to 7.
 
 This is where most generators fail. The correct approach:
 

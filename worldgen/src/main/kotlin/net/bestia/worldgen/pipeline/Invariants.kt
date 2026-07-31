@@ -15,6 +15,7 @@ import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.geo.ClosedBasins
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
@@ -115,7 +116,9 @@ object Invariants {
     checkLandFraction(generated, ::fail)
     checkDischargeGrowsDownstream(generated, ::fail)
     checkWaterIsWhereTheBiomeSaysItIs(generated, ::fail)
+    checkTheWorldHasStandingWater(generated, ::fail)
     checkLakesStandAboveTheirBeds(generated, ::fail)
+    checkClosedBasinsCanHoldWater(generated, ::fail)
     checkNormalisedLayersAreInRange(generated, ::fail)
     checkRiverBedsDescend(generated, ::fail)
     checkFeatureBoundsContainTheirGeometry(generated, ::fail)
@@ -913,6 +916,35 @@ object Invariants {
     }
   }
 
+  /**
+   * The world has standing fresh water somewhere on it.
+   *
+   * The check whose absence hid the longest-lived defect in this module. `hydro/Lakes.kt` was written complete,
+   * with an endorheic evaporation balance and unit tests over synthetic pits, and **never once received a
+   * basin**: erosion conditions its output surface to be depression-free, nothing else dug one, so `LAKE_ID`
+   * was zero on every world at every size. [checkLakesStandAboveTheirBeds] skipped every cell of it and
+   * reported success, which is how an invariant the architecture document listed as asserted was in fact
+   * asserting nothing.
+   *
+   * So this is deliberately the one lake property stated *unconditionally*. It can be, because both sources of
+   * standing water are now guaranteed rather than incidental: glacial overdeepening delivers where ice ran, and
+   * `geo/ClosedBasins` puts a tectonic basin on every continent whether it froze or not - by construction, not
+   * by tuning. See the note there on why the depression cannot fail to be one.
+   */
+  private fun checkTheWorldHasStandingWater(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val lakes = generated.world.layers.require<IntLayer>(LayerId.LAKE_ID)
+    if (lakes.data.any { it != 0 }) return
+
+    val basins = generated.world.features.all().count { it.kind == FeatureKind.TECTONIC_BASIN }
+    fail(
+      "the world has standing water",
+      "no cell belongs to a lake, on a world with $basins closed basins carved into it"
+    )
+  }
+
   /** A lake surface must be above the ground it covers. Trivially true, catastrophic when false. */
   private fun checkLakesStandAboveTheirBeds(
     generated: GeneratedWorld,
@@ -934,6 +966,51 @@ object Invariants {
           )
           return
         }
+      }
+    }
+  }
+
+  /**
+   * Every closed basin is a dry-land depression of a plausible size.
+   *
+   * The floor is the one that matters. A basin carved below sea level is not an inland sea - `FlowRouting` calls
+   * anything under the waterline ocean and `Lakes` skips ocean cells, so what it actually produces is a pocket
+   * of sea in the middle of a continent with no coast to it and no lake in it. `ClosedBasinParams.freeboard`
+   * exists to prevent that, and this is what keeps it honest when the depths are next retuned.
+   *
+   * The radius bound is the same class of tripwire as the cirque and trough caps: unbounded growth in a
+   * landform's size is how this module has produced 12 km cirques and 93 km valley floors, and both times the
+   * cause was a formula with nothing on the far side of it.
+   */
+  private fun checkClosedBasinsCanHoldWater(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val seaLevel = generated.config.seaLevel
+    val widest =
+      minOf(generated.config.widthMetres, generated.config.heightMetres) * MAX_BASIN_WORLD_SHARE
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.TECTONIC_BASIN) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val floor = runCatching { marker.attribute(ClosedBasins.CHANNEL_FLOOR) }.getOrNull() ?: continue
+      val radius = marker.attribute(ClosedBasins.CHANNEL_RADIUS)
+      val depth = marker.attribute(ClosedBasins.CHANNEL_DEPTH)
+
+      if (floor <= seaLevel) {
+        fail(
+          "closed basins can hold water",
+          "basin ${feature.id} has its floor at ${floor.toInt()} m, at or below sea level"
+        )
+        return
+      }
+      if (depth <= 0.0 || radius <= 0.0 || radius > widest) {
+        fail(
+          "closed basins can hold water",
+          "basin ${feature.id} is ${radius.toInt()} m across and ${depth.toInt()} m deep"
+        )
+        return
       }
     }
   }
@@ -1016,6 +1093,15 @@ object Invariants {
 
   /** Metres a bed may rise between stations before it counts as flowing uphill. */
   private const val BED_TOLERANCE = 1e-6
+
+  /**
+   * Largest a closed basin may be, as a share of the world's short edge.
+   *
+   * A lake a tenth of a continent across is Baikal, and generous. The bound is here at all because two
+   * landforms in this pipeline have already run away - a cirque reached 12 km radius and a trough floor 93 km
+   * of half-width - and in both cases the formula was a cube root with nothing on the far side of it.
+   */
+  private const val MAX_BASIN_WORLD_SHARE = 0.1
 
   /**
    * Slack on the separation check.

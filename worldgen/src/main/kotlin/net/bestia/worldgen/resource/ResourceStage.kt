@@ -513,12 +513,8 @@ private class Terrain(
       }
     }
 
-    private fun isConvergent(fault: MarkerFeature): Boolean {
-      val stations = fault.stations ?: return false
-      val channel = runCatching { stations.channel(TectonicsStage.CHANNEL_BOUNDARY_TYPE) }.getOrNull()
-        ?: return false
-      return stations.sample(channel, 0.0).toInt() == BoundaryType.CONVERGENT.ordinal
-    }
+    private fun isConvergent(fault: MarkerFeature) =
+      TectonicsStage.boundaryTypeOf(fault) == BoundaryType.CONVERGENT
   }
 }
 

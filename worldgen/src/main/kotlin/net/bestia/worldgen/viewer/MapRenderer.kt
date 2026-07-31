@@ -499,6 +499,7 @@ class MapRenderer(
       FeatureKind.FAULT -> Color(160, 90, 200)
       FeatureKind.ORE_DEPOSIT -> Color(255, 210, 70)
       FeatureKind.COASTLINE -> Color(250, 250, 250)
+      FeatureKind.TECTONIC_BASIN -> Color(120, 170, 235)
       FeatureKind.GLACIAL_TROUGH, FeatureKind.FJORD -> Color(140, 220, 255)
       FeatureKind.CIRQUE -> Color(190, 235, 255)
       FeatureKind.RIVER_CHANNEL, FeatureKind.RIVER_CONFLUENCE -> Color(80, 160, 255)

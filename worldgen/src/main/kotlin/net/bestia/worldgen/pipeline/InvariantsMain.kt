@@ -26,8 +26,8 @@ object InvariantsMain {
     val land = ArrayList<Double>(seeds)
 
     // Lake counts are here for a blunter reason: the answer used to be zero on every world and no output said
-    // so. `checkIceCarvedWorldsHaveLakes` now fails a glaciated world with none, but a *count* is what shows
-    // that a world has three where it ought to have thirty, which no pass/fail can.
+    // so. `checkTheWorldHasStandingWater` now fails a world with none, but a *count* is what shows that a world
+    // has three where it ought to have thirty, which no pass/fail can.
     val lakes = ArrayList<Int>(seeds)
 
     val report = Invariants.sweep(

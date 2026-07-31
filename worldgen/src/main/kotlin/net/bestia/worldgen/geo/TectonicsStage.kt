@@ -769,6 +769,23 @@ class TectonicsStage(
     const val CHANNEL_CONVERGENCE = "convergence"
     const val CHANNEL_STRENGTH = "strength"
 
+    /**
+     * The boundary type a fault marker carries, or null if it carries none.
+     *
+     * Here rather than in each reader because there are now three of them - ore genesis wants convergent
+     * boundaries, closed basins want divergent ones - and the alternative is three copies of "resolve the
+     * channel, sample it at zero, turn a double into an ordinal". The ordinal round trip in particular is the
+     * kind of thing that stays correct in three places right up until the enum gains a member.
+     *
+     * Null rather than a throw for a marker with no such channel: [FeatureKind.FAULT] is the only kind that
+     * carries one, and a caller filtering a mixed query should not have to guard against its own filter.
+     */
+    fun boundaryTypeOf(fault: MarkerFeature): BoundaryType? {
+      val stations = fault.stations ?: return null
+      val channel = runCatching { stations.channel(CHANNEL_BOUNDARY_TYPE) }.getOrNull() ?: return null
+      return BoundaryType.entries.getOrNull(stations.sample(channel, 0.0).toInt())
+    }
+
     private const val PLATE_STREAM = 1L
     private const val HOTSPOT_STREAM = 2L
 

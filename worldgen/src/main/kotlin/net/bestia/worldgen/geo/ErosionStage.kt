@@ -2,6 +2,7 @@ package net.bestia.worldgen.geo
 
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Resolution
@@ -14,6 +15,12 @@ import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.hydro.DrainageNetwork
 import net.bestia.worldgen.hydro.FlowRouting
+import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.MarkerFeature
+import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.Polyline
+import net.bestia.worldgen.vector.StationTable
+import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.pow
 
 /** Tuning for [ErosionStage]. */
@@ -114,7 +121,15 @@ data class ErosionParams(
   val depositionG: Double = 0.9,
 
   /** Deposition multiplier for cells under water: a river entering the sea drops its load. Deltas. */
-  val marineDeposition: Double = 3.0
+  val marineDeposition: Double = 3.0,
+
+  /**
+   * Where the world's closed basins go, and how deep.
+   *
+   * Nested here rather than given a stage of its own because it is a *pass* over this stage's output surface,
+   * and one that only makes sense after the erosion loop has finished with it - see [ClosedBasins].
+   */
+  val basins: ClosedBasinParams = ClosedBasinParams()
 ) {
   init {
     require(timesteps >= 1) { "timesteps must be at least 1" }
@@ -146,6 +161,10 @@ data class ErosionParams(
  * - **Deposition** fills what incision excavates, so mountain fronts get alluvial fans and coasts get
  *   deltas rather than the terrain simply going down everywhere.
  *
+ * Two passes then run over the finished surface, because both are things the loop legitimately undoes: the
+ * ocean margin is put back, and the world's closed basins are cut in. The second is where the lakes of an
+ * ice-free world come from, and [ClosedBasins] explains why they cannot come from anywhere inside the loop.
+ *
  * Hydrology and erosion are iterated together, which the architecture document calls for: rivers cut
  * their valleys and the valleys redirect the rivers. Here that loop lives *inside* the stage rather
  * than as an edge in the stage DAG, because a DAG cannot express a fixpoint. Downstream, the hydrology
@@ -160,13 +179,15 @@ class ErosionStage(
 
   // 2: the ocean margin is reapplied after uplift, which was lifting it back above sea level.
   // 3: emits ERODED_ELEVATION; ELEVATION is now the glacial stage's, so ice reaches downstream stages.
-  override val version = 3
+  // 4: closed basins are cut back into the surface the loop conditioned to have none.
+  override val version = 4
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
     StageOutput.Raster(LayerId.ERODED_ELEVATION),
-    StageOutput.Raster(LayerId.SEDIMENT)
+    StageOutput.Raster(LayerId.SEDIMENT),
+    StageOutput.Vector(FeatureKind.TECTONIC_BASIN)
   )
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
@@ -200,6 +221,27 @@ class ErosionStage(
     }
 
     /*
+     * The closed basins, cut back in.
+     *
+     * After the loop, not inside it, and the reason is the same one the margin below has: the loop legitimately
+     * undoes this. `incise` clamps every cell to at or above its receiver, so forty-five timesteps of it leave
+     * a surface with no depression anywhere - which is correct, and is also why nothing in this pipeline had a
+     * lake in it until the glacial carve started reaching the raster. See ClosedBasins.
+     */
+    val basins = ClosedBasins.place(
+      config = ctx.config,
+      rng = ctx.rng(BASIN_STREAM),
+      region = region,
+      elevation = elevation,
+      uplift = uplift,
+      crustAge = Grid.from(ctx.layers.float(LayerId.CRUST_AGE)),
+      oceanDistance = Grid.resampled(ctx.layers.float(LayerId.DISTANCE_TO_OCEAN), region),
+      rifts = riftLines(ctx, region),
+      params = params.basins
+    )
+    ClosedBasins.carve(elevation, basins, region, params.basins)
+
+    /*
      * The ocean margin, put back.
      *
      * Tectonics forces it below sea level, and then this stage adds uplift for every timestep - to *every*
@@ -217,10 +259,53 @@ class ErosionStage(
       ctx.config, params.oceanBorderDepth, region, metres, region.width, params.oceanBorderWobble
     ).applyTo(elevation, seaLevel)
 
-    return StageResult.of(
-      elevation.toLayer(LayerId.ERODED_ELEVATION, region),
-      sediment.toLayer(LayerId.SEDIMENT, region)
+    return StageResult(
+      layers = listOf(
+        elevation.toLayer(LayerId.ERODED_ELEVATION, region),
+        sediment.toLayer(LayerId.SEDIMENT, region)
+      ),
+      features = basinMarkers(basins)
     )
+  }
+
+  /**
+   * The centrelines of the divergent plate boundaries: where a graben can drop.
+   *
+   * Read from the fault markers rather than re-derived from `plate_id`, which is what the tectonics stage
+   * emits them for - re-deriving would mean this stage choosing its own tie-breaking for where a boundary runs,
+   * and then two stages disagreeing about the position of the same fault.
+   */
+  private fun riftLines(ctx: GenContext, region: CellRegion): List<Polyline> =
+    ctx.features.query(region.toWorld())
+      .filter { it.kind == FeatureKind.FAULT }
+      .filterIsInstance<MarkerFeature>()
+      .filter { TectonicsStage.boundaryTypeOf(it) == BoundaryType.DIVERGENT }
+      .map { it.centerline }
+
+  /**
+   * Each basin as a marker carrying no terrain effect.
+   *
+   * The subsidence is in the raster; this is the record of it. Worth the twenty lines because the defect this
+   * pass finishes off went unnoticed for as long as it did precisely because no tool could see a basin: the
+   * lake layer was zero everywhere, `checkLakesStandAboveTheirBeds` skipped every cell of it and reported
+   * success, and nothing printed a count.
+   */
+  private fun basinMarkers(basins: List<ClosedBasin>): List<VectorFeature> {
+    val nextId = FeatureIds.allocator(id)
+
+    return basins.map { basin ->
+      PointMarker(
+        id = nextId(),
+        kind = FeatureKind.TECTONIC_BASIN,
+        position = basin.centre,
+        attributes = StationTable.Builder(1)
+          .channel(ClosedBasins.CHANNEL_RADIUS) { basin.radius }
+          .channel(ClosedBasins.CHANNEL_DEPTH) { basin.depth }
+          .channel(ClosedBasins.CHANNEL_FLOOR) { basin.floor }
+          .channel(ClosedBasins.CHANNEL_RIFT) { if (basin.isRift) 1.0 else 0.0 }
+          .build()
+      )
+    }
   }
 
   /**
@@ -409,5 +494,14 @@ class ErosionStage(
 
     /** Depth in metres over which marine conditions take over from terrestrial ones. */
     private const val MARINE_RAMP = 80.0
+
+    /**
+     * Stream for the basin placement.
+     *
+     * The first randomness this stage has ever needed - everything above it is noise fields and a deterministic
+     * solver - so the number is arbitrary. Numbered anyway rather than taken from `ctx.rng()` bare, so that the
+     * next pass to want a stream cannot perturb this one by being added before it.
+     */
+    private const val BASIN_STREAM = 1L
   }
 }

@@ -222,16 +222,16 @@ class StandardWorldTest {
 
     assertTrue(report.isClean, report.toString() + "\n" + report.violations.take(6).joinToString("\n"))
 
-    // Lake counts are asserted here, across seeds, rather than as a per-seed invariant - because per seed the
-    // property is not true. A trough that runs to the sea drains rather than impounding, so a small world with
-    // four of them legitimately holds no water, and an invariant saying otherwise fails on honest worlds.
+    // Every seed, not merely one of them. When glacial overdeepening was the only lake source this could only
+    // be asserted across a sweep - a trough that runs to the sea drains rather than impounding, so a small
+    // world with four of them legitimately held no water. Tectonic basins are the source that does not depend
+    // on the seed having had a glacier, so the claim can now be made per world.
     //
-    // What is *not* legitimate is what the pipeline did until the glacial carve reached the raster: zero lakes
-    // on every world at every size, with `checkLakesStandAboveTheirBeds` skipping every cell and reporting
-    // success. Asserted across a handful of seeds because that is the scale the claim is true at.
+    // Kept here as well as in `Invariants.checkTheWorldHasStandingWater` because the two fail differently: the
+    // invariant names the seed, and this names the size, and it was *size* that the first fix was blind to.
     assertTrue(
-      lakes.any { it > 0 },
-      "no seed of ${lakes.size} produced a single lake: $lakes"
+      lakes.all { it > 0 },
+      "a seed produced no lake at all: $lakes"
     )
   }
 

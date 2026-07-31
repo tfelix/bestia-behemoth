@@ -51,6 +51,19 @@ enum class FeatureKind(val defaultPriority: Int) {
    */
   ORE_DEPOSIT(20),
   COASTLINE(50),
+
+  /**
+   * A tectonic closed basin: a graben or an interior sag, and the lake in it.
+   *
+   * Geometry and attributes only. The subsidence itself is carved into the coarse raster, because a basin is
+   * five to twenty kilometres across and needs no sub-cell precision - see `geo/ClosedBasins.kt`. This marker
+   * exists so the invariants and the viewer can see where one is, which is what the *first* lake source turned
+   * out to need.
+   *
+   * Below [GLACIAL_TROUGH] in priority because it is the older and broader landform: ice and rivers cut into a
+   * basin, not the other way round.
+   */
+  TECTONIC_BASIN(80),
   GLACIAL_TROUGH(100),
 
   /** The bowl at the head of a glacial trough, where the ice began. Often holds a tarn. */

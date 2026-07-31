@@ -666,7 +666,6 @@ class GlacialStage(
     /** Annual precipitation at which accumulation is at its maximum, in millimetres. */
     private const val WET_SCALE = 1_400.0
 
-    /** Years of accumulation the coarse pass represents. Sets the overall ice thickness scale. */
     /**
      * Hard ceiling on a cirque's radius as a share of the world's width.
      *
@@ -676,6 +675,7 @@ class GlacialStage(
      */
     private const val MAX_CIRQUE_WORLD_SHARE = 0.02
 
+    /** Years of accumulation the coarse pass represents. Sets the overall ice thickness scale. */
     private const val ICE_YEARS = 320.0
 
     /** Fraction of the ice-surface difference moved per relaxation pass. Above 0.5 it oscillates. */
