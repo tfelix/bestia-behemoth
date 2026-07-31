@@ -45,6 +45,34 @@ data class LayerId(val name: String) {
     /** 0 = evenly spread over the year, 1 = it all falls in one season. Monsoon versus maritime. */
     val PRECIPITATION_SEASONALITY = LayerId("precipitation_seasonality")
 
+    /**
+     * Precipitation in millimetres falling in one quarter of the year. The four sum to [PRECIPITATION].
+     *
+     * The seasonal advection passes have always run - [PRECIPITATION] is their sum - and until now their
+     * output was summed and dropped, which is why the architecture document listed seasonal fields as the
+     * cheapest unbuilt item on its list. These are that output, kept.
+     *
+     * **The names are northern-hemisphere labels for a phase of the orbit, not a claim about the weather
+     * at a given cell.** A southern cell's summer is [PRECIPITATION_WINTER]: the belts migrate one way and
+     * the hemispheres experience it oppositely, which is the whole point of storing four fields rather than
+     * a scalar. [net.bestia.worldgen.climate.SeasonalPrecipitation] is the reader that knows this, and
+     * anything wanting "the wet season here" should go through it rather than picking a layer by name.
+     *
+     * Monthly figures are **not** stored. Twelve layers would be twelve times the memory for a curve that
+     * four control points already describe; `SeasonalPrecipitation.atMonth` interpolates them periodically
+     * on demand.
+     */
+    val PRECIPITATION_SPRING = LayerId("precipitation_spring")
+
+    /** See [PRECIPITATION_SPRING]. Northern summer; the southern hemisphere's winter. */
+    val PRECIPITATION_SUMMER = LayerId("precipitation_summer")
+
+    /** See [PRECIPITATION_SPRING]. Northern autumn. */
+    val PRECIPITATION_AUTUMN = LayerId("precipitation_autumn")
+
+    /** See [PRECIPITATION_SPRING]. Northern winter; the southern hemisphere's summer. */
+    val PRECIPITATION_WINTER = LayerId("precipitation_winter")
+
     /** Metres to the nearest ocean cell. Computed once by climate; wanted by half the pipeline. */
     val DISTANCE_TO_OCEAN = LayerId("distance_to_ocean")
 

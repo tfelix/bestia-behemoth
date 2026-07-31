@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.GateChannels
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.WallChannels
+import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
@@ -30,6 +31,7 @@ import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import java.util.Locale
+import kotlin.math.abs
 
 /**
  * The regression harness: properties every generated world must have, checked over as many seeds as you
@@ -121,6 +123,7 @@ object Invariants {
     checkLakesStandAboveTheirBeds(generated, ::fail)
     checkClosedBasinsCanHoldWater(generated, ::fail)
     checkNormalisedLayersAreInRange(generated, ::fail)
+    checkSeasonalPrecipitationSumsToTheAnnualField(generated, ::fail)
     checkRiverBedsDescend(generated, ::fail)
     checkFeatureBoundsContainTheirGeometry(generated, ::fail)
     checkNoSettlementInTheSea(generated, ::fail)
@@ -1039,6 +1042,51 @@ object Invariants {
     if (precipitation.data.min() < -1e-4) {
       fail("normalised layers in range", "precipitation goes negative")
     }
+
+    for (id in SeasonalPrecipitation.LAYERS) {
+      val season = generated.world.layers[id] as? FloatLayer ?: continue
+      if (season.data.min() < -1e-4) {
+        fail("normalised layers in range", "$id goes negative")
+      }
+    }
+  }
+
+  /**
+   * The four seasonal precipitation layers sum to [LayerId.PRECIPITATION].
+   *
+   * The layers' entire claim, and a claim that is easy to break from a distance: the annual field is calibrated
+   * to a configured mean after the seasonal fields are summed out of it, so any scaling applied to one and not
+   * the other leaves four layers that describe a different year from the one every existing consumer reads.
+   * The first implementation did exactly that.
+   *
+   * Registered as a sweep invariant rather than left to the unit test because it is a property of every world
+   * and costs one pass over five layers. A unit test on one seed would not catch a scale factor that only
+   * misbehaves where the annual mean comes out near zero.
+   */
+  private fun checkSeasonalPrecipitationSumsToTheAnnualField(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val annual = generated.world.layers[LayerId.PRECIPITATION] as? FloatLayer ?: return
+    val seasons = SeasonalPrecipitation.LAYERS.map {
+      generated.world.layers[it] as? FloatLayer ?: return
+    }
+
+    for (i in annual.data.indices) {
+      var sum = 0.0
+      for (season in seasons) sum += season.data[i].toDouble()
+
+      // Absolute, in millimetres, because the annual field spans four orders of magnitude across a world and a
+      // relative tolerance would be meaningless in a desert. Half a millimetre is float precision on a sum of
+      // four values of a few hundred; the bug this catches is off by hundreds.
+      if (abs(sum - annual.data[i]) > SEASONAL_SUM_TOLERANCE) {
+        fail(
+          "seasonal precipitation sums to the annual field",
+          "cell $i has seasons summing to $sum against an annual ${annual.data[i]}"
+        )
+        return
+      }
+    }
   }
 
   /**
@@ -1094,6 +1142,15 @@ object Invariants {
 
   /** Metres a bed may rise between stations before it counts as flowing uphill. */
   private const val BED_TOLERANCE = 1e-6
+
+  /**
+   * Millimetres by which the four seasonal fields may differ from their annual sum.
+   *
+   * Float layers holding a sum of four values of a few hundred millimetres, so this is precision rather than
+   * tolerance for error. The defect it exists to catch - a calibration factor applied to the annual field and
+   * not to its parts - is off by hundreds of millimetres, not by half of one.
+   */
+  private const val SEASONAL_SUM_TOLERANCE = 0.5
 
   /**
    * Largest a closed basin may be, as a share of the world's short edge.

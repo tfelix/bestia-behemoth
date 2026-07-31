@@ -186,6 +186,24 @@ class WorldScene(
         )
       }
 
+      // Summer against winter, signed. Four seasonal maps side by side answer "how much rain in this quarter"
+      // and none of them answers "where is the monsoon", which is a question about the *difference* - and the
+      // one that says whether the seasonal fields are doing anything at all. A world where this view is flat
+      // grey has four copies of one field, which is the failure mode of storing four seasons; it is also where
+      // the hemispheres show up, because the sign has to flip across the equator.
+      val summer = fields.firstOrNull { it.name == LayerId.PRECIPITATION_SUMMER.name }
+      val winter = fields.firstOrNull { it.name == LayerId.PRECIPITATION_WINTER.name }
+      if (summer != null && winter != null) {
+        fields.add(
+          DifferenceField(
+            summer, winter,
+            palette = ContinuousPalette(Ramps.DIVERGING, -600.0..600.0),
+            name = "monsoon (summer - winter)",
+            unit = "mm"
+          )
+        )
+      }
+
       val elevationPalette = ElevationPalette(world.config.seaLevel)
       base?.let { fields.add(BaseHeightFieldView(it, elevationPalette)) }
 

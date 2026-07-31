@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.fields.D8
@@ -125,6 +126,20 @@ object Palettes {
     LayerId.TEMPERATURE_RANGE -> ContinuousPalette(Ramps.DIVERGING, 0.0..45.0)
     LayerId.PRECIPITATION -> ContinuousPalette(Ramps.PRECIPITATION, 0.0..4000.0)
     LayerId.PRECIPITATION_SEASONALITY -> ContinuousPalette(Ramps.DIVERGING, 0.0..1.0)
+
+    /**
+     * All four seasons on **one** range, which is the entire point of the arm existing.
+     *
+     * Without it they would still appear - the `else` below auto-ranges anything it has not been taught - and
+     * each would auto-range independently, so four fields whose only purpose is being compared to each other
+     * would be drawn to four different scales. A dry season and a monsoon would look alike and the wettest
+     * quarter of the world would be indistinguishable from the driest.
+     *
+     * A quarter of [LayerId.PRECIPITATION]'s range, because a season is a quarter of a year: measured on the
+     * reference world the seasonal fields run to a 99th percentile of about 3,500 mm against the annual
+     * field's 14,000, so the same 1,000 mm is the same colour on both maps.
+     */
+    in SeasonalPrecipitation.LAYERS -> ContinuousPalette(Ramps.PRECIPITATION, 0.0..1000.0)
 
     LayerId.SOIL_FERTILITY, LayerId.HABITABILITY, LayerId.BIOME_CONFIDENCE, LayerId.RESOURCE_VALUE ->
       ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)

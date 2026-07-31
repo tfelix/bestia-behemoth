@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
@@ -16,6 +17,7 @@ import java.awt.GraphicsEnvironment
 import java.io.File
 import java.util.Locale
 import javax.swing.UIManager
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -45,6 +47,7 @@ object ViewerMain {
     println("  ${scene.fields.size} fields")
     println("  ${describeLand(generated)}")
     println("  ${describeLakes(generated)}")
+    println("  ${describeSeasons(generated)}")
     println("  ${describeBiomes(generated)}")
     println("  ${scene.featureSummary()}")
 
@@ -188,6 +191,75 @@ object ViewerMain {
     val share = 100.0 * cells / lakes.data.size
     return "lakes $total (${endorheic.size} endorheic), ${"%.2f".format(Locale.ROOT, share)}% of the world" +
         ", from $basins tectonic basins and the ice"
+  }
+
+  /**
+   * How strong the seasonal cycle is, and whether the two hemispheres disagree about when summer is.
+   *
+   * Printed for the same reason the lake count is: the failure this subsystem can have without anything else
+   * noticing is that the four seasonal fields come out **identical**. Nothing downstream would complain - the
+   * annual sum is right either way, seven consumers read only that, and four identical maps look exactly like
+   * four correct ones at map scale. The layers would simply be four copies of a quarter-year, and the phase
+   * that added them would look finished.
+   *
+   * Two numbers rather than one. The amplitude says the cycle exists; the hemisphere split says it is a
+   * *season* rather than a global wobble, which is the part a shared sine phase would silently get wrong.
+   */
+  private fun describeSeasons(generated: GeneratedWorld): String {
+    val seasonal = SeasonalPrecipitation.from(generated.world.layers) ?: return "no seasonal precipitation"
+    val summer = generated.world.layers[LayerId.PRECIPITATION_SUMMER] as? FloatLayer
+      ?: return "no seasonal precipitation"
+    val winter = generated.world.layers[LayerId.PRECIPITATION_WINTER] as? FloatLayer
+      ?: return "no seasonal precipitation"
+
+    val region = summer.region
+    var north = 0.0
+    var south = 0.0
+    var northCells = 0
+    var southCells = 0
+    var amplitude = 0.0
+
+    for (y in 0 until region.height) {
+      // The world is a latitude band centred on the equator, so the grid's own midpoint is it.
+      val northern = y >= region.height / 2
+
+      for (x in 0 until region.width) {
+        val i = y * region.width + x
+        val delta = summer.data[i] - winter.data[i]
+        amplitude += abs(delta)
+
+        if (northern) {
+          north += delta
+          northCells++
+        } else {
+          south += delta
+          southCells++
+        }
+      }
+    }
+
+    val cells = (northCells + southCells).coerceAtLeast(1)
+    val meanNorth = if (northCells > 0) north / northCells else 0.0
+    val meanSouth = if (southCells > 0) south / southCells else 0.0
+    val opposed = if (meanNorth * meanSouth < 0.0) "opposed" else "IN PHASE - suspect"
+
+    // Where in the year the wettest quarter falls, over the world, as a sanity check that all four are used.
+    val wettest = IntArray(SeasonalPrecipitation.COUNT)
+    val metres = region.resolution.metresPerCell
+    for (y in 0 until region.height step 4) {
+      for (x in 0 until region.width step 4) {
+        wettest[seasonal.wettestSeason((x + 0.5) * metres, (y + 0.5) * metres)]++
+      }
+    }
+    val sampled = wettest.sum().coerceAtLeast(1)
+    val spread = SeasonalPrecipitation.LAYERS.indices.joinToString(" ") { season ->
+      val label = SeasonalPrecipitation.LAYERS[season].name.removePrefix("precipitation_").take(2)
+      "$label ${(100.0 * wettest[season] / sampled).roundToInt()}%"
+    }
+
+    return "seasons |summer-winter| ${"%.0f".format(Locale.ROOT, amplitude / cells)} mm mean, " +
+        "north ${"%+.0f".format(Locale.ROOT, meanNorth)} south ${"%+.0f".format(Locale.ROOT, meanSouth)} " +
+        "($opposed), wettest: $spread"
   }
 
   /**
