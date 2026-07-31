@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.ln
@@ -50,9 +51,9 @@ interface ScalarField {
 
   fun format(value: Double): String = when {
     value.isNaN() -> "-"
-    abs(value) >= 1000.0 -> "%,.0f".format(value)
-    abs(value) >= 10.0 -> "%.1f".format(value)
-    else -> "%.3f".format(value)
+    abs(value) >= 1000.0 -> "%,.0f".format(Locale.ROOT, value)
+    abs(value) >= 10.0 -> "%.1f".format(Locale.ROOT, value)
+    else -> "%.3f".format(Locale.ROOT, value)
   }
 }
 
@@ -207,7 +208,7 @@ class ChunkHeightField(
     return if (needed <= chunkBudget) {
       null
     } else {
-      "zoom in to generate chunks - this view spans ${"%,d".format(needed)} chunks, budget $chunkBudget"
+      "zoom in to generate chunks - this view spans ${"%,d".format(Locale.ROOT, needed)} chunks, budget $chunkBudget"
     }
   }
 
@@ -275,7 +276,7 @@ class ChunkSurfaceField(
     return if (needed <= chunkBudget) {
       null
     } else {
-      "zoom in to materialise chunks - this view spans ${"%,d".format(needed)} chunks, budget $chunkBudget"
+      "zoom in to materialise chunks - this view spans ${"%,d".format(Locale.ROOT, needed)} chunks, budget $chunkBudget"
     }
   }
 
@@ -349,7 +350,7 @@ class SurfaceOccupancyField(
     return if (needed <= chunkBudget) {
       null
     } else {
-      "zoom in to materialise chunks - this view spans ${"%,d".format(needed)} chunks, budget $chunkBudget"
+      "zoom in to materialise chunks - this view spans ${"%,d".format(Locale.ROOT, needed)} chunks, budget $chunkBudget"
     }
   }
 
@@ -366,7 +367,7 @@ class SurfaceOccupancyField(
     return fills[localY * config.chunkSize + localX]
   }
 
-  override fun format(value: Double) = if (value.isNaN()) "-" else "%.3f".format(value)
+  override fun format(value: Double) = if (value.isNaN()) "-" else "%.3f".format(Locale.ROOT, value)
 
   @Synchronized
   private fun fillsOf(chunkX: Int, chunkY: Int): DoubleArray =

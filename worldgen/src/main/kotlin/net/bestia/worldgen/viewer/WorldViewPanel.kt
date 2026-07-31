@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.image.BufferedImage
+import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicLong
 import javax.swing.JPanel
@@ -320,7 +321,7 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
       g2.color = Color(235, 235, 240)
       g2.drawString(map.field.format(value), x + 18, top + 9)
 
-      val share = "${"%.0f".format(100.0 * count / total)}%"
+      val share = "${"%.0f".format(Locale.ROOT, 100.0 * count / total)}%"
       g2.drawString(share, x + width - g2.fontMetrics.stringWidth(share), top + 9)
     }
   }

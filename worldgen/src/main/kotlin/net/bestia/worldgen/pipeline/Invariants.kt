@@ -29,6 +29,7 @@ import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import java.util.Locale
 
 /**
  * The regression harness: properties every generated world must have, checked over as many seeds as you
@@ -843,7 +844,7 @@ object Invariants {
     // deposition then move the shoreline, and how far they move it is a legitimate property of the seed.
     // What this catches is a world that came out entirely ocean or entirely land, which is unusable.
     if (land < 0.05 || land > 0.85) {
-      fail("land fraction", "${"%.3f".format(land)} of the world is above sea level")
+      fail("land fraction", "${"%.3f".format(Locale.ROOT, land)} of the world is above sea level")
     }
   }
 

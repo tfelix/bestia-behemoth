@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.vector.Aabb
+import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
@@ -90,8 +91,8 @@ data class Viewport(
   }
 
   override fun toString() =
-    "Viewport[centre=(${"%.1f".format(centerX)}, ${"%.1f".format(centerY)}) " +
-        "${"%.3f".format(metresPerPixel)} m/px ${widthPx}x$heightPx]"
+    "Viewport[centre=(${"%.1f".format(Locale.ROOT, centerX)}, ${"%.1f".format(Locale.ROOT, centerY)}) " +
+        "${"%.3f".format(Locale.ROOT, metresPerPixel)} m/px ${widthPx}x$heightPx]"
 
   companion object {
 

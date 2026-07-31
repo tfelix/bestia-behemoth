@@ -1,5 +1,6 @@
 package net.bestia.worldgen.core
 
+import java.util.Locale
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -32,7 +33,7 @@ object ChunkSeamCheck {
 
     override fun toString() =
       "column ($worldColumnX,$worldColumnY): $chunkA says $heightA, $chunkB says $heightB " +
-          "(delta ${"%.6f".format(delta)})"
+          "(delta ${"%.6f".format(Locale.ROOT, delta)})"
   }
 
   data class Report(

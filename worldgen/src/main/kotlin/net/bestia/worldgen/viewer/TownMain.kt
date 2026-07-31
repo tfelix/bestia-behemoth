@@ -360,7 +360,7 @@ object TownMain {
       println()
       println("why - every trade in the catalogue, and what decided it")
       for (decision in decisions) {
-        val mark = if (decision.exists) "%2d".format(decision.count) else " -"
+        val mark = if (decision.exists) "%2d".format(Locale.ROOT, decision.count) else " -"
         println("  $mark  ${decision.type.label.padEnd(16)} ${decision.reason}")
       }
     }

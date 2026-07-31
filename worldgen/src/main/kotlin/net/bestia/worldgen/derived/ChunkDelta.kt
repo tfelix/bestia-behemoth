@@ -5,6 +5,7 @@ import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
+import java.util.Locale
 
 /**
  * The player edits layered over one generated chunk.
@@ -126,7 +127,7 @@ class ChunkDelta(
   fun estimatedBytes(): Int = editCount * BYTES_PER_EDIT
 
   override fun toString() =
-    "ChunkDelta[$chunk, $editCount edits, ${"%.1f".format(coverage * 100)}% of the chunk]"
+    "ChunkDelta[$chunk, $editCount edits, ${"%.1f".format(Locale.ROOT, coverage * 100)}% of the chunk]"
 
   companion object {
 

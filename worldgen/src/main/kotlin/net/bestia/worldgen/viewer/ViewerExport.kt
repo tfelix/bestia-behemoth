@@ -2,6 +2,7 @@ package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.vector.FeatureKind
 import java.io.File
+import java.util.Locale
 import javax.imageio.ImageIO
 import kotlin.math.ceil
 
@@ -112,7 +113,7 @@ object ViewerExport {
 
     if (candidate.metresPerPixel < scene.config.voxelSize) {
       println(
-        "${field.name}: ${"%.3f".format(candidate.metresPerPixel)} m/px, finer than one pixel per voxel - " +
+        "${field.name}: ${"%.3f".format(Locale.ROOT, candidate.metresPerPixel)} m/px, finer than one pixel per voxel - " +
             "${widthPx}x$heightPx at voxel scale exceeds the $MAX_EXPORT_CHUNKS chunk export budget"
       )
     }

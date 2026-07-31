@@ -1,6 +1,7 @@
 package net.bestia.worldgen.pop
 
 import net.bestia.worldgen.resource.ResourceType
+import java.util.Locale
 
 /** Which broad part of the economy a job belongs to. */
 enum class Sector { FARM, CRAFT, TRADE, SERVICE, ADMIN, CLERGY, MILITARY }
@@ -243,10 +244,10 @@ object BusinessCatalogue {
           type, count, checks,
           if (type.perTraffic > 0.0) {
             "%.2f from %d residents, %.2f from traffic %.1f"
-              .format(fromResidents, setting.population, fromTraffic, setting.traffic)
+              .format(Locale.ROOT, fromResidents, setting.population, fromTraffic, setting.traffic)
           } else {
             "%.2f from %d residents at one per %.0f"
-              .format(fromResidents, setting.population, type.residentsEach)
+              .format(Locale.ROOT, fromResidents, setting.population, type.residentsEach)
           }
         )
       }
@@ -266,12 +267,12 @@ object BusinessCatalogue {
     Precondition.NEEDS_GRAIN -> Check(
       precondition, setting.cerealShare >= CEREAL_THRESHOLD,
       "cereal is %.0f%% of the catchment's yield, needs %.0f%%"
-        .format(setting.cerealShare * 100.0, CEREAL_THRESHOLD * 100.0)
+        .format(Locale.ROOT, setting.cerealShare * 100.0, CEREAL_THRESHOLD * 100.0)
     )
 
     Precondition.NEEDS_PASTURE -> Check(
       precondition, setting.pasture >= PASTURE_THRESHOLD,
-      "pasture %.2f, needs %.2f".format(setting.pasture, PASTURE_THRESHOLD)
+      "pasture %.2f, needs %.2f".format(Locale.ROOT, setting.pasture, PASTURE_THRESHOLD)
     )
 
     Precondition.NEEDS_TIMBER -> Check(
@@ -313,13 +314,13 @@ object BusinessCatalogue {
     Precondition.NEEDS_VINE_CLIMATE -> Check(
       precondition, setting.temperature in VINE_RANGE,
       "%.1f C, needs %.0f to %.0f".format(
-        setting.temperature, VINE_RANGE.start, VINE_RANGE.endInclusive
+        Locale.ROOT, setting.temperature, VINE_RANGE.start, VINE_RANGE.endInclusive
       )
     )
 
     Precondition.NEEDS_TRADE_ROUTE -> Check(
       precondition, setting.traffic >= TRAFFIC_THRESHOLD,
-      "traffic %.2f, needs %.2f".format(setting.traffic, TRAFFIC_THRESHOLD)
+      "traffic %.2f, needs %.2f".format(Locale.ROOT, setting.traffic, TRAFFIC_THRESHOLD)
     )
 
     Precondition.NEEDS_GARRISON -> Check(
@@ -329,12 +330,12 @@ object BusinessCatalogue {
 
     Precondition.NEEDS_WEALTH -> Check(
       precondition, setting.wealth >= WEALTH_THRESHOLD,
-      "wealth %.2f, needs %.2f".format(setting.wealth, WEALTH_THRESHOLD)
+      "wealth %.2f, needs %.2f".format(Locale.ROOT, setting.wealth, WEALTH_THRESHOLD)
     )
 
     Precondition.NEEDS_LITERACY -> Check(
       precondition, setting.technology >= LITERACY_THRESHOLD,
-      "technology %.2f, needs %.2f".format(setting.technology, LITERACY_THRESHOLD)
+      "technology %.2f, needs %.2f".format(Locale.ROOT, setting.technology, LITERACY_THRESHOLD)
     )
   }
 

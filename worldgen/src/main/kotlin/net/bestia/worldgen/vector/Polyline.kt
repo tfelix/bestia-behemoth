@@ -1,5 +1,6 @@
 package net.bestia.worldgen.vector
 
+import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -268,7 +269,7 @@ class Polyline(points: List<Vec2d>) {
     return Polyline(out)
   }
 
-  override fun toString() = "Polyline[vertices=${points.size}, length=${"%.1f".format(length)}m]"
+  override fun toString() = "Polyline[vertices=${points.size}, length=${"%.1f".format(Locale.ROOT, length)}m]"
 
   companion object {
     internal fun catmullRom(p0: Double, p1: Double, p2: Double, p3: Double, t: Double): Double {

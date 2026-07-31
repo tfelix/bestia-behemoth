@@ -11,6 +11,7 @@ import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.SurfaceColumns
+import java.util.Locale
 
 /**
  * Dumps what one small patch of ground actually looks like, voxel by voxel.
@@ -151,12 +152,12 @@ object ProbeMain {
       println()
       println("at (${centreX.toInt()}, ${centreY.toInt()}):")
       println("  coarse biome    ${Biome.of(biome.sampleNearest(centreX, centreY))}")
-      println("  temperature     ${"%.1f".format(temperature.sampleBilinear(centreX, centreY))} C")
-      println("  precipitation   ${"%.0f".format(precipitation.sampleBilinear(centreX, centreY))} mm")
-      println("  discharge       ${"%.4f".format(discharge.sampleBilinear(centreX, centreY))}")
+      println("  temperature     ${"%.1f".format(Locale.ROOT, temperature.sampleBilinear(centreX, centreY))} C")
+      println("  precipitation   ${"%.0f".format(Locale.ROOT, precipitation.sampleBilinear(centreX, centreY))} mm")
+      println("  discharge       ${"%.4f".format(Locale.ROOT, discharge.sampleBilinear(centreX, centreY))}")
       println("  lake id         ${lakeId.sampleNearest(centreX, centreY)}")
       println("  water level     ${waterLevel.sampleBilinear(centreX, centreY)}")
-      println("  base height     ${"%.3f".format(generated.base.heightAt(centreX, centreY))} m")
+      println("  base height     ${"%.3f".format(Locale.ROOT, generated.base.heightAt(centreX, centreY))} m")
     }
 
     fun dump(centreX: Double, centreY: Double, span: Int) {
@@ -184,13 +185,13 @@ object ProbeMain {
       println("legend, commonest first:")
       measured.counts.entries.sortedByDescending { it.value }.forEach { (block, count) ->
         val share = 100.0 * count / measured.total
-        println("  ${glyphs[block]}  ${block.name.padEnd(12)} ${count.toString().padStart(5)}  ${"%.1f".format(share)}%")
+        println("  ${glyphs[block]}  ${block.name.padEnd(12)} ${count.toString().padStart(5)}  ${"%.1f".format(Locale.ROOT, share)}%")
       }
 
       println()
       if (measured.hasElevation) {
-        println("relief ${"%.2f".format(measured.relief)} m across $span m " +
-            "(${"%.3f".format(measured.minElevation)} .. ${"%.3f".format(measured.maxElevation)})")
+        println("relief ${"%.2f".format(Locale.ROOT, measured.relief)} m across $span m " +
+            "(${"%.3f".format(Locale.ROOT, measured.minElevation)} .. ${"%.3f".format(Locale.ROOT, measured.maxElevation)})")
       } else {
         // Every column submerged: `SurfaceColumns` reports NO_FILL for a surface it cannot see under water, so
         // there is no relief to report. Saying so beats printing the min and max sentinels, which come out as
@@ -250,10 +251,10 @@ object ProbeMain {
     private fun quantiles(sorted: List<Double>): String {
       fun at(q: Double) = sorted[((sorted.size - 1) * q).toInt()]
       return listOf(0.0, 0.25, 0.5, 0.75, 1.0)
-        .joinToString("") { "%9.3f".format(at(it)) }
+        .joinToString("") { "%9.3f".format(Locale.ROOT, at(it)) }
     }
 
-    private fun percent(n: Int, total: Int) = "$n of $total (${"%.1f".format(100.0 * n / total)}%)"
+    private fun percent(n: Int, total: Int) = "$n of $total (${"%.1f".format(Locale.ROOT, 100.0 * n / total)}%)"
 
     /**
      * A point halfway along the [nth] feature of a kind, so a thin feature can be looked at from on top of it.
@@ -335,8 +336,8 @@ object ProbeMain {
       println("most mixed patches:")
       mixed.take(12).forEach { (at, window, biome) ->
         val breakdown = window.counts.entries.sortedByDescending { it.value }
-          .joinToString(" ") { "${it.key.name}=${"%.1f".format(100.0 * it.value / window.total)}%" }
-        println("  (${at.first.toInt()}, ${at.second.toInt()}) $biome  relief ${"%.1f".format(window.relief)} m  $breakdown")
+          .joinToString(" ") { "${it.key.name}=${"%.1f".format(Locale.ROOT, 100.0 * it.value / window.total)}%" }
+        println("  (${at.first.toInt()}, ${at.second.toInt()}) $biome  relief ${"%.1f".format(Locale.ROOT, window.relief)} m  $breakdown")
       }
 
       // Which materials the world's surface is actually made of, over everything sampled.
@@ -347,7 +348,7 @@ object ProbeMain {
       println()
       println("surface material over every sampled patch:")
       overall.entries.sortedByDescending { it.value }.forEach { (block, n) ->
-        println("  ${block.name.padEnd(12)} ${"%.2f".format(100.0 * n / total)}%")
+        println("  ${block.name.padEnd(12)} ${"%.2f".format(Locale.ROOT, 100.0 * n / total)}%")
       }
 
       val biomes = HashMap<Biome, Int>()

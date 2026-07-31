@@ -1,5 +1,6 @@
 package net.bestia.worldgen.vector
 
+import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -90,7 +91,7 @@ class PointFeature(
     return listOf(Polyline(points))
   }
 
-  override fun toString() = "$kind[$id, centre=$center, r=${"%.1f".format(radius)}m]"
+  override fun toString() = "$kind[$id, centre=$center, r=${"%.1f".format(Locale.ROOT, radius)}m]"
 
   private fun falloff(normalized: Double): Double {
     if (edgeFraction == 0.0) return 1.0

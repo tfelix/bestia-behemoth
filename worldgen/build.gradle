@@ -88,6 +88,7 @@ def worldArgs = { task ->
  * ```
  * ./gradlew :worldgen:viewer -Pcells=128 -Pseed=42   # a world you describe
  * ./gradlew :worldgen:viewer -Pgenesis               # the world zone-server boots
+ * ./gradlew :worldgen:viewer -Plaf=<class>           # force a Swing look and feel
  * ```
  */
 tasks.register('viewer', JavaExec) {
@@ -99,6 +100,9 @@ tasks.register('viewer', JavaExec) {
     // classes were compiled against.
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     worldArgs(it)
+    // JavaExec forks a fresh JVM, so a -D on the gradlew command line does not reach the viewer.
+    // See ViewerMain.installLookAndFeel for when this is worth reaching for.
+    if (project.hasProperty('laf')) systemProperty 'worldgen.laf', project.property('laf')
 }
 
 /** Same world, rendered to PNGs - works over SSH and in CI: `./gradlew :worldgen:viewerExport`. */

@@ -1,5 +1,6 @@
 package net.bestia.worldgen.vector
 
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -159,5 +160,5 @@ class FootprintFeature(
     attributes ?: throw IllegalStateException("$kind $id carries no attributes")
 
   override fun toString() =
-    "$kind[$id at $center, ${"%.1f".format(halfLength * 2)}x${"%.1f".format(halfWidth * 2)}m]"
+    "$kind[$id at $center, ${"%.1f".format(Locale.ROOT, halfLength * 2)}x${"%.1f".format(Locale.ROOT, halfWidth * 2)}m]"
 }

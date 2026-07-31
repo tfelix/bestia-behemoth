@@ -60,8 +60,54 @@ object ViewerMain {
       return
     }
 
-    runCatching { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) }
+    installLookAndFeel()
     ViewerFrame.open(scene)
+  }
+
+  /**
+   * The platform look and feel, unless loading it would take the JVM down with it.
+   *
+   * On Linux the system look and feel is GTK, and choosing it loads native GTK into the process. That is
+   * fine from an ordinary terminal and fatal from a snap-confined one: the VS Code snap exports
+   * `GTK_PATH`, `GDK_PIXBUF_MODULEDIR` and friends into its children, so the GTK the JVM loads is the
+   * snap's, resolved against the snap's own `core20` runtime, whose `libpthread` disagrees with the
+   * system glibc. The process dies before the window exists with
+   *
+   * ```
+   * symbol lookup error: /snap/core20/.../libpthread.so.0: undefined symbol: __libc_pthread_init
+   * ```
+   *
+   * which names neither Swing nor this file. Since the VS Code snap is Ubuntu's default install, that is
+   * a likely way for someone to meet the viewer for the first time.
+   *
+   * **The `runCatching` this replaces was never protection.** A native symbol lookup failure is not a Java
+   * exception, so there was nothing to catch — the guard read as though the risk had been handled while the
+   * JVM died anyway. The only defence is to not load GTK, and `SNAP` in the environment is exactly the
+   * condition under which loading it is unsafe. The cross-platform look and feel is plainer, and a plain
+   * window beats a glibc message that does not mention the window.
+   *
+   * `-Dworldgen.laf=<class>` overrides both branches, so a snap user who knows their GTK works can ask for
+   * it. It is reported rather than silent, because a viewer that quietly looks different from the one in
+   * somebody's screenshot is its own small confusion.
+   */
+  private fun installLookAndFeel() {
+    val requested = System.getProperty(LAF_PROPERTY)
+    val confined = System.getenv("SNAP") != null
+
+    val target = when {
+      requested != null -> requested
+      confined -> UIManager.getCrossPlatformLookAndFeelClassName()
+      else -> UIManager.getSystemLookAndFeelClassName()
+    }
+    if (requested == null && confined) {
+      println("snap-confined environment - using the cross-platform look and feel")
+      println("  loading native GTK here kills the JVM; -D$LAF_PROPERTY=<class> overrides")
+    }
+
+    // Still guarded, for the failures that *are* exceptions - a class name that does not resolve, or a
+    // look and feel that refuses the current display. Those leave the default installed and a window opens.
+    runCatching { UIManager.setLookAndFeel(target) }
+      .onFailure { println("look and feel $target unavailable (${it.message}) - using the default") }
   }
 
   /**
@@ -201,4 +247,7 @@ object ViewerMain {
 
   /** Where to write PNGs instead of opening a window. Says nothing about which world. */
   private const val EXPORT = "--export"
+
+  /** Escape hatch for [installLookAndFeel], as a system property rather than a world flag. */
+  private const val LAF_PROPERTY = "worldgen.laf"
 }

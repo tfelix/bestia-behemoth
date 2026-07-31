@@ -10,6 +10,7 @@ import java.awt.Graphics
 import java.awt.GridLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.util.Locale
 import javax.swing.BorderFactory
 import javax.swing.Box
 import javax.swing.BoxLayout
@@ -76,7 +77,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       status.text = buildString {
         append(map.unavailable ?: "${map.field.name}: ${map.field.format(map.low)} .. ")
         if (map.unavailable == null) append(map.field.format(map.high))
-        append("   |   ${"%.2f".format(canvas.view.metresPerPixel)} m/px")
+        append("   |   ${"%.2f".format(Locale.ROOT, canvas.view.metresPerPixel)} m/px")
         // Worth stating outright rather than leaving to be inferred from the number: at voxel scale every
         // pixel is one materialised column, which is the only scale at which a single wrong block is visible.
         if (canvas.isVoxelScale()) append(" - 1 px = 1 voxel")
@@ -224,7 +225,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     row.add(JLabel(Swatch(MapRenderer.colorOf(kind))))
     row.add(Box.createHorizontalStrut(6))
     row.add(
-      JLabel("${kind.name.lowercase().replace('_', ' ')}  ${"%,d".format(count)}").apply {
+      JLabel("${kind.name.lowercase().replace('_', ' ')}  ${"%,d".format(Locale.ROOT, count)}").apply {
         font = Font(Font.SANS_SERIF, Font.PLAIN, 11)
       }
     )
@@ -240,7 +241,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
   /** A length as the shortest thing that reads: `32 m`, `1 km`, `4 km`. */
   private fun metres(value: Double): String = when {
     value >= 1_000.0 && value % 1_000.0 == 0.0 -> "${(value / 1_000.0).toInt()} km"
-    value >= 1_000.0 -> "${"%.1f".format(value / 1_000.0)} km"
+    value >= 1_000.0 -> "${"%.1f".format(Locale.ROOT, value / 1_000.0)} km"
     else -> "${value.toInt()} m"
   }
 
@@ -281,7 +282,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
           report == null -> "this scene has no chunk pipeline to check"
           report.isClean -> "seam check clean - ${report.columnsCompared} shared columns agree"
           else -> "SEAMS: ${report.seams.size}/${report.columnsCompared} columns disagree, " +
-              "worst ${"%.4f".format(report.worstDelta)} m - marked in red"
+              "worst ${"%.4f".format(Locale.ROOT, report.worstDelta)} m - marked in red"
         }
       }
     }.apply { isDaemon = true }.start()
@@ -305,7 +306,7 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     for ((name, value) in canvas.probeAll(worldX, worldY)) {
       probeValues[name]?.text = value
     }
-    status.toolTipText = "world (${"%.1f".format(worldX)}, ${"%.1f".format(worldY)}) m"
+    status.toolTipText = "world (${"%.1f".format(Locale.ROOT, worldX)}, ${"%.1f".format(Locale.ROOT, worldY)}) m"
   }
 
   /** A colour chip for the legend. The one hand-painted component in the side panel. */
