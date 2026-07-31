@@ -148,8 +148,59 @@ object Invariants {
     checkEmploymentAddsUp(generated, ::fail)
     checkBusinessesAreWellFormed(generated, ::fail)
     checkRoadsideInnsAreOnTheRoad(generated, ::fail)
+    checkSeaLanesStayAtSea(generated, ::fail)
 
     return out
+  }
+
+  /**
+   * Every sea lane is over open water for its whole length, and none of it is in the ocean margin.
+   *
+   * Both halves matter and the second is the subtle one. The margin is the band of forced deep water that hides
+   * the east-west wrap, so a lane routed through it is a road across the seam by another name - a player
+   * following that lane sails off one edge of the world and arrives at the other. The water cost field forbids
+   * those cells outright, so this holds by construction; asserting it is what would catch the field being built
+   * from the wrong predicate, which is a change nothing else in the pipeline would notice.
+   *
+   * Deliberately **not** a check that lanes exist. Most worlds have none, correctly: a lane needs two cities
+   * that a road cannot join, and a world whose cities all sit on one landmass has no such pair. Measured, 3 to 6
+   * worlds in 15 have at least one, rising with world size. The existence claim is therefore pinned to a seed
+   * that does have them, in `civ/SeaLaneTest` - because an unconditional version here would fail on most seeds,
+   * and a conditional one would be the vacuous kind this module has been bitten by.
+   */
+  private fun checkSeaLanesStayAtSea(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val lanes = generated.world.features.all().filter { it.kind == FeatureKind.SEA_LANE }
+    if (lanes.isEmpty()) return
+
+    val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer ?: return
+    val lakeId = generated.world.layers[LayerId.LAKE_ID] as? IntLayer ?: return
+    val metres = waterLevel.region.resolution.metresPerCell
+    val wrap = WorldWrap(generated.config)
+
+    for (lane in lanes) {
+      val marker = lane as? MarkerFeature ?: continue
+
+      for (point in marker.centerline.points) {
+        val x = (point.x / metres).toInt()
+        val y = (point.y / metres).toInt()
+
+        if (waterLevel[x, y].isNaN() || lakeId[x, y] != 0) {
+          fail(
+            "sea lanes stay at sea",
+            "${lane.id} leaves open water at (${point.x.toInt()},${point.y.toInt()})"
+          )
+          return
+        }
+
+        if (wrap.isInOceanBorder(point.x, point.y)) {
+          fail(
+            "sea lanes stay at sea",
+            "${lane.id} enters the ocean margin at (${point.x.toInt()},${point.y.toInt()})"
+          )
+          return
+        }
+      }
+    }
   }
 
   // --- Step 10: history ------------------------------------------------------------------------------

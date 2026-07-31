@@ -77,6 +77,21 @@ enum class FeatureKind(val defaultPriority: Int) {
   LAKE(400),
   OXBOW_LAKE(420),
   ROAD(500),
+
+  /**
+   * A shipping route between two coastal settlements, across water a road cannot cross.
+   *
+   * Geometry and attributes only, and deliberately a [MarkerFeature] rather than a [PolylineFeature]. Two
+   * reasons, and the first is the load-bearing one: a lane has no cross-section to stamp - a ship leaves no
+   * mark on the sea floor - so there is nothing for a heightfield to do with it. The second is that a lane's
+   * bounding box spans an ocean, which puts it in `FeatureIndex`'s oversized list where it is tested against
+   * every query in the world; `affectsHeight` being false means `FeatureEvaluator` discards it immediately
+   * instead of evaluating a corridor across half the map.
+   *
+   * Priority is therefore inert, and sits beside [ROAD] because that is what it is the water half of.
+   */
+  SEA_LANE(505),
+
   ROAD_JUNCTION(520),
   BRIDGE(550),
   SETTLEMENT_GRADING(600),

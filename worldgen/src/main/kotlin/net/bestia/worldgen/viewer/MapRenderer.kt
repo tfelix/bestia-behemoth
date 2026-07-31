@@ -507,6 +507,9 @@ class MapRenderer(
       FeatureKind.MORAINE -> Color(190, 190, 120)
       FeatureKind.LAKE, FeatureKind.OXBOW_LAKE -> Color(60, 110, 220)
       FeatureKind.ROAD, FeatureKind.ROAD_JUNCTION -> Color(230, 170, 90)
+      // A road's hue moved onto water: the same trade network, so the eye should group them, and pale enough
+      // to read against the ocean's blue rather than against the land a road is drawn on.
+      FeatureKind.SEA_LANE -> Color(255, 225, 175)
       FeatureKind.BRIDGE -> Color(255, 130, 60)
       FeatureKind.SETTLEMENT_GRADING -> Color(255, 140, 140)
       FeatureKind.SETTLEMENT -> Color(255, 60, 60)

@@ -14,6 +14,7 @@ import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.hydro.HydrologyStage
@@ -23,6 +24,7 @@ import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.Intersections
 import net.bestia.worldgen.vector.LinearFeatures
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Polyline
@@ -32,8 +34,10 @@ import net.bestia.worldgen.vector.RadialProfiles
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /** Tuning for [SettlementStage]. */
@@ -97,7 +101,8 @@ class SettlementStage(
 
   override val id = ID
   // 2: settlement markers carry SettlementChannels.INDEX, the join key for steps 8 to 10.
-  override val version = 2
+  // 3: pairs a road cannot reach get a SEA_LANE, so the trade network spans water.
+  override val version = 3
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID
@@ -108,7 +113,8 @@ class SettlementStage(
     StageOutput.Vector(FeatureKind.SETTLEMENT),
     StageOutput.Vector(FeatureKind.SETTLEMENT_GRADING),
     StageOutput.Vector(FeatureKind.ROAD),
-    StageOutput.Vector(FeatureKind.BRIDGE)
+    StageOutput.Vector(FeatureKind.BRIDGE),
+    StageOutput.Vector(FeatureKind.SEA_LANE)
   )
 
   /** A placed settlement, before it becomes features. */
@@ -150,7 +156,10 @@ class SettlementStage(
       features.add(gradingFor(nextId(), site))
     }
 
-    features.addAll(buildRoads(ctx, region, sites, movementCost, elevation, rivers, terms.submerged, nextId))
+    val waterCost = waterCostField(ctx, region, terms)
+    features.addAll(
+      buildRoads(ctx, region, sites, movementCost, waterCost, elevation, rivers, terms, nextId)
+    )
 
     return StageResult(features = features)
   }
@@ -401,12 +410,14 @@ class SettlementStage(
     region: CellRegion,
     sites: List<Site>,
     movementCost: Grid,
+    waterCost: Grid,
     elevation: Grid,
     rivers: List<PolylineFeature>,
-    submerged: BooleanArray,
+    terms: Terms,
     nextId: () -> FeatureId
   ): List<VectorFeature> {
     val metres = region.resolution.metresPerCell
+    val submerged = terms.submerged
     val nodes = sites.filter { it.tier == SettlementTier.CITY || it.tier == SettlementTier.TOWN }
     if (nodes.size < 2) return emptyList()
 
@@ -415,24 +426,50 @@ class SettlementStage(
 
     val finder = RouteFinder(movementCost, metres)
     val routes = LinkedHashMap<Pair<Int, Int>, RouteFinder.Route>()
-    for ((a, b) in edges) {
-      val route = finder.route(nodes[a].cell, nodes[b].cell) ?: continue
 
-      // Reject any route that goes to sea. Water is expensive in the cost field rather than forbidden -
-      // finite cost is what lets A* find a way round a lake - but that also means it will happily run a
-      // road straight across an ocean when there is no land route at all. Two settlements on different
-      // landmasses are simply not road-connected; they would be connected by a sea lane, which is a
-      // different kind of feature and is not generated.
-      if (route.cells.any { submerged[it] }) continue
+    // Pairs a road cannot serve, kept rather than dropped. Water is expensive in the movement cost field
+    // rather than forbidden - a finite cost is what lets A* find a way *round* a lake - so a road will happily
+    // run straight across an ocean when there is no land route at all, and the rejection below is what stops
+    // it. The rejected pair is exactly the information a sea lane needs, and dropping it was the whole of
+    // deviation 7.
+    val overWater = ArrayList<Pair<Int, Int>>()
+
+    for ((a, b) in edges) {
+      val route = finder.route(nodes[a].cell, nodes[b].cell)
+      if (route == null) {
+        overWater.add(a to b)
+        continue
+      }
+      if (route.cells.any { submerged[it] }) {
+        overWater.add(a to b)
+        continue
+      }
 
       routes[a to b] = route
     }
+
+    // Sea routes go into the *same* map, so the trade network is one graph with two edge types and the traffic
+    // model below needs no idea that some of its edges are wet. A pair reaches `buildSeaLanes` only after its
+    // land route was rejected, so the two can never collide on a key.
+    val lanes = buildSeaLanes(ctx, region, nodes, overWater, waterCost, terms)
+    routes.putAll(lanes.mapValues { it.value.route })
+
     if (routes.isEmpty()) return emptyList()
 
     val traffic = simulateTraffic(nodes, routes)
     val out = ArrayList<VectorFeature>()
 
+    for ((pair, lane) in lanes) {
+      out.add(
+        seaLaneMarker(
+          nextId(), region, nodes, pair, lane, traffic[pair] ?: 0.0, elevation, ctx.config.seaLevel,
+          waterCost
+        )
+      )
+    }
+
     for ((pair, route) in routes) {
+      if (pair in lanes) continue
       if (route.length < 3) continue
 
       val points = route.cells.map { centreOf(region, it, metres) }
@@ -450,6 +487,276 @@ class SettlementStage(
     }
 
     return out
+  }
+
+  // --- Sea lanes -----------------------------------------------------------------------------------
+
+  /** A sea lane before it becomes a feature: the water route and the two ports it runs between. */
+  private class Lane(
+    val route: RouteFinder.Route,
+    val fromPort: Int,
+    val toPort: Int
+  )
+
+  /**
+   * The water cost field: cheap at sea, impassable on land and inside the ocean margin.
+   *
+   * A second cost grid rather than a variant of [LayerId.MOVEMENT_COST], because the two are the same shape and
+   * opposite in content, and [RouteFinder] is already generic over any grid. Reusing the finder unchanged is
+   * what makes this phase small.
+   *
+   * Three decisions in it.
+   *
+   * **Uniform at sea.** A ship's cost is the distance sailed, so the route that comes out is a geodesic over
+   * open water - which is what a shipping lane is. Nothing here prefers shallow water or hugs a coast; a lane
+   * that rounds a headland does so because the headland is in the way.
+   *
+   * **Lakes are not sea.** [Terms.submerged] is true of any standing water, lakes included, so using it alone
+   * would let a "sea lane" run down the middle of an inland lake and out again. Only ocean cells are cheap.
+   *
+   * **The ocean margin is impassable**, which is the interesting one. The margin is the 2.5 km of forced deep
+   * water that hides the wrap seam, and a lane routed through it is a road across the seam by another name -
+   * a player following it would sail off one edge of the world and arrive at the other. Forbidding those cells
+   * makes the invariant hold *by construction* rather than by a rejection test after the fact, which also means
+   * a pair that can only be joined through the margin is simply left unconnected, correctly.
+   */
+  private fun waterCostField(ctx: GenContext, region: CellRegion, terms: Terms): Grid {
+    val lakeId = ctx.layers.int(LayerId.LAKE_ID)
+    val wrap = WorldWrap(ctx.config)
+    val metres = region.resolution.metresPerCell
+    val grid = Grid(region.width, region.height)
+
+    for (y in 0 until region.height) {
+      for (x in 0 until region.width) {
+        val i = y * region.width + x
+        val ocean = terms.submerged[i] && lakeId[x + region.minX, y + region.minY] == 0
+
+        val worldX = (region.minX + x + 0.5) * metres
+        val worldY = (region.minY + y + 0.5) * metres
+        val margin = wrap.isInOceanBorder(worldX, worldY)
+
+        grid.data[i] = if (ocean && !margin) SEA_COST else Terms.IMPASSABLE
+      }
+    }
+
+    return grid
+  }
+
+  /**
+   * A water route for every pair of settlements a road could not join.
+   *
+   * The endpoints are not the settlements themselves - they are on land, which this field treats as impassable -
+   * but the nearest ocean cell to each, its *port*. A settlement with no sea within [PORT_HAUL_METRES] is
+   * landlocked and takes no part.
+   *
+   * Lakes are not sea here, and measurement says that costs nothing: across forty worlds every land route
+   * rejected for crossing water was blocked by **ocean cells only**, never by a lake. Inland navigation is a
+   * separate gap the architecture document already lists under navigable rivers.
+   */
+  private fun buildSeaLanes(
+    ctx: GenContext,
+    region: CellRegion,
+    nodes: List<Site>,
+    pairs: List<Pair<Int, Int>>,
+    waterCost: Grid,
+    terms: Terms
+  ): LinkedHashMap<Pair<Int, Int>, Lane> {
+    val out = LinkedHashMap<Pair<Int, Int>, Lane>()
+    if (pairs.isEmpty()) return out
+
+    val metres = region.resolution.metresPerCell
+
+    // `minimumCost` must be the field's actual floor or the A* heuristic stops being admissible and the route
+    // stops being optimal. It is SEA_COST here rather than the finder's default of 1.0, and they happen to be
+    // equal - stating it is what stops the two drifting apart.
+    val finder = RouteFinder(waterCost, metres, minimumCost = SEA_COST)
+
+    val ports = HashMap<Int, Int>()
+    fun portOf(node: Int): Int? = ports.getOrPut(node) {
+      nearestSailableCell(region, nodes[node].cell, waterCost) ?: -1
+    }.takeIf { it >= 0 }
+
+    for ((a, b) in pairs) {
+      val from = portOf(a) ?: continue
+      val to = portOf(b) ?: continue
+      if (from == to) continue
+
+      val route = finder.route(from, to) ?: continue
+
+      // A route is only a lane if it stayed at sea the whole way. The cost field makes land finite-but-huge
+      // for the same reason the land field does, so a "route" that crawls overland is possible in principle
+      // and is not a shipping lane.
+      if (route.cells.any { waterCost.data[it] >= Terms.IMPASSABLE }) continue
+      if (route.length < MIN_LANE_CELLS) continue
+
+      out[a to b] = Lane(route, from, to)
+    }
+
+    return out
+  }
+
+  /**
+   * Pulls a cell path taut, so a lane across open water is straight instead of an L.
+   *
+   * **A* over a *uniform* cost field has no single shortest path**, and that is the whole problem. On land the
+   * cost varies everywhere, so the cheapest route is unique and is the one that looks like a road. At sea every
+   * cell costs the same, so a straight run and any monotone staircase with the same step counts cost exactly the
+   * same, and which one comes back is decided by the order `D8` happens to list its neighbours in. Rendered, the
+   * first lanes on seed 9 left one coast heading due south, turned ninety degrees in open water and ran due
+   * east - which is the ruled hotspot chain and the rectangular coastline in a third form: *a shape produced by
+   * an arbitrary tie-break looks like the tie-break*. Corner cutting cannot repair it, because there is nothing
+   * wrong with the corners; the path itself is the wrong path.
+   *
+   * String-pulling fixes it properly. Walk from an anchor, advance while the straight line to the candidate is
+   * all sailable, and keep the last vertex that was. A route over clear water collapses to a single segment -
+   * which is what a shipping lane is - and one that has to round a headland keeps exactly the vertices the
+   * headland forces.
+   *
+   * Conservative on purpose: it stops at the *first* blocked candidate rather than searching past it for a
+   * farther clear one. Clearance is not monotone along a path around a concave coast, so scanning past a
+   * blockage could pick a segment that leaves the water. Keeping a few needless vertices is free; a lane across
+   * a peninsula is not.
+   */
+  private fun straighten(region: CellRegion, cells: IntArray, waterCost: Grid): IntArray {
+    if (cells.size <= 2) return cells
+
+    val out = ArrayList<Int>()
+    out.add(cells.first())
+
+    var anchor = 0
+    while (anchor < cells.size - 1) {
+      var furthest = anchor + 1
+      var candidate = anchor + 2
+
+      while (candidate < cells.size && isClearBetween(region, cells[anchor], cells[candidate], waterCost)) {
+        furthest = candidate
+        candidate++
+      }
+
+      out.add(cells[furthest])
+      anchor = furthest
+    }
+
+    return out.toIntArray()
+  }
+
+  /** Whether every cell on the straight line between two cells is sailable. A supercover walk, not Bresenham. */
+  private fun isClearBetween(region: CellRegion, from: Int, to: Int, waterCost: Grid): Boolean {
+    val fromX = from % region.width
+    val fromY = from / region.width
+    val toX = to % region.width
+    val toY = to / region.width
+
+    // One sample per cell of the longer axis, plus a half-cell offset, so the walk cannot skip a diagonal
+    // gap between two blocked cells - which a lane could otherwise thread.
+    val steps = max(abs(toX - fromX), abs(toY - fromY)) * 2
+    if (steps == 0) return waterCost.data[from] < Terms.IMPASSABLE
+
+    for (step in 0..steps) {
+      val t = step.toDouble() / steps
+      val x = (fromX + (toX - fromX) * t).roundToInt()
+      val y = (fromY + (toY - fromY) * t).roundToInt()
+      if (x < 0 || y < 0 || x >= region.width || y >= region.height) return false
+      if (waterCost.data[y * region.width + x] >= Terms.IMPASSABLE) return false
+    }
+
+    return true
+  }
+
+  /**
+   * The nearest cell a ship could be in, searched outward from a settlement.
+   *
+   * A spiral over rings rather than a distance transform: there are a few dozen settlements and the answer is
+   * usually two cells away, so building a full transform over the world to find it would cost more than the
+   * whole of the rest of this pass.
+   */
+  private fun nearestSailableCell(region: CellRegion, from: Int, waterCost: Grid): Int? {
+    val originX = from % region.width
+    val originY = from / region.width
+    val searchCells = (PORT_HAUL_METRES / region.resolution.metresPerCell).toInt().coerceAtLeast(1)
+
+    for (radius in 1..searchCells) {
+      var best = -1
+      var bestDistance = Int.MAX_VALUE
+
+      for (dy in -radius..radius) {
+        for (dx in -radius..radius) {
+          // Only the new ring each time round, so a nearer cell in an earlier ring always wins.
+          if (max(abs(dx), abs(dy)) != radius) continue
+
+          val x = originX + dx
+          val y = originY + dy
+          if (x < 0 || y < 0 || x >= region.width || y >= region.height) continue
+
+          val cell = y * region.width + x
+          if (waterCost.data[cell] >= Terms.IMPASSABLE) continue
+
+          val distance = dx * dx + dy * dy
+          if (distance < bestDistance) {
+            bestDistance = distance
+            best = cell
+          }
+        }
+      }
+
+      if (best >= 0) return best
+    }
+
+    return null
+  }
+
+  /**
+   * The lane as a marker: the route smoothed into a polyline, with depth, traffic and its two ports on it.
+   *
+   * **Straightened, and deliberately not corner-cut** - the opposite treatment from a road, and both halves
+   * matter. See [straighten] for why a uniform cost field makes the raw path arbitrary.
+   *
+   * Chaikin smoothing was applied on top at first and the sweep caught it: seed 702 put a lane on land. Corner
+   * cutting moves vertices *inward*, so a lane rounding a headland has its corner cut into the headland - the
+   * smoothing undoes exactly the constraint the straightening exists to enforce. A road can be corner-cut freely
+   * because a road has no such constraint; it stamps a corridor wherever it goes. A lane must stay wet.
+   *
+   * Nothing is lost by dropping it. A taut path turns only where a coastline forces it, and a ship rounding a
+   * cape genuinely does turn sharply there.
+   *
+   * Not resampled to a fixed spacing either. A lane has no cross-section that has to be sampled finely enough to
+   * stamp, so a vertex per forced turn is enough to say where it goes and how deep it is, and a lane crossing an
+   * ocean at road spacing would carry thousands of stations to describe a straight line.
+   */
+  private fun seaLaneMarker(
+    id: FeatureId,
+    region: CellRegion,
+    nodes: List<Site>,
+    pair: Pair<Int, Int>,
+    lane: Lane,
+    traffic: Double,
+    elevation: Grid,
+    seaLevel: Double,
+    waterCost: Grid
+  ): MarkerFeature {
+    val metres = region.resolution.metresPerCell
+    val (a, b) = pair
+
+    val taut = straighten(region, lane.route.cells, waterCost)
+    val centerline = Polyline(taut.map { centreOf(region, it, metres) })
+
+    val stationCount = centerline.vertexCount
+    val depth = DoubleArray(stationCount) { station ->
+      max(0.0, seaLevel - sampleElevation(elevation, centerline.points[station]))
+    }
+
+    // Lower settlement index first, so "which two places" reads the same whichever end you sample from.
+    val fromIndex = min(nodes[a].index, nodes[b].index).toDouble()
+    val toIndex = max(nodes[a].index, nodes[b].index).toDouble()
+
+    val stations = StationTable.Builder(stationCount)
+      .channel(SeaLaneChannels.DEPTH, depth)
+      .channel(SeaLaneChannels.TRAFFIC, DoubleArray(stationCount) { traffic })
+      .channel(SeaLaneChannels.FROM_SETTLEMENT, DoubleArray(stationCount) { fromIndex })
+      .channel(SeaLaneChannels.TO_SETTLEMENT, DoubleArray(stationCount) { toIndex })
+      .build()
+
+    return MarkerFeature(id = id, kind = FeatureKind.SEA_LANE, centerline = centerline, stations = stations)
   }
 
   /**
@@ -741,6 +1048,42 @@ class SettlementStage(
 
     private const val ROAD_SMOOTHING = 2
 
+    /**
+     * Per-metre cost of open water, and therefore the floor of the water cost field.
+     *
+     * It has to be handed to [RouteFinder] as its `minimumCost` as well: the A* heuristic multiplies straight
+     * line distance by it, and a value above the field's true floor makes the heuristic inadmissible and the
+     * route no longer optimal. Equal to the finder's own default, which is exactly why it is worth naming -
+     * a default that happens to match is one that stops matching silently.
+     */
+    private const val SEA_COST = 1.0
+
+    /**
+     * How far a settlement's goods will travel overland to reach a quay, in metres.
+     *
+     * **Three cells was the first value and it produced no lanes at all, on any of forty worlds.** The pairs a
+     * road cannot join turn out to be inland cities either side of a bay - measured, their nearest water sits
+     * 1 to 32 cells away with a median around seven - because placement follows farmland and fresh water, not
+     * the coast. A three kilometre search found water for none of them, so every rejected pair was rejected a
+     * second time and the whole feature was dead. That is the failure this module has form for: a subsystem
+     * that is complete, tested and never once reached.
+     *
+     * Twenty kilometres is a day's cart haul, which is the real constraint - an inland city ships through the
+     * nearest anchorage and the road network carries its goods there. In metres rather than cells so it means
+     * the same thing at any resolution, and deliberately **not** scaled by `detailScale`: how far an ox will
+     * pull a wagon is not a property of how big the world is. That is the same argument that keeps settlement
+     * density unscaled.
+     */
+    private const val PORT_HAUL_METRES = 20_000.0
+
+    /**
+     * Fewest cells a water route may have and still be a lane.
+     *
+     * Two ports a couple of cells apart are on the same stretch of coast, and a "shipping route" between them
+     * is a beach walk. The land route between such a pair was rejected for some other reason.
+     */
+    private const val MIN_LANE_CELLS = 6
+
     /** Metres of clear road either side of a channel before the deck begins. The abutments. */
     private const val BRIDGE_GAP = 4.0
 
@@ -803,6 +1146,30 @@ private class SeparationIndex(private val bucketMetres: Double) {
 }
 
 /** Station channel names on a [FeatureKind.BRIDGE] marker. */
+/**
+ * Per-vertex attributes of a [FeatureKind.SEA_LANE].
+ *
+ * The two endpoint channels hold **settlement indices**, not [FeatureId]s, for the reason the KDoc on
+ * [FeatureKind.SETTLEMENT_HISTORY] gives: a station channel is a `Double`, and a 64-bit feature id loses its
+ * low bits to one. A settlement index is a small integer and survives exactly.
+ *
+ * They are constant along the lane rather than varying per station, which is a little wasteful and is the
+ * cheapest way to make "which two places does this connect" answerable from any point on it - including from
+ * a station table sampled at an arbitrary arc length, which is the only access a consumer has.
+ */
+object SeaLaneChannels {
+
+  /** Depth of water under this point on the lane, in metres below sea level. */
+  const val DEPTH = "depth"
+
+  /** Trade flow along the lane, on the same scale as a road's - see `simulateTraffic`. */
+  const val TRAFFIC = "traffic"
+
+  /** [SettlementChannels.INDEX] of the two ports, lower index first so the pair reads consistently. */
+  const val FROM_SETTLEMENT = "from_settlement"
+  const val TO_SETTLEMENT = "to_settlement"
+}
+
 object BridgeChannels {
   const val DECK_ELEVATION = "deck_elevation"
 
