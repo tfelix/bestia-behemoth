@@ -163,7 +163,10 @@ object Palettes {
     // reaches the palette; see LogScaledField.
     LayerId.FLOW_ACCUMULATION, LayerId.DISCHARGE -> ContinuousPalette(Ramps.PRECIPITATION)
 
-    LayerId.BIOME -> BiomePalette()
+    // Same palette as BIOME, so the two maps are directly comparable - which is the only way to read a
+    // secondary map at all. The NO_SECONDARY sentinel is negative, so `COLORS.getOrNull` misses and it draws
+    // in BiomePalette's hashed fallback colour: distinct from every real biome, which is what it needs to be.
+    LayerId.BIOME, LayerId.BIOME_SECONDARY -> BiomePalette()
     LayerId.PLATE_ID, LayerId.LAKE_ID, LayerId.FLOW_DIRECTION -> CategoryPalette()
 
     else -> ContinuousPalette(Ramps.VIRIDIS)
@@ -190,6 +193,12 @@ object Labels {
     // would confidently read as `cliff`. Falling back to the number is the honest answer, and it matches
     // how BiomePalette falls back to a hashed colour rather than inventing one.
     LayerId.BIOME -> { ordinal -> Biome.entries.getOrNull(ordinal)?.label }
+
+    // `getOrNull` here too, and here it is load bearing rather than defensive: this layer *deliberately*
+    // stores an out-of-range value. `Biome.of` would report every cell with no runner-up as `cliff`.
+    LayerId.BIOME_SECONDARY -> { ordinal ->
+      if (ordinal == LayerId.NO_SECONDARY) "no runner-up" else Biome.entries.getOrNull(ordinal)?.label
+    }
 
     LayerId.FLOW_DIRECTION -> { d -> if (d == D8.NONE) "outflow" else D8.NAMES.getOrNull(d) }
 

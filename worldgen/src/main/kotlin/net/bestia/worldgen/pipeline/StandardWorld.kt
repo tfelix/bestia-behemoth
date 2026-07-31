@@ -154,7 +154,12 @@ object StandardWorld {
         lakeId = world.layers.require(LayerId.LAKE_ID),
         temperature = world.layers.require(LayerId.TEMPERATURE),
         seed = config.seed,
-        seaLevel = config.seaLevel
+        seaLevel = config.seaLevel,
+        // The pair that turns a biome boundary into an ecotone; see SurfaceSampler.biomeAt. `require`, not an
+        // optional read, because this assembles the full standard pipeline - if BiomeStage has run at all it
+        // has emitted both, and a silent fallback here would mean the dither quietly not happening.
+        secondaryBiome = world.layers.require(LayerId.BIOME_SECONDARY),
+        biomeConfidence = world.layers.require(LayerId.BIOME_CONFIDENCE)
       ),
       features = world.features
     )

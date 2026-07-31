@@ -78,13 +78,16 @@ class BiomeStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: the runner-up biome is kept as BIOME_SECONDARY instead of being scored and discarded.
+  override val version = 2
   override val dependencies =
     listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID)
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
     StageOutput.Raster(LayerId.BIOME),
+    StageOutput.Raster(LayerId.BIOME_SECONDARY),
     StageOutput.Raster(LayerId.BIOME_CONFIDENCE),
     StageOutput.Raster(LayerId.SOIL_FERTILITY),
     StageOutput.Raster(LayerId.SOIL_DEPTH)
@@ -118,6 +121,7 @@ class BiomeStage(
     }
 
     val biome = IntGrid(region.width, region.height)
+    val secondary = IntGrid(region.width, region.height)
     val confidence = Grid(region.width, region.height)
     val fertility = Grid(region.width, region.height)
     val soilDepth = Grid(region.width, region.height)
@@ -163,7 +167,23 @@ class BiomeStage(
         biome.data[i] = chosen.ordinal
         // An overridden cell is not a classification at all, so reporting the classifier's confidence
         // for it would be a lie. Edge biomes are certain by construction.
-        confidence.data[i] = if (chosen == match.biome) match.confidence else 1.0
+        val overridden = chosen != match.biome
+        confidence.data[i] = if (overridden) 1.0 else match.confidence
+
+        // **And an overridden cell gets the sentinel rather than the climatic winner it displaced.** The
+        // climatic answer is real information - "if this were not a beach it would be temperate forest" - and
+        // it is tempting to keep it here for free. It is the wrong slot for it: this layer means "the biome
+        // that came second in the classification", and there was no classification. Storing the displaced
+        // winner would make a beach read as a beach/forest transition, so anything measuring how much of the
+        // world is ecotone would count every shoreline and every cliff in the total.
+        //
+        // Nothing is lost by the choice, because the paired confidence is 1.0 on exactly these cells and a
+        // blend weight of zero makes the identity unused either way. The sentinel is the honest of the two
+        // encodings of the same behaviour.
+        secondary.data[i] = when {
+          overridden -> LayerId.NO_SECONDARY
+          else -> match.runnerUp?.ordinal ?: LayerId.NO_SECONDARY
+        }
 
         val weathering = weatheringAt(hardness.data[i], temperature.data[i], precipitation.data[i])
         fertility.data[i] = fertilityAt(chosen, sediment.data[i], weathering, slope, wetness)
@@ -173,6 +193,7 @@ class BiomeStage(
 
     return StageResult.of(
       biome.toLayer(LayerId.BIOME, region),
+      secondary.toLayer(LayerId.BIOME_SECONDARY, region),
       confidence.toLayer(LayerId.BIOME_CONFIDENCE, region),
       fertility.toLayer(LayerId.SOIL_FERTILITY, region),
       soilDepth.toLayer(LayerId.SOIL_DEPTH, region)

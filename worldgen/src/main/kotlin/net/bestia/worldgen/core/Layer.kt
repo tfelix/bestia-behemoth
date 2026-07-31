@@ -129,6 +129,31 @@ data class LayerId(val name: String) {
 
     /** How well the chosen biome fit: low where two biomes scored alike, i.e. in a transition. */
     val BIOME_CONFIDENCE = LayerId("biome_confidence")
+
+    /**
+     * The biome that came *second* in the classification, or [NO_SECONDARY] where there was none.
+     *
+     * With [BIOME] this says what a cell is a transition *between*, which [BIOME_CONFIDENCE] alone cannot:
+     * confidence says how much of a transition a cell is in and this says to what. The pair is what lets a
+     * consumer dither a boundary instead of drawing a line across it.
+     *
+     * There is deliberately no separate blend-weight layer. [BIOME_CONFIDENCE] already is one - a monotone
+     * function of the two scores' ratio - and storing a second raster that is a function of one already on
+     * disk is a raster that can disagree with itself.
+     *
+     * **Read it with `Biome.entries.getOrNull`, never `Biome.of`.** `of` *coerces* an out-of-range ordinal
+     * into the enum, so the [NO_SECONDARY] sentinel would come back as the last entry - `CLIFF` - and a cell
+     * with no runner-up would confidently claim to be half cliff.
+     */
+    val BIOME_SECONDARY = LayerId("biome_secondary")
+
+    /**
+     * The [BIOME_SECONDARY] value meaning "this cell has no runner-up".
+     *
+     * Negative so it cannot collide with an appended [net.bestia.worldgen.bio.Biome] ordinal, which is the
+     * one thing a sentinel in an on-disk enum raster has to guarantee.
+     */
+    const val NO_SECONDARY = -1
     val SOIL_FERTILITY = LayerId("soil_fertility")
 
     /** Depth of soil over bedrock in metres. Thin on crests and steep ground, deep in valley floors. */

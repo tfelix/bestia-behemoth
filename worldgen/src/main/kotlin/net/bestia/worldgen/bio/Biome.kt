@@ -82,8 +82,14 @@ class BiomePrototype(
   }
 }
 
-/** The best match and how clearly it won. */
-class BiomeMatch(val biome: Biome, val confidence: Double)
+/**
+ * The best match, how clearly it won, and what came second.
+ *
+ * [runnerUp] is null only when there was nothing to come second - a single-prototype classification. It is
+ * *not* null merely because the winner was clear: a confident cell still has a nearest neighbour, and
+ * [confidence] is the thing that says how little it matters.
+ */
+class BiomeMatch(val biome: Biome, val confidence: Double, val runnerUp: Biome? = null)
 
 /**
  * Biome classification by weighted distance to a set of prototypes.
@@ -126,15 +132,24 @@ object Biomes {
   }
 
   /**
-   * Nearest prototype, plus how much better it was than the runner-up.
+   * Nearest prototype, how much better it was than the runner-up, and which prototype that was.
    *
    * Confidence near zero means two biomes scored alike, which is exactly where a transition belongs -
    * a consumer that wants soft boundaries dithers or blends on this value rather than needing a second
    * classification pass.
+   *
+   * The runner-up's *identity* used to be computed and dropped: the loop tracked `secondScore` to derive the
+   * confidence and never asked which prototype it belonged to, so a consumer could tell that a cell was in a
+   * transition but not what it was a transition *between*. That is the second half of the architecture
+   * document's deviation 4, and the KDoc above this object has always claimed the blend weight came "for free"
+   * - it did, and the thing it was a weight *for* was missing.
    */
   fun classify(sample: DoubleArray, prototypes: List<BiomePrototype> = CLIMATIC): BiomeMatch {
-    var best = prototypes[0]
+    require(prototypes.isNotEmpty()) { "Cannot classify against an empty prototype set" }
+
+    var best: BiomePrototype? = null
     var bestScore = Double.MAX_VALUE
+    var secondBest: BiomePrototype? = null
     var secondScore = Double.MAX_VALUE
 
     for (prototype in prototypes) {
@@ -145,10 +160,17 @@ object Biomes {
       }
 
       if (sum < bestScore) {
+        // The demoted winner becomes the runner-up, and this has to happen *here* rather than only in the
+        // branch below. That branch fires for prototypes that never led, so tracking the identity there alone
+        // would miss every cell where the winner *changed* - which is most of them, since the first prototype
+        // in the list leads until something beats it. Null on the first iteration, correctly: nothing has been
+        // demoted yet.
+        secondBest = best
         secondScore = bestScore
-        bestScore = sum
         best = prototype
+        bestScore = sum
       } else if (sum < secondScore) {
+        secondBest = prototype
         secondScore = sum
       }
     }
@@ -159,7 +181,7 @@ object Biomes {
       (1.0 - sqrt(bestScore / secondScore)).coerceIn(0.0, 1.0)
     }
 
-    return BiomeMatch(best.biome, confidence)
+    return BiomeMatch(best!!.biome, confidence, secondBest?.biome)
   }
 
   /**
