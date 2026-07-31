@@ -13,17 +13,17 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
-module with no I/O in it. 334 unit tests, plus a seed-sweep regression harness.
+module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
 
 | # | Step | Status | Where |
 |---|---|---|---|
 | 1 | Framework + offline viewer | **done** | `core/`, `viewer/` |
 | 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
-| 3 | Heightfield → climate → hydrology → biomes | **done** — deviations 3, 4 | `geo/`, `climate/`, `hydro/`, `bio/` |
-| 4 | Erosion | **done** — deviations 1, 2, 6 | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt` |
+| 3 | Heightfield → climate → hydrology → biomes | **done** — deviation 3; 4 half closed | `geo/`, `climate/`, `hydro/`, `bio/` |
+| 4 | Erosion | **done** — deviation 2; 1 closed but shipping off | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt`, `geo/DropletHeightField.kt` |
 | 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy and town structures — no scatter pass, no caves | `voxel/` |
 | 6 | Derived structures | **done** | `derived/` |
-| 7 | Resources + habitability + settlements + roads | **done** — deviations 5, 7 | `resource/`, `civ/` |
+| 7 | Resources + habitability + settlements + roads | **done** — deviation 5 | `resource/`, `civ/` |
 | 8 | Town layout + buildings | **done** — deviation 8 | `civ/TownStage.kt`, `civ/StreetNetwork.kt`, `civ/TownBuildings.kt`, `voxel/TownStructures.kt` |
 | 9 | Economy + NPC distribution | **done** — no live NPCs, which are a runtime concern | `pop/` |
 | 10 | History simulation | **done** | `history/`, `core/Chronicle.kt` |
@@ -110,17 +110,30 @@ is an index, not the reasoning. Grouped by what it would take.
   must persist its per-chunk revision with it.
 - **Sharding, the work queue and the gRPC surface.** Deliberately the server's, and built nowhere.
 
+**Closed since this list was written**, and each is argued at the point in the code where it happens rather than
+here.
+
+- **Seasonal precipitation is four layers.** `climate` runs four seasonal passes instead of two and keeps them,
+  with the belt shift sinusoidal and the sweep's temperature seasonal and hemisphere-signed; monthly figures are
+  interpolated on demand by `climate/SeasonalPrecipitation` rather than stored. Measured on the reference world,
+  summer minus winter is 193 mm on average and the hemispheres are opposed, +117 against −109.
+- **Top-2 biome blending**, as `BIOME_SECONDARY` beside `BIOME`, consumed by `voxel/SurfaceSampler` — which
+  found that `BIOME_CONFIDENCE` is not calibrated to be a blend weight. See deviation 4.
+- **Sea lanes**, closing deviation 7. Most worlds have none, correctly: a lane needs two cities a road cannot
+  join. Measured, 3 to 6 worlds in 15 have at least one, rising with size.
+- **Special sites**: mines, monasteries, forts and lighthouses, founded by `HistorySim` on terrain
+  `history/SpecialSites` picked out. 18, 5, 22 and 4 of them on the 512 km reference world.
+- **Chunk-scale droplet erosion**, closing deviation 1 — **and shipping off.** See that deviation.
+
 **Wants a stage or a pass.**
 
-- **Seasonal precipitation as layers.** Two seasonal orographic passes already run; only their sum and a scalar
-  spread survive, so the fields exist and are thrown away. Enough for biomes, not for agriculture by month —
-  and the cheapest unbuilt item on this list, because the machinery is a `List<Grid>` nobody reads.
-- **Top-2 biome blending** — only the winner is stored, so a consumer can dither a boundary but not blend it.
-- **Chunk-scale droplet erosion** (deviation 1), **sea lanes** so islands are connected (deviation 7),
-  **road-junction and trough-tributary smoothing**.
+- **Road-junction and trough-tributary smoothing.** The two places where a `min` of two profiles still leaves
+  a crease that the confluence feature solves for rivers and nothing solves here.
 - **The place → route → regrow → replace settlement iteration** — single pass.
-- **Special sites**: mines, monasteries, forts, lighthouses. Bridges are done.
 - **Oil and gas** — skipped because nothing downstream consumes them.
+- **Caves.** Repeated from the subsystem list above for one reason worth knowing: **nothing in the voxel tier
+  can subtract.** `StructureSpans` adds spans and has no way to remove them, which is why a mine head is a
+  planked shaft cover rather than a hole, and why caves are not a pass but a change to how the tier works.
 - **Town blocks as objects** (deviation 8), **building interiors**, and a **shape grammar** that reads the
   grammar seed every building already carries.
 - **History**: deities and monsters as entities, technology as more than a scalar, event templates with pre-
@@ -233,6 +246,15 @@ everything derived from it, and publishes `WorldRecreatedEvent` so `MasterWorldR
 player to the new spawn — their stored coordinates point into terrain that no longer exists, which otherwise
 fails silently by burying them in a hill.
 
+**What a development boot does *not* exercise is the mismatch itself**, and it is worth being exact about why.
+The dev datasource is in-memory H2, so every boot starts with no world row at all and takes the *create* path;
+there is nothing stored to disagree with. Twelve stage version bumps therefore change `pipelineVersion` without
+any boot ever reaching `on-mismatch`. The path that actually matters is covered by `WorldProvisioningTest`,
+which builds a stored row and a moved configuration in the same test rather than relying on a server restart to
+produce one. A boot confirms the *new* pipeline generates and starts: measured after the seasonal, biome, sea
+lane, special site and droplet work, Genesis came up in 951 ms with 4,454 vector features and four master spawn
+candidates, inside a 3.2 s start.
+
 **A new master picks where in the world to start.** `civ/SettlementSpawnPoints.kt` offers the settlements ranked
 second largest downwards — never the largest, which is the capital everybody already knows about — each with a
 coordinate on solid ground clear of the settlement's own built-up area. It is a pure function over the generated
@@ -302,15 +324,15 @@ Emitted layers and feature kinds:
 | Stage | Raster layers | Vector features |
 |---|---|---|
 | `tectonics` | `BEDROCK_ELEVATION`, `PLATE_ID`, `ROCK_HARDNESS`, `CRUST_AGE`, `UPLIFT` | `FAULT` |
-| `climate` | `TEMPERATURE`, `TEMPERATURE_RANGE`, `PRECIPITATION`, `PRECIPITATION_SEASONALITY`, `DISTANCE_TO_OCEAN` | — |
+| `climate` | `TEMPERATURE`, `TEMPERATURE_RANGE`, `PRECIPITATION`, `PRECIPITATION_SEASONALITY`, `PRECIPITATION_SPRING`/`SUMMER`/`AUTUMN`/`WINTER`, `DISTANCE_TO_OCEAN` | — |
 | `erosion` | `ERODED_ELEVATION`, `SEDIMENT` | `TECTONIC_BASIN` |
 | `hydrology` | `FLOW_DIRECTION`, `FLOW_ACCUMULATION`, `DISCHARGE`, `WATER_LEVEL`, `LAKE_ID` | `RIVER_CHANNEL`, `RIVER_CONFLUENCE` |
-| `biomes` | `BIOME`, `BIOME_CONFIDENCE`, `SOIL_FERTILITY`, `SOIL_DEPTH` | — |
+| `biomes` | `BIOME`, `BIOME_SECONDARY`, `BIOME_CONFIDENCE`, `SOIL_FERTILITY`, `SOIL_DEPTH` | — |
 | `glacial` | `ELEVATION`, `ICE_THICKNESS` | `GLACIAL_TROUGH`, `FJORD`, `CIRQUE`, `MORAINE` |
 | `resources` | `RESOURCE_VALUE` | `ORE_DEPOSIT` |
 | `habitability` | `HABITABILITY`, `MOVEMENT_COST` | — |
-| `settlements` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE` |
-| `history` | — | `SETTLEMENT_HISTORY`, `RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, **and the chronicle** |
+| `settlements` | — | `SETTLEMENT`, `SETTLEMENT_GRADING`, `ROAD`, `BRIDGE`, `SEA_LANE` |
+| `history` | — | `SETTLEMENT_HISTORY`, `RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT`, `MINE`, `MONASTERY`, `FORT`, `LIGHTHOUSE`, **and the chronicle** |
 | `towns` | — | `STREET`, `BUILDING`, `TOWN_WALL`, `GATE` |
 | `economy` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` |
 
@@ -732,11 +754,28 @@ is. Neither survives being pointed at a world it was not tuned for.
 Each is also noted at the point in the code where it happens, because a deviation visible in only one
 file is one somebody will later mistake for a bug.
 
-1. **Detail erosion is analytic noise, not particle droplet erosion.** Droplets are stateful and
-   non-local; doing them seam-free needs the overlap-and-blend machinery of the design's step 4, and
-   any error in that blend puts back exactly the seams the vector tier exists to remove. The analytic
-   field is seam-free by construction because it is a pure function of world position.
-   (`geo/WorldHeightField.kt`)
+1. ~~**Detail erosion is analytic noise, not particle droplet erosion.**~~ **Closed, and shipping off.**
+   `geo/DropletHeightField.kt` is a `BaseHeightField` decorator that does the droplets seam-free, and
+   `DropletParams.enabled` defaults to false.
+
+   **Both halves of that are deliberate.** The blend is safe because the droplet tiles sit on a *fixed world
+   lattice* rather than being keyed on the asking chunk: `heightAt` reads nothing but its two arguments, so two
+   chunks asking about a shared column run the same arithmetic and get the same bits, which is what
+   `ChunkSeamCheck`'s `epsilon = 0.0` demands. The tent weights over the lattice are a partition of unity by
+   construction, and they are zero exactly at the edge of each tile's simulated square - where a droplet has
+   nowhere to flow and is abandoned - so the region a tile is worst at is the region it contributes nothing to.
+   `ChunkSeamTest` runs the check with erosion on and carries the wrong design as a negative control.
+
+   It ships off anyway. The original entry's argument is still true: a seam is the one class of defect this
+   pipeline exists to make impossible, and the cost of being wrong is paid by every chunk of every world. Being
+   confident is not the same as being sure, and the default is where that difference belongs. `probe -Pdroplets`
+   is the way to look at it.
+
+   Two things measurement changed on the way, both recorded in `DropletParams`: the droplet density had to come
+   down twentyfold, because at the first figure 7% of cells were pinned at the delta clamp and the clamp was
+   shaping the terrain; and a droplet that evaporated or ran out of steps was **deleting the sediment it
+   carried**, which made the pass sediment *removal* rather than the transport that is the whole reason to
+   prefer it over noise. (`geo/DropletHeightField.kt`)
 2. **Alluvial fans and deltas are raster deposition, not vector polygons.** The vector tier has no
    polygon type; adding one is a subsystem, not a stage. (`geo/ErosionStage.kt`)
 3. **Lakes live in the raster tier**, as a water level plus a basin label, rather than as vector
@@ -746,8 +785,22 @@ file is one somebody will later mistake for a bug.
 4. **Edge biomes are raster distance transforms, not vector buffers.** Coastlines are not vector features
    at all, so a beach is a band around ocean cells rather than a strip inside a coastline polyline; and
    riparian corridors buffer high-discharge *cells* rather than the river polylines that already exist.
-   Both are therefore quantised to the coarse cell instead of being crisp at any resolution. Related:
-   only the winning biome is stored, not the top-2 pair with its blend weight. (`bio/BiomeStage.kt`)
+   Both are therefore quantised to the coarse cell instead of being crisp at any resolution.
+
+   **The top-2 half is closed.** `BIOME_SECONDARY` stores the runner-up beside `BIOME`, and
+   `voxel/SurfaceSampler` dithers between the pair so a boundary interpenetrates rather than being a line. An
+   overridden cell gets a sentinel rather than the climatic winner it displaced, because this layer means "the
+   biome that came second in the classification" and an overridden cell was not classified - storing it would
+   make every shoreline read as an ecotone.
+
+   What closing it *found* is worth more than the feature. **`BIOME_CONFIDENCE` is not calibrated to be a blend
+   weight**, though the classifier's KDoc has always implied it was one "for free". Measured over the cells that
+   have a runner-up at all: median 0.066, 95th percentile 0.343. With fourteen prototypes in seven dimensions the
+   nearest and second-nearest distances concentrate, so `1 - sqrt(best/second)` sits near zero nearly everywhere
+   and using it directly dithers the whole world at close to even odds - which is what the first implementation
+   did, as a 50/50 checkerboard visible in `probe`. It ranks transitional cells correctly; its absolute scale is
+   not a fraction. The dither therefore has a cutoff and a coherent noise field, and recalibrating the layer
+   itself is left to a change that measures biomes, since seven stages read them. (`bio/BiomeStage.kt`)
 5. **Settlement footprints are discs, not polygons** — a radial terrace rather than an outline with a
    street graph inside it. The polygon and everything it would contain is step 8.
 6. ~~**Rivers do not follow glacial troughs.**~~ **Closed.** Hydrology routed over the raster while a trough
@@ -763,9 +816,20 @@ file is one somebody will later mistake for a bug.
    [The glacial stage was an orphan](#the-glacial-stage-was-an-orphan-and-fixing-it-produced-the-worlds-first-lakes).
    A deviation describing the polite half of a defect is worse than no entry at all, because it makes the
    defect look considered.
-7. **Roads do not connect across water.** A route that would cross the sea is rejected rather than
-   bridged, so two settlements on different landmasses are not road-linked. They would be linked by a
-   sea lane, which is a feature kind that does not exist yet.
+7. ~~**Roads do not connect across water.**~~ **Closed.** The rejected pair - a route that would cross the sea -
+   is now collected rather than dropped and routed with the same `RouteFinder` over a water cost field, as a
+   `SEA_LANE`. The trade network is one graph with two edge types, so `simulateTraffic` needs no idea some of its
+   edges are wet.
+
+   The margin is impassable in that cost field, which makes "no lane crosses the wrap seam" hold by construction
+   rather than by a rejection test - a lane through the margin is a road across the seam by another name.
+
+   Two things are worth knowing. **A* over a *uniform* cost field has no unique shortest path**, so the first
+   lanes came out as right angles: at sea a straight run and any monotone staircase cost the same and the winner
+   is decided by the order `D8` lists its neighbours. That is the ruled hotspot chain and the rectangular
+   coastline in a third form, and string-pulling fixes it at the source. And **corner-cutting a taut lane put one
+   on land**, because Chaikin moves vertices inward and a lane rounding a headland has its corner cut into the
+   headland; a road can be smoothed freely because it stamps a corridor wherever it goes, and a lane cannot.
 8. **Lots front the streets directly; there are no blocks.** The design goes street graph → *faces* →
    blocks → recursive subdivision, then asks for a check that every lot has street frontage. Plots are
    instead laid along both sides of every street by arc length and rejected where they would overlap
@@ -783,10 +847,9 @@ file is one somebody will later mistake for a bug.
    planarisation they needed stays, because the chains and the overlap tests need it too.
    (`civ/StreetNetwork.kt`)
 
-Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits),
-seasonal precipitation as stored fields (two passes run and are summed away, rather than 3–4 kept),
-navigable rivers as cheap trade-graph edges, and the place → route → regrow → replace settlement
-iteration (single pass).
+Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits, and see
+the note on subtraction under *Still missing*), navigable rivers as cheap trade-graph edges, and the
+place → route → regrow → replace settlement iteration (single pass).
 
 New with steps 8–10, and worth knowing before reading a town: **buildings are capped at 1 200 per
 settlement**, and a city of twenty thousand wants four thousand. Lots are assigned in descending land
@@ -811,6 +874,7 @@ system should own a living NPC and worldgen should own what it is made of.
 ./gradlew :worldgen:probe -Pon=river_channel -Pnth=0        # ...centred on a feature too thin to find otherwise
 ./gradlew :worldgen:probe -Pchannels=1                      # channel width and depth against the voxel grid
 ./gradlew :worldgen:probe -Psurvey=12                       # the most mixed surface patches in the world
+./gradlew :worldgen:probe -Pdroplets                        # ...with chunk-scale droplet erosion on
 ./gradlew :worldgen:town                                    # one settlement: layout, economy, history, a map
 ./gradlew :worldgen:town -Pcensus                           # ...every settlement in one table instead
 ./gradlew :worldgen:town -Pnth=3 -Pwhy                      # ...and why every trade is or is not there
@@ -901,11 +965,20 @@ The seam stress view runs on every export and prints, e.g.,
 independently and fails if adjacent chunks disagree on any shared column's height.
 
 Invariants currently asserted per seed: layers are finite; the land fraction is plausible; normalised
-layers stay in range; discharge grows downstream; river beds descend; the world has standing water;
-lakes stand above their beds; every closed basin can hold water; water is where the biome says it is;
-feature bounds contain their geometry; no settlement is in the sea; settlements respect their tier's
-separation; deposits are well formed; every fjord sill is shallower than its landward basin; and the
-ocean margin contains neither land nor settlements.
+layers stay in range; the four seasonal precipitation fields sum to the annual one; discharge grows downstream;
+river beds descend; the world has standing water; lakes stand above their beds; every closed basin can hold
+water; water is where the biome says it is; feature bounds contain their geometry; no settlement is in the sea;
+settlements respect their tier's separation; deposits are well formed; every fjord sill is shallower than its
+landward basin; the ocean margin contains neither land nor settlements; every sea lane stays over open water and
+clear of that margin; and every built site stands on dry land, names a real deposit if it is a mine, and keeps
+clear of the towns it is defined by not being part of.
+
+**Two of those are deliberately not existence claims**, and the distinction is the one the lake story below
+teaches. A world can legitimately have no sea lane - a lane needs two cities a road cannot join - and no built
+site, since whether a civilisation ever builds one depends on a thousand years of technology and war. Asserting
+existence unconditionally would fail on most seeds; asserting it conditionally would be exactly the vacuous
+check this section warns about. So existence is pinned to seeds that *do* have them, in `civ/SeaLaneTest` and
+`history/SpecialSitesTest`, and the sweep asserts only the properties.
 
 `landFraction` is a single shared function rather than a measurement each caller makes: it had been
 reimplemented in the check, the pipeline test and the sweep, and the copies had drifted — one of them tested
@@ -925,6 +998,11 @@ seeds at 192 km, **five of them had none**. Asserting existence per seed would h
 made the unconditional statement available was not a stricter check but a second source with a construction
 behind it — `geo/ClosedBasins` puts a closed depression on every continent by arithmetic rather than by tuning —
 and the same 120 seeds now come out **0 of 120 dry, median 11 lakes against a previous median of 5**.
+
+Re-measured after the seasonal, biome, sea lane, special site and droplet work — all five of which change the
+generator upstream of hydrology or downstream of it — the spread holds: **200 seeds at 192 km give a median of 11
+lakes over a range of 2 to 42, and 200 at 256 km a median of 21 over 3 to 85, with 0 of 400 worlds dry.** Land
+fraction sits at a median of 0.502 in both, ranging 0.486 to 0.715.
 
 The *count* is reported by both `viewer` and `invariants` on every run regardless, because what killed this for a
 year was not a weak assertion but the absence of any number at all. The two lake sources are reported separately
