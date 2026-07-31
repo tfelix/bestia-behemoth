@@ -113,6 +113,71 @@ data class HistoryParams(
   /** Population above which a threatened settlement can afford walls. */
   val wallPopulation: Int = 900,
 
+  // --- The four built sites -------------------------------------------------------------------------
+  //
+  // Every threshold below is a gate on *where* a site may go, and is read by SpecialSiteCandidates rather
+  // than by the simulation. What the simulation decides is whether a civ ever gets round to building one.
+
+  /** Ore concentration below which a deposit is not worth sinking a shaft into. */
+  val mineRichness: Double = 0.45,
+
+  /** Metres below the surface a pre-industrial civilisation will follow a seam. */
+  val mineDepth: Double = 120.0,
+
+  /** Metres from a deposit within which a settlement could have found and worked it. */
+  val mineRange: Double = 30_000.0,
+
+  /** Metres a monastery keeps between itself and the nearest settlement. Its defining property. */
+  val monasteryClearance: Double = 22_000.0,
+
+  /** A fort sits outside a town but on ground somebody travels through. */
+  val fortClearance: Double = 8_000.0,
+  val fortRange: Double = 45_000.0,
+
+  /** Metres either side of a candidate that the saddle test compares against. */
+  val saddleSpan: Double = 3_000.0,
+
+  /** Metres of relief a saddle needs, both up to its shoulders and down through its gap. */
+  val saddleRelief: Double = 110.0,
+
+  /** Metres from open water within which a headland can carry a light that is any use. */
+  val lighthouseRange: Double = 3_500.0,
+
+  /** A light inside a town is a lamp; this is what makes it a landmark on the approach. */
+  val lighthouseClearance: Double = 5_000.0,
+
+  /**
+   * Metres of ground above sea level a built site needs under it. See `SpecialSites.isDryGround`.
+   *
+   * Not zero, because the elevation raster is a kilometre grid and these structures are tens of metres across:
+   * a centre that is barely above the water has a footprint the chunk tier's detail noise puts partly under it.
+   */
+  val siteFreeboard: Double = 14.0,
+
+  /** The same for a lighthouse, which belongs on the rocks and would be moved inland by the figure above. */
+  val lighthouseFreeboard: Double = 5.0,
+
+  /** Metres between two candidates of the same kind, so a scan does not return one hilltop nine times. */
+  val siteSeparation: Double = 12_000.0,
+
+  /** Sampling stride for the terrain scans, in metres. These are all kilometre-scale landforms. */
+  val candidateStride: Double = 4_000.0,
+
+  /** Candidates kept per kind. The simulation founds at most one site per civ per pass, so this is ample. */
+  val maxCandidates: Int = 48,
+
+  /** Technology a civ needs before it builds each kind. A lighthouse is easier than a deep mine. */
+  val mineTechnology: Double = 0.35,
+  val monasteryTechnology: Double = 0.25,
+  val fortTechnology: Double = 0.20,
+  val lighthouseTechnology: Double = 0.45,
+
+  /** Chance per civ per tick that a civ with the means and the reason actually builds one. */
+  val builtSiteChance: Double = 0.06,
+
+  /** Years between two sites of the same kind founded by one civ, so they arrive across a history. */
+  val builtSiteInterval: Int = 120,
+
   /** Years between notable figures in a civ, roughly. */
   val yearsPerFigure: Int = 35,
 
@@ -161,6 +226,8 @@ data class HistoryParams(
 internal class HistorySim(
   private val params: HistoryParams,
   private val facts: List<SiteFacts>,
+  /** Where the four built sites *may* go, read off the terrain by the stage. See [SpecialSiteCandidates]. */
+  private val candidates: SpecialSiteCandidates,
   /** Base for every keyed roll: the world seed folded with the stage's identity and version. */
   private val streamBase: Long,
   private val worldSeed: Long
@@ -206,6 +273,7 @@ internal class HistorySim(
       updateFigures(year)
       updateArtifacts(year)
       raiseMonuments(year)
+      buildSites(year)
       buildWalls(year)
       retireCivs(year)
 
@@ -960,6 +1028,147 @@ internal class HistorySim(
     }
   }
 
+  // --- The four built sites --------------------------------------------------------------------------
+
+  /**
+   * Mines, monasteries, forts and lighthouses: the things a civilisation puts up on purpose.
+   *
+   * One pass in [raiseMonuments]' shape - gated, once in a while, per civ, with an event logged - because that
+   * shape is what makes the lore free rather than a second system. A site founded here gets a name from
+   * [siteName] (and [Names.site]'s `else` branch handles a new form with no edit to `Names`), can hold a relic
+   * whose provenance chain already ends at a *site*, and is mined by `chronicle -Pquests` for unresolved
+   * threads without a line of new code.
+   *
+   * **Where** each may go was decided by the terrain, in [SpecialSiteCandidates]. What this adds is the half
+   * that needs a thousand years: whether the civ has the technology, whether it has a reason, and whether it
+   * has already built one recently. That division is the architecture document's "history does not place
+   * settlements" rule applied one level down.
+   */
+  private fun buildSites(year: Int) {
+    for (civ in civs) {
+      if (!civ.exists) continue
+
+      buildSite(
+        year, civ, SiteKind.MINE, candidates.mines, params.mineTechnology, MINE_SALT,
+        EventKind.MINE_OPENED, MINE_RADIUS
+      ) { candidate ->
+        // A mine belongs to whichever of this civ's standing towns is near enough to work it.
+        nearestStandingTown(civ, candidate.position, params.mineRange) != null
+      }
+
+      buildSite(
+        year, civ, SiteKind.MONASTERY, candidates.monasteries, params.monasteryTechnology, MONASTERY_SALT,
+        EventKind.MONASTERY_FOUNDED, MONASTERY_RADIUS
+      ) { candidate ->
+        // Remoteness is the site's defining property and was already enforced against *every* settlement when
+        // the candidate was found. What is left is reach: a civ does not found a house it cannot walk to.
+        nearestStandingTown(civ, candidate.position, params.fortRange) != null
+      }
+
+      buildSite(
+        year, civ, SiteKind.FORT, candidates.forts, params.fortTechnology, FORT_SALT,
+        EventKind.FORT_BUILT, FORT_RADIUS
+      ) { candidate ->
+        // A fort needs a *reason*, and the reason is somebody on the other side of the hill. `frontierDistance`
+        // already computes how close two civs' territories come, and was written for the hostility model.
+        val neighbour = civs.any { other ->
+          other.exists && other.index != civ.index &&
+              frontierDistance(civ, other) < params.contactRange
+        }
+        neighbour && nearestStandingTown(civ, candidate.position, params.fortRange) != null
+      }
+
+      buildSite(
+        year, civ, SiteKind.LIGHTHOUSE, candidates.lighthouses, params.lighthouseTechnology, LIGHTHOUSE_SALT,
+        EventKind.LIGHTHOUSE_LIT, LIGHTHOUSE_RADIUS
+      ) { candidate ->
+        // `SiteFacts.coastal` was computed and never read by anything until now, so this reader can only add.
+        // The port pays for the light, so there has to be one: a coastal town of this civ within reach.
+        val port = nearestStandingTown(civ, candidate.position, params.fortRange)
+        port != null && towns[port].facts.coastal
+      }
+    }
+  }
+
+  /**
+   * One gated, once-in-a-while founding of a built site.
+   *
+   * Shared by all four kinds because the differences between them are entirely in [reason] and in which
+   * candidate list they draw from - the gating, the interval, the roll, the event and the provenance are the
+   * same shape for a mine and for a lighthouse, and writing that shape four times is four places for it to
+   * drift.
+   *
+   * Candidates are tried best-first and the first that passes [reason] and is not already taken wins, so the
+   * ranking [SpecialSiteCandidates] computed is what decides *which* of them gets built.
+   */
+  private inline fun buildSite(
+    year: Int,
+    civ: Civ,
+    kind: SiteKind,
+    from: List<SiteCandidate>,
+    technology: Double,
+    salt: Long,
+    event: EventKind,
+    radius: Double,
+    reason: (SiteCandidate) -> Boolean
+  ) {
+    if (from.isEmpty()) return
+    if (civ.technology < technology) return
+
+    // Spread over the history rather than all in the decade the technology threshold was crossed - the same
+    // argument `foundingChance` makes about settlements.
+    //
+    // Nullable rather than an `Int.MIN_VALUE` sentinel, which is how this first went wrong and produced **zero
+    // built sites of any kind on every world** while every candidate list was full and technology reached 0.88.
+    // `year - Int.MIN_VALUE` overflows to a large negative, so `< builtSiteInterval` was true on the first tick
+    // and every tick after it: the gate meant to space foundings out rejected all of them. A sentinel that has
+    // to survive arithmetic is a sentinel in the wrong place.
+    val last = civ.lastBuilt[kind]
+    if (last != null && year - last < params.builtSiteInterval) return
+    if (roll(year.toLong(), civ.index.toLong(), salt) >= params.builtSiteChance) return
+
+    for (candidate in from) {
+      // One site per place, whoever builds it. Two civs putting a fort on the same saddle is a war, not two
+      // forts, and the map would show one on top of the other.
+      if (sites.any { it.kind == kind && it.position.distanceTo(candidate.position) < params.siteSeparation }) {
+        continue
+      }
+      if (!reason(candidate)) continue
+
+      val host = nearestStandingTown(civ, candidate.position, params.fortRange) ?: continue
+      val site = addSite(
+        kind, candidate.position, year, host, civ.index, radius, artifact = -1, figure = -1,
+        resource = candidate.detail
+      )
+      towns[host].sites.add(site)
+
+      log(
+        year, event,
+        listOf(Actor(ActorType.SITE, site), Actor(ActorType.CIV, civ.index)),
+        candidate.position, emptyList(),
+        "the ${civName(civ)} ${verbFor(kind)} ${siteName(sites[site])} near ${nameOf(towns[host])}"
+      )
+
+      civ.lastBuilt[kind] = year
+      return
+    }
+  }
+
+  /** The civ's nearest standing town to a point, within [within] metres, or null. */
+  private fun nearestStandingTown(civ: Civ, at: Vec2d, within: Double): Int? = civ.towns
+    .filter { towns[it].standing }
+    .minByOrNull { towns[it].facts.position.distanceTo(at) }
+    ?.takeIf { towns[it].facts.position.distanceTo(at) <= within }
+
+  private fun verbFor(kind: SiteKind): String = when (kind) {
+    SiteKind.MINE -> "open"
+    SiteKind.MONASTERY -> "found"
+    SiteKind.FORT -> "raise"
+    SiteKind.LIGHTHOUSE -> "light"
+    // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
+    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT -> "make"
+  }
+
   /**
    * A settlement walls itself once it has been attacked and can afford to.
    *
@@ -1031,7 +1240,8 @@ internal class HistorySim(
         SiteRecord(
           index = it.index, kind = it.kind, position = it.position, year = it.year,
           settlement = it.settlement, civ = it.civ, radius = it.radius,
-          decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure
+          decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
+          resource = it.resource
         )
       },
       settlements = towns.map { town ->
@@ -1116,7 +1326,8 @@ internal class HistorySim(
     civ: Int,
     radius: Double,
     artifact: Int,
-    figure: Int
+    figure: Int,
+    resource: Int = -1
   ): Int {
     val index = sites.size
     sites.add(
@@ -1124,7 +1335,7 @@ internal class HistorySim(
         index = index, kind = kind, position = position, year = year, settlement = settlement,
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
-        artifact = artifact, figure = figure
+        artifact = artifact, figure = figure, resource = resource
       )
     )
     return index
@@ -1165,6 +1376,12 @@ internal class HistorySim(
         SiteKind.BATTLEFIELD -> "field"
         SiteKind.TOMB -> "barrow"
         SiteKind.MONUMENT -> "monument"
+        // `Names.site` ends in `else -> "the $form of $of"`, so a new form needs no edit to `Names` at all -
+        // which is the mechanism that makes the lore for these four free.
+        SiteKind.MINE -> "mine"
+        SiteKind.MONASTERY -> "abbey"
+        SiteKind.FORT -> "fort"
+        SiteKind.LIGHTHOUSE -> "light"
       }
     )
   }
@@ -1210,6 +1427,9 @@ internal class HistorySim(
     val towns = ArrayList<Int>()
     val grudges = ArrayList<Pair<Int, Int>>()
 
+    /** Year this civ last built each kind of site, so they arrive across a history instead of all at once. */
+    val lastBuilt = HashMap<SiteKind, Int>()
+
     val exists get() = ended == 0
     val culture: Culture get() = Culture.byIndex(cultureIndex)
   }
@@ -1251,7 +1471,9 @@ internal class HistorySim(
     val radius: Double,
     val nameSeed: Long,
     val artifact: Int,
-    val figure: Int
+    val figure: Int,
+    /** [net.bestia.worldgen.resource.ResourceType] ordinal for a mine, -1 for everything else. */
+    val resource: Int = -1
   )
 
   private class War(val a: Int, val b: Int, val startedYear: Int, val cause: Int) {
@@ -1313,6 +1535,14 @@ internal class HistorySim(
     const val MONUMENT_POPULATION = 2_500.0
     const val MONUMENT_CHANCE = 0.06
     const val MONUMENT_RADIUS = 26.0
+
+    // All four well under ChunkMaterializer.MARKER_MARGIN (320 m), which is what
+    // `checkStructuralMarkersFitTheQueryMargin` enforces - a site wider than the chunk query margin is simply
+    // absent from every chunk further away than it and materialises with a dead straight edge down one side.
+    const val MINE_RADIUS = 34.0
+    const val MONASTERY_RADIUS = 40.0
+    const val FORT_RADIUS = 46.0
+    const val LIGHTHOUSE_RADIUS = 14.0
     const val MONUMENT_OFFSET = 140.0
 
     const val TOMB_RADIUS = 11.0
@@ -1327,7 +1557,7 @@ internal class HistorySim(
      *
      * Must stay below `ChunkMaterializer.MARKER_MARGIN`. Not read from it, because `history` is a sibling of
      * `voxel` and siblings do not call into each other - so this is a duplicated number with a tripwire
-     * (`Invariants.checkStructuralMarkersAreWithinTheQueryMargin`) rather than a shared constant.
+     * (`Invariants.checkStructuralMarkersFitTheQueryMargin`) rather than a shared constant.
      */
     const val MAX_RUIN_RADIUS = 260.0
 
@@ -1362,5 +1592,12 @@ internal class HistorySim(
     const val INHERIT_SALT = 0x22L
     const val MONUMENT_SALT = 0x23L
     const val OFFSET_SALT = 0x24L
+
+    // The four built sites. 0x25 onward was free; each kind needs its own so a civ's roll for a mine in one
+    // year is independent of its roll for a fort in the same year.
+    const val MINE_SALT = 0x25L
+    const val MONASTERY_SALT = 0x26L
+    const val FORT_SALT = 0x27L
+    const val LIGHTHOUSE_SALT = 0x28L
   }
 }

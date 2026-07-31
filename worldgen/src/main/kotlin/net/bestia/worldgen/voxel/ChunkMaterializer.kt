@@ -437,7 +437,7 @@ class ChunkMaterializer(
      * largest ruin field: a marker whose structure reaches further than this is simply missing from every
      * chunk more than this far from its centre, which reads as a ruin with a straight edge.
      *
-     * `Invariants.checkStructuralMarkersAreWithinTheQueryMargin` is the tripwire.
+     * `Invariants.checkStructuralMarkersFitTheQueryMargin` is the tripwire.
      */
     const val MARKER_MARGIN = 320.0
 

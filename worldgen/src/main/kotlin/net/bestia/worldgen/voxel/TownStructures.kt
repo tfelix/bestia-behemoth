@@ -181,16 +181,18 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
   private val sites: List<Site> = features
     .asSequence()
-    .filter { it.kind == FeatureKind.RUIN || it.kind == FeatureKind.TOMB || it.kind == FeatureKind.MONUMENT }
+    .filter { it.kind in SITE_KINDS }
     .filterIsInstance<PointMarker>()
     .mapNotNull { marker ->
       runCatching {
         Site(
-          kind = when (marker.kind) {
-            FeatureKind.RUIN -> SiteKind.RUIN
-            FeatureKind.TOMB -> SiteKind.TOMB
-            else -> SiteKind.MONUMENT
-          },
+          // Exhaustive, and it was not: this used to end in `else -> SiteKind.MONUMENT`, so a new site kind
+          // would compile cleanly and materialise as a stone obelisk. The three `when (SiteKind)` expressions
+          // elsewhere are compile errors when a kind is added, which is the whole point of writing them without
+          // an `else` - and this one quietly opted out of that protection. `kindOf` returns null for anything
+          // not in SITE_KINDS, so adding a kind to one list without the other drops the site rather than
+          // disguising it.
+          kind = kindOf(marker.kind) ?: return@mapNotNull null,
           position = marker.position,
           radius = marker.attribute(SiteChannels.RADIUS),
           decay = marker.attribute(SiteChannels.DECAY).coerceIn(0.0, 1.0),
@@ -400,6 +402,11 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.RUIN -> ruinColumn(site, worldX, worldY, ground, distance, into)
       SiteKind.TOMB -> tombColumn(site, ground, distance, into)
       SiteKind.MONUMENT -> monumentColumn(site, ground, distance, into)
+      SiteKind.MINE -> mineColumn(site, ground, distance, into)
+      SiteKind.MONASTERY -> monasteryColumn(site, worldX, worldY, ground, distance, into)
+      SiteKind.FORT -> fortColumn(site, ground, distance, into)
+      SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
+      // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
     }
   }
@@ -459,7 +466,155 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     }
   }
 
+  /**
+   * A mine head: a planked shaft cover inside a stone collar, with a spoil heap round it.
+   *
+   * **The shaft is covered, not open, and that is a limitation rather than a choice.** The first version added a
+   * span six metres below the surface intending a hole, and `probe -Pon=mine` showed the middle of the mine head
+   * as undisturbed grass: [StructureSpans] *adds* blocks and has no way to remove them, so a span below ground
+   * cannot carve the ground above it. Nothing in the voxel tier can subtract, which is also why there are no
+   * caves - the architecture document lists them as unbuilt for the same reason.
+   *
+   * A planked cover is the honest thing to build with what exists, and it is authentic: a shaft head has a
+   * windlass platform over it, and an uncovered shaft is a thing mines deliberately do not have. If subtraction
+   * ever arrives, this is one of the first places to revisit.
+   */
+  private fun mineColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+
+    when {
+      fraction < MINE_SHAFT_SHARE -> {
+        into.add(ground - SLAB_THICKNESS, ground + MINE_COVER_HEIGHT, BlockType.PLANK)
+      }
+
+      fraction < MINE_COLLAR_SHARE -> {
+        into.add(ground - SLAB_THICKNESS, ground + MINE_COLLAR_HEIGHT * (1.0 - site.decay * 0.5), BlockType.MASONRY)
+      }
+
+      else -> {
+        // Spoil: highest just outside the collar and tailing off, because that is where the barrows tipped it.
+        val spoil = MINE_SPOIL_HEIGHT * (1.0 - fraction) * (1.0 - site.decay * 0.3)
+        if (spoil > 0.0) into.add(ground - SLAB_THICKNESS, ground + spoil, BlockType.GRAVEL)
+      }
+    }
+  }
+
+  /**
+   * A cloister: a walled square with a range of buildings on it and a garth in the middle.
+   *
+   * Square rather than round, which is what makes it read as built rather than as a landform - and the open
+   * middle is the point of a cloister, so the garth is left as ground.
+   */
+  private fun monasteryColumn(
+    site: Site,
+    worldX: Double,
+    worldY: Double,
+    ground: Double,
+    distance: Double,
+    into: StructureSpans
+  ) {
+    // Chebyshev distance, so the outline is a square. Cheap, and it is the only place in this file that wants one.
+    val square = max(abs(worldX - site.position.x), abs(worldY - site.position.y))
+    if (square > site.radius) return
+
+    val fraction = square / site.radius
+    val decay = 1.0 - site.decay * 0.6
+
+    when {
+      fraction > MONASTERY_WALL_SHARE ->
+        into.add(ground - WALL_FOOTING, ground + MONASTERY_WALL_HEIGHT * decay, BlockType.MASONRY)
+
+      fraction > MONASTERY_RANGE_SHARE -> {
+        into.add(ground - SLAB_THICKNESS, ground + MONASTERY_RANGE_HEIGHT * decay, BlockType.PLASTER)
+        into.add(
+          ground + MONASTERY_RANGE_HEIGHT * decay,
+          ground + MONASTERY_RANGE_HEIGHT * decay + ROOF_THICKNESS,
+          BlockType.ROOF_TILE
+        )
+      }
+
+      // The garth. Deliberately nothing: an open square of grass with a cloister round it.
+      else -> Unit
+    }
+  }
+
+  /** A fort: a curtain wall with a solid keep in the middle of it. */
+  private fun fortColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+    val decay = 1.0 - site.decay * 0.7
+
+    when {
+      fraction > FORT_CURTAIN_SHARE ->
+        into.add(ground - WALL_FOOTING, ground + FORT_CURTAIN_HEIGHT * decay, BlockType.MASONRY)
+
+      fraction < FORT_KEEP_SHARE ->
+        into.add(ground - SLAB_THICKNESS, ground + FORT_KEEP_HEIGHT * decay, BlockType.MASONRY)
+
+      // The bailey: the open ground between keep and curtain, which is what a fort is mostly made of.
+      else -> Unit
+    }
+  }
+
+  /** A lighthouse: a tapering masonry tower on a stone base. */
+  private fun lighthouseColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+
+    if (fraction > LIGHTHOUSE_BASE_SHARE) {
+      into.add(ground - SLAB_THICKNESS, ground + LIGHTHOUSE_BASE_HEIGHT, BlockType.MASONRY)
+      return
+    }
+
+    // Taper: full height at the centre, falling to the base height at the tower's edge. A cylinder of this
+    // height would read as a chimney, and the taper is most of what says "lighthouse".
+    val taper = 1.0 - (fraction / LIGHTHOUSE_BASE_SHARE)
+    val height = LIGHTHOUSE_BASE_HEIGHT + (LIGHTHOUSE_HEIGHT - LIGHTHOUSE_BASE_HEIGHT) * taper
+    into.add(ground - SLAB_THICKNESS, ground + height * (1.0 - site.decay * 0.4), BlockType.MASONRY)
+  }
+
   private companion object {
+
+    /**
+     * Which feature kinds this materialiser turns into standing structures, and the map back to [SiteKind].
+     *
+     * One list rather than a filter and a `when` that have to agree. `BATTLEFIELD` is absent because it builds
+     * nothing - it would be filtered in and then do nothing, which reads as an oversight either way round.
+     */
+    val SITE_KINDS = mapOf(
+      FeatureKind.RUIN to SiteKind.RUIN,
+      FeatureKind.TOMB to SiteKind.TOMB,
+      FeatureKind.MONUMENT to SiteKind.MONUMENT,
+      FeatureKind.MINE to SiteKind.MINE,
+      FeatureKind.MONASTERY to SiteKind.MONASTERY,
+      FeatureKind.FORT to SiteKind.FORT,
+      FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE
+    )
+
+    fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
+
+    /** Share of a mine head's radius that is open shaft, then stone collar. The rest is spoil. */
+    const val MINE_SHAFT_SHARE = 0.18
+    const val MINE_COLLAR_SHARE = 0.30
+    const val MINE_COVER_HEIGHT = 0.8
+    const val MINE_COLLAR_HEIGHT = 1.4
+    const val MINE_SPOIL_HEIGHT = 2.2
+
+    /** A cloister, from the outside in: precinct wall, range of buildings, then the open garth. */
+    const val MONASTERY_WALL_SHARE = 0.92
+    const val MONASTERY_RANGE_SHARE = 0.55
+    const val MONASTERY_WALL_HEIGHT = 3.4
+    const val MONASTERY_RANGE_HEIGHT = 6.5
+
+    /** Curtain wall, bailey, keep. */
+    const val FORT_CURTAIN_SHARE = 0.88
+    const val FORT_KEEP_SHARE = 0.34
+    const val FORT_CURTAIN_HEIGHT = 6.0
+    const val FORT_KEEP_HEIGHT = 12.0
+
+    /** A tower on a base. Tall, because the whole purpose is being seen from a long way out. */
+    const val LIGHTHOUSE_BASE_SHARE = 0.70
+    const val LIGHTHOUSE_BASE_HEIGHT = 2.0
+    const val LIGHTHOUSE_HEIGHT = 18.0
+
     /** Must match `Building.STOREY_HEIGHT`; the marker stores storeys, not metres. */
     const val STOREY_HEIGHT = 2.6
 

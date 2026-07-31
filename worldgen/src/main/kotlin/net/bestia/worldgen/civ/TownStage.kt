@@ -190,7 +190,8 @@ class TownStage(
   // 2: plots and footprints grown so a house is a house; per-function sizes; a shallower roof on a wide span.
   //    The roof lives in `voxel/TownStructures` and has no version of its own, so it rides on this one.
   // 3: a lot whose footprint the pad cannot level is skipped, and the next-best lot takes the building.
-  override val version = 3
+  // 4: a town wall stops at the waterfront instead of running out to sea.
+  override val version = 4
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
   )
@@ -280,7 +281,7 @@ class TownStage(
     val out = ArrayList<VectorFeature>(placed.size + graph.edges.size / 4 + 8)
 
     for ((rank, chain) in graph.chains().map { it.second to it.first }) {
-      streetFeature(nextId(), chain, rank, frame)?.let { out.add(it) }
+      out.addAll(streetFeatures(nextId, chain, rank, frame, world))
     }
 
     for (building in placed) {
@@ -362,6 +363,53 @@ class TownStage(
   }
 
   // --- Features -------------------------------------------------------------------------------------
+
+  /**
+   * A street chain, as one feature per stretch of it over dry land.
+   *
+   * **The segment filter is not enough, and the reason is sampling density.** `StreetNetwork` keeps a segment
+   * only if it is buildable at five points along it, which a narrow inlet fits between - and the street that is
+   * finally emitted is resampled at `streetSpacing`, so it has many more vertices than were ever tested. The
+   * sweep's `nothing is built in water` checks every one of them, and found a street across water on 1 seed in
+   * 200 at 192 cells. Latent, like the town wall beside it: which seeds show it depends on the history stream,
+   * so any version bump reshuffles the set.
+   *
+   * Split rather than dropped, and rather than tightening the segment filter. Tightening it would reject whole
+   * segments for a metre of water and thin the street grid everywhere; splitting costs the wet span only. It is
+   * the same treatment the wall gets, for the same reason.
+   */
+  private fun streetFeatures(
+    nextId: () -> FeatureId,
+    chain: Polyline,
+    rank: Int,
+    frame: TownFrame,
+    world: WorldGround
+  ): List<VectorFeature> {
+    if (chain.length < params.streetSpacing * 2.0) return emptyList()
+
+    // Sampled at the spacing the emitted street will itself be resampled at, so what is tested is what is
+    // stamped. Testing more coarsely than the output is exactly how this was missed.
+    val steps = max(2, (chain.length / params.streetSpacing).toInt())
+    val points = (0..steps).map { chain.pointAt(chain.length * it / steps) }
+
+    val out = ArrayList<VectorFeature>()
+    var run = ArrayList<Vec2d>()
+
+    fun flush() {
+      if (run.size >= 2) {
+        val line = runCatching { Polyline(run.toList()) }.getOrNull()
+        if (line != null) streetFeature(nextId(), line, rank, frame)?.let { out.add(it) }
+      }
+      run = ArrayList()
+    }
+
+    for (point in points) {
+      if (world.dry(point)) run.add(point) else flush()
+    }
+    flush()
+
+    return out
+  }
 
   /** A street: a road with a narrower cross-section and a higher stamp priority. */
   private fun streetFeature(
@@ -480,7 +528,7 @@ class TownStage(
       val to = (if (i + 1 < crossings.size) crossings[i + 1] else crossings[0] + ringLine.length) - half
       if (to - from < params.gateWidth) continue
 
-      wallStretch(nextId(), ringLine, from, to, town, world)?.let { out.add(it) }
+      out.addAll(wallStretches(nextId, ringLine, from, to, town, world))
     }
 
     for (s in crossings) {
@@ -504,19 +552,64 @@ class TownStage(
     return out
   }
 
-  /** One stretch of wall between two gates, sampled along the ring and following the ground. */
-  private fun wallStretch(
-    featureId: FeatureId,
+  /**
+   * The wall between two gates, as one feature per stretch of it that is over dry land.
+   *
+   * **The ring is a circle and a coastal town's circle goes out to sea.** Nothing used to test for that, so a
+   * walled port got a curtain wall running across open water - caught by the sweep's `nothing is built in water`
+   * on 2 seeds in 30 at 256 cells, and latent long before this: whether it fires depends on the history stream,
+   * so bumping any version that feeds `HistorySim` reshuffles which seeds show it. Confirmed by bumping the
+   * history version alone at the previous commit, which reproduced the same two seeds and the same feature ids.
+   *
+   * Splitting into dry runs rather than dropping the whole stretch, because a stretch spans a gate-to-gate arc
+   * and one wet station would otherwise delete half a town's defences. And a wall that stops at the waterfront
+   * is not a compromise - it is what a fortified port *is*, since the sea is the defence on that side. Gates are
+   * emitted separately, so a town whose wall is now shorter still has its gates and still satisfies
+   * `checkWalledSettlementsHaveAGate`.
+   */
+  private fun wallStretches(
+    nextId: () -> FeatureId,
     ring: Polyline,
     from: Double,
     to: Double,
     town: TownReader.Town,
     world: WorldGround
-  ): MarkerFeature? {
+  ): List<MarkerFeature> {
     val steps = max(2, ((to - from) / WALL_STATION_SPACING).toInt())
     val points = (0..steps).map { ring.pointAt(from + (to - from) * it / steps) }
-    val line = runCatching { Polyline(points) }.getOrNull() ?: return null
 
+    val out = ArrayList<MarkerFeature>()
+    var run = ArrayList<Vec2d>()
+
+    fun flush() {
+      // Two points minimum for a polyline, and a single dry station between two wet ones is a rock rather than
+      // a wall - so a run of one is dropped rather than being turned into a degenerate feature.
+      //
+      // `runCatching` as well as the count, because `Polyline` requires two *distinct* points and two sampled
+      // stations can coincide on a short arc. Dropping that guard - which the single-stretch version this
+      // replaced did have - threw on seed 113 at 256 cells, 113 worlds into a 200-seed sweep.
+      if (run.size >= 2) {
+        val line = runCatching { Polyline(run.toList()) }.getOrNull()
+        if (line != null) wallFeature(nextId(), line, town, world)?.let { out.add(it) }
+      }
+      run = ArrayList()
+    }
+
+    for (point in points) {
+      if (world.dry(point)) run.add(point) else flush()
+    }
+    flush()
+
+    return out
+  }
+
+  /** One contiguous run of wall, following the ground. */
+  private fun wallFeature(
+    featureId: FeatureId,
+    line: Polyline,
+    town: TownReader.Town,
+    world: WorldGround
+  ): MarkerFeature? {
     return MarkerFeature(
       id = featureId,
       kind = FeatureKind.TOWN_WALL,
@@ -777,6 +870,19 @@ internal class WorldGround(
     }
 
     return raw + (gradedGround(at, town.siteElevation) - raw) * weight
+  }
+
+  /**
+   * Whether this point is out of standing water. The water half of [buildable], on its own.
+   *
+   * Separate because a *wall* needs this test and not the rest of it: a curtain wall may run up a slope no
+   * building could stand on, and it may cross a stream that no house would be built over. Reusing `buildable`
+   * for a wall would shorten walls for reasons that have nothing to do with water.
+   */
+  fun dry(at: Vec2d): Boolean {
+    val cellX = Math.floor(at.x / metres).toInt()
+    val cellY = Math.floor(at.y / metres).toInt()
+    return region.contains(cellX, cellY) && waterLevel[cellX, cellY].isNaN()
   }
 
   /** Whether anything may stand here: dry, gentle enough, inside the world, and clear of the channel. */

@@ -125,6 +125,18 @@ enum class FeatureKind(val defaultPriority: Int) {
   TOMB(636),
 
   /**
+   * The four sites a civilisation builds on purpose, as opposed to the residue above.
+   *
+   * Between [TOMB] and [STREET] in priority because they are structures standing on graded ground, exactly as
+   * a monument is - and none of them modifies the heightfield, so the ordering is about where the blocks go
+   * rather than about what shape the ground is.
+   */
+  MINE(637),
+  MONASTERY(638),
+  FORT(639),
+  LIGHTHOUSE(641),
+
+  /**
    * A street inside a settlement: a road with a narrower cross-section and a higher priority.
    *
    * Above [SETTLEMENT_GRADING] because a street is cut into the graded ground, not under it, and above

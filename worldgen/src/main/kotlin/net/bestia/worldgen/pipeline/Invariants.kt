@@ -149,8 +149,86 @@ object Invariants {
     checkBusinessesAreWellFormed(generated, ::fail)
     checkRoadsideInnsAreOnTheRoad(generated, ::fail)
     checkSeaLanesStayAtSea(generated, ::fail)
+    checkBuiltSitesAreWhereTheyClaim(generated, ::fail)
 
     return out
+  }
+
+  /**
+   * The four built sites stand on dry land, name what they are built on, and keep their distance.
+   *
+   * Four separate claims, and each one is a different way for the placement scan to be wrong:
+   *
+   * - **Nothing is founded in water.** The scans all test elevation against sea level, so this catches the test
+   *   being dropped or applied to the wrong layer - and a keep in the sea is the most visible possible failure.
+   * - **A mine names a real deposit.** Mines are placed *at* an `ORE_DEPOSIT` marker, so the join is positional
+   *   and checkable. A mine with no deposit under it is a hole in the ground, and it is exactly what would
+   *   happen if the candidate position drifted from the marker it came from.
+   * - **A lighthouse is coastal.** Its whole purpose is guarding an approach, and the check is against
+   *   `DISTANCE_TO_OCEAN` - the field that had no reader at all before this phase.
+   * - **A lighthouse and a monastery are clear of any settlement.** Both are defined by *not* being in a town:
+   *   a light inside a town is a lamp, and a monastery on the best farmland is a manor.
+   *
+   * Not a check that these sites exist. Whether a civilisation ever builds one depends on a thousand years of
+   * technology and war, so a world can legitimately have none - and `history/SpecialSitesTest` pins existence to
+   * a seed that does, rather than making this vacuous on the ones that do not.
+   */
+  private fun checkBuiltSitesAreWhereTheyClaim(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val distanceToOcean = generated.world.layers[LayerId.DISTANCE_TO_OCEAN] as? FloatLayer ?: return
+    val seaLevel = generated.config.seaLevel
+
+    val built = setOf(
+      FeatureKind.MINE, FeatureKind.MONASTERY, FeatureKind.FORT, FeatureKind.LIGHTHOUSE
+    )
+
+    val all = generated.world.features.all()
+    val deposits = all.filter { it.kind == FeatureKind.ORE_DEPOSIT }.filterIsInstance<PointMarker>()
+    val settlements = all.filter { it.kind == FeatureKind.SETTLEMENT }.filterIsInstance<PointMarker>()
+
+    for (feature in all) {
+      if (feature.kind !in built) continue
+      val marker = feature as? PointMarker ?: continue
+      val at = marker.position
+
+      if (elevation.sampleBilinear(at.x, at.y) <= seaLevel) {
+        fail("built sites are where they claim", "${feature.kind} ${feature.id} stands in water")
+        return
+      }
+
+      when (feature.kind) {
+        FeatureKind.MINE -> {
+          val named = deposits.any { it.position.distanceTo(at) <= MINE_DEPOSIT_TOLERANCE }
+          if (!named) {
+            fail(
+              "built sites are where they claim",
+              "mine ${feature.id} has no ore deposit within ${MINE_DEPOSIT_TOLERANCE.toInt()} m of it"
+            )
+            return
+          }
+        }
+
+        FeatureKind.LIGHTHOUSE -> {
+          if (distanceToOcean.sampleBilinear(at.x, at.y) > LIGHTHOUSE_COAST_TOLERANCE) {
+            fail("built sites are where they claim", "lighthouse ${feature.id} is not on the coast")
+            return
+          }
+          if (settlements.any { it.position.distanceTo(at) < BUILT_SITE_CLEARANCE }) {
+            fail("built sites are where they claim", "lighthouse ${feature.id} stands inside a settlement")
+            return
+          }
+        }
+
+        FeatureKind.MONASTERY -> {
+          if (settlements.any { it.position.distanceTo(at) < BUILT_SITE_CLEARANCE }) {
+            fail("built sites are where they claim", "monastery ${feature.id} stands inside a settlement")
+            return
+          }
+        }
+
+        else -> Unit
+      }
+    }
   }
 
   /**
@@ -399,8 +477,11 @@ object Invariants {
     generated: GeneratedWorld,
     fail: (String, String) -> Unit
   ) {
+    // A new site kind must be added here or it is exempt from the margin check *by accident* - the filter is
+    // an explicit set, not "every marker with a radius", so forgetting a kind is silent.
     val structural = setOf(
-      FeatureKind.RUIN, FeatureKind.BATTLEFIELD, FeatureKind.TOMB, FeatureKind.MONUMENT
+      FeatureKind.RUIN, FeatureKind.BATTLEFIELD, FeatureKind.TOMB, FeatureKind.MONUMENT,
+      FeatureKind.MINE, FeatureKind.MONASTERY, FeatureKind.FORT, FeatureKind.LIGHTHOUSE
     )
 
     for (feature in generated.world.features.all()) {
@@ -1202,6 +1283,21 @@ object Invariants {
    * not to its parts - is off by hundreds of millimetres, not by half of one.
    */
   private const val SEASONAL_SUM_TOLERANCE = 0.5
+
+  /**
+   * Metres a mine may sit from the deposit it works.
+   *
+   * A mine is placed *at* its deposit, so the honest tolerance is zero - one coarse cell of slack is here only
+   * because the position travels through a bilinear-sampled candidate and back, not because a mine is allowed to
+   * wander. If this ever needs raising, the placement has drifted.
+   */
+  private const val MINE_DEPOSIT_TOLERANCE = 1_200.0
+
+  /** Metres from open water a lighthouse may stand. Its own placement gate is tighter; this is the tripwire. */
+  private const val LIGHTHOUSE_COAST_TOLERANCE = 5_000.0
+
+  /** Metres a lighthouse or a monastery must keep from any settlement, which is what makes it not part of one. */
+  private const val BUILT_SITE_CLEARANCE = 3_000.0
 
   /**
    * Largest a closed basin may be, as a share of the world's short edge.

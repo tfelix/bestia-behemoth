@@ -57,7 +57,9 @@ class HistoryStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: mines, monasteries, forts and lighthouses are founded and emitted.
+  override val version = 2
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID, SettlementStage.ID
@@ -70,6 +72,10 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.BATTLEFIELD),
     StageOutput.Vector(FeatureKind.TOMB),
     StageOutput.Vector(FeatureKind.MONUMENT),
+    StageOutput.Vector(FeatureKind.MINE),
+    StageOutput.Vector(FeatureKind.MONASTERY),
+    StageOutput.Vector(FeatureKind.FORT),
+    StageOutput.Vector(FeatureKind.LIGHTHOUSE),
     StageOutput.History
   )
 
@@ -82,7 +88,8 @@ class HistoryStage(
     }
 
     val streamBase = GenRng.hash(ctx.seed, id.hash, version.toLong())
-    val chronicle = HistorySim(params, facts, streamBase, ctx.seed).run()
+    val candidates = SpecialSiteCandidates.read(ctx, region, facts, params)
+    val chronicle = HistorySim(params, facts, candidates, streamBase, ctx.seed).run()
 
     return StageResult(features = emit(chronicle, facts), chronicle = chronicle)
   }
@@ -237,6 +244,10 @@ class HistoryStage(
         SiteKind.BATTLEFIELD -> FeatureKind.BATTLEFIELD
         SiteKind.TOMB -> FeatureKind.TOMB
         SiteKind.MONUMENT -> FeatureKind.MONUMENT
+        SiteKind.MINE -> FeatureKind.MINE
+        SiteKind.MONASTERY -> FeatureKind.MONASTERY
+        SiteKind.FORT -> FeatureKind.FORT
+        SiteKind.LIGHTHOUSE -> FeatureKind.LIGHTHOUSE
       },
       position = record.position,
       attributes = StationTable.Builder(1)
@@ -250,6 +261,7 @@ class HistoryStage(
         .channel(SiteChannels.NAME_SEED) { record.nameSeed.toDouble() }
         .channel(SiteChannels.ARTIFACT) { record.artifact.toDouble() }
         .channel(SiteChannels.FIGURE) { record.figure.toDouble() }
+        .channel(SiteChannels.RESOURCE) { record.resource.toDouble() }
         .build()
     )
   }
@@ -337,4 +349,13 @@ object SiteChannels {
 
   /** Index into [Chronicle.figures], or -1. Who is buried here. */
   const val FIGURE = "figure"
+
+  /**
+   * [net.bestia.worldgen.resource.ResourceType] ordinal for a [SiteKind.MINE], -1 for every other kind.
+   *
+   * There is deliberately no `KIND` channel beside it: a site's kind is its [FeatureKind], so four kinds cost
+   * nothing extra while one kind plus a type channel would cost a channel on every site marker in the world.
+   * This one is here because a mine's *product* is not derivable from its kind.
+   */
+  const val RESOURCE = "resource"
 }

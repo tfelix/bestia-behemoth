@@ -154,7 +154,24 @@ enum class EventKind(
   ARTIFACT_ENTOMBED(55),
   MONUMENT_BUILT(40),
   TECHNOLOGY(35),
-  CIV_FELL(85)
+  CIV_FELL(85),
+
+  // The four built sites. Importance is never overridden per event - it comes only from this constant - so
+  // these numbers *are* whether the site survives pruning and whether it shows up in `topEvents`. Chosen
+  // against the existing scale rather than picked: a mine opening changes a region's economy for centuries and
+  // sits near SETTLEMENT_FOUNDED, while a monastery founding and a fort are quieter and longer-lived, at
+  // SETTLEMENT_WALLED's level.
+  //
+  // **All four sit at or above `HistoryParams.importanceFloor`, which is 40, and that is the whole point.**
+  // LIGHTHOUSE_LIT was 30 first, on the reasoning that infrastructure is the least memorable of the four - and
+  // a test caught what that actually means: below the floor an event is only *sampled*, one in twenty-four, so
+  // all four of the reference world's lighthouses existed on the map with nothing in the chronicle to say who
+  // lit them or when. A founding that leaves a permanent structure must not be sampled away; MONUMENT_BUILT
+  // sits exactly at the floor for the same reason.
+  MINE_OPENED(55),
+  MONASTERY_FOUNDED(45),
+  FORT_BUILT(45),
+  LIGHTHOUSE_LIT(40)
 }
 
 /**
@@ -290,7 +307,35 @@ data class ArtifactRecord(
 )
 
 /** A place history left behind. These become vector features, one marker each. */
-enum class SiteKind { RUIN, BATTLEFIELD, TOMB, MONUMENT }
+/**
+ * The kinds of place history leaves on the ground.
+ *
+ * Appended to rather than reordered, on the same argument as [net.bestia.worldgen.bio.Biome]: a site's kind
+ * reaches the feature store as a [net.bestia.worldgen.vector.FeatureKind] rather than as an ordinal, but
+ * `SiteRecord` is part of the chronicle and the chronicle is a world-tier product.
+ *
+ * The first four are *residue* - what is left after something happened. The last four are **built on purpose**,
+ * which is the difference worth noticing: a ruin is where a town was, and a fort is where somebody decided a
+ * fort should be. That is why they are gated on a civ having the reach and the reason to build them.
+ */
+enum class SiteKind {
+  RUIN,
+  BATTLEFIELD,
+  TOMB,
+  MONUMENT,
+
+  /** A working or worked-out mine at an ore deposit, with a settlement near enough to have opened it. */
+  MINE,
+
+  /** A religious house, deliberately somewhere poor and hard to reach. */
+  MONASTERY,
+
+  /** A frontier post on high or narrow ground between two civilisations. */
+  FORT,
+
+  /** A light on a headland, kept by the port whose approaches it guards. */
+  LIGHTHOUSE
+}
 
 data class SiteRecord(
   val index: Int,
@@ -309,5 +354,13 @@ data class SiteRecord(
   /** Artifact resting here, or -1. */
   val artifact: Int,
   /** Figure buried here, or -1. */
-  val figure: Int
+  val figure: Int,
+  /**
+   * [net.bestia.worldgen.resource.ResourceType] ordinal for a [SiteKind.MINE], -1 for every other kind.
+   *
+   * On the record rather than derived from position because "what does this mine produce" is a question about
+   * the *history* - a worked-out mine is still a silver mine - and rediscovering it would mean a spatial query
+   * against the deposit index from a class that has no access to one.
+   */
+  val resource: Int = -1
 )

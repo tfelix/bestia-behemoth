@@ -519,6 +519,13 @@ class MapRenderer(
       FeatureKind.BATTLEFIELD -> Color(150, 40, 40)
       FeatureKind.MONUMENT -> Color(240, 220, 150)
       FeatureKind.TOMB -> Color(170, 140, 200)
+      // The four built sites, each given a hue that says what it is rather than a place on a ramp: ore yellow,
+      // habit brown, iron grey-blue, and a light. They stay *out* of RenderOptions.HIDDEN_BY_DEFAULT - that set
+      // is for attribute records pinned to a settlement's own coordinates, and these are real places.
+      FeatureKind.MINE -> Color(210, 160, 60)
+      FeatureKind.MONASTERY -> Color(190, 160, 210)
+      FeatureKind.FORT -> Color(120, 130, 160)
+      FeatureKind.LIGHTHOUSE -> Color(255, 245, 180)
       FeatureKind.STREET -> Color(245, 215, 170)
       FeatureKind.TOWN_WALL -> Color(200, 200, 205)
       FeatureKind.GATE -> Color(255, 250, 230)
