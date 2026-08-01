@@ -3,6 +3,7 @@ package net.bestia.worldgen.history
 import net.bestia.worldgen.core.ArtifactKind
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.ParamsDigest
 
 /**
  * Deterministic names, reconstructed from a seed rather than stored.
@@ -229,4 +230,37 @@ object Names {
     ArtifactKind.RING to listOf("ring", "band", "seal", "signet"),
     ArtifactKind.BANNER to listOf("banner", "standard", "pennon", "colours")
   )
+
+  /**
+   * Fingerprint of every word pool.
+   *
+   * Worth having for a reason the other catalogues do not share: this file's own KDoc says that **changing it
+   * renames the entire world**, because a name is a seed plus these pools rather than a stored string. There is
+   * no way to detect that from the outside - a renamed world looks like a working world - so the only defence
+   * is that the pools reach a version number, which is what this is for.
+   *
+   * Folded in list order and by key name. Order is load bearing twice over: [STYLES] is indexed by the culture's
+   * position in `Culture.ALL`, and `pick` selects within a pool by index, so moving one word along renames
+   * everything that had been landing on it.
+   */
+  fun catalogueDigest(): Long {
+    val digest = ParamsDigest()
+
+    STYLES.forEachIndexed { index, style ->
+      digest.nested(
+        "style$index",
+        ParamsDigest()
+          .put("placeStems", style.placeStems.joinToString(","))
+          .put("placeTails", style.placeTails.joinToString(","))
+          .put("peopleTails", style.peopleTails.joinToString(","))
+          .put("givenNames", style.givenNames.joinToString(","))
+          .put("epithets", style.epithets.joinToString(","))
+          .value
+      )
+    }
+    for ((role, words) in BYNAMES) digest.put("byname:${role.name}", words.joinToString(","))
+    for ((kind, words) in ARTIFACT_NOUNS) digest.put("noun:${kind.name}", words.joinToString(","))
+
+    return digest.value
+  }
 }

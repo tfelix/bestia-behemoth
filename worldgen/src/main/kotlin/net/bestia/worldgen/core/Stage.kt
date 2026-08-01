@@ -68,11 +68,31 @@ interface Stage {
   val id: StageId
 
   /**
-   * Bump on any change to what this stage computes. Cache keys fold in this version and every
+   * Bump on any change to what this stage's **code** computes. Cache keys fold in this version and every
    * upstream version, so bumping erosion invalidates erosion and everything downstream while
    * leaving tectonics alone.
+   *
+   * Not for a change to a tunable's *value* - that is [paramsVersion], and the distinction is not
+   * bookkeeping. [GenContext.rng] folds this version into every stream the stage derives, so bumping it
+   * reseeds the stage and everything below it and therefore changes *which seeds* show a latent bug. Doing
+   * that to record a retuned constant costs a day of bisecting and buys nothing.
    */
   val version: Int
+
+  /**
+   * Fingerprint of every **value** this stage decides with: its params object, and any catalogue it reads.
+   *
+   * Abstract on purpose, with no default. A default of zero would let a new stage's tunables go unhashed and
+   * still compile, which is precisely the failure being designed out - so every implementor is made to say
+   * something, and `ParamsVersionTest` asserts that none of them says zero.
+   *
+   * `ParamsDigest` explains what goes in it. The rule for what counts: **anything the stage reads that is not
+   * derived from `WorldConfig` or the seed.** A params field, a prototype table, a business catalogue, a word
+   * pool. Unlike [version] this does *not* reach [GenContext.rng], so retuning a value leaves the world's
+   * random streams exactly where they were and only the version vector and the cache key move - which is what
+   * makes "change one number and look at the same world" possible.
+   */
+  val paramsVersion: Long
 
   /** The stages this one is allowed to read. Reading anything else throws. */
   val dependencies: List<StageId>

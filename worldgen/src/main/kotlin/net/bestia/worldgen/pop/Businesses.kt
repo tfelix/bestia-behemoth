@@ -1,5 +1,6 @@
 package net.bestia.worldgen.pop
 
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.resource.ResourceType
 import java.util.Locale
 
@@ -171,6 +172,37 @@ object BusinessCatalogue {
       listOf(Precondition.NEEDS_GARRISON)
     )
   )
+
+  /**
+   * Fingerprint of the roster: thirty-one trades, their ratios, their thresholds and their preconditions.
+   *
+   * Folded by trade **id** rather than by list position, and the position is not folded at all - unlike the
+   * culture and tier tables, nothing stores an index into this list. What a settlement stores is its economy
+   * summary and a seed; the roster is re-derived from it, so reordering this list is genuinely cosmetic while
+   * changing a ratio is not.
+   *
+   * Preconditions fold as their enum **names**, which is the whole reason a precondition is an enum rather than
+   * a lambda: a closure could not be fingerprinted any more than it could be printed, and printing it is what
+   * makes "why is there no baker" answerable.
+   */
+  fun digest(): Long {
+    val digest = ParamsDigest()
+    for (type in ALL) {
+      digest.nested(
+        type.id,
+        ParamsDigest()
+          .put("label", type.label)
+          .put("sector", type.sector)
+          .put("residentsEach", type.residentsEach)
+          .put("minPopulation", type.minPopulation)
+          .put("preconditions", type.preconditions.joinToString(",") { it.name })
+          .put("perTraffic", type.perTraffic)
+          .put("alwaysAtLeastOne", type.alwaysAtLeastOne)
+          .value
+      )
+    }
+    return digest.value
+  }
 
   /** What one settlement offers a trade: the facts every precondition is decided against. */
   class Setting(

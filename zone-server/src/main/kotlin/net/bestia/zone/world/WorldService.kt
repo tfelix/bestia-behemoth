@@ -155,7 +155,7 @@ class WorldService(
     val config = record.toWorldConfig()
 
     val startedAt = System.nanoTime()
-    var generated = StandardWorld.build(config, LoggingStageListener)
+    var generated = StandardWorld.build(config, LoggingStageListener, settings.params)
     val millis = (System.nanoTime() - startedAt) / 1_000_000
 
     if (!alreadyExisted) {
@@ -227,7 +227,7 @@ class WorldService(
 
       record = provisioning.recreate()
       onReroll(record)
-      generated = StandardWorld.build(record.toWorldConfig(), LoggingStageListener)
+      generated = StandardWorld.build(record.toWorldConfig(), LoggingStageListener, settings.params)
     }
 
     return generated
@@ -282,7 +282,9 @@ class WorldService(
    * useless "incompatible". Here the stored world plays the part of the party that must match.
    */
   private fun incompatibilityOf(record: PersistedWorld): String? {
-    val current = PipelineVersion.current(StandardWorld.pipeline(record.toWorldConfig()).pipelineVersion)
+    val current = PipelineVersion.current(
+      StandardWorld.pipeline(record.toWorldConfig(), settings.params).pipelineVersion
+    )
     val stored = PipelineVersion(
       pipelineVersion = record.pipelineVersion,
       blockPaletteVersion = record.blockPaletteVersion,

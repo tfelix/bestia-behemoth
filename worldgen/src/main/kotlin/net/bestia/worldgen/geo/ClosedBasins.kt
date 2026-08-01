@@ -2,6 +2,9 @@ package net.bestia.worldgen.geo
 
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.Noise
@@ -187,11 +190,72 @@ data class ClosedBasinParams(
    * one. The carved footprint is unchanged at about five eighths of the radius, and the inner third is flat.
    */
   val exponent: Double = 4.0
-) {
+) : Params {
   init {
-    require(minDepth <= maxDepth) { "minDepth $minDepth is deeper than maxDepth $maxDepth" }
+    require(spacing > 0.0) { "spacing must be positive, was $spacing" }
+    require(radius > 0.0) { "radius must be positive, was $radius" }
     require(minRadiusCells > 0.0) { "minRadiusCells must be positive, was $minRadiusCells" }
+    require(warpAmplitude >= 0.0) { "warpAmplitude must not be negative, was $warpAmplitude" }
+    require(ringCells >= 0.0) { "ringCells must not be negative, was $ringCells" }
+    require(minDepth >= 0.0) { "minDepth must not be negative, was $minDepth" }
+    require(minDepth <= maxDepth) { "minDepth $minDepth is deeper than maxDepth $maxDepth" }
+    require(minUsefulDepth >= 0.0) { "minUsefulDepth must not be negative, was $minUsefulDepth" }
+    // Deeper than the deepest basin allowed and no basin is ever worth carving, so the whole subsystem goes
+    // quiet with nothing to say - the shape of failure this class's own KDoc calls a landform spent on
+    // nothing.
+    require(minUsefulDepth <= maxDepth) {
+      "minUsefulDepth $minUsefulDepth exceeds maxDepth $maxDepth, so no basin could ever be worth carving"
+    }
+    require(freeboard >= 0.0) { "freeboard must not be negative, was $freeboard" }
+    require(interiorDistance > 0.0) { "interiorDistance must be positive, was $interiorDistance" }
+    require(riftRange >= 0.0) { "riftRange must not be negative, was $riftRange" }
+    require(quietUplift > 0.0) { "quietUplift must be positive, was $quietUplift" }
+    require(cratonAge in 0.0..1.0) { "cratonAge must be in [0,1], was $cratonAge" }
+    require(preferenceFloor in 0.0..1.0) { "preferenceFloor must be in [0,1], was $preferenceFloor" }
+    require(sagWeight in 0.0..1.0) { "sagWeight must be in [0,1], was $sagWeight" }
+    require(minScore >= 0.0) { "minScore must not be negative, was $minScore" }
+    require(exponent > 0.0) { "exponent must be positive, was $exponent" }
   }
+
+  /** See `TectonicsParams.overriddenBy`. Reached as `erosion.basins.*`, since erosion owns this pass. */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    spacing = source.double("spacing", spacing),
+    radius = source.double("radius", radius),
+    minRadiusCells = source.double("minRadiusCells", minRadiusCells),
+    warpAmplitude = source.double("warpAmplitude", warpAmplitude),
+    ringCells = source.double("ringCells", ringCells),
+    maxDepth = source.double("maxDepth", maxDepth),
+    minDepth = source.double("minDepth", minDepth),
+    minUsefulDepth = source.double("minUsefulDepth", minUsefulDepth),
+    freeboard = source.double("freeboard", freeboard),
+    interiorDistance = source.double("interiorDistance", interiorDistance),
+    riftRange = source.double("riftRange", riftRange),
+    quietUplift = source.double("quietUplift", quietUplift),
+    cratonAge = source.double("cratonAge", cratonAge),
+    preferenceFloor = source.double("preferenceFloor", preferenceFloor),
+    sagWeight = source.double("sagWeight", sagWeight),
+    minScore = source.double("minScore", minScore),
+    exponent = source.double("exponent", exponent)
+  )
+
+  override fun digest() = ParamsDigest()
+    .put("spacing", spacing)
+    .put("radius", radius)
+    .put("minRadiusCells", minRadiusCells)
+    .put("warpAmplitude", warpAmplitude)
+    .put("ringCells", ringCells)
+    .put("maxDepth", maxDepth)
+    .put("minDepth", minDepth)
+    .put("minUsefulDepth", minUsefulDepth)
+    .put("freeboard", freeboard)
+    .put("interiorDistance", interiorDistance)
+    .put("riftRange", riftRange)
+    .put("quietUplift", quietUplift)
+    .put("cratonAge", cratonAge)
+    .put("preferenceFloor", preferenceFloor)
+    .put("sagWeight", sagWeight)
+    .put("minScore", minScore)
+    .put("exponent", exponent)
 }
 
 /**

@@ -39,9 +39,11 @@ object ViewerMain {
     val config = cli.worldConfig(StandardWorld.demoConfig())
     val exportTo = cli.value(EXPORT)
 
+    val tuning = cli.tuning()
     println("generating ${WorldArgs.summary(config)}")
+    println("  ${tuning.summary()}")
     val started = System.currentTimeMillis()
-    val generated = StandardWorld.build(config, Progress)
+    val generated = StandardWorld.build(config, Progress, tuning.params)
     val elapsed = System.currentTimeMillis() - started
     val scene = WorldScene.of(generated, WorldArgs.label(config))
 

@@ -1,5 +1,6 @@
 package net.bestia.zone.world
 
+import net.bestia.worldgen.pipeline.WorldParams
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -93,6 +94,23 @@ data class WorldGenConfig(
      */
     IGNORE
   }
+
+  /**
+   * The generator tuning this server builds with: the two hundred-odd numbers that are not [WorldConfig] fields.
+   *
+   * **One value, read by every call site**, and that is the whole reason it is here rather than defaulted at
+   * each of them. Five places construct or version the pipeline - [WorldProvisioning.create] stamps the birth
+   * version into the row, [WorldService.incompatibilityOf] recomputes it to compare, and three build the world -
+   * and while every one of them let `params` default they agreed for free. The moment they do not, the boot gate
+   * compares a `pipelineVersion` that **nothing generated**: the row would hold the version of one tuning, the
+   * terrain would be built from another, and the check that exists to catch exactly that would pass.
+   *
+   * Not yet configurable, deliberately. Reading a params file means a path in `application.yml` and a decision
+   * about what happens when it changes under a live world, which is server work rather than generator work. What
+   * this closes now is the structural hole: when that arrives it is set *here*, once, and every consumer already
+   * reads it.
+   */
+  val params: WorldParams = WorldParams.DEFAULT
 
   init {
     require(name.isNotBlank()) { "A world needs a name" }

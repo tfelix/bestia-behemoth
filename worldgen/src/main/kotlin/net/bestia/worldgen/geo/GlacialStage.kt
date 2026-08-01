@@ -7,6 +7,8 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -108,7 +110,46 @@ data class GlacialParams(
 
   /** Height of a terminal moraine in metres. */
   val moraineHeight: Double = 28.0
-)
+) : Params {
+
+  init {
+    require(snowlineTemperature.isFinite()) { "snowlineTemperature must be finite, was $snowlineTemperature" }
+    require(minPrecipitation >= 0.0) { "minPrecipitation must not be negative, was $minPrecipitation" }
+    require(accumulationRate >= 0.0) { "accumulationRate must not be negative, was $accumulationRate" }
+    require(flowIterations >= 0) { "flowIterations must not be negative, was $flowIterations" }
+    require(minIceThickness >= 0.0) { "minIceThickness must not be negative, was $minIceThickness" }
+    require(troughFlux > 0.0) { "troughFlux must be positive, was $troughFlux" }
+    require(minTroughLength >= 0.0) { "minTroughLength must not be negative, was $minTroughLength" }
+    require(floorWidthFactor > 0.0) { "floorWidthFactor must be positive, was $floorWidthFactor" }
+    // The two caps are the whole reason this stage stopped drowning four points of the world's land - see
+    // their KDoc. A cap of zero collapses the profile it bounds, so both are strictly positive.
+    require(maxFloorHalfWidth > 0.0) { "maxFloorHalfWidth must be positive, was $maxFloorHalfWidth" }
+    require(maxCirqueRadius > 0.0) { "maxCirqueRadius must be positive, was $maxCirqueRadius" }
+    // A trough is a floor plus leaning walls, so the total half-width cannot be less than the floor's.
+    require(wallSpread >= 1.0) { "wallSpread must be at least 1, was $wallSpread" }
+    require(wallExponent > 0.0) { "wallExponent must be positive, was $wallExponent" }
+    require(overdeepening >= 0.0) { "overdeepening must not be negative, was $overdeepening" }
+    require(cirqueRadiusFactor > 0.0) { "cirqueRadiusFactor must be positive, was $cirqueRadiusFactor" }
+    require(moraineHeight >= 0.0) { "moraineHeight must not be negative, was $moraineHeight" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("snowlineTemperature", snowlineTemperature)
+    .put("minPrecipitation", minPrecipitation)
+    .put("accumulationRate", accumulationRate)
+    .put("flowIterations", flowIterations)
+    .put("minIceThickness", minIceThickness)
+    .put("troughFlux", troughFlux)
+    .put("minTroughLength", minTroughLength)
+    .put("floorWidthFactor", floorWidthFactor)
+    .put("maxFloorHalfWidth", maxFloorHalfWidth)
+    .put("wallSpread", wallSpread)
+    .put("wallExponent", wallExponent)
+    .put("overdeepening", overdeepening)
+    .put("cirqueRadiusFactor", cirqueRadiusFactor)
+    .put("maxCirqueRadius", maxCirqueRadius)
+    .put("moraineHeight", moraineHeight)
+}
 
 /**
  * Stage 9: glacial erosion, as vector features.
@@ -144,6 +185,8 @@ class GlacialStage(
 
   // 2: emits ELEVATION - the troughs are carved into the raster, not only stamped at chunk time.
   override val version = 2
+
+  override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID)
   override val scale = StageScale.WORLD
 

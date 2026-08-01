@@ -3,6 +3,8 @@ package net.bestia.worldgen.voxel
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.IntLayer
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.fields.Noise
 import kotlin.math.floor
 import kotlin.math.pow
@@ -28,7 +30,29 @@ data class StrataParams(
 
   /** Depth below sea level at which the basement is oceanic basalt rather than granite. */
   val oceanicBasementDepth: Double = 500.0
-)
+) : Params {
+
+  init {
+    require(maxCoverThickness >= 0.0) { "maxCoverThickness must not be negative, was $maxCoverThickness" }
+    require(minBedThickness > 0.0) { "minBedThickness must be positive, was $minBedThickness" }
+    require(minBedThickness <= maxBedThickness) {
+      "minBedThickness $minBedThickness is thicker than maxBedThickness $maxBedThickness"
+    }
+    require(bedWavelength > 0.0) { "bedWavelength must be positive, was $bedWavelength" }
+    require(foldAmplitude >= 0.0) { "foldAmplitude must not be negative, was $foldAmplitude" }
+    require(foldWavelength > 0.0) { "foldWavelength must be positive, was $foldWavelength" }
+    require(oceanicBasementDepth.isFinite()) { "oceanicBasementDepth must be finite, was $oceanicBasementDepth" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("maxCoverThickness", maxCoverThickness)
+    .put("minBedThickness", minBedThickness)
+    .put("maxBedThickness", maxBedThickness)
+    .put("bedWavelength", bedWavelength)
+    .put("foldAmplitude", foldAmplitude)
+    .put("foldWavelength", foldWavelength)
+    .put("oceanicBasementDepth", oceanicBasementDepth)
+}
 
 /**
  * The rock stack under one voxel column: what a shaft sunk here would pass through.

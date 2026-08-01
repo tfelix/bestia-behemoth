@@ -171,7 +171,26 @@ enum class EventKind(
   MINE_OPENED(55),
   MONASTERY_FOUNDED(45),
   FORT_BUILT(45),
-  LIGHTHOUSE_LIT(40)
+  LIGHTHOUSE_LIT(40);
+
+  companion object {
+
+    /**
+     * Fingerprint of the importance table.
+     *
+     * These numbers decide what a thousand-year log *contains*: everything at or above `HistoryParams
+     * .importanceFloor` is kept and the rest is sampled, so lowering one kind by ten points can delete a whole
+     * class of event from every world's history. That is a tuning change like any other, and it belongs in the
+     * history stage's version.
+     *
+     * By name, so a reorder is free - nothing stores an `EventKind` ordinal.
+     */
+    fun catalogueDigest(): Long {
+      val digest = ParamsDigest()
+      for (kind in entries) digest.put(kind.name, kind.baseImportance)
+      return digest.value
+    }
+  }
 }
 
 /**

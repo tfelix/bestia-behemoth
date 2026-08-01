@@ -33,20 +33,41 @@ class StreetNetworkTest {
     val graph = StreetPlanner.plan(frame, TownLayout.ORGANIC, roll(1))
 
     assertTrue(graph.edges.size > 40, "expected a real network, got ${graph.edges.size} edges")
+  }
 
-    // Planarity is the property the chains and the plot tests both rest on: every crossing must be a shared
-    // node. Asserted by its consequence - no two edges may cross except at an endpoint they share.
-    for (i in graph.edges.indices) {
-      for (j in i + 1 until graph.edges.size) {
-        val a = graph.edges[i]
-        val b = graph.edges[j]
-        if (a.a == b.a || a.a == b.b || a.b == b.a || a.b == b.b) continue
-
-        val hit = net.bestia.worldgen.vector.Intersections.segmentCrossing(
-          graph.nodes[a.a], graph.nodes[a.b], graph.nodes[b.a], graph.nodes[b.b]
+  /**
+   * Planarity, over enough seeds to mean something.
+   *
+   * This assertion used to live in the test above, on one seed, and **it was a lottery it happened to be
+   * winning**. Measured across sixty seeds at each of six `minRadials` values, one pass of the planariser left
+   * two to five per cent of seeds with a crossing that had no node at it - so the property held on seed 1 and
+   * failed on seed 14, and which seeds failed moved whenever any parameter changed. It surfaced when
+   * `StreetParams` was unified with the public mirror that had been shadowing it, purely because that shifted
+   * the default `minRadials` from 4 to 3 and so redrew the lottery.
+   *
+   * Hence a sweep and its own test. A property that holds on ninety-seven per cent of inputs is not a property,
+   * and a single-seed test cannot tell the difference.
+   */
+  @Test
+  fun `a grown network is planar on every seed`() {
+    for (minRadials in 2..7) {
+      val params = StreetParams(minRadials = minRadials)
+      for (seed in 1..60L) {
+        val graph = StreetPlanner.plan(flatFrame(330.0), TownLayout.ORGANIC, roll(seed), params)
+        assertTrue(
+          !graph.hasCrossing(),
+          "two streets cross without sharing a node: minRadials=$minRadials seed=$seed"
         )
-        assertTrue(hit == null, "two streets cross at ${hit?.first} without sharing a node")
       }
+    }
+  }
+
+  @Test
+  fun `a planned town is planar on every seed`() {
+    // The grid clips to terrain and snaps, so it is exposed to the same welding displacement as the grown one.
+    for (seed in 1..60L) {
+      val graph = StreetPlanner.plan(flatFrame(330.0), TownLayout.GRID, roll(seed))
+      assertTrue(!graph.hasCrossing(), "two streets cross without sharing a node: grid seed=$seed")
     }
   }
 

@@ -88,7 +88,7 @@ class WorldProvisioning(
     // The version vector of the pipeline as this build assembles it. Cheap: building the stage graph does not
     // run any of it.
     val worldConfig = config.toWorldConfig(seed)
-    val versions = PipelineVersion.current(StandardWorld.pipeline(worldConfig).pipelineVersion)
+    val versions = PipelineVersion.current(StandardWorld.pipeline(worldConfig, config.params).pipelineVersion)
 
     val world = worldRepository.save(
       PersistedWorld(

@@ -1,6 +1,8 @@
-package net.bestia.worldgen.pipeline
+package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.core.Timings
+import net.bestia.worldgen.pipeline.Invariants
+import net.bestia.worldgen.pipeline.StandardWorld
 import java.util.Locale
 
 /**
@@ -9,16 +11,50 @@ import java.util.Locale
  * Prints one line per seed while it works, because a sweep of a few hundred worlds takes minutes and a
  * harness that prints nothing until the end is a harness nobody leaves running. Exits non-zero on any
  * violation so it can be wired into CI without a wrapper.
+ *
+ * ### Why this lives in `viewer/` while the checks stay in `pipeline/`
+ *
+ * The sweep is the tool that most needs pointing at a candidate params file: a tuning change is *judged* by
+ * what it does to the land-fraction and lake distributions over two hundred worlds, and this is the only place
+ * those distributions are printed. Reading a file means `java.io`, which `checkBoundaries` permits in this
+ * package alone. `Invariants` itself has no I/O in it and stays where the stages are.
+ *
+ * Moving it also retired a hand-rolled argument parser. It read `--seeds`, `--cells` and `--first-seed` with a
+ * three-line `indexOf` and **silently ignored everything else**, so `-Pgenesis` was accepted and discarded and
+ * the sweep answered about the demo world while appearing to answer about the server's. That is the exact
+ * failure [WorldArgs] exists to prevent, and the sweep was the one tool still outside it.
  */
 object InvariantsMain {
 
+  /** The sweep's own flags: how many worlds and from where, neither of which says what a world *is*. */
+  private const val SEEDS = "--seeds"
+  private const val FIRST_SEED = "--first-seed"
+
+  /** Default edge of a sweep world, in coarse cells: a few hundred in a minute, and wide enough for a rain shadow. */
+  private const val SWEEP_CELLS = 192
+
   @JvmStatic
   fun main(args: Array<String>) {
-    val seeds = args.valueOf("--seeds")?.toInt() ?: 25
-    val cells = args.valueOf("--cells")?.toInt() ?: 192
-    val firstSeed = args.valueOf("--first-seed")?.toLong() ?: 1L
+    val cli = WorldArgs(args.toList(), extraFlags = setOf(SEEDS, FIRST_SEED))
 
-    println("checking $seeds worlds of ${cells}x$cells cells from seed $firstSeed")
+    // The sweep iterates seeds, so `--seed` cannot mean what it means everywhere else - and the first attempt
+    // here refused it outright, which broke `-Pgenesis`: those settings forward the server's seed along with
+    // its extent and wrapping, so refusing the seed refused the whole combination this class was moved in
+    // order to support. Taking it as the *first* seed keeps every flag effective and reads correctly - "the
+    // server's world, and the two hundred after it". Both together is a contradiction, so it is rejected.
+    require(!(cli.has(WorldArgs.SEED) && cli.has(FIRST_SEED))) {
+      "${WorldArgs.SEED} is the sweep's first seed, so passing it with $FIRST_SEED is a contradiction - pick one"
+    }
+
+    val seeds = cli.int(SEEDS) ?: 25
+    val firstSeed = cli.long(FIRST_SEED) ?: cli.long(WorldArgs.SEED) ?: 1L
+    val base = cli.worldConfig(
+      StandardWorld.demoConfig().copy(widthCells = SWEEP_CELLS, heightCells = SWEEP_CELLS)
+    )
+    val tuning = cli.tuning()
+
+    println("checking $seeds worlds of ${base.widthCells}x${base.heightCells} cells from seed $firstSeed")
+    println("  ${tuning.summary()}")
     val startedAt = System.currentTimeMillis()
 
     // What the run is for, beyond pass/fail. The invariant on land fraction is deliberately loose - it only
@@ -34,9 +70,8 @@ object InvariantsMain {
     val report = Invariants.sweep(
       seeds = seeds,
       firstSeed = firstSeed,
-      config = { seed ->
-        StandardWorld.demoConfig(seed).copy(widthCells = cells, heightCells = cells)
-      },
+      config = { seed -> base.copy(seed = seed) },
+      params = tuning.params,
       onSeed = { seed, single, generated ->
         val fraction = Invariants.landFraction(generated)
         land.add(fraction)
@@ -85,10 +120,5 @@ object InvariantsMain {
       // Non-zero so CI notices. The detail is already on stdout, seed by seed.
       System.exit(1)
     }
-  }
-
-  private fun Array<String>.valueOf(flag: String): String? {
-    val i = indexOf(flag)
-    return if (i >= 0 && i + 1 < size) this[i + 1] else null
   }
 }

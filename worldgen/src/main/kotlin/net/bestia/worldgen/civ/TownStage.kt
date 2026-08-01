@@ -9,6 +9,8 @@ import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -19,6 +21,7 @@ import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.core.BaseHeightField
+import net.bestia.worldgen.geo.DetailParams
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.history.HistoryChannels
@@ -61,7 +64,18 @@ data class TownParams(
    */
   val grading: SettlementParams = SettlementParams(),
 
-  val streets: StreetParamsPublic = StreetParamsPublic(),
+  val streets: StreetParams = StreetParams(),
+
+  /**
+   * The chunk tier's detail noise, because this stage samples the surface a chunk will produce.
+   *
+   * Held for the same reason as [grading], and with a sharper edge: `WorldGround` builds its own
+   * [net.bestia.worldgen.geo.WorldHeightField] to predict the ground a building will stand on, and if its
+   * detail parameters differ from the ones `StandardWorld.assemble` gives the chunk tier, then **every building
+   * in the world sits slightly off the ground**. That agreement used to rest on both sides defaulting; now that
+   * the chunk tier's params are reachable, it rests on this being forwarded.
+   */
+  val detail: DetailParams = DetailParams(),
 
   /**
    * People per hectare of built-up area.
@@ -126,30 +140,43 @@ data class TownParams(
 
   /** Station spacing along a street centreline, in metres. */
   val streetSpacing: Double = 8.0
-)
+) : Params {
 
-/**
- * Public face of the street-growth tuning, so [TownParams] can expose it without making the internal
- * layout classes public.
- */
-data class StreetParamsPublic(
-  val segmentLength: Double = 34.0,
-  val angleJitter: Double = 0.28,
-  val branchChance: Double = 0.28,
-  val snapRadius: Double = 11.0,
-  val minRadials: Int = 3,
-  val maxRadials: Int = 7,
-  val maxDepth: Int = 9
-) {
-  internal fun toInternal() = StreetParams(
-    segmentLength = segmentLength,
-    angleJitter = angleJitter,
-    branchChance = branchChance,
-    snapRadius = snapRadius,
-    minRadials = minRadials,
-    maxRadials = maxRadials,
-    maxDepth = maxDepth
-  )
+  init {
+    require(peoplePerHectare > 0.0) { "peoplePerHectare must be positive, was $peoplePerHectare" }
+    require(peoplePerBuilding > 0.0) { "peoplePerBuilding must be positive, was $peoplePerBuilding" }
+    require(lotFrontage > 0.0) { "lotFrontage must be positive, was $lotFrontage" }
+    require(lotDepth > 0.0) { "lotDepth must be positive, was $lotDepth" }
+    require(setback >= 0.0) { "setback must not be negative, was $setback" }
+    require(maxBuildingsPerSettlement >= 0) {
+      "maxBuildingsPerSettlement must not be negative, was $maxBuildingsPerSettlement"
+    }
+    require(maxBuildableSlope > 0.0) { "maxBuildableSlope must be positive, was $maxBuildableSlope" }
+    require(riverClearance >= 0.0) { "riverClearance must not be negative, was $riverClearance" }
+    require(wallHeight > 0.0) { "wallHeight must be positive, was $wallHeight" }
+    require(wallThickness > 0.0) { "wallThickness must be positive, was $wallThickness" }
+    require(gateWidth > 0.0) { "gateWidth must be positive, was $gateWidth" }
+    // Stations are laid along a centreline at this spacing; zero would be an unbounded station table on the
+    // first street, which shows up as a hang rather than as a wrong town.
+    require(streetSpacing > 0.0) { "streetSpacing must be positive, was $streetSpacing" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .nested("grading", grading.digest().value)
+    .nested("streets", streets.digest().value)
+    .nested("detail", detail.digest().value)
+    .put("peoplePerHectare", peoplePerHectare)
+    .put("peoplePerBuilding", peoplePerBuilding)
+    .put("lotFrontage", lotFrontage)
+    .put("lotDepth", lotDepth)
+    .put("setback", setback)
+    .put("maxBuildingsPerSettlement", maxBuildingsPerSettlement)
+    .put("maxBuildableSlope", maxBuildableSlope)
+    .put("riverClearance", riverClearance)
+    .put("wallHeight", wallHeight)
+    .put("wallThickness", wallThickness)
+    .put("gateWidth", gateWidth)
+    .put("streetSpacing", streetSpacing)
 }
 
 /**
@@ -196,6 +223,8 @@ class TownStage(
   // 5: towns are laid out in parallel, so each takes its ids from its own block of the ordinal space.
   //    No town is shaped differently, but every id in the stage moves, and ids tie-break stamp order.
   override val version = 5
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
   )
@@ -261,7 +290,7 @@ class TownStage(
       approaches = world.approachesTo(town, builtRadius)
     )
 
-    val graph = StreetPlanner.plan(frame, town.culture.layout, roll, params.streets.toInternal())
+    val graph = StreetPlanner.plan(frame, town.culture.layout, roll, params.streets)
     if (graph.edges.isEmpty()) return emptyList()
 
     val lots = LotPlanner.subdivide(
@@ -831,14 +860,16 @@ internal class WorldGround(
   /**
    * The base surface a chunk will sample, detail noise included.
    *
-   * Constructed with default `DetailParams` because `StandardWorld.assemble` does; the two have to agree, and
-   * a disagreement would show up as buildings sitting slightly off the ground everywhere.
+   * Built with `params.detail`, which `WorldParams` forwards from the same field `StandardWorld.assemble` gives
+   * the chunk tier. The two have to agree: a disagreement shows up as buildings sitting slightly off the ground
+   * everywhere, and it used to be guaranteed only by both sides defaulting.
    */
   private val base: BaseHeightField = WorldHeightField(
     elevation = elevation,
     hardness = ctx.layers.float(LayerId.ROCK_HARDNESS),
     seed = ctx.config.seed,
-    seaLevel = ctx.config.seaLevel
+    seaLevel = ctx.config.seaLevel,
+    params = params.detail
   )
 
   /** River channels, so a street is never routed into one. Cached per world, queried per settlement. */

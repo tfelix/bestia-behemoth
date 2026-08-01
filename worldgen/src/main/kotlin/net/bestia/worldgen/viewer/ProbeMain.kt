@@ -4,10 +4,12 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.pipeline.WorldParams
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
@@ -42,15 +44,23 @@ object ProbeMain {
     )
     val span = cli.int("--span") ?: 48
 
+    val tuning = cli.tuning()
     println("world ${WorldArgs.summary(config)}")
+    println("  ${tuning.summary()}")
 
     // `--droplets` turns on chunk-scale droplet erosion, which ships off. This is the only way to look at it:
     // the viewer renders whole worlds so a gully is a pixel, and the probe's 48 m window is the scale the
     // feature exists at. A gated feature nobody can see is a gated feature nobody can judge.
-    val droplets = DropletParams(enabled = cli.has(DROPLETS))
+    //
+    // A switch on the file's droplet tuning rather than a fresh `DropletParams`, so `--droplets --params f`
+    // looks at the density the file asks for. Building the default set here instead would silently discard it.
+    val droplets = tuning.params.droplets.copy(enabled = tuning.params.droplets.enabled || cli.has(DROPLETS))
     if (droplets.enabled) println("droplet erosion ON - ${droplets.dropletsPerSquareKilometre.toInt()}/km2")
 
-    val generated = StandardWorld.build(config, droplets = droplets)
+    val generated = StandardWorld.build(config, params = tuning.params.copy(droplets = droplets))
+    // Before the window rather than after it, so a sub-stage table is never mistaken for part of the
+    // ground being printed. A no-op unless -Ptimings, so the call site stays.
+    Timings.printAndReset()
     val probe = Probe(config, generated)
 
     val survey = cli.int("--survey")

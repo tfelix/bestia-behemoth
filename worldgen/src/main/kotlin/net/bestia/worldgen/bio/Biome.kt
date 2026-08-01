@@ -1,5 +1,7 @@
 package net.bestia.worldgen.bio
 
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import kotlin.math.sqrt
 
 /**
@@ -92,6 +94,49 @@ class BiomePrototype(
 class BiomeMatch(val biome: Biome, val confidence: Double, val runnerUp: Biome? = null)
 
 /**
+ * The scales that turn a cell's climate into the unit cube the classifier measures distances in.
+ *
+ * Hoisted out of [Biomes.describe], where they were seven bare literals inside the arithmetic. They are
+ * tunables in every sense that matters - the precipitation cap decides how much of the dry end of the range
+ * the classifier can even see, and the slope cap decides at what gradient everything reads as cliff - and
+ * while they sat inline they could not be fingerprinted, so changing one moved every biome boundary in the
+ * world and no version number noticed.
+ *
+ * A `data class` with a default instance rather than constants, so [Biomes.catalogueDigest] can fold it and
+ * `ParamsFields` can check that all of it is folded. Threading it through `BiomeParams` as a caller-supplied
+ * value is the obvious next step and is deliberately not taken yet: [Biomes.describe] is called per cell from
+ * more than one stage, and a parameter nobody varies is a parameter list nobody reads.
+ */
+data class BiomeAxisRanges(
+  /** Degrees added before scaling, so the coldest ground the model produces lands at zero rather than below. */
+  val temperatureOffset: Double = 25.0,
+  /** Degrees of span mapped onto the unit interval. */
+  val temperatureSpan: Double = 65.0,
+  /**
+   * Millimetres of annual rainfall mapped onto the unit interval, **square-root scaled**.
+   *
+   * The scaling is the point: the boundaries that matter are crowded into the dry end, where 200 against
+   * 500 mm decides desert against grassland, while 2500 against 2800 decides nothing.
+   */
+  val precipitationCap: Double = 4_000.0,
+  /** Degrees of annual temperature range mapped onto the unit interval. */
+  val temperatureRangeCap: Double = 45.0,
+  /** Metres above sea level mapped onto the unit interval. */
+  val elevationCap: Double = 4_000.0,
+  /** Ground gradient mapped onto the unit interval. Above this everything reads as cliff. */
+  val slopeCap: Double = 0.35
+) : Params {
+
+  override fun digest() = ParamsDigest()
+    .put("temperatureOffset", temperatureOffset)
+    .put("temperatureSpan", temperatureSpan)
+    .put("precipitationCap", precipitationCap)
+    .put("temperatureRangeCap", temperatureRangeCap)
+    .put("elevationCap", elevationCap)
+    .put("slopeCap", slopeCap)
+}
+
+/**
  * Biome classification by weighted distance to a set of prototypes.
  *
  * Not a Whittaker lookup table. A table partitions parameter space into rectangles, and rectangles in
@@ -101,6 +146,9 @@ class BiomeMatch(val biome: Biome, val confidence: Double, val runnerUp: Biome? 
  * blend weight for free, so transitions can be gradients rather than steps.
  */
 object Biomes {
+
+  /** The axis scales [describe] normalises with. */
+  val AXES = BiomeAxisRanges()
 
   /**
    * Normalised feature vector for one cell.
@@ -119,15 +167,14 @@ object Biomes {
     slope: Double,
     wetness: Double
   ) {
-    out[BiomeAxis.TEMPERATURE] = ((temperature + 25.0) / 65.0).coerceIn(0.0, 1.0)
-    // Square root scaled: the biome boundaries that matter are crowded into the dry end, where the
-    // difference between 200 and 500 mm decides desert against grassland, while the difference between
-    // 2500 and 2800 decides nothing.
-    out[BiomeAxis.PRECIPITATION] = sqrt((precipitation / 4000.0).coerceIn(0.0, 1.0))
+    out[BiomeAxis.TEMPERATURE] =
+      ((temperature + AXES.temperatureOffset) / AXES.temperatureSpan).coerceIn(0.0, 1.0)
+    // Square root scaled - see BiomeAxisRanges.precipitationCap for why.
+    out[BiomeAxis.PRECIPITATION] = sqrt((precipitation / AXES.precipitationCap).coerceIn(0.0, 1.0))
     out[BiomeAxis.SEASONALITY] = seasonality.coerceIn(0.0, 1.0)
-    out[BiomeAxis.TEMPERATURE_RANGE] = (temperatureRange / 45.0).coerceIn(0.0, 1.0)
-    out[BiomeAxis.ELEVATION] = (elevationAboveSea / 4000.0).coerceIn(0.0, 1.0)
-    out[BiomeAxis.SLOPE] = (slope / 0.35).coerceIn(0.0, 1.0)
+    out[BiomeAxis.TEMPERATURE_RANGE] = (temperatureRange / AXES.temperatureRangeCap).coerceIn(0.0, 1.0)
+    out[BiomeAxis.ELEVATION] = (elevationAboveSea / AXES.elevationCap).coerceIn(0.0, 1.0)
+    out[BiomeAxis.SLOPE] = (slope / AXES.slopeCap).coerceIn(0.0, 1.0)
     out[BiomeAxis.WETNESS] = wetness.coerceIn(0.0, 1.0)
   }
 
@@ -216,6 +263,36 @@ object Biomes {
       elevation = 4.5, slope = 2.6
     )
   )
+
+  /**
+   * Fingerprint of everything the classifier decides with: the prototype table and the axis scales.
+   *
+   * This is the largest single body of tuning in the pipeline - fourteen prototypes over seven axes, positions
+   * and weights, one hundred and ninety-six numbers - and seven stages read the biome it produces. Moving one
+   * of them moves every boundary on the map, so it belongs in the biome stage's version whether or not anybody
+   * has got round to putting the table in a file.
+   *
+   * Folded by biome **name**, with the list index alongside. The name is what identifies a prototype; the index
+   * is folded because a nearest-prototype tie is broken by position in this list, so reordering it can change
+   * a classification even with every number unchanged.
+   *
+   * Note what is deliberately *not* here: [Biome]'s own ordinals. Those are written into the `BIOME` raster and
+   * into chunk cache keys, so they are a stored data format rather than a tunable, and their guarantee is
+   * append-only rather than fingerprinted.
+   */
+  fun catalogueDigest(): Long {
+    val digest = ParamsDigest().nested("axes", AXES.digest().value)
+    CLIMATIC.forEachIndexed { index, prototype ->
+      digest.nested(
+        "$index:${prototype.biome.name}",
+        ParamsDigest()
+          .put("at", prototype.at.toList())
+          .put("weight", prototype.weight.toList())
+          .value
+      )
+    }
+    return digest.value
+  }
 
   private fun prototype(
     biome: Biome,

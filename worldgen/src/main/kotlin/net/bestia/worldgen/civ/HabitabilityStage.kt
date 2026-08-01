@@ -4,7 +4,10 @@ import net.bestia.worldgen.bio.BiomeStage
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenContext
+import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -45,7 +48,31 @@ data class HabitabilityParams(
 
   /** Multiplier for the movement cost of crossing a river. */
   val riverCrossingCost: Double = 8.0
-)
+) : Params {
+
+  init {
+    require(waterRange > 0.0) { "waterRange must be positive, was $waterRange" }
+    require(waterDischarge >= 0.0) { "waterDischarge must not be negative, was $waterDischarge" }
+    require(harbourRange > 0.0) { "harbourRange must be positive, was $harbourRange" }
+    require(prominenceRadius >= 1) { "prominenceRadius must be at least 1 cell, was $prominenceRadius" }
+    require(comfortTemperature.isFinite()) { "comfortTemperature must be finite, was $comfortTemperature" }
+    // The divisor of the comfort term, so zero makes every temperature infinitely uncomfortable.
+    require(comfortTolerance > 0.0) { "comfortTolerance must be positive, was $comfortTolerance" }
+    require(arableSlope > 0.0) { "arableSlope must be positive, was $arableSlope" }
+    require(riverCrossingCost >= 0.0) { "riverCrossingCost must not be negative, was $riverCrossingCost" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .nested("culture", culture.digest().value)
+    .put("waterRange", waterRange)
+    .put("waterDischarge", waterDischarge)
+    .put("harbourRange", harbourRange)
+    .put("prominenceRadius", prominenceRadius)
+    .put("comfortTemperature", comfortTemperature)
+    .put("comfortTolerance", comfortTolerance)
+    .put("arableSlope", arableSlope)
+    .put("riverCrossingCost", riverCrossingCost)
+}
 
 /**
  * Stage 7: the habitability field, and the movement cost field roads will be routed over.
@@ -71,6 +98,8 @@ class HabitabilityStage(
 
   override val id = ID
   override val version = 1
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID
   )

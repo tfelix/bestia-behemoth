@@ -34,7 +34,7 @@ earned across phases 3 to 7, four times over.
 Run all of it per phase, in this order. The last three catch what the first misses.
 
 ```
-./gradlew :worldgen:test                                   # 405 tests at present
+./gradlew :worldgen:test                                   # 408 tests at present
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=192      # sweep; watch the reported spreads
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # PNGs + the SeamCheck line; works headless
@@ -61,10 +61,27 @@ Run all of it per phase, in this order. The last three catch what the first miss
 
 ### Things that bite
 
-- **Stage params are not persisted.** They are compile-time defaults folded into `pipelineVersion`, so *any*
-  change to them shifts terrain for an existing world and `worldgen.on-mismatch: REFUSE` stops the server.
-- **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 4, glacial 2,
-  hydrology 3, biome 2, resource 1, habitability 1, settlement 3, town 4, history 2, economy 1.
+- **`version` is for code, `paramsVersion` is for values, and they must not be confused.** Every params class
+  fingerprints itself (`ParamsDigest`), each stage folds its own into the abstract `Stage.paramsVersion`, and
+  `WorldGenPipeline` folds that into the version vector — so retuning `oceanicShare` now invalidates tectonics
+  and everything downstream, reaches `pipelineVersion` and the chunk cache key, and leaves the stages *above*
+  it alone. When a pin in `ParamsVersionTest` fails because you moved a number, **re-pin it and do not also bump
+  the stage `version`**: that reshuffles every RNG stream below the stage and changes which seeds show a latent
+  bug, for nothing. The digest deliberately never reaches `GenRng.derive`, so tuning a value lets you look at
+  the same world.
+- **A tunable must be a primary-constructor property**, or neither the digest nor the `toString`-based
+  completeness oracle can see it. A `val` in the class body is invisible to both and silently unhashed.
+- **The chunk tier is not a stage and is easy to forget.** `DetailParams`, `StrataParams` and `DropletParams`
+  reach `pipelineVersion` only through `WorldGenPipeline`'s `chunkTierVersion` constructor argument, which
+  `StandardWorld.pipeline` supplies from `WorldParams`. Add a chunk-tier tunable and it is `WorldParams`, not a
+  stage, that has to fold it.
+- **Four numbers are read by two stages each and are forwarded, not duplicated.** `WorldParams.resolved` copies
+  the ocean margin from tectonics into erosion, the habitability terms into settlement, and the settlement
+  grading and chunk detail noise into town. Those four have **no params-file keys at all** — the parser reports
+  them as unknown — because a file key would be applied and then overwritten. Setting one by hand in code
+  instead is how buildings end up floating over the ground everywhere.
+- **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 5, glacial 2,
+  hydrology 3, biome 2, resource 1, habitability 1, settlement 3, town 5, history 2, economy 1.
 - **Any version bump reshuffles every RNG stream below it**, which changes *which seeds* show a latent bug. Phase
   6 bumped `HistoryStage` and two pre-existing "built in water" bugs appeared; confirmed pre-existing by bumping
   only the version number at the previous commit and reproducing the same seeds and feature ids. **When a sweep
@@ -97,7 +114,10 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
   `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds nothing emits. A subsystem, not a pass.
 - **Caves**, which need voxel subtraction first — see *Things that bite*. The client's surface-nets mesher already
   handles them, so the renderer is ahead of the generator here.
-- **The scatter pass.** No vegetation, so the "chunk-seeded randomness is safe here" rule still has no users.
+- **The scatter pass.** No vegetation — and the block palette has no vegetation *material* either, so this is a
+  palette change before it is a pass. The "chunk-seeded randomness is safe here" rule still has no users, but
+  world-position-hashed scatter does: `TownStructures.ruinColumn` hashes the quantised world position for rubble,
+  which is the pattern a vegetation pass should copy rather than the chunk-seeded permission the doc grants.
 - **Live NPCs.** `pop/` produces the substrate; nothing makes a person walk to the market.
 - **Delta persistence** (step 12) and a **client-side base generator** (step 13).
 - **Sharding, the work queue and the gRPC surface** — deliberately the server's, and built nowhere.
@@ -122,8 +142,18 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
 
 ### Wants only the work
 
-- **Data-driven configuration.** Every tunable is a Kotlin `data class`. The new `SpecialSites` thresholds and
-  `DropletParams` join `BusinessCatalogue` and the biome prototypes in wanting a data file.
+- **Data-driven configuration, three classes in.** The format exists (`core/ParamsText.kt`, flat dotted keys with
+  line numbers, duplicate detection and nearest-key suggestions) and `--params` reaches every offline tool.
+  `TectonicsParams`, `ClimateParams`, `ErosionParams` and `ClosedBasinParams` load; the remaining twelve prefixes
+  are listed in `WorldParams.NOT_YET_LOADABLE`, which is what makes a key under one of them say *"cannot be set
+  from a file yet"* rather than *"not a tunable"*. Writing a loader is a `copy(...)` per class plus deleting its
+  prefix from that set — `WorldParamsLoadTest` then asserts the loader and the digest cover the same fields.
+  The **catalogues** are a separate problem and still want a data file: `BusinessCatalogue`, the biome prototypes,
+  `Culture.ALL`, `Names.STYLES`. They are lists rather than field sets, so the flat format does not fit them and
+  their only guard is a pinned digest.
+- **Nothing in zone-server can point at a params file.** `WorldGenConfig.params` is the one place the server's
+  tuning lives and it is hard-coded to the defaults. Making it configurable needs a decision about what happens
+  when the file changes under a live world, which is `on-mismatch` territory rather than generator work.
 - **Derived structures have no readers.** Walkable tiles, the opacity grid and column summaries are kept fresh on
   a per-tick budget, and movement validation, line of sight and pathing still do not consult them. **Cheap and
   already paid for every tick** — the best value on this list.

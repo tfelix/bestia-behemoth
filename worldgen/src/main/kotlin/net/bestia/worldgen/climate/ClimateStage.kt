@@ -4,6 +4,9 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -20,7 +23,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-/** Tuning for [ClimateStage]. Belongs in a data file eventually; see [net.bestia.worldgen.geo.TectonicsParams]. */
+/** Tuning for [ClimateStage], loadable from a params file as `climate.*`; see [net.bestia.worldgen.geo.TectonicsParams]. */
 data class ClimateParams(
 
   /** Latitude at the northern edge of the map. The world is a band of the globe, not a whole one. */
@@ -151,9 +154,29 @@ data class ClimateParams(
    * Measured across three seeds it puts closed forest plus grassland at 55%, 45% and 51% of the land.
    */
   val meanPrecipitation: Double = 1850.0
-) {
+) : Params {
   init {
     require(polewardLatitude in 1.0..90.0) { "polewardLatitude must be in (0,90]" }
+    require(equatorTemperature.isFinite()) { "equatorTemperature must be finite, was $equatorTemperature" }
+    require(poleTemperature.isFinite()) { "poleTemperature must be finite, was $poleTemperature" }
+    // Ordered, because the latitudinal profile interpolates between them: an equator colder than the pole
+    // would invert every climate band in the world while every layer still looked plausible on its own.
+    require(poleTemperature <= equatorTemperature) {
+      "poleTemperature $poleTemperature is warmer than equatorTemperature $equatorTemperature"
+    }
+    require(lapseRate >= 0.0) { "lapseRate must not be negative, was $lapseRate" }
+    require(maritimeRange > 0.0) { "maritimeRange must be positive, was $maritimeRange" }
+    require(orographicCoefficient >= 0.0) {
+      "orographicCoefficient must not be negative, was $orographicCoefficient"
+    }
+    require(convectiveRate >= 0.0) { "convectiveRate must not be negative, was $convectiveRate" }
+    // A fraction of the convective rain that survives a crest, so above 1 the lee of a mountain would be
+    // wetter than its windward side.
+    require(leeSuppression in 0.0..1.0) { "leeSuppression must be in [0,1], was $leeSuppression" }
+    require(evaporationRate in 0.0..1.0) { "evaporationRate must be in [0,1], was $evaporationRate" }
+    require(landEvaporationRate in 0.0..1.0) {
+      "landEvaporationRate must be in [0,1], was $landEvaporationRate"
+    }
     // Pinned rather than merely positive: each season is stored as its own named layer, and a layer name is
     // an on-disk contract. Three seasons would emit three layers against four declared outputs, and
     // `verifyOutputs` would report a missing `precipitation_winter` - true, and no help at all in finding
@@ -161,8 +184,53 @@ data class ClimateParams(
     require(seasons == SeasonalPrecipitation.COUNT) {
       "seasons must be exactly ${SeasonalPrecipitation.COUNT}, one per stored layer, was $seasons"
     }
+    require(seasonalShift >= 0.0) { "seasonalShift must not be negative, was $seasonalShift" }
+    require(monsoonLagMonths.isFinite()) { "monsoonLagMonths must be finite, was $monsoonLagMonths" }
+    require(mixingPasses >= 0) { "mixingPasses must not be negative, was $mixingPasses" }
     require(meanPrecipitation > 0.0) { "meanPrecipitation must be positive" }
   }
+
+  /**
+   * See `TectonicsParams.overriddenBy`.
+   *
+   * [seasons] is readable even though `init` pins it to one value, deliberately: the file is where somebody
+   * would try to change it, and being told "seasons must be exactly 4, one per stored layer" is a better answer
+   * than being told the key does not exist.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    polewardLatitude = source.double("polewardLatitude", polewardLatitude),
+    equatorTemperature = source.double("equatorTemperature", equatorTemperature),
+    poleTemperature = source.double("poleTemperature", poleTemperature),
+    lapseRate = source.double("lapseRate", lapseRate),
+    maritimeRange = source.double("maritimeRange", maritimeRange),
+    orographicCoefficient = source.double("orographicCoefficient", orographicCoefficient),
+    convectiveRate = source.double("convectiveRate", convectiveRate),
+    leeSuppression = source.double("leeSuppression", leeSuppression),
+    evaporationRate = source.double("evaporationRate", evaporationRate),
+    landEvaporationRate = source.double("landEvaporationRate", landEvaporationRate),
+    seasons = source.int("seasons", seasons),
+    seasonalShift = source.double("seasonalShift", seasonalShift),
+    monsoonLagMonths = source.double("monsoonLagMonths", monsoonLagMonths),
+    mixingPasses = source.int("mixingPasses", mixingPasses),
+    meanPrecipitation = source.double("meanPrecipitation", meanPrecipitation)
+  )
+
+  override fun digest() = ParamsDigest()
+    .put("polewardLatitude", polewardLatitude)
+    .put("equatorTemperature", equatorTemperature)
+    .put("poleTemperature", poleTemperature)
+    .put("lapseRate", lapseRate)
+    .put("maritimeRange", maritimeRange)
+    .put("orographicCoefficient", orographicCoefficient)
+    .put("convectiveRate", convectiveRate)
+    .put("leeSuppression", leeSuppression)
+    .put("evaporationRate", evaporationRate)
+    .put("landEvaporationRate", landEvaporationRate)
+    .put("seasons", seasons)
+    .put("seasonalShift", seasonalShift)
+    .put("monsoonLagMonths", monsoonLagMonths)
+    .put("mixingPasses", mixingPasses)
+    .put("meanPrecipitation", meanPrecipitation)
 }
 
 /**
@@ -185,6 +253,8 @@ class ClimateStage(
   // 3: four seasons rather than two, kept as layers; the sweep's temperature is seasonal and hemisphere-
   //    correct, and the belt shift is sinusoidal with a monsoon lag behind it.
   override val version = 3
+
+  override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID)
   override val scale = StageScale.WORLD
 

@@ -41,7 +41,21 @@ interface StageListener {
  * ties in the topological sort are broken by stage name, never by hash-map iteration order - so two
  * nodes that build the same pipeline execute it in the same order and derive the same RNG streams.
  */
-class WorldGenPipeline(stages: List<Stage>) {
+class WorldGenPipeline(
+  stages: List<Stage>,
+  /**
+   * Fingerprint of everything the generator does *after* the stage graph: the base heightfield's detail noise,
+   * stratigraphy, the droplet field.
+   *
+   * Folded into [pipelineVersion] rather than given a version component of its own. It is not a stage - it has
+   * no dependencies and produces no layer - but it decides terrain, and until this existed it decided terrain
+   * while reaching **no version number at all**: `DetailParams.amplitude` could move and the chunk cache, whose
+   * key is `(seed, pipelineVersion, chunk)`, would go on serving the old ground.
+   *
+   * Defaulted so a test pipeline need not care, and supplied by `WorldParams`.
+   */
+  chunkTierVersion: Long = 0L
+) {
 
   /** Topologically ordered: every stage appears after all of its dependencies. */
   val stages: List<Stage>
@@ -91,7 +105,7 @@ class WorldGenPipeline(stages: List<Stage>) {
     val versions = LinkedHashMap<StageId, Long>()
     for (stage in this.stages) {
       // Dependencies are already resolved: the list is topologically ordered.
-      var h = GenRng.hash(stage.id.hash, stage.version.toLong())
+      var h = GenRng.hash(stage.id.hash, stage.version.toLong(), stage.paramsVersion)
       for (dependency in stage.dependencies.sortedBy { it.name }) {
         h = GenRng.hash(h, versions.getValue(dependency))
       }
@@ -103,7 +117,7 @@ class WorldGenPipeline(stages: List<Stage>) {
     for (stage in this.stages) {
       combined = GenRng.hash(combined, versions.getValue(stage.id))
     }
-    pipelineVersion = combined
+    pipelineVersion = GenRng.hash(combined, chunkTierVersion)
   }
 
   fun stage(id: StageId): Stage = byId[id] ?: throw IllegalArgumentException("No stage $id")

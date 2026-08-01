@@ -6,6 +6,9 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -133,12 +136,65 @@ data class ErosionParams(
    * and one that only makes sense after the erosion loop has finished with it - see [ClosedBasins].
    */
   val basins: ClosedBasinParams = ClosedBasinParams()
-) {
+) : Params {
   init {
+    require(oceanBorderDepth >= 0.0) { "oceanBorderDepth must not be negative, was $oceanBorderDepth" }
+    require(oceanBorderWobble >= 0.0) { "oceanBorderWobble must not be negative, was $oceanBorderWobble" }
     require(timesteps >= 1) { "timesteps must be at least 1" }
+    require(timestep > 0.0) { "timestep must be positive, was $timestep" }
+    require(erodibility >= 0.0) { "erodibility must not be negative, was $erodibility" }
+    require(areaExponent.isFinite()) { "areaExponent must be finite, was $areaExponent" }
+    require(marineErodibility >= 0.0) { "marineErodibility must not be negative, was $marineErodibility" }
+    require(thermalIterations >= 0) { "thermalIterations must not be negative, was $thermalIterations" }
+    require(talusSoft > 0.0) { "talusSoft must be positive, was $talusSoft" }
+    // Soft rock holding a steeper slope than hard rock inverts the one thing this pair exists to express -
+    // that hard rock is what holds a cliff - and the terrain would still look plausible enough to ship.
+    require(talusSoft <= talusHard) {
+      "talusSoft $talusSoft is steeper than talusHard $talusHard, so soft rock would hold the cliffs"
+    }
     require(thermalRate in 0.0..0.5) { "thermalRate above 0.5 oscillates, was $thermalRate" }
     require(depositionG >= 0.0) { "depositionG must not be negative" }
+    require(marineDeposition >= 0.0) { "marineDeposition must not be negative, was $marineDeposition" }
   }
+
+  /**
+   * See `TectonicsParams.overriddenBy`.
+   *
+   * [oceanBorderDepth] and [oceanBorderWobble] are deliberately **not** read from the file: `WorldParams.resolved`
+   * forwards them from the tectonics stage that carved the margin, so a key here would be overwritten a moment
+   * after it was applied. Nobody asks for it, so the parser reports it as unknown - which is the whole design of
+   * "one copy, forwarded" being enforced rather than remembered.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    timesteps = source.int("timesteps", timesteps),
+    timestep = source.double("timestep", timestep),
+    erodibility = source.double("erodibility", erodibility),
+    areaExponent = source.double("areaExponent", areaExponent),
+    marineErodibility = source.double("marineErodibility", marineErodibility),
+    thermalIterations = source.int("thermalIterations", thermalIterations),
+    talusSoft = source.double("talusSoft", talusSoft),
+    talusHard = source.double("talusHard", talusHard),
+    thermalRate = source.double("thermalRate", thermalRate),
+    depositionG = source.double("depositionG", depositionG),
+    marineDeposition = source.double("marineDeposition", marineDeposition),
+    basins = basins.overriddenBy(source.scope("basins"))
+  )
+
+  override fun digest() = ParamsDigest()
+    .put("oceanBorderDepth", oceanBorderDepth)
+    .put("oceanBorderWobble", oceanBorderWobble)
+    .put("timesteps", timesteps)
+    .put("timestep", timestep)
+    .put("erodibility", erodibility)
+    .put("areaExponent", areaExponent)
+    .put("marineErodibility", marineErodibility)
+    .put("thermalIterations", thermalIterations)
+    .put("talusSoft", talusSoft)
+    .put("talusHard", talusHard)
+    .put("thermalRate", thermalRate)
+    .put("depositionG", depositionG)
+    .put("marineDeposition", marineDeposition)
+    .nested("basins", basins.digest().value)
 }
 
 /**
@@ -186,6 +242,8 @@ class ErosionStage(
   // 5: mass wasting gathers instead of scattering so it can be split across cores, and the area term
   //    takes the square root directly. Both change the surface in the last bits, nothing in its shape.
   override val version = 5
+
+  override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)
   override val scale = StageScale.WORLD
 

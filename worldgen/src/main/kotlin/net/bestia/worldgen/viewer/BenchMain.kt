@@ -39,6 +39,9 @@ object BenchMain {
     val config = StandardWorld.demoConfig().copy(widthCells = cells, heightCells = cells)
 
     check(Parallel.threads > 1) { "this machine reports one core; there is nothing to compare" }
+    // -Pserial reaches every worldgen task, and here it would make both arms serial and report a difference
+    // of zero as though that were a finding. Refusing is the only honest answer.
+    check(Parallel.enabled) { "-Pserial forces both arms onto one thread; drop it to compare them" }
     println("benchmarking ${cells}x$cells, $reps reps, ${Parallel.threads} workers")
 
     val serial = Run("serial")

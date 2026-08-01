@@ -1,5 +1,8 @@
 package net.bestia.worldgen.civ
 
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
+
 /**
  * What a culture values in a place to live.
  *
@@ -68,7 +71,33 @@ data class Culture(
 
   /** How far it will expand from its capital, in metres. Seafarers go a long way; farmers do not. */
   val expansionRange: Double = 90_000.0
-) {
+) : Params {
+
+  override fun digest() = ParamsDigest()
+    .put("name", name)
+    .put("freshWater", freshWater)
+    .put("soilFertility", soilFertility)
+    .put("arableSlope", arableSlope)
+    .put("defensibility", defensibility)
+    .put("resources", resources)
+    .put("climate", climate)
+    .put("harbour", harbour)
+    .put("grazing", grazing)
+    .put("hazardAversion", hazardAversion)
+    .put("citySeparation", citySeparation)
+    .put("layout", layout)
+    .put("stoneShare", stoneShare)
+    .put("storeys", storeys)
+    .put("craftBias", craftBias)
+    .put("tradeBias", tradeBias)
+    .put("serviceBias", serviceBias)
+    .put("adminBias", adminBias)
+    .put("clergyBias", clergyBias)
+    .put("militaryBias", militaryBias)
+    .put("farmShare", farmShare)
+    .put("bellicosity", bellicosity)
+    .put("inventiveness", inventiveness)
+    .put("expansionRange", expansionRange)
 
   companion object {
 
@@ -191,6 +220,24 @@ data class Culture(
     fun byIndex(index: Int): Culture = ALL[index.coerceIn(0, ALL.size - 1)]
 
     fun indexOf(culture: Culture): Int = ALL.indexOf(culture).coerceAtLeast(0)
+
+    /**
+     * Fingerprint of the whole roster, for the five stages that read cultures.
+     *
+     * Folded **in list order, with the index**, which is the part that matters. [indexOf] is written into a
+     * station channel on every settlement and into `CivRecord.cultureIndex`, so the position of a culture in
+     * [ALL] is a stored data format rather than a presentation detail: reordering this list silently
+     * reassigns every settlement in an existing world to a different people. Folding the index makes that a
+     * version change instead.
+     *
+     * A retune of one culture's weights is the ordinary case and moves the digest through that culture's own
+     * [digest].
+     */
+    fun catalogueDigest(): Long {
+      val digest = ParamsDigest()
+      ALL.forEachIndexed { index, culture -> digest.nested("$index:${culture.name}", culture.digest().value) }
+      return digest.value
+    }
   }
 }
 
@@ -224,6 +271,38 @@ enum class SettlementTier(
       VILLAGE -> 190.0
       HAMLET -> 90.0
     }
+
+  companion object {
+
+    /**
+     * Fingerprint of the tier table, folded in declaration order.
+     *
+     * These four numbers are tunables in everything but their storage: the separation decides how many
+     * settlements a world holds, the population range decides what each one is, and [footprintRadius] decides
+     * how much ground gets graded flat under it. That the table is an enum rather than a params class is a
+     * choice about where the values live, not about whether changing one changes the world.
+     *
+     * [footprintRadius] is included even though it is a computed `when` rather than a constructor field -
+     * exactly because it is: a number that reaches terrain from inside a getter is the easiest kind to change
+     * without noticing that anything downstream cared.
+     */
+    fun catalogueDigest(): Long {
+      val digest = ParamsDigest()
+      for (tier in entries) {
+        digest.nested(
+          "${tier.ordinal}:${tier.name}",
+          ParamsDigest()
+            .put("label", tier.label)
+            .put("separation", tier.separation)
+            .put("minPopulation", tier.minPopulation)
+            .put("maxPopulation", tier.maxPopulation)
+            .put("footprintRadius", tier.footprintRadius)
+            .value
+        )
+      }
+      return digest.value
+    }
+  }
 }
 
 /** Station channel names on a [net.bestia.worldgen.vector.FeatureKind.SETTLEMENT] marker. */

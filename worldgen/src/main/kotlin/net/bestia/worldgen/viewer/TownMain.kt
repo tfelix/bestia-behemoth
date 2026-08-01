@@ -12,6 +12,7 @@ import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.SettlementRecord
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.history.Names
@@ -64,8 +65,11 @@ object TownMain {
       StandardWorld.demoConfig().copy(widthCells = 192, heightCells = 192)
     )
 
+    val tuning = cli.tuning()
     println("world ${WorldArgs.summary(config)}")
-    val generated = StandardWorld.build(config)
+    println("  ${tuning.summary()}")
+    val generated = StandardWorld.build(config, params = tuning.params)
+    Timings.printAndReset()
     val view = TownView(generated)
 
     if (cli.has("--census")) {

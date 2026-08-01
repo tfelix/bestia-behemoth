@@ -9,6 +9,8 @@ import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -53,7 +55,21 @@ data class ResourceParams(
 
   /** Spacing between placer deposits along a river, in metres. */
   val placerSpacing: Double = 12_000.0
-)
+) : Params {
+
+  init {
+    require(candidateSpacing > 0.0) { "candidateSpacing must be positive, was $candidateSpacing" }
+    require(valueRadius > 0.0) { "valueRadius must be positive, was $valueRadius" }
+    require(placerRange >= 0.0) { "placerRange must not be negative, was $placerRange" }
+    require(placerSpacing > 0.0) { "placerSpacing must be positive, was $placerSpacing" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("candidateSpacing", candidateSpacing)
+    .put("valueRadius", valueRadius)
+    .put("placerRange", placerRange)
+    .put("placerSpacing", placerSpacing)
+}
 
 /**
  * Stage 6: mineral and surface resources, placed causally.
@@ -79,6 +95,8 @@ class ResourceStage(
 
   override val id = ID
   override val version = 1
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, ResourceType.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID
   )

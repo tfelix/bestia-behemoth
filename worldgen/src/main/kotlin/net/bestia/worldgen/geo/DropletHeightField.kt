@@ -2,6 +2,8 @@ package net.bestia.worldgen.geo
 
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
 import kotlin.math.floor
@@ -84,13 +86,45 @@ data class DropletParams(
 
   /** Tiles held before the cache is dropped. Each is a `DoubleArray` of `(2*tileExtent/cellSize + 1)^2`. */
   val cacheLimit: Int = 512
-) {
+) : Params {
   init {
     require(tileExtent > 0.0) { "tileExtent must be positive" }
     require(cellSize > 0.0) { "cellSize must be positive" }
+    // A tile grid is `(2 * tileExtent / cellSize + 1)^2` cells, so a cell coarser than the tile leaves a
+    // single-cell grid with no slope anywhere in it and the pass silently does nothing.
+    require(cellSize <= tileExtent) {
+      "cellSize $cellSize is coarser than tileExtent $tileExtent, leaving a tile with no interior"
+    }
+    require(dropletsPerSquareKilometre >= 0.0) {
+      "dropletsPerSquareKilometre must not be negative, was $dropletsPerSquareKilometre"
+    }
+    require(maxSteps >= 0) { "maxSteps must not be negative, was $maxSteps" }
+    require(inertia in 0.0..1.0) { "inertia must be in [0,1], was $inertia" }
+    require(capacity >= 0.0) { "capacity must not be negative, was $capacity" }
+    require(depositRate in 0.0..1.0) { "depositRate must be in [0,1], was $depositRate" }
+    require(erodeRate in 0.0..1.0) { "erodeRate must be in [0,1], was $erodeRate" }
     require(erodeRadius >= 0) { "erodeRadius must not be negative" }
+    require(gravity >= 0.0) { "gravity must not be negative, was $gravity" }
+    require(evaporation in 0.0..1.0) { "evaporation must be in [0,1], was $evaporation" }
     require(maxDelta >= 0.0) { "maxDelta must not be negative" }
+    require(cacheLimit >= 1) { "cacheLimit must be at least 1, was $cacheLimit" }
   }
+
+  override fun digest() = ParamsDigest()
+    .put("enabled", enabled)
+    .put("tileExtent", tileExtent)
+    .put("cellSize", cellSize)
+    .put("dropletsPerSquareKilometre", dropletsPerSquareKilometre)
+    .put("maxSteps", maxSteps)
+    .put("inertia", inertia)
+    .put("capacity", capacity)
+    .put("depositRate", depositRate)
+    .put("erodeRate", erodeRate)
+    .put("erodeRadius", erodeRadius)
+    .put("gravity", gravity)
+    .put("evaporation", evaporation)
+    .put("maxDelta", maxDelta)
+    .put("cacheLimit", cacheLimit)
 }
 
 /**

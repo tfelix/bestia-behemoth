@@ -56,9 +56,114 @@ tasks.named("test") {
     if (project.hasProperty('threads')) systemProperty 'worldgen.threads', project.property('threads')
 }
 
+/**
+ * The two rules in this file's header, enforced instead of merely written down.
+ *
+ * The header has said "kotlin stdlib and the JDK, nothing else" and "the viewer is the one place allowed to
+ * touch Swing and the filesystem" since the module existed, and **nothing checked either.** A single
+ * `implementation` line would have gone unnoticed until the zone-server or the client inherited it, which is
+ * exactly the point at which it stops being cheap to undo - the value of this module is that it is a pure
+ * function over plain data, and that property is lost quietly rather than loudly.
+ *
+ * Calibrated to zero violations at the commit that added it: the compile classpath resolves to four
+ * artifacts, and the only `java.*` imports outside `viewer/` are `ByteArrayOutputStream`, `java.util.Arrays`,
+ * `Locale`, `java.util.concurrent.*` and `java.util.zip.*` - a buffer, a formatter and a thread pool, none of
+ * them I/O.
+ *
+ * `java.nio.ByteBuffer` is deliberately **not** banned while `java.nio.file` is: the ban is on reaching the
+ * outside world, not on binary data, and a future codec has every right to a buffer. The pattern matches a
+ * fully-qualified call as well as an import, because `java.io.File(path)` with no import is how the rule gets
+ * bypassed by accident - `viewer/TownMain` writes its PNG exactly that way.
+ */
+def allowedCompileArtifacts = ['kotlin-stdlib', 'kotlin-stdlib-jdk7', 'kotlin-stdlib-jdk8', 'annotations'] as Set
+
+def bannedOutsideViewer = [
+        'java.io.File' : 'the filesystem',
+        'java.nio.file': 'the filesystem',
+        'java.net'     : 'the network',
+        'java.awt'     : 'AWT',
+        'javax.swing'  : 'Swing',
+        'javax.imageio': 'ImageIO',
+]
+
+tasks.register('checkBoundaries') {
+    group = 'verification'
+    description = 'Fails if worldgen gains a dependency, or touches the filesystem outside viewer/'
+
+    def classpath = configurations.named('compileClasspath')
+    def scanned = fileTree('src/main/kotlin/net/bestia/worldgen') {
+        include '**/*.kt'
+        exclude 'viewer/**'
+    }
+    inputs.files(scanned)
+    inputs.property('allowed', allowedCompileArtifacts.sort().join(','))
+
+    doLast {
+        def resolved = classpath.get().resolvedConfiguration.resolvedArtifacts
+                .collect { it.moduleVersion.id.name }
+                .toSet()
+        def extra = resolved - allowedCompileArtifacts
+        if (!extra.isEmpty()) {
+            throw new GradleException(
+                    "worldgen's compile classpath gained ${extra.sort()}.\n" +
+                    "This module is linked into zone-server and possibly the client, so it takes the Kotlin " +
+                    "stdlib and the JDK and nothing else. If you need to read a file or parse a format, hand " +
+                    "the module a String and let the caller do the I/O - see store/ChunkCache.kt's " +
+                    "ChunkBlobStore, which exists for exactly this reason.")
+        }
+
+        def offences = []
+        scanned.each { file ->
+            file.eachLine('UTF-8') { line, number ->
+                bannedOutsideViewer.each { prefix, what ->
+                    def quoted = java.util.regex.Pattern.quote(prefix)
+                    if (line ==~ /^\s*import\s+${quoted}.*/ || line =~ /${quoted}[\w.]*\s*\(/) {
+                        offences << "  ${file.name}:${number} reaches ${what} - ${line.trim()}"
+                    }
+                }
+            }
+        }
+        if (!offences.isEmpty()) {
+            throw new GradleException(
+                    "worldgen touches the outside world outside viewer/:\n" +
+                    offences.join('\n') + '\n' +
+                    "Everything outside viewer/ is a pure function over plain data. Move the I/O to the " +
+                    "caller, or to viewer/, which is the one package allowed it and which nothing depends on.")
+        }
+    }
+}
+
+tasks.named('check') { dependsOn 'checkBoundaries' }
+
 /** Where zone-server's birth settings for the world it boots live. */
 def genesisSettings = rootProject.layout.projectDirectory
         .file('zone-server/src/main/resources/application.yml')
+
+/**
+ * Forwards the run-mode switches, which every worldgen task takes - including the two that take no world
+ * flags at all, which is why this is separate from worldArgs rather than part of it.
+ *
+ * These three are system properties rather than flags because they are switches on *how* the generator runs
+ * rather than on what world it makes, and they have to reach code (Grid, the flow solver) that never sees a
+ * WorldConfig. JavaExec forks, so a -D on the gradlew command line does not arrive on its own - hence the
+ * explicit forwarding.
+ *
+ *   -Ptimings          print the sub-stage breakdown that StageListener cannot see
+ *   -Pserial           force every parallel loop back onto one thread
+ *   -Pthreads=<n>      pin the worker count, for measuring how a change actually scales
+ *
+ * One closure rather than a copy per task: `invariants` and `bench` each grew their own and `bench` was
+ * missing -Ptimings, which is the worse half of the failure - the flag is accepted either way, so a tool
+ * that silently ignores it looks exactly like a tool where the switch made no difference. Declared before
+ * worldArgs because a Groovy closure resolves a script-level `def` at creation, not at call.
+ */
+def runModes = { task ->
+    if (project.hasProperty('timings')) task.systemProperty 'worldgen.timings', 'true'
+    if (project.hasProperty('serial')) task.systemProperty 'worldgen.parallel', 'false'
+    if (project.hasProperty('threads')) {
+        task.systemProperty 'worldgen.threads', project.property('threads')
+    }
+}
 
 /**
  * Forwards the world-shaping properties to the offline tools.
@@ -75,6 +180,10 @@ def genesisSettings = rootProject.layout.projectDirectory
  * `-Pcells` becomes the per-edge flags rather than `--cells` for the same reason. `--cells` and
  * `--width-cells` together are a contradiction WorldArgs rejects, and combining them is exactly what
  * `-Pgenesis -Pcells=256` would otherwise do.
+ *
+ * `-Pparams=<file>` is the two hundred tunables that are not WorldConfig fields. It is forwarded here, with the
+ * world flags, because it changes the terrain as surely as `-Pcells` does - a tool that took one and not the
+ * other could be pointed at half a generator.
  */
 def worldArgs = { task ->
     if (project.hasProperty('genesis')) {
@@ -85,20 +194,9 @@ def worldArgs = { task ->
         task.args '--width-cells', project.property('cells')
         task.args '--height-cells', project.property('cells')
     }
+    if (project.hasProperty('params')) task.args '--params', project.property('params')
 
-    // These three are read as system properties rather than flags because they are switches on *how* the
-    // generator runs rather than on what world it makes, and the run modes have to reach code (Grid, the
-    // flow solver) that never sees a WorldConfig. JavaExec forks, so a -D on the gradlew command line does
-    // not arrive on its own - hence the explicit forwarding.
-    //
-    //   -Ptimings          print the sub-stage breakdown that StageListener cannot see
-    //   -Pserial           force every parallel loop back onto one thread
-    //   -Pthreads=<n>      pin the worker count, for measuring how a change actually scales
-    if (project.hasProperty('timings')) task.systemProperty 'worldgen.timings', 'true'
-    if (project.hasProperty('serial')) task.systemProperty 'worldgen.parallel', 'false'
-    if (project.hasProperty('threads')) {
-        task.systemProperty 'worldgen.threads', project.property('threads')
-    }
+    runModes(task)
 }
 
 /**
@@ -137,9 +235,8 @@ tasks.register('bench', JavaExec) {
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     if (project.hasProperty('cells')) args '--cells', project.property('cells')
     if (project.hasProperty('reps')) args '--reps', project.property('reps')
-    if (project.hasProperty('threads')) {
-        systemProperty 'worldgen.threads', project.property('threads')
-    }
+    // -Pserial arrives here too, and BenchMain refuses it rather than silently comparing serial to serial.
+    runModes(it)
 }
 
 /** Same world, rendered to PNGs - works over SSH and in CI: `./gradlew :worldgen:viewerExport`. */
@@ -252,21 +349,29 @@ tasks.register('chronicle', JavaExec) {
  *
  * Worldgen bugs are rare-seed bugs, so the sweep is the tool that actually finds them - the unit tests
  * cover a handful of seeds, and the failures that matter show up in one world in a few hundred.
+ *
+ * It is also where a candidate params file is judged, since the land-fraction and lake distributions it prints
+ * are the acceptance criterion for a tuning change:
+ *
+ * ```
+ * ./gradlew :worldgen:invariants -Pseeds=200 -Pparams=my.params
+ * ```
+ *
+ * `worldArgs` rather than its own `--cells`: the sweep had a three-line argument parser that ignored every flag
+ * it did not know, so `-Pgenesis` was accepted and discarded. Note `worldArgs` translates `-Pcells` into the
+ * per-edge flags, which is what keeps it from colliding with `-Pgenesis`.
  */
 tasks.register('invariants', JavaExec) {
     group = 'worldgen'
     description = 'Generates N worlds and checks the regression invariants on each'
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'net.bestia.worldgen.pipeline.InvariantsMain'
+    mainClass = 'net.bestia.worldgen.viewer.InvariantsMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     args '--seeds', project.findProperty('seeds') ?: '25'
-    args '--cells', project.findProperty('cells') ?: '192'
     if (project.hasProperty('firstSeed')) {
         args '--first-seed', project.property('firstSeed')
     }
-    // -Ptimings, -Pserial and -Pthreads, same as the viewer tasks. The sweep builds one world per core,
-    // so -Pserial here is the difference between a coffee and a glance at the screen.
-    if (project.hasProperty('timings')) systemProperty 'worldgen.timings', 'true'
-    if (project.hasProperty('serial')) systemProperty 'worldgen.parallel', 'false'
-    if (project.hasProperty('threads')) systemProperty 'worldgen.threads', project.property('threads')
+    // Brings -Pcells, -Pgenesis, -Pparams and the run modes. -Pserial here is the difference between a coffee
+    // and a glance at the screen, since the sweep builds one world per core.
+    worldArgs(it)
 }

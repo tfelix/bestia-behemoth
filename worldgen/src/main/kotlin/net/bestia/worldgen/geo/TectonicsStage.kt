@@ -6,6 +6,9 @@ import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -37,10 +40,15 @@ import kotlin.math.sqrt
 /**
  * Tuning for [TectonicsStage].
  *
- * A params object rather than constants in the stage, and rather than fields on `WorldConfig`. These
- * are the numbers a designer changes to make a world archipelagic or continental, and they belong in
- * data - loaded and validated at startup - not in code. Keeping them in one serialisable type now is
- * what makes that later change a deserialiser rather than a refactor.
+ * A params object rather than constants in the stage, and rather than fields on `WorldConfig`. These are the
+ * numbers a designer changes to make a world archipelagic or continental, so they are **loadable from a params
+ * file** - `./gradlew :worldgen:invariants -Pparams=my.params` - and validated on construction by the `init`
+ * block below. See [overriddenBy] for the loader and `core/ParamsText.kt` for the format.
+ *
+ * They are deliberately not `WorldConfig` fields. A field there has to join `shapeVersion`'s explicit list and
+ * then `PersistedWorld`, `WorldConfigMapping`, `WorldGenSettings.FLAGS` and `WorldArgs` all need it - four files
+ * and a database column each. Params ride `pipelineVersion` instead, which is already a persisted column, so
+ * the whole set costs nothing new.
  */
 data class TectonicsParams(
 
@@ -151,14 +159,58 @@ data class TectonicsParams(
 
   /** Islands per hotspot chain. */
   val hotspotChainLength: Int = 7
-) {
+) : Params {
   init {
+    // Null means "derived from the world's size", which is a value the file format spells `default` - so the
+    // constraint is on the number when there is one, not on its presence.
+    plateSpacing?.let { require(it > 0.0) { "plateSpacing must be positive when set, was $it" } }
     require(oceanicShare in 0.0..1.0) { "oceanicShare must be in [0,1], was $oceanicShare" }
     require(targetLandFraction in 0.01..0.99) {
       "targetLandFraction must be in (0,1), was $targetLandFraction"
     }
+    require(oceanBorderDepth >= 0.0) { "oceanBorderDepth must not be negative, was $oceanBorderDepth" }
+    require(oceanBorderWobble >= 0.0) { "oceanBorderWobble must not be negative, was $oceanBorderWobble" }
+    require(reliefWavelength > 0.0) { "reliefWavelength must be positive, was $reliefWavelength" }
+    require(interiorRelief >= 0.0) { "interiorRelief must not be negative, was $interiorRelief" }
+    require(continentalSwell >= 0.0) { "continentalSwell must not be negative, was $continentalSwell" }
+    require(orogenicRelief >= 0.0) { "orogenicRelief must not be negative, was $orogenicRelief" }
+    hotspotSpacing?.let { require(it > 0.0) { "hotspotSpacing must be positive when set, was $it" } }
     require(hotspotChainLength >= 1) { "hotspotChainLength must be at least 1" }
   }
+
+  /**
+   * This object with whatever a params file overrides, in one `copy` so `init` sees a consistent set.
+   *
+   * One call rather than a field at a time, because `copy` re-runs `init` and the cross-field constraints would
+   * fail on an intermediate state - `targetLandFraction` alone is fine, but a class whose `min` is applied
+   * before its `max` would reject the very file that sets both correctly.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    plateSpacing = source.doubleOrDerived("plateSpacing", plateSpacing),
+    oceanicShare = source.double("oceanicShare", oceanicShare),
+    targetLandFraction = source.double("targetLandFraction", targetLandFraction),
+    oceanBorderDepth = source.double("oceanBorderDepth", oceanBorderDepth),
+    oceanBorderWobble = source.double("oceanBorderWobble", oceanBorderWobble),
+    reliefWavelength = source.double("reliefWavelength", reliefWavelength),
+    interiorRelief = source.double("interiorRelief", interiorRelief),
+    continentalSwell = source.double("continentalSwell", continentalSwell),
+    orogenicRelief = source.double("orogenicRelief", orogenicRelief),
+    hotspotSpacing = source.doubleOrDerived("hotspotSpacing", hotspotSpacing),
+    hotspotChainLength = source.int("hotspotChainLength", hotspotChainLength)
+  )
+
+  override fun digest() = ParamsDigest()
+    .putOrDerived("plateSpacing", plateSpacing)
+    .put("oceanicShare", oceanicShare)
+    .put("targetLandFraction", targetLandFraction)
+    .put("oceanBorderDepth", oceanBorderDepth)
+    .put("oceanBorderWobble", oceanBorderWobble)
+    .put("reliefWavelength", reliefWavelength)
+    .put("interiorRelief", interiorRelief)
+    .put("continentalSwell", continentalSwell)
+    .put("orogenicRelief", orogenicRelief)
+    .putOrDerived("hotspotSpacing", hotspotSpacing)
+    .put("hotspotChainLength", hotspotChainLength)
 }
 
 /**
@@ -185,6 +237,8 @@ class TectonicsStage(
   //    over the whole world after the margin rather than over the interior before it.
   // 4: hotspot tracks curve, so a chain crossing a continent is no longer a ruled line.
   override val version = 4
+
+  override val paramsVersion get() = params.digest().value
   override val dependencies: List<StageId> = emptyList()
   override val scale = StageScale.WORLD
 

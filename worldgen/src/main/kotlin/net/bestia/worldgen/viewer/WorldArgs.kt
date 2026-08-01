@@ -1,8 +1,40 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.pipeline.WorldParams
+import java.io.File
 import java.util.Locale
+
+/**
+ * A resolved set of tunables, with where they came from.
+ *
+ * The [summary] line is the point of the params-file work rather than a nicety. Two hundred tunables in a file
+ * mean two people can generate different worlds from the same seed, and until this printed there was nothing in
+ * any output that could tell them apart - in the one subsystem whose entire debugging method is comparing two
+ * runs. A version, an origin and the list of keys that moved turns "these disagree" into a diff.
+ */
+class Tuning(val params: WorldParams, val origin: String, val overrides: List<String>) {
+
+  /**
+   * One line: the fingerprint, where it came from, and what it changed.
+   *
+   * Hex because the number is an opaque identifier to be compared by eye against another run's, and sixteen
+   * fixed digits compare better than a signed decimal of varying length. `Locale.ROOT` for the same reason
+   * [WorldArgs.summary] uses it - a diagnostic read beside a source file must not render numbers differently
+   * from it.
+   */
+  fun summary(): String = buildString {
+    append("params ${"%016x".format(Locale.ROOT, params.version)}")
+    append(" chunk ${"%016x".format(Locale.ROOT, params.chunkTierVersion)}")
+    append(" from $origin")
+    if (overrides.isNotEmpty()) {
+      append(", ${overrides.size} override(s): ")
+      append(overrides.joinToString(" "))
+    }
+  }
+}
 
 /**
  * The command line the offline tools share: which world to run on, and nothing else.
@@ -29,7 +61,7 @@ class WorldArgs(
 ) {
 
   init {
-    val known = WORLD_FLAGS + extraFlags
+    val known = WORLD_FLAGS + GENERATOR_FLAGS + extraFlags
     val unknown = args.filter { it.startsWith("--") && it !in known }
 
     require(unknown.isEmpty()) {
@@ -97,6 +129,27 @@ class WorldArgs(
     return config
   }
 
+  /**
+   * The generator tuning: a params file if `--params` was given, the defaults otherwise.
+   *
+   * **This is the one place in the module that opens a file**, along with the image writers, and it is why
+   * `ParamsText.parse` takes text rather than a path: `checkBoundaries` forbids `java.io` outside this package,
+   * so the parser stays in `core` where the stages can reach it and the reading stays here.
+   *
+   * Returns the summary alongside the params rather than offering a second method for it, because computing the
+   * override list requires the file to have been *loaded* - the overrides are the keys a loader consumed - and
+   * two calls would mean parsing twice and reporting on the wrong one.
+   */
+  fun tuning(base: WorldParams = WorldParams.DEFAULT): Tuning {
+    val path = value(PARAMS) ?: return Tuning(base, "defaults", emptyList())
+
+    val file = File(path)
+    require(file.isFile) { "$PARAMS: no such file '$path'" }
+
+    val text = ParamsText.parse(file.readText(), path)
+    return Tuning(WorldParams.load(text, base), path, text.consumedKeys)
+  }
+
   private fun reject(flag: String, raw: String, expected: String): Nothing =
     throw IllegalArgumentException("$flag expects $expected, got '$raw'")
 
@@ -130,6 +183,19 @@ class WorldArgs(
       SEED, CELLS, WIDTH_CELLS, HEIGHT_CELLS, CELL_SIZE, SEA_LEVEL,
       CHUNK_SIZE, CHUNK_HEIGHT, VOXEL_SIZE, WRAP_X, WRAP_Y, DETAIL_SCALE, OCEAN_BORDER
     )
+
+    /** A params file: the two hundred tunables that are not `WorldConfig` fields. See [tuning]. */
+    const val PARAMS = "--params"
+
+    /**
+     * Flags that change the terrain without being [WorldConfig] fields.
+     *
+     * A separate set from [WORLD_FLAGS] on purpose, and the separation is load bearing rather than tidy:
+     * `WORLD_FLAGS` is required to stay *exactly* complete against [WorldConfig.shapeVersion], and a params
+     * file is not in that hash - it rides `pipelineVersion` instead. Putting `--params` in there would make the
+     * completeness claim false in a way no test could state.
+     */
+    val GENERATOR_FLAGS = setOf(PARAMS)
 
     /**
      * One line naming the world, for the console and the window title.

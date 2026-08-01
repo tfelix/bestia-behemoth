@@ -105,6 +105,16 @@ object Invariants {
     config: (Long) -> WorldConfig = { StandardWorld.demoConfig(it) },
 
     /**
+     * The tuning every world in the sweep is built with.
+     *
+     * Here rather than defaulted inside the loop because judging a tuning change *is* what the sweep is for:
+     * a candidate params file is accepted or rejected on what it does to the land-fraction and lake
+     * distributions over a few hundred worlds. A sweep that quietly built the defaults while a file was on the
+     * command line would report the wrong generator's figures, which is worse than not reading the file.
+     */
+    params: WorldParams = WorldParams.DEFAULT,
+
+    /**
      * Called once per world, with the world itself so a caller can measure it.
      *
      * The world is passed because a sweep is the only place the seed-to-seed *spread* of anything is
@@ -126,7 +136,7 @@ object Invariants {
       // layer, and they read the world without touching it.
       val built = Parallel.map(size) { k ->
         val seed = firstSeed + offset + k
-        val generated = StandardWorld.build(config(seed), StageListener.NONE)
+        val generated = StandardWorld.build(config(seed), StageListener.NONE, params)
         Triple(seed, Report(1, check(generated)), generated)
       }
 

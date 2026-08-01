@@ -6,6 +6,8 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -162,7 +164,7 @@ data class HydrologyParams(
 
   /** Confluence smoothing disc radius, as a multiple of the joined channel's width. */
   val confluenceRadiusFactor: Double = 1.7
-) {
+) : Params {
   init {
     require(runoffCoefficient in 0.0..1.0) { "runoffCoefficient must be in [0,1]" }
     require(channelCatchmentArea > 0.0) { "channelCatchmentArea must be positive" }
@@ -170,7 +172,48 @@ data class HydrologyParams(
     require(minChannelWidthVoxels >= 0.0 && minChannelDepthVoxels >= 0.0) {
       "channel gauge floors must not be negative"
     }
+    require(aridityExponent.isFinite()) { "aridityExponent must be finite, was $aridityExponent" }
+    require(channelSlopeExponent.isFinite()) {
+      "channelSlopeExponent must be finite, was $channelSlopeExponent"
+    }
+    // A factor applied either way, so below 1 it would invert into a *narrowing* of the threshold band and
+    // the clamp its KDoc describes would stop being a clamp.
+    require(channelSlopeRange >= 1.0) { "channelSlopeRange must be at least 1, was $channelSlopeRange" }
+    require(evaporationDepth >= 0.0) { "evaporationDepth must not be negative, was $evaporationDepth" }
+    require(widthCoefficient > 0.0) { "widthCoefficient must be positive, was $widthCoefficient" }
+    require(depthCoefficient > 0.0) { "depthCoefficient must be positive, was $depthCoefficient" }
+    require(shoulderCoefficient >= 0.0) { "shoulderCoefficient must not be negative, was $shoulderCoefficient" }
+    require(meanderWidthFactor >= 0.0) { "meanderWidthFactor must not be negative, was $meanderWidthFactor" }
+    require(meanderAmplitudeCap >= 0.0) { "meanderAmplitudeCap must not be negative, was $meanderAmplitudeCap" }
+    // A divisor of the meander wavelength, and a zero wavelength is an infinite-frequency sine along every
+    // river in the world.
+    require(meanderWavelengthFactor > 0.0) {
+      "meanderWavelengthFactor must be positive, was $meanderWavelengthFactor"
+    }
+    require(minReachLength >= 0.0) { "minReachLength must not be negative, was $minReachLength" }
+    require(confluenceRadiusFactor >= 0.0) {
+      "confluenceRadiusFactor must not be negative, was $confluenceRadiusFactor"
+    }
   }
+
+  override fun digest() = ParamsDigest()
+    .put("runoffCoefficient", runoffCoefficient)
+    .put("channelCatchmentArea", channelCatchmentArea)
+    .put("aridityExponent", aridityExponent)
+    .put("channelSlopeExponent", channelSlopeExponent)
+    .put("channelSlopeRange", channelSlopeRange)
+    .put("evaporationDepth", evaporationDepth)
+    .put("widthCoefficient", widthCoefficient)
+    .put("depthCoefficient", depthCoefficient)
+    .put("shoulderCoefficient", shoulderCoefficient)
+    .put("minChannelWidthVoxels", minChannelWidthVoxels)
+    .put("minChannelDepthVoxels", minChannelDepthVoxels)
+    .put("stationSpacing", stationSpacing)
+    .put("meanderWidthFactor", meanderWidthFactor)
+    .put("meanderAmplitudeCap", meanderAmplitudeCap)
+    .put("meanderWavelengthFactor", meanderWavelengthFactor)
+    .put("minReachLength", minReachLength)
+    .put("confluenceRadiusFactor", confluenceRadiusFactor)
 }
 
 /**
@@ -195,6 +238,8 @@ class HydrologyStage(
   // 2: channel initiation reads slope as well as catchment area, so heads sit in the uplands.
   // 3: routes over the glacially carved surface, so rivers inherit trough floors and ribbon lakes form.
   override val version = 3
+
+  override val paramsVersion get() = params.digest().value
 
   /**
    * Note **glacial**, which is what makes a post-glacial river run down the trough it should have inherited.

@@ -16,7 +16,9 @@ class WorldGenPipelineTest {
     override val scale: StageScale = StageScale.WORLD,
     private val fill: Float = 1f,
     private val alsoRead: LayerId? = null,
-    private val declareOutput: Boolean = true
+    private val declareOutput: Boolean = true,
+    /** A test stage has no params; the tests that care about the version vector set this explicitly. */
+    override val paramsVersion: Long = 0L
   ) : Stage {
 
     override val id = StageId(name)
@@ -124,6 +126,7 @@ class WorldGenPipelineTest {
     val liar = object : Stage {
       override val id = StageId("liar")
       override val version = 1
+      override val paramsVersion = 0L
       override val dependencies = emptyList<StageId>()
       override val scale = StageScale.WORLD
       override val resolution = Resolution.KILOMETRE

@@ -3,6 +3,8 @@ package net.bestia.worldgen.geo
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.fields.Noise
 import net.bestia.worldgen.vector.PolylineFeature
 import kotlin.math.sqrt
@@ -26,7 +28,26 @@ data class DetailParams(
 
   /** Fraction of the detail amplitude that survives on the deep sea floor. */
   val marineDamping: Double = 0.35
-)
+) : Params {
+
+  init {
+    require(wavelength > 0.0) { "wavelength must be positive, was $wavelength" }
+    require(amplitude >= 0.0) { "amplitude must not be negative, was $amplitude" }
+    require(ridgeWavelength > 0.0) { "ridgeWavelength must be positive, was $ridgeWavelength" }
+    require(ridgeAmplitude >= 0.0) { "ridgeAmplitude must not be negative, was $ridgeAmplitude" }
+    // The slope at which ridge detail saturates, used as a divisor.
+    require(ridgeSlope > 0.0) { "ridgeSlope must be positive, was $ridgeSlope" }
+    require(marineDamping in 0.0..1.0) { "marineDamping must be in [0,1], was $marineDamping" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("wavelength", wavelength)
+    .put("amplitude", amplitude)
+    .put("ridgeWavelength", ridgeWavelength)
+    .put("ridgeAmplitude", ridgeAmplitude)
+    .put("ridgeSlope", ridgeSlope)
+    .put("marineDamping", marineDamping)
+}
 
 /**
  * The continuous base heightfield the chunk tier lifts: the coarse raster, bicubically interpolated,

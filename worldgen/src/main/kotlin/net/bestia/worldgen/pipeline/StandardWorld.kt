@@ -92,26 +92,35 @@ class GeneratedWorld(
  */
 object StandardWorld {
 
-  /** Every stage of the world tier, in declaration order; the pipeline sorts them itself. */
-  fun stages(config: WorldConfig): List<Stage> {
+  /**
+   * Every stage of the world tier, in declaration order; the pipeline sorts them itself.
+   *
+   * The one place the twelve stages are constructed, and therefore the one place tuning has to be threaded.
+   * Every stage has always taken a params object and no caller ever supplied one, so this list is where a
+   * params file becomes a world - see [WorldParams], whose `resolved` form is used rather than its declared
+   * one so that a value shared by two stages is forwarded rather than defaulted twice.
+   */
+  fun stages(config: WorldConfig, params: WorldParams = WorldParams.DEFAULT): List<Stage> {
     val base = config.baseResolution
+    val p = params.resolved
     return listOf(
-      TectonicsStage(base),
-      ClimateStage(climateResolutionFor(config)),
-      ErosionStage(base),
-      HydrologyStage(base),
-      BiomeStage(base),
-      GlacialStage(base),
-      ResourceStage(base),
-      HabitabilityStage(base),
-      SettlementStage(base),
-      HistoryStage(base),
-      TownStage(base),
-      EconomyStage(base)
+      TectonicsStage(base, p.tectonics),
+      ClimateStage(climateResolutionFor(config), p.climate),
+      ErosionStage(base, p.erosion),
+      HydrologyStage(base, p.hydrology),
+      BiomeStage(base, p.biome),
+      GlacialStage(base, p.glacial),
+      ResourceStage(base, p.resource),
+      HabitabilityStage(base, p.habitability),
+      SettlementStage(base, p.settlement),
+      HistoryStage(base, p.history),
+      TownStage(base, p.town),
+      EconomyStage(base, p.economy)
     )
   }
 
-  fun pipeline(config: WorldConfig) = WorldGenPipeline(stages(config))
+  fun pipeline(config: WorldConfig, params: WorldParams = WorldParams.DEFAULT) =
+    WorldGenPipeline(stages(config, params), params.chunkTierVersion)
 
   /**
    * Runs the world tier and assembles the chunk samplers on top of it.
@@ -122,23 +131,26 @@ object StandardWorld {
   fun build(
     config: WorldConfig,
     listener: StageListener = StageListener.NONE,
-    droplets: DropletParams = DropletParams()
+    params: WorldParams = WorldParams.DEFAULT
   ): GeneratedWorld {
-    val world = pipeline(config).generateWorld(config, listener)
-    return assemble(world, droplets)
+    val world = pipeline(config, params).generateWorld(config, listener)
+    return assemble(world, params)
   }
 
   /**
    * The chunk tier for an already-generated world. Separate so a cached world tier can be reused.
    *
-   * [droplets] is a **stage-style param rather than a `WorldConfig` field**, deliberately. A `WorldConfig`
-   * field that decides terrain has to join `shapeVersion`'s explicit list and then `PersistedWorld`,
-   * `WorldConfigMapping`, `WorldGenSettings.FLAGS` and `WorldArgs` all need it - four files and a database
-   * column for a feature that ships off. A param keeps the decision at the call site, which is where the
-   * one caller that turns it on lives.
+   * Tuning arrives as [WorldParams] rather than as `WorldConfig` fields, deliberately, and the reasoning is
+   * worth keeping because it is what the whole params-file design rests on. A `WorldConfig` field that decides
+   * terrain has to join `shapeVersion`'s explicit list and then `PersistedWorld`, `WorldConfigMapping`,
+   * `WorldGenSettings.FLAGS` and `WorldArgs` all need it - four files and a database column each. Params ride
+   * `pipelineVersion` instead, which is *already* a persisted column, so the whole set costs nothing new: the
+   * server stores the number that identifies the generator and compares it on every boot, and no individual
+   * tunable needs a home in the schema.
    */
-  fun assemble(world: World, droplets: DropletParams = DropletParams()): GeneratedWorld {
+  fun assemble(world: World, params: WorldParams = WorldParams.DEFAULT): GeneratedWorld {
     val config = world.config
+    val p = params.resolved
     val elevation = world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val hardness = world.layers.require<FloatLayer>(LayerId.ROCK_HARDNESS)
 
@@ -146,13 +158,14 @@ object StandardWorld {
       elevation = elevation,
       hardness = hardness,
       seed = config.seed,
-      seaLevel = config.seaLevel
+      seaLevel = config.seaLevel,
+      params = p.detail
     )
 
     // Wrapped, not replaced: with droplets off this returns the analytic field's own value bit for bit, so the
     // default path is exactly what it was. See DropletHeightField for why the wrapper cannot introduce a seam.
-    val base: BaseHeightField = if (droplets.enabled) {
-      DropletHeightField(analytic, config.seed, droplets)
+    val base: BaseHeightField = if (p.droplets.enabled) {
+      DropletHeightField(analytic, config.seed, p.droplets)
     } else {
       analytic
     }
@@ -167,7 +180,8 @@ object StandardWorld {
         hardness = hardness,
         plateId = world.layers.require(LayerId.PLATE_ID),
         seed = config.seed,
-        seaLevel = config.seaLevel
+        seaLevel = config.seaLevel,
+        params = p.strata
       ),
       surface = SurfaceSampler(
         biome = world.layers.require(LayerId.BIOME),

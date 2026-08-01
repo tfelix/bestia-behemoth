@@ -1,6 +1,7 @@
 package net.bestia.worldgen.history
 
 import net.bestia.worldgen.bio.BiomeStage
+import net.bestia.worldgen.civ.Culture
 import net.bestia.worldgen.civ.HabitabilityStage
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementStage
@@ -8,6 +9,7 @@ import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.Chronicle
+import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
@@ -60,6 +62,8 @@ class HistoryStage(
 
   // 2: mines, monasteries, forts and lighthouses are founded and emitted.
   override val version = 2
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID, SettlementStage.ID

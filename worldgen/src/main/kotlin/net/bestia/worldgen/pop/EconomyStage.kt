@@ -16,6 +16,8 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -99,7 +101,43 @@ data class EconomyParams(
 
   /** Metres from a settlement within which a roadside inn is redundant: the town has its own. */
   val innClearance: Double = 6_000.0
-)
+) : Params {
+
+  init {
+    require(residentsPerSquareKilometre > 0.0) {
+      "residentsPerSquareKilometre must be positive, was $residentsPerSquareKilometre"
+    }
+    require(residentsPerSquareKilometreOfWater >= 0.0) {
+      "residentsPerSquareKilometreOfWater must not be negative, was $residentsPerSquareKilometreOfWater"
+    }
+    // Positive, but deliberately *not* ordered by tier. A world where a hamlet out-farms a city is a strange
+    // world rather than a broken one, and forbidding it here would reject the experiment that finds out.
+    require(cityCatchment > 0.0) { "cityCatchment must be positive, was $cityCatchment" }
+    require(townCatchment > 0.0) { "townCatchment must be positive, was $townCatchment" }
+    require(villageCatchment > 0.0) { "villageCatchment must be positive, was $villageCatchment" }
+    require(hamletCatchment > 0.0) { "hamletCatchment must be positive, was $hamletCatchment" }
+    require(resourceRange >= 0.0) { "resourceRange must not be negative, was $resourceRange" }
+    require(roadReach >= 0.0) { "roadReach must not be negative, was $roadReach" }
+    require(peoplePerHousehold > 0.0) { "peoplePerHousehold must be positive, was $peoplePerHousehold" }
+    require(peoplePerBusiness > 0.0) { "peoplePerBusiness must be positive, was $peoplePerBusiness" }
+    require(innSpacing > 0.0) { "innSpacing must be positive, was $innSpacing" }
+    require(innClearance >= 0.0) { "innClearance must not be negative, was $innClearance" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("residentsPerSquareKilometre", residentsPerSquareKilometre)
+    .put("residentsPerSquareKilometreOfWater", residentsPerSquareKilometreOfWater)
+    .put("cityCatchment", cityCatchment)
+    .put("townCatchment", townCatchment)
+    .put("villageCatchment", villageCatchment)
+    .put("hamletCatchment", hamletCatchment)
+    .put("resourceRange", resourceRange)
+    .put("roadReach", roadReach)
+    .put("peoplePerHousehold", peoplePerHousehold)
+    .put("peoplePerBusiness", peoplePerBusiness)
+    .put("innSpacing", innSpacing)
+    .put("innClearance", innClearance)
+}
 
 /**
  * Step 9: the economy, and the people it implies.
@@ -131,6 +169,8 @@ class EconomyStage(
 
   override val id = ID
   override val version = 1
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), BusinessCatalogue.digest())
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID,
     SettlementStage.ID, HistoryStage.ID, TownStage.ID

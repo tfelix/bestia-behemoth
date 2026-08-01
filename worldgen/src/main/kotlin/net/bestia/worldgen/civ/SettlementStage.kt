@@ -8,6 +8,8 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -76,7 +78,36 @@ data class SettlementParams(
 
   /** Widest river a road will bridge. Anything wider needs a ferry, which is not a vector feature. */
   val maxBridgeSpan: Double = 260.0
-)
+) : Params {
+
+  init {
+    // The divisor of the city count, and everything else is derived from that count, so zero empties the
+    // world of people entirely rather than of cities only.
+    require(areaPerCity > 0.0) { "areaPerCity must be positive, was $areaPerCity" }
+    require(townsPerCity >= 0.0) { "townsPerCity must not be negative, was $townsPerCity" }
+    require(villagesPerTown >= 0.0) { "villagesPerTown must not be negative, was $villagesPerTown" }
+    require(hamletsPerVillage >= 0.0) { "hamletsPerVillage must not be negative, was $hamletsPerVillage" }
+    require(minHabitability in 0.0..1.0) { "minHabitability must be in [0,1], was $minHabitability" }
+    require(networkBonus >= 0.0) { "networkBonus must not be negative, was $networkBonus" }
+    require(roadSpacing > 0.0) { "roadSpacing must be positive, was $roadSpacing" }
+    require(maxCut >= 0.0) { "maxCut must not be negative, was $maxCut" }
+    require(maxFill >= 0.0) { "maxFill must not be negative, was $maxFill" }
+    require(maxBridgeSpan >= 0.0) { "maxBridgeSpan must not be negative, was $maxBridgeSpan" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .nested("habitability", habitability.digest().value)
+    .put("areaPerCity", areaPerCity)
+    .put("townsPerCity", townsPerCity)
+    .put("villagesPerTown", villagesPerTown)
+    .put("hamletsPerVillage", hamletsPerVillage)
+    .put("minHabitability", minHabitability)
+    .put("networkBonus", networkBonus)
+    .put("roadSpacing", roadSpacing)
+    .put("maxCut", maxCut)
+    .put("maxFill", maxFill)
+    .put("maxBridgeSpan", maxBridgeSpan)
+}
 
 /**
  * Stage 8: settlements, the trade network, and the roads that realise it.
@@ -105,6 +136,8 @@ class SettlementStage(
   // 2: settlement markers carry SettlementChannels.INDEX, the join key for steps 8 to 10.
   // 3: pairs a road cannot reach get a SEA_LANE, so the trade network spans water.
   override val version = 3
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, HabitabilityStage.ID

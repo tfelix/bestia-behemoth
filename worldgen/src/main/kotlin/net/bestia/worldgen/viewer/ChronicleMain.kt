@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.SiteKind
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.pipeline.StandardWorld
 import java.util.Locale
@@ -46,8 +47,11 @@ object ChronicleMain {
       StandardWorld.demoConfig().copy(widthCells = 192, heightCells = 192)
     )
 
+    val tuning = cli.tuning()
     println("world ${WorldArgs.summary(config)}")
-    val generated = StandardWorld.build(config)
+    println("  ${tuning.summary()}")
+    val generated = StandardWorld.build(config, params = tuning.params)
+    Timings.printAndReset()
     val chronicle = generated.world.chronicle
 
     if (chronicle.events.isEmpty()) {

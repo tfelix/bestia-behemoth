@@ -1,5 +1,6 @@
 package net.bestia.worldgen.resource
 
+import net.bestia.worldgen.core.ParamsDigest
 /**
  * What can be dug, felled or panned out of the ground.
  *
@@ -44,6 +45,22 @@ enum class ResourceType(val label: String) {
       STONE, CLAY -> 0.15
       FISH -> 0.2
     }
+
+  companion object {
+
+    /**
+     * Fingerprint of the worth table.
+     *
+     * [value] feeds settlement scoring and the economy, so these eleven numbers move where cities go. Folded by
+     * name; the ordinals are explicitly *not* persisted anywhere (see this enum's own note), so their order is
+     * free and only the values matter.
+     */
+    fun catalogueDigest(): Long {
+      val digest = ParamsDigest()
+      for (type in entries) digest.put(type.name, type.value)
+      return digest.value
+    }
+  }
 }
 
 /** Station channel names on an [net.bestia.worldgen.vector.FeatureKind.ORE_DEPOSIT] marker. */

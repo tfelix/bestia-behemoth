@@ -13,6 +13,8 @@ import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
@@ -194,7 +196,102 @@ data class HistoryParams(
   val importanceFloor: Int = 40,
 
   val minorEventSampling: Int = 24
-)
+) : Params {
+
+  init {
+    require(years >= 0) { "years must not be negative, was $years" }
+    // A zero step is an infinite loop rather than a wrong world, which is the one failure mode here that
+    // does not announce itself.
+    require(yearsPerTick >= 1) { "yearsPerTick must be at least 1, was $yearsPerTick" }
+    require(growthRate >= 0.0) { "growthRate must not be negative, was $growthRate" }
+    require(technologyRate >= 0.0) { "technologyRate must not be negative, was $technologyRate" }
+    require(minFoundingHabitability in 0.0..1.0) {
+      "minFoundingHabitability must be in [0,1], was $minFoundingHabitability"
+    }
+    require(expansionPressure > 0.0) { "expansionPressure must be positive, was $expansionPressure" }
+    require(foundingChance in 0.0..1.0) { "foundingChance must be in [0,1], was $foundingChance" }
+    require(foundingsPerTick >= 0) { "foundingsPerTick must not be negative, was $foundingsPerTick" }
+    require(hostilityRate >= 0.0) { "hostilityRate must not be negative, was $hostilityRate" }
+    require(warThreshold > 0.0) { "warThreshold must be positive, was $warThreshold" }
+    require(contactRange >= 0.0) { "contactRange must not be negative, was $contactRange" }
+    require(minWarYears in 0..maxWarYears) {
+      "minWarYears $minWarYears must be in [0, maxWarYears $maxWarYears]"
+    }
+    require(wallPopulation >= 0) { "wallPopulation must not be negative, was $wallPopulation" }
+
+    require(mineRichness in 0.0..1.0) { "mineRichness must be in [0,1], was $mineRichness" }
+    require(mineDepth > 0.0) { "mineDepth must be positive, was $mineDepth" }
+    require(mineRange >= 0.0) { "mineRange must not be negative, was $mineRange" }
+    require(monasteryClearance >= 0.0) { "monasteryClearance must not be negative, was $monasteryClearance" }
+    require(fortClearance >= 0.0) { "fortClearance must not be negative, was $fortClearance" }
+    require(fortRange >= fortClearance) {
+      "fortRange $fortRange is inside fortClearance $fortClearance, so no fort site can satisfy both"
+    }
+    require(saddleSpan > 0.0) { "saddleSpan must be positive, was $saddleSpan" }
+    require(saddleRelief >= 0.0) { "saddleRelief must not be negative, was $saddleRelief" }
+    require(lighthouseRange >= 0.0) { "lighthouseRange must not be negative, was $lighthouseRange" }
+    require(lighthouseClearance >= 0.0) { "lighthouseClearance must not be negative, was $lighthouseClearance" }
+    require(siteFreeboard >= 0.0) { "siteFreeboard must not be negative, was $siteFreeboard" }
+    require(lighthouseFreeboard >= 0.0) { "lighthouseFreeboard must not be negative, was $lighthouseFreeboard" }
+    require(siteSeparation >= 0.0) { "siteSeparation must not be negative, was $siteSeparation" }
+    require(candidateStride > 0.0) { "candidateStride must be positive, was $candidateStride" }
+    require(maxCandidates >= 1) { "maxCandidates must be at least 1, was $maxCandidates" }
+    require(mineTechnology in 0.0..1.0) { "mineTechnology must be in [0,1], was $mineTechnology" }
+    require(monasteryTechnology in 0.0..1.0) { "monasteryTechnology must be in [0,1], was $monasteryTechnology" }
+    require(fortTechnology in 0.0..1.0) { "fortTechnology must be in [0,1], was $fortTechnology" }
+    require(lighthouseTechnology in 0.0..1.0) {
+      "lighthouseTechnology must be in [0,1], was $lighthouseTechnology"
+    }
+    require(builtSiteChance in 0.0..1.0) { "builtSiteChance must be in [0,1], was $builtSiteChance" }
+    require(builtSiteInterval >= 0) { "builtSiteInterval must not be negative, was $builtSiteInterval" }
+    require(yearsPerFigure >= 1) { "yearsPerFigure must be at least 1, was $yearsPerFigure" }
+    require(figureLifespan >= 1) { "figureLifespan must be at least 1, was $figureLifespan" }
+    require(importanceFloor >= 0) { "importanceFloor must not be negative, was $importanceFloor" }
+    // Sampling is `index % n == 0`, so zero would divide by zero and one keeps everything.
+    require(minorEventSampling >= 1) { "minorEventSampling must be at least 1, was $minorEventSampling" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("years", years)
+    .put("yearsPerTick", yearsPerTick)
+    .put("growthRate", growthRate)
+    .put("technologyRate", technologyRate)
+    .put("minFoundingHabitability", minFoundingHabitability)
+    .put("expansionPressure", expansionPressure)
+    .put("foundingChance", foundingChance)
+    .put("foundingsPerTick", foundingsPerTick)
+    .put("hostilityRate", hostilityRate)
+    .put("warThreshold", warThreshold)
+    .put("contactRange", contactRange)
+    .put("minWarYears", minWarYears)
+    .put("maxWarYears", maxWarYears)
+    .put("wallPopulation", wallPopulation)
+    .put("mineRichness", mineRichness)
+    .put("mineDepth", mineDepth)
+    .put("mineRange", mineRange)
+    .put("monasteryClearance", monasteryClearance)
+    .put("fortClearance", fortClearance)
+    .put("fortRange", fortRange)
+    .put("saddleSpan", saddleSpan)
+    .put("saddleRelief", saddleRelief)
+    .put("lighthouseRange", lighthouseRange)
+    .put("lighthouseClearance", lighthouseClearance)
+    .put("siteFreeboard", siteFreeboard)
+    .put("lighthouseFreeboard", lighthouseFreeboard)
+    .put("siteSeparation", siteSeparation)
+    .put("candidateStride", candidateStride)
+    .put("maxCandidates", maxCandidates)
+    .put("mineTechnology", mineTechnology)
+    .put("monasteryTechnology", monasteryTechnology)
+    .put("fortTechnology", fortTechnology)
+    .put("lighthouseTechnology", lighthouseTechnology)
+    .put("builtSiteChance", builtSiteChance)
+    .put("builtSiteInterval", builtSiteInterval)
+    .put("yearsPerFigure", yearsPerFigure)
+    .put("figureLifespan", figureLifespan)
+    .put("importanceFloor", importanceFloor)
+    .put("minorEventSampling", minorEventSampling)
+}
 
 /**
  * Step 10: the coarse-grained agent simulation that gives the world a past.

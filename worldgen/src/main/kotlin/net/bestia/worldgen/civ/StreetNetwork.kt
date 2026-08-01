@@ -1,6 +1,8 @@
 package net.bestia.worldgen.civ
 
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.vector.Intersections
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.Quantize
@@ -78,6 +80,28 @@ internal class StreetGraph(
   fun rankAt(node: Int): Int = incident[node].minOfOrNull { edges[it].rank } ?: Int.MAX_VALUE
 
   fun degreeOf(node: Int): Int = incident[node].size
+
+  /**
+   * Whether any two edges cross somewhere other than at a node they share - i.e. whether this graph is *not*
+   * planar as constructed.
+   *
+   * The property [StreetPlanner.planarise] iterates until this is false, and the one `LotPlanner` relies on
+   * when it rejects a plot that reaches across a street: a crossing with no node at it is a street the plot
+   * tests cannot see. `O(edges²)` with a bounding-box reject inside `segmentCrossing`, on a few hundred edges,
+   * and it runs once per round rather than per query.
+   */
+  fun hasCrossing(): Boolean {
+    for (i in edges.indices) {
+      for (j in i + 1 until edges.size) {
+        val a = edges[i]
+        val b = edges[j]
+        // Edges meeting at a shared node are the normal case and are not crossings.
+        if (a.a == b.a || a.a == b.b || a.b == b.a || a.b == b.b) continue
+        if (Intersections.segmentCrossing(nodes[a.a], nodes[a.b], nodes[b.a], nodes[b.b]) != null) return true
+      }
+    }
+    return false
+  }
 
   /**
    * Every street segment whose bounding box reaches [around], as `(a, b)` world positions.
@@ -179,8 +203,26 @@ internal class StreetGraph(
   }
 }
 
-/** Tuning for the street layout. */
-internal class StreetParams(
+/**
+ * Tuning for the street layout.
+ *
+ * Public, and it was not. It had a public mirror in `TownParams` - a `StreetParamsPublic` that copied seven of
+ * these nine fields and converted itself back - and the mirror had drifted: it declared `minRadials = 3` where
+ * this declared 4, and since every call went through the conversion, **4 and the reasoning written beside it
+ * had never once run.** `rings` and `ringVertices` were not on the mirror at all, so neither was reachable.
+ *
+ * The mirror existed to keep the layout internals out of the public API, which was a reasonable aim and cost
+ * more than it bought: two field lists that must agree, no compiler check that they do, and a silent winner
+ * when they disagree. This class is the one copy now, at the value that has actually been in effect (3).
+ * Whether 3 or 4 is the better town is a measurement, not a refactor - it wants its own change and a look at
+ * `./gradlew :worldgen:town`.
+ *
+ * `rings` is a `List<Double>` rather than a `DoubleArray` for a reason worth knowing: an array's `hashCode`
+ * and `toString` are identity-based, so a params class holding one cannot be fingerprinted - see
+ * [ParamsDigest]. It is read once per town, so boxing is irrelevant, and the list makes the constraint
+ * structural instead of a comment nobody reads.
+ */
+data class StreetParams(
   /** Metres per grown segment. Also the grid's block size. */
   val segmentLength: Double = 34.0,
   /** Radians a grown segment may wander from its parent's heading. */
@@ -190,7 +232,7 @@ internal class StreetParams(
   /** Metres within which a growing street snaps to an existing node instead of passing it. */
   val snapRadius: Double = 11.0,
   /** Fewest radial streets, however few roads arrive. A town with one road still has a crossroads. */
-  val minRadials: Int = 4,
+  val minRadials: Int = 3,
   val maxRadials: Int = 7,
   /**
    * Ring streets, as fractions of the built radius.
@@ -200,12 +242,41 @@ internal class StreetParams(
    * rendered town read as two concentric terraces with a field between them. A real town is densest at its
    * centre, and the cheapest way to get that is to give the centre streets to front onto.
    */
-  val rings: DoubleArray = doubleArrayOf(0.28, 0.55, 0.82),
+  val rings: List<Double> = listOf(0.28, 0.55, 0.82),
   /** Vertices per ring. Enough that a ring reads as a curve rather than a polygon. */
   val ringVertices: Int = 20,
   /** Deepest a grown street may go, in segments. */
   val maxDepth: Int = 9
-)
+) : Params {
+
+  init {
+    require(segmentLength > 0.0) { "segmentLength must be positive, was $segmentLength" }
+    require(angleJitter >= 0.0) { "angleJitter must not be negative, was $angleJitter" }
+    require(branchChance in 0.0..1.0) { "branchChance must be in [0,1], was $branchChance" }
+    require(snapRadius >= 0.0) { "snapRadius must not be negative, was $snapRadius" }
+    require(minRadials in 1..maxRadials) {
+      "minRadials $minRadials must be in [1, maxRadials $maxRadials]; a town with no radial has no streets"
+    }
+    // Fractions of the built radius, so a ring at or beyond 1.0 is outside the town it is meant to encircle.
+    require(rings.all { it > 0.0 && it < 1.0 }) {
+      "every ring must be a fraction of the built radius in (0,1), was $rings"
+    }
+    // Three vertices is the fewest that closes; below it a ring is a line and `planarise` welds it to nothing.
+    require(ringVertices >= 3) { "ringVertices must be at least 3, was $ringVertices" }
+    require(maxDepth >= 1) { "maxDepth must be at least 1, was $maxDepth" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("segmentLength", segmentLength)
+    .put("angleJitter", angleJitter)
+    .put("branchChance", branchChance)
+    .put("snapRadius", snapRadius)
+    .put("minRadials", minRadials)
+    .put("maxRadials", maxRadials)
+    .put("rings", rings)
+    .put("ringVertices", ringVertices)
+    .put("maxDepth", maxDepth)
+}
 
 /**
  * Lays out a town's streets: agent growth for an organic town, a clipped grid for a planned one.
@@ -466,18 +537,50 @@ internal object StreetPlanner {
    * the whole town - so the town gets a single enormous "block" and no buildings. Welding is on a
    * millimetre grid via [Quantize] rather than by float equality, for the usual reason: this is a decision
    * about whether two positions are the same place, and decisions do not get to be made on raw floats.
+   *
+   * ### One pass is not enough, and the reason is welding
+   *
+   * Measured over sixty seeds of an organic town, a single pass left **two to five per cent of seeds
+   * non-planar at every `minRadials` value** - and the single-seed test guarding this had simply drawn a good
+   * seed. The mechanism is the welding itself rather than the crossing arithmetic: snapping a node to the
+   * [WELD_UNITS] grid moves it by up to half a cell, and merging two nearby nodes moves an edge's end further
+   * still, so an edge can be dragged across a third edge it previously missed. Splitting cannot see a crossing
+   * that splitting created.
+   *
+   * So the pass runs to a **fixed point**: split, weld, and if any crossing survives, feed the resulting edges
+   * back in. Snap-rounding converges quickly because each round's displacement is bounded by half a weld cell
+   * and the surviving crossings are the ones that displacement created; [PLANARISE_ROUNDS] is a backstop, not
+   * an expectation. The measured round count is in the test.
+   *
+   * A crossing is also snapped **once** and the same [Vec2d] handed to both segments, so the two sides share a
+   * node by construction rather than by two roundings agreeing. On the sixty seeds above that changed nothing
+   * measurable on its own - the iteration is what fixes them - but it removes a hazard that only shows when a
+   * crossing lands near a cell boundary, which is precisely the case nothing else here would catch.
    */
   private fun planarise(segments: List<StreetSegment>): StreetGraph {
-    // Split points per segment, as parameters along it. 0 and 1 are always present.
-    val splits = Array(segments.size) { sortedSetOf(0.0, 1.0) }
+    var current = segments
+    repeat(PLANARISE_ROUNDS) {
+      val graph = planariseOnce(current)
+      if (!graph.hasCrossing()) return graph
+      current = graph.edges.map { StreetSegment(graph.nodes[it.a], graph.nodes[it.b], it.rank) }
+    }
+    return planariseOnce(current)
+  }
+
+  private fun planariseOnce(segments: List<StreetSegment>): StreetGraph {
+    // Split points per segment, keyed by parameter along it so they stay in order, valued by the *shared*
+    // welded position. 0 and 1 are always present, as the segment's own endpoints.
+    val splits = Array(segments.size) { i -> sortedMapOf(0.0 to segments[i].a, 1.0 to segments[i].b) }
 
     for (i in segments.indices) {
       for (j in i + 1 until segments.size) {
         val hit = Intersections.segmentCrossing(
           segments[i].a, segments[i].b, segments[j].a, segments[j].b
         ) ?: continue
-        splits[i].add(hit.second)
-        splits[j].add(hit.third)
+
+        val shared = Vec2d(Quantize.snap(hit.first.x, WELD_UNITS), Quantize.snap(hit.first.y, WELD_UNITS))
+        splits[i][hit.second] = shared
+        splits[j][hit.third] = shared
       }
     }
 
@@ -498,11 +601,13 @@ internal object StreetPlanner {
 
     for (i in segments.indices) {
       val segment = segments[i]
-      val cuts = splits[i].toList()
+      // In parameter order, so consecutive values are consecutive along the segment. The values are the
+      // welded crossing positions, shared with whichever segment produced each one.
+      val cuts = splits[i].values.toList()
 
       for (k in 0 until cuts.size - 1) {
-        val a = nodeAt(segment.a.lerp(segment.b, cuts[k]))
-        val b = nodeAt(segment.a.lerp(segment.b, cuts[k + 1]))
+        val a = nodeAt(cuts[k])
+        val b = nodeAt(cuts[k + 1])
         if (a == b) continue
 
         // A duplicate edge would appear twice in the incident ring and send the face traversal round a
@@ -526,6 +631,17 @@ internal object StreetPlanner {
    * Ten centimetres is far below anything a street cares about and far above the error.
    */
   private const val WELD_UNITS = 10.0
+
+  /**
+   * Cap on planarisation rounds, as a backstop against a cycle rather than an expected count.
+   *
+   * Each round's displacement is bounded by half a weld cell, so the crossings a round can create are strictly
+   * smaller-scale than the ones it removed and the process converges. Measured across three hundred and sixty
+   * organic towns, no seed needed more than two rounds. Four is where a pathological case is called off rather
+   * than allowed to spin - and it is called off with a graph, not an exception, because a town with one bad
+   * junction is worth having and a town that throws is not.
+   */
+  private const val PLANARISE_ROUNDS = 4
 
   /** How many grown segments make one grid block. A block wants to be a few buildings long. */
   private const val GRID_BLOCK_MULTIPLE = 2.0

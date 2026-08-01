@@ -3,8 +3,11 @@ package net.bestia.worldgen.bio
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenContext
+import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
+import net.bestia.worldgen.core.Params
+import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -54,7 +57,33 @@ data class BiomeParams(
 
   /** Maximum soil depth in metres. Deep alluvium, not bedrock at the surface. */
   val maxSoilDepth: Double = 9.0
-)
+) : Params {
+
+  init {
+    require(riparianRange >= 0.0) { "riparianRange must not be negative, was $riparianRange" }
+    require(riparianDischarge >= 0.0) { "riparianDischarge must not be negative, was $riparianDischarge" }
+    require(beachRange >= 0.0) { "beachRange must not be negative, was $beachRange" }
+    require(wetlandSlope >= 0.0) { "wetlandSlope must not be negative, was $wetlandSlope" }
+    // Ordered, because `describe` tests cliff first and cliff wins: were badlands the steeper of the two,
+    // every slope steep enough for badlands would already have been classified CLIFF, and the badlands
+    // biome would silently never appear anywhere in the world.
+    require(badlandsSlope in 0.0..cliffSlope) {
+      "badlandsSlope $badlandsSlope must be in [0, cliffSlope $cliffSlope], or badlands never occur"
+    }
+    require(glacierTemperature.isFinite()) { "glacierTemperature must be finite, was $glacierTemperature" }
+    require(maxSoilDepth >= 0.0) { "maxSoilDepth must not be negative, was $maxSoilDepth" }
+  }
+
+  override fun digest() = ParamsDigest()
+    .put("riparianRange", riparianRange)
+    .put("riparianDischarge", riparianDischarge)
+    .put("beachRange", beachRange)
+    .put("wetlandSlope", wetlandSlope)
+    .put("badlandsSlope", badlandsSlope)
+    .put("cliffSlope", cliffSlope)
+    .put("glacierTemperature", glacierTemperature)
+    .put("maxSoilDepth", maxSoilDepth)
+}
 
 /**
  * Stage 5: biomes, soil fertility and soil depth.
@@ -82,6 +111,8 @@ class BiomeStage(
 
   // 2: the runner-up biome is kept as BIOME_SECONDARY instead of being scored and discarded.
   override val version = 2
+
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Biomes.catalogueDigest())
   override val dependencies =
     listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID)
   override val scale = StageScale.WORLD
