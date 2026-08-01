@@ -21,4 +21,42 @@ object FeatureIds {
     var next = 0L
     return { of(stage, next++) }
   }
+
+  /**
+   * An allocator over one reserved block of a stage's ordinal space.
+   *
+   * For a stage that emits its features from independent units of work run in parallel - the town stage
+   * lays out three hundred settlements, and which one finishes first is a property of the thread pool. A
+   * single shared [allocator] would then hand out ordinals in completion order, and the ids, and with them
+   * the stamp order of every equal-priority feature in the world, would depend on the scheduler. That is
+   * precisely the failure the class note above exists to prevent.
+   *
+   * Giving unit `n` the ordinals `[n * stride, (n+1) * stride)` makes each unit's ids a pure function of
+   * its own index and how many features it emits, so the result is identical whatever order the units run
+   * in and however many workers there are. The ordinals are sparse rather than dense, which costs nothing:
+   * [of] hashes them, so a dense range was never producing consecutive ids anyway.
+   *
+   * @param block index of the unit of work; must be stable across runs, not a completion counter
+   */
+  fun blockAllocator(stage: StageId, block: Int, stride: Long = BLOCK_STRIDE): () -> FeatureId {
+    require(block >= 0) { "block must not be negative, was $block" }
+    val base = block.toLong() * stride
+    var next = 0L
+
+    return {
+      // A unit that overran its block would silently start issuing another unit's ids, and duplicate
+      // feature ids collapse in the store's map rather than failing - so this is checked, not assumed.
+      check(next < stride) { "$stage unit $block emitted more than $stride features" }
+      of(stage, base + next++)
+    }
+  }
+
+  /**
+   * Ordinals reserved per unit of work.
+   *
+   * A million is far above what any one unit emits - the largest town in a reference world is a few
+   * thousand buildings - and three hundred blocks of it is still nine orders of magnitude clear of where
+   * a Long stops counting.
+   */
+  const val BLOCK_STRIDE = 1L shl 20
 }

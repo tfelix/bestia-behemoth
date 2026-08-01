@@ -13,6 +13,7 @@ import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.Tables
@@ -165,7 +166,7 @@ class GlacialStage(
 
     val ice = accumulate(region, elevation, temperature, precipitation, metres)
     val features = if (ice.data.any { it >= params.minIceThickness }) {
-      extract(ctx, region, elevation, ice, seaLevel, metres)
+      Timings.measure("glacial.extract") { extract(ctx, region, elevation, ice, seaLevel, metres) }
     } else {
       // A world with no ice at all is a perfectly good world. Glaciation is the optional stage.
       emptyList()
@@ -174,7 +175,7 @@ class GlacialStage(
     // The fluvial surface with the ice's own work cut into it. On an ice-free world this is a straight copy,
     // which is why the layer is emitted unconditionally: a downstream stage must never have to ask whether
     // this world had glaciers before it knows which layer holds the ground.
-    carveInto(elevation, features, region, metres)
+    Timings.measure("glacial.carveInto") { carveInto(elevation, features, region, metres) }
 
     return StageResult(
       layers = listOf(
@@ -369,6 +370,7 @@ class GlacialStage(
     // Relaxation towards a surface that slopes downhill. Double buffered, so the result cannot depend on the
     // order cells are visited in.
     val delta = DoubleArray(ice.size)
+    Timings.measure("glacial.iceFlow") {
     repeat(params.flowIterations) {
       java.util.Arrays.fill(delta, 0.0)
 
@@ -402,6 +404,7 @@ class GlacialStage(
       for (i in ice.data.indices) {
         ice.data[i] = (ice.data[i] + delta[i]).coerceAtLeast(0.0)
       }
+    }
     }
 
     // Ice below sea level has calved away; a floating shelf is not a landform this pipeline models.

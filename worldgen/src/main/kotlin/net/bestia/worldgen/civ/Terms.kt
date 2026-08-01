@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.fields.DistanceTransform
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.vector.FeatureKind
@@ -78,46 +79,60 @@ internal class Terms(
       // Distance to fresh water from the river *polylines*, not from a discharge threshold on the grid. A
       // kilometre cell either has a river in it or does not; the polyline says how far away it actually is,
       // which is the difference between siting a village on a stream and siting it a kilometre from one.
-      val toWater = freshWaterDistance(ctx, region, discharge, lakeId, params)
-      val toShore = shorelineDistance(region, submerged, metres)
-
-      val freshWater = Grid(region.width, region.height) { x, y ->
-        exp(-toWater.data[y * region.width + x] / params.waterRange)
+      val toWater = Timings.measure("terms.freshWaterDistance") {
+        freshWaterDistance(ctx, region, discharge, lakeId, params)
+      }
+      val toShore = Timings.measure("terms.shorelineDistance") {
+        shorelineDistance(region, submerged, metres)
       }
 
-      val arable = Grid(region.width, region.height) { x, y ->
+      val freshWater = Timings.measure("terms.freshWater") {
+        Grid.parallel(region.width, region.height) { x, y ->
+          exp(-toWater.data[y * region.width + x] / params.waterRange)
+        }
+      }
+
+      val arable = Timings.measure("terms.arable") { Grid.parallel(region.width, region.height) { x, y ->
         // Flat is good, but not swamp flat: standing water is not farmland.
         val slope = elevation.gradient(x, y, metres)
         val i = y * region.width + x
         val flatness = 1.0 - (slope / params.arableSlope).coerceIn(0.0, 1.0)
         val boggy = if (Biome.of(biome[region.minX + x, region.minY + y]) == Biome.WETLAND) 0.35 else 1.0
         flatness * boggy
+      } }
+
+      val defensibility = Timings.measure("terms.defensibility") {
+        Grid.parallel(region.width, region.height) { x, y ->
+          prominence(elevation, x, y, params.prominenceRadius, metres)
+        }
       }
 
-      val defensibility = Grid(region.width, region.height) { x, y ->
-        prominence(elevation, x, y, params.prominenceRadius, metres)
-      }
-
-      val climate = Grid(region.width, region.height) { x, y ->
-        val i = y * region.width + x
-        val off = abs(temperature.data[i] - params.comfortTemperature)
-        (1.0 - off / params.comfortTolerance).coerceIn(0.0, 1.0)
+      val climate = Timings.measure("terms.climate") {
+        Grid.parallel(region.width, region.height) { x, y ->
+          val i = y * region.width + x
+          val off = abs(temperature.data[i] - params.comfortTemperature)
+          (1.0 - off / params.comfortTolerance).coerceIn(0.0, 1.0)
+        }
       }
 
       // Harbour quality: sheltered water, which means a *concave* shoreline with deep water nearby. A
       // convex headland has the same distance to the sea and is a terrible place to keep a boat.
-      val harbour = harbourQuality(region, submerged, elevation, toShore, seaLevel, params)
+      val harbour = Timings.measure("terms.harbour") {
+        harbourQuality(region, submerged, elevation, toShore, seaLevel, params)
+      }
 
-      val grazing = Grid(region.width, region.height) { x, y ->
-        when (Biome.of(biome[region.minX + x, region.minY + y])) {
-          Biome.GRASSLAND, Biome.STEPPE -> 1.0
-          Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
-          Biome.TUNDRA, Biome.ALPINE -> 0.4
-          else -> 0.1
+      val grazing = Timings.measure("terms.grazing") {
+        Grid.parallel(region.width, region.height) { x, y ->
+          when (Biome.of(biome[region.minX + x, region.minY + y])) {
+            Biome.GRASSLAND, Biome.STEPPE -> 1.0
+            Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
+            Biome.TUNDRA, Biome.ALPINE -> 0.4
+            else -> 0.1
+          }
         }
       }
 
-      val hazard = Grid(region.width, region.height) { x, y ->
+      val hazard = Timings.measure("terms.hazard") { Grid.parallel(region.width, region.height) { x, y ->
         val i = y * region.width + x
         val above = elevation.data[i] - seaLevel
         // Floodplain: deep recent sediment barely above the water table. Where the crops are, and where the
@@ -128,9 +143,11 @@ internal class Terms(
         val storm = (1.0 - (above / 40.0).coerceIn(0.0, 1.0)) *
             (1.0 - (toShore.data[i] / 3_000.0).coerceIn(0.0, 1.0))
         max(flood, max(avalanche * 0.8, storm * 0.6))
-      }
+      } }
 
-      val movementCost = movementCost(region, elevation, discharge, waterLevel, biome, metres, params)
+      val movementCost = Timings.measure("terms.movementCost") {
+        movementCost(region, elevation, discharge, waterLevel, biome, metres, params)
+      }
 
       return Terms(
         region = region,
@@ -256,7 +273,7 @@ internal class Terms(
       val near = max(1, (2_500.0 / metres).toInt())
       val far = max(near + 1, (9_000.0 / metres).toInt())
 
-      return Grid(region.width, region.height) { x, y ->
+      return Grid.parallel(region.width, region.height) { x, y ->
         val i = y * region.width + x
         if (submerged[i]) {
           0.0
@@ -338,7 +355,7 @@ internal class Terms(
       biome: IntLayer,
       metres: Double,
       params: HabitabilityParams
-    ): Grid = Grid(region.width, region.height) { x, y ->
+    ): Grid = Grid.parallel(region.width, region.height) { x, y ->
       val i = y * region.width + x
 
       if (!waterLevel.data[i].isNaN()) {

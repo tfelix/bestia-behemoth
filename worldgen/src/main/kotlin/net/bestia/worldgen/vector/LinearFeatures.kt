@@ -111,9 +111,22 @@ object LinearFeatures {
     surfaceElevation: (s: Double) -> Double,
     halfWidth: (s: Double) -> Double,
     shoulder: (s: Double) -> Double = { halfWidth(it) * 3.0 },
-    endTaper: Double = 0.0
+    endTaper: Double = 0.0,
+    /**
+     * Set when [centerline] has already been resampled at [stationSpacing] and must be used as given.
+     *
+     * Resampling is not idempotent: it walks arc length and lays new vertices along the *chords* of the
+     * old ones, so a second pass over an already-resampled line comes out a shade shorter than the first.
+     * Harmless in itself - a metre and a half over thirty-six kilometres - and not harmless at all to a
+     * caller that measured something against the line it passed in, because the feature then carries a
+     * line that is not quite that one and any geometry derived from the first does not quite land on the
+     * second. `SettlementStage` finds road-river crossings that way, and a road grazing the tip of a
+     * river intersected one of the two lines and not the other, so the gap that should stop the
+     * carriageway damming the channel was cut into a road that no longer had that crossing.
+     */
+    preResampled: Boolean = false
   ): PolylineFeature {
-    val line = centerline.resample(stationSpacing)
+    val line = if (preResampled) centerline else centerline.resample(stationSpacing)
     val stations = StationTable.Builder(line.vertexCount)
       .channel(Profiles.CHANNEL_SURFACE_ELEVATION) { surfaceElevation(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_HALF_WIDTH) { halfWidth(line.arcLengthAt(it)) }

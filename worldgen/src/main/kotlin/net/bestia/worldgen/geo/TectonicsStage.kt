@@ -5,12 +5,14 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.IntGrid
@@ -239,10 +241,16 @@ class TectonicsStage(
     val undulationSeed = GenRng.mix64(ctx.seed xor UNDULATION_SALT)
     val continentSeed = GenRng.mix64(ctx.seed xor CONTINENT_SALT)
 
+    Timings.measure("tectonics.mainLoop") {
+    // Twenty-odd noise octaves and a nearest-two plate query per cell, every one of them a pure function
+    // of world position - the most straightforwardly separable block in the pipeline. The two scratch
+    // arrays exist to keep `sampleInto` allocation-free and so become per band; `PlateSet.contact` used to
+    // be the other obstacle and is now a lock-free table.
+    Parallel.rows(region.height, region.width) { yFrom, yUntil ->
     val sample = DoubleArray(3)
     val scratch = DoubleArray(4)
 
-    for (y in 0 until region.height) {
+    for (y in yFrom until yUntil) {
       val worldY = (region.minY + y + 0.5) * metres
       for (x in 0 until region.width) {
         val worldX = (region.minX + x + 0.5) * metres
@@ -357,8 +365,12 @@ class TectonicsStage(
         intensity.data[i] = caught
       }
     }
+    }
+    }
 
-    addHotspotChains(ctx, region, bounds, plates, spacing, elevation)
+    Timings.measure("tectonics.hotspots") {
+      addHotspotChains(ctx, region, bounds, plates, spacing, elevation)
+    }
 
     // The ocean margin is decided here, before the land fraction is normalised against the interior and well
     // before anything downstream runs. That ordering is the whole point of putting it in this stage: erosion,
@@ -367,13 +379,17 @@ class TectonicsStage(
     val border = OceanBorder.of(
       ctx.config, params.oceanBorderDepth, region, metres, region.width, params.oceanBorderWobble
     )
-    normaliseLandFraction(elevation, ctx.config.seaLevel, border)
+    Timings.measure("tectonics.normalise") {
+      normaliseLandFraction(elevation, ctx.config.seaLevel, border)
+    }
     border.applyTo(elevation, ctx.config.seaLevel)
 
     upliftDryLand(elevation, uplift, crustAge, ctx.config.seaLevel)
 
-    val hardness = rockHardness(ctx, region, elevation, crustAge, oceanicity, intensity)
-    val faults = traceFaults(plateId, region, plates)
+    val hardness = Timings.measure("tectonics.hardness") {
+      rockHardness(ctx, region, elevation, crustAge, oceanicity, intensity)
+    }
+    val faults = Timings.measure("tectonics.faults") { traceFaults(plateId, region, plates) }
 
     return StageResult(
       layers = listOf(

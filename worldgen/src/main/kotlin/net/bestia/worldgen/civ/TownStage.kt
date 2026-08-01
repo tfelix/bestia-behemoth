@@ -8,12 +8,14 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.core.BaseHeightField
@@ -191,7 +193,9 @@ class TownStage(
   //    The roof lives in `voxel/TownStructures` and has no version of its own, so it rides on this one.
   // 3: a lot whose footprint the pad cannot level is skipped, and the next-best lot takes the building.
   // 4: a town wall stops at the waterfront instead of running out to sea.
-  override val version = 4
+  // 5: towns are laid out in parallel, so each takes its ids from its own block of the ordinal space.
+  //    No town is shaped differently, but every id in the stage moves, and ids tie-break stamp order.
+  override val version = 5
   override val dependencies = listOf(
     ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
   )
@@ -210,12 +214,29 @@ class TownStage(
 
     val world = WorldGround(ctx, region, params)
     val streamBase = GenRng.hash(ctx.seed, id.hash, version.toLong())
-    val nextId = FeatureIds.allocator(id)
-    val out = ArrayList<VectorFeature>()
 
-    for (town in towns) {
-      out.addAll(layOut(town, world, ctx.config, streamBase, nextId))
+    /*
+     * One town at a time, on as many cores as there are.
+     *
+     * This is the most expensive thing in the pipeline - two and a half seconds of a ten second reference
+     * world, more than erosion - and it is also the most trivially separable, because a town is laid out
+     * against the finished world and against nothing its neighbours did. `WorldGround` holds only layers
+     * and two prebuilt feature lists, `StreetPlanner` and `LotPlanner` are stateless, and the roll is
+     * already salted per town, so there is no shared mutable state to find.
+     *
+     * The one thing that was shared is the id allocator, and a shared counter here would have made every
+     * feature id in the world depend on which town finished first. Hence the per-town block: see
+     * [FeatureIds.blockAllocator].
+     */
+    val perTown = Timings.measure("towns.layOut") {
+      Parallel.map(towns.size) { i ->
+        layOut(towns[i], world, ctx.config, streamBase, FeatureIds.blockAllocator(id, i))
+      }
     }
+
+    // Flattened in town order, so the store sees exactly the sequence the serial loop gave it.
+    val out = ArrayList<VectorFeature>()
+    for (features in perTown) out.addAll(features)
 
     return StageResult(features = out)
   }

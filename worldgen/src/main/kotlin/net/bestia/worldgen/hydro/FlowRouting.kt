@@ -1,5 +1,7 @@
 package net.bestia.worldgen.hydro
 
+import net.bestia.worldgen.core.Parallel
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.DoubleIntHeap
 import net.bestia.worldgen.fields.Grid
@@ -61,7 +63,7 @@ class DrainageNetwork(
    * search. The stack has every cell after its receiver, so walking it backwards visits every donor
    * before the cell it donates to.
    */
-  fun accumulate(weight: (index: Int) -> Double): Grid {
+  fun accumulate(weight: (index: Int) -> Double): Grid = Timings.measure("flow.accumulate") {
     val grid = Grid(width, height, DoubleArray(size) { weight(it) })
 
     for (k in stack.indices.reversed()) {
@@ -70,7 +72,7 @@ class DrainageNetwork(
       if (r != i) grid.data[r] += grid.data[i]
     }
 
-    return grid
+    grid
   }
 }
 
@@ -95,8 +97,8 @@ object FlowRouting {
 
   /** Solve everything: ocean mask, fill, route, order. */
   fun solve(elevation: Grid, seaLevel: Double, metresPerCell: Double): DrainageNetwork {
-    val ocean = oceanMask(elevation, seaLevel)
-    val (filled, fillDepth) = priorityFlood(elevation, ocean)
+    val ocean = Timings.measure("flow.oceanMask") { oceanMask(elevation, seaLevel) }
+    val (filled, fillDepth) = Timings.measure("flow.priorityFlood") { priorityFlood(elevation, ocean) }
     return route(filled, fillDepth, ocean, metresPerCell)
   }
 
@@ -107,17 +109,38 @@ object FlowRouting {
    * floor is below sea level is not ocean; it is an endorheic lake, it has its own surface level set by
    * evaporation, and treating it as sea would flood a continent through a hole that does not exist.
    */
-  fun oceanMask(elevation: Grid, seaLevel: Double): BooleanArray {
+  fun oceanMask(elevation: Grid, seaLevel: Double): BooleanArray =
+    oceanMaskInto(elevation, seaLevel, BooleanArray(elevation.size), IntArray(elevation.size))
+
+  /**
+   * [oceanMask] over caller-supplied buffers, for the erosion loop that runs it forty-five times.
+   *
+   * The frontier is an `IntArray` used as a stack rather than an `ArrayDeque<Int>`. The deque boxed every
+   * cell index it held, which on a mostly-oceanic world is most of the map, allocated forty-five times
+   * over - a few hundred megabytes of `Integer` for a flood fill that needs none of them.
+   *
+   * Stack rather than queue, so depth-first rather than breadth-first. The result is identical: this
+   * computes a *reachability set*, and which order the frontier is drained in cannot change which cells
+   * are reachable. Only the shape of the frontier changes, and a stack keeps it small and hot.
+   *
+   * @param ocean must be all false on entry; the caller owns clearing it
+   * @param frontier scratch at least `elevation.size` long
+   */
+  fun oceanMaskInto(
+    elevation: Grid,
+    seaLevel: Double,
+    ocean: BooleanArray,
+    frontier: IntArray
+  ): BooleanArray {
     val width = elevation.width
     val height = elevation.height
-    val ocean = BooleanArray(width * height)
-    val queue = ArrayDeque<Int>()
+    var top = 0
 
     fun seed(x: Int, y: Int) {
       val i = y * width + x
       if (!ocean[i] && elevation.data[i] <= seaLevel) {
         ocean[i] = true
-        queue.addLast(i)
+        frontier[top++] = i
       }
     }
 
@@ -130,8 +153,8 @@ object FlowRouting {
       seed(width - 1, y)
     }
 
-    while (queue.isNotEmpty()) {
-      val i = queue.removeFirst()
+    while (top > 0) {
+      val i = frontier[--top]
       val x = i % width
       val y = i / width
       // Four-connected: a diagonal touch between two below-sea-level cells is not a strait wide enough
@@ -233,37 +256,43 @@ object FlowRouting {
     val receiver = IntArray(n)
     val direction = IntArray(n) { D8.NONE }
 
-    for (y in 0 until height) {
-      for (x in 0 until width) {
-        val i = y * width + x
+    Timings.measure("flow.route") {
+      // Reads the filled surface, writes only this cell's receiver and direction. Forty-five of these run
+      // inside the erosion loop, so it is worth splitting despite being the cheap half of a solve.
+      Parallel.rows(height, width) { yFrom, yUntil ->
+      for (y in yFrom until yUntil) {
+        for (x in 0 until width) {
+          val i = y * width + x
 
-        // The sea and the map edge are where water leaves. Everything else must find a way downhill,
-        // and after the fill it always can.
-        if (ocean[i] || x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-          receiver[i] = i
-          continue
-        }
-
-        val here = filled.data[i]
-        var bestDrop = 0.0
-        var bestDir = D8.NONE
-        var bestReceiver = i
-
-        for (d in 0 until 8) {
-          val nx = x + D8.DX[d]
-          val ny = y + D8.DY[d]
-          val j = ny * width + nx
-          // Strictly greater, and the neighbour order is fixed, so ties always resolve the same way.
-          val drop = (here - filled.data[j]) / D8.LENGTH[d]
-          if (drop > bestDrop) {
-            bestDrop = drop
-            bestDir = d
-            bestReceiver = j
+          // The sea and the map edge are where water leaves. Everything else must find a way downhill,
+          // and after the fill it always can.
+          if (ocean[i] || x == 0 || y == 0 || x == width - 1 || y == height - 1) {
+            receiver[i] = i
+            continue
           }
-        }
 
-        receiver[i] = bestReceiver
-        direction[i] = bestDir
+          val here = filled.data[i]
+          var bestDrop = 0.0
+          var bestDir = D8.NONE
+          var bestReceiver = i
+
+          for (d in 0 until 8) {
+            val nx = x + D8.DX[d]
+            val ny = y + D8.DY[d]
+            val j = ny * width + nx
+            // Strictly greater, and the neighbour order is fixed, so ties always resolve the same way.
+            val drop = (here - filled.data[j]) / D8.LENGTH[d]
+            if (drop > bestDrop) {
+              bestDrop = drop
+              bestDir = d
+              bestReceiver = j
+            }
+          }
+
+          receiver[i] = bestReceiver
+          direction[i] = bestDir
+        }
+      }
       }
     }
 
@@ -275,7 +304,7 @@ object FlowRouting {
       fillDepth = fillDepth,
       receiver = receiver,
       direction = direction,
-      stack = buildStack(receiver),
+      stack = Timings.measure("flow.buildStack") { buildStack(receiver) },
       ocean = ocean
     )
   }

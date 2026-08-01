@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 
 /**
  * A mutable scalar grid in local `0 until width` coordinates, used *inside* a stage while it works.
@@ -75,20 +76,28 @@ class Grid(val width: Int, val height: Int, val data: DoubleArray) {
     var source = data
     var target = DoubleArray(data.size)
     repeat(iterations) {
-      for (y in 0 until height) {
-        for (x in 0 until width) {
-          var sum = 0.0
-          var count = 0
-          for (dy in -radius..radius) {
-            for (dx in -radius..radius) {
-              val nx = x + dx
-              val ny = y + dy
-              if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
-              sum += source[ny * width + nx]
-              count++
+      // Safe to split because the pass already reads `source` and writes `target` and never the same
+      // array - the double buffer that was there to make the result order-independent is exactly the
+      // property that makes the rows separable. Each band owns its output rows and reads whatever it
+      // likes, since nothing in this pass writes what another band reads.
+      val from = source
+      val into = target
+      Parallel.rows(height, width) { yFrom, yUntil ->
+        for (y in yFrom until yUntil) {
+          for (x in 0 until width) {
+            var sum = 0.0
+            var count = 0
+            for (dy in -radius..radius) {
+              for (dx in -radius..radius) {
+                val nx = x + dx
+                val ny = y + dy
+                if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
+                sum += from[ny * width + nx]
+                count++
+              }
             }
+            into[y * width + x] = sum / count
           }
-          target[y * width + x] = sum / count
         }
       }
       val swap = source
@@ -110,6 +119,27 @@ class Grid(val width: Int, val height: Int, val data: DoubleArray) {
 
   companion object {
 
+    /**
+     * The same grid as `Grid(width, height, init)`, with the rows split across cores.
+     *
+     * A separate factory rather than a change to the constructor, deliberately. The constructor has around
+     * fifteen call sites and not all of their `init` lambdas are pure - some close over a scratch buffer or
+     * a cursor, and splitting those would be a race that produces a plausible-looking world rather than a
+     * crash. So conversion is opt-in and per site, and the reviewer of each one has to have looked.
+     *
+     * [init] must be a pure function of `(x, y)` and of state nothing else in the loop writes.
+     */
+    inline fun parallel(width: Int, height: Int, crossinline init: (x: Int, y: Int) -> Double): Grid {
+      val data = DoubleArray(width * height)
+      Parallel.rows(height, width) { yFrom, yUntil ->
+        for (y in yFrom until yUntil) {
+          val row = y * width
+          for (x in 0 until width) data[row + x] = init(x, y)
+        }
+      }
+      return Grid(width, height, data)
+    }
+
     /** The grid of a layer, in local coordinates. */
     fun from(layer: FloatLayer): Grid {
       val region = layer.region
@@ -126,7 +156,9 @@ class Grid(val width: Int, val height: Int, val data: DoubleArray) {
      */
     fun resampled(source: FloatLayer, region: CellRegion): Grid {
       val metres = region.resolution.metresPerCell
-      return Grid(region.width, region.height) { x, y ->
+      // A sixteen-tap bicubic per destination cell, and this runs a dozen times across the pipeline as
+      // stages lift each other's fields between resolutions. Reading an immutable layer, so it splits.
+      return parallel(region.width, region.height) { x, y ->
         source.sampleBicubic((region.minX + x + 0.5) * metres, (region.minY + y + 0.5) * metres)
       }
     }

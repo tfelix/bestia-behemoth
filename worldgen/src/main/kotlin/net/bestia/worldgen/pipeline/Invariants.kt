@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.core.StageListener
@@ -77,8 +78,26 @@ object Invariants {
   /**
    * Generates [seeds] worlds from [firstSeed] and checks all of them.
    *
-   * Deliberately sequential and deliberately not clever. This is a harness that runs overnight or in CI,
-   * and being able to read the seed of a failure straight off the output matters more than throughput.
+   * ### One world per core, a batch at a time
+   *
+   * This was deliberately sequential, on the grounds that reading the seed of a failure straight off the
+   * output matters more than throughput. It still does, and that is why [onSeed] is called from this
+   * thread in seed order: the output is identical to what the sequential version printed.
+   *
+   * What changed is that worlds are *built* in batches of [Parallel.threads] first. Seeds are perfectly
+   * independent - a different world, a different everything - so this is the one place in the module
+   * where coarse-grained parallelism is available, and it scales far better than splitting the rows of a
+   * single world does. A two-hundred-seed sweep is the slowest thing a developer here waits for.
+   *
+   * Batched rather than all at once because [onSeed] is handed the world itself, so every world in flight
+   * has to stay in memory until its turn to be reported comes. A batch holds at most one world per core;
+   * at the default 192 cells that is a few megabytes each, but a sweep at `--cells 512` should expect to
+   * need a heap sized for a dozen of them.
+   *
+   * Note that each build runs serially inside its own thread, since [Parallel.map] marks its workers as
+   * being in a parallel region already. That is the right way round: twelve whole worlds at once keeps
+   * every core busy for the entire sweep, where one world at a time leaves them idle through
+   * priority-flood and the history simulation.
    */
   fun sweep(
     seeds: Int,
@@ -96,13 +115,27 @@ object Invariants {
     onSeed: (Long, Report, GeneratedWorld) -> Unit = { _, _, _ -> }
   ): Report {
     val violations = ArrayList<Violation>()
+    val batch = Parallel.threads.coerceAtLeast(1)
+    var done = 0
 
-    for (n in 0 until seeds) {
-      val seed = firstSeed + n
-      val generated = StandardWorld.build(config(seed), StageListener.NONE)
-      val report = Report(1, check(generated))
-      violations.addAll(report.violations)
-      onSeed(seed, report, generated)
+    while (done < seeds) {
+      val size = minOf(batch, seeds - done)
+      val offset = done
+
+      // Checking inside the batch as well as building: the checks are several full passes over every
+      // layer, and they read the world without touching it.
+      val built = Parallel.map(size) { k ->
+        val seed = firstSeed + offset + k
+        val generated = StandardWorld.build(config(seed), StageListener.NONE)
+        Triple(seed, Report(1, check(generated)), generated)
+      }
+
+      for ((seed, report, generated) in built) {
+        violations.addAll(report.violations)
+        onSeed(seed, report, generated)
+      }
+
+      done += size
     }
 
     return Report(seeds, violations)

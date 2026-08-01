@@ -84,8 +84,20 @@ class PlateSet(
 
   private val index = PointIndex(plates.map { it.seed }, bounds.expanded(warpAmplitude * 2.0))
 
-  /** Classification per unordered plate pair, keyed by `a * plates.size + b` with `a < b`. */
-  private val contacts = HashMap<Int, BoundaryContact>()
+  /**
+   * Classification per unordered plate pair, indexed by `lo * plates.size + hi`.
+   *
+   * A dense table filled on demand rather than a memo map behind a lock. It was the map, and the lock was
+   * harmless while the tectonic loop ran on one thread - but that loop is a per-cell pure function over a
+   * quarter of a million cells and it calls this once per cell, so as soon as the rows are split the memo
+   * becomes the one piece of contention in the hottest loop of the stage.
+   *
+   * A plain array of nulls needs no lock at all, and not because of anything subtle about the memory
+   * model: [classify] is a pure function of two plates, so two threads racing on the same slot compute the
+   * same value and it does not matter which one lands. A stale null costs a recomputation, never a wrong
+   * answer. Plate counts are dozens, so the table is a few thousand references at worst.
+   */
+  private val contacts = arrayOfNulls<BoundaryContact>(plates.size * plates.size)
 
   val size get() = plates.size
 
@@ -110,12 +122,17 @@ class PlateSet(
     out[2] = if (other < 0) Double.MAX_VALUE else (scratch[3] - scratch[2]) * 0.5
   }
 
-  /** The classification of the boundary between two plates. Memoised: there are at most a few hundred. */
-  @Synchronized
+  /** The classification of the boundary between two plates. Memoised; safe to call from any thread. */
   fun contact(a: Int, b: Int): BoundaryContact {
     val lo = min(a, b)
     val hi = if (lo == a) b else a
-    return contacts.getOrPut(lo * plates.size + hi) { classify(plates[lo], plates[hi]) }
+    val slot = lo * plates.size + hi
+
+    contacts[slot]?.let { return it }
+
+    val classified = classify(plates[lo], plates[hi])
+    contacts[slot] = classified
+    return classified
   }
 
   private fun classify(a: Plate, b: Plate): BoundaryContact {

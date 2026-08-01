@@ -5,12 +5,14 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.hydro.DrainageNetwork
@@ -22,6 +24,7 @@ import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 /** Tuning for [ErosionStage]. */
 data class ErosionParams(
@@ -180,7 +183,9 @@ class ErosionStage(
   // 2: the ocean margin is reapplied after uplift, which was lifting it back above sea level.
   // 3: emits ERODED_ELEVATION; ELEVATION is now the glacial stage's, so ice reaches downstream stages.
   // 4: closed basins are cut back into the surface the loop conditioned to have none.
-  override val version = 4
+  // 5: mass wasting gathers instead of scattering so it can be split across cores, and the area term
+  //    takes the square root directly. Both change the surface in the last bits, nothing in its shape.
+  override val version = 5
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)
   override val scale = StageScale.WORLD
 
@@ -215,9 +220,13 @@ class ErosionStage(
       val network = FlowRouting.solve(elevation, seaLevel, metres)
       val drainage = network.accumulate { source[it] }
 
-      incise(network, drainage, elevation, hardness, uplift, seaLevel, eroded)
-      deposit(network, drainage, elevation, sediment, eroded, load, cellArea, seaLevel)
-      relax(elevation, hardness, metres)
+      Timings.measure("erosion.incise") {
+        incise(network, drainage, elevation, hardness, uplift, seaLevel, eroded)
+      }
+      Timings.measure("erosion.deposit") {
+        deposit(network, drainage, elevation, sediment, eroded, load, cellArea, seaLevel)
+      }
+      Timings.measure("erosion.relax") { relax(elevation, hardness, metres) }
     }
 
     /*
@@ -228,7 +237,7 @@ class ErosionStage(
      * a surface with no depression anywhere - which is correct, and is also why nothing in this pipeline had a
      * lake in it until the glacial carve started reaching the raster. See ClosedBasins.
      */
-    val basins = ClosedBasins.place(
+    val basins = Timings.measure("erosion.basins") { ClosedBasins.place(
       config = ctx.config,
       rng = ctx.rng(BASIN_STREAM),
       region = region,
@@ -238,7 +247,7 @@ class ErosionStage(
       oceanDistance = Grid.resampled(ctx.layers.float(LayerId.DISTANCE_TO_OCEAN), region),
       rifts = riftLines(ctx, region),
       params = params.basins
-    )
+    ) }
     ClosedBasins.carve(elevation, basins, region, params.basins)
 
     /*
@@ -349,7 +358,7 @@ class ErosionStage(
       val factor = if (length <= 0.0) {
         0.0
       } else {
-        erodibility * dt * drainage.data[i].pow(params.areaExponent) / length
+        erodibility * dt * areaTerm(drainage.data[i]) / length
       }
 
       val receiverElevation = elevation.data[network.receiver[i]]
@@ -438,33 +447,73 @@ class ErosionStage(
    * Double buffered, so the result does not depend on the order cells are visited in - which for a
    * relaxation is the difference between a deterministic stage and one whose output depends on how the
    * loop was written.
+   *
+   * ### Gathered rather than scattered
+   *
+   * The obvious way to write this is to walk the donors and push: `delta[i] -= move; delta[j] += move`.
+   * That is what it was, and it cannot be split across cores, because two bands working on adjacent rows
+   * both write the `delta` of the cells on the seam between them.
+   *
+   * So each cell computes its own net change instead, by looking at the same eight pairs from the other
+   * end: what it sheds to neighbours below its talus angle, and what its neighbours shed to it. Every pair
+   * is still counted exactly once with the same magnitude - the exchange is antisymmetric and depends only
+   * on the double-buffered elevation - so the physics is untouched. It costs a second pass over the eight
+   * neighbours, sixteen visits where there were eight, and buys a loop with no cross-band write in it.
+   *
+   * The one thing that does move is the *order* the terms are summed in, and floating point addition is
+   * not associative, so the surface differs from the scattered version in the last bits. That is why the
+   * stage version is bumped rather than this being a pure refactor.
+   *
+   * Note the interior test on both sides. The scatter only ever ran with an interior cell as the donor, so
+   * a border cell could receive material but never shed it; asking every cell for its outflow would start
+   * eroding the map edge, which is a different landscape, not a faster one.
    */
   private fun relax(elevation: Grid, hardness: Grid, metresPerCell: Double) {
     if (params.thermalIterations <= 0) return
 
+    val width = elevation.width
+    val height = elevation.height
     val delta = DoubleArray(elevation.size)
+    val share = params.thermalRate / 8.0
 
     repeat(params.thermalIterations) {
-      java.util.Arrays.fill(delta, 0.0)
+      Parallel.rows(height, width) { yFrom, yUntil ->
+        for (y in yFrom until yUntil) {
+          val interiorRow = y in 1 until height - 1
+          for (x in 0 until width) {
+            val i = y * width + x
+            val here = elevation.data[i]
+            var net = 0.0
 
-      for (y in 1 until elevation.height - 1) {
-        for (x in 1 until elevation.width - 1) {
-          val i = elevation.index(x, y)
-          val here = elevation.data[i]
-          val talus = params.talusSoft + (params.talusHard - params.talusSoft) * hardness.data[i]
+            // What this cell sheds, if it is allowed to shed anything.
+            if (interiorRow && x in 1 until width - 1) {
+              val talus = talusAt(hardness.data[i])
+              for (d in 0 until 8) {
+                val j = i + D8.DY[d] * width + D8.DX[d]
+                val run = D8.LENGTH[d] * metresPerCell
+                val slope = (here - elevation.data[j]) / run
+                if (slope <= talus) continue
+                // Enough material to bring this pair back to the talus angle, damped and shared out over
+                // the eight directions so a cliff top does not empty into one neighbour.
+                net -= (slope - talus) * run * share
+              }
+            }
 
-          for (d in 0 until 8) {
-            val j = elevation.index(x + D8.DX[d], y + D8.DY[d])
-            val run = D8.LENGTH[d] * metresPerCell
-            val slope = (here - elevation.data[j]) / run
-            if (slope <= talus) continue
+            // What its neighbours shed to it. The same eight pairs, seen from the far end.
+            for (d in 0 until 8) {
+              val nx = x + D8.DX[d]
+              val ny = y + D8.DY[d]
+              if (nx < 1 || ny < 1 || nx >= width - 1 || ny >= height - 1) continue
 
-            // Enough material to bring this pair back to the talus angle, damped and shared out over
-            // the eight directions so a cliff top does not empty into one neighbour.
-            val excess = (slope - talus) * run
-            val move = excess * params.thermalRate / 8.0
-            delta[i] -= move
-            delta[j] += move
+              val j = ny * width + nx
+              val run = D8.LENGTH[d] * metresPerCell
+              val talus = talusAt(hardness.data[j])
+              val slope = (elevation.data[j] - here) / run
+              if (slope <= talus) continue
+              net += (slope - talus) * run * share
+            }
+
+            delta[i] = net
           }
         }
       }
@@ -472,6 +521,26 @@ class ErosionStage(
       for (i in delta.indices) elevation.data[i] += delta[i]
     }
   }
+
+  /** Maximum stable slope of the rock at a cell, interpolated between the soft and hard limits. */
+  private fun talusAt(hardness: Double): Double =
+    params.talusSoft + (params.talusHard - params.talusSoft) * hardness
+
+  /**
+   * `A^m` of the stream power law.
+   *
+   * `Math.pow` is a general-purpose routine costing tens of nanoseconds, and this is evaluated once per
+   * cell per timestep - eleven million times on the reference world, for an exponent that is 0.5 and has
+   * a hardware instruction. The exponent stays configurable and the general path is still there; it is
+   * only the value the pipeline actually uses that stops going the long way round.
+   *
+   * `Math.pow(x, 0.5)` and `sqrt(x)` are not required to agree in the last bit, so this moves the surface
+   * slightly - which is the other half of why the version below is bumped.
+   */
+  private val halfExponent = params.areaExponent == 0.5
+
+  private fun areaTerm(area: Double): Double =
+    if (halfExponent) sqrt(area) else area.pow(params.areaExponent)
 
   /**
    * Erodibility from hardness.

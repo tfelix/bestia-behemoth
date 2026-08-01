@@ -13,7 +13,9 @@ import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.StageOutput
 import net.bestia.worldgen.core.StageResult
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.StageScale
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.geo.ErosionStage
@@ -142,8 +144,12 @@ class SettlementStage(
       .filterIsInstance<PolylineFeature>()
       .filter { it.kind == FeatureKind.RIVER_CHANNEL }
 
-    val siteScore = scoreSites(ctx, region, habitability, terms, rivers)
-    val sites = place(ctx, region, siteScore, terms, elevation, metres)
+    val siteScore = Timings.measure("settle.scoreSites") {
+      scoreSites(ctx, region, habitability, terms, rivers)
+    }
+    val sites = Timings.measure("settle.place") {
+      place(ctx, region, siteScore, terms, elevation, metres)
+    }
     // Numbered after placement, so the index is the placement order - largest tier first, then by score.
     // Every downstream stage joins on this, so it has to be assigned in exactly one place.
     sites.forEachIndexed { i, site -> site.index = i }
@@ -156,9 +162,11 @@ class SettlementStage(
       features.add(gradingFor(nextId(), site))
     }
 
-    val waterCost = waterCostField(ctx, region, terms)
+    val waterCost = Timings.measure("settle.waterCost") { waterCostField(ctx, region, terms) }
     features.addAll(
-      buildRoads(ctx, region, sites, movementCost, waterCost, elevation, rivers, terms, nextId)
+      Timings.measure("settle.buildRoads") {
+        buildRoads(ctx, region, sites, movementCost, waterCost, elevation, rivers, terms, nextId)
+      }
     )
 
     return StageResult(features = features)
@@ -434,13 +442,27 @@ class SettlementStage(
     // deviation 7.
     val overWater = ArrayList<Pair<Int, Int>>()
 
-    for ((a, b) in edges) {
-      val route = finder.route(nodes[a].cell, nodes[b].cell)
-      if (route == null) {
-        overWater.add(a to b)
-        continue
-      }
-      if (route.cells.any { submerged[it] }) {
+    /*
+     * Every pair searched at once, then accepted or rejected in edge order.
+     *
+     * A* over the movement cost field is the second most expensive thing in the pipeline after town layout,
+     * and each search is independent: `RouteFinder` holds only the cost grid and allocates its open set,
+     * its closed set and its came-from array per call, so nothing crosses between them.
+     *
+     * The accept/reject pass stays serial and stays second. It is nearly free - one walk of a found path -
+     * and doing it here rather than inside the search is what keeps `routes` and `overWater` in edge order
+     * rather than completion order. `overWater` decides which pairs become sea lanes and `routes` is
+     * iterated to emit features, so both orders reach the world.
+     */
+    val found = Parallel.map(edges.size) { i ->
+      val (a, b) = edges[i]
+      finder.route(nodes[a].cell, nodes[b].cell)
+    }
+
+    for (i in edges.indices) {
+      val (a, b) = edges[i]
+      val route = found[i]
+      if (route == null || route.cells.any { submerged[it] }) {
         overWater.add(a to b)
         continue
       }
@@ -482,6 +504,7 @@ class SettlementStage(
 
       out.add(roadFeature(nextId(), centerline, tier, elevation, crossings))
       for (crossing in crossings) {
+        if (!crossing.bridgeable) continue
         out.add(bridgeMarker(nextId(), centerline, crossing, tier, elevation))
       }
     }
@@ -885,6 +908,7 @@ class SettlementStage(
   ): List<Crossing> {
     val out = ArrayList<Crossing>()
 
+
     for (river in rivers) {
       if (!road.bbox.intersects(river.bbox)) continue
 
@@ -894,9 +918,25 @@ class SettlementStage(
       for (hit in Intersections.of(road, river.centerline)) {
         val u = river.centerline.stationParamAt(hit.sB)
         val span = river.stations.sample(widthChannel, u)
-        if (span > params.maxBridgeSpan) continue
 
-        out.add(Crossing(hit.sA, hit.point, span, river.stations.sample(depthChannel, u)))
+        // A river too wide to bridge is still a river the road must not pave over. This used to `continue`,
+        // dropping the crossing entirely - which skipped the *gap* as well as the deck, so the carriageway
+        // ran straight across the channel and dammed it. The two are separate things, and only the deck
+        // depends on the span: the gap says "the road stops at the water here", which is as true of a ferry
+        // as of a bridge.
+        //
+        // Latent rather than new. It needs a road to meet a channel wider than `maxBridgeSpan`, which no
+        // seed in the suite produced until an unrelated change to the erosion solver moved the terrain by
+        // a few bits and one road in the reference world found a wide one.
+        out.add(
+          Crossing(
+            roadArcLength = hit.sA,
+            point = hit.point,
+            channelWidth = span,
+            channelDepth = river.stations.sample(depthChannel, u),
+            bridgeable = span <= params.maxBridgeSpan
+          )
+        )
       }
     }
 
@@ -907,7 +947,9 @@ class SettlementStage(
     val roadArcLength: Double,
     val point: Vec2d,
     val channelWidth: Double,
-    val channelDepth: Double
+    val channelDepth: Double,
+    /** Whether a deck belongs here. A wider channel gets the gap without one - a ferry, not a bridge. */
+    val bridgeable: Boolean
   )
 
   /**
@@ -951,7 +993,10 @@ class SettlementStage(
       surfaceElevation = { s -> sampleElevation(elevation, centerline.pointAt(s)) },
       halfWidth = { s -> if (inGap(s)) 0.0 else tier.halfWidth },
       shoulder = { s -> if (inGap(s)) 0.0 else tier.shoulder },
-      endTaper = tier.shoulder * 2.0
+      endTaper = tier.shoulder * 2.0,
+      // The caller already resampled, and the crossings above were found on *that* line. Letting the
+      // feature resample again would give it a centerline the crossings were not measured against.
+      preResampled = true
     )
   }
 

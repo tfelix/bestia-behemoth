@@ -4,6 +4,7 @@ import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageId
@@ -127,9 +128,15 @@ class BiomeStage(
     val soilDepth = Grid(region.width, region.height)
 
     val maxAccumulation = ln(1.0 + accumulation.max())
+
+    // Classification is per cell and reads nothing this loop writes, so the rows split cleanly. The one
+    // thing that cannot be shared is the axis buffer `Biomes.describe` fills: it was hoisted out of the
+    // loop to keep the classifier allocation-free, and a single one across bands would have every worker
+    // overwriting the sample the others are about to classify. One per band keeps both properties.
+    Parallel.rows(region.height, region.width) { yFrom, yUntil ->
     val sample = DoubleArray(BiomeAxis.COUNT)
 
-    for (y in 0 until region.height) {
+    for (y in yFrom until yUntil) {
       for (x in 0 until region.width) {
         val i = elevation.index(x, y)
         val z = elevation.data[i]
@@ -189,6 +196,7 @@ class BiomeStage(
         fertility.data[i] = fertilityAt(chosen, sediment.data[i], weathering, slope, wetness)
         soilDepth.data[i] = soilDepthAt(chosen, sediment.data[i], weathering, slope)
       }
+    }
     }
 
     return StageResult.of(

@@ -9,6 +9,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.StageResult
+import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
@@ -41,9 +42,12 @@ object ViewerMain {
     println("generating ${WorldArgs.summary(config)}")
     val started = System.currentTimeMillis()
     val generated = StandardWorld.build(config, Progress)
+    val elapsed = System.currentTimeMillis() - started
     val scene = WorldScene.of(generated, WorldArgs.label(config))
 
-    println("world tier built in ${System.currentTimeMillis() - started} ms")
+    println("world tier built in $elapsed ms")
+    // Printed before the scene summaries so the sub-stage split sits next to the per-stage one above it.
+    Timings.printAndReset()
     println("  ${scene.fields.size} fields")
     println("  ${describeLand(generated)}")
     println("  ${describeLakes(generated)}")
@@ -116,9 +120,17 @@ object ViewerMain {
   /**
    * Per-stage timings on the console.
    *
-   * Cheap and worth having by default. Erosion is two orders of magnitude more expensive than anything
-   * else in the pipeline, and knowing that without instrumenting anything is what stops the next person
-   * from optimising the wrong stage.
+   * Cheap and worth having by default, and the reason is a cautionary tale rather than a principle. This
+   * used to say erosion was *two orders of magnitude* more expensive than anything else in the pipeline.
+   * It is not, and was not: measured on the 512 km reference world, erosion is about a third of the build
+   * and town layout is a quarter, with settlement roads behind them. Nobody had checked, the claim sat
+   * here for a long time as the one piece of performance guidance in the module, and it pointed at
+   * roughly the wrong half of the pipeline.
+   *
+   * So: this line is worth printing because a measurement beats a remembered measurement, and
+   * `-Dworldgen.timings=true` splits the expensive stages further still - see
+   * [net.bestia.worldgen.core.Timings] for the sub-stage counters and
+   * [net.bestia.worldgen.viewer.BenchMain] for comparing two ways of running the same world.
    */
   private object Progress : StageListener {
     override fun onStageFinish(

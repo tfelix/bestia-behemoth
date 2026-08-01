@@ -1,5 +1,6 @@
 package net.bestia.worldgen.pipeline
 
+import net.bestia.worldgen.core.Timings
 import java.util.Locale
 
 /**
@@ -52,6 +53,10 @@ object InvariantsMain {
         }
       }
     )
+
+    // The sweep builds nothing but worlds and writes no images, which makes it the cheapest honest way to
+    // time the generator: `./gradlew :worldgen:invariants -Ptimings -Pseeds=1 -Pcells=512`.
+    Timings.printAndReset()
 
     val seconds = (System.currentTimeMillis() - startedAt) / 1000.0
     if (land.isNotEmpty()) {

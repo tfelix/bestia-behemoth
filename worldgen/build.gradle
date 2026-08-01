@@ -47,8 +47,13 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+tasks.named("test") {
     useJUnitPlatform()
+
+    // `./gradlew :worldgen:test -Pserial` runs the whole suite on one thread. The first question about any
+    // new test failure is whether the work splitting caused it, and this is how that is answered in one run.
+    if (project.hasProperty('serial')) systemProperty 'worldgen.parallel', 'false'
+    if (project.hasProperty('threads')) systemProperty 'worldgen.threads', project.property('threads')
 }
 
 /** Where zone-server's birth settings for the world it boots live. */
@@ -80,6 +85,20 @@ def worldArgs = { task ->
         task.args '--width-cells', project.property('cells')
         task.args '--height-cells', project.property('cells')
     }
+
+    // These three are read as system properties rather than flags because they are switches on *how* the
+    // generator runs rather than on what world it makes, and the run modes have to reach code (Grid, the
+    // flow solver) that never sees a WorldConfig. JavaExec forks, so a -D on the gradlew command line does
+    // not arrive on its own - hence the explicit forwarding.
+    //
+    //   -Ptimings          print the sub-stage breakdown that StageListener cannot see
+    //   -Pserial           force every parallel loop back onto one thread
+    //   -Pthreads=<n>      pin the worker count, for measuring how a change actually scales
+    if (project.hasProperty('timings')) task.systemProperty 'worldgen.timings', 'true'
+    if (project.hasProperty('serial')) task.systemProperty 'worldgen.parallel', 'false'
+    if (project.hasProperty('threads')) {
+        task.systemProperty 'worldgen.threads', project.property('threads')
+    }
 }
 
 /**
@@ -103,6 +122,24 @@ tasks.register('viewer', JavaExec) {
     // JavaExec forks a fresh JVM, so a -D on the gradlew command line does not reach the viewer.
     // See ViewerMain.installLookAndFeel for when this is worth reaching for.
     if (project.hasProperty('laf')) systemProperty 'worldgen.laf', project.property('laf')
+}
+
+/**
+ * Serial against parallel, same JVM, same world: `./gradlew :worldgen:bench -Pcells=512 -Preps=3`.
+ *
+ * The only honest way to measure the split on a machine that is also running a desktop - see BenchMain.
+ */
+tasks.register('bench', JavaExec) {
+    group = 'worldgen'
+    description = 'Times the world tier built serially against the same world built in parallel'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.BenchMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    if (project.hasProperty('cells')) args '--cells', project.property('cells')
+    if (project.hasProperty('reps')) args '--reps', project.property('reps')
+    if (project.hasProperty('threads')) {
+        systemProperty 'worldgen.threads', project.property('threads')
+    }
 }
 
 /** Same world, rendered to PNGs - works over SSH and in CI: `./gradlew :worldgen:viewerExport`. */
@@ -227,4 +264,9 @@ tasks.register('invariants', JavaExec) {
     if (project.hasProperty('firstSeed')) {
         args '--first-seed', project.property('firstSeed')
     }
+    // -Ptimings, -Pserial and -Pthreads, same as the viewer tasks. The sweep builds one world per core,
+    // so -Pserial here is the difference between a coffee and a glance at the screen.
+    if (project.hasProperty('timings')) systemProperty 'worldgen.timings', 'true'
+    if (project.hasProperty('serial')) systemProperty 'worldgen.parallel', 'false'
+    if (project.hasProperty('threads')) systemProperty 'worldgen.threads', project.property('threads')
 }
