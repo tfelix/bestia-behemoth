@@ -1,19 +1,21 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.core.ColumnHeights
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
-import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.pipeline.StandardWorld
-import net.bestia.worldgen.pipeline.WorldParams
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.SurfaceColumns
+import net.bestia.worldgen.voxel.VoxelChunk
 import java.util.Locale
 
 /**
@@ -29,6 +31,7 @@ import java.util.Locale
  * ./gradlew :worldgen:probe -Pgenesis                        # ...in the world zone-server boots
  * ./gradlew :worldgen:probe -Px=32000 -Py=32000 -Pspan=64    # a particular place
  * ./gradlew :worldgen:probe -Psurvey=400                     # hunt for the most mixed patch in the world
+ * ./gradlew :worldgen:probe -Pon=mine -Psection              # ...and a vertical slice through it
  * ```
  */
 object ProbeMain {
@@ -99,6 +102,14 @@ object ProbeMain {
 
     probe.describe(centre.first, centre.second)
     probe.dump(centre.first, centre.second, span)
+
+    // Both views, not one instead of the other. A shaft is a ring of collar in the plan view and a hole in
+    // the section, and either alone can be produced by a bug that the pair cannot: an intact plan view over
+    // an empty section is a hole with a lid, and a hole in the section under undisturbed grass is a shaft
+    // whose collar never materialised.
+    if (cli.has(SECTION)) {
+      probe.section(centre.first, centre.second, span, cli.int(BELOW) ?: 24)
+    }
   }
 
   /** One material tally over a square window of voxel columns. */
@@ -124,10 +135,42 @@ object ProbeMain {
     /** Materialising a chunk per voxel would make a 48 m window 2 300 chunk builds. */
     private val chunks = HashMap<Long, SurfaceColumns>()
 
+    /** Whole slabs, for [section]. A plan view never needs one; a section is nothing but interior voxels. */
+    private val slabs = HashMap<ChunkPos, VoxelChunk>()
+
+    private val heights = HashMap<ChunkPos, ColumnHeights>()
+
     private fun columnsOf(chunkX: Int, chunkY: Int): SurfaceColumns =
       chunks.getOrPut(chunkX.toLong() shl 32 or (chunkY.toLong() and 0xFFFFFFFFL)) {
         generated.materializer.surfaceColumns(chunkX, chunkY)
       }
+
+    /** The material of one voxel anywhere in the world, by global voxel index. */
+    private fun voxelAt(voxelX: Int, voxelY: Int, globalZ: Int): BlockType {
+      val chunk = ChunkPos(
+        Math.floorDiv(voxelX, config.chunkSize),
+        Math.floorDiv(voxelY, config.chunkSize),
+        Math.floorDiv(globalZ, config.chunkHeight)
+      )
+      val slab = slabs.getOrPut(chunk) { generated.materializer.materialize(chunk) }
+      return BlockType.of(
+        slab.rawAt(
+          Math.floorMod(voxelX, config.chunkSize),
+          Math.floorMod(voxelY, config.chunkSize),
+          Math.floorMod(globalZ, config.chunkHeight)
+        )
+      )
+    }
+
+    /** Terrain height of one voxel column - the heightfield with every vector feature stamped, no blocks. */
+    private fun terrainAt(voxelX: Int, voxelY: Int): Double {
+      val chunk = ChunkPos(
+        Math.floorDiv(voxelX, config.chunkSize),
+        Math.floorDiv(voxelY, config.chunkSize)
+      )
+      val column = heights.getOrPut(chunk) { generated.columns.heights(chunk, 0) }
+      return column[Math.floorMod(voxelX, config.chunkSize), Math.floorMod(voxelY, config.chunkSize)]
+    }
 
     private fun blockAt(worldX: Double, worldY: Double): Pair<BlockType, Double> {
       val voxelX = Math.floor(worldX / config.voxelSize).toInt()
@@ -220,6 +263,85 @@ object ProbeMain {
         // plus and minus 1.8e308 and read as a numerical catastrophe rather than as "this is the sea".
         println("no surface elevation anywhere in the window - every column is under water")
       }
+    }
+
+    /**
+     * A vertical slice through the ground, one character per voxel, looking north.
+     *
+     * **The view that had to exist before subtraction could.** Every other view here goes through
+     * [SurfaceColumns], which reports the topmost non-air voxel - so a shaft, a passage or a cellar under
+     * intact ground is *by construction* invisible to all of them, and a carve that silently did nothing looks
+     * exactly like one that worked. `-Pon=mine` showing undisturbed grass is on record as the way that failure
+     * presents.
+     *
+     * Air is a space and nothing else is, which is the whole readability decision: a void reads as a void at a
+     * glance, and the eye does not have to consult a legend to find the thing being looked for.
+     *
+     * The vertical window is taken from the terrain along the strip rather than from the chunk grid, so the
+     * band printed is the ground and what has been cut out of it, not whichever 256 m slab the ground happens
+     * to fall in.
+     *
+     * @param depth metres to print below the lowest ground in the strip
+     */
+    fun section(centreX: Double, centreY: Double, span: Int, depth: Int) {
+      val half = span / 2
+      val voxelY = Math.floor(centreY / config.voxelSize).toInt()
+      val centreVoxelX = Math.floor(centreX / config.voxelSize).toInt()
+
+      var lowest = Double.MAX_VALUE
+      var highest = -Double.MAX_VALUE
+      for (dx in -half..half) {
+        val ground = terrainAt(centreVoxelX + dx, voxelY)
+        lowest = minOf(lowest, ground)
+        highest = maxOf(highest, ground)
+      }
+
+      val topZ = config.voxelZOf(highest) + SECTION_SKY
+      val bottomZ = config.voxelZOf(lowest) - Math.max(1, depth)
+
+      val glyphs = LinkedHashMap<BlockType, Char>()
+      val counts = HashMap<BlockType, Int>()
+      val rows = ArrayList<String>()
+
+      // Air first, so it holds the space rather than whichever material the top-left voxel happened to be.
+      glyphs[BlockType.AIR] = ' '
+
+      for (globalZ in topZ downTo bottomZ) {
+        val row = StringBuilder()
+        for (dx in -half..half) {
+          val block = voxelAt(centreVoxelX + dx, voxelY, globalZ)
+          counts[block] = (counts[block] ?: 0) + 1
+          row.append(glyphs.getOrPut(block) { GLYPHS[(glyphs.size - 1) % GLYPHS.length] })
+        }
+        rows.add("${"%8.1f".format(Locale.ROOT, config.elevationOfVoxel(globalZ))}  $row")
+      }
+
+      println()
+      println("west-east section ${span} m wide, ${topZ - bottomZ + 1} voxels tall, at y=${centreY.toInt()}:")
+      // The terrain the window was sized from, printed because it is the one number a reader cannot recover
+      // from the picture: everything visible is what the *materialiser* did, and this is what it was given.
+      println("  ground ${"%.1f".format(Locale.ROOT, lowest)} .. ${"%.1f".format(Locale.ROOT, highest)} m " +
+          "along the strip, ${depth} m of it printed below the lowest")
+      rows.forEach { println("  $it") }
+
+      println()
+      println("legend, commonest first (air is blank):")
+      counts.entries.sortedByDescending { it.value }.forEach { (block, count) ->
+        println("  '${glyphs[block]}' ${block.name.padEnd(12)} ${count.toString().padStart(6)}")
+      }
+
+      // The one number that separates a working carve from a no-op, and the reason this method prints anything
+      // beyond the picture: air below the ground surface is what subtraction produces and nothing else does.
+      var voidVoxels = 0
+      for (dx in -half..half) {
+        val ground = terrainAt(centreVoxelX + dx, voxelY)
+        val surfaceZ = config.voxelZOf(ground)
+        for (globalZ in bottomZ..minOf(topZ, surfaceZ - 1)) {
+          if (voxelAt(centreVoxelX + dx, voxelY, globalZ) == BlockType.AIR) voidVoxels++
+        }
+      }
+      println()
+      println("air below the ground surface: $voidVoxels voxels")
     }
 
     /**
@@ -376,10 +498,21 @@ object ProbeMain {
 
       // The midpoint of the centreline, not the centre of the bounding box: a meander's bbox centre can sit on
       // the far bank, which is precisely the wrong place to stand when the question is how wide the channel is.
-      val at = if (feature is PolylineFeature) {
-        val mid = feature.centerline.pointAt(feature.centerline.length / 2.0)
+      //
+      // A MarkerFeature is the same hazard and worse. It is pure geometry with `corridorWidthMax = 0`, so its
+      // bbox is exactly the extent its centreline wanders over and nothing brings the centre back onto the
+      // line: a wall circuit's bbox centre is the middle of the town, and a passage that turns as it goes has a
+      // bbox centre in solid rock. Both would be "no such feature here" reported as a place to stand.
+      val line = when (feature) {
+        is PolylineFeature -> feature.centerline
+        is MarkerFeature -> feature.centerline
+        else -> null
+      }
+
+      val at = if (line != null) {
+        val mid = line.pointAt(line.length / 2.0)
         println("  on ${feature.kind} ${nth + 1} of ${matching.size}, " +
-            "midpoint of a ${feature.centerline.length.toInt()} m centreline")
+            "midpoint of a ${line.length.toInt()} m centreline")
         mid.x to mid.y
       } else {
         val box = feature.bbox
@@ -487,6 +620,21 @@ object ProbeMain {
 
   private const val ECOTONE = "--ecotone"
 
+  private const val SECTION = "--section"
+
+  /**
+   * Metres of ground to print below the lowest column of a section.
+   *
+   * Spelled `--below` and reached by `-Pbelow` rather than the obvious `--depth`, because `-Pdepth` cannot be
+   * read from a Gradle build: `Project.getDepth()` exists, so `project.hasProperty('depth')` is true on every
+   * build and the value forwarded is the project's nesting level. It arrived here as `1` no matter what was
+   * asked for, and the section quietly printed a metre of rock. See the `cli` helper in `worldgen/build.gradle`.
+   */
+  private const val BELOW = "--below"
+
+  /** Voxels of sky above the highest ground in a section, so an open shaft has somewhere to open into. */
+  private const val SECTION_SKY = 4
+
   /**
    * Spacing of the ecotone lattice in metres.
    *
@@ -496,6 +644,8 @@ object ProbeMain {
    */
   private const val LATTICE_METRES = 211.0
 
-  private val PROBE_FLAGS =
-    setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", DROPLETS, ECOTONE)
+  private val PROBE_FLAGS = setOf(
+    "--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", BELOW,
+    DROPLETS, ECOTONE, SECTION
+  )
 }

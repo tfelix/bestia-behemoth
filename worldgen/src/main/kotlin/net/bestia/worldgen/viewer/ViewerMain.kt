@@ -3,6 +3,7 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
@@ -14,6 +15,7 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.voxel.VoxelSeamCheck
 import java.awt.GraphicsEnvironment
 import java.io.File
 import java.util.Locale
@@ -66,6 +68,9 @@ object ViewerMain {
       // Worth printing on every export: a picture will not tell you that two chunks disagree by a
       // centimetre, and that is exactly the failure this pipeline is built to avoid.
       scene.seamCheck(Viewport.fit(scene.bounds, 256, 256))?.let { println(it) }
+      // The same argument one tier down, where the heightfield check cannot reach: it compares heights on a
+      // single z, so a chunk whose blocks or occupancy came out differently the second time passes it.
+      println(VoxelSeamCheck.run(generated.materializer, origin = chunkWorthChecking(generated)))
       return
     }
 
@@ -148,6 +153,31 @@ object ViewerMain {
 
       println("  ${stage.id} @ ${region.resolution}: $produced in $millis ms")
     }
+  }
+
+  /**
+   * A chunk with something in it, for [VoxelSeamCheck].
+   *
+   * A determinism check over a block of ocean floor or open sky compares a few million identical zeroes and
+   * reports itself clean, which is true and tells you nothing - so the block is anchored on a building rather
+   * than on the origin or the middle of the map. Buildings are the densest thing the chunk tier writes: a town
+   * chunk has masonry, roofing, paving, spans in one buffer and now removals, which is every code path the
+   * check exists for in one place.
+   *
+   * The fallback is the centre of the world with no claim attached, because a world with no buildings at all is
+   * a much larger finding than a vacuous seam check, and `Report.solidVoxels` says which happened.
+   */
+  private fun chunkWorthChecking(generated: GeneratedWorld): ChunkPos {
+    val config = generated.config
+    val built = generated.world.features.all().firstOrNull { it.kind == FeatureKind.BUILDING }
+
+    val x = if (built != null) (built.bbox.minX + built.bbox.maxX) * 0.5 else config.widthMetres * 0.5
+    val y = if (built != null) (built.bbox.minY + built.bbox.maxY) * 0.5 else config.heightMetres * 0.5
+
+    return ChunkPos(
+      Math.floorDiv(Math.floor(x / config.voxelSize).toInt(), config.chunkSize),
+      Math.floorDiv(Math.floor(y / config.voxelSize).toInt(), config.chunkSize)
+    )
   }
 
   /**

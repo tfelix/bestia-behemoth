@@ -21,7 +21,7 @@ module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
 | 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviation 3; 4 half closed | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviation 2; 1 closed but shipping off | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt`, `geo/DropletHeightField.kt` |
-| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy and town structures — no scatter pass, no caves | `voxel/` |
+| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures and subtraction — no scatter pass, no caves | `voxel/` |
 | 6 | Derived structures | **done** | `derived/` |
 | 7 | Resources + habitability + settlements + roads | **done** — deviation 5 | `resource/`, `civ/` |
 | 8 | Town layout + buildings | **done** — deviation 8 | `civ/TownStage.kt`, `civ/StreetNetwork.kt`, `civ/TownBuildings.kt`, `voxel/TownStructures.kt` |
@@ -101,7 +101,8 @@ is an index, not the reasoning. Grouped by what it would take.
   `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds that nothing emits.
   `FootprintFeature` closed the cheap ninety percent; the rest is clipping, offsetting and concave indexing.
 - **Caves.** No feature kind, no `carve_caves`. The client's surface-nets mesher already handles them, which
-  is the unusual part — the renderer is ahead of the generator here.
+  is the unusual part — the renderer is ahead of the generator here. **The tier can now subtract**, so what is
+  left is the cave system itself rather than a change to how materialisation works; see below.
 - **The scatter pass.** No vegetation, no chunk-seeded anything, so the "chunk-seeded randomness is safe here,
   not in profiles" rule still has no users.
 - **Live NPCs.** Schedules, rumour propagation, confidence on knowledge, expand-and-collapse. `pop/` produces
@@ -126,16 +127,28 @@ here.
 - **Chunk-scale droplet erosion**, closing deviation 1 — **and shipping off, on cost rather than seam
   grounds.** A whole-world render evaluates it per pixel and thrashes the tile cache; see that deviation for
   the measurement and for the four ways to make it cheaper.
+- **Voxel subtraction.** `StructureSpans.remove` stores a span whose material is `AIR` — the same vocabulary
+  `ChunkDelta.set(x, y, z, AIR)` uses for a player breaking a block — and `ChunkMaterializer.carve` applies
+  every removal *after* every addition, so a hole is defined by the material it is a hole in and a shaft can
+  pierce its own collar. The floor of a void rounds by the fill rule and keeps a fractional voxel; the ceiling
+  rounds by the centre rule, because a fractional ceiling would read to `WalkableTile` and `ColumnSummary` as a
+  standable floor inside solid rock. Nothing may carve under standing water, vetoed once at the call site.
+  Its first consumer is the mine head, which is now an open shaft cut through a masonry apron rather than a
+  planked cover; the section view (`probe -Pon=mine -Psection`) shows a 7 m void going 24 m down, against
+  **0 voxels of air below the surface** before. `voxel/VoxelSeamCheck` compares two generations of a chunk byte
+  for byte, blocks *and* occupancy, and prints beside `SeamCheck` on every export.
 
 **Wants a stage or a pass.**
 
-- **Road-junction and trough-tributary smoothing.** The two places where a `min` of two profiles still leaves
-  a crease that the confluence feature solves for rivers and nothing solves here.
+- ~~**Road-junction and trough-tributary smoothing.**~~ Measured, and **neither half is the defect it was filed
+  as**; kept here because the premise is plausible enough to be re-derived. Roads blend with `REPLACE`, not
+  `MIN`, so two of them meeting never `min` against each other at all. Trough junctions do exist and are
+  `MIN`-blended, but the floors merge at the same level — so `min` is a no-op there — and the wedge above them
+  is the truncated spur this stage already claims as a feature. Curvature through the five junctions of the
+  reference world came out no rougher than controls 1 200 m away, and smoother in four of five. See
+  `LinearFeatures.road` and `GlacialStage.extract`.
 - **The place → route → regrow → replace settlement iteration** — single pass.
 - **Oil and gas** — skipped because nothing downstream consumes them.
-- **Caves.** Repeated from the subsystem list above for one reason worth knowing: **nothing in the voxel tier
-  can subtract.** `StructureSpans` adds spans and has no way to remove them, which is why a mine head is a
-  planked shaft cover rather than a hole, and why caves are not a pass but a change to how the tier works.
 - **Town blocks as objects** (deviation 8), **building interiors**, and a **shape grammar** that reads the
   grammar seed every building already carries.
 - **History**: deities and monsters as entities, technology as more than a scalar, event templates with pre-
@@ -896,9 +909,9 @@ file is one somebody will later mistake for a bug.
    planarisation they needed stays, because the chains and the overlap tests need it too.
    (`civ/StreetNetwork.kt`)
 
-Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits, and see
-the note on subtraction under *Still missing*), navigable rivers as cheap trade-graph edges, and the
-place → route → regrow → replace settlement iteration (single pass).
+Also unbuilt, and smaller: caves (the design's cave systems are vector features that nothing emits — the voxel
+tier can subtract now, so what is missing is the systems and not the mechanism), navigable rivers as cheap
+trade-graph edges, and the place → route → regrow → replace settlement iteration (single pass).
 
 New with steps 8–10, and worth knowing before reading a town: **buildings are capped at 1 200 per
 settlement**, and a city of twenty thousand wants four thousand. Lots are assigned in descending land
@@ -1971,6 +1984,10 @@ Note the ordering: natural terrain, then vector features carved into it, then ma
 > Still not present: `carve_caves` and `place_vegetation`. So the scatter pass proper does not exist, there is
 > no vegetation in the block palette to place, and **nothing chunk-seeded exists anywhere** - which means the
 > "chunk-seeded randomness is safe here, not in profiles" line is still a rule with no users.
+>
+> What *has* arrived since is the machinery `carve_caves` would need: `ChunkMaterializer.carve` removes a span
+> of material after the column is assembled, and the mine head uses it. So caves are now a matter of emitting
+> the systems, not of teaching the tier to subtract.
 
 ### Persistence & player modification
 

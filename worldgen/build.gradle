@@ -47,13 +47,34 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+/**
+ * The value of a `-P` switch, or null when it was not given. `''` for a switch given without a value.
+ *
+ * **Every switch in this file goes through this rather than through `project.hasProperty`, and the difference
+ * is a bug that was live.** `hasProperty` resolves against the whole `Project` bean, so it answers *true* for
+ * the name of any getter Gradle happens to define - and `Project.getDepth()` exists, returning how deeply
+ * nested the project is. `-Pdepth=8` on `:worldgen` therefore arrived as `--depth 1`, silently, with no way to
+ * tell from the output that the number printed was Gradle's and not the one asked for.
+ *
+ * `-Partifacts` on the `chronicle` task was the same bug already shipped: `Project.getArtifacts()` exists too,
+ * so the flag was **always** on and `./gradlew :worldgen:chronicle` had been printing the artifact section
+ * whether or not anybody asked for it.
+ *
+ * `startParameter.projectProperties` is the `-P` map and nothing else, so a switch means what it says. This
+ * project has no `gradle.properties`, so nothing is lost by ignoring that source as well.
+ *
+ * The lesson is the one the two comments below already record about `-Pcells` and `-Pgenesis`: a switch that is
+ * accepted and quietly ignored produces a measurement that looks like an answer to the question asked.
+ */
+def cli = { String name -> project.gradle.startParameter.projectProperties[name] }
+
 tasks.named("test") {
     useJUnitPlatform()
 
     // `./gradlew :worldgen:test -Pserial` runs the whole suite on one thread. The first question about any
     // new test failure is whether the work splitting caused it, and this is how that is answered in one run.
-    if (project.hasProperty('serial')) systemProperty 'worldgen.parallel', 'false'
-    if (project.hasProperty('threads')) systemProperty 'worldgen.threads', project.property('threads')
+    if (cli('serial') != null) systemProperty 'worldgen.parallel', 'false'
+    if (cli('threads') != null) systemProperty 'worldgen.threads', cli('threads')
 }
 
 /**
@@ -158,10 +179,10 @@ def genesisSettings = rootProject.layout.projectDirectory
  * worldArgs because a Groovy closure resolves a script-level `def` at creation, not at call.
  */
 def runModes = { task ->
-    if (project.hasProperty('timings')) task.systemProperty 'worldgen.timings', 'true'
-    if (project.hasProperty('serial')) task.systemProperty 'worldgen.parallel', 'false'
-    if (project.hasProperty('threads')) {
-        task.systemProperty 'worldgen.threads', project.property('threads')
+    if (cli('timings') != null) task.systemProperty 'worldgen.timings', 'true'
+    if (cli('serial') != null) task.systemProperty 'worldgen.parallel', 'false'
+    if (cli('threads') != null) {
+        task.systemProperty 'worldgen.threads', cli('threads')
     }
 }
 
@@ -186,15 +207,15 @@ def runModes = { task ->
  * other could be pointed at half a generator.
  */
 def worldArgs = { task ->
-    if (project.hasProperty('genesis')) {
+    if (cli('genesis') != null) {
         task.args WorldGenSettings.toolArgs(genesisSettings.asFile)
     }
-    if (project.hasProperty('seed')) task.args '--seed', project.property('seed')
-    if (project.hasProperty('cells')) {
-        task.args '--width-cells', project.property('cells')
-        task.args '--height-cells', project.property('cells')
+    if (cli('seed') != null) task.args '--seed', cli('seed')
+    if (cli('cells') != null) {
+        task.args '--width-cells', cli('cells')
+        task.args '--height-cells', cli('cells')
     }
-    if (project.hasProperty('params')) task.args '--params', project.property('params')
+    if (cli('params') != null) task.args '--params', cli('params')
 
     runModes(task)
 }
@@ -219,7 +240,7 @@ tasks.register('viewer', JavaExec) {
     worldArgs(it)
     // JavaExec forks a fresh JVM, so a -D on the gradlew command line does not reach the viewer.
     // See ViewerMain.installLookAndFeel for when this is worth reaching for.
-    if (project.hasProperty('laf')) systemProperty 'worldgen.laf', project.property('laf')
+    if (cli('laf') != null) systemProperty 'worldgen.laf', cli('laf')
 }
 
 /**
@@ -233,8 +254,8 @@ tasks.register('bench', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'net.bestia.worldgen.viewer.BenchMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
-    if (project.hasProperty('cells')) args '--cells', project.property('cells')
-    if (project.hasProperty('reps')) args '--reps', project.property('reps')
+    if (cli('cells') != null) args '--cells', cli('cells')
+    if (cli('reps') != null) args '--reps', cli('reps')
     // -Pserial arrives here too, and BenchMain refuses it rather than silently comparing serial to serial.
     runModes(it)
 }
@@ -248,7 +269,7 @@ tasks.register('viewerExport', JavaExec) {
     // Without this JavaExec runs on the Gradle daemon's JVM, which is older than the toolchain the
     // classes were compiled against.
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
-    args '--export', project.findProperty('out') ?: "$buildDir/viewer"
+    args '--export', cli('out') ?: "$buildDir/viewer"
     worldArgs(it)
 }
 
@@ -265,18 +286,25 @@ tasks.register('probe', JavaExec) {
     mainClass = 'net.bestia.worldgen.viewer.ProbeMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     worldArgs(it)
-    if (project.hasProperty('x')) args '--x', project.property('x')
-    if (project.hasProperty('y')) args '--y', project.property('y')
-    if (project.hasProperty('span')) args '--span', project.property('span')
-    if (project.hasProperty('at')) args '--at', project.property('at')
-    if (project.hasProperty('survey')) args '--survey', project.property('survey')
-    if (project.hasProperty('on')) args '--on', project.property('on')
-    if (project.hasProperty('nth')) args '--nth', project.property('nth')
-    if (project.hasProperty('channels')) args '--channels'
-    if (project.hasProperty('ecotone')) args '--ecotone'
+    if (cli('x') != null) args '--x', cli('x')
+    if (cli('y') != null) args '--y', cli('y')
+    if (cli('span') != null) args '--span', cli('span')
+    if (cli('at') != null) args '--at', cli('at')
+    if (cli('survey') != null) args '--survey', cli('survey')
+    if (cli('on') != null) args '--on', cli('on')
+    if (cli('nth') != null) args '--nth', cli('nth')
+    if (cli('channels') != null) args '--channels'
+    if (cli('ecotone') != null) args '--ecotone'
+    // A vertical slice, and the only view of anything under intact ground: every other one reports the topmost
+    // non-air voxel, so a shaft or a passage is invisible to all of them. See ProbeMain.section.
+    //
+    // `-Pbelow` rather than the obvious `-Pdepth`, because `Project.getDepth()` exists and would answer for it.
+    // See `cli` at the top of this file.
+    if (cli('section') != null) args '--section'
+    if (cli('below') != null) args '--below', cli('below')
     // Chunk-scale droplet erosion, which ships off. See geo/DropletHeightField; this is the only view of it,
     // because the viewer renders whole worlds and a gully is a pixel there.
-    if (project.hasProperty('droplets')) args '--droplets'
+    if (cli('droplets') != null) args '--droplets'
 }
 
 /**
@@ -299,16 +327,16 @@ tasks.register('town', JavaExec) {
     mainClass = 'net.bestia.worldgen.viewer.TownMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     worldArgs(it)
-    if (project.hasProperty('index')) args '--index', project.property('index')
-    if (project.hasProperty('nth')) args '--nth', project.property('nth')
-    if (project.hasProperty('tier')) args '--tier', project.property('tier')
-    if (project.hasProperty('out')) args '--out', project.property('out')
-    if (project.hasProperty('metresPerPixel')) {
-        args '--metres-per-pixel', project.property('metresPerPixel')
+    if (cli('index') != null) args '--index', cli('index')
+    if (cli('nth') != null) args '--nth', cli('nth')
+    if (cli('tier') != null) args '--tier', cli('tier')
+    if (cli('out') != null) args '--out', cli('out')
+    if (cli('metresPerPixel') != null) {
+        args '--metres-per-pixel', cli('metresPerPixel')
     }
-    if (project.hasProperty('ruin')) args '--ruin'
-    if (project.hasProperty('why')) args '--why'
-    if (project.hasProperty('census')) args '--census'
+    if (cli('ruin') != null) args '--ruin'
+    if (cli('why') != null) args '--why'
+    if (cli('census') != null) args '--census'
 }
 
 /**
@@ -333,14 +361,14 @@ tasks.register('chronicle', JavaExec) {
     mainClass = 'net.bestia.worldgen.viewer.ChronicleMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
     worldArgs(it)
-    if (project.hasProperty('top')) args '--top', project.property('top')
-    if (project.hasProperty('year')) args '--year', project.property('year')
-    if (project.hasProperty('civs')) args '--civs'
-    if (project.hasProperty('artifacts')) args '--artifacts'
-    if (project.hasProperty('figures')) args '--figures'
-    if (project.hasProperty('sites')) args '--sites'
-    if (project.hasProperty('quests')) args '--quests'
-    if (project.hasProperty('all')) args '--all'
+    if (cli('top') != null) args '--top', cli('top')
+    if (cli('year') != null) args '--year', cli('year')
+    if (cli('civs') != null) args '--civs'
+    if (cli('artifacts') != null) args '--artifacts'
+    if (cli('figures') != null) args '--figures'
+    if (cli('sites') != null) args '--sites'
+    if (cli('quests') != null) args '--quests'
+    if (cli('all') != null) args '--all'
 }
 
 /**
@@ -368,9 +396,9 @@ tasks.register('invariants', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'net.bestia.worldgen.viewer.InvariantsMain'
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
-    args '--seeds', project.findProperty('seeds') ?: '25'
-    if (project.hasProperty('firstSeed')) {
-        args '--first-seed', project.property('firstSeed')
+    args '--seeds', cli('seeds') ?: '25'
+    if (cli('firstSeed') != null) {
+        args '--first-seed', cli('firstSeed')
     }
     // Brings -Pcells, -Pgenesis, -Pparams and the run modes. -Pserial here is the difference between a coffee
     // and a glance at the screen, since the sweep builds one world per core.

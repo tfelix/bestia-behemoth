@@ -175,14 +175,7 @@ object StandardWorld {
     val materializer = ChunkMaterializer(
       config = config,
       columns = columns,
-      strata = Stratigraphy(
-        coarseElevation = elevation,
-        hardness = hardness,
-        plateId = world.layers.require(LayerId.PLATE_ID),
-        seed = config.seed,
-        seaLevel = config.seaLevel,
-        params = p.strata
-      ),
+      strata = Stratigraphy.of(world.layers, config, p.strata),
       surface = SurfaceSampler(
         biome = world.layers.require(LayerId.BIOME),
         soilDepth = world.layers.require(LayerId.SOIL_DEPTH),

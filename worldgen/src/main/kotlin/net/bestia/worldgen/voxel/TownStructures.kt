@@ -22,15 +22,33 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Vertical spans of worked material over one voxel column.
+ * Vertical spans of worked ground over one voxel column: material [add]ed, and material [remove]d.
  *
  * A reusable buffer rather than a list of objects, because this is filled once per column of every chunk
  * that contains a town - a city fills it a quarter of a million times per chunk pass - and allocating a
  * list per column would dominate the cost of materialising a town.
  *
- * Four spans is enough for the worst real column: a plinth, a wall below a window, a wall above it, and a
- * roof. A fifth is dropped rather than growing the buffer, on the grounds that a column wanting five spans
- * is a bug in whatever asked for them and silently reallocating would hide it.
+ * ### Removal is spelled AIR, not an inverted span
+ *
+ * A removal is a span whose material is [BlockType.AIR], which is exactly how a player breaking a block is
+ * spelled one tier up - `ChunkDelta.set(x, y, z, AIR)`. Generation and digging therefore share one
+ * vocabulary rather than each having its own, and every reader that already switches on a material id keeps
+ * working.
+ *
+ * The alternative - reading `to <= from` as "remove between them" - was rejected, and the rejection is the
+ * reason that check **stays a silent drop**: an `add` whose two elevations arrive the wrong way round is a
+ * routine slip, and under an inverted-span convention it would quietly delete the ground instead of quietly
+ * building nothing. A hole in a hillside is a much worse failure than a missing plinth, and neither is worth
+ * the risk of confusing the two.
+ *
+ * ### Eight spans, and a count of what did not fit
+ *
+ * Four was enough for the worst *additive* column - a plinth, a wall below a window, a wall above it, and a
+ * roof. Two producers now fill one buffer, so a column can want a building's four spans and a passage carved
+ * under it, and eight is the worst realistic total. A ninth is still dropped rather than growing the buffer,
+ * but it is now counted: silent truncation in a shared buffer reads as one column keeping its rock, which
+ * would look like a plug in a passage and nothing like a capacity limit. [dropped] is what makes it
+ * diagnosable instead of mysterious.
  */
 class StructureSpans {
 
@@ -41,17 +59,52 @@ class StructureSpans {
   var count: Int = 0
     private set
 
+  /**
+   * Spans discarded because the buffer was full, for the life of this buffer.
+   *
+   * Deliberately **not** reset by [clear], which runs per column: a per-column counter can only ever read 0
+   * or a small number and would have to be checked a quarter of a million times to be worth anything. One
+   * buffer serves one chunk, so this is "how many spans this chunk lost", which is a number a caller can
+   * print once and act on.
+   */
+  var dropped: Int = 0
+    private set
+
   fun clear() {
     count = 0
   }
 
+  /** Worked material standing over the ground: masonry, planking, spoil. Never air - see [remove]. */
   fun add(fromElevation: Double, toElevation: Double, material: BlockType) {
-    if (count >= CAPACITY) return
+    require(material != BlockType.AIR) {
+      "Air is how a removal is spelled, so adding it is ambiguous; call remove($fromElevation, $toElevation)"
+    }
+    push(fromElevation, toElevation, material.id)
+  }
+
+  /**
+   * Ground taken away: a shaft, a passage, a doorway.
+   *
+   * The span is the *void* - `from` is the floor it leaves and `to` the ceiling - so a hole that is to reach
+   * the open air must have a `to` above the surface. See `ChunkMaterializer.carve`, which decides how the two
+   * bounding voxels come out.
+   */
+  fun remove(fromElevation: Double, toElevation: Double) {
+    push(fromElevation, toElevation, BlockType.AIR.id)
+  }
+
+  private fun push(fromElevation: Double, toElevation: Double, material: Int) {
+    // Before the capacity check, so a degenerate span is not counted as a truncation. They are different
+    // failures: one is a caller asking for nothing, the other is this buffer refusing something.
     if (toElevation <= fromElevation) return
+    if (count >= CAPACITY) {
+      dropped++
+      return
+    }
 
     bottom[count] = fromElevation
     top[count] = toElevation
-    block[count] = material.id
+    block[count] = material
     count++
   }
 
@@ -59,17 +112,72 @@ class StructureSpans {
   fun topOf(i: Int) = top[i]
   fun blockOf(i: Int) = block[i]
 
-  /** The highest point any span reaches, or [Double.NaN] when there are none. */
+  /** Whether span `i` takes material away rather than putting it there. */
+  fun isRemoval(i: Int) = block[i] == AIR_ID
+
+  /**
+   * The highest point any *added* span reaches, or [Double.NaN] when there are none.
+   *
+   * Removals are skipped, because every caller asks this to find out whether something has been built over
+   * this column - is there a roof above it, a deck, a wall - and a hole is the opposite of an answer to that.
+   * Counting a passage's ceiling here would report a cave as a building.
+   */
   fun ceiling(): Double {
-    if (count == 0) return Double.NaN
-    var highest = top[0]
-    for (i in 1 until count) highest = max(highest, top[i])
+    var highest = Double.NaN
+    for (i in 0 until count) {
+      if (isRemoval(i)) continue
+      if (highest.isNaN() || top[i] > highest) highest = top[i]
+    }
     return highest
   }
 
   private companion object {
-    const val CAPACITY = 4
+    /** A building's four, plus what may be carved through the same column. */
+    const val CAPACITY = 8
+
+    val AIR_ID = BlockType.AIR.id
   }
+}
+
+/**
+ * The geometry of a mine head, in shares of the marker's radius and in metres.
+ *
+ * Its own object rather than four more constants in `TownStructures`' private companion, because a mine head is
+ * the one structure something outside the materialiser needs the dimensions of: subtraction's test asserts what
+ * a shaft does to a column, and asserting it against a copy of these numbers would be a test of the copy.
+ */
+object MineHead {
+
+  /**
+   * Share of the radius that is open shaft, then masonry apron. The rest is spoil.
+   *
+   * A mine's radius is 34 m (`HistorySim.MINE_RADIUS`), so the shaft is a little under seven metres across.
+   * Wide for a shaft and deliberately so: at a metre per voxel a historically honest two-metre shaft is two
+   * voxels, which reads as a chipped block rather than as a way in. It was 0.18 while the middle of the head was
+   * a planked cover, where the same share described a platform rather than a hole.
+   */
+  const val SHAFT_SHARE = 0.10
+  const val COLLAR_SHARE = 0.30
+
+  const val COLLAR_HEIGHT = 1.4
+  const val SPOIL_HEIGHT = 2.2
+
+  /**
+   * How far down a shaft goes, in metres.
+   *
+   * Deep enough to read as a shaft rather than as a pit, and no deeper: nothing is down there yet. When
+   * passages arrive they will meet a shaft at their own elevation rather than at this one, so this is a length
+   * and not a datum.
+   */
+  const val SHAFT_DEPTH = 24.0
+
+  /**
+   * Metres the shaft's void stands above the apron over it.
+   *
+   * Must exceed one voxel, which is what guarantees the surface voxel is removed rather than left as a lid over
+   * the hole - see `TownStructures.mineColumn`.
+   */
+  const val SHAFT_HEADROOM = 1.5
 }
 
 /**
@@ -233,10 +341,11 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
    *
    * @param ground terrain height of this column, after every feature including the building pads. Structures
    *   stand on it, so a plinth is the gap between it and a floor the pad could not quite reach.
+   * @param into an already-cleared buffer. This does **not** clear it: one buffer now serves several
+   *   producers over the same column, so clearing belongs to whoever owns the column rather than to each
+   *   producer in turn, where the second would erase the first.
    */
   fun columnAt(worldX: Double, worldY: Double, ground: Double, into: StructureSpans) {
-    into.clear()
-
     for (structure in buildings) {
       if (!structure.footprint.contains(worldX, worldY)) continue
       buildingColumn(structure, worldX, worldY, ground, into)
@@ -467,35 +576,43 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   }
 
   /**
-   * A mine head: a planked shaft cover inside a stone collar, with a spoil heap round it.
+   * A mine head: an open shaft cut through a masonry apron, with a spoil heap round it.
    *
-   * **The shaft is covered, not open, and that is a limitation rather than a choice.** The first version added a
-   * span six metres below the surface intending a hole, and `probe -Pon=mine` showed the middle of the mine head
-   * as undisturbed grass: [StructureSpans] *adds* blocks and has no way to remove them, so a span below ground
-   * cannot carve the ground above it. Nothing in the voxel tier can subtract, which is also why there are no
-   * caves - the architecture document lists them as unbuilt for the same reason.
+   * **This is the first thing in the world that is a hole.** It used to be a planked cover, and the KDoc here
+   * used to explain that the cover was a limitation rather than a choice: an earlier version added a span six
+   * metres below the surface intending a shaft, and `probe -Pon=mine` showed the middle of the mine head as
+   * undisturbed grass, because [StructureSpans] could only add. Subtraction is why that paragraph is gone.
    *
-   * A planked cover is the honest thing to build with what exists, and it is authentic: a shaft head has a
-   * windlass platform over it, and an uncovered shaft is a thing mines deliberately do not have. If subtraction
-   * ever arrives, this is one of the first places to revisit.
+   * The apron is a **disc and not a ring**, and the shaft is then cut through it. That is how a shaft head is
+   * actually built - the collar is not a kerb somebody laid around a hole, it is a floor with a hole in it - and
+   * it is also what makes this column the case `ChunkMaterializer.carve` is ordered for: one column both adds
+   * and removes, so the removal has to be applied after every addition or the shaft would be filled in by its
+   * own collar.
    */
   private fun mineColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
     val fraction = distance / site.radius
 
-    when {
-      fraction < MINE_SHAFT_SHARE -> {
-        into.add(ground - SLAB_THICKNESS, ground + MINE_COVER_HEIGHT, BlockType.PLANK)
-      }
+    if (fraction < MineHead.COLLAR_SHARE) {
+      into.add(
+        ground - SLAB_THICKNESS,
+        ground + MineHead.COLLAR_HEIGHT * (1.0 - site.decay * 0.5),
+        BlockType.MASONRY
+      )
 
-      fraction < MINE_COLLAR_SHARE -> {
-        into.add(ground - SLAB_THICKNESS, ground + MINE_COLLAR_HEIGHT * (1.0 - site.decay * 0.5), BlockType.MASONRY)
+      if (fraction < MineHead.SHAFT_SHARE) {
+        // The ceiling is above the apron and therefore above the ground, deliberately. A void whose ceiling
+        // stops at the surface keeps the voxel the surface falls inside - see `carve`, where the ceiling rounds
+        // down so that no derived reader finds a standable floor inside rock - and that leftover voxel is a lid.
+        // Which is to say: a shaft that stops at ground level is the covered shaft this replaced.
+        into.remove(
+          ground - MineHead.SHAFT_DEPTH,
+          ground + MineHead.COLLAR_HEIGHT + MineHead.SHAFT_HEADROOM
+        )
       }
-
-      else -> {
-        // Spoil: highest just outside the collar and tailing off, because that is where the barrows tipped it.
-        val spoil = MINE_SPOIL_HEIGHT * (1.0 - fraction) * (1.0 - site.decay * 0.3)
-        if (spoil > 0.0) into.add(ground - SLAB_THICKNESS, ground + spoil, BlockType.GRAVEL)
-      }
+    } else {
+      // Spoil: highest just outside the collar and tailing off, because that is where the barrows tipped it.
+      val spoil = MineHead.SPOIL_HEIGHT * (1.0 - fraction) * (1.0 - site.decay * 0.3)
+      if (spoil > 0.0) into.add(ground - SLAB_THICKNESS, ground + spoil, BlockType.GRAVEL)
     }
   }
 
@@ -590,13 +707,6 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
-
-    /** Share of a mine head's radius that is open shaft, then stone collar. The rest is spoil. */
-    const val MINE_SHAFT_SHARE = 0.18
-    const val MINE_COLLAR_SHARE = 0.30
-    const val MINE_COVER_HEIGHT = 0.8
-    const val MINE_COLLAR_HEIGHT = 1.4
-    const val MINE_SPOIL_HEIGHT = 2.2
 
     /** A cloister, from the outside in: precinct wall, range of buildings, then the open garth. */
     const val MONASTERY_WALL_SHARE = 0.92

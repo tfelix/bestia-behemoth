@@ -3,8 +3,11 @@ package net.bestia.worldgen.voxel
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.IntLayer
+import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.LayerStore
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Noise
 import kotlin.math.floor
 import kotlin.math.pow
@@ -173,11 +176,31 @@ class Stratigraphy(
     return params.minBedThickness + (params.maxBedThickness - params.minBedThickness) * t
   }
 
-  private companion object {
-    const val BED_SALT = 0x1D9C4A7E35B2F80L
-    const val FOLD_SALT = 0x5B27E1D93C4A6F0L
-    const val FACIES_SALT = 0x38F5A2C7E91D46BL
+  companion object {
 
-    const val FOLD_OCTAVES = 3
+    /**
+     * The rock under a generated world, from the layers that decide it.
+     *
+     * The point of a factory rather than three `require` calls at each call site: **anything that wants to know
+     * where a rock type is has to agree with the materialiser about it, and the only way to guarantee that is
+     * for both to build the same object from the same layers.** Two sibling packages each spelling out
+     * `ELEVATION`, `ROCK_HARDNESS`, `PLATE_ID`, the seed and the sea level would agree today and diverge the
+     * first time one of them gained a fourth input - and the divergence would be a stage that thinks the
+     * limestone is somewhere the voxels do not put it, which reads as a bug in whatever consumed the stage.
+     */
+    fun of(layers: LayerStore, config: WorldConfig, params: StrataParams = StrataParams()) = Stratigraphy(
+      coarseElevation = layers.require(LayerId.ELEVATION),
+      hardness = layers.require(LayerId.ROCK_HARDNESS),
+      plateId = layers.require(LayerId.PLATE_ID),
+      seed = config.seed,
+      seaLevel = config.seaLevel,
+      params = params
+    )
+
+    private const val BED_SALT = 0x1D9C4A7E35B2F80L
+    private const val FOLD_SALT = 0x5B27E1D93C4A6F0L
+    private const val FACIES_SALT = 0x38F5A2C7E91D46BL
+
+    private const val FOLD_OCTAVES = 3
   }
 }

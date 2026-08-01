@@ -58,6 +58,12 @@ enum class BlockType(val id: Int, val solid: Boolean, val opaque: Boolean = soli
   ROOF_TILE(64, solid = true),
 
   /** Floorboards and shutters. Solid but not load bearing, which nothing yet distinguishes. */
+  /**
+   * Sawn timber. **Nothing places it any more**, since the mine head stopped being a planked shaft cover and
+   * became an open shaft; it is kept because building interiors want floors and a mine wants a headframe, both
+   * of which are queued work. Delete it in the palette renumbering if neither has arrived by then, rather than
+   * letting it become a material nobody can account for.
+   */
   PLANK(65, solid = true),
 
   /** What a razed building leaves. Distinct from GRAVEL so a ruin reads as worked stone, not scree. */

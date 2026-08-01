@@ -16,6 +16,7 @@ import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.resource.ResourceParams
+import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.StrataParams
 
 /**
@@ -129,10 +130,20 @@ data class WorldParams(
    * This is the half that was invisible: the chunk cache key is `(seed, pipelineVersion, chunk)`, and until this
    * was folded in, moving `DetailParams.amplitude` left every cached chunk looking valid while the ground under
    * it had changed.
+   *
+   * [ChunkMaterializer.VERSION] is folded in beside the digests because *code* in the chunk tier had the same
+   * hole that its *values* did. Every stage carries a hand-written `version` for exactly this, and the tier
+   * below them - which decides the blocks a player stands on - carried none, so teaching it to subtract changed
+   * every mine head in every world and no number moved.
    */
   val chunkTierVersion: Long by lazy {
     val r = resolved
-    GenRng.hash(r.detail.digest().value, r.strata.digest().value, r.droplets.digest().value)
+    GenRng.hash(
+      ChunkMaterializer.VERSION.toLong(),
+      r.detail.digest().value,
+      r.strata.digest().value,
+      r.droplets.digest().value
+    )
   }
 
   companion object {

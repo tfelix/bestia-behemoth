@@ -51,8 +51,10 @@ class SurfaceColumns(
  *
  * The ordering is fixed here and it matters: natural terrain and vector features first (which
  * [ChunkColumnSource] has already done), then bedrock stratigraphy, then soil, then the surface cap, then
- * water. Water last, because a lake surface is a property of the world and nothing may carve it; soil
- * after rock, because soil depth is a surface property and the rock beneath it does not care.
+ * water, then what is built on top, and **subtraction last of all**. Water before the structures because a
+ * lake surface is a property of the world and no structure may carve it; soil after rock, because soil depth
+ * is a surface property and the rock beneath it does not care; and removal after everything, because a hole
+ * is defined by the material it is a hole in - see [carve].
  *
  * Nothing in here is chunk-seeded. Every block a column gets is a function of that column's world
  * position and its surface height, which is what makes two chunks agree about the shared column on their
@@ -360,13 +362,97 @@ class ChunkMaterializer(
     // Buildings, wall circuits and what history left behind, for the same reason and by the same rule: a
     // structure is a surface with air under it, which a heightfield cannot express.
     if (spans != null) {
+      spans.clear()
       structures.columnAt(worldX, worldY, top, spans)
+
+      /*
+       * Two passes over the buffer, additions and then removals, rather than one pass in insertion order.
+       *
+       * Both properties this needs come from the split. A hole is defined by the material it is a hole *in*,
+       * so a shaft has to be able to pierce a collar written into the same column - which only works if every
+       * addition has landed before any removal is applied. And among removals the outcome is then independent
+       * of the order they were authored in, which is the property two chunks materialising the same column
+       * from the same features need: they enumerate the same spans, but nothing promises they enumerate them
+       * in the same sequence once more than one producer contributes.
+       *
+       * A priority sort would give the same guarantee at more cost and would invite the idea that spans
+       * compete. They do not: within one column one producer authors them in a deliberate order.
+       */
       for (i in 0 until spans.count) {
+        if (spans.isRemoval(i)) continue
         writeStructure(
           out, offset, baseZ, height,
           spans.bottomOf(i), spans.topOf(i), spans.blockOf(i).toByte()
         )
       }
+
+      // Nothing may open a hole under standing water, and that is stated once here rather than per producer.
+      // A shaft, a passage or an entrance under a lake would drain it - the water is raster-level and level,
+      // so there is no mechanism anywhere that would fill the hole or lower the lake, and the result is a dry
+      // pit with a wall of water standing over it. One veto at the call site cannot be forgotten by the next
+      // producer, which a rule repeated in each of them can.
+      if (waterDepth <= 0.0) {
+        for (i in 0 until spans.count) {
+          if (!spans.isRemoval(i)) continue
+          carve(out, offset, baseZ, height, spans.bottomOf(i), spans.topOf(i))
+        }
+      }
+    }
+  }
+
+  /**
+   * Takes one vertical span of material out of a column, leaving a floor under it and a roof over it.
+   *
+   * Runs after the whole column has been assembled and repairs both arrays as it goes, which is the cheap
+   * order: nothing after the bulk occupancy fill reads the assembly cursor, so the one-air-interface
+   * assumption the fill relies on is left true for assembly and then invalidated by a writer that fixes up
+   * what it touches - exactly as [writeStructure] already does additively.
+   *
+   * ### The floor and the ceiling use different rounding rules, on purpose
+   *
+   * The **floor** uses the fill rule: the void's floor elevation falls inside some voxel, and that voxel keeps
+   * its material with its occupancy cut to however much of it is still below the floor. That is the same
+   * treatment the ground's own top voxel gets, and it means a shaft bottom at 40.3 m stands at 40.3 m rather
+   * than at 40 or 41. Occupancy is only ever *reduced*, never raised, so carving through a surface voxel that
+   * was already partial cannot make it fuller than it was.
+   *
+   * The **ceiling** uses the centre rule: the topmost voxel removed is the highest one whose centre lies below
+   * the void's ceiling, and the voxel above it keeps all of its material. A fractional ceiling would be read
+   * by every derived structure as fill-from-below - [VoxelChunk.solidHeightAt], `ColumnSummary` and
+   * `WalkableTile` all treat occupancy that way - which is to say **as a standable surface floating inside
+   * solid rock**. The cost of rounding instead is up to one voxel of head height at the top of a passage. That
+   * is the whole of the asymmetry, and it is not a new rule: these are the two rules [fillColumn] already
+   * names.
+   *
+   * ### Why the chunk invariant survives
+   *
+   * Every voxel this writes is either `(AIR, EMPTY)` or an existing block at a strictly positive fraction -
+   * the floor voxel's fraction is positive because the floor elevation lies *inside* it, and [Occupancy.of]
+   * never quantises a positive fraction to [Occupancy.EMPTY]. So air stays empty, material stays non-empty,
+   * and [VoxelChunk.validate] and `RleCodec.decode` keep passing without a new `VoxelChunk.set` overload.
+   */
+  private fun carve(
+    out: VoxelChunk,
+    offset: Int,
+    baseZ: Int,
+    height: Int,
+    fromElevation: Double,
+    toElevation: Double
+  ) {
+    val floor = topFilledVoxel(fromElevation) - baseZ
+    val ceiling = highestVoxelAtOrBelow(toElevation) - baseZ
+
+    if (floor in 0 until height) {
+      val i = offset + floor
+      if (out.blocks[i] != AIR) {
+        val reduced = Occupancy.byteOf(fillFractionOf(fromElevation, baseZ + floor))
+        if (Occupancy.unsigned(reduced) < Occupancy.unsigned(out.occupancy[i])) out.occupancy[i] = reduced
+      }
+    }
+
+    for (localZ in max(0, floor + 1)..min(height - 1, ceiling)) {
+      out.blocks[offset + localZ] = AIR
+      out.occupancy[offset + localZ] = Occupancy.EMPTY_BYTE
     }
   }
 
@@ -377,6 +463,12 @@ class ChunkMaterializer(
    * otherwise be masonry at zero occupancy - which is to say masonry that is not there - and a span written
    * into rock would keep the rock's full occupancy at its top voxel, losing the fractional surface. The top
    * voxel is partial for exactly the reason the ground's top voxel is: it is where a surface crosses it.
+   *
+   * It writes over *everything*, deliberately: a wall footing sunk into a hillside is meant to replace the rock
+   * it is sunk into. A producer that must not overwrite - scattered vegetation, which may stand in air and
+   * nowhere else - wants an `onlyIntoAir` variant of this, and it should be a parameter here rather than a
+   * second writer, so that the two rounding rules above cannot drift between copies. Not added yet: nothing
+   * would pass it, and a defaulted flag no caller ever sets is indistinguishable from one that does not work.
    */
   private fun writeStructure(
     out: VoxelChunk,
@@ -437,6 +529,24 @@ class ChunkMaterializer(
     (elevation - config.elevationOfVoxel(globalZ)) / config.voxelSize
 
   companion object {
+
+    /**
+     * Bump on any change to what a column materialises into, so cached chunks are invalidated.
+     *
+     * The chunk tier's equivalent of `Stage.version`, and it exists because the tier did not have one. Stages
+     * each carry a hand-written number that reaches `pipelineVersion` and therefore the chunk cache key; the
+     * tier that turns their output into the blocks a player stands on reached that key only through its
+     * *params* - so changing the materialisation **code** left every cached chunk looking valid. Adding
+     * subtraction changed every mine head in every world and would have moved no number at all.
+     *
+     * Hand-incremented rather than hashed for the reason [net.bestia.worldgen.voxel.OreVeins] and the strata
+     * are not: there is nothing here to hash. It is a statement that behaviour changed, and only a person
+     * knows that. `WorldParams.chunkTierVersion` folds it in.
+     *
+     * 1 was everything up to and including town structures as pure additions.
+     */
+    // 2: subtraction - StructureSpans.remove and carve, and the mine head as an open shaft.
+    const val VERSION = 2
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
