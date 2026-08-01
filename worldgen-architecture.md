@@ -123,7 +123,9 @@ here.
   join. Measured, 3 to 6 worlds in 15 have at least one, rising with size.
 - **Special sites**: mines, monasteries, forts and lighthouses, founded by `HistorySim` on terrain
   `history/SpecialSites` picked out. 18, 5, 22 and 4 of them on the 512 km reference world.
-- **Chunk-scale droplet erosion**, closing deviation 1 — **and shipping off.** See that deviation.
+- **Chunk-scale droplet erosion**, closing deviation 1 — **and shipping off, on cost rather than seam
+  grounds.** A whole-world render evaluates it per pixel and thrashes the tile cache; see that deviation for
+  the measurement and for the four ways to make it cheaper.
 
 **Wants a stage or a pass.**
 
@@ -766,16 +768,63 @@ file is one somebody will later mistake for a bug.
    nowhere to flow and is abandoned - so the region a tile is worst at is the region it contributes nothing to.
    `ChunkSeamTest` runs the check with erosion on and carries the wrong design as a negative control.
 
-   It ships off anyway. The original entry's argument is still true: a seam is the one class of defect this
-   pipeline exists to make impossible, and the cost of being wrong is paid by every chunk of every world. Being
-   confident is not the same as being sure, and the default is where that difference belongs. `probe -Pdroplets`
-   is the way to look at it.
+   **It ships off, and as of the calibration pass the reason is cost rather than seams.** The seam evidence, stated
+   exactly: `DropletErosionTest` runs `ChunkSeamCheck` at zero tolerance over 16 chunks with erosion **on**, and
+   guards against a vacuous pass by asserting the erosion moved more than 0.5 m; a second test shows thread count
+   and generation order change nothing. That is unit scale. **The whole-world `SeamCheck` with it on has never
+   completed** — not because it failed, but because the run below does not finish, which is a tidy illustration of
+   the problem: the cost blocks the very verification that would justify the default.
+
+   What blocks it is throughput, and the numbers are worth keeping because they are large enough to be surprising:
+
+   | with droplets | `viewerExport` (128 cells) | `:worldgen:test` |
+   | --- | --- | --- |
+   | off | 114 s | ~2.5 min |
+   | on | **> 20 min, did not finish** | **> 25 min** |
+
+   **The cost is in the offline tools, not in chunk generation**, and the distinction is the whole of why this is
+   a deferral rather than a rejection. `viewer/ScalarField.kt`'s base-height view calls `heightAt` **once per
+   rendered pixel** over the whole world. Each call blends *four* tiles off the 128 m lattice, each tile miss
+   costs a 129×129 grid of analytic samples plus its droplet simulation, and `cacheLimit` is 512 tiles — so a
+   whole-world render asks for on the order of 10⁶ tiles and, worse, the cache *clears* rather than evicting when
+   it fills, discarding a warm working set each time. Chunk streaming has the opposite access pattern: chunks are
+   contiguous, so a handful of tiles serve hundreds of columns and the cache does its job.
+
+   So the feature is affordable for the thing it is for and unaffordable for the tools that verify it — and those
+   tools are how every phase of this module is checked, which makes the tax recursive. Turning it on would slow
+   every later verification run for a metre-scale detail that is sub-pixel in a whole-world PNG.
+
+   **Making it cheaper, in the order the effort is worth it.** The first item alone is probably enough to make the
+   default free:
+
+   - **Do not evaluate droplets per pixel in the viewer.** The base-height field is documented as "what features
+     blend against", and for a whole-world overview the analytic field *is* that — the droplet delta is smaller
+     than a pixel. Having `WorldScene` show the analytic field for overview extents (or only wrapping in droplets
+     below some window size) removes the pathological access pattern without touching the generator. This is a
+     `viewer/` change and the cheapest real fix.
+   - **Evict instead of clearing.** `tiles.clear()` at the limit throws away the working set wholesale, which
+     turns a near-miss into a cold start. An LRU of the same size is strictly better under contiguous access and
+     no worse under thrash.
+   - **Build the tile's base grid coarsely.** The 129×129 analytic samples dominate a miss, and the droplet
+     simulation only needs a plausible *slope field* to route over — the fine detail is preserved regardless,
+     because the tile contributes a *delta* that is added to the true analytic height. Sampling the base at 8 m
+     and interpolating inside the tile is 16× fewer analytic calls for a routing surface that is smoother than
+     the one being corrected. Measure the resulting gullies before believing it.
+   - **The honest alternative to simulating at all**: keep analytic detail and make it *asymmetric* on curvature
+     — cut on convex ground, fill on concave toes and slope breaks. That is O(1) per column, seam-free by
+     construction, needs no tiles and no cache, and buys the one thing the deviation says analytic noise lacks
+     ("gullies without the debris fans at the bottom of them"). It is not sediment transport and would not be
+     claimed as such, but it is the shape transport produces, and it is the option to reach for if the tile
+     machinery ever looks like more trouble than it is worth.
 
    Two things measurement changed on the way, both recorded in `DropletParams`: the droplet density had to come
    down twentyfold, because at the first figure 7% of cells were pinned at the delta clamp and the clamp was
    shaping the terrain; and a droplet that evaporated or ran out of steps was **deleting the sediment it
    carried**, which made the pass sediment *removal* rather than the transport that is the whole reason to
    prefer it over noise. (`geo/DropletHeightField.kt`)
+
+   It is reachable meanwhile through `probe --droplets` or `droplets.enabled = true` in a params file — the
+   chunk-tier tuning became loadable precisely so that this cost could be A/B'd on one build instead of two.
 2. **Alluvial fans and deltas are raster deposition, not vector polygons.** The vector tier has no
    polygon type; adding one is a subsystem, not a stage. (`geo/ErosionStage.kt`)
 3. **Lakes live in the raster tier**, as a water level plus a basin label, rather than as vector
@@ -874,7 +923,7 @@ system should own a living NPC and worldgen should own what it is made of.
 ./gradlew :worldgen:probe -Pon=river_channel -Pnth=0        # ...centred on a feature too thin to find otherwise
 ./gradlew :worldgen:probe -Pchannels=1                      # channel width and depth against the voxel grid
 ./gradlew :worldgen:probe -Psurvey=12                       # the most mixed surface patches in the world
-./gradlew :worldgen:probe -Pdroplets                        # ...with chunk-scale droplet erosion on
+./gradlew :worldgen:probe -Pdroplets                        # ...with chunk-scale droplet erosion on (ships off: cost)
 ./gradlew :worldgen:town                                    # one settlement: layout, economy, history, a map
 ./gradlew :worldgen:town -Pcensus                           # ...every settlement in one table instead
 ./gradlew :worldgen:town -Pnth=3 -Pwhy                      # ...and why every trade is or is not there

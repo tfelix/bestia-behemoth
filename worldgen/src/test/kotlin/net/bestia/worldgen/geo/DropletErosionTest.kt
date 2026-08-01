@@ -219,9 +219,14 @@ class DropletErosionTest {
 
   @Test
   fun `disabled is bit-identical to the field it wraps`() {
-    // The default path. `enabled = false` must not perturb anything, so switching this feature on and off is a
-    // decision about gullies and not a decision about the whole world's terrain.
-    val field = DropletHeightField(terrain, config.seed, DropletParams())
+    // `enabled = false` must not perturb anything, so switching this feature on and off is a decision about
+    // gullies and not a decision about the whole world's terrain.
+    //
+    // Spelled out rather than taken from `DropletParams()`, which is how this test read until the default
+    // became `enabled = true`. Relying on the default made the test say "the default path does nothing",
+    // which stopped being the property worth asserting the moment the default changed - and the assertion it
+    // became ("the enabled path does nothing") is one this feature exists to violate.
+    val field = DropletHeightField(terrain, config.seed, DropletParams(enabled = false))
 
     for (n in 0 until 5_000) {
       val x = -120.0 + n * 0.41

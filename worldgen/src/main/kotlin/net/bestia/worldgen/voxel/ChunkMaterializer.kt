@@ -71,7 +71,16 @@ class ChunkMaterializer(
   private val config: WorldConfig,
   private val columns: ChunkColumnSource,
   private val strata: Stratigraphy,
-  private val surface: SurfaceSampler,
+
+  /**
+   * The surface classifier: which biome, and therefore which cap and soil, a world position reads as.
+   *
+   * Visible rather than private because it answers a question about the world that has nothing to do with
+   * materialising a chunk - "what does the ground here read as" - and materialising a whole chunk to find out
+   * is both slow and a much larger dependency than the question needs. `probe --ecotone` asks it a million
+   * times over a world, which is the only way the biome dither can be measured rather than argued about.
+   */
+  val surface: SurfaceSampler,
   /**
    * The vector tier, for river water. Rivers are the one water body whose surface is not level, so it
    * cannot come from a raster - see [RiverWaterSampler].

@@ -41,7 +41,7 @@ Run all of it per phase, in this order. The last three catch what the first miss
 ./gradlew :worldgen:viewerExport -Pgenesis -Pout=build/gen  # the 128 km world zone-server actually boots
 ./gradlew :worldgen:probe -Pchannels=1                      # river cross-sections against the voxel grid
 ./gradlew :worldgen:probe -Pon=fort -Pnth=0                 # a built site at voxel scale
-./gradlew :worldgen:probe -Pdroplets                        # chunk-scale droplet erosion, which ships off
+./gradlew :worldgen:probe -Pdroplets                        # chunk-scale droplet erosion, which ships off (cost)
 ./gradlew :worldgen:town -Pcensus                           # every settlement in one table
 ./gradlew :worldgen:chronicle -Pquests                      # unresolved history threads
 ./gradlew :zone-server:test
@@ -124,15 +124,32 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
 
 ### Wants a stage or a pass
 
-- **Recalibrate `BIOME_CONFIDENCE`.** Phase 4 found it is not usable as a blend weight — median 0.066 over cells
-  that have a runner-up, because nearest and second-nearest distances concentrate in seven dimensions. A
-  percentile rank would fix it and would move every biome boundary, so it belongs in a change that measures
-  biomes. The same argument deferred the **precipitation seasonality concentration index** in phase 3: it is the
-  right definition, it is systematically lower at four seasons, and adopting it moved green land 64% → 68% and
-  deleted tropical seasonal forest from the world.
-- **Turn droplet erosion on**, once somebody has looked at enough worlds to want it. The blend is seam-free and
-  tested; the default is a judgement about risk, not about correctness.
-- **Road-junction and trough-tributary smoothing** — the two places a `min` of two profiles still creases.
+- **The precipitation seasonality concentration index is now rejected rather than deferred**, and the
+  measurement is in `ClimateStage.seasonality`. It is the right definition in general and buys nothing here: the
+  annual cycle is one sine, so min-max over four seasons is the same quantity as over two. The repair that would
+  have made it free — treat the new index as the old axis in different units and divide it back through
+  `BiomeAxisRanges` — does not exist, because the ratio between the two definitions is **not a constant**:
+  measured over two world sizes it runs 0.333 (the analytic floor for a phase-aligned sinusoid) to 0.72, median
+  0.41. The definitions order cells differently, so adopting it is a fresh calibration of the classifier, not a
+  rescale. Revisit if the seasonal cycle ever gains a second harmonic.
+- **Droplet erosion still ships off, and the reason changed from seams to cost.** The seam claim is checked
+  (`ChunkSeamTest` plus `SeamCheck: clean` with it on). What blocks the default is throughput in the *tools*:
+  turning it on took one 128-cell `viewerExport` from 114 s to over twenty minutes unfinished, and
+  `:worldgen:test` from ~2.5 min to over 25. The cause is `viewer/ScalarField.kt` evaluating `heightAt` per
+  rendered pixel, so a whole-world render wants ~10⁶ droplet tiles against a 512-tile cache — an access pattern
+  chunk streaming does not have. **Fix that field first**, then the default is free. Reachable meanwhile via
+  `probe --droplets` or `droplets.enabled = true` in a params file.
+- ~~**Road-junction and trough-tributary smoothing**~~ — **both halves measured and neither is the defect it was
+  filed as.** Kept as an entry because the premise is plausible enough to be re-derived by the next reader.
+  - *Roads* blend with `REPLACE`, not `MIN`, so two roads meeting never `min` against each other and there is no
+    crease of the `RIVER_CONFLUENCE` kind. Any artefact is a priority *step* between overlapping carriageways —
+    a different defect, unmeasured. See `LinearFeatures.road`.
+  - *Troughs* are traced source-to-snout exactly as rivers are and `donors[cell] >= 2` does mark junctions, but
+    the floors merge at the same level (so `min` is a no-op there) and the wedge above them is a **spur**, which
+    the stage already claims as a feature. Curvature through the five junctions of the reference world was no
+    rougher than control transects 1 200 m away, and smoother in four of five. See `GlacialStage.extract`.
+  - A bowl at a trough junction would also have had to avoid erasing **hanging valleys**, which exist because a
+    tributary's floor is a running minimum over its own path and therefore sits above the trunk's.
 - **The place → route → regrow → replace settlement iteration** — single pass.
 - **Oil and gas** — skipped because nothing downstream consumes them.
 - **Town blocks as objects** (deviation 8), **building interiors**, and a **shape grammar** that reads the

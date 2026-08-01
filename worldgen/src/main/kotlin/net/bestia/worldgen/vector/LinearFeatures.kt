@@ -101,6 +101,14 @@ object LinearFeatures {
    * Roads reuse the machinery rivers already needed - the same centerline, stations and profile
    * evaluation, with a different cross-section. That is the payoff of pushing narrow linear features
    * into the vector tier rather than solving each one separately.
+   *
+   * **There is no road-junction smoothing, and the reason is the blend mode.** A `ROAD_JUNCTION` bowl was
+   * planned as the twin of [FeatureKind.RIVER_CONFLUENCE], on the grounds that `min` of two profiles creases
+   * along the bisector of a Y. That reasoning does not reach here: a road blends with [BlendMode.REPLACE], not
+   * `MIN`, so two roads meeting do not `min` against each other at all - the higher-priority one simply wins its
+   * columns outright. Whatever remains at a junction is a priority *step* between two overlapping carriageways,
+   * which is a different defect with a different fix, and one nobody has measured. Measure it before building a
+   * feature kind for it. `RIVER_CONFLUENCE` is not the precedent it looks like.
    */
   fun road(
     id: FeatureId,

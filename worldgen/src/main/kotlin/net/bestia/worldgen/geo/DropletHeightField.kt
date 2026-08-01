@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
 import kotlin.math.floor
@@ -15,16 +16,32 @@ import kotlin.math.sqrt
 data class DropletParams(
 
   /**
-   * Whether droplet erosion runs at all. **Off.**
+   * Whether droplet erosion runs at all. **Off, and the reason is cost rather than seams.**
    *
-   * The architecture document argues *against* this feature: "any error in that blend puts back exactly the
-   * seams the vector tier exists to remove." That argument is sound, and the answer to it is not confidence but
-   * a default. The machinery below is written so the blend cannot be wrong - see the class KDoc - and it is
-   * still off, because a seam is the one class of defect this pipeline is built to make impossible and the cost
-   * of being wrong is paid by every chunk in every world.
+   * The architecture document argues against the feature on seam grounds - "any error in that blend puts back
+   * exactly the seams the vector tier exists to remove" - and that was the stated reason for the default. It is no
+   * longer the binding one. `DropletErosionTest` runs `ChunkSeamCheck` at zero tolerance over 16 chunks with this
+   * on, with a non-vacuity guard that the erosion moved more than half a metre. That is unit scale; the
+   * whole-world check with it on has never *completed*, for the reason immediately below.
    *
-   * Turn it on per call site, look at `probe`, and run `ChunkSeamCheck` at several world sizes before believing
-   * anything. `ChunkSeamTest` runs the check with it on, which is the entire safety argument.
+   * **What stops it being the default is a measured throughput cliff in the offline tools.** Turning it on took
+   * one `viewerExport` of a 128-cell world from 114 seconds to over twenty minutes without finishing, and
+   * `:worldgen:test` from about two and a half minutes to over twenty-five.
+   *
+   * The cause is not chunk generation. `viewer/ScalarField.kt`'s base-height view calls `heightAt` **per
+   * rendered pixel** across the whole world, and each pixel falls in a different 128 m droplet tile - so a
+   * whole-world render asks for on the order of a million tiles against a [cacheLimit] of 512, and each miss
+   * costs a 129x129 grid of analytic samples plus its droplet simulation. Chunk streaming has the opposite
+   * access pattern: chunks are contiguous, so a handful of tiles serve hundreds of columns and the cache works
+   * as intended.
+   *
+   * So the honest statement is that **the feature is affordable for chunks and unaffordable for the tools that
+   * verify chunks**, and the tools are how every phase of this module is checked. Turning it on by default
+   * before fixing that access pattern would tax every later verification run for a metre-scale detail nobody
+   * can see in a whole-world PNG anyway.
+   *
+   * To look at it: `probe --droplets`, or a params file setting `droplets.enabled = true`. To make it the
+   * default, first give the viewer's base-height field a path that does not evaluate droplets per pixel.
    */
   val enabled: Boolean = false,
 
@@ -109,6 +126,31 @@ data class DropletParams(
     require(maxDelta >= 0.0) { "maxDelta must not be negative" }
     require(cacheLimit >= 1) { "cacheLimit must be at least 1, was $cacheLimit" }
   }
+
+  /**
+   * See `TectonicsParams.overriddenBy`.
+   *
+   * Loadable ahead of the rest of the chunk tier for a specific reason: this is the one tunable whose *cost* is
+   * the question rather than its look, and comparing two runs of the same build is the only way to measure that.
+   * With the flag in a file, `viewerExport -Pparams=on.params` against `-Pparams=off.params` is one build and
+   * two runs; without it, the comparison needs a recompile in the middle and measures two binaries.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    enabled = source.boolean("enabled", enabled),
+    tileExtent = source.double("tileExtent", tileExtent),
+    cellSize = source.double("cellSize", cellSize),
+    dropletsPerSquareKilometre = source.double("dropletsPerSquareKilometre", dropletsPerSquareKilometre),
+    maxSteps = source.int("maxSteps", maxSteps),
+    inertia = source.double("inertia", inertia),
+    capacity = source.double("capacity", capacity),
+    depositRate = source.double("depositRate", depositRate),
+    erodeRate = source.double("erodeRate", erodeRate),
+    erodeRadius = source.int("erodeRadius", erodeRadius),
+    gravity = source.double("gravity", gravity),
+    evaporation = source.double("evaporation", evaporation),
+    maxDelta = source.double("maxDelta", maxDelta),
+    cacheLimit = source.int("cacheLimit", cacheLimit)
+  )
 
   override fun digest() = ParamsDigest()
     .put("enabled", enabled)

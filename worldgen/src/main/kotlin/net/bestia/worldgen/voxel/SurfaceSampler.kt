@@ -59,27 +59,24 @@ class SurfaceSampler(
    * uniform 48 m patch of gravel to a 50/50 checkerboard of gravel and grass over the whole window, every test
    * still passing. At a metre per voxel that reads as display noise rather than as ground.
    *
-   * The cause is that **[LayerId.BIOME_CONFIDENCE] is not calibrated to be a blend weight**, which the
-   * classifier's KDoc claim of one "for free" does not lead you to expect. Measured over the cells that have a
-   * runner-up at all, it is 0.066 at the median and 0.343 at the 95th percentile: with fourteen prototypes in
-   * seven dimensions the nearest and second-nearest distances concentrate, so `1 - sqrt(best/second)` sits near
-   * zero nearly everywhere. It ranks cells by how transitional they are perfectly well; its absolute scale is
-   * not a mixing fraction, and using it as one dithers the entire world at close to even odds.
+   * The fix was a smooth noise field in place of the hash, so the mixing arrives as patches a few metres across
+   * - the shape a real ecotone has - rather than as speckle. The field is a pure function of world position, so
+   * the seam-free property the hash had is kept: two chunks either side of a border evaluate the same noise and
+   * agree column for column. That property is what the chunk seam check cannot catch, since it compares heights
+   * rather than blocks.
    *
-   * So two changes. A [DITHER_CUTOFF] above which nothing mixes at all, which confines the effect to genuinely
-   * near-tied ground instead of to the whole map; and a smooth noise field in place of the hash, so what mixing
-   * remains arrives as patches a few metres across - the shape a real ecotone has - rather than as speckle. The
-   * field is a pure function of world position, so the seam-free property the hash had is kept: two chunks
-   * either side of a border evaluate the same noise and agree column for column. That property is what the
-   * chunk seam check cannot catch, since it compares heights rather than blocks.
+   * **The weight is a share because [LayerId.BIOME_CONFIDENCE] is a percentile rank**, which it was not when
+   * this was written. The classifier's raw `1 - sqrt(best/second)` ranks transitional cells correctly and is not
+   * a fraction of anything - fourteen prototypes in seven dimensions put the nearest and second-nearest
+   * distances close together, so it measured 0.069 at the median and 0.361 at the 95th percentile. This method
+   * compensated with a cutoff, and the compensation is gone: `BiomeStage` ranks the layer against the world's
+   * own distribution, so `1 - clarity` is a share by construction and needs no rescaling. See
+   * `BiomeStage.rankConfidence` for the measurement that killed the cutoff - at 0.2 it was excluding only 13%
+   * of runner-up cells while handing the median cell 14% of its ground.
    *
-   * Area fractions of the runner-up, measured on the patch field against the cutoff (see [PATCH_WAVELENGTH]):
-   * a perfect tie gives half the ground, the median cell about 14%, the 75th percentile under 1%, and anything
-   * at or above the cutoff none. Half at a perfect tie is the one exact point in it - two prototypes that
-   * scored identically have equal claim, and neither has a claim on *more* than half.
-   *
-   * Recalibrating `BIOME_CONFIDENCE` itself - to a percentile rank, say - would be the better fix and is a
-   * `BiomeStage` retune: seven stages read biomes downstream. It belongs in a change that measures them.
+   * Area fractions of the runner-up, measured with `probe --ecotone`: a perfect tie gives half the ground, the
+   * median cell about 8%, and a confident cell effectively none. Half at a perfect tie is the one exact point in
+   * it - two prototypes that scored identically have equal claim, and neither has a claim on *more* than half.
    */
   fun biomeAt(worldX: Double, worldY: Double): Biome {
     val displaced = Noise.warp(
@@ -98,7 +95,7 @@ class SurfaceSampler(
     // Bilinear on the confidence, so the mixing zone's *width* varies smoothly rather than stepping at the
     // kilometre grid - a dither whose probability is a staircase draws the staircase.
     val clarity = confidence.sampleBilinear(displaced[0], displaced[1]).coerceIn(0.0, 1.0)
-    val ambiguity = (1.0 - clarity / DITHER_CUTOFF).coerceIn(0.0, 1.0)
+    val ambiguity = 1.0 - clarity
     if (ambiguity <= 0.0) return winner
 
     // Half the field lies below its own midpoint, so an ambiguity of 1 - a dead tie - splits the ground evenly.
@@ -142,15 +139,17 @@ class SurfaceSampler(
     /** Separate from [JITTER_SALT] so the dither is independent of the warp rather than correlated with it. */
     private const val DITHER_SALT = 0x24B7E0C3A159D8L
 
-    /**
-     * Biome confidence at or above which no mixing happens at all.
-     *
-     * 0.2 sits between the 75th and 95th percentile of the measured confidence distribution, so the mixing is
-     * confined to roughly the most ambiguous quarter of the world rather than applying to all of it. Without a
-     * cutoff the effect is unbounded above by anything except the confidence layer's own compressed scale -
-     * see [biomeAt] for the measurement and why that scale cannot be used directly.
-     */
-    const val DITHER_CUTOFF = 0.2
+    // There was a DITHER_CUTOFF here, and it is worth knowing why it is gone rather than only that it is.
+    //
+    // It existed to keep the mixing off the whole map, and its KDoc justified 0.2 by saying the value "sits
+    // between the 75th and 95th percentile of the measured confidence distribution, so the mixing is confined
+    // to roughly the most ambiguous quarter of the world". The percentile was read backwards: a cutoff above
+    // the 75th percentile admits everything *below* it, which is seven eighths of the runner-up cells, not a
+    // quarter. `probe --ecotone` says 87%.
+    //
+    // So it was never the bound it claimed to be, and once BIOME_CONFIDENCE became a percentile rank there was
+    // nothing left for it to do: a rank is uniform, so `1 - rank` is already a share and the ramp falls off on
+    // its own. See [biomeAt].
 
     /**
      * Patch size of the mixing field in metres, near enough.

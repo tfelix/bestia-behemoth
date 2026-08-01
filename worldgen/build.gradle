@@ -273,6 +273,7 @@ tasks.register('probe', JavaExec) {
     if (project.hasProperty('on')) args '--on', project.property('on')
     if (project.hasProperty('nth')) args '--nth', project.property('nth')
     if (project.hasProperty('channels')) args '--channels'
+    if (project.hasProperty('ecotone')) args '--ecotone'
     // Chunk-scale droplet erosion, which ships off. See geo/DropletHeightField; this is the only view of it,
     // because the viewer renders whole worlds and a gully is a pixel there.
     if (project.hasProperty('droplets')) args '--droplets'

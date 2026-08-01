@@ -89,9 +89,9 @@ class ParamsTextTest {
 
   @Test
   fun `a key whose loader is not written yet says so rather than suggesting a misspelling`() {
-    val text = parse("droplets.enabled = true")
+    val text = parse("strata.foldAmplitude = 200")
 
-    val error = assertFailsWith<ParamsTextException> { text.checkAllConsumed(setOf("droplets")) }
+    val error = assertFailsWith<ParamsTextException> { text.checkAllConsumed(setOf("strata")) }
 
     assertTrue("cannot be set from a file yet" in error.message!!, error.message!!)
   }

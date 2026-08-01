@@ -153,7 +153,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "biome", "resource", "habitability", "settlement", "history", "town", "economy",
-      "detail", "strata", "droplets"
+      "detail", "strata"
     )
 
     /**
@@ -167,7 +167,8 @@ data class WorldParams(
       val loaded = base.copy(
         tectonics = base.tectonics.overriddenBy(text.scope("tectonics")),
         climate = base.climate.overriddenBy(text.scope("climate")),
-        erosion = base.erosion.overriddenBy(text.scope("erosion"))
+        erosion = base.erosion.overriddenBy(text.scope("erosion")),
+        droplets = base.droplets.overriddenBy(text.scope("droplets"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)
       return loaded

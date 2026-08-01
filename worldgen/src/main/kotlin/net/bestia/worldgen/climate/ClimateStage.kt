@@ -563,15 +563,35 @@ class ClimateStage(
    * seasonal forest disappeared from the world entirely** while tundra appeared at 6%. Keeping min-max gives
    * 63% - the reference world, unmoved.
    *
-   * That is a retune of the biome classifier wearing a definition change's clothes, and it belongs in a
-   * change that measures biomes rather than in one that adds layers.
+   * That looked at the time like a retune of the biome classifier wearing a definition change's clothes, to be
+   * done in a change that measures biomes. It was revisited in exactly such a change, and the measurement below
+   * closed the question the other way.
    *
-   * **And the blindness is mostly theoretical for this model.** The annual cycle here is one sine, so the
-   * extremes are the two solstices and the equinoxes lie between them - which makes min-max over four seasons
-   * the same quantity as min-max over two, and is precisely why adopting it left the reference world alone.
-   * It would genuinely lose information for a *bimodal* year, two wet seasons either side of a dry one, which
-   * a single sinusoidal belt migration cannot produce. If the seasonal cycle ever gains a second harmonic,
-   * revisit this - and retune `BiomeStage` in the same change.
+   * ### Why it is not a change of units, which is what would have made it cheap
+   *
+   * The obvious repair is to treat the new index as the old axis in different units and divide it back - the
+   * four other biome axes already normalise through a cap in `BiomeAxisRanges`, so one more constant would have
+   * cost nothing and moved no biome. For a pure sinusoid sampled at four points that constant is exactly 1/3:
+   * the values are `m(1+a), m, m(1-a), m`, so min-max is `a` while the summed deviation is `2ma` against a
+   * maximum of `6m`.
+   *
+   * **Measured over two world sizes, the ratio is not a constant.** It runs from 0.333 - the analytic floor, on
+   * the cells whose extremes land on a sampled season - to 0.72, with a median of 0.41 and a 95th percentile of
+   * 0.62. The spread is the phase of the belt migration against the season sampling, which varies with latitude,
+   * so the two definitions order cells differently rather than scaling them. No cap and no per-prototype
+   * coordinate can undo that; the reclassification is intrinsic.
+   *
+   * ### And the blindness it would fix does not exist here
+   *
+   * The annual cycle is one sine, so the extremes *are* the two solstices and the equinoxes lie between them -
+   * which makes min-max over four seasons the same quantity as min-max over two. The concentration index would
+   * genuinely see more in a *bimodal* year, two wet seasons either side of a dry one, and a single sinusoidal
+   * belt migration cannot produce one. So the trade on offer is: reclassify the world, delete a biome, and gain
+   * information about a shape the model does not generate.
+   *
+   * If the seasonal cycle ever gains a second harmonic this becomes the right definition and the change is a
+   * real one - not a rescale, but a fresh calibration of `BiomeStage`'s seasonality coordinates against the new
+   * distribution, with the biome mix re-measured from scratch.
    */
   private fun seasonality(seasonal: List<Grid>, region: CellRegion): Grid {
     val grid = Grid(region.width, region.height)

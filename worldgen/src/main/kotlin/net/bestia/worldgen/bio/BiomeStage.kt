@@ -110,7 +110,8 @@ class BiomeStage(
   override val id = ID
 
   // 2: the runner-up biome is kept as BIOME_SECONDARY instead of being scored and discarded.
-  override val version = 2
+  // 3: BIOME_CONFIDENCE is a percentile rank over the world rather than the classifier's raw score.
+  override val version = 3
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Biomes.catalogueDigest())
   override val dependencies =
@@ -230,6 +231,8 @@ class BiomeStage(
     }
     }
 
+    rankConfidence(confidence, secondary)
+
     return StageResult.of(
       biome.toLayer(LayerId.BIOME, region),
       secondary.toLayer(LayerId.BIOME_SECONDARY, region),
@@ -237,6 +240,72 @@ class BiomeStage(
       fertility.toLayer(LayerId.SOIL_FERTILITY, region),
       soilDepth.toLayer(LayerId.SOIL_DEPTH, region)
     )
+  }
+
+  /**
+   * Rewrites the raw classifier score as a **percentile rank over this world's own distribution**.
+   *
+   * ### Why the raw score cannot be a blend weight
+   *
+   * `1 - sqrt(best/second)` is a fine *ranking* of how transitional a cell is and a bad *fraction*, because
+   * fourteen prototypes in seven dimensions put the nearest and second-nearest distances close together
+   * almost everywhere. Measured on the reference world with `probe --ecotone`, over the 41.7% of cells that
+   * have a runner-up at all: **median 0.069, p75 0.133, p95 0.361.** A number whose 95th percentile is 0.36 is
+   * not a share of anything.
+   *
+   * `SurfaceSampler.biomeAt` had been compensating with a cutoff, and the same measurement shows why that was
+   * the wrong shape of fix rather than merely an ugly one. At a cutoff of 0.2 the raw distribution puts *87% of
+   * runner-up cells* below it, so it excluded almost nothing and mostly rescaled - handing the median cell 14%
+   * of its ground to the runner-up. The mixing was strongest exactly where it should have been weakest: in the
+   * ordinary middle of the distribution.
+   *
+   * A rank is uniform by construction, so it is a share by construction. The median cell now reads about 8%
+   * runner-up and a near-tied cell keeps its half, which is the ramp the effect always wanted. The compensating
+   * cutoff is gone, and the world-wide ecotone area barely moved - see `SUMMARY.md` for the before and after.
+   *
+   * ### What it costs
+   *
+   * **A whole-raster pass**: a percentile needs the distribution, so this cannot be computed per cell and it is
+   * why the ranking happens here rather than in `Biomes.classify`. It also means the value is only meaningful
+   * for a raster covering a whole world - were this stage ever tiled, each tile would rank against itself and
+   * two tiles would disagree about the same cell. It is a `StageScale.WORLD` stage and that is not a hazard
+   * today, but it is the assumption to check first if that ever changes.
+   *
+   * Ties share a rank (the count of values strictly below), so the result does not depend on iteration order
+   * and a dead tie - two prototypes with identical scores - lands at exactly 0.
+   */
+  private fun rankConfidence(confidence: Grid, secondary: IntGrid) {
+    val ranked = ArrayList<Int>()
+    for (i in confidence.data.indices) {
+      if (secondary.data[i] != LayerId.NO_SECONDARY) ranked.add(i)
+    }
+
+    // One cell cannot be ranked against anything, and the cells with no runner-up keep the 1.0 the loop above
+    // wrote - `BiomeBlendTest` asserts that pairing, because a sentinel with a low confidence would be a cell
+    // asking to be blended with nothing.
+    if (ranked.size <= 1) {
+      for (i in ranked) confidence.data[i] = 1.0
+      return
+    }
+
+    val sorted = DoubleArray(ranked.size) { confidence.data[ranked[it]] }
+    sorted.sort()
+
+    val last = (ranked.size - 1).toDouble()
+    for (i in ranked) {
+      confidence.data[i] = countBelow(sorted, confidence.data[i]) / last
+    }
+  }
+
+  /** How many entries of the sorted array are strictly less than [value]: the lower bound, by bisection. */
+  private fun countBelow(sorted: DoubleArray, value: Double): Int {
+    var low = 0
+    var high = sorted.size
+    while (low < high) {
+      val mid = (low + high) ushr 1
+      if (sorted[mid] < value) low = mid + 1 else high = mid
+    }
+    return low
   }
 
   /**

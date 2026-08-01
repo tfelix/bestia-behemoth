@@ -74,6 +74,11 @@ object ProbeMain {
       return
     }
 
+    if (cli.has(ECOTONE)) {
+      probe.ecotone()
+      return
+    }
+
     val elevation = generated.world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val x = cli.double("--x")
     val y = cli.double("--y")
@@ -265,6 +270,85 @@ object ProbeMain {
           percent(depths.size - shallow, depths.size))
     }
 
+    /**
+     * How much of the world reads as its runner-up biome, and how the confidence layer is distributed.
+     *
+     * The measurement `SurfaceSampler.biomeAt`'s tuning rests on and nothing could produce. Its KDoc records
+     * that the confidence is 0.066 at the median over cells with a runner-up, which is why it is not usable as
+     * a blend weight - but that figure was measured once, by hand, and there was no way to check it or to see
+     * what the dither actually does to a world afterwards. A calibration pass that cannot re-measure its own
+     * subject is a guess with a number in it.
+     *
+     * Three things, in the order the reasoning goes:
+     *
+     * 1. **How much of the world is even a candidate.** A cell with no runner-up never mixes, so the share of
+     *    cells that have one bounds everything below.
+     * 2. **The confidence distribution over those cells.** This is what the blend weight is computed from.
+     * 3. **The area that actually comes out as the runner-up**, by asking [SurfaceSampler.biomeAt] itself on a
+     *    lattice of world positions rather than by re-deriving the formula here. Re-deriving it would measure
+     *    this method's copy of the arithmetic, which is worth nothing.
+     *
+     * The lattice spacing is deliberately coprime with both the kilometre cell and the 14 m patch wavelength.
+     * An area fraction needs independent samples rather than dense ones, and a spacing that shares a factor
+     * with either grid would sample the same phase of the noise every time and report a fraction that is an
+     * artefact of the stride.
+     */
+    fun ecotone() {
+      val biome = generated.world.layers.require<IntLayer>(LayerId.BIOME)
+      val secondary = generated.world.layers.require<IntLayer>(LayerId.BIOME_SECONDARY)
+      val confidence = generated.world.layers.require<FloatLayer>(LayerId.BIOME_CONFIDENCE)
+
+      val withRunnerUp = ArrayList<Double>()
+      var cells = 0
+      for (i in secondary.data.indices) {
+        cells++
+        if (secondary.data[i] != LayerId.NO_SECONDARY) withRunnerUp.add(confidence.data[i].toDouble())
+      }
+
+      println()
+      println("$cells coarse cells, ${percent(withRunnerUp.size, cells)} with a runner-up biome")
+
+      if (withRunnerUp.isEmpty()) {
+        println("nothing to dither, so nothing to measure")
+        return
+      }
+
+      withRunnerUp.sort()
+      println()
+      println("BIOME_CONFIDENCE over the cells that have a runner-up")
+      println("                   min      p25      p50      p75      max")
+      println("  confidence  ${quantiles(withRunnerUp)}")
+      println("  p95         ${"%9.3f".format(Locale.ROOT, withRunnerUp[(withRunnerUp.size - 1) * 95 / 100])}")
+
+      val surface = generated.materializer.surface
+      var sampled = 0
+      var asRunnerUp = 0
+      var candidates = 0
+
+      var y = 0.0
+      while (y < config.heightMetres) {
+        var x = 0.0
+        while (x < config.widthMetres) {
+          val runnerUpOrdinal = secondary.sampleNearest(x, y)
+
+          sampled++
+          if (runnerUpOrdinal != LayerId.NO_SECONDARY) {
+            candidates++
+            val runnerUp = Biome.entries.getOrNull(runnerUpOrdinal)
+            val winner = Biome.entries.getOrNull(biome.sampleNearest(x, y))
+            if (runnerUp != null && runnerUp != winner && surface.biomeAt(x, y) == runnerUp) asRunnerUp++
+          }
+          x += LATTICE_METRES
+        }
+        y += LATTICE_METRES
+      }
+
+      println()
+      println("$sampled world positions on a ${LATTICE_METRES.toInt()} m lattice")
+      println("  reading as the runner-up, of the whole world      ${percent(asRunnerUp, sampled)}")
+      println("  reading as the runner-up, of cells that have one  ${percent(asRunnerUp, candidates)}")
+    }
+
     private fun quantiles(sorted: List<Double>): String {
       fun at(q: Double) = sorted[((sorted.size - 1) * q).toInt()]
       return listOf(0.0, 0.25, 0.5, 0.75, 1.0)
@@ -401,6 +485,17 @@ object ProbeMain {
   /** What to look at, as opposed to which world to look at it in - see [WorldArgs]. */
   private const val DROPLETS = "--droplets"
 
+  private const val ECOTONE = "--ecotone"
+
+  /**
+   * Spacing of the ecotone lattice in metres.
+   *
+   * Coprime with the 1000 m cell and not a multiple of the 14 m patch wavelength, so consecutive samples land on
+   * unrelated phases of the noise. 211 m over a 128 km world is about 370 000 samples, which is a second of work
+   * and a standard error on a few-percent fraction of well under a tenth of a point.
+   */
+  private const val LATTICE_METRES = 211.0
+
   private val PROBE_FLAGS =
-    setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", DROPLETS)
+    setOf("--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", DROPLETS, ECOTONE)
 }

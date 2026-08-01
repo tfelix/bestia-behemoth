@@ -127,7 +127,20 @@ data class LayerId(val name: String) {
 
     val BIOME = LayerId("biome")
 
-    /** How well the chosen biome fit: low where two biomes scored alike, i.e. in a transition. */
+    /**
+     * How well the chosen biome fit, as a **percentile rank** over this world's own cells: 0 in the most
+     * transitional cell in the world, 1 where nothing came close, and 1 wherever there is no runner-up at all.
+     *
+     * A rank rather than the classifier's raw score, and the distinction is the whole usability of the layer.
+     * The raw `1 - sqrt(best/second)` is a correct *ordering* and not a fraction of anything - with fourteen
+     * prototypes in seven dimensions it measured 0.069 at the median - so a consumer treating it as a mixing
+     * weight mixes the wrong cells. Ranked, `1 - confidence` is a share by construction and needs no
+     * per-consumer rescaling; `voxel/SurfaceSampler.kt` deleted exactly such a compensation when this changed.
+     *
+     * The cost is that it is **relative to a world**, not absolute: the same cell in a smaller world with
+     * different neighbours would rank differently. That is the right trade for a blend weight and the wrong one
+     * for a threshold, so do not compare it across worlds. See `BiomeStage.rankConfidence`.
+     */
     val BIOME_CONFIDENCE = LayerId("biome_confidence")
 
     /**

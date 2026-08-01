@@ -77,13 +77,33 @@ class BiomeDitherTest {
   }
 
   @Test
-  fun `confidence at or above the cutoff never yields the runner-up`() {
-    // The bound that keeps this a boundary effect. Without it the mixing follows BIOME_CONFIDENCE's own scale,
-    // which measurement showed sits near zero across the whole world - see SurfaceSampler.biomeAt.
-    for (clarity in listOf(SurfaceSampler.DITHER_CUTOFF, 0.3, 0.6, 1.0)) {
+  fun `a confident cell keeps effectively all of its ground`() {
+    // What used to be asserted against a cutoff. There is no cutoff now: `BIOME_CONFIDENCE` is a percentile
+    // rank, so the ramp falls away on its own and the bound is a statement about the ramp rather than about a
+    // constant that truncates it. A cell in the top fifth of the world's confidence should be its own biome to
+    // within a percent of its area.
+    for (clarity in listOf(0.8, 0.9, 0.95)) {
       val area = runnerUpArea(sampler(Biome.TAIGA, Biome.TUNDRA.ordinal, clarity.toFloat()), Biome.TUNDRA)
-      assertEquals(0.0, area, 0.0, "confidence $clarity is at or above the cutoff but still mixed")
+      assertTrue(
+        area < 0.01,
+        "a cell at rank $clarity gave the runner-up ${"%.3f".format(Locale.ROOT, area)} of its ground"
+      )
     }
+  }
+
+  @Test
+  fun `the median cell mixes a little rather than a lot`() {
+    // The calibration the docs now claim, made checkable. Because the layer is a *rank*, "the median cell" is
+    // literally confidence 0.5 - which is the whole point of ranking it, and is a sentence that could not be
+    // written about the raw score. The old raw scale put the median cell at 14% of its ground given to the
+    // runner-up; ranked, it is about 8%, so the mixing is concentrated in the genuinely near-tied cells instead
+    // of being spread through the ordinary middle of the distribution.
+    val area = runnerUpArea(sampler(Biome.TAIGA, Biome.TUNDRA.ordinal, 0.5f), Biome.TUNDRA)
+
+    assertTrue(
+      area in 0.02..0.15,
+      "the median cell gave the runner-up ${"%.3f".format(Locale.ROOT, area)} of its ground, expected about 8%"
+    )
   }
 
   @Test
@@ -103,9 +123,12 @@ class BiomeDitherTest {
     // Monotone rather than proportional. The area is a function of the noise field's value distribution, which
     // is not uniform, so there is no linear law to assert - and asserting one against measured constants would
     // pin the test to the octave count rather than to the behaviour. Ordering plus the two endpoints is the
-    // real contract: mixing is strongest at a tie and gone by the cutoff.
+    // real contract: mixing is strongest at a tie and absent at full confidence.
+    //
+    // The ladder now spans the whole range, which it could not before: with a cutoff at 0.2 everything above it
+    // was flat zero, so the interesting half of the curve was untested.
     var previous = Double.MAX_VALUE
-    for (clarity in listOf(0.0, 0.05, 0.10, 0.15, 0.20)) {
+    for (clarity in listOf(0.0, 0.2, 0.4, 0.6, 0.8, 1.0)) {
       val area = runnerUpArea(sampler(Biome.TAIGA, Biome.TUNDRA.ordinal, clarity.toFloat()), Biome.TUNDRA)
       assertTrue(
         area <= previous + 0.01,
@@ -113,7 +136,7 @@ class BiomeDitherTest {
       )
       previous = area
     }
-    assertEquals(0.0, previous, 0.0, "the last step is the cutoff and should mix nothing")
+    assertEquals(0.0, previous, 0.0, "full confidence should mix nothing")
   }
 
   @Test
