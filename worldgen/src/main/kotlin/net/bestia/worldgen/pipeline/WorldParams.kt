@@ -174,7 +174,11 @@ data class WorldParams(
       r.detail.digest().value,
       r.strata.digest().value,
       r.droplets.digest().value,
-      r.vegetation.digest().value
+      r.vegetation.digest().value,
+      // Only the grade mix, not the whole of `resource`: the rest of that class decides where deposits go,
+      // which is a world-tier question already folded into `version`. The mix is what `OreVeins` reads to
+      // decide which of the three ore blocks a voxel is, so it belongs on this side too.
+      r.resource.grades.digest().value
     )
   }
 
@@ -195,7 +199,7 @@ data class WorldParams(
      * verifiable on the day the format lands rather than after all seventeen classes are wired.
      */
     val NOT_YET_LOADABLE = setOf(
-      "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "resource", "habitability", "settlement",
+      "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
       "history", "town", "economy", "detail", "strata"
     )
 
@@ -211,6 +215,7 @@ data class WorldParams(
         tectonics = base.tectonics.overriddenBy(text.scope("tectonics")),
         climate = base.climate.overriddenBy(text.scope("climate")),
         erosion = base.erosion.overriddenBy(text.scope("erosion")),
+        resource = base.resource.overriddenBy(text.scope("resource")),
         cave = base.cave.overriddenBy(text.scope("cave")),
         droplets = base.droplets.overriddenBy(text.scope("droplets"))
       )

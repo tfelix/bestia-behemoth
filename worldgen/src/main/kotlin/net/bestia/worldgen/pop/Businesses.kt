@@ -22,7 +22,7 @@ enum class Precondition(val label: String) {
   NEEDS_GRAIN("arable land producing cereal"),
   NEEDS_PASTURE("grazing"),
   NEEDS_TIMBER("workable timber nearby"),
-  NEEDS_IRON("iron, and charcoal or coal to work it"),
+  NEEDS_IRON("iron, and timber to char into fuel for it"),
   NEEDS_CLAY("clay"),
   NEEDS_STONE("building stone"),
   NEEDS_ORE("any metal ore"),
@@ -314,9 +314,13 @@ object BusinessCatalogue {
 
     // Iron *and* fuel, because a bloomery without charcoal is a pile of ore. This is the precondition that
     // most often explains a missing smith, and the one whose evidence line is worth reading.
+    //
+    // Timber is now the only fuel: coal left the resource catalogue with the graded-ore change, on the
+    // grounds that a bulk mineral nobody could pick up was pulling its weight in the economy sim alone.
+    // Charcoal is what an iron age actually ran on anyway - see the `charcoaler` business below.
     Precondition.NEEDS_IRON -> {
       val ore = ResourceType.IRON in setting.resources
-      val fuel = ResourceType.COAL in setting.resources || ResourceType.TIMBER in setting.resources
+      val fuel = ResourceType.TIMBER in setting.resources
       Check(
         precondition, ore && fuel,
         "iron ${if (ore) "yes" else "no"}, fuel ${if (fuel) "yes" else "no"}"
@@ -335,6 +339,9 @@ object BusinessCatalogue {
     )
 
     Precondition.NEEDS_ORE -> {
+      // Mithrandium is deliberately absent. It sits two hundred and fifty metres down at the shallowest,
+      // which is below anything this civilisation can sink a shaft to, so a smelter next to one would be a
+      // smelter with nothing to smelt. It is a resource for players, not for the simulation.
       val metals = setOf(
         ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.SILVER,
         ResourceType.GOLD_LODE, ResourceType.GOLD_PLACER

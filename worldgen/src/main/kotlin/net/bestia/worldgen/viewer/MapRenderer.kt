@@ -539,6 +539,9 @@ class MapRenderer(
       FeatureKind.STREET -> Color(245, 215, 170)
       FeatureKind.TOWN_WALL -> Color(200, 200, 205)
       FeatureKind.GATE -> Color(255, 250, 230)
+      // Districts are drawn as outlines under everything a town is made of, so a quarter reads as a region
+      // rather than as a shape competing with its own buildings.
+      FeatureKind.DISTRICT -> Color(150, 130, 190)
       FeatureKind.BUILDING -> Color(235, 225, 205)
       FeatureKind.BUSINESS -> Color(120, 220, 255)
       FeatureKind.ROADSIDE_INN -> Color(255, 195, 90)

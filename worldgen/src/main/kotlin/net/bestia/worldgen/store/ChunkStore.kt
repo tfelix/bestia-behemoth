@@ -168,11 +168,22 @@ class ChunkStore(
   }
 
   /**
-   * Baked blobs are keyed on the coordinate and the *seed* but deliberately **not** on the pipeline
-   * version: a baked chunk no longer depends on the pipeline that produced it, which is exactly the
-   * property that makes baking a migration path.
+   * Baked blobs are keyed on the coordinate, the seed **and the pipeline version**.
+   *
+   * The version used to be left out on purpose, on the grounds that a baked chunk no longer depends on the
+   * pipeline that produced it - which is true, and is exactly the property that would make baking a
+   * migration path for a released world. There is no released world. What the omission bought during
+   * development was the opposite of useful: a baked chunk outlived a generator change and then read back
+   * indistinguishable from a freshly generated one, so terrain from two different builds sat side by side in
+   * one store with nothing able to say which was which.
+   *
+   * **Put it back when there is something to migrate.** At that point the argument returns intact, and the
+   * shape it wants is not this line reverted but a deliberate re-key step that reads at the old version and
+   * writes at the new one - which is what a migration is, and is not something a hash function can do for
+   * you by being incomplete.
    */
-  private fun bakedKeyOf(chunk: ChunkPos) = GenRng.hash(config.seed, BAKED_SALT, chunk.key())
+  private fun bakedKeyOf(chunk: ChunkPos) =
+    GenRng.hash(config.seed, BAKED_SALT, cache.pipelineVersion, chunk.key())
 
   override fun toString() = "ChunkStore[${deltas.size} deltas, ${bakedChunks.size} baked]"
 

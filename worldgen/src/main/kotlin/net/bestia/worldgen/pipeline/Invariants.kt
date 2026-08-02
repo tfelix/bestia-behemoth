@@ -2,6 +2,7 @@ package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.civ.BuildingChannels
+import net.bestia.worldgen.civ.DistrictChannels
 import net.bestia.worldgen.civ.GateChannels
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
@@ -26,6 +27,8 @@ import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
 import net.bestia.worldgen.pop.EconomyChannels
 import net.bestia.worldgen.resource.DepositChannels
+import net.bestia.worldgen.resource.MinableOre
+import net.bestia.worldgen.resource.OreBody
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureEvaluator
@@ -179,6 +182,7 @@ object Invariants {
     checkNoSettlementInTheSea(generated, ::fail)
     checkSettlementsAreSeparated(generated, ::fail)
     checkDepositsAreWellFormed(generated, ::fail)
+    checkOreDepositsAreSpacedApart(generated, ::fail)
     checkFjordSillsAreShallowerThanTheirBasins(generated, ::fail)
     // Was written and never registered, so the property the architecture document lists as asserted was not
     // being checked by anything. Registered here rather than left as documentation of an intention.
@@ -203,6 +207,7 @@ object Invariants {
     checkCavesAreWellFormed(generated, ::fail)
     checkCanopyCoverAgreesWithTheBiome(generated, ::fail)
     checkPondsHoldWaterWithoutAWall(generated, ::fail)
+    checkDistrictsHoldTheirBuildings(generated, ::fail)
 
     return out
   }
@@ -225,6 +230,44 @@ object Invariants {
    *   in the right place, and it is a claim about the *finished* terrain rather than about the trough
    *   profile the producer solved against - so detail noise and every other feature are included.
    */
+  /**
+   * A district contains the buildings it was grown from.
+   *
+   * The one claim worth checking, and it is not trivially true: the ring is a convex hull of building corners
+   * pushed outward, then *simplified* to fit `Ring.MAX_VERTICES`, and simplification cuts corners off. A
+   * district of two hundred buildings loses well over a hundred vertices, and each one it loses moves the
+   * boundary inward across ground that had a building on it. If that ever bites, this is where it shows.
+   *
+   * Stated as "at least as many as it claims", against the count the producer stored, because the hull may
+   * legitimately contain buildings of *other* quarters that interleave with this one.
+   */
+  private fun checkDistrictsHoldTheirBuildings(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val districts = generated.world.features.all()
+      .filter { it.kind == FeatureKind.DISTRICT }
+      .filterIsInstance<AreaFeature>()
+    if (districts.isEmpty()) return
+
+    var checked = 0
+    for (district in districts) {
+      val claimed = district.attribute(DistrictChannels.BUILDINGS).toInt()
+      val inside = generated.world.features.query(district.bbox)
+        .count { it.kind == FeatureKind.BUILDING && district.contains(it.bbox.centerX, it.bbox.centerY) }
+
+      if (inside < claimed) {
+        fail(
+          "districts hold their buildings",
+          "$district was grown from $claimed buildings and its ring contains $inside"
+        )
+        return
+      }
+      checked++
+    }
+    require(checked == districts.size)
+  }
+
   private fun checkPondsHoldWaterWithoutAWall(
     generated: GeneratedWorld,
     fail: (String, String) -> Unit
@@ -1239,8 +1282,16 @@ object Invariants {
     }
   }
 
-  /** Deposits carry a usable type, a positive extent, and a richness in range. */
+  /**
+   * Deposits carry a usable type, a positive extent, a richness in range, and an honest tonnage.
+   *
+   * The tonnage clause is the one worth having. A deposit advertises how much metal is in it, the chunk
+   * tier decides voxel by voxel where that metal actually is, and the two agree only because both go
+   * through [OreBody]. This is what would notice if one of them stopped.
+   */
   private fun checkDepositsAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val mean = generated.params.resource.grades.meanYieldKg
+
     for (feature in generated.world.features.all()) {
       if (feature.kind != FeatureKind.ORE_DEPOSIT) continue
       val deposit = feature as? PointMarker ?: continue
@@ -1257,12 +1308,96 @@ object Invariants {
         return
       }
 
-      if (deposit.attribute(DepositChannels.RADIUS) <= 0.0) {
+      val radius = deposit.attribute(DepositChannels.RADIUS)
+      if (radius <= 0.0) {
         fail("deposits are well formed", "${feature.id} has no extent")
+        return
+      }
+
+      val tons = deposit.attribute(DepositChannels.TONS)
+      if (!(tons > 0.0)) {
+        fail("deposits are well formed", "${feature.id} holds $tons tons")
+        return
+      }
+
+      // The one assertion that keeps the two tiers honest. The world tier picked `radius` so that a body of
+      // that size at that concentration holds the advertised tonnage; the chunk tier fills the same shape
+      // with the same probability. If those ever drift apart, a deposit claims metal that is not there and
+      // nothing else in the system would notice.
+      if (MinableOre.of(ResourceType.entries[type]) == null) continue
+
+      val modelled = OreBody.tonsOf(radius, richness, generated.config.voxelSize, mean)
+      if (abs(modelled - tons) > tons * TONNAGE_TOLERANCE) {
+        fail(
+          "deposits are well formed",
+          "${feature.id} claims ${tons.toInt()} t but its ${radius.toInt()} m body at richness " +
+              "${"%.3f".format(richness)} models ${modelled.toInt()} t"
+        )
         return
       }
     }
   }
+
+  /**
+   * No two mineable deposits sit on top of each other.
+   *
+   * Two rules in one, and they fail differently. The **separation** rule is the gameplay one: every resource
+   * samples its own Poisson set, so before `ResourceStage` gained a dispersal pass a copper body and a silver
+   * body could land a hundred metres apart, and a player who found one had found both. The **overlap** rule is
+   * the physical one: two intersecting bodies would make one voxel two different ores, and `OreVeins` would
+   * settle it by feature order rather than by geology.
+   *
+   * Checked with a bucket grid rather than pairwise, because a full world holds tens of thousands of deposits
+   * and the quadratic version of this took long enough to be worth not writing.
+   */
+  private fun checkOreDepositsAreSpacedApart(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val separation = generated.params.resource.oreSeparation
+    val clearance = generated.params.resource.bodyClearance
+
+    val deposits = generated.world.features.all()
+      .filter { it.kind == FeatureKind.ORE_DEPOSIT }
+      .filterIsInstance<PointMarker>()
+      .filter { marker ->
+        val type = runCatching { marker.attribute(DepositChannels.TYPE).toInt() }.getOrNull() ?: return@filter false
+        type in ResourceType.entries.indices && MinableOre.of(ResourceType.entries[type]) != null
+      }
+
+    val buckets = HashMap<Long, MutableList<PointMarker>>()
+    for (deposit in deposits) {
+      val cx = Math.floor(deposit.position.x / separation).toInt()
+      val cy = Math.floor(deposit.position.y / separation).toInt()
+
+      for (dy in -1..1) {
+        for (dx in -1..1) {
+          for (other in buckets[bucketKey(cx + dx, cy + dy)] ?: continue) {
+            val distance = deposit.position.distanceTo(other.position)
+            if (distance < separation * (1.0 - SEPARATION_TOLERANCE)) {
+              fail(
+                "ore deposits are spaced apart",
+                "${deposit.id} and ${other.id} are ${distance.toInt()} m apart, " +
+                    "needing ${separation.toInt()} m"
+              )
+              return
+            }
+
+            val bodies = deposit.attribute(DepositChannels.RADIUS) + other.attribute(DepositChannels.RADIUS)
+            if (distance < bodies * clearance * (1.0 - SEPARATION_TOLERANCE)) {
+              fail(
+                "ore deposits are spaced apart",
+                "orebodies ${deposit.id} and ${other.id} are ${distance.toInt()} m apart, " +
+                    "which their combined ${bodies.toInt()} m of radius overlaps"
+              )
+              return
+            }
+          }
+        }
+      }
+
+      buckets.getOrPut(bucketKey(cx, cy)) { ArrayList() }.add(deposit)
+    }
+  }
+
+  private fun bucketKey(cx: Int, cy: Int) = (cx.toLong() shl 32) xor (cy.toLong() and 0xFFFF_FFFFL)
 
   /**
    * A fjord's sill stands higher than the basin behind it.
@@ -1563,12 +1698,12 @@ object Invariants {
 
     for (y in region.minY..region.maxY) {
       for (x in region.minX..region.maxX) {
-        val isWaterBiome = Biome.of(biome[x, y]).isWater
+        val isWaterBiome = Biome.entries[biome[x, y]].isWater
         val hasWater = !water[x, y].isNaN()
         if (isWaterBiome != hasWater) {
           mismatches++
           if (example.isEmpty()) {
-            example = "($x,$y) biome=${Biome.of(biome[x, y])} waterLevel=${water[x, y]}"
+            example = "($x,$y) biome=${Biome.entries[biome[x, y]]} waterLevel=${water[x, y]}"
           }
         }
       }
@@ -1842,6 +1977,14 @@ object Invariants {
    * than the nominal separation. Demanding it exactly would fail on the grid rather than on the rule.
    */
   private const val SEPARATION_TOLERANCE = 0.02
+
+  /**
+   * How far a deposit's advertised tonnage may sit from what its geometry models, as a fraction.
+   *
+   * Small because the two are the same closed form evaluated twice - anything beyond rounding means one
+   * side changed and the other did not.
+   */
+  private const val TONNAGE_TOLERANCE = 0.001
 
   /** People a settlement's sector counts may miss by, from truncating seven shares. */
   private const val EMPLOYMENT_TOLERANCE = 8

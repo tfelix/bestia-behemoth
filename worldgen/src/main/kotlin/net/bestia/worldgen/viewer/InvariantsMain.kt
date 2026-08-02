@@ -101,6 +101,7 @@ object InvariantsMain {
     val oxbows = ArrayList<Int>(seeds)
     val lobes = ArrayList<Int>(seeds)
     val deltas = ArrayList<Int>(seeds)
+    val districts = ArrayList<Int>(seeds)
 
     val cellSizes = ArrayList<Double>(seeds)
     val oversized = ArrayList<Int>(seeds)
@@ -130,6 +131,7 @@ object InvariantsMain {
         oxbows.add(generated.world.features.all().count { it.kind == FeatureKind.OXBOW_LAKE })
         lobes.add(generated.world.features.all().count { it.kind == FeatureKind.ALLUVIAL_FAN })
         deltas.add(generated.world.features.all().count { it.kind == FeatureKind.DELTA })
+        districts.add(generated.world.features.all().count { it.kind == FeatureKind.DISTRICT })
 
         val index = generated.world.features.indexMetrics()
         cellSizes.add(index.cellSize)
@@ -139,7 +141,7 @@ object InvariantsMain {
 
         val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems" +
             "  canopy ${"%.3f".format(Locale.ROOT, wooded)}  ponds ${ponds.last()}/${oxbows.last()}" +
-            "  index ${index.oversizedCount}/${index.size}"
+            "  districts ${districts.last()}  index ${index.oversizedCount}/${index.size}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -195,6 +197,12 @@ object InvariantsMain {
       println(
         "vector ponds: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
             ", $none of ${sorted.size} worlds with none, ${ponds.sum()} in all"
+      )
+      val quarters = districts.sorted()
+      println(
+        "town districts: median ${quarters[quarters.size / 2]}, range ${quarters.first()} .. " +
+            "${quarters.last()}, ${quarters.count { it == 0 }} of ${quarters.size} worlds with none, " +
+            "${districts.sum()} in all"
       )
       val bows = oxbows.sorted()
       println(

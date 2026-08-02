@@ -139,15 +139,6 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(45, "LOG", 0.33f, 0.24f, 0.15f),
       Foliage(46, "LEAVES", 0.19f, 0.36f, 0.15f),
 
-      // Ore, placed per voxel at chunk generation.
-      Terrain(50, "ORE_COPPER", 0.45f, 0.55f, 0.45f),
-      Terrain(51, "ORE_TIN", 0.58f, 0.58f, 0.62f),
-      Terrain(52, "ORE_IRON", 0.53f, 0.38f, 0.30f),
-      Terrain(53, "ORE_GOLD", 0.78f, 0.66f, 0.28f),
-      Terrain(54, "ORE_SILVER", 0.72f, 0.74f, 0.76f),
-      Terrain(55, "COAL_SEAM", 0.13f, 0.13f, 0.14f),
-      Terrain(56, "ROCK_SALT", 0.86f, 0.84f, 0.82f),
-
       // Bridge decking and other worked structure.
       Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f),
 
@@ -157,9 +148,41 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(62, "PLASTER", 0.86f, 0.82f, 0.73f),
       Terrain(63, "THATCH", 0.72f, 0.60f, 0.30f),
       Terrain(64, "ROOF_TILE", 0.55f, 0.26f, 0.20f),
-      Terrain(65, "PLANK", 0.60f, 0.45f, 0.28f),
       Terrain(66, "RUBBLE", 0.48f, 0.46f, 0.43f),
-      Terrain(67, "COBBLESTONE", 0.42f, 0.41f, 0.40f)
+      Terrain(67, "COBBLESTONE", 0.42f, 0.41f, 0.40f),
+
+      // Ore, placed per voxel at chunk generation, three grades per metal. The grade is not decoration: it
+      // decides what a broken voxel drops, so a player has to be able to see the difference between the rim
+      // of a body and its middle. SMALL is barely more than tinted host rock, RICH is the metal's own colour.
+      Terrain(100, "ORE_COPPER_SMALL", 0.48f, 0.42f, 0.36f),
+      Terrain(101, "ORE_COPPER_MEDIUM", 0.60f, 0.45f, 0.30f),
+      Terrain(102, "ORE_COPPER_RICH", 0.73f, 0.46f, 0.29f),
+
+      Terrain(103, "ORE_TIN_SMALL", 0.47f, 0.48f, 0.49f),
+      Terrain(104, "ORE_TIN_MEDIUM", 0.61f, 0.63f, 0.66f),
+      Terrain(105, "ORE_TIN_RICH", 0.76f, 0.79f, 0.83f),
+
+      Terrain(106, "ORE_IRON_SMALL", 0.45f, 0.38f, 0.34f),
+      Terrain(107, "ORE_IRON_MEDIUM", 0.58f, 0.36f, 0.28f),
+      Terrain(108, "ORE_IRON_RICH", 0.70f, 0.41f, 0.31f),
+
+      Terrain(109, "ORE_GOLD_SMALL", 0.54f, 0.49f, 0.35f),
+      Terrain(110, "ORE_GOLD_MEDIUM", 0.77f, 0.65f, 0.31f),
+      Terrain(111, "ORE_GOLD_RICH", 0.97f, 0.81f, 0.31f),
+
+      Terrain(112, "ORE_SILVER_SMALL", 0.52f, 0.53f, 0.55f),
+      Terrain(113, "ORE_SILVER_MEDIUM", 0.71f, 0.73f, 0.76f),
+      Terrain(114, "ORE_SILVER_RICH", 0.89f, 0.91f, 0.94f),
+
+      // Cold violet-cyan, which nothing else in the palette is anywhere near. The rarest thing in the ground
+      // should be unmistakable the moment it appears in a shaft wall.
+      Terrain(115, "ORE_MITHRANDIUM_SMALL", 0.38f, 0.45f, 0.50f),
+      Terrain(116, "ORE_MITHRANDIUM_MEDIUM", 0.40f, 0.68f, 0.76f),
+      Terrain(117, "ORE_MITHRANDIUM_RICH", 0.48f, 0.89f, 0.94f),
+
+      Terrain(118, "ROCK_SALT_SMALL", 0.69f, 0.67f, 0.66f),
+      Terrain(119, "ROCK_SALT_MEDIUM", 0.83f, 0.81f, 0.80f),
+      Terrain(120, "ROCK_SALT_RICH", 0.96f, 0.94f, 0.93f)
     };
 
     /// <summary>

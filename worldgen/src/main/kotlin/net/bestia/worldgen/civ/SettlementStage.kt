@@ -133,9 +133,7 @@ class SettlementStage(
 ) : Stage {
 
   override val id = ID
-  // 2: settlement markers carry SettlementChannels.INDEX, the join key for steps 8 to 10.
-  // 3: pairs a road cannot reach get a SEA_LANE, so the trade network spans water.
-  override val version = 3
+  override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
@@ -398,7 +396,7 @@ class SettlementStage(
     val here = biome[region.minX + x, region.minY + y]
     for (d in 0 until 4) {
       val other = biome[region.minX + x + PASS_DX[d], region.minY + y + PASS_DY[d]]
-      if (other != here && !Biome.of(other).isWater && !Biome.of(here).isWater) return true
+      if (other != here && !Biome.entries[other].isWater && !Biome.entries[here].isWater) return true
     }
     return false
   }

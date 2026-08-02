@@ -232,11 +232,7 @@ class TectonicsStage(
 ) : Stage {
 
   override val id = ID
-  // 2: OceanBorder now holds the margin under the waterline and blends out over a shelf beyond it.
-  // 3: the margin's coastline wobbles instead of being a rectangle, and the land-fraction target is measured
-  //    over the whole world after the margin rather than over the interior before it.
-  // 4: hotspot tracks curve, so a chain crossing a continent is no longer a ruled line.
-  override val version = 4
+  override val version = 1
 
   override val paramsVersion get() = params.digest().value
   override val dependencies: List<StageId> = emptyList()

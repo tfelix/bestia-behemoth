@@ -83,7 +83,7 @@ class EconomyStageTest {
   @Test
   fun `a mining town gets smiths and a fishing village gets fishmongers`() {
     val mining = BusinessCatalogue.evaluate(
-      setting(cerealShare = 0.05, resources = setOf(ResourceType.IRON, ResourceType.TIMBER, ResourceType.COAL))
+      setting(cerealShare = 0.05, resources = setOf(ResourceType.IRON, ResourceType.TIMBER))
     )
     val port = BusinessCatalogue.evaluate(setting(cerealShare = 0.1, coastal = true))
 

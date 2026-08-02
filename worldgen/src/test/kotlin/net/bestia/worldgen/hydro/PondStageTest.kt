@@ -18,14 +18,14 @@ import kotlin.test.assertTrue
  * fake, and faking it is how three successive versions of this producer passed their own tests while
  * leaving walls of standing water on the reference world.
  *
- * Seed 8 at 192 cells is pinned because it has ponds. A conditional `if (ponds.isEmpty()) return` would
+ * Seed 3 at 192 cells is pinned because it has ponds - four of them, and about half of all seeds have none. A conditional `if (ponds.isEmpty()) return` would
  * pass on a world with none, which is the failure this module has shipped three times.
  */
 class PondStageTest {
 
   private val world by lazy {
     StandardWorld.build(
-      StandardWorld.demoConfig(seed = 8L).copy(widthCells = 192, heightCells = 192),
+      StandardWorld.demoConfig(seed = 3L).copy(widthCells = 192, heightCells = 192),
       params = WorldParams.DEFAULT
     )
   }
@@ -38,7 +38,7 @@ class PondStageTest {
   fun `the world this is pinned to actually has ponds`() {
     // Habit six, spelled out: a subsystem that is complete, tested and never reached looks exactly like one
     // that works. Every assertion below iterates this list, so if it is ever empty they all pass vacuously.
-    assertTrue(ponds.isNotEmpty(), "seed 8 at 192 cells used to have five ponds and now has none")
+    assertTrue(ponds.isNotEmpty(), "seed 3 at 192 cells used to have four ponds and now has none")
   }
 
   @Test

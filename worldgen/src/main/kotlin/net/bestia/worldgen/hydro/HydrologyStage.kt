@@ -235,9 +235,7 @@ class HydrologyStage(
 
   override val id = ID
 
-  // 2: channel initiation reads slope as well as catchment area, so heads sit in the uplands.
-  // 3: routes over the glacially carved surface, so rivers inherit trough floors and ribbon lakes form.
-  override val version = 3
+  override val version = 1
 
   override val paramsVersion get() = params.digest().value
 

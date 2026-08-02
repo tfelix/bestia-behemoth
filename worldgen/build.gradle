@@ -405,3 +405,36 @@ tasks.register('invariants', JavaExec) {
     // and a glance at the screen, since the sweep builds one world per core.
     worldArgs(it)
 }
+
+/**
+ * Two worlds, one difference field.
+ *
+ * The other half of "change one number and look at the same world": `-Pparams` makes the change, this says
+ * what it did. Reads a table of mean and worst absolute difference per layer - the half that works in a
+ * terminal - and writes difference PNGs when given `-Pout`.
+ *
+ * ```
+ * ./gradlew :worldgen:diff -Pseed=7 -Pother=8
+ * ./gradlew :worldgen:diff -Pparams=a.txt -Potherparams=b.txt -Pout=build/diff
+ * ```
+ *
+ * `-Pother` and `-Potherparams` are mutually exclusive and the tool refuses both, because a difference with
+ * two causes in it says nothing about either.
+ */
+tasks.register('diff', JavaExec) {
+    group = 'worldgen'
+    description = 'Compares two worlds - two seeds, or two params files - layer by layer'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.bestia.worldgen.viewer.DiffMain'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    if (cli('other') != null) {
+        args '--other', cli('other')
+    }
+    if (cli('otherparams') != null) {
+        args '--other-params', cli('otherparams')
+    }
+    if (cli('out') != null) {
+        args '--out', cli('out')
+    }
+    worldArgs(it)
+}

@@ -97,7 +97,7 @@ internal class Terms(
         val slope = elevation.gradient(x, y, metres)
         val i = y * region.width + x
         val flatness = 1.0 - (slope / params.arableSlope).coerceIn(0.0, 1.0)
-        val boggy = if (Biome.of(biome[region.minX + x, region.minY + y]) == Biome.WETLAND) 0.35 else 1.0
+        val boggy = if (Biome.entries[biome[region.minX + x, region.minY + y]] == Biome.WETLAND) 0.35 else 1.0
         flatness * boggy
       } }
 
@@ -123,11 +123,17 @@ internal class Terms(
 
       val grazing = Timings.measure("terms.grazing") {
         Grid.parallel(region.width, region.height) { x, y ->
-          when (Biome.of(biome[region.minX + x, region.minY + y])) {
+          when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
             Biome.GRASSLAND, Biome.STEPPE -> 1.0
             Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
             Biome.TUNDRA, Biome.ALPINE -> 0.4
-            else -> 0.1
+
+            // Nothing grazes here worth counting. Exhaustive rather than defaulted so that a biome added
+            // later has to be given a number instead of quietly inheriting "almost none".
+            Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.TAIGA, Biome.COLD_DESERT,
+            Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.DESERT,
+            Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND, Biome.RIPARIAN,
+            Biome.BEACH, Biome.BADLANDS, Biome.CLIFF -> 0.1
           }
         }
       }
@@ -364,13 +370,17 @@ internal class Terms(
         val slope = elevation.gradient(x, y, metres)
         var cost = 1.0 + slope * SLOPE_PENALTY
 
-        cost *= when (Biome.of(biome[region.minX + x, region.minY + y])) {
+        cost *= when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
           Biome.TEMPERATE_RAINFOREST, Biome.TROPICAL_RAINFOREST -> 2.4
           Biome.TAIGA, Biome.TEMPERATE_FOREST, Biome.TROPICAL_SEASONAL_FOREST -> 1.7
           Biome.WETLAND -> 3.2
           Biome.BADLANDS, Biome.CLIFF -> 4.0
           Biome.DESERT -> 1.4
-          else -> 1.0
+
+          // Open ground: walk across it at the cost the slope alone implies.
+          Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.TUNDRA, Biome.COLD_DESERT,
+          Biome.ALPINE, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND, Biome.SAVANNA, Biome.RIPARIAN,
+          Biome.BEACH -> 1.0
         }
 
         if (discharge.data[i] >= params.waterDischarge) cost *= params.riverCrossingCost

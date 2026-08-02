@@ -52,7 +52,7 @@ class CivilisationStageTest {
       val type = deposit.attribute(DepositChannels.TYPE).toInt()
       assertTrue(type in ResourceType.entries.indices, "resource type $type is not a type")
       assertTrue(deposit.attribute(DepositChannels.RICHNESS) in 0.0..1.0)
-      assertTrue(deposit.attribute(DepositChannels.QUANTITY) > 0.0)
+      assertTrue(deposit.attribute(DepositChannels.TONS) > 0.0)
       assertTrue(deposit.attribute(DepositChannels.RADIUS) > 0.0)
       assertTrue(deposit.attribute(DepositChannels.DEPTH) >= 0.0)
     }

@@ -190,13 +190,13 @@ object Labels {
   /** Null when the layer's ids are genuinely just numbers. */
   fun forLayer(id: LayerId): ((Int) -> String?)? = when (id) {
 
-    // `getOrNull`, not `Biome.of`: that clamps an out-of-range ordinal to the last entry, so a bad id
+    // `getOrNull` rather than an indexed read: an out-of-range ordinal here is a bad id
     // would confidently read as `cliff`. Falling back to the number is the honest answer, and it matches
     // how BiomePalette falls back to a hashed colour rather than inventing one.
     LayerId.BIOME -> { ordinal -> Biome.entries.getOrNull(ordinal)?.label }
 
     // `getOrNull` here too, and here it is load bearing rather than defensive: this layer *deliberately*
-    // stores an out-of-range value. `Biome.of` would report every cell with no runner-up as `cliff`.
+    // stores an out-of-range value, and a clamping reader would report every cell with no runner-up as a biome.
     LayerId.BIOME_SECONDARY -> { ordinal ->
       if (ordinal == LayerId.NO_SECONDARY) "no runner-up" else Biome.entries.getOrNull(ordinal)?.label
     }
@@ -313,21 +313,47 @@ class BlockPalette : Palette {
       put(BlockType.PERMAFROST.id, Colors.rgb(152, 160, 168))
       put(BlockType.GRASS.id, Colors.rgb(96, 146, 72))
       put(BlockType.SNOW.id, Colors.rgb(246, 248, 252))
-      put(BlockType.ORE_COPPER.id, Colors.rgb(186, 118, 74))
-      put(BlockType.ORE_TIN.id, Colors.rgb(178, 186, 196))
-      put(BlockType.ORE_IRON.id, Colors.rgb(150, 106, 90))
-      put(BlockType.ORE_GOLD.id, Colors.rgb(232, 196, 84))
-      put(BlockType.ORE_SILVER.id, Colors.rgb(214, 220, 228))
-      put(BlockType.COAL_SEAM.id, Colors.rgb(44, 42, 46))
-      put(BlockType.ROCK_SALT.id, Colors.rgb(238, 232, 226))
       put(BlockType.MASONRY.id, Colors.rgb(168, 160, 148))
       put(BlockType.TIMBER.id, Colors.rgb(112, 79, 48))
       put(BlockType.PLASTER.id, Colors.rgb(220, 210, 186))
       put(BlockType.THATCH.id, Colors.rgb(184, 153, 76))
       put(BlockType.ROOF_TILE.id, Colors.rgb(140, 66, 51))
-      put(BlockType.PLANK.id, Colors.rgb(153, 115, 71))
       put(BlockType.RUBBLE.id, Colors.rgb(122, 118, 110))
       put(BlockType.COBBLESTONE.id, Colors.rgb(107, 105, 102))
+
+      // Ore, one hue per metal and three steps of it. The steps are what a slice through a body has to show:
+      // the point of grading ore was that the dense middle is worth more than the rim, and a single colour
+      // per metal would draw the two identically.
+      graded(BlockType.ORE_COPPER_SMALL, 122, 106, 92, 186, 118, 74)
+      graded(BlockType.ORE_TIN_SMALL, 120, 122, 126, 194, 202, 212)
+      graded(BlockType.ORE_IRON_SMALL, 116, 96, 88, 178, 104, 78)
+      graded(BlockType.ORE_GOLD_SMALL, 138, 124, 88, 248, 206, 78)
+      graded(BlockType.ORE_SILVER_SMALL, 132, 136, 140, 226, 232, 240)
+      graded(BlockType.ORE_MITHRANDIUM_SMALL, 96, 116, 128, 122, 226, 240)
+      graded(BlockType.ROCK_SALT_SMALL, 176, 172, 168, 244, 240, 236)
+    }
+
+    /**
+     * The three grade blocks of one ore, ramped from a dull host-rock tint to the saturated colour.
+     *
+     * Takes the SMALL block and steps forward by id, which the palette layout guarantees is MEDIUM then RICH.
+     */
+    private fun MutableMap<Int, Int>.graded(
+      small: BlockType,
+      dullRed: Int, dullGreen: Int, dullBlue: Int,
+      brightRed: Int, brightGreen: Int, brightBlue: Int
+    ) {
+      for (step in 0..2) {
+        val t = step / 2.0
+        put(
+          small.id + step,
+          Colors.rgb(
+            (dullRed + (brightRed - dullRed) * t).toInt(),
+            (dullGreen + (brightGreen - dullGreen) * t).toInt(),
+            (dullBlue + (brightBlue - dullBlue) * t).toInt()
+          )
+        )
+      }
     }
   }
 }

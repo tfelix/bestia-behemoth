@@ -171,7 +171,7 @@ class BiomeDitherTest {
 
   @Test
   fun `the sentinel is never treated as a biome`() {
-    // `Biome.of` coerces, so the sentinel would come back as the last enum entry - CLIFF. A cell with no
+    // A clamping reader turns the sentinel into the last enum entry - CLIFF. A cell with no
     // runner-up must stay the winner however low its confidence claims to be.
     val sampler = sampler(Biome.TAIGA, LayerId.NO_SECONDARY, 0.0f)
 
@@ -179,7 +179,7 @@ class BiomeDitherTest {
       val got = sampler.biomeAt(400.0 + n * 7.331, 700.0 + n * 3.977)
       assertEquals(
         Biome.TAIGA, got,
-        "a cell with the sentinel came back as $got - Biome.of coerced -1 into the enum"
+        "a cell with the sentinel came back as $got - something coerced -1 into the enum"
       )
     }
   }

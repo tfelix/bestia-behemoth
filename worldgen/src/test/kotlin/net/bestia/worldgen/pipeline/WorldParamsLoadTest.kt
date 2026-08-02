@@ -8,6 +8,8 @@ import net.bestia.worldgen.geo.ClosedBasinParams
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.ErosionParams
 import net.bestia.worldgen.geo.TectonicsParams
+import net.bestia.worldgen.resource.GradeMix
+import net.bestia.worldgen.resource.ResourceParams
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -41,6 +43,8 @@ class WorldParamsLoadTest {
     // Forwarded from tectonics, which carved the margin these two describe.
     Triple("erosion", ErosionParams(), setOf("oceanBorderDepth", "oceanBorderWobble")),
     Triple("erosion.basins", ClosedBasinParams(), emptySet()),
+    Triple("resource", ResourceParams(), emptySet()),
+    Triple("resource.grades", GradeMix(), emptySet()),
     // Ahead of the rest of the chunk tier because its cost, not its look, is the open question - see
     // `DropletParams.overriddenBy`.
     Triple("droplets", DropletParams(), emptySet())

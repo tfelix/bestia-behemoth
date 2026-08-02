@@ -58,7 +58,16 @@ class GeneratedWorld(
   val columns: ChunkColumnSource,
 
   /** Column heights turned into blocks. */
-  val materializer: ChunkMaterializer
+  val materializer: ChunkMaterializer,
+
+  /**
+   * The tuning this world was generated with, resolved.
+   *
+   * Carried rather than discarded because a property check often needs the rule as well as the result:
+   * `Invariants` can only say "these two deposits are closer than they should be" if it can read what the
+   * dispersal pass was told to keep them.
+   */
+  val params: WorldParams = WorldParams.DEFAULT
 ) {
   val config: WorldConfig get() = world.config
 
@@ -267,10 +276,11 @@ object StandardWorld {
       surface = SurfaceSampler.of(world.layers, config),
       features = world.features,
       caveParams = p.cave,
-      vegetationParams = p.vegetation
+      vegetationParams = p.vegetation,
+      grades = p.resource.grades
     )
 
-    return GeneratedWorld(world, base, columns, materializer)
+    return GeneratedWorld(world, base, columns, materializer, p)
   }
 
   /**

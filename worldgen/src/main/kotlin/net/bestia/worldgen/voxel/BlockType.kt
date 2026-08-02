@@ -7,6 +7,15 @@ package net.bestia.worldgen.voxel
  * base hash the client compares against the server's. Ordinals would tie the format to the declaration
  * order of a Kotlin enum, which is exactly the kind of coupling that turns "insert a block type
  * alphabetically" into "every stored chunk in the world now decodes to the wrong rock".
+ *
+ * ### The gaps stay
+ *
+ * The ids are sparse - the bands are basement 10-11, sedimentary 20-23, unconsolidated 30-35, surface cover
+ * 40-46, worked 60-67, ore 100-120 - and the palette pass considered renumbering them densely to fit a wire
+ * format that packs material into six bits. It was measured instead: dense ids saved **zero bytes**, because
+ * the only ids past 64 are ore and ore is rare, and the format in question was declined on its own numbers.
+ * See `RleCodec`'s table. So the bands are worth what they cost, which is nothing: `is this ore` is a range
+ * check a human can do while reading the file, and a new worked material has somewhere obvious to go.
  */
 enum class BlockType(
   val id: Int,
@@ -75,15 +84,6 @@ enum class BlockType(
    */
   LEAVES(46, solid = false, opaque = false, opacity = 0.35),
 
-  // Ore, placed per voxel at chunk generation by sampling the sparse deposits. Never stored as a field.
-  ORE_COPPER(50, solid = true),
-  ORE_TIN(51, solid = true),
-  ORE_IRON(52, solid = true),
-  ORE_GOLD(53, solid = true),
-  ORE_SILVER(54, solid = true),
-  COAL_SEAM(55, solid = true),
-  ROCK_SALT(56, solid = true),
-
   /** Bridge decking and other worked structure. */
   MASONRY(60, solid = true),
 
@@ -96,20 +96,57 @@ enum class BlockType(
   THATCH(63, solid = true),
   ROOF_TILE(64, solid = true),
 
-  /** Floorboards and shutters. Solid but not load bearing, which nothing yet distinguishes. */
-  /**
-   * Sawn timber. **Nothing places it any more**, since the mine head stopped being a planked shaft cover and
-   * became an open shaft; it is kept because building interiors want floors and a mine wants a headframe, both
-   * of which are queued work. Delete it in the palette renumbering if neither has arrived by then, rather than
-   * letting it become a material nobody can account for.
-   */
-  PLANK(65, solid = true),
+  // 65 was PLANK, sawn timber for floorboards and shutters. Nothing had placed it since the mine head stopped
+  // being a planked shaft cover and became an open shaft, and its own KDoc said to delete it at the palette
+  // pass if neither building interiors nor a mine headframe had arrived. Neither had. The id is left free for
+  // whichever of them lands first.
 
   /** What a razed building leaves. Distinct from GRAVEL so a ruin reads as worked stone, not scree. */
   RUBBLE(66, solid = true),
 
   /** A paved street surface. */
-  COBBLESTONE(67, solid = true);
+  COBBLESTONE(67, solid = true),
+
+  /*
+   * Ore, placed per voxel at chunk generation by sampling the sparse deposits. Never stored as a field.
+   *
+   * Three grades per ore, and the grade is the point: the block a player breaks has to say how much metal
+   * falls out of it, and a single ORE_IRON cannot. `OreBlocks` owns the mapping in both directions -
+   * (resource, grade) -> block for generation, block -> (resource, grade) for whatever eventually turns a
+   * broken voxel into an item.
+   *
+   * Ids start at 100 rather than continuing from 67 because the ungraded ore band that used to sit at 50-56
+   * was deleted with this change. A fresh contiguous band is worth the gap: it makes "is this ore" a range
+   * check for a human reading the file, and it leaves 68-99 for the next batch of worked materials rather
+   * than interleaving them with rock.
+   */
+  ORE_COPPER_SMALL(100, solid = true),
+  ORE_COPPER_MEDIUM(101, solid = true),
+  ORE_COPPER_RICH(102, solid = true),
+
+  ORE_TIN_SMALL(103, solid = true),
+  ORE_TIN_MEDIUM(104, solid = true),
+  ORE_TIN_RICH(105, solid = true),
+
+  ORE_IRON_SMALL(106, solid = true),
+  ORE_IRON_MEDIUM(107, solid = true),
+  ORE_IRON_RICH(108, solid = true),
+
+  ORE_GOLD_SMALL(109, solid = true),
+  ORE_GOLD_MEDIUM(110, solid = true),
+  ORE_GOLD_RICH(111, solid = true),
+
+  ORE_SILVER_SMALL(112, solid = true),
+  ORE_SILVER_MEDIUM(113, solid = true),
+  ORE_SILVER_RICH(114, solid = true),
+
+  ORE_MITHRANDIUM_SMALL(115, solid = true),
+  ORE_MITHRANDIUM_MEDIUM(116, solid = true),
+  ORE_MITHRANDIUM_RICH(117, solid = true),
+
+  ROCK_SALT_SMALL(118, solid = true),
+  ROCK_SALT_MEDIUM(119, solid = true),
+  ROCK_SALT_RICH(120, solid = true);
 
   companion object {
     private val BY_ID = arrayOfNulls<BlockType>(entries.maxOf { it.id } + 1).also { table ->

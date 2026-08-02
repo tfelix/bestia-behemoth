@@ -27,12 +27,20 @@ import kotlin.test.assertTrue
  * was `Int.MIN_VALUE`, and `year - Int.MIN_VALUE` overflows to a large negative, so the interval gate rejected
  * every founding on every tick. Candidate lists were full and technology reached 0.88 while the world got none
  * of all four kinds.
+ *
+ * ### Why seed 5 and not the default one
+ *
+ * This ran against `StandardWorld.DEFAULT_SEED` until the version reset moved every world. It is pinned to a
+ * named seed now because a fort needs a threatened frontier and **two seeds in seven have none at all** -
+ * measured at 256 cells: 0, 5, 7, 0, 10, 9, 9 forts over seeds 11753242 and 2 through 7. The default seed
+ * happens to be one of the two, so it can no longer carry a test whose whole point is that all four kinds
+ * exist. That is a fact about forts rather than a defect: a world of quiet neighbours does not build them.
  */
 class SpecialSitesTest {
 
   private companion object {
     val world: GeneratedWorld = StandardWorld.build(
-      StandardWorld.demoConfig(seed = StandardWorld.DEFAULT_SEED).copy(widthCells = 256, heightCells = 256)
+      StandardWorld.demoConfig(seed = 5L).copy(widthCells = 256, heightCells = 256)
     )
 
     val chronicle get() = world.world.chronicle
@@ -54,7 +62,7 @@ class SpecialSitesTest {
     // what a total would hide - and each has its own gate to get wrong.
     for (kind in built) {
       val count = chronicle.sites.count { it.kind == kind }
-      assertTrue(count > 0, "no $kind was founded on the reference world")
+      assertTrue(count > 0, "no $kind was founded on seed 5")
     }
   }
 

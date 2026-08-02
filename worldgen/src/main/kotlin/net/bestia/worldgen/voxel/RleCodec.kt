@@ -32,23 +32,49 @@ import java.io.ByteArrayOutputStream
  * repeated to volume: uvar occupancy, uvar runLength
  * ```
  *
- * ### A tighter format, deliberately not adopted yet
+ * ### A tighter format, measured and declined
  *
- * The zone-server's earlier chunk writer had a better idea for the occupancy half, worth recording because
- * the code it lived in is gone. Occupancy is *derivable* from material everywhere except at a surface - air
- * implies empty, anything else implies full - so instead of a second stream it flagged one bit per run and
- * emitted an occupancy byte only for the runs that break that rule. On terrain that is one extra byte per
- * column rather than a run pair, which is several times tighter than what is here.
+ * The zone-server's earlier chunk writer had a different idea for the occupancy half, and this note used to
+ * say it was *"several times tighter"* and blocked by the palette size. Both halves of that were written
+ * without measuring. They have now been measured, and neither survived.
  *
- * It is not adopted because the same scheme packed the material into the low six bits of the flag byte,
- * capping the palette at 64 blocks - and the palette is already past 60. Bit-packing the flags without that
- * ceiling means a wider header, at which point the saving is smaller than it looks. The architecture document
- * says to ship merged RLE first and optimise the wire format once there are real traffic numbers, so this
- * stays a note until there are.
+ * The scheme: occupancy is *derivable* from material everywhere except at a surface - air implies empty,
+ * anything else implies full - so instead of a second stream, emit one merged run stream whose runs are
+ * uniform in both, flag the runs that break the rule, and give only those an occupancy byte. Implemented
+ * against 196 chunks of seed 8 at 192 cells:
+ *
+ * | format | bytes/chunk | deflated |
+ * |---|---|---|
+ * | two streams, as here | 19 383 | 2 263 |
+ * | merged runs, sparse block ids | 14 629 (-24.5%) | 1 838 (-18.8%) |
+ * | merged runs, densely renumbered ids | 14 629 (-24.5%) | - |
+ *
+ * So the real figure is **a fifth, not a factor**, and it is a fifth of a payload that deflate has already
+ * taken to 2 KB - 425 bytes a chunk. That is not nothing, but it is not worth a wire format that three
+ * modules and two languages have to agree on, and the storage model is proportional to what players edit
+ * rather than to how big the world is, so the absolute bill it applies to is small. Ship it when there are
+ * traffic numbers saying otherwise, which is what the architecture document asked for in the first place.
+ *
+ * **The palette was never the blocker.** That claim came from the original scheme packing material into the
+ * low six bits of a flag byte. Writing the flag as the low bit of a *varint* material id instead has no
+ * ceiling at all: ids under 64 still cost one byte, and an id above it costs two rather than being
+ * unrepresentable. The third row above is the consequence - densely renumbering the palette to get under
+ * sixty-four saves **exactly zero bytes**, because the only ids above it are ore, and ore is rare. The
+ * grouping the gaps encode (basement 10-11, sedimentary 20-23, worked 60-67, ore 100+) is worth more than
+ * a saving that measured as nothing, so [BlockType] keeps its gaps.
  */
 object RleCodec {
 
-  /** 2 added the occupancy stream. Bumping this invalidates every cached and baked blob, by design. */
+  /**
+   * 2 added the occupancy stream. Bumping this invalidates every cached and baked blob, by design.
+   *
+   * **Not reset to 1 with the stage versions**, and it is the only version number in the module that was
+   * not. The others are development counters against a world nobody has generated twice; this one is a byte
+   * written into every payload and named in the wire protocol - `CHUNK_ENCODING_RLE_V2` in `chunk.proto`,
+   * `RleCodec.Version` in the client. Resetting it would rename an enum across three modules and force a
+   * protobuf regeneration to say the same thing the format already says about itself, and the format did not
+   * change. A number that is a real statement between two artefacts stays where it is.
+   */
   const val VERSION = 2
 
   fun encode(chunk: VoxelChunk): ByteArray {

@@ -220,7 +220,8 @@ internal class Zoning(
     BuildingFunction.INN -> 1.06 to MAX_PLOT_FILL
 
     // Everything public or agricultural takes what it can get, and gets the rest from a grand plot.
-    else -> MAX_PLOT_FILL to MAX_PLOT_FILL
+    BuildingFunction.MARKET, BuildingFunction.TEMPLE, BuildingFunction.CIVIC, BuildingFunction.WAREHOUSE,
+    BuildingFunction.FARM, BuildingFunction.FORTIFICATION -> MAX_PLOT_FILL to MAX_PLOT_FILL
   }
 
   /**
@@ -253,7 +254,7 @@ internal class Zoning(
       BuildingFunction.WAREHOUSE -> 0.4
       BuildingFunction.MARKET -> 0.0
       BuildingFunction.FARM -> 0.0
-      else -> 0.2
+      BuildingFunction.CRAFT, BuildingFunction.RESIDENCE, BuildingFunction.FORTIFICATION -> 0.2
     }
 
     val culture = Culture.byIndex(cultureIndex)
@@ -261,9 +262,13 @@ internal class Zoning(
     val storeys = when (function) {
       BuildingFunction.MARKET -> 1
       BuildingFunction.FARM -> 1
-      else -> (storeyed.toInt() +
-          if (roll(index.toLong(), STOREY_SALT) < storeyed - storeyed.toInt()) 1 else 0)
-        .coerceIn(1, MAX_STOREYS)
+
+      BuildingFunction.TEMPLE, BuildingFunction.CIVIC, BuildingFunction.SHOP, BuildingFunction.CRAFT,
+      BuildingFunction.WAREHOUSE, BuildingFunction.INN, BuildingFunction.RESIDENCE,
+      BuildingFunction.FORTIFICATION ->
+        (storeyed.toInt() +
+            if (roll(index.toLong(), STOREY_SALT) < storeyed - storeyed.toInt()) 1 else 0)
+          .coerceIn(1, MAX_STOREYS)
     }
 
     // Stone follows the culture, then wealth, then function. A temple is stone in a timber town, which is

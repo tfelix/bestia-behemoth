@@ -61,8 +61,7 @@ class HistoryStage(
 
   override val id = ID
 
-  // 2: mines, monasteries, forts and lighthouses are founded and emitted.
-  override val version = 2
+  override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest())
   override val dependencies = listOf(

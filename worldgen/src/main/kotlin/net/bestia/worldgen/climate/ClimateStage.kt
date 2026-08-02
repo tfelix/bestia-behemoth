@@ -249,10 +249,7 @@ class ClimateStage(
 
   override val id = ID
 
-  // 2: belt boundaries are blended rather than stepped, and the row sweep wraps on a wrapping world.
-  // 3: four seasons rather than two, kept as layers; the sweep's temperature is seasonal and hemisphere-
-  //    correct, and the belt shift is sinusoidal with a monsoon lag behind it.
-  override val version = 3
+  override val version = 1
 
   override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID)

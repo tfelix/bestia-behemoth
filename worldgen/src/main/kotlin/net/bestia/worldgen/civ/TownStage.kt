@@ -23,10 +23,13 @@ import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.geo.DetailParams
 import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.history.HistoryStage
+import net.bestia.worldgen.hydro.AlluviumStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureEvaluator
@@ -218,23 +221,27 @@ class TownStage(
 ) : Stage {
 
   override val id = ID
-  // 2: plots and footprints grown so a house is a house; per-function sizes; a shallower roof on a wide span.
-  //    The roof lives in `voxel/TownStructures` and has no version of its own, so it rides on this one.
-  // 3: a lot whose footprint the pad cannot level is skipped, and the next-best lot takes the building.
-  // 4: a town wall stops at the waterfront instead of running out to sea.
-  // 5: towns are laid out in parallel, so each takes its ids from its own block of the ordinal space.
-  //    No town is shaped differently, but every id in the stage moves, and ids tie-break stamp order.
-  override val version = 5
+  override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
+  /**
+   * The glacial, alluvium and pond stages are here because a building stands on what they made.
+   *
+   * They are not read for their layers - they are read for their *features*, through
+   * [WorldGround.groundFeatures]. A moraine, an alluvial fan and a delta all move the ground additively and
+   * are never rasterised, so a town that cannot query them predicts a surface the chunk tier will not
+   * generate, and its buildings come out buried. See the note on that field for how it was found.
+   */
   override val dependencies = listOf(
-    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, SettlementStage.ID, HistoryStage.ID
+    ClimateStage.ID, ErosionStage.ID, GlacialStage.ID, HydrologyStage.ID, AlluviumStage.ID, PondStage.ID,
+    SettlementStage.ID, HistoryStage.ID
   )
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
     StageOutput.Vector(FeatureKind.STREET),
     StageOutput.Vector(FeatureKind.BUILDING),
+    StageOutput.Vector(FeatureKind.DISTRICT),
     StageOutput.Vector(FeatureKind.TOWN_WALL),
     StageOutput.Vector(FeatureKind.GATE)
   )
@@ -342,6 +349,9 @@ class TownStage(
     for (building in placed) {
       out.add(buildingFeature(nextId(), building, town.index))
     }
+
+    // After the buildings, because a district is grown from the plots that actually got one.
+    out.addAll(Districts.of(placed, town.index, params.lotFrontage, nextId))
 
     if (town.wallYear != 0) {
       out.addAll(fortify(town, frame, graph, world, grading, nextId))
@@ -891,25 +901,34 @@ internal class WorldGround(
   private val metres = region.resolution.metresPerCell
 
   /**
-   * The settlement grading discs, which this stage can simply *read* rather than predict.
+   * **Every** feature that moves the ground, not only the settlement grading discs.
    *
-   * `SettlementStage` emitted them and [TownStage] declares it as a dependency, so they have been sitting in
-   * the scoped feature store all along. Two functions here used to model them by hand instead - one applying
-   * the terrace arithmetic at full strength, one re-implementing `PointFeature.falloff` and the `REPLACE`
-   * blend with its own copy of `edgeFraction = 0.6` - on the stated grounds that the grading feature did not
-   * exist yet. It did.
+   * The kind filter that used to be here said `SETTLEMENT_GRADING`, and that was the bug. What a building's
+   * pad has to level is the height a *chunk* will generate, and a chunk applies every feature over the
+   * column - so predicting from the raster plus one kind is predicting from a surface that does not exist.
+   *
+   * The one that found it is `MORAINE`, with an `ADD` blend. `GlacialStage.carveInto` rasterises only the
+   * `MIN` carves, precisely so that the moraine ridge stays a vector-tier thing - which means the `ELEVATION`
+   * layer this reads its base from does *not* contain it, while the chunk does. A town on a moraine therefore
+   * had ten metres of ridge under it that nothing at this tier could see, `standsLevel` passed the lot, and
+   * the building came out with its floor buried. The same hole was open for `ALLUVIAL_FAN` and `DELTA`, which
+   * are additive for the same reason, and for the glacial troughs and vector ponds in the other direction.
+   *
+   * It stayed hidden because it needs a settlement to fall on a landform of a kind that is rare where people
+   * build. The version reset that reshuffled every RNG stream is what put one there - which is the argument
+   * for doing a reset at all, rather than the reset having caused anything.
    */
-  private val gradingDiscs: List<VectorFeature> = ctx.features.query(region.toWorld())
-    .filter { it.kind == FeatureKind.SETTLEMENT_GRADING }
+  private val groundFeatures: List<VectorFeature> = ctx.features.query(region.toWorld())
+    .filter { it.affectsHeight }
 
   /**
-   * The graded ground around one settlement, evaluated by the real feature evaluator.
+   * The ground around one settlement as a chunk will find it, evaluated by the real feature evaluator.
    *
    * Per town rather than per world for two reasons. [FeatureEvaluator] carries scratch state and is
    * documented as not thread-safe, and towns are laid out in parallel - so one shared instance would be a
-   * data race in the most expensive stage in the pipeline. And narrowing to the discs that actually reach
-   * this town turns a loop over every settlement in the world, run once per building corner, into a loop
-   * over one or two.
+   * data race in the most expensive stage in the pipeline. And narrowing to the features that actually reach
+   * this town turns a loop over every landform in the world, run once per building corner, into a loop over
+   * a handful.
    */
   fun around(town: TownReader.Town, reach: Double): Grading {
     val margin = reach + town.tier.footprintRadius
@@ -917,11 +936,11 @@ internal class WorldGround(
       town.position.x - margin, town.position.y - margin,
       town.position.x + margin, town.position.y + margin
     )
-    return Grading(base, gradingDiscs.filter { it.bbox.intersects(box) })
+    return Grading(base, groundFeatures.filter { it.bbox.intersects(box) })
   }
 
   /**
-   * The base surface with the settlement grading stamped on it, exactly as a chunk will see it.
+   * The base surface with every height feature stamped on it, exactly as a chunk will see it.
    *
    * Replaces two hand-written approximations, and the replacement is not only shorter - it is *correct in a
    * place they were not*. The full-strength version answered "what would grading do here if it were at full
@@ -930,10 +949,14 @@ internal class WorldGround(
    * by metres. The faded version fixed that for building corners only, leaving streets and wall footings
    * still reading the full-strength answer. Going through the feature fixes all three at once, and there is
    * no longer a copy of `edgeFraction` to keep in step with the one in `SettlementStage`.
+   *
+   * The features this stage produces itself - streets, buildings, walls - are deliberately absent, because
+   * they are not in the store yet. That is the right answer: what a lot is judged against is the ground
+   * before anything is built on it.
    */
-  internal class Grading(private val base: BaseHeightField, discs: List<VectorFeature>) {
+  internal class Grading(private val base: BaseHeightField, features: List<VectorFeature>) {
 
-    private val evaluator = FeatureEvaluator(discs)
+    private val evaluator = FeatureEvaluator(features)
 
     fun groundAt(at: Vec2d): Double = evaluator.heightAt(at.x, at.y, base.heightAt(at.x, at.y))
   }

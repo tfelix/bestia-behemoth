@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.ColumnHeights
 import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.vector.Quantize
 import java.util.Arrays
 import kotlin.math.ceil
@@ -109,7 +110,17 @@ class ChunkMaterializer(
    */
   private val caveParams: CaveParams = CaveParams(),
 
-  vegetationParams: VegetationParams = VegetationParams()
+  vegetationParams: VegetationParams = VegetationParams(),
+
+  /**
+   * How ore splits between the three grades, forwarded from the stage that sized the deposits.
+   *
+   * Defaulted here only so a test can build a materialiser without a params object. The same argument as
+   * [caveParams] applies with more force: the world tier divided a tonnage by this mix's average yield to
+   * decide how big every orebody is, so a different mix here means every deposit in the world holds a
+   * different amount of metal than the number on its marker.
+   */
+  private val grades: GradeMix = GradeMix()
 ) {
 
   /**
@@ -133,7 +144,7 @@ class ChunkMaterializer(
     val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
     val rivers = RiverWaterSampler(nearby)
     val ponds = PondWaterSampler(nearby)
-    val ore = OreVeins(nearby, config.seed)
+    val ore = OreVeins(nearby, config.seed, grades)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
     val caves = CaveNetwork(nearby, config.seed, caveParams)
@@ -721,7 +732,7 @@ class ChunkMaterializer(
      */
     // 2: subtraction - StructureSpans.remove and carve, and the mine head as an open shaft.
     // 3: vegetation - LOG and LEAVES scattered from the lattice, written into air after everything else.
-    const val VERSION = 3
+    const val VERSION = 4
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

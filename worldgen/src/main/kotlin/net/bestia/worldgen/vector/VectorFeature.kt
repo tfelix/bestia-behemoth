@@ -192,6 +192,15 @@ enum class FeatureKind(val defaultPriority: Int) {
   TOWN_WALL(650),
   GATE(652),
 
+  /**
+   * A quarter of a town: a polygon over a group of plots that share a trade.
+   *
+   * Geometry and attributes only - `affectsHeight` is false, because a district is a thing to *ask about* a
+   * position rather than a thing that moves the ground. See `civ/Districts.kt` for why it is grown from the
+   * plots that exist rather than found as a face of the street graph.
+   */
+  DISTRICT(655),
+
   /** One building: an oriented footprint, a floor elevation, a function, and a grammar seed. */
   BUILDING(660),
 

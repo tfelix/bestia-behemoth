@@ -43,7 +43,7 @@ class LegendTest {
 
   @Test
   fun `an unknown biome ordinal falls back to its number rather than to the last biome`() {
-    // `Biome.of` clamps, so an out-of-range id would confidently read as `cliff` - which is worse than a
+    // A clamping reader turns an out-of-range id into a confident `cliff` - which is worse than a
     // number, because it is a plausible answer that is wrong.
     val labels = Labels.forLayer(LayerId.BIOME)!!
 

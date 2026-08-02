@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
@@ -96,6 +97,33 @@ class TownStageTest {
   }
 
   /**
+   * The guard that keeps the next test from passing for the wrong reason.
+   *
+   * `the ground under a building is level` is only a hard test on a world where something *other than the
+   * elevation raster* decides the ground under a town. Its one real failure was a moraine - an `ADD` blend
+   * feature that `GlacialStage` deliberately does not rasterise, so `WorldGround`'s base could not see it and
+   * `standsLevel` approved a lot with ten metres of ridge under it. On a world where every settlement happens
+   * to stand on plain rasterised terrain the test below passes without exercising any of that.
+   *
+   * So: assert the world still has the ingredient. Seed 909 is not pinned for its scenery.
+   */
+  @Test
+  fun `a building on this world stands on ground the raster does not have`() {
+    val additive = generated.world.features.all().filter { it.affectsHeight && it.blend == BlendMode.ADD }
+    assertTrue(additive.isNotEmpty(), "seed 909 has no additive landform at all")
+
+    val standing = buildings.count { building ->
+      additive.any { it.bbox.contains(building.center.x, building.center.y) }
+    }
+    assertTrue(
+      standing > 0,
+      "no building on this world stands on an additive landform, so `the ground under a building is level` " +
+          "can no longer fail the way it once did - re-pin the seed to one that has a town on a moraine, " +
+          "an alluvial fan or a delta"
+    )
+  }
+
+  /**
    * A building's pad levels the ground it covers.
    *
    * The property that stops a house being half-buried on a slope, and the reason a building is one feature
@@ -143,7 +171,7 @@ class TownStageTest {
 
     val worked = setOf(
       BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.PLANK, BlockType.COBBLESTONE
+      BlockType.ROOF_TILE, BlockType.COBBLESTONE
     )
 
     var found = 0

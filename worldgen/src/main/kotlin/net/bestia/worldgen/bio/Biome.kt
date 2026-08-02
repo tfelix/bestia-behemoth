@@ -76,9 +76,19 @@ enum class Biome(
 
   val isWater get() = this == OCEAN || this == LAKE
 
-  companion object {
-    fun of(ordinal: Int): Biome = entries[ordinal.coerceIn(0, entries.size - 1)]
-  }
+  /*
+   * There is deliberately no `of(ordinal)` here.
+   *
+   * There was, and it was `entries[ordinal.coerceIn(0, entries.size - 1)]`. Coercion is the wrong reflex for
+   * a value read out of a layer: `LayerId.BIOME_SECONDARY` stores `NO_SECONDARY = -1` for a cell with no
+   * runner-up, and that read back as `OCEAN` - a silent wrong answer, in the one place where the reader is
+   * asking precisely because it does not know. `Layer.kt` warned about it in prose and callers were told to
+   * use `entries.getOrNull` instead, which is a rule somebody has to remember. Deleting the function is the
+   * version of that rule the compiler enforces.
+   *
+   * Read a `BIOME` ordinal with `Biome.entries[v]`, which throws on a value that is not one. Read anything
+   * that might carry a sentinel with `Biome.entries.getOrNull(v)` and handle the null.
+   */
 }
 
 /**

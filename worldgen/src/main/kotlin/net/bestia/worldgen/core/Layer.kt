@@ -154,9 +154,10 @@ data class LayerId(val name: String) {
      * function of the two scores' ratio - and storing a second raster that is a function of one already on
      * disk is a raster that can disagree with itself.
      *
-     * **Read it with `Biome.entries.getOrNull`, never `Biome.of`.** `of` *coerces* an out-of-range ordinal
-     * into the enum, so the [NO_SECONDARY] sentinel would come back as the last entry - `CLIFF` - and a cell
-     * with no runner-up would confidently claim to be half cliff.
+     * **Read it with `Biome.entries.getOrNull` and handle the null.** There used to be a `Biome.of` that
+     * *coerced* an out-of-range ordinal into the enum, and under it the [NO_SECONDARY] sentinel came back as
+     * a real biome, so a cell with no runner-up confidently claimed to be half of one. That function is gone
+     * - see the note where it was - so this is now what the compiler leaves you rather than a rule to keep.
      */
     val BIOME_SECONDARY = LayerId("biome_secondary")
 

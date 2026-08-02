@@ -32,7 +32,7 @@ class SeaLaneTest {
 
   private companion object {
     val world: GeneratedWorld = StandardWorld.build(
-      StandardWorld.demoConfig(seed = 9L).copy(widthCells = 192, heightCells = 192)
+      StandardWorld.demoConfig(seed = 4L).copy(widthCells = 192, heightCells = 192)
     )
 
     val lanes: List<MarkerFeature> = world.world.features.all()
@@ -58,7 +58,7 @@ class SeaLaneTest {
   fun `the pinned world has sea lanes at all`() {
     // Stated unconditionally and first, for the reason `checkTheWorldHasStandingWater` is: every property
     // below is a claim about lanes, and a claim about lanes passes vacuously when there are none.
-    assertTrue(lanes.isNotEmpty(), "seed 9 at 192 cells produced no sea lane, so nothing below asserts anything")
+    assertTrue(lanes.isNotEmpty(), "seed 4 at 192 cells produced no sea lane, so nothing below asserts anything")
   }
 
   @Test

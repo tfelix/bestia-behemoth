@@ -142,7 +142,7 @@ class WorldMapField(
     val cellY = floor(worldY / metresPerCell).toInt()
 
     if (!biome.region.contains(cellX, cellY)) return null
-    return Biome.of(biome[cellX, cellY])
+    return Biome.entries[biome[cellX, cellY]]
   }
 
   private fun contains(layer: FloatLayer, worldX: Double, worldY: Double): Boolean {

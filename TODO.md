@@ -34,7 +34,7 @@ earned across phases 3 to 7, four times over.
 Run all of it per phase, in this order. The last three catch what the first misses.
 
 ```
-./gradlew :worldgen:test                                   # 527 tests at present
+./gradlew :worldgen:test                                   # 545 tests at present
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=192      # sweep; watch the reported spreads
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # PNGs + the SeamCheck line; works headless
@@ -45,6 +45,7 @@ Run all of it per phase, in this order. The last three catch what the first miss
 ./gradlew :worldgen:probe -Pon=cave_passage -Psection -Pbelow=70   # ...and a gallery, 45 m down
 ./gradlew :worldgen:probe -Px=91500 -Py=36500 -Psection -Pbelow=2 -Pgenesis  # a tree, in section
 ./gradlew :worldgen:probe -Pdroplets                        # chunk-scale droplet erosion, which ships off (cost)
+./gradlew :worldgen:diff -Pseed=7 -Pother=8                 # two worlds, layer by layer
 ./gradlew :worldgen:town -Pcensus                           # every settlement in one table
 ./gradlew :worldgen:chronicle -Pquests                      # unresolved history threads
 ./gradlew :zone-server:test
@@ -86,10 +87,12 @@ Run all of it per phase, in this order. The last three catch what the first miss
   grading and chunk detail noise into town. Those four have **no params-file keys at all** — the parser reports
   them as unknown — because a file key would be applied and then overwritten. Setting one by hand in code
   instead is how buildings end up floating over the ground everywhere.
-- **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 5, glacial 2,
-  hydrology 3, pond 1, alluvium 1, biome 3, vegetation 1, resource 2, caves 1, habitability 1, settlement 3,
-  town 5, history 2,
-  economy 1. The chunk tier has one too now — **`ChunkMaterializer.VERSION`, currently 3** — folded into
+- **Bump the stage `version`** for any behaviour change. **Every stage is at 1.** They were reset in one commit
+  once the module's feature work landed, because each accumulated bump was a compatibility statement made to a
+  world that only this repository's own tests had ever generated. The rule is unchanged and the counting starts
+  again from the first world that outlives a branch; `ChunkEngine.VERSION` was reset with them, and
+  `RleCodec.VERSION` deliberately **was not** - it is a byte in every payload and an enum name in
+  `chunk.proto`, so it is a real statement between two artefacts. The chunk tier has one too now — **`ChunkMaterializer.VERSION`, currently 3** — folded into
   `chunkTierVersion` and therefore
   into `pipelineVersion`. It exists because changing the materialisation *code* used to move no number at all:
   subtraction changed every mine head in every world while `pipelineVersion` held still, so every cached chunk
@@ -104,10 +107,20 @@ Run all of it per phase, in this order. The last three catch what the first miss
 - **`MapRenderer.colorOf` is an exhaustive `when` over `FeatureKind` with no `else`** — a new kind is a compile
   error until the viewer draws it. It caught all five kinds added on this branch.
 - **An exhaustive `when` with an `else` is not exhaustive.** `TownStructures` had `else -> SiteKind.MONUMENT`,
-  which would have materialised every new site kind as a stone obelisk without a compiler murmur. Grep for
-  `else ->` over a domain enum before trusting the compiler to find your new case.
-- **`Biome.of(ordinal)` *coerces* into range**, so a `-1` sentinel silently reads as the last enum entry. Use
-  `entries.getOrNull`. The same trap now exists for `BIOME_SECONDARY` and `SiteChannels.RESOURCE`.
+  which would have materialised every new site kind as a stone obelisk without a compiler murmur. Ten more were
+  swept in the palette pass and are now exhaustive with every case spelled out: `SurfaceCover.soil` and `.cap`
+  over `Biome`, the grazing and movement-cost tables in `civ/Terms`, `EconomyStage`'s grazing, wage pull and
+  urban-share tables, `TownBuildings`' three tables over `BuildingFunction`, and `ResourceStage`'s two surface
+  tables - the last two of which now *throw* on an ore, because an ore never reaches them and the `else` was
+  quietly ready to bury a new surface resource under a hundred and fifty metres of rock. What was **left alone**
+  is the other genuine shape: an `else -> Unit` in a loop that dispatches over `FeatureKind` and handles three of
+  forty is a real default, not a workaround. Judge, do not sweep blindly.
+- **`Biome.of` is gone**, and its absence is the point. It was `entries[ordinal.coerceIn(...)]`, so the
+  `NO_SECONDARY = -1` sentinel read back as a real biome and a cell with no runner-up confidently claimed to be
+  one. Prose warnings told callers to use `entries.getOrNull` instead, which is a rule somebody has to remember;
+  deleting the function is the version of that rule the compiler keeps. Read a `BIOME` ordinal with
+  `Biome.entries[v]`, which throws; read anything that may carry a sentinel with `getOrNull` and handle the null.
+  The same trap still exists for `SiteChannels.RESOURCE`.
 - **A removal is a span made of `AIR`, and `add(AIR)` throws.** That is the same vocabulary
   `ChunkDelta.set(x, y, z, AIR)` uses for a player breaking a block. The *rejected* alternative is why
   `to <= from` is still a silent drop rather than meaning "remove": two elevations the wrong way round is a
@@ -177,6 +190,24 @@ Run all of it per phase, in this order. The last three catch what the first miss
 - **`queryStrict` is for narrow queries, not world-wide ones.** It returns everything and throws if any of it
   came from an undeclared stage, which is right when a surprise means a bug and wrong when the query asks for
   the whole region - there it trips on every stage that happens to sort before yours.
+- **A prediction of the ground that reads the raster is wrong wherever a feature is additive.** `TownStage`
+  decides a building's floor from `WorldGround`, whose base is the `ELEVATION` layer, and used to stamp only the
+  `SETTLEMENT_GRADING` discs on top of it. But `GlacialStage.carveInto` rasterises only its `MIN` carves - so a
+  `MORAINE`, an `ALLUVIAL_FAN` and a `DELTA` exist in the *chunk* and not in the layer, and a town on a moraine
+  had ten metres of ridge under it that nothing at the world tier could see. `standsLevel` approved the lot and
+  the house came out buried. The fix is to evaluate **every** `affectsHeight` feature, which meant declaring
+  glacial, alluvium and pond as `TownStage` dependencies - they are read for their features, not their layers.
+  Anything else that predicts a surface has the same hole.
+- **The version reset is the argument for doing version resets.** The moraine bug had been latent for as long as
+  moraines have existed and no seed in a 200-seed sweep had put a settlement on one. Resetting every stage
+  `version` reshuffled every RNG stream at once, and seed 909 - a *unit test's* world, not a sweep's - landed a
+  town on one immediately. Expect a batch of failures after a reset, and separate the two kinds: an existence
+  pin on a seed that no longer has the thing gets re-pinned, and an *invariant* gets investigated.
+- **Baked chunk blobs are keyed on `pipelineVersion` now.** They used to leave it out deliberately, so that a
+  baked chunk would survive a generator change - which is what makes baking a migration path, and is exactly
+  wrong during development, where it means terrain from two builds sits in one store indistinguishably. When
+  there is something to migrate, the answer is a re-key step that reads at the old version and writes at the
+  new, not a hash that is incomplete on purpose.
 - **`project.hasProperty('x')` in a Gradle build is true for the name of any `Project` getter.** `-Pdepth`
   silently arrived as the project's nesting level, and `-Partifacts` on `chronicle` had been *permanently on*.
   Every switch in `worldgen/build.gradle` now goes through the `cli` helper, which reads

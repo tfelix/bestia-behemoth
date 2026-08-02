@@ -184,8 +184,7 @@ class GlacialStage(
 
   override val id = ID
 
-  // 2: emits ELEVATION - the troughs are carved into the raster, not only stamped at chunk time.
-  override val version = 2
+  override val version = 1
 
   override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID)

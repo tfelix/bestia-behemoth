@@ -109,9 +109,7 @@ class BiomeStage(
 
   override val id = ID
 
-  // 2: the runner-up biome is kept as BIOME_SECONDARY instead of being scored and discarded.
-  // 3: BIOME_CONFIDENCE is a percentile rank over the world rather than the classifier's raw score.
-  override val version = 3
+  override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Biomes.catalogueDigest())
   override val dependencies =

@@ -236,12 +236,7 @@ class ErosionStage(
 
   override val id = ID
 
-  // 2: the ocean margin is reapplied after uplift, which was lifting it back above sea level.
-  // 3: emits ERODED_ELEVATION; ELEVATION is now the glacial stage's, so ice reaches downstream stages.
-  // 4: closed basins are cut back into the surface the loop conditioned to have none.
-  // 5: mass wasting gathers instead of scattering so it can be split across cores, and the area term
-  //    takes the square root directly. Both change the surface in the last bits, nothing in its shape.
-  override val version = 5
+  override val version = 1
 
   override val paramsVersion get() = params.digest().value
   override val dependencies = listOf(TectonicsStage.ID, ClimateStage.ID)

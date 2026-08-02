@@ -338,7 +338,9 @@ class EconomyStage(
     val urban = when (place.tier) {
       SettlementTier.CITY -> 1.0
       SettlementTier.TOWN -> 0.5
-      else -> 0.0
+
+      // A village feeds itself off its own fields; nothing arrives by road that it could not grow.
+      SettlementTier.VILLAGE, SettlementTier.HAMLET -> 0.0
     }
     val maxFarmShare = (MAX_FARM_SHARE -
         TRADE_FED_SHARE * (place.traffic / TrafficProxy.HIGHWAY).coerceAtMost(1.0) -
@@ -384,7 +386,9 @@ class EconomyStage(
     Sector.ADMIN, Sector.CLERGY -> 0.5 + wealth * 1.5
     Sector.TRADE -> 0.7 + wealth
     Sector.SERVICE -> 0.8 + wealth * 0.6
-    else -> 1.0
+
+    // What a place does regardless of how rich it is. A garrison is sized by threat, not by surplus.
+    Sector.FARM, Sector.CRAFT, Sector.MILITARY -> 1.0
   }
 
   private fun biasOf(culture: Culture, sector: Sector): Double = when (sector) {
@@ -818,7 +822,7 @@ internal class Catchments(
           // fish.
           food += params.residentsPerSquareKilometreOfWater * squareKmPerCell * share
         } else {
-          val local = Biome.of(biome[x, y])
+          val local = Biome.entries[biome[x, y]]
           val arable = fertility[x, y] * climateFactor(warmth.data[cell]) * arableFactor(x, y)
           val grazing = grazingOf(local)
 
@@ -929,7 +933,12 @@ internal class Catchments(
     Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
     Biome.TUNDRA, Biome.ALPINE -> 0.35
     Biome.TEMPERATE_FOREST, Biome.TAIGA -> 0.25
-    else -> 0.05
+
+    // A token amount, for the odd clearing. Exhaustive rather than defaulted: a new biome that grazes well
+    // would otherwise be recorded as barren by a `when` nobody revisited, and pasture drives settlement size.
+    Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.COLD_DESERT,
+    Biome.TEMPERATE_RAINFOREST, Biome.DESERT, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.CLIFF -> 0.05
   }
 
   private companion object {

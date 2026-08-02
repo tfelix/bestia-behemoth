@@ -62,7 +62,8 @@ object ChunkKey {
  */
 class ChunkCache(
   private val seed: Long,
-  private val pipelineVersion: Long,
+  /** Readable because `ChunkStore` keys baked blobs on it too - see `ChunkStore.bakedKeyOf`. */
+  val pipelineVersion: Long,
   /** Generates a base chunk from scratch. Must be a pure function of the coordinate. */
   private val generate: (ChunkPos) -> VoxelChunk,
   /** Warm to cold, nearest first. May be empty, which makes this a plain in-process cache. */

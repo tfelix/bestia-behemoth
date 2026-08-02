@@ -33,10 +33,13 @@ object ChunkEngine {
    * stops, which is a server-side combat question the client neither receives nor renders; bumping for it
    * would force a client release for a number no client can observe.
    *
-   * 1 is the first value that means anything: before it the client compared the RLE version alone and had no
-   * way to notice a palette it disagreed with.
+   * ### Back at 1, once
+   *
+   * This reached 4 over the branch that built the palette out - worked materials, then vegetation, then
+   * graded ore - and each of those bumps was a compatibility statement made to a client that did not exist
+   * yet. It was reset to 1 in the same commit as every stage version, for the same reason: the promise had
+   * no counterparty. **From the first client release onwards it is append-only again**, and the discipline
+   * above is what it always was. This is the last free reset it gets.
    */
-  // 2: the seven worked materials buildings and streets are made of - TIMBER through COBBLESTONE.
-  // 3: vegetation - LOG and LEAVES, the first material in the palette that is drawn but not solid.
-  const val VERSION = 3
+  const val VERSION = 1
 }

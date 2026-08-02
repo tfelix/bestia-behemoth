@@ -29,6 +29,8 @@ import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.EconomyParams
+import net.bestia.worldgen.resource.GradeMix
+import net.bestia.worldgen.resource.MinableOre
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.voxel.StrataParams
@@ -81,6 +83,7 @@ class ParamsVersionTest {
     AlluviumParams(),
     BiomeParams(),
     VegetationParams(),
+    GradeMix(),
     ResourceParams(),
     CaveParams(),
     HabitabilityParams(),
@@ -129,7 +132,8 @@ class ParamsVersionTest {
     "BusinessCatalogue" to BusinessCatalogue.digest(),
     "Names" to Names.catalogueDigest(),
     "EventKind" to EventKind.catalogueDigest(),
-    "ResourceType" to ResourceType.catalogueDigest()
+    "ResourceType" to ResourceType.catalogueDigest(),
+    "MinableOre" to MinableOre.catalogueDigest()
   )
 
   @Test
@@ -141,7 +145,8 @@ class ParamsVersionTest {
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to 8_434_466_541_608_995_997L,
       "EventKind" to -809_342_763_798_855_603L,
-      "ResourceType" to -4_793_427_104_219_940_710L
+      "ResourceType" to -5_670_524_206_239_052_802L,
+      "MinableOre" to -963_208_236_135_789_363L
     )
 
     assertEquals(
@@ -170,7 +175,8 @@ class ParamsVersionTest {
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "BiomeParams" to 9_016_394_342_762_494_441L,
       "VegetationParams" to 5_359_640_679_940_278_481L,
-      "ResourceParams" to -9_104_808_594_269_338_394L,
+      "GradeMix" to -7_184_838_964_596_318_845L,
+      "ResourceParams" to 6_146_072_137_982_550_005L,
       "CaveParams" to -4_263_381_643_348_589_984L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,
       "SettlementParams" to -5_086_656_145_453_525_411L,

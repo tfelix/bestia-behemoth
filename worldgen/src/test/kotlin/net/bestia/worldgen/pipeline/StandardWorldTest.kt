@@ -664,7 +664,7 @@ class StandardWorldTest {
     for (ordinal in present) {
       assertTrue(ordinal in Biome.entries.indices, "biome ordinal $ordinal is not a biome")
     }
-    assertTrue(present.size >= 4, "the world has only ${present.size} biomes: ${present.map { Biome.of(it) }}")
+    assertTrue(present.size >= 4, "the world has only ${present.size} biomes: ${present.map { Biome.entries[it] }}")
   }
 
   /**
@@ -694,7 +694,7 @@ class StandardWorldTest {
      */
     val BUILT = setOf(
       BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.PLANK, BlockType.RUBBLE, BlockType.COBBLESTONE,
+      BlockType.ROOF_TILE, BlockType.RUBBLE, BlockType.COBBLESTONE,
       BlockType.LOG, BlockType.LEAVES
     )
 

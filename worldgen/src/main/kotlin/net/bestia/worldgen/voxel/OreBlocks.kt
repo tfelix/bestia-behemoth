@@ -1,0 +1,95 @@
+package net.bestia.worldgen.voxel
+
+import net.bestia.worldgen.resource.OreGrade
+import net.bestia.worldgen.resource.ResourceType
+
+/**
+ * Which block a resource looks like in the rock, and what a block of rock is made of.
+ *
+ * Both directions, in one table, because they have to stay each other's inverse. Generation needs
+ * `(resource, grade) -> block`; whatever eventually lets a player break an ore voxel and pick up the metal
+ * needs `block -> (resource, grade)`, and deriving the second from the ids by arithmetic would quietly tie
+ * the palette layout to the mapping. The ids are explicit and permanent precisely so nothing does that.
+ */
+object OreBlocks {
+
+  /** A resource and how rich the voxel is - what a broken ore block turns into. */
+  data class Yield(val resource: ResourceType, val grade: OreGrade)
+
+  private val GRADED: Map<ResourceType, Map<OreGrade, BlockType>> = mapOf(
+    ResourceType.COPPER to triple(
+      BlockType.ORE_COPPER_SMALL, BlockType.ORE_COPPER_MEDIUM, BlockType.ORE_COPPER_RICH
+    ),
+    ResourceType.TIN to triple(
+      BlockType.ORE_TIN_SMALL, BlockType.ORE_TIN_MEDIUM, BlockType.ORE_TIN_RICH
+    ),
+    ResourceType.IRON to triple(
+      BlockType.ORE_IRON_SMALL, BlockType.ORE_IRON_MEDIUM, BlockType.ORE_IRON_RICH
+    ),
+    // Both golds share a palette. A player panning a gravel bar and a player in a shaft are holding the same
+    // metal, and the deposit marker already records which of the two it came out of.
+    ResourceType.GOLD_LODE to triple(
+      BlockType.ORE_GOLD_SMALL, BlockType.ORE_GOLD_MEDIUM, BlockType.ORE_GOLD_RICH
+    ),
+    ResourceType.GOLD_PLACER to triple(
+      BlockType.ORE_GOLD_SMALL, BlockType.ORE_GOLD_MEDIUM, BlockType.ORE_GOLD_RICH
+    ),
+    ResourceType.SILVER to triple(
+      BlockType.ORE_SILVER_SMALL, BlockType.ORE_SILVER_MEDIUM, BlockType.ORE_SILVER_RICH
+    ),
+    ResourceType.MITHRANDIUM to triple(
+      BlockType.ORE_MITHRANDIUM_SMALL, BlockType.ORE_MITHRANDIUM_MEDIUM, BlockType.ORE_MITHRANDIUM_RICH
+    ),
+    ResourceType.SALT to triple(
+      BlockType.ROCK_SALT_SMALL, BlockType.ROCK_SALT_MEDIUM, BlockType.ROCK_SALT_RICH
+    )
+  )
+
+  /**
+   * Resources that show in the rock as a plain material rather than as gradeable ore.
+   *
+   * Marble and clay are quarried by the cubic metre, not picked up by the kilogram, so a grade would be a
+   * number nobody could spend. They exist here so a marble deposit still *looks* like marble country when a
+   * player digs into it.
+   */
+  private val PLAIN: Map<ResourceType, BlockType> = mapOf(
+    ResourceType.MARBLE to BlockType.LIMESTONE,
+    ResourceType.CLAY to BlockType.CLAY
+  )
+
+  private val REVERSE: Map<BlockType, Yield> = buildMap {
+    for ((resource, grades) in GRADED) {
+      // Placer gold shares the lode's blocks, so the reverse map names the lode and the two agree about what
+      // a gold block is worth. Putting the placer in would make the answer depend on map iteration order.
+      if (resource == ResourceType.GOLD_PLACER) continue
+      for ((grade, block) in grades) put(block, Yield(resource, grade))
+    }
+  }
+
+  /** True for the graded ore blocks, which are the ones a pick turns into an item. */
+  fun isOre(block: BlockType) = block in REVERSE
+
+  /** The block one voxel of this resource at this grade looks like, or null if it is not in the rock. */
+  fun blockFor(resource: ResourceType, grade: OreGrade): BlockType? = GRADED[resource]?.get(grade)
+
+  /** All three grade blocks for a resource in [OreGrade] order, or null if it has none. */
+  fun blocksFor(resource: ResourceType): List<BlockType>? =
+    GRADED[resource]?.let { grades -> OreGrade.entries.map { grades.getValue(it) } }
+
+  /** What this block yields when broken, or null if it is not ore. The inverse of [blockFor]. */
+  fun yieldOf(block: BlockType): Yield? = REVERSE[block]
+
+  /**
+   * The plain material a non-gradeable resource shows as, or null if it does not show at all.
+   *
+   * Building stone, timber, furs and fish are the nulls: they are surface resources, and putting a block down
+   * for them would be inventing geology to represent a forest.
+   */
+  fun plainBlockFor(resource: ResourceType): BlockType? = PLAIN[resource]
+
+  private fun triple(small: BlockType, medium: BlockType, rich: BlockType) = mapOf(
+    OreGrade.SMALL to small,
+    OreGrade.MEDIUM to medium,
+    OreGrade.RICH to rich
+  )
+}

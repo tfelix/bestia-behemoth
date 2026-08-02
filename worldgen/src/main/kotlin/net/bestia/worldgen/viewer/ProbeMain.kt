@@ -217,7 +217,7 @@ object ProbeMain {
 
       println()
       println("at (${centreX.toInt()}, ${centreY.toInt()}):")
-      println("  coarse biome    ${Biome.of(biome.sampleNearest(centreX, centreY))}")
+      println("  coarse biome    ${Biome.entries[biome.sampleNearest(centreX, centreY)]}")
       println("  temperature     ${"%.1f".format(Locale.ROOT, temperature.sampleBilinear(centreX, centreY))} C")
       println("  precipitation   ${"%.0f".format(Locale.ROOT, precipitation.sampleBilinear(centreX, centreY))} mm")
       println("  discharge       ${"%.4f".format(Locale.ROOT, discharge.sampleBilinear(centreX, centreY))}")
@@ -590,7 +590,7 @@ object ProbeMain {
         // first few rows.
         if (visited++ % STRIDE == 0) {
           chunks.clear()
-          sampled.add(Triple(x to y, window(x, y, span), Biome.of(biome.sampleNearest(x, y))))
+          sampled.add(Triple(x to y, window(x, y, span), Biome.entries[biome.sampleNearest(x, y)]))
         }
       }
 

@@ -3,6 +3,9 @@ package net.bestia.worldgen.voxel
 import net.bestia.worldgen.civ.BridgeChannels
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.resource.DepositChannels
+import net.bestia.worldgen.resource.GradeMix
+import net.bestia.worldgen.resource.OreBody
+import net.bestia.worldgen.resource.OreGrade
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
@@ -21,20 +24,30 @@ import kotlin.math.sqrt
  * id, never by a chunk seed. That is the difference between an orebody that two adjacent chunks agree about
  * and one that changes shape at every chunk border - and an orebody is exactly the kind of thing a player
  * digs across a border and notices.
+ *
+ * The shape itself comes from [OreBody] rather than from constants here, because the world tier used the same
+ * form in reverse to decide how big the body had to be to hold the tonnage it advertises. Two copies of that
+ * geometry would be a quiet way for a deposit to contain a different amount of metal than it claims.
  */
-class OreVeins(features: List<VectorFeature>, private val seed: Long) {
+class OreVeins(
+  features: List<VectorFeature>,
+  private val seed: Long,
+  private val grades: GradeMix
+) {
 
   private class Body(
     val idSalt: Long,
     val x: Double,
     val y: Double,
-    val block: BlockType,
+    val small: BlockType,
+    val medium: BlockType,
+    val rich: BlockType,
     val radius: Double,
     val depth: Double,
     val richness: Double
   ) {
     /** Vertical half-extent. Orebodies are flatter than they are wide, which is what makes seams seams. */
-    val halfHeight get() = radius * VERTICAL_FLATTENING
+    val halfHeight get() = radius * OreBody.VERTICAL_FLATTENING
   }
 
   private val bodies: List<Body> = features
@@ -44,12 +57,14 @@ class OreVeins(features: List<VectorFeature>, private val seed: Long) {
     .mapNotNull { marker ->
       runCatching {
         val type = ResourceType.entries[marker.attribute(DepositChannels.TYPE).toInt()]
-        val block = blockFor(type) ?: return@runCatching null
+        val blocks = blocksFor(type) ?: return@runCatching null
         Body(
           idSalt = marker.id.value,
           x = marker.position.x,
           y = marker.position.y,
-          block = block,
+          small = blocks[0],
+          medium = blocks[1],
+          rich = blocks[2],
           radius = marker.attribute(DepositChannels.RADIUS),
           depth = marker.attribute(DepositChannels.DEPTH),
           richness = marker.attribute(DepositChannels.RICHNESS)
@@ -70,6 +85,10 @@ class OreVeins(features: List<VectorFeature>, private val seed: Long) {
   fun blockAt(worldX: Double, worldY: Double, elevation: Double, surface: Double): BlockType? {
     if (bodies.isEmpty()) return null
 
+    val qx = Math.round(worldX * QUANTISE)
+    val qy = Math.round(worldY * QUANTISE)
+    val qz = Math.round(elevation * QUANTISE)
+
     for (body in bodies) {
       val dx = worldX - body.x
       val dy = worldY - body.y
@@ -85,14 +104,17 @@ class OreVeins(features: List<VectorFeature>, private val seed: Long) {
       val fade = (1.0 - horizontal / body.radius) * (1.0 - vertical / body.halfHeight)
       val chance = body.richness * fade
 
-      val roll = GenRng.hashUnit(
-        seed,
-        body.idSalt,
-        Math.round(worldX * QUANTISE),
-        Math.round(worldY * QUANTISE),
-        Math.round(elevation * QUANTISE)
-      )
-      if (roll < chance) return body.block
+      val roll = GenRng.hashUnit(seed, body.idSalt, qx, qy, qz)
+      if (roll >= chance) continue
+
+      // A second, independent roll for the grade. Independent of the fade on purpose: the world tier sized
+      // this body by assuming an average voxel yields `grades.meanYieldKg`, and that assumption only holds
+      // while the mix is the same everywhere in the body.
+      return when (grades.gradeAt(GenRng.hashUnit(seed, body.idSalt, GRADE_STREAM, qx, qy, qz))) {
+        OreGrade.SMALL -> body.small
+        OreGrade.MEDIUM -> body.medium
+        OreGrade.RICH -> body.rich
+      }
     }
 
     return null
@@ -109,23 +131,18 @@ class OreVeins(features: List<VectorFeature>, private val seed: Long) {
      */
     const val QUANTISE = 100.0
 
-    /** Vertical extent of an orebody relative to its radius. Below 1 makes it a seam rather than a blob. */
-    const val VERTICAL_FLATTENING = 0.45
+    /** Salt separating the grade roll from the is-it-ore roll, so the two are not the same number. */
+    const val GRADE_STREAM = 0x67ADEL
 
-    fun blockFor(type: ResourceType): BlockType? = when (type) {
-      ResourceType.COPPER -> BlockType.ORE_COPPER
-      ResourceType.TIN -> BlockType.ORE_TIN
-      ResourceType.IRON -> BlockType.ORE_IRON
-      ResourceType.GOLD_LODE, ResourceType.GOLD_PLACER -> BlockType.ORE_GOLD
-      ResourceType.SILVER -> BlockType.ORE_SILVER
-      ResourceType.COAL -> BlockType.COAL_SEAM
-      ResourceType.SALT -> BlockType.ROCK_SALT
-      ResourceType.MARBLE -> BlockType.LIMESTONE
-      ResourceType.CLAY -> BlockType.CLAY
-      // Stone, timber, furs and fish are not things in the rock. They are surface resources, and putting a
-      // block down for them would be inventing geology to represent a forest.
-      ResourceType.STONE, ResourceType.TIMBER, ResourceType.FURS, ResourceType.FISH -> null
-    }
+    /**
+     * The three grade blocks for a resource, or null when it does not show as gradeable ore.
+     *
+     * Marble and clay come back as a single plain material repeated three times: they are quarried by the
+     * cubic metre rather than picked up by the kilogram, so a grade would be a number nobody could spend, and
+     * the caller does not need to know they are a special case.
+     */
+    fun blocksFor(type: ResourceType): List<BlockType>? =
+      OreBlocks.blocksFor(type) ?: OreBlocks.plainBlockFor(type)?.let { listOf(it, it, it) }
   }
 }
 

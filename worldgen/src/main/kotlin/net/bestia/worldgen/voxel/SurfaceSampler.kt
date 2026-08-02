@@ -86,13 +86,13 @@ class SurfaceSampler(
     val displaced = Noise.warp(
       jitterSeed, worldX, worldY, boundaryJitter, 1.0 / JITTER_WAVELENGTH, JITTER_OCTAVES
     )
-    val winner = Biome.of(biome.sampleNearest(displaced[0], displaced[1]))
+    val winner = Biome.entries[biome.sampleNearest(displaced[0], displaced[1])]
 
     val secondary = secondaryBiome ?: return winner
     val confidence = biomeConfidence ?: return winner
 
-    // `getOrNull`, not `Biome.of`: `of` coerces, so the NO_SECONDARY sentinel would come back as the last
-    // enum entry and every cell without a runner-up would be a candidate to become a cliff.
+    // `getOrNull` and a null branch, not an indexed read: this layer carries the NO_SECONDARY sentinel for
+    // a cell that had no runner-up, and there is nothing to blend towards there.
     val runnerUp = Biome.entries.getOrNull(secondary.sampleNearest(displaced[0], displaced[1]))
       ?: return winner
 
@@ -221,16 +221,37 @@ class SurfaceSampler(
  */
 object SurfaceCover {
 
+  /*
+   * Both functions below dispatch on `when (biome)` with **no `else` branch**, and every biome is listed
+   * even where the answer is the common one. That is deliberate and it is the whole reason they were
+   * rewritten from a subject-less `when { biome == ... }` with a default at the bottom.
+   *
+   * A default here is an answer given on behalf of a biome nobody has thought about yet. The failure it
+   * produces is not a crash or a blank patch - it is a plausible one. The next biome added to the enum gets
+   * dirt under grass, looks entirely correct on the map, and is wrong in the one place nothing checks. The
+   * precedent is `TownStructures`, whose `else -> SiteKind.MONUMENT` would have built every new kind of site
+   * as a stone obelisk; and it matters more here than it did there, because vegetation now keys on the biome
+   * too, so a silently-defaulted cover feeds a silently-defaulted forest.
+   *
+   * The cost is that adding a biome does not compile until somebody says what it is made of, which is the
+   * point. Preserving the old ordering is why `cap` is two passes rather than one: the four bare-ground
+   * biomes outranked the snow line and the rest did not.
+   */
+
   /** The block filling the soil layer between bedrock and the surface. */
-  fun soil(biome: Biome, temperature: Double): BlockType = when {
-    biome == Biome.WETLAND -> BlockType.PEAT
-    biome == Biome.BEACH || biome == Biome.DESERT -> BlockType.SAND
-    biome == Biome.BADLANDS -> BlockType.CLAY
-    biome == Biome.RIPARIAN -> BlockType.CLAY
+  fun soil(biome: Biome, temperature: Double): BlockType = when (biome) {
+    Biome.WETLAND -> BlockType.PEAT
+    Biome.BEACH, Biome.DESERT -> BlockType.SAND
+    Biome.BADLANDS, Biome.RIPARIAN -> BlockType.CLAY
+
     // Ground that stays frozen year round is a different material to dig through, and saying so here
-    // is cheaper than modelling it later.
-    temperature < PERMAFROST_TEMPERATURE -> BlockType.PERMAFROST
-    else -> BlockType.DIRT
+    // is cheaper than modelling it later. It applies only where the biome has not already named a soil.
+    Biome.OCEAN, Biome.LAKE,
+    Biome.ICE_SHEET, Biome.GLACIER, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
+    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
+    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+    Biome.CLIFF ->
+      if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
   }
 
   /**
@@ -238,22 +259,40 @@ object SurfaceCover {
    *
    * @param waterDepth metres of water above the column, or 0 when it is dry land
    */
-  fun cap(biome: Biome, temperature: Double, waterDepth: Double): BlockType = when {
-    waterDepth > DEEP_WATER -> BlockType.CLAY
-    waterDepth > 0.0 -> if (temperature < 2.0) BlockType.GRAVEL else BlockType.SAND
+  fun cap(biome: Biome, temperature: Double, waterDepth: Double): BlockType {
+    if (waterDepth > DEEP_WATER) return BlockType.CLAY
+    if (waterDepth > 0.0) return if (temperature < 2.0) BlockType.GRAVEL else BlockType.SAND
 
-    biome == Biome.GLACIER || biome == Biome.ICE_SHEET -> BlockType.ICE
-    biome == Biome.CLIFF -> BlockType.GRAVEL
-    biome == Biome.BADLANDS -> BlockType.CLAY
-    biome == Biome.BEACH -> BlockType.SAND
-    biome == Biome.DESERT -> BlockType.SAND
+    // Materials that outrank a snow cap. Ice already is frozen water, and the three bare-ground biomes are
+    // bare because nothing settles on them - which is as true in a blizzard as it is in a drought.
+    val bare = when (biome) {
+      Biome.GLACIER, Biome.ICE_SHEET -> BlockType.ICE
+      Biome.CLIFF -> BlockType.GRAVEL
+      Biome.BADLANDS -> BlockType.CLAY
+      Biome.BEACH, Biome.DESERT -> BlockType.SAND
 
-    temperature < SNOW_TEMPERATURE -> BlockType.SNOW
-    biome == Biome.WETLAND -> BlockType.PEAT
-    biome == Biome.TUNDRA || biome == Biome.COLD_DESERT -> BlockType.DIRT
-    biome == Biome.ALPINE -> BlockType.GRAVEL
+      Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
+      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
+      Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+      Biome.WETLAND, Biome.RIPARIAN -> null
+    }
+    if (bare != null) return bare
 
-    else -> BlockType.GRASS
+    if (temperature < SNOW_TEMPERATURE) return BlockType.SNOW
+
+    return when (biome) {
+      Biome.WETLAND -> BlockType.PEAT
+      Biome.TUNDRA, Biome.COLD_DESERT -> BlockType.DIRT
+      Biome.ALPINE -> BlockType.GRAVEL
+
+      Biome.OCEAN, Biome.LAKE, Biome.TAIGA,
+      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
+      Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
+      // Unreachable: the pass above returned for each of these. Listed so that the two `when`s stay
+      // exhaustive over the same enum and a new biome is a compile error in both.
+      Biome.GLACIER, Biome.ICE_SHEET, Biome.CLIFF, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
+        BlockType.GRASS
+    }
   }
 
   /** Mean annual temperature below which the surface holds permanent snow. */

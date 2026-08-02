@@ -13,7 +13,12 @@ in the code where it happens — the design is the argument, the status section 
 ## Implementation Status
 
 Build-order steps **1–11** are implemented, along with the parts of **12** and **13** that belong in a
-module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
+module with no I/O in it. 538 unit tests, plus a seed-sweep regression harness.
+
+Every stage `version` reads 1. They were reset in one commit once the feature work landed, because nothing has
+been released and each accumulated bump was a compatibility promise with no counterparty; `ChunkEngine.VERSION`
+went with them and `RleCodec.VERSION` deliberately did not. From the first client release the numbers are
+append-only again.
 
 | # | Step | Status | Where |
 |---|---|---|---|
@@ -96,6 +101,15 @@ is an index, not the reasoning. Grouped by what it would take.
 
 **Wants a subsystem.**
 
+- ~~**Town blocks as objects** (deviation 8).~~ Built, as **districts** rather than as street-graph faces.
+  Blocks were tried the design's way once and deleted: a face exists only because ring streets close, so one
+  river through a town broke every ring's cycle and took the reference city from 574 plots to 68. `civ/Districts`
+  inverts it - a quarter is grown *from the plots that exist*, by clustering placed buildings of one trade and
+  taking the convex hull of their corners - so nothing about a plot depends on a district, and a river costs a
+  town a district rather than its buildings. Convex because that is simple by construction, which is the
+  precondition `Ring` enforces. What is still absent is the market *face* as a separate thing from the market
+  quarter, and anything that reads a district: it is a query surface with no consumer yet.
+
 - ~~**The polygon geometry type.**~~ Built. `vector/Ring.kt` is a simple closed polygon whose `contains` is a
   crossing count **entirely in fixed point** - no epsilon anywhere, so the shoreline of a lake is decided the
   same way by every chunk that touches it - and `vector/AreaFeature.kt` is the feature around it, with a
@@ -122,6 +136,15 @@ is an index, not the reasoning. Grouped by what it would take.
   anything — the terrain span unioned with every intersecting passage — but `ChunkService` still subscribes only
   the surface slabs, so a cave in the slab below is generated and never sent. The server-side half is separate
   work; the generator's half is done.
+- **History depth.** Deities and monsters as `Chronicle` actor types - grep for `deity|monster` in `history/`
+  still returns zero - technology as a vector rather than a scalar, and event templates with pre- and
+  postconditions, which is the one thing that would make causal chains valid *by construction* rather than
+  because the simulation only logs what it did. Not started.
+- **place → route → regrow → replace.** Settlement placement is a single pass; two or three iterations want the
+  trade graph rebuilt between them, which means splitting `SettlementStage` into placement and routing. Not
+  started, and the payoff is speculative until something reads the second iteration.
+- **A click handler on the Swing viewer.** `probe -Pon=` answers "what is here" from the command line and
+  `:worldgen:diff` answers "what changed"; clicking a river reach in the window still does nothing.
 - **Live NPCs.** Schedules, rumour propagation, confidence on knowledge, expand-and-collapse. `pop/` produces
   the substrate; nothing makes a person walk to the market.
 - **Delta persistence** (step 12) and a **client-side base generator** (step 13). Whatever persists a delta
