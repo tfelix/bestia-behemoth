@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.LayerStore
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ScopedLayerStore
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Noise
 import kotlin.math.floor
@@ -196,6 +197,32 @@ class Stratigraphy(
       seaLevel = config.seaLevel,
       params = params
     )
+
+    /**
+     * The same rock, for a stage rather than for the chunk tier.
+     *
+     * A second overload rather than a second call site: the *list of inputs* is the thing that has to stay in
+     * step, and it is written once above. A stage reads through [ScopedLayerStore], which refuses a layer the
+     * stage did not declare - so a caller of this must depend on tectonics and erosion or it fails loudly here
+     * rather than quietly reading rock that is not there.
+     */
+    fun of(layers: ScopedLayerStore, config: WorldConfig, params: StrataParams = StrataParams()) = Stratigraphy(
+      coarseElevation = layers.float(LayerId.ELEVATION),
+      hardness = layers.float(LayerId.ROCK_HARDNESS),
+      plateId = layers.int(LayerId.PLATE_ID),
+      seed = config.seed,
+      seaLevel = config.seaLevel,
+      params = params
+    )
+
+    /**
+     * The rock types a cave can form in.
+     *
+     * Limestone dissolves and the rest do not, which is most of why karst is where karst is. Kept here beside
+     * the facies draw rather than in `CaveStage`, so that adding a soluble rock to [RockColumn.faciesOf] and
+     * forgetting that caves exist is not possible.
+     */
+    val SOLUBLE = setOf(BlockType.LIMESTONE)
 
     private const val BED_SALT = 0x1D9C4A7E35B2F80L
     private const val FOLD_SALT = 0x5B27E1D93C4A6F0L

@@ -59,7 +59,15 @@ namespace BestiaBehemothClient.Tests
     });
 
     private static BlockAppearance.Block Block(byte id, string name, bool solid, Color colour) =>
-      new() { Id = id, Name = name, Solid = solid, Opaque = solid, Colour = colour };
+      new()
+      {
+        Id = id, Name = name, Solid = solid, Opaque = solid,
+        // These four materials are all cases where solidity and surface membership do agree; the palette's
+        // one material where they do not - LEAVES - is not among them. Spelled out rather than defaulted so
+        // that the fixture keeps saying which surface it means.
+        Surface = solid ? BlockAppearance.SurfaceKind.Terrain : BlockAppearance.SurfaceKind.Water,
+        Colour = colour
+      };
 
     /// <summary>
     /// Every column solid up to <paramref name="surface"/>, with the topmost voxel partially filled.

@@ -39,7 +39,15 @@ class ColumnSummary(
    * In other words: the floor you would be standing on if you were underneath something. A column of open
    * terrain has no such floor; a column inside a building, a cave or under a bridge does.
    */
-  private val shelteredFloorHeight: DoubleArray
+  private val shelteredFloorHeight: DoubleArray,
+
+  /**
+   * Underside of the topmost solid run, or -1.0 where the column has no gap under it.
+   *
+   * The other half of a gap, and without it the question "is it raining on this NPC" cannot be answered at
+   * all. Together with [shelteredFloorHeight] it bounds the space you can stand in and be under something.
+   */
+  private val voidCeilingHeight: DoubleArray
 ) {
 
   private fun index(localX: Int, localY: Int) = localY * size + localX
@@ -74,11 +82,42 @@ class ColumnSummary(
    * What makes "is it raining on this NPC" free. Answering it by raycast per NPC per tick is exactly the
    * kind of query that quietly consumes a zone thread.
    */
-  fun isSheltered(localX: Int, localY: Int) = shelteredFloorHeight[index(localX, localY)] >= 0.0
+  /**
+   * Whether this column has **anything** you could stand under - a roof, a bridge deck, a cave roof.
+   *
+   * Deliberately *not* called `isSheltered`, which is what it was, because that name reads as "is this place
+   * covered" and the answer it gives is "is there a covered place somewhere in this column". Those come apart
+   * completely the moment caves exist: open grass with a gallery thirty metres beneath it answered *true*, so
+   * "is it raining on this NPC" came back wrong for every column over a cave in the world.
+   *
+   * Ask [isShelteredAt] instead unless the question really is about the whole column. This was renamed rather
+   * than fixed in place because the derived structures still have **no readers** - the API change is free
+   * today and stops being free the moment there is one.
+   */
+  fun hasShelter(localX: Int, localY: Int) = shelteredFloorHeight[index(localX, localY)] >= 0.0
+
+  /**
+   * Whether something standing at [height] in this column is under a roof.
+   *
+   * The honest form: a gap is bounded below by the floor you stand on and above by the underside of whatever
+   * covers you, and being sheltered means being *between them*. An NPC on the hillside above a cave is not in
+   * the cave.
+   *
+   * @param height in voxel units above the chunk floor, the same units everything else here is in
+   */
+  fun isShelteredAt(localX: Int, localY: Int, height: Double): Boolean {
+    val i = index(localX, localY)
+    val floor = shelteredFloorHeight[i]
+    if (floor < 0.0) return false
+    return height >= floor && height < voidCeilingHeight[i]
+  }
 
   fun shelteredFloorHeightAt(localX: Int, localY: Int) = shelteredFloorHeight[index(localX, localY)]
 
   fun shelteredFloorAt(localX: Int, localY: Int) = voxelOf(shelteredFloorHeight[index(localX, localY)])
+
+  /** Underside of the topmost solid run in voxel units, or -1.0 where nothing covers this column. */
+  fun voidCeilingHeightAt(localX: Int, localY: Int) = voidCeilingHeight[index(localX, localY)]
 
   override fun toString() = "ColumnSummary[$chunk]"
 
@@ -97,6 +136,7 @@ class ColumnSummary(
       val surface = DoubleArray(size * size) { -1.0 }
       val water = DoubleArray(size * size) { -1.0 }
       val sheltered = DoubleArray(size * size) { -1.0 }
+      val ceiling = DoubleArray(size * size) { -1.0 }
 
       for (localY in 0 until size) {
         for (localX in 0 until size) {
@@ -128,7 +168,12 @@ class ColumnSummary(
                 break
               }
 
-              !structural && topSolid >= 0.0 -> gapBelowTop = true
+              // The first non-structural voxel under the topmost run: its top face is the underside of that
+              // run, and therefore the ceiling of the gap below.
+              !structural && topSolid >= 0.0 -> {
+                if (!gapBelowTop) ceiling[i] = (z + 1).toDouble()
+                gapBelowTop = true
+              }
             }
           }
 
@@ -136,7 +181,7 @@ class ColumnSummary(
         }
       }
 
-      return ColumnSummary(voxels.chunk, size, surface, water, sheltered)
+      return ColumnSummary(voxels.chunk, size, surface, water, sheltered, ceiling)
     }
   }
 }

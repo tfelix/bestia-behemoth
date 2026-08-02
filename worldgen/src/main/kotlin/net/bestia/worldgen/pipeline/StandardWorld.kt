@@ -4,6 +4,7 @@ import net.bestia.worldgen.bio.BiomeStage
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.ChunkColumnSource
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ChunkHeightSampler
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
@@ -26,10 +27,15 @@ import net.bestia.worldgen.geo.DropletHeightField
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.karst.CaveChannels
+import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
+import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.SurfaceSampler
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -52,6 +58,61 @@ class GeneratedWorld(
   val materializer: ChunkMaterializer
 ) {
   val config: WorldConfig get() = world.config
+
+  /**
+   * Which vertical slabs of a horizontal chunk hold anything worth streaming.
+   *
+   * **The heightfield's span is no longer the answer, and that is what this exists to say.**
+   * `ChunkService.computeSurfaceSlabs` subscribes a player to the slabs the terrain surface passes through,
+   * which was complete while every block in the world was at the surface or under it. A cave forty metres
+   * down can sit in the slab below, so it is generated, cached, and never sent - a player walks into a
+   * passage and the ground in front of them does not exist.
+   *
+   * Answered as a **feature query plus two scans**, with nothing materialised. That is the whole reason a
+   * passage stores its floor and its height on the feature rather than deriving them at chunk time: "is there
+   * anything down there" is then a question about a few hundred polylines, not about a million voxels.
+   *
+   * Conservative in the safe direction. A passage that merely comes near the chunk contributes its whole
+   * vertical extent, so the range can be a slab taller than it needs to be - which costs one empty chunk and
+   * cannot lose one that has something in it.
+   *
+   * @return the inclusive range of `chunk.z` values to generate
+   */
+  fun contentSlabsOf(chunkX: Int, chunkY: Int): IntRange {
+    val heights = columns.heights(ChunkPos(chunkX, chunkY), 0)
+
+    var lowest = Double.MAX_VALUE
+    var highest = -Double.MAX_VALUE
+    for (localY in 0 until config.chunkSize) {
+      for (localX in 0 until config.chunkSize) {
+        val h = heights[localX, localY]
+        if (h < lowest) lowest = h
+        if (h > highest) highest = h
+      }
+    }
+
+    // One voxel of headroom below the lowest column, the same allowance `materializeSurface` makes and for the
+    // same reason: a column within half a voxel of a slab floor has its surface voxel in the slab beneath.
+    var bottom = config.chunkZOf(lowest - config.voxelSize)
+    var top = config.chunkZOf(highest)
+
+    val bounds = config.chunkBounds(ChunkPos(chunkX, chunkY))
+    for (feature in world.features.query(bounds)) {
+      if (feature.kind != FeatureKind.CAVE_PASSAGE) continue
+      val stations = feature as? MarkerFeature ?: continue
+      val table = stations.stations ?: continue
+      val floorChannel = runCatching { table.channel(CaveChannels.FLOOR) }.getOrNull() ?: continue
+      val heightChannel = table.channel(CaveChannels.HEIGHT)
+
+      for (i in 0 until table.stationCount) {
+        val floor = table.valueAt(floorChannel, i)
+        bottom = min(bottom, config.chunkZOf(floor - config.voxelSize))
+        top = max(top, config.chunkZOf(floor + table.valueAt(heightChannel, i)))
+      }
+    }
+
+    return bottom..top
+  }
 }
 
 /**
@@ -111,6 +172,9 @@ object StandardWorld {
       BiomeStage(base, p.biome),
       GlacialStage(base, p.glacial),
       ResourceStage(base, p.resource),
+      // Caves take the chunk tier's own rock tuning rather than a copy of it, so "where is the limestone" has
+      // one answer for the stage that places a passage and the materialiser that cuts it.
+      CaveStage(base, p.cave, p.strata),
       HabitabilityStage(base, p.habitability),
       SettlementStage(base, p.settlement),
       HistoryStage(base, p.history),
@@ -190,7 +254,8 @@ object StandardWorld {
         secondaryBiome = world.layers.require(LayerId.BIOME_SECONDARY),
         biomeConfidence = world.layers.require(LayerId.BIOME_CONFIDENCE)
       ),
-      features = world.features
+      features = world.features,
+      caveParams = p.cave
     )
 
     return GeneratedWorld(world, base, columns, materializer)

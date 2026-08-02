@@ -23,8 +23,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// </para>
   ///
   /// <para>
-  /// Surface membership comes from <see cref="Block.Solid"/> rather than from hardcoded ids: <c>ICE</c> is
+  /// Surface membership comes from <see cref="Block.Surface"/> rather than from hardcoded ids: <c>ICE</c> is
   /// solid and belongs to the terrain surface, <c>WATER</c> is not and gets its own transparent one.
+  /// </para>
+  ///
+  /// <para>
+  /// It used to come from <see cref="Block.Solid"/>, and <c>LEAVES</c> is why it no longer does. Solidity is
+  /// the server's word for "does this obstruct" - it decides pathing, spawn heights and line of sight - and a
+  /// canopy is deliberately not solid so that agents walk under it. Which mesh a material is drawn into is a
+  /// different question with a different answer: leaves are opaque green and belong on the terrain surface,
+  /// not blended into the transparent water one, where a tree beside a lake would have merged with it.
   /// </para>
   ///
   /// <para>
@@ -40,6 +48,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>Block ids are a byte on the wire, so every table covers the whole range.</summary>
     public const int Ids = 256;
 
+    /// <summary>Which of the chunk's meshes a material is drawn into.</summary>
+    public enum SurfaceKind
+    {
+      /// <summary>The opaque terrain mesh.</summary>
+      Terrain,
+
+      /// <summary>The transparent water mesh.</summary>
+      Water
+    }
+
     /// <summary>One material, exactly as the server's <c>BlockType</c> declares it, plus how to draw it.</summary>
     public sealed class Block
     {
@@ -54,8 +72,18 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       public string Name { get; init; } = "";
 
-      /// <summary>Whether it belongs to the opaque terrain surface rather than the transparent water one.</summary>
+      /// <summary>
+      /// Whether it obstructs: the server's <c>BlockType.solid</c>, mirrored.
+      /// </summary>
+      /// <remarks>
+      /// Unread here now that <see cref="Surface"/> answers the meshing question, and mirrored anyway for the
+      /// same reason <see cref="Opaque"/> is: the two palettes have to be comparable by eye, and a field that
+      /// disappears from this side is a divergence nobody can see.
+      /// </remarks>
       public bool Solid { get; init; }
+
+      /// <summary>Which mesh it is drawn into.</summary>
+      public SurfaceKind Surface { get; init; }
 
       /// <summary>
       /// Whether it blocks sight.
@@ -106,6 +134,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(40, "GRASS", 0.28f, 0.45f, 0.19f),
       Terrain(41, "SNOW", 0.92f, 0.94f, 0.96f),
 
+      // Vegetation, scattered per column at chunk generation. LEAVES is the first material drawn on the
+      // terrain surface without being solid - see Foliage.
+      Terrain(45, "LOG", 0.33f, 0.24f, 0.15f),
+      Foliage(46, "LEAVES", 0.19f, 0.36f, 0.15f),
+
       // Ore, placed per voxel at chunk generation.
       Terrain(50, "ORE_COPPER", 0.45f, 0.55f, 0.45f),
       Terrain(51, "ORE_TIN", 0.58f, 0.58f, 0.62f),
@@ -138,11 +171,39 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// that the divergence is visible in the table rather than hidden in a boolean.
     /// </remarks>
     private static Block Terrain(byte id, string name, float r, float g, float b) =>
-      new() { Id = id, Name = name, Solid = true, Opaque = true, Colour = new Color(r, g, b) };
+      new()
+      {
+        Id = id, Name = name, Solid = true, Opaque = true,
+        Surface = SurfaceKind.Terrain, Colour = new Color(r, g, b)
+      };
 
     /// <summary>A material on the transparent water surface: neither solid nor sight-blocking.</summary>
     private static Block Fluid(byte id, string name, float r, float g, float b, float a) =>
-      new() { Id = id, Name = name, Solid = false, Opaque = false, Colour = new Color(r, g, b, a) };
+      new()
+      {
+        Id = id, Name = name, Solid = false, Opaque = false,
+        Surface = SurfaceKind.Water, Colour = new Color(r, g, b, a)
+      };
+
+    /// <summary>
+    /// Leaf canopy: drawn on the opaque terrain surface, but neither solid nor sight-blocking.
+    /// </summary>
+    /// <remarks>
+    /// Its own factory rather than a fourth argument to <see cref="Terrain"/>, exactly as that method's
+    /// remarks demand: the divergence between "obstructs" and "is drawn opaque" is the interesting thing
+    /// about this material, and it belongs in the table where it can be read, not inside a boolean.
+    ///
+    /// <para>
+    /// The server also gives it a fractional <c>opacity</c>, so a sight line through a canopy attenuates
+    /// rather than stopping dead. Nothing here needs it: line of sight is resolved server side.
+    /// </para>
+    /// </remarks>
+    private static Block Foliage(byte id, string name, float r, float g, float b) =>
+      new()
+      {
+        Id = id, Name = name, Solid = false, Opaque = false,
+        Surface = SurfaceKind.Terrain, Colour = new Color(r, g, b)
+      };
 
     /// <summary>The tables for the palette this client ships with. Built once; nothing mutates them.</summary>
     public static BlockAppearance Current { get; } = From(Palette);
@@ -184,7 +245,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
           continue;
         }
 
-        if (block.Solid)
+        if (block.Surface == SurfaceKind.Terrain)
         {
           appearance.TerrainMask[block.Id] = 0xFF;
         }

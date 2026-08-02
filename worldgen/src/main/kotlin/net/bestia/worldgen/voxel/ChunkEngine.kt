@@ -29,9 +29,14 @@ object ChunkEngine {
    * Bump on any change to [RleCodec]'s format or to [BlockType]'s ids, names, or `solid` flag, and change the
    * client's `ChunkEngine.Version` in the same commit.
    *
+   * `BlockType.opacity` is deliberately **not** in that list. It decides how much of a sight line a material
+   * stops, which is a server-side combat question the client neither receives nor renders; bumping for it
+   * would force a client release for a number no client can observe.
+   *
    * 1 is the first value that means anything: before it the client compared the RLE version alone and had no
    * way to notice a palette it disagreed with.
    */
   // 2: the seven worked materials buildings and streets are made of - TIMBER through COBBLESTONE.
-  const val VERSION = 2
+  // 3: vegetation - LOG and LEAVES, the first material in the palette that is drawn but not solid.
+  const val VERSION = 3
 }

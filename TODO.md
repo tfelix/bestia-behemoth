@@ -34,7 +34,7 @@ earned across phases 3 to 7, four times over.
 Run all of it per phase, in this order. The last three catch what the first misses.
 
 ```
-./gradlew :worldgen:test                                   # 483 tests at present
+./gradlew :worldgen:test                                   # 484 tests at present
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=192      # sweep; watch the reported spreads
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # PNGs + the SeamCheck line; works headless
@@ -42,6 +42,7 @@ Run all of it per phase, in this order. The last three catch what the first miss
 ./gradlew :worldgen:probe -Pchannels=1                      # river cross-sections against the voxel grid
 ./gradlew :worldgen:probe -Pon=fort -Pnth=0                 # a built site at voxel scale
 ./gradlew :worldgen:probe -Pon=mine -Psection -Pbelow=30    # a vertical slice - the only view of a hole
+./gradlew :worldgen:probe -Pon=cave_passage -Psection -Pbelow=70   # ...and a gallery, 45 m down
 ./gradlew :worldgen:probe -Pdroplets                        # chunk-scale droplet erosion, which ships off (cost)
 ./gradlew :worldgen:town -Pcensus                           # every settlement in one table
 ./gradlew :worldgen:chronicle -Pquests                      # unresolved history threads
@@ -85,7 +86,7 @@ Run all of it per phase, in this order. The last three catch what the first miss
   them as unknown — because a file key would be applied and then overwritten. Setting one by hand in code
   instead is how buildings end up floating over the ground everywhere.
 - **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 5, glacial 2,
-  hydrology 3, biome 3, resource 1, habitability 1, settlement 3, town 5, history 2, economy 1. The chunk tier
+  hydrology 3, biome 3, resource 1, caves 1, habitability 1, settlement 3, town 5, history 2, economy 1. The chunk tier
   has one too now — **`ChunkMaterializer.VERSION`, currently 2** — folded into `chunkTierVersion` and therefore
   into `pipelineVersion`. It exists because changing the materialisation *code* used to move no number at all:
   subtraction changed every mine head in every world while `pipelineVersion` held still, so every cached chunk
@@ -112,6 +113,12 @@ Run all of it per phase, in this order. The last three catch what the first miss
   disaster.** Occupancy is read as fill-from-below by every derived structure, so a *fractional ceiling* is a
   phantom standable surface inside solid rock — `WalkableTile` would path across it. The floor keeps its
   fraction because that is what occupancy is for. Cost of the asymmetry: up to a voxel of head height.
+- **A cave passage's floor sits a sixth of the way up its bed, never on the boundary.** `bedIndexAt` of a bed's
+  own bottom face is that bed only if the division comes out exactly, and in floating point it lands one bed
+  lower about as often as not - so a facies check on the floor tests the rock *under* the passage. Three
+  separate bugs came out of the same family and each needed the invariant to find it: the floor below the
+  basement (granite walls, 37 seeds in 40), the void's top leaving a bed the floor was still in (25 in 40), and
+  a bicubic-versus-bilinear disagreement putting a cave mouth two metres under the sea (1 in 40).
 - **A void that stops at the ground surface has a lid on it.** The ceiling rounds down, so the voxel the
   surface falls inside survives. A hole meant to reach the open air needs a ceiling more than one voxel above
   the terrain — see `MineHead.SHAFT_HEADROOM`.
@@ -137,10 +144,16 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
 - **The polygon geometry type** — the root of deviations 2, 3 and 5. Alluvial fans, deltas, lakes, coastlines and
   settlement footprints all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
   `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds nothing emits. A subsystem, not a pass.
-- **Caves.** Voxel subtraction is no longer the blocker — `StructureSpans.remove` and `ChunkMaterializer.carve`
-  exist and the mine shaft is their first consumer — so what is left is the cave systems themselves: a feature
-  kind, a stage that places them on lithology, and a chunk-tier reader. The client's surface-nets mesher already
-  handles them, so the renderer is ahead of the generator here.
+- ~~**Caves.**~~ Built: `karst/CaveStage` places them, `voxel/CaveNetwork` cuts them, and `HistorySim` hides
+  hoards in them. What is *not* built is the streaming half — `GeneratedWorld.contentSlabsOf` says which slabs
+  hold a passage and `ChunkService` still subscribes only the surface ones, so a cave below the terrain slab is
+  generated and never sent.
+  - **`CaveNetwork` has no fails-first unit test**, which is habit 3 unpaid. The world-tier claims are covered
+    by four invariants over 400 seeds and the geometry is visible in `probe -Pon=cave_passage -Psection`, but
+    the chunk-tier half — the roof clamp against the column's actual `top`, the mouth exemption, the pinch-out
+    when the clamp falls below the floor, the two fbm wall fields — is pinned by nothing. It wants a
+    `SubtractionTest`-shaped file: a synthetic world, one hand-built passage, and each guard broken in turn to
+    confirm the test goes red. Not critical; deferred deliberately rather than overlooked.
 - **The scatter pass.** No vegetation — and the block palette has no vegetation *material* either, so this is a
   palette change before it is a pass. The "chunk-seeded randomness is safe here" rule still has no users, but
   world-position-hashed scatter does: `TownStructures.ruinColumn` hashes the quantised world position for rubble,

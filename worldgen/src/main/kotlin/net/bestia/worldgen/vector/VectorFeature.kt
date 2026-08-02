@@ -50,6 +50,37 @@ enum class FeatureKind(val defaultPriority: Int) {
    * ore is materialised at chunk generation by sampling the deposit, never stored.
    */
   ORE_DEPOSIT(20),
+
+  /**
+   * A cave network: where it is, how big, how deep. One per system, at the centroid of its passages.
+   *
+   * Geometry and attributes only, like [ORE_DEPOSIT] and for the same reason - nothing about a cave is a
+   * *shape of the ground*. The passages are carved out of the voxels at chunk generation by reading the
+   * features below, and a per-cell "cave here" field would be sixteen million cells to say the same thing a
+   * few hundred markers say exactly.
+   */
+  CAVE_SYSTEM(22),
+
+  /**
+   * One gallery: a centerline with a floor, a height and a half-width along it.
+   *
+   * A stored polyline rather than a hashed 3D density field, and the reason is the river seam theorem
+   * verbatim. Two chunks either side of a border project their columns onto **the same continuous
+   * centerline** and get the same answer, with no communication and no shared cache; a density field would
+   * agree only as far as its own interpolation did. It also gets connectivity for free - a walk is connected
+   * by construction, where a field gives disconnected blobs and needs a separate pass to join them.
+   */
+  CAVE_PASSAGE(24),
+
+  /**
+   * Where a gallery reaches daylight: the one place the carve is allowed to break the surface.
+   *
+   * Its own kind rather than a flag on the passage, because it is the thing every other system asks about -
+   * a player looking for a way in, the viewer drawing where caves are, history hiding something down there -
+   * and none of those want to walk a polyline to find out whether one end of it happens to be open.
+   */
+  CAVE_ENTRANCE(26),
+
   COASTLINE(50),
 
   /**
@@ -162,7 +193,19 @@ enum class FeatureKind(val defaultPriority: Int) {
   BUSINESS(670),
 
   /** An inn on a road, a day's travel from anywhere. Not attached to a settlement. */
-  ROADSIDE_INN(672)
+  ROADSIDE_INN(672),
+
+  /**
+   * Valuables hidden in a cave, and never collected.
+   *
+   * The [CAVE_SYSTEM] / [CAVE_HOARD] pair is the [SETTLEMENT] / [SETTLEMENT_HISTORY] pattern one level down:
+   * the terrain stage says where the caves are, the history simulation says what somebody put in one, and
+   * neither amends the other's output. They are joined on the cave system's dense index.
+   *
+   * This is the only site marker that carries an **elevation**, because it is the only one that is not on the
+   * ground. Whatever spawns the treasure needs all three coordinates.
+   */
+  CAVE_HOARD(674)
 }
 
 /**

@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.karst.CaveParams
 import java.util.Arrays
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -72,7 +73,13 @@ class SurfaceColumns(
 class ChunkMaterializer(
   private val config: WorldConfig,
   private val columns: ChunkColumnSource,
-  private val strata: Stratigraphy,
+
+  /**
+   * The rock column, for the same reason [surface] is visible: "what is the rock under here" is a question
+   * about the world rather than about materialising a chunk, and the invariant that checks caves are in
+   * limestone would otherwise have to rebuild a second `Stratigraphy` from the same layers and hope it matched.
+   */
+  val strata: Stratigraphy,
 
   /**
    * The surface classifier: which biome, and therefore which cap and soil, a world position reads as.
@@ -87,7 +94,15 @@ class ChunkMaterializer(
    * The vector tier, for river water. Rivers are the one water body whose surface is not level, so it
    * cannot come from a raster - see [RiverWaterSampler].
    */
-  private val features: FeatureStore
+  private val features: FeatureStore,
+
+  /**
+   * The cave tuning, forwarded from the stage that placed them rather than defaulted here.
+   *
+   * A default would compile and would be wrong the moment a params file moved a passage's size or the roof
+   * cover it keeps: the stage would place galleries by one rule and the carve would cut them by another.
+   */
+  private val caveParams: CaveParams = CaveParams()
 ) {
 
   /** Materialises one chunk volume. */
@@ -104,15 +119,16 @@ class ChunkMaterializer(
     val ore = OreVeins(nearby, config.seed)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
-    // One buffer for the whole chunk, refilled per column. See StructureSpans.
-    val spans = if (structures.isEmpty) null else StructureSpans()
+    val caves = CaveNetwork(nearby, config.seed, caveParams)
+    // One buffer for the whole chunk, refilled per column, and shared by both producers. See StructureSpans.
+    val spans = if (structures.isEmpty && caves.isEmpty) null else StructureSpans()
 
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
         val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
-          heights[localX, localY], rivers, ore, bridges, structures, spans
+          heights[localX, localY], rivers, ore, bridges, structures, caves, spans
         )
       }
     }
@@ -238,6 +254,7 @@ class ChunkMaterializer(
     ore: OreVeins,
     bridges: BridgeDecks,
     structures: TownStructures,
+    caves: CaveNetwork,
     spans: StructureSpans?
   ) {
     // Two water surfaces, and the higher wins. The raster one is level - sea or a lake; the river one
@@ -364,6 +381,12 @@ class ChunkMaterializer(
     if (spans != null) {
       spans.clear()
       structures.columnAt(worldX, worldY, top, spans)
+
+      // Caves fill the *same* buffer, after the structures and before either is applied. That ordering is what
+      // lets a cave mouth know whether anything stands over it: `ceiling()` skips removals, so at this point
+      // it is exactly "what has been built here", which is the veto an entrance needs. A hole opening into
+      // somebody's cellar is a hole in their floor.
+      caves.columnAt(worldX, worldY, top, spans.ceiling(), spans)
 
       /*
        * Two passes over the buffer, additions and then removals, rather than one pass in insertion order.

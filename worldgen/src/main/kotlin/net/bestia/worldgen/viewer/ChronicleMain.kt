@@ -227,8 +227,11 @@ object ChronicleMain {
       }
       if (relic.restingSite >= 0) {
         val site = chronicle.sites[relic.restingSite]
+        // The depth is printed only where there is one, which today means only a hoard. An artifact in a
+        // cave is findable and one in a barrow is diggable, and the difference is worth a reader seeing.
+        val depth = if (site.elevation.isNaN()) "" else " at ${site.elevation.toInt()} m underground"
         println(
-          "    rests at (${site.position.x.toInt()}, ${site.position.y.toInt()}) " +
+          "    rests at (${site.position.x.toInt()}, ${site.position.y.toInt()})$depth " +
               "in a ${site.kind.name.lowercase()}, decay ${fixed(site.decay)}"
         )
       } else {

@@ -8,7 +8,25 @@ package net.bestia.worldgen.voxel
  * order of a Kotlin enum, which is exactly the kind of coupling that turns "insert a block type
  * alphabetically" into "every stored chunk in the world now decodes to the wrong rock".
  */
-enum class BlockType(val id: Int, val solid: Boolean, val opaque: Boolean = solid) {
+enum class BlockType(
+  val id: Int,
+  val solid: Boolean,
+  val opaque: Boolean = solid,
+
+  /**
+   * How much of a sight line one full voxel of this material stops, in `[0,1]`.
+   *
+   * [opaque] is the boolean this refines, and foliage is why it had to be refined. Neither value the boolean
+   * can take is right for a leaf canopy: `opaque = true` means one voxel of leaves in four stops a sight line
+   * outright, so **no archer can shoot through any forest**, while `opaque = false` means a hundred metres of
+   * canopy blocks nothing at all. A fraction says the true thing - a leaf voxel attenuates - and
+   * `OpacityGrid` was already accumulating occupancy along a ray, so it needed only to weight by this
+   * instead of branching.
+   *
+   * Defaults from [opaque], so every existing material keeps exactly the behaviour it had.
+   */
+  val opacity: Double = if (opaque) 1.0 else 0.0
+) {
 
   AIR(0, solid = false, opaque = false),
   WATER(1, solid = false, opaque = false),
@@ -35,6 +53,27 @@ enum class BlockType(val id: Int, val solid: Boolean, val opaque: Boolean = soli
   // Surface cover.
   GRASS(40, solid = true),
   SNOW(41, solid = true),
+
+  /**
+   * A tree trunk, scattered per column at chunk generation from a lattice hash. Never stored as a field.
+   *
+   * Solid, so it is an obstruction to path around and the ground a spawn point sits on is the ground rather
+   * than the top of a trunk.
+   */
+  LOG(45, solid = true),
+
+  /**
+   * A tree canopy.
+   *
+   * **`solid = false` is doing three jobs at once**, and each of them would otherwise have been a change to a
+   * derived structure. `VoxelChunk.highestSolid` reports the ground under a tree, so nothing spawns twelve
+   * metres up in the branches; `WalkableTile` treats a non-solid block as passable, so agents walk *under* a
+   * canopy instead of pathing across the treetops; and `highestNonAir` still counts it, so `probe` draws a
+   * tree with no tooling change at all.
+   *
+   * [opacity] is the fourth, and is the one thing a boolean could not have expressed - see the parameter.
+   */
+  LEAVES(46, solid = false, opaque = false, opacity = 0.35),
 
   // Ore, placed per voxel at chunk generation by sampling the sparse deposits. Never stored as a field.
   ORE_COPPER(50, solid = true),

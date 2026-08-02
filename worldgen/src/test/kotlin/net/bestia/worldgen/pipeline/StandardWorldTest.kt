@@ -21,6 +21,7 @@ import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
@@ -68,6 +69,9 @@ class StandardWorldTest {
         GlacialStage.ID,
         HydrologyStage.ID,
         BiomeStage.ID,
+        // Caves sort before resources on the name tie-break, not because anything needs them first: both read
+        // the same five upstream stages and neither reads the other.
+        CaveStage.ID,
         ResourceStage.ID,
         HabitabilityStage.ID,
         SettlementStage.ID,

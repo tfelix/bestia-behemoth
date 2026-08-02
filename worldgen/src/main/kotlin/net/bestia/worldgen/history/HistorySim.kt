@@ -129,6 +129,18 @@ data class HistoryParams(
   /** Metres from a deposit within which a settlement could have found and worked it. */
   val mineRange: Double = 30_000.0,
 
+  /**
+   * Metres from a sacked town within which its people could have run to a cave with the treasury.
+   *
+   * Shorter than [mineRange], and for a reason worth keeping: a mine is opened over years by people who went
+   * looking, and a hoard is hidden in an afternoon by people who are being chased. A day's flight, not a
+   * survey.
+   */
+  val hoardRange: Double = 25_000.0,
+
+  /** Chance that a sacking is the one where somebody hides the treasury and does not come back for it. */
+  val hoardChance: Double = 0.30,
+
   /** Metres a monastery keeps between itself and the nearest settlement. Its defining property. */
   val monasteryClearance: Double = 22_000.0,
 
@@ -269,6 +281,8 @@ data class HistoryParams(
     .put("mineRichness", mineRichness)
     .put("mineDepth", mineDepth)
     .put("mineRange", mineRange)
+    .put("hoardRange", hoardRange)
+    .put("hoardChance", hoardChance)
     .put("monasteryClearance", monasteryClearance)
     .put("fortClearance", fortClearance)
     .put("fortRange", fortRange)
@@ -334,6 +348,9 @@ internal class HistorySim(
   private val civs = ArrayList<Civ>()
   private val people = ArrayList<Person>()
   private val relics = ArrayList<Relic>()
+
+  /** Cave systems that already hold a hoard. One quest per room. */
+  private val usedCaves = HashSet<Int>()
   private val sites = ArrayList<Site>()
   private val wars = ArrayList<War>()
 
@@ -752,6 +769,7 @@ internal class HistorySim(
     )
     town.population = max(8.0, town.population * (1.0 - SACK_POPULATION_LOSS))
     town.wealth *= 0.6
+    hideHoard(town, target, year, sack)
     // The hinterland is wrecked along with the town, and it does not all come back. This is what makes a
     // twice-sacked place permanently smaller than its site could support, rather than one that regrows to the
     // same size and leaves the sacking with no lasting consequence.
@@ -1080,6 +1098,74 @@ internal class HistorySim(
     }
   }
 
+  /**
+   * Somebody carries the treasury out of a burning town, into a cave, and does not come back for it.
+   *
+   * **This is why hoards exist as history rather than as loot.** Nearly every real hoard was buried by someone
+   * who fully intended to dig it up again, and is findable today precisely because they were killed before
+   * they could - so the interesting object is not the treasure, it is the *reason nobody collected it*. That
+   * reason is already in the log: the sacking is passed in as the cause, so the chain reads "the
+   * Anlaf sack their town, somebody hides the plate in the caves above it, and that is the last of it".
+   *
+   * Placement is terrain's, not history's - `SpecialSiteCandidates.caves` found the back of every cave and
+   * this only decides whether anybody ever had reason to run there. Each cave takes one hoard: two hoards in
+   * one cave is two quests in the same room.
+   *
+   * An artifact goes in only if the town actually held one. Most hoards are coin and plate, which is right -
+   * a world where every hidden hoard contains a named sword has no named swords.
+   */
+  private fun hideHoard(town: Town, index: Int, year: Int, cause: Int) {
+    if (candidates.caves.isEmpty()) return
+    if (roll(year.toLong(), index.toLong(), HOARD_SALT) >= params.hoardChance) return
+
+    val cave = candidates.caves
+      .filter { it.detail !in usedCaves }
+      .minByOrNull { it.position.distanceTo(town.facts.position) }
+      ?: return
+    if (cave.position.distanceTo(town.facts.position) > params.hoardRange) return
+    usedCaves.add(cave.detail)
+
+    // Whatever was in the town to carry. `holder` is still set, so this is a relic in use rather than one
+    // already lost, which is what makes the loss a moment rather than a bookkeeping entry.
+    //
+    // A capital counts as holding its civ's relics as well as its own. Without that clause the condition is
+    // "a living smith or ruler happened to be homed in exactly this town", which over a whole reference world
+    // came up **zero times in ten hoards** - so the artifact half of this existed and was never once reached,
+    // which is indistinguishable from it not working.
+    val capitalOf = if (town.owner >= 0 && civs[town.owner].capital == index) town.owner else -1
+    val relic = relics.firstOrNull {
+      it.holder >= 0 && it.resting < 0 &&
+          (people[it.holder].home == index || (capitalOf >= 0 && people[it.holder].civ == capitalOf))
+    }
+
+    val site = addSite(
+      SiteKind.HOARD, cave.position, year, index, town.owner,
+      radius = HOARD_RADIUS, artifact = relic?.index ?: -1, figure = -1,
+      elevation = cave.elevation
+    )
+    town.sites.add(site)
+
+    val hidden = log(
+      year, EventKind.ARTIFACT_LOST,
+      listOf(Actor(ActorType.SETTLEMENT, index), Actor(ActorType.SITE, site)),
+      cave.position, listOf(cause),
+      "the wealth of ${nameOf(town)} is carried into the caves and hidden"
+    )
+
+    if (relic != null) {
+      relic.holder = -1
+      relic.resting = site
+      relic.provenance.add(
+        log(
+          year, EventKind.ARTIFACT_LOST,
+          listOf(Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.SITE, site)),
+          cave.position, listOf(hidden),
+          "${relicName(relic)} goes into the dark with it"
+        )
+      )
+    }
+  }
+
   private fun lostPlaceFor(holder: Person): Int {
     towns[holder.home].sites.firstOrNull { sites[it].kind == SiteKind.RUIN }?.let { return it }
     sites.firstOrNull { it.kind == SiteKind.BATTLEFIELD && it.civ == holder.civ }?.let { return it.index }
@@ -1263,7 +1349,7 @@ internal class HistorySim(
     SiteKind.FORT -> "raise"
     SiteKind.LIGHTHOUSE -> "light"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
-    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT -> "make"
+    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD -> "make"
   }
 
   /**
@@ -1338,7 +1424,7 @@ internal class HistorySim(
           index = it.index, kind = it.kind, position = it.position, year = it.year,
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
-          resource = it.resource
+          resource = it.resource, elevation = it.elevation
         )
       },
       settlements = towns.map { town ->
@@ -1424,7 +1510,8 @@ internal class HistorySim(
     radius: Double,
     artifact: Int,
     figure: Int,
-    resource: Int = -1
+    resource: Int = -1,
+    elevation: Double = Double.NaN
   ): Int {
     val index = sites.size
     sites.add(
@@ -1432,7 +1519,7 @@ internal class HistorySim(
         index = index, kind = kind, position = position, year = year, settlement = settlement,
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
-        artifact = artifact, figure = figure, resource = resource
+        artifact = artifact, figure = figure, resource = resource, elevation = elevation
       )
     )
     return index
@@ -1479,6 +1566,7 @@ internal class HistorySim(
         SiteKind.MONASTERY -> "abbey"
         SiteKind.FORT -> "fort"
         SiteKind.LIGHTHOUSE -> "light"
+        SiteKind.HOARD -> "hoard"
       }
     )
   }
@@ -1570,7 +1658,9 @@ internal class HistorySim(
     val artifact: Int,
     val figure: Int,
     /** [net.bestia.worldgen.resource.ResourceType] ordinal for a mine, -1 for everything else. */
-    val resource: Int = -1
+    val resource: Int = -1,
+    /** Metres, for a site that is not on the ground. NaN for every kind but a hoard. */
+    val elevation: Double = Double.NaN
   )
 
   private class War(val a: Int, val b: Int, val startedYear: Int, val cause: Int) {
@@ -1642,6 +1732,15 @@ internal class HistorySim(
     const val LIGHTHOUSE_RADIUS = 14.0
     const val MONUMENT_OFFSET = 140.0
 
+    /**
+     * Extent of a hoard in metres, which is small on purpose: it is a pile against a wall, not a chamber.
+     *
+     * It also has to stay under `ChunkMaterializer.MARKER_MARGIN` like every other site marker, which the
+     * invariant checks - a point marker wider than the chunk query margin is simply absent from chunks
+     * further away than it.
+     */
+    const val HOARD_RADIUS = 3.0
+
     const val TOMB_RADIUS = 11.0
     const val TOMB_OFFSET = 320.0
     const val BATTLEFIELD_RADIUS = 180.0
@@ -1693,6 +1792,7 @@ internal class HistorySim(
     // The four built sites. 0x25 onward was free; each kind needs its own so a civ's roll for a mine in one
     // year is independent of its roll for a fort in the same year.
     const val MINE_SALT = 0x25L
+    const val HOARD_SALT = 0x26L
     const val MONASTERY_SALT = 0x26L
     const val FORT_SALT = 0x27L
     const val LIGHTHOUSE_SALT = 0x28L

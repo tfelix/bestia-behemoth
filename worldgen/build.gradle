@@ -29,6 +29,7 @@ description = 'worldgen'
  *   hydro     flow routing, lakes, the river graph, meandering
  *   bio       biome classification, soil
  *   resource  ore, coal, salt and placer deposits
+ *   karst     cave systems: where the limestone is, and the galleries dissolved out of it
  *   civ       habitability, cultures, settlements, route finding, roads, town layout, buildings
  *   history   the thousand-year simulation, place names, ruins, artifacts and the event log
  *   pop       agricultural catchments, the business catalogue, household expansion

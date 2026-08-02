@@ -21,7 +21,7 @@ module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
 | 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviation 3; 4 half closed | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviation 2; 1 closed but shipping off | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt`, `geo/DropletHeightField.kt` |
-| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures and subtraction — no scatter pass, no caves | `voxel/` |
+| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures, subtraction and caves — no scatter pass | `voxel/`, `karst/` |
 | 6 | Derived structures | **done** | `derived/` |
 | 7 | Resources + habitability + settlements + roads | **done** — deviation 5 | `resource/`, `civ/` |
 | 8 | Town layout + buildings | **done** — deviation 8 | `civ/TownStage.kt`, `civ/StreetNetwork.kt`, `civ/TownBuildings.kt`, `voxel/TownStructures.kt` |
@@ -100,11 +100,12 @@ is an index, not the reasoning. Grouped by what it would take.
   settlement outlines all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
   `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds that nothing emits.
   `FootprintFeature` closed the cheap ninety percent; the rest is clipping, offsetting and concave indexing.
-- **Caves.** No feature kind, no `carve_caves`. The client's surface-nets mesher already handles them, which
-  is the unusual part — the renderer is ahead of the generator here. **The tier can now subtract**, so what is
-  left is the cave system itself rather than a change to how materialisation works; see below.
 - **The scatter pass.** No vegetation, no chunk-seeded anything, so the "chunk-seeded randomness is safe here,
   not in profiles" rule still has no users.
+- **Streaming what is below the surface.** `GeneratedWorld.contentSlabsOf` answers which vertical slabs hold
+  anything — the terrain span unioned with every intersecting passage — but `ChunkService` still subscribes only
+  the surface slabs, so a cave in the slab below is generated and never sent. The server-side half is separate
+  work; the generator's half is done.
 - **Live NPCs.** Schedules, rumour propagation, confidence on knowledge, expand-and-collapse. `pop/` produces
   the substrate; nothing makes a person walk to the market.
 - **Delta persistence** (step 12) and a **client-side base generator** (step 13). Whatever persists a delta
@@ -127,6 +128,18 @@ here.
 - **Chunk-scale droplet erosion**, closing deviation 1 — **and shipping off, on cost rather than seam
   grounds.** A whole-world render evaluates it per pixel and thrashes the tile cache; see that deviation for
   the measurement and for the four ways to make it cheaper.
+- **Caves**, closing the oldest entry on this list. A cave system is a **stored polyline**, not a hashed 3D
+  density field: `karst/CaveStage` places systems as a Poisson process thinned by the soluble share of the rock
+  column times a rainfall ramp, grows galleries that stay inside one limestone bed, and **discards any candidate
+  whose galleries never reach daylight** — so every emitted system has a way in by construction and the
+  invariant asserting it runs on every seed. `voxel/CaveNetwork` cuts them with three roof guards, an elliptical
+  arch and two smooth fbm wall fields. Measured on the reference world: **92 systems, 367 passages, 241 km of
+  gallery, 3.4% of dry land within four kilometres of a way in** — and 4.5% on the 128 km world, so the density
+  is a property of the ground rather than of the world's size. Over 400 sweep seeds, 0 worlds have none.
+- **Treasure hoards**, which is what makes a cave a place rather than a hole. `HistorySim` has a sacked town's
+  people carry the treasury into the nearest cave and not come back for it, so a hoard is *residue of an event
+  that is in the log* — the [SETTLEMENT] / [SETTLEMENT_HISTORY] pattern one level down, joined on the cave
+  system's index. 10 on the reference world; roughly one in seventeen holds a named artifact.
 - **Voxel subtraction.** `StructureSpans.remove` stores a span whose material is `AIR` — the same vocabulary
   `ChunkDelta.set(x, y, z, AIR)` uses for a player breaking a block — and `ChunkMaterializer.carve` applies
   every removal *after* every addition, so a hole is defined by the material it is a hole in and a shaft can

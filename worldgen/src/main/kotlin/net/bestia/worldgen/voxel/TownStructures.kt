@@ -517,6 +517,10 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
+      // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
+      // method only ever writes spans relative to the ground - so building anything for it here would put a
+      // chest on the hillside above the cave rather than in it. See FeatureKind.CAVE_HOARD.
+      SiteKind.HOARD -> Unit
     }
   }
 

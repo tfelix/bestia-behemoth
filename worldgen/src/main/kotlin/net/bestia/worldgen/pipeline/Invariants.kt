@@ -19,6 +19,7 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.geo.ClosedBasins
 import net.bestia.worldgen.history.SiteChannels
+import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
 import net.bestia.worldgen.pop.EconomyChannels
@@ -30,7 +31,9 @@ import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
+import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import net.bestia.worldgen.voxel.Stratigraphy
 import java.util.Locale
 import kotlin.math.abs
 
@@ -193,6 +196,7 @@ object Invariants {
     checkRoadsideInnsAreOnTheRoad(generated, ::fail)
     checkSeaLanesStayAtSea(generated, ::fail)
     checkBuiltSitesAreWhereTheyClaim(generated, ::fail)
+    checkCavesAreWellFormed(generated, ::fail)
 
     return out
   }
@@ -508,6 +512,108 @@ object Invariants {
   }
 
   /**
+   * Caves are where the rock dissolves, under a roof, and enterable.
+   *
+   * Four claims, reported separately so a failure names which one - the four fail for entirely different
+   * reasons and fixing the wrong one is a wasted afternoon.
+   *
+   * - **Every system has a way in.** The stage discards a candidate that grows no gallery reaching daylight,
+   *   so this holds *by construction* and can therefore be asserted on every seed rather than pinned to a
+   *   lucky one. If it ever fails, the acceptance rule has been softened and the world has caves nobody can
+   *   reach, which is `TODO.md`'s sixth habit with a nicer excuse.
+   * - **A passage is in soluble rock.** The whole claim that caves are lithology-driven rather than sprinkled,
+   *   and the only way to falsify it. Checked against the *shared* `Stratigraphy`, so the stage and the
+   *   materialiser cannot be tested against different rock.
+   * - **A passage keeps its roof**, away from its mouth. Deliberately stated against the coarse raster with no
+   *   tolerance parameter: the stage clamps against exactly that, so a violation means the clamp is gone, not
+   *   that a number wants adjusting. The chunk tier's own guard against the *fine* surface cannot be checked
+   *   here - it is per column and this is per station - which is what `VoxelSeamCheck` and the section view
+   *   are for.
+   * - **An entrance is on dry land.** A mouth under a lake is a mouth nothing may open: the carve refuses it,
+   *   so a cave whose only entrance is submerged is a cave with no entrance at all.
+   */
+  private fun checkCavesAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val all = generated.world.features.all()
+    val systems = all.filter { it.kind == FeatureKind.CAVE_SYSTEM }.filterIsInstance<PointMarker>()
+    if (systems.isEmpty()) return
+
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer
+    val seaLevel = generated.config.seaLevel
+    val strata = generated.materializer.strata
+
+    val entrances = all.filter { it.kind == FeatureKind.CAVE_ENTRANCE }.filterIsInstance<PointMarker>()
+    val withEntrance = HashSet<Int>()
+    for (entrance in entrances) {
+      val system = runCatching { entrance.attribute(CaveChannels.SYSTEM).toInt() }.getOrNull() ?: continue
+      withEntrance.add(system)
+
+      val ground = elevation.sampleBilinear(entrance.position.x, entrance.position.y)
+      if (ground <= seaLevel) {
+        fail("cave entrances are on dry land", "system $system opens at ${ground.toInt()} m, under the sea")
+        return
+      }
+      val water = waterLevel?.sampleBilinear(entrance.position.x, entrance.position.y) ?: Double.NaN
+      if (!water.isNaN() && water > ground) {
+        fail("cave entrances are on dry land", "system $system opens under a lake standing at ${water.toInt()} m")
+        return
+      }
+    }
+
+    for (system in systems) {
+      val index = runCatching { system.attribute(CaveChannels.SYSTEM).toInt() }.getOrNull() ?: continue
+      if (index !in withEntrance) {
+        fail("every cave system has an entrance", "system $index has no way in")
+        return
+      }
+    }
+
+    for (feature in all) {
+      if (feature.kind != FeatureKind.CAVE_PASSAGE) continue
+      val passage = feature as? MarkerFeature ?: continue
+      val stations = passage.stations ?: continue
+      val floorChannel = runCatching { stations.channel(CaveChannels.FLOOR) }.getOrNull() ?: continue
+      val heightChannel = stations.channel(CaveChannels.HEIGHT)
+
+      for (i in 0 until passage.centerline.vertexCount) {
+        val at = passage.centerline.points[i]
+        val floor = stations.valueAt(floorChannel, i)
+        val height = stations.valueAt(heightChannel, i)
+
+        // Sampled at the middle of the void rather than at the floor. The floor sits on a bedding plane and
+        // an elevation exactly on a bed boundary belongs to whichever bed the division rounds into - which is
+        // a real bug this caught once already, and would make the check itself unreliable here.
+        val rock = strata.columnAt(at.x, at.y).rockAt(floor + height * 0.5)
+        if (rock !in Stratigraphy.SOLUBLE) {
+          fail(
+            "cave passages are in soluble rock",
+            "${feature.id} station $i at ${floor.toInt()} m is in $rock"
+          )
+          return
+        }
+
+        // Near the mouth the roof is *meant* to be gone, so the stations around it are exempt. Measured
+        // against every entrance rather than only its own system's, which is conservative in the safe
+        // direction: it can excuse a station it should have checked, never fail one it should not have.
+        if (entrances.any { it.position.distanceTo(at) < CAVE_MOUTH_EXEMPTION }) continue
+
+        val coarse = elevation.sampleBilinear(at.x, at.y)
+        if (floor + height >= coarse) {
+          fail(
+            "cave passages keep their roof",
+            "${feature.id} station $i has its roof at ${(floor + height).toInt()} m " +
+                "under ground at ${coarse.toInt()} m"
+          )
+          return
+        }
+      }
+    }
+  }
+
+  /** How close to a mouth a passage station may be before the roof claim stops applying, in metres. */
+  private const val CAVE_MOUTH_EXEMPTION = 60.0
+
+  /**
    * No structural marker reaches further than the margin chunk generation queries with.
    *
    * The tripwire promised by [ChunkMaterializer.MARKER_MARGIN]. A point marker has no extent, so chunk
@@ -520,17 +626,34 @@ object Invariants {
     generated: GeneratedWorld,
     fail: (String, String) -> Unit
   ) {
-    // A new site kind must be added here or it is exempt from the margin check *by accident* - the filter is
-    // an explicit set, not "every marker with a radius", so forgetting a kind is silent.
-    val structural = setOf(
-      FeatureKind.RUIN, FeatureKind.BATTLEFIELD, FeatureKind.TOMB, FeatureKind.MONUMENT,
-      FeatureKind.MINE, FeatureKind.MONASTERY, FeatureKind.FORT, FeatureKind.LIGHTHOUSE
+    // A new kind must be added here or it is exempt from the margin check *by accident* - this is an explicit
+    // list, not "every marker with a radius", so forgetting a kind is silent. The channel is named per kind
+    // because a cave mouth is not a site and carries its own; a kind that names a channel it does not have is
+    // now a failure rather than a skip, which is what the `?: continue` here used to make it.
+    val structural = mapOf(
+      FeatureKind.RUIN to SiteChannels.RADIUS,
+      FeatureKind.BATTLEFIELD to SiteChannels.RADIUS,
+      FeatureKind.TOMB to SiteChannels.RADIUS,
+      FeatureKind.MONUMENT to SiteChannels.RADIUS,
+      FeatureKind.MINE to SiteChannels.RADIUS,
+      FeatureKind.MONASTERY to SiteChannels.RADIUS,
+      FeatureKind.FORT to SiteChannels.RADIUS,
+      FeatureKind.LIGHTHOUSE to SiteChannels.RADIUS,
+      FeatureKind.CAVE_HOARD to SiteChannels.RADIUS,
+      FeatureKind.CAVE_ENTRANCE to CaveChannels.MOUTH
     )
 
     for (feature in generated.world.features.all()) {
-      if (feature.kind !in structural) continue
+      val channel = structural[feature.kind] ?: continue
       val marker = feature as? PointMarker ?: continue
-      val radius = runCatching { marker.attribute(SiteChannels.RADIUS) }.getOrNull() ?: continue
+      val radius = runCatching { marker.attribute(channel) }.getOrNull()
+      if (radius == null) {
+        fail(
+          "structural markers fit the query margin",
+          "${feature.kind} ${feature.id} carries no '$channel' channel, so its reach cannot be checked"
+        )
+        return
+      }
 
       if (radius > ChunkMaterializer.MARKER_MARGIN) {
         fail(
@@ -996,6 +1119,83 @@ object Invariants {
     val seaLevel = generated.config.seaLevel
     return elevation.data.count { it > seaLevel }.toDouble() / elevation.data.size
   }
+
+  /**
+   * The share of dry land within [metres] of any of [points].
+   *
+   * A **reach** rather than a count, and the difference is the whole reason this exists. "The world has forty
+   * cave systems" is a fact about the map; "one land cell in twenty is within an hour's walk of a way in" is a
+   * fact about what a player experiences, and those two come apart completely when the things being counted
+   * cluster - which caves do, because they follow the limestone.
+   *
+   * Public and shared for the reason [landFraction] is: the sweep and the viewer both print it, and a figure
+   * two tools measure differently is one neither can be trusted about.
+   *
+   * Measured on the coarse grid, so at a kilometre a cell it is exact to about that. That is the right
+   * precision for a question posed in kilometres, and a metre-accurate answer would cost a distance transform
+   * over sixteen million cells to say the same thing.
+   */
+  fun landShareNear(
+    generated: GeneratedWorld,
+    elevation: FloatLayer,
+    points: List<Vec2d>,
+    metres: Double
+  ): Double {
+    if (points.isEmpty()) return 0.0
+
+    val config = generated.config
+    val cell = config.baseResolution.metresPerCell
+    val seaLevel = config.seaLevel
+    val radius = metres * metres
+
+    // Bucketed by a grid of the search radius, so each land cell tests the points in the nine buckets around
+    // it rather than all of them. A world with a few thousand entrances and sixteen million cells is otherwise
+    // a hundred billion distance tests.
+    val bucket = HashMap<Long, MutableList<Vec2d>>()
+    for (point in points) {
+      val key = bucketKey(point.x, point.y, metres)
+      bucket.getOrPut(key) { ArrayList() }.add(point)
+    }
+
+    var land = 0
+    var near = 0
+    for (cellY in 0 until config.heightCells) {
+      for (cellX in 0 until config.widthCells) {
+        val x = (cellX + 0.5) * cell
+        val y = (cellY + 0.5) * cell
+        if (elevation.sampleBilinear(x, y) <= seaLevel) continue
+        land++
+
+        val bx = Math.floorDiv(x.toLong(), metres.toLong())
+        val by = Math.floorDiv(y.toLong(), metres.toLong())
+        var found = false
+        for (dy in -1..1) {
+          for (dx in -1..1) {
+            val list = bucket[(bx + dx) * BUCKET_STRIDE + (by + dy)] ?: continue
+            for (point in list) {
+              val ex = point.x - x
+              val ey = point.y - y
+              if (ex * ex + ey * ey <= radius) {
+                found = true
+                break
+              }
+            }
+            if (found) break
+          }
+          if (found) break
+        }
+        if (found) near++
+      }
+    }
+
+    return if (land == 0) 0.0 else near.toDouble() / land
+  }
+
+  private fun bucketKey(x: Double, y: Double, metres: Double): Long =
+    Math.floorDiv(x.toLong(), metres.toLong()) * BUCKET_STRIDE + Math.floorDiv(y.toLong(), metres.toLong())
+
+  /** Wide enough that a world 2 000 buckets across cannot alias one row onto the next. */
+  private const val BUCKET_STRIDE = 1_000_003L
 
   /**
    * How many distinct lake basins the world holds.

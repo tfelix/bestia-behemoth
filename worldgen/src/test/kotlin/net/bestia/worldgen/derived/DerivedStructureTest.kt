@@ -43,16 +43,40 @@ class DerivedStructureTest {
 
     assertEquals(3, summary.surfaceAt(0, 0))
     assertEquals(-1, summary.waterAt(0, 0))
-    assertFalse(summary.isSheltered(0, 0), "open ground is not sheltered")
+    assertFalse(summary.hasShelter(0, 0), "open ground is not sheltered")
 
     // Under the roof: the top of the column is the roof, and the floor beneath the gap is the ground.
     assertEquals(6, summary.surfaceAt(2, 2))
-    assertTrue(summary.isSheltered(2, 2))
+    assertTrue(summary.hasShelter(2, 2))
     assertEquals(3, summary.shelteredFloorAt(2, 2))
 
     assertEquals(5, summary.waterAt(5, 5))
     assertEquals(2.0, summary.waterDepthAt(5, 5), 1e-9)
-    assertFalse(summary.isSheltered(5, 5), "water is not a roof")
+    assertFalse(summary.hasShelter(5, 5), "water is not a roof")
+  }
+
+  @Test
+  fun `shelter is a place in a column, not a property of the whole column`() {
+    // The failure this is written against: a column of open grass with a cave under it reported *sheltered*,
+    // because the old test was "does this column have a gap anywhere in it". That is the wrong question, and
+    // it answers "is it raining on this NPC" wrongly for every column over a cave in the world.
+    val chunk = flatGround()
+
+    // Bore a gallery out of the rock below, leaving the grass on top untouched.
+    for (z in 1..2) chunk[4, 4, z] = BlockType.AIR
+
+    val summary = ColumnSummary.of(chunk)
+
+    assertTrue(summary.hasShelter(4, 4), "there is a gap in this column")
+    assertTrue(summary.isShelteredAt(4, 4, 1.5), "standing inside the gallery")
+    assertFalse(
+      summary.isShelteredAt(4, 4, 4.0),
+      "standing on the grass above a cave, in the rain"
+    )
+
+    // The bounds of the gap, which is what makes the answer possible at all.
+    assertEquals(1.0, summary.shelteredFloorHeightAt(4, 4), 1e-9)
+    assertEquals(3.0, summary.voidCeilingHeightAt(4, 4), 1e-9)
   }
 
   @Test

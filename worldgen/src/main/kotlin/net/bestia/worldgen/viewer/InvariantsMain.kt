@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.core.Timings
+import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
 import java.util.Locale
@@ -67,6 +68,13 @@ object InvariantsMain {
     // has three where it ought to have thirty, which no pass/fail can.
     val lakes = ArrayList<Int>(seeds)
 
+    // Cave systems, for the third reason a count goes in this list: the *acceptance rule* is a filter on
+    // terrain, so how many caves a world gets is a distribution nobody can predict from the parameters. A world
+    // with none is legitimate - not all rock is limestone - and a sweep is the only place "how often is none"
+    // can be answered.
+    val caves = ArrayList<Int>(seeds)
+    val hoards = ArrayList<Int>(seeds)
+
     val report = Invariants.sweep(
       seeds = seeds,
       firstSeed = firstSeed,
@@ -79,7 +87,11 @@ object InvariantsMain {
         val basins = Invariants.lakeCount(generated)
         lakes.add(basins)
 
-        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins"
+        val systems = generated.world.features.all().count { it.kind == FeatureKind.CAVE_SYSTEM }
+        caves.add(systems)
+        hoards.add(generated.world.features.all().count { it.kind == FeatureKind.CAVE_HOARD })
+
+        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -110,6 +122,14 @@ object InvariantsMain {
       println(
         "lakes: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
             ", $dry of ${sorted.size} worlds with none"
+      )
+    }
+    if (caves.isNotEmpty()) {
+      val sorted = caves.sorted()
+      val none = sorted.count { it == 0 }
+      println(
+        "caves: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
+            ", $none of ${sorted.size} worlds with none, ${hoards.sum()} hoards in all"
       )
     }
     // Locale.ROOT here too, for the same reason the fractions above have it - and because this line was

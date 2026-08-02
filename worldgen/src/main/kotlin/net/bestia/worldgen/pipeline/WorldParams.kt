@@ -14,6 +14,7 @@ import net.bestia.worldgen.geo.GlacialParams
 import net.bestia.worldgen.geo.TectonicsParams
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.hydro.HydrologyParams
+import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
@@ -56,6 +57,7 @@ data class WorldParams(
   val hydrology: HydrologyParams = HydrologyParams(),
   val biome: BiomeParams = BiomeParams(),
   val resource: ResourceParams = ResourceParams(),
+  val cave: CaveParams = CaveParams(),
   val habitability: HabitabilityParams = HabitabilityParams(),
   val settlement: SettlementParams = SettlementParams(),
   val history: HistoryParams = HistoryParams(),
@@ -116,6 +118,7 @@ data class WorldParams(
       r.hydrology.digest().value,
       r.biome.digest().value,
       r.resource.digest().value,
+      r.cave.digest().value,
       r.habitability.digest().value,
       r.settlement.digest().value,
       r.history.digest().value,
@@ -179,6 +182,7 @@ data class WorldParams(
         tectonics = base.tectonics.overriddenBy(text.scope("tectonics")),
         climate = base.climate.overriddenBy(text.scope("climate")),
         erosion = base.erosion.overriddenBy(text.scope("erosion")),
+        cave = base.cave.overriddenBy(text.scope("cave")),
         droplets = base.droplets.overriddenBy(text.scope("droplets"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)

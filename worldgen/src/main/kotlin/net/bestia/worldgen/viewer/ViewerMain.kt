@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.StageListener
 import net.bestia.worldgen.core.StageResult
@@ -15,6 +16,8 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.MarkerFeature
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.VoxelSeamCheck
 import java.awt.GraphicsEnvironment
 import java.io.File
@@ -57,6 +60,7 @@ object ViewerMain {
     println("  ${describeLakes(generated)}")
     println("  ${describeSeasons(generated)}")
     println("  ${describeBiomes(generated)}")
+    println("  ${describeCaves(generated)}")
     println("  ${scene.featureSummary()}")
 
     if (exportTo != null || GraphicsEnvironment.isHeadless()) {
@@ -154,6 +158,55 @@ object ViewerMain {
       println("  ${stage.id} @ ${region.resolution}: $produced in $millis ms")
     }
   }
+
+  /**
+   * How many caves there are, how big they are, and - the number that actually matters - how hard one is to
+   * find.
+   *
+   * The counts alone cannot answer "does a cave feel special", because a cave system is not a thing you
+   * encounter at world scale: a player walks a few kilometres and either passes a way in or does not. So the
+   * headline figure is **the share of dry land within a day's walk of an entrance**, measured on the coarse
+   * grid. Somewhere in the low single digits is the target - common enough that caves are a real part of the
+   * world and rare enough that finding one is an event.
+   *
+   * Entrances rather than systems, because a system with no mouth you happened to pass is a system you did not
+   * find, and the two counts differ by a lot: most galleries end blind.
+   */
+  private fun describeCaves(generated: GeneratedWorld): String {
+    val all = generated.world.features.all()
+    val systems = all.count { it.kind == FeatureKind.CAVE_SYSTEM }
+    val entrances = all.filter { it.kind == FeatureKind.CAVE_ENTRANCE }.filterIsInstance<PointMarker>()
+    val passages = all.filter { it.kind == FeatureKind.CAVE_PASSAGE }.filterIsInstance<MarkerFeature>()
+    val hoards = all.count { it.kind == FeatureKind.CAVE_HOARD }
+    // How many hoards hold a *named* relic rather than anonymous plate. Counted because the branch that puts
+    // one there is easy to write and hard to reach - a figure fleeing a sack would carry their sword, not bury
+    // it - and a branch nothing reaches looks exactly like one that works.
+    val named = generated.world.chronicle?.sites
+      ?.count { it.kind == SiteKind.HOARD && it.artifact >= 0 } ?: 0
+
+    if (systems == 0) return "caves 0 - no limestone wet enough, or none of it near a hillside"
+
+    val metres = passages.sumOf { it.centerline.length }
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer
+      ?: return "caves $systems systems, ${passages.size} passages, ${entrances.size} entrances"
+
+    val reach = Invariants.landShareNear(
+      generated, elevation, entrances.map { it.position }, CAVE_WALK_METRES
+    )
+
+    return "caves $systems systems, ${passages.size} passages, ${entrances.size} entrances, " +
+        "${(metres / 1000.0).roundToInt()} km of gallery, $hoards hoards ($named with a named relic) - " +
+        "${"%.1f".format(Locale.ROOT, reach * 100.0)}% of land within " +
+        "${(CAVE_WALK_METRES / 1000.0).roundToInt()} km of a way in"
+  }
+
+  /**
+   * How far a player might reasonably wander off a road in one outing, in metres.
+   *
+   * Not a tuning knob - it is the yardstick the density is judged against, and moving it would move the
+   * measurement rather than the world.
+   */
+  private const val CAVE_WALK_METRES = 4_000.0
 
   /**
    * A chunk with something in it, for [VoxelSeamCheck].

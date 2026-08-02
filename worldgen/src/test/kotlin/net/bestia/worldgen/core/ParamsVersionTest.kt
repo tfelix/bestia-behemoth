@@ -19,6 +19,7 @@ import net.bestia.worldgen.geo.GlacialParams
 import net.bestia.worldgen.geo.TectonicsParams
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.history.HistoryParams
+import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.hydro.HydrologyStage
@@ -75,6 +76,7 @@ class ParamsVersionTest {
     HydrologyParams(),
     BiomeParams(),
     ResourceParams(),
+    CaveParams(),
     HabitabilityParams(),
     SettlementParams(),
     HistoryParams(),
@@ -160,9 +162,10 @@ class ParamsVersionTest {
       "HydrologyParams" to 7_155_846_832_677_361_370L,
       "BiomeParams" to 9_016_394_342_762_494_441L,
       "ResourceParams" to -9_104_808_594_269_338_394L,
+      "CaveParams" to -4_263_381_643_348_589_984L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,
       "SettlementParams" to -5_086_656_145_453_525_411L,
-      "HistoryParams" to -5_579_692_874_894_142_816L,
+      "HistoryParams" to 6_388_756_786_288_073_773L,
       "TownParams" to 6_322_658_815_609_408_725L,
       "StreetParams" to -2_774_139_638_864_316_831L,
       "EconomyParams" to 6_863_789_847_631_252_411L,

@@ -498,6 +498,16 @@ class MapRenderer(
     fun colorOf(kind: FeatureKind): Color = when (kind) {
       FeatureKind.FAULT -> Color(160, 90, 200)
       FeatureKind.ORE_DEPOSIT -> Color(255, 210, 70)
+      // Caves, as a family: the passages are the dim underground colour and the two markers that say "there
+      // is something here" are brightened versions of it, so a cave region reads as one thing at world scale
+      // and the way in is still findable when you zoom to it. An entrance is the brightest of the three
+      // because it is the only one of them a player can stand on.
+      FeatureKind.CAVE_PASSAGE -> Color(120, 100, 145)
+      FeatureKind.CAVE_SYSTEM -> Color(175, 150, 215)
+      FeatureKind.CAVE_ENTRANCE -> Color(235, 215, 255)
+      // Treasure, in the colour the map already uses for something worth having, darkened towards the caves
+      // it is hidden in.
+      FeatureKind.CAVE_HOARD -> Color(230, 180, 80)
       FeatureKind.COASTLINE -> Color(250, 250, 250)
       FeatureKind.TECTONIC_BASIN -> Color(120, 170, 235)
       FeatureKind.GLACIAL_TROUGH, FeatureKind.FJORD -> Color(140, 220, 255)

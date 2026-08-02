@@ -353,7 +353,20 @@ enum class SiteKind {
   FORT,
 
   /** A light on a headland, kept by the port whose approaches it guards. */
-  LIGHTHOUSE
+  LIGHTHOUSE,
+
+  /**
+   * Valuables carried into a cave and never carried out.
+   *
+   * Residue, like a ruin, and for a sharper reason than the others: **nearly every hoard ever dug up was
+   * buried by somebody who meant to come back for it.** So this is not treasure that was placed - it is
+   * treasure whose owner was killed, and the event that killed them is in the log with it. That is what makes
+   * it a quest hook rather than a loot table: the chronicle can say whose it was, what they were running from,
+   * and in which year.
+   *
+   * The only site kind that is underground, which is why [SiteRecord] carries an elevation.
+   */
+  HOARD
 }
 
 data class SiteRecord(
@@ -381,5 +394,14 @@ data class SiteRecord(
    * the *history* - a worked-out mine is still a silver mine - and rediscovering it would mean a spatial query
    * against the deposit index from a class that has no access to one.
    */
-  val resource: Int = -1
+  val resource: Int = -1,
+
+  /**
+   * Elevation in metres for a site that is not on the ground, or [Double.NaN] for one that is.
+   *
+   * NaN rather than the terrain height, deliberately: "this is at ground level, whatever that turns out to be"
+   * and "this is at 412 m" are different statements, and only the second one should survive a change to the
+   * heightfield. Every kind but [SiteKind.HOARD] is NaN today.
+   */
+  val elevation: Double = Double.NaN
 )

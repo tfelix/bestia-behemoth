@@ -25,6 +25,7 @@ import net.bestia.worldgen.core.StageScale
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
@@ -66,7 +67,7 @@ class HistoryStage(
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
-    ResourceStage.ID, HabitabilityStage.ID, SettlementStage.ID
+    ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID
   )
   override val scale = StageScale.WORLD
 
@@ -80,6 +81,7 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.MONASTERY),
     StageOutput.Vector(FeatureKind.FORT),
     StageOutput.Vector(FeatureKind.LIGHTHOUSE),
+    StageOutput.Vector(FeatureKind.CAVE_HOARD),
     StageOutput.History
   )
 
@@ -252,6 +254,7 @@ class HistoryStage(
         SiteKind.MONASTERY -> FeatureKind.MONASTERY
         SiteKind.FORT -> FeatureKind.FORT
         SiteKind.LIGHTHOUSE -> FeatureKind.LIGHTHOUSE
+        SiteKind.HOARD -> FeatureKind.CAVE_HOARD
       },
       position = record.position,
       attributes = StationTable.Builder(1)
@@ -266,6 +269,9 @@ class HistoryStage(
         .channel(SiteChannels.ARTIFACT) { record.artifact.toDouble() }
         .channel(SiteChannels.FIGURE) { record.figure.toDouble() }
         .channel(SiteChannels.RESOURCE) { record.resource.toDouble() }
+        // NaN for everything on the surface, where the ground's own height is the answer. Only a hoard, which
+        // is in a cave, has a third coordinate of its own - and whatever spawns the treasure needs all three.
+        .channel(SiteChannels.ELEVATION) { record.elevation }
         .build()
     )
   }
@@ -350,6 +356,15 @@ object SiteChannels {
 
   /** Index into [Chronicle.artifacts], or -1. What is buried here. */
   const val ARTIFACT = "artifact"
+
+  /**
+   * Elevation in metres for a site that is not on the ground, NaN for one that is.
+   *
+   * Only [net.bestia.worldgen.core.SiteKind.HOARD] uses it. On every marker rather than only on hoards because
+   * a channel that exists on some rows of a kind and not others is a reader's trap: `attribute` throws, and the
+   * caller that wrapped it in `runCatching` to cope would then swallow a genuinely missing channel too.
+   */
+  const val ELEVATION = "elevation"
 
   /** Index into [Chronicle.figures], or -1. Who is buried here. */
   const val FIGURE = "figure"

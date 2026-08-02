@@ -5,7 +5,9 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.resource.DepositChannels
+import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.vector.FeatureKind
+import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.max
@@ -21,7 +23,9 @@ import kotlin.math.min
 class SiteCandidate(
   val position: Vec2d,
   val quality: Double,
-  val detail: Int = -1
+  val detail: Int = -1,
+  /** Metres above sea level for a candidate that is not on the ground, or NaN. Only caves use it. */
+  val elevation: Double = Double.NaN
 )
 
 /**
@@ -41,7 +45,16 @@ class SpecialSiteCandidates(
   val mines: List<SiteCandidate>,
   val monasteries: List<SiteCandidate>,
   val forts: List<SiteCandidate>,
-  val lighthouses: List<SiteCandidate>
+  val lighthouses: List<SiteCandidate>,
+
+  /**
+   * The back of every cave system: somewhere to hide something and not be followed.
+   *
+   * Not a place anybody *builds*, unlike the four above, which is why it is worth saying what it is doing in
+   * this class. The division this class exists for still holds - the terrain decides where a cave's deep end
+   * is, and a thousand years of war decides whether anybody ever had reason to run to one.
+   */
+  val caves: List<SiteCandidate> = emptyList()
 ) {
 
   companion object {
@@ -71,7 +84,8 @@ class SpecialSiteCandidates(
         mines = mines(ctx, region, facts, params, elevation, seaLevel),
         monasteries = monasteries(region, facts, params, elevation, habitability, waterLevel, seaLevel),
         forts = forts(region, facts, params, elevation, waterLevel, seaLevel),
-        lighthouses = lighthouses(region, facts, params, elevation, distanceToOcean, seaLevel)
+        lighthouses = lighthouses(region, facts, params, elevation, distanceToOcean, seaLevel),
+        caves = caves(ctx, region)
       )
     }
 
@@ -121,6 +135,58 @@ class SpecialSiteCandidates(
       }
 
       return out.sortedByDescending { it.quality }.let { separate(it, params.siteSeparation, params.maxCandidates) }
+    }
+
+    /**
+     * The deepest point of each cave system, as a place a hoard could be left.
+     *
+     * **The furthest station from the way in**, which is the whole rule and is worth stating as a rule: a hoard
+     * is hidden by somebody who does not want it found, so it goes at the back. It also puts the treasure a
+     * real walk from the entrance rather than in the first chamber, which is the difference between a cave
+     * being a place and a cave being a container.
+     *
+     * One candidate per system, keyed by the system index the passages carry, so two hoards cannot end up in
+     * the same cave by two different routes.
+     */
+    private fun caves(ctx: GenContext, region: CellRegion): List<SiteCandidate> {
+      val features = ctx.features.query(region.toWorld())
+
+      val mouths = HashMap<Int, MutableList<Vec2d>>()
+      for (feature in features) {
+        if (feature.kind != FeatureKind.CAVE_ENTRANCE) continue
+        val marker = feature as? PointMarker ?: continue
+        val system = runCatching { marker.attribute(CaveChannels.SYSTEM) }.getOrNull()?.toInt() ?: continue
+        mouths.getOrPut(system) { ArrayList() }.add(marker.position)
+      }
+      if (mouths.isEmpty()) return emptyList()
+
+      val best = HashMap<Int, SiteCandidate>()
+      for (feature in features) {
+        if (feature.kind != FeatureKind.CAVE_PASSAGE) continue
+        val passage = feature as? MarkerFeature ?: continue
+        val stations = passage.stations ?: continue
+        val system = runCatching { stations.valueAt(stations.channel(CaveChannels.SYSTEM), 0) }
+          .getOrNull()?.toInt() ?: continue
+        val ways = mouths[system] ?: continue
+        val floorChannel = runCatching { stations.channel(CaveChannels.FLOOR) }.getOrNull() ?: continue
+
+        for (i in 0 until passage.centerline.vertexCount) {
+          val at = passage.centerline.points[i]
+          val fromDaylight = ways.minOf { it.distanceTo(at) }
+          val current = best[system]
+          if (current != null && current.quality >= fromDaylight) continue
+
+          best[system] = SiteCandidate(
+            position = at,
+            quality = fromDaylight,
+            detail = system,
+            // On the floor, not in it. The hoard is a thing standing in the passage.
+            elevation = stations.valueAt(floorChannel, i)
+          )
+        }
+      }
+
+      return best.values.sortedByDescending { it.quality }
     }
 
     /**

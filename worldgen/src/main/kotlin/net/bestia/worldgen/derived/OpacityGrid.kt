@@ -82,6 +82,11 @@ class OpacityGrid(
       // thirty percent as much, which is the same argument as the fraction-not-boolean choice above, applied
       // one level down: having gone to the trouble of storing how full a voxel is, rounding it back to solid
       // or empty here would put the resolution cliff straight back.
+      //
+      // Weighted by the material's own opacity as well as by how full the voxel is, which is the same
+      // argument a third time. A leaf canopy is the material that forced it: as a boolean it is either a
+      // wall - one voxel in four of leaves stopping an arrow outright - or nothing at all, and a forest is
+      // neither. See BlockType.opacity.
       val filled = IntArray(cells.size)
       val totals = IntArray(cells.size)
 
@@ -96,8 +101,9 @@ class OpacityGrid(
             val cell = column + localZ / factor
             totals[cell]++
             val block = BlockType.ofOrNull(voxels.blocks[offset + localZ].toInt() and 0xFF)
-            if (block != null && block.opaque) {
-              filled[cell] += voxels.occupancy[offset + localZ].toInt() and 0xFF
+            if (block != null && block.opacity > 0.0) {
+              val occupancy = voxels.occupancy[offset + localZ].toInt() and 0xFF
+              filled[cell] += (occupancy * block.opacity).toInt()
             }
           }
         }
