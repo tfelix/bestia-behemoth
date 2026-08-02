@@ -2,6 +2,7 @@ package net.bestia.worldgen.resource
 
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.bio.BiomeStage
+import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FeatureIds
@@ -94,11 +95,16 @@ class ResourceStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  // 2: timber suitability reads CANOPY_COVER instead of a five-way `when` over the biome.
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, ResourceType.catalogueDigest())
   override val dependencies = listOf(
-    TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID
+    TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
+    // For CANOPY_COVER. Timber used to be a five-way `when` over the biome, which said that every square
+    // kilometre of temperate forest in the world was equally worth logging - see suitabilityFor.
+    VegetationStage.ID
   )
   override val scale = StageScale.WORLD
 
@@ -288,6 +294,7 @@ private class Terrain(
   val precipitation: Grid,
   val discharge: Grid,
   val waterLevel: Grid,
+  val canopy: Grid,
   val biome: IntLayer,
   val lakeId: IntLayer,
   val flowDirection: IntLayer,
@@ -390,12 +397,12 @@ private class Terrain(
         ResourceType.MARBLE ->
           if (submerged) 0.0 else arc * ramp(age, 0.3, 0.8) * ramp(1.0 - rock, 0.2, 0.6) * 0.7
 
-        ResourceType.TIMBER -> when (biomeAt(cell)) {
-          Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.TAIGA -> 1.0
-          Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST -> 0.8
-          Biome.RIPARIAN -> 0.5
-          else -> 0.0
-        }
+        // Straight off the canopy raster, which is the one resource in this list whose suitability is
+        // literally a layer. The five-way `when` over the biome this replaces graded a clearing, a young
+        // stand and old growth identically as long as the classifier called them all forest, and it had an
+        // `else -> 0.0` that would have gone on saying "no trees" for any biome added after it.
+        ResourceType.TIMBER ->
+          if (submerged) 0.0 else ramp(canopy.data[cell], 0.12, 0.55)
 
         ResourceType.FURS -> when (biomeAt(cell)) {
           Biome.TAIGA -> 1.0
@@ -484,6 +491,7 @@ private class Terrain(
         precipitation = Grid.resampled(ctx.layers.float(LayerId.PRECIPITATION), region),
         discharge = Grid.from(ctx.layers.float(LayerId.DISCHARGE)),
         waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL)),
+        canopy = Grid.from(ctx.layers.float(LayerId.CANOPY_COVER)),
         biome = ctx.layers.int(LayerId.BIOME),
         lakeId = ctx.layers.int(LayerId.LAKE_ID),
         flowDirection = ctx.layers.int(LayerId.FLOW_DIRECTION),

@@ -21,6 +21,7 @@ import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.FeatureKind
@@ -72,6 +73,8 @@ class StandardWorldTest {
         // Caves sort before resources on the name tie-break, not because anything needs them first: both read
         // the same five upstream stages and neither reads the other.
         CaveStage.ID,
+        // Vegetation, on the other hand, is a real edge: resources read CANOPY_COVER for timber suitability.
+        VegetationStage.ID,
         ResourceStage.ID,
         HabitabilityStage.ID,
         SettlementStage.ID,
@@ -671,9 +674,18 @@ class StandardWorldTest {
      * The worked materials, ids 60 and up in [BlockType]. Listed rather than tested by id range, so that a
      * natural block added above 60 does not silently join them.
      */
+    /**
+     * Everything that legitimately stands *on* the terrain rather than being it.
+     *
+     * A roof, a deck and a tree crown are all at their own elevation and the column source never claimed
+     * otherwise, so a surface view reading one of them is not an error. The set started as a single
+     * `== MASONRY` check for bridge decks and has grown once per phase that put something above ground: the
+     * seven worked materials with step 8, and `LOG`/`LEAVES` with the vegetation scatter.
+     */
     val BUILT = setOf(
       BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.PLANK, BlockType.RUBBLE, BlockType.COBBLESTONE
+      BlockType.ROOF_TILE, BlockType.PLANK, BlockType.RUBBLE, BlockType.COBBLESTONE,
+      BlockType.LOG, BlockType.LEAVES
     )
 
     val SOILS = setOf(

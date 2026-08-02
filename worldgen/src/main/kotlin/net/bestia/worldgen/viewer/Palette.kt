@@ -141,7 +141,8 @@ object Palettes {
      */
     in SeasonalPrecipitation.LAYERS -> ContinuousPalette(Ramps.PRECIPITATION, 0.0..1000.0)
 
-    LayerId.SOIL_FERTILITY, LayerId.HABITABILITY, LayerId.BIOME_CONFIDENCE, LayerId.RESOURCE_VALUE ->
+    LayerId.SOIL_FERTILITY, LayerId.HABITABILITY, LayerId.BIOME_CONFIDENCE, LayerId.RESOURCE_VALUE,
+    LayerId.CANOPY_COVER ->
       ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
     LayerId.SOIL_DEPTH -> ContinuousPalette(Ramps.VIRIDIS, 0.0..9.0)
 

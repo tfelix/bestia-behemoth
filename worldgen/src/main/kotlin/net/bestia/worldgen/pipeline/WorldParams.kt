@@ -19,6 +19,7 @@ import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.StrataParams
+import net.bestia.worldgen.voxel.VegetationParams
 
 /**
  * Every tunable in the generator, in one object.
@@ -56,6 +57,15 @@ data class WorldParams(
   val glacial: GlacialParams = GlacialParams(),
   val hydrology: HydrologyParams = HydrologyParams(),
   val biome: BiomeParams = BiomeParams(),
+
+  /**
+   * The one params object read by a stage *and* by the chunk tier as the same numbers.
+   *
+   * `VegetationStage` averages the canopy from it and `ChunkMaterializer` plants trees from it, so it is
+   * folded into [version] with the stages and into [chunkTierVersion] with the tier. Twice is right: either
+   * alone would be a number that can move without one of its two readers noticing.
+   */
+  val vegetation: VegetationParams = VegetationParams(),
   val resource: ResourceParams = ResourceParams(),
   val cave: CaveParams = CaveParams(),
   val habitability: HabitabilityParams = HabitabilityParams(),
@@ -117,6 +127,7 @@ data class WorldParams(
       r.glacial.digest().value,
       r.hydrology.digest().value,
       r.biome.digest().value,
+      r.vegetation.digest().value,
       r.resource.digest().value,
       r.cave.digest().value,
       r.habitability.digest().value,
@@ -145,7 +156,8 @@ data class WorldParams(
       ChunkMaterializer.VERSION.toLong(),
       r.detail.digest().value,
       r.strata.digest().value,
-      r.droplets.digest().value
+      r.droplets.digest().value,
+      r.vegetation.digest().value
     )
   }
 
@@ -166,8 +178,8 @@ data class WorldParams(
      * verifiable on the day the format lands rather than after all seventeen classes are wired.
      */
     val NOT_YET_LOADABLE = setOf(
-      "glacial", "hydrology", "biome", "resource", "habitability", "settlement", "history", "town", "economy",
-      "detail", "strata"
+      "glacial", "hydrology", "biome", "vegetation", "resource", "habitability", "settlement", "history",
+      "town", "economy", "detail", "strata"
     )
 
     /**

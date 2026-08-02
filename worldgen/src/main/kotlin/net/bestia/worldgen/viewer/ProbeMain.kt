@@ -296,7 +296,22 @@ object ProbeMain {
         highest = maxOf(highest, ground)
       }
 
-      val topZ = config.voxelZOf(highest) + SECTION_SKY
+      // What stands *over* the ground decides the top of the window, not the ground itself. A fixed few voxels
+      // of sky was right while everything in the world was terrain or built into it; a fifteen-metre tree is
+      // simply cropped out of the picture by it, and a view that cannot show the thing being added is the
+      // reason this method exists in the first place - see the section on subtraction above.
+      val groundZ = config.voxelZOf(highest)
+      var contentZ = groundZ
+      for (dx in -half..half) {
+        for (globalZ in groundZ + SECTION_SCAN downTo contentZ + 1) {
+          if (voxelAt(centreVoxelX + dx, voxelY, globalZ) != BlockType.AIR) {
+            contentZ = globalZ
+            break
+          }
+        }
+      }
+
+      val topZ = contentZ + SECTION_SKY
       val bottomZ = config.voxelZOf(lowest) - Math.max(1, depth)
 
       val glyphs = LinkedHashMap<BlockType, Char>()
@@ -632,8 +647,17 @@ object ProbeMain {
    */
   private const val BELOW = "--below"
 
-  /** Voxels of sky above the highest ground in a section, so an open shaft has somewhere to open into. */
-  private const val SECTION_SKY = 4
+  /** Voxels of sky above the highest *thing* in a section, so an open shaft has somewhere to open into. */
+  private const val SECTION_SKY = 2
+
+  /**
+   * How far above the ground a section looks for something standing on it, in voxels.
+   *
+   * Comfortably over the tallest tree the scatter draws and the tallest tower the town stage builds. Costs one
+   * column scan of already-materialised slabs, and the alternative is a picture with the interesting half of
+   * its subject cropped off the top.
+   */
+  private const val SECTION_SCAN = 44
 
   /**
    * Spacing of the ecotone lattice in metres.

@@ -8,6 +8,7 @@ import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.ActorType
+import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
@@ -197,8 +198,115 @@ object Invariants {
     checkSeaLanesStayAtSea(generated, ::fail)
     checkBuiltSitesAreWhereTheyClaim(generated, ::fail)
     checkCavesAreWellFormed(generated, ::fail)
+    checkCanopyCoverAgreesWithTheBiome(generated, ::fail)
 
     return out
+  }
+
+  /**
+   * The canopy raster says what the biome map says, and says *something*.
+   *
+   * Three claims, separately named so a failure points at one of them.
+   *
+   * - **No canopy over open ocean.** Tested only on cells whose eight neighbours are also sea, because the
+   *   classifier's boundary warp displaces a lookup by up to 420 m and can legitimately reach one cell inland
+   *   from a coastal water cell. An interior ocean cell has no such excuse, and cover there would mean the
+   *   biome term is not being consulted at all.
+   * - **Forests are wooded.** The one claim that would fail if the stage ran and produced nothing, which is
+   *   the failure mode this module has shipped three times: a subsystem that is complete, tested, and never
+   *   reached looks exactly like one that works. A bound rather than a value, because the density is tuned by
+   *   measurement and re-tuning it must not break this.
+   * - **Grassland is not a forest.** The check that catches the specific mistake this stage was written
+   *   around: `Biome.litter` puts grassland at four fifths of a temperate forest, and using it as the
+   *   vegetation term - which is what the plan for this phase said to do - plants a wood on every prairie.
+   *   Comparative as well as absolute, so a world-wide density change moves both sides together.
+   */
+  private fun checkCanopyCoverAgreesWithTheBiome(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val cover = generated.world.layers[LayerId.CANOPY_COVER] as? FloatLayer ?: return
+    val biome = generated.world.layers[LayerId.BIOME] as? IntLayer ?: return
+    val region = cover.region
+
+    var forestSum = 0.0
+    var forestCells = 0
+    var openSum = 0.0
+    var openCells = 0
+
+    fun biomeAt(x: Int, y: Int) =
+      Biome.entries.getOrNull(biome[region.minX + x, region.minY + y])
+
+    for (y in 0 until region.height) {
+      for (x in 0 until region.width) {
+        val here = biomeAt(x, y) ?: continue
+        val value = cover[region.minX + x, region.minY + y].toDouble()
+
+        when (here) {
+          Biome.OCEAN -> {
+            if (value > 0.0 && surroundedBySea(::biomeAt, region, x, y)) {
+              fail(
+                "canopy cover agrees with the biome",
+                "cover $value on an ocean cell at ($x,$y) with nothing but sea around it"
+              )
+              return
+            }
+          }
+
+          Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.TAIGA,
+          Biome.TROPICAL_RAINFOREST, Biome.TROPICAL_SEASONAL_FOREST -> {
+            forestSum += value
+            forestCells++
+          }
+
+          Biome.GRASSLAND, Biome.STEPPE -> {
+            openSum += value
+            openCells++
+          }
+
+          else -> Unit
+        }
+      }
+    }
+
+    if (forestCells >= MIN_CELLS_TO_JUDGE) {
+      val mean = forestSum / forestCells
+      if (mean < MIN_FOREST_COVER) {
+        fail(
+          "canopy cover agrees with the biome",
+          "forest biomes average $mean canopy over $forestCells cells, under $MIN_FOREST_COVER"
+        )
+        return
+      }
+
+      if (openCells >= MIN_CELLS_TO_JUDGE) {
+        val open = openSum / openCells
+        if (open >= mean * MAX_OPEN_SHARE_OF_FOREST) {
+          fail(
+            "canopy cover agrees with the biome",
+            "grassland and steppe average $open canopy against forest's $mean, which is not a distinction"
+          )
+        }
+      }
+    }
+  }
+
+  /** Whether every one of a cell's eight neighbours is also ocean. Edge cells count as surrounded. */
+  private fun surroundedBySea(
+    biomeAt: (Int, Int) -> Biome?,
+    region: CellRegion,
+    x: Int,
+    y: Int
+  ): Boolean {
+    for (dy in -1..1) {
+      for (dx in -1..1) {
+        val nx = x + dx
+        val ny = y + dy
+        if (nx < 0 || ny < 0 || nx >= region.width || ny >= region.height) continue
+        if (biomeAt(nx, ny) != Biome.OCEAN) return false
+      }
+    }
+    return true
   }
 
   /**
@@ -612,6 +720,21 @@ object Invariants {
 
   /** How close to a mouth a passage station may be before the roof claim stops applying, in metres. */
   private const val CAVE_MOUTH_EXEMPTION = 60.0
+
+  /** Cells of one kind below which its mean says more about the sample than about the world. */
+  private const val MIN_CELLS_TO_JUDGE = 200
+
+  /**
+   * Mean canopy cover a world's forest biomes must reach.
+   *
+   * Well under what they measure - the reference world runs several times this - because the number it
+   * guards against is zero. It is the tripwire for a vegetation stage that runs and produces nothing, not a
+   * pin on the tuning.
+   */
+  private const val MIN_FOREST_COVER = 0.06
+
+  /** How much of a forest's canopy grassland and steppe may have before the two are not distinguishable. */
+  private const val MAX_OPEN_SHARE_OF_FOREST = 0.5
 
   /**
    * No structural marker reaches further than the margin chunk generation queries with.
@@ -1121,6 +1244,32 @@ object Invariants {
   }
 
   /**
+   * The mean of a raster over dry land only, or 0 on a world with no land.
+   *
+   * Over land rather than over everything, because the layers this is asked of are properties of ground -
+   * canopy cover being the first - and averaging in the ocean answers a different question badly: a forested
+   * world with a lot of sea would report a fifth of its real cover, and the figure would move when the land
+   * fraction moved rather than when the thing being measured did.
+   *
+   * Public and shared for the reason [landFraction] is: the viewer and the sweep both print it.
+   */
+  fun meanOverLand(generated: GeneratedWorld, layerId: LayerId): Double {
+    val layer = generated.world.layers[layerId] as? FloatLayer ?: return 0.0
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return 0.0
+    val seaLevel = generated.config.seaLevel
+
+    var sum = 0.0
+    var land = 0
+    for (i in layer.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      sum += layer.data[i]
+      land++
+    }
+
+    return if (land == 0) 0.0 else sum / land
+  }
+
+  /**
    * The share of dry land within [metres] of any of [points].
    *
    * A **reach** rather than a count, and the difference is the whole reason this exists. "The world has forty
@@ -1401,7 +1550,7 @@ object Invariants {
   ) {
     val unitRange = listOf(
       LayerId.ROCK_HARDNESS, LayerId.CRUST_AGE, LayerId.SOIL_FERTILITY,
-      LayerId.BIOME_CONFIDENCE, LayerId.PRECIPITATION_SEASONALITY
+      LayerId.BIOME_CONFIDENCE, LayerId.PRECIPITATION_SEASONALITY, LayerId.CANOPY_COVER
     )
 
     for (id in unitRange) {

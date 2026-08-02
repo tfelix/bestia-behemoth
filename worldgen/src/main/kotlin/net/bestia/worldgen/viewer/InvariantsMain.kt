@@ -1,5 +1,6 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.pipeline.Invariants
@@ -33,6 +34,14 @@ object InvariantsMain {
 
   /** Default edge of a sweep world, in coarse cells: a few hundred in a minute, and wide enough for a rain shadow. */
   private const val SWEEP_CELLS = 192
+
+  /**
+   * Mean canopy over land below which a world has effectively no trees on it.
+   *
+   * Deliberately near zero. This is not a judgement about how wooded a world ought to be - a world of ice and
+   * desert legitimately has almost nothing - it is the tripwire for a scatter that has stopped running.
+   */
+  private const val BARE = 0.01
 
   @JvmStatic
   fun main(args: Array<String>) {
@@ -75,6 +84,12 @@ object InvariantsMain {
     val caves = ArrayList<Int>(seeds)
     val hoards = ArrayList<Int>(seeds)
 
+    // Canopy cover over land, for the reason that applies to nothing else on this list: vegetation has **no
+    // stored output at all** beyond this raster. The trees are a function evaluated at chunk generation, so a
+    // change that quietly stops it planting anything leaves a world that builds, passes, and is bare. This is
+    // the only number anywhere that would move.
+    val canopy = ArrayList<Double>(seeds)
+
     val report = Invariants.sweep(
       seeds = seeds,
       firstSeed = firstSeed,
@@ -91,7 +106,11 @@ object InvariantsMain {
         caves.add(systems)
         hoards.add(generated.world.features.all().count { it.kind == FeatureKind.CAVE_HOARD })
 
-        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems"
+        val wooded = Invariants.meanOverLand(generated, LayerId.CANOPY_COVER)
+        canopy.add(wooded)
+
+        val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems" +
+            "  canopy ${"%.3f".format(Locale.ROOT, wooded)}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -130,6 +149,15 @@ object InvariantsMain {
       println(
         "caves: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
             ", $none of ${sorted.size} worlds with none, ${hoards.sum()} hoards in all"
+      )
+    }
+    if (canopy.isNotEmpty()) {
+      val sorted = canopy.sorted()
+      val bare = sorted.count { it < BARE }
+      println(
+        "canopy over land: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
+            "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
+            "${"%.3f".format(Locale.ROOT, sorted.last())}, $bare of ${sorted.size} worlds all but bare"
       )
     }
     // Locale.ROOT here too, for the same reason the fractions above have it - and because this line was

@@ -1,6 +1,7 @@
 package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.BiomeStage
+import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.climate.ClimateStage
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.ChunkColumnSource
@@ -58,6 +59,16 @@ class GeneratedWorld(
   val materializer: ChunkMaterializer
 ) {
   val config: WorldConfig get() = world.config
+
+  /**
+   * Where the trees are, without materialising a chunk to find out.
+   *
+   * The only read path to vegetation that does not go through voxels, and the one an entity spawner wants:
+   * `LayerId.CANOPY_COVER` says how wooded a square kilometre is, and this answers the same question at a
+   * position - is there a trunk here, how dense is the wood around it. A tree is not a feature and never can
+   * be, so without this the answer would only exist inside a generated chunk.
+   */
+  val vegetation get() = materializer.vegetation
 
   /**
    * Which vertical slabs of a horizontal chunk hold anything worth streaming.
@@ -171,6 +182,10 @@ object StandardWorld {
       HydrologyStage(base, p.hydrology),
       BiomeStage(base, p.biome),
       GlacialStage(base, p.glacial),
+      // The kilometre summary of the chunk tier's own scatter, built from the same tuning object the
+      // materialiser gets - so "how wooded is this cell" and "is there a tree at this position" are two
+      // views of one function rather than two models of one thing.
+      VegetationStage(base, p.vegetation),
       ResourceStage(base, p.resource),
       // Caves take the chunk tier's own rock tuning rather than a copy of it, so "where is the limestone" has
       // one answer for the stage that places a passage and the materialiser that cuts it.
@@ -240,22 +255,10 @@ object StandardWorld {
       config = config,
       columns = columns,
       strata = Stratigraphy.of(world.layers, config, p.strata),
-      surface = SurfaceSampler(
-        biome = world.layers.require(LayerId.BIOME),
-        soilDepth = world.layers.require(LayerId.SOIL_DEPTH),
-        waterLevel = world.layers.require(LayerId.WATER_LEVEL),
-        lakeId = world.layers.require(LayerId.LAKE_ID),
-        temperature = world.layers.require(LayerId.TEMPERATURE),
-        seed = config.seed,
-        seaLevel = config.seaLevel,
-        // The pair that turns a biome boundary into an ecotone; see SurfaceSampler.biomeAt. `require`, not an
-        // optional read, because this assembles the full standard pipeline - if BiomeStage has run at all it
-        // has emitted both, and a silent fallback here would mean the dither quietly not happening.
-        secondaryBiome = world.layers.require(LayerId.BIOME_SECONDARY),
-        biomeConfidence = world.layers.require(LayerId.BIOME_CONFIDENCE)
-      ),
+      surface = SurfaceSampler.of(world.layers, config),
       features = world.features,
-      caveParams = p.cave
+      caveParams = p.cave,
+      vegetationParams = p.vegetation
     )
 
     return GeneratedWorld(world, base, columns, materializer)

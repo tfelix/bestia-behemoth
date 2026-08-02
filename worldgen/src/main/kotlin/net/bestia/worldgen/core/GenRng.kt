@@ -97,7 +97,20 @@ class GenRng(seed: Long) {
     }
 
     /** [hash] mapped into `[0, 1)`. */
-    fun hashUnit(vararg values: Long): Double = (hash(*values) ushr 11) * DOUBLE_UNIT
+    fun hashUnit(vararg values: Long): Double = unit(hash(*values))
+
+    /**
+     * An already-hashed 64-bit value mapped into `[0, 1)`.
+     *
+     * For a caller that needs *several* independent draws from one key and does not want to pay for the
+     * vararg array [hash] allocates each time. Take one [hash], then walk it with [mix64] and map each step
+     * through this: `unit(h)`, `unit(mix64(h + 1))`, and so on. The scatter passes do exactly that a few
+     * hundred thousand times per chunk, where four `hashUnit` calls per lattice cell would be four arrays.
+     *
+     * The argument must already be well mixed. Handing it a raw counter gives a raw counter back scaled by
+     * 2^-53, which is the one way to misuse this.
+     */
+    fun unit(value: Long): Double = (value ushr 11) * DOUBLE_UNIT
 
     /** Stable 64-bit hash of a string, for folding stage and channel names into keys. */
     fun hashString(value: String): Long {

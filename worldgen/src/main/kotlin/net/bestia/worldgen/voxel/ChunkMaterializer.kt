@@ -3,9 +3,11 @@ package net.bestia.worldgen.voxel
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.core.ColumnHeights
 import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.vector.Quantize
 import java.util.Arrays
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -52,16 +54,19 @@ class SurfaceColumns(
  *
  * The ordering is fixed here and it matters: natural terrain and vector features first (which
  * [ChunkColumnSource] has already done), then bedrock stratigraphy, then soil, then the surface cap, then
- * water, then what is built on top, and **subtraction last of all**. Water before the structures because a
- * lake surface is a property of the world and no structure may carve it; soil after rock, because soil depth
- * is a surface property and the rock beneath it does not care; and removal after everything, because a hole
- * is defined by the material it is a hole in - see [carve].
+ * water, then what is built on top, then **subtraction**, and **vegetation last of all**. Water before the
+ * structures because a lake surface is a property of the world and no structure may carve it; soil after
+ * rock, because soil depth is a surface property and the rock beneath it does not care; removal after
+ * everything solid, because a hole is defined by the material it is a hole in (see [carve]); and foliage
+ * after the removal, because it is the one producer that only ever fills air and therefore has to know what
+ * air there is.
  *
  * Nothing in here is chunk-seeded. Every block a column gets is a function of that column's world
  * position and its surface height, which is what makes two chunks agree about the shared column on their
- * border without either knowing the other exists. Chunk-seeded scatter - which the architecture document
- * puts at the end of chunk generation, and which is safe there precisely because it comes after all
- * geometry - is not implemented; there is no vegetation in the block palette to place yet.
+ * border without either knowing the other exists. The architecture document's standing permission for
+ * *chunk-seeded* scatter at the end of chunk generation is still unused, and vegetation is the case that
+ * shows why it should stay unused: a four-metre canopy spans columns, so a chunk-seeded tree on a border is
+ * half a tree. [VegetationScatter] hashes a lattice of quantised world coordinates instead.
  *
  * ### Filled by runs, not by voxels
  *
@@ -102,13 +107,24 @@ class ChunkMaterializer(
    * A default would compile and would be wrong the moment a params file moved a passage's size or the roof
    * cover it keeps: the stage would place galleries by one rule and the carve would cut them by another.
    */
-  private val caveParams: CaveParams = CaveParams()
+  private val caveParams: CaveParams = CaveParams(),
+
+  vegetationParams: VegetationParams = VegetationParams()
 ) {
+
+  /**
+   * Where the trees are.
+   *
+   * Built here from [surface] rather than handed in, and visible for the same reason [surface] and [strata]
+   * are: "is there a wood here" is a question about the world. `VegetationStage` rasterises the canopy from
+   * this very object, so the kilometre raster and the voxels cannot disagree, and a spawner can ask it about
+   * a position without materialising a chunk to find out.
+   */
+  val vegetation = VegetationScatter(config, surface, config.seed, vegetationParams)
 
   /** Materialises one chunk volume. */
   fun materialize(chunk: ChunkPos): VoxelChunk {
     val out = VoxelChunk(chunk, config.chunkSize, config.chunkHeight)
-    val heights = columns.heights(chunk, 0)
     val baseZ = config.voxelBaseOf(chunk)
 
     // One query for the whole chunk. The index stores bounds already expanded by each feature's influence
@@ -123,18 +139,104 @@ class ChunkMaterializer(
     // One buffer for the whole chunk, refilled per column, and shared by both producers. See StructureSpans.
     val spans = if (structures.isEmpty && caves.isEmpty) null else StructureSpans()
 
+    // Asked before the heights, which is the whole reason it is a separate call: a crown hanging into this
+    // chunk from outside needs the ground under a trunk that is not in it, and that costs a halo - seventy
+    // per cent more heightfield evaluations. Most chunks have no trees, and this says so for the price of a
+    // hash per four-metre cell.
+    val candidates = vegetation.candidatesIn(chunk)
+    val heights = columns.heights(chunk, if (candidates.isEmpty) 0 else vegetation.halo)
+
+    val trees = if (candidates.isEmpty) {
+      null
+    } else {
+      vegetation.plant(candidates, trunkSite(chunk, heights, structures, caves))
+    }
+    // A second buffer, not the shared one: a column in a wood can be under several crowns at once, and
+    // crowding them into the eight spans a building and a passage already share would truncate whichever
+    // came last. They are also applied at a different time - see [fillColumn].
+    val foliage = if (trees == null || trees.isEmpty) null else StructureSpans()
+
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
         val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
-          heights[localX, localY], rivers, ore, bridges, structures, caves, spans
+          heights[localX, localY], rivers, ore, bridges, structures, caves, spans, trees, foliage
         )
       }
     }
 
     return out
   }
+
+  /**
+   * What the vegetation scatter is allowed to know about a trunk's surroundings.
+   *
+   * Everything asked here is a **pure function of the trunk's world position**, never of the column being
+   * filled, because the chunk next door draws the other half of the same crown and has to reach the same
+   * verdict about the same tree. That is also why the structures and the caves are re-asked at the trunk
+   * rather than read off the column: the column is thirty metres away and belongs to a different chunk half
+   * the time.
+   *
+   * The feature sets agree across a border for the reason the heights do. A trunk is at most a few metres
+   * outside this chunk and [MARKER_MARGIN] is three hundred, so any feature reaching it was returned by both
+   * chunks' queries.
+   */
+  private fun trunkSite(
+    chunk: ChunkPos,
+    heights: ColumnHeights,
+    structures: TownStructures,
+    caves: CaveNetwork
+  ) = VegetationScatter.TrunkSite { worldX, worldY ->
+    val localX = Math.floorDiv(Quantize.toFixed(worldX), Quantize.toFixed(config.voxelSize)).toInt() -
+        chunk.x * config.chunkSize
+    val localY = Math.floorDiv(Quantize.toFixed(worldY), Quantize.toFixed(config.voxelSize)).toInt() -
+        chunk.y * config.chunkSize
+
+    val ground = heights[localX, localY]
+    val scratch = trunkScratch
+
+    when {
+      // A street is ground somebody swept. Checked before anything else because it is one query.
+      structures.pavingAt(worldX, worldY) != null -> Double.NaN
+
+      else -> {
+        scratch.clear()
+        structures.columnAt(worldX, worldY, ground, scratch)
+        val builtOver = scratch.ceiling()
+        caves.columnAt(worldX, worldY, ground, builtOver, scratch)
+
+        when {
+          // A tree does not grow through somebody's roof, nor out of the collar of a mine shaft.
+          !builtOver.isNaN() -> Double.NaN
+          // Nor over a hole. This is the one veto a density field could never see: a cave mouth is not a
+          // property of the climate, and a tree standing in mid-air over one is the failure it would produce.
+          bracketsGround(scratch, ground) -> Double.NaN
+          else -> ground
+        }
+      }
+    }
+  }
+
+  /** Whether any removal span in [spans] takes away the ground a trunk would stand on. */
+  private fun bracketsGround(spans: StructureSpans, ground: Double): Boolean {
+    for (i in 0 until spans.count) {
+      if (!spans.isRemoval(i)) continue
+      if (spans.bottomOf(i) <= ground && spans.topOf(i) > ground - config.voxelSize) return true
+    }
+    return false
+  }
+
+  /**
+   * Scratch for [trunkSite], one per thread.
+   *
+   * A chunk is materialised on whichever worker drew it and `ChunkMaterializer` is shared across all of
+   * them, so a plain field here would have two chunks filling one buffer. The alternative - allocating a
+   * buffer per chunk and threading it through - is the same object with a longer argument list.
+   */
+  private val trunkScratchLocal = ThreadLocal.withInitial { StructureSpans() }
+
+  private val trunkScratch get() = trunkScratchLocal.get()
 
   /**
    * Materialises the vertical chunk that contains the *lowest* ground at a horizontal chunk coordinate.
@@ -255,7 +357,9 @@ class ChunkMaterializer(
     bridges: BridgeDecks,
     structures: TownStructures,
     caves: CaveNetwork,
-    spans: StructureSpans?
+    spans: StructureSpans?,
+    trees: TreeLattice?,
+    foliage: StructureSpans?
   ) {
     // Two water surfaces, and the higher wins. The raster one is level - sea or a lake; the river one
     // descends along its channel. A river running into a lake correctly takes the lake's level, because
@@ -421,6 +525,32 @@ class ChunkMaterializer(
         }
       }
     }
+
+    /*
+     * Trees, last of everything, and the ordering is the same argument the carve makes from the other side.
+     *
+     * A canopy is the one thing in a column that must not displace what is already there: it is written
+     * `onlyIntoAir`, so it fills the space over the ground rather than replacing a roof, a bridge deck or a
+     * cliff face it happens to overlap. That only means anything once every other producer has written -
+     * including the carve, so that a crown can hang into the mouth of a cave rather than plugging it.
+     *
+     * There is no veto list here. Every reason not to plant a tree was applied at its own trunk, where it is
+     * a pure function of position that the chunk next door reaches the same answer to - see
+     * `VegetationScatter.plant` and [trunkSite]. A per-column veto would be a rule the two halves of a
+     * straddling crown could disagree about.
+     */
+    if (trees != null && foliage != null) {
+      foliage.clear()
+      trees.columnAt(worldX, worldY, foliage)
+
+      for (i in 0 until foliage.count) {
+        writeStructure(
+          out, offset, baseZ, height,
+          foliage.bottomOf(i), foliage.topOf(i), foliage.blockOf(i).toByte(),
+          onlyIntoAir = true, wholeVoxels = true
+        )
+      }
+    }
   }
 
   /**
@@ -487,11 +617,19 @@ class ChunkMaterializer(
    * into rock would keep the rock's full occupancy at its top voxel, losing the fractional surface. The top
    * voxel is partial for exactly the reason the ground's top voxel is: it is where a surface crosses it.
    *
-   * It writes over *everything*, deliberately: a wall footing sunk into a hillside is meant to replace the rock
-   * it is sunk into. A producer that must not overwrite - scattered vegetation, which may stand in air and
-   * nowhere else - wants an `onlyIntoAir` variant of this, and it should be a parameter here rather than a
-   * second writer, so that the two rounding rules above cannot drift between copies. Not added yet: nothing
-   * would pass it, and a defaulted flag no caller ever sets is indistinguishable from one that does not work.
+   * It writes over *everything* by default, deliberately: a wall footing sunk into a hillside is meant to
+   * replace the rock it is sunk into. Both parameters below are for the one producer that must not - the
+   * vegetation scatter - and they are parameters here rather than a second writer so that the rounding rules
+   * above cannot drift between two copies.
+   *
+   * @param onlyIntoAir leaves any voxel that already holds material alone. A canopy fills the space over the
+   *   ground; it does not eat a roof, a bridge deck or a cliff face it happens to overlap, and it does not
+   *   plug the mouth of the cave the carve just opened underneath it.
+   * @param wholeVoxels fills the topmost voxel completely instead of to the fraction the span's top
+   *   elevation reaches. Occupancy exists to recover a continuous *surface* from voxels, and a leaf canopy
+   *   has none - a fractional top leaf is not half a leaf, it is a surface net told to draw a smooth green
+   *   dome over the wood. Only the occupancy changes; both bounds round exactly as they do for masonry, so a
+   *   crown reads up to a voxel taller than its nominal top and nothing else moves.
    */
   private fun writeStructure(
     out: VoxelChunk,
@@ -500,15 +638,19 @@ class ChunkMaterializer(
     height: Int,
     fromElevation: Double,
     toElevation: Double,
-    block: Byte
+    block: Byte,
+    onlyIntoAir: Boolean = false,
+    wholeVoxels: Boolean = false
   ) {
     val from = highestVoxelAtOrBelow(fromElevation) + 1 - baseZ
     val to = topFilledVoxel(toElevation) - baseZ
 
     for (localZ in max(0, from)..min(height - 1, to)) {
+      if (onlyIntoAir && out.blocks[offset + localZ] != AIR) continue
+
       out.blocks[offset + localZ] = block
       out.occupancy[offset + localZ] =
-        if (localZ == to) Occupancy.byteOf(fillFractionOf(toElevation, baseZ + localZ))
+        if (localZ == to && !wholeVoxels) Occupancy.byteOf(fillFractionOf(toElevation, baseZ + localZ))
         else Occupancy.FULL_BYTE
     }
   }
@@ -569,7 +711,8 @@ class ChunkMaterializer(
      * 1 was everything up to and including town structures as pure additions.
      */
     // 2: subtraction - StructureSpans.remove and carve, and the mine head as an open shaft.
-    const val VERSION = 2
+    // 3: vegetation - LOG and LEAVES scattered from the lattice, written into air after everything else.
+    const val VERSION = 3
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

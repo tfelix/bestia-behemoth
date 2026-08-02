@@ -4,6 +4,10 @@ import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.IntLayer
+import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.LayerStore
+import net.bestia.worldgen.core.ScopedLayerStore
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.Noise
 
 /**
@@ -132,6 +136,51 @@ class SurfaceSampler(
   }
 
   companion object {
+
+    /**
+     * The surface of a generated world, from the layers that decide it.
+     *
+     * A factory for the reason `Stratigraphy.of` is one, and the reason is now load bearing twice over:
+     * `VegetationStage` rasterises the canopy from this classifier and the chunk tier plants the trees from
+     * it, so the two agree about which ground is forest **only if both build the same object from the same
+     * seven layers**. Two call sites each spelling out the list agree until one of them gains an eighth.
+     */
+    fun of(layers: LayerStore, config: WorldConfig) = SurfaceSampler(
+      biome = layers.require(LayerId.BIOME),
+      soilDepth = layers.require(LayerId.SOIL_DEPTH),
+      waterLevel = layers.require(LayerId.WATER_LEVEL),
+      lakeId = layers.require(LayerId.LAKE_ID),
+      temperature = layers.require(LayerId.TEMPERATURE),
+      seed = config.seed,
+      seaLevel = config.seaLevel,
+      // The pair that turns a biome boundary into an ecotone; see [biomeAt]. `require`, not an optional read:
+      // if the biome stage has run at all it has emitted both, and a silent fallback here would mean the
+      // dither quietly not happening.
+      secondaryBiome = layers.require(LayerId.BIOME_SECONDARY),
+      biomeConfidence = layers.require(LayerId.BIOME_CONFIDENCE)
+    )
+
+    /**
+     * The same surface, for a stage rather than for the chunk tier.
+     *
+     * A second overload rather than a second call site, exactly as `Stratigraphy.of` has: the *list of
+     * inputs* is what must stay in step and it is written once above. A stage reads through
+     * [ScopedLayerStore], which refuses a layer the stage did not declare - so a caller must depend on
+     * climate, hydrology and biomes or it fails loudly here rather than quietly reading a surface that is
+     * not there.
+     */
+    fun of(layers: ScopedLayerStore, config: WorldConfig) = SurfaceSampler(
+      biome = layers.int(LayerId.BIOME),
+      soilDepth = layers.float(LayerId.SOIL_DEPTH),
+      waterLevel = layers.float(LayerId.WATER_LEVEL),
+      lakeId = layers.int(LayerId.LAKE_ID),
+      temperature = layers.float(LayerId.TEMPERATURE),
+      seed = config.seed,
+      seaLevel = config.seaLevel,
+      secondaryBiome = layers.int(LayerId.BIOME_SECONDARY),
+      biomeConfidence = layers.float(LayerId.BIOME_CONFIDENCE)
+    )
+
     private const val JITTER_SALT = 0x2A6C1F953D8E470L
     private const val JITTER_WAVELENGTH = 1_100.0
     private const val JITTER_OCTAVES = 2

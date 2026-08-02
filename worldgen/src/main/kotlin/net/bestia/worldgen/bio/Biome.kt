@@ -12,39 +12,67 @@ import kotlin.math.sqrt
  * generated. That is the same constraint as any other on-disk enum, and it is worth stating here rather
  * than discovering it when an existing world's biomes all shift by one.
  */
-enum class Biome(val label: String, val litter: Double) {
+enum class Biome(
+  val label: String,
 
+  /**
+   * How much dead organic matter this biome puts into its soil, 0 to 1.
+   *
+   * A **fertility** term - `SOIL_FERTILITY` is `0.20 * litter + ...` - and not a measure of trees, which is
+   * why [canopy] exists beside it rather than being derived from it. Grassland is one of the most productive
+   * litter producers there is and has almost no trees on it; the two numbers differ by a factor of fourteen
+   * here and reusing one for the other would have planted a forest on every prairie in the world.
+   */
+  val litter: Double,
+
+  /**
+   * Chance that a four-metre patch of mature ground in this biome holds a tree, 0 to 1.
+   *
+   * The per-biome term in `voxel/VegetationScatter.kt`'s density, and therefore in `LayerId.CANOPY_COVER`.
+   * A *probability per lattice cell*, not a cover fraction: crowns overlap, so the share of ground actually
+   * shaded is lower and is computed from this - see `VegetationScatter.coverAt`.
+   *
+   * Sparse values are the interesting ones. Savanna at 0.14 is what makes it savanna rather than either
+   * grassland or forest, and grassland at 0.05 is the lone tree in the middle of a field that gives a
+   * landscape its scale.
+   */
+  val canopy: Double
+) {
+
+  //     biome                                       litter  canopy
   // Water.
-  OCEAN("ocean", 0.0),
-  LAKE("lake", 0.0),
+  OCEAN("ocean", 0.0, 0.0),
+  LAKE("lake", 0.0, 0.0),
 
   // Cold.
-  ICE_SHEET("ice sheet", 0.0),
-  GLACIER("glacier", 0.0),
-  TUNDRA("tundra", 0.25),
-  TAIGA("taiga", 0.45),
-  COLD_DESERT("cold desert", 0.05),
-  ALPINE("alpine", 0.2),
+  ICE_SHEET("ice sheet", 0.0, 0.0),
+  GLACIER("glacier", 0.0, 0.0),
+  TUNDRA("tundra", 0.25, 0.02),
+  TAIGA("taiga", 0.45, 0.70),
+  COLD_DESERT("cold desert", 0.05, 0.0),
+  // Krummholz: a few stunted things at the tree line and nothing above it.
+  ALPINE("alpine", 0.2, 0.04),
 
   // Temperate.
-  TEMPERATE_FOREST("temperate forest", 0.85),
-  TEMPERATE_RAINFOREST("temperate rainforest", 0.9),
-  GRASSLAND("grassland", 0.7),
-  STEPPE("steppe", 0.35),
-  SHRUBLAND("shrubland", 0.3),
+  TEMPERATE_FOREST("temperate forest", 0.85, 0.80),
+  TEMPERATE_RAINFOREST("temperate rainforest", 0.9, 0.85),
+  GRASSLAND("grassland", 0.7, 0.05),
+  STEPPE("steppe", 0.35, 0.02),
+  SHRUBLAND("shrubland", 0.3, 0.10),
 
   // Warm.
-  DESERT("desert", 0.02),
-  SAVANNA("savanna", 0.4),
-  TROPICAL_SEASONAL_FOREST("tropical seasonal forest", 0.75),
-  TROPICAL_RAINFOREST("tropical rainforest", 0.6),
+  DESERT("desert", 0.02, 0.0),
+  SAVANNA("savanna", 0.4, 0.14),
+  TROPICAL_SEASONAL_FOREST("tropical seasonal forest", 0.75, 0.65),
+  TROPICAL_RAINFOREST("tropical rainforest", 0.6, 0.90),
 
   // Edge biomes: driven by adjacency to something rather than by climate.
-  WETLAND("wetland", 0.8),
-  RIPARIAN("riparian", 0.8),
-  BEACH("beach", 0.05),
-  BADLANDS("badlands", 0.05),
-  CLIFF("cliff", 0.0);
+  WETLAND("wetland", 0.8, 0.20),
+  // Gallery forest: the band of trees along a watercourse in country that has none away from it.
+  RIPARIAN("riparian", 0.8, 0.60),
+  BEACH("beach", 0.05, 0.0),
+  BADLANDS("badlands", 0.05, 0.0),
+  CLIFF("cliff", 0.0, 0.0);
 
   val isWater get() = this == OCEAN || this == LAKE
 
@@ -276,6 +304,12 @@ object Biomes {
    * is folded because a nearest-prototype tie is broken by position in this list, so reordering it can change
    * a classification even with every number unchanged.
    *
+   * The two per-biome scalars are folded as well, over **every** entry rather than only the fourteen with a
+   * prototype. They are tuning in exactly the same sense the prototype table is - `litter` is the largest term
+   * in soil fertility and `canopy` decides where every tree in the world stands - and until this they reached
+   * no version number at all, so retuning one would have left both the biome stage's cache and the vegetation
+   * stage's looking valid.
+   *
    * Note what is deliberately *not* here: [Biome]'s own ordinals. Those are written into the `BIOME` raster and
    * into chunk cache keys, so they are a stored data format rather than a tunable, and their guarantee is
    * append-only rather than fingerprinted.
@@ -289,6 +323,12 @@ object Biomes {
           .put("at", prototype.at.toList())
           .put("weight", prototype.weight.toList())
           .value
+      )
+    }
+    for (biome in Biome.entries) {
+      digest.nested(
+        "biome:${biome.name}",
+        ParamsDigest().put("litter", biome.litter).put("canopy", biome.canopy).value
       )
     }
     return digest.value

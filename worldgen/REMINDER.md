@@ -1,5 +1,9 @@
 # Last Steps
 
+## Tree & Forrests as Entity
+
+Then we need to refine this a bit more. Trees and forrests should later be subject to e.g. like wildfires and grow cycles which is simulated by the ECS system. So it definatly needs to be an enttiy rather than a part of the map itself. Can you make suggestions how to realize this in a realistic pattern? I assume e.g. we can unload most of those entities if no player is in range but also we maybe need to reduce the total number of single entities a bit. Can you make suggestions to refine this
+
 ## Improved River Rendering
 
 No comb like structures like on the genesis map. The river should have some sloping, maybe even if this is not neceassairly "physically correct", but just good looking. Just make sure rivers do not flow uphill so there needs to be some carving to make them go downhill in the right stage.
@@ -65,13 +69,16 @@ The system must be able to adopt and updatable to some changes e.g. a bridge was
 If possible, the system should not be instant e.g. if a new road was build or a bridge destroyed not all NPC should immediatly "know" this and update their pathing magically. But keep the cost of this system somewhat reasonable. If this is super expensive let me know and we must re-evaluate how to implement this.
 Also think about a good way to ties this into the exsting zone server backend. The pregenerated and stored network data must be quickly accessible for the navigation algorithms.
 
-## Engine Test
+## Engine Integration
 
 Tie this all into the engine! We need to battle test the renderer if it works for this world. Shader are not really important we will get to those later but stablity and performance are top priority. Double check if the interaction with the engine works or if you see any shortcomings in the communication protocol.
 Also make sure "special" stuff like cave systems work.
+Check if special marker like trees, treasures in caves, tombes etc translate into entities with visuals that get correctly placed. Make sure those visuals are then persisted into the database. Make sure restards of the server work well and nothing is like double imported especially if players started to modify and re-shape the world.
 
-## Cleanup
+## Cleanup Phase
 
+- Review the architecture and TODO document if anything substantial is left out. Then remove those two documents after the information was consolidated into the ../bestia-docs server and map generation section.
+- Go throgh the different voxel materials. I am sure we can maybe reduce some materials there which are not necessairy. This might require some changes to the underlying systems afterwards.
 - Full code review of any bugs, code quality, comments.
 - Check if its safe: the game code is open source, if the player do know the world seed they can basically unravel all the secrets of the initial map. Therefore its important that the seed is considered secret. Review the code under this aspect, or if we need some tricks or changes to keep the seed unguessable and server only. Ideally its also not bruteforcable.
 - Remove unnecessairy comments which only explain what but not the how, keep it concise

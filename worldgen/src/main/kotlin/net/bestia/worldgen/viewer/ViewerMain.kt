@@ -61,6 +61,7 @@ object ViewerMain {
     println("  ${describeSeasons(generated)}")
     println("  ${describeBiomes(generated)}")
     println("  ${describeCaves(generated)}")
+    println("  ${describeVegetation(generated)}")
     println("  ${scene.featureSummary()}")
 
     if (exportTo != null || GraphicsEnvironment.isHeadless()) {
@@ -207,6 +208,49 @@ object ViewerMain {
    * measurement rather than the world.
    */
   private const val CAVE_WALK_METRES = 4_000.0
+
+  /**
+   * How wooded the world is, over dry land only.
+   *
+   * Printed for the reason every other count on this list is printed: the vegetation scatter is a function
+   * with no stored output, so a change that stops it planting anything produces a world that generates
+   * cleanly, passes every test about the trees it does not have, and simply looks bare. The mean is over
+   * *land*, because averaging in the ocean would report a healthy forest world as a fifth of one and would
+   * move with the land fraction rather than with the trees.
+   *
+   * The wooded share is the second number because a mean hides the shape: a world evenly stippled at 0.2 and
+   * one that is a third closed forest and two thirds prairie have the same mean and are not the same place.
+   */
+  private fun describeVegetation(generated: GeneratedWorld): String {
+    val cover = generated.world.layers[LayerId.CANOPY_COVER] as? FloatLayer ?: return "no canopy layer"
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return "no elevation layer"
+    val seaLevel = generated.config.seaLevel
+
+    var land = 0
+    var wooded = 0
+    var closed = 0.0
+
+    for (i in cover.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      land++
+      val value = cover.data[i].toDouble()
+      if (value >= WOODED) wooded++
+      if (value > closed) closed = value
+    }
+
+    if (land == 0) return "canopy - no land to grow on"
+
+    // The mean comes from Invariants so this and the sweep agree by construction; the breakdown is this
+    // tool's own, because a sweep wants one number per world and a single world can afford a sentence.
+    val mean = Invariants.meanOverLand(generated, LayerId.CANOPY_COVER)
+
+    return "canopy ${"%.3f".format(Locale.ROOT, mean)} mean over land, " +
+        "${"%.1f".format(Locale.ROOT, 100.0 * wooded / land)}% of it wooded, " +
+        "thickest cell ${"%.2f".format(Locale.ROOT, closed)}"
+  }
+
+  /** Canopy cover at which a cell counts as woodland rather than as scattered trees. */
+  private const val WOODED = 0.25
 
   /**
    * A chunk with something in it, for [VoxelSeamCheck].

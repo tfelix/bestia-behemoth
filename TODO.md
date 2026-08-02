@@ -34,7 +34,7 @@ earned across phases 3 to 7, four times over.
 Run all of it per phase, in this order. The last three catch what the first misses.
 
 ```
-./gradlew :worldgen:test                                   # 484 tests at present
+./gradlew :worldgen:test                                   # 492 tests at present
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=192      # sweep; watch the reported spreads
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # PNGs + the SeamCheck line; works headless
@@ -43,6 +43,7 @@ Run all of it per phase, in this order. The last three catch what the first miss
 ./gradlew :worldgen:probe -Pon=fort -Pnth=0                 # a built site at voxel scale
 ./gradlew :worldgen:probe -Pon=mine -Psection -Pbelow=30    # a vertical slice - the only view of a hole
 ./gradlew :worldgen:probe -Pon=cave_passage -Psection -Pbelow=70   # ...and a gallery, 45 m down
+./gradlew :worldgen:probe -Px=91500 -Py=36500 -Psection -Pbelow=2 -Pgenesis  # a tree, in section
 ./gradlew :worldgen:probe -Pdroplets                        # chunk-scale droplet erosion, which ships off (cost)
 ./gradlew :worldgen:town -Pcensus                           # every settlement in one table
 ./gradlew :worldgen:chronicle -Pquests                      # unresolved history threads
@@ -86,8 +87,9 @@ Run all of it per phase, in this order. The last three catch what the first miss
   them as unknown — because a file key would be applied and then overwritten. Setting one by hand in code
   instead is how buildings end up floating over the ground everywhere.
 - **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 5, glacial 2,
-  hydrology 3, biome 3, resource 1, caves 1, habitability 1, settlement 3, town 5, history 2, economy 1. The chunk tier
-  has one too now — **`ChunkMaterializer.VERSION`, currently 2** — folded into `chunkTierVersion` and therefore
+  hydrology 3, biome 3, vegetation 1, resource 2, caves 1, habitability 1, settlement 3, town 5, history 2,
+  economy 1. The chunk tier has one too now — **`ChunkMaterializer.VERSION`, currently 3** — folded into
+  `chunkTierVersion` and therefore
   into `pipelineVersion`. It exists because changing the materialisation *code* used to move no number at all:
   subtraction changed every mine head in every world while `pipelineVersion` held still, so every cached chunk
   still looked valid. Bump it whenever a column materialises into something different.
@@ -126,6 +128,25 @@ Run all of it per phase, in this order. The last three catch what the first miss
   it is a hole in, so every addition must land first; and applying removals as their own pass makes the result
   independent of the order two producers happened to author them in. Nothing may carve under standing water,
   and that veto lives at the call site so the next producer cannot forget it.
+- **A smooth probability sampled per column is still a coin flip per column.** Vegetation needs three things
+  and the third is the one that cannot be skipped: a smooth field, a cutoff in it, **and a decision unit
+  larger than a voxel**. `VegetationScatter` hashes a four-metre lattice for exactly that reason, and
+  `VegetationTest` measures the canopy run length against a per-column-hash control built inside the test -
+  because "runs average 5 m" means nothing until you know the broken version averages 1.5.
+- **`Biome.litter` is a fertility term and is not a measure of trees.** Grassland is one of the best litter
+  producers in the table and is almost treeless; the two differ by a factor of fourteen. The plan for this
+  phase said to reuse `litter`, and doing so would have put a wood on every prairie at four fifths of a
+  temperate forest's density. `Biome.canopy` is the separate scalar, and `Biomes.catalogueDigest` now folds
+  both - until it did, retuning either moved no version number at all.
+- **A crown hangs from the ground under its own trunk, never from the ground under the column being drawn.**
+  The difference is invisible on flat ground and drapes every tree over its hillside on a slope. Avoiding it
+  is what costs `ChunkColumnSource.heights` a halo: a trunk just outside a chunk needs a column belonging to
+  the neighbour. The halo is requested only when a chunk actually has candidate trunks, which is why most of
+  the world does not pay for it.
+- **A sub-sampled raster of a fine field is a picture of its own sampling.** `CANOPY_COVER` averages a 140 m
+  patch field and a 14 m biome dither over a kilometre cell; at four samples per axis the exported map was
+  visibly grainy on the cell grid, and at one site sample per cell every ecotone was a spray of loose pixels.
+  Both were sampling error rather than world structure, and both were found by looking at the PNG.
 - **`project.hasProperty('x')` in a Gradle build is true for the name of any `Project` getter.** `-Pdepth`
   silently arrived as the project's nesting level, and `-Partifacts` on `chronicle` had been *permanently on*.
   Every switch in `worldgen/build.gradle` now goes through the `cli` helper, which reads
@@ -154,10 +175,15 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
     when the clamp falls below the floor, the two fbm wall fields — is pinned by nothing. It wants a
     `SubtractionTest`-shaped file: a synthetic world, one hand-built passage, and each guard broken in turn to
     confirm the test goes red. Not critical; deferred deliberately rather than overlooked.
-- **The scatter pass.** No vegetation — and the block palette has no vegetation *material* either, so this is a
-  palette change before it is a pass. The "chunk-seeded randomness is safe here" rule still has no users, but
-  world-position-hashed scatter does: `TownStructures.ruinColumn` hashes the quantised world position for rubble,
-  which is the pattern a vegetation pass should copy rather than the chunk-seeded permission the doc grants.
+- ~~**The scatter pass.**~~ Built: `LOG` and `LEAVES` are in the palette, `voxel/VegetationScatter` decides
+  where a tree stands, `bio/VegetationStage` rasterises `CANOPY_COVER` from the same function, and
+  `ResourceStage`'s timber suitability reads the layer. Trees are **implicit** — a billion of them per world,
+  so there is no feature, no marker and no per-tree storage anywhere, only a function of position. The
+  architecture document's "chunk-seeded randomness is safe here" permission is *still* unused and vegetation is
+  the case that shows why it should stay unused: a four-metre canopy spans columns, so a chunk-seeded tree at a
+  border is half a tree. What is **not** built is anything that turns a tree into an entity — a harvestable
+  tree, a stump, a felled log — which would read `GeneratedWorld.vegetation` the way a treasure spawner will
+  read `CAVE_HOARD`.
 - **Live NPCs.** `pop/` produces the substrate; nothing makes a person walk to the market.
 - **Delta persistence** (step 12) and a **client-side base generator** (step 13).
 - **Sharding, the work queue and the gRPC surface** — deliberately the server's, and built nowhere.

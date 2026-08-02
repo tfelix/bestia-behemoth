@@ -21,7 +21,7 @@ module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
 | 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviation 3; 4 half closed | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviation 2; 1 closed but shipping off | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt`, `geo/DropletHeightField.kt` |
-| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures, subtraction and caves — no scatter pass | `voxel/`, `karst/` |
+| 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures, subtraction, caves and the vegetation scatter | `voxel/`, `karst/` |
 | 6 | Derived structures | **done** | `derived/` |
 | 7 | Resources + habitability + settlements + roads | **done** — deviation 5 | `resource/`, `civ/` |
 | 8 | Town layout + buildings | **done** — deviation 8 | `civ/TownStage.kt`, `civ/StreetNetwork.kt`, `civ/TownBuildings.kt`, `voxel/TownStructures.kt` |
@@ -100,8 +100,16 @@ is an index, not the reasoning. Grouped by what it would take.
   settlement outlines all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
   `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds that nothing emits.
   `FootprintFeature` closed the cheap ninety percent; the rest is clipping, offsetting and concave indexing.
-- **The scatter pass.** No vegetation, no chunk-seeded anything, so the "chunk-seeded randomness is safe here,
-  not in profiles" rule still has no users.
+- ~~**The scatter pass.**~~ Built, and **still not chunk-seeded**, which is the interesting part. `LOG` and
+  `LEAVES` are in the palette, `voxel/VegetationScatter` decides where a tree stands from a hash of a
+  four-metre lattice of quantised world coordinates, and `bio/VegetationStage` rasterises `CANOPY_COVER`
+  from the same function so the two tiers cannot disagree. Trees are implicit — a billion per world, so
+  there is no feature and no per-tree storage anywhere.
+
+  The "chunk-seeded randomness is safe here, not in profiles" rule therefore *still* has no users, and
+  vegetation is the case that argues it should keep none: a four-metre canopy spans columns, so a
+  chunk-seeded tree at a border is half a tree. What is missing is one level up — nothing turns a tree
+  into an entity a player can fell.
 - **Streaming what is below the surface.** `GeneratedWorld.contentSlabsOf` answers which vertical slabs hold
   anything — the terrain span unioned with every intersecting passage — but `ChunkService` still subscribes only
   the surface slabs, so a cave in the slab below is generated and never sent. The server-side half is separate
@@ -1994,9 +2002,14 @@ Note the ordering: natural terrain, then vector features carved into it, then ma
 > circuits come out of the features' own immutable attributes, and the one place randomness appears - rubble
 > scatter in a ruin field - hashes the *world* position, exactly as `OreVeins` does and for the same reason.
 >
-> Still not present: `carve_caves` and `place_vegetation`. So the scatter pass proper does not exist, there is
-> no vegetation in the block palette to place, and **nothing chunk-seeded exists anywhere** - which means the
-> "chunk-seeded randomness is safe here, not in profiles" line is still a rule with no users.
+> `carve_caves` and `place_vegetation` are now both present - `karst/CaveStage` with `voxel/CaveNetwork`, and
+> `voxel/VegetationScatter` - and **nothing chunk-seeded exists anywhere even so**, which is worth stating
+> plainly because vegetation was the step this document's permission was written for. A tree's crown is four
+> metres across and therefore spans columns and sometimes chunks, so a chunk-seeded tree at a border is half a
+> tree drawn by one side. The scatter hashes an integer lattice of quantised world coordinates instead, and
+> the ground its crown hangs from comes out of a halo on the neighbour's own column heights rather than being
+> resampled. So the "chunk-seeded randomness is safe here, not in profiles" line remains a rule with no users,
+> and on the evidence of the one step that most wanted it, it should stay that way.
 >
 > What *has* arrived since is the machinery `carve_caves` would need: `ChunkMaterializer.carve` removes a span
 > of material after the column is assembled, and the mine head uses it. So caves are now a matter of emitting

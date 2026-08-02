@@ -20,6 +20,7 @@ import net.bestia.worldgen.geo.TectonicsParams
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.voxel.VegetationParams
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.hydro.HydrologyStage
@@ -75,6 +76,7 @@ class ParamsVersionTest {
     GlacialParams(),
     HydrologyParams(),
     BiomeParams(),
+    VegetationParams(),
     ResourceParams(),
     CaveParams(),
     HabitabilityParams(),
@@ -129,7 +131,7 @@ class ParamsVersionTest {
   @Test
   fun `every catalogue digest is pinned`() {
     val pinned = listOf(
-      "Biomes" to 5_388_882_766_743_877_956L,
+      "Biomes" to 3_303_448_514_764_119_261L,
       "Culture" to -8_768_142_304_179_570_668L,
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
@@ -161,6 +163,7 @@ class ParamsVersionTest {
       "GlacialParams" to -1_266_272_442_885_291_278L,
       "HydrologyParams" to 7_155_846_832_677_361_370L,
       "BiomeParams" to 9_016_394_342_762_494_441L,
+      "VegetationParams" to 5_359_640_679_940_278_481L,
       "ResourceParams" to -9_104_808_594_269_338_394L,
       "CaveParams" to -4_263_381_643_348_589_984L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,

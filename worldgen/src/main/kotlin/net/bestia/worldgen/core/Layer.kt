@@ -172,6 +172,23 @@ data class LayerId(val name: String) {
     /** Depth of soil over bedrock in metres. Thin on crests and steep ground, deep in valley floors. */
     val SOIL_DEPTH = LayerId("soil_depth")
 
+    // --- Vegetation ------------------------------------------------------------------------------
+
+    /**
+     * Share of the ground under a leaf canopy, 0 to 1.
+     *
+     * **The only thing about vegetation that is stored anywhere.** A world of five hundred kilometres holds
+     * on the order of a billion trees, so the trees themselves are implicit - a function from a position to
+     * whether something grows there, evaluated per column at chunk generation and never written down. This
+     * is the kilometre-scale summary of that function, and it exists because "how wooded is it here" is a
+     * question stages and spawners ask about places they are not materialising.
+     *
+     * Averaged from the *same* function `voxel/VegetationScatter.kt` plants from, over sub-samples of each
+     * cell, so the raster and the voxels cannot drift apart - the alternative, a second density model at the
+     * raster tier, is two things that mean the same and disagree.
+     */
+    val CANOPY_COVER = LayerId("canopy_cover")
+
     // --- Glaciation ------------------------------------------------------------------------------
 
     /**
