@@ -28,6 +28,8 @@ import net.bestia.worldgen.geo.DropletHeightField
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.hydro.AlluviumStage
+import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
@@ -182,6 +184,13 @@ object StandardWorld {
       HydrologyStage(base, p.hydrology),
       BiomeStage(base, p.biome),
       GlacialStage(base, p.glacial),
+      // After glacial, because a moraine dam only exists once the ice that left it has been extracted -
+      // and *not* inside hydrology, because the whole point of these ponds is the water priority-flood
+      // cannot find. See `hydro/PondStage.kt`.
+      PondStage(base, p.pond),
+      // The sediment half of the same idea: sub-kilometre shapes on the floodplain that the raster cannot
+      // hold. Fed from the erosion stage's budget rather than replacing it - see `hydro/AlluviumStage.kt`.
+      AlluviumStage(base, p.alluvium),
       // The kilometre summary of the chunk tier's own scatter, built from the same tuning object the
       // materialiser gets - so "how wooded is this cell" and "is there a tree at this position" are two
       // views of one function rather than two models of one thing.

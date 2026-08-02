@@ -20,12 +20,15 @@ import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.geo.ClosedBasins
 import net.bestia.worldgen.history.SiteChannels
+import net.bestia.worldgen.hydro.LakeChannels
 import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
 import net.bestia.worldgen.pop.EconomyChannels
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.ResourceType
+import net.bestia.worldgen.vector.AreaFeature
+import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.MarkerFeature
@@ -199,8 +202,105 @@ object Invariants {
     checkBuiltSitesAreWhereTheyClaim(generated, ::fail)
     checkCavesAreWellFormed(generated, ::fail)
     checkCanopyCoverAgreesWithTheBiome(generated, ::fail)
+    checkPondsHoldWaterWithoutAWall(generated, ::fail)
 
     return out
+  }
+
+  /**
+   * A vector pond is water the terrain can actually hold.
+   *
+   * Three claims, and the third is the one this was written for.
+   *
+   * - **A pond is level and above its own bed.** Cheap, and it catches a producer that has written the two
+   *   channels the wrong way round.
+   * - **A pond stands on land.** `PondStage` gates on this at the centroid; here it is re-checked so that
+   *   the gate failing open would be visible rather than silent.
+   * - **A pond has no wall of water at its shore.** This is the failure areal water invites and no other
+   *   tier has: the pond's extent is the *ring*, so a column just outside it gets no water however low the
+   *   ground there is. If the ring is drawn inside the waterline, the result is a step of standing water
+   *   with dry ground beside it - measured at up to thirty metres on the first attempt, which sized the ring
+   *   from the trough's floor rather than from where its wall crosses the water surface. Sampling just
+   *   outside the ring and requiring the ground there to be at or near the surface is what says the ring is
+   *   in the right place, and it is a claim about the *finished* terrain rather than about the trough
+   *   profile the producer solved against - so detail noise and every other feature are included.
+   */
+  private fun checkPondsHoldWaterWithoutAWall(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val ponds = generated.world.features.all()
+      .filter { it.kind == FeatureKind.LAKE }
+      .filterIsInstance<AreaFeature>()
+    if (ponds.isEmpty()) return
+
+    val seaLevel = generated.config.seaLevel
+
+    for (pond in ponds) {
+      val surface = runCatching { pond.attribute(LakeChannels.SURFACE_ELEVATION) }.getOrNull()
+      if (surface == null) {
+        fail("pond channels", "$pond carries no ${LakeChannels.SURFACE_ELEVATION}")
+        continue
+      }
+      val floor = pond.attribute(LakeChannels.FLOOR_ELEVATION)
+      if (floor >= surface) {
+        fail("pond stands above its bed", "$pond has a bed at $floor under a surface at $surface")
+      }
+      if (surface <= seaLevel) {
+        fail("pond is on land", "$pond stands at $surface, at or below sea level $seaLevel")
+      }
+
+      // Just outside the ring, along the outward normal at every vertex. The ground there is the *finished*
+      // heightfield - base surface plus every vector feature in (priority, id) order - which is what a
+      // player stands on and is what the producer, solving against the trough profile alone, cannot see.
+      //
+      // One evaluator per pond, built the same way `ChunkHeightSampler` builds one per chunk. Going through
+      // `generated.columns` instead would mean materialising a thousand columns to read two dozen.
+      val neighbours = generated.world.features.query(pond.bbox.expanded(SHORE_PROBE * 2))
+      val evaluator = FeatureEvaluator(neighbours)
+
+      // Earthworks that arrive *after* the pond does. `PondStage` runs before settlement and town, so a
+      // road cut or a graded building platform beside a lake is ground the producer could not have seen
+      // when it chose the water level - and lowering ground next to standing water is what those features
+      // are for. Two ponds in six hundred on a 200-seed sweep at 256 cells, and it is the civil engineering
+      // that is questionable there, not the lake. Skipping the probe rather than widening the tolerance
+      // keeps the claim exact everywhere else.
+      val earthworks = neighbours.filter { it.kind in RESHAPES_THE_GROUND }
+
+      var worst = 0.0
+      var worstAt = Vec2d.ZERO
+      for (i in 0 until pond.ring.vertexCount) {
+        val vertex = pond.ring.vertex(i)
+
+        // The *local* outward normal, averaged over the two edges meeting at this vertex, not a radial from
+        // the centroid. On a long thin pond a radial direction near the caps points along the shore rather
+        // than across it, so the probe walks twenty metres down the lake and reports the water it finds
+        // there as a wall. The ring is counter-clockwise, so an edge's outward normal is its tangent turned
+        // the other way.
+        val before = outwardOf(pond.ring.vertex(i - 1), vertex)
+        val after = outwardOf(vertex, pond.ring.vertex(i + 1))
+        val outward = (before + after).normalized()
+        if (outward.lengthSquared == 0.0) continue
+        val outside = vertex + outward * SHORE_PROBE
+        if (pond.ring.contains(outside)) continue
+        if (earthworks.any { it.bbox.contains(outside.x, outside.y) }) continue
+
+        val ground = evaluator.heightAt(outside.x, outside.y, generated.base.heightAt(outside.x, outside.y))
+        val below = surface - ground
+        if (below > worst) {
+          worst = below
+          worstAt = outside
+        }
+      }
+
+      if (worst > MAX_SHORE_WALL) {
+        fail(
+          "pond shore is not a wall",
+          "$pond stands at $surface with ground ${"%.1f".format(Locale.ROOT, worst)} m below it " +
+              "just outside its ring at (${worstAt.x.toInt()}, ${worstAt.y.toInt()})"
+        )
+      }
+    }
   }
 
   /**
@@ -735,6 +835,41 @@ object Invariants {
 
   /** How much of a forest's canopy grassland and steppe may have before the two are not distinguishable. */
   private const val MAX_OPEN_SHARE_OF_FOREST = 0.5
+
+  /**
+   * Metres outside a pond's ring at which the ground is sampled, looking for a wall of water.
+   *
+   * Far enough out that the ring's own carve has eased off - the pond's `shore` is fourteen metres - and
+   * close enough in that it is still the pond's shoreline rather than the hillside behind it. It is also
+   * larger than the producer's own eight-metre march step, so it is genuinely outside the last column the
+   * producer looked at rather than inside it.
+   */
+  /** Outward normal of a counter-clockwise ring edge: its tangent turned clockwise. */
+  private fun outwardOf(from: Vec2d, to: Vec2d): Vec2d {
+    val edge = (to - from).normalized()
+    return Vec2d(edge.y, -edge.x)
+  }
+
+  /** Kinds that cut or fill the ground and are emitted after the ponds are placed. See the shore check. */
+  private val RESHAPES_THE_GROUND = setOf(
+    FeatureKind.ROAD,
+    FeatureKind.STREET,
+    FeatureKind.SETTLEMENT_GRADING,
+    FeatureKind.BRIDGE
+  )
+
+  private const val SHORE_PROBE = 14.0
+
+  /**
+   * Metres of water a pond may stand above the ground just outside its ring before it counts as a wall.
+   *
+   * Not zero. The ring is a polygon of two dozen vertices around a shore that the detail noise wobbles by a
+   * metre or two, and the producer solves the waterline against the trough profile rather than against the
+   * finished terrain, so a small mismatch is expected and harmless. What this catches is the structural
+   * version: a ring sized from the wrong quantity, which put the boundary hundreds of metres inside the
+   * waterline and left a step tens of metres tall.
+   */
+  private const val MAX_SHORE_WALL = 4.0
 
   /**
    * No structural marker reaches further than the margin chunk generation queries with.

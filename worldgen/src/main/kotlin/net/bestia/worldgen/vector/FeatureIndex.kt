@@ -1,5 +1,6 @@
 package net.bestia.worldgen.vector
 
+import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -17,11 +18,48 @@ import kotlin.math.min
  *
  * Query results are always ordered by `(priority, id)` - never by traversal order - because the
  * blend result depends on stamp order and two nodes must agree on it.
+ *
+ * ### What it actually measures out at, and where the cost really is
+ *
+ * Measured across 192-cell, 256-cell and genesis worlds via `invariants`, which prints [metrics] per seed:
+ *
+ * | | 192 cells | 256 cells | genesis (128) |
+ * |---|---|---|---|
+ * | features | 4 400 - 6 300 | 8 000 - 11 400 | 4 795 |
+ * | cell size | 4 825 - 6 318 m | 4 783 - 5 680 m | 3 668 m |
+ * | oversized | 0 | 0 - 2 | 0 |
+ * | bucket mean | 8.6 | 8.3 | 7.6 |
+ * | bucket max | **1 797** | **1 792** | **1 556** |
+ *
+ * Two of those numbers overturn an assumption worth writing down, because it was the assumption this
+ * measurement was added to check.
+ *
+ * **The overflow list is empty.** [MAX_CELLS_PER_FEATURE] is 256 cells and a cell is around five
+ * kilometres, so a feature has to span eighty kilometres before it overflows, and almost nothing does -
+ * not even a sea lane, whose KDoc on `FeatureKind.SEA_LANE` says it lives here. That claim is now known to
+ * be false on worlds of this size; the `affectsHeight = false` half of its argument still stands and is
+ * the half that matters. Designing around the overflow list would have been designing around nothing.
+ *
+ * **The real hot spot is a town.** One bucket holds 1 500 - 1 800 features, which on a 192-cell world is
+ * *thirty-seven per cent of every feature in the world in one cell* - a city's buildings, streets and
+ * businesses inside a five-kilometre square. Every chunk query inside a town walks that bucket and
+ * bbox-tests all of it to find the handful it overlaps. It stays that way deliberately: the mean is at
+ * target, the concentration is real rather than a derivation bug, and the fix - a nested grid, or an index
+ * per kind - is a subsystem to buy on evidence of a cost, which the export timings have never shown. The
+ * number is recorded here so that evidence is comparable when it arrives.
  */
 class FeatureIndex private constructor(
   /** All features, pre-sorted by `(priority, id)`; bucket entries are indices into this list. */
   private val features: List<VectorFeature>,
-  private val cellSize: Double,
+  /**
+   * Grid cell size in metres, [derived][deriveCellSize] from the feature count unless overridden.
+   *
+   * Public because it is not an implementation detail of this class: it is derived from the union of
+   * *every* feature's bbox, so a stage that emits five hundred new features changes it for every other
+   * feature in the world, and therefore changes which features are [oversized]. `AreaFeature` sizes its
+   * extent cap against this number, and nothing else in the module could have told it what to pick.
+   */
+  val cellSize: Double,
   private val originX: Double,
   private val originY: Double,
   private val cols: Int,
@@ -33,6 +71,51 @@ class FeatureIndex private constructor(
 ) {
 
   val size get() = features.size
+
+  /**
+   * How many features are too broad to bucket, and are therefore appended to **every** query in the world.
+   *
+   * The single number that says whether this index is doing anything. A world where most features are
+   * oversized is a linear scan wearing a grid, and no unit test would notice - the answers stay correct,
+   * they just cost O(n) each. Sea lanes live here on purpose (`affectsHeight = false`, so
+   * `FeatureEvaluator` drops them immediately); anything else appearing here is worth an argument.
+   */
+  val oversizedCount get() = oversized.size
+
+  /** Cells in the grid, `cols * rows`. Together with [meanBucket] this says how well the derivation aimed. */
+  val cellCount get() = cols * rows
+
+  /** The fullest bucket: the worst case a single chunk query pays before the bbox re-test. */
+  val maxBucket: Int
+    get() {
+      var worst = 0
+      for (b in 0 until cellCount) {
+        val n = bucketStart[b + 1] - bucketStart[b]
+        if (n > worst) worst = n
+      }
+      return worst
+    }
+
+  /**
+   * Mean bucket occupancy over **non-empty** cells.
+   *
+   * Over all cells it would mostly measure how much ocean a world has, since the grid spans the union of
+   * the bboxes and features cluster on land. Over the cells that hold something it measures what
+   * [TARGET_FEATURES_PER_CELL] is trying to control.
+   */
+  val meanBucket: Double
+    get() {
+      var filled = 0
+      var total = 0L
+      for (b in 0 until cellCount) {
+        val n = bucketStart[b + 1] - bucketStart[b]
+        if (n > 0) {
+          filled++
+          total += n
+        }
+      }
+      return if (filled == 0) 0.0 else total.toDouble() / filled
+    }
 
   /** Every feature whose influence could reach anywhere inside [area], ordered by `(priority, id)`. */
   fun query(area: Aabb): List<VectorFeature> {
@@ -80,7 +163,37 @@ class FeatureIndex private constructor(
   private fun rowOf(y: Double) =
     floor((y - originY) / cellSize).toInt().coerceIn(0, rows - 1)
 
-  override fun toString() = "FeatureIndex[features=${features.size}, grid=${cols}x$rows @ ${cellSize}m]"
+  /** Everything above in one immutable snapshot, so a caller can print it without holding the index. */
+  fun metrics() = Metrics(
+    size = size,
+    cellSize = cellSize,
+    cols = cols,
+    rows = rows,
+    oversizedCount = oversizedCount,
+    maxBucket = maxBucket,
+    meanBucket = meanBucket
+  )
+
+  /**
+   * What the index looks like from outside, for the sweep and for sizing decisions made against it.
+   *
+   * A snapshot rather than live accessors because [maxBucket] and [meanBucket] are O(cells) to compute
+   * and a caller printing four numbers should walk the grid once, not four times.
+   */
+  data class Metrics(
+    val size: Int,
+    val cellSize: Double,
+    val cols: Int,
+    val rows: Int,
+    val oversizedCount: Int,
+    val maxBucket: Int,
+    val meanBucket: Double
+  ) {
+    override fun toString() = "features=$size, grid=${cols}x$rows @ ${"%.0f".format(Locale.ROOT, cellSize)}m" +
+        ", oversized=$oversizedCount, bucket max=$maxBucket mean=${"%.1f".format(Locale.ROOT, meanBucket)}"
+  }
+
+  override fun toString() = "FeatureIndex[${metrics()}]"
 
   companion object {
 

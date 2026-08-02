@@ -10,6 +10,7 @@ import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
@@ -518,21 +519,37 @@ object ProbeMain {
       // bbox is exactly the extent its centreline wanders over and nothing brings the centre back onto the
       // line: a wall circuit's bbox centre is the middle of the town, and a passage that turns as it goes has a
       // bbox centre in solid rock. Both would be "no such feature here" reported as a place to stand.
+      // An AreaFeature is the third case and the same hazard again. A pond following a valley is a curved
+      // ribbon whose bbox centre is up the hillside beside it, so probing there reports dry ground and reads
+      // as "the pond is not in the voxels". Its area centroid is on the water for every shape emitted today;
+      // a crescent's would not be, which is why this says which point it used rather than implying one.
       val line = when (feature) {
         is PolylineFeature -> feature.centerline
         is MarkerFeature -> feature.centerline
         else -> null
       }
 
-      val at = if (line != null) {
-        val mid = line.pointAt(line.length / 2.0)
-        println("  on ${feature.kind} ${nth + 1} of ${matching.size}, " +
-            "midpoint of a ${line.length.toInt()} m centreline")
-        mid.x to mid.y
-      } else {
-        val box = feature.bbox
-        println("  on ${feature.kind} ${nth + 1} of ${matching.size}, centre of its bounds")
-        ((box.minX + box.maxX) / 2.0) to ((box.minY + box.maxY) / 2.0)
+      val at = when {
+        line != null -> {
+          val mid = line.pointAt(line.length / 2.0)
+          println("  on ${feature.kind} ${nth + 1} of ${matching.size}, " +
+              "midpoint of a ${line.length.toInt()} m centreline")
+          mid.x to mid.y
+        }
+
+        feature is AreaFeature -> {
+          val centroid = feature.ring.centroid
+          val inside = if (feature.contains(centroid.x, centroid.y)) "inside" else "OUTSIDE the ring"
+          println("  on ${feature.kind} ${nth + 1} of ${matching.size}, " +
+              "centroid of a ${feature.ring.area.toInt()} m2 ring ($inside)")
+          centroid.x to centroid.y
+        }
+
+        else -> {
+          val box = feature.bbox
+          println("  on ${feature.kind} ${nth + 1} of ${matching.size}, centre of its bounds")
+          ((box.minX + box.maxX) / 2.0) to ((box.minY + box.maxY) / 2.0)
+        }
       }
 
       return at

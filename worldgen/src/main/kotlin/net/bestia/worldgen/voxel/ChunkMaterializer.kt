@@ -132,6 +132,7 @@ class ChunkMaterializer(
     // markers have zero-extent bounds, so they need the widest orebody's radius as a margin.
     val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
     val rivers = RiverWaterSampler(nearby)
+    val ponds = PondWaterSampler(nearby)
     val ore = OreVeins(nearby, config.seed)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
@@ -161,7 +162,7 @@ class ChunkMaterializer(
         val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
-          heights[localX, localY], rivers, ore, bridges, structures, caves, spans, trees, foliage
+          heights[localX, localY], rivers, ponds, ore, bridges, structures, caves, spans, trees, foliage
         )
       }
     }
@@ -353,6 +354,7 @@ class ChunkMaterializer(
     worldY: Double,
     top: Double,
     rivers: RiverWaterSampler,
+    ponds: PondWaterSampler,
     ore: OreVeins,
     bridges: BridgeDecks,
     structures: TownStructures,
@@ -361,12 +363,19 @@ class ChunkMaterializer(
     trees: TreeLattice?,
     foliage: StructureSpans?
   ) {
-    // Two water surfaces, and the higher wins. The raster one is level - sea or a lake; the river one
-    // descends along its channel. A river running into a lake correctly takes the lake's level, because
-    // the lake surface is the higher of the two by the time the channel reaches it.
+    // Three water surfaces, and the highest wins. The raster one is level - sea, or a lake priority-flood
+    // found; the river one descends along its channel; the pond one is level too but is not in the raster at
+    // all, because the moraine damming it was never rasterised. See `hydro/PondStage.kt`.
+    //
+    // Taking the highest is what makes the combinations come out right without a single special case. A river
+    // running into a lake takes the lake's level, because by the time the channel reaches it the lake surface
+    // is the higher of the two. A pond the river feeds behaves the same way, from the other side.
     val standing = surface.waterLevelAt(worldX, worldY)
     val flowing = rivers.surfaceAt(worldX, worldY)
-    val water = if (flowing.isNaN() || flowing < standing) standing else flowing
+    val impounded = ponds.surfaceAt(worldX, worldY)
+    var water = standing
+    if (!flowing.isNaN() && flowing > water) water = flowing
+    if (!impounded.isNaN() && impounded > water) water = impounded
 
     val waterDepth = (water - top).coerceAtLeast(0.0)
     val biome = surface.biomeAt(worldX, worldY)

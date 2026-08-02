@@ -90,6 +90,23 @@ object InvariantsMain {
     // the only number anywhere that would move.
     val canopy = ArrayList<Double>(seeds)
 
+    // The spatial index, for the reason none of the above applies: its cell size is derived from the union
+    // of *every* feature's bbox, so it is a property of the whole world and no unit test over a handful of
+    // features can say what it is. It decides which features land in the oversized list that `query`
+    // appends to every query in the world, and it is the number `AreaFeature`'s extent cap is set from.
+    // Vector ponds, for the reason the plan for them insists on: they are water the raster tier cannot
+    // have, so a zero here is not "a dry world" but "the producer never fired", and no other number in
+    // this sweep would move if it stopped firing entirely.
+    val ponds = ArrayList<Int>(seeds)
+    val oxbows = ArrayList<Int>(seeds)
+    val lobes = ArrayList<Int>(seeds)
+    val deltas = ArrayList<Int>(seeds)
+
+    val cellSizes = ArrayList<Double>(seeds)
+    val oversized = ArrayList<Int>(seeds)
+    val maxBuckets = ArrayList<Int>(seeds)
+    val meanBuckets = ArrayList<Double>(seeds)
+
     val report = Invariants.sweep(
       seeds = seeds,
       firstSeed = firstSeed,
@@ -109,8 +126,20 @@ object InvariantsMain {
         val wooded = Invariants.meanOverLand(generated, LayerId.CANOPY_COVER)
         canopy.add(wooded)
 
+        ponds.add(generated.world.features.all().count { it.kind == FeatureKind.LAKE })
+        oxbows.add(generated.world.features.all().count { it.kind == FeatureKind.OXBOW_LAKE })
+        lobes.add(generated.world.features.all().count { it.kind == FeatureKind.ALLUVIAL_FAN })
+        deltas.add(generated.world.features.all().count { it.kind == FeatureKind.DELTA })
+
+        val index = generated.world.features.indexMetrics()
+        cellSizes.add(index.cellSize)
+        oversized.add(index.oversizedCount)
+        maxBuckets.add(index.maxBucket)
+        meanBuckets.add(index.meanBucket)
+
         val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems" +
-            "  canopy ${"%.3f".format(Locale.ROOT, wooded)}"
+            "  canopy ${"%.3f".format(Locale.ROOT, wooded)}  ponds ${ponds.last()}/${oxbows.last()}" +
+            "  index ${index.oversizedCount}/${index.size}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -158,6 +187,42 @@ object InvariantsMain {
         "canopy over land: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
             "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
             "${"%.3f".format(Locale.ROOT, sorted.last())}, $bare of ${sorted.size} worlds all but bare"
+      )
+    }
+    if (ponds.isNotEmpty()) {
+      val sorted = ponds.sorted()
+      val none = sorted.count { it == 0 }
+      println(
+        "vector ponds: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
+            ", $none of ${sorted.size} worlds with none, ${ponds.sum()} in all"
+      )
+      val bows = oxbows.sorted()
+      println(
+        "oxbow lakes: median ${bows[bows.size / 2]}, range ${bows.first()} .. ${bows.last()}" +
+            ", ${bows.count { it == 0 }} of ${bows.size} worlds with none, ${oxbows.sum()} in all"
+      )
+      val wedges = lobes.sorted()
+      val mouths = deltas.sorted()
+      println(
+        "deltas: median ${mouths[mouths.size / 2]}, range ${mouths.first()} .. ${mouths.last()}" +
+            ", ${mouths.count { it == 0 }} of ${mouths.size} worlds with none, ${deltas.sum()} in all"
+      )
+      println(
+        "alluvial fans: median ${wedges[wedges.size / 2]}, range ${wedges.first()} .. ${wedges.last()}" +
+            ", ${wedges.count { it == 0 }} of ${wedges.size} worlds with none, ${lobes.sum()} in all"
+      )
+    }
+    if (cellSizes.isNotEmpty()) {
+      val cells = cellSizes.sorted()
+      val over = oversized.sorted()
+      val worst = maxBuckets.sorted()
+      val mean = meanBuckets.sorted()
+      println(
+        "feature index: cell median ${"%.0f".format(Locale.ROOT, cells[cells.size / 2])} m " +
+            "(${"%.0f".format(Locale.ROOT, cells.first())} .. ${"%.0f".format(Locale.ROOT, cells.last())}), " +
+            "oversized median ${over[over.size / 2]} (max ${over.last()}), " +
+            "bucket max ${worst[worst.size / 2]} (worst ${worst.last()}), " +
+            "mean ${"%.1f".format(Locale.ROOT, mean[mean.size / 2])}"
       )
     }
     // Locale.ROOT here too, for the same reason the fractions above have it - and because this line was

@@ -14,6 +14,8 @@ import net.bestia.worldgen.geo.GlacialParams
 import net.bestia.worldgen.geo.TectonicsParams
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.hydro.HydrologyParams
+import net.bestia.worldgen.hydro.AlluviumParams
+import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.resource.ResourceParams
@@ -56,6 +58,16 @@ data class WorldParams(
   val erosion: ErosionParams = ErosionParams(),
   val glacial: GlacialParams = GlacialParams(),
   val hydrology: HydrologyParams = HydrologyParams(),
+
+  /**
+   * The vector-tier ponds, which depend on the glacial stage rather than the hydrological one.
+   *
+   * Beside [hydrology] because it is water, after [glacial] in the pipeline because it reads moraines.
+   */
+  val pond: PondParams = PondParams(),
+
+  /** The sediment lobes rivers build: fans where they leave confinement, deltas where they meet the sea. */
+  val alluvium: AlluviumParams = AlluviumParams(),
   val biome: BiomeParams = BiomeParams(),
 
   /**
@@ -104,6 +116,9 @@ data class WorldParams(
       // Settlement scores sites against the habitability terms; scoring against different weights than the
       // layer was built with would place towns by one rule and rate them by another.
       settlement = settlementResolved,
+      // The pond stage walks outward from a valley axis until the ground rises above the water, so it has to
+      // walk the surface a chunk will build. Its own detail noise would put every shoreline somewhere else.
+      pond = pond.copy(detail = detail),
       // The town stage predicts the grading feature's cut and fill in order to pick a building's floor, and
       // samples the same detail noise the chunks will. Both are the settlement stage's and the chunk tier's
       // numbers respectively, not its own.
@@ -112,7 +127,7 @@ data class WorldParams(
   }
 
   /**
-   * Fingerprint of the twelve world-tier stages' tunables, for `Stage.paramsVersion` to be checked against.
+   * Fingerprint of the world-tier stages' tunables, for `Stage.paramsVersion` to be checked against.
    *
    * Computed from [resolved] rather than from the declared fields, so a forwarded value is always visible in the
    * hash. Not used by the pipeline directly - each stage folds its own params - but it is what a tool prints so
@@ -126,6 +141,8 @@ data class WorldParams(
       r.erosion.digest().value,
       r.glacial.digest().value,
       r.hydrology.digest().value,
+      r.pond.digest().value,
+      r.alluvium.digest().value,
       r.biome.digest().value,
       r.vegetation.digest().value,
       r.resource.digest().value,
@@ -178,8 +195,8 @@ data class WorldParams(
      * verifiable on the day the format lands rather than after all seventeen classes are wired.
      */
     val NOT_YET_LOADABLE = setOf(
-      "glacial", "hydrology", "biome", "vegetation", "resource", "habitability", "settlement", "history",
-      "town", "economy", "detail", "strata"
+      "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "resource", "habitability", "settlement",
+      "history", "town", "economy", "detail", "strata"
     )
 
     /**

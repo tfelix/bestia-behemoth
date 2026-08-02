@@ -20,7 +20,9 @@ import net.bestia.worldgen.geo.BoundaryType
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.hydro.AlluviumStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.resource.ResourceStage
@@ -69,10 +71,18 @@ class StandardWorldTest {
         // valid - two nodes must execute the same order or they derive different RNG streams.
         GlacialStage.ID,
         HydrologyStage.ID,
+        // Fans and deltas need only erosion and hydrology, so they sort as early as the name tie-break
+        // allows - which is before the biomes, and harmlessly so: nothing between here and the ponds reads
+        // a sediment lobe.
+        AlluviumStage.ID,
         BiomeStage.ID,
         // Caves sort before resources on the name tie-break, not because anything needs them first: both read
         // the same five upstream stages and neither reads the other.
         CaveStage.ID,
+        // Ponds come after the fans on a real edge rather than a tie-break: the rim search that decides how
+        // high a tarn fills walks the finished ground, and a fan across a valley floor is a dam in it. That
+        // they also land after the caves is the tie-break again, and harmless - a cave affects no height.
+        PondStage.ID,
         // Vegetation, on the other hand, is a real edge: resources read CANOPY_COVER for timber suitability.
         VegetationStage.ID,
         ResourceStage.ID,

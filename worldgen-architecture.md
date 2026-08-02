@@ -18,7 +18,7 @@ module with no I/O in it. 405 unit tests, plus a seed-sweep regression harness.
 | # | Step | Status | Where |
 |---|---|---|---|
 | 1 | Framework + offline viewer | **done** | `core/`, `viewer/` |
-| 2 | Vector primitives | **done** — plus the oriented rectangle; still no polygon | `vector/` |
+| 2 | Vector primitives | **done** — point, polyline, oriented rectangle and the closed ring | `vector/` |
 | 3 | Heightfield → climate → hydrology → biomes | **done** — deviation 3; 4 half closed | `geo/`, `climate/`, `hydro/`, `bio/` |
 | 4 | Erosion | **done** — deviation 2; 1 closed but shipping off | `geo/ErosionStage.kt`, `geo/WorldHeightField.kt`, `geo/DropletHeightField.kt` |
 | 5 | Chunk materialization + RLE + feature stamping | **done**, plus occupancy, town structures, subtraction, caves and the vegetation scatter | `voxel/`, `karst/` |
@@ -96,10 +96,18 @@ is an index, not the reasoning. Grouped by what it would take.
 
 **Wants a subsystem.**
 
-- **The polygon geometry type.** The root of deviations 2–5: alluvial fans, deltas, lakes, coastlines and
-  settlement outlines all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
-  `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds that nothing emits.
-  `FootprintFeature` closed the cheap ninety percent; the rest is clipping, offsetting and concave indexing.
+- ~~**The polygon geometry type.**~~ Built. `vector/Ring.kt` is a simple closed polygon whose `contains` is a
+  crossing count **entirely in fixed point** - no epsilon anywhere, so the shoreline of a lake is decided the
+  same way by every chunk that touches it - and `vector/AreaFeature.kt` is the feature around it, with a
+  periodic `StationTable` so a boundary's attributes are smooth across the seam rather than merely continuous.
+  `hydro/PondStage` emits `LAKE` and `OXBOW_LAKE`; `hydro/AlluviumStage` emits `ALLUVIAL_FAN` and `DELTA`.
+
+  Two of the six kinds were **not polygon problems** and are closed rather than pending: `COASTLINE` is a
+  boundary curve that a `BoundaryTracer` plus a `MarkerFeature` answers, and `ROAD_JUNCTION`'s crease was
+  measured and found not to exist. `SETTLEMENT_GRADING` is still a disc - the type is there, the swap is not.
+
+  What is still genuinely absent is every operation over *two* areas: clipping, offsetting, boolean union. No
+  producer has wanted one, and each would be its own subsystem.
 - ~~**The scatter pass.**~~ Built, and **still not chunk-seeded**, which is the interesting part. `LOG` and
   `LEAVES` are in the palette, `voxel/VegetationScatter` decides where a tree stands from a hash of a
   four-metre lattice of quantised world coordinates, and `bio/VegetationStage` rasterises `CANOPY_COVER`

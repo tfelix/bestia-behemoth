@@ -20,6 +20,7 @@ import net.bestia.worldgen.fields.D8
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.fields.Tables
 import net.bestia.worldgen.hydro.FlowRouting
+import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.BlendMode
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
@@ -285,6 +286,14 @@ class GlacialStage(
       .filter { it.affectsHeight && it.blend == BlendMode.MIN }
       .sortedWith(compareBy({ it.priority }, { it.id.value }))
     if (carving.isEmpty()) return
+
+    check(carving.none { !isRasterisable(it) }) {
+      "${carving.first { !isRasterisable(it) }} reached the coarse carve. This path walks outline() and " +
+          "stamps a corridorWidthMax band along it, which on a closed ring paints the rim and leaves the " +
+          "interior untouched - a lake with a shore and no water in it. Widening corridorWidthMax is not " +
+          "the repair; it is documented as a bound on influence and the spatial index trusts it. An areal " +
+          "feature that genuinely needs to reach the raster wants an interior scanline rasteriser."
+    }
 
     val originX = region.minX * metres
     val originY = region.minY * metres
@@ -711,6 +720,20 @@ class GlacialStage(
 
   companion object {
     val ID = StageId("glacial")
+
+    /**
+     * Whether the coarse carve can rasterise this feature by walking its outline.
+     *
+     * It can for anything whose influence radiates *outward* from its geometry - a corridor from its
+     * centerline, a disc from its centre - because stamping a band `corridorWidthMax` wide along the
+     * outline then covers everything the feature touches. It cannot for an [AreaFeature], whose influence
+     * is on the *inside* of a closed curve: the band would paint the shore and skip the water.
+     *
+     * A named predicate rather than an inline `is` check, because the point of it is testable from outside
+     * and "safe by construction" is a claim, not a guarantee. `AreaFeatureTest` calls this directly - a
+     * subsystem that is never reached looks exactly like one that works, and this is that in reverse.
+     */
+    fun isRasterisable(feature: VectorFeature): Boolean = feature !is AreaFeature
 
     /**
      * Bounding-box cell count below which the coarse carve sweeps the box instead of tracing the geometry.

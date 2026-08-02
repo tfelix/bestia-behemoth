@@ -115,9 +115,15 @@ enum class FeatureKind(val defaultPriority: Int) {
    * Geometry and attributes only, and deliberately a [MarkerFeature] rather than a [PolylineFeature]. Two
    * reasons, and the first is the load-bearing one: a lane has no cross-section to stamp - a ship leaves no
    * mark on the sea floor - so there is nothing for a heightfield to do with it. The second is that a lane's
-   * bounding box spans an ocean, which puts it in `FeatureIndex`'s oversized list where it is tested against
-   * every query in the world; `affectsHeight` being false means `FeatureEvaluator` discards it immediately
-   * instead of evaluating a corridor across half the map.
+   * bounding box spans an ocean, so it is returned by a great many queries it has no business in, and
+   * `affectsHeight` being false means `FeatureEvaluator` discards it immediately instead of evaluating a
+   * corridor across half the map.
+   *
+   * That second reason used to say a lane lands in `FeatureIndex`'s *oversized* list. Measuring the index
+   * (see its KDoc) showed it does not: a cell is around five kilometres and the overflow threshold is 256
+   * cells, so nothing short of eighty kilometres overflows and the list is empty on every world sampled.
+   * The conclusion is unchanged and the mechanism was wrong, which is the sort of thing that survives in a
+   * comment until somebody prints the number.
    *
    * Priority is therefore inert, and sits beside [ROAD] because that is what it is the water half of.
    */

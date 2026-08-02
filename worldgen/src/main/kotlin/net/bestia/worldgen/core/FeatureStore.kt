@@ -64,6 +64,16 @@ class FeatureStore {
   @Synchronized
   fun all(): List<VectorFeature> = features.values.toList()
 
+  /**
+   * How the spatial index turned out, for the sweep to print.
+   *
+   * Worth exposing because the index derives its cell size from the union of every feature's bounds, so
+   * these numbers are a property of the *whole world* rather than of any one stage - which means no unit
+   * test over a handful of features can tell you what they are.
+   */
+  @Synchronized
+  fun indexMetrics(): FeatureIndex.Metrics = index.metrics()
+
   fun scopedFor(reader: StageId, allowed: Collection<StageId>) =
     ScopedFeatureStore(this, reader, allowed.toSet())
 }

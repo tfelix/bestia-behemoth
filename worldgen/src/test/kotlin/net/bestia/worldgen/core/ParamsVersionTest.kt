@@ -23,6 +23,8 @@ import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.voxel.VegetationParams
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.hydro.HydrologyParams
+import net.bestia.worldgen.hydro.AlluviumParams
+import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
@@ -75,6 +77,8 @@ class ParamsVersionTest {
     ClosedBasinParams(),
     GlacialParams(),
     HydrologyParams(),
+    PondParams(),
+    AlluviumParams(),
     BiomeParams(),
     VegetationParams(),
     ResourceParams(),
@@ -162,6 +166,8 @@ class ParamsVersionTest {
       "ClosedBasinParams" to 5_389_246_153_518_852_453L,
       "GlacialParams" to -1_266_272_442_885_291_278L,
       "HydrologyParams" to 7_155_846_832_677_361_370L,
+      "PondParams" to 8_297_690_367_138_694_458L,
+      "AlluviumParams" to -2_759_034_807_589_268_237L,
       "BiomeParams" to 9_016_394_342_762_494_441L,
       "VegetationParams" to 5_359_640_679_940_278_481L,
       "ResourceParams" to -9_104_808_594_269_338_394L,

@@ -34,7 +34,7 @@ earned across phases 3 to 7, four times over.
 Run all of it per phase, in this order. The last three catch what the first misses.
 
 ```
-./gradlew :worldgen:test                                   # 492 tests at present
+./gradlew :worldgen:test                                   # 527 tests at present
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=192      # sweep; watch the reported spreads
 ./gradlew :worldgen:invariants -Pseeds=200 -Pcells=256
 ./gradlew :worldgen:viewerExport -Pout=build/viewer         # PNGs + the SeamCheck line; works headless
@@ -87,7 +87,8 @@ Run all of it per phase, in this order. The last three catch what the first miss
   them as unknown — because a file key would be applied and then overwritten. Setting one by hand in code
   instead is how buildings end up floating over the ground everywhere.
 - **Bump the stage `version`** for any behaviour change. Current: tectonics 4, climate 3, erosion 5, glacial 2,
-  hydrology 3, biome 3, vegetation 1, resource 2, caves 1, habitability 1, settlement 3, town 5, history 2,
+  hydrology 3, pond 1, alluvium 1, biome 3, vegetation 1, resource 2, caves 1, habitability 1, settlement 3,
+  town 5, history 2,
   economy 1. The chunk tier has one too now — **`ChunkMaterializer.VERSION`, currently 3** — folded into
   `chunkTierVersion` and therefore
   into `pipelineVersion`. It exists because changing the materialisation *code* used to move no number at all:
@@ -147,6 +148,35 @@ Run all of it per phase, in this order. The last three catch what the first miss
   patch field and a 14 m biome dither over a kilometre cell; at four samples per axis the exported map was
   visibly grainy on the cell grid, and at one site sample per cell every ecotone was a spray of loose pixels.
   Both were sampling error rather than world structure, and both were found by looking at the PNG.
+- **A ring built by sampling a radius can only ever be star-shaped.** `Ring.crescent`'s first version marched
+  outward from a centre and produced something crescent-*looking* whose boundary a radial type could have drawn -
+  which would have made the whole vertex ring unnecessary and wrong. `RingTest` catches it by counting how many
+  times a ray from the centroid crosses the boundary; a shape that never manages more than one has not earned
+  the type.
+- **A guard in front of an exact decision has to be exact too.** `Ring.contains` counts crossings in fixed point
+  and used to pre-reject with a bounding-box test on the raw doubles. Near a vertex, where the box edge and the
+  boundary touch, that is a float branch two chunks can take differently - so the function as a whole was not a
+  pure function of the quantised position, whatever the loop below it did. It was found by breaking the *edge
+  rule* during the fails-first pass and watching the *quantisation* test go red instead.
+- **A centroid computed with the wrong winding is reflected through the origin.** `Ring` normalises its vertices
+  counter-clockwise and then passed the *pre-normalisation* signed area to the centroid formula, so any
+  clockwise caller got a centroid hundreds of kilometres outside the world - and since `contains` rejects
+  against a disc centred on it, containment answered false everywhere. Every test in the file used a
+  counter-clockwise fixture and passed. What found it was the first producer whose shapes came out clockwise,
+  reporting **no ponds anywhere on any world**.
+- **Shrinking a feature never fixes a boundary artefact; it causes one.** A vector lake's extent is its ring, so
+  a column outside the ring gets no water however low the ground there is. Tapering the pond's ends to close
+  them more tidily pulled the boundary *inside* the waterline and took the shore invariant from 8 violations to
+  576. The fix was the opposite: draw the ring past the waterline, onto ground already above the surface.
+- **A basin cannot be derived from a corridor.** Three versions of the moraine-dammed pond set its water level
+  from the dam - "the water backs up to some fraction of the moraine's height" - and all three left walls of
+  standing water up to seventy metres tall. A glacial trough is overdeepened along its length, its stated wall
+  height describes the carve rather than the surrounding land, and a `MIN` blend makes even that an upper bound
+  on the real ground. What works is filling from the lowest point and stopping just before the water finds a way
+  out, which makes a wall impossible by construction rather than by a threshold.
+- **`queryStrict` is for narrow queries, not world-wide ones.** It returns everything and throws if any of it
+  came from an undeclared stage, which is right when a surprise means a bug and wrong when the query asks for
+  the whole region - there it trips on every stage that happens to sort before yours.
 - **`project.hasProperty('x')` in a Gradle build is true for the name of any `Project` getter.** `-Pdepth`
   silently arrived as the project's nesting level, and `-Partifacts` on `chronicle` had been *permanently on*.
   Every switch in `worldgen/build.gradle` now goes through the `cli` helper, which reads
@@ -162,9 +192,23 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
 
 ### Wants a subsystem
 
-- **The polygon geometry type** — the root of deviations 2, 3 and 5. Alluvial fans, deltas, lakes, coastlines and
-  settlement footprints all want an area and have none. `COASTLINE`, `ALLUVIAL_FAN`, `DELTA`, `LAKE`,
-  `OXBOW_LAKE` and `ROAD_JUNCTION` are declared feature kinds nothing emits. A subsystem, not a pass.
+- ~~**The polygon geometry type**~~ — built. `vector/Ring.kt` is a simple closed polygon with **exact integer
+  containment** (the crossing number in fixed point, no epsilon anywhere, so two chunks decide a shoreline
+  identically), and `vector/AreaFeature.kt` is the feature around it. `StationTable` gained a `periodic` flag so
+  a boundary's attributes are smooth across the seam rather than merely continuous. Four of the six dead kinds
+  now have producers: `LAKE` and `OXBOW_LAKE` from `hydro/PondStage`, `ALLUVIAL_FAN` and `DELTA` from
+  `hydro/AlluviumStage`.
+
+  Two of the six turn out **not to be polygons at all**, and both are closed rather than pending. `COASTLINE` is
+  a boundary *curve* - everything wanting it wants distance to a curve, which a `BoundaryTracer` plus a
+  `MarkerFeature` delivers with no new geometry. `ROAD_JUNCTION` was measured during the calibration batch and
+  the crease it was for does not exist (see the struck-through entry further down); it stays unemitted by
+  decision.
+
+  Still not built: **settlement outlines**. `SettlementStage.gradingFor` is still a `PointFeature` disc, so a
+  town in a river bend is levelled in the shape of a circle. The type is there and the producer is a shape swap;
+  what stopped it was budget, not design. Also still absent: clipping, offsetting and any operation over *two*
+  areas, because no producer has wanted one.
 - ~~**Caves.**~~ Built: `karst/CaveStage` places them, `voxel/CaveNetwork` cuts them, and `HistorySim` hides
   hoards in them. What is *not* built is the streaming half — `GeneratedWorld.contentSlabsOf` says which slabs
   hold a passage and `ChunkService` still subscribes only the surface ones, so a cave below the terrain slab is

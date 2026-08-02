@@ -27,7 +27,9 @@ import net.bestia.worldgen.geo.WorldHeightField
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.history.HistoryStage
 import net.bestia.worldgen.hydro.HydrologyStage
+import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.BlendMode
+import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
@@ -282,11 +284,14 @@ class TownStage(
     val builtRadius = builtRadiusFor(town.population, town.tier)
     if (builtRadius < params.streets.segmentLength) return emptyList()
 
+    // One per town, because a FeatureEvaluator is not thread-safe and this runs on every core.
+    val grading = world.around(town, builtRadius)
+
     val frame = TownFrame(
       centre = town.position,
       builtRadius = builtRadius,
-      groundAt = { world.gradedGround(it, town.siteElevation) },
-      buildable = { world.buildable(it, town) },
+      groundAt = { grading.groundAt(it) },
+      buildable = { world.buildable(it) },
       approaches = world.approachesTo(town, builtRadius)
     )
 
@@ -325,7 +330,7 @@ class TownStage(
       // `index` is also the RNG salt for storeys, materials and roof, so it has to stay the lot's own index
       // and not a running count - renumbering here would change every building in the town.
       val building = zoning.buildingFor(lots[index], functions[index], index)
-      if (standsLevel(building, world, town)) placed.add(building)
+      if (standsLevel(building, grading)) placed.add(building)
     }
 
     val out = ArrayList<VectorFeature>(placed.size + graph.edges.size / 4 + 8)
@@ -339,7 +344,7 @@ class TownStage(
     }
 
     if (town.wallYear != 0) {
-      out.addAll(fortify(town, frame, graph, world, nextId))
+      out.addAll(fortify(town, frame, graph, world, grading, nextId))
     }
 
     return out
@@ -359,14 +364,14 @@ class TownStage(
    * floor is known. Predicting the residual rather than measuring it afterwards is what lets the caller fall
    * through to the next lot instead of losing the building.
    */
-  private fun standsLevel(building: Building, world: WorldGround, town: TownReader.Town): Boolean {
+  private fun standsLevel(building: Building, grading: WorldGround.Grading): Boolean {
     val floor = building.floorElevation
     val along = building.bearing * building.halfLength
     val across = building.bearing.perpendicular() * building.halfWidth
 
     for (corner in CORNER_SIGNS) {
       val at = building.centre + along * corner.first + across * corner.second
-      val ground = world.gradingFaded(at, town)
+      val ground = grading.groundAt(at)
       val padded = when {
         ground > floor -> max(floor, ground - PAD_MAX_CUT)
         ground < floor -> min(floor, ground + PAD_MAX_FILL)
@@ -545,6 +550,7 @@ class TownStage(
     frame: TownFrame,
     graph: StreetGraph,
     world: WorldGround,
+    grading: WorldGround.Grading,
     nextId: () -> FeatureId
   ): List<VectorFeature> {
     val enclosed = builtRadiusFor(max(town.wallPopulation, MIN_WALL_POPULATION), town.tier)
@@ -578,7 +584,7 @@ class TownStage(
       val to = (if (i + 1 < crossings.size) crossings[i + 1] else crossings[0] + ringLine.length) - half
       if (to - from < params.gateWidth) continue
 
-      out.addAll(wallStretches(nextId, ringLine, from, to, town, world))
+      out.addAll(wallStretches(nextId, ringLine, from, to, town, world, grading))
     }
 
     for (s in crossings) {
@@ -623,7 +629,8 @@ class TownStage(
     from: Double,
     to: Double,
     town: TownReader.Town,
-    world: WorldGround
+    world: WorldGround,
+    grading: WorldGround.Grading
   ): List<MarkerFeature> {
     val steps = max(2, ((to - from) / WALL_STATION_SPACING).toInt())
     val points = (0..steps).map { ring.pointAt(from + (to - from) * it / steps) }
@@ -640,7 +647,7 @@ class TownStage(
       // replaced did have - threw on seed 113 at 256 cells, 113 worlds into a 200-seed sweep.
       if (run.size >= 2) {
         val line = runCatching { Polyline(run.toList()) }.getOrNull()
-        if (line != null) wallFeature(nextId(), line, town, world)?.let { out.add(it) }
+        if (line != null) wallFeature(nextId(), line, town, grading)?.let { out.add(it) }
       }
       run = ArrayList()
     }
@@ -658,7 +665,7 @@ class TownStage(
     featureId: FeatureId,
     line: Polyline,
     town: TownReader.Town,
-    world: WorldGround
+    grading: WorldGround.Grading
   ): MarkerFeature? {
     return MarkerFeature(
       id = featureId,
@@ -667,7 +674,7 @@ class TownStage(
       stations = StationTable.Builder(line.vertexCount)
         .channel(WallChannels.SETTLEMENT) { town.index.toDouble() }
         .channel(WallChannels.BASE_ELEVATION) {
-          world.gradedGround(line.points[it], town.siteElevation)
+          grading.groundAt(line.points[it])
         }
         .channel(WallChannels.HEIGHT) { params.wallHeight * (0.7 + 0.3 * town.wealth) }
         .channel(WallChannels.HALF_THICKNESS) { params.wallThickness * 0.5 }
@@ -839,9 +846,9 @@ internal object TownReader {
  *
  * Reading the real field costs an fbm evaluation per query and removes a whole class of disagreement between
  * what this stage thinks the ground is and what a player stands on. What it still does not include is the
- * features - rivers, roads, the town's own streets and grading - so `gradedGround` and `gradingFaded` model
- * the grading disc's arithmetic themselves, and that remains a second copy of one formula pinned by
- * `TownStageTest.the ground under a building is level`.
+ * features it has not emitted yet - its own streets, and the roads that will be cut through it. The
+ * settlement grading it *does* now read directly, through [WorldGround.Grading], rather than modelling the
+ * disc's arithmetic in two hand-written approximations as it used to.
  *
  * A note on layering: `civ/` reaching into `geo/` for [WorldHeightField] is deliberate and narrow. It is not
  * another stage's derivation - it is the definition of the base surface, the thing `core/ChunkHeightSampler`
@@ -883,45 +890,52 @@ internal class WorldGround(
 
   private val metres = region.resolution.metresPerCell
 
-  /** The base surface, terraced the way the settlement's grading will terrace it. */
-  fun gradedGround(at: Vec2d, siteElevation: Double): Double {
-    val raw = base.heightAt(at.x, at.y)
-    return when {
-      raw > siteElevation -> max(siteElevation, raw - params.grading.maxCut)
-      raw < siteElevation -> min(siteElevation, raw + params.grading.maxFill)
-      else -> siteElevation
-    }
+  /**
+   * The settlement grading discs, which this stage can simply *read* rather than predict.
+   *
+   * `SettlementStage` emitted them and [TownStage] declares it as a dependency, so they have been sitting in
+   * the scoped feature store all along. Two functions here used to model them by hand instead - one applying
+   * the terrace arithmetic at full strength, one re-implementing `PointFeature.falloff` and the `REPLACE`
+   * blend with its own copy of `edgeFraction = 0.6` - on the stated grounds that the grading feature did not
+   * exist yet. It did.
+   */
+  private val gradingDiscs: List<VectorFeature> = ctx.features.query(region.toWorld())
+    .filter { it.kind == FeatureKind.SETTLEMENT_GRADING }
+
+  /**
+   * The graded ground around one settlement, evaluated by the real feature evaluator.
+   *
+   * Per town rather than per world for two reasons. [FeatureEvaluator] carries scratch state and is
+   * documented as not thread-safe, and towns are laid out in parallel - so one shared instance would be a
+   * data race in the most expensive stage in the pipeline. And narrowing to the discs that actually reach
+   * this town turns a loop over every settlement in the world, run once per building corner, into a loop
+   * over one or two.
+   */
+  fun around(town: TownReader.Town, reach: Double): Grading {
+    val margin = reach + town.tier.footprintRadius
+    val box = Aabb(
+      town.position.x - margin, town.position.y - margin,
+      town.position.x + margin, town.position.y + margin
+    )
+    return Grading(base, gradingDiscs.filter { it.bbox.intersects(box) })
   }
 
   /**
-   * The same, but faded the way the grading disc actually fades.
+   * The base surface with the settlement grading stamped on it, exactly as a chunk will see it.
    *
-   * [gradedGround] answers "what would the grading do here if it were at full strength", which is the right
-   * question for choosing a floor height and the wrong one for asking whether a pad can level its own ground.
-   * `SettlementStage.gradingFor` builds the disc with `edgeFraction = 0.6`, so grading is at full strength
-   * only inside the innermost 40% of the radius and tapers to nothing at the rim - and `builtRadius` puts a
-   * great many buildings out in that taper. Predicting full grading out there overstates how level the ground
-   * will be by metres, which is how a check against [gradedGround] passed buildings that the finished chunk
-   * columns then showed standing four metres clear of their floors.
-   *
-   * The arithmetic mirrors `PointFeature.falloff` and `FeatureEvaluator.add`'s `REPLACE` case exactly. Two
-   * copies of one formula is a poor thing, but the alternative is running the sampler on features that do not
-   * exist yet, and the copy is at least pinned: `TownStageTest.the ground under a building is level` measures
-   * the finished columns, so if these ever drift apart it fails.
+   * Replaces two hand-written approximations, and the replacement is not only shorter - it is *correct in a
+   * place they were not*. The full-strength version answered "what would grading do here if it were at full
+   * strength", which is right at the centre and wrong at the rim, where the disc has faded to nothing and a
+   * great many buildings stand; predicting full grading out there overstated how level the ground would be
+   * by metres. The faded version fixed that for building corners only, leaving streets and wall footings
+   * still reading the full-strength answer. Going through the feature fixes all three at once, and there is
+   * no longer a copy of `edgeFraction` to keep in step with the one in `SettlementStage`.
    */
-  fun gradingFaded(at: Vec2d, town: TownReader.Town): Double {
-    val raw = base.heightAt(at.x, at.y)
-    val radius = town.tier.footprintRadius
-    val normalized = at.distanceTo(town.position) / radius
-    if (normalized >= 1.0) return raw
+  internal class Grading(private val base: BaseHeightField, discs: List<VectorFeature>) {
 
-    val fromEdge = 1.0 - normalized
-    val weight = when {
-      fromEdge >= GRADING_EDGE_FRACTION -> 1.0
-      else -> PolylineFeature.smoothstep(fromEdge / GRADING_EDGE_FRACTION)
-    }
+    private val evaluator = FeatureEvaluator(discs)
 
-    return raw + (gradedGround(at, town.siteElevation) - raw) * weight
+    fun groundAt(at: Vec2d): Double = evaluator.heightAt(at.x, at.y, base.heightAt(at.x, at.y))
   }
 
   /**
@@ -938,7 +952,7 @@ internal class WorldGround(
   }
 
   /** Whether anything may stand here: dry, gentle enough, inside the world, and clear of the channel. */
-  fun buildable(at: Vec2d, town: TownReader.Town): Boolean {
+  fun buildable(at: Vec2d): Boolean {
     val cellX = Math.floor(at.x / metres).toInt()
     val cellY = Math.floor(at.y / metres).toInt()
     if (!region.contains(cellX, cellY)) return false
@@ -1015,7 +1029,5 @@ internal class WorldGround(
     /** Dot product above which two approach directions count as the same one. */
     const val APPROACH_DISTINCT = 0.94
 
-    /** Must match `SettlementStage.gradingFor`'s `edgeFraction`. See [WorldGround.gradingFaded]. */
-    const val GRADING_EDGE_FRACTION = 0.6
   }
 }
