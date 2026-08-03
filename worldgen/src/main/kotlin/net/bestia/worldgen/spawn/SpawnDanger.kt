@@ -1,0 +1,86 @@
+package net.bestia.worldgen.spawn
+
+import net.bestia.worldgen.bio.Biome
+import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.ParamsDigest
+
+/**
+ * How dangerous a biome is, on its own, before anything else about a place is considered.
+ *
+ * ### Not a scalar on [Biome]
+ *
+ * `Biome.litter` and `Biome.canopy` are ecological facts - how much leaf fall a biome produces, how much of
+ * it is under a canopy - and they belong on the enum because half the pipeline reads them. Hostility is a
+ * **gameplay weight**: it says how hard the game should be here, which is a designer's opinion and not a
+ * property of the ground. It belongs to the subsystem that reads it, which is this one.
+ *
+ * The practical difference: retuning this must not move `BiomeStage.paramsVersion` and regenerate every
+ * world's biome raster. Folding it into [SpawnerStage] alone is what keeps that true.
+ *
+ * ### Exhaustive, with no `else`
+ *
+ * A default here is a difficulty assigned on behalf of a biome nobody has thought about, and the failure it
+ * produces is the plausible kind - the next biome added gets middling monsters, looks fine, and is wrong in
+ * the one place nothing checks. Same argument as `voxel/SurfaceCover`.
+ */
+object SpawnHostility {
+
+  /**
+   * `0` for gentle country, `1` for the harshest ground a player can walk on.
+   *
+   * The deserts and the swamps sit at the top on purpose: `REMINDER.md` asks for both to be worth the trip,
+   * and strong bestia are the first half of that answer. The water biomes are here for exhaustiveness only -
+   * nothing spawns on them.
+   */
+  fun of(biome: Biome): Double = when (biome) {
+    // Nothing spawns on water; there are no aquatic bestia yet.
+    Biome.OCEAN, Biome.LAKE -> 0.0
+
+    // Ice and bare rock: nothing lives here that is not built for it.
+    Biome.ICE_SHEET, Biome.GLACIER -> 1.0
+    Biome.ALPINE -> 0.85
+    Biome.COLD_DESERT -> 0.8
+    Biome.TUNDRA -> 0.55
+
+    // Hot and dry, and the reason a player would ever cross one.
+    Biome.DESERT -> 0.95
+    Biome.BADLANDS -> 0.85
+
+    // Wet and poisonous. The other half of REMINDER.md's ask: swamps carry the ingredients, and they carry
+    // the things that make collecting them a decision.
+    Biome.WETLAND -> 0.75
+
+    Biome.CLIFF -> 0.7
+    Biome.TAIGA -> 0.45
+    Biome.TROPICAL_RAINFOREST -> 0.5
+    Biome.TROPICAL_SEASONAL_FOREST -> 0.4
+    Biome.TEMPERATE_RAINFOREST -> 0.35
+    Biome.TEMPERATE_FOREST -> 0.3
+    Biome.SHRUBLAND -> 0.35
+    Biome.STEPPE -> 0.4
+    Biome.SAVANNA -> 0.45
+
+    // The gentle country a new master starts in.
+    Biome.GRASSLAND -> 0.15
+    Biome.RIPARIAN -> 0.2
+    Biome.BEACH -> 0.1
+  }
+
+  /**
+   * Fingerprint of the whole table, folded into [SpawnerStage.paramsVersion].
+   *
+   * Without it a designer could retune every monster level in the world and move no version number at all -
+   * the same hole `Biomes.catalogueDigest` and `ResourceType.catalogueDigest` exist to close.
+   */
+  fun catalogueDigest(): Long {
+    var digest = GenRng.hashString("SpawnHostility")
+    for (biome in Biome.entries) {
+      digest = GenRng.hash(
+        digest,
+        GenRng.hashString(biome.name),
+        ParamsDigest().put("hostility", of(biome)).value
+      )
+    }
+    return digest
+  }
+}

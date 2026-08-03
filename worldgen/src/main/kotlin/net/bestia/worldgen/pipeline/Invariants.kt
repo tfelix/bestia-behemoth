@@ -11,6 +11,7 @@ import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
+import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Parallel
@@ -42,6 +43,9 @@ import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
 import java.util.Locale
+import net.bestia.worldgen.civ.SettlementSpawnPoints
+import net.bestia.worldgen.mana.CorruptionStage
+import net.bestia.worldgen.spawn.SpawnerChannels
 import kotlin.math.abs
 
 /**
@@ -161,6 +165,18 @@ object Invariants {
     return Report(seeds, violations)
   }
 
+  /** Distance from a road or town inside which a den is "settled country". */
+  private const val SETTLED_RANGE_METRES = 10_000.0
+
+  /** Highest mean level settled country may hold before the danger field has no ramp in it. */
+  private const val SETTLED_MAX_MEAN_LEVEL = 35.0
+
+  /** How far the corrupted share may sit from its target before it is a bug rather than a seed. */
+  private const val CORRUPTED_SHARE_TOLERANCE = 0.03
+
+  /** Most the near-town mean corruption may be, as a fraction of the mean over all land. */
+  private const val CIVILISATION_SUPPRESSION_RATIO = 0.25
+
   /** Every check against one world. */
   fun check(generated: GeneratedWorld): List<Violation> {
     val out = ArrayList<Violation>()
@@ -207,6 +223,18 @@ object Invariants {
     checkCavesAreWellFormed(generated, ::fail)
     checkCanopyCoverAgreesWithTheBiome(generated, ::fail)
     checkPondsHoldWaterWithoutAWall(generated, ::fail)
+
+    // Mana and corruption.
+    checkCorruptionHitsItsTarget(generated, ::fail)
+    checkCorruptionAvoidsCivilisation(generated, ::fail)
+    checkWoundsAreInCorruptedGround(generated, ::fail)
+
+    // Bestia spawners.
+    checkTheWorldHasSpawners(generated, ::fail)
+    checkSpawnersAreOnDryLand(generated, ::fail)
+    checkSpawnersAreWellFormed(generated, ::fail)
+    checkSpawnersNearHomeAreGentle(generated, ::fail)
+    checkSpawnersRespectCorruption(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
 
     return out
@@ -941,6 +969,9 @@ object Invariants {
       FeatureKind.FORT to SiteChannels.RADIUS,
       FeatureKind.LIGHTHOUSE to SiteChannels.RADIUS,
       FeatureKind.CAVE_HOARD to SiteChannels.RADIUS,
+      // The widest structural marker there is, at 260 m against a 320 m margin - so this is the one entry in
+      // this map that is anywhere near binding, and the one that would actually catch somebody widening a site.
+      FeatureKind.WOUND to SiteChannels.RADIUS,
       FeatureKind.CAVE_ENTRANCE to CaveChannels.MOUTH
     )
 
@@ -1507,6 +1538,81 @@ object Invariants {
    *   the player gets. They differ by however far erosion and deposition moved the shoreline, and telling
    *   the two apart is the difference between a normalisation bug and a legitimate seed.
    */
+  /**
+   * Share of the world's **standable land** that is corrupted, or 0 on a world without the layer.
+   *
+   * Public and beside [landFraction] for the reason that one is: the sweep prints it per seed and the
+   * invariant asserts against it, and two measurements of the same quantity would eventually disagree about
+   * whether the target is being hit.
+   *
+   * "Standable" is dry ground clear of lakes - the same denominator `CorruptionStage` solves its threshold
+   * over. Measuring against all cells instead would make the reported share swing with the ocean fraction,
+   * which is 0.05 to 0.85 across legitimate seeds and has nothing to do with corruption.
+   */
+  fun corruptedLandShare(generated: GeneratedWorld): Double {
+    val corruption = generated.world.layers[LayerId.CORRUPTION] as? FloatLayer ?: return 0.0
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return 0.0
+    val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer ?: return 0.0
+    val seaLevel = generated.config.seaLevel
+
+    var land = 0
+    var corrupted = 0
+    for (i in corruption.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      if (!waterLevel.data[i].isNaN()) continue
+      land++
+      if (corruption.data[i] >= CorruptionStage.CORRUPTED) corrupted++
+    }
+
+    return if (land == 0) 0.0 else corrupted.toDouble() / land
+  }
+
+  /**
+   * The mana's mark on the chronicle: wounds, and the four kinds of event they set off.
+   *
+   * Five numbers - `wounds, blights, wards, forsaken, seersLost` - printed per seed by the sweep, and it is the
+   * *counts* rather than any single check that make this subsystem impossible to ship dead. Each of the four
+   * can legitimately be zero on one world (a seed can go a thousand years without a town giving up), and each
+   * being zero across a whole sweep is a bug. A per-world assertion can only ever be the weaker of those two.
+   *
+   * The order is the causal order, which is also the order they can fail in: no wound means no blight, no
+   * blight means no ward and nothing forsaken.
+   */
+  fun manaHistoryCensus(generated: GeneratedWorld): IntArray {
+    val chronicle = generated.world.chronicle
+    return intArrayOf(
+      chronicle.sitesOfKind(SiteKind.WOUND).size,
+      chronicle.events.count { it.kind == EventKind.BLIGHT_SPREAD },
+      chronicle.events.count { it.kind == EventKind.WARD_RAISED },
+      chronicle.events.count { it.kind == EventKind.SETTLEMENT_FORSAKEN },
+      chronicle.events.count { it.kind == EventKind.SEER_VANISHED }
+    )
+  }
+
+  /**
+   * Spawners per level band: `1..8`, `9..40`, `41..79`, `80..100`.
+   *
+   * Four numbers rather than a mean, because a mean cannot tell "the whole world is level forty" from "half
+   * of it is level one and half is level eighty", and those are a working world and a broken one. The sweep
+   * prints this per seed; `checkSpawnersRespectCorruption` asserts the two ends of it.
+   */
+  fun spawnerCensus(generated: GeneratedWorld): IntArray {
+    val bands = IntArray(4)
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+      val level = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
+      val band = when {
+        level <= 8 -> 0
+        level <= 40 -> 1
+        level <= 79 -> 2
+        else -> 3
+      }
+      bands[band]++
+    }
+    return bands
+  }
+
   fun landFraction(generated: GeneratedWorld, layerId: LayerId = LayerId.ELEVATION): Double {
     val elevation = generated.world.layers.require<FloatLayer>(layerId)
     val seaLevel = generated.config.seaLevel
@@ -1820,7 +1926,8 @@ object Invariants {
   ) {
     val unitRange = listOf(
       LayerId.ROCK_HARDNESS, LayerId.CRUST_AGE, LayerId.SOIL_FERTILITY,
-      LayerId.BIOME_CONFIDENCE, LayerId.PRECIPITATION_SEASONALITY, LayerId.CANOPY_COVER
+      LayerId.BIOME_CONFIDENCE, LayerId.PRECIPITATION_SEASONALITY, LayerId.CANOPY_COVER,
+      LayerId.MANA_DENSITY
     )
 
     for (id in unitRange) {
@@ -1999,4 +2106,302 @@ object Invariants {
    * history never settled is not a town and an inn beside it is correct.
    */
   private const val INN_SETTLEMENT_CLEARANCE = 500.0
+
+  /**
+   * The corrupted share of the land is the share the designer asked for.
+   *
+   * The claim `CorruptionStage`'s quantile solve makes, and the only thing that can falsify it. A fixed
+   * threshold would fail this on most seeds, which is why there is not one; a solve that took its quantile
+   * over the wrong denominator - every cell rather than the land - would fail it on every seed with an
+   * unusual ocean share, which is the mistake worth catching here.
+   *
+   * Never vacuous: every world this pipeline produces has land, floored at 5% by `checkLandFraction`.
+   */
+  private fun checkCorruptionHitsItsTarget(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    if (generated.world.layers[LayerId.CORRUPTION] == null) return
+
+    val target = generated.params.corruption.corruptedLandShare
+    val actual = corruptedLandShare(generated)
+
+    if (abs(actual - target) > CORRUPTED_SHARE_TOLERANCE) {
+      fail(
+        "corrupted land share is on target",
+        "%.3f of the land is corrupted, asked for %.3f".format(actual, target)
+      )
+    }
+  }
+
+  /**
+   * Standing settlements hold the corruption back.
+   *
+   * Falsifies "suppression is computed and then multiplied by something that is one everywhere", which is
+   * exactly the shape a shipped-dead subsystem takes here: the corrupted share would still hit its target,
+   * the map would still look plausible, and towns would sit in blight.
+   *
+   * Deliberately **not** "no corruption near a town". That would be false at the fringe of a province that
+   * reaches a village, and forbidding it would rule out the corrupted-cellar-under-a-city hook that
+   * `CorruptionParams.suppressionStrength` is deliberately below one to allow. What is asserted is that the
+   * near-town mean is well under the land mean - a ratio, so it does not move when the target does.
+   */
+  private fun checkCorruptionAvoidsCivilisation(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val corruption = generated.world.layers[LayerId.CORRUPTION] as? FloatLayer ?: return
+    val civDistance = generated.world.layers[LayerId.CIVILISATION_DISTANCE] as? FloatLayer ?: return
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val seaLevel = generated.config.seaLevel
+    val near = generated.params.corruption.suppressionRange / 3.0
+
+    var nearSum = 0.0
+    var nearCount = 0
+    var landSum = 0.0
+    var landCount = 0
+
+    for (i in corruption.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      landSum += corruption.data[i]
+      landCount++
+      if (civDistance.data[i] <= near) {
+        nearSum += corruption.data[i]
+        nearCount++
+      }
+    }
+
+    // A world history emptied entirely has no standing settlement and therefore no near-town cells. That is
+    // a legitimate seed and there is nothing to assert about it - but say so out loud rather than returning
+    // silently, because "the check skipped its subject" is how this module spent a year with zero lakes.
+    if (nearCount == 0 || landCount == 0) return
+
+    val nearMean = nearSum / nearCount
+    val landMean = landSum / landCount
+    if (landMean <= 0.0) return
+
+    if (nearMean > landMean * CIVILISATION_SUPPRESSION_RATIO) {
+      fail(
+        "corruption avoids civilisation",
+        "mean corruption within %.0f m of a town is %.3f against %.3f over all land"
+          .format(near, nearMean, landMean)
+      )
+    }
+  }
+
+
+  /**
+   * Every wound stands in corrupted ground, and the log says how it got there.
+   *
+   * ### What this actually guards, since the placement makes half of it true by construction
+   *
+   * `CorruptionStage.woundLift` pins the field to 1.0 at a wound's centre, so "the corruption there is high"
+   * cannot fail as arithmetic. What can fail is the *join*: this stage reads `FeatureKind.WOUND` markers out of
+   * the feature store, and a `HistoryStage` that stopped emitting them - or emitted them under another kind, or
+   * after the query bounds moved - would leave the lift reading an empty list and look like nothing at all. Six
+   * of fifteen wounds sat on clean grass before the lift existed and every test in the module was green.
+   *
+   * The second half is not construction at all: a `WOUND` on the ground with no [EventKind.STAR_FELL] naming it
+   * is the lighthouse failure again - four structures in the world and nothing in the chronicle saying who put
+   * them there - and that one is a real assertion about [HistorySim].
+   *
+   * The count goes in the census rather than being required here. A world whose mana peak is at sea, in a lake
+   * or inside a town's clearance legitimately has no wound; a *zero* across a whole sweep is the failure, and
+   * that is what a printed figure catches and a per-world check cannot.
+   */
+  private fun checkWoundsAreInCorruptedGround(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val corruption = generated.world.layers[LayerId.CORRUPTION] as? FloatLayer ?: return
+    val chronicle = generated.world.chronicle
+    val wounds = chronicle.sitesOfKind(SiteKind.WOUND)
+    if (wounds.isEmpty()) return
+
+    val fell = chronicle.events.count { it.kind == EventKind.STAR_FELL }
+    if (fell == 0) {
+      fail(
+        "wounds are in corrupted ground",
+        "${wounds.size} wounds on the map and no STAR_FELL in the chronicle to explain any of them"
+      )
+      return
+    }
+
+    for (site in wounds) {
+      val at = corruption.sampleBilinear(site.position.x, site.position.y)
+      if (at < CorruptionStage.CORRUPTED) {
+        fail(
+          "wounds are in corrupted ground",
+          "the wound at (${site.position.x.toInt()}, ${site.position.y.toInt()}) stands in corruption " +
+              "%.2f, below the %.2f that counts as corrupted - is CorruptionStage still reading WOUND markers?"
+            .format(at, CorruptionStage.CORRUPTED)
+        )
+        return
+      }
+    }
+  }
+
+  /**
+   * The world has dens on it at all.
+   *
+   * Safe to assert unconditionally, unlike the sea-lane existence check that could not be: every world this
+   * pipeline produces has land, and land takes spawners at a floor acceptance rate. A zero here is the
+   * shipped-dead failure and nothing else.
+   */
+  private fun checkTheWorldHasSpawners(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    // Nothing to say on a partial pipeline that never ran the stage; a world that ran it and produced none
+    // is the failure.
+    if (generated.world.features.all().none { it.kind == FeatureKind.BESTIA_SPAWN }) {
+      val ran = generated.world.pipelineVersion != 0L &&
+          generated.world.layers[LayerId.CORRUPTION] != null
+      if (ran) fail("the world has spawners", "the spawner stage ran and produced no dens at all")
+    }
+  }
+
+  /** No den in the sea, and none in a lake. Two different questions, one check - `checkNoSettlementInTheSea`'s shape. */
+  private fun checkSpawnersAreOnDryLand(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer ?: return
+    val config = generated.config
+    val metres = config.baseResolution.metresPerCell
+    val seaLevel = config.seaLevel
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val x = (marker.position.x / metres).toInt()
+      val y = (marker.position.y / metres).toInt()
+
+      if (elevation[x, y] <= seaLevel) {
+        fail("spawners are on dry land", "a den at ${marker.position} is under the sea")
+        return
+      }
+      if (!waterLevel[x, y].isNaN()) {
+        fail("spawners are on dry land", "a den at ${marker.position} is under a lake")
+        return
+      }
+    }
+  }
+
+  /** Every channel inside the range its consumer assumes. */
+  private fun checkSpawnersAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val maxLevel = generated.params.spawner.maxLevel
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val low = marker.attribute(SpawnerChannels.LEVEL_MIN).toInt()
+      val high = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
+      val danger = marker.attribute(SpawnerChannels.DANGER)
+      val pack = marker.attribute(SpawnerChannels.PACK).toInt()
+      val radius = marker.attribute(SpawnerChannels.RADIUS)
+      val biome = marker.attribute(SpawnerChannels.BIOME).toInt()
+
+      val problem = when {
+        low < 1 || high > maxLevel -> "levels $low..$high outside 1..$maxLevel"
+        low > high -> "level range $low..$high is inverted"
+        danger !in 0.0..1.0 -> "danger $danger is not a share"
+        pack < 1 -> "pack $pack is empty"
+        radius <= 0.0 -> "radius $radius is not positive"
+        biome !in net.bestia.worldgen.bio.Biome.entries.indices -> "biome ordinal $biome is out of range"
+        else -> null
+      }
+
+      if (problem != null) {
+        fail("spawners are well formed", "a den at ${marker.position}: $problem")
+        return
+      }
+    }
+  }
+
+  /**
+   * Nothing above the cap inside the ring around a home village.
+   *
+   * The check that is invisible until a level-one master walks out of the gate and is eaten. Skips cleanly
+   * on a world history emptied of home candidates, which is legitimate and rare.
+   */
+  private fun checkSpawnersNearHomeAreGentle(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val homes = SettlementSpawnPoints.choose(generated)
+    if (homes.isEmpty()) return
+
+    val params = generated.params.spawner
+    val wrap = WorldWrap(generated.config)
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val near = homes.any {
+        wrap.distance(marker.position.x, marker.position.y, it.position.x, it.position.y) <
+            params.homeSafeRadius
+      }
+      if (!near) continue
+
+      val high = marker.attribute(SpawnerChannels.LEVEL_MAX).toInt()
+      if (high > params.homeMaxLevel) {
+        fail(
+          "spawners near home are gentle",
+          "a den at ${marker.position} reaches level $high inside the home ring"
+        )
+        return
+      }
+    }
+  }
+
+  /**
+   * Corrupted land is endgame and settled country is not.
+   *
+   * **Two-sided deliberately.** A one-sided "corrupted land is level eighty" passes against a danger field
+   * that is a constant eighty everywhere, which is a world with no ramp in it at all - and that is the
+   * likelier bug, because a broken weighted sum saturates rather than zeroing.
+   */
+  private fun checkSpawnersRespectCorruption(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val params = generated.params.spawner
+
+    var corruptedSum = 0.0
+    var corruptedCount = 0
+    var settledSum = 0.0
+    var settledCount = 0
+
+    val civDistance = generated.world.layers[LayerId.CIVILISATION_DISTANCE] as? FloatLayer ?: return
+    val metres = generated.config.baseResolution.metresPerCell
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.BESTIA_SPAWN) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val level = marker.attribute(SpawnerChannels.LEVEL_MIN).toDouble()
+      if (marker.attribute(SpawnerChannels.CORRUPTION) >= CorruptionStage.CORRUPTED) {
+        corruptedSum += level
+        corruptedCount++
+      }
+
+      val x = (marker.position.x / metres).toInt()
+      val y = (marker.position.y / metres).toInt()
+      if (civDistance[x, y] <= SETTLED_RANGE_METRES) {
+        settledSum += level
+        settledCount++
+      }
+    }
+
+    if (corruptedCount > 0) {
+      val mean = corruptedSum / corruptedCount
+      if (mean < params.corruptedMinLevel - params.levelSpread) {
+        fail(
+          "spawners respect corruption",
+          "mean level in corrupted land is %.1f, below the band floor".format(mean)
+        )
+      }
+    }
+
+    if (settledCount > 0) {
+      val mean = settledSum / settledCount
+      if (mean > SETTLED_MAX_MEAN_LEVEL) {
+        fail(
+          "spawners respect corruption",
+          "mean level within ${SETTLED_RANGE_METRES.toInt()} m of a road or town is %.1f".format(mean)
+        )
+      }
+    }
+  }
+
 }

@@ -7,6 +7,9 @@ import java.time.Duration
 
 class BestiaDateTimeTest {
 
+  /** 120 Bestia days at 3x real time and 8 real hours a day. Spelled out so the arithmetic is visible. */
+  private val REAL_DAYS_PER_YEAR = 40L
+
   @Test
   fun `zero elapsed time is the very start of year 1`() {
     val time = BestiaDateTime.since(Duration.ZERO)
@@ -100,11 +103,29 @@ class BestiaDateTimeTest {
   }
 
   @Test
-  fun `season follows the documented summer, winter, fall, spring order`() {
-    assertEquals(Season.SUMMER, BestiaDateTime.since(Duration.ZERO).season)
-    assertEquals(Season.WINTER, BestiaDateTime.since(Duration.ofDays(10)).season)
+  fun `season runs spring, summer, fall, winter through the year`() {
+    assertEquals(Season.SPRING, BestiaDateTime.since(Duration.ZERO).season)
+    assertEquals(Season.SUMMER, BestiaDateTime.since(Duration.ofDays(10)).season)
     assertEquals(Season.FALL, BestiaDateTime.since(Duration.ofDays(20)).season)
-    assertEquals(Season.SPRING, BestiaDateTime.since(Duration.ofDays(30)).season)
+    assertEquals(Season.WINTER, BestiaDateTime.since(Duration.ofDays(30)).season)
+  }
+
+  @Test
+  fun `dayOfYear counts whole days from the start of the year and wraps at the new year`() {
+    assertEquals(0, BestiaDateTime.since(Duration.ZERO).dayOfYear)
+    assertEquals(30, BestiaDateTime.since(Duration.ofDays(10)).dayOfYear) // one month in
+
+    // One real second before the year turns: the last Bestia day of the year, then back to zero.
+    assertEquals(119, BestiaDateTime.since(Duration.ofDays(REAL_DAYS_PER_YEAR).minusSeconds(1)).dayOfYear)
+    assertEquals(0, BestiaDateTime.since(Duration.ofDays(REAL_DAYS_PER_YEAR)).dayOfYear)
+  }
+
+  @Test
+  fun `absoluteDay keeps counting across the new year`() {
+    assertEquals(0.0, BestiaDateTime.since(Duration.ZERO).absoluteDay, 1e-9)
+    assertEquals(30.0, BestiaDateTime.since(Duration.ofDays(10)).absoluteDay, 1e-9)
+    assertEquals(120.0, BestiaDateTime.since(Duration.ofDays(REAL_DAYS_PER_YEAR)).absoluteDay, 1e-9)
+    assertEquals(240.0, BestiaDateTime.since(Duration.ofDays(2 * REAL_DAYS_PER_YEAR)).absoluteDay, 1e-9)
   }
 
   @Test

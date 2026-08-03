@@ -26,6 +26,21 @@ enum class ResourceType(val label: String) {
    */
   MITHRANDIUM("mithrandium"),
 
+  /**
+   * Ore that came out of corrupted ground.
+   *
+   * **Deliberately not a [MinableOre], and therefore never placed by [ResourceStage].** There is no aetherite
+   * deposit anywhere in any world: a body is iron or copper like any other, and `ChunkStructures.OreVeins`
+   * decides at materialisation that the rock around this one is corrupted enough for what comes out of it to
+   * be aetherite. That is what avoids a cycle - resources would otherwise need corruption, which needs
+   * settlements, which needs resources - and it is also the better story.
+   *
+   * It exists as a [ResourceType] for exactly one reason: `OreBlocks.yieldOf` has to be able to name what a
+   * player just broke. Nothing else reads it, and [value] never reaches the value field, because no marker
+   * ever carries `TYPE = AETHERITE`.
+   */
+  AETHERITE("aetherite"),
+
   // Bulk minerals.
   SALT("salt"),
   STONE("building stone"),
@@ -42,6 +57,9 @@ enum class ResourceType(val label: String) {
     get() = when (this) {
       // Above gold, but it is deep enough that no settlement can reach it, so this weight only ever reaches
       // the value field through the handful of shallow outliers - which is the intent.
+      // Above mithrandium, and as unreachable as it: nothing places an aetherite marker, so this weight
+      // cannot reach RESOURCE_VALUE and cannot move a settlement toward ground no civilisation could work.
+      AETHERITE -> 1.5
       MITHRANDIUM -> 1.2
       GOLD_LODE, GOLD_PLACER -> 1.0
       SILVER -> 0.75

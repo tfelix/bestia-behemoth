@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ColumnHeights
 import net.bestia.worldgen.core.FeatureStore
+import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.resource.GradeMix
@@ -120,8 +121,31 @@ class ChunkMaterializer(
    * decide how big every orebody is, so a different mix here means every deposit in the world holds a
    * different amount of metal than the number on its marker.
    */
-  private val grades: GradeMix = GradeMix()
+  private val grades: GradeMix = GradeMix(),
+
+  /**
+   * The corruption field, or null on a pipeline without the corruption stage.
+   *
+   * Reaches exactly one thing: [OreVeins], which samples it once per deposit to decide whether that body
+   * yields aetherite. The *cover* does not come through here - it goes through [surface], which carries the
+   * layer itself and owns the dither that decides a column.
+   */
+  private val corruption: FloatLayer? = null,
+
+  /** Corruption at or above which a body yields aetherite. Forwarded from `CorruptionParams`. */
+  private val aetheriteCorruption: Double = 1.0,
+
+  /** Where the mana crystals grow. Forwarded from the params object, like the vegetation tuning. */
+  crystalParams: CrystalParams = CrystalParams()
 ) {
+
+  /**
+   * Where the mana crystals are, without materialising a chunk to find out.
+   *
+   * Public for the reason [surface] is: "is there a crystal here" is a question about the world, and a
+   * runtime that wants to respawn a harvested one should not have to build a chunk to ask.
+   */
+  val crystals = CrystalScatter(config, surface, config.seed, crystalParams)
 
   /**
    * Where the trees are.
@@ -144,7 +168,7 @@ class ChunkMaterializer(
     val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
     val rivers = RiverWaterSampler(nearby)
     val ponds = PondWaterSampler(nearby)
-    val ore = OreVeins(nearby, config.seed, grades)
+    val ore = OreVeins(nearby, config.seed, grades, corruption, aetheriteCorruption)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
     val caves = CaveNetwork(nearby, config.seed, caveParams)
@@ -166,7 +190,9 @@ class ChunkMaterializer(
     // A second buffer, not the shared one: a column in a wood can be under several crowns at once, and
     // crowding them into the eight spans a building and a passage already share would truncate whichever
     // came last. They are also applied at a different time - see [fillColumn].
-    val foliage = if (trees == null || trees.isEmpty) null else StructureSpans()
+    // Allocated whenever anything might write into the air above the ground. Crystals can stand on a chunk
+    // with no tree in it, so this can no longer be gated on the tree lattice alone.
+    val foliage = StructureSpans()
 
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
@@ -393,11 +419,14 @@ class ChunkMaterializer(
     val temperature = surface.temperatureAt(worldX, worldY)
 
     val soilDepth = if (biome == Biome.CLIFF) 0.0 else surface.soilDepthAt(worldX, worldY)
-    val soilBlock = SurfaceCover.soil(biome, temperature).id.toByte()
+    // One dither draw for both the soil and the cap, so a column cannot come out with blighted turf over
+    // clean earth. Under water it is always false - corruption is zero over lakes and sea by construction.
+    val blighted = waterDepth <= 0.0 && surface.isBlightedAt(worldX, worldY)
+    val soilBlock = SurfaceCover.soil(biome, temperature, blighted).id.toByte()
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
     val paving = if (spans != null && waterDepth <= 0.0) structures.pavingAt(worldX, worldY) else null
-    val capBlock = (paving ?: SurfaceCover.cap(biome, temperature, waterDepth)).id.toByte()
+    val capBlock = (paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
@@ -559,9 +588,14 @@ class ChunkMaterializer(
      * `VegetationScatter.plant` and [trunkSite]. A per-column veto would be a rule the two halves of a
      * straddling crown could disagree about.
      */
-    if (trees != null && foliage != null) {
+    if (foliage != null) {
       foliage.clear()
-      trees.columnAt(worldX, worldY, foliage)
+      trees?.columnAt(worldX, worldY, foliage)
+
+      // After the trees, so a crystal cannot displace a trunk - both write `onlyIntoAir`, and the first
+      // producer into a voxel wins. A crystal under a canopy is fine and happens; a crystal *instead of* a
+      // trunk would be a tree quietly missing from a wood.
+      crystals.columnAt(worldX, worldY, top, foliage)
 
       for (i in 0 until foliage.count) {
         writeStructure(
@@ -732,7 +766,12 @@ class ChunkMaterializer(
      */
     // 2: subtraction - StructureSpans.remove and carve, and the mine head as an open shaft.
     // 3: vegetation - LOG and LEAVES scattered from the lattice, written into air after everything else.
-    const val VERSION = 4
+    // 4: (see git history)
+    // 5: blighted cover - corrupted ground caps and fills with the BLIGHTED_* twins, and its trees with them.
+    // 6: wounds - SiteKind.WOUND materialises a blighted rampart and a field of MANA_CRYSTAL_LARGE spires.
+    //    No BlockType changed, so `ChunkEngine.VERSION` deliberately stays where it is and the client needs no
+    //    release: every block a wound is made of was already in the palette at version 2.
+    const val VERSION = 6
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

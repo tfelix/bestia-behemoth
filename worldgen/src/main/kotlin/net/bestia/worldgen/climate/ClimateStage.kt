@@ -421,7 +421,10 @@ class ClimateStage(
       // for four: `shift * (2*s/(n-1) - 1)` gives -6, -2, +2, +6, which is two *distinct* near-equinox belt
       // positions, when physically spring and autumn sit at the same one. A sine gives 0, +6, 0, -6 and puts
       // the solstices at the extremes where they belong.
-      val phase = TAU * season / params.seasons
+      // Through `Seasons` rather than written out here, so the runtime's weather and temperature models read
+      // the same curve this sampled rather than a second one that happens to pass through the same four
+      // points. The expression there is this one verbatim, in the same order, for that reason.
+      val phase = Seasons.phaseOfQuarter(season, params.seasons)
 
       // The belt migration lags the thermal cycle - see monsoonLagMonths. This is what keeps the two
       // equinoxes from being the same field: equal temperature, opposite belt position.
@@ -429,7 +432,7 @@ class ClimateStage(
 
       // How far this season sits from the annual mean, as a fraction of the local summer-to-winter swing.
       // Signed per hemisphere at the row, not here.
-      val warming = 0.5 * kotlin.math.sin(phase)
+      val warming = Seasons.warmingAtPhase(phase)
 
       val precip = Grid(region.width, region.height)
 

@@ -33,7 +33,41 @@ class Bestia(
    * it from its own DB instead of receiving it online.
    */
   @Column(name = "equip_slot_mask", nullable = false)
-  val equipSlotMask: Int = 0
+  val equipSlotMask: Int = 0,
+
+  /**
+   * Biomes a wild spawner may place this species in, as a comma-separated list of
+   * `net.bestia.worldgen.bio.Biome` **names**, or empty for "any biome the den's own rules allow".
+   *
+   * Names rather than ordinals because ordinals are the on-disk form of the `BIOME` raster and this is
+   * authored content - a reordered enum must not silently re-home every mob in the game. H2 is rebuilt on
+   * every boot, so a string column costs nothing here.
+   */
+  @Column(name = "habitat", nullable = false)
+  val habitat: String = "",
+
+  /** True when this species may only be placed by a den standing on corrupted ground. */
+  @Column(name = "corrupted_only", nullable = false)
+  val corruptedOnly: Boolean = false,
+
+  /**
+   * True when this species is a boss: placed only by a den whose `BOSS` channel is set, and one at a time.
+   *
+   * Separate from a level of 100, because a level-100 species that is *not* a boss is a legitimate thing to
+   * author - a pack of them - and a den has to be able to tell the two apart before it decides how many to
+   * keep alive.
+   */
+  @Column(name = "boss", nullable = false)
+  val boss: Boolean = false,
+
+  /**
+   * Relative chance of being picked when several species fit a den, higher being likelier.
+   *
+   * A weight rather than a probability so a designer can add a species without restating every other one -
+   * the same reason a loot table carries chances rather than shares.
+   */
+  @Column(name = "spawn_weight", nullable = false)
+  val spawnWeight: Int = 100
 ) {
 
   init {

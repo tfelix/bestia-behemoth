@@ -211,6 +211,58 @@ data class LayerId(val name: String) {
      */
     val RESOURCE_VALUE = LayerId("resource_value")
 
+    // --- Mana ------------------------------------------------------------------------------------
+
+    /**
+     * Ambient mana, 0 to 1, **before civilisation has anything to do with it**.
+     *
+     * The geological field: broad warped provinces, biased toward convergent plate boundaries the same way
+     * ore genesis and volcanism are, so the world's magic and its mountains have a common cause instead of
+     * being two unrelated noise fields laid over the same ground.
+     *
+     * Defined over ocean as well as land, and deliberately: it is what the *rock* holds, and a stage asking
+     * "how much mana is under this sea floor" should get an answer rather than a sentinel. [CORRUPTION] is
+     * the one that is land-only, because corruption is a statement about ground somebody could stand on.
+     *
+     * Read by [net.bestia.worldgen.history.HistoryStage], which is why this is separate from [CORRUPTION]
+     * rather than being the same layer after suppression: history must see where mana wells up in order to
+     * react to it, and the suppression is a *consequence* of a civilisation that survived doing so.
+     */
+    val MANA_DENSITY = LayerId("mana_density")
+
+    /**
+     * How far the land here has gone over, 0 on clean ground to 1 in the heart of a blighted region.
+     *
+     * [MANA_DENSITY] after civilisation suppresses it, ramped past a threshold **solved per world** so that
+     * `ManaParams.corruptedLandShare` of the land comes out above `CorruptionStage.CORRUPTED`. A fixed cutoff
+     * cannot hold that target: the land fraction alone legitimately runs from 0.05 to 0.85, and a seed with
+     * few towns has more unsuppressed ground than one with many.
+     *
+     * **`>= CorruptionStage.CORRUPTED` is what "corrupted" means**, and it is the quantile by construction.
+     * The share of cells with *any* corruption is larger, because the ramp is a smoothstep rather than a
+     * step - a hard edge would draw a contour line across the ground where a walkable transition belongs.
+     *
+     * Like [BIOME_CONFIDENCE] this is **relative to a world**: the same mana value corrupts on one seed and
+     * not on another, because the threshold moved. That is the right trade for hitting a design target and
+     * the wrong one for comparing two worlds, so do not.
+     *
+     * Zero over ocean and lakes.
+     */
+    val CORRUPTION = LayerId("corruption")
+
+    /**
+     * Metres to the nearest road or standing settlement, capped at the world's long edge.
+     *
+     * Produced by the corruption stage because that is what needs it first, and emitted rather than kept
+     * private because the spawn stage wants the same number - two stages running the same distance transform
+     * over the same mask is exactly the duplication `civ/Terms.kt` exists to prevent. [DISTANCE_TO_OCEAN] is
+     * the precedent: computed once by climate, wanted by half the pipeline.
+     *
+     * **Standing** settlements only. A settlement history razed no longer keeps the wilderness back, which is
+     * why this cannot be computed before the history simulation has run.
+     */
+    val CIVILISATION_DISTANCE = LayerId("civilisation_distance")
+
     // --- Civilisation ----------------------------------------------------------------------------
 
     /** Suitability for settlement, 0 to 1. Weighted differently per culture; see HabitabilityStage. */

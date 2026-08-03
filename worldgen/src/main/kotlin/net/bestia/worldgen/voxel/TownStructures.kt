@@ -19,6 +19,7 @@ import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -515,6 +516,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.MONASTERY -> monasteryColumn(site, worldX, worldY, ground, distance, into)
       SiteKind.FORT -> fortColumn(site, ground, distance, into)
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
+      SiteKind.WOUND -> woundColumn(site, worldX, worldY, ground, distance, into)
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
       // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
@@ -692,6 +694,85 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     into.add(ground - SLAB_THICKNESS, ground + height * (1.0 - site.decay * 0.4), BlockType.MASONRY)
   }
 
+  /**
+   * A wound: a ring of thrown-up blighted earth with a field of crystal spires standing inside it.
+   *
+   * ### Why there is no crater
+   *
+   * The obvious shape is a bowl, and it was tried. A `remove` span carves the ground away, but
+   * `CrystalScatter` - which runs later, into the foliage buffer, and knows nothing about sites - plants its
+   * crystals from the **heightfield** surface upward. Carve the ground out from under it and every ordinary
+   * crystal inside the wound stands in mid-air over the hole. The bowl would have to veto a producer two files
+   * away, or `CrystalScatter` would have to learn what a site is; a rampart costs neither and reads as an
+   * impact just as well. That is also why this is the one site that adds *outward* rather than downward.
+   *
+   * ### The spires are a lattice, deliberately the same one crystals use
+   *
+   * `CrystalScatter`'s cell-hash-jitter-own-column shape, at a tighter spacing and a greater height. Not a
+   * per-column probability, for the reason that file's KDoc gives at length: a smooth probability sampled per
+   * column is speckle, not a field. Not a call *into* `CrystalScatter` either, because that class is driven by
+   * the corruption raster and this is driven by one marker's radius - they agree on the mechanism and disagree
+   * on the input, which is exactly when copying twenty lines beats sharing them.
+   *
+   * Everything here is a function of the world position and the marker's own id, so the two halves of a wound
+   * that straddles a chunk border agree about every spire in it.
+   */
+  private fun woundColumn(
+    site: Site,
+    worldX: Double,
+    worldY: Double,
+    ground: Double,
+    distance: Double,
+    into: StructureSpans
+  ) {
+    val fraction = distance / site.radius
+
+    if (fraction > WOUND_RAMPART_SHARE) {
+      // A hump rather than a step: zero where the crystal field ends, highest between there and the rim, and
+      // back to zero at the radius so the wound does not end in a wall.
+      val across = (fraction - WOUND_RAMPART_SHARE) / (1.0 - WOUND_RAMPART_SHARE)
+      val height = WOUND_RAMPART_HEIGHT * sin(Math.PI * across)
+      if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.BLIGHTED_DIRT)
+      return
+    }
+
+    val cellX = Math.floorDiv(Quantize.toFixed(worldX), WOUND_SPIRE_UNITS)
+    val cellY = Math.floorDiv(Quantize.toFixed(worldY), WOUND_SPIRE_UNITS)
+    val hash = GenRng.hash(seed, site.salt, cellX, cellY)
+
+    // The spire's position inside its cell, then the test that only the column it actually lands in draws it.
+    // Off the cell's own origin and not off `worldX`, or the spire moves as neighbouring columns ask about it.
+    val originX = cellX * WOUND_SPIRE_UNITS / Quantize.PER_METRE
+    val originY = cellY * WOUND_SPIRE_UNITS / Quantize.PER_METRE
+    val jitter = WOUND_SPIRE_SPACING * WOUND_SPIRE_JITTER
+    val spireX = originX + WOUND_SPIRE_SPACING * 0.5 + (GenRng.unit(GenRng.mix64(hash xor 0x51L)) - 0.5) * jitter
+    val spireY = originY + WOUND_SPIRE_SPACING * 0.5 + (GenRng.unit(GenRng.mix64(hash xor 0x52L)) - 0.5) * jitter
+
+    val voxelUnits = Quantize.toFixed(1.0)
+    if (Math.floorDiv(Quantize.toFixed(spireX), voxelUnits) !=
+      Math.floorDiv(Quantize.toFixed(worldX), voxelUnits)
+    ) return
+    if (Math.floorDiv(Quantize.toFixed(spireY), voxelUnits) !=
+      Math.floorDiv(Quantize.toFixed(worldY), voxelUnits)
+    ) return
+
+    // Denser and taller towards the centre, so the field has a middle. Measured at the spire rather than at the
+    // column, which is the same column here - saying so is what keeps it correct if the cell ever grows.
+    val toCentre = sqrt(
+      (spireX - site.position.x) * (spireX - site.position.x) +
+          (spireY - site.position.y) * (spireY - site.position.y)
+    ) / site.radius
+    if (toCentre > WOUND_RAMPART_SHARE) return
+
+    val inward = 1.0 - toCentre / WOUND_RAMPART_SHARE
+    if (GenRng.unit(GenRng.mix64(hash xor 0x53L)) >= WOUND_SPIRE_DENSITY * inward) return
+
+    val height = WOUND_SPIRE_MIN_HEIGHT +
+        (WOUND_SPIRE_MAX_HEIGHT - WOUND_SPIRE_MIN_HEIGHT) * inward *
+        GenRng.unit(GenRng.mix64(hash xor 0x54L))
+    into.add(ground - SLAB_THICKNESS, ground + height, BlockType.MANA_CRYSTAL_LARGE)
+  }
+
   private companion object {
 
     /**
@@ -707,7 +788,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       FeatureKind.MINE to SiteKind.MINE,
       FeatureKind.MONASTERY to SiteKind.MONASTERY,
       FeatureKind.FORT to SiteKind.FORT,
-      FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE
+      FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE,
+      FeatureKind.WOUND to SiteKind.WOUND
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
@@ -728,6 +810,40 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     const val LIGHTHOUSE_BASE_SHARE = 0.70
     const val LIGHTHOUSE_BASE_HEIGHT = 2.0
     const val LIGHTHOUSE_HEIGHT = 18.0
+
+    /**
+     * A wound: the crystal field's share of the radius, and the rampart that rings it.
+     *
+     * At the 260 m radius `HistorySim.WOUND_RADIUS` gives it, the field is 182 m across and the rampart is a
+     * 78 m band. Deliberately the widest thing in this file: a player standing at the rim should not be able to
+     * see the far side clearly, or it reads as a garden feature rather than as a hole in the world.
+     */
+    const val WOUND_RAMPART_SHARE = 0.70
+    const val WOUND_RAMPART_HEIGHT = 3.4
+
+    /**
+     * The spire lattice: cell edge in metres, jitter as a share of it, and how often a cell holds one.
+     *
+     * Density is at the *centre* and tapers to nothing at the rampart, so the field has a middle. At 7 m cells
+     * and 0.55 that is roughly 5 600 lattice cells over the field and something over a thousand spires in it -
+     * dense enough to be a place, sparse enough to walk through.
+     */
+    const val WOUND_SPIRE_SPACING = 7.0
+    const val WOUND_SPIRE_JITTER = 0.7
+    const val WOUND_SPIRE_DENSITY = 0.55
+
+    /** Metres. Tall enough to break the skyline from outside the rampart, which is the point of them. */
+    const val WOUND_SPIRE_MIN_HEIGHT = 2.5
+    const val WOUND_SPIRE_MAX_HEIGHT = 9.0
+
+    /**
+     * The lattice pitch in [Quantize] units.
+     *
+     * Fixed-point, and that is not an optimisation: the cell index has to be *exactly* the same integer for
+     * every column in a cell, from either side of a chunk border, and `worldX / spacing` in doubles is not
+     * required to be. `CrystalScatter` and `VegetationScatter` both index their lattices this way.
+     */
+    val WOUND_SPIRE_UNITS = Quantize.toFixed(WOUND_SPIRE_SPACING)
 
     /** Must match `Building.STOREY_HEIGHT`; the marker stores storeys, not metres. */
     const val STOREY_HEIGHT = 2.6

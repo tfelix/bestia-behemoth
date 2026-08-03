@@ -144,6 +144,16 @@ object Palettes {
     LayerId.SOIL_FERTILITY, LayerId.HABITABILITY, LayerId.BIOME_CONFIDENCE, LayerId.RESOURCE_VALUE,
     LayerId.CANOPY_COVER ->
       ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
+
+    /**
+     * Pinned to the unit range rather than auto-ranged, and for the seasonal fields' reason.
+     *
+     * Mana and the corruption derived from it are meant to be read against each other - the whole question
+     * a designer asks of these two maps is "where did the towns hold it back" - and two auto-ranged fields
+     * answer that in two different colour spaces. Corruption is also zero over most of the world by design,
+     * which auto-ranging would stretch into a picture of the noise floor.
+     */
+    LayerId.MANA_DENSITY, LayerId.CORRUPTION -> ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
     LayerId.SOIL_DEPTH -> ContinuousPalette(Ramps.VIRIDIS, 0.0..9.0)
 
     /** Ice is white where it is thick; a log-ish top end because an ice cap dwarfs a valley glacier. */

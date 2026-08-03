@@ -82,7 +82,11 @@ data class RenderOptions(
       FeatureKind.STREET,
       FeatureKind.BUSINESS,
       FeatureKind.SETTLEMENT_HISTORY,
-      FeatureKind.SETTLEMENT_ECONOMY
+      FeatureKind.SETTLEMENT_ECONOMY,
+      // Thousands of dots wash out the rivers and roads the overlay exists to show. Unlike the records above
+      // this *is* a real place, so it is hidden for legibility rather than because it is an attribute row -
+      // and it is one click away in the legend.
+      FeatureKind.BESTIA_SPAWN
     )
   }
 }
@@ -508,6 +512,11 @@ class MapRenderer(
       // Treasure, in the colour the map already uses for something worth having, darkened towards the caves
       // it is hidden in.
       FeatureKind.CAVE_HOARD -> Color(230, 180, 80)
+      FeatureKind.BESTIA_SPAWN -> Color(220, 70, 70)
+      // The mana's own hue - the same violet the `mana_density` and `corruption` ramps end on - pushed to full
+      // saturation, because there are at most three of these on a world and they are the thing the chronicle
+      // keeps referring to. Deliberately not in `HIDDEN_BY_DEFAULT`.
+      FeatureKind.WOUND -> Color(215, 60, 255)
       FeatureKind.COASTLINE -> Color(250, 250, 250)
       FeatureKind.TECTONIC_BASIN -> Color(120, 170, 235)
       FeatureKind.GLACIAL_TROUGH, FeatureKind.FJORD -> Color(140, 220, 255)

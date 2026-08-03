@@ -54,7 +54,21 @@ class SpecialSiteCandidates(
    * this class. The division this class exists for still holds - the terrain decides where a cave's deep end
    * is, and a thousand years of war decides whether anybody ever had reason to run to one.
    */
-  val caves: List<SiteCandidate> = emptyList()
+  val caves: List<SiteCandidate> = emptyList(),
+
+  /**
+   * The peaks of the mana field: where something came down, and where the corruption pools.
+   *
+   * Not a place anybody builds either, and for a stronger reason than a cave - a cave is at least somewhere a
+   * person could go. This is the one candidate list that is a statement about the *world* rather than about
+   * what a civilisation could do with it, which is why the simulation founds these before it founds anything
+   * else and without asking whether a civ exists.
+   *
+   * [SiteCandidate.quality] is the raw mana density, which `ManaStage` rank-normalises over land - so a
+   * quality of 0.97 means "the top three percent of the world's mana", comparable within a world and
+   * deliberately not across worlds.
+   */
+  val wounds: List<SiteCandidate> = emptyList()
 ) {
 
   companion object {
@@ -85,8 +99,74 @@ class SpecialSiteCandidates(
         monasteries = monasteries(region, facts, params, elevation, habitability, waterLevel, seaLevel),
         forts = forts(region, facts, params, elevation, waterLevel, seaLevel),
         lighthouses = lighthouses(region, facts, params, elevation, distanceToOcean, seaLevel),
-        caves = caves(ctx, region)
+        caves = caves(ctx, region),
+        wounds = wounds(ctx, region, facts, params, elevation, waterLevel, seaLevel)
       )
+    }
+
+    /**
+     * The highest-mana places on land, mutually far apart: where the star came down.
+     *
+     * Reads [LayerId.MANA_DENSITY] - the **raw** geological field, before any settlement has quenched
+     * anything, because `mana` runs before `settlements` and `corruption` runs after `history`. That ordering
+     * is deliberate and it is what makes this causally right: the star fell where it fell, people later built
+     * where they could, and the corruption that survives is what their walls and roads failed to hold back.
+     *
+     * Three filters, and each earns its place:
+     *
+     * - **Land, with freeboard and clear of standing water.** A wound at the bottom of a lake is a wound
+     *   nobody can walk to, and a chunk's detail noise can put a barely-dry centre under water - the same
+     *   argument [isDryGround] and [isClearOfStandingWater] make for a monastery, and a wound is six times
+     *   wider than a cloister.
+     * - **Clear of every settlement site.** Partly because a 260 m crater through somebody's market square is
+     *   a layout problem, and partly for a reason that only shows up two stages later: a settlement suppresses
+     *   corruption for kilometres around it, so a wound beside a town would come out sitting on *clean* ground
+     *   and the one invariant that checks these would be measuring nothing.
+     * - **Above [HistoryParams.woundMana].** Mana is a percentile over land, so this is literally "the top
+     *   tenth". A world whose peak is lower than that has no wound, and that is an answer rather than a
+     *   failure - though it does not happen on any seed measured so far.
+     *
+     * Separated by [HistoryParams.woundSeparation], which is far wider than [HistoryParams.siteSeparation]:
+     * two wounds a province apart are the same wound as far as a player is concerned.
+     */
+    private fun wounds(
+      ctx: GenContext,
+      region: CellRegion,
+      facts: List<SiteFacts>,
+      params: HistoryParams,
+      elevation: FloatLayer,
+      waterLevel: FloatLayer,
+      seaLevel: Double
+    ): List<SiteCandidate> {
+      if (!ctx.layers.contains(LayerId.MANA_DENSITY)) return emptyList()
+      val mana = ctx.layers.float(LayerId.MANA_DENSITY)
+
+      val found = ArrayList<SiteCandidate>()
+      val metres = region.resolution.metresPerCell
+      val stride = max(1, (params.candidateStride / metres).toInt())
+
+      var y = 0
+      while (y < region.height) {
+        var x = 0
+        while (x < region.width) {
+          val position = Vec2d((region.minX + x + 0.5) * metres, (region.minY + y + 0.5) * metres)
+          val density = mana.sampleBilinear(position.x, position.y)
+
+          if (density >= params.woundMana &&
+            isDryGround(elevation, position, seaLevel, params.siteFreeboard) &&
+            isClearOfStandingWater(waterLevel, region, position) &&
+            facts.none { it.position.distanceTo(position) < params.woundClearance }
+          ) {
+            found.add(SiteCandidate(position, density))
+          }
+
+          x += stride
+        }
+        y += stride
+      }
+
+      found.sortByDescending { it.quality }
+      return separate(found, params.woundSeparation, params.maxWounds)
     }
 
     /**

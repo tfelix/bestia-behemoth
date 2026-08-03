@@ -1,10 +1,21 @@
 id: 1
 identifier: blob
+level: 3
 # Statuswerte
 ai: passive_wanderer
 health: 10
 mana: 8
 experience: 5
+# Where the wild spawners are allowed to place it. Empty `habitat` means "anywhere on land".
+habitat:
+  - GRASSLAND
+  - STEPPE
+  - SHRUBLAND
+  - SAVANNA
+  - RIPARIAN
+  - BEACH
+  - TEMPERATE_FOREST
+spawn-weight: 100
 # A blob has no head, hands or accessories - only these two slots exist for it.
 equip-slots:
   - ARMOR

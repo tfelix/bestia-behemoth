@@ -25,7 +25,10 @@ import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.karst.CaveStage
+import net.bestia.worldgen.mana.CorruptionStage
+import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
+import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
@@ -79,6 +82,11 @@ class StandardWorldTest {
         // Caves sort before resources on the name tie-break, not because anything needs them first: both read
         // the same five upstream stages and neither reads the other.
         CaveStage.ID,
+        // Mana reads only tectonics, the finished ground and the water, so like the caves it is ready as soon
+        // as the biomes are and lands here on the name tie-break alone. Where it sits relative to the ponds
+        // and the vegetation does not matter; what matters is that it is *before* history, which is a real
+        // edge - see `mana/ManaStage.kt` for why the field is split in two around the history simulation.
+        ManaStage.ID,
         // Ponds come after the fans on a real edge rather than a tie-break: the rim search that decides how
         // high a tarn fills walks the finished ground, and a fan across a valley floor is a dam in it. That
         // they also land after the caves is the tie-break again, and harmless - a cave affects no height.
@@ -93,8 +101,18 @@ class StandardWorldTest {
         // how much of it is stone follows the wealth history gave it. Laying it out first would mean either
         // regenerating the layout or leaving the walls unexplained.
         HistoryStage.ID,
+        // Corruption is the second half of the mana field and it sits here on a real edge, not a tie-break:
+        // it suppresses by the settlements *history* left standing, so a razed town stops holding the
+        // wilderness back. It also sorts before `towns` by name, which is harmless - no building reads it.
+        CorruptionStage.ID,
         TownStage.ID,
-        EconomyStage.ID
+        EconomyStage.ID,
+        // Last, and *not* where a name tie-break would put it: "spawners" sorts before "towns", so a
+        // ready-set-at-a-time scheduler would run it before them. This one advances a whole level at a
+        // time, and spawners only became ready when corruption finished - by which point towns was already
+        // in the level being run. Harmless either way, since nothing reads a den; recorded because the
+        // difference is invisible until you predict a position and get another.
+        SpawnerStage.ID
       ),
       order
     )
@@ -690,17 +708,26 @@ class StandardWorldTest {
      * A roof, a deck and a tree crown are all at their own elevation and the column source never claimed
      * otherwise, so a surface view reading one of them is not an error. The set started as a single
      * `== MASONRY` check for bridge decks and has grown once per phase that put something above ground: the
-     * seven worked materials with step 8, and `LOG`/`LEAVES` with the vegetation scatter.
+     * seven worked materials with step 8, `LOG`/`LEAVES` with the vegetation scatter, and the two mana
+     * crystals with the corruption work.
+     *
+     * The blighted twins are here *and* in [SOILS], each beside the material it replaces, because that is
+     * what they are: a blighted log stands on the ground exactly as a log does, and blighted turf is the
+     * ground exactly as turf is.
      */
     val BUILT = setOf(
       BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
       BlockType.ROOF_TILE, BlockType.RUBBLE, BlockType.COBBLESTONE,
-      BlockType.LOG, BlockType.LEAVES
+      BlockType.LOG, BlockType.LEAVES,
+      BlockType.BLIGHTED_LOG, BlockType.BLIGHTED_LEAVES,
+      BlockType.MANA_CRYSTAL_SMALL, BlockType.MANA_CRYSTAL_LARGE
     )
 
     val SOILS = setOf(
       BlockType.DIRT, BlockType.SAND, BlockType.CLAY, BlockType.PEAT,
-      BlockType.PERMAFROST, BlockType.GRASS
+      BlockType.PERMAFROST, BlockType.GRASS,
+      BlockType.BLIGHTED_DIRT, BlockType.BLIGHTED_SAND, BlockType.BLIGHTED_PEAT,
+      BlockType.BLIGHTED_GRASS
     )
     val BEDROCKS = setOf(
       BlockType.GRANITE, BlockType.BASALT, BlockType.LIMESTONE,

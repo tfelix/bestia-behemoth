@@ -38,11 +38,28 @@ class SurfaceSampler(
    * exactly as it did before the pair existed.
    */
   private val secondaryBiome: IntLayer? = null,
-  private val biomeConfidence: FloatLayer? = null
+  private val biomeConfidence: FloatLayer? = null,
+
+  /**
+   * The mana field and the corruption derived from it, or null on a pipeline that has not run them.
+   *
+   * Optional for the same reason [secondaryBiome] and [biomeConfidence] are a pair - but here the null is
+   * load bearing rather than defensive. `bio/VegetationStage` builds a sampler through the
+   * [ScopedLayerStore] overload and runs **before** the corruption stage, so it cannot see this layer and
+   * must not have to declare a dependency on a stage it does not need. Only the [LayerStore] overload, which
+   * `StandardWorld.assemble` calls once the whole world tier has run, supplies them.
+   *
+   * The consequence is worth stating: `CANOPY_COVER` is computed before corruption exists, so a corrupted
+   * wood keeps its trees and they come out blighted rather than gone. Killing them is the runtime
+   * vegetation simulation's job, not the map's.
+   */
+  private val manaDensity: FloatLayer? = null,
+  private val corruption: FloatLayer? = null
 ) {
 
   private val jitterSeed = GenRng.mix64(seed xor JITTER_SALT)
   private val ditherSeed = GenRng.mix64(seed xor DITHER_SALT)
+  private val blightSeed = GenRng.mix64(seed xor BLIGHT_SALT)
 
   /**
    * Which biome covers this column.
@@ -113,6 +130,43 @@ class SurfaceSampler(
   fun soilDepthAt(worldX: Double, worldY: Double): Double =
     soilDepth.sampleBilinear(worldX, worldY).coerceAtLeast(0.0)
 
+  /** Ambient mana here, 0 to 1, or 0 on a pipeline without the mana stage. */
+  fun manaAt(worldX: Double, worldY: Double): Double =
+    manaDensity?.sampleBilinear(worldX, worldY)?.coerceIn(0.0, 1.0) ?: 0.0
+
+  /** How far the land here has gone over, 0 to 1, or 0 on a pipeline without the corruption stage. */
+  fun corruptionAt(worldX: Double, worldY: Double): Double =
+    corruption?.sampleBilinear(worldX, worldY)?.coerceIn(0.0, 1.0) ?: 0.0
+
+  /**
+   * Whether this column's cover comes out blighted.
+   *
+   * **A dithered decision, not a threshold on the sampled value**, and the reason is the one [biomeAt]
+   * already learned: `CORRUPTION` is a kilometre raster, so comparing a bicubic sample of it against a
+   * constant draws a smooth contour line across the ground. At a metre per voxel that reads as a painted
+   * edge - the one thing no natural boundary has.
+   *
+   * The recipe is [biomeAt]'s, with the third ingredient that cannot be skipped: a smooth patch field, a
+   * cutoff in it, and a **decision unit larger than a voxel**. The patch field is what supplies the third -
+   * a per-column hash would give a 50/50 speckle of blighted and clean over the whole transition, which is
+   * the failure `BiomeDitherTest` was written for.
+   *
+   * [BLIGHT_PATCH_WAVELENGTH] is deliberately coarser than [PATCH_WAVELENGTH]: an ecotone is a spray of
+   * individual plants and blight is the ground itself going over, so it wants patches a player reads as
+   * ground rather than as texture.
+   */
+  fun isBlightedAt(worldX: Double, worldY: Double): Boolean {
+    val severity = corruptionAt(worldX, worldY)
+    if (severity <= 0.0) return false
+    if (severity >= 1.0) return true
+
+    val patch = (Noise.fbm(
+      blightSeed, worldX / BLIGHT_PATCH_WAVELENGTH, worldY / BLIGHT_PATCH_WAVELENGTH, BLIGHT_OCTAVES
+    ) + 1.0) / 2.0
+
+    return patch < severity
+  }
+
   fun temperatureAt(worldX: Double, worldY: Double): Double =
     temperature.sampleBilinear(worldX, worldY)
 
@@ -157,7 +211,11 @@ class SurfaceSampler(
       // if the biome stage has run at all it has emitted both, and a silent fallback here would mean the
       // dither quietly not happening.
       secondaryBiome = layers.require(LayerId.BIOME_SECONDARY),
-      biomeConfidence = layers.require(LayerId.BIOME_CONFIDENCE)
+      biomeConfidence = layers.require(LayerId.BIOME_CONFIDENCE),
+      // Optional reads, unlike the pair above: a partial pipeline in a test or the viewer legitimately has
+      // no mana stage, and the answer there is "nothing is corrupted" rather than a failure.
+      manaDensity = layers[LayerId.MANA_DENSITY] as? FloatLayer,
+      corruption = layers[LayerId.CORRUPTION] as? FloatLayer
     )
 
     /**
@@ -187,6 +245,21 @@ class SurfaceSampler(
 
     /** Separate from [JITTER_SALT] so the dither is independent of the warp rather than correlated with it. */
     private const val DITHER_SALT = 0x24B7E0C3A159D8L
+
+    /** Its own salt, so blight does not land on the same patches the biome dither does. */
+    private const val BLIGHT_SALT = 0x11C7A93E5F260BL
+
+    /**
+     * Patch size of the blight dither in metres.
+     *
+     * Nearly twice [PATCH_WAVELENGTH]. An ecotone is individual plants winning individual metres and reads
+     * right at fourteen; corrupted ground is the earth itself going over, and at that scale it came out as
+     * speckle rather than as ground.
+     */
+    private const val BLIGHT_PATCH_WAVELENGTH = 26.0
+
+    /** One octave would band visibly at this wavelength; two is enough to look like ground. */
+    private const val BLIGHT_OCTAVES = 2
 
     // There was a DITHER_CUTOFF here, and it is worth knowing why it is gone rather than only that it is.
     //
@@ -238,8 +311,15 @@ object SurfaceCover {
    * biomes outranked the snow line and the rest did not.
    */
 
-  /** The block filling the soil layer between bedrock and the surface. */
-  fun soil(biome: Biome, temperature: Double): BlockType = when (biome) {
+  /**
+   * The block filling the soil layer between bedrock and the surface.
+   *
+   * [blighted] has **no default**, deliberately. This file's whole argument is that a default here is an
+   * answer given on behalf of a case nobody has thought about, and `false` would be exactly that for the
+   * next caller who forgets corrupted ground exists.
+   */
+  fun soil(biome: Biome, temperature: Double, blighted: Boolean): BlockType = blight(
+    when (biome) {
     Biome.WETLAND -> BlockType.PEAT
     Biome.BEACH, Biome.DESERT -> BlockType.SAND
     Biome.BADLANDS, Biome.RIPARIAN -> BlockType.CLAY
@@ -250,16 +330,21 @@ object SurfaceCover {
     Biome.ICE_SHEET, Biome.GLACIER, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
     Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
     Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-    Biome.CLIFF ->
-      if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
-  }
+      Biome.CLIFF ->
+        if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
+    },
+    blighted
+  )
 
   /**
    * The single topmost block of a column.
    *
    * @param waterDepth metres of water above the column, or 0 when it is dry land
+   * @param blighted whether this column stands on corrupted ground; see [soil] for why it has no default
    */
-  fun cap(biome: Biome, temperature: Double, waterDepth: Double): BlockType {
+  fun cap(biome: Biome, temperature: Double, waterDepth: Double, blighted: Boolean): BlockType {
+    // Under water before anything else, and not blighted: corruption is zero over lakes and sea by
+    // construction, so a blighted lake bed could only ever be a caller passing the wrong flag.
     if (waterDepth > DEEP_WATER) return BlockType.CLAY
     if (waterDepth > 0.0) return if (temperature < 2.0) BlockType.GRAVEL else BlockType.SAND
 
@@ -276,11 +361,12 @@ object SurfaceCover {
       Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
       Biome.WETLAND, Biome.RIPARIAN -> null
     }
-    if (bare != null) return bare
+    if (bare != null) return blight(bare, blighted)
 
     if (temperature < SNOW_TEMPERATURE) return BlockType.SNOW
 
-    return when (biome) {
+    return blight(
+      when (biome) {
       Biome.WETLAND -> BlockType.PEAT
       Biome.TUNDRA, Biome.COLD_DESERT -> BlockType.DIRT
       Biome.ALPINE -> BlockType.GRAVEL
@@ -290,10 +376,35 @@ object SurfaceCover {
       Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
       // Unreachable: the pass above returned for each of these. Listed so that the two `when`s stay
       // exhaustive over the same enum and a new biome is a compile error in both.
-      Biome.GLACIER, Biome.ICE_SHEET, Biome.CLIFF, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
-        BlockType.GRASS
-    }
+        Biome.GLACIER, Biome.ICE_SHEET, Biome.CLIFF, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
+          BlockType.GRASS
+      },
+      blighted
+    )
   }
+
+  /**
+   * The blighted twin of a cover material, or the material itself.
+   *
+   * **Wrapped around the two tables rather than branched inside them**, and that is the point: corruption is
+   * orthogonal to biome, so a `blighted ->` arm inside either `when (biome)` would dilute the exhaustiveness
+   * this file exists to defend - the next biome added would compile against the corrupted branch and not the
+   * clean one, or the reverse.
+   *
+   * The `else` is the shape `TODO.md` says to judge rather than sweep: this is a mapping over a
+   * fifty-material palette that answers for six of them and leaves the rest alone **by construction**, not a
+   * dispatch with a hole in it. Snow, ice, gravel, masonry and every rock reach it and are meant to.
+   */
+  private fun blight(block: BlockType, blighted: Boolean): BlockType =
+    if (!blighted) block else when (block) {
+      BlockType.GRASS -> BlockType.BLIGHTED_GRASS
+      BlockType.DIRT -> BlockType.BLIGHTED_DIRT
+      BlockType.SAND -> BlockType.BLIGHTED_SAND
+      BlockType.PEAT -> BlockType.BLIGHTED_PEAT
+      BlockType.LOG -> BlockType.BLIGHTED_LOG
+      BlockType.LEAVES -> BlockType.BLIGHTED_LEAVES
+      else -> block
+    }
 
   /** Mean annual temperature below which the surface holds permanent snow. */
   private const val SNOW_TEMPERATURE = -1.5

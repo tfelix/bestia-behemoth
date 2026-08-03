@@ -5,6 +5,7 @@ import net.bestia.worldgen.civ.HabitabilityParams
 import net.bestia.worldgen.civ.SettlementParams
 import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.climate.ClimateParams
+import net.bestia.worldgen.climate.WeatherParams
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.geo.DetailParams
@@ -18,8 +19,12 @@ import net.bestia.worldgen.hydro.AlluviumParams
 import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.karst.CaveParams
 import net.bestia.worldgen.pop.EconomyParams
+import net.bestia.worldgen.mana.CorruptionParams
+import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.ResourceParams
+import net.bestia.worldgen.spawn.SpawnerParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.StrataParams
 import net.bestia.worldgen.voxel.VegetationParams
 
@@ -80,9 +85,21 @@ data class WorldParams(
   val vegetation: VegetationParams = VegetationParams(),
   val resource: ResourceParams = ResourceParams(),
   val cave: CaveParams = CaveParams(),
+
+  /** Where the world's mana is. Read by history, so it runs before it - see [ManaStage]. */
+  val mana: ManaParams = ManaParams(),
   val habitability: HabitabilityParams = HabitabilityParams(),
   val settlement: SettlementParams = SettlementParams(),
   val history: HistoryParams = HistoryParams(),
+
+  /**
+   * What the mana did to the land. After [history] in this list because it is after it in the pipeline: it
+   * suppresses by the settlements history left *standing*.
+   */
+  val corruption: CorruptionParams = CorruptionParams(),
+
+  /** Where the wild things are. After [corruption] in this list because it reads it. */
+  val spawner: SpawnerParams = SpawnerParams(),
   val town: TownParams = TownParams(),
   val economy: EconomyParams = EconomyParams(),
 
@@ -95,7 +112,30 @@ data class WorldParams(
    */
   val detail: DetailParams = DetailParams(),
   val strata: StrataParams = StrataParams(),
-  val droplets: DropletParams = DropletParams()
+  val droplets: DropletParams = DropletParams(),
+
+  /**
+   * The mana crystal scatter. Chunk tier only, unlike [vegetation].
+   *
+   * Folded into [chunkTierVersion] and **not** into [version], because no stage reads it - there is no
+   * kilometre-scale summary of crystals the way `CANOPY_COVER` is one of trees, and nothing upstream needs
+   * one. If a stage ever does, this has to be folded twice, for the reason [vegetation] is.
+   */
+  val crystal: CrystalParams = CrystalParams(),
+
+  /**
+   * The weather model.
+   *
+   * **Folded into neither [version] nor [chunkTierVersion], and that is the point rather than an oversight.**
+   * Weather is not a stage and has no cached artefact keyed on it: it is `f(seed, region, t)` evaluated on
+   * demand, where a stage is `f(seed, region, upstream)` with no `t` in the signature at all. Folding this in
+   * would make retuning how often it rains refuse every existing world at the boot gate and invalidate every
+   * cached chunk in it, for a number that cannot move a voxel.
+   *
+   * It lives here anyway so a params file can reach it, and so `ParamsVersionTest`'s completeness oracle covers
+   * it - its digest is still pinned there, as a stability check rather than as a cache key.
+   */
+  val weather: WeatherParams = WeatherParams()
 ) {
 
   /**
@@ -147,9 +187,12 @@ data class WorldParams(
       r.vegetation.digest().value,
       r.resource.digest().value,
       r.cave.digest().value,
+      r.mana.digest().value,
       r.habitability.digest().value,
       r.settlement.digest().value,
       r.history.digest().value,
+      r.corruption.digest().value,
+      r.spawner.digest().value,
       r.town.digest().value,
       r.economy.digest().value
     )
@@ -178,7 +221,8 @@ data class WorldParams(
       // Only the grade mix, not the whole of `resource`: the rest of that class decides where deposits go,
       // which is a world-tier question already folded into `version`. The mix is what `OreVeins` reads to
       // decide which of the three ore blocks a voxel is, so it belongs on this side too.
-      r.resource.grades.digest().value
+      r.resource.grades.digest().value,
+      r.crystal.digest().value
     )
   }
 
@@ -200,7 +244,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "history", "town", "economy", "detail", "strata"
+      "history", "town", "economy", "detail", "strata", "crystal", "spawner"
     )
 
     /**
@@ -217,6 +261,9 @@ data class WorldParams(
         erosion = base.erosion.overriddenBy(text.scope("erosion")),
         resource = base.resource.overriddenBy(text.scope("resource")),
         cave = base.cave.overriddenBy(text.scope("cave")),
+        mana = base.mana.overriddenBy(text.scope("mana")),
+        corruption = base.corruption.overriddenBy(text.scope("corruption")),
+        weather = base.weather.overriddenBy(text.scope("weather")),
         droplets = base.droplets.overriddenBy(text.scope("droplets"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)

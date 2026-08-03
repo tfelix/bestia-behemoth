@@ -4,6 +4,8 @@
 
 Then we need to refine this a bit more. Trees and forrests should later be subject to e.g. like wildfires and grow cycles which is simulated by the ECS system. So it definatly needs to be an entity rather than a part of the map itself. Can you make suggestions how to realize this in a realistic pattern? I assume e.g. we can unload most of those entities if no player is in range but also we maybe need to reduce the total number of single entities a bit. Can you make suggestions to refine this.
 What I can imagine is some sort of special entity like a spawn director for vegetation which is placed inside such a biome which takes care of regular watching and respawning entities which got missing (e.g. if a player harvested a certain plant for example and watches over spawn points). But those must be placed in strategic points during world generation. It also makes sense to initially fill the world e.g. with trees so the players do not need to wait until vegetation has grown into place. First lets discuss and brainstorm a few options we have. Also grill me with questions about this topic.
+Same goes for bestia spawner or mana crystals. All those stuff must be modelled as an entity and not as a structure of the the tile map. Please design a system which makes it easy upon world generation to save this as an entity.
+Then remove all remnantes of those stuff from the world generation which is now not reqsectionuired anymore e.g. like specialized voxel types.
 
 ## Improved River Rendering
 
@@ -34,15 +36,6 @@ TBD
 
 - Add some connections to the three factions of the bestia game system. Dont make it too prominent but make it so it is possible that some hints here and there can appear over the course of the time. Since it is important for the game which faction "won" the last world it would be nice if there is a tunable parameter on how much influence a faction has had over the history. So as a little gimick the winner of the last world gets a bit more influence over the history generation.
 
-## Navigation Mesh/Networks
-
-Suggest and plan a system which is needed for NPC to navigate the world. They should be capable of long range travel but also short distance high accurancy movement.
-It is important to tune it e.g. NPC enemy bestia should be able to avoid high speed ways like roads while merchants, player bestia etc. should be able to prefer those "high speed, low cost" networks.
-I think we once already discussed some sort of graph networks with tags to e.g. exclude egdes with certain limitations like "can not swim, too big for bridge, etc".
-The system must be able to adopt and updatable to some changes e.g. a bridge was destroyed.
-If possible, the system should not be instant e.g. if a new road was build or a bridge destroyed not all NPC should immediatly "know" this and update their pathing magically. But keep the cost of this system somewhat reasonable. If this is super expensive let me know and we must re-evaluate how to implement this.
-Also think about a good way to ties this into the exsting zone server backend. The pregenerated and stored network data must be quickly accessible for the navigation algorithms.
-
 ## Engine Integration
 
 Tie this all into the engine! We need to battle test the renderer if it works for this world. Shader are not really important we will get to those later but stablity and performance are top priority. Double check if the interaction with the engine works or if you see any shortcomings in the communication protocol.
@@ -54,6 +47,7 @@ Check if special marker like trees, treasures in caves, tombes etc translate int
 Feel free to re-arrange those points into a order which you think makes more sense.
 
 - Review the architecture and TODO document if anything substantial is left out. Then remove those two documents after the information was consolidated into the ../bestia-docs server and map generation section.
+- reset all versions back to initial values, we are dev build nothing exists in the wild yet. We can also check if enums are not containing any legacy placeholders. Consolidate everything down, not legacy code.
 - make sure to clearify especially how the storage mechanism of voxel, chunk, player modification (diffs) and regeneration works. So write down every storage that is required for such a map and how it is stored within the engine.
 - make sure you also document the motivation behind certain biomes, in the documentation too.
 - Go throgh the different voxel materials. I am sure we can maybe reduce some materials there which are not necessairy. This might require some changes to the underlying systems afterwards.

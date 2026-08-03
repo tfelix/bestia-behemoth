@@ -1,7 +1,16 @@
 id: 2
 identifier: doom_master_of_doom
+level: 100
 # Statuswerte
-# AI setup
+health: 4000
+mana: 900
+experience: 12000
+# AI setup - deliberately none. It had none before the spawn work and a wandering boss is not the intent.
+# Endgame: only the corrupted provinces, and only where a boss den asked for it.
+habitat: []
+corrupted-only: true
+boss: true
+spawn-weight: 1
 equip-slots:
   - HEAD_UPPER
   - ARMOR

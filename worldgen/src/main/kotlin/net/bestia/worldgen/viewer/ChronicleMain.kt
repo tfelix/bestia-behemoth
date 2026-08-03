@@ -307,6 +307,35 @@ object ChronicleMain {
       )
     }
 
+    // The blight threads. Two shapes, and both are unresolved by construction: a town nobody dared reclaim,
+    // and a place the log keeps naming that nothing in the world has ever gone back to.
+    val forsaken = chronicle.settlements.filter {
+      it.isRuin && it.ruinCause == EventKind.SETTLEMENT_FORSAKEN
+    }
+    println()
+    println("  ${forsaken.size} settlements the blight emptied, still standing empty")
+    forsaken.take(THREADS_PER_KIND).forEach {
+      println(
+        "    ${Names.place(it.nameSeed, cultureOf(chronicle, it.index))}, " +
+            "forsaken ${it.abandonedYear}, founded ${it.foundedYear}"
+      )
+    }
+
+    val wounds = chronicle.sitesOfKind(SiteKind.WOUND)
+    println()
+    println("  ${wounds.size} wounds, and what the log says went into them")
+    wounds.take(THREADS_PER_KIND).forEach { wound ->
+      // Seers lost at this wound, and whatever they were carrying. The join is the site actor on the event
+      // rather than a distance test, so it says what the simulation decided rather than what the map suggests.
+      val here = Actor(ActorType.SITE, wound.index)
+      val lost = chronicle.eventsOf(here).filter { it.kind == EventKind.SEER_VANISHED }
+      println(
+        "    (${wound.position.x.toInt()}, ${wound.position.y.toInt()})  " +
+            "year ${wound.year}  ${lost.size} vanished here"
+      )
+      lost.take(3).forEach { println("      ${it.year}: ${it.detail}") }
+    }
+
     val unmarked = chronicle.figures.filter { it.deathYear != 0 && it.restingSite < 0 }
     println()
     println("  ${unmarked.size} figures with no known grave")

@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/weather.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WeatherSMSGProto";
+
+/**
+ * The weather where this player is standing.
+ *
+ * Sent on login, when the player crosses into a different weather region, when the weather in their own region
+ * changes past a hysteresis band, and on a heartbeat so a client that dropped one resyncs. Roughly five to
+ * fifteen messages per player per real hour at about forty bytes.
+ *
+ * ### The region partition is deliberately not sent
+ *
+ * [region_id] is an **opaque change token** and nothing more. It lets the client tell "same weather, heartbeat"
+ * from "you have walked into different weather" so it can crossfade rather than cut, and it carries no geometry.
+ *
+ * Withheld for the reason `WorldInfoSMSG` withholds the world seed: the region boundaries are a map of where
+ * the weather changes, which is exactly the information the `WEATHER_SENSE` skill charges a player for. A client
+ * that knew the partition could draw that map for free.
+ */
+message WeatherSMSG {
+  /**
+   * Opaque token identifying which weather region this state came from.
+   *
+   * Compare it for equality; do not attach meaning to the value, and do not expect the numbering to be stable
+   * across worlds or across server versions.
+   */
+  uint32 region_id = 1;
+
+  WeatherKind kind = 10;
+
+  /** How hard, 0 to 1. Zero when the sky is merely clear or overcast. */
+  float intensity = 11;
+
+  /** Cloud cover, 0 to 1. Separate from intensity, because a dry sky can still be grey. */
+  float cloud_cover = 12;
+
+  /** Metres per second. */
+  float wind_speed = 13;
+
+  /** Radians, 0 pointing east, counter-clockwise. The weather is arriving *from* the opposite bearing. */
+  float wind_direction = 14;
+
+  /** Air temperature at the player's own position and elevation, in degrees Celsius. */
+  float temperature_celsius = 20;
+
+  /** What it feels like: wind chill when cold, humidity when hot. Gameplay tolerance keys on this one. */
+  float felt_temperature_celsius = 21;
+
+  /**
+   * The next weather this player's WEATHER_SENSE can see coming, and how far ahead they saw it.
+   *
+   * Absent when the player has no such skill, or when nothing changes inside their lookahead.
+   *
+   * This is the actual answer rather than a probability, which is a property of how the field is built: it is
+   * a pure function of `(seed, region, t)` with no state in it, so a forecast is the same evaluation at a
+   * later `t`. A Markov-chain weather model could only ever have sent a distribution.
+   */
+  bool has_forecast = 30;
+  WeatherKind forecast_kind = 31;
+
+  /** Real-world seconds from now until `forecast_kind` arrives. */
+  uint32 forecast_in_seconds = 32;
+
+  /**
+   * Where the tornado is, when `kind` is WEATHER_TORNADO. Absent otherwise.
+   *
+   * Present at all because a region is sixteen kilometres across, so "there is a tornado in your region" is not
+   * something a player can act on. This is.
+   */
+  bool has_hazard = 40;
+  sint64 hazard_x = 41;
+  sint64 hazard_y = 42;
+  float hazard_radius_metres = 43;
+}

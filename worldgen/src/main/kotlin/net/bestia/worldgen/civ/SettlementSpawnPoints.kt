@@ -40,7 +40,7 @@ object SettlementSpawnPoints {
    * entirely surrounded by sea beyond its own footprint) is silently dropped, so the result can also
    * be shorter for that reason.
    */
-  fun choose(generated: GeneratedWorld, maxCandidates: Int = 4): List<Candidate> {
+  fun choose(generated: GeneratedWorld, maxCandidates: Int = MAX_HOME_CANDIDATES): List<Candidate> {
     val ranked = standingSettlementsByPopulationDesc(generated)
     if (ranked.size <= 1) return emptyList()
 
@@ -68,6 +68,21 @@ object SettlementSpawnPoints {
       )
     }
   }
+
+  /**
+   * Which settlement indices are home candidates, from a map of index to population.
+   *
+   * The rule itself - **second largest down, never the capital** - extracted so it has one definition. The
+   * spawn stage needs the same answer to decide where the level-one safety ring goes, and it cannot call
+   * [choose]: that needs an assembled `GeneratedWorld` for the ground test, which does not exist while the
+   * pipeline is still running. Two copies of "who the home villages are" would agree until one of them moved.
+   */
+  fun homeCandidateIndices(populations: Map<Int, Int>): List<Int> =
+    populations.entries
+      .sortedWith(compareByDescending<Map.Entry<Int, Int>> { it.value }.thenBy { it.key })
+      .drop(1)
+      .take(MAX_HOME_CANDIDATES)
+      .map { it.key }
 
   private fun standingSettlementsByPopulationDesc(generated: GeneratedWorld): List<Int> {
     val chronicle = generated.world.chronicle
@@ -116,6 +131,30 @@ object SettlementSpawnPoints {
 
     return null
   }
+
+  /**
+   * How many settlements a new master may choose between.
+   *
+   * Hoisted from [choose]'s default so [homeCandidateIndices] and the spawn stage's safety ring cannot
+   * disagree about how many towns count as home.
+   */
+  const val MAX_HOME_CANDIDATES = 4
+
+  /**
+   * Furthest a chosen home coordinate can sit from its settlement's own centre, in metres.
+   *
+   * [findLandNear] starts at the footprint plus clearance and widens by [DISTANCE_STEP_METRES] up to
+   * [MAX_DISTANCE_ATTEMPTS] times, so this is the worst case for the largest tier. It exists because the
+   * **spawn stage cannot see the arrival point** - it runs inside the pipeline, and choosing one needs an
+   * assembled world - so its safety ring has to be drawn around the centre wide enough to contain any
+   * arrival point plus the ring the player is actually owed.
+   *
+   * Without it the two disagree in the direction that matters: a den 2.9 km from where a master appears can
+   * be 4.4 km from the town centre, which a 3 km ring around the centre does not cover.
+   */
+  val MAX_ARRIVAL_OFFSET_METRES: Double
+    get() = SettlementTier.entries.maxOf { it.footprintRadius } + FOOTPRINT_CLEARANCE_METRES +
+        DISTANCE_STEP_METRES * MAX_DISTANCE_ATTEMPTS
 
   /** Minimum clearance from a spawn point to the settlement it is near, in metres. */
   private const val MIN_DISTANCE_METRES = 300.0

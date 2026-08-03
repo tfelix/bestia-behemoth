@@ -26,6 +26,7 @@ import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.karst.CaveStage
+import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
@@ -66,7 +67,12 @@ class HistoryStage(
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
-    ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID
+    ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID,
+    // The *raw* mana field, and it can only be the raw one: `corruption` reads this stage's chronicle, so it
+    // runs after it. See `mana/CorruptionStage`, where that split is argued from the other side - it is what
+    // lets a town suffer the blight and then hold it back, and what lets a town history razed stop holding it
+    // back at all.
+    ManaStage.ID
   )
   override val scale = StageScale.WORLD
 
@@ -81,6 +87,7 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.FORT),
     StageOutput.Vector(FeatureKind.LIGHTHOUSE),
     StageOutput.Vector(FeatureKind.CAVE_HOARD),
+    StageOutput.Vector(FeatureKind.WOUND),
     StageOutput.History
   )
 
@@ -123,6 +130,7 @@ class HistoryStage(
     val resourceValue = ctx.layers.float(LayerId.RESOURCE_VALUE)
 
     val volcanism = volcanismField(ctx, region)
+    val mana = manaField(ctx, region, params)
 
     return markers.mapIndexed { ordinal, marker ->
       val declared = marker.attribute(SettlementChannels.INDEX).toInt()
@@ -151,7 +159,8 @@ class HistoryStage(
                 (1.0 - (above / FLOOD_RELIEF).coerceIn(0.0, 1.0))
             ),
         coastal = distanceToOcean.sampleBilinear(x, y) < COASTAL_RANGE,
-        resourceValue = resourceValue.sampleBilinear(x, y).coerceIn(0.0, 1.0)
+        resourceValue = resourceValue.sampleBilinear(x, y).coerceIn(0.0, 1.0),
+        mana = mana(marker.position)
       )
     }
   }
@@ -187,6 +196,64 @@ class HistoryStage(
         worst = max(worst, convergence.coerceIn(0.0, 1.0) * (1.0 - distance / range))
       }
       worst
+    }
+  }
+
+  /**
+   * How exposed a place is to the mana, as a function of world position.
+   *
+   * ### A proximity maximum rather than a point sample, and what that is actually worth
+   *
+   * The worst mana anywhere within [HistoryParams.blightRange], tapered linearly by distance - the same
+   * construction [volcanismField] uses, so the two gates on a disaster are the same shape. At zero distance it
+   * degenerates to the point sample, so a town standing inside a province still reads its own ground.
+   *
+   * Two reasons, and neither is "otherwise nothing fires" - **that claim was written here first and the
+   * measurement refuted it.** A point sample puts 62 of 224 settlement sites over the blight threshold against
+   * the proximity field's 79, so the blight would have worked either way. (The claim is true of the *corruption*
+   * field, which is suppressed to nearly zero at every settlement by construction; it is not true of the raw
+   * geological field, and this stage reads the raw one. Carrying an argument across that split is what went
+   * wrong.)
+   *
+   * What it is really worth:
+   *
+   * - **A town is not a cell.** `MANA_DENSITY` is a kilometre raster and a settlement's worked hinterland spans
+   *   several cells of it, so "is the mana high in the cell the market square happens to fall in" is an
+   *   arbitrary question at this resolution. Blight reaching a town's *fields* is a statement about the
+   *   neighbourhood, and this is that statement.
+   * - **Exposure is continuous in position.** Under a point sample a town two hundred metres outside a province
+   *   edge reads nothing and one two hundred metres inside reads everything. The taper removes the step, which
+   *   matters because [HistoryParams.blightMana] is a threshold and a threshold on a discontinuous field turns
+   *   a rounding difference into a different history.
+   *
+   * The range is **raw, not detail-scaled**, because a mana province is 8-13 km across on every world size -
+   * `ManaStage`'s own KDoc argues that at length. A `scaleByLength` here would make the blight a different
+   * mechanic on the demo world than on genesis.
+   */
+  private fun manaField(ctx: GenContext, region: CellRegion, params: HistoryParams): (Vec2d) -> Double {
+    if (!ctx.layers.contains(LayerId.MANA_DENSITY)) return { 0.0 }
+    val mana = ctx.layers.float(LayerId.MANA_DENSITY)
+
+    val metres = region.resolution.metresPerCell
+    val range = params.blightRange
+    val reach = Math.ceil(range / metres).toInt()
+
+    return { position ->
+      val centreX = (position.x / metres).toInt()
+      val centreY = (position.y / metres).toInt()
+      var worst = 0.0
+
+      for (dy in -reach..reach) {
+        for (dx in -reach..reach) {
+          val distance = Math.sqrt((dx * dx + dy * dy).toDouble()) * metres
+          if (distance > range) continue
+          val density = mana[centreX + dx, centreY + dy].toDouble()
+          if (density.isNaN()) continue
+          worst = max(worst, density * (1.0 - distance / range))
+        }
+      }
+
+      worst.coerceIn(0.0, 1.0)
     }
   }
 
@@ -254,6 +321,7 @@ class HistoryStage(
         SiteKind.FORT -> FeatureKind.FORT
         SiteKind.LIGHTHOUSE -> FeatureKind.LIGHTHOUSE
         SiteKind.HOARD -> FeatureKind.CAVE_HOARD
+        SiteKind.WOUND -> FeatureKind.WOUND
       },
       position = record.position,
       attributes = StationTable.Builder(1)

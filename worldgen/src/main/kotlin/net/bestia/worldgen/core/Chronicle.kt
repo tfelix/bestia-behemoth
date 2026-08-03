@@ -171,7 +171,48 @@ enum class EventKind(
   MINE_OPENED(55),
   MONASTERY_FOUNDED(45),
   FORT_BUILT(45),
-  LIGHTHOUSE_LIT(40);
+  LIGHTHOUSE_LIT(40),
+
+  // --- What the mana did ------------------------------------------------------------------------------
+  //
+  // These five are the history half of the mana subsystem, and they exist so that the corruption on the map has
+  // a reason a player can be told. A blighted province the chronicle says nothing about is scenery; one that
+  // took a town's fields in the year 340 and emptied it by 480 is somewhere to go and look.
+  //
+  // All five are at or above `HistoryParams.importanceFloor` (40) for the reason recorded above: below the
+  // floor an event is sampled one in twenty-four, and a `WOUND` on the ground with nothing in the log saying
+  // what happened there is the lighthouse mistake again.
+
+  /**
+   * The first cause: something came down, and the mana pooled where it landed.
+   *
+   * Once per world, early, at the highest-mana place on land - which is to say the log explains the field
+   * rather than describing it. Every other event here cites this one, so `provenanceOf` and the causal
+   * closure in `HistorySim.prune` thread a blighted town back to it in one hop.
+   */
+  STAR_FELL(70),
+
+  /** The corruption reached a settlement's fields. Costs population and wealth; shaped on [PLAGUE]. */
+  BLIGHT_SPREAD(50),
+
+  /**
+   * Wards raised against the blight, which is why a town still stands in a high-mana province at all.
+   *
+   * Shaped on [SETTLEMENT_WALLED], and the same argument: the interesting thing about a defence is that it
+   * dates from the second time somebody needed it.
+   */
+  WARD_RAISED(45),
+
+  /**
+   * Emptied by the blight rather than by war, plague or ash.
+   *
+   * Goes through the same `abandon` path as every other ending, so it writes `ruinCause` and leaves a `RUIN`
+   * site - a ruin in corrupted land explains itself with no new machinery.
+   */
+  SETTLEMENT_FORSAKEN(80),
+
+  /** A prophet or a scholar went out to the wound and did not come back. */
+  SEER_VANISHED(45);
 
   companion object {
 
@@ -366,7 +407,19 @@ enum class SiteKind {
    *
    * The only site kind that is underground, which is why [SiteRecord] carries an elevation.
    */
-  HOARD
+  HOARD,
+
+  /**
+   * Where the mana came into the world: the place [EventKind.STAR_FELL] names.
+   *
+   * Residue, like a ruin, and the one kind that is neither built nor left by people - which is exactly why it
+   * earns a kind of its own rather than being a `MONUMENT` with a different colour. A `SiteRecord` is the
+   * chronicle's only mechanism for putting a *place* on the map, and the thing a world's history keeps
+   * referring to has to be somewhere a player can walk to.
+   *
+   * At most three per world, at the peaks of the mana field, so this is the rarest kind by a wide margin.
+   */
+  WOUND
 }
 
 data class SiteRecord(

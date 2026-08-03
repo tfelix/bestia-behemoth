@@ -220,7 +220,32 @@ enum class FeatureKind(val defaultPriority: Int) {
    * This is the only site marker that carries an **elevation**, because it is the only one that is not on the
    * ground. Whatever spawns the treasure needs all three coordinates.
    */
-  CAVE_HOARD(674)
+  CAVE_HOARD(674),
+
+  /**
+   * Where the mana came into the world, and the only site nobody built.
+   *
+   * A `PointMarker` like every other site, so the priority is inert - see [SEA_LANE], which makes the same
+   * point. What is different about it is the *extent*: at 260 m it is the widest structural marker in the
+   * world, which is why `Invariants.checkStructuralMarkersFitTheQueryMargin` lists it. A marker wider than
+   * `ChunkMaterializer.MARKER_MARGIN` is simply absent from chunks further away than it and materialises with
+   * a dead straight edge down one side.
+   */
+  WOUND(676),
+
+  /**
+   * A den: where creatures come from, how hard they are, and how many at once.
+   *
+   * Geometry and attributes only, so the priority is inert - it is here at the end because it is the most
+   * derived thing in the pipeline, reading the corruption, the settlements and what history left of them.
+   * `SEA_LANE`'s KDoc makes the same point about an inert priority.
+   *
+   * **Not a monster.** A marker is a place with a level range and a pack size on it, and a runtime turns it
+   * into creatures when a player is near enough to see them. That distinction is what lets a populated
+   * wilderness cost a few thousand markers instead of tens of thousands of entities, and it is why these are
+   * hidden from the viewer by default - see `RenderOptions.HIDDEN_BY_DEFAULT`.
+   */
+  BESTIA_SPAWN(680)
 }
 
 /**

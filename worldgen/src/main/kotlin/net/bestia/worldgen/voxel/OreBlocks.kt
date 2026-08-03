@@ -42,6 +42,12 @@ object OreBlocks {
     ),
     ResourceType.SALT to triple(
       BlockType.ROCK_SALT_SMALL, BlockType.ROCK_SALT_MEDIUM, BlockType.ROCK_SALT_RICH
+    ),
+    // In the map so `yieldOf` can name a broken block, but never reached through `blocksFor` from a deposit
+    // marker - no marker ever carries this type. `OreVeins` looks it up directly when the ground around a
+    // body is corrupted. See ResourceType.AETHERITE.
+    ResourceType.AETHERITE to triple(
+      BlockType.ORE_AETHERITE_SMALL, BlockType.ORE_AETHERITE_MEDIUM, BlockType.ORE_AETHERITE_RICH
     )
   )
 

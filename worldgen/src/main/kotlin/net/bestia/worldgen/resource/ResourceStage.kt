@@ -371,6 +371,10 @@ class ResourceStage(
       if (MinableOre.of(type) != null) continue
       // Traced downstream of the lodes below, never placed.
       if (type == ResourceType.GOLD_PLACER) continue
+      // Not placed either, and for a stronger reason: there is no aetherite *deposit*. A body is iron or
+      // copper as placed here, and `ChunkStructures.OreVeins` decides at materialisation that the corrupted
+      // rock around this one makes what comes out of it aetherite. See ResourceType.AETHERITE.
+      if (type == ResourceType.AETHERITE) continue
 
       val suitability = terrain.suitabilityFor(type)
       val spacing = params.candidateSpacing * surfaceSpacingFactorOf(type)
@@ -724,6 +728,11 @@ class ResourceStage(
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
     ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT ->
       throw IllegalArgumentException("$type is a mineable ore; its spacing is MinableOre.spacingFactor")
+
+    // Never placed at all - see ResourceType.AETHERITE. Reaching here means somebody added it to a candidate
+    // loop, which is a bug rather than a missing number.
+    ResourceType.AETHERITE ->
+      throw IllegalArgumentException("$type is never placed; it is chosen per deposit at materialisation")
   }
 
   /** Metres below the surface. Most surface resources are at zero; marble is the one that needs digging. */
@@ -737,6 +746,10 @@ class ResourceStage(
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
     ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT ->
       throw IllegalArgumentException("$type is a mineable ore; its depth comes from its ore body")
+
+    // Never placed at all - see ResourceType.AETHERITE. It inherits the depth of whatever body it replaces.
+    ResourceType.AETHERITE ->
+      throw IllegalArgumentException("$type is never placed; it is chosen per deposit at materialisation")
   }
 
   /**
@@ -914,6 +927,12 @@ private class Terrain(
 
         // Placers are traced from the lodes, never placed directly.
         ResourceType.GOLD_PLACER -> 0.0
+
+        // Neither is aetherite, and for a stronger reason: there is no aetherite deposit anywhere. A body is
+        // iron or copper, and the corruption of the rock around it is what decides what comes out. Zero here
+        // rather than an exception because this function is also the value field's input, and a zero is the
+        // honest answer to "is there aetherite worth settling near" - nothing can prospect for it.
+        ResourceType.AETHERITE -> 0.0
 
         // Mithrandium in the roots of the oldest mountains: crust that was already ancient and hard when a
         // later collision lifted it, so all three of age, hardness and height have to be high at once. That

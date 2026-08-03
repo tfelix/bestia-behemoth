@@ -346,13 +346,17 @@ class VegetationScatter(
       // kilometre cell and a pond edge is not, so the water surface itself has the last word.
       if (surface.waterLevelAt(x, y) > ground) continue
 
+      // Resolved here, at the trunk, and carried on the lattice - see TreeLattice.blighted for why it may
+      // not be asked again per column.
+      val isBlighted = surface.isBlightedAt(x, y)
+
       // Nor out of ice or year-round snow. Asked of the *cap block* rather than of the temperature, so that
       // the one place deciding what the top of a column is made of is also the place deciding whether
-      // anything can root in it.
-      val cap = SurfaceCover.cap(surface.biomeAt(x, y), surface.temperatureAt(x, y), 0.0)
+      // anything can root in it. Blighted ground is neither, so a corrupted wood keeps its trees.
+      val cap = SurfaceCover.cap(surface.biomeAt(x, y), surface.temperatureAt(x, y), 0.0, isBlighted)
       if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
 
-      lattice.plant(i, ground)
+      lattice.plant(i, ground, isBlighted)
     }
 
     return lattice
@@ -481,13 +485,26 @@ class TreeLattice internal constructor(
   private val trunkColumnX = LongArray(candidates.trunkX.size)
   private val trunkColumnY = LongArray(candidates.trunkX.size)
 
+  /**
+   * Whether each tree is blighted, resolved **at its trunk** and carried here.
+   *
+   * The same rule as the crown hanging from the ground under its own trunk, and it fails the same way if
+   * broken. A crown spans columns and reaches into the neighbouring chunk; if each chunk asked
+   * `isBlightedAt` about the column it happens to be drawing, a tree standing on a corruption fringe would
+   * come out blighted in one chunk and green in the other, with a seam straight down the middle of it.
+   * Deciding once at the trunk makes both chunks reach the same verdict about the same tree with no
+   * communication - which is the whole property this scatter exists to have.
+   */
+  private val blighted = BooleanArray(candidates.trunkX.size)
+
   var count: Int = 0
     private set
 
   val isEmpty get() = count == 0
 
-  internal fun plant(index: Int, ground: Double) {
+  internal fun plant(index: Int, ground: Double, isBlighted: Boolean) {
     base[index] = ground
+    blighted[index] = isBlighted
     trunkColumnX[index] = Math.floorDiv(Quantize.toFixed(candidates.trunkX[index]), voxelUnits)
     trunkColumnY[index] = Math.floorDiv(Quantize.toFixed(candidates.trunkY[index]), voxelUnits)
     count++
@@ -535,11 +552,15 @@ class TreeLattice internal constructor(
         if (!Quantize.isAbove(distance, radius)) {
           val t = (distance / radius).coerceIn(0.0, 1.0)
           val half = radius * params.crownAspect * sqrt((1.0 - t * t).coerceAtLeast(0.0))
-          into.add(crownCentre - half, crownCentre + half, BlockType.LEAVES)
+          into.add(
+            crownCentre - half,
+            crownCentre + half,
+            if (blighted[i]) BlockType.BLIGHTED_LEAVES else BlockType.LEAVES
+          )
         }
 
         if (columnX == trunkColumnX[i] && columnY == trunkColumnY[i]) {
-          into.add(base[i], crownCentre, BlockType.LOG)
+          into.add(base[i], crownCentre, if (blighted[i]) BlockType.BLIGHTED_LOG else BlockType.LOG)
         }
       }
     }

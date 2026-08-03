@@ -139,6 +139,20 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(45, "LOG", 0.33f, 0.24f, 0.15f),
       Foliage(46, "LEAVES", 0.19f, 0.36f, 0.15f),
 
+      // Mana crystal, scattered on the surface like a tree. Bright and cold against every natural cover, so
+      // a crystal field reads as a place from a distance rather than as texture.
+      Terrain(47, "MANA_CRYSTAL_SMALL", 0.46f, 0.72f, 0.86f),
+      Terrain(48, "MANA_CRYSTAL_LARGE", 0.58f, 0.86f, 0.98f),
+
+      // Corrupted ground. Each is its clean twin pulled toward violet and darkened, so a corruption boundary
+      // reads as the same terrain gone wrong rather than as a different biome - which is what it is.
+      Terrain(49, "BLIGHTED_GRASS", 0.30f, 0.24f, 0.34f),
+      Terrain(50, "BLIGHTED_DIRT", 0.26f, 0.18f, 0.24f),
+      Terrain(51, "BLIGHTED_SAND", 0.56f, 0.46f, 0.54f),
+      Terrain(52, "BLIGHTED_PEAT", 0.17f, 0.12f, 0.18f),
+      Terrain(53, "BLIGHTED_LOG", 0.24f, 0.18f, 0.22f),
+      Foliage(54, "BLIGHTED_LEAVES", 0.28f, 0.20f, 0.34f),
+
       // Bridge decking and other worked structure.
       Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f),
 
@@ -182,7 +196,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       Terrain(118, "ROCK_SALT_SMALL", 0.69f, 0.67f, 0.66f),
       Terrain(119, "ROCK_SALT_MEDIUM", 0.83f, 0.81f, 0.80f),
-      Terrain(120, "ROCK_SALT_RICH", 0.96f, 0.94f, 0.93f)
+      Terrain(120, "ROCK_SALT_RICH", 0.96f, 0.94f, 0.93f),
+
+      // Aetherite: the same ore body, dug out of corrupted rock. Violet where mithrandium is cyan, so the
+      // two rare metals are told apart at a glance in a dark gallery.
+      Terrain(121, "ORE_AETHERITE_SMALL", 0.42f, 0.33f, 0.52f),
+      Terrain(122, "ORE_AETHERITE_MEDIUM", 0.58f, 0.40f, 0.78f),
+      Terrain(123, "ORE_AETHERITE_RICH", 0.74f, 0.48f, 0.98f)
     };
 
     /// <summary>

@@ -46,7 +46,17 @@ class SiteFacts(
   /** 0 to 1: deep recent sediment close to a big river. Where the crops are and where the flood is. */
   val floodRisk: Double,
   val coastal: Boolean,
-  val resourceValue: Double
+  val resourceValue: Double,
+
+  /**
+   * 0 to 1: how much mana this place is exposed to. A **proximity maximum**, not a point sample.
+   *
+   * The raw field is rank-normalised over land by `ManaStage`, so 0.8 means "the top fifth of the world's mana
+   * is within reach of this town". `HistoryStage.manaField` is where the reach is defined and where the choice
+   * against a point sample is argued - and where the measurement that refuted the *first* argument for it is
+   * recorded.
+   */
+  val mana: Double = 0.0
 ) {
   val culture: Culture get() = Culture.byIndex(cultureIndex)
 }
@@ -192,6 +202,73 @@ data class HistoryParams(
   /** Years between two sites of the same kind founded by one civ, so they arrive across a history. */
   val builtSiteInterval: Int = 120,
 
+  // --- The mana -------------------------------------------------------------------------------------
+  //
+  // Every threshold here is stated in units of [SiteFacts.mana], which `ManaStage` rank-normalises over land -
+  // so each one is readable as a percentile of the world's own mana rather than as a magic number, and none of
+  // them is comparable across worlds. `BiomeStage.rankConfidence` makes the same trade for the same reason.
+  //
+  // The *rates* live in the simulation's companion beside `PLAGUE_RATE` and `ERUPTION_RATE`, because a rate is
+  // a statement about how often history happens and a threshold is a statement about where.
+
+  /**
+   * Metres within which a mana province counts as reaching a settlement's fields.
+   *
+   * Raw, not detail-scaled: a province is 8-13 km across at every world size, so this is a real distance. Nine
+   * kilometres puts a town on the edge of a neighbouring province at risk and a town two provinces away in the
+   * clear, which is the structure that makes the blight a property of *where* a town is.
+   */
+  val blightRange: Double = 9_000.0,
+
+  /**
+   * Mana exposure at which a settlement's fields begin to fail.
+   *
+   * The top quarter or so of the world's mana. Deliberately **below** [woundMana] and below the corruption
+   * threshold `CorruptionStage` solves for (which lands near the 0.90 percentile by construction): the towns
+   * with a story worth telling are the ones on the *fringe* of a blighted province, not the ones inside it -
+   * nobody was ever living inside one.
+   */
+  val blightMana: Double = 0.72,
+
+  /**
+   * How many blights a settlement survives before its people give up and walk away.
+   *
+   * A count rather than a chance, so that being forsaken is the *end* of a documented decline rather than a
+   * die roll: the chronicle has three or four `BLIGHT_SPREAD` lines and then a `SETTLEMENT_FORSAKEN`, which is
+   * a story. A per-tick abandonment chance would empty towns with nothing leading up to it.
+   */
+  val blightsBeforeForsaking: Int = 4,
+
+  /** Technology a civ needs before it knows how to ward its fields at all. */
+  val wardTechnology: Double = 0.40,
+
+  /**
+   * Mana a place needs before it can be a wound.
+   *
+   * The top tenth of the world's land. Note what this does *not* do: it does not guarantee a wound exists,
+   * because the peak may be at sea, under a lake or inside a town's clearance - see `SpecialSites.wounds`. A
+   * world with no wound is a legitimate answer and `Invariants` reports the count rather than requiring one.
+   */
+  val woundMana: Double = 0.90,
+
+  /** Metres a wound keeps from every settlement site. See `SpecialSites.wounds` for both reasons. */
+  val woundClearance: Double = 8_000.0,
+
+  /** Metres between two wounds. A province apart, because closer than that they are one place. */
+  val woundSeparation: Double = 45_000.0,
+
+  /** Most wounds one world may have. The star broke up on the way down, or it did not. */
+  val maxWounds: Int = 3,
+
+  /**
+   * Metres a seer will travel towards a wound.
+   *
+   * Generous - much further than a mine's or a fort's reach - because this is one person choosing to go rather
+   * than a civilisation deciding to work somewhere, and the whole point of the event is that they went a long
+   * way and did not come back.
+   */
+  val seerRange: Double = 70_000.0,
+
   /** Years between notable figures in a civ, roughly. */
   val yearsPerFigure: Int = 35,
 
@@ -256,6 +333,23 @@ data class HistoryParams(
     }
     require(builtSiteChance in 0.0..1.0) { "builtSiteChance must be in [0,1], was $builtSiteChance" }
     require(builtSiteInterval >= 0) { "builtSiteInterval must not be negative, was $builtSiteInterval" }
+
+    require(blightRange > 0.0) { "blightRange must be positive, was $blightRange" }
+    require(blightMana in 0.0..1.0) { "blightMana must be in [0,1], was $blightMana" }
+    require(blightsBeforeForsaking >= 1) {
+      "blightsBeforeForsaking must be at least 1, was $blightsBeforeForsaking"
+    }
+    require(wardTechnology in 0.0..1.0) { "wardTechnology must be in [0,1], was $wardTechnology" }
+    require(woundMana in 0.0..1.0) { "woundMana must be in [0,1], was $woundMana" }
+    // Below the wound threshold, or every town at risk of blight is inside a wound's clearance and the two
+    // halves of the subsystem can never both fire on one world.
+    require(blightMana <= woundMana) {
+      "blightMana $blightMana must not exceed woundMana $woundMana, or no blighted town is ever near a wound"
+    }
+    require(woundClearance >= 0.0) { "woundClearance must not be negative, was $woundClearance" }
+    require(woundSeparation >= 0.0) { "woundSeparation must not be negative, was $woundSeparation" }
+    require(maxWounds >= 0) { "maxWounds must not be negative, was $maxWounds" }
+    require(seerRange >= 0.0) { "seerRange must not be negative, was $seerRange" }
     require(yearsPerFigure >= 1) { "yearsPerFigure must be at least 1, was $yearsPerFigure" }
     require(figureLifespan >= 1) { "figureLifespan must be at least 1, was $figureLifespan" }
     require(importanceFloor >= 0) { "importanceFloor must not be negative, was $importanceFloor" }
@@ -301,6 +395,15 @@ data class HistoryParams(
     .put("lighthouseTechnology", lighthouseTechnology)
     .put("builtSiteChance", builtSiteChance)
     .put("builtSiteInterval", builtSiteInterval)
+    .put("blightRange", blightRange)
+    .put("blightMana", blightMana)
+    .put("blightsBeforeForsaking", blightsBeforeForsaking)
+    .put("wardTechnology", wardTechnology)
+    .put("woundMana", woundMana)
+    .put("woundClearance", woundClearance)
+    .put("woundSeparation", woundSeparation)
+    .put("maxWounds", maxWounds)
+    .put("seerRange", seerRange)
     .put("yearsPerFigure", yearsPerFigure)
     .put("figureLifespan", figureLifespan)
     .put("importanceFloor", importanceFloor)
@@ -354,6 +457,12 @@ internal class HistorySim(
   private val sites = ArrayList<Site>()
   private val wars = ArrayList<War>()
 
+  /** Site indices of the wounds, in the order the star broke. Empty until it falls. */
+  private val wounds = ArrayList<Int>()
+
+  /** Event id of the fall, or -1 while it has not happened. Every mana event cites it. */
+  private var starFell = -1
+
   private val events = ArrayList<HistoryEvent>()
   private var prunedEvents = 0
   private var nextEventId = 0
@@ -368,6 +477,16 @@ internal class HistorySim(
 
   private val startYear = 1
   private val presentYear = params.years
+
+  init {
+    // A ward that can never be raised is a subsystem that ships dead, and the two numbers live in different
+    // places - one is a designer's tunable and the other is a rate constant - so nothing but this keeps them
+    // in the right order.
+    require(params.blightsBeforeForsaking > WARD_AFTER_BLIGHTS) {
+      "blightsBeforeForsaking ${params.blightsBeforeForsaking} must exceed WARD_AFTER_BLIGHTS " +
+          "$WARD_AFTER_BLIGHTS, or a town is forsaken before it can ward itself and no ward is ever raised"
+    }
+  }
 
   fun run(): Chronicle {
     seedCivilisations()
@@ -384,8 +503,10 @@ internal class HistorySim(
       updateRelations(year)
       resolveWars(year)
       resolveDisasters(year)
+      resolveMana(year)
       updateFigures(year)
       updateArtifacts(year)
+      vanishSeers(year)
       raiseMonuments(year)
       buildSites(year)
       buildWalls(year)
@@ -909,6 +1030,230 @@ internal class HistorySim(
     town.population = 0.0
   }
 
+  // --- The mana ---------------------------------------------------------------------------------------
+
+  /**
+   * The star, the blight, the wards and the towns the blight emptied.
+   *
+   * ### Why this is one pass and in this order
+   *
+   * The four are one causal chain and the chain is the product: nothing can be blighted before the star falls,
+   * nobody wards against a blight they have not had, and a town is only forsaken after the wards failed or were
+   * never raised. Running them as one pass in that order means every event this emits can cite the one before
+   * it, so `Chronicle.provenanceOf` and the causal closure in [prune] thread a ruin in corrupted land all the
+   * way back to [EventKind.STAR_FELL] - which is what makes a blighted province something a player can be
+   * *told about* rather than something they walk into.
+   */
+  private fun resolveMana(year: Int) {
+    letTheStarFall(year)
+    if (wounds.isEmpty()) return
+
+    for (town in towns) {
+      if (!town.standing) continue
+      if (town.facts.mana < params.blightMana) continue
+
+      val index = town.facts.index.toLong()
+
+      // How far past the threshold, normalised against the headroom above it, so a town on the very edge of a
+      // province is at a fraction of the risk of one whose fields are inside it. A flat rate above the
+      // threshold would make the blight a property of a boolean rather than of a place.
+      val severity = ((town.facts.mana - params.blightMana) / (1.0 - params.blightMana)).coerceIn(0.0, 1.0)
+      val relief = if (town.warded) WARD_RELIEF else 1.0
+
+      if (roll(year.toLong(), index, BLIGHT_SALT) < severity * BLIGHT_RATE * relief) {
+        val toll = (town.population * (BLIGHT_TOLL + BLIGHT_TOLL_SPREAD * severity)).toInt()
+
+        /*
+         * The floor is what stops the blight being an extinction event, and finding out why took a measurement.
+         *
+         * `growPopulations` abandons any settlement that falls below twelve people and has stood fifty years -
+         * "dwindled to nothing", logged as `SETTLEMENT_ABANDONED`. A town is founded at a fifth of its potential,
+         * so a modest site starts near that floor, and a blight taking a sixth of it drops straight through. The
+         * settlement then ends by the *dwindling* path, which never consults `blights`, never logs
+         * `SETTLEMENT_FORSAKEN`, and is not covered by the last-town guard below.
+         *
+         * Measured: seeds 24 and 26 finished their thousand years with **one standing settlement out of
+         * twenty-eight**, and the forsaken count stayed at nought, which is precisely why the census did not show
+         * it. Raising `blightMana` from 0.72 to 0.84 recovered four towns across twelve worlds - it was never the
+         * threshold, it was the floor.
+         *
+         * So the toll cannot take a town below [BLIGHT_FLOOR], and never raises it either. `PLAGUE_RATE`'s
+         * `population / 9000` factor is the same protection arrived at from the other side: a plague cannot
+         * empty a village because a village is not crowded. A blight can reach any village at all, so the guard
+         * has to be on the toll instead. Being *given up* stays the modelled ending, on the counter, below.
+         */
+        val floor = min(town.population, BLIGHT_FLOOR)
+        val before = town.population
+        town.population = max(floor, town.population - toll)
+        val dead = (before - town.population).toInt()
+        town.wealth *= BLIGHT_WEALTH_LOSS
+
+        /*
+         * The blight takes the *land*, not only the people on it, and that turned out to be the difference
+         * between a mechanic and a trap.
+         *
+         * Modelled as a population toll alone, the blight found an equilibrium against logistic growth and held
+         * the town at almost exactly `expansionPressure` - and that gate is hard, so `crowding` stayed near zero
+         * and the founding chance with it. Seeds 24 and 26 finished their thousand years having founded **one
+         * settlement**, peak population 8 756 against 30 249 with the blight off. Nothing died and nothing was
+         * ruined; the civilisation simply never expanded, for ever, and no census column showed it because every
+         * column counts things that happened.
+         *
+         * Reducing the carrying capacity fixes it and is the better model besides: blighted fields support fewer
+         * people, so occupancy *rises* after a blight and the town sheds settlers instead of stagnating. A blight
+         * now pushes settlement outwards, which is what a blight should do. `decline` is the existing mechanism
+         * for exactly this - `besiege` uses it with `SACK_DECLINE` - and `growPopulations` clamps population to
+         * the new capacity by itself, so the people leaving needs no code.
+         */
+        town.decline *= BLIGHT_DECLINE
+
+        // A warded town's losses do not count towards being forsaken, which is the whole value of a ward: the
+        // fields still fail some years and the people stay. Without this clause a ward delays an abandonment
+        // instead of preventing one, and every town in a blighted province empties eventually - which would
+        // make the wards a subsystem with no observable effect.
+        if (!town.warded) town.blights++
+
+        log(
+          year, EventKind.BLIGHT_SPREAD,
+          listOf(Actor(ActorType.SETTLEMENT, town.facts.index), Actor(ActorType.SITE, wounds.first())),
+          town.facts.position, listOf(starFell),
+          "the blight takes the fields of ${nameOf(town)}; $dead are lost"
+        )
+      }
+
+      val civ = town.owner.takeIf { it >= 0 }?.let { civs[it] }
+
+      if (!town.warded && town.blights >= WARD_AFTER_BLIGHTS &&
+        civ != null && civ.technology >= params.wardTechnology
+      ) {
+        town.warded = true
+        town.wardYear = year
+        log(
+          year, EventKind.WARD_RAISED,
+          listOf(Actor(ActorType.SETTLEMENT, town.facts.index), Actor(ActorType.CIV, civ.index)),
+          town.facts.position, listOf(starFell),
+          "${nameOf(town)} sets wards against the blight after ${town.blights} failed harvests"
+        )
+        continue
+      }
+
+      if (!town.warded && town.blights >= params.blightsBeforeForsaking) {
+        // **A people do not walk away from their last town.** They move to the next valley; they do not cease to
+        // exist. Without this clause the blight is not a regional misfortune but an extinction event, and the
+        // measurement is unambiguous: on seed 38 the founding civ's only settlement was blighted out inside the
+        // first two centuries, `retireCivs` ended the civ that owned it, and the world finished its thousand
+        // years with **two settlements ever founded and nought standing** - against twenty-eight with the blight
+        // switched off. The spawner invariant is what noticed, because a world with no towns has no gentle
+        // country in it.
+        //
+        // The other town-killers do not need this guard and it is worth knowing why rather than adding it to
+        // them: `ERUPTION` fires at 0.0004 per tick and a razing needs a war, so both are effectively impossible
+        // before a civ has spread. The blight fires at 0.10, and the star falls in the first tenth of the span -
+        // which is exactly when a civ still has one town.
+        val holdsAlone = civ == null || civ.towns.count { towns[it].standing } <= 1
+        if (!holdsAlone) {
+          abandon(town, year, EventKind.SETTLEMENT_FORSAKEN, null, "given up to the blight")
+        }
+      }
+    }
+  }
+
+  /**
+   * Once per world: something comes down, and the mana is in the world from then on.
+   *
+   * One event per wound in the same year - the star broke up on the way down, or it did not - with the first as
+   * the cause of the rest. That is what makes all three candidates `SpecialSites.wounds` found *used*: a
+   * subsystem that computes three places and only ever visits one is the shape TODO.md habit 6 warns about, and
+   * a world with three mana provinces and one explanation would be visibly missing two.
+   *
+   * Early, in the first tenth of the span, so that the whole simulated history happens in a world that already
+   * has mana in it rather than acquiring it near the end.
+   */
+  private fun letTheStarFall(year: Int) {
+    if (starFell >= 0) return
+    if (candidates.wounds.isEmpty()) return
+
+    val window = max(1, (presentYear - startYear) / STAR_WINDOW_SHARE)
+    val fallYear = startYear + (roll(STAR_SALT) * window).toInt()
+    if (year < fallYear) return
+
+    for (candidate in candidates.wounds) {
+      val site = addSite(
+        SiteKind.WOUND, candidate.position, year,
+        // No settlement and no civ: this is the one site nobody built and nobody owns. `siteName` renders it
+        // "of the wilds", which is right.
+        settlement = -1, civ = -1,
+        radius = WOUND_RADIUS, artifact = -1, figure = -1
+      )
+      wounds.add(site)
+
+      val event = log(
+        year, EventKind.STAR_FELL, listOf(Actor(ActorType.SITE, site)),
+        candidate.position,
+        if (starFell >= 0) listOf(starFell) else emptyList(),
+        if (starFell >= 0) {
+          "a shard of it comes down at ${siteName(sites[site])}"
+        } else {
+          "a star falls and breaks the ground at ${siteName(sites[site])}"
+        }
+      )
+      if (starFell < 0) starFell = event
+    }
+  }
+
+  /**
+   * A prophet or a scholar walks out to the wound and does not come back.
+   *
+   * Deliberately **not** through [buryFigure], which is what "vanished" means: there is no barrow beside their
+   * home town, so they show up in `chronicle -Pquests` under "figures with no known grave" for free. If they
+   * were carrying a relic it stays out there, which puts a named artifact in the middle of the most dangerous
+   * ground in the world - the endgame hook the corrupted land exists to hold, and it comes out of the log
+   * rather than being placed.
+   */
+  private fun vanishSeers(year: Int) {
+    if (wounds.isEmpty()) return
+
+    for (person in people) {
+      if (person.death != 0) continue
+      if (person.role != FigureRole.PROPHET && person.role != FigureRole.SCHOLAR) continue
+
+      val home = towns[person.home].facts.position
+      val wound = wounds.minByOrNull { sites[it].position.distanceTo(home) } ?: continue
+      val at = sites[wound].position
+      if (at.distanceTo(home) > params.seerRange) continue
+      if (roll(year.toLong(), person.index.toLong(), SEER_SALT) >= SEER_LOSS_CHANCE) continue
+
+      person.death = year
+      // Where they were last going, not where they lived. `slainAt` already means exactly that for a general
+      // who fell in a battle, so the field is reused rather than a second one added.
+      person.slainAt = at
+
+      val lost = log(
+        year, EventKind.SEER_VANISHED,
+        listOf(Actor(ActorType.FIGURE, person.index), Actor(ActorType.SITE, wound)),
+        at, listOf(starFell),
+        "${personName(person)} goes out to ${siteName(sites[wound])} and is not seen again"
+      )
+
+      val relic = relics.firstOrNull { it.holder == person.index && it.resting < 0 } ?: continue
+      val grave = addSite(
+        SiteKind.TOMB, offset(at, person.index.toLong(), WOUND_RELIC_OFFSET),
+        year, settlement = -1, civ = person.civ,
+        radius = TOMB_RADIUS, artifact = relic.index, figure = person.index
+      )
+      relic.holder = -1
+      relic.resting = grave
+      relic.provenance.add(
+        log(
+          year, EventKind.ARTIFACT_LOST,
+          listOf(Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.SITE, grave)),
+          sites[grave].position, listOf(lost),
+          "${relicName(relic)} goes with ${personName(person)} into the blighted land"
+        )
+      )
+    }
+  }
+
   // --- Figures and artifacts -------------------------------------------------------------------------
 
   private fun updateFigures(year: Int) {
@@ -1349,7 +1694,8 @@ internal class HistorySim(
     SiteKind.FORT -> "raise"
     SiteKind.LIGHTHOUSE -> "light"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
-    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD -> "make"
+    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
+    SiteKind.WOUND -> "make"
   }
 
   /**
@@ -1567,6 +1913,7 @@ internal class HistorySim(
         SiteKind.FORT -> "fort"
         SiteKind.LIGHTHOUSE -> "light"
         SiteKind.HOARD -> "hoard"
+        SiteKind.WOUND -> "wound"
       }
     )
   }
@@ -1595,6 +1942,18 @@ internal class HistorySim(
     var decline = 1.0
     var wallYear = 0
     var wallPopulation = 0
+
+    /** Failed harvests blamed on the mana. Stops accruing once [warded]; see `resolveMana`. */
+    var blights = 0
+    var warded = false
+
+    /**
+     * Year the wards went up, or 0.
+     *
+     * Kept on the town rather than only in the log because it is the same shape of fact as [wallYear] - and,
+     * like the walls, it is what explains a town still being there.
+     */
+    var wardYear = 0
     var nameSeed = 0L
     var oldNameSeed = 0L
     var ruinCause: EventKind? = null
@@ -1745,6 +2104,87 @@ internal class HistorySim(
     const val TOMB_OFFSET = 320.0
     const val BATTLEFIELD_RADIUS = 180.0
 
+    // --- The mana ---
+    //
+    // Rates rather than thresholds, which is why these are here and not in `HistoryParams` - the same division
+    // `PLAGUE_RATE` and `ERUPTION_RATE` already sit on.
+
+    /**
+     * Share of the span within which the star falls: the first tenth.
+     *
+     * Early so that the rest of the history happens in a world that already has mana in it. A star that fell in
+     * year 900 of 1000 would leave the chronicle with one line about it and nothing that followed.
+     */
+    const val STAR_WINDOW_SHARE = 10
+
+    /**
+     * Blight chance per tick at full severity, before the ward relief.
+     *
+     * Between `FLOOD_RATE` and `FAMINE_RATE`, deliberately: a failed harvest is what this *is*, and the blight
+     * should not be more common than ordinary bad luck. Over two hundred ticks it takes a town on the interior
+     * edge of a province past [HistoryParams.blightsBeforeForsaking] and leaves one on the fringe with a line
+     * or two in the log and its people still there.
+     */
+    const val BLIGHT_RATE = 0.10
+
+    /** Share of a town's people a blight costs, plus this much again scaled by how bad the ground is. */
+    const val BLIGHT_TOLL = 0.06
+    const val BLIGHT_TOLL_SPREAD = 0.10
+
+    /** What a blight does to a town's wealth. Harsher than a flood: the fields do not come back. */
+    const val BLIGHT_WEALTH_LOSS = 0.80
+
+    /**
+     * What one blight permanently costs a settlement's carrying capacity.
+     *
+     * Gentler than `SACK_DECLINE` (0.82) on purpose: an army burns a town once and a blight comes back, so at
+     * 0.92 compounded over the handful of blights a town survives the two land in the same place. Capacity has
+     * its own floor in `capacityOf`, so no amount of compounding can drive a town to nothing this way.
+     */
+    const val BLIGHT_DECLINE = 0.92
+
+    /**
+     * Population no blight will take a settlement below.
+     *
+     * Comfortably above `growPopulations`' twelve-person dwindling threshold, with room for the toll to be
+     * computed against a larger number and still land above it. The long comment at the call site is the reason
+     * this exists at all, and it is worth reading before changing the number.
+     */
+    const val BLIGHT_FLOOR = 20.0
+
+    /** Multiplier on the blight rate once the wards are up. Not zero - a ward is a defence, not a cure. */
+    const val WARD_RELIEF = 0.25
+
+    /**
+     * Blights a town suffers before it wards itself.
+     *
+     * Two, for the reason [buildWalls] gives about walls: the interesting thing about a defence is that it dates
+     * from the second time somebody needed it. It must stay below
+     * [HistoryParams.blightsBeforeForsaking] or nothing is ever warded.
+     */
+    const val WARD_AFTER_BLIGHTS = 2
+
+    /**
+     * Radius of a wound in metres, and the widest structural marker in the world.
+     *
+     * Under `ChunkMaterializer.MARKER_MARGIN` (320 m) like every other site marker, and much closer to it than
+     * anything else - which is why `Invariants.checkStructuralMarkersFitTheQueryMargin` lists `WOUND`. Sharing
+     * the ceiling with [MAX_RUIN_RADIUS] rather than reading it, on the same duplicate-with-a-tripwire argument
+     * recorded there: `history` is a sibling of `voxel` and siblings do not call into each other.
+     */
+    const val WOUND_RADIUS = 260.0
+
+    /** Metres from a wound's centre a seer's relic ends up. Outside the crystal field, on its rim. */
+    const val WOUND_RELIC_OFFSET = 300.0
+
+    /**
+     * Chance per tick that a prophet or scholar within reach of a wound goes out to it and is lost.
+     *
+     * Comparable to `SLAIN_CHANCE`, so going out to the wound is about as dangerous as being a general in a war
+     * - which is the note this is meant to strike. Only ever rolled for two of the six roles.
+     */
+    const val SEER_LOSS_CHANCE = 0.18
+
     /** A ruin field spreads beyond the town that made it: earthworks and field walls outlast buildings. */
     const val RUIN_SPREAD = 1.25
 
@@ -1791,10 +2231,23 @@ internal class HistorySim(
 
     // The four built sites. 0x25 onward was free; each kind needs its own so a civ's roll for a mine in one
     // year is independent of its roll for a fort in the same year.
+    //
+    // `MONASTERY_SALT` was **0x26, the same value as `HOARD_SALT`**, which is the exact failure the paragraph
+    // above says these constants exist to prevent. Both are rolled as `roll(year, index, salt)` with the same
+    // arity, so in any year where a town index happened to equal a civ index the two decisions read the same
+    // number - and since `hoardChance` (0.30) is five times `builtSiteChance` (0.06), every monastery that civ
+    // founded landed in a year that civ's like-numbered town was also eligible to hide a hoard. Nothing looked
+    // wrong on a map and no test could have found it; it was two constants that had to differ and did not.
     const val MINE_SALT = 0x25L
     const val HOARD_SALT = 0x26L
-    const val MONASTERY_SALT = 0x26L
     const val FORT_SALT = 0x27L
     const val LIGHTHOUSE_SALT = 0x28L
+    const val MONASTERY_SALT = 0x29L
+
+    // The mana. Each of the three is an independent decision about a different subject - the world, a town, a
+    // person - so all three need their own.
+    const val STAR_SALT = 0x2AL
+    const val BLIGHT_SALT = 0x2BL
+    const val SEER_SALT = 0x2CL
   }
 }

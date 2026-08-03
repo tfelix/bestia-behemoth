@@ -32,7 +32,10 @@ import net.bestia.worldgen.hydro.AlluviumStage
 import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.karst.CaveStage
+import net.bestia.worldgen.mana.CorruptionStage
+import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
+import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
 import net.bestia.worldgen.vector.FeatureKind
@@ -208,9 +211,18 @@ object StandardWorld {
       // Caves take the chunk tier's own rock tuning rather than a copy of it, so "where is the limestone" has
       // one answer for the stage that places a passage and the materialiser that cuts it.
       CaveStage(base, p.cave, p.strata),
+      // Before history, and that ordering is the whole reason mana and corruption are two stages:
+      // history has to react to where mana wells up, and corruption has to know which settlements
+      // history left standing. See `mana/ManaStage.kt`.
+      ManaStage(base, p.mana),
       HabitabilityStage(base, p.habitability),
       SettlementStage(base, p.settlement),
       HistoryStage(base, p.history),
+      // After history, so the settlements it suppresses by are the ones somebody still lives in.
+      CorruptionStage(base, p.corruption),
+      // Last of the world tier in dependency terms: it reads the corruption, the settlements and what history
+      // left standing of them.
+      SpawnerStage(base, p.spawner),
       TownStage(base, p.town),
       EconomyStage(base, p.economy)
     )
@@ -277,7 +289,12 @@ object StandardWorld {
       features = world.features,
       caveParams = p.cave,
       vegetationParams = p.vegetation,
-      grades = p.resource.grades
+      grades = p.resource.grades,
+      // Read off the store rather than required: `assemble` is also called on a cached world tier and on the
+      // partial pipelines the viewer opens, and "no corruption stage ran" is a legitimate world.
+      corruption = world.layers[LayerId.CORRUPTION] as? FloatLayer,
+      aetheriteCorruption = p.corruption.aetheriteCorruption,
+      crystalParams = p.crystal
     )
 
     return GeneratedWorld(world, base, columns, materializer, p)

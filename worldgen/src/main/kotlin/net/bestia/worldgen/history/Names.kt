@@ -101,8 +101,36 @@ object Names {
     "barrow" -> "the barrow of $of"
     "field" -> "$of Field"
     "ruin" -> "the ruins of $of"
+
+    /*
+     * A wound belongs to nobody, so it cannot be named after a town like everything else here.
+     *
+     * The `else` branch below renders it "the wound of the wilds" - and it did, for all three of them, in the
+     * same year, in a chronicle that then referred to each of them by that name for a thousand years. A site the
+     * log keeps naming has to be distinguishable, so this one gets an epithet off its own seed. The place-stem
+     * pool is reused rather than a new one added: these are the words this world's languages are built from, and
+     * a wound is a place in it.
+     */
+    "wound" -> "the ${pick(WOUND_EPITHETS, seed, WOUND_SALT)} ${pick(WOUND_NOUNS, seed, WOUND_NOUN_SALT)}"
+
     else -> "the $form of $of"
   }
+
+  /**
+   * The words a wound gets instead of an owner's name. Culture-independent, deliberately.
+   *
+   * Every other name in this file is drawn from a per-culture pool, because a place is named by the people who
+   * live near it. A wound predates all of them and often has nobody within twenty kilometres of it, so naming it
+   * in one culture's idiom would be a claim the world does not support. These are what anybody would call it.
+   */
+  private val WOUND_EPITHETS = listOf(
+    "Sunken", "Bitter", "Riven", "Weeping", "Silent", "Hollow", "Starless", "Pale", "Fallen", "Ashen"
+  )
+
+  private val WOUND_NOUNS = listOf("Wound", "Scar", "Hollow", "Fall", "Waste", "Crater")
+
+  private const val WOUND_SALT = 0x77L
+  private const val WOUND_NOUN_SALT = 0x78L
 
   private fun styleOf(cultureIndex: Int): Style = STYLES[cultureIndex.coerceIn(0, STYLES.size - 1)]
 
@@ -260,6 +288,10 @@ object Names {
     }
     for ((role, words) in BYNAMES) digest.put("byname:${role.name}", words.joinToString(","))
     for ((kind, words) in ARTIFACT_NOUNS) digest.put("noun:${kind.name}", words.joinToString(","))
+    // Culture-independent and so outside STYLES, but named the same way and by the same `pick` - so they carry
+    // exactly the property the KDoc above says has to reach a version number.
+    digest.put("woundEpithets", WOUND_EPITHETS.joinToString(","))
+    digest.put("woundNouns", WOUND_NOUNS.joinToString(","))
 
     return digest.value
   }

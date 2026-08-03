@@ -16,6 +16,15 @@ class KnownSkills(
     return availableSkills.getOrDefault(skillId, 0) >= skillLevel
   }
 
+  /**
+   * What level this entity has in [skillId], or zero if it does not know it.
+   *
+   * [knowsSkill] answers a threshold, which is what a combat check wants. A *passive* whose effect scales with
+   * its level needs the number itself - `WEATHER_SENSE` buys five minutes of foresight per level - and a caller
+   * that had to binary-search `knowsSkill` to find it would be absurd.
+   */
+  fun levelOf(skillId: Long): Int = availableSkills.getOrDefault(skillId, 0)
+
   fun learnOrUpdate(skillId: Long, skillLevel: Int = 1) {
     availableSkills[skillId] = skillLevel
   }

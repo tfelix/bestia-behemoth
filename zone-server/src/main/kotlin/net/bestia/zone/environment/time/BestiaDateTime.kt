@@ -57,6 +57,20 @@ data class BestiaDateTime(
       hour * SECONDS_PER_HOUR + minute * 60 + second) /
       (MONTHS_PER_YEAR * DAYS_PER_MONTH * SECONDS_PER_DAY).toDouble()
 
+  /** Whole Bestia-days elapsed in the current year, `0..DAYS_PER_YEAR - 1`. */
+  val dayOfYear: Int get() = (month - 1) * DAYS_PER_MONTH + (day - 1)
+
+  /**
+   * Bestia-days since the world began, fractional within the day.
+   *
+   * **This is the time coordinate the weather model takes**, and it is a `Double` in days rather than a
+   * count of seconds for two reasons: the weather field's periods are expressed in days, so a caller never
+   * has to divide; and it stays exact to well below a second for any world age a server will see, where a
+   * `Float` would start losing minutes inside the first Bestia decade.
+   */
+  val absoluteDay: Double
+    get() = (year - 1) * DAYS_PER_YEAR + dayOfYear + timeOfDay
+
   companion object {
     /** Bestia time passes this many times faster than real-world time. */
     const val SPEED_FACTOR = 3.0

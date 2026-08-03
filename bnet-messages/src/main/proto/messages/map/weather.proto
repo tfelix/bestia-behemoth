@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WeatherProto";
+
+/**
+ * What the sky is doing.
+ *
+ * `WEATHER_CLEAR = 0` deliberately, so a client that has not yet received a weather message renders a clear
+ * sky rather than an "unspecified" state it would have to invent a look for. Every other enum in this schema
+ * reserves zero for UNSPECIFIED; this one does not, because there is a sensible default and no way to be
+ * wrong about it.
+ *
+ * Mirrors `net.bestia.worldgen.climate.WeatherKind`. Appending is safe; renumbering is not.
+ */
+enum WeatherKind {
+  WEATHER_CLEAR = 0;
+  WEATHER_CLOUDY = 1;
+  WEATHER_FOG = 2;
+  WEATHER_RAIN = 3;
+  WEATHER_HEAVY_RAIN = 4;
+  WEATHER_THUNDERSTORM = 5;
+  WEATHER_SNOW = 6;
+  WEATHER_BLIZZARD = 7;
+  WEATHER_SANDSTORM = 8;
+
+  /** Only over ground saturated with mana. Ignores shelter, and can stand in a clear sky. */
+  WEATHER_MANA_STORM = 9;
+
+  /** On the ground somewhere in the player's weather region; the hazard fields say where. */
+  WEATHER_TORNADO = 10;
+}

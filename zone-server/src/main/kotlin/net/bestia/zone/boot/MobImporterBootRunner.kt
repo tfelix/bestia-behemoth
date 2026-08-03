@@ -37,7 +37,15 @@ class MobImporterBootRunner(
     val loot: List<Loot>,
     val ai: String? = null,
     @JsonProperty("equip-slots")
-    val equipSlots: List<String> = emptyList()
+    val equipSlots: List<String> = emptyList(),
+
+    /** Biome names a wild spawner may place this in; empty means the den's own rules decide alone. */
+    val habitat: List<String> = emptyList(),
+    @JsonProperty("corrupted-only")
+    val corruptedOnly: Boolean = false,
+    val boss: Boolean = false,
+    @JsonProperty("spawn-weight")
+    val spawnWeight: Int = 100
   ) {
     data class Loot(
       @JsonProperty("item")
@@ -55,12 +63,34 @@ class MobImporterBootRunner(
       health = dto.health,
       experienceReward = dto.experience,
       aiProfile = dto.ai,
-      equipSlotMask = parseEquipSlotMask(dto)
+      equipSlotMask = parseEquipSlotMask(dto),
+      habitat = parseHabitat(dto),
+      corruptedOnly = dto.corruptedOnly,
+      boss = dto.boss,
+      spawnWeight = dto.spawnWeight
     )
 
     createLootItem(bestia, dto)
 
     return bestia
+  }
+
+  /**
+   * Validates the habitat names against the generator's own enum and joins them.
+   *
+   * Validated at import rather than at spawn time, because a typo here would otherwise make a species
+   * silently unspawnable - which is the shipped-dead failure one level down, and invisible until somebody
+   * notices they have never seen a blob.
+   */
+  private fun parseHabitat(dto: MobYmlDto): String {
+    val names = dto.habitat.map { it.uppercase() }
+    for (name in names) {
+      if (net.bestia.worldgen.bio.Biome.entries.none { it.name == name }) {
+        LOG.error { "Unknown habitat biome '$name' for mob '${dto.identifier}'" }
+        throw IllegalArgumentException("Unknown habitat biome '$name' for mob '${dto.identifier}'")
+      }
+    }
+    return names.joinToString(",")
   }
 
   private fun parseEquipSlotMask(dto: MobYmlDto): Int {

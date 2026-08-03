@@ -8,6 +8,10 @@ import net.bestia.worldgen.geo.ClosedBasinParams
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.ErosionParams
 import net.bestia.worldgen.geo.TectonicsParams
+import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.mana.CorruptionParams
+import net.bestia.worldgen.climate.WeatherParams
+import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.ResourceParams
 import kotlin.test.Test
@@ -45,6 +49,10 @@ class WorldParamsLoadTest {
     Triple("erosion.basins", ClosedBasinParams(), emptySet()),
     Triple("resource", ResourceParams(), emptySet()),
     Triple("resource.grades", GradeMix(), emptySet()),
+    Triple("cave", CaveParams(), emptySet()),
+    Triple("mana", ManaParams(), emptySet()),
+    Triple("corruption", CorruptionParams(), emptySet()),
+    Triple("weather", WeatherParams(), emptySet()),
     // Ahead of the rest of the chunk tier because its cost, not its look, is the open question - see
     // `DropletParams.overriddenBy`.
     Triple("droplets", DropletParams(), emptySet())

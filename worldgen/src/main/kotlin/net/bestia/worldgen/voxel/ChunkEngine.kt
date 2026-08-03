@@ -41,5 +41,5 @@ object ChunkEngine {
    * no counterparty. **From the first client release onwards it is append-only again**, and the discipline
    * above is what it always was. This is the last free reset it gets.
    */
-  const val VERSION = 1
+  const val VERSION = 2
 }

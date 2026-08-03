@@ -84,6 +84,39 @@ enum class BlockType(
    */
   LEAVES(46, solid = false, opaque = false, opacity = 0.35),
 
+  /*
+   * Mana crystal, scattered per column at chunk generation from a lattice hash exactly as a tree is, and
+   * stored nowhere. Two sizes rather than three grades: a crystal is harvested off the ground rather than
+   * dug out of a body, so there is no tonnage to reconcile and nothing for `OreBlocks` to name.
+   *
+   * Here rather than in the ore band because a crystal grows on the surface. Which band a material sits in
+   * is the only documentation of what kind of thing it is, and putting a plant-like resource among the
+   * lodes would make `isOre`'s range check a lie for a human reader.
+   */
+  MANA_CRYSTAL_SMALL(47, solid = true),
+  MANA_CRYSTAL_LARGE(48, solid = true),
+
+  /*
+   * What the surface cover above becomes on corrupted ground.
+   *
+   * A twin per cover material rather than a flag on the block, because the wire format is a byte of block id
+   * and nothing else - so a corrupted world costs the client six palette rows and no protocol change at all.
+   * `voxel/SurfaceCover.blight` is the only thing that maps one to the other.
+   *
+   * Six, not the whole palette. Snow, ice, gravel and the rocks are deliberately not twinned: snow on cursed
+   * ground is still snow, the bare biomes that use gravel and clay are rare, and blighting bedrock would
+   * turn every mine shaft inside a province purple for no gameplay reason. Those places still read as
+   * corrupted through the crystal scatter.
+   */
+  BLIGHTED_GRASS(49, solid = true),
+  BLIGHTED_DIRT(50, solid = true),
+  BLIGHTED_SAND(51, solid = true),
+  BLIGHTED_PEAT(52, solid = true),
+  BLIGHTED_LOG(53, solid = true),
+
+  /** Flags copied from [LEAVES] exactly; a blighted canopy occludes the same as a live one. */
+  BLIGHTED_LEAVES(54, solid = false, opaque = false, opacity = 0.35),
+
   /** Bridge decking and other worked structure. */
   MASONRY(60, solid = true),
 
@@ -146,7 +179,22 @@ enum class BlockType(
 
   ROCK_SALT_SMALL(118, solid = true),
   ROCK_SALT_MEDIUM(119, solid = true),
-  ROCK_SALT_RICH(120, solid = true);
+  ROCK_SALT_RICH(120, solid = true),
+
+  /**
+   * Ore that came out of corrupted ground.
+   *
+   * Not a separate deposit and not a separate `MinableOre`: the body is iron or copper like any other, and
+   * the mana in the rock around it is what makes what you dig out aetherite. The choice is made once per
+   * deposit in `ChunkStructures.OreVeins`, so a body is entirely one or entirely the other and no player
+   * ever finds a seam that changes metal halfway along.
+   *
+   * Three grades like every other ore, because `OreBlocks` maps `(resource, grade)` in both directions and a
+   * material that broke that symmetry would need its own case in the reverse map.
+   */
+  ORE_AETHERITE_SMALL(121, solid = true),
+  ORE_AETHERITE_MEDIUM(122, solid = true),
+  ORE_AETHERITE_RICH(123, solid = true);
 
   companion object {
     private val BY_ID = arrayOfNulls<BlockType>(entries.maxOf { it.id } + 1).also { table ->

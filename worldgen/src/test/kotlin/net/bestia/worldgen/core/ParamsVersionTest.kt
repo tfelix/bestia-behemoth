@@ -10,6 +10,7 @@ import net.bestia.worldgen.civ.StreetParams
 import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.climate.ClimateParams
 import net.bestia.worldgen.climate.ClimateStage
+import net.bestia.worldgen.climate.WeatherParams
 import net.bestia.worldgen.geo.ClosedBasinParams
 import net.bestia.worldgen.geo.DetailParams
 import net.bestia.worldgen.geo.DropletParams
@@ -20,6 +21,8 @@ import net.bestia.worldgen.geo.TectonicsParams
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.mana.CorruptionParams
+import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.voxel.VegetationParams
 import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.hydro.HydrologyParams
@@ -33,6 +36,9 @@ import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.MinableOre
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.resource.ResourceType
+import net.bestia.worldgen.spawn.SpawnHostility
+import net.bestia.worldgen.spawn.SpawnerParams
+import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.StrataParams
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -86,9 +92,12 @@ class ParamsVersionTest {
     GradeMix(),
     ResourceParams(),
     CaveParams(),
+    ManaParams(),
     HabitabilityParams(),
     SettlementParams(),
     HistoryParams(),
+    CorruptionParams(),
+    SpawnerParams(),
     TownParams(),
     StreetParams(),
     EconomyParams(),
@@ -96,6 +105,8 @@ class ParamsVersionTest {
     DetailParams(),
     StrataParams(),
     DropletParams(),
+    CrystalParams(),
+    WeatherParams(),
     // A catalogue rather than a params object, and a tunable either way. A named preset because `name` has no
     // default - a culture without one would be a bug, and the constructor says so.
     Culture.AGRARIAN
@@ -133,7 +144,8 @@ class ParamsVersionTest {
     "Names" to Names.catalogueDigest(),
     "EventKind" to EventKind.catalogueDigest(),
     "ResourceType" to ResourceType.catalogueDigest(),
-    "MinableOre" to MinableOre.catalogueDigest()
+    "MinableOre" to MinableOre.catalogueDigest(),
+    "SpawnHostility" to SpawnHostility.catalogueDigest()
   )
 
   @Test
@@ -143,10 +155,11 @@ class ParamsVersionTest {
       "Culture" to -8_768_142_304_179_570_668L,
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
-      "Names" to 8_434_466_541_608_995_997L,
-      "EventKind" to -809_342_763_798_855_603L,
-      "ResourceType" to -5_670_524_206_239_052_802L,
-      "MinableOre" to -963_208_236_135_789_363L
+      "Names" to -9_118_719_711_542_149_956L,
+      "EventKind" to -6_113_693_738_021_732_381L,
+      "ResourceType" to -992_390_895_321_877_896L,
+      "MinableOre" to -963_208_236_135_789_363L,
+      "SpawnHostility" to -7_768_131_449_683_111_688L
     )
 
     assertEquals(
@@ -178,15 +191,20 @@ class ParamsVersionTest {
       "GradeMix" to -7_184_838_964_596_318_845L,
       "ResourceParams" to 6_146_072_137_982_550_005L,
       "CaveParams" to -4_263_381_643_348_589_984L,
+      "ManaParams" to -7_122_319_974_616_012_373L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,
       "SettlementParams" to -5_086_656_145_453_525_411L,
-      "HistoryParams" to 6_388_756_786_288_073_773L,
+      "HistoryParams" to 8_735_102_529_915_467_544L,
+      "CorruptionParams" to -8_182_278_140_807_375_004L,
+      "SpawnerParams" to 8_240_882_274_862_173_131L,
       "TownParams" to 6_322_658_815_609_408_725L,
       "StreetParams" to -2_774_139_638_864_316_831L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
+      "CrystalParams" to 7_903_608_439_399_290_165L,
+      "WeatherParams" to -969_496_167_632_375_797L,
       "Culture" to 9_142_772_940_960_129_542L
     )
 

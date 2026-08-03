@@ -26,6 +26,6 @@ namespace BestiaBehemothClient.Game.World
     // Reset to 1 with the server's, once, when worldgen's feature work landed and before any client shipped.
     // The bumps it had accumulated were compatibility statements to a counterparty that did not exist yet.
     // Append-only from the first release onwards; this was the last free reset.
-    public const uint Version = 1;
+    public const uint Version = 2;
   }
 }

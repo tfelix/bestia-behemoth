@@ -252,6 +252,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.ChunkPatchSMSG.FromProto(envelope.ChunkPatch);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.Weather != null)
+        {
+          var msg = Map.WeatherSMSG.FromProto(envelope.Weather);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");

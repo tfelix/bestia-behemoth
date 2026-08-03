@@ -102,6 +102,9 @@ object InvariantsMain {
     val lobes = ArrayList<Int>(seeds)
     val deltas = ArrayList<Int>(seeds)
     val districts = ArrayList<Int>(seeds)
+    val corrupted = ArrayList<Double>(seeds)
+    val dens = ArrayList<IntArray>(seeds)
+    val manaLog = ArrayList<IntArray>(seeds)
 
     val cellSizes = ArrayList<Double>(seeds)
     val oversized = ArrayList<Int>(seeds)
@@ -133,6 +136,16 @@ object InvariantsMain {
         deltas.add(generated.world.features.all().count { it.kind == FeatureKind.DELTA })
         districts.add(generated.world.features.all().count { it.kind == FeatureKind.DISTRICT })
 
+        // Counted per seed rather than only asserted, because the assertion is a tolerance around a target
+        // and the failure worth seeing early is the distribution drifting inside it.
+        corrupted.add(Invariants.corruptedLandShare(generated))
+        // Four band counts, not a total: a total cannot tell a world that ramps from one that is all one
+        // level, and those are a working world and a broken one.
+        dens.add(Invariants.spawnerCensus(generated))
+        // Five counts, and the reason they are counted rather than asserted is in `manaHistoryCensus`: each one
+        // can legitimately be zero on one world and none of them may be zero across a sweep.
+        manaLog.add(Invariants.manaHistoryCensus(generated))
+
         val index = generated.world.features.indexMetrics()
         cellSizes.add(index.cellSize)
         oversized.add(index.oversizedCount)
@@ -141,7 +154,11 @@ object InvariantsMain {
 
         val measured = "land ${"%.3f".format(Locale.ROOT, fraction)}  lakes $basins  caves $systems" +
             "  canopy ${"%.3f".format(Locale.ROOT, wooded)}  ponds ${ponds.last()}/${oxbows.last()}" +
-            "  districts ${districts.last()}  index ${index.oversizedCount}/${index.size}"
+            "  districts ${districts.last()}" +
+            "  corrupt ${"%.3f".format(Locale.ROOT, corrupted.last())}" +
+            "  mana ${manaLog.last().joinToString("/")}" +
+            "  dens ${dens.last().joinToString("/")}" +
+            "  index ${index.oversizedCount}/${index.size}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
         } else {
@@ -164,6 +181,46 @@ object InvariantsMain {
         "land fraction: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
             "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
             "${"%.3f".format(Locale.ROOT, sorted.last())}"
+      )
+    }
+    if (corrupted.isNotEmpty()) {
+      val sorted = corrupted.sorted()
+      val none = sorted.count { it <= 0.0 }
+      println(
+        "corrupted land: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
+            "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
+            "${"%.3f".format(Locale.ROOT, sorted.last())}" +
+            ", $none of ${sorted.size} worlds with none"
+      )
+    }
+    if (manaLog.isNotEmpty()) {
+      val labels = listOf("wounds", "blights", "wards", "forsaken", "seers lost")
+      val totals = IntArray(labels.size)
+      val silent = IntArray(labels.size)
+      for (counts in manaLog) {
+        for (i in labels.indices) {
+          totals[i] += counts[i]
+          if (counts[i] == 0) silent[i]++
+        }
+      }
+      // Per-world means and, beside each, how many worlds had none of it. The second number is the one that
+      // matters: a mean of 0.4 over forty worlds is a rare event working, and a mean of 0 is a dead one.
+      println(
+        "mana history, per world: " + labels.indices.joinToString(", ") { i ->
+          "${labels[i]} ${"%.1f".format(Locale.ROOT, totals[i].toDouble() / manaLog.size)}" +
+              " (${silent[i]}/${manaLog.size} worlds with none)"
+        }
+      )
+    }
+    if (dens.isNotEmpty()) {
+      val totals = IntArray(4)
+      for (bands in dens) for (i in 0 until 4) totals[i] += bands[i]
+      val all = totals.sum()
+      val empty = dens.count { it.sum() == 0 }
+      println(
+        "spawners: ${all / dens.size} per world in bands 1-8/9-40/41-79/80-100 = " +
+            totals.joinToString("/") { (it / dens.size).toString() } +
+            ", $empty of ${dens.size} worlds with none"
       )
     }
     if (lakes.isNotEmpty()) {

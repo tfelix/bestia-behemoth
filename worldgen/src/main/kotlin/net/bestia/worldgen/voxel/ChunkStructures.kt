@@ -2,6 +2,7 @@ package net.bestia.worldgen.voxel
 
 import net.bestia.worldgen.civ.BridgeChannels
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.OreBody
@@ -32,7 +33,19 @@ import kotlin.math.sqrt
 class OreVeins(
   features: List<VectorFeature>,
   private val seed: Long,
-  private val grades: GradeMix
+  private val grades: GradeMix,
+  /**
+   * The corruption field, or null on a pipeline without the corruption stage.
+   *
+   * Sampled **once per deposit, here in the constructor**, not per voxel. That is the whole of why aetherite
+   * needs no new deposit kind and no cycle in the stage graph: the body is iron or copper as placed, and what
+   * you dig out of it is decided by the rock around it. Per voxel it would also be wrong - a body straddling
+   * a corruption fringe would come out half metal and half aetherite, and a seam that changes metal halfway
+   * along is not a thing.
+   */
+  private val corruption: FloatLayer? = null,
+  /** Corruption at or above which a body yields aetherite. `CorruptionParams.aetheriteCorruption`. */
+  private val aetheriteCorruption: Double = 1.0
 ) {
 
   private class Body(
@@ -57,7 +70,10 @@ class OreVeins(
     .mapNotNull { marker ->
       runCatching {
         val type = ResourceType.entries[marker.attribute(DepositChannels.TYPE).toInt()]
-        val blocks = blocksFor(type) ?: return@runCatching null
+        val corrupted = (corruption?.sampleBilinear(marker.position.x, marker.position.y) ?: 0.0) >=
+            aetheriteCorruption
+        val blocks = blocksFor(if (corrupted) ResourceType.AETHERITE else type)
+          ?: return@runCatching null
         Body(
           idSalt = marker.id.value,
           x = marker.position.x,
