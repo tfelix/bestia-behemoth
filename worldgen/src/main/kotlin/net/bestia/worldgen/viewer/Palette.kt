@@ -307,8 +307,10 @@ class BlockPalette : Palette {
       put(BlockType.AIR.id, Colors.rgb(18, 18, 22))
       put(BlockType.WATER.id, Colors.rgb(44, 96, 168))
       put(BlockType.ICE.id, Colors.rgb(214, 234, 248))
+      put(BlockType.LAVA.id, Colors.rgb(240, 92, 24))
       put(BlockType.GRANITE.id, Colors.rgb(178, 166, 160))
       put(BlockType.BASALT.id, Colors.rgb(78, 76, 80))
+      put(BlockType.OBSIDIAN.id, Colors.rgb(26, 24, 32))
       put(BlockType.LIMESTONE.id, Colors.rgb(214, 210, 190))
       put(BlockType.SANDSTONE.id, Colors.rgb(206, 172, 122))
       put(BlockType.SHALE.id, Colors.rgb(104, 104, 112))
@@ -339,6 +341,10 @@ class BlockPalette : Palette {
       graded(BlockType.ORE_SILVER_SMALL, 132, 136, 140, 226, 232, 240)
       graded(BlockType.ORE_MITHRANDIUM_SMALL, 96, 116, 128, 122, 226, 240)
       graded(BlockType.ROCK_SALT_SMALL, 176, 172, 168, 244, 240, 236)
+      // Acid yellow, pulled green away from gold's warm 248/206/78 so the two are told apart in a section.
+      graded(BlockType.ORE_SULFUR_SMALL, 132, 130, 86, 224, 238, 66)
+      // Rose, which nothing else here occupies - and specifically not lava's orange, since it sits in basalt.
+      graded(BlockType.GEM_PYRELITH_SMALL, 114, 56, 76, 244, 76, 132)
     }
 
     /**

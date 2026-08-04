@@ -38,7 +38,9 @@ class VoxelTest {
     // flag - this is that tripwire. A new non-solid material fails here and forces somebody to come and
     // decide what it does to an agent walking into it, rather than inheriting a default nobody looked at.
     assertEquals(
-      setOf(BlockType.AIR, BlockType.WATER, BlockType.LEAVES, BlockType.BLIGHTED_LEAVES),
+      setOf(
+        BlockType.AIR, BlockType.WATER, BlockType.LAVA, BlockType.LEAVES, BlockType.BLIGHTED_LEAVES
+      ),
       BlockType.entries.filter { !it.solid }.toSet()
     )
   }

@@ -36,6 +36,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// </para>
   ///
   /// <para>
+  /// <c>LAVA</c> is the second material where those two answers diverge and the first that needed a mesh of its
+  /// own for it. Leaves could share the terrain surface because they wanted the same material; lava wants
+  /// emission, and <c>StandardMaterial3D</c> has no per-vertex emission - so a lava pool drawn on the terrain
+  /// surface would be a matte orange patch indistinguishable from orange rock, which loses the entire visual
+  /// point of the material. See <see cref="Molten"/>.
+  /// </para>
+  ///
+  /// <para>
   /// Vertex colour is the interim answer to texturing. It puts recognisable terrain on screen for the cost of
   /// a lookup table, and it is deliberately not the destination: the shape of the data - one material id per
   /// vertex - is the same shape a <c>Texture2DArray</c> blended in the shader wants, so replacing
@@ -55,8 +63,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain,
 
       /// <summary>The transparent water mesh.</summary>
-      Water
+      Water,
+
+      /// <summary>The opaque, emissive lava mesh.</summary>
+      Lava
     }
+
+    /// <summary>How many surfaces a chunk is meshed into. Keep in step with <see cref="SurfaceKind"/>.</summary>
+    public const int SurfaceKinds = 3;
 
     /// <summary>One material, exactly as the server's <c>BlockType</c> declares it, plus how to draw it.</summary>
     public sealed class Block
@@ -111,10 +125,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
       // material, and an id with no entry is drawn by neither surface, which is what air should be.
       Fluid(1, "WATER", 0.16f, 0.35f, 0.52f, 0.72f),
       Terrain(2, "ICE", 0.78f, 0.88f, 0.93f),
+      Molten(3, "LAVA", 0.95f, 0.36f, 0.09f),
 
       // Basement.
       Terrain(10, "GRANITE", 0.60f, 0.56f, 0.55f),
       Terrain(11, "BASALT", 0.26f, 0.26f, 0.28f),
+
+      // Volcanic glass. Darker and cooler than basalt, which is the only thing it is ever next to.
+      Terrain(12, "OBSIDIAN", 0.09f, 0.08f, 0.11f),
 
       // Sedimentary cover.
       Terrain(20, "LIMESTONE", 0.78f, 0.76f, 0.68f),
@@ -202,7 +220,21 @@ namespace BestiaBehemothClient.Game.World.Mesh
       // two rare metals are told apart at a glance in a dark gallery.
       Terrain(121, "ORE_AETHERITE_SMALL", 0.42f, 0.33f, 0.52f),
       Terrain(122, "ORE_AETHERITE_MEDIUM", 0.58f, 0.40f, 0.78f),
-      Terrain(123, "ORE_AETHERITE_RICH", 0.74f, 0.48f, 0.98f)
+      Terrain(123, "ORE_AETHERITE_RICH", 0.74f, 0.48f, 0.98f),
+
+      // Sulfur: acid yellow, pulled green deliberately. Gold's rich grade is a warm 0.97/0.81/0.31 and a
+      // second yellow ore that read as warm would be mistaken for it in a lamplit gallery, which matters
+      // because one of them is worth crossing a volcano for and the other is worth carrying home by the sack.
+      Terrain(124, "ORE_SULFUR_SMALL", 0.52f, 0.51f, 0.34f),
+      Terrain(125, "ORE_SULFUR_MEDIUM", 0.72f, 0.74f, 0.28f),
+      Terrain(126, "ORE_SULFUR_RICH", 0.88f, 0.93f, 0.26f),
+
+      // Pyrelith: rose, which nothing else in the palette occupies. It sits in basalt beside lava, so it has
+      // to be distinct from that orange as well as from aetherite's violet and mithrandium's cyan - the three
+      // colours a player already reads as "rare".
+      Terrain(127, "GEM_PYRELITH_SMALL", 0.45f, 0.22f, 0.30f),
+      Terrain(128, "GEM_PYRELITH_MEDIUM", 0.72f, 0.24f, 0.42f),
+      Terrain(129, "GEM_PYRELITH_RICH", 0.96f, 0.30f, 0.52f)
     };
 
     /// <summary>
@@ -248,21 +280,59 @@ namespace BestiaBehemothClient.Game.World.Mesh
         Surface = SurfaceKind.Terrain, Colour = new Color(r, g, b)
       };
 
+    /// <summary>
+    /// Molten rock: its own surface, drawn opaque and emissive. Neither solid nor sight-blocking.
+    /// </summary>
+    /// <remarks>
+    /// Not <see cref="Fluid"/>, and the argument is the one <see cref="Foliage"/> makes about leaves: which
+    /// mesh a material is drawn into is a different question from whether it obstructs. On the water surface a
+    /// lava pool beside a lake would blend into one continuous sheet, with water's alpha and no glow.
+    ///
+    /// <para>
+    /// <b>Opaque on purpose, and that is load bearing rather than aesthetic.</b> <c>ChunkBands</c> marks active
+    /// cells from the occupancy byte alone, and the materialiser fills everything below the air interface to
+    /// full - rock and the fluid above it alike - so a rock/fluid interface is not an occupancy change and the
+    /// bed under a fluid is never meshed. (The same is already true of every lake bed in the world.) An alpha
+    /// here would therefore show a hole where the pool's basin should be. Molten rock is not transparent
+    /// either, so there is no tension between the two reasons.
+    /// </para>
+    ///
+    /// <para>
+    /// The glow comes from the material's emission in <c>TerrainRenderer</c>, not from the vertex colour. It
+    /// lights the surface, not the scene: without SDFGI a pool does not illuminate the rock around it.
+    /// </para>
+    /// </remarks>
+    private static Block Molten(byte id, string name, float r, float g, float b) =>
+      new()
+      {
+        Id = id, Name = name, Solid = false, Opaque = false,
+        Surface = SurfaceKind.Lava, Colour = new Color(r, g, b)
+      };
+
     /// <summary>The tables for the palette this client ships with. Built once; nothing mutates them.</summary>
     public static BlockAppearance Current { get; } = From(Palette);
 
-    /// <summary>0xFF for blocks that belong to the opaque terrain surface, 0 otherwise.</summary>
-    public byte[] TerrainMask { get; } = new byte[Ids];
+    /// <summary>
+    /// One mask per <see cref="SurfaceKind"/>: 0xFF for the blocks that belong to it, 0 otherwise.
+    /// </summary>
+    /// <remarks>
+    /// A table per kind rather than a named field per kind, because the two named ones did not survive the
+    /// third surface: <see cref="From"/> was an <c>if terrain else water</c>, so a new kind landed silently in
+    /// the water mask, which is a divergence that renders rather than throws.
+    /// </remarks>
+    private readonly byte[][] _mask = BuildMasks();
 
-    /// <summary>0xFF for blocks that belong to the transparent water surface, 0 otherwise.</summary>
-    public byte[] WaterMask { get; } = new byte[Ids];
+    private readonly bool[] _present = new bool[SurfaceKinds];
 
     private readonly Color[] _colour = new Color[Ids];
 
     private readonly string[] _name = new string[Ids];
 
-    /// <summary>Whether any block in the palette belongs to the water surface, so an empty pass can be skipped.</summary>
-    public bool HasWater { get; private set; }
+    /// <summary>The mesher's mask for one surface.</summary>
+    public byte[] MaskOf(SurfaceKind kind) => _mask[(int)kind];
+
+    /// <summary>Whether any block belongs to this surface, so an empty pass can be skipped.</summary>
+    public bool Occupies(SurfaceKind kind) => _present[(int)kind];
 
     public Color ColourOf(byte blockId) => _colour[blockId];
 
@@ -288,21 +358,25 @@ namespace BestiaBehemothClient.Game.World.Mesh
           continue;
         }
 
-        if (block.Surface == SurfaceKind.Terrain)
-        {
-          appearance.TerrainMask[block.Id] = 0xFF;
-        }
-        else
-        {
-          appearance.WaterMask[block.Id] = 0xFF;
-          appearance.HasWater = true;
-        }
+        appearance._mask[(int)block.Surface][block.Id] = 0xFF;
+        appearance._present[(int)block.Surface] = true;
 
         appearance._colour[block.Id] = block.Colour;
         appearance._name[block.Id] = block.Name;
       }
 
       return appearance;
+    }
+
+    private static byte[][] BuildMasks()
+    {
+      var masks = new byte[SurfaceKinds][];
+      for (var kind = 0; kind < masks.Length; kind++)
+      {
+        masks[kind] = new byte[Ids];
+      }
+
+      return masks;
     }
   }
 }

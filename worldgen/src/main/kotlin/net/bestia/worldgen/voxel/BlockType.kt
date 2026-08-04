@@ -83,9 +83,33 @@ enum class BlockType(
   WATER(1, solid = false, opaque = false, passability = Passability.WADEABLE),
   ICE(2, solid = true),
 
+  /**
+   * Molten rock. In the fluid band beside water and ice because that is what it is, not in a free slot
+   * further out: band membership is this file's documentation of what kind of thing a material is.
+   *
+   * `solid = false` does four separate jobs here and each is wanted. [VoxelChunk.highestSolid] reports the rock
+   * *under* a pool, so nothing spawns on a lava surface; `WalkableTile` never treats it as a floor;
+   * `ColumnSummary`'s `structural` is false, so a pool is not a roof and shelters nothing; and `highestNonAir`
+   * still counts it, so the probe and the surface columns draw it with no change. `solid = true` would be
+   * actively wrong - `highestSolid` would report the lava surface as ground to stand on.
+   *
+   * [Passability.BLOCKED] rather than inheriting `OPEN` from that: nothing walks into lava, and unlike water
+   * there is no depth at which it becomes survivable, so there is no wading limit for it either.
+   */
+  LAVA(3, solid = false, opaque = false, passability = Passability.BLOCKED),
+
   // Basement.
   GRANITE(10, solid = true),
   BASALT(11, solid = true),
+
+  /**
+   * Volcanic glass, quarried from the margin of a cooled flow.
+   *
+   * In the basement band because it is igneous rock, even though it is placed as a resource rather than as a
+   * stratigraphic bed - `OreBlocks.PLAIN` maps it, the way marble maps to limestone. Not graded: obsidian is
+   * not disseminated through host rock, it is a massive glassy body you cut blocks out of.
+   */
+  OBSIDIAN(12, solid = true),
 
   // Sedimentary cover.
   LIMESTONE(20, solid = true),
@@ -236,7 +260,28 @@ enum class BlockType(
    */
   ORE_AETHERITE_SMALL(121, solid = true),
   ORE_AETHERITE_MEDIUM(122, solid = true),
-  ORE_AETHERITE_RICH(123, solid = true);
+  ORE_AETHERITE_RICH(123, solid = true),
+
+  /** Fumarolic sulfur, bedded shallow at an active vent. Salt's geology, not a metal's. */
+  ORE_SULFUR_SMALL(124, solid = true),
+  ORE_SULFUR_MEDIUM(125, solid = true),
+  ORE_SULFUR_RICH(126, solid = true),
+
+  /*
+   * Pyrelith: a gem grown in the gas cavities of a thick lava flow as it cooled.
+   *
+   * `GEM_` rather than `ORE_`, which breaks the band's naming, and the break is deliberate. The band is
+   * "graded deposits the ore-vein machinery places", and a gem is one of those - `OreBlocks.GRADED` maps it
+   * exactly like a metal, three grades in both directions - but calling it an ore would say it smelts, and it
+   * does not. The prefix is the one word that carries the difference.
+   *
+   * The world's first gem, and the reason to invent one rather than place a real mineral is `MITHRANDIUM`'s: a
+   * material with no real-world counterpart is a material a player has to come here to learn about. Volcanic
+   * only, by construction - see `ResourceStage.suitabilityFor`.
+   */
+  GEM_PYRELITH_SMALL(127, solid = true),
+  GEM_PYRELITH_MEDIUM(128, solid = true),
+  GEM_PYRELITH_RICH(129, solid = true);
 
   companion object {
     private val BY_ID = arrayOfNulls<BlockType>(entries.maxOf { it.id } + 1).also { table ->

@@ -186,6 +186,36 @@ class DerivedStructureTest {
   }
 
   @Test
+  fun `lava is never a floor and never headroom`() {
+    val chunk = flatGround()
+    for (z in 4..5) chunk[4, 4, z] = BlockType.LAVA
+
+    // The wading limit is set generously on purpose: it must not help. Lava is BLOCKED rather than WADEABLE, so
+    // there is no depth of it an agent may stand in, and a profile that wades a metre of water still cannot.
+    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxWadeDepth = 4.0))
+
+    assertFalse(tile.isWalkable(4, 4, 3), "the ground under lava is not standable")
+    assertFalse(tile.isWalkable(4, 4, 5), "the surface of a lava pool is not standable either")
+    assertEquals(0, tile.spanCountAt(4, 4), "a flooded column has no span at all")
+
+    // The rim is untouched, so an agent walks up to the edge and stops rather than the whole area going dark.
+    assertTrue(tile.isWalkable(3, 4, 3), "the column beside the pool is unaffected")
+  }
+
+  @Test
+  fun `lava is not water`() {
+    // ColumnSummary reports waterHeight for swimming and drowning checks. Lava is deliberately absent from it:
+    // telling a swim check that a lava pool is water it can be in is worse than telling it nothing at all.
+    val chunk = flatGround()
+    for (z in 4..5) chunk[4, 4, z] = BlockType.LAVA
+
+    val summary = ColumnSummary.of(chunk)
+
+    assertEquals(0.0, summary.waterDepthAt(4, 4), 1e-9, "lava must not read as water depth")
+    assertFalse(summary.isShelteredAt(4, 4, 1.0), "a lava pool is not a roof")
+  }
+
+  @Test
   fun `a canopy overhead is still free headroom`() {
     // The regression guard for the fall-through this replaced. `hasClearance` used to have arms for AIR,
     // WATER and solid, and anything else - leaves being the only case at the time - fell through every arm

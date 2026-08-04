@@ -40,6 +40,7 @@ namespace BestiaBehemothClient.Tests
 
     internal const byte Air = 0;
     internal const byte Water = 1;
+    internal const byte Lava = 3;
     internal const byte Granite = 10;
     internal const byte Grass = 40;
 
@@ -47,25 +48,31 @@ namespace BestiaBehemothClient.Tests
     /// The shipped palette, trimmed to the handful of materials these tests use.
     /// </summary>
     /// <remarks>
-    /// A subset rather than <c>BlockAppearance.Current</c>, so a test asserting that water and terrain land on
+    /// A subset rather than <c>BlockAppearance.Current</c>, so a test asserting that two materials land on
     /// different surfaces says which materials it means instead of depending on two dozen it does not.
     /// </remarks>
     internal static BlockAppearance Appearance() => BlockAppearance.From(new[]
     {
-      Block(Water, "WATER", false, new Color(0.16f, 0.35f, 0.52f, 0.72f)),
-      Block(2, "ICE", true, new Color(0.78f, 0.88f, 0.93f)),
-      Block(Granite, "GRANITE", true, new Color(0.60f, 0.56f, 0.55f)),
-      Block(Grass, "GRASS", true, new Color(0.28f, 0.45f, 0.19f))
+      Block(Water, "WATER", false, BlockAppearance.SurfaceKind.Water, new Color(0.16f, 0.35f, 0.52f, 0.72f)),
+      Block(Lava, "LAVA", false, BlockAppearance.SurfaceKind.Lava, new Color(0.95f, 0.36f, 0.09f)),
+      Block(2, "ICE", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.78f, 0.88f, 0.93f)),
+      Block(Granite, "GRANITE", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.60f, 0.56f, 0.55f)),
+      Block(Grass, "GRASS", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.28f, 0.45f, 0.19f))
     });
 
-    private static BlockAppearance.Block Block(byte id, string name, bool solid, Color colour) =>
+    /// <summary>One fixture material. The surface is stated rather than derived, and that is the point.</summary>
+    /// <remarks>
+    /// It used to be <c>solid ? Terrain : Water</c>, which was true of the four materials the fixture then had
+    /// and became a trap the moment a second non-solid surface existed: <c>LAVA</c> would have been placed on
+    /// the water surface, and every test asserting that lava and water do not share a mesh would have passed
+    /// vacuously while asserting the opposite of the truth.
+    /// </remarks>
+    private static BlockAppearance.Block Block(
+      byte id, string name, bool solid, BlockAppearance.SurfaceKind surface, Color colour) =>
       new()
       {
         Id = id, Name = name, Solid = solid, Opaque = solid,
-        // These four materials are all cases where solidity and surface membership do agree; the palette's
-        // one material where they do not - LEAVES - is not among them. Spelled out rather than defaulted so
-        // that the fixture keeps saying which surface it means.
-        Surface = solid ? BlockAppearance.SurfaceKind.Terrain : BlockAppearance.SurfaceKind.Water,
+        Surface = surface,
         Colour = colour
       };
 

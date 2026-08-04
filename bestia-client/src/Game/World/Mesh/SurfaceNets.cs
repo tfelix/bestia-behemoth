@@ -509,7 +509,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
       }
     }
 
-    /// <summary>Meshes both surfaces of a chunk.</summary>
+    /// <summary>Meshes every surface of a chunk.</summary>
+    /// <remarks>
+    /// One pass per <see cref="BlockAppearance.SurfaceKind"/> the palette actually uses. A pass costs one linear
+    /// scan of the patch to find that it is empty, which is why the <see cref="BlockAppearance.Occupies"/> gate
+    /// is worth having: on nearly every chunk in the world the lava pass would be that scan and nothing else.
+    /// </remarks>
     public static ChunkMesh Build(
       IChunkSource source, ChunkKey key, BlockAppearance appearance, float voxelSize)
     {
@@ -519,12 +524,21 @@ namespace BestiaBehemothClient.Game.World.Mesh
         return null;
       }
 
-      var terrain = Build(patch, appearance.TerrainMask, appearance, voxelSize);
-      var water = appearance.HasWater
-        ? Build(patch, appearance.WaterMask, appearance, voxelSize)
-        : null;
+      var surfaces = new ChunkSurface[BlockAppearance.SurfaceKinds];
+      var any = false;
 
-      if (terrain == null && water == null)
+      for (var kind = 0; kind < surfaces.Length; kind++)
+      {
+        if (!appearance.Occupies((BlockAppearance.SurfaceKind)kind))
+        {
+          continue;
+        }
+
+        surfaces[kind] = Build(patch, appearance.MaskOf((BlockAppearance.SurfaceKind)kind), appearance, voxelSize);
+        any |= surfaces[kind] != null;
+      }
+
+      if (!any)
       {
         return null;
       }
@@ -532,8 +546,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       return new ChunkMesh
       {
         Key = key,
-        Terrain = terrain,
-        Water = water,
+        Surfaces = surfaces,
         MissingNeighbours = patch.MissingNeighbours
       };
     }

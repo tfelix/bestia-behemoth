@@ -303,13 +303,13 @@ class ChunkStoreTest {
     // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
     // client's `BlockAppearance.Palette`, and then re-pin here.
     assertEquals(
-      -3_084_717_137_145_016_240L, PipelineVersion.paletteVersion(),
+      -2_478_066_114_898_304_053L, PipelineVersion.paletteVersion(),
       "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
           "client's BlockAppearance.Palette, then update this pin."
     )
 
     assertEquals(
-      2,
+      3,
       ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved without the palette moving, which is fine - re-pin this and check the " +
           "client's constant matches."

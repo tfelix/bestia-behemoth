@@ -76,6 +76,9 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Material for the water surface. Left unset, a transparent default is built.</summary>
     [Export] public Material WaterMaterial { get; set; }
 
+    /// <summary>Material for the lava surface. Left unset, an opaque emissive default is built.</summary>
+    [Export] public Material LavaMaterial { get; set; }
+
     /// <summary>
     /// Vertex colour as albedo, and rough: this is rock, soil and grass rather than anything polished.
     /// </summary>
@@ -119,10 +122,42 @@ namespace BestiaBehemothClient.Game.World
       SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled
     };
 
+    /// <summary>
+    /// Lava: opaque and emissive, unlike water.
+    /// </summary>
+    /// <remarks>
+    /// Opaque is load bearing rather than a taste call - see <see cref="Mesh.BlockAppearance"/>'s
+    /// <c>Molten</c>, which explains why the basin under a pool is not meshed and what an alpha would show
+    /// through to.
+    ///
+    /// <para>
+    /// The emission makes the surface glow; it does not light the scene. Without SDFGI or a light baked beside
+    /// the pool, the rock around a lava flow stays as dark as the rest of the cave, which looks like the
+    /// emission failed and is not that. A real lava light is a job for whoever does the shader pass.
+    /// </para>
+    ///
+    /// <para>
+    /// Back-face culling is off for water's reason: a pool surface is a single sheet with no underside, and a
+    /// player looking at it from below or from inside would see straight through it.
+    /// </para>
+    /// </remarks>
+    private static Material DefaultLavaMaterial() => new StandardMaterial3D
+    {
+      VertexColorUseAsAlbedo = true,
+      EmissionEnabled = true,
+      Emission = new Color(1.0f, 0.34f, 0.06f),
+      EmissionEnergyMultiplier = 2.0f,
+      CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+      Roughness = 1.0f,
+      MetallicSpecular = 0.0f,
+      SpecularMode = BaseMaterial3D.SpecularModeEnum.Disabled
+    };
+
     private sealed class Tile
     {
-      internal MeshInstance3D Terrain;
-      internal MeshInstance3D Water;
+      /// <summary>One node per <see cref="Mesh.BlockAppearance.SurfaceKind"/>, null where the chunk has none.</summary>
+      internal readonly MeshInstance3D[] Surfaces = new MeshInstance3D[BlockAppearance.SurfaceKinds];
+
       internal StaticBody3D Body;
       internal CollisionShape3D Shape;
 
@@ -175,6 +210,7 @@ namespace BestiaBehemothClient.Game.World
 
       TerrainMaterial ??= DefaultTerrainMaterial();
       WaterMaterial ??= DefaultWaterMaterial();
+      LavaMaterial ??= DefaultLavaMaterial();
 
       if (worldInfo != null)
       {
@@ -190,8 +226,7 @@ namespace BestiaBehemothClient.Game.World
     {
       foreach (var tile in _tiles.Values)
       {
-        tile.Terrain?.QueueFree();
-        tile.Water?.QueueFree();
+        FreeSurfaces(tile);
         tile.Body?.QueueFree();
       }
 
@@ -238,9 +273,16 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
-      tile.Terrain?.QueueFree();
-      tile.Water?.QueueFree();
+      FreeSurfaces(tile);
       tile.Body?.QueueFree();
+    }
+
+    private static void FreeSurfaces(Tile tile)
+    {
+      foreach (var surface in tile.Surfaces)
+      {
+        surface?.QueueFree();
+      }
     }
 
     /// <summary>
@@ -363,11 +405,19 @@ namespace BestiaBehemothClient.Game.World
 
       tile.MissingNeighbours = mesh.MissingNeighbours ?? Array.Empty<ChunkKey>();
 
-      tile.Terrain = Apply(tile.Terrain, mesh.Terrain, TerrainMaterial, $"terrain {mesh.Key}");
-      tile.Water = Apply(tile.Water, mesh.Water, WaterMaterial, $"water {mesh.Key}");
+      for (var kind = 0; kind < tile.Surfaces.Length; kind++)
+      {
+        var surfaceKind = (BlockAppearance.SurfaceKind)kind;
+        tile.Surfaces[kind] = Apply(
+          tile.Surfaces[kind], mesh.Surfaces[kind], MaterialFor(surfaceKind),
+          $"{surfaceKind.ToString().ToLowerInvariant()} {mesh.Key}"
+        );
+      }
 
-      // Only the opaque surface collides. Swimming through water is a server-side check against its own voxels,
-      // and a collider on the waterline would stop the camera's spring arm at the surface of every pond.
+      // Only the terrain surface collides, and lava is deliberately in the same boat as water rather than in
+      // terrain's. Walking into it is refused server-side by `WalkableTile`, which knows lava is BLOCKED; a
+      // collider here would instead stop the camera's spring arm at the surface of every pool, and make the
+      // pool a clickable floor the pathfinder then refuses - a worse lie than no floor at all.
       tile.CollisionFaces = mesh.Terrain == null || mesh.Terrain.IsEmpty ? null : FacesOf(mesh.Terrain);
 
       // A rebuilt mesh invalidates whatever shape was there, so drop it and let the sync decide afresh.
@@ -376,6 +426,22 @@ namespace BestiaBehemothClient.Game.World
 
       SyncCollision(mesh.Key, tile);
     }
+
+    /// <summary>
+    /// The material one surface is drawn with.
+    /// </summary>
+    /// <remarks>
+    /// The throwing default is not defensive padding. C# does not check a switch expression over an enum for
+    /// exhaustiveness, so a fourth <see cref="Mesh.BlockAppearance.SurfaceKind"/> would otherwise be drawn with
+    /// whichever material fell out of the last arm - which renders, and renders wrong.
+    /// </remarks>
+    private Material MaterialFor(BlockAppearance.SurfaceKind kind) => kind switch
+    {
+      BlockAppearance.SurfaceKind.Terrain => TerrainMaterial,
+      BlockAppearance.SurfaceKind.Water => WaterMaterial,
+      BlockAppearance.SurfaceKind.Lava => LavaMaterial,
+      _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "no material for this surface")
+    };
 
     private MeshInstance3D Apply(MeshInstance3D instance, ChunkSurface surface, Material material, string name)
     {

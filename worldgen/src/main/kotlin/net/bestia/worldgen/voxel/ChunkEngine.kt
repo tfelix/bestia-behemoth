@@ -33,6 +33,9 @@ object ChunkEngine {
    * stops, which is a server-side combat question the client neither receives nor renders; bumping for it
    * would force a client release for a number no client can observe.
    *
+   * `BlockType.passability` is not in that list either, for the same reason: it decides what a server-side
+   * pathfinder will walk into. No client receives it and none could act on it.
+   *
    * ### Back at 1, once
    *
    * This reached 4 over the branch that built the palette out - worked materials, then vegetation, then
@@ -40,6 +43,9 @@ object ChunkEngine {
    * yet. It was reset to 1 in the same commit as every stage version, for the same reason: the promise had
    * no counterparty. **From the first client release onwards it is append-only again**, and the discipline
    * above is what it always was. This is the last free reset it gets.
+   *
+   * 3 added the volcanic materials in one batch - LAVA, OBSIDIAN, and graded sulfur and pyrelith - rather than
+   * one bump per feature. Four separate additions would have meant four client releases for one feature.
    */
-  const val VERSION = 2
+  const val VERSION = 3
 }
