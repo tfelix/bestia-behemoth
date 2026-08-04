@@ -41,11 +41,49 @@ enum class ResourceType(val label: String) {
    */
   AETHERITE("aetherite"),
 
+  /**
+   * A gemstone with no real-world counterpart, grown in the gas cavities of a cooled lava flow.
+   *
+   * The world's **first gem**, and that is the argument for inventing it rather than adding one of the six real
+   * volcanic minerals that were considered beside it. Every one of those - cinnabar, realgar, sal ammoniac,
+   * tephra, pumice - earns its place only through a refining or crafting system, and there is none:
+   * `grep ResourceType zone-server/src/main` returns nothing, and `OreBlocks.yieldOf`'s own KDoc says the thing
+   * that lets a player break an ore voxel and pick up the metal does not exist yet. A gem needs no such system
+   * to be worth walking to.
+   *
+   * It is the second invented material after [MITHRANDIUM] and the second reason to go somewhere specific, which
+   * is the case that KDoc makes for having invented one at all. The `-lith` suffix is a third category marker
+   * beside mithrandium's `-ium` for a deep metal and aetherite's `-ite` for a corrupted one, so what kind of
+   * thing it is reads off the name.
+   *
+   * Keyed on volcanism **alone** - no mana term - so `ResourceStage` gains no dependency on `ManaStage` and the
+   * gem is found wherever a strong volcanic field is rather than wherever two rare things coincide.
+   */
+  PYRELITH("pyrelith"),
+
   // Bulk minerals.
   SALT("salt"),
   STONE("building stone"),
   CLAY("clay"),
   MARBLE("marble"),
+
+  /**
+   * Sulfur, from the crusts and sublimates around a vent.
+   *
+   * Earns its place today without any crafting system: it raises `RESOURCE_VALUE` on the arc, and
+   * `SpecialSites.mines` reads any `ORE_DEPOSIT` marker - so a sulfur mine and its `MINE_OPENED` chronicle line
+   * come for free with no edit to history at all.
+   */
+  SULFUR("sulfur"),
+
+  /**
+   * Volcanic glass, from the chilled margin of a flow.
+   *
+   * A [PLAIN] resource rather than a graded ore, and that is the geology rather than a simplification: obsidian
+   * is not disseminated through rock in veins you assay, it is a massive glassy carapace you quarry - which is
+   * `MARBLE`'s shape exactly. It is also the one entry here that reads as volcanic from a distance.
+   */
+  OBSIDIAN("obsidian"),
 
   // Surface resources, biome derived.
   TIMBER("timber"),
@@ -62,12 +100,18 @@ enum class ResourceType(val label: String) {
       AETHERITE -> 1.5
       MITHRANDIUM -> 1.2
       GOLD_LODE, GOLD_PLACER -> 1.0
+      // Between silver and gold. High enough to be worth the walk, and the reason `Terms.hazard` needed a
+      // volcanic term in the same commit: without one, a valuable ore on the arc pulls settlements *onto* the
+      // volcanoes through RESOURCE_VALUE, and then eruptions fire far more often than their rate implies.
+      PYRELITH -> 0.85
       SILVER -> 0.75
       COPPER, TIN -> 0.5
       IRON -> 0.55
+      SULFUR -> 0.45
       MARBLE -> 0.4
       SALT -> 0.45
       FURS -> 0.3
+      OBSIDIAN -> 0.3
       TIMBER -> 0.25
       STONE, CLAY -> 0.15
       FISH -> 0.2
@@ -135,7 +179,22 @@ enum class MinableOre(
   val spacingFactor: Double,
   val tonsPerThousandSqKm: Double,
   val minDepth: Double,
-  val maxDepth: Double
+  val maxDepth: Double,
+
+  /**
+   * Whether `ResourceStage.guarantee` puts a floor of deposits on a world that placed none by score.
+   *
+   * True for everything whose geology every world has. The guarantee is justified there by the argument at
+   * `ResourceStage`'s own floor - "the geology is already there, the sampler simply missed them" - and that is
+   * a true statement about copper on a world with arcs and about mithrandium on a world with old crust.
+   *
+   * It is **false** about volcanism, and that is the whole reason this flag exists. A seed can legitimately have
+   * no convergent boundary and no hotspot on land - `ResourceStage` and `HistoryStage` both already handle it -
+   * and on such a world the floor would put three pyrelith mines on the three least-bad cells in a world with no
+   * volcano in it. A resource that is *absent* from some worlds is a stronger fact about the map than one that
+   * is merely rare on all of them.
+   */
+  val guaranteed: Boolean = true
 ) {
 
   /**
@@ -145,8 +204,18 @@ enum class MinableOre(
    */
   MITHRANDIUM(ResourceType.MITHRANDIUM, 0, 2.4, 0.20, 250.0, 600.0),
   GOLD(ResourceType.GOLD_LODE, 1, 2.4, 0.49, 10.0, 150.0),
-  SILVER(ResourceType.SILVER, 2, 2.2, 0.79, 10.0, 150.0),
-  TIN(ResourceType.TIN, 3, 1.7, 0.92, 10.0, 150.0),
+
+  /**
+   * Vugs in the interior of a thick flow, so shallow to mid depth and scarcer than silver.
+   *
+   * Second in the dispersal order, above silver, because its ground is the scarcest of any ore here - a strong
+   * volcanic field is about a tenth of the volcanic country, which is about a hundredth of the land. Letting the
+   * metals pick first would mean pyrelith took whatever was left of an already tiny candidate set.
+   */
+  PYRELITH(ResourceType.PYRELITH, 2, 2.4, 0.16, 5.0, 90.0, guaranteed = false),
+
+  SILVER(ResourceType.SILVER, 3, 2.2, 0.79, 10.0, 150.0),
+  TIN(ResourceType.TIN, 4, 1.7, 0.92, 10.0, 150.0),
 
   /**
    * Ahead of copper despite being commoner, which is the one place this ordering is deliberate rather than
@@ -154,12 +223,23 @@ enum class MinableOre(
    * to pick first meant it took every arc site and iron got what was left. Iron is also the ore the economy
    * cannot do without, so if one of the two has to be crowded it should not be this one.
    */
-  IRON(ResourceType.IRON, 4, 1.4, 2.0, 10.0, 150.0),
+  IRON(ResourceType.IRON, 5, 1.4, 2.0, 10.0, 150.0),
 
   /** Bedded halite, which is why it is shallow: it is the floor of a lake that dried up, not a vein. */
-  SALT(ResourceType.SALT, 5, 1.2, 1.05, 0.0, 6.0),
+  SALT(ResourceType.SALT, 6, 1.2, 1.05, 0.0, 6.0),
 
-  COPPER(ResourceType.COPPER, 6, 1.2, 6.6, 10.0, 150.0);
+  COPPER(ResourceType.COPPER, 7, 1.2, 6.6, 10.0, 150.0),
+
+  /**
+   * Sulfur crusts, in `SALT`'s shape: shallow, bedded, and hand-worked rather than mined out of a vein.
+   *
+   * **Last in the dispersal order**, below copper, and deliberately so even though its ground is far rarer than
+   * copper's. Its own volcanism gate already thins it to the arcs, so it needs no priority - and letting it pick
+   * before the metals would mean sulfur taking arc sites that copper and iron are competing for on the same
+   * ground. The economy can do without sulfur and cannot do without iron, which is `IRON`'s own argument one
+   * place further down the list.
+   */
+  SULFUR(ResourceType.SULFUR, 8, 1.3, 1.4, 0.0, 12.0, guaranteed = false);
 
   init {
     require(spacingFactor > 0.0) { "$name spacingFactor must be positive, was $spacingFactor" }
@@ -205,6 +285,7 @@ enum class MinableOre(
           .put("${ore.name}.tonsPerThousandSqKm", ore.tonsPerThousandSqKm)
           .put("${ore.name}.minDepth", ore.minDepth)
           .put("${ore.name}.maxDepth", ore.maxDepth)
+          .put("${ore.name}.guaranteed", if (ore.guaranteed) 1.0 else 0.0)
       }
       return digest.value
     }

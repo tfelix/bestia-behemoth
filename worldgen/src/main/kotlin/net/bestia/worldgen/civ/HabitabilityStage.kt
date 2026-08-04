@@ -16,6 +16,7 @@ import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
 import net.bestia.worldgen.fields.Grid
 import net.bestia.worldgen.geo.ErosionStage
+import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.resource.ResourceStage
 
@@ -101,7 +102,10 @@ class HabitabilityStage(
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   override val dependencies = listOf(
-    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID
+    ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID, ResourceStage.ID,
+    // For the volcanic hazard term. `Culture.hazardAversion` has always listed volcanic ground among the three
+    // things it is aversion *to*, and until this nothing made that true - see `Terms.read`.
+    VolcanismStage.ID
   )
   override val scale = StageScale.WORLD
 

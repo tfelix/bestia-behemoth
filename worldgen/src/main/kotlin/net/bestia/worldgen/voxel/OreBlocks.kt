@@ -43,6 +43,14 @@ object OreBlocks {
     ResourceType.SALT to triple(
       BlockType.ROCK_SALT_SMALL, BlockType.ROCK_SALT_MEDIUM, BlockType.ROCK_SALT_RICH
     ),
+    ResourceType.SULFUR to triple(
+      BlockType.ORE_SULFUR_SMALL, BlockType.ORE_SULFUR_MEDIUM, BlockType.ORE_SULFUR_RICH
+    ),
+    // A gem in the graded map with the ores, because the vein machinery is what places graded bodies and a vug
+    // field is one - the grade is how much of the cavity is crystal rather than how rich the rock is.
+    ResourceType.PYRELITH to triple(
+      BlockType.GEM_PYRELITH_SMALL, BlockType.GEM_PYRELITH_MEDIUM, BlockType.GEM_PYRELITH_RICH
+    ),
     // In the map so `yieldOf` can name a broken block, but never reached through `blocksFor` from a deposit
     // marker - no marker ever carries this type. `OreVeins` looks it up directly when the ground around a
     // body is corrupted. See ResourceType.AETHERITE.
@@ -60,7 +68,10 @@ object OreBlocks {
    */
   private val PLAIN: Map<ResourceType, BlockType> = mapOf(
     ResourceType.MARBLE to BlockType.LIMESTONE,
-    ResourceType.CLAY to BlockType.CLAY
+    ResourceType.CLAY to BlockType.CLAY,
+    // Obsidian is here for marble's reason and one more: it is not disseminated through rock at all, so there is
+    // nothing for a grade to be a grade *of*. A flow margin is either glass or it is not.
+    ResourceType.OBSIDIAN to BlockType.OBSIDIAN
   )
 
   private val REVERSE: Map<BlockType, Yield> = buildMap {

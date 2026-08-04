@@ -69,6 +69,7 @@ internal class Terms(
       val waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL))
       val sediment = Grid.from(ctx.layers.float(LayerId.SEDIMENT))
       val resourceValue = Grid.from(ctx.layers.float(LayerId.RESOURCE_VALUE))
+      val volcanism = Grid.from(ctx.layers.float(LayerId.VOLCANISM))
       val temperature = Grid.resampled(ctx.layers.float(LayerId.TEMPERATURE), region)
       val biome = ctx.layers.int(LayerId.BIOME)
       val lakeId = ctx.layers.int(LayerId.LAKE_ID)
@@ -155,7 +156,25 @@ internal class Terms(
         val avalanche = (elevation.gradient(x, y, metres) / 0.3).coerceIn(0.0, 1.0)
         val storm = (1.0 - (above / 40.0).coerceIn(0.0, 1.0)) *
             (1.0 - (toShore.data[i] / 3_000.0).coerceIn(0.0, 1.0))
-        max(flood, max(avalanche * 0.8, storm * 0.6))
+        /*
+         * Volcanic ground, and this term is not optional now that a valuable ore is placed on it.
+         *
+         * `Culture.hazardAversion`'s own KDoc has always read "floodplain, **volcanic ground**, avalanche track",
+         * so the code was making a promise it did not keep - nothing pushed a settlement off an arc. That was
+         * harmless while volcanism reached nothing; it stops being harmless the moment pyrelith is worth 0.85,
+         * because `RESOURCE_VALUE` would then pull towns *toward* the volcanoes. And a town on a volcano is a town
+         * `HistorySim` buries, so eruptions would fire far more often than their per-vent rate implies while
+         * looking like a rate problem.
+         *
+         * Straight off the rank rather than through a floor, unlike the geothermal temperature term: heat has to
+         * leave ordinary country untouched, whereas being *near* a volcano is a real if smaller risk, and this
+         * already competes inside a `max` against three other hazards that dominate it away from the arcs.
+         */
+        val volcanic = volcanism.data[i].coerceIn(0.0, 1.0)
+        max(
+          max(flood, volcanic * VOLCANIC_HAZARD),
+          max(avalanche * 0.8, storm * 0.6)
+        )
       } }
 
       val movementCost = Timings.measure("terms.movementCost") {
@@ -435,6 +454,16 @@ internal class Terms(
 
     /** What crossing bare rock multiplies the slope cost by, once fully bare. */
     private const val BARE_ROCK_COST = 4.0
+
+    /**
+     * How hazardous the most volcanic ground in a world is, as a share of the flood hazard's full weight.
+     *
+     * 0.75, which is below a floodplain and above a storm coast. That ordering is the claim: a village on a
+     * floodplain is washed out within a generation or two and a village on an arc may go a thousand years, but
+     * when it does go it goes the way Pompeii did. It competes inside a `max`, so away from the arcs it costs
+     * nothing at all.
+     */
+    private const val VOLCANIC_HAZARD = 0.75
   }
 }
 

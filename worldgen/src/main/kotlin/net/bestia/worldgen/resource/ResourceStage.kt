@@ -26,6 +26,7 @@ import net.bestia.worldgen.fields.PoissonDisk
 import net.bestia.worldgen.geo.BoundaryType
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
@@ -316,7 +317,11 @@ class ResourceStage(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     // For CANOPY_COVER. Timber used to be a five-way `when` over the biome, which said that every square
     // kilometre of temperate forest in the world was equally worth logging - see suitabilityFor.
-    VegetationStage.ID
+    VegetationStage.ID,
+    // For VOLCANISM, which sulfur, pyrelith and obsidian are all placed from. Reached through the raster rather
+    // than through the vent markers because suitability is evaluated per cell over the whole world, and a
+    // nearest-vent query per cell is a spatial query per cell.
+    VolcanismStage.ID
   )
   override val scale = StageScale.WORLD
 
@@ -353,6 +358,12 @@ class ResourceStage(
     }
 
     for (mineable in MinableOre.byScarcity) {
+      // The volcanic ores opt out - see `MinableOre.guaranteed`. The floor's justification is "the geology is
+      // already there and the sampler simply missed it", which is true of copper on a world with arcs and false
+      // of pyrelith on a world with no volcano: there the floor would place three gem mines on the three
+      // least-bad cells in a world that has no volcanic ground at all.
+      if (!mineable.guaranteed) continue
+
       val kept = placed.getValue(mineable)
       if (kept.size < params.minDepositsPerOre) {
         kept += guarantee(ctx, terrain, mineable, params.minDepositsPerOre - kept.size, taken)
@@ -722,11 +733,18 @@ class ResourceStage(
    */
   private fun surfaceSpacingFactorOf(type: ResourceType): Double = when (type) {
     ResourceType.MARBLE -> 1.7
+    // Below marble rather than above it, which is the opposite of what the geology suggests and is deliberate.
+    // Obsidian's *suitability* is already the strictest of any surface resource - it needs strong volcanism and a
+    // slope for the flow to have ended on - so a scarce spacing on top of that compounds: at 2.0 the sweep found
+    // obsidian on **one world in four**, which is indistinguishable from a dead code path. Scarcity belongs in the
+    // suitability field here, and this is the sampling density that gives the field enough candidates to thin.
+    ResourceType.OBSIDIAN -> 1.2
     ResourceType.FURS -> 1.0
     ResourceType.STONE, ResourceType.CLAY, ResourceType.TIMBER, ResourceType.FISH -> 0.75
 
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
-    ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT ->
+    ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT,
+    ResourceType.SULFUR, ResourceType.PYRELITH ->
       throw IllegalArgumentException("$type is a mineable ore; its spacing is MinableOre.spacingFactor")
 
     // Never placed at all - see ResourceType.AETHERITE. Reaching here means somebody added it to a candidate
@@ -740,11 +758,16 @@ class ResourceStage(
     ResourceType.TIMBER, ResourceType.FURS, ResourceType.FISH, ResourceType.STONE -> 0.0
     ResourceType.CLAY -> roll * 6.0
     ResourceType.MARBLE -> 10.0 + roll * 140.0
+    // At the surface or just under it, and *not* marble's depth range. A flow margin is the outside of a flow:
+    // it is exposed where the flow front stopped, which is the whole reason obsidian was quarried rather than
+    // mined. Giving it marble's 10-150 m would put the world's obsidian under the world's obsidian.
+    ResourceType.OBSIDIAN -> roll * 4.0
 
     // The ore band is what the `else` here used to swallow, and it would have buried a new surface resource
     // under a hundred and fifty metres of rock for looking like marble.
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
-    ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT ->
+    ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT,
+    ResourceType.SULFUR, ResourceType.PYRELITH ->
       throw IllegalArgumentException("$type is a mineable ore; its depth comes from its ore body")
 
     // Never placed at all - see ResourceType.AETHERITE. It inherits the depth of whatever body it replaces.
@@ -834,6 +857,8 @@ private class Terrain(
   val discharge: Grid,
   val waterLevel: Grid,
   val canopy: Grid,
+  /** The volcanism rank: zero on quiet crust, and a percentile over the volcanic ground. */
+  val volcanism: Grid,
   val biome: IntLayer,
   val lakeId: IntLayer,
   val flowDirection: IntLayer,
@@ -988,6 +1013,50 @@ private class Terrain(
           !submerged -> 0.0
           else -> ramp(400.0 + above, 0.0, 400.0)
         }
+
+        /*
+         * The three volcanic entries, and all three key off `LayerId.VOLCANISM` rather than off the biome.
+         *
+         * The biome would be the shorter code and the wrong claim. `VOLCANIC_FIELD` is assigned by distance to a
+         * vent *and nothing else*, so it would work - but `FURS` above is biome-keyed because fur is an
+         * **ecological** fact and follows what grows, while sulfur is a geological one and follows the vent
+         * field. Keying a mineral on a biome makes its placement a function of whatever the classifier's rungs
+         * do next, which is the coupling this KDoc's falsifiability argument is against.
+         *
+         * Preferred over the existing `arc` term for the same reason: `arc` is `exp(-distance to a convergent
+         * boundary / 90 km)`, which is a *boundary*, and sulfur is at a **vent**. A thousand kilometres of
+         * subduction zone has a couple of dozen volcanoes on it.
+         */
+
+        // Sulfur is common wherever a vent field is active at all - it is the sublimate, not the ore body.
+        ResourceType.SULFUR ->
+          if (submerged) 0.0 else ramp(volcanism.data[cell], 0.40, 0.80) * 0.9
+
+        /*
+         * Vugs in the interior of a thick flow, which is why the hardness term is `rock` and not `1 - rock`.
+         *
+         * It was `1 - rock` first, lifted from `MARBLE` on the reasoning that soft host rock would decorrelate
+         * pyrelith from sulfur. That is the wrong sign twice over. A vesicle is a gas cavity in **basalt** - the
+         * hardest rock this model has - so soft ground is precisely where a vug is not; and arc volcanism sits on
+         * orogenic crust, which is hard, so the conjunction of strong volcanism with soft rock is two things that
+         * barely co-occur. Measured: it put pyrelith on two worlds in six and widening the volcanism ramp under it
+         * changed *nothing*, because hardness was the binding constraint the whole time.
+         *
+         * What actually separates it from sulfur is depth, and that is already stated where it belongs -
+         * `MinableOre.PYRELITH` is 5-90 m and `SULFUR` is 0-12 m, so one is in the flow pile and the other is the
+         * crust on top of it. The dispersal pass keeps them off the same hillside laterally.
+         */
+        ResourceType.PYRELITH ->
+          if (submerged) 0.0
+          else ramp(volcanism.data[cell], 0.50, 0.85) * ramp(rock, 0.45, 0.80) * 0.5
+
+        // A flow needs a slope to end on, which is what the elevation term is for: obsidian is the chilled front
+        // of a flow, and a flow that never went anywhere has no front. The volcanism ramp starts lower than
+        // pyrelith's because a flow *front* is by definition away from the vent - the margin of a field rather
+        // than its core, which is where the vugs are.
+        ResourceType.OBSIDIAN ->
+          if (submerged) 0.0
+          else ramp(volcanism.data[cell], 0.40, 0.80) * ramp(above, 150.0, 1200.0) * 0.7
       }.coerceIn(0.0, 1.0)
     }
   }
@@ -1063,6 +1132,7 @@ private class Terrain(
         discharge = Grid.from(ctx.layers.float(LayerId.DISCHARGE)),
         waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL)),
         canopy = Grid.from(ctx.layers.float(LayerId.CANOPY_COVER)),
+        volcanism = Grid.from(ctx.layers.float(LayerId.VOLCANISM)),
         biome = ctx.layers.int(LayerId.BIOME),
         lakeId = ctx.layers.int(LayerId.LAKE_ID),
         flowDirection = ctx.layers.int(LayerId.FLOW_DIRECTION),

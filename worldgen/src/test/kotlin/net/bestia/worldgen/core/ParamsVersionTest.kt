@@ -159,8 +159,8 @@ class ParamsVersionTest {
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to -9_118_719_711_542_149_956L,
       "EventKind" to -6_113_693_738_021_732_381L,
-      "ResourceType" to -992_390_895_321_877_896L,
-      "MinableOre" to -963_208_236_135_789_363L,
+      "ResourceType" to 8_190_588_717_705_702_599L,
+      "MinableOre" to 4_365_871_184_218_980_312L,
       "SpawnHostility" to 6_711_120_610_348_833_411L
     )
 

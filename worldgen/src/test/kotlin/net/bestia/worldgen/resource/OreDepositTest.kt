@@ -270,6 +270,13 @@ class OreDepositTest {
 
     val guaranteed = small.params.resource.minDepositsPerOre
     for (ore in MinableOre.entries) {
+      // The exemption *is* the point for the volcanic ores, not an inconvenience the test works around. A seed
+      // can legitimately have no convergent boundary and no hotspot on land, and on such a world the floor would
+      // put three pyrelith mines on the three least-bad cells of a world with no volcano in it - which is a
+      // resource that lies about the map rather than one that is rare on it. `VolcanicResourceTest` is what
+      // proves the exempt ores are nonetheless placed on the worlds that can hold them.
+      if (!ore.guaranteed) continue
+
       val n = found[ore.resource].orEmpty().size
       assertTrue(
         n >= guaranteed,
@@ -285,6 +292,11 @@ class OreDepositTest {
     val byOre = deposits.groupBy { typeOf(it) }
 
     for (ore in MinableOre.entries) {
+      // Same exemption, same reason: the abundance is what a world *should* hold given the geology, and the
+      // guarantee is what makes it hold that much even when the sampler missed. Without the guarantee an exempt
+      // ore can legitimately come out at zero tons, and asserting otherwise would be asserting the guarantee.
+      if (!ore.guaranteed) continue
+
       val held = byOre[ore.resource].orEmpty().sumOf { it.attribute(DepositChannels.TONS) }
       val target = ore.worldTons(area)
 
