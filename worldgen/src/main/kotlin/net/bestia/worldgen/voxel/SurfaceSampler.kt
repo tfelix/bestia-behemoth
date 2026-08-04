@@ -307,7 +307,7 @@ object SurfaceCover {
    * too, so a silently-defaulted cover feeds a silently-defaulted forest.
    *
    * The cost is that adding a biome does not compile until somebody says what it is made of, which is the
-   * point. Preserving the old ordering is why `cap` is two passes rather than one: the four bare-ground
+   * point. Preserving the old ordering is why `cap` is two passes rather than one: the three bare-ground
    * biomes outranked the snow line and the rest did not.
    */
 
@@ -327,14 +327,41 @@ object SurfaceCover {
     // Ground that stays frozen year round is a different material to dig through, and saying so here
     // is cheaper than modelling it later. It applies only where the biome has not already named a soil.
     Biome.OCEAN, Biome.LAKE,
-    Biome.ICE_SHEET, Biome.GLACIER, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
+    Biome.ICE_SHEET, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
     Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
-    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-      Biome.CLIFF ->
+    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST ->
         if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
     },
     blighted
   )
+
+  /**
+   * What steep ground shows instead of soil, or null for "whatever bed is exposed there".
+   *
+   * Null is the interesting half, and it is why this replaced a single `GRAVEL`. A rock cliff should show the
+   * rock, and [Stratigraphy] already knows which bed the surface cuts - so a limestone crag comes out white,
+   * a shale one grey and a sandstone one orange, for free and with no table to keep consistent. What is left
+   * here are the biomes whose steep ground is made of something that is *not* the bedrock under it.
+   *
+   * This is the half of the old `CLIFF` biome worth keeping. That biome capped every steep cell in the world
+   * in one grey gravel, so an ice cliff, a dune scarp and a granite crag were indistinguishable - and it had
+   * to erase the biome to say so, which is what made it unable to tell them apart in the first place.
+   *
+   * Exhaustive with no `else`, for the reason at the top of this object.
+   */
+  fun bareCover(biome: Biome): BlockType? = when (biome) {
+    // An ice cliff is ice. The client tells it from a flat sheet by the mesh normal, not by the material.
+    Biome.ICE_SHEET -> BlockType.ICE
+    // A dune scarp, and a sea cliff on a sand coast.
+    Biome.DESERT, Biome.BEACH -> BlockType.SAND
+    // Soft rock *is* the definition of badlands, so the bed and the bare cover agree here anyway.
+    Biome.BADLANDS -> BlockType.CLAY
+
+    Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
+    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
+    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+    Biome.WETLAND, Biome.RIPARIAN -> null
+  }
 
   /**
    * The single topmost block of a column.
@@ -351,8 +378,7 @@ object SurfaceCover {
     // Materials that outrank a snow cap. Ice already is frozen water, and the three bare-ground biomes are
     // bare because nothing settles on them - which is as true in a blizzard as it is in a drought.
     val bare = when (biome) {
-      Biome.GLACIER, Biome.ICE_SHEET -> BlockType.ICE
-      Biome.CLIFF -> BlockType.GRAVEL
+      Biome.ICE_SHEET -> BlockType.ICE
       Biome.BADLANDS -> BlockType.CLAY
       Biome.BEACH, Biome.DESERT -> BlockType.SAND
 
@@ -376,7 +402,7 @@ object SurfaceCover {
       Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
       // Unreachable: the pass above returned for each of these. Listed so that the two `when`s stay
       // exhaustive over the same enum and a new biome is a compile error in both.
-        Biome.GLACIER, Biome.ICE_SHEET, Biome.CLIFF, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
+        Biome.ICE_SHEET, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
           BlockType.GRASS
       },
       blighted

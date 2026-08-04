@@ -83,6 +83,11 @@ object ProbeMain {
       return
     }
 
+    if (cli.has(STEEPNESS)) {
+      probe.steepness(generated.world.layers.require<FloatLayer>(LayerId.ELEVATION), span)
+      return
+    }
+
     val elevation = generated.world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val x = cli.double("--x")
     val y = cli.double("--y")
@@ -626,6 +631,78 @@ object ProbeMain {
       }
     }
 
+    /**
+     * The distribution of the voxel-scale surface gradient over dry land.
+     *
+     * This is the measurement `ChunkMaterializer.BARE_ROCK_GRADIENT` has to be chosen from, and it cannot be
+     * reasoned about from the detail parameters. The gradient a column reports is the sum of five broad-detail
+     * octaves, four ridge octaves and every vector feature that reaches it, over a one-voxel baseline - so its
+     * upper tail is an emergent property of the whole chunk tier, not a number anybody can derive.
+     *
+     * Prints a survival curve rather than a mean, because the threshold is a quantile question: what is wanted
+     * is "the steepest one or two per cent of the world", and the mean says nothing about where that lands. The
+     * failure mode a mean also hides is the one worth watching for - if the curve has no knee, the threshold is
+     * inside the noise floor and picking any value from it selects noise rather than cliffs.
+     *
+     * Samples the same strided land cells [survey] does, and for the same reason.
+     */
+    fun steepness(elevation: FloatLayer, span: Int) {
+      val samples = ArrayList<Double>()
+      var visited = 0
+
+      forEachLandCell(elevation) { x, y, _ ->
+        if (visited++ % STRIDE == 0) {
+          val half = span / 2
+          for (dy in -half..half) {
+            for (dx in -half..half) {
+              val gradient = gradientAt(
+                x + dx * config.voxelSize,
+                y + dy * config.voxelSize
+              )
+              if (!gradient.isNaN()) samples.add(gradient)
+            }
+          }
+        }
+      }
+
+      if (samples.isEmpty()) {
+        println("no land columns sampled")
+        return
+      }
+
+      samples.sort()
+      println()
+      println("voxel-scale surface gradient over ${samples.size} dry land columns")
+      println("  median ${"%.3f".format(Locale.ROOT, quantile(samples, 0.5))}")
+      println()
+      println("  share of land at or above a candidate BARE_ROCK_GRADIENT:")
+      for (threshold in CANDIDATE_GRADIENTS) {
+        val above = samples.count { it >= threshold }
+        println(
+          "    %.2f  %6.3f%%   (%.0f degrees)".format(
+            Locale.ROOT, threshold, 100.0 * above / samples.size,
+            Math.toDegrees(Math.atan(threshold))
+          )
+        )
+      }
+    }
+
+    /** Central difference over one voxel, the same construction `ChunkMaterializer.gradientAt` uses. */
+    private fun gradientAt(worldX: Double, worldY: Double): Double {
+      val step = config.voxelSize
+      val dx = (terrainAtWorld(worldX + step, worldY) - terrainAtWorld(worldX - step, worldY)) / (2.0 * step)
+      val dy = (terrainAtWorld(worldX, worldY + step) - terrainAtWorld(worldX, worldY - step)) / (2.0 * step)
+      return Math.sqrt(dx * dx + dy * dy)
+    }
+
+    private fun terrainAtWorld(worldX: Double, worldY: Double): Double = terrainAt(
+      Math.floor(worldX / config.voxelSize).toInt(),
+      Math.floor(worldY / config.voxelSize).toInt()
+    )
+
+    private fun quantile(sorted: List<Double>, at: Double): Double =
+      sorted[((sorted.size - 1) * at).toInt()]
+
     private inline fun forEachLandCell(elevation: FloatLayer, body: (Double, Double, Double) -> Unit) {
       val metres = config.baseResolution.metresPerCell
       for (cellY in 0 until config.heightCells) {
@@ -651,6 +728,11 @@ object ProbeMain {
   private const val DROPLETS = "--droplets"
 
   private const val ECOTONE = "--ecotone"
+
+  private const val STEEPNESS = "--steepness"
+
+  /** Candidate thresholds for `ChunkMaterializer.BARE_ROCK_GRADIENT`, from a gentle bank to a sheer face. */
+  private val CANDIDATE_GRADIENTS = doubleArrayOf(0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1.0, 1.25, 1.5)
 
   private const val SECTION = "--section"
 
@@ -687,6 +769,6 @@ object ProbeMain {
 
   private val PROBE_FLAGS = setOf(
     "--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", BELOW,
-    DROPLETS, ECOTONE, SECTION
+    DROPLETS, ECOTONE, SECTION, STEEPNESS
   )
 }

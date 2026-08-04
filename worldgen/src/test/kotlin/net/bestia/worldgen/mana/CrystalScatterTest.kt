@@ -143,10 +143,8 @@ class CrystalScatterTest {
 
     /** Biomes nothing roots in, skipped so the measurement is not a map of the snow line. */
     val BARREN = setOf(
-      net.bestia.worldgen.bio.Biome.GLACIER,
       net.bestia.worldgen.bio.Biome.ICE_SHEET,
-      net.bestia.worldgen.bio.Biome.ALPINE,
-      net.bestia.worldgen.bio.Biome.CLIFF
+      net.bestia.worldgen.bio.Biome.ALPINE
     )
   }
 }

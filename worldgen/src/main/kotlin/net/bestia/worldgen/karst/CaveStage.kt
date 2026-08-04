@@ -577,7 +577,7 @@ class CaveStage(
       if (isSubmerged(at, ground)) return 0.0
 
       val here = Biome.entries.getOrNull(biome.sampleNearest(at.x, at.y)) ?: return 0.0
-      if (here == Biome.ICE_SHEET || here == Biome.GLACIER || here.isWater) return 0.0
+      if (here == Biome.ICE_SHEET || here.isWater) return 0.0
 
       val soluble = solubleShareAt(at, ground)
       if (soluble < params.minSolubleShare) return 0.0

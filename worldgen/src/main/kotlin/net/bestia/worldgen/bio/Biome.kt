@@ -45,8 +45,16 @@ enum class Biome(
   LAKE("lake", 0.0, 0.0),
 
   // Cold.
+  /**
+   * Permanent ice, at any elevation.
+   *
+   * There was a separate `GLACIER` beside this, distinguished only by an elevation test in
+   * `BiomeStage.override` and behaving identically in every downstream table - the same hostility, the same
+   * ice cap, the same refusal of caves, trees and crystals, the same movement cost. Two names for one
+   * behaviour is a table every consumer has to keep consistent for no gain, so there is one. If high ice
+   * ever needs to differ from low ice, the difference is elevation, which every reader already has.
+   */
   ICE_SHEET("ice sheet", 0.0, 0.0),
-  GLACIER("glacier", 0.0, 0.0),
   TUNDRA("tundra", 0.25, 0.02),
   TAIGA("taiga", 0.45, 0.70),
   COLD_DESERT("cold desert", 0.05, 0.0),
@@ -71,8 +79,28 @@ enum class Biome(
   // Gallery forest: the band of trees along a watercourse in country that has none away from it.
   RIPARIAN("riparian", 0.8, 0.60),
   BEACH("beach", 0.05, 0.0),
-  BADLANDS("badlands", 0.05, 0.0),
-  CLIFF("cliff", 0.0, 0.0);
+  BADLANDS("badlands", 0.05, 0.0);
+
+  /*
+   * There was a `CLIFF` here, and it was not a biome.
+   *
+   * It carried zero litter and zero canopy, capped everything in one grey gravel whatever country it stood
+   * in, and was assigned by a single slope threshold - which is to say it was a *slope flag* wearing an
+   * ecosystem's clothes, and it cost every downstream `when` an arm to say "steep" in a vocabulary about
+   * what grows. Worse, it erased the biome underneath: an ice cliff, a desert scarp and a granite crag were
+   * indistinguishable once classified, so no consumer could tell them apart even though all three look
+   * completely different.
+   *
+   * Steep ground now keeps its climatic biome, and steepness is read where it is needed. The world tier
+   * takes it from `LayerId.ELEVATION` through `Grid.gradient`, which every consumer already had in scope -
+   * so there is deliberately no `LayerId.STEEPNESS`, for `BIOME_SECONDARY`'s reason: a second raster that
+   * is a function of one already on disk is a raster that can disagree with itself. The voxel tier takes a
+   * central difference over the *materialised* surface, which is strictly better than either, because the
+   * raster knows about mountain fronts and knows nothing about the fjord wall a vector feature cut.
+   *
+   * See `SurfaceCover.bareCover`, which is where the per-biome bare rock the old single GRAVEL replaced
+   * now lives.
+   */
 
   val isWater get() = this == OCEAN || this == LAKE
 
@@ -161,7 +189,17 @@ data class BiomeAxisRanges(
   val temperatureRangeCap: Double = 45.0,
   /** Metres above sea level mapped onto the unit interval. */
   val elevationCap: Double = 4_000.0,
-  /** Ground gradient mapped onto the unit interval. Above this everything reads as cliff. */
+  /**
+   * Ground gradient mapped onto the unit interval. Above this the classifier's slope axis saturates.
+   *
+   * Saturating means the classifier stops distinguishing steep from steeper, not that anything is
+   * reclassified: what happens above this is that every prototype scores the slope axis identically, so the
+   * decision falls to the other six. Steep ground therefore keeps whatever climate it has, and how bare it
+   * looks is decided later and elsewhere - see `SurfaceCover.bareCover`.
+   *
+   * Do not retune casually. Every biome boundary in every world is a distance in this normalised space, so
+   * moving it moves all of them.
+   */
   val slopeCap: Double = 0.35
 ) : Params {
 

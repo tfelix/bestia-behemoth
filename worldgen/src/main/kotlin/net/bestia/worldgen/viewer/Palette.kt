@@ -259,7 +259,6 @@ class BiomePalette : Palette {
       Colors.rgb(28, 62, 110),    // OCEAN
       Colors.rgb(48, 104, 172),   // LAKE
       Colors.rgb(238, 244, 250),  // ICE_SHEET
-      Colors.rgb(206, 226, 240),  // GLACIER
       Colors.rgb(150, 156, 132),  // TUNDRA
       Colors.rgb(60, 92, 66),     // TAIGA
       Colors.rgb(168, 160, 138),  // COLD_DESERT
@@ -276,8 +275,7 @@ class BiomePalette : Palette {
       Colors.rgb(74, 116, 108),   // WETLAND
       Colors.rgb(96, 168, 112),   // RIPARIAN
       Colors.rgb(232, 220, 176),  // BEACH
-      Colors.rgb(166, 118, 82),   // BADLANDS
-      Colors.rgb(112, 108, 104)   // CLIFF
+      Colors.rgb(166, 118, 82)    // BADLANDS
     )
   }
 }

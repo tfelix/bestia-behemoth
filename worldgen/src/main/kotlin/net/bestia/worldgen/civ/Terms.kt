@@ -123,18 +123,21 @@ internal class Terms(
 
       val grazing = Timings.measure("terms.grazing") {
         Grid.parallel(region.width, region.height) { x, y ->
-          when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
+          val pasture = when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
             Biome.GRASSLAND, Biome.STEPPE -> 1.0
             Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
             Biome.TUNDRA, Biome.ALPINE -> 0.4
 
             // Nothing grazes here worth counting. Exhaustive rather than defaulted so that a biome added
             // later has to be given a number instead of quietly inheriting "almost none".
-            Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.TAIGA, Biome.COLD_DESERT,
+            Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TAIGA, Biome.COLD_DESERT,
             Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.DESERT,
             Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND, Biome.RIPARIAN,
-            Biome.BEACH, Biome.BADLANDS, Biome.CLIFF -> 0.1
+            Biome.BEACH, Biome.BADLANDS -> 0.1
           }
+          // A crag in the middle of grassland is still grassland, and nothing grazes a crag. The `CLIFF`
+          // biome used to answer this by erasing the grassland; the slope answers it without having to.
+          pasture * (1.0 - PolylineFeature.smoothstep(elevation.gradient(x, y, metres) / BARE_ROCK_SLOPE))
         }
       }
 
@@ -374,14 +377,21 @@ internal class Terms(
           Biome.TEMPERATE_RAINFOREST, Biome.TROPICAL_RAINFOREST -> 2.4
           Biome.TAIGA, Biome.TEMPERATE_FOREST, Biome.TROPICAL_SEASONAL_FOREST -> 1.7
           Biome.WETLAND -> 3.2
-          Biome.BADLANDS, Biome.CLIFF -> 4.0
+          Biome.BADLANDS -> 4.0
           Biome.DESERT -> 1.4
 
           // Open ground: walk across it at the cost the slope alone implies.
-          Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.TUNDRA, Biome.COLD_DESERT,
+          Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TUNDRA, Biome.COLD_DESERT,
           Biome.ALPINE, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND, Biome.SAVANNA, Biome.RIPARIAN,
           Biome.BEACH -> 1.0
         }
+
+        // What the `CLIFF` biome's flat 4x used to say, said continuously. The biome was a slope threshold,
+        // and a threshold on a kilometre slope field draws a visible contour across the cost raster and puts
+        // a step in the cost of every route that crosses it - so a road would rather detour a kilometre than
+        // cross one cell of it. Smoothstep says the same thing about the same ground with no edge, and the
+        // ceiling is the multiplier the biome carried, so genuinely impassable ground costs what it did.
+        cost *= 1.0 + (BARE_ROCK_COST - 1.0) * PolylineFeature.smoothstep(slope / BARE_ROCK_SLOPE)
 
         if (discharge.data[i] >= params.waterDischarge) cost *= params.riverCrossingCost
 
@@ -400,6 +410,19 @@ internal class Terms(
     const val IMPASSABLE = 400.0
 
     private const val SLOPE_PENALTY = 14.0
+
+    /**
+     * Slope at which ground is bare rock and costs [BARE_ROCK_COST] to cross.
+     *
+     * Deliberately the same number as `BiomeParams.bareRockSlope`, and deliberately *not* read from it. They
+     * answer different questions - "does soil stay on this" and "how hard is this to walk over" - and they
+     * agree today only because the same gradient decides both. Coupling them would mean a designer retuning
+     * the soil line silently retuned every trade route in the world.
+     */
+    private const val BARE_ROCK_SLOPE = 0.45
+
+    /** What crossing bare rock multiplies the slope cost by, once fully bare. */
+    private const val BARE_ROCK_COST = 4.0
   }
 }
 

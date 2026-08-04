@@ -31,13 +31,19 @@ object SpawnHostility {
    * The deserts and the swamps sit at the top on purpose: `REMINDER.md` asks for both to be worth the trip,
    * and strong bestia are the first half of that answer. The water biomes are here for exhaustiveness only -
    * nothing spawns on them.
+   *
+   * There was a `CLIFF` arm at 0.7, and it went with the biome. `SpawnerStage.dangerAt` recovers most of what
+   * it said through its `relief` term, but not all: `relief` ramps on *absolute elevation*, so a mountain crag
+   * still reads as dangerous and a sea cliff at fifty metres no longer does. That is a real loss and a small
+   * one - a sea cliff is a place a player walks past rather than into - and the fix if it ever matters is a
+   * gradient term in `dangerAt`, which already has the elevation grid, rather than a biome for slope.
    */
   fun of(biome: Biome): Double = when (biome) {
     // Nothing spawns on water; there are no aquatic bestia yet.
     Biome.OCEAN, Biome.LAKE -> 0.0
 
-    // Ice and bare rock: nothing lives here that is not built for it.
-    Biome.ICE_SHEET, Biome.GLACIER -> 1.0
+    // Ice: nothing lives here that is not built for it.
+    Biome.ICE_SHEET -> 1.0
     Biome.ALPINE -> 0.85
     Biome.COLD_DESERT -> 0.8
     Biome.TUNDRA -> 0.55
@@ -50,7 +56,6 @@ object SpawnHostility {
     // the things that make collecting them a decision.
     Biome.WETLAND -> 0.75
 
-    Biome.CLIFF -> 0.7
     Biome.TAIGA -> 0.45
     Biome.TROPICAL_RAINFOREST -> 0.5
     Biome.TROPICAL_SEASONAL_FOREST -> 0.4

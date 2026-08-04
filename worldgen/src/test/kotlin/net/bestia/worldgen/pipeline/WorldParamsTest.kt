@@ -91,8 +91,8 @@ class WorldParamsTest {
 
   @Test
   fun `the defaults are pinned`() {
-    assertEquals(1_130_287_361_095_788_155L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
-    assertEquals(4_251_913_552_278_639_295L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    assertEquals(4_399_606_744_737_655_916L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
+    assertEquals(6_009_565_157_941_673_068L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

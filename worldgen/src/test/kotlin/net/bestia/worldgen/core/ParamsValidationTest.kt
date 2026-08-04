@@ -46,9 +46,10 @@ class ParamsValidationTest {
 
   @Test
   fun `a badlands slope no rock can reach is refused`() {
-    // Cliff is tested first and wins, so badlands steeper than cliff means the biome never appears anywhere -
-    // a whole biome silently absent from every world, which no invariant asserts against.
-    assertFailsWith<IllegalArgumentException> { BiomeParams(badlandsSlope = 0.6, cliffSlope = 0.45) }
+    // Badlands is deep, soft, weathered ground; bare rock is steep enough to carry no soil at all. Inverting
+    // the two would confine badlands to slopes already declared to hold nothing, which is a contradiction no
+    // invariant asserts against.
+    assertFailsWith<IllegalArgumentException> { BiomeParams(badlandsSlope = 0.6, bareRockSlope = 0.45) }
   }
 
   @Test

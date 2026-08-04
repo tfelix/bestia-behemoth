@@ -97,7 +97,7 @@ class WorldMapField(
     val iceDepth = iceAt(worldX, worldY)
 
     // A wash rather than a replacement, so an ice field still shows what it is sitting on. The biome
-    // classifier already calls the thickest ice GLACIER and ICE_SHEET and those are near-white anyway;
+    // classifier already calls the thickest ice ICE_SHEET and that is near-white anyway;
     // what this adds is the ice that lies over ground the classifier called tundra or alpine.
     return if (iceDepth <= 0.0) {
       land

@@ -228,7 +228,7 @@ class LocalTemperatureTest {
 
     /** What `REMINDER.md` wants to need equipment. */
     val HARSH = setOf(
-      Biome.DESERT, Biome.COLD_DESERT, Biome.ALPINE, Biome.GLACIER, Biome.ICE_SHEET, Biome.TUNDRA
+      Biome.DESERT, Biome.COLD_DESERT, Biome.ALPINE, Biome.ICE_SHEET, Biome.TUNDRA
     )
   }
 }

@@ -149,8 +149,10 @@ data class TectonicsParams(
    *
    * Lowered again to 820 for the flat land. This is the term that decides how much of a continent is *crest*
    * rather than country: the ridged-noise crest field it scales is applied over the whole orogen, so raising
-   * it does not make one range taller so much as it makes a wider band of the map steep. At 1150 bare cliff
-   * was 13-14% of all land on its own, before counting the alpine and cold ground behind it.
+   * it does not make one range taller so much as it makes a wider band of the map steep. At 1150, ground steep
+   * enough to be bare was 13-14% of all land on its own, before counting the alpine and cold ground behind it.
+   * (Measured when that ground carried a `CLIFF` biome, which made it one number to read off the biome mix.
+   * The biome is gone - see `Biome` - and the terrain it described is not, so the measurement still holds.)
    */
   val orogenicRelief: Double = 820.0,
 
@@ -260,7 +262,8 @@ class TectonicsStage(
      * area. A world at detail scale four has four times that ratio - that is what detail scale *is*, a small
      * world given a big world's feature density - so leaving the amplitude alone gives every one of those
      * boundaries a Himalaya, and the result is not a dramatic world but a uniformly vertical one: measured,
-     * 22% of the land classified as bare `cliff` and 6% as forest and grassland together.
+     * 22% of the land too steep to carry soil and 6% forest and grassland together. (Measured against the
+     * `CLIFF` biome, since removed; the terrain it counted is unchanged.)
      *
      * The square root splits the difference rather than cancelling the effect: a 128 km world gets ranges at
      * about half height, which is still the tallest thing in it by a wide margin, and gets lowland between them
@@ -502,9 +505,9 @@ class TectonicsStage(
       // At these factors the cones overlap - 7.5 km across at 5.5 km spacing - so a chain is not a row of
       // separate islands but one continuous ridge about 38 km long. In open water that is a good island arc.
       // Crossing a continental interior, which is where the denser plates put a lot of them, it is a
-      // perfectly straight 1,500 m wall running a third of the way across the landmass, with a cliff biome
-      // stamped along it and biome bands ruled off either side. It was the most conspicuous straight edge
-      // left on the map once the coastline stopped being a rectangle.
+      // perfectly straight 1,500 m wall running a third of the way across the landmass, bare rock capping it
+      // and biome bands ruled off either side. It was the most conspicuous straight edge left on the map once
+      // the coastline stopped being a rectangle.
       //
       // Letting the heading wander is also the more truthful model: a hotspot track records the plate's
       // motion over tens of millions of years, and that motion changes. The bend in the Hawaii-Emperor chain

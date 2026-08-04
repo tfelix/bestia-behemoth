@@ -40,17 +40,29 @@ data class BiomeParams(
   val wetlandSlope: Double = 0.004,
 
   /**
-   * Slope above which soft rock becomes badlands, and above which any rock reads as cliff.
+   * Slope above which soft rock becomes badlands.
    *
-   * Both are **resolution dependent** and both were originally set from voxel-scale intuition, which is
-   * wrong by a wide margin. Averaged over a kilometre cell, a 0.3 slope is three hundred metres of drop
-   * per kilometre - dramatic mountain terrain - and setting the cliff threshold there classifies every
-   * continental margin and mountain front in the world as cliff, which swamps the climatic biomes under a
-   * grey band. These are for kilometre cells; a chunk-scale classifier would want several times more.
+   * **Resolution dependent**, and originally set from voxel-scale intuition, which is wrong by a wide
+   * margin. Averaged over a kilometre cell, a 0.3 slope is three hundred metres of drop per kilometre -
+   * dramatic mountain terrain. This is for kilometre cells; a chunk-scale classifier would want several
+   * times more.
    */
   val badlandsSlope: Double = 0.22,
 
-  val cliffSlope: Double = 0.45,
+  /**
+   * Slope above which a kilometre cell carries no soil at all.
+   *
+   * Only [BiomeStage.soilDepthAt] reads this, and through it `LayerId.SOIL_DEPTH`, which is what stops
+   * vegetation growing on a mountain front. It used to be `cliffSlope` and used to assign `Biome.CLIFF`;
+   * that biome is gone (see [Biome]) and the threshold stayed, because "steep enough that soil washes off"
+   * is a real and useful thing to say at kilometre scale.
+   *
+   * It is **not** the threshold that decides whether a player sees bare rock. That is a voxel-scale
+   * gradient over the materialised surface - `ChunkMaterializer.BARE_ROCK_GRADIENT` - because a kilometre
+   * average cannot resolve a cliff face, and drawing the two from one number would mean either soil on
+   * crags or bare rock across whole mountain ranges.
+   */
+  val bareRockSlope: Double = 0.45,
 
   /** Mean annual temperature below which permanent ice forms given enough precipitation. */
   val glacierTemperature: Double = -7.0,
@@ -64,11 +76,12 @@ data class BiomeParams(
     require(riparianDischarge >= 0.0) { "riparianDischarge must not be negative, was $riparianDischarge" }
     require(beachRange >= 0.0) { "beachRange must not be negative, was $beachRange" }
     require(wetlandSlope >= 0.0) { "wetlandSlope must not be negative, was $wetlandSlope" }
-    // Ordered, because `describe` tests cliff first and cliff wins: were badlands the steeper of the two,
-    // every slope steep enough for badlands would already have been classified CLIFF, and the badlands
-    // biome would silently never appear anywhere in the world.
-    require(badlandsSlope in 0.0..cliffSlope) {
-      "badlandsSlope $badlandsSlope must be in [0, cliffSlope $cliffSlope], or badlands never occur"
+    // Ordered because the two describe the same axis at different severities: badlands is soft rock steep
+    // enough to erode into gullies, bare rock is steep enough to hold no soil at all. Inverting them would
+    // put badlands - a biome whose whole character is deep, soft, weathered ground - only on slopes already
+    // declared to have no soil on them.
+    require(badlandsSlope in 0.0..bareRockSlope) {
+      "badlandsSlope $badlandsSlope must be in [0, bareRockSlope $bareRockSlope]"
     }
     require(glacierTemperature.isFinite()) { "glacierTemperature must be finite, was $glacierTemperature" }
     require(maxSoilDepth >= 0.0) { "maxSoilDepth must not be negative, was $maxSoilDepth" }
@@ -80,7 +93,7 @@ data class BiomeParams(
     .put("beachRange", beachRange)
     .put("wetlandSlope", wetlandSlope)
     .put("badlandsSlope", badlandsSlope)
-    .put("cliffSlope", cliffSlope)
+    .put("bareRockSlope", bareRockSlope)
     .put("glacierTemperature", glacierTemperature)
     .put("maxSoilDepth", maxSoilDepth)
 }
@@ -94,8 +107,8 @@ data class BiomeParams(
  * climate-and-terrain space.
  *
  * **Edge** biomes come from adjacency to something rather than from the weather: a riparian strip beside
- * a river, a beach inside the coastline, wetland on flat wet ground, badlands and cliff on steep soft
- * and steep hard rock. These are the ones players actually navigate by. A mesic green ribbon through a
+ * a river, a beach inside the coastline, wetland on flat wet ground, badlands on steep soft
+ * rock. These are the ones players actually navigate by. A mesic green ribbon through a
  * desert tells you where the water is from a kilometre away, and no climate classifier will ever produce
  * it, because the climate either side of the river is identical.
  *
@@ -309,10 +322,14 @@ class BiomeStage(
   /**
    * The edge biomes, in priority order.
    *
-   * Order is the whole content of this function. Water beats everything; ice beats terrain; a cliff is a
-   * cliff whatever grows on the plateau above it; a beach beats the biome inland of it; and a riparian
-   * strip only replaces a *dry* biome, because a green ribbon through a rainforest would be invisible
-   * and a green ribbon through a desert is the point.
+   * Order is the whole content of this function. Water beats everything; ice beats terrain; a beach beats
+   * the biome inland of it; and a riparian strip only replaces a *dry* biome, because a green ribbon through
+   * a rainforest would be invisible and a green ribbon through a desert is the point.
+   *
+   * Steepness is conspicuously absent, and used to be the third rung. Slope is not a biome - it says nothing
+   * about what grows or what lives there - and a rung for it erased the biome underneath, so an ice cliff
+   * and a desert scarp classified identically. It reaches the ground through `SOIL_DEPTH` and through the
+   * voxel tier's own gradient instead. See [Biome].
    */
   private fun override(
     climatic: Biome,
@@ -332,10 +349,8 @@ class BiomeStage(
 
     // Permanent ice needs cold *and* snowfall. Cold and dry is a polar desert, which is a real and
     // visually distinct place - most of Antarctica's interior, and it is not glaciated.
-    temperature < params.glacierTemperature && precipitation > GLACIER_PRECIPITATION ->
-      if (elevationAboveSea > GLACIER_ELEVATION) Biome.GLACIER else Biome.ICE_SHEET
+    temperature < params.glacierTemperature && precipitation > GLACIER_PRECIPITATION -> Biome.ICE_SHEET
 
-    slope >= params.cliffSlope -> Biome.CLIFF
     slope >= params.badlandsSlope && hardness < BADLANDS_HARDNESS && precipitation < BADLANDS_RAIN ->
       Biome.BADLANDS
 
@@ -410,7 +425,9 @@ class BiomeStage(
   /** Soil is thin where it is steep and thick where sediment collected. */
   private fun soilDepthAt(biome: Biome, sediment: Double, weathering: Double, slope: Double): Double {
     if (biome.isWater) return 0.0
-    if (biome == Biome.CLIFF) return 0.0
+    // Steep enough that nothing stays on it. Read off the slope rather than off a `CLIFF` biome, which is
+    // what this used to test - so the cell keeps the biome its climate gives it and still carries no soil.
+    if (slope >= params.bareRockSlope) return 0.0
 
     val flatness = 1.0 - (slope / 0.25).coerceIn(0.0, 1.0)
     val residual = (0.15 + 2.1 * flatness) * (0.4 + 0.6 * weathering)
@@ -427,7 +444,6 @@ class BiomeStage(
     )
 
     private const val GLACIER_PRECIPITATION = 150.0
-    private const val GLACIER_ELEVATION = 900.0
 
     private const val BADLANDS_HARDNESS = 0.35
     private const val BADLANDS_RAIN = 700.0

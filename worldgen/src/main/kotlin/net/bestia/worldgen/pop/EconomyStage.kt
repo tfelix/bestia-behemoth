@@ -824,7 +824,7 @@ internal class Catchments(
         } else {
           val local = Biome.entries[biome[x, y]]
           val arable = fertility[x, y] * climateFactor(warmth.data[cell]) * arableFactor(x, y)
-          val grazing = grazingOf(local)
+          val grazing = grazingOf(local) * grazableFactor(x, y)
 
           // Arable *or* pasture, whichever the ground is better for. Herding is what feeds a settlement on
           // ground too cold or too steep to plough, and it is the reason a steppe or a fell can hold anybody
@@ -843,7 +843,10 @@ internal class Catchments(
           cells++
           claimed += squareKmPerCell * share
           if (local.isForest()) types.add(ResourceType.TIMBER)
-          if (local == Biome.ALPINE || local == Biome.CLIFF || local == Biome.BADLANDS) {
+          // Rock at the surface, from either direction: a biome that is bare by nature, or ground steep
+          // enough that soil has washed off it whatever the climate. The second used to be the `CLIFF`
+          // biome; `grazableFactor`'s slope is the same question asked of the terrain instead.
+          if (local == Biome.ALPINE || local == Biome.BADLANDS || grazableFactor(x, y) <= 0.0) {
             types.add(ResourceType.STONE)
           }
         }
@@ -936,9 +939,24 @@ internal class Catchments(
 
     // A token amount, for the odd clearing. Exhaustive rather than defaulted: a new biome that grazes well
     // would otherwise be recorded as barren by a `when` nobody revisited, and pasture drives settlement size.
-    Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.GLACIER, Biome.COLD_DESERT,
+    Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.COLD_DESERT,
     Biome.TEMPERATE_RAINFOREST, Biome.DESERT, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.CLIFF -> 0.05
+    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS -> 0.05
+  }
+
+  /**
+   * How much of a cell's pasture the slope leaves usable.
+   *
+   * Sheep graze ground no plough can work, so this is far more forgiving than [arableFactor] - but bare rock
+   * feeds nothing, and without this a crag in the middle of grassland grazes as well as the grassland. The
+   * `CLIFF` biome used to answer that by overwriting the grassland; reading the slope answers it without
+   * having to lie about what grows there.
+   */
+  private fun grazableFactor(x: Int, y: Int): Double {
+    val dx = (elevation[x + 1, y] - elevation[x - 1, y]) / (2.0 * metres)
+    val dy = (elevation[x, y + 1] - elevation[x, y - 1]) / (2.0 * metres)
+    val slope = sqrt((dx * dx + dy * dy).toDouble())
+    return (1.0 - slope / MAX_GRAZING_SLOPE).coerceIn(0.0, 1.0)
   }
 
   private companion object {
@@ -946,6 +964,14 @@ internal class Catchments(
     const val CLAIM_FALLOFF = 0.75
 
     const val MAX_ARABLE_SLOPE = 0.3
+
+    /**
+     * Slope at which pasture runs out, well above [MAX_ARABLE_SLOPE].
+     *
+     * Herding on ground no plough can work is the whole reason a fell holds anybody, so this has to be much
+     * more forgiving than the arable line - but not infinitely, or a cliff face grazes.
+     */
+    const val MAX_GRAZING_SLOPE = 0.55
 
     /** How many people a unit of grazing feeds relative to the same land ploughed. Herding is less dense. */
     const val PASTURE_EFFICIENCY = 0.35

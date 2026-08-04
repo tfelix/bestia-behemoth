@@ -15,6 +15,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * The surface of one horizontal chunk: what is on top of each column, and how full that voxel is.
@@ -180,7 +181,12 @@ class ChunkMaterializer(
     // per cent more heightfield evaluations. Most chunks have no trees, and this says so for the price of a
     // hash per four-metre cell.
     val candidates = vegetation.candidatesIn(chunk)
-    val heights = columns.heights(chunk, if (candidates.isEmpty) 0 else vegetation.halo)
+    // At least one column of halo, unconditionally, and that is structural rather than an optimisation:
+    // `gradientAt` takes a central difference, so without it the edge columns would fall back to a one-sided
+    // difference while the neighbouring chunk took a central one over the same shared world column - a
+    // one-voxel stripe of mismatched cap material down every chunk border. Free on any chunk with trees on
+    // it, since `vegetation.halo` is already at least one.
+    val heights = columns.heights(chunk, max(1, if (candidates.isEmpty) 0 else vegetation.halo))
 
     val trees = if (candidates.isEmpty) {
       null
@@ -199,12 +205,34 @@ class ChunkMaterializer(
         val (worldX, worldY) = config.columnCenter(chunk, localX, localY)
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
-          heights[localX, localY], rivers, ponds, ore, bridges, structures, caves, spans, trees, foliage
+          heights[localX, localY], gradientAt(heights, localX, localY),
+          rivers, ponds, ore, bridges, structures, caves, spans, trees, foliage
         )
       }
     }
 
     return out
+  }
+
+  /**
+   * Gradient of the materialised surface at one column, by central differences over one voxel.
+   *
+   * Of [ColumnHeights] rather than of `LayerId.ELEVATION`, and that is the whole point. The raster knows about
+   * mountain fronts and knows nothing about the fjord wall a vector feature cut into one, or the trough wall a
+   * glacier left, or a river bank - and those are where the most dramatic cliffs in this world actually are.
+   * This is the gradient of the ground the player is standing on, which is the only gradient that can answer
+   * "is this bare rock" truthfully.
+   *
+   * A hard threshold on this is safe where the same threshold on a kilometre raster would not be -
+   * `SurfaceSampler.isBlightedAt` argues at length about why a raster threshold draws a visible contour line -
+   * because this field varies at voxel scale, so its contours are already as ragged as the ground is.
+   */
+  private fun gradientAt(heights: ColumnHeights, localX: Int, localY: Int): Double {
+    require(heights.halo >= 1) { "a central difference needs a halo of at least one column" }
+
+    val dx = (heights[localX + 1, localY] - heights[localX - 1, localY]) / (2.0 * config.voxelSize)
+    val dy = (heights[localX, localY + 1] - heights[localX, localY - 1]) / (2.0 * config.voxelSize)
+    return sqrt(dx * dx + dy * dy)
   }
 
   /**
@@ -390,6 +418,7 @@ class ChunkMaterializer(
     worldX: Double,
     worldY: Double,
     top: Double,
+    steepness: Double,
     rivers: RiverWaterSampler,
     ponds: PondWaterSampler,
     ore: OreVeins,
@@ -418,7 +447,10 @@ class ChunkMaterializer(
     val biome = surface.biomeAt(worldX, worldY)
     val temperature = surface.temperatureAt(worldX, worldY)
 
-    val soilDepth = if (biome == Biome.CLIFF) 0.0 else surface.soilDepthAt(worldX, worldY)
+    // Steep, dry ground carries no soil and shows what it is made of. Measured on the materialised surface
+    // rather than read off a biome, which is what this used to do - see `Biome` on why `CLIFF` is gone.
+    val steep = waterDepth <= 0.0 && steepness >= BARE_ROCK_GRADIENT
+    val soilDepth = if (steep) 0.0 else surface.soilDepthAt(worldX, worldY)
     // One dither draw for both the soil and the cap, so a column cannot come out with blighted turf over
     // clean earth. Under water it is always false - corruption is zero over lakes and sea by construction.
     val blighted = waterDepth <= 0.0 && surface.isBlightedAt(worldX, worldY)
@@ -426,10 +458,17 @@ class ChunkMaterializer(
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
     val paving = if (spans != null && waterDepth <= 0.0) structures.pavingAt(worldX, worldY) else null
-    val capBlock = (paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
+
+    // Bare rock outranks paving and the cap both: a street is not laid on a cliff face, and grass does not
+    // grow on one. `bareCover` answers null for most biomes, which means "show the bed that is exposed here" -
+    // so a limestone crag is white and a shale one grey, from the stratigraphy, with no table for it.
+    val bare =
+      if (!steep) null else SurfaceCover.bareCover(biome) ?: rock.rockAt(top - config.voxelSize * 0.5)
+    val capBlock =
+      (bare ?: paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     /*
      * Two rules for two different kinds of boundary, and the distinction is the whole of the occupancy
@@ -771,7 +810,10 @@ class ChunkMaterializer(
     // 6: wounds - SiteKind.WOUND materialises a blighted rampart and a field of MANA_CRYSTAL_LARGE spires.
     //    No BlockType changed, so `ChunkEngine.VERSION` deliberately stays where it is and the client needs no
     //    release: every block a wound is made of was already in the palette at version 2.
-    const val VERSION = 6
+    // 7: bare rock - a column steeper than BARE_ROCK_GRADIENT carries no soil and caps with SurfaceCover
+    //    .bareCover, or with the exposed bed where that answers null. Replaces the `CLIFF` biome, which capped
+    //    every steep cell in the world in one grey GRAVEL. No BlockType changed here either.
+    const val VERSION = 7
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
@@ -794,5 +836,39 @@ class ChunkMaterializer(
     const val FREEZING = -2.0
 
     const val ICE_THICKNESS = 1.5
+
+    /**
+     * Surface gradient above which a column is bare rock: no soil, and the bed or the biome's bare cover on
+     * top. Measured over one voxel by [gradientAt].
+     *
+     * **0.7 is the angle of repose**, near enough - thirty-five degrees, just past the thirty to thirty-four
+     * at which loose material stops staying where it is put. That is the physical reason a face is bare, so it
+     * is the reason this number is what it is rather than a quantile somebody liked the look of.
+     *
+     * It also lands where the measurement says it should. `probe --steepness` prints the survival curve of this
+     * exact gradient over the world; on a 256-cell world at seed 42, over 2.2 million dry land columns with a
+     * median gradient of 0.048:
+     *
+     * ```
+     *   0.30  10.016%      0.70   1.129%      1.25   0.113%
+     *   0.40   6.324%      0.85   0.359%      1.50   0.107%
+     *   0.50   4.119%      1.00   0.248%
+     * ```
+     *
+     * Two things to read off that. The share collapses threefold between 0.70 and 0.85 and then barely moves
+     * from 1.25 to 1.50, so the tail past about 1.25 is a fixed population of genuinely vertical faces - mostly
+     * cut by vector features - and a threshold up there selects only those, which is a tenth of a per cent and
+     * effectively invisible. And below 0.5 the share runs into double figures, which is no longer cliffs but
+     * ordinary hillside, and would read as speckle rather than as rock.
+     *
+     * If it ever does speckle, **widen the baseline in [gradientAt] rather than raising this**: a wider
+     * baseline attenuates the fine detail octaves and leaves real cliffs exactly where they are, while a higher
+     * threshold throws away real cliffs to hide the noise.
+     *
+     * Not the same number as `BiomeParams.bareRockSlope`, and not derived from it. That one is a kilometre
+     * average deciding whether soil stays on a *cell*; this is a one-voxel gradient deciding what a player sees
+     * underfoot, and a kilometre mean of 0.45 already contains faces far steeper than this.
+     */
+    const val BARE_ROCK_GRADIENT = 0.7
   }
 }
