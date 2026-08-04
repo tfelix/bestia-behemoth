@@ -60,6 +60,8 @@ class RiverGraph(
 object RiverNetwork {
 
   /**
+   * @param minHeadwaterLength metres of channel that must lie upstream of a cell before it is drawn. Trims
+   *   the fingertips of the network; see [trimHeadwaters]. Zero keeps every cell that met the threshold.
    * @param dischargeThreshold minimum discharge in cubic metres per second for a cell to carry a
    *   channel. Scaled per cell by the caller so arid regions get sparse drainage, which is what makes a
    *   desert look like a desert on the map rather than like a wet region with less rain.
@@ -68,6 +70,7 @@ object RiverNetwork {
     network: DrainageNetwork,
     discharge: Grid,
     lakeId: IntGrid,
+    minHeadwaterLength: Double = 0.0,
     dischargeThreshold: (index: Int) -> Double
   ): RiverGraph {
     val size = network.size
@@ -86,6 +89,8 @@ object RiverNetwork {
       val r = network.receiver[i]
       if (r != i && !network.ocean[r] && lakeId.data[r] == 0) channel[r] = true
     }
+
+    trimHeadwaters(network, channel, minHeadwaterLength)
 
     val strahler = strahlerOrders(network, channel)
     val donors = channelDonorCounts(network, channel)
@@ -157,6 +162,55 @@ object RiverNetwork {
     val confluences = (0 until size).filter { channel[it] && donors[it] >= 2 }.toIntArray()
 
     return RiverGraph(linked, confluences, strahler, channel)
+  }
+
+  /**
+   * Clears the first [minLength] metres of channel from every fingertip of the network.
+   *
+   * ### What this is actually for
+   *
+   * The comb. A drainage threshold answers "does water concentrate here", and along a valley side or a
+   * coastal escarpment the answer is yes for *every cell in the row* - so every one of them starts a channel,
+   * each runs two or three cells to the trunk below, and the map draws a herringbone. Measured on the genesis
+   * world before this existed: 266 river features over 678 km of channel, a mean length of **2.5 km** on a
+   * 128 km world. That is not a river network with some noise in it; it is mostly noise.
+   *
+   * Neither of the two obvious fixes touches it. Raising the discharge threshold thins the whole network
+   * evenly and takes the trunks with it, which is what [HydrologyParams.channelCatchmentArea]'s KDoc is
+   * warning about. Perturbing the routing does nothing at all, because the teeth are not a routing artefact -
+   * they are real concentration on real ground, drawn at a scale that has no business showing it.
+   *
+   * So this trims by *upstream channel length*, which is the quantity that actually separates a stream from a
+   * gully: how much drainage is above you, not how steep you are.
+   *
+   * ### Why it cannot orphan a river
+   *
+   * `upstream` only ever grows downstream, so if a cell survives, so does its receiver - the kept set is
+   * downstream-closed by construction. That is what preserves the invariant the closure loop above
+   * establishes: every channel still runs to standing water, because a channel can only ever be trimmed from
+   * its head. A test would not have caught this if it were wrong on one seed in a hundred, so it is worth the
+   * argument rather than the assertion.
+   */
+  private fun trimHeadwaters(network: DrainageNetwork, channel: BooleanArray, minLength: Double) {
+    if (minLength <= 0.0) return
+
+    // Longest run of channel from any head down to each cell. One pass over the stack backwards visits
+    // every donor before the cell it feeds, so no upstream search is needed.
+    val upstream = DoubleArray(network.size)
+    for (k in network.stack.indices.reversed()) {
+      val i = network.stack[k]
+      if (!channel[i]) continue
+
+      val r = network.receiver[i]
+      if (r == i || !channel[r]) continue
+
+      val through = upstream[i] + network.flowLength(i)
+      if (through > upstream[r]) upstream[r] = through
+    }
+
+    for (i in channel.indices) {
+      if (channel[i] && upstream[i] < minLength) channel[i] = false
+    }
   }
 
   /**

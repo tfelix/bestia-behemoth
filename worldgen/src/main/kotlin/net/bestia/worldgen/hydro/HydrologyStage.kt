@@ -120,6 +120,21 @@ data class HydrologyParams(
    */
   val channelSlopeRange: Double = 4.0,
 
+  /**
+   * Metres of channel that must lie upstream of a cell before it is drawn at all, before world scaling.
+   *
+   * **The anti-comb knob.** See [RiverNetwork.trimHeadwaters] for the mechanism and the measurement. In
+   * short: the herringbone is not a routing artefact and cannot be removed by perturbing the routing or by
+   * raising the discharge threshold - it is genuine drainage on genuine ground, drawn at a scale that should
+   * not be showing it, and the fix is to stop drawing the fingertips.
+   *
+   * This is the knob for **how fine** the drawn network is, which is a third axis alongside
+   * [channelCatchmentArea]'s how-many and [aridityExponent]'s how-long. Raising it shortens every river a
+   * little and deletes the short ones entirely; it never thins a trunk, because a trunk has kilometres of
+   * channel above it before the trim reaches anything that matters.
+   */
+  val minHeadwaterLength: Double = 12_000.0,
+
   /** Metres of water evaporated from a lake surface per year. Decides which basins are salt lakes. */
   val evaporationDepth: Double = 1.1,
 
@@ -179,6 +194,9 @@ data class HydrologyParams(
     // A factor applied either way, so below 1 it would invert into a *narrowing* of the threshold band and
     // the clamp its KDoc describes would stop being a clamp.
     require(channelSlopeRange >= 1.0) { "channelSlopeRange must be at least 1, was $channelSlopeRange" }
+    require(minHeadwaterLength >= 0.0) {
+      "minHeadwaterLength must not be negative, was $minHeadwaterLength"
+    }
     require(evaporationDepth >= 0.0) { "evaporationDepth must not be negative, was $evaporationDepth" }
     require(widthCoefficient > 0.0) { "widthCoefficient must be positive, was $widthCoefficient" }
     require(depthCoefficient > 0.0) { "depthCoefficient must be positive, was $depthCoefficient" }
@@ -202,6 +220,7 @@ data class HydrologyParams(
     .put("aridityExponent", aridityExponent)
     .put("channelSlopeExponent", channelSlopeExponent)
     .put("channelSlopeRange", channelSlopeRange)
+    .put("minHeadwaterLength", minHeadwaterLength)
     .put("evaporationDepth", evaporationDepth)
     .put("widthCoefficient", widthCoefficient)
     .put("depthCoefficient", depthCoefficient)
@@ -302,7 +321,12 @@ class HydrologyStage(
     val meanSlope = meanOverLand(slope, elevation, seaLevel)
     val slopeFloor = 1.0 / params.channelSlopeRange
 
-    val graph = RiverNetwork.extract(network, discharge, lakes.lakeId) { i ->
+    val graph = RiverNetwork.extract(
+      network = network,
+      discharge = discharge,
+      lakeId = lakes.lakeId,
+      minHeadwaterLength = ctx.config.scaleByLength(params.minHeadwaterLength)
+    ) { i ->
       // Higher threshold where it is drier, so the network thins out towards the deserts.
       val aridity =
         (meanPrecipitation / precipitation.data[i].coerceAtLeast(1.0)).pow(params.aridityExponent)

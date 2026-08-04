@@ -1,23 +1,8 @@
 # Last Steps
 
-## Improved River Rendering
-
-No comb like structures like on the genesis map. The river should have some sloping in the detail view, maybe even if this is not neceassairly "physically correct", but just good looking. Just make sure rivers do not flow uphill so there needs to be some carving to make them go downhill in the right stage.
-But again prefer a nice optic over fully simulation correctness.
-
-For a reference for a good algorithm check this blog post: https://www.redblobgames.com/x/1723-procedural-river-growing/
-
 ## Improved City Generation
 
 TBD
-
-# Missing biomes
-
-- please list all available biomes and let me confirm or discuss the existence of those
-- ideally we also have some rarer volcanic biome in which are sources like sulfur gysirs or other materials are found (please list a few which make sense in a MMORPG crafting context in volcanic regions).
-- we need a lava voxel.
-- include possible volcanic eruptions in the history system
-- tie lava wells into the temperature system. we need an api for the engine to query local temperature, also taking into account weather conditions and seasons. In the low level regions temperatures should more or less the whole year stay in comfortable regions for most bestia while in the high level areas, high mana or mountains/volcanos, deserts more extreme temperature swings should happen which needs better equipment or buffs for bestia/entities to operate efficiently. Maybe this is a task on its own.
 
 ## Improved History Generation
 

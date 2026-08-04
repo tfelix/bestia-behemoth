@@ -385,14 +385,42 @@ object ProbeMain {
       val widths = ArrayList<Double>()
       val depths = ArrayList<Double>()
 
+      // Descent per station-to-station segment, in metres per kilometre. Signed, so an uphill segment
+      // shows up as a negative number rather than being hidden inside an absolute value.
+      val gradients = ArrayList<Double>()
+      var uphillSegments = 0
+      var worstUphill = 0.0
+      var flatMetres = 0.0
+      var totalMetres = 0.0
+
       generated.world.features.all().filterIsInstance<PolylineFeature>()
         .filter { it.kind.name == "RIVER_CHANNEL" }
         .forEach { river ->
           val widthChannel = river.stations.channel(Profiles.CHANNEL_WIDTH)
           val depthChannel = river.stations.channel(Profiles.CHANNEL_DEPTH)
+          val bedChannel = river.stations.channel(Profiles.CHANNEL_BED_ELEVATION)
           for (station in 0 until river.stations.stationCount) {
             widths.add(river.stations.valueAt(widthChannel, station))
             depths.add(river.stations.valueAt(depthChannel, station))
+          }
+
+          val line = river.centerline
+          for (station in 0 until river.stations.stationCount - 1) {
+            val run = line.arcLengthAt(station + 1) - line.arcLengthAt(station)
+            if (run <= 0.0) continue
+            val drop = river.stations.valueAt(bedChannel, station) -
+                river.stations.valueAt(bedChannel, station + 1)
+            val gradient = drop / run * 1000.0
+
+            gradients.add(gradient)
+            totalMetres += run
+            if (gradient < 0.0) {
+              uphillSegments++
+              worstUphill = minOf(worstUphill, gradient)
+            }
+            // A metre per kilometre is already a lazy lowland river. Below a hundredth of that the water
+            // surface does not cross a voxel boundary in a whole chunk, which is the canal look.
+            if (gradient < DEAD_FLAT_PER_KM) flatMetres += run
           }
         }
 
@@ -417,6 +445,21 @@ object ProbeMain {
       println("  shallower than one voxel ${percent(shallow, depths.size)}")
       println("  deep enough to hold a water voxel everywhere along it: " +
           percent(depths.size - shallow, depths.size))
+
+      if (gradients.isEmpty()) return
+
+      gradients.sort()
+      println()
+      println("bed gradient over ${gradients.size} segments, ${"%.1f".format(Locale.ROOT, totalMetres / 1000.0)} km of channel")
+      println("                   min      p25      p50      p75      max")
+      println("  m per km    ${quantiles(gradients)}")
+      println()
+      // The invariant. A river that climbs is the one hydrology failure a player can see from the bank,
+      // so it is reported as a count rather than left to be inferred from a negative minimum.
+      println("  flowing uphill           ${percent(uphillSegments, gradients.size)}" +
+          if (uphillSegments > 0) ", worst ${"%.4f".format(Locale.ROOT, worstUphill)} m/km" else "")
+      println("  below $DEAD_FLAT_PER_KM m/km (reads as a canal)  " +
+          "${"%.1f".format(Locale.ROOT, 100.0 * flatMetres / totalMetres)}% of channel length")
     }
 
     /**
@@ -808,6 +851,16 @@ object ProbeMain {
 
   /** Every 37th land cell: coprime with any world width, so the walk does not fall into step with the rows. */
   private const val STRIDE = 37
+
+  /**
+   * Bed gradient in metres per kilometre below which a channel reads as a canal rather than as a river.
+   *
+   * A hundredth of a metre per kilometre is half a millimetre over the 48 m the probe prints and under a
+   * voxel over a whole chunk, so the water surface is exactly level everywhere a player can see at once.
+   * Real lowland rivers run one to two orders of magnitude steeper than this; anything under it is the
+   * Priority-Flood epsilon showing through rather than a gentle river.
+   */
+  private const val DEAD_FLAT_PER_KM = 0.01
 
   /** Distinct at a glance in a terminal, quietest glyph first so the commonest material recedes. */
   private const val GLYPHS = ".:oO#*+=%@$&~"
