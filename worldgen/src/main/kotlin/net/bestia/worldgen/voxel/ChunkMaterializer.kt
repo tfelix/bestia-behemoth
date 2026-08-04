@@ -169,6 +169,7 @@ class ChunkMaterializer(
     val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
     val rivers = RiverWaterSampler(nearby)
     val ponds = PondWaterSampler(nearby)
+    val lava = LavaSampler(nearby)
     val ore = OreVeins(nearby, config.seed, grades, corruption, aetheriteCorruption)
     val bridges = BridgeDecks(nearby)
     val structures = TownStructures(nearby, config.seed)
@@ -206,7 +207,7 @@ class ChunkMaterializer(
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
           heights[localX, localY], gradientAt(heights, localX, localY),
-          rivers, ponds, ore, bridges, structures, caves, spans, trees, foliage
+          rivers, ponds, lava, ore, bridges, structures, caves, spans, trees, foliage
         )
       }
     }
@@ -421,6 +422,7 @@ class ChunkMaterializer(
     steepness: Double,
     rivers: RiverWaterSampler,
     ponds: PondWaterSampler,
+    lava: LavaSampler,
     ore: OreVeins,
     bridges: BridgeDecks,
     structures: TownStructures,
@@ -443,24 +445,59 @@ class ChunkMaterializer(
     if (!flowing.isNaN() && flowing > water) water = flowing
     if (!impounded.isNaN() && impounded > water) water = impounded
 
-    val waterDepth = (water - top).coerceAtLeast(0.0)
+    /*
+     * Lava is **exclusive**, not a fourth surface in the contest above, and that is a structural rule rather
+     * than a stylistic one.
+     *
+     * Water over lava - or the reverse - puts two materials under one air interface, which is the assumption
+     * the bulk occupancy fill below is built on: everything written is full, and only the single voxel the
+     * interface falls inside is partial. It would also make the ice branch three-way, and it would mean a
+     * lake and a lava lake sharing a shoreline that neither sampler knows about. The exclusion is one
+     * comparison, and it makes a column either a water column or a lava column and never both.
+     *
+     * Lava wins where they overlap, which is the only way round that terminates: a pool is stored with an
+     * exact `contains` test and a stored surface, so its shoreline is decided identically by every chunk,
+     * while the water above it could be the sea, a river or a pond and the three do not agree about which of
+     * them is even present.
+     */
+    val molten = lava.surfaceAt(worldX, worldY)
+    val moltenDepth = if (molten.isNaN()) 0.0 else (molten - top).coerceAtLeast(0.0)
+    val waterDepth = if (moltenDepth > 0.0) 0.0 else (water - top).coerceAtLeast(0.0)
+
+    /*
+     * Whether this column stands under *any* fluid, stated once.
+     *
+     * Four producers below need it - the bare-rock test, the blight dither, the paving and the carve veto -
+     * and each of them had its own `waterDepth <= 0.0`. Naming it is what stops the next fluid from having to
+     * be remembered in four places, which is the same argument the carve veto's own comment makes about
+     * stating a rule at the call site rather than in each producer.
+     */
+    val flooded = waterDepth > 0.0 || moltenDepth > 0.0
+
     val biome = surface.biomeAt(worldX, worldY)
     val temperature = surface.temperatureAt(worldX, worldY)
 
     // Steep, dry ground carries no soil and shows what it is made of. Measured on the materialised surface
     // rather than read off a biome, which is what this used to do - see `Biome` on why `CLIFF` is gone.
-    val steep = waterDepth <= 0.0 && steepness >= BARE_ROCK_GRADIENT
-    val soilDepth = if (steep) 0.0 else surface.soilDepthAt(worldX, worldY)
+    val steep = !flooded && steepness >= BARE_ROCK_GRADIENT
+    // No soil under lava either, and for a better reason than under water: molten rock does not sit on turf.
+    // A crater floor is rock all the way down.
+    val soilDepth = if (steep || moltenDepth > 0.0) 0.0 else surface.soilDepthAt(worldX, worldY)
     // One dither draw for both the soil and the cap, so a column cannot come out with blighted turf over
     // clean earth. Under water it is always false - corruption is zero over lakes and sea by construction.
-    val blighted = waterDepth <= 0.0 && surface.isBlightedAt(worldX, worldY)
+    val blighted = !flooded && surface.isBlightedAt(worldX, worldY)
     val soilBlock = SurfaceCover.soil(biome, temperature, blighted).id.toByte()
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
-    val paving = if (spans != null && waterDepth <= 0.0) structures.pavingAt(worldX, worldY) else null
+    val paving = if (spans != null && !flooded) structures.pavingAt(worldX, worldY) else null
 
     val height = config.chunkHeight
     val rock = strata.columnAt(worldX, worldY)
+
+    // The floor of a lava lake is chilled basalt, and it outranks everything: no biome cover, no paving and
+    // no exposed bed shows through the bottom of one. An override of the cap rather than a fifth argument to
+    // `SurfaceCover.cap`, which two other callers share and neither of which has a fluid to tell it about.
+    val bed = if (moltenDepth > 0.0) BlockType.BASALT else null
 
     // Bare rock outranks paving and the cap both: a street is not laid on a cliff face, and grass does not
     // grow on one. `bareCover` answers null for most biomes, which means "show the bed that is exposed here" -
@@ -468,7 +505,7 @@ class ChunkMaterializer(
     val bare =
       if (!steep) null else SurfaceCover.bareCover(biome) ?: rock.rockAt(top - config.voxelSize * 0.5)
     val capBlock =
-      (bare ?: paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
+      (bed ?: bare ?: paving ?: SurfaceCover.cap(biome, temperature, waterDepth, blighted)).id.toByte()
 
     /*
      * Two rules for two different kinds of boundary, and the distinction is the whole of the occupancy
@@ -485,15 +522,21 @@ class ChunkMaterializer(
      * A surface at 40.3 m is voxel 40 at thirty percent, rather than voxel 39 at a hundred and a tenth of a
      * metre of terrain quietly discarded.
      */
-    val submerged = water > top
-    val airInterface = if (submerged) water else top
+    // Whichever fluid this column holds, as one surface and one material. The generalisation is what keeps
+    // the geometry below single-fluid: everything from here down asks "how high does the fluid stand and what
+    // is it made of", and the exclusion above is what guarantees those two questions have one answer each.
+    val fluidLevel = if (moltenDepth > 0.0) molten else water
+    val fluidBlock = if (moltenDepth > 0.0) LAVA else WATER
+
+    val submerged = fluidLevel > top
 
     // Global voxel indices of the top of each interval.
     val capTop = if (submerged) highestVoxelAtOrBelow(top) else topFilledVoxel(top)
     val soilTop = capTop - 1
     val rockTop = min(soilTop, highestVoxelAtOrBelow(top - soilDepth))
     val basementTop = min(rockTop, highestVoxelAtOrBelow(rock.basementTop))
-    val waterTop = if (submerged) topFilledVoxel(water) else highestVoxelAtOrBelow(water)
+    val fluidTop =
+      if (submerged) topFilledVoxel(fluidLevel) else highestVoxelAtOrBelow(fluidLevel)
 
     // Basement, as one fill.
     var cursor = fill(out, offset, baseZ, height, 0, basementTop, rock.basementRock.id.toByte())
@@ -519,15 +562,18 @@ class ChunkMaterializer(
     cursor = fill(out, offset, baseZ, height, cursor, soilTop, soilBlock)
     cursor = fill(out, offset, baseZ, height, cursor, capTop, capBlock)
 
-    // Where the ground stops, so the occupancy below can tell whether any water was actually written.
+    // Where the ground stops, so the occupancy below can tell whether any fluid was actually written.
     val groundCursor = cursor
 
-    if (temperature < FREEZING && waterTop > capTop) {
-      val iceBottom = highestVoxelAtOrBelow(water - ICE_THICKNESS)
+    // Only water freezes, and the guard is `fluidBlock` rather than a temperature exemption for volcanoes: a
+    // hotspot summit stands at nearly four kilometres, so lapse rate puts its mean annual temperature well
+    // below freezing and this branch would otherwise cap an open lava lake with a metre and a half of ice.
+    if (fluidBlock == WATER && temperature < FREEZING && fluidTop > capTop) {
+      val iceBottom = highestVoxelAtOrBelow(fluidLevel - ICE_THICKNESS)
       cursor = fill(out, offset, baseZ, height, cursor, iceBottom, WATER)
-      cursor = fill(out, offset, baseZ, height, cursor, waterTop, ICE)
+      cursor = fill(out, offset, baseZ, height, cursor, fluidTop, ICE)
     } else {
-      cursor = fill(out, offset, baseZ, height, cursor, waterTop, WATER)
+      cursor = fill(out, offset, baseZ, height, cursor, fluidTop, fluidBlock)
     }
 
     Arrays.fill(out.blocks, offset + cursor, offset + height, AIR)
@@ -536,11 +582,11 @@ class ChunkMaterializer(
     // voxel the interface falls inside is partial. Air is left at zero, which the fresh array already is.
     Arrays.fill(out.occupancy, offset, offset + cursor, Occupancy.FULL_BYTE)
     if (cursor > 0) {
-      // Whichever elevation actually bounds the topmost voxel written. Usually [airInterface], but water
-      // shallower than one voxel rounds away to no water voxel at all - and then the top voxel is ground, and
+      // Whichever elevation actually bounds the topmost voxel written. Usually the fluid surface, but a fluid
+      // shallower than one voxel rounds away to no fluid voxel at all - and then the top voxel is ground, and
       // filling it to the waterline would report the ground standing up to a voxel higher than it is. A player
       // would be walking on the surface of a puddle.
-      val bounding = if (cursor > groundCursor) water else top
+      val bounding = if (cursor > groundCursor) fluidLevel else top
       out.occupancy[offset + cursor - 1] = Occupancy.byteOf(
         fillFractionOf(bounding, baseZ + cursor - 1)
       )
@@ -601,12 +647,13 @@ class ChunkMaterializer(
         )
       }
 
-      // Nothing may open a hole under standing water, and that is stated once here rather than per producer.
+      // Nothing may open a hole under a standing fluid, and that is stated once here rather than per producer.
       // A shaft, a passage or an entrance under a lake would drain it - the water is raster-level and level,
       // so there is no mechanism anywhere that would fill the hole or lower the lake, and the result is a dry
       // pit with a wall of water standing over it. One veto at the call site cannot be forgotten by the next
-      // producer, which a rule repeated in each of them can.
-      if (waterDepth <= 0.0) {
+      // producer, which a rule repeated in each of them can - and lava is the producer that proves it, since
+      // it arrived after every one of those and needed no edit to any of them.
+      if (!flooded) {
         for (i in 0 until spans.count) {
           if (!spans.isRemoval(i)) continue
           carve(out, offset, baseZ, height, spans.bottomOf(i), spans.topOf(i))
@@ -813,7 +860,9 @@ class ChunkMaterializer(
     // 7: bare rock - a column steeper than BARE_ROCK_GRADIENT carries no soil and caps with SurfaceCover
     //    .bareCover, or with the exposed bed where that answers null. Replaces the `CLIFF` biome, which capped
     //    every steep cell in the world in one grey GRAVEL. No BlockType changed here either.
-    const val VERSION = 7
+    // 8: lava - a FeatureKind.LAVA_POOL fills its crater with LAVA over a BASALT floor, exclusive of water, and
+    //    vetoes the carve the way standing water already did.
+    const val VERSION = 8
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.
@@ -829,6 +878,7 @@ class ChunkMaterializer(
 
     private val AIR = BlockType.AIR.id.toByte()
     private val WATER = BlockType.WATER.id.toByte()
+    private val LAVA = BlockType.LAVA.id.toByte()
     private val ICE = BlockType.ICE.id.toByte()
     private val MASONRY = BlockType.MASONRY.id.toByte()
 
