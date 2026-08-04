@@ -133,7 +133,11 @@ internal class Terms(
             Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TAIGA, Biome.COLD_DESERT,
             Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.DESERT,
             Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND, Biome.RIPARIAN,
-            Biome.BEACH, Biome.BADLANDS -> 0.1
+            Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.1
+
+            // Warm ground and long grass: the one thing a geothermal basin is unambiguously good for, and the
+            // reason people keep sheep in Iceland. Above tundra, below a prairie.
+            Biome.GEOTHERMAL_BASIN -> 0.5
           }
           // A crag in the middle of grassland is still grassland, and nothing grazes a crag. The `CLIFF`
           // biome used to answer this by erasing the grassland; the slope answers it without having to.
@@ -379,6 +383,14 @@ internal class Terms(
           Biome.WETLAND -> 3.2
           Biome.BADLANDS -> 4.0
           Biome.DESERT -> 1.4
+
+          // Worse than badlands, and the only biome that is. Broken lava is the most tiring ground there is to
+          // walk on - loose blocks over voids, at every scale from a boot to a cart - and it is what should keep
+          // a road around a volcano rather than over it.
+          Biome.VOLCANIC_FIELD -> 4.4
+
+          // Passable but not pleasant: boiling ground, mud and crusts you cannot put weight on.
+          Biome.GEOTHERMAL_BASIN -> 2.2
 
           // Open ground: walk across it at the cost the slope alone implies.
           Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TUNDRA, Biome.COLD_DESERT,

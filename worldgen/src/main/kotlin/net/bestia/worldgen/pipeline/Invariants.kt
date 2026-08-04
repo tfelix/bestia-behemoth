@@ -47,6 +47,7 @@ import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.spawn.SpawnerChannels
 import kotlin.math.abs
+import kotlin.math.hypot
 
 /**
  * The regression harness: properties every generated world must have, checked over as many seeds as you
@@ -228,6 +229,7 @@ object Invariants {
     checkCavesAreWellFormed(generated, ::fail)
     checkCanopyCoverAgreesWithTheBiome(generated, ::fail)
     checkPondsHoldWaterWithoutAWall(generated, ::fail)
+    checkVolcanicBiomesStandOnVolcanoes(generated, ::fail)
 
     // Mana and corruption.
     checkCorruptionHitsItsTarget(generated, ::fail)
@@ -1671,6 +1673,30 @@ object Invariants {
   }
 
   /**
+   * The share of dry land classified as any of [kinds].
+   *
+   * Public and shared for [meanOverLand]'s reason: the sweep prints it and
+   * [checkVolcanicBiomesStandOnVolcanoes] bounds it, and a figure two readers measure differently is one neither
+   * can be trusted about.
+   */
+  fun landShareOfBiomes(generated: GeneratedWorld, vararg kinds: Biome): Double {
+    val biome = generated.world.layers[LayerId.BIOME] as? IntLayer ?: return 0.0
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return 0.0
+    val seaLevel = generated.config.seaLevel
+
+    val wanted = kinds.toSet()
+    var matched = 0
+    var land = 0
+    for (i in biome.data.indices) {
+      if (elevation.data[i] <= seaLevel) continue
+      land++
+      if (Biome.entries[biome.data[i]] in wanted) matched++
+    }
+
+    return if (land == 0) 0.0 else matched.toDouble() / land
+  }
+
+  /**
    * The share of dry land within [metres] of any of [points].
    *
    * A **reach** rather than a count, and the difference is the whole reason this exists. "The world has forty
@@ -1842,6 +1868,91 @@ object Invariants {
 
     if (mismatches > 0) {
       fail("water biome matches water level", "$mismatches cells disagree, e.g. $example")
+    }
+  }
+
+  /**
+   * Every volcanic cell is within an edifice of an actual vent, and there are not too many of them.
+   *
+   * The structural half is the one that cannot be satisfied by accident. `VOLCANIC_FIELD` and `GEOTHERMAL_BASIN`
+   * are placed from a distance transform over the vent markers, so a cell carrying one and standing fifty
+   * kilometres from the nearest vent would mean the transform, the marker set or the biome ordinals had come
+   * apart - and none of those failures is visible on a map, because a patch of volcanic ground in the wrong
+   * province looks exactly like a patch of volcanic ground in the right one.
+   *
+   * ### The share is bounded against the world's own size, not against a flat number
+   *
+   * `BiomeParams.volcanicVentRange` is a raw 5 km because an edifice is 10-30 km across on any world, while
+   * `VolcanismParams.arcVentSpacing` *is* scaled - so every world gets about two dozen vents and the share they
+   * cover falls quadratically with the world's edge. A flat bound would either pass vacuously at genesis scale or
+   * fail on every test world. So the bound is expressed as "no more than this many vents' worth of edifice",
+   * which is the quantity that is actually invariant, and it catches the failure that matters: a range that
+   * scaled by mistake, or a rung that matched everything.
+   */
+  private fun checkVolcanicBiomesStandOnVolcanoes(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val biome = generated.world.layers.require<IntLayer>(LayerId.BIOME)
+    val region = biome.region
+    val metres = region.resolution.metresPerCell
+
+    val vents = generated.world.features.all()
+      .filter { it.kind == FeatureKind.VOLCANIC_VENT }
+      .filterIsInstance<PointMarker>()
+      .map { it.position }
+
+    // The range the stage was actually built with, not a copy of the default - a params file that widened it
+    // would otherwise fail here for having been obeyed.
+    val range = generated.params.biome.volcanicVentRange
+
+    var volcanic = 0
+    var stranded = 0
+    var example = ""
+
+    for (y in region.minY..region.maxY) {
+      for (x in region.minX..region.maxX) {
+        val kind = Biome.entries[biome[x, y]]
+        if (kind != Biome.VOLCANIC_FIELD && kind != Biome.GEOTHERMAL_BASIN) continue
+        volcanic++
+
+        // Cell centre against the nearest vent. One cell of slack because the placement measures cell-centre to
+        // *cell containing a vent*, so a cell on the rim can be up to a diagonal further from the vent itself.
+        val cx = (x + 0.5) * metres
+        val cy = (y + 0.5) * metres
+        val nearest = vents.minOfOrNull { hypot(it.x - cx, it.y - cy) } ?: Double.MAX_VALUE
+
+        if (nearest > range + metres * 1.5) {
+          stranded++
+          if (example.isEmpty()) {
+            example = "($x,$y) is $kind but the nearest of ${vents.size} vents is ${nearest.toInt()} m away"
+          }
+        }
+      }
+    }
+
+    if (stranded > 0) {
+      fail("volcanic biomes stand on volcanoes", "$stranded stranded cells, e.g. $example")
+    }
+
+    if (vents.isEmpty()) {
+      // A world with no convergent boundary and no hotspot on land is legitimate, and then there must be no
+      // volcanic ground at all. Stated rather than skipped, because "no vents" is also what a broken vent
+      // emitter looks like and this is the one place the pair can be checked against each other.
+      if (volcanic > 0) fail("volcanic biomes need a vent", "$volcanic volcanic cells and no vents at all")
+      return
+    }
+
+    // Area of one edifice in cells, times a generous allowance for vents whose discs overlap being counted once
+    // and for the transform's cell quantisation rounding outward.
+    val perVent = Math.PI * (range / metres) * (range / metres)
+    val bound = vents.size * perVent * VOLCANIC_AREA_SLACK
+
+    if (volcanic > bound) {
+      fail(
+        "volcanic ground fits its vents",
+        "$volcanic volcanic cells against ${bound.toInt()} for ${vents.size} vents at ${range.toInt()} m"
+      )
     }
   }
 
@@ -2120,6 +2231,17 @@ object Invariants {
 
   /** People a settlement's sector counts may miss by, from truncating seven shares. */
   private const val EMPLOYMENT_TOLERANCE = 8
+
+  /**
+   * How far over the sum of its vents' disc areas the volcanic ground may come.
+   *
+   * Generous, and it has to be. The bound counts each vent's edifice separately while overlapping discs are one
+   * patch of ground, the distance transform quantises to whole cells and therefore rounds outward, and the
+   * `GEOTHERMAL_BASIN` rung's wetness gate cuts the annulus by an amount that varies with the terrain. So this
+   * catches a range that scaled by mistake or a rung matching everything - an order-of-magnitude failure - and
+   * deliberately not a tuning drift, which is what the measurements in `BiomeParams` are for.
+   */
+  private const val VOLCANIC_AREA_SLACK = 1.6
 
   /** Metres a roadside inn may sit from the centreline of the road it serves. */
   private const val INN_ROAD_TOLERANCE = 50.0

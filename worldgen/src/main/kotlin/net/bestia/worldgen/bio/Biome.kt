@@ -79,7 +79,34 @@ enum class Biome(
   // Gallery forest: the band of trees along a watercourse in country that has none away from it.
   RIPARIAN("riparian", 0.8, 0.60),
   BEACH("beach", 0.05, 0.0),
-  BADLANDS("badlands", 0.05, 0.0);
+  BADLANDS("badlands", 0.05, 0.0),
+
+  /*
+   * Geological biomes: driven by what the crust is doing rather than by adjacency or by the weather.
+   *
+   * Neither has a prototype in [Biomes.CLIMATIC], for the same reason BEACH, WETLAND and BADLANDS have none:
+   * the classifier's seven axes are climate, elevation, slope and wetness, and **none of them can see a vent**.
+   * A prototype would be a claim that volcanic ground has a characteristic climate, which is exactly backwards -
+   * there are volcanoes under ice caps and volcanoes in deserts, and that is the interesting thing about them.
+   */
+
+  /**
+   * Cooling rock and open lava: the cone itself, and the flow fields around it.
+   *
+   * Zero litter and zero canopy, and unlike the deleted `CLIFF` those are the truth about the place rather than
+   * a side effect of how it was assigned. Fresh basalt carries no soil, which is why [BiomeStage.fertilityAt]
+   * returns early for it: the formula's floor would otherwise give it about 0.4 and pull a settlement onto it.
+   */
+  VOLCANIC_FIELD("volcanic field", 0.0, 0.0),
+
+  /**
+   * Vents, hot springs and sulfur crusts: the valley floors around a volcano rather than the cone.
+   *
+   * Stays on the ordinary fertility formula, deliberately. A town in a geothermal basin is Reykjavik, and there
+   * is nothing wrong with one - the ground is warm, the water is hot, and the surrounding country is habitable.
+   * The sparse canopy is scrub around the vents rather than nothing at all.
+   */
+  GEOTHERMAL_BASIN("geothermal basin", 0.15, 0.02);
 
   /*
    * There was a `CLIFF` here, and it was not a biome.

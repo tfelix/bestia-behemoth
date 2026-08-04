@@ -80,12 +80,15 @@ class StandardWorldTest {
         // allows - which is before the biomes, and harmlessly so: nothing between here and the ponds reads
         // a sediment lobe.
         AlluviumStage.ID,
-        BiomeStage.ID,
-        // Volcanism is ready as soon as hydrology is - it reads the faults, the finished ground and the water -
-        // so it lands here on the name tie-break alone, which is *after* the biomes. That is a real ordering and
-        // currently a harmless one, because nothing reads the volcanism yet. The moment the volcanic biomes land
-        // it becomes an edge and this moves above `BiomeStage.ID`.
+        // Volcanism is above the biomes on a **real edge** now rather than below them on a name tie-break: the
+        // biome stage measures distance to a vent marker to place VOLCANIC_FIELD and GEOTHERMAL_BASIN. It used
+        // to sort after `biomes` and the comment here recorded that as harmless-for-now; this is the "for now"
+        // expiring, and the move is the whole reason the rest of this list shifted.
         VolcanismStage.ID,
+        BiomeStage.ID,
+        // Ponds come after the fans on a real edge rather than a tie-break: the rim search that decides how
+        // high a tarn fills walks the finished ground, and a fan across a valley floor is a dam in it.
+        PondStage.ID,
         // Caves sort before resources on the name tie-break, not because anything needs them first: both read
         // the same five upstream stages and neither reads the other.
         CaveStage.ID,
@@ -94,10 +97,6 @@ class StandardWorldTest {
         // and the vegetation does not matter; what matters is that it is *before* history, which is a real
         // edge - see `mana/ManaStage.kt` for why the field is split in two around the history simulation.
         ManaStage.ID,
-        // Ponds come after the fans on a real edge rather than a tie-break: the rim search that decides how
-        // high a tarn fills walks the finished ground, and a fan across a valley floor is a dam in it. That
-        // they also land after the caves is the tie-break again, and harmless - a cave affects no height.
-        PondStage.ID,
         // Vegetation, on the other hand, is a real edge: resources read CANOPY_COVER for timber suitability.
         VegetationStage.ID,
         ResourceStage.ID,
@@ -191,6 +190,10 @@ class StandardWorldTest {
         // fluvial surface and everything that reads "the ground".
         GlacialStage(),
         HydrologyStage(),
+        // The biome stage depends on volcanism now, and `WorldGenPipeline.init` refuses a pipeline missing a
+        // declared dependency - so this hand-built one has to carry it. It is the only hand-built pipeline in
+        // the repo that contains `BiomeStage`, which is why nothing else here needed the same edit.
+        VolcanismStage(),
         BiomeStage()
       )
     )

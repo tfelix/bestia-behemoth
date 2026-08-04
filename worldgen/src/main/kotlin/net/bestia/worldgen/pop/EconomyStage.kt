@@ -939,9 +939,12 @@ internal class Catchments(
 
     // A token amount, for the odd clearing. Exhaustive rather than defaulted: a new biome that grazes well
     // would otherwise be recorded as barren by a `when` nobody revisited, and pasture drives settlement size.
+    // Warm ground under grass; see `Terms`' grazing table, which this has to agree with.
+    Biome.GEOTHERMAL_BASIN -> 0.5
+
     Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.COLD_DESERT,
     Biome.TEMPERATE_RAINFOREST, Biome.DESERT, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS -> 0.05
+    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.05
   }
 
   /**

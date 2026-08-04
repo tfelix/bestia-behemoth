@@ -153,7 +153,7 @@ class ParamsVersionTest {
   @Test
   fun `every catalogue digest is pinned`() {
     val pinned = listOf(
-      "Biomes" to -8_109_751_724_075_169_305L,
+      "Biomes" to -5_041_373_421_073_305_244L,
       "Culture" to -8_768_142_304_179_570_668L,
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
@@ -161,7 +161,7 @@ class ParamsVersionTest {
       "EventKind" to -6_113_693_738_021_732_381L,
       "ResourceType" to -992_390_895_321_877_896L,
       "MinableOre" to -963_208_236_135_789_363L,
-      "SpawnHostility" to 4_718_641_820_498_173_787L
+      "SpawnHostility" to 6_711_120_610_348_833_411L
     )
 
     assertEquals(
@@ -189,7 +189,7 @@ class ParamsVersionTest {
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,
-      "BiomeParams" to 5_285_448_812_466_836_997L,
+      "BiomeParams" to -4_114_408_631_599_266_756L,
       "VegetationParams" to 5_359_640_679_940_278_481L,
       "GradeMix" to -7_184_838_964_596_318_845L,
       "ResourceParams" to 6_146_072_137_982_550_005L,

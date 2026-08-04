@@ -571,6 +571,13 @@ class CaveStage(
      * dissolves, and water to dissolve it with. Ice is excluded on top of that - a cave under an ice sheet is
      * a real landform and nothing in this pipeline models glacial hydrology, so claiming one would be
      * decoration rather than derivation.
+     *
+     * The volcanic biomes need **no** arm here, unlike almost every other biome table in the pipeline, and that
+     * is worth one line rather than leaving the next reader to wonder. [solubleShareAt] already refuses them:
+     * this stage models karst specifically, and a lava tube is not karst - it is a cooling structure, formed by a
+     * different process at a different time, and giving one to `CaveStage` would mean a limestone gallery with a
+     * limestone gallery's stalactites inside a basalt cone. If lava tubes are ever wanted they are their own
+     * producer, on the vent features.
      */
     fun suitabilityAt(at: Vec2d): Double {
       val ground = groundAt(at)

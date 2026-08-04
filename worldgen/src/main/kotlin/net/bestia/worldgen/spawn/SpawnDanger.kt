@@ -65,6 +65,13 @@ object SpawnHostility {
     Biome.STEPPE -> 0.4
     Biome.SAVANNA -> 0.45
 
+    // The two volcanic biomes, and the reason they are worth having as a *pair*: the field is the hardest
+    // ground in the world and the basin beside it is not. A player walks into a geothermal basin, works, and
+    // leaves; the field above it is the place the equipment is for. `LocalTemperature`'s geothermal term is the
+    // other half of the same statement, and this table would be the wrong place to make it twice.
+    Biome.VOLCANIC_FIELD -> 1.0
+    Biome.GEOTHERMAL_BASIN -> 0.8
+
     // The gentle country a new master starts in.
     Biome.GRASSLAND -> 0.15
     Biome.RIPARIAN -> 0.2

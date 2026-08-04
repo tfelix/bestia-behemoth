@@ -281,7 +281,14 @@ class BiomePalette : Palette {
       Colors.rgb(74, 116, 108),   // WETLAND
       Colors.rgb(96, 168, 112),   // RIPARIAN
       Colors.rgb(232, 220, 176),  // BEACH
-      Colors.rgb(166, 118, 82)    // BADLANDS
+      Colors.rgb(166, 118, 82),   // BADLANDS
+      // Near-black basalt, so a volcanic field reads as a hole in whatever it interrupts - which on a biome map
+      // is exactly the right impression, and the fastest way to check the rarity by eye.
+      Colors.rgb(44, 40, 44),     // VOLCANIC_FIELD
+      // Sulfur yellow over grey sinter. Deliberately loud against the field beside it: the pair is meant to be
+      // legible as a pair, since whether the basin lands in the valleys rather than as a ring around the cone is
+      // the thing this map is read to find out.
+      Colors.rgb(184, 168, 96)    // GEOTHERMAL_BASIN
     )
   }
 }

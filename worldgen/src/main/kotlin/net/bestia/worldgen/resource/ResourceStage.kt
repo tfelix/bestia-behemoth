@@ -976,7 +976,10 @@ private class Terrain(
           Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.COLD_DESERT,
           Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND, Biome.DESERT,
           Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND,
-          Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS -> 0.0
+          Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS,
+          // Nothing worth trapping lives on bare lava, and the fur-bearing thing a geothermal basin might hold
+          // is not what a trapper walks a hundred kilometres for.
+          Biome.VOLCANIC_FIELD, Biome.GEOTHERMAL_BASIN -> 0.0
         }
 
         // Fish where there is water, best on a shallow shelf or in a lake rather than mid-ocean.

@@ -1,5 +1,6 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.vector.FeatureKind
@@ -106,6 +107,13 @@ object InvariantsMain {
     val dens = ArrayList<IntArray>(seeds)
     val manaLog = ArrayList<IntArray>(seeds)
 
+    // Vents, pools, and the two volcanic biomes' share of the land. Four counts rather than one because they
+    // fail independently and each failure looks like the others from outside: no vents is a broken emitter, vents
+    // with no biome is a broken distance transform, and biome with no pool is only the strength gate being strict.
+    val vents = ArrayList<Int>(seeds)
+    val pools = ArrayList<Int>(seeds)
+    val volcanic = ArrayList<Double>(seeds)
+
     val cellSizes = ArrayList<Double>(seeds)
     val oversized = ArrayList<Int>(seeds)
     val maxBuckets = ArrayList<Int>(seeds)
@@ -135,6 +143,9 @@ object InvariantsMain {
         lobes.add(generated.world.features.all().count { it.kind == FeatureKind.ALLUVIAL_FAN })
         deltas.add(generated.world.features.all().count { it.kind == FeatureKind.DELTA })
         districts.add(generated.world.features.all().count { it.kind == FeatureKind.DISTRICT })
+        vents.add(generated.world.features.all().count { it.kind == FeatureKind.VOLCANIC_VENT })
+        pools.add(generated.world.features.all().count { it.kind == FeatureKind.LAVA_POOL })
+        volcanic.add(Invariants.landShareOfBiomes(generated, Biome.VOLCANIC_FIELD, Biome.GEOTHERMAL_BASIN))
 
         // Counted per seed rather than only asserted, because the assertion is a tolerance around a target
         // and the failure worth seeing early is the distribution drifting inside it.
@@ -246,6 +257,16 @@ object InvariantsMain {
         "canopy over land: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
             "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
             "${"%.3f".format(Locale.ROOT, sorted.last())}, $bare of ${sorted.size} worlds all but bare"
+      )
+    }
+    if (vents.isNotEmpty()) {
+      val sorted = volcanic.sorted()
+      println(
+        "volcanism: ${vents.sum() / vents.size} vents and ${pools.sum() / pools.size} lava pools per world, " +
+            "${vents.count { it == 0 }} of ${vents.size} worlds with no vent, " +
+            "${pools.count { it == 0 }} with no pool; volcanic land median " +
+            "${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, range " +
+            "${"%.3f".format(Locale.ROOT, sorted.first())} .. ${"%.3f".format(Locale.ROOT, sorted.last())}"
       )
     }
     if (ponds.isNotEmpty()) {

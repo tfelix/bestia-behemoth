@@ -324,6 +324,17 @@ object SurfaceCover {
     Biome.BEACH, Biome.DESERT -> BlockType.SAND
     Biome.BADLANDS, Biome.RIPARIAN -> BlockType.CLAY
 
+    // Ash and lapilli over cooling rock. `BiomeStage.soilDepthAt` returns zero for a volcanic field, so this is
+    // reached only where a caller asks about one directly - but answering `DIRT` there would be a claim that a
+    // flow field has topsoil, and this file's whole argument is that a plausible wrong answer is the dangerous
+    // kind. GRAVEL is the closest thing in the palette to unwelded tephra, and it needs no new block.
+    Biome.VOLCANIC_FIELD -> BlockType.GRAVEL
+
+    // A geothermal basin has real soil, and warm soil at that. It is never permafrost whatever the latitude,
+    // which is the one place this table has to disagree with the frozen-ground rule below: the ground heat is
+    // *why* the basin is a basin rather than more tundra.
+    Biome.GEOTHERMAL_BASIN -> BlockType.DIRT
+
     // Ground that stays frozen year round is a different material to dig through, and saying so here
     // is cheaper than modelling it later. It applies only where the biome has not already named a soil.
     Biome.OCEAN, Biome.LAKE,
@@ -357,6 +368,15 @@ object SurfaceCover {
     // Soft rock *is* the definition of badlands, so the bed and the bare cover agree here anyway.
     Biome.BADLANDS -> BlockType.CLAY
 
+    // A crater wall is basalt whatever the bed under the volcano happens to be, because the volcano built it.
+    // This is the one entry where naming a material beats showing the exposed bed: [Stratigraphy] knows the
+    // regional stratigraphy and knows nothing about a cone stamped on top of it.
+    Biome.VOLCANIC_FIELD -> BlockType.BASALT
+
+    // Travertine, which *is* limestone - so a hot-spring terrace comes out white, and the sinter aprons around
+    // a geyser read as the same material as the karst country a cave system would be in.
+    Biome.GEOTHERMAL_BASIN -> BlockType.LIMESTONE
+
     Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
     Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
     Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
@@ -382,6 +402,21 @@ object SurfaceCover {
       Biome.BADLANDS -> BlockType.CLAY
       Biome.BEACH, Biome.DESERT -> BlockType.SAND
 
+      /*
+       * And this is what melts a volcano's summit ice, with no temperature term in the chunk tier at all.
+       *
+       * Both volcanic biomes are in the pass that **outranks the snow line**, so `SurfaceCover.cap` never
+       * reaches its `temperature < SNOW_TEMPERATURE` branch on volcanic ground - a hotspot cone at 3,800 m is
+       * far below freezing by lapse rate and would otherwise be capped in snow like any other summit. That is
+       * the whole reason `LocalTemperature`'s geothermal term is deliberately *not* mirrored here: the effect
+       * that mattered is expressible as a biome, and a biome costs the chunk cache nothing extra.
+       *
+       * Basalt rather than the tephra `soil` names, because a cap is the single topmost block and what you see
+       * standing on a young flow is the flow.
+       */
+      Biome.VOLCANIC_FIELD -> BlockType.BASALT
+      Biome.GEOTHERMAL_BASIN -> BlockType.LIMESTONE
+
       Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
       Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
       Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
@@ -402,7 +437,8 @@ object SurfaceCover {
       Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
       // Unreachable: the pass above returned for each of these. Listed so that the two `when`s stay
       // exhaustive over the same enum and a new biome is a compile error in both.
-        Biome.ICE_SHEET, Biome.BADLANDS, Biome.BEACH, Biome.DESERT ->
+        Biome.ICE_SHEET, Biome.BADLANDS, Biome.BEACH, Biome.DESERT,
+        Biome.VOLCANIC_FIELD, Biome.GEOTHERMAL_BASIN ->
           BlockType.GRASS
       },
       blighted

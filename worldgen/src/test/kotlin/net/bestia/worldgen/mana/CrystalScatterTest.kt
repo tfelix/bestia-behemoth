@@ -86,11 +86,28 @@ class CrystalScatterTest {
   }
 
   /**
-   * South-west corners of the [squares] best sample cells: most corrupted, or highest-mana uncorrupted.
+   * South-west corners of [squares] sample cells, spread evenly through the qualifying population.
    *
-   * Water and the two biomes nothing roots in are skipped here rather than left to the scatter, so the
+   * Water and the biomes nothing roots in are skipped here rather than left to the scatter, so the
    * denominator is ground a crystal could stand on. Without that the measurement is a map of where the snow
    * line falls.
+   *
+   * ### Spread by stride, and it used to be the top N by score
+   *
+   * Both scores this could rank by are **saturated**, which is what made a top-N slice the wrong sampler.
+   * `CORRUPTION` clamps at 1.0 and `MANA_DENSITY` is a *percentile rank*, so on the reference world every one
+   * of the top cells scores exactly 1.000 - and "the six best" was really "the six lowest-indexed members of a
+   * run of several hundred ties". Any change anywhere that added or removed a single cell from the candidate
+   * set slid that window along and remeasured six different squares.
+   *
+   * It slid when the volcanic biomes landed, and the ratio it reported fell from comfortably over five to 4.2
+   * while the world's actual crystal density had not moved at all: pooled over the *whole* qualifying
+   * population the same world reads 5.32 per hectare corrupted against 0.75 clean, a ratio of 7.1. So the test
+   * was measuring a lucky slice, and this is the sampler that measures the population instead.
+   *
+   * The clean side keeps an explicit [HIGH_MANA] floor rather than relying on the ranking to find high ground,
+   * because that was the one thing the old ordering did usefully - a clean sample below `manaFloor` measures
+   * the floor rather than the clean-land rate.
    */
   private fun sampleOrigins(highCorruption: Boolean, squares: Int): List<Pair<Double, Double>> {
     val mana = world.world.layers.require<FloatLayer>(LayerId.MANA_DENSITY)
@@ -102,7 +119,7 @@ class CrystalScatterTest {
     val metres = world.config.baseResolution.metresPerCell
     val width = mana.region.width
 
-    val ranked = ArrayList<Pair<Int, Double>>()
+    val qualifying = ArrayList<Int>()
     for (i in mana.data.indices) {
       if (elevation.data[i] <= seaLevel) continue
       if (!waterLevel.data[i].isNaN()) continue
@@ -114,20 +131,21 @@ class CrystalScatterTest {
 
       val isCorrupted = corruption.data[i] >= CorruptionStage.CORRUPTED
       if (isCorrupted != highCorruption) continue
+      if (!highCorruption && mana.data[i] < HIGH_MANA) continue
 
-      // Ranked by corruption where there is some, by mana where there is none - the clean sample has to sit
-      // above `manaFloor` or it measures the floor rather than the clean-land rate.
-      ranked.add(i to if (highCorruption) corruption.data[i].toDouble() else mana.data[i].toDouble())
+      qualifying.add(i)
     }
 
-    check(ranked.size >= squares) {
-      "only ${ranked.size} usable ${if (highCorruption) "corrupted" else "clean"} cells on this world"
+    check(qualifying.size >= squares) {
+      "only ${qualifying.size} usable ${if (highCorruption) "corrupted" else "clean"} cells on this world"
     }
 
-    return ranked
-      .sortedByDescending { it.second }
-      .take(squares)
-      .map { (index, _) ->
+    // Evenly through the list rather than off the front of it, so the sample is spread across every province
+    // that qualifies and one cell entering or leaving the set moves at most one square.
+    val stride = qualifying.size / squares
+    return (0 until squares)
+      .map { qualifying[it * stride] }
+      .map { index ->
         // Centred on the cell, not anchored at its corner. A 220 m square from the corner spends most of its
         // area where the bilinear corruption sample is already blending toward the neighbouring cell, so it
         // measures the fringe of a province rather than its interior.
@@ -141,7 +159,17 @@ class CrystalScatterTest {
     /** Half the sample square's edge, in metres. */
     const val HALF_SQUARE = 110.0
 
-    /** Biomes nothing roots in, skipped so the measurement is not a map of the snow line. */
+    /** Mana a clean sample cell needs, so it measures the clean-land rate rather than `manaFloor`. */
+    const val HIGH_MANA = 0.9f
+
+    /**
+     * Biomes nothing roots in, skipped so the measurement is not a map of the snow line.
+     *
+     * `VOLCANIC_FIELD` is deliberately **not** here even though it carries no soil and no litter. The scatter
+     * vetoes an ice or snow cap and nothing else, so a crystal really does grow out of bare basalt - which is
+     * both what the code does and a fine thing for it to do - and excluding it would be this test disagreeing
+     * with the thing it measures.
+     */
     val BARREN = setOf(
       net.bestia.worldgen.bio.Biome.ICE_SHEET,
       net.bestia.worldgen.bio.Biome.ALPINE
