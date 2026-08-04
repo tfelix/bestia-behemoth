@@ -1,6 +1,7 @@
 package net.bestia.zone.entity
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
@@ -23,6 +24,7 @@ import net.bestia.zone.ecs.movement.SpeedSMSG
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.world.stream.InterestRange
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 
@@ -35,6 +37,7 @@ class GetAllEntitiesHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val aoiService: EntityAOIService,
   private val world: WorldView,
+  private val interestRange: InterestRange,
 ) : InMessageProcessor.IncomingMessageHandler<GetAllEntitiesCMSG> {
   override val handles: KClass<GetAllEntitiesCMSG> = GetAllEntitiesCMSG::class
 
@@ -113,8 +116,13 @@ class GetAllEntitiesHandler(
     return world.read { getOrThrow(activeEntity, Position::class).toVec3L() }
   }
 
+  /**
+   * Dynamic entities only. Statics reach the client on the chunk batch that carries the ground they
+   * stand on, so answering this snapshot with them too would deliver every tree twice.
+   */
   private fun getEntitiesInRange(queryPos: Vec3L): List<EntityId> {
-    val entityIdsInRange = aoiService.queryEntitiesInCube(queryPos, ENTITY_QUERY_RANGE)
+    val entityIdsInRange =
+      aoiService.queryEntitiesInCube(queryPos, interestRange.cubeEdge, AoiLayer.DYNAMIC_ONLY)
     LOG.debug { "Entities in query range: $entityIdsInRange" }
 
     return entityIdsInRange.toList()
@@ -122,6 +130,5 @@ class GetAllEntitiesHandler(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val ENTITY_QUERY_RANGE = 30L
   }
 }

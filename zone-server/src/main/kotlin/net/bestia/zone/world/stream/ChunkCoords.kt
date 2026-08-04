@@ -11,12 +11,13 @@ import net.bestia.zone.geometry.Vec3L
  * ### One position unit is one voxel
  *
  * This is the load-bearing assumption of the whole streaming layer, and it is worth stating because the
- * repository is not unanimous about it. [MoveSystem][net.bestia.zone.ecs.movement.MoveSystem] advances a
- * [net.bestia.zone.ecs.movement.Position] by whole units along a path, one per `fraction` rollover, and the
- * AI's `Locomotion` neighbour table steps by one - so a unit behaves as a tile everywhere movement is
- * concerned. Against that, a lone comment on `OutMessageProcessor.UPDATE_RANGE` claims one metre is a
- * hundred units, which is the only place in the repository that says so and which would make that range a
- * ten-kilometre cube.
+ * repository was not always unanimous about it. [MoveSystem][net.bestia.zone.ecs.movement.MoveSystem]
+ * advances a [net.bestia.zone.ecs.movement.Position] by whole units along a path, one per `fraction`
+ * rollover, and the AI's `Locomotion` neighbour table steps by one - so a unit behaves as a tile everywhere
+ * movement is concerned. Against that, a lone comment on `OutMessageProcessor.UPDATE_RANGE` claimed one metre
+ * was a hundred units. It was the only place in the repository that said so, and it was not free: taken
+ * literally it made that range a ten-kilometre cube, so every public component update reached a quarter of
+ * the world. It is gone, and [InterestRange] derives that range from the view volume instead.
  *
  * The tile reading is the one that matches the code, and at the default `voxelSize` of one metre it lines
  * positions up with worldgen's voxel indices exactly - no scaling anywhere, and a player's `z` *is* the

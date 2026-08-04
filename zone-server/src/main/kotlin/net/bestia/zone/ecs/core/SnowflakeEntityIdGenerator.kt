@@ -26,7 +26,7 @@ class SnowflakeEntityIdGenerator(
 
   @Synchronized
   override fun nextId(): EntityId {
-    val currentTimestamp = java.lang.System.currentTimeMillis()
+    var currentTimestamp = java.lang.System.currentTimeMillis()
 
     if (currentTimestamp < lastTimestamp) {
       throw IllegalStateException("Clock moved backwards. Refusing to generate id")
@@ -35,7 +35,9 @@ class SnowflakeEntityIdGenerator(
     if (currentTimestamp == lastTimestamp) {
       sequence++
       if (sequence > maxSequence) {
-        throw IllegalStateException("Too many IDs generated in the same millisecond")
+        currentTimestamp = waitForNextMillis(lastTimestamp)
+        sequence = 0
+        lastTimestamp = currentTimestamp
       }
     } else {
       sequence = 0
@@ -47,5 +49,30 @@ class SnowflakeEntityIdGenerator(
     val seqPart = sequence and maxSequence
 
     return timestampPart or nodePart.toLong() or seqPart.toLong()
+  }
+
+  /**
+   * Blocks until the clock leaves [previous] behind, so the sequence can start over.
+   *
+   * This used to throw instead, and the exception was worse than the wait in every way that matters.
+   * 2048 ids in one millisecond is not an abuse case: one generator serves the whole zone, and
+   * materialising a batch of entities - a chunk's worth of world objects, a spawner topping up a
+   * pack, a player's whole view volume after a teleport - asks for hundreds at a time on a single
+   * tick. Failing that means the caller is a `nextId()` deep inside a loop, and the throw surfaces
+   * in `ZoneEngine`'s per-tick catch-all, which silently abandons the rest of the tick. So a
+   * legitimate burst became missing entities somewhere unrelated.
+   *
+   * The wait is bounded by construction: at worst it is the remainder of the current millisecond,
+   * once per 2048 ids. A tick is fifty milliseconds.
+   */
+  private fun waitForNextMillis(previous: Long): Long {
+    var now = java.lang.System.currentTimeMillis()
+
+    while (now <= previous) {
+      Thread.onSpinWait()
+      now = java.lang.System.currentTimeMillis()
+    }
+
+    return now
   }
 }

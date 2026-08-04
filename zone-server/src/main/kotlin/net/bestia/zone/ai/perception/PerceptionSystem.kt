@@ -5,6 +5,7 @@ import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.memory.MemoryEntry
 import net.bestia.zone.ai.memory.MemoryScope
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.movement.Position
@@ -44,7 +45,11 @@ class PerceptionSystem(
       val now = System.currentTimeMillis()
 
       val sightSize = profile.perception.sightRadius.toLong() * 2
-      val neighbourIds = aoiService.queryEntitiesInCube(selfPos, sightSize)
+
+      // Dynamic only: a mob in a dense wood is inside the sight radius of hundreds of trees and has
+      // nothing to think about any of them. Every percept costs two locked component reads below, so
+      // filtering here rather than in the loop is what keeps this affordable once statics are resident.
+      val neighbourIds = aoiService.queryEntitiesInCube(selfPos, sightSize, AoiLayer.DYNAMIC_ONLY)
         .filter { it != id }
 
       val percepts = neighbourIds.mapNotNull { neighbourId ->

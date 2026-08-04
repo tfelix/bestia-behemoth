@@ -96,6 +96,92 @@ class AreaOfInterestServiceTest {
     assertTrue(ids.take(17).none { foundAfter.contains(it) })
   }
 
+  /**
+   * The test above claims to cover subdivision and does not: twenty entities never reach the
+   * forty-entity threshold, so the tree it exercises is a single leaf. This is the same property
+   * against a tree deep enough to have grandchildren, which is where `merge` used to discard them.
+   *
+   * The spread is wide enough that the first split separates them and tight enough that several
+   * children split again, so the collapse has more than one level to pull up.
+   */
+  @Test
+  fun `a merge collapsing a deep subtree keeps entities more than one level down`() {
+    val ids = (0 until 400).map { "deep-$it" }
+
+    ids.forEachIndexed { i, id ->
+      service.setEntityPosition(id, Vec3L((i % 20) * 3L, (i / 20) * 3L, 0))
+    }
+
+    assertEquals(400, service.getTotalEntityCount())
+
+    // Down to three, which is under the merge threshold at every level, so the whole tree collapses.
+    ids.dropLast(3).forEach { service.removeEntityPosition(it) }
+
+    val survivors = service.queryEntitiesInCube(Vec3L(30, 30, 0), 400)
+
+    assertEquals(3, service.getTotalEntityCount(), "the index disagrees with what it holds")
+    assertEquals(ids.takeLast(3).toSet(), survivors)
+  }
+
+  /**
+   * Subdivision used to recurse while a node was over the threshold, and coincident entries never
+   * separate however far you split - so it split until the cube reached zero extent and then failed
+   * every insert, silently. Splitting now stops when a cube can no longer be halved.
+   */
+  @Test
+  fun `entities sharing one position are all kept`() {
+    val ids = (0 until 100).map { "stacked-$it" }
+    val pos = Vec3L(64, 64, 64)
+
+    ids.forEach { service.setEntityPosition(it, pos) }
+
+    assertEquals(100, service.getTotalEntityCount())
+    assertEquals(ids.toSet(), service.queryEntitiesInCube(pos, 2))
+  }
+
+  @Test
+  fun `a query can ask for one layer`() {
+    service.setEntityPosition("mob", Vec3L(10, 10, 10), AoiLayer.DYNAMIC)
+    service.setEntityPosition("tree", Vec3L(11, 11, 11), AoiLayer.STATIC)
+
+    val centre = Vec3L(10, 10, 10)
+
+    assertEquals(setOf("mob", "tree"), service.queryEntitiesInCube(centre, 8))
+    assertEquals(setOf("mob"), service.queryEntitiesInCube(centre, 8, AoiLayer.DYNAMIC_ONLY))
+    assertEquals(setOf("tree"), service.queryEntitiesInCube(centre, 8, AoiLayer.STATIC_ONLY))
+  }
+
+  /** A layer is a property of the entry, so re-placing an entity must be able to change it. */
+  @Test
+  fun `re-placing an entity replaces its layer too`() {
+    service.setEntityPosition("x", Vec3L(5, 5, 5), AoiLayer.STATIC)
+    service.setEntityPosition("x", Vec3L(6, 6, 6), AoiLayer.DYNAMIC)
+
+    assertTrue(service.queryEntitiesInCube(Vec3L(6, 6, 6), 4, AoiLayer.STATIC_ONLY).isEmpty())
+    assertEquals(setOf("x"), service.queryEntitiesInCube(Vec3L(6, 6, 6), 4, AoiLayer.DYNAMIC_ONLY))
+  }
+
+  /**
+   * The root starts at 1024 centred on the origin, so anything on a 128 km world is outside it and
+   * arrives via `growRootToContain` - which rebuilds the tree and has to carry every existing entry,
+   * and its leaf bookkeeping, across.
+   */
+  @Test
+  fun `growing the root past a distant position keeps everything already indexed`() {
+    val near = (0 until 60).map { "near-$it" }
+    near.forEachIndexed { i, id -> service.setEntityPosition(id, Vec3L(i * 5L, 0, 0)) }
+
+    service.setEntityPosition("far", Vec3L(128_000, 96_000, 40))
+
+    assertEquals(61, service.getTotalEntityCount())
+    assertEquals(setOf("far"), service.queryEntitiesInCube(Vec3L(128_000, 96_000, 40), 4))
+    assertEquals(near.toSet(), service.queryEntitiesInCube(Vec3L(150, 0, 0), 600))
+
+    // And the rebuilt tree still removes cleanly, which is what a stale leaf map would break.
+    near.forEach { service.removeEntityPosition(it) }
+    assertEquals(1, service.getTotalEntityCount())
+  }
+
   @Test
   fun `query empty area returns empty set`() {
     val found = service.queryEntitiesInCube(Vec3L(9999, 9999, 9999), 10)
