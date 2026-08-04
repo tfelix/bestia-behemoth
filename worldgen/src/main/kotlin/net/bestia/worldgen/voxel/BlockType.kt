@@ -1,6 +1,36 @@
 package net.bestia.worldgen.voxel
 
 /**
+ * Whether a creature can move through one voxel of a material.
+ *
+ * A different question from [BlockType.solid], which asks whether the material can hold weight, and the two
+ * genuinely differ: ice is solid and passable to nothing, a leaf canopy is neither solid nor an obstruction,
+ * and lava is not solid but must stop everything. `solid` answers "can this be a floor" correctly for all
+ * three already; this answers "can I stand in it", which it does not.
+ *
+ * It exists because `WalkableTile` used to answer the second question with a `when` over `AIR`, `WATER` and
+ * `solid`, and **anything else fell through every arm and became free headroom**. That was right for leaves
+ * by accident and would have been silently wrong for the first non-solid material that had to obstruct. A
+ * declared property moves the default out of a derived structure, where no reader can see it, and into the
+ * declaration table, where it is one column beside `solid` in the file everyone edits to add a material.
+ */
+enum class Passability {
+  /** Something can move through it: air, and a leaf canopy. */
+  OPEN,
+
+  /**
+   * A fluid a creature can be *in*.
+   *
+   * How much of it is too much is the agent's business, not the material's - see
+   * [net.bestia.worldgen.derived.AgentProfile.maxWadeDepth].
+   */
+  WADEABLE,
+
+  /** Nothing moves through it: every solid material, and lava. */
+  BLOCKED
+}
+
+/**
  * The block palette.
  *
  * [id] is explicit and **permanent**: it goes into the RLE wire format, into chunk deltas, and into the
@@ -34,11 +64,23 @@ enum class BlockType(
    *
    * Defaults from [opaque], so every existing material keeps exactly the behaviour it had.
    */
-  val opacity: Double = if (opaque) 1.0 else 0.0
+  val opacity: Double = if (opaque) 1.0 else 0.0,
+
+  /**
+   * Whether a creature can move through one voxel of this.
+   *
+   * Defaults from [solid], so every existing material keeps exactly the behaviour it had, and only the
+   * materials that disagree with their own solidity have to say so. Water is the one such today.
+   *
+   * Deliberately **not** folded into `VersionGate.paletteVersion()`: that is a chunk cache key, and this
+   * changes no stored byte, so folding it would invalidate every cached chunk in every world for nothing.
+   * Its tripwire is `BlockTypeTest` instead.
+   */
+  val passability: Passability = if (solid) Passability.BLOCKED else Passability.OPEN
 ) {
 
   AIR(0, solid = false, opaque = false),
-  WATER(1, solid = false, opaque = false),
+  WATER(1, solid = false, opaque = false, passability = Passability.WADEABLE),
   ICE(2, solid = true),
 
   // Basement.

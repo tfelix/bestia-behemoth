@@ -25,6 +25,35 @@ class VoxelTest {
   }
 
   @Test
+  fun `every solid material blocks movement`() {
+    // Passability defaults from `solid`, so this can only fail if somebody declared an override that
+    // contradicts it. BLOCKED is a strict superset of solid: nothing bears weight and lets you through.
+    val wrong = BlockType.entries.filter { it.solid && it.passability != Passability.BLOCKED }
+    assertTrue(wrong.isEmpty(), "solid materials that do not block movement: $wrong")
+  }
+
+  @Test
+  fun `the materials that are not solid are pinned`() {
+    // `VersionGate.paletteVersion` folds only ids and names, so it cannot see a passability or a solidity
+    // flag - this is that tripwire. A new non-solid material fails here and forces somebody to come and
+    // decide what it does to an agent walking into it, rather than inheriting a default nobody looked at.
+    assertEquals(
+      setOf(BlockType.AIR, BlockType.WATER, BlockType.LEAVES, BlockType.BLIGHTED_LEAVES),
+      BlockType.entries.filter { !it.solid }.toSet()
+    )
+  }
+
+  @Test
+  fun `only water can be waded`() {
+    // Pinned so a future fluid cannot become quietly wadeable by being added beside water. Lava is the
+    // case this exists for: also not solid, and must never be waded at any depth.
+    assertEquals(
+      setOf(BlockType.WATER),
+      BlockType.entries.filter { it.passability == Passability.WADEABLE }.toSet()
+    )
+  }
+
+  @Test
   fun `a chunk addresses its columns contiguously in the vertical`() {
     // The layout RLE compression and every column scan depend on.
     val chunk = VoxelChunk(pos, size = 4, height = 8)

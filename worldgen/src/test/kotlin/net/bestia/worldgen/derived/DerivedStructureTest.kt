@@ -186,6 +186,22 @@ class DerivedStructureTest {
   }
 
   @Test
+  fun `a canopy overhead is still free headroom`() {
+    // The regression guard for the fall-through this replaced. `hasClearance` used to have arms for AIR,
+    // WATER and solid, and anything else - leaves being the only case at the time - fell through every arm
+    // and became free headroom by accident. It is now OPEN by declaration, and this is what says so.
+    //
+    // It is also the one test that catches a wrong Passability default: were the default BLOCKED, an agent
+    // could no longer walk under a tree anywhere in the world, and nothing else here would notice.
+    val chunk = flatGround()
+    for (z in 4..6) chunk[3, 3, z] = BlockType.LEAVES
+
+    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxWadeDepth = 0.0))
+
+    assertTrue(tile.isWalkable(3, 3, 3), "a leaf canopy should not obstruct the ground under it")
+  }
+
+  @Test
   fun `a step within reach connects and a cliff does not`() {
     val chunk = flatGround()
     // A one-voxel step up at one column, and a four-voxel wall at another.
