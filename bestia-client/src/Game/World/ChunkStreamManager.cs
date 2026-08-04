@@ -83,6 +83,16 @@ namespace BestiaBehemothClient.Game.World
     private TerrainRenderer _renderer;
 
     /// <summary>
+    /// Draws what stands on the terrain, or null in a headless test.
+    /// </summary>
+    /// <remarks>
+    /// Nullable and separate from <see cref="Renderer"/> deliberately: the two have independent lifecycles on
+    /// the wire - a chunk payload and its static batch are separate messages - and a client that can draw
+    /// ground but has no prop meshes yet is a legitimate state during development.
+    /// </remarks>
+    public StaticEntityRenderer StaticEntities { get; set; }
+
+    /// <summary>
     /// Whether a renderer reference is still safe to call.
     /// </summary>
     /// <remarks>
@@ -164,6 +174,13 @@ namespace BestiaBehemothClient.Game.World
         case ChunkPatchSMSG patch:
           OnPatch(patch);
           break;
+
+        case ChunkStaticEntitiesSMSG statics:
+          // Applied straight away rather than queued: a batch is a few hundred transforms into a multimesh
+          // buffer, not a decode and a mesh build, so it does not need the frame budget the chunk queue exists
+          // to spread. It arrives behind its chunk, so the ground is already there or already queued.
+          StaticEntities?.Apply(statics);
+          break;
       }
     }
 
@@ -186,6 +203,7 @@ namespace BestiaBehemothClient.Game.World
       // A new world, or a reconnect: nothing held can be assumed to still be right.
       Store.Clear();
       _toDecode.Clear();
+      StaticEntities?.Clear();
 
       Renderer?.Configure(Store, info);
     }
@@ -207,6 +225,7 @@ namespace BestiaBehemothClient.Game.World
           if (Store.Get(key) == null)
           {
             Renderer.Remove(key);
+            StaticEntities?.Remove(key);
           }
         }
       }

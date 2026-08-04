@@ -1,44 +1,44 @@
 # Last Steps
 
-## Tree & Forrests as Entity
-
-Then we need to refine this a bit more. Trees and forrests should later be subject to e.g. like wildfires and grow cycles which is simulated by the ECS system. So it definatly needs to be an entity rather than a part of the map itself. Can you make suggestions how to realize this in a realistic pattern? I assume e.g. we can unload most of those entities if no player is in range but also we maybe need to reduce the total number of single entities a bit. Can you make suggestions to refine this.
-What I can imagine is some sort of special entity like a spawn director for vegetation which is placed inside such a biome which takes care of regular watching and respawning entities which got missing (e.g. if a player harvested a certain plant for example and watches over spawn points). But those must be placed in strategic points during world generation. It also makes sense to initially fill the world e.g. with trees so the players do not need to wait until vegetation has grown into place. First lets discuss and brainstorm a few options we have. Also grill me with questions about this topic.
-Same goes for bestia spawner or mana crystals. All those stuff must be modelled as an entity and not as a structure of the the tile map. Please design a system which makes it easy upon world generation to save this as an entity.
-Then remove all remnantes of those stuff from the world generation which is now not reqsectionuired anymore e.g. like specialized voxel types.
-
 ## Improved River Rendering
 
 No comb like structures like on the genesis map. The river should have some sloping in the detail view, maybe even if this is not neceassairly "physically correct", but just good looking. Just make sure rivers do not flow uphill so there needs to be some carving to make them go downhill in the right stage.
 But again prefer a nice optic over fully simulation correctness.
 
-## Improved biomes
-
-- suggest interesting resources or events or things you can place or do inside a desert biome so players have a motivation to explore those harsh lands.
--- strong bestia which can be found and their loot is one point but a few more would be nice. (make sure this strong bestia point is reflected in the spawn system)
-
-- do the same for swamps
--- i can imagine more ingrediants for poisons
+For a reference for a good algorithm check this blog post: https://www.redblobgames.com/x/1723-procedural-river-growing/
 
 ## Improved City Generation
 
 TBD
 
+# Missing biomes
+
+- please list all available biomes and let me confirm or discuss the existence of those
+- ideally we also have some rarer volcanic biome in which are sources like sulfur gysirs or other materials are found (please list a few which make sense in a MMORPG crafting context in volcanic regions).
+- we need a lava voxel.
+- include possible volcanic eruptions in the history system
+- tie lava wells into the temperature system. we need an api for the engine to query local temperature, also taking into account weather conditions and seasons. In the low level regions temperatures should more or less the whole year stay in comfortable regions for most bestia while in the high level areas, high mana or mountains/volcanos, deserts more extreme temperature swings should happen which needs better equipment or buffs for bestia/entities to operate efficiently. Maybe this is a task on its own.
+
 ## Improved History Generation
 
 - Add some connections to the three factions of the bestia game system. Dont make it too prominent but make it so it is possible that some hints here and there can appear over the course of the time. Since it is important for the game which faction "won" the last world it would be nice if there is a tunable parameter on how much influence a faction has had over the history. So as a little gimick the winner of the last world gets a bit more influence over the history generation.
+- Also review the system in general and make a few suggestion on how you think the system can be improved to give the player easier access and deeper lore of the world.
+- Suggest some ways on how to integrate this lore system later into the game especially considering NPC or written hints, artifacts etc.
 
 ## Engine Integration
 
 Tie this all into the engine! We need to battle test the renderer if it works for this world. Shader are not really important we will get to those later but stablity and performance are top priority. Double check if the interaction with the engine works or if you see any shortcomings in the communication protocol.
+This is more like a tight review on the renderer integration into the world system. Look into it with a fresh mind. Analyze for bugs or inconsistency.
 Also make sure "special" stuff like cave systems work.
 Check if special marker like trees, treasures in caves, tombes etc translate into entities with visuals that get correctly placed. Make sure those visuals are then persisted into the database. Make sure restards of the server work well and nothing is like double imported especially if players started to modify and re-shape the world. Also take care with how to implement this partial occupancy to allow more shallow slopes and go away from this "minecrafty full blocky" look.
+
+Please compile a list of issues you have found and how to tackle them.
 
 ## Final Cleanup Phase
 
 Feel free to re-arrange those points into a order which you think makes more sense.
 
-- Review the architecture and TODO document if anything substantial is left out. Then remove those two documents after the information was consolidated into the ../bestia-docs server and map generation section.
+- Review the architecture and TODO document if anything substantial is left out. Then remove those two documents after the information was consolidated into the ../bestia-docs server/map generation sections.
 - reset all versions back to initial values, we are dev build nothing exists in the wild yet. We can also check if enums are not containing any legacy placeholders. Consolidate everything down, not legacy code.
 - make sure to clearify especially how the storage mechanism of voxel, chunk, player modification (diffs) and regeneration works. So write down every storage that is required for such a map and how it is stored within the engine.
 - make sure you also document the motivation behind certain biomes, in the documentation too.

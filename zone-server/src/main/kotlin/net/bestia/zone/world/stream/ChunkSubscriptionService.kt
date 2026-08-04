@@ -44,6 +44,7 @@ class ChunkSubscriptionService {
 
   private val firstSubscriber = ArrayList<(ChunkPos) -> Unit>()
   private val lastSubscriber = ArrayList<(ChunkPos) -> Unit>()
+  private val chunkSent = ArrayList<(Long, ChunkPos) -> Unit>()
 
   /**
    * Called when a chunk goes from held by nobody to held by somebody, and back.
@@ -73,6 +74,20 @@ class ChunkSubscriptionService {
 
   fun onLastSubscriber(listener: (ChunkPos) -> Unit) {
     lastSubscriber.add(listener)
+  }
+
+  /**
+   * Called for **every** account that is given a chunk, not only the first.
+   *
+   * [onFirstSubscriber] answers "does this need to exist", which is a question about the chunk. This answers
+   * "who has just been given it", which is a question about one client - and anything that has to follow a
+   * chunk payload to its recipient needs the second, because the second player into a wood gets no
+   * first-subscriber callback and still has to be told about the trees.
+   *
+   * Fires after the payload has actually gone out, since [markSent] is only called on a successful write.
+   */
+  fun onChunkSent(listener: (accountId: Long, chunk: ChunkPos) -> Unit) {
+    chunkSent.add(listener)
   }
 
   val trackedAccounts get() = announced.size
@@ -137,6 +152,7 @@ class ChunkSubscriptionService {
     holders.add(accountId)
 
     if (wasUnheld) firstSubscriber.forEach { it(chunk) }
+    chunkSent.forEach { it(accountId, chunk) }
   }
 
   /**

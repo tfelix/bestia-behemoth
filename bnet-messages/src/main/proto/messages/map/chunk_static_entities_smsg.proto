@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkStaticEntitiesSMSGProto";
+
+/**
+ * Every static entity standing in one chunk column, in one message.
+ *
+ * ### Why these do not travel as entities
+ *
+ * A static entity is a real ECS entity and could be synced the ordinary way, one component message at a
+ * time. Measured, that costs **78 bytes across three separate `writeAndFlush` calls** per entity - a
+ * position, a visual and a health - and a player's view volume holds one to seven thousand trees depending
+ * on the lattice. So the ordinary path is five to twenty thousand *flushes* for one login, against 121 for
+ * the entire world's terrain in the same volume.
+ *
+ * The bytes were never the problem. Batched at about 25 bytes an entry this is 44 kB for an 8 m lattice
+ * against ~375 kB of chunk payload for the same 121 chunks, and steady state as a player walks is a couple
+ * of kilobytes per chunk boundary crossed.
+ *
+ * ### Delivery is co-terminous with terrain by construction
+ *
+ * One of these follows each chunk payload, and it is dropped when that chunk leaves the manifest. So the
+ * range entities appear at is the range the ground appears at, without a second radius that has to be kept
+ * in step with the first - and removal needs no vanish message, because the client already discards a
+ * chunk's contents when the manifest withdraws it.
+ *
+ * ### Ids here are not durable
+ *
+ * `entity_id` is a live ECS id and is re-minted every time the chunk is re-materialised, because the server
+ * destroys a column's entities when the last client stops holding it. A client must treat these as valid
+ * only for as long as it holds the chunk, and must not persist one or carry it across a re-send. It is a
+ * handle for "the thing I am pointing at right now", which is all a click needs.
+ */
+message ChunkStaticEntitiesSMSG {
+  ChunkPos pos = 1;
+
+  /**
+   * One placed object.
+   *
+   * Positions are **local to the chunk** in the horizontal, which is what keeps an entry at 25 bytes: a
+   * world x on a 128 km world is a three-byte varint and a local one is a single byte. `z` stays global,
+   * because a chunk column spans the whole vertical extent and a slab-local z would need the slab index
+   * to be meaningful.
+   */
+  message Entry {
+    /** Live ECS id. Fixed rather than varint: a snowflake is ~4.3e16, so a varint would spend nine bytes. */
+    fixed64 entity_id = 1;
+
+    /** `StaticEntityKind` ordinal. The client dispatches on this to pick a mesh. */
+    uint32 kind = 2;
+
+    /** Which of a kind's interchangeable meshes, so a wood is not one tree repeated. */
+    uint32 variant = 3;
+
+    /** Voxel column inside the chunk, `0..chunkSize-1`. */
+    uint32 local_x = 4;
+    uint32 local_y = 5;
+
+    /** Global voxel z of the ground it stands on. Signed, because the seabed is below zero. */
+    sint32 z = 6;
+
+    /** Height in decimetres. Finer than anyone can see at a metre per voxel, and a third of an int. */
+    uint32 height_dm = 7;
+
+    /** Facing, in hundredths of a radian. A tree does not need more and a byte and a half is plenty. */
+    uint32 yaw_centiradians = 8;
+  }
+
+  repeated Entry entries = 2;
+}

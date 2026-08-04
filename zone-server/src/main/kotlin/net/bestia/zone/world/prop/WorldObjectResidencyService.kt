@@ -10,7 +10,10 @@ import net.bestia.zone.ecs.prop.PropVitality
 import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
+import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.springframework.stereotype.Service
 
@@ -52,8 +55,13 @@ class WorldObjectResidencyService(
   private val sources: List<WorldObjectSource>,
   private val kinds: PropKindRegistry,
   private val aoi: EntityAOIService,
+  private val fanOut: ChunkFanOut,
+  private val worldService: WorldService,
   subscriptions: ChunkSubscriptionService
 ) {
+
+  /** Voxels per chunk edge, for turning a world position into a chunk-local one. */
+  private val chunkSize: Int get() = worldService.config.chunkSize
 
   /** Packed `(x, y)` chunk column -> the entities standing in it. */
   private val resident = HashMap<Long, LongArray>()
@@ -64,9 +72,25 @@ class WorldObjectResidencyService(
   private val pendingLoad = LinkedHashSet<Long>()
   private val pendingRelease = LinkedHashSet<Long>()
 
+  /**
+   * Column -> accounts that hold its terrain and have not been told what stands on it.
+   *
+   * Keyed by column so a batch is encoded **once** however many accounts are waiting for it, which is
+   * `ChunkFanOut`'s whole contract. Entries survive a tick: a column can be held before it is materialised -
+   * the terrain goes out at order 45 and the entities appear at 46 - so a waiter whose column is not resident
+   * yet simply waits for the next drain.
+   */
+  private val awaitingBatch = HashMap<Long, MutableSet<Long>>()
+
   init {
     subscriptions.onFirstSubscriber { chunk -> hold(chunk) }
     subscriptions.onLastSubscriber { chunk -> release(chunk) }
+
+    // Every recipient, not only the first: the second player into a wood gets no first-subscriber callback
+    // and still has to be told about the trees.
+    subscriptions.onChunkSent { accountId, chunk ->
+      awaitingBatch.getOrPut(columnOf(chunk)) { HashSet() }.add(accountId)
+    }
   }
 
   val residentColumns get() = resident.size
@@ -125,7 +149,60 @@ class WorldObjectResidencyService(
       released++
     }
 
+    // After both, so a column materialised this tick is announced in the same tick its terrain was, and one
+    // released this tick is not announced at all.
+    flushBatches(world)
+
     return loaded to released
+  }
+
+  /**
+   * Tells each waiting account what stands in the columns it now holds.
+   *
+   * One encode per column regardless of how many accounts are waiting - thirty players walking into the same
+   * wood cost one serialisation between them, which is the reason this goes through [ChunkFanOut] rather than
+   * the ordinary per-recipient send path.
+   */
+  private fun flushBatches(world: World) {
+    if (awaitingBatch.isEmpty()) return
+
+    val columns = awaitingBatch.keys.toList()
+
+    for (column in columns) {
+      val ids = resident[column] ?: continue
+      val accounts = awaitingBatch.remove(column) ?: continue
+      if (accounts.isEmpty()) continue
+
+      val chunkX = unpackX(column)
+      val chunkY = unpackY(column)
+
+      // An empty column still gets a message. It is twelve bytes and it is what tells a client "this ground
+      // has nothing on it" rather than "the batch has not arrived yet", which are different states for
+      // anything that wants to know whether it can start drawing.
+      val entries = ArrayList<ChunkStaticEntitiesSMSG.Entry>(ids.size)
+
+      world.read {
+        for (id in ids) {
+          val pose = get(id, PropPose::class) ?: continue
+          val visual = get(id, StaticVisual::class) ?: continue
+
+          entries.add(
+            ChunkStaticEntitiesSMSG.Entry(
+              entityId = id,
+              kind = visual.kind,
+              variant = visual.variant,
+              localX = (pose.position.x - chunkX.toLong() * chunkSize).toInt(),
+              localY = (pose.position.y - chunkY.toLong() * chunkSize).toInt(),
+              z = pose.position.z.toInt(),
+              heightDm = visual.heightDm,
+              yawCentiradians = Math.round(pose.yaw * 100f)
+            )
+          )
+        }
+      }
+
+      fanOut.fanOut(accounts, ChunkStaticEntitiesSMSG(ChunkPos(chunkX, chunkY, 0), entries))
+    }
   }
 
   /** The entities of one column, for the sync channel to batch. Empty when the column is not resident. */
@@ -167,6 +244,10 @@ class WorldObjectResidencyService(
   }
 
   private fun dematerialise(world: World, column: Long) {
+    // A client that lost the terrain will discard the column's contents anyway, so a batch for it now would
+    // describe entities that are about to stop existing.
+    awaitingBatch.remove(column)
+
     val ids = resident.remove(column) ?: return
 
     for (id in ids) {

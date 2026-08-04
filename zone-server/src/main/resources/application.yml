@@ -137,6 +137,9 @@ socket:
   filter-log-messages:
     - "!comp_path"
     - "!comp_position"
+    # A few hundred entries per chunk, and one of these follows every chunk payload. It carries its own terse
+    # toString, but the filter is what keeps it off the path entirely.
+    - "!chunk_static_entities"
 
 logging:
   level:

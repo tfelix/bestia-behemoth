@@ -68,6 +68,7 @@ import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
 import "messages/map/chunk_data_smsg.proto";
 import "messages/map/chunk_patch_smsg.proto";
+import "messages/map/chunk_static_entities_smsg.proto";
 import "messages/map/weather_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
@@ -97,6 +98,7 @@ message Envelope {
     ChunkDataSMSG chunk_data = 203;
     ChunkPatchSMSG chunk_patch = 204;
     WeatherSMSG weather = 205;
+    ChunkStaticEntitiesSMSG chunk_static_entities = 206;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;

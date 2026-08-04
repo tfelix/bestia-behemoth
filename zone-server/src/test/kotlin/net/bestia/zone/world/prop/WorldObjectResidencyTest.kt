@@ -9,11 +9,16 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.socket.ChunkFanOut
+import net.bestia.zone.world.WorldService
+import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -31,6 +36,7 @@ class WorldObjectResidencyTest {
   private lateinit var aoi: EntityAOIService
   private lateinit var source: StubSource
   private lateinit var residency: WorldObjectResidencyService
+  private lateinit var sent: MutableList<ChunkStaticEntitiesSMSG>
 
   /** Three trees per column, at positions derived from the column so they are distinguishable. */
   private class StubSource : WorldObjectSource {
@@ -58,7 +64,23 @@ class WorldObjectResidencyTest {
     subscriptions = ChunkSubscriptionService()
     aoi = EntityAOIService()
     source = StubSource()
-    residency = WorldObjectResidencyService(listOf(source), kindRegistry(), aoi, subscriptions)
+    sent = ArrayList()
+    residency = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), subscriptions
+    )
+  }
+
+  /** Records what would have gone out, so the batch can be asserted on without a socket. */
+  private fun recordingFanOut() = object : ChunkFanOut {
+    override fun fanOut(accountIds: Collection<Long>, message: net.bestia.zone.message.SMSG): Int {
+      if (message is ChunkStaticEntitiesSMSG) sent.add(message)
+      return accountIds.size
+    }
+  }
+
+  /** Only `config.chunkSize` is read, for turning a world position into a chunk-local one. */
+  private fun worldService(): WorldService = mockk {
+    every { config } returns net.bestia.worldgen.core.WorldConfig(seed = 1L, chunkSize = 32, voxelSize = 1.0)
   }
 
   @Test
@@ -257,7 +279,9 @@ class WorldObjectResidencyTest {
         return emptyList()
       }
     }
-    val service = WorldObjectResidencyService(listOf(empty), kindRegistry(), EntityAOIService(), subscriptions)
+    val service = WorldObjectResidencyService(
+      listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), subscriptions
+    )
     val world = testWorld()
 
     subscriptions.markSent(1L, ChunkPos(3, 3, 0))
@@ -269,6 +293,84 @@ class WorldObjectResidencyTest {
     assertEquals(1, service.residentColumns)
     assertEquals(0, service.residentEntities)
     assertFalse(service.entitiesIn(3, 3).isNotEmpty())
+  }
+
+  /**
+   * The batch follows the terrain, and it is encoded once per column however many clients are waiting.
+   *
+   * That count is the whole reason this goes through `ChunkFanOut` rather than the ordinary send path: thirty
+   * players walking into one wood must cost one serialisation between them, not thirty.
+   */
+  @Test
+  fun `one batch per column serves every account that just received the terrain`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    subscriptions.markSent(2L, ChunkPos(2, 3, 0))
+    subscriptions.markSent(3L, ChunkPos(2, 3, 0))
+    residency.drain(world, budget = 8)
+
+    assertEquals(1, sent.size, "the column was encoded once per recipient rather than once")
+    assertEquals(3, sent.single().entries.size)
+    assertEquals(ChunkPos(2, 3, 0), sent.single().chunk)
+  }
+
+  /**
+   * Positions in the batch are chunk-local horizontally and global vertically.
+   *
+   * Local x and y are what keep an entry at about 25 bytes - a world x on a 128 km world is a three-byte
+   * varint and a local one is a single byte - and z stays global because a column spans the whole vertical
+   * extent, so a slab-local z would need the slab index to mean anything.
+   */
+  @Test
+  fun `batch positions are chunk-local horizontally and global vertically`() {
+    val world = testWorld()
+
+    // The stub puts its trees at `chunk.x * 32 + i`, so in chunk 2 they are at world x 64, 65, 66.
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    residency.drain(world, budget = 8)
+
+    val entries = sent.single().entries.sortedBy { it.localX }
+
+    assertEquals(listOf(0, 1, 2), entries.map { it.localX })
+    assertEquals(listOf(0, 0, 0), entries.map { it.localY })
+    assertEquals(listOf(64, 64, 64), entries.map { it.z }, "z must stay global")
+    assertTrue(entries.all { it.kind == StaticEntityKind.TREE })
+    assertTrue(entries.all { it.entityId != 0L }, "an entry with no id is a thing a client cannot click")
+  }
+
+  /** A column released in the same tick it was announced must not be described to anybody. */
+  @Test
+  fun `a column released before its batch flushes is not announced`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(9, 9, 0))
+    subscriptions.unsend(1L, ChunkPos(9, 9, 0))
+    residency.drain(world, budget = 8)
+
+    assertTrue(sent.isEmpty(), "a batch went out for a column that no longer exists")
+  }
+
+  /**
+   * A batch is only sent once the entities exist, and it is not lost while waiting.
+   *
+   * The terrain goes out at order 45 and the entities appear at 46, so a column can be held for part of a tick
+   * before anything stands in it. A waiter must survive that rather than being dropped.
+   */
+  @Test
+  fun `a waiter whose column is not yet resident is served on a later drain`() {
+    val world = testWorld()
+
+    for (x in 0 until 6) subscriptions.markSent(1L, ChunkPos(x, 0, 0))
+
+    residency.drain(world, budget = 2)
+    assertEquals(2, sent.size, "only the columns materialised so far should be announced")
+
+    residency.drain(world, budget = 2)
+    assertEquals(4, sent.size)
+
+    residency.drain(world, budget = 2)
+    assertEquals(6, sent.size, "a waiter was dropped instead of being served on a later tick")
   }
 
   private fun kindRegistry() = PropKindRegistry().also { it.load() }

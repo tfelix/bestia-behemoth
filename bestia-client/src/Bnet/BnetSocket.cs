@@ -257,6 +257,14 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.WeatherSMSG.FromProto(envelope.Weather);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.ChunkStaticEntities != null)
+        {
+          // A MapSMSG, so ConnectionManager's GDScript handler passes it over and EntityManager never sees it.
+          // See ChunkStaticEntitiesSMSG: routing these through the entity path would instantiate a full
+          // Entity.tscn per tree.
+          var msg = Map.ChunkStaticEntitiesSMSG.FromProto(envelope.ChunkStaticEntities);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");
@@ -293,6 +301,15 @@ namespace BestiaBehemothClient.Bnet.Message
       {
         var manifest = envelope.ChunkManifest;
         return $"ChunkManifest(reset={manifest.Reset}, +{manifest.Added.Count}, -{manifest.Removed.Count})";
+      }
+
+      if (envelope.ChunkStaticEntities != null)
+      {
+        // A few hundred entries per chunk and one of these behind every chunk payload, so the default dump
+        // would put more log on the wire than the message carries. The same trap ChunkData already hit.
+        var statics = envelope.ChunkStaticEntities;
+        return $"ChunkStaticEntities({statics.Pos.X},{statics.Pos.Y},{statics.Pos.Z}) " +
+               $"{statics.Entries.Count} entries";
       }
 
       return envelope.ToString();
