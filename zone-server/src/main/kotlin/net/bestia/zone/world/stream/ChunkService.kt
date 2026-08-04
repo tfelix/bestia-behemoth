@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ColumnHeights
+import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
@@ -287,6 +288,16 @@ class ChunkService(
 
   fun merged(chunk: ChunkPos): VoxelChunk = loaded.store.merged(chunk)
 
+  /**
+   * The generated macro navigation graph, straight from the world tier.
+   *
+   * Exposed here rather than reached through `WorldService` by the navigation package for the same reason
+   * `derived()` and [surfaceElevationAt] are: this class is the one place that knows the world is loaded and
+   * owns everything derived from it, so a second door onto the same data is a second thing to get the boot
+   * ordering wrong with.
+   */
+  fun navGraphSource(): NavGraph = worldService.generated.world.navGraph
+
   fun revisionOf(chunk: ChunkPos): Int = revisions[chunk] ?: 0
 
   fun derived(): DerivedStore = loaded.derived
@@ -368,6 +379,27 @@ class ChunkService(
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
     loaded.derived.invalidate(chunk)
+    for (listener in changeListeners) listener(chunk)
+  }
+
+  /**
+   * Registered callbacks for "this chunk's contents changed".
+   *
+   * A list rather than a single slot because the two existing reactions are already unrelated - the derived
+   * structures rebuild, and the subscribers get told - and the navigation graph's is a third: a destroyed
+   * bridge is a chunk edit, and the macro edges over it have to be re-tested. Kept as a plain list, called
+   * synchronously, because everything here is on the tick thread by construction.
+   */
+  private val changeListeners = ArrayList<(ChunkPos) -> Unit>()
+
+  /**
+   * Registers a callback fired whenever a chunk's contents change.
+   *
+   * The listener runs on the tick thread inside the edit, so it must be cheap and must not itself edit: mark
+   * something stale and return. `MacroGraphService` queues an edge index; it does not re-test the edge there.
+   */
+  fun onChunkChanged(handler: (ChunkPos) -> Unit) {
+    changeListeners.add(handler)
   }
 
   /**

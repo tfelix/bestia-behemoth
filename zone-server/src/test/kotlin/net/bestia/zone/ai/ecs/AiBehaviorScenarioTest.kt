@@ -1,6 +1,8 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.AiActSystem
+import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.ai.AiThinkSystem
 import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.goal.GoalRegistry
@@ -78,7 +80,7 @@ class AiBehaviorScenarioTest {
       GoapPlanner(),
       actionRegistry
     )
-    actSystem = AiActSystem()
+    actSystem = AiActSystem(TestNavigation.service(), ZoneConfig(tickRate = 20))
   }
 
   private fun spawnMob(pos: Vec3L, health: Int): EntityId =

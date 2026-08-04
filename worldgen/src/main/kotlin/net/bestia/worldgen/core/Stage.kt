@@ -37,6 +37,19 @@ sealed interface StageOutput {
    * second stage to write a second history of the same world.
    */
   data object History : StageOutput
+
+  /**
+   * The macro navigation graph NPCs plan long journeys over. At most one stage may declare it.
+   *
+   * A fourth kind of product for the reason [Chronicle]'s KDoc gives for the third: a raster is addressed
+   * by position, a feature by position and kind, an event by year and actor - and a **navigation edge by
+   * adjacency**. None of the other three can express "what are this node's neighbours" without the
+   * consumer rebuilding a graph from a list of markers, which is the one thing a pathfinder needs and the
+   * one thing the feature store cannot index.
+   *
+   * Unparameterised for the same reason [History] is: one graph per world, not a keyed collection.
+   */
+  data object Navigation : StageOutput
 }
 
 /** Everything one stage invocation produced. */
@@ -44,7 +57,9 @@ class StageResult(
   val layers: List<LayerData> = emptyList(),
   val features: List<VectorFeature> = emptyList(),
   /** Non-null exactly when the stage declared [StageOutput.History]; the pipeline checks that. */
-  val chronicle: Chronicle? = null
+  val chronicle: Chronicle? = null,
+  /** Non-null exactly when the stage declared [StageOutput.Navigation]; the pipeline checks that. */
+  val navGraph: NavGraph? = null
 ) {
   companion object {
     val EMPTY = StageResult()

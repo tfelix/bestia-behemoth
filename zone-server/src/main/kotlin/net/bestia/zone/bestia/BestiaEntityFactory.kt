@@ -3,6 +3,8 @@ package net.bestia.zone.bestia
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.navigation.MovementCapability
+import net.bestia.zone.navigation.profile.MovementProfileRegistry
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
@@ -21,7 +23,8 @@ import org.springframework.stereotype.Component
 @Component
 class BestiaEntityFactory(
   private val bestiaRepository: BestiaRepository,
-  private val aiProfileRegistry: AiProfileRegistry
+  private val aiProfileRegistry: AiProfileRegistry,
+  private val movementProfileRegistry: MovementProfileRegistry
 ) {
 
   fun createMobEntity(
@@ -64,6 +67,10 @@ class BestiaEntityFactory(
         )
       )
       add(id, Persistent)
+
+      // Unconditional, unlike the AI: a creature with no behaviour still gets walked about by whatever pushes
+      // it, and the pathfinder has to know how it moves. `getOrDefault` covers the null and the typo alike.
+      add(id, MovementCapability(movementProfileRegistry.getOrDefault(bestia.movementProfile).identifier))
 
       attachAi(id, bestia, pos)
     }

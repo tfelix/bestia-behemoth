@@ -1,0 +1,11 @@
+# A wild land animal: keeps away from roads, cannot swim.
+#
+# The road multiplier is the interesting number. Roads are where people are, so a wild creature paying two
+# and a half times to use one will take a longer way round through open country whenever there is one - which
+# is what keeps the countryside beside a trade road feeling wild rather than lined with wolves.
+identifier: wild_ground_forager
+can_swim: false
+can_climb: true
+agent_half_width: 0.5
+road_cost_multiplier: 2.5
+off_road_cost_multiplier: 1.0

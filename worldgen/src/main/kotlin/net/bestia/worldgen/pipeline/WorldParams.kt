@@ -2,6 +2,7 @@ package net.bestia.worldgen.pipeline
 
 import net.bestia.worldgen.bio.BiomeParams
 import net.bestia.worldgen.civ.HabitabilityParams
+import net.bestia.worldgen.civ.NavParams
 import net.bestia.worldgen.civ.SettlementParams
 import net.bestia.worldgen.civ.TownParams
 import net.bestia.worldgen.climate.ClimateParams
@@ -104,6 +105,14 @@ data class WorldParams(
   val economy: EconomyParams = EconomyParams(),
 
   /**
+   * The macro navigation graph NPCs plan journeys over. Last, because it reads everything before it.
+   *
+   * Folded into [version] and not [chunkTierVersion]: the graph is a world-tier product like any stage
+   * output, and no chunk's voxels depend on it.
+   */
+  val nav: NavParams = NavParams(),
+
+  /**
    * The chunk tier: the base heightfield's detail noise, the rock column, the droplet field.
    *
    * Not a stage between them, and until this existed not reachable from here at all - `assemble` built
@@ -162,7 +171,10 @@ data class WorldParams(
       // The town stage predicts the grading feature's cut and fill in order to pick a building's floor, and
       // samples the same detail noise the chunks will. Both are the settlement stage's and the chunk tier's
       // numbers respectively, not its own.
-      town = town.copy(grading = settlementResolved, detail = detail)
+      town = town.copy(grading = settlementResolved, detail = detail),
+      // The navigation graph decides which of its hops are river fords, and "there is a river in this cell"
+      // is the habitability stage's threshold, not a second opinion. See `NavParams.habitability`.
+      nav = nav.copy(habitability = habitability)
     )
   }
 
@@ -194,7 +206,8 @@ data class WorldParams(
       r.corruption.digest().value,
       r.spawner.digest().value,
       r.town.digest().value,
-      r.economy.digest().value
+      r.economy.digest().value,
+      r.nav.digest().value
     )
   }
 
@@ -264,7 +277,8 @@ data class WorldParams(
         mana = base.mana.overriddenBy(text.scope("mana")),
         corruption = base.corruption.overriddenBy(text.scope("corruption")),
         weather = base.weather.overriddenBy(text.scope("weather")),
-        droplets = base.droplets.overriddenBy(text.scope("droplets"))
+        droplets = base.droplets.overriddenBy(text.scope("droplets")),
+        nav = base.nav.overriddenBy(text.scope("nav"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)
       return loaded

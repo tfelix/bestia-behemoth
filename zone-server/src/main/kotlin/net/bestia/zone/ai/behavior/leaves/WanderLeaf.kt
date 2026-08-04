@@ -13,7 +13,10 @@ import net.bestia.zone.ai.behavior.Status
  */
 class WanderLeaf : BtNode {
   override fun tick(context: BtContext): Status {
-    Locomotion.wanderStep(context.world, context.entityId, context.brain.homePosition, context.brain.wanderRadius)
+    // Still always RUNNING even when no step was available. A creature penned in by terrain has nowhere to
+    // amble to, and that is not a failed action - wandering is what it does while nothing better applies, and
+    // reporting FAILURE would make the think stage replan every tick for as long as it stayed hemmed in.
+    Locomotion.wanderStep(context, context.brain.homePosition, context.brain.wanderRadius)
     return Status.RUNNING
   }
 }

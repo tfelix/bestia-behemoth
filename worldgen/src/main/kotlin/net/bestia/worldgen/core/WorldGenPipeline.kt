@@ -20,7 +20,14 @@ class World(
    * read it unconditionally. A world with no history and a world whose history was not simulated are the
    * same thing from the outside, and both have nothing to say.
    */
-  val chronicle: Chronicle = Chronicle.EMPTY
+  val chronicle: Chronicle = Chronicle.EMPTY,
+  /**
+   * The macro navigation graph, or [NavGraph.EMPTY] when this pipeline had no navigation stage.
+   *
+   * Empty rather than null for the reason [chronicle] is: a consumer reads it unconditionally, and a world
+   * with nowhere to walk and a world whose routes were never computed look the same from the outside.
+   */
+  val navGraph: NavGraph = NavGraph.EMPTY
 )
 
 /** Called as stages start and finish, so a viewer or a build log can show progress. */
@@ -80,6 +87,14 @@ class WorldGenPipeline(
    */
   val historyProducer: StageId?
 
+  /**
+   * The stage that declared [StageOutput.Navigation], or null.
+   *
+   * Resolved and required unique for the same reason [historyProducer] is: two stages each handing the
+   * world a different set of routes is not a conflict the run could pick a winner for.
+   */
+  val navGraphProducer: StageId?
+
   init {
     require(stages.isNotEmpty()) { "A pipeline needs at least one stage" }
 
@@ -91,6 +106,10 @@ class WorldGenPipeline(
     val historians = stages.filter { StageOutput.History in it.outputs }.map { it.id }
     require(historians.size <= 1) { "More than one stage produces the chronicle: $historians" }
     historyProducer = historians.firstOrNull()
+
+    val navigators = stages.filter { StageOutput.Navigation in it.outputs }.map { it.id }
+    require(navigators.size <= 1) { "More than one stage produces the navigation graph: $navigators" }
+    navGraphProducer = navigators.firstOrNull()
 
     for (stage in stages) {
       for (dependency in stage.dependencies) {
@@ -142,6 +161,7 @@ class WorldGenPipeline(
     val layerStore = LayerStore()
     val featureStore = FeatureStore()
     var chronicle: Chronicle? = null
+    var navGraph: NavGraph? = null
 
     for (stage in stagesAt(StageScale.WORLD)) {
       val region = config.worldRegion.at(stage.resolution)
@@ -156,11 +176,22 @@ class WorldGenPipeline(
         check(chronicle == null) { "Stage ${stage.id} produced a second chronicle for the same world" }
         chronicle = it
       }
+      result.navGraph?.let {
+        check(navGraph == null) { "Stage ${stage.id} produced a second navigation graph for the same world" }
+        navGraph = it
+      }
     }
 
     featureStore.freeze()
 
-    return World(config, layerStore, featureStore, pipelineVersion, chronicle ?: Chronicle.EMPTY)
+    return World(
+      config,
+      layerStore,
+      featureStore,
+      pipelineVersion,
+      chronicle ?: Chronicle.EMPTY,
+      navGraph ?: NavGraph.EMPTY
+    )
   }
 
   /**
@@ -265,6 +296,15 @@ class WorldGenPipeline(
         "Stage ${stage.id} declared a chronicle and produced none"
       } else {
         "Stage ${stage.id} produced a chronicle without declaring one"
+      }
+    }
+
+    val declaredNavigation = StageOutput.Navigation in stage.outputs
+    check(declaredNavigation == (result.navGraph != null)) {
+      if (declaredNavigation) {
+        "Stage ${stage.id} declared a navigation graph and produced none"
+      } else {
+        "Stage ${stage.id} produced a navigation graph without declaring one"
       }
     }
   }

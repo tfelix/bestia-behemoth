@@ -17,6 +17,7 @@ import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldGenPipeline
 import net.bestia.worldgen.civ.HabitabilityStage
+import net.bestia.worldgen.civ.NavGraphStage
 import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.TownStage
 import net.bestia.worldgen.history.HistoryStage
@@ -224,7 +225,10 @@ object StandardWorld {
       // left standing of them.
       SpawnerStage(base, p.spawner),
       TownStage(base, p.town),
-      EconomyStage(base, p.economy)
+      EconomyStage(base, p.economy),
+      // Last, and it has to be: the routes NPCs walk are read off the roads, bridges, gates and cave mouths
+      // every stage above put down, so it can only run once all of them are final. Nothing reads it back.
+      NavGraphStage(base, p.nav)
     )
   }
 

@@ -168,8 +168,13 @@ object Invariants {
   /** Distance from a road or town inside which a den is "settled country". */
   private const val SETTLED_RANGE_METRES = 10_000.0
 
-  /** Highest mean level settled country may hold before the danger field has no ramp in it. */
-  private const val SETTLED_MAX_MEAN_LEVEL = 35.0
+  /**
+   * How close settled country's mean level may come to the whole world's before the ramp is not a ramp.
+   *
+   * Measured at 0.41 to 0.71 over twenty seeds, median 0.51, with the sparsest world in two hundred at 0.82.
+   * See `checkSpawnersRespectCorruption` for why this is a ratio and what the absolute it replaced got wrong.
+   */
+  private const val SETTLED_MAX_LEVEL_RATIO = 0.85
 
   /** How far the corrupted share may sit from its target before it is a bug rather than a seed. */
   private const val CORRUPTED_SHARE_TOLERANCE = 0.03
@@ -1214,10 +1219,23 @@ object Invariants {
   }
 
   /**
-   * A roadside inn is beside a road and not inside a settlement.
+   * A roadside inn is beside a road and not inside a **standing** settlement.
    *
    * The whole point of one: it exists because there is nowhere else to stop. An inn that ended up inside a
    * town is one the town already had, counted twice.
+   *
+   * ### Standing, and it used to be every settlement site
+   *
+   * `EconomyStage.roadsideInns` skips near an `EconomyReader.Place`, and that reader joins `SETTLEMENT` to
+   * `SETTLEMENT_HISTORY` and drops anything never founded, emptied, or down to no people. This check compared
+   * against every `SETTLEMENT` marker on the map instead - so it asserted something the producer never
+   * promised, and asserted the *worse* rule besides: an inn beside a ruin is not a duplicate of anything, it is
+   * good worldbuilding, and a site nobody ever settled is a patch of grass.
+   *
+   * It went unnoticed because a false positive needs an inn to land within 150 m of a site that is not there.
+   * A 200-seed sweep at 256 cells found exactly one, at 149 m, once history started emptying more towns. The
+   * same mismatch - producer measuring one thing and invariant another - is on record in `SpawnerStage`'s home
+   * ring, where the stage measured from the settlement centre and the check from the arrival point.
    */
   private fun checkRoadsideInnsAreOnTheRoad(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     val inns = generated.world.features.all()
@@ -1225,9 +1243,16 @@ object Invariants {
       .filterIsInstance<PointMarker>()
     if (inns.isEmpty()) return
 
+    val chronicle = generated.world.chronicle
     val sites = generated.world.features.all()
       .filter { it.kind == FeatureKind.SETTLEMENT }
       .filterIsInstance<PointMarker>()
+      .filter { marker ->
+        val index = runCatching { marker.attribute(SettlementChannels.INDEX).toInt() }.getOrNull()
+        // No chronicle means no history stage ran, and then every placed site is as good as standing.
+        index == null || chronicle.settlements.isEmpty() ||
+            chronicle.settlementStood(index, chronicle.presentYear)
+      }
     val roads = generated.world.features.all()
       .filter { it.kind == FeatureKind.ROAD }
       .filterIsInstance<PolylineFeature>()
@@ -1246,7 +1271,7 @@ object Invariants {
       if (nearestSettlement < INN_SETTLEMENT_CLEARANCE) {
         fail(
           "roadside inns are on the road",
-          "inn ${inn.id} is only ${nearestSettlement.toInt()} m from a settlement"
+          "inn ${inn.id} is only ${nearestSettlement.toInt()} m from a standing settlement"
         )
         return
       }
@@ -2353,6 +2378,24 @@ object Invariants {
    * **Two-sided deliberately.** A one-sided "corrupted land is level eighty" passes against a danger field
    * that is a constant eighty everywhere, which is a world with no ramp in it at all - and that is the
    * likelier bug, because a broken weighted sum saturates rather than zeroing.
+   *
+   * ### The settled half is a ratio, and it was an absolute
+   *
+   * It read `mean level near civilisation <= 35`, and that number is only meaningful on a world with a normal
+   * amount of civilisation on it. A 200-seed sweep found seed 184: eleven settlements over a 192 km world,
+   * most of them in hard country, near-town mean level 42.7. Nothing was wrong with the spawn ramp - the world
+   * simply has very little settled country, and what it has is in the mountains. The same seed fails the
+   * absolute with the blight switched off entirely (39.9), so this was never about the mana.
+   *
+   * The claim worth making is *the country around people is gentler than the wilderness*, which is a contrast
+   * and does not depend on how much of either there is. Measured over twenty seeds the ratio runs 0.41 to 0.71
+   * with a median of 0.51, and seed 184 sits at 0.82 - still the outlier, and now legibly so rather than as a
+   * pass/fail cliff. `checkCorruptionAvoidsCivilisation` made this exact move for this exact reason, and its
+   * KDoc says so: "a ratio, so it does not move when the target does".
+   *
+   * What that trades away, stated plainly: a ramp uniformly *half* as steep would keep its ratio and pass here.
+   * The counter is `spawnerCensus`, whose four band counts the sweep prints per seed - a flattened ramp empties
+   * the 1-8 band, and a zero there is visible on every line.
    */
   private fun checkSpawnersRespectCorruption(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     val params = generated.params.spawner
@@ -2361,6 +2404,8 @@ object Invariants {
     var corruptedCount = 0
     var settledSum = 0.0
     var settledCount = 0
+    var worldSum = 0.0
+    var worldCount = 0
 
     val civDistance = generated.world.layers[LayerId.CIVILISATION_DISTANCE] as? FloatLayer ?: return
     val metres = generated.config.baseResolution.metresPerCell
@@ -2370,6 +2415,9 @@ object Invariants {
       val marker = feature as? PointMarker ?: continue
 
       val level = marker.attribute(SpawnerChannels.LEVEL_MIN).toDouble()
+      worldSum += level
+      worldCount++
+
       if (marker.attribute(SpawnerChannels.CORRUPTION) >= CorruptionStage.CORRUPTED) {
         corruptedSum += level
         corruptedCount++
@@ -2393,12 +2441,19 @@ object Invariants {
       }
     }
 
-    if (settledCount > 0) {
-      val mean = settledSum / settledCount
-      if (mean > SETTLED_MAX_MEAN_LEVEL) {
+    // A world history emptied entirely has no settled country to compare, which is a legitimate seed and not
+    // something to assert about.
+    if (settledCount > 0 && worldCount > 0) {
+      val settledMean = settledSum / settledCount
+      val worldMean = worldSum / worldCount
+      if (worldMean > 0.0 && settledMean > worldMean * SETTLED_MAX_LEVEL_RATIO) {
         fail(
           "spawners respect corruption",
-          "mean level within ${SETTLED_RANGE_METRES.toInt()} m of a road or town is %.1f".format(mean)
+          ("mean level within %d m of a road or town is %.1f against %.1f over the whole world " +
+              "(%.2f of it, limit %.2f)").format(
+            SETTLED_RANGE_METRES.toInt(), settledMean, worldMean,
+            settledMean / worldMean, SETTLED_MAX_LEVEL_RATIO
+          )
         )
       }
     }

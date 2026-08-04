@@ -18,7 +18,9 @@ class FleeLeaf : BtNode {
       return Status.SUCCESS
     }
 
-    Locomotion.stepAwayFrom(context.world, context.entityId, threat)
-    return Status.RUNNING
+    // Cornered counts as failure: there is no way further from the threat, so fleeing is not an option and
+    // the think stage should be given the chance to pick fighting instead of leaving the creature shuffling
+    // against a wall.
+    return if (Locomotion.stepAwayFrom(context, threat)) Status.RUNNING else Status.FAILURE
   }
 }

@@ -53,6 +53,16 @@ class DerivedStore(
   fun isStale(chunk: ChunkPos) = chunk in queue
 
   /**
+   * Whether this chunk's structures are already built, so asking about it is a lookup rather than a rebuild.
+   *
+   * Every other query here builds on demand, which is right for a caller that needs an answer and wrong for
+   * one that would rather skip the column: a pathfinder expanding into unloaded country would materialise
+   * half a megabyte of voxels per step, and it has no business generating the world as a side effect of
+   * deciding where to walk. This lets it ask what is cheap and treat the rest as unknown.
+   */
+  fun isTracked(chunk: ChunkPos) = chunk in entries
+
+  /**
    * Marks a chunk's structures stale after a delta was applied to it.
    *
    * Only this chunk. Cross-chunk walkability is resolved at query time from two tiles rather than stored,

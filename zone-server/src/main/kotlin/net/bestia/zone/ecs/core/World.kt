@@ -274,8 +274,20 @@ class World(
     }
   }
 
+  /**
+   * Ticks executed since this world was created.
+   *
+   * For logic that has to say "not before a while from now" and has no other clock: scheduling something a
+   * random number of ticks ahead is how a population of NPCs is kept from all reacting to the same event on
+   * the same tick. Deliberately a tick count rather than a wall clock, so it advances with the simulation and
+   * stays reproducible in a test that drives [tick] by hand.
+   */
+  var tickCount: Long = 0L
+    private set
+
   // -------------------------------------------------------------- tick pipeline
   fun tick(deltaTime: Float) = lock.withLock {
+    tickCount++
     commands.drain(this)     // external intent -> handlers
     iterating = true
     try {

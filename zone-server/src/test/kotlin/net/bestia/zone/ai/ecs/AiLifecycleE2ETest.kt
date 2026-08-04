@@ -1,6 +1,8 @@
 package net.bestia.zone.ai.ecs
 
 import net.bestia.zone.ai.AiActSystem
+import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.ai.AiThinkSystem
 import net.bestia.zone.ai.Brain
 import net.bestia.zone.ai.goal.GoalRegistry
@@ -84,7 +86,7 @@ class AiLifecycleE2ETest {
           GoapPlanner(),
           actionRegistry
         ),
-        AiActSystem(),
+        AiActSystem(TestNavigation.service(), ZoneConfig(tickRate = 20)),
         // No terrain in this scenario, so no ground to snap to; null keeps the waypoint's own z, which is what
         // the AI's flat Locomotion produces anyway.
         MoveSystem { _, _ -> null },

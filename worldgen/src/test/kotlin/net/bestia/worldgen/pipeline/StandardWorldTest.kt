@@ -12,6 +12,7 @@ import net.bestia.worldgen.core.Stage
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldGenPipeline
 import net.bestia.worldgen.civ.HabitabilityStage
+import net.bestia.worldgen.civ.NavGraphStage
 import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.TownStage
 import net.bestia.worldgen.history.HistoryStage
@@ -107,6 +108,11 @@ class StandardWorldTest {
         CorruptionStage.ID,
         TownStage.ID,
         EconomyStage.ID,
+        // The navigation graph is the most derived thing in the pipeline: it reads the roads, the bridges,
+        // the gates the town stage just placed and the cave mouths, so it cannot be ready until all of them
+        // are. Nothing reads it back, which is why it can sit at the end without anything caring exactly
+        // where in the tail it lands.
+        NavGraphStage.ID,
         // Last, and *not* where a name tie-break would put it: "spawners" sorts before "towns", so a
         // ready-set-at-a-time scheduler would run it before them. This one advances a whole level at a
         // time, and spawners only became ready when corruption finished - by which point towns was already

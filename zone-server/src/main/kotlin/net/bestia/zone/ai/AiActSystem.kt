@@ -8,6 +8,8 @@ import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Path
+import net.bestia.zone.ecs.ZoneConfig
+import net.bestia.zone.navigation.NavigationService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -19,7 +21,10 @@ import org.springframework.stereotype.Component as SpringComponent
  */
 @SpringComponent
 @Order(30)
-class AiActSystem : System {
+class AiActSystem(
+  private val navigationService: NavigationService,
+  private val zoneConfig: ZoneConfig
+) : System {
 
   override val reads: ComponentClassSet = setOf(Position::class, Brain::class)
   override val writes: ComponentClassSet = setOf(Path::class)
@@ -35,7 +40,15 @@ class AiActSystem : System {
         brain.attackCooldownRemaining = (brain.attackCooldownRemaining - deltaTime).coerceAtLeast(0f)
       }
 
-      val context = BtContext(world, id, brain, deltaTime)
+      val context = BtContext(
+        world = world,
+        entityId = id,
+        brain = brain,
+        deltaTime = deltaTime,
+        navigation = navigationService,
+        currentTick = world.tickCount,
+        tickRate = zoneConfig.tickRate
+      )
 
       when (node.tick(context)) {
         Status.SUCCESS -> {

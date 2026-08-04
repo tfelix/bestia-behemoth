@@ -27,6 +27,17 @@ class Bestia(
   val aiProfile: String? = null,
 
   /**
+   * Identifier of the movement profile (`resources/movement/<name>.yml`) this species plans routes with, or
+   * null for the default ground walker.
+   *
+   * Separate from [aiProfile] because the two answer different questions and species mix them freely: what a
+   * creature *wants* is its AI archetype, and how it gets there - whether it swims, whether it avoids roads,
+   * whether it fits over a footbridge - is this. A wolf and a bandit can share every goal and disagree about
+   * rivers.
+   */
+  val movementProfile: String? = null,
+
+  /**
    * Which [net.bestia.zone.item.equip.EquipmentSlot]s this species has at all, as a bitmask over
    * `EquipmentSlot.bit`. Authored per mob under `resources/mob/` and mirrored into the client's
    * static bestia DB by the `syncBestiaDb` Gradle task - it is static content, so the client reads

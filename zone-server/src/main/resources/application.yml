@@ -93,6 +93,33 @@ chunk-stream:
   # Whether the /setblock chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
 
+navigation:
+  # Local (tile-accurate) pathfinding searches allowed per tick, across all NPCs. One bounded search is well
+  # under a millisecond against a 50 ms tick, so this is generous; what it stops is a whole pack running out of
+  # waypoints on the same tick and each starting one. A refused search costs nothing - the NPC keeps walking
+  # what it had and asks again next tick.
+  local-pathfinds-per-tick: 8
+  # Longest straight-line distance, in tiles, the local tier will accept. Beyond this the caller wants the
+  # macro graph: expanding a few thousand columns to discover the target is a kilometre away wastes the tick.
+  # 32 is one chunk, comfortably more than any wander or chase needs.
+  local-search-span: 32
+  # Slack around the endpoints' bounding box, so walking round a building still fits inside the search.
+  local-search-margin: 12
+  # Hard ceiling on columns one local search may expand - the safety valve for a target in a sealed room.
+  local-expansion-limit: 2048
+  # How often blocked macro edges are re-tested. Seconds rather than ticks on purpose: a bridge being
+  # destroyed is a rare discrete event, unlike the voxel edits derived-rebuilds-per-tick reacts to, so
+  # checking every tick would be checking ~100x more often than anything changes. This is also the
+  # propagation lag - NPCs learn a crossing is gone within a few seconds rather than instantly.
+  macro-revalidate-seconds: 5
+  # Stale edges re-tested per pass. Bounded for the same reason derived-rebuilds-per-tick is: mining along a
+  # riverbank can invalidate a batch at once, and draining over two or three passes is invisible.
+  macro-revalidations-per-pass: 8
+  # How long an individual NPC may keep planning against a graph version it knows is out of date. Without this
+  # every traveller in the world replans on the tick the graph moves, which is both a spike and a tell - a
+  # hundred NPCs changing their minds together reads as a system reacting rather than creatures finding out.
+  macro-replan-jitter-seconds: 60
+
 world:
   tick-rate: 20
   parallel-systems: false

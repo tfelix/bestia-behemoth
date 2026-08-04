@@ -1,0 +1,11 @@
+# A trader with a wagon: roads or nothing.
+#
+# Wide enough that a narrow bridge refuses it, which is what `max_agent_half_width` on a crossing is for -
+# a cart turned back at a footbridge takes the long way round to the next proper one.
+identifier: merchant_cart
+can_swim: false
+# Not a mountaineer. A cart on ground the generator tagged CLIMB is a cart at the bottom of a ravine.
+can_climb: false
+agent_half_width: 1.5
+road_cost_multiplier: 0.4
+off_road_cost_multiplier: 2.0
