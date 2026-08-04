@@ -15,7 +15,8 @@ namespace BestiaBehemothClient.Game.World
   /// <list type="number">
   /// <item><b>Answer a manifest.</b> Chunks already held at the announced revision are not requested, which is
   /// what turns a 375 kB re-entry into an area into nothing at all.</item>
-  /// <item><b>Apply patches.</b> An edit is fifty bytes where the chunk is three thousand.</item>
+  /// <item><b>Apply patches.</b> A swing's worth of removals is a couple of hundred bytes where the chunk
+  /// is three thousand.</item>
   /// <item><b>Notice divergence.</b> A patch whose <c>FromRevision</c> is not what is held means this copy and
   /// the server's have parted company. The chunk is dropped and re-requested rather than patched, because a
   /// wrongly-patched chunk is invisible: the player walks into a wall that is not there and the bug report is
@@ -156,16 +157,17 @@ namespace BestiaBehemothClient.Game.World
         return false;
       }
 
-      foreach (var edit in patch.Decode())
+      foreach (var removal in patch.Decode())
       {
-        held.Chunk.ApplyEdit(edit.Index, edit.BlockId, edit.Occupancy);
+        held.Chunk.ApplyRemoval(removal.Index, removal.RemainingOccupancy);
       }
 
       held.Revision = patch.ToRevision;
 
-      // An edit moves run boundaries, so the cached scan is now wrong about where the surface can be. Rescanning
-      // the whole chunk is a few dozen microseconds and cannot be subtly incorrect, which patching the mask in
-      // place could easily be - a dug voxel can create a band where there was none.
+      // A removal moves run boundaries, so the cached scan is now wrong about where the surface can be.
+      // Rescanning the whole chunk is a few dozen microseconds and cannot be subtly incorrect, which patching
+      // the mask in place could easily be. Removal-only does not make an incremental update safe either: a
+      // carve can destroy the last boundary in a column as easily as create one.
       held.Bands = ChunkBands.Of(held.Chunk);
 
       return true;

@@ -3,10 +3,11 @@ package net.bestia.worldgen.voxel
 /**
  * The one version number a client that only receives chunks has to agree with the server about.
  *
- * It covers the two things such a client actually does with a chunk: decode it ([RleCodec]) and name the
- * materials in it ([BlockType]). Either changing makes every payload wrong, and neither is something the
- * client can adapt to at runtime - so there is nothing to gain from telling it *which* one moved. It gets one
- * number, and if it does not match, it is out of date.
+ * It covers the three things such a client actually does with a chunk: decode it ([RleCodec]), name the
+ * materials in it ([BlockType]), and apply the removals that arrive afterwards (`ChunkPatchCodec`). Any of
+ * them changing makes payloads wrong, and none is something the client can adapt to at runtime - so there is
+ * nothing to gain from telling it *which* one moved. It gets one number, and if it does not match, it is out
+ * of date.
  *
  * ### Why this is hand-incremented when the server's own versions are hashes
  *
@@ -26,8 +27,8 @@ package net.bestia.worldgen.voxel
 object ChunkEngine {
 
   /**
-   * Bump on any change to [RleCodec]'s format or to [BlockType]'s ids, names, or `solid` flag, and change the
-   * client's `ChunkEngine.Version` in the same commit.
+   * Bump on any change to [RleCodec]'s format, to `ChunkPatchCodec`'s format, or to [BlockType]'s ids, names,
+   * or `solid` flag, and change the client's `ChunkEngine.Version` in the same commit.
    *
    * `BlockType.opacity` is deliberately **not** in that list. It decides how much of a sight line a material
    * stops, which is a server-side combat question the client neither receives nor renders; bumping for it
@@ -46,6 +47,13 @@ object ChunkEngine {
    *
    * 3 added the volcanic materials in one batch - LAVA, OBSIDIAN, and graded sulfur and pyrelith - rather than
    * one bump per feature. Four separate additions would have meant four client releases for one feature.
+   *
+   * 4 is the removal-only patch format: an edit that carried `(index, blockId, occupancy)` became a removal
+   * carrying `(indexDelta, remainingOccupancy)`. **The first bump made for the patch codec rather than for a
+   * chunk payload**, and the reason it is a bump at all rather than a note is that the two formats are
+   * mutually undetectable - every byte of one is a legal varint continuation in the other, so a mismatched
+   * client decodes plausible geometry instead of failing. `ChunkPatchEncoding` on the message catches it
+   * per patch; this catches it at the handshake, before a single one is sent.
    */
-  const val VERSION = 3
+  const val VERSION = 4
 }

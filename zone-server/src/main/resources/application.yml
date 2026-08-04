@@ -90,7 +90,7 @@ chunk-stream:
   # Derived structures (walkable spans, opacity) rebuilt per tick. Queries serve the stale copy until then,
   # which beats a rebuild hitch on the zone thread every time somebody places a block.
   derived-rebuilds-per-tick: 2
-  # Whether the /setblock chat command is honoured. It also needs the TERRAIN authority.
+  # Whether the /carve chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
 
 navigation:

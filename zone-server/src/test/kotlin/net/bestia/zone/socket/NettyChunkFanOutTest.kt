@@ -7,6 +7,8 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder
 import io.netty.handler.codec.protobuf.ProtobufEncoder
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.stream.ChunkPatchCodec
 import net.bestia.zone.world.stream.ChunkPatchSMSG
@@ -61,7 +63,7 @@ class NettyChunkFanOutTest {
     chunk = ChunkPos(3, -4, 0),
     fromRevision = 0,
     toRevision = 1,
-    edits = (0 until 10).associate { it * 977 to ChunkPatchCodec.pack(blockId = 0, occupancy = 0) }
+    removals = IntArray(10) { ChunkDelta.pack(it * 977, Occupancy.EMPTY) }
   )
 
   @Test
@@ -124,7 +126,8 @@ class NettyChunkFanOutTest {
     assertEquals(3, patch.pos.x)
     assertEquals(-4, patch.pos.y, "a negative coordinate must survive the wire; sint32 exists for this")
     assertEquals(1, patch.toRevision)
-    assertEquals(10, ChunkPatchCodec.decode(patch.edits.toByteArray()).size)
+    assertEquals(10, ChunkPatchCodec.decode(patch.removals.toByteArray()).size)
+    assertEquals(10, patch.removalCount, "the count is carried rather than divided out of the byte length")
   }
 
   @Test

@@ -8,16 +8,16 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "ChunkPatchSMSGProto";
 
 /**
- * The voxels that changed in one chunk, rather than the chunk that contains them.
+ * The voxels a player removed from one chunk, rather than the chunk that contains them.
  *
  * This is the message that makes a busy area affordable. Thirty players standing together while one of
- * them digs ten voxels costs thirty copies of about fifty bytes; re-sending the chunk instead would cost
- * thirty copies of three kilobytes, and thirty separate serialisations of it. The server encodes this
- * once and writes the same buffer to every subscriber.
+ * them mines a swing's worth of rock costs thirty copies of a couple of hundred bytes; re-sending the
+ * chunk instead would cost thirty copies of three kilobytes, and thirty separate serialisations of it.
+ * The server encodes this once and writes the same buffer to every subscriber.
  *
- * A voxel belongs to exactly one chunk, so there is no fan-out across chunk borders to pay for. An edit
- * that genuinely spans chunks - a large terraform - becomes one patch per chunk, and each client
- * receives only the patches for chunks it is subscribed to.
+ * A voxel belongs to exactly one chunk, but a *brush* does not: a carve is a sphere or a capsule in world
+ * space, so one swing near a border becomes one patch per chunk it reaches into, and each client receives
+ * only the patches for chunks it is subscribed to.
  */
 message ChunkPatchSMSG {
   ChunkPos pos = 1;
@@ -28,23 +28,51 @@ message ChunkPatchSMSG {
    * Ordering is already guaranteed - one client is one ordered TCP stream, and the server enqueues a
    * snapshot before any patch that builds on it - so these are an assertion rather than a mechanism. A
    * client whose held revision is not [from_revision] has diverged somehow and should discard the chunk
-   * and re-request it instead of applying edits to the wrong base.
+   * and re-request it instead of applying removals to the wrong base.
    */
   uint32 from_revision = 2;
   uint32 to_revision = 3;
 
   /**
-   * Packed edits, five bytes each:
+   * Packed removals, about two and a half bytes each:
    *
    * ```
-   * repeated: uvar voxelIndex, u8 blockId, u8 occupancy
+   * repeated: uvar indexDelta, u8 remainingOccupancy
    * ```
    *
-   * `voxelIndex` is `(localY * size + localX) * height + localZ`, the same layout the chunk payload uses
-   * - so the vertical axis is contiguous here too. Occupancy travels with the block id in every edit
-   * because the two can never be allowed to disagree: air is occupancy zero and everything else is not.
+   * Sorted by voxel index, where an index is `(localY * size + localX) * height + localZ` - the same layout
+   * the chunk payload uses, so the vertical axis is contiguous here too. Each index is written as the **gap
+   * since the previous one**, which is what makes a removal cheap: the voxels a brush takes out of one
+   * column are index-adjacent, so nearly every gap is 1 and costs a single byte.
    *
-   * Edits within one patch are already coalesced per voxel, so an index appears at most once.
+   * **No block id.** There is no building system, so the only terrain mutation is removal - and then the
+   * resulting block is derivable rather than absent: a voxel with material left keeps whatever the
+   * generator gave it, and one carved to `remainingOccupancy = 0` is air. The client holds the base
+   * already, so it can say which. The invariant that air is occupancy zero and everything else is not is
+   * therefore re-established independently on each side rather than carried across and re-checked, and a
+   * patch has no way to express a violation of it.
+   *
+   * Removals within one patch are coalesced per voxel, so an index appears at most once, at the lowest
+   * occupancy it reached during the tick.
    */
-  bytes edits = 4;
+  bytes removals = 4;
+
+  /**
+   * How [removals] is packed.
+   *
+   * See `ChunkPatchEncoding` for why a patch needs a discriminator where a snapshot's `base_hash` does not
+   * cover it: a misread removal stream decodes to plausible garbage rather than failing, and nothing else on
+   * this message would notice.
+   */
+  ChunkPatchEncoding encoding = 5;
+
+  /**
+   * How many voxels this patch describes.
+   *
+   * Carried rather than derived. It used to be computed as `removals.size / bytesPerEdit`, which worked only
+   * while every edit was a fixed width - and the moment indices became delta-coded varints that division
+   * started returning a number merely near the truth, in a field used for logging and for the decision about
+   * whether a patch is worth sending at all.
+   */
+  uint32 removal_count = 6;
 }

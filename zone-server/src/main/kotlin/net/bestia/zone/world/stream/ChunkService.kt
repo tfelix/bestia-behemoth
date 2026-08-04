@@ -8,11 +8,14 @@ import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.derived.AgentProfile
+import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.derived.DerivedStore
 import net.bestia.worldgen.store.ChunkCache
 import net.bestia.worldgen.store.ChunkStore
 import net.bestia.worldgen.store.MemoryBlobStore
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.CarveBrush
+import net.bestia.worldgen.voxel.CarveRules
 import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
@@ -51,19 +54,85 @@ class ChunkService(
 ) {
 
   /**
-   * One edit batch applied to one chunk, waiting to be told to the clients that hold it.
+   * One batch of removals applied to one chunk, waiting to be told to the clients that hold it.
    *
-   * @property edits voxel index to `(blockId shl 8) or occupancy`, coalesced - an index appears once
+   * @property removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted, coalesced - an index appears
+   *   once, at the lowest occupancy it reached during the tick
    * @property baked the chunk outgrew its delta and was baked; its whole content was rewritten, so a patch
    *   describes it correctly but a subscriber that has fallen behind cannot be caught up from patches alone
    */
   data class ChunkChange(
     val chunk: ChunkPos,
-    val edits: Map<Int, Int>,
+    val removals: IntArray,
     val fromRevision: Int,
     val toRevision: Int,
     val baked: Boolean
-  )
+  ) {
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (other !is ChunkChange) return false
+
+      return chunk == other.chunk &&
+          fromRevision == other.fromRevision &&
+          toRevision == other.toRevision &&
+          baked == other.baked &&
+          removals.contentEquals(other.removals)
+    }
+
+    override fun hashCode(): Int {
+      var result = chunk.hashCode()
+      result = 31 * result + removals.contentHashCode()
+      result = 31 * result + fromRevision
+      result = 31 * result + toRevision
+      result = 31 * result + baked.hashCode()
+      return result
+    }
+  }
+
+  /**
+   * One voxel a carve took, and what was there before it did.
+   *
+   * The prior block is reported because it cannot be recovered afterwards: a removal records how much is left,
+   * not what it was, so once the delta is applied the only way back to "this was rich iron ore" is a second
+   * read of the base. `OreBlocks.yieldOf` is the caller that needs it - it has existed since the ore palette
+   * landed and has never had one.
+   *
+   * @property priorOccupancy and [remainingOccupancy] together give how much came out, which a yield that
+   *   scales with volume will want. A voxel is exhausted when [remainingOccupancy] is zero, and that is the
+   *   moment to hand over an item rather than fractions of one.
+   *
+   * Global voxel coordinates rather than chunk-local ones, because the caller that matters wants to put
+   * something *in the world* - a collectable where the ore was - and would otherwise have to undo the
+   * localisation this class just did.
+   */
+  data class CarvedVoxel(
+    val chunk: ChunkPos,
+    val voxelX: Long,
+    val voxelY: Long,
+    val voxelZ: Int,
+    val priorBlock: BlockType,
+    val priorOccupancy: Int,
+    val remainingOccupancy: Int
+  ) {
+    /** Fraction of a whole voxel that came out, in `[0,1]`. */
+    val volumeRemoved get() = (priorOccupancy - remainingOccupancy) / Occupancy.FULL.toDouble()
+
+    /** True when nothing of this voxel is left, so whatever it was made of is now entirely in hand. */
+    val exhausted get() = remainingOccupancy == Occupancy.EMPTY
+  }
+
+  /** What one brush actually did. Empty when the brush found nothing it was allowed to take. */
+  data class CarveResult(
+    val voxels: List<CarvedVoxel>,
+    /** Chunks whose content changed, so a caller can tell how far a brush near a border reached. */
+    val chunks: Set<ChunkPos>
+  ) {
+    val isEmpty get() = voxels.isEmpty()
+
+    companion object {
+      val NOTHING = CarveResult(emptyList(), emptySet())
+    }
+  }
 
   /** An encoded, possibly compressed chunk payload, ready to put on a socket. */
   class Encoded(
@@ -120,6 +189,7 @@ class ChunkService(
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
+  /** Per chunk, voxel index to the lowest occupancy it reached this tick. */
   private val pending = LinkedHashMap<ChunkPos, MutableMap<Int, Int>>()
   private val pendingFrom = HashMap<ChunkPos, Int>()
   private val pendingBaked = HashSet<ChunkPos>()
@@ -348,33 +418,131 @@ class ChunkService(
   private fun baseHashOf(chunk: ChunkPos): Long = baseHashes.getOrPut(chunk) { loaded.store.baseHash(chunk) }
 
   /**
-   * Sets one voxel, bumping the chunk's revision and queueing the change for broadcast.
+   * Removes rock in the shape of [brush], bumping each affected chunk's revision and queueing the change.
    *
-   * The single entry point for terrain mutation. It is deliberately the only place that touches
-   * `ChunkStore.edit`, so no caller can change the world without the revision moving and the subscribers
-   * being told - the two things that would otherwise silently desynchronise every client holding the chunk.
+   * The single entry point for terrain mutation, and deliberately the only place that touches
+   * `ChunkStore.carve` - so no caller can change the world without the revision moving and the subscribers
+   * being told, which are the two things that would otherwise silently desynchronise every client holding the
+   * chunk.
+   *
+   * ### One brush, one pass, however many chunks it reaches
+   *
+   * A brush is a shape in *world* space, so unlike the per-voxel entry point this replaces it can straddle
+   * chunk borders and the world seam. Each voxel is localised and its chunk normalised - a coordinate east of
+   * the eastern edge is a real place, the same place as one in the west, and the generator has to be asked
+   * about it under the name it knows. Two different addresses can therefore normalise to the same chunk, which
+   * is why removals are accumulated into a map per normalised chunk before anything is applied.
+   *
+   * Each chunk is then carved **once**, with its whole batch. Carving per voxel would bump the revision
+   * seventy times for one swing, queue seventy patches, and invalidate the derived structures seventy times.
+   *
+   * ### What the brush offers is a ceiling, not a subtraction
+   *
+   * A voxel the brush half covers is offered `Occupancy.of(1 - removed)`: *at most this much may remain*. It
+   * is not "take this fraction of what is left", and the difference matters twice over. Applying the same
+   * brush twice is then a no-op rather than eroding the voxel a second time, and two overlapping brushes
+   * compose by taking the lower ceiling regardless of the order they arrive in. It is also the rule
+   * `ChunkMaterializer.carve` already uses for generated voids - `if (reduced < current)` - so a shaft the
+   * generator cut and a shaft a player dug are computed the same way.
+   *
+   * @return every voxel that actually changed, with what was there before, for whatever turns rock into items
    */
-  fun setBlock(chunk: ChunkPos, localX: Int, localY: Int, localZ: Int, block: BlockType) {
-    val from = revisionOf(chunk)
-    val baked = loaded.store.edit(chunk, localX, localY, localZ, block)
-    val to = revisionOf(chunk)
+  fun carve(brush: CarveBrush): CarveResult {
+    val config = loaded.config
 
-    val occupancy = if (block == BlockType.AIR) Occupancy.EMPTY else Occupancy.FULL
-    val index = ChunkCoords.voxelIndex(loaded.config, localX, localY, localZ)
+    /** One voxel the brush wants, before the store has been asked whether there is anything there to take. */
+    class Offer(
+      val index: Int,
+      val voxelX: Long,
+      val voxelY: Long,
+      val voxelZ: Int,
+      val ceiling: Int
+    )
 
-    pending.getOrPut(chunk) { LinkedHashMap() }[index] = ChunkPatchCodec.pack(block.id, occupancy)
-    pendingFrom.putIfAbsent(chunk, from)
-    if (baked) pendingBaked.add(chunk)
+    // Grouped by *normalised* chunk, because two brush voxels either side of the world seam are two addresses
+    // for one chunk and must not become two batches that overwrite each other's revision. Within a chunk,
+    // keyed by voxel index so that pair collapses to one offer at the lower ceiling.
+    val batches = LinkedHashMap<ChunkPos, LinkedHashMap<Int, Offer>>()
 
-    LOG.debug { "Edited $chunk local ($localX,$localY,$localZ) to $block, revision $from -> $to" }
+    brush.forEachVoxel { voxelX, voxelY, voxelZ, removed ->
+      val localised = ChunkCoords.localise(config, voxelX, voxelY, voxelZ.toLong())
+      if (localised != null) {
+        val chunk = normalise(localised.chunk)
+        val index = ChunkCoords.voxelIndex(config, localised.localX, localised.localY, localised.localZ)
+        val offer = Offer(index, voxelX, voxelY, voxelZ, Occupancy.of(1.0 - removed))
+
+        batches.getOrPut(chunk) { LinkedHashMap() }
+          .merge(index, offer) { held, incoming -> if (incoming.ceiling < held.ceiling) incoming else held }
+      }
+    }
+
+    if (batches.isEmpty()) return CarveResult.NOTHING
+
+    val carved = ArrayList<CarvedVoxel>()
+    val touched = LinkedHashSet<ChunkPos>()
+
+    for ((chunk, offers) in batches) {
+      // Read before carving: a removal records how much is left, never what it was, so this is the only
+      // moment the prior material is still knowable without regenerating the base.
+      val before = loaded.store.merged(chunk)
+
+      val effective = ArrayList<Int>(offers.size)
+      val prior = ArrayList<CarvedVoxel>(offers.size)
+
+      for (offer in offers.values) {
+        val held = before.occupancy[offer.index].toInt() and 0xFF
+        if (offer.ceiling >= held) continue
+
+        // Bedrock-like materials and the wall between a gallery and a lake. See CarveRules for why a breach is
+        // refused rather than flooded: there is no runtime fluid state to flood with, and no way to seal it.
+        if (!CarveRules.mayCarve(before, offer.index)) continue
+
+        effective.add(ChunkDelta.pack(offer.index, offer.ceiling))
+        prior.add(
+          CarvedVoxel(
+            chunk = chunk,
+            voxelX = offer.voxelX,
+            voxelY = offer.voxelY,
+            voxelZ = offer.voxelZ,
+            priorBlock = BlockType.of(before.blocks[offer.index].toInt() and 0xFF),
+            priorOccupancy = held,
+            remainingOccupancy = offer.ceiling
+          )
+        )
+      }
+
+      if (effective.isEmpty()) continue
+
+      val from = revisionOf(chunk)
+      val removals = effective.sorted().toIntArray()
+      val outcome = loaded.store.carve(chunk, removals)
+      if (outcome.changed == 0) continue
+
+      val queued = pending.getOrPut(chunk) { LinkedHashMap() }
+      for (entry in removals) {
+        queued.merge(ChunkDelta.indexOf(entry), ChunkDelta.remainingOf(entry), ::minOf)
+      }
+      pendingFrom.putIfAbsent(chunk, from)
+      if (outcome.baked) pendingBaked.add(chunk)
+
+      carved.addAll(prior)
+      touched.add(chunk)
+
+      LOG.debug {
+        "Carved ${outcome.changed} voxels from $chunk, revision $from -> ${revisionOf(chunk)}" +
+            if (outcome.baked) " (baked)" else ""
+      }
+    }
+
+    return if (carved.isEmpty()) CarveResult.NOTHING else CarveResult(carved, touched)
   }
 
   /**
    * Called by [ChunkStore] whenever a chunk's contents change.
    *
-   * Bumps the revision and marks the derived structures stale. The rebuild itself is *not* done here - it
-   * is queued and paid for out of a per-tick budget, so a player placing a fence cannot cost the zone
-   * thread a walkability rebuild in the middle of a tick.
+   * Bumps the revision and marks the derived structures stale. The rebuild itself is *not* done here - it is
+   * queued and paid for out of a per-tick budget, so one swing of a pick cannot cost the zone thread a
+   * walkability rebuild in the middle of a tick.
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
@@ -386,16 +554,16 @@ class ChunkService(
    * Registered callbacks for "this chunk's contents changed".
    *
    * A list rather than a single slot because the two existing reactions are already unrelated - the derived
-   * structures rebuild, and the subscribers get told - and the navigation graph's is a third: a destroyed
-   * bridge is a chunk edit, and the macro edges over it have to be re-tested. Kept as a plain list, called
-   * synchronously, because everything here is on the tick thread by construction.
+   * structures rebuild, and the subscribers get told - and the navigation graph's is a third: a bridge somebody
+   * mined out from under is a chunk change, and the macro edges over it have to be re-tested. Kept as a plain
+   * list, called synchronously, because everything here is on the tick thread by construction.
    */
   private val changeListeners = ArrayList<(ChunkPos) -> Unit>()
 
   /**
    * Registers a callback fired whenever a chunk's contents change.
    *
-   * The listener runs on the tick thread inside the edit, so it must be cheap and must not itself edit: mark
+   * The listener runs on the tick thread inside the carve, so it must be cheap and must not itself carve: mark
    * something stale and return. `MacroGraphService` queues an edge index; it does not re-test the edge there.
    */
   fun onChunkChanged(handler: (ChunkPos) -> Unit) {
@@ -405,17 +573,21 @@ class ChunkService(
   /**
    * Hands over every change since the last call and forgets them.
    *
-   * Drained once per tick by [ChunkStreamSystem]. Coalescing happens on the way in - the pending map is
-   * keyed by voxel index - so a player holding a dig key down produces one edit per voxel per tick rather
-   * than one message per keypress.
+   * Drained once per tick by [ChunkStreamSystem]. Coalescing happens on the way in - the pending map is keyed
+   * by voxel index and keeps the lowest occupancy - so a player holding a dig key down produces one removal
+   * per voxel per tick rather than one message per swing, and a voxel worked twice in a tick is described by
+   * where it ended up.
    */
   fun drainChanges(): List<ChunkChange> {
     if (pending.isEmpty()) return emptyList()
 
-    val changes = pending.map { (chunk, edits) ->
+    val changes = pending.map { (chunk, removals) ->
       ChunkChange(
         chunk = chunk,
-        edits = edits.toMap(),
+        removals = removals.entries
+          .map { (index, remaining) -> ChunkDelta.pack(index, remaining) }
+          .sorted()
+          .toIntArray(),
         fromRevision = pendingFrom[chunk] ?: 0,
         toRevision = revisionOf(chunk),
         baked = chunk in pendingBaked

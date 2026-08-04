@@ -307,106 +307,236 @@ class DerivedStructureTest {
     assertEquals(fullOpacity * 0.5, halfOpacity, 0.01)
   }
 
-  @Test
-  fun `a delta carries occupancy and merges it`() {
-    val base = flatGround()
-    val delta = ChunkDelta(pos, size, height)
+  // --- Deltas ----------------------------------------------------------------------------------------
 
-    delta.set(2, 2, 4, BlockType.DIRT, Occupancy.of(0.4))
+  /** A removal of everything in one voxel, packed as the delta stores it. */
+  private fun gone(x: Int, y: Int, z: Int) = ChunkDelta.pack(indexOf(x, y, z), Occupancy.EMPTY)
+
+  private fun indexOf(x: Int, y: Int, z: Int) = (y * size + x) * height + z
+
+  private fun deltaOf(vararg removals: Int) = ChunkDelta(pos, size, height).apply {
+    carveAll(removals.sorted().toIntArray())
+  }
+
+  /**
+   * A partial removal keeps the rock and reduces how much of it is left.
+   *
+   * The reason a removal carries an occupancy rather than being a bare index: a brush is a sphere, so the voxels
+   * around its edge are partly taken. Rounding those to solid-or-empty would put the resolution cliff straight
+   * back after paying a byte per voxel to remove it.
+   */
+  @Test
+  fun `a partial removal keeps the block and merges the fraction`() {
+    val base = flatGround()
+    val delta = deltaOf(ChunkDelta.pack(indexOf(2, 2, 2), Occupancy.of(0.4)))
+
     val merged = delta.mergedOnto(base)
 
-    assertEquals(BlockType.DIRT, merged[2, 2, 4])
-    assertEquals(0.4, merged.fillAt(2, 2, 4), 0.01)
+    assertEquals(BlockType.GRANITE, merged[2, 2, 2], "partly carved rock is still rock")
+    assertEquals(0.4, merged.fillAt(2, 2, 2), 0.01)
     // And the merged chunk still satisfies the invariant every derived structure relies on.
     merged.validate()
   }
 
-  // --- Deltas ----------------------------------------------------------------------------------------
-
   @Test
   fun `a delta overlays the base without changing it`() {
     val base = flatGround()
-    val delta = ChunkDelta(pos, size, height)
-
-    delta.set(1, 1, 4, BlockType.MASONRY)
-    delta.set(1, 1, 3, BlockType.AIR)
+    val delta = deltaOf(gone(1, 1, 3), gone(1, 1, 2))
 
     val merged = delta.mergedOnto(base)
 
-    assertEquals(BlockType.MASONRY, merged[1, 1, 4])
     assertEquals(BlockType.AIR, merged[1, 1, 3])
+    assertEquals(BlockType.AIR, merged[1, 1, 2])
     // The base is untouched: it is shared, cached, and regenerable, so mutating it would corrupt every other
     // reader of the same chunk.
     assertEquals(BlockType.GRASS, base[1, 1, 3])
-    assertEquals(BlockType.AIR, base[1, 1, 4])
+    assertEquals(BlockType.GRANITE, base[1, 1, 2])
   }
 
+  /**
+   * Working the same voxel over several swings costs one entry, and the lowest offer wins.
+   *
+   * Removal is monotone, so a batch that offers more material than is already left is the no-op it looks like.
+   * `ChunkStore` refuses an increase outright when it has a base to compare against; here, where two removals
+   * meet inside one delta, keeping the smaller is the same rule expressed as a merge.
+   */
   @Test
-  fun `repeatedly editing the same voxel costs one entry`() {
+  fun `repeatedly carving the same voxel costs one entry and keeps the lowest`() {
     val delta = ChunkDelta(pos, size, height)
 
-    repeat(50) { delta.set(2, 2, 5, BlockType.MASONRY) }
-    delta.set(2, 2, 5, BlockType.AIR)
+    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 200)))
+    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 60)))
+    delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 180)))
 
-    assertEquals(1, delta.editCount)
-    assertEquals(BlockType.AIR, delta.get(2, 2, 5))
+    assertEquals(1, delta.removalCount)
+    assertEquals(60, delta.remainingAt(2, 2, 2))
+  }
+
+  /** A batch that changes nothing reports nothing, so a caller knows not to announce it. */
+  @Test
+  fun `a batch that lowers nothing is not a change`() {
+    val delta = deltaOf(ChunkDelta.pack(indexOf(2, 2, 2), 60))
+
+    assertEquals(0, delta.carveAll(intArrayOf(ChunkDelta.pack(indexOf(2, 2, 2), 200))))
+    assertEquals(1, delta.removalCount)
+  }
+
+  /**
+   * Removals come back in index order however they went in.
+   *
+   * The wire codec delta-codes against the previous index and persistence will do the same, so the order is a
+   * contract rather than an implementation detail - and it is what makes the merge in [ChunkDelta.carveAll] a
+   * single pass.
+   */
+  @Test
+  fun `removals are held in index order`() {
+    val delta = ChunkDelta(pos, size, height)
+
+    delta.carveAll(intArrayOf(gone(4, 4, 5)))
+    delta.carveAll(intArrayOf(gone(1, 2, 6)))
+    delta.carveAll(intArrayOf(gone(1, 2, 5)))
+
+    val indices = delta.packedRemovals().map { ChunkDelta.indexOf(it) }
+
+    assertEquals(indices.sorted(), indices, "the delta must hand its removals back sorted")
+    assertEquals(3, indices.size)
   }
 
   @Test
   fun `a delta reports which columns it touched`() {
-    val delta = ChunkDelta(pos, size, height)
-    delta.set(1, 2, 5, BlockType.MASONRY)
-    delta.set(1, 2, 6, BlockType.MASONRY)
-    delta.set(4, 4, 5, BlockType.MASONRY)
+    val delta = deltaOf(gone(1, 2, 5), gone(1, 2, 6), gone(4, 4, 5))
 
-    // Two columns, three edits: a derived structure rebuilds per column, not per edit.
+    // Two columns, three removals: a derived structure rebuilds per column, not per removal.
     assertEquals(2, delta.touchedColumns().size)
   }
 
+  /**
+   * The size test is what fires, and the coverage threshold is a backstop behind it.
+   *
+   * A delta stops being cheaper than the chunk it modifies well before it covers thirty percent of it, so if the
+   * coverage test were the trigger a chunk would store many times its own size as a delta first.
+   * `StorageBudgetTest` asserts the ordering on real terrain; this asserts that both tests exist and that an
+   * empty delta trips neither.
+   */
   @Test
   fun `a delta past the coverage threshold asks to be baked`() {
-    // Compaction is mandatory rather than an optimisation: a player who terraforms a hillside over months
-    // accumulates a delta larger than the chunk it modifies.
     val base = flatGround()
-    val delta = ChunkDelta(pos, size, height)
 
-    val encoded = RleCodec.encode(base).size
-    assertFalse(delta.shouldBake(encoded), "an empty delta should not be baked")
+    assertFalse(ChunkDelta(pos, size, height).shouldBake(RleCodec.encode(base).size), "an empty delta")
 
-    var placed = 0
-    val target = (delta.volume * (ChunkDelta.BAKE_COVERAGE + 0.02)).toInt()
+    val target = (size * size * height * (ChunkDelta.BAKE_COVERAGE + 0.02)).toInt()
+    val removals = ArrayList<Int>()
     outer@ for (y in 0 until size) {
       for (x in 0 until size) {
         for (z in 0 until height) {
-          delta.set(x, y, z, BlockType.MASONRY)
-          if (++placed >= target) break@outer
+          removals.add(gone(x, y, z))
+          if (removals.size >= target) break@outer
         }
       }
     }
 
+    val delta = ChunkDelta(pos, size, height).apply { carveAll(removals.sorted().toIntArray()) }
+
     assertTrue(delta.coverage >= ChunkDelta.BAKE_COVERAGE)
-    assertTrue(delta.shouldBake(RleCodec.encode(delta.mergedOnto(base)).size))
+    // Deliberately given an absurdly generous reference size, so it is the coverage arm being tested.
+    assertTrue(delta.shouldBake(Int.MAX_VALUE))
   }
 
   @Test
   fun `a baked chunk decodes back to the merged result`() {
     val base = flatGround()
-    val delta = ChunkDelta(pos, size, height)
-    delta.set(3, 3, 8, BlockType.MASONRY)
+    val delta = deltaOf(gone(3, 3, 2))
 
     val decoded = RleCodec.decode(pos, ChunkDelta.bake(base, delta))
 
-    assertEquals(BlockType.MASONRY, decoded[3, 3, 8])
+    assertEquals(BlockType.AIR, decoded[3, 3, 2])
     assertEquals(BlockType.GRASS, decoded[0, 0, 3])
+  }
+
+  // --- What removal-only guarantees, and what it does not --------------------------------------------
+
+  /**
+   * Carving can only ever lower the ground and open sight lines. Nothing can raise either.
+   *
+   * The one bug class removal-only is supposed to make impossible is a mutation that *adds* material, and these
+   * are the assertions that would catch one: a brush with a sign error, a merge that took the wrong side of a
+   * `min`, an occupancy written rather than reduced. All three would show up here as a derived value moving the
+   * wrong way, on any carve, rather than as a strange-looking hillside months later.
+   *
+   * Note what is deliberately **not** asserted - see [carvingCreatesShelterSoThatIsNotMonotone] and
+   * [WalkableTile]. Monotonicity holds for two of the six derived quantities, and writing a test for the other
+   * four would pin behaviour that is genuinely allowed to go both ways.
+   */
+  @Test
+  fun `carving never raises the surface or the opacity`() {
+    val base = flatGround()
+
+    // A rough gallery: a couple of columns taken out entirely, and their neighbours partly.
+    val delta = deltaOf(
+      gone(2, 2, 2), gone(2, 2, 3), gone(3, 2, 2), gone(3, 2, 3),
+      ChunkDelta.pack(indexOf(4, 2, 3), 64),
+      ChunkDelta.pack(indexOf(2, 3, 3), 128)
+    )
+    val carved = delta.mergedOnto(base)
+
+    val summaryBefore = ColumnSummary.of(base)
+    val summaryAfter = ColumnSummary.of(carved)
+
+    for (y in 0 until size) {
+      for (x in 0 until size) {
+        assertTrue(
+          summaryAfter.surfaceHeightAt(x, y) <= summaryBefore.surfaceHeightAt(x, y),
+          "column ($x,$y) rose from ${summaryBefore.surfaceHeightAt(x, y)} to " +
+              "${summaryAfter.surfaceHeightAt(x, y)}; carving cannot add ground"
+        )
+      }
+    }
+
+    val opacityBefore = OpacityGrid.of(base)
+    val opacityAfter = OpacityGrid.of(carved)
+
+    for (z in 0 until opacityBefore.height) {
+      for (y in 0 until opacityBefore.depth) {
+        for (x in 0 until opacityBefore.width) {
+          assertTrue(
+            opacityAfter.opacityAt(x, y, z) <= opacityBefore.opacityAt(x, y, z),
+            "cell ($x,$y,$z) got more opaque; carving cannot block a sight line"
+          )
+        }
+      }
+    }
+  }
+
+  /**
+   * Shelter is *created* by carving, so it is not monotone - and a mine is the obvious case.
+   *
+   * Worth an explicit test rather than a comment, because "removal only" invites the assumption that every
+   * derived quantity can only fall. Two of `ColumnSummary`'s cannot: dig into a hillside and a column that had
+   * no roof over it now has one, so `shelteredFloorHeight` goes from -1.0 to a real height and
+   * `voidCeilingHeight` with it. `WalkableTile` is the third non-monotone one, for the opposite reason - remove
+   * the floor and a column that was walkable stops being so.
+   */
+  @Test
+  fun carvingCreatesShelterSoThatIsNotMonotone() {
+    val base = flatGround()
+
+    // Ground runs 0..3. Take the middle out of one column and leave the top on: a gallery under a roof.
+    val carved = deltaOf(gone(2, 2, 1), gone(2, 2, 2)).mergedOnto(base)
+
+    assertFalse(ColumnSummary.of(base).hasShelter(2, 2), "flat ground shelters nothing")
+    assertTrue(
+      ColumnSummary.of(carved).hasShelter(2, 2),
+      "a gallery cut under intact ground is exactly what shelter means"
+    )
   }
 
   // --- The store -------------------------------------------------------------------------------------
 
   @Test
   fun `the store serves stale structures until the rebuild budget is spent`() {
-    // The whole design of this class. A forty millisecond hitch on the zone thread every time somebody places
-    // a fence is unacceptable; an NPC walking through a doorway that closed two hundred milliseconds ago is
-    // not. So invalidation queues, and queries keep answering from the stale structure meanwhile.
+    // The whole design of this class. A forty millisecond hitch on the zone thread every time somebody swings a
+    // pick is unacceptable; an NPC walking over a pit that opened two hundred milliseconds ago is not. So
+    // invalidation queues, and queries keep answering from the stale structure meanwhile.
     var chunk = flatGround()
     var builds = 0
     val store = DerivedStore(voxels = {
@@ -418,10 +548,10 @@ class DerivedStructureTest {
     assertEquals(1, builds)
     assertEquals(0, store.pendingRebuilds)
 
-    // Somebody builds a tower.
-    val taller = chunk.copy()
-    for (z in 4..9) taller[0, 0, z] = BlockType.MASONRY
-    chunk = taller
+    // Somebody digs a pit. The surface can only ever fall, which is the one thing removal-only guarantees.
+    val dug = chunk.copy()
+    for (z in 2..3) dug[0, 0, z] = BlockType.AIR
+    chunk = dug
     store.invalidate(pos)
 
     assertTrue(store.isStale(pos))
@@ -430,7 +560,7 @@ class DerivedStructureTest {
 
     assertEquals(1, store.rebuild(budget = 4))
     assertFalse(store.isStale(pos))
-    assertEquals(9, store.summaryOf(pos).surfaceAt(0, 0))
+    assertEquals(1, store.summaryOf(pos).surfaceAt(0, 0))
   }
 
   @Test
@@ -446,8 +576,8 @@ class DerivedStructureTest {
   @Test
   fun `invalidating one chunk does not invalidate its neighbour`() {
     // The consequence of not storing walkability links: connectivity across a border is resolved at query time
-    // from two tiles, so an edit in one chunk never touches the other. That keeps the blast radius of placing
-    // one block to exactly one tile.
+    // from two tiles, so a carve in one chunk never touches the other. That keeps the blast radius of one swing
+    // to exactly one tile - which matters more now that a brush is a sphere and can straddle a border.
     val east = ChunkPos(1, 0, 0)
     val store = DerivedStore(voxels = { at -> flatGround().let { VoxelChunk(at, size, height, it.blocks, it.occupancy) } })
 

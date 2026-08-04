@@ -29,9 +29,22 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// </para>
   ///
   /// <para>
-  /// The known cost of corner averaging is that a one-cell-thick feature lands exactly on the isolevel and
-  /// collapses. That is fine here: terrain is generated, and player structures are separate meshes rather than
-  /// single voxels.
+  /// <b>The cost of corner averaging is a resolution floor, and it is asymmetric.</b> The field is a two-cell-wide
+  /// box blur of occupancy, so a corner only falls below the isolevel once more than half the material in some
+  /// 2x2x2 voxel box is gone. That threshold is volumetric: sub-voxel occupancy does not lower it, because the blur
+  /// only ever sees the total. And because the inside test is <c>&gt;= Iso</c>, the tie breaks toward solid - so a
+  /// one-voxel-thick <i>void</i> collapses and a one-voxel-thick <i>solid</i> does not. A thin wall renders
+  /// correctly, at its true thickness, because the air cell beside it has one corner at 0.0 and one at 0.5 and that
+  /// straddles; the wall's own cells sit at 0.5 on both faces and emit nothing, but they do not need to.
+  /// </para>
+  ///
+  /// <para>
+  /// This used to be written the other way round - "a one-cell-thick feature collapses" - which is wrong in the
+  /// direction that invites the worst fix, namely deleting thin geometry server-side to match a mesher that draws
+  /// it perfectly well. What actually needs handling is the void: a single carved voxel emits nothing at all, and
+  /// apparent bore runs about <c>2R - 1</c> for a carve of radius R, with nothing drawn below about R = 1.3. The
+  /// server therefore enforces a minimum bore radius rather than asking this class to mesh a smaller one. See
+  /// <c>CarveVisibilityTest</c>, which measures every number in this paragraph, and <c>CarveBrush.MIN_RADIUS</c>.
   /// </para>
   /// </remarks>
   public static class SurfaceNets

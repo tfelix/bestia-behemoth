@@ -3,7 +3,7 @@ package net.bestia.worldgen.store
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.pipeline.StandardWorld
-import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -81,33 +81,56 @@ class StorageBudgetTest {
   fun `a delta stops being cheaper than the chunk it modifies long before it covers it`() {
     val land = world.materializer.materializeSurface(1600, 1600)
     val config = world.config
-    val merged = RleCodec.encode(land).size
+    val reference = RleCodec.encode(land).size
 
-    fun deltaOf(edits: Int): ChunkDelta {
+    fun deltaOf(removals: Int): ChunkDelta {
       val delta = ChunkDelta(land.chunk, config.chunkSize, config.chunkHeight)
-      var placed = 0
+      val packed = ArrayList<Int>(removals)
       outer@ for (y in 0 until config.chunkSize) {
         for (x in 0 until config.chunkSize) {
           for (z in 0 until config.chunkHeight) {
-            delta.set(x, y, z, BlockType.MASONRY)
-            if (++placed >= edits) break@outer
+            packed.add(ChunkDelta.pack((y * config.chunkSize + x) * config.chunkHeight + z, Occupancy.EMPTY))
+            if (packed.size >= removals) break@outer
           }
         }
       }
+      delta.carveAll(packed.toIntArray())
       return delta
     }
 
-    // A house is a few thousand voxels and stays a delta; a terraformed hillside does not.
-    assertTrue(!deltaOf(1_000).shouldBake(merged), "a thousand edits should still be a delta")
-    assertTrue(deltaOf(20_000).shouldBake(merged), "twenty thousand edits should be baked")
+    // A gallery is a few thousand voxels and stays a delta; a worked-out orebody does not.
+    assertTrue(!deltaOf(1_000).shouldBake(reference), "a thousand removals should still be a delta")
+    assertTrue(deltaOf(40_000).shouldBake(reference), "forty thousand removals should be baked")
 
-    // And the size test is what fires, not the coverage test: the crossover is under three percent of the
-    // chunk's voxels, so waiting for thirty percent would mean storing ten times the chunk as a delta first.
-    val crossover = deltaOf(20_000)
+    // And the size test is what fires, not the coverage test: the crossover is a few percent of the chunk's
+    // voxels, so waiting for thirty percent would mean storing several times the chunk as a delta first. This
+    // ordering is why `ChunkStore.compact` caches the reference size rather than dropping the size test - the
+    // test is the trigger, and recomputing it per removal is what used to make carving expensive.
+    val crossover = deltaOf(40_000)
     assertTrue(
       crossover.coverage < ChunkDelta.BAKE_COVERAGE,
       "coverage reached ${crossover.coverage} before the size test fired, so the size test is redundant"
     )
+  }
+
+  /**
+   * A removal costs less on the wire and in storage than an edit that also had to name a block.
+   *
+   * The number this file exists to defend: storage is proportional to what players remove, so the per-removal
+   * cost *is* the storage model. Dropping the block id is sound rather than a saving - under removal-only the
+   * block is derivable from the base, so it is not being omitted, it is being recomputed.
+   */
+  @Test
+  fun `a removal costs three bytes rather than five`() {
+    assertTrue(
+      ChunkDelta.BYTES_PER_REMOVAL < 5,
+      "a removal costs ${ChunkDelta.BYTES_PER_REMOVAL} bytes, which is no better than an edit did"
+    )
+
+    val delta = ChunkDelta(ChunkPos(0, 0), 32, 256)
+    delta.carveAll(IntArray(1_000) { ChunkDelta.pack(it, Occupancy.EMPTY) })
+
+    assertEquals(1_000 * ChunkDelta.BYTES_PER_REMOVAL, delta.estimatedBytes())
   }
 
   @Test

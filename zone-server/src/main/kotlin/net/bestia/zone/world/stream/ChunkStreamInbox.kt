@@ -30,7 +30,16 @@ class ChunkStreamInbox {
 
   data class Request(val accountId: Long, val chunks: List<ChunkPos>)
 
-  data class Edit(val accountId: Long, val x: Long, val y: Long, val z: Long, val blockId: Int)
+  /**
+   * Remove rock in a sphere around a world voxel.
+   *
+   * A radius rather than a block id, because there is no building system: the only terrain mutation the game
+   * has is removal, so what a request has to say is *how much* to take, not what to leave behind.
+   *
+   * The radius is validated on the tick thread rather than here. It is not a permission question - it is a
+   * question about what the client's mesher can draw, and the answer lives beside the terrain.
+   */
+  data class Carve(val accountId: Long, val x: Long, val y: Long, val z: Long, val radius: Double)
 
   /**
    * Put this account's active entity down at a horizontal position, on whatever the ground there is.
@@ -44,15 +53,15 @@ class ChunkStreamInbox {
   private val requests = ConcurrentLinkedQueue<Request>()
   private val requestCount = AtomicInteger()
 
-  private val edits = ConcurrentLinkedQueue<Edit>()
-  private val editCount = AtomicInteger()
+  private val carves = ConcurrentLinkedQueue<Carve>()
+  private val carveCount = AtomicInteger()
 
   private val teleports = ConcurrentLinkedQueue<Teleport>()
   private val teleportCount = AtomicInteger()
 
   val pendingRequests get() = requestCount.get()
 
-  val pendingEdits get() = editCount.get()
+  val pendingCarves get() = carveCount.get()
 
   val pendingTeleports get() = teleportCount.get()
 
@@ -63,9 +72,9 @@ class ChunkStreamInbox {
     trim(requests, requestCount, "chunk requests")
   }
 
-  fun offerEdit(edit: Edit) {
-    edits.add(edit)
-    trim(edits, editCount, "debug edits")
+  fun offerCarve(carve: Carve) {
+    carves.add(carve)
+    trim(carves, carveCount, "debug carves")
   }
 
   fun offerTeleport(teleport: Teleport) {
@@ -75,7 +84,7 @@ class ChunkStreamInbox {
 
   fun drainRequests(): List<Request> = drain(requests, requestCount)
 
-  fun drainEdits(): List<Edit> = drain(edits, editCount)
+  fun drainCarves(): List<Carve> = drain(carves, carveCount)
 
   fun drainTeleports(): List<Teleport> = drain(teleports, teleportCount)
 
@@ -84,8 +93,8 @@ class ChunkStreamInbox {
     requestCount.addAndGet(-requests.count { it.accountId == accountId })
     requests.removeIf { it.accountId == accountId }
 
-    editCount.addAndGet(-edits.count { it.accountId == accountId })
-    edits.removeIf { it.accountId == accountId }
+    carveCount.addAndGet(-carves.count { it.accountId == accountId })
+    carves.removeIf { it.accountId == accountId }
 
     teleportCount.addAndGet(-teleports.count { it.accountId == accountId })
     teleports.removeIf { it.accountId == accountId }

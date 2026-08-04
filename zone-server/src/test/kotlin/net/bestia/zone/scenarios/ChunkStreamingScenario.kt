@@ -1,7 +1,8 @@
 package net.bestia.zone.scenarios
 
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.zone.chat.ChatCMSG
@@ -50,6 +51,15 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Autowired
   private lateinit var settings: ChunkStreamConfig
+
+  /**
+   * The chunk and voxel the carve test aimed at, so the authoritative-view test can check the same spot.
+   *
+   * Carried between tests because these are ordered and cumulative by design, and because where the brush
+   * landed is discovered at run time - see [carvable].
+   */
+  private lateinit var carvedChunk: ChunkPos
+  private var carvedIndex = -1
 
   private fun inflate(blob: ByteArray): ByteArray {
     val inflater = Inflater()
@@ -190,30 +200,63 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     }
   }
 
+  /**
+   * A voxel with material in it, far enough from every face that a minimum-radius brush stays in one chunk.
+   *
+   * Searched rather than hard-coded, because where the material is depends entirely on where the player spawned.
+   * Masters spawn at `Vec3L.ZERO`, the world corner, which is inside the 2.5 km ocean margin - so the chunk
+   * under this player is near-uniform water and a fixed coordinate would be as likely to name open air as rock.
+   * Carving air is correctly a no-op, so that would produce no patch and a test that fails for the wrong reason.
+   */
+  private fun carvable(chunk: ChunkPos): Triple<Int, Int, Int>? {
+    val config = chunkService.config
+    val voxels = chunkService.merged(chunk)
+    val margin = CarveBrush.MIN_RADIUS.toInt() + 1
+
+    for (localZ in margin until config.chunkHeight - margin) {
+      for (localY in margin until config.chunkSize - margin) {
+        for (localX in margin until config.chunkSize - margin) {
+          if (voxels.occupancyAt(localX, localY, localZ) > 0) return Triple(localX, localY, localZ)
+        }
+      }
+    }
+
+    return null
+  }
+
   @Test
   @Order(5)
-  fun `editing terrain sends the holders a patch rather than the chunk`() {
-    // Edit a voxel in a chunk the client demonstrably holds, so it is a patch recipient.
-    val held = subscriptions.sentTo(clientPlayer1.connectedPlayerId).first()
+  fun `carving terrain sends the holders a patch rather than the chunk`() {
+    // Carve inside a chunk the client demonstrably holds, so it is a patch recipient.
+    val candidates = subscriptions.sentTo(clientPlayer1.connectedPlayerId)
+    val target = candidates.firstNotNullOfOrNull { chunk -> carvable(chunk)?.let { chunk to it } }
+
+    assertNotNull(target, "none of the ${candidates.size} held chunks had material to carve")
+
+    val (held, local) = target
+    val (localX, localY, localZ) = local
     val before = chunkService.revisionOf(held)
 
-    val voxelX = held.x.toLong() * chunkService.config.chunkSize + 1
-    val voxelY = held.y.toLong() * chunkService.config.chunkSize + 1
-    val voxelZ = held.z.toLong() * chunkService.config.chunkHeight + 1
+    carvedChunk = held
+    carvedIndex = ChunkCoords.voxelIndex(chunkService.config, localX, localY, localZ)
+
+    val voxelX = held.x.toLong() * chunkService.config.chunkSize + localX
+    val voxelY = held.y.toLong() * chunkService.config.chunkSize + localY
+    val voxelZ = held.z.toLong() * chunkService.config.chunkHeight + localZ
 
     clientPlayer1.clearMessages()
     clientPlayer1.sendMessage(
       ChatCMSG(
         clientPlayer1.connectedPlayerId,
         ChatCMSG.Type.COMMAND,
-        "/setblock $voxelX $voxelY $voxelZ MASONRY"
+        "/carve $voxelX $voxelY $voxelZ ${CarveBrush.MIN_RADIUS}"
       )
     )
 
     await {
       assertNotNull(
         clientPlayer1.tryGetLastReceived(ChunkPatchSMSG::class),
-        "a holder of the edited chunk should have been sent a patch"
+        "a holder of the carved chunk should have been sent a patch"
       )
     }
 
@@ -223,26 +266,30 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     assertEquals(before, patch.fromRevision, "a patch must state the revision it builds on")
     assertEquals(before + 1, patch.toRevision)
 
-    val edits = ChunkPatchCodec.decode(patch.edits)
-    assertEquals(1, edits.size)
+    val removals = ChunkPatchCodec.decode(patch.removals)
+    assertEquals(patch.removalCount, removals.size, "the carried count must match what decodes")
 
-    val index = ChunkCoords.voxelIndex(chunkService.config, 1, 1, 1)
-    assertEquals(BlockType.MASONRY.id, ChunkPatchCodec.blockIdOf(edits.getValue(index)))
+    // A brush is a sphere, so one swing is many voxels - and the voxel it was aimed at is necessarily one of
+    // them, because the centre of a sphere is inside it.
+    assertTrue(removals.size > 1, "a minimum-radius brush took only ${removals.size} voxels")
+
+    assertTrue(
+      removals.any { ChunkDelta.indexOf(it) == carvedIndex },
+      "the voxel the brush was centred on is not in the patch"
+    )
 
     // The patch must be cheaper than restating the chunk - but only that, because how much cheaper depends
-    // entirely on the chunk. Masters spawn at `Vec3L.ZERO`, which is the world corner and so inside the
-    // 2.5 km ocean margin, so the chunk under this player is near-uniform water and encodes to a couple of
-    // dozen bytes. The fiftyfold-and-better saving is a property of *surface* chunks and is asserted against
-    // a real one in ChunkWireFormatTest.
+    // entirely on the chunk. Near-uniform ocean encodes to a couple of dozen bytes, so the fiftyfold-and-better
+    // saving is a property of *surface* chunks and is asserted against a real one in ChunkWireFormatTest.
     //
     // That the server picks a patch here at all is the interesting part: `broadcastChanges` compares the two
     // and would have sent the snapshot had it been smaller, which on a chunk this cheap is a real possibility
     // rather than a theoretical one.
     val chunkBytes = chunkService.encodedOf(held).payload.size
     assertTrue(
-      patch.edits.size < chunkBytes,
-      "a one-voxel patch is ${patch.edits.size} B against $chunkBytes B of chunk - it must be the cheaper of " +
-          "the two, or the patch path is not earning its complexity"
+      patch.removals.size < chunkBytes,
+      "a ${removals.size}-voxel patch is ${patch.removals.size} B against $chunkBytes B of chunk - it must be " +
+          "the cheaper of the two, or the patch path is not earning its complexity"
     )
 
     assertTrue(
@@ -347,12 +394,22 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
 
   @Test
   @Order(9)
-  fun `the edit is visible in the server's own authoritative view`() {
-    val held = subscriptions.sentTo(clientPlayer1.connectedPlayerId).first()
-
+  fun `the carve is visible in the server's own authoritative view`() {
     // Not a restatement of the patch test. The patch says what the server *told* the client; this says what
     // the server itself believes, which is the view line of sight and movement validation will be answered
     // from. If those two ever diverge, players see one world and the server enforces another.
-    assertEquals(BlockType.MASONRY, chunkService.merged(held)[1, 1, 1])
+    //
+    // Against the voxel the brush was centred on, remembered from the carve test, because which chunk it landed
+    // in was discovered at run time from where the material happened to be - see `carvable`.
+    assertTrue(carvedIndex >= 0, "the carve test must run first; these are ordered and cumulative")
+
+    val merged = chunkService.merged(carvedChunk)
+
+    // The centre of a sphere is inside it, so this voxel was taken whole.
+    assertEquals(
+      0,
+      merged.occupancy[carvedIndex].toInt() and 0xFF,
+      "the voxel at the centre of the brush should have been removed entirely"
+    )
   }
 }

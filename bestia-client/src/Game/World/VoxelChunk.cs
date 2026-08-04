@@ -73,14 +73,30 @@ namespace BestiaBehemothClient.Game.World
     public int OccupancyAt(int localX, int localY, int localZ) => Occupancy[Index(localX, localY, localZ)];
 
     /// <summary>
-    /// Applies one edit from a chunk patch, by the raw voxel index the server sent.
+    /// Applies one removal from a chunk patch, by the raw voxel index the server sent.
     /// </summary>
     /// <remarks>
-    /// Material and occupancy are written together because the invariant is about the pair. Writing one and
-    /// then the other would leave the chunk momentarily inconsistent, which matters here because the renderer
-    /// reads it on a different frame boundary from the network thread that fills it.
+    /// The patch carries no block id, and it does not need to. There is no building system - the only terrain
+    /// mutation is removal - so the resulting material is derivable: a voxel with anything left keeps whatever
+    /// the generator gave it, and one carved to nothing is air. This side already holds the base, so it can
+    /// say which.
+    ///
+    /// <para>
+    /// That makes the invariant <b>stronger</b> than it was when the pair travelled together. "Air has
+    /// occupancy zero and everything else does not" is now re-established locally, from data this side already
+    /// had, rather than being carried across the wire and re-checked on arrival - so a patch has no way to
+    /// express a violation of it. Material and occupancy are still written together for the same reason as
+    /// before: the renderer reads this array on a different frame boundary from the network thread that fills
+    /// it, and a chunk that is momentarily inconsistent is a chunk that meshes wrong.
+    /// </para>
+    ///
+    /// <para>
+    /// Occupancy is only ever <i>reduced</i>. A patch that raises it is a server bug or a corrupted stream, and
+    /// it is worth refusing rather than applying: the whole point of a removal-only engine is that nothing can
+    /// add material, and silently accepting a rise here would make that guarantee unverifiable from this side.
+    /// </para>
     /// </remarks>
-    public void ApplyEdit(int index, byte blockId, byte occupancy)
+    public void ApplyRemoval(int index, byte remainingOccupancy)
     {
       if (index < 0 || index >= Blocks.Length)
       {
@@ -88,14 +104,24 @@ namespace BestiaBehemothClient.Game.World
           nameof(index), $"Voxel index {index} is outside a chunk of {Blocks.Length} voxels");
       }
 
-      if ((blockId == AirBlockId) != (occupancy == 0))
+      if (remainingOccupancy > Occupancy[index])
       {
         throw new ArgumentException(
-          $"Air must have occupancy 0 and everything else must not; got block {blockId} at {occupancy}");
+          $"Voxel {index} holds occupancy {Occupancy[index]}; a removal to {remainingOccupancy} would add " +
+          "material, and terrain can only ever be removed");
       }
 
-      Blocks[index] = blockId;
-      Occupancy[index] = occupancy;
+      if (remainingOccupancy == 0)
+      {
+        Blocks[index] = AirBlockId;
+        Occupancy[index] = 0;
+      }
+      else
+      {
+        // The block stays what it was; only how much of it is left has changed. It cannot be air here, because
+        // air holds occupancy zero and nothing is greater than zero and not greater than zero.
+        Occupancy[index] = remainingOccupancy;
+      }
     }
 
     /// <summary>

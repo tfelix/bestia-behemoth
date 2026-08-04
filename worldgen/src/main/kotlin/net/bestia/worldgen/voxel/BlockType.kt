@@ -76,11 +76,29 @@ enum class BlockType(
    * changes no stored byte, so folding it would invalidate every cached chunk in every world for nothing.
    * Its tripwire is `BlockTypeTest` instead.
    */
-  val passability: Passability = if (solid) Passability.BLOCKED else Passability.OPEN
+  val passability: Passability = if (solid) Passability.BLOCKED else Passability.OPEN,
+
+  /**
+   * Whether a player can remove one voxel of this.
+   *
+   * Removal is the only terrain mutation the game has, so this is the whole of what a material can say about
+   * being changed - there is no matching question about placing it.
+   *
+   * The fluids are the reason it exists. There is no runtime fluid state at all: `LavaWells`, `PondWater` and
+   * `RiverWater` are generation-time samplers over immutable vector features, and at runtime water is a block
+   * id with the same standing as granite. So a player who could carve water would leave a hole in a lake that
+   * nothing would ever fill, and with no building system there is not even a way to wall it off afterwards.
+   * Refusing is cheap, is legible to a player as "you cannot dig that", and needs no simulation.
+   *
+   * Not folded into `VersionGate.paletteVersion()`, for `passability`'s reason: it changes no stored byte and no
+   * client receives it, so folding it would invalidate every cached chunk in every world for nothing.
+   */
+  val carvable: Boolean = true
 ) {
 
-  AIR(0, solid = false, opaque = false),
-  WATER(1, solid = false, opaque = false, passability = Passability.WADEABLE),
+  /** Nothing to remove. Marked uncarvable so "is there anything here" and "may I take it" agree. */
+  AIR(0, solid = false, opaque = false, carvable = false),
+  WATER(1, solid = false, opaque = false, passability = Passability.WADEABLE, carvable = false),
   ICE(2, solid = true),
 
   /**
@@ -96,7 +114,7 @@ enum class BlockType(
    * [Passability.BLOCKED] rather than inheriting `OPEN` from that: nothing walks into lava, and unlike water
    * there is no depth at which it becomes survivable, so there is no wading limit for it either.
    */
-  LAVA(3, solid = false, opaque = false, passability = Passability.BLOCKED),
+  LAVA(3, solid = false, opaque = false, passability = Passability.BLOCKED, carvable = false),
 
   // Basement.
   GRANITE(10, solid = true),

@@ -286,6 +286,116 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
+    /// Solid rock with a sphere carved out of it at the sub-voxel precision a carve brush produces.
+    /// </summary>
+    /// <remarks>
+    /// Coordinates are chunk-local voxel space, where an integer is a voxel's low corner - so the centre of voxel
+    /// <c>(i,j,k)</c> is <c>(i+0.5, j+0.5, k+0.5)</c>. The occupancy written is what is *left*, supersampled rather
+    /// than tested at the voxel centre, because the whole question these fixtures exist to answer is how much
+    /// removed volume the mesher needs before it draws anything, and a centre test quantises that to whole voxels.
+    /// </remarks>
+    internal static VoxelChunk SolidWithSphere(
+      int chunkX, int chunkY, int chunkZ, double centreX, double centreY, double centreZ, double radius)
+    {
+      var chunk = Uniform(chunkX, chunkY, chunkZ, Granite, 255);
+      var reach = (int)Math.Ceiling(radius) + 1;
+
+      for (var z = (int)centreZ - reach; z <= (int)centreZ + reach; z++)
+      {
+        for (var y = (int)centreY - reach; y <= (int)centreY + reach; y++)
+        {
+          for (var x = (int)centreX - reach; x <= (int)centreX + reach; x++)
+          {
+            if (x < 0 || x >= Size || y < 0 || y >= Size || z < 0 || z >= Height)
+            {
+              continue;
+            }
+
+            var remaining = 1.0 - RemovedFraction(x, y, z, centreX, centreY, centreZ, radius);
+            if (remaining >= 1.0)
+            {
+              continue;
+            }
+
+            var index = (y * Size + x) * Height + z;
+
+            chunk.Blocks[index] = remaining <= 0.0 ? Air : Granite;
+            chunk.Occupancy[index] = remaining <= 0.0 ? (byte)0 : Quantise(remaining);
+          }
+        }
+      }
+
+      return chunk;
+    }
+
+    /// <summary>How much of one voxel a sphere takes, by supersampling it.</summary>
+    private static double RemovedFraction(
+      int x, int y, int z, double centreX, double centreY, double centreZ, double radius)
+    {
+      const int Samples = 6;
+
+      var inside = 0;
+
+      for (var c = 0; c < Samples; c++)
+      {
+        var pz = z + (c + 0.5) / Samples - centreZ;
+
+        for (var b = 0; b < Samples; b++)
+        {
+          var py = y + (b + 0.5) / Samples - centreY;
+
+          for (var a = 0; a < Samples; a++)
+          {
+            var px = x + (a + 0.5) / Samples - centreX;
+
+            if (px * px + py * py + pz * pz <= radius * radius)
+            {
+              inside++;
+            }
+          }
+        }
+      }
+
+      return (double)inside / (Samples * Samples * Samples);
+    }
+
+    /// <summary>
+    /// Solid rock with two carved galleries separated by a wall exactly one voxel thick.
+    /// </summary>
+    /// <remarks>
+    /// The shape removal-only guarantees will occur - a player tunnels twice in parallel and, with no placement
+    /// system, can never fill the remainder in. It is here because the mesher's own KDoc used to claim a
+    /// one-cell-thick feature collapses, and it does not: the *void* collapses and the *solid* survives. Getting
+    /// that backwards argues for deleting the wall, which would delete geometry that renders correctly.
+    /// </remarks>
+    internal static VoxelChunk SolidWithWalledGalleries(
+      int chunkX, int chunkY, int chunkZ, int wallX, int span, int zLo, int zHi)
+    {
+      var chunk = Uniform(chunkX, chunkY, chunkZ, Granite, 255);
+
+      for (var y = 0; y < Size; y++)
+      {
+        for (var x = wallX - span; x <= wallX + span; x++)
+        {
+          if (x == wallX || x < 0 || x >= Size)
+          {
+            continue;
+          }
+
+          for (var z = zLo; z <= zHi; z++)
+          {
+            var index = (y * Size + x) * Height + z;
+
+            chunk.Blocks[index] = Air;
+            chunk.Occupancy[index] = 0;
+          }
+        }
+      }
+
+      return chunk;
+    }
+
+    /// <summary>
     /// The elevation a surface actually ends up at once occupancy has been quantised to a byte.
     /// </summary>
     /// <remarks>

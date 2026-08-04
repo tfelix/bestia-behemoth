@@ -92,7 +92,7 @@ data class ChunkStreamConfig(
    */
   val derivedRebuildsPerTick: Int = 2,
 
-  /** Whether [DebugSetBlockCMSG] is honoured at all. Off in production; the authority check applies too. */
+  /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
   val allowDebugEdits: Boolean = true
 ) {
 

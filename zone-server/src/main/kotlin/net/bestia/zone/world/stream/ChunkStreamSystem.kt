@@ -2,7 +2,7 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
-import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -67,7 +67,7 @@ class ChunkStreamSystem(
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
-    applyEdits()
+    applyCarves()
 
     // Before the subscriptions, so a teleport and the manifest that answers it happen in the same tick. The
     // other order would offer the player a view volume around where they used to be and correct it one tick
@@ -83,34 +83,35 @@ class ChunkStreamSystem(
 
   // ---------------------------------------------------------------- step 1
 
-  private fun applyEdits() {
-    val edits = inbox.drainEdits()
-    if (edits.isEmpty()) return
+  private fun applyCarves() {
+    val carves = inbox.drainCarves()
+    if (carves.isEmpty()) return
 
-    val config = chunkService.config
-
-    for (edit in edits) {
-      val block = BlockType.ofOrNull(edit.blockId)
-      if (block == null) {
-        LOG.warn { "Account ${edit.accountId} asked for unknown block id ${edit.blockId}" }
+    for (carve in carves) {
+      if (carve.radius < CarveBrush.MIN_RADIUS) {
+        LOG.warn {
+          "Account ${carve.accountId} asked for a bore radius of ${carve.radius}, below the " +
+              "${CarveBrush.MIN_RADIUS} the client can render"
+        }
         continue
       }
 
-      val localised = ChunkCoords.localise(config, edit.x, edit.y, edit.z)
-      if (localised == null) {
-        LOG.warn { "Account ${edit.accountId} asked to edit (${edit.x},${edit.y},${edit.z}), off the grid" }
-        continue
-      }
-
-      // Normalised, because a coordinate east of the eastern edge is a real place - the same place as one
-      // in the west - and the generator must be asked about it under the name it knows.
-      chunkService.setBlock(
-        chunkService.normalise(localised.chunk),
-        localised.localX,
-        localised.localY,
-        localised.localZ,
-        block
+      // Centred on the voxel's centre rather than its corner, so a brush aimed at a voxel is symmetric about
+      // it. Localisation and the world seam are `ChunkService.carve`'s business - a brush is a shape in world
+      // space and can reach into several chunks at once.
+      val brush = CarveBrush.sphere(
+        carve.x + 0.5,
+        carve.y + 0.5,
+        carve.z + 0.5,
+        carve.radius
       )
+
+      val result = chunkService.carve(brush)
+
+      LOG.debug {
+        "Account ${carve.accountId} carved r=${carve.radius} at (${carve.x},${carve.y},${carve.z}): " +
+            "${result.voxels.size} voxels across ${result.chunks.size} chunks"
+      }
     }
   }
 
@@ -397,34 +398,37 @@ class ChunkStreamSystem(
       val holders = subscriptions.subscribersOf(change.chunk)
       if (holders.isEmpty()) continue
 
-      val patchBytes = change.edits.size * ChunkPatchCodec.BYTES_PER_EDIT
-      val snapshot = chunkService.encodedOf(change.chunk)
-
-      // Past the point where the edits cost more than the whole chunk, stop describing the change and just
-      // restate the result - the same trade `ChunkDelta.shouldBake` makes about storage, applied to the wire.
-      if (patchBytes >= snapshot.payload.size) {
-        val message = chunkService.dataMessageFor(change.chunk)
-        val sent = fanOut.fanOut(holders.toList(), message)
-
-        LOG.debug {
-          "Chunk ${change.chunk} rev ${change.toRevision}: ${change.edits.size} edits would cost " +
-              "$patchBytes B, sent the ${snapshot.payload.size} B snapshot to $sent clients instead"
-        }
-        continue
-      }
-
+      // Encoded up front rather than estimated. The patch has to be built to be sent anyway, and now that a
+      // removal is one to four bytes rather than a fixed five there is no multiplication that gets this right -
+      // `MAX_BYTES_PER_REMOVAL` would overstate a column of adjacent removals by nearly four times and send a
+      // snapshot where a patch would comfortably have done.
       val patch = ChunkPatchSMSG.of(
         chunk = change.chunk,
         fromRevision = change.fromRevision,
         toRevision = change.toRevision,
-        edits = change.edits
+        removals = change.removals
       )
+
+      val snapshot = chunkService.encodedOf(change.chunk)
+
+      // Past the point where the removals cost more than the whole chunk, stop describing the change and just
+      // restate the result - the same trade `ChunkDelta.shouldBake` makes about storage, applied to the wire.
+      if (patch.removals.size >= snapshot.payload.size) {
+        val message = chunkService.dataMessageFor(change.chunk)
+        val sent = fanOut.fanOut(holders.toList(), message)
+
+        LOG.debug {
+          "Chunk ${change.chunk} rev ${change.toRevision}: ${change.removals.size} removals cost " +
+              "${patch.removals.size} B, sent the ${snapshot.payload.size} B snapshot to $sent clients instead"
+        }
+        continue
+      }
 
       val sent = fanOut.fanOut(holders.toList(), patch)
 
       LOG.debug {
         "Chunk ${change.chunk} rev ${change.fromRevision}->${change.toRevision}: " +
-            "${change.edits.size} edits, ${patch.edits.size} B to $sent clients"
+            "${change.removals.size} removals, ${patch.removals.size} B to $sent clients"
       }
     }
   }

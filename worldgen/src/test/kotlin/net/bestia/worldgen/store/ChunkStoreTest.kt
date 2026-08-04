@@ -2,8 +2,10 @@ package net.bestia.worldgen.store
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.ChunkEngine
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,6 +32,26 @@ class ChunkStoreTest {
     }
     return out
   }
+
+  /** Rock reaches at least this high in every column of [generate], so a carve here always finds material. */
+  private val alwaysRock = 3
+
+  private fun voxelIndex(x: Int, y: Int, z: Int) = (y * config.chunkSize + x) * config.chunkHeight + z
+
+  /**
+   * Carves voxels away entirely, in the sorted batches `ChunkStore.carve` requires.
+   *
+   * Sorting here rather than at each call site because the ordering is the codec's contract, not the test's
+   * subject - a test that had to hand-order its voxels would be asserting something about itself.
+   */
+  private fun carve(store: ChunkStore, chunk: ChunkPos, vararg voxels: Triple<Int, Int, Int>) =
+    store.carve(
+      chunk,
+      voxels
+        .map { (x, y, z) -> ChunkDelta.pack(voxelIndex(x, y, z), Occupancy.EMPTY) }
+        .sorted()
+        .toIntArray()
+    )
 
   // --- Caching ---------------------------------------------------------------------------------------
 
@@ -115,49 +137,127 @@ class ChunkStoreTest {
   }
 
   @Test
-  fun `an edit shows through the merged view and leaves the base alone`() {
+  fun `a carve shows through the merged view and leaves the base alone`() {
     val cache = ChunkCache(config.seed, 7L, ::generate)
     val store = ChunkStore(config, cache)
     val chunk = ChunkPos(1, 2)
 
-    store.edit(chunk, 2, 2, 10, BlockType.MASONRY)
+    carve(store, chunk, Triple(2, 2, alwaysRock))
 
-    assertEquals(BlockType.MASONRY, store.merged(chunk)[2, 2, 10])
-    assertEquals(BlockType.AIR, store.base(chunk)[2, 2, 10], "the generated base must be untouched")
+    assertEquals(BlockType.AIR, store.merged(chunk)[2, 2, alwaysRock])
+    assertEquals(BlockType.GRANITE, store.base(chunk)[2, 2, alwaysRock], "the generated base must be untouched")
     assertEquals(1, store.deltaCount)
   }
 
+  /**
+   * A partial carve leaves the rock it is cutting into, with less of it.
+   *
+   * The half of removal-only that a bare "this voxel is now air" model cannot express, and the reason a removal
+   * carries an occupancy at all: a brush is a sphere, so the voxels around its edge are partly taken. Losing
+   * that would stair-step every tunnel wall in a world whose surfaces are otherwise sub-voxel exact.
+   */
   @Test
-  fun `an edit notifies so derived structures can be invalidated`() {
+  fun `a partial carve keeps the block and reduces how much of it is left`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    val chunk = ChunkPos(1, 2)
+
+    store.carve(chunk, intArrayOf(ChunkDelta.pack(voxelIndex(2, 2, alwaysRock), 96)))
+
+    val merged = store.merged(chunk)
+    assertEquals(BlockType.GRANITE, merged[2, 2, alwaysRock], "partly carved rock is still rock")
+    assertEquals(96, merged.occupancyAt(2, 2, alwaysRock))
+  }
+
+  /**
+   * Carving is monotone, and a carve that would add material is refused rather than clamped.
+   *
+   * Clamping would let a placement system arrive by accident and take every derived structure's monotonicity
+   * with it. Refusing says the caller is wrong, which it is.
+   */
+  @Test
+  fun `a carve that would raise occupancy is refused`() {
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
+    val chunk = ChunkPos(1, 2)
+
+    store.carve(chunk, intArrayOf(ChunkDelta.pack(voxelIndex(2, 2, alwaysRock), 96)))
+
+    assertFailsWith<IllegalArgumentException> {
+      store.carve(chunk, intArrayOf(ChunkDelta.pack(voxelIndex(2, 2, alwaysRock), 200)))
+    }
+  }
+
+  /**
+   * Carving air changes nothing, and says so.
+   *
+   * A player grinding a pick against thin air must not move the chunk's revision, or every client holding it
+   * pays for a patch describing no change.
+   */
+  @Test
+  fun `carving what is already gone is not a change`() {
+    val changed = ArrayList<ChunkPos>()
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { changed.add(it) })
+    val chunk = ChunkPos(0, 0)
+
+    // The fixture leaves everything above the rock as air.
+    val outcome = carve(store, chunk, Triple(1, 1, config.chunkHeight - 1))
+
+    assertEquals(0, outcome.changed)
+    assertEquals(0, store.deltaCount, "a carve that changed nothing must not create a delta")
+    assertTrue(changed.isEmpty(), "nothing changed, so nothing should have been announced")
+  }
+
+  @Test
+  fun `a carve notifies so derived structures can be invalidated`() {
     val changed = ArrayList<ChunkPos>()
     val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { changed.add(it) })
 
-    store.edit(ChunkPos(0, 0), 1, 1, 9, BlockType.MASONRY)
+    carve(store, ChunkPos(0, 0), Triple(1, 1, alwaysRock))
 
     assertEquals(listOf(ChunkPos(0, 0)), changed)
   }
 
+  /**
+   * One brush is one announcement, however many voxels it takes.
+   *
+   * A sphere at the minimum radius takes about seventy voxels. Announcing each one would mean seventy revisions
+   * and seventy patches for a single swing, and would put the delta's O(n) merge inside a loop over n.
+   */
   @Test
-  fun `a heavily edited chunk bakes and then skips generation entirely`() {
+  fun `a batch of removals is announced once`() {
+    val changed = ArrayList<ChunkPos>()
+    val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), onChanged = { changed.add(it) })
+
+    val outcome = carve(
+      store, ChunkPos(0, 0),
+      Triple(1, 1, 0), Triple(1, 1, 1), Triple(1, 1, 2), Triple(2, 1, 0), Triple(2, 1, 1)
+    )
+
+    assertEquals(5, outcome.changed)
+    assertEquals(1, changed.size, "five voxels in one brush is one announcement")
+  }
+
+  @Test
+  fun `a heavily carved chunk bakes and then skips generation entirely`() {
     var generated = 0
     val cache = ChunkCache(config.seed, 7L, { chunk -> generated++; generate(chunk) })
     val store = ChunkStore(config, cache)
     val chunk = ChunkPos(2, 2)
 
-    // Terraform most of it. Past the threshold, keeping this as a delta saves nothing.
-    var baked = false
-    outer@ for (y in 0 until config.chunkSize) {
+    // Work out every voxel of rock in the chunk. Past the threshold, keeping this as a delta saves nothing -
+    // and a chunk this heavily mined bakes to almost pure air, which is where the saving actually is.
+    val rock = store.base(chunk)
+    val removals = ArrayList<Int>()
+    for (y in 0 until config.chunkSize) {
       for (x in 0 until config.chunkSize) {
         for (z in 0 until config.chunkHeight) {
-          if (store.edit(chunk, x, y, z, BlockType.MASONRY)) {
-            baked = true
-            break@outer
-          }
+          if (rock[x, y, z] != BlockType.AIR) removals.add(ChunkDelta.pack(voxelIndex(x, y, z), Occupancy.EMPTY))
         }
       }
     }
 
-    assertTrue(baked, "a chunk edited this heavily should have been baked")
+    val outcome = store.carve(chunk, removals.sorted().toIntArray())
+
+    assertTrue(outcome.baked, "a chunk carved this heavily should have been baked")
     assertTrue(store.isBaked(chunk))
     assertEquals(0, store.deltaCount, "baking drops the delta")
 
@@ -168,39 +268,39 @@ class ChunkStoreTest {
   }
 
   @Test
-  fun `an edit to an already baked chunk goes straight into the stored blob`() {
+  fun `a carve of an already baked chunk goes straight into the stored blob`() {
     val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate))
     val chunk = ChunkPos(1, 1)
 
-    store.edit(chunk, 0, 0, 5, BlockType.MASONRY)
+    carve(store, chunk, Triple(0, 0, 1))
     store.bakeAll()
     assertTrue(store.isBaked(chunk))
 
-    store.edit(chunk, 0, 0, 6, BlockType.MASONRY)
+    carve(store, chunk, Triple(0, 0, 2))
 
     val merged = store.merged(chunk)
-    assertEquals(BlockType.MASONRY, merged[0, 0, 5], "the pre-bake edit must survive")
-    assertEquals(BlockType.MASONRY, merged[0, 0, 6], "the post-bake edit must too")
+    assertEquals(BlockType.AIR, merged[0, 0, 1], "the pre-bake carve must survive")
+    assertEquals(BlockType.AIR, merged[0, 0, 2], "the post-bake carve must too")
     assertEquals(0, store.deltaCount, "a baked chunk has no delta to grow")
   }
 
   @Test
   fun `baking every delta is the migration path for a pipeline change`() {
     // Once a world ships its pipeline version is frozen, because any change shifts the base out from under the
-    // player's deltas - an edit recorded as "this voxel is now air" starts meaning something different. Baking
-    // first pins the current result, and because a baked blob is keyed on the coordinate and the seed but
-    // deliberately *not* on the pipeline version, the upgraded pipeline still finds it.
+    // player's deltas - a removal recorded as "this voxel is a third full" starts meaning a third of different
+    // rock. Baking first pins the current result, and because a baked blob is keyed on the coordinate and the
+    // seed but deliberately *not* on the pipeline version, the upgraded pipeline still finds it.
     val baked = MemoryBlobStore()
     val old = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), baked)
-    old.edit(ChunkPos(0, 0), 1, 1, 9, BlockType.MASONRY)
-    old.edit(ChunkPos(1, 0), 2, 2, 9, BlockType.MASONRY)
+    carve(old, ChunkPos(0, 0), Triple(1, 1, alwaysRock))
+    carve(old, ChunkPos(1, 0), Triple(2, 2, alwaysRock))
 
     assertEquals(2, old.bakeAll())
     assertEquals(0, old.deltaCount)
     assertEquals(2, old.bakedCount)
     assertEquals(2, baked.size, "both baked blobs are in the store the new pipeline will read")
 
-    assertEquals(BlockType.MASONRY, old.merged(ChunkPos(0, 0))[1, 1, 9])
+    assertEquals(BlockType.AIR, old.merged(ChunkPos(0, 0))[1, 1, alwaysRock])
   }
 
   @Test
@@ -208,7 +308,7 @@ class ChunkStoreTest {
     // Falling back to regeneration would silently discard the player's work, which is worse than an exception.
     val baked = ForgetfulBlobStore()
     val store = ChunkStore(config, ChunkCache(config.seed, 7L, ::generate), baked)
-    store.edit(ChunkPos(0, 0), 1, 1, 9, BlockType.MASONRY)
+    carve(store, ChunkPos(0, 0), Triple(1, 1, alwaysRock))
     store.bakeAll()
 
     baked.loseEverything()
@@ -308,8 +408,12 @@ class ChunkStoreTest {
           "client's BlockAppearance.Palette, then update this pin."
     )
 
+    // 4 was bumped for the patch codec rather than the palette - an edit carrying (index, blockId, occupancy)
+    // became a removal carrying (indexDelta, remainingOccupancy) - so the palette pin above is unchanged. This
+    // is the second thing the version covers and the first time it has moved for it, which is exactly the
+    // "moved without the palette moving, which is fine" case this assertion was written to catch.
     assertEquals(
-      3,
+      4,
       ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved without the palette moving, which is fine - re-pin this and check the " +
           "client's constant matches."

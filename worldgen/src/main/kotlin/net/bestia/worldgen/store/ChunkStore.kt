@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.derived.ChunkDelta
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.RleCodec
 import net.bestia.worldgen.voxel.VoxelChunk
 
@@ -95,54 +96,156 @@ class ChunkStore(
   fun baseHash(chunk: ChunkPos): Long = BaseHash.of(cache.base(chunk))
 
   /**
-   * Records one edit, and bakes the chunk if the delta has outgrown its usefulness.
+   * Carves a batch of voxels, and bakes the chunk if its delta has outgrown its usefulness.
    *
-   * @return true when the edit caused the chunk to be baked
+   * **A batch, not a voxel**, and that is a requirement rather than an optimisation. One brush application is
+   * one call: `ChunkDelta` merges a sorted batch in a single pass, the change is announced once, and the
+   * revision moves once. Calling this per voxel of a brush would produce seventy revisions and seventy patches
+   * for one swing, and would put the O(n) delta merge inside a loop over n.
+   *
+   * ### Occupancy only ever falls, and this is where that is enforced
+   *
+   * This is the only party holding the base, so it is the only one that can compare an offered occupancy
+   * against what a voxel currently has. A removal that would *raise* occupancy is refused outright rather than
+   * clamped, because it is a placement system arriving by accident, not a rounding disagreement. A removal that
+   * changes nothing - a voxel already at or below the offered fill, or one the generator left as air - is
+   * dropped silently, which is what keeps `ChunkDelta.removalCount` an honest count of changed voxels and stops
+   * a player grinding at bare rock from bumping the revision.
+   *
+   * @param removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted ascending
+   * @return how many voxels actually changed; zero means nothing was announced and the revision did not move
    */
-  fun edit(chunk: ChunkPos, localX: Int, localY: Int, localZ: Int, block: BlockType): Boolean {
+  fun carve(chunk: ChunkPos, removals: IntArray): CarveOutcome {
+    if (removals.isEmpty()) return CarveOutcome(0, false)
+
     if (chunk in bakedChunks) {
-      // Already baked: edit the stored blob directly. There is no delta to grow.
+      // Already baked: carve the stored blob directly. There is no delta to grow.
       val current = merged(chunk)
-      current[localX, localY, localZ] = block
+      var changed = 0
+
+      for (entry in removals) {
+        if (applyTo(current, ChunkDelta.indexOf(entry), ChunkDelta.remainingOf(entry))) changed++
+      }
+
+      if (changed == 0) return CarveOutcome(0, false)
+
       baked.put(bakedKeyOf(chunk), RleCodec.encode(current))
       onChanged(chunk)
-      return false
+      return CarveOutcome(changed, false)
     }
 
-    val delta = deltas.getOrPut(chunk) { ChunkDelta(chunk, config.chunkSize, config.chunkHeight) }
-    delta.set(localX, localY, localZ, block)
+    val base = cache.base(chunk)
+    val delta = deltas[chunk]
+
+    // Filter against what the voxel currently holds before touching the delta, so an offer that changes
+    // nothing never becomes an entry and never widens the batch the wire has to carry.
+    val effective = IntArray(removals.size)
+    var kept = 0
+
+    for (entry in removals) {
+      val position = ChunkDelta.indexOf(entry)
+      val offered = ChunkDelta.remainingOf(entry)
+      val held = delta?.remainingAt(position)?.takeIf { it >= 0 }
+        ?: (base.occupancy[position].toInt() and 0xFF)
+
+      require(offered <= held) {
+        "$chunk voxel $position is at occupancy $held; a carve to $offered would add material"
+      }
+
+      if (offered < held) effective[kept++] = entry
+    }
+
+    if (kept == 0) return CarveOutcome(0, false)
+
+    val target = deltas.getOrPut(chunk) { ChunkDelta(chunk, config.chunkSize, config.chunkHeight) }
+    val changed = target.carveAll(if (kept == removals.size) effective else effective.copyOf(kept))
     onChanged(chunk)
 
-    return compact(chunk)
+    return CarveOutcome(changed, compact(chunk))
   }
+
+  /**
+   * Writes one removal into a chunk in place, returning whether it changed anything.
+   *
+   * Used for the baked path, where there is no delta to compare against and the blob is the truth.
+   */
+  private fun applyTo(chunk: VoxelChunk, position: Int, remaining: Int): Boolean {
+    val held = chunk.occupancy[position].toInt() and 0xFF
+
+    require(remaining <= held) {
+      "${chunk.chunk} voxel $position is at occupancy $held; a carve to $remaining would add material"
+    }
+
+    if (remaining == held) return false
+
+    if (remaining == Occupancy.EMPTY) {
+      chunk.blocks[position] = BlockType.AIR.id.toByte()
+      chunk.occupancy[position] = Occupancy.EMPTY_BYTE
+    } else {
+      chunk.occupancy[position] = remaining.toByte()
+    }
+
+    return true
+  }
+
+  /** What one [carve] did, so a caller knows whether to announce it and whether the chunk was rewritten. */
+  data class CarveOutcome(
+    /** Voxels whose occupancy actually fell. Zero means nothing happened. */
+    val changed: Int,
+    /** The delta outgrew being a delta and the chunk was baked, so its whole content was rewritten. */
+    val baked: Boolean
+  )
 
   /**
    * Bakes a chunk if its delta has grown past the point where keeping it as a delta saves anything.
    *
-   * Compaction is mandatory rather than an optimisation. Deltas are unbounded - a player who terraforms a
-   * hillside over six months accumulates a delta larger than the chunk itself - and past the threshold it
-   * is cheaper in both space and time to store the merged result and drop the delta. Reads then skip
-   * generation entirely, so heavily built areas become *cheaper* rather than merely smaller.
+   * A removal-only delta *is* bounded - a voxel can only be carved down, so the entry count cannot exceed the
+   * chunk's volume - so this is not the runaway-growth guard the KDoc here used to claim it was. The bound is
+   * simply large and in the wrong direction: a fully worked-out chunk is about a megabyte of packed removals,
+   * where that same chunk baked is nearly all air and encodes to a few dozen bytes. So heavily mined ground
+   * becomes *cheaper* rather than merely smaller, and its reads skip generation entirely.
+   *
+   * ### The reference size is cached, and that is the whole point of this shape
+   *
+   * `ChunkDelta.shouldBake` needs to know what the chunk costs encoded. Computing that here used to mean a full
+   * chunk copy and a full run-length encode - 512 kB and half a million bytes scanned - **on every call**, and
+   * the call was on the path of every single edited voxel. [encodedSizes] holds it per coordinate instead.
+   *
+   * Using the *base's* encoded size rather than the merged chunk's is an approximation, and a deliberate one:
+   * carving a tunnel through uniform rock breaks up long runs, so the merged chunk encodes *larger* than its
+   * base for as long as the chunk is mostly solid. The reference is therefore an underestimate exactly while a
+   * chunk is lightly worked, which errs towards baking early - and baking early is merely eager, where baking
+   * late means storing many times the chunk as a delta first.
    *
    * @return true when the chunk was baked
    */
   fun compact(chunk: ChunkPos): Boolean {
     val delta = deltas[chunk] ?: return false
 
-    val base = cache.base(chunk)
-    val merged = delta.mergedOnto(base)
-    val encoded = RleCodec.encode(merged)
+    if (!delta.shouldBake(referenceBytesOf(chunk))) return false
 
-    if (!delta.shouldBake(encoded.size)) return false
+    val encoded = RleCodec.encode(delta.mergedOnto(cache.base(chunk)))
 
     baked.put(bakedKeyOf(chunk), encoded)
     bakedChunks.add(chunk)
     deltas.remove(chunk)
     // The generated base for this coordinate will never be read again.
     cache.evict(chunk)
+    encodedSizes.remove(chunk)
 
     return true
   }
+
+  /**
+   * Encoded size of a chunk's generated base, computed once per coordinate.
+   *
+   * Kept for as long as the chunk has a delta and dropped when it bakes, so this grows with the number of
+   * *worked* chunks rather than with the size of the world - the same shape as [deltas] itself.
+   */
+  private val encodedSizes = HashMap<ChunkPos, Int>()
+
+  private fun referenceBytesOf(chunk: ChunkPos): Int =
+    encodedSizes.getOrPut(chunk) { RleCodec.encode(cache.base(chunk)).size }
 
   /**
    * Bakes every chunk that currently has a delta.

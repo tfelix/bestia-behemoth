@@ -48,6 +48,34 @@ enum ChunkEncoding {
 }
 
 /**
+ * How the bytes in a chunk *patch* are encoded.
+ *
+ * Separate from `ChunkEncoding` because a patch and a snapshot are different formats solving different
+ * problems, and they will not change together.
+ *
+ * A patch needs a discriminator more urgently than a snapshot does, which is the reason this enum exists at
+ * all. Every byte of a packed removal stream is a legal varint continuation, so a decoder reading one format
+ * as the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
+ * notices: the revision check passes because the revision really did advance, and `base_hash` is only carried
+ * on a snapshot, never re-verified on a patch. The failure would surface as terrain quietly disagreeing
+ * between server and client, which is the one thing this whole subsystem is built to prevent. One byte per
+ * patch buys immunity to it.
+ */
+enum ChunkPatchEncoding {
+  /** A patch that does not say how it was encoded cannot be decoded; refuse rather than guess. */
+  CHUNK_PATCH_ENCODING_UNSPECIFIED = 0;
+
+  /**
+   * Delta-coded voxel removals: `repeated: uvar indexDelta, u8 remainingOccupancy`.
+   *
+   * The only format there has ever been in a shipped build, but not numbered zero - a client that reads a
+   * field it was compiled before seeing gets `UNSPECIFIED` from proto3 and must refuse, and that only works
+   * if refusing and "the first format" are different values.
+   */
+  CHUNK_PATCH_ENCODING_REMOVAL_V1 = 1;
+}
+
+/**
  * Whether a payload was compressed on top of its encoding.
  *
  * Zero is `NONE` on purpose, mirroring the framing byte in `DeflatedBlobStore`: a uniform underground

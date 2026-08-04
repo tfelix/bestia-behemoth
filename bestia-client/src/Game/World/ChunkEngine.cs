@@ -4,10 +4,10 @@ namespace BestiaBehemothClient.Game.World
   /// The one version number this client has to agree with the server about to read a chunk at all.
   /// </summary>
   /// <remarks>
-  /// It covers the two things the client does with a chunk: decode it (<see cref="RleCodec"/>) and name the
-  /// materials in it (<see cref="Mesh.BlockAppearance.Palette"/>). Either changing makes every payload wrong,
-  /// and neither is something the client can adapt to at runtime, so there is nothing to gain from knowing
-  /// which one moved.
+  /// It covers the three things the client does with a chunk: decode it (<see cref="RleCodec"/>), name the
+  /// materials in it (<see cref="Mesh.BlockAppearance.Palette"/>), and apply the removals that arrive
+  /// afterwards (<see cref="ChunkPatchCodec"/>). Any of them changing makes payloads wrong, and none is
+  /// something the client can adapt to at runtime, so there is nothing to gain from knowing which one moved.
   ///
   /// <para>
   /// The server has a finer-grained version vector - pipeline, palette, format - but keeps it to itself: it
@@ -29,6 +29,12 @@ namespace BestiaBehemothClient.Game.World
     //
     // 3 added the volcanic materials in one batch - LAVA, OBSIDIAN, graded sulfur and pyrelith - so the feature
     // costs one client release rather than four.
-    public const uint Version = 3;
+    //
+    // 4 is the removal-only patch format: an edit carrying (index, blockId, occupancy) became a removal
+    // carrying (indexDelta, remainingOccupancy). The first bump for the patch codec rather than a chunk
+    // payload, and it has to be a bump because the two formats are mutually undetectable - every byte of one
+    // is a legal varint continuation in the other, so a mismatched client decodes plausible geometry instead
+    // of failing. ChunkPatchSMSG.Encoding catches it per patch; this catches it before any patch is sent.
+    public const uint Version = 4;
   }
 }

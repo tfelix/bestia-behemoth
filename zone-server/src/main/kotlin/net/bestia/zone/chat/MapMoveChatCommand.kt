@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
  * mountain, which looks exactly like the renderer being broken. [ChunkStreamInbox.Teleport] resolves it against
  * the heightfield instead.
  *
- * Queued rather than applied, for the same reason as [SetBlockChatCommand]: chat is dispatched on a Netty
+ * Queued rather than applied, for the same reason as [CarveChatCommand]: chat is dispatched on a Netty
  * worker thread, and both the terrain the elevation comes from and the tick that re-anchors the player's view
  * belong to `zone-tick`.
  */

@@ -55,6 +55,22 @@ class VoxelTest {
     )
   }
 
+  /**
+   * The materials a player cannot dig are pinned, for the reason the non-solid set is.
+   *
+   * `carvable` is not folded into `paletteVersion` either - it changes no stored byte and no client receives it -
+   * so this is its tripwire. A new fluid added beside water would otherwise inherit `carvable = true` and become
+   * diggable by default, and the consequence is not subtle: there is no runtime fluid state, so the hole a
+   * player cut in a lake would stay dry forever, and with no building system they could not seal it either.
+   */
+  @Test
+  fun `the materials that cannot be carved are pinned`() {
+    assertEquals(
+      setOf(BlockType.AIR, BlockType.WATER, BlockType.LAVA),
+      BlockType.entries.filter { !it.carvable }.toSet()
+    )
+  }
+
   @Test
   fun `a chunk addresses its columns contiguously in the vertical`() {
     // The layout RLE compression and every column scan depend on.
