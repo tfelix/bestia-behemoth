@@ -211,6 +211,28 @@ data class LayerId(val name: String) {
      */
     val RESOURCE_VALUE = LayerId("resource_value")
 
+    // --- Volcanism -------------------------------------------------------------------------------
+
+    /**
+     * How volcanic the ground is, 0 on quiet crust to 1 in the most active country the world has.
+     *
+     * A **percentile rank over this world's own land**, like [MANA_DENSITY] and [BIOME_CONFIDENCE], and for the
+     * same reason: the raw field is a distance to the nearest vent times that vent's strength, and both the vent
+     * count and the strengths swing hard with how the plates came out. A raw field would make `0.6` mean "hot"
+     * on one seed and "the middle of nowhere" on another - and every consumer here reads it as a threshold, so
+     * that instability would land directly on where sulfur is, how often a mountain erupts and whether the heat
+     * half of exposure ever fires. Ranked, `0.55` is "the top quarter of this world", whatever this world is.
+     *
+     * Consequence, the same one [CORRUPTION] carries: this is **relative to a world**. Two seeds' values are not
+     * comparable, so do not compare them.
+     *
+     * **Zero over ocean and lakes**, unlike [MANA_DENSITY], which is deliberately defined under the sea because
+     * it describes what the rock holds. This describes what a player would walk into, every consumer is asking
+     * about walkable ground, and `LocalTemperature` samples it bilinearly with no NaN handling - so a sentinel
+     * here would propagate into the air temperature of the whole coastline.
+     */
+    val VOLCANISM = LayerId("volcanism")
+
     // --- Mana ------------------------------------------------------------------------------------
 
     /**

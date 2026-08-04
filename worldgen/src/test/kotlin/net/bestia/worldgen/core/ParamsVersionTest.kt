@@ -18,6 +18,7 @@ import net.bestia.worldgen.geo.ErosionParams
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialParams
 import net.bestia.worldgen.geo.TectonicsParams
+import net.bestia.worldgen.geo.VolcanismParams
 import net.bestia.worldgen.geo.TectonicsStage
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.karst.CaveParams
@@ -87,6 +88,7 @@ class ParamsVersionTest {
     HydrologyParams(),
     PondParams(),
     AlluviumParams(),
+    VolcanismParams(),
     BiomeParams(),
     VegetationParams(),
     GradeMix(),
@@ -186,6 +188,7 @@ class ParamsVersionTest {
       "HydrologyParams" to 7_155_846_832_677_361_370L,
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
+      "VolcanismParams" to -2_979_846_723_859_093_814L,
       "BiomeParams" to 5_285_448_812_466_836_997L,
       "VegetationParams" to 5_359_640_679_940_278_481L,
       "GradeMix" to -7_184_838_964_596_318_845L,

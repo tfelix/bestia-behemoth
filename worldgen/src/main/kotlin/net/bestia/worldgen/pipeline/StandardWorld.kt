@@ -25,6 +25,7 @@ import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.geo.DropletHeightField
 import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.WorldHeightField
@@ -195,6 +196,10 @@ object StandardWorld {
       ClimateStage(climateResolutionFor(config), p.climate),
       ErosionStage(base, p.erosion),
       HydrologyStage(base, p.hydrology),
+      // Before the biomes on a real edge: a volcanic field is placed from distance to a crater, so the craters
+      // have to exist first. Its own stage rather than more code in tectonics, because `Stage.version` reaches
+      // the RNG and retuning vent spacing must not move every mountain in the world.
+      VolcanismStage(base, p.volcanism),
       BiomeStage(base, p.biome),
       GlacialStage(base, p.glacial),
       // After glacial, because a moraine dam only exists once the ice that left it has been extracted -

@@ -539,6 +539,12 @@ class MapRenderer(
      */
     fun colorOf(kind: FeatureKind): Color = when (kind) {
       FeatureKind.FAULT -> Color(160, 90, 200)
+      // Volcanism as a family, in fire colours nothing else on the map uses. A vent is the brightest because it
+      // is the one a player walks to; a hotspot cone is dimmer because most of them are extinct mountains; a
+      // lava pool is the material's own orange, so it reads as the same thing the voxels are made of.
+      FeatureKind.HOTSPOT -> Color(150, 70, 40)
+      FeatureKind.VOLCANIC_VENT -> Color(255, 110, 40)
+      FeatureKind.LAVA_POOL -> Color(240, 92, 24)
       FeatureKind.ORE_DEPOSIT -> Color(255, 210, 70)
       // Caves, as a family: the passages are the dim underground colour and the two markers that say "there
       // is something here" are brightened versions of it, so a cave region reads as one thing at world scale

@@ -14,6 +14,7 @@ import net.bestia.worldgen.geo.DropletParams
 import net.bestia.worldgen.geo.ErosionParams
 import net.bestia.worldgen.geo.GlacialParams
 import net.bestia.worldgen.geo.TectonicsParams
+import net.bestia.worldgen.geo.VolcanismParams
 import net.bestia.worldgen.history.HistoryParams
 import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.hydro.AlluviumParams
@@ -74,6 +75,14 @@ data class WorldParams(
 
   /** The sediment lobes rivers build: fans where they leave confinement, deltas where they meet the sea. */
   val alluvium: AlluviumParams = AlluviumParams(),
+
+  /**
+   * Where the craters are and how volcanic each province is.
+   *
+   * Before [biome] because the volcanic biomes are placed from distance to a vent, and its own params object
+   * rather than a corner of [tectonics] because retuning vent rarity must not reseed the plates.
+   */
+  val volcanism: VolcanismParams = VolcanismParams(),
   val biome: BiomeParams = BiomeParams(),
 
   /**
@@ -195,6 +204,7 @@ data class WorldParams(
       r.hydrology.digest().value,
       r.pond.digest().value,
       r.alluvium.digest().value,
+      r.volcanism.digest().value,
       r.biome.digest().value,
       r.vegetation.digest().value,
       r.resource.digest().value,
@@ -272,6 +282,7 @@ data class WorldParams(
         tectonics = base.tectonics.overriddenBy(text.scope("tectonics")),
         climate = base.climate.overriddenBy(text.scope("climate")),
         erosion = base.erosion.overriddenBy(text.scope("erosion")),
+        volcanism = base.volcanism.overriddenBy(text.scope("volcanism")),
         resource = base.resource.overriddenBy(text.scope("resource")),
         cave = base.cave.overriddenBy(text.scope("cave")),
         mana = base.mana.overriddenBy(text.scope("mana")),

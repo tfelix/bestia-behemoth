@@ -430,17 +430,24 @@ class ManaStage(
  * Shared by [ManaStage]'s downstream consumers rather than rewritten per caller, because "land" is the
  * denominator of the corrupted-share target and two definitions of it would make that target mean two things.
  * The lake test is the one that is easy to forget: `ELEVATION > seaLevel` is true of a lake bed.
+ *
+ * [biome] is nullable so that a stage running **before** `BiomeStage` can still share this rather than write
+ * its own. `VolcanismStage` is the case: it has to rank its field over land, and it cannot depend on the biomes
+ * because the biomes depend on it. Passing null drops only the third test, which is belt-and-braces - given the
+ * first two, a cell above sea level with no water level over it is not classified as ocean or lake anyway - so
+ * the two answers agree everywhere, and the one definition stays in one place.
  */
 internal fun isStandableLand(
   elevation: Grid,
   waterLevel: Grid,
-  biome: net.bestia.worldgen.core.IntLayer,
+  biome: net.bestia.worldgen.core.IntLayer?,
   region: CellRegion,
   seaLevel: Double,
   index: Int
 ): Boolean {
   if (elevation.data[index] <= seaLevel) return false
   if (!waterLevel.data[index].isNaN()) return false
+  if (biome == null) return true
 
   val x = region.minX + index % region.width
   val y = region.minY + index / region.width

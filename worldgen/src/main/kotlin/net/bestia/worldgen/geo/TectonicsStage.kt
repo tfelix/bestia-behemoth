@@ -24,10 +24,12 @@ import net.bestia.worldgen.fields.PoissonDisk
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
+import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
+import net.bestia.worldgen.vector.VectorFeature
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.exp
@@ -246,7 +248,8 @@ class TectonicsStage(
     StageOutput.Raster(LayerId.ROCK_HARDNESS),
     StageOutput.Raster(LayerId.CRUST_AGE),
     StageOutput.Raster(LayerId.UPLIFT),
-    StageOutput.Vector(FeatureKind.FAULT)
+    StageOutput.Vector(FeatureKind.FAULT),
+    StageOutput.Vector(FeatureKind.HOTSPOT)
   )
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
@@ -421,7 +424,7 @@ class TectonicsStage(
     }
     }
 
-    Timings.measure("tectonics.hotspots") {
+    val cones = Timings.measure("tectonics.hotspots") {
       addHotspotChains(ctx, region, bounds, plates, spacing, elevation)
     }
 
@@ -452,17 +455,65 @@ class TectonicsStage(
         crustAge.toLayer(LayerId.CRUST_AGE, region),
         uplift.toLayer(LayerId.UPLIFT, region)
       ),
-      features = faults
+      features = faults + hotspotMarkers(cones)
     )
   }
+
+  /**
+   * One marker per cone the hotspot pass stamped.
+   *
+   * Emitting these changes no terrain and consumes no random draw, so [version] deliberately stays where it is
+   * and every world generates byte-identical ground to before. That is worth stating rather than leaving to be
+   * noticed: [version] reaches `GenContext.rng`, so bumping it here would reseed the plates and move every
+   * mountain in the world for the sake of recording where the volcanoes already were.
+   *
+   * The ids come from a **block** allocator rather than a second [FeatureIds.allocator]. Two plain allocators in
+   * one stage both start at ordinal zero and mint duplicate [FeatureId]s, which collapse silently in the feature
+   * store's map instead of failing. Block 0 for the faults reproduces their previous ids exactly, since a block
+   * allocator at block 0 issues the same ordinals a plain one did.
+   */
+  private fun hotspotMarkers(cones: List<HotspotCone>): List<VectorFeature> {
+    val nextId = FeatureIds.blockAllocator(id, HOTSPOT_ID_BLOCK)
+
+    return cones.map { cone ->
+      PointMarker(
+        id = nextId(),
+        kind = FeatureKind.HOTSPOT,
+        position = cone.centre,
+        attributes = StationTable.Builder(1)
+          .channel(CHANNEL_CHAIN_INDEX) { cone.chainIndex.toDouble() }
+          .channel(CHANNEL_CONE_HEIGHT) { cone.height }
+          .channel(CHANNEL_CONE_RADIUS) { cone.radius }
+          .channel(CHANNEL_OCEANIC) { if (cone.oceanic) 1.0 else 0.0 }
+          .build()
+      )
+    }
+  }
+
+  /**
+   * One stamped cone, as the volcanism stage needs to see it.
+   *
+   * [chainIndex] is the interesting field: 0 is the cone sitting over the plume now and every step is further
+   * along the track and further into the past. `HOTSPOT_DECAY` already says the older ones are lower and more
+   * eroded; the index is what lets a later stage say which of them still has an open crater.
+   */
+  class HotspotCone(
+    val centre: Vec2d,
+    val chainIndex: Int,
+    val height: Double,
+    val radius: Double,
+    val oceanic: Boolean
+  )
 
   /**
    * Volcanic chains: a hotspot is fixed in the mantle while the plate above it moves, so it stamps a
    * line of progressively older, more eroded cones onto the drifting plate.
    *
-   * Applied to the raster rather than emitted as vector features because a volcanic island is 30-80 km
-   * across - comfortably wider than the three coarse cells that are the threshold for pushing a
-   * feature into the vector tier.
+   * The cone's *shape* is applied to the raster rather than pushed into the vector tier, because a volcanic
+   * island is 30-80 km across - comfortably wider than the three coarse cells that are the threshold for
+   * needing a feature. Its *location* is returned as well, which is a different question: the shape argument
+   * says nothing about whether a later stage should be able to find the volcano, and for a long time none
+   * could. See [hotspotMarkers].
    */
   private fun addHotspotChains(
     ctx: GenContext,
@@ -471,7 +522,8 @@ class TectonicsStage(
     plates: PlateSet,
     spacing: Double,
     elevation: Grid
-  ) {
+  ): List<HotspotCone> {
+    val cones = ArrayList<HotspotCone>()
     val metres = region.resolution.metresPerCell
     val rng = ctx.rng(HOTSPOT_STREAM)
 
@@ -533,8 +585,14 @@ class TectonicsStage(
         val radius = islandScale * HOTSPOT_RADIUS_FACTOR * (0.75 + rng.nextDouble() * 0.5)
 
         stampCone(elevation, region, metres, centre, radius, height)
+        // Recorded after the stamp and after the bounds `continue` above, so the draw order is untouched: an
+        // out-of-bounds cone still consumes three draws and not five, and every island downstream of it in the
+        // chain lands exactly where it did before.
+        cones.add(HotspotCone(centre, k, height, radius, plate.isOceanic))
       }
     }
+
+    return cones
   }
 
   private fun stampCone(
@@ -774,7 +832,9 @@ class TectonicsStage(
     region: CellRegion,
     plates: PlateSet
   ): List<MarkerFeature> {
-    val nextId = FeatureIds.allocator(id)
+    // Block 0, which issues the same ordinals a plain allocator did, so no fault id moves. The block form is
+    // what keeps the hotspot markers from minting duplicates of these - see [hotspotMarkers].
+    val nextId = FeatureIds.blockAllocator(id, FAULT_ID_BLOCK)
 
     return BoundaryTracer.trace(plateId, region).map { trace ->
       val contact = plates.contact(trace.plateA, trace.plateB)
@@ -837,6 +897,22 @@ class TectonicsStage(
     const val CHANNEL_BOUNDARY_TYPE = "boundary_type"
     const val CHANNEL_CONVERGENCE = "convergence"
     const val CHANNEL_STRENGTH = "strength"
+
+    /** Station channels on a [FeatureKind.HOTSPOT] marker. */
+    const val CHANNEL_CHAIN_INDEX = "chain_index"
+    const val CHANNEL_CONE_HEIGHT = "cone_height"
+    const val CHANNEL_CONE_RADIUS = "cone_radius"
+    const val CHANNEL_OCEANIC = "oceanic"
+
+    /**
+     * Feature id blocks, one per emitter in this stage.
+     *
+     * Two plain [FeatureIds.allocator] calls would both start at ordinal zero and mint duplicate ids, which
+     * `FeatureStore` collapses in a map rather than rejecting - a silent loss. Faults keep block 0 so their ids
+     * are unchanged from before there was a second emitter.
+     */
+    private const val FAULT_ID_BLOCK = 0
+    private const val HOTSPOT_ID_BLOCK = 1
 
     /**
      * The boundary type a fault marker carries, or null if it carries none.

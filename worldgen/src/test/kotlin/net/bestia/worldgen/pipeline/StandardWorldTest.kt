@@ -21,6 +21,7 @@ import net.bestia.worldgen.geo.BoundaryType
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.hydro.AlluviumStage
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.hydro.PondStage
@@ -80,6 +81,11 @@ class StandardWorldTest {
         // a sediment lobe.
         AlluviumStage.ID,
         BiomeStage.ID,
+        // Volcanism is ready as soon as hydrology is - it reads the faults, the finished ground and the water -
+        // so it lands here on the name tie-break alone, which is *after* the biomes. That is a real ordering and
+        // currently a harmless one, because nothing reads the volcanism yet. The moment the volcanic biomes land
+        // it becomes an edge and this moves above `BiomeStage.ID`.
+        VolcanismStage.ID,
         // Caves sort before resources on the name tie-break, not because anything needs them first: both read
         // the same five upstream stages and neither reads the other.
         CaveStage.ID,

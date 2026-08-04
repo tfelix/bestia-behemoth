@@ -46,6 +46,38 @@ enum class FeatureKind(val defaultPriority: Int) {
   FAULT(10),
 
   /**
+   * One cone of a hotspot chain: a mantle plume stamped a volcano here as the plate drifted over it.
+   *
+   * Geometry and attributes only. `TectonicsStage` already stamps the cone into the heightfield - the cone is
+   * 30-80 km across, comfortably too wide to need the vector tier for its *shape* - so this records only where
+   * one is, which is a different question and one nothing downstream could answer before.
+   *
+   * That gap mattered: the youngest cone of a chain is the most recognisable volcano in this world, a 3800 m
+   * peak whose tip breaks the surface as an island, and no stage after tectonics could see it at all.
+   */
+  HOTSPOT(12),
+
+  /**
+   * An open crater, from either an arc or a hotspot: somewhere that can erupt.
+   *
+   * Deliberately distinct from [HOTSPOT], which is a *tectonic* fact - "a plume put a cone here", true of every
+   * cone in a chain including the extinct, eroded ones. This is a *volcanism* fact, true of the youngest one or
+   * two, and that derivation is what makes vents rare by construction rather than by tuning.
+   */
+  VOLCANIC_VENT(14),
+
+  /**
+   * Standing molten rock: a lava lake in a crater, or a pool on a flow field.
+   *
+   * An area rather than a point-plus-radius, and that is the seam argument `PondWaterSampler` makes about
+   * ponds, verbatim: `AreaFeature.contains` is an exact integer test, so the shoreline comes out identical in
+   * every chunk that touches it, and the surface elevation is one stored number read back unchanged rather than
+   * a function two chunks evaluate independently. A floating-point radius test instead gives a band of columns
+   * where one chunk thinks it is lava and its neighbour does not.
+   */
+  LAVA_POOL(16),
+
+  /**
    * A mineral deposit: geometry and attributes only. Stored sparsely because it *is* sparse - per-voxel
    * ore is materialised at chunk generation by sampling the deposit, never stored.
    */
