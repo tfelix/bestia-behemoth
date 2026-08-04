@@ -207,7 +207,7 @@ class ParamsVersionTest {
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
       "CrystalParams" to 7_903_608_439_399_290_165L,
-      "WeatherParams" to -969_496_167_632_375_797L,
+      "WeatherParams" to 6_942_341_092_082_949_637L,
       "Culture" to 9_142_772_940_960_129_542L
     )
 

@@ -214,14 +214,27 @@ data class LayerId(val name: String) {
     // --- Volcanism -------------------------------------------------------------------------------
 
     /**
-     * How volcanic the ground is, 0 on quiet crust to 1 in the most active country the world has.
+     * How volcanic the ground is: **exactly 0 on quiet crust**, and a percentile rank from just above zero to 1
+     * across the volcanic country the world has.
      *
-     * A **percentile rank over this world's own land**, like [MANA_DENSITY] and [BIOME_CONFIDENCE], and for the
-     * same reason: the raw field is a distance to the nearest vent times that vent's strength, and both the vent
-     * count and the strengths swing hard with how the plates came out. A raw field would make `0.6` mean "hot"
-     * on one seed and "the middle of nowhere" on another - and every consumer here reads it as a threshold, so
-     * that instability would land directly on where sulfur is, how often a mountain erupts and whether the heat
-     * half of exposure ever fires. Ranked, `0.55` is "the top quarter of this world", whatever this world is.
+     * Ranked, like [MANA_DENSITY] and [BIOME_CONFIDENCE], and for the same reason: the raw field is a vent's
+     * strength tapered by distance, and both the vent count and the strengths swing hard with how the plates came
+     * out. A raw field would make `0.6` mean "hot" on one seed and "the middle of nowhere" on another - and every
+     * consumer reads it as a threshold, so that instability would land directly on where sulfur is, how often a
+     * mountain erupts and whether the heat half of exposure ever fires.
+     *
+     * ### The zero is not part of the rank, and that distinction is load-bearing
+     *
+     * Unlike [MANA_DENSITY], which is a smooth field with a value everywhere, this one is zero over most of the
+     * land - typically about sixty per cent of it. Ranking *all* the land would therefore put every one of those
+     * cells at the same rank, namely the height of the spike at zero, and `VolcanismStage.rankAgainstLand`
+     * records what that measured out as before it was fixed. So the ranking covers only the cells with something
+     * to rank, and "no volcanism" is the literal value `0.0`.
+     *
+     * Two things follow that a consumer can rely on. **Zero means not volcanic**, so `> 0.0` is a valid test for
+     * volcanic country. And a threshold is a percentile *of volcanic country*, not of the world: `0.75` is the
+     * hottest quarter of the ground that has any heat at all, which on a typical world is about a tenth of the
+     * land rather than a quarter of it.
      *
      * Consequence, the same one [CORRUPTION] carries: this is **relative to a world**. Two seeds' values are not
      * comparable, so do not compare them.

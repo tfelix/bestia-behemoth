@@ -148,7 +148,48 @@ data class WeatherParams(
   val cloudDamping: Double = 0.6,
 
   /** How much of the diurnal and weather terms a sheltered column keeps. */
-  val shelterDamping: Double = 0.7
+  val shelterDamping: Double = 0.7,
+
+  /**
+   * Volcanism below which the ground contributes **no** heat at all.
+   *
+   * A cutoff rather than a taper, for [manaThreshold]'s reason stated about a different field: if every cell above
+   * zero got a share, `VOLCANISM` would be a global offset on the air temperature and "the volcanic provinces are
+   * dangerous" would stop being something a player can learn by walking.
+   *
+   * **0.75, and it is a percentile of volcanic country rather than of the world** - see `LayerId.VOLCANISM`, whose
+   * ranking excludes the cells with no volcanism at all. So this is the hottest quarter of the ground that has any
+   * heat, which measures out at about a tenth of the land.
+   *
+   * It was 0.55 until the measurement said otherwise, and the measurement is worth recording because 0.55 looked
+   * entirely reasonable. `LayerId.VOLCANISM` is a *regional* field - `arcRange` is 40 km, because it also answers
+   * "how exposed is this province to ashfall" - so a fifth of the land sits above 0.55, and warming a fifth of the
+   * land pulled `LocalTemperatureTest`'s harsh-country share from 71% to 54%: the arcs run along the mountains, so
+   * a floor that low was quietly making the *alpine* ground comfortable. That is the exact failure this field
+   * exists to prevent, arriving one province wider than expected.
+   */
+  val geothermalFloor: Double = 0.75,
+
+  /**
+   * Degrees the ground adds at the very top of the volcanism rank, at the hottest hour.
+   *
+   * **Measured against what the world already reaches.** A continental desert runs about 16 °C of diurnal swing
+   * and tops out at 33-34, which is exactly why `ExposureConfig.comfortHighCelsius = 34.0` had never fired.
+   * Fourteen puts a volcanic field's afternoon at 45-48 and its night around 30, so the heat half of exposure
+   * bites in volcanic country and nowhere else. `LocalTemperatureTest` prints the measured maximum and asserts
+   * it clears the comfort band, which is what stops this from silently becoming decoration again.
+   */
+  val geothermalPeak: Double = 14.0,
+
+  /**
+   * Extra share of the geothermal lift at the coldest hour of the day.
+   *
+   * Ground heat has no daily cycle of its own, so it is *relatively* more noticeable at night - and at 0.35 it
+   * adds about 4.9 °C at the coldest hour at the core of a field. That makes volcanic ground the one place in
+   * the world where night is not the dangerous half, which is the observable that reads as "the ground here is
+   * warm" rather than as "this region is hot".
+   */
+  val geothermalNightBonus: Double = 0.35
 ) : Params {
 
   init {
@@ -184,6 +225,11 @@ data class WeatherParams(
     require(diurnalContinentality >= 0.0) { "diurnalContinentality must not be negative" }
     require(cloudDamping in 0.0..1.0) { "cloudDamping must be a share" }
     require(shelterDamping in 0.0..1.0) { "shelterDamping must be a share" }
+    require(geothermalFloor in 0.0..1.0) { "geothermalFloor must be a share" }
+    // Strictly below one, or the smoothstep above it divides by zero and no cell in the world is ever warm.
+    require(geothermalFloor < 1.0) { "geothermalFloor must leave room above it, was $geothermalFloor" }
+    require(geothermalPeak >= 0.0) { "geothermalPeak must not be negative" }
+    require(geothermalNightBonus >= 0.0) { "geothermalNightBonus must not be negative" }
   }
 
   fun overriddenBy(source: ParamsText.ParamsSource) = copy(
@@ -212,7 +258,10 @@ data class WeatherParams(
     diurnalBase = source.double("diurnalBase", diurnalBase),
     diurnalContinentality = source.double("diurnalContinentality", diurnalContinentality),
     cloudDamping = source.double("cloudDamping", cloudDamping),
-    shelterDamping = source.double("shelterDamping", shelterDamping)
+    shelterDamping = source.double("shelterDamping", shelterDamping),
+    geothermalFloor = source.double("geothermalFloor", geothermalFloor),
+    geothermalPeak = source.double("geothermalPeak", geothermalPeak),
+    geothermalNightBonus = source.double("geothermalNightBonus", geothermalNightBonus)
   )
 
   override fun digest() = ParamsDigest()
@@ -242,4 +291,7 @@ data class WeatherParams(
     .put("diurnalContinentality", diurnalContinentality)
     .put("cloudDamping", cloudDamping)
     .put("shelterDamping", shelterDamping)
+    .put("geothermalFloor", geothermalFloor)
+    .put("geothermalPeak", geothermalPeak)
+    .put("geothermalNightBonus", geothermalNightBonus)
 }

@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.LayerStore
 import net.bestia.worldgen.core.WorldConfig
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.max
 import kotlin.math.sqrt
 
 /** Air temperature and what it feels like, at a place and a moment. */
@@ -27,7 +28,7 @@ data class Temperature(
  * A stateless reader over stored layers, sampled in world metres - the [SeasonalPrecipitation] shape. The
  * runtime supplies the time; nothing here has a clock.
  *
- * ### Five terms
+ * ### Six terms
  *
  * 1. `TEMPERATURE`, the mean annual.
  * 2. The **elevation residual**, which is the term nobody expects to need. `TEMPERATURE` already has the lapse
@@ -38,12 +39,22 @@ data class Temperature(
  * 3. The **seasonal** swing, through [Seasons.warmingAt] so the runtime and the generator cannot drift.
  * 4. The **diurnal** swing, which is where aridity, continentality and cloud come in.
  * 5. The **weather** modifier, an exhaustive `when` over [WeatherKind] with no `else`.
+ * 6. The **geothermal** term, which is the one that finally makes the *heat* half of exposure reachable. See
+ *    [geothermalAt].
  *
  * ### `SurfaceSampler.temperatureAt` is not this and must not become it
  *
  * That one feeds `SurfaceCover`, whose snow line is documented as the *mean annual* threshold for
  * **permanent** snow. A block in a cached chunk must never depend on the time of year, or the chunk cache key
  * needs a timestamp in it. Seasonal snow is a client visual driven by the weather message.
+ *
+ * That holds for the geothermal term too, even though its standing part *is* time-independent - and the reason
+ * is a version number rather than a clock. `WorldParams` folds [WeatherParams] into neither `version` nor
+ * `chunkTierVersion` precisely because weather cannot move a voxel, so a `SurfaceSampler` reading
+ * [WeatherParams.geothermalPeak] would let retuning three weather numbers silently change the blocks in every
+ * cached chunk. An active volcano melting its own summit ice is handled where it belongs instead: the volcanic
+ * biomes sit **above** the ice rung in `BiomeStage`'s override ladder and name their own bare cover, so
+ * `SurfaceCover.cap` never reaches its snow line on volcanic ground at all.
  */
 class LocalTemperature private constructor(
   private val temperature: FloatLayer,
@@ -51,6 +62,16 @@ class LocalTemperature private constructor(
   private val toOcean: FloatLayer,
   private val precipitation: FloatLayer,
   private val bedrock: FloatLayer,
+
+  /**
+   * The volcanism rank, or null on a world generated without `VolcanismStage`.
+   *
+   * Nullable rather than required, unlike the five above. [from] returns null when *any* of those is missing and
+   * is documented as nullable for the viewer and for the stage tests, which run partial pipelines - so making
+   * this one required would turn every such pipeline from "no local temperature" into "no local temperature, for
+   * a new reason", and the viewer would stop opening on a world built up to the climate stage.
+   */
+  private val volcanism: FloatLayer?,
   private val config: WorldConfig,
   private val climate: ClimateParams,
   private val weather: WeatherParams
@@ -90,8 +111,52 @@ class LocalTemperature private constructor(
       deltaOf(state) * kept
     }
 
-    val air = mean + residual + seasonal + diurnal + weatherDelta
+    // Deliberately **not** multiplied by `shelterDamping`, and this is the one line of the sum where that is a
+    // decision rather than an omission. A roof over hot ground traps the heat: unlike the diurnal and weather
+    // terms, whose source is the sky, this one's source is *below* the shelter.
+    val geothermal = geothermalAt(worldX, worldY, timeOfDay)
+
+    // In the **air** sum, before `feelsLike`. Warm ground warms the air, and `feelsLike` is documented as a
+    // perception transform - so putting it there would make `airCelsius`, which goes on the wire as
+    // `temperature_celsius`, report a volcanic field as cold. Being in the air sum also lets the humidity branch
+    // fire, which is the steam-bath case where the +2 belongs, and means `WeatherService`'s snow-versus-rain
+    // decision sees it: volcanic ground now gets rain where the mountains around it get snow.
+    val air = mean + residual + seasonal + diurnal + weatherDelta + geothermal
     return Temperature(air, feelsLike(air, state))
+  }
+
+  /**
+   * What the ground itself adds, in degrees.
+   *
+   * Read off [LayerId.VOLCANISM] - a percentile rank over land, zero over water - rather than from the lava
+   * voxels, and that is a decision about cost as much as about meaning. `LocalTemperature` is built from a
+   * [LayerStore] and nothing else, so a lava well's position is not even reachable from here; and
+   * `WeatherService.at` evaluates the temperature **twice** per call while `EnvironmentalExposureSystem` runs
+   * every five seconds for every entity with a position and stamina, so two spatial queries per tick per entity
+   * is not a price this can pay. The raster answers "you are in volcanic country". Standing next to an open lava
+   * lake and being scalded by it is a contact question for the ECS, and a different feature.
+   *
+   * ### The smoothstep is what protects a high-latitude basin
+   *
+   * At the floor of 0.55 the lift is zero and at the top of the rank it is the whole of
+   * [WeatherParams.geothermalPeak], but the curve in between is deliberately not linear. A cell at volcanism 0.70
+   * gets `14 × smoothstep(0.333) = 3.6 °C`, so a tundra basin at −8 °C mean becomes −4.4 - a warm spot, which is
+   * what a geothermal basin is. Linear interpolation would give that same basin 9.8 °C *and* hand every
+   * arc-flank cell at 0.60 a free 1.3 °C, which is how a term meant to mark out three provinces becomes a
+   * global offset.
+   */
+  private fun geothermalAt(worldX: Double, worldY: Double, timeOfDay: Double): Double {
+    val layer = volcanism ?: return 0.0
+
+    val above = smoothstep(weather.geothermalFloor, 1.0, layer.sampleBilinear(worldX, worldY))
+    if (above <= 0.0) return 0.0
+
+    // Ground heat has no daily cycle, so it is *not* scaled by the diurnal cosine - it is merely more noticeable
+    // at night. "Night" is the negative half of the very cosine the diurnal term uses, taken from the same
+    // constant, so the two definitions of when it is dark cannot drift apart. See [HOTTEST_TIME_OF_DAY].
+    val night = max(0.0, -cos(TAU * (timeOfDay - HOTTEST_TIME_OF_DAY)))
+
+    return weather.geothermalPeak * above * (1.0 + weather.geothermalNightBonus * night)
   }
 
   /**
@@ -196,6 +261,12 @@ class LocalTemperature private constructor(
     /** Share of the diurnal swing even a soaking climate keeps. */
     private const val ARIDITY_FLOOR = 0.55
 
+    /** The usual Hermite ramp, in the shape `Winds` and the two mana stages already spell it. */
+    private fun smoothstep(edge0: Double, edge1: Double, x: Double): Double {
+      val t = ((x - edge0) / (edge1 - edge0)).coerceIn(0.0, 1.0)
+      return t * t * (3.0 - 2.0 * t)
+    }
+
     private const val CHILL_BELOW = 10.0
     private const val CHILL_PER_MS = 0.7
     private const val HUMID_ABOVE = 25.0
@@ -220,7 +291,10 @@ class LocalTemperature private constructor(
       val bedrock = layers[LayerId.BEDROCK_ELEVATION] as? FloatLayer ?: return null
 
       return LocalTemperature(
-        temperature, range, toOcean, precipitation, bedrock, config, climate, weather
+        temperature, range, toOcean, precipitation, bedrock,
+        // Optional, and the only optional one. See the field.
+        layers[LayerId.VOLCANISM] as? FloatLayer,
+        config, climate, weather
       )
     }
   }

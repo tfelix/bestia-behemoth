@@ -152,8 +152,14 @@ object Palettes {
      * a designer asks of these two maps is "where did the towns hold it back" - and two auto-ranged fields
      * answer that in two different colour spaces. Corruption is also zero over most of the world by design,
      * which auto-ranging would stretch into a picture of the noise floor.
+     *
+     * [LayerId.VOLCANISM] is here for the second of those reasons rather than the first: it is exactly zero over
+     * about sixty per cent of the land, and pinning is what keeps that reading as *absent* on the map. It is also
+     * the map a designer sweeping the rarity knobs looks at, so the colour of "0.75" has to mean the same thing
+     * from one run to the next or the sweep measures nothing.
      */
-    LayerId.MANA_DENSITY, LayerId.CORRUPTION -> ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
+    LayerId.MANA_DENSITY, LayerId.CORRUPTION, LayerId.VOLCANISM ->
+      ContinuousPalette(Ramps.VIRIDIS, 0.0..1.0)
     LayerId.SOIL_DEPTH -> ContinuousPalette(Ramps.VIRIDIS, 0.0..9.0)
 
     /** Ice is white where it is thick; a log-ish top end because an ice cap dwarfs a valley glacier. */

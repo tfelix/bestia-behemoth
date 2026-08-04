@@ -67,12 +67,13 @@ class VolcanismTest {
   }
 
   @Test
-  fun `the volcanism field is a percentile rank over land`() {
+  fun `the volcanism field is a percentile rank over the volcanic land`() {
     val field = world.world.layers.require<FloatLayer>(LayerId.VOLCANISM)
     val elevation = world.world.layers.require<FloatLayer>(LayerId.ELEVATION)
     val seaLevel = world.config.seaLevel
 
     var land = 0
+    var volcanic = 0
     var hot = 0
     var maximum = 0.0
 
@@ -83,23 +84,40 @@ class VolcanismTest {
 
       if (elevation.data[i] > seaLevel) {
         land++
+        if (value > 0.0) volcanic++
         if (value >= HOT) hot++
       }
     }
 
     assertTrue(land > 0, "the fixture world has no land")
+    assertTrue(volcanic > 0, "the fixture world has no volcanic ground to rank")
 
-    // A rank reaches its own top: the hottest land cell in the world is at or very near 1. A raw field of
+    // A rank reaches its own top: the hottest volcanic cell in the world is at or very near 1. A raw field of
     // `strength * (1 - d/range)` would top out at whatever the strongest vent happened to be, so this is the
     // assertion that tells a rank from a raw field rather than merely checking the range.
     assertTrue(maximum > 0.99, "a percentile rank should reach 1.0 somewhere, peaked at $maximum")
 
-    // And the top quarter is about a quarter of the land, which no raw field would be.
-    val share = hot.toDouble() / land
+    /*
+     * And the top quarter of the *volcanic* ground is about a quarter of it, which no raw field would be.
+     *
+     * Over the volcanic cells and not over the land, and that is the whole of the bug this assertion was
+     * rewritten for. Ranking all the land put every zero-volcanism cell - about sixty per cent of it - at one
+     * rank equal to the height of the spike at zero, so `>= 0.75` came out at 45% of the land on one seed and
+     * 99.7% on another. Both were inside the old `0.10..0.40` bound often enough to pass. See
+     * `VolcanismStage.rankAgainstLand`.
+     */
+    val share = hot.toDouble() / volcanic
     assertTrue(
-      share in 0.10..0.40,
-      "the share of land at or above $HOT should be near ${1.0 - HOT} for a rank, was $share"
+      share in 0.15..0.35,
+      "the share of volcanic ground at or above $HOT should be near ${1.0 - HOT}, was $share"
     )
+
+    // The other half of it, and the property every consumer actually depends on: quiet crust reads exactly zero,
+    // so `> 0.0` is a valid test for volcanic country and a threshold below the spike cannot select the world.
+    val quiet = 1.0 - volcanic.toDouble() / land
+    println("volcanism: %.1f%% of the land is quiet crust, %.1f%% of the volcanic ground is above %.2f"
+      .format(quiet * 100, share * 100, HOT))
+    assertTrue(quiet > 0.20, "only ${"%.1f".format(quiet * 100)}% of the land is unvolcanic; that is not rare")
   }
 
   @Test
@@ -171,7 +189,7 @@ class VolcanismTest {
     .filterIsInstance<PointMarker>()
 
   private companion object {
-    /** The percentile the geothermal term's floor sits at, so the share assertion measures the real threshold. */
+    /** `WeatherParams.geothermalFloor`, so the share assertion measures the threshold something really uses. */
     const val HOT = 0.75
   }
 }

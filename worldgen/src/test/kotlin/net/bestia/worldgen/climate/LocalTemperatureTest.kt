@@ -71,11 +71,17 @@ class LocalTemperatureTest {
     var gentleOutside = 0
     var harshSamples = 0
     var harshOutside = 0
+    var hottest = -Double.MAX_VALUE
 
     for (cellY in 0 until world.config.heightCells step 4) {
       for (cellX in 0 until world.config.widthCells step 4) {
         if (ground[cellX, cellY] <= seaLevel) continue
         val kind = Biome.entries[biome[cellX, cellY]]
+
+        // Drawn before the group filter, because the hottest hour *anywhere* is a claim about all the land and
+        // not only about the two named groups - and a volcanic field is in neither of them.
+        val drawn = samples(cellX, cellY)
+        hottest = maxOf(hottest, drawn.max())
 
         val group = when (kind) {
           in GENTLE -> true
@@ -83,7 +89,6 @@ class LocalTemperatureTest {
           else -> continue
         }
 
-        val drawn = samples(cellX, cellY)
         for ((index, band) in CANDIDATE_BANDS.withIndex()) {
           val n = drawn.count { it < band.first || it > band.second }
           if (group) candidateGentle[index] += n else candidateHarsh[index] += n
@@ -120,11 +125,18 @@ class LocalTemperatureTest {
       )
     }
 
-    // The world's hottest hour anywhere, which decides whether the heat half of exposure can fire at all.
-    val hottest = CANDIDATE_BANDS.first().second
-    println(
-      "note: nothing on this world exceeds %.0f C, so heat exposure is unreachable until volcanic regions land"
-        .format(hottest)
+    println("the world's hottest hour anywhere: %.1f C".format(hottest))
+
+    // The mirror of the cold assertion below, and the thing that stops `comfortHighCelsius` shipping dead.
+    //
+    // This line used to read `val hottest = CANDIDATE_BANDS.first().second` - it read the literal 34.0 back out
+    // of its own band list and printed it as though it were a measurement of the world. The claim it printed
+    // ("nothing on this world exceeds 34 C") happened to be true, but nothing in the code that printed it had
+    // ever checked, which is why it survived the term that made it false.
+    assertTrue(
+      hottest > comfortHigh,
+      "the world's hottest hour is only ${"%.1f".format(hottest)} C against a comfort ceiling of " +
+          "$comfortHigh; the heat half of exposure is unreachable and half the mechanic is decoration"
     )
 
     assertTrue(

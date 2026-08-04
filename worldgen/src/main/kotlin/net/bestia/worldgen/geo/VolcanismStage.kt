@@ -27,6 +27,7 @@ import net.bestia.worldgen.vector.Ring
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
+import java.util.Arrays
 import kotlin.math.max
 
 /** Tuning for [VolcanismStage]. */
@@ -392,35 +393,62 @@ class VolcanismStage(
   }
 
   /**
-   * Replaces every value with its percentile rank among the land cells, in place, and zeroes the water.
+   * Replaces every positive value with its percentile rank among the **volcanic** land cells, and zeroes
+   * everything else.
    *
-   * `ManaStage.rankAgainstLand`'s construction, with one deliberate difference: this zeroes ocean and lake cells
-   * instead of ranking them on the land curve. Mana is what the rock holds and has an answer under the sea;
-   * volcanism as every consumer here reads it is a statement about ground a player stands on, and a warm number
-   * over open water would put ash and sulfur and heat where nobody can reach them.
+   * `ManaStage.rankAgainstLand`'s construction with two deliberate differences, and the second of them is not a
+   * refinement - it is what makes the layer usable at all.
+   *
+   * Water is zeroed rather than ranked on the land curve. Mana is what the rock holds and has an answer under
+   * the sea; volcanism as every consumer here reads it is a statement about ground a player stands on, and a warm
+   * number over open water would put ash and sulfur and ground heat where nobody can reach them.
+   *
+   * ### Cells with no volcanism at all are excluded from the ranking, not ranked at the bottom of it
+   *
+   * `ManaStage` can rank against all the land because `MANA_DENSITY` is a smooth noise field with a value
+   * everywhere. This one is a **proximity maximum with a hard range cutoff**, so most of the land is exactly
+   * zero - and a percentile rank over a distribution with a spike at zero puts *every one of those cells at the
+   * same rank*, which is the height of the spike. Measured on three 128 km worlds before this was fixed: about
+   * sixty per cent of the land was zero-volcanism, and every one of those cells came out at rank **0.598**.
+   *
+   * Two failures came out of that, and both are the kind that read as a tuning problem:
+   *
+   * - a threshold below the spike selects the whole world. `LocalTemperature`'s `geothermalFloor` of 0.55 warmed
+   *   45% of the land on one seed and **99.7% on another**, because the spike landed either side of it - so the
+   *   number that decides which provinces are volcanic meant something different on every world.
+   * - the meaning of a given value was a function of how much of the world was volcanic. Fewer vents pushed the
+   *   spike *up*, so the sparser a world's volcanism the warmer its ordinary country read.
+   *
+   * Ranking only the positive cells keeps everything the rank was wanted for - the hottest volcanic cell in any
+   * world is 1.0, and a threshold is a percentile of volcanic country rather than of an absolute field nobody can
+   * calibrate - while "not volcanic" stays exactly zero, which is the one value every consumer needs to be able
+   * to trust.
    */
   private fun rankAgainstLand(ctx: GenContext, region: CellRegion, field: Grid) {
     val elevation = Grid.from(ctx.layers.float(LayerId.ELEVATION))
     val waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL))
     val seaLevel = ctx.config.seaLevel
 
-    val land = ArrayList<Double>(field.data.size / 2)
-    val isLand = BooleanArray(field.data.size)
+    val volcanic = ArrayList<Double>(field.data.size / 8)
+    val ranked = BooleanArray(field.data.size)
     for (i in field.data.indices) {
-      isLand[i] = isStandableLand(elevation, waterLevel, null, region, seaLevel, i)
-      if (isLand[i]) land.add(field.data[i])
+      ranked[i] = field.data[i] > 0.0 && isStandableLand(elevation, waterLevel, null, region, seaLevel, i)
+      if (ranked[i]) volcanic.add(field.data[i])
     }
 
-    // A world with no land is not one this pipeline produces, but a partial pipeline in a test is, and a rank
-    // over an empty set has no answer. `ManaStage` makes the same allowance for the same reason.
-    if (land.isEmpty()) return
+    // A world with no volcanism at all is a legitimate seed - no convergent boundary and no hotspot on land - and
+    // a rank over an empty set has no answer. Everything is already zero, so there is nothing to do.
+    if (volcanic.isEmpty()) {
+      Arrays.fill(field.data, 0.0)
+      return
+    }
 
-    land.sort()
-    val sorted = land.toDoubleArray()
+    volcanic.sort()
+    val sorted = volcanic.toDoubleArray()
     val last = (sorted.size - 1).coerceAtLeast(1)
 
     for (i in field.data.indices) {
-      field.data[i] = if (!isLand[i]) {
+      field.data[i] = if (!ranked[i]) {
         0.0
       } else {
         (upperBound(sorted, field.data[i]).toDouble() / last).coerceAtMost(1.0)

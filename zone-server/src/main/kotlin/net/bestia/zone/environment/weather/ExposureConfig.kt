@@ -26,25 +26,34 @@ data class ExposureConfig(
    *
    * | band | gentle country | harsh country |
    * | --- | --- | --- |
-   * | -2 C | 11.0% | 86.7% |
-   * | **-6 C** | **4.7%** | **71.2%** |
-   * | -10 C | 1.7% | 47.9% |
+   * | -2 C | 10.5% | 77.4% |
+   * | **-6 C** | **4.6%** | **58.7%** |
+   * | -10 C | 1.7% | 36.0% |
    *
    * -6 is the balance the brief asks for: the low-level country is comfortable "more or less the whole year"
    * with a handful of winter nights that *teach* the mechanic somewhere survivable, while the deserts, the
    * alpine ground and the ice are outside it most of the time and genuinely need equipment. At -2 a winter
    * night in a starter forest costs stamina, which is a tax on ordinary travel; at -10 the ice sheet is
    * comfortable half the year.
+   *
+   * The harsh column was 71.2% before the geothermal term landed and the gentle column has not moved. That gap
+   * is the term doing what it should: the volcanic arcs run along the mountains, so about a tenth of the land -
+   * and a larger share of the *alpine* land - now has warm ground under it, and geothermal alpine ground
+   * genuinely is a place you can work. The starter country was never volcanic and is unaffected, which is the
+   * property this number is chosen against.
    */
   val comfortLowCelsius: Double = -6.0,
 
   /**
    * Warmest felt temperature that costs nothing.
    *
-   * **Currently unreachable, and that is worth knowing rather than discovering.** The reference world never
-   * exceeds 34 C anywhere, at any hour, in any season - moving this to 36 changed the measured share by
-   * exactly nothing - so the *heat* half of exposure does not fire today. It is not dead code: `REMINDER.md`
-   * plans volcanic regions and lava wells, and those are what will make it fire. Until then, only cold bites.
+   * **Reachable since the geothermal term landed, and it had never fired before that.** The reference world used
+   * to top out below 34 C anywhere, at any hour, in any season - moving this to 36 changed the measured share by
+   * exactly nothing - so the heat half of exposure was dead and this KDoc said so while pointing at the volcanic
+   * work that would fix it. It now measures **37.2 C** at the hottest hour, in volcanic country and nowhere else.
+   *
+   * The value did not change; only its reachability did. `LocalTemperatureTest` asserts the world's maximum
+   * clears this number, so heat exposure cannot quietly go dead again.
    */
   val comfortHighCelsius: Double = 34.0,
 
