@@ -42,6 +42,39 @@ class ChunkSubscriptionService {
   /** Last chunk each player's anchor entity occupied, so a tick can tell whether anything moved. */
   private val anchors = HashMap<Long, ChunkPos>()
 
+  private val firstSubscriber = ArrayList<(ChunkPos) -> Unit>()
+  private val lastSubscriber = ArrayList<(ChunkPos) -> Unit>()
+
+  /**
+   * Called when a chunk goes from held by nobody to held by somebody, and back.
+   *
+   * These exist so that anything scoped to "chunks a client is actually holding" can be driven from the one
+   * place that already knows it. [subscribers] is a refcount over every path a chunk can enter or leave a
+   * client's view by - login, walking, a `reset` manifest after a teleport, master deselection, disconnect -
+   * and all of them funnel through [markSent] and [unsend], so two callbacks cover the lot. A radius test
+   * beside this would have to rediscover the refcount to avoid double-loading for overlapping players, and
+   * would be wrong at a chunk border in both directions for the reason the class note gives.
+   *
+   * ### A listener must not do work
+   *
+   * They fire from inside `ChunkStreamSystem`'s own update, on the tick thread, while systems are iterating -
+   * so `World.add` would be deferred to the end of the tick anyway. Mark something and return, the way
+   * `ChunkService.onChunkChanged` and `ChunkStreamInbox` already require.
+   *
+   * ### The address includes z
+   *
+   * A [ChunkPos] here is one *slab*, so a column with three subscribed slabs fires this three times. A
+   * listener that cares about the surface - which is everything about props - has to refcount by column
+   * itself. `WorldObjectResidencyService` does.
+   */
+  fun onFirstSubscriber(listener: (ChunkPos) -> Unit) {
+    firstSubscriber.add(listener)
+  }
+
+  fun onLastSubscriber(listener: (ChunkPos) -> Unit) {
+    lastSubscriber.add(listener)
+  }
+
   val trackedAccounts get() = announced.size
 
   /** A copy, because callers iterate it while forgetting accounts out of it. */
@@ -98,7 +131,12 @@ class ChunkSubscriptionService {
   /** Records that a chunk's payload has gone out, so patches for it now reach this account. */
   fun markSent(accountId: Long, chunk: ChunkPos) {
     sent.getOrPut(accountId) { HashSet() }.add(chunk)
-    subscribers.getOrPut(chunk) { HashSet() }.add(accountId)
+
+    val holders = subscribers.getOrPut(chunk) { HashSet() }
+    val wasUnheld = holders.isEmpty()
+    holders.add(accountId)
+
+    if (wasUnheld) firstSubscriber.forEach { it(chunk) }
   }
 
   /**
@@ -112,7 +150,11 @@ class ChunkSubscriptionService {
 
     val holders = subscribers[chunk] ?: return
     holders.remove(accountId)
-    if (holders.isEmpty()) subscribers.remove(chunk)
+
+    if (holders.isEmpty()) {
+      subscribers.remove(chunk)
+      lastSubscriber.forEach { it(chunk) }
+    }
   }
 
   /** Drops every trace of a connection. Called on disconnect and when a session is deactivated. */

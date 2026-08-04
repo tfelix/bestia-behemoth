@@ -1,0 +1,37 @@
+# What each kind of static entity is made of, beyond where it stands.
+#
+# A registry rather than a table: none of this is persisted and none of it is per-instance, so it is
+# configuration in the sense `ai/*.yml` and `movement/*.yml` are - read once at boot into memory. Contrast
+# `items.yml` and `mob/*.yml`, which become rows because other rows reference them by id.
+#
+# `max-hp` is what a felled tree's health starts from once something damages it. Nothing reads it yet - there
+# is no harvesting - so these are placeholders in the honest sense: shaped right, not balanced.
+#
+# `collider` is half-extents and height in position units (= metres). Also unread: movement does not consult
+# entity colliders yet, and the seam for it is `ChunkWalkQuery.canStep`. Recorded here so that when it does,
+# the numbers are in one place rather than in the factory.
+kinds:
+  - kind: TREE
+    max-hp: 120
+    collider: { half-x: 1, half-y: 1, height: 8 }
+    variants: 4
+
+  - kind: BLIGHTED_TREE
+    max-hp: 90
+    collider: { half-x: 1, half-y: 1, height: 8 }
+    variants: 3
+
+  - kind: MANA_CRYSTAL_SMALL
+    max-hp: 40
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 3
+
+  - kind: MANA_CRYSTAL_LARGE
+    max-hp: 90
+    collider: { half-x: 1, half-y: 1, height: 4 }
+    variants: 3
+
+  - kind: WOUND_SPIRE
+    max-hp: 200
+    collider: { half-x: 1, half-y: 1, height: 9 }
+    variants: 2
