@@ -78,7 +78,9 @@ class ZoneEngineTest {
 
   @Test
   fun `destroying an entity with no synced component sends no vanish`() {
-    val entity = world.createEntity { id -> add(id, Position.fromVec3(Vec3L(0, 0, 0))) }
+    // Position is itself Dirtyable (always PublicInRange), so giving the entity one would defeat the
+    // point of this test - it must have no Dirtyable component at all.
+    val entity = world.createEntity { }
 
     world.destroy(entity)
 

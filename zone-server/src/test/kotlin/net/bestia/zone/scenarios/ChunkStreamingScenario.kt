@@ -190,14 +190,29 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       "the test's own premise: this chunk must not be in the subscription"
     )
 
+    val barrier = subscriptions.announcedTo(clientPlayer1.connectedPlayerId).first()
+
     clientPlayer1.sendMessage(ChunkRequestCMSG(clientPlayer1.connectedPlayerId, listOf(unoffered)))
+    // A second, legitimately-offered request queued right behind it. Requests are served in arrival order, so
+    // once this one's answer shows up, the unoffered chunk's fate has already been decided.
+    //
+    // This can't be proven by retrying a single "nothing arrived" assertion with `await`/`untilAsserted`:
+    // untilAsserted stops on the first pass, and a ChunkDataSMSG that is genuinely unrelated (queued earlier in
+    // the scenario, arriving late) can turn up mid-retry and fail every attempt until the timeout even though
+    // the gate held throughout. Settling on the barrier response first, then checking once, sidesteps that.
+    clientPlayer1.sendMessage(ChunkRequestCMSG(clientPlayer1.connectedPlayerId, listOf(barrier)))
 
     await {
       assertTrue(
-        clientPlayer1.tryGetLastReceived(ChunkDataSMSG::class) == null,
-        "an unoffered chunk must not be served"
+        clientPlayer1.receivedAny(ChunkDataSMSG::class) { it.chunk == barrier },
+        "barrier chunk should have arrived by now"
       )
     }
+
+    assertTrue(
+      !clientPlayer1.receivedAny(ChunkDataSMSG::class) { it.chunk == chunkService.normalise(unoffered) },
+      "an unoffered chunk must not be served"
+    )
   }
 
   /**

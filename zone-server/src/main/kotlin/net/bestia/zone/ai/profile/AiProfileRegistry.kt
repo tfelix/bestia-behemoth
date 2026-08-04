@@ -40,7 +40,12 @@ class AiProfileRegistry(
       .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
       .build()
     val resolver = PathMatchingResourcePatternResolver()
-    val resources = resolver.getResources("classpath:$CLASSPATH_FOLDER/*.yml")
+    // "classpath*:" (not "classpath:") is required here: with a plain "classpath:" prefix Spring resolves
+    // the wildcard root by taking the *first* "ai/" directory the classloader finds and globbing only inside
+    // it. The goap2 test fixtures also put a nested `ai/goap2/wolf.yml` on the test classpath, and if that
+    // "ai/" root wins the lookup (no top-level *.yml of its own) this silently loads zero profiles instead
+    // of throwing. "classpath*:" aggregates every matching root instead of picking just one.
+    val resources = resolver.getResources("classpath*:$CLASSPATH_FOLDER/*.yml")
 
     resources.forEach { resource ->
       val dto = objectMapper.readValue(resource.inputStream, AiProfileDto::class.java)

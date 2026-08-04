@@ -58,13 +58,20 @@ Run all of it per phase, in this order. The last three catch what the first miss
 - Run at **both 128 km and 512 km**, and sweep at least 200 seeds. Phases 6 and 7 each found a real defect only
   above 120 seeds: two latent "built in water" bugs at 30×256, and a `Polyline` precondition 113 worlds into a
   200-seed run.
-- **`zone-server` has 6 known failures** at HEAD — `AiBehaviorScenarioTest` ×3, `AiLifecycleE2ETest`,
-  `AiProfileRegistryTest`, and `ZoneEngineTest > destroying an entity with no synced component sends no vanish`.
-  A **7th is flaky**: `ChunkStreamingScenario > a chunk that was never offered is not served` fails about one run
-  in three. It proves a *negative* with `Awaitility.untilAsserted`, which retries until the assertion passes — so
-  a legitimately-offered chunk's `ChunkDataSMSG` arriving late after `clearMessages()` makes it fail on every
-  retry until timeout. `untilAsserted` cannot express "nothing arrived"; that needs settle-then-check. **Real bug,
-  in the test, outside worldgen.**
+- **The 6 known `zone-server` failures and the flaky 7th are fixed** (2026-08-04). The 6 —
+  `AiBehaviorScenarioTest` ×3, `AiLifecycleE2ETest`, `AiProfileRegistryTest`,
+  `ZoneEngineTest > destroying an entity with no synced component sends no vanish` — all traced back to one bug:
+  `AiProfileRegistry.load()` resolved `classpath:ai/*.yml` with the singular `classpath:` prefix, which only globs
+  inside the *first* `ai/` directory the classloader finds. Once the goap2 fixtures added
+  `zone-server/src/test/resources/ai/goap2/wolf.yml`, that test-resources `ai/` root (no top-level `*.yml` of its
+  own) could win the lookup ahead of `src/main/resources/ai/`, silently loading zero profiles instead of throwing.
+  Fixed by switching to `classpath*:`, which aggregates every matching root. `ZoneEngineTest`'s failure was
+  separate and pre-dated that: the "no synced component" case gave the entity a bare `Position`, which is itself
+  `Dirtyable` (always `PublicInRange`) — contradicting its own premise. Fixed by giving it no components at all.
+  The flaky 7th, `ChunkStreamingScenario > a chunk that was never offered is not served`, was the
+  `Awaitility.untilAsserted`-proving-a-negative bug described above — fixed with settle-then-check: queue a second,
+  legitimately-offered request right behind the bad one, wait for *that* response (proving the bad one's fate is
+  already decided), then assert once rather than retrying "nothing arrived" until timeout.
 
 ### Things that bite
 
