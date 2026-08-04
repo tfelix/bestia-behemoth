@@ -78,7 +78,50 @@ data class VegetationParams(
   val maxCanopyRadius: Double = 3.2,
 
   /** Crown height as a multiple of its radius. Above one is a tall crown, below one a spreading crown. */
-  val crownAspect: Double = 1.15
+  val crownAspect: Double = 1.15,
+
+  /**
+   * Share of the simulated lattice that becomes an *entity*, in `(0, 1]`.
+   *
+   * The entity budget, and the only knob for it. [cellSize] stays the simulation's decision unit and
+   * the hard floor on stem spacing; this decides how many of those stems a runtime is asked to
+   * materialise. One in four at the default, which is a mean spacing around eight metres against the
+   * four-metre floor.
+   *
+   * Continuous rather than an integer block factor on purpose. Choosing one cell per `k x k` block
+   * quantises the achievable spacing to multiples of [cellSize] - four, eight, twelve - and cannot
+   * express six at all; worse, it guarantees exactly one tree per block, so a wood comes out with no
+   * clumps and no gap wider than one block. That reads as an orchard. See [VegetationScatter.clumpAt]
+   * for the other half of the argument.
+   *
+   * The emitted set is a subset of the simulated one at **every** value, which is what keeps
+   * `LayerId.CANOPY_COVER` and a stand's advertised capacity two views of one function rather than two
+   * models of one thing.
+   *
+   * ### The mean retention is this number only while `entityShare * clumpAt <= 1`
+   *
+   * [VegetationScatter.clumpAt] has a mean of one and a range of roughly `[0,2]`, and the retention
+   * threshold is clamped so it can never exceed the simulated density. So the expected share retained is
+   * exactly this value while the product stays under one - true at the default, where it peaks around a
+   * half - and falls below it once the clamp starts biting, which it does over about half the world at a
+   * share of one. A stand's advertised capacity is computed from this number, so **a share much above a
+   * half makes that advertisement optimistic** rather than wrong in an interesting way.
+   *
+   * A share of one therefore means "as many as the clumping allows", not literally every simulated tree.
+   */
+  val entityShare: Double = 0.25,
+
+  /**
+   * Wavelength in metres of the field that makes entity trees clump.
+   *
+   * Thirty metres: the scale a player walks through, so a wood has thickets and glades in it rather
+   * than an even pitch. Deliberately a **separate field** from [patchWavelength] rather than another
+   * octave on it - [patchWavelength] is 140 m with a hard [clearingCutoff] and feeds
+   * [VegetationScatter.coverAt] and therefore `CANOPY_COVER`, so adding detail there would move the
+   * canopy raster, the TIMBER resource and the biome-agreement invariant. This one gates entity
+   * retention only and never reaches `VegetationStage`.
+   */
+  val clumpWavelength: Double = 30.0
 ) : Params {
 
   init {
@@ -99,6 +142,8 @@ data class VegetationParams(
       "maxCanopyRadius $maxCanopyRadius is below minCanopyRadius $minCanopyRadius"
     }
     require(crownAspect > 0.0) { "crownAspect must be positive, was $crownAspect" }
+    require(entityShare > 0.0 && entityShare <= 1.0) { "entityShare must be in (0,1], was $entityShare" }
+    require(clumpWavelength > 0.0) { "clumpWavelength must be positive, was $clumpWavelength" }
   }
 
   override fun digest() = ParamsDigest()
@@ -115,6 +160,8 @@ data class VegetationParams(
     .put("minCanopyRadius", minCanopyRadius)
     .put("maxCanopyRadius", maxCanopyRadius)
     .put("crownAspect", crownAspect)
+    .put("entityShare", entityShare)
+    .put("clumpWavelength", clumpWavelength)
 }
 
 /**
@@ -178,6 +225,7 @@ class VegetationScatter(
 
   private val treeSeed = GenRng.mix64(seed xor TREE_SALT)
   private val patchSeed = GenRng.mix64(seed xor PATCH_SALT)
+  private val clumpSeed = GenRng.mix64(seed xor CLUMP_SALT)
 
   /** Fixed-point cell edge, so the lattice index is integer division and not a rounded quotient. */
   private val cellUnits = Quantize.toFixed(params.cellSize)
@@ -289,6 +337,30 @@ class VegetationScatter(
   fun coverAt(worldX: Double, worldY: Double): Double = coverOf(densityAt(worldX, worldY))
 
   /**
+   * A mean-one multiplier on entity retention, so entity trees clump instead of coming out on a pitch.
+   *
+   * ### Why the mean has to be one
+   *
+   * Not cosmetic. It is what keeps the expected entity count equal to
+   * `cover x area x entityShare / cellArea` with no clump term in it, so a `VEGETATION_STAND` can
+   * advertise a capacity the chunk tier will actually fill and an invariant can compare the two. A
+   * field with a mean of 1.2 would make every stand in the world under-promise by a fifth, and nothing
+   * would notice because both sides would still look plausible.
+   *
+   * `Noise.fbm` is normalised by the sum of its amplitudes and `gradient2d` is scaled to roughly
+   * `[-1,1]` - the same assumption [patchAt] already makes when it maps `fbm` onto `[0,1]` - so
+   * `1 + fbm` has a mean of one by the symmetry of gradient noise rather than by a fitted constant.
+   * `VegetationPropsTest` measures it rather than trusting that.
+   *
+   * The floor at zero is a guard, not a mechanism: it can only bite where `fbm` undershoots -1, and a
+   * negative multiplier would merely reject the cell anyway.
+   */
+  fun clumpAt(worldX: Double, worldY: Double): Double =
+    (1.0 + Noise.fbm(
+      clumpSeed, worldX / params.clumpWavelength, worldY / params.clumpWavelength, CLUMP_OCTAVES
+    )).coerceAtLeast(0.0)
+
+  /**
    * The trees whose crowns can reach a chunk, before anything asks how high the ground is under them.
    *
    * Split from [plant] purely for cost, and the saving is worth the seam in the API: resolving the ground
@@ -371,8 +443,19 @@ class VegetationScatter(
    *
    * Trunk height and crown radius come off the **same** draw, so a big tree has a big crown. Two draws would
    * produce saplings with the canopy of an oak.
+   *
+   * ### The entity lattice is the same lattice, thinned
+   *
+   * [thinToEntities] compares the *same* `roll` against a lower threshold, which is what makes the
+   * emitted set a **strict subset** of the simulated one rather than a second scatter that happens to
+   * look similar. Reusing the roll costs nothing and biases nothing: jitter and size come off further
+   * mixes of the key, so which trees survive is independent of what they are.
+   *
+   * The `coerceAtMost(density)` is what makes the subset property hold for *any* parameters rather than
+   * only for sane ones - `entityShare * clumpAt` exceeding one would otherwise retain a cell the
+   * simulation rejected. It cannot bite at the defaults, where the product peaks around a half.
    */
-  private fun treeAt(cellX: Long, cellY: Long): Tree? {
+  private fun treeAt(cellX: Long, cellY: Long, thinToEntities: Boolean = false): Tree? {
     val key = GenRng.hash(treeSeed, cellX, cellY)
     val roll = GenRng.unit(key)
     // Cheap reject before the density field, sound only because densityAt is capped at the same value.
@@ -385,7 +468,13 @@ class VegetationScatter(
 
     // Judged where the trunk stands rather than at the cell centre: a tree jittered onto a river bank is on
     // the river bank.
-    if (roll >= densityAt(x, y)) return null
+    val density = densityAt(x, y)
+    val threshold = if (thinToEntities) {
+      (density * params.entityShare * clumpAt(x, y)).coerceAtMost(density)
+    } else {
+      density
+    }
+    if (roll >= threshold) return null
 
     val size = GenRng.unit(GenRng.mix64(key + 3))
     return Tree(
@@ -394,6 +483,83 @@ class VegetationScatter(
       trunkHeight = params.minTrunkHeight + (params.maxTrunkHeight - params.minTrunkHeight) * size,
       canopyRadius = params.minCanopyRadius + (params.maxCanopyRadius - params.minCanopyRadius) * size
     )
+  }
+
+  /**
+   * The trees whose own trunk stands inside this chunk, as props for a runtime to make entities of.
+   *
+   * ### One pass, no halo
+   *
+   * [candidatesIn] and [plant] are split, and cost a halo of ground columns, for one reason: a crown
+   * spans columns and reaches into the neighbouring chunk, so a chunk drawing *voxels* has to know
+   * about trees standing outside it. A prop is a point. Nothing outside this chunk can contribute one,
+   * so [crownReach], [searchCells] and [halo] all fall away and this needs the chunk's own columns and
+   * nothing more - about seventy per cent fewer heightfield evaluations than the voxel path on a
+   * forested chunk.
+   *
+   * ### Ownership is an integer test
+   *
+   * A prop belongs to the chunk containing its trunk's **voxel column**, which is the same integer
+   * index `TreeLattice` uses to decide which column a trunk goes in. Deliberately not
+   * `Aabb.contains`: `vector/Aabb` is a closed interval, so a trunk exactly on a chunk boundary would
+   * be claimed by both of the chunks that share it and appear twice in the world.
+   *
+   * The cell range is the cells overlapping the chunk with no expansion, which is sound because jitter
+   * cannot carry a trunk out of its own cell - the offset is at most `cellSize * jitterShare / 2` and
+   * `jitterShare` is required to be at most one.
+   *
+   * Rows are walked in order, so the result does not depend on thread scheduling.
+   *
+   * @param site the same veto [plant] uses - ground elevation, and `NaN` where the other producers in
+   *   the chunk tier have already claimed the spot
+   */
+  fun propsIn(chunk: ChunkPos, site: TrunkSite, into: PropInstances) {
+    val bounds = config.chunkBounds(chunk)
+    val fromX = cellOf(bounds.minX)
+    val untilX = cellOf(bounds.maxX) + 1
+    val fromY = cellOf(bounds.minY)
+    val untilY = cellOf(bounds.maxY) + 1
+
+    val chunkSize = config.chunkSize.toLong()
+
+    for (cellY in fromY until untilY) {
+      for (cellX in fromX until untilX) {
+        val tree = treeAt(cellX, cellY, thinToEntities = true) ?: continue
+
+        val columnX = Math.floorDiv(Quantize.toFixed(tree.x), voxelUnits)
+        val columnY = Math.floorDiv(Quantize.toFixed(tree.y), voxelUnits)
+        if (Math.floorDiv(columnX, chunkSize).toInt() != chunk.x) continue
+        if (Math.floorDiv(columnY, chunkSize).toInt() != chunk.y) continue
+
+        val ground = site.groundAt(tree.x, tree.y)
+        if (ground.isNaN()) continue
+
+        // Nothing grows out of standing water. The biome term already refuses OCEAN and LAKE, but a
+        // biome is a kilometre cell and a pond edge is not, so the water surface has the last word.
+        if (surface.waterLevelAt(tree.x, tree.y) > ground) continue
+
+        val isBlighted = surface.isBlightedAt(tree.x, tree.y)
+
+        // Nor out of ice or year-round snow. Asked of the cap block rather than of the temperature, so
+        // the one place deciding what the top of a column is made of also decides whether anything can
+        // root in it. Blighted ground is neither, so a corrupted wood keeps its trees.
+        val cap = SurfaceCover.cap(
+          surface.biomeAt(tree.x, tree.y), surface.temperatureAt(tree.x, tree.y), 0.0, isBlighted
+        )
+        if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
+
+        into.add(
+          kind = PropKind.TREE,
+          identity = PropId.of(PropKind.TREE, cellX, cellY),
+          x = tree.x,
+          y = tree.y,
+          ground = ground,
+          heightM = tree.trunkHeight,
+          radiusM = tree.canopyRadius,
+          flags = if (isBlighted) PropFlags.BLIGHTED else 0
+        )
+      }
+    }
   }
 
   /** Lattice cell index of a world coordinate. Integer division of a fixed-point value; see the class KDoc. */
@@ -459,9 +625,16 @@ class VegetationScatter(
   private companion object {
     const val TREE_SALT = 0x7A31B0DE4C0F55L
     const val PATCH_SALT = 0x2E9C64B7D1A308L
+    const val CLUMP_SALT = 0x5B70E2A9F34C16L
 
     /** Two octaves: enough that a wood has an irregular edge, few enough that it stays one wood. */
     const val PATCH_OCTAVES = 2
+
+    /**
+     * Two, for the same reason [PATCH_OCTAVES] is two, one scale down: a thicket wants a ragged edge
+     * and not a fractal one, and a third octave at thirty metres varies inside a single crown.
+     */
+    const val CLUMP_OCTAVES = 2
   }
 }
 

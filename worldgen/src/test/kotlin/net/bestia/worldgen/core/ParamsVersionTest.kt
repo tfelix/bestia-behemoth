@@ -190,7 +190,10 @@ class ParamsVersionTest {
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,
       "BiomeParams" to -4_114_408_631_599_266_756L,
-      "VegetationParams" to 5_359_640_679_940_278_481L,
+      // Moved by entityShare and clumpWavelength, which decide which trees become entities and change
+      // nothing the voxels or CANOPY_COVER see. Folded into the digest anyway, because VegetationParams
+      // reaches both tiers and a knob invisible to one of them is how they drift apart.
+      "VegetationParams" to -3_903_118_992_586_938_283L,
       "GradeMix" to -7_184_838_964_596_318_845L,
       "ResourceParams" to 6_146_072_137_982_550_005L,
       "CaveParams" to -4_263_381_643_348_589_984L,

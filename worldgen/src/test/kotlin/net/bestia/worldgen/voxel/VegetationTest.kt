@@ -263,6 +263,232 @@ class VegetationTest {
     assertTrue(leaves > 100, "only $leaves leaf voxels in the block, which asserts nothing")
   }
 
+  // --- The prop lattice -----------------------------------------------------------------------------
+
+  /**
+   * The mean has to be one or a `VEGETATION_STAND` advertises a capacity nothing will fill, and both
+   * sides of that disagreement would still look plausible. Measured rather than argued from the symmetry
+   * of gradient noise.
+   */
+  @Test
+  fun `the clump field averages one`() {
+    val scatter = scatterOf()
+    var sum = 0.0
+    var samples = 0
+
+    // A stride that is not a multiple of the wavelength, over enough area for a few hundred cycles.
+    var y = 0.0
+    while (y < CLUMP_SAMPLE_SPAN) {
+      var x = 0.0
+      while (x < CLUMP_SAMPLE_SPAN) {
+        sum += scatter.clumpAt(x, y)
+        samples++
+        x += CLUMP_SAMPLE_STRIDE
+      }
+      y += CLUMP_SAMPLE_STRIDE
+    }
+
+    val mean = sum / samples
+    assertTrue(
+      kotlin.math.abs(mean - 1.0) < CLUMP_MEAN_TOLERANCE,
+      "the clump field averages $mean over $samples samples, not one - every stand's capacity is off by " +
+          "that factor"
+    )
+  }
+
+  /**
+   * The lattice is the minimum-spacing guarantee, and this is the number it guarantees.
+   *
+   * Two trunks in adjacent cells start [VegetationParams.cellSize] apart and each wanders up to
+   * `cellSize * jitterShare / 2`, so the floor is `cellSize * (1 - jitterShare)` - 1.2 m at the defaults.
+   * Asserted rather than assumed, because it is the only thing standing between the clump field and a
+   * pair of trunks in the same square metre.
+   */
+  @Test
+  fun `no two props stand closer than the lattice floor`() {
+    val props = forestProps()
+    val floor = config.let { PROP_CELL_SIZE * (1.0 - PROP_JITTER_SHARE) }
+
+    assertTrue(props.size > 40, "only ${props.size} props in the block, which asserts nothing")
+
+    var closest = Double.MAX_VALUE
+    for (i in props.indices) {
+      for (j in i + 1 until props.size) {
+        val d = hypot(props[i].first - props[j].first, props[i].second - props[j].second)
+        if (d < closest) closest = d
+      }
+    }
+
+    assertTrue(
+      closest >= floor - 1e-9,
+      "two props stand $closest m apart, inside the $floor m the lattice is supposed to guarantee"
+    )
+  }
+
+  /**
+   * The property the earlier stratified-block design could not have: spacing that varies.
+   *
+   * One cell per `k x k` block would put every tree on a pitch - good jitter, no clumps, no gap wider
+   * than a block - and read as an orchard. Two measurements, because either alone is satisfiable by the
+   * wrong thing: the spread has to be wide *and* the extremes have to be far apart, so a distribution
+   * tightly bunched around one value with a couple of outliers fails.
+   */
+  @Test
+  fun `nearest-neighbour spacing is spread rather than on a pitch`() {
+    val props = forestProps()
+    assertTrue(props.size > 40, "only ${props.size} props in the block, which asserts nothing")
+
+    val nearest = props.indices.map { i ->
+      var best = Double.MAX_VALUE
+      for (j in props.indices) {
+        if (i == j) continue
+        val d = hypot(props[i].first - props[j].first, props[i].second - props[j].second)
+        if (d < best) best = d
+      }
+      best
+    }
+
+    val mean = nearest.average()
+    val deviation = kotlin.math.sqrt(nearest.sumOf { (it - mean) * (it - mean) } / nearest.size)
+    val variation = deviation / mean
+
+    assertTrue(
+      variation > MIN_SPACING_VARIATION,
+      "nearest-neighbour spacing varies by only ${variation * 100}% of its $mean m mean, which is a pitch"
+    )
+    assertTrue(
+      nearest.max() / nearest.min() > MIN_SPACING_RANGE,
+      "the widest spacing (${nearest.max()} m) is under $MIN_SPACING_RANGE times the tightest " +
+          "(${nearest.min()} m); a wood has thickets and glades in it"
+    )
+  }
+
+  /**
+   * Every prop is one of the trees the simulation already had.
+   *
+   * This is what makes `CANOPY_COVER` and the props two views of one function rather than two models of
+   * one thing, and it is checked position-for-position rather than by counting: a second scatter that
+   * merely produced a plausible number of trees in plausible places would pass a count.
+   */
+  @Test
+  fun `every prop is a cell the simulated lattice also holds`() {
+    val scatter = scatterOf()
+    var checked = 0
+
+    for (offsetY in 0 until FOREST_BLOCK) {
+      for (offsetX in 0 until FOREST_BLOCK) {
+        val chunk = ChunkPos(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
+        val candidates = scatter.candidatesIn(chunk)
+
+        val props = PropInstances()
+        scatter.propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+
+        for (i in props.indices) {
+          val cellX = PropId.cellXOf(props.identityAt(i))
+          val cellY = PropId.cellYOf(props.identityAt(i))
+          val at = candidates.indexOf(cellX, cellY)
+
+          assertTrue(at >= 0, "prop cell ($cellX,$cellY) is outside the simulated range of $chunk")
+          assertTrue(
+            !candidates.trunkX[at].isNaN(),
+            "prop cell ($cellX,$cellY) holds no simulated tree, so the prop set is not a subset"
+          )
+          assertEquals(
+            candidates.trunkX[at], props.xAt(i),
+            "prop and simulated trunk disagree about x in cell ($cellX,$cellY)"
+          )
+          assertEquals(
+            candidates.trunkY[at], props.yAt(i),
+            "prop and simulated trunk disagree about y in cell ($cellX,$cellY)"
+          )
+          checked++
+        }
+      }
+    }
+
+    assertTrue(checked > 40, "only $checked props were checked against the lattice")
+  }
+
+  /**
+   * A prop belongs to exactly one chunk, and the chunk it belongs to is the one holding its trunk column.
+   *
+   * `vector/Aabb.contains` is a closed interval, so a bounds test would hand a trunk sitting exactly on a
+   * chunk boundary to both of the chunks that share it - two entities where the world has one tree.
+   */
+  @Test
+  fun `exactly one chunk claims each prop`() {
+    val seen = HashMap<Long, ChunkPos>()
+
+    for (offsetY in 0 until FOREST_BLOCK) {
+      for (offsetX in 0 until FOREST_BLOCK) {
+        val chunk = ChunkPos(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
+        val props = propsOf(chunk)
+
+        for (i in props.indices) {
+          val previous = seen.put(props.identityAt(i), chunk)
+          assertTrue(previous == null, "${props.identityAt(i)} is claimed by both $previous and $chunk")
+
+          // And the claim is the trunk's own column, not merely some chunk nearby.
+          val columnX = Math.floorDiv(kotlin.math.floor(props.xAt(i) / VOXEL).toLong(), CHUNK_SIZE.toLong())
+          val columnY = Math.floorDiv(kotlin.math.floor(props.yAt(i) / VOXEL).toLong(), CHUNK_SIZE.toLong())
+          assertEquals(chunk.x.toLong(), columnX, "prop at ${props.xAt(i)} is not in the chunk that emitted it")
+          assertEquals(chunk.y.toLong(), columnY, "prop at ${props.yAt(i)} is not in the chunk that emitted it")
+        }
+      }
+    }
+
+    assertTrue(seen.size > 40, "only ${seen.size} props across the block")
+  }
+
+  /**
+   * The share retained is the knob's value, which is what a stand's advertised capacity is computed from.
+   *
+   * ### Two ways to get this measurement wrong, both of which it got wrong first
+   *
+   * **The denominator.** `candidatesIn` counts trees whose *crown reaches* the chunk - its bounds expanded
+   * by `crownReach` - while `propsIn` counts trunks *inside* it. On a sixteen-metre test chunk that is
+   * 22.4 squared against 16 squared, a factor of 1.96, and it read as a retained share of 0.12 against the
+   * 0.25 asked for. So the simulated side is filtered to trunks this chunk owns, by the same integer
+   * column test the emitter uses.
+   *
+   * **The area.** [clumpAt] has a mean of one over a large area and no particular mean over a small one.
+   * A contiguous eight-chunk block is 128 m, about four clump wavelengths, so its local mean can sit well
+   * away from one and the share with it. The chunks are therefore sampled on a stride wide enough that
+   * each lands on an independent phase of the field.
+   */
+  @Test
+  fun `the retained share is the entity share`() {
+    val scatter = scatterOf()
+    var simulated = 0
+    var emitted = 0
+
+    for (stepY in 0 until SHARE_SAMPLES) {
+      for (stepX in 0 until SHARE_SAMPLES) {
+        val chunk = ChunkPos(SHARE_FIRST_CHUNK + stepX * SHARE_STRIDE, SHARE_FIRST_CHUNK + stepY * SHARE_STRIDE)
+
+        val candidates = scatter.candidatesIn(chunk)
+        for (i in 0 until candidates.cellsX * candidates.cellsY) {
+          val x = candidates.trunkX[i]
+          if (x.isNaN()) continue
+          if (!ownedBy(chunk, x, candidates.trunkY[i])) continue
+          simulated++
+        }
+
+        val props = PropInstances()
+        scatter.propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+        emitted += props.count
+      }
+    }
+
+    assertTrue(simulated > 1000, "only $simulated simulated trees, too few to measure a share against")
+
+    val share = emitted.toDouble() / simulated
+    assertTrue(
+      kotlin.math.abs(share - PROP_ENTITY_SHARE) < SHARE_TOLERANCE,
+      "$emitted of $simulated trees became props, a share of $share against the $PROP_ENTITY_SHARE asked for"
+    )
+  }
+
   @Test
   fun `nothing is planted on worked ground`() {
     // The veto is applied at the *trunk*, never at the column being filled, so that the chunk next door
@@ -365,6 +591,33 @@ class VegetationTest {
 
   private fun scatterOf() = VegetationScatter(config, surfaceOf(Double.NaN), SEED)
 
+  private fun propsOf(chunk: ChunkPos): PropInstances {
+    val props = PropInstances()
+    scatterOf().propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+    return props
+  }
+
+  /** Whether the voxel column at a world position belongs to [chunk] - the emitter's ownership test. */
+  private fun ownedBy(chunk: ChunkPos, worldX: Double, worldY: Double): Boolean {
+    val columnX = Math.floorDiv(kotlin.math.floor(worldX / VOXEL).toLong(), CHUNK_SIZE.toLong())
+    val columnY = Math.floorDiv(kotlin.math.floor(worldY / VOXEL).toLong(), CHUNK_SIZE.toLong())
+    return columnX == chunk.x.toLong() && columnY == chunk.y.toLong()
+  }
+
+  /** Every prop position over the forest block, as `(x, y)` pairs. */
+  private fun forestProps(): List<Pair<Double, Double>> {
+    val out = mutableListOf<Pair<Double, Double>>()
+
+    for (offsetY in 0 until FOREST_BLOCK) {
+      for (offsetX in 0 until FOREST_BLOCK) {
+        val props = propsOf(ChunkPos(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY))
+        for (i in props.indices) out.add(props.xAt(i) to props.yAt(i))
+      }
+    }
+
+    return out
+  }
+
   private fun materializeMine(): VoxelChunk = materializerOf(Double.NaN).materialize(
     ChunkPos(
       Math.floorDiv((MINE_X / VOXEL).toInt(), CHUNK_SIZE),
@@ -448,6 +701,61 @@ class VegetationTest {
     const val VOXEL = 1.0
     const val CHUNK_SIZE = 16
     const val CHUNK_HEIGHT = 128
+
+    // --- The prop lattice ---------------------------------------------------------------------------
+    // Read off VegetationParams' defaults rather than duplicated as opinions: these tests assert what the
+    // shipped tuning does, so a knob moving should move them with it.
+    val PROP_CELL_SIZE = VegetationParams().cellSize
+    val PROP_JITTER_SHARE = VegetationParams().jitterShare
+    val PROP_ENTITY_SHARE = VegetationParams().entityShare
+
+    /** Metres across the area the clump mean is measured over: a few hundred wavelengths. */
+    const val CLUMP_SAMPLE_SPAN = 4000.0
+
+    /** Deliberately not a divisor of the wavelength, so the samples do not land on one phase. */
+    const val CLUMP_SAMPLE_STRIDE = 7.3
+
+    /**
+     * How far the measured clump mean may sit from one.
+     *
+     * Two per cent. Gradient noise has a mean of zero by symmetry, so this is sampling error over a finite
+     * area rather than a fudge factor - and it is tight enough that a field accidentally built on
+     * `(fbm+1)/2` (mean a half) or on `fbm` alone (mean zero) fails by an order of magnitude.
+     */
+    const val CLUMP_MEAN_TOLERANCE = 0.02
+
+    /**
+     * Coefficient of variation the nearest-neighbour spacing must exceed.
+     *
+     * A regular pitch scores zero and a Poisson field scores about 0.52. One cell per `k x k` block lands
+     * near 0.15 - the in-block choice jitters the pitch without ever clumping - so 0.30 sits between the
+     * design that was rejected and the one that was kept.
+     */
+    const val MIN_SPACING_VARIATION = 0.30
+
+    /** Widest nearest-neighbour distance over the tightest. A pitch scores about 1. */
+    const val MIN_SPACING_RANGE = 3.0
+
+    /**
+     * Sampled chunks per axis for the retained share.
+     *
+     * Twenty squared, because a sixteen-metre chunk holds only sixteen lattice cells and therefore about
+     * six trees - so the sample size is set by how many trees are needed for the binomial noise to sit well
+     * inside [SHARE_TOLERANCE], not by how many chunks feel like enough.
+     */
+    const val SHARE_SAMPLES = 20
+
+    /**
+     * Chunks between samples: 37 x 16 m is 592 m, about twenty clump wavelengths, so no two sampled chunks
+     * see a correlated phase of the field. Deliberately not a round number of wavelengths.
+     */
+    const val SHARE_STRIDE = 37
+
+    /** Leaves the twelve strided samples inside the 16 km fixture world with room either side. */
+    const val SHARE_FIRST_CHUNK = 125
+
+    /** Slack on the measured share: sampling error over 144 independent clump phases, not a fudge factor. */
+    const val SHARE_TOLERANCE = 0.03
 
     /** Three tenths off a voxel boundary, so no rounding rule is ever exercised at its tie. */
     const val GROUND_AT_ORIGIN = 40.3

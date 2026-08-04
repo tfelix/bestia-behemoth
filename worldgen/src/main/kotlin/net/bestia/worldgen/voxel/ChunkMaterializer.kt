@@ -237,6 +237,73 @@ class ChunkMaterializer(
   }
 
   /**
+   * The props whose own position falls inside one chunk column-stack.
+   *
+   * ### Take the overload that accepts heights wherever you already have them
+   *
+   * [ColumnHeights] for one chunk is a thousand heightfield evaluations plus a feature pass, and a
+   * server streaming terrain has already built and cached exactly that. The convenience overload is for
+   * tooling and tests; a hot path that uses it does the heightfield work twice per chunk.
+   *
+   * ### Addressed by column, not by [ChunkPos]
+   *
+   * Props are a fact about the *surface*, so a vertical index would either be ignored - inviting a
+   * caller to ask once per slab and believe the answer was filtered - or would have to mean something it
+   * cannot. Same reason [surfaceColumns] and `GeneratedWorld.contentSlabsOf` take a column.
+   *
+   * ### Never materialise this over a region
+   *
+   * A 128 km world holds on the order of a million tree props at the default [VegetationParams.entityShare],
+   * and a 4096 km one a thousand times that. This is a *function*, and the precedent that invites the
+   * mistake is real: `WildSpawnerService` resolves its whole world's dens into a list at boot, which is
+   * right for fourteen hundred markers and would exhaust the heap here.
+   */
+  fun propsIn(chunkX: Int, chunkY: Int): PropInstances =
+    propsIn(chunkX, chunkY, columns.heights(ChunkPos(chunkX, chunkY, 0), 0))
+
+  fun propsIn(chunkX: Int, chunkY: Int, heights: ColumnHeights): PropInstances {
+    val chunk = ChunkPos(chunkX, chunkY, 0)
+    val nearby = features.query(config.chunkBounds(chunk).expanded(MARKER_MARGIN))
+
+    val structures = TownStructures(nearby, config.seed)
+    val caves = CaveNetwork(nearby, config.seed, caveParams)
+    val bridges = BridgeDecks(nearby)
+
+    val into = PropInstances()
+    vegetation.propsIn(chunk, propSite(chunk, heights, structures, caves, bridges), into)
+
+    return into
+  }
+
+  /**
+   * [trunkSite] plus the one veto only an entity needs.
+   *
+   * A bridge deck is not in the voxel path's veto set and does not need to be: the crown is written into
+   * air only, so it stops at the decking and the result merely looks like a tree beside a bridge. An
+   * entity has no such backstop - it is placed at a position and drawn whole, so it grows through the
+   * carriageway.
+   *
+   * Kept as a wrapper rather than folded into [trunkSite] so the voxel path stays byte-for-byte what it
+   * was while both paths coexist, which is what makes them worth diffing against each other. Once the
+   * voxel path goes, this collapses into [trunkSite].
+   */
+  private fun propSite(
+    chunk: ChunkPos,
+    heights: ColumnHeights,
+    structures: TownStructures,
+    caves: CaveNetwork,
+    bridges: BridgeDecks
+  ): VegetationScatter.TrunkSite {
+    val ground = trunkSite(chunk, heights, structures, caves)
+
+    if (bridges.isEmpty) return ground
+
+    return VegetationScatter.TrunkSite { worldX, worldY ->
+      if (bridges.deckAt(worldX, worldY).isNaN()) ground.groundAt(worldX, worldY) else Double.NaN
+    }
+  }
+
+  /**
    * What the vegetation scatter is allowed to know about a trunk's surroundings.
    *
    * Everything asked here is a **pure function of the trunk's world position**, never of the column being

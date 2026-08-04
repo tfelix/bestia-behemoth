@@ -87,6 +87,17 @@ class GeneratedWorld(
   val vegetation get() = materializer.vegetation
 
   /**
+   * The props standing in one chunk, for a runtime to turn into entities.
+   *
+   * This is the read path [vegetation] was documented as being for and never was - grep found no consumer
+   * outside this module - so treat its shape as unproven until something outside actually reads it.
+   *
+   * See [ChunkMaterializer.propsIn] for the two things that matter: hand in the column heights if you
+   * already have them, and never accumulate the result over a region.
+   */
+  fun propsIn(chunkX: Int, chunkY: Int) = materializer.propsIn(chunkX, chunkY)
+
+  /**
    * Which vertical slabs of a horizontal chunk hold anything worth streaming.
    *
    * **The heightfield's span is no longer the answer, and that is what this exists to say.**
