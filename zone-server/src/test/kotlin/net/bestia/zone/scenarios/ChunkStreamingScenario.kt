@@ -242,8 +242,17 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   @Test
   @Order(5)
   fun `carving terrain sends the holders a patch rather than the chunk`() {
-    // Carve inside a chunk the client demonstrably holds, so it is a patch recipient.
+    // Carve inside a chunk the client demonstrably holds, so it is a patch recipient - and specifically the
+    // held chunk that is *dearest to restate*, which is what makes the patch the cheaper of the two.
+    //
+    // Not merely the first one with material in it. `sentTo` is a set, so first-with-material is whichever
+    // chunk hashing happened to put in front, and a deep chunk of uniform rock encodes to about a hundred
+    // bytes - less than the eighty-odd removals a minimum-radius brush produces. `broadcastChanges` then
+    // correctly sends the snapshot, and this test fails for a reason that is not a bug. Ordering by encoded
+    // size picks a surface chunk, some three kilobytes of it, where a patch wins by an order of magnitude and
+    // the decision under test is the one actually being made.
     val candidates = subscriptions.sentTo(clientPlayer1.connectedPlayerId)
+      .sortedByDescending { chunkService.encodedOf(it).payload.size }
     val target = candidates.firstNotNullOfOrNull { chunk -> carvable(chunk)?.let { chunk to it } }
 
     assertNotNull(target, "none of the ${candidates.size} held chunks had material to carve")

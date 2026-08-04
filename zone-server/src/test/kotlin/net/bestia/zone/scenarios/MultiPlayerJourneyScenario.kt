@@ -148,17 +148,36 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Test
   @Order(2)
   fun `walking around updates position`() {
+    val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
+    val start = assertNotNull(
+      world.read { get(activeEntityId, Position::class)?.toVec3L() },
+      "the selected master has to be in the world before it can walk anywhere"
+    )
+
+    // A path carries absolute world coordinates and MoveActiveEntityHandler drops one whose first step is
+    // not adjacent to where the entity actually stands, so the step has to be read off the entity rather
+    // than written down: a master spawns in the middle of the map, not at the origin.
+    val step = start.copy(y = start.y + 1)
+
     clientPlayer1.sendMessage(
       MoveActiveEntityCMSG(
         playerId = clientPlayer1.connectedPlayerId,
-        path = listOf(Vec3L(0, 1, 0))
+        path = listOf(step)
       )
     )
 
+    // Asserted against the entity, not against "some PositionSMSG arrived". Every nearby entity's position
+    // lands in this client's mailbox, so a bare not-null passes whether or not the walk was accepted - which
+    // is exactly how a path the handler had been rejecting all along went unnoticed.
     await {
-      val pos = clientPlayer1.tryGetLastReceived(PositionSMSG::class)
-      assertNotNull(pos)
+      val now = assertNotNull(world.read { get(activeEntityId, Position::class)?.toVec3L() })
+      assertEquals(step.x to step.y, now.x to now.y, "the walk did not move the entity")
     }
+
+    assertTrue(
+      clientPlayer1.receivedAny(PositionSMSG::class) { it.entityId == activeEntityId },
+      "a player must be told where its own entity ended up"
+    )
   }
 
   @Test
