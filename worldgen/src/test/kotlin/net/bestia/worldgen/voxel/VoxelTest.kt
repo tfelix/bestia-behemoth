@@ -39,9 +39,25 @@ class VoxelTest {
     // decide what it does to an agent walking into it, rather than inheriting a default nobody looked at.
     assertEquals(
       setOf(
-        BlockType.AIR, BlockType.WATER, BlockType.LAVA, BlockType.LEAVES, BlockType.BLIGHTED_LEAVES
+        BlockType.AIR, BlockType.WATER, BlockType.LAVA
       ),
       BlockType.entries.filter { !it.solid }.toSet()
+    )
+
+    // And what each of them does, by name rather than by default.
+    //
+    // This half arrived when the leaf blocks left the palette. `DerivedStructureTest` used to assert the same
+    // guarantee through geometry - a canopy overhead leaving the ground walkable - and could, because `LEAVES`
+    // was a real material taking `OPEN` from the default. It is deleted now, so `OPEN` has one member: `AIR`.
+    // Naming every value here is what a default cannot satisfy, so it catches the case that test caught and
+    // one it could not: a *new* non-solid material silently inheriting `OPEN` and being walked through.
+    assertEquals(
+      mapOf(
+        BlockType.AIR to Passability.OPEN,
+        BlockType.WATER to Passability.WADEABLE,
+        BlockType.LAVA to Passability.BLOCKED
+      ),
+      BlockType.entries.filter { !it.solid }.associateWith { it.passability }
     )
   }
 

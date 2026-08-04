@@ -35,6 +35,6 @@ namespace BestiaBehemothClient.Game.World
     // payload, and it has to be a bump because the two formats are mutually undetectable - every byte of one
     // is a legal varint continuation in the other, so a mismatched client decodes plausible geometry instead
     // of failing. ChunkPatchSMSG.Encoding catches it per patch; this catches it before any patch is sent.
-    public const uint Version = 4;
+    public const uint Version = 5;
   }
 }

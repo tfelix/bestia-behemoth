@@ -403,20 +403,19 @@ class ChunkStoreTest {
     // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
     // client's `BlockAppearance.Palette`, and then re-pin here.
     assertEquals(
-      -2_478_066_114_898_304_053L, PipelineVersion.paletteVersion(),
+      -5_896_853_669_744_284_322L, PipelineVersion.paletteVersion(),
       "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
           "client's BlockAppearance.Palette, then update this pin."
     )
 
-    // 4 was bumped for the patch codec rather than the palette - an edit carrying (index, blockId, occupancy)
-    // became a removal carrying (indexDelta, remainingOccupancy) - so the palette pin above is unchanged. This
-    // is the second thing the version covers and the first time it has moved for it, which is exactly the
-    // "moved without the palette moving, which is fine" case this assertion was written to catch.
+    // 4 was bumped for the patch codec rather than the palette, so the palette pin was unchanged then - the
+    // "moved without the palette moving, which is fine" case this assertion was written to catch. 5 is the
+    // opposite and the more usual case: the palette itself moved, because LOG, LEAVES, the two mana crystals
+    // and the two blighted twins were deleted when trees and crystals became entities. Both pins move together.
     assertEquals(
-      4,
-      ChunkEngine.VERSION,
-      "ChunkEngine.VERSION moved without the palette moving, which is fine - re-pin this and check the " +
-          "client's constant matches."
+      5, ChunkEngine.VERSION,
+      "ChunkEngine.VERSION moved - re-pin this and check the client's constant matches. Both this and the " +
+          "palette pin above move together whenever BlockType changes; only a codec-only bump moves this alone."
     )
   }
 }

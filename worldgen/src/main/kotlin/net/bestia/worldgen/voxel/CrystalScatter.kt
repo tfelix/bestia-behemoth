@@ -143,32 +143,6 @@ class CrystalScatter(
   private val scatterSeed = GenRng.mix64(seed xor SCATTER_SALT)
 
   /**
-   * Adds the crystal standing on this column, if there is one.
-   *
-   * Never under water and never on ice or snow: a crystal grows out of ground, and the cap block is the one
-   * place that knows what the ground is made of - the same test `VegetationScatter.plant` uses for a trunk.
-   */
-  fun columnAt(worldX: Double, worldY: Double, ground: Double, into: StructureSpans) {
-    val cellX = Math.floorDiv(Quantize.toFixed(worldX), cellUnits)
-    val cellY = Math.floorDiv(Quantize.toFixed(worldY), cellUnits)
-
-    val crystal = crystalAt(cellX, cellY) ?: return
-
-    // Only the column that *owns* the crystal draws it, so a crystal is one voxel column wherever it is
-    // asked about from.
-    if (columnOf(crystal.x) != columnOf(worldX)) return
-    if (columnOf(crystal.y) != columnOf(worldY)) return
-
-    if (!standsOn(crystal, ground)) return
-
-    into.add(
-      ground,
-      ground + crystal.height,
-      if (crystal.large) BlockType.MANA_CRYSTAL_LARGE else BlockType.MANA_CRYSTAL_SMALL
-    )
-  }
-
-  /**
    * The crystals whose own position falls inside one chunk, as props.
    *
    * Simpler than the vegetation equivalent for the reason the whole class is simpler: a crystal is one

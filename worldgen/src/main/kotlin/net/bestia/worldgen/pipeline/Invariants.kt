@@ -2596,7 +2596,8 @@ object Invariants {
    * `checkCanopyCoverAgreesWithTheBiome` makes the same argument about the same layer.
    */
   private fun checkVegetationStandsAreWooded(generated: GeneratedWorld, fail: (String, String) -> Unit) {
-    val canopy = generated.world.layers[LayerId.CANOPY_COVER] as? FloatLayer ?: return
+    // Present-or-skip, not bound: `meanOverLand` looks the layer up by id itself.
+    if (generated.world.layers[LayerId.CANOPY_COVER] !is FloatLayer) return
 
     var sum = 0.0
     var count = 0

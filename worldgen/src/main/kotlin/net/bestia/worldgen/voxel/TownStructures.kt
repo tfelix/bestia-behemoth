@@ -519,7 +519,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.MONASTERY -> monasteryColumn(site, worldX, worldY, ground, distance, into)
       SiteKind.FORT -> fortColumn(site, ground, distance, into)
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
-      SiteKind.WOUND -> woundColumn(site, worldX, worldY, ground, distance, into)
+      SiteKind.WOUND -> woundColumn(site, ground, distance, into)
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
       // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
@@ -742,57 +742,35 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   }
 
   /**
-   * A wound: a ring of thrown-up blighted earth with a field of crystal spires standing inside it.
+   * A wound: a ring of thrown-up blighted earth, with a field of crystal spires standing inside it as props.
+   *
+   * ### The rampart is all the voxels there are
+   *
+   * The spires used to be written here as `MANA_CRYSTAL_LARGE` voxels off a lattice this file kept for itself,
+   * deliberately duplicating `CrystalScatter`'s shape because the two disagreed about their *input* - that one
+   * is driven by the corruption raster and this by one marker's radius. Both are props now, and the
+   * duplication that was worth keeping while they were voxels is what makes them two `PropKind`s rather than
+   * one: [spireAt]'s lattice is seven metres against the crystal lattice's eleven, so a shared kind would give
+   * two objects one name. See [spireProps].
    *
    * ### Why there is no crater
    *
-   * The obvious shape is a bowl, and it was tried. A `remove` span carves the ground away, but
-   * `CrystalScatter` - which runs later, into the foliage buffer, and knows nothing about sites - plants its
-   * crystals from the **heightfield** surface upward. Carve the ground out from under it and every ordinary
-   * crystal inside the wound stands in mid-air over the hole. The bowl would have to veto a producer two files
-   * away, or `CrystalScatter` would have to learn what a site is; a rampart costs neither and reads as an
-   * impact just as well. That is also why this is the one site that adds *outward* rather than downward.
-   *
-   * ### The spires are a lattice, deliberately the same one crystals use
-   *
-   * `CrystalScatter`'s cell-hash-jitter-own-column shape, at a tighter spacing and a greater height. Not a
-   * per-column probability, for the reason that file's KDoc gives at length: a smooth probability sampled per
-   * column is speckle, not a field. Not a call *into* `CrystalScatter` either, because that class is driven by
-   * the corruption raster and this is driven by one marker's radius - they agree on the mechanism and disagree
-   * on the input, which is exactly when copying twenty lines beats sharing them.
-   *
-   * Everything here is a function of the world position and the marker's own id, so the two halves of a wound
-   * that straddles a chunk border agree about every spire in it.
+   * The obvious shape is a bowl, and it was tried. A `remove` span carves the ground away, but the crystals
+   * inside a wound are planted from the **heightfield** surface upward and know nothing about sites - so
+   * carving the ground out from under them leaves every one of them in mid-air over the hole. That argument
+   * survives the move to props unchanged, because a prop's ground comes from the same column heights. A
+   * rampart costs no veto two files away and reads as an impact just as well, which is why this is the one
+   * site that adds *outward* rather than downward.
    */
-  private fun woundColumn(
-    site: Site,
-    worldX: Double,
-    worldY: Double,
-    ground: Double,
-    distance: Double,
-    into: StructureSpans
-  ) {
+  private fun woundColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
     val fraction = distance / site.radius
+    if (fraction <= WOUND_RAMPART_SHARE) return
 
-    if (fraction > WOUND_RAMPART_SHARE) {
-      // A hump rather than a step: zero where the crystal field ends, highest between there and the rim, and
-      // back to zero at the radius so the wound does not end in a wall.
-      val across = (fraction - WOUND_RAMPART_SHARE) / (1.0 - WOUND_RAMPART_SHARE)
-      val height = WOUND_RAMPART_HEIGHT * sin(Math.PI * across)
-      if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.BLIGHTED_DIRT)
-      return
-    }
-
-    val cellX = Math.floorDiv(Quantize.toFixed(worldX), WOUND_SPIRE_UNITS)
-    val cellY = Math.floorDiv(Quantize.toFixed(worldY), WOUND_SPIRE_UNITS)
-
-    val spire = spireAt(site, cellX, cellY) ?: return
-
-    // Only the column the spire actually lands in draws it.
-    if (columnOf(spire.x) != columnOf(worldX)) return
-    if (columnOf(spire.y) != columnOf(worldY)) return
-
-    into.add(ground - SLAB_THICKNESS, ground + spire.height, BlockType.MANA_CRYSTAL_LARGE)
+    // A hump rather than a step: zero where the crystal field ends, highest between there and the rim, and
+    // back to zero at the radius so the wound does not end in a wall.
+    val across = (fraction - WOUND_RAMPART_SHARE) / (1.0 - WOUND_RAMPART_SHARE)
+    val height = WOUND_RAMPART_HEIGHT * sin(Math.PI * across)
+    if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.BLIGHTED_DIRT)
   }
 
   /**

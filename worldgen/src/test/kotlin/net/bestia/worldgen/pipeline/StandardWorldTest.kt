@@ -733,16 +733,15 @@ class StandardWorldTest {
      * seven worked materials with step 8, `LOG`/`LEAVES` with the vegetation scatter, and the two mana
      * crystals with the corruption work.
      *
-     * The blighted twins are here *and* in [SOILS], each beside the material it replaces, because that is
-     * what they are: a blighted log stands on the ground exactly as a log does, and blighted turf is the
-     * ground exactly as turf is.
+     * The blighted twins are in [SOILS] rather than here, beside the material each replaces, because that is
+     * what they are: blighted turf is the ground exactly as turf is.
+     *
+     * This set used to also hold `LOG`, `LEAVES`, their blighted twins and the two mana crystals - the growing
+     * things, which a chunk built rather than found. They are entities now and no chunk names them.
      */
     val BUILT = setOf(
       BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.RUBBLE, BlockType.COBBLESTONE,
-      BlockType.LOG, BlockType.LEAVES,
-      BlockType.BLIGHTED_LOG, BlockType.BLIGHTED_LEAVES,
-      BlockType.MANA_CRYSTAL_SMALL, BlockType.MANA_CRYSTAL_LARGE
+      BlockType.ROOF_TILE, BlockType.RUBBLE, BlockType.COBBLESTONE
     )
 
     val SOILS = setOf(

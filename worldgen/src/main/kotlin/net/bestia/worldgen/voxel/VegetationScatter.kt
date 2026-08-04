@@ -280,33 +280,6 @@ class VegetationScatter(
 
   private val jitter = params.cellSize * params.jitterShare
 
-  /** How far a crown reaches from its own trunk, in metres. */
-  val crownReach = params.maxCanopyRadius
-
-  /**
-   * How many cells either side of a column's own must be examined.
-   *
-   * Derived rather than written down as 1, because it is a *consequence* of three tunables and an
-   * under-count is a crown with a straight edge cut through it - the same defect `CaveNetwork.reach` and
-   * `TownStructures.MAX_WALL_HALF_THICKNESS` exist to prevent, and equally invisible in a unit test.
-   *
-   * A tree in the cell `n` away has its trunk at least `n * cellSize - cellSize / 2 - jitter / 2` from this
-   * column, so cell `n` can reach it only while that is under [crownReach]. Solving for `n` and taking the
-   * last integer strictly below it is the expression here.
-   */
-  val searchCells: Int = ceil((crownReach + jitter * 0.5) / params.cellSize + 0.5).toInt() - 1
-
-  /**
-   * Columns of a neighbouring chunk whose ground a tree in this one may need.
-   *
-   * A trunk up to [crownReach] metres outside the chunk can drop a crown inside it, and the crown's
-   * elevation is measured from the ground at the *trunk*. That ground has to come from the same height
-   * pipeline as everything else or the two tiers disagree, so it comes out of a halo on
-   * `ChunkColumnSource.heights`. [candidatesIn] discards any trunk beyond it, which is what keeps this
-   * bound and that filter the same statement rather than two.
-   */
-  val halo: Int = ceil(crownReach / config.voxelSize).toInt()
-
   /** Mean crown area over one cell's area: the density-to-cover conversion [coverAt] applies. */
   private val crownAreaShare: Double = params.crownAreaShare
 
@@ -404,80 +377,6 @@ class VegetationScatter(
     )).coerceAtLeast(0.0)
 
   /**
-   * The trees whose crowns can reach a chunk, before anything asks how high the ground is under them.
-   *
-   * Split from [plant] purely for cost, and the saving is worth the seam in the API: resolving the ground
-   * needs the column heights of a chunk *plus a halo*, which is seventy per cent more heightfield
-   * evaluations than the chunk itself needs. Most of the world is ocean, desert, ice or grass, and this pass
-   * - one hash per cell, and the density field only for the cells that survive it - answers "no trees here"
-   * for a hundred cells rather than for eighteen hundred columns.
-   */
-  fun candidatesIn(chunk: ChunkPos): Candidates {
-    val bounds = config.chunkBounds(chunk)
-    val fromX = cellOf(bounds.minX) - searchCells
-    val untilX = cellOf(bounds.maxX) + searchCells + 1
-    val fromY = cellOf(bounds.minY) - searchCells
-    val untilY = cellOf(bounds.maxY) + searchCells + 1
-
-    val cellsX = (untilX - fromX).toInt()
-    val cellsY = (untilY - fromY).toInt()
-    val candidates = Candidates(fromX, fromY, cellsX, cellsY)
-
-    // A cell overlapping the chunk can still hold a trunk whose crown falls entirely outside it, and such a
-    // tree is not merely wasted work - its ground would be a column further out than [halo] reaches. Both
-    // facts come off the same bound, so they are one line rather than two constants that have to agree.
-    val reachable = bounds.expanded(crownReach)
-
-    for (cellY in fromY until untilY) {
-      for (cellX in fromX until untilX) {
-        val tree = treeAt(cellX, cellY) ?: continue
-        if (!reachable.contains(tree.x, tree.y)) continue
-        candidates.put(cellX, cellY, tree)
-      }
-    }
-
-    return candidates
-  }
-
-  /**
-   * Resolves the ground under each candidate and drops the ones that may not stand.
-   *
-   * The vetoes are split by who can answer them, and the split is not arbitrary: everything decided here is
-   * a **pure function of the trunk's position**, which is what lets a neighbouring chunk reach the same
-   * verdict about the same tree without seeing this chunk's voxels. [TrunkSite] carries the rest.
-   */
-  fun plant(candidates: Candidates, site: TrunkSite): TreeLattice {
-    val lattice = TreeLattice(candidates, params, cellUnits, voxelUnits, searchCells)
-
-    for (i in candidates.indices) {
-      val x = candidates.trunkX[i]
-      if (x.isNaN()) continue
-      val y = candidates.trunkY[i]
-
-      val ground = site.groundAt(x, y)
-      if (ground.isNaN()) continue
-
-      // Nothing grows out of standing water. The biome term already refuses OCEAN and LAKE, but a biome is a
-      // kilometre cell and a pond edge is not, so the water surface itself has the last word.
-      if (surface.waterLevelAt(x, y) > ground) continue
-
-      // Resolved here, at the trunk, and carried on the lattice - see TreeLattice.blighted for why it may
-      // not be asked again per column.
-      val isBlighted = surface.isBlightedAt(x, y)
-
-      // Nor out of ice or year-round snow. Asked of the *cap block* rather than of the temperature, so that
-      // the one place deciding what the top of a column is made of is also the place deciding whether
-      // anything can root in it. Blighted ground is neither, so a corrupted wood keeps its trees.
-      val cap = SurfaceCover.cap(surface.biomeAt(x, y), surface.temperatureAt(x, y), 0.0, isBlighted)
-      if (cap == BlockType.ICE || cap == BlockType.SNOW) continue
-
-      lattice.plant(i, ground, isBlighted)
-    }
-
-    return lattice
-  }
-
-  /**
    * The tree in one lattice cell, or null for an empty cell.
    *
    * One hash per cell, walked with [GenRng.mix64] for the three further draws rather than re-hashing the
@@ -489,16 +388,19 @@ class VegetationScatter(
    *
    * ### The entity lattice is the same lattice, thinned
    *
-   * [thinToEntities] compares the *same* `roll` against a lower threshold, which is what makes the
-   * emitted set a **strict subset** of the simulated one rather than a second scatter that happens to
-   * look similar. Reusing the roll costs nothing and biases nothing: jitter and size come off further
-   * mixes of the key, so which trees survive is independent of what they are.
+   * The thinning compares the *same* `roll` against a lower threshold, which is what makes the emitted set a
+   * **strict subset** of the simulated one rather than a second scatter that happens to look similar. Reusing
+   * the roll costs nothing and biases nothing: jitter and size come off further mixes of the key, so which
+   * trees survive is independent of what they are.
    *
-   * The `coerceAtMost(density)` is what makes the subset property hold for *any* parameters rather than
-   * only for sane ones - `entityShare * clumpAt` exceeding one would otherwise retain a cell the
-   * simulation rejected. It cannot bite at the defaults, where the product peaks around a half.
+   * The `coerceAtMost(density)` is what makes the subset property hold for *any* parameters rather than only
+   * for sane ones - `entityShare * clumpAt` exceeding one would otherwise retain a cell the simulation
+   * rejected. It cannot bite at the defaults, where the product peaks around a half.
+   *
+   * This briefly took a `thinToEntities` flag, while the voxel path still wanted the unthinned set. There is
+   * one path now.
    */
-  private fun treeAt(cellX: Long, cellY: Long, thinToEntities: Boolean = false): Tree? {
+  private fun treeAt(cellX: Long, cellY: Long): Tree? {
     val key = GenRng.hash(treeSeed, cellX, cellY)
     val roll = GenRng.unit(key)
     // Cheap reject before the density field, sound only because densityAt is capped at the same value.
@@ -512,11 +414,7 @@ class VegetationScatter(
     // Judged where the trunk stands rather than at the cell centre: a tree jittered onto a river bank is on
     // the river bank.
     val density = densityAt(x, y)
-    val threshold = if (thinToEntities) {
-      (density * params.entityShare * clumpAt(x, y)).coerceAtMost(density)
-    } else {
-      density
-    }
+    val threshold = (density * params.entityShare * clumpAt(x, y)).coerceAtMost(density)
     if (roll >= threshold) return null
 
     val size = GenRng.unit(GenRng.mix64(key + 3))
@@ -533,19 +431,20 @@ class VegetationScatter(
    *
    * ### One pass, no halo
    *
-   * [candidatesIn] and [plant] are split, and cost a halo of ground columns, for one reason: a crown
-   * spans columns and reaches into the neighbouring chunk, so a chunk drawing *voxels* has to know
-   * about trees standing outside it. A prop is a point. Nothing outside this chunk can contribute one,
-   * so [crownReach], [searchCells] and [halo] all fall away and this needs the chunk's own columns and
-   * nothing more - about seventy per cent fewer heightfield evaluations than the voxel path on a
-   * forested chunk.
+   * This used to be two - a cheap `candidatesIn` hash pass and a `plant` pass that resolved the ground - and
+   * the split cost a halo of ground columns in the chunks around this one. Both existed for one reason: a
+   * crown spans columns and reaches into the neighbouring chunk, so a chunk drawing *voxels* had to know about
+   * trees standing outside it, and had to agree with its neighbour about the ground under each.
+   *
+   * **A prop is a point.** Nothing outside this chunk can contribute one, so the crown reach, the cell search
+   * radius and the halo are all gone, and this needs the chunk's own columns and nothing more - about seventy
+   * per cent fewer heightfield evaluations on a forested chunk than the voxel path cost.
    *
    * ### Ownership is an integer test
    *
-   * A prop belongs to the chunk containing its trunk's **voxel column**, which is the same integer
-   * index `TreeLattice` uses to decide which column a trunk goes in. Deliberately not
-   * `Aabb.contains`: `vector/Aabb` is a closed interval, so a trunk exactly on a chunk boundary would
-   * be claimed by both of the chunks that share it and appear twice in the world.
+   * A prop belongs to the chunk containing its trunk's **voxel column**. Deliberately not `Aabb.contains`:
+   * `vector/Aabb` is a closed interval, so a trunk exactly on a chunk boundary would be claimed by both of the
+   * chunks that share it and appear twice in the world.
    *
    * The cell range is the cells overlapping the chunk with no expansion, which is sound because jitter
    * cannot carry a trunk out of its own cell - the offset is at most `cellSize * jitterShare / 2` and
@@ -568,7 +467,7 @@ class VegetationScatter(
 
     for (cellY in fromY until untilY) {
       for (cellX in fromX until untilX) {
-        val tree = treeAt(cellX, cellY, thinToEntities = true) ?: continue
+        val tree = treeAt(cellX, cellY) ?: continue
 
         val columnX = Math.floorDiv(Quantize.toFixed(tree.x), voxelUnits)
         val columnY = Math.floorDiv(Quantize.toFixed(tree.y), voxelUnits)
@@ -612,60 +511,6 @@ class VegetationScatter(
   /** One tree, as the lattice draws it before the ground is known. */
   internal class Tree(val x: Double, val y: Double, val trunkHeight: Double, val canopyRadius: Double)
 
-  /**
-   * Everything about a trunk's surroundings that the scatter cannot see for itself.
-   *
-   * The scatter knows the climate, the soil and the water; it does not know that somebody paved this spot,
-   * built a granary on it, or opened a cave mouth under it. Those are questions about the *other* producers
-   * in the chunk tier, and they are asked at the trunk position - never at the column being filled - so that
-   * the neighbouring chunk drawing the other half of the same crown reaches the same verdict.
-   */
-  fun interface TrunkSite {
-    /** Ground elevation at a trunk, or [Double.NaN] when nothing may be planted there. */
-    fun groundAt(worldX: Double, worldY: Double): Double
-  }
-
-  /**
-   * The trees over a chunk's cell range, before [plant] resolves their ground.
-   *
-   * A struct of arrays rather than a list of objects, because it is rebuilt for every chunk of every world
-   * and the whole point of the split is that it must be cheap when the answer is "none".
-   */
-  class Candidates internal constructor(
-    internal val fromCellX: Long,
-    internal val fromCellY: Long,
-    internal val cellsX: Int,
-    internal val cellsY: Int
-  ) {
-    internal val trunkX = DoubleArray(cellsX * cellsY) { Double.NaN }
-    internal val trunkY = DoubleArray(cellsX * cellsY)
-    internal val trunkHeight = DoubleArray(cellsX * cellsY)
-    internal val canopyRadius = DoubleArray(cellsX * cellsY)
-
-    var count: Int = 0
-      private set
-
-    val isEmpty get() = count == 0
-
-    internal val indices get() = 0 until cellsX * cellsY
-
-    internal fun indexOf(cellX: Long, cellY: Long): Int {
-      val x = (cellX - fromCellX).toInt()
-      val y = (cellY - fromCellY).toInt()
-      if (x < 0 || y < 0 || x >= cellsX || y >= cellsY) return -1
-      return y * cellsX + x
-    }
-
-    internal fun put(cellX: Long, cellY: Long, tree: Tree) {
-      val i = indexOf(cellX, cellY)
-      trunkX[i] = tree.x
-      trunkY[i] = tree.y
-      trunkHeight[i] = tree.trunkHeight
-      canopyRadius[i] = tree.canopyRadius
-      count++
-    }
-  }
-
   private companion object {
     const val TREE_SALT = 0x7A31B0DE4C0F55L
     const val PATCH_SALT = 0x2E9C64B7D1A308L
@@ -679,107 +524,5 @@ class VegetationScatter(
      * and not a fractal one, and a third octave at thirty metres varies inside a single crown.
      */
     const val CLUMP_OCTAVES = 2
-  }
-}
-
-/**
- * The trees reaching one chunk, with the ground under each already resolved.
- *
- * Built once per chunk and read once per column, which is what makes the per-column cost a handful of array
- * reads: a four-metre cell covers sixteen columns and each column consults nine cells, so a cell that were
- * recomputed on demand would be recomputed a hundred and forty-four times.
- */
-class TreeLattice internal constructor(
-  private val candidates: VegetationScatter.Candidates,
-  private val params: VegetationParams,
-  private val cellUnits: Long,
-  private val voxelUnits: Long,
-  /** Handed down rather than recomputed: two derivations of a reach are two chances to get one wrong. */
-  private val searchCells: Int
-) {
-
-  private val base = DoubleArray(candidates.trunkX.size) { Double.NaN }
-  private val trunkColumnX = LongArray(candidates.trunkX.size)
-  private val trunkColumnY = LongArray(candidates.trunkX.size)
-
-  /**
-   * Whether each tree is blighted, resolved **at its trunk** and carried here.
-   *
-   * The same rule as the crown hanging from the ground under its own trunk, and it fails the same way if
-   * broken. A crown spans columns and reaches into the neighbouring chunk; if each chunk asked
-   * `isBlightedAt` about the column it happens to be drawing, a tree standing on a corruption fringe would
-   * come out blighted in one chunk and green in the other, with a seam straight down the middle of it.
-   * Deciding once at the trunk makes both chunks reach the same verdict about the same tree with no
-   * communication - which is the whole property this scatter exists to have.
-   */
-  private val blighted = BooleanArray(candidates.trunkX.size)
-
-  var count: Int = 0
-    private set
-
-  val isEmpty get() = count == 0
-
-  internal fun plant(index: Int, ground: Double, isBlighted: Boolean) {
-    base[index] = ground
-    blighted[index] = isBlighted
-    trunkColumnX[index] = Math.floorDiv(Quantize.toFixed(candidates.trunkX[index]), voxelUnits)
-    trunkColumnY[index] = Math.floorDiv(Quantize.toFixed(candidates.trunkY[index]), voxelUnits)
-    count++
-  }
-
-  /**
-   * Adds a span of foliage for every tree standing over this column.
-   *
-   * ### The crown is an ellipsoid and the trunk is one column
-   *
-   * A crown is drawn the way a cave passage is - `sqrt(1 - t^2)` across its width, so it meets the trunk at
-   * full height and tapers to nothing at its edge - which costs one square root and is the difference
-   * between a tree and a green cylinder. The trunk goes into exactly **one** column, chosen by integer
-   * column index rather than by a distance test, so a trunk near a column boundary cannot come out as two
-   * trunks or none.
-   *
-   * ### Foliage first, then the trunk
-   *
-   * They are written in that order because the writer only fills air: the crown claims the top of the trunk,
-   * and the trunk then fills the clear bole beneath it. Reversed, a tree would be a bare pole with a
-   * hemisphere balanced on it.
-   */
-  fun columnAt(worldX: Double, worldY: Double, into: StructureSpans) {
-    if (count == 0) return
-
-    val cellX = Math.floorDiv(Quantize.toFixed(worldX), cellUnits)
-    val cellY = Math.floorDiv(Quantize.toFixed(worldY), cellUnits)
-    val columnX = Math.floorDiv(Quantize.toFixed(worldX), voxelUnits)
-    val columnY = Math.floorDiv(Quantize.toFixed(worldY), voxelUnits)
-
-    for (dy in -searchCells..searchCells) {
-      for (dx in -searchCells..searchCells) {
-        val i = candidates.indexOf(cellX + dx, cellY + dy)
-        if (i < 0) continue
-        if (base[i].isNaN()) continue
-
-        val offsetX = worldX - candidates.trunkX[i]
-        val offsetY = worldY - candidates.trunkY[i]
-        val distance = sqrt(offsetX * offsetX + offsetY * offsetY)
-        val radius = candidates.canopyRadius[i]
-        val crownCentre = base[i] + candidates.trunkHeight[i]
-
-        // Quantised, so two chunks cannot decide the edge of a crown differently - the same branch
-        // `CaveNetwork` and the doorway test in `TownStructures` put through Quantize.
-        if (!Quantize.isAbove(distance, radius)) {
-          val t = (distance / radius).coerceIn(0.0, 1.0)
-          val half = radius * params.crownAspect * sqrt((1.0 - t * t).coerceAtLeast(0.0))
-          into.add(
-            crownCentre - half,
-            crownCentre + half,
-            if (blighted[i]) BlockType.BLIGHTED_LEAVES else BlockType.LEAVES
-          )
-        }
-
-        if (columnX == trunkColumnX[i] && columnY == trunkColumnY[i]) {
-          into.add(base[i], crownCentre, if (blighted[i]) BlockType.BLIGHTED_LOG else BlockType.LOG)
-        }
-      }
-    }
   }
 }

@@ -7,6 +7,7 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -33,16 +34,13 @@ class WoundStructureTest {
     val wound = world.world.chronicle.sitesOfKind(SiteKind.WOUND).firstOrNull()
       ?: error("seed 7 has no wound; this test is pinned to a seed that does")
 
-    val counts = countAt(wound.position)
-    val crystal = counts[BlockType.MANA_CRYSTAL_LARGE] ?: 0
+    val spires = spiresAt(wound.position)
 
-    println("wound at (${wound.position.x.toInt()}, ${wound.position.y.toInt()}): $counts")
+    println("wound at (${wound.position.x.toInt()}, ${wound.position.y.toInt()}): $spires spires")
 
-    // **Voxels, not spires.** A spire is one column 2.5 to 9 m tall, so it is three to nine voxels - the measured
-    // 64 here is a dozen or so spires in a 32 m chunk, against the ~21 lattice cells such a chunk contains at
-    // 0.55 density. Saying "spires" and asserting a voxel count is how a bar ends up an order of magnitude
-    // looser than it reads.
-    assertTrue(crystal >= 24, "only $crystal crystal voxels in the chunk at the centre of a wound")
+    // A 32 m chunk holds about 21 cells of the seven-metre spire lattice, and the density tapers to the field's
+    // edge from 0.55 at its centre, so a chunk at the middle of a wound should hold something like a dozen.
+    assertTrue(spires >= 6, "only $spires spires in the chunk at the centre of a wound")
   }
 
   @Test
@@ -92,7 +90,7 @@ class WoundStructureTest {
     val wound = world.world.chronicle.sitesOfKind(SiteKind.WOUND).firstOrNull()
       ?: error("seed 7 has no wound")
 
-    val inside = (countAt(wound.position)[BlockType.MANA_CRYSTAL_LARGE] ?: 0)
+    val inside = spiresAt(wound.position)
 
     // The most corrupted dry cell that is not inside any wound: corrupted ground, so the scatter is at its full
     // density there, and the comparison is against the scatter rather than against empty land.
@@ -102,17 +100,16 @@ class WoundStructureTest {
     for (dy in -1..1) {
       for (dx in -1..1) {
         val at = Vec2d(elsewhere.x + dx * extent, elsewhere.y + dy * extent)
-        outside += countAt(at)[BlockType.MANA_CRYSTAL_LARGE] ?: 0
+        outside += spiresAt(at)
       }
     }
 
     println(
-      "large-crystal voxels: $inside in one wound chunk, $outside over nine chunks of corrupted ground " +
-          "away from any wound"
+      "spires: $inside in one wound chunk, $outside over nine chunks of corrupted ground away from any wound"
     )
     assertTrue(
-      inside > outside * 3 && inside > 20,
-      "$inside crystal voxels inside a wound against $outside over nine ordinary corrupted chunks - the wound " +
+      inside > outside * 3 && inside > 5,
+      "$inside spires inside a wound against $outside over nine ordinary corrupted chunks - the wound " +
           "is not building anything the crystal scatter was not already doing"
     )
   }
@@ -149,13 +146,28 @@ class WoundStructureTest {
     val counts = HashMap<BlockType, Int>()
     for (block in chunk.blocks) {
       val type = BlockType.ofOrNull(block.toInt() and 0xFF) ?: continue
-      if (type == BlockType.MANA_CRYSTAL_LARGE || type == BlockType.MANA_CRYSTAL_SMALL ||
-        type == BlockType.BLIGHTED_DIRT
-      ) {
-        counts.merge(type, 1, Int::plus)
-      }
+      if (type == BlockType.BLIGHTED_DIRT) counts.merge(type, 1, Int::plus)
     }
     return counts
+  }
+
+  /**
+   * Props by kind in the chunk containing a position.
+   *
+   * **Spires, not voxels.** The old counts were voxels and had to say so loudly, because a spire is three to
+   * nine of them and an assertion that reads as a spire count while measuring a voxel count is an order of
+   * magnitude looser than it looks. A prop is one spire, so the numbers here mean what they say - and are
+   * correspondingly smaller.
+   */
+  private fun spiresAt(position: Vec2d): Int {
+    val config = world.config
+    val chunkX = Math.floorDiv(position.x.toInt(), config.chunkExtent.toInt())
+    val chunkY = Math.floorDiv(position.y.toInt(), config.chunkExtent.toInt())
+    val props = world.propsIn(chunkX, chunkY)
+
+    var spires = 0
+    for (i in props.indices) if (props.kindAt(i) == PropKind.WOUND_SPIRE) spires++
+    return spires
   }
 
   private fun mostCorruptedCellAwayFromWounds(): Vec2d {

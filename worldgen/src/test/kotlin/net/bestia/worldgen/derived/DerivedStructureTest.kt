@@ -215,21 +215,22 @@ class DerivedStructureTest {
     assertFalse(summary.isShelteredAt(4, 4, 1.0), "a lava pool is not a roof")
   }
 
-  @Test
-  fun `a canopy overhead is still free headroom`() {
-    // The regression guard for the fall-through this replaced. `hasClearance` used to have arms for AIR,
-    // WATER and solid, and anything else - leaves being the only case at the time - fell through every arm
-    // and became free headroom by accident. It is now OPEN by declaration, and this is what says so.
-    //
-    // It is also the one test that catches a wrong Passability default: were the default BLOCKED, an agent
-    // could no longer walk under a tree anywhere in the world, and nothing else here would notice.
-    val chunk = flatGround()
-    for (z in 4..6) chunk[3, 3, z] = BlockType.LEAVES
-
-    val tile = WalkableTile.of(chunk, AgentProfile(height = 2, maxWadeDepth = 0.0))
-
-    assertTrue(tile.isWalkable(3, 3, 3), "a leaf canopy should not obstruct the ground under it")
-  }
+  /*
+   * `a canopy overhead is still free headroom` was here, and it is gone because its subject is.
+   *
+   * It wrote `LEAVES` above the ground and asserted the column stayed walkable, which exercised
+   * `Passability.OPEN` on a real material and guarded a fall-through: `hasClearance` once had arms for AIR,
+   * WATER and solid, and leaves - the only other case at the time - became free headroom by accident.
+   *
+   * Trees are entities now and the leaf blocks are deleted, so **`OPEN` has exactly one member left, `AIR`**.
+   * No material can be written overhead to make the assertion mean anything: `WATER` is `WADEABLE` and `LAVA`
+   * is `BLOCKED`, both by explicit declaration.
+   *
+   * The guarantee moved to `VoxelTest.every non-solid material declares what it does to an agent`, which pins
+   * the passability of each non-solid material by name. That is the stronger home for it: what this test could
+   * really only catch was a *default* being wrong, and an assertion that names every value cannot be satisfied
+   * by a default at all.
+   */
 
   @Test
   fun `a step within reach connects and a cliff does not`() {

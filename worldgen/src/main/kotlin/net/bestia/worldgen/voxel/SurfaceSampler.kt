@@ -454,7 +454,7 @@ object SurfaceCover {
    * clean one, or the reverse.
    *
    * The `else` is the shape `TODO.md` says to judge rather than sweep: this is a mapping over a
-   * fifty-material palette that answers for six of them and leaves the rest alone **by construction**, not a
+   * fifty-material palette that answers for four of them and leaves the rest alone **by construction**, not a
    * dispatch with a hole in it. Snow, ice, gravel, masonry and every rock reach it and are meant to.
    */
   private fun blight(block: BlockType, blighted: Boolean): BlockType =
@@ -463,8 +463,6 @@ object SurfaceCover {
       BlockType.DIRT -> BlockType.BLIGHTED_DIRT
       BlockType.SAND -> BlockType.BLIGHTED_SAND
       BlockType.PEAT -> BlockType.BLIGHTED_PEAT
-      BlockType.LOG -> BlockType.BLIGHTED_LOG
-      BlockType.LEAVES -> BlockType.BLIGHTED_LEAVES
       else -> block
     }
 

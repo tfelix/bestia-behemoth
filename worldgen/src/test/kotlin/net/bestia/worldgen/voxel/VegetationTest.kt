@@ -51,216 +51,54 @@ class VegetationTest {
 
   // --- The lattice ----------------------------------------------------------------------------------
 
+  /**
+   * The canopy comes in patches rather than speckle.
+   *
+   * ### Retargeted, and the original measurement is gone rather than weakened
+   *
+   * This used to walk a scanline of *voxel columns* and measure the run length of leaf cover against a control
+   * built from the broken construction the module drew a checkerboard with once. A prop is a point, not a
+   * three-metre disc, so "run length of canopy along a scanline" has no subject any more - and rewriting it to
+   * measure runs of *props* would report the lattice spacing rather than the patch field.
+   *
+   * So the property is asserted where it actually lives: the run length of `densityAt > 0`, which is the field
+   * that decides where a wood is, against the same per-sample coin flip at the same share. That control is the
+   * point of the test - the assertion is "better than the bug", not "above a number somebody liked".
+   *
+   * The clumping half of what the old test covered is now
+   * [nearest-neighbour spacing is spread rather than on a pitch], which measures it directly on the props.
+   */
   @Test
-  fun `a canopy comes in patches, not in speckle`() {
-    val strip = canopyStrip()
-    val share = strip.count { it }.toDouble() / strip.size
+  fun `a wood has an edge rather than thinning to speckle everywhere`() {
+    val scatter = scatterOf()
+    val samples = STRIP_CHUNKS * CHUNK_SIZE
+    val worldY = FOREST_CHUNK * CHUNK_SIZE * VOXEL + 0.5
 
-    // Habit 5: an invariant that skips its subject reports success. A strip with no trees on it has a
-    // magnificent run length of nothing.
-    assertTrue(share > 0.15, "only $share of the strip is under canopy; there is nothing here to measure")
+    val wooded = BooleanArray(samples) { i ->
+      scatter.densityAt(FOREST_CHUNK * CHUNK_SIZE * VOXEL + i * VOXEL, worldY) > 0.0
+    }
+    val share = wooded.count { it }.toDouble() / wooded.size
 
-    val measured = meanRunLength(strip)
+    // Habit 5: an invariant that skips its subject reports success.
+    assertTrue(share > 0.15, "only $share of the strip is wooded at all; there is nothing here to measure")
 
-    // The control: the same share of ground decided per column by a hash, which is precisely the construction
+    val measured = meanRunLength(wooded)
+
+    // The control: the same share decided per sample by a hash, which is precisely the construction
     // `SurfaceSampler.biomeAt` was measured and rejected for. Its runs are geometric with mean `1/(1-p)`, so
     // at any plausible share it sits near 1.5 and no amount of tuning the probability rescues it.
-    val speckled = BooleanArray(strip.size) { GenRng.hashUnit(SEED, CONTROL_SALT, it.toLong()) < share }
+    val speckled = BooleanArray(samples) { GenRng.hashUnit(SEED, CONTROL_SALT, it.toLong()) < share }
     val control = meanRunLength(speckled)
 
     assertTrue(
       measured >= MIN_RUN_METRES,
-      "canopy runs average $measured m, under the $MIN_RUN_METRES m a single crown is wide - this is speckle"
+      "wooded runs average $measured m, under the $MIN_RUN_METRES m a single crown is wide - this is speckle"
     )
     assertTrue(
       measured > control * RUN_MARGIN,
-      "canopy runs average $measured m against $control m for a per-column coin flip at the same share, " +
+      "wooded runs average $measured m against $control m for a per-sample coin flip at the same share, " +
           "which is not a distinction"
     )
-  }
-
-  @Test
-  fun `a crown hangs from its own trunk, not from the ground under each column`() {
-    val scatter = scatterOf()
-    val spans = StructureSpans()
-    var checked = 0
-
-    for (offsetY in 0 until FOREST_BLOCK) {
-      for (offsetX in 0 until FOREST_BLOCK) {
-        val chunk = ChunkPos(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
-        val bounds = config.chunkBounds(chunk)
-        val candidates = scatter.candidatesIn(chunk)
-        val lattice = scatter.plant(candidates) { worldX, _ -> groundAt(worldX) }
-
-        for (i in 0 until candidates.cellsX * candidates.cellsY) {
-          val trunkX = candidates.trunkX[i]
-          if (trunkX.isNaN()) continue
-          val trunkY = candidates.trunkY[i]
-          val radius = candidates.canopyRadius[i]
-
-          // Only trees whose whole crown is inside this chunk. One in the surrounding ring has half of its
-          // crown over cells this lattice does not cover, and asking about those columns would be testing the
-          // fixture rather than the scatter.
-          if (!bounds.expanded(-radius).contains(trunkX, trunkY)) continue
-
-          // The crown's centre elevation, computed the one way it is allowed to be: the ground under the
-          // trunk, plus the trunk. Every column the crown reaches must produce a leaf span centred on
-          // exactly this.
-          val centre = groundAt(trunkX) + candidates.trunkHeight[i]
-
-          for (offset in listOf(-radius * 0.5, 0.0, radius * 0.5)) {
-            val worldX = trunkX + offset
-            // Sloped east to west, so an offset along y would not tell a level crown from a draped one.
-            if (offset != 0.0) {
-              assertTrue(
-                groundAt(worldX) != groundAt(trunkX),
-                "the fixture is flat here, so this proves nothing"
-              )
-            }
-
-            spans.clear()
-            lattice.columnAt(worldX, trunkY, spans)
-
-            var found = false
-            for (span in 0 until spans.count) {
-              if (spans.blockOf(span) != BlockType.LEAVES.id) continue
-              if ((spans.bottomOf(span) + spans.topOf(span)) * 0.5 == centre) found = true
-            }
-
-            assertTrue(
-              found,
-              "the column $offset m from the trunk at ($trunkX,$trunkY) holds no leaf span centred on " +
-                  "$centre; the ground under it is ${groundAt(worldX)}, which is what a draped crown " +
-                  "would follow"
-            )
-            checked++
-          }
-        }
-      }
-    }
-
-    assertTrue(checked > 100, "only $checked columns were testable")
-  }
-
-  @Test
-  fun `two chunks draw the same tree on the border between them`() {
-    // The seam property, asked of the trees rather than of the voxels: a crown straddling a chunk border is
-    // drawn half by each side, so both have to agree about where its trunk is and how big it is. They share
-    // no state and never see each other, so the only thing making them agree is that every draw comes off an
-    // integer lattice index of a quantised world coordinate.
-    val scatter = scatterOf()
-    val left = scatter.candidatesIn(ChunkPos(0, 0))
-    val right = scatter.candidatesIn(ChunkPos(1, 0))
-
-    var shared = 0
-    for (cellY in right.fromCellY until right.fromCellY + right.cellsY) {
-      for (cellX in right.fromCellX until right.fromCellX + right.cellsX) {
-        val a = left.indexOf(cellX, cellY)
-        val b = right.indexOf(cellX, cellY)
-        if (a < 0 || b < 0) continue
-        // A tree too far outside a chunk to reach it is dropped by that chunk alone, which is not a
-        // disagreement - it is one side declining to draw something it cannot see.
-        if (left.trunkX[a].isNaN() || right.trunkX[b].isNaN()) continue
-
-        assertEquals(left.trunkX[a], right.trunkX[b], "trunk x at cell ($cellX,$cellY)")
-        assertEquals(left.trunkY[a], right.trunkY[b], "trunk y at cell ($cellX,$cellY)")
-        assertEquals(left.trunkHeight[a], right.trunkHeight[b], "trunk height at cell ($cellX,$cellY)")
-        assertEquals(left.canopyRadius[a], right.canopyRadius[b], "canopy radius at cell ($cellX,$cellY)")
-        shared++
-      }
-    }
-
-    assertTrue(shared > 0, "the two chunks share no tree at all, so this asserted nothing")
-  }
-
-  @Test
-  fun `the ground a crown hangs from is the same column height either chunk reads`() {
-    // The other half of the seam, and the one that costs something: a crown's elevation comes from the ground
-    // under its trunk, which for a tree just outside a chunk is a column belonging to the neighbour. It is
-    // read out of a halo on the height source rather than resampled, and this is what makes that sound.
-    val columns = slopedColumns()
-    val halo = scatterOf().halo
-    assertTrue(halo > 0, "a halo of zero cannot reach a neighbour's column")
-
-    val left = columns.heights(ChunkPos(0, 0), halo)
-    val right = columns.heights(ChunkPos(1, 0), halo)
-
-    for (localY in 0 until CHUNK_SIZE) {
-      for (offset in 0 until halo) {
-        assertEquals(
-          left[CHUNK_SIZE + offset, localY],
-          right[offset, localY],
-          "chunk 0's halo column ${CHUNK_SIZE + offset} is chunk 1's own column $offset"
-        )
-      }
-    }
-  }
-
-  // --- The voxels -----------------------------------------------------------------------------------
-
-  @Test
-  fun `a tree grows out of the ground and never into it`() {
-    // `onlyIntoAir`, exercised by every tree in the world rather than by a contrived one: a trunk starts at
-    // its own ground elevation, and by the span writer's rounding the first voxel that reaches is the surface
-    // voxel itself. Without the flag every tree replaces the patch of grass it stands on with wood.
-    var trunks = 0
-
-    for (chunk in forestChunks) {
-      val baseZ = config.voxelBaseOf(chunk.chunk)
-
-      for (localY in 0 until CHUNK_SIZE) {
-        for (localX in 0 until CHUNK_SIZE) {
-          val (worldX, _) = config.columnCenter(chunk.chunk, localX, localY)
-          // The voxel the ground surface falls inside - `ChunkMaterializer.topFilledVoxel`, spelled out.
-          val surface = ceil(groundAt(worldX) / VOXEL).toInt() - 1 - baseZ
-          if (surface !in 0 until CHUNK_HEIGHT) continue
-
-          for (localZ in 0..surface) {
-            val block = chunk.rawAt(localX, localY, localZ)
-            assertTrue(
-              block != BlockType.LOG.id && block != BlockType.LEAVES.id,
-              "${BlockType.of(block)} at ($localX,$localY,$localZ) of ${chunk.chunk}, at or below the " +
-                  "ground surface"
-            )
-          }
-
-          for (localZ in surface + 1 until CHUNK_HEIGHT) {
-            if (chunk.rawAt(localX, localY, localZ) == BlockType.LOG.id) {
-              trunks++
-              break
-            }
-          }
-        }
-      }
-    }
-
-    assertTrue(trunks > 10, "only $trunks trunks stood in the block, which asserts nothing")
-  }
-
-  @Test
-  fun `a leaf voxel is a whole voxel`() {
-    // Occupancy exists to recover a continuous surface, and a canopy has none: a fractional top leaf is not
-    // half a leaf, it is a surface net told to draw a smooth green dome over the wood. See
-    // `ChunkMaterializer.writeStructure`'s `wholeVoxels`.
-    var leaves = 0
-
-    for (chunk in forestChunks) {
-      for (localY in 0 until CHUNK_SIZE) {
-        for (localX in 0 until CHUNK_SIZE) {
-          for (localZ in 0 until CHUNK_HEIGHT) {
-            if (chunk.rawAt(localX, localY, localZ) != BlockType.LEAVES.id) continue
-            leaves++
-            assertEquals(
-              Occupancy.FULL,
-              chunk.occupancyAt(localX, localY, localZ),
-              "the leaf at ($localX,$localY,$localZ) of ${chunk.chunk} is only partly there"
-            )
-          }
-        }
-      }
-    }
-
-    assertTrue(leaves > 100, "only $leaves leaf voxels in the block, which asserts nothing")
   }
 
   // --- The prop lattice -----------------------------------------------------------------------------
@@ -364,49 +202,35 @@ class VegetationTest {
   }
 
   /**
-   * Every prop is one of the trees the simulation already had.
+   * A smaller entity share emits a strict subset of a larger one.
    *
-   * This is what makes `CANOPY_COVER` and the props two views of one function rather than two models of
-   * one thing, and it is checked position-for-position rather than by counting: a second scatter that
-   * merely produced a plausible number of trees in plausible places would pass a count.
+   * The observable form of the property that makes `CANOPY_COVER` and a stand's advertised capacity two views
+   * of one function: the thinning compares the *same* per-cell roll against a lower threshold, so lowering the
+   * share can only ever remove trees, never move them or add them.
+   *
+   * It used to be checked against `candidatesIn`, the unthinned lattice the voxel path walked. That is gone
+   * with the voxels, and this is the better test anyway - it asserts the monotonicity a reader would actually
+   * rely on, and it does it through the public knob rather than through an internal buffer.
    */
   @Test
-  fun `every prop is a cell the simulated lattice also holds`() {
-    val scatter = scatterOf()
-    var checked = 0
+  fun `a smaller entity share emits a subset of a larger one`() {
+    val sparse = propsBy { it.copy(entityShare = 0.10) }
+    val dense = propsBy { it.copy(entityShare = 0.40) }
 
-    for (offsetY in 0 until FOREST_BLOCK) {
-      for (offsetX in 0 until FOREST_BLOCK) {
-        val chunk = ChunkPos(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
-        val candidates = scatter.candidatesIn(chunk)
+    assertTrue(sparse.isNotEmpty(), "the sparse scatter emitted nothing, so there is nothing to compare")
+    assertTrue(dense.size > sparse.size, "a larger share emitted no more props than a smaller one")
 
-        val props = PropInstances()
-        scatter.propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
+    val missing = sparse.keys - dense.keys
+    assertEquals(
+      emptySet(), missing,
+      "${missing.size} props exist at a 0.10 share and not at 0.40, so the two are different scatters " +
+          "rather than one thinned twice"
+    )
 
-        for (i in props.indices) {
-          val cellX = PropId.cellXOf(props.identityAt(i))
-          val cellY = PropId.cellYOf(props.identityAt(i))
-          val at = candidates.indexOf(cellX, cellY)
-
-          assertTrue(at >= 0, "prop cell ($cellX,$cellY) is outside the simulated range of $chunk")
-          assertTrue(
-            !candidates.trunkX[at].isNaN(),
-            "prop cell ($cellX,$cellY) holds no simulated tree, so the prop set is not a subset"
-          )
-          assertEquals(
-            candidates.trunkX[at], props.xAt(i),
-            "prop and simulated trunk disagree about x in cell ($cellX,$cellY)"
-          )
-          assertEquals(
-            candidates.trunkY[at], props.yAt(i),
-            "prop and simulated trunk disagree about y in cell ($cellX,$cellY)"
-          )
-          checked++
-        }
-      }
+    // And identical where they overlap: same cell, same tree.
+    for ((id, position) in sparse) {
+      assertEquals(position, dense.getValue(id), "prop $id stands in a different place at a different share")
     }
-
-    assertTrue(checked > 40, "only $checked props were checked against the lattice")
   }
 
   /**
@@ -441,129 +265,69 @@ class VegetationTest {
   }
 
   /**
-   * The share retained is the knob's value, which is what a stand's advertised capacity is computed from.
+   * The knob is proportional: halving the entity share roughly halves the props.
    *
-   * ### Two ways to get this measurement wrong, both of which it got wrong first
+   * What a `VEGETATION_STAND`'s advertised capacity is computed from, so if this drifts every stand in the
+   * world under- or over-promises and both numbers still look plausible.
    *
-   * **The denominator.** `candidatesIn` counts trees whose *crown reaches* the chunk - its bounds expanded
-   * by `crownReach` - while `propsIn` counts trunks *inside* it. On a sixteen-metre test chunk that is
-   * 22.4 squared against 16 squared, a factor of 1.96, and it read as a retained share of 0.12 against the
-   * 0.25 asked for. So the simulated side is filtered to trunks this chunk owns, by the same integer
-   * column test the emitter uses.
-   *
-   * **The area.** [clumpAt] has a mean of one over a large area and no particular mean over a small one.
-   * A contiguous eight-chunk block is 128 m, about four clump wavelengths, so its local mean can sit well
-   * away from one and the share with it. The chunks are therefore sampled on a stride wide enough that
-   * each lands on an independent phase of the field.
+   * Measured as a *ratio between two shares* rather than against an absolute expectation, because the
+   * expectation needs the mean canopy cover over exactly the sampled ground - which is what
+   * `Invariants.checkVegetationStandsAdvertiseFillableCapacity` does with real stands. Here the two runs share
+   * their ground, so it cancels.
    */
   @Test
-  fun `the retained share is the entity share`() {
-    val scatter = scatterOf()
-    var simulated = 0
-    var emitted = 0
+  fun `halving the entity share halves the props`() {
+    val dense = propsBy { it.copy(entityShare = 0.40) }.size
+    val sparse = propsBy { it.copy(entityShare = 0.20) }.size
 
-    for (stepY in 0 until SHARE_SAMPLES) {
-      for (stepX in 0 until SHARE_SAMPLES) {
-        val chunk = ChunkPos(SHARE_FIRST_CHUNK + stepX * SHARE_STRIDE, SHARE_FIRST_CHUNK + stepY * SHARE_STRIDE)
+    assertTrue(dense > 200, "only $dense props at the higher share, too few to measure a ratio against")
 
-        val candidates = scatter.candidatesIn(chunk)
-        for (i in 0 until candidates.cellsX * candidates.cellsY) {
-          val x = candidates.trunkX[i]
-          if (x.isNaN()) continue
-          if (!ownedBy(chunk, x, candidates.trunkY[i])) continue
-          simulated++
-        }
-
-        val props = PropInstances()
-        scatter.propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
-        emitted += props.count
-      }
-    }
-
-    assertTrue(simulated > 1000, "only $simulated simulated trees, too few to measure a share against")
-
-    val share = emitted.toDouble() / simulated
+    val ratio = dense.toDouble() / sparse
     assertTrue(
-      kotlin.math.abs(share - PROP_ENTITY_SHARE) < SHARE_TOLERANCE,
-      "$emitted of $simulated trees became props, a share of $share against the $PROP_ENTITY_SHARE asked for"
+      kotlin.math.abs(ratio - 2.0) < SHARE_RATIO_TOLERANCE,
+      "halving the share changed the prop count by ${"%.2f".format(ratio)}x rather than 2x"
     )
   }
 
   @Test
-  fun `nothing is planted on worked ground`() {
-    // The veto is applied at the *trunk*, never at the column being filled, so that the chunk next door
-    // drawing the other half of a crown reaches the same verdict about the same tree. What that buys here is
-    // the simplest possible assertion: the top of the mine collar is masonry, all of it.
-    val chunk = materializeMine()
-    var collar = 0
+  fun `nothing stands on worked ground`() {
+    val chunkX = Math.floorDiv((MINE_X / VOXEL).toInt(), CHUNK_SIZE)
+    val chunkY = Math.floorDiv((MINE_Y / VOXEL).toInt(), CHUNK_SIZE)
+    val props = materializerOf(Double.NaN).propsIn(chunkX, chunkY)
 
-    for (localY in 0 until CHUNK_SIZE) {
-      for (localX in 0 until CHUNK_SIZE) {
-        val (worldX, worldY) = config.columnCenter(chunk.chunk, localX, localY)
-        val distance = hypot(worldX - MINE_X, worldY - MINE_Y)
-        if (distance >= MINE_RADIUS * MineHead.COLLAR_SHARE) continue
-        if (distance < MINE_RADIUS * MineHead.SHAFT_SHARE) continue
-        collar++
-
-        val solid = chunk.highestSolid(localX, localY)
-        assertTrue(solid >= 0, "the collar column ($localX,$localY) holds nothing solid at all")
-        assertEquals(
-          BlockType.MASONRY.id,
-          chunk.rawAt(localX, localY, solid),
-          "the top of the mine collar at ($localX,$localY) is not masonry"
-        )
-      }
+    var inside = 0
+    for (i in props.indices) {
+      val distance = hypot(props.xAt(i) - MINE_X, props.yAt(i) - MINE_Y)
+      if (distance < MINE_RADIUS * MineHead.COLLAR_SHARE) inside++
     }
 
-    assertTrue(collar > 10, "only $collar columns of collar were tested")
+    assertEquals(0, inside, "$inside props stand on the mine head's collar")
   }
 
+  /**
+   * Nothing stands in standing water.
+   *
+   * Stronger on props than it was on voxels. The voxel version passed partly for the wrong reason - a drowned
+   * column has no air in it, so there was nowhere to write a canopy even with the veto deleted - which is why
+   * it used shallow water. This asserts the veto directly: the prop is either emitted or it is not.
+   */
   @Test
-  fun `nothing is planted in standing water`() {
-    // Three metres over the highest ground in the chunk, not thirty. Deep water fills the whole slab, and a
-    // column with no air in it has nothing to plant a tree into - so the first version of this passed with the
-    // veto deleted, which is habit 5 exactly: an assertion whose subject was never reached. Shallow water
-    // leaves twenty voxels of sky, and a crown would stand in it.
-    val drowned = materializerOf(waterLevel = groundAt(FOREST_CHUNK_EAST_EDGE) + 3.0)
-      .materialize(forestChunkAt(0, 0))
+  fun `nothing stands in standing water`() {
+    val level = groundAt(FOREST_CHUNK_EAST_EDGE) + 3.0
+    val materializer = materializerOf(waterLevel = level)
 
-    for (localY in 0 until CHUNK_SIZE) {
-      for (localX in 0 until CHUNK_SIZE) {
-        for (localZ in 0 until CHUNK_HEIGHT) {
-          val block = drowned.rawAt(localX, localY, localZ)
-          assertTrue(
-            block != BlockType.LOG.id && block != BlockType.LEAVES.id,
-            "a tree at ($localX,$localY,$localZ) under ten metres of water"
-          )
-        }
-      }
-    }
-  }
-
-  // --- Helpers --------------------------------------------------------------------------------------
-
-  /** Whether each metre along a west-east strip is under a canopy. */
-  private fun canopyStrip(): BooleanArray {
-    val scatter = scatterOf()
-    val spans = StructureSpans()
-    val strip = BooleanArray(STRIP_CHUNKS * CHUNK_SIZE)
-
-    for (chunkX in 0 until STRIP_CHUNKS) {
-      val chunk = ChunkPos(chunkX, 0)
-      val lattice = scatter.plant(scatter.candidatesIn(chunk)) { worldX, _ -> groundAt(worldX) }
-
-      for (localX in 0 until CHUNK_SIZE) {
-        val (worldX, worldY) = config.columnCenter(chunk, localX, 0)
-        spans.clear()
-        lattice.columnAt(worldX, worldY, spans)
-        strip[chunkX * CHUNK_SIZE + localX] = spans.count > 0
+    var drowned = 0
+    for (offsetY in 0 until FOREST_BLOCK) {
+      for (offsetX in 0 until FOREST_BLOCK) {
+        val props = materializer.propsIn(FOREST_CHUNK + offsetX, FOREST_CHUNK + offsetY)
+        for (i in props.indices) if (props.groundAt(i) < level) drowned++
       }
     }
 
-    return strip
+    assertEquals(0, drowned, "$drowned props stand under water")
   }
 
-  /** Mean length of a run of `true`, in samples. */
+  /** Mean length of a `true` run, in samples. Zero when there are none. */
   private fun meanRunLength(strip: BooleanArray): Double {
     var runs = 0
     var total = 0
@@ -580,7 +344,6 @@ class VegetationTest {
     return if (runs == 0) 0.0 else total.toDouble() / runs
   }
 
-  /** Ground rising half a metre per metre eastward, so a draped crown is wrong by half a metre per metre. */
   private fun groundAt(worldX: Double) = GROUND_AT_ORIGIN + SLOPE * worldX
 
   private fun slopedColumns() = ChunkColumnSource { chunk, halo ->
@@ -595,6 +358,23 @@ class VegetationTest {
     val props = PropInstances()
     scatterOf().propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
     return props
+  }
+
+  /** Every prop over the forest block under a variant of the default tuning, keyed by its durable name. */
+  private fun propsBy(tune: (VegetationParams) -> VegetationParams): Map<Long, Pair<Double, Double>> {
+    val scatter = VegetationScatter(config, surfaceOf(Double.NaN), SEED, tune(VegetationParams()))
+    val out = HashMap<Long, Pair<Double, Double>>()
+
+    for (offsetY in 0 until SHARE_SAMPLES) {
+      for (offsetX in 0 until SHARE_SAMPLES) {
+        val chunk = ChunkPos(SHARE_FIRST_CHUNK + offsetX * SHARE_STRIDE, SHARE_FIRST_CHUNK + offsetY * SHARE_STRIDE)
+        val props = PropInstances()
+        scatter.propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
+        for (i in props.indices) out[props.identityAt(i)] = props.xAt(i) to props.yAt(i)
+      }
+    }
+
+    return out
   }
 
   /** Whether the voxel column at a world position belongs to [chunk] - the emitter's ownership test. */
@@ -754,8 +534,14 @@ class VegetationTest {
     /** Leaves the twelve strided samples inside the 16 km fixture world with room either side. */
     const val SHARE_FIRST_CHUNK = 125
 
-    /** Slack on the measured share: sampling error over 144 independent clump phases, not a fudge factor. */
-    const val SHARE_TOLERANCE = 0.03
+    /**
+     * Slack on the two-to-one prop ratio between a 0.40 share and a 0.20 one.
+     *
+     * Binomial noise over a few thousand props, plus the clamp in `treeAt` biting slightly harder at the
+     * higher share where `entityShare * clumpAt` more often exceeds one - which is a real effect and is why
+     * this is not tighter.
+     */
+    const val SHARE_RATIO_TOLERANCE = 0.25
 
     /** Three tenths off a voxel boundary, so no rounding rule is ever exercised at its tie. */
     const val GROUND_AT_ORIGIN = 40.3

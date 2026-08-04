@@ -28,11 +28,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// </para>
   ///
   /// <para>
-  /// It used to come from <see cref="Block.Solid"/>, and <c>LEAVES</c> is why it no longer does. Solidity is
+  /// It used to come from <see cref="Block.Solid"/>, and a leaf canopy is why it no longer does. Solidity is
   /// the server's word for "does this obstruct" - it decides pathing, spawn heights and line of sight - and a
-  /// canopy is deliberately not solid so that agents walk under it. Which mesh a material is drawn into is a
-  /// different question with a different answer: leaves are opaque green and belong on the terrain surface,
-  /// not blended into the transparent water one, where a tree beside a lake would have merged with it.
+  /// canopy was deliberately not solid so that agents walk under it. Which mesh a material is drawn into is a
+  /// different question with a different answer: leaves were opaque green and belonged on the terrain surface,
+  /// not blended into the transparent water one, where a tree beside a lake would have merged with it. Leaves
+  /// have left the palette - they are entities now - but the distinction they established is what <c>LAVA</c>
+  /// relies on below, so it outlived them.
   /// </para>
   ///
   /// <para>
@@ -152,15 +154,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(40, "GRASS", 0.28f, 0.45f, 0.19f),
       Terrain(41, "SNOW", 0.92f, 0.94f, 0.96f),
 
-      // Vegetation, scattered per column at chunk generation. LEAVES is the first material drawn on the
-      // terrain surface without being solid - see Foliage.
-      Terrain(45, "LOG", 0.33f, 0.24f, 0.15f),
-      Foliage(46, "LEAVES", 0.19f, 0.36f, 0.15f),
-
-      // Mana crystal, scattered on the surface like a tree. Bright and cold against every natural cover, so
-      // a crystal field reads as a place from a distance rather than as texture.
-      Terrain(47, "MANA_CRYSTAL_SMALL", 0.46f, 0.72f, 0.86f),
-      Terrain(48, "MANA_CRYSTAL_LARGE", 0.58f, 0.86f, 0.98f),
+      // Ids 45 to 48 are free and must stay free: LOG, LEAVES, MANA_CRYSTAL_SMALL and MANA_CRYSTAL_LARGE.
+      // Trees and mana crystals are entities now, delivered by ChunkStaticEntitiesSMSG and drawn by
+      // StaticEntityRenderer, so nothing in a chunk payload names them. See BlockType's own note.
 
       // Corrupted ground. Each is its clean twin pulled toward violet and darkened, so a corruption boundary
       // reads as the same terrain gone wrong rather than as a different biome - which is what it is.
@@ -168,8 +164,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(50, "BLIGHTED_DIRT", 0.26f, 0.18f, 0.24f),
       Terrain(51, "BLIGHTED_SAND", 0.56f, 0.46f, 0.54f),
       Terrain(52, "BLIGHTED_PEAT", 0.17f, 0.12f, 0.18f),
-      Terrain(53, "BLIGHTED_LOG", 0.24f, 0.18f, 0.22f),
-      Foliage(54, "BLIGHTED_LEAVES", 0.28f, 0.20f, 0.34f),
+      // 53 and 54 free: BLIGHTED_LOG and BLIGHTED_LEAVES. A corrupted tree carries a flag on its prop now.
 
       // Bridge decking and other worked structure.
       Terrain(60, "MASONRY", 0.62f, 0.60f, 0.56f),
@@ -261,30 +256,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       };
 
     /// <summary>
-    /// Leaf canopy: drawn on the opaque terrain surface, but neither solid nor sight-blocking.
-    /// </summary>
-    /// <remarks>
-    /// Its own factory rather than a fourth argument to <see cref="Terrain"/>, exactly as that method's
-    /// remarks demand: the divergence between "obstructs" and "is drawn opaque" is the interesting thing
-    /// about this material, and it belongs in the table where it can be read, not inside a boolean.
-    ///
-    /// <para>
-    /// The server also gives it a fractional <c>opacity</c>, so a sight line through a canopy attenuates
-    /// rather than stopping dead. Nothing here needs it: line of sight is resolved server side.
-    /// </para>
-    /// </remarks>
-    private static Block Foliage(byte id, string name, float r, float g, float b) =>
-      new()
-      {
-        Id = id, Name = name, Solid = false, Opaque = false,
-        Surface = SurfaceKind.Terrain, Colour = new Color(r, g, b)
-      };
-
-    /// <summary>
     /// Molten rock: its own surface, drawn opaque and emissive. Neither solid nor sight-blocking.
     /// </summary>
     /// <remarks>
-    /// Not <see cref="Fluid"/>, and the argument is the one <see cref="Foliage"/> makes about leaves: which
+    /// Not <see cref="Fluid"/>, and the argument is the one the class remarks make about the leaf canopy: which
     /// mesh a material is drawn into is a different question from whether it obstructs. On the water surface a
     /// lava pool beside a lake would blend into one continuous sheet, with water's alpha and no glow.
     ///

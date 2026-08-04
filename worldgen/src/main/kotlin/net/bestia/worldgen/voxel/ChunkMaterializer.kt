@@ -177,29 +177,15 @@ class ChunkMaterializer(
     // One buffer for the whole chunk, refilled per column, and shared by both producers. See StructureSpans.
     val spans = if (structures.isEmpty && caves.isEmpty) null else StructureSpans()
 
-    // Asked before the heights, which is the whole reason it is a separate call: a crown hanging into this
-    // chunk from outside needs the ground under a trunk that is not in it, and that costs a halo - seventy
-    // per cent more heightfield evaluations. Most chunks have no trees, and this says so for the price of a
-    // hash per four-metre cell.
-    val candidates = vegetation.candidatesIn(chunk)
-    // At least one column of halo, unconditionally, and that is structural rather than an optimisation:
-    // `gradientAt` takes a central difference, so without it the edge columns would fall back to a one-sided
-    // difference while the neighbouring chunk took a central one over the same shared world column - a
-    // one-voxel stripe of mismatched cap material down every chunk border. Free on any chunk with trees on
-    // it, since `vegetation.halo` is already at least one.
-    val heights = columns.heights(chunk, max(1, if (candidates.isEmpty) 0 else vegetation.halo))
-
-    val trees = if (candidates.isEmpty) {
-      null
-    } else {
-      vegetation.plant(candidates, trunkSite(chunk, heights, structures, caves))
-    }
-    // A second buffer, not the shared one: a column in a wood can be under several crowns at once, and
-    // crowding them into the eight spans a building and a passage already share would truncate whichever
-    // came last. They are also applied at a different time - see [fillColumn].
-    // Allocated whenever anything might write into the air above the ground. Crystals can stand on a chunk
-    // with no tree in it, so this can no longer be gated on the tree lattice alone.
-    val foliage = StructureSpans()
+    // One column of halo, and it is structural rather than an optimisation: `gradientAt` takes a central
+    // difference, so without it the edge columns would fall back to a one-sided difference while the
+    // neighbouring chunk took a central one over the same shared world column - a one-voxel stripe of
+    // mismatched cap material down every chunk border.
+    //
+    // It used to be `max(1, if (candidates.isEmpty) 0 else vegetation.halo)`, and that whole expression - and
+    // the separate `candidatesIn` pass that fed it - existed because a crown hanging in from outside needed
+    // the ground under a trunk in the next chunk. Nothing draws a crown any more, so the halo is one.
+    val heights = columns.heights(chunk, 1)
 
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
@@ -207,7 +193,7 @@ class ChunkMaterializer(
         fillColumn(
           out, out.columnOffset(localX, localY), baseZ, worldX, worldY,
           heights[localX, localY], gradientAt(heights, localX, localY),
-          rivers, ponds, lava, ore, bridges, structures, caves, spans, trees, foliage
+          rivers, ponds, lava, ore, bridges, structures, caves, spans
         )
       }
     }
@@ -269,7 +255,7 @@ class ChunkMaterializer(
     val caves = CaveNetwork(nearby, config.seed, caveParams)
     val bridges = BridgeDecks(nearby)
 
-    val site = propSite(chunk, heights, structures, caves, bridges)
+    val site = trunkSite(chunk, heights, structures, caves, bridges)
     val into = PropInstances()
 
     vegetation.propsIn(chunk, site, into)
@@ -277,34 +263,6 @@ class ChunkMaterializer(
     structures.spireProps(config, chunk, site, into)
 
     return into
-  }
-
-  /**
-   * [trunkSite] plus the one veto only an entity needs.
-   *
-   * A bridge deck is not in the voxel path's veto set and does not need to be: the crown is written into
-   * air only, so it stops at the decking and the result merely looks like a tree beside a bridge. An
-   * entity has no such backstop - it is placed at a position and drawn whole, so it grows through the
-   * carriageway.
-   *
-   * Kept as a wrapper rather than folded into [trunkSite] so the voxel path stays byte-for-byte what it
-   * was while both paths coexist, which is what makes them worth diffing against each other. Once the
-   * voxel path goes, this collapses into [trunkSite].
-   */
-  private fun propSite(
-    chunk: ChunkPos,
-    heights: ColumnHeights,
-    structures: TownStructures,
-    caves: CaveNetwork,
-    bridges: BridgeDecks
-  ): PropSite {
-    val ground = trunkSite(chunk, heights, structures, caves)
-
-    if (bridges.isEmpty) return PropSite { worldX, worldY -> ground.groundAt(worldX, worldY) }
-
-    return PropSite { worldX, worldY ->
-      if (bridges.deckAt(worldX, worldY).isNaN()) ground.groundAt(worldX, worldY) else Double.NaN
-    }
   }
 
   /**
@@ -324,8 +282,9 @@ class ChunkMaterializer(
     chunk: ChunkPos,
     heights: ColumnHeights,
     structures: TownStructures,
-    caves: CaveNetwork
-  ) = VegetationScatter.TrunkSite { worldX, worldY ->
+    caves: CaveNetwork,
+    bridges: BridgeDecks
+  ) = PropSite { worldX, worldY ->
     val localX = Math.floorDiv(Quantize.toFixed(worldX), Quantize.toFixed(config.voxelSize)).toInt() -
         chunk.x * config.chunkSize
     val localY = Math.floorDiv(Quantize.toFixed(worldY), Quantize.toFixed(config.voxelSize)).toInt() -
@@ -337,6 +296,11 @@ class ChunkMaterializer(
     when {
       // A street is ground somebody swept. Checked before anything else because it is one query.
       structures.pavingAt(worldX, worldY) != null -> Double.NaN
+
+      // Nor through a carriageway. This one is an *entity's* veto and was not in the voxel path's set: a
+      // crown was written into air only, so it stopped at the decking and read as a tree beside a bridge.
+      // A prop is placed at a position and drawn whole, so it grows through the road.
+      !bridges.deckAt(worldX, worldY).isNaN() -> Double.NaN
 
       else -> {
         scratch.clear()
@@ -499,8 +463,6 @@ class ChunkMaterializer(
     structures: TownStructures,
     caves: CaveNetwork,
     spans: StructureSpans?,
-    trees: TreeLattice?,
-    foliage: StructureSpans?
   ) {
     // Three water surfaces, and the highest wins. The raster one is level - sea, or a lake priority-flood
     // found; the river one descends along its channel; the pond one is level too but is not in the raster at
@@ -732,36 +694,6 @@ class ChunkMaterializer(
       }
     }
 
-    /*
-     * Trees, last of everything, and the ordering is the same argument the carve makes from the other side.
-     *
-     * A canopy is the one thing in a column that must not displace what is already there: it is written
-     * `onlyIntoAir`, so it fills the space over the ground rather than replacing a roof, a bridge deck or a
-     * cliff face it happens to overlap. That only means anything once every other producer has written -
-     * including the carve, so that a crown can hang into the mouth of a cave rather than plugging it.
-     *
-     * There is no veto list here. Every reason not to plant a tree was applied at its own trunk, where it is
-     * a pure function of position that the chunk next door reaches the same answer to - see
-     * `VegetationScatter.plant` and [trunkSite]. A per-column veto would be a rule the two halves of a
-     * straddling crown could disagree about.
-     */
-    if (foliage != null) {
-      foliage.clear()
-      trees?.columnAt(worldX, worldY, foliage)
-
-      // After the trees, so a crystal cannot displace a trunk - both write `onlyIntoAir`, and the first
-      // producer into a voxel wins. A crystal under a canopy is fine and happens; a crystal *instead of* a
-      // trunk would be a tree quietly missing from a wood.
-      crystals.columnAt(worldX, worldY, top, foliage)
-
-      for (i in 0 until foliage.count) {
-        writeStructure(
-          out, offset, baseZ, height,
-          foliage.bottomOf(i), foliage.topOf(i), foliage.blockOf(i).toByte(),
-          onlyIntoAir = true, wholeVoxels = true
-        )
-      }
-    }
   }
 
   /**
@@ -828,19 +760,16 @@ class ChunkMaterializer(
    * into rock would keep the rock's full occupancy at its top voxel, losing the fractional surface. The top
    * voxel is partial for exactly the reason the ground's top voxel is: it is where a surface crosses it.
    *
-   * It writes over *everything* by default, deliberately: a wall footing sunk into a hillside is meant to
-   * replace the rock it is sunk into. Both parameters below are for the one producer that must not - the
-   * vegetation scatter - and they are parameters here rather than a second writer so that the rounding rules
-   * above cannot drift between two copies.
+   * It writes over *everything*, deliberately: a wall footing sunk into a hillside is meant to replace the
+   * rock it is sunk into.
    *
-   * @param onlyIntoAir leaves any voxel that already holds material alone. A canopy fills the space over the
-   *   ground; it does not eat a roof, a bridge deck or a cliff face it happens to overlap, and it does not
-   *   plug the mouth of the cave the carve just opened underneath it.
-   * @param wholeVoxels fills the topmost voxel completely instead of to the fraction the span's top
-   *   elevation reaches. Occupancy exists to recover a continuous *surface* from voxels, and a leaf canopy
-   *   has none - a fractional top leaf is not half a leaf, it is a surface net told to draw a smooth green
-   *   dome over the wood. Only the occupancy changes; both bounds round exactly as they do for masonry, so a
-   *   crown reads up to a voxel taller than its nominal top and nothing else moves.
+   * It used to take `onlyIntoAir` and `wholeVoxels`, both for the one producer that must not - the vegetation
+   * scatter, whose canopy had to fill the air over the ground without eating a roof, and whose topmost leaf
+   * voxel had to be whole because a *leaf* has no surface for a fraction to describe. Trees are entities now
+   * and both are gone, which is worth recording because of what it restores: **occupancy again means how much
+   * of this voxel lies below a surface, without exception.** `ColumnSummary`, `WalkableTile` and
+   * `VoxelChunk.solidHeightAt` all already assumed that, and the canopy was the one thing in the world that
+   * broke it.
    */
   private fun writeStructure(
     out: VoxelChunk,
@@ -849,19 +778,15 @@ class ChunkMaterializer(
     height: Int,
     fromElevation: Double,
     toElevation: Double,
-    block: Byte,
-    onlyIntoAir: Boolean = false,
-    wholeVoxels: Boolean = false
+    block: Byte
   ) {
     val from = highestVoxelAtOrBelow(fromElevation) + 1 - baseZ
     val to = topFilledVoxel(toElevation) - baseZ
 
     for (localZ in max(0, from)..min(height - 1, to)) {
-      if (onlyIntoAir && out.blocks[offset + localZ] != AIR) continue
-
       out.blocks[offset + localZ] = block
       out.occupancy[offset + localZ] =
-        if (localZ == to && !wholeVoxels) Occupancy.byteOf(fillFractionOf(toElevation, baseZ + localZ))
+        if (localZ == to) Occupancy.byteOf(fillFractionOf(toElevation, baseZ + localZ))
         else Occupancy.FULL_BYTE
     }
   }
@@ -933,7 +858,12 @@ class ChunkMaterializer(
     //    every steep cell in the world in one grey GRAVEL. No BlockType changed here either.
     // 8: lava - a FeatureKind.LAVA_POOL fills its crater with LAVA over a BASALT floor, exclusive of water, and
     //    vetoes the carve the way standing water already did.
-    const val VERSION = 8
+    // 9: trees and mana crystals leave the voxel grid. LOG, LEAVES, MANA_CRYSTAL_SMALL/LARGE and the two
+    //    BLIGHTED_* twins are deleted and emitted as props for a runtime to make entities of; the wound spires
+    //    go with them. The second `StructureSpans` buffer, `writeStructure`'s `onlyIntoAir` and `wholeVoxels`,
+    //    and the whole `candidatesIn`/`plant` halo go too. **Unlike 6, 7 and 8 this does change `BlockType`**,
+    //    so `ChunkEngine.VERSION` moves with it and the client needs a release.
+    const val VERSION = 9
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

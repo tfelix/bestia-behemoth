@@ -125,18 +125,14 @@ class BlightedCoverTest {
       BlockType.BLIGHTED_GRASS,
       BlockType.BLIGHTED_DIRT,
       BlockType.BLIGHTED_SAND,
-      BlockType.BLIGHTED_PEAT,
-      BlockType.BLIGHTED_LOG,
-      BlockType.BLIGHTED_LEAVES
+      BlockType.BLIGHTED_PEAT
     )
 
     val CLEAN_TWINS = setOf(
       BlockType.GRASS,
       BlockType.DIRT,
       BlockType.SAND,
-      BlockType.PEAT,
-      BlockType.LOG,
-      BlockType.LEAVES
+      BlockType.PEAT
     )
   }
 }

@@ -15,7 +15,15 @@ package net.bestia.worldgen.voxel
  * declaration table, where it is one column beside `solid` in the file everyone edits to add a material.
  */
 enum class Passability {
-  /** Something can move through it: air, and a leaf canopy. */
+  /**
+   * Something can move through it.
+   *
+   * **Air, and only air, since the leaf blocks left the palette** - every other non-solid material declares
+   * something else. It stays the default for a non-solid material on purpose: a new one that forgets to
+   * declare its passability gets the permissive answer and is caught by
+   * `VoxelTest.every non-solid material declares what it does to an agent`, rather than silently becoming a
+   * wall.
+   */
   OPEN,
 
   /**
@@ -147,59 +155,54 @@ enum class BlockType(
   GRASS(40, solid = true),
   SNOW(41, solid = true),
 
-  /**
-   * A tree trunk, scattered per column at chunk generation from a lattice hash. Never stored as a field.
-   *
-   * Solid, so it is an obstruction to path around and the ground a spawn point sits on is the ground rather
-   * than the top of a trunk.
-   */
-  LOG(45, solid = true),
-
-  /**
-   * A tree canopy.
-   *
-   * **`solid = false` is doing three jobs at once**, and each of them would otherwise have been a change to a
-   * derived structure. `VoxelChunk.highestSolid` reports the ground under a tree, so nothing spawns twelve
-   * metres up in the branches; `WalkableTile` treats a non-solid block as passable, so agents walk *under* a
-   * canopy instead of pathing across the treetops; and `highestNonAir` still counts it, so `probe` draws a
-   * tree with no tooling change at all.
-   *
-   * [opacity] is the fourth, and is the one thing a boolean could not have expressed - see the parameter.
-   */
-  LEAVES(46, solid = false, opaque = false, opacity = 0.35),
-
   /*
-   * Mana crystal, scattered per column at chunk generation from a lattice hash exactly as a tree is, and
-   * stored nowhere. Two sizes rather than three grades: a crystal is harvested off the ground rather than
-   * dug out of a body, so there is no tonnage to reconcile and nothing for `OreBlocks` to name.
+   * Ids 45 to 48 are free, and must never be reused for a different material.
    *
-   * Here rather than in the ore band because a crystal grows on the surface. Which band a material sits in
-   * is the only documentation of what kind of thing it is, and putting a plant-like resource among the
-   * lodes would make `isOre`'s range check a lie for a human reader.
+   * They were `LOG`, `LEAVES`, `MANA_CRYSTAL_SMALL` and `MANA_CRYSTAL_LARGE` - trees and mana crystals, back
+   * when both were scattered into voxel columns at chunk generation. They are `PropKind.TREE` and
+   * `PropKind.MANA_CRYSTAL` now: positioned objects a runtime turns into entities, so that something can own a
+   * tree's state and a player can fell one.
+   *
+   * The same rule id 65 records: a freed id may be left free, and reusing one for a different material would
+   * make every stored chunk from before the change decode to the wrong thing. This is the palette's first
+   * *removal*, so it is also the first time that rule has been anything but hypothetical.
+   *
+   * What went with them is worth knowing, because two of the three were load-bearing in ways their own names
+   * did not suggest:
+   *
+   * - `LEAVES` was `solid = false` with `opacity = 0.35`, and that fraction was the only non-trivial material
+   *   opacity in the palette - so `derived/OpacityGrid` no longer has anything to attenuate and a wood no
+   *   longer breaks line of sight. Recorded as a deliberate loss rather than fixed here; the clean fix is a
+   *   props overlay on that grid, and nothing reads it yet.
+   * - `LOG` was `solid = true` precisely so that a trunk was "an obstruction to path around". Nothing obstructs
+   *   now, so `derived/WalkableTile` will route an agent straight through a tree until a collider on the entity
+   *   answers for it - one clause in `ChunkWalkQuery.canStep`.
+   *
+   * Two things got strictly better. The phantom walkable platform on top of every trunk is gone, and so is the
+   * *unwalkable* ground underneath one - `LOG` at head height read as `BLOCKED` to `hasClearance`.
    */
-  MANA_CRYSTAL_SMALL(47, solid = true),
-  MANA_CRYSTAL_LARGE(48, solid = true),
 
   /*
    * What the surface cover above becomes on corrupted ground.
    *
    * A twin per cover material rather than a flag on the block, because the wire format is a byte of block id
-   * and nothing else - so a corrupted world costs the client six palette rows and no protocol change at all.
+   * and nothing else - so a corrupted world costs the client four palette rows and no protocol change at all.
    * `voxel/SurfaceCover.blight` is the only thing that maps one to the other.
    *
-   * Six, not the whole palette. Snow, ice, gravel and the rocks are deliberately not twinned: snow on cursed
+   * Four, not the whole palette. Snow, ice, gravel and the rocks are deliberately not twinned: snow on cursed
    * ground is still snow, the bare biomes that use gravel and clay are rare, and blighting bedrock would
-   * turn every mine shaft inside a province purple for no gameplay reason. Those places still read as
-   * corrupted through the crystal scatter.
+   * turn every mine shaft inside a province purple for no gameplay reason.
+   *
+   * It was six. A blighted trunk and a blighted canopy were the other two, and a corrupted tree now carries
+   * `PropFlags.BLIGHTED` instead - which is where a *flag* was the right answer all along, because a prop
+   * already has attributes and a voxel is only ever a byte.
    */
   BLIGHTED_GRASS(49, solid = true),
   BLIGHTED_DIRT(50, solid = true),
   BLIGHTED_SAND(51, solid = true),
   BLIGHTED_PEAT(52, solid = true),
-  BLIGHTED_LOG(53, solid = true),
 
-  /** Flags copied from [LEAVES] exactly; a blighted canopy occludes the same as a live one. */
-  BLIGHTED_LEAVES(54, solid = false, opaque = false, opacity = 0.35),
+  // Ids 53 and 54 are free: `BLIGHTED_LOG` and `BLIGHTED_LEAVES`. See the note above ids 45 to 48.
 
   /** Bridge decking and other worked structure. */
   MASONRY(60, solid = true),

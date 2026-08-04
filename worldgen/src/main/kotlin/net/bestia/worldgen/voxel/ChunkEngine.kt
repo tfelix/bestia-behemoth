@@ -54,6 +54,13 @@ object ChunkEngine {
    * mutually undetectable - every byte of one is a legal varint continuation in the other, so a mismatched
    * client decodes plausible geometry instead of failing. `ChunkPatchEncoding` on the message catches it
    * per patch; this catches it at the handshake, before a single one is sent.
+   *
+   * 5 is the palette's **first removal**: `LOG`, `LEAVES`, `MANA_CRYSTAL_SMALL`, `MANA_CRYSTAL_LARGE` and the
+   * two `BLIGHTED_*` twins are gone, because trees and crystals are entities now. The rule above says to bump
+   * on any change to ids or names and says nothing about which direction - so this is the first time the
+   * discipline has had to mean "a freed id stays free". `RleCodec.VERSION` deliberately does not move: the
+   * format is unchanged and only the palette is, which is exactly the distinction `PipelineVersion`'s three
+   * separate numbers exist to make.
    */
-  const val VERSION = 4
+  const val VERSION = 5
 }
