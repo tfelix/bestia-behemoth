@@ -579,6 +579,9 @@ class MapRenderer(
       FeatureKind.SETTLEMENT_HISTORY -> Color(190, 80, 80)
       FeatureKind.SETTLEMENT_ECONOMY -> Color(90, 200, 180)
       FeatureKind.RUIN -> Color(150, 130, 110)
+      // Cooler and greyer than a ruin, so the two read as a family with the ash one recognisably the volcanic
+      // member. Same lightness, so neither dominates where both are on the map.
+      FeatureKind.ASH_RUIN -> Color(126, 126, 132)
       FeatureKind.BATTLEFIELD -> Color(150, 40, 40)
       FeatureKind.MONUMENT -> Color(240, 220, 150)
       FeatureKind.TOMB -> Color(170, 140, 200)

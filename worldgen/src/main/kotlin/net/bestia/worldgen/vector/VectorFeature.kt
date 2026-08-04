@@ -187,6 +187,8 @@ enum class FeatureKind(val defaultPriority: Int) {
 
   /** A settlement history destroyed or emptied. Carries a decay parameter; the ground is still graded. */
   RUIN(630),
+  /** A settlement buried in ash. Beside [RUIN] because it is the same thing by a different agent. */
+  ASH_RUIN(631),
   BATTLEFIELD(632),
   MONUMENT(634),
 

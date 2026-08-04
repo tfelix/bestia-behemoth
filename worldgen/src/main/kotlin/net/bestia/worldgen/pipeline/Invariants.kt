@@ -774,16 +774,24 @@ object Invariants {
     }
   }
 
-  /** Every ruin marker corresponds to a settlement the log says was emptied, and vice versa. */
+  /**
+   * Every ruin marker corresponds to a settlement the log says was emptied, and vice versa.
+   *
+   * **Both residue kinds**, and the list is what makes this correct rather than a coincidence: an abandonment
+   * leaves a `RUIN` unless it was an eruption, which leaves an `ASH_RUIN` instead. Counting only `RUIN` came up
+   * short the moment eruptions started producing the other kind, and it came up short *quietly* on the seeds with
+   * no volcano near a town - which is exactly the shape of failure that gets shipped. Any future cause that leaves
+   * its own kind of residue has to be added here too.
+   */
   private fun checkEveryRuinHasAnEvent(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     val chronicle = generated.world.chronicle
     if (chronicle.events.isEmpty()) return
 
-    val ruinSites = chronicle.sitesOfKind(SiteKind.RUIN)
+    val ruinSites = RESIDUE_KINDS.flatMap { chronicle.sitesOfKind(it) }
     for (site in ruinSites) {
       val record = chronicle.settlements.getOrNull(site.settlement)
       if (record == null || !record.isRuin) {
-        fail("every ruin has an event", "ruin site ${site.index} names settlement ${site.settlement}")
+        fail("every ruin has an event", "${site.kind} site ${site.index} names settlement ${site.settlement}")
         return
       }
     }
@@ -792,7 +800,8 @@ object Invariants {
     if (ruinSites.size != ruinedSettlements) {
       fail(
         "every ruin has an event",
-        "$ruinedSettlements settlements were emptied but there are ${ruinSites.size} ruin sites"
+        "$ruinedSettlements settlements were emptied but there are ${ruinSites.size} ruin sites " +
+            "(${RESIDUE_KINDS.joinToString { "$it=" + chronicle.sitesOfKind(it).size }})"
       )
     }
   }
@@ -968,6 +977,7 @@ object Invariants {
     // now a failure rather than a skip, which is what the `?: continue` here used to make it.
     val structural = mapOf(
       FeatureKind.RUIN to SiteChannels.RADIUS,
+      FeatureKind.ASH_RUIN to SiteChannels.RADIUS,
       FeatureKind.BATTLEFIELD to SiteChannels.RADIUS,
       FeatureKind.TOMB to SiteChannels.RADIUS,
       FeatureKind.MONUMENT to SiteChannels.RADIUS,
@@ -2242,6 +2252,15 @@ object Invariants {
    * deliberately not a tuning drift, which is what the measurements in `BiomeParams` are for.
    */
   private const val VOLCANIC_AREA_SLACK = 1.6
+
+  /**
+   * The site kinds an abandoned settlement can leave behind.
+   *
+   * One per cause that leaves something walkable: a razed or emptied town leaves a `RUIN`, an eruption leaves an
+   * `ASH_RUIN`. Stated as a list rather than derived, because `SiteKind` also holds six kinds that are *built* and
+   * one that is a landform, and "every residue names a ruined settlement" is false of all of those.
+   */
+  private val RESIDUE_KINDS = listOf(SiteKind.RUIN, SiteKind.ASH_RUIN)
 
   /** Metres a roadside inn may sit from the centreline of the road it serves. */
   private const val INN_ROAD_TOLERANCE = 50.0

@@ -211,6 +211,23 @@ enum class EventKind(
    */
   SETTLEMENT_FORSAKEN(80),
 
+  /**
+   * Emptied by an eruption's ashfall.
+   *
+   * Separate from [ERUPTION], which is the mountain waking. Both used to be [ERUPTION] because the eruption *was*
+   * the obituary - there was no event for a volcano, only for the town it killed - and the reuse survived the pass
+   * that gave volcanoes their own event, leaving a chronicle in which "eruption" meant two different things and a
+   * census that counted them together.
+   *
+   * Named `SETTLEMENT_*` because that is what every other ending is called: `abandon` is reached with
+   * [SETTLEMENT_ABANDONED], [SETTLEMENT_RAZED] and [SETTLEMENT_FORSAKEN], and the eruption path was the one caller
+   * passing a kind that was not about a settlement at all.
+   *
+   * The burial **cites** the eruption, so `Chronicle.provenanceOf` threads an ash ruin back to the mountain that
+   * made it - which is the whole of what "an eruption is geography" buys.
+   */
+  SETTLEMENT_BURIED(80),
+
   /** A prophet or a scholar went out to the wound and did not come back. */
   SEER_VANISHED(45);
 
@@ -380,6 +397,25 @@ data class ArtifactRecord(
  */
 enum class SiteKind {
   RUIN,
+
+  /**
+   * A town under a volcano's ash: residue, like a [RUIN], but a mound rather than a scatter of walls.
+   *
+   * The one site kind an eruption produces, and a separate kind rather than a `cause` channel on [RUIN] for
+   * `SiteChannels.RESOURCE`'s reason stated one level up - a site's kind *is* its `FeatureKind`, so four kinds
+   * cost nothing extra while one kind plus a type channel would cost a channel on every site marker in the world.
+   *
+   * The reason is **not** that the runtime could not otherwise tell the two apart: it can, through
+   * `SettlementRecord.ruinCause`. The reason is that the *materialiser* has to build a mound instead of a ruin
+   * field, and it reads features rather than the chronicle.
+   *
+   * Pompeii is the reference, and the scale is why this is a site rather than a landform: a `VOLCANO` or a
+   * `CALDERA` would be 5-20 km across, two orders past the `ChunkMaterializer.MARKER_MARGIN` a site radius is
+   * capped under. Those belong to `VolcanismStage`'s vent features. An ash ruin is settlement-sized, causally
+   * tied to an eruption in the log, and the one part of it a player can walk into.
+   */
+  ASH_RUIN,
+
   BATTLEFIELD,
   TOMB,
   MONUMENT,

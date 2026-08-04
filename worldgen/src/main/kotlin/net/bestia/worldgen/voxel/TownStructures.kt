@@ -510,6 +510,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
     when (site.kind) {
       SiteKind.RUIN -> ruinColumn(site, worldX, worldY, ground, distance, into)
+      SiteKind.ASH_RUIN -> ashRuinColumn(site, worldX, worldY, ground, distance, into)
       SiteKind.TOMB -> tombColumn(site, ground, distance, into)
       SiteKind.MONUMENT -> monumentColumn(site, ground, distance, into)
       SiteKind.MINE -> mineColumn(site, ground, distance, into)
@@ -560,6 +561,50 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
     val height = if (standing) STUB_HEIGHT * (1.0 - site.decay * 0.5) else RUBBLE_HEIGHT
     into.add(ground - SLAB_THICKNESS, ground + height, if (standing) BlockType.MASONRY else BlockType.RUBBLE)
+  }
+
+  /**
+   * A town under a volcano's ash: a shallow dome of it, with the odd wall still standing at the edges.
+   *
+   * A **fill** rather than a scatter, which is the whole difference from [ruinColumn]. A razed town is a field of
+   * rubble you can see the plan of; a buried one is ground - so this writes a continuous mound over the whole
+   * radius, in the shape [tombColumn] already uses for a barrow, and what a player finds is a hill with masonry
+   * poking out of the rim of it.
+   *
+   * `DIRT` and not a new ash block, for the same reason there is no ash raster: a thousand-year-old ash blanket
+   * *is* soil. Tephra weathers into unusually fertile ground within centuries, so the honest mark of a historic
+   * eruption is good farmland with a town under it rather than a grey desert - and it costs no palette bump.
+   *
+   * The standing stubs are at a third of a ruin field's chance and only outside the inner half, because the
+   * middle of the town is under the deepest part of the ash. That is the observable that tells this apart from a
+   * barrow at a glance: a barrow is clean and this one has a street corner sticking out of it.
+   */
+  private fun ashRuinColumn(
+    site: Site,
+    worldX: Double,
+    worldY: Double,
+    ground: Double,
+    distance: Double,
+    into: StructureSpans
+  ) {
+    val fraction = distance / site.radius
+    val depth = ASH_DEPTH * (1.0 - fraction * fraction) * (1.0 - site.decay * ASH_SETTLING)
+    if (depth <= 0.0) return
+
+    into.add(ground - SLAB_THICKNESS, ground + depth, BlockType.DIRT)
+
+    // Beyond the inner half only, where the blanket is thin enough for anything to show through it.
+    if (fraction <= ASH_BURIED_SHARE) return
+
+    val standing = GenRng.hashUnit(
+      seed, site.salt + 1,
+      Math.round(worldX * SCATTER_QUANTISE),
+      Math.round(worldY * SCATTER_QUANTISE)
+    ) < STANDING_CHANCE * ASH_STANDING_SHARE * (1.0 - site.decay)
+
+    if (standing) {
+      into.add(ground - SLAB_THICKNESS, ground + depth + STUB_HEIGHT * (1.0 - site.decay * 0.5), BlockType.MASONRY)
+    }
   }
 
   /** A barrow: an earth mound with a stone doorway in it. */
@@ -783,6 +828,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
      */
     val SITE_KINDS = mapOf(
       FeatureKind.RUIN to SiteKind.RUIN,
+      FeatureKind.ASH_RUIN to SiteKind.ASH_RUIN,
       FeatureKind.TOMB to SiteKind.TOMB,
       FeatureKind.MONUMENT to SiteKind.MONUMENT,
       FeatureKind.MINE to SiteKind.MINE,
@@ -793,6 +839,24 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
+
+    /**
+     * Metres of ash over the middle of a buried town.
+     *
+     * Pompeii's is four to six metres of it, which would be a hill rather than a mound at this radius; 2.2 is the
+     * mound the tomb pass already established as reading well against a settlement footprint, and it leaves the
+     * standing stubs visible rather than swallowing them.
+     */
+    const val ASH_DEPTH = 2.2
+
+    /** How much of the ash a fully decayed site has lost to weathering and slumping. */
+    const val ASH_SETTLING = 0.35
+
+    /** Inner share of the radius where nothing shows through the blanket at all. */
+    const val ASH_BURIED_SHARE = 0.5
+
+    /** Share of a ruin field's standing-wall chance that survives being buried. */
+    const val ASH_STANDING_SHARE = 0.33
 
     /** A cloister, from the outside in: precinct wall, range of buildings, then the open garth. */
     const val MONASTERY_WALL_SHARE = 0.92

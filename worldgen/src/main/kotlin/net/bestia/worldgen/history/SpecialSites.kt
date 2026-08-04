@@ -173,7 +173,7 @@ class SpecialSiteCandidates(
      * Every ore deposit rich enough, shallow enough and close enough to somewhere that could work it.
      *
      * The deposits are read off the `ORE_DEPOSIT` markers rather than off [LayerId.RESOURCE_VALUE], which is
-     * the whole reason the vector tier carries them - the same argument `HistoryStage.volcanismField` makes
+     * the whole reason the vector tier carries them - the same argument `VolcanismStage.arcVents` makes
      * about faults. The smoothed field says "there is something worth having near here" and cannot say *what*,
      * and a mine that cannot name what it extracts is a hole in the ground.
      *

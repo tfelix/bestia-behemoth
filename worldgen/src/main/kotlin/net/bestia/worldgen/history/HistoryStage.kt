@@ -24,6 +24,7 @@ import net.bestia.worldgen.core.StageResult
 import net.bestia.worldgen.core.StageScale
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.TectonicsStage
+import net.bestia.worldgen.geo.VolcanismStage
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.mana.ManaStage
@@ -72,13 +73,18 @@ class HistoryStage(
     // runs after it. See `mana/CorruptionStage`, where that split is argued from the other side - it is what
     // lets a town suffer the blight and then hold it back, and what lets a town history razed stop holding it
     // back at all.
-    ManaStage.ID
+    ManaStage.ID,
+    // The volcanism field and, more to the point, the vent markers. Eruptions are rolled per vent now, so this
+    // stage needs the volcanoes themselves rather than a proximity field it derived from the faults - see
+    // `HistorySim.resolveEruptions`.
+    VolcanismStage.ID
   )
   override val scale = StageScale.WORLD
 
   override val outputs = listOf(
     StageOutput.Vector(FeatureKind.SETTLEMENT_HISTORY),
     StageOutput.Vector(FeatureKind.RUIN),
+    StageOutput.Vector(FeatureKind.ASH_RUIN),
     StageOutput.Vector(FeatureKind.BATTLEFIELD),
     StageOutput.Vector(FeatureKind.TOMB),
     StageOutput.Vector(FeatureKind.MONUMENT),
@@ -101,7 +107,7 @@ class HistoryStage(
 
     val streamBase = GenRng.hash(ctx.seed, id.hash, version.toLong())
     val candidates = SpecialSiteCandidates.read(ctx, region, facts, params)
-    val chronicle = HistorySim(params, facts, candidates, streamBase, ctx.seed).run()
+    val chronicle = HistorySim(params, facts, readVents(ctx, region), candidates, streamBase, ctx.seed).run()
 
     return StageResult(features = emit(chronicle, facts), chronicle = chronicle)
   }
@@ -129,7 +135,11 @@ class HistoryStage(
     val distanceToOcean = ctx.layers.float(LayerId.DISTANCE_TO_OCEAN)
     val resourceValue = ctx.layers.float(LayerId.RESOURCE_VALUE)
 
-    val volcanism = volcanismField(ctx, region)
+    // A plain point sample of the layer, not `manaField`'s neighbourhood maximum. That machinery exists because
+    // `blightMana` is a *threshold* - a town on the very edge of a province had to read its neighbour's ground or
+    // the gate never opened - and volcanism here is a linear multiplier on nothing at all now that eruptions are
+    // rolled per vent. What it still feeds is `SiteFacts.volcanism`, which the economy and the site prose read.
+    val volcanism = ctx.layers.float(LayerId.VOLCANISM)
     val mana = manaField(ctx, region, params)
 
     return markers.mapIndexed { ordinal, marker ->
@@ -150,7 +160,7 @@ class HistoryStage(
         potential = marker.attribute(SettlementChannels.POPULATION).toInt().coerceAtLeast(10),
         habitability = marker.attribute(SettlementChannels.HABITABILITY),
         fertility = fertility.sampleBilinear(x, y).coerceIn(0.0, 1.0),
-        volcanism = volcanism(marker.position),
+        volcanism = volcanism.sampleBilinear(x, y).coerceIn(0.0, 1.0),
         // Deep recent sediment, a big river, and not much height above it. All three, because any one on
         // its own describes half the good farmland in the world.
         floodRisk = (
@@ -166,36 +176,35 @@ class HistoryStage(
   }
 
   /**
-   * How volcanic the ground is, as a function of world position: distance to a *convergent* fault.
+   * The volcanoes, as history sees them.
    *
-   * Read off the `FAULT` polylines tectonics emitted rather than re-derived from `plate_id`, which is the
-   * whole reason the vector tier carries them. Convergence rather than any boundary, because a rift does
-   * not bury a town in ash - and a transform fault does not either, which is what would happen if this
-   * used proximity to a boundary of any kind.
+   * Sorted by the dense index `VolcanismStage` assigned, and asserted to *be* dense, for the reason
+   * `readSites` asserts the same of settlements: the per-vent eruption roll keys on this index, so a gap wastes a
+   * stream and a duplicate makes two volcanoes erupt in lockstep for the life of the world. A world with no
+   * convergent boundary and no hotspot on land legitimately has none, and then nothing erupts.
+   *
+   * This replaced a `volcanismField` that lived here and computed a proximity field from the convergent `FAULT`
+   * polylines. Worth recording what that cost: the reach it tapered over was a bare `private const val` reaching
+   * **no version number at all**, so retuning how far an arc's influence spread would have moved neither
+   * `paramsVersion` nor `pipelineVersion`. Moving the model into `VolcanismStage` put it behind `VolcanismParams`.
    */
-  private fun volcanismField(ctx: GenContext, region: CellRegion): (Vec2d) -> Double {
-    val arcs = ctx.features.query(region.toWorld())
-      .filter { it.kind == FeatureKind.FAULT }
-      .filterIsInstance<MarkerFeature>()
-      .mapNotNull { fault ->
-        val channel = runCatching { fault.channel(TectonicsStage.CHANNEL_CONVERGENCE) }.getOrNull()
-          ?: return@mapNotNull null
-        val convergence = fault.stations?.valueAt(channel, 0) ?: return@mapNotNull null
-        if (convergence <= 0.0) null else fault to convergence
+  private fun readVents(ctx: GenContext, region: CellRegion): List<VentFacts> {
+    val markers = ctx.features.query(region.toWorld())
+      .filter { it.kind == FeatureKind.VOLCANIC_VENT }
+      .filterIsInstance<PointMarker>()
+      .sortedBy { it.attribute(VolcanismStage.CHANNEL_INDEX) }
+
+    return markers.mapIndexed { ordinal, marker ->
+      val declared = marker.attribute(VolcanismStage.CHANNEL_INDEX).toInt()
+      require(declared == ordinal) {
+        "Vent indices must be dense from zero; found $declared at position $ordinal"
       }
 
-    if (arcs.isEmpty()) return { 0.0 }
-
-    val range = ctx.config.scaleByLength(VOLCANIC_RANGE)
-    return { position ->
-      var worst = 0.0
-      for ((fault, convergence) in arcs) {
-        if (!fault.bbox.expanded(range).contains(position.x, position.y)) continue
-        val distance = fault.centerline.project(position).distance
-        if (distance > range) continue
-        worst = max(worst, convergence.coerceIn(0.0, 1.0) * (1.0 - distance / range))
-      }
-      worst
+      VentFacts(
+        index = ordinal,
+        position = marker.position,
+        strength = marker.attribute(VolcanismStage.CHANNEL_STRENGTH).coerceIn(0.0, 1.0)
+      )
     }
   }
 
@@ -204,9 +213,13 @@ class HistoryStage(
    *
    * ### A proximity maximum rather than a point sample, and what that is actually worth
    *
-   * The worst mana anywhere within [HistoryParams.blightRange], tapered linearly by distance - the same
-   * construction [volcanismField] uses, so the two gates on a disaster are the same shape. At zero distance it
+   * The worst mana anywhere within [HistoryParams.blightRange], tapered linearly by distance. At zero distance it
    * degenerates to the point sample, so a town standing inside a province still reads its own ground.
+   *
+   * This used to say "the same construction `volcanismField` uses, so the two gates on a disaster are the same
+   * shape". They are no longer the same shape and the difference is deliberate: volcanism is now a plain point
+   * sample of `LayerId.VOLCANISM`, because a blight is a *threshold* that a town on a province's edge would
+   * otherwise never cross, while an eruption is rolled per vent and needs no field at all.
    *
    * Two reasons, and neither is "otherwise nothing fires" - **that claim was written here first and the
    * measurement refuted it.** A point sample puts 62 of 224 settlement sites over the blight threshold against
@@ -313,6 +326,7 @@ class HistoryStage(
       id = featureId,
       kind = when (record.kind) {
         SiteKind.RUIN -> FeatureKind.RUIN
+        SiteKind.ASH_RUIN -> FeatureKind.ASH_RUIN
         SiteKind.BATTLEFIELD -> FeatureKind.BATTLEFIELD
         SiteKind.TOMB -> FeatureKind.TOMB
         SiteKind.MONUMENT -> FeatureKind.MONUMENT
@@ -347,7 +361,6 @@ class HistoryStage(
     val ID = StageId("history")
 
     /** Metres from a convergent boundary within which a settlement is at risk of eruption. */
-    private const val VOLCANIC_RANGE = 40_000.0
 
     /** Discharge at which a river is big enough to take out the lower town, in m3/s. */
     private const val FLOOD_DISCHARGE = 20.0

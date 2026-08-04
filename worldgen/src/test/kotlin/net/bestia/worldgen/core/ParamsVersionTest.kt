@@ -158,7 +158,7 @@ class ParamsVersionTest {
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to -9_118_719_711_542_149_956L,
-      "EventKind" to -6_113_693_738_021_732_381L,
+      "EventKind" to 1_598_063_550_653_760_260L,
       "ResourceType" to 8_190_588_717_705_702_599L,
       "MinableOre" to 4_365_871_184_218_980_312L,
       "SpawnHostility" to 6_711_120_610_348_833_411L

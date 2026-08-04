@@ -437,9 +437,32 @@ data class HistoryParams(
  * type would silently rewrite every war in the world. Keyed rolls make each decision independent of every
  * other, so a new decision is additive.
  */
+/**
+ * One volcano, as history sees it.
+ *
+ * A vent rather than a settlement, and that is the whole restructuring: an eruption is a thing that happens to a
+ * **mountain**, and which towns it buries is a consequence. Before this, each town rolled "am I buried this tick"
+ * against its own distance to a fault - so two neighbouring towns on one arc were buried in different centuries
+ * by different eruptions, and no event in the chronicle ever said a mountain erupted at all.
+ *
+ * [index] is dense from zero, which `VolcanismStage` guarantees, and the per-vent roll keys on it. A gap would
+ * waste a stream and a duplicate would make two volcanoes erupt in lockstep for the life of the world.
+ */
+internal class VentFacts(
+  val index: Int,
+  val position: Vec2d,
+  /** 0 to 1: how vigorous the vent is. Scales its eruption rate, nothing else. */
+  val strength: Double
+)
+
 internal class HistorySim(
   private val params: HistoryParams,
   private val facts: List<SiteFacts>,
+  /**
+   * The volcanoes, from `VolcanismStage`. Empty on a world with no convergent boundary and no hotspot on land,
+   * which is a legitimate seed - and then nothing erupts, which is the right answer rather than a special case.
+   */
+  private val vents: List<VentFacts>,
   /** Where the four built sites *may* go, read off the terrain by the stage. See [SpecialSiteCandidates]. */
   private val candidates: SpecialSiteCandidates,
   /** Base for every keyed roll: the world seed folded with the stage's identity and version. */
@@ -503,6 +526,9 @@ internal class HistorySim(
       updateRelations(year)
       resolveWars(year)
       resolveDisasters(year)
+      // After the disasters, so a town already emptied this tick is not buried a second time - `abandon` returns
+      // early on a town that is not standing, so the order is belt and braces rather than load-bearing.
+      resolveEruptions(year)
       resolveMana(year)
       updateFigures(year)
       updateArtifacts(year)
@@ -992,13 +1018,122 @@ internal class HistorySim(
         )
       }
 
-      if (roll(year.toLong(), index, ERUPTION_SALT) < town.facts.volcanism * ERUPTION_RATE) {
-        abandon(town, year, EventKind.ERUPTION, null, "buried in ash")
+      // The eruption roll used to be here, per town. It is now per vent - see [resolveEruptions].
+    }
+  }
+
+  /**
+   * The volcanoes wake, and whatever is downwind of one is buried.
+   *
+   * ### Why the roll moved from the town to the mountain
+   *
+   * It was `roll(year, townIndex) < town.volcanism * ERUPTION_RATE`, which is four separate things wrong and
+   * every one of them invisible from a map:
+   *
+   * - **the chronicle had no line saying a mountain erupted.** The only event was the town's obituary, so an
+   *   eruption was a way for a settlement to die rather than a thing that happened in the world.
+   * - **two towns on one arc were buried in different centuries by different eruptions**, because each rolled
+   *   its own. One eruption burying two neighbours - which is what an eruption does - was not expressible.
+   * - **the event's `where` was the town**, so nothing tied it to a volcano and `Chronicle.provenanceOf` could
+   *   not thread a ruin back to the mountain that made it.
+   * - **an eruption always destroyed the town that rolled it**, which is what makes this pass the one that
+   *   unlocks the lore query: no standing town had an eruption anywhere in its own history, so there was
+   *   nothing for anybody to remember. Now a town inside [ASH_REACH] that survives its ashfall roll has one in
+   *   living memory, and its buried neighbour is a walkable `ASH_RUIN` on the map.
+   *
+   * The two rolls are separate and that is the point: an eruption can bury **nothing**, which decouples "the
+   * mountain erupted" from "a town died" - so [ERUPTION_RATE] can rise without repeating the mistake its own
+   * KDoc records, because the thing that was too high was the *town-destruction* rate.
+   */
+  private fun resolveEruptions(year: Int) {
+    if (vents.isEmpty()) return
+
+    for (vent in vents) {
+      val ventIndex = vent.index.toLong()
+      if (roll(year.toLong(), ventIndex, ERUPTION_SALT) >= vent.strength * ERUPTION_RATE) continue
+
+      val erupted = log(
+        year, EventKind.ERUPTION, emptyList(), vent.position, emptyList(),
+        "the mountain ${ventName(vent)} wakes and throws ash across ${nearReach(vent.position)}"
+      )
+
+      for (town in towns) {
+        if (!town.standing) continue
+        val distance = town.facts.position.distanceTo(vent.position)
+        if (distance > ASH_REACH) continue
+
+        // Nearer is worse, and the taper is what makes an eruption bury the village on its flank while the city
+        // twenty kilometres downwind loses a harvest and survives to remember it.
+        val chance = vent.strength * BURIAL_CHANCE * (1.0 - distance / ASH_REACH)
+        if (roll(year.toLong(), ventIndex, town.facts.index.toLong(), ASHFALL_SALT) >= chance) continue
+
+        abandon(
+          town, year, EventKind.SETTLEMENT_BURIED, null, "buried in ash",
+          ruinKind = SiteKind.ASH_RUIN, causes = listOf(erupted)
+        )
       }
     }
   }
 
-  private fun abandon(town: Town, year: Int, cause: EventKind, byCiv: Int?, how: String) {
+  /**
+   * What the chronicle calls a volcano.
+   *
+   * A name of its own rather than "the mountain above <nearest town>", which is what this was first and read
+   * badly for a measurable reason: most vents are nowhere near a settlement, so on a 256-cell world at seed 42
+   * fifty-odd of sixty-one eruption lines came out as "the mountain above the wilds" - the same sentence over and
+   * over, which is a chronicle a player would stop reading.
+   *
+   * Named through `Names.place`, so a volcano is named the way a town is and in the same culture's vocabulary.
+   * That is worth more than tidier prose: a *named* mountain is something an NPC can refer to and a quest can
+   * point at, which "the mountain above the wilds" never could.
+   *
+   * The caller prefixes "the mountain", and that is not redundancy. `Names.place` draws from a settlement
+   * vocabulary - it produces Wolkscar and Dreargrube, which read as peaks, but also Greenleigh and Elmcombe,
+   * which read as villages - so without the prefix half the eruption lines in a chronicle would look like a town
+   * erupting. Giving `Names` a landform vocabulary would be the better fix and is a larger change than this
+   * earns; it would also move `Names.catalogueDigest` and therefore every name in every world.
+   *
+   * The culture is the nearest town's, or the first there is. A landform has no culture of its own, and the
+   * people who named it are whoever lives nearest to it.
+   */
+  private fun ventName(vent: VentFacts): String {
+    val nearest = towns.minByOrNull { it.facts.position.distanceTo(vent.position) }
+    val culture = nearest?.facts?.cultureIndex ?: 0
+    return Names.place(Names.seedOf(worldSeed, VENT_NAME_SALT, vent.index.toLong()), culture)
+  }
+
+  /**
+   * What an eruption's ash falls across: the nearest settled country, or the wilds.
+   *
+   * The second half of the sentence, and it carries the information the first half cannot - a player reading
+   * "Grauwald wakes and throws ash across the country about Silberstein" knows which of their towns to worry
+   * about, which is the whole point of an eruption being in a *town's* remembered history.
+   */
+  private fun nearReach(at: Vec2d): String {
+    val nearest = towns.minByOrNull { it.facts.position.distanceTo(at) } ?: return "empty country"
+    return if (nearest.facts.position.distanceTo(at) > ASH_REACH) {
+      "empty country"
+    } else {
+      "the country about ${nameOf(nearest)}"
+    }
+  }
+
+  /**
+   * @param ruinKind what is left behind. Defaulted so every existing caller is untouched; an eruption is the one
+   *   cause that leaves a mound rather than a scatter of walls, and the materialiser reads the kind rather than
+   *   the chronicle - see [SiteKind.ASH_RUIN].
+   * @param causes events this abandonment is a consequence of. Defaulted empty for the same reason, and what
+   *   makes `prune`'s transitive closure able to thread an ash ruin back to the eruption that made it.
+   */
+  private fun abandon(
+    town: Town,
+    year: Int,
+    cause: EventKind,
+    byCiv: Int?,
+    how: String,
+    ruinKind: SiteKind = SiteKind.RUIN,
+    causes: List<Int> = emptyList()
+  ) {
     if (!town.standing) return
 
     town.abandoned = year
@@ -1012,7 +1147,7 @@ internal class HistorySim(
     byCiv?.let { actors.add(Actor(ActorType.CIV, it)) }
 
     log(
-      year, cause, actors, town.facts.position, emptyList(),
+      year, cause, actors, town.facts.position, causes,
       "${nameOf(town)} is $how and stands empty"
     )
 
@@ -1021,7 +1156,7 @@ internal class HistorySim(
     // expanding a chunk's bounds by a fixed margin, and a ruin reaching past that margin would simply stop
     // at a straight line - see ChunkMaterializer.MARKER_MARGIN.
     val ruin = addSite(
-      SiteKind.RUIN, town.facts.position, year, town.facts.index,
+      ruinKind, town.facts.position, year, town.facts.index,
       civ = town.foundingCiv,
       radius = min(town.facts.tier.footprintRadius * RUIN_SPREAD, MAX_RUIN_RADIUS),
       artifact = -1, figure = -1
@@ -1694,7 +1829,7 @@ internal class HistorySim(
     SiteKind.FORT -> "raise"
     SiteKind.LIGHTHOUSE -> "light"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
-    SiteKind.RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
+    SiteKind.RUIN, SiteKind.ASH_RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
     SiteKind.WOUND -> "make"
   }
 
@@ -1903,6 +2038,9 @@ internal class HistorySim(
       site.nameSeed, culture, of,
       when (site.kind) {
         SiteKind.RUIN -> "ruin"
+        // `Names.site` renders an unknown form as "the <form> of <Town>", so this reads "the ash of Karth" with
+        // no edit to `Names` at all.
+        SiteKind.ASH_RUIN -> "ash"
         SiteKind.BATTLEFIELD -> "field"
         SiteKind.TOMB -> "barrow"
         SiteKind.MONUMENT -> "monument"
@@ -2064,15 +2202,43 @@ internal class HistorySim(
     const val FLOOD_RATE = 0.07
 
     /**
-     * Eruption chance per tick, scaled by how volcanic the ground is.
+     * Chance **per vent per tick** that a volcano erupts, scaled by its strength.
      *
-     * Tiny, and it has to be: this is the one disaster that destroys a settlement outright, so the rate
-     * multiplied by two hundred ticks is roughly the share of arc-side settlements that end as ruins. At 0.004
-     * that was eighty percent of a volcanic site's odds over a millennium, and the chronicle came back with
-     * thirty-five towns buried in ash against two razed by war - a world whose ruins were geology rather than
-     * history, which is precisely backwards for a stage whose point is history.
+     * A different sentence from the one that used to be here, and the whole paragraph is rewritten rather than
+     * retuned because leaving the old one would make it a lie about the code. It used to be the chance per *town*
+     * per tick of that town being buried, and the note recorded that 0.004 gave a chronicle with "thirty-five
+     * towns buried in ash against two razed by war" - a world whose ruins were geology rather than history.
+     *
+     * That measurement was about the **town-destruction** rate, and this number is no longer that. An eruption
+     * now happens to a mountain and may bury nothing at all: [BURIAL_CHANCE] is what decides whether it takes
+     * anybody with it. So this can be a great deal larger than 0.0004 without repeating the mistake - at 0.02 a
+     * vent wakes about four times over two hundred ticks, which is what makes an eruption something the chronicle
+     * of a *region* records rather than a once-per-world curiosity.
+     *
+     * If the ash ruins ever come back too numerous, [BURIAL_CHANCE] is the lever and not this one. Lowering this
+     * makes volcanoes quiet; lowering that makes them survivable, and the second is what the brief asks for.
      */
-    const val ERUPTION_RATE = 0.0004
+    const val ERUPTION_RATE = 0.02
+
+    /**
+     * Chance that a town at the vent itself is buried by one eruption, tapering to zero at [ASH_REACH].
+     *
+     * The lever that decides how many ash ruins a world has, and separate from [ERUPTION_RATE] on purpose - see
+     * that KDoc. A town on the flank is in real danger and one at the edge of the reach is mostly not, which is
+     * what leaves survivors with an eruption in living memory.
+     */
+    const val BURIAL_CHANCE = 0.22
+
+    /**
+     * How far ash from an eruption reaches, in metres.
+     *
+     * **Raw, not scaled by world length.** Ash fall from a cone is a real distance - a plume rises to a real
+     * height and falls out over real kilometres, whatever size the map is - which is `manaField`'s own argument
+     * about `blightRange` one file over. Worth noting that the eruption gate had exactly the opposite defect
+     * before this: the old `HistoryStage.volcanismField` scaled its 40 km reach, so on a small world a town was
+     * "on an arc" at ten kilometres from the fault and on a large one at eighty.
+     */
+    const val ASH_REACH = 18_000.0
 
     const val FORGE_CHANCE = 0.30
     const val INHERIT_CHANCE = 0.55
@@ -2249,5 +2415,18 @@ internal class HistorySim(
     const val STAR_SALT = 0x2AL
     const val BLIGHT_SALT = 0x2BL
     const val SEER_SALT = 0x2CL
+
+    /**
+     * Whether one eruption buries one town, per year.
+     *
+     * A second salt beside `ERUPTION_SALT` rather than a reuse, and read the `MONASTERY_SALT` story above before
+     * touching either. `ERUPTION_SALT` is now rolled as `roll(year, ventIndex)` and this as
+     * `roll(year, ventIndex, townIndex)` - different arities, so they would be different streams even sharing a
+     * value. They do not share one anyway, because relying on arity is relying on `roll`'s implementation.
+     */
+    const val ASHFALL_SALT = 0x2DL
+
+    /** Names a volcano. Separate from `PLACE_NAME_SALT` so a vent and a town of the same index differ. */
+    const val VENT_NAME_SALT = 0x06L
   }
 }
