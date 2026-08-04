@@ -56,7 +56,24 @@ data class RenderOptions(
   /** Stretch the palette to the values actually on screen, ignoring its declared range. */
   val autoRange: Boolean = false,
   /** Draw markers where [ChunkSeamCheck] found disagreeing columns. */
-  val seams: List<ChunkSeamCheck.Seam> = emptyList()
+  val seams: List<ChunkSeamCheck.Seam> = emptyList(),
+
+  /**
+   * Draw the macro navigation graph - the routes NPCs plan over.
+   *
+   * Off by default. It is not a picture of the world but of a *derived* structure over it, so it belongs with
+   * the grids rather than with the features, and on a large world it is by far the densest overlay there is -
+   * see [NavGraphOverlay] for how it stays affordable when it is on.
+   */
+  val navGraph: Boolean = false,
+
+  /**
+   * Include the open-country lattice, as opposed to only roads, bridges and lanes.
+   *
+   * Separate because the two answer different questions and one is a hundred times larger than the other:
+   * "where can a cart go" is the road network, and "can anything cross this valley at all" is the lattice.
+   */
+  val navWilderness: Boolean = true
 ) {
 
   fun draws(kind: FeatureKind) = features && (featureKinds == null || kind in featureKinds)
@@ -116,7 +133,15 @@ class RenderedMap(
    * Counts are pixels, not cells - what share of the *view* each category covers, which is the question a
    * person reading a map asks.
    */
-  val categories: List<Pair<Double, Int>> = emptyList()
+  val categories: List<Pair<Double, Int>> = emptyList(),
+
+  /**
+   * What the navigation overlay managed to draw, when it was on.
+   *
+   * Reported for the same reason [MapRenderer.gridsSuppressed] is: the overlay caps itself on a large world,
+   * and an overlay that quietly draws a fraction of itself is worse than one that says how much.
+   */
+  val navStats: NavGraphOverlay.Stats = NavGraphOverlay.Stats.NONE
 )
 
 /**
@@ -145,7 +170,9 @@ class MapRenderer(
     field: ScalarField,
     view: Viewport,
     options: RenderOptions = RenderOptions(),
-    features: List<VectorFeature> = emptyList()
+    features: List<VectorFeature> = emptyList(),
+    /** The prepared navigation overlay, or null when this scene has no graph. See [WorldScene.navOverlay]. */
+    navOverlay: NavGraphOverlay? = null
   ): RenderedMap {
     val image = BufferedImage(view.widthPx, view.heightPx, BufferedImage.TYPE_INT_RGB)
 
@@ -178,11 +205,12 @@ class MapRenderer(
       }
     }
 
-    drawOverlays(image, view, options, features)
+    val navStats = drawOverlays(image, view, options, features, navOverlay)
 
     return RenderedMap(
       image, field, range.first, range.second,
-      categories = if (field.palette.categorical) census(values) else emptyList()
+      categories = if (field.palette.categorical) census(values) else emptyList(),
+      navStats = navStats
     )
   }
 
@@ -283,12 +311,14 @@ class MapRenderer(
     image: BufferedImage,
     view: Viewport,
     options: RenderOptions,
-    features: List<VectorFeature>
-  ) {
-    if (!options.chunkGrid && !options.cellGrid && options.seams.isEmpty() &&
+    features: List<VectorFeature>,
+    navOverlay: NavGraphOverlay?
+  ): NavGraphOverlay.Stats {
+    val drawsNav = options.navGraph && navOverlay != null && !navOverlay.isEmpty
+    if (!options.chunkGrid && !options.cellGrid && options.seams.isEmpty() && !drawsNav &&
       !(options.features && features.isNotEmpty())
     ) {
-      return
+      return NavGraphOverlay.Stats.NONE
     }
 
     val g = image.createGraphics()
@@ -305,9 +335,17 @@ class MapRenderer(
       if (options.features) {
         drawFeatures(g, view, options, features)
       }
+      // After the features and before the seam markers: the graph is derived *from* the roads, so it reads
+      // best drawn over them, and a red seam marker has to stay on top of everything.
+      val navStats = if (drawsNav) {
+        navOverlay!!.draw(g, view, options.navWilderness)
+      } else {
+        NavGraphOverlay.Stats.NONE
+      }
       if (options.seams.isNotEmpty()) {
         drawSeams(g, view, options.seams)
       }
+      return navStats
     } finally {
       g.dispose()
     }

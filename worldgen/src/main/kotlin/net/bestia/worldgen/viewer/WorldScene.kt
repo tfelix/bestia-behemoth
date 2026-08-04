@@ -8,6 +8,7 @@ import net.bestia.worldgen.core.FeatureStore
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.civ.SettlementChannels
@@ -33,8 +34,20 @@ class WorldScene(
   val config: WorldConfig,
   val fields: List<ScalarField>,
   val features: FeatureStore,
-  val chunkSource: ChunkColumnSource? = null
+  val chunkSource: ChunkColumnSource? = null,
+  /** The macro navigation graph, or [NavGraph.EMPTY] for a pipeline that had no navigation stage. */
+  val navGraph: NavGraph = NavGraph.EMPTY
 ) {
+
+  /**
+   * The prepared navigation overlay: a spatial index over the graph plus the drawing itself.
+   *
+   * Held here rather than built by the renderer because the renderer is rebuilt whenever the shown field
+   * changes, and this index is O(total waypoints) to construct - on a large world that is hundreds of
+   * thousands of points, which is fine once and not fine on every click in the field list. Lazy, so a world
+   * nobody asks the overlay about never pays for it at all.
+   */
+  val navOverlay: NavGraphOverlay by lazy { NavGraphOverlay(navGraph) }
 
   /**
    * How many features of each kind this world has, in [FeatureKind] declaration order.
@@ -229,7 +242,7 @@ class WorldScene(
       // about the least useful thing to be shown by a tool you have just opened to look at a world.
       worldMapOf(world)?.let { fields.add(0, it) }
 
-      return WorldScene(name, world.config, fields, world.features, chunkSource)
+      return WorldScene(name, world.config, fields, world.features, chunkSource, world.navGraph)
     }
 
     /**

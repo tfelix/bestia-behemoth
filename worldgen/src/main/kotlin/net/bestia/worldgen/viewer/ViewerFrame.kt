@@ -10,6 +10,8 @@ import java.awt.Graphics
 import java.awt.GridLayout
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import net.bestia.worldgen.core.MovementMode
+import net.bestia.worldgen.core.NavEdgeKind
 import java.util.Locale
 import javax.swing.BorderFactory
 import javax.swing.Box
@@ -46,6 +48,8 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
   private var cellGrid = false
   private var autoRange = false
   private var exaggeration = 2.0
+  private var navGraph = false
+  private var navWilderness = true
 
   /**
    * Which feature kinds are drawn. Only ever holds kinds this world actually has.
@@ -86,8 +90,17 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
         val suppressed = canvas.suppressedGrids()
         if (suppressed.isNotEmpty()) append("   |   ${suppressed.joinToString("+")} grid too dense - zoom in")
 
+        // The overlay caps itself on a large world; saying so beats leaving a partial graph to be mistaken
+        // for the whole one. Same reasoning as the suppressed-grid note above.
+        val nav = map.navStats
+        if (nav.edgesInView > 0) {
+          append("   |   nav: ${nav.edgesDrawn} edges")
+          if (nav.capped) append(" of ${nav.edgesInView} in view (capped - zoom in for the rest)")
+          append(", ${nav.nodesDrawn} nodes")
+        }
+
         append("   |   drag pan, wheel zoom, 1 voxel scale, F fit, H shade, C chunks, G cells, ")
-        append("V features, A auto-range, S seam check, [ ] relief")
+        append("V features, A auto-range, N nav graph, M nav wilderness, S seam check, [ ] relief")
       }
     }
 
@@ -133,8 +146,24 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     })
     panel.add(toggle("auto range", autoRange) { autoRange = it; applyOptions() })
 
+    // Only offered when there is a graph to show, so a pipeline that stops before the navigation stage does
+    // not present a toggle that can only ever do nothing.
+    if (scene.navGraph.nodes.isNotEmpty()) {
+      panel.add(
+        toggle("nav graph (${scene.navGraph.nodes.size} nodes, ${scene.navGraph.edges.size} edges)", navGraph) {
+          navGraph = it; applyOptions()
+        }
+      )
+      panel.add(toggle("   ...including wilderness", navWilderness) { navWilderness = it; applyOptions() })
+    }
+
     panel.add(Box.createVerticalStrut(10))
     panel.add(featureLegend())
+
+    if (scene.navGraph.nodes.isNotEmpty()) {
+      panel.add(Box.createVerticalStrut(10))
+      panel.add(navLegend())
+    }
 
     panel.add(Box.createVerticalStrut(10))
     panel.add(heading("under cursor"))
@@ -205,6 +234,65 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
     return section
   }
 
+  /**
+   * The navigation overlay's key.
+   *
+   * Read-only, unlike the feature legend: the graph's kinds are not independently switchable, because the two
+   * useful ways to cut it down - roads only, or everything - are already the `nav wilderness` toggle, and a
+   * per-kind checkbox for five kinds of which one is 95% of the data would suggest a control that is not there.
+   *
+   * The two mode colours are listed beside the kinds because they answer a different question about the same
+   * edge: a blue hop is one that fords water, which is exactly the edge a creature that cannot swim is refused,
+   * and an amber one is steep enough to have been tagged as a climb.
+   */
+  private fun navLegend(): JPanel {
+    val section = JPanel()
+    section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
+    section.alignmentX = LEFT_ALIGNMENT
+    section.add(heading("nav graph"))
+
+    for ((kind, count) in scene.navOverlay.edgeCensus) {
+      section.add(
+        navRow(
+          NavGraphOverlay.colorOf(kind, emptySet()),
+          "${kind.name.lowercase()}  ($count)"
+        )
+      )
+    }
+
+    val wilderness = scene.navGraph.edges.count { it.kind == NavEdgeKind.WILDERNESS }
+    if (wilderness > 0) {
+      val fords = scene.navGraph.edges.count { MovementMode.SWIM in it.modes }
+      val climbs = scene.navGraph.edges.count { MovementMode.CLIMB in it.modes }
+      section.add(
+        navRow(
+          NavGraphOverlay.colorOf(NavEdgeKind.WILDERNESS, setOf(MovementMode.SWIM)),
+          "...that ford water  ($fords)"
+        )
+      )
+      section.add(
+        navRow(
+          NavGraphOverlay.colorOf(NavEdgeKind.WILDERNESS, setOf(MovementMode.CLIMB)),
+          "...that climb  ($climbs)"
+        )
+      )
+    }
+
+    return section
+  }
+
+  private fun navRow(color: Color, text: String): JPanel {
+    val row = JPanel()
+    row.layout = BoxLayout(row, BoxLayout.X_AXIS)
+    row.alignmentX = LEFT_ALIGNMENT
+    row.add(JLabel(text, Swatch(color), JLabel.LEADING).apply {
+      font = Font(Font.SANS_SERIF, Font.PLAIN, 11)
+      iconTextGap = 6
+    })
+    row.add(Box.createHorizontalGlue())
+    return row
+  }
+
   private fun featureRow(kind: FeatureKind, count: Int): JPanel {
     val row = JPanel()
     row.layout = BoxLayout(row, BoxLayout.X_AXIS)
@@ -262,6 +350,8 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       KeyEvent.VK_C -> { chunkGrid = !chunkGrid; applyOptions() }
       KeyEvent.VK_G -> { cellGrid = !cellGrid; applyOptions() }
       KeyEvent.VK_A -> { autoRange = !autoRange; applyOptions() }
+      KeyEvent.VK_N -> { navGraph = !navGraph; applyOptions() }
+      KeyEvent.VK_M -> { navWilderness = !navWilderness; applyOptions() }
       KeyEvent.VK_OPEN_BRACKET -> { exaggeration = (exaggeration / 1.4).coerceAtLeast(0.2); applyOptions() }
       KeyEvent.VK_CLOSE_BRACKET -> { exaggeration = (exaggeration * 1.4).coerceAtMost(30.0); applyOptions() }
       KeyEvent.VK_S -> runSeamCheck()
@@ -298,7 +388,9 @@ class ViewerFrame(private val scene: WorldScene) : JFrame("worldgen - ${scene.na
       featureKinds = visibleKinds.toSet(),
       chunkGrid = chunkGrid,
       cellGrid = cellGrid,
-      autoRange = autoRange
+      autoRange = autoRange,
+      navGraph = navGraph,
+      navWilderness = navWilderness
     )
   }
 

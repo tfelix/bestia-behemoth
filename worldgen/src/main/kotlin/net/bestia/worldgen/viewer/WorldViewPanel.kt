@@ -192,7 +192,10 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
       if (requestCounter.get() != request) return@execute
 
       val result = try {
-        renderer.render(currentField, snapshot, currentOptions, features)
+        // The overlay only when asked for: touching `scene.navOverlay` builds its index, and a world nobody
+        // wants the graph on should not pay for one.
+        val navOverlay = if (currentOptions.navGraph) scene.navOverlay else null
+        renderer.render(currentField, snapshot, currentOptions, features, navOverlay)
       } catch (e: Exception) {
         // A stage that throws must not take the window with it - show it in the status bar.
         RenderedMap(
