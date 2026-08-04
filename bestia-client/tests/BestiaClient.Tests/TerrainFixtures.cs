@@ -220,6 +220,71 @@ namespace BestiaBehemothClient.Tests
       return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
     }
 
+    /// <summary>Depth of the lava in <see cref="WithLavaPool"/>, so a test can name the surface it expects.</summary>
+    internal const double LavaFraction = 0.4;
+
+    /// <summary>
+    /// Flat ground with a crater of lava in the middle of it and standing water outside the crater.
+    /// </summary>
+    /// <remarks>
+    /// Both fluids in one chunk, which is what makes this fixture worth having: the server's
+    /// <c>ChunkMaterializer</c> guarantees they never share a column, and the mesher has to keep them on separate
+    /// surfaces anyway. If lava ever landed on the water mask the two sheets would merge into one and a lava lake
+    /// touching a river would render as a single translucent blue-orange plane.
+    ///
+    /// <para>
+    /// The pool is a disc rather than a half-chunk so its boundary is not axis aligned - a boundary that follows
+    /// the voxel grid would let a mesher that mixed the masks still produce plausible-looking geometry.
+    /// </para>
+    /// </remarks>
+    internal static VoxelChunk WithLavaPool(
+      int chunkX, int chunkY, int ground, int lavaLevel, int waterLevel, double radius)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var worldX = chunkX * Size + localX + 0.5;
+          var worldY = chunkY * Size + localY + 0.5;
+          var inPool = Math.Sqrt(worldX * worldX + worldY * worldY) <= radius;
+
+          var offset = (localY * Size + localX) * Height;
+
+          for (var z = 0; z < ground; z++)
+          {
+            blocks[offset + z] = Granite;
+            occupancy[offset + z] = 255;
+          }
+
+          // The crater floor is basalt on the server; granite here, because what this fixture is about is which
+          // *surface* a fluid lands on and the bed material is not part of that.
+          blocks[offset + ground] = inPool ? Granite : Grass;
+          occupancy[offset + ground] = 255;
+
+          var fluid = inPool ? Lava : Water;
+          var level = inPool ? lavaLevel : waterLevel;
+          var fraction = inPool ? LavaFraction : WaterFraction;
+
+          for (var z = ground + 1; z < level; z++)
+          {
+            blocks[offset + z] = fluid;
+            occupancy[offset + z] = 255;
+          }
+
+          if (level > ground)
+          {
+            blocks[offset + level] = fluid;
+            occupancy[offset + level] = Quantise(fraction);
+          }
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
+    }
+
     /// <summary>
     /// The elevation a surface actually ends up at once occupancy has been quantised to a byte.
     /// </summary>

@@ -353,6 +353,84 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
+    /// Lava is a third surface, and it does not merge with water or with the ground.
+    /// </summary>
+    /// <remarks>
+    /// The claim the whole <see cref="BlockAppearance.SurfaceKind"/> generalisation exists for. Before it there
+    /// were exactly two masks and a bare <c>Surface == Terrain ? TerrainMask : WaterMask</c>, so a third kind
+    /// would have landed silently on the water mask - and the failure is not a crash but a *plausible* picture: a
+    /// lava lake touching a river, drawn as one translucent sheet in whichever colour won the vertex.
+    ///
+    /// <para>
+    /// The fixture puts both fluids in one chunk on either side of a non-axis-aligned boundary, so a mesher that
+    /// mixed the masks could not produce this geometry by accident.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void LavaIsItsOwnSurfaceAndDoesNotMergeWithWater()
+    {
+      const int ground = 40;
+      const int lavaLevel = 43;
+      const int waterLevel = 46;
+
+      var source = Surrounded(
+        (x, y) => TerrainFixtures.WithLavaPool(x, y, ground, lavaLevel, waterLevel, radius: 24.0), radius: 2);
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh?.Terrain);
+      Assert.NotNull(mesh.Lava);
+      Assert.NotNull(mesh.Water);
+      Assert.False(mesh.Lava.IsEmpty);
+      Assert.False(mesh.Water.IsEmpty);
+
+      // Each fluid is at its own level and neither reaches the other's. If they shared a mask this would be one
+      // surface spanning both, so the two ranges would overlap.
+      var lavaTop = TerrainFixtures.Quantised(lavaLevel + TerrainFixtures.LavaFraction);
+      var waterTop = TerrainFixtures.Quantised(waterLevel + TerrainFixtures.WaterFraction);
+
+      var lava = Interior(mesh.Lava);
+      var water = Interior(mesh.Water);
+      Assert.NotEmpty(lava);
+      Assert.NotEmpty(water);
+
+      Assert.All(lava, v => Assert.True(v.Y <= lavaTop + 0.0001, $"lava at {v.Y} is above its own surface"));
+      Assert.True(
+        water.Max(v => v.Y) > lavaTop + 0.5,
+        "the water surface should stand well above the lava's, or the fixture is not separating them");
+
+      Assert.InRange(lava.Max(v => v.Y), lavaTop - 0.0001, lavaTop + 0.0001);
+      Assert.InRange(water.Max(v => v.Y), waterTop - 0.0001, waterTop + 0.0001);
+
+      // And the crater floor is still drawn under the lava, for the reason a riverbed is drawn under water: the
+      // lava material is opaque today, and a missing bed becomes a hole through the world the moment it is not.
+      Assert.NotEmpty(Interior(mesh.Terrain));
+    }
+
+    /// <summary>The lava surface is flat and faces up, like any other standing fluid.</summary>
+    /// <remarks>
+    /// Cheap, and it is the assertion that catches lava being meshed with the winding or the normals of a
+    /// *ceiling* - which is a real possibility, because a fluid sheet has solid ground above nothing and the
+    /// vertex that carries it sits in a cell that is air.
+    /// </remarks>
+    [Fact]
+    public void LavaNormalsPointUp()
+    {
+      var source = Surrounded(
+        (x, y) => TerrainFixtures.WithLavaPool(x, y, ground: 40, lavaLevel: 44, waterLevel: 0, radius: 64.0),
+        radius: 2);
+
+      var mesh = Mesh(source);
+
+      Assert.NotNull(mesh?.Lava);
+      Assert.False(mesh.Lava.IsEmpty);
+      Assert.All(mesh.Lava.Normals, n => Assert.True(n.Y > 0.99f, $"lava normal {n} is not up"));
+
+      var expected = TerrainFixtures.Appearance().ColourOf(TerrainFixtures.Lava);
+      Assert.All(mesh.Lava.Colours, c => Assert.Equal(expected, c));
+    }
+
+    /// <summary>
     /// A chunk meshed before its neighbours arrive says which ones it had to guess about.
     /// </summary>
     /// <remarks>

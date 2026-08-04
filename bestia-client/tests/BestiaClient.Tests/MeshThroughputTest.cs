@@ -69,8 +69,13 @@ namespace BestiaBehemothClient.Tests
           }
 
           meshed++;
-          triangles += mesh.Terrain?.TriangleCount ?? 0;
-          triangles += mesh.Water?.TriangleCount ?? 0;
+          // Every surface, counted through the array rather than by naming two of them. The budget is about how
+          // many triangles the whole view costs, and adding a third kind while still adding up only two would have
+          // quietly under-reported it - which is the failure mode that lets a budget drift past its own limit.
+          for (var kind = 0; kind < BlockAppearance.SurfaceKinds; kind++)
+          {
+            triangles += mesh.Surfaces[kind]?.TriangleCount ?? 0;
+          }
         }
       }
 
