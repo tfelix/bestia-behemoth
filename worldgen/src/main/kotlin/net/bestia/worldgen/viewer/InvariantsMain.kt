@@ -3,6 +3,7 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Timings
+import net.bestia.worldgen.spawn.VegetationStandChannels
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
@@ -90,6 +91,8 @@ object InvariantsMain {
     // change that quietly stops it planting anything leaves a world that builds, passes, and is bare. This is
     // the only number anywhere that would move.
     val canopy = ArrayList<Double>(seeds)
+    val stands = ArrayList<Int>()
+    val standTrees = ArrayList<Double>()
 
     // The spatial index, for the reason none of the above applies: its cell size is derived from the union
     // of *every* feature's bbox, so it is a property of the whole world and no unit test over a handful of
@@ -137,6 +140,15 @@ object InvariantsMain {
 
         val wooded = Invariants.meanOverLand(generated, LayerId.CANOPY_COVER)
         canopy.add(wooded)
+
+        val standMarkers = generated.world.features.all()
+          .filter { it.kind == FeatureKind.VEGETATION_STAND }
+          .filterIsInstance<net.bestia.worldgen.vector.PointMarker>()
+        stands.add(standMarkers.size)
+        standTrees.add(
+          if (standMarkers.isEmpty()) 0.0
+          else standMarkers.sumOf { it.attribute(VegetationStandChannels.CAPACITY) } / standMarkers.size
+        )
 
         ponds.add(generated.world.features.all().count { it.kind == FeatureKind.LAKE })
         oxbows.add(generated.world.features.all().count { it.kind == FeatureKind.OXBOW_LAKE })
@@ -257,6 +269,16 @@ object InvariantsMain {
         "canopy over land: median ${"%.3f".format(Locale.ROOT, sorted[sorted.size / 2])}, " +
             "range ${"%.3f".format(Locale.ROOT, sorted.first())} .. " +
             "${"%.3f".format(Locale.ROOT, sorted.last())}, $bare of ${sorted.size} worlds all but bare"
+      )
+    }
+    if (stands.isNotEmpty()) {
+      val sorted = stands.sorted()
+      val capacity = standTrees.filter { it > 0.0 }.sorted()
+      println(
+        "vegetation stands: median ${sorted[sorted.size / 2]}, range ${sorted.first()} .. ${sorted.last()}" +
+            ", ${sorted.count { it == 0 }} of ${sorted.size} worlds with none" +
+            (if (capacity.isEmpty()) "" else
+              ", median ${"%.0f".format(Locale.ROOT, capacity[capacity.size / 2])} trees advertised each")
       )
     }
     if (vents.isNotEmpty()) {

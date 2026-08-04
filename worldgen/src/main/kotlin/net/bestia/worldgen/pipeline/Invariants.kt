@@ -10,6 +10,7 @@ import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.CellRegion
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.IntLayer
@@ -37,6 +38,7 @@ import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.Vec2d
@@ -46,6 +48,7 @@ import java.util.Locale
 import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.spawn.SpawnerChannels
+import net.bestia.worldgen.spawn.VegetationStandChannels
 import kotlin.math.abs
 import kotlin.math.hypot
 
@@ -242,6 +245,14 @@ object Invariants {
     checkSpawnersAreWellFormed(generated, ::fail)
     checkSpawnersNearHomeAreGentle(generated, ::fail)
     checkSpawnersRespectCorruption(generated, ::fail)
+
+    // Vegetation props and the stands that look after them.
+    checkTheWorldHasVegetationStands(generated, ::fail)
+    checkVegetationStandsAreOnDryLand(generated, ::fail)
+    checkVegetationStandsAreWellFormed(generated, ::fail)
+    checkVegetationStandsAreWooded(generated, ::fail)
+    checkVegetationStandsAdvertiseFillableCapacity(generated, ::fail)
+    checkPropsAreWellPlaced(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
 
     return out
@@ -922,6 +933,36 @@ object Invariants {
 
   /** How much of a forest's canopy grassland and steppe may have before the two are not distinguishable. */
   private const val MAX_OPEN_SHARE_OF_FOREST = 0.5
+
+  /**
+   * How much more wooded a stand's own cell must be than the average over all land.
+   *
+   * Only just above one, because it is a tripwire rather than a pin: what it guards against is a placement
+   * pass that scatters stands over any land at all, which would land them at the average by construction.
+   */
+  private const val STAND_COVER_MARGIN = 1.5
+
+  /**
+   * Stands whose advertised capacity is checked against the props actually emitted.
+   *
+   * Each one materialises the column heights of every chunk its disc covers - a 400 m radius over 32 m chunks
+   * is about 625 chunks - so this is the expensive check in the file and the sample is deliberately small.
+   */
+  private const val CAPACITY_SAMPLES = 3
+
+  /**
+   * How far the emitted tree count may sit from what the stands advertised.
+   *
+   * Wide on purpose. The advertisement is an expectation over a clumped process and a handful of discs is a
+   * small sample of it, so this is a guard against being wrong by a *factor* - an entity lattice moving on one
+   * side only, or a capacity formula built on cover instead of density - and not against being wrong by a
+   * fifth.
+   */
+  private const val CAPACITY_MIN_RATIO = 0.4
+  private const val CAPACITY_MAX_RATIO = 2.5
+
+  /** Chunks sampled per axis when checking prop placement. Each one is a full column-heights build. */
+  private const val PROP_PLACEMENT_SAMPLES = 6
 
   /**
    * Metres outside a pond's ring at which the ground is sampled, looking for a wall of water.
@@ -2476,6 +2517,256 @@ object Invariants {
         fail("spawners are well formed", "a den at ${marker.position}: $problem")
         return
       }
+    }
+  }
+
+  /**
+   * The world has stands on it at all.
+   *
+   * `checkTheWorldHasSpawners`' shape, guarded on `CANOPY_COVER` rather than on the corruption because that
+   * is the layer this stage cannot work without. A zero is the shipped-dead failure.
+   */
+  private fun checkTheWorldHasVegetationStands(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    if (generated.world.features.all().none { it.kind == FeatureKind.VEGETATION_STAND }) {
+      val ran = generated.world.pipelineVersion != 0L &&
+          generated.world.layers[LayerId.CANOPY_COVER] != null
+      if (ran) fail("the world has vegetation stands", "the stand stage ran and produced none at all")
+    }
+  }
+
+  /** No stand in the sea, and none in a lake. `checkSpawnersAreOnDryLand`'s two questions. */
+  private fun checkVegetationStandsAreOnDryLand(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val elevation = generated.world.layers[LayerId.ELEVATION] as? FloatLayer ?: return
+    val waterLevel = generated.world.layers[LayerId.WATER_LEVEL] as? FloatLayer ?: return
+    val metres = generated.config.baseResolution.metresPerCell
+    val seaLevel = generated.config.seaLevel
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.VEGETATION_STAND) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val x = (marker.position.x / metres).toInt()
+      val y = (marker.position.y / metres).toInt()
+
+      if (elevation[x, y] <= seaLevel) {
+        fail("vegetation stands are on dry land", "a stand at ${marker.position} is under the sea")
+        return
+      }
+      if (!waterLevel[x, y].isNaN()) {
+        fail("vegetation stands are on dry land", "a stand at ${marker.position} is under a lake")
+        return
+      }
+    }
+  }
+
+  /** Every channel inside the range its consumer assumes. */
+  private fun checkVegetationStandsAreWellFormed(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.VEGETATION_STAND) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val radius = marker.attribute(VegetationStandChannels.RADIUS)
+      val cover = marker.attribute(VegetationStandChannels.COVER)
+      val biome = marker.attribute(VegetationStandChannels.BIOME).toInt()
+      val corruption = marker.attribute(VegetationStandChannels.CORRUPTION)
+      val capacity = marker.attribute(VegetationStandChannels.CAPACITY)
+
+      val problem = when {
+        radius <= 0.0 -> "radius $radius is not positive"
+        cover !in 0.0..1.0 -> "cover $cover is not a share"
+        biome !in net.bestia.worldgen.bio.Biome.entries.indices -> "biome ordinal $biome is out of range"
+        corruption !in 0.0..1.0 -> "corruption $corruption is not a share"
+        capacity < 1.0 -> "capacity $capacity would give a runtime nothing to look after"
+        else -> null
+      }
+
+      if (problem != null) {
+        fail("vegetation stands are well formed", "a stand at ${marker.position}: $problem")
+        return
+      }
+    }
+  }
+
+  /**
+   * A stand sits on ground that is wooded, and more wooded than the world's land average.
+   *
+   * The comparative clause is the one worth having. `cover > 0` is satisfied by a stage that scatters
+   * uniformly over any cell with a single tree in it, which is precisely the failure a stand-placement bug
+   * would produce - the absolute test would pass and every stand would be looking after a hedge.
+   * `checkCanopyCoverAgreesWithTheBiome` makes the same argument about the same layer.
+   */
+  private fun checkVegetationStandsAreWooded(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val canopy = generated.world.layers[LayerId.CANOPY_COVER] as? FloatLayer ?: return
+
+    var sum = 0.0
+    var count = 0
+
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.VEGETATION_STAND) continue
+      val marker = feature as? PointMarker ?: continue
+
+      val cover = marker.attribute(VegetationStandChannels.COVER)
+      if (cover <= 0.0) {
+        fail("vegetation stands are wooded", "a stand at ${marker.position} has no canopy over it at all")
+        return
+      }
+
+      sum += cover
+      count++
+    }
+
+    if (count == 0) return
+
+    val atStands = sum / count
+    val overLand = meanOverLand(generated, LayerId.CANOPY_COVER)
+
+    if (atStands < overLand * STAND_COVER_MARGIN) {
+      fail(
+        "vegetation stands are wooded",
+        "stands average %.3f canopy against %.3f over all land - they are not finding the woods"
+          .format(atStands, overLand)
+      )
+    }
+  }
+
+  /**
+   * A stand advertises a capacity the chunk tier will actually fill.
+   *
+   * **The one that earns its cost.** `CAPACITY` is computed in the world tier from `VegetationParams` and the
+   * props are emitted in the chunk tier from the same object, and nothing else would notice if the two drifted
+   * - both numbers would stay perfectly plausible. The direct analogue of the tonnage clause in
+   * `checkDepositsAreWellFormed`, one tier down.
+   *
+   * Strided over a handful of stands, because each one materialises the column heights of every chunk its disc
+   * covers. Compared with a wide tolerance on purpose: the advertisement is an expectation over a Poisson-ish
+   * process and one disc is one sample of it, so this is a check against being wrong by a factor, not against
+   * being wrong by a fifth.
+   */
+  private fun checkVegetationStandsAdvertiseFillableCapacity(
+    generated: GeneratedWorld,
+    fail: (String, String) -> Unit
+  ) {
+    val stands = generated.world.features.all()
+      .filter { it.kind == FeatureKind.VEGETATION_STAND }
+      .filterIsInstance<PointMarker>()
+    if (stands.isEmpty()) return
+
+    val extent = generated.config.chunkSize * generated.config.voxelSize
+    val stride = maxOf(1, stands.size / CAPACITY_SAMPLES)
+
+    var advertised = 0.0
+    var found = 0
+
+    for (i in stands.indices step stride) {
+      val stand = stands[i]
+      val radius = stand.attribute(VegetationStandChannels.RADIUS)
+      advertised += stand.attribute(VegetationStandChannels.CAPACITY)
+
+      val fromChunkX = Math.floorDiv(((stand.position.x - radius) / extent).toLong(), 1L).toInt()
+      val untilChunkX = Math.floorDiv(((stand.position.x + radius) / extent).toLong(), 1L).toInt()
+      val fromChunkY = Math.floorDiv(((stand.position.y - radius) / extent).toLong(), 1L).toInt()
+      val untilChunkY = Math.floorDiv(((stand.position.y + radius) / extent).toLong(), 1L).toInt()
+
+      for (chunkY in fromChunkY..untilChunkY) {
+        for (chunkX in fromChunkX..untilChunkX) {
+          val props = generated.propsIn(chunkX, chunkY)
+          for (p in props.indices) {
+            if (props.kindAt(p) != PropKind.TREE) continue
+            val dx = props.xAt(p) - stand.position.x
+            val dy = props.yAt(p) - stand.position.y
+            if (dx * dx + dy * dy <= radius * radius) found++
+          }
+        }
+      }
+    }
+
+    if (advertised <= 0.0) return
+
+    val ratio = found / advertised
+    if (ratio < CAPACITY_MIN_RATIO || ratio > CAPACITY_MAX_RATIO) {
+      fail(
+        "vegetation stands advertise a fillable capacity",
+        "stands advertise %.0f trees and the chunk tier emits %d, a ratio of %.2f - the two tiers disagree "
+            .format(advertised, found, ratio) + "about the entity lattice"
+      )
+    }
+  }
+
+  /**
+   * Every prop stands on its own ground, in its own chunk, under its own name.
+   *
+   * Three properties in one traversal because they share the expensive part. The `ground` equality is asserted
+   * **exactly**, with no tolerance: the only way to be a little bit wrong here is to have sampled the base
+   * heightfield instead of the stamped column heights, and that is a defect the tolerance would hide.
+   * `WildSpawnerService.resolve` has exactly that bug shape for a den's z.
+   */
+  private fun checkPropsAreWellPlaced(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    if (generated.world.layers[LayerId.CANOPY_COVER] == null) return
+
+    val config = generated.config
+    val extent = config.chunkExtent
+    val chunksAcross = (config.widthCells * config.baseResolution.metresPerCell / extent).toInt()
+    if (chunksAcross <= 0) return
+
+    val stride = maxOf(1, chunksAcross / PROP_PLACEMENT_SAMPLES)
+    val names = HashSet<Long>()
+    var checked = 0
+
+    var chunkY = 0
+    while (chunkY < chunksAcross) {
+      var chunkX = 0
+      while (chunkX < chunksAcross) {
+        val heights = generated.columns.heights(ChunkPos(chunkX, chunkY), 0)
+        val props = generated.materializer.propsIn(chunkX, chunkY, heights)
+
+        for (i in props.indices) {
+          if (!names.add(props.identityAt(i))) {
+            fail(
+              "props are well placed",
+              "two props share the name ${props.identityAt(i)} - stored state would collide"
+            )
+            return
+          }
+
+          val columnX = Math.floorDiv(
+            Math.floor(props.xAt(i) / config.voxelSize).toLong(), config.chunkSize.toLong()
+          )
+          val columnY = Math.floorDiv(
+            Math.floor(props.yAt(i) / config.voxelSize).toLong(), config.chunkSize.toLong()
+          )
+          if (columnX.toInt() != chunkX || columnY.toInt() != chunkY) {
+            fail(
+              "props are well placed",
+              "a prop at (${props.xAt(i)},${props.yAt(i)}) was emitted by chunk ($chunkX,$chunkY) but stands " +
+                  "in ($columnX,$columnY)"
+            )
+            return
+          }
+
+          val voxelX = Math.floor(props.xAt(i) / config.voxelSize).toLong()
+          val voxelY = Math.floor(props.yAt(i) / config.voxelSize).toLong()
+          val localX = (voxelX - chunkX.toLong() * config.chunkSize).toInt()
+          val localY = (voxelY - chunkY.toLong() * config.chunkSize).toInt()
+
+          if (heights[localX, localY] != props.groundAt(i)) {
+            fail(
+              "props are well placed",
+              "a prop at (${props.xAt(i)},${props.yAt(i)}) sits at ${props.groundAt(i)} where its column " +
+                  "reads ${heights[localX, localY]} - somebody sampled the base heightfield"
+            )
+            return
+          }
+
+          checked++
+        }
+
+        chunkX += stride
+      }
+      chunkY += stride
+    }
+
+    if (checked == 0) {
+      fail("props are well placed", "no prop was found anywhere in the sampled chunks, so nothing was checked")
     }
   }
 

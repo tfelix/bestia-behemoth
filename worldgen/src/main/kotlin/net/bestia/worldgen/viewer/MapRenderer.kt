@@ -103,7 +103,10 @@ data class RenderOptions(
       // Thousands of dots wash out the rivers and roads the overlay exists to show. Unlike the records above
       // this *is* a real place, so it is hidden for legibility rather than because it is an attribute row -
       // and it is one click away in the legend.
-      FeatureKind.BESTIA_SPAWN
+      FeatureKind.BESTIA_SPAWN,
+      // The same argument with more force: a green dot per patch of wood, over ground the biome layer has
+      // already drawn green.
+      FeatureKind.VEGETATION_STAND
     )
   }
 }
@@ -557,6 +560,9 @@ class MapRenderer(
       // it is hidden in.
       FeatureKind.CAVE_HOARD -> Color(230, 180, 80)
       FeatureKind.BESTIA_SPAWN -> Color(220, 70, 70)
+      // Green, which nothing else on the map owns: the faults are violet, the ore yellow, the volcanism in
+      // fire colours and a den red. Mid rather than bright, because a stand is a patch of ordinary wood.
+      FeatureKind.VEGETATION_STAND -> Color(70, 170, 80)
       // The mana's own hue - the same violet the `mana_density` and `corruption` ramps end on - pushed to full
       // saturation, because there are at most three of these on a world and they are the thing the chronicle
       // keeps referring to. Deliberately not in `HIDDEN_BY_DEFAULT`.

@@ -25,6 +25,7 @@ import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.spawn.SpawnerParams
+import net.bestia.worldgen.spawn.VegetationStandParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.StrataParams
@@ -110,6 +111,15 @@ data class WorldParams(
 
   /** Where the wild things are. After [corruption] in this list because it reads it. */
   val spawner: SpawnerParams = SpawnerParams(),
+
+  /**
+   * The patches of wood a runtime looks after. Beside [spawner] because it is the same kind of thing.
+   *
+   * Folded into [version] only. Nothing in the chunk tier reads it - a stand advertises a capacity computed
+   * from [vegetation], which *is* folded twice, so the two tiers stay in step through that rather than
+   * through this.
+   */
+  val vegetationStand: VegetationStandParams = VegetationStandParams(),
   val town: TownParams = TownParams(),
   val economy: EconomyParams = EconomyParams(),
 
@@ -215,6 +225,7 @@ data class WorldParams(
       r.history.digest().value,
       r.corruption.digest().value,
       r.spawner.digest().value,
+      r.vegetationStand.digest().value,
       r.town.digest().value,
       r.economy.digest().value,
       r.nav.digest().value
@@ -267,7 +278,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "history", "town", "economy", "detail", "strata", "crystal", "spawner"
+      "history", "town", "economy", "detail", "strata", "crystal", "spawner", "vegetationStand"
     )
 
     /**

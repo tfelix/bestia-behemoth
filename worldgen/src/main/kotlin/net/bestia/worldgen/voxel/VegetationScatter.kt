@@ -11,6 +11,7 @@ import net.bestia.worldgen.vector.Quantize
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.sqrt
 
 /** Tuning for [VegetationScatter]. */
@@ -146,6 +147,46 @@ data class VegetationParams(
     require(clumpWavelength > 0.0) { "clumpWavelength must be positive, was $clumpWavelength" }
   }
 
+  /**
+   * Mean crown area over one cell's area: the density-to-cover conversion.
+   *
+   * Here rather than in [VegetationScatter] because two readers need it and they are in different tiers -
+   * the scatter converts density to cover, and `VegetationStandStage` converts back the other way to work
+   * out how many entities a disc of ground holds. One definition, or the world tier advertises a capacity
+   * computed from a slightly different crown than the chunk tier plants.
+   */
+  val crownAreaShare: Double
+    get() {
+      val meanRadius = (minCanopyRadius + maxCanopyRadius) * 0.5
+      return PI * meanRadius * meanRadius / (cellSize * cellSize)
+    }
+
+  /**
+   * Per-cell tree probability that would produce a given canopy cover: the inverse of
+   * [VegetationScatter.coverOf].
+   *
+   * `LayerId.CANOPY_COVER` is a *void fraction* - how shaded this ground is - and nothing can read a tree
+   * count off it directly, which is why a stand's capacity cannot simply be its cover times its area. This
+   * is the one honest bridge between the two, and it exists because `coverOf` happens to be invertible.
+   *
+   * Clamped at [maxDensity], which the forward function is also capped at, so a cover of one - unreachable
+   * from the forward direction, since `coverOf(maxDensity)` is about 0.65 at the defaults - does not come
+   * back as an infinity.
+   */
+  fun densityOf(cover: Double): Double {
+    if (cover <= 0.0) return 0.0
+    return (-ln(1.0 - cover.coerceAtMost(0.999)) / crownAreaShare).coerceAtMost(maxDensity)
+  }
+
+  /**
+   * Expected *entity* props per square metre of ground at a given canopy cover.
+   *
+   * What a `VEGETATION_STAND` advertises, and what an invariant compares against a count of the props
+   * actually emitted over the same ground. Accurate while `entityShare * clumpAt <= 1` - see [entityShare].
+   */
+  fun entitiesPerSquareMetre(cover: Double): Double =
+    densityOf(cover) * entityShare / (cellSize * cellSize)
+
   override fun digest() = ParamsDigest()
     .put("cellSize", cellSize)
     .put("jitterShare", jitterShare)
@@ -204,9 +245,14 @@ data class VegetationParams(
  *
  * ### Not tuned by argument
  *
- * Densities here are measurements. `probe -Psurvey` reports the wooded share and the stems per hectare, and
- * the numbers below are what produced the figures recorded in [VegetationParams]. Phase 7's droplet density
- * was set twenty times too high by a plausible-sounding argument, which is the standing reason not to.
+ * Densities here are measurements. `probe -Psurvey` reports the stems per hectare and `probe --props` prints
+ * the props of one chunk, and the numbers below are what produced the figures recorded in [VegetationParams].
+ * Phase 7's droplet density was set twenty times too high by a plausible-sounding argument, which is the
+ * standing reason not to.
+ *
+ * That claim was false for as long as it stood here - `-Psurvey` printed a biome breakdown and no stem count
+ * at all, so the one number this paragraph points at could not be read off the tool it points at. Both prints
+ * exist now. Measured on Genesis: 24 tree props per hectare averaged over all land, 17 to 50 inside a wood.
  */
 class VegetationScatter(
   private val config: WorldConfig,
@@ -262,10 +308,7 @@ class VegetationScatter(
   val halo: Int = ceil(crownReach / config.voxelSize).toInt()
 
   /** Mean crown area over one cell's area: the density-to-cover conversion [coverAt] applies. */
-  private val crownAreaShare: Double = run {
-    val meanRadius = (params.minCanopyRadius + params.maxCanopyRadius) * 0.5
-    PI * meanRadius * meanRadius / (params.cellSize * params.cellSize)
-  }
+  private val crownAreaShare: Double = params.crownAreaShare
 
   /**
    * The chance that a four-metre cell at this position holds a tree, in `[0, params.maxDensity]`.
@@ -510,10 +553,11 @@ class VegetationScatter(
    *
    * Rows are walked in order, so the result does not depend on thread scheduling.
    *
-   * @param site the same veto [plant] uses - ground elevation, and `NaN` where the other producers in
-   *   the chunk tier have already claimed the spot
+   * @param site ground elevation, and `NaN` where the other producers in the chunk tier have already
+   *   claimed the spot. The same set of questions [TrunkSite] answers for the voxel path, plus the ones
+   *   only an entity needs - see `ChunkMaterializer.propSite`.
    */
-  fun propsIn(chunk: ChunkPos, site: TrunkSite, into: PropInstances) {
+  fun propsIn(chunk: ChunkPos, site: PropSite, into: PropInstances) {
     val bounds = config.chunkBounds(chunk)
     val fromX = cellOf(bounds.minX)
     val untilX = cellOf(bounds.maxX) + 1

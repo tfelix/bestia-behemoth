@@ -1,13 +1,18 @@
 package net.bestia.worldgen.mana
 
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.PropInstances
+import net.bestia.worldgen.voxel.PropKind
+import net.bestia.worldgen.voxel.PropSite
 import net.bestia.worldgen.voxel.StructureSpans
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -43,6 +48,80 @@ class CrystalScatterTest {
       "corrupted ground grows %.1f per hectare against %.1f on clean; the two read as the same country"
         .format(corrupted, clean)
     )
+  }
+
+  /**
+   * The two representations of a crystal find the same crystals.
+   *
+   * The whole point of letting the voxel path and the prop path coexist for a while: they are driven by one
+   * `crystalAt`, and this is what says so. Compared as **sets of voxel columns**, not as counts - a count
+   * agrees by accident whenever two disagreements cancel, and the failure this would actually catch is a
+   * lattice or ownership change that moves crystals rather than losing them.
+   *
+   * Both sides are given the same ground function, so the only thing that can differ is which cells each
+   * decides hold a crystal.
+   */
+  @Test
+  fun `the prop path finds exactly the crystals the voxel path draws`() {
+    val voxel = world.config.voxelSize
+    val size = world.config.chunkSize
+    val crystals = world.materializer.crystals
+    val site = PropSite { x, y -> world.base.heightAt(x, y) }
+    val spans = StructureSpans()
+
+    var chunksWithCrystals = 0
+    var found = 0
+
+    for ((originX, originY) in sampleOrigins(highCorruption = true, squares = 6)) {
+      val baseX = Math.floorDiv((originX / voxel).toLong(), size.toLong()).toInt()
+      val baseY = Math.floorDiv((originY / voxel).toLong(), size.toLong()).toInt()
+
+      // A three-by-three block, so a crystal sitting on a shared chunk edge is claimed by one side
+      // only - and enough chunks that a corrupted 32 m chunk's expected 0.8 crystals adds up to a sample.
+      for (offsetY in 0 until 3) {
+        for (offsetX in 0 until 3) {
+          val chunk = ChunkPos(baseX + offsetX, baseY + offsetY)
+
+          val fromVoxels = HashSet<Pair<Long, Long>>()
+          for (localY in 0 until size) {
+            for (localX in 0 until size) {
+              val (worldX, worldY) = world.config.columnCenter(chunk, localX, localY)
+
+              spans.clear()
+              crystals.columnAt(worldX, worldY, world.base.heightAt(worldX, worldY), spans)
+
+              for (i in 0 until spans.count) {
+                val block = spans.blockOf(i)
+                if (block != BlockType.MANA_CRYSTAL_SMALL.id && block != BlockType.MANA_CRYSTAL_LARGE.id) continue
+                fromVoxels.add(
+                  Math.floorDiv((worldX / voxel).toLong(), 1L) to Math.floorDiv((worldY / voxel).toLong(), 1L)
+                )
+              }
+            }
+          }
+
+          val props = PropInstances()
+          crystals.propsIn(chunk, site, props)
+
+          val fromProps = HashSet<Pair<Long, Long>>()
+          for (i in props.indices) {
+            assertTrue(props.kindAt(i) == PropKind.MANA_CRYSTAL, "the crystal scatter emitted ${props.kindAt(i)}")
+            fromProps.add(
+              Math.floorDiv((props.xAt(i) / voxel).toLong(), 1L) to
+                  Math.floorDiv((props.yAt(i) / voxel).toLong(), 1L)
+            )
+          }
+
+          assertEquals(fromVoxels, fromProps, "the two paths disagree about the crystals in $chunk")
+
+          if (fromProps.isNotEmpty()) chunksWithCrystals++
+          found += fromProps.size
+        }
+      }
+    }
+
+    assertTrue(chunksWithCrystals > 8, "only $chunksWithCrystals of ${6 * 9} chunks held a crystal at all")
+    assertTrue(found > 20, "only $found crystals compared, which asserts little")
   }
 
   /**

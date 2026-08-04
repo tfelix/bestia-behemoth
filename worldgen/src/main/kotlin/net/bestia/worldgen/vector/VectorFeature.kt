@@ -279,7 +279,22 @@ enum class FeatureKind(val defaultPriority: Int) {
    * wilderness cost a few thousand markers instead of tens of thousands of entities, and it is why these are
    * hidden from the viewer by default - see `RenderOptions.HIDDEN_BY_DEFAULT`.
    */
-  BESTIA_SPAWN(680)
+  BESTIA_SPAWN(680),
+
+  /**
+   * A stand of trees: a patch of wood a runtime is responsible for, and how much of it there should be.
+   *
+   * Geometry and attributes only, so the priority is inert for the reason [BESTIA_SPAWN]'s is - and it is the
+   * same *kind* of thing as a den, one rung up in scale. A den turns into creatures when somebody is near; a
+   * stand owns the state of a wood that individual trees cannot, because a tree exists only while a player is
+   * looking at it and a wildfire has to keep burning when nobody is.
+   *
+   * **Not the trees.** The trees are a function of position and there are millions of them; this is a
+   * few thousand markers saying which patches of wood exist, how wooded each is, and how many trees a runtime
+   * should expect to find inside it - see `VegetationStandChannels.CAPACITY`. Hidden from the viewer by
+   * default for the reason dens are, and with more force: a stand marker per patch of wood over a green world.
+   */
+  VEGETATION_STAND(682)
 }
 
 /**

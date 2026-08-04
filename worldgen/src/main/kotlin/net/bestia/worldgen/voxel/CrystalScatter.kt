@@ -1,5 +1,6 @@
 package net.bestia.worldgen.voxel
 
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
@@ -131,7 +132,7 @@ data class CrystalParams(
  * carpeted.
  */
 class CrystalScatter(
-  config: WorldConfig,
+  private val config: WorldConfig,
   private val surface: SurfaceSampler,
   seed: Long,
   private val params: CrystalParams
@@ -151,57 +152,140 @@ class CrystalScatter(
     val cellX = Math.floorDiv(Quantize.toFixed(worldX), cellUnits)
     val cellY = Math.floorDiv(Quantize.toFixed(worldY), cellUnits)
 
-    val mana = surface.manaAt(worldX, worldY)
-    if (mana < params.manaFloor) return
+    val crystal = crystalAt(cellX, cellY) ?: return
 
-    // The crystal's own position inside its cell, and then the column it lands in. Only the column that
-    // *owns* the crystal draws it, so a crystal is one voxel column wherever it is asked about from.
-    val hash = GenRng.hash(scatterSeed, cellX, cellY)
-    val jitterX = jitter(hash, JITTER_X_SALT)
-    val jitterY = jitter(hash, JITTER_Y_SALT)
+    // Only the column that *owns* the crystal draws it, so a crystal is one voxel column wherever it is
+    // asked about from.
+    if (columnOf(crystal.x) != columnOf(worldX)) return
+    if (columnOf(crystal.y) != columnOf(worldY)) return
 
-    // Back to metres off the fixed-point lattice, not from `worldX` - the cell's own origin has to be the
-    // same number for every column in it, or the crystal moves as you ask about it from different voxels.
-    val originX = cellX * cellUnits / Quantize.PER_METRE
-    val originY = cellY * cellUnits / Quantize.PER_METRE
-    val crystalX = originX + (0.5 + jitterX) * params.cellSize
-    val crystalY = originY + (0.5 + jitterY) * params.cellSize
-
-    if (Math.floorDiv(Quantize.toFixed(crystalX), voxelUnits) !=
-      Math.floorDiv(Quantize.toFixed(worldX), voxelUnits)
-    ) return
-    if (Math.floorDiv(Quantize.toFixed(crystalY), voxelUnits) !=
-      Math.floorDiv(Quantize.toFixed(worldY), voxelUnits)
-    ) return
-
-    // Corruption at the crystal, not at the column being drawn. They are the same column here, but saying so
-    // explicitly is what keeps this correct if the cell ever grows past one voxel.
-    val corruption = surface.corruptionAt(crystalX, crystalY)
-    val density = params.cleanLandDensity +
-        (params.corruptedDensity - params.cleanLandDensity) * corruption
-    if (GenRng.unit(GenRng.mix64(hash xor PRESENCE_SALT)) >= density) return
-
-    if (surface.waterLevelAt(crystalX, crystalY) > ground) return
-
-    val cap = SurfaceCover.cap(
-      surface.biomeAt(crystalX, crystalY),
-      surface.temperatureAt(crystalX, crystalY),
-      0.0,
-      surface.isBlightedAt(crystalX, crystalY)
-    )
-    if (cap == BlockType.ICE || cap == BlockType.SNOW) return
-
-    val sizeRoll = GenRng.unit(GenRng.mix64(hash xor SIZE_SALT))
-    val large = sizeRoll < params.largeShare * corruption
-    val heightRoll = GenRng.unit(GenRng.mix64(hash xor HEIGHT_SALT))
-    val height = params.minHeight + heightRoll * (params.maxHeight - params.minHeight)
+    if (!standsOn(crystal, ground)) return
 
     into.add(
       ground,
-      ground + if (large) height else height * SMALL_HEIGHT_SHARE,
-      if (large) BlockType.MANA_CRYSTAL_LARGE else BlockType.MANA_CRYSTAL_SMALL
+      ground + crystal.height,
+      if (crystal.large) BlockType.MANA_CRYSTAL_LARGE else BlockType.MANA_CRYSTAL_SMALL
     )
   }
+
+  /**
+   * The crystals whose own position falls inside one chunk, as props.
+   *
+   * Simpler than the vegetation equivalent for the reason the whole class is simpler: a crystal is one
+   * column wide, so there was never a halo to drop. The cell range is the cells overlapping the chunk
+   * with no expansion, which is sound because [CrystalParams.jitterShare] is at most one and so a
+   * crystal cannot leave its own cell.
+   *
+   * Ownership is the crystal's voxel column, in integers, for the reason `VegetationScatter.propsIn`
+   * gives: a bounds test on a closed interval hands a crystal exactly on a chunk boundary to both of the
+   * chunks that share it.
+   */
+  fun propsIn(chunk: ChunkPos, site: PropSite, into: PropInstances) {
+    val bounds = config.chunkBounds(chunk)
+    val fromX = Math.floorDiv(Quantize.toFixed(bounds.minX), cellUnits)
+    val untilX = Math.floorDiv(Quantize.toFixed(bounds.maxX), cellUnits) + 1
+    val fromY = Math.floorDiv(Quantize.toFixed(bounds.minY), cellUnits)
+    val untilY = Math.floorDiv(Quantize.toFixed(bounds.maxY), cellUnits) + 1
+
+    val chunkSize = config.chunkSize.toLong()
+
+    for (cellY in fromY until untilY) {
+      for (cellX in fromX until untilX) {
+        val crystal = crystalAt(cellX, cellY) ?: continue
+
+        if (Math.floorDiv(columnOf(crystal.x), chunkSize).toInt() != chunk.x) continue
+        if (Math.floorDiv(columnOf(crystal.y), chunkSize).toInt() != chunk.y) continue
+
+        val ground = site.groundAt(crystal.x, crystal.y)
+        if (ground.isNaN()) continue
+        if (!standsOn(crystal, ground)) continue
+
+        into.add(
+          kind = PropKind.MANA_CRYSTAL,
+          identity = PropId.of(PropKind.MANA_CRYSTAL, cellX, cellY),
+          x = crystal.x,
+          y = crystal.y,
+          ground = ground,
+          heightM = crystal.height,
+          flags = (if (crystal.large) PropFlags.LARGE else 0) or
+              (if (crystal.blighted) PropFlags.BLIGHTED else 0)
+        )
+      }
+    }
+  }
+
+  /**
+   * The crystal one lattice cell holds, or null, before anything asks how high the ground is.
+   *
+   * Everything here is a pure function of the cell index, which is what lets a column and a chunk reach
+   * the same verdict about the same crystal without either seeing the other's work. The two ground-
+   * dependent vetoes are [standsOn].
+   */
+  private fun crystalAt(cellX: Long, cellY: Long): Crystal? {
+    // Back to metres off the fixed-point lattice, not from a queried position - the cell's own origin has
+    // to be the same number for every column in it, or the crystal moves as you ask about it from
+    // different voxels.
+    val originX = cellX * cellUnits / Quantize.PER_METRE
+    val originY = cellY * cellUnits / Quantize.PER_METRE
+
+    val hash = GenRng.hash(scatterSeed, cellX, cellY)
+    val crystalX = originX + (0.5 + jitter(hash, JITTER_X_SALT)) * params.cellSize
+    val crystalY = originY + (0.5 + jitter(hash, JITTER_Y_SALT)) * params.cellSize
+
+    // At the crystal, not at whichever column is asking. `columnAt` used to gate on the queried column
+    // before testing ownership, which reached the same answer by a longer route - only the owning column
+    // can draw, so the only mana test that ever decided anything was the one in the crystal's own column.
+    // Asking here makes the cell's verdict a pure function of the cell, which is what `propsIn` needs.
+    if (surface.manaAt(crystalX, crystalY) < params.manaFloor) return null
+
+    val corruption = surface.corruptionAt(crystalX, crystalY)
+    val density = params.cleanLandDensity +
+        (params.corruptedDensity - params.cleanLandDensity) * corruption
+    if (GenRng.unit(GenRng.mix64(hash xor PRESENCE_SALT)) >= density) return null
+
+    val large = GenRng.unit(GenRng.mix64(hash xor SIZE_SALT)) < params.largeShare * corruption
+    val heightRoll = GenRng.unit(GenRng.mix64(hash xor HEIGHT_SALT))
+    val full = params.minHeight + heightRoll * (params.maxHeight - params.minHeight)
+
+    return Crystal(
+      x = crystalX,
+      y = crystalY,
+      height = if (large) full else full * SMALL_HEIGHT_SHARE,
+      large = large,
+      blighted = surface.isBlightedAt(crystalX, crystalY)
+    )
+  }
+
+  /**
+   * Whether the ground under a crystal is ground it can grow out of.
+   *
+   * Never under water and never on ice or snow. Asked of the cap *block* rather than of the temperature,
+   * because the one place that knows what the top of a column is made of is also the place that should
+   * decide whether anything can root in it - the same test `VegetationScatter` uses for a trunk.
+   */
+  private fun standsOn(crystal: Crystal, ground: Double): Boolean {
+    if (surface.waterLevelAt(crystal.x, crystal.y) > ground) return false
+
+    val cap = SurfaceCover.cap(
+      surface.biomeAt(crystal.x, crystal.y),
+      surface.temperatureAt(crystal.x, crystal.y),
+      0.0,
+      crystal.blighted
+    )
+
+    return cap != BlockType.ICE && cap != BlockType.SNOW
+  }
+
+  private fun columnOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), voxelUnits)
+
+  /** One crystal, as the lattice draws it before the ground is known. */
+  private class Crystal(
+    val x: Double,
+    val y: Double,
+    val height: Double,
+    val large: Boolean,
+    val blighted: Boolean
+  )
 
   /** A jitter in `[-jitterShare/2, +jitterShare/2]` from a slice of the cell's hash. */
   private fun jitter(hash: Long, salt: Long): Double =

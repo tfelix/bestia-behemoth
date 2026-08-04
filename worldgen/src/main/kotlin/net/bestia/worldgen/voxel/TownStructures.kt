@@ -4,7 +4,9 @@ import net.bestia.worldgen.civ.BuildingChannels
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.RoofShape
 import net.bestia.worldgen.civ.WallChannels
+import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.vector.FeatureKind
@@ -783,40 +785,116 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
     val cellX = Math.floorDiv(Quantize.toFixed(worldX), WOUND_SPIRE_UNITS)
     val cellY = Math.floorDiv(Quantize.toFixed(worldY), WOUND_SPIRE_UNITS)
+
+    val spire = spireAt(site, cellX, cellY) ?: return
+
+    // Only the column the spire actually lands in draws it.
+    if (columnOf(spire.x) != columnOf(worldX)) return
+    if (columnOf(spire.y) != columnOf(worldY)) return
+
+    into.add(ground - SLAB_THICKNESS, ground + spire.height, BlockType.MANA_CRYSTAL_LARGE)
+  }
+
+  /**
+   * The spire one lattice cell of one wound holds, or null.
+   *
+   * A pure function of the cell and the site, so a column and a chunk reach the same verdict about the same
+   * spire without either seeing the other's work.
+   */
+  private fun spireAt(site: Site, cellX: Long, cellY: Long): Spire? {
     val hash = GenRng.hash(seed, site.salt, cellX, cellY)
 
-    // The spire's position inside its cell, then the test that only the column it actually lands in draws it.
-    // Off the cell's own origin and not off `worldX`, or the spire moves as neighbouring columns ask about it.
+    // Off the cell's own origin and never off a queried position, or the spire moves as neighbouring
+    // columns ask about it.
     val originX = cellX * WOUND_SPIRE_UNITS / Quantize.PER_METRE
     val originY = cellY * WOUND_SPIRE_UNITS / Quantize.PER_METRE
     val jitter = WOUND_SPIRE_SPACING * WOUND_SPIRE_JITTER
     val spireX = originX + WOUND_SPIRE_SPACING * 0.5 + (GenRng.unit(GenRng.mix64(hash xor 0x51L)) - 0.5) * jitter
     val spireY = originY + WOUND_SPIRE_SPACING * 0.5 + (GenRng.unit(GenRng.mix64(hash xor 0x52L)) - 0.5) * jitter
 
-    val voxelUnits = Quantize.toFixed(1.0)
-    if (Math.floorDiv(Quantize.toFixed(spireX), voxelUnits) !=
-      Math.floorDiv(Quantize.toFixed(worldX), voxelUnits)
-    ) return
-    if (Math.floorDiv(Quantize.toFixed(spireY), voxelUnits) !=
-      Math.floorDiv(Quantize.toFixed(worldY), voxelUnits)
-    ) return
-
-    // Denser and taller towards the centre, so the field has a middle. Measured at the spire rather than at the
-    // column, which is the same column here - saying so is what keeps it correct if the cell ever grows.
+    // Denser and taller towards the centre, so the field has a middle. Measured at the spire rather than at
+    // the column, which is the same column here - saying so is what keeps it correct if the cell ever grows.
     val toCentre = sqrt(
       (spireX - site.position.x) * (spireX - site.position.x) +
           (spireY - site.position.y) * (spireY - site.position.y)
     ) / site.radius
-    if (toCentre > WOUND_RAMPART_SHARE) return
+    if (toCentre > WOUND_RAMPART_SHARE) return null
 
     val inward = 1.0 - toCentre / WOUND_RAMPART_SHARE
-    if (GenRng.unit(GenRng.mix64(hash xor 0x53L)) >= WOUND_SPIRE_DENSITY * inward) return
+    if (GenRng.unit(GenRng.mix64(hash xor 0x53L)) >= WOUND_SPIRE_DENSITY * inward) return null
 
     val height = WOUND_SPIRE_MIN_HEIGHT +
         (WOUND_SPIRE_MAX_HEIGHT - WOUND_SPIRE_MIN_HEIGHT) * inward *
         GenRng.unit(GenRng.mix64(hash xor 0x54L))
-    into.add(ground - SLAB_THICKNESS, ground + height, BlockType.MANA_CRYSTAL_LARGE)
+
+    return Spire(spireX, spireY, height)
   }
+
+  /**
+   * The wound spires whose own position falls inside one chunk, as props.
+   *
+   * A distinct [PropKind.WOUND_SPIRE] rather than a flag on [PropKind.MANA_CRYSTAL], because the two sit on
+   * **different lattices**: `WOUND_SPIRE_SPACING` is seven metres against `CrystalParams.cellSize`'s eleven,
+   * so their cell indices share an index space and one kind would give two different objects one name.
+   *
+   * Ownership is the spire's voxel column, in integers, for the reason `VegetationScatter.propsIn` gives.
+   */
+  fun spireProps(config: WorldConfig, chunk: ChunkPos, site: PropSite, into: PropInstances) {
+    val wounds = sites.filter { it.kind == SiteKind.WOUND }
+    if (wounds.isEmpty()) return
+
+    val bounds = config.chunkBounds(chunk)
+    val fromX = Math.floorDiv(Quantize.toFixed(bounds.minX), WOUND_SPIRE_UNITS)
+    val untilX = Math.floorDiv(Quantize.toFixed(bounds.maxX), WOUND_SPIRE_UNITS) + 1
+    val fromY = Math.floorDiv(Quantize.toFixed(bounds.minY), WOUND_SPIRE_UNITS)
+    val untilY = Math.floorDiv(Quantize.toFixed(bounds.maxY), WOUND_SPIRE_UNITS) + 1
+
+    val chunkSize = config.chunkSize.toLong()
+    val firstOfThisChunk = into.count
+
+    for (wound in wounds) {
+      for (cellY in fromY until untilY) {
+        for (cellX in fromX until untilX) {
+          val spire = spireAt(wound, cellX, cellY) ?: continue
+
+          if (Math.floorDiv(columnOf(spire.x), chunkSize).toInt() != chunk.x) continue
+          if (Math.floorDiv(columnOf(spire.y), chunkSize).toInt() != chunk.y) continue
+
+          val identity = PropId.of(PropKind.WOUND_SPIRE, cellX, cellY)
+
+          // A cell inside two wounds' crystal fields would yield two spires with one name, and a name is
+          // what a runtime keys stored state on. Only reachable where two wounds overlap - which no world
+          // sampled has - so it is a guard rather than a mechanism, and it costs a scan of a handful of
+          // props only on a chunk that a second wound also reaches.
+          if (wounds.size > 1 && claimed(into, firstOfThisChunk, identity)) continue
+
+          val ground = site.groundAt(spire.x, spire.y)
+          if (ground.isNaN()) continue
+
+          into.add(
+            kind = PropKind.WOUND_SPIRE,
+            identity = identity,
+            x = spire.x,
+            y = spire.y,
+            ground = ground,
+            heightM = spire.height,
+            flags = PropFlags.BLIGHTED or PropFlags.LARGE
+          )
+        }
+      }
+    }
+  }
+
+  private fun claimed(into: PropInstances, from: Int, identity: Long): Boolean {
+    for (i in from until into.count) if (into.identityAt(i) == identity) return true
+    return false
+  }
+
+  private fun columnOf(world: Double): Long =
+    Math.floorDiv(Quantize.toFixed(world), Quantize.toFixed(1.0))
+
+  /** One wound spire, as its lattice draws it before the ground is known. */
+  private class Spire(val x: Double, val y: Double, val height: Double)
 
   private companion object {
 

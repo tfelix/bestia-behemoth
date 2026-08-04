@@ -31,6 +31,7 @@ import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
+import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.voxel.BlockType
@@ -123,7 +124,13 @@ class StandardWorldTest {
         // time, and spawners only became ready when corruption finished - by which point towns was already
         // in the level being run. Harmless either way, since nothing reads a den; recorded because the
         // difference is invisible until you predict a position and get another.
-        SpawnerStage.ID
+        SpawnerStage.ID,
+        // Beside the dens for the same reason and by the same accident, one place further along: it became
+        // ready when corruption finished too, and "vegetation_stands" sorts after both "spawners" and
+        // "towns". Nothing reads a stand either, so where in the tail it lands does not matter - and this
+        // position was read off the failure rather than predicted, which is the only reliable way to write
+        // one of these down.
+        VegetationStandStage.ID
       ),
       order
     )

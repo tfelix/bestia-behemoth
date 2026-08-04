@@ -25,6 +25,22 @@ enum class PropKind {
   WOUND_SPIRE
 }
 
+/**
+ * Ground elevation under a prop, or [Double.NaN] where nothing may stand there.
+ *
+ * The one thing a scatter cannot work out for itself. It knows the climate, the soil, the mana and
+ * the water; it does not know that somebody paved this spot, built a granary on it, ran a bridge over
+ * it or opened a cave mouth under it. Those are questions about the *other* producers in the chunk
+ * tier, and they are asked at the prop's own position rather than at any column near it.
+ *
+ * The elevation must come from the same `ColumnHeights` the terrain is built from and never from the
+ * base heightfield: every vector feature that moves the ground has already been stamped into it, so
+ * sampling the base instead floats or buries props wherever the world was graded.
+ */
+fun interface PropSite {
+  fun groundAt(worldX: Double, worldY: Double): Double
+}
+
 /** Bit flags on an emitted prop. */
 object PropFlags {
 

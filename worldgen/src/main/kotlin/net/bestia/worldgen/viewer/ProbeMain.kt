@@ -15,6 +15,7 @@ import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.SurfaceColumns
 import net.bestia.worldgen.voxel.VoxelChunk
 import java.util.Locale
@@ -80,6 +81,11 @@ object ProbeMain {
 
     if (cli.has(ECOTONE)) {
       probe.ecotone()
+      return
+    }
+
+    if (cli.has(PROPS)) {
+      probe.props(cli.int("--nth") ?: 0, cli.value("--on"), cli.double("--x"), cli.double("--y"), span)
       return
     }
 
@@ -506,6 +512,66 @@ object ProbeMain {
      * A survey of cell centres never lands on a river: a channel a metre wide covers a millionth of a kilometre
      * cell, so the only way to see one is to ask the feature where it is.
      */
+    /**
+     * Every prop standing in the chunks around a point, by kind.
+     *
+     * The one human check on the prop tier, and it exists because the other views cannot be one: props are not
+     * in the voxel grid, so `--section` through a forest prints bare grass and the plan view prints turf. A
+     * world with no trees on it at all would look exactly like a world with trees until a client renders one.
+     *
+     * Prints a per-kind census over the window and then the individual props of the centre chunk, because the
+     * two answer different questions - "does this world have vegetation" and "is that tree standing on the
+     * ground".
+     */
+    fun props(nth: Int, onFeature: String?, atX: Double?, atY: Double?, span: Int) {
+      val centre = when {
+        onFeature != null -> midpointOf(onFeature, nth)
+        atX != null && atY != null -> atX to atY
+        else -> nearestLand(generated.world.layers.require<FloatLayer>(LayerId.ELEVATION), 400.0)
+          .also { println("  no coordinate given, so: nearest land to 400 m is (${it.first.toInt()}, ${it.second.toInt()})") }
+      }
+
+      val extent = config.chunkExtent
+      val centreChunkX = Math.floorDiv(Math.floor(centre.first / config.voxelSize).toLong(), config.chunkSize.toLong()).toInt()
+      val centreChunkY = Math.floorDiv(Math.floor(centre.second / config.voxelSize).toLong(), config.chunkSize.toLong()).toInt()
+      val reach = maxOf(1, Math.ceil(span * config.voxelSize / extent).toInt())
+
+      val census = LinkedHashMap<PropKind, Int>()
+      PropKind.entries.forEach { census[it] = 0 }
+      var chunks = 0
+
+      for (chunkY in centreChunkY - reach..centreChunkY + reach) {
+        for (chunkX in centreChunkX - reach..centreChunkX + reach) {
+          val props = generated.propsIn(chunkX, chunkY)
+          chunks++
+          for (i in props.indices) census[props.kindAt(i)] = census.getValue(props.kindAt(i)) + 1
+        }
+      }
+
+      val area = chunks * extent * extent / 10_000.0
+      println("props over $chunks chunks (${"%.2f".format(Locale.ROOT, area)} ha) around (${centre.first.toInt()}, ${centre.second.toInt()}):")
+      for ((kind, count) in census) {
+        println("  ${kind.name.lowercase().padEnd(14)} $count  (${"%.1f".format(Locale.ROOT, count / area)}/ha)")
+      }
+
+      val here = generated.propsIn(centreChunkX, centreChunkY)
+      println("chunk ($centreChunkX,$centreChunkY) holds ${here.count}:")
+      for (i in here.indices) {
+        val flags = buildString {
+          if (here.isBlighted(i)) append(" blighted")
+          if (here.isLarge(i)) append(" large")
+        }
+        println(
+          "  ${here.kindAt(i).name.lowercase().padEnd(14)} at " +
+              "(${"%.1f".format(Locale.ROOT, here.xAt(i))}, ${"%.1f".format(Locale.ROOT, here.yAt(i))}) " +
+              "ground ${"%.2f".format(Locale.ROOT, here.groundAt(i))} m, " +
+              "height ${"%.1f".format(Locale.ROOT, here.heightAt(i))} m" +
+              (if (here.radiusAt(i) > 0.0) ", crown ${"%.1f".format(Locale.ROOT, here.radiusAt(i))} m" else "") +
+              flags
+        )
+      }
+    }
+
     fun midpointOf(kind: String, nth: Int): Pair<Double, Double> {
       val matching = generated.world.features.all()
         .filter { it.kind.name.equals(kind, ignoreCase = true) }
@@ -601,6 +667,28 @@ object ProbeMain {
 
       println()
       println("surveyed ${sampled.size} land patches of ${span}x${span} m")
+
+      // Stems per hectare, which `VegetationScatter`'s KDoc has claimed this task reports since it was
+      // written and which it did not: grep for it found nothing. It is the figure the densities in
+      // `VegetationParams` are quoted in, so without it those numbers cannot be checked against a world.
+      //
+      // Counted as *props*, not as trunks in the voxels: the props are what a runtime is handed, so they are
+      // what a tuning decision is about. Over the same strided sample, so it costs one prop pass per patch.
+      var stems = 0
+      var hectares = 0.0
+      for ((at, _, _) in sampled) {
+        val chunkX = Math.floorDiv(Math.floor(at.first / config.voxelSize).toLong(), config.chunkSize.toLong()).toInt()
+        val chunkY = Math.floorDiv(Math.floor(at.second / config.voxelSize).toLong(), config.chunkSize.toLong()).toInt()
+        val props = generated.propsIn(chunkX, chunkY)
+        for (i in props.indices) if (props.kindAt(i) == PropKind.TREE) stems++
+        hectares += config.chunkExtent * config.chunkExtent / 10_000.0
+      }
+      if (hectares > 0.0) {
+        println(
+          "tree props: $stems over ${"%.1f".format(Locale.ROOT, hectares)} ha sampled, " +
+              "${"%.1f".format(Locale.ROOT, stems / hectares)} per hectare"
+        )
+      }
 
       val mixed = sampled.sortedByDescending { it.second.minorityShare }.take(count.coerceAtMost(sampled.size))
       println()
@@ -734,6 +822,15 @@ object ProbeMain {
   /** Candidate thresholds for `ChunkMaterializer.BARE_ROCK_GRADIENT`, from a gentle bank to a sheer face. */
   private val CANDIDATE_GRADIENTS = doubleArrayOf(0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1.0, 1.25, 1.5)
 
+  /**
+   * The only way a human can see whether a world has trees on it.
+   *
+   * Not optional tooling. Once vegetation is emitted as props rather than written into voxels, `--section` and
+   * the plan view show a forest as bare grass - the trees are simply not in the voxel grid any more - so
+   * without this there is no check between the scatter and a client that has not been written yet.
+   */
+  private const val PROPS = "--props"
+
   private const val SECTION = "--section"
 
   /**
@@ -769,6 +866,6 @@ object ProbeMain {
 
   private val PROBE_FLAGS = setOf(
     "--x", "--y", "--span", "--at", "--survey", "--on", "--nth", "--channels", BELOW,
-    DROPLETS, ECOTONE, SECTION, STEEPNESS
+    DROPLETS, ECOTONE, PROPS, SECTION, STEEPNESS
   )
 }

@@ -296,6 +296,9 @@ tasks.register('probe', JavaExec) {
     if (cli('nth') != null) args '--nth', cli('nth')
     if (cli('channels') != null) args '--channels'
     if (cli('ecotone') != null) args '--ecotone'
+    // Props - trees, crystals, wound spires. The only view of them: they are not in the voxel grid, so the
+    // plan view and the section both print the bare ground they stand on. See ProbeMain.props.
+    if (cli('props') != null) args '--props'
     // The survival curve `ChunkMaterializer.BARE_ROCK_GRADIENT` has to be picked from. Not derivable from the
     // detail parameters: the gradient is the sum of nine noise octaves and every vector feature.
     if (cli('steepness') != null) args '--steepness'

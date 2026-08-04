@@ -381,7 +381,7 @@ class VegetationTest {
         val candidates = scatter.candidatesIn(chunk)
 
         val props = PropInstances()
-        scatter.propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+        scatter.propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
 
         for (i in props.indices) {
           val cellX = PropId.cellXOf(props.identityAt(i))
@@ -475,7 +475,7 @@ class VegetationTest {
         }
 
         val props = PropInstances()
-        scatter.propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+        scatter.propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
         emitted += props.count
       }
     }
@@ -593,7 +593,7 @@ class VegetationTest {
 
   private fun propsOf(chunk: ChunkPos): PropInstances {
     val props = PropInstances()
-    scatterOf().propsIn(chunk, VegetationScatter.TrunkSite { worldX, _ -> groundAt(worldX) }, props)
+    scatterOf().propsIn(chunk, PropSite { worldX, _ -> groundAt(worldX) }, props)
     return props
   }
 

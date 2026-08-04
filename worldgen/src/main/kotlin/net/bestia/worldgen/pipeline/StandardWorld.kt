@@ -38,6 +38,7 @@ import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
+import net.bestia.worldgen.spawn.VegetationStandStage
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.Stratigraphy
 import net.bestia.worldgen.vector.FeatureKind
@@ -240,6 +241,7 @@ object StandardWorld {
       // Last of the world tier in dependency terms: it reads the corruption, the settlements and what history
       // left standing of them.
       SpawnerStage(base, p.spawner),
+      VegetationStandStage(base, p.vegetationStand, p.vegetation),
       TownStage(base, p.town),
       EconomyStage(base, p.economy),
       // Last, and it has to be: the routes NPCs walk are read off the roads, bridges, gates and cave mouths

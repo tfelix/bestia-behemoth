@@ -269,8 +269,12 @@ class ChunkMaterializer(
     val caves = CaveNetwork(nearby, config.seed, caveParams)
     val bridges = BridgeDecks(nearby)
 
+    val site = propSite(chunk, heights, structures, caves, bridges)
     val into = PropInstances()
-    vegetation.propsIn(chunk, propSite(chunk, heights, structures, caves, bridges), into)
+
+    vegetation.propsIn(chunk, site, into)
+    crystals.propsIn(chunk, site, into)
+    structures.spireProps(config, chunk, site, into)
 
     return into
   }
@@ -293,12 +297,12 @@ class ChunkMaterializer(
     structures: TownStructures,
     caves: CaveNetwork,
     bridges: BridgeDecks
-  ): VegetationScatter.TrunkSite {
+  ): PropSite {
     val ground = trunkSite(chunk, heights, structures, caves)
 
-    if (bridges.isEmpty) return ground
+    if (bridges.isEmpty) return PropSite { worldX, worldY -> ground.groundAt(worldX, worldY) }
 
-    return VegetationScatter.TrunkSite { worldX, worldY ->
+    return PropSite { worldX, worldY ->
       if (bridges.deckAt(worldX, worldY).isNaN()) ground.groundAt(worldX, worldY) else Double.NaN
     }
   }
