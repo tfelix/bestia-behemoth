@@ -20,6 +20,7 @@ import net.bestia.worldgen.hydro.HydrologyParams
 import net.bestia.worldgen.hydro.AlluviumParams
 import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.karst.CaveParams
+import net.bestia.worldgen.poi.PoiParams
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.mana.ManaParams
@@ -123,6 +124,16 @@ data class WorldParams(
   val vegetationStand: VegetationStandParams = VegetationStandParams(),
   val town: TownParams = TownParams(),
   val economy: EconomyParams = EconomyParams(),
+
+  /**
+   * The hand-authored landmarks, and how far each keeps from everything already built.
+   *
+   * Folded into [version] and **not** [chunkTierVersion], for the reason [nav] is not: where a POI stands is a
+   * world-tier product like any marker, and the chunk tier only reads the marker back. What decides *which*
+   * landmarks a world holds is not in here at all - it is the `PoiKind` catalogue, folded into
+   * `PoiStage.paramsVersion` directly, because a table in an enum is a tunable in everything but its storage.
+   */
+  val poi: PoiParams = PoiParams(),
 
   /**
    * The macro navigation graph NPCs plan journeys over. Last, because it reads everything before it.
@@ -239,6 +250,7 @@ data class WorldParams(
       r.vegetationStand.digest().value,
       r.town.digest().value,
       r.economy.digest().value,
+      r.poi.digest().value,
       r.nav.digest().value
     )
   }
@@ -316,6 +328,10 @@ data class WorldParams(
         corruption = base.corruption.overriddenBy(text.scope("corruption")),
         weather = base.weather.overriddenBy(text.scope("weather")),
         droplets = base.droplets.overriddenBy(text.scope("droplets")),
+        // Loadable from the day it lands, unlike the sixteen prefixes above: every field in it is a *clearance*,
+        // and whether a landmark is far enough from a road is exactly the sort of thing found by looking at one
+        // and then moving a number.
+        poi = base.poi.overriddenBy(text.scope("poi")),
         nav = base.nav.overriddenBy(text.scope("nav"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)

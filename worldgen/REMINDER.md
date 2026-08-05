@@ -1,14 +1,5 @@
 # Last Steps
 
-## Engine Integration
-
-Tie this all into the engine! We need to battle test the renderer if it works for this world. Shader are not really important we will get to those later but stablity and performance are top priority. Double check if the interaction with the engine works or if you see any shortcomings in the communication protocol.
-This is more like a tight review on the renderer integration into the world system. Look into it with a fresh mind. Analyze for bugs or inconsistency.
-Also make sure "special" stuff like cave systems work.
-Check if special marker like trees, treasures in caves, tombes etc translate into entities with visuals that get correctly placed. Make sure those visuals are then persisted into the database. Make sure restards of the server work well and nothing is like double imported especially if players started to modify and re-shape the world. Also take care with how to implement this partial occupancy to allow more shallow slopes and go away from this "minecrafty full blocky" look.
-
-Please compile a list of issues you have found and how to tackle them.
-
 ## Final Cleanup Phase
 
 Feel free to re-arrange those points into a order which you think makes more sense. Feel free to go step by step through the task list here. Make sensible commits.
@@ -30,3 +21,4 @@ Feel free to re-arrange those points into a order which you think makes more sen
 - Remove code which is not in use and just dead code
 - Remove/Reset legacy left over like versions or sparse enums which where not filled in.
 - Update the docs under ../bestia-docs/server (there is a world generator section), with the latest features, explain the pipeline in detail and what parameters are used and their meaning and how this ties into the engine. Provide some code examples too.
+- Add interesting/important info gathered here into the ../bestia-docs map generation section.

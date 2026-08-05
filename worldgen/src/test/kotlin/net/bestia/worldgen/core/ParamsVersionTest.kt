@@ -31,6 +31,8 @@ import net.bestia.worldgen.hydro.AlluviumParams
 import net.bestia.worldgen.hydro.PondParams
 import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.poi.PoiKind
+import net.bestia.worldgen.poi.PoiParams
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.EconomyParams
 import net.bestia.worldgen.history.OrderInfluence
@@ -105,6 +107,7 @@ class ParamsVersionTest {
     TownParams(),
     StreetParams(),
     EconomyParams(),
+    PoiParams(),
     // The chunk tier, which reaches no version number at all today.
     DetailParams(),
     StrataParams(),
@@ -150,7 +153,11 @@ class ParamsVersionTest {
     "Order" to Order.catalogueDigest(),
     "ResourceType" to ResourceType.catalogueDigest(),
     "MinableOre" to MinableOre.catalogueDigest(),
-    "SpawnHostility" to SpawnHostility.catalogueDigest()
+    "SpawnHostility" to SpawnHostility.catalogueDigest(),
+    // The one catalogue that is the *whole* of a feature rather than a table one stage reads. Every number
+    // deciding which landmarks a world holds lives in it, so without a pin here the entire subsystem could be
+    // retuned - or an entry deleted - and no version would move.
+    "PoiKind" to PoiKind.catalogueDigest()
   )
 
   @Test
@@ -165,7 +172,8 @@ class ParamsVersionTest {
       "Order" to -2_417_387_423_981_603_910L,
       "ResourceType" to 8_190_588_717_705_702_599L,
       "MinableOre" to 4_365_871_184_218_980_312L,
-      "SpawnHostility" to 1_601_490_678_795_006_744L
+      "SpawnHostility" to 1_601_490_678_795_006_744L,
+      "PoiKind" to -8_044_551_008_766_842_828L
     )
 
     assertEquals(
@@ -211,6 +219,7 @@ class ParamsVersionTest {
       "TownParams" to 6_322_658_815_609_408_725L,
       "StreetParams" to -2_774_139_638_864_316_831L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
+      "PoiParams" to 9_183_715_732_977_741_057L,
       "DetailParams" to 5_837_136_561_326_550_610L,
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,

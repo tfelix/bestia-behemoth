@@ -29,6 +29,7 @@ import net.bestia.worldgen.bio.VegetationStage
 import net.bestia.worldgen.karst.CaveStage
 import net.bestia.worldgen.mana.CorruptionStage
 import net.bestia.worldgen.mana.ManaStage
+import net.bestia.worldgen.poi.PoiStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.spawn.SpawnerStage
 import net.bestia.worldgen.spawn.VegetationStandStage
@@ -112,6 +113,10 @@ class StandardWorldTest {
         // it suppresses by the settlements *history* left standing, so a razed town stops holding the
         // wilderness back. It also sorts before `towns` by name, which is harmless - no building reads it.
         CorruptionStage.ID,
+        // Points of interest land here on the name tie-break - "poi" sorts before "towns" - and the position is
+        // genuinely arbitrary: the stage reads the settlements, the sites and the cave mouths, all of which are
+        // final by the time corruption has run, and nothing reads a landmark back.
+        PoiStage.ID,
         TownStage.ID,
         EconomyStage.ID,
         // The navigation graph is the most derived thing in the pipeline: it reads the roads, the bridges,

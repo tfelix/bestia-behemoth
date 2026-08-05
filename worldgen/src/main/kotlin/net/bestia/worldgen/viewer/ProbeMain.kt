@@ -15,6 +15,7 @@ import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PolylineFeature
 import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 import net.bestia.worldgen.voxel.SurfaceColumns
 import net.bestia.worldgen.voxel.VoxelChunk
@@ -632,6 +633,10 @@ object ProbeMain {
         val flags = buildString {
           if (here.isBlighted(i)) append(" blighted")
           if (here.isLarge(i)) append(" large")
+          // The one kind whose name is not enough: every landmark in the catalogue is a `POI`, and which one it
+          // is lives in the sub-kind. Printing "poi" alone would make this view unable to answer the only
+          // question anybody asks it about a landmark.
+          if (here.kindAt(i) == PropKind.POI) append(" ${PoiKind.entries[here.subKindAt(i)].label}")
         }
         println(
           "  ${here.kindAt(i).name.lowercase().padEnd(14)} at " +

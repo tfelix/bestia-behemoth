@@ -47,3 +47,39 @@ kinds:
     max-hp: 130
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 3
+
+  # The points of interest: one row per entry in worldgen's `PoiKind`, and mandatory - a landmark added to the
+  # catalogue with no row here fails the boot rather than the first world that rolls it.
+  #
+  # `variants: 1` throughout, and unlike the rows above that is not a placeholder. A tree has four models so a
+  # wood does not look stamped; each of these is *one object* that exists at most once in a world, so a second
+  # model of it would be a second answer to a question with one answer.
+  - kind: POI_LOST_GRAVE
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  - kind: POI_STANDING_STONES
+    max-hp: 400
+    collider: { half-x: 3, half-y: 3, height: 3 }
+    variants: 1
+
+  - kind: POI_BROKEN_OBELISK
+    max-hp: 500
+    collider: { half-x: 1, half-y: 1, height: 6 }
+    variants: 1
+
+  - kind: POI_WAYSTONE
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: POI_PETRIFIED_TREE
+    max-hp: 300
+    collider: { half-x: 1, half-y: 1, height: 6 }
+    variants: 1
+
+  - kind: POI_SUNKEN_IDOL
+    max-hp: 250
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1

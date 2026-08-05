@@ -34,7 +34,12 @@ namespace BestiaBehemothClient.Game.World
     private readonly Dictionary<ChunkKey, List<MultiMeshInstance3D>> _byChunk = new();
 
     /// <summary>One mesh per kind, built once. Placeholders until there is art.</summary>
-    private readonly Dictionary<int, Mesh> _meshes = new();
+    /// <remarks>
+    /// <c>Godot.Mesh</c> spelled in full, and it has to be: this file's own namespace has a
+    /// <c>BestiaBehemothClient.Game.World.Mesh</c> in it - the surface-nets code in <c>Game/World/Mesh/</c> - which
+    /// shadows the Godot type and makes the bare name resolve to a namespace.
+    /// </remarks>
+    private readonly Dictionary<int, Godot.Mesh> _meshes = new();
 
     /// <summary>
     /// Replaces whatever was drawn for this chunk.
@@ -124,7 +129,7 @@ namespace BestiaBehemothClient.Game.World
     /// than merely wrong: a tree is a tall box, a crystal a narrow one, a spire a tall thin one. Unit height,
     /// because <see cref="Apply"/> scales by the prop's own height.
     /// </remarks>
-    private Mesh MeshFor(int kind)
+    private Godot.Mesh MeshFor(int kind)
     {
       if (_meshes.TryGetValue(kind, out var cached))
       {
@@ -132,7 +137,9 @@ namespace BestiaBehemothClient.Game.World
       }
 
       // Kind ordinals mirror the server's StaticEntityKind: TREE, BLIGHTED_TREE, MANA_CRYSTAL_SMALL,
-      // MANA_CRYSTAL_LARGE, WOUND_SPIRE, AETHERITE_SHARD_SMALL, AETHERITE_SHARD_LARGE.
+      // MANA_CRYSTAL_LARGE, WOUND_SPIRE, AETHERITE_SHARD_SMALL, AETHERITE_SHARD_LARGE, then the six points of
+      // interest - POI_LOST_GRAVE, POI_STANDING_STONES, POI_BROKEN_OBELISK, POI_WAYSTONE, POI_PETRIFIED_TREE,
+      // POI_SUNKEN_IDOL.
       var (width, colour) = kind switch
       {
         0 => (0.6f, new Color(0.20f, 0.45f, 0.15f)),
@@ -145,6 +152,15 @@ namespace BestiaBehemothClient.Game.World
         // them, because recognising it is the entire point of the prop. Squat and wide, unlike a crystal.
         5 => (0.7f, new Color(0.42f, 0.33f, 0.52f)),
         6 => (0.9f, new Color(0.58f, 0.40f, 0.78f)),
+        // The landmarks, in stone greys and each a distinct width, so that at most one per world they are still
+        // told apart at a glance. Pale rather than saturated: everything above is a growth or an ore and reads
+        // as coloured, and these are worked stone.
+        7 => (1.2f, new Color(0.55f, 0.52f, 0.48f)),
+        8 => (2.4f, new Color(0.62f, 0.60f, 0.58f)),
+        9 => (0.8f, new Color(0.72f, 0.70f, 0.66f)),
+        10 => (0.5f, new Color(0.66f, 0.62f, 0.56f)),
+        11 => (0.9f, new Color(0.48f, 0.42f, 0.38f)),
+        12 => (0.7f, new Color(0.40f, 0.44f, 0.40f)),
         _ => (0.5f, new Color(1f, 0f, 1f))
       };
 

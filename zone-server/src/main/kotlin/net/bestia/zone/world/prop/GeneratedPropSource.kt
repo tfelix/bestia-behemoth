@@ -1,6 +1,8 @@
 package net.bestia.zone.world.prop
 
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.poi.PoiKind
+import net.bestia.worldgen.voxel.PropKind
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkCoords
@@ -24,13 +26,26 @@ class GeneratedPropSource(
   private val worldService: WorldService
 ) : WorldObjectSource {
 
-  override val kinds = setOf(
-    StaticEntityKind.TREE,
-    StaticEntityKind.BLIGHTED_TREE,
-    StaticEntityKind.MANA_CRYSTAL_SMALL,
-    StaticEntityKind.MANA_CRYSTAL_LARGE,
-    StaticEntityKind.WOUND_SPIRE
-  )
+  /**
+   * Every kind this can emit: exactly the image of [StaticEntityKind.of] over what the generator produces.
+   *
+   * **Derived rather than listed, and that is a fix rather than a style choice.** The hand-written list this
+   * replaced omitted both aetherite shards while `sitesIn` had been emitting them, so anything asking this set
+   * what a chunk might hold got the wrong answer about a kind that was already in the world. A list kept in step
+   * by hand with an exhaustive `when` in another file is a list that eventually is not.
+   *
+   * Enumerating the flag combinations rather than reading `StaticEntityKind.entries` is what keeps it honest in
+   * the other direction too: that enum is deliberately wider than the generator, so it will hold the walls and
+   * buildings players put up, and a source claiming those would be claiming somebody else's work.
+   */
+  override val kinds: Set<StaticEntityKind> = buildSet {
+    for (kind in PropKind.entries) {
+      val subKinds = if (kind == PropKind.POI) PoiKind.entries.indices else 0..0
+      for (subKind in subKinds) {
+        for (blighted in BOTH) for (large in BOTH) add(StaticEntityKind.of(kind, blighted, large, subKind))
+      }
+    }
+  }
 
   override fun sitesIn(chunk: ChunkPos): List<WorldObjectSite> {
     if (!worldService.isLoaded) return emptyList()
@@ -42,7 +57,7 @@ class GeneratedPropSource(
     val out = ArrayList<WorldObjectSite>(props.count)
 
     for (i in props.indices) {
-      val kind = StaticEntityKind.of(props.kindAt(i), props.isBlighted(i), props.isLarge(i))
+      val kind = StaticEntityKind.of(props.kindAt(i), props.isBlighted(i), props.isLarge(i), props.subKindAt(i))
 
       // Metres to position units, and the height from the generator's own column rather than from
       // `GroundHeight`: the two agree, and this one cannot be asked off the tick thread.
@@ -83,5 +98,8 @@ class GeneratedPropSource(
 
   private companion object {
     const val TWO_PI = 6.2831855f
+
+    /** Both values of a prop flag, for the [kinds] enumeration. */
+    val BOTH = listOf(false, true)
   }
 }

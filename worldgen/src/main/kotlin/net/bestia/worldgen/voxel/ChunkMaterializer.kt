@@ -268,6 +268,9 @@ class ChunkMaterializer(
     // is the deposit markers for *this* query rather than a layer covering the world. Same reason
     // `TownStructures` and `OreVeins` are constructed per chunk a few lines above.
     aetherite(nearby).propsIn(chunk, site, into)
+    // Last, and per chunk from `nearby` for the reason above. The only source here that emits *placed* objects
+    // rather than scattered ones - see `PoiProps`.
+    PoiProps(config, nearby).propsIn(chunk, site, into)
 
     return into
   }
@@ -883,7 +886,10 @@ class ChunkMaterializer(
     //    go with them. The second `StructureSpans` buffer, `writeStructure`'s `onlyIntoAir` and `wholeVoxels`,
     //    and the whole `candidatesIn`/`plant` halo go too. **Unlike 6, 7 and 8 this does change `BlockType`**,
     //    so `ChunkEngine.VERSION` moves with it and the client needs a release.
-    const val VERSION = 9
+    // 10: points of interest - `PoiProps` emits one prop per `FeatureKind.POI` marker, and `PropInstances` gains
+    //    the `subKind` column that says which landmark it is. No BlockType changed, so `ChunkEngine.VERSION`
+    //    stays where it is: a prop is not in the palette, and the wire already carries an open-ended kind.
+    const val VERSION = 10
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

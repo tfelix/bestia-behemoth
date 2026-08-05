@@ -21,6 +21,7 @@ import net.bestia.worldgen.civ.NavGraphStage
 import net.bestia.worldgen.civ.SettlementStage
 import net.bestia.worldgen.civ.TownStage
 import net.bestia.worldgen.history.HistoryStage
+import net.bestia.worldgen.poi.PoiStage
 import net.bestia.worldgen.pop.EconomyStage
 import net.bestia.worldgen.geo.ErosionStage
 import net.bestia.worldgen.geo.GlacialStage
@@ -244,6 +245,10 @@ object StandardWorld {
       VegetationStandStage(base, p.vegetationStand, p.vegetation),
       TownStage(base, p.town),
       EconomyStage(base, p.economy),
+      // The last word on what stands on the ground, and the only stage whose output is decided by a coin toss
+      // rather than by the land: one roll per catalogue entry says whether this world holds that landmark at
+      // all. Reads the settlements, the sites and the cave mouths in order to keep away from them.
+      PoiStage(base, p.poi),
       // Last, and it has to be: the routes NPCs walk are read off the roads, bridges, gates and cave mouths
       // every stage above put down, so it can only run once all of them are final. Nothing reads it back.
       NavGraphStage(base, p.nav)

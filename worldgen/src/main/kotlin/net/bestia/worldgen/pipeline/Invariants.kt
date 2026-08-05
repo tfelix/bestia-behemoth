@@ -27,6 +27,8 @@ import net.bestia.worldgen.geo.ClosedBasins
 import net.bestia.worldgen.history.SiteChannels
 import net.bestia.worldgen.hydro.LakeChannels
 import net.bestia.worldgen.karst.CaveChannels
+import net.bestia.worldgen.poi.PoiChannels
+import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
 import net.bestia.worldgen.pop.EconomyChannels
@@ -255,6 +257,7 @@ object Invariants {
     checkVegetationStandsAreWooded(generated, ::fail)
     checkVegetationStandsAdvertiseFillableCapacity(generated, ::fail)
     checkPropsAreWellPlaced(generated, ::fail)
+    checkPoisBecomeProps(generated, ::fail)
     checkDistrictsHoldTheirBuildings(generated, ::fail)
 
     return out
@@ -2852,6 +2855,94 @@ object Invariants {
 
     if (checked == 0) {
       fail("props are well placed", "no prop was found anywhere in the sampled chunks, so nothing was checked")
+    }
+  }
+
+  /**
+   * Every landmark the world rolled for is actually standing there.
+   *
+   * **The one check this subsystem cannot do without**, and it is worth being explicit about why. A POI is a
+   * decision taken at the world tier - this world holds a lost grave, and it is *there* - and the chunk tier is
+   * only asked to resolve the ground under it. But `ChunkMaterializer.trunkSite` answers `NaN` for ground
+   * somebody paved, roofed, bridged or carved a hole under, and a prop offered `NaN` cannot be placed at all. So
+   * the failure mode is a world that rolled a landmark and then quietly does not have one, with nothing
+   * anywhere reading as wrong: the marker is present, the chronicle never mentioned it, and the count of props
+   * in the chunk is plausible either way.
+   *
+   * `PoiParams`' four clearances exist to prevent that, and this is what says whether they are wide enough. A
+   * violation here is a *tuning* result, not a code bug - widen the clearance the detail names.
+   *
+   * Three claims per marker, and the third is the one no `NaN` could have caught: the landmark stands above the
+   * water. `PoiStage` rejects a candidate whose kilometre cell or any of its eight neighbours holds standing
+   * water, which cannot see a vector pond the chunk tier fills, and a submerged waystone is a prop with a
+   * perfectly finite ground.
+   *
+   * Cheap despite materialising column heights, because there are at most one per entry in [PoiKind] - a
+   * handful per world, against ten thousand vegetation stands.
+   */
+  private fun checkPoisBecomeProps(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val markers = generated.world.features.all()
+      .filter { it.kind == FeatureKind.POI }
+      .filterIsInstance<PointMarker>()
+    if (markers.isEmpty()) return
+
+    val config = generated.config
+    val surface = generated.materializer.surface
+
+    for (marker in markers) {
+      val declared = PoiKind.entries.getOrNull(marker.attribute(PoiChannels.KIND).toInt())
+      if (declared == null) {
+        fail("pois become props", "a POI marker names catalogue entry ${marker.attribute(PoiChannels.KIND)}")
+        continue
+      }
+
+      val chunkX = Math.floorDiv(
+        Math.floor(marker.position.x / config.voxelSize).toLong(), config.chunkSize.toLong()
+      ).toInt()
+      val chunkY = Math.floorDiv(
+        Math.floor(marker.position.y / config.voxelSize).toLong(), config.chunkSize.toLong()
+      ).toInt()
+
+      // Matched on the position rather than on the identity, so that this does not re-derive `PoiProps.cellOf`
+      // and then agree with itself. The emitter copies the marker's coordinates through unchanged, so equality
+      // is exact.
+      val props = generated.propsIn(chunkX, chunkY)
+      var at = -1
+      var found = 0
+      for (i in props.indices) {
+        if (props.kindAt(i) != PropKind.POI) continue
+        if (props.xAt(i) != marker.position.x || props.yAt(i) != marker.position.y) continue
+        at = i
+        found++
+      }
+
+      if (found != 1) {
+        fail(
+          "pois become props",
+          "the ${declared.label} at (${marker.position.x},${marker.position.y}) became $found props - " +
+              if (found == 0) "the ground there refused it, so this world lost a landmark it rolled for"
+              else "two producers claim it"
+        )
+        continue
+      }
+
+      if (props.subKindAt(at) != declared.ordinal) {
+        fail(
+          "pois become props",
+          "the ${declared.label} at (${marker.position.x},${marker.position.y}) emitted a prop of sub-kind " +
+              "${props.subKindAt(at)} - the marker and the prop name different landmarks"
+        )
+        continue
+      }
+
+      val water = surface.waterLevelAt(marker.position.x, marker.position.y)
+      if (water > props.groundAt(at)) {
+        fail(
+          "pois become props",
+          "the ${declared.label} at (${marker.position.x},${marker.position.y}) stands at " +
+              "${props.groundAt(at)} under water at $water"
+        )
+      }
     }
   }
 

@@ -612,6 +612,10 @@ class MapRenderer(
       FeatureKind.BUILDING -> Color(235, 225, 205)
       FeatureKind.BUSINESS -> Color(120, 220, 255)
       FeatureKind.ROADSIDE_INN -> Color(255, 195, 90)
+      // White, which nothing else owns, because there are at most a handful on a world and the question the map
+      // is being asked about one is "where *is* it" - a hue that has to be told apart from a neighbour would be
+      // the wrong answer. Out of `HIDDEN_BY_DEFAULT` for `WOUND`'s reason: too few to wash anything out.
+      FeatureKind.POI -> Color(255, 255, 255)
     }
   }
 }

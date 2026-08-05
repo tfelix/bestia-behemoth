@@ -303,7 +303,24 @@ enum class FeatureKind(val defaultPriority: Int) {
    * should expect to find inside it - see `VegetationStandChannels.CAPACITY`. Hidden from the viewer by
    * default for the reason dens are, and with more force: a stand marker per patch of wood over a green world.
    */
-  VEGETATION_STAND(682)
+  VEGETATION_STAND(682),
+
+  /**
+   * A point of interest: one of the hand-authored landmarks a world happens to hold.
+   *
+   * Geometry and attributes only, so the priority is inert - `SEA_LANE` and [BESTIA_SPAWN] make the same point.
+   * A POI has no extent at all: the marker's position *is* the landmark's position, and the chunk tier turns it
+   * into exactly one prop standing there. That is why it is absent from
+   * `Invariants.checkStructuralMarkersFitTheQueryMargin`, unlike [WOUND] - there is no radius to outrun the
+   * query margin with.
+   *
+   * The rarest kind in the world by a wide margin: at most one per entry in `poi/PoiKind`, so a handful per
+   * world against a few thousand dens and ten thousand stands. Its whole reason for existing is that neither of
+   * the two mechanisms above it can say "one of these, somewhere" - a lattice scatter has no notion of a
+   * world-wide count, and everything `history/` places has to be *earned* by a simulated civilisation. See
+   * `poi/PoiKind`.
+   */
+  POI(684)
 }
 
 /**

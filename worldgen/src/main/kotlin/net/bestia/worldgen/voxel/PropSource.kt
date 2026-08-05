@@ -38,7 +38,21 @@ enum class PropKind {
    * something specific and diggable about one body of rock. Sharing a kind would make the two
    * indistinguishable to a runtime deciding what harvesting one yields.
    */
-  AETHERITE_SHARD
+  AETHERITE_SHARD,
+
+  /**
+   * A point of interest: one of the hand-authored landmarks `poi/PoiStage` rolled onto this world.
+   *
+   * **One kind for the whole catalogue, and the specific landmark is [PropInstances.subKindAt].** The reason
+   * is arithmetic: [PropId] has four bits of kind, so a catalogue with a dozen entries in it would eat the
+   * whole space and cap itself at twelve forever. `PoiKind`'s ordinal is a byte on the instance instead, which
+   * is what lets the catalogue grow to as many landmarks as there is art for.
+   *
+   * The one kind that is **not a scatter**. Every other kind here is a function of position that a chunk can
+   * evaluate for itself; this one comes from a `FeatureKind.POI` marker the world tier placed, because "one of
+   * these somewhere in the world" is not a question a lattice can answer. See `PoiProps`.
+   */
+  POI
 }
 
 /**
@@ -148,6 +162,7 @@ class PropInstances(initialCapacity: Int = 32) {
   private var ground = DoubleArray(initialCapacity)
   private var identity = LongArray(initialCapacity)
   private var kind = ByteArray(initialCapacity)
+  private var subKind = ByteArray(initialCapacity)
   private var heightM = FloatArray(initialCapacity)
   private var radiusM = FloatArray(initialCapacity)
   private var flags = ByteArray(initialCapacity)
@@ -179,6 +194,19 @@ class PropInstances(initialCapacity: Int = 32) {
 
   fun kindAt(i: Int): PropKind = PropKind.entries[kind[i].toInt()]
 
+  /**
+   * Which sub-type of its kind this prop is, or zero for a kind that has only one form.
+   *
+   * Today that means the `PoiKind` ordinal on a [PropKind.POI], and nothing else uses it - see
+   * [PropKind.POI] for why the catalogue rides here rather than taking a kind each.
+   *
+   * Deliberately **not** called `variant`: the runtime already uses that word for "which of a kind's N
+   * meshes", rolled off the prop's identity in `GeneratedPropSource.variantOf`, and one word for two
+   * different numbers in adjacent code is how the two get conflated. This one says *what the thing is*; that
+   * one says which of several models of the same thing to draw.
+   */
+  fun subKindAt(i: Int) = subKind[i].toInt()
+
   /** Trunk height for a tree, overall height for a crystal or spire, in metres. */
   fun heightAt(i: Int) = heightM[i].toDouble()
 
@@ -197,11 +225,15 @@ class PropInstances(initialCapacity: Int = 32) {
     ground: Double,
     heightM: Double,
     radiusM: Double = 0.0,
-    flags: Int = 0
+    flags: Int = 0,
+    subKind: Int = 0
   ) {
+    require(subKind in 0..Byte.MAX_VALUE) { "subKind $subKind does not fit a byte" }
+
     ensureCapacity(count + 1)
 
     this.kind[count] = kind.ordinal.toByte()
+    this.subKind[count] = subKind.toByte()
     this.identity[count] = identity
     this.x[count] = x
     this.y[count] = y
@@ -224,6 +256,7 @@ class PropInstances(initialCapacity: Int = 32) {
     ground = ground.copyOf(size)
     identity = identity.copyOf(size)
     kind = kind.copyOf(size)
+    subKind = subKind.copyOf(size)
     heightM = heightM.copyOf(size)
     radiusM = radiusM.copyOf(size)
     flags = flags.copyOf(size)
