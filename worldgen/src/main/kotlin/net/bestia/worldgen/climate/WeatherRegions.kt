@@ -242,7 +242,7 @@ class WeatherRegions private constructor(
 
     /** Biomes a wind can pick material up off. What a sandstorm needs. */
     private val LOOSE_SURFACE = setOf(
-      Biome.DESERT, Biome.BEACH, Biome.BADLANDS, Biome.COLD_DESERT, Biome.STEPPE
+      Biome.DESERT, Biome.BEACH, Biome.BADLANDS, Biome.COLD_DESERT, Biome.DRYLAND
     )
 
     private fun percentile(sorted: MutableList<Double>, share: Double): Double {

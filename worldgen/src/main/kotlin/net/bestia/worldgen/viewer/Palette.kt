@@ -272,13 +272,14 @@ class BiomePalette : Palette {
       Colors.rgb(72, 128, 62),    // TEMPERATE_FOREST
       Colors.rgb(40, 104, 72),    // TEMPERATE_RAINFOREST
       Colors.rgb(140, 176, 92),   // GRASSLAND
-      Colors.rgb(178, 172, 110),  // STEPPE
-      Colors.rgb(158, 148, 92),   // SHRUBLAND
+      Colors.rgb(178, 168, 104),  // DRYLAND
       Colors.rgb(224, 202, 138),  // DESERT
-      Colors.rgb(196, 186, 96),   // SAVANNA
       Colors.rgb(92, 146, 60),    // TROPICAL_SEASONAL_FOREST
       Colors.rgb(26, 110, 48),    // TROPICAL_RAINFOREST
-      Colors.rgb(74, 116, 108),   // WETLAND
+      // The two wetlands, and they have to be told apart at a glance because whether the split lands sensibly
+      // on latitude is the thing this map is read to check. Bog is cold brown peat, swamp is dark green water.
+      Colors.rgb(120, 104, 78),   // BOG
+      Colors.rgb(52, 96, 84),     // SWAMP
       Colors.rgb(96, 168, 112),   // RIPARIAN
       Colors.rgb(232, 220, 176),  // BEACH
       Colors.rgb(166, 118, 82),   // BADLANDS

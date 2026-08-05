@@ -35,6 +35,12 @@ namespace BestiaBehemothClient.Game.World
     // payload, and it has to be a bump because the two formats are mutually undetectable - every byte of one
     // is a legal varint continuation in the other, so a mismatched client decodes plausible geometry instead
     // of failing. ChunkPatchSMSG.Encoding catches it per patch; this catches it before any patch is sent.
-    public const uint Version = 5;
+    //
+    // 5 was the palette's first removal - LOG, LEAVES, the two mana crystals and their blighted twins went when
+    // trees and crystals became entities.
+    //
+    // 6 adds DRY_GRASS at id 42, so DRYLAND and GRASSLAND are not the same green. Mirror of 5: an unused id
+    // becoming used. A client without the row would draw a chunk it cannot name.
+    public const uint Version = 6;
   }
 }

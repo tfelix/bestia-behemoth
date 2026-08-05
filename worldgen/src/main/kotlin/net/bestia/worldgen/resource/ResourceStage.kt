@@ -997,10 +997,14 @@ private class Terrain(
           Biome.TAIGA -> 1.0
           Biome.TUNDRA, Biome.TEMPERATE_FOREST -> 0.6
           Biome.ALPINE -> 0.4
+          // Beaver, otter, muskrat: a cold wetland is a trapline, and the water is the reason. Deliberately
+          // only the bog - the pelts a trapper walks for are a cold-climate product, and a warm swamp yields
+          // hide rather than fur.
+          Biome.BOG -> 0.5
 
           Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.COLD_DESERT,
-          Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND, Biome.DESERT,
-          Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND,
+          Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.DRYLAND, Biome.DESERT,
+          Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.SWAMP,
           Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS,
           // Nothing worth trapping lives on bare lava, and the fur-bearing thing a geothermal basin might hold
           // is not what a trapper walks a hundred kilometres for.

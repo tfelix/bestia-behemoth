@@ -450,7 +450,7 @@ object Invariants {
             forestCells++
           }
 
-          Biome.GRASSLAND, Biome.STEPPE -> {
+          Biome.GRASSLAND, Biome.DRYLAND -> {
             openSum += value
             openCells++
           }

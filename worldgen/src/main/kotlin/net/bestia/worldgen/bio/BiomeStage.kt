@@ -39,8 +39,21 @@ data class BiomeParams(
   /** Distance from the sea within which a low, flat cell becomes beach, in metres. */
   val beachRange: Double = 1_400.0,
 
-  /** Slope below which flat, wet ground becomes wetland rather than forest or grass. */
-  val wetlandSlope: Double = 0.004,
+  /**
+   * Slope below which flat, wet ground becomes a bog or a swamp rather than forest or grass.
+   *
+   * **Resolution dependent, and it was wrong in exactly the way [badlandsSlope] documents.** At 0.004 this
+   * asked a kilometre cell to drop less than four metres across its whole width, which is the flatness of a
+   * lake bed rather than of a floodplain - and ANDed with [WETLAND_WETNESS] the intersection all but vanished:
+   * the reference world came out **0.02% wetland**, 220 cells out of 935,000, which is indistinguishable from
+   * the biome not existing. The note one field below already says that voxel-scale slope intuition is wrong by
+   * a wide margin at a kilometre per cell; this is the same mistake, found later.
+   *
+   * 0.02 is twenty metres of drop per kilometre, which is still unambiguously flat ground - a basin floor or a
+   * valley bottom - and leaves the wetness gate as the binding constraint, which is the right way round: what
+   * makes a wetland is the water, and the slope is only there to keep it off hillsides.
+   */
+  val wetlandSlope: Double = 0.02,
 
   /**
    * Slope above which soft rock becomes badlands.
@@ -346,7 +359,7 @@ class BiomeStage(
    * ### Why the raw score cannot be a blend weight
    *
    * `1 - sqrt(best/second)` is a fine *ranking* of how transitional a cell is and a bad *fraction*, because
-   * fourteen prototypes in seven dimensions put the nearest and second-nearest distances close together
+   * a dozen prototypes in seven dimensions put the nearest and second-nearest distances close together
    * almost everywhere. Measured on the reference world with `probe --ecotone`, over the 41.7% of cells that
    * have a runner-up at all: **median 0.069, p75 0.133, p95 0.361.** A number whose 95th percentile is 0.36 is
    * not a share of anything.
@@ -463,7 +476,11 @@ class BiomeStage(
     distanceToOcean <= params.beachRange && elevationAboveSea < BEACH_ELEVATION &&
         slope < BEACH_SLOPE && !climatic.isWater -> Biome.BEACH
 
-    slope < params.wetlandSlope && wetness > WETLAND_WETNESS -> Biome.WETLAND
+    // Flat, wet ground, split on temperature into the two wetlands that are actually different places. The
+    // temperature is already a parameter of this function for the ice rung, so the split costs one comparison
+    // and no new input - which is most of why it belongs on this rung rather than in a prototype. See [Biome.BOG].
+    slope < params.wetlandSlope && wetness > WETLAND_WETNESS ->
+      if (temperature < BOG_TEMPERATURE) Biome.BOG else Biome.SWAMP
 
     distanceToChannel <= params.riparianRange && climatic in DRY_BIOMES -> Biome.RIPARIAN
 
@@ -576,7 +593,7 @@ class BiomeStage(
 
     /** Biomes dry enough that a riparian strip through them is worth drawing. */
     private val DRY_BIOMES = setOf(
-      Biome.DESERT, Biome.COLD_DESERT, Biome.STEPPE, Biome.SHRUBLAND, Biome.SAVANNA, Biome.GRASSLAND
+      Biome.DESERT, Biome.COLD_DESERT, Biome.DRYLAND, Biome.GRASSLAND
     )
 
     /**
@@ -595,5 +612,16 @@ class BiomeStage(
     private const val BEACH_SLOPE = 0.05
 
     private const val WETLAND_WETNESS = 0.62
+
+    /**
+     * Mean annual temperature below which a wetland is a bog rather than a swamp, in degrees.
+     *
+     * Where peat wins: below about this, decay runs slower than production the year round, so dead matter
+     * accumulates instead of rotting - which is the whole of what separates the two biomes and why one
+     * preserves what falls into it. Above it the ground is a warm swamp, and the intermediate reed fen that
+     * a third biome would name is deliberately shared between them; see [Biome.BOG] for why there is no
+     * `MARSH`.
+     */
+    internal const val BOG_TEMPERATURE = 12.0
   }
 }

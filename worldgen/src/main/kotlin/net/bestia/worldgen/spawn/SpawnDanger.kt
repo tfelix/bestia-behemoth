@@ -53,17 +53,22 @@ object SpawnHostility {
     Biome.BADLANDS -> 0.85
 
     // Wet and poisonous. The other half of REMINDER.md's ask: swamps carry the ingredients, and they carry
-    // the things that make collecting them a decision.
-    Biome.WETLAND -> 0.75
+    // the things that make collecting them a decision. Above the bog beside it, and that gap is the split's
+    // whole gameplay content - a bog is cold, sucking ground that will drown you, and a swamp is cold, sucking
+    // ground that is also full of things that want to. See `Biome.SWAMP`.
+    Biome.SWAMP -> 0.8
+    Biome.BOG -> 0.7
 
     Biome.TAIGA -> 0.45
     Biome.TROPICAL_RAINFOREST -> 0.5
     Biome.TROPICAL_SEASONAL_FOREST -> 0.4
     Biome.TEMPERATE_RAINFOREST -> 0.35
     Biome.TEMPERATE_FOREST -> 0.3
-    Biome.SHRUBLAND -> 0.35
-    Biome.STEPPE -> 0.4
-    Biome.SAVANNA -> 0.45
+
+    // The three merged: steppe was 0.4, shrubland 0.35 and savanna 0.45, which is the spread that made the
+    // case for one biome rather than three. The step up from grassland's 0.15 is the point - dryland is the
+    // ground a player crosses on the way to the desert, and it is where difficulty should first be felt.
+    Biome.DRYLAND -> 0.4
 
     // The two volcanic biomes, and the reason they are worth having as a *pair*: the field is the hardest
     // ground in the world and the basin beside it is not. A player walks into a geothermal basin, works, and

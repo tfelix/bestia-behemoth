@@ -320,7 +320,9 @@ object SurfaceCover {
    */
   fun soil(biome: Biome, temperature: Double, blighted: Boolean): BlockType = blight(
     when (biome) {
-    Biome.WETLAND -> BlockType.PEAT
+    // Both wetlands sit on peat: it is organic ground that never finished rotting either way, and the
+    // difference between them is what is on *top* of it - see [cap], where they part.
+    Biome.BOG, Biome.SWAMP -> BlockType.PEAT
     Biome.BEACH, Biome.DESERT -> BlockType.SAND
     Biome.BADLANDS, Biome.RIPARIAN -> BlockType.CLAY
 
@@ -339,8 +341,8 @@ object SurfaceCover {
     // is cheaper than modelling it later. It applies only where the biome has not already named a soil.
     Biome.OCEAN, Biome.LAKE,
     Biome.ICE_SHEET, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
-    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
-    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST ->
+    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.DRYLAND,
+    Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST ->
         if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
     },
     blighted
@@ -378,9 +380,9 @@ object SurfaceCover {
     Biome.GEOTHERMAL_BASIN -> BlockType.LIMESTONE
 
     Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
-    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
-    Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-    Biome.WETLAND, Biome.RIPARIAN -> null
+    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.DRYLAND,
+    Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+    Biome.BOG, Biome.SWAMP, Biome.RIPARIAN -> null
   }
 
   /**
@@ -418,9 +420,9 @@ object SurfaceCover {
       Biome.GEOTHERMAL_BASIN -> BlockType.LIMESTONE
 
       Biome.OCEAN, Biome.LAKE, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
-      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
-      Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-      Biome.WETLAND, Biome.RIPARIAN -> null
+      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.DRYLAND,
+      Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
+      Biome.BOG, Biome.SWAMP, Biome.RIPARIAN -> null
     }
     if (bare != null) return blight(bare, blighted)
 
@@ -428,13 +430,21 @@ object SurfaceCover {
 
     return blight(
       when (biome) {
-      Biome.WETLAND -> BlockType.PEAT
+      // Bare peat and moss hummocks: an open bog surface is the peat itself.
+      Biome.BOG -> BlockType.PEAT
+      // And a swamp's is the silt washed over it. The pair is where the two wetlands become visibly different
+      // ground - brown fibrous peat under open sky against dark mud under a closed canopy - and it needs no
+      // new material to say so.
+      Biome.SWAMP -> BlockType.CLAY
       Biome.TUNDRA, Biome.COLD_DESERT -> BlockType.DIRT
       Biome.ALPINE -> BlockType.GRAVEL
+      // The other half of keeping grassland out of the dry-grass merge. Both are open country under grass and
+      // both used to cap in GRASS, so a third of the world's land came out one green; see [BlockType.DRY_GRASS].
+      Biome.DRYLAND -> BlockType.DRY_GRASS
 
       Biome.OCEAN, Biome.LAKE, Biome.TAIGA,
-      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND,
-      Biome.SAVANNA, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
+      Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND,
+      Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.RIPARIAN,
       // Unreachable: the pass above returned for each of these. Listed so that the two `when`s stay
       // exhaustive over the same enum and a new biome is a compile error in both.
         Biome.ICE_SHEET, Biome.BADLANDS, Biome.BEACH, Biome.DESERT,
@@ -459,7 +469,9 @@ object SurfaceCover {
    */
   private fun blight(block: BlockType, blighted: Boolean): BlockType =
     if (!blighted) block else when (block) {
-      BlockType.GRASS -> BlockType.BLIGHTED_GRASS
+      // Dry grass shares grassland's blighted twin rather than getting one of its own: corrupted ground is
+      // corrupted ground, and a fifth palette row to distinguish two shades of dead scrub buys nothing.
+      BlockType.GRASS, BlockType.DRY_GRASS -> BlockType.BLIGHTED_GRASS
       BlockType.DIRT -> BlockType.BLIGHTED_DIRT
       BlockType.SAND -> BlockType.BLIGHTED_SAND
       BlockType.PEAT -> BlockType.BLIGHTED_PEAT

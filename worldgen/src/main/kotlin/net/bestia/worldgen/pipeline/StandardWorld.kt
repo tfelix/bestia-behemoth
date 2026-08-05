@@ -316,7 +316,8 @@ object StandardWorld {
       // partial pipelines the viewer opens, and "no corruption stage ran" is a legitimate world.
       corruption = world.layers[LayerId.CORRUPTION] as? FloatLayer,
       aetheriteCorruption = p.corruption.aetheriteCorruption,
-      crystalParams = p.crystal
+      crystalParams = p.crystal,
+      aetheriteParams = p.aetherite
     )
 
     return GeneratedWorld(world, base, columns, materializer, p)

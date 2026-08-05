@@ -313,6 +313,16 @@ enum class EventKind(
   /** A prophet or a scholar went out to the wound and did not come back. */
   SEER_VANISHED(45),
 
+  /**
+   * A figure crossed the deep waste and died in it, and was buried where they fell.
+   *
+   * [SEER_VANISHED]'s sibling, and the difference between them is the whole reason both exist: a seer walks out
+   * to a wound *deliberately* and leaves no grave, while this is somebody who was going somewhere else and did
+   * not arrive - so there is a barrow, and it is out in the sand rather than beside their home town. Same
+   * importance, because to a chronicle both read as "a named person was lost".
+   */
+  TRAVELLER_LOST(45),
+
   // --- The Orders -------------------------------------------------------------------------------------
   //
   // These four exist only on a world whose `OrderInfluence` is present, which is to say one whose predecessor

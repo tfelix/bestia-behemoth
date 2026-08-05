@@ -112,10 +112,11 @@ class BiomeBlendTest {
     // Two earlier attempts were wrong about the geometry rather than about the code, and both are worth
     // recording. Asserting it at the *midpoint* between two prototype centres fails because weights are
     // per-prototype - ALPINE weights elevation at 4.5 - so the unweighted midpoint is nobody's midpoint under
-    // the actual metric: measured, at only 30% of the 91 midpoints is the winner even one of the two. Walking
+    // the actual metric: measured, at only 30% of the midpoints is the winner even one of the two. Walking
     // the segment in fixed steps then fails too, because a heavily weighted prototype can overtake *two*
-    // others inside one step: stepping DESERT->ALPINE, the winner went STEPPE -> ALPINE while the runner-up
-    // before the crossing was GRASSLAND, and all three claims were true.
+    // others inside one step: stepping DESERT->ALPINE, the winner went through a third biome entirely while
+    // the runner-up before the crossing was GRASSLAND, and all three claims were true. (Both figures were
+    // measured on the earlier fourteen-prototype table, before the three dry-grass biomes became DRYLAND.)
     //
     // Bisecting to where the top two are within rounding of each other removes the step size from the
     // argument. There the two scores are equal, so the biome on each side must be the other's runner-up.

@@ -1,5 +1,6 @@
 package net.bestia.worldgen.history
 
+import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
@@ -81,7 +82,25 @@ class SpecialSiteCandidates(
    * Empty on a world whose `OrderInfluence` is absent: the scans are three full sweeps of the elevation grid,
    * and running them for a simulation that will never read them is the one avoidable cost this subsystem has.
    */
-  val shrines: Map<Order, List<SiteCandidate>> = emptyMap()
+  val shrines: Map<Order, List<SiteCandidate>> = emptyMap(),
+
+  /**
+   * The harsh country a traveller could die in: desert, badlands, cold desert and ice.
+   *
+   * Not a place anybody builds, like [caves] and [wounds], and the *reason* a list of them is here is worth
+   * stating because it is the one candidate list that exists to hold a **grave** rather than a structure.
+   *
+   * `buryFigure` puts every tomb 320 m from the dead figure's home town, and settlements are placed by
+   * habitability - which is exactly why no world had a tomb in a desert: the only sites in the deep waste were
+   * the wounds, and a wound is not the kind of place a caravan is lost. Meanwhile `Person.slainAt` has always
+   * recorded *where somebody actually died* and `buryFigure` has always thrown it away for the tomb's position.
+   * This list is what makes that field mean something: somewhere a person had a reason to cross, far enough out
+   * that not coming back is plausible.
+   *
+   * [SiteCandidate.quality] is the biome's own `SpawnHostility`-style harshness times how far out it is, so the
+   * deepest desert ranks above the fringe of it - a barrow at the edge of the sand is a barrow beside a road.
+   */
+  val wastes: List<SiteCandidate> = emptyList()
 ) {
 
   companion object {
@@ -121,8 +140,52 @@ class SpecialSiteCandidates(
           emptyMap()
         } else {
           shrines(ctx, region, facts, params, elevation, waterLevel, seaLevel)
-        }
+        },
+        wastes = wastes(ctx, region, facts, params, elevation, waterLevel, seaLevel)
       )
+    }
+
+    /**
+     * The deep waste: harsh ground far enough from any town that a traveller who died there stays lost.
+     *
+     * Two filters and a ranking, and the near limit is the load-bearing one. Without it the best candidates are
+     * the *fringe* of every desert - which is where the roads are, because a road skirts the sand - and a barrow
+     * there is a barrow beside a road rather than a thing somebody has to go looking for. So this reuses
+     * [HistoryParams.monasteryClearance] for the near edge: that constant already means "far enough out that
+     * nobody is watching", which is the same distance for a hermit and for a grave nobody found.
+     *
+     * The far edge is [HistoryParams.seerRange], for the reason that parameter exists: this is one person
+     * choosing to cross something rather than a civilisation deciding to work there, so the reach is generous.
+     */
+    private fun wastes(
+      ctx: GenContext,
+      region: CellRegion,
+      facts: List<SiteFacts>,
+      params: HistoryParams,
+      elevation: FloatLayer,
+      waterLevel: FloatLayer,
+      seaLevel: Double
+    ): List<SiteCandidate> {
+      val biome = ctx.layers.int(LayerId.BIOME)
+
+      return scan(region, params) { position ->
+        if (!isDryGround(elevation, position, seaLevel, params.siteFreeboard)) return@scan null
+        if (!isClearOfStandingWater(waterLevel, region, position)) return@scan null
+
+        val here = Biome.entries.getOrNull(biome.sampleNearest(position.x, position.y)) ?: return@scan null
+        val harshness = WASTE_HARSHNESS[here] ?: return@scan null
+
+        // Out past the last farm, and not so far that nobody had a reason to be going that way.
+        val nearest = facts.minOfOrNull { it.position.distanceTo(position) } ?: return@scan null
+        if (nearest < params.monasteryClearance || nearest > params.seerRange) return@scan null
+
+        val remoteness = ((nearest - params.monasteryClearance) /
+            (params.seerRange - params.monasteryClearance)).coerceIn(0.0, 1.0)
+
+        // Floored on each factor rather than a bare product, for `monasteries`' reason: a product of sub-unit
+        // preferences is small almost everywhere and flattens the ranking.
+        SiteCandidate(position, harshness * (0.4 + 0.6 * remoteness))
+      }
     }
 
     /**
@@ -555,6 +618,26 @@ class SpecialSiteCandidates(
       seaLevel: Double,
       freeboard: Double
     ): Boolean = elevation.sampleBilinear(at.x, at.y) - seaLevel >= freeboard
+
+    /**
+     * How lethal each biome is to somebody crossing it, for [wastes], or absent where a traveller simply walks on.
+     *
+     * A map rather than a `when` returning zero, because absence is the useful state here: the lookup *is* the
+     * filter, so a biome that is not in this map is not waste and cannot hold a lost grave. Adding a biome
+     * therefore does not silently make it deadly - the opposite of the exhaustiveness argument `SpawnHostility`
+     * makes, because there the answer is a number every biome must have and here it is a membership.
+     *
+     * Deliberately **not** `SpawnHostility.of`, which is how hard the *monsters* are. This is how hard the
+     * ground is to survive crossing, and the two genuinely differ: a volcanic field is the most dangerous place
+     * in the world by monster level and is a few kilometres across, so nobody is lost *in transit* through one.
+     * A desert is the opposite - mild by comparison and wide enough that people vanish in it.
+     */
+    private val WASTE_HARSHNESS: Map<Biome, Double> = mapOf(
+      Biome.DESERT to 1.0,
+      Biome.ICE_SHEET to 0.9,
+      Biome.COLD_DESERT to 0.8,
+      Biome.BADLANDS to 0.7
+    )
 
     /**
      * Whether a cell and all eight of its neighbours are free of standing water.

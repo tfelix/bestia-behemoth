@@ -28,19 +28,33 @@ import kotlin.test.assertTrue
  * every founding on every tick. Candidate lists were full and technology reached 0.88 while the world got none
  * of all four kinds.
  *
- * ### Why seed 5 and not the default one
+ * ### Why a named seed, and why this one
  *
- * This ran against `StandardWorld.DEFAULT_SEED` until the version reset moved every world. It is pinned to a
- * named seed now because a fort needs a threatened frontier and **two seeds in seven have none at all** -
- * measured at 256 cells: 0, 5, 7, 0, 10, 9, 9 forts over seeds 11753242 and 2 through 7. The default seed
- * happens to be one of the two, so it can no longer carry a test whose whole point is that all four kinds
- * exist. That is a fact about forts rather than a defect: a world of quiet neighbours does not build them.
+ * This ran against `StandardWorld.DEFAULT_SEED` until the version reset moved every world, and it is pinned to
+ * a named seed because two of the four kinds are legitimately seed-dependent: a fort needs a threatened
+ * frontier and a lighthouse needs a port with approaches worth guarding, so a world of quiet neighbours or of
+ * plain coasts builds none. **That is a fact about the sites rather than a defect**, which is why the answer is
+ * to pin a seed rather than to weaken the assertion.
+ *
+ * Re-measured at 256 cells after the biome merge and the desert re-siting moved settlement placement, over
+ * seeds 11753242 and 2 through 9, as `mine / monastery / fort / lighthouse`:
+ *
+ * ```
+ *   11753242  7/7/7/3     2  6/7/5/5     3  7/8/7/2     4  8/4/6/6
+ *          5  3/3/0/3     6  7/8/9/1     7  5/4/8/0     8  6/8/7/2     9  7/7/5/5
+ * ```
+ *
+ * Forts came out *more* common than before the retuning - eight seeds in nine against five in seven - and the
+ * scarce kind is now the lighthouse. Seed 5 was the previous pin and is the one seed that now builds no fort,
+ * so the pin moves to **9**, which has the best margin on the weakest kind: five of every kind, nothing near
+ * zero. Pinning on the minimum across kinds rather than on the total is the point - a total is exactly what
+ * would let one dead kind hide behind three healthy ones.
  */
 class SpecialSitesTest {
 
   private companion object {
     val world: GeneratedWorld = StandardWorld.build(
-      StandardWorld.demoConfig(seed = 5L).copy(widthCells = 256, heightCells = 256)
+      StandardWorld.demoConfig(seed = 9L).copy(widthCells = 256, heightCells = 256)
     )
 
     val chronicle get() = world.world.chronicle
@@ -62,7 +76,7 @@ class SpecialSitesTest {
     // what a total would hide - and each has its own gate to get wrong.
     for (kind in built) {
       val count = chronicle.sites.count { it.kind == kind }
-      assertTrue(count > 0, "no $kind was founded on seed 5")
+      assertTrue(count > 0, "no $kind was founded on seed 9")
     }
   }
 

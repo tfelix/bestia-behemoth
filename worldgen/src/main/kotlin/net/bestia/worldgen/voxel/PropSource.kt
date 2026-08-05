@@ -22,7 +22,23 @@ enum class PropKind {
    * lattice** with a different spacing - so the two share a cell index space, and one identity would
    * name two different objects.
    */
-  WOUND_SPIRE
+  WOUND_SPIRE,
+
+  /**
+   * Aetherite pushed up over a corrupted orebody: the surface sign that there is aetherite below.
+   *
+   * The one prop that is a **prospecting hint rather than a thing in its own right**. Placer gold is the
+   * precedent - `ResourceStage.tracePlacers` puts gold in the gravels downstream of a lode so that a player
+   * who finds it can walk upstream to the lode - and this is the vertical version of the same idea: shards on
+   * the ground mean the rock under them yields aetherite, and `OreVeins` will agree, because both read the
+   * same corruption threshold on the same deposit.
+   *
+   * Not a flag on [MANA_CRYSTAL], and the distinction is not merely the lattice this time. A mana crystal is
+   * grown *by* the ambient mana field and says only that the mana here is high; this is a mineral that says
+   * something specific and diggable about one body of rock. Sharing a kind would make the two
+   * indistinguishable to a runtime deciding what harvesting one yields.
+   */
+  AETHERITE_SHARD
 }
 
 /**

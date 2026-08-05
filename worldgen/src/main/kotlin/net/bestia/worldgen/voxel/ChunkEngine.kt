@@ -61,6 +61,11 @@ object ChunkEngine {
    * discipline has had to mean "a freed id stays free". `RleCodec.VERSION` deliberately does not move: the
    * format is unchanged and only the palette is, which is exactly the distinction `PipelineVersion`'s three
    * separate numbers exist to make.
+   *
+   * 6 adds `DRY_GRASS` at id 42, so that `DRYLAND` and `GRASSLAND` are not the same green. A one-row addition,
+   * and the mirror image of 5: an unused id becoming used rather than a used one becoming free. A client one
+   * release behind sees id 42 in a chunk payload and has no row for it, which is precisely the silent failure
+   * `ChunkStoreTest` guards - hence the bump rather than a note.
    */
-  const val VERSION = 5
+  const val VERSION = 6
 }

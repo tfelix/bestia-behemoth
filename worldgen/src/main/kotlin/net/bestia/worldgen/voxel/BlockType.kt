@@ -155,6 +155,22 @@ enum class BlockType(
   GRASS(40, solid = true),
   SNOW(41, solid = true),
 
+  /**
+   * Bleached bunchgrass over bare earth: what [net.bestia.worldgen.bio.Biome.DRYLAND] is capped in.
+   *
+   * The one material added for a *visual* reason rather than a physical one, and worth justifying against
+   * `REMINDER.md`'s instruction to reduce the palette. Dryland and grassland are 21% and 13% of the land
+   * between them and both used to cap in `GRASS`, so a third of every world came out one colour - and the
+   * difference between them is the whole reason grassland was kept out of the dry-grass merge. A block is the
+   * cheapest way to say it: `SurfaceCover.cap` is a table with no noise source in it, so the alternative was
+   * threading a dither field through the materialiser to mottle `DIRT` with `GRASS`, which is more machinery
+   * for a worse-looking answer.
+   *
+   * Blights to `BLIGHTED_GRASS` rather than getting a twin of its own - see the note below on why the
+   * corrupted set is four rows and not the whole palette.
+   */
+  DRY_GRASS(42, solid = true),
+
   /*
    * Ids 45 to 48 are free, and must never be reused for a different material.
    *

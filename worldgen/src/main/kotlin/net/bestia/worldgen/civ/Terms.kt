@@ -98,7 +98,10 @@ internal class Terms(
         val slope = elevation.gradient(x, y, metres)
         val i = y * region.width + x
         val flatness = 1.0 - (slope / params.arableSlope).coerceIn(0.0, 1.0)
-        val boggy = if (Biome.entries[biome[region.minX + x, region.minY + y]] == Biome.WETLAND) 0.35 else 1.0
+        val boggy = when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
+          Biome.BOG, Biome.SWAMP -> 0.35
+          else -> 1.0
+        }
         flatness * boggy
       } }
 
@@ -125,16 +128,18 @@ internal class Terms(
       val grazing = Timings.measure("terms.grazing") {
         Grid.parallel(region.width, region.height) { x, y ->
           val pasture = when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
-            Biome.GRASSLAND, Biome.STEPPE -> 1.0
-            Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
+            Biome.GRASSLAND -> 1.0
+            // Between the prairie and the fell, which is where all three of the biomes this merges sat: steppe
+            // grazed at 1.0 and the other two at 0.7, and steppe was 0.6% of the land.
+            Biome.DRYLAND -> 0.75
             Biome.TUNDRA, Biome.ALPINE -> 0.4
 
             // Nothing grazes here worth counting. Exhaustive rather than defaulted so that a biome added
             // later has to be given a number instead of quietly inheriting "almost none".
             Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TAIGA, Biome.COLD_DESERT,
             Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.DESERT,
-            Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.WETLAND, Biome.RIPARIAN,
-            Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.1
+            Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST, Biome.BOG, Biome.SWAMP,
+            Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.1
 
             // Warm ground and long grass: the one thing a geothermal basin is unambiguously good for, and the
             // reason people keep sheep in Iceland. Above tundra, below a prairie.
@@ -399,7 +404,11 @@ internal class Terms(
         cost *= when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
           Biome.TEMPERATE_RAINFOREST, Biome.TROPICAL_RAINFOREST -> 2.4
           Biome.TAIGA, Biome.TEMPERATE_FOREST, Biome.TROPICAL_SEASONAL_FOREST -> 1.7
-          Biome.WETLAND -> 3.2
+          // A swamp costs the old wetland's 3.2 and a bog a little more: peat gives under a boot where silt
+          // between tree roots at least has the roots. Both stay the worst ground on the map bar lava and
+          // badlands, which is what keeps a road out of them.
+          Biome.SWAMP -> 3.2
+          Biome.BOG -> 3.4
           Biome.BADLANDS -> 4.0
           Biome.DESERT -> 1.4
 
@@ -413,7 +422,7 @@ internal class Terms(
 
           // Open ground: walk across it at the cost the slope alone implies.
           Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.TUNDRA, Biome.COLD_DESERT,
-          Biome.ALPINE, Biome.GRASSLAND, Biome.STEPPE, Biome.SHRUBLAND, Biome.SAVANNA, Biome.RIPARIAN,
+          Biome.ALPINE, Biome.GRASSLAND, Biome.DRYLAND, Biome.RIPARIAN,
           Biome.BEACH -> 1.0
         }
 

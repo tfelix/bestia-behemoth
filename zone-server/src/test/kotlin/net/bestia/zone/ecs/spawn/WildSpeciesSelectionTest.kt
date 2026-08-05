@@ -48,10 +48,10 @@ class WildSpeciesSelectionTest {
   @Test
   fun `an empty habitat means any biome, and a listed one means only those`() {
     val anywhere = species(1, level = 5)
-    val grassOnly = species(2, level = 5, habitat = "GRASSLAND,STEPPE")
+    val grassOnly = species(2, level = 5, habitat = "GRASSLAND,DRYLAND")
 
     assertTrue(WildSpawnerService.fits(anywhere, 1, 9, Biome.DESERT, corrupted = false, boss = false))
-    assertTrue(WildSpawnerService.fits(grassOnly, 1, 9, Biome.STEPPE, corrupted = false, boss = false))
+    assertTrue(WildSpawnerService.fits(grassOnly, 1, 9, Biome.DRYLAND, corrupted = false, boss = false))
     assertTrue(!WildSpawnerService.fits(grassOnly, 1, 9, Biome.DESERT, corrupted = false, boss = false))
   }
 
@@ -83,7 +83,7 @@ class WildSpeciesSelectionTest {
     // The mid-level gap the shipped catalogue actually has: two species cannot cover a 1-to-100 ramp, and the
     // honest answer for a level-40 den is nothing at all.
     assertNull(
-      WildSpawnerService.pick(catalogue, 1L, 1L, 36, 44, Biome.STEPPE, corrupted = false, boss = false)
+      WildSpawnerService.pick(catalogue, 1L, 1L, 36, 44, Biome.DRYLAND, corrupted = false, boss = false)
     )
   }
 
@@ -91,8 +91,8 @@ class WildSpeciesSelectionTest {
   fun `the same den holds the same species on every boot`() {
     val catalogue = (1L..6L).map { species(it, level = 20) }
 
-    val first = WildSpawnerService.pick(catalogue, 99L, 4242L, 16, 24, Biome.STEPPE, false, false)
-    val again = WildSpawnerService.pick(catalogue, 99L, 4242L, 16, 24, Biome.STEPPE, false, false)
+    val first = WildSpawnerService.pick(catalogue, 99L, 4242L, 16, 24, Biome.DRYLAND, false, false)
+    val again = WildSpawnerService.pick(catalogue, 99L, 4242L, 16, 24, Biome.DRYLAND, false, false)
 
     assertNotNull(first)
     assertEquals(first!!.id, again!!.id)
@@ -105,7 +105,7 @@ class WildSpeciesSelectionTest {
     val catalogue = (1L..6L).map { species(it, level = 20) }
 
     val drawn = (1L..40L)
-      .mapNotNull { WildSpawnerService.pick(catalogue, 99L, it, 16, 24, Biome.STEPPE, false, false)?.id }
+      .mapNotNull { WildSpawnerService.pick(catalogue, 99L, it, 16, 24, Biome.DRYLAND, false, false)?.id }
       .toSet()
 
     assertTrue(drawn.size > 1, "every den drew the same species; the draw ignores the den")
@@ -118,7 +118,7 @@ class WildSpeciesSelectionTest {
 
     val picks = (1L..400L)
       .mapNotNull {
-        WildSpawnerService.pick(listOf(common, rare), 7L, it, 16, 24, Biome.STEPPE, false, false)?.id
+        WildSpawnerService.pick(listOf(common, rare), 7L, it, 16, 24, Biome.DRYLAND, false, false)?.id
       }
 
     val rareShare = picks.count { it == 2L }.toDouble() / picks.size

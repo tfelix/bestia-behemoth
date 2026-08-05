@@ -714,6 +714,10 @@ internal class HistorySim(
       updateFigures(year)
       updateArtifacts(year)
       vanishSeers(year)
+      // After the seers, so a prophet who has already walked out to a wound this tick is not also lost in a
+      // desert. Both passes skip a figure whose `death` is set, so the order is what makes that exclusion
+      // deterministic rather than a race between two rolls on the same person.
+      loseTravellers(year)
       raiseMonuments(year)
       buildSites(year)
       // Beside the other built sites and after them, so `siteSeparation` sees a mine or a fort that went up
@@ -1631,6 +1635,86 @@ internal class HistorySim(
           "${relicName(relic)} goes with ${personName(person)} into the blighted land"
         )
       )
+    }
+  }
+
+  /**
+   * A figure crosses the deep waste, dies in it, and is buried where they fell.
+   *
+   * ### What this exists to fix
+   *
+   * `Person.slainAt` has always recorded where somebody actually died, and [buryFigure] has always discarded it
+   * and put the barrow 320 m from their **home town** instead. Since settlements are placed by habitability,
+   * that meant no world ever had a tomb in a desert - the harsh biomes held wounds and nothing else, and the
+   * one thing a player crossing them could find was a monster. This pass is the other half of `slainAt`.
+   *
+   * ### Why an explorer or a general rather than anybody
+   *
+   * The two roles with a reason to be out there - one goes looking and one marches. A [FigureRole.RULER] does
+   * not cross a desert and a
+   * [FigureRole.PROPHET] is already spoken for by [vanishSeers] - which is also why this runs after it. What
+   * makes the event worth having is that the grave is *explained*: the chronicle says who they were, which
+   * civilisation they served and that they were lost in the waste, so a barrow a player digs up has a name on it
+   * and a line in the log that can be found from the other end.
+   *
+   * ### Unlike a seer, this leaves a grave
+   *
+   * [vanishSeers] deliberately leaves none - that is what "vanished" means, and a relic left loose in the
+   * blighted land is the endgame hook. Here the point is the opposite: somebody found the body, or the sand did
+   * the burying, and either way there is something to dig. It goes through [addSite] directly rather than
+   * [buryFigure] for exactly the reason that function cannot serve: its position is the point.
+   */
+  private fun loseTravellers(year: Int) {
+    if (candidates.wastes.isEmpty()) return
+
+    for (person in people) {
+      if (person.death != 0) continue
+      if (person.role != FigureRole.EXPLORER && person.role != FigureRole.GENERAL) continue
+
+      val home = towns[person.home].facts.position
+      // The nearest waste this person could plausibly have been crossing. `candidates.wastes` is already
+      // filtered to ground within `seerRange` of *some* settlement, so this only has to pick which one.
+      val waste = candidates.wastes
+        .filter { it.position.distanceTo(home) <= params.seerRange }
+        .maxByOrNull { it.quality } ?: continue
+
+      // Scaled by how lethal the ground is, so the deep desert takes more travellers than the badlands do.
+      val chance = TRAVELLER_LOSS_CHANCE * waste.quality
+      if (roll(year.toLong(), person.index.toLong(), TRAVELLER_SALT) >= chance) continue
+
+      person.death = year
+      person.slainAt = waste.position
+
+      val lost = log(
+        year, EventKind.TRAVELLER_LOST,
+        listOf(Actor(ActorType.FIGURE, person.index), Actor(ActorType.CIV, person.civ)),
+        waste.position, emptyList(),
+        "${personName(person)} is lost crossing the waste and is buried where they fell"
+      )
+
+      val relic = relics.firstOrNull { it.holder == person.index && it.resting < 0 }
+      // Offset off the exact candidate position for `buryFigure`'s reason: a candidate sits at a scan-lattice
+      // cell centre, and a barrow on a 4 km lattice reads as placed by a grid rather than by a death.
+      val grave = addSite(
+        SiteKind.TOMB, offset(waste.position, person.index.toLong(), TOMB_OFFSET),
+        year, settlement = -1, civ = person.civ,
+        radius = TOMB_RADIUS, artifact = relic?.index ?: -1, figure = person.index
+      )
+      person.resting = grave
+
+      if (relic != null) {
+        relic.holder = -1
+        relic.resting = grave
+        relic.provenance.add(
+          log(
+            year, EventKind.ARTIFACT_ENTOMBED,
+            listOf(Actor(ActorType.ARTIFACT, relic.index), Actor(ActorType.FIGURE, person.index),
+              Actor(ActorType.SITE, grave)),
+            sites[grave].position, listOf(lost),
+            "${relicName(relic)} is buried with ${personName(person)} out in the waste"
+          )
+        )
+      }
     }
   }
 
@@ -3136,6 +3220,17 @@ internal class HistorySim(
      */
     const val SEER_LOSS_CHANCE = 0.18
 
+    /**
+     * Chance per tick that an eligible figure is lost in the deepest waste, before the harshness scaling.
+     *
+     * Under [SEER_LOSS_CHANCE] on purpose, and the reason is the difference between the two events: a seer
+     * *chooses* to walk out to a wound, which is close to a decision, while this is somebody who set out
+     * intending to arrive. It is also multiplied by the candidate's quality, so the badlands take about 0.7 of
+     * this and the deep desert all of it - meaning the figure this produces is a few graves per world rather
+     * than a scattering along every dune field.
+     */
+    const val TRAVELLER_LOSS_CHANCE = 0.10
+
     /** A ruin field spreads beyond the town that made it: earthworks and field walls outlast buildings. */
     const val RUIN_SPREAD = 1.25
 
@@ -3200,6 +3295,7 @@ internal class HistorySim(
     const val STAR_SALT = 0x2AL
     const val BLIGHT_SALT = 0x2BL
     const val SEER_SALT = 0x2CL
+    const val TRAVELLER_SALT = 0x35L
 
     /**
      * Whether one eruption buries one town, per year.

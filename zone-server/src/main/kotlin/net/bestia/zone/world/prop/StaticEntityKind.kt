@@ -19,7 +19,9 @@ enum class StaticEntityKind {
   BLIGHTED_TREE,
   MANA_CRYSTAL_SMALL,
   MANA_CRYSTAL_LARGE,
-  WOUND_SPIRE;
+  WOUND_SPIRE,
+  AETHERITE_SHARD_SMALL,
+  AETHERITE_SHARD_LARGE;
 
   companion object {
 
@@ -35,6 +37,10 @@ enum class StaticEntityKind {
       PropKind.TREE -> if (blighted) BLIGHTED_TREE else TREE
       PropKind.MANA_CRYSTAL -> if (large) MANA_CRYSTAL_LARGE else MANA_CRYSTAL_SMALL
       PropKind.WOUND_SPIRE -> WOUND_SPIRE
+      // Split on size like the crystals and **not** on `blighted`, which is always true for a shard: the
+      // generator sets that flag by construction because corrupted rock is what makes a body yield aetherite
+      // at all, so a clean variant would be a mesh nothing can ever ask for.
+      PropKind.AETHERITE_SHARD -> if (large) AETHERITE_SHARD_LARGE else AETHERITE_SHARD_SMALL
     }
   }
 }

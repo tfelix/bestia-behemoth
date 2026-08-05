@@ -33,7 +33,7 @@ class WildDenCoverageTest {
       experienceReward = 5,
       health = 10,
       mana = 8,
-      habitat = "GRASSLAND,STEPPE,SHRUBLAND,SAVANNA,RIPARIAN,BEACH,TEMPERATE_FOREST",
+      habitat = "GRASSLAND,DRYLAND,RIPARIAN,BEACH,TEMPERATE_FOREST",
       spawnWeight = 100
     ),
     Bestia(

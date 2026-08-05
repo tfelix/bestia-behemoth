@@ -27,6 +27,7 @@ import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.spawn.SpawnerParams
 import net.bestia.worldgen.spawn.VegetationStandParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import net.bestia.worldgen.voxel.AetheriteParams
 import net.bestia.worldgen.voxel.CrystalParams
 import net.bestia.worldgen.voxel.StrataParams
 import net.bestia.worldgen.voxel.VegetationParams
@@ -152,6 +153,16 @@ data class WorldParams(
   val crystal: CrystalParams = CrystalParams(),
 
   /**
+   * The aetherite outcrop scatter. Chunk tier only, for [crystal]'s reason and with one addition of its own.
+   *
+   * It reads `FeatureKind.ORE_DEPOSIT` markers, which the resource *stage* produces - but it reads them at
+   * materialisation rather than contributing to them, so retuning this cannot change a deposit and does not
+   * belong in [version]. What it can change is which chunks hold shards, which is exactly what
+   * [chunkTierVersion] keys the chunk cache on.
+   */
+  val aetherite: AetheriteParams = AetheriteParams(),
+
+  /**
    * The weather model.
    *
    * **Folded into neither [version] nor [chunkTierVersion], and that is the point rather than an oversight.**
@@ -256,7 +267,8 @@ data class WorldParams(
       // which is a world-tier question already folded into `version`. The mix is what `OreVeins` reads to
       // decide which of the three ore blocks a voxel is, so it belongs on this side too.
       r.resource.grades.digest().value,
-      r.crystal.digest().value
+      r.crystal.digest().value,
+      r.aetherite.digest().value
     )
   }
 
@@ -278,7 +290,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "town", "economy", "detail", "strata", "crystal", "spawner", "vegetationStand"
+      "town", "economy", "detail", "strata", "crystal", "aetherite", "spawner", "vegetationStand"
     )
 
     /**

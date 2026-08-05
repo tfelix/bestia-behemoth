@@ -35,3 +35,15 @@ kinds:
     max-hp: 200
     collider: { half-x: 1, half-y: 1, height: 9 }
     variants: 2
+
+  # Aetherite pushed up over a shallow corrupted orebody: the surface sign that there is aetherite below.
+  # Tougher than a mana crystal of the same size because it is ore rather than a growth.
+  - kind: AETHERITE_SHARD_SMALL
+    max-hp: 60
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 3
+
+  - kind: AETHERITE_SHARD_LARGE
+    max-hp: 130
+    collider: { half-x: 1, half-y: 1, height: 3 }
+    variants: 3

@@ -132,7 +132,7 @@ namespace BestiaBehemothClient.Game.World
       }
 
       // Kind ordinals mirror the server's StaticEntityKind: TREE, BLIGHTED_TREE, MANA_CRYSTAL_SMALL,
-      // MANA_CRYSTAL_LARGE, WOUND_SPIRE.
+      // MANA_CRYSTAL_LARGE, WOUND_SPIRE, AETHERITE_SHARD_SMALL, AETHERITE_SHARD_LARGE.
       var (width, colour) = kind switch
       {
         0 => (0.6f, new Color(0.20f, 0.45f, 0.15f)),
@@ -140,6 +140,11 @@ namespace BestiaBehemothClient.Game.World
         2 => (0.3f, new Color(0.35f, 0.55f, 0.85f)),
         3 => (0.5f, new Color(0.45f, 0.35f, 0.85f)),
         4 => (0.4f, new Color(0.75f, 0.20f, 0.70f)),
+        // The shards, in the aetherite ore's violet rather than the mana crystals' blue - a player who has
+        // learned what the ore blocks look like underground should recognise what is lying on the grass above
+        // them, because recognising it is the entire point of the prop. Squat and wide, unlike a crystal.
+        5 => (0.7f, new Color(0.42f, 0.33f, 0.52f)),
+        6 => (0.9f, new Color(0.58f, 0.40f, 0.78f)),
         _ => (0.5f, new Color(1f, 0f, 1f))
       };
 

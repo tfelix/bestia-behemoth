@@ -9,9 +9,7 @@ experience: 5
 # Where the wild spawners are allowed to place it. Empty `habitat` means "anywhere on land".
 habitat:
   - GRASSLAND
-  - STEPPE
-  - SHRUBLAND
-  - SAVANNA
+  - DRYLAND
   - RIPARIAN
   - BEACH
   - TEMPERATE_FOREST

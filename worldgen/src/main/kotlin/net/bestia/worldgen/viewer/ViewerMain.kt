@@ -441,8 +441,8 @@ object ViewerMain {
    *
    * One number, printed first, because "too much desert" is a judgement about the whole map and a list of
    * seven shares is not one - it takes arithmetic to answer from, and a target nobody can read off the output
-   * is a target that gets tuned past in both directions. Steppe, shrubland and savanna are deliberately *out*:
-   * they are the semi-arid margin, and counting them is how a world talks itself into being green.
+   * is a target that gets tuned past in both directions. Dryland is deliberately *out*: it is the semi-arid
+   * margin, and counting it is how a world talks itself into being green.
    */
   private val GREEN = setOf(
     Biome.TEMPERATE_FOREST,
@@ -451,7 +451,8 @@ object ViewerMain {
     Biome.TROPICAL_RAINFOREST,
     Biome.TAIGA,
     Biome.GRASSLAND,
-    Biome.WETLAND,
+    Biome.BOG,
+    Biome.SWAMP,
     Biome.RIPARIAN
   )
 

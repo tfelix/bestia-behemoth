@@ -73,6 +73,18 @@ class LocalTemperatureTest {
     var harshOutside = 0
     var hottest = -Double.MAX_VALUE
 
+    // Per biome as well as pooled, because the pooled figure over [HARSH] cannot answer the question the
+    // assertion is asking. It was calibrated when `DESERT` classified **zero cells on every world** - see the
+    // note on `Biome.DESERT`'s prototype - so "harsh land" measured four cold biomes and the threshold was
+    // really a claim about ice. Once the desert existed, a biome whose mean is +17 C joined the pool and
+    // dragged the average under the bar while nothing about the ice had changed.
+    //
+    // A pooled average also hides the failure it exists to catch: one biome needing no equipment is invisible
+    // as long as its neighbours in the set need plenty. So every member is now measured and asserted on its
+    // own, which is the stronger statement and the one the mechanic actually rests on.
+    val outsideByBiome = HashMap<Biome, Int>()
+    val samplesByBiome = HashMap<Biome, Int>()
+
     for (cellY in 0 until world.config.heightCells step 4) {
       for (cellX in 0 until world.config.widthCells step 4) {
         if (ground[cellX, cellY] <= seaLevel) continue
@@ -82,6 +94,14 @@ class LocalTemperatureTest {
         // not only about the two named groups - and a volcanic field is in neither of them.
         val drawn = samples(cellX, cellY)
         hottest = maxOf(hottest, drawn.max())
+
+        val outside = drawn.count { it < comfortLow || it > comfortHigh }
+
+        // Recorded for **every** biome, before the group filter and whether or not it is in either set. The
+        // per-biome table is the evidence this test exists to produce, and confining it to the two named sets
+        // is how DESERT's figure stayed invisible while it was inside one of them - see [HARSH].
+        outsideByBiome[kind] = (outsideByBiome[kind] ?: 0) + outside
+        samplesByBiome[kind] = (samplesByBiome[kind] ?: 0) + 64
 
         val group = when (kind) {
           in GENTLE -> true
@@ -93,7 +113,6 @@ class LocalTemperatureTest {
           val n = drawn.count { it < band.first || it > band.second }
           if (group) candidateGentle[index] += n else candidateHarsh[index] += n
         }
-        val outside = drawn.count { it < comfortLow || it > comfortHigh }
         if (group) {
           gentleSamples += 64
           gentleOutside += outside
@@ -127,6 +146,15 @@ class LocalTemperatureTest {
 
     println("the world's hottest hour anywhere: %.1f C".format(hottest))
 
+    println("per biome, share of the year outside the comfort band:")
+    for ((kind, samples) in samplesByBiome.entries.sortedBy { it.key.ordinal }) {
+      println(
+        "  %-22s %5.1f%%  over %d samples".format(
+          kind.label, (outsideByBiome[kind] ?: 0) * 100.0 / samples, samples
+        )
+      )
+    }
+
     // The mirror of the cold assertion below, and the thing that stops `comfortHighCelsius` shipping dead.
     //
     // This line used to read `val hottest = CANDIDATE_BANDS.first().second` - it read the literal 34.0 back out
@@ -144,11 +172,24 @@ class LocalTemperatureTest {
       "gentle land is uncomfortable ${"%.1f".format(gentleShare * 100)}% of the year; " +
           "exposure would be a tax on ordinary travel"
     )
-    assertTrue(
-      harshShare > 0.50,
-      "harsh land is uncomfortable only ${"%.1f".format(harshShare * 100)}% of the year; " +
-          "the deserts and the mountains need no equipment and the mechanic is decoration"
-    )
+    // Per biome, and every member of the set has to carry its own weight. The bar is well under the pooled
+    // 0.50 this replaced because it is being asked of each biome separately rather than of an average the ice
+    // could satisfy on its own - a biome that puts a player outside the comfort band a fifth of the year is a
+    // biome they have to pack for, which is all the mechanic needs to be real.
+    for (kind in HARSH) {
+      val samples = samplesByBiome[kind] ?: 0
+      // A world need not contain every biome - `ALPINE` wants ground above 2,600 m and a small world may have
+      // none - and an absent biome is not a failing one. `checkBiomeVocabularyIsReachable` in `Invariants` is
+      // where "this biome exists somewhere" belongs; here it would make the assertion depend on the seed.
+      if (samples < MIN_SAMPLES_TO_JUDGE) continue
+
+      val share = (outsideByBiome[kind] ?: 0).toDouble() / samples
+      assertTrue(
+        share > 0.20,
+        "$kind is uncomfortable only ${"%.1f".format(share * 100)}% of the year over $samples samples; " +
+            "it is in HARSH and needs no equipment, so for that biome the mechanic is decoration"
+      )
+    }
   }
 
   @Test
@@ -235,12 +276,39 @@ class LocalTemperatureTest {
 
     /** The low-level country: what a new master walks through. */
     val GENTLE = setOf(
-      Biome.GRASSLAND, Biome.TEMPERATE_FOREST, Biome.RIPARIAN, Biome.BEACH, Biome.SHRUBLAND
+      Biome.GRASSLAND, Biome.TEMPERATE_FOREST, Biome.RIPARIAN, Biome.BEACH, Biome.DRYLAND
     )
 
-    /** What `REMINDER.md` wants to need equipment. */
+    /**
+     * The biomes whose **temperature** requires equipment.
+     *
+     * `Biome.DESERT` is deliberately not among them, and that absence is a measurement rather than an
+     * omission. It used to be listed, back when the desert prototype classified no cells at all and the
+     * membership therefore cost nothing. Once the desert existed it measured **1.2% of the year outside the
+     * comfort band at a +16.6 C centre, and 0.0% at +24.4 C** - hotter placement made it *more* comfortable,
+     * because a hot desert's mean sits in the middle of a -6..34 C band and never approaches either end.
+     *
+     * The band is not wrong and neither is the prototype. What the pair of figures says is that **this world
+     * has no desert heat to be exposed to**: the hottest hour anywhere on it is 37.2 C, three degrees over the
+     * ceiling, so the heat half of exposure barely engages on any biome and cannot engage on a biome selected
+     * for being dry rather than for being hot. A desert is punishing because of water and because of a 45 C
+     * afternoon, and this module models neither.
+     *
+     * So the desert's difficulty is carried entirely by `SpawnHostility`, which puts it at 0.95 - second only
+     * to ice and lava. That is a real mechanic and it works. Listing the biome here as well would assert a
+     * second one that does not exist, which is what this test is for catching.
+     */
     val HARSH = setOf(
-      Biome.DESERT, Biome.COLD_DESERT, Biome.ALPINE, Biome.ICE_SHEET, Biome.TUNDRA
+      Biome.COLD_DESERT, Biome.ALPINE, Biome.ICE_SHEET, Biome.TUNDRA
     )
+
+    /**
+     * Samples a biome needs before its own share is worth asserting on.
+     *
+     * Sixteen cells' worth. Below that the figure is a handful of columns in one corner of one world and
+     * would make the test a seed lottery, which is the failure the pooled average was hiding in the other
+     * direction.
+     */
+    const val MIN_SAMPLES_TO_JUDGE = 1_024
   }
 }

@@ -32,9 +32,10 @@ enum class Biome(
    * A *probability per lattice cell*, not a cover fraction: crowns overlap, so the share of ground actually
    * shaded is lower and is computed from this - see `VegetationScatter.coverAt`.
    *
-   * Sparse values are the interesting ones. Savanna at 0.14 is what makes it savanna rather than either
+   * Sparse values are the interesting ones. Dryland at 0.11 is what makes it scrub rather than either
    * grassland or forest, and grassland at 0.05 is the lone tree in the middle of a field that gives a
-   * landscape its scale.
+   * landscape its scale. It is also the axis the [BOG] / [SWAMP] split is *visible* on: 0.06 against 0.50 is
+   * open moss against standing forest, out of one rung in `BiomeStage.override`.
    */
   val canopy: Double
 ) {
@@ -65,17 +66,65 @@ enum class Biome(
   TEMPERATE_FOREST("temperate forest", 0.85, 0.80),
   TEMPERATE_RAINFOREST("temperate rainforest", 0.9, 0.85),
   GRASSLAND("grassland", 0.7, 0.05),
-  STEPPE("steppe", 0.35, 0.02),
-  SHRUBLAND("shrubland", 0.3, 0.10),
+
+  /**
+   * Semi-arid open country with scattered woody plants: the one biome between grassland and desert.
+   *
+   * There were three of these - `STEPPE`, `SHRUBLAND` and `SAVANNA` - and they were one place under three
+   * names. Every downstream table gave two of them the same answer and the third a number within noise of it:
+   * identical soil, identical cap, identical bare cover, identical movement cost, identical furs, and pasture
+   * and grazing that differed by 0.3 on a term already multiplied by slope. At the voxel tier all three came
+   * out as `GRASS` over `DIRT` with a slightly different tree count, so a player standing in one could not
+   * tell which. Measured land shares were 0.6%, 21.2% and 1.4% on the reference world, so the two that carried
+   * the extra names were also the two that barely existed.
+   *
+   * The merge is a *rename of the one that won* plus two deletions, which is why the map barely moves: the
+   * prototype sits within 0.03 of where `SHRUBLAND`'s did on every axis, widened on seasonality to take in the
+   * ground savanna held. What used to distinguish them - how many trees stand on it - survives where it always
+   * lived, in [canopy], and now varies continuously with the climate instead of stepping between three values.
+   */
+  DRYLAND("dryland", 0.33, 0.11),
 
   // Warm.
   DESERT("desert", 0.02, 0.0),
-  SAVANNA("savanna", 0.4, 0.14),
   TROPICAL_SEASONAL_FOREST("tropical seasonal forest", 0.75, 0.65),
   TROPICAL_RAINFOREST("tropical rainforest", 0.6, 0.90),
 
   // Edge biomes: driven by adjacency to something rather than by climate.
-  WETLAND("wetland", 0.8, 0.20),
+
+  /*
+   * There was a single `WETLAND` here, and it covered two places that have nothing in common but standing water.
+   *
+   * A boreal mire and a tropical swamp are opposite ecosystems: one is cold, acidic and anoxic, so it *preserves*
+   * and accumulates peat, and the other is warm and biologically frantic, so it rots and breeds. Collapsing them
+   * gave both the same peat floor, the same sparse canopy and the same hostility, which is the plausible-wrong
+   * answer this file's `Biome.entries` comment warns about - it looked fine on a map and was wrong everywhere a
+   * consumer asked what grows here or what can be gathered.
+   *
+   * They are split on temperature at the wetland rung of `BiomeStage.override`, which is one extra condition
+   * because the rung already has the temperature in scope. There is deliberately no third, temperate `MARSH`
+   * between them: a reed fen is the arithmetic mean of these two and owns nothing either of them does not, which
+   * is the same test the three dry-grass biomes above failed.
+   */
+
+  /**
+   * Cold peatland: open, mossy, and the reason anything organic survives here.
+   *
+   * Almost no canopy, because a raised bog kills the trees that try - a few stunted spruce at the margin is the
+   * whole of it, and that sparseness is what makes it read as bog rather than as wet taiga. The high [litter] is
+   * not productivity but the *absence of decay*: peat is dead matter that never broke down, which is precisely
+   * why `ResourceStage`'s bog-iron route and everything preserved in one are found here.
+   */
+  BOG("bog", 0.85, 0.06),
+
+  /**
+   * Warm forested wetland: closed canopy standing in water.
+   *
+   * The [canopy] is the load-bearing difference from [BOG] and it is deliberately high - a swamp is a *wooded*
+   * wetland, and cypress or mangrove over black water is a different silhouette from open moss. It feeds
+   * `VegetationScatter` directly, so the two biomes come out of the chunk tier looking as unalike as they are.
+   */
+  SWAMP("swamp", 0.75, 0.50),
   // Gallery forest: the band of trees along a watercourse in country that has none away from it.
   RIPARIAN("riparian", 0.8, 0.60),
   BEACH("beach", 0.05, 0.0),
@@ -349,14 +398,57 @@ object Biomes {
     prototype(Biome.ICE_SHEET, 0.03, 0.15, 0.20, 0.60, 0.10, 0.10, 0.30, temperature = 2.4),
     prototype(Biome.TUNDRA, 0.20, 0.25, 0.30, 0.70, 0.10, 0.15, 0.50, temperature = 1.8),
     prototype(Biome.TAIGA, 0.32, 0.44, 0.30, 0.75, 0.15, 0.20, 0.60),
-    prototype(Biome.COLD_DESERT, 0.28, 0.10, 0.40, 0.80, 0.30, 0.20, 0.14),
+    /*
+     * Cold desert, moved up to meet the re-sited DESERT below and carry the cool half of the world's arid land.
+     *
+     * Temperature was 0.28, which is -6.8 C, and that left the 0 to 13 C arid band with no home: too warm for
+     * this and, before the fix below, too cool for anything else, so it went to grassland and shrubland.
+     * Measured on the reference world, the land under 190 mm a year is spread almost evenly from -10 C to +40 C
+     * with a third of it below +5, so both ends need a prototype. 0.38 is +0.7 C, which puts the midpoint
+     * against DESERT at about +12 C.
+     *
+     * Wetness was 0.14 and is 0.26 for the reason spelled out under DESERT: [BiomeStage.wetnessAt] cannot
+     * emit a value that low on flat ground, so the old figure was a handicap on the axis rather than a
+     * description of the place. Cold desert won ground anyway, which is why the bug showed up here as
+     * "not as much cold desert as there should be" rather than as an absence.
+     */
+    prototype(Biome.COLD_DESERT, 0.38, 0.10, 0.40, 0.80, 0.30, 0.20, 0.26),
     prototype(Biome.TEMPERATE_FOREST, 0.52, 0.56, 0.25, 0.50, 0.12, 0.20, 0.65),
     prototype(Biome.TEMPERATE_RAINFOREST, 0.50, 0.82, 0.15, 0.35, 0.12, 0.25, 0.85),
     prototype(Biome.GRASSLAND, 0.52, 0.36, 0.40, 0.60, 0.12, 0.12, 0.45),
-    prototype(Biome.STEPPE, 0.48, 0.24, 0.50, 0.72, 0.20, 0.12, 0.28),
-    prototype(Biome.SHRUBLAND, 0.60, 0.29, 0.60, 0.45, 0.15, 0.25, 0.30),
-    prototype(Biome.DESERT, 0.70, 0.06, 0.50, 0.55, 0.12, 0.15, 0.07, precipitation = 2.6),
-    prototype(Biome.SAVANNA, 0.76, 0.39, 0.75, 0.30, 0.10, 0.12, 0.40, seasonality = 1.6),
+    // The three merged into one; see [Biome.DRYLAND]. Within 0.03 of the old SHRUBLAND on every axis except
+    // seasonality, which is widened from 0.60 to take in the strongly seasonal ground SAVANNA held. Savanna's
+    // `seasonality = 1.6` boost is deliberately *not* carried over: it existed to keep savanna off steppe's
+    // ground, and with one prototype there is nothing left to separate.
+    prototype(Biome.DRYLAND, 0.60, 0.30, 0.62, 0.50, 0.15, 0.16, 0.32),
+    /*
+     * Desert, re-sited. The old position was `0.70, 0.06, ..., 0.07` and it never won a single cell on any world
+     * measured - the reference world produced 8.9% of its land under 190 mm of rain a year and classified none of
+     * it as desert, handing 34% to shrubland, 21% to grassland and 8% to *temperate forest*.
+     *
+     * Three separate things were wrong and all three are fixed here:
+     *
+     * 1. **Wetness 0.07 is unreachable on the terrain deserts occupy.** [BiomeStage.wetnessAt] is
+     *    `0.5*rain + 0.28*shed + 0.22*collected`, and `shed` is 1 on flat ground - so a dead-level, zero-rain
+     *    cell still scores about 0.29 and cannot approach 0.07. That value describes a dry *cliff*. Deserts are
+     *    flat, so the axis with the second-largest weight was permanently against them. 0.26 sits just under
+     *    what flat arid ground actually measures, which keeps a mild dryness preference without being a value
+     *    the formula cannot emit.
+     * 2. **Precipitation 0.06 back-solves to 14 mm a year**, which is the Atacama rather than a desert. At 0.15
+     *    (90 mm) and with the existing 2.6 weight, the desert/dryland boundary lands where
+     *    `2.6(x-0.15)^2 = 1.5(x-0.30)^2` - about 180 mm a year, which is the real arid/semi-arid line.
+     * 3. **Temperature 0.70 was very nearly right and is now 0.76.** The first attempt at this fix moved it
+     *    *down* to 0.64 on the theory that the world's arid land is a cool continental interior; measuring the
+     *    arid land against the temperature raster showed that was wrong - it spreads almost evenly from -10 C
+     *    to +40 C - and `LocalTemperatureTest` then caught what the wrong theory cost. A desert centred on
+     *    +16.6 C came out **comfortable 98.8% of the year**, which is not a desert anybody needs to pack for.
+     *    0.76 is +24.4 C, so this prototype takes the hot half of the arid land and COLD_DESERT above takes
+     *    the cool half, which is the division those two names were always for.
+     *
+     * Precipitation stays the dominant axis, and that is the point: what makes a desert is that it does not
+     * rain, not that it is hot. What decides *which* desert is the temperature.
+     */
+    prototype(Biome.DESERT, 0.76, 0.15, 0.50, 0.55, 0.12, 0.15, 0.26, precipitation = 2.6),
     prototype(Biome.TROPICAL_SEASONAL_FOREST, 0.78, 0.60, 0.58, 0.22, 0.10, 0.20, 0.65),
     prototype(Biome.TROPICAL_RAINFOREST, 0.84, 0.92, 0.14, 0.12, 0.08, 0.20, 0.90),
     // Alpine wins on where it is rather than on what the weather is doing, so its elevation and slope
@@ -370,8 +462,8 @@ object Biomes {
   /**
    * Fingerprint of everything the classifier decides with: the prototype table and the axis scales.
    *
-   * This is the largest single body of tuning in the pipeline - fourteen prototypes over seven axes, positions
-   * and weights, one hundred and ninety-six numbers - and seven stages read the biome it produces. Moving one
+   * This is the largest single body of tuning in the pipeline - twelve prototypes over seven axes, positions
+   * and weights, one hundred and sixty-eight numbers - and seven stages read the biome it produces. Moving one
    * of them moves every boundary on the map, so it belongs in the biome stage's version whether or not anybody
    * has got round to putting the table in a file.
    *

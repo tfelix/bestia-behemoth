@@ -153,6 +153,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       // Surface cover.
       Terrain(40, "GRASS", 0.28f, 0.45f, 0.19f),
       Terrain(41, "SNOW", 0.92f, 0.94f, 0.96f),
+      // Bleached bunchgrass: what DRYLAND caps in, and deliberately a long way from GRASS in hue. Grassland and
+      // dryland are a third of the land between them and used to share id 40, so telling them apart is the whole
+      // reason this row exists - a subtle difference here would put the two biomes back into one colour.
+      Terrain(42, "DRY_GRASS", 0.61f, 0.57f, 0.33f),
 
       // Ids 45 to 48 are free and must stay free: LOG, LEAVES, MANA_CRYSTAL_SMALL and MANA_CRYSTAL_LARGE.
       // Trees and mana crystals are entities now, delivered by ChunkStaticEntitiesSMSG and drawn by

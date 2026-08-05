@@ -932,8 +932,9 @@ internal class Catchments(
   }
 
   private fun grazingOf(biome: Biome): Double = when (biome) {
-    Biome.GRASSLAND, Biome.STEPPE -> 1.0
-    Biome.SAVANNA, Biome.SHRUBLAND -> 0.7
+    Biome.GRASSLAND -> 1.0
+    // Kept in step with `Terms`' grazing table, which this has to agree with - see the note below.
+    Biome.DRYLAND -> 0.75
     Biome.TUNDRA, Biome.ALPINE -> 0.35
     Biome.TEMPERATE_FOREST, Biome.TAIGA -> 0.25
 
@@ -944,7 +945,7 @@ internal class Catchments(
 
     Biome.OCEAN, Biome.LAKE, Biome.ICE_SHEET, Biome.COLD_DESERT,
     Biome.TEMPERATE_RAINFOREST, Biome.DESERT, Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST,
-    Biome.WETLAND, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.05
+    Biome.BOG, Biome.SWAMP, Biome.RIPARIAN, Biome.BEACH, Biome.BADLANDS, Biome.VOLCANIC_FIELD -> 0.05
   }
 
   /**
@@ -983,8 +984,10 @@ internal class Catchments(
 
 /** Whether a biome grows cereal, and whether it grows trees worth felling. */
 private fun Biome.isCereal(): Boolean = when (this) {
-  Biome.GRASSLAND, Biome.TEMPERATE_FOREST, Biome.SHRUBLAND, Biome.WETLAND,
-  Biome.TROPICAL_SEASONAL_FOREST, Biome.SAVANNA -> true
+  // A swamp is drained and planted - rice country - and a bog is not: peat is acid and waterlogged the year
+  // round, which is exactly why it preserves rather than grows. The old single WETLAND said yes for both.
+  Biome.GRASSLAND, Biome.TEMPERATE_FOREST, Biome.DRYLAND, Biome.SWAMP,
+  Biome.TROPICAL_SEASONAL_FOREST -> true
   else -> false
 }
 

@@ -1,15 +1,5 @@
 # Last Steps
 
-## Improved City Generation
-
-TBD
-
-## Improved History Generation
-
-- Add some connections to the three factions of the bestia game system. Dont make it too prominent but make it so it is possible that some hints here and there can appear over the course of the time. Since it is important for the game which faction "won" the last world it would be nice if there is a tunable parameter on how much influence a faction has had over the history. So as a little gimick the winner of the last world gets a bit more influence over the history generation.
-- Also review the system in general and make a few suggestion on how you think the system can be improved to give the player easier access and deeper lore of the world.
-- Suggest some ways on how to integrate this lore system later into the game especially considering NPC or written hints, artifacts etc.
-
 ## Engine Integration
 
 Tie this all into the engine! We need to battle test the renderer if it works for this world. Shader are not really important we will get to those later but stablity and performance are top priority. Double check if the interaction with the engine works or if you see any shortcomings in the communication protocol.
@@ -21,7 +11,7 @@ Please compile a list of issues you have found and how to tackle them.
 
 ## Final Cleanup Phase
 
-Feel free to re-arrange those points into a order which you think makes more sense.
+Feel free to re-arrange those points into a order which you think makes more sense. Feel free to go step by step through the task list here. Make sensible commits.
 
 - Review the architecture and TODO document if anything substantial is left out. Then remove those two documents after the information was consolidated into the ../bestia-docs server/map generation sections.
 - reset all versions back to initial values, we are dev build nothing exists in the wild yet. We can also check if enums are not containing any legacy placeholders. Consolidate everything down, not legacy code.

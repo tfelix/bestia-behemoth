@@ -156,16 +156,16 @@ class ParamsVersionTest {
   @Test
   fun `every catalogue digest is pinned`() {
     val pinned = listOf(
-      "Biomes" to -5_041_373_421_073_305_244L,
+      "Biomes" to 8_864_784_301_847_352_802L,
       "Culture" to -8_768_142_304_179_570_668L,
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to -9_118_719_711_542_149_956L,
-      "EventKind" to 8_789_153_060_566_935_296L,
+      "EventKind" to 1_616_518_775_768_109_607L,
       "Order" to -2_417_387_423_981_603_910L,
       "ResourceType" to 8_190_588_717_705_702_599L,
       "MinableOre" to 4_365_871_184_218_980_312L,
-      "SpawnHostility" to 6_711_120_610_348_833_411L
+      "SpawnHostility" to 1_601_490_678_795_006_744L
     )
 
     assertEquals(
@@ -193,7 +193,7 @@ class ParamsVersionTest {
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,
-      "BiomeParams" to -4_114_408_631_599_266_756L,
+      "BiomeParams" to 2_575_683_307_830_781_540L,
       // Moved by entityShare and clumpWavelength, which decide which trees become entities and change
       // nothing the voxels or CANOPY_COVER see. Folded into the digest anyway, because VegetationParams
       // reaches both tiers and a knob invisible to one of them is how they drift apart.

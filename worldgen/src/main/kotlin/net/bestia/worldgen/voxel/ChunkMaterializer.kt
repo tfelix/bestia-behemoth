@@ -137,7 +137,10 @@ class ChunkMaterializer(
   private val aetheriteCorruption: Double = 1.0,
 
   /** Where the mana crystals grow. Forwarded from the params object, like the vegetation tuning. */
-  crystalParams: CrystalParams = CrystalParams()
+  crystalParams: CrystalParams = CrystalParams(),
+
+  /** Where the aetherite shards outcrop. Forwarded from the params object, like the crystal tuning. */
+  private val aetheriteParams: AetheriteParams = AetheriteParams()
 ) {
 
   /**
@@ -261,9 +264,26 @@ class ChunkMaterializer(
     vegetation.propsIn(chunk, site, into)
     crystals.propsIn(chunk, site, into)
     structures.spireProps(config, chunk, site, into)
+    // Built here from `nearby` rather than held in a field like `crystals` and `vegetation`, because its input
+    // is the deposit markers for *this* query rather than a layer covering the world. Same reason
+    // `TownStructures` and `OreVeins` are constructed per chunk a few lines above.
+    aetherite(nearby).propsIn(chunk, site, into)
 
     return into
   }
+
+  /** The aetherite outcrops among one query's features. See [AetheriteScatter]. */
+  private fun aetherite(nearby: List<net.bestia.worldgen.vector.VectorFeature>) = AetheriteScatter(
+    config = config,
+    surface = surface,
+    features = nearby,
+    seed = config.seed,
+    params = aetheriteParams,
+    // The same field and the same threshold `OreVeins` is given, so the shard on the grass and the seam under
+    // it cannot disagree about whether this body is aetherite.
+    corruption = corruption,
+    aetheriteCorruption = aetheriteCorruption
+  )
 
   /**
    * What the vegetation scatter is allowed to know about a trunk's surroundings.
