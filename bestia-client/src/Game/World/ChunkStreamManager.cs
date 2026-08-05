@@ -187,6 +187,12 @@ namespace BestiaBehemothClient.Game.World
     private void OnWorldInfo(WorldInfoSMSG info)
     {
       WorldInfo = info;
+
+      // Before anything else: a chunk or static-entity batch for this world can arrive the instant after this
+      // message, and ChunkStaticEntitiesSMSG.FromProto expands local->global coordinates using this the moment
+      // it decodes, from inside BnetSocket's dispatch, which has no world context of its own to pass instead.
+      ChunkEngine.ChunkSize = info.ChunkSize;
+
       GD.Print($"[world] {info}");
 
       if (info.ChunkEngineVersion != ChunkEngine.Version)
@@ -281,10 +287,9 @@ namespace BestiaBehemothClient.Game.World
 
         if (VerboseChunkLog)
         {
-          var edits = patch.Edits.Length / 5;
           GD.Print(
             $"[patch] {patch.Key} rev {patch.FromRevision}->{patch.ToRevision}  " +
-            $"{patch.Edits.Length} B, up to {edits} edits\n" +
+            $"{patch.Removals.Length} B, {patch.RemovalCount} removals\n" +
             $"        {Store.Describe(patch.Key)}");
         }
 

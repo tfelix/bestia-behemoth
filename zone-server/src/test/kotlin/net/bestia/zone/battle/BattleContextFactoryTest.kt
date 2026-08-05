@@ -1,17 +1,22 @@
 package net.bestia.zone.battle
 
+import io.mockk.mockk
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.prop.PropPromotionService
+import net.bestia.zone.world.prop.WorldObjectDivergenceRegistry
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class BattleContextFactoryTest {
 
-  private val factory = BattleContextFactory()
+  // Every entity here already carries Position, so PropPromotionService.promoteIfNeeded short-circuits
+  // immediately and never touches the divergence registry - a relaxed mock is enough.
+  private val factory = BattleContextFactory(PropPromotionService(mockk(relaxed = true)))
 
   /**
    * Regression for the mob-seeding fix: a mob now carries [StatusValues] (but no Level component),

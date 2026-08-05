@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**
@@ -21,7 +22,9 @@ import org.springframework.stereotype.Component
  * on the tick thread, or the receiver inside a `WorldView.read/modify` block).
  */
 @Component
-class BattleContextFactory {
+class BattleContextFactory(
+  private val propPromotion: PropPromotionService,
+) {
 
   /**
    * Builds the context for [attackerId] using [usedAttack] against either an entity or a ground
@@ -62,6 +65,11 @@ class BattleContextFactory {
     if (!world.isAlive(entityId)) {
       return null
     }
+
+    // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
+    // actually matters for a channelled skill is ActivateSkillHandler - see PropPromotionService's own KDoc
+    // for why calling it only here would fizzle the first hit of a channelled cast.
+    if (!propPromotion.promoteIfNeeded(world, entityId)) return null
 
     val position = world.get(entityId, Position::class)?.toVec3L() ?: return null
     val attributes = world.get(entityId, StatusValues::class) ?: return null

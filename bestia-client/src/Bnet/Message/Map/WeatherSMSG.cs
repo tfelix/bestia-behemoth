@@ -78,7 +78,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public long HazardY { get; set; }
     [Export] public float HazardRadiusMetres { get; set; }
 
-    public static WeatherSMSG FromProto(Bnet.WeatherSMSG proto)
+    public static WeatherSMSG FromProto(global::Bnet.WeatherSMSG proto)
     {
       return new WeatherSMSG
       {

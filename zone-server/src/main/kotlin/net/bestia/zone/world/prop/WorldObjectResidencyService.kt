@@ -16,6 +16,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 /**
  * Which static entities exist right now, and which chunk each of them belongs to.
@@ -35,8 +36,8 @@ import org.springframework.stereotype.Service
  *
  * **What makes that safe is that a prop's entity id is ephemeral.** A re-materialised tree gets a fresh
  * snowflake. Nothing may hold a long-lived reference to one, and anything that has to survive the column
- * leaving the view is keyed on `WorldObjectIdentity.propId` instead - which is why the delta table is keyed on
- * the lattice cell and not on an entity id. Keyed on the id, re-sending would silently orphan every row.
+ * leaving the view is keyed on `WorldObjectIdentity.propId` instead - which is why [WorldObjectDivergence] is
+ * keyed on the propId and not on an entity id. Keyed on the id, re-sending would silently orphan every row.
  *
  * ### Refcounted by column, not by chunk
  *
@@ -57,11 +58,20 @@ class WorldObjectResidencyService(
   private val aoi: EntityAOIService,
   private val fanOut: ChunkFanOut,
   private val worldService: WorldService,
+  private val divergence: WorldObjectDivergenceRegistry,
   subscriptions: ChunkSubscriptionService
 ) {
 
   /** Voxels per chunk edge, for turning a world position into a chunk-local one. */
   private val chunkSize: Int get() = worldService.config.chunkSize
+
+  /**
+   * The lattice version a freshly materialised prop is stamped with - `pipelineVersion`, not
+   * `ChunkMaterializer.VERSION` alone, because a pure params retune (`VegetationParams.cellSize`, the POI
+   * catalogue) never bumps that hand-incremented counter but does fold into this one via
+   * `WorldParams.chunkTierVersion` and every stage's `paramsVersion`. See [WorldObjectDivergence]'s KDoc.
+   */
+  private val latticeVersion: Long get() = worldService.record.pipelineVersion
 
   /** Packed `(x, y)` chunk column -> the entities standing in it. */
   private val resident = HashMap<Long, LongArray>()
@@ -212,7 +222,7 @@ class WorldObjectResidencyService(
     if (resident.containsKey(column)) return
 
     val chunk = ChunkPos(unpackX(column), unpackY(column), 0)
-    val sites = sources.flatMap { it.sitesIn(chunk) }
+    val sites = sources.flatMap { it.sitesIn(chunk) }.filter { shouldEmit(it.propId) }
 
     if (sites.isEmpty()) {
       // Recorded as resident anyway, so a chunk with no trees on it is not re-asked on every tick it is held.
@@ -228,7 +238,7 @@ class WorldObjectResidencyService(
         add(id, PropPose(site.position, site.yaw))
         add(id, StaticVisual(site.kind, site.variant % spec.variants, site.heightDm))
         add(id, PropVitality(spec.maxHp))
-        add(id, WorldObjectIdentity(site.propId, LATTICE_VERSION_UNSET))
+        add(id, WorldObjectIdentity(site.propId, latticeVersion))
         add(id, StaticSync)
       }
 
@@ -241,6 +251,21 @@ class WorldObjectResidencyService(
     }
 
     resident[column] = ids
+  }
+
+  /**
+   * Whether a generated site should still stand: no recorded divergence, or a temporary one (a felled tree
+   * with a `regrowSeconds`) whose regrowth clock has passed - evicted right here, since a chunk becoming
+   * resident is exactly the moment anyone would notice it grew back. A terminal divergence (`resumeAt ==
+   * null` - a claimed POI, a mined-out crystal) never emits again.
+   */
+  private fun shouldEmit(propId: Long): Boolean {
+    val entry = divergence.of(propId) ?: return true
+    val resumeAt = entry.resumeAt ?: return false
+    if (resumeAt.isAfter(Instant.now())) return false
+
+    divergence.evictRegrown(propId)
+    return true
   }
 
   private fun dematerialise(world: World, column: Long) {
@@ -260,15 +285,6 @@ class WorldObjectResidencyService(
 
   private companion object {
     val EMPTY = LongArray(0)
-
-    /**
-     * Placeholder until the delta table exists.
-     *
-     * Zero rather than a computed digest on purpose: nothing reads a stored divergence yet, and a version
-     * number that looked real would invite somebody to persist against it before there is anything to
-     * invalidate. See the plan's Phase 3.
-     */
-    const val LATTICE_VERSION_UNSET = 0L
 
     fun pack(x: Int, y: Int): Long = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
     fun unpackX(packed: Long): Int = (packed shr 32).toInt()

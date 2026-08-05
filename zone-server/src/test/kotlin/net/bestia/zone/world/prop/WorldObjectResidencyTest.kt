@@ -66,7 +66,7 @@ class WorldObjectResidencyTest {
     source = StubSource()
     sent = ArrayList()
     residency = WorldObjectResidencyService(
-      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), subscriptions
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions
     )
   }
 
@@ -78,9 +78,16 @@ class WorldObjectResidencyTest {
     }
   }
 
-  /** Only `config.chunkSize` is read, for turning a world position into a chunk-local one. */
+  /** `config.chunkSize` turns a world position into a chunk-local one; `record.pipelineVersion` is the
+   *  lattice version freshly materialised props are stamped with. */
   private fun worldService(): WorldService = mockk {
     every { config } returns net.bestia.worldgen.core.WorldConfig(seed = 1L, chunkSize = 32, voxelSize = 1.0)
+    every { record } returns mockk { every { pipelineVersion } returns 1L }
+  }
+
+  /** No propId has ever diverged - the common case, and every test above this line assumes it. */
+  private fun noDivergence(): WorldObjectDivergenceRegistry = mockk {
+    every { of(any()) } returns null
   }
 
   @Test
@@ -280,7 +287,8 @@ class WorldObjectResidencyTest {
       }
     }
     val service = WorldObjectResidencyService(
-      listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), subscriptions
+      listOf(empty), kindRegistry(), EntityAOIService(), recordingFanOut(), worldService(), noDivergence(),
+      subscriptions
     )
     val world = testWorld()
 
@@ -371,6 +379,55 @@ class WorldObjectResidencyTest {
 
     residency.drain(world, budget = 2)
     assertEquals(6, sent.size, "a waiter was dropped instead of being served on a later tick")
+  }
+
+  /** A terminally depleted propId (a claimed POI, a mined-out crystal) must never be re-materialised. */
+  @Test
+  fun `a terminally diverged prop is not re-materialised`() {
+    val depletedPropId = (4L shl 40) or (5L shl 8) or 0L // the stub's tree 0 in chunk (4, 5)
+    val divergence: WorldObjectDivergenceRegistry = mockk {
+      every { of(any()) } answers {
+        val propId = firstArg<Long>()
+        if (propId == depletedPropId) DivergenceEntry(StaticEntityKind.TREE, DivergenceState.DEPLETED, null) else null
+      }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    service.drain(world, budget = 8)
+
+    assertEquals(2, service.residentEntities, "the depleted tree must not stand again")
+  }
+
+  /** A `resumeAt` that has already passed means the tree grew back: it re-emits and forgets the divergence. */
+  @Test
+  fun `a regrown prop is re-materialised and its divergence forgotten`() {
+    val regrownPropId = (4L shl 40) or (5L shl 8) or 0L
+    var evicted = false
+    val divergence: WorldObjectDivergenceRegistry = mockk {
+      every { of(any()) } answers {
+        val propId = firstArg<Long>()
+        if (propId == regrownPropId) {
+          DivergenceEntry(StaticEntityKind.TREE, DivergenceState.DEPLETED, java.time.Instant.now().minusSeconds(1))
+        } else {
+          null
+        }
+      }
+      every { evictRegrown(regrownPropId) } answers { evicted = true }
+    }
+    val service = WorldObjectResidencyService(
+      listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), divergence, subscriptions
+    )
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    service.drain(world, budget = 8)
+
+    assertEquals(3, service.residentEntities, "a regrown tree must stand again like the other two")
+    assertTrue(evicted, "the stale divergence must be forgotten once the tree has regrown")
   }
 
   private fun kindRegistry() = PropKindRegistry().also { it.load() }

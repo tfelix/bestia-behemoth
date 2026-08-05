@@ -56,7 +56,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       public float Yaw { get; init; }
     }
 
-    public static ChunkStaticEntitiesSMSG FromProto(Bnet.ChunkStaticEntitiesSMSG proto)
+    public static ChunkStaticEntitiesSMSG FromProto(global::Bnet.ChunkStaticEntitiesSMSG proto)
     {
       var key = new ChunkKey(proto.Pos.X, proto.Pos.Y, proto.Pos.Z);
       var entries = new List<Entry>(proto.Entries.Count);
@@ -65,7 +65,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       {
         entries.Add(new Entry
         {
-          EntityId = entry.EntityId,
+          EntityId = (long)entry.EntityId,
           Kind = (int)entry.Kind,
           Variant = (int)entry.Variant,
           // Local horizontally, global vertically - see the proto. Expanded here so nothing downstream has to

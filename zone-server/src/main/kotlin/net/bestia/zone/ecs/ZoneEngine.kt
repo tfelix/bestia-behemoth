@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.message.SMSG
@@ -156,7 +157,13 @@ class ZoneEngine(
       //   where we could just update this AOI service (ideally with a queued job)
       for (id in positionChanged) {
         val pos = world.get(id, Position::class)?.toVec3L() ?: continue
-        entityAOIService.setEntityPosition(id, pos)
+        // A promoted prop (world/prop/PropPromotionService) has just gained a real, dirty Position, and the
+        // bare default below would silently re-home it from AoiLayer.STATIC to DYNAMIC - PerceptionSystem and
+        // GetAllEntitiesHandler deliberately query DYNAMIC_ONLY to avoid double-delivering something the
+        // per-chunk static batch already sent, so a promoted prop must stay STATIC even while it can move
+        // through combat's HP tracking.
+        val layer = if (world.has(id, WorldObjectIdentity::class)) AoiLayer.STATIC else AoiLayer.DYNAMIC
+        entityAOIService.setEntityPosition(id, pos, layer)
         if (world.has(id, ActivePlayer::class)) {
           val accountId = world.get(id, Account::class)?.accountId
           if (accountId != null) playerAOIService.setEntityPosition(accountId, pos)

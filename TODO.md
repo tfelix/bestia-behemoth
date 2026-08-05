@@ -247,25 +247,50 @@ what phases 3–7 closed, grouped by what it would take. Each is argued where it
   town in a river bend is levelled in the shape of a circle. The type is there and the producer is a shape swap;
   what stopped it was budget, not design. Also still absent: clipping, offsetting and any operation over *two*
   areas, because no producer has wanted one.
-- ~~**Caves.**~~ Built: `karst/CaveStage` places them, `voxel/CaveNetwork` cuts them, and `HistorySim` hides
-  hoards in them. What is *not* built is the streaming half — `GeneratedWorld.contentSlabsOf` says which slabs
-  hold a passage and `ChunkService` still subscribes only the surface ones, so a cave below the terrain slab is
-  generated and never sent.
+- ~~**Caves.**~~ Built, streaming included now. `karst/CaveStage` places them, `voxel/CaveNetwork` cuts them,
+  `HistorySim` hides hoards in them, and `ChunkService.computeSurfaceSlabs` now unions in
+  `GeneratedWorld.contentSlabsOf`'s cave-passage range alongside the terrain heightfield span, so a passage
+  below the terrain slab is subscribed to rather than generated and silently never sent (an engine-integration
+  review found this the same way the paragraph above already predicted it, then fixed it).
   - **`CaveNetwork` has no fails-first unit test**, which is habit 3 unpaid. The world-tier claims are covered
     by four invariants over 400 seeds and the geometry is visible in `probe -Pon=cave_passage -Psection`, but
     the chunk-tier half — the roof clamp against the column's actual `top`, the mouth exemption, the pinch-out
     when the clamp falls below the floor, the two fbm wall fields — is pinned by nothing. It wants a
     `SubtractionTest`-shaped file: a synthetic world, one hand-built passage, and each guard broken in turn to
     confirm the test goes red. Not critical; deferred deliberately rather than overlooked.
+  - **`CAVE_HOARD` still has no prop/entity at all.** `HistorySim` places the marker and `TownStructures`'
+    `SiteKind.HOARD -> Unit` says outright that nothing spawns for it. `world/prop/PropDeathDivergenceSystem`
+    and `WorldObjectDivergenceRegistry` (below) are exactly the machinery a hoard's loot would use once
+    something reads `FeatureKind.CAVE_HOARD` into a `WorldObjectSource` the way `PoiProps` reads `POI` - the
+    divergence table is already generic on `propId` and needs no redesign for it. What is missing is only the
+    worldgen-side emitter and the zone-server source, not the runtime plumbing.
 - ~~**The scatter pass.**~~ Built: `LOG` and `LEAVES` are in the palette, `voxel/VegetationScatter` decides
   where a tree stands, `bio/VegetationStage` rasterises `CANOPY_COVER` from the same function, and
   `ResourceStage`'s timber suitability reads the layer. Trees are **implicit** — a billion of them per world,
   so there is no feature, no marker and no per-tree storage anywhere, only a function of position. The
   architecture document's "chunk-seeded randomness is safe here" permission is *still* unused and vegetation is
   the case that shows why it should stay unused: a four-metre canopy spans columns, so a chunk-seeded tree at a
-  border is half a tree. What is **not** built is anything that turns a tree into an entity — a harvestable
-  tree, a stump, a felled log — which would read `GeneratedWorld.vegetation` the way a treasure spawner will
-  read `CAVE_HOARD`.
+  border is half a tree.
+
+  ~~What is not built is anything that turns a tree into an entity~~ - built: `PropPromotionService` adds
+  `Position`/`Health` the first time something targets or damages a static prop (a tree, a POI landmark, a
+  crystal), reusing the ordinary combat/death path from there; `world/prop/WorldObjectDivergence` (a
+  `propId`-keyed table, not the live entity id, which is re-minted every chunk re-materialisation) remembers a
+  felled tree until `regrowSeconds` passes and a claimed landmark forever, checked at boot against
+  `pipelineVersion` so a lattice retune can't reapply a stale row to the wrong object. Two honest gaps
+  remain, deliberately out of this pass's scope: no felled-tree stump or log visual yet - a depleted prop's
+  spot just goes bare until it regrows, which is a `StaticEntityKind` + client mesh addition, not a data-model
+  change; and `loot` is wired but empty in `prop-kinds.yml` - nothing in `items.yml` fits a felled tree or a
+  claimed grave yet, so inventing an item id would be worse than leaving it unset.
+- **A prop's ground never reacts to a player's own edits.** `ChunkService.onChunkChanged` invalidates
+  `DerivedStore` and fires `changeListeners` (today, only `MacroGraphService` - nav-graph edges); nothing tells
+  `WorldObjectResidencyService` a nearby chunk changed, and `GeneratedPropSource`/`propsIn()` always resolve a
+  site's ground from the pure, immutable generated heightfield, never from `ChunkStore.merged()` (the base ⊕
+  delta view that is the only read path reflecting what a player actually dug or built up). Mine out the ground
+  under a tree or a POI and it stands there floating, indefinitely, with no self-correction - not even across a
+  restart, since the divergence table above answers "is this object gone," not "does its ground still agree
+  with the terrain." Wants a hook from `onChunkChanged` into residency to re-resample (or dematerialise and
+  re-materialise) the affected column's sites; a self-contained task, not attempted here.
 - **Live NPCs.** `pop/` produces the substrate; nothing makes a person walk to the market.
 - **Delta persistence** (step 12) and a **client-side base generator** (step 13).
 - **Sharding, the work queue and the gRPC surface** — deliberately the server's, and built nowhere.

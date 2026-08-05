@@ -13,11 +13,17 @@ import org.springframework.stereotype.Service
 /** A collider's half-extents and height, in position units. */
 data class PropColliderDto(val halfX: Long = 1, val halfY: Long = 1, val height: Long = 2)
 
+/** One roll of loot, `PropDeathDivergenceSystem`'s own image of `LootItemEntityFactory`'s bestia loot rows. */
+data class PropLootEntryDto(val itemId: Long, val amount: Int = 1, val dropChance: Int = 10000)
+
 data class PropKindDto(
   val kind: StaticEntityKind,
   val maxHp: Int,
   val collider: PropColliderDto = PropColliderDto(),
-  val variants: Int = 1
+  val variants: Int = 1,
+  /** Present means this kind regrows this many seconds after being depleted; absent means terminal. */
+  val regrowSeconds: Long? = null,
+  val loot: List<PropLootEntryDto> = emptyList()
 )
 
 data class PropKindsDto(val kinds: List<PropKindDto> = emptyList())
@@ -56,6 +62,13 @@ class PropKindRegistry {
       require(byKind.put(kind.kind, kind) == null) { "$RESOURCE declares ${kind.kind} twice" }
       require(kind.maxHp > 0) { "${kind.kind} has max-hp ${kind.maxHp}" }
       require(kind.variants >= 1) { "${kind.kind} has variants ${kind.variants}" }
+      require(kind.regrowSeconds == null || kind.regrowSeconds > 0) {
+        "${kind.kind} has regrow-seconds ${kind.regrowSeconds}"
+      }
+      kind.loot.forEach {
+        require(it.dropChance in 1..10_000) { "${kind.kind} has a loot entry with drop-chance ${it.dropChance}" }
+        require(it.amount > 0) { "${kind.kind} has a loot entry with amount ${it.amount}" }
+      }
     }
 
     val missing = StaticEntityKind.entries.filterNot { it in byKind }

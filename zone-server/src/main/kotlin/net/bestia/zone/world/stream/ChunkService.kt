@@ -326,11 +326,18 @@ class ChunkService(
       return seaSlabs.sorted().toIntArray()
     }
 
-    // A sorted set rather than arithmetic on the two ranges, because the water slabs may fall inside the
-    // terrain span, immediately above or below it, or hundreds of metres away, and the fast path is the one
-    // where it coincides and collapses to a single entry.
+    // A sorted set rather than arithmetic on the ranges, because the water slabs and cave passages may fall
+    // inside the terrain span, immediately above or below it, or hundreds of metres away, and the fast path is
+    // the one where everything coincides and collapses to a single entry.
     val found = sortedSetOf<Int>().apply { addAll(seaSlabs) }
     for (z in loaded.config.chunkZOf(lowest)..loaded.config.chunkZOf(highest)) {
+      found.add(z)
+    }
+
+    // GeneratedWorld.contentSlabsOf also unions in intersecting cave passages, which the terrain heightfield
+    // span above cannot see at all - without this, a cave below the surface slab is generated, cached, and
+    // never subscribed to, so a player walking into a passage finds the ground in front of them does not exist.
+    for (z in worldService.generated.contentSlabsOf(column.x, column.y)) {
       found.add(z)
     }
 

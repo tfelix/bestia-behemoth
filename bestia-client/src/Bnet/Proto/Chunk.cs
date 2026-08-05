@@ -28,13 +28,15 @@ namespace Bnet {
             "CQoBeBgBIAEoERIJCgF5GAIgASgREgkKAXoYAyABKBEiOQoIQ2h1bmtSZWYS",
             "GwoDcG9zGAEgASgLMg4uYm5ldC5DaHVua1BvcxIQCghyZXZpc2lvbhgCIAEo",
             "DSpKCg1DaHVua0VuY29kaW5nEh4KGkNIVU5LX0VOQ09ESU5HX1VOU1BFQ0lG",
-            "SUVEEAASGQoVQ0hVTktfRU5DT0RJTkdfUkxFX1YyEAEqTQoQQ2h1bmtDb21w",
-            "cmVzc2lvbhIaChZDSFVOS19DT01QUkVTU0lPTl9OT05FEAASHQoZQ0hVTktf",
-            "Q09NUFJFU1NJT05fREVGTEFURRABQiMKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
-            "b0IKQ2h1bmtQcm90b2IGcHJvdG8z"));
+            "SUVEEAASGQoVQ0hVTktfRU5DT0RJTkdfUkxFX1YyEAEqXwoSQ2h1bmtQYXRj",
+            "aEVuY29kaW5nEiQKIENIVU5LX1BBVENIX0VOQ09ESU5HX1VOU1BFQ0lGSUVE",
+            "EAASIwofQ0hVTktfUEFUQ0hfRU5DT0RJTkdfUkVNT1ZBTF9WMRABKk0KEENo",
+            "dW5rQ29tcHJlc3Npb24SGgoWQ0hVTktfQ09NUFJFU1NJT05fTk9ORRAAEh0K",
+            "GUNIVU5LX0NPTVBSRVNTSU9OX0RFRkxBVEUQAUIjChVuZXQuYmVzdGlhLmJu",
+            "ZXQucHJvdG9CCkNodW5rUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkEncoding), typeof(global::Bnet.ChunkCompression), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ChunkEncoding), typeof(global::Bnet.ChunkPatchEncoding), typeof(global::Bnet.ChunkCompression), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkPos), global::Bnet.ChunkPos.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkRef), global::Bnet.ChunkRef.Parser, new[]{ "Pos", "Revision" }, null, null, null, null)
           }));
@@ -61,6 +63,37 @@ namespace Bnet {
     ///* Run-length encoding, version 2 - the format `RleCodec` writes. Self-describing about its dimensions. 
     /// </summary>
     [pbr::OriginalName("CHUNK_ENCODING_RLE_V2")] RleV2 = 1,
+  }
+
+  /// <summary>
+  ///*
+  /// How the bytes in a chunk *patch* are encoded.
+  ///
+  /// Separate from `ChunkEncoding` because a patch and a snapshot are different formats solving different
+  /// problems, and they will not change together.
+  ///
+  /// A patch needs a discriminator more urgently than a snapshot does, which is the reason this enum exists at
+  /// all. Every byte of a packed removal stream is a legal varint continuation, so a decoder reading one format
+  /// as the other does not fail - it produces **plausible garbage**, silently, and neither existing safety net
+  /// notices: the revision check passes because the revision really did advance, and `base_hash` is only carried
+  /// on a snapshot, never re-verified on a patch. The failure would surface as terrain quietly disagreeing
+  /// between server and client, which is the one thing this whole subsystem is built to prevent. One byte per
+  /// patch buys immunity to it.
+  /// </summary>
+  public enum ChunkPatchEncoding {
+    /// <summary>
+    ///* A patch that does not say how it was encoded cannot be decoded; refuse rather than guess. 
+    /// </summary>
+    [pbr::OriginalName("CHUNK_PATCH_ENCODING_UNSPECIFIED")] Unspecified = 0,
+    /// <summary>
+    ///*
+    /// Delta-coded voxel removals: `repeated: uvar indexDelta, u8 remainingOccupancy`.
+    ///
+    /// The only format there has ever been in a shipped build, but not numbered zero - a client that reads a
+    /// field it was compiled before seeing gets `UNSPECIFIED` from proto3 and must refuse, and that only works
+    /// if refusing and "the first format" are different values.
+    /// </summary>
+    [pbr::OriginalName("CHUNK_PATCH_ENCODING_REMOVAL_V1")] RemovalV1 = 1,
   }
 
   /// <summary>

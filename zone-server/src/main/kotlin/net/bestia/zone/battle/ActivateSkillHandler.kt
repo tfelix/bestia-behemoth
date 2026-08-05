@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**
@@ -27,6 +28,7 @@ class ActivateSkillHandler(
   private val skillRepository: SkillRepository,
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
+  private val propPromotion: PropPromotionService,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
@@ -68,6 +70,12 @@ class ActivateSkillHandler(
     val targetPosition: Vec3L? = if (targetEntityId == null) msg.targetPosition else null
 
     world.modify(activeEntityId) { id ->
+      // Before the cast-time branch, deliberately: a message-handler context never runs nested inside
+      // scheduler.tick(), so this add() applies immediately - unlike promoting only from
+      // BattleContextFactory, which a channelled cast reaches from inside CastingSystem.update() and would
+      // silently fizzle its first hit against a pristine prop. See PropPromotionService's own KDoc.
+      if (targetEntityId != null) propPromotion.promoteIfNeeded(this, targetEntityId)
+
       if (skill.castTime > 0f) {
         // Starting a new cast supersedes whatever was being cast before.
         add(

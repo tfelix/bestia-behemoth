@@ -25,15 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiNtZXNzYWdlcy9tYXAvY2h1bmtfcGF0Y2hfc21zZy5wcm90bxIEYm5ldBoY",
-            "bWVzc2FnZXMvbWFwL2NodW5rLnByb3RvImgKDkNodW5rUGF0Y2hTTVNHEhsK",
-            "A3BvcxgBIAEoCzIOLmJuZXQuQ2h1bmtQb3MSFQoNZnJvbV9yZXZpc2lvbhgC",
-            "IAEoDRITCgt0b19yZXZpc2lvbhgDIAEoDRINCgVlZGl0cxgEIAEoDEIsChVu",
-            "ZXQuYmVzdGlhLmJuZXQucHJvdG9CE0NodW5rUGF0Y2hTTVNHUHJvdG9iBnBy",
-            "b3RvMw=="));
+            "bWVzc2FnZXMvbWFwL2NodW5rLnByb3RvIq4BCg5DaHVua1BhdGNoU01TRxIb",
+            "CgNwb3MYASABKAsyDi5ibmV0LkNodW5rUG9zEhUKDWZyb21fcmV2aXNpb24Y",
+            "AiABKA0SEwoLdG9fcmV2aXNpb24YAyABKA0SEAoIcmVtb3ZhbHMYBCABKAwS",
+            "KgoIZW5jb2RpbmcYBSABKA4yGC5ibmV0LkNodW5rUGF0Y2hFbmNvZGluZxIV",
+            "Cg1yZW1vdmFsX2NvdW50GAYgASgNQiwKFW5ldC5iZXN0aWEuYm5ldC5wcm90",
+            "b0ITQ2h1bmtQYXRjaFNNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkPatchSMSG), global::Bnet.ChunkPatchSMSG.Parser, new[]{ "Pos", "FromRevision", "ToRevision", "Edits" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkPatchSMSG), global::Bnet.ChunkPatchSMSG.Parser, new[]{ "Pos", "FromRevision", "ToRevision", "Removals", "Encoding", "RemovalCount" }, null, null, null, null)
           }));
     }
     #endregion
@@ -42,16 +43,16 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// The voxels that changed in one chunk, rather than the chunk that contains them.
+  /// The voxels a player removed from one chunk, rather than the chunk that contains them.
   ///
   /// This is the message that makes a busy area affordable. Thirty players standing together while one of
-  /// them digs ten voxels costs thirty copies of about fifty bytes; re-sending the chunk instead would cost
-  /// thirty copies of three kilobytes, and thirty separate serialisations of it. The server encodes this
-  /// once and writes the same buffer to every subscriber.
+  /// them mines a swing's worth of rock costs thirty copies of a couple of hundred bytes; re-sending the
+  /// chunk instead would cost thirty copies of three kilobytes, and thirty separate serialisations of it.
+  /// The server encodes this once and writes the same buffer to every subscriber.
   ///
-  /// A voxel belongs to exactly one chunk, so there is no fan-out across chunk borders to pay for. An edit
-  /// that genuinely spans chunks - a large terraform - becomes one patch per chunk, and each client
-  /// receives only the patches for chunks it is subscribed to.
+  /// A voxel belongs to exactly one chunk, but a *brush* does not: a carve is a sphere or a capsule in world
+  /// space, so one swing near a border becomes one patch per chunk it reaches into, and each client receives
+  /// only the patches for chunks it is subscribed to.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ChunkPatchSMSG : pb::IMessage<ChunkPatchSMSG>
@@ -91,7 +92,9 @@ namespace Bnet {
       pos_ = other.pos_ != null ? other.pos_.Clone() : null;
       fromRevision_ = other.fromRevision_;
       toRevision_ = other.toRevision_;
-      edits_ = other.edits_;
+      removals_ = other.removals_;
+      encoding_ = other.encoding_;
+      removalCount_ = other.removalCount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -123,7 +126,7 @@ namespace Bnet {
     /// Ordering is already guaranteed - one client is one ordered TCP stream, and the server enqueues a
     /// snapshot before any patch that builds on it - so these are an assertion rather than a mechanism. A
     /// client whose held revision is not [from_revision] has diverged somehow and should discard the chunk
-    /// and re-request it instead of applying edits to the wrong base.
+    /// and re-request it instead of applying removals to the wrong base.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -146,29 +149,79 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "edits" field.</summary>
-    public const int EditsFieldNumber = 4;
-    private pb::ByteString edits_ = pb::ByteString.Empty;
+    /// <summary>Field number for the "removals" field.</summary>
+    public const int RemovalsFieldNumber = 4;
+    private pb::ByteString removals_ = pb::ByteString.Empty;
     /// <summary>
     ///*
-    /// Packed edits, five bytes each:
+    /// Packed removals, about two and a half bytes each:
     ///
     /// ```
-    /// repeated: uvar voxelIndex, u8 blockId, u8 occupancy
+    /// repeated: uvar indexDelta, u8 remainingOccupancy
     /// ```
     ///
-    /// `voxelIndex` is `(localY * size + localX) * height + localZ`, the same layout the chunk payload uses
-    /// - so the vertical axis is contiguous here too. Occupancy travels with the block id in every edit
-    /// because the two can never be allowed to disagree: air is occupancy zero and everything else is not.
+    /// Sorted by voxel index, where an index is `(localY * size + localX) * height + localZ` - the same layout
+    /// the chunk payload uses, so the vertical axis is contiguous here too. Each index is written as the **gap
+    /// since the previous one**, which is what makes a removal cheap: the voxels a brush takes out of one
+    /// column are index-adjacent, so nearly every gap is 1 and costs a single byte.
     ///
-    /// Edits within one patch are already coalesced per voxel, so an index appears at most once.
+    /// **No block id.** There is no building system, so the only terrain mutation is removal - and then the
+    /// resulting block is derivable rather than absent: a voxel with material left keeps whatever the
+    /// generator gave it, and one carved to `remainingOccupancy = 0` is air. The client holds the base
+    /// already, so it can say which. The invariant that air is occupancy zero and everything else is not is
+    /// therefore re-established independently on each side rather than carried across and re-checked, and a
+    /// patch has no way to express a violation of it.
+    ///
+    /// Removals within one patch are coalesced per voxel, so an index appears at most once, at the lowest
+    /// occupancy it reached during the tick.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Edits {
-      get { return edits_; }
+    public pb::ByteString Removals {
+      get { return removals_; }
       set {
-        edits_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        removals_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "encoding" field.</summary>
+    public const int EncodingFieldNumber = 5;
+    private global::Bnet.ChunkPatchEncoding encoding_ = global::Bnet.ChunkPatchEncoding.Unspecified;
+    /// <summary>
+    ///*
+    /// How [removals] is packed.
+    ///
+    /// See `ChunkPatchEncoding` for why a patch needs a discriminator where a snapshot's `base_hash` does not
+    /// cover it: a misread removal stream decodes to plausible garbage rather than failing, and nothing else on
+    /// this message would notice.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ChunkPatchEncoding Encoding {
+      get { return encoding_; }
+      set {
+        encoding_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "removal_count" field.</summary>
+    public const int RemovalCountFieldNumber = 6;
+    private uint removalCount_;
+    /// <summary>
+    ///*
+    /// How many voxels this patch describes.
+    ///
+    /// Carried rather than derived. It used to be computed as `removals.size / bytesPerEdit`, which worked only
+    /// while every edit was a fixed width - and the moment indices became delta-coded varints that division
+    /// started returning a number merely near the truth, in a field used for logging and for the decision about
+    /// whether a patch is worth sending at all.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint RemovalCount {
+      get { return removalCount_; }
+      set {
+        removalCount_ = value;
       }
     }
 
@@ -190,7 +243,9 @@ namespace Bnet {
       if (!object.Equals(Pos, other.Pos)) return false;
       if (FromRevision != other.FromRevision) return false;
       if (ToRevision != other.ToRevision) return false;
-      if (Edits != other.Edits) return false;
+      if (Removals != other.Removals) return false;
+      if (Encoding != other.Encoding) return false;
+      if (RemovalCount != other.RemovalCount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -201,7 +256,9 @@ namespace Bnet {
       if (pos_ != null) hash ^= Pos.GetHashCode();
       if (FromRevision != 0) hash ^= FromRevision.GetHashCode();
       if (ToRevision != 0) hash ^= ToRevision.GetHashCode();
-      if (Edits.Length != 0) hash ^= Edits.GetHashCode();
+      if (Removals.Length != 0) hash ^= Removals.GetHashCode();
+      if (Encoding != global::Bnet.ChunkPatchEncoding.Unspecified) hash ^= Encoding.GetHashCode();
+      if (RemovalCount != 0) hash ^= RemovalCount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -232,9 +289,17 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(ToRevision);
       }
-      if (Edits.Length != 0) {
+      if (Removals.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteBytes(Edits);
+        output.WriteBytes(Removals);
+      }
+      if (Encoding != global::Bnet.ChunkPatchEncoding.Unspecified) {
+        output.WriteRawTag(40);
+        output.WriteEnum((int) Encoding);
+      }
+      if (RemovalCount != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(RemovalCount);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -258,9 +323,17 @@ namespace Bnet {
         output.WriteRawTag(24);
         output.WriteUInt32(ToRevision);
       }
-      if (Edits.Length != 0) {
+      if (Removals.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteBytes(Edits);
+        output.WriteBytes(Removals);
+      }
+      if (Encoding != global::Bnet.ChunkPatchEncoding.Unspecified) {
+        output.WriteRawTag(40);
+        output.WriteEnum((int) Encoding);
+      }
+      if (RemovalCount != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(RemovalCount);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -281,8 +354,14 @@ namespace Bnet {
       if (ToRevision != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(ToRevision);
       }
-      if (Edits.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Edits);
+      if (Removals.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Removals);
+      }
+      if (Encoding != global::Bnet.ChunkPatchEncoding.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Encoding);
+      }
+      if (RemovalCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(RemovalCount);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -308,8 +387,14 @@ namespace Bnet {
       if (other.ToRevision != 0) {
         ToRevision = other.ToRevision;
       }
-      if (other.Edits.Length != 0) {
-        Edits = other.Edits;
+      if (other.Removals.Length != 0) {
+        Removals = other.Removals;
+      }
+      if (other.Encoding != global::Bnet.ChunkPatchEncoding.Unspecified) {
+        Encoding = other.Encoding;
+      }
+      if (other.RemovalCount != 0) {
+        RemovalCount = other.RemovalCount;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -342,7 +427,15 @@ namespace Bnet {
             break;
           }
           case 34: {
-            Edits = input.ReadBytes();
+            Removals = input.ReadBytes();
+            break;
+          }
+          case 40: {
+            Encoding = (global::Bnet.ChunkPatchEncoding) input.ReadEnum();
+            break;
+          }
+          case 48: {
+            RemovalCount = input.ReadUInt32();
             break;
           }
         }
@@ -376,7 +469,15 @@ namespace Bnet {
             break;
           }
           case 34: {
-            Edits = input.ReadBytes();
+            Removals = input.ReadBytes();
+            break;
+          }
+          case 40: {
+            Encoding = (global::Bnet.ChunkPatchEncoding) input.ReadEnum();
+            break;
+          }
+          case 48: {
+            RemovalCount = input.ReadUInt32();
             break;
           }
         }
