@@ -2,11 +2,14 @@ package net.bestia.zone.world
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
+import net.bestia.worldgen.core.Order
 import java.time.Instant
 
 /**
@@ -101,6 +104,42 @@ class PersistedWorld(
    */
   @Column(nullable = false, updatable = false)
   val shapeVersion: Long,
+
+  /**
+   * Which Order won the **previous** world incarnation, or null for the first one.
+   *
+   * A birth setting like every other column here, and the only one that is not about terrain. It reaches
+   * `HistoryParams.orderInfluence` through [WorldGenConfig.paramsFor], so it is folded into
+   * [pipelineVersion] like any other tunable - which is correct and worth being explicit about: a world
+   * generated as *the world after Chaos won* is a different world from the same seed generated after Eternity
+   * won, and the boot gate should say so.
+   *
+   * Null on Genesis, and that is what gives the first incarnation a history with no Order in it at all. See
+   * `OrderInfluence`.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true, updatable = false)
+  val previousWinningOrder: Order? = null,
+
+  /**
+   * Which Order won **this** world, once its fate has been decided. Null while it is still being played.
+   *
+   * **Nothing sets this yet**, and it is here rather than deferred because [WorldProvisioning.recreate] is the
+   * only place in the server that ever sees one world replaced by another, and the carry-forward has to read
+   * this off the row being discarded. Without the column there is nowhere for a future world-end tally to put
+   * its answer, and the carry-forward would have to be built at the same time as the scoring.
+   *
+   * What will set it is the world-end tally described in `../bestia-docs` under
+   * `docs/mechanics/factions/#earning-advantage-points`. There is no faction implementation in zone-server at
+   * all today - no influence, no covenants, no Advantage Points - so this stays null and every regeneration
+   * carries a null forward, which is exactly the Genesis behaviour.
+   *
+   * Deliberately **not** `updatable = false`, unlike every other column: this is the one field that is answered
+   * during a world's life rather than at its birth.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  var winningOrder: Order? = null,
 
   @Column(nullable = false, updatable = false)
   val createdAt: Instant

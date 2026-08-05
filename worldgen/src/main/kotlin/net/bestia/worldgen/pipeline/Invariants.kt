@@ -8,6 +8,7 @@ import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.climate.SeasonalPrecipitation
+import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.ChunkPos
@@ -15,6 +16,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldWrap
@@ -523,7 +525,7 @@ object Invariants {
     val seaLevel = generated.config.seaLevel
 
     val built = setOf(
-      FeatureKind.MINE, FeatureKind.MONASTERY, FeatureKind.FORT, FeatureKind.LIGHTHOUSE
+      FeatureKind.MINE, FeatureKind.MONASTERY, FeatureKind.FORT, FeatureKind.LIGHTHOUSE, FeatureKind.SHRINE
     )
 
     val all = generated.world.features.all()
@@ -566,6 +568,31 @@ object Invariants {
         FeatureKind.MONASTERY -> {
           if (settlements.any { it.position.distanceTo(at) < BUILT_SITE_CLEARANCE }) {
             fail("built sites are where they claim", "monastery ${feature.id} stands inside a settlement")
+            return
+          }
+        }
+
+        /*
+         * A shrine is clear of any settlement, and it **names an Order**.
+         *
+         * The second half is the one worth asserting on every seed. A shrine's Order is a station channel rather
+         * than a `FeatureKind`, which is the trade `SiteKind.SHRINE` documents taking - and the cost of that
+         * trade is exactly this: nothing in the type system stops an unset channel reaching the materialiser,
+         * where `TownStructures.shrineColumn` would quietly build a Chaos cairn for it. A `-1` here means a
+         * player is looking at the wrong Order's monument, which is a lore bug no map or section view would show.
+         */
+        FeatureKind.SHRINE -> {
+          if (settlements.any { it.position.distanceTo(at) < BUILT_SITE_CLEARANCE }) {
+            fail("built sites are where they claim", "shrine ${feature.id} stands inside a settlement")
+            return
+          }
+          val order = runCatching { marker.attribute(SiteChannels.ORDER).toInt() }.getOrNull()
+          if (order == null || order !in Order.entries.indices) {
+            fail(
+              "built sites are where they claim",
+              "shrine ${feature.id} names no Order (${SiteChannels.ORDER} = $order), so it would " +
+                  "materialise as whichever structure the fallback happens to be"
+            )
             return
           }
         }
@@ -678,6 +705,63 @@ object Invariants {
       }
       if (civ.technology < 0.0 || civ.technology > 1.0) {
         fail("history is self consistent", "civ ${civ.index} has technology ${civ.technology}")
+        return
+      }
+
+      /*
+       * A sworn people has an oath in its span, and an unsworn one has no oath year at all.
+       *
+       * Both halves catch a real shape of mistake rather than an impossible one. `sworn` and `swornYear` are two
+       * fields that have to move together, set in two places - the first oath and a schism - so the failure mode
+       * is one being written without the other, which downstream reads as a people who have believed something
+       * since the year zero.
+       */
+      if (civ.sworn == null && civ.swornYear != 0) {
+        fail(
+          "history is self consistent",
+          "civ ${civ.index} holds no Order but swore in ${civ.swornYear}"
+        )
+        return
+      }
+      if (civ.sworn != null && civ.swornYear !in chronicle.span) {
+        fail(
+          "history is self consistent",
+          "civ ${civ.index} swore to ${civ.sworn} in ${civ.swornYear}, outside ${chronicle.span}"
+        )
+        return
+      }
+    }
+
+    /*
+     * Every shrine names an Order, belongs to a civ, and went up while that civ held that Order.
+     *
+     * The last clause is the one that needs a check rather than a type: a shrine records the Order that raised
+     * it and the civ records only the Order it holds *now*, so after a schism the two legitimately disagree -
+     * which means the assertion cannot be "they match". What it can be is that the shrine's Order was one this
+     * civ ever actually held, and the only record of that is the log. A shrine for an Order its founder never
+     * swore to is a monument with no reason, and it is what a wrong `order` argument to `addSite` would produce.
+     */
+    for (site in chronicle.sitesOfKind(SiteKind.SHRINE)) {
+      val order = site.order
+      if (order == null) {
+        fail("history is self consistent", "shrine ${site.index} names no Order")
+        return
+      }
+      val civ = site.civ.takeIf { it in chronicle.civs.indices }
+      if (civ == null) {
+        fail("history is self consistent", "shrine ${site.index} belongs to no civ (${site.civ})")
+        return
+      }
+      val everHeld = chronicle.civs[civ].sworn == order ||
+          chronicle.eventsOf(Actor(ActorType.CIV, civ)).any {
+            (it.kind == EventKind.ORDER_SWORN || it.kind == EventKind.ORDER_SCHISM) &&
+                it.detail.contains(order.label)
+          }
+      if (!everHeld) {
+        fail(
+          "history is self consistent",
+          "shrine ${site.index} was raised for ${order.shortForm} by civ $civ, which never held it"
+        )
         return
       }
     }

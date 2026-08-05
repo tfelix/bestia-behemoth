@@ -598,6 +598,11 @@ class MapRenderer(
       FeatureKind.MONASTERY -> Color(190, 160, 210)
       FeatureKind.FORT -> Color(120, 130, 160)
       FeatureKind.LIGHTHOUSE -> Color(255, 245, 180)
+      // One colour for all three Orders, deliberately. The map's job here is "there is a shrine there"; which
+      // Order raised it is a question about the site, and `probe -Pon=shrine` and `chronicle -Porders` are
+      // where that is answered. Three colours would also have to be told apart from MONASTERY's violet and
+      // MONUMENT's cream at one pixel per kilometre, which they could not be.
+      FeatureKind.SHRINE -> Color(235, 130, 180)
       FeatureKind.STREET -> Color(245, 215, 170)
       FeatureKind.TOWN_WALL -> Color(200, 200, 205)
       FeatureKind.GATE -> Color(255, 250, 230)

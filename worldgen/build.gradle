@@ -375,6 +375,7 @@ tasks.register('chronicle', JavaExec) {
     if (cli('figures') != null) args '--figures'
     if (cli('sites') != null) args '--sites'
     if (cli('quests') != null) args '--quests'
+    if (cli('orders') != null) args '--orders'
     if (cli('all') != null) args '--all'
 }
 

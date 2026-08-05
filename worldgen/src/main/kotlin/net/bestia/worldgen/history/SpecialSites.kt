@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.vector.FeatureKind
@@ -68,7 +69,19 @@ class SpecialSiteCandidates(
    * quality of 0.97 means "the top three percent of the world's mana", comparable within a world and
    * deliberately not across worlds.
    */
-  val wounds: List<SiteCandidate> = emptyList()
+  val wounds: List<SiteCandidate> = emptyList(),
+
+  /**
+   * Where each Order could raise a shrine, keyed by Order.
+   *
+   * A map rather than three fields because the three lists are the *same* question asked with a different
+   * predicate, and a caller iterating `Order.entries` should not have to know which field belongs to which -
+   * `HistorySim.raiseShrines` looks up the Order it is acting for and that is the whole of the join.
+   *
+   * Empty on a world whose `OrderInfluence` is absent: the scans are three full sweeps of the elevation grid,
+   * and running them for a simulation that will never read them is the one avoidable cost this subsystem has.
+   */
+  val shrines: Map<Order, List<SiteCandidate>> = emptyMap()
 ) {
 
   companion object {
@@ -100,8 +113,100 @@ class SpecialSiteCandidates(
         forts = forts(region, facts, params, elevation, waterLevel, seaLevel),
         lighthouses = lighthouses(region, facts, params, elevation, distanceToOcean, seaLevel),
         caves = caves(ctx, region),
-        wounds = wounds(ctx, region, facts, params, elevation, waterLevel, seaLevel)
+        wounds = wounds(ctx, region, facts, params, elevation, waterLevel, seaLevel),
+        // Skipped entirely when the Orders play no part, which is three sweeps of the elevation grid saved on
+        // every world that has no predecessor. A guard on cost, not on correctness: `raiseShrines` returns on
+        // the same condition, so an empty map and a full one produce the same chronicle there.
+        shrines = if (params.orderInfluence.isAbsent) {
+          emptyMap()
+        } else {
+          shrines(ctx, region, facts, params, elevation, waterLevel, seaLevel)
+        }
       )
+    }
+
+    /**
+     * Where each of the three Orders would put a shrine, which is a different question for each of them.
+     *
+     * The siting *is* the characterisation, and that is why this is three scans rather than one with a
+     * parameter. An Order's conviction says where its working has to be done:
+     *
+     * - **Chaos** works where the mana is strongest, so its cairns go towards a wound. The one kind that wants
+     *   to be near the thing everything else avoids.
+     * - **Eternity** works on the frontier of what it is holding back, so its ward stones go on ground where
+     *   the mana is *rising* but has not yet taken the fields - see [HistoryParams.shrineFrontierMana] for why
+     *   that is below the blight threshold rather than above it.
+     * - **The Circle** measures, so its circles go on high ground with a clear horizon. Height for its own
+     *   sake, which none of the other scans in this file want: a monastery's height term is a proxy for
+     *   defensibility and a lighthouse's is relative to its distance from the water.
+     *
+     * All three share the clearance and dry-ground filters every built site uses, and all three are separated
+     * and capped by [scan] like any other kind.
+     */
+    private fun shrines(
+      ctx: GenContext,
+      region: CellRegion,
+      facts: List<SiteFacts>,
+      params: HistoryParams,
+      elevation: FloatLayer,
+      waterLevel: FloatLayer,
+      seaLevel: Double
+    ): Map<Order, List<SiteCandidate>> {
+      // The raw geological field, like `wounds` reads and for the same reason: this stage runs before
+      // `CorruptionStage`, so the only mana field in existence is the one the ground has.
+      val mana = if (ctx.layers.contains(LayerId.MANA_DENSITY)) ctx.layers.float(LayerId.MANA_DENSITY) else null
+
+      /** Shared by all three: out of town, on dry land, not in a lake. */
+      fun sitable(position: Vec2d): Boolean {
+        if (!isDryGround(elevation, position, seaLevel, params.siteFreeboard)) return false
+        if (!isClearOfStandingWater(waterLevel, region, position)) return false
+        // A shrine stands apart from the town that tends it. The reach half - that some town is near enough to
+        // have raised it at all - is the simulation's, in `raiseShrines`, because it depends on which towns are
+        // standing in the year it goes up.
+        return facts.none { it.position.distanceTo(position) < params.shrineClearance }
+      }
+
+      val chaos = scan(region, params) { position ->
+        if (mana == null) return@scan null
+        if (!sitable(position)) return@scan null
+        val density = mana.sampleBilinear(position.x, position.y)
+        if (density.isNaN()) return@scan null
+        // Towards a wound, but not required to *be* one - a cairn at the rim of a blighted province is a place
+        // people went to, and the peaks themselves are already taken by `wounds` and cleared of settlement.
+        if (density < params.blightMana) return@scan null
+        SiteCandidate(position, density)
+      }
+
+      val eternity = scan(region, params) { position ->
+        if (mana == null) return@scan null
+        if (!sitable(position)) return@scan null
+        val density = mana.sampleBilinear(position.x, position.y)
+        if (density.isNaN()) return@scan null
+        // The band between "the mana is noticeable here" and "the fields have already failed". A ward stone
+        // above the blight threshold would stand inside ground nobody farmed, which is the `require` in
+        // `HistoryParams` stated as a filter.
+        if (density < params.shrineFrontierMana || density >= params.blightMana) return@scan null
+        // Best where the frontier is sharpest: high mana for a place still worth defending.
+        SiteCandidate(position, density)
+      }
+
+      val circle = scan(region, params) { position ->
+        if (!sitable(position)) return@scan null
+        val ground = elevation.sampleBilinear(position.x, position.y)
+        val step = params.saddleSpan
+        // A clear horizon, measured the way `forts` measures a saddle and with the opposite sign: this wants
+        // ground that stands *above* its neighbours on both axes rather than a gap between shoulders.
+        val relief = ground - maxOf(
+          elevation.sampleBilinear(position.x - step, position.y),
+          elevation.sampleBilinear(position.x + step, position.y),
+          elevation.sampleBilinear(position.x, position.y - step),
+          elevation.sampleBilinear(position.x, position.y + step)
+        )
+        if (relief < params.saddleRelief) return@scan null
+        SiteCandidate(position, relief)
+      }
+
+      return mapOf(Order.CHAOS to chaos, Order.ETERNITY to eternity, Order.CIRCLE to circle)
     }
 
     /**

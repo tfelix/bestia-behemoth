@@ -1,5 +1,6 @@
 package net.bestia.zone.world
 
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.voxel.RleCodec
@@ -13,6 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -216,6 +218,75 @@ class WorldProvisioningTest {
 
     assertEquals(stored.id, service.record.id)
     assertEquals(64, service.record.widthCells, "generation follows the row, not the configuration")
+  }
+
+  @Test
+  fun `Genesis has no previous victor, so its history mentions no Order`() {
+    val world = provisioning.findOrCreate()
+
+    assertNull(
+      world.previousWinningOrder,
+      "the first world a server creates has no predecessor, so no Order can have won one"
+    )
+    assertNull(world.winningOrder, "nothing scores a world yet, so this must not be guessed at")
+
+    // The consequence, asserted rather than assumed: with no previous victor the generator is handed
+    // `OrderInfluence.NONE` and the chronicle comes out with no Order in it at all.
+    assertTrue(
+      settings.paramsFor(world.previousWinningOrder).history.orderInfluence.isAbsent,
+      "Genesis was handed a tuning that puts the Orders into its history"
+    )
+  }
+
+  @Test
+  fun `regenerating carries the outgoing world's victor into the world that replaces it`() {
+    // The whole cross-incarnation mechanism, and the only piece of state in the server that survives a
+    // regeneration. Everything else in the row is derived from the seed and is thrown away with it.
+    val outgoing = worldRepository.save(worldOf(seed = 4242L, widthCells = 64, heightCells = 64))
+    outgoing.winningOrder = Order.ETERNITY
+    worldRepository.save(outgoing)
+
+    val replacement = provisioning.recreate()
+
+    assertEquals(
+      Order.ETERNITY,
+      replacement.previousWinningOrder,
+      "the new world does not know which Order won the one it replaced"
+    )
+    assertNull(replacement.winningOrder, "the replacement's own fate has not been decided yet")
+    assertEquals(1, worldRepository.count(), "the old world should have been replaced, not joined")
+  }
+
+  @Test
+  fun `a world with no recorded victor carries nothing forward`() {
+    // The case that actually happens today, since nothing scores a world yet. It has to behave exactly like
+    // Genesis rather than picking a default, or every regeneration would invent a winner.
+    worldRepository.save(worldOf(seed = 4242L, widthCells = 64, heightCells = 64))
+
+    val replacement = provisioning.recreate()
+
+    assertNull(replacement.previousWinningOrder)
+    assertTrue(settings.paramsFor(replacement.previousWinningOrder).history.orderInfluence.isAbsent)
+  }
+
+  @Test
+  fun `the previous victor is part of the world's identity, not a runtime setting`() {
+    /*
+     * The property that makes the carry-forward safe, and the reason `paramsFor` is a function of the row.
+     *
+     * A world generated after Chaos won is a *different world* from the same seed generated after Eternity won -
+     * its towns were founded by peoples with different convictions, so different ones were forsaken and
+     * different shrines stand on the map. Folding that into `pipelineVersion` is what makes the boot gate say so
+     * instead of serving one world's chunks against the other's history.
+     */
+    val config = settings.copy(widthCells = 64, heightCells = 64).toWorldConfig(4242L)
+
+    val none = StandardWorld.pipeline(config, settings.paramsFor(null)).pipelineVersion
+    val chaos = StandardWorld.pipeline(config, settings.paramsFor(Order.CHAOS)).pipelineVersion
+    val eternity = StandardWorld.pipeline(config, settings.paramsFor(Order.ETERNITY)).pipelineVersion
+
+    assertNotEquals(none, chaos, "an Order-shaped world versions the same as an Order-free one")
+    assertNotEquals(chaos, eternity, "two different victors produce the same pipeline version")
   }
 
   /** A stored world whose version vector is correct for this build unless a field is overridden. */

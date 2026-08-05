@@ -5,6 +5,7 @@ import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.EventKind
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.history.Names
@@ -35,7 +36,19 @@ import java.util.Locale
  * ./gradlew :worldgen:chronicle -Pfigures          # everybody the log remembers
  * ./gradlew :worldgen:chronicle -Psites            # ruins, battlefields, tombs and monuments
  * ./gradlew :worldgen:chronicle -Pquests           # unresolved threads worth turning into quests
+ * ./gradlew :worldgen:chronicle -Porders           # who is sworn to which Order, and what came of it
  * ./gradlew :worldgen:chronicle -Pall              # everything, at length
+ * ```
+ *
+ * `-Porders` prints nothing on most worlds, and that is the answer rather than a gap: the Orders appear only
+ * in the history of a world whose predecessor had a victor. To see one that does, hand it a params file -
+ * `HistoryParams` became loadable for exactly this:
+ *
+ * ```text
+ * params-format = 1
+ * history.orderInfluence.chaos    = 1.5
+ * history.orderInfluence.eternity = 1.0
+ * history.orderInfluence.circle   = 1.0
  * ```
  */
 object ChronicleMain {
@@ -70,6 +83,7 @@ object ChronicleMain {
     if (all || cli.has("--figures")) figures(chronicle)
     if (all || cli.has("--artifacts")) artifacts(chronicle)
     if (all || cli.has("--sites")) sites(chronicle)
+    if (all || cli.has("--orders")) orders(chronicle)
     if (all || cli.has("--quests")) quests(chronicle)
 
     top(chronicle, cli.int("--top") ?: DEFAULT_TOP)
@@ -128,7 +142,10 @@ object ChronicleMain {
         .sumOf { chronicle.settlements[it].population }
 
       println()
-      println("  $name (${Culture.byIndex(civ.cultureIndex).name}), $span")
+      // The Order only when there is one, so an unaligned people - and every people on a world where the
+      // Orders play no part - reads exactly as it did before they existed.
+      val allegiance = civ.sworn?.let { ", ${it.shortForm} since ${civ.swornYear}" } ?: ""
+      println("  $name (${Culture.byIndex(civ.cultureIndex).name})$allegiance, $span")
       line("    settlements", "$standing standing of ${civ.settlements.size} ever held")
       line("    people", "$people, peak ${civ.peakPopulation}")
       line("    technology", fixed(civ.technology))
@@ -345,6 +362,76 @@ object ChronicleMain {
     }
   }
 
+  /**
+   * Who is sworn to which Order, and everything that followed from it.
+   *
+   * Prints one line and stops on a world where the Orders play no part, which is the default and every world
+   * with no previous incarnation. Saying so explicitly matters more here than in the other views: a view that
+   * printed "no civilisation is sworn" would read as a world where the Orders lost, when in fact it is a world
+   * where they do not yet exist - and that distinction is the whole cosmology.
+   */
+  private fun orders(chronicle: Chronicle) {
+    println()
+    println("the Orders")
+
+    if (!chronicle.hasOrders) {
+      println("  absent from this world's history - no previous incarnation had a victor")
+      println("  (set history.orderInfluence.* in a params file to generate a world where they do)")
+      return
+    }
+
+    val sworn = chronicle.civs.count { it.sworn != null }
+    line("  sworn", "$sworn of ${chronicle.civs.size} civilisations")
+    for ((order, count) in chronicle.orderCensus()) {
+      val surviving = chronicle.civsSwornTo(order).count { it.exists }
+      line("    ${order.shortForm}", "$count held, $surviving surviving")
+    }
+
+    for (civ in chronicle.civs.filter { it.sworn != null }) {
+      val order = civ.sworn ?: continue
+      println()
+      println(
+        "  ${Names.civ(civ.nameSeed, civ.cultureIndex)} - ${order.shortForm}, sworn ${civ.swornYear}"
+      )
+      // Their own oaths and schisms, in order, so a people who changed their mind reads as a sequence.
+      chronicle.eventsOf(Actor(ActorType.CIV, civ.index))
+        .filter { it.kind == EventKind.ORDER_SWORN || it.kind == EventKind.ORDER_SCHISM }
+        .forEach { println("      ${it.year.toString().padStart(5)}  ${it.detail}") }
+    }
+
+    val shrines = chronicle.sitesOfKind(SiteKind.SHRINE)
+    println()
+    println("  ${shrines.size} shrines")
+    for (site in shrines.take(SITES_PER_KIND)) {
+      val name = Names.site(
+        site.nameSeed, cultureOf(chronicle, site.settlement.coerceAtLeast(0)),
+        if (site.settlement >= 0) {
+          Names.place(chronicle.settlements[site.settlement].nameSeed, cultureOf(chronicle, site.settlement))
+        } else {
+          "the wilds"
+        },
+        shrineForm(site.order)
+      )
+      println(
+        "    $name (${site.order?.shortForm ?: "unclaimed"}), raised ${site.year}, " +
+            "decay ${fixed(site.decay)}"
+      )
+    }
+
+    val rites = chronicle.events.filter { it.kind == EventKind.RITE_PERFORMED }
+    println()
+    println("  ${rites.size} rites performed")
+    rites.takeLast(THREADS_PER_KIND).forEach { println("    ${it.year}: ${it.detail}") }
+  }
+
+  /** Mirrors `HistorySim.siteName`'s shrine forms, so the two views name one shrine the same way. */
+  private fun shrineForm(order: Order?) = when (order) {
+    Order.CHAOS -> "cairn"
+    Order.ETERNITY -> "ward"
+    Order.CIRCLE -> "circle"
+    null -> "shrine"
+  }
+
   private fun cultureOf(chronicle: Chronicle, settlement: Int): Int =
     chronicle.settlements[settlement].ownerCiv.takeIf { it >= 0 }
       ?.let { chronicle.civs[it].cultureIndex }
@@ -364,6 +451,6 @@ object ChronicleMain {
   private const val THREADS_PER_KIND = 8
 
   private val CHRONICLE_FLAGS = setOf(
-    "--top", "--year", "--civs", "--artifacts", "--figures", "--sites", "--quests", "--all"
+    "--top", "--year", "--civs", "--artifacts", "--figures", "--sites", "--quests", "--orders", "--all"
   )
 }

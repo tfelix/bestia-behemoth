@@ -82,6 +82,26 @@ class Chronicle(
 
   fun sitesOfKind(kind: SiteKind): List<SiteRecord> = sites.filter { it.kind == kind }
 
+  /**
+   * Whether the Orders appear in this world's history at all.
+   *
+   * False for a first incarnation, and the one question every reader of the log should ask before rendering
+   * anything about them - a view that says "no civilisation is sworn" on a world where the concept does not
+   * exist is telling the player about a mechanic they cannot see.
+   */
+  val hasOrders: Boolean get() = civs.any { it.sworn != null }
+
+  fun civsSwornTo(order: Order): List<CivRecord> = civs.filter { it.sworn == order }
+
+  /** How many civilisations hold each Order at [presentYear], strongest first. Empty when [hasOrders] is false. */
+  fun orderCensus(): List<Pair<Order, Int>> = civs
+    .mapNotNull { it.sworn }
+    .groupingBy { it }
+    .eachCount()
+    .entries
+    .sortedWith(compareByDescending<Map.Entry<Order, Int>> { it.value }.thenBy { it.key.ordinal })
+    .map { it.key to it.value }
+
   /** Counts by event kind, for a census line that says what sort of history this world had. */
   fun eventCensus(): List<Pair<EventKind, Int>> = events
     .groupingBy { it.kind }
@@ -102,6 +122,70 @@ class Chronicle(
 
 /** What sort of entity an [Actor] refers to. */
 enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE }
+
+/**
+ * One of the three Orders a people can be sworn to: what they believe the mana means.
+ *
+ * ### Why this is here and not in `history/`
+ *
+ * [CivRecord] holds one, and `core` does not import a stage package - which is exactly why
+ * `CivRecord.cultureIndex` is an `Int` rather than a `net.bestia.worldgen.civ.Culture`. An Order is chronicle
+ * vocabulary in the same way [FigureRole] and [ArtifactKind] are, so it lives beside them and the history
+ * stage reads it from here. What *is* in `history/` is `OrderInfluence`, which is tuning rather than vocabulary.
+ *
+ * ### Why this is not a [net.bestia.worldgen.civ.Culture]
+ *
+ * A culture is *how a people lives* - what ground it settles, how it builds, what it trades - and there are
+ * four of them. An Order is *what it believes about the mana*, and there are three. The two are orthogonal: a
+ * highland people can be sworn to any of these, and folding them together would both cost a culture and make
+ * "mining people" and "thinks the world should burn" the same axis.
+ *
+ * ### The Orders are absent from most worlds' history
+ *
+ * They appear only when a previous incarnation had a victor - see `OrderInfluence`. The first world has no
+ * Order in its chronicle at all, because no Order has yet won anything to be remembered for.
+ *
+ * Folded into the history stage's `paramsVersion` by name via [catalogueDigest], so [label] is a tuning
+ * change like any other: it reaches every rendered chronicle line.
+ */
+enum class Order(
+  /** How the chronicle names it. */
+  val label: String,
+  /** The short form, for a table or a census line. */
+  val shortForm: String
+) {
+  /** The world is already dying; hasten it, so that the next one can be born. */
+  CHAOS("the Order of Chaos", "Chaos"),
+
+  /** This world can be held, and holding it is worth any cost. */
+  ETERNITY("the Order of Eternity", "Eternity"),
+
+  /** The cycle is not to be stopped, only kept to its proper hour. */
+  CIRCLE("the Order of the Circle", "Circle");
+
+  /** The Order whose conviction is the flat contradiction of this one. The Circle opposes neither. */
+  val opposite: Order?
+    get() = when (this) {
+      CHAOS -> ETERNITY
+      ETERNITY -> CHAOS
+      CIRCLE -> null
+    }
+
+  companion object {
+
+    /**
+     * Fingerprint of the roster, by name - so a reorder is free.
+     *
+     * Nothing stores an `Order` ordinal *except* the `order` station channel, and that is written and read
+     * inside one generation of one world, never across two. [label] is folded because it reaches prose.
+     */
+    fun catalogueDigest(): Long {
+      val digest = ParamsDigest()
+      for (order in entries) digest.put(order.name, order.label)
+      return digest.value
+    }
+  }
+}
 
 /**
  * A typed reference into one of the chronicle's entity lists.
@@ -130,7 +214,6 @@ enum class EventKind(
 ) {
   CIV_FOUNDED(90),
   SETTLEMENT_FOUNDED(60),
-  SETTLEMENT_GREW(10),
   SETTLEMENT_WALLED(45),
   WAR_DECLARED(70),
   BATTLE(55),
@@ -144,7 +227,6 @@ enum class EventKind(
   FAMINE(45),
   FLOOD(35),
   ERUPTION(60),
-  FIGURE_BORN(15),
   FIGURE_ROSE(45),
   FIGURE_DIED(30),
   FIGURE_SLAIN(55),
@@ -229,7 +311,44 @@ enum class EventKind(
   SETTLEMENT_BURIED(80),
 
   /** A prophet or a scholar went out to the wound and did not come back. */
-  SEER_VANISHED(45);
+  SEER_VANISHED(45),
+
+  // --- The Orders -------------------------------------------------------------------------------------
+  //
+  // These four exist only on a world whose `OrderInfluence` is present, which is to say one whose predecessor
+  // had a victor. On the first world they are never logged and `Order` is never named, which is deliberate:
+  // there is nothing for a chronicle to remember an Order *for* until one has won something.
+  //
+  // All four are at or above `HistoryParams.importanceFloor` (40), on the argument the mana kinds record
+  // above: below the floor an event is sampled one in twenty-four, so a shrine standing on the ground with
+  // nothing in the log to say who raised it would be the `LIGHTHOUSE_LIT` mistake a third time.
+
+  /**
+   * A civilisation swore itself to one of the three Orders.
+   *
+   * Cites the civ's [CIV_FOUNDED] - and [STAR_FELL] too, once that has happened - so `Chronicle.provenanceOf`
+   * threads a sworn people back to the thing they are arguing about in one hop.
+   */
+  ORDER_SWORN(60),
+
+  /**
+   * A civilisation abandoned its Order for another.
+   *
+   * Rare, and it is what keeps a world from coming out as three monoliths - as well as the sharpest thing an
+   * NPC can be bitter about, since the schism is in the log with the year and the reason on it.
+   */
+  ORDER_SCHISM(55),
+
+  /** An Order's shrine went up: a cairn at a wound, a ward stone on a frontier, a circle on high ground. */
+  SHRINE_RAISED(45),
+
+  /**
+   * An Order's signature working, performed somewhere it mattered.
+   *
+   * The quietest of the four and the one that does the "a hint here and there" work: it leaves nothing on the
+   * ground, it happens repeatedly across a thousand years, and it is what a townsperson brings up unprompted.
+   */
+  RITE_PERFORMED(45);
 
   companion object {
 
@@ -334,7 +453,25 @@ data class CivRecord(
    * only be complained about in the abstract, which is the difference between a world with history and a
    * world with a diplomacy slider.
    */
-  val grudges: List<Pair<Int, Int>>
+  val grudges: List<Pair<Int, Int>>,
+
+  /**
+   * The Order this people is sworn to at [Chronicle.presentYear], or null for an unaligned one.
+   *
+   * Null on every civ of a world whose predecessor had no victor, and null on a good share of the civs even
+   * where the Orders *are* present - `HistoryParams.orderSwornShare` decides how many ever swear at all. An
+   * unaligned people is the normal case rather than an oversight, and it is most of what keeps the Orders a
+   * thread through a history rather than the subject of one.
+   *
+   * The *current* Order, after any schism. What it was before, and when it changed, is in the log as
+   * [EventKind.ORDER_SWORN] and [EventKind.ORDER_SCHISM] - which is the same choice
+   * [SettlementRecord.oldNameSeed] makes for a conquered name, and for the same reason: a record holds the
+   * present, and the log holds how it got there.
+   */
+  val sworn: Order? = null,
+
+  /** Year it swore to [sworn] - its latest oath, not its first - or 0 if it never swore. */
+  val swornYear: Int = 0
 ) {
   val exists get() = endedYear == 0
 }
@@ -352,7 +489,16 @@ data class FigureRecord(
   /** 0 while still alive at [Chronicle.presentYear]. */
   val deathYear: Int,
   /** Site index of the tomb, or -1 for a figure with no known grave. */
-  val restingSite: Int
+  val restingSite: Int,
+
+  /**
+   * The Order this person held to, or null.
+   *
+   * Usually their civ's, and deliberately *not* always: a person who holds a different Order from the people
+   * around them is where [EventKind.ORDER_SCHISM] comes from, and a prophet who died for a conviction their
+   * own city did not share is a better grave to find than one who agreed with everybody.
+   */
+  val sworn: Order? = null
 )
 
 /** What sort of thing an artifact is. Decides what it is made of and who wanted it. */
@@ -455,7 +601,25 @@ enum class SiteKind {
    *
    * At most three per world, at the peaks of the mana field, so this is the rarest kind by a wide margin.
    */
-  WOUND
+  WOUND,
+
+  /**
+   * A place one of the three Orders raised to work at: a crystal cairn, a ward stone, a gnomon circle.
+   *
+   * Built on purpose, like a [FORT] - and the one kind whose *shape* is decided by something other than its
+   * kind. Which of the three it is comes from `SiteChannels.ORDER` on the marker, not from a kind of its own,
+   * and that is a deliberate departure from the argument [ASH_RUIN] makes one screen up.
+   *
+   * That argument was that a kind plus a type channel costs a channel on every site marker in the world, while
+   * four kinds cost nothing extra. It is weaker here for two reasons. The channel is going onto every marker
+   * regardless, because every view that renders a site's prose wants to know whether an Order raised it. And
+   * the three shrines are the same *class* of structure - a small stone thing standing on graded ground,
+   * tens of metres across - where a mound and a ruin field genuinely are not.
+   *
+   * If they ever diverge structurally, splitting this into three kinds is mechanical: the channel already
+   * carries the discriminator the split would need.
+   */
+  SHRINE
 }
 
 data class SiteRecord(
@@ -492,5 +656,17 @@ data class SiteRecord(
    * and "this is at 412 m" are different statements, and only the second one should survive a change to the
    * heightfield. Every kind but [SiteKind.HOARD] is NaN today.
    */
-  val elevation: Double = Double.NaN
+  val elevation: Double = Double.NaN,
+
+  /**
+   * The Order that raised this, or null for every kind but a [SiteKind.SHRINE].
+   *
+   * The discriminator [SiteKind.SHRINE]'s KDoc argues for: it decides which of the three structures the
+   * materialiser builds, and which of three name forms the site gets, so one kind covers all three.
+   *
+   * Null rather than absent on the other kinds, and not because nothing else could ever have one - a monument
+   * raised by a sworn people is a real thing this could describe later. It is null today because nothing sets
+   * it, and a reader must treat null as "no Order raised this" rather than as "unknown".
+   */
+  val order: Order? = null
 )

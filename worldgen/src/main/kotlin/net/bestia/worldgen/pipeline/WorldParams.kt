@@ -278,7 +278,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "history", "town", "economy", "detail", "strata", "crystal", "spawner", "vegetationStand"
+      "town", "economy", "detail", "strata", "crystal", "spawner", "vegetationStand"
     )
 
     /**
@@ -297,6 +297,10 @@ data class WorldParams(
         resource = base.resource.overriddenBy(text.scope("resource")),
         cave = base.cave.overriddenBy(text.scope("cave")),
         mana = base.mana.overriddenBy(text.scope("mana")),
+        // Off `NOT_YET_LOADABLE` because the Orders needed it: their influence over a world's history is the
+        // one number in `HistoryParams` a server sets per world rather than a designer setting once, and while
+        // this class was unloadable there was no path for it at all. The other fifty fields came along free.
+        history = base.history.overriddenBy(text.scope("history")),
         corruption = base.corruption.overriddenBy(text.scope("corruption")),
         weather = base.weather.overriddenBy(text.scope("weather")),
         droplets = base.droplets.overriddenBy(text.scope("droplets")),

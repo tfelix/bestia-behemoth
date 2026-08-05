@@ -1,5 +1,7 @@
 package net.bestia.zone.world
 
+import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.history.OrderInfluence
 import net.bestia.worldgen.pipeline.WorldParams
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -52,7 +54,20 @@ data class WorldGenConfig(
   val wrapY: Boolean = true,
 
   /** What to do when the stored world is not the world these settings and this build describe. */
-  val onMismatch: OnMismatch = OnMismatch.REFUSE
+  val onMismatch: OnMismatch = OnMismatch.REFUSE,
+
+  /**
+   * Which Order to treat as the previous incarnation's victor when there is no previous incarnation to ask.
+   *
+   * **A development lever, not the source of truth.** The real answer comes off the world being replaced, in
+   * [WorldProvisioning.recreate], which reads `PersistedWorld.winningOrder` from the row it is discarding. This
+   * only applies when there is no such row - the first world a server ever creates - and exists so that an
+   * Order-shaped world can be generated and looked at without faking a whole world lifecycle first.
+   *
+   * Left unset, Genesis has no Order in its history at all, which is the intended first-incarnation behaviour:
+   * the Orders are remembered for having won something, and on the first world none of them has.
+   */
+  val previousWinningOrder: Order? = null
 ) {
 
   /**
@@ -98,19 +113,37 @@ data class WorldGenConfig(
   /**
    * The generator tuning this server builds with: the two hundred-odd numbers that are not [WorldConfig] fields.
    *
-   * **One value, read by every call site**, and that is the whole reason it is here rather than defaulted at
-   * each of them. Five places construct or version the pipeline - [WorldProvisioning.create] stamps the birth
-   * version into the row, [WorldService.incompatibilityOf] recomputes it to compare, and three build the world -
-   * and while every one of them let `params` default they agreed for free. The moment they do not, the boot gate
-   * compares a `pipelineVersion` that **nothing generated**: the row would hold the version of one tuning, the
-   * terrain would be built from another, and the check that exists to catch exactly that would pass.
-   *
    * Not yet configurable, deliberately. Reading a params file means a path in `application.yml` and a decision
    * about what happens when it changes under a live world, which is server work rather than generator work. What
    * this closes now is the structural hole: when that arrives it is set *here*, once, and every consumer already
-   * reads it.
+   * reads it through [paramsFor].
    */
-  val params: WorldParams = WorldParams.DEFAULT
+  private val baseParams: WorldParams = WorldParams.DEFAULT
+
+  /**
+   * The tuning for a world that follows one [previousWinner] won, or the plain tuning when nothing preceded it.
+   *
+   * ### Why this is a function of the world rather than a constant
+   *
+   * It used to be a `val params`, and its KDoc made the load-bearing point: **one value, read by every call
+   * site.** Four places construct or version the pipeline - [WorldProvisioning.create] stamps the birth version
+   * into the row, [WorldService.incompatibilityOf] recomputes it to compare, and two build the world - and if any
+   * two of them disagree, the boot gate compares a `pipelineVersion` that *nothing generated*: the row holds the
+   * version of one tuning, the terrain is built from another, and the check written to catch exactly that passes.
+   *
+   * That property is not weakened by making this a function, it is strengthened - as long as every caller passes
+   * **the row's** `previousWinningOrder` rather than this config's. The tuning then becomes a pure function of
+   * the stored world, which is precisely what the boot gate compares against. Passing [previousWinningOrder]
+   * from here at any site other than the creation of a brand new world would reintroduce the hole.
+   */
+  fun paramsFor(previousWinner: Order?): WorldParams =
+    if (previousWinner == null) {
+      baseParams
+    } else {
+      baseParams.copy(
+        history = baseParams.history.copy(orderInfluence = OrderInfluence.favouring(previousWinner))
+      )
+    }
 
   init {
     require(name.isNotBlank()) { "A world needs a name" }

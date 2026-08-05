@@ -6,6 +6,7 @@ import net.bestia.worldgen.civ.RoofShape
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.history.SiteChannels
@@ -227,7 +228,9 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     val position: Vec2d,
     val radius: Double,
     val decay: Double,
-    val salt: Long
+    val salt: Long,
+    /** The Order that raised it, for a [SiteKind.SHRINE]. Null for every other kind. */
+    val order: Order? = null
   )
 
   private val buildings: List<Structure> = features
@@ -295,19 +298,46 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     .filter { it.kind in SITE_KINDS }
     .filterIsInstance<PointMarker>()
     .mapNotNull { marker ->
+      // Exhaustive, and it was not: this used to end in `else -> SiteKind.MONUMENT`, so a new site kind
+      // would compile cleanly and materialise as a stone obelisk. The three `when (SiteKind)` expressions
+      // elsewhere are compile errors when a kind is added, which is the whole point of writing them without
+      // an `else` - and this one quietly opted out of that protection. `kindOf` returns null for anything
+      // not in SITE_KINDS, so adding a kind to one list without the other drops the site rather than
+      // disguising it.
+      val kind = kindOf(marker.kind) ?: return@mapNotNull null
+
       runCatching {
         Site(
-          // Exhaustive, and it was not: this used to end in `else -> SiteKind.MONUMENT`, so a new site kind
-          // would compile cleanly and materialise as a stone obelisk. The three `when (SiteKind)` expressions
-          // elsewhere are compile errors when a kind is added, which is the whole point of writing them without
-          // an `else` - and this one quietly opted out of that protection. `kindOf` returns null for anything
-          // not in SITE_KINDS, so adding a kind to one list without the other drops the site rather than
-          // disguising it.
-          kind = kindOf(marker.kind) ?: return@mapNotNull null,
+          kind = kind,
           position = marker.position,
           radius = marker.attribute(SiteChannels.RADIUS),
           decay = marker.attribute(SiteChannels.DECAY).coerceIn(0.0, 1.0),
-          salt = marker.id.value
+          salt = marker.id.value,
+          /*
+           * Read **only for a shrine**, which is the only kind it means anything for - and that condition is
+           * load-bearing rather than an optimisation.
+           *
+           * The enclosing `runCatching` drops the entire site when anything throws, so a channel read
+           * unconditionally here becomes a requirement on every marker any caller ever builds. Reading this one
+           * without the guard cost three `SubtractionTest` cases and one `VegetationTest` case, all of which
+           * hand-build a `MINE` marker carrying only `RADIUS` and `DECAY`: `attribute` threw, the mine was
+           * silently dropped, and the failure surfaced as "the shaft has a lid on it" with nothing anywhere
+           * pointing at a missing channel. `SiteChannels.ELEVATION`'s KDoc predicted exactly this - "the caller
+           * that wrapped it in `runCatching` to cope would then swallow a genuinely missing channel too" - and
+           * this is that caller.
+           *
+           * `HistoryStage` writes the channel on every site marker regardless, for the reason that KDoc gives.
+           * What this guard says is narrower and compatible: the *reader* depends on it only where it is used.
+           *
+           * `getOrNull` rather than a bare index because the ordinal is a category - written as a `Double`,
+           * never interpolated - and an out-of-range value should leave a plain cairn rather than throw a
+           * whole chunk's materialisation away.
+           */
+          order = if (kind == SiteKind.SHRINE) {
+            Order.entries.getOrNull(marker.attribute(SiteChannels.ORDER).toInt())
+          } else {
+            null
+          }
         )
       }.getOrNull()
     }
@@ -520,6 +550,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.FORT -> fortColumn(site, ground, distance, into)
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
       SiteKind.WOUND -> woundColumn(site, ground, distance, into)
+      SiteKind.SHRINE -> shrineColumn(site, ground, distance, into)
       // A battlefield is bones and rusted iron in the grass, which is a scatter pass rather than a structure.
       SiteKind.BATTLEFIELD -> Unit
       // A hoard is a marker for whatever spawns the treasure, not masonry. It is also *underground*, and this
@@ -774,6 +805,61 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   }
 
   /**
+   * One of three structures, chosen by which Order raised the shrine.
+   *
+   * This is the one place the order-on-a-channel design has to earn itself, so it is worth saying what the three
+   * are and why they are distinguishable at a metre per voxel - which is the resolution that decides whether a
+   * player can tell them apart at all:
+   *
+   * - **Chaos** raises a **cairn**: one squat heap of blighted stone at the centre, no enclosure. It reads as
+   *   something piled rather than built, which is the point - the Order that wants the ground opened does not
+   *   put up architecture.
+   * - **Eternity** raises a **ward stone**: a single tall pillar on a low plinth. The tallest of the three and
+   *   the narrowest, so it is the one visible from a distance, which is what a boundary marker is for.
+   * - **The Circle** raises a **circle**: a ring of standing stones with open ground inside. The only one with a
+   *   hole in the middle, and at eighteen metres across that ring is four or five voxels thick with a clear
+   *   interior - unmistakable from above and the reason the radius is not smaller.
+   *
+   * A null order builds the cairn. That is unreachable through `HistorySim`, which always sets one, and it is a
+   * cairn rather than a throw because a missing discriminator should cost a player a slightly wrong pile of
+   * rocks rather than a hole in the world where a chunk failed to materialise.
+   */
+  private fun shrineColumn(site: Site, ground: Double, distance: Double, into: StructureSpans) {
+    val fraction = distance / site.radius
+    // Weathering, gentler than a fort's: these are single stones and a heap, and there is nothing in them to
+    // fall down. What decay takes is height, not integrity.
+    val decay = 1.0 - site.decay * 0.35
+
+    when (site.order) {
+      Order.CIRCLE -> {
+        // The ring only. Inside and outside it are open ground, which is what makes this shape read as a circle
+        // rather than as a drum.
+        if (fraction < SHRINE_RING_INNER || fraction > SHRINE_RING_OUTER) return
+        into.add(ground - WALL_FOOTING, ground + SHRINE_RING_HEIGHT * decay, BlockType.MASONRY)
+      }
+
+      Order.ETERNITY -> when {
+        fraction < SHRINE_PILLAR_SHARE ->
+          into.add(ground - SLAB_THICKNESS, ground + SHRINE_PILLAR_HEIGHT * decay, BlockType.MASONRY)
+
+        fraction < SHRINE_PLINTH_SHARE ->
+          into.add(ground - SLAB_THICKNESS, ground + SHRINE_PLINTH_HEIGHT, BlockType.MASONRY)
+
+        else -> Unit
+      }
+
+      // Chaos, and the fallback. A dome of blighted stone: highest at the centre and tapering to nothing, so it
+      // is a heap rather than a building.
+      Order.CHAOS, null -> {
+        if (fraction > SHRINE_CAIRN_SHARE) return
+        val across = fraction / SHRINE_CAIRN_SHARE
+        val height = SHRINE_CAIRN_HEIGHT * decay * sqrt(1.0 - across * across)
+        if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.RUBBLE)
+      }
+    }
+  }
+
+  /**
    * The spire one lattice cell of one wound holds, or null.
    *
    * A pure function of the cell and the site, so a column and a chunk reach the same verdict about the same
@@ -891,7 +977,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       FeatureKind.MONASTERY to SiteKind.MONASTERY,
       FeatureKind.FORT to SiteKind.FORT,
       FeatureKind.LIGHTHOUSE to SiteKind.LIGHTHOUSE,
-      FeatureKind.WOUND to SiteKind.WOUND
+      FeatureKind.WOUND to SiteKind.WOUND,
+      FeatureKind.SHRINE to SiteKind.SHRINE
     )
 
     fun kindOf(kind: FeatureKind): SiteKind? = SITE_KINDS[kind]
@@ -904,6 +991,23 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
      * standing stubs visible rather than swallowing them.
      */
     const val ASH_DEPTH = 2.2
+
+    // The three shrines. Every share is a fraction of `HistorySim.SHRINE_RADIUS` (18 m), so the ring is between
+    // 11.7 m and 15.8 m out - a band about four metres thick with a clear interior, which is what makes a circle
+    // read as a circle at a metre per voxel rather than as a low drum.
+    const val SHRINE_RING_INNER = 0.65
+    const val SHRINE_RING_OUTER = 0.88
+    const val SHRINE_RING_HEIGHT = 2.6
+
+    /** The ward stone: a single pillar, the tallest of the three so it carries across a frontier. */
+    const val SHRINE_PILLAR_SHARE = 0.16
+    const val SHRINE_PILLAR_HEIGHT = 5.4
+    const val SHRINE_PLINTH_SHARE = 0.42
+    const val SHRINE_PLINTH_HEIGHT = 0.6
+
+    /** The cairn: a dome of rubble, wide and low, so it reads as piled rather than built. */
+    const val SHRINE_CAIRN_SHARE = 0.55
+    const val SHRINE_CAIRN_HEIGHT = 2.9
 
     /** How much of the ash a fully decayed site has lost to weathering and slumping. */
     const val ASH_SETTLING = 0.35

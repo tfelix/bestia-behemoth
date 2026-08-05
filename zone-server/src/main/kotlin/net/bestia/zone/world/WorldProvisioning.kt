@@ -1,6 +1,7 @@
 package net.bestia.zone.world
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.ecs.script.ScriptComponent
@@ -63,6 +64,19 @@ class WorldProvisioning(
   fun recreate(): PersistedWorld {
     val discarded = worldRepository.findFirstByOrderByIdAsc()
 
+    /*
+     * Read the outgoing world's victor **before** the delete, and carry it into the world that replaces it.
+     *
+     * This is the one thing that survives a regeneration, and this line is the whole of the mechanism: the next
+     * world's deep history is shaped by whichever Order won this one - see `OrderInfluence` and
+     * `HistorySim.swearOrders`. Everything else here is derived from the seed and is thrown away with the row.
+     *
+     * `discarded.winningOrder` is null until something scores a world, and nothing does yet, so today this
+     * carries null forward and every regenerated world gets Genesis' Order-free history. The config fallback is
+     * a development lever for looking at the other case - see `WorldGenConfig.previousWinningOrder`.
+     */
+    val previousWinner = discarded?.winningOrder ?: config.previousWinningOrder
+
     worldRepository.deleteAll()
     masterSpawnPointRepository.deleteAll()
     persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
@@ -74,10 +88,10 @@ class WorldProvisioning(
 
     LOG.warn { "Discarded world '${discarded?.name}' (seed ${discarded?.seed}) and everything derived from it" }
 
-    return create()
+    return create(previousWinner)
   }
 
-  private fun create(): PersistedWorld {
+  private fun create(previousWinner: Order? = config.previousWinningOrder): PersistedWorld {
     val seed = config.seed ?: Random.nextLong()
     if (config.seed == null) {
       // Loudly, because from here on it is permanent: every hill in this world is a consequence of it, and
@@ -88,7 +102,11 @@ class WorldProvisioning(
     // The version vector of the pipeline as this build assembles it. Cheap: building the stage graph does not
     // run any of it.
     val worldConfig = config.toWorldConfig(seed)
-    val versions = PipelineVersion.current(StandardWorld.pipeline(worldConfig, config.params).pipelineVersion)
+    // The winner this world is being created *after*, not the config's - they differ on every regeneration, and
+    // the version stamped into the row has to be the one the terrain and history are actually built from.
+    val versions = PipelineVersion.current(
+      StandardWorld.pipeline(worldConfig, config.paramsFor(previousWinner)).pipelineVersion
+    )
 
     val world = worldRepository.save(
       PersistedWorld(
@@ -107,6 +125,7 @@ class WorldProvisioning(
         blockPaletteVersion = versions.blockPaletteVersion,
         chunkFormatVersion = versions.chunkFormatVersion,
         shapeVersion = worldConfig.shapeVersion,
+        previousWinningOrder = previousWinner,
         createdAt = Instant.now()
       )
     )
@@ -114,7 +133,12 @@ class WorldProvisioning(
     LOG.info {
       "Created world '${world.name}': seed ${world.seed}, " +
           "${world.widthCells}x${world.heightCells} cells of ${world.cellSizeMetres.toInt()} m " +
-          "(${(world.widthMetres / 1000).toInt()}x${(world.heightMetres / 1000).toInt()} km), $versions"
+          "(${(world.widthMetres / 1000).toInt()}x${(world.heightMetres / 1000).toInt()} km), $versions, " +
+          // Logged because it is invisible otherwise: it changes what the *history* of this world says without
+          // moving a single voxel, so a world that came out with no Orders in its chronicle looks identical to
+          // one that should have had them.
+          (previousWinner?.let { won -> "shaped by ${won.label} winning the last world" }
+            ?: "no previous victor")
     }
 
     return world

@@ -42,6 +42,20 @@ worldgen:
   # unreachable polar ocean, and the alternative is a wall.
   wrap-x: true
   wrap-y: true
+  # Which Order won the *previous* world incarnation: CHAOS, ETERNITY or CIRCLE.
+  #
+  # Unset, as it must be for Genesis - there is no previous world, so no Order has won anything, and the
+  # generated history contains no mention of them at all. That is the intended first-incarnation story.
+  #
+  # This setting is a development lever, not the source of truth. On every later world the answer is read off the
+  # world being replaced (`WorldProvisioning.recreate` carries `winningOrder` forward), which is the only piece
+  # of state that survives a regeneration. Set it here to look at an Order-shaped history without faking a whole
+  # world lifecycle first - and note it is a *birth* setting like the rest of this block, folded into
+  # `pipelineVersion`, so changing it under an existing world is a mismatch that `on-mismatch` governs.
+  #
+  # To see what it does without booting the server:
+  #   ./gradlew :worldgen:chronicle -Porders -Pcells=384 -Pparams=orders.params
+  # previous-winning-order: CHAOS
   # What to do when the stored world is not the world these settings and this build describe.
   #   REFUSE     - abort the boot. The safe answer, and what a live server wants.
   #   REGENERATE - delete the world and make the one that was asked for, moving every master to the new

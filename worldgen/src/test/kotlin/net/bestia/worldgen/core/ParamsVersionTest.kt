@@ -33,6 +33,7 @@ import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.EconomyParams
+import net.bestia.worldgen.history.OrderInfluence
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.MinableOre
 import net.bestia.worldgen.resource.ResourceParams
@@ -97,6 +98,7 @@ class ParamsVersionTest {
     ManaParams(),
     HabitabilityParams(),
     SettlementParams(),
+    OrderInfluence(),
     HistoryParams(),
     CorruptionParams(),
     SpawnerParams(),
@@ -145,6 +147,7 @@ class ParamsVersionTest {
     "BusinessCatalogue" to BusinessCatalogue.digest(),
     "Names" to Names.catalogueDigest(),
     "EventKind" to EventKind.catalogueDigest(),
+    "Order" to Order.catalogueDigest(),
     "ResourceType" to ResourceType.catalogueDigest(),
     "MinableOre" to MinableOre.catalogueDigest(),
     "SpawnHostility" to SpawnHostility.catalogueDigest()
@@ -158,7 +161,8 @@ class ParamsVersionTest {
       "SettlementTier" to 6_969_176_217_374_462_215L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to -9_118_719_711_542_149_956L,
-      "EventKind" to 1_598_063_550_653_760_260L,
+      "EventKind" to 8_789_153_060_566_935_296L,
+      "Order" to -2_417_387_423_981_603_910L,
       "ResourceType" to 8_190_588_717_705_702_599L,
       "MinableOre" to 4_365_871_184_218_980_312L,
       "SpawnHostility" to 6_711_120_610_348_833_411L
@@ -200,7 +204,8 @@ class ParamsVersionTest {
       "ManaParams" to -7_122_319_974_616_012_373L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,
       "SettlementParams" to -5_086_656_145_453_525_411L,
-      "HistoryParams" to 8_735_102_529_915_467_544L,
+      "OrderInfluence" to 2_558_661_069_677_437_569L,
+      "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 8_240_882_274_862_173_131L,
       "TownParams" to 6_322_658_815_609_408_725L,

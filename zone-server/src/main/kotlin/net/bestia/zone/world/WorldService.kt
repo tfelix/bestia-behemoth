@@ -155,7 +155,11 @@ class WorldService(
     val config = record.toWorldConfig()
 
     val startedAt = System.nanoTime()
-    var generated = StandardWorld.build(config, LoggingStageListener, settings.params)
+    // The *row's* previous victor, never the config's. See `WorldGenConfig.paramsFor`: the tuning has to be a
+    // pure function of the stored world, or the boot gate above compares a version nothing generated.
+    var generated = StandardWorld.build(
+      config, LoggingStageListener, settings.paramsFor(record.previousWinningOrder)
+    )
     val millis = (System.nanoTime() - startedAt) / 1_000_000
 
     if (!alreadyExisted) {
@@ -227,7 +231,9 @@ class WorldService(
 
       record = provisioning.recreate()
       onReroll(record)
-      generated = StandardWorld.build(record.toWorldConfig(), LoggingStageListener, settings.params)
+      generated = StandardWorld.build(
+        record.toWorldConfig(), LoggingStageListener, settings.paramsFor(record.previousWinningOrder)
+      )
     }
 
     return generated
@@ -283,7 +289,12 @@ class WorldService(
    */
   private fun incompatibilityOf(record: PersistedWorld): String? {
     val current = PipelineVersion.current(
-      StandardWorld.pipeline(record.toWorldConfig(), settings.params).pipelineVersion
+      // The row's own victor, so this recomputes the version the row was *stamped* with. Reading the config here
+      // would report every world as incompatible the moment the development lever was set, which is the exact
+      // false positive this check exists to avoid.
+      StandardWorld.pipeline(
+        record.toWorldConfig(), settings.paramsFor(record.previousWinningOrder)
+      ).pipelineVersion
     )
     val stored = PipelineVersion(
       pipelineVersion = record.pipelineVersion,

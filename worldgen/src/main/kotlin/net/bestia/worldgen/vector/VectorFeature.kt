@@ -208,6 +208,15 @@ enum class FeatureKind(val defaultPriority: Int) {
   LIGHTHOUSE(641),
 
   /**
+   * A shrine one of the three Orders raised. Which Order is `SiteChannels.ORDER` on the marker.
+   *
+   * Beside the four built sites and just above [LIGHTHOUSE] because it is the same kind of thing: a small
+   * structure standing on ground it does not reshape. Above [STREET] is harmless - the two never meet, since a
+   * shrine keeps `HistoryParams.shrineClearance` from every settlement.
+   */
+  SHRINE(642),
+
+  /**
    * A street inside a settlement: a road with a narrower cross-section and a higher priority.
    *
    * Above [SETTLEMENT_GRADING] because a street is cut into the graded ground, not under it, and above

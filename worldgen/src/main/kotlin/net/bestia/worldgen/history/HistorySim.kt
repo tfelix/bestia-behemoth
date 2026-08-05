@@ -13,8 +13,10 @@ import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.core.SettlementRecord
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
@@ -277,14 +279,82 @@ data class HistoryParams(
   /**
    * Importance below which an event is only sampled rather than kept.
    *
-   * The log has to be prunable or it is unbounded: a thousand years of a few hundred settlements
-   * generates a growth event per settlement per tick, which is tens of thousands of lines saying a town
-   * got slightly bigger. Everything at or above this is kept forever; below it, one in
+   * The log has to be prunable or it is unbounded, and what is actually below the floor today is
+   * [EventKind.FIGURE_DIED], [EventKind.TECHNOLOGY] and [EventKind.FLOOD] - a few hundred lines of texture
+   * across a thousand years. Everything at or above this is kept forever; below it, one in
    * [minorEventSampling] survives, so the texture is still there and the volume is not.
+   *
+   * This used to cite a per-settlement growth event as the thing being pruned. `EventKind.SETTLEMENT_GREW`
+   * existed for that and **was never logged by anything**, so the sentence described a hypothetical; it was
+   * deleted along with `FIGURE_BORN`, which was dead the same way. Worth recording that the tempting fix -
+   * actually logging growth - was declined: it would insert tens of thousands of events and shift every event
+   * id in every world, and event ids are what a `RUIN` marker's station channel and every `causes` list point
+   * at.
    */
   val importanceFloor: Int = 40,
 
-  val minorEventSampling: Int = 24
+  val minorEventSampling: Int = 24,
+
+  // --- The Orders -------------------------------------------------------------------------------------
+
+  /**
+   * How much of this world's history each Order shaped. See [OrderInfluence].
+   *
+   * [OrderInfluence.NONE] by default, which means the Orders are absent from the chronicle entirely - the
+   * first incarnation's answer, and the one that leaves this stage's output identical to what it produced
+   * before the Orders existed.
+   */
+  val orderInfluence: OrderInfluence = OrderInfluence.NONE,
+
+  /**
+   * Share of civilisations that ever swear to an Order at all, 0 to 1.
+   *
+   * The main restraint on the whole subsystem, and it is a *share* rather than a chance per tick so that the
+   * answer is decided once per civilisation and does not drift with how long the civ happens to survive. At
+   * 0.6 two civs in five are unaligned for their whole history, which is what keeps the Orders a thread
+   * running through a world's past rather than the subject of it.
+   *
+   * Ignored entirely when [orderInfluence] is absent.
+   */
+  val orderSwornShare: Double = 0.6,
+
+  /**
+   * Chance per tick that a civilisation with the means and the reason takes an oath.
+   *
+   * A chance rather than a certainty, on `foundingChance`'s argument: oaths that all land in the decade the
+   * gate opened would date every sworn people in the world to the same year and leave the chronicle with
+   * nothing to say about the rest of its span.
+   */
+  val orderSwearChance: Double = 0.09,
+
+  /**
+   * Chance per tick that a sworn civilisation whose experience contradicts its Order abandons it.
+   *
+   * Small, because a schism should be the exception a chronicle remembers rather than a periodic event. It is
+   * gated on contradiction as well as on this roll, so a people whose convictions match what happened to them
+   * never rolls at all.
+   */
+  val schismChance: Double = 0.02,
+
+  /** Chance per tick that a sworn civilisation performs its signature working somewhere it matters. */
+  val riteChance: Double = 0.10,
+
+  /** Technology a civilisation needs before it can raise a shrine. Lower than a mine; it is a stone circle. */
+  val shrineTechnology: Double = 0.20,
+
+  /** Metres a shrine keeps from every settlement. Far enough to be a journey, near enough to be tended. */
+  val shrineClearance: Double = 4_000.0,
+
+  /** Metres from one of its own settlements within which a civ could have raised and kept a shrine. */
+  val shrineRange: Double = 40_000.0,
+
+  /**
+   * Mana at which ground is a frontier worth warding, for an Eternity shrine.
+   *
+   * Below [blightMana] on purpose: a ward stone goes up on the *approach* to blighted ground, at the edge of
+   * where the failing harvests start, not inside a province nobody was ever living in.
+   */
+  val shrineFrontierMana: Double = 0.55
 ) : Params {
 
   init {
@@ -355,7 +425,96 @@ data class HistoryParams(
     require(importanceFloor >= 0) { "importanceFloor must not be negative, was $importanceFloor" }
     // Sampling is `index % n == 0`, so zero would divide by zero and one keeps everything.
     require(minorEventSampling >= 1) { "minorEventSampling must be at least 1, was $minorEventSampling" }
+
+    require(orderSwornShare in 0.0..1.0) { "orderSwornShare must be in [0,1], was $orderSwornShare" }
+    require(orderSwearChance in 0.0..1.0) { "orderSwearChance must be in [0,1], was $orderSwearChance" }
+    require(schismChance in 0.0..1.0) { "schismChance must be in [0,1], was $schismChance" }
+    require(riteChance in 0.0..1.0) { "riteChance must be in [0,1], was $riteChance" }
+    require(shrineTechnology in 0.0..1.0) { "shrineTechnology must be in [0,1], was $shrineTechnology" }
+    require(shrineClearance >= 0.0) { "shrineClearance must not be negative, was $shrineClearance" }
+    require(shrineRange >= shrineClearance) {
+      "shrineRange $shrineRange is inside shrineClearance $shrineClearance, so no shrine site can satisfy both"
+    }
+    require(shrineFrontierMana in 0.0..1.0) {
+      "shrineFrontierMana must be in [0,1], was $shrineFrontierMana"
+    }
+    // A ward stone marks the approach to blighted ground. Above the blight threshold it would only ever be
+    // sited inside a province where no town had fields to lose, and the Eternity shrine would never be raised.
+    require(shrineFrontierMana <= blightMana) {
+      "shrineFrontierMana $shrineFrontierMana must not exceed blightMana $blightMana, or a ward stone can " +
+          "only stand inside ground that was never farmed"
+    }
   }
+
+  /**
+   * This params object with anything the file set applied. See [net.bestia.worldgen.pipeline.WorldParams.load].
+   *
+   * Every field, including the ones that were unreachable for as long as this class was on
+   * `WorldParams.NOT_YET_LOADABLE` - which was all of them. `orderInfluence` is the reason the loader was
+   * finally written: the Orders' weights are the one number in here a *server* has to set per world rather
+   * than a designer setting once, and there was no path for it.
+   */
+  fun overriddenBy(source: ParamsText.ParamsSource) = copy(
+    years = source.int("years", years),
+    yearsPerTick = source.int("yearsPerTick", yearsPerTick),
+    growthRate = source.double("growthRate", growthRate),
+    technologyRate = source.double("technologyRate", technologyRate),
+    minFoundingHabitability = source.double("minFoundingHabitability", minFoundingHabitability),
+    expansionPressure = source.double("expansionPressure", expansionPressure),
+    foundingChance = source.double("foundingChance", foundingChance),
+    foundingsPerTick = source.int("foundingsPerTick", foundingsPerTick),
+    hostilityRate = source.double("hostilityRate", hostilityRate),
+    warThreshold = source.double("warThreshold", warThreshold),
+    contactRange = source.double("contactRange", contactRange),
+    minWarYears = source.int("minWarYears", minWarYears),
+    maxWarYears = source.int("maxWarYears", maxWarYears),
+    wallPopulation = source.int("wallPopulation", wallPopulation),
+    mineRichness = source.double("mineRichness", mineRichness),
+    mineDepth = source.double("mineDepth", mineDepth),
+    mineRange = source.double("mineRange", mineRange),
+    hoardRange = source.double("hoardRange", hoardRange),
+    hoardChance = source.double("hoardChance", hoardChance),
+    monasteryClearance = source.double("monasteryClearance", monasteryClearance),
+    fortClearance = source.double("fortClearance", fortClearance),
+    fortRange = source.double("fortRange", fortRange),
+    saddleSpan = source.double("saddleSpan", saddleSpan),
+    saddleRelief = source.double("saddleRelief", saddleRelief),
+    lighthouseRange = source.double("lighthouseRange", lighthouseRange),
+    lighthouseClearance = source.double("lighthouseClearance", lighthouseClearance),
+    siteFreeboard = source.double("siteFreeboard", siteFreeboard),
+    lighthouseFreeboard = source.double("lighthouseFreeboard", lighthouseFreeboard),
+    siteSeparation = source.double("siteSeparation", siteSeparation),
+    candidateStride = source.double("candidateStride", candidateStride),
+    maxCandidates = source.int("maxCandidates", maxCandidates),
+    mineTechnology = source.double("mineTechnology", mineTechnology),
+    monasteryTechnology = source.double("monasteryTechnology", monasteryTechnology),
+    fortTechnology = source.double("fortTechnology", fortTechnology),
+    lighthouseTechnology = source.double("lighthouseTechnology", lighthouseTechnology),
+    builtSiteChance = source.double("builtSiteChance", builtSiteChance),
+    builtSiteInterval = source.int("builtSiteInterval", builtSiteInterval),
+    blightRange = source.double("blightRange", blightRange),
+    blightMana = source.double("blightMana", blightMana),
+    blightsBeforeForsaking = source.int("blightsBeforeForsaking", blightsBeforeForsaking),
+    wardTechnology = source.double("wardTechnology", wardTechnology),
+    woundMana = source.double("woundMana", woundMana),
+    woundClearance = source.double("woundClearance", woundClearance),
+    woundSeparation = source.double("woundSeparation", woundSeparation),
+    maxWounds = source.int("maxWounds", maxWounds),
+    seerRange = source.double("seerRange", seerRange),
+    yearsPerFigure = source.int("yearsPerFigure", yearsPerFigure),
+    figureLifespan = source.int("figureLifespan", figureLifespan),
+    importanceFloor = source.int("importanceFloor", importanceFloor),
+    minorEventSampling = source.int("minorEventSampling", minorEventSampling),
+    orderInfluence = orderInfluence.overriddenBy(source.scope("orderInfluence")),
+    orderSwornShare = source.double("orderSwornShare", orderSwornShare),
+    orderSwearChance = source.double("orderSwearChance", orderSwearChance),
+    schismChance = source.double("schismChance", schismChance),
+    riteChance = source.double("riteChance", riteChance),
+    shrineTechnology = source.double("shrineTechnology", shrineTechnology),
+    shrineClearance = source.double("shrineClearance", shrineClearance),
+    shrineRange = source.double("shrineRange", shrineRange),
+    shrineFrontierMana = source.double("shrineFrontierMana", shrineFrontierMana)
+  )
 
   override fun digest() = ParamsDigest()
     .put("years", years)
@@ -408,6 +567,15 @@ data class HistoryParams(
     .put("figureLifespan", figureLifespan)
     .put("importanceFloor", importanceFloor)
     .put("minorEventSampling", minorEventSampling)
+    .nested("orderInfluence", orderInfluence.digest().value)
+    .put("orderSwornShare", orderSwornShare)
+    .put("orderSwearChance", orderSwearChance)
+    .put("schismChance", schismChance)
+    .put("riteChance", riteChance)
+    .put("shrineTechnology", shrineTechnology)
+    .put("shrineClearance", shrineClearance)
+    .put("shrineRange", shrineRange)
+    .put("shrineFrontierMana", shrineFrontierMana)
 }
 
 /**
@@ -486,6 +654,15 @@ internal class HistorySim(
   /** Event id of the fall, or -1 while it has not happened. Every mana event cites it. */
   private var starFell = -1
 
+  /**
+   * Settlements anywhere in the world given up to the blight, running total.
+   *
+   * World-wide rather than per civ because it answers a question Chaos asks about the *world*: has anything at
+   * all ended since we swore. A per-civ count would have a Chaos people waiting for its own towns to fall,
+   * which is not what they are waiting for.
+   */
+  private var blightLosses = 0
+
   private val events = ArrayList<HistoryEvent>()
   private var prunedEvents = 0
   private var nextEventId = 0
@@ -530,11 +707,18 @@ internal class HistorySim(
       // early on a town that is not standing, so the order is belt and braces rather than load-bearing.
       resolveEruptions(year)
       resolveMana(year)
+      // After the mana, so an oath taken this tick can be a reaction to the blight that landed in it, and
+      // before the figures, so a person born into a sworn people inherits their Order rather than their
+      // grandparents'. Returns immediately on a world where the Orders play no part.
+      swearOrders(year)
       updateFigures(year)
       updateArtifacts(year)
       vanishSeers(year)
       raiseMonuments(year)
       buildSites(year)
+      // Beside the other built sites and after them, so `siteSeparation` sees a mine or a fort that went up
+      // this same tick rather than putting a shrine on top of one.
+      raiseShrines(year)
       buildWalls(year)
       retireCivs(year)
 
@@ -577,7 +761,7 @@ internal class HistorySim(
       civs.add(civ)
       joinCiv(civ, town, startYear)
 
-      log(
+      civ.foundedEvent = log(
         startYear, EventKind.CIV_FOUNDED,
         listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, site.index)),
         site.position, emptyList(),
@@ -808,7 +992,7 @@ internal class HistorySim(
     val cause = log(
       year, EventKind.WAR_DECLARED,
       listOf(Actor(ActorType.CIV, a), Actor(ActorType.CIV, b)), null, emptyList(),
-      "the ${civName(civs[a])} go to war with the ${civName(civs[b])}"
+      "the ${civName(civs[a])} go to war with the ${civName(civs[b])}" + creedClause(civs[a], civs[b])
     )
 
     // The grudge points at the declaration, not at a number. An NPC can cite an event; it cannot cite a
@@ -819,6 +1003,24 @@ internal class HistorySim(
     hostility[a][b] = WAR_HOSTILITY_RESET
     hostility[b][a] = WAR_HOSTILITY_RESET
     wars.add(War(a, b, year, cause))
+  }
+
+  /**
+   * A clause naming the Orders when two belligerents hold opposing convictions, or the empty string.
+   *
+   * The cheapest hint in the whole subsystem: no new event kind, no new site, no roll, and it turns a line the
+   * chronicle was already going to print into one that says *why*. Only Chaos against Eternity qualifies -
+   * [Order.opposite] returns null for the Circle, which is the design working rather than an omission: the
+   * Circle's whole position is that neither rival is simply wrong, so a war it is in is a war about ground.
+   *
+   * Empty whenever either side is unaligned, which is every war on a world where the Orders play no part - so
+   * no existing chronicle line moves.
+   */
+  private fun creedClause(a: Civ, b: Civ): String {
+    val first = a.sworn ?: return ""
+    val second = b.sworn ?: return ""
+    if (first.opposite != second) return ""
+    return ", ${first.label} against ${second.label}"
   }
 
   /**
@@ -1142,6 +1344,14 @@ internal class HistorySim(
     if (owner >= 0) civs[owner].towns.remove(town.facts.index)
     town.owner = -1
 
+    // The one ending the Orders argue about. Counted here rather than at the call site because `abandon` is the
+    // single path every ending goes through, so there is one place for this to be right - and counted before
+    // the owner is cleared would have been wrong, hence reading `owner` rather than `town.owner`.
+    if (cause == EventKind.SETTLEMENT_FORSAKEN) {
+      blightLosses++
+      if (owner >= 0) civs[owner].townsLostSinceOath++
+    }
+
     val actors = ArrayList<Actor>()
     actors.add(Actor(ActorType.SETTLEMENT, town.facts.index))
     byCiv?.let { actors.add(Actor(ActorType.CIV, it)) }
@@ -1258,7 +1468,9 @@ internal class HistorySim(
 
       val civ = town.owner.takeIf { it >= 0 }?.let { civs[it] }
 
-      if (!town.warded && town.blights >= WARD_AFTER_BLIGHTS &&
+      val wardAfter = wardAfterBlights(civ)
+
+      if (!town.warded && wardAfter != null && town.blights >= wardAfter &&
         civ != null && civ.technology >= params.wardTechnology
       ) {
         town.warded = true
@@ -1291,6 +1503,33 @@ internal class HistorySim(
         }
       }
     }
+  }
+
+  /**
+   * How many failed harvests a town endures before its wards go up, or **null for a people who never ward**.
+   *
+   * The sharpest thing an Order changes about a world, and the only one that can cost a town. Each of the three
+   * answers is that Order's conviction applied to the one decision the mana subsystem actually offers:
+   *
+   * - **Eternity** wards a harvest earlier than anybody else. Holding the line is the whole of what they are.
+   * - **Chaos** never wards at all. They are not failing to protect the town - they do not believe the fields
+   *   should be protected, and the consequence is more [EventKind.SETTLEMENT_FORSAKEN] on their ground. The
+   *   `holdsAlone` guard below still stops this from ending a civilisation, so a Chaos people loses towns and
+   *   does not vanish.
+   * - **The Circle**, and every unaligned people, wards on the ordinary schedule.
+   *
+   * Null rather than a very large number, deliberately: `WARD_AFTER_BLIGHTS` was very nearly given an
+   * `Int.MAX_VALUE` sentinel here, which is the mistake `buildSite` has a whole paragraph about - a sentinel
+   * that has to survive arithmetic is a sentinel in the wrong place. Null cannot be compared against by
+   * accident.
+   *
+   * The `blightsBeforeForsaking > WARD_AFTER_BLIGHTS` requirement in [HistoryParams] still holds for everybody
+   * this returns a number for, which is what keeps a ward reachable at all.
+   */
+  private fun wardAfterBlights(civ: Civ?): Int? = when (civ?.sworn) {
+    Order.ETERNITY -> max(1, WARD_AFTER_BLIGHTS - 1)
+    Order.CHAOS -> null
+    else -> WARD_AFTER_BLIGHTS
   }
 
   /**
@@ -1356,7 +1595,13 @@ internal class HistorySim(
       val wound = wounds.minByOrNull { sites[it].position.distanceTo(home) } ?: continue
       val at = sites[wound].position
       if (at.distanceTo(home) > params.seerRange) continue
-      if (roll(year.toLong(), person.index.toLong(), SEER_SALT) >= SEER_LOSS_CHANCE) continue
+
+      // A seer sworn to Chaos is likelier to go, and it is their *own* Order that decides rather than their
+      // city's: `person.sworn` is fixed at birth, so a prophet who was born into a Chaos people and outlived
+      // its schism still walks out to the wound. That is the better story and it is also the truer model -
+      // this is one person choosing to go, which is the whole reason the event exists.
+      val leaving = if (person.sworn == Order.CHAOS) SEER_LOSS_CHANCE * CHAOS_SEER_ZEAL else SEER_LOSS_CHANCE
+      if (roll(year.toLong(), person.index.toLong(), SEER_SALT) >= leaving) continue
 
       person.death = year
       // Where they were last going, not where they lived. `slainAt` already means exactly that for a general
@@ -1389,6 +1634,465 @@ internal class HistorySim(
     }
   }
 
+  // --- The Orders -------------------------------------------------------------------------------------
+
+  /**
+   * Who is sworn to which Order, who changed their mind, and what they did about it.
+   *
+   * ### The whole pass is absent from most worlds
+   *
+   * It returns before drawing a single roll when [OrderInfluence.isAbsent], which is the default and what a
+   * world with no previous incarnation gets. Because every decision in this simulation is a *keyed* roll rather
+   * than a draw from a stream, returning early consumes nothing - so a world generated with the Orders off is
+   * identical to one generated before they existed, event for event and id for id. `OrderHistoryTest` asserts
+   * exactly that, and it is the property that let this ship without regenerating Genesis.
+   *
+   * ### Why the Orders are here at all, this early
+   *
+   * They are not a late addition to a world's history: they are as old as the argument they are having, which
+   * is as old as the mana. A people can swear before the star falls - the conviction that the world runs in
+   * cycles does not need this cycle's evidence - and the leaning terms in [leaningOf] then pull them towards
+   * whichever Order their own century bore out.
+   *
+   * ### Three gates, and the first is the important one
+   *
+   * [HistoryParams.orderSwornShare] decides, once per civilisation and from its index alone, whether it is the
+   * sort of people who swear at all. Two in five never do. That is deliberately the strongest lever in the
+   * subsystem: it is what keeps the Orders a thread running through a history rather than the subject of one,
+   * and it is why a chronicle reads as a world with religion in it rather than a world about religion.
+   */
+  private fun swearOrders(year: Int) {
+    if (params.orderInfluence.isAbsent) return
+
+    for (civ in civs) {
+      if (!civ.exists) continue
+
+      if (civ.sworn == null) swear(civ, year) else reconsider(civ, year)
+      performRite(civ, year)
+    }
+  }
+
+  /**
+   * Whether this people ever swears at all: decided once, from its index.
+   *
+   * A pure function of the civ index rather than a stored flag or a per-tick roll, and the per-tick version is
+   * the one to avoid. Under a per-tick chance a civilisation that survived a thousand years would end up sworn
+   * almost certainly and one that fell in two centuries almost never, so [HistoryParams.orderSwornShare] would
+   * quietly become a statement about how the wars went instead of the share it claims to be.
+   */
+  private fun maySwear(civ: Civ): Boolean =
+    roll(civ.index.toLong(), ORDER_SHARE_SALT) < params.orderSwornShare
+
+  private fun swear(civ: Civ, year: Int) {
+    if (!maySwear(civ)) return
+    if (roll(year.toLong(), civ.index.toLong(), ORDER_SWEAR_SALT) >= params.orderSwearChance) return
+
+    val seat = seatOf(civ) ?: return
+    val order = drawOrder(civ, year, ORDER_DRAW_SALT, withLeaning = true) ?: return
+    val capital = towns[seat]
+
+    civ.sworn = order
+    civ.swornYear = year
+    civ.townsLostSinceOath = 0
+    civ.blightLossesAtOath = blightLosses
+
+    // The founding, and the star too once it has fallen. Both, because they are different explanations of the
+    // same oath - who these people are, and what they are reacting to - and `prune`'s causal closure keeps
+    // whichever of them survives importance pruning.
+    val causes = ArrayList<Int>(2)
+    if (civ.foundedEvent >= 0) causes.add(civ.foundedEvent)
+    if (starFell >= 0) causes.add(starFell)
+
+    civ.swornEvent = log(
+      year, EventKind.ORDER_SWORN,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, seat)),
+      capital.facts.position, causes,
+      "the ${civName(civ)} swear themselves to ${order.label} at ${nameOf(capital)}"
+    )
+  }
+
+  /**
+   * The town a civilisation's oaths are sworn at: its largest **standing** settlement, or null if it holds none.
+   *
+   * Standing, not [Civ.capital], and the difference is a bug the seed sweep caught. `capital` is fixed when the
+   * civ is seeded and is never revised, so a people whose first city was razed in year 300 still names it as
+   * their capital in year 900 - and an oath logged there is an event outside that settlement's lifetime, which is
+   * exactly what `Invariants.checkEventsRespectSettlementLifetimes` exists to forbid. It found **eleven** across
+   * 120 seeds; none of the unit tests could, because they run four seeds on which every capital happened to
+   * survive.
+   *
+   * Null when a civ holds nothing standing, and the callers return on it. A people with no towns left should not
+   * be taking oaths, which is the right answer rather than a guard: [retireCivs] is about to end them anyway.
+   *
+   * `updateFigures` picks a figure's home town by the same rule, which is where the idiom comes from.
+   */
+  private fun seatOf(civ: Civ): Int? = civ.towns
+    .filter { towns[it].standing }
+    .maxByOrNull { towns[it].population }
+
+  /**
+   * A sworn people whose own century argues against their Order may abandon it.
+   *
+   * Gated on **contradiction** as well as on a roll, so a people whose convictions were borne out never
+   * reconsiders at all. That is what makes a schism worth reading: it is evidence, in the log, that this
+   * particular city tried something for two centuries and watched it fail.
+   */
+  private fun reconsider(civ: Civ, year: Int) {
+    val held = civ.sworn ?: return
+
+    /*
+     * A people changes its mind at most once, and the cap is load-bearing rather than tidiness.
+     *
+     * Without it the first world generated came out with the Wheatshire swearing to Eternity in year 26,
+     * forsaking it for the Circle in 486, and forsaking *that* for Chaos in 791 - a cascade, and on inspection
+     * a structural one. Blight contradicts both Eternity and the Circle and is the *only* thing that
+     * contradicts them, while Chaos is contradicted by centuries in which nothing happens. So on any world
+     * with a live blight there is a one-way drift into Chaos, and every civilisation ends up there eventually
+     * no matter what `OrderInfluence` said - which would quietly make the whole tunable ornamental.
+     *
+     * Capping revisions fixes it at the root instead of by retuning `schismChance` downwards, which would only
+     * have made the drift slower. The first oath is where the world's weights are read, so bounding the
+     * revisions is what keeps the previous incarnation's victor visible in the outcome. One revision also
+     * happens to be the most a people can make and still be believed.
+     */
+    if (civ.schisms >= MAX_SCHISMS) return
+
+    // An oath is not reconsidered in the century it was taken. Without this a civ can swear and recant inside
+    // two ticks, which reads as indecision rather than as a schism.
+    if (year - civ.swornYear < ORDER_OATH_GRACE) return
+    if (!contradicted(civ, held, year)) return
+
+    /*
+     * A tradition this world holds strongly is one its people abandon less readily.
+     *
+     * Without this the favoured Order can only ever *lose* members to a schism and never gain them, because a
+     * schism excludes the Order being abandoned - so its weight, however large, has no say in where a schism
+     * lands. Combined with the Circle having the lowest contradiction bar by design, weighting the Circle twenty
+     * to one produced a world whose first oaths were nearly all Circle and whose present day held almost none:
+     * it won every draw and then bled out. `OrderHistoryTest` caught it.
+     *
+     * Scaling by the Order's share of the world's total influence fixes it at the right level, because that is
+     * what influence over a *history* should mean - not only how many peoples take the oath, but how well the
+     * institution holds them. A share of exactly a third leaves the chance untouched, so a balanced world
+     * behaves as it did.
+     */
+    val share = params.orderInfluence.weightOf(held) / params.orderInfluence.total
+    val stickiness = max(1.0, share * Order.entries.size)
+    if (roll(year.toLong(), civ.index.toLong(), SCHISM_SALT) >= params.schismChance / stickiness) return
+
+    // Excluded rather than redrawn-and-checked: the old form aborted the whole schism when the draw came back
+    // with the Order being abandoned, which wasted a contradiction that had taken centuries to earn.
+    val next = drawOrder(civ, year, SCHISM_DRAW_SALT, withLeaning = false, exclude = held) ?: return
+
+    // Their largest standing town, not `capital` - see `seatOf` for the eleven sweep violations that came of
+    // naming a settlement that had been a ruin for centuries.
+    val seat = seatOf(civ) ?: return
+    val capital = towns[seat]
+    civ.sworn = next
+    civ.swornYear = year
+    civ.townsLostSinceOath = 0
+    civ.blightLossesAtOath = blightLosses
+    civ.schisms++
+
+    val causes = if (civ.swornEvent >= 0) listOf(civ.swornEvent) else emptyList()
+    civ.swornEvent = log(
+      year, EventKind.ORDER_SCHISM,
+      listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, seat)),
+      capital.facts.position, causes,
+      "the ${civName(civ)} forsake ${held.label} for ${next.label}"
+    )
+  }
+
+  /**
+   * Whether what this people lived through argues against the Order they hold.
+   *
+   * One clause per Order, and each is that Order's promise failing **on that Order's own terms** - which took a
+   * correction worth recording, because the obvious signal was the wrong one.
+   *
+   * All three clauses were first written against `blightsSinceOath`, a count of failed harvests. Measured on a
+   * 512 km world that produced **no surviving Eternity civilisation at all**: every people that swore to it
+   * schismed away, because a failed harvest is common and so Eternity was the only Order in permanent
+   * contradiction. And it was wrong on the lore as well as on the numbers - Eternity does not promise to
+   * abolish the mana, which its own doctrine calls impossible; it promises to *contain* it. A warded town whose
+   * fields fail some years and whose people stay is Eternity's promise being **kept**.
+   *
+   * So the signal is a town actually *lost*:
+   *
+   * - **Eternity** promised the line could be held **at any cost**, and is therefore the hardest of the three to
+   *   shake: it takes [ETERNITY_SCHISM_LOSSES] towns given up before its own people stop believing it.
+   * - **Chaos** promised an ending. Centuries in which nothing anywhere ended say it is not coming - and that
+   *   is a fact about the whole world, not about this civilisation, because Chaos is not waiting for its own
+   *   towns to fall.
+   * - **The Circle** is the swing vote by design, and one loss is enough to tell it the world is off its hour.
+   *
+   * ### The bars are ordered, and the order was wrong first
+   *
+   * Eternity's bar started at one loss and the Circle's at two, which drained Eternity: it was the easiest of
+   * the three to contradict, so nearly every schism in every world *originated* there and it held 3 of 21 sworn
+   * peoples under equal weights. Inverting the two fixed the distribution and is the better reading of the
+   * design besides - `factions.md` has Eternity holding "at any cost" and calls the Circle "the swing vote"
+   * whose "allegiance flips", so the Order that changes its mind most readily should be the Circle.
+   */
+  private fun contradicted(civ: Civ, held: Order, year: Int): Boolean = when (held) {
+    Order.ETERNITY -> civ.townsLostSinceOath >= ETERNITY_SCHISM_LOSSES
+    Order.CHAOS -> blightLosses == civ.blightLossesAtOath && year - civ.swornYear >= ORDER_PATIENCE
+    Order.CIRCLE -> civ.townsLostSinceOath >= CIRCLE_SCHISM_LOSSES
+  }
+
+  /**
+   * Draws an Order for a civilisation: the world's weights, times what this people has lived through.
+   *
+   * The multiplication is the design. [OrderInfluence] is a property of the *world* - the residue of which
+   * Order won the last one - and [leaningOf] is a property of this civilisation's own thousand years. Neither
+   * alone would do: weights alone make three interchangeable peoples wearing different colours, and leaning
+   * alone makes the previous world's victor irrelevant, which is the feature.
+   *
+   * Returns null only when every weight is zero, which [OrderInfluence.isAbsent] has already excluded - so in
+   * practice never, and the null is there so a designer who zeroes all three from a params file gets no Orders
+   * rather than an exception.
+   */
+  private fun drawOrder(
+    civ: Civ,
+    year: Int,
+    salt: Long,
+    /**
+     * Whether what this people lived through weighs on the draw. True for a first oath, **false for a schism**.
+     *
+     * That asymmetry is the fix for the last and largest bias in this subsystem, and it took printing the oaths
+     * to find. With everything else balanced, first oaths came out even - Chaos 3, Eternity 3, Circle 1 across
+     * three seeds - and **every schism in every seed went to Chaos**. Structurally so: a schism only fires when
+     * the held Order was contradicted, contradiction means towns lost, and a lost town both raises Chaos'
+     * "damage nobody answered" term and removes a warded town from Eternity's. The evidence that discredits an
+     * Order is the same evidence that recommends its opposite.
+     *
+     * So a schism reads the world's weights alone. A people abandoning a conviction is not being pushed by the
+     * ground - it is choosing among the traditions its world actually has, which is what `OrderInfluence`
+     * describes. It also makes schisms *amplify the previous incarnation's victor* rather than a hidden tilt,
+     * which is the behaviour the feature was asked for.
+     */
+    withLeaning: Boolean,
+    /** An Order this draw may not return. A schism excludes the one being abandoned. */
+    exclude: Order? = null
+  ): Order? {
+    val weights = DoubleArray(Order.entries.size) { i ->
+      val order = Order.entries[i]
+      if (order == exclude) {
+        0.0
+      } else {
+        params.orderInfluence.weightOf(order) * if (withLeaning) leaningOf(civ, order) else 1.0
+      }
+    }
+
+    val total = weights.sum()
+    if (total <= 0.0) return null
+
+    var pick = roll(year.toLong(), civ.index.toLong(), salt) * total
+    for (i in weights.indices) {
+      pick -= weights[i]
+      if (pick < 0.0) return Order.entries[i]
+    }
+    // Only reachable through floating-point drift at the very top of the range.
+    return Order.entries.last()
+  }
+
+  /**
+   * How much this civilisation's own history pulls it towards one Order, as a multiplier from 1 up.
+   *
+   * Deliberately never *below* one, so a leaning can only ever add. A term that dropped below one would make
+   * two of the three Orders less likely at once, which is a different and much blunter statement than making
+   * one of them more likely - and it would let circumstance overwhelm the world's weights entirely on a civ
+   * that happened to tick no boxes.
+   *
+   * [LEANING_STRENGTH] is 1.0, so a fully-borne-out conviction doubles that Order's weight. Worth comparing
+   * against the previous world's victor bonus, which defaults to 0.5: **what a people lived through matters
+   * more than which Order won the last world**, which is the ordering the whole design wants. The victor tilts
+   * a world; it does not decide any single civilisation.
+   */
+  private fun leaningOf(civ: Civ, order: Order): Double {
+    val held = civ.towns.map { towns[it] }
+    if (held.isEmpty()) return 1.0
+
+    /*
+     * The shared premise: how much of this people's ground the mana has already claimed.
+     *
+     * **Chaos and Eternity read the same number, and getting there took two measurements.**
+     *
+     * The first version had Eternity lean on damage suffered and Chaos on proximity to a wound within
+     * `seerRange`. That range is 70 km - generous on purpose, because it describes one person choosing to walk -
+     * and as a statement about a *civilisation* it covers most of a 384 km world, so nearly every civ scored the
+     * full Chaos bonus. Chaos took 8 of 12 sworn peoples across four seeds against a weight entitling it to 5.
+     *
+     * Narrowing that to each town's own mana exposure barely helped: with **equal** weights Chaos still took 11
+     * of 18. The bias was structural, not a matter of range. Chaos' term was available from year one while
+     * Eternity's was zero until something had burned, and `orderSwearChance` puts most oaths in the first
+     * century - so Eternity could hardly ever win an early draw, whatever the weights said.
+     *
+     * The fix is to stop asking terrain to decide *which* conviction. Mana exposure is the premise both Orders
+     * argue from - a people with no mana near them has little reason to hold either view strongly - so it raises
+     * both equally, and what separates them is the world's `OrderInfluence`. Which is the whole point of the
+     * feature: the previous incarnation's victor should be what tips a world, and it cannot be if the ground has
+     * already decided.
+     */
+    val exposure = held.count { it.facts.mana >= params.blightMana }.toDouble() / held.size
+
+    val share = when (order) {
+      /*
+       * The premise, plus damage that **was** answered: wards raised, and the town still standing behind them.
+       *
+       * Reactive, so it accrues over a history rather than existing at year one - and it is the mirror of Chaos'
+       * term below rather than a different kind of signal, which is what keeps the two symmetric early on.
+       */
+      Order.ETERNITY -> exposure * PREMISE_SHARE +
+          held.count { it.warded }.toDouble() / held.size * (1.0 - PREMISE_SHARE)
+
+      /*
+       * The premise, plus damage that was **not** answered: fields lost with no wards ever raised over them.
+       *
+       * The same evidence Eternity reads, read the opposite way, which is exactly what the two Orders do with
+       * it. Eternity sees a line that was held; Chaos sees one that could not be.
+       */
+      Order.CHAOS -> exposure * PREMISE_SHARE +
+          held.count { it.blights > 0 && !it.warded }.toDouble() / held.size * (1.0 - PREMISE_SHARE)
+
+      // Instruments, records and the arithmetic to use them. A people who can measure the cycle are the ones
+      // who come to believe it has a schedule - and the one term here that is about neither mana nor damage,
+      // because the Circle's position is not a reaction to either.
+      Order.CIRCLE -> civ.technology
+    }
+
+    return 1.0 + LEANING_STRENGTH * share.coerceIn(0.0, 1.0)
+  }
+
+  /**
+   * An Order's signature working, performed somewhere it means something.
+   *
+   * The quietest of the four Order events and the one doing the "a hint here and there" work: it leaves nothing
+   * on the ground, it recurs across a thousand years, and because [SettlementLoreService] surfaces a town's own
+   * events it is what a townsperson brings up without being asked.
+   *
+   * Each Order's rite needs a *place*, and not having one is a legitimate reason for nothing to happen: Chaos
+   * needs a wound in reach, Eternity needs a town of theirs that has actually been blighted, the Circle needs
+   * one of its own shrines to read from. A world where an Order never finds its place simply has no rites from
+   * it, which is a truer answer than a generic ceremony.
+   */
+  private fun performRite(civ: Civ, year: Int) {
+    val order = civ.sworn ?: return
+    if (roll(year.toLong(), civ.index.toLong(), RITE_SALT) >= params.riteChance) return
+
+    val standing = civ.towns.filter { towns[it].standing }
+    if (standing.isEmpty()) return
+
+    when (order) {
+      Order.CHAOS -> {
+        val wound = wounds.filter { site ->
+          standing.any { sites[site].position.distanceTo(towns[it].facts.position) <= params.seerRange }
+        }.pick(year, civ, RITE_PLACE_SALT) ?: return
+        log(
+          year, EventKind.RITE_PERFORMED,
+          listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SITE, wound)),
+          sites[wound].position, listOfNotNull(civ.swornEvent.takeIf { it >= 0 }, starFell.takeIf { it >= 0 }),
+          "the ${civName(civ)} open the ground wider at ${siteName(sites[wound])}"
+        )
+      }
+
+      Order.ETERNITY -> {
+        val town = standing.filter { towns[it].blights > 0 }.pick(year, civ, RITE_PLACE_SALT) ?: return
+        log(
+          year, EventKind.RITE_PERFORMED,
+          listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SETTLEMENT, town)),
+          towns[town].facts.position, listOfNotNull(civ.swornEvent.takeIf { it >= 0 }),
+          "the ${civName(civ)} sing the long watch over the fields of ${nameOf(towns[town])}"
+        )
+      }
+
+      Order.CIRCLE -> {
+        val shrine = sites.filter { it.kind == SiteKind.SHRINE && it.civ == civ.index }
+          .pick(year, civ, RITE_PLACE_SALT) ?: return
+        log(
+          year, EventKind.RITE_PERFORMED,
+          listOf(Actor(ActorType.CIV, civ.index), Actor(ActorType.SITE, shrine.index)),
+          shrine.position, listOfNotNull(civ.swornEvent.takeIf { it >= 0 }),
+          "the ${civName(civ)} take the reckoning at ${siteName(shrine)} and set the hour"
+        )
+      }
+    }
+  }
+
+  /**
+   * A sworn people raises a shrine: a cairn at a wound, a ward stone on a frontier, a circle on high ground.
+   *
+   * [buildSites]' shape, and not a call into [buildSite], for one reason that is worth being explicit about:
+   * that helper writes `resource = candidate.detail` and takes no Order, so a shrine routed through it would
+   * reach [addSite] with the discriminator its own materialiser needs left null. Sharing the gate would mean
+   * widening a signature every one of the four other kinds would then carry an unused argument for.
+   *
+   * What it does share is every *rule*: the technology gate, the interval so shrines arrive across a history
+   * rather than in one decade, `siteSeparation` so two Orders never build on one hilltop, and the requirement
+   * that a standing town of this civ be near enough to have raised and tended it.
+   */
+  private fun raiseShrines(year: Int) {
+    if (params.orderInfluence.isAbsent) return
+
+    for (civ in civs) {
+      if (!civ.exists) continue
+      val order = civ.sworn ?: continue
+      if (civ.technology < params.shrineTechnology) continue
+
+      val last = civ.lastBuilt[SiteKind.SHRINE]
+      if (last != null && year - last < params.builtSiteInterval) continue
+      if (roll(year.toLong(), civ.index.toLong(), SHRINE_SALT) >= params.builtSiteChance) continue
+
+      val from = candidates.shrines[order] ?: continue
+
+      for (candidate in from) {
+        // One shrine per place, whoever raised it - and across Orders, not within one, which is the point.
+        // Two rival Orders working the same hilltop is a war rather than two shrines, and on the map it would
+        // be one marker on top of another.
+        if (sites.any {
+            it.kind == SiteKind.SHRINE && it.position.distanceTo(candidate.position) < params.siteSeparation
+          }
+        ) {
+          continue
+        }
+
+        val host = nearestStandingTown(civ, candidate.position, params.shrineRange) ?: continue
+
+        /*
+         * One shrine per town, which is a placement rule and also the fix for a naming collision.
+         *
+         * `siteSeparation` keeps two shrines 12 km apart, and two shrines 13 km apart can still have the same
+         * nearest town - so a Circle people with four stone circles had two of them hosted by Wenton, and
+         * `Names.site`'s `else` branch renders "the $form of $of" **ignoring the seed**. Both came out as "the
+         * circle of Wenton", and the chronicle then referred to two different places by one name for a thousand
+         * years. That is the defect `Names.site`'s `wound` branch already documents solving once.
+         *
+         * Fixed here rather than in `Names` deliberately. Giving shrines an epithet pool would work and would
+         * move `Names.catalogueDigest()`, which renames every place in every world - a large cosmetic diff to
+         * buy something a placement rule gives for free. And the rule is better modelling on its own terms: an
+         * Order's shrines spread across the territory it holds instead of clustering on one town.
+         */
+        if (sites.any { it.kind == SiteKind.SHRINE && it.settlement == host }) continue
+
+        val site = addSite(
+          SiteKind.SHRINE, candidate.position, year, host, civ.index, SHRINE_RADIUS,
+          artifact = -1, figure = -1, order = order
+        )
+        towns[host].sites.add(site)
+        civ.lastBuilt[SiteKind.SHRINE] = year
+
+        log(
+          year, EventKind.SHRINE_RAISED,
+          listOf(Actor(ActorType.SITE, site), Actor(ActorType.CIV, civ.index)),
+          candidate.position, listOfNotNull(civ.swornEvent.takeIf { it >= 0 }),
+          "the ${civName(civ)} raise ${siteName(sites[site])} for ${order.label} above " +
+              nameOf(towns[host])
+        )
+        // One per civ per pass, like every other built site. The next civ still gets its turn this tick.
+        break
+      }
+    }
+  }
+
   // --- Figures and artifacts -------------------------------------------------------------------------
 
   private fun updateFigures(year: Int) {
@@ -1409,6 +2113,11 @@ internal class HistorySim(
         home = home,
         birth = year
       )
+      // Their people's Order, which is null on a world where the Orders play no part. Not drawn separately:
+      // a person who dissents from the city they lead is a good story, and the mechanism for it is a schism
+      // logged against the civ - inventing a second, unlogged disagreement here would put a conviction on a
+      // figure that no event in the chronicle can account for.
+      person.sworn = civ.sworn
       people.add(person)
 
       log(
@@ -1660,6 +2369,10 @@ internal class HistorySim(
   private fun materialFor(kind: ArtifactKind, town: Town, civ: Civ): String = when {
     kind == ArtifactKind.TOME -> "vellum"
     kind == ArtifactKind.BANNER -> "dyed wool"
+    // A people sworn to Chaos, working ground the mana already reached, make things out of it. The gate is
+    // both clauses: the conviction alone is not enough, because the material has to have come from somewhere,
+    // and a Chaos city on clean ground has nothing to quench a blade in.
+    civ.sworn == Order.CHAOS && town.facts.mana >= params.blightMana -> "crystal and blackened iron"
     town.facts.resourceValue > 0.6 && civ.technology > 0.5 -> "steel and silver"
     civ.technology > 0.35 -> "wrought iron"
     else -> "bronze"
@@ -1720,7 +2433,12 @@ internal class HistorySim(
       }
 
       buildSite(
-        year, civ, SiteKind.MONASTERY, candidates.monasteries, params.monasteryTechnology, MONASTERY_SALT,
+        // The Circle's discipline is records and instruments, and a religious house is where a pre-industrial
+        // people keeps both. Note what this deliberately does *not* do: it does not rename the building for
+        // them. An "observatory" that is the same voxels as an abbey would be two words for one structure, and
+        // the Circle already has a building of its own - the stone circle its shrine raises.
+        year, civ, SiteKind.MONASTERY, candidates.monasteries,
+        eased(civ, params.monasteryTechnology, Order.CIRCLE), MONASTERY_SALT,
         EventKind.MONASTERY_FOUNDED, MONASTERY_RADIUS
       ) { candidate ->
         // Remoteness is the site's defining property and was already enforced against *every* settlement when
@@ -1729,7 +2447,9 @@ internal class HistorySim(
       }
 
       buildSite(
-        year, civ, SiteKind.FORT, candidates.forts, params.fortTechnology, FORT_SALT,
+        // Eternity holds lines, and a fort is the most literal line a pre-industrial people can hold.
+        year, civ, SiteKind.FORT, candidates.forts,
+        eased(civ, params.fortTechnology, Order.ETERNITY), FORT_SALT,
         EventKind.FORT_BUILT, FORT_RADIUS
       ) { candidate ->
         // A fort needs a *reason*, and the reason is somebody on the other side of the hill. `frontierDistance`
@@ -1752,6 +2472,20 @@ internal class HistorySim(
       }
     }
   }
+
+  /**
+   * A technology gate, brought forward for the Order whose own work the building is.
+   *
+   * A *gate* rather than a chance, which is what makes this the cheap way to express an Order's priorities: it
+   * changes **when** in a thousand years a people gets round to something, not whether they can. So a sworn
+   * civilisation's forts and abbeys arrive a century or two earlier than its neighbours', and an unaligned
+   * world builds exactly as many as it did before the Orders existed.
+   *
+   * Floored at zero, so easing a gate that is already low is a no-op rather than a negative threshold that
+   * every civ passes from year one.
+   */
+  private fun eased(civ: Civ, technology: Double, favoured: Order): Double =
+    if (civ.sworn == favoured) max(0.0, technology - ORDER_TECHNOLOGY_EASE) else technology
 
   /**
    * One gated, once-in-a-while founding of a built site.
@@ -1828,6 +2562,9 @@ internal class HistorySim(
     SiteKind.MONASTERY -> "found"
     SiteKind.FORT -> "raise"
     SiteKind.LIGHTHOUSE -> "light"
+    // Not built by `buildSites`, which is what this verb table serves - a shrine is raised by `raiseShrines`
+    // and logs its own sentence, because an Order's reason for building one is the whole point of the line.
+    SiteKind.SHRINE -> "raise"
     // The residue kinds are never built by this pass; the branch exists so adding a kind is a compile error.
     SiteKind.RUIN, SiteKind.ASH_RUIN, SiteKind.BATTLEFIELD, SiteKind.TOMB, SiteKind.MONUMENT, SiteKind.HOARD,
     SiteKind.WOUND -> "make"
@@ -1883,14 +2620,15 @@ internal class HistorySim(
           index = civ.index, cultureIndex = civ.cultureIndex, nameSeed = civ.nameSeed,
           foundedYear = civ.founded, endedYear = civ.ended, capital = civ.capital,
           technology = civ.technology, peakPopulation = civ.peak,
-          settlements = civ.towns.sorted(), grudges = civ.grudges.toList()
+          settlements = civ.towns.sorted(), grudges = civ.grudges.toList(),
+          sworn = civ.sworn, swornYear = civ.swornYear
         )
       },
       figures = people.map {
         FigureRecord(
           index = it.index, nameSeed = it.nameSeed, role = it.role, civ = it.civ,
           homeSettlement = it.home, birthYear = it.birth, deathYear = it.death,
-          restingSite = it.resting
+          restingSite = it.resting, sworn = it.sworn
         )
       },
       artifacts = relics.map {
@@ -1905,7 +2643,7 @@ internal class HistorySim(
           index = it.index, kind = it.kind, position = it.position, year = it.year,
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
-          resource = it.resource, elevation = it.elevation
+          resource = it.resource, elevation = it.elevation, order = it.order
         )
       },
       settlements = towns.map { town ->
@@ -1992,7 +2730,8 @@ internal class HistorySim(
     artifact: Int,
     figure: Int,
     resource: Int = -1,
-    elevation: Double = Double.NaN
+    elevation: Double = Double.NaN,
+    order: Order? = null
   ): Int {
     val index = sites.size
     sites.add(
@@ -2000,7 +2739,7 @@ internal class HistorySim(
         index = index, kind = kind, position = position, year = year, settlement = settlement,
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
-        artifact = artifact, figure = figure, resource = resource, elevation = elevation
+        artifact = artifact, figure = figure, resource = resource, elevation = elevation, order = order
       )
     )
     return index
@@ -2019,6 +2758,17 @@ internal class HistorySim(
   }
 
   private fun roll(vararg key: Long): Double = GenRng.hashUnit(streamBase, *key)
+
+  /**
+   * One element of a list, chosen by a keyed roll on `(year, civ, salt)`. Null for an empty list.
+   *
+   * Written for the rites, and the reason is legibility rather than mechanics. `firstOrNull` was correct and
+   * read terribly: a Circle people with four stone circles took the reckoning at the *same* one twenty times
+   * over a thousand years, so `chronicle -Porders` printed eight identical sentences and the world looked like
+   * it had one shrine. Varying the place costs a roll and turns a repeated line into a history.
+   */
+  private fun <T> List<T>.pick(year: Int, civ: Civ, salt: Long): T? =
+    if (isEmpty()) null else this[(roll(year.toLong(), civ.index.toLong(), salt) * size).toInt().coerceIn(indices)]
 
   private fun nameOf(town: Town) = Names.place(town.nameSeed, town.facts.cultureIndex)
 
@@ -2052,6 +2802,17 @@ internal class HistorySim(
         SiteKind.LIGHTHOUSE -> "light"
         SiteKind.HOARD -> "hoard"
         SiteKind.WOUND -> "wound"
+        // Three forms from one kind, off the same `else` branch in `Names.site`. This is the clearest thing the
+        // order-on-a-channel design buys: "the cairn of Ashford" and "the ward of Ashford" are different
+        // places to a player, and neither needed a `SiteKind` or a word pool of its own.
+        SiteKind.SHRINE -> when (site.order) {
+          Order.CHAOS -> "cairn"
+          Order.ETERNITY -> "ward"
+          Order.CIRCLE -> "circle"
+          // Unreachable: `raiseShrines` is the only producer and it always sets one. Named rather than
+          // thrown because a name is not worth failing a world's generation over.
+          null -> "shrine"
+        }
       }
     )
   }
@@ -2112,6 +2873,25 @@ internal class HistorySim(
     /** Year this civ last built each kind of site, so they arrive across a history instead of all at once. */
     val lastBuilt = HashMap<SiteKind, Int>()
 
+    /** Event id of its founding, or -1. Cited by its oath, so a sworn people threads back to who they are. */
+    var foundedEvent = -1
+
+    /** The Order it holds now, or null while unaligned. See `swearOrders`. */
+    var sworn: Order? = null
+    var swornYear = 0
+
+    /** Event id of the latest oath or schism, or -1. What a rite and the next schism cite. */
+    var swornEvent = -1
+
+    /** How many times it has changed its Order. Capped - see `MAX_SCHISMS`. */
+    var schisms = 0
+
+    /** Towns of its own given up to the blight since it swore. See `contradicted`. */
+    var townsLostSinceOath = 0
+
+    /** World-wide blight losses at the moment it swore, so Chaos can ask whether anything has ended since. */
+    var blightLossesAtOath = 0
+
     val exists get() = ended == 0
     val culture: Culture get() = Culture.byIndex(cultureIndex)
   }
@@ -2127,6 +2907,9 @@ internal class HistorySim(
     var death = 0
     var resting = -1
     var slainAt: Vec2d? = null
+
+    /** The Order they held, usually their civ's. Null on an unaligned world or an unaligned people. */
+    var sworn: Order? = null
   }
 
   private class Relic(
@@ -2157,7 +2940,9 @@ internal class HistorySim(
     /** [net.bestia.worldgen.resource.ResourceType] ordinal for a mine, -1 for everything else. */
     val resource: Int = -1,
     /** Metres, for a site that is not on the ground. NaN for every kind but a hoard. */
-    val elevation: Double = Double.NaN
+    val elevation: Double = Double.NaN,
+    /** The Order that raised it, for a shrine. Null for every other kind. */
+    val order: Order? = null
   )
 
   private class War(val a: Int, val b: Int, val startedYear: Int, val cause: Int) {
@@ -2428,5 +3213,103 @@ internal class HistorySim(
 
     /** Names a volcano. Separate from `PLACE_NAME_SALT` so a vent and a town of the same index differ. */
     const val VENT_NAME_SALT = 0x06L
+
+    // The Orders. Six independent decisions about the same subject - a civilisation - so all six need their
+    // own value, and read the `MONASTERY_SALT` story above before touching any of them. `ORDER_SHARE_SALT` is
+    // the one to be most careful with: it is rolled as `roll(civIndex, salt)` with no year in it, which is
+    // deliberate (see `maySwear`) and means it is the only salt here whose stream is one draw per civ for the
+    // whole simulation rather than one per tick.
+    const val ORDER_SHARE_SALT = 0x2EL
+    const val ORDER_SWEAR_SALT = 0x2FL
+    const val ORDER_DRAW_SALT = 0x30L
+    const val SCHISM_SALT = 0x31L
+    const val SCHISM_DRAW_SALT = 0x32L
+    const val RITE_SALT = 0x33L
+    const val SHRINE_SALT = 0x34L
+
+    /** Which of the eligible places a rite happens at. Separate from `RITE_SALT`, which decides *whether*. */
+    const val RITE_PLACE_SALT = 0x35L
+
+    /**
+     * How much a borne-out conviction multiplies an Order's weight, at full strength.
+     *
+     * One, so a people whose century entirely bore out one Order weight it twice. Deliberately larger than
+     * `OrderInfluence.favouring`'s default bonus of 0.5, because **what a civilisation lived through should
+     * matter more than which Order won the previous world.** The victor tilts a world's history; it does not
+     * decide any single people's convictions, and inverting those two would turn the Orders from a thread
+     * through a chronicle into a property of the server's configuration.
+     */
+    const val LEANING_STRENGTH = 1.0
+
+    /**
+     * How much of Chaos' and Eternity's leaning is the premise they share rather than the evidence they read
+     * differently. See `leaningOf`.
+     *
+     * Two thirds. High on purpose: the shared half is what makes the two symmetric at year one, which is when
+     * most oaths are sworn, and therefore what leaves the world's `OrderInfluence` as the thing that decides
+     * them.
+     */
+    const val PREMISE_SHARE = 2.0 / 3.0
+
+    /**
+     * Years an oath is held before it can be reconsidered.
+     *
+     * Two centuries. Without it a civ can swear and recant inside two ticks, which reads as indecision rather
+     * than as the schism the log calls it - and it would make `ORDER_SWORN` and `ORDER_SCHISM` fire in nearly
+     * equal numbers, which is not what a world with three ancient Orders in it looks like.
+     */
+    const val ORDER_OATH_GRACE = 200
+
+    /** Years of nothing happening after which Chaos' promise of an ending starts to look unkept. */
+    const val ORDER_PATIENCE = 300
+
+    /**
+     * Times one people may change its Order. See `reconsider` for the cascade this bounds.
+     *
+     * One. Two revisions in a thousand years is a people with no convictions, and - more to the point - an
+     * unbounded count drifts every civilisation on a blighted world into Chaos regardless of the world's
+     * `OrderInfluence`.
+     */
+    const val MAX_SCHISMS = 1
+
+    /**
+     * Towns given up before a people stops believing Eternity could have held the line.
+     *
+     * The highest bar of the three, because Eternity's own promise is "any cost". See `contradicted` for the
+     * measurement that put it here rather than at one.
+     */
+    const val ETERNITY_SCHISM_LOSSES = 3
+
+    /** Towns given up before the Circle reads the world as off its hour. The lowest bar: it is the swing vote. */
+    const val CIRCLE_SCHISM_LOSSES = 1
+
+    /**
+     * How much a technology gate is brought forward for the Order whose work the building is. See `eased`.
+     *
+     * A tenth, against gates that run from 0.20 to 0.45 - so a sworn people reaches its own kind of site
+     * roughly a century earlier than its neighbours over the default thousand-year span, and never reaches one
+     * its neighbours cannot.
+     */
+    const val ORDER_TECHNOLOGY_EASE = 0.10
+
+    /**
+     * How much likelier a Chaos-sworn seer is to walk out to a wound and not come back.
+     *
+     * Doubled, which sounds severe and is bounded by everything around it: the roll still needs a prophet or a
+     * scholar, a wound inside `seerRange`, and `SEER_LOSS_CHANCE` (0.18) to begin with. What it buys is that
+     * "figures with no known grave" in `chronicle -Pquests` skews towards the Order that sent them, which is a
+     * quest hook with a reason attached rather than a scatter.
+     */
+    const val CHAOS_SEER_ZEAL = 2.0
+
+    /**
+     * Extent of a shrine in metres.
+     *
+     * Small, like every other site marker, and for the reason the invariant checks: a point marker wider than
+     * `ChunkMaterializer.MARKER_MARGIN` (320 m) is simply absent from every chunk further away than it and
+     * materialises with a dead straight edge down one side. Eighteen metres is a stone circle, which is what
+     * this is.
+     */
+    const val SHRINE_RADIUS = 18.0
   }
 }

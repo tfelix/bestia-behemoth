@@ -14,6 +14,7 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
+import net.bestia.worldgen.core.Order
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
@@ -65,7 +66,7 @@ class HistoryStage(
 
   override val version = 1
 
-  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest())
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest(), Order.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID,
@@ -94,6 +95,7 @@ class HistoryStage(
     StageOutput.Vector(FeatureKind.LIGHTHOUSE),
     StageOutput.Vector(FeatureKind.CAVE_HOARD),
     StageOutput.Vector(FeatureKind.WOUND),
+    StageOutput.Vector(FeatureKind.SHRINE),
     StageOutput.History
   )
 
@@ -306,6 +308,7 @@ class HistoryStage(
             .channel(HistoryChannels.NAME_SEED) { record.nameSeed.toDouble() }
             .channel(HistoryChannels.OLD_NAME_SEED) { record.oldNameSeed.toDouble() }
             .channel(HistoryChannels.TECHNOLOGY) { civ?.technology ?: 0.0 }
+            .channel(HistoryChannels.ORDER) { (civ?.sworn?.ordinal ?: -1).toDouble() }
             .build()
         )
       )
@@ -336,6 +339,7 @@ class HistoryStage(
         SiteKind.LIGHTHOUSE -> FeatureKind.LIGHTHOUSE
         SiteKind.HOARD -> FeatureKind.CAVE_HOARD
         SiteKind.WOUND -> FeatureKind.WOUND
+        SiteKind.SHRINE -> FeatureKind.SHRINE
       },
       position = record.position,
       attributes = StationTable.Builder(1)
@@ -353,6 +357,7 @@ class HistoryStage(
         // NaN for everything on the surface, where the ground's own height is the answer. Only a hoard, which
         // is in a cave, has a third coordinate of its own - and whatever spawns the treasure needs all three.
         .channel(SiteChannels.ELEVATION) { record.elevation }
+        .channel(SiteChannels.ORDER) { (record.order?.ordinal ?: -1).toDouble() }
         .build()
     )
   }
@@ -410,6 +415,16 @@ object HistoryChannels {
 
   /** Owning civ's technology, 0 to 1. Copied here so a town does not have to reach into the chronicle. */
   const val TECHNOLOGY = "technology"
+
+  /**
+   * [net.bestia.worldgen.core.Order] ordinal of the owning civ, or -1 for an unaligned one - and for **every**
+   * settlement on a world where the Orders play no part, which is most of them.
+   *
+   * Copied off the civ for [TECHNOLOGY]'s reason: a runtime asking "what do the people here believe" should not
+   * have to walk from a settlement to its owner to its record. This is the channel a temple, an NPC's dialogue
+   * or a lore query reads, and it is why the Orders reach the game without the chronicle being persisted.
+   */
+  const val ORDER = "order"
 }
 
 /** Station channels shared by [FeatureKind.RUIN], `BATTLEFIELD`, `TOMB` and `MONUMENT` markers. */
@@ -457,4 +472,19 @@ object SiteChannels {
    * This one is here because a mine's *product* is not derivable from its kind.
    */
   const val RESOURCE = "resource"
+
+  /**
+   * [net.bestia.worldgen.core.Order] ordinal for a [SiteKind.SHRINE], -1 for every other kind.
+   *
+   * The one channel that *is* the "kind plus a type" the note above argues against, and [SiteKind.SHRINE]'s
+   * own KDoc is where that trade is made. Worth reading the two together: the argument there was never that a
+   * discriminator channel is wrong, it was that four kinds were free and a channel is not. This channel is not
+   * free either - it is on every site marker in the world, like [RESOURCE] and [ELEVATION] - and it is paid for
+   * because three structures, three name forms and three renderings all hang off it.
+   *
+   * On every marker rather than only on shrines for the reason [ELEVATION] records: a channel that exists on
+   * some rows of a kind and not others makes `attribute` throw, and the caller who wraps it in `runCatching`
+   * to cope then swallows a genuinely missing channel too.
+   */
+  const val ORDER = "order"
 }
