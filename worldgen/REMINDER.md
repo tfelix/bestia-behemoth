@@ -28,5 +28,5 @@ Feel free to re-arrange those points into a order which you think makes more sen
 - Check if every world generation parameter is well documented and explains what it does
 - for curiosity benchmark other world sizes e.g. 32x32km, 64x64km, 128km and maybe something in between, write the findings down inside the ../bestia-docs.
 - Remove code which is not in use and just dead code
-- Remove legacy left over like versions or sparse enums which where not filled in.
+- Remove/Reset legacy left over like versions or sparse enums which where not filled in.
 - Update the docs under ../bestia-docs/server (there is a world generator section), with the latest features, explain the pipeline in detail and what parameters are used and their meaning and how this ties into the engine. Provide some code examples too.
