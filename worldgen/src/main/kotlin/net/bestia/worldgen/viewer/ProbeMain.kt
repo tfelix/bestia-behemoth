@@ -393,15 +393,29 @@ object ProbeMain {
       var flatMetres = 0.0
       var totalMetres = 0.0
 
+      // Dimensionless bend tightness, `|curvature| * width`. The number that decides whether the
+      // asymmetric cross-section is visible or is a sub-voxel rounding error - see Profiles.ChannelShape.
+      val bends = ArrayList<Double>()
+
       generated.world.features.all().filterIsInstance<PolylineFeature>()
         .filter { it.kind.name == "RIVER_CHANNEL" }
         .forEach { river ->
           val widthChannel = river.stations.channel(Profiles.CHANNEL_WIDTH)
           val depthChannel = river.stations.channel(Profiles.CHANNEL_DEPTH)
           val bedChannel = river.stations.channel(Profiles.CHANNEL_BED_ELEVATION)
+          val curvatureChannel = runCatching {
+            river.stations.channel(Profiles.CHANNEL_CURVATURE)
+          }.getOrNull()
+
           for (station in 0 until river.stations.stationCount) {
             widths.add(river.stations.valueAt(widthChannel, station))
             depths.add(river.stations.valueAt(depthChannel, station))
+            if (curvatureChannel != null) {
+              bends.add(
+                Math.abs(river.stations.valueAt(curvatureChannel, station)) *
+                    river.stations.valueAt(widthChannel, station)
+              )
+            }
           }
 
           val line = river.centerline
@@ -460,6 +474,21 @@ object ProbeMain {
           if (uphillSegments > 0) ", worst ${"%.4f".format(Locale.ROOT, worstUphill)} m/km" else "")
       println("  below $DEAD_FLAT_PER_KM m/km (reads as a canal)  " +
           "${"%.1f".format(Locale.ROOT, 100.0 * flatMetres / totalMetres)}% of channel length")
+
+      if (bends.isEmpty()) return
+
+      bends.sort()
+      val shape = Profiles.ChannelShape(thalwegOffset = generated.params.hydrology.thalwegOffset)
+
+      println()
+      println("bend tightness |curvature| x width, and what it moves the thalweg to")
+      println("                   min      p25      p50      p75      max")
+      println("  tightness   ${quantiles(bends)}")
+      // The response the profile actually applies, as a share of the half-width. An Earth meander apex
+      // sits near 0.3-0.5 tightness; anything an order of magnitude under that is a straight river with a
+      // wobble on it, and the cross-section will read as symmetric however hard this is turned up.
+      println("  thalweg     ${quantiles(bends.map { shape.thalwegShareAt(it) })}")
+      println("  p95 tightness ${"%.3f".format(Locale.ROOT, quantile(bends, 0.95))}")
     }
 
     /**

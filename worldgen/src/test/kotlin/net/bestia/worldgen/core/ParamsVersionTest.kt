@@ -185,7 +185,7 @@ class ParamsVersionTest {
       "ErosionParams" to 454_983_928_578_723_392L,
       "ClosedBasinParams" to 5_389_246_153_518_852_453L,
       "GlacialParams" to -1_266_272_442_885_291_278L,
-      "HydrologyParams" to -1_757_955_021_519_263_741L,
+      "HydrologyParams" to -5_783_982_653_209_774_790L,
       "PondParams" to 8_297_690_367_138_694_458L,
       "AlluviumParams" to -2_759_034_807_589_268_237L,
       "VolcanismParams" to -2_979_846_723_859_093_814L,

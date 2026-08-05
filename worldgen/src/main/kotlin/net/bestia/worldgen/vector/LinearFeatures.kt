@@ -23,18 +23,23 @@ object LinearFeatures {
    * @param depth channel depth below [bedElevation] at `s` (`d` grows roughly with `Q^0.4`)
    * @param shoulder floodplain half-width outside the channel, easing back to the surrounding
    *   terrain. Without it a big lowland river looks like a slot milled into a plain.
+   * @param shape how far the channel departs from a symmetric extruded parabola - see
+   *   [Profiles.ChannelShape]. The default is the plain parabola, so callers that do not care are
+   *   unaffected.
    */
   fun river(
     id: FeatureId,
     centerline: Polyline,
     stationSpacing: Double = 75.0,
+    shape: Profiles.ChannelShape = Profiles.ChannelShape(),
     bedElevation: (s: Double) -> Double,
     width: (s: Double) -> Double,
     depth: (s: Double) -> Double,
     shoulder: (s: Double) -> Double = { width(it) }
   ): PolylineFeature {
     val line = centerline.resample(stationSpacing)
-    val stations = StationTable.Builder(line.vertexCount)
+
+    val builder = StationTable.Builder(line.vertexCount)
       .channel(Profiles.CHANNEL_BED_ELEVATION) { bedElevation(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_WIDTH) { width(line.arcLengthAt(it)) }
       .channel(Profiles.CHANNEL_DEPTH) { depth(line.arcLengthAt(it)) }
@@ -43,17 +48,61 @@ object LinearFeatures {
         val s = line.arcLengthAt(it)
         width(s) * 0.5 + shoulder(s)
       }
-      .build()
+
+    // Only when something reads it: a channel costs one double per station on every river in the world,
+    // and the symmetric profile has no use for it.
+    if (shape.thalwegOffset > 0.0) {
+      val smoothed = smoothedCurvature(line)
+      builder.channel(Profiles.CHANNEL_CURVATURE) { smoothed[it] }
+    }
+
+    val stations = builder.build()
 
     return PolylineFeature(
       id = id,
       kind = FeatureKind.RIVER_CHANNEL,
       centerline = line,
       stations = stations,
-      profile = Profiles.riverChannel(stations),
+      profile = Profiles.riverChannel(stations, shape, stationSpacing),
       blend = BlendMode.MIN
     )
   }
+
+  /**
+   * Signed curvature per vertex, smoothed over its neighbours.
+   *
+   * Raw three-point curvature on a meandered centerline is noisy: the meander offset is added to an
+   * already-smoothed line, and any small kink it leaves reads as a large curvature over a short baseline.
+   * Fed straight to the profile that would flip the thalweg from bank to bank between adjacent stations,
+   * which looks like a braided mess rather than a bend. A short box smooth keeps the bend and drops the
+   * kink, because a real bend spans many stations and a kink spans one.
+   */
+  private fun smoothedCurvature(line: Polyline): DoubleArray {
+    val raw = DoubleArray(line.vertexCount) { line.signedCurvatureAt(it) }
+    if (raw.size <= 2 * CURVATURE_SMOOTHING) return raw
+
+    return DoubleArray(raw.size) { i ->
+      var sum = 0.0
+      var count = 0
+      for (k in (i - CURVATURE_SMOOTHING)..(i + CURVATURE_SMOOTHING)) {
+        if (k in raw.indices) {
+          sum += raw[k]
+          count++
+        }
+      }
+      sum / count
+    }
+  }
+
+  /**
+   * Stations either side included in the curvature smooth.
+   *
+   * One, not three. A river's meander wavelength here is floored at three station spacings, so a window of
+   * +-3 stations is *two whole meanders wide* - it averages the bend away along with the kink and reports a
+   * curvature near zero everywhere. Measured at +-3: bend tightness peaked at 0.010 across every river in
+   * the world, where a real meander apex is 0.3 to 0.5.
+   */
+  private const val CURVATURE_SMOOTHING = 1
 
   /**
    * A glacial trough, or - with the floor set below sea level and a rise in [floorElevation] at the

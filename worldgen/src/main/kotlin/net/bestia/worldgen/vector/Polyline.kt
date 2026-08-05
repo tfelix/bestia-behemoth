@@ -80,6 +80,32 @@ class Polyline(points: List<Vec2d>) {
   fun arcLengthAt(index: Int) = cumulative[index]
 
   /**
+   * Signed curvature at vertex [index], in reciprocal metres. Positive where the line turns left.
+   *
+   * Menger curvature - the reciprocal of the radius of the circle through this vertex and its two
+   * neighbours - signed by which way the turn goes. The sign is the whole point for a river: it is what
+   * says which bank is the *outer* one, and therefore which side the current undercuts and which side it
+   * drops a point bar on. An unsigned curvature would give a symmetric channel on every bend, which is the
+   * thing it exists to avoid.
+   *
+   * Zero at both endpoints, where there is no triple to fit a circle to.
+   */
+  fun signedCurvatureAt(index: Int): Double {
+    if (index <= 0 || index >= points.size - 1) return 0.0
+
+    val a = points[index - 1]
+    val b = points[index]
+    val c = points[index + 1]
+
+    val ab = b - a
+    val bc = c - b
+    val denominator = ab.length * bc.length * (c - a).length
+    if (denominator == 0.0) return 0.0
+
+    return 2.0 * (ab cross bc) / denominator
+  }
+
+  /**
    * Projects [p] onto the line and returns the closest point.
    *
    * Segments are scanned in index order and ties are broken towards the lower index (the

@@ -24,6 +24,7 @@ import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.LinearFeatures
 import net.bestia.worldgen.vector.PointFeature
 import net.bestia.worldgen.vector.Polyline
+import net.bestia.worldgen.vector.Profiles
 import net.bestia.worldgen.vector.RadialProfiles
 import net.bestia.worldgen.vector.Vec2d
 import net.bestia.worldgen.vector.VectorFeature
@@ -174,6 +175,35 @@ data class HydrologyParams(
   /** Meander wavelength as a multiple of channel width. Real rivers sit between 10 and 14. */
   val meanderWavelengthFactor: Double = 11.0,
 
+  /**
+   * How far the deepest line of the channel sits off centre on a full bend, as a fraction of the half-width.
+   *
+   * The cure for the extruded look. Written on `abs(lateral)`, as it was, every cross-section of every river
+   * in the world is exactly symmetric for its whole length - which no channel cut by water has ever been.
+   * See [Profiles.ChannelShape] for how the parabola is stretched rather than translated, and why the point
+   * bar that falls out of it can stand above the water as a gravel bank.
+   *
+   * Zero restores the symmetric parabola exactly, including skipping the curvature station channel.
+   */
+  val thalwegOffset: Double = 0.45,
+
+  /**
+   * How far the bank and bed wander in and out, as a fraction of the channel's own width.
+   *
+   * A fraction rather than metres because the floor in [ChannelGauge] means the narrowest channels are 3 m
+   * wide: half a metre of wobble is a third of the half-width there and a rounding error on a trunk, so an
+   * absolute figure cannot be right for both. Zero disables the noise.
+   */
+  val bankRoughness: Double = 0.12,
+
+  /**
+   * Wavelength of that wander, as a multiple of channel width.
+   *
+   * Below about half a width the wobble stops reading as an irregular bank and starts reading as static;
+   * well above one width it reads as the channel changing size rather than as a ragged edge.
+   */
+  val bankRoughnessWavelength: Double = 0.8,
+
   /** Reaches shorter than this in metres are dropped: they are single-cell stubs at drainage divides. */
   val minReachLength: Double = 700.0,
 
@@ -208,6 +238,13 @@ data class HydrologyParams(
     require(meanderWavelengthFactor > 0.0) {
       "meanderWavelengthFactor must be positive, was $meanderWavelengthFactor"
     }
+    // Above 0.9 the thalweg reaches the bank and the parabola on that side collapses to zero span; the
+    // profile clamps anyway, but a value that can only mean "as far as allowed" is better refused here.
+    require(thalwegOffset in 0.0..0.9) { "thalwegOffset must be in [0,0.9], was $thalwegOffset" }
+    require(bankRoughness >= 0.0) { "bankRoughness must not be negative, was $bankRoughness" }
+    require(bankRoughnessWavelength > 0.0) {
+      "bankRoughnessWavelength must be positive, was $bankRoughnessWavelength"
+    }
     require(minReachLength >= 0.0) { "minReachLength must not be negative, was $minReachLength" }
     require(confluenceRadiusFactor >= 0.0) {
       "confluenceRadiusFactor must not be negative, was $confluenceRadiusFactor"
@@ -231,6 +268,9 @@ data class HydrologyParams(
     .put("meanderWidthFactor", meanderWidthFactor)
     .put("meanderAmplitudeCap", meanderAmplitudeCap)
     .put("meanderWavelengthFactor", meanderWavelengthFactor)
+    .put("thalwegOffset", thalwegOffset)
+    .put("bankRoughness", bankRoughness)
+    .put("bankRoughnessWavelength", bankRoughnessWavelength)
     .put("minReachLength", minReachLength)
     .put("confluenceRadiusFactor", confluenceRadiusFactor)
 }
@@ -474,10 +514,24 @@ class HydrologyStage(
       val span = fine.length.coerceAtLeast(1e-9)
       fun positionOf(s: Double) = (s / span).coerceIn(0.0, 1.0) * (cellCount - 1)
 
+      // Both terms scale off the reach's own width, so a creek and a trunk get the same channel *character*
+      // rather than the same number of metres of it. The wavelength floor is four voxels: below that the
+      // wobble is finer than the grid can draw and turns into noise on the bank rather than a shape.
+      val shape = Profiles.ChannelShape(
+        thalwegOffset = params.thalwegOffset,
+        roughness = meanWidth * params.bankRoughness,
+        roughnessWavelength = max(
+          ctx.config.voxelSize * 4.0,
+          meanWidth * params.bankRoughnessWavelength
+        ),
+        seed = GenRng.hash(ctx.seed, id.hash, reach.id.toLong(), BANK_SEED_SALT)
+      )
+
       features.add(
         LinearFeatures.river(
           id = nextId(),
           centerline = centerline,
+          shape = shape,
           stationSpacing = params.stationSpacing,
           bedElevation = { s -> Tables.linear(bed, positionOf(s)) },
           width = { s -> gauge.widthOf(Tables.linear(flow, positionOf(s))) },
@@ -525,9 +579,13 @@ class HydrologyStage(
     /** Slope floor for the channel-initiation term, so a dead-flat cell cannot divide by zero. */
     private const val MIN_SLOPE = 1e-4
 
+    /** Keeps a reach's bank roughness independent of its meander, which is seeded from the same reach id. */
+    private const val BANK_SEED_SALT = 0x42414e4bL
+
     private const val SMOOTHING_PASSES = 2
 
     /** Fraction of a reach's length at each end over which the meander fades out. */
     private const val END_TAPER_FRACTION = 0.16
   }
 }
+
