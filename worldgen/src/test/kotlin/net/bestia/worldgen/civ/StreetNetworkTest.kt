@@ -17,13 +17,37 @@ import kotlin.test.assertEquals
  */
 class StreetNetworkTest {
 
-  private fun flatFrame(radius: Double, approaches: List<Vec2d> = emptyList()) = TownFrame(
-    centre = Vec2d(1_000.0, 1_000.0),
-    builtRadius = radius,
-    groundAt = { 100.0 },
-    buildable = { true },
-    approaches = approaches
-  )
+  /**
+   * A town on flat ground, with the real boundary rather than a stand-in.
+   *
+   * The boundary is built through [TownBoundary] and not, say, as a circle of the same radius, because it is now
+   * the thing every street is clipped against - a test that handed the planner a disc would be testing the code
+   * that was replaced. The axis is fixed east so that a test asserting where a street runs has something stable
+   * to assert against; the elongation itself is what varies with the seed.
+   */
+  private fun flatFrame(
+    radius: Double,
+    approaches: List<Vec2d> = emptyList(),
+    seed: Long = 1L,
+    buildable: (Vec2d) -> Boolean = { true }
+  ): TownFrame {
+    val centre = Vec2d(1_000.0, 1_000.0)
+    return TownFrame(
+      centre = centre,
+      builtRadius = radius,
+      boundary = TownBoundary.of(
+        centre = centre,
+        builtRadius = radius,
+        axis = Vec2d(1.0, 0.0),
+        aspect = TownBoundary.aspectOf(roll(seed), StreetParams()),
+        seed = seed,
+        params = StreetParams()
+      ),
+      groundAt = { 100.0 },
+      buildable = buildable,
+      approaches = approaches
+    )
+  }
 
   private fun roll(seed: Long) = townRoll(GenRng.hashString("test-$seed"), 0)
 
@@ -129,25 +153,42 @@ class StreetNetworkTest {
 
   @Test
   fun `every plot fronts a street and lies inside its block`() {
+    val setback = 3.5
     val frame = flatFrame(240.0)
     val graph = StreetPlanner.plan(frame, TownLayout.GRID, roll(4))
-    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = 3.5)
+    val lots = LotPlanner.subdivide(graph, frame, frontage = 9.0, depth = 16.0, setback = setback)
 
     assertTrue(lots.isNotEmpty(), "the grid produced no plots at all")
 
     for (lot in lots) {
-      // Frontage is a property of the construction here rather than a check: the plot's front edge is on the
-      // block boundary by definition. What can still be wrong is the direction, so assert that the front is
-      // nearer the street than the back.
       val front = lot.centre - lot.inwards * lot.halfDepth
       val back = lot.centre + lot.inwards * lot.halfDepth
-      val nearest = graph.nodes.minByOrNull { it.distanceTo(front) }!!
+
+      // Measured against street *segments*, not nodes. The nearest-node version of this held only because a grid
+      // clipped to a circle has nodes everywhere: once the grid is clipped to the town's own edge its lines end
+      // raggedly, so a plot at the edge can have some perpendicular street's junction as its nearest node and
+      // fail a test about a property it satisfies perfectly well. A node is not a street.
+      val fronting = graph.segmentsNear(front, setback + 1.0)
+        .map { (a, b) -> distanceToSegment(front, a, b) to distanceToSegment(back, a, b) }
+        // The street this plot fronts is `setback` away from its front edge, by construction. Anything further is
+        // some other street, and anything nearer would be a street inside the setback.
+        .filter { it.first <= setback + 1e-6 }
+
+      assertTrue(fronting.isNotEmpty(), "a plot has no street within its own setback of its front edge")
       assertTrue(
-        nearest.distanceTo(front) <= nearest.distanceTo(back) + 1e-6,
-        "a plot has its back to the street"
+        fronting.any { it.second > it.first },
+        "a plot has its back to the street it fronts"
       )
       assertTrue(lot.halfFrontage > 0.0 && lot.halfDepth > 0.0)
     }
+  }
+
+  private fun distanceToSegment(p: Vec2d, a: Vec2d, b: Vec2d): Double {
+    val ab = b - a
+    val lengthSq = ab.lengthSquared
+    if (lengthSq == 0.0) return p.distanceTo(a)
+    val t = (((p - a) dot ab) / lengthSq).coerceIn(0.0, 1.0)
+    return p.distanceTo(a + ab * t)
   }
 
   /**
@@ -167,14 +208,9 @@ class StreetNetworkTest {
       frontage = 9.0, depth = 16.0, setback = 3.5
     ).size
 
-    // A 24 m channel across the town, which is a big river at this scale.
-    val split = TownFrame(
-      centre = clear.centre,
-      builtRadius = clear.builtRadius,
-      groundAt = { 100.0 },
-      buildable = { kotlin.math.abs(it.y - 1_000.0) > 12.0 },
-      approaches = emptyList()
-    )
+    // A 24 m channel across the town, which is a big river at this scale. Same boundary as `clear`, so the only
+    // difference between the two towns is the water.
+    val split = flatFrame(330.0, buildable = { kotlin.math.abs(it.y - 1_000.0) > 12.0 })
     val obstructed = LotPlanner.subdivide(
       StreetPlanner.plan(split, TownLayout.ORGANIC, roll(8)), split,
       frontage = 9.0, depth = 16.0, setback = 3.5
@@ -190,13 +226,7 @@ class StreetNetworkTest {
   fun `water and steep ground keep streets out`() {
     // A frame in which the whole eastern half is unbuildable. Nothing may be laid there, and the western half
     // must still work - the failure worth guarding is a rejection that empties the town rather than half of it.
-    val frame = TownFrame(
-      centre = Vec2d(1_000.0, 1_000.0),
-      builtRadius = 300.0,
-      groundAt = { 100.0 },
-      buildable = { it.x <= 1_000.0 },
-      approaches = emptyList()
-    )
+    val frame = flatFrame(300.0, buildable = { it.x <= 1_000.0 })
 
     val graph = StreetPlanner.plan(frame, TownLayout.ORGANIC, roll(5))
     assertTrue(graph.edges.isNotEmpty(), "the buildable half should still have streets")

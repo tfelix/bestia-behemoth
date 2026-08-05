@@ -263,13 +263,34 @@ enum class SettlementTier(
   VILLAGE("village", 8_000.0, 180, 1_200),
   HAMLET("hamlet", 3_500.0, 20, 180);
 
-  /** Radius of the built area, roughly, in metres. Used for terrain grading. */
+  /**
+   * Radius of the built area, roughly, in metres. Used for terrain grading.
+   *
+   * ### Why these grew by half
+   *
+   * They were 900 / 420 / 190 / 90, and those numbers were the radius of a settlement that was literally a disc.
+   * A town is now a shape - see `TownBoundary` - and a shape needs a wider bounding circle than a disc of the
+   * same area does, by `StreetParams.boundaryReachFactor`. Raising these by that factor is what makes
+   * de-circularising a settlement change its outline rather than shrink it: at the old values every town in the
+   * world came out about forty per cent short of the plots its own population asked for.
+   *
+   * It is worth knowing that **this number, not population, is what has always decided how big a settlement is**.
+   * `TownStage.builtRadiusFor` takes the smaller of the population's own radius and what fits inside this, and
+   * the cap binds at every tier - a forty-thousand city asks for 1.5 km and got 833 m. So these values were
+   * already holding settlements below their populations, and this change moves them closer to it rather than
+   * further away, which is the second reason to make it.
+   *
+   * The cost is real and is terrain: the grading feature is a disc of this radius, so more ground is levelled
+   * under each settlement than the town standing on it needs. Fixing *that* means giving the grading the town's
+   * own outline, which cannot happen here - `SettlementStage` emits the grading and runs before history, so it
+   * does not yet know the population the outline is sized from.
+   */
   val footprintRadius: Double
     get() = when (this) {
-      CITY -> 900.0
-      TOWN -> 420.0
-      VILLAGE -> 190.0
-      HAMLET -> 90.0
+      CITY -> 1_310.0
+      TOWN -> 610.0
+      VILLAGE -> 280.0
+      HAMLET -> 130.0
     }
 
   companion object {

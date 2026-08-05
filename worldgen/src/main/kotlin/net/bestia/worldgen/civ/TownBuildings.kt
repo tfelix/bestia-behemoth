@@ -106,7 +106,9 @@ internal class Zoning(
 ) {
 
   fun valueOf(lot: Lot): Double {
-    val central = 1.0 - (lot.fromCentre / frame.builtRadius).coerceIn(0.0, 1.0)
+    // Already normalised, and normalised against the street network rather than against a radius - so this is
+    // "how far is the market on foot" rather than "how far is the middle of the disc". See [Lot.fromMarket].
+    val central = 1.0 - lot.fromMarket
     val street = when (lot.streetRank) {
       0 -> 1.0
       1 -> 0.62
@@ -126,7 +128,7 @@ internal class Zoning(
    * village gets one and a city gets six, which is the shape the service-ratio model in
    * `net.bestia.worldgen.pop` also uses, and the two agree because they are the same idea.
    */
-  fun assign(lots: List<Lot>): List<BuildingFunction> {
+  fun assign(lots: List<Lot>, buildings: Int): List<BuildingFunction> {
     val order = lots.indices.sortedWith(
       compareByDescending<Int> { valueOf(lots[it]) }.thenBy { it }
     )
@@ -145,16 +147,28 @@ internal class Zoning(
       else -> 0
     }
     var inns = 1 + population / INN_POPULATION
-    var shops = (lots.size * SHOP_SHARE * (0.6 + wealth)).toInt()
-    var warehouses = if (coastal) (lots.size * WAREHOUSE_SHARE).toInt() + 1 else 0
-    var crafts = (lots.size * CRAFT_SHARE * (0.7 + 0.6 * wealth)).toInt()
+
+    // A share of the buildings the town will actually have, **not** of the plots available to it. Those are
+    // different numbers whenever the layout offers more room than the population fills - which is the normal
+    // case, and is the whole point of `maxBuildingsPerSettlement` - and taking the share over plots made the
+    // trade quotas alone exceed the building budget. A nineteen-thousand-person city came out as 492 workshops,
+    // 459 shops and **80 houses**: every quota was filled from the top of the land-value order and the
+    // residences, which are what a town is mostly made of, were what the cap dropped off the bottom.
+    val share = buildings.coerceAtLeast(1)
+    var shops = (share * SHOP_SHARE * (0.6 + wealth)).toInt()
+    var warehouses = if (coastal) (share * WAREHOUSE_SHARE).toInt() + 1 else 0
+    var crafts = (share * CRAFT_SHARE * (0.7 + 0.6 * wealth)).toInt()
 
     for (index in order) {
       val lot = lots[index]
 
-      // The outer ring is farmland whatever it is worth: a barn on the edge of a village is not a
+      // The far end of the streets is farmland whatever it is worth: a barn on the edge of a village is not a
       // devalued shop, it is a different kind of building.
-      if (lot.fromCentre > frame.builtRadius * FARM_RING) {
+      //
+      // A *graph* threshold rather than a ring, which is the difference between farms at the outward tips of
+      // whatever streets leave town and farms in an annulus drawn across them. On an elongated town the annulus
+      // was plainly wrong: it cut the two ends of the high street into farmland while leaving the flanks urban.
+      if (lot.fromMarket > FARM_REACH) {
         out[index] = BuildingFunction.FARM
         continue
       }
@@ -186,7 +200,7 @@ internal class Zoning(
    * told, which is the whole reason it is worth the fifteen lines.
    */
   private fun inNoxiousDistrict(lot: Lot): Boolean {
-    if (lot.fromCentre < frame.builtRadius * NOXIOUS_INNER) return false
+    if (lot.fromMarket < NOXIOUS_INNER) return false
 
     val direction = (lot.centre - frame.centre).normalized()
     return angleBetween(direction, downwind) < NOXIOUS_ARC ||
@@ -322,10 +336,16 @@ internal class Zoning(
     const val CRAFT_SHARE = 0.14
     const val WAREHOUSE_SHARE = 0.04
 
-    /** Fraction of the built radius beyond which every lot is a farmstead. */
-    const val FARM_RING = 0.88
+    /**
+     * Normalised walking distance from the market beyond which every lot is a farmstead.
+     *
+     * The same 0.88 the ring used, and deliberately the same number: the change is what it is a fraction *of* -
+     * the street network's own extent rather than the built radius - so the share of a town that farms is
+     * unchanged and only its shape moves. Keeping the value makes the two comparable in `./gradlew :worldgen:town`.
+     */
+    const val FARM_REACH = 0.88
 
-    /** Fraction of the built radius inside which no noxious trade is allowed. */
+    /** Normalised walking distance from the market inside which no noxious trade is allowed. */
     const val NOXIOUS_INNER = 0.35
 
     /** Half-angle of the noxious quarter, in radians. About fifty degrees each side. */
@@ -394,6 +414,16 @@ object WallChannels {
   const val HALF_THICKNESS = "half_thickness"
 
   const val BLOCK = "block"
+
+  /**
+   * Which circuit this stretch belongs to: 0 is the outer wall, 1 the inner one.
+   *
+   * A city that outgrew its first wall has two, and they are different things - the outer one is the defence and
+   * the inner one is the boundary of the old town. A consumer that could not tell them apart would have to guess
+   * from the geometry, and `Invariants.checkWalledSettlementsHaveAGate` has to count gates *per circuit* rather
+   * than per settlement or an inner wall with no way through it would pass.
+   */
+  const val CIRCUIT = "circuit"
 }
 
 /** Station channels on a [net.bestia.worldgen.vector.FeatureKind.GATE] marker. */

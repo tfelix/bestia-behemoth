@@ -165,7 +165,9 @@ class ParamsVersionTest {
     val pinned = listOf(
       "Biomes" to 8_864_784_301_847_352_802L,
       "Culture" to -8_768_142_304_179_570_668L,
-      "SettlementTier" to 6_969_176_217_374_462_215L,
+      // Moved when `footprintRadius` was raised by `StreetParams.boundaryReachFactor`, so that a town could be a
+      // shape rather than a disc without also becoming a smaller one. See `SettlementTier.footprintRadius`.
+      "SettlementTier" to 4_668_433_068_619_246_677L,
       "BusinessCatalogue" to -2_565_285_581_581_779_829L,
       "Names" to -9_118_719_711_542_149_956L,
       "EventKind" to 1_616_518_775_768_109_607L,
@@ -216,8 +218,10 @@ class ParamsVersionTest {
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
       "SpawnerParams" to 8_240_882_274_862_173_131L,
-      "TownParams" to 6_322_658_815_609_408_725L,
-      "StreetParams" to -2_774_139_638_864_316_831L,
+      // Both moved with the de-circularising of the town: `StreetParams` gained the arc and boundary fields and
+      // lost nothing, and `TownParams` holds it.
+      "TownParams" to 4_581_537_478_736_483_729L,
+      "StreetParams" to 7_767_182_004_335_302_930L,
       "EconomyParams" to 6_863_789_847_631_252_411L,
       "PoiParams" to 9_183_715_732_977_741_057L,
       "DetailParams" to 5_837_136_561_326_550_610L,

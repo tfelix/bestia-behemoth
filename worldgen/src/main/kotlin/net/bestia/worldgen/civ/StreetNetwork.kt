@@ -3,9 +3,11 @@ package net.bestia.worldgen.civ
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
+import net.bestia.worldgen.fields.DoubleIntHeap
 import net.bestia.worldgen.vector.Intersections
 import net.bestia.worldgen.vector.Polyline
 import net.bestia.worldgen.vector.Quantize
+import net.bestia.worldgen.vector.Ring
 import net.bestia.worldgen.vector.Vec2d
 import kotlin.math.PI
 import kotlin.math.abs
@@ -28,13 +30,107 @@ internal class TownFrame(
   val centre: Vec2d,
   /** Radius of the built-up area in metres, from present population rather than from the tier. */
   val builtRadius: Double,
+  /**
+   * The edge of the built-up area, as a shape rather than as a radius.
+   *
+   * The town used to *be* [builtRadius] - streets stopped at it, the grid was clipped to it by half-chord, land
+   * value was a fraction of it and the wall was a circle drawn at it - and a settlement generated from one
+   * number is shaped like that number's level set, which is a disc. This is the same argument
+   * [net.bestia.worldgen.vector.Ring.warpedCircle]'s own KDoc makes about ponds reading as craters.
+   *
+   * [builtRadius] survives as the *scale* the boundary is built at, and as the bound this ring is guaranteed to
+   * lie inside - which is what keeps every lot on ground the settlement's grading disc actually levelled. See
+   * [TownBoundary].
+   */
+  val boundary: Ring,
   /** Approximate ground elevation, already terraced the way the settlement's grading will terrace it. */
   val groundAt: (Vec2d) -> Double,
   /** False over water, over ground too steep to build on, or outside the world. */
   val buildable: (Vec2d) -> Boolean,
   /** Unit directions from which roads arrive. Empty for a place no road reaches. */
   val approaches: List<Vec2d>
-)
+) {
+
+  /** Whether a position is inside the built-up area. Replaces `distanceTo(centre) <= builtRadius`. */
+  fun encloses(at: Vec2d): Boolean = boundary.contains(at)
+}
+
+/**
+ * The shape of a town's built edge: a warped circle, stretched along whatever the town is strung out along.
+ *
+ * ### Why a stretch and not more noise
+ *
+ * Noise alone gives a round town with a wobbly edge, because fbm around a circle has no preferred direction -
+ * every lobe is as likely to point one way as another, so the *outline* varies and the *aspect* does not. Real
+ * towns are elongated, and they are elongated along something: the river they cross, or the road they grew
+ * beside. A single affine stretch says that in one multiplication, and says it about the town rather than about
+ * its edge.
+ *
+ * An invertible affine map is a homeomorphism of the plane, so it takes a simple polygon to a simple polygon -
+ * the stretch cannot make [Ring]'s self-intersection check start rejecting boundaries, whatever the aspect.
+ *
+ * ### Area, and the one place this costs something
+ *
+ * The stretch is `(sqrt(aspect), 1/sqrt(aspect))`, which **preserves area** - so a town that is elongated holds
+ * as many plots as the round one it replaced, rather than silently getting more or fewer. That matters because
+ * `TownParams.peoplePerHectare` is measured, not assumed, and an area change would quietly invalidate it.
+ *
+ * The exception is a settlement whose long axis would then reach past [TownFrame.builtRadius], which is the
+ * bound `TownStage.builtRadiusFor` reserved room inside the graded footprint for. There the ring is scaled down
+ * uniformly until it fits, and *that* costs area. It binds on the largest settlements only - a city's radius is
+ * capped by its graded footprint long before its population stops asking for more - and it is the honest
+ * trade, because the alternative is buildings standing on a hillside the town never levelled.
+ */
+internal object TownBoundary {
+
+  fun of(
+    centre: Vec2d,
+    builtRadius: Double,
+    /** What the town is strung out along. Unit length; any direction will do, including a rolled one. */
+    axis: Vec2d,
+    aspect: Double,
+    seed: Long,
+    params: StreetParams
+  ): Ring {
+    val warped = Ring.warpedCircle(
+      centre = Vec2d.ZERO,
+      radius = builtRadius,
+      seed = seed,
+      vertexCount = params.boundaryVertices,
+      roughness = params.boundaryRoughness,
+      lobes = params.boundaryLobes
+    )
+
+    val along = axis.normalized().let { if (it.lengthSquared < 0.5) Vec2d(1.0, 0.0) else it }
+    val across = along.perpendicular()
+    val stretch = sqrt(aspect)
+
+    // Built about the origin and translated at the end, so the stretch is about the town's own centre rather
+    // than about the world's, which at a hundred kilometres out would be a shear the size of the map.
+    val stretched = warped.vertices.map { v ->
+      (along * ((v dot along) * stretch)) + (across * ((v dot across) / stretch))
+    }
+
+    // Uniform, so the shape is kept and only its size gives way. Measured from the centre because that is what
+    // `builtRadius` is a radius from.
+    val reach = stretched.maxOf { it.length }
+    val fit = if (reach > builtRadius) builtRadius / reach else 1.0
+
+    return Ring(stretched.map { centre + it * fit })
+  }
+
+  /**
+   * How elongated this town is, rolled per settlement.
+   *
+   * Jittered rather than fixed because a world where every town has the same aspect reads as a template, which
+   * is the failure the whole change is against. The floor is above one so that the axis always means something:
+   * an aspect of exactly one is a round town again, and then the direction it was given is unobservable.
+   */
+  fun aspectOf(roll: (Long, Long) -> Double, params: StreetParams): Double =
+    params.boundaryAspect * (1.0 + (roll(0L, ASPECT_SALT) - 0.5) * 2.0 * params.boundaryAspectJitter)
+
+  private const val ASPECT_SALT = 0x38L
+}
 
 /**
  * One street segment before the graph is planarised.
@@ -80,6 +176,20 @@ internal class StreetGraph(
   fun rankAt(node: Int): Int = incident[node].minOfOrNull { edges[it].rank } ?: Int.MAX_VALUE
 
   fun degreeOf(node: Int): Int = incident[node].size
+
+  /**
+   * Every node one edge away, with the length of the edge that reaches it. What [StreetDistance] walks.
+   *
+   * The graph's adjacency was already built - [incident] exists so `chains()` can follow a street through a
+   * junction - and it was private, so a shortest-path walk over the same structure would otherwise have had to
+   * rebuild it. Returning positions' distance rather than a hop count matters: a town's streets differ in length
+   * by an order of magnitude between a market frontage and a road out, and hop counts would make a long straight
+   * approach road look closer to the market than the lane behind it.
+   */
+  fun neighboursOf(node: Int): List<Pair<Int, Double>> = incident[node].map {
+    val other = if (edges[it].a == node) edges[it].b else edges[it].a
+    other to nodes[node].distanceTo(nodes[other])
+  }
 
   /**
    * Whether any two edges cross somewhere other than at a node they share - i.e. whether this graph is *not*
@@ -204,6 +314,147 @@ internal class StreetGraph(
 }
 
 /**
+ * How far anywhere in a town is from its market **along the streets**, normalised to `[0,1]`.
+ *
+ * ### Why not the distance to the centre
+ *
+ * Land value used to be `1 - distanceToCentre / builtRadius`, and that is a statement about a disc rather than
+ * about a town. It says a plot two hundred metres from the market up a dead-end lane with no way through is
+ * worth exactly as much as one two hundred metres away on the high street - and worse, it is the reason the
+ * *contents* of a settlement were laid out in bands however un-circular its streets were. A radial land value
+ * puts the temples in a ring and the farms in an annulus no matter what shape the town is.
+ *
+ * Walking distance is what land value actually tracked historically, and it is what a player experiences: the
+ * question is how long it takes to get to the market, not how far it is as the crow flies.
+ *
+ * ### Unreachable falls back to the crow, and the reason is not theoretical
+ *
+ * A node the market cannot reach used to normalise to 1 - maximally peripheral - on the argument that land across
+ * an uncrossable river genuinely is the cheapest land in town. That argument is fine and the behaviour was not:
+ * planarisation and the buildable filter leave *fragments*, short runs of street whose connection to the middle
+ * was dropped for a metre of water or a steep segment, and those are ordinary town streets rather than the far
+ * bank. Scoring them at 1 put them past `Zoning`'s farm threshold, and a town came back **63 per cent farmsteads**
+ * with fifty-one houses in it.
+ *
+ * So an unreachable node falls back to straight-line distance from the market, normalised against the same span.
+ * A fragment near the middle then scores near the middle, a fragment at the edge scores at the edge, and neither
+ * gets a value the rest of the scale cannot produce. It is a worse estimate than a walk and a far better one than
+ * a cliff.
+ *
+ * Distances are per node, and a query interpolates by adding the straight line from the nearest node. A lot is
+ * within half a segment of a node by construction, so the error is metres on a scale of hundreds, and the
+ * consumer is a normalised score that decides an ordering.
+ */
+internal class StreetDistance(private val graph: StreetGraph, private val origin: Vec2d) {
+
+  private val distance = DoubleArray(graph.nodes.size) { Double.MAX_VALUE }
+
+  /** Longest finite distance, so the normalisation is against the town's own extent rather than a guess. */
+  private val span: Double
+
+  /** Node buckets, so a per-lot query is not a scan over every junction in the town. */
+  private val buckets: HashMap<Long, MutableList<Int>>
+  private val bucketSize: Double
+
+  init {
+    val start = nearestByScan(origin)
+    if (start >= 0) {
+      distance[start] = 0.0
+      val open = DoubleIntHeap(graph.nodes.size.coerceAtLeast(16))
+      val settled = BooleanArray(graph.nodes.size)
+      open.push(0.0, start)
+
+      while (!open.isEmpty) {
+        val node = open.pop()
+        if (settled[node]) continue
+        settled[node] = true
+
+        for ((other, step) in graph.neighboursOf(node)) {
+          val candidate = distance[node] + step
+          if (candidate >= distance[other]) continue
+          distance[other] = candidate
+          open.push(candidate, other)
+        }
+      }
+    }
+
+    val furthest = distance.filter { it != Double.MAX_VALUE }.maxOrNull() ?: 0.0
+    // Floored so that a town whose whole network is one junction cannot divide by zero, and so that a hamlet
+    // with two streets does not report its second street as maximally peripheral.
+    span = max(furthest, MIN_SPAN)
+
+    bucketSize = max(span / BUCKET_DIVISIONS, MIN_BUCKET)
+    buckets = HashMap()
+    for (i in graph.nodes.indices) {
+      buckets.getOrPut(keyOf(graph.nodes[i])) { ArrayList(4) }.add(i)
+    }
+  }
+
+  /** Normalised walking distance from the market: 0 at it, 1 at the far end of the network. */
+  fun at(point: Vec2d): Double {
+    val node = nearest(point) ?: return asTheCrowFlies(point)
+    val reached = distance[node]
+    if (reached == Double.MAX_VALUE) return asTheCrowFlies(point)
+    return ((reached + point.distanceTo(graph.nodes[node])) / span).coerceIn(0.0, 1.0)
+  }
+
+  /** The fallback for a point the market cannot walk to. See this class's own note on why it is not just 1. */
+  private fun asTheCrowFlies(point: Vec2d): Double = (point.distanceTo(origin) / span).coerceIn(0.0, 1.0)
+
+  /** Nearest node, searching the query bucket and its ring of neighbours before widening. */
+  private fun nearest(point: Vec2d): Int? {
+    val cellX = Math.floor(point.x / bucketSize).toLong()
+    val cellY = Math.floor(point.y / bucketSize).toLong()
+
+    var best = -1
+    var bestSq = Double.MAX_VALUE
+    for (dy in -1..1) {
+      for (dx in -1..1) {
+        val bucket = buckets[(cellX + dx) * PRIME xor (cellY + dy)] ?: continue
+        for (i in bucket) {
+          val d = graph.nodes[i].distanceSquaredTo(point)
+          if (d < bestSq) {
+            bestSq = d
+            best = i
+          }
+        }
+      }
+    }
+
+    // A point more than a bucket from any junction - which happens on a sparse hamlet - falls back to the scan
+    // rather than to "peripheral", because getting this wrong would silently zone a whole small settlement.
+    return if (best >= 0) best else nearestByScan(point).takeIf { it >= 0 }
+  }
+
+  private fun nearestByScan(point: Vec2d): Int {
+    var best = -1
+    var bestSq = Double.MAX_VALUE
+    for (i in graph.nodes.indices) {
+      val d = graph.nodes[i].distanceSquaredTo(point)
+      if (d < bestSq) {
+        bestSq = d
+        best = i
+      }
+    }
+    return best
+  }
+
+  private fun keyOf(p: Vec2d): Long =
+    Math.floor(p.x / bucketSize).toLong() * PRIME xor Math.floor(p.y / bucketSize).toLong()
+
+  private companion object {
+    /** Metres below which a town's street network is treated as having no extent worth normalising against. */
+    const val MIN_SPAN = 40.0
+
+    /** Buckets across the town's extent, and a floor so a tiny settlement gets one bucket rather than millions. */
+    const val BUCKET_DIVISIONS = 12.0
+    const val MIN_BUCKET = 25.0
+
+    const val PRIME = 0x9E3779B1L
+  }
+}
+
+/**
  * Tuning for the street layout.
  *
  * Public, and it was not. It had a public mirror in `TownParams` - a `StreetParamsPublic` that copied seven of
@@ -235,16 +486,50 @@ data class StreetParams(
   val minRadials: Int = 3,
   val maxRadials: Int = 7,
   /**
-   * Ring streets, as fractions of the built radius.
+   * Cross streets, as fractions of the built radius.
    *
-   * Three, not two, and spread inwards. With rings at 0.42 and 0.82 the plots concentrated on the two rings -
-   * they are far the longest chains in the network - and the middle of the town came out nearly empty, so a
-   * rendered town read as two concentric terraces with a field between them. A real town is densest at its
-   * centre, and the cheapest way to get that is to give the centre streets to front onto.
+   * These were three *closed rings*, and closed rings at surveyed radii are most of why every town in the world
+   * read as a wheel: a ring is far the longest chain in the network, so most plots front onto one, and three of
+   * them concentric put every house in the town on one of three circles. They are now arcs - see
+   * [StreetPlanner.crossSegments] - but the radii keep their meaning and their reason. Three rather than two,
+   * spread inwards: with cross streets only at 0.42 and 0.82 the middle of a town came out nearly empty, and a
+   * town is densest at its centre.
    */
   val rings: List<Double> = listOf(0.28, 0.55, 0.82),
-  /** Vertices per ring. Enough that a ring reads as a curve rather than a polygon. */
+  /** Vertices per full turn of a cross street. Enough that an arc reads as a curve rather than a polygon. */
   val ringVertices: Int = 20,
+  /**
+   * Share of a full turn one cross street covers, before jitter.
+   *
+   * The number that stops a cross street being a ring. Two thirds is enough to tie several radials together -
+   * which is what the cycles the network needs come from - and short enough that the eye never closes it into a
+   * circle.
+   */
+  val arcSpan: Double = 0.66,
+  /** Fraction of [arcSpan] the span and its starting bearing are rolled either side of. */
+  val arcJitter: Double = 0.3,
+  /** Vertices around the town's own edge. Capped by `Ring.MAX_VERTICES`. */
+  val boundaryVertices: Int = 28,
+  /**
+   * Fraction of the built radius the town's edge wanders, in `[0,1)`.
+   *
+   * Lower than `Ring.warpedCircle`'s own default of 0.28, because that default is tuned for a *landform* - a
+   * lake shore wants bays - and a built edge that deep in and out reads as a coastline rather than as the point
+   * where the houses stop.
+   */
+  val boundaryRoughness: Double = 0.10,
+  /** How many broad lobes the edge has. Few and wide, so the shape is a shape and not a fringe. */
+  val boundaryLobes: Double = 2.4,
+  /**
+   * How much longer than wide a town is, before jitter. See [TownBoundary].
+   *
+   * Modest on purpose, and the reason is [boundaryReachFactor]: a shape's bounding circle is bigger than that of
+   * a disc of the same area, so every point of elongation has to be paid for in graded ground. One and a half is
+   * where a town plainly is not a circle and the bill is still under a half.
+   */
+  val boundaryAspect: Double = 1.45,
+  /** Fraction of [boundaryAspect] the aspect is rolled either side of, per settlement. */
+  val boundaryAspectJitter: Double = 0.21,
   /** Deepest a grown street may go, in segments. */
   val maxDepth: Int = 9
 ) : Params {
@@ -263,8 +548,43 @@ data class StreetParams(
     }
     // Three vertices is the fewest that closes; below it a ring is a line and `planarise` welds it to nothing.
     require(ringVertices >= 3) { "ringVertices must be at least 3, was $ringVertices" }
+    // At a full turn a cross street is a closed ring again, which is the thing this replaced.
+    require(arcSpan > 0.0 && arcSpan < 1.0) { "arcSpan must be a share of a turn in (0,1), was $arcSpan" }
+    require(arcJitter >= 0.0 && arcJitter <= 1.0) { "arcJitter must be in [0,1], was $arcJitter" }
+    require(boundaryVertices in 3..Ring.MAX_VERTICES) {
+      "boundaryVertices must be in [3, ${Ring.MAX_VERTICES}], was $boundaryVertices"
+    }
+    require(boundaryRoughness >= 0.0 && boundaryRoughness < 1.0) {
+      "boundaryRoughness must be in [0,1), was $boundaryRoughness"
+    }
+    require(boundaryLobes > 0.0) { "boundaryLobes must be positive, was $boundaryLobes" }
+    // Below one the "long" axis is the short one, which is the same shape rolled a quarter turn and only
+    // confuses what the axis means. Exactly one is a round town, which is what this exists to stop.
+    require(boundaryAspect > 1.0) { "boundaryAspect must be greater than 1, was $boundaryAspect" }
+    // Jitter that could reach an aspect of one would occasionally hand back the disc.
+    require(boundaryAspectJitter >= 0.0 && boundaryAspect * (1.0 - boundaryAspectJitter) > 1.0) {
+      "boundaryAspectJitter $boundaryAspectJitter must keep aspect $boundaryAspect above 1 at its low end"
+    }
     require(maxDepth >= 1) { "maxDepth must be at least 1, was $maxDepth" }
   }
+
+  /**
+   * How much wider than a disc of the same area this town's bounding circle has to be.
+   *
+   * **The number that pays for the shape.** A circle is the shape with the smallest bounding circle for its area;
+   * anything else needs a bigger one. So a town that is elongated by `aspect` and wanders by `roughness`, and
+   * that holds as many plots as the disc it replaced, reaches `sqrt(aspect) * (1 + roughness)` further from its
+   * centre than that disc did. `TownStage.builtRadiusFor` reserves room for exactly this, and
+   * `SettlementTier.footprintRadius` was raised by it, so that de-circularising a town changed its *shape*
+   * without also quietly making it smaller. Getting this wrong does not look like a bug: it looks like a world of
+   * towns that all report wanting forty per cent more buildings than their streets have room for.
+   *
+   * Taken at the *top* of the aspect jitter, because it is a reservation and the roll happens later. A body `val`
+   * rather than a constructor property on purpose - it is derived from three tunables that are already folded
+   * into the digest, and `ParamsFields` would rightly flag a fourth that is not independent.
+   */
+  val boundaryReachFactor: Double
+    get() = sqrt(boundaryAspect * (1.0 + boundaryAspectJitter)) * (1.0 + boundaryRoughness)
 
   override fun digest() = ParamsDigest()
     .put("segmentLength", segmentLength)
@@ -275,6 +595,13 @@ data class StreetParams(
     .put("maxRadials", maxRadials)
     .put("rings", rings)
     .put("ringVertices", ringVertices)
+    .put("arcSpan", arcSpan)
+    .put("arcJitter", arcJitter)
+    .put("boundaryVertices", boundaryVertices)
+    .put("boundaryRoughness", boundaryRoughness)
+    .put("boundaryLobes", boundaryLobes)
+    .put("boundaryAspect", boundaryAspect)
+    .put("boundaryAspectJitter", boundaryAspectJitter)
     .put("maxDepth", maxDepth)
 }
 
@@ -287,20 +614,42 @@ data class StreetParams(
  */
 internal object StreetPlanner {
 
+  /**
+   * @param extra streets some other producer decided - the edges of a patched core, when a town has one.
+   *   Planarised together with the grown ones rather than beside them, because the whole town has to be **one**
+   *   planar graph: `LotPlanner` rejects a plot that reaches across a street by testing the graph, so a street the
+   *   graph does not hold is a street plots grow through. They also go through the same [passable] filter, so a
+   *   patch edge over water is dropped exactly as a grown segment would be.
+   */
   fun plan(
     frame: TownFrame,
     layout: TownLayout,
     /** Keyed roll, `(salt...) -> [0,1)`. Never a stream: see [net.bestia.worldgen.history.HistorySim]. */
     roll: (Long, Long) -> Double,
-    params: StreetParams = StreetParams()
+    params: StreetParams = StreetParams(),
+    extra: List<StreetSegment> = emptyList()
   ): StreetGraph {
     val raw = when (layout) {
       TownLayout.ORGANIC -> organic(frame, roll, params)
       TownLayout.GRID -> grid(frame, roll, params)
     }
 
-    return planarise(raw.filter { passable(frame, it) })
+    return planarise((raw + extra).filter { inside(frame, it) && passable(frame, it) })
   }
+
+  /**
+   * Whether both ends of a segment lie inside the town.
+   *
+   * The grown layouts check this as they go - a growth step that would leave the boundary is not taken - but
+   * [plan]'s `extra` comes from somewhere else, and a patch's edges are bounded by its Voronoi neighbours rather
+   * than by the town's outline. So a core street could run outside the town, and `LotPlanner` would then front plots
+   * onto it from outside: the 320-cell sweep caught a building 695 m from a settlement whose footprint is 610.
+   *
+   * Filtering the whole set rather than only `extra`, because a bound that every producer must remember to apply
+   * is a bound that some producer will forget - which is exactly what happened.
+   */
+  private fun inside(frame: TownFrame, segment: StreetSegment): Boolean =
+    frame.encloses(segment.a) && frame.encloses(segment.b)
 
   /**
    * A segment is kept only if it is buildable along its whole length, sampled at five points.
@@ -316,12 +665,12 @@ internal object StreetPlanner {
   // --- Organic --------------------------------------------------------------------------------------
 
   /**
-   * Radials out of the market square, side streets branching off them, and two ring roads.
+   * Radials out of the market square, side streets branching off them, and a few cross streets.
    *
-   * The rings are not decoration. A pure branching growth is a *tree*, and a tree has no cycles, so face
-   * traversal finds no bounded faces and the town gets no blocks and therefore no buildings at all. Rings
-   * guarantee cycles; snapping produces more of them opportunistically. That failure is worth naming
-   * because it does not look like a missing ring - it looks like a town with streets and nothing on them.
+   * The cross streets are not decoration. A pure branching growth is a *tree*, and a tree has no cycles, so
+   * nothing closes a block; snapping produces some cycles opportunistically and cannot be relied on to. That
+   * failure is worth naming because it does not look like a missing street - it looks like a town with streets
+   * and nothing on them. See [crossSegments] for why they are arcs rather than the rings they used to be.
    */
   private fun organic(
     frame: TownFrame,
@@ -356,7 +705,7 @@ internal object StreetPlanner {
       val step = params.segmentLength * (if (growth.rank == 0) 1.0 else 0.8)
       var end = growth.from + heading * step
 
-      if (end.distanceTo(frame.centre) > frame.builtRadius) continue
+      if (!frame.encloses(end)) continue
 
       // Snap to a node already there rather than run past it a metre away, which is what turns a grown
       // network into a connected one - and every snap is a new cycle, hence a new block.
@@ -379,7 +728,7 @@ internal object StreetPlanner {
       }
     }
 
-    out.addAll(ringSegments(frame, params, rank = 1, roll = roll))
+    out.addAll(crossSegments(frame, params, rank = 1, roll = roll))
     return out
   }
 
@@ -418,18 +767,31 @@ internal object StreetPlanner {
   }
 
   /**
-   * Ring streets at fractions of the built radius, wandering rather than circular.
+   * Cross streets: arcs at fractions of the built radius, wandering rather than circular, and **open**.
    *
-   * The wander is not decoration. Exact circles produce a town that reads as a diagram of a town from above -
-   * three concentric terraces at surveyed radii, which no place grown from a crossroads has ever looked like.
-   * Perturbing each vertex radially by a smooth function of its angle costs six lines and is the difference
-   * between a garden city and a market town.
+   * ### Two separate reasons this is not a ring
    *
-   * The perturbation is a sum of two harmonics rather than per-vertex noise, because a ring has to stay a
-   * closed smooth curve: independent jitter per vertex gives a ring with corners in it, and a street with
-   * corners every forty metres is a worse artefact than a circle.
+   * The wander was here first and its reason still holds: an exact circle produces a town that reads as a
+   * diagram of a town from above. The perturbation is a sum of two harmonics rather than per-vertex noise
+   * because a street has to stay smooth - independent jitter per vertex gives corners every forty metres, which
+   * is a worse artefact than the circle it was fixing.
+   *
+   * But a *wandering* circle is still a circle, and that was the deeper problem. A cross street is far the
+   * longest chain in the network, so most of a town's plots front onto one; three closed ones concentric
+   * therefore put nearly every house in the town on one of three circles, and no amount of edge wander hides
+   * three concentric terraces. So each one now covers only [StreetParams.arcSpan] of a turn, from a rolled
+   * bearing, at a rolled radius.
+   *
+   * Cycles survive this, which is the property the network genuinely needs - a pure branching growth is a tree,
+   * and the ring streets were originally introduced to guarantee cycles at all. An arc spanning two thirds of a
+   * turn crosses several radials, and every crossing closes a loop between the arc and the two radials it joins.
+   * The arcs are also no longer forced to the same phase, so those loops differ in size and shape, which is
+   * what a block should do.
+   *
+   * The last vertex is deliberately not joined back to the first. That single omitted segment is the whole
+   * difference between a cross street and a ring road.
    */
-  private fun ringSegments(
+  private fun crossSegments(
     frame: TownFrame,
     params: StreetParams,
     rank: Int,
@@ -438,28 +800,35 @@ internal object StreetPlanner {
     val out = ArrayList<StreetSegment>()
 
     for ((index, fraction) in params.rings.withIndex()) {
+      val salt = index.toLong()
       val radius = frame.builtRadius * fraction
-      // A ring smaller than a block is the market square, not a street.
+      // An arc shorter than a block is the market square, not a street.
       if (radius < params.segmentLength) continue
 
-      val phaseA = roll(index.toLong(), RING_PHASE_SALT) * 2.0 * PI
-      val phaseB = roll(index.toLong(), RING_PHASE_SALT + 1) * 2.0 * PI
+      val phaseA = roll(salt, RING_PHASE_SALT) * 2.0 * PI
+      val phaseB = roll(salt, RING_PHASE_SALT + 1) * 2.0 * PI
       val wander = { turn: Double ->
         val angle = turn * 2.0 * PI
         radius * (1.0 + RING_WANDER * (sin(angle * 2.0 + phaseA) + 0.6 * sin(angle * 3.0 + phaseB)) / 1.6)
       }
 
-      val vertices = params.ringVertices
-      for (i in 0 until vertices) {
-        val ta = i.toDouble() / vertices
-        val tb = (i + 1).toDouble() / vertices
-        out.add(
-          StreetSegment(
-            onCircle(frame.centre, wander(ta), ta),
-            onCircle(frame.centre, wander(tb), tb),
-            rank
-          )
-        )
+      // Rolled independently per arc, so two cross streets are not two arcs of one broken ring.
+      val span = (params.arcSpan * (1.0 + (roll(salt, ARC_SPAN_SALT) - 0.5) * 2.0 * params.arcJitter))
+        .coerceIn(MIN_ARC_SPAN, MAX_ARC_SPAN)
+      val from = roll(salt, ARC_START_SALT)
+
+      // Kept at the ring's own vertex density rather than the arc's, so a short arc is not a coarse polygon.
+      val steps = max(2, (params.ringVertices * span).toInt())
+      for (i in 0 until steps) {
+        val ta = from + span * i / steps
+        val tb = from + span * (i + 1) / steps
+        val a = onCircle(frame.centre, wander(ta), ta)
+        val b = onCircle(frame.centre, wander(tb), tb)
+        // Clipped to the town's own edge rather than to the radius the arc was drawn at: the boundary is
+        // stretched, so an arc at 0.82 of the radius leaves the town across its short axis and stays well
+        // inside it along the long one.
+        if (!frame.encloses(a) || !frame.encloses(b)) continue
+        out.add(StreetSegment(a, b, rank))
       }
     }
 
@@ -479,6 +848,14 @@ internal object StreetPlanner {
    * Aligned rather than axis-aligned because an axis-aligned grid in a world whose roads run at every angle
    * looks like the coordinate system showing through. Rotating it to the road that matters most makes the
    * main avenue the continuation of the highway, which is what a chartered town did.
+   *
+   * ### The clip used to be a circle, and that was most of the problem
+   *
+   * A planned town is the one case where the *streets* are surveyed and straight, so the only thing that gives
+   * it an outline at all is where they stop - and they stopped at the half-chord of a circle, which made a
+   * chartered town a disc with a grid stamped in it. Clipping each line against [TownFrame.boundary] instead
+   * costs the same arithmetic and gives the grid the town's own edge: long avenues down the axis, short cross
+   * streets, ragged ends. Which is what a planned town on real ground looks like.
    */
   private fun grid(
     frame: TownFrame,
@@ -490,29 +867,36 @@ internal object StreetPlanner {
     val across = axis.perpendicular()
 
     val spacing = params.segmentLength * GRID_BLOCK_MULTIPLE
-    val reach = frame.builtRadius
+    // The boundary's own reach, not `builtRadius`. The two are equal only for a town whose long axis was scaled
+    // back to fit; an elongated town's edge stops short of the radius everywhere except along that axis, and
+    // counting lines from the radius would lay most of them entirely outside the town for `addLine` to discard.
+    val reach = frame.boundary.vertices.maxOf { it.distanceTo(frame.centre) }
     val lines = (reach / spacing).toInt()
 
     val out = ArrayList<StreetSegment>()
 
     for (i in -lines..lines) {
       val offset = i * spacing
-      // Half-chord of the circle at this offset: what clips the grid to a round town instead of a square one.
-      val half = sqrt(max(0.0, reach * reach - offset * offset))
-      if (half < spacing * 0.5) continue
-
       // Avenues along the axis, streets across it. Rank 0 for the centre line of each family, so the two
       // main streets meeting at the market are the important ones.
       val rankAlong = if (i == 0) 0 else 1
-      addLine(out, frame.centre + across * offset, axis, half, rankAlong, spacing)
-      addLine(out, frame.centre + axis * offset, across, half, if (i == 0) 0 else 2, spacing)
+      addLine(out, frame, frame.centre + across * offset, axis, reach, rankAlong, spacing)
+      addLine(out, frame, frame.centre + axis * offset, across, reach, if (i == 0) 0 else 2, spacing)
     }
 
     return out
   }
 
+  /**
+   * One grid line, in segments, keeping only the runs of it that lie inside the town.
+   *
+   * Per segment rather than by solving for the entry and exit points, because a warped boundary is not convex -
+   * a line may leave the town and come back, and a two-point clip would bridge the gap with a street across
+   * whatever the boundary was avoiding.
+   */
   private fun addLine(
     into: ArrayList<StreetSegment>,
+    frame: TownFrame,
     through: Vec2d,
     direction: Vec2d,
     halfLength: Double,
@@ -522,7 +906,9 @@ internal object StreetPlanner {
     var s = -halfLength
     while (s < halfLength) {
       val next = min(halfLength, s + step)
-      into.add(StreetSegment(through + direction * s, through + direction * next, rank))
+      val a = through + direction * s
+      val b = through + direction * next
+      if (frame.encloses(a) && frame.encloses(b)) into.add(StreetSegment(a, b, rank))
       s = next
     }
   }
@@ -654,8 +1040,22 @@ internal object StreetPlanner {
   private const val GRID_SALT = 0x36L
   private const val RING_PHASE_SALT = 0x37L
 
-  /** How far a ring street strays from its nominal radius, as a fraction of it. */
+  // 0x38 is TownBoundary.ASPECT_SALT. The salts in this file share one keyed roll, so they share one space.
+  private const val ARC_SPAN_SALT = 0x39L
+  private const val ARC_START_SALT = 0x3AL
+
+  /** How far a cross street strays from its nominal radius, as a fraction of it. */
   private const val RING_WANDER = 0.16
+
+  /**
+   * Bounds on a rolled arc span, as shares of a turn.
+   *
+   * The ceiling is the load-bearing one: jitter must never be able to roll an arc back up to a full turn, or the
+   * ring road this replaced reappears on whichever seeds happen to roll high. The floor keeps an arc long enough
+   * to cross more than one radial, which is what makes it close a block rather than dead-end twice.
+   */
+  private const val MIN_ARC_SPAN = 0.2
+  private const val MAX_ARC_SPAN = 0.85
 
   private fun rotate(v: Vec2d, radians: Double): Vec2d {
     val c = cos(radians)
@@ -701,8 +1101,14 @@ internal class Lot(
   val halfDepth: Double,
   /** Rank of the street it fronts; zero is the high street. */
   val streetRank: Int,
-  /** Metres from the town centre. */
-  val fromCentre: Double
+  /**
+   * Walking distance from the market along the streets, normalised to `[0,1]`. See [StreetDistance].
+   *
+   * This was `fromCentre`, in metres as the crow flies, and every use of it divided by `builtRadius` to get
+   * back to a fraction - so the radius was doing two jobs and the value was radial by construction. Normalised
+   * here instead, once, by the thing that actually knows the town's extent.
+   */
+  val fromMarket: Double
 ) {
   val area get() = halfFrontage * halfDepth * 4.0
 
@@ -714,15 +1120,45 @@ internal class Lot(
 /** Lays plots along both sides of every street. See [Lot] for why it is done this way round. */
 internal object LotPlanner {
 
+  /**
+   * @param already plots some other producer has claimed - the patched core's, when a town has one. Seeded into
+   *   the overlap index rather than merged afterwards, so a street plot that would land on a block plot is
+   *   rejected at the point it is considered. The core is laid first because it is the part a player walks
+   *   through; the suburbs then fill whatever frontage is left, which is what a suburb is.
+   * @param distance the walking distance field, shared with whoever laid [already] so that both halves of a town
+   *   measure land value against the same network.
+   */
   fun subdivide(
     graph: StreetGraph,
     frame: TownFrame,
     frontage: Double,
     depth: Double,
-    setback: Double
+    setback: Double,
+    distance: StreetDistance = StreetDistance(graph, frame.centre),
+    already: List<Lot> = emptyList(),
+    /**
+     * Ground this producer must leave alone - the patched core, when a town has one.
+     *
+     * Necessary, and the overlap index is not enough on its own. A block is set back from its patch edge, so there
+     * is a strip of open ground along every street in the core that a street-fronted plot fits into without
+     * overlapping anything. The first version left it out, and the result was that the *suburb* path quietly filled
+     * the core: a quarter laid out as a park, with eighty per cent of its plots deliberately left as green, came
+     * back with fifty buildings in it and every quarter's grain was overwritten by an even row of street frontage.
+     */
+    skip: (Vec2d) -> Boolean = { false }
   ): List<Lot> {
     val out = ArrayList<Lot>()
-    val placed = LotIndex(depth * 2.0 + frontage)
+
+    // Sized to the largest plot the index will hold, not to a street plot. The index checks a three-by-three
+    // window around a candidate's own cell, so a placed plot bigger than one cell can overlap a candidate whose
+    // centre lies outside that window and never be found - and a block plot from a patrician quarter or a citadel
+    // is several times a street plot. Cheap insurance: the cell only decides how many plots share a bucket.
+    val cell = max(
+      depth * 2.0 + frontage,
+      already.maxOfOrNull { (it.halfFrontage + it.halfDepth) * 2.0 } ?: 0.0
+    )
+    val placed = LotIndex(cell)
+    for (lot in already) placed.add(lot)
     val reach = setback + depth
 
     // Highest-rank streets first, so the high street gets its frontage before a lane can take a bite out of
@@ -745,9 +1181,12 @@ internal object LotPlanner {
             halfFrontage = frontage * 0.5 * LOT_GAP,
             halfDepth = depth * 0.5,
             streetRank = rank,
-            fromCentre = centre.distanceTo(frame.centre)
+            // Measured at the plot's *front*, where it meets the street, rather than at its centre: the centre
+            // is a lot depth back into the block and off the network the distance is measured along.
+            fromMarket = distance.at(at)
           )
 
+          if (skip(centre)) continue
           if (!frame.buildable(centre)) continue
           if (placed.overlaps(lot)) continue
           // A plot must not reach over the street behind it. Without this, two streets fifteen metres apart
@@ -761,6 +1200,22 @@ internal object LotPlanner {
     }
 
     return out
+  }
+
+  /**
+   * Whether a street runs through this plot. For a plot some other producer laid.
+   *
+   * The patched core cuts its plots out of a patch, which knows the streets on the patch's own *edges* and nothing
+   * about the grown streets that cross its middle on the way out of town. So a block plot could sit squarely on a
+   * radial, which `TownStageTest."streets are paved and buildings are not on them"` caught - a building standing on
+   * a paved road, which is the one thing about a town nobody could miss.
+   *
+   * The plot's own fronting street is excluded the same way it is for a street-laid plot: by construction, since
+   * the block was set back from the patch edge before being cut.
+   */
+  fun blockedByStreet(lot: Lot, graph: StreetGraph): Boolean {
+    val front = lot.centre - lot.inwards * lot.halfDepth
+    return crossesAStreet(lot, graph, front, lot.halfDepth * 2.0)
   }
 
   /**

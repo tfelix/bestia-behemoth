@@ -3,6 +3,8 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.civ.BuildingChannels
 import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.civ.Culture
+import net.bestia.worldgen.civ.DistrictChannels
+import net.bestia.worldgen.civ.DistrictKind
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.TownParams
@@ -24,6 +26,7 @@ import net.bestia.worldgen.pop.EconomyChannels
 import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.EconomyProbe
 import net.bestia.worldgen.pop.Sector
+import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
@@ -107,6 +110,7 @@ object TownMain {
     val record: SettlementRecord,
     val buildings: List<FootprintFeature>,
     val businesses: List<PointMarker>,
+    val districts: List<net.bestia.worldgen.vector.AreaFeature>,
     val economy: PointMarker?,
     val streets: Int,
     val wallStretches: Int,
@@ -142,6 +146,10 @@ object TownMain {
         .filterIsInstance<PointMarker>()
         .associateBy { it.attribute(EconomyChannels.INDEX).toInt() }
 
+      val districts = features.filter { it.kind == FeatureKind.DISTRICT }
+        .filterIsInstance<AreaFeature>()
+        .groupBy { runCatching { it.attribute(DistrictChannels.SETTLEMENT).toInt() }.getOrDefault(-1) }
+
       return chronicle.settlements.mapNotNull { record ->
         val site = sites[record.index] ?: return@mapNotNull null
         val radius = radiusOf(record, site)
@@ -154,6 +162,7 @@ object TownMain {
           record = record,
           buildings = buildings[record.index].orEmpty(),
           businesses = businesses[record.index].orEmpty(),
+          districts = districts[record.index].orEmpty(),
           economy = economies[record.index],
           // Streets carry no settlement channel, so they are counted by falling inside the town's own
           // extent. Adequate for a count and honest about what it is: two settlements closer together than
@@ -177,9 +186,19 @@ object TownMain {
       }
 
       val tier = SettlementTier.entries[site.attribute(SettlementChannels.TIER).toInt()]
-      val hectares = record.population / TOWN.peoplePerHectare
+
+      // Both of these mirror `TownStage.builtRadiusFor` and exist for the reason its KDoc gives: the population
+      // that sizes a town is the one its *buildings* house once the cap has bound, and a town is a shape whose
+      // bounding circle is wider than that of a disc of the same area. Getting either wrong here does not
+      // produce a wrong town, it produces a right town rendered at the wrong size - which is worse, because the
+      // number this tool exists to report is measured against it.
+      val housed = minOf(
+        record.population.toDouble(),
+        TOWN.maxBuildingsPerSettlement * TOWN.peoplePerBuilding
+      )
+      val hectares = housed / TOWN.peoplePerHectare
       return minOf(
-        Math.sqrt(maxOf(hectares, 0.05) * 10_000.0 / Math.PI),
+        Math.sqrt(maxOf(hectares, 0.05) * 10_000.0 / Math.PI) * TOWN.streets.boundaryReachFactor,
         tier.footprintRadius * 0.95
       ).coerceAtLeast(30.0)
     }
@@ -273,6 +292,43 @@ object TownMain {
       line("mean storeys", fixed(storeys.average()))
       line("stone walled", "$stone of $built (${percent(stone, built)})")
       footprints(place)
+      quarters(place)
+    }
+
+    /**
+     * The quarters, by name.
+     *
+     * The one view that makes the patched core legible without a picture. A district is a polygon in a feature
+     * store and its kind is an ordinal in a station channel, so "did the quarters come out sensibly" was previously
+     * a question only a rendered map could answer - and a map cannot say whether the craft quarter ended up
+     * downwind. A named list can, and it reads the way a gazetteer does.
+     */
+    private fun quarters(place: Place) {
+      if (place.districts.isEmpty()) return
+
+      println()
+      println("quarters")
+      val ordered = place.districts.sortedByDescending {
+        runCatching { it.attribute(DistrictChannels.BUILDINGS) }.getOrDefault(0.0)
+      }
+
+      for (district in ordered) {
+        val kind = runCatching {
+          DistrictKind.entries[district.attribute(DistrictChannels.KIND).toInt()]
+        }.getOrNull() ?: continue
+        val buildings = runCatching { district.attribute(DistrictChannels.BUILDINGS).toInt() }.getOrDefault(0)
+
+        // Only a designed quarter carries a name seed; an inferred one is a cluster nobody named. The channel is
+        // absent rather than zero in that case, hence the `runCatching` rather than a comparison.
+        val name = runCatching {
+          Names.place(district.attribute(DistrictChannels.NAME_SEED).toLong(), Culture.indexOf(place.culture))
+        }.getOrNull()
+
+        line(
+          "  ${name ?: "(unnamed)"}",
+          "${kind.name.lowercase()}, $buildings buildings, ${district.ring.area.toInt()} m2"
+        )
+      }
     }
 
     /**

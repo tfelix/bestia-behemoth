@@ -32,6 +32,7 @@ import net.bestia.worldgen.hydro.HydrologyStage
 import net.bestia.worldgen.hydro.PondStage
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.BlendMode
+import net.bestia.worldgen.vector.ConvexPolygons
 import net.bestia.worldgen.vector.FeatureEvaluator
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
@@ -119,6 +120,19 @@ data class TownParams(
   val setback: Double = 4.0,
 
   /**
+   * Step that a block-cut plot's dimensions are quantised to, in metres.
+   *
+   * Only the patched core uses it - a street-fronted plot already has exactly `lotFrontage` of frontage. A cut
+   * block's leaves come out at whatever the recursion left, which includes slivers a metre across, and rounding
+   * *down* to a step removes those and makes neighbouring blocks tile without a ragged join.
+   *
+   * Two and a half metres is a bay: the width of one window-and-a-bit, which is the unit a pre-industrial
+   * building was actually laid out in. It is also the step a set of modular building meshes would want, so
+   * quantising now costs nothing and keeps that door open.
+   */
+  val lotStep: Double = 2.5,
+
+  /**
    * Ceiling on buildings per settlement.
    *
    * A cap, and an honest one: a city of forty thousand wants seven thousand buildings, and a world of
@@ -153,6 +167,11 @@ data class TownParams(
     require(lotFrontage > 0.0) { "lotFrontage must be positive, was $lotFrontage" }
     require(lotDepth > 0.0) { "lotDepth must be positive, was $lotDepth" }
     require(setback >= 0.0) { "setback must not be negative, was $setback" }
+    // Zero would divide by it in `BlockSubdivider.quantiseDown`; anything above a plot would round every plot in a
+    // patched core down to the floor of half a step and produce a town of identical sheds.
+    require(lotStep > 0.0 && lotStep < lotFrontage) {
+      "lotStep must be positive and under lotFrontage $lotFrontage, was $lotStep"
+    }
     require(maxBuildingsPerSettlement >= 0) {
       "maxBuildingsPerSettlement must not be negative, was $maxBuildingsPerSettlement"
     }
@@ -175,6 +194,7 @@ data class TownParams(
     .put("lotFrontage", lotFrontage)
     .put("lotDepth", lotDepth)
     .put("setback", setback)
+    .put("lotStep", lotStep)
     .put("maxBuildingsPerSettlement", maxBuildingsPerSettlement)
     .put("maxBuildableSlope", maxBuildableSlope)
     .put("riverClearance", riverClearance)
@@ -221,7 +241,18 @@ class TownStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+
+  /**
+   * 2: the town stopped being a disc.
+   *
+   * A code change, not a retuning, so this moves rather than only the params digest - see `ParamsVersionTest`'s
+   * note on the distinction. The built edge is a stretched, warped [net.bestia.worldgen.vector.Ring] instead of
+   * a radius, cross streets are arcs instead of closed rings, the wall circuit follows that edge instead of
+   * being a 28-gon circle, and land value is walking distance from the market instead of distance from the
+   * centre. Bumping this reshuffles every RNG stream at and below this stage, which is why the seeds pinned in
+   * `TownStageTest` for a scenario reason had to be re-checked.
+   */
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -294,19 +325,121 @@ class TownStage(
     // One per town, because a FeatureEvaluator is not thread-safe and this runs on every core.
     val grading = world.around(town, builtRadius)
 
+    val approaches = world.approachesTo(town, builtRadius)
+
+    // What the town is strung out along, in the order a place actually grows: the water it crosses, then the
+    // road it grew beside, then - for the settlement that has neither - a rolled bearing, because a town with no
+    // reason to face one way still has no reason to be a circle.
+    val axis = world.riverAxisAt(town.position, builtRadius)
+      ?: approaches.firstOrNull()
+      ?: (roll(0L, AXIS_SALT) * PI).let { Vec2d(cos(it), sin(it)) }
+
     val frame = TownFrame(
       centre = town.position,
       builtRadius = builtRadius,
+      boundary = TownBoundary.of(
+        centre = town.position,
+        builtRadius = builtRadius,
+        axis = axis,
+        aspect = TownBoundary.aspectOf(roll, params.streets),
+        seed = GenRng.hash(streamBase, town.index.toLong(), BOUNDARY_SALT),
+        params = params.streets
+      ),
       groundAt = { grading.groundAt(it) },
       buildable = { world.buildable(it) },
-      approaches = world.approachesTo(town, builtRadius)
+      approaches = approaches
     )
 
-    val graph = StreetPlanner.plan(frame, town.culture.layout, roll, params.streets)
+    // The population the layout is actually sized for; the same clamp `builtRadiusFor` applies, and the input to
+    // how many patches the core wants.
+    val housedBuildings = min(
+      params.maxBuildingsPerSettlement,
+      max(1, (town.population / params.peoplePerBuilding).toInt())
+    )
+
+    // A patched core, for the settlements big enough to have quarters. Below `TOWN` a settlement is one to three
+    // patches across, so a partition of it is a partition of nothing - and the grown streets it already had are
+    // what a village looks like anyway.
+    val patches = if (town.tier <= SettlementTier.TOWN) {
+      TownPatches.of(
+        frame = frame,
+        // The town's own outline, scaled down. Not a circle of the same area: the whole point of Phase 1 was that
+        // the town is a shape, and a round core inside an elongated town would put it straight back.
+        core = ConvexPolygons.scaledAbout(
+          frame.boundary.vertices, frame.centre, TownPatches.CORE_SHARE
+        ),
+        wantedPatches = TownPatches.countFor((housedBuildings * TownPatches.CORE_SHARE).toInt()),
+        channels = world.channelsNear(town.position, builtRadius),
+        roll = roll
+      )
+    } else {
+      emptyList()
+    }
+
+    val quarters = Quarters.assign(
+      patches = patches,
+      frame = frame,
+      tier = town.tier,
+      walled = town.wallYear != 0,
+      downwind = world.downwindAt(town.position, config),
+      downstream = world.downstreamAt(town.position),
+      roll = roll
+    )
+
+    // Patch edges become streets, so the core's blocks are separated by real streets rather than by a gap. Fed to
+    // the planner with the grown suburb streets so that both halves of the town are welded into *one* planar
+    // graph - `LotPlanner`'s "does this plot reach across a street" test can only see what the graph holds, and
+    // two graphs would let a suburb plot grow through a core street.
+    val graph = StreetPlanner.plan(
+      frame, town.culture.layout, roll, params.streets,
+      extra = coreStreets(patches, quarters)
+    )
     if (graph.edges.isEmpty()) return emptyList()
 
-    val lots = LotPlanner.subdivide(
-      graph, frame, params.lotFrontage, params.lotDepth, params.setback
+    // One field for the whole town, shared by both lot producers, so the core and the suburbs measure land value
+    // against the same network rather than each normalising against its own.
+    val distance = StreetDistance(graph, frame.centre)
+
+    // The core first: it is the part a player walks through, and its plots are the ones worth keeping when the
+    // suburbs would otherwise take the frontage.
+    val coreLots = ArrayList<Lot>()
+    for ((index, patch) in patches.withIndex()) {
+      coreLots.addAll(
+        BlockSubdivider.of(
+          patch = patch,
+          grain = Quarters.grainOf(quarters[index], town.culture.layout),
+          frame = frame,
+          // The **setback**, not the carriageway's half-width, when the setback is the larger. A street plot sits
+          // `setback` metres back from its centreline; a block whose edge sat at the kerb instead would give the
+          // core a wall of housefronts along the carriageway while the suburbs kept their verge, and the two halves
+          // of one town would not agree about what a street looks like.
+          streetWidthFor = { edge ->
+            max(streetHalfWidth(rankOfEdge(patch, quarters, index, edge)) * KERB_TO_SETBACK, params.setback)
+          },
+          rankFor = { edge -> rankOfEdge(patch, quarters, index, edge) },
+          distanceAt = { distance.at(it) },
+          lotStep = params.lotStep,
+          // A block plot may be up to half again the standard street plot in each direction, which is what a
+          // patrician quarter's gardens and a temple's forecourt need. Beyond that the extra ground is yard.
+          maxHalfFrontage = params.lotFrontage * MAX_BLOCK_PLOT,
+          maxHalfDepth = params.lotDepth * MAX_BLOCK_PLOT,
+          salt = index.toLong(),
+          roll = roll
+        )
+      )
+    }
+
+    // A grown street that crosses a patch's middle is invisible to the block subdivision, which only knows the
+    // streets on the patch's own edges. Dropped here, once the whole planar graph exists, rather than threaded into
+    // the subdivider - the cut has no business knowing about the suburbs.
+    coreLots.retainAll { !LotPlanner.blockedByStreet(it, graph) }
+
+    val lots = coreLots + LotPlanner.subdivide(
+      graph, frame, params.lotFrontage, params.lotDepth, params.setback,
+      distance = distance, already = coreLots,
+      // The core belongs to the blocks. Tested against the patches themselves rather than against the core outline,
+      // so that ground a patch lost to a river or to a slope is still available to the suburbs.
+      skip = { at -> patches.any { ConvexPolygons.contains(it.polygon, at) } }
     )
     if (lots.isEmpty()) return emptyList()
 
@@ -324,8 +457,10 @@ class TownStage(
     // Wanted, then capped. Descending land value, so what a cap drops is the outer residential ring and
     // what it keeps is the centre - which is the part anybody stands in.
     val wanted = min(lots.size, max(1, (town.population / params.peoplePerBuilding).toInt()))
-    val functions = zoning.assign(lots)
     val limit = min(wanted, params.maxBuildingsPerSettlement)
+    // The limit is handed to the zoning, not applied after it: the trade quotas are shares of the buildings the
+    // town will have, and computing them from the plot count instead left a city with eighty houses in it.
+    val functions = zoning.assign(lots, limit)
 
     // Walked in value order and *filled* to the limit rather than sliced at it, so that a lot rejected below
     // costs the town a worse lot rather than a building. Slicing first and filtering after would shrink every
@@ -350,11 +485,23 @@ class TownStage(
       out.add(buildingFeature(nextId(), building, town.index))
     }
 
-    // After the buildings, because a district is grown from the plots that actually got one.
-    out.addAll(Districts.of(placed, town.index, params.lotFrontage, nextId))
+    // Designed where the town has patches, inferred where it does not.
+    //
+    // A patch *is* a quarter - it was chosen as one, a street runs along its edge, and its blocks were cut to that
+    // quarter's own grain - so its polygon is the district, exactly, and nothing has to be reconstructed from what
+    // happened to get built. `Districts.of` keeps the villages and hamlets, where clustering the buildings is
+    // still the only description available. See `Districts`' own KDoc for what the inferred version costs.
+    if (patches.isEmpty()) {
+      out.addAll(Districts.of(placed, town.index, params.lotFrontage, nextId))
+    } else {
+      out.addAll(
+        Districts.ofPatches(patches, quarters, placed, town.index, town.nameSeed, town.cultureIndex, nextId)
+      )
+    }
 
     if (town.wallYear != 0) {
-      out.addAll(fortify(town, frame, graph, world, grading, nextId))
+      out.addAll(fortify(town, frame, graph, world, grading, streamBase, nextId))
+      out.addAll(citadelOf(patches, quarters, town, frame, world, grading, nextId))
     }
 
     return out
@@ -380,14 +527,21 @@ class TownStage(
     val across = building.bearing.perpendicular() * building.halfWidth
 
     for (corner in CORNER_SIGNS) {
-      val at = building.centre + along * corner.first + across * corner.second
-      val ground = grading.groundAt(at)
-      val padded = when {
-        ground > floor -> max(floor, ground - PAD_MAX_CUT)
-        ground < floor -> min(floor, ground + PAD_MAX_FILL)
-        else -> floor
+      // The corner *and* a point two thirds of the way out to it. The corners alone are not a sufficient sample:
+      // ground is not monotonic across a footprint, so a ridge or a hollow inside one shows at neither corner - and
+      // `TownStageTest."the ground under a building is level"` measures exactly the two-thirds point, so predicting
+      // only the corner was predicting somewhere the check does not look. It went unnoticed while every building was
+      // a street plot ten metres deep; a block plot can be twenty-five, which is enough ground to hide relief in.
+      for (share in CORNER_SAMPLES) {
+        val at = building.centre + along * (corner.first * share) + across * (corner.second * share)
+        val ground = grading.groundAt(at)
+        val padded = when {
+          ground > floor -> max(floor, ground - PAD_MAX_CUT)
+          ground < floor -> min(floor, ground + PAD_MAX_FILL)
+          else -> floor
+        }
+        if (abs(padded - floor) > PAD_MAX_RESIDUAL) return false
       }
-      if (abs(padded - floor) > PAD_MAX_RESIDUAL) return false
     }
 
     return true
@@ -417,14 +571,96 @@ class TownStage(
    * the weaker claim; this keeps the stronger one.
    */
   private fun builtRadiusFor(population: Int, tier: SettlementTier): Double {
-    val hectares = population / params.peoplePerHectare
-    val radius = sqrt(max(hectares, 0.05) * SQUARE_METRES_PER_HECTARE / PI)
+    // Sized by the buildings the settlement will actually get, not by the people it has.
+    //
+    // `peoplePerHectare` is measured against the plot geometry, so it answers "how much ground do this many
+    // people's buildings need" - and if the per-settlement cap is going to bind, the honest input is the
+    // population those capped buildings represent. Feeding it the true population instead laid out streets for a
+    // city three times the size of the one that would be built on them: the render of a nineteen-thousand-person
+    // city was a small dense middle inside a shell of several hundred streets with nothing on them, because lots
+    // are filled in descending land value and the outer ones never come up. The cap is a feature-count decision
+    // and it is not this function's to argue with, but a town's *shape* should be the shape of what is there.
+    val housed = min(population.toDouble(), params.maxBuildingsPerSettlement * params.peoplePerBuilding)
+    val hectares = housed / params.peoplePerHectare
+    // The radius of the *disc* this population wants. What the town needs is a shape of that area, whose bounding
+    // circle is wider - hence the reach factor. Without it, de-circularising a town shrank it by the same factor,
+    // which is a forty per cent cut in plots dressed up as a change of outline.
+    val radius = sqrt(max(hectares, 0.05) * SQUARE_METRES_PER_HECTARE / PI) *
+        params.streets.boundaryReachFactor
 
     // Floored above zero so a hamlet on a tight footprint still gets one ring of streets rather than none.
     val usable = (tier.footprintRadius * FOOTPRINT_SHARE - (params.setback + params.lotDepth))
       .coerceAtLeast(tier.footprintRadius * MIN_BUILT_SHARE)
 
     return min(radius, usable)
+  }
+
+  // --- The patched core ------------------------------------------------------------------------------
+
+  /**
+   * The edges of every patch, as streets.
+   *
+   * A shared edge is emitted twice, once from each side, and that is deliberate rather than tolerated:
+   * `StreetPlanner.planarise` welds coincident endpoints and refuses a duplicate edge, so the second copy costs a
+   * hash lookup and removes the need to decide which of the two patches owns their boundary. Trying to decide
+   * would mean tracking edge identity through the Voronoi construction for no gain.
+   */
+  private fun coreStreets(patches: List<TownPatch>, quarters: List<DistrictKind>): List<StreetSegment> {
+    val out = ArrayList<StreetSegment>()
+    for ((index, patch) in patches.withIndex()) {
+      val polygon = patch.polygon
+      for (edge in polygon.indices) {
+        out.add(
+          StreetSegment(
+            polygon[edge],
+            polygon[(edge + 1) % polygon.size],
+            rankOfEdge(patch, quarters, index, edge)
+          )
+        )
+      }
+    }
+    return out
+  }
+
+  /**
+   * How important the street along one edge of a patch is.
+   *
+   * The rank decides the carriageway width, how far the block is set back from it, and - through
+   * `Zoning.valueOf` - what gets built facing it. So this is where a town's high street is actually decided, and
+   * the rule is that **an artery is a street the important quarters are on**: the market, the ways in, and the
+   * citadel. That produces a network of main streets radiating from the market to the gates without routing
+   * anything, because the quarters were already placed at the market and at the gates.
+   */
+  private fun rankOfEdge(
+    patch: TownPatch,
+    quarters: List<DistrictKind>,
+    index: Int,
+    edge: Int
+  ): Int {
+    val neighbour = patch.edgeNeighbour.getOrElse(edge) { -1 }
+
+    // The outline of the core: the road that runs round the outside of the built-up middle, and what the suburbs
+    // hang off. Never an artery - a ring road that outranked the high street would put the shops on the edge.
+    if (neighbour < 0) return CORE_OUTLINE_RANK
+
+    val here = quarters.getOrNull(index)
+    val there = quarters.getOrNull(neighbour)
+    val arterial = here in ARTERIAL_QUARTERS || there in ARTERIAL_QUARTERS
+    return if (arterial) 0 else 1
+  }
+
+  /**
+   * Half the carriageway width for a street of this rank, in metres.
+   *
+   * Extracted from [streetFeature] because the block subdivider needs the same number: a block is set back from
+   * each of its edges by the width of the street on that edge, and if the two disagreed then either the blocks
+   * would overlap the carriageway or a gap would open along every artery in the town.
+   */
+  private fun streetHalfWidth(rank: Int): Double = when (rank) {
+    0 -> 3.2
+    1 -> 2.4
+    2 -> 1.7
+    else -> 1.3
   }
 
   // --- Features -------------------------------------------------------------------------------------
@@ -485,12 +721,7 @@ class TownStage(
   ): PolylineFeature? {
     if (chain.length < params.streetSpacing * 2.0) return null
 
-    val half = when (rank) {
-      0 -> 3.2
-      1 -> 2.4
-      2 -> 1.7
-      else -> 1.3
-    }
+    val half = streetHalfWidth(rank)
 
     return runCatching {
       LinearFeatures.road(
@@ -561,13 +792,69 @@ class TownStage(
     graph: StreetGraph,
     world: WorldGround,
     grading: WorldGround.Grading,
+    streamBase: Long,
     nextId: () -> FeatureId
   ): List<VectorFeature> {
     val enclosed = builtRadiusFor(max(town.wallPopulation, MIN_WALL_POPULATION), town.tier)
     val radius = min(enclosed * WALL_MARGIN, frame.builtRadius * WALL_MAX_SHARE)
     if (radius < params.gateWidth * 3.0) return emptyList()
 
-    val ring = circle(frame.centre, radius, WALL_VERTICES)
+    val out = ArrayList<VectorFeature>()
+
+    out.addAll(
+      circuitOf(
+        town, frame, graph, world, grading, nextId,
+        radius = radius,
+        seed = GenRng.hash(streamBase, town.index.toLong(), WALL_WARP_SALT),
+        inner = false
+      )
+    )
+
+    /*
+     * A second circuit around the old core, for a city that outgrew the first one.
+     *
+     * History records both `wallYear` and `wallPopulation`, so the size the town was when it was first threatened
+     * is known independently of the size it is now - and a place that has since multiplied several times over did
+     * not knock its old wall down, it built a bigger one outside and kept the first as the boundary of the old
+     * town. That inner circuit is one of the most legible things about a real city from above, and it costs
+     * nothing here but a second call: the enclosed radius for the *original* population is already what
+     * `builtRadiusFor` computes.
+     */
+    val original = builtRadiusFor(max(town.wallPopulation, MIN_WALL_POPULATION), town.tier)
+    if (radius > original * INNER_CIRCUIT_GROWTH && original > params.gateWidth * 3.0) {
+      out.addAll(
+        circuitOf(
+          town, frame, graph, world, grading, nextId,
+          radius = original * WALL_MARGIN,
+          seed = GenRng.hash(streamBase, town.index.toLong(), INNER_WALL_SALT),
+          inner = true
+        )
+      )
+    }
+
+    return out
+  }
+
+  /**
+   * One closed circuit: its wall stretches, its gates, its towers and its gatehouses.
+   *
+   * Factored out of [fortify] so that the outer wall and an inner one are the same code rather than the same code
+   * twice. `inner` reaches only two things - the channel that tells them apart, and whether towers are built,
+   * since an inner circuit that a city has grown past is a boundary rather than a defence and its towers would
+   * have been taken down for the stone long before a player saw it.
+   */
+  private fun circuitOf(
+    town: TownReader.Town,
+    frame: TownFrame,
+    graph: StreetGraph,
+    world: WorldGround,
+    grading: WorldGround.Grading,
+    nextId: () -> FeatureId,
+    radius: Double,
+    seed: Long,
+    inner: Boolean
+  ): List<VectorFeature> {
+    val ring = circuit(frame, radius, seed)
     val ringLine = runCatching { Polyline(ring) }.getOrNull() ?: return emptyList()
 
     // Where the main streets leave: those are the gates. A gate that is not on a street is a gate nobody
@@ -586,18 +873,23 @@ class TownStage(
     }
     crossings.sort()
 
+    val gates = spacedGates(crossings, ringLine.length)
+
     val out = ArrayList<VectorFeature>()
     val half = params.gateWidth * 0.5
 
-    for (i in crossings.indices) {
-      val from = crossings[i] + half
-      val to = (if (i + 1 < crossings.size) crossings[i + 1] else crossings[0] + ringLine.length) - half
+    for (i in gates.indices) {
+      val from = gates[i] + half
+      val to = (if (i + 1 < gates.size) gates[i + 1] else gates[0] + ringLine.length) - half
       if (to - from < params.gateWidth) continue
 
-      out.addAll(wallStretches(nextId, ringLine, from, to, town, world, grading))
+      out.addAll(wallStretches(nextId, ringLine, from, to, town, world, grading, inner))
+      // A tower where a stretch is long enough to want one, which is what makes a circuit read as fortified rather
+      // than as a fence. Skipped on an inner circuit; see this function's own note.
+      if (!inner) out.addAll(towersAlong(nextId, ringLine, from, to, town, frame, world, grading))
     }
 
-    for (s in crossings) {
+    for (s in gates) {
       val at = ringLine.pointAt(s)
       val outward = (at - frame.centre).normalized()
       out.add(
@@ -613,7 +905,114 @@ class TownStage(
             .build()
         )
       )
+      // The gatehouse: the wall thickened either side of the opening, which is what a gate actually was. Emitted as
+      // its own short stretch rather than as a channel on the arc, because the stretch either side of a gate is
+      // already a separate feature - so this needs no new geometry and no new channel.
+      out.addAll(gatehouseAt(nextId, ringLine, s, town, world, grading, inner))
     }
+
+    return out
+  }
+
+  /**
+   * The citadel: a wall around its own patch, and a keep standing in it.
+   *
+   * `Quarters` already chose which patch it is - the compact one on the core's outline, furthest from the market -
+   * because that is a question about location and belongs with the other quarters. What is left for here is the
+   * fortification, and it is the same two pieces a town has: a circuit, and something inside it.
+   *
+   * The wall follows the patch's own edges rather than a shape of its own, so the citadel sits inside the street
+   * network instead of across it: the patch's boundary is already a set of streets, and a wall laid along them
+   * encloses exactly the block those streets bound. The keep is the patch inset by two main streets' width, which
+   * leaves a bailey between the keep and the wall - and a bailey is most of what a castle is.
+   *
+   * No gate marker. A castle's gate opens onto the town rather than onto the country, so it is not a way *into* the
+   * settlement and `NavGraphStage` would wrongly join it to the road network. The opening is still there - it is the
+   * gap `wallStretches` leaves where the wall is cut for the entrance arc.
+   */
+  private fun citadelOf(
+    patches: List<TownPatch>,
+    quarters: List<DistrictKind>,
+    town: TownReader.Town,
+    frame: TownFrame,
+    world: WorldGround,
+    grading: WorldGround.Grading,
+    nextId: () -> FeatureId
+  ): List<VectorFeature> {
+    val index = quarters.indexOf(DistrictKind.CITADEL)
+    if (index < 0) return emptyList()
+
+    val patch = patches[index]
+    val out = ArrayList<VectorFeature>()
+
+    // Closed, so the last vertex repeats the first the way `circuit` does.
+    val closed = patch.polygon + patch.polygon.first()
+    val wall = runCatching { Polyline(closed) }.getOrNull() ?: return emptyList()
+
+    // One opening, on the side facing the town. Everything else is wall.
+    val entrance = wall.project(frameCentreOf(wall)).s
+    val half = params.gateWidth * 0.5
+    out.addAll(
+      wallStretches(
+        nextId, wall, entrance + half, entrance + wall.length - half, town, world, grading,
+        inner = false, thickness = params.wallThickness * CITADEL_THICKNESS
+      )
+    )
+
+    val keepPlan = ConvexPolygons.inset(patch.polygon) { streetHalfWidth(0) * KEEP_INSET }
+    val keep = ConvexPolygons.orientedExtent(keepPlan)
+    if (keep != null && frame.encloses(keep.centre)) {
+      val floor = grading.groundAt(keep.centre)
+      if (floor.isFinite()) {
+        out.add(
+          buildingFeature(
+            nextId(),
+            Building(
+              centre = keep.centre,
+              bearing = keep.along,
+              halfLength = min(keep.halfAlong, params.lotDepth * KEEP_MAX_HALF),
+              halfWidth = min(keep.halfAcross, params.lotDepth * KEEP_MAX_HALF),
+              function = BuildingFunction.FORTIFICATION,
+              storeys = KEEP_STOREYS,
+              wall = BlockType.MASONRY,
+              roof = BlockType.MASONRY,
+              roofShape = RoofShape.FLAT,
+              floorElevation = floor,
+              grammarSeed = 0L,
+              doorBearing = (frameCentreOf(wall) - keep.centre).normalized()
+            ),
+            town.index
+          )
+        )
+      }
+    }
+
+    return out
+  }
+
+  /**
+   * Gates thinned so that no two are within [MIN_GATE_SPACING] of each other along the circuit.
+   *
+   * Every rank-0 and rank-1 street crossing the ring used to become a gate, and with a patched core those crossings
+   * arrive in clusters: the arteries radiate from the market to the gate quarters, and several of them cross the
+   * circuit within a few metres of each other. Each crossing then punched its own opening, and the stretch left
+   * between two of them was shorter than a gate and dropped - so a stretch of curtain wall turned into a row of
+   * gateposts. Thinning to the *first* of each cluster keeps the gate on a real street and gives the wall back the
+   * span between them.
+   */
+  private fun spacedGates(crossings: List<Double>, circumference: Double): List<Double> {
+    if (crossings.isEmpty()) return crossings
+
+    val spacing = max(MIN_GATE_SPACING, params.gateWidth * 3.0)
+    val out = ArrayList<Double>(crossings.size)
+    for (s in crossings) {
+      if (out.isEmpty() || s - out.last() >= spacing) out.add(s)
+    }
+
+    // The circuit is closed, so the last gate has to clear the first one the long way round as well. Dropping the
+    // last rather than the first keeps the choice deterministic and independent of where arc length happens to
+    // start.
+    if (out.size > 1 && (circumference - out.last() + out.first()) < spacing) out.removeAt(out.size - 1)
 
     return out
   }
@@ -640,7 +1039,9 @@ class TownStage(
     to: Double,
     town: TownReader.Town,
     world: WorldGround,
-    grading: WorldGround.Grading
+    grading: WorldGround.Grading,
+    inner: Boolean = false,
+    thickness: Double = params.wallThickness
   ): List<MarkerFeature> {
     val steps = max(2, ((to - from) / WALL_STATION_SPACING).toInt())
     val points = (0..steps).map { ring.pointAt(from + (to - from) * it / steps) }
@@ -657,7 +1058,7 @@ class TownStage(
       // replaced did have - threw on seed 113 at 256 cells, 113 worlds into a 200-seed sweep.
       if (run.size >= 2) {
         val line = runCatching { Polyline(run.toList()) }.getOrNull()
-        if (line != null) wallFeature(nextId(), line, town, grading)?.let { out.add(it) }
+        if (line != null) wallFeature(nextId(), line, town, grading, inner, thickness)?.let { out.add(it) }
       }
       run = ArrayList()
     }
@@ -670,12 +1071,135 @@ class TownStage(
     return out
   }
 
+  /**
+   * The gatehouse: a short run of doubled-thickness wall either side of a gate.
+   *
+   * What a medieval gate actually was - not a hole in a curtain wall but a building with the road running through
+   * it. Expressed as a thicker *stretch* rather than as a new feature kind or a new channel, which is what makes it
+   * nearly free: the materialiser already lays a wall from `HALF_THICKNESS`, so a stretch with twice the value
+   * comes out as a mass of masonry flanking the opening with no chunk-tier change at all.
+   */
+  private fun gatehouseAt(
+    nextId: () -> FeatureId,
+    ring: Polyline,
+    at: Double,
+    town: TownReader.Town,
+    world: WorldGround,
+    grading: WorldGround.Grading,
+    inner: Boolean
+  ): List<MarkerFeature> {
+    val half = params.gateWidth * 0.5
+    val reach = params.gateWidth * GATEHOUSE_REACH
+    val out = ArrayList<MarkerFeature>()
+
+    // One flank each side. Wrapped arc lengths are handled by `Polyline.pointAt`'s own clamping at the ends, so a
+    // gate near the seam gets a shorter gatehouse rather than a wrong one.
+    for (side in intArrayOf(-1, 1)) {
+      val from = if (side < 0) at - half - reach else at + half
+      val to = if (side < 0) at - half else at + half + reach
+      if (from < 0.0 || to > ring.length) continue
+      out.addAll(
+        wallStretches(
+          nextId, ring, from, to, town, world, grading, inner,
+          thickness = params.wallThickness * GATEHOUSE_THICKNESS
+        )
+      )
+    }
+
+    return out
+  }
+
+  /**
+   * Towers along one gate-to-gate arc.
+   *
+   * `BuildingFunction.FORTIFICATION` has existed since the wall did and **nothing has ever emitted one** - it is
+   * declared, it is masonry-walled, `TownStructures` will materialise it like any other footprint, and no placer
+   * ever asked for it. This is its first user, which is also why it needs no voxel work: a tower is an ordinary
+   * `FootprintFeature`, so the existing building path already builds a square masonry block with a roof on it.
+   *
+   * Placed at a spacing rather than at every vertex of the circuit. A vertex of a warped ring is wherever the fbm
+   * put it, which is not where a mason would put a tower; a spacing along the arc is, and it also means the towers
+   * of a small circuit do not crowd into each other.
+   */
+  private fun towersAlong(
+    nextId: () -> FeatureId,
+    ring: Polyline,
+    from: Double,
+    to: Double,
+    town: TownReader.Town,
+    frame: TownFrame,
+    world: WorldGround,
+    grading: WorldGround.Grading
+  ): List<VectorFeature> {
+    val span = to - from
+    if (span < TOWER_SPACING) return emptyList()
+
+    val count = (span / TOWER_SPACING).toInt()
+    val out = ArrayList<VectorFeature>(count)
+
+    for (i in 1..count) {
+      // Interior points of the arc, so a tower never lands on the gate at either end of it.
+      val s = from + span * i / (count + 1)
+      val at = ring.pointAt(s)
+      if (!world.dry(at)) continue
+      // Inside the town, like every other building. A tower is emitted as a `BUILDING`, so it is subject to
+      // `Invariants.checkBuildingsBelongToTheirSettlement` exactly as a house is.
+      if (!frame.encloses(at)) continue
+
+      val along = ring.tangentAt(s)
+      if (along.lengthSquared < 0.5) continue
+
+      val half = params.wallThickness * TOWER_SIZE
+      val floor = grading.groundAt(at)
+      if (!floor.isFinite()) continue
+
+      out.add(
+        buildingFeature(
+          nextId(),
+          Building(
+            centre = at,
+            bearing = along,
+            halfLength = half,
+            halfWidth = half,
+            function = BuildingFunction.FORTIFICATION,
+            // Taller than the curtain it stands on, which is the whole point of a tower.
+            storeys = TOWER_STOREYS,
+            wall = BlockType.MASONRY,
+            roof = BlockType.MASONRY,
+            roofShape = RoofShape.FLAT,
+            floorElevation = floor,
+            grammarSeed = 0L,
+            // Inward, so the door is on the town's side of its own wall.
+            doorBearing = (frameCentreOf(ring) - at).normalized()
+          ),
+          town.index
+        )
+      )
+    }
+
+    return out
+  }
+
+  /** Centre of a closed circuit, as the mean of its vertices. Only used to face a tower's door inwards. */
+  private fun frameCentreOf(ring: Polyline): Vec2d {
+    val points = ring.points
+    var x = 0.0
+    var y = 0.0
+    for (p in points) {
+      x += p.x
+      y += p.y
+    }
+    return Vec2d(x / points.size, y / points.size)
+  }
+
   /** One contiguous run of wall, following the ground. */
   private fun wallFeature(
     featureId: FeatureId,
     line: Polyline,
     town: TownReader.Town,
-    grading: WorldGround.Grading
+    grading: WorldGround.Grading,
+    inner: Boolean,
+    thickness: Double
   ): MarkerFeature? {
     return MarkerFeature(
       id = featureId,
@@ -686,19 +1210,51 @@ class TownStage(
         .channel(WallChannels.BASE_ELEVATION) {
           grading.groundAt(line.points[it])
         }
-        .channel(WallChannels.HEIGHT) { params.wallHeight * (0.7 + 0.3 * town.wealth) }
-        .channel(WallChannels.HALF_THICKNESS) { params.wallThickness * 0.5 }
+        // An inner circuit is older and was built for a smaller town, so it is lower. Not a separate parameter:
+        // the same wealth term the outer wall uses, scaled by the fact that it is the old wall.
+        .channel(WallChannels.HEIGHT) {
+          params.wallHeight * (0.7 + 0.3 * town.wealth) * (if (inner) INNER_WALL_HEIGHT else 1.0)
+        }
+        .channel(WallChannels.HALF_THICKNESS) { thickness * 0.5 }
+        .channel(WallChannels.CIRCUIT) { if (inner) 1.0 else 0.0 }
         .channel(WallChannels.BLOCK) { BlockType.MASONRY.id.toDouble() }
         .build()
     )
   }
 
-  private fun circle(centre: Vec2d, radius: Double, vertices: Int): List<Vec2d> {
-    val out = ArrayList<Vec2d>(vertices + 1)
-    for (i in 0..vertices) {
-      val angle = i * 2.0 * PI / vertices
-      out.add(Vec2d(centre.x + cos(angle) * radius, centre.y + sin(angle) * radius))
+  /**
+   * The closed curve a wall is laid along: the town's own outline, shrunk to the walled extent.
+   *
+   * This was `circle(centre, radius, 28)` - a perfect 28-gon with no wander in it at all, which made the wall
+   * the single most obviously surveyed thing in any settlement. The plots and streets around it had at least
+   * grown; the wall was drawn with a compass.
+   *
+   * Built by scaling [TownFrame.boundary] about the town centre rather than by warping a fresh circle, and that
+   * is the point: a circuit has to *agree* with the town it encloses. A wall warped independently would bulge
+   * where the town does not and cut across it where it does, which reads worse than a circle because it looks
+   * like two different towns. Scaling a star-shaped ring about its own centre keeps it simple - the vertices
+   * hold their angular order and only their radii change - and the same argument `Districts.ringAround` makes
+   * for pushing a hull outwards applies in reverse here.
+   *
+   * The seed is taken and folded into the vertex jitter rather than being used to draw the shape, so that two
+   * towns of the same size on the same outline still get visibly different circuits.
+   *
+   * Returned as a closed vertex list - first point repeated - because a [Polyline] is what the stretch splitting
+   * and the gate arithmetic below both want, and a `Ring` would have to be reopened immediately.
+   */
+  private fun circuit(frame: TownFrame, radius: Double, seed: Long): List<Vec2d> {
+    val boundary = frame.boundary.vertices
+    val reach = boundary.maxOf { it.distanceTo(frame.centre) }
+    val scale = radius / reach
+
+    val out = ArrayList<Vec2d>(boundary.size + 1)
+    for ((i, vertex) in boundary.withIndex()) {
+      // A little per-vertex give, so a circuit is not a scale model of the built edge. Small enough that the
+      // wall still recognisably encloses the town, which is the property the whole approach rests on.
+      val jitter = 1.0 + (GenRng.hashUnit(seed, i.toLong()) - 0.5) * 2.0 * WALL_VERTEX_JITTER
+      out.add(frame.centre + (vertex - frame.centre) * (scale * jitter))
     }
+    out.add(out.first())
     return out
   }
 
@@ -749,6 +1305,24 @@ class TownStage(
     /** The four corners of a footprint, as multiples of its half-extents. Matches `FootprintFeature.corners`. */
     private val CORNER_SIGNS = listOf(-1.0 to -1.0, 1.0 to -1.0, 1.0 to 1.0, -1.0 to 1.0)
 
+    /**
+     * How far out along each corner diagonal the ground is sampled, as shares of the half-extents.
+     *
+     * The corner, and the two-thirds point `TownStageTest` measures at. Two samples per corner rather than a grid,
+     * because the pad is a terrace about the floor and what matters is the extremes of the ground it has to
+     * swallow - which on a footprint this size are at the edges and along the diagonals.
+     */
+    private val CORNER_SAMPLES = doubleArrayOf(1.0, 0.66)
+
+    /**
+     * Carriageway half-width to kerb-to-plot distance, as a multiple.
+     *
+     * `LinearFeatures.road` gives a street a shoulder of half its half-width on each side, so the ground a street
+     * actually disturbs reaches one and a half times its half-width. A block set back by less than that sits on
+     * its own street's embankment.
+     */
+    private const val KERB_TO_SETBACK = 1.5
+
 
     /** Metres of slack between the built extent at walling time and the circuit itself. */
     private const val WALL_MARGIN = 1.18
@@ -759,8 +1333,98 @@ class TownStage(
     /** Smallest population a circuit is sized for, so an early wall is not a garden fence. */
     private const val MIN_WALL_POPULATION = 500
 
-    private const val WALL_VERTICES = 28
+    /**
+     * How much each circuit vertex strays from the scaled built edge, as a fraction of its radius.
+     *
+     * Small deliberately. The circuit's job is to look like the wall of *this* town, so it has to track the
+     * outline it was taken from; the jitter is there to stop it being a scale model of it, not to give the wall
+     * an outline of its own.
+     */
+    private const val WALL_VERTEX_JITTER = 0.06
+
     private const val WALL_STATION_SPACING = 12.0
+
+    /**
+     * Fewest metres of circuit between two gates.
+     *
+     * Without it, every artery crossing the ring punched its own opening - and with a patched core the arteries
+     * radiate from the market to the gate quarters and arrive at the circuit in clusters, so a stretch of curtain
+     * wall became a row of gateposts. Forty metres is several times a gate's own width and is about the shortest
+     * length of wall that reads as wall.
+     */
+    private const val MIN_GATE_SPACING = 40.0
+
+    /** Metres of circuit between towers. A bowshot apart, which is what decided it historically. */
+    private const val TOWER_SPACING = 55.0
+
+    /** A tower's half-extent, as a multiple of the wall's thickness. */
+    private const val TOWER_SIZE = 1.6
+
+    /** Storeys of a wall tower. Two above the curtain, which is what makes it visible from outside the town. */
+    private const val TOWER_STOREYS = 3
+
+    /** How far a gatehouse's thickened wall reaches either side of the opening, as multiples of the gate's width. */
+    private const val GATEHOUSE_REACH = 0.9
+
+    /** How much thicker a gatehouse is than the curtain it interrupts. */
+    private const val GATEHOUSE_THICKNESS = 2.2
+
+    /**
+     * How much bigger than its original circuit a town must be before it gets a second, inner one.
+     *
+     * A wall is only worth keeping as a boundary if the town plainly grew past it. Below this the two circuits
+     * would sit within a few metres of each other and read as one thick wall.
+     */
+    private const val INNER_CIRCUIT_GROWTH = 1.45
+
+    /** An inner circuit's height, as a share of the outer one's. Older, lower, and built for a smaller town. */
+    private const val INNER_WALL_HEIGHT = 0.8
+
+    /** How much thicker a citadel's wall is than the town's. A castle was built to outlast the town around it. */
+    private const val CITADEL_THICKNESS = 1.4
+
+    /** Multiples of an arterial street's half-width that the keep is set back inside the citadel's wall. */
+    private const val KEEP_INSET = 4.0
+
+    /** Cap on a keep's half-extent, as a multiple of a plot's depth. Above it a keep is a curtain wall with a roof. */
+    private const val KEEP_MAX_HALF = 1.4
+
+    /** Storeys of a keep. The tallest thing in any settlement, which is what a keep was for. */
+    private const val KEEP_STOREYS = 4
+
+    /**
+     * Rank of the street around the outside of a patched core.
+     *
+     * Two rather than one, so the ring around the middle of a town does not outrank the streets crossing it. A
+     * high street is a street that goes *through* a place; a ring road that outranked it would put the shops and
+     * the inns on the edge of the core facing outwards, which is the wrong way round.
+     */
+    private const val CORE_OUTLINE_RANK = 2
+
+    /**
+     * Largest block plot, as a multiple of the standard plot's *full* frontage and depth taken as half-extents.
+     *
+     * 0.75 makes the cap one and a half standard plots each way - a plot of 18.75 by 27 metres against a street
+     * plot's 12.5 by 18. Large enough for a guildhall's forecourt and a patrician's garden; small enough that no
+     * cottage comes out sixty metres long, which is what an uncapped park leaf produced.
+     */
+    private const val MAX_BLOCK_PLOT = 0.75
+
+    /**
+     * The quarters whose streets are arteries.
+     *
+     * The market because everything converges on it, the gates because that is what a road arriving becomes, and
+     * the citadel because a garrison needs to reach the walls. Naming the *quarters* rather than routing paths is
+     * what makes the main streets fall out of the layout: the market is already central and the gate quarters are
+     * already at the edge facing the roads, so the arteries between them already run the right way.
+     */
+    private val ARTERIAL_QUARTERS = setOf(DistrictKind.MARKET, DistrictKind.GATE, DistrictKind.CITADEL)
+
+    /** Salts for the per-town rolls this stage makes itself, rather than through a planner. */
+    private const val AXIS_SALT = 0x51L
+    private const val BOUNDARY_SALT = 0x52L
+    private const val WALL_WARP_SALT = 0x53L
+    private const val INNER_WALL_SALT = 0x54L
   }
 }
 
@@ -783,7 +1447,15 @@ internal object TownReader {
     val wealth: Double,
     val wallYear: Int,
     val wallPopulation: Int,
-    val coastal: Boolean
+    val coastal: Boolean,
+    /**
+     * The seed the settlement's own name comes from. Read here so its *quarters* can be named from it too.
+     *
+     * A `Double` channel holding a 64-bit seed loses its low bits, which the history stage accepts because a name
+     * seed only has to be an arbitrary stable number. The same is true of a quarter's, so passing it on through the
+     * same lossy hop costs nothing that was not already given up.
+     */
+    val nameSeed: Long
   ) {
     val culture: Culture get() = Culture.byIndex(cultureIndex)
   }
@@ -826,7 +1498,8 @@ internal object TownReader {
         wealth = past.attribute(HistoryChannels.WEALTH),
         wallYear = past.attribute(HistoryChannels.WALL_YEAR).toInt(),
         wallPopulation = past.attribute(HistoryChannels.WALL_POPULATION).toInt(),
-        coastal = distanceToOcean.sampleBilinear(site.position.x, site.position.y) < COASTAL_RANGE
+        coastal = distanceToOcean.sampleBilinear(site.position.x, site.position.y) < COASTAL_RANGE,
+        nameSeed = past.attribute(HistoryChannels.NAME_SEED).toLong()
       )
     }
   }
@@ -1028,6 +1701,52 @@ internal class WorldGround(
     }
 
     return out
+  }
+
+  /**
+   * River centrelines passing near this town, so a patch can be cut at the bank rather than across the water.
+   *
+   * The channel has always been a *veto* here - [buildable] refuses a plot inside it - and a veto is enough for a
+   * plot and not enough for a block: a patch that straddles the water is one quarter on paper and two on the
+   * ground. See `TownPatches.cutAtChannels`.
+   */
+  fun channelsNear(at: Vec2d, reach: Double): List<Polyline> = rivers
+    .filter { it.bbox.expanded(reach).contains(at.x, at.y) && it.centerline.project(at).distance <= reach }
+    .map { it.centerline }
+
+  /**
+   * Which way the river through this town runs, or null if no channel comes near enough to shape it.
+   *
+   * The town's long axis, when it has one. A settlement on a river is *on* the river - it faces the water,
+   * spreads along both banks and crosses at one place - and until now the channel only ever subtracted from a
+   * town through [buildable], so a river city came out as a disc with a bite in it.
+   *
+   * The largest channel within reach rather than the nearest, because a town sited on a tributary a hundred
+   * metres from its confluence with a great river belongs to the great river. Width is the station channel every
+   * river carries, and it is what `buildable` already reads to keep plots out of the water.
+   */
+  fun riverAxisAt(at: Vec2d, reach: Double): Vec2d? {
+    var best: Vec2d? = null
+    var widest = 0.0
+
+    for (river in rivers) {
+      if (!river.bbox.expanded(reach).contains(at.x, at.y)) continue
+      val projection = river.centerline.project(at)
+      if (projection.distance > reach) continue
+
+      val width = runCatching {
+        river.stations.sample(river.stations.channel(Profiles.CHANNEL_WIDTH), projection.u)
+      }.getOrDefault(0.0)
+      if (width <= widest) continue
+
+      val tangent = river.centerline.tangentAt(projection.s)
+      if (tangent.lengthSquared < 0.5) continue
+
+      widest = width
+      best = tangent
+    }
+
+    return best
   }
 
   /** Direction the prevailing wind blows towards. The noxious quarter goes this way. */

@@ -61,18 +61,28 @@ class DistrictTest {
       val kind = DistrictKind.entries[district.attribute(DistrictChannels.KIND).toInt()]
       val claimed = district.attribute(DistrictChannels.BUILDINGS).toInt()
 
+      // A *designed* district - a patch of a patched core, which carries a name seed - counts every building
+      // standing in it, because that is what it claims: a quarter is a place, and the shops and houses in it are
+      // whatever `Zoning` put there. An *inferred* one is a hull around buildings of one trade, so it still has to
+      // earn the stronger claim, counted per quarter so an interleaving quarter cannot make up a shortfall.
+      val designed = runCatching { district.attribute(DistrictChannels.NAME_SEED) }.isSuccess
+
       val inside = generated.world.features.query(district.bbox)
         .filterIsInstance<FootprintFeature>()
         .filter { it.kind == FeatureKind.BUILDING }
         .filter { district.contains(it.center.x, it.center.y) }
         .count {
-          val function = BuildingFunction.entries[it.attribute(BuildingChannels.FUNCTION).toInt()]
-          Districts.quarterOf(function) == kind
+          if (designed) true
+          else {
+            val function = BuildingFunction.entries[it.attribute(BuildingChannels.FUNCTION).toInt()]
+            Districts.quarterOf(function) == kind
+          }
         }
 
       assertTrue(
         inside >= claimed,
-        "$district claims $claimed $kind buildings and its ring contains $inside of them"
+        "$district claims $claimed $kind buildings and its ring contains $inside of them " +
+            "(${if (designed) "designed" else "inferred"})"
       )
     }
   }

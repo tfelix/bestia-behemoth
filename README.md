@@ -52,6 +52,14 @@ The best games are built by passionate communities. Whether you're a seasoned de
 
 Before contributing game-related changes, please review our [manifesto and design guidelines](https://docs.bestia-game.net) to ensure consistency with Bestia's core philosophy.
 
+## 📜 License
+
+Everything in this repository - server, client, world generator and tooling - is licensed under the
+[GNU General Public License v3.0](LICENSE).
+
+Third-party work this project builds on, and the licences it arrives under, is listed in
+[THIRD-PARTY.md](THIRD-PARTY.md).
+
 ---
 
 > *"In a world remade by chaos, only the bold will write the next chapter."*

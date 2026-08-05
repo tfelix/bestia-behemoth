@@ -1,6 +1,9 @@
 package net.bestia.worldgen.civ
 
+import net.bestia.worldgen.core.GenRng
+import net.bestia.worldgen.history.Names
 import net.bestia.worldgen.vector.AreaFeature
+import net.bestia.worldgen.vector.ConvexPolygons
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.Ring
@@ -19,6 +22,16 @@ object DistrictChannels {
 
   /** How many buildings the district was grown from. Not a live count - nothing updates it. */
   const val BUILDINGS = "buildings"
+
+  /**
+   * Seed for the quarter's own name. Zero where a district has none.
+   *
+   * A name rather than a label, generated the way every other name in the world is - `history/Names.place` from a
+   * seed, so it is a pure function of the world seed and nothing has to store a string. Only the *designed*
+   * districts carry one: a cluster of workshops that happened to end up next to each other is a description of
+   * the map, not a place anybody named.
+   */
+  const val NAME_SEED = "name_seed"
 }
 
 /**
@@ -43,7 +56,29 @@ enum class DistrictKind {
   RESIDENTIAL,
 
   /** Farmsteads at the edge, where the plots stop being urban. */
-  FARMLAND
+  FARMLAND,
+
+  // The kinds below are *chosen* rather than inferred: they come from `Quarters`, which assigns one to each patch
+  // of a town's core, and no `BuildingFunction` maps onto them. Appended rather than inserted because the ordinal
+  // is stored in `DistrictChannels.KIND` - the same rule `Biome` and `BuildingFunction` follow.
+
+  /** Small crooked plots packed to their edges, on whatever ground nothing else wanted. */
+  SLUM,
+
+  /** Large regular plots with gardens. What wealth looks like from above. */
+  PATRICIATE,
+
+  /** A green the town never built on, usually because the ground made it awkward. */
+  PARK,
+
+  /** Barracks and a yard to drill in, near the edge they defend. */
+  MILITARY,
+
+  /** A keep and its bailey, on compact defensible ground at the town's edge. */
+  CITADEL,
+
+  /** The crowd of inns and smithies around a way in. Named for the gate, not for what is made there. */
+  GATE
 }
 
 /**
@@ -100,6 +135,75 @@ internal object Districts {
    */
   const val MARGIN = 7.0
 
+  /**
+   * Districts for a town with a patched core: one per patch, and the patch *is* the district.
+   *
+   * No clustering, no hull, no margin pushed outwards to reach the street - a patch was chosen as a quarter before
+   * anything was built in it, a street runs along each of its edges by construction, and its blocks were cut to
+   * that quarter's own grain. So the polygon is already the answer, and every compromise the inferred path makes
+   * disappears: no corner claimed between the arms of an L, no two quarters overlapping, and the district holds
+   * the buildings because the buildings were cut out of it.
+   *
+   * A patch that ended up with no buildings still gets no district. Not because the polygon is wrong - it is the
+   * right shape - but because `Invariants.checkDistrictsHoldTheirBuildings` and the name both want a quarter to be
+   * somewhere people are, and an empty patch is ground the town did not use.
+   */
+  fun ofPatches(
+    patches: List<TownPatch>,
+    quarters: List<DistrictKind>,
+    buildings: List<Building>,
+    settlement: Int,
+    settlementNameSeed: Long,
+    cultureIndex: Int,
+    nextId: () -> FeatureId
+  ): List<VectorFeature> {
+    val out = ArrayList<VectorFeature>(patches.size)
+
+    // Names are chosen here rather than left to whoever reads the seed, because uniqueness is a property of the
+    // *set* and a reader only ever sees one. A distinct seed per patch is not enough on its own: `Names.place`
+    // draws from a finite pool of stems and suffixes, so a city with two dozen quarters reliably produced two
+    // Millwicks and two Dunleighs. Re-rolling until the name is new costs a hash and makes the gazetteer read like
+    // one place instead of a table with a bug in it.
+    val taken = HashSet<String>()
+
+    for ((index, patch) in patches.withIndex()) {
+      val kind = quarters.getOrNull(index) ?: continue
+
+      // Counted by containment rather than tracked through the subdivision, because the buildings that ended up
+      // here are not exactly the plots that were cut here: a plot can be rejected for its ground, and `Zoning`
+      // fills to a cap in land-value order which stops somewhere in the middle of the town.
+      val held = buildings.count { ConvexPolygons.contains(patch.polygon, it.centre) }
+      // The same floor the inferred path uses, and for the same reason: below it a "quarter" is a house and its
+      // neighbours. A patch under it is ground the town did not use - a park, a patch a river cut to a sliver, or
+      // somewhere the building cap never reached - and it gets no district rather than an empty one.
+      if (held < MIN_BUILDINGS) continue
+
+      // `runCatching` for the reason every producer of a ring has one: a patch cut by a river to a sliver is under
+      // the degeneracy floor, and that is a district the town does not get rather than a stage that throws on the
+      // two hundredth world of a sweep.
+      val ring = runCatching { Ring(simplify(patch.polygon, Ring.MAX_VERTICES)) }.getOrNull() ?: continue
+
+      val nameSeed = distinctNameSeed(settlementNameSeed, index, kind, cultureIndex, taken)
+
+      out.add(
+        AreaFeature(
+          id = nextId(),
+          kind = FeatureKind.DISTRICT,
+          ring = ring,
+          profile = null,
+          perimeter = StationTable.Builder(ring.vertexCount, periodic = true)
+            .channel(DistrictChannels.SETTLEMENT) { settlement.toDouble() }
+            .channel(DistrictChannels.KIND) { kind.ordinal.toDouble() }
+            .channel(DistrictChannels.BUILDINGS) { held.toDouble() }
+            .channel(DistrictChannels.NAME_SEED) { nameSeed.toDouble() }
+            .build()
+        )
+      )
+    }
+
+    return out
+  }
+
   fun of(
     buildings: List<Building>,
     settlement: Int,
@@ -143,6 +247,36 @@ internal object Districts {
     }
 
     return out
+  }
+
+  /**
+   * A name seed for one quarter that no earlier quarter of the same town already used.
+   *
+   * Seeded off the settlement's own name seed, so a quarter's name belongs to its town's naming and is a pure
+   * function of the world seed. The attempt counter goes into the hash rather than being stored, so the seed that
+   * comes out is the whole answer and a reader needs nothing but [Names.place] to get the same string back.
+   *
+   * Bounded, and it gives up by taking the last seed it tried: a settlement whose quarters outnumber the usable
+   * names would otherwise spin, and two identically named quarters are a far smaller problem than a stage that
+   * does not finish.
+   */
+  private fun distinctNameSeed(
+    settlementNameSeed: Long,
+    index: Int,
+    kind: DistrictKind,
+    cultureIndex: Int,
+    taken: MutableSet<String>
+  ): Long {
+    var seed = 0L
+    for (attempt in 0 until NAME_ATTEMPTS) {
+      seed = GenRng.hash(settlementNameSeed, index.toLong(), kind.ordinal.toLong(), attempt.toLong())
+      // Through the same lossy `Double` hop the channel will make, so the name checked here is the name a reader
+      // gets. Checking the full-width seed instead would let a collision through whenever two seeds differ only in
+      // the low bits a station channel cannot hold.
+      val name = Names.place(seed.toDouble().toLong(), cultureIndex)
+      if (taken.add(name)) return seed
+    }
+    return seed
   }
 
   /** Coarse quarter for a building function. Exhaustive, so a new function has to be placed in a quarter. */
@@ -265,4 +399,7 @@ internal object Districts {
   }
 
   private val CORNERS = listOf(1.0 to 1.0, 1.0 to -1.0, -1.0 to -1.0, -1.0 to 1.0)
+
+  /** Re-rolls allowed while looking for an unused quarter name. Generous; a town has at most a few dozen. */
+  private const val NAME_ATTEMPTS = 48
 }
