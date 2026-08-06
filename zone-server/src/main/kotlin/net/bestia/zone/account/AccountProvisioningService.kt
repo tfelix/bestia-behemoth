@@ -27,29 +27,31 @@ class AccountProvisioningService(
 
   /**
    * Deliberately not `@Transactional`. The check-then-insert cannot be made atomic against another
-   * zone-server instance anyway, so correctness rests on the unique index on `loginAccountId` and the
-   * catch below — and a rolled-back surrounding transaction would leave that catch unable to read.
+   * zone-server instance anyway, so correctness rests on the primary key and the catch below — and a
+   * rolled-back surrounding transaction would leave that catch unable to read.
    */
   @EventListener
   @Order(Ordered.HIGHEST_PRECEDENCE)
   fun handleAccountConnected(event: AccountConnectedEvent) {
-    if (accountRepository.findByLoginAccountId(event.accountId) != null) {
+    if (accountRepository.existsById(event.accountId)) {
       return
     }
 
-    val account = try {
+    try {
       accountFactory.createAccount(event.accountId)
     } catch (e: DataIntegrityViolationException) {
-      // Two connections for the same never-before-seen account can both miss the lookup above; the
-      // unique index makes exactly one of them lose. Losing is a success: the row it wanted now exists.
-      LOG.debug(e) { "Lost the race to create the account for login account ${event.accountId}" }
+      // Two connections for the same never-before-seen account can both miss the check above; the
+      // primary key makes at most one of them win. Losing is a success: the row it wanted now exists.
+      LOG.debug(e) { "Lost the race to create the account for ${event.accountId}" }
 
-      accountRepository.findByLoginAccountId(event.accountId) ?: throw e
+      if (!accountRepository.existsById(event.accountId)) {
+        throw e
+      }
+
+      return
     }
 
-    LOG.info {
-      "Created zone account ${account.id} for login account ${event.accountId} on its first connect to this zone"
-    }
+    LOG.info { "Created zone account ${event.accountId} on its first connect to this zone" }
   }
 
   companion object {
