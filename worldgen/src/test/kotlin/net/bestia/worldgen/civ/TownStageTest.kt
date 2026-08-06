@@ -219,6 +219,9 @@ class TownStageTest {
     assertTrue(cobbles > 0, "the chunk a street runs through has no paving in it")
   }
 
+  /** Minimum true-footprint width required on each side of a boundary for a crossing to count. */
+  private val MIN_CROSSING_METRES = 2.0
+
   /**
    * Two chunks either side of a building's border agree about it.
    *
@@ -231,13 +234,28 @@ class TownStageTest {
     val config = generated.config
     val extent = config.chunkExtent
 
+    // On the real oriented rectangle (`corners()`), not `bbox`: the bbox is the rotated rectangle's
+    // axis-aligned bounding box, widened further by a cosmetic height-profile skirt that has no bearing on
+    // where masonry gets written, so it can - and, at this seed's original version, did - claim a crossing
+    // the footprint `TownStructures` actually materialises does not reach. A minimum crossing width on each
+    // side keeps a razor-thin genuine crossing from being just as flaky.
+    var boundaryChunk = 0
     val spanning = buildings.firstOrNull { building ->
-      val minChunk = Math.floor(building.bbox.minX / extent).toInt()
-      val maxChunk = Math.floor(building.bbox.maxX / extent).toInt()
-      minChunk != maxChunk
+      val xs = building.corners().map { it.x }
+      val trueMinX = xs.min()
+      val trueMaxX = xs.max()
+      val minChunk = Math.floor(trueMinX / extent).toInt()
+      val maxChunk = Math.floor(trueMaxX / extent).toInt()
+      if (minChunk == maxChunk) return@firstOrNull false
+
+      val boundary = maxChunk * extent
+      val crossesCleanly = (boundary - trueMinX) >= MIN_CROSSING_METRES &&
+          (trueMaxX - boundary) >= MIN_CROSSING_METRES
+      if (crossesCleanly) boundaryChunk = maxChunk
+      crossesCleanly
     } ?: return
 
-    val chunkX = Math.floor(spanning.bbox.maxX / extent).toInt()
+    val chunkX = boundaryChunk
     val chunkY = Math.floor(spanning.center.y / extent).toInt()
 
     // Materialise the same column twice from two independently built chunks and compare. The shared column is
