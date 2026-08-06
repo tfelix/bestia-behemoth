@@ -1,9 +1,6 @@
 package net.bestia.zone.account.master
 
 import net.bestia.zone.account.Account
-import net.bestia.zone.account.AccountRepository
-import net.bestia.zone.account.findByIdOrThrow
-import net.bestia.zone.util.AccountId
 import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
@@ -15,7 +12,6 @@ import java.awt.Color
  */
 @Component
 class MasterFactory(
-  private val accountRepository: AccountRepository,
   private val masterRepository: MasterRepository,
   private val masterSpawnPointService: MasterSpawnPointService,
   private val worldService: WorldService
@@ -97,15 +93,9 @@ class MasterFactory(
 
       return masterRepository.save(newMaster)
     } catch (_: DataIntegrityViolationException) {
+      // Surfaces synchronously: Master's id is IDENTITY, so save() has to run the INSERT to get the id
+      // rather than deferring it to flush, which is what keeps this catch able to name the actual cause.
       throw MasterNameAlreadyTakenException()
     }
-  }
-
-  fun create(
-    accountId: AccountId,
-    createMaster: CreateMasterData
-  ): Master {
-    val account = accountRepository.findByIdOrThrow(accountId)
-    return create(account, createMaster)
   }
 }
