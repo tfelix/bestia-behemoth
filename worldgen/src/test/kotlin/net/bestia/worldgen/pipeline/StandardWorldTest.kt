@@ -750,8 +750,7 @@ class StandardWorldTest {
     )
 
     val SOILS = setOf(
-      BlockType.DIRT, BlockType.SAND, BlockType.CLAY, BlockType.PEAT,
-      BlockType.PERMAFROST, BlockType.GRASS,
+      BlockType.DIRT, BlockType.SAND, BlockType.CLAY, BlockType.PEAT, BlockType.GRASS,
       BlockType.BLIGHTED_DIRT, BlockType.BLIGHTED_SAND, BlockType.BLIGHTED_PEAT,
       BlockType.BLIGHTED_GRASS
     )

@@ -148,7 +148,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Terrain(32, "CLAY", 0.60f, 0.45f, 0.36f),
       Terrain(33, "DIRT", 0.38f, 0.28f, 0.19f),
       Terrain(34, "PEAT", 0.22f, 0.17f, 0.13f),
-      Terrain(35, "PERMAFROST", 0.55f, 0.57f, 0.60f),
+
+      // 35 was PERMAFROST, mechanically identical to DIRT server-side; folded back in on the palette pass
+      // and its id left free rather than reused, mirroring worldgen's BlockType.
 
       // Surface cover.
       Terrain(40, "GRASS", 0.28f, 0.45f, 0.19f),

@@ -318,7 +318,7 @@ object SurfaceCover {
    * answer given on behalf of a case nobody has thought about, and `false` would be exactly that for the
    * next caller who forgets corrupted ground exists.
    */
-  fun soil(biome: Biome, temperature: Double, blighted: Boolean): BlockType = blight(
+  fun soil(biome: Biome, blighted: Boolean): BlockType = blight(
     when (biome) {
     // Both wetlands sit on peat: it is organic ground that never finished rotting either way, and the
     // difference between them is what is on *top* of it - see [cap], where they part.
@@ -332,18 +332,11 @@ object SurfaceCover {
     // kind. GRAVEL is the closest thing in the palette to unwelded tephra, and it needs no new block.
     Biome.VOLCANIC_FIELD -> BlockType.GRAVEL
 
-    // A geothermal basin has real soil, and warm soil at that. It is never permafrost whatever the latitude,
-    // which is the one place this table has to disagree with the frozen-ground rule below: the ground heat is
-    // *why* the basin is a basin rather than more tundra.
-    Biome.GEOTHERMAL_BASIN -> BlockType.DIRT
-
-    // Ground that stays frozen year round is a different material to dig through, and saying so here
-    // is cheaper than modelling it later. It applies only where the biome has not already named a soil.
-    Biome.OCEAN, Biome.LAKE,
-    Biome.ICE_SHEET, Biome.TUNDRA, Biome.TAIGA, Biome.COLD_DESERT, Biome.ALPINE,
-    Biome.TEMPERATE_FOREST, Biome.TEMPERATE_RAINFOREST, Biome.GRASSLAND, Biome.DRYLAND,
-    Biome.TROPICAL_SEASONAL_FOREST, Biome.TROPICAL_RAINFOREST ->
-        if (temperature < PERMAFROST_TEMPERATURE) BlockType.PERMAFROST else BlockType.DIRT
+    // Everything else - a geothermal basin as much as a tundra. There was a colder DIRT here once,
+    // PERMAFROST, distinguished from this by nothing but a temperature threshold and its own colour on the
+    // client; the palette pass folded it back into DIRT and freed its id (35) rather than keep a material
+    // with no material difference.
+    else -> BlockType.DIRT
     },
     blighted
   )
@@ -480,8 +473,6 @@ object SurfaceCover {
 
   /** Mean annual temperature below which the surface holds permanent snow. */
   private const val SNOW_TEMPERATURE = -1.5
-
-  private const val PERMAFROST_TEMPERATURE = -3.0
 
   /** Water depth beyond which the bed is fine mud rather than sand. */
   private const val DEEP_WATER = 60.0

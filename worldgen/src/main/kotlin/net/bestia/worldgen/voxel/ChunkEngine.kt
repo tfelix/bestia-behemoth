@@ -37,35 +37,15 @@ object ChunkEngine {
    * `BlockType.passability` is not in that list either, for the same reason: it decides what a server-side
    * pathfinder will walk into. No client receives it and none could act on it.
    *
-   * ### Back at 1, once
+   * ### Free until the first client release, and that has not happened yet
    *
-   * This reached 4 over the branch that built the palette out - worked materials, then vegetation, then
-   * graded ore - and each of those bumps was a compatibility statement made to a client that did not exist
-   * yet. It was reset to 1 in the same commit as every stage version, for the same reason: the promise had
-   * no counterparty. **From the first client release onwards it is append-only again**, and the discipline
-   * above is what it always was. This is the last free reset it gets.
-   *
-   * 3 added the volcanic materials in one batch - LAVA, OBSIDIAN, and graded sulfur and pyrelith - rather than
-   * one bump per feature. Four separate additions would have meant four client releases for one feature.
-   *
-   * 4 is the removal-only patch format: an edit that carried `(index, blockId, occupancy)` became a removal
-   * carrying `(indexDelta, remainingOccupancy)`. **The first bump made for the patch codec rather than for a
-   * chunk payload**, and the reason it is a bump at all rather than a note is that the two formats are
-   * mutually undetectable - every byte of one is a legal varint continuation in the other, so a mismatched
-   * client decodes plausible geometry instead of failing. `ChunkPatchEncoding` on the message catches it
-   * per patch; this catches it at the handshake, before a single one is sent.
-   *
-   * 5 is the palette's **first removal**: `LOG`, `LEAVES`, `MANA_CRYSTAL_SMALL`, `MANA_CRYSTAL_LARGE` and the
-   * two `BLIGHTED_*` twins are gone, because trees and crystals are entities now. The rule above says to bump
-   * on any change to ids or names and says nothing about which direction - so this is the first time the
-   * discipline has had to mean "a freed id stays free". `RleCodec.VERSION` deliberately does not move: the
-   * format is unchanged and only the palette is, which is exactly the distinction `PipelineVersion`'s three
-   * separate numbers exist to make.
-   *
-   * 6 adds `DRY_GRASS` at id 42, so that `DRYLAND` and `GRASSLAND` are not the same green. A one-row addition,
-   * and the mirror image of 5: an unused id becoming used rather than a used one becoming free. A client one
-   * release behind sees id 42 in a chunk payload and has no row for it, which is precisely the silent failure
-   * `ChunkStoreTest` guards - hence the bump rather than a note.
+   * This reached 6 once already, over the branch that built the palette out and then trimmed it back down -
+   * worked materials, then vegetation, then graded ore, then the removal-only patch format, then trees and
+   * crystals leaving the palette for props, then `DRY_GRASS` - each bump documented in a comment above this
+   * field. Every one of those was a compatibility statement made to a client that did not exist yet, so it was
+   * reset to 1, for the same reason [net.bestia.worldgen.core.Stage.version] was: the promise had no
+   * counterparty. **From the first client release onwards it is append-only**, and the discipline above is
+   * what it always was until then. The git history holds the old changelog.
    */
-  const val VERSION = 6
+  const val VERSION = 1
 }

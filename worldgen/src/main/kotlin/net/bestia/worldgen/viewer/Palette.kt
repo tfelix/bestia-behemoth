@@ -334,7 +334,6 @@ class BlockPalette : Palette {
       put(BlockType.CLAY.id, Colors.rgb(160, 128, 106))
       put(BlockType.DIRT.id, Colors.rgb(122, 92, 62))
       put(BlockType.PEAT.id, Colors.rgb(74, 60, 44))
-      put(BlockType.PERMAFROST.id, Colors.rgb(152, 160, 168))
       put(BlockType.GRASS.id, Colors.rgb(96, 146, 72))
       put(BlockType.SNOW.id, Colors.rgb(246, 248, 252))
       put(BlockType.MASONRY.id, Colors.rgb(168, 160, 148))

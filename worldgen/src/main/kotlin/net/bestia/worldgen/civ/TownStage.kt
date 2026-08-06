@@ -242,17 +242,11 @@ class TownStage(
 
   override val id = ID
 
-  /**
-   * 2: the town stopped being a disc.
-   *
-   * A code change, not a retuning, so this moves rather than only the params digest - see `ParamsVersionTest`'s
-   * note on the distinction. The built edge is a stretched, warped [net.bestia.worldgen.vector.Ring] instead of
-   * a radius, cross streets are arcs instead of closed rings, the wall circuit follows that edge instead of
-   * being a 28-gon circle, and land value is walking distance from the market instead of distance from the
-   * centre. Bumping this reshuffles every RNG stream at and below this stage, which is why the seeds pinned in
-   * `TownStageTest` for a scenario reason had to be re-checked.
-   */
-  override val version = 2
+  // Back at 1 with every other stage - see Stage.version's "every stage is at 1, deliberately". This one had
+  // briefly moved to 2 for a real code change, the town outline leaving its disc for a warped Ring, but that
+  // was still pre-release: the promise a bump makes has no counterparty until a world outlives this repository,
+  // which still has not happened. The git history holds the note that used to be here.
+  override val version = 1
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**

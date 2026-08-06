@@ -542,7 +542,7 @@ class ChunkMaterializer(
     // One dither draw for both the soil and the cap, so a column cannot come out with blighted turf over
     // clean earth. Under water it is always false - corruption is zero over lakes and sea by construction.
     val blighted = !flooded && surface.isBlightedAt(worldX, worldY)
-    val soilBlock = SurfaceCover.soil(biome, temperature, blighted).id.toByte()
+    val soilBlock = SurfaceCover.soil(biome, blighted).id.toByte()
     // A paved street replaces the surface cap rather than sitting on it - the paving *is* the ground here.
     // Never under water, because a ford is a ford and a cobbled riverbed is not a thing.
     val paving = if (spans != null && !flooded) structures.pavingAt(worldX, worldY) else null
@@ -601,9 +601,9 @@ class ChunkMaterializer(
     // is a handful of fills rather than a hundred comparisons.
     while (cursor < height && cursor + baseZ <= rockTop) {
       val centre = config.elevationOfVoxel(cursor + baseZ) + config.voxelSize * 0.5
-      val bed = rock.bedIndexAt(centre)
-      val facies = rock.faciesOf(bed).id.toByte()
-      val bedTop = min(rockTop, highestVoxelAtOrBelow(rock.topOfBed(bed)))
+      val bedIndex = rock.bedIndexAt(centre)
+      val facies = rock.faciesOf(bedIndex).id.toByte()
+      val bedTop = min(rockTop, highestVoxelAtOrBelow(rock.topOfBed(bedIndex)))
 
       val next = fill(out, offset, baseZ, height, cursor, bedTop, facies)
       cursor = if (next > cursor) {
@@ -867,29 +867,16 @@ class ChunkMaterializer(
      * are not: there is nothing here to hash. It is a statement that behaviour changed, and only a person
      * knows that. `WorldParams.chunkTierVersion` folds it in.
      *
-     * 1 was everything up to and including town structures as pure additions.
+     * ### Back at 1, once
+     *
+     * This climbed to 10 across the branch that built subtraction, vegetation, blighted cover, wounds, bare
+     * rock, lava, props and points of interest, each bump documented in a comment above this field - and every
+     * one of those comments described a compatibility statement made to a cached chunk that only this
+     * repository's own tests had ever generated. Reset for the same reason [net.bestia.worldgen.core.Stage
+     * .version] was: the promise had no counterparty. It starts counting again from the first world that
+     * outlives a branch. What a bump means is unchanged, and the git history holds the old changelog.
      */
-    // 2: subtraction - StructureSpans.remove and carve, and the mine head as an open shaft.
-    // 3: vegetation - LOG and LEAVES scattered from the lattice, written into air after everything else.
-    // 4: (see git history)
-    // 5: blighted cover - corrupted ground caps and fills with the BLIGHTED_* twins, and its trees with them.
-    // 6: wounds - SiteKind.WOUND materialises a blighted rampart and a field of MANA_CRYSTAL_LARGE spires.
-    //    No BlockType changed, so `ChunkEngine.VERSION` deliberately stays where it is and the client needs no
-    //    release: every block a wound is made of was already in the palette at version 2.
-    // 7: bare rock - a column steeper than BARE_ROCK_GRADIENT carries no soil and caps with SurfaceCover
-    //    .bareCover, or with the exposed bed where that answers null. Replaces the `CLIFF` biome, which capped
-    //    every steep cell in the world in one grey GRAVEL. No BlockType changed here either.
-    // 8: lava - a FeatureKind.LAVA_POOL fills its crater with LAVA over a BASALT floor, exclusive of water, and
-    //    vetoes the carve the way standing water already did.
-    // 9: trees and mana crystals leave the voxel grid. LOG, LEAVES, MANA_CRYSTAL_SMALL/LARGE and the two
-    //    BLIGHTED_* twins are deleted and emitted as props for a runtime to make entities of; the wound spires
-    //    go with them. The second `StructureSpans` buffer, `writeStructure`'s `onlyIntoAir` and `wholeVoxels`,
-    //    and the whole `candidatesIn`/`plant` halo go too. **Unlike 6, 7 and 8 this does change `BlockType`**,
-    //    so `ChunkEngine.VERSION` moves with it and the client needs a release.
-    // 10: points of interest - `PoiProps` emits one prop per `FeatureKind.POI` marker, and `PropInstances` gains
-    //    the `subKind` column that says which landmark it is. No BlockType changed, so `ChunkEngine.VERSION`
-    //    stays where it is: a prop is not in the palette, and the wire already carries an open-ended kind.
-    const val VERSION = 10
+    const val VERSION = 1
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

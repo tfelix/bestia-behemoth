@@ -25,23 +25,11 @@ namespace BestiaBehemothClient.Game.World
   {
     // Reset to 1 with the server's, once, when worldgen's feature work landed and before any client shipped.
     // The bumps it had accumulated were compatibility statements to a counterparty that did not exist yet.
-    // Append-only from the first release onwards; this was the last free reset.
-    //
-    // 3 added the volcanic materials in one batch - LAVA, OBSIDIAN, graded sulfur and pyrelith - so the feature
-    // costs one client release rather than four.
-    //
-    // 4 is the removal-only patch format: an edit carrying (index, blockId, occupancy) became a removal
-    // carrying (indexDelta, remainingOccupancy). The first bump for the patch codec rather than a chunk
-    // payload, and it has to be a bump because the two formats are mutually undetectable - every byte of one
-    // is a legal varint continuation in the other, so a mismatched client decodes plausible geometry instead
-    // of failing. ChunkPatchSMSG.Encoding catches it per patch; this catches it before any patch is sent.
-    //
-    // 5 was the palette's first removal - LOG, LEAVES, the two mana crystals and their blighted twins went when
-    // trees and crystals became entities.
-    //
-    // 6 adds DRY_GRASS at id 42, so DRYLAND and GRASSLAND are not the same green. Mirror of 5: an unused id
-    // becoming used. A client without the row would draw a chunk it cannot name.
-    public const uint Version = 6;
+    // Reached 6 that way - volcanic materials, the removal-only patch format, trees/crystals leaving the
+    // palette for props, DRY_GRASS - each documented in a comment above this field at the time. Reset to 1
+    // again here, for the same reason: still pre-release, still no counterparty for the promise. Append-only
+    // from the first client release onwards; the git history holds the old changelog.
+    public const uint Version = 1;
 
     /// <summary>
     /// Voxels per chunk edge, for expanding a chunk-local coordinate to a global one.

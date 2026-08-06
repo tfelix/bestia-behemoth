@@ -149,7 +149,10 @@ enum class BlockType(
   CLAY(32, solid = true),
   DIRT(33, solid = true),
   PEAT(34, solid = true),
-  PERMAFROST(35, solid = true),
+
+  // 35 was PERMAFROST: mechanically identical to DIRT in every table that read it, distinguished only by a
+  // temperature threshold in `SurfaceSampler.soil` and by its own colour on the client. Reused id 65's rule:
+  // the id is left free rather than reassigned.
 
   // Surface cover.
   GRASS(40, solid = true),

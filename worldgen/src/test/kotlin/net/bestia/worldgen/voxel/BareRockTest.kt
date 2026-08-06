@@ -127,8 +127,8 @@ class BareRockTest {
         soilDepth = FloatLayer(LayerId.SOIL_DEPTH, region, FloatArray(cells) { 1.5f }),
         waterLevel = FloatLayer(LayerId.WATER_LEVEL, region, FloatArray(cells) { 0f }),
         lakeId = IntLayer(LayerId.LAKE_ID, region, IntArray(cells) { -1 }),
-        // Well above the snow line and above PERMAFROST_TEMPERATURE, so a failure is about the slope rule
-        // rather than about the cold one. The ice case gets its ICE from `bareCover`, not from the weather.
+        // Well above the snow line, so a failure is about the slope rule rather than about the cold one.
+        // The ice case gets its ICE from `bareCover`, not from the weather.
         temperature = FloatLayer(LayerId.TEMPERATURE, region, FloatArray(cells) { 11f }),
         seed = SEED,
         secondaryBiome = IntLayer(LayerId.BIOME_SECONDARY, region, IntArray(cells) { LayerId.NO_SECONDARY }),

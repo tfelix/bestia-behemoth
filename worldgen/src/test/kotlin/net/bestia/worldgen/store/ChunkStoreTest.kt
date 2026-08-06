@@ -403,21 +403,16 @@ class ChunkStoreTest {
     // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
     // client's `BlockAppearance.Palette`, and then re-pin here.
     assertEquals(
-      5_351_695_227_333_946_040L, PipelineVersion.paletteVersion(),
+      -2_483_694_738_586_420_562L, PipelineVersion.paletteVersion(),
       "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
           "client's BlockAppearance.Palette, then update this pin."
     )
 
-    // 4 was bumped for the patch codec rather than the palette, so the palette pin was unchanged then - the
-    // "moved without the palette moving, which is fine" case this assertion was written to catch. 5 is the
-    // opposite and the more usual case: the palette itself moved, because LOG, LEAVES, the two mana crystals
-    // and the two blighted twins were deleted when trees and crystals became entities. Both pins move together.
-    //
-    // 6 is the same case in the other direction: DRY_GRASS took id 42 so that DRYLAND and GRASSLAND are not one
-    // colour. An addition rather than a removal, and it moves both pins for the same reason - a client without
-    // the row receives an id it cannot name.
+    // Both pins were re-pinned together here for PERMAFROST's removal (id 35 freed, folded into DIRT) as
+    // part of the pre-release version reset - see ChunkEngine.VERSION's own KDoc. A codec-only bump, unlike
+    // this one, moves the version pin below without moving this one.
     assertEquals(
-      6, ChunkEngine.VERSION,
+      1, ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved - re-pin this and check the client's constant matches. Both this and the " +
           "palette pin above move together whenever BlockType changes; only a codec-only bump moves this alone."
     )
