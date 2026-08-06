@@ -11,8 +11,8 @@ import kotlin.math.floor
  * not, the two chunks disagree about whether there is rock there, and that is a visible seam or a
  * player falling through the world.
  *
- * The rule from worldgen-architecture.md: any branch on a float goes through a quantization step
- * first. This is where that step lives.
+ * The rule: any branch on a float goes through a quantization step first. This is where that step
+ * lives.
  */
 object Quantize {
 

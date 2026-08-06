@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### This is the system that makes the weather model impossible to ship dead
  *
- * `TODO.md` habit 6 records three subsystems in a row that were complete, tested, and never *reached*: sea
- * lanes that produced none on forty worlds, four built sites blocked by an integer overflow, and four seasonal
+ * `worldgen` shipped three subsystems in a row that were complete, tested, and never *reached*: sea lanes
+ * that produced none on forty worlds, four built sites blocked by an integer overflow, and four seasonal
  * climate layers that were summed and discarded for a year. Every one of them looked finished.
  *
  * Weather without a consumer is in exactly that position: it would keep evaluating, keep sending messages, and

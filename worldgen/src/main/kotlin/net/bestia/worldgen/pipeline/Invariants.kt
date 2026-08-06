@@ -913,7 +913,7 @@ object Invariants {
    * - **Every system has a way in.** The stage discards a candidate that grows no gallery reaching daylight,
    *   so this holds *by construction* and can therefore be asserted on every seed rather than pinned to a
    *   lucky one. If it ever fails, the acceptance rule has been softened and the world has caves nobody can
-   *   reach, which is `TODO.md`'s sixth habit with a nicer excuse.
+   *   reach - complete, tested, and never reached, with a nicer excuse.
    * - **A passage is in soluble rock.** The whole claim that caves are lithology-driven rather than sprinkled,
    *   and the only way to falsify it. Checked against the *shared* `Stratigraphy`, so the stage and the
    *   materialiser cannot be tested against different rock.

@@ -256,7 +256,7 @@ object CaveChannels {
  * thin past [CaveParams.minRoofCover] the gallery stops and that point becomes a [FeatureKind.CAVE_ENTRANCE].
  * **A candidate that grows no gallery reaching daylight is discarded entirely** - so every emitted system has
  * an entrance by construction, and the invariant asserting it can be checked on every seed instead of pinned
- * to a lucky one. A cave nobody can enter is `TODO.md`'s sixth habit with a nicer excuse.
+ * to a lucky one. A cave nobody can enter is complete-tested-and-never-reached with a nicer excuse.
  *
  * That last rule is also what makes caves *rare in the right places*: it is a filter on relief, so karst on a
  * hillside gets a mouth and karst under a plain does not. Roughly four in five suitable candidates are

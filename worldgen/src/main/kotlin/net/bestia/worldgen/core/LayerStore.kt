@@ -96,8 +96,7 @@ class ScopedLayerStore internal constructor(
     if (producer !in allowed) {
       throw IllegalStateException(
         "Stage $reader read layer $id produced by $producer, which it did not declare as a " +
-            "dependency. Add $producer to its dependencies - see the determinism rules in " +
-            "worldgen-architecture.md."
+            "dependency. Add $producer to its dependencies."
       )
     }
 

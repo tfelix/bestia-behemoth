@@ -186,8 +186,8 @@ data class CorruptionParams(
  * hold mana back near the other, and without the padding the land inside the margin reads as the remotest
  * place on the map.
  *
- * `TODO.md` already lists `WorldWrap` as having three callers while movement and pathing use naive
- * subtraction. This is not a fourth.
+ * `WorldWrap` already has four real callers (chunk streaming, spawn-point search, the sea-lane cost field,
+ * and bestia spawn placement) while movement and pathing still use naive subtraction. This is not a fifth.
  */
 class CorruptionStage(
   override val resolution: Resolution = Resolution.KILOMETRE,

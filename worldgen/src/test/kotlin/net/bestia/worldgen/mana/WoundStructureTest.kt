@@ -17,7 +17,8 @@ import kotlin.test.assertTrue
  *
  * `SiteKind.WOUND` can exist in the chronicle, get a `FeatureKind.WOUND` marker, be drawn on the viewer's
  * overlay, satisfy every invariant, and **still be a patch of ordinary grass a player walks over without
- * noticing** - which is precisely the shape `TODO.md` habit 6 records three times over. `SiteKind.BATTLEFIELD`
+ * noticing** - which is precisely the complete-tested-never-reached shape this module has shipped more than
+ * once. `SiteKind.BATTLEFIELD`
  * is the standing example inside this very file's subject: it has been in the chronicle from the start and
  * builds nothing at all.
  *

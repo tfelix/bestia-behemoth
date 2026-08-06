@@ -69,7 +69,7 @@ object VoxelSeamCheck {
      *
      * The non-vacuity guard. A block of chunks over deep ocean or open sky compares millions of identical
      * zeroes and reports itself clean, which is true and worthless; a reader needs to know the check had
-     * something to look at. `TODO.md`'s sixth habit, applied to the harness itself.
+     * something to look at. Complete, tested, and never reached, applied to the harness itself.
      */
     val solidVoxels: Int,
     val differences: List<Difference>

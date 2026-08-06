@@ -155,7 +155,7 @@ class WorldGenPipeline(
    * Runs every [StageScale.WORLD] stage in dependency order and returns the immutable world tier.
    *
    * Region and chunk stages are deliberately not run here: they are on demand, sharded, and cached,
-   * and they read this result. See the scale-tier table in worldgen-architecture.md.
+   * and they read this result.
    */
   fun generateWorld(config: WorldConfig, listener: StageListener = StageListener.NONE): World {
     val layerStore = LayerStore()

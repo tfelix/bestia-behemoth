@@ -14,8 +14,8 @@ data class CrystalParams(
   /**
    * Edge of the lattice square that holds at most one crystal, in metres.
    *
-   * The **decision unit**, and it has to be larger than a voxel for the reason `TODO.md` states outright: a
-   * smooth probability sampled per column is still a coin flip per column, and a coin flip per column is
+   * The **decision unit**, and it has to be larger than a voxel: a smooth probability sampled per column is
+   * still a coin flip per column, and a coin flip per column is
    * speckle rather than a crystal field. Near the tree lattice's scale so the two scatters interleave
    * rather than fight over the same ground.
    */

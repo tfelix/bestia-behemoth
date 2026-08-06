@@ -456,7 +456,7 @@ object SurfaceCover {
    * this file exists to defend - the next biome added would compile against the corrupted branch and not the
    * clean one, or the reverse.
    *
-   * The `else` is the shape `TODO.md` says to judge rather than sweep: this is a mapping over a
+   * The `else` here is a real default, not a swept-under-the-rug case: this is a mapping over a
    * fifty-material palette that answers for four of them and leaves the rest alone **by construction**, not a
    * dispatch with a hole in it. Snow, ice, gravel, masonry and every rock reach it and are meant to.
    */

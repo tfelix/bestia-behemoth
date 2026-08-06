@@ -79,7 +79,7 @@ fun interface ChunkColumnSource {
  * Produces the terrain height of every voxel column in a chunk: base heightfield, then every vector
  * feature whose corridor reaches the chunk, in `(priority, id)` order.
  *
- * This is steps 1 and 2 of `generate_chunk` in worldgen-architecture.md. Materialisation - strata,
+ * The height half of chunk generation, read before anything is materialised. Materialisation - strata,
  * caves, water, ore, scatter - happens above it, and everything chunk-seeded happens after, never
  * here, because nothing chunk-seeded may influence geometry that crosses a chunk border.
  *

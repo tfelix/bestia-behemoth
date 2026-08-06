@@ -156,9 +156,8 @@ class WeatherModel(
   /**
    * The priority ladder.
    *
-   * A subject-less `when`, so its trailing `CLEAR` is a real default rather than a swept-under `else` - the
-   * distinction `TODO.md` asks to be judged rather than swept. The order is the whole of the model's opinion
-   * about what outranks what.
+   * A subject-less `when`, so its trailing `CLEAR` is a real default rather than a swept-under `else` - judged
+   * rather than swept. The order is the whole of the model's opinion about what outranks what.
    */
   private fun classify(
     region: WeatherRegion,

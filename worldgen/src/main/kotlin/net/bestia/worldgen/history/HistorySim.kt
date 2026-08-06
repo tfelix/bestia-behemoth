@@ -1541,7 +1541,7 @@ internal class HistorySim(
    *
    * One event per wound in the same year - the star broke up on the way down, or it did not - with the first as
    * the cause of the rest. That is what makes all three candidates `SpecialSites.wounds` found *used*: a
-   * subsystem that computes three places and only ever visits one is the shape TODO.md habit 6 warns about, and
+   * subsystem that computes three places and only ever visits one is complete-tested-and-never-reached, and
    * a world with three mana provinces and one explanation would be visibly missing two.
    *
    * Early, in the first tenth of the span, so that the whole simulated history happens in a world that already

@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 /**
  * Corruption reaches the voxels a player stands on.
  *
- * The gap this closes is the one `TODO.md` habit 6 is about: `CorruptionStage` can hit its target, the
+ * The gap this closes is the complete-tested-never-reached shape: `CorruptionStage` can hit its target, the
  * exported PNG can look right, `SurfaceCover.blight` can be unit-tested, and **not one blighted block need
  * exist in the world** - because the dither compares the wrong way round, or because the layer never reaches
  * the sampler, or because the materialiser passes `false`. Every one of those is invisible above the chunk

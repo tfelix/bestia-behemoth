@@ -6,7 +6,7 @@ description = 'worldgen'
 
 /**
  * Deterministic world generation: pipeline framework, vector features, field primitives and the
- * offline viewer. See worldgen-architecture.md.
+ * offline viewer. See .claude/skills/worldgen/SKILL.md for the architecture.
  *
  * Deliberately dependency-light - kotlin stdlib and the JDK, nothing else. This module is meant to be
  * linked into the zone-server and possibly into the client, so it must not drag in Spring, JPA or any

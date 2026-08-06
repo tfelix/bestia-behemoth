@@ -1,6 +1,6 @@
 ---
 name: worldgen
-description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 22-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion, worldgen-architecture.md.
+description: Explains the bestia-behemoth world generator (`worldgen/` Gradle module) — the 23-stage world-tier pipeline (tectonics/climate/hydrology/biomes/history/towns/...), the vector feature system (Ring/AreaFeature/PolylineFeature, blend modes, StationTable), the chunk/voxel tier (ChunkMaterializer, BlockType palette, RleCodec), the store/ caching+versioning tiers, and how it plugs into zone-server (PersistedWorld, boot-time version gate, chunk streaming) and the Godot client. Read this BEFORE touching any file under worldgen/, before adding/reordering a Stage, before changing a params class or a block type, or when investigating "why does this world look like X" / "how does a chunk get from the generator to the client". Triggers on: worldgen, Stage, GenContext, WorldGenPipeline, WorldParams, LayerId, FeatureKind, VectorFeature, Ring, AreaFeature, StationTable, ChunkMaterializer, VoxelChunk, BlockType, RleCodec, ChunkCache, ChunkStore, DerivedStore, PersistedWorld, WorldService, ChunkService, ChunkStreamSystem, pipelineVersion, paramsVersion.
 ---
 
 # worldgen: the world generator
@@ -11,12 +11,16 @@ must be kotlin-stdlib only, no `java.io`/`java.nio`/`java.awt`/`javax` import ou
 a pure function: `(seed, WorldConfig, WorldParams) → GeneratedWorld`. `zone-server` depends on it and
 owns the only real I/O (persistence, streaming); the Godot client only decodes what the server sends.
 
-Two long-form docs sit at the repo root — `worldgen-architecture.md` (the original design doc) and,
-until this skill replaced it, `SUMMARY.md` (a dev-log of one later branch). **Both are narrative history,
-not current fact**, and are known stale in specific, verified ways — see [Where the docs lie](#where-the-docs-lie).
-Treat `pipeline/StandardWorld.kt` and the actual `Stage` subclasses as ground truth; the docs are useful
-only for the *reasoning* behind a decision, never for the current stage count, layer list, or version
-numbers.
+Three long-form docs used to sit at the repo root — `worldgen-architecture.md` (the original design
+doc), `SUMMARY.md` (a dev-log of one later branch), and `TODO.md` (a phase-by-phase handoff, "worldgen:
+what is left") — and all three were narrative history rather than current fact, stale by whole subsystems
+(the architecture doc's stage table stopped at twelve stages; the real count reached 22, then 23). This
+skill replaced `SUMMARY.md` outright, and later replaced `worldgen-architecture.md` and `TODO.md` too,
+once their still-useful design rationale and working habits (the reasoning behind decisions, not the
+numbers) had been folded in here and into `bestia-docs`' server-side world-generation page; all three
+files were then deleted rather than left to drift further. Treat `pipeline/StandardWorld.kt` and the
+actual `Stage` subclasses as ground truth for anything this skill might itself fall behind on — the
+current stage count, layer/feature lists, and version numbers above all.
 
 ## Two tiers
 
@@ -36,7 +40,7 @@ vector/     geometry: Ring, AreaFeature, PolylineFeature, PointFeature, MarkerFe
 core/       Stage, GenContext, GenRng, LayerStore/FeatureStore, WorldGenPipeline, Chronicle, WorldWrap
 fields/     Noise, Grid, Points (Poisson disk), DistanceTransform, DoubleIntHeap
 
-geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/   ← the 22 Stages, see below
+geo/ climate/ hydro/ bio/ resource/ civ/ history/ pop/ mana/ karst/ spawn/ poi/   ← the 23 Stages, see below
 
 voxel/      BlockType palette, Stratigraphy, ChunkMaterializer, RleCodec, CaveNetwork, VegetationScatter
 derived/    ChunkDelta (player edits), ColumnSummary, OpacityGrid, WalkableTile, DerivedStore
@@ -47,7 +51,7 @@ viewer/     Swing tooling + CLI entry points; the only package allowed I/O
 
 ## The stage pipeline
 
-`StandardWorld.stages()` (`pipeline/StandardWorld.kt:203-250`) constructs **22 stages** in one order,
+`StandardWorld.stages()` (`pipeline/StandardWorld.kt:204-256`) constructs **23 stages** in one order,
 but that construction order is cosmetic — its own KDoc says so directly: *"in declaration order; the
 pipeline sorts them itself"* (`:195-196`). `WorldGenPipeline`'s constructor topologically sorts every
 stage by its declared `dependencies`, breaking ties **alphabetically by `StageId.name`**
@@ -79,7 +83,8 @@ Declared construction order, with the load-bearing reason from each stage's own 
 | 19 | `VegetationStandStage` | `spawn/` | — | `VEGETATION_STAND` | lives in `spawn/`, not `bio/`, specifically because it reads `CORRUPTION`, which doesn't exist yet when `bio/VegetationStage` runs |
 | 20 | `TownStage` | `civ/` | — | `STREET`, `BUILDING`, `DISTRICT`, `TOWN_WALL`, `GATE` | street/building/district layout |
 | 21 | `EconomyStage` | `pop/` | — | `SETTLEMENT_ECONOMY`, `BUSINESS`, `ROADSIDE_INN` | businesses/households |
-| 22 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
+| 22 | `PoiStage` | `poi/` | — | `POI` | the only stage whose output is a coin toss per catalogue entry rather than derived from the land; reads settlements/sites/cave mouths to stay clear of them |
+| 23 | `NavGraphStage` | `civ/` | — | — (`StageOutput.Navigation`) | last: routes are read off roads/bridges/gates/cave mouths everything above placed; nothing reads it back |
 
 `history` is the only stage declaring `StageOutput.History`; the pipeline requires there be at most one
 (`core/WorldGenPipeline.kt:106-108`) — two stages writing one world's history isn't resolvable.
@@ -90,9 +95,13 @@ that outrank their construction position:
 ```
 tectonics -> climate -> erosion -> glacial -> hydrology -> { alluvium, volcanism }
   -> { biomes, pond } -> { caves, mana, vegetation } -> resources -> habitability
-  -> settlements -> history -> corruption -> { spawners, towns, vegetation_stands }
+  -> settlements -> history -> { corruption, poi } -> { spawners, towns, vegetation_stands }
   -> economy -> nav_graph
 ```
+
+`PoiStage.dependencies` is `{glacial, hydrology, biomes, caves, settlements, history}` — no dependency on
+`corruption`, `towns`, or anything after, so it runs any time after `history`, alongside `corruption`
+rather than behind it.
 
 Concretely: `HydrologyStage.dependencies` includes `GlacialStage.ID` (`hydro/HydrologyStage.kt:313-314`)
 because it needs the *final* `ELEVATION`, dragging `VolcanismStage` and `BiomeStage` behind glacial too
@@ -163,6 +172,22 @@ built in water, walled settlements have a gate), mana/corruption targeting, and 
 every newer subsystem (`checkTheWorldHasSpawners`, `checkDistrictsHoldTheirBuildings`, ...). Several are
 explicitly framed as tripwires against a subsystem that runs and silently produces nothing — the failure
 mode this module has shipped more than once.
+
+**An open question, not a settled one**: river counts going 512 → 1024 km gave 7.2×, 3.5× and 6.1× for 4×
+the area across three seeds — channel initiation is a threshold on catchment *area*, which should make the
+network scale-free in principle, and the measurement is consistent with that but does not confirm it
+(against a 44–207 spread at a single size, three samples can't separate mild superlinearity from noise). If
+it matters, it wants a dozen seeds per size, not three - nothing in this cleanup pass re-measured it.
+
+**A subsystem that is complete, tested and never *reached* looks exactly like one that works.** Cited
+throughout this module's own comments (and a few in `zone-server`) as "habit 6" - a shorthand for a pattern
+that shipped dead three times over: sea lanes that produced none on forty worlds because the port search
+looked 3 km for a harbour, four built site kinds that produced none on any world because `year -
+Int.MIN_VALUE` overflowed the interval gate, and seasonal precipitation fields that had been summed and
+discarded for a year. Every test was green in all three cases. **Count the output before believing the
+tests.** Where existence can't be asserted per seed - most worlds legitimately have none of a given rare
+thing - pin the check to a seed that does have one, rather than writing a conditional that passes vacuously
+on every seed that doesn't.
 
 ## The vector feature system (`vector/`)
 
@@ -235,17 +260,22 @@ Trees, crystals, and aetherite are **not written into the voxel grid** — `Vege
 there's no per-tree storage anywhere; `trunkSite` still vetoes placement against streets/bridges/
 buildings/caves so nothing spawns inside a wall.
 
-`ChunkMaterializer.VERSION` (`:886`, currently **9**) is a hand-incremented tier version — separate from
-any `Stage.version` — folded into `WorldParams.chunkTierVersion`. It has climbed steadily (2 =
-subtraction, 3 = vegetation lattice, 5 = blighted cover, 6 = wounds, 7 = no more raw `CLIFF` biome, 8 =
-lava, 9 = trees/crystals become props instead of voxels) — a live signal that any doc claiming "reset to
-1" is describing a past snapshot, not today.
+`ChunkMaterializer.VERSION` (currently **1**) is a hand-incremented tier version — separate from any
+`Stage.version` — folded into `WorldParams.chunkTierVersion`. It climbed to 10 across the branch that
+built subtraction, vegetation, blighted cover, wounds, bare rock, lava, props and points of interest, and
+was reset to 1 in this cleanup pass alongside every `Stage.version` (see Cross-cutting mechanisms above)
+for the same reason: still pre-release, so none of those ten bumps had a real counterparty yet. The git
+history holds the old changelog. Expect this number to climb again the moment a materialisation change
+actually ships to a client — it is not a promise that the tier will never change again, only that nothing
+has shipped to make the bumps so far mean anything.
 
 ### Encoding & storage (`voxel/`, `store/`)
 
-- **`BlockType`** — 61 declared types, `id` explicit and permanent (never ordinal-derived), sparse by
-  design: fluids 0-3, basement 10-12, sedimentary 20-23, unconsolidated 30-35, surface cover 40-42 +
-  blighted 49-52, worked 60-67 (id 65 `PLANK` deliberately freed, not reused), ore/gem 100-129.
+- **`BlockType`** — 60 declared types, `id` explicit and permanent (never ordinal-derived), sparse by
+  design: fluids 0-3, basement 10-12, sedimentary 20-23, unconsolidated 30-34, surface cover 40-42 +
+  blighted 49-52, worked 60-67 (ids 35 `PERMAFROST` and 65 `PLANK` deliberately freed, not reused —
+  `PERMAFROST` was mechanically identical to `DIRT` and was folded into it in this cleanup pass),
+  ore/gem 100-129.
 - **`RleCodec`** (`voxel/RleCodec.kt`) — `VERSION = 2` (`:78`), the **one** version number that survived
   the stage-version reset, because it's a wire-protocol byte named `CHUNK_ENCODING_RLE_V2` in
   `chunk.proto`. Two separate run-length streams (blocks, then occupancy), not interleaved. A tighter
@@ -304,9 +334,10 @@ edits) is stored as deltas over that regenerated base.
   `zone-server`'s `MasterSpawnPointService` computes and caches the result once per world.
 
 The client (`bestia-client/src/Game/World/ChunkEngine.cs`) mirrors the server's decode/palette/patch
-version as `ChunkEngine.VERSION` — currently **6** on both sides, a *different* number from
-`ChunkMaterializer.VERSION` (9): one is wire/decode compatibility, the other is terrain-generation
-compatibility. `Mesh/BlockAppearance.cs` mirrors the block palette by hand (not transmitted over the
+version as `ChunkEngine.VERSION` — currently **1** on both sides, the same reset as `ChunkMaterializer
+.VERSION` above but a *different* number in principle: one is wire/decode compatibility, the other is
+terrain-generation compatibility, and they will diverge again the moment either changes without the
+other. `Mesh/BlockAppearance.cs` mirrors the block palette by hand (not transmitted over the
 wire) and meshes via surface-nets, sampling `Occupancy` at cell corners for exact partial-voxel
 reconstruction. `StaticEntityRenderer.cs` renders `ChunkStaticEntitiesSMSG` batches with placeholder
 meshes — functional, no art yet.
@@ -324,31 +355,34 @@ meshes — functional, no art yet.
 | `:worldgen:invariants` | `InvariantsMain` | seed-sweep regression: builds N worlds, runs every `Invariants` check, reports violations |
 | `:worldgen:checkBoundaries` | — | build-time purity check (wired into `check`): no I/O import outside `viewer/` |
 
-## Where the docs lie
+## The history log is a third world-tier product
 
-`worldgen-architecture.md` (repo root) says of itself that it's "kept as written rather than rewritten to
-match the code" — deviations are meant to be recorded at the point in the code where they happen, not by
-editing the doc. In practice it has fallen behind by whole subsystems, confirmed against current source:
+`core/Chronicle.kt` is an append-only event store, and it genuinely is a different kind of thing from the
+other two: a raster is addressed by position, a feature by position and kind, and an event by **year and
+actor** — "what happened to this town", "who held this sword before it was buried", "which war produced
+this ruin". None of those is a spatial query, and forcing them into the feature store would mean either a
+marker per event (hundreds of thousands of zero-extent points no chunk will ever want) or losing the
+causal links between them, which are the entire product. What *does* go in the feature store is the
+physical residue — `RUIN`, `BATTLEFIELD`, `TOMB`, `MONUMENT` and the rest of `HistoryStage`'s output above
+— because those are places with extent, and chunk generation has to know about them. `StageResult` carries
+a `chronicle`, `StageOutput.History` exists as its own kind, and `GenContext.chronicle()` is scoped the
+same way layers and features are: a stage that reads the log without declaring `HistoryStage` throws,
+rather than quietly seeing an empty history and laying out a town with no walls.
 
-- Its stage table/diagram says **"twelve world-tier stages"** and lists only
-  `tectonics, climate, erosion, glacial, hydrology, biomes, resources, habitability, settlements, history,
-  towns, economy`. The real count is **22** — missing entirely: `VolcanismStage`, `PondStage`,
-  `AlluviumStage`, `VegetationStage`, `CaveStage`, `ManaStage`, `CorruptionStage`, `SpawnerStage`,
-  `VegetationStandStage`, `NavGraphStage`. Its per-stage layer/feature table is missing every layer and
-  feature those ten stages produce (`VOLCANISM`, `MANA_DENSITY`, `CORRUPTION`, `CANOPY_COVER`, `LAKE`,
-  `CAVE_SYSTEM`, `BESTIA_SPAWN`, ...), and even its surviving rows are individually stale (tectonics is
-  missing `HOTSPOT`, towns is missing `DISTRICT`, history lists 9 kinds where there are now 13).
-- It claims baked chunks are "deliberately not keyed on pipeline version" and that derived structures and
-  vegetation/props have no reader anywhere — all three have since reversed or been superseded (see
-  [Encoding & storage](#encoding--storage-voxel-store) and [Derived structures](#derived-structures-derived)
-  above).
-- `SUMMARY.md` claimed `hydro/` "has no meander model at all" — false since `hydro/Meander.kt`'s
-  `offset` was wired into `HydrologyStage`'s channel-shape profile (commit `75344ba4d`, "Rivers get a bank
-  that is not a drawn line"). It's a dev-log of one branch's slice of work (params-as-data, caves,
-  vegetation, the `Ring`/`AreaFeature` type, districts), not a description of the module's current scope
-  — it never mentions history, mana, corruption, spawner, or nav-graph at all.
+**Names are seeds, not strings.** A station channel is a `Double`, so a `RUIN` marker can't hold the name
+of the town it used to be — but it can hold a 48-bit integer, and that integer plus `history/Names.kt` *is*
+the name. A settlement, its ruin, its tomb and every event about it all carry the name for eight bytes
+rather than four copies of a string, and any tool can print any name with no lookup table. The cost: the
+seed is derived from the entity and the world seed rather than from a counter, specifically so that
+changing the naming logic is a cosmetic diff rather than a silent rewrite of every name in every existing
+world — and it is still a change nobody should make once a world has shipped.
 
-When in doubt, `pipeline/StandardWorld.kt`, the `Stage` subclasses' own `dependencies`/`outputs`, and
-`pipeline/Invariants.kt` are ground truth. This skill is meant to replace both docs as the day-to-day
-reference; use them only for archived design rationale, never for current stage count, layer/feature
-lists, or version numbers.
+## Ground truth
+
+`pipeline/StandardWorld.kt`, the `Stage` subclasses' own `dependencies`/`outputs`, and
+`pipeline/Invariants.kt` are ground truth for anything this skill and this skill alone does not settle.
+The module previously carried two long-form docs at the repo root that drifted out of sync with the code
+by whole subsystems before being folded into this skill and into `bestia-docs`' server-side
+world-generation page, then deleted — see the note at the top of this file. Don't recreate that failure
+mode: a fact here that's wrong is worse than no fact, so when this skill and the source disagree, the
+source wins, and the skill should be corrected in the same change that made it wrong.
