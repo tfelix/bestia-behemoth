@@ -31,7 +31,9 @@ class Skill(
   @Column(nullable = false)
   val manaCost: Int,
 
-  @Column(nullable = true)
+  // Named explicitly: `range` is a reserved word in MariaDB (window-function frame syntax), so an
+  // unquoted `create table` with a bare `range` column fails on boot. H2 never enforced this.
+  @Column(name = "attack_range", nullable = true)
   val range: Int?,
 
   @Column(nullable = false)
