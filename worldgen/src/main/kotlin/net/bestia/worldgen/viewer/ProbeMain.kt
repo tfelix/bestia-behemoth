@@ -705,7 +705,6 @@ object ProbeMain {
 
     /** The dry cell whose elevation is closest to [want], as a world position at its centre. */
     fun nearestLand(elevation: FloatLayer, want: Double): Pair<Double, Double> {
-      val metres = config.baseResolution.metresPerCell
       var best = config.widthMetres / 2.0 to config.heightMetres / 2.0
       var bestError = Double.MAX_VALUE
 

@@ -2260,7 +2260,6 @@ internal class HistorySim(
    * Ashford" is a place a player can dig.
    */
   private fun buryFigure(person: Person, year: Int, kind: EventKind, how: String, cause: Int = -1) {
-    val civ = civs[person.civ]
     val died = log(
       year, kind, listOf(Actor(ActorType.FIGURE, person.index), Actor(ActorType.CIV, person.civ)),
       person.slainAt ?: towns[person.home].facts.position,
@@ -2866,10 +2865,9 @@ internal class HistorySim(
   )
 
   private fun siteName(site: Site): String {
-    val culture = if (site.civ >= 0) civs[site.civ].cultureIndex else 0
     val of = if (site.settlement >= 0) nameOf(towns[site.settlement]) else "the wilds"
     return Names.site(
-      site.nameSeed, culture, of,
+      site.nameSeed, of,
       when (site.kind) {
         SiteKind.RUIN -> "ruin"
         // `Names.site` renders an unknown form as "the <form> of <Town>", so this reads "the ash of Karth" with

@@ -133,8 +133,8 @@ class VolcanicHistoryTest {
         val where = event.where
         assertTrue(where != null, "seed $seed: an eruption has no position, so nothing can point at it")
         assertTrue(
-          vents.any { it.distanceTo(where!!) < 1e-6 },
-          "seed $seed: an eruption at (${where!!.x.toInt()}, ${where.y.toInt()}) is not at any of the " +
+          vents.any { it.distanceTo(where) < 1e-6 },
+          "seed $seed: an eruption at (${where.x.toInt()}, ${where.y.toInt()}) is not at any of the " +
               "${vents.size} vents - the roll has moved back onto the towns"
         )
       }
@@ -175,7 +175,7 @@ class VolcanicHistoryTest {
           "seed $seed: settlement ${site.settlement} has an ash ruin but no burial in its own history"
         )
         assertTrue(
-          obituary!!.causes.isNotEmpty(),
+          obituary.causes.isNotEmpty(),
           "seed $seed: the burial of settlement ${site.settlement} cites no eruption, so nothing explains it"
         )
 
@@ -184,7 +184,7 @@ class VolcanicHistoryTest {
           val cited = chronicle.events.firstOrNull { it.id == cause }
           assertTrue(cited != null, "seed $seed: the burial cites event $cause, which does not exist")
           assertTrue(
-            cited!!.kind == EventKind.ERUPTION && cited.actors.isEmpty(),
+            cited.kind == EventKind.ERUPTION && cited.actors.isEmpty(),
             "seed $seed: the burial cites ${cited.kind}, not a mountain erupting"
           )
         }

@@ -539,7 +539,6 @@ data class ArtifactRecord(
   val provenance: List<Int>
 )
 
-/** A place history left behind. These become vector features, one marker each. */
 /**
  * The kinds of place history leaves on the ground.
  *

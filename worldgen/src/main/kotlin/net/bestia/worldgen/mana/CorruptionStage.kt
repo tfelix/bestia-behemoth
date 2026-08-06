@@ -219,7 +219,6 @@ class CorruptionStage(
   )
 
   override fun generate(ctx: GenContext, region: CellRegion): StageResult {
-    val metres = region.resolution.metresPerCell
     val mana = Grid.from(ctx.layers.float(LayerId.MANA_DENSITY))
     val elevation = Grid.from(ctx.layers.float(LayerId.ELEVATION))
     val waterLevel = Grid.from(ctx.layers.float(LayerId.WATER_LEVEL))

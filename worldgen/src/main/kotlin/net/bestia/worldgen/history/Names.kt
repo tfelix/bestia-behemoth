@@ -96,8 +96,13 @@ object Names {
     }
   }
 
-  /** A site name, which is nearly always possessive: "the barrow of X", "Y field". */
-  fun site(seed: Long, cultureIndex: Int, of: String, form: String): String = when (form) {
+  /**
+   * A site name, which is nearly always possessive: "the barrow of X", "Y field".
+   *
+   * Culture-independent: [of] already carries whatever a settlement's own name owes to its culture, and a
+   * `form` like "barrow" or "field" is a description of the site rather than an idiom belonging to anyone.
+   */
+  fun site(seed: Long, of: String, form: String): String = when (form) {
     "barrow" -> "the barrow of $of"
     "field" -> "$of Field"
     "ruin" -> "the ruins of $of"

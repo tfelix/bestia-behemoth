@@ -173,7 +173,13 @@ class NavEdge(
  */
 class NavGraph(
   val nodes: List<NavNode>,
-  val edges: List<NavEdge>
+  val edges: List<NavEdge>,
+  /** Bridge markers more than `BRIDGE_ATTACH_METRES` from any road, and so carrying no edge. */
+  val unattachedBridges: Int = 0,
+  /** Wilderness-lattice candidates that passed every placement test, before `maxWildernessNodes` capped it. */
+  val wildernessNodesWanted: Int = 0,
+  /** Wilderness-lattice nodes actually placed. Less than [wildernessNodesWanted] only when the cap bound. */
+  val wildernessNodesPlaced: Int = 0
 ) {
 
   init {

@@ -176,7 +176,7 @@ class SettlementStage(
       .filter { it.kind == FeatureKind.RIVER_CHANNEL }
 
     val siteScore = Timings.measure("settle.scoreSites") {
-      scoreSites(ctx, region, habitability, terms, rivers)
+      scoreSites(ctx, region, habitability, terms)
     }
     val sites = Timings.measure("settle.place") {
       place(ctx, region, siteScore, terms, elevation, metres)
@@ -216,8 +216,7 @@ class SettlementStage(
     ctx: GenContext,
     region: CellRegion,
     habitability: Grid,
-    terms: Terms,
-    rivers: List<PolylineFeature>
+    terms: Terms
   ): Grid {
     val metres = region.resolution.metresPerCell
     val discharge = Grid.from(ctx.layers.float(LayerId.DISCHARGE))
@@ -504,7 +503,7 @@ class SettlementStage(
     // Sea routes go into the *same* map, so the trade network is one graph with two edge types and the traffic
     // model below needs no idea that some of its edges are wet. A pair reaches `buildSeaLanes` only after its
     // land route was rejected, so the two can never collide on a key.
-    val lanes = buildSeaLanes(ctx, region, nodes, overWater, waterCost, terms)
+    val lanes = buildSeaLanes(region, nodes, overWater, waterCost)
     routes.putAll(lanes.mapValues { it.value.route })
 
     if (routes.isEmpty()) return emptyList()
@@ -604,16 +603,14 @@ class SettlementStage(
    * landlocked and takes no part.
    *
    * Lakes are not sea here, and measurement says that costs nothing: across forty worlds every land route
-   * rejected for crossing water was blocked by **ocean cells only**, never by a lake. Inland navigation is a
-   * separate gap the architecture document already lists under navigable rivers.
+   * rejected for crossing water was blocked by **ocean cells only**, never by a lake. Navigable rivers as a
+   * cheap trade-graph edge is a separate, still-unbuilt gap.
    */
   private fun buildSeaLanes(
-    ctx: GenContext,
     region: CellRegion,
     nodes: List<Site>,
     pairs: List<Pair<Int, Int>>,
-    waterCost: Grid,
-    terms: Terms
+    waterCost: Grid
   ): LinkedHashMap<Pair<Int, Int>, Lane> {
     val out = LinkedHashMap<Pair<Int, Int>, Lane>()
     if (pairs.isEmpty()) return out

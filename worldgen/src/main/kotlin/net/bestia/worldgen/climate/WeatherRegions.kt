@@ -173,7 +173,7 @@ class WeatherRegions private constructor(
 
       val index = PointIndex(seeds, bounds.expanded(spacing))
 
-      val accumulators = List(seeds.size) { Accumulator(seeds.size) }
+      val accumulators = List(seeds.size) { Accumulator() }
       val climateRegion = temperature.region
       val metres = climateRegion.resolution.metresPerCell
 
@@ -251,7 +251,7 @@ class WeatherRegions private constructor(
       return sorted[at]
     }
 
-    private class Accumulator(regionCount: Int) {
+    private class Accumulator {
       var cells = 0
       var temperature = 0.0
       var range = 0.0

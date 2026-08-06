@@ -182,8 +182,7 @@ object ViewerMain {
     // How many hoards hold a *named* relic rather than anonymous plate. Counted because the branch that puts
     // one there is easy to write and hard to reach - a figure fleeing a sack would carry their sword, not bury
     // it - and a branch nothing reaches looks exactly like one that works.
-    val named = generated.world.chronicle?.sites
-      ?.count { it.kind == SiteKind.HOARD && it.artifact >= 0 } ?: 0
+    val named = generated.world.chronicle.sites.count { it.kind == SiteKind.HOARD && it.artifact >= 0 }
 
     if (systems == 0) return "caves 0 - no limestone wet enough, or none of it near a hillside"
 

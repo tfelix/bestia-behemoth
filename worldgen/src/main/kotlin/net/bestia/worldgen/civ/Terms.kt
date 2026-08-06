@@ -96,7 +96,6 @@ internal class Terms(
       val arable = Timings.measure("terms.arable") { Grid.parallel(region.width, region.height) { x, y ->
         // Flat is good, but not swamp flat: standing water is not farmland.
         val slope = elevation.gradient(x, y, metres)
-        val i = y * region.width + x
         val flatness = 1.0 - (slope / params.arableSlope).coerceIn(0.0, 1.0)
         val boggy = when (Biome.entries[biome[region.minX + x, region.minY + y]]) {
           Biome.BOG, Biome.SWAMP -> 0.35

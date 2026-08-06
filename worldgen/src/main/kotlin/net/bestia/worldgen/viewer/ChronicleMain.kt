@@ -345,12 +345,12 @@ object ChronicleMain {
       // Seers lost at this wound, and whatever they were carrying. The join is the site actor on the event
       // rather than a distance test, so it says what the simulation decided rather than what the map suggests.
       val here = Actor(ActorType.SITE, wound.index)
-      val lost = chronicle.eventsOf(here).filter { it.kind == EventKind.SEER_VANISHED }
+      val vanished = chronicle.eventsOf(here).filter { it.kind == EventKind.SEER_VANISHED }
       println(
         "    (${wound.position.x.toInt()}, ${wound.position.y.toInt()})  " +
-            "year ${wound.year}  ${lost.size} vanished here"
+            "year ${wound.year}  ${vanished.size} vanished here"
       )
-      lost.take(3).forEach { println("      ${it.year}: ${it.detail}") }
+      vanished.take(3).forEach { println("      ${it.year}: ${it.detail}") }
     }
 
     val unmarked = chronicle.figures.filter { it.deathYear != 0 && it.restingSite < 0 }
@@ -404,7 +404,7 @@ object ChronicleMain {
     println("  ${shrines.size} shrines")
     for (site in shrines.take(SITES_PER_KIND)) {
       val name = Names.site(
-        site.nameSeed, cultureOf(chronicle, site.settlement.coerceAtLeast(0)),
+        site.nameSeed,
         if (site.settlement >= 0) {
           Names.place(chronicle.settlements[site.settlement].nameSeed, cultureOf(chronicle, site.settlement))
         } else {

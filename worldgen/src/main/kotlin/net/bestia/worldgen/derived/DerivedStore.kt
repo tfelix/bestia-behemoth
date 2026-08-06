@@ -94,14 +94,15 @@ class DerivedStore(
       val chunk = iterator.next()
       iterator.remove()
 
-      val entry = entries[chunk]
-      if (entry != null) {
-        build(chunk).let {
-          entry.summary = it.summary
-          entry.opacity = it.opacity
-          entry.walkable = it.walkable
-          entry.stale = false
-        }
+      // `invalidate`/`forget` keep `entries` and `queue` in lockstep, so a queued chunk always has an entry;
+      // guarded rather than asserted because a dequeued chunk that turned out to have none should not count
+      // as rebuilt.
+      val entry = entries[chunk] ?: continue
+      build(chunk).let {
+        entry.summary = it.summary
+        entry.opacity = it.opacity
+        entry.walkable = it.walkable
+        entry.stale = false
       }
       done++
     }

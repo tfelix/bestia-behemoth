@@ -352,11 +352,13 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
   private val bySettlement = HashMap<Int, NavNodeId>()
 
   private var unattachedBridges = 0
+  private var wildernessNodesWanted = 0
+  private var wildernessNodesPlaced = 0
 
   private val maxSlopeTangent = tan(Math.toRadians(params.maxSlopeDegrees))
   private val walkableSlopeTangent = tan(Math.toRadians(params.walkableSlopeDegrees))
 
-  fun build(): NavGraph = NavGraph(nodes, edges)
+  fun build(): NavGraph = NavGraph(nodes, edges, unattachedBridges, wildernessNodesWanted, wildernessNodesPlaced)
 
   // --- Nodes ---------------------------------------------------------------------------------------
 
@@ -495,7 +497,7 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
     // the others running over the water. What has to be deduplicated is the other axis: the same crossing
     // reached twice on the *same* road.
     val attached = HashSet<Int>()
-    for ((index, road) in roads.withIndex()) {
+    for (road in roads) {
       val carried = ArrayList<BridgeOnRoad>()
       for ((bridgeIndex, bridge) in bridges.withIndex()) {
         val arc = nearestArcLength(road.centerline, bridge.position)
@@ -511,17 +513,11 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
       addRoadChain(road, carried.sortedBy { it.arcLength })
     }
 
+    // A crossing no road picked up is one NPCs cannot use. Carried on the returned graph rather than
+    // printed, for the reason `TownParams.maxBuildingsPerSettlement` reports its own cap through the
+    // result instead of stdout: a silently smaller graph looks exactly like a world that happened to
+    // have fewer rivers, and a stage's `generate` is a pure function, not a place to do I/O.
     unattachedBridges = bridges.size - attached.size
-
-    // A crossing no road picked up is one NPCs cannot use and nothing else will mention. Reported rather
-    // than dropped quietly, for the reason `TownParams.maxBuildingsPerSettlement` reports its own cap: a
-    // silently smaller graph looks exactly like a world that happened to have fewer rivers.
-    if (unattachedBridges > 0) {
-      println(
-        "nav_graph: $unattachedBridges of ${bridges.size} bridge markers lie more than " +
-            "${BRIDGE_ATTACH_METRES.toInt()} m from any road and carry no edge"
-      )
-    }
 
     for (lane in ctx.features.query(world).filter { it.kind == FeatureKind.SEA_LANE }.sortedBy { it.id.value }) {
       val marker = lane as? MarkerFeature ?: continue
@@ -679,12 +675,9 @@ private class GraphBuilder(private val terrain: Terrain, private val params: Nav
       y += spacing
     }
 
-    if (placed >= params.maxWildernessNodes) {
-      println(
-        "nav_graph: wilderness lattice hit the cap - wanted up to $wanted candidates, placed $placed " +
-            "(maxWildernessNodes=${params.maxWildernessNodes}); raise the cap or widen wildernessSpacingMetres"
-      )
-    }
+    // Carried on the returned graph rather than printed - see the note on `unattachedBridges` above.
+    wildernessNodesWanted = wanted
+    wildernessNodesPlaced = placed
   }
 
   /**

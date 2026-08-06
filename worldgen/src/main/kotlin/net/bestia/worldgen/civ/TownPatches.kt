@@ -100,7 +100,7 @@ internal object TownPatches {
     val coreRadius = ConvexPolygons.equivalentRadius(core)
     if (coreRadius <= 0.0) return emptyList()
 
-    val sites = sitesIn(frame, core, coreRadius, wantedPatches, roll)
+    val sites = sitesIn(frame, core, wantedPatches, roll)
     if (sites.size < 2) return emptyList()
 
     val guards = guardRing(frame.centre, core, sites.size)
@@ -162,7 +162,6 @@ internal object TownPatches {
   private fun sitesIn(
     frame: TownFrame,
     core: List<Vec2d>,
-    coreRadius: Double,
     wanted: Int,
     roll: (Long, Long) -> Double
   ): List<Vec2d> {

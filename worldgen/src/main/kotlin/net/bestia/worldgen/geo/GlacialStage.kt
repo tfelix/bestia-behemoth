@@ -207,7 +207,7 @@ class GlacialStage(
     val temperature = Grid.resampled(ctx.layers.float(LayerId.TEMPERATURE), region)
     val precipitation = Grid.resampled(ctx.layers.float(LayerId.PRECIPITATION), region)
 
-    val ice = accumulate(region, elevation, temperature, precipitation, metres)
+    val ice = accumulate(region, elevation, temperature, precipitation)
     val features = if (ice.data.any { it >= params.minIceThickness }) {
       Timings.measure("glacial.extract") { extract(ctx, region, elevation, ice, seaLevel, metres) }
     } else {
@@ -402,8 +402,7 @@ class GlacialStage(
     region: CellRegion,
     elevation: Grid,
     temperature: Grid,
-    precipitation: Grid,
-    metres: Double
+    precipitation: Grid
   ): Grid {
     val ice = Grid(region.width, region.height)
 
@@ -560,9 +559,9 @@ class GlacialStage(
       if (raw.length < minTroughLength) continue
 
       val line = raw.chaikin(SMOOTHING).resample(STATION_SPACING)
-      features.add(troughFeature(nextId(), line, path, region, elevation, flux, seaLevel, metres))
+      features.add(troughFeature(nextId(), line, path, elevation, flux, seaLevel, metres))
       features.add(cirqueFeature(nextId(), centre(path.first()), path, elevation, flux, region))
-      moraineFeature(nextId(), line, path, region, elevation, metres, minTroughLength)?.let { features.add(it) }
+      moraineFeature(nextId(), line, metres, minTroughLength)?.let { features.add(it) }
     }
 
     return features
@@ -582,7 +581,6 @@ class GlacialStage(
     id: FeatureId,
     line: Polyline,
     path: List<Int>,
-    region: CellRegion,
     elevation: Grid,
     flux: Grid,
     seaLevel: Double,
@@ -688,9 +686,6 @@ class GlacialStage(
   private fun moraineFeature(
     id: FeatureId,
     line: Polyline,
-    path: List<Int>,
-    region: CellRegion,
-    elevation: Grid,
     metres: Double,
     minTroughLength: Double
   ): VectorFeature? {

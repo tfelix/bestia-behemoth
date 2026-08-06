@@ -546,7 +546,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       SiteKind.TOMB -> tombColumn(site, ground, distance, into)
       SiteKind.MONUMENT -> monumentColumn(site, ground, distance, into)
       SiteKind.MINE -> mineColumn(site, ground, distance, into)
-      SiteKind.MONASTERY -> monasteryColumn(site, worldX, worldY, ground, distance, into)
+      SiteKind.MONASTERY -> monasteryColumn(site, worldX, worldY, ground, into)
       SiteKind.FORT -> fortColumn(site, ground, distance, into)
       SiteKind.LIGHTHOUSE -> lighthouseColumn(site, ground, distance, into)
       SiteKind.WOUND -> woundColumn(site, ground, distance, into)
@@ -711,7 +711,6 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     worldX: Double,
     worldY: Double,
     ground: Double,
-    distance: Double,
     into: StructureSpans
   ) {
     // Chebyshev distance, so the outline is a square. Cheap, and it is the only place in this file that wants one.

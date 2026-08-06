@@ -91,8 +91,8 @@ class GeneratedWorld(
   /**
    * The props standing in one chunk, for a runtime to turn into entities.
    *
-   * This is the read path [vegetation] was documented as being for and never was - grep found no consumer
-   * outside this module - so treat its shape as unproven until something outside actually reads it.
+   * `zone-server`'s `world/prop/GeneratedPropSource` is the first real consumer - it backs
+   * `ChunkStaticEntitiesSMSG`, which is how a tree, a crystal or a POI landmark reaches a client at all.
    *
    * See [ChunkMaterializer.propsIn] for the two things that matter: hand in the column heights if you
    * already have them, and never accumulate the result over a region.
@@ -159,47 +159,43 @@ class GeneratedWorld(
  * The standard world pipeline.
  *
  * ```
- * tectonics -> climate -> erosion -> glacial
- *                              \-> hydrology -> biomes -> resources -> habitability
- *                                                                           |
- *                                        settlements -> history -> towns -> economy
+ * tectonics -> climate -> erosion -> glacial -> hydrology -> { alluvium, volcanism }
+ *   -> { biomes, pond } -> { caves, mana, vegetation } -> resources -> habitability
+ *   -> settlements -> history -> { corruption, poi } -> { spawners, towns, vegetation_stands }
+ *   -> economy -> nav_graph
  * ```
  *
  * Each stage declares only what it reads, and the scheduler enforces that, so this list is the entire
- * wiring - there is no order to get right here beyond the dependencies the stages already state.
+ * wiring - there is no order to get right here beyond the dependencies the stages already state. The
+ * construction order in [stages] is cosmetic; see that function's KDoc.
  *
  * ### Why history runs before the towns it explains
  *
- * The build order numbers town layout 8 and history 10, and the dependencies run the other way: a town's
- * walls enclose the extent it had when it was threatened, its ruins are settlements history destroyed, how
- * much of it is stone follows the wealth history gave it, and how many buildings it has follows the
- * population history spent a thousand years deciding.
+ * A town's walls enclose the extent it had when it was threatened, its ruins are settlements history
+ * destroyed, how much of it is stone follows the wealth history gave it, and how many buildings it has
+ * follows the population history spent a thousand years deciding - so history has to run first.
  *
- * History still does not *place* settlements - they are already where the land is good - which is the part
- * of the document's "retrofit" framing that mattered. What it does is date them, hold them, burn some and
- * empty others.
+ * History still does not *place* settlements - they are already where the land is good. What it does is
+ * date them, hold them, burn some and empty others.
  *
  * ### What is implemented, and what is not
  *
- * The ledger lives in the **Implementation Status** section of `worldgen-architecture.md` and is not
- * duplicated here, because two copies of it drift. In short: build-order steps 1 to 11 are here, plus the
- * parts of 12 and 13 that belong in a module with no I/O in it; the service half of 12 is not.
- *
- * The eight deliberate deviations from the document are listed there too, and each is also noted at the
- * point in the code where it happens - [WorldHeightField] for analytic rather than droplet detail erosion,
- * [ErosionStage] for raster fans and deltas, `civ/StreetNetwork.kt` for plots that front streets rather than
- * subdividing blocks, and so on. A deviation visible in only one place is one somebody will later mistake
- * for a bug.
+ * `.claude/skills/worldgen/SKILL.md` is the current reference for stage count, layer/feature lists,
+ * versioning and the storage tiers - read it before touching this file. It also records the module's
+ * deliberate deviations from its own past design proposals, each noted again at the point in the code
+ * where it happens - [WorldHeightField] for analytic rather than droplet detail erosion, [ErosionStage]
+ * for raster fans and deltas, `civ/StreetNetwork.kt` for plots that front streets rather than subdividing
+ * blocks, and so on. A deviation visible in only one place is one somebody will later mistake for a bug.
  */
 object StandardWorld {
 
   /**
    * Every stage of the world tier, in declaration order; the pipeline sorts them itself.
    *
-   * The one place the twelve stages are constructed, and therefore the one place tuning has to be threaded.
-   * Every stage has always taken a params object and no caller ever supplied one, so this list is where a
-   * params file becomes a world - see [WorldParams], whose `resolved` form is used rather than its declared
-   * one so that a value shared by two stages is forwarded rather than defaulted twice.
+   * The one place all of the stages are constructed, and therefore the one place tuning has to be
+   * threaded. Every stage has always taken a params object and no caller ever supplied one, so this list
+   * is where a params file becomes a world - see [WorldParams], whose `resolved` form is used rather than
+   * its declared one so that a value shared by two stages is forwarded rather than defaulted twice.
    */
   fun stages(config: WorldConfig, params: WorldParams = WorldParams.DEFAULT): List<Stage> {
     val base = config.baseResolution
