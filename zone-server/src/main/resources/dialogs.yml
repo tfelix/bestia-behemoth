@@ -1,0 +1,24 @@
+# Catalog of every dialog the server can ask a client to show.
+#
+# No text lives here: the client resolves `id` against its own `dialogs.csv` translation
+# source (keys `DIALOG_<id>_TEXT` and optionally `DIALOG_<id>_TITLE`), exactly like skill
+# descriptions resolve `SKILL_<id>_DESC`. That is what keeps translations shipping with the
+# client instead of crossing the wire.
+#
+# Every entry needs a matching constant in net.bestia.zone.dialog.DialogId - call sites use
+# that enum, and DialogCatalogBootValidator fails the boot if the two ever drift apart.
+#
+# `args` declares the placeholder names the text may use, e.g. `masterName` fills
+# {masterName}. DialogService rejects a send whose argument keys don't match this list, so a
+# renamed placeholder fails loudly at the call site instead of silently rendering "{name}".
+dialogs:
+  - id: 1
+    identifier: MASTER_INTRO
+    type: CONFIRM
+    args: [masterName]
+
+  # Kept deliberately arg-less as the copy-me example for a plain confirm dialog.
+  - id: 2
+    identifier: EXAMPLE_NPC_GREETING
+    type: CONFIRM
+    args: []

@@ -14,5 +14,8 @@ enum class Authority {
    * edited voxel becomes a persistent delta over the generated base, and the base cannot be restored under
    * it once the pipeline has moved on. Worth its own authority even while the only holder is a chat command.
    */
-  TERRAIN
+  TERRAIN,
+
+  /** Pushing an arbitrary dialog to your own client, for checking dialog text and placeholders. */
+  DIALOG
 }

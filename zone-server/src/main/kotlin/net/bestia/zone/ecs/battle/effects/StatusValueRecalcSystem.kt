@@ -19,6 +19,10 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.item.equip.script.EquipmentScriptRegistry
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import kotlin.collections.orEmpty
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
@@ -29,9 +33,6 @@ import org.springframework.stereotype.Component as SpringComponent
  * result in turn, then writes the final values back and clears the dirty marker. Equipment is
  * applied before effects so a percentage buff scales the geared value, not the naked one.
  *
- * Mirrors rAthena's `status_calc_bl`: the whole value is recomputed from base + all active
- * modifiers every time, rather than incrementally aggregating individual modifier deltas (the
- * old `StatAggregationSystem`/`StatModifiers`/`SpeedModifierSystem` approach this replaces).
  * Runs after [StatusEffectDurationSystem] (46) so an effect that expired this tick is already
  * gone before values are rebuilt.
  */
@@ -70,21 +71,21 @@ class StatusValueRecalcSystem(
 
       val context = StatusValueRecalcContext(base, baseSpeed)
 
-      val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
-      for ((slot, item) in worn) {
-        val script = equipmentScriptRegistry.getByItemId(item.itemId) ?: continue
-        script.apply(context, slot, item.upgradeLevel)
-      }
+      applyEquipmentEffects(context, world, id)
+      applyStatusEffects(context, world, id)
 
-      val activeEffects = world.get(id, StatusEffects::class)?.activeEffects.orEmpty()
-
-      for (active in activeEffects) {
-        val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
-        val script = statusEffectScriptRegistry.get(definition.script) ?: continue
-        script.apply(context, active.level, active.sourceEntityId)
-      }
-
-      world.update(id, default = { StatusValues(context.strength, context.intelligence, context.vitality, context.dexterity, context.willpower, context.agility) }) { values ->
+      world.update(
+        id,
+        default = {
+          StatusValues(
+            context.strength,
+            context.intelligence,
+            context.vitality,
+            context.dexterity,
+            context.willpower,
+            context.agility
+          )
+        }) { values ->
         values.strength = context.strength
         values.intelligence = context.intelligence
         values.vitality = context.vitality
@@ -99,6 +100,32 @@ class StatusValueRecalcSystem(
       recomputeConditionMaxima(world, id, context)
 
       world.remove(id, IsStatusValueDirty::class)
+    }
+  }
+
+  private fun applyEquipmentEffects(
+    context: StatusValueRecalcContext,
+    world: World,
+    id: EntityId
+  ) {
+    val worn = world.get(id, Equipment::class)?.getWorn().orEmpty()
+    for ((slot, item) in worn) {
+      val script = equipmentScriptRegistry.getByItemId(item.itemId) ?: continue
+      script.apply(context, slot, item.upgradeLevel)
+    }
+  }
+
+  private fun applyStatusEffects(
+    context: StatusValueRecalcContext,
+    world: World,
+    id: EntityId
+  ) {
+    val activeEffects = world.get(id, StatusEffects::class)?.activeEffects.orEmpty()
+
+    for (active in activeEffects) {
+      val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
+      val script = statusEffectScriptRegistry.get(definition.script) ?: continue
+      script.apply(world, context, active.level, active.sourceEntityId)
     }
   }
 

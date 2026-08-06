@@ -1,6 +1,6 @@
 package net.bestia.zone.battle.status
 
-import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.core.Dirtyable
 import kotlin.math.max
 import kotlin.math.min
 

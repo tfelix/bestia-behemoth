@@ -1,10 +1,10 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.status.StackBehavior
-import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.DirtyableComponent
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.util.EntityId
@@ -19,9 +19,7 @@ import net.bestia.zone.util.EntityId
  */
 class StatusEffects(
   val activeEffects: MutableList<ActiveStatusEffect> = mutableListOf()
-) : Component, Dirtyable {
-
-  private var dirty = true
+) : DirtyableComponent() {
 
   /** Applies [definitionId] at [level], resolving [stackBehavior] against any existing instance. */
   fun applyEffect(
@@ -62,7 +60,11 @@ class StatusEffects(
       }
     }
 
-    dirty = true
+    markDirty()
+  }
+
+  fun removeEffect() {
+
   }
 
   /** Ticks down every active instance by [deltaTime] and removes any that expired. Returns whether anything expired. */
@@ -75,22 +77,12 @@ class StatusEffects(
       effect.remainingSeconds -= deltaTime
       if (effect.remainingSeconds <= 0f) {
         iterator.remove()
-        dirty = true
+        markDirty()
         expired = true
       }
     }
 
     return expired
-  }
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG {

@@ -41,7 +41,7 @@ class StatusEffectSystemsIntegrationTest {
     private val duration: Double = 1.0
   ) : StatusEffectScript {
     override fun durationSeconds(level: Int): Double = duration
-    override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+    override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
       context.speed *= speedMultiplier
     }
   }
@@ -62,7 +62,7 @@ class StatusEffectSystemsIntegrationTest {
     private val duration: Double = 1.0
   ) : StatusEffectScript {
     override fun durationSeconds(level: Int): Double = duration
-    override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+    override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
       context.vitality += vitalityBonus
     }
   }

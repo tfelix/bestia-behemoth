@@ -2,6 +2,7 @@ package net.bestia.zone.battle.status.scripts
 
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -20,7 +21,7 @@ class BlessingStatusEffect : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double = 4.0
 
-  override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+  override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
     context.speed *= 1.1f
   }
 }

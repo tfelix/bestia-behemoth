@@ -3,11 +3,10 @@ package net.bestia.zone.ecs.movement
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.message.EntitySMSG
-import net.bestia.zone.ecs.movement.PathSMSG
 
 data class Path(
   private var _path: MutableList<Vec3L>

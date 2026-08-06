@@ -10,6 +10,7 @@ import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
 import net.bestia.zone.battle.ActivateSkillCMSG
 import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
 import net.bestia.zone.ecs.battle.effects.StatusEffectsComponentSMSG
@@ -101,7 +102,6 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     private const val DIVINE_PROTECTION_ID = 2L
     private const val HEAL_ID = 4L
     private const val BLESSING_ID = 1L
-    private const val BLESSING_EFFECT_ID = 5L
     private const val APPLE_ITEM_ID = 1L
     private const val SHOES_ITEM_ID = 4L
     private const val BOOTS_ITEM_ID = 5L
@@ -457,7 +457,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
     await {
       val effects = clientPlayer1.getLastReceived(StatusEffectsComponentSMSG::class)
-      assertTrue(effects.effects.any { it.effectId == BLESSING_EFFECT_ID })
+      assertTrue(effects.effects.any { it.effectId == StatusEffectId.BLESSING.id })
     }
 
     // Kept in the same test as the appearance check (rather than a separate @Test) so the
@@ -468,7 +468,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     // a genuine (bounded) wall-clock wait, not a simulated one.
     await {
       val effects = clientPlayer1.getLastReceived(StatusEffectsComponentSMSG::class)
-      assertFalse(effects.effects.any { it.effectId == BLESSING_EFFECT_ID })
+      assertFalse(effects.effects.any { it.effectId == StatusEffectId.BLESSING.id })
     }
   }
 

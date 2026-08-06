@@ -13,7 +13,7 @@ import net.bestia.zone.util.EntityId
 /**
  * All per-NPC AI runtime state, produced by perception/think and consumed by act on the next tick.
  *
- * Deliberately lives under `net.bestia.zone.ai.*` and is **not** [net.bestia.zone.ecs.Dirtyable]:
+ * Deliberately lives under `net.bestia.zone.ai.*` and is **not** [net.bestia.zone.ecs.core.Dirtyable]:
  * the network layer's dirty-component scan only inspects `net.bestia.zone.ecs`, so this internal
  * brain state never leaks to clients. Client-visible effects reach players "for free" through the
  * existing dirtyable `Path`/`Position`/`Health` components that the leaves mutate.

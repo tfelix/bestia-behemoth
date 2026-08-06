@@ -10,7 +10,9 @@ import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
+import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.ConditionValueCalculator
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.equip.EquipmentSlots
@@ -44,6 +46,7 @@ class MasterEntityFactory(
   private val weightLimitCalculator: WeightLimitCalculator,
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
   private val conditionValueCalculator: ConditionValueCalculator,
+  private val statusEffectService: StatusEffectService,
 ) {
 
   /**
@@ -137,6 +140,12 @@ class MasterEntityFactory(
 
       add(id, ActivePlayer)
       add(id, Persistent)
+
+      // Placeholder hook for greeting the player once their master is in the world. The effect
+      // itself does nothing (see MasterIntroMarker) - it just guarantees there is always a live,
+      // client-invisible marker on a freshly materialized master to build that trigger against.
+      // `this` is the World the create block runs against (WorldView.createEntity).
+      statusEffectService.applyEffect(this, id, StatusEffectId.MASTER_INTRO_MARKER, level = 1)
     }
   }
 

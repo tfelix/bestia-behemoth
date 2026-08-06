@@ -11,7 +11,6 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.SkillPoints
-import net.bestia.zone.ecs.scanDirtyableComponentTypes
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

@@ -7,8 +7,11 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.Dirtyable
+import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.scanDirtyableComponentTypes
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.message.EntitySMSG

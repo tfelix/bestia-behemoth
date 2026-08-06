@@ -1,5 +1,6 @@
 package net.bestia.zone.battle.status
 
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 
 /**
@@ -10,8 +11,7 @@ import net.bestia.zone.util.EntityId
  * [net.bestia.zone.battle.skill.SkillScriptRegistry] for skills.
  *
  * Every definition needs one, even a purely bookkeeping effect with nothing to apply - it still
- * needs to answer "how long" and "what happens on re-application", mirroring rAthena where every
- * `SC_` type has a duration/stacking entry even if it does nothing else.
+ * needs to answer "how long" and "what happens on re-application".
  */
 interface StatusEffectScript {
   val stackBehavior: StackBehavior
@@ -19,8 +19,13 @@ interface StatusEffectScript {
 
   fun durationSeconds(level: Int): Double
 
-  /** Mutates [context] to reflect this effect being active at [level], sourced from [sourceEntityId]. */
-  fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+  fun apply(
+    world: World,
+    entityId: EntityId,
+    context: StatusValueRecalcContext,
+    level: Int,
+    sourceEntityId: EntityId?
+  ) {
     // Bookkeeping-only effects (e.g. a resisted-once marker) have nothing to apply.
   }
 }

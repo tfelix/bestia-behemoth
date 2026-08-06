@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://df51h0nyi66q4" path="res://Game/UI/Options/Options.tscn" id="10_opts"]
 [ext_resource type="PackedScene" uid="uid://cq1eqwin0001" path="res://Game/UI/Equipment/Equipment.tscn" id="11_equip"]
 [ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusPoints.tscn" id="12_status"]
+[ext_resource type="PackedScene" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -77,6 +78,8 @@ offset_bottom = 450.0
 
 [node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
 layout_mode = 1
+
+[node name="MessageDialog" parent="." instance=ExtResource("13_dialog")]
 
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]

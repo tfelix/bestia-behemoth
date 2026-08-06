@@ -13,7 +13,8 @@ enum class Role(val authorities: Set<Authority>) {
       Authority.KILL,
       Authority.EXP,
       Authority.SPAWN,
-      Authority.TERRAIN
+      Authority.TERRAIN,
+      Authority.DIALOG
     )
   ),
   SUPER_GM(Authority.entries.toSet())

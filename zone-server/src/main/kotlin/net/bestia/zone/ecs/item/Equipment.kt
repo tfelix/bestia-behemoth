@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.item
 
-import net.bestia.zone.ecs.Dirtyable
+import net.bestia.zone.ecs.core.Dirtyable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World

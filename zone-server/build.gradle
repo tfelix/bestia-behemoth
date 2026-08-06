@@ -130,3 +130,25 @@ tasks.register('syncBestiaDb', BestiaDbSyncTask) {
     clientDbDir = rootProject.layout.projectDirectory.dir('bestia-client/src/Game/Bestia/DB')
     fix = true
 }
+
+/**
+ * Dialogs are the one content type where the server holds no text at all - it sends an id and the
+ * client resolves DIALOG_<id>_TEXT itself - so neither side can validate the pairing at runtime.
+ * This checks it at build time instead, placeholders included. See
+ * buildSrc/src/main/kotlin/DialogDbSyncTask.kt.
+ */
+tasks.register('checkDialogDb', DialogDbSyncTask) {
+    group = 'verification'
+    description = 'Fails if dialogs.yml and the client dialogs.csv disagree on which dialogs exist or which placeholders their text uses.'
+    dialogsYml = layout.projectDirectory.file('src/main/resources/dialogs.yml')
+    dialogsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/dialogs.csv')
+    fix = false
+}
+
+tasks.register('syncDialogDb', DialogDbSyncTask) {
+    group = 'other'
+    description = 'Adds TODO stub rows to dialogs.csv for dialogs declared in dialogs.yml that have no text yet.'
+    dialogsYml = layout.projectDirectory.file('src/main/resources/dialogs.yml')
+    dialogsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/dialogs.csv')
+    fix = true
+}

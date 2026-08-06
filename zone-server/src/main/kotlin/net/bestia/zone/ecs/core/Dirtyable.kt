@@ -1,7 +1,7 @@
-package net.bestia.zone.ecs
+package net.bestia.zone.ecs.core
 
+import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
 
 interface Dirtyable {
@@ -20,7 +20,7 @@ interface Dirtyable {
 
 
   /**
-   * [removed] is true only for the one extra call [ZoneEngine] makes when this component
+   * [removed] is true only for the one extra call [net.bestia.zone.ecs.ZoneEngine] makes when this component
    * implements [Removable] and was just taken off an entity; every regular dirty-flush call
    * uses the default.
    */

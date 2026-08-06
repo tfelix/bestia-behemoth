@@ -1,0 +1,7 @@
+keys,en
+DIALOG_DEFAULT_TITLE,Message
+DIALOG_1_TITLE,A New Journey
+DIALOG_1_TEXT,"Welcome to Bestia, {masterName}.
+
+The world ahead is yours to explore. Press [b]W[/b], [b]A[/b], [b]S[/b] and [b]D[/b] to move, and click an enemy to attack it."
+DIALOG_2_TEXT,"Well met, traveller. I have nothing to offer you yet - come back once I do."

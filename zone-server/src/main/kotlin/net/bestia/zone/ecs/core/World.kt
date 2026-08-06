@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  *
  * ### Outbound sync
  * The world keeps no separate "changed" bookkeeping: a component is the single source of
- * truth for whether it needs re-sending (see [net.bestia.zone.ecs.Dirtyable]). Mutating a
+ * truth for whether it needs re-sending (see [Dirtyable]). Mutating a
  * component through its own setters marks it dirty; the flush scans stores via [each] and
  * sends whatever reports dirty.
  */
@@ -160,7 +160,7 @@ class World(
 
   /**
    * Adds a component to [id]. Deferred if called mid-tick. A freshly created component starts
-   * dirty (see [net.bestia.zone.ecs.Dirtyable]), so adding one already queues it for sync.
+   * dirty (see [Dirtyable]), so adding one already queues it for sync.
    */
   fun <T : Component> add(id: EntityId, component: T): T = lock.withLock {
     if (iterating) {
@@ -202,7 +202,7 @@ class World(
    * Convenience for the common "fetch [T] on [id], creating it via [default] if missing, then
    * mutate it" pattern seen across systems (e.g. `get(id, Exp::class) ?: add(id, Exp())`). The
    * mutation in [block] marks the component dirty through its own setters (see
-   * [net.bestia.zone.ecs.Dirtyable]), and a freshly created default starts dirty, so no explicit
+   * [Dirtyable]), and a freshly created default starts dirty, so no explicit
    * change flag is needed.
    */
   inline fun <reified T : Component> update(id: EntityId, default: () -> T, block: (T) -> Unit) {
@@ -211,6 +211,28 @@ class World(
     }
 
     val component = get(id, T::class) ?: add(id, default())
+    block(component)
+  }
+
+  inline fun <reified T : Component> updateOrThrow(id: EntityId, block: (T) -> Unit) {
+    if (!isAlive(id)) {
+      return
+    }
+
+    val component = get(id, T::class)
+      ?: throw ComponentNotFoundException(id, T::class)
+
+    block(component)
+  }
+
+  inline fun <reified T : Component> updateOrIgnore(id: EntityId, block: (T) -> Unit) {
+    if (!isAlive(id)) {
+      return
+    }
+
+    val component = get(id, T::class)
+      ?: return
+
     block(component)
   }
 

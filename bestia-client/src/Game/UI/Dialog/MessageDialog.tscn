@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Dialog/message_dialog.gd" id="1"]
+
+[node name="MessageDialog" type="AcceptDialog"]
+title = "Message"
+size = Vector2i(460, 200)
+visible = false
+script = ExtResource("1")
+
+[node name="Body" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 0)
+bbcode_enabled = true
+fit_content = true

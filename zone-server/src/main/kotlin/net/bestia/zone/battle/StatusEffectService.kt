@@ -1,6 +1,7 @@
 package net.bestia.zone.battle
 
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
@@ -44,4 +45,18 @@ class StatusEffectService(
 
     world.add(targetId, IsStatusValueDirty)
   }
+
+  /**
+   * Preferred overload for server-side call sites: the effect is named, not a magic id, and
+   * [net.bestia.zone.battle.status.StatusEffectCatalogBootValidator] guarantees the constant
+   * resolves against `status_effects.yml`. The `Long` overload stays for ids that only exist as
+   * data at runtime (a skill script's `Buff.effectId`, a wire message).
+   */
+  fun applyEffect(
+    world: World,
+    targetId: EntityId,
+    effect: StatusEffectId,
+    level: Int,
+    sourceEntityId: EntityId? = null
+  ) = applyEffect(world, targetId, effect.id, level, sourceEntityId)
 }

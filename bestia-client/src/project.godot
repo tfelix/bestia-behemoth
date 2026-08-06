@@ -25,6 +25,7 @@ SceneManager="*res://Manager/SceneManager.gd"
 SettingsManager="*res://Manager/SettingsManager.gd"
 ConnectionManager="*res://Manager/ConnectionManager.tscn"
 MouseManager="*res://Manager/mouse_manager.gd"
+DialogManager="*res://Manager/dialog_manager.gd"
 
 [display]
 
@@ -156,7 +157,7 @@ toggle_status={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation")
+locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation", "res://Localization/dialogs.en.translation")
 
 [rendering]
 

@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.battle.skill
 
-import net.bestia.zone.ecs.Removable
+import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
 import net.bestia.zone.ecs.core.World

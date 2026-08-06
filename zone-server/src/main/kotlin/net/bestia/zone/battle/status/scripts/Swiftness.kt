@@ -2,6 +2,7 @@ package net.bestia.zone.battle.status.scripts
 
 import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 
@@ -11,7 +12,7 @@ class Swiftness : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double = 30.0 + 5.0 * (level - 1)
 
-  override fun apply(context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+  override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
     context.speed *= 1.0f + 0.1f * level
   }
 }

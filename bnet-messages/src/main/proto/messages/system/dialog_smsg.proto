@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DialogSmsgProto";
+
+enum DialogType {
+  // A plain "read the text and confirm" popup. CHOICE (query the player for an answer) is
+  // planned but out of scope; adding it here plus an interaction id and a repeated choice
+  // list on DialogSMSG is meant to be the whole wire change it needs.
+  CONFIRM = 0;
+}
+
+/**
+ * One placeholder value for a dialog text. Typed rather than pre-rendered so that anything
+ * the client already localizes itself (item names, skill names, entity names) stays
+ * localized: the server sends the reference, the client resolves it against its own DBs.
+ * Only use `text` for strings that have no client-side representation at all, e.g. another
+ * player's master name.
+ */
+message DialogArg {
+  oneof value {
+    string text = 1;
+    int64 number = 2;
+    uint64 entity_id = 3;
+    int64 item_id = 4;
+    int64 skill_id = 5;
+  }
+}
+
+/**
+ * Tells the client to show a dialog. Deliberately carries no text: `dialog_id` is resolved
+ * against the client's `dialogs.csv` translation keys (`DIALOG_<id>_TEXT`, optional
+ * `DIALOG_<id>_TITLE`), the same numeric-id-to-text scheme skill descriptions use.
+ *
+ * This is an account-scoped message, NOT an entity message - it must not be routed through
+ * the client's entity handling. `source_entity_id` is purely informative metadata (who is
+ * speaking, for a portrait or name) and may reference an entity the client does not know.
+ */
+message DialogSMSG {
+  uint32 dialog_id = 1;
+  DialogType type = 2;
+  // Keyed by the placeholder name declared in the server's dialogs.yml, e.g. "masterName"
+  // fills {masterName} in the translated text.
+  map<string, DialogArg> args = 3;
+  optional uint64 source_entity_id = 4;
+}

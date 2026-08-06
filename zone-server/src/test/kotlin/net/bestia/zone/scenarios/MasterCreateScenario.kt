@@ -12,8 +12,13 @@ import net.bestia.zone.account.master.AvailableMasterSMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.MasterCreatedSMSG
 import net.bestia.zone.account.master.GetMasterCMSG
+import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
+import net.bestia.zone.dialog.DialogSMSG
+import net.bestia.zone.ecs.battle.effects.StatusEffects
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.MasterSpawnPointRepository
@@ -26,6 +31,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.awt.Color
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -45,6 +52,12 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Autowired
   private lateinit var masterSpawnPointRepository: MasterSpawnPointRepository
+
+  @Autowired
+  private lateinit var connectionInfoService: ConnectionInfoService
+
+  @Autowired
+  private lateinit var world: World
 
   private lateinit var accountNoMaster: Account
 
@@ -121,7 +134,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Test
   @Order(4)
-  fun `selecting the newly created master works`() {
+  fun `selecting the newly created master materializes it carrying the intro marker effect`() {
     clientPlayerNoMaster.sendMessage(
       SelectMasterCMSG(
         clientPlayerNoMaster.connectedPlayerId,
@@ -129,7 +142,25 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       )
     )
 
-    // TODO maybe somehow validate this?
+    await {
+      val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayerNoMaster.connectedPlayerId)
+      val statusEffects = world.get(masterEntityId, StatusEffects::class)
+
+      assertNotNull(statusEffects, "a materialized master must carry StatusEffects")
+
+      val marker = statusEffects.activeEffects
+        .firstOrNull { it.definitionId == StatusEffectId.MASTER_INTRO_MARKER.id }
+
+      assertNotNull(marker, "MasterEntityFactory must attach the MASTER_INTRO_MARKER effect")
+      assertFalse(marker.isSyncedToClient, "the marker is server-internal and must never reach the client")
+    }
+
+    // The marker is a placeholder hook only: it is deliberately inert, so selecting a master must
+    // not produce a dialog yet. This is what will change once the intro trigger is built on it.
+    assertNull(
+      clientPlayerNoMaster.tryGetLastReceived(DialogSMSG::class),
+      "the intro marker does not send a dialog yet"
+    )
   }
 
   @Test

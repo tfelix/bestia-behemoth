@@ -11,7 +11,6 @@ import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.store.VersionGate
-import net.bestia.worldgen.voxel.ChunkMaterializer
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
@@ -44,14 +43,12 @@ class WorldService(
   val isLoaded get() = loaded != null
 
   /** The world's identity and birth settings. */
-  val record: PersistedWorld get() = require().record
+  val record: PersistedWorld get() = requireLoadedWorld().record
 
   /** The generated world tier plus the samplers that materialise chunks from it. */
-  val generated: GeneratedWorld get() = require().generated
+  val generated: GeneratedWorld get() = requireLoadedWorld().generated
 
-  val config: WorldConfig get() = require().generated.config
-
-  val materializer: ChunkMaterializer get() = require().generated.materializer
+  val config: WorldConfig get() = requireLoadedWorld().generated.config
 
   /**
    * Finds or creates the world record, checks this build can generate it, and builds the terrain.
@@ -274,7 +271,7 @@ class WorldService(
     )
   }
 
-  private fun require(): Loaded = loaded
+  private fun requireLoadedWorld(): Loaded = loaded
     ?: throw IllegalStateException("The world has not been loaded yet; WorldService.load() runs at boot")
 
   /** Per-stage timings, so a slow boot can be attributed rather than guessed at. */

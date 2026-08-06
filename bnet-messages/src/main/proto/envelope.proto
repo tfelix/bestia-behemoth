@@ -53,6 +53,7 @@ import "messages/component/equipment_component_smsg.proto";
 import "messages/component/status_values_smsg.proto";
 import "messages/component/status_points_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
+import "messages/system/dialog_smsg.proto";
 import "messages/component/logout_intent_smsg.proto";
 import "messages/component/casting_component_smsg.proto";
 import "messages/party/accept_party_invite_cmsg.proto";
@@ -90,6 +91,8 @@ message Envelope {
     ChatCMSG chat_cmsg = 122;
     ChatSMSG chat_smsg = 123;
     RequestLogoutCMSG request_logout = 124;
+    DialogSMSG dialog = 125;
+    // 126 is reserved for the DialogChoiceCMSG that answers a CHOICE dialog.
 
     // MAP 200
     WorldInfoSMSG world_info = 200;

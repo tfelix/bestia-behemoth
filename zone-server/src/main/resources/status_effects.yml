@@ -1,3 +1,11 @@
+# Catalog of every status effect (buff/debuff) the server can apply.
+#
+# Every entry needs a matching constant in net.bestia.zone.battle.status.StatusEffectId - call
+# sites use that enum, and StatusEffectCatalogBootValidator fails the boot if the two ever drift
+# apart (missing on either side, or an `identifier` that no longer matches the constant name).
+#
+# `script` is the simple class name of the StatusEffectScript bean in
+# net.bestia.zone.battle.status.scripts that implements the behavior.
 statusEffects:
   - id: 1
     identifier: SWIFTNESS
@@ -33,3 +41,14 @@ statusEffects:
     showIcon: true
     isSyncedToClient: true
     script: BlessingStatusEffect
+
+  # Placeholder hook, attached to every master entity as it materializes (MasterEntityFactory).
+  # Currently does nothing at all - it exists so the "show the intro dialog once the master is in
+  # the world" trigger can be built against a real, already-attached, never-synced effect. See
+  # MasterIntroMarker for why it can't just send the dialog from apply().
+  - id: 6
+    identifier: MASTER_INTRO_MARKER
+    polarity: BUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: MasterIntroMarker

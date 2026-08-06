@@ -8,6 +8,7 @@ import net.bestia.zone.battle.damage.Buff
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.Miss
 import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
+import net.bestia.zone.battle.status.StatusEffectId
 import org.springframework.stereotype.Component
 
 /**
@@ -26,7 +27,7 @@ class Blessing(
 
   override fun doAttack(ctx: BattleContext): Damage {
     return when (ctx) {
-      is EntityBattleContext -> Buff(effectId = BLESSING_EFFECT_ID)
+      is EntityBattleContext -> Buff(effectId = StatusEffectId.BLESSING.id)
       is GroundBattleContext -> Miss
     }
   }
@@ -37,9 +38,5 @@ class Blessing(
     } else {
       false
     }
-  }
-
-  companion object {
-    private const val BLESSING_EFFECT_ID = 5L
   }
 }

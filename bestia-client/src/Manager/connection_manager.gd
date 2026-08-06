@@ -9,6 +9,9 @@ signal master_info_received(master: MasterSMSG)
 signal entity_received(message: EntitySMSG)
 signal self_received(message: SelfSMSG)
 signal chat_received(message: ChatSMSG)
+## Emitted when the server wants a dialog shown. Account-scoped, not tied to an entity, so it is
+## deliberately kept out of [signal entity_received]. Consumed by the DialogManager autoload.
+signal dialog_received(message: DialogSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
@@ -350,6 +353,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		self_received.emit(message)
 	elif message is ChatSMSG:
 		chat_received.emit(message)
+	elif message is DialogSMSG:
+		dialog_received.emit(message)
 	elif message is OperationSuccess:
 		operation_success.emit(message)
 	elif message is OperationError:

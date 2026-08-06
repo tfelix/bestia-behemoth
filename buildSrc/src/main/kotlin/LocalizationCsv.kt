@@ -6,7 +6,8 @@ import java.io.File
  * calling task doesn't know about (and every row it doesn't touch) verbatim, since those are filled
  * in by hand/by a translator, not generated.
  *
- * Shared by [SkillDbSyncTask] and [ItemDbSyncTask]; both write only the `en` column.
+ * Shared by [SkillDbSyncTask], [ItemDbSyncTask] and [DialogDbSyncTask]; all write only the `en`
+ * column.
  */
 internal class LocalizationCsv(
   private val header: MutableList<String>,
@@ -14,6 +15,9 @@ internal class LocalizationCsv(
 ) {
 
   fun get(key: String): String? = rows.firstOrNull { it["keys"] == key }?.get("en")
+
+  /** Every translation key present, in file order. Used to spot rows left behind by deleted content. */
+  fun keys(): List<String> = rows.mapNotNull { it["keys"] }.filter { it.isNotBlank() }
 
   /** Inserts or updates the `en` column for [key]. Returns true if the CSV content changed. */
   fun upsert(key: String, enValue: String): Boolean {

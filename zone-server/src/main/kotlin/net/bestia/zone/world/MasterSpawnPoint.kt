@@ -12,10 +12,7 @@ import jakarta.persistence.Table
 import net.bestia.zone.geometry.Vec3L
 
 /**
- * A candidate "home settlement" a new master can choose to spawn near - the 2nd..5th largest
- * standing settlement of the currently loaded world, each with a safe coordinate computed once by
- * [net.bestia.worldgen.civ.SettlementSpawnPoints] and cached here so master creation never has to
- * recompute habitability/height queries against the settlement stage.
+ * A candidate "home settlement" a new master can choose to spawn near.
  *
  * No world-id column: the codebase assumes a single world row throughout
  * ([WorldRepository.findFirstByOrderByIdAsc]), and this table is fully cleared whenever the world

@@ -22,5 +22,7 @@ class StatusEffectDefinitionRegistry {
   fun getOrThrow(id: Long): StatusEffectDefinition =
     findById(id) ?: throw StatusEffectDefinitionNotFoundException(id)
 
+  fun getOrThrow(effect: StatusEffectId): StatusEffectDefinition = getOrThrow(effect.id)
+
   fun all(): Collection<StatusEffectDefinition> = definitionsById.values
 }

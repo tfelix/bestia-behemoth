@@ -11,7 +11,7 @@ import net.bestia.zone.util.EntityId
  * [isSyncedToClient] denormalizes [net.bestia.zone.battle.status.StatusEffectDefinition.isSyncedToClient]
  * at application time so [StatusEffects.toEntityMessage] can filter out internal bookkeeping
  * effects without a registry lookup at sync time - the one exception to "components are plain
- * data with no derived fields", forced by [net.bestia.zone.ecs.Dirtyable.toEntityMessage] taking
+ * data with no derived fields", forced by [net.bestia.zone.ecs.core.Dirtyable.toEntityMessage] taking
  * no world/registry parameter to look it up with.
  */
 data class ActiveStatusEffect(
