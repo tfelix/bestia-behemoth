@@ -1,0 +1,15 @@
+services:
+  mariadb:
+    image: 'mariadb:11'
+    environment:
+      - 'MARIADB_DATABASE=bestia_zone'
+      - 'MARIADB_USER=bestia'
+      - 'MARIADB_PASSWORD=bestia'
+      - 'MARIADB_ROOT_PASSWORD=bestia-root'
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'zone-mariadb-data:/var/lib/mysql'
+
+volumes:
+  zone-mariadb-data:

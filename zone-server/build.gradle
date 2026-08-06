@@ -27,7 +27,13 @@ dependencies {
 
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+	// Real datastore - see compose.yaml. H2 stays runtimeOnly below because the "test" profile
+	// (application-test.yml) still runs against an in-memory DB, so the suite never needs Docker.
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	runtimeOnly 'com.h2database:h2'
+	// developmentOnly: present for `bootRun` only (never in the packaged jar or on the test classpath).
+	// Starts/stops compose.yaml's mariadb container automatically and wires the datasource to it.
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'

@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:behemoth-test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    open-in-view: false

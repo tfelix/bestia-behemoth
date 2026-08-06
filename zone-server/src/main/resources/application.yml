@@ -68,7 +68,11 @@ worldgen:
   #   REFUSE     - abort the boot. The safe answer, and what a live server wants.
   #   REGENERATE - delete the world and make the one that was asked for, moving every master to the new
   #                spawn. DESTRUCTIVE, no backup. Set here because this is the development configuration:
-  #                the settings above are the thing being changed, and the H2 datasource is in-memory anyway.
+  #                the settings above are the thing being changed, and worldgen tweaks are expected to
+  #                blow away whatever's there. Note this is no longer a free action now that the datasource
+  #                (see below) is MariaDB persisted in a compose volume rather than in-memory H2 - a stray
+  #                params change on restart really does delete a world that survived the last one. Switch
+  #                this to REFUSE before this config is ever pointed at data you care about keeping.
   #   IGNORE     - boot regardless and log it.
   on-mismatch: REGENERATE
 
@@ -171,20 +175,22 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:behemoth  # Example for H2 in-memory database
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    # Matches zone-server/compose.yaml. `./gradlew :zone-server:bootRun` starts that container via
+    # spring-boot-docker-compose (build.gradle) and wires the datasource to it directly, so these values
+    # only take effect when running standalone against a real MariaDB - override them with env vars there.
+    url: jdbc:mariadb://localhost:3306/bestia_zone
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: bestia
+    password: bestia
 
   jpa:
     hibernate:
-      ddl-auto: create  # This setting will drop and recreate the schema on every start
+      # Was `create`, which dropped and recreated the schema every boot - fine for the old in-memory H2,
+      # but that would erase the world on every restart of a real, persistent MariaDB. `update` leaves
+      # existing data alone and only adds what Hibernate's mappings say is missing.
+      ddl-auto: update
     show-sql: false  # Optional: Show SQL statements in logs
     open-in-view: false
-
-  h2:
-    console:
-      enabled: true  # Optional: Enable H2 console for accessing the database
 
   main:
     web-application-type: none
