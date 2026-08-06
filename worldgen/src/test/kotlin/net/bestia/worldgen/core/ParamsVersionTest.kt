@@ -150,7 +150,7 @@ class ParamsVersionTest {
     "BusinessCatalogue" to BusinessCatalogue.digest(),
     "Names" to Names.catalogueDigest(),
     "EventKind" to EventKind.catalogueDigest(),
-    "Order" to Order.catalogueDigest(),
+    "Order" to Faction.catalogueDigest(),
     "ResourceType" to ResourceType.catalogueDigest(),
     "MinableOre" to MinableOre.catalogueDigest(),
     "SpawnHostility" to SpawnHostility.catalogueDigest(),

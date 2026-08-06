@@ -9,7 +9,9 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Table
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
+import net.bestia.worldgen.core.Resolution
+import net.bestia.worldgen.core.WorldConfig
 import java.time.Instant
 
 /**
@@ -119,7 +121,7 @@ class PersistedWorld(
    */
   @Enumerated(EnumType.STRING)
   @Column(nullable = true, updatable = false)
-  val previousWinningOrder: Order? = null,
+  val previousWinningFaction: Faction? = null,
 
   /**
    * Which Order won **this** world, once its fate has been decided. Null while it is still being played.
@@ -139,7 +141,7 @@ class PersistedWorld(
    */
   @Enumerated(EnumType.STRING)
   @Column(nullable = true)
-  var winningOrder: Order? = null,
+  var winningFaction: Faction? = null,
 
   @Column(nullable = false, updatable = false)
   val createdAt: Instant
@@ -156,6 +158,59 @@ class PersistedWorld(
 
   override fun toString() =
     "PersistedWorld[$name, seed $seed, ${widthCells}x$heightCells cells, created $createdAt]"
+
+  /**
+   * A stored world, as the generator wants it.
+   *
+   * This is the authoritative direction. What gets generated comes from the row, never from the configuration
+   * file, because the row is what the world's chunks and any edits over them were built against.
+   */
+  fun toWorldConfig() = WorldConfig(
+    seed = seed,
+    widthCells = widthCells,
+    heightCells = heightCells,
+    baseResolution = Resolution(cellSizeMetres),
+    seaLevel = seaLevelMetres,
+    chunkSize = chunkSize,
+    chunkHeight = chunkHeight,
+    voxelSize = voxelSizeMetres,
+    wrapX = wrapX,
+    wrapY = wrapY
+  )
+
+  /**
+   * Which birth settings this world was *not* born with, one readable line each.
+   *
+   * The counterpart to the two mappings above, and it lives here for the same reason: adding a field to one and
+   * not the others is then a visible omission in a single file rather than an invisible one across three.
+   *
+   * A named difference beats a hash for this. [net.bestia.worldgen.core.WorldConfig.shapeVersion] can only say
+   * *that* two worlds differ, which is no help when what you need to know is whether you are about to throw one
+   * away over a sea level you did not mean to change.
+   *
+   * The world's *name* is deliberately not compared: `findFirstByOrderByIdAsc` never looks at it, so renaming
+   * one is cosmetic and should not read as a request for different terrain.
+   */
+  fun driftFrom(settings: WorldGenConfig): List<String> = buildList {
+    fun compare(setting: String, stored: Any?, configured: Any?) {
+      if (stored != configured) add("$setting: $stored -> $configured")
+    }
+
+    // Only when one is set. An unset seed was drawn at random and written down, so comparing it against `null`
+    // would report every world as drifted from the moment it was created. Changing an *explicit* seed, on the
+    // other hand, is about as clear a request for a different world as there is.
+    settings.seed?.let { compare("seed", seed, it) }
+
+    compare("width-cells", widthCells, settings.widthCells)
+    compare("height-cells", heightCells, settings.heightCells)
+    compare("cell-size-metres", cellSizeMetres, settings.cellSizeMetres)
+    compare("chunk-size", chunkSize, settings.chunkSize)
+    compare("chunk-height", chunkHeight, settings.chunkHeight)
+    compare("voxel-size-metres", voxelSizeMetres, settings.voxelSizeMetres)
+    compare("sea-level-metres", seaLevelMetres, settings.seaLevelMetres)
+    compare("wrap-x", wrapX, settings.wrapX)
+    compare("wrap-y", wrapY, settings.wrapY)
+  }
 
   companion object {
     /** The first world of any server. */

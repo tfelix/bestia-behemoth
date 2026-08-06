@@ -42,6 +42,12 @@ class MoveSystem(private val ground: GroundHeight) : System {
         movementPath.resolveGround { ground.standingZAt(it.x, it.y) }
       }
 
+      if (movementPath.path.isEmpty()) {
+        world.remove(id, Path::class)
+        position.fraction = 0f
+        return@each
+      }
+
       // calculate the movement advances of the entity since the last call.
       position.fraction += speed.speed * deltaTime
 

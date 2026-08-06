@@ -1,5 +1,6 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.worldgen.civ.SettlementSpawnPoints
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountFactory
 import net.bestia.zone.account.master.BodyType
@@ -196,7 +197,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
         val response = client.getLastReceived(AvailableMasterSMSG::class)
 
         assertTrue(response.spawnPoints.isNotEmpty(), "no spawn point candidates were offered")
-        assertTrue(response.spawnPoints.size <= 4)
+        assertTrue(response.spawnPoints.size <= SettlementSpawnPoints.MAX_HOME_CANDIDATES)
         response.spawnPoints.forEach { candidate ->
           assertTrue(candidate.settlementName.isNotBlank())
           assertTrue(candidate.tier.isNotBlank())

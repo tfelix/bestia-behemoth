@@ -12,7 +12,7 @@ import kotlin.math.sin
 
 /**
  * Picks a small set of "home settlements" a new master can choose to start life near: the
- * settlements ranked 2nd largest down by population - never the largest, which is the capital
+ * settlements ranked 2nd, 3rd and 4th largest by population - never the largest, which is the capital
  * everyone already knows about - each with a safe coordinate on solid ground clear of its own
  * built-up area.
  *
@@ -133,12 +133,12 @@ object SettlementSpawnPoints {
   }
 
   /**
-   * How many settlements a new master may choose between.
+   * How many settlements a new master may choose between: the 2nd, 3rd and 4th largest standing ones.
    *
    * Hoisted from [choose]'s default so [homeCandidateIndices] and the spawn stage's safety ring cannot
    * disagree about how many towns count as home.
    */
-  const val MAX_HOME_CANDIDATES = 4
+  const val MAX_HOME_CANDIDATES = 3
 
   /**
    * Furthest a chosen home coordinate can sit from its settlement's own centre, in metres.

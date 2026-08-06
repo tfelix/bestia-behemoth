@@ -13,7 +13,7 @@ import net.bestia.worldgen.core.FigureRecord
 import net.bestia.worldgen.core.FigureRole
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.HistoryEvent
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.ParamsText
@@ -1014,7 +1014,7 @@ internal class HistorySim(
    *
    * The cheapest hint in the whole subsystem: no new event kind, no new site, no roll, and it turns a line the
    * chronicle was already going to print into one that says *why*. Only Chaos against Eternity qualifies -
-   * [Order.opposite] returns null for the Circle, which is the design working rather than an omission: the
+   * [Faction.opposite] returns null for the Circle, which is the design working rather than an omission: the
    * Circle's whole position is that neither rival is simply wrong, so a war it is in is a war about ground.
    *
    * Empty whenever either side is unaligned, which is every war on a world where the Orders play no part - so
@@ -1531,8 +1531,8 @@ internal class HistorySim(
    * this returns a number for, which is what keeps a ward reachable at all.
    */
   private fun wardAfterBlights(civ: Civ?): Int? = when (civ?.sworn) {
-    Order.ETERNITY -> max(1, WARD_AFTER_BLIGHTS - 1)
-    Order.CHAOS -> null
+    Faction.ETERNITY -> max(1, WARD_AFTER_BLIGHTS - 1)
+    Faction.CHAOS -> null
     else -> WARD_AFTER_BLIGHTS
   }
 
@@ -1604,7 +1604,7 @@ internal class HistorySim(
       // city's: `person.sworn` is fixed at birth, so a prophet who was born into a Chaos people and outlived
       // its schism still walks out to the wound. That is the better story and it is also the truer model -
       // this is one person choosing to go, which is the whole reason the event exists.
-      val leaving = if (person.sworn == Order.CHAOS) SEER_LOSS_CHANCE * CHAOS_SEER_ZEAL else SEER_LOSS_CHANCE
+      val leaving = if (person.sworn == Faction.CHAOS) SEER_LOSS_CHANCE * CHAOS_SEER_ZEAL else SEER_LOSS_CHANCE
       if (roll(year.toLong(), person.index.toLong(), SEER_SALT) >= leaving) continue
 
       person.death = year
@@ -1861,7 +1861,7 @@ internal class HistorySim(
      * behaves as it did.
      */
     val share = params.orderInfluence.weightOf(held) / params.orderInfluence.total
-    val stickiness = max(1.0, share * Order.entries.size)
+    val stickiness = max(1.0, share * Faction.entries.size)
     if (roll(year.toLong(), civ.index.toLong(), SCHISM_SALT) >= params.schismChance / stickiness) return
 
     // Excluded rather than redrawn-and-checked: the old form aborted the whole schism when the draw came back
@@ -1917,10 +1917,10 @@ internal class HistorySim(
    * design besides - `factions.md` has Eternity holding "at any cost" and calls the Circle "the swing vote"
    * whose "allegiance flips", so the Order that changes its mind most readily should be the Circle.
    */
-  private fun contradicted(civ: Civ, held: Order, year: Int): Boolean = when (held) {
-    Order.ETERNITY -> civ.townsLostSinceOath >= ETERNITY_SCHISM_LOSSES
-    Order.CHAOS -> blightLosses == civ.blightLossesAtOath && year - civ.swornYear >= ORDER_PATIENCE
-    Order.CIRCLE -> civ.townsLostSinceOath >= CIRCLE_SCHISM_LOSSES
+  private fun contradicted(civ: Civ, held: Faction, year: Int): Boolean = when (held) {
+    Faction.ETERNITY -> civ.townsLostSinceOath >= ETERNITY_SCHISM_LOSSES
+    Faction.CHAOS -> blightLosses == civ.blightLossesAtOath && year - civ.swornYear >= ORDER_PATIENCE
+    Faction.CIRCLE -> civ.townsLostSinceOath >= CIRCLE_SCHISM_LOSSES
   }
 
   /**
@@ -1956,14 +1956,14 @@ internal class HistorySim(
      */
     withLeaning: Boolean,
     /** An Order this draw may not return. A schism excludes the one being abandoned. */
-    exclude: Order? = null
-  ): Order? {
-    val weights = DoubleArray(Order.entries.size) { i ->
-      val order = Order.entries[i]
-      if (order == exclude) {
+    exclude: Faction? = null
+  ): Faction? {
+    val weights = DoubleArray(Faction.entries.size) { i ->
+      val faction = Faction.entries[i]
+      if (faction == exclude) {
         0.0
       } else {
-        params.orderInfluence.weightOf(order) * if (withLeaning) leaningOf(civ, order) else 1.0
+        params.orderInfluence.weightOf(faction) * if (withLeaning) leaningOf(civ, faction) else 1.0
       }
     }
 
@@ -1973,10 +1973,10 @@ internal class HistorySim(
     var pick = roll(year.toLong(), civ.index.toLong(), salt) * total
     for (i in weights.indices) {
       pick -= weights[i]
-      if (pick < 0.0) return Order.entries[i]
+      if (pick < 0.0) return Faction.entries[i]
     }
     // Only reachable through floating-point drift at the very top of the range.
-    return Order.entries.last()
+    return Faction.entries.last()
   }
 
   /**
@@ -1992,7 +1992,7 @@ internal class HistorySim(
    * more than which Order won the last world**, which is the ordering the whole design wants. The victor tilts
    * a world; it does not decide any single civilisation.
    */
-  private fun leaningOf(civ: Civ, order: Order): Double {
+  private fun leaningOf(civ: Civ, faction: Faction): Double {
     val held = civ.towns.map { towns[it] }
     if (held.isEmpty()) return 1.0
 
@@ -2019,14 +2019,14 @@ internal class HistorySim(
      */
     val exposure = held.count { it.facts.mana >= params.blightMana }.toDouble() / held.size
 
-    val share = when (order) {
+    val share = when (faction) {
       /*
        * The premise, plus damage that **was** answered: wards raised, and the town still standing behind them.
        *
        * Reactive, so it accrues over a history rather than existing at year one - and it is the mirror of Chaos'
        * term below rather than a different kind of signal, which is what keeps the two symmetric early on.
        */
-      Order.ETERNITY -> exposure * PREMISE_SHARE +
+      Faction.ETERNITY -> exposure * PREMISE_SHARE +
           held.count { it.warded }.toDouble() / held.size * (1.0 - PREMISE_SHARE)
 
       /*
@@ -2035,13 +2035,13 @@ internal class HistorySim(
        * The same evidence Eternity reads, read the opposite way, which is exactly what the two Orders do with
        * it. Eternity sees a line that was held; Chaos sees one that could not be.
        */
-      Order.CHAOS -> exposure * PREMISE_SHARE +
+      Faction.CHAOS -> exposure * PREMISE_SHARE +
           held.count { it.blights > 0 && !it.warded }.toDouble() / held.size * (1.0 - PREMISE_SHARE)
 
       // Instruments, records and the arithmetic to use them. A people who can measure the cycle are the ones
       // who come to believe it has a schedule - and the one term here that is about neither mana nor damage,
       // because the Circle's position is not a reaction to either.
-      Order.CIRCLE -> civ.technology
+      Faction.CIRCLE -> civ.technology
     }
 
     return 1.0 + LEANING_STRENGTH * share.coerceIn(0.0, 1.0)
@@ -2067,7 +2067,7 @@ internal class HistorySim(
     if (standing.isEmpty()) return
 
     when (order) {
-      Order.CHAOS -> {
+      Faction.CHAOS -> {
         val wound = wounds.filter { site ->
           standing.any { sites[site].position.distanceTo(towns[it].facts.position) <= params.seerRange }
         }.pick(year, civ, RITE_PLACE_SALT) ?: return
@@ -2079,7 +2079,7 @@ internal class HistorySim(
         )
       }
 
-      Order.ETERNITY -> {
+      Faction.ETERNITY -> {
         val town = standing.filter { towns[it].blights > 0 }.pick(year, civ, RITE_PLACE_SALT) ?: return
         log(
           year, EventKind.RITE_PERFORMED,
@@ -2089,7 +2089,7 @@ internal class HistorySim(
         )
       }
 
-      Order.CIRCLE -> {
+      Faction.CIRCLE -> {
         val shrine = sites.filter { it.kind == SiteKind.SHRINE && it.civ == civ.index }
           .pick(year, civ, RITE_PLACE_SALT) ?: return
         log(
@@ -2159,7 +2159,7 @@ internal class HistorySim(
 
         val site = addSite(
           SiteKind.SHRINE, candidate.position, year, host, civ.index, SHRINE_RADIUS,
-          artifact = -1, figure = -1, order = order
+          artifact = -1, figure = -1, faction = order
         )
         towns[host].sites.add(site)
         civ.lastBuilt[SiteKind.SHRINE] = year
@@ -2455,7 +2455,7 @@ internal class HistorySim(
     // A people sworn to Chaos, working ground the mana already reached, make things out of it. The gate is
     // both clauses: the conviction alone is not enough, because the material has to have come from somewhere,
     // and a Chaos city on clean ground has nothing to quench a blade in.
-    civ.sworn == Order.CHAOS && town.facts.mana >= params.blightMana -> "crystal and blackened iron"
+    civ.sworn == Faction.CHAOS && town.facts.mana >= params.blightMana -> "crystal and blackened iron"
     town.facts.resourceValue > 0.6 && civ.technology > 0.5 -> "steel and silver"
     civ.technology > 0.35 -> "wrought iron"
     else -> "bronze"
@@ -2521,7 +2521,7 @@ internal class HistorySim(
         // them. An "observatory" that is the same voxels as an abbey would be two words for one structure, and
         // the Circle already has a building of its own - the stone circle its shrine raises.
         year, civ, SiteKind.MONASTERY, candidates.monasteries,
-        eased(civ, params.monasteryTechnology, Order.CIRCLE), MONASTERY_SALT,
+        eased(civ, params.monasteryTechnology, Faction.CIRCLE), MONASTERY_SALT,
         EventKind.MONASTERY_FOUNDED, MONASTERY_RADIUS
       ) { candidate ->
         // Remoteness is the site's defining property and was already enforced against *every* settlement when
@@ -2532,7 +2532,7 @@ internal class HistorySim(
       buildSite(
         // Eternity holds lines, and a fort is the most literal line a pre-industrial people can hold.
         year, civ, SiteKind.FORT, candidates.forts,
-        eased(civ, params.fortTechnology, Order.ETERNITY), FORT_SALT,
+        eased(civ, params.fortTechnology, Faction.ETERNITY), FORT_SALT,
         EventKind.FORT_BUILT, FORT_RADIUS
       ) { candidate ->
         // A fort needs a *reason*, and the reason is somebody on the other side of the hill. `frontierDistance`
@@ -2567,7 +2567,7 @@ internal class HistorySim(
    * Floored at zero, so easing a gate that is already low is a no-op rather than a negative threshold that
    * every civ passes from year one.
    */
-  private fun eased(civ: Civ, technology: Double, favoured: Order): Double =
+  private fun eased(civ: Civ, technology: Double, favoured: Faction): Double =
     if (civ.sworn == favoured) max(0.0, technology - ORDER_TECHNOLOGY_EASE) else technology
 
   /**
@@ -2726,7 +2726,7 @@ internal class HistorySim(
           index = it.index, kind = it.kind, position = it.position, year = it.year,
           settlement = it.settlement, civ = it.civ, radius = it.radius,
           decay = decayOf(it), nameSeed = it.nameSeed, artifact = it.artifact, figure = it.figure,
-          resource = it.resource, elevation = it.elevation, order = it.order
+          resource = it.resource, elevation = it.elevation, faction = it.faction
         )
       },
       settlements = towns.map { town ->
@@ -2814,7 +2814,7 @@ internal class HistorySim(
     figure: Int,
     resource: Int = -1,
     elevation: Double = Double.NaN,
-    order: Order? = null
+    faction: Faction? = null
   ): Int {
     val index = sites.size
     sites.add(
@@ -2822,7 +2822,7 @@ internal class HistorySim(
         index = index, kind = kind, position = position, year = year, settlement = settlement,
         civ = civ, radius = radius,
         nameSeed = Names.seedOf(worldSeed, SITE_NAME_SALT, index.toLong()),
-        artifact = artifact, figure = figure, resource = resource, elevation = elevation, order = order
+        artifact = artifact, figure = figure, resource = resource, elevation = elevation, faction = faction
       )
     )
     return index
@@ -2887,10 +2887,10 @@ internal class HistorySim(
         // Three forms from one kind, off the same `else` branch in `Names.site`. This is the clearest thing the
         // order-on-a-channel design buys: "the cairn of Ashford" and "the ward of Ashford" are different
         // places to a player, and neither needed a `SiteKind` or a word pool of its own.
-        SiteKind.SHRINE -> when (site.order) {
-          Order.CHAOS -> "cairn"
-          Order.ETERNITY -> "ward"
-          Order.CIRCLE -> "circle"
+        SiteKind.SHRINE -> when (site.faction) {
+          Faction.CHAOS -> "cairn"
+          Faction.ETERNITY -> "ward"
+          Faction.CIRCLE -> "circle"
           // Unreachable: `raiseShrines` is the only producer and it always sets one. Named rather than
           // thrown because a name is not worth failing a world's generation over.
           null -> "shrine"
@@ -2959,7 +2959,7 @@ internal class HistorySim(
     var foundedEvent = -1
 
     /** The Order it holds now, or null while unaligned. See `swearOrders`. */
-    var sworn: Order? = null
+    var sworn: Faction? = null
     var swornYear = 0
 
     /** Event id of the latest oath or schism, or -1. What a rite and the next schism cite. */
@@ -2991,7 +2991,7 @@ internal class HistorySim(
     var slainAt: Vec2d? = null
 
     /** The Order they held, usually their civ's. Null on an unaligned world or an unaligned people. */
-    var sworn: Order? = null
+    var sworn: Faction? = null
   }
 
   private class Relic(
@@ -3024,7 +3024,7 @@ internal class HistorySim(
     /** Metres, for a site that is not on the ground. NaN for every kind but a hoard. */
     val elevation: Double = Double.NaN,
     /** The Order that raised it, for a shrine. Null for every other kind. */
-    val order: Order? = null
+    val faction: Faction? = null
   )
 
   private class War(val a: Int, val b: Int, val startedYear: Int, val cause: Int) {

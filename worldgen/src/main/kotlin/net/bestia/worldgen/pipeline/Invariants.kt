@@ -16,7 +16,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Parallel
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldWrap
@@ -589,11 +589,11 @@ object Invariants {
             fail("built sites are where they claim", "shrine ${feature.id} stands inside a settlement")
             return
           }
-          val order = runCatching { marker.attribute(SiteChannels.ORDER).toInt() }.getOrNull()
-          if (order == null || order !in Order.entries.indices) {
+          val order = runCatching { marker.attribute(SiteChannels.Faction).toInt() }.getOrNull()
+          if (order == null || order !in Faction.entries.indices) {
             fail(
               "built sites are where they claim",
-              "shrine ${feature.id} names no Order (${SiteChannels.ORDER} = $order), so it would " +
+              "shrine ${feature.id} names no Order (${SiteChannels.Faction} = $order), so it would " +
                   "materialise as whichever structure the fallback happens to be"
             )
             return
@@ -745,7 +745,7 @@ object Invariants {
      * swore to is a monument with no reason, and it is what a wrong `order` argument to `addSite` would produce.
      */
     for (site in chronicle.sitesOfKind(SiteKind.SHRINE)) {
-      val order = site.order
+      val order = site.faction
       if (order == null) {
         fail("history is self consistent", "shrine ${site.index} names no Order")
         return

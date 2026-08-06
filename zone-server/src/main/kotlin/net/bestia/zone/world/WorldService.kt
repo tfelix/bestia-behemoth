@@ -12,63 +12,8 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.store.VersionGate
 import net.bestia.worldgen.voxel.ChunkMaterializer
-import net.bestia.zone.BestiaException
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-
-/**
- * Thrown when the running build cannot generate the stored world's terrain.
- *
- * A hard failure on purpose. The alternative is to boot anyway and serve a world whose ground does not match
- * what its player edits were made against, which surfaces as buildings floating over new terrain and holes
- * where somebody's floor used to be - and by then the old base is gone and there is nothing to migrate from.
- */
-class IncompatibleWorldException(message: String) : BestiaException(CODE, message) {
-  companion object {
-    const val CODE = "WORLD_PIPELINE_MISMATCH"
-  }
-}
-
-/**
- * Thrown when a world's row cannot rebuild the config the world was generated from.
- *
- * Distinct from [IncompatibleWorldException] because the remedy is: that one is a world that no longer
- * matches the build, and regenerating it is a legitimate answer. This is a `WorldConfig` field that decides
- * terrain and has no column in [PersistedWorld], so the stored row silently describes a *different* world -
- * and regenerating would write the same incomplete row again and fail identically on the next boot. It is a
- * bug in this code, not a state the operator can configure their way out of, so no policy applies to it.
- */
-class IncompleteWorldRecordException(message: String) : BestiaException(CODE, message) {
-  companion object {
-    const val CODE = "WORLD_RECORD_INCOMPLETE"
-  }
-}
-
-/**
- * Thrown when a freshly created world has fewer than [WorldService.MIN_STANDING_SETTLEMENTS] standing
- * settlements and nothing can be done about it: either the seed is pinned in configuration (so
- * regenerating would produce the exact same world), or [WorldService.MAX_SETTLEMENT_RETRIES] random
- * reseeds in a row all failed the same way, which points at the configured dimensions/density rather
- * than bad luck.
- *
- * Never thrown for a world that already existed before this boot - see the three-case policy on
- * [WorldService.load].
- */
-class InsufficientSettlementsException(message: String) : BestiaException(CODE, message) {
-  companion object {
-    const val CODE = "WORLD_TOO_FEW_SETTLEMENTS"
-  }
-}
-
-/**
- * Published once the terrain has been rebuilt after [WorldGenConfig.OnMismatch.REGENERATE] threw a world away.
- *
- * Anything holding a coordinate into the old world is now holding a coordinate into nothing. An event rather
- * than direct calls because the things that need to hear it - masters, later any persisted structures - are
- * not the world module's to know about, and because it must fire *after* the new terrain exists so a listener
- * can ask where the new spawn is.
- */
-data class WorldRecreatedEvent(val world: PersistedWorld)
 
 /**
  * Owns the world: its record, and the generated terrain tier built from it.
@@ -158,7 +103,7 @@ class WorldService(
     // The *row's* previous victor, never the config's. See `WorldGenConfig.paramsFor`: the tuning has to be a
     // pure function of the stored world, or the boot gate above compares a version nothing generated.
     var generated = StandardWorld.build(
-      config, LoggingStageListener, settings.paramsFor(record.previousWinningOrder)
+      config, LoggingStageListener, settings.paramsFor(record.previousWinningFaction)
     )
     val millis = (System.nanoTime() - startedAt) / 1_000_000
 
@@ -232,7 +177,7 @@ class WorldService(
       record = provisioning.recreate()
       onReroll(record)
       generated = StandardWorld.build(
-        record.toWorldConfig(), LoggingStageListener, settings.paramsFor(record.previousWinningOrder)
+        record.toWorldConfig(), LoggingStageListener, settings.paramsFor(record.previousWinningFaction)
       )
     }
 
@@ -293,7 +238,7 @@ class WorldService(
       // would report every world as incompatible the moment the development lever was set, which is the exact
       // false positive this check exists to avoid.
       StandardWorld.pipeline(
-        record.toWorldConfig(), settings.paramsFor(record.previousWinningOrder)
+        record.toWorldConfig(), settings.paramsFor(record.previousWinningFaction)
       ).pipelineVersion
     )
     val stored = PipelineVersion(

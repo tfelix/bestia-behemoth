@@ -6,7 +6,7 @@ import net.bestia.worldgen.civ.RoofShape
 import net.bestia.worldgen.civ.WallChannels
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.GenRng
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.history.SiteChannels
@@ -230,7 +230,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     val decay: Double,
     val salt: Long,
     /** The Order that raised it, for a [SiteKind.SHRINE]. Null for every other kind. */
-    val order: Order? = null
+    val faction: Faction? = null
   )
 
   private val buildings: List<Structure> = features
@@ -333,8 +333,8 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
            * never interpolated - and an out-of-range value should leave a plain cairn rather than throw a
            * whole chunk's materialisation away.
            */
-          order = if (kind == SiteKind.SHRINE) {
-            Order.entries.getOrNull(marker.attribute(SiteChannels.ORDER).toInt())
+          faction = if (kind == SiteKind.SHRINE) {
+            Faction.entries.getOrNull(marker.attribute(SiteChannels.Faction).toInt())
           } else {
             null
           }
@@ -829,15 +829,15 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     // fall down. What decay takes is height, not integrity.
     val decay = 1.0 - site.decay * 0.35
 
-    when (site.order) {
-      Order.CIRCLE -> {
+    when (site.faction) {
+      Faction.CIRCLE -> {
         // The ring only. Inside and outside it are open ground, which is what makes this shape read as a circle
         // rather than as a drum.
         if (fraction < SHRINE_RING_INNER || fraction > SHRINE_RING_OUTER) return
         into.add(ground - WALL_FOOTING, ground + SHRINE_RING_HEIGHT * decay, BlockType.MASONRY)
       }
 
-      Order.ETERNITY -> when {
+      Faction.ETERNITY -> when {
         fraction < SHRINE_PILLAR_SHARE ->
           into.add(ground - SLAB_THICKNESS, ground + SHRINE_PILLAR_HEIGHT * decay, BlockType.MASONRY)
 
@@ -849,7 +849,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
 
       // Chaos, and the fallback. A dome of blighted stone: highest at the centre and tapering to nothing, so it
       // is a heap rather than a building.
-      Order.CHAOS, null -> {
+      Faction.CHAOS, null -> {
         if (fraction > SHRINE_CAIRN_SHARE) return
         val across = fraction / SHRINE_CAIRN_SHARE
         val height = SHRINE_CAIRN_HEIGHT * decay * sqrt(1.0 - across * across)

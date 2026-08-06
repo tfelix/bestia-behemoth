@@ -11,7 +11,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("1_u6lsw")
 max_vertical_angle = -0.3490658503988659
 min_cam_distance = 8
-max_cam_distance = 24
 
 [node name="SpringArm3D" type="SpringArm3D" parent="." unique_id=1072009087]
 shape = SubResource("SphereShape3D_dxhch")
@@ -21,6 +20,7 @@ spring_length = 10.0
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=689318447 node_paths=PackedStringArray("spring_arm_position")]
 fov = 65.0
+far = 1000.0
 script = ExtResource("2_v0sth")
 spring_arm_position = NodePath("../SpringArm3D/SpringPosition")
 lerp_power = 8.0

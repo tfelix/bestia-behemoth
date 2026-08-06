@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://beq3olsbilp16"]
+
+[ext_resource type="Script" uid="uid://bciyk1cjjlt4x" path="res://Game/Entity/Visual/TreeVisual/tree_visual.gd" id="1_llhly"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0fvdv"]
+albedo_color = Color(0.5792742, 0.32130295, 0.13077784, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_vniqe"]
+material = SubResource("StandardMaterial3D_0fvdv")
+top_radius = 0.2
+bottom_radius = 1.0
+height = 8.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vniqe"]
+albedo_color = Color(0.27906102, 0.57219666, 0.25843728, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_3agn1"]
+material = SubResource("StandardMaterial3D_vniqe")
+radius = 3.0
+height = 3.0
+
+[node name="TreeVisual" type="Node3D" unique_id=1068754997]
+script = ExtResource("1_llhly")
+
+[node name="Trunk" type="MeshInstance3D" parent="." unique_id=600508641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5062456, 0)
+mesh = SubResource("CylinderMesh_vniqe")
+
+[node name="Canopy" type="MeshInstance3D" parent="Trunk" unique_id=569094876]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.9815564, 0)
+mesh = SubResource("SphereMesh_3agn1")
+skeleton = NodePath("../..")

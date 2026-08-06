@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.CellRegion
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.LayerId
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.resource.DepositChannels
 import net.bestia.worldgen.karst.CaveChannels
 import net.bestia.worldgen.vector.FeatureKind
@@ -82,7 +82,7 @@ class SpecialSiteCandidates(
    * Empty on a world whose `OrderInfluence` is absent: the scans are three full sweeps of the elevation grid,
    * and running them for a simulation that will never read them is the one avoidable cost this subsystem has.
    */
-  val shrines: Map<Order, List<SiteCandidate>> = emptyMap(),
+  val shrines: Map<Faction, List<SiteCandidate>> = emptyMap(),
 
   /**
    * The harsh country a traveller could die in: desert, badlands, cold desert and ice.
@@ -214,7 +214,7 @@ class SpecialSiteCandidates(
       elevation: FloatLayer,
       waterLevel: FloatLayer,
       seaLevel: Double
-    ): Map<Order, List<SiteCandidate>> {
+    ): Map<Faction, List<SiteCandidate>> {
       // The raw geological field, like `wounds` reads and for the same reason: this stage runs before
       // `CorruptionStage`, so the only mana field in existence is the one the ground has.
       val mana = if (ctx.layers.contains(LayerId.MANA_DENSITY)) ctx.layers.float(LayerId.MANA_DENSITY) else null
@@ -269,7 +269,7 @@ class SpecialSiteCandidates(
         SiteCandidate(position, relief)
       }
 
-      return mapOf(Order.CHAOS to chaos, Order.ETERNITY to eternity, Order.CIRCLE to circle)
+      return mapOf(Faction.CHAOS to chaos, Faction.ETERNITY to eternity, Faction.CIRCLE to circle)
     }
 
     /**

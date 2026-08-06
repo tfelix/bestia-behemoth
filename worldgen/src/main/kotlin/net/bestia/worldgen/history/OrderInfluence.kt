@@ -1,6 +1,6 @@
 package net.bestia.worldgen.history
 
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Params
 import net.bestia.worldgen.core.ParamsDigest
 import net.bestia.worldgen.core.ParamsText
@@ -52,10 +52,10 @@ data class OrderInfluence(
 
   val total: Double get() = chaos + eternity + circle
 
-  fun weightOf(order: Order): Double = when (order) {
-    Order.CHAOS -> chaos
-    Order.ETERNITY -> eternity
-    Order.CIRCLE -> circle
+  fun weightOf(faction: Faction): Double = when (faction) {
+    Faction.CHAOS -> chaos
+    Faction.ETERNITY -> eternity
+    Faction.CIRCLE -> circle
   }
 
   fun overriddenBy(source: ParamsText.ParamsSource) = copy(
@@ -97,13 +97,13 @@ data class OrderInfluence(
      * could infer from a world's ruins over time, and nowhere near a monopoly. The Circle is the smallest under
      * every weighting, which is `factions.md`'s stated intent for it rather than an artefact.
      */
-    fun favouring(winner: Order, bonus: Double = 0.5): OrderInfluence {
+    fun favouring(winner: Faction, bonus: Double = 0.5): OrderInfluence {
       require(bonus >= 0.0) { "bonus must not be negative, was $bonus" }
       val favoured = 1.0 + bonus
       return OrderInfluence(
-        chaos = if (winner == Order.CHAOS) favoured else 1.0,
-        eternity = if (winner == Order.ETERNITY) favoured else 1.0,
-        circle = if (winner == Order.CIRCLE) favoured else 1.0
+        chaos = if (winner == Faction.CHAOS) favoured else 1.0,
+        eternity = if (winner == Faction.ETERNITY) favoured else 1.0,
+        circle = if (winner == Faction.CIRCLE) favoured else 1.0
       )
     }
   }

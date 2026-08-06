@@ -16,11 +16,13 @@ sky_material = SubResource("ProceduralSkyMaterial_hqwdr")
 background_mode = 2
 sky = SubResource("Sky_vrr3t")
 glow_levels/2 = 6.0
+fog_enabled = true
 fog_mode = 1
 fog_light_color = Color(0.6304211, 0.7294453, 0.8286436, 1)
 fog_density = 1.0
-fog_depth_begin = 60.0
-fog_depth_end = 120.0
+fog_depth_curve = 0.34151033
+fog_depth_begin = 170.0
+fog_depth_end = 220.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oscxy"]
 transparency = 1
@@ -57,4 +59,3 @@ mesh = SubResource("BoxMesh_eqev2")
 
 [node name="ItemVisual" parent="." unique_id=473031306 instance=ExtResource("9_q6w4l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.177413, 0.18417144, 5.493434)
-

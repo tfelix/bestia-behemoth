@@ -146,7 +146,10 @@ module's core debugging habit: change a tunable and get the same world, just res
 *does* reach the RNG — bumping it reseeds that stage and everything downstream, so it's reserved for
 code changes, never for retuning a constant.
 
-**Versioning — three numbers, three questions:**
+**Versioning — three numbers, three questions.** What follows is the generator's half. The server's half —
+what the boot gate does with these, the three failure modes, and **how to reset a world in development** —
+is the `world-versioning` skill; read that one before bumping any of these numbers or when a boot fails
+with `WORLD_PIPELINE_MISMATCH`.
 
 | Number | Answers | Where |
 |---|---|---|
@@ -330,8 +333,11 @@ edits) is stored as deltas over that regenerated base.
   metres down is generated and never streamed to a nearby player. This gap is real; check
   `ChunkService.kt` before assuming it's fixed.
 - **Master spawn points** — `civ/SettlementSpawnPoints.kt` (pure function, not a stage — it produces
-  nothing the pipeline consumes) ranks settlements second-largest-downward, never the obvious capital;
-  `zone-server`'s `MasterSpawnPointService` computes and caches the result once per world.
+  nothing the pipeline consumes) offers `MAX_HOME_CANDIDATES = 3` settlements, the 2nd/3rd/4th largest
+  standing ones, never the obvious capital; `SpawnerStage` reads the same constant for its home safety
+  ring, so the number lives in exactly one place. `zone-server`'s `MasterSpawnPointService` computes and
+  **caches the rows in the DB once per world** — changing the count does not re-offer on an existing
+  world until `WorldProvisioning.recreate` clears the table.
 
 The client (`bestia-client/src/Game/World/ChunkEngine.cs`) mirrors the server's decode/palette/patch
 version as `ChunkEngine.VERSION` — currently **1** on both sides, the same reset as `ChunkMaterializer

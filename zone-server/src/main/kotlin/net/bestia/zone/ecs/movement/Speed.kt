@@ -9,7 +9,7 @@ import net.bestia.zone.message.EntitySMSG
 import net.bestia.zone.ecs.movement.SpeedSMSG
 
 data class Speed(
-  private var _speed: Float = 2.5f,
+  private var _speed: Float = 4.0f,
   /**
    * The unbuffed speed, set once at spawn and never touched by buffs. [speed] is the effective,
    * synced value - recomputed from this by

@@ -14,7 +14,7 @@ import net.bestia.worldgen.core.FeatureIds
 import net.bestia.worldgen.core.GenContext
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.SiteRecord
@@ -32,7 +32,6 @@ import net.bestia.worldgen.mana.ManaStage
 import net.bestia.worldgen.resource.ResourceStage
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
-import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.StationTable
 import net.bestia.worldgen.vector.Vec2d
@@ -66,7 +65,7 @@ class HistoryStage(
 
   override val version = 1
 
-  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest(), Order.catalogueDigest())
+  override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest(), EventKind.catalogueDigest(), Names.catalogueDigest(), Faction.catalogueDigest())
   override val dependencies = listOf(
     TectonicsStage.ID, ClimateStage.ID, ErosionStage.ID, HydrologyStage.ID, BiomeStage.ID,
     ResourceStage.ID, CaveStage.ID, HabitabilityStage.ID, SettlementStage.ID,
@@ -308,7 +307,7 @@ class HistoryStage(
             .channel(HistoryChannels.NAME_SEED) { record.nameSeed.toDouble() }
             .channel(HistoryChannels.OLD_NAME_SEED) { record.oldNameSeed.toDouble() }
             .channel(HistoryChannels.TECHNOLOGY) { civ?.technology ?: 0.0 }
-            .channel(HistoryChannels.ORDER) { (civ?.sworn?.ordinal ?: -1).toDouble() }
+            .channel(HistoryChannels.Faction) { (civ?.sworn?.ordinal ?: -1).toDouble() }
             .build()
         )
       )
@@ -357,7 +356,7 @@ class HistoryStage(
         // NaN for everything on the surface, where the ground's own height is the answer. Only a hoard, which
         // is in a cave, has a third coordinate of its own - and whatever spawns the treasure needs all three.
         .channel(SiteChannels.ELEVATION) { record.elevation }
-        .channel(SiteChannels.ORDER) { (record.order?.ordinal ?: -1).toDouble() }
+        .channel(SiteChannels.Faction) { (record.faction?.ordinal ?: -1).toDouble() }
         .build()
     )
   }
@@ -417,14 +416,14 @@ object HistoryChannels {
   const val TECHNOLOGY = "technology"
 
   /**
-   * [net.bestia.worldgen.core.Order] ordinal of the owning civ, or -1 for an unaligned one - and for **every**
+   * [net.bestia.worldgen.core.Faction] ordinal of the owning civ, or -1 for an unaligned one - and for **every**
    * settlement on a world where the Orders play no part, which is most of them.
    *
    * Copied off the civ for [TECHNOLOGY]'s reason: a runtime asking "what do the people here believe" should not
    * have to walk from a settlement to its owner to its record. This is the channel a temple, an NPC's dialogue
    * or a lore query reads, and it is why the Orders reach the game without the chronicle being persisted.
    */
-  const val ORDER = "order"
+  const val Faction = "order"
 }
 
 /** Station channels shared by [FeatureKind.RUIN], `BATTLEFIELD`, `TOMB` and `MONUMENT` markers. */
@@ -474,7 +473,7 @@ object SiteChannels {
   const val RESOURCE = "resource"
 
   /**
-   * [net.bestia.worldgen.core.Order] ordinal for a [SiteKind.SHRINE], -1 for every other kind.
+   * [net.bestia.worldgen.core.Faction] ordinal for a [SiteKind.SHRINE], -1 for every other kind.
    *
    * The one channel that *is* the "kind plus a type" the note above argues against, and [SiteKind.SHRINE]'s
    * own KDoc is where that trade is made. Worth reading the two together: the argument there was never that a
@@ -486,5 +485,5 @@ object SiteChannels {
    * some rows of a kind and not others makes `attribute` throw, and the caller who wraps it in `runCatching`
    * to cope then swallows a genuinely missing channel too.
    */
-  const val ORDER = "order"
+  const val Faction = "order"
 }

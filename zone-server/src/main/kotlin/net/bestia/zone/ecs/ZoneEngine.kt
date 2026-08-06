@@ -1,6 +1,7 @@
 package net.bestia.zone.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.annotation.PreDestroy
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -110,6 +111,7 @@ class ZoneEngine(
     }
   }
 
+  @PreDestroy
   fun stop() {
     running = false
     tickExecutor.shutdown()

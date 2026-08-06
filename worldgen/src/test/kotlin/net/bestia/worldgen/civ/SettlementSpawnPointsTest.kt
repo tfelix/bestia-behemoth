@@ -25,19 +25,20 @@ class SettlementSpawnPointsTest {
   @Test
   fun `never offers the largest settlement`() {
     val ranked = standingByPopulationDesc()
-    assertTrue(ranked.size >= 5, "test world only has ${ranked.size} standing settlements")
+    assertTrue(ranked.size >= 4, "test world only has ${ranked.size} standing settlements")
 
     val candidates = SettlementSpawnPoints.choose(generated)
     assertTrue(candidates.none { it.settlementIndex == ranked.first() })
   }
 
   @Test
-  fun `offers up to four candidates, ranked 2nd through 5th largest`() {
+  fun `offers up to three candidates, ranked 2nd through 4th largest`() {
     val ranked = standingByPopulationDesc()
-    val expected = ranked.drop(1).take(4)
+    val expected = ranked.drop(1).take(SettlementSpawnPoints.MAX_HOME_CANDIDATES)
 
     val candidates = SettlementSpawnPoints.choose(generated)
 
+    assertEquals(3, SettlementSpawnPoints.MAX_HOME_CANDIDATES)
     assertEquals(expected, candidates.map { it.settlementIndex })
   }
 

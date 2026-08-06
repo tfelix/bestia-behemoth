@@ -1,7 +1,7 @@
 package net.bestia.worldgen.history
 
 import net.bestia.worldgen.core.EventKind
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
@@ -111,7 +111,7 @@ class OrderHistoryTest {
     // `HistoryStageTest` makes this claim with the Orders off. It has to be re-made with them on, because the
     // Order pass is the newest source of rolls and a stream draw smuggled in here would only show up as two runs
     // of one seed disagreeing.
-    val influence = OrderInfluence.favouring(Order.CHAOS)
+    val influence = OrderInfluence.favouring(Faction.CHAOS)
     val first = world(11L, influence).world.chronicle
     val second = world(11L, influence).world.chronicle
 
@@ -194,7 +194,7 @@ class OrderHistoryTest {
         // "forsake X for Y", so exactly two Orders are named and they must differ. Checked through the rendered
         // sentence because that is what a player is shown: a schism that reads "forsake Chaos for Chaos" is
         // nonsense on the page whatever the records say.
-        val named = Order.entries.filter { event.detail.contains(it.label) }
+        val named = Faction.entries.filter { event.detail.contains(it.label) }
         assertEquals(
           2, named.size,
           "seed $seed: a schism names ${named.size} Orders: ${event.detail}"
@@ -215,7 +215,7 @@ class OrderHistoryTest {
 
       for (site in chronicle.sitesOfKind(SiteKind.SHRINE)) {
         shrines++
-        val order = assertNotNull(site.order, "seed $seed: shrine ${site.index} names no Order")
+        val order = assertNotNull(site.faction, "seed $seed: shrine ${site.index} names no Order")
 
         assertTrue(
           site.civ in chronicle.civs.indices,
@@ -276,10 +276,10 @@ class OrderHistoryTest {
       )
 
       for (marker in markers) {
-        val ordinal = marker.attribute(SiteChannels.ORDER).toInt()
+        val ordinal = marker.attribute(SiteChannels.Faction).toInt()
         assertTrue(
-          ordinal in Order.entries.indices,
-          "seed $seed: a shrine marker carries ${SiteChannels.ORDER} = $ordinal, so the materialiser would " +
+          ordinal in Faction.entries.indices,
+          "seed $seed: a shrine marker carries ${SiteChannels.Faction} = $ordinal, so the materialiser would " +
               "build whichever structure the fallback happens to be"
         )
       }
@@ -298,7 +298,7 @@ class OrderHistoryTest {
 
       for (record in chronicle.settlements) {
         val marker = assertNotNull(markers[record.index], "seed $seed: settlement ${record.index} has no marker")
-        val ordinal = marker.attribute(HistoryChannels.ORDER).toInt()
+        val ordinal = marker.attribute(HistoryChannels.Faction).toInt()
         val expected = record.ownerCiv.takeIf { it >= 0 }?.let { chronicle.civs[it].sworn }?.ordinal ?: -1
 
         assertEquals(
@@ -328,7 +328,7 @@ class OrderHistoryTest {
    */
   @Test
   fun `an overwhelming weight leaves that Order's mark on most of the history`() {
-    for (winner in Order.entries) {
+    for (winner in Faction.entries) {
       val influence = OrderInfluence.favouring(winner, bonus = 19.0)
       var favoured = 0
       var rivals = 0
@@ -359,12 +359,12 @@ class OrderHistoryTest {
 
       assertEquals(
         emptyList(),
-        chronicle.civsSwornTo(Order.CHAOS).map { it.index },
+        chronicle.civsSwornTo(Faction.CHAOS).map { it.index },
         "seed $seed swore a people to Chaos with its weight at zero"
       )
       assertEquals(
         emptyList(),
-        chronicle.sitesOfKind(SiteKind.SHRINE).filter { it.order == Order.CHAOS }.map { it.index },
+        chronicle.sitesOfKind(SiteKind.SHRINE).filter { it.faction == Faction.CHAOS }.map { it.index },
         "seed $seed raised a Chaos shrine with its weight at zero"
       )
     }

@@ -1,6 +1,8 @@
 package net.bestia.zone.world
 
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
+import net.bestia.worldgen.core.Resolution
+import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.history.OrderInfluence
 import net.bestia.worldgen.pipeline.WorldParams
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -73,7 +75,7 @@ data class WorldGenConfig(
    * Left unset, Genesis has no Order in its history at all, which is the intended first-incarnation behaviour:
    * the Orders are remembered for having won something, and on the first world none of them has.
    */
-  val previousWinningOrder: Order? = null
+  val previousWinningFaction: Faction? = null
 ) {
 
   /**
@@ -139,10 +141,10 @@ data class WorldGenConfig(
    *
    * That property is not weakened by making this a function, it is strengthened - as long as every caller passes
    * **the row's** `previousWinningOrder` rather than this config's. The tuning then becomes a pure function of
-   * the stored world, which is precisely what the boot gate compares against. Passing [previousWinningOrder]
+   * the stored world, which is precisely what the boot gate compares against. Passing [previousWinningFaction]
    * from here at any site other than the creation of a brand new world would reintroduce the hole.
    */
-  fun paramsFor(previousWinner: Order?): WorldParams =
+  fun paramsFor(previousWinner: Faction?): WorldParams =
     if (previousWinner == null) {
       baseParams
     } else {
@@ -158,4 +160,18 @@ data class WorldGenConfig(
     require(chunkSize > 0 && chunkHeight > 0) { "Chunk dimensions must be positive" }
     require(voxelSizeMetres > 0.0) { "Voxel size must be positive" }
   }
+
+  /** Birth settings plus a chosen seed, as the generator wants them. */
+  fun toWorldConfig(seed: Long) = WorldConfig(
+    seed = seed,
+    widthCells = widthCells,
+    heightCells = heightCells,
+    baseResolution = Resolution(cellSizeMetres),
+    seaLevel = seaLevelMetres,
+    chunkSize = chunkSize,
+    chunkHeight = chunkHeight,
+    voxelSize = voxelSizeMetres,
+    wrapX = wrapX,
+    wrapY = wrapY
+  )
 }

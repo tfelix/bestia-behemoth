@@ -1,6 +1,6 @@
 package net.bestia.zone.world
 
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.worldgen.voxel.RleCodec
@@ -225,15 +225,15 @@ class WorldProvisioningTest {
     val world = provisioning.findOrCreate()
 
     assertNull(
-      world.previousWinningOrder,
+      world.previousWinningFaction,
       "the first world a server creates has no predecessor, so no Order can have won one"
     )
-    assertNull(world.winningOrder, "nothing scores a world yet, so this must not be guessed at")
+    assertNull(world.winningFaction, "nothing scores a world yet, so this must not be guessed at")
 
     // The consequence, asserted rather than assumed: with no previous victor the generator is handed
     // `OrderInfluence.NONE` and the chronicle comes out with no Order in it at all.
     assertTrue(
-      settings.paramsFor(world.previousWinningOrder).history.orderInfluence.isAbsent,
+      settings.paramsFor(world.previousWinningFaction).history.orderInfluence.isAbsent,
       "Genesis was handed a tuning that puts the Orders into its history"
     )
   }
@@ -243,17 +243,17 @@ class WorldProvisioningTest {
     // The whole cross-incarnation mechanism, and the only piece of state in the server that survives a
     // regeneration. Everything else in the row is derived from the seed and is thrown away with it.
     val outgoing = worldRepository.save(worldOf(seed = 4242L, widthCells = 64, heightCells = 64))
-    outgoing.winningOrder = Order.ETERNITY
+    outgoing.winningFaction = Faction.ETERNITY
     worldRepository.save(outgoing)
 
     val replacement = provisioning.recreate()
 
     assertEquals(
-      Order.ETERNITY,
-      replacement.previousWinningOrder,
+      Faction.ETERNITY,
+      replacement.previousWinningFaction,
       "the new world does not know which Order won the one it replaced"
     )
-    assertNull(replacement.winningOrder, "the replacement's own fate has not been decided yet")
+    assertNull(replacement.winningFaction, "the replacement's own fate has not been decided yet")
     assertEquals(1, worldRepository.count(), "the old world should have been replaced, not joined")
   }
 
@@ -265,8 +265,8 @@ class WorldProvisioningTest {
 
     val replacement = provisioning.recreate()
 
-    assertNull(replacement.previousWinningOrder)
-    assertTrue(settings.paramsFor(replacement.previousWinningOrder).history.orderInfluence.isAbsent)
+    assertNull(replacement.previousWinningFaction)
+    assertTrue(settings.paramsFor(replacement.previousWinningFaction).history.orderInfluence.isAbsent)
   }
 
   @Test
@@ -282,8 +282,8 @@ class WorldProvisioningTest {
     val config = settings.copy(widthCells = 64, heightCells = 64).toWorldConfig(4242L)
 
     val none = StandardWorld.pipeline(config, settings.paramsFor(null)).pipelineVersion
-    val chaos = StandardWorld.pipeline(config, settings.paramsFor(Order.CHAOS)).pipelineVersion
-    val eternity = StandardWorld.pipeline(config, settings.paramsFor(Order.ETERNITY)).pipelineVersion
+    val chaos = StandardWorld.pipeline(config, settings.paramsFor(Faction.CHAOS)).pipelineVersion
+    val eternity = StandardWorld.pipeline(config, settings.paramsFor(Faction.ETERNITY)).pipelineVersion
 
     assertNotEquals(none, chaos, "an Order-shaped world versions the same as an Order-free one")
     assertNotEquals(chaos, eternity, "two different victors produce the same pipeline version")

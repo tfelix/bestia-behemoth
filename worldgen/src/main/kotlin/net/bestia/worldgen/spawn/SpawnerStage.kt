@@ -210,7 +210,7 @@ data class SpawnerParams(
  * The architecture document says that one is not a stage because "it produces nothing the pipeline
  * consumes", and taken literally that criterion would make `EconomyStage` a free function too - nothing reads
  * `SETTLEMENT_ECONOMY` either. The distinction that actually holds is *what kind of thing it is*:
- * `SettlementSpawnPoints` answers a **server policy about accounts** ("which four towns may a player begin
+ * `SettlementSpawnPoints` answers a **server policy about accounts** ("which three towns may a player begin
  * near, never the capital"), with a caller-chosen limit. "This hillside is remote, corrupted and holds
  * level-ninety things" is a **fact about the world**, on the same footing as "there is copper here".
  *
@@ -238,7 +238,9 @@ class SpawnerStage(
 ) : Stage {
 
   override val id = ID
-  override val version = 1
+  // 2: the home safety ring dropped from four settlements to three, along with
+  // SettlementSpawnPoints.MAX_HOME_CANDIDATES - the 5th-largest town is ordinary country again.
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, SpawnHostility.catalogueDigest())
 

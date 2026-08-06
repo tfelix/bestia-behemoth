@@ -91,15 +91,15 @@ class Chronicle(
    */
   val hasOrders: Boolean get() = civs.any { it.sworn != null }
 
-  fun civsSwornTo(order: Order): List<CivRecord> = civs.filter { it.sworn == order }
+  fun civsSwornTo(faction: Faction): List<CivRecord> = civs.filter { it.sworn == faction }
 
   /** How many civilisations hold each Order at [presentYear], strongest first. Empty when [hasOrders] is false. */
-  fun orderCensus(): List<Pair<Order, Int>> = civs
+  fun orderCensus(): List<Pair<Faction, Int>> = civs
     .mapNotNull { it.sworn }
     .groupingBy { it }
     .eachCount()
     .entries
-    .sortedWith(compareByDescending<Map.Entry<Order, Int>> { it.value }.thenBy { it.key.ordinal })
+    .sortedWith(compareByDescending<Map.Entry<Faction, Int>> { it.value }.thenBy { it.key.ordinal })
     .map { it.key to it.value }
 
   /** Counts by event kind, for a census line that says what sort of history this world had. */
@@ -148,7 +148,7 @@ enum class ActorType { CIV, SETTLEMENT, FIGURE, ARTIFACT, SITE }
  * Folded into the history stage's `paramsVersion` by name via [catalogueDigest], so [label] is a tuning
  * change like any other: it reaches every rendered chronicle line.
  */
-enum class Order(
+enum class Faction(
   /** How the chronicle names it. */
   val label: String,
   /** The short form, for a table or a census line. */
@@ -164,7 +164,7 @@ enum class Order(
   CIRCLE("the Order of the Circle", "Circle");
 
   /** The Order whose conviction is the flat contradiction of this one. The Circle opposes neither. */
-  val opposite: Order?
+  val opposite: Faction?
     get() = when (this) {
       CHAOS -> ETERNITY
       ETERNITY -> CHAOS
@@ -478,7 +478,7 @@ data class CivRecord(
    * [SettlementRecord.oldNameSeed] makes for a conquered name, and for the same reason: a record holds the
    * present, and the log holds how it got there.
    */
-  val sworn: Order? = null,
+  val sworn: Faction? = null,
 
   /** Year it swore to [sworn] - its latest oath, not its first - or 0 if it never swore. */
   val swornYear: Int = 0
@@ -508,7 +508,7 @@ data class FigureRecord(
    * around them is where [EventKind.ORDER_SCHISM] comes from, and a prophet who died for a conviction their
    * own city did not share is a better grave to find than one who agreed with everybody.
    */
-  val sworn: Order? = null
+  val sworn: Faction? = null
 )
 
 /** What sort of thing an artifact is. Decides what it is made of and who wanted it. */
@@ -677,5 +677,5 @@ data class SiteRecord(
    * raised by a sworn people is a real thing this could describe later. It is null today because nothing sets
    * it, and a reader must treat null as "no Order raised this" rather than as "unknown".
    */
-  val order: Order? = null
+  val faction: Faction? = null
 )

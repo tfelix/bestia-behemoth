@@ -64,6 +64,10 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
   private var cursorX = -1
   private var cursorY = -1
 
+  /** World position under the cursor, for the coordinate readout - null once the pointer leaves the canvas. */
+  private var hoverWorldX: Double? = null
+  private var hoverWorldY: Double? = null
+
   init {
     background = Color(MapRenderer.NO_DATA)
     preferredSize = Dimension(1100, 760)
@@ -85,16 +89,25 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
         view = view.pannedByPixels(e.x - from.x, e.y - from.y)
         dragFrom = e
         rememberCursor(e)
+        updateHover(e)
         invalidateRender()
       }
 
       override fun mouseMoved(e: MouseEvent) {
         rememberCursor(e)
+        updateHover(e)
         onProbe(view.worldX(e.x), view.worldY(e.y))
+      }
+
+      override fun mouseExited(e: MouseEvent) {
+        hoverWorldX = null
+        hoverWorldY = null
+        repaint()
       }
 
       override fun mouseWheelMoved(e: MouseWheelEvent) {
         rememberCursor(e)
+        updateHover(e)
         val factor = if (e.wheelRotation < 0) ZOOM_STEP else 1.0 / ZOOM_STEP
         zoomAt(e.x, e.y, factor)
       }
@@ -179,6 +192,14 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     cursorY = e.y
   }
 
+  /** Recomputes the world position under the cursor and repaints immediately - cheap, since it is only
+   *  the overlay text redrawn over the already-rendered image, not a re-render of the map itself. */
+  private fun updateHover(e: MouseEvent) {
+    hoverWorldX = view.worldX(e.x)
+    hoverWorldY = view.worldY(e.y)
+    repaint()
+  }
+
   private fun invalidateRender() {
     val request = requestCounter.incrementAndGet()
     val snapshot = view
@@ -230,10 +251,12 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
 
     if (current == null) {
       drawMessage(g2, "rendering...")
+      drawCoordinateReadout(g2)
       return
     }
 
     g2.drawImage(current.image, 0, 0, null)
+    drawCoordinateReadout(g2)
 
     current.unavailable?.let {
       drawMessage(g2, it)
@@ -241,6 +264,28 @@ class WorldViewPanel(private var scene: WorldScene) : JPanel() {
     }
 
     drawLegend(g2, current)
+  }
+
+  /** The x/y readout: a large, always-on-top box in the corner, not a tooltip you have to wait for. */
+  private fun drawCoordinateReadout(g2: Graphics2D) {
+    val worldX = hoverWorldX ?: return
+    val worldY = hoverWorldY ?: return
+
+    val text = "x: ${"%.1f".format(Locale.ROOT, worldX)}   y: ${"%.1f".format(Locale.ROOT, worldY)}"
+
+    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+    g2.font = Font(Font.MONOSPACED, Font.BOLD, 16)
+    val metrics = g2.fontMetrics
+    val padding = 10
+    val boxWidth = metrics.stringWidth(text) + padding * 2
+    val boxHeight = metrics.height + padding
+    val x = width - boxWidth - 16
+    val y = 16
+
+    g2.color = Color(0, 0, 0, 180)
+    g2.fillRoundRect(x, y, boxWidth, boxHeight, 8, 8)
+    g2.color = Color(255, 255, 255)
+    g2.drawString(text, x + padding, y + padding / 2 + metrics.ascent)
   }
 
   private fun drawMessage(g2: Graphics2D, message: String) {

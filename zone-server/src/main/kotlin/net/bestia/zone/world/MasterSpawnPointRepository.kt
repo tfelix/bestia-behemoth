@@ -11,5 +11,3 @@ fun MasterSpawnPointRepository.findByIdOrThrow(id: Long): MasterSpawnPoint {
   return findByIdOrNull(id) ?: throw MasterSpawnPointNotFoundException(id)
 }
 
-class MasterSpawnPointNotFoundException(id: Long) :
-  RuntimeException("No MasterSpawnPoint with id $id")

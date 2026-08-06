@@ -5,7 +5,7 @@ import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.EventKind
-import net.bestia.worldgen.core.Order
+import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.SiteKind
 import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.history.Names
@@ -410,10 +410,10 @@ object ChronicleMain {
         } else {
           "the wilds"
         },
-        shrineForm(site.order)
+        shrineForm(site.faction)
       )
       println(
-        "    $name (${site.order?.shortForm ?: "unclaimed"}), raised ${site.year}, " +
+        "    $name (${site.faction?.shortForm ?: "unclaimed"}), raised ${site.year}, " +
             "decay ${fixed(site.decay)}"
       )
     }
@@ -425,10 +425,10 @@ object ChronicleMain {
   }
 
   /** Mirrors `HistorySim.siteName`'s shrine forms, so the two views name one shrine the same way. */
-  private fun shrineForm(order: Order?) = when (order) {
-    Order.CHAOS -> "cairn"
-    Order.ETERNITY -> "ward"
-    Order.CIRCLE -> "circle"
+  private fun shrineForm(faction: Faction?) = when (faction) {
+    Faction.CHAOS -> "cairn"
+    Faction.ETERNITY -> "ward"
+    Faction.CIRCLE -> "circle"
     null -> "shrine"
   }
 
