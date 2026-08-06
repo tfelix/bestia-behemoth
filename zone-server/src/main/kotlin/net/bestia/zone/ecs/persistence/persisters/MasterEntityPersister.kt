@@ -37,7 +37,7 @@ data class MasterSnapshot(
 
 /**
  * Persists online player masters back into their dedicated `master` table (the same fields the old
- * `PersistAndRemoveSystem` hand-mapped). Masters are loaded on login via `MasterEntityFactory`, so
+ * `PersistAndRemoveSystem` hand-mapped). Masters are loaded on login via `MasterEntitySpawner`, so
  * this persister does not participate in startup rehydration ([loadsAtStartup] = false).
  */
 @Component

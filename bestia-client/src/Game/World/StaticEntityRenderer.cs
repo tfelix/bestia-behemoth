@@ -5,7 +5,7 @@ using Godot;
 namespace BestiaBehemothClient.Game.World
 {
   /// <summary>
-  /// Draws the static entities of each held chunk: trees, mana crystals, wound spires.
+  /// Draws the static entities of each held chunk: trees, mana crystals, wound spires, landmarks.
   /// </summary>
   /// <remarks>
   /// A sibling of <see cref="TerrainRenderer"/> and it keeps the same contract: one node per chunk, removed
@@ -14,32 +14,83 @@ namespace BestiaBehemothClient.Game.World
   /// what takes its contents with it.
   ///
   /// <para>
-  /// One <see cref="MultiMeshInstance3D"/> per (kind, chunk) rather than a node per prop. A view volume can
-  /// hold thousands of trees, and thousands of <c>Node3D</c>s is a scene tree Godot spends its frame walking;
-  /// a multimesh is one draw call per kind per chunk with the transforms in a buffer. This is also why props
-  /// deliberately do not go through <c>EntityManager</c>, which instantiates a full <c>Entity.tscn</c> - health
-  /// bar, nameplate, chat bubble - per entity.
+  /// <b>A prop is an entity with a visual on it, drawn without being one.</b> The scenes under
+  /// <c>Game/Entity/Visual/</c> are what a prop looks like, and a kind with art gets one instantiated per
+  /// prop - so a tree here is the same <c>TreeVisual</c> an entity would carry. What it deliberately does
+  /// <i>not</i> get is the rest of an entity: props never go through <c>EntityManager</c>, which instantiates
+  /// a full <c>Entity.tscn</c> - health bar, nameplate, chat bubble, damage numbers, movement prediction -
+  /// per entity, and whose <c>get_closest_entity</c> is a linear scan written on the assumption that entity
+  /// counts are small. A view volume holds one to seven thousand trees.
   /// </para>
   ///
   /// <para>
-  /// <b>Unbuilt and unrun.</b> The meshes are placeholder boxes and cylinders built in code; there is no art
-  /// yet and no <c>PropDB</c> resource table to look one up from. What this file establishes is the plumbing
-  /// and the lifecycle, so that dropping real meshes in later is a change to <see cref="MeshFor"/> and nothing
-  /// else.
+  /// <b>The cost of that is real and worth stating.</b> A scene instance per prop is a node per prop, where a
+  /// <see cref="MultiMesh"/> would be one draw call per kind per chunk with the transforms in a buffer. Kinds
+  /// with no art still take the multimesh path, so only trees pay it today. If a dense wood turns out to cost
+  /// too much, the fix is a <c>MultiMesh</c> built from the visual scene's own mesh for kinds that are a
+  /// single static <c>MeshInstance3D</c> - which is a change to <see cref="AddSceneProp"/> and
+  /// <see cref="PropAppearance"/>, not to anything upstream of them.
+  /// </para>
+  ///
+  /// <para>
+  /// Nothing here reads <c>Entry.EntityId</c> yet. Props are drawn but not clickable: a multimesh instance is
+  /// not pickable at all, and the scene instances carry no collision shape, so there is no path from a click
+  /// to the entity id the server would need to resolve a target. The whole server side of that
+  /// (<c>PropPromotionService</c>, <c>PropDeathDivergenceSystem</c>, loot, regrowth) already exists and is
+  /// waiting on it.
   /// </para>
   /// </remarks>
+  [GlobalClass]
   public partial class StaticEntityRenderer : Node3D
   {
-    /// <summary>Chunk -> the multimesh nodes drawing it, one per kind present.</summary>
-    private readonly Dictionary<ChunkKey, List<MultiMeshInstance3D>> _byChunk = new();
+    /// <summary>
+    /// Chunk -> the one node holding everything drawn for it.
+    /// </summary>
+    /// <remarks>
+    /// A container per chunk rather than a list of nodes, so that removing a chunk is a single
+    /// <c>QueueFree</c> whichever mix of scene instances and multimeshes it happens to hold.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, Node3D> _byChunk = new();
 
-    /// <summary>One mesh per kind, built once. Placeholders until there is art.</summary>
+    /// <summary>Kind -> its visual scene, loaded once. Only holds kinds that have art.</summary>
+    private readonly Dictionary<int, PackedScene> _scenes = new();
+
+    /// <summary>Kind -> its placeholder mesh, built once. Only holds kinds that do not.</summary>
     /// <remarks>
     /// <c>Godot.Mesh</c> spelled in full, and it has to be: this file's own namespace has a
-    /// <c>BestiaBehemothClient.Game.World.Mesh</c> in it - the surface-nets code in <c>Game/World/Mesh/</c> - which
-    /// shadows the Godot type and makes the bare name resolve to a namespace.
+    /// <c>BestiaBehemothClient.Game.World.Mesh</c> in it - the surface-nets code in <c>Game/World/Mesh/</c> -
+    /// which shadows the Godot type and makes the bare name resolve to a namespace.
     /// </remarks>
-    private readonly Dictionary<int, Godot.Mesh> _meshes = new();
+    private readonly Dictionary<int, Godot.Mesh> _placeholders = new();
+
+    /// <summary>
+    /// Metres per voxel, so that a prop stands where the ground it was grounded against was drawn.
+    /// </summary>
+    /// <remarks>
+    /// The wire carries voxel coordinates and <see cref="TerrainRenderer"/> scales them by this to reach
+    /// Godot units, so anything placed on that terrain has to apply the same factor. Heights and radii do
+    /// not: they arrive in metres already, and a Godot unit is a metre.
+    /// </remarks>
+    private float _voxelSize = 1.0f;
+
+    /// <summary>
+    /// Adopts the world's units. Safe to call with null, which keeps the defaults.
+    /// </summary>
+    /// <remarks>
+    /// Separate from the constructor for the reason <see cref="TerrainRenderer.Configure"/> is: the server
+    /// sends <c>WorldInfoSMSG</c> the instant a connection authenticates, which is during master selection,
+    /// and the Game scene that owns this renderer does not exist until a master has been chosen. So this is
+    /// always called after that message has come and gone, by <c>ChunkStreamManager</c>'s own setter.
+    /// </remarks>
+    public void Configure(WorldInfoSMSG worldInfo)
+    {
+      if (worldInfo != null)
+      {
+        _voxelSize = (float)worldInfo.VoxelSizeMetres;
+      }
+
+      Clear();
+    }
 
     /// <summary>
     /// Replaces whatever was drawn for this chunk.
@@ -58,58 +109,110 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
-      // Grouped by kind, because a multimesh holds one mesh.
-      var byKind = new Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>>();
+      var container = new Node3D { Name = $"Chunk_{batch.Key.X}_{batch.Key.Y}" };
+      AddChild(container);
+      _byChunk[batch.Key] = container;
+
+      // Only allocated if this chunk actually holds an artless kind, which a wood never does.
+      Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>> batched = null;
+
       foreach (var entry in batch.Entries)
       {
-        if (!byKind.TryGetValue(entry.Kind, out var list))
+        var appearance = PropAppearance.Of(entry.Kind);
+
+        if (appearance.HasScene)
+        {
+          AddSceneProp(container, entry, appearance);
+          continue;
+        }
+
+        batched ??= new Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>>();
+        if (!batched.TryGetValue(entry.Kind, out var list))
         {
           list = new List<ChunkStaticEntitiesSMSG.Entry>();
-          byKind[entry.Kind] = list;
+          batched[entry.Kind] = list;
         }
         list.Add(entry);
       }
 
-      var nodes = new List<MultiMeshInstance3D>(byKind.Count);
-
-      foreach (var (kind, entries) in byKind)
+      if (batched == null)
       {
-        var multi = new MultiMesh
-        {
-          TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
-          Mesh = MeshFor(kind),
-          InstanceCount = entries.Count
-        };
-
-        for (var i = 0; i < entries.Count; i++)
-        {
-          var entry = entries[i];
-
-          // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
-          // that as its base. Scaled on y only: a tall tree is a tall tree, not a fat one.
-          var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(1f, entry.Height, 1f));
-          multi.SetInstanceTransform(i, new Transform3D(basis, entry.Position));
-        }
-
-        var node = new MultiMeshInstance3D { Multimesh = multi };
-        AddChild(node);
-        nodes.Add(node);
+        return;
       }
 
-      _byChunk[batch.Key] = nodes;
+      foreach (var (kind, entries) in batched)
+      {
+        AddPlaceholderBatch(container, kind, entries);
+      }
+    }
+
+    /// <summary>
+    /// Instantiates one visual scene for a prop that has art.
+    /// </summary>
+    /// <remarks>
+    /// Scaled <b>uniformly</b>, unlike <see cref="AddPlaceholderBatch"/>'s y-only scaling. A placeholder is a
+    /// unit box whose width means nothing, so stretching it vertically is the only sensible reading of a
+    /// height; a real model is proportioned, and the generator draws a tree's trunk height and crown radius
+    /// off the same roll specifically so that a big tree has a big crown. Scaling one axis would give a tall
+    /// tree a sapling's canopy.
+    /// </remarks>
+    private void AddSceneProp(Node3D container, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
+    {
+      var scene = SceneFor(entry.Kind, appearance);
+      if (scene == null)
+      {
+        return;
+      }
+
+      var node = scene.Instantiate<Node3D>();
+
+      var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
+      var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
+
+      node.Transform = new Transform3D(basis, (Vector3)entry.Position * _voxelSize);
+      container.AddChild(node);
+    }
+
+    /// <summary>
+    /// Draws every prop of one artless kind in this chunk as a single multimesh.
+    /// </summary>
+    /// <remarks>
+    /// Scaled on y only: the mesh is a unit box standing on its own origin, so this makes a tall thing tall
+    /// rather than also fat. See <see cref="AddSceneProp"/> for why a real model is treated differently.
+    /// </remarks>
+    private void AddPlaceholderBatch(Node3D container, int kind, List<ChunkStaticEntitiesSMSG.Entry> entries)
+    {
+      var multi = new MultiMesh
+      {
+        TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
+        Mesh = PlaceholderFor(kind),
+        InstanceCount = entries.Count
+      };
+
+      for (var i = 0; i < entries.Count; i++)
+      {
+        var entry = entries[i];
+
+        // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
+        // that as its base.
+        var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(1f, entry.Height, 1f));
+        multi.SetInstanceTransform(i, new Transform3D(basis, (Vector3)entry.Position * _voxelSize));
+      }
+
+      container.AddChild(new MultiMeshInstance3D { Multimesh = multi });
     }
 
     /// <summary>Drops everything drawn for a chunk. Safe to call for a chunk that was never drawn.</summary>
     public void Remove(ChunkKey key)
     {
-      if (!_byChunk.Remove(key, out var nodes))
+      if (!_byChunk.Remove(key, out var container))
       {
         return;
       }
 
-      foreach (var node in nodes)
+      if (IsInstanceValid(container))
       {
-        node.QueueFree();
+        container.QueueFree();
       }
     }
 
@@ -121,56 +224,48 @@ namespace BestiaBehemothClient.Game.World
       }
     }
 
-    /// <summary>
-    /// A placeholder mesh per kind.
-    /// </summary>
+    /// <summary>The visual scene for a kind, loaded once, or null if it could not be loaded.</summary>
     /// <remarks>
-    /// Deliberately crude and deliberately *different* per kind, so that a wrong-kind bug is visible rather
-    /// than merely wrong: a tree is a tall box, a crystal a narrow one, a spire a tall thin one. Unit height,
-    /// because <see cref="Apply"/> scales by the prop's own height.
+    /// A failed load is cached as null too. Retrying it per prop would put a file-not-found error on the log
+    /// for every tree in the view rather than once for the kind.
     /// </remarks>
-    private Godot.Mesh MeshFor(int kind)
+    private PackedScene SceneFor(int kind, PropAppearance.Kind appearance)
     {
-      if (_meshes.TryGetValue(kind, out var cached))
+      if (_scenes.TryGetValue(kind, out var cached))
       {
         return cached;
       }
 
-      // Kind ordinals mirror the server's StaticEntityKind: TREE, BLIGHTED_TREE, MANA_CRYSTAL_SMALL,
-      // MANA_CRYSTAL_LARGE, WOUND_SPIRE, AETHERITE_SHARD_SMALL, AETHERITE_SHARD_LARGE, then the six points of
-      // interest - POI_LOST_GRAVE, POI_STANDING_STONES, POI_BROKEN_OBELISK, POI_WAYSTONE, POI_PETRIFIED_TREE,
-      // POI_SUNKEN_IDOL.
-      var (width, colour) = kind switch
+      var scene = ResourceLoader.Load<PackedScene>(appearance.ScenePath);
+      if (scene == null)
       {
-        0 => (0.6f, new Color(0.20f, 0.45f, 0.15f)),
-        1 => (0.6f, new Color(0.30f, 0.26f, 0.20f)),
-        2 => (0.3f, new Color(0.35f, 0.55f, 0.85f)),
-        3 => (0.5f, new Color(0.45f, 0.35f, 0.85f)),
-        4 => (0.4f, new Color(0.75f, 0.20f, 0.70f)),
-        // The shards, in the aetherite ore's violet rather than the mana crystals' blue - a player who has
-        // learned what the ore blocks look like underground should recognise what is lying on the grass above
-        // them, because recognising it is the entire point of the prop. Squat and wide, unlike a crystal.
-        5 => (0.7f, new Color(0.42f, 0.33f, 0.52f)),
-        6 => (0.9f, new Color(0.58f, 0.40f, 0.78f)),
-        // The landmarks, in stone greys and each a distinct width, so that at most one per world they are still
-        // told apart at a glance. Pale rather than saturated: everything above is a growth or an ore and reads
-        // as coloured, and these are worked stone.
-        7 => (1.2f, new Color(0.55f, 0.52f, 0.48f)),
-        8 => (2.4f, new Color(0.62f, 0.60f, 0.58f)),
-        9 => (0.8f, new Color(0.72f, 0.70f, 0.66f)),
-        10 => (0.5f, new Color(0.66f, 0.62f, 0.56f)),
-        11 => (0.9f, new Color(0.48f, 0.42f, 0.38f)),
-        12 => (0.7f, new Color(0.40f, 0.44f, 0.40f)),
-        _ => (0.5f, new Color(1f, 0f, 1f))
-      };
+        GD.PushError($"[props] kind {kind} names {appearance.ScenePath}, which did not load; it will not be drawn.");
+      }
+
+      _scenes[kind] = scene;
+      return scene;
+    }
+
+    /// <summary>A placeholder mesh for a kind with no art, built once.</summary>
+    /// <remarks>
+    /// Unit height, because <see cref="AddPlaceholderBatch"/> scales by the prop's own height.
+    /// </remarks>
+    private Godot.Mesh PlaceholderFor(int kind)
+    {
+      if (_placeholders.TryGetValue(kind, out var cached))
+      {
+        return cached;
+      }
+
+      var appearance = PropAppearance.Of(kind);
 
       var mesh = new BoxMesh
       {
-        Size = new Vector3(width, 1f, width),
-        Material = new StandardMaterial3D { AlbedoColor = colour }
+        Size = new Vector3(appearance.PlaceholderWidth, 1f, appearance.PlaceholderWidth),
+        Material = new StandardMaterial3D { AlbedoColor = appearance.PlaceholderColour }
       };
 
-      _meshes[kind] = mesh;
+      _placeholders[kind] = mesh;
       return mesh;
     }
   }

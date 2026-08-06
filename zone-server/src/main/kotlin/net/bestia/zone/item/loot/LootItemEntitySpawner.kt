@@ -16,12 +16,12 @@ import kotlin.random.Random
  * Spawns an item entity in the world which can be used to pickup.
  */
 @Component
-class LootItemEntityFactory(
+class LootItemEntitySpawner(
   private val lootItemRepository: LootItemRepository
 ) {
 
   @Transactional(readOnly = true)
-  fun createLootEntities(world: WorldView, bestiaId: Long, pos: Vec3L): List<EntityId> {
+  fun spawnLoot(world: WorldView, bestiaId: Long, pos: Vec3L): List<EntityId> {
     val lootItems = lootItemRepository.findAllByBestiaId(bestiaId)
 
     val spawnItems = lootItems.filter { lootItem ->
@@ -33,14 +33,14 @@ class LootItemEntityFactory(
     LOG.debug { "Spawning loot $spawnItems from bestia $bestiaId ($lootItems) on pos $pos" }
 
     return spawnItems.map { spawnItem ->
-      createLootEntity(world, itemId = spawnItem.item.id, amount = 1, pos = pos)
+      spawnLootItem(world, itemId = spawnItem.item.id, amount = 1, pos = pos)
     }
   }
 
   /**
    * Spawns a single ground item entity at the given position which can be picked up.
    */
-  fun createLootEntity(
+  fun spawnLootItem(
     world: WorldView,
     itemId: Long,
     amount: Int,

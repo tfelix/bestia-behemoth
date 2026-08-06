@@ -120,12 +120,14 @@ class StatusValueRecalcSystem(
     world: World,
     id: EntityId
   ) {
-    val activeEffects = world.get(id, StatusEffects::class)?.activeEffects.orEmpty()
+    // Copied rather than iterated live: a script is allowed to remove itself from within `apply`
+    // (MasterIntroMarker does), which would otherwise mutate the list mid-iteration.
+    val activeEffects = world.get(id, StatusEffects::class)?.activeEffects?.toList().orEmpty()
 
     for (active in activeEffects) {
       val definition = statusEffectDefinitionRegistry.findById(active.definitionId) ?: continue
       val script = statusEffectScriptRegistry.get(definition.script) ?: continue
-      script.apply(world, context, active.level, active.sourceEntityId)
+      script.apply(world, id, context, active.level, active.sourceEntityId)
     }
   }
 

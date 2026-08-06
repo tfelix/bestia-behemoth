@@ -7,7 +7,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.world.WorldService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -35,7 +35,7 @@ import kotlin.random.Random
 @Order(65)
 class PropDeathDivergenceSystem(
   private val kinds: PropKindRegistry,
-  private val lootItemEntityFactory: LootItemEntityFactory,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val divergence: WorldObjectDivergenceRegistry,
   private val worldService: WorldService,
 ) : System {
@@ -58,7 +58,7 @@ class PropDeathDivergenceSystem(
       if (position != null) {
         spec.loot.forEach { entry ->
           if (Random.nextInt(1, 10_001) <= entry.dropChance) {
-            lootItemEntityFactory.createLootEntity(world, itemId = entry.itemId, amount = entry.amount, pos = position)
+            lootItemEntitySpawner.spawnLootItem(world, itemId = entry.itemId, amount = entry.amount, pos = position)
           }
         }
       }

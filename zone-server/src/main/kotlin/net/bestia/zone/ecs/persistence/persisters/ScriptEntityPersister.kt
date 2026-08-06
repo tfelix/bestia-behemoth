@@ -8,7 +8,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
 import net.bestia.zone.ecs.script.ScriptComponent
-import net.bestia.zone.ecs.script.ScriptEntityFactory
+import net.bestia.zone.ecs.script.ScriptEntitySpawner
 import net.bestia.zone.entity.PersistedComponent
 import net.bestia.zone.entity.PersistedEntity
 import net.bestia.zone.entity.PersistedEntityRepository
@@ -30,7 +30,7 @@ data class ScriptEntitySnapshot(
 
 /**
  * Persists [ScriptComponent] entities into the generic [PersistedEntity]/[PersistedComponent] blob
- * tables, and rebuilds them on startup through [ScriptEntityFactory].
+ * tables, and rebuilds them on startup through [ScriptEntitySpawner].
  *
  * [loadAll] does double duty: if script entities are already persisted (a normal restart), they are
  * rehydrated with their original entity ids, exactly like [MobEntityPersister]. If none exist yet (the
@@ -43,7 +43,7 @@ data class ScriptEntitySnapshot(
 @Component
 class ScriptEntityPersister(
   private val repository: PersistedEntityRepository,
-  private val scriptEntityFactory: ScriptEntityFactory,
+  private val scriptEntitySpawner: ScriptEntitySpawner,
   private val masterSpawnPointService: MasterSpawnPointService,
   private val objectMapper: ObjectMapper,
 ) : EntityPersister {
@@ -83,7 +83,7 @@ class ScriptEntityPersister(
       for (row in rows) {
         val json = row.components.firstOrNull()?.data ?: continue
         val snap = objectMapper.readValue<ScriptEntitySnapshot>(json)
-        scriptEntityFactory.createScriptEntity(
+        scriptEntitySpawner.spawnScript(
           world = world,
           position = Vec3L(snap.x, snap.y, snap.z),
           scriptId = snap.scriptId,
@@ -97,7 +97,7 @@ class ScriptEntityPersister(
 
     val spawnPoints = masterSpawnPointService.ensureComputed()
     val snapshots = spawnPoints.map { point ->
-      val id = scriptEntityFactory.createScriptEntity(
+      val id = scriptEntitySpawner.spawnScript(
         world = world,
         position = point.position,
         scriptId = SPAWN_POINT_SCRIPT_ID,

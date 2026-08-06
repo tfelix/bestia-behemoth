@@ -63,8 +63,21 @@ class StatusEffects(
     markDirty()
   }
 
-  fun removeEffect() {
+  /**
+   * Drops every instance of [definitionId] and returns whether anything was actually removed.
+   *
+   * Effects normally leave through [tickDown], so this is for the ones that decide their own end:
+   * a one-shot marker removing itself once it has done its job (see
+   * [net.bestia.zone.battle.status.scripts.MasterIntroMarker]), a dispel, a skill that consumes a buff.
+   */
+  fun removeEffect(definitionId: Long): Boolean {
+    val removed = activeEffects.removeAll { it.definitionId == definitionId }
 
+    if (removed) {
+      markDirty()
+    }
+
+    return removed
   }
 
   /** Ticks down every active instance by [deltaTime] and removes any that expired. Returns whether anything expired. */

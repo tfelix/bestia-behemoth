@@ -6,6 +6,7 @@ import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -28,13 +29,14 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 @Order(90)
 class PersistAndRemoveSystem(
-  private val persisters: List<EntityPersister>
+  private val persisters: List<EntityPersister>,
+  private val statusEffectPersistenceService: StatusEffectPersistenceService
 ) : System {
 
   override val reads: ComponentClassSet = setOf(
     PersistAndRemove::class, Master::class, Account::class, Position::class,
     Level::class, SkillPoints::class, StatusPoints::class, BaseStatusValues::class,
-    Health::class, BestiaVisual::class, ItemVisual::class,
+    Health::class, BestiaVisual::class, ItemVisual::class, StatusEffects::class,
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -43,7 +45,13 @@ class PersistAndRemoveSystem(
     if (toRemove.isEmpty()) return
 
     val byPersister = LinkedHashMap<EntityPersister, MutableList<EntitySnapshot>>()
+    val effectSnapshots = mutableListOf<StatusEffectsSnapshot>()
     for (id in toRemove) {
+      // Taken regardless of which kind persister claims the entity - status effects are stored per
+      // entity id, not per kind. An entity whose effects all expired snapshots as an empty list,
+      // which is what clears its stored rows.
+      statusEffectPersistenceService.snapshot(world, id)?.let(effectSnapshots::add)
+
       val persister = persisters.firstOrNull { it.supports(world, id) }
       if (persister == null) {
         LOG.warn { "Found no persistence handler for entity: $id, it will not be persisted" }
@@ -54,6 +62,7 @@ class PersistAndRemoveSystem(
     }
 
     byPersister.forEach { (persister, snapshots) -> persister.persist(snapshots) }
+    statusEffectPersistenceService.persist(effectSnapshots)
   }
 
   companion object {

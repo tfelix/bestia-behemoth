@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 /**
  * The narrow, **off-tick-thread** facing view of the [World], injected into everything that
  * touches the ECS from outside the simulation tick: network message handlers, services, item
- * scripts and entity factories.
+ * scripts and entity spawners.
  *
  * ### Why this exists
  * [World] guards all component access with a single exclusive lock, so any *individual* call is

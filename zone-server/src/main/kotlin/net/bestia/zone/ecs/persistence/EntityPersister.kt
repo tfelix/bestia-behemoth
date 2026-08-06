@@ -23,7 +23,7 @@ interface EntitySnapshot {
  *   component state and must not perform any I/O.
  * - [persist] and [loadAll] run off the tick thread and may hit the database.
  *
- * Reconstruction reuses the existing entity factories and re-derives static stats from
+ * Reconstruction reuses the existing entity spawners and re-derives static stats from
  * templates, so a snapshot only needs to carry mutable state (position, current HP, ...).
  */
 interface EntityPersister {

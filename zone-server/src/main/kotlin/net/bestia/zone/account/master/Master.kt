@@ -130,6 +130,19 @@ class Master(
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0
 
+  /**
+   * The ECS [net.bestia.zone.util.EntityId] this master occupies whenever it is in the world. Unlike
+   * [id] it is not a database key but a snowflake taken from the zone's shared
+   * [net.bestia.zone.ecs.core.EntityIdGenerator] at creation time, and it stays the same across every
+   * spawn - the same way a mob keeps its id across a restart.
+   *
+   * Assigned by [MasterFactory] and replayed into the world by [MasterEntitySpawner]. Having it exist
+   * before the entity does is what lets per-entity state (persisted status effects) be written for a
+   * master that has never been selected.
+   */
+  @Column(name = "entity_id", nullable = false, unique = true)
+  var entityId: Long = 0
+
   @ManyToOne
   @JoinColumn(name = "party_id", nullable = true)
   var party: Party? = null

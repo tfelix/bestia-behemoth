@@ -35,7 +35,7 @@ import net.bestia.zone.item.equip.EquipItemCMSG
 import net.bestia.zone.item.equip.EquipmentSlot
 import net.bestia.zone.item.equip.UnequipItemCMSG
 import net.bestia.zone.item.loot.LootItemCMSG
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.CreatePartyCMSG
 import net.bestia.zone.party.DisbandPartySMSG
@@ -47,6 +47,7 @@ import net.bestia.zone.party.RequestDisbandPartyCMSG
 import net.bestia.zone.party.RequestPartyInvitationCMSG
 import net.bestia.zone.skill.GetSkillsCMSG
 import net.bestia.zone.skill.SkillListSMSG
+import net.bestia.zone.world.MasterSpawnPointService
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,7 +75,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Autowired
-  private lateinit var lootItemEntityFactory: LootItemEntityFactory
+  private lateinit var lootItemEntitySpawner: LootItemEntitySpawner
 
   @Autowired
   private lateinit var world: WorldView
@@ -84,6 +85,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
 
   @Autowired
   private lateinit var inventoryService: InventoryService
+
+  @Autowired
+  private lateinit var masterSpawnPointService: MasterSpawnPointService
 
   private var newMasterId: Long = 0
   private val newMasterName = "journeyM1"
@@ -112,7 +116,13 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   fun `login, create a new master and select it, second player connects`() {
     clientPlayer1.connect()
 
-    clientPlayer1.sendMessage(CreateMasterCMSG.test(clientPlayer1.connectedPlayerId, newMasterName))
+    // Any candidate does - this journey does not care where the master starts, only that it has to name
+    // a spawn point at all.
+    val spawnPointId = masterSpawnPointService.ensureComputed().first().id.toInt()
+
+    clientPlayer1.sendMessage(
+      CreateMasterCMSG.test(clientPlayer1.connectedPlayerId, newMasterName, spawnPointId)
+    )
     await {
       clientPlayer1.getLastReceived(MasterCreatedSMSG::class)
     }
@@ -125,7 +135,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       newMasterId = created.id
     }
 
-    // Granted before selection so MasterEntityFactory hydrates them straight into the live ECS
+    // Granted before selection so MasterEntitySpawner hydrates them straight into the live ECS
     // Inventory/Equipment components - the equip scenario tests further down rely on both already
     // being held. InventoryService.addItem deliberately does not weight-check (that is the
     // caller's job); shoes (20) + boots (40) alone would blow past the default level-1 carry limit
@@ -478,7 +488,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
     val currentPos = world.read { get(activeEntityId, Position::class)?.toVec3L() } ?: Vec3L.ZERO
 
-    groundItemEntityId = lootItemEntityFactory.createLootEntity(
+    groundItemEntityId = lootItemEntitySpawner.spawnLootItem(
       world = world,
       itemId = APPLE_ITEM_ID,
       amount = 1,

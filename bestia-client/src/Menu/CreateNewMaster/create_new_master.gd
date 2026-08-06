@@ -176,7 +176,12 @@ func _on_create_button_pressed() -> void:
 	var hair := _hair_button.get_selected_id()
 	var hair_color := _selected_hair_swatch.color if _selected_hair_swatch != null else Color.BLACK
 	var skin_color := _selected_skin_swatch.color if _selected_skin_swatch != null else Color.BLACK
-	var spawn_point_id := int(_spawn_point_button.get_selected_metadata()) if _spawn_point_button.get_selected_metadata() != null else 0
+	# A spawn point is mandatory server-side, so stop here instead of sending a request that can only
+	# come back as an error.
+	if _spawn_point_button.get_selected_metadata() == null:
+		_show_status("Please choose a starting location.", true)
+		return
+	var spawn_point_id := int(_spawn_point_button.get_selected_metadata())
 
 	_create_button.disabled = true
 	_show_status("Creating character...", false)

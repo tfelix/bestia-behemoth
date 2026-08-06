@@ -21,7 +21,13 @@ class BlessingStatusEffect : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double = 4.0
 
-  override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+  override fun apply(
+    world: World,
+    entityId: EntityId,
+    context: StatusValueRecalcContext,
+    level: Int,
+    sourceEntityId: EntityId?
+  ) {
     context.speed *= 1.1f
   }
 }

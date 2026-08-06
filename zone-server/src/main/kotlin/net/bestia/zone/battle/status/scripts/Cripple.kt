@@ -12,7 +12,13 @@ class Cripple : StatusEffectScript {
 
   override fun durationSeconds(level: Int): Double = 15.0
 
-  override fun apply(world: World, context: StatusValueRecalcContext, level: Int, sourceEntityId: EntityId?) {
+  override fun apply(
+    world: World,
+    entityId: EntityId,
+    context: StatusValueRecalcContext,
+    level: Int,
+    sourceEntityId: EntityId?
+  ) {
     context.speed *= 0.85f
   }
 }

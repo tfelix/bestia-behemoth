@@ -15,6 +15,7 @@ import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.geometry.Vec3
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.world.MasterSpawnPointService
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.ApplicationContext
@@ -34,8 +35,15 @@ class ScenarioDataSetup(
   private val accountRepository: AccountRepository,
   private val bestiaRepository: BestiaRepository,
   private val playerBestiaCreateOperation: PlayerBestiaCreateOperation,
+  private val masterSpawnPointService: MasterSpawnPointService,
   private val applicationContext: ApplicationContext
 ) {
+
+  /**
+   * Every master needs a spawn point, and the fixture masters have no preference - they take the first
+   * candidate the generated world offers.
+   */
+  private fun defaultSpawnPointId(): Int = masterSpawnPointService.ensureComputed().first().id.toInt()
 
   /**
    * We need to do it like this because our YML loader needs to run first to setup the mob
@@ -65,7 +73,13 @@ class ScenarioDataSetup(
     )
   }
 
-  @Transactional
+  /**
+   * Deliberately **not** `@Transactional`. [MasterFactory.create] runs `REQUIRES_NEW` and re-reads the
+   * account by id, so it executes on its own connection and cannot see rows an enclosing transaction
+   * has written but not committed - wrapping this method makes every `create` here fail with
+   * [net.bestia.zone.account.AccountNotFoundException]. Letting each repository call commit on its own
+   * keeps the accounts visible to the inner transaction.
+   */
   fun setupTestData() {
     LOG.info { "Creating scenario test data..." }
 
@@ -97,13 +111,15 @@ class ScenarioDataSetup(
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
-      body = BodyType.BODY_M_1
+      body = BodyType.BODY_M_1,
+      spawnPointId = defaultSpawnPointId()
     )
-    masterFactory.create(account1, createMasterData1)
+    // Taken from the return value rather than from `account1.master`: without a surrounding transaction
+    // that collection is a detached lazy proxy, and the master was written by a different persistence
+    // context anyway.
+    val master1 = masterFactory.create(account1.id, createMasterData1)
 
     LOG.info { "Account 1 (ID: ${account1.id}) created" }
-
-    val master1 = account1.master.first()
 
     // add 1. bestia to first master.
     playerBestiaCreateOperation.createAndSpawn(
@@ -129,9 +145,10 @@ class ScenarioDataSetup(
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
-      body = BodyType.BODY_M_1
+      body = BodyType.BODY_M_1,
+      spawnPointId = defaultSpawnPointId()
     )
-    val master2 = masterFactory.create(account1, createMasterData2)
+    val master2 = masterFactory.create(account1.id, createMasterData2)
 
     // add bestia to second master.
     playerBestiaCreateOperation.createAndSpawn(
@@ -142,7 +159,8 @@ class ScenarioDataSetup(
       )
     )
 
-    accountRepository.save(account1)
+    // No save of account1 here: MasterFactory persisted both masters in its own committed transactions,
+    // and re-saving a detached Account whose master collection was never initialized adds nothing.
 
     return TestFixture.AccountData(
       account = account1,
@@ -164,9 +182,10 @@ class ScenarioDataSetup(
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
-      body = BodyType.BODY_M_1
+      body = BodyType.BODY_M_1,
+      spawnPointId = defaultSpawnPointId()
     )
-    val master = masterFactory.create(account2, createMasterData)
+    val master = masterFactory.create(account2.id, createMasterData)
 
     return TestFixture.AccountData(
       account = account2,
@@ -185,9 +204,10 @@ class ScenarioDataSetup(
       skinColor = Color.BLUE,
       hair = Hairstyle.HAIR_1,
       face = Face.FACE_1,
-      body = BodyType.BODY_M_1
+      body = BodyType.BODY_M_1,
+      spawnPointId = defaultSpawnPointId()
     )
-    val master = masterFactory.create(account3, createMasterData)
+    val master = masterFactory.create(account3.id, createMasterData)
 
     LOG.info { "Account 3 (ID: ${account3.id}) created" }
 

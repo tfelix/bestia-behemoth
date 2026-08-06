@@ -20,6 +20,7 @@ class CreateMasterCMSGTest {
       .setHair(MasterProto.Hairstyle.HAIR_1)
       .setHairColor(MasterProto.Color.newBuilder().setR(10).setG(20).setB(30))
       .setSkinColor(MasterProto.Color.newBuilder().setR(200).setG(150).setB(100))
+      .setSpawnPointId(7)
       .build()
 
     val result = CreateMasterCMSG.fromBnet(42L, proto)
@@ -31,5 +32,7 @@ class CreateMasterCMSGTest {
     assertEquals(Hairstyle.HAIR_1, result.hair)
     assertEquals(Color(10, 20, 30), result.hairColor)
     assertEquals(Color(200, 150, 100), result.skinColor)
+    // Passed through verbatim, including the unset 0 - the factory is what refuses an id no spawn point has.
+    assertEquals(7, result.spawnPointId)
   }
 }

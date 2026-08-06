@@ -1,6 +1,6 @@
 package net.bestia.zone.ecs.persistence
 
-import net.bestia.zone.bestia.BestiaEntityFactory
+import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 
 /**
  * Exercises the persist -> reload round trip for a world mob end-to-end against the real persister,
- * factory and (in-memory) DB. Uses isolated [World] instances rather than the Spring-managed world
+ * spawner and (in-memory) DB. Uses isolated [World] instances rather than the Spring-managed world
  * so the running tick loop (which would let the blob wander) can't make the assertions flaky.
  */
 @SpringBootTest
@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
 class EntityPersistenceRoundTripTest {
 
   @Autowired
-  private lateinit var bestiaEntityFactory: BestiaEntityFactory
+  private lateinit var bestiaEntitySpawner: BestiaEntitySpawner
 
   @Autowired
   private lateinit var mobEntityPersister: MobEntityPersister
@@ -44,7 +44,7 @@ class EntityPersistenceRoundTripTest {
   fun `mob is persisted and reloaded with the same id, position and current hp`() {
     val spawnWorld = newWorld()
     val pos = Vec3L(11, 22, 3)
-    val entityId = bestiaEntityFactory.createMobEntity(spawnWorld, bestiaId = BLOB_BESTIA_ID, pos = pos)
+    val entityId = bestiaEntitySpawner.spawnMob(spawnWorld, bestiaId = BLOB_BESTIA_ID, pos = pos)
 
     // Damage the mob so we can prove current HP (mutable state) round-trips, not just the full template value.
     spawnWorld.modify(entityId) { id -> getOrThrow(id, Health::class).current = 3 }

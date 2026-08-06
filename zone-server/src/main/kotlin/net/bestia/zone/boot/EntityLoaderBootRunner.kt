@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 /**
  * Rehydrates persisted world entities (mobs, ground items, ...) into the ECS world at startup.
  *
- * Ordered after the template importers (item/mob/skill defs, order ~100-104) so factories can
+ * Ordered after the template importers (item/mob/skill defs, order ~100-104) so the entity spawners can
  * re-derive static stats, and before [SocketServerBootRunner] ([org.springframework.core.Ordered.LOWEST_PRECEDENCE])
  * so no client can connect while the world is still being populated. Player masters/bestias are
  * loaded on login instead and are skipped here (their persisters report `loadsAtStartup = false`).

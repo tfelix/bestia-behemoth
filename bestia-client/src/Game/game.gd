@@ -1,15 +1,17 @@
 extends Node3D
 
-## Owns the terrain renderer and keeps its collision anchor on the player.
+## Owns the terrain and prop renderers, and keeps the terrain's collision anchor on the player.
 ##
 ## Created here in code rather than placed in Game.tscn, for the same reason ConnectionManager creates
 ## ChunkStreamManager that way: a scene node needs a resource uid that only the Godot editor can mint.
-## It has to live under this node specifically — it adds MeshInstance3D children, so it needs a parent
-## in the game's own 3D world rather than on the ConnectionManager autoload.
+## They have to live under this node specifically — they add 3D children, so they need a parent in the
+## game's own 3D world rather than on the ConnectionManager autoload.
 
 const TerrainRendererScript = preload("res://Game/World/TerrainRenderer.cs")
+const StaticEntityRendererScript = preload("res://Game/World/StaticEntityRenderer.cs")
 
 var _terrain: Node3D = null
+var _props: Node3D = null
 
 
 func _ready() -> void:
@@ -17,17 +19,27 @@ func _ready() -> void:
 	_terrain.name = "Terrain"
 	add_child(_terrain)
 
+	# A sibling of the terrain rather than a child of it: the terrain rebuilds a chunk's mesh whenever a
+	# patch arrives, and nothing standing on that ground should be torn down when it does.
+	_props = StaticEntityRendererScript.new()
+	_props.name = "Props"
+	add_child(_props)
+
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = _terrain
+		# Assigned after the terrain, so the ground of a replayed chunk is queued before the props standing
+		# on it. Both setters replay what has already arrived — see ChunkStreamManager.
+		ConnectionManager.chunk_stream.StaticEntities = _props
 	else:
 		push_warning("No ChunkStreamManager to render for; terrain will stay empty.")
 
 
 func _exit_tree() -> void:
-	# The renderer dies with this scene, but ConnectionManager is an autoload and outlives it. Handing
+	# The renderers die with this scene, but ConnectionManager is an autoload and outlives it. Handing
 	# back a freed node would leave the manager calling into a disposed object on the next login.
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = null
+		ConnectionManager.chunk_stream.StaticEntities = null
 
 
 func _process(_delta: float) -> void:

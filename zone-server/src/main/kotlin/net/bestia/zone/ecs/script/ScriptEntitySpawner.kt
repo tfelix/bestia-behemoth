@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component
 
 /** Spawns a persistent, non-synced entity carrying a [ScriptComponent] at a fixed world position. */
 @Component
-class ScriptEntityFactory {
+class ScriptEntitySpawner {
 
-  fun createScriptEntity(
+  fun spawnScript(
     world: WorldView,
     position: Vec3L,
     scriptId: String,

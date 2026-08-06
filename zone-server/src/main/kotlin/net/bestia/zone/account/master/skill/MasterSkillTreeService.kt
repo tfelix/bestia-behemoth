@@ -75,7 +75,7 @@ class MasterSkillTreeService(
 
     // Persist the point deduction in the SAME transaction as the LearnedSkill rows so the skill
     // level and the spent point can never diverge across a crash. Master.skillPoints is re-seeded
-    // into the SkillPoints component on the next spawn (MasterEntityFactory), so it must be correct
+    // into the SkillPoints component on the next spawn (MasterEntitySpawner), so it must be correct
     // even if the process dies before the periodic ECS snapshot runs.
     master.skillPoints = remainingSkillPoints
     masterRepository.save(master)

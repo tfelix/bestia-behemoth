@@ -22,6 +22,7 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.mocks.GameClientMock
 import net.bestia.zone.mocks.GameClientMockFactory
 import net.bestia.zone.world.MasterSpawnPointRepository
+import net.bestia.zone.world.MasterSpawnPointService
 import net.bestia.zone.world.findByIdOrThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -54,6 +55,9 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   private lateinit var masterSpawnPointRepository: MasterSpawnPointRepository
 
   @Autowired
+  private lateinit var masterSpawnPointService: MasterSpawnPointService
+
+  @Autowired
   private lateinit var connectionInfoService: ConnectionInfoService
 
   @Autowired
@@ -84,6 +88,12 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     clientPlayerNoMaster.clearMessages()
   }
 
+  /**
+   * Creating a master requires a spawn point, so every test that only cares about the other fields still
+   * has to name one.
+   */
+  private fun anySpawnPointId(): Int = masterSpawnPointService.ensureComputed().first().id.toInt()
+
   @Test
   @Order(1)
   fun `listing master for a new account returns an empty list`() {
@@ -100,7 +110,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   @Order(2)
   fun `creating a master works`() {
     clientPlayerNoMaster.sendMessage(
-      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r")
+      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r", anySpawnPointId())
     )
 
     await {
@@ -134,7 +144,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
   @Test
   @Order(4)
-  fun `selecting the newly created master materializes it carrying the intro marker effect`() {
+  fun `selecting the newly created master greets the player and consumes the intro marker`() {
     clientPlayerNoMaster.sendMessage(
       SelectMasterCMSG(
         clientPlayerNoMaster.connectedPlayerId,
@@ -142,32 +152,29 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       )
     )
 
+    // MasterFactory seeded the marker at creation, MasterEntitySpawner replayed it out of the DB, and
+    // the first status value recalc fired the greeting. The marker itself is short lived by design -
+    // asserting on the dialog rather than on the live effect is what keeps this from racing the tick.
     await {
-      val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayerNoMaster.connectedPlayerId)
-      val statusEffects = world.get(masterEntityId, StatusEffects::class)
-
-      assertNotNull(statusEffects, "a materialized master must carry StatusEffects")
-
-      val marker = statusEffects.activeEffects
-        .firstOrNull { it.definitionId == StatusEffectId.MASTER_INTRO_MARKER.id }
-
-      assertNotNull(marker, "MasterEntityFactory must attach the MASTER_INTRO_MARKER effect")
-      assertFalse(marker.isSyncedToClient, "the marker is server-internal and must never reach the client")
+      assertNotNull(
+        clientPlayerNoMaster.tryGetLastReceived(DialogSMSG::class),
+        "materializing a freshly created master greets its owner"
+      )
     }
 
-    // The marker is a placeholder hook only: it is deliberately inert, so selecting a master must
-    // not produce a dialog yet. This is what will change once the intro trigger is built on it.
-    assertNull(
-      clientPlayerNoMaster.tryGetLastReceived(DialogSMSG::class),
-      "the intro marker does not send a dialog yet"
-    )
+    val masterEntityId = connectionInfoService.getSelectedMasterEntityId(clientPlayerNoMaster.connectedPlayerId)
+    val marker = world.get(masterEntityId, StatusEffects::class)
+      ?.activeEffects
+      ?.firstOrNull { it.definitionId == StatusEffectId.MASTER_INTRO_MARKER.id }
+
+    assertNull(marker, "the marker removes itself once it has greeted, so it can never greet twice")
   }
 
   @Test
   @Order(5)
   fun `creating a master with an invalid name fails`() {
     clientPlayerNoMaster.sendMessage(
-      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r".repeat(10))
+      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r".repeat(10), anySpawnPointId())
     )
 
     await {
@@ -181,7 +188,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
   @Order(5)
   fun `creating a master with same name fails`() {
     clientPlayerNoMaster.sendMessage(
-      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r")
+      CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r", anySpawnPointId())
     )
 
     await {
@@ -197,7 +204,7 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
     // we have already created one master with this we effectively create maxMasters + 1
     (1..Account.DEFAULT_MASTER_SLOT_COUNT).forEach { i ->
       clientPlayerNoMaster.sendMessage(
-        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r-number-$i")
+        CreateMasterCMSG.test(clientPlayerNoMaster.connectedPlayerId, "mast0r-number-$i", anySpawnPointId())
       )
 
       if (i < Account.DEFAULT_MASTER_SLOT_COUNT) {
@@ -292,6 +299,31 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
 
         assertEquals(MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT, masterErrorSMSG.error)
       }
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(10)
+  fun `creating a master without naming a spawn point fails`() {
+    val account = accountFactory.createAccount(8L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      // 0 is what a client sends for the unset presence-less wire field - there is no world default to
+      // fall back to, so it has to be refused like any other unknown id.
+      client.sendMessage(
+        CreateMasterCMSG.test(client.connectedPlayerId, "nospawn", spawnPointId = 0)
+      )
+
+      await {
+        val masterErrorSMSG = client.getLastReceived(MasterErrorSMSG::class)
+
+        assertEquals(MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT, masterErrorSMSG.error)
+      }
+
+      assertNull(masterRepository.findByName("nospawn"), "no master must have been written")
     } finally {
       client.disconnect()
     }

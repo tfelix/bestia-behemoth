@@ -11,7 +11,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.data.repository.findByIdOrNull
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component
 @Order(59)
 class ObtainItemIntentSystem(
   private val itemRepository: ItemRepository,
-  private val lootItemEntityFactory: LootItemEntityFactory,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val inventoryService: InventoryService,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val connectionInfoService: ConnectionInfoService,
@@ -134,7 +134,7 @@ class ObtainItemIntentSystem(
       return
     }
 
-    lootItemEntityFactory.createLootEntity(
+    lootItemEntitySpawner.spawnLootItem(
       world = world,
       itemId = item.id,
       amount = intent.amount,

@@ -9,7 +9,7 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -22,7 +22,7 @@ class PropDeathDivergenceSystemTest {
   }
 
   private fun system(divergence: WorldObjectDivergenceRegistry) = PropDeathDivergenceSystem(
-    kindRegistry(), mockk<LootItemEntityFactory>(), divergence, worldService()
+    kindRegistry(), mockk<LootItemEntitySpawner>(), divergence, worldService()
   )
 
   private fun kindRegistry() = PropKindRegistry().also { it.load() }

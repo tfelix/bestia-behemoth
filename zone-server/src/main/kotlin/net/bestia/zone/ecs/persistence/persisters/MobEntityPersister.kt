@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.persistence.persisters
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.BestiaEntityFactory
+import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.bestia.BestiaVisual
@@ -33,13 +33,13 @@ data class MobSnapshot(
 /**
  * Persists world mobs/NPCs (entities with a [BestiaVisual] but no [Account] — player bestias have
  * both) into the generic [PersistedEntity]/[PersistedComponent] blob tables, and rebuilds them on
- * startup through [BestiaEntityFactory] (which re-derives Health/Speed/AI from the bestia catalog),
+ * startup through [BestiaEntitySpawner] (which re-derives Health/Speed/AI from the bestia catalog),
  * overlaying the persisted current HP.
  */
 @Component
 class MobEntityPersister(
   private val repository: PersistedEntityRepository,
-  private val bestiaEntityFactory: BestiaEntityFactory,
+  private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val objectMapper: ObjectMapper,
 ) : EntityPersister {
 
@@ -84,7 +84,7 @@ class MobEntityPersister(
     for (row in rows) {
       val json = row.components.firstOrNull()?.data ?: continue
       val snap = objectMapper.readValue<MobSnapshot>(json)
-      bestiaEntityFactory.createMobEntity(
+      bestiaEntitySpawner.spawnMob(
         world = world,
         bestiaId = snap.bestiaId,
         pos = Vec3L(snap.x, snap.y, snap.z),

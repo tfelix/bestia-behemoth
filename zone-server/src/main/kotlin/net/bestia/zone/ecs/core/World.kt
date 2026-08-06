@@ -51,7 +51,7 @@ class World(
 
   /**
    * Guards all structural changes, component access and the tick against concurrent access from
-   * non-tick threads (network handlers, factories, ...). The lock is reentrant so systems running
+   * non-tick threads (network handlers, entity spawners, ...). The lock is reentrant so systems running
    * inside [tick] (which already holds it) may freely call [get]/[add]/... The old lock-per-entity
    * model of `EntityManager` is replaced by this single coarse lock; only meaningful when
    * `parallelSystems` is disabled (the default), which mirrors the previous single-threaded loop.

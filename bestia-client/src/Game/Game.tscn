@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://b2nfrhehpmm6p" path="res://Game/game.gd" id="1_oscxy"]
 [ext_resource type="PackedScene" uid="uid://coopsp0c6tacr" path="res://Game/UI/UI.tscn" id="2_eqev2"]
 [ext_resource type="Script" uid="uid://cnjm7a2eprhpj" path="res://Game/entity_manager.gd" id="9_eqev2"]
-[ext_resource type="PackedScene" uid="uid://dqu0btcd80v8u" path="res://Game/Entity/Visual/ItemVisual/Items/Apple.tscn" id="9_q6w4l"]
 [ext_resource type="Script" uid="uid://q7faijbdj6o4" path="res://Game/MouseMarker/mouse_marker.gd" id="11_msmrk"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hqwdr"]
@@ -56,6 +55,3 @@ script = ExtResource("11_msmrk")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.118, 0.5)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_eqev2")
-
-[node name="ItemVisual" parent="." unique_id=473031306 instance=ExtResource("9_q6w4l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.177413, 0.18417144, 5.493434)

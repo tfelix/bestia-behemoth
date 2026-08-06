@@ -25,6 +25,7 @@ class EntityPersistenceService(
   private val config: EntityPersistenceConfig,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val persistedEntityRepository: PersistedEntityRepository,
+  private val statusEffectPersistenceService: StatusEffectPersistenceService,
 ) {
 
   @Scheduled(
@@ -54,6 +55,7 @@ class EntityPersistenceService(
     // you can not go through all IDs here and
     for (batch in ids.chunked(config.batchSize)) {
       val byPersister = LinkedHashMap<EntityPersister, MutableList<EntitySnapshot>>()
+      val effectSnapshots = mutableListOf<StatusEffectsSnapshot>()
 
       // Snapshot this batch under the lock; do not do I/O here.
       world.read {
@@ -61,6 +63,11 @@ class EntityPersistenceService(
           if (!isAlive(id)) {
             continue
           }
+
+          // Cross-cutting, so it is taken for every persistent entity regardless of which kind
+          // persister (if any) claims it — see StatusEffectPersistenceService.
+          statusEffectPersistenceService.snapshot(this, id)?.let(effectSnapshots::add)
+
           val persister = persisters.firstOrNull { it.supports(this, id) }
             ?: continue
           val snapshot = persister.snapshot(this, id)
@@ -75,6 +82,7 @@ class EntityPersistenceService(
         persister.persist(snapshots)
         persisted += snapshots.size
       }
+      statusEffectPersistenceService.persist(effectSnapshots)
       batches++
       Thread.yield() // give the tick thread room between batches
     }
@@ -86,6 +94,7 @@ class EntityPersistenceService(
     val removed = deletionQueue.drainAll()
     if (removed.isNotEmpty()) {
       persistedEntityRepository.deleteByEntityIdIn(removed)
+      statusEffectPersistenceService.deleteFor(removed)
       LOG.debug { "Pruned ${removed.size} persisted row(s) for removed entities" }
     }
   }

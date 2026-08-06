@@ -18,5 +18,7 @@ message CreateMasterCMSG {
   Hairstyle hair = 4;
   Color skin_color = 5;
   Color hair_color = 6;
+  // Id of a MasterSpawnPointCandidate offered by AvailableMasterSMSG. Required: there is no world-default
+  // spawn, so leaving this unset (0) gets the request refused with MASTER_INVALID_SPAWN_POINT.
   uint32 spawn_point_id = 7;
 }

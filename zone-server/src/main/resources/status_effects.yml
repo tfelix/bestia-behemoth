@@ -42,7 +42,7 @@ statusEffects:
     isSyncedToClient: true
     script: BlessingStatusEffect
 
-  # Placeholder hook, attached to every master entity as it materializes (MasterEntityFactory).
+  # Placeholder hook, attached to every master entity as it materializes (MasterEntitySpawner).
   # Currently does nothing at all - it exists so the "show the intro dialog once the master is in
   # the world" trigger can be built against a real, already-attached, never-synced effect. See
   # MasterIntroMarker for why it can't just send the dialog from apply().

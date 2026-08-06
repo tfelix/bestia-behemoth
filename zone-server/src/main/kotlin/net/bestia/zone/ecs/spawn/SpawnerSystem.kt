@@ -1,7 +1,7 @@
 package net.bestia.zone.ecs.spawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.bestia.BestiaEntityFactory
+import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component as SpringComponent
  * ### Two bugs this file used to have
  *
  * Both were the kind that look like working code. `spawnMissingEntities` called
- * `createMobEntity(world, "blob", ...)` with a literal, so **every den in the world produced blobs** whatever
+ * `spawnMob(world, "blob", ...)` with a literal, so **every den in the world produced blobs** whatever
  * its `bestiaId` said - which would have made the entire level ramp invisible while the spawn system appeared
  * to work perfectly. And it spawned at `z = 0`, sea level, which for a den on a hillside is underground.
  *
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @SpringComponent
 @Order(80)
 class SpawnerSystem(
-  private val bestiaEntityFactory: BestiaEntityFactory,
+  private val bestiaEntitySpawner: BestiaEntitySpawner,
 ) : System {
 
   override val reads: ComponentClassSet = setOf(ActivePlayer::class)
@@ -104,7 +104,7 @@ class SpawnerSystem(
     val y = randomBetween(spawner.position.y - spawner.range / 2, spawner.position.y + spawner.range / 2)
 
     // `spawner.bestiaId`, not a literal, and the den's own z, not zero. See the class KDoc.
-    val spawnedEntityId = bestiaEntityFactory.createMobEntity(
+    val spawnedEntityId = bestiaEntitySpawner.spawnMob(
       world,
       spawner.bestiaId,
       Vec3L(x, y, spawner.position.z)

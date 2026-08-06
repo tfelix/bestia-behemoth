@@ -10,7 +10,7 @@ import java.awt.Color
 fun CreateMasterCMSG.Companion.test(
   playerId: Long,
   name: String = "master",
-  spawnPointId: Int? = null
+  spawnPointId: Int
 ): CMSG {
   return CreateMasterCMSG(
     playerId = playerId,

@@ -10,9 +10,7 @@ import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
-import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.status.ConditionValueCalculator
-import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.item.Equipment
 import net.bestia.zone.ecs.item.Inventory
 import net.bestia.zone.item.equip.EquipmentSlots
@@ -29,16 +27,22 @@ import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
 import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.WorldView
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Creates an entity with all the required component from a master db entity.
+ * Materializes an already persisted [Master] row into a live ECS entity carrying every component a player
+ * master needs.
+ *
+ * The world half only - it reads (`readOnly = true`) and writes nothing back. Creating the row in the first
+ * place is [MasterFactory]'s job, driven by a different message: `CreateMasterCMSG` writes the master,
+ * `SelectMasterCMSG` spawns it.
  */
 @Component
-class MasterEntityFactory(
+class MasterEntitySpawner(
   private val world: WorldView,
   private val masterRepository: MasterRepository,
   private val learnedSkillRepository: LearnedSkillRepository,
@@ -46,7 +50,7 @@ class MasterEntityFactory(
   private val weightLimitCalculator: WeightLimitCalculator,
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
   private val conditionValueCalculator: ConditionValueCalculator,
-  private val statusEffectService: StatusEffectService,
+  private val statusEffectPersistenceService: StatusEffectPersistenceService,
 ) {
 
   /**
@@ -55,15 +59,29 @@ class MasterEntityFactory(
    * updated and the master entity id is not yet registered to the session.
    */
   @Transactional(readOnly = true)
-  fun createMasterEntity(masterId: Long): EntityId {
+  fun spawnMaster(masterId: Long): EntityId {
     val master = masterRepository.findByIdOrThrow(masterId)
 
     LOG.info { "Create master entity for account ${master.account.id} with master id: $masterId" }
 
+    // The master reuses the entity id it was stamped with at creation, so anything stored against it
+    // (persisted status effects) finds it again. The flip side is that a leftover entity from a previous
+    // session now collides instead of being quietly orphaned by a freshly minted id, and
+    // `createEntity(id)` throws on a duplicate - so an incumbent is cleared out first. It is about to be
+    // replaced by state read straight from the database anyway.
+    if (world.hasEntity(master.entityId)) {
+      LOG.warn { "Master $masterId still holds entity ${master.entityId} from a previous session, replacing it" }
+
+      world.modify(master.entityId) { id -> destroy(id) }
+    }
+
     val learnedSkillIds = learnedSkillRepository.findAllByMasterId(masterId)
       .associate { it.skill.id to it.level }
 
-    return world.createEntity { id ->
+    // Read before taking the world lock: the attach below runs inside createEntity and must not do I/O.
+    val persistedStatusEffects = statusEffectPersistenceService.load(master.entityId)
+
+    return world.createEntity(master.entityId) { id ->
       connectionInfoService.activateSession(
         accountId = master.account.id,
         masterId = masterId,
@@ -71,7 +89,7 @@ class MasterEntityFactory(
       )
 
       add(id, Account(master.account.id))
-      add(id, MasterComponent(master.id))
+      add(id, MasterComponent(master.id, master.name))
       add(id, Position.fromVec3(master.currentPosition))
       add(id, Level(master.level))
       add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(master.level)))
@@ -141,11 +159,11 @@ class MasterEntityFactory(
       add(id, ActivePlayer)
       add(id, Persistent)
 
-      // Placeholder hook for greeting the player once their master is in the world. The effect
-      // itself does nothing (see MasterIntroMarker) - it just guarantees there is always a live,
-      // client-invisible marker on a freshly materialized master to build that trigger against.
+      // Whatever the master was carrying when it last left the world, plus anything seeded for it
+      // before it ever entered - MasterFactory puts MASTER_INTRO_MARKER here at creation. Nothing is
+      // applied unconditionally any more, so an effect that ran its course stays gone.
       // `this` is the World the create block runs against (WorldView.createEntity).
-      statusEffectService.applyEffect(this, id, StatusEffectId.MASTER_INTRO_MARKER, level = 1)
+      statusEffectPersistenceService.attach(this, id, persistedStatusEffects)
     }
   }
 

@@ -6,14 +6,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class SelectMasterHandler(
-  private val masterEntityFactory: MasterEntityFactory,
+  private val masterEntitySpawner: MasterEntitySpawner,
 ) : InMessageProcessor.IncomingMessageHandler<SelectMasterCMSG> {
   override val handles = SelectMasterCMSG::class
 
   override fun handle(msg: SelectMasterCMSG): Boolean {
     LOG.trace { "RX: $msg" }
 
-    val masterEntityId = masterEntityFactory.createMasterEntity(msg.selectedMasterId)
+    val masterEntityId = masterEntitySpawner.spawnMaster(msg.selectedMasterId)
 
     LOG.debug { "Selecting master ${msg.selectedMasterId} with entity id: $masterEntityId for account: ${msg.playerId}" }
 

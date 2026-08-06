@@ -12,7 +12,7 @@ import net.bestia.zone.entity.PersistedComponent
 import net.bestia.zone.entity.PersistedEntity
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -20,12 +20,12 @@ import java.time.Instant
 
 /**
  * Persists dropped/ground item entities (those carrying an [ItemVisual]) into the generic blob
- * tables and rebuilds them on startup via [LootItemEntityFactory].
+ * tables and rebuilds them on startup via [LootItemEntitySpawner].
  */
 @Component
 class LootItemEntityPersister(
   private val repository: PersistedEntityRepository,
-  private val lootItemEntityFactory: LootItemEntityFactory,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val objectMapper: ObjectMapper,
 ) : EntityPersister {
 
@@ -72,7 +72,7 @@ class LootItemEntityPersister(
       val json = row.components.firstOrNull()?.data ?: continue
       val snap = objectMapper.readValue<LootSnapshot>(json)
 
-      lootItemEntityFactory.createLootEntity(
+      lootItemEntitySpawner.spawnLootItem(
         world = world,
         itemId = snap.itemId,
         amount = snap.amount,

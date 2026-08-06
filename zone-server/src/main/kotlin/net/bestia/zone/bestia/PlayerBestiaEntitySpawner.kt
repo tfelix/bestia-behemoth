@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class PlayerBestiaEntityFactory(
+class PlayerBestiaEntitySpawner(
   private val playerBestiaRepository: PlayerBestiaRepository,
   private val world: WorldView,
   private val connectionInfoService: ConnectionInfoService,
@@ -41,15 +41,15 @@ class PlayerBestiaEntityFactory(
    * It makes sure the same bestia can never be spawned twice.
    */
   @Transactional(readOnly = true)
-  fun createPlayerBestiaEntity(
+  fun spawnPlayerBestia(
     playerBestiaId: PlayerBestiaId,
   ) {
     val playerBestia = playerBestiaRepository.findByIdOrThrow(playerBestiaId)
 
-    createPlayerBestiaEntity(playerBestia)
+    spawnPlayerBestia(playerBestia)
   }
 
-  fun createPlayerBestiaEntity(
+  fun spawnPlayerBestia(
     playerBestia: PlayerBestia,
   ) {
     val accountId = playerBestia.master.account.id

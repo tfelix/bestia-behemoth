@@ -2,20 +2,20 @@ package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Authority
-import net.bestia.zone.bestia.BestiaEntityFactory
+import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 
 /**
- * Spawns an NPC bestia via [BestiaEntityFactory], the same factory the [net.bestia.zone.ecs.spawn.SpawnerSystem]
+ * Spawns an NPC bestia via [BestiaEntitySpawner], the same spawner the [net.bestia.zone.ecs.spawn.SpawnerSystem]
  * uses - so the mob gets its AI brain and known skills like a naturally spawned one.
  */
 @Component
 class SpawnChatCommand(
   private val bestiaRepository: BestiaRepository,
-  private val bestiaEntityFactory: BestiaEntityFactory,
+  private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val world: WorldView
 ) : ChatCommand() {
 
@@ -49,7 +49,7 @@ class SpawnChatCommand(
     }
 
     // TODO add height check if we get more complex maps
-    val entityId = bestiaEntityFactory.createMobEntity(world, bestiaId = bestia.id, pos = Vec3L(x, y, 0L))
+    val entityId = bestiaEntitySpawner.spawnMob(world, bestiaId = bestia.id, pos = Vec3L(x, y, 0L))
 
     LOG.info { "Spawned bestia ${bestia.identifier} as entity $entityId at $x/$y (player $playerId)" }
 

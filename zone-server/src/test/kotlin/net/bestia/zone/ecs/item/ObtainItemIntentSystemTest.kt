@@ -14,7 +14,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -27,7 +27,7 @@ import java.util.Optional
 class ObtainItemIntentSystemTest {
 
   private val itemRepository = mockk<ItemRepository>()
-  private val lootItemEntityFactory = mockk<LootItemEntityFactory>(relaxed = true)
+  private val lootItemEntitySpawner = mockk<LootItemEntitySpawner>(relaxed = true)
   private val inventoryService = mockk<InventoryService>(relaxed = true)
   private val connectionInfoService = mockk<ConnectionInfoService>()
 
@@ -42,7 +42,7 @@ class ObtainItemIntentSystemTest {
 
   private fun newSystem() = ObtainItemIntentSystem(
     itemRepository = itemRepository,
-    lootItemEntityFactory = lootItemEntityFactory,
+    lootItemEntitySpawner = lootItemEntitySpawner,
     inventoryService = inventoryService,
     asyncJobExecutor = asyncJobExecutor,
     connectionInfoService = connectionInfoService,
@@ -63,7 +63,7 @@ class ObtainItemIntentSystemTest {
 
   private fun verifyNoGroundDrop() {
     verify(exactly = 0) {
-      lootItemEntityFactory.createLootEntity(any(), any(), any(), any(), any(), any())
+      lootItemEntitySpawner.spawnLootItem(any(), any(), any(), any(), any(), any())
     }
   }
 
@@ -104,7 +104,7 @@ class ObtainItemIntentSystemTest {
 
     assertTrue(world.get(entity, Inventory::class)!!.isEmpty())
     verify {
-      lootItemEntityFactory.createLootEntity(
+      lootItemEntitySpawner.spawnLootItem(
         world = world, itemId = boulder.id, amount = 1, pos = Vec3L(3, 4, 0)
       )
     }
@@ -125,7 +125,7 @@ class ObtainItemIntentSystemTest {
     world.tick(0.1f)
 
     verify {
-      lootItemEntityFactory.createLootEntity(
+      lootItemEntitySpawner.spawnLootItem(
         world = world, itemId = sword.id, amount = 1, pos = Vec3L(1, 2, 0)
       )
     }

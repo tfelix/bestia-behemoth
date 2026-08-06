@@ -89,8 +89,49 @@ namespace BestiaBehemothClient.Game.World
     /// Nullable and separate from <see cref="Renderer"/> deliberately: the two have independent lifecycles on
     /// the wire - a chunk payload and its static batch are separate messages - and a client that can draw
     /// ground but has no prop meshes yet is a legitimate state during development.
+    ///
+    /// <para><b>Assigning this replays every batch still held</b>, for exactly the reason
+    /// <see cref="Renderer"/> does, and it needs its own buffer to replay from because a static batch is not
+    /// stored anywhere else. <see cref="Store"/> holds decoded terrain and can re-render it on demand; a prop
+    /// batch is a one-shot message the server does not repeat until the column is re-materialised, so
+    /// whatever arrived before the Game scene existed would otherwise be lost until the player wandered out
+    /// of the view volume and back.
+    /// </para>
     /// </remarks>
-    public StaticEntityRenderer StaticEntities { get; set; }
+    [Export]
+    public StaticEntityRenderer StaticEntities
+    {
+      get => IsUsable(_staticEntities) ? _staticEntities : null;
+
+      set
+      {
+        _staticEntities = value;
+
+        if (!IsUsable(value))
+        {
+          return;
+        }
+
+        value.Configure(WorldInfo);
+
+        foreach (var batch in _staticBatches.Values)
+        {
+          value.Apply(batch);
+        }
+      }
+    }
+
+    private StaticEntityRenderer _staticEntities;
+
+    /// <summary>
+    /// The latest static batch for each chunk still held, so a late-attached renderer can be caught up.
+    /// </summary>
+    /// <remarks>
+    /// Keyed and dropped in step with <see cref="Store"/> rather than by its own rule: a batch describes the
+    /// contents of a column the client holds terrain for, so it stops being true at exactly the moment that
+    /// terrain does.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, ChunkStaticEntitiesSMSG> _staticBatches = new();
 
     /// <summary>
     /// Whether a renderer reference is still safe to call.
@@ -101,7 +142,7 @@ namespace BestiaBehemothClient.Game.World
     /// <c>?.</c> does not protect against it and the next call throws <c>ObjectDisposedException</c> - on the
     /// second login of a session, which is a long way from the code that caused it.
     /// </remarks>
-    private static bool IsUsable(TerrainRenderer renderer) =>
+    private static bool IsUsable(Node renderer) =>
       renderer != null && GodotObject.IsInstanceValid(renderer);
 
     public ClientChunkStore Store { get; } = new();
@@ -176,9 +217,11 @@ namespace BestiaBehemothClient.Game.World
           break;
 
         case ChunkStaticEntitiesSMSG statics:
-          // Applied straight away rather than queued: a batch is a few hundred transforms into a multimesh
-          // buffer, not a decode and a mesh build, so it does not need the frame budget the chunk queue exists
-          // to spread. It arrives behind its chunk, so the ground is already there or already queued.
+          // Applied straight away rather than queued: a batch is a few hundred transforms and, for the kinds
+          // that have art, a scene instance each - not a decode and a mesh build, so it does not need the
+          // frame budget the chunk queue exists to spread. It arrives behind its chunk, so the ground is
+          // already there or already queued.
+          _staticBatches[statics.Key] = statics;
           StaticEntities?.Apply(statics);
           break;
       }
@@ -209,9 +252,11 @@ namespace BestiaBehemothClient.Game.World
       // A new world, or a reconnect: nothing held can be assumed to still be right.
       Store.Clear();
       _toDecode.Clear();
+      _staticBatches.Clear();
       StaticEntities?.Clear();
 
       Renderer?.Configure(Store, info);
+      StaticEntities?.Configure(info);
     }
 
     private void OnManifest(ChunkManifestSMSG manifest)
@@ -222,18 +267,20 @@ namespace BestiaBehemothClient.Game.World
 
       var wanted = Store.Reconcile(manifest);
 
-      if (Renderer != null)
+      // Dropped after reconciling, so a reset manifest that re-lists a chunk does not tear down geometry it is
+      // about to want back. Not gated on a renderer existing, unlike the terrain removal it used to sit
+      // inside: the batch buffer has to be pruned whether or not anything is currently drawing, or a renderer
+      // attached later would be replayed the contents of columns the client stopped holding long ago.
+      foreach (var key in candidates)
       {
-        // Dropped after reconciling, so a reset manifest that re-lists a chunk does not tear down geometry it is
-        // about to want back.
-        foreach (var key in candidates)
+        if (Store.Get(key) != null)
         {
-          if (Store.Get(key) == null)
-          {
-            Renderer.Remove(key);
-            StaticEntities?.Remove(key);
-          }
+          continue;
         }
+
+        Renderer?.Remove(key);
+        _staticBatches.Remove(key);
+        StaticEntities?.Remove(key);
       }
 
       GD.Print(

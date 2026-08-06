@@ -6,6 +6,7 @@ import net.bestia.zone.account.master.PlayerBestiaPolicy
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PlayerBestiaFactory(
@@ -21,9 +22,17 @@ class PlayerBestiaFactory(
   )
 
   /**
-   * Spawns the given player bestia into the world.
-   * It makes sure the same bestia can never be spawned twice.
+   * Builds and persists a [PlayerBestia] row for the given master, enforcing [PlayerBestiaPolicy] so the
+   * same bestia can never be owned twice.
+   *
+   * Persistence only - putting it into the world is [PlayerBestiaEntitySpawner]'s job, which
+   * [PlayerBestiaCreateOperation] calls right after this.
+   *
+   * Transactional in its own right rather than relying on the caller to hold a session:
+   * [net.bestia.zone.account.master.Master.addPlayerBestia] initializes the master's lazy `bestias`
+   * collection, which fails outright on a detached master.
    */
+  @Transactional
   fun create(
     masterId: Long,
     playerBestiaCreateData: PlayerBestiaCreateData,

@@ -14,8 +14,12 @@ data class CreateMasterCMSG(
   val hair: Hairstyle,
   val face: Face,
   val body: BodyType,
-  /** Id of the chosen [net.bestia.zone.world.MasterSpawnPoint], or null (0 on the wire) for the world default. */
-  val spawnPointId: Int? = null
+  /**
+   * Id of the chosen [net.bestia.zone.world.MasterSpawnPoint]. Required - a client that leaves the
+   * presence-less `uint32` unset sends 0, which matches no spawn point and gets the request refused with
+   * [MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT] like any other unknown id.
+   */
+  val spawnPointId: Int
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: AccountId, msg: CreateMasterProto.CreateMasterCMSG): CreateMasterCMSG {
@@ -27,7 +31,7 @@ data class CreateMasterCMSG(
         hair = mapHairstyle(msg.hair),
         face = mapFace(msg.face),
         body = mapBodyType(msg.body),
-        spawnPointId = msg.spawnPointId.takeIf { it != 0 }
+        spawnPointId = msg.spawnPointId
       )
     }
 

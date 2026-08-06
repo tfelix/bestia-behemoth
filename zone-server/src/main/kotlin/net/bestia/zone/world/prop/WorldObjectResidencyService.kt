@@ -1,6 +1,5 @@
 package net.bestia.zone.world.prop
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
@@ -11,7 +10,6 @@ import net.bestia.zone.ecs.prop.StaticSync
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.socket.ChunkFanOut
-import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService

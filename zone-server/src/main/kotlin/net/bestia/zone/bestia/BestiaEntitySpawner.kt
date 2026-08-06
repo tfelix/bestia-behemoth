@@ -21,13 +21,13 @@ import net.bestia.zone.geometry.Vec3L
 import org.springframework.stereotype.Component
 
 @Component
-class BestiaEntityFactory(
+class BestiaEntitySpawner(
   private val bestiaRepository: BestiaRepository,
   private val aiProfileRegistry: AiProfileRegistry,
   private val movementProfileRegistry: MovementProfileRegistry
 ) {
 
-  fun createMobEntity(
+  fun spawnMob(
     world: WorldView,
     bestiaId: Long,
     pos: Vec3L,
@@ -98,14 +98,14 @@ class BestiaEntityFactory(
     add(id, KnownSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 
-  fun createMobEntity(
+  fun spawnMob(
     world: WorldView,
     identifier: String,
     pos: Vec3L,
   ): EntityId {
     val bestia = bestiaRepository.findByIdentifierOrThrow(identifier)
 
-    return createMobEntity(
+    return spawnMob(
       world,
       bestiaId = bestia.id,
       pos,

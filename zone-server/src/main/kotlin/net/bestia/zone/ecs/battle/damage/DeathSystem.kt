@@ -13,7 +13,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.session.NoActiveSessionException
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
-import net.bestia.zone.item.loot.LootItemEntityFactory
+import net.bestia.zone.item.loot.LootItemEntitySpawner
 import net.bestia.zone.party.PartyMembership
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(70)
 class DeathSystem(
   private val experienceGainCalculator: ExperienceGainCalculator,
-  private val lootItemEntityFactory: LootItemEntityFactory,
+  private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val deletionQueue: PersistedEntityDeletionQueue,
   private val connectionInfoService: ConnectionInfoService,
 ) : System {
@@ -122,7 +122,7 @@ class DeathSystem(
     val bestiaVisual = world.get(entityId, BestiaVisual::class)
       ?: return
 
-    lootItemEntityFactory.createLootEntities(world, bestiaVisual.id, position)
+    lootItemEntitySpawner.spawnLoot(world, bestiaVisual.id, position)
   }
 
   companion object {
