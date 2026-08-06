@@ -27,6 +27,14 @@ worldgen:
   #     Any other value and the offline tooling inspects a world the server is not running.
   #   - the world centre is dry land - tropical seasonal forest at 53 m - and the centre is where a new master
   #     spawns. Most seeds put the centre in open ocean: of fourteen sampled, twelve did.
+  #
+  # DEV ONLY - this value is committed and therefore public, same as `jwt-auth-secret-key` above. The
+  # generator is open source and runs offline in well under a second, so anyone who knows the seed can
+  # regenerate the whole map - every ore deposit, cave hoard and ruin - before setting foot in it. A real,
+  # persistent deployment must leave this unset (a fresh `Long` is then drawn at random on first boot, over
+  # the full 64-bit range, and persisted in `PersistedWorld` - never transmitted to the client, see
+  # `WorldInfoSMSG`) or override it via an environment-specific, non-committed source. Either way, set it
+  # *before* the first boot: the seed is permanent the moment the world row is written.
   seed: 11753242
   # World extent in cells. A cell is `cell-size-metres` across, so at the default these are kilometres.
   width-cells: 128

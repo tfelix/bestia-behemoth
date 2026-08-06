@@ -20,6 +20,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   explicit seed is a request for a different world, which [onMismatch] governs like any other. The shipped
  *   `application.yml` pins it: the development datasource is in-memory, so an unpinned seed makes every restart
  *   a different planet and no terrain bug reproduces twice.
+ *
+ *   A pinned value belongs in a committed config only for that reason. `worldgen` is open source and generates
+ *   offline in well under a second, so a real deployment's seed must not be - leave it unset, which draws one
+ *   from [kotlin.random.Random] over the full 64-bit range, or supply it from a non-committed,
+ *   environment-specific source. Either way, do so before the world's first boot: the seed is permanent from
+ *   then on, in [net.bestia.zone.world.PersistedWorld].
  */
 @ConfigurationProperties(prefix = "worldgen")
 data class WorldGenConfig(
