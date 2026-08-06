@@ -16,6 +16,8 @@ interface AccountRepository : JpaRepository<Account, Long> {
     """
   )
   fun streamAllWithMasterAndBestias(): Stream<Account>
+
+  fun findByLoginAccountId(loginAccountId: Long): Account?
 }
 
 fun AccountRepository.findByIdOrThrow(id: Long): Account {

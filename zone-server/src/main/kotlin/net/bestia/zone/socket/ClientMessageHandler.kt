@@ -7,6 +7,7 @@ import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
 import net.bestia.zone.message.MessageEnvelopeReceivedEvent
+import net.bestia.zone.message.MessageHandlingFailedException
 import net.bestia.bnet.proto.AuthenticationSuccessProto
 import net.bestia.bnet.proto.DisconnectedProto
 import net.bestia.bnet.proto.EnvelopeProto
@@ -53,10 +54,7 @@ class ClientMessageHandler(
 
     LOG.debug { "Client $connectionUuid - ${ctx.channel().remoteAddress()} (player: $accountId) disconnected" }
 
-    accountId?.let { id ->
-      handlerCtx.channelRegistry.unregisterChannel(id)
-      handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, id))
-    }
+    releaseAccount(ctx)
   }
 
   override fun channelRead0(ctx: ChannelHandlerContext, msg: EnvelopeProto.Envelope) {
@@ -73,17 +71,20 @@ class ClientMessageHandler(
 
   @Deprecated("Deprecated in Java")
   override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-    LOG.error(cause) { "Connection error" }
+    // MessageHandlingFailedException already logged the original exception with this same code;
+    // anything else reaching here (codec errors, raw IO failures, ...) hasn't been logged yet, so
+    // mint a fresh code to still give the client-facing error something to reference in a report.
+    val errorCode = (cause as? MessageHandlingFailedException)?.errorCode ?: UUID.randomUUID().toString()
+    LOG.error(cause) { "Connection error [errorCode=$errorCode], closing connection" }
 
     // Cancel auth timeout task
     authTimeoutTask?.cancel(false)
 
-    accountId?.let { id ->
-      handlerCtx.channelRegistry.unregisterChannel(id)
-      handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, id))
-    }
+    releaseAccount(ctx)
 
-    ctx.close()
+    // This is the connection's HTTP-500 equivalent: don't leak internals to the client, but keep
+    // the errorCode traceable back to the server log entry above for debugging.
+    sendDisconnectMessageAndClose(ctx.channel(), reason = "INTERNAL_SERVER_ERROR:$errorCode")
   }
 
   private fun authenticateChannel(
@@ -111,7 +112,7 @@ class ClientMessageHandler(
     }
 
     accountId = result.accountId
-    handlerCtx.channelRegistry.registerChannel(result.accountId, ctx.channel())
+    takeOverAccount(ctx, result.accountId)
 
     LOG.debug { "Client ${ctx.channel().remoteAddress()} authed as player ${result.accountId}" }
 
@@ -134,6 +135,50 @@ class ClientMessageHandler(
         authorities = result.authorities,
       )
     )
+  }
+
+  /**
+   * Claims the account for this connection, terminating whatever connection already held it.
+   *
+   * An account must only ever have one live connection: the session state and the master entity in the
+   * world are keyed by account, so two sockets acting as one account would fight over the same entity.
+   * The newcomer wins rather than being refused, because the common cause is a client whose old socket
+   * is already dead in a way the server has not noticed yet — refusing would lock the player out until
+   * the stale connection timed out.
+   *
+   * The displaced connection's teardown is published from here, synchronously, rather than left to its
+   * own [channelInactive]: its session must be gone before [AccountConnectedEvent] below announces
+   * ours, and `channelInactive` runs later on a different event loop with no ordering guarantee at all.
+   */
+  private fun takeOverAccount(ctx: ChannelHandlerContext, accountId: Long) {
+    val displaced = handlerCtx.channelRegistry.registerChannel(accountId, ctx.channel())
+
+    if (displaced == null || displaced === ctx.channel()) {
+      return
+    }
+
+    LOG.info {
+      "Account $accountId logged in from ${ctx.channel().remoteAddress()} while already connected from " +
+              "${displaced.remoteAddress()} - terminating the older connection"
+    }
+
+    handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, accountId))
+    sendDisconnectMessageAndClose(displaced, reason = "OTHER_CONNECTION")
+  }
+
+  /**
+   * Runs the account teardown for this connection, if it still owns the account.
+   *
+   * A connection that a newer login already displaced (see [takeOverAccount]) must stay silent here:
+   * its teardown has already been published on its behalf, and publishing a second
+   * [AccountDisconnectedEvent] would deactivate the session of the connection that replaced it.
+   */
+  private fun releaseAccount(ctx: ChannelHandlerContext) {
+    val id = accountId ?: return
+
+    if (handlerCtx.channelRegistry.unregisterChannel(id, ctx.channel())) {
+      handlerCtx.applicationEventPublisher.publishEvent(AccountDisconnectedEvent(this, id))
+    }
   }
 
   private fun handleAuthenticationFailed(ctx: ChannelHandlerContext) {

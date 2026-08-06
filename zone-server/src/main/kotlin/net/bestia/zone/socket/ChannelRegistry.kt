@@ -23,14 +23,42 @@ class ChannelRegistry(
 
   private val channelsByAccountId = ConcurrentHashMap<Long, Channel>()
 
-  fun registerChannel(accountId: Long, channel: Channel) {
-    channelsByAccountId[accountId] = channel
+  /**
+   * Makes [channel] the account's one live connection and returns whichever channel it displaced,
+   * or null if the account had none.
+   *
+   * The swap is a single atomic put on purpose: when two clients race to log in as the same account
+   * they may be on different event loops, and this guarantees exactly one of them ends up registered
+   * while the other is handed back to its displacer to be terminated. Checking-then-putting would let
+   * both come away believing they own the account, leaving an orphaned socket that receives nothing
+   * yet can still send commands.
+   */
+  fun registerChannel(accountId: Long, channel: Channel): Channel? {
+    val displaced = channelsByAccountId.put(accountId, channel)
     LOG.debug { "Registered channel for account: $accountId" }
+
+    return displaced
   }
 
-  fun unregisterChannel(accountId: Long) {
-    channelsByAccountId.remove(accountId)
-    LOG.debug { "Removed channel registration for account: $accountId" }
+  /**
+   * Drops [channel]'s registration, but only while it is still the account's registered channel, and
+   * reports whether this call was the one that removed it.
+   *
+   * The registration doubles as the ownership token for disconnect cleanup. A channel that a newer
+   * login already displaced (see [registerChannel]) must not run the account's teardown a second
+   * time — by then the teardown would hit the session belonging to the connection that replaced it.
+   */
+  fun unregisterChannel(accountId: Long, channel: Channel): Boolean {
+    // Channel does not override equals, so this is an identity comparison - which is what we want.
+    val removed = channelsByAccountId.remove(accountId, channel)
+
+    if (removed) {
+      LOG.debug { "Removed channel registration for account: $accountId" }
+    } else {
+      LOG.debug { "Channel for account $accountId was already replaced, leaving the registration alone" }
+    }
+
+    return removed
   }
 
   fun getChannel(accountId: Long): Channel? = channelsByAccountId[accountId]

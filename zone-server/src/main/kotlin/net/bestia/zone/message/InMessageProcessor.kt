@@ -2,6 +2,7 @@ package net.bestia.zone.message
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.util.UUID
 import kotlin.reflect.KClass
 
 /**
@@ -52,8 +53,16 @@ class InMessageProcessor(
 
         isHandled
       } catch (e: Exception) {
-        LOG.error(e) { "Error during message handling" }
-        false
+        // A handler exception is a bug, not a "this client request was invalid" outcome - it
+        // leaves the client waiting for a response that will never come. Fail the connection
+        // instead of swallowing it: errorCode ties this log entry to whatever generic error the
+        // client ends up displaying.
+        val errorCode = UUID.randomUUID().toString()
+        LOG.error(e) {
+          "Error during message handling [errorCode=$errorCode] handler=${handler::class.simpleName} " +
+                  "message=${msg::class.simpleName}"
+        }
+        throw MessageHandlingFailedException(errorCode, e)
       }
     }
 
