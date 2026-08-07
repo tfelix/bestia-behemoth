@@ -7,6 +7,7 @@ option java_outer_classname = "OperationSuccessProto";
 
 enum OpSuccess {
   MASTER_CREATED = 0;
+  MASTER_DELETED = 1;
 }
 
 message OperationSuccess {

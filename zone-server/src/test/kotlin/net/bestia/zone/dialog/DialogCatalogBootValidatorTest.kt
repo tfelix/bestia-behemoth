@@ -30,7 +30,10 @@ class DialogCatalogBootValidatorTest {
     val intro = registry.getOrThrow(DialogId.MASTER_INTRO)
     assertEquals("MASTER_INTRO", intro.identifier)
     assertEquals(DialogType.CONFIRM, intro.type)
-    assertEquals(listOf("masterName"), intro.args)
+    // Both placeholders the greeting actually renders - see `MasterIntroMarker`, which supplies exactly these
+    // two, and DIALOG_1_TEXT in the client's dialogs.csv, which spends them. DialogService rejects a send
+    // whose keys do not match this list, so the three have to agree.
+    assertEquals(listOf("masterName", "worldName"), intro.args)
   }
 
   @Test

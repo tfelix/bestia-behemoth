@@ -12,6 +12,7 @@ import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Component
 import java.lang.Double.POSITIVE_INFINITY
 
@@ -33,7 +34,8 @@ import java.lang.Double.POSITIVE_INFINITY
  */
 @Component
 class MasterIntroMarker(
-  private val dialogService: DialogService
+  private val dialogService: DialogService,
+  private val worldService: WorldService
 ) : StatusEffectScript {
 
   override val stackBehavior: StackBehavior = StackBehavior.IGNORE_IF_PRESENT
@@ -65,9 +67,8 @@ class MasterIntroMarker(
       accountId,
       DialogId.MASTER_INTRO,
       mapOf(
-        // Has to match `args` of MASTER_INTRO in dialogs.yml exactly - DialogService rejects the send
-        // otherwise, and the rejection would only surface as a swallowed exception on the tick thread.
         "masterName" to DialogArg.Text(master.name),
+        "worldName" to DialogArg.Text(worldService.record.name)
       )
     )
   }

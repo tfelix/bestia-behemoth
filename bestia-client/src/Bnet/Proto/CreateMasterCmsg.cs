@@ -173,6 +173,10 @@ namespace Bnet {
     /// <summary>Field number for the "spawn_point_id" field.</summary>
     public const int SpawnPointIdFieldNumber = 7;
     private uint spawnPointId_;
+    /// <summary>
+    /// Id of a MasterSpawnPointCandidate offered by AvailableMasterSMSG. Required: there is no world-default
+    /// spawn, so leaving this unset (0) gets the request refused with MASTER_INVALID_SPAWN_POINT.
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public uint SpawnPointId {

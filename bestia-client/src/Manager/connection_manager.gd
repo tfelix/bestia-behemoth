@@ -31,6 +31,7 @@ var GetMasterCMSG = load("res://Bnet/Message/Master/GetMasterCMSG.cs")
 var GetSelfCMSG = load("res://Bnet/Message/Master/GetSelfCMSG.cs")
 var SelectMasterCMSG = load("res://Bnet/Message/Master/SelectMasterCMSG.cs")
 var CreateMasterCMSG = load("res://Bnet/Message/Master/CreateMasterCMSG.cs")
+var DeleteMasterCMSG = load("res://Bnet/Message/Master/DeleteMasterCMSG.cs")
 var GetAllEntities = load("res://Bnet/Message/Entity/GetAllEntities.cs")
 var AttackEntityCMSG = load("res://Bnet/Message/Entity/AttackEntityCMSG.cs")
 var MoveActiveEntityCMSG = load("res://Bnet/Message/Entity/MoveActiveEntityCMSG.cs")
@@ -307,6 +308,20 @@ func create_master(character_name: String, body: int, face: int, hair: int, hair
 	msg.HairColor = hair_color
 	msg.SkinColor = skin_color
 	msg.SpawnPointId = spawn_point_id
+	_socket.SendMessage(msg)
+
+
+## Requests permanent deletion of one of the account's masters. This cannot be undone - the character,
+## its bestias, its items and its skills are gone.
+## [param confirmation_name] is the name the player typed into the confirmation prompt, not the name read
+## back from the master data: the server compares the two and refuses the deletion if they differ, which
+## is what stops a stray click from costing a character.
+## The result arrives asynchronously via the operation_success / operation_error signals.
+func delete_master(master_id: int, confirmation_name: String) -> void:
+	assert(is_ready_to_send())
+	var msg = DeleteMasterCMSG.new()
+	msg.MasterId = master_id
+	msg.ConfirmationName = confirmation_name
 	_socket.SendMessage(msg)
 
 

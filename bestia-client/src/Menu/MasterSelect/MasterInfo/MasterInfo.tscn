@@ -82,6 +82,11 @@ mouse_filter = 2
 text = "Y: 0"
 label_settings = ExtResource("3_5ufew")
 
+[node name="DeleteButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete"
+
 [node name="Highlight" type="Panel" parent="."]
 unique_name_in_owner = true
 visible = false

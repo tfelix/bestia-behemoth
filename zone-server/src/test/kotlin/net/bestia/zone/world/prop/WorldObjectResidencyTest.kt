@@ -12,6 +12,7 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
+import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkSubscriptionService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -321,6 +322,47 @@ class WorldObjectResidencyTest {
     assertEquals(1, sent.size, "the column was encoded once per recipient rather than once")
     assertEquals(3, sent.single().entries.size)
     assertEquals(ChunkPos(2, 3, 0), sent.single().chunk)
+  }
+
+  /**
+   * The batch has to carry its entries when the drain runs *where production runs it*.
+   *
+   * Every other test here calls [WorldObjectResidencyService.drain] directly, so `World.iterating` is false and
+   * `add` applies immediately. In production the drain happens inside [WorldObjectResidencySystem.update], which
+   * the scheduler runs with `iterating` set - and `World.add` is deferred to the end of the tick then. A flush
+   * that reads the components back in the same call therefore sees none of them.
+   */
+  @Test
+  fun `a batch drained from inside a system update still carries its entries`() {
+    val world = testWorld(systems = listOf(WorldObjectResidencySystem(residency, ChunkStreamConfig())))
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+
+    assertEquals(1, sent.size, "the column was never announced")
+    assertEquals(3, sent.single().entries.size, "the batch went out empty, so the client draws bare ground")
+  }
+
+  /**
+   * The second player into a wood is told about the trees, though their arrival queues no work.
+   *
+   * The first subscriber already materialised the column, so nothing is pending when the second one is served -
+   * and [WorldObjectResidencySystem] skips the drain entirely when nothing is pending, which takes the batch
+   * flush with it. `onChunkSent` fires for every recipient precisely so this case is covered.
+   */
+  @Test
+  fun `a second player into an already resident column is still sent the batch`() {
+    val world = testWorld(systems = listOf(WorldObjectResidencySystem(residency, ChunkStreamConfig())))
+
+    subscriptions.markSent(1L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+    assertEquals(1, sent.size, "the first player was not served")
+
+    subscriptions.markSent(2L, ChunkPos(2, 3, 0))
+    world.tick(0.05f)
+
+    assertEquals(2, sent.size, "the second player was never told what stands on the ground they were given")
+    assertEquals(3, sent.last().entries.size)
   }
 
   /**

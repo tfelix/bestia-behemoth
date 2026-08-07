@@ -24,6 +24,7 @@ import "messages/master/self_smsg.proto";
 import "messages/master/master.proto";
 import "messages/master/select_master_cmsg.proto";
 import "messages/master/create_master_cmsg.proto";
+import "messages/master/delete_master_cmsg.proto";
 import "messages/component/master_visual_component_smsg.proto";
 import "messages/component/path_component_smsg.proto";
 import "messages/component/speed_component_smsg.proto";
@@ -126,6 +127,7 @@ message Envelope {
     InvestStatusPointCMSG invest_status_point = 410;
     SetBestiaAiConfigCMSG set_bestia_ai_config = 411;
     BestiaAiConfigSMSG bestia_ai_config = 412;
+    DeleteMasterCMSG delete_master = 413;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

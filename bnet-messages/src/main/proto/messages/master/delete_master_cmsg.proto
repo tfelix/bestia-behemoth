@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "DeleteMasterProto";
+
+/**
+ * Requests the server to permanently delete one of the account's masters, together with everything
+ * that hangs off it (owned bestias, inventory, learned skills).
+ *
+ * The deletion is irreversible, so the client makes the player type the master's name before it sends
+ * this and puts that text into confirmation_name. The server checks it again rather than trusting the
+ * client to have asked: an accidental or spoofed delete is refused with MASTER_NAME_MISMATCH instead of
+ * costing a character.
+ *
+ * The result is reported back via OperationSuccess (MASTER_DELETED) or OperationError (MASTER_*).
+ */
+message DeleteMasterCMSG {
+  uint64 master_id = 1;
+  // Must equal the master's name exactly (surrounding whitespace aside).
+  string confirmation_name = 2;
+}

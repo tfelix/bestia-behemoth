@@ -37,18 +37,16 @@ class Spawner(
       "activationRange $activationRange must be at least the spawn range $range, or a den could place a " +
           "creature further away than the distance that woke it"
     }
+    // The broad phase looks at the 3x3 cells around a player, so a range reaching past one cell would be
+    // honoured near the den and silently ignored at the far edge of the same radius - a den that half works.
+    require(activationRange <= SpawnerSystem.MAX_ACTIVATION_RANGE) {
+      "activationRange $activationRange exceeds SpawnerSystem.MAX_ACTIVATION_RANGE " +
+          "${SpawnerSystem.MAX_ACTIVATION_RANGE}, which is what SpawnerCellIndex's cells are sized against; " +
+          "this den would not be found at the outer edge of its own range"
+    }
   }
 
   var spawnedEntities: MutableSet<EntityId> = mutableSetOf()
-
-  /**
-   * Whether a player was near enough on the last tick that looked.
-   *
-   * Kept on the component rather than recomputed at each use, because the *transition* is what matters: a den
-   * going quiet is what takes its pack back out of the world, and "it was awake and now is not" cannot be
-   * read off the distance alone.
-   */
-  var awake: Boolean = false
 
   companion object {
     /** Roughly three chunks beyond a typical view radius, in world units. */

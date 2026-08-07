@@ -56,7 +56,10 @@ class WorldObjectResidencySystem(
   )
 
   override fun update(world: World, deltaTime: Float) {
-    if (residency.pending == 0) return
+    // Both, because a drain does two jobs and only one of them is queued work. The second player into a wood
+    // is served a column the first already materialised, so nothing is pending and a batch is still owed -
+    // gating on `pending` alone left them looking at bare ground under trees everyone else could see.
+    if (residency.pending == 0 && residency.awaitingBatches == 0) return
 
     val (loaded, released) = residency.drain(world, settings.chunksPerTickPerPlayer)
 

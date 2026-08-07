@@ -16,7 +16,17 @@ class SystemScheduler(private val parallel: Boolean = false) {
 
   private class Entry(val system: System) {
     var tickCounter = 0
+
+    /**
+     * Progress towards the next firing. Deliberately *not* the same quantity as [sinceLastRun]: this one
+     * keeps its sub-period remainder across firings so the cadence stays phase-locked to the schedule
+     * rather than rounding up to a whole number of ticks each time.
+     */
     var accumulator = 0f
+
+    /** Time actually elapsed since this entry last ran, and therefore what [effectiveDelta] is taken from. */
+    var sinceLastRun = 0f
+
     /** Real elapsed time since this entry last ran; what actually gets passed to [System.update]. */
     var effectiveDelta = 0f
   }
@@ -69,6 +79,19 @@ class SystemScheduler(private val parallel: Boolean = false) {
    * set to the real elapsed time accumulated since the entry last ran (not just this tick's
    * [deltaTime]), so systems that integrate over time (countdowns, decay, etc.) stay correct
    * regardless of how often they're scheduled to run.
+   *
+   * ### Why [Schedule.EverySeconds] needs two counters
+   *
+   * Because the cadence and the reported delta want different arithmetic, and one accumulator cannot serve
+   * both. Keeping the sub-period remainder in [Entry.accumulator] is what stops the period rounding up to a
+   * whole number of ticks - a 0.25 s schedule on a 0.03 s tick would otherwise fire every 0.27 s and run 8%
+   * slow. But a remainder carried forward is then counted a *second* time in the next firing's delta, which
+   * is why the elapsed time handed to the system lives in [Entry.sinceLastRun] and is reset outright.
+   *
+   * The modulo rather than a subtraction covers the overdue case. A tick longer than the whole period - a
+   * lag spike, or a coarsely stepped test - leaves the accumulator still above the threshold after one
+   * subtraction, and the entry would then fire on every subsequent tick forever, permanently convinced it
+   * was behind. Missed periods are dropped rather than queued up to be made good on.
    */
   private fun isDue(e: Entry, deltaTime: Float): Boolean = when (val s = e.system.schedule) {
     is Schedule.EveryTick -> {
@@ -87,11 +110,14 @@ class SystemScheduler(private val parallel: Boolean = false) {
       } else false
     }
 
+    // Two counters, and a modulo rather than a subtraction. See this function's KDoc; neither is arbitrary.
     is Schedule.EverySeconds -> {
       e.accumulator += deltaTime
+      e.sinceLastRun += deltaTime
       if (e.accumulator >= s.seconds) {
-        e.effectiveDelta = e.accumulator
-        e.accumulator -= s.seconds
+        e.effectiveDelta = e.sinceLastRun
+        e.sinceLastRun = 0f
+        e.accumulator %= s.seconds
         true
       } else false
     }

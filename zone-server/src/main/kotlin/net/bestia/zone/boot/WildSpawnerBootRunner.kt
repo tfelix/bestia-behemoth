@@ -3,6 +3,7 @@ package net.bestia.zone.boot
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.spawn.Spawner
+import net.bestia.zone.ecs.spawn.SpawnerCellIndex
 import net.bestia.zone.ecs.spawn.WildSpawnerService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component
 @Order(105)
 class WildSpawnerBootRunner(
   private val wildSpawnerService: WildSpawnerService,
+  private val cellIndex: SpawnerCellIndex,
   private val world: World,
 ) : CommandLineRunner {
 
@@ -41,7 +43,7 @@ class WildSpawnerBootRunner(
     }
 
     for (den in dens) {
-      world.createEntity { id ->
+      val id = world.createEntity { id ->
         add(
           id,
           Spawner(
@@ -52,9 +54,15 @@ class WildSpawnerBootRunner(
           )
         )
       }
+
+      // The entire write path of the index: dens never move and nothing destroys one, so this runs once per
+      // den at boot and the index is read-only for the rest of the process.
+      cellIndex.add(id, den.position)
     }
 
-    LOG.info { "Placed ${dens.size} dormant wild den(s)" }
+    // Both counts, because a den that exists but was not indexed is invisible to `SpawnerSystem` and would
+    // show up as an unexplained patch of empty wilderness rather than as an error.
+    LOG.info { "Placed ${dens.size} dormant wild den(s), ${cellIndex.size} indexed" }
   }
 
   private companion object {

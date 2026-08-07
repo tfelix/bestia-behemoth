@@ -15,7 +15,7 @@ dialogs:
   - id: 1
     identifier: MASTER_INTRO
     type: CONFIRM
-    args: [masterName]
+    args: [masterName, worldName]
 
   # Kept deliberately arg-less as the copy-me example for a plain confirm dialog.
   - id: 2

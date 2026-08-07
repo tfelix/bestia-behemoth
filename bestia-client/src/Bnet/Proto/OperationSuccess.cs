@@ -26,9 +26,9 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqHwoJT3BTdWNjZXNzEhIKDk1BU1RFUl9DUkVBVEVEEABCLgoV",
-            "bmV0LmJlc3RpYS5ibmV0LnByb3RvQhVPcGVyYXRpb25TdWNjZXNzUHJvdG9i",
-            "BnByb3RvMw=="));
+            "cFN1Y2Nlc3MqMwoJT3BTdWNjZXNzEhIKDk1BU1RFUl9DUkVBVEVEEAASEgoO",
+            "TUFTVEVSX0RFTEVURUQQAUIuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU9w",
+            "ZXJhdGlvblN1Y2Nlc3NQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -41,6 +41,7 @@ namespace Bnet {
   #region Enums
   public enum OpSuccess {
     [pbr::OriginalName("MASTER_CREATED")] MasterCreated = 0,
+    [pbr::OriginalName("MASTER_DELETED")] MasterDeleted = 1,
   }
 
   #endregion

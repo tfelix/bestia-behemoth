@@ -105,6 +105,15 @@ class WorldObjectResidencyService(
   val residentEntities get() = resident.values.sumOf { it.size }
   val pending get() = pendingLoad.size + pendingRelease.size
 
+  /**
+   * Columns whose holders have the terrain but have not yet been told what stands on it.
+   *
+   * Separate from [pending] because the two can move independently, and the case where they do is the ordinary
+   * one: the second player into a wood is served a column somebody else already materialised, so nothing is
+   * queued to load or release and there is still a batch owed. A drain gated on [pending] alone never flushes it.
+   */
+  val awaitingBatches get() = awaitingBatch.size
+
   private fun hold(chunk: ChunkPos) {
     val column = columnOf(chunk)
     val count = (holders[column] ?: 0) + 1
@@ -159,7 +168,15 @@ class WorldObjectResidencyService(
 
     // After both, so a column materialised this tick is announced in the same tick its terrain was, and one
     // released this tick is not announced at all.
-    flushBatches(world)
+    //
+    // **Deferred, because `materialise` above cannot have attached its components yet.** This drain runs from
+    // inside `WorldObjectResidencySystem.update`, so `World.iterating` is set and every `add` in `materialise`
+    // is queued rather than applied - and [flushBatches] reads `PropPose` and `StaticVisual` back off the
+    // entities to build the batch. Reading them in this call therefore found nothing on any of them and sent
+    // an *empty* batch for every column in the world, which a client cannot tell from ground that genuinely
+    // has nothing on it. `defer` appends to the same queue the adds went into, so it runs after them; off the
+    // tick thread (tests calling `drain` directly) it simply runs now.
+    world.defer { flushBatches(world) }
 
     return loaded to released
   }

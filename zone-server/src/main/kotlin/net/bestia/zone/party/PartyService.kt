@@ -257,6 +257,51 @@ class PartyService(
     }
   }
 
+  /**
+   * Unhooks a master from its party right before the master row itself is deleted, and reports who is
+   * left needing to hear about it.
+   *
+   * Separate from [leaveParty] because that resolves the acting master through the session, and a master
+   * being deleted is by definition not the selected one - deletion happens on the character selection
+   * screen. Owning the party disbands it, matching [leaveParty]: there is no ownership transfer.
+   *
+   * Must run before the master is deleted, not after: `Party.owner` is a non-null FK and `Master.party`
+   * is the owning side of the membership, so a master removed with either still pointing at it takes a
+   * constraint violation rather than a clean delete.
+   */
+  @Transactional
+  fun detachDeletedMaster(master: Master): LeavePartyResult? {
+    val party = partyRepository.findByOwner(master) ?: partyRepository.findByMember(master) ?: return null
+
+    return if (party.owner.id == master.id) {
+      // The owner filters itself out of `member` because `Master.party` is set on the owner too, so a
+      // freshly loaded party lists it among its own members - and it is exactly who must not be notified
+      // here: it is the master being deleted.
+      val otherMemberAccountIds = party.member.filter { it.id != master.id }.map { it.account.id }
+
+      party.member.forEach { it.party = null }
+      party.owner.party = null
+      masterRepository.saveAll(party.member + party.owner)
+
+      partyRepository.delete(party)
+
+      (otherMemberAccountIds + party.owner.account.id).forEach { clearPartyMembershipComponent(it) }
+
+      LeavePartyResult.Disbanded(party.id, otherMemberAccountIds)
+    } else {
+      party.member.remove(master)
+      master.party = null
+      // Not saved here - the caller is about to delete this master anyway, and writing it back first
+      // would only queue an update for a row that is on its way out.
+
+      clearPartyMembershipComponent(master.account.id)
+      syncPartyMembershipComponents(party)
+
+      val remaining = party.member.map { it.account.id }.toSet() + party.owner.account.id
+      LeavePartyResult.Left(party.id, remaining)
+    }
+  }
+
   @Transactional(readOnly = true)
   fun getPartyInfo(partyId: Long): PartyInfoSMSG? {
     val party = partyRepository.findByIdOrNull(partyId)

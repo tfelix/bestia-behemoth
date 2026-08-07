@@ -19,6 +19,14 @@ enum OpError {
 
   AI_CONFIG_BESTIA_NOT_OWNED = 8;
   AI_CONFIG_INVALID_STANCE = 9;
+
+  // Also answers "no such master": a client must not be able to tell an id that does not exist from
+  // one that belongs to somebody else, or deleting becomes a way to probe for foreign master ids.
+  MASTER_NOT_OWNED = 10;
+  // The name typed into the delete confirmation does not match the master's.
+  MASTER_NAME_MISMATCH = 11;
+  // The master is still live in the world (selected, or not finished writing itself back after a logout).
+  MASTER_IN_USE = 12;
 }
 
 message OperationError {

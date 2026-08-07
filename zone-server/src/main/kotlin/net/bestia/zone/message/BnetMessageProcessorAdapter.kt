@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ai.message.SetBestiaAiConfigCMSG
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.account.master.CreateMasterCMSG
+import net.bestia.zone.account.master.DeleteMasterCMSG
 import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.account.master.skill.InvestSkillPointCMSG
 import net.bestia.zone.account.master.status.InvestStatusPointCMSG
@@ -49,6 +50,7 @@ class BnetMessageProcessorAdapter(
       envelope.hasChatCmsg() -> ChatCMSG.Companion.fromBnet(accountId, envelope.chatCmsg)
       envelope.hasSelectMaster() -> SelectMasterCMSG(accountId, envelope.selectMaster.masterId)
       envelope.hasCreateMaster() -> CreateMasterCMSG.fromBnet(accountId, envelope.createMaster)
+      envelope.hasDeleteMaster() -> DeleteMasterCMSG.fromBnet(accountId, envelope.deleteMaster)
       envelope.hasInvestSkillPoint() -> InvestSkillPointCMSG.Companion.fromBnet(accountId, envelope.investSkillPoint)
       envelope.hasInvestStatusPoint() -> InvestStatusPointCMSG.Companion.fromBnet(accountId, envelope.investStatusPoint)
       envelope.hasSetBestiaAiConfig() -> SetBestiaAiConfigCMSG.fromBnet(accountId, envelope.setBestiaAiConfig)

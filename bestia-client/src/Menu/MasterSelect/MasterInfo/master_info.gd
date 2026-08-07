@@ -1,17 +1,24 @@
 extends Control
 class_name MasterInfoScn
 
+## Emitted when the player asks to delete this master. Only a request: the slot does not act on it, the
+## selection screen owns the confirmation prompt and the message to the server.
+signal delete_requested(master_info: MasterInfo)
+
 @onready var pos_x = %PosX
 @onready var pos_y = %PosY
 @onready var master_name = %MasterName
 @onready var level_label = %Level
 @onready var profile_image = %MasterProfileImage
 @onready var _highlight = %Highlight
+@onready var _delete_button: Button = %DeleteButton
 
 var _master_info: MasterInfo
 
-static func create(master_info: MasterInfo) -> Control:
-	var master_info_scn := preload("res://Menu/MasterSelect/MasterInfo/MasterInfo.tscn").instantiate()
+## Returns the concrete type rather than a plain Control so callers can reach [signal delete_requested]
+## without the static analyser rejecting it.
+static func create(master_info: MasterInfo) -> MasterInfoScn:
+	var master_info_scn := preload("res://Menu/MasterSelect/MasterInfo/MasterInfo.tscn").instantiate() as MasterInfoScn
 	master_info_scn._master_info = master_info
 
 	return master_info_scn
@@ -29,6 +36,11 @@ func _ready() -> void:
 	_highlight.hide()
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
+	_delete_button.pressed.connect(_on_delete_pressed)
+
+
+func _on_delete_pressed() -> void:
+	delete_requested.emit(_master_info)
 
 
 func _on_mouse_entered() -> void:

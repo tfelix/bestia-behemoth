@@ -76,7 +76,7 @@ class WildSpawnerService(
       return emptyList()
     }
 
-    val out = ArrayList<Den>()
+    val out = mutableListOf<Den>()
     var unfilled = 0
     var markers = 0
 
