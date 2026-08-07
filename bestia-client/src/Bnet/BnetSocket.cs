@@ -270,6 +270,12 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.ChunkStaticEntitiesSMSG.FromProto(envelope.ChunkStaticEntities);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.StaticEntityRemoved != null)
+        {
+          // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.
+          var msg = Map.StaticEntityRemovedSMSG.FromProto(envelope.StaticEntityRemoved);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");

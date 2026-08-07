@@ -14,9 +14,26 @@ const _ContextMenuScene := preload("res://Game/UI/ContextMenu/ContextMenu.tscn")
 ## BuffList) listen to this instead of polling selected_entity every frame.
 signal entity_selected(entity_id: int)
 
+## How close the player has to be for a collect to be worth sending, in metres.
+##
+## Deliberately under the server's own MAX_COLLECT_RANGE (3), so the walk finishes inside the window
+## rather than on its edge - the server's Vec3L.distance is horizontal and truncating, and betting on
+## the two agreeing to the metre would make arrival flaky on a slope.
+const _COLLECT_REACH: float = 2.0
+
+## How long a walk-then-collect may take before we give up on it.
+const _COLLECT_TIMEOUT_MSEC: int = 15000
+
+## Frames stopped-and-short before a pending collect is abandoned. Three, not one: the server can
+## replace a path mid-walk, and _is_moving dips false between segments.
+const _COLLECT_STALL_FRAMES: int = 3
+
 var current_state: MouseState
 var selected_entity: Node3D = null
 var _context_menu: PopupMenu = null
+
+## Set while walking towards a prop that was clicked from out of range. See pending_collect.gd.
+var _pending_collect: PendingCollect = null
 
 
 func _ready() -> void:
@@ -26,6 +43,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	current_state.process_state(self, delta)
+	_tick_pending_collect()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -34,9 +52,89 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func change_state(new_state: MouseState) -> void:
+	# Entering skill or item targeting is a new intention; the walk that was on its way to a crystal is not
+	# part of it. Cancelling here covers every mode change from one place.
+	cancel_pending_collect()
 	current_state.exit(self)
 	current_state = new_state
 	current_state.enter(self)
+
+
+## Collects a prop, walking to it first if it is out of reach.
+##
+## Nothing is hidden or applied locally on success - the prop disappears when the server says so, via
+## StaticEntityRemovedSMSG. Optimistic removal would need an un-hide path for all three ways the server
+## can refuse, and the client is genuinely able to be wrong about each of them.
+func request_collect(picker: PropPicker) -> void:
+	cancel_pending_collect()
+
+	var player := _owned_entity()
+	if player == null:
+		return
+
+	if player.global_position.distance_to(picker.global_position) <= _COLLECT_REACH:
+		ConnectionManager.collect_prop(picker.entity_id)
+		return
+
+	# move_to is swallowed while channelling (see ConnectionManager.move_to), so arming a pending here
+	# would leave it sitting until the deadline for a walk that never started.
+	if player.is_casting():
+		return
+
+	_pending_collect = PendingCollect.new()
+	_pending_collect.picker = picker
+	_pending_collect.target = picker.global_position
+	_pending_collect.deadline_msec = Time.get_ticks_msec() + _COLLECT_TIMEOUT_MSEC
+
+	ConnectionManager.move_to(picker.global_position)
+
+
+func cancel_pending_collect() -> void:
+	_pending_collect = null
+
+
+## Fires the queued collect once the player is close enough, or drops it once it cannot happen.
+func _tick_pending_collect() -> void:
+	if _pending_collect == null:
+		return
+
+	# One test for four different endings: chunk unloaded, manifest reset, world changed, or the server
+	# already removed the prop. All four free the picker node.
+	if not is_instance_valid(_pending_collect.picker):
+		cancel_pending_collect()
+		return
+
+	if Time.get_ticks_msec() > _pending_collect.deadline_msec:
+		print_debug("MouseManager: gave up walking to prop %s" % [_pending_collect.picker.entity_id])
+		cancel_pending_collect()
+		return
+
+	var player := _owned_entity()
+	if player == null:
+		cancel_pending_collect()
+		return
+
+	if player.global_position.distance_to(_pending_collect.target) <= _COLLECT_REACH:
+		ConnectionManager.collect_prop(_pending_collect.picker.entity_id)
+		cancel_pending_collect()
+		return
+
+	# Stopped short - PathCalculator ignores terrain and entity collision, so a path can end against
+	# something. Counted over several frames because _is_moving dips false between path segments.
+	if player.is_moving():
+		_pending_collect.stalled_frames = 0
+	else:
+		_pending_collect.stalled_frames += 1
+		if _pending_collect.stalled_frames >= _COLLECT_STALL_FRAMES:
+			cancel_pending_collect()
+
+
+func _owned_entity() -> Entity:
+	var entity_manager := get_tree().get_first_node_in_group("entity_manager")
+	if entity_manager == null:
+		return null
+	var entity = entity_manager.get_owned_entity()
+	return entity if is_instance_valid(entity) else null
 
 
 func enter_default() -> void:

@@ -33,11 +33,20 @@ namespace BestiaBehemothClient.Game.World
   /// </para>
   ///
   /// <para>
-  /// Nothing here reads <c>Entry.EntityId</c> yet. Props are drawn but not clickable: a multimesh instance is
-  /// not pickable at all, and the scene instances carry no collision shape, so there is no path from a click
-  /// to the entity id the server would need to resolve a target. The whole server side of that
-  /// (<c>PropPromotionService</c>, <c>PropDeathDivergenceSystem</c>, loot, regrowth) already exists and is
-  /// waiting on it.
+  /// <b>Collectible kinds take a third path, and leave the multimesh to do it.</b> A kind that
+  /// <see cref="PropAppearance.Kind.Collectible"/> marks gets one <see cref="Node3D"/> per prop, holding the
+  /// same shared placeholder mesh plus a <c>PropPicker</c> area carrying the entity id a click needs. That
+  /// looks like giving up the batching, and it is - but the batching was already spent: a
+  /// <see cref="MultiMesh"/> instance is not pickable at all, so a clickable prop needs a collision node
+  /// regardless, and a <see cref="MultiMesh"/> cannot delete an arbitrary instance (only truncate the tail via
+  /// <c>VisibleInstanceCount</c>). Keeping both would mean zero-scaling a collected crystal's transform,
+  /// leaving a hole in the buffer, and maintaining an <c>entityId -> slot</c> index to find it by. One node
+  /// per prop is fewer moving parts for a population two orders of magnitude below the trees.
+  /// </para>
+  ///
+  /// <para>
+  /// Trees and the artless non-collectible kinds are untouched: still a scene instance and a multimesh
+  /// respectively, and still not clickable. Felling one of those goes through damage, not a click.
   /// </para>
   /// </remarks>
   [GlobalClass]
@@ -62,6 +71,28 @@ namespace BestiaBehemothClient.Game.World
     /// which shadows the Godot type and makes the bare name resolve to a namespace.
     /// </remarks>
     private readonly Dictionary<int, Godot.Mesh> _placeholders = new();
+
+    /// <summary>
+    /// Chunk -> entity id -> the node drawn for that collectible prop, so one can be removed on its own.
+    /// </summary>
+    /// <remarks>
+    /// A drawing ledger, not a second copy of the world. It answers only "which node did I draw for this id";
+    /// what actually stands in a column is <c>ChunkStreamManager</c>'s retained batch, which is pruned in step
+    /// with the manifest and is the replay source when a renderer attaches late. Keeping entries here instead
+    /// would mean a removal had to be applied to both, or a re-attach would redraw a crystal already collected.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, Dictionary<long, Node3D>> _collectibleNodes = new();
+
+    /// <summary>
+    /// The script every collectible prop's click target wears, loaded once.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="TerrainRenderer"/> precedent, for the same reason: the behaviour is a contract - relay
+    /// <c>input_event</c> to the mouse state machine, and carry the entity id - and it belongs in one place
+    /// rather than being rebuilt per prop from C#.
+    /// </remarks>
+    private static readonly GDScript PropPicker =
+      GD.Load<GDScript>("res://Game/World/prop_picker.gd");
 
     /// <summary>
     /// Metres per voxel, so that a prop stands where the ground it was grounded against was drawn.
@@ -126,6 +157,12 @@ namespace BestiaBehemothClient.Game.World
           continue;
         }
 
+        if (appearance.Collectible)
+        {
+          AddCollectibleProp(container, batch.Key, entry, appearance);
+          continue;
+        }
+
         batched ??= new Dictionary<int, List<ChunkStaticEntitiesSMSG.Entry>>();
         if (!batched.TryGetValue(entry.Kind, out var list))
         {
@@ -174,6 +211,81 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// Draws one collectible prop as its own node, with a click target on it.
+    /// </summary>
+    /// <remarks>
+    /// The mesh is the *same shared instance* every prop of this kind uses, straight out of
+    /// <see cref="PlaceholderFor"/> - a <c>MeshInstance3D</c> holds a reference, so a hundred crystals cost one
+    /// mesh between them and the y-scale that makes each one its own height lives on the node's transform.
+    ///
+    /// <para>
+    /// The pick box is at least <c>MinPickWidth</c> across whatever the drawn box measures, because a 0.3 m
+    /// shard at any distance is otherwise a target nobody can hit. It is deliberately not the server's
+    /// <c>collider</c> block from <c>prop-kinds.yml</c>: that one is for movement, which wants the real
+    /// extent, and this one is for clicking, which wants a generous one.
+    /// </para>
+    ///
+    /// <para>
+    /// The y-scale that makes each prop its own height lives on the <b>mesh node</b>, not on the prop root, so
+    /// that the <see cref="Area3D"/> hangs off an unscaled parent and its box is sized in plain metres. A
+    /// collision shape under a non-uniformly scaled ancestor is a shape Godot has to warn about and physics
+    /// has to special-case; the shape is only three floats, so there is nothing to gain by scaling it.
+    /// </para>
+    /// </remarks>
+    private void AddCollectibleProp(
+      Node3D container, ChunkKey key, ChunkStaticEntitiesSMSG.Entry entry, PropAppearance.Kind appearance)
+    {
+      var prop = new Node3D
+      {
+        Name = $"prop {entry.EntityId}",
+        Transform = new Transform3D(
+          new Basis(Vector3.Up, entry.Yaw),
+          (Vector3)entry.Position * _voxelSize)
+      };
+
+      // Scaled on y only, exactly as AddPlaceholderBatch does and for the same reason: the box is a unit cube
+      // standing on its own origin, so this makes a tall thing tall rather than also fat.
+      prop.AddChild(new MeshInstance3D
+      {
+        Mesh = PlaceholderFor(entry.Kind),
+        Scale = new Vector3(1f, entry.Height, 1f)
+      });
+
+      var area = new Area3D { Name = "Picker" };
+
+      // Before AddChild, so the script is attached by the time the node enters the tree - the same ordering
+      // TerrainRenderer.NewBody documents.
+      area.SetScript(PropPicker);
+
+      var width = Mathf.Max(appearance.PlaceholderWidth, MinPickWidth);
+      var shape = new CollisionShape3D
+      {
+        Shape = new BoxShape3D { Size = new Vector3(width, entry.Height, width) },
+        // The prop grows upward from its own origin, so the box's centre sits at half its height.
+        Position = new Vector3(0f, entry.Height * 0.5f, 0f)
+      };
+
+      area.AddChild(shape);
+      prop.AddChild(area);
+
+      area.Set("entity_id", entry.EntityId);
+      area.Set("kind", entry.Kind);
+
+      // Physics picking is a signal on the collision object, and a node built in code has to wire it itself.
+      area.Connect(CollisionObject3D.SignalName.InputEvent, new Callable(area, "_on_input_event"));
+
+      container.AddChild(prop);
+
+      if (!_collectibleNodes.TryGetValue(key, out var byId))
+      {
+        byId = new Dictionary<long, Node3D>();
+        _collectibleNodes[key] = byId;
+      }
+
+      byId[entry.EntityId] = prop;
+    }
+
+    /// <summary>
     /// Draws every prop of one artless kind in this chunk as a single multimesh.
     /// </summary>
     /// <remarks>
@@ -202,9 +314,48 @@ namespace BestiaBehemothClient.Game.World
       container.AddChild(new MultiMeshInstance3D { Multimesh = multi });
     }
 
+    /// <summary>
+    /// Un-draws one collectible prop, leaving the rest of its chunk alone.
+    /// </summary>
+    /// <remarks>
+    /// Surgical rather than re-running <see cref="Apply"/> for the chunk, because <see cref="Apply"/> replaces
+    /// the whole container: collecting one crystal would free and re-instantiate every <c>TreeVisual</c> in
+    /// the column, which is a visible hitch for a change to a single node.
+    ///
+    /// <para>
+    /// Idempotent, which matters more than it looks. A prop that was promoted before being collected carries a
+    /// <c>Dirtyable</c> <c>Health</c>, so its destruction also emits the ordinary entity vanish alongside our
+    /// map-channel removal - and a chunk that unloads between the two calls has already taken the node.
+    /// </para>
+    /// </remarks>
+    /// <returns>true if a node was actually freed</returns>
+    public bool RemoveEntity(ChunkKey key, long entityId)
+    {
+      if (!_collectibleNodes.TryGetValue(key, out var byId) || !byId.Remove(entityId, out var node))
+      {
+        return false;
+      }
+
+      if (byId.Count == 0)
+      {
+        _collectibleNodes.Remove(key);
+      }
+
+      if (IsInstanceValid(node))
+      {
+        node.QueueFree();
+      }
+
+      return true;
+    }
+
     /// <summary>Drops everything drawn for a chunk. Safe to call for a chunk that was never drawn.</summary>
     public void Remove(ChunkKey key)
     {
+      // Dropped wholesale rather than per node: the container's own QueueFree below already takes the prop
+      // nodes with it, so this is only the ledger catching up.
+      _collectibleNodes.Remove(key);
+
       if (!_byChunk.Remove(key, out var container))
       {
         return;
@@ -268,5 +419,15 @@ namespace BestiaBehemothClient.Game.World
       _placeholders[kind] = mesh;
       return mesh;
     }
+
+    /// <summary>
+    /// Floor on a pick box's width, in metres, so the smallest props stay clickable.
+    /// </summary>
+    /// <remarks>
+    /// A small mana crystal is drawn 0.3 m across. At the camera's usual distance that is a few pixels, and a
+    /// target you have to aim at is worse than one that is slightly bigger than it looks. Nothing is lost by
+    /// being generous: overlapping pick boxes still resolve to the nearest, and the server checks range anyway.
+    /// </remarks>
+    private const float MinPickWidth = 0.6f;
   }
 }

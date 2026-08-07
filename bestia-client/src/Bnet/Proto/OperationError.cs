@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3Iq6wIKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
+            "b3IquwMKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
             "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
             "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
             "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
@@ -34,8 +34,10 @@ namespace Bnet {
             "X1NQQVdOX1BPSU5UEAcSHgoaQUlfQ09ORklHX0JFU1RJQV9OT1RfT1dORUQQ",
             "CBIcChhBSV9DT05GSUdfSU5WQUxJRF9TVEFOQ0UQCRIUChBNQVNURVJfTk9U",
             "X09XTkVEEAoSGAoUTUFTVEVSX05BTUVfTUlTTUFUQ0gQCxIRCg1NQVNURVJf",
-            "SU5fVVNFEAxCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVyYXRpb25F",
-            "cnJvclByb3RvYgZwcm90bzM="));
+            "SU5fVVNFEAwSFwoTQ09MTEVDVF9UQVJHRVRfR09ORRANEhgKFENPTExFQ1Rf",
+            "T1VUX09GX1JBTkdFEA4SGwoXQ09MTEVDVF9OT1RfQ09MTEVDVElCTEUQD0Is",
+            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -70,6 +72,25 @@ namespace Bnet {
     /// The master is still live in the world (selected, or not finished writing itself back after a logout).
     /// </summary>
     [pbr::OriginalName("MASTER_IN_USE")] MasterInUse = 12,
+    /// <summary>
+    /// The prop is not there to be taken: never was, already collected by someone else, felled by the attack
+    /// path, or its column was re-materialised under a client still holding the old id. Deliberately one code
+    /// for all four, on the same reasoning as MASTER_NOT_OWNED above - the ids are ephemeral, and letting a
+    /// client tell "taken" from "never existed" would make them a way to probe what stands on ground it is not
+    /// holding.
+    /// </summary>
+    [pbr::OriginalName("COLLECT_TARGET_GONE")] CollectTargetGone = 13,
+    /// <summary>
+    /// Too far away. The one refusal a player can actually act on, which is why it is not folded into the code
+    /// above; the client walks into range before sending, so this should only be reachable under latency.
+    /// </summary>
+    [pbr::OriginalName("COLLECT_OUT_OF_RANGE")] CollectOutOfRange = 14,
+    /// <summary>
+    /// The client offered a click on a kind that prop-kinds.yml gives no `collect` block. Not reachable by a
+    /// player - it means PropAppearance's Collectible mirror has drifted from the server, and it is kept
+    /// separate precisely so that drift is nameable rather than hidden inside COLLECT_TARGET_GONE.
+    /// </summary>
+    [pbr::OriginalName("COLLECT_NOT_COLLECTIBLE")] CollectNotCollectible = 15,
   }
 
   #endregion

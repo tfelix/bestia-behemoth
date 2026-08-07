@@ -16,6 +16,17 @@ data class PropColliderDto(val halfX: Long = 1, val halfY: Long = 1, val height:
 /** One roll of loot, `PropDeathDivergenceSystem`'s own image of `LootItemEntitySpawner`'s bestia loot rows. */
 data class PropLootEntryDto(val itemId: Long, val amount: Int = 1, val dropChance: Int = 10000)
 
+/**
+ * What one click yields, for a kind a player picks up rather than fights.
+ *
+ * Deliberately not a `PropLootEntryDto`: loot is a chance-rolled list that becomes ground stacks when a prop
+ * is killed, and this is a single deterministic grant straight into the inventory. Sharing the type would
+ * force one of the two to carry a mode flag.
+ *
+ * `itemId` is not validated against the item catalogue - see [PropKindRegistry.load].
+ */
+data class PropCollectDto(val itemId: Long, val amount: Int = 1)
+
 data class PropKindDto(
   val kind: StaticEntityKind,
   val maxHp: Int,
@@ -23,7 +34,15 @@ data class PropKindDto(
   val variants: Int = 1,
   /** Present means this kind regrows this many seconds after being depleted; absent means terminal. */
   val regrowSeconds: Long? = null,
-  val loot: List<PropLootEntryDto> = emptyList()
+  val loot: List<PropLootEntryDto> = emptyList(),
+  /**
+   * Present means this kind is taken with a click rather than by being felled; absent means it is not.
+   *
+   * The presence of the block **is** the rule, on the same shape as [regrowSeconds] - a per-kind property
+   * written only where it applies. So a kind added to the enum is non-collectible by construction, rather
+   * than by an exclusion list somewhere that a new kind can be forgotten from.
+   */
+  val collect: PropCollectDto? = null
 )
 
 data class PropKindsDto(val kinds: List<PropKindDto> = emptyList())
@@ -40,6 +59,13 @@ data class PropKindsDto(val kinds: List<PropKindDto> = emptyList())
  * factory. A kind added to the enum and forgotten here would otherwise place entities with a default health
  * and a default collider and look entirely healthy - the same failure `MobImporterBootRunner` refuses by
  * validating habitat names against `Biome` at import time.
+ *
+ * **But not on a `collect` item-id that names nothing.** This loads at `@PostConstruct`, and
+ * `ItemImporterBootRunner` is an `@Order(100)` `CommandLineRunner` - so at the moment this runs, `items.yml`
+ * has not been written to the `item` table yet and there is nothing to check against. An unknown id therefore
+ * surfaces at collect time, where `ObtainItemIntentSystem` already logs it. Moving the check here would need
+ * this to become a boot runner ordered after that one, which is a real cost for a typo that fails loudly the
+ * first time anyone clicks the prop.
  */
 @Service
 class PropKindRegistry {
@@ -68,6 +94,10 @@ class PropKindRegistry {
       kind.loot.forEach {
         require(it.dropChance in 1..10_000) { "${kind.kind} has a loot entry with drop-chance ${it.dropChance}" }
         require(it.amount > 0) { "${kind.kind} has a loot entry with amount ${it.amount}" }
+      }
+      kind.collect?.let {
+        require(it.itemId > 0) { "${kind.kind} has a collect entry with item-id ${it.itemId}" }
+        require(it.amount > 0) { "${kind.kind} has a collect entry with amount ${it.amount}" }
       }
     }
 

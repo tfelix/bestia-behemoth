@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/Items/AetheriteShard.tscn" id="2_visual"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 7
+name_key = "AETHERITE_SHARD"
+description_key = "AETHERITE_SHARD_DESC"
+weight = 8
+type = 2
+item_visual = ExtResource("2_visual")

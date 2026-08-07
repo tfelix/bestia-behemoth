@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "StaticEntityRemovedSMSGProto";
+
+/**
+ * One static entity is gone from a column a client is still holding.
+ *
+ * The mirror image of `ChunkStaticEntitiesSMSG`, and deliberately on the same channel: same addressing unit,
+ * same fan-out, same argument for staying off the entity channel.
+ *
+ * ### Why this exists when that message's own note says removal needs no vanish
+ *
+ * That note is about the manifest withdrawing a chunk, which does take the column's contents with it. It does
+ * not cover a prop that stops existing *underneath* a client still holding the ground it stood on - which is
+ * exactly what collecting one is.
+ *
+ * ### Advisory, not authoritative
+ *
+ * Losing one of these leaves a prop drawn that nobody can pick up, until the column is re-materialised and
+ * `WorldObjectResidencyService.shouldEmit` drops it for good. So this is a latency optimisation over a path
+ * that already converges, not the mechanism the world's correctness rests on. Worth knowing before anyone is
+ * tempted to make something depend on it arriving.
+ */
+message StaticEntityRemovedSMSG {
+  /**
+   * The column it stood in.
+   *
+   * Carried rather than looked up so the client needs no `entity_id -> chunk` reverse index over every batch
+   * it holds - it is one dictionary hit instead of a scan of a few thousand entries.
+   */
+  ChunkPos pos = 1;
+
+  /** Live ECS id, matching the `ChunkStaticEntitiesSMSG.Entry.entity_id` the client was sent. */
+  fixed64 entity_id = 2;
+}

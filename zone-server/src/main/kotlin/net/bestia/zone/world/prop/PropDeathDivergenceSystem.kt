@@ -52,6 +52,15 @@ class PropDeathDivergenceSystem(
     world.query(Dead::class, WorldObjectIdentity::class, StaticVisual::class).each { id ->
       val identity = get<WorldObjectIdentity>()
       val visual = get<StaticVisual>()
+
+      // A prop now has two ways to be used up, and whichever records the divergence first wins. Without this,
+      // a crystal collected by one player at order 64 and finished off by another's in-flight damage in the
+      // same tick would yield twice - once into an inventory, once onto the ground.
+      //
+      // Inert for anything that only ever dies: a standing prop has no divergence (a felled one is destroyed
+      // the same tick at order 70, and a regrown one was evicted by `shouldEmit` when its column reloaded).
+      if (divergence.of(identity.propId) != null) return@each
+
       val position = world.get(id, Position::class)?.toVec3L()
 
       val spec = kinds.of(visual.kind)

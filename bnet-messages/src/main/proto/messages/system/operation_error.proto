@@ -27,6 +27,20 @@ enum OpError {
   MASTER_NAME_MISMATCH = 11;
   // The master is still live in the world (selected, or not finished writing itself back after a logout).
   MASTER_IN_USE = 12;
+
+  // The prop is not there to be taken: never was, already collected by someone else, felled by the attack
+  // path, or its column was re-materialised under a client still holding the old id. Deliberately one code
+  // for all four, on the same reasoning as MASTER_NOT_OWNED above - the ids are ephemeral, and letting a
+  // client tell "taken" from "never existed" would make them a way to probe what stands on ground it is not
+  // holding.
+  COLLECT_TARGET_GONE = 13;
+  // Too far away. The one refusal a player can actually act on, which is why it is not folded into the code
+  // above; the client walks into range before sending, so this should only be reachable under latency.
+  COLLECT_OUT_OF_RANGE = 14;
+  // The client offered a click on a kind that prop-kinds.yml gives no `collect` block. Not reachable by a
+  // player - it means PropAppearance's Collectible mirror has drifted from the server, and it is kept
+  // separate precisely so that drift is nameable rather than hidden inside COLLECT_TARGET_GONE.
+  COLLECT_NOT_COLLECTIBLE = 15;
 }
 
 message OperationError {

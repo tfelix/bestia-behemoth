@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/ItemVisual.tscn" id="1_manacrystal"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_manacrystal"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_manacrystal"]
+albedo_color = Color(0.35, 0.55, 0.85, 1)
+emission_enabled = true
+emission = Color(0.35, 0.55, 0.85, 1)
+emission_energy_multiplier = 0.6
+
+[sub_resource type="PrismMesh" id="PrismMesh_manacrystal"]
+material = SubResource("StandardMaterial3D_manacrystal")
+size = Vector3(0.22, 0.4, 0.22)
+
+[node name="ManaCrystal" instance=ExtResource("1_manacrystal")]
+
+[node name="Sparkles" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41833496, 0)
+lifetime = 2.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+shape = SubResource("SphereShape3D_manacrystal")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="3"]
+mesh = SubResource("PrismMesh_manacrystal")

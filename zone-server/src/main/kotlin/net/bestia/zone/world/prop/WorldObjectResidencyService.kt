@@ -13,6 +13,7 @@ import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -57,7 +58,7 @@ class WorldObjectResidencyService(
   private val fanOut: ChunkFanOut,
   private val worldService: WorldService,
   private val divergence: WorldObjectDivergenceRegistry,
-  subscriptions: ChunkSubscriptionService
+  private val subscriptions: ChunkSubscriptionService
 ) {
 
   /** Voxels per chunk edge, for turning a world position into a chunk-local one. */
@@ -232,6 +233,48 @@ class WorldObjectResidencyService(
 
   /** The entities of one column, for the sync channel to batch. Empty when the column is not resident. */
   fun entitiesIn(chunkX: Int, chunkY: Int): LongArray = resident[pack(chunkX, chunkY)] ?: EMPTY
+
+  /**
+   * Takes one resident static entity out of the world and tells the column's holders it is gone.
+   *
+   * ### The synchronous prune is not tidiness
+   *
+   * [flushBatches] runs from `world.defer` inside [drain] at order 46, so it is already sitting in the
+   * deferred queue when a system at a later order queues a `destroy`. A caller that only destroyed would
+   * therefore let a client served this column in the same tick receive the removal *first* and a batch that
+   * still lists the entity *second* - and then draw a prop nobody can ever pick up. Removing it from
+   * [resident] here means the batch that goes out later in the same tick has already forgotten it.
+   *
+   * The message is an optimisation, not the mechanism. [flushBatches] rebuilds a column from the live
+   * entities and [materialise] re-runs [shouldEmit], so a lost removal converges the next time the column
+   * reloads. Nothing may be built on this arriving.
+   *
+   * @return false if [entityId] was not a resident static entity, which callers treat as "already gone"
+   */
+  fun remove(world: World, entityId: Long): Boolean {
+    val pose = world.get(entityId, PropPose::class) ?: return false
+
+    val chunkX = Math.floorDiv(pose.position.x, chunkSize.toLong()).toInt()
+    val chunkY = Math.floorDiv(pose.position.y, chunkSize.toLong()).toInt()
+    val column = pack(chunkX, chunkY)
+
+    val ids = resident[column] ?: return false
+    if (!ids.contains(entityId)) return false
+
+    // A shorter array rather than a tombstone: collection is rare next to materialising a column, and every
+    // other reader of `resident` treats it as exactly "the entities standing here".
+    resident[column] = ids.filter { it != entityId }.toLongArray()
+
+    aoi.removeEntityPosition(entityId)
+    world.destroy(entityId)
+
+    fanOut.fanOut(
+      subscriptions.subscribersOfColumn(chunkX, chunkY),
+      StaticEntityRemovedSMSG(ChunkPos(chunkX, chunkY, 0), entityId)
+    )
+
+    return true
+  }
 
   private fun materialise(world: World, column: Long) {
     if (resident.containsKey(column)) return

@@ -224,7 +224,42 @@ namespace BestiaBehemothClient.Game.World
           _staticBatches[statics.Key] = statics;
           StaticEntities?.Apply(statics);
           break;
+
+        case StaticEntityRemovedSMSG removed:
+          OnStaticEntityRemoved(removed);
+          break;
       }
+    }
+
+    /// <summary>
+    /// Forgets one static entity a chunk we hold used to have.
+    /// </summary>
+    /// <remarks>
+    /// Both halves matter and for different reasons. The renderer is what the player sees; the retained batch
+    /// is what a late-attaching renderer is replayed from, so leaving a collected crystal in it would put it
+    /// back on screen the next time <c>StaticEntities</c> is set.
+    ///
+    /// <para>
+    /// Silently ignores an id we do not hold. That is the ordinary case for a batch already dropped by the
+    /// manifest, and it is why the removal message can be treated as advisory: losing one leaves a prop drawn
+    /// that nobody can pick up only until the column reloads, at which point the server omits it anyway.
+    /// </para>
+    /// </remarks>
+    private void OnStaticEntityRemoved(StaticEntityRemovedSMSG removed)
+    {
+      if (!_staticBatches.TryGetValue(removed.Key, out var batch))
+      {
+        return;
+      }
+
+      var pruned = batch.Without(removed.EntityId);
+      if (pruned == null)
+      {
+        return;
+      }
+
+      _staticBatches[removed.Key] = pruned;
+      StaticEntities?.RemoveEntity(removed.Key, removed.EntityId);
     }
 
     private void OnWorldInfo(WorldInfoSMSG info)

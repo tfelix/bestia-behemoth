@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/Items/ManaCrystal.tscn" id="2_visual"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 6
+name_key = "MANA_CRYSTAL"
+description_key = "MANA_CRYSTAL_DESC"
+weight = 5
+type = 2
+item_visual = ExtResource("2_visual")

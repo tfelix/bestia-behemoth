@@ -45,6 +45,7 @@ var LootItemCMSG = load("res://Bnet/Message/Inventory/LootItemCMSG.cs")
 var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
+var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 
@@ -250,6 +251,19 @@ func drop_item(item_id: int, amount: int) -> void:
 func loot_item(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = LootItemCMSG.new()
+	msg.EntityId = entity_id
+	_socket.SendMessage(msg)
+
+
+## Asks the server to take a static prop (a mana crystal, an aetherite shard) straight into the
+## inventory. [param entity_id] comes off a ChunkStaticEntitiesSMSG entry and is only valid while the
+## client holds that chunk - a stale one is simply refused, so there is nothing to check here.
+##
+## The server may refuse (out of range, already taken, not a collectible kind) with an OperationError.
+## Nothing is applied locally either way: the prop disappears when StaticEntityRemovedSMSG arrives.
+func collect_prop(entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CollectPropCMSG.new()
 	msg.EntityId = entity_id
 	_socket.SendMessage(msg)
 

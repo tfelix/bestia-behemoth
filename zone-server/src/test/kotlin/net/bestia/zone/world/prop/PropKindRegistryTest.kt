@@ -32,6 +32,37 @@ class PropKindRegistryTest {
   }
 
   /**
+   * The presence of a `collect` block is the only rule for what a click may take, so this pins the four kinds
+   * it is true for. A fifth appearing here without a matching `Collectible = true` row in the client's
+   * `PropAppearance` is a drift the server answers with `COLLECT_NOT_COLLECTIBLE` rather than an item.
+   */
+  @Test
+  fun `exactly the crystals and shards are collectible, and each names an item`() {
+    val registry = PropKindRegistry().also { it.load() }
+
+    val collectible = StaticEntityKind.entries.filter { registry.of(it).collect != null }
+
+    assertEquals(
+      setOf(
+        StaticEntityKind.MANA_CRYSTAL_SMALL,
+        StaticEntityKind.MANA_CRYSTAL_LARGE,
+        StaticEntityKind.AETHERITE_SHARD_SMALL,
+        StaticEntityKind.AETHERITE_SHARD_LARGE
+      ),
+      collectible.toSet()
+    )
+
+    for (kind in collectible) {
+      val collect = registry.of(kind).collect!!
+      assertTrue(collect.itemId > 0, "$kind yields no item")
+      assertTrue(collect.amount > 0, "$kind yields nothing")
+
+      // Terminal by design: a mined-out crystal does not grow back, so `shouldEmit` drops it forever.
+      assertEquals(null, registry.of(kind).regrowSeconds, "$kind would regrow after being collected")
+    }
+  }
+
+  /**
    * Every landmark in worldgen's catalogue reaches a distinct runtime kind.
    *
    * The join `StaticEntityKind.POI_KINDS` makes is by name and is checked at class load, so what this really

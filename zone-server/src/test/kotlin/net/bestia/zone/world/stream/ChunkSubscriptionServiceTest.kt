@@ -89,6 +89,61 @@ class ChunkSubscriptionServiceTest {
     assertTrue(subscriptions.announcedTo(1L).isEmpty())
     assertTrue(subscriptions.sentTo(1L).isEmpty())
     assertTrue(subscriptions.subscribersOf(a).isEmpty())
+    assertTrue(subscriptions.subscribersOfColumn(a.x, a.y).isEmpty())
     assertEquals(null, subscriptions.anchorOf(1L))
+  }
+
+  /**
+   * The column index refcounts, and that is the whole reason it is a count rather than a set: a player
+   * standing in a cave holds several slabs of one column at once, and dropping them one at a time must not
+   * make them stop being a holder until the last one goes.
+   */
+  @Test
+  fun `a column holder survives losing all but one of its slabs`() {
+    val surface = ChunkPos(4, 5, 0)
+    val middle = ChunkPos(4, 5, 1)
+    val deep = ChunkPos(4, 5, 2)
+
+    subscriptions.markSent(1L, surface)
+    subscriptions.markSent(1L, middle)
+    subscriptions.markSent(1L, deep)
+    subscriptions.markSent(2L, deep)
+
+    assertEquals(setOf(1L, 2L), subscriptions.subscribersOfColumn(4, 5))
+
+    subscriptions.unsend(1L, deep)
+    subscriptions.unsend(1L, middle)
+    assertEquals(setOf(1L, 2L), subscriptions.subscribersOfColumn(4, 5), "one slab held is still holding")
+
+    subscriptions.unsend(1L, surface)
+    assertEquals(setOf(2L), subscriptions.subscribersOfColumn(4, 5))
+
+    subscriptions.unsend(2L, deep)
+    assertTrue(subscriptions.subscribersOfColumn(4, 5).isEmpty())
+  }
+
+  /**
+   * `unsend` is reached for chunks that were only ever *announced* - by `forget`, and by a `reset` manifest
+   * after a teleport. Decrementing a count that was never incremented would drop a live holder.
+   */
+  @Test
+  fun `unsending a chunk that was never sent does not disturb the column index`() {
+    val surface = ChunkPos(4, 5, 0)
+    val neverSent = ChunkPos(4, 5, 1)
+
+    subscriptions.markSent(1L, surface)
+    subscriptions.unsend(1L, neverSent)
+
+    assertEquals(setOf(1L), subscriptions.subscribersOfColumn(4, 5))
+  }
+
+  @Test
+  fun `column subscribers do not leak across columns`() {
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    subscriptions.markSent(2L, ChunkPos(4, 6, 0))
+
+    assertEquals(setOf(1L), subscriptions.subscribersOfColumn(4, 5))
+    assertEquals(setOf(2L), subscriptions.subscribersOfColumn(4, 6))
+    assertTrue(subscriptions.subscribersOfColumn(9, 9).isEmpty())
   }
 }

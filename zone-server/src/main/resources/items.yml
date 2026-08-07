@@ -45,3 +45,21 @@ items:
       A pair of heavy iron-shod boots.
 
       Their weight is a burden, but lends surprising resilience.
+
+  # What the two collectible prop kinds yield - see `prop-kinds.yml`'s `collect` blocks. Two items rather
+  # than one because the world already teaches the difference: a mana crystal is a growth, and an aetherite
+  # shard is the surface sign of corrupted ore below it. Collapsing them into one "shard" would throw that
+  # away for the sake of a shorter catalogue.
+  - id: 6
+    item-db-name: mana_crystal
+    weight: 5
+    type: ETC
+    description: |
+      A shard of raw mana crystal, cool to the touch and faintly lit from within.
+
+  - id: 7
+    item-db-name: aetherite_shard
+    weight: 8
+    type: ETC
+    description: |
+      A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm.

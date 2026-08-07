@@ -46,6 +46,28 @@ namespace BestiaBehemothClient.Game.World
       /// <summary>Colour of the placeholder box. Unused once this kind has a scene.</summary>
       public Color PlaceholderColour { get; init; }
 
+      /// <summary>Whether props of this kind get a click target.</summary>
+      /// <remarks>
+      /// The one field here that mirrors a <i>server</i> rule rather than stating a client one. The authority
+      /// is <c>prop-kinds.yml</c>, where a kind is collectible exactly when it has a <c>collect</c> block, and
+      /// the server refuses anything else.
+      ///
+      /// <para>
+      /// Mirrored anyway because the client has to decide whether to build a collision shape before it could
+      /// possibly ask, and the alternatives are worse: a per-entry flag on the wire pays for 13 bits of
+      /// per-<i>kind</i> information on every one of the thousands of entries in a view volume, and a
+      /// catalogue handshake is a second answer to a question <c>WorldInfoSMSG</c>'s version already answers.
+      /// </para>
+      ///
+      /// <para>
+      /// Skew is fail-safe both ways. A wrong <c>true</c> costs one refused click and a
+      /// <c>COLLECT_NOT_COLLECTIBLE</c> that names the drift - which is why that code is kept distinct from
+      /// <c>COLLECT_TARGET_GONE</c>. A missing <c>true</c> just makes the prop unclickable, the same quiet
+      /// absence this table already accepts for a kind with no art.
+      /// </para>
+      /// </remarks>
+      public bool Collectible { get; init; }
+
       public bool HasScene => !string.IsNullOrEmpty(ScenePath);
     }
 
@@ -73,16 +95,16 @@ namespace BestiaBehemothClient.Game.World
       // boundary is a thing the player is meant to read off the landscape.
       new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.30f, 0.26f, 0.20f) },
 
-      // MANA_CRYSTAL_SMALL / _LARGE.
-      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.55f, 0.85f) },
-      new Kind { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.45f, 0.35f, 0.85f) },
+      // MANA_CRYSTAL_SMALL / _LARGE. Collectible: picked up with a click rather than felled.
+      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.35f, 0.55f, 0.85f), Collectible = true },
+      new Kind { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.45f, 0.35f, 0.85f), Collectible = true },
 
       // WOUND_SPIRE.
       new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.75f, 0.20f, 0.70f) },
 
-      // AETHERITE_SHARD_SMALL / _LARGE. Squat and wide, unlike a crystal.
-      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.42f, 0.33f, 0.52f) },
-      new Kind { PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.58f, 0.40f, 0.78f) },
+      // AETHERITE_SHARD_SMALL / _LARGE. Squat and wide, unlike a crystal. Also collectible.
+      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.42f, 0.33f, 0.52f), Collectible = true },
+      new Kind { PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.58f, 0.40f, 0.78f), Collectible = true },
 
       // The six points of interest, each a distinct width: at most one of each per world, so they have to be
       // told apart on sight rather than by comparison.
@@ -101,6 +123,11 @@ namespace BestiaBehemothClient.Game.World
     /// Magenta, and drawn rather than skipped. A server one kind ahead of this client is a version skew that
     /// should be obvious in the world instead of being a quiet absence indistinguishable from ground that
     /// genuinely has nothing on it.
+    ///
+    /// <para>
+    /// Not <see cref="Kind.Collectible"/>, though. Drawing a kind we do not understand is honest; offering a
+    /// click on one is a guess, and the server would refuse it anyway.
+    /// </para>
     /// </remarks>
     private static readonly Kind Unknown =
       new() { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(1f, 0f, 1f) };

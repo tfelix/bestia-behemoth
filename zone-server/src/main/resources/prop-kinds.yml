@@ -18,6 +18,16 @@
 # `loot` is left empty everywhere: there is no item yet that fits a felled tree or a claimed landmark
 # (`items.yml` has an apple, a potion, footgear), so inventing an id here would be worse than leaving it
 # unset - `PropDeathDivergenceSystem` still records the depletion and drops nothing.
+#
+# `collect` is the other half of that, and deliberately not the same field. A kind with one is picked up with
+# a click - `CollectPropIntentSystem` grants the item straight into the inventory and records the depletion,
+# with no combat involved. `loot` is chance-rolled *on death* and becomes stacks on the ground. So they differ
+# in trigger, in determinism and in where the item ends up, and sharing a field would force one of them to
+# carry a mode flag. A kind may have both; the two mechanics cannot both claim one prop, because whichever
+# records the divergence first locks the other out.
+#
+# Presence of `collect` is the whole rule for what may be clicked - there is no separate `collectible` flag,
+# so a kind added below is not collectible until someone says what it yields.
 kinds:
   - kind: TREE
     max-hp: 120
@@ -31,15 +41,19 @@ kinds:
     variants: 3
     regrow-seconds: 1800
 
+  # The four collectible kinds. Size maps to amount rather than to a second item, so a large crystal is worth
+  # walking to without doubling the catalogue.
   - kind: MANA_CRYSTAL_SMALL
     max-hp: 40
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 3
+    collect: { item-id: 6, amount: 1 }
 
   - kind: MANA_CRYSTAL_LARGE
     max-hp: 90
     collider: { half-x: 1, half-y: 1, height: 4 }
     variants: 3
+    collect: { item-id: 6, amount: 2 }
 
   - kind: WOUND_SPIRE
     max-hp: 200
@@ -52,11 +66,13 @@ kinds:
     max-hp: 60
     collider: { half-x: 1, half-y: 1, height: 1 }
     variants: 3
+    collect: { item-id: 7, amount: 1 }
 
   - kind: AETHERITE_SHARD_LARGE
     max-hp: 130
     collider: { half-x: 1, half-y: 1, height: 3 }
     variants: 3
+    collect: { item-id: 7, amount: 2 }
 
   # The points of interest: one row per entry in worldgen's `PoiKind`, and mandatory - a landmark added to the
   # catalogue with no row here fails the boot rather than the first world that rolls it.

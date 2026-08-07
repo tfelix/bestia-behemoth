@@ -83,6 +83,28 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       return new ChunkStaticEntitiesSMSG { Key = key, Entries = entries };
     }
 
+    /// <summary>
+    /// This batch with one entry taken out, or null if it was not in it.
+    /// </summary>
+    /// <remarks>
+    /// A new instance rather than a mutation, because a received wire object is treated as immutable
+    /// everywhere else here - <c>Key</c> and <c>Entries</c> are both <c>private init</c>. Returning null for
+    /// "not present" is what makes an unknown id free at the call site: no allocation, no store, no work.
+    /// </remarks>
+    public ChunkStaticEntitiesSMSG Without(long entityId)
+    {
+      var index = Entries.FindIndex(e => e.EntityId == entityId);
+      if (index < 0)
+      {
+        return null;
+      }
+
+      var remaining = new List<Entry>(Entries);
+      remaining.RemoveAt(index);
+
+      return new ChunkStaticEntitiesSMSG { Key = Key, Entries = remaining };
+    }
+
     public override string ToString() => $"ChunkStaticEntitiesSMSG({Key}, {Entries.Count} entries)";
   }
 }

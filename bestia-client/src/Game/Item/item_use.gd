@@ -14,6 +14,10 @@ func on_item_used(item: ItemResource) -> void:
 ## click_info holds "position" (Vector3) and "target" (Node3D or null for a
 ## ground click). Return true once the interaction is resolved to return to
 ## the default mouse mode, or false to keep waiting for another click.
+##
+## "target" is whatever was clicked, and that is a wider set than it looks: a BestiaVisual, an
+## ItemVisual, or a PropPicker (the click target of a collectible crystal or shard). Check the type
+## before reaching into it rather than assuming a click landed on a creature.
 @warning_ignore("unused_parameter")
 func on_targeting_click(item: ItemResource, click_info: Dictionary) -> bool:
 	return true

@@ -14,6 +14,7 @@ import net.bestia.zone.world.WorldService
 import net.bestia.zone.world.stream.ChunkStaticEntitiesSMSG
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.stream.StaticEntityRemovedSMSG
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -38,6 +39,9 @@ class WorldObjectResidencyTest {
   private lateinit var source: StubSource
   private lateinit var residency: WorldObjectResidencyService
   private lateinit var sent: MutableList<ChunkStaticEntitiesSMSG>
+
+  /** Removals plus who they were addressed to, since the audience is half the point of them. */
+  private lateinit var removals: MutableList<Pair<Set<Long>, StaticEntityRemovedSMSG>>
 
   /** Three trees per column, at positions derived from the column so they are distinguishable. */
   private class StubSource : WorldObjectSource {
@@ -66,6 +70,7 @@ class WorldObjectResidencyTest {
     aoi = EntityAOIService()
     source = StubSource()
     sent = ArrayList()
+    removals = ArrayList()
     residency = WorldObjectResidencyService(
       listOf(source), kindRegistry(), aoi, recordingFanOut(), worldService(), noDivergence(), subscriptions
     )
@@ -75,6 +80,7 @@ class WorldObjectResidencyTest {
   private fun recordingFanOut() = object : ChunkFanOut {
     override fun fanOut(accountIds: Collection<Long>, message: net.bestia.zone.message.SMSG): Int {
       if (message is ChunkStaticEntitiesSMSG) sent.add(message)
+      if (message is StaticEntityRemovedSMSG) removals.add(accountIds.toSet() to message)
       return accountIds.size
     }
   }
@@ -470,6 +476,75 @@ class WorldObjectResidencyTest {
 
     assertEquals(3, service.residentEntities, "a regrown tree must stand again like the other two")
     assertTrue(evicted, "the stale divergence must be forgotten once the tree has regrown")
+  }
+
+  /**
+   * The property `CollectPropIntentSystem` leans on: `remove` prunes [WorldObjectResidencyService] straight
+   * away, so a `flushBatches` that runs later in the same tick has already forgotten the entity. Without it a
+   * client served this column in the same tick would receive the removal first and a batch still listing the
+   * prop second, and draw something nobody can pick up.
+   */
+  @Test
+  fun `removing a prop prunes it before the next batch goes out`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+    assertEquals(3, residency.residentEntities)
+
+    val victim = residency.entitiesIn(4, 5).first()
+    assertTrue(residency.remove(world, victim))
+
+    assertEquals(2, residency.residentEntities, "the removed prop must be gone from residency at once")
+    assertFalse(residency.entitiesIn(4, 5).contains(victim))
+
+    // A second holder arriving now is told about the two survivors and never about the third.
+    sent.clear()
+    subscriptions.markSent(2L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+
+    val batch = sent.single { it.chunk.x == 4 && it.chunk.y == 5 }
+    assertEquals(2, batch.entries.size)
+    assertFalse(batch.entries.any { it.entityId == victim })
+  }
+
+  /**
+   * The audience is the column's holders, not whoever is nearby. A view volume is eleven chunks across, so a
+   * distance-addressed broadcast would leave the far holders drawing a prop the server has forgotten.
+   */
+  @Test
+  fun `a removal reaches every account holding any slab of the column`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    subscriptions.markSent(2L, ChunkPos(4, 5, 2))
+    subscriptions.markSent(3L, ChunkPos(9, 9, 0))
+    residency.drain(world, budget = 8)
+
+    val victim = residency.entitiesIn(4, 5).first()
+    residency.remove(world, victim)
+
+    val (audience, message) = removals.single()
+    assertEquals(setOf(1L, 2L), audience, "a holder of any slab of the column has been told about the prop")
+    assertEquals(victim, message.entityId)
+    assertEquals(4, message.chunk.x)
+    assertEquals(5, message.chunk.y)
+  }
+
+  @Test
+  fun `removing something that is not a resident prop is a no-op`() {
+    val world = testWorld()
+
+    subscriptions.markSent(1L, ChunkPos(4, 5, 0))
+    residency.drain(world, budget = 8)
+
+    assertFalse(residency.remove(world, 999_999L), "an id that names nothing cannot be removed")
+
+    val victim = residency.entitiesIn(4, 5).first()
+    assertTrue(residency.remove(world, victim))
+    assertFalse(residency.remove(world, victim), "removing twice must not report a second removal")
+
+    assertEquals(1, removals.size, "only the real removal is announced")
   }
 
   private fun kindRegistry() = PropKindRegistry().also { it.load() }

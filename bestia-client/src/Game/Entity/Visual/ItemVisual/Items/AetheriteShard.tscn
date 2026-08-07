@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/ItemVisual.tscn" id="1_aetherite"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_aetherite"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aetherite"]
+albedo_color = Color(0.58, 0.4, 0.78, 1)
+emission_enabled = true
+emission = Color(0.58, 0.4, 0.78, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_aetherite"]
+material = SubResource("StandardMaterial3D_aetherite")
+size = Vector3(0.3, 0.18, 0.24)
+
+[node name="AetheriteShard" instance=ExtResource("1_aetherite")]
+
+[node name="Sparkles" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41833496, 0)
+lifetime = 2.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+shape = SubResource("SphereShape3D_aetherite")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="3"]
+transform = Transform3D(0.9396926, 0.34202015, 0, -0.34202015, 0.9396926, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("BoxMesh_aetherite")

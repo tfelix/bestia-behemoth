@@ -39,6 +39,25 @@ class ChunkSubscriptionService {
   /** Reverse index over [sent]: who must be told when this chunk changes. */
   private val subscribers = HashMap<ChunkPos, MutableSet<Long>>()
 
+  /**
+   * The same index collapsed to columns: packed `(x, y)` -> account -> how many of its slabs that account
+   * holds.
+   *
+   * A second index rather than a scan, and maintained here rather than by the one caller that wants it,
+   * because it is derived from [sent] and [sent] is private. [unsend] is per-account and fires no per-account
+   * callback, so a listener outside this class cannot keep an equivalent index correct - it would learn about
+   * arrivals through `onChunkSent` and never about departures.
+   *
+   * The refcount is the point. A column is typically held through three subscribed slabs at once, so a set
+   * would drop the account on the first slab that left while two were still held.
+   *
+   * This is *not* the same question [WorldObjectResidencyService] refcounts columns for. That one is
+   * "does this column need to exist at all", which only the consumer can answer because it also has to cancel
+   * a release against a re-hold inside one tick. This one is "who has already been told what stands here",
+   * which is a pure reverse index over data this class owns.
+   */
+  private val columnSubscribers = HashMap<Long, MutableMap<Long, Int>>()
+
   /** Last chunk each player's anchor entity occupied, so a tick can tell whether anything moved. */
   private val anchors = HashMap<Long, ChunkPos>()
 
@@ -102,6 +121,20 @@ class ChunkSubscriptionService {
   /** Accounts that hold this chunk's payload and therefore need its patches. Never a copy - do not mutate. */
   fun subscribersOf(chunk: ChunkPos): Set<Long> = subscribers[chunk] ?: emptySet()
 
+  /**
+   * Accounts holding *any* slab of this column, and which have therefore been sent what stands on its surface.
+   *
+   * The audience for anything scoped to the surface rather than to a slab - a static entity that stopped
+   * existing, say. Distinct from [subscribersOf] because a prop belongs to the column: a player in a cave
+   * holds a different slab of the same column and was still sent the trees overhead.
+   *
+   * Not the same set as "players in range". A view volume is eleven chunks across, so a holder can stand
+   * 176 m from a prop it was told about; an interest-radius broadcast would leave that client drawing
+   * something the server has already forgotten.
+   */
+  fun subscribersOfColumn(chunkX: Int, chunkY: Int): Set<Long> =
+    columnSubscribers[packColumn(chunkX, chunkY)]?.keys ?: emptySet()
+
   fun isAnnouncedTo(accountId: Long, chunk: ChunkPos): Boolean =
     announced[accountId]?.contains(chunk) == true
 
@@ -151,6 +184,9 @@ class ChunkSubscriptionService {
     val wasUnheld = holders.isEmpty()
     holders.add(accountId)
 
+    val column = columnSubscribers.getOrPut(packColumn(chunk.x, chunk.y)) { HashMap() }
+    column[accountId] = (column[accountId] ?: 0) + 1
+
     if (wasUnheld) firstSubscriber.forEach { it(chunk) }
     chunkSent.forEach { it(accountId, chunk) }
   }
@@ -162,7 +198,23 @@ class ChunkSubscriptionService {
    * more than a patch can express - a re-send is then the only way to catch it up.
    */
   fun unsend(accountId: Long, chunk: ChunkPos) {
-    sent[accountId]?.remove(chunk)
+    val wasSent = sent[accountId]?.remove(chunk) == true
+
+    // Guarded on `wasSent` rather than mirroring the `subscribers` bookkeeping below, because unsending a
+    // chunk an account never held must not decrement a count it never incremented - `forget` and a `reset`
+    // manifest can both reach here for a chunk that was only ever announced.
+    if (wasSent) {
+      val columnKey = packColumn(chunk.x, chunk.y)
+      val column = columnSubscribers[columnKey]
+      val held = (column?.get(accountId) ?: 0) - 1
+
+      if (held <= 0) {
+        column?.remove(accountId)
+        if (column?.isEmpty() == true) columnSubscribers.remove(columnKey)
+      } else {
+        column?.put(accountId, held)
+      }
+    }
 
     val holders = subscribers[chunk] ?: return
     holders.remove(accountId)
@@ -186,5 +238,8 @@ class ChunkSubscriptionService {
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    /** Matches `WorldObjectResidencyService`'s own packing, so the two agree on what a column is. */
+    fun packColumn(x: Int, y: Int): Long = (x.toLong() shl 32) or (y.toLong() and 0xFFFFFFFFL)
   }
 }

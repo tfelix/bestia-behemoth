@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CollectPropCMSGProto";
+
+/**
+ * Asks to take one static entity straight into the inventory.
+ *
+ * ### Why this is a map message and not an entity one
+ *
+ * The id it names came off a `ChunkStaticEntitiesSMSG`, and that message's own note explains why static
+ * entities deliberately do not travel the entity channel. Putting the request that answers it in the ENTITY
+ * block would invite the next reader to route it through `EntityManager`, which is the one thing the batch
+ * exists to avoid.
+ *
+ * ### This is not the only way to take a prop apart
+ *
+ * A tree is felled by hitting it: `PropPromotionService` turns it into an ordinary combat entity on the first
+ * point of damage and `PropDeathDivergenceSystem` decides what its death meant. That path is untouched. This
+ * one is for the kinds a player picks up rather than fights - `prop-kinds.yml` says which by giving a kind a
+ * `collect` block, and the server refuses anything else, so the two mechanics cannot both claim one prop.
+ */
+message CollectPropCMSG {
+  /**
+   * Live ECS id, from `ChunkStaticEntitiesSMSG.Entry.entity_id`.
+   *
+   * Fixed for the reason that field is fixed, and just as ephemeral: it is only valid while the client holds
+   * the chunk. A stale one names nothing and is refused, which is why it is safe to let the client send one
+   * it may have held for a while.
+   */
+  fixed64 entity_id = 1;
+}

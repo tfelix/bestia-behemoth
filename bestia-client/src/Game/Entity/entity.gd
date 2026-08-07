@@ -335,6 +335,16 @@ func is_casting() -> bool:
 	return _casting
 
 
+## Whether this entity is walking a predicted path right now.
+##
+## [b]Prediction state, not truth.[/b] It goes false at the end of every path segment and the server can
+## replace the path at any moment via PathComponentSMSG. So this answers "is the walk still running",
+## which is useful for noticing one that has [i]stopped[/i] short - it is not a way to detect arrival.
+## Anything that needs "am I there yet" should measure the distance.
+func is_moving() -> bool:
+	return _is_moving
+
+
 func update_effects(msg: BuffListSMSG) -> void:
 	_effects = msg.Effects
 
