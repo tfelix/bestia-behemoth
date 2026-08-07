@@ -1,81 +1,93 @@
 package net.bestia.zone.ai.profile
 
-import net.bestia.zone.ai.goal.GoalRegistry
-import net.bestia.zone.ai.goal.consideration.ConsiderationInputRegistry
-import net.bestia.zone.ai.goal.consideration.CurveRegistry
-import net.bestia.zone.ai.goal.consideration.EnemyInSightInput
-import net.bestia.zone.ai.goal.consideration.IdentityCurve
-import net.bestia.zone.ai.goal.consideration.InverseCurve
-import net.bestia.zone.ai.goal.consideration.LinearRisingCurve
-import net.bestia.zone.ai.goal.consideration.OwnHealthPctInput
-import net.bestia.zone.ai.goal.consideration.TraitInput
-import net.bestia.zone.ai.goal.goals.FleeGoal
-import net.bestia.zone.ai.goal.goals.KillEnemyGoal
-import net.bestia.zone.ai.goal.goals.WanderGoal
-import net.bestia.zone.ai.planner.GoapActionRegistry
-import net.bestia.zone.ai.planner.actions.ApproachTargetAction
-import net.bestia.zone.ai.planner.actions.FleeToSafetyAction
-import net.bestia.zone.ai.planner.actions.MeleeAttackAction
-import net.bestia.zone.ai.planner.actions.WanderAction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
+/**
+ * Boot-time behaviour of the one AI profile registry: the shipped archetypes parse, and a profile naming
+ * something the domain does not define fails the boot rather than producing a mob that silently does nothing.
+ */
 class AiProfileRegistryTest {
 
-  private fun newRegistry() = AiProfileRegistry(
-    curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve())),
-    inputRegistry = ConsiderationInputRegistry(listOf(EnemyInSightInput(), OwnHealthPctInput(), TraitInput())),
-    goalRegistry = GoalRegistry(listOf(KillEnemyGoal(), FleeGoal(), WanderGoal())),
-    actionRegistry = GoapActionRegistry(
-      listOf(ApproachTargetAction(), MeleeAttackAction(), FleeToSafetyAction(), WanderAction())
-    )
-  )
+  private fun loadedRegistry() = AiProfileRegistry().apply { load() }
 
   @Test
-  fun `both shipped archetypes parse and resolve`() {
-    val registry = newRegistry()
-
-    registry.load()
+  fun `loads every shipped archetype from the classpath`() {
+    val registry = loadedRegistry()
 
     assertNotNull(registry.get("aggressive_melee"))
     assertNotNull(registry.get("passive_wanderer"))
+  }
 
-    val aggressive = registry.getOrThrow("aggressive_melee")
-    assertEquals("wild_beasts", aggressive.faction)
-    assertEquals(8, aggressive.perception.sightRadius)
-    assertEquals(0.8, aggressive.traits["aggression"])
+  @Test
+  fun `parses tuning knobs and attacks`() {
+    val profile = loadedRegistry().getOrThrow("aggressive_melee")
+
+    assertEquals(8, profile.perception.sightRadius)
+    assertEquals(35, profile.tuning.fleeThresholdPct)
+    assertEquals(80, profile.tuning.aggression)
+    assertEquals(listOf("claw"), profile.attacks.map { it.id })
+    assertEquals(1L, profile.attacks.single().range)
+  }
+
+  @Test
+  fun `a peaceful archetype still retaliates`() {
+    val profile = loadedRegistry().getOrThrow("passive_wanderer")
+
+    // Being attacked is not something a profile opts into for flavour, so even the harmless grazer carries
+    // the retaliation goal — gated on having actually been hit.
+    assertTrue(profile.goals.any { it.name == "KillAttacker" })
+    assertTrue(profile.goals.none { it.name == "KillEnemy" }, "a critter must not pick fights")
   }
 
   @Test
   fun `an unknown action id fails fast`() {
-    val registry = newRegistry()
-
+    val registry = AiProfileRegistry()
     val dto = AiProfileDto(
       identifier = "broken",
-      actions = listOf("does_not_exist")
+      goals = listOf(AiProfileDto.GoalDto("Sleep")),
+      actions = listOf("sleep", "doesNotExist"),
     )
 
-    assertThrows(IllegalArgumentException::class.java) { registry.register(dto) }
+    val error = assertThrows<IllegalArgumentException> { registry.register(dto) }
+    assertTrue(error.message!!.contains("doesNotExist"))
   }
 
   @Test
-  fun `an unknown response curve fails fast`() {
-    val registry = newRegistry()
-
+  fun `an unknown goal name fails fast`() {
+    val registry = AiProfileRegistry()
     val dto = AiProfileDto(
       identifier = "broken",
-      goals = listOf(
-        AiProfileDto.GoalDto(
-          name = "kill_enemy",
-          considerations = listOf(
-            AiProfileDto.ConsiderationDto(input = "enemy_in_sight", curve = "no_such_curve")
-          )
-        )
-      )
+      goals = listOf(AiProfileDto.GoalDto("BecomeEmperor")),
+      actions = listOf("sleep"),
     )
 
-    assertThrows(IllegalArgumentException::class.java) { registry.register(dto) }
+    val error = assertThrows<IllegalArgumentException> { registry.register(dto) }
+    assertTrue(error.message!!.contains("BecomeEmperor"))
+  }
+
+  @Test
+  fun `goals with no actions to satisfy them fail fast`() {
+    val registry = AiProfileRegistry()
+    val dto = AiProfileDto(
+      identifier = "inert",
+      goals = listOf(AiProfileDto.GoalDto("Sleep")),
+      actions = emptyList(),
+    )
+
+    // Otherwise this spawns a mob that selects a goal, fails to plan, and retries forever — cheap to catch
+    // here, maddening to diagnose from behaviour.
+    assertThrows<IllegalArgumentException> { registry.register(dto) }
+  }
+
+  @Test
+  fun `a base priority override is carried through`() {
+    val profile = loadedRegistry().getOrThrow("passive_wanderer")
+    val retaliation = profile.goals.single { it.name == "KillAttacker" }
+
+    assertEquals(60f, retaliation.basePriority)
   }
 }

@@ -4,46 +4,64 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 /**
- * Jackson DTOs mirroring the `resources/ai/<name>.yml` archetype files. Every field is nullable or
- * defaulted so that adding new keys never breaks an existing archetype file (forward-compatible),
- * mirroring the tolerant parsing used by the mob/item importers.
+ * Jackson mirror of a `resources/ai/<name>.yml` archetype — the one AI profile format, replacing the two
+ * that used to exist side by side under `ai/` and `ai/goap2/`.
+ *
+ * Every field is nullable or defaulted so adding a key never breaks an existing file, and snake_case in
+ * YAML maps to camelCase here.
+ *
+ * ### What YAML can and cannot say
+ *
+ * It selects and it tunes: *which* goals this archetype pursues and at what base priority, *which* action
+ * templates it may use, its attacks, and its numeric knobs. It cannot express behaviour. A goal's priority
+ * formula — the considerations and response curves that scale it with hunger, health or aggression — lives
+ * in Kotlin next to the goal, in the `priority { consider(...) }` DSL.
+ *
+ * That is a deliberate narrowing of the old format, which let YAML assemble considerations from
+ * `input`/`curve`/`weight` triples resolved through two bean registries. Losing it costs a rebuild to
+ * retune a curve and buys type safety, one less indirection to trace when a mob misbehaves, and a much
+ * smaller surface to validate — which matters most for player-supplied configuration, where the only thing
+ * a player can move is a base priority and every value has to be clamped.
  */
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class AiProfileDto(
   val identifier: String,
+  /** Pack/faction id; agents sharing one share a team blackboard. */
   val faction: String? = null,
-  val traits: Map<String, Double> = emptyMap(),
   val perception: PerceptionDto = PerceptionDto(),
+  val wanderRadius: Long = 5,
+  val meleeRange: Long = 1,
+  val hungerThreshold: Int = 85,
+  val tirednessThreshold: Int = 80,
+  val restlessThreshold: Int = 60,
+  /** Health percentage at or below which this archetype would rather run than fight. */
+  val fleeThresholdPct: Int = 35,
+  /**
+   * 0..100 temperament knob feeding the kill goals' priority curves.
+   *
+   * There is deliberately no separate `courage`: how readily a creature gives up the fight is already what
+   * [fleeThresholdPct] says, and two knobs for one concept only invited them to disagree.
+   */
+  val aggression: Int = 50,
   val goals: List<GoalDto> = emptyList(),
-  val actions: List<String> = emptyList()
+  val actions: List<String> = emptyList(),
+  val attacks: List<AttackDto> = emptyList(),
 ) {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
   data class PerceptionDto(
     val sightRadius: Int = 8,
-    val sightInterval: Double = 0.5,
-    val reactsTo: List<String> = emptyList()
   )
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-  data class GoalDto(
-    val name: String,
-    val baseScore: Double = 0.0,
-    val combine: Combine = Combine.PRODUCT,
-    val considerations: List<ConsiderationDto> = emptyList()
-  )
+  data class GoalDto(val name: String, val basePriority: Float? = null)
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-  data class ConsiderationDto(
-    val input: String,
-    val curve: String = "identity",
-    val weight: Double = 1.0
+  data class AttackDto(
+    val id: String,
+    val range: Long,
+    val baseCost: Float = 5f,
+    val skillId: Long = 0L,
+    val cooldownSeconds: Float = 1.5f,
   )
-
-  enum class Combine {
-    PRODUCT,
-    MIN,
-    MAX,
-    AVERAGE
-  }
 }

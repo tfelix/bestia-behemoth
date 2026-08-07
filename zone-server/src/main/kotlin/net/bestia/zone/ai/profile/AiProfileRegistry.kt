@@ -6,10 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
-import net.bestia.zone.ai.goal.GoalRegistry
-import net.bestia.zone.ai.goal.consideration.ConsiderationInputRegistry
-import net.bestia.zone.ai.goal.consideration.CurveRegistry
-import net.bestia.zone.ai.planner.GoapActionRegistry
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Service
 
@@ -18,23 +15,21 @@ import org.springframework.stereotype.Service
  * behaviour configuration (not JPA-persisted), so it is held in a plain in-memory map rather than a
  * database table.
  *
- * On load it fail-fast validates that every referenced goal, action, consideration input and
- * response curve actually resolves to a registered bean, so a typo in a YAML archetype surfaces at
- * boot instead of at runtime.
+ * On load it fail-fast validates that every referenced goal and action actually exists in [BestiaDomain],
+ * so a typo in a YAML archetype surfaces at boot instead of as a mob that mysteriously does nothing.
+ * Validation used to check four things — goals, actions, consideration inputs and response curves — against
+ * four Spring bean registries. Two of those concepts no longer exist in YAML at all now that priority
+ * formulas live in Kotlin, and the remaining two resolve against the domain object directly, so there are no
+ * registry beans left to inject.
  */
 @Service
-class AiProfileRegistry(
-  private val curveRegistry: CurveRegistry,
-  private val inputRegistry: ConsiderationInputRegistry,
-  private val goalRegistry: GoalRegistry,
-  private val actionRegistry: GoapActionRegistry
-) {
+class AiProfileRegistry {
 
   private val profilesById = mutableMapOf<String, AiProfile>()
 
   @PostConstruct
   fun load() {
-    // Case-insensitive enums let YAML archetypes use lowercase values (e.g. `combine: product`).
+    // Case-insensitive enums let YAML archetypes use lowercase values.
     val objectMapper = JsonMapper.builder(YAMLFactory())
       .addModule(kotlinModule())
       .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
@@ -42,9 +37,8 @@ class AiProfileRegistry(
     val resolver = PathMatchingResourcePatternResolver()
     // "classpath*:" (not "classpath:") is required here: with a plain "classpath:" prefix Spring resolves
     // the wildcard root by taking the *first* "ai/" directory the classloader finds and globbing only inside
-    // it. The goap2 test fixtures also put a nested `ai/goap2/wolf.yml` on the test classpath, and if that
-    // "ai/" root wins the lookup (no top-level *.yml of its own) this silently loads zero profiles instead
-    // of throwing. "classpath*:" aggregates every matching root instead of picking just one.
+    // it. Test fixtures put further files under a nested `ai/` root, and if one of those wins the lookup
+    // this silently loads zero profiles instead of throwing. "classpath*:" aggregates every matching root.
     val resources = resolver.getResources("classpath*:$CLASSPATH_FOLDER/*.yml")
 
     resources.forEach { resource ->
@@ -56,8 +50,8 @@ class AiProfileRegistry(
   }
 
   /**
-   * Parses, fail-fast validates and stores a single profile. Exposed for the loader and for tests;
-   * throws [IllegalArgumentException] if the profile references anything unregistered.
+   * Parses, fail-fast validates and stores a single profile. Exposed for the loader and for tests; throws
+   * [IllegalArgumentException] if the profile references anything the domain does not define.
    */
   fun register(dto: AiProfileDto): AiProfile {
     val profile = AiProfile.fromDto(dto)
@@ -75,23 +69,23 @@ class AiProfileRegistry(
 
   private fun validate(profile: AiProfile) {
     profile.actionIds.forEach { actionId ->
-      require(actionRegistry.has(actionId)) {
-        "AI profile '${profile.identifier}' references unknown action '$actionId'"
+      require(actionId in BestiaDomain.ACTION_IDS) {
+        "AI profile '${profile.identifier}' references unknown action '$actionId'; " +
+          "known actions are ${BestiaDomain.ACTION_IDS.sorted()}"
       }
     }
 
     profile.goals.forEach { goal ->
-      require(goalRegistry.has(goal.name)) {
-        "AI profile '${profile.identifier}' references unknown goal '${goal.name}'"
+      require(goal.name in BestiaDomain.Goals.BY_NAME) {
+        "AI profile '${profile.identifier}' references unknown goal '${goal.name}'; " +
+          "known goals are ${BestiaDomain.Goals.BY_NAME.keys.sorted()}"
       }
-      goal.considerations.forEach { consideration ->
-        require(inputRegistry.has(consideration.input)) {
-          "AI profile '${profile.identifier}' references unknown consideration input '${consideration.input}'"
-        }
-        require(curveRegistry.has(consideration.curve)) {
-          "AI profile '${profile.identifier}' references unknown response curve '${consideration.curve}'"
-        }
-      }
+    }
+
+    // A profile that names a goal but not the actions that could ever satisfy it produces a mob which
+    // selects that goal, fails to plan, and retries forever. Cheap to catch here, maddening to debug live.
+    require(profile.goals.isEmpty() || profile.actionIds.isNotEmpty()) {
+      "AI profile '${profile.identifier}' declares goals but no actions, so it can never plan"
     }
   }
 

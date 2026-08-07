@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetBestiaAiConfigCmsgProto";
+
+/**
+ * Sets what one of the player's own bestias should do while they are not driving it.
+ *
+ * The vocabulary is deliberately narrow. A stance is an enum rather than a list of goals, and the two
+ * numbers are clamped server-side, so the client can never author behaviour directly — it states an
+ * intent and the server decides what that means. See AiConfig on the server for why.
+ */
+message SetBestiaAiConfigCMSG {
+  /** Which of the player's bestias to configure. */
+  uint64 player_bestia_id = 1;
+
+  IdleStance stance = 2;
+
+  /** 0..100. Out-of-range values are clamped, not rejected. */
+  uint32 aggression = 3;
+
+  /** 0..100 health percentage at or below which it breaks off and runs. Clamped. */
+  uint32 flee_threshold_pct = 4;
+
+  enum IdleStance {
+    /** Never sent by a well-behaved client; present so an unset field is not silently a real stance. */
+    IDLE_STANCE_UNSPECIFIED = 0;
+    HOLD = 1;
+    PATROL = 2;
+    FORAGE = 3;
+    DEFEND = 4;
+  }
+}

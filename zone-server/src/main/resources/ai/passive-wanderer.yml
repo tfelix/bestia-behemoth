@@ -1,13 +1,35 @@
+# A harmless grazer: never picks a fight, but will defend itself, and runs early.
+#
+# Note it still lists KillAttacker. Retaliation is not something a profile opts into for flavour — being
+# attacked is not optional — and the goal is gated on having actually been hit, so a peaceful creature stays
+# peaceful until something starts on it.
 identifier: passive_wanderer
 faction: critters
-traits: { aggression: 0.0, courage: 0.2 }
-perception: { sight_radius: 6, sight_interval: 1.0, reacts_to: [damaged] }
+perception:
+  sight_radius: 6
+wander_radius: 8
+melee_range: 1
+hunger_threshold: 70
+tiredness_threshold: 75
+restless_threshold: 40
+# Runs while still healthy: a critter has no business trading blows.
+flee_threshold_pct: 80
+aggression: 10
 goals:
-  - name: flee
-    combine: product
-    considerations:
-      - { input: enemy_in_sight, curve: identity }
-      - { input: trait_courage,  curve: inverse }
-  - name: idle_wander
-    base_score: 0.2
-actions: [flee_to_safety, wander]
+  - { name: Flee }
+  - { name: KillAttacker, base_priority: 60 }
+  - { name: EatVegetation }
+  - { name: Sleep }
+  - { name: ReturnHome }
+  - { name: Wander }
+actions:
+  - flee
+  - approachTarget
+  - attack
+  - walkToVegetation
+  - eatVegetation
+  - sleep
+  - returnHome
+  - wander
+attacks:
+  - { id: nip, range: 1, base_cost: 8, cooldown_seconds: 2.0 }

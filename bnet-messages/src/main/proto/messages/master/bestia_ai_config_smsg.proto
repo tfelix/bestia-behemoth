@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/master/set_bestia_ai_config_cmsg.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BestiaAiConfigSmsgProto";
+
+/**
+ * The standing order now in force for one of the player's bestias.
+ *
+ * Sent back after a successful SetBestiaAiConfigCMSG so the client shows what the server actually stored
+ * rather than what was asked for — the two differ whenever a value was clamped.
+ */
+message BestiaAiConfigSMSG {
+  uint64 player_bestia_id = 1;
+  SetBestiaAiConfigCMSG.IdleStance stance = 2;
+  uint32 aggression = 3;
+  uint32 flee_threshold_pct = 4;
+}

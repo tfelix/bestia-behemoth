@@ -1,163 +1,164 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ai.AiActSystem
-import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.navigation.TestNavigation
-import net.bestia.zone.ai.AiThinkSystem
-import net.bestia.zone.ai.Brain
-import net.bestia.zone.ai.goal.GoalRegistry
-import net.bestia.zone.ai.goal.UtilityScorer
-import net.bestia.zone.ai.goal.consideration.ConsiderationInputRegistry
-import net.bestia.zone.ai.goal.consideration.CurveRegistry
-import net.bestia.zone.ai.goal.consideration.EnemyInSightInput
-import net.bestia.zone.ai.goal.consideration.IdentityCurve
-import net.bestia.zone.ai.goal.consideration.InverseCurve
-import net.bestia.zone.ai.goal.consideration.LinearRisingCurve
-import net.bestia.zone.ai.goal.consideration.OwnHealthPctInput
-import net.bestia.zone.ai.goal.consideration.TraitInput
-import net.bestia.zone.ai.goal.goals.FleeGoal
-import net.bestia.zone.ai.goal.goals.KillEnemyGoal
-import net.bestia.zone.ai.goal.goals.WanderGoal
-import net.bestia.zone.ai.perception.PerceptionSystem
-import net.bestia.zone.ai.planner.GoapActionRegistry
-import net.bestia.zone.ai.planner.GoapPlanner
-import net.bestia.zone.ai.planner.WorldStateBuilder
-import net.bestia.zone.ai.planner.actions.ApproachTargetAction
-import net.bestia.zone.ai.planner.actions.FleeToSafetyAction
-import net.bestia.zone.ai.planner.actions.MeleeAttackAction
-import net.bestia.zone.ai.planner.actions.WanderAction
-import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.battle.skill.KnownSkills
-import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.battle.status.Health
+import io.mockk.verify
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ecs.movement.Path
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
- * In-process exercise of the full AI pipeline against a real ecs [World]: spawn a brain-equipped
- * mob and a player entity, run perception -> think -> act by hand, and assert the mob acquires the
- * target, plans, moves, attacks in melee range, and flips to fleeing at low health.
+ * In-process exercise of the merged AI pipeline against a real ecs world: spawn a mob and a player, run the
+ * loop, and assert the mob perceives, plans, moves and attacks — plus the transitions between goals.
+ *
+ * These are single-transition checks; [AiLifecycleE2ETest] runs a whole behavioural lifecycle.
+ *
+ * Note the deliberate absence of fixed tick counts. Perception refreshes twice a second and each agent thinks
+ * on its own staggered period, so nothing is decided in the first few ticks and the exact tick a decision
+ * lands on is not part of the contract. `tickUntil` asserts the outcome without pinning the timing.
  */
 class AiBehaviorScenarioTest {
 
-  private lateinit var world: World
-  private lateinit var aoi: EntityAOIService
-  private lateinit var perceptionSystem: PerceptionSystem
-  private lateinit var thinkSystem: AiThinkSystem
-  private lateinit var actSystem: AiActSystem
+  private lateinit var ai: AiPipelineFixture
 
   @BeforeEach
   fun setup() {
-    world = testWorld()
-    aoi = EntityAOIService()
-
-    val curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve()))
-    val inputRegistry = ConsiderationInputRegistry(listOf(EnemyInSightInput(), OwnHealthPctInput(), TraitInput()))
-    val goalRegistry = GoalRegistry(listOf(KillEnemyGoal(), FleeGoal(), WanderGoal()))
-    val actionRegistry = GoapActionRegistry(
-      listOf(ApproachTargetAction(), MeleeAttackAction(), FleeToSafetyAction(), WanderAction())
-    )
-    val profileRegistry = AiProfileRegistry(curveRegistry, inputRegistry, goalRegistry, actionRegistry)
-    profileRegistry.load()
-
-    perceptionSystem = PerceptionSystem(profileRegistry, aoi)
-    thinkSystem = AiThinkSystem(
-      profileRegistry,
-      UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
-      WorldStateBuilder(),
-      GoapPlanner(),
-      actionRegistry
-    )
-    actSystem = AiActSystem(TestNavigation.service(), ZoneConfig(tickRate = 20))
+    ai = AiPipelineFixture()
   }
-
-  private fun spawnMob(pos: Vec3L, health: Int): EntityId =
-    world.createEntity { id ->
-      world.add(id, Position.fromVec3(pos))
-      world.add(id, Health(health, 10))
-      world.add(id, Speed())
-      world.add(id, Brain("aggressive_melee", homePosition = pos))
-      world.add(id, KnownSkills(mutableMapOf(0L to 1)))
-    }
-
-  private fun spawnPlayer(pos: Vec3L): EntityId {
-    val id = world.createEntity { eid ->
-      world.add(eid, Position.fromVec3(pos))
-      world.add(eid, Health(30, 30))
-      world.add(eid, Master(1L))
-    }
-    aoi.setEntityPosition(id, pos)
-    return id
-  }
-
-  private fun perceive() = perceptionSystem.update(world, 0.5f)
-  private fun think() = thinkSystem.update(world, 0.5f)
-  private fun act() = actSystem.update(world, 0.05f)
-
-  private fun brainOf(id: EntityId): Brain = world.getOrThrow(id, Brain::class)
 
   @Test
-  fun `mob acquires target, plans to kill and moves toward the player`() {
-    val mob = spawnMob(Vec3L(0, 0, 0), health = 10)
-    val player = spawnPlayer(Vec3L(3, 0, 0))
+  fun `perception records the player as a target and the mob plans to close and attack`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    val player = ai.spawnPlayer(Vec3L(4, 0, 0))
 
-    perceive()
-    val afterPerceive = brainOf(mob)
-    assertEquals(player, afterPerceive.targetId)
-    assertEquals(Vec3L(3, 0, 0), afterPerceive.targetPosition)
+    ai.tickUntilGoal(mob, "KillEnemy")
 
-    think()
-    val afterThink = brainOf(mob)
-    assertEquals("kill_enemy", afterThink.currentGoal?.name)
+    val agent = ai.agentOf(mob)
+    assertEquals(player, agent.memory.get(BestiaDomain.TARGET_ID))
+    assertEquals(true, agent.memory.get(BestiaDomain.ENEMY_IN_SIGHT))
     assertEquals(
-      listOf("approach_target", "melee_attack"),
-      afterThink.currentPlan?.actions?.map { it.id }
+      listOf("approachTarget", "attack(claw)"),
+      agent.currentPlan?.actions?.map { it.name },
     )
-
-    act()
-    val path = world.get(mob, Path::class)?.path
-    assertNotNull(path, "mob should have started a path toward the player")
-    assertTrue(path!!.first().x > 0, "mob should step toward the player on +x")
   }
 
   @Test
-  fun `mob deals damage when the player is in melee range`() {
-    val mob = spawnMob(Vec3L(0, 0, 0), health = 10)
-    val player = spawnPlayer(Vec3L(1, 0, 0))
+  fun `the mob paths toward the player it decided to attack`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    ai.spawnPlayer(Vec3L(4, 0, 0))
 
-    perceive()
-    think()
-    act()
+    ai.tickUntil(describe = { "the mob never started a path" }) {
+      ai.world.get(mob, Path::class)?.path?.isNotEmpty() == true
+    }
 
-    val damageTotal = world.get(player, Damage::class)?.total() ?: 0
-    assertTrue(damageTotal > 0, "player should have taken melee damage")
+    val path = ai.world.get(mob, Path::class)!!.path
+    assertNotNull(path)
+    assertTrue(path.first().x > 0, "the mob should step toward the player on +x")
   }
 
   @Test
-  fun `mob flees when its own health is low`() {
-    val mob = spawnMob(Vec3L(0, 0, 0), health = 2) // 20% of max -> below flee threshold
-    spawnPlayer(Vec3L(1, 0, 0))
+  fun `the mob casts its attack through the skill service once in melee range`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    val player = ai.spawnPlayer(Vec3L(1, 0, 0))
 
-    perceive()
-    think()
-    val brain = brainOf(mob)
-    assertEquals("flee", brain.currentGoal?.name)
+    ai.tickUntilGoal(mob, "KillEnemy")
+    ai.tick(times = 20)
 
-    act()
-    val path = world.get(mob, Path::class)?.path
-    assertNotNull(path, "fleeing mob should have a path")
-    assertTrue(path!!.first().x < 0, "mob should step away from the player (negative x)")
+    // Going through the skill service rather than stacking a Damage component directly is the point: a mob
+    // attacks by the same route a player does, so range, mana and the strategy script all apply.
+    verify(atLeast = 1) {
+      ai.skills.execute(
+        world = ai.world,
+        casterId = mob,
+        skillId = 0L,
+        skillLevel = 1,
+        targetEntityId = player,
+        targetPosition = null,
+      )
+    }
+  }
+
+  @Test
+  fun `a wounded mob switches from hunting to fleeing and retreats`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
+    val player = ai.spawnPlayer(Vec3L(2, 0, 0))
+
+    ai.tickUntilGoal(mob, "KillEnemy")
+
+    // 20% of max, under the profile's 35% flee threshold.
+    ai.setHealth(mob, 2)
+    ai.tickUntilGoal(mob, "Flee")
+
+    val distanceBefore = ai.distanceBetween(mob, player)
+    ai.tickUntil(describe = { "the fleeing mob never opened the distance from $distanceBefore" }) {
+      ai.distanceBetween(mob, player) > distanceBefore
+    }
+  }
+
+  @Test
+  fun `a peaceful critter ignores a player until it is actually hit`() {
+    val critter = ai.spawnMob("passive_wanderer", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
+    val player = ai.spawnPlayer(Vec3L(2, 0, 0))
+
+    // Wait until perception has definitely looked at the world at least once.
+    ai.tickUntil(describe = { "perception never ran" }) {
+      ai.agentOf(critter).memory.get(BestiaDomain.POSITION) != null
+    }
+
+    // The critter has no KillEnemy goal at all, so seeing a player is no reason to attack one.
+    assertNotEquals("KillEnemy", ai.goalNameOf(critter), "a passive archetype must not pick a fight")
+    assertEquals(false, ai.agentOf(critter).memory.get(BestiaDomain.IS_AGGRO))
+
+    // Being attacked, though, is not something a profile opts out of.
+    ai.recordHit(victim = critter, attacker = player)
+    ai.tickUntil(describe = { "the critter never noticed it was being attacked" }) {
+      ai.agentOf(critter).memory.get(BestiaDomain.IS_AGGRO) == true
+    }
+
+    assertEquals(player, ai.agentOf(critter).memory.get(BestiaDomain.TARGET_ID))
+  }
+
+  @Test
+  fun `retaliation targets whoever actually hit the mob, not merely whoever is nearest`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+    val nearby = ai.spawnPlayer(Vec3L(1, 0, 0))
+    val attackerFurtherAway = ai.spawnPlayer(Vec3L(5, 0, 0))
+
+    ai.recordHit(victim = mob, attacker = attackerFurtherAway)
+    ai.tickUntil(describe = { "perception never picked a target" }) {
+      ai.agentOf(mob).memory.get(BestiaDomain.TARGET_ID) != null
+    }
+
+    val target = ai.agentOf(mob).memory.get(BestiaDomain.TARGET_ID)
+    assertEquals(attackerFurtherAway, target, "whoever is hitting us outranks whoever is closest")
+    assertNotEquals(nearby, target)
+  }
+
+  @Test
+  fun `a brand new agent does not immediately decide to go home`() {
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
+
+    // Its memory is empty until perception fills it in, and an unknown position must not read as "infinitely
+    // far from home" — that made the first decision of every creature's life a pointless trip home.
+    ai.tick(times = 3)
+    assertNotEquals("ReturnHome", ai.goalNameOf(mob))
+  }
+
+  @Test
+  fun `an idle mob eventually gets restless and wanders`() {
+    val mob = ai.spawnMob("passive_wanderer", Vec3L(0, 0, 0))
+
+    // Nothing to see, nothing pressing: the drive system raises restlessness until wandering becomes an
+    // available, genuinely unsatisfied goal. This is what replaced the old reflexive fallback.
+    ai.tickUntilGoal(mob, "Wander")
+
+    assertTrue(
+      (ai.agentOf(mob).memory.get(BestiaDomain.RESTLESSNESS) ?: 0) > 0,
+      "restlessness should have accumulated",
+    )
   }
 }

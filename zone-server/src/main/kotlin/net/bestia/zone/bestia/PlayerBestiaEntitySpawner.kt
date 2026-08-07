@@ -1,6 +1,8 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.ecs.AiAgentFactory
+import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
@@ -34,6 +36,8 @@ class PlayerBestiaEntitySpawner(
   private val weightLimitCalculator: WeightLimitCalculator,
   private val levelUpExpCalculator: LevelUpExperienceCalculator,
   private val conditionValueCalculator: ConditionValueCalculator,
+  private val aiProfileRegistry: AiProfileRegistry,
+  private val aiAgentFactory: AiAgentFactory,
 ) {
 
   /**
@@ -117,6 +121,8 @@ class PlayerBestiaEntitySpawner(
       )
 
       add(id, Persistent)
+
+      attachIdleAi(id, playerBestia)
     }
 
     val playerBestiaId = playerBestia.id
@@ -130,6 +136,32 @@ class PlayerBestiaEntitySpawner(
       playerBestiaId = playerBestiaId,
       playerBestiaEntityId = entityId
     )
+  }
+
+  /**
+   * Gives an owned bestia the same AI a wild one of its species gets, narrowed by whatever standing order its
+   * owner has set.
+   *
+   * Player bestias had no AI at all before: an owned creature the player was not currently driving simply stood
+   * still. It gets one here so that "what my bestia does while I am busy" becomes a thing the player can
+   * configure — see [net.bestia.zone.ai.profile.AiConfig]. The think and act stages skip whichever entity is
+   * actually being driven, via [net.bestia.zone.ai.ecs.PlayerControlled].
+   */
+  private fun net.bestia.zone.ecs.core.World.attachIdleAi(
+    id: net.bestia.zone.util.EntityId,
+    playerBestia: PlayerBestia,
+  ) {
+    val profileId = playerBestia.bestia.aiProfile ?: return
+    val profile = aiProfileRegistry.get(profileId) ?: run {
+      LOG.warn {
+        "Player bestia ${playerBestia.id} references unknown AI profile '$profileId', spawning without idle AI"
+      }
+      return
+    }
+
+    // Home is where it stands now, not a species spawn point: a bestia told to patrol should patrol where its
+    // owner left it.
+    add(id, aiAgentFactory.create(profile, homePosition = playerBestia.position, config = playerBestia.aiConfig))
   }
 
   /**

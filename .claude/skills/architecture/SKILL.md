@@ -156,37 +156,85 @@ Use those files as a template instead of re-deriving the shape from scratch.
 `zone-server/src/main/kotlin/net/bestia/zone/ecs/` is the hand-rolled ECS (no external
 ECS library):
 
-- **`ecs/core/`** — the engine itself (formerly the standalone `ecs2` package, merged in).
-  Centered on `ecs/core/World.kt`: `ComponentStore`, `SystemScheduler` (parallel "wave"
-  scheduling based on declared read/write component sets), `CommandQueue`,
-  `ChangeTracker`, `Outbox`, with Spring wiring in `ecs/core/spring/` (`Ecs2Configuration`
-  collects every `Ecs2System` bean into a `World`; `Ecs2Runner` is the optional tick
-  driver). Game logic implements `Ecs2System` (`update(world, deltaTime)`, declaring
-  `reads`/`writes` component sets) and registers as a Spring `@Component` bean.
+- **`ecs/core/`** — the engine itself. Centered on `ecs/core/World.kt`: `ComponentStore`
+  (sparse set, one per concrete component class — there are no archetypes), `SystemScheduler`
+  ("wave" scheduling from declared read/write component sets), `CommandQueue`,
+  `EntityRegistry`, `AsyncJobExecutor`. Spring wiring is `ecs/EcsConfiguration.kt`, which
+  collects every `System` bean into one `World`; `ecs/EcsRunner.kt` is an optional standalone
+  tick driver and `ecs/ZoneEngine.kt` is the real one (thread `zone-tick`).
+- Game logic implements `ecs/core/System.kt` — `update(world, deltaTime)` plus a `schedule`
+  (`EveryTick` / `EveryTicks(n)` / `EverySeconds(s)`) and `reads`/`writes` sets — and registers
+  as a Spring `@Component` with an `@Order(n)` that fixes registration order.
 - Domain subpackages sit alongside `core/`: `battle/`, `bestia/`, `item/`, `movement/`,
-  `persistence/`, `player/`, `session/`, `spawn/`, `status/` — components + systems per
-  gameplay area, all built on `ecs/core/World`/`Ecs2System`.
+  `persistence/`, `spawn/`, ... — components + systems per gameplay area.
 
-To add game logic: implement `Ecs2System` (`ecs/core/Ecs2System.kt`), register it as a
-Spring bean, mutate/read entities via the injected `World`.
+Three things that bite:
+
+- **`reads`/`writes` are the whole contract.** `SystemScheduler.conflicts()` looks at nothing
+  else, and non-conflicting systems are placed in the *same* wave. A system that mutates a
+  component it only declared under `reads` therefore appears to conflict with nobody, and any
+  ordering it depends on holds only by luck of registration order. Declare honestly, including
+  components your helpers write to *other* entities.
+- **`parallel-systems` is off, and cannot simply be switched on.** The world lock is a single
+  `ReentrantLock` held for the entire tick, with `scheduler.tick` inside it, so a system running
+  on a pool thread that calls any locked accessor (`world.get`/`add`/`has`/`isAlive`) blocks
+  forever. Only `world.query(...).each { get<T>() }` is lock-free. `World.kt`'s own KDoc says the
+  coarse lock is "only meaningful when `parallelSystems` is disabled".
+- **Structural changes are deferred.** `add`/`remove`/`destroy` inside `update()` queue until the
+  end of the tick, so a component added mid-tick is not visible later in the same tick. Use
+  `World.defer { }` when it must apply immediately.
+
+Off-tick code must go through `WorldView` (a lock-holding `read`/`modify` scope, or `send(command)`),
+never `World` directly. Never block on I/O on the tick thread — use `AsyncJobExecutor`.
 
 ## AI module
 
-`net.bestia.zone.ai` (added in `6ff0a6f4`, built on top of `ecs/core/`) layers
-several classic game-AI techniques on the tick loop:
+`net.bestia.zone.ai`, built on `ecs/core/`: **GOAP chooses and sequences goals, behaviour trees carry
+each step out.** Layered so the bottom is domain-agnostic:
 
-- `ai/perception` — `PerceptionSystem`, `Percept`, `AiEvent`
-- `ai/memory` — `Blackboard`, `IndividualMemory`, `SharedMemoryService`
-- `ai/behavior` — behavior-tree nodes (`BtNode`, composites, leaves like
-  `MeleeAttackLeaf`, `FleeLeaf`, `WanderLeaf`)
-- `ai/goal` + `ai/goal/consideration` — utility AI (`UtilityScorer`, `ResponseCurve`,
-  goals like `FleeGoal`/`KillEnemyGoal`/`WanderGoal`)
-- `ai/planner` — GOAP (`GoapPlanner`, `GoapAction`, `WorldState`)
-- `ai/profile` — `AiProfile`/`AiProfileRegistry`, driven by YAML under
-  `zone-server/src/main/resources/ai/*.yml` (e.g. `aggressive-melee.yml`)
+| Package | Contents |
+|---|---|
+| `ai/core/state` | `StateKey<T>` (typed, carries a `MemoryScope` and an `observed` flag), immutable `WorldState`, live `Blackboard` with per-fact TTL |
+| `ai/core/behavior` | The execution contract: `BtNode`, `Status`, `BtContext`, `ImmediateSuccess` |
+| `ai/core/{action,precondition,effect,goal}` | Grounded `Action` (pre/effects/cost **and** `behavior`), `ActionTemplate`, `Precondition(s)`, `Effect(s)`, `Goal` (availability vs desired state), `Priority`/`Curve` DSL |
+| `ai/core/planner` | Forward-A\* `Planner`, `Plan`, `EffectWriteBack` (scope-aware), `PlanExecutor` (simulation harness for domain tests only) |
+| `ai/core/agent` | `Agent` interface + `SimpleAgent` for tests |
+| `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `FleeFrom`, `Wander`, `UseSkill`, `Wait`) |
+| `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys |
+| `ai/ecs` | `AiAgent` component, `AiDriveSystem`, `AiThinkSystem`, `AiActSystem`, `AiAgentFactory`, `SharedMemoryService`, `PlayerControlled` |
+| `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs |
+| `ai/profile` | `AiProfileDto`/`AiProfile`/`AiProfileRegistry` + `AiConfig`/`IdleStance`, from `resources/ai/*.yml` |
+| `ai/message` | `SetBestiaAiConfigCMSG`, `BestiaAiConfigSMSG`, `AiConfigErrorSMSG` and the handler |
 
-Two ECS systems drive it every tick: `ai/ecs/AiThinkSystem.kt` (perception → decision,
-populates a `Brain` component) and `ai/ecs/AiActSystem.kt` (executes the result).
+Four ECS systems, each in its **own scheduler wave** (they conflict by declaring `AiAgent` as
+written — that is deliberate and `AiSchedulingTest` enforces it):
+
+```
+PerceptionSystem  @Order(10)  EverySeconds(0.5) -> writes observation keys into agent.memory
+AiDriveSystem     @Order(15)  EverySeconds(1)   -> raises hunger/tiredness/restlessness, ticks TTLs
+AiThinkSystem     @Order(20)  EveryTick         -> selects a goal; replans only if it changed or the
+                                                   plan is spent; staggered per entity by tickCount
+AiActSystem       @Order(30)  EveryTick         -> ticks the current step's tree; on SUCCESS applies
+                                                   that action's effects, then advances the plan
+```
+
+Three rules worth knowing before touching any of it:
+
+1. **Perception owns observations; effects own beliefs.** A key created with `observed = true`
+   (position, health, target, aggro) may be *simulated* during A\* — a walk action has to be able to
+   imagine arriving — but `EffectWriteBack` refuses to persist it. Only perception writes those. This
+   is what stops an agent believing what it merely planned.
+2. **Effects apply on observed success**, one action at a time, from `AiActSystem` — not for a whole
+   plan at plan time.
+3. **Nothing plans before it has perceived** (`AiAgent.hasPerceived`). An empty blackboard is not a
+   neutral start: the search will otherwise resolve unknowns by assuming an action's effects.
+
+To add a behaviour: add a `StateKey`, a `Goal` (priority formula in the Kotlin
+`priority { consider(...) }` DSL), and an `ActionTemplate` that grounds concrete actions *with their
+behaviour trees*; then name the goal and action ids in a `resources/ai/*.yml` profile. YAML selects
+and tunes numbers only — it cannot express behaviour, and the registry fails the boot on an unknown
+id. Mobs get their profile from `mob/*.yml`'s `ai:` key via `BestiaEntitySpawner`; player-owned
+bestias get one from `PlayerBestiaEntitySpawner` narrowed by the owner's persisted `AiConfig`.
 
 ## login-server & the login↔zone handoff
 
@@ -218,9 +266,18 @@ than being removed synchronously.
 
 ## Database
 
-Both servers use **H2, in-memory, schema-per-boot** — `spring.jpa.hibernate.ddl-auto: create`
-in both `application.yml`s means the schema is dropped and recreated on every start.
-No Flyway/Liquibase. ORM is Spring Data JPA/Hibernate. Each server defines its own
+The two servers no longer agree here, and the difference matters:
+
+- **zone-server: MariaDB, `ddl-auto: update`** (`jdbc:mariadb://localhost:3306/bestia_zone`).
+  `./gradlew :zone-server:bootRun` starts the container from `zone-server/compose.yaml` via
+  spring-boot-docker-compose. Because the schema is *updated* rather than recreated, **game data
+  survives a restart**: adding a column to a JPA entity is applied automatically, but existing rows
+  keep their old values, so a new field needs a default that reads sensibly for rows written before
+  it existed.
+- **login-server: H2, in-memory, `ddl-auto: create`** — dropped and recreated on every start, with
+  the H2 web console enabled.
+
+No Flyway/Liquibase on either. ORM is Spring Data JPA/Hibernate. Each server defines its own
 `Account` JPA entity independently (`login-server/.../account/Account.kt` vs
-`zone-server/.../account/Account.kt`), linked only by convention
-(`loginAccountId: Long`), not a shared entity class. H2 web console is enabled on both.
+`zone-server/.../account/Account.kt`), linked only by convention (`loginAccountId: Long`), not a
+shared entity class.

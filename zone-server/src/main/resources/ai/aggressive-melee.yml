@@ -1,22 +1,35 @@
+# An aggressive melee hunter: attacks players on sight, retaliates when hit, and bolts once badly hurt.
+#
+# YAML selects and tunes; the priority formula behind each goal lives in Kotlin, in BestiaDomain.Goals.
 identifier: aggressive_melee
 faction: wild_beasts
-traits: { aggression: 0.8, courage: 0.6 }
 perception:
   sight_radius: 8
-  sight_interval: 0.5
-  reacts_to: [enemy_seen, damaged]
+wander_radius: 5
+melee_range: 1
+hunger_threshold: 85
+tiredness_threshold: 80
+restless_threshold: 60
+# Fights on until badly hurt, then runs. The same threshold switches KillEnemy off and Flee on, so the
+# creature never oscillates between charging and bolting.
+flee_threshold_pct: 35
+aggression: 80
 goals:
-  - name: kill_enemy          # bound to KillEnemyGoal (desired: TARGET_DEAD)
-    combine: product
-    considerations:
-      - { input: enemy_in_sight,   curve: identity }
-      - { input: own_health_pct,   curve: linear_rising }  # low HP => less eager
-      - { input: trait_aggression, curve: identity }
-  - name: flee                # bound to FleeGoal (desired: SELF_SAFE)
-    combine: product
-    considerations:
-      - { input: own_health_pct, curve: inverse }          # low HP => flee
-      - { input: trait_courage,  curve: inverse }
-  - name: idle_wander         # bound to WanderGoal
-    base_score: 0.1           # floor so wandering wins when nothing else scores
-actions: [approach_target, melee_attack, flee_to_safety, wander]
+  - { name: KillEnemy }
+  - { name: KillAttacker }
+  - { name: Flee }
+  - { name: EatVegetation }
+  - { name: Sleep }
+  - { name: ReturnHome }
+  - { name: Wander }
+actions:
+  - approachTarget
+  - attack
+  - flee
+  - walkToVegetation
+  - eatVegetation
+  - sleep
+  - returnHome
+  - wander
+attacks:
+  - { id: claw, range: 1, base_cost: 5, cooldown_seconds: 1.5 }

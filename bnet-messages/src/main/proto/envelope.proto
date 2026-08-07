@@ -38,6 +38,8 @@ import "messages/component/animation_component_smsg.proto";
 import "messages/component/status_effect_list_smsg.proto";
 import "messages/master/invest_skill_point_cmsg.proto";
 import "messages/master/invest_status_point_cmsg.proto";
+import "messages/master/set_bestia_ai_config_cmsg.proto";
+import "messages/master/bestia_ai_config_smsg.proto";
 import "messages/master/get_skills_cmsg.proto";
 import "messages/master/activate_skill_cmsg.proto";
 import "messages/entity/attack_entity_cmsg.proto";
@@ -122,6 +124,8 @@ message Envelope {
     ActivateSkillCMSG activate_skill = 408;
     CreateMasterCMSG create_master = 409;
     InvestStatusPointCMSG invest_status_point = 410;
+    SetBestiaAiConfigCMSG set_bestia_ai_config = 411;
+    BestiaAiConfigSMSG bestia_ai_config = 412;
 
     // ENTITY & COMPONENTS 500
     SelectActiveEntity select_active_entity = 500;

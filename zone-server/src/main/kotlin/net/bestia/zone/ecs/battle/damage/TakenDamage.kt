@@ -44,6 +44,19 @@ class TakenDamage(): Component {
     }
   }
 
+  /**
+   * The entity whose damage landed most recently, ignoring anything older than [withinMs].
+   *
+   * The ledger's own retention is five minutes because it exists to attribute experience and loot after
+   * a kill. Retaliation needs a far shorter horizon — a mob should stop hunting whoever poked it once,
+   * minutes ago — so the window is the caller's to choose rather than this class's.
+   */
+  fun mostRecentAttacker(withinMs: Long, now: Long = System.currentTimeMillis()): EntityId? =
+    value.entries
+      .filter { now - it.value.damageTakenAt <= withinMs }
+      .maxByOrNull { it.value.damageTakenAt }
+      ?.key
+
   fun removeOldEntries() {
     val currentTime = System.currentTimeMillis()
     val cutoffTime = currentTime - MAX_DAMAGE_RETAIN_TIME_MS

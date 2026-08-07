@@ -1,43 +1,7 @@
 package net.bestia.zone.ai.ecs
 
-import net.bestia.zone.ai.AiActSystem
-import net.bestia.zone.ecs.ZoneConfig
-import net.bestia.zone.navigation.TestNavigation
-import net.bestia.zone.ai.AiThinkSystem
-import net.bestia.zone.ai.Brain
-import net.bestia.zone.ai.goal.GoalRegistry
-import net.bestia.zone.ai.goal.UtilityScorer
-import net.bestia.zone.ai.goal.consideration.ConsiderationInputRegistry
-import net.bestia.zone.ai.goal.consideration.CurveRegistry
-import net.bestia.zone.ai.goal.consideration.EnemyInSightInput
-import net.bestia.zone.ai.goal.consideration.IdentityCurve
-import net.bestia.zone.ai.goal.consideration.InverseCurve
-import net.bestia.zone.ai.goal.consideration.LinearRisingCurve
-import net.bestia.zone.ai.goal.consideration.OwnHealthPctInput
-import net.bestia.zone.ai.goal.consideration.TraitInput
-import net.bestia.zone.ai.goal.goals.FleeGoal
-import net.bestia.zone.ai.goal.goals.KillEnemyGoal
-import net.bestia.zone.ai.goal.goals.WanderGoal
-import net.bestia.zone.ai.perception.PerceptionSystem
-import net.bestia.zone.ai.planner.GoapActionRegistry
-import net.bestia.zone.ai.planner.GoapPlanner
-import net.bestia.zone.ai.planner.WorldStateBuilder
-import net.bestia.zone.ai.planner.actions.ApproachTargetAction
-import net.bestia.zone.ai.planner.actions.FleeToSafetyAction
-import net.bestia.zone.ai.planner.actions.MeleeAttackAction
-import net.bestia.zone.ai.planner.actions.WanderAction
-import net.bestia.zone.ai.profile.AiProfileRegistry
-import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.battle.skill.KnownSkills
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem
-import net.bestia.zone.ecs.movement.MoveSystem
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.account.Master
-import net.bestia.zone.util.EntityId
-import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ai.domain.bestia.BestiaDomain
+import net.bestia.zone.ai.domain.bestia.VegetationMemory
 import net.bestia.zone.geometry.Vec3L
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -45,131 +9,86 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
- * End-to-end demonstration of the whole AI stack driving one mob through its full behavioural
- * lifecycle: idle wandering, spotting a player, chasing, attacking in melee, and finally fleeing at
- * low health.
+ * End-to-end demonstration of the whole AI stack driving one mob through its full behavioural lifecycle:
+ * idling until restless, spotting a player, chasing, attacking, and finally fleeing at low health.
  *
- * Unlike [AiBehaviorScenarioTest] (which ticks the AI stages once to check a single transition),
- * this test runs a faithful mini game-loop: all the real AI systems plus the real [MoveSystem] and
- * [ReceivedDamageSystem] registered in an ecs [World] and stepped at 20 tps, with
- * perception/think refreshed every ~0.5s exactly as the live engine loop does.
+ * Unlike [AiBehaviorScenarioTest] (single transitions), this runs a faithful mini game-loop: the real AI
+ * systems plus the real `MoveSystem` registered in an ecs world and stepped at 20 tps, so perception, drives,
+ * planning, behaviour trees and movement all interleave the way the live engine loop makes them.
  */
 class AiLifecycleE2ETest {
 
-  private val tickRate = 20
-  private val dt = 1f / tickRate // 0.05s per tick
-
-  private lateinit var world: World
-  private lateinit var aoi: EntityAOIService
+  private lateinit var ai: AiPipelineFixture
 
   @BeforeEach
   fun setup() {
-    aoi = EntityAOIService()
+    ai = AiPipelineFixture()
+  }
 
-    val curveRegistry = CurveRegistry(listOf(IdentityCurve(), InverseCurve(), LinearRisingCurve()))
-    val inputRegistry = ConsiderationInputRegistry(listOf(EnemyInSightInput(), OwnHealthPctInput(), TraitInput()))
-    val goalRegistry = GoalRegistry(listOf(KillEnemyGoal(), FleeGoal(), WanderGoal()))
-    val actionRegistry = GoapActionRegistry(
-      listOf(ApproachTargetAction(), MeleeAttackAction(), FleeToSafetyAction(), WanderAction())
-    )
-    val profileRegistry = AiProfileRegistry(curveRegistry, inputRegistry, goalRegistry, actionRegistry)
-    profileRegistry.load()
+  @Test
+  fun `a mob idles, hunts the player, closes to melee, then flees when hurt`() {
+    // ---- Phase 1: a lone mob, nobody around. Restlessness is the only drive that will fire first. ----
+    val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0), health = 10, maxHealth = 10)
 
-    // Register the whole pipeline in the world; the scheduler runs them in registration order.
-    world = testWorld(
-      systems = listOf(
-        PerceptionSystem(profileRegistry, aoi),
-        AiThinkSystem(
-          profileRegistry,
-          UtilityScorer(inputRegistry, curveRegistry, goalRegistry),
-          WorldStateBuilder(),
-          GoapPlanner(),
-          actionRegistry
-        ),
-        AiActSystem(TestNavigation.service(), ZoneConfig(tickRate = 20)),
-        // No terrain in this scenario, so no ground to snap to; null keeps the waypoint's own z, which is what
-        // the AI's flat Locomotion produces anyway.
-        MoveSystem { _, _ -> null },
-        ReceivedDamageSystem(),
-      )
+    ai.tickUntilGoal(mob, "Wander")
+
+    // ---- Phase 2: a player appears within sight. ----
+    val player = ai.spawnPlayer(Vec3L(6, 0, 0), health = 30)
+
+    ai.tickUntilGoal(mob, "KillEnemy")
+    ai.tickUntil(describe = { "the mob never closed to melee (d=${ai.distanceBetween(mob, player)})" }) {
+      ai.distanceBetween(mob, player) <= 1
+    }
+
+    // ---- Phase 3: badly wounded. ----
+    ai.setHealth(mob, 2) // 20% of max, below the profile's 35% flee threshold
+    ai.tickUntilGoal(mob, "Flee")
+
+    val distanceWhenHurt = ai.distanceBetween(mob, player)
+    ai.tickUntil(describe = { "the fleeing mob never increased its distance from $distanceWhenHurt" }) {
+      ai.distanceBetween(mob, player) > distanceWhenHurt
+    }
+  }
+
+  @Test
+  fun `a hungry mob walks to a remembered vegetation spot and only then believes it has eaten`() {
+    val mob = ai.spawnMob("passive_wanderer", Vec3L(0, 0, 0))
+    val agent = ai.agentOf(mob)
+    val spot = Vec3L(6, 0, 0)
+
+    agent.memory.set(BestiaDomain.HUNGER, 95)
+    agent.memory.set(BestiaDomain.KNOWN_VEGETATION, listOf(VegetationMemory(spot, discoveredAtMs = 0L)))
+
+    ai.tickUntilGoal(mob, "EatVegetation")
+
+    // Deciding to eat is not eating. This is the whole point of applying effects on observed success: mid-walk
+    // the mob is still hungry and still knows about the spot.
+    assertTrue((agent.memory.get(BestiaDomain.HUNGER) ?: 0) > 15, "not fed merely by having decided to eat")
+
+    ai.tickUntil(describe = { "hunger was never spent (h=${agent.memory.get(BestiaDomain.HUNGER)})" }) {
+      (agent.memory.get(BestiaDomain.HUNGER) ?: 100) <= 15
+    }
+    assertTrue(
+      agent.memory.get(BestiaDomain.KNOWN_VEGETATION).orEmpty().isEmpty(),
+      "the grazed-out spot should be forgotten",
     )
   }
 
   @Test
-  fun `a blob wanders, hunts the player, then flees when hurt`() {
-    // ---- Spawn a lone blob: no player exists yet, so nothing is in its area of interest. ----
-    val blob = spawnBlob(Vec3L(0, 0, 0), health = 10)
+  fun `a mob walking somewhere never believes it arrived before it did`() {
+    val mob = ai.spawnMob("passive_wanderer", Vec3L(0, 0, 0))
+    val agent = ai.agentOf(mob)
+    val spot = Vec3L(30, 0, 0)
 
-    // Phase 1 — IDLE: with no enemy perceived, utility scoring falls back to wandering.
-    run(ticks = 30)
-    assertEquals("idle_wander", goalNameOf(blob), "a blob with nobody around should wander")
+    agent.memory.set(BestiaDomain.HUNGER, 95)
+    agent.memory.set(BestiaDomain.KNOWN_VEGETATION, listOf(VegetationMemory(spot, discoveredAtMs = 0L)))
 
-    // ---- A player appears within sight. ----
-    val player = spawnPlayer(Vec3L(4, 0, 0), health = 30)
+    ai.tickUntilGoal(mob, "EatVegetation")
 
-    // Phase 2 — HUNT: the blob perceives the player, adopts kill_enemy, chases and hits it in melee.
-    run(ticks = 200)
-
-    assertEquals("kill_enemy", goalNameOf(blob), "with a healthy body and a target, the blob hunts")
-    assertTrue(
-      distanceBetween(blob, player) <= 1,
-      "the blob should have closed to melee range (was ${distanceBetween(blob, player)})"
-    )
-    val playerHp = healthOf(player)
-    assertTrue(playerHp < 30, "the player should have taken melee damage (hp=$playerHp)")
-
-    // ---- The blob is badly wounded. ----
-    setHealth(blob, 2) // 20% of max, below the flee threshold
-    val distanceWhenHurt = distanceBetween(blob, player)
-
-    // Phase 3 — FLEE: low health flips the winning goal and the blob retreats from the threat.
-    run(ticks = 20) // enough ticks to guarantee a perception/think re-decision
-    assertEquals("flee", goalNameOf(blob), "a wounded blob should decide to flee")
-
-    run(ticks = 60)
-    assertTrue(
-      distanceBetween(blob, player) > distanceWhenHurt,
-      "the fleeing blob should increase its distance from the player " +
-        "(was $distanceWhenHurt, now ${distanceBetween(blob, player)})"
-    )
+    // Position is an observation, so only perception writes it. The old plan executor wrote every touched key
+    // back at plan time, which meant deciding to walk somewhere teleported the agent's belief about itself.
+    val believed = agent.memory.get(BestiaDomain.POSITION)
+    assertEquals(ai.positionOf(mob), believed, "believed position must track the real one, not the plan")
+    assertTrue(believed!!.distance(spot) > 1, "and it certainly should not be at a spot 30 tiles away yet")
   }
-
-  // ---- Mini game-loop: the world scheduler runs the registered systems each tick. ----
-
-  private fun run(ticks: Int) {
-    repeat(ticks) { world.tick(dt) }
-  }
-
-  // ---- Spawn + inspection helpers ----
-
-  private fun spawnBlob(pos: Vec3L, health: Int): EntityId =
-    world.createEntity { id ->
-      world.add(id, Position.fromVec3(pos))
-      world.add(id, Health(health, 10))
-      world.add(id, Speed())
-      world.add(id, Brain("aggressive_melee", homePosition = pos))
-      world.add(id, KnownSkills(mutableMapOf(0L to 1)))
-    }
-
-  private fun spawnPlayer(pos: Vec3L, health: Int): EntityId {
-    val id = world.createEntity { eid ->
-      world.add(eid, Position.fromVec3(pos))
-      world.add(eid, Health(health, health))
-      world.add(eid, Master(1L))
-    }
-    aoi.setEntityPosition(id, pos) // players remain stationary in this scenario
-    return id
-  }
-
-  private fun goalNameOf(id: EntityId): String? = world.getOrThrow(id, Brain::class).currentGoal?.name
-
-  private fun healthOf(id: EntityId): Int = world.getOrThrow(id, Health::class).current
-
-  private fun setHealth(id: EntityId, value: Int) {
-    world.getOrThrow(id, Health::class).current = value
-  }
-
-  private fun positionOf(id: EntityId): Vec3L = world.getOrThrow(id, Position::class).toVec3L()
-
-  private fun distanceBetween(a: EntityId, b: EntityId): Long = positionOf(a).distance(positionOf(b))
 }

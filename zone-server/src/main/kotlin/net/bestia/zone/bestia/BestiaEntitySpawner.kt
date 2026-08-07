@@ -1,7 +1,8 @@
 package net.bestia.zone.bestia
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.ai.Brain
+import net.bestia.zone.ai.ecs.AiAgent
+import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component
 class BestiaEntitySpawner(
   private val bestiaRepository: BestiaRepository,
   private val aiProfileRegistry: AiProfileRegistry,
+  private val aiAgentFactory: AiAgentFactory,
   private val movementProfileRegistry: MovementProfileRegistry
 ) {
 
@@ -80,10 +82,10 @@ class BestiaEntitySpawner(
   }
 
   /**
-   * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [Brain] lives
-   * under `net.bestia.zone.ai.*` so it is never network-synced; [KnownSkills] seeds the basic
-   * attack the melee action uses. [spawnPosition] becomes the [Brain.homePosition] the NPC wanders
-   * around.
+   * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [AiAgent] does not
+   * implement `Dirtyable`, which is what keeps AI internals off the wire; [KnownSkills] seeds the basic
+   * attack its attack actions cast. [spawnPosition] becomes the home position it wanders around and
+   * returns to.
    */
   private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
     val profileId = bestia.aiProfile ?: return
@@ -94,7 +96,7 @@ class BestiaEntitySpawner(
       return
     }
 
-    add(id, Brain(profileId = profileId, homePosition = spawnPosition))
+    add(id, aiAgentFactory.create(profile, homePosition = spawnPosition))
     add(id, KnownSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 

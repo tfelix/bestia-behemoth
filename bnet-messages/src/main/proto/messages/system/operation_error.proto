@@ -16,6 +16,9 @@ enum OpError {
   EQUIP_NOT_ALLOWED = 6;
 
   MASTER_INVALID_SPAWN_POINT = 7;
+
+  AI_CONFIG_BESTIA_NOT_OWNED = 8;
+  AI_CONFIG_INVALID_STANCE = 9;
 }
 
 message OperationError {
