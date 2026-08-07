@@ -14,6 +14,11 @@ const SHORTCUTS_SAVE_PATH = "user://shortcuts_config.json"
 
 var _shortcut_containers: Array[ShortcutContainer] = []
 
+## The whole save file: master id (as string, JSON object keys always are) -> the slot array of
+## that master. Kept in memory so saving the selected master never has to re-read the file and
+## can't drop the entries of the masters that aren't currently loaded.
+var _all_shortcuts: Dictionary = {}
+
 
 func _ready() -> void:
 	_collect_shortcut_containers()
@@ -86,7 +91,22 @@ func _find_container(row: int, number: int) -> ShortcutContainer:
 	return null
 
 
+## Identifies whose bar is currently on screen. MasterId is already set by
+## ConnectionManager.select_bestia_master() before it switches to Game.tscn, so it is available
+## this early - unlike SelfSMSG.MasterEntityId, which only arrives once the Game scene is up.
+## Empty when Game.tscn was run directly from the editor without going through MasterSelect.
+func _current_master_key() -> String:
+	if ConnectionManager.selected_master_info == null:
+		return ""
+	return str(ConnectionManager.selected_master_info.MasterId)
+
+
 func save_shortcuts() -> void:
+	var master_key = _current_master_key()
+	if master_key.is_empty():
+		push_warning("Shortcuts: no master selected, not persisting the bar")
+		return
+
 	var shortcuts_data = []
 
 	for container in _shortcut_containers:
@@ -97,17 +117,26 @@ func save_shortcuts() -> void:
 			"data": data.to_dict()
 		})
 
-	var json_string = JSON.stringify(shortcuts_data, "\t")
+	_all_shortcuts[master_key] = shortcuts_data
+
+	var json_string = JSON.stringify(_all_shortcuts, "\t")
 	var file = FileAccess.open(SHORTCUTS_SAVE_PATH, FileAccess.WRITE)
 	if file:
 		file.store_string(json_string)
 		file.close()
-		print("Shortcuts to: %s" % [SHORTCUTS_SAVE_PATH])
+		print("Shortcuts of master %s saved to: %s" % [master_key, SHORTCUTS_SAVE_PATH])
 	else:
 		push_error("Failed to save shortcuts configuration")
 
 
 func load_shortcuts() -> void:
+	_read_store_from_disk()
+	_apply_shortcuts_for_current_master()
+
+
+func _read_store_from_disk() -> void:
+	_all_shortcuts = {}
+
 	if not FileAccess.file_exists(SHORTCUTS_SAVE_PATH):
 		print("No shortcuts configuration found, starting fresh")
 		return
@@ -127,9 +156,29 @@ func load_shortcuts() -> void:
 		push_error("Failed to parse shortcuts JSON: ", json.get_error_message())
 		return
 
-	var shortcuts_data = json.data
+	if typeof(json.data) != TYPE_DICTIONARY:
+		# Pre-per-master files were a bare array shared by every master. There is no way to tell
+		# which master built it, so it is dropped rather than handed to an arbitrary one.
+		push_warning("Discarding shortcuts configuration in the old, master-agnostic format")
+		return
+
+	_all_shortcuts = json.data
+	print("Shortcuts loaded from: %s" % [SHORTCUTS_SAVE_PATH])
+
+
+func _apply_shortcuts_for_current_master() -> void:
+	# Reset via set_shortcut_data() rather than clear_shortcut(): the latter emits shortcut_changed,
+	# which saves - so it would overwrite this master's stored bar before it has been read back.
+	for container in _shortcut_containers:
+		container.set_shortcut_data(ShortcutData.new())
+
+	var master_key = _current_master_key()
+	if master_key.is_empty() or not _all_shortcuts.has(master_key):
+		return
+
+	var shortcuts_data = _all_shortcuts[master_key]
 	if typeof(shortcuts_data) != TYPE_ARRAY:
-		push_error("Invalid shortcuts data format")
+		push_error("Invalid shortcuts data format for master %s" % [master_key])
 		return
 
 	for shortcut_config in shortcuts_data:
@@ -141,8 +190,6 @@ func load_shortcuts() -> void:
 		if container:
 			var shortcut_data = ShortcutData.from_dict(data_dict)
 			container.set_shortcut_data(shortcut_data)
-
-	print("Shortcuts loaded from: %s", [SHORTCUTS_SAVE_PATH])
 
 
 func clear_all_shortcuts() -> void:
