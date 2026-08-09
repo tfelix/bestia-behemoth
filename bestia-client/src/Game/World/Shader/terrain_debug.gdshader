@@ -29,7 +29,9 @@ uniform int debug_view : hint_enum(
 	"Texel density",
 	"Height channel",
 	"Roughness",
-	"Ambient occlusion") = 0;
+	"Ambient occlusion",
+	"Snow mask",
+	"Wetness") = 0;
 
 group_uniforms;
 
@@ -108,6 +110,14 @@ vec3 debug_colour(TerrainSurface surface) {
 
 	if (debug_view == 12) {
 		return vec3(surface.ao);
+	}
+
+	if (debug_view == 13) {
+		return vec3(surface.snow);
+	}
+
+	if (debug_view == 14) {
+		return vec3(surface.wetness);
 	}
 
 	return vec3(0.0);

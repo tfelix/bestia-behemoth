@@ -164,6 +164,21 @@ toggle_terrain_debug={
 
 locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation", "res://Localization/dialogs.en.translation")
 
+[shader_globals]
+
+weather_wetness={
+"type": "float",
+"value": 0.0
+}
+weather_snow={
+"type": "float",
+"value": 0.0
+}
+weather_temperature={
+"type": "float",
+"value": 15.0
+}
+
 [rendering]
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3

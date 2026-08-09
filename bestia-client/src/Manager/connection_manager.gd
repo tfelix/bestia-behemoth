@@ -48,6 +48,7 @@ var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
+var WeatherStateScript = load("res://Game/World/WeatherState.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 
@@ -61,6 +62,12 @@ var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 ## _on_bnet_socket_message_received below - which is why that handler has a MapSMSG branch. It went
 ## without one for a while and reported every chunk as unidentified.
 var chunk_stream: Node = null
+
+## Integrates WeatherSMSG into the global shader parameters the terrain shader reads.
+##
+## Created here for the same reason chunk_stream is, and it also has to outlive the Game scene: weather arrives
+## whenever the server sends it, which includes while the player is choosing a master.
+var weather: Node = null
 
 # Signed JWT obtained from the login server, sent to the zone during the auth handshake.
 var _login_token: String = ""
@@ -78,6 +85,11 @@ func _ready() -> void:
 	chunk_stream.name = "ChunkStreamManager"
 	add_child(chunk_stream)
 	chunk_stream.Attach(_socket)
+
+	weather = WeatherStateScript.new()
+	weather.name = "WeatherState"
+	add_child(weather)
+	weather.Attach(_socket)
 
 
 func disconnect_from_server() -> void:

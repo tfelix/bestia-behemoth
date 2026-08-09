@@ -37,6 +37,11 @@
 // one directive that earns it, which is #include. See TERRAIN_SLOTS in BlockAppearance for the authority on
 // this number; anything that changes it changes the vertex format anyway.
 
+// Slot ordinals the shader itself has to name. Everything else it treats as opaque, which is the point of the
+// encoding - but slope has to know what rock is, and weather has to know what snow is.
+const int TERRAIN_SLOT_ROCK = 5;
+const int TERRAIN_SLOT_SNOW = 6;
+
 // Below this a slot contributes less than half a byte of weight and is not worth a texture fetch.
 const float TERRAIN_WEIGHT_EPSILON = 0.002;
 
@@ -143,6 +148,39 @@ uniform float triplanar_sharpness : hint_range(1.0, 16.0) = 6.0;
 
 group_uniforms;
 
+group_uniforms Slope;
+
+// Where loose cover starts giving way to bare rock, and where it has entirely gone. Slope is zero on flat
+// ground and one on a vertical face.
+uniform float cliff_start : hint_range(0.0, 1.0) = 0.35;
+uniform float cliff_end : hint_range(0.0, 1.0) = 0.62;
+
+group_uniforms;
+
+group_uniforms Weather;
+
+// Driven by WeatherState from the server's WeatherSMSG, as globals rather than material parameters so that
+// water, foliage and anything else added later reads the same numbers rather than its own copy.
+global uniform float weather_wetness;
+global uniform float weather_snow;
+global uniform float weather_temperature;
+
+// How dark wet ground goes. Real ground darkens because water fills the pores and light stops scattering back
+// out; 0.72 is about right for soil and generous for rock, which matters less than it having one value.
+uniform float wetness_darkening : hint_range(0.3, 1.0) = 0.72;
+
+// How smooth standing water is. Terrain is otherwise fully rough, so this is the only specular in the scene.
+uniform float wetness_roughness : hint_range(0.0, 1.0) = 0.12;
+
+// The colour fresh snow is corrected to, matching the palette's own SNOW so that weather snow and the snow the
+// generator placed do not read as two different materials.
+uniform vec3 snow_colour : source_color = vec3(0.92, 0.94, 0.96);
+
+// Above this, snow does not lie however hard it falls.
+uniform float snow_melt_celsius : hint_range(-20.0, 20.0) = 1.0;
+
+group_uniforms;
+
 varying vec3 v_world_pos;
 varying vec3 v_world_normal;
 
@@ -175,6 +213,10 @@ struct TerrainSurface {
 
 	// The blended height, which is what the boundary between two materials was actually decided by.
 	float height;
+
+	// How much lying snow and standing water ended up on this pixel.
+	float snow;
+	float wetness;
 };
 
 // THE VERTEX STAGE IS NOT HERE, AND CANNOT BE.
@@ -308,6 +350,30 @@ TerrainSurface terrain_surface(vec3 tint) {
 	weights[6] = v_weights_high.b;
 	weights[7] = v_weights_high.a;
 
+	// SLOPE REWEIGHTS THE SPLAT RATHER THAN OVERLAYING A LAYER.
+	//
+	// The generator already caps steep ground with bare rock, so a cliff layer composited on top would apply
+	// twice where it is right and still leave grass clinging to an eighty-degree wall where the generator's own
+	// threshold was coarser than a pixel. Moving weight instead composes with what the data already says: the
+	// cliff face that was rock stays rock, and the one that was grass stops being it.
+	//
+	// Only loose cover moves. Rock is already where it is going, and snow that the generator placed is a
+	// snowfield rather than something gravity pulls off a wall.
+	float cliff = smoothstep(cliff_start, cliff_end, surface.slope);
+
+	if (cliff > 0.0) {
+		float shed = 0.0;
+
+		for (int i = 1; i <= 4; i++) {
+			float loose = weights[i] * cliff;
+
+			weights[i] -= loose;
+			shed += loose;
+		}
+
+		weights[TERRAIN_SLOT_ROCK] += shed;
+	}
+
 	// The two heaviest slots, and only those two get sampled.
 	//
 	// A weight-culled loop over all eight would be cheaper on a typical pixel and unbounded on the worst one -
@@ -390,17 +456,70 @@ TerrainSurface terrain_surface(vec3 tint) {
 	vec3 correction = tint / max(reference, vec3(0.0001));
 	vec3 albedo = share0 * sample0.albedo + share1 * sample1.albedo;
 
-	surface.albedo = albedo * mix(vec3(1.0), correction, tint_strength);
+	albedo *= mix(vec3(1.0), correction, tint_strength);
 
 	// Normals from the two slots are already in world space, so blending them is a plain interpolation. It is
 	// only within one slot that the three projections needed reorienting first.
-	surface.world_normal = normalize(share0 * sample0.normal + share1 * sample1.normal);
+	vec3 world_normal = normalize(share0 * sample0.normal + share1 * sample1.normal);
 
-	surface.ao = mix(1.0, share0 * sample0.ao + share1 * sample1.ao, ao_strength);
+	float ao = mix(1.0, share0 * sample0.ao + share1 * sample1.ao, ao_strength);
 
 	// Rock, soil and grass, none of which are polished, so an absent roughness map means fully rough rather
 	// than the zero it would otherwise read as. The material's own map narrows it from there.
-	surface.roughness = clamp(share0 * sample0.roughness + share1 * sample1.roughness, 0.04, 1.0);
+	float roughness = clamp(share0 * sample0.roughness + share1 * sample1.roughness, 0.04, 1.0);
+
+	// SNOW: a layer on top, and deliberately not the same thing as slot 6.
+	//
+	// Slot 6 is snowpack the generator placed - it is what the ground there is made of, and it is there in
+	// summer. This is weather, it arrives and leaves without the chunk being remeshed, and it lies on whatever
+	// is underneath rather than replacing it. Conflating the two turns the whole world white the first time it
+	// snows anywhere.
+	//
+	// It settles on what faces up, melts above a temperature, and fills hollows first - which is what the
+	// height channel is doing in the mask.
+	float cold = smoothstep(snow_melt_celsius + 3.0, snow_melt_celsius, weather_temperature);
+	float settled = smoothstep(cliff_end, cliff_start, surface.slope) * max(world_normal.y, 0.0);
+	float snow = clamp(weather_snow, 0.0, 1.0) * cold * settled;
+
+	// Deepening snow reaches the ridges last, so the mask leads in the crevices and catches up at full depth.
+	snow = clamp(snow * (1.0 + (1.0 - surface.height)) - (1.0 - snow) * surface.height * 0.5, 0.0, 1.0);
+
+	if (snow > TERRAIN_WEIGHT_EPSILON) {
+		SlotSample fresh = terrain_sample_slot(TERRAIN_SLOT_SNOW, normal, ddx, ddy, blend);
+
+		// Corrected the same way the ground was, so weather snow and generator snow land on the same colour.
+		vec3 fresh_albedo = fresh.albedo * (snow_colour / max(slot_reference_tint[TERRAIN_SLOT_SNOW], vec3(0.0001)));
+
+		albedo = mix(albedo, fresh_albedo, snow);
+		world_normal = normalize(mix(world_normal, fresh.normal, snow));
+		roughness = mix(roughness, fresh.roughness, snow);
+
+		// Snow buries small occlusion along with everything else.
+		ao = mix(ao, 1.0, snow);
+	}
+
+	// WETNESS: no extra samples, only different constants.
+	//
+	// Wet ground is darker because water fills its pores and light stops scattering back out, and smoother
+	// because the water surface is what is being seen. Standing water collects in the low parts of the height
+	// map, so the roughness drop leads there - which is what makes rain read as puddles rather than as varnish.
+	//
+	// Snow that is lying takes precedence: it is the surface, and it is not wet.
+	float wet = clamp(weather_wetness, 0.0, 1.0) * (1.0 - snow);
+
+	if (wet > TERRAIN_WEIGHT_EPSILON) {
+		float pooled = wet * smoothstep(0.55, 0.15, surface.height) * max(world_normal.y, 0.0);
+
+		albedo *= mix(1.0, wetness_darkening, wet);
+		roughness = mix(roughness, wetness_roughness, pooled);
+	}
+
+	surface.albedo = albedo;
+	surface.world_normal = world_normal;
+	surface.roughness = roughness;
+	surface.ao = ao;
+	surface.snow = snow;
+	surface.wetness = wet;
 
 	return surface;
 }
