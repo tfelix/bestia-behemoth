@@ -42,7 +42,17 @@ namespace BestiaBehemothClient.Tests
     internal const byte Water = 1;
     internal const byte Lava = 3;
     internal const byte Granite = 10;
+    internal const byte Sand = 31;
     internal const byte Grass = 40;
+
+    /// <summary>
+    /// Rich gold ore, for the tests about what a single ore voxel in a granite wall looks like.
+    /// </summary>
+    /// <remarks>
+    /// Shares <c>GRANITE</c>'s slot and not its colour, which is the entire point of it being here: the two are
+    /// the same rock and the ore is only visible because the tint says so.
+    /// </remarks>
+    internal const byte GoldOre = 111;
 
     /// <summary>
     /// The shipped palette, trimmed to the handful of materials these tests use.
@@ -53,26 +63,41 @@ namespace BestiaBehemothClient.Tests
     /// </remarks>
     internal static BlockAppearance Appearance() => BlockAppearance.From(new[]
     {
-      Block(Water, "WATER", false, BlockAppearance.SurfaceKind.Water, new Color(0.16f, 0.35f, 0.52f, 0.72f)),
-      Block(Lava, "LAVA", false, BlockAppearance.SurfaceKind.Lava, new Color(0.95f, 0.36f, 0.09f)),
-      Block(2, "ICE", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.78f, 0.88f, 0.93f)),
-      Block(Granite, "GRANITE", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.60f, 0.56f, 0.55f)),
-      Block(Grass, "GRASS", true, BlockAppearance.SurfaceKind.Terrain, new Color(0.28f, 0.45f, 0.19f))
+      Block(Water, "WATER", false, BlockAppearance.SurfaceKind.Water,
+        BlockAppearance.SurfaceSlot.Neutral, new Color(0.16f, 0.35f, 0.52f, 0.72f)),
+      Block(Lava, "LAVA", false, BlockAppearance.SurfaceKind.Lava,
+        BlockAppearance.SurfaceSlot.Neutral, new Color(0.95f, 0.36f, 0.09f)),
+      Block(2, "ICE", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Snow, new Color(0.78f, 0.88f, 0.93f)),
+      Block(Granite, "GRANITE", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Rock, new Color(0.60f, 0.56f, 0.55f)),
+      Block(Sand, "SAND", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Sand, new Color(0.85f, 0.76f, 0.55f)),
+      Block(Grass, "GRASS", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Grass, new Color(0.28f, 0.45f, 0.19f)),
+      Block(GoldOre, "ORE_GOLD_RICH", true, BlockAppearance.SurfaceKind.Terrain,
+        BlockAppearance.SurfaceSlot.Rock, new Color(0.97f, 0.81f, 0.31f))
     });
 
-    /// <summary>One fixture material. The surface is stated rather than derived, and that is the point.</summary>
+    /// <summary>
+    /// One fixture material. The surface and the slot are stated rather than derived, and that is the point.
+    /// </summary>
     /// <remarks>
-    /// It used to be <c>solid ? Terrain : Water</c>, which was true of the four materials the fixture then had
-    /// and became a trap the moment a second non-solid surface existed: <c>LAVA</c> would have been placed on
-    /// the water surface, and every test asserting that lava and water do not share a mesh would have passed
-    /// vacuously while asserting the opposite of the truth.
+    /// The surface used to be <c>solid ? Terrain : Water</c>, which was true of the four materials the fixture
+    /// then had and became a trap the moment a second non-solid surface existed: <c>LAVA</c> would have been
+    /// placed on the water surface, and every test asserting that lava and water do not share a mesh would have
+    /// passed vacuously while asserting the opposite of the truth. The slot is stated for the same reason and
+    /// would fail the same way - a rule derived from the id's family would put gold ore on rock by accident, and
+    /// the test that checks it does would then be checking the rule against itself.
     /// </remarks>
     private static BlockAppearance.Block Block(
-      byte id, string name, bool solid, BlockAppearance.SurfaceKind surface, Color colour) =>
+      byte id, string name, bool solid, BlockAppearance.SurfaceKind surface,
+      BlockAppearance.SurfaceSlot slot, Color colour) =>
       new()
       {
         Id = id, Name = name, Solid = solid, Opaque = solid,
         Surface = surface,
+        Slot = slot,
         Colour = colour
       };
 
@@ -109,6 +134,56 @@ namespace BestiaBehemothClient.Tests
       }
 
       return new VoxelChunk(chunkX, chunkY, chunkZ, Size, Height, blocks, occupancy);
+    }
+
+    /// <summary>
+    /// How deep the surface cover goes in <see cref="Capped"/>, in whole voxels below the partial one.
+    /// </summary>
+    /// <remarks>
+    /// Three, matching <see cref="Rolling"/> and, more to the point, matching what the server writes:
+    /// <c>SurfaceCover</c> puts a soil column under the cap rather than one voxel of grass on bare rock. It is
+    /// not decoration for the slot tests - it is what makes them test anything. The mesher scores a cell by its
+    /// occupancy, and the cap voxel is the *partial* one, so with a single voxel of cover the full granite cell
+    /// beneath outscores it and the vertex takes the rock's material. That is correct behaviour on data the
+    /// generator never produces, and it would quietly make every assertion below about the wrong material.
+    /// </remarks>
+    private const int CoverDepth = 3;
+
+    /// <summary>
+    /// Flat ground with a surface cover of <paramref name="cap"/>, chosen per column.
+    /// </summary>
+    /// <remarks>
+    /// The per-column callback is what the slot tests need and what <see cref="Flat"/> cannot express: every
+    /// question about blending is a question about what happens where two materials meet, and a fixture with one
+    /// material everywhere can only answer the easy half of it.
+    /// </remarks>
+    internal static VoxelChunk Capped(int chunkX, int chunkY, double surface, Func<int, int, byte> cap)
+    {
+      var blocks = new byte[Size * Size * Height];
+      var occupancy = new byte[Size * Size * Height];
+
+      var top = (int)Math.Floor(surface);
+      var fraction = surface - top;
+
+      for (var localY = 0; localY < Size; localY++)
+      {
+        for (var localX = 0; localX < Size; localX++)
+        {
+          var cover = cap(chunkX * Size + localX, chunkY * Size + localY);
+          var offset = (localY * Size + localX) * Height;
+
+          for (var z = 0; z < top; z++)
+          {
+            blocks[offset + z] = z > top - CoverDepth ? cover : Granite;
+            occupancy[offset + z] = 255;
+          }
+
+          blocks[offset + top] = cover;
+          occupancy[offset + top] = Quantise(fraction);
+        }
+      }
+
+      return new VoxelChunk(chunkX, chunkY, 0, Size, Height, blocks, occupancy);
     }
 
     /// <summary>A chunk of one material top to bottom: solid rock, open air, or open water.</summary>

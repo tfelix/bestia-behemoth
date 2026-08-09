@@ -90,6 +90,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var normals = new List<Vector3>(2048);
       var colours = new List<Color>(2048);
 
+      // Four bytes per vertex each, because that is the shape ArrayMesh wants an eight-bit custom channel in.
+      var slotWeights0 = new List<byte>(2048 * 4);
+      var slotWeights1 = new List<byte>(2048 * 4);
+
       var corner = new float[8];
 
       // Vertices for cells [1, Width-2] on each horizontal axis and [1, Depth-2] vertically: this chunk's own
@@ -126,7 +130,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
             EmitVertex(
               patch, field, corner, px, py, pz, includeMask, appearance, voxelSize,
-              vertices, normals, colours);
+              vertices, normals, colours, slotWeights0, slotWeights1);
 
             vertexAt[(py * width + px) * depth + pz] = vertices.Count - 1;
           }
@@ -150,6 +154,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
         Vertices = vertices.ToArray(),
         Normals = normals.ToArray(),
         Colours = colours.ToArray(),
+        SlotWeights0 = slotWeights0.ToArray(),
+        SlotWeights1 = slotWeights1.ToArray(),
         Indices = indices.ToArray()
       };
     }
@@ -280,6 +286,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
     [ThreadStatic] private static int[] _vertexAt;
 
+    /// <summary>
+    /// One accumulator per slot, reused for every vertex.
+    /// </summary>
+    /// <remarks>
+    /// Eight ints. Thread-local for the same reason as the buffers above rather than for its size - a
+    /// <c>stackalloc</c> would do, but a <c>Span</c> cannot be captured by <c>AccumulateSurface</c>'s inner
+    /// function, and hoisting that function's body inline to avoid it would repeat the bounds test seven times.
+    /// </remarks>
+    [ThreadStatic] private static int[] _slotWeight;
+
     private static int[] RentAccumulator(int cells)
     {
       if (_accumulator == null || _accumulator.Length < cells)
@@ -312,11 +328,21 @@ namespace BestiaBehemothClient.Game.World.Mesh
       return _vertexAt;
     }
 
+    private static int[] RentSlotWeights()
+    {
+      _slotWeight ??= new int[BlockAppearance.Slots];
+
+      Array.Clear(_slotWeight);
+
+      return _slotWeight;
+    }
+
     private static void EmitVertex(
       TerrainPatch patch, float[] field, float[] corner,
       int px, int py, int pz,
       byte[] includeMask, BlockAppearance appearance, float voxelSize,
-      List<Vector3> vertices, List<Vector3> normals, List<Color> colours)
+      List<Vector3> vertices, List<Vector3> normals, List<Color> colours,
+      List<byte> slotWeights0, List<byte> slotWeights1)
     {
       float sumX = 0.0f, sumY = 0.0f, sumZ = 0.0f;
       var crossings = 0;
@@ -368,19 +394,42 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var normal = new Vector3(-gradientX, -gradientZ, -gradientY);
       normals.Add(normal.LengthSquared() > 1e-12f ? normal.Normalized() : Vector3.Up);
 
-      colours.Add(appearance.ColourOf(DominantBlock(patch, px, py, pz, includeMask)));
+      var weights = RentSlotWeights();
+      var dominant = AccumulateSurface(patch, px, py, pz, includeMask, appearance, weights);
+
+      colours.Add(appearance.ColourOf(dominant));
+      PackWeights(weights, appearance.SlotOf(dominant), slotWeights0, slotWeights1);
     }
 
     /// <summary>
-    /// Which material this vertex should look like.
+    /// What this vertex is made of: how much of each texture slot, and which single material tints it.
     /// </summary>
     /// <remarks>
     /// The cell holding the vertex is usually the right answer - the surface voxel is the partially filled one and
     /// carries the surface cap. On a vertical face it can be air, with the material in the cell beside it, so the
-    /// six face neighbours are considered too and the fullest wins. Masked by the surface being built, so the
-    /// water pass cannot pick up the riverbed.
+    /// six face neighbours are considered too. Masked by the surface being built, so the water pass cannot pick up
+    /// the riverbed.
+    ///
+    /// <para>
+    /// <b>The two answers come from the same scan but not from the same rule, and that is deliberate.</b> Slot
+    /// weights accumulate, because the point of them is that a grass-to-sand boundary is a gradient rather than a
+    /// step. The tint takes the single fullest cell - the argmax this function has always returned - because
+    /// averaging it would destroy the one thing the palette's colours are load bearing for. An ore voxel in a
+    /// granite wall would come back as a sixth of a copper stain instead of copper, and
+    /// <c>BlockAppearance</c>'s ore rows exist precisely so a player can tell the rim of a body from its middle.
+    /// Grain blends; hue does not.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Every arithmetic step here is integer, and the seams depend on it.</b> The cell on a chunk's high edge
+    /// is meshed by that chunk and by its neighbour both, and the two must agree to the bit or the boundary shows
+    /// a hairline of the wrong material. They read the same seven cells - the aprons guarantee it - so identical
+    /// integer operations over identical bytes give identical results. Floating-point accumulation would be
+    /// deterministic too, but only for as long as nobody reorders the sum.
+    /// </para>
     /// </remarks>
-    private static byte DominantBlock(TerrainPatch patch, int px, int py, int pz, byte[] includeMask)
+    private static byte AccumulateSurface(
+      TerrainPatch patch, int px, int py, int pz, byte[] includeMask, BlockAppearance appearance, int[] weights)
     {
       var best = (byte)VoxelChunk.AirBlockId;
       var bestScore = -1;
@@ -406,11 +455,67 @@ namespace BestiaBehemothClient.Game.World.Mesh
         var block = patch.BlockAt(index);
         var score = patch.RawOccupancyAt(index) & includeMask[block];
 
+        // Air and every material masked out of this surface score zero, so they weigh nothing. The argmax still
+        // considers them, because a vertex whose whole neighbourhood scores zero has to name some material and
+        // the one it used to name is the one it still does.
+        weights[(int)appearance.SlotOf(block)] += score;
+
         if (score > bestScore)
         {
           bestScore = score;
           best = block;
         }
+      }
+    }
+
+    /// <summary>
+    /// Scales the accumulated weights to bytes summing to exactly 255 and appends them to the two channels.
+    /// </summary>
+    /// <remarks>
+    /// Exactly 255 rather than approximately, so the shader can treat the weights as a partition and skip a
+    /// normalising divide per pixel. Flooring every slot leaves a shortfall of at most <c>Slots - 1</c>, and it
+    /// all goes to the dominant slot: it is the largest, so it absorbs seven parts in 255 invisibly, and picking
+    /// it needs no tie-break - which matters more than the accuracy, because a rule that resolved ties by
+    /// scanning could resolve them differently for the two chunks that share a seam vertex.
+    ///
+    /// <para>
+    /// A vertex whose neighbourhood is entirely air or entirely some other surface's material gets no weight at
+    /// all. That is not supposed to happen - a vertex exists because the field straddles the isolevel nearby -
+    /// but the field is a 3x3x3 average and this scan is seven of those twenty-seven cells, so it is reachable.
+    /// Grey is the answer, because grey is what an unknown material looks like everywhere else here.
+    /// </para>
+    /// </remarks>
+    private static void PackWeights(
+      int[] weights, BlockAppearance.SurfaceSlot dominant, List<byte> low, List<byte> high)
+    {
+      var total = 0;
+      for (var slot = 0; slot < BlockAppearance.Slots; slot++)
+      {
+        total += weights[slot];
+      }
+
+      if (total <= 0)
+      {
+        weights[(int)BlockAppearance.SurfaceSlot.Neutral] = 1;
+        total = 1;
+        dominant = BlockAppearance.SurfaceSlot.Neutral;
+      }
+
+      var assigned = 0;
+      for (var slot = 0; slot < BlockAppearance.Slots; slot++)
+      {
+        var share = weights[slot] * 255 / total;
+
+        weights[slot] = share;
+        assigned += share;
+      }
+
+      weights[(int)dominant] += 255 - assigned;
+
+      for (var slot = 0; slot < 4; slot++)
+      {
+        low.Add((byte)weights[slot]);
+        high.Add((byte)weights[slot + 4]);
       }
     }
 

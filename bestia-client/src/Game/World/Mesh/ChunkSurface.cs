@@ -14,7 +14,34 @@ namespace BestiaBehemothClient.Game.World.Mesh
   {
     public Vector3[] Vertices { get; init; }
     public Vector3[] Normals { get; init; }
+
+    /// <summary>Per-vertex tint, multiplied over whatever texture the slot weights select.</summary>
     public Color[] Colours { get; init; }
+
+    /// <summary>
+    /// How much of each of the first four <see cref="BlockAppearance.SurfaceSlot"/>s this vertex is made of,
+    /// four bytes per vertex, destined for <c>ARRAY_CUSTOM0</c>.
+    /// </summary>
+    /// <remarks>
+    /// <b>Weights and not indices, and that is the whole design.</b> The obvious encoding - four material indices
+    /// plus four weights - cannot work on a surface-nets mesh, because there is one vertex per cell shared by
+    /// every quad around it, so a triangle routinely spans three different materials and an index interpolated
+    /// across it means nothing. Fixing the slot to the channel instead makes interpolation exactly right: a
+    /// triangle whose corners are grass, sand and rock becomes a genuine barycentric three-way blend, which is
+    /// the case the index encoding has no answer for at all.
+    ///
+    /// <para>
+    /// A flat <c>byte[]</c> rather than a <c>Color[]</c> because that is what <c>ArrayMesh</c> demands of an
+    /// eight-bit custom channel - a packed byte array of exactly four per vertex, checked, and a surface with the
+    /// wrong length is not added at all rather than added wrong. It also keeps the value-type-only rule this
+    /// class exists to enforce.
+    /// </para>
+    /// </remarks>
+    public byte[] SlotWeights0 { get; init; }
+
+    /// <summary>Slots four to seven, for <c>ARRAY_CUSTOM1</c>. Same shape as <see cref="SlotWeights0"/>.</summary>
+    public byte[] SlotWeights1 { get; init; }
+
     public int[] Indices { get; init; }
 
     public int TriangleCount => Indices.Length / 3;

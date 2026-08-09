@@ -443,6 +443,46 @@ namespace BestiaBehemothClient.Game.World
       _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "no material for this surface")
     };
 
+    /// <summary>
+    /// Attaches the per-vertex slot weights to the surface arrays and returns the format flags describing them.
+    /// </summary>
+    /// <remarks>
+    /// The flags argument is not optional the way it looks. Godot reads the *presence* of a custom channel from
+    /// the array being non-null, but the *layout* only from these bits, and the default of zero means
+    /// <c>RGBA8_UNORM</c>'s neighbour in the enum rather than "work it out" - so omitting them decodes eight
+    /// bytes of weights as something else entirely.
+    ///
+    /// <para>
+    /// <b>The length check behind this is fatal rather than lossy.</b> An eight-bit custom channel must be a byte
+    /// array of exactly four per vertex; anything else fails the surface's own validation and <c>ArrayMesh</c>
+    /// adds <i>no surface at all</i>. The chunk then has a mesh with zero surfaces, which draws nothing - so the
+    /// symptom of getting this wrong is invisible terrain, not wrong terrain, and it looks identical to the mesher
+    /// having returned nothing. That is what the surface count in the diagnostic below is for.
+    /// </para>
+    ///
+    /// <para>
+    /// Water and lava carry weights they will never use, because they run through the same mesher and eight bytes
+    /// on a sheet of water is cheaper than a second code path. This still guards on null rather than assuming, so
+    /// that a surface built before this existed - or by a test that does not care - is drawn instead of dropped.
+    /// </para>
+    /// </remarks>
+    private static Godot.Mesh.ArrayFormat SlotWeightFormat(ChunkSurface surface, Godot.Collections.Array arrays)
+    {
+      if (surface.SlotWeights0 == null || surface.SlotWeights1 == null)
+      {
+        return 0;
+      }
+
+      arrays[(int)Godot.Mesh.ArrayType.Custom0] = surface.SlotWeights0;
+      arrays[(int)Godot.Mesh.ArrayType.Custom1] = surface.SlotWeights1;
+
+      const uint Rgba8 = (uint)Godot.Mesh.ArrayCustomFormat.Rgba8Unorm;
+
+      return (Godot.Mesh.ArrayFormat)(
+        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom0Shift) |
+        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom1Shift));
+    }
+
     private MeshInstance3D Apply(MeshInstance3D instance, ChunkSurface surface, Material material, string name)
     {
       if (surface == null || surface.IsEmpty)
@@ -458,8 +498,10 @@ namespace BestiaBehemothClient.Game.World
       arrays[(int)Godot.Mesh.ArrayType.Color] = surface.Colours;
       arrays[(int)Godot.Mesh.ArrayType.Index] = surface.Indices;
 
+      var format = SlotWeightFormat(surface, arrays);
+
       var arrayMesh = new ArrayMesh();
-      arrayMesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, arrays);
+      arrayMesh.AddSurfaceFromArrays(Godot.Mesh.PrimitiveType.Triangles, arrays, null, null, format);
 
       if (instance == null)
       {
@@ -474,9 +516,10 @@ namespace BestiaBehemothClient.Game.World
         instance.MaterialOverride = material;
       }
 
-      // Once per surface kind. "Coloured geometry renders white" has two causes that look identical on screen -
-      // the material not applying, or the vertex colours themselves being wrong - and they are fixed in completely
-      // different places. Printing both together tells them apart without another round trip.
+      // Once per surface kind. The three ways this goes wrong look like two things on screen - white terrain or
+      // no terrain - and each has causes fixed in completely different files: the material not applying, the
+      // vertex data being wrong, or the surface having been rejected outright for a malformed custom channel.
+      // Printing all of it together tells them apart without another round trip.
       if (_described.Add(name.Split(' ')[0]))
       {
         var vertexColour = surface.Colours.Length > 0 ? surface.Colours[0].ToString() : "none";
@@ -484,9 +527,16 @@ namespace BestiaBehemothClient.Game.World
           ? $"vertexColorAsAlbedo={standard.VertexColorUseAsAlbedo} albedo={standard.AlbedoColor}"
           : material?.GetType().Name ?? "NO MATERIAL";
 
+        // Zero surfaces means AddSurfaceFromArrays refused the arrays - which renders exactly like a chunk that
+        // was never meshed, so without this the next hour goes on the mesher rather than on the array shapes.
+        var weights = surface.SlotWeights0 == null
+          ? "none"
+          : $"{surface.SlotWeights0.Length}B+{surface.SlotWeights1.Length}B for {surface.Vertices.Length} verts";
+
         GD.Print(
-          $"[terrain] {name.Split(' ')[0]} surface: {surface.TriangleCount} tris, " +
-          $"first vertex colour {vertexColour}, material {albedo}");
+          $"[terrain] {name.Split(' ')[0]} surface: {surface.TriangleCount} tris in " +
+          $"{arrayMesh.GetSurfaceCount()} mesh surface(s), first vertex colour {vertexColour}, " +
+          $"slot weights {weights}, material {albedo}");
       }
 
       return instance;
