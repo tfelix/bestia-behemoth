@@ -25,21 +25,21 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvEgRibmV0GhptZXNz",
-            "YWdlcy9tYXAvd2VhdGhlci5wcm90byKHAwoLV2VhdGhlclNNU0cSEQoJcmVn",
+            "YWdlcy9tYXAvd2VhdGhlci5wcm90byKFAwoLV2VhdGhlclNNU0cSEQoJcmVn",
             "aW9uX2lkGAEgASgNEh8KBGtpbmQYCiABKA4yES5ibmV0LldlYXRoZXJLaW5k",
             "EhEKCWludGVuc2l0eRgLIAEoAhITCgtjbG91ZF9jb3ZlchgMIAEoAhISCgp3",
             "aW5kX3NwZWVkGA0gASgCEhYKDndpbmRfZGlyZWN0aW9uGA4gASgCEhsKE3Rl",
-            "bXBlcmF0dXJlX2NlbHNpdXMYFCABKAISIAoYZmVsdF90ZW1wZXJhdHVyZV9j",
-            "ZWxzaXVzGBUgASgCEhQKDGhhc19mb3JlY2FzdBgeIAEoCBIoCg1mb3JlY2Fz",
-            "dF9raW5kGB8gASgOMhEuYm5ldC5XZWF0aGVyS2luZBIbChNmb3JlY2FzdF9p",
-            "bl9zZWNvbmRzGCAgASgNEhIKCmhhc19oYXphcmQYKCABKAgSEAoIaGF6YXJk",
-            "X3gYKSABKBISEAoIaGF6YXJkX3kYKiABKBISHAoUaGF6YXJkX3JhZGl1c19t",
-            "ZXRyZXMYKyABKAJCKQoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhBXZWF0aGVy",
-            "U01TR1Byb3RvYgZwcm90bzM="));
+            "bXBlcmF0dXJlX2NlbHNpdXMYFCABKAISFAoMaGFzX2ZvcmVjYXN0GB4gASgI",
+            "EigKDWZvcmVjYXN0X2tpbmQYHyABKA4yES5ibmV0LldlYXRoZXJLaW5kEhsK",
+            "E2ZvcmVjYXN0X2luX3NlY29uZHMYICABKA0SEgoKaGFzX2hhemFyZBgoIAEo",
+            "CBIQCghoYXphcmRfeBgpIAEoEhIQCghoYXphcmRfeRgqIAEoEhIcChRoYXph",
+            "cmRfcmFkaXVzX21ldHJlcxgrIAEoAkoECBUQFlIYZmVsdF90ZW1wZXJhdHVy",
+            "ZV9jZWxzaXVzQikKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IQV2VhdGhlclNN",
+            "U0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.WeatherReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "FeltTemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WeatherSMSG), global::Bnet.WeatherSMSG.Parser, new[]{ "RegionId", "Kind", "Intensity", "CloudCover", "WindSpeed", "WindDirection", "TemperatureCelsius", "HasForecast", "ForecastKind", "ForecastInSeconds", "HasHazard", "HazardX", "HazardY", "HazardRadiusMetres" }, null, null, null, null)
           }));
     }
     #endregion
@@ -105,7 +105,6 @@ namespace Bnet {
       windSpeed_ = other.windSpeed_;
       windDirection_ = other.windDirection_;
       temperatureCelsius_ = other.temperatureCelsius_;
-      feltTemperatureCelsius_ = other.feltTemperatureCelsius_;
       hasForecast_ = other.hasForecast_;
       forecastKind_ = other.forecastKind_;
       forecastInSeconds_ = other.forecastInSeconds_;
@@ -225,21 +224,6 @@ namespace Bnet {
       get { return temperatureCelsius_; }
       set {
         temperatureCelsius_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "felt_temperature_celsius" field.</summary>
-    public const int FeltTemperatureCelsiusFieldNumber = 21;
-    private float feltTemperatureCelsius_;
-    /// <summary>
-    ///* What it feels like: wind chill when cold, humidity when hot. Gameplay tolerance keys on this one. 
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float FeltTemperatureCelsius {
-      get { return feltTemperatureCelsius_; }
-      set {
-        feltTemperatureCelsius_ = value;
       }
     }
 
@@ -369,7 +353,6 @@ namespace Bnet {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WindSpeed, other.WindSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(WindDirection, other.WindDirection)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(TemperatureCelsius, other.TemperatureCelsius)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(FeltTemperatureCelsius, other.FeltTemperatureCelsius)) return false;
       if (HasForecast != other.HasForecast) return false;
       if (ForecastKind != other.ForecastKind) return false;
       if (ForecastInSeconds != other.ForecastInSeconds) return false;
@@ -391,7 +374,6 @@ namespace Bnet {
       if (WindSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WindSpeed);
       if (WindDirection != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(WindDirection);
       if (TemperatureCelsius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(TemperatureCelsius);
-      if (FeltTemperatureCelsius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(FeltTemperatureCelsius);
       if (HasForecast != false) hash ^= HasForecast.GetHashCode();
       if (ForecastKind != global::Bnet.WeatherKind.WeatherClear) hash ^= ForecastKind.GetHashCode();
       if (ForecastInSeconds != 0) hash ^= ForecastInSeconds.GetHashCode();
@@ -444,10 +426,6 @@ namespace Bnet {
       if (TemperatureCelsius != 0F) {
         output.WriteRawTag(165, 1);
         output.WriteFloat(TemperatureCelsius);
-      }
-      if (FeltTemperatureCelsius != 0F) {
-        output.WriteRawTag(173, 1);
-        output.WriteFloat(FeltTemperatureCelsius);
       }
       if (HasForecast != false) {
         output.WriteRawTag(240, 1);
@@ -515,10 +493,6 @@ namespace Bnet {
         output.WriteRawTag(165, 1);
         output.WriteFloat(TemperatureCelsius);
       }
-      if (FeltTemperatureCelsius != 0F) {
-        output.WriteRawTag(173, 1);
-        output.WriteFloat(FeltTemperatureCelsius);
-      }
       if (HasForecast != false) {
         output.WriteRawTag(240, 1);
         output.WriteBool(HasForecast);
@@ -578,9 +552,6 @@ namespace Bnet {
       if (TemperatureCelsius != 0F) {
         size += 2 + 4;
       }
-      if (FeltTemperatureCelsius != 0F) {
-        size += 2 + 4;
-      }
       if (HasForecast != false) {
         size += 2 + 1;
       }
@@ -634,9 +605,6 @@ namespace Bnet {
       }
       if (other.TemperatureCelsius != 0F) {
         TemperatureCelsius = other.TemperatureCelsius;
-      }
-      if (other.FeltTemperatureCelsius != 0F) {
-        FeltTemperatureCelsius = other.FeltTemperatureCelsius;
       }
       if (other.HasForecast != false) {
         HasForecast = other.HasForecast;
@@ -700,10 +668,6 @@ namespace Bnet {
           }
           case 165: {
             TemperatureCelsius = input.ReadFloat();
-            break;
-          }
-          case 173: {
-            FeltTemperatureCelsius = input.ReadFloat();
             break;
           }
           case 240: {
@@ -775,10 +739,6 @@ namespace Bnet {
           }
           case 165: {
             TemperatureCelsius = input.ReadFloat();
-            break;
-          }
-          case 173: {
-            FeltTemperatureCelsius = input.ReadFloat();
             break;
           }
           case 240: {

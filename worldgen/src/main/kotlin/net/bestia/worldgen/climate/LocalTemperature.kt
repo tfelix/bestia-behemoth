@@ -7,15 +7,11 @@ import net.bestia.worldgen.core.WorldConfig
 import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.max
-import kotlin.math.sqrt
 
-/** Air temperature and what it feels like, at a place and a moment. */
+/** Air temperature at a place and a moment. */
 data class Temperature(
-  /** Air temperature in degrees Celsius. */
-  val airCelsius: Double,
-
-  /** What it feels like: wind chill below 10 degrees, humidity above 25. Gameplay keys on this. */
-  val feelsLikeCelsius: Double
+  /** Air temperature in degrees Celsius. Gameplay keys on this. */
+  val airCelsius: Double
 )
 
 /**
@@ -116,13 +112,12 @@ class LocalTemperature private constructor(
     // terms, whose source is the sky, this one's source is *below* the shelter.
     val geothermal = geothermalAt(worldX, worldY, timeOfDay)
 
-    // In the **air** sum, before `feelsLike`. Warm ground warms the air, and `feelsLike` is documented as a
-    // perception transform - so putting it there would make `airCelsius`, which goes on the wire as
-    // `temperature_celsius`, report a volcanic field as cold. Being in the air sum also lets the humidity branch
-    // fire, which is the steam-bath case where the +2 belongs, and means `WeatherService`'s snow-versus-rain
-    // decision sees it: volcanic ground now gets rain where the mountains around it get snow.
+    // In the **air** sum rather than applied afterwards. Warm ground warms the air, so this has to reach
+    // `airCelsius` - which goes on the wire as `temperature_celsius` and is what exposure keys on - and it has
+    // to be visible to `WeatherService`'s snow-versus-rain decision: volcanic ground gets rain where the
+    // mountains around it get snow.
     val air = mean + residual + seasonal + diurnal + weatherDelta + geothermal
-    return Temperature(air, feelsLike(air, state))
+    return Temperature(air)
   }
 
   /**
@@ -231,15 +226,6 @@ class LocalTemperature private constructor(
     }
   }
 
-  private fun feelsLike(air: Double, state: WeatherState?): Double {
-    val wind = state?.windSpeed ?: 0.0
-    return when {
-      air < CHILL_BELOW -> air - CHILL_PER_MS * sqrt(wind)
-      air > HUMID_ABOVE && state?.kind?.precipitating == true -> air + HUMID_BONUS
-      else -> air
-    }
-  }
-
   companion object {
     private const val TAU = 2.0 * Math.PI
 
@@ -266,11 +252,6 @@ class LocalTemperature private constructor(
       val t = ((x - edge0) / (edge1 - edge0)).coerceIn(0.0, 1.0)
       return t * t * (3.0 - 2.0 * t)
     }
-
-    private const val CHILL_BELOW = 10.0
-    private const val CHILL_PER_MS = 0.7
-    private const val HUMID_ABOVE = 25.0
-    private const val HUMID_BONUS = 2.0
 
     /**
      * Reads the layers, or null on a world with no climate stage in it.

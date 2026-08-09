@@ -72,7 +72,7 @@ class EnvironmentalExposureSystem(
       // hide it. Skip.
       val ground = chunkService.surfaceElevationAt(position.x, position.y) ?: return@each
 
-      val felt = weatherService.at(position.x, position.y, ground).temperature.feelsLikeCelsius
+      val air = weatherService.at(position.x, position.y, ground).temperature.airCelsius
 
       // WEATHER_RESISTANCE **widens the band** rather than reducing the damage, and that distinction is the
       // whole design of the passive. A damage multiplier would let a resistant player stand in a blizzard
@@ -88,8 +88,8 @@ class EnvironmentalExposureSystem(
       val low = config.comfortLowCelsius - tolerance
       val high = config.comfortHighCelsius + tolerance
       val excess = when {
-        felt < low -> low - felt
-        felt > high -> felt - high
+        air < low -> low - air
+        air > high -> air - high
         else -> 0.0
       }
       if (excess <= 0.0) return@each

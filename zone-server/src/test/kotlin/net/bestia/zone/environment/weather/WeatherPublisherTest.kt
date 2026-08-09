@@ -31,7 +31,7 @@ class WeatherPublisherTest {
   private fun publisherSeeing(vararg states: WeatherState): WeatherPublisher {
     val weatherService = mockk<WeatherService> {
       every { at(any(), any(), any()) } returnsMany states.map {
-        WeatherAt(regionId = 3, state = it, temperature = Temperature(12.0, 12.0))
+        WeatherAt(regionId = 3, state = it, temperature = Temperature(12.0))
       }
     }
     val chunkService = mockk<ChunkService> {

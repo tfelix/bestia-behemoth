@@ -49,8 +49,13 @@ message WeatherSMSG {
   /** Air temperature at the player's own position and elevation, in degrees Celsius. */
   float temperature_celsius = 20;
 
-  /** What it feels like: wind chill when cold, humidity when hot. Gameplay tolerance keys on this one. */
-  float felt_temperature_celsius = 21;
+  /**
+   * Field 21 was `felt_temperature_celsius`, a wind-chill/humidity transform of [temperature_celsius], and is
+   * reserved rather than reused. Nothing on either side needed a second temperature: exposure keys on the air
+   * temperature, which is the number `ExposureConfig`'s comfort band was measured against.
+   */
+  reserved 21;
+  reserved "felt_temperature_celsius";
 
   /**
    * The next weather this player's WEATHER_SENSE can see coming, and how far ahead they saw it.

@@ -50,10 +50,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     /// <summary>Radians, 0 pointing east, counter-clockwise. Weather arrives from the opposite bearing.</summary>
     [Export] public float WindDirection { get; set; }
 
+    /// <summary>Air temperature where the player stands. What gameplay tolerance keys on.</summary>
     [Export] public float TemperatureCelsius { get; set; }
-
-    /// <summary>Wind chill when cold, humidity when hot. What gameplay tolerance keys on.</summary>
-    [Export] public float FeltTemperatureCelsius { get; set; }
 
     /// <summary>
     /// The next weather WEATHER_SENSE saw coming, and how many real seconds until it arrives.
@@ -89,7 +87,6 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         WindSpeed = proto.WindSpeed,
         WindDirection = proto.WindDirection,
         TemperatureCelsius = proto.TemperatureCelsius,
-        FeltTemperatureCelsius = proto.FeltTemperatureCelsius,
         HasForecast = proto.HasForecast,
         ForecastWeather = (Kind)proto.ForecastKind,
         ForecastInSeconds = (int)proto.ForecastInSeconds,
@@ -105,7 +102,7 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       var hazard = HasHazard ? $", tornado at ({HazardX},{HazardY}) r={HazardRadiusMetres:F0}m" : "";
       var forecast = HasForecast ? $", sensing {ForecastWeather} in {ForecastInSeconds}s" : "";
       return $"{Weather} intensity {Intensity:F2}, cloud {CloudCover:F2}, wind {WindSpeed:F1} m/s, " +
-             $"{TemperatureCelsius:F1}°C (feels {FeltTemperatureCelsius:F1}°C), region {RegionId}" +
+             $"{TemperatureCelsius:F1}°C, region {RegionId}" +
              $"{hazard}{forecast}";
     }
   }

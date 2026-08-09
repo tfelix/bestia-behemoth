@@ -19,7 +19,7 @@ data class ExposureConfig(
   val intervalSeconds: Float = 5f,
 
   /**
-   * Coldest felt temperature that costs nothing.
+   * Coldest air temperature that costs nothing.
    *
    * **Measured, not chosen.** `LocalTemperatureTest` samples the reference world eight times a day at eight
    * points in the year and reports the share of the year each kind of country spends outside a candidate band:
@@ -45,7 +45,7 @@ data class ExposureConfig(
   val comfortLowCelsius: Double = -6.0,
 
   /**
-   * Warmest felt temperature that costs nothing.
+   * Warmest air temperature that costs nothing.
    *
    * **Reachable since the geothermal term landed, and it had never fired before that.** The reference world used
    * to top out below 34 C anywhere, at any hour, in any season - moving this to 36 changed the measured share by

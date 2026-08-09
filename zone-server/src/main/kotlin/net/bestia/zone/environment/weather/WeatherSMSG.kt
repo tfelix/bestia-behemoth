@@ -22,7 +22,6 @@ data class WeatherSMSG(
   val windSpeed: Double,
   val windDirection: Double,
   val temperatureCelsius: Double,
-  val feltTemperatureCelsius: Double,
   val hazardX: Long? = null,
   val hazardY: Long? = null,
   val hazardRadiusMetres: Double = 0.0,
@@ -40,7 +39,6 @@ data class WeatherSMSG(
       .setWindSpeed(windSpeed.toFloat())
       .setWindDirection(windDirection.toFloat())
       .setTemperatureCelsius(temperatureCelsius.toFloat())
-      .setFeltTemperatureCelsius(feltTemperatureCelsius.toFloat())
 
     forecast?.let {
       weather
@@ -83,7 +81,6 @@ data class WeatherSMSG(
       windSpeed = state.windSpeed,
       windDirection = state.windDirection,
       temperatureCelsius = temperature.airCelsius,
-      feltTemperatureCelsius = temperature.feelsLikeCelsius,
       hazardX = hazardVoxel?.first,
       hazardY = hazardVoxel?.second,
       hazardRadiusMetres = state.hazard?.radiusMetres ?: 0.0,
