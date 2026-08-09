@@ -38,7 +38,30 @@ class WorldInfoSMSGTest {
     assertEquals(BestiaDateTime.HOURS_PER_DAY, info.hoursPerDay)
     assertEquals(BestiaDateTime.DAYS_PER_MONTH, info.daysPerMonth)
     assertEquals(BestiaDateTime.MONTHS_PER_YEAR, info.monthsPerYear)
-    assertEquals(BestiaDateTime.NIGHT_HOURS, info.nightHours)
+  }
+
+  /**
+   * The client draws the dawn and dusk ramps itself, from these, because light level is a per-frame quantity
+   * and the clock is an anchor sent once per connection. A boundary dropped on the wire arrives as a zero,
+   * and a zero here does not look like a missing field - it looks like a world where dawn is already over at
+   * midnight, which is a lighting bug nobody would trace back to a message.
+   */
+  @Test
+  fun `the day's four boundaries reach the wire in order`() {
+    val info = infoAt(Duration.ofHours(8))
+
+    assertEquals(BestiaDateTime.NIGHT_END_HOUR, info.nightEndHour)
+    assertEquals(BestiaDateTime.DAWN_END_HOUR, info.dawnEndHour)
+    assertEquals(BestiaDateTime.DUSK_START_HOUR, info.duskStartHour)
+    assertEquals(BestiaDateTime.NIGHT_START_HOUR, info.nightStartHour)
+
+    assertTrue(
+      info.nightEndHour < info.dawnEndHour &&
+          info.dawnEndHour < info.duskStartHour &&
+          info.duskStartHour < info.nightStartHour &&
+          info.nightStartHour < info.hoursPerDay,
+      "the client resolves these with an ordered comparison and has no wrap-around case"
+    )
   }
 
   /**

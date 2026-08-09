@@ -135,16 +135,18 @@ class BestiaClockTest {
       },
     )
 
-    clock.jumpTo(BestiaDateTime(year = 1, month = 1, day = 5, hour = 5, minute = 0, second = 0))
+    clock.jumpTo(BestiaDateTime(year = 1, month = 1, day = 5, hour = 2, minute = 0, second = 0))
 
-    // One real hour is three Bestia hours at the default speed factor, which crosses out of night.
+    // One real hour is three Bestia hours at the default speed factor, which walks 02:00 out of the dark and
+    // into the far end of dawn.
     instant = instant.plus(Duration.ofHours(1))
 
     val after = clock.now()
 
-    assertEquals(8, after.hour)
+    assertEquals(5, after.hour)
     assertEquals(5, after.day)
     assertFalse(after.isNight)
+    assertEquals(0.5, after.daylight, 1e-9)
   }
 
   @Test

@@ -59,7 +59,8 @@ namespace BestiaBehemothClient.Game.World
     private int _hoursPerDay;
     private int _daysPerMonth;
     private int _monthsPerYear;
-    private int _nightHours;
+
+    private DayCycle _cycle;
 
     private bool _anchored;
 
@@ -121,8 +122,19 @@ namespace BestiaBehemothClient.Game.World
       _hoursPerDay = info.HoursPerDay;
       _daysPerMonth = info.DaysPerMonth;
       _monthsPerYear = info.MonthsPerYear;
-      _nightHours = info.NightHours;
+      _cycle = new DayCycle(
+        info.HoursPerDay, info.NightEndHour, info.DawnEndHour, info.DuskStartHour, info.NightStartHour);
       _anchored = true;
+
+      if (!_cycle.IsValid)
+      {
+        // Not fatal, and not lumped in with the refusal above: the calendar itself is fine, so the date is
+        // still worth showing. Only the lighting has nothing to go on, and it falls back to full day.
+        GD.PushWarning(
+          "[clock] WorldInfoSMSG's day boundaries are not in order " +
+          $"(night ends {info.NightEndHour}, dawn ends {info.DawnEndHour}, dusk starts {info.DuskStartHour}, " +
+          $"night starts {info.NightStartHour}, day is {info.HoursPerDay}h). The world will stay lit as day.");
+      }
 
       // Forces the next _Process to emit, so a reconnect that lands on the same minute still refreshes.
       _publishedMinute = -1;
@@ -192,6 +204,52 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>Whether the server has said what time it is yet.</summary>
     public bool IsAnchored() => _anchored;
 
+    /// <summary>
+    /// The shape of one day, as the server stated it. Not <see cref="DayCycle.IsValid"/> until anchored.
+    /// </summary>
+    /// <remarks>
+    /// Exposed for <see cref="DayNightCycle"/>, which needs the boundaries to place the sun's arc: sunrise is
+    /// the midpoint of the dawn ramp, which is a question about the calendar rather than one a renderer may
+    /// answer for itself.
+    /// </remarks>
+    public DayCycle Cycle => _cycle;
+
+    /// <summary>
+    /// The hour of the Bestia day as a fraction, e.g. <c>13.5</c> for half past one in the afternoon.
+    /// </summary>
+    /// <remarks>
+    /// Continuous, and read per frame rather than delivered by
+    /// <see cref="TimeChangedEventHandler"/> - that fires once an in-game minute, which is about every twenty
+    /// real seconds, and a sun that moved twenty seconds at a time would not look like a sun.
+    /// </remarks>
+    public double HourOfDay
+    {
+      get
+      {
+        if (!_anchored)
+        {
+          return 0.0;
+        }
+
+        var secondsPerDay = _hoursPerDay * SecondsPerHour;
+
+        return Mathf.PosMod(_bestiaSeconds, secondsPerDay) / SecondsPerHour;
+      }
+    }
+
+    /// <summary>
+    /// How much of the sun's light is up, in <c>[0, 1]</c>: <c>1</c> in full day, <c>0</c> in full night, and
+    /// a smooth ramp across dawn and dusk.
+    /// </summary>
+    /// <remarks>
+    /// The curve itself lives on <see cref="DayCycle"/>, which has no engine in it so a test can check it
+    /// against the server's. This is only the clock reading fed into it.
+    /// </remarks>
+    public double Daylight => _cycle.DaylightAt(HourOfDay);
+
+    /// <summary>True during full night, i.e. the dark middle rather than anything short of noon.</summary>
+    public bool IsNight => _anchored && _cycle.IsNightAt(HourOfDay);
+
     private void Publish(bool force)
     {
       if (!_anchored)
@@ -225,7 +283,7 @@ namespace BestiaBehemothClient.Game.World
         (int)(intoDay / (long)SecondsPerHour),
         (int)(intoDay % (long)SecondsPerHour / 60),
         (int)SeasonOfMonth((int)(dayOfYear / _daysPerMonth) + 1),
-        intoDay / (long)SecondsPerHour < _nightHours);
+        IsNight);
     }
 
     /// <summary>

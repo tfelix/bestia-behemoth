@@ -12,8 +12,21 @@ import java.time.Instant
  * [DAYS_PER_MONTH] Bestia-days (10 real-world days), and a Bestia year is [MONTHS_PER_YEAR]
  * months/seasons.
  *
- * The docs don't state which clock hour the night portion starts at, so this assumes
- * midnight, i.e. hours `[0, NIGHT_HOURS)` are night and the rest is day - see [isNight].
+ * ### The day has four parts, not two
+ *
+ * The docs give a night *length* and not a placement, and this used to put night at hours `[0, 6)` - which
+ * kept the arithmetic simple and meant the sun snapped on at 06:00 and off at midnight. Night now straddles
+ * midnight the way a night does, and the two hours on either side of it are twilight:
+ *
+ * ```
+ * 00 ---- 04 ------ 06 ------------------ 20 ------ 22 ---- 24
+ *  full night  |  dawn  |     full day     |  dusk  |  full night
+ * ```
+ *
+ * The dark budget is unchanged at six Bestia-hours (two real ones), so nothing about how much of a session is
+ * spent at night moved; only where it falls. [isNight] is the *full* night, which is what a nocturnal
+ * creature keys off. [daylight] is the continuous version and is what anything drawing the world wants: a
+ * boolean cannot express a sunset, and a renderer given one produces a light switch.
  */
 data class BestiaDateTime(
   val year: Long,
@@ -40,11 +53,42 @@ data class BestiaDateTime(
   val timeOfDay: Double
     get() = (hour * SECONDS_PER_HOUR + minute * 60 + second) / SECONDS_PER_DAY.toDouble()
 
-  /** True during the [NIGHT_HOURS]-Bestia-hour night portion of the day (hours `[0, NIGHT_HOURS)`). */
-  val isNight: Boolean get() = hour < NIGHT_HOURS
+  /**
+   * True during full night - hours `[NIGHT_START_HOUR, HOURS_PER_DAY)` and `[0, NIGHT_END_HOUR)`.
+   *
+   * The dark middle, deliberately, not "anything darker than noon". This is what the AI's activity cycle
+   * keys off, and a diurnal creature should be asleep through the dark rather than through every hour whose
+   * light is less than full - which under a twilight model would have it bedding down before sunset.
+   */
+  val isNight: Boolean get() = hour >= NIGHT_START_HOUR || hour < NIGHT_END_HOUR
 
-  /** True during the daytime portion of the day. */
+  /** True whenever it is not [isNight]. Includes the twilight hours, which are lit. */
   val isDay: Boolean get() = !isNight
+
+  /**
+   * How much of the sun's light is up, in `[0, 1]`: `1.0` in full day, `0.0` in full night, and a smooth
+   * ramp across dawn and dusk.
+   *
+   * **The reference implementation of the curve, which the client re-implements.** It has to, because
+   * lighting is a per-frame quantity and the clock is an anchor sent once per connection - there is no
+   * message to carry this. The boundaries go on the wire so the two agree by construction rather than by
+   * both being edited; see `WorldInfoSMSG`.
+   *
+   * Smoothstepped rather than linear. A linear ramp has a corner at each end, and a corner in a light level
+   * is visible as a moment where the sky stops changing - which reads as a hitch rather than as dusk ending.
+   */
+  val daylight: Double
+    get() {
+      val h = hour + minute / 60.0 + second / 3_600.0
+
+      return when {
+        h < NIGHT_END_HOUR -> 0.0
+        h < DAWN_END_HOUR -> smoothstep((h - NIGHT_END_HOUR) / (DAWN_END_HOUR - NIGHT_END_HOUR))
+        h < DUSK_START_HOUR -> 1.0
+        h < NIGHT_START_HOUR -> 1.0 - smoothstep((h - DUSK_START_HOUR) / (NIGHT_START_HOUR - DUSK_START_HOUR))
+        else -> 0.0
+      }
+    }
 
   /** Fraction of the current season/month elapsed, in `[0, 1)`. */
   val seasonProgress: Double
@@ -91,8 +135,22 @@ data class BestiaDateTime(
     const val DAYS_PER_MONTH = 30
     const val MONTHS_PER_YEAR = 4
 
-    /** Bestia-hours of night at the start of each day: 2 real-world hours * [SPEED_FACTOR]. */
-    const val NIGHT_HOURS = 6
+    /**
+     * The four hours the day is cut at. See the class KDoc for the picture.
+     *
+     * They must stay ordered `NIGHT_END < DAWN_END < DUSK_START < NIGHT_START < HOURS_PER_DAY`, which is
+     * what lets [daylight] resolve them with a single ordered `when` and no wrap-around arithmetic. Only
+     * the *full night* wraps midnight, and it wraps because it is the two open ends of that ordering.
+     *
+     * Full night is six Bestia-hours - 2 real-world hours * [SPEED_FACTOR], which is the length the docs
+     * give. Twilight is on top of that rather than carved out of it: a dusk that ate into the dark would
+     * make the nights shorter than the design says they are.
+     */
+    const val NIGHT_END_HOUR = 4
+
+    const val DAWN_END_HOUR = 6
+    const val DUSK_START_HOUR = 20
+    const val NIGHT_START_HOUR = 22
 
     private const val SECONDS_PER_HOUR = 3600L
     private const val SECONDS_PER_DAY = HOURS_PER_DAY * SECONDS_PER_HOUR
@@ -125,5 +183,12 @@ data class BestiaDateTime(
     /** The Bestia date/time at [now], given the world was created at [worldEpoch]. */
     fun at(worldEpoch: Instant, now: Instant, speedFactor: Double = SPEED_FACTOR): BestiaDateTime =
       since(Duration.between(worldEpoch, now), speedFactor)
+
+    /** Hermite ease over `[0, 1]`, clamped. The ramp shape [daylight] uses. */
+    private fun smoothstep(t: Double): Double {
+      val x = t.coerceIn(0.0, 1.0)
+
+      return x * x * (3.0 - 2.0 * x)
+    }
   }
 }

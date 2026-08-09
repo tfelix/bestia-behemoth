@@ -9,9 +9,15 @@ extends Node3D
 
 const TerrainRendererScript = preload("res://Game/World/TerrainRenderer.cs")
 const StaticEntityRendererScript = preload("res://Game/World/StaticEntityRenderer.cs")
+const DayNightCycleScript = preload("res://Game/World/DayNightCycle.cs")
 
 var _terrain: Node3D = null
 var _props: Node3D = null
+
+## Drives the sun, moon, sky and fog from the world clock. Created here rather than placed in the scene
+## for the same reason the renderers are, but note that it does NOT own the lights: the scene authors
+## them and this hands them over, so shadow settings and angular sizes stay where a designer would look.
+var _day_night: Node = null
 
 
 func _ready() -> void:
@@ -24,6 +30,13 @@ func _ready() -> void:
 	_props = StaticEntityRendererScript.new()
 	_props.name = "Props"
 	add_child(_props)
+
+	_day_night = DayNightCycleScript.new()
+	_day_night.name = "DayNight"
+	add_child(_day_night)
+	# Nulls are tolerated and warned about once — this is a visual layer, and a client that cannot find its
+	# sky should still be playable under whatever light the scene was authored with.
+	_day_night.Configure($WorldEnvironment, $Sun, $Moon, ConnectionManager.world_clock)
 
 	if ConnectionManager.chunk_stream != null:
 		ConnectionManager.chunk_stream.Renderer = _terrain

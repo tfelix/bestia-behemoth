@@ -50,7 +50,10 @@ data class WorldInfoSMSG(
       .setHoursPerDay(BestiaDateTime.HOURS_PER_DAY)
       .setDaysPerMonth(BestiaDateTime.DAYS_PER_MONTH)
       .setMonthsPerYear(BestiaDateTime.MONTHS_PER_YEAR)
-      .setNightHours(BestiaDateTime.NIGHT_HOURS)
+      .setNightEndHour(BestiaDateTime.NIGHT_END_HOUR)
+      .setDawnEndHour(BestiaDateTime.DAWN_END_HOUR)
+      .setDuskStartHour(BestiaDateTime.DUSK_START_HOUR)
+      .setNightStartHour(BestiaDateTime.NIGHT_START_HOUR)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()

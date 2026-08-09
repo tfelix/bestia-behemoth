@@ -103,7 +103,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
     hourOfDay = NOON
   }
 
-  /** Puts the world calendar into the night portion — hours `[0, NIGHT_HOURS)`. */
+  /** Puts the world calendar into full night, which straddles midnight — see [BestiaDateTime.isNight]. */
   fun setNight() {
     hourOfDay = MIDNIGHT
   }
@@ -185,9 +185,10 @@ class AiPipelineFixture(tickRate: Int = 20) {
   }
 
   companion object {
-    /** Comfortably inside the daytime portion — night is hours `[0, BestiaDateTime.NIGHT_HOURS)`. */
+    /** Comfortably inside full day, which runs from dawn's end to dusk's start. */
     private const val NOON = 12
 
+    /** Comfortably inside full night, which runs from before midnight to [BestiaDateTime.NIGHT_END_HOUR]. */
     private const val MIDNIGHT = 0
   }
 }

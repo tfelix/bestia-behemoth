@@ -74,8 +74,28 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public int DaysPerMonth { get; set; }
     [Export] public int MonthsPerYear { get; set; }
 
-    /// <summary>Bestia-hours of night at the start of each day: hours <c>[0, NightHours)</c> are dark.</summary>
-    [Export] public int NightHours { get; set; }
+    /// <summary>
+    /// The four hours the day is cut at, splitting it into full night, dawn, full day and dusk.
+    /// </summary>
+    /// <remarks>
+    /// <code>
+    /// 00 ---- NightEnd -- DawnEnd ------------ DuskStart -- NightStart ---- 24
+    ///   full night   |  dawn  |    full day      |   dusk   |  full night
+    /// </code>
+    /// Ordered <c>NightEnd &lt; DawnEnd &lt; DuskStart &lt; NightStart &lt; HoursPerDay</c>; only full night
+    /// wraps midnight, because it is the two open ends of that ordering.
+    ///
+    /// <para>
+    /// These arrive rather than a single "hours of night" because <c>DayNightCycle</c> evaluates the dawn and
+    /// dusk ramps here, per frame - light level is not something a message could carry at that rate. A
+    /// boolean would only have been enough for a light switch.
+    /// </para>
+    /// </remarks>
+    [Export] public int NightEndHour { get; set; }
+
+    [Export] public int DawnEndHour { get; set; }
+    [Export] public int DuskStartHour { get; set; }
+    [Export] public int NightStartHour { get; set; }
 
     public static WorldInfoSMSG FromProto(global::Bnet.WorldInfoSMSG proto)
     {
@@ -86,7 +106,10 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         HoursPerDay = proto.HoursPerDay,
         DaysPerMonth = proto.DaysPerMonth,
         MonthsPerYear = proto.MonthsPerYear,
-        NightHours = proto.NightHours,
+        NightEndHour = proto.NightEndHour,
+        DawnEndHour = proto.DawnEndHour,
+        DuskStartHour = proto.DuskStartHour,
+        NightStartHour = proto.NightStartHour,
         Name = proto.Name,
         WidthCells = proto.WidthCells,
         HeightCells = proto.HeightCells,

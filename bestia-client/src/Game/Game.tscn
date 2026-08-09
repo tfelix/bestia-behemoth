@@ -41,9 +41,14 @@ script = ExtResource("1_oscxy")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1346274885]
 environment = SubResource("Environment_iv3md")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=297546982]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=297546982]
 transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
 shadow_enabled = true
+
+[node name="Moon" type="DirectionalLight3D" parent="." unique_id=297546983]
+transform = Transform3D(0.4460189, -0.81221586, 0.37599537, -0.29966903, -0.5313671, -0.7923683, 0.84336567, 0.24073704, -0.48039573, 0, 5.2176847, 3.7376866)
+light_energy = 0.0
+shadow_enabled = false
 
 [node name="EntityManager" type="Node" parent="." unique_id=432959366]
 script = ExtResource("9_eqev2")

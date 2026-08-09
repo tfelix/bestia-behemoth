@@ -76,6 +76,33 @@ message WorldInfoSMSG {
   int32 days_per_month = 53;
   int32 months_per_year = 54;
 
-  /** Bestia-hours of night at the start of each day, i.e. hours `[0, night_hours)` are dark. */
-  int32 night_hours = 55;
+  /**
+   * The four hours the day is cut at, splitting it into full night, dawn, full day and dusk:
+   *
+   * ```
+   * 00 ---- night_end -- dawn_end ------------ dusk_start -- night_start ---- 24
+   *   full night   |   dawn   |    full day     |    dusk    |   full night
+   * ```
+   *
+   * Ordered `night_end < dawn_end < dusk_start < night_start < hours_per_day`; only full night wraps
+   * midnight, because it is the two open ends of that ordering.
+   *
+   * ### Sent because the client has to draw the curve, not just read a flag
+   *
+   * Light level is a per-frame quantity and the clock is an anchor sent once per connection, so there is no
+   * message that could carry it - the client evaluates the same ramp the server does, from the same
+   * boundaries. That is also why this replaced a single `night_hours`: a boolean cannot express a sunset,
+   * and a renderer handed one produces a light switch.
+   *
+   * Field 55 was that `night_hours`, and is reserved rather than reused. It meant "hours `[0, n)` are dark",
+   * which a client reading a new server as an old message would decode as a 4-hour night starting at
+   * midnight - plausible, wrong, and silent.
+   */
+  reserved 55;
+  reserved "night_hours";
+
+  int32 night_end_hour = 56;
+  int32 dawn_end_hour = 57;
+  int32 dusk_start_hour = 58;
+  int32 night_start_hour = 59;
 }

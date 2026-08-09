@@ -24,7 +24,7 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IrUD",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IpUE",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
             "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhgKEGNlbGxfc2l6ZV9tZXRy",
             "ZXMYBCABKAESEgoKY2h1bmtfc2l6ZRgKIAEoBRIUCgxjaHVua19oZWlnaHQY",
@@ -34,12 +34,15 @@ namespace Bnet {
             "X2NodW5rcxgoIAEoBRIgChh3b3JsZF9hZ2VfYmVzdGlhX3NlY29uZHMYMiAB",
             "KAESGQoRdGltZV9zcGVlZF9mYWN0b3IYMyABKAESFQoNaG91cnNfcGVyX2Rh",
             "eRg0IAEoBRIWCg5kYXlzX3Blcl9tb250aBg1IAEoBRIXCg9tb250aHNfcGVy",
-            "X3llYXIYNiABKAUSEwoLbmlnaHRfaG91cnMYNyABKAVCKwoVbmV0LmJlc3Rp",
-            "YS5ibmV0LnByb3RvQhJXb3JsZEluZm9TTVNHUHJvdG9iBnByb3RvMw=="));
+            "X3llYXIYNiABKAUSFgoObmlnaHRfZW5kX2hvdXIYOCABKAUSFQoNZGF3bl9l",
+            "bmRfaG91chg5IAEoBRIXCg9kdXNrX3N0YXJ0X2hvdXIYOiABKAUSGAoQbmln",
+            "aHRfc3RhcnRfaG91chg7IAEoBUoECDcQOFILbmlnaHRfaG91cnNCKwoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhJXb3JsZEluZm9TTVNHUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightHours" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
           }));
     }
     #endregion
@@ -112,7 +115,10 @@ namespace Bnet {
       hoursPerDay_ = other.hoursPerDay_;
       daysPerMonth_ = other.daysPerMonth_;
       monthsPerYear_ = other.monthsPerYear_;
-      nightHours_ = other.nightHours_;
+      nightEndHour_ = other.nightEndHour_;
+      dawnEndHour_ = other.dawnEndHour_;
+      duskStartHour_ = other.duskStartHour_;
+      nightStartHour_ = other.nightStartHour_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -368,18 +374,51 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "night_hours" field.</summary>
-    public const int NightHoursFieldNumber = 55;
-    private int nightHours_;
-    /// <summary>
-    ///* Bestia-hours of night at the start of each day, i.e. hours `[0, night_hours)` are dark. 
-    /// </summary>
+    /// <summary>Field number for the "night_end_hour" field.</summary>
+    public const int NightEndHourFieldNumber = 56;
+    private int nightEndHour_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int NightHours {
-      get { return nightHours_; }
+    public int NightEndHour {
+      get { return nightEndHour_; }
       set {
-        nightHours_ = value;
+        nightEndHour_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "dawn_end_hour" field.</summary>
+    public const int DawnEndHourFieldNumber = 57;
+    private int dawnEndHour_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DawnEndHour {
+      get { return dawnEndHour_; }
+      set {
+        dawnEndHour_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "dusk_start_hour" field.</summary>
+    public const int DuskStartHourFieldNumber = 58;
+    private int duskStartHour_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DuskStartHour {
+      get { return duskStartHour_; }
+      set {
+        duskStartHour_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "night_start_hour" field.</summary>
+    public const int NightStartHourFieldNumber = 59;
+    private int nightStartHour_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int NightStartHour {
+      get { return nightStartHour_; }
+      set {
+        nightStartHour_ = value;
       }
     }
 
@@ -415,7 +454,10 @@ namespace Bnet {
       if (HoursPerDay != other.HoursPerDay) return false;
       if (DaysPerMonth != other.DaysPerMonth) return false;
       if (MonthsPerYear != other.MonthsPerYear) return false;
-      if (NightHours != other.NightHours) return false;
+      if (NightEndHour != other.NightEndHour) return false;
+      if (DawnEndHour != other.DawnEndHour) return false;
+      if (DuskStartHour != other.DuskStartHour) return false;
+      if (NightStartHour != other.NightStartHour) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -440,7 +482,10 @@ namespace Bnet {
       if (HoursPerDay != 0) hash ^= HoursPerDay.GetHashCode();
       if (DaysPerMonth != 0) hash ^= DaysPerMonth.GetHashCode();
       if (MonthsPerYear != 0) hash ^= MonthsPerYear.GetHashCode();
-      if (NightHours != 0) hash ^= NightHours.GetHashCode();
+      if (NightEndHour != 0) hash ^= NightEndHour.GetHashCode();
+      if (DawnEndHour != 0) hash ^= DawnEndHour.GetHashCode();
+      if (DuskStartHour != 0) hash ^= DuskStartHour.GetHashCode();
+      if (NightStartHour != 0) hash ^= NightStartHour.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -527,9 +572,21 @@ namespace Bnet {
         output.WriteRawTag(176, 3);
         output.WriteInt32(MonthsPerYear);
       }
-      if (NightHours != 0) {
-        output.WriteRawTag(184, 3);
-        output.WriteInt32(NightHours);
+      if (NightEndHour != 0) {
+        output.WriteRawTag(192, 3);
+        output.WriteInt32(NightEndHour);
+      }
+      if (DawnEndHour != 0) {
+        output.WriteRawTag(200, 3);
+        output.WriteInt32(DawnEndHour);
+      }
+      if (DuskStartHour != 0) {
+        output.WriteRawTag(208, 3);
+        output.WriteInt32(DuskStartHour);
+      }
+      if (NightStartHour != 0) {
+        output.WriteRawTag(216, 3);
+        output.WriteInt32(NightStartHour);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -609,9 +666,21 @@ namespace Bnet {
         output.WriteRawTag(176, 3);
         output.WriteInt32(MonthsPerYear);
       }
-      if (NightHours != 0) {
-        output.WriteRawTag(184, 3);
-        output.WriteInt32(NightHours);
+      if (NightEndHour != 0) {
+        output.WriteRawTag(192, 3);
+        output.WriteInt32(NightEndHour);
+      }
+      if (DawnEndHour != 0) {
+        output.WriteRawTag(200, 3);
+        output.WriteInt32(DawnEndHour);
+      }
+      if (DuskStartHour != 0) {
+        output.WriteRawTag(208, 3);
+        output.WriteInt32(DuskStartHour);
+      }
+      if (NightStartHour != 0) {
+        output.WriteRawTag(216, 3);
+        output.WriteInt32(NightStartHour);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -674,8 +743,17 @@ namespace Bnet {
       if (MonthsPerYear != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(MonthsPerYear);
       }
-      if (NightHours != 0) {
-        size += 2 + pb::CodedOutputStream.ComputeInt32Size(NightHours);
+      if (NightEndHour != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(NightEndHour);
+      }
+      if (DawnEndHour != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(DawnEndHour);
+      }
+      if (DuskStartHour != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(DuskStartHour);
+      }
+      if (NightStartHour != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(NightStartHour);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -740,8 +818,17 @@ namespace Bnet {
       if (other.MonthsPerYear != 0) {
         MonthsPerYear = other.MonthsPerYear;
       }
-      if (other.NightHours != 0) {
-        NightHours = other.NightHours;
+      if (other.NightEndHour != 0) {
+        NightEndHour = other.NightEndHour;
+      }
+      if (other.DawnEndHour != 0) {
+        DawnEndHour = other.DawnEndHour;
+      }
+      if (other.DuskStartHour != 0) {
+        DuskStartHour = other.DuskStartHour;
+      }
+      if (other.NightStartHour != 0) {
+        NightStartHour = other.NightStartHour;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -826,8 +913,20 @@ namespace Bnet {
             MonthsPerYear = input.ReadInt32();
             break;
           }
-          case 440: {
-            NightHours = input.ReadInt32();
+          case 448: {
+            NightEndHour = input.ReadInt32();
+            break;
+          }
+          case 456: {
+            DawnEndHour = input.ReadInt32();
+            break;
+          }
+          case 464: {
+            DuskStartHour = input.ReadInt32();
+            break;
+          }
+          case 472: {
+            NightStartHour = input.ReadInt32();
             break;
           }
         }
@@ -913,8 +1012,20 @@ namespace Bnet {
             MonthsPerYear = input.ReadInt32();
             break;
           }
-          case 440: {
-            NightHours = input.ReadInt32();
+          case 448: {
+            NightEndHour = input.ReadInt32();
+            break;
+          }
+          case 456: {
+            DawnEndHour = input.ReadInt32();
+            break;
+          }
+          case 464: {
+            DuskStartHour = input.ReadInt32();
+            break;
+          }
+          case 472: {
+            NightStartHour = input.ReadInt32();
             break;
           }
         }

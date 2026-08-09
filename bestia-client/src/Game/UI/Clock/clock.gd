@@ -21,6 +21,11 @@ const SEASON_NAMES := ["Spring", "Summer", "Fall", "Winter"]
 const DAY_COLOUR := Color(1.0, 0.94, 0.78)
 const NIGHT_COLOUR := Color(0.72, 0.80, 1.0)
 
+## The clock, kept so the phase can be read from the light level rather than from the is_night flag.
+## Four names and not two: the twilight hours are the interesting ones, and calling 21:00 "Day" when the
+## sky is visibly orange reads as the widget being wrong.
+var _clock: Node = null
+
 
 func _ready() -> void:
 	visible = false
@@ -30,6 +35,7 @@ func _ready() -> void:
 		push_warning("Clock: ConnectionManager has no world_clock; no in-game time will be shown.")
 		return
 
+	_clock = clock
 	clock.TimeChanged.connect(_on_time_changed)
 
 	# The world info arrived during authentication, long before this HUD existed, so ask for the current
@@ -45,7 +51,21 @@ func _on_time_changed(
 	_time_label.text = "%02d:%02d" % [hour, minute]
 	_time_label.add_theme_color_override("font_color", NIGHT_COLOUR if is_night else DAY_COLOUR)
 
-	_phase_label.text = "Night" if is_night else "Day"
+	_phase_label.text = _phase_name(hour, is_night)
 
 	var season_name: String = SEASON_NAMES[season] if season >= 0 and season < SEASON_NAMES.size() else "Month %d" % month
 	_date_label.text = "%s · Day %d · Year %d" % [season_name, day, year]
+
+
+## Which quarter of the day it is, from the same light level the world is lit by.
+##
+## Dawn and dusk are told apart by the hour rather than by the light, because the ramps are symmetric —
+## a half-lit sky is the same number going up as coming down, and only the clock knows which.
+func _phase_name(hour: int, is_night: bool) -> String:
+	if is_night:
+		return "Night"
+
+	if _clock == null or _clock.Daylight >= 1.0:
+		return "Day"
+
+	return "Dawn" if hour < 12 else "Dusk"

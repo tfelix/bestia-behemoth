@@ -50,8 +50,9 @@ class WorldTimeChatCommand(
     "/date - Shows the world date. /date <HH:MM> jumps to that time today; /date <YEAR>-<MONTH>-<DAY> " +
         "<HH:MM> jumps to a full date; /date reset returns to real time. Months are " +
         "1..${BestiaDateTime.MONTHS_PER_YEAR} (one per season) and days 1..${BestiaDateTime.DAYS_PER_MONTH}. " +
-        "Night is ${BestiaDateTime.NIGHT_HOURS} hours from midnight, so /date 03:00 is dark and /date 20:00 " +
-        "is not. The change is in memory only and everyone online is told about it."
+        "Dusk falls from ${BestiaDateTime.DUSK_START_HOUR}:00, it is fully dark from " +
+        "${BestiaDateTime.NIGHT_START_HOUR}:00 to 0${BestiaDateTime.NIGHT_END_HOUR}:00, and dawn is done by " +
+        "0${BestiaDateTime.DAWN_END_HOUR}:00. The change is in memory only and everyone online is told about it."
 
   override fun isMatch(cmdText: String) = CMD_REGEX.matches(cmdText.trim())
 
@@ -116,7 +117,15 @@ class WorldTimeChatCommand(
   }
 
   private fun describe(now: BestiaDateTime): String {
-    val phase = if (now.isNight) "night" else "day"
+    // The four-way name rather than day/night, because the twilight hours are the ones worth typing this to
+    // reach and "day" for 21:00 would read as the command not having worked.
+    val phase = when {
+      now.isNight -> "night"
+      now.daylight >= 1.0 -> "day"
+      now.hour < BestiaDateTime.DAWN_END_HOUR -> "dawn"
+      else -> "dusk"
+    }
+
     val drift = if (clock.isShifted) " (shifted; /date reset undoes it)" else ""
 
     return "Year %d, %s, day %d, %02d:%02d - %s%s".format(
