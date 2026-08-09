@@ -281,11 +281,31 @@ namespace BestiaBehemothClient.Game.World
     /// frame.
     ///
     /// <para>
-    /// The mean is taken in the texture's own encoding rather than in linear light, which is the same space the
-    /// shader's division happens in - so the two agree, which matters more here than either being physically
-    /// right.
+    /// <b>Averaged in linear light, not in the texture's own encoding.</b> The albedo sampler is declared
+    /// <c>source_color</c>, so what the shader divides by this is sRGB-decoded - and decoding is convex, so the
+    /// mean of the decoded texture is strictly greater than the decode of its mean. Averaging in storage space
+    /// therefore hands the shader a reference that is too small, and every material comes out brighter than the
+    /// palette colour it was supposed to be corrected to. The error is small, entirely invisible as a bug, and
+    /// wrong in the same direction for everything, which is the worst combination available.
     /// </para>
     /// </remarks>
+    /// <summary>sRGB byte to linear float, because doing it per pixel is two million calls to Pow.</summary>
+    private static readonly float[] Linear = BuildLinearTable();
+
+    private static float[] BuildLinearTable()
+    {
+      var table = new float[256];
+
+      for (var i = 0; i < table.Length; i++)
+      {
+        var c = i / 255.0f;
+
+        table[i] = c <= 0.04045f ? c / 12.92f : Mathf.Pow((c + 0.055f) / 1.055f, 2.4f);
+      }
+
+      return table;
+    }
+
     private static Color MeanColour(Image image)
     {
       var data = image.GetData();
@@ -294,12 +314,12 @@ namespace BestiaBehemothClient.Game.World
 
       for (var at = 0; at + 3 < data.Length; at += 4)
       {
-        r += data[at];
-        g += data[at + 1];
-        b += data[at + 2];
+        r += Linear[data[at]];
+        g += Linear[data[at + 1]];
+        b += Linear[data[at + 2]];
       }
 
-      var pixels = (double)Size * Size * 255.0;
+      var pixels = (double)Size * Size;
 
       // Never zero: the shader divides by this, and a black texture would otherwise take the whole world with it.
       return new Color(

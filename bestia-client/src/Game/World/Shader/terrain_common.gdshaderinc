@@ -92,7 +92,10 @@ uniform float slot_uv_scale[8];
 // White is the right default because an unauthored slot is a white placeholder: tint / 1.0 is the tint, so the
 // shader reproduces the vertex-colour renderer it replaces exactly. That is the bisect point when something
 // looks wrong later - set tint_strength to 1 against white and any remaining difference is not in this file.
-uniform vec3 slot_reference_tint[8] : source_color;
+// Already linear, so no source_color hint: TerrainSlotTextures averages the decoded texture rather than its
+// storage bytes, which is the space the division below happens in. Tagging it source_color would decode it a
+// second time and brighten every material by the same wrong amount.
+uniform vec3 slot_reference_tint[8];
 
 // Where each slot's tiling is measured from, in world metres, snapped by the CPU to a whole number of that
 // slot's own tiles.
@@ -134,6 +137,16 @@ group_uniforms Tint;
 // How much of the per-vertex tint to apply. Zero shows the textures as authored, which is how you tell a
 // texture problem from a palette problem.
 uniform float tint_strength : hint_range(0.0, 1.0) = 1.0;
+
+// Whether the palette's colours are read as sRGB or as linear.
+//
+// Off matches what the vertex-colour renderer did, and is the default so that turning the shader on did not
+// silently restyle the world. It is almost certainly not what the palette author meant, though: BlockAppearance
+// picks values like GRANITE 0.60/0.56/0.55 as "what grey granite looks like", and rendering them as linear puts
+// them on screen around 0.80 - which is why bare rock reads closer to white than to stone. Turning this on
+// makes the world match the numbers in that file. It is a change to how everything looks, so it is a decision
+// rather than a fix, and this is here to make it a one-click one.
+uniform bool tint_is_srgb = false;
 
 group_uniforms;
 
@@ -453,7 +466,11 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 	surface.tint = tint;
 
-	vec3 correction = tint / max(reference, vec3(0.0001));
+	vec3 palette = tint_is_srgb
+		? mix(tint / 12.92, pow((tint + vec3(0.055)) / 1.055, vec3(2.4)), step(vec3(0.04045), tint))
+		: tint;
+
+	vec3 correction = palette / max(reference, vec3(0.0001));
 	vec3 albedo = share0 * sample0.albedo + share1 * sample1.albedo;
 
 	albedo *= mix(vec3(1.0), correction, tint_strength);
