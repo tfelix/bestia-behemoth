@@ -4,9 +4,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import java.time.Instant
 
 /**
- * @property worldEpoch when this world's Bestia-time clock starts counting from. Left unset,
- * it defaults to the server's boot instant - matching the docs' "Bestia-time starts at the
- * creation of the Bestia world", and fitting since the dev DB schema is recreated on every boot.
+ * @property worldEpoch when this world's Bestia-time clock starts counting from. Left unset - which is
+ * the normal case - the clock anchors to `PersistedWorld.createdAt` instead, so the calendar survives a
+ * restart the way the world it describes does. See [BestiaClock.worldEpoch]. Set it to pin a deployment's
+ * calendar to a fixed instant regardless of when its world row was written.
  * @property speedFactor how many Bestia-hours pass per real-world hour. See [BestiaDateTime.SPEED_FACTOR].
  */
 @ConfigurationProperties(prefix = "world-time")

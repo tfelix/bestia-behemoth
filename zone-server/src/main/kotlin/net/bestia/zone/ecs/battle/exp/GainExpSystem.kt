@@ -55,8 +55,12 @@ class GainExpSystem(
           world.get(entityId, SkillPoints::class)?.let { skillPoints ->
             skillPoints.value += 1
           }
+          // The docs' `effGain = 5 + floor(reachedLevel / 2)`: a level's worth of status points has to
+          // keep up with an escalating effort value cost, so it grows with the level reached rather
+          // than staying at a flat +1.
+          // https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
           world.get(entityId, StatusPoints::class)?.let { statusPoints ->
-            statusPoints.value += 1
+            statusPoints.value += 5 + levelComp.level / 2
           }
         }
 

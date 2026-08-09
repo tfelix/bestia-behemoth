@@ -67,6 +67,23 @@ class Master(
       field = value
     }
 
+  /**
+   * The six **effort values** (EV) - the only part of a master's status values the player controls.
+   * Distributed on the creation screen out of
+   * [net.bestia.zone.account.master.status.EffortValueCostCalculator.CREATION_EFFORT_POINTS] and
+   * raised afterwards by spending [statusPoints] through
+   * [net.bestia.zone.account.master.status.InvestStatusPointService]. A master's individual values
+   * (IV) are fixed at the average 50 for everyone, so unlike a caught bestia there is nothing else
+   * per-master to store.
+   *
+   * Fed straight into [net.bestia.zone.ecs.battle.status.BaseStatusValues] by
+   * [MasterEntitySpawner]: the docs' `(baseValue + IV) * level / 100` term is not implemented yet
+   * (see [net.bestia.zone.battle.status.ConditionValueCalculator]), and at level 1 it rounds to 0
+   * anyway, so for now the effort value *is* the base status value.
+   *
+   * The `= 10` defaults only apply to rows written before creation started sending a distribution;
+   * a master created through the creation screen always has all six set explicitly.
+   */
   @Column(name = "strength", nullable = false)
   var strength: Int = 10
     set(value) {

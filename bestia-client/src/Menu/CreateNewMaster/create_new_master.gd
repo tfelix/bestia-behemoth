@@ -1,11 +1,25 @@
 extends Control
 ## Master (character) creation screen.
 ##
-## Lets the player pick gender, body, face, hair and the hair/skin color, enter a
-## name and create the character. The request is sent to the server and the result
-## (success or error) is reported back via the ConnectionManager operation signals.
+## Lets the player pick gender, body, face, hair and the hair/skin color, distribute the starting
+## effort values, enter a name and create the character. The request is sent to the server and the
+## result (success or error) is reported back via the ConnectionManager operation signals.
 
 const MASTER_SELECT_SCENE := "res://Menu/MasterSelect/MasterSelect.tscn"
+
+## Effort points a new master gets to distribute. Mirrors
+## EffortValueCostCalculator.CREATION_EFFORT_POINTS on the server, which refuses any distribution not
+## spending exactly this much. Sized as 6 attributes * cumulative_cost(9) = 84, so an even spread at 9
+## is affordable.
+const EFFORT_POINT_BUDGET := 84
+
+## Every attribute starts here, so the six mandatory first points come out of the budget too - the
+## screen therefore opens with 78 of the 84 left rather than the full amount.
+##
+## There is no upper bound on purpose: the budget already is one (five attributes at the floor leave
+## exactly enough for a sixth at 22), and a cap of 9 would make it a cap of exactly the budget, leaving
+## 9/9/9/9/9/9 as the only distribution that spends it. See EffortValueCostCalculator on the server.
+const MIN_EFFORT_VALUE := 1
 
 # Mirrors the proto OpSuccess / OpError enum values (see operation_success.proto / operation_error.proto).
 const OP_SUCCESS_MASTER_CREATED := 0
@@ -47,11 +61,19 @@ const GENDER_BODIES := {
 @onready var _create_button: Button = $"CenterContainer/P/M/Main/Bottom/CreateButton"
 @onready var _main: VBoxContainer = $"CenterContainer/P/M/Main"
 
+@onready var _effort_rows: Array = _collect_effort_rows()
+@onready var _points_label: Label = %PointsLabel
+
 var _selected_hair_swatch: ColorRect = null
 var _selected_skin_swatch: ColorRect = null
 var _hair_border: Panel = null
 var _skin_border: Panel = null
 var _status_label: Label = null
+
+# True between sending a create request and its success/error reply. Without this, any later
+# _refresh_create_button() - a keystroke in the name field is enough - would re-enable the button
+# mid-flight and let a second character be submitted.
+var _create_in_flight: bool = false
 
 
 func _ready() -> void:
@@ -67,6 +89,16 @@ func _ready() -> void:
 	_connect_arrows(_body_left, _body_right, _body_button, false)
 	_connect_arrows(_face_left, _face_right, _face_button, false)
 	_connect_arrows(_hair_left, _hair_right, _hair_button, false)
+
+	for row in _effort_rows:
+		row.set_value(MIN_EFFORT_VALUE)
+		row.value_changed.connect(_on_effort_value_changed)
+
+	# The Create button is gated on the whole form being valid, so anything that can change validity has
+	# to re-evaluate it - not just the effort rows.
+	_name_edit.text_changed.connect(func(_t): _refresh_create_button())
+	_spawn_point_button.item_selected.connect(func(_i): _refresh_create_button())
+	_refresh_effort_ui()
 
 	ConnectionManager.operation_success.connect(_on_operation_success)
 	ConnectionManager.operation_error.connect(_on_operation_error)
@@ -97,6 +129,71 @@ func _on_master_info_received(message: MasterSMSG) -> void:
 	if candidates.size() > 0:
 		_spawn_point_button.disabled = false
 		_spawn_point_button.select(randi() % candidates.size())
+
+	_refresh_create_button()
+
+
+func _collect_effort_rows() -> Array:
+	var found: Array = []
+	for node in %Rows.get_children():
+		if node is EffortValueRow:
+			found.append(node)
+	return found
+
+
+## Effort points consumed by the current distribution, counted from 0 - so the six mandatory starting
+## 1s are included, exactly as the server counts them.
+func _spent_effort_points() -> int:
+	var total := 0
+	for row in _effort_rows:
+		total += StatusAttribute.cumulative_cost(row.value)
+	return total
+
+
+func _remaining_effort_points() -> int:
+	return EFFORT_POINT_BUDGET - _spent_effort_points()
+
+
+func _on_effort_value_changed(_row) -> void:
+	_refresh_effort_ui()
+
+
+## Re-totals the budget and re-gates every row's arrows. A row can only go up while the budget still
+## covers its next (escalating) point, and only down while it is above the floor.
+func _refresh_effort_ui() -> void:
+	var remaining := _remaining_effort_points()
+	_points_label.text = "Effort Points: %s / %s left" % [remaining, EFFORT_POINT_BUDGET]
+
+	for row in _effort_rows:
+		var can_increase: bool = remaining >= StatusAttribute.step_cost(row.next_value())
+		var can_decrease: bool = row.value > MIN_EFFORT_VALUE
+		row.set_steppable(can_increase, can_decrease)
+
+	_refresh_create_button()
+
+
+## The server refuses a partly spent budget, so there is no point letting the request leave: gate
+## Create on the whole form instead, the way DeleteMasterDialog gates its confirm button.
+func _refresh_create_button() -> void:
+	_create_button.disabled = not _is_form_complete()
+
+
+func _is_form_complete() -> bool:
+	if _create_in_flight:
+		return false
+	if _name_edit.text.strip_edges().is_empty():
+		return false
+	if _spawn_point_button.get_selected_metadata() == null:
+		return false
+	return _remaining_effort_points() == 0
+
+
+## The effort value per attribute, keyed the way the server's EffortValues message expects.
+func _collect_effort_values() -> Dictionary:
+	var values := {}
+	for row in _effort_rows:
+		values[StatusAttribute.field_key(row.attribute)] = row.value
+	return values
 
 
 ## Rebuilds the body option list based on the currently selected gender.
@@ -165,7 +262,12 @@ func _select_swatch(swatch: ColorRect, is_hair: bool) -> void:
 		_selected_skin_swatch = swatch
 
 
+## Every guard here is also enforced by _refresh_create_button() disabling the button - kept as a
+## re-check because `ui_accept` can fire a disabled button.
 func _on_create_button_pressed() -> void:
+	if _create_in_flight:
+		return
+
 	var character_name := _name_edit.text.strip_edges()
 	if character_name.is_empty():
 		_show_status("Please enter a character name.", true)
@@ -183,9 +285,17 @@ func _on_create_button_pressed() -> void:
 		return
 	var spawn_point_id := int(_spawn_point_button.get_selected_metadata())
 
-	_create_button.disabled = true
+	var remaining := _remaining_effort_points()
+	if remaining != 0:
+		_show_status("Please distribute all %s effort points (%s left)." % [EFFORT_POINT_BUDGET, remaining], true)
+		return
+
+	_create_in_flight = true
+	_refresh_create_button()
 	_show_status("Creating character...", false)
-	ConnectionManager.create_master(character_name, body, face, hair, hair_color, skin_color, spawn_point_id)
+	ConnectionManager.create_master(
+		character_name, body, face, hair, hair_color, skin_color, spawn_point_id, _collect_effort_values()
+	)
 
 
 func _on_cancel_button_pressed() -> void:
@@ -198,7 +308,8 @@ func _on_operation_success(message) -> void:
 
 
 func _on_operation_error(message) -> void:
-	_create_button.disabled = false
+	_create_in_flight = false
+	_refresh_create_button()
 	match message.Code:
 		OP_ERROR_NAME_ALREADY_TAKEN:
 			_show_status("That name is already taken.", true)

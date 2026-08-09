@@ -2,6 +2,7 @@ package net.bestia.zone.account.master
 
 import net.bestia.bnet.proto.CreateMasterProto
 import net.bestia.bnet.proto.MasterProto
+import net.bestia.zone.account.master.status.StatusAttribute
 import net.bestia.zone.message.CMSG
 import net.bestia.zone.util.AccountId
 import java.awt.Color
@@ -19,7 +20,13 @@ data class CreateMasterCMSG(
    * presence-less `uint32` unset sends 0, which matches no spawn point and gets the request refused with
    * [MasterErrorSMSG.MasterErrorCode.INVALID_SPAWN_POINT] like any other unknown id.
    */
-  val spawnPointId: Int
+  val spawnPointId: Int,
+  /**
+   * The starting effort value per attribute as picked on the creation screen. Validated by
+   * [MasterFactory] against the creation budget - a distribution that does not spend it exactly is
+   * refused, including the all-zero one a client that leaves the message unset sends.
+   */
+  val effortValues: Map<StatusAttribute, Int>
 ) : CMSG {
   companion object {
     fun fromBnet(accountId: AccountId, msg: CreateMasterProto.CreateMasterCMSG): CreateMasterCMSG {
@@ -31,7 +38,19 @@ data class CreateMasterCMSG(
         hair = mapHairstyle(msg.hair),
         face = mapFace(msg.face),
         body = mapBodyType(msg.body),
-        spawnPointId = msg.spawnPointId
+        spawnPointId = msg.spawnPointId,
+        effortValues = mapEffortValues(msg.effortValues)
+      )
+    }
+
+    private fun mapEffortValues(effortValues: MasterProto.EffortValues): Map<StatusAttribute, Int> {
+      return mapOf(
+        StatusAttribute.STRENGTH to effortValues.strength,
+        StatusAttribute.AGILITY to effortValues.agility,
+        StatusAttribute.VITALITY to effortValues.vitality,
+        StatusAttribute.INTELLIGENCE to effortValues.intelligence,
+        StatusAttribute.DEXTERITY to effortValues.dexterity,
+        StatusAttribute.WILLPOWER to effortValues.willpower
       )
     }
 

@@ -3,6 +3,9 @@ package net.bestia.zone.account.master
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
+import net.bestia.zone.account.master.status.EffortValueCostCalculator
+import net.bestia.zone.account.master.status.StatusAttribute
+import net.bestia.zone.account.master.status.setEffortValue
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
@@ -32,6 +35,7 @@ class MasterFactory(
   private val masterSpawnPointService: MasterSpawnPointService,
   private val entityIdGenerator: EntityIdGenerator,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
+  private val effortValueCostCalculator: EffortValueCostCalculator,
 ) {
 
   class CreateMasterData(
@@ -41,7 +45,13 @@ class MasterFactory(
     val hair: Hairstyle,
     val face: Face,
     val body: BodyType,
-    val spawnPointId: Int
+    val spawnPointId: Int,
+    /**
+     * Starting effort value per attribute. Defaults to an even spread at the creation cap, which is
+     * exactly what the budget buys - so fixtures and tests that don't care about the build get a
+     * valid distribution without having to compute one.
+     */
+    val effortValues: Map<StatusAttribute, Int> = MasterFactory.evenlySpreadEffortValues()
   )
 
   /**
@@ -65,6 +75,8 @@ class MasterFactory(
       throw MaxMastersReachedException()
     }
 
+    validateEffortValues(createMasterData.effortValues)
+
     val newMaster = Master(
       account = account,
       name = createMasterData.name,
@@ -74,6 +86,8 @@ class MasterFactory(
       face = createMasterData.face,
       body = createMasterData.body
     )
+
+    createMasterData.effortValues.forEach { (attribute, value) -> newMaster.setEffortValue(attribute, value) }
 
     // Asked for rather than read straight from the repository so that a create arriving before anyone has
     // listed the masters still finds candidates, instead of rejecting a perfectly valid id against an
@@ -114,5 +128,49 @@ class MasterFactory(
     statusEffectPersistenceService.seed(savedMaster.entityId, StatusEffectId.MASTER_INTRO_MARKER)
 
     return savedMaster
+  }
+
+  /**
+   * Refuses any starting build that isn't one the creation screen could have produced: all six
+   * attributes named, none below the floor, and the whole budget spent to the last point.
+   *
+   * No upper bound per attribute - the budget is the ceiling (see
+   * [EffortValueCostCalculator.BALANCED_EFFORT_VALUE] for why an explicit cap would leave exactly one
+   * legal distribution).
+   *
+   * Reported as a plain [GeneralMasterException] rather than getting its own error code on purpose.
+   * The creation screen keeps Create disabled until the distribution is valid, so nothing a player
+   * does can land here - only a broken or hand-crafted client, which has no message to read. See
+   * `.claude/skills/error-messages/SKILL.md`.
+   */
+  private fun validateEffortValues(effortValues: Map<StatusAttribute, Int>) {
+    val missing = StatusAttribute.entries.filterNot { effortValues.containsKey(it) }
+    if (missing.isNotEmpty()) {
+      throw GeneralMasterException("Effort value distribution is missing $missing")
+    }
+
+    val floor = EffortValueCostCalculator.MIN_EFFORT_VALUE_AT_CREATION
+    val tooLow = effortValues.filterValues { it < floor }
+    if (tooLow.isNotEmpty()) {
+      throw GeneralMasterException("Effort values $tooLow are below the minimum of $floor")
+    }
+
+    val spent = effortValues.values.sumOf { effortValueCostCalculator.cumulativeCost(it) }
+    if (spent != EffortValueCostCalculator.CREATION_EFFORT_POINTS) {
+      throw GeneralMasterException(
+        "Effort value distribution $effortValues costs $spent points, " +
+          "but exactly ${EffortValueCostCalculator.CREATION_EFFORT_POINTS} must be spent"
+      )
+    }
+  }
+
+  companion object {
+    /**
+     * Every attribute at [EffortValueCostCalculator.BALANCED_EFFORT_VALUE], which costs exactly
+     * [EffortValueCostCalculator.CREATION_EFFORT_POINTS] - a valid, opinion-free starting build for
+     * fixtures that don't care what the master's stats are.
+     */
+    fun evenlySpreadEffortValues(): Map<StatusAttribute, Int> =
+      StatusAttribute.entries.associateWith { EffortValueCostCalculator.BALANCED_EFFORT_VALUE }
   }
 }

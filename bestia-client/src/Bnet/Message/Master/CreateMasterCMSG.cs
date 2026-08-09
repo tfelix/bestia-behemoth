@@ -34,6 +34,29 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     [Export]
     public uint SpawnPointId { get; set; } = 0;
 
+    /// <summary>
+    /// The starting effort value per attribute, as distributed on the creation screen. The server
+    /// re-validates that these spend the creation budget exactly and refuses the request otherwise,
+    /// so the creation screen must not send a partial distribution.
+    /// </summary>
+    [Export]
+    public int Strength { get; set; } = 0;
+
+    [Export]
+    public int Agility { get; set; } = 0;
+
+    [Export]
+    public int Vitality { get; set; } = 0;
+
+    [Export]
+    public int Intelligence { get; set; } = 0;
+
+    [Export]
+    public int Dexterity { get; set; } = 0;
+
+    [Export]
+    public int Willpower { get; set; } = 0;
+
     public override Envelope ToEnvelope()
     {
       var createMaster = new global::Bnet.CreateMasterCMSG
@@ -44,7 +67,16 @@ namespace BestiaBehemothClient.Bnet.Message.Master
         Hair = (global::Bnet.Hairstyle)Hair,
         SkinColor = ToProtoColor(SkinColor),
         HairColor = ToProtoColor(HairColor),
-        SpawnPointId = SpawnPointId
+        SpawnPointId = SpawnPointId,
+        EffortValues = new global::Bnet.EffortValues
+        {
+          Strength = (uint)Strength,
+          Agility = (uint)Agility,
+          Vitality = (uint)Vitality,
+          Intelligence = (uint)Intelligence,
+          Dexterity = (uint)Dexterity,
+          Willpower = (uint)Willpower
+        }
       };
 
       return new Envelope

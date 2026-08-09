@@ -324,7 +324,10 @@ func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> voi
 ## [param body], [param face] and [param hair] are the proto enum values. [param spawn_point_id] is
 ## the id of a MasterSpawnPointCandidate from [signal master_info_received]'s SpawnPoints and is
 ## mandatory - there is no world-default spawn, the server refuses a request that names none.
-func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color, spawn_point_id: int) -> void:
+## [param effort_values] is the starting status value per attribute, keyed by
+## StatusAttribute.field_key(). It must spend the creation budget exactly, or the server refuses the
+## request - CreateNewMaster keeps its Create button disabled until it does.
+func create_master(character_name: String, body: int, face: int, hair: int, hair_color: Color, skin_color: Color, spawn_point_id: int, effort_values: Dictionary) -> void:
 	assert(is_ready_to_send())
 	var msg = CreateMasterCMSG.new()
 	msg.Name = character_name
@@ -334,6 +337,12 @@ func create_master(character_name: String, body: int, face: int, hair: int, hair
 	msg.HairColor = hair_color
 	msg.SkinColor = skin_color
 	msg.SpawnPointId = spawn_point_id
+	msg.Strength = effort_values.get("strength", 0)
+	msg.Agility = effort_values.get("agility", 0)
+	msg.Vitality = effort_values.get("vitality", 0)
+	msg.Intelligence = effort_values.get("intelligence", 0)
+	msg.Dexterity = effort_values.get("dexterity", 0)
+	msg.Willpower = effort_values.get("willpower", 0)
 	_socket.SendMessage(msg)
 
 

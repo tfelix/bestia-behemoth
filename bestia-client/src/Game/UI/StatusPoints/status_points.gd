@@ -50,8 +50,10 @@ func _on_self_received(msg: SelfSMSG) -> void:
 func _on_entity_received(msg: EntitySMSG) -> void:
 	if msg.EntityId != _master_entity_id:
 		return
-	if msg is StatusValuesComponentSMSG:
-		_apply_status_values(msg)
+	# Base, not effective, values: the server prices a point off the unbuffed value, so pricing off an
+	# equipment-inflated one would disagree with what it charges.
+	if msg is BaseStatusValuesComponentSMSG:
+		_apply_base_status_values(msg)
 	elif msg is StatusPointsComponentSMSG:
 		_available_status_points = msg.Points
 		_update_row_buttons()
@@ -68,7 +70,7 @@ func _seed_from_cache() -> void:
 		return
 
 	_available_status_points = entity.get_status_points()
-	var values: Dictionary = entity.get_status_values()
+	var values: Dictionary = entity.get_base_status_values()
 	for row in _rows:
 		var key: String = StatusAttribute.field_key(row.attribute)
 		if values.has(key):
@@ -77,7 +79,7 @@ func _seed_from_cache() -> void:
 	_update_row_buttons()
 
 
-func _apply_status_values(msg: StatusValuesComponentSMSG) -> void:
+func _apply_base_status_values(msg: BaseStatusValuesComponentSMSG) -> void:
 	for row in _rows:
 		match row.attribute:
 			StatusAttribute.Attribute.STRENGTH: row.set_base_value(msg.Strength)
@@ -88,12 +90,21 @@ func _apply_status_values(msg: StatusValuesComponentSMSG) -> void:
 			StatusAttribute.Attribute.WILLPOWER: row.set_base_value(msg.Willpower)
 
 
-## Sum of every row's buffered, not-yet-confirmed point spend.
+## Attribute points every row has buffered. Not the same number as the status points they cost - see
+## _get_pending_cost_total.
 func _get_pending_point_total() -> int:
 	var total = 0
 	for row in _rows:
-		if row.has_pending_investment():
-			total += row.get_pending_investment()["amount"]
+		total += row.pending_points
+	return total
+
+
+## Status points every row's buffered investment costs under the escalating effort value curve. This,
+## not the raw point count, is what comes off the available pool.
+func _get_pending_cost_total() -> int:
+	var total = 0
+	for row in _rows:
+		total += row.pending_cost()
 	return total
 
 
@@ -106,24 +117,30 @@ func _on_row_investment_changed(_row: Control) -> void:
 
 func _update_row_buttons() -> void:
 	var pending_total = _get_pending_point_total()
-	var remaining = _available_status_points - pending_total
+	var pending_cost = _get_pending_cost_total()
+	var remaining = _available_status_points - pending_cost
 
 	if pending_total > 0:
-		_status_points_label.text = "Status Points: %s (%s pending)" % [remaining, pending_total]
+		_status_points_label.text = "Status Points: %s (%s spent on +%s)" % [remaining, pending_cost, pending_total]
 	else:
 		_status_points_label.text = "Status Points: %s" % [_available_status_points]
 
 	_confirm_button.visible = pending_total > 0
 	_cancel_button.visible = pending_total > 0
 
+	# Gated per row rather than on "any points left": the cost escalates with the value, so a pool can
+	# afford a cheap attribute's next point while an expensive one's is already out of reach.
 	for row in _rows:
-		row.set_can_spend_points(remaining > 0)
+		row.set_can_spend_points(remaining >= StatusAttribute.step_cost(row.next_value()))
 
 
 ## Sends every row's buffered investment to the server in a single batch. Unlike
 ## Skills._on_confirm_button_pressed, there's no explicit refresh to trigger afterwards: the
-## server updates the (Dirtyable) StatusValues/StatusPoints ECS components, which push fresh
-## StatusValuesComponentSMSG/StatusPointsComponentSMSG to the owner on their own.
+## server updates the (Dirtyable) BaseStatusValues/StatusPoints ECS components, which push fresh
+## BaseStatusValuesComponentSMSG/StatusPointsComponentSMSG to the owner on their own.
+##
+## Sends raw attribute point counts, not what they cost: the server re-prices every step off its own
+## copy of the base values, so it is the authority on how much comes off the pool.
 func _on_confirm_button_pressed() -> void:
 	var investments: Array = []
 	for row in _rows:

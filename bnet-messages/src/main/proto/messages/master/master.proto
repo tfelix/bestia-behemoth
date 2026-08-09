@@ -28,6 +28,23 @@ message Color {
 }
 
 /**
+ * A master's six effort values - the player-controlled part of their status values. Field order
+ * follows the StatusAttribute enum in invest_status_point_cmsg.proto.
+ *
+ * At creation every value starts at 1 and the player distributes a fixed budget across them under an
+ * escalating cost curve; the server re-validates the distribution and refuses anything that does not
+ * spend it exactly. See https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
+ */
+message EffortValues {
+  uint32 strength = 1;
+  uint32 agility = 2;
+  uint32 vitality = 3;
+  uint32 intelligence = 4;
+  uint32 dexterity = 5;
+  uint32 willpower = 6;
+}
+
+/**
  * A list of all available master.
  */
 message Master {

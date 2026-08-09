@@ -4,13 +4,16 @@ import net.bestia.zone.account.master.CreateMasterCMSG
 import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
+import net.bestia.zone.account.master.MasterFactory
+import net.bestia.zone.account.master.status.StatusAttribute
 import net.bestia.zone.message.CMSG
 import java.awt.Color
 
 fun CreateMasterCMSG.Companion.test(
   playerId: Long,
   name: String = "master",
-  spawnPointId: Int
+  spawnPointId: Int,
+  effortValues: Map<StatusAttribute, Int> = MasterFactory.evenlySpreadEffortValues()
 ): CMSG {
   return CreateMasterCMSG(
     playerId = playerId,
@@ -20,6 +23,7 @@ fun CreateMasterCMSG.Companion.test(
     hair = Hairstyle.HAIR_1,
     face = Face.FACE_1,
     body = BodyType.BODY_M_1,
-    spawnPointId = spawnPointId
+    spawnPointId = spawnPointId,
+    effortValues = effortValues
   )
 }

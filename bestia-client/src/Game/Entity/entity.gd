@@ -47,6 +47,11 @@ var _equipment: Dictionary = {}
 # needs somewhere durable to seed itself from.
 var _status_values: Dictionary = {}
 
+# Latest known *unbuffed* status values, same keys as _status_values. Kept apart from the effective
+# ones because the cost of the next status point is priced off the base value - pricing it off a
+# buffed value would make a point cost more for as long as the buff happened to be running.
+var _base_status_values: Dictionary = {}
+
 # Latest known available status points (master entities only, same reason as _skill_points).
 var _status_points: int = 0
 
@@ -388,6 +393,21 @@ func update_status_values(msg: StatusValuesComponentSMSG) -> void:
 
 func get_status_values() -> Dictionary:
 	return _status_values
+
+
+func update_base_status_values(msg: BaseStatusValuesComponentSMSG) -> void:
+	_base_status_values = {
+		"strength": msg.Strength,
+		"vitality": msg.Vitality,
+		"intelligence": msg.Intelligence,
+		"dexterity": msg.Dexterity,
+		"willpower": msg.Willpower,
+		"agility": msg.Agility,
+	}
+
+
+func get_base_status_values() -> Dictionary:
+	return _base_status_values
 
 
 func update_status_points(msg: StatusPointsComponentSMSG) -> void:

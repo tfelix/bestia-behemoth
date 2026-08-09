@@ -54,6 +54,7 @@ import "messages/inventory/equip_item_cmsg.proto";
 import "messages/inventory/unequip_item_cmsg.proto";
 import "messages/component/equipment_component_smsg.proto";
 import "messages/component/status_values_smsg.proto";
+import "messages/component/base_status_values_smsg.proto";
 import "messages/component/status_points_smsg.proto";
 import "messages/system/request_logout_cmsg.proto";
 import "messages/system/dialog_smsg.proto";
@@ -162,6 +163,7 @@ message Envelope {
     EquipmentComponentSMSG comp_equipment = 532;
     StatusValuesSMSG comp_status_values = 533;
     StatusPointsSMSG comp_status_points = 534;
+    BaseStatusValuesSMSG comp_base_status_values = 535;
 
     // SOCIAL & PARTY 600
     AcceptPartyInviteCMSG accept_party_invite = 600;

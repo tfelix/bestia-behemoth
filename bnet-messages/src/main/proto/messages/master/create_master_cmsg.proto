@@ -21,4 +21,9 @@ message CreateMasterCMSG {
   // Id of a MasterSpawnPointCandidate offered by AvailableMasterSMSG. Required: there is no world-default
   // spawn, so leaving this unset (0) gets the request refused with MASTER_INVALID_SPAWN_POINT.
   uint32 spawn_point_id = 7;
+  // The starting effort value distribution picked on the creation screen. Required: the server
+  // insists the creation budget is spent exactly, so an unset (all-zero) message is refused - the
+  // creation screen keeps its Create button disabled until the distribution is valid, so only a
+  // broken or hand-crafted client can get here.
+  EffortValues effort_values = 8;
 }

@@ -25,17 +25,18 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9tYXN0ZXIvY3JlYXRlX21hc3Rlcl9jbXNnLnByb3RvEgRi",
-            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvItEBChBDcmVhdGVN",
+            "bmV0GhxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvIvwBChBDcmVhdGVN",
             "YXN0ZXJDTVNHEgwKBG5hbWUYASABKAkSHAoEYm9keRgCIAEoDjIOLmJuZXQu",
             "Qm9keVR5cGUSGAoEZmFjZRgDIAEoDjIKLmJuZXQuRmFjZRIdCgRoYWlyGAQg",
             "ASgOMg8uYm5ldC5IYWlyc3R5bGUSHwoKc2tpbl9jb2xvchgFIAEoCzILLmJu",
             "ZXQuQ29sb3ISHwoKaGFpcl9jb2xvchgGIAEoCzILLmJuZXQuQ29sb3ISFgoO",
-            "c3Bhd25fcG9pbnRfaWQYByABKA1CKgoVbmV0LmJlc3RpYS5ibmV0LnByb3Rv",
-            "QhFDcmVhdGVNYXN0ZXJQcm90b2IGcHJvdG8z"));
+            "c3Bhd25fcG9pbnRfaWQYByABKA0SKQoNZWZmb3J0X3ZhbHVlcxgIIAEoCzIS",
+            "LmJuZXQuRWZmb3J0VmFsdWVzQioKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IR",
+            "Q3JlYXRlTWFzdGVyUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.MasterReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor", "SpawnPointId" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.CreateMasterCMSG), global::Bnet.CreateMasterCMSG.Parser, new[]{ "Name", "Body", "Face", "Hair", "SkinColor", "HairColor", "SpawnPointId", "EffortValues" }, null, null, null, null)
           }));
     }
     #endregion
@@ -89,6 +90,7 @@ namespace Bnet {
       skinColor_ = other.skinColor_ != null ? other.skinColor_.Clone() : null;
       hairColor_ = other.hairColor_ != null ? other.hairColor_.Clone() : null;
       spawnPointId_ = other.spawnPointId_;
+      effortValues_ = other.effortValues_ != null ? other.effortValues_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -186,6 +188,24 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "effort_values" field.</summary>
+    public const int EffortValuesFieldNumber = 8;
+    private global::Bnet.EffortValues effortValues_;
+    /// <summary>
+    /// The starting effort value distribution picked on the creation screen. Required: the server
+    /// insists the creation budget is spent exactly, so an unset (all-zero) message is refused - the
+    /// creation screen keeps its Create button disabled until the distribution is valid, so only a
+    /// broken or hand-crafted client can get here.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.EffortValues EffortValues {
+      get { return effortValues_; }
+      set {
+        effortValues_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -208,6 +228,7 @@ namespace Bnet {
       if (!object.Equals(SkinColor, other.SkinColor)) return false;
       if (!object.Equals(HairColor, other.HairColor)) return false;
       if (SpawnPointId != other.SpawnPointId) return false;
+      if (!object.Equals(EffortValues, other.EffortValues)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -222,6 +243,7 @@ namespace Bnet {
       if (skinColor_ != null) hash ^= SkinColor.GetHashCode();
       if (hairColor_ != null) hash ^= HairColor.GetHashCode();
       if (SpawnPointId != 0) hash ^= SpawnPointId.GetHashCode();
+      if (effortValues_ != null) hash ^= EffortValues.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -268,6 +290,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt32(SpawnPointId);
       }
+      if (effortValues_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(EffortValues);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -306,6 +332,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt32(SpawnPointId);
       }
+      if (effortValues_ != null) {
+        output.WriteRawTag(66);
+        output.WriteMessage(EffortValues);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -336,6 +366,9 @@ namespace Bnet {
       }
       if (SpawnPointId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SpawnPointId);
+      }
+      if (effortValues_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(EffortValues);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -375,6 +408,12 @@ namespace Bnet {
       }
       if (other.SpawnPointId != 0) {
         SpawnPointId = other.SpawnPointId;
+      }
+      if (other.effortValues_ != null) {
+        if (effortValues_ == null) {
+          EffortValues = new global::Bnet.EffortValues();
+        }
+        EffortValues.MergeFrom(other.EffortValues);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -425,6 +464,13 @@ namespace Bnet {
             SpawnPointId = input.ReadUInt32();
             break;
           }
+          case 66: {
+            if (effortValues_ == null) {
+              EffortValues = new global::Bnet.EffortValues();
+            }
+            input.ReadMessage(EffortValues);
+            break;
+          }
         }
       }
     #endif
@@ -472,6 +518,13 @@ namespace Bnet {
           }
           case 56: {
             SpawnPointId = input.ReadUInt32();
+            break;
+          }
+          case 66: {
+            if (effortValues_ == null) {
+              EffortValues = new global::Bnet.EffortValues();
+            }
+            input.ReadMessage(EffortValues);
             break;
           }
         }

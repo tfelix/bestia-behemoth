@@ -37,6 +37,30 @@ was folded into `OperationErrorSMSG`, to keep that change scoped). Don't copy it
 code; if you're touching it anyway, folding it into `OperationErrorSMSG` too is a welcome
 side-cleanup.
 
+## Don't add an `OpError` value the player will never see
+
+Before adding *any* new code, ask whether the denial needs one at all.
+
+A new `OpError` value is for a denial **the player is meant to read and act on** - the name is taken,
+every slot is full, the settlement they picked is gone. It is **not** for a state an honest client
+cannot produce.
+
+When the client already gates the request - a disabled button, a locally enforced budget, a value
+clamped to a range - a rejection arriving server-side means a client bug or a hand-crafted packet.
+Still validate it (never trust the client), but answer with the feature's **existing generic code**
+(`MASTER_GENERAL_ERROR` and friends) and `LOG.warn` the detail server-side. A dedicated code buys
+nothing there: nobody legitimate would ever read the resulting message, and the enum value, the
+mapping `when` and the client's error-code branch all have to be maintained forever.
+
+Worked examples, both of which deliberately report `MASTER_GENERAL_ERROR`:
+
+- [`MasterFactory.validateEffortValues`](../../../zone-server/src/main/kotlin/net/bestia/zone/account/master/MasterFactory.kt)
+  checks that a new master's effort value distribution spends the creation budget exactly with every
+  value in range - but `CreateNewMaster` keeps its Create button disabled until it does.
+- [`InvestStatusPointHandler`](../../../zone-server/src/main/kotlin/net/bestia/zone/account/master/status/InvestStatusPointHandler.kt)
+  catches `NoStatusPointsAvailableException` - but the status window prices every `+` before enabling
+  it.
+
 ## Exception: a genuinely distinct payload
 
 [`PartyErrorSMSG`](../../../zone-server/src/main/kotlin/net/bestia/zone/party/PartyErrorSMSG.kt)
@@ -46,6 +70,7 @@ message family. A plain "this was refused, here's why" enum is not that - it bel
 
 ## Rule of thumb
 
-> Adding a new error reason to an existing feature (or a closely related one) → add an `OpError`
-> value and use `OperationErrorSMSG`. Only reach for a dedicated `*ErrorSMSG` + proto message when
-> the payload genuinely can't be expressed as a single code.
+> Adding a new error reason a player is meant to read and act on → add an `OpError` value and use
+> `OperationErrorSMSG`. Rejecting something an honest client can't send → reuse the feature's
+> existing generic code and log it, no new value. Only reach for a dedicated `*ErrorSMSG` + proto
+> message when the payload genuinely can't be expressed as a single code.

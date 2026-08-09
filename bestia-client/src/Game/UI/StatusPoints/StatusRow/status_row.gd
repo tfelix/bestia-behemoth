@@ -12,20 +12,30 @@ signal investment_changed(row)
 @onready var _value_label: Label = %ValueLabel
 @onready var _spend_point_button: Button = %SpendPointButton
 
-# The value the server last confirmed (from the last StatusValuesComponentSMSG or the seeded
-# Entity cache) - this, not _base_value + _pending_points, is what's actually persisted; a
+# The unbuffed value the server last confirmed (from the last BaseStatusValuesComponentSMSG or the
+# seeded Entity cache) - this, not _base_value + _pending_points, is what's actually persisted; a
 # pending investment isn't real until the server accepts it.
+#
+# The *base* value on purpose, not the effective one: the server prices each point off the base, so
+# showing (and pricing off) an equipment-inflated value would disagree with what it charges.
 var _base_value: int = 0
 
 # Points spent on this row via the "+" button since the last confirm/cancel - buffered locally,
 # only sent to the server (InvestStatusPointCMSG) when the owning StatusPoints list's Confirm
 # button is pressed. Cleared on Cancel, and implicitly cleared for good once a fresh
-# StatusValuesComponentSMSG confirms the investment (see set_base_value).
+# BaseStatusValuesComponentSMSG confirms the investment (see set_base_value).
 var _pending_points: int = 0
 
-# Whether the master still has status points left to spend, broadcast in from
-# StatusPoints._update_row_buttons - a row has no standing connection to that count otherwise.
+# Whether the master can still afford *this row's* next point, broadcast in from
+# StatusPoints._update_row_buttons - a row has no standing connection to the remaining count
+# otherwise. Per-row rather than a single global flag because the cost escalates with the value, so
+# the same pool can afford a cheap attribute's next point but not an expensive one's.
 var _can_spend_globally: bool = false
+
+## Number of raw attribute points this row's pending investment would add. Not the same number as the
+## status points it costs - see [method pending_cost].
+var pending_points: int:
+	get: return _pending_points
 
 
 func _ready() -> void:
@@ -46,6 +56,20 @@ func has_pending_investment() -> bool:
 	return _pending_points > 0
 
 
+## The value the next "+" would buy, i.e. what StatusAttribute.step_cost() has to be asked about.
+## Counts what this row already has pending, so a second point in a row is priced one step higher.
+func next_value() -> int:
+	return _base_value + _pending_points + 1
+
+
+## Status points this row's pending investment costs, under the escalating effort value curve.
+func pending_cost() -> int:
+	var total := 0
+	for step in range(_pending_points):
+		total += StatusAttribute.step_cost(_base_value + step + 1)
+	return total
+
+
 ## Returns the {attribute, amount} this row wants to invest, for StatusPoints to batch into a
 ## single InvestStatusPointCMSG on Confirm. Empty if nothing is buffered.
 func get_pending_investment() -> Dictionary:
@@ -64,7 +88,8 @@ func reset_pending_investment() -> void:
 
 
 ## Called by StatusPoints (the owning list) whenever the master's spendable status point count
-## changes, since a row has no standing connection to that state otherwise.
+## changes, since a row has no standing connection to that state otherwise. [param can_spend] is
+## whether the remaining pool covers *this* row's next point, not merely whether any points are left.
 func set_can_spend_points(can_spend: bool) -> void:
 	_can_spend_globally = can_spend
 	_refresh_display()
@@ -86,4 +111,7 @@ func _refresh_display() -> void:
 	else:
 		_value_label.text = "%s" % _base_value
 
+	# What the next point costs, so the escalating curve is visible before spending rather than only
+	# as a pool that suddenly drains faster.
+	_spend_point_button.text = "+ (%s)" % StatusAttribute.step_cost(next_value())
 	_spend_point_button.visible = _can_spend_globally

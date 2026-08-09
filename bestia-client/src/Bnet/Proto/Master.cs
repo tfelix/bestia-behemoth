@@ -27,25 +27,29 @@ namespace Bnet {
             "ChxtZXNzYWdlcy9tYXN0ZXIvbWFzdGVyLnByb3RvEgRibmV0GhNtZXNzYWdl",
             "cy92ZWMzLnByb3RvGiFtZXNzYWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJv",
             "dG8iKAoFQ29sb3ISCQoBchgBIAEoDRIJCgFnGAIgASgNEgkKAWIYAyABKA0i",
-            "qQEKBk1hc3RlchIiChptYXhfYXZhaWxhYmxlX21hc3Rlcl9zbG90cxgBIAEo",
-            "DRIiChptYXhfYXZhaWxhYmxlX2Jlc3RpYV9zbG90cxgCIAEoDRIgCgZtYXN0",
-            "ZXIYAyADKAsyEC5ibmV0Lk1hc3RlckluZm8SNQoMc3Bhd25fcG9pbnRzGAQg",
-            "AygLMh8uYm5ldC5NYXN0ZXJTcGF3blBvaW50Q2FuZGlkYXRlIk4KGU1hc3Rl",
-            "clNwYXduUG9pbnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVu",
-            "dF9uYW1lGAIgASgJEgwKBHRpZXIYAyABKAkilgIKCk1hc3RlckluZm8SEQoJ",
-            "bWFzdGVyX2lkGAEgASgEEgwKBG5hbWUYAyABKAkSDQoFbGV2ZWwYBCABKA0S",
-            "HAoIcG9zaXRpb24YBSABKAsyCi5ibmV0LlZlYzMSHAoEYm9keRgGIAEoDjIO",
-            "LmJuZXQuQm9keVR5cGUSGAoEZmFjZRgHIAEoDjIKLmJuZXQuRmFjZRIfCgpz",
-            "a2luX2NvbG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkg",
-            "ASgLMgsuYm5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0",
-            "aWFJbmZvEh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZSoYCghCb2R5",
-            "VHlwZRIMCghCT0RZX01fMRAAKhIKBEZhY2USCgoGRkFDRV8xEAAqFwoJSGFp",
-            "cnN0eWxlEgoKBkhBSVJfMRAAQiQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IL",
-            "TWFzdGVyUHJvdG9iBnByb3RvMw=="));
+            "fwoMRWZmb3J0VmFsdWVzEhAKCHN0cmVuZ3RoGAEgASgNEg8KB2FnaWxpdHkY",
+            "AiABKA0SEAoIdml0YWxpdHkYAyABKA0SFAoMaW50ZWxsaWdlbmNlGAQgASgN",
+            "EhEKCWRleHRlcml0eRgFIAEoDRIRCgl3aWxscG93ZXIYBiABKA0iqQEKBk1h",
+            "c3RlchIiChptYXhfYXZhaWxhYmxlX21hc3Rlcl9zbG90cxgBIAEoDRIiChpt",
+            "YXhfYXZhaWxhYmxlX2Jlc3RpYV9zbG90cxgCIAEoDRIgCgZtYXN0ZXIYAyAD",
+            "KAsyEC5ibmV0Lk1hc3RlckluZm8SNQoMc3Bhd25fcG9pbnRzGAQgAygLMh8u",
+            "Ym5ldC5NYXN0ZXJTcGF3blBvaW50Q2FuZGlkYXRlIk4KGU1hc3RlclNwYXdu",
+            "UG9pbnRDYW5kaWRhdGUSCgoCaWQYASABKA0SFwoPc2V0dGxlbWVudF9uYW1l",
+            "GAIgASgJEgwKBHRpZXIYAyABKAkilgIKCk1hc3RlckluZm8SEQoJbWFzdGVy",
+            "X2lkGAEgASgEEgwKBG5hbWUYAyABKAkSDQoFbGV2ZWwYBCABKA0SHAoIcG9z",
+            "aXRpb24YBSABKAsyCi5ibmV0LlZlYzMSHAoEYm9keRgGIAEoDjIOLmJuZXQu",
+            "Qm9keVR5cGUSGAoEZmFjZRgHIAEoDjIKLmJuZXQuRmFjZRIfCgpza2luX2Nv",
+            "bG9yGAggASgLMgsuYm5ldC5Db2xvchIfCgpoYWlyX2NvbG9yGAkgASgLMgsu",
+            "Ym5ldC5Db2xvchIhCgdiZXN0aWFzGAogAygLMhAuYm5ldC5CZXN0aWFJbmZv",
+            "Eh0KBGhhaXIYCyABKA4yDy5ibmV0LkhhaXJzdHlsZSoYCghCb2R5VHlwZRIM",
+            "CghCT0RZX01fMRAAKhIKBEZhY2USCgoGRkFDRV8xEAAqFwoJSGFpcnN0eWxl",
+            "EgoKBkhBSVJfMRAAQiQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0ILTWFzdGVy",
+            "UHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.Vec3Reflection.Descriptor, global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.BodyType), typeof(global::Bnet.Face), typeof(global::Bnet.Hairstyle), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Color), global::Bnet.Color.Parser, new[]{ "R", "G", "B" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.EffortValues), global::Bnet.EffortValues.Parser, new[]{ "Strength", "Agility", "Vitality", "Intelligence", "Dexterity", "Willpower" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Master), global::Bnet.Master.Parser, new[]{ "MaxAvailableMasterSlots", "MaxAvailableBestiaSlots", "Master_", "SpawnPoints" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterSpawnPointCandidate), global::Bnet.MasterSpawnPointCandidate.Parser, new[]{ "Id", "SettlementName", "Tier" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterInfo), global::Bnet.MasterInfo.Parser, new[]{ "MasterId", "Name", "Level", "Position", "Body", "Face", "SkinColor", "HairColor", "Bestias", "Hair" }, null, null, null, null)
@@ -336,6 +340,390 @@ namespace Bnet {
 
   /// <summary>
   ///*
+  /// A master's six effort values - the player-controlled part of their status values. Field order
+  /// follows the StatusAttribute enum in invest_status_point_cmsg.proto.
+  ///
+  /// At creation every value starts at 1 and the player distributes a fixed budget across them under an
+  /// escalating cost curve; the server re-validates the distribution and refuses anything that does not
+  /// spend it exactly. See https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class EffortValues : pb::IMessage<EffortValues>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<EffortValues> _parser = new pb::MessageParser<EffortValues>(() => new EffortValues());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<EffortValues> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EffortValues() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EffortValues(EffortValues other) : this() {
+      strength_ = other.strength_;
+      agility_ = other.agility_;
+      vitality_ = other.vitality_;
+      intelligence_ = other.intelligence_;
+      dexterity_ = other.dexterity_;
+      willpower_ = other.willpower_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public EffortValues Clone() {
+      return new EffortValues(this);
+    }
+
+    /// <summary>Field number for the "strength" field.</summary>
+    public const int StrengthFieldNumber = 1;
+    private uint strength_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Strength {
+      get { return strength_; }
+      set {
+        strength_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "agility" field.</summary>
+    public const int AgilityFieldNumber = 2;
+    private uint agility_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Agility {
+      get { return agility_; }
+      set {
+        agility_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vitality" field.</summary>
+    public const int VitalityFieldNumber = 3;
+    private uint vitality_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Vitality {
+      get { return vitality_; }
+      set {
+        vitality_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "intelligence" field.</summary>
+    public const int IntelligenceFieldNumber = 4;
+    private uint intelligence_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Intelligence {
+      get { return intelligence_; }
+      set {
+        intelligence_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "dexterity" field.</summary>
+    public const int DexterityFieldNumber = 5;
+    private uint dexterity_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Dexterity {
+      get { return dexterity_; }
+      set {
+        dexterity_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "willpower" field.</summary>
+    public const int WillpowerFieldNumber = 6;
+    private uint willpower_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Willpower {
+      get { return willpower_; }
+      set {
+        willpower_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as EffortValues);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(EffortValues other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Strength != other.Strength) return false;
+      if (Agility != other.Agility) return false;
+      if (Vitality != other.Vitality) return false;
+      if (Intelligence != other.Intelligence) return false;
+      if (Dexterity != other.Dexterity) return false;
+      if (Willpower != other.Willpower) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Strength != 0) hash ^= Strength.GetHashCode();
+      if (Agility != 0) hash ^= Agility.GetHashCode();
+      if (Vitality != 0) hash ^= Vitality.GetHashCode();
+      if (Intelligence != 0) hash ^= Intelligence.GetHashCode();
+      if (Dexterity != 0) hash ^= Dexterity.GetHashCode();
+      if (Willpower != 0) hash ^= Willpower.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Strength != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Strength);
+      }
+      if (Agility != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Agility);
+      }
+      if (Vitality != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Vitality);
+      }
+      if (Intelligence != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Intelligence);
+      }
+      if (Dexterity != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Dexterity);
+      }
+      if (Willpower != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(Willpower);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Strength != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Strength);
+      }
+      if (Agility != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(Agility);
+      }
+      if (Vitality != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Vitality);
+      }
+      if (Intelligence != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(Intelligence);
+      }
+      if (Dexterity != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Dexterity);
+      }
+      if (Willpower != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(Willpower);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Strength != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Strength);
+      }
+      if (Agility != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Agility);
+      }
+      if (Vitality != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Vitality);
+      }
+      if (Intelligence != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Intelligence);
+      }
+      if (Dexterity != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Dexterity);
+      }
+      if (Willpower != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Willpower);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(EffortValues other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Strength != 0) {
+        Strength = other.Strength;
+      }
+      if (other.Agility != 0) {
+        Agility = other.Agility;
+      }
+      if (other.Vitality != 0) {
+        Vitality = other.Vitality;
+      }
+      if (other.Intelligence != 0) {
+        Intelligence = other.Intelligence;
+      }
+      if (other.Dexterity != 0) {
+        Dexterity = other.Dexterity;
+      }
+      if (other.Willpower != 0) {
+        Willpower = other.Willpower;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Strength = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            Agility = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Vitality = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            Intelligence = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            Dexterity = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            Willpower = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Strength = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            Agility = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Vitality = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            Intelligence = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            Dexterity = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            Willpower = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  ///*
   /// A list of all available master.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
@@ -353,7 +741,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -641,7 +1029,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -905,7 +1293,7 @@ namespace Bnet {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Bnet.MasterReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

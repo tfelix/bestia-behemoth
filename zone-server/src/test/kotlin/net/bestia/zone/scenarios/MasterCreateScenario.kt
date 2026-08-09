@@ -15,6 +15,8 @@ import net.bestia.zone.account.master.GetMasterCMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.SelectMasterCMSG
+import net.bestia.zone.account.master.status.StatusAttribute
+import net.bestia.zone.account.master.status.effortValues
 import net.bestia.zone.dialog.DialogSMSG
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.core.World
@@ -324,6 +326,75 @@ class MasterCreateScenario : BestiaNoSocketScenario(autoClientConnect = false) {
       }
 
       assertNull(masterRepository.findByName("nospawn"), "no master must have been written")
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(11)
+  fun `the chosen effort value distribution is persisted onto the master`() {
+    val account = accountFactory.createAccount(9L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      // A lopsided but legal build: five attributes at the floor leave exactly enough for STR at 22.
+      // Deliberately not the even spread, so a factory that ignored the message and fell back to the
+      // default would fail here.
+      val specialist = mapOf(
+        StatusAttribute.STRENGTH to 22,
+        StatusAttribute.AGILITY to 1,
+        StatusAttribute.VITALITY to 1,
+        StatusAttribute.INTELLIGENCE to 1,
+        StatusAttribute.DEXTERITY to 1,
+        StatusAttribute.WILLPOWER to 1
+      )
+
+      client.sendMessage(
+        CreateMasterCMSG.test(client.connectedPlayerId, "bruiser", anySpawnPointId(), specialist)
+      )
+
+      await { client.getLastReceived(MasterCreatedSMSG::class) }
+
+      val master = masterRepository.findByName("bruiser")!!
+      assertEquals(specialist, master.effortValues())
+      // The whole budget went into the build, so nothing is left over to spend in-game.
+      assertEquals(0, master.statusPoints)
+    } finally {
+      client.disconnect()
+    }
+  }
+
+  @Test
+  @Order(12)
+  fun `an effort value distribution that does not spend the budget exactly is refused`() {
+    val account = accountFactory.createAccount(10L)
+    val client = gameClientFactory.getGameClient(accountId = account.id)
+
+    try {
+      val underspent = StatusAttribute.entries.associateWith { 1 }
+      val overspent = StatusAttribute.entries.associateWith { 10 }
+      val belowFloor = StatusAttribute.entries.associateWith { 0 }
+
+      // Reported as GENERAL_ERROR rather than a dedicated code: the creation screen keeps Create
+      // disabled until the distribution is valid, so only a broken client can send these.
+      mapOf(
+        "underspent" to underspent,
+        "overspent" to overspent,
+        "belowfloor" to belowFloor
+      ).forEach { (name, distribution) ->
+        client.clearMessages()
+        client.sendMessage(
+          CreateMasterCMSG.test(client.connectedPlayerId, name, anySpawnPointId(), distribution)
+        )
+
+        await {
+          val error = client.getLastReceived(MasterErrorSMSG::class)
+          assertEquals(MasterErrorSMSG.MasterErrorCode.GENERAL_ERROR, error.error, "$name must be refused")
+        }
+
+        assertNull(masterRepository.findByName(name), "no master must have been written for $name")
+      }
     } finally {
       client.disconnect()
     }

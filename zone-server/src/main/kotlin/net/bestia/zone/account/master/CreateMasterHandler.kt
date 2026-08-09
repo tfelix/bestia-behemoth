@@ -29,7 +29,8 @@ class CreateMasterHandler(
         hair = msg.hair,
         face = msg.face,
         body = msg.body,
-        spawnPointId = msg.spawnPointId
+        spawnPointId = msg.spawnPointId,
+        effortValues = msg.effortValues
       )
 
       masterFactory.create(msg.playerId, masterCreateData)

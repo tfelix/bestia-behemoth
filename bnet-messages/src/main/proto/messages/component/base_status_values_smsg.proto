@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "BaseStatusValuesSMSGProto";
+
+/**
+ * An entity's unbuffed status values - what StatusValuesSMSG carries before equipment and active
+ * status effects are folded in. For a master these are the effort values they have invested in.
+ *
+ * Sent to the owner alongside the effective values because the two answer different questions: the
+ * effective ones are what the character fights with, while the base ones are what the next status
+ * point is priced against - pricing off a buffed value would make a point cost more while a buff is
+ * running.
+ */
+message BaseStatusValuesSMSG {
+  fixed64 entity_id = 1;
+  uint32 strength = 2;
+  uint32 vitality = 3;
+  uint32 intelligence = 4;
+  uint32 dexterity = 5;
+  uint32 willpower = 6;
+  uint32 agility = 7;
+}

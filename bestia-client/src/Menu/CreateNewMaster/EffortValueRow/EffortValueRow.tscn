@@ -1,0 +1,43 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Menu/CreateNewMaster/EffortValueRow/effort_value_row.gd" id="1_ev_row"]
+
+[node name="EffortValueRow" type="HBoxContainer"]
+offset_right = 190.0
+offset_bottom = 31.0
+theme_override_constants/separation = 8
+script = ExtResource("1_ev_row")
+
+[node name="AttributeLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "STR"
+
+[node name="MinusButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "<"
+
+[node name="ValueLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+horizontal_alignment = 1
+text = "1"
+
+[node name="PlusButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = ">"
+
+[node name="CostLabel" type="Label" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "(1)"
+
+[connection signal="pressed" from="MinusButton" to="." method="_on_minus_button_pressed"]
+[connection signal="pressed" from="PlusButton" to="." method="_on_plus_button_pressed"]

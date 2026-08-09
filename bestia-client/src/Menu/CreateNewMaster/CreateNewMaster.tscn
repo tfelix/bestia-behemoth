@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://2utnspaewyar"]
+[gd_scene load_steps=4 format=3 uid="uid://2utnspaewyar"]
 
 [ext_resource type="Script" uid="uid://d0wgy6dui6vqy" path="res://Menu/CreateNewMaster/create_new_master.gd" id="1_83cya"]
+[ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/EffortValueRow/EffortValueRow.tscn" id="2_evrow"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_83cya"]
 size = Vector2(250, 300)
@@ -315,6 +316,48 @@ layout_mode = 2
 [node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
+
+[node name="Stats" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats"]
+layout_mode = 2
+text = "Effort Values"
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StrengthRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 0
+
+[node name="AgilityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 1
+
+[node name="VitalityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 2
+
+[node name="IntelligenceRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 3
+
+[node name="DexterityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 4
+
+[node name="WillpowerRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+layout_mode = 2
+attribute = 5
+
+[node name="PointsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Effort Points: 78 / 84 left"
 
 [node name="Bottom" type="HBoxContainer" parent="CenterContainer/P/M/Main"]
 layout_mode = 2
