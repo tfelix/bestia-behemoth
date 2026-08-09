@@ -6,8 +6,10 @@
 render_priority = 0
 shader = ExtResource("1_kuxjr")
 shader_parameter/slot_uv_scale = PackedFloat32Array(2, 1.5, 1.5, 1.5, 2, 3, 2, 2)
-shader_parameter/slot_reference_tint = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+shader_parameter/slot_reference_tint = null
 shader_parameter/slot_uv_origin = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/slot_height_contrast = PackedFloat32Array(0.4, 0.5, 0.5, 0.25, 0.5, 0.9, 0.2, 0.5)
+shader_parameter/height_blend_range = 0.15
 shader_parameter/tint_strength = 1.0
 shader_parameter/triplanar_sharpness = 6.0
 shader_parameter/debug_view = null

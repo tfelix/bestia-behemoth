@@ -62,53 +62,39 @@ namespace BestiaBehemothClient.Game.World
         Debug = GD.Load<ShaderMaterial>($"{Directory}terrain_debug.tres")
       };
 
-      materials.EnsurePlaceholderArray();
+      materials.BuildSlotTextures();
       materials._uvScale = shipping.GetShaderParameter(SlotUvScale).AsFloat32Array();
 
       return materials;
     }
 
     private static readonly StringName AlbedoHeight = "albedo_height";
+    private static readonly StringName SlotReferenceTint = "slot_reference_tint";
     private static readonly StringName SlotUvScale = "slot_uv_scale";
     private static readonly StringName SlotUvOrigin = "slot_uv_origin";
 
     /// <summary>
-    /// Gives every slot a white texture when none has been authored.
+    /// Assembles the texture array and tells the shader what colour each layer is.
     /// </summary>
     /// <remarks>
-    /// Built here rather than shipped as an asset, because the asset would be eight white pixels per layer and a
-    /// binary blob in the repository to hold them. White is also not an arbitrary placeholder: the shader
-    /// corrects a sampled albedo towards the vertex tint by dividing out what the texture already is, so a white
-    /// texture against a white reference tint reproduces the vertex-colour renderer this replaces, pixel for
-    /// pixel. That makes the first run of the shader a comparison rather than a leap.
-    ///
-    /// <para>
-    /// Skipped entirely once a real array is assigned, so this never overwrites an artist's work.
-    /// </para>
+    /// Both are CPU-owned and neither is stored in the material, deliberately. The array is built from files
+    /// found by name, so it changes whenever the art does; and the reference tint is a measurement of that art
+    /// rather than a preference, so a copy of it typed into the <c>.tres</c> would be a number that silently
+    /// stops being true. The knobs an artist does own - tile size, tint strength, blend sharpness - are all
+    /// still in the material.
     /// </remarks>
-    private void EnsurePlaceholderArray()
+    private void BuildSlotTextures()
     {
-      if (Shipping.GetShaderParameter(AlbedoHeight).As<Texture2DArray>() != null)
+      var assembled = TerrainSlotTextures.Build();
+
+      Apply(Shipping, assembled);
+      Apply(Debug, assembled);
+
+      static void Apply(ShaderMaterial material, TerrainSlotTextures.Assembled assembled)
       {
-        return;
+        material?.SetShaderParameter(AlbedoHeight, assembled.Array);
+        material?.SetShaderParameter(SlotReferenceTint, assembled.ReferenceTints);
       }
-
-      var images = new Godot.Collections.Array<Image>();
-
-      for (var slot = 0; slot < BlockAppearance.Slots; slot++)
-      {
-        var image = Image.CreateEmpty(8, 8, false, Image.Format.Rgba8);
-
-        // Opaque white: albedo one, and height one for the phase that starts reading the alpha.
-        image.Fill(Colors.White);
-        images.Add(image);
-      }
-
-      var array = new Texture2DArray();
-      array.CreateFromImages(images);
-
-      Shipping.SetShaderParameter(AlbedoHeight, array);
-      Debug?.SetShaderParameter(AlbedoHeight, array);
     }
 
     /// <summary>

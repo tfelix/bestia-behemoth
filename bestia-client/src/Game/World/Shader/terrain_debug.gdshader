@@ -90,7 +90,7 @@ vec3 debug_colour(TerrainSurface surface) {
 	}
 
 	if (debug_view == 9) {
-		return vec3(terrain_sample_slot(surface.slot0, dFdx(v_world_pos), dFdy(v_world_pos), surface.axis_blend).a);
+		return vec3(surface.height);
 	}
 
 	return vec3(0.0);

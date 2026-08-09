@@ -88,6 +88,25 @@ uniform vec3 slot_reference_tint[8] : source_color;
 // would make the texture jump each time the origin moved.
 uniform vec3 slot_uv_origin[8];
 
+// How much a slot's height map is allowed to decide the blend, per slot. Zero blends it linearly by weight
+// alone; high values let its crevices fill and its ridges stand out through whatever it borders.
+//
+// Per slot because materials differ in how much relief they have any business asserting. Gravel and rock should
+// push through grass at their edges; snow and sand are drifts that settle into whatever they land on and should
+// mostly not.
+uniform float slot_height_contrast[8];
+
+group_uniforms;
+
+group_uniforms Blending;
+
+// The band, in height units, over which two materials are both visible.
+//
+// Small values give a crisp interlocking edge - grass in the cracks, rock proud of it - and large ones fade back
+// towards a plain linear blend. Too small and the boundary aliases, because it becomes a step function sampled
+// once per pixel.
+uniform float height_blend_range : hint_range(0.01, 1.0) = 0.15;
+
 group_uniforms;
 
 group_uniforms Tint;
@@ -132,6 +151,9 @@ struct TerrainSurface {
 	int slot0;
 	int slot1;
 	float slot0_share;
+
+	// The blended height, which is what the boundary between two materials was actually decided by.
+	float height;
 };
 
 // THE VERTEX STAGE IS NOT HERE, AND CANNOT BE.
@@ -243,21 +265,45 @@ TerrainSurface terrain_surface(vec3 tint) {
 	float pair = max(best0 + best1, 0.0001);
 	float share0 = best0 / pair;
 	float share1 = 1.0 - share0;
-	surface.slot0_share = share0;
 
-	vec4 sampled = share0 * terrain_sample_slot(slot0, ddx, ddy, blend);
+	vec4 sample0 = terrain_sample_slot(slot0, ddx, ddy, blend);
+	vec4 sample1 = vec4(0.0);
 
-	if (best1 > TERRAIN_WEIGHT_EPSILON) {
-		sampled += share1 * terrain_sample_slot(slot1, ddx, ddy, blend);
+	bool has_second = best1 > TERRAIN_WEIGHT_EPSILON;
+
+	if (has_second) {
+		sample1 = terrain_sample_slot(slot1, ddx, ddy, blend);
 	}
+
+	// HEIGHT BLENDING.
+	//
+	// A linear cross-fade between two ground materials always looks like what it is: a fade. What real ground
+	// does at a boundary is interlock - grass survives in the cracks between stones long after it has lost the
+	// tops of them - so the mixing is decided by each material's own height map rather than by distance.
+	//
+	// Both heights are offset by the slot's weight, so the vertex data still says which material is mostly here
+	// and the height map only decides where within the transition each one wins. Then everything within
+	// height_blend_range of the taller is kept, which is what makes the edge crisp without making it a step.
+	float height0 = sample0.a * slot_height_contrast[slot0] + share0;
+	float height1 = sample1.a * slot_height_contrast[slot1] + share1;
+
+	float cutoff = max(height0, height1) - height_blend_range;
+
+	float above0 = max(height0 - cutoff, 0.0);
+	float above1 = has_second ? max(height1 - cutoff, 0.0) : 0.0;
+
+	float above = max(above0 + above1, 0.0001);
+	share0 = above0 / above;
+	share1 = above1 / above;
+
+	surface.slot0_share = share0;
+	surface.height = share0 * sample0.a + share1 * sample1.a;
+
+	vec4 sampled = share0 * sample0 + share1 * sample1;
 
 	// The reference tint follows the same blend as the texture, so a pixel halfway between grass and rock is
 	// corrected against a texture that is halfway between them too - which is what it was actually sampled from.
-	vec3 reference = share0 * slot_reference_tint[slot0];
-
-	if (best1 > TERRAIN_WEIGHT_EPSILON) {
-		reference += share1 * slot_reference_tint[slot1];
-	}
+	vec3 reference = share0 * slot_reference_tint[slot0] + share1 * slot_reference_tint[slot1];
 
 	surface.tint = tint;
 
