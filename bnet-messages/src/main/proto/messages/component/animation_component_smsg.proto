@@ -8,6 +8,7 @@ option java_outer_classname = "AnimationComponentSMSGProto";
 enum AnimationKind {
   IDLE = 0;
   WALK = 1;
+  SLEEP = 2;
 }
 
 message AnimationComponentSMSG {

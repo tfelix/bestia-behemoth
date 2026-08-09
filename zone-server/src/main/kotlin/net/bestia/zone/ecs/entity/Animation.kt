@@ -24,7 +24,8 @@ data class Animation(
 
   enum class AnimationKind {
     IDLE,
-    WALK
+    WALK,
+    SLEEP
   }
 
   override fun isDirty(): Boolean {

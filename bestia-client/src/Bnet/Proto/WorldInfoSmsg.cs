@@ -24,19 +24,22 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IpsC",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IrUD",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
             "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhgKEGNlbGxfc2l6ZV9tZXRy",
             "ZXMYBCABKAESEgoKY2h1bmtfc2l6ZRgKIAEoBRIUCgxjaHVua19oZWlnaHQY",
             "CyABKAUSGQoRdm94ZWxfc2l6ZV9tZXRyZXMYDCABKAESGAoQc2VhX2xldmVs",
             "X21ldHJlcxgNIAEoARIOCgZ3cmFwX3gYFCABKAgSDgoGd3JhcF95GBUgASgI",
             "EhwKFGNodW5rX2VuZ2luZV92ZXJzaW9uGB4gASgNEhoKEnZpZXdfcmFkaXVz",
-            "X2NodW5rcxgoIAEoBUIrChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CEldvcmxk",
-            "SW5mb1NNU0dQcm90b2IGcHJvdG8z"));
+            "X2NodW5rcxgoIAEoBRIgChh3b3JsZF9hZ2VfYmVzdGlhX3NlY29uZHMYMiAB",
+            "KAESGQoRdGltZV9zcGVlZF9mYWN0b3IYMyABKAESFQoNaG91cnNfcGVyX2Rh",
+            "eRg0IAEoBRIWCg5kYXlzX3Blcl9tb250aBg1IAEoBRIXCg9tb250aHNfcGVy",
+            "X3llYXIYNiABKAUSEwoLbmlnaHRfaG91cnMYNyABKAVCKwoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhJXb3JsZEluZm9TTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightHours" }, null, null, null, null)
           }));
     }
     #endregion
@@ -104,6 +107,12 @@ namespace Bnet {
       wrapY_ = other.wrapY_;
       chunkEngineVersion_ = other.chunkEngineVersion_;
       viewRadiusChunks_ = other.viewRadiusChunks_;
+      worldAgeBestiaSeconds_ = other.worldAgeBestiaSeconds_;
+      timeSpeedFactor_ = other.timeSpeedFactor_;
+      hoursPerDay_ = other.hoursPerDay_;
+      daysPerMonth_ = other.daysPerMonth_;
+      monthsPerYear_ = other.monthsPerYear_;
+      nightHours_ = other.nightHours_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -277,6 +286,103 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "world_age_bestia_seconds" field.</summary>
+    public const int WorldAgeBestiaSecondsFieldNumber = 50;
+    private double worldAgeBestiaSeconds_;
+    /// <summary>
+    ///*
+    /// The world calendar, as an anchor the client runs forward on its own rather than as a ticking message.
+    ///
+    /// A clock that is pushed has to be pushed often enough to look like a clock, which is a message per player
+    /// per second for a HUD readout - and it would still need interpolating between them. Sending the reading
+    /// once and the rate it advances at costs one message per connection and ticks smoothly by construction.
+    ///
+    /// Deliberately elapsed Bestia-seconds rather than a wall-clock instant. The client never has to be trusted
+    /// to know what time it is, and a machine with a badly set clock shows the same date as everyone else.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public double WorldAgeBestiaSeconds {
+      get { return worldAgeBestiaSeconds_; }
+      set {
+        worldAgeBestiaSeconds_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "time_speed_factor" field.</summary>
+    public const int TimeSpeedFactorFieldNumber = 51;
+    private double timeSpeedFactor_;
+    /// <summary>
+    ///* How many times faster Bestia time runs than real time - what the client advances the reading by. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public double TimeSpeedFactor {
+      get { return timeSpeedFactor_; }
+      set {
+        timeSpeedFactor_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hours_per_day" field.</summary>
+    public const int HoursPerDayFieldNumber = 52;
+    private int hoursPerDay_;
+    /// <summary>
+    ///*
+    /// The shape of the calendar.
+    ///
+    /// Sent rather than compiled into the client for the reason the block palette's ordinals are a stated wire
+    /// format: these are the numbers a date rolls over at, and a client carrying its own copy would keep
+    /// displaying a plausible wrong date after the server's changed rather than failing where anyone can see it.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int HoursPerDay {
+      get { return hoursPerDay_; }
+      set {
+        hoursPerDay_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "days_per_month" field.</summary>
+    public const int DaysPerMonthFieldNumber = 53;
+    private int daysPerMonth_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int DaysPerMonth {
+      get { return daysPerMonth_; }
+      set {
+        daysPerMonth_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "months_per_year" field.</summary>
+    public const int MonthsPerYearFieldNumber = 54;
+    private int monthsPerYear_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MonthsPerYear {
+      get { return monthsPerYear_; }
+      set {
+        monthsPerYear_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "night_hours" field.</summary>
+    public const int NightHoursFieldNumber = 55;
+    private int nightHours_;
+    /// <summary>
+    ///* Bestia-hours of night at the start of each day, i.e. hours `[0, night_hours)` are dark. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int NightHours {
+      get { return nightHours_; }
+      set {
+        nightHours_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -304,6 +410,12 @@ namespace Bnet {
       if (WrapY != other.WrapY) return false;
       if (ChunkEngineVersion != other.ChunkEngineVersion) return false;
       if (ViewRadiusChunks != other.ViewRadiusChunks) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(WorldAgeBestiaSeconds, other.WorldAgeBestiaSeconds)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(TimeSpeedFactor, other.TimeSpeedFactor)) return false;
+      if (HoursPerDay != other.HoursPerDay) return false;
+      if (DaysPerMonth != other.DaysPerMonth) return false;
+      if (MonthsPerYear != other.MonthsPerYear) return false;
+      if (NightHours != other.NightHours) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -323,6 +435,12 @@ namespace Bnet {
       if (WrapY != false) hash ^= WrapY.GetHashCode();
       if (ChunkEngineVersion != 0) hash ^= ChunkEngineVersion.GetHashCode();
       if (ViewRadiusChunks != 0) hash ^= ViewRadiusChunks.GetHashCode();
+      if (WorldAgeBestiaSeconds != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(WorldAgeBestiaSeconds);
+      if (TimeSpeedFactor != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(TimeSpeedFactor);
+      if (HoursPerDay != 0) hash ^= HoursPerDay.GetHashCode();
+      if (DaysPerMonth != 0) hash ^= DaysPerMonth.GetHashCode();
+      if (MonthsPerYear != 0) hash ^= MonthsPerYear.GetHashCode();
+      if (NightHours != 0) hash ^= NightHours.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -389,6 +507,30 @@ namespace Bnet {
         output.WriteRawTag(192, 2);
         output.WriteInt32(ViewRadiusChunks);
       }
+      if (WorldAgeBestiaSeconds != 0D) {
+        output.WriteRawTag(145, 3);
+        output.WriteDouble(WorldAgeBestiaSeconds);
+      }
+      if (TimeSpeedFactor != 0D) {
+        output.WriteRawTag(153, 3);
+        output.WriteDouble(TimeSpeedFactor);
+      }
+      if (HoursPerDay != 0) {
+        output.WriteRawTag(160, 3);
+        output.WriteInt32(HoursPerDay);
+      }
+      if (DaysPerMonth != 0) {
+        output.WriteRawTag(168, 3);
+        output.WriteInt32(DaysPerMonth);
+      }
+      if (MonthsPerYear != 0) {
+        output.WriteRawTag(176, 3);
+        output.WriteInt32(MonthsPerYear);
+      }
+      if (NightHours != 0) {
+        output.WriteRawTag(184, 3);
+        output.WriteInt32(NightHours);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -447,6 +589,30 @@ namespace Bnet {
         output.WriteRawTag(192, 2);
         output.WriteInt32(ViewRadiusChunks);
       }
+      if (WorldAgeBestiaSeconds != 0D) {
+        output.WriteRawTag(145, 3);
+        output.WriteDouble(WorldAgeBestiaSeconds);
+      }
+      if (TimeSpeedFactor != 0D) {
+        output.WriteRawTag(153, 3);
+        output.WriteDouble(TimeSpeedFactor);
+      }
+      if (HoursPerDay != 0) {
+        output.WriteRawTag(160, 3);
+        output.WriteInt32(HoursPerDay);
+      }
+      if (DaysPerMonth != 0) {
+        output.WriteRawTag(168, 3);
+        output.WriteInt32(DaysPerMonth);
+      }
+      if (MonthsPerYear != 0) {
+        output.WriteRawTag(176, 3);
+        output.WriteInt32(MonthsPerYear);
+      }
+      if (NightHours != 0) {
+        output.WriteRawTag(184, 3);
+        output.WriteInt32(NightHours);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -492,6 +658,24 @@ namespace Bnet {
       }
       if (ViewRadiusChunks != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ViewRadiusChunks);
+      }
+      if (WorldAgeBestiaSeconds != 0D) {
+        size += 2 + 8;
+      }
+      if (TimeSpeedFactor != 0D) {
+        size += 2 + 8;
+      }
+      if (HoursPerDay != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(HoursPerDay);
+      }
+      if (DaysPerMonth != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(DaysPerMonth);
+      }
+      if (MonthsPerYear != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(MonthsPerYear);
+      }
+      if (NightHours != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(NightHours);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -540,6 +724,24 @@ namespace Bnet {
       }
       if (other.ViewRadiusChunks != 0) {
         ViewRadiusChunks = other.ViewRadiusChunks;
+      }
+      if (other.WorldAgeBestiaSeconds != 0D) {
+        WorldAgeBestiaSeconds = other.WorldAgeBestiaSeconds;
+      }
+      if (other.TimeSpeedFactor != 0D) {
+        TimeSpeedFactor = other.TimeSpeedFactor;
+      }
+      if (other.HoursPerDay != 0) {
+        HoursPerDay = other.HoursPerDay;
+      }
+      if (other.DaysPerMonth != 0) {
+        DaysPerMonth = other.DaysPerMonth;
+      }
+      if (other.MonthsPerYear != 0) {
+        MonthsPerYear = other.MonthsPerYear;
+      }
+      if (other.NightHours != 0) {
+        NightHours = other.NightHours;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -604,6 +806,30 @@ namespace Bnet {
             ViewRadiusChunks = input.ReadInt32();
             break;
           }
+          case 401: {
+            WorldAgeBestiaSeconds = input.ReadDouble();
+            break;
+          }
+          case 409: {
+            TimeSpeedFactor = input.ReadDouble();
+            break;
+          }
+          case 416: {
+            HoursPerDay = input.ReadInt32();
+            break;
+          }
+          case 424: {
+            DaysPerMonth = input.ReadInt32();
+            break;
+          }
+          case 432: {
+            MonthsPerYear = input.ReadInt32();
+            break;
+          }
+          case 440: {
+            NightHours = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -665,6 +891,30 @@ namespace Bnet {
           }
           case 320: {
             ViewRadiusChunks = input.ReadInt32();
+            break;
+          }
+          case 401: {
+            WorldAgeBestiaSeconds = input.ReadDouble();
+            break;
+          }
+          case 409: {
+            TimeSpeedFactor = input.ReadDouble();
+            break;
+          }
+          case 416: {
+            HoursPerDay = input.ReadInt32();
+            break;
+          }
+          case 424: {
+            DaysPerMonth = input.ReadInt32();
+            break;
+          }
+          case 432: {
+            MonthsPerYear = input.ReadInt32();
+            break;
+          }
+          case 440: {
+            NightHours = input.ReadInt32();
             break;
           }
         }

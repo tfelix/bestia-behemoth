@@ -2,6 +2,9 @@ class_name BestiaVisual extends Visual
 
 var DamageTagScn = preload("res://Game/Entity/Visual/DamageTag/DamageTag.tscn")
 
+const _IDLE_ANIM = "Idle"
+const _APPEAR_ANIM = "appear"
+
 var _bestia_id: int = 0
 var _bestia_entity_id: int = 0
 var _hovered: bool = false
@@ -15,7 +18,7 @@ var _selected: bool = false
 
 
 func _ready() -> void:
-	_anim_player.play("appear")
+	_anim_player.play(_APPEAR_ANIM)
 
 
 func setup_visual(msg: BestiaVisualComponent) -> void:
@@ -47,10 +50,22 @@ func clear_casting() -> void:
 
 
 func update_animation(msg: AnimationComponentSMSG) -> void:
-	if _anim_player.current_animation == msg.Kind:
+	# The server's vocabulary is wider than any one visual's clip set - this placeholder has no Walk - so an
+	# unknown kind falls back to Idle rather than leaving whatever was playing to run on. Without that a
+	# creature that fell asleep and then got up and walked away would keep playing its sleep loop the whole
+	# way, because nothing else would ever interrupt it.
+	var clip := msg.Kind if _anim_player.has_animation(msg.Kind) else _IDLE_ANIM
+	if _anim_player.current_animation == clip:
 		return
-	if _anim_player.has_animation(msg.Kind):
-		_anim_player.play(msg.Kind)
+
+	# Don't cut the fade-in short. An entity's first component sync lands within a frame or two of it being
+	# spawned, which is well inside the appear animation, so playing over it would mean nothing ever faded in.
+	if _anim_player.current_animation == _APPEAR_ANIM and _anim_player.is_playing():
+		_anim_player.clear_queue()
+		_anim_player.queue(clip)
+		return
+
+	_anim_player.play(clip)
 
 
 func vanish(msg: VanishEntitySMSG) -> void:
@@ -62,7 +77,7 @@ func vanish(msg: VanishEntitySMSG) -> void:
 		await _anim_player.animation_finished
 		get_parent().queue_free()
 	else:
-		_anim_player.play("appear", -1, 1.0, true)
+		_anim_player.play(_APPEAR_ANIM, -1, 1.0, true)
 		await _anim_player.animation_finished
 		get_parent().queue_free()
 

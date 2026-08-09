@@ -37,6 +37,8 @@ class Action(
   val effects: List<Effect> = emptyList(),
   val cost: (WorldState) -> Float = { 1f },
   val behavior: () -> BtNode = { ImmediateSuccess },
+  /** What the body is doing while this step runs, for whoever renders it. See [Posture]. */
+  val posture: Posture = Posture.ACTIVE,
 ) {
   fun isApplicable(state: WorldState): Boolean = preconditions.all { it.isSatisfied(state) }
 

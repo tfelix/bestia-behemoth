@@ -56,15 +56,30 @@ namespace BestiaBehemothClient.Game.World
       /// <summary>RG tangent normal, B roughness, A ambient occlusion.</summary>
       public Texture2DArray Surface { get; init; }
 
-      /// <summary>Per-layer mean albedo - what the shader divides the vertex tint by.</summary>
-      public Color[] ReferenceTints { get; init; }
+      /// <summary>
+      /// Per-layer mean albedo - what the shader divides the vertex tint by.
+      /// </summary>
+      /// <remarks>
+      /// <b><see cref="Vector3"/> and not <see cref="Color"/>, and that is load bearing.</b> The uniform on the
+      /// other side is <c>vec3 slot_reference_tint[8]</c>, and Godot fills a <c>vec3[]</c> from a
+      /// <c>PackedVector3Array</c> alone - a <c>PackedColorArray</c> is not converted, it is dropped, and the
+      /// uniform stays at its zeroed default.
+      ///
+      /// <para>
+      /// Nothing reports that. <c>SetShaderParameter</c> succeeds, <c>GetShaderParameter</c> reads the colours
+      /// straight back, and the material looks correctly configured from every angle except the one that matters.
+      /// What the shader then computes is <c>tint / max(0.0, 0.0001)</c>, so every albedo comes out ten thousand
+      /// times too bright and the entire world renders as untextured white.
+      /// </para>
+      /// </remarks>
+      public Vector3[] ReferenceTints { get; init; }
     }
 
     public static Assembled Build()
     {
       var albedo = new Godot.Collections.Array<Image>();
       var surface = new Godot.Collections.Array<Image>();
-      var tints = new Color[BlockAppearance.Slots];
+      var tints = new Vector3[BlockAppearance.Slots];
 
       var authoredAlbedo = 0;
       var authoredSurface = 0;
@@ -306,7 +321,7 @@ namespace BestiaBehemothClient.Game.World
       return table;
     }
 
-    private static Color MeanColour(Image image)
+    private static Vector3 MeanColour(Image image)
     {
       var data = image.GetData();
 
@@ -322,7 +337,7 @@ namespace BestiaBehemothClient.Game.World
       var pixels = (double)Size * Size;
 
       // Never zero: the shader divides by this, and a black texture would otherwise take the whole world with it.
-      return new Color(
+      return new Vector3(
         Mathf.Max((float)(r / pixels), 0.01f),
         Mathf.Max((float)(g / pixels), 0.01f),
         Mathf.Max((float)(b / pixels), 0.01f));

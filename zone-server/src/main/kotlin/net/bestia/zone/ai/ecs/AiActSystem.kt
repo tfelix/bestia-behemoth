@@ -1,11 +1,14 @@
 package net.bestia.zone.ai.ecs
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.ai.core.action.Action
+import net.bestia.zone.ai.core.action.Posture
 import net.bestia.zone.ai.core.behavior.BtContext
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.planner.EffectWriteBack
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.battle.damage.Damage
+import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.core.ComponentClassSet
@@ -32,6 +35,13 @@ import org.springframework.stereotype.Component as SpringComponent
  * at all (see `StateKey.observed`).
  *
  * FAILURE clears the plan so the think stage replans on its next turn; RUNNING simply continues next tick.
+ *
+ * ### Posture is derived, never latched
+ *
+ * The same pass keeps the `Animation` component in step with what the creature is *currently* doing — see
+ * [updatePosture]. Doing it here rather than inside the leaves is what makes it correct: a plan step can end
+ * without its behaviour tree ever being ticked again (a sleeping mob that gets bitten has its plan replaced
+ * outright), so a leaf that switched an animation on when it started would have nobody to switch it off.
  */
 @SpringComponent
 @Order(30)
@@ -61,6 +71,7 @@ class AiActSystem(
     Damage::class,
     Health::class,
     Mana::class,
+    Animation::class,
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -74,8 +85,13 @@ class AiActSystem(
       // underneath the player's hands.
       if (world.has(id, PlayerControlled::class)) return@each
 
+      val action = agent.currentAction()
+      // Deliberately before the two early returns: an agent that has just run out of plan is standing about
+      // doing nothing, and that is exactly when its posture has to stop saying otherwise.
+      updatePosture(world, id, action)
+
       val node = agent.currentActionNode ?: return@each
-      val action = agent.currentAction() ?: return@each
+      if (action == null) return@each
 
       val context = BtContext(
         world = world,
@@ -113,6 +129,27 @@ class AiActSystem(
           // keep executing the current action next tick
         }
       }
+    }
+  }
+
+  /**
+   * Points the entity's `Animation` at whatever it is doing right now.
+   *
+   * Only two of the three kinds are decided here. Lying down is knowledge only the plan has — nothing about
+   * a sleeping creature's components distinguishes it from one standing still — so it comes from the current
+   * action's [Posture]. Walking, on the other hand, is already written on the entity as a `Path`, and reading
+   * it there rather than having every movement action declare itself keeps the two from disagreeing.
+   *
+   * A no-op for anything without the component: mobs get one from the spawner, and an entity that has none
+   * simply has no animation to drive.
+   */
+  private fun updatePosture(world: World, entityId: Long, action: Action?) {
+    val animation = world.get(entityId, Animation::class) ?: return
+
+    animation.currentAnimation = when {
+      action?.posture == Posture.SLEEPING -> Animation.AnimationKind.SLEEP
+      world.has(entityId, Path::class) -> Animation.AnimationKind.WALK
+      else -> Animation.AnimationKind.IDLE
     }
   }
 

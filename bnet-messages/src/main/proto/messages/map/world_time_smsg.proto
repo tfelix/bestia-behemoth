@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "WorldTimeSMSGProto";
+
+/**
+ * Re-anchors the client's calendar to a reading the server has just changed.
+ *
+ * ### Why this is not simply `WorldInfoSMSG` again
+ *
+ * `WorldInfoSMSG` carries the same two fields, and resending it would set the clock - but it also states the
+ * world's identity and geometry, and a client that receives it treats that as "a new world, or a reconnect"
+ * and drops every chunk it holds. Using it to move a clock would tear the terrain down and stream it back,
+ * which is a very expensive way to say that it is now half past two.
+ *
+ * So: the shape of the calendar stays on `WorldInfoSMSG`, because it is the world's identity and does not
+ * move. Only the reading is here.
+ *
+ * ### Nothing sends this on a timer
+ *
+ * The clock is still an anchor the client runs forward on its own - one message per connection, not one per
+ * second per player. This exists for the case that anchor cannot cover: the server's clock jumping
+ * discontinuously, which today means a GM moving it with `/date`. A client that never receives one of these
+ * is not missing anything.
+ */
+message WorldTimeSMSG {
+  /**
+   * Bestia-seconds elapsed since the world began, as of the moment this message was built.
+   *
+   * Elapsed time rather than a wall-clock instant, for the reason `WorldInfoSMSG` sends elapsed time: the
+   * client is never trusted to know what time it is, so a machine with a badly set clock shows the same
+   * in-game date as everyone else.
+   */
+  double world_age_bestia_seconds = 1;
+
+  /**
+   * How many times faster Bestia time runs than real time.
+   *
+   * Repeated from `WorldInfoSMSG` so this message is a complete anchor on its own. It is a setting, so it
+   * *can* differ from what the connection was first told - and a re-anchor that set the reading while leaving
+   * the client advancing it at a stale rate would drift instead of failing.
+   */
+  double time_speed_factor = 2;
+}

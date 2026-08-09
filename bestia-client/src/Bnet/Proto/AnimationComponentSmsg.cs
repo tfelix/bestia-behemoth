@@ -27,9 +27,9 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvYW5pbWF0aW9uX2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0Ik4KFkFuaW1hdGlvbkNvbXBvbmVudFNNU0cSEQoJZW50",
             "aXR5X2lkGAEgASgGEiEKBGtpbmQYAiABKA4yEy5ibmV0LkFuaW1hdGlvbktp",
-            "bmQqIwoNQW5pbWF0aW9uS2luZBIICgRJRExFEAASCAoEV0FMSxABQjQKFW5l",
-            "dC5iZXN0aWEuYm5ldC5wcm90b0IbQW5pbWF0aW9uQ29tcG9uZW50U01TR1By",
-            "b3RvYgZwcm90bzM="));
+            "bmQqLgoNQW5pbWF0aW9uS2luZBIICgRJRExFEAASCAoEV0FMSxABEgkKBVNM",
+            "RUVQEAJCNAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhtBbmltYXRpb25Db21w",
+            "b25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.AnimationKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -43,6 +43,7 @@ namespace Bnet {
   public enum AnimationKind {
     [pbr::OriginalName("IDLE")] Idle = 0,
     [pbr::OriginalName("WALK")] Walk = 1,
+    [pbr::OriginalName("SLEEP")] Sleep = 2,
   }
 
   #endregion

@@ -3,6 +3,7 @@ package net.bestia.zone.environment.time
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 
 /**
@@ -38,7 +39,56 @@ class BestiaClock(
    */
   private val worldEpoch: Instant by lazy { config.worldEpoch ?: worldService.record.createdAt }
 
-  fun now(): BestiaDateTime = BestiaDateTime.at(worldEpoch, Instant.now(clock), config.speedFactor)
+  /**
+   * How far [jumpTo] has moved the calendar away from the real elapsed time, and **only in this process**.
+   *
+   * A shift rather than a rewritten epoch, which is what makes the change memory-only without any special
+   * handling: [worldEpoch] is derived from a database row and stays untouched, so a restart simply loses this
+   * and the calendar returns to where the world's age puts it. Nothing has to remember to clean up.
+   *
+   * The clock keeps *running* across a jump - this is added to the elapsed duration, not substituted for it -
+   * so `/date 02:00` sets the time to two in the morning and then two in the morning goes on becoming three.
+   * A GM checking what a night looks like wants a night, not a paused frame of one.
+   *
+   * `@Volatile` because chat is dispatched on a Netty worker thread while the ECS systems that read [now] are
+   * on `zone-tick`. A `Duration` reference publishes safely; the object itself is immutable.
+   */
+  @Volatile
+  private var shift: Duration = Duration.ZERO
+
+  fun now(): BestiaDateTime =
+    BestiaDateTime.at(worldEpoch, Instant.now(clock).plus(shift), config.speedFactor)
+
+  /**
+   * Moves the calendar so that [now] reads [target], and keeps it running from there.
+   *
+   * In memory only - see [shift]. Everything downstream picks it up for free, because the weather field, the
+   * AI's activity cycle and the temperature model are all pure functions of the time [now] hands them; there
+   * is no cached "current weather" to invalidate.
+   *
+   * @return what the clock actually reads afterwards, which is [target] to the second
+   */
+  fun jumpTo(target: BestiaDateTime): BestiaDateTime {
+    // The elapsed real time that *would* have produced this date, minus the elapsed real time there actually
+    // is. Millisecond resolution is far finer than the second the calendar is quantised to, even at a speed
+    // factor in the hundreds.
+    val wantedReal = Duration.ofMillis((target.absoluteSecond * 1_000L / config.speedFactor).toLong())
+    val actualReal = Duration.between(worldEpoch, Instant.now(clock))
+
+    shift = wantedReal.minus(actualReal)
+
+    return now()
+  }
+
+  /** Drops any [jumpTo], putting the calendar back where the world's real age puts it. */
+  fun resetToRealTime(): BestiaDateTime {
+    shift = Duration.ZERO
+
+    return now()
+  }
+
+  /** Whether [jumpTo] has moved the calendar off real time. Reported by `/date` so a wrong sky is explicable. */
+  val isShifted: Boolean get() = !shift.isZero
 
   /** How much faster Bestia time runs than real time. Read by anything converting one to the other. */
   val speedFactor: Double get() = config.speedFactor

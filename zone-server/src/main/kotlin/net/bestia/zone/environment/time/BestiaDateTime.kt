@@ -71,6 +71,18 @@ data class BestiaDateTime(
   val absoluteDay: Double
     get() = (year - 1) * DAYS_PER_YEAR + dayOfYear + timeOfDay
 
+  /**
+   * Bestia-seconds since the world began. The exact companion to [absoluteDay], which is the same quantity
+   * in days.
+   *
+   * Whole seconds and integer arithmetic, because this is what a caller *inverts*: [BestiaClock.jumpTo] has
+   * to find the elapsed real time that produces a given date, and a date that does not round-trip through
+   * that would land a `/date 02:00` on 01:59:59.
+   */
+  val absoluteSecond: Long
+    get() = ((year - 1) * DAYS_PER_YEAR + dayOfYear) * SECONDS_PER_DAY +
+      hour * SECONDS_PER_HOUR + minute * 60L + second
+
   companion object {
     /** Bestia time passes this many times faster than real-world time. */
     const val SPEED_FACTOR = 3.0

@@ -3,6 +3,7 @@ package net.bestia.zone.world.stream
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.AccountConnectedEvent
 import net.bestia.zone.account.AccountDisconnectedEvent
+import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.world.WorldService
 import org.springframework.context.event.EventListener
@@ -22,7 +23,8 @@ class WorldInfoSender(
   private val subscriptions: ChunkSubscriptionService,
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
-  private val settings: ChunkStreamConfig
+  private val settings: ChunkStreamConfig,
+  private val bestiaClock: BestiaClock
 ) {
 
   @EventListener
@@ -34,7 +36,13 @@ class WorldInfoSender(
 
     outMessageProcessor.sendToPlayer(
       event.accountId,
-      WorldInfoSMSG.of(worldService.record, worldService.config, settings.viewRadiusChunks)
+      WorldInfoSMSG.of(
+        worldService.record,
+        worldService.config,
+        settings.viewRadiusChunks,
+        bestiaClock.now(),
+        bestiaClock.speedFactor
+      )
     )
 
     LOG.debug { "Sent world info to account ${event.accountId}" }

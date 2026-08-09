@@ -17,5 +17,14 @@ enum class Authority {
   TERRAIN,
 
   /** Pushing an arbitrary dialog to your own client, for checking dialog text and placeholders. */
-  DIALOG
+  DIALOG,
+
+  /**
+   * Moving the world calendar.
+   *
+   * Everyone's, not the caller's: there is one clock and it drives the weather, the AI's day/night cycle and
+   * every other player's sky. Separate from [TERRAIN] because the two are wrong in different directions - a
+   * carve is a local, persistent edit, while this is a global, in-memory one that vanishes on restart.
+   */
+  WORLD_TIME
 }

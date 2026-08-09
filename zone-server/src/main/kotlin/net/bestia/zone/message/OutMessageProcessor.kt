@@ -29,6 +29,23 @@ class OutMessageProcessor(
     }
   }
 
+  /**
+   * Sends to every connected account, whether or not it has picked a master yet.
+   *
+   * For the handful of things that are a property of the world rather than of a place in it - the world clock
+   * jumping, today. Everything else should be going through [sendToAllPlayersInRange], because a message
+   * nobody is near is a message nobody needed.
+   *
+   * @return how many accounts it went to
+   */
+  fun sendToAllConnected(msg: SMSG): Int {
+    val accountIds = outMessageHandler.connectedAccountIds
+
+    accountIds.forEach { accountId -> sendToPlayer(accountId, msg) }
+
+    return accountIds.size
+  }
+
   fun sendToPlayer(playerId: Long, msg: SMSG) {
     outMessageHandler.sendMessage(playerId, msg)
   }

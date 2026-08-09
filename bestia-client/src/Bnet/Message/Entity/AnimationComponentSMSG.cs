@@ -21,6 +21,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Kind = protoAnimation.Kind switch
         {
           global::Bnet.AnimationKind.Walk => "Walk",
+          global::Bnet.AnimationKind.Sleep => "Sleep",
           _ => "Idle"
         }
       };

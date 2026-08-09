@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://cq1eqwin0001" path="res://Game/UI/Equipment/Equipment.tscn" id="11_equip"]
 [ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusPoints.tscn" id="12_status"]
 [ext_resource type="PackedScene" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
+[ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -68,6 +69,9 @@ visible = false
 layout_mode = 1
 content = ExtResource("12_status")
 window_title = "Status"
+
+[node name="Clock" parent="." instance=ExtResource("14_clock")]
+layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
 layout_mode = 1

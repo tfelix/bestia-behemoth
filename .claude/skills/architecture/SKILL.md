@@ -196,38 +196,56 @@ each step out.** Layered so the bottom is domain-agnostic:
 |---|---|
 | `ai/core/state` | `StateKey<T>` (typed, carries a `MemoryScope` and an `observed` flag), immutable `WorldState`, live `Blackboard` with per-fact TTL |
 | `ai/core/behavior` | The execution contract: `BtNode`, `Status`, `BtContext`, `ImmediateSuccess` |
-| `ai/core/{action,precondition,effect,goal}` | Grounded `Action` (pre/effects/cost **and** `behavior`), `ActionTemplate`, `Precondition(s)`, `Effect(s)`, `Goal` (availability vs desired state), `Priority`/`Curve` DSL |
+| `ai/core/{action,precondition,effect,goal}` | Grounded `Action` (pre/effects/cost, `behavior` **and** `Posture`), `ActionTemplate`, `Precondition(s)`, `Effect(s)`, `Goal` (availability vs desired state), `Priority`/`Curve` DSL |
 | `ai/core/planner` | Forward-A\* `Planner`, `Plan`, `EffectWriteBack` (scope-aware), `PlanExecutor` (simulation harness for domain tests only) |
 | `ai/core/agent` | `Agent` interface + `SimpleAgent` for tests |
-| `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `FleeFrom`, `Wander`, `UseSkill`, `Wait`) |
-| `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys |
+| `ai/bt` | The tree library: `SequenceNode`/`SelectorNode`/`ParallelNode`, `Inverter`/`Succeeder`/`Repeat`/`Cooldown`, the `sequence { } / selector { }` DSL, `Locomotion`, parameterised leaves (`MoveTo`, `FleeFrom`, `Wander`, `UseSkill`, `Wait`, `Sleep`) |
+| `ai/perception` | `PerceptionSystem` — the **only** writer of observation keys; `SenseSystem` + `Sense`/`SenseContext` — the agents' eyes and ears, a periodic sweep hosting pluggable senses; `ForageSense` + `ForageGround`/`BiomeForageGround` — the one sense today, writer of `KNOWN_VEGETATION` from the world's biome raster |
 | `ai/ecs` | `AiAgent` component, `AiDriveSystem`, `AiThinkSystem`, `AiActSystem`, `AiAgentFactory`, `SharedMemoryService`, `PlayerControlled` |
-| `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs |
+| `ai/domain/bestia` | `BestiaDomain`: the keys, goals and action templates for mobs; `ActivityCycle` (diurnal/nocturnal/cathemeral) |
 | `ai/profile` | `AiProfileDto`/`AiProfile`/`AiProfileRegistry` + `AiConfig`/`IdleStance`, from `resources/ai/*.yml` |
 | `ai/message` | `SetBestiaAiConfigCMSG`, `BestiaAiConfigSMSG`, `AiConfigErrorSMSG` and the handler |
 
-Four ECS systems, each in its **own scheduler wave** (they conflict by declaring `AiAgent` as
+Five ECS systems, each in its **own scheduler wave** (they conflict by declaring `AiAgent` as
 written — that is deliberate and `AiSchedulingTest` enforces it):
 
 ```
-PerceptionSystem  @Order(10)  EverySeconds(0.5) -> writes observation keys into agent.memory
-AiDriveSystem     @Order(15)  EverySeconds(1)   -> raises hunger/tiredness/restlessness, ticks TTLs
+PerceptionSystem  @Order(10)  EverySeconds(0.5) -> writes observation keys into agent.memory,
+                                                   including IS_NIGHT from BestiaClock
+SenseSystem       @Order(11)  EverySeconds(0.5) -> runs each registered Sense over every agent, each on
+                                                   its own Sense.intervalSeconds (ForageSense: 2s)
+AiDriveSystem     @Order(15)  EverySeconds(1)   -> moves hunger/tiredness/restlessness, ticks TTLs;
+                                                   tiredness runs *backwards* while asleep
 AiThinkSystem     @Order(20)  EveryTick         -> selects a goal; replans only if it changed or the
                                                    plan is spent; staggered per entity by tickCount
 AiActSystem       @Order(30)  EveryTick         -> ticks the current step's tree; on SUCCESS applies
-                                                   that action's effects, then advances the plan
+                                                   that action's effects, then advances the plan.
+                                                   Also derives the `Animation` component from the
+                                                   current step's `Posture` plus `Path`
 ```
 
-Three rules worth knowing before touching any of it:
+Four rules worth knowing before touching any of it:
 
 1. **Perception owns observations; effects own beliefs.** A key created with `observed = true`
-   (position, health, target, aggro) may be *simulated* during A\* — a walk action has to be able to
-   imagine arriving — but `EffectWriteBack` refuses to persist it. Only perception writes those. This
-   is what stops an agent believing what it merely planned.
+   (position, health, target, aggro, night) may be *simulated* during A\* — a walk action has to be
+   able to imagine arriving — but `EffectWriteBack` refuses to persist it. Only perception writes
+   those. This is what stops an agent believing what it merely planned. Perception may *clear* a
+   belief its observations contradict (`SAFE`, `RESTED`); it never asserts one.
 2. **Effects apply on observed success**, one action at a time, from `AiActSystem` — not for a whole
    plan at plan time.
 3. **Nothing plans before it has perceived** (`AiAgent.hasPerceived`). An empty blackboard is not a
    neutral start: the search will otherwise resolve unknowns by assuming an action's effects.
+4. **A goal whose desired state already holds is skipped**, so a behaviour that should persist while
+   some condition lasts needs a belief key that stays unsatisfied throughout it. `RESTED` is that key
+   for sleeping through the night; a bare tiredness ceiling is met by a rested creature, so without it
+   a diurnal animal would have ambled about in the dark.
+
+To add a **sense** (something creatures notice): implement `Sense` as a `@Component`, give it an
+`intervalSeconds` and declare any components it reads. `SenseSystem` collects every such bean, folds
+their `reads` into its own, and runs each on its own cadence; write facts through
+`SenseContext.remember`, which routes to the individual/pack/world board by the key's `MemoryScope`.
+No new ECS system, no new scheduler wave. `PerceptionSystem` is the obvious candidate to fold in here
+as a `SightSense` and has not been yet.
 
 To add a behaviour: add a `StateKey`, a `Goal` (priority formula in the Kotlin
 `priority { consider(...) }` DSL), and an `ActionTemplate` that grounds concrete actions *with their
@@ -235,6 +253,9 @@ behaviour trees*; then name the goal and action ids in a `resources/ai/*.yml` pr
 and tunes numbers only — it cannot express behaviour, and the registry fails the boot on an unknown
 id. Mobs get their profile from `mob/*.yml`'s `ai:` key via `BestiaEntitySpawner`; player-owned
 bestias get one from `PlayerBestiaEntitySpawner` narrowed by the owner's persisted `AiConfig`.
+
+Profiles today: `aggressive-melee` (hunts on sight, flees when hurt), `passive-wanderer` (grazer that
+runs early), `passive-day-active` (diurnal grazer that never flees and hunts whoever hits it).
 
 ## login-server & the login↔zone handoff
 

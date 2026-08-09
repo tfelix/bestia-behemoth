@@ -1,5 +1,6 @@
 package net.bestia.zone.ai.profile
 
+import net.bestia.zone.ai.domain.bestia.ActivityCycle
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
 
 /**
@@ -17,13 +18,18 @@ data class AiProfile(
   val attacks: List<AttackDefinition>,
 ) {
 
-  data class Perception(val sightRadius: Int)
+  data class Perception(
+    val sightRadius: Int,
+    /** See [AiProfileDto.PerceptionDto.aggroMemorySeconds]. Exposed in millis, which is what the ledger uses. */
+    val aggroMemoryMs: Long,
+  )
 
   /**
    * The numeric knobs, written into an agent's memory as permanent facts when the profile is attached, so
    * goal availability and priority read them exactly like any other state.
    */
   data class Tuning(
+    val activityCycle: ActivityCycle,
     val wanderRadius: Long,
     val meleeRange: Long,
     val hungerThreshold: Int,
@@ -43,8 +49,12 @@ data class AiProfile(
     fun fromDto(dto: AiProfileDto): AiProfile = AiProfile(
       identifier = dto.identifier,
       faction = dto.faction,
-      perception = Perception(sightRadius = dto.perception.sightRadius),
+      perception = Perception(
+        sightRadius = dto.perception.sightRadius,
+        aggroMemoryMs = (dto.perception.aggroMemorySeconds * 1_000).toLong(),
+      ),
       tuning = Tuning(
+        activityCycle = dto.activityCycle,
         wanderRadius = dto.wanderRadius,
         meleeRange = dto.meleeRange,
         hungerThreshold = dto.hungerThreshold,

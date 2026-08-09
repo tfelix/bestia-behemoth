@@ -1,0 +1,45 @@
+# A day-active grazer that holds a grudge.
+#
+# Reads left to right through its day: it ambles about its patch, eats where the ground will feed it, and at
+# dusk lies down until morning. It has no KillEnemy goal, so a player can stand next to it all day and it will
+# not care — but it has no Flee goal either, so the one thing that *does* get its attention is being hit, and
+# then it comes after them rather than bolting.
+#
+# The absence of Flee is the whole temperament, and it is expressed by leaving the goal out rather than by
+# tuning a number: a goal a profile does not list is one the creature cannot have. flee_threshold_pct is set
+# to 0 for consistency with that, not because anything reads it here.
+identifier: passiv_day_active
+faction: critters
+# Diurnal: night is its resting phase, so Sleep outranks grazing after dark and it beds down until dawn.
+activity_cycle: diurnal
+perception:
+  sight_radius: 7
+  # Three times the default. This is the "hunts down the player" knob — the window is how long after the last
+  # hit it keeps chasing, so a player who lands one blow and runs is followed rather than shrugged off.
+  aggro_memory_seconds: 30
+wander_radius: 10
+melee_range: 1
+# Peckish sooner than the default archetypes: foraging is meant to be a visible part of its day, not a rare
+# errand.
+hunger_threshold: 60
+tiredness_threshold: 75
+restless_threshold: 35
+# Never breaks off — see the note above. It has no Flee goal to enable.
+flee_threshold_pct: 0
+aggression: 60
+goals:
+  - { name: KillAttacker }
+  - { name: Sleep }
+  - { name: EatVegetation }
+  - { name: ReturnHome }
+  - { name: Wander }
+actions:
+  - approachTarget
+  - attack
+  - walkToVegetation
+  - eatVegetation
+  - sleep
+  - returnHome
+  - wander
+attacks:
+  - { id: bite, range: 1, base_cost: 5, cooldown_seconds: 2.0 }

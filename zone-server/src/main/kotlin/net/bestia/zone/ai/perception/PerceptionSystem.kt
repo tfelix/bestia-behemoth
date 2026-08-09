@@ -14,14 +14,15 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System as EcsSystem
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.environment.time.BestiaClock
 import net.bestia.zone.geometry.Vec3L
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
  * First stage of the AI pipeline, and the **only** writer of the domain's observation keys: own position
- * and health, whether a hostile is in sight, who the current target is, and whether this bestia has just
- * been attacked.
+ * and health, whether a hostile is in sight, who the current target is, whether this bestia has just
+ * been attacked, and what time of day the world says it is.
  *
  * That exclusivity is the point. Actions may *simulate* changes to these keys during planning — a walk
  * action has to be able to imagine arriving — but nothing except this system may write one back to live
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Component as SpringComponent
 class PerceptionSystem(
   private val profileRegistry: AiProfileRegistry,
   private val aoiService: EntityAOIService,
+  private val clock: BestiaClock,
 ) : EcsSystem {
 
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
@@ -51,6 +53,11 @@ class PerceptionSystem(
   override val writes: ComponentClassSet = setOf(AiAgent::class)
 
   override fun update(world: World, deltaTime: Float) {
+    // Read at most once per sweep and only when there is somebody to tell, rather than hoisted out of the
+    // query: the world calendar is anchored to the persisted world row, so asking the clock before the world
+    // has finished loading throws — and a zone with no AI in it has no reason to ask at all.
+    var night: Boolean? = null
+
     world.query(AiAgent::class, Position::class).each { id ->
       val agent = get<AiAgent>()
       val position = get<Position>()
@@ -58,12 +65,21 @@ class PerceptionSystem(
       val profile = profileRegistry.get(agent.profileId) ?: return@each
       val selfPos = position.toVec3L()
       val memory = agent.memory
+      val isNight = night ?: clock.now().isNight.also { night = it }
 
       memory.set(BestiaDomain.POSITION, selfPos, Blackboard.PERMANENT)
       memory.set(BestiaDomain.HEALTH_PCT, healthPct(world, id), Blackboard.PERMANENT)
+      memory.set(BestiaDomain.IS_NIGHT, isNight, Blackboard.PERMANENT)
+
+      // Being in this creature's resting phase is what "has not slept it out yet" means, and clearing the
+      // belief here is what lets the sleep goal become unsatisfied again at every dusk — the same shape as
+      // clearing SAFE below, and the reason a rested animal still goes to bed when its night comes round.
+      if (profile.tuning.activityCycle.isRestingAt(isNight)) {
+        memory.remove(BestiaDomain.RESTED)
+      }
 
       val nearestHostile = nearestHostile(world, id, selfPos, profile.perception.sightRadius)
-      val attacker = recentAttacker(world, id)
+      val attacker = recentAttacker(world, id, profile.perception.aggroMemoryMs)
 
       // Retaliation outranks opportunistic aggression: whoever is actually hitting us is the target,
       // even if something else is closer. `TakenDamage` already records this for experience attribution,
@@ -119,10 +135,16 @@ class PerceptionSystem(
       ?.first
   }
 
-  /** Whoever damaged this entity within the aggro window, if they are still alive. */
-  private fun recentAttacker(world: World, self: Long): Long? =
+  /**
+   * Whoever damaged this entity within [aggroMemoryMs], if they are still alive.
+   *
+   * The window is the archetype's rather than a constant: it is far shorter than `TakenDamage`'s own
+   * five-minute retention, which exists for loot attribution rather than for holding a grudge, and how long
+   * a grudge lasts is exactly the difference between a creature that snaps back and one that hunts you down.
+   */
+  private fun recentAttacker(world: World, self: Long, aggroMemoryMs: Long): Long? =
     world.get(self, TakenDamage::class)
-      ?.mostRecentAttacker(AGGRO_MEMORY_MS)
+      ?.mostRecentAttacker(aggroMemoryMs)
       ?.takeIf { world.isAlive(it) }
 
   private fun healthPct(world: World, entityId: Long): Int {
@@ -131,11 +153,4 @@ class PerceptionSystem(
     return (health.current * 100 / health.max).coerceIn(0, 100)
   }
 
-  companion object {
-    /**
-     * How long after being hit a bestia keeps hunting its attacker. Much shorter than `TakenDamage`'s own
-     * five-minute retention, which exists for loot attribution rather than for holding a grudge.
-     */
-    private const val AGGRO_MEMORY_MS = 10_000L
-  }
 }

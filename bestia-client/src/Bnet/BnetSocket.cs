@@ -245,6 +245,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.WorldInfoSMSG.FromProto(envelope.WorldInfo);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.WorldTime != null)
+        {
+          var msg = Map.WorldTimeSMSG.FromProto(envelope.WorldTime);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.ChunkManifest != null)
         {
           var msg = Map.ChunkManifestSMSG.FromProto(envelope.ChunkManifest);

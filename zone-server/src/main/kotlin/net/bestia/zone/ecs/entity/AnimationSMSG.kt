@@ -23,6 +23,7 @@ data class AnimationSMSG(
       when (this) {
         Animation.AnimationKind.IDLE -> AnimationComponentSMSGProto.AnimationKind.IDLE
         Animation.AnimationKind.WALK -> AnimationComponentSMSGProto.AnimationKind.WALK
+        Animation.AnimationKind.SLEEP -> AnimationComponentSMSGProto.AnimationKind.SLEEP
       }
   }
 }

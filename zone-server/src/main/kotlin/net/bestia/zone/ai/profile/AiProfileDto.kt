@@ -2,6 +2,7 @@ package net.bestia.zone.ai.profile
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import net.bestia.zone.ai.domain.bestia.ActivityCycle
 
 /**
  * Jackson mirror of a `resources/ai/<name>.yml` archetype — the one AI profile format, replacing the two
@@ -29,6 +30,12 @@ data class AiProfileDto(
   /** Pack/faction id; agents sharing one share a team blackboard. */
   val faction: String? = null,
   val perception: PerceptionDto = PerceptionDto(),
+  /**
+   * When this species sleeps. Defaults to [ActivityCycle.CATHEMERAL], which is what every archetype did
+   * before day/night mattered — sleep when tired, whatever the hour — so adding the key changed nothing for
+   * the profiles that do not set it.
+   */
+  val activityCycle: ActivityCycle = ActivityCycle.CATHEMERAL,
   val wanderRadius: Long = 5,
   val meleeRange: Long = 1,
   val hungerThreshold: Int = 85,
@@ -51,6 +58,14 @@ data class AiProfileDto(
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
   data class PerceptionDto(
     val sightRadius: Int = 8,
+    /**
+     * How long after the last hit this archetype keeps hunting whoever landed it.
+     *
+     * This is the leash on a grudge, and it is per-archetype because it is the whole difference between a
+     * creature that snaps back and one that chases you home. It used to be a constant in the perception
+     * system; the default reproduces it exactly.
+     */
+    val aggroMemorySeconds: Float = 10f,
   )
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)

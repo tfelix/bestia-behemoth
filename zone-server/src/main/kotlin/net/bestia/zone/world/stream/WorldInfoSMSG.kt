@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.bnet.proto.WorldInfoSMSGProto
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.voxel.ChunkEngine
+import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.message.SMSG
 import net.bestia.zone.world.PersistedWorld
 
@@ -25,7 +26,9 @@ data class WorldInfoSMSG(
   val wrapX: Boolean,
   val wrapY: Boolean,
   val chunkEngineVersion: Int,
-  val viewRadiusChunks: Int
+  val viewRadiusChunks: Int,
+  val worldAgeBestiaSeconds: Double,
+  val timeSpeedFactor: Double
 ) : SMSG {
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -42,6 +45,12 @@ data class WorldInfoSMSG(
       .setWrapY(wrapY)
       .setChunkEngineVersion(chunkEngineVersion)
       .setViewRadiusChunks(viewRadiusChunks)
+      .setWorldAgeBestiaSeconds(worldAgeBestiaSeconds)
+      .setTimeSpeedFactor(timeSpeedFactor)
+      .setHoursPerDay(BestiaDateTime.HOURS_PER_DAY)
+      .setDaysPerMonth(BestiaDateTime.DAYS_PER_MONTH)
+      .setMonthsPerYear(BestiaDateTime.MONTHS_PER_YEAR)
+      .setNightHours(BestiaDateTime.NIGHT_HOURS)
       .build()
 
     return EnvelopeProto.Envelope.newBuilder()
@@ -62,7 +71,9 @@ data class WorldInfoSMSG(
     fun of(
       record: PersistedWorld,
       config: WorldConfig,
-      viewRadiusChunks: Int
+      viewRadiusChunks: Int,
+      now: BestiaDateTime,
+      timeSpeedFactor: Double
     ) = WorldInfoSMSG(
       name = record.name,
       widthCells = record.widthCells,
@@ -75,7 +86,9 @@ data class WorldInfoSMSG(
       wrapX = config.wrapX,
       wrapY = config.wrapY,
       chunkEngineVersion = ChunkEngine.VERSION,
-      viewRadiusChunks = viewRadiusChunks
+      viewRadiusChunks = viewRadiusChunks,
+      worldAgeBestiaSeconds = now.absoluteSecond.toDouble(),
+      timeSpeedFactor = timeSpeedFactor
     )
   }
 }

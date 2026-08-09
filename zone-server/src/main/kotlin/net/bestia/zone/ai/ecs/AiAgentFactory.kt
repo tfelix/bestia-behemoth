@@ -71,6 +71,7 @@ class AiAgentFactory(
   private fun writeTuning(memory: Blackboard, profile: AiProfile, homePosition: Vec3L, config: AiConfig?) {
     val tuning = profile.tuning
     memory.set(BestiaDomain.HOME_POSITION, homePosition, Blackboard.PERMANENT)
+    memory.set(BestiaDomain.ACTIVITY_CYCLE, tuning.activityCycle, Blackboard.PERMANENT)
     memory.set(BestiaDomain.WANDER_RADIUS, tuning.wanderRadius, Blackboard.PERMANENT)
     memory.set(BestiaDomain.MELEE_RANGE, tuning.meleeRange, Blackboard.PERMANENT)
     memory.set(BestiaDomain.HUNGER_THRESHOLD, tuning.hungerThreshold, Blackboard.PERMANENT)

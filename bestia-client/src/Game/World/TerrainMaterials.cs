@@ -95,6 +95,9 @@ namespace BestiaBehemothClient.Game.World
       {
         material?.SetShaderParameter(AlbedoHeight, assembled.Albedo);
         material?.SetShaderParameter(NormalRoughAo, assembled.Surface);
+
+        // The array type has to match the uniform's exactly - see ReferenceTints, which is a Vector3[] for this
+        // one reason. A Color[] is accepted here, stored, and read back intact, and never reaches the GPU.
         material?.SetShaderParameter(SlotReferenceTint, assembled.ReferenceTints);
       }
     }

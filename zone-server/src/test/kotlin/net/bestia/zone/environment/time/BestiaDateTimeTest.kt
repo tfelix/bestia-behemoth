@@ -142,6 +142,32 @@ class BestiaDateTimeTest {
     assertEquals(0.5, halfway.yearProgress, 1e-9)
   }
 
+  /**
+   * [BestiaDateTime.absoluteSecond] is what `WorldInfoSMSG` puts on the wire and what `BestiaClock.jumpTo`
+   * inverts, so it has to agree with [BestiaDateTime.since] in both directions. A discrepancy of one second
+   * here is a `/date 02:00` that lands on 01:59:59.
+   */
+  @Test
+  fun `absoluteSecond round-trips through since`() {
+    val time = BestiaDateTime(year = 3, month = 2, day = 17, hour = 2, minute = 30, second = 45)
+
+    // Divided by the speed factor because `since` takes *real* elapsed time.
+    val elapsed = Duration.ofSeconds((time.absoluteSecond / BestiaDateTime.SPEED_FACTOR).toLong())
+
+    assertEquals(time, BestiaDateTime.since(elapsed))
+  }
+
+  @Test
+  fun `absoluteSecond and absoluteDay are the same quantity`() {
+    val time = BestiaDateTime(year = 2, month = 3, day = 8, hour = 13, minute = 5, second = 20)
+
+    assertEquals(
+      time.absoluteDay * BestiaDateTime.HOURS_PER_DAY * 3_600.0,
+      time.absoluteSecond.toDouble(),
+      1e-6
+    )
+  }
+
   @Test
   fun `rejects an out-of-range month`() {
     assertThrows<IllegalArgumentException> {

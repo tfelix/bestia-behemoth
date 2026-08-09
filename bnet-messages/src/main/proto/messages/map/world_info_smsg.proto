@@ -49,4 +49,33 @@ message WorldInfoSMSG {
 
   /** How far the server will stream, in chunks from the player's own. Informational; the server decides. */
   int32 view_radius_chunks = 40;
+
+  /**
+   * The world calendar, as an anchor the client runs forward on its own rather than as a ticking message.
+   *
+   * A clock that is pushed has to be pushed often enough to look like a clock, which is a message per player
+   * per second for a HUD readout - and it would still need interpolating between them. Sending the reading
+   * once and the rate it advances at costs one message per connection and ticks smoothly by construction.
+   *
+   * Deliberately elapsed Bestia-seconds rather than a wall-clock instant. The client never has to be trusted
+   * to know what time it is, and a machine with a badly set clock shows the same date as everyone else.
+   */
+  double world_age_bestia_seconds = 50;
+
+  /** How many times faster Bestia time runs than real time - what the client advances the reading by. */
+  double time_speed_factor = 51;
+
+  /**
+   * The shape of the calendar.
+   *
+   * Sent rather than compiled into the client for the reason the block palette's ordinals are a stated wire
+   * format: these are the numbers a date rolls over at, and a client carrying its own copy would keep
+   * displaying a plausible wrong date after the server's changed rather than failing where anyone can see it.
+   */
+  int32 hours_per_day = 52;
+  int32 days_per_month = 53;
+  int32 months_per_year = 54;
+
+  /** Bestia-hours of night at the start of each day, i.e. hours `[0, night_hours)` are dark. */
+  int32 night_hours = 55;
 }

@@ -1,8 +1,13 @@
 package net.bestia.zone.ai.ecs
 
+import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ai.core.planner.Planner
+import net.bestia.zone.ai.core.state.Blackboard
+import net.bestia.zone.ai.core.state.StateKey
+import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
+import net.bestia.zone.ai.perception.SenseSystem
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.EntityAOIService
@@ -14,9 +19,12 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.movement.MoveSystem
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
+import net.bestia.zone.environment.time.BestiaClock
+import net.bestia.zone.environment.time.BestiaDateTime
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.TestNavigation
 import net.bestia.zone.util.EntityId
@@ -38,6 +46,26 @@ class AiPipelineFixture(tickRate: Int = 20) {
 
   val profiles = AiProfileRegistry().apply { load() }
 
+  /**
+   * The hour the world calendar reports, as a whole Bestia-hour. Move it with [setDay]/[setNight] rather than
+   * by waiting: a Bestia day takes eight real-world hours, so no test could ever tick its way to nightfall.
+   */
+  var hourOfDay: Int = NOON
+
+  /**
+   * A calendar the test drives. `BestiaClock` is anchored to the persisted world row and there is no world
+   * here, so the only options are a fake and not testing day/night at all.
+   */
+  val clock: BestiaClock = mockk<BestiaClock>().also {
+    every { it.now() } answers { BestiaDateTime(year = 1, month = 1, day = 1, hour = hourOfDay, minute = 0, second = 0) }
+  }
+
+  /**
+   * Whether the ground feeds a grazer. Off by default so the foraging half stays out of the way of scenarios
+   * that are not about it — a mob on barren ground remembers no spots and never selects `EatVegetation`.
+   */
+  var grazeableGround: Boolean = false
+
   val agentFactory = AiAgentFactory(
     navigation = TestNavigation.service(),
     skills = skills,
@@ -46,7 +74,9 @@ class AiPipelineFixture(tickRate: Int = 20) {
 
   /** The AI stages in pipeline order, plus movement so a decision to walk actually moves something. */
   val systems: List<System> = listOf(
-    PerceptionSystem(profiles, aoi),
+    PerceptionSystem(profiles, aoi, clock),
+    // Spring collects the Sense beans in the live server; a test names the ones its scenario cares about.
+    SenseSystem(listOf(ForageSense { grazeableGround }), sharedMemory),
     AiDriveSystem(sharedMemory),
     AiThinkSystem(Planner(), sharedMemory),
     AiActSystem(sharedMemory, ZoneConfig(tickRate = tickRate)),
@@ -64,8 +94,22 @@ class AiPipelineFixture(tickRate: Int = 20) {
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
       world.add(id, KnownSkills(mutableMapOf(0L to 1)))
+      world.add(id, Animation())
       world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos))
     }
+
+  /** Puts the world calendar into the daytime portion of the Bestia day. */
+  fun setDay() {
+    hourOfDay = NOON
+  }
+
+  /** Puts the world calendar into the night portion — hours `[0, NIGHT_HOURS)`. */
+  fun setNight() {
+    hourOfDay = MIDNIGHT
+  }
+
+  fun animationOf(id: EntityId): Animation.AnimationKind =
+    world.getOrThrow(id, Animation::class).currentAnimation
 
   /** A player entity — `Master` is what the perception system currently treats as hostile. */
   fun spawnPlayer(pos: Vec3L, health: Int = 30): EntityId {
@@ -94,6 +138,17 @@ class AiPipelineFixture(tickRate: Int = 20) {
 
   fun setHealth(id: EntityId, value: Int) {
     world.getOrThrow(id, Health::class).current = value
+  }
+
+  /**
+   * Forces one of the 0..100 drives, so a test about what a hungry creature does need not wait out the two
+   * real minutes the drive system takes to make one hungry.
+   *
+   * [Blackboard.PERMANENT] because that is how the drive system stores them; anything else would be evicted
+   * by the TTL sweep on the next tick.
+   */
+  fun setDrive(id: EntityId, key: StateKey<Int>, value: Int) {
+    agentOf(id).memory.set(key, value, Blackboard.PERMANENT)
   }
 
   fun tick(times: Int = 1, dt: Float = 1f / 20) {
@@ -127,5 +182,12 @@ class AiPipelineFixture(tickRate: Int = 20) {
     tickUntil(maxTicks, describe = { "entity $id never adopted '$goalName' (last was ${goalNameOf(id)})" }) {
       goalNameOf(id) == goalName
     }
+  }
+
+  companion object {
+    /** Comfortably inside the daytime portion — night is hours `[0, BestiaDateTime.NIGHT_HOURS)`. */
+    private const val NOON = 12
+
+    private const val MIDNIGHT = 0
   }
 }

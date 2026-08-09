@@ -14,6 +14,7 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
@@ -69,6 +70,11 @@ class BestiaEntitySpawner(
         )
       )
       add(id, Persistent)
+
+      // What the creature's body is doing, kept in step by the AI act stage and synced to everyone in range.
+      // Unconditional like the movement capability below: a mob with no AI still renders, and IDLE is the
+      // honest answer for one that never decides anything.
+      add(id, Animation())
 
       // Unconditional, unlike the AI: a creature with no behaviour still gets walked about by whatever pushes
       // it, and the pathfinder has to know how it moves. `getOrDefault` covers the null and the typo alike.

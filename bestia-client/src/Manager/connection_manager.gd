@@ -49,6 +49,7 @@ var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
+var WorldClockScript = load("res://Game/World/WorldClock.cs")
 
 var _connection_state : ConnectionState = ConnectionState.DISCONNECTED
 
@@ -68,6 +69,13 @@ var chunk_stream: Node = null
 ## Created here for the same reason chunk_stream is, and it also has to outlive the Game scene: weather arrives
 ## whenever the server sends it, which includes while the player is choosing a master.
 var weather: Node = null
+
+## The world calendar, anchored by WorldInfoSMSG and run forward locally.
+##
+## Created here for the reason weather is, and it also has to outlive the Game scene: the world info arrives
+## on authentication, which is before a master has even been picked. The HUD clock connects to its
+## [signal WorldClock.TimeChanged] and calls PublishNow() once, because by then the anchor is long since set.
+var world_clock: Node = null
 
 # Signed JWT obtained from the login server, sent to the zone during the auth handshake.
 var _login_token: String = ""
@@ -90,6 +98,11 @@ func _ready() -> void:
 	weather.name = "WeatherState"
 	add_child(weather)
 	weather.Attach(_socket)
+
+	world_clock = WorldClockScript.new()
+	world_clock.name = "WorldClock"
+	add_child(world_clock)
+	world_clock.Attach(_socket)
 
 
 func disconnect_from_server() -> void:

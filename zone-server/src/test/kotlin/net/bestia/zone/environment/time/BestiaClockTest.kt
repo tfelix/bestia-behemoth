@@ -95,4 +95,71 @@ class BestiaClockTest {
     assertEquals(beforeRestart, afterRestart)
     assertNotEquals(1, afterRestart.day)
   }
+
+  @Test
+  fun `jumpTo lands on the requested date exactly`() {
+    val clock = BestiaClock(
+      config = BestiaTimeConfig(worldEpoch = epoch),
+      worldService = worldCreatedAt(Instant.EPOCH),
+      clock = Clock.fixed(epoch.plus(Duration.ofHours(8)), ZoneOffset.UTC),
+    )
+
+    // 02:00 rather than a round hour count away: the point is that the *stated* time is what comes back,
+    // whatever elapsed real time would otherwise have produced.
+    val target = BestiaDateTime(year = 3, month = 2, day = 17, hour = 2, minute = 30, second = 0)
+
+    assertEquals(target, clock.jumpTo(target))
+    assertEquals(target, clock.now())
+    assertTrue(clock.now().isNight)
+    assertTrue(clock.isShifted)
+  }
+
+  /**
+   * A jump sets the clock running from the new time; it does not stop it.
+   *
+   * The whole reason to move the calendar by hand is to watch something that only happens at a particular
+   * hour, and half of those things are transitions - so a jump that froze the clock at the moment before one
+   * would be the least useful possible version of this.
+   */
+  @Test
+  fun `the clock keeps running after a jump`() {
+    var instant = epoch.plus(Duration.ofHours(8))
+    val clock = BestiaClock(
+      config = BestiaTimeConfig(worldEpoch = epoch),
+      worldService = worldCreatedAt(Instant.EPOCH),
+      // Reads the var on every call, which Clock.fixed cannot do - this is a clock that can be advanced.
+      clock = object : Clock() {
+        override fun getZone() = ZoneOffset.UTC
+        override fun withZone(zone: java.time.ZoneId) = this
+        override fun instant() = instant
+      },
+    )
+
+    clock.jumpTo(BestiaDateTime(year = 1, month = 1, day = 5, hour = 5, minute = 0, second = 0))
+
+    // One real hour is three Bestia hours at the default speed factor, which crosses out of night.
+    instant = instant.plus(Duration.ofHours(1))
+
+    val after = clock.now()
+
+    assertEquals(8, after.hour)
+    assertEquals(5, after.day)
+    assertFalse(after.isNight)
+  }
+
+  @Test
+  fun `resetToRealTime puts the calendar back where the world's age puts it`() {
+    val fixedNow = epoch.plus(Duration.ofHours(8))
+    val clock = BestiaClock(
+      config = BestiaTimeConfig(worldEpoch = epoch),
+      worldService = worldCreatedAt(Instant.EPOCH),
+      clock = Clock.fixed(fixedNow, ZoneOffset.UTC),
+    )
+
+    val real = clock.now()
+    clock.jumpTo(BestiaDateTime(year = 9, month = 4, day = 30, hour = 23, minute = 59, second = 0))
+
+    assertEquals(real, clock.resetToRealTime())
+    assertFalse(clock.isShifted)
+  }
 }

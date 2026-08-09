@@ -63,6 +63,12 @@ class ChannelRegistry(
 
   fun getChannel(accountId: Long): Channel? = channelsByAccountId[accountId]
 
+  /**
+   * A snapshot, deliberately: the keys of a [ConcurrentHashMap] are a live view, and a caller iterating one
+   * while sending would be racing every login and logout in the process.
+   */
+  override val connectedAccountIds: Set<Long> get() = channelsByAccountId.keys.toSet()
+
   override fun sendMessage(playerId: Long, outMessage: SMSG) {
     val channel = getChannel(playerId)
     if (channel != null && channel.isActive) {
