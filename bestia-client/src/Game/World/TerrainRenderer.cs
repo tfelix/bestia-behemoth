@@ -80,12 +80,18 @@ namespace BestiaBehemothClient.Game.World
     [Export] public Material LavaMaterial { get; set; }
 
     /// <summary>
-    /// Vertex colour as albedo, and rough: this is rock, soil and grass rather than anything polished.
+    /// The fallback: vertex colour as albedo, and rough.
     /// </summary>
     /// <remarks>
-    /// Built once and shared by every chunk, so the whole terrain is one material and Godot can batch it.
-    /// Replacing this with a <c>Texture2DArray</c> blended per vertex is the intended next step, and the vertex
-    /// data already carries what that needs - see <see cref="Mesh.BlockAppearance"/>.
+    /// No longer what terrain is normally drawn with - <see cref="TerrainMaterials"/> loads the shader for that -
+    /// but kept as what happens when the shader will not load, and deliberately so. An unassigned material does
+    /// not render plain terrain, it renders nothing, and a missing world is a far worse first symptom of a typo
+    /// in a shader than a world that has gone back to looking flat.
+    ///
+    /// <para>
+    /// Built once and shared by every chunk either way, so the whole terrain is one material and Godot can batch
+    /// it.
+    /// </para>
     /// </remarks>
     private static Material DefaultTerrainMaterial() => new StandardMaterial3D
     {
@@ -186,6 +192,11 @@ namespace BestiaBehemothClient.Game.World
     private ChunkKey _collisionAnchor;
     private bool _hasAnchor;
 
+    private TerrainMaterials _materials;
+
+    /// <summary>Whether the debug shader is currently the one terrain is drawn with.</summary>
+    private bool _debugShading;
+
     /// <summary>So the unconfigured complaint is made once rather than sixty times a second.</summary>
     private bool _warnedUnconfigured;
 
@@ -208,7 +219,11 @@ namespace BestiaBehemothClient.Game.World
     {
       _store = store;
 
-      TerrainMaterial ??= DefaultTerrainMaterial();
+      _materials ??= TerrainMaterials.Load();
+
+      // Null when the shader would not compile, which deliberately leaves the flat vertex-colour material in
+      // place rather than an unassigned one - see TerrainMaterials.
+      TerrainMaterial ??= _materials?.Shipping ?? DefaultTerrainMaterial();
       WaterMaterial ??= DefaultWaterMaterial();
       LavaMaterial ??= DefaultLavaMaterial();
 
@@ -302,6 +317,13 @@ namespace BestiaBehemothClient.Game.World
       _collisionAnchor = anchor;
       _hasAnchor = true;
 
+      // The same signal serves the shader's floating-point origin. It is not about collision, but it wants
+      // exactly this: somewhere near the player, updated rarely, in whole chunk steps.
+      _materials?.SetUvAnchor(new Vector3(
+        anchor.X * _chunkSize * _voxelSize,
+        anchor.Z * _chunkHeight * _voxelSize,
+        anchor.Y * _chunkSize * _voxelSize));
+
       foreach (var (key, tile) in _tiles)
       {
         SyncCollision(key, tile);
@@ -318,8 +340,50 @@ namespace BestiaBehemothClient.Game.World
 
     public override void _Process(double delta)
     {
+      // Polled rather than handled in _UnhandledInput, matching the HUD windows: several of them are separate
+      // Windows with their own viewports, so an unhandled-input override does not see the key while one is open.
+      if (Input.IsActionJustPressed(ToggleDebugShading))
+      {
+        SetDebugShading(!_debugShading);
+      }
+
       StartJobs();
       Install();
+    }
+
+    private static readonly StringName ToggleDebugShading = "toggle_terrain_debug";
+
+    /// <summary>
+    /// Swaps the whole world between the shipping shader and its debug twin.
+    /// </summary>
+    /// <remarks>
+    /// One material is shared by every chunk, so this is two assignments and a walk of the existing instances
+    /// rather than anything per-chunk - and because both materials wrap the same include, what the debug views
+    /// show is what the shipping shader computed rather than a second implementation of it.
+    /// </remarks>
+    private void SetDebugShading(bool enabled)
+    {
+      var material = enabled ? _materials?.Debug : _materials?.Shipping;
+
+      if (material == null)
+      {
+        return;
+      }
+
+      _debugShading = enabled;
+      TerrainMaterial = material;
+
+      foreach (var tile in _tiles.Values)
+      {
+        var surface = tile.Surfaces[(int)BlockAppearance.SurfaceKind.Terrain];
+
+        if (surface != null)
+        {
+          surface.MaterialOverride = material;
+        }
+      }
+
+      GD.Print($"[terrain] debug shading {(enabled ? "on" : "off")}");
     }
 
     private void StartJobs()
