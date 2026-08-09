@@ -19,6 +19,16 @@ void fragment() {
 
 	ALBEDO = surface.albedo;
 	ROUGHNESS = surface.roughness;
+	AO = surface.ao;
+	AO_LIGHT_AFFECT = 1.0;
+
+	// NORMAL and never NORMAL_MAP.
+	//
+	// Godot overwrites NORMAL after fragment() whenever NORMAL_MAP has been written, using TANGENT and BINORMAL
+	// to build the frame - and this mesh has neither, because surface nets emits no tangents. Writing both would
+	// silently discard everything the triplanar blend just computed and shade the world flat, with no error to
+	// say so. Fragment-stage NORMAL is view space, hence the matrix.
+	NORMAL = normalize((VIEW_MATRIX * vec4(surface.world_normal, 0.0)).xyz);
 
 	// Zero rather than left alone. The scene's sky is near-white and terrain is mostly large and flat, so any
 	// specular at all is a sheet of sky reflected back into the camera - which reads on screen as "the material

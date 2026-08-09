@@ -69,6 +69,7 @@ namespace BestiaBehemothClient.Game.World
     }
 
     private static readonly StringName AlbedoHeight = "albedo_height";
+    private static readonly StringName NormalRoughAo = "normal_rough_ao";
     private static readonly StringName SlotReferenceTint = "slot_reference_tint";
     private static readonly StringName SlotUvScale = "slot_uv_scale";
     private static readonly StringName SlotUvOrigin = "slot_uv_origin";
@@ -92,7 +93,8 @@ namespace BestiaBehemothClient.Game.World
 
       static void Apply(ShaderMaterial material, TerrainSlotTextures.Assembled assembled)
       {
-        material?.SetShaderParameter(AlbedoHeight, assembled.Array);
+        material?.SetShaderParameter(AlbedoHeight, assembled.Albedo);
+        material?.SetShaderParameter(NormalRoughAo, assembled.Surface);
         material?.SetShaderParameter(SlotReferenceTint, assembled.ReferenceTints);
       }
     }

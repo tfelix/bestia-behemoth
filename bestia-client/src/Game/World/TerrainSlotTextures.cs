@@ -47,10 +47,14 @@ namespace BestiaBehemothClient.Game.World
       "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "reserved"
     };
 
-    /// <summary>The array, and the mean colour of each layer in it.</summary>
+    /// <summary>The two arrays, and the mean colour of each albedo layer.</summary>
     public readonly struct Assembled
     {
-      public Texture2DArray Array { get; init; }
+      /// <summary>RGB albedo, A height.</summary>
+      public Texture2DArray Albedo { get; init; }
+
+      /// <summary>RG tangent normal, B roughness, A ambient occlusion.</summary>
+      public Texture2DArray Surface { get; init; }
 
       /// <summary>Per-layer mean albedo - what the shader divides the vertex tint by.</summary>
       public Color[] ReferenceTints { get; init; }
@@ -58,45 +62,81 @@ namespace BestiaBehemothClient.Game.World
 
     public static Assembled Build()
     {
-      var images = new Godot.Collections.Array<Image>();
+      var albedo = new Godot.Collections.Array<Image>();
+      var surface = new Godot.Collections.Array<Image>();
       var tints = new Color[BlockAppearance.Slots];
-      var authored = 0;
+
+      var authoredAlbedo = 0;
+      var authoredSurface = 0;
 
       for (var slot = 0; slot < BlockAppearance.Slots; slot++)
       {
-        var image = LoadAuthored(slot);
+        var colour = LoadAuthored(slot, "");
+        var maps = LoadAuthored(slot, "_n");
 
-        if (image != null)
+        if (colour != null)
         {
-          authored++;
-        }
-        else
-        {
-          image = Generate(slot);
+          authoredAlbedo++;
         }
 
-        tints[slot] = MeanColour(image);
+        if (maps != null)
+        {
+          authoredSurface++;
+        }
 
-        // Measured first, generated second: the mean wants the full-resolution layer, and mipmaps append to the
-        // buffer that MeanColour reads.
-        //
+        colour ??= Generate(slot);
+        maps ??= FlatSurface();
+
+        // Measured before mipmaps are generated: the mean wants the full-resolution layer, and the levels are
+        // appended to the same buffer MeanColour reads.
+        tints[slot] = MeanColour(colour);
+
         // Not optional. The shader asks for anisotropic mipmapped filtering, but a Texture2DArray only has the
         // mip levels its source images had, and neither the imported PNGs nor the generated ones carry any. The
         // result would be terrain that crawls with aliasing at any distance - and it would look like a shader
         // problem rather than a missing pyramid.
-        image.GenerateMipmaps();
+        colour.GenerateMipmaps();
+        maps.GenerateMipmaps();
 
-        images.Add(image);
+        albedo.Add(colour);
+        surface.Add(maps);
       }
 
-      var array = new Texture2DArray();
-      array.CreateFromImages(images);
+      var albedoArray = new Texture2DArray();
+      albedoArray.CreateFromImages(albedo);
+
+      var surfaceArray = new Texture2DArray();
+      surfaceArray.CreateFromImages(surface);
 
       GD.Print(
-        $"[terrain] slot textures: {authored} authored, {BlockAppearance.Slots - authored} generated, " +
-        $"{Size}x{Size} x{BlockAppearance.Slots}");
+        $"[terrain] slot textures {Size}x{Size} x{BlockAppearance.Slots}: " +
+        $"albedo {authoredAlbedo} authored, surface {authoredSurface} authored, rest generated");
 
-      return new Assembled { Array = array, ReferenceTints = tints };
+      return new Assembled { Albedo = albedoArray, Surface = surfaceArray, ReferenceTints = tints };
+    }
+
+    /// <summary>
+    /// The surface maps of a material nobody has authored: flat, fully rough, unoccluded.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately featureless even where <see cref="Generate"/> invents structure for the albedo. A normal map
+    /// invented to match a texture that was itself invented would light the world with detail that is not in the
+    /// silhouette or the collision - a placeholder that lies rather than one that waits.
+    /// </remarks>
+    private static Image FlatSurface()
+    {
+      var data = new byte[Size * Size * 4];
+
+      for (var at = 0; at < data.Length; at += 4)
+      {
+        // (0.5, 0.5) unpacks to a tangent normal of (0, 0, 1): straight out of the surface.
+        data[at] = 128;
+        data[at + 1] = 128;
+        data[at + 2] = 255;
+        data[at + 3] = 255;
+      }
+
+      return Image.CreateFromData(Size, Size, false, Image.Format.Rgba8, data);
     }
 
     /// <summary>
@@ -108,9 +148,9 @@ namespace BestiaBehemothClient.Game.World
     /// assembled from raw images - which costs a moment at load and saves having to keep the slot PNGs on a
     /// different import preset from every other texture in the project.
     /// </remarks>
-    private static Image LoadAuthored(int slot)
+    private static Image LoadAuthored(int slot, string suffix)
     {
-      var path = $"{SlotDirectory}{slot}_{Names[slot]}.png";
+      var path = $"{SlotDirectory}{slot}_{Names[slot]}{suffix}.png";
 
       if (!ResourceLoader.Exists(path))
       {

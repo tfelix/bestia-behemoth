@@ -24,9 +24,12 @@ uniform int debug_view : hint_enum(
 	"Slope",
 	"Triplanar axis",
 	"Tint",
-	"World normal",
+	"Shaded normal",
+	"Geometric normal",
 	"Texel density",
-	"Height channel") = 0;
+	"Height channel",
+	"Roughness",
+	"Ambient occlusion") = 0;
 
 group_uniforms;
 
@@ -76,21 +79,35 @@ vec3 debug_colour(TerrainSurface surface) {
 		return surface.tint;
 	}
 
+	// The two together are the normal-mapping check: if they look the same, the normal maps never arrived, and
+	// no amount of staring at the lit result will say whether that is the texture, the array or the blend.
 	if (debug_view == 7) {
+		return surface.world_normal * 0.5 + 0.5;
+	}
+
+	if (debug_view == 8) {
 		return normalize(v_world_normal) * 0.5 + 0.5;
 	}
 
 	// How fast the world-space UV changes per pixel, which is what picks the mip level. Should shade smoothly
 	// with distance; anything speckled here is the fp32 precision failure slot_uv_origin exists to prevent, and
 	// it will be shimmering in the shipping shader for the same reason.
-	if (debug_view == 8) {
+	if (debug_view == 9) {
 		float density = length(dFdx(v_world_pos)) + length(dFdy(v_world_pos));
 
 		return vec3(fract(log2(max(density, 0.0001)) * 0.5 + 0.5));
 	}
 
-	if (debug_view == 9) {
+	if (debug_view == 10) {
 		return vec3(surface.height);
+	}
+
+	if (debug_view == 11) {
+		return vec3(surface.roughness);
+	}
+
+	if (debug_view == 12) {
+		return vec3(surface.ao);
 	}
 
 	return vec3(0.0);
@@ -110,6 +127,9 @@ void fragment() {
 	if (debug_view == 0) {
 		ALBEDO = surface.albedo;
 		ROUGHNESS = surface.roughness;
+		AO = surface.ao;
+		AO_LIGHT_AFFECT = 1.0;
+		NORMAL = normalize((VIEW_MATRIX * vec4(surface.world_normal, 0.0)).xyz);
 		SPECULAR = 0.0;
 	} else {
 		ALBEDO = vec3(0.0);

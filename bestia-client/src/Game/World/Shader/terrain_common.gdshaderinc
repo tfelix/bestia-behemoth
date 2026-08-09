@@ -54,6 +54,21 @@ group_uniforms Textures;
 // coordinate here is a world position in tiles and is far outside 0..1.
 uniform sampler2DArray albedo_height : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 
+// RG tangent normal, B roughness, A ambient occlusion. Linear, not source_color - none of these four channels
+// is a colour, and putting them through an sRGB curve would bend every one of them.
+uniform sampler2DArray normal_rough_ao : filter_linear_mipmap_anisotropic, repeat_enable;
+
+group_uniforms;
+
+group_uniforms Surface;
+
+// How much of the normal map to apply. Zero is the geometric surface alone, which is the comparison worth
+// having when lighting looks wrong: if it looks the same at zero and at one, the normals never arrived.
+uniform float normal_strength : hint_range(0.0, 2.0) = 1.0;
+
+// How much the texture's ambient occlusion darkens it.
+uniform float ao_strength : hint_range(0.0, 1.0) = 1.0;
+
 group_uniforms;
 
 group_uniforms Slots;
@@ -142,6 +157,12 @@ struct TerrainSurface {
 	vec3 albedo;
 	float roughness;
 
+	/// The shaded normal, in world space. The caller converts it, because which space it wants depends on where
+	/// it is putting it.
+	vec3 world_normal;
+
+	float ao;
+
 	// Everything below is for the debug shader. It is computed anyway on the way to the albedo, so carrying it
 	// out costs registers in a shader that is already register-bound and nothing at all in the shipping one,
 	// where it is dead and removed.
@@ -178,7 +199,19 @@ struct TerrainSurface {
 // per the spec, and the branches below are the definition of non-uniform. In practice the mip level goes wrong
 // exactly along the line where a branch flips - which is the material boundary, the one place anyone is
 // looking.
-vec4 terrain_sample_slot(int slot, vec3 ddx, vec3 ddy, vec3 blend) {
+struct SlotSample {
+	vec3 albedo;
+	float height;
+
+	// World space already: the reorientation below has to happen per projection axis, so it cannot be deferred
+	// until after the two slots are blended.
+	vec3 normal;
+
+	float roughness;
+	float ao;
+};
+
+SlotSample terrain_sample_slot(int slot, vec3 geometric, vec3 ddx, vec3 ddy, vec3 blend) {
 	float inv_scale = 1.0 / max(slot_uv_scale[slot], 0.0001);
 
 	vec3 p = (v_world_pos - slot_uv_origin[slot]) * inv_scale;
@@ -186,21 +219,64 @@ vec4 terrain_sample_slot(int slot, vec3 ddx, vec3 ddy, vec3 blend) {
 	vec3 py = ddy * inv_scale;
 
 	float layer = float(slot);
-	vec4 total = vec4(0.0);
 
+	SlotSample result;
+	result.albedo = vec3(0.0);
+	result.height = 0.0;
+	result.roughness = 0.0;
+	result.ao = 0.0;
+
+	vec3 normal = vec3(0.0);
+
+	// WHITEOUT BLENDING.
+	//
+	// Three projections each give a tangent normal in their own plane, and they cannot simply be averaged -
+	// they do not share a tangent frame. Whiteout adds each one's xy to the geometric normal's two matching
+	// components and keeps the sign of the third, which reorients it into world space without needing the mesh
+	// to carry tangents. Which is just as well, because this mesh has none: surface nets writes positions,
+	// normals, a tint and the slot weights, so NORMAL_MAP is not available to us at any price.
 	if (blend.y > TERRAIN_AXIS_EPSILON) {
-		total += blend.y * textureGrad(albedo_height, vec3(p.xz, layer), px.xz, py.xz);
+		vec4 colour = textureGrad(albedo_height, vec3(p.xz, layer), px.xz, py.xz);
+		vec4 maps = textureGrad(normal_rough_ao, vec3(p.xz, layer), px.xz, py.xz);
+
+		result.albedo += blend.y * colour.rgb;
+		result.height += blend.y * colour.a;
+		result.roughness += blend.y * maps.b;
+		result.ao += blend.y * maps.a;
+
+		vec2 tangent = (maps.rg * 2.0 - 1.0) * normal_strength;
+		normal += blend.y * vec3(tangent.x + geometric.x, geometric.y, tangent.y + geometric.z);
 	}
 
 	if (blend.x > TERRAIN_AXIS_EPSILON) {
-		total += blend.x * textureGrad(albedo_height, vec3(p.zy, layer), px.zy, py.zy);
+		vec4 colour = textureGrad(albedo_height, vec3(p.zy, layer), px.zy, py.zy);
+		vec4 maps = textureGrad(normal_rough_ao, vec3(p.zy, layer), px.zy, py.zy);
+
+		result.albedo += blend.x * colour.rgb;
+		result.height += blend.x * colour.a;
+		result.roughness += blend.x * maps.b;
+		result.ao += blend.x * maps.a;
+
+		vec2 tangent = (maps.rg * 2.0 - 1.0) * normal_strength;
+		normal += blend.x * vec3(geometric.x, tangent.y + geometric.y, tangent.x + geometric.z);
 	}
 
 	if (blend.z > TERRAIN_AXIS_EPSILON) {
-		total += blend.z * textureGrad(albedo_height, vec3(p.xy, layer), px.xy, py.xy);
+		vec4 colour = textureGrad(albedo_height, vec3(p.xy, layer), px.xy, py.xy);
+		vec4 maps = textureGrad(normal_rough_ao, vec3(p.xy, layer), px.xy, py.xy);
+
+		result.albedo += blend.z * colour.rgb;
+		result.height += blend.z * colour.a;
+		result.roughness += blend.z * maps.b;
+		result.ao += blend.z * maps.a;
+
+		vec2 tangent = (maps.rg * 2.0 - 1.0) * normal_strength;
+		normal += blend.z * vec3(tangent.x + geometric.x, tangent.y + geometric.y, geometric.z);
 	}
 
-	return total;
+	result.normal = normalize(normal);
+
+	return result;
 }
 
 // The tint is passed in rather than read from COLOR here, because Godot exposes a stage's built-ins only
@@ -266,13 +342,19 @@ TerrainSurface terrain_surface(vec3 tint) {
 	float share0 = best0 / pair;
 	float share1 = 1.0 - share0;
 
-	vec4 sample0 = terrain_sample_slot(slot0, ddx, ddy, blend);
-	vec4 sample1 = vec4(0.0);
+	SlotSample sample0 = terrain_sample_slot(slot0, normal, ddx, ddy, blend);
+
+	SlotSample sample1;
+	sample1.albedo = vec3(0.0);
+	sample1.height = 0.0;
+	sample1.normal = normal;
+	sample1.roughness = 1.0;
+	sample1.ao = 1.0;
 
 	bool has_second = best1 > TERRAIN_WEIGHT_EPSILON;
 
 	if (has_second) {
-		sample1 = terrain_sample_slot(slot1, ddx, ddy, blend);
+		sample1 = terrain_sample_slot(slot1, normal, ddx, ddy, blend);
 	}
 
 	// HEIGHT BLENDING.
@@ -284,8 +366,8 @@ TerrainSurface terrain_surface(vec3 tint) {
 	// Both heights are offset by the slot's weight, so the vertex data still says which material is mostly here
 	// and the height map only decides where within the transition each one wins. Then everything within
 	// height_blend_range of the taller is kept, which is what makes the edge crisp without making it a step.
-	float height0 = sample0.a * slot_height_contrast[slot0] + share0;
-	float height1 = sample1.a * slot_height_contrast[slot1] + share1;
+	float height0 = sample0.height * slot_height_contrast[slot0] + share0;
+	float height1 = sample1.height * slot_height_contrast[slot1] + share1;
 
 	float cutoff = max(height0, height1) - height_blend_range;
 
@@ -297,9 +379,7 @@ TerrainSurface terrain_surface(vec3 tint) {
 	share1 = above1 / above;
 
 	surface.slot0_share = share0;
-	surface.height = share0 * sample0.a + share1 * sample1.a;
-
-	vec4 sampled = share0 * sample0 + share1 * sample1;
+	surface.height = share0 * sample0.height + share1 * sample1.height;
 
 	// The reference tint follows the same blend as the texture, so a pixel halfway between grass and rock is
 	// corrected against a texture that is halfway between them too - which is what it was actually sampled from.
@@ -308,13 +388,19 @@ TerrainSurface terrain_surface(vec3 tint) {
 	surface.tint = tint;
 
 	vec3 correction = tint / max(reference, vec3(0.0001));
+	vec3 albedo = share0 * sample0.albedo + share1 * sample1.albedo;
 
-	surface.albedo = sampled.rgb * mix(vec3(1.0), correction, tint_strength);
+	surface.albedo = albedo * mix(vec3(1.0), correction, tint_strength);
 
-	// Rock, soil and grass, none of which are polished. Stated here rather than left to the material because a
-	// large surface with any specular on it mirrors the sky straight back at the camera, and the result is
-	// indistinguishable on screen from the material having failed to apply at all.
-	surface.roughness = 1.0;
+	// Normals from the two slots are already in world space, so blending them is a plain interpolation. It is
+	// only within one slot that the three projections needed reorienting first.
+	surface.world_normal = normalize(share0 * sample0.normal + share1 * sample1.normal);
+
+	surface.ao = mix(1.0, share0 * sample0.ao + share1 * sample1.ao, ao_strength);
+
+	// Rock, soil and grass, none of which are polished, so an absent roughness map means fully rough rather
+	// than the zero it would otherwise read as. The material's own map narrows it from there.
+	surface.roughness = clamp(share0 * sample0.roughness + share1 * sample1.roughness, 0.04, 1.0);
 
 	return surface;
 }
