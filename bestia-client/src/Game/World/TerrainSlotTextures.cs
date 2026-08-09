@@ -76,6 +76,16 @@ namespace BestiaBehemothClient.Game.World
         }
 
         tints[slot] = MeanColour(image);
+
+        // Measured first, generated second: the mean wants the full-resolution layer, and mipmaps append to the
+        // buffer that MeanColour reads.
+        //
+        // Not optional. The shader asks for anisotropic mipmapped filtering, but a Texture2DArray only has the
+        // mip levels its source images had, and neither the imported PNGs nor the generated ones carry any. The
+        // result would be terrain that crawls with aliasing at any distance - and it would look like a shader
+        // problem rather than a missing pyramid.
+        image.GenerateMipmaps();
+
         images.Add(image);
       }
 
