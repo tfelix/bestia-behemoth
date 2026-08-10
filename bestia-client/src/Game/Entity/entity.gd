@@ -16,6 +16,15 @@ class_name Entity extends Node3D
 #
 # The server only sends position updates for whole coordinates (e.g., x:1, y:5),
 # never for fractional positions. Client handles smooth movement between tiles.
+#
+# Logical vs. drawn position
+# ==========================
+# `position` is NOT where the server says this entity is. It is _logical_position - which is - plus
+# a sub-voxel ground correction, because whole-voxel heights do not meet the terrain that gets
+# drawn. Everything in the prediction system below works in logical space; only _apply_position
+# crosses over. Anything outside this file that needs a server coordinate must ask
+# get_logical_position() rather than reading `position`, or a round trip through Vec3Convert's
+# rounding can come back a tile away. See _update_ground_offset.
 
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
@@ -94,10 +103,28 @@ const _SNAP_STEPS: float = 2.5           # desync this large just snaps
 const _ROTATION_DURATION: float = 0.3  # Time to turn the model to face movement direction
 const _VISUAL_NODE_NAME = "Visual"
 
+# Ground snapping (see _update_ground_offset).
+const _GROUND_MAX_RATE: float = 6.0      # metres/second the correction may travel
+const _GROUND_MAX_OFFSET: float = 1.0    # metres of correction the terrain is trusted for
+
+# Where the server says this entity is: whole-voxel coordinates in Godot's axis order, and for a
+# moving entity the lerp between two of them. `position` is this plus _ground_offset.
+#
+# The split is the point. "Which tile am I on" is the server's to answer and is what every path,
+# distance and reconciliation is built from; "where do I draw" has to meet terrain that whole-voxel
+# coordinates cannot express. Keeping them in one field means one of the two questions gets the
+# wrong answer, so they are two fields.
+var _logical_position: Vector3 = Vector3.ZERO
+
+# How far the entity is lifted or dropped from that, so its feet meet the terrain that is actually
+# drawn. Applied to this node, which is what puts the camera on it too - see _update_ground_offset.
+var _ground_offset: float = 0.0
+
 
 func _process(delta: float) -> void:
 	_update_movement(delta)
 	_update_visual_rotation()
+	_update_ground_offset(delta)
 
 
 func _update_movement(delta: float) -> void:
@@ -130,7 +157,8 @@ func _update_movement(delta: float) -> void:
 
 	var seg := mini(int(_progress), last - 1)
 	var frac := _progress - float(seg)
-	position = _nodes[seg].lerp(_nodes[seg + 1], frac)
+	_logical_position = _nodes[seg].lerp(_nodes[seg + 1], frac)
+	_apply_position()
 
 	if seg != _faced_seg:
 		_face_direction(_nodes[seg + 1] - _nodes[seg])
@@ -138,6 +166,94 @@ func _update_movement(delta: float) -> void:
 
 	if _progress >= float(last) and absf(_error) < 0.0001:
 		_is_moving = false
+
+
+## Where the server thinks this entity is, without the ground correction `position` carries.
+##
+## Anything converting back to server coordinates wants this one - a whole-voxel round trip through
+## the corrected position can land a tile boundary away.
+func get_logical_position() -> Vector3:
+	return _logical_position
+
+
+## Draws the entity at its logical position, lifted onto the terrain.
+func _apply_position() -> void:
+	position = _logical_position + Vector3(0.0, _ground_offset, 0.0)
+
+
+## Sub-voxel height correction, applied to this node so that everything hanging off it follows.
+##
+## The height the server sends is a whole voxel - ChunkCoords.standingZ rounds the real elevation -
+## while the terrain is drawn at the sub-voxel height the generator wrote and then nudged again by
+## the mesher's corner averaging. Walking a path therefore ramps between whole numbers while the
+## ground underneath curves, and the mismatch reads as the entity stepping rather than walking.
+##
+## Correcting the [b]Visual[/b] child instead would fix the model and nothing else, which is not
+## enough: the camera's spring arm is a child of this node, so it would keep climbing in whole-voxel
+## steps while the model it is pointed at moved smoothly. The correction has to be on the transform
+## the camera inherits, which is this one.
+##
+## `position` is therefore no longer the server's answer to where this entity is - see
+## [method get_logical_position], which is. Movement prediction is unaffected either way: `_nodes`
+## and `_progress` are in logical space throughout, so nothing here can desync us.
+func _update_ground_offset(delta: float) -> void:
+	var target := _probe_ground_offset()
+	if is_nan(target):
+		# Terrain we have not been sent yet, or nothing to stand on within reach - a swimming or
+		# falling entity. Hold the last offset rather than easing back to zero, so a streaming
+		# hiccup does not show up as the entity dropping and rising again.
+		return
+
+	# Rate limited rather than exponentially smoothed, and the difference matters now that the camera
+	# rides on this. An exponential filter always lags its target, and the target here moves fast -
+	# it is the gap between a straight ramp and a curved surface, which swings most of a metre over a
+	# single tile step. That lag would put a soft corner back at every waypoint, which is the exact
+	# artefact this exists to remove. A speed limit has no lag at all while the correction is moving
+	# slower than the limit, which is every ordinary step, and only bites on a genuine discontinuity
+	# - a carve under our feet, or a chunk arriving - where easing in over a few frames is what is
+	# wanted anyway.
+	var moved := move_toward(_ground_offset, target, _GROUND_MAX_RATE * delta)
+
+	# Exact equality is the right test and not a float sin: move_toward steps by a fixed amount or
+	# lands on the target, so a settled offset compares equal to itself bit for bit. Worth the branch
+	# because _update_movement has already written this frame's position if we are walking, and a
+	# standing entity should not dirty its transform sixty times a second for no change.
+	if moved == _ground_offset:
+		return
+
+	_ground_offset = moved
+	_apply_position()
+
+
+## The correction the terrain wants right now, or NAN if it cannot be known.
+##
+## Clamped because a probe that finds the wrong surface should look like an entity standing slightly
+## wrong, not like one buried in the ground: the honest answer is never more than about half a
+## voxel, so anything past a whole one is a disagreement worth ignoring rather than obeying.
+func _probe_ground_offset() -> float:
+	if ConnectionManager.chunk_stream == null:
+		return NAN
+
+	# Probed at the logical position, not the drawn one. Feeding the corrected height back in would
+	# make the offset measure itself and decay to nothing.
+	var ground: float = ConnectionManager.chunk_stream.GroundYAt(
+		_logical_position.x, _logical_position.z, _logical_position.y)
+	if is_nan(ground):
+		return NAN
+
+	return clampf(ground - _logical_position.y, -_GROUND_MAX_OFFSET, _GROUND_MAX_OFFSET)
+
+
+## Puts the entity on the ground this frame instead of easing onto it.
+##
+## For teleports, where the old offset belongs to terrain on the other side of the map and easing
+## across would be seen as the entity sinking into place after it arrived.
+func _snap_ground_offset() -> void:
+	var target := _probe_ground_offset()
+	if not is_nan(target):
+		_ground_offset = target
+
+	_apply_position()
 
 
 func _face_direction(direction: Vector3) -> void:
@@ -236,17 +352,19 @@ func update_position(msg: PositionComponent) -> void:
 
 	if not _is_moving:
 		# Nothing to reconcile against, just snap.
-		position = new_position
+		_logical_position = new_position
 		_error = 0.0
+		_snap_ground_offset()
 		return
 
 	var idx := _index_of_node(new_position)
 	if idx < 0:
 		# Server is off our predicted path (new route/teleport): snap and stop.
-		position = new_position
+		_logical_position = new_position
 		_nodes = [new_position]
 		_is_moving = false
 		_error = 0.0
+		_snap_ground_offset()
 		return
 
 	# Reconcile in the progress domain: the server just reached node idx, so the
@@ -259,9 +377,12 @@ func update_position(msg: PositionComponent) -> void:
 
 
 func update_path(msg: PathComponentSMSG) -> void:
-	# Rebuild the node list anchored at where we currently render, then follow it.
+	# Rebuild the node list anchored where we currently are, then follow it. The logical position
+	# rather than the rendered one: the waypoints behind it are the server's whole voxels, and
+	# anchoring the chain on a height that has been nudged onto the terrain would feed the correction
+	# into the path and then correct it a second time.
 	_nodes.clear()
-	_nodes.append(position)
+	_nodes.append(_logical_position)
 	for vec3 in msg.Path:
 		_nodes.append(vec3)
 

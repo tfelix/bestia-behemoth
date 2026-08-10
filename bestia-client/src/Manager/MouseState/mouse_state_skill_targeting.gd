@@ -106,7 +106,12 @@ func _try_confirm(mgr, event: InputEvent) -> void:
 	if _is_entity_target():
 		if _snap_target == null:
 			return
-		ConnectionManager.activate_skill(skill.skill_id, skill_level, _snap_target.global_position, _snap_target.entity_id)
+		# The logical position rather than the drawn one, for the reason ConnectionManager.move_to uses
+		# it: this is rounded to a whole tile on the wire, and the ground correction on `position` can
+		# round it to the neighbouring voxel. The indicator above deliberately uses the drawn one -
+		# that is a mark on the model, not a coordinate for the server.
+		ConnectionManager.activate_skill(
+			skill.skill_id, skill_level, _snap_target.get_logical_position(), _snap_target.entity_id)
 	else:
 		if _last_ground_hit == null:
 			return

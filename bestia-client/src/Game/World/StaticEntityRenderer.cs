@@ -105,7 +105,22 @@ namespace BestiaBehemothClient.Game.World
     private float _voxelSize = 1.0f;
 
     /// <summary>
-    /// Adopts the world's units. Safe to call with null, which keeps the defaults.
+    /// The terrain a prop is standing on, so its base can be put where that terrain is drawn.
+    /// </summary>
+    /// <remarks>
+    /// See <see cref="GroundedPositionOf"/>. Null in a headless test and until the first
+    /// <see cref="Configure"/>, which just means props stand at the height the server sent.
+    /// </remarks>
+    private ClientChunkStore _store;
+
+    /// <summary>Chunk dimensions, needed to address a voxel from a global coordinate.</summary>
+    private int _chunkSize = 32;
+
+    private int _chunkHeight = 256;
+
+    /// <summary>
+    /// Adopts the world's units and the terrain to stand props on. Safe to call with nulls, which keeps the
+    /// defaults.
     /// </summary>
     /// <remarks>
     /// Separate from the constructor for the reason <see cref="TerrainRenderer.Configure"/> is: the server
@@ -113,14 +128,52 @@ namespace BestiaBehemothClient.Game.World
     /// and the Game scene that owns this renderer does not exist until a master has been chosen. So this is
     /// always called after that message has come and gone, by <c>ChunkStreamManager</c>'s own setter.
     /// </remarks>
-    public void Configure(WorldInfoSMSG worldInfo)
+    public void Configure(ClientChunkStore store, WorldInfoSMSG worldInfo)
     {
+      _store = store;
+
       if (worldInfo != null)
       {
         _voxelSize = (float)worldInfo.VoxelSizeMetres;
+        _chunkSize = worldInfo.ChunkSize;
+        _chunkHeight = worldInfo.ChunkHeight;
       }
 
       Clear();
+    }
+
+    /// <summary>
+    /// Where a prop stands, in Godot units, with its base on the terrain as drawn rather than as rounded.
+    /// </summary>
+    /// <remarks>
+    /// A prop's z comes off the same <c>ChunkCoords.standingZ</c> an entity's does, so it carries the same
+    /// whole-voxel rounding and a tree ends up hovering or half-buried by up to half a metre. Unlike an entity
+    /// this is asked once, at placement: a prop does not move, so there is nothing to smooth and nothing to do
+    /// per frame.
+    ///
+    /// <para>
+    /// Falls back to the height the server sent when the terrain under the prop is not held. That is not a
+    /// hypothetical - a batch can be applied before its own chunk has been decoded - which is why
+    /// <c>ChunkStreamManager</c> holds a batch back until the ground is there.
+    /// </para>
+    /// </remarks>
+    private Vector3 GroundedPositionOf(ChunkStaticEntitiesSMSG.Entry entry)
+    {
+      var placed = (Vector3)entry.Position * _voxelSize;
+
+      if (_store == null)
+      {
+        return placed;
+      }
+
+      // Entry.Position is already in Godot's axis order, so y is the vertical one and z is the server's y.
+      var surface = Mesh.SurfaceProbe.SurfaceAt(
+        _store, Mesh.BlockAppearance.Current,
+        entry.Position.X, entry.Position.Z, entry.Position.Y, _chunkSize, _chunkHeight);
+
+      return double.IsNaN(surface)
+        ? placed
+        : new Vector3(placed.X, (float)(surface * _voxelSize), placed.Z);
     }
 
     /// <summary>
@@ -206,7 +259,7 @@ namespace BestiaBehemothClient.Game.World
       var scale = appearance.NaturalHeight > 0f ? entry.Height / appearance.NaturalHeight : 1f;
       var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(scale, scale, scale));
 
-      node.Transform = new Transform3D(basis, (Vector3)entry.Position * _voxelSize);
+      node.Transform = new Transform3D(basis, GroundedPositionOf(entry));
       container.AddChild(node);
     }
 
@@ -238,9 +291,7 @@ namespace BestiaBehemothClient.Game.World
       var prop = new Node3D
       {
         Name = $"prop {entry.EntityId}",
-        Transform = new Transform3D(
-          new Basis(Vector3.Up, entry.Yaw),
-          (Vector3)entry.Position * _voxelSize)
+        Transform = new Transform3D(new Basis(Vector3.Up, entry.Yaw), GroundedPositionOf(entry))
       };
 
       // Scaled on y only, exactly as AddPlaceholderBatch does and for the same reason: the box is a unit cube
@@ -308,7 +359,7 @@ namespace BestiaBehemothClient.Game.World
         // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
         // that as its base.
         var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(1f, entry.Height, 1f));
-        multi.SetInstanceTransform(i, new Transform3D(basis, (Vector3)entry.Position * _voxelSize));
+        multi.SetInstanceTransform(i, new Transform3D(basis, GroundedPositionOf(entry)));
       }
 
       container.AddChild(new MultiMeshInstance3D { Multimesh = multi });

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BestiaBehemothClient.Bnet.Message;
 using BestiaBehemothClient.Bnet.Message.Map;
+using BestiaBehemothClient.Game.World.Mesh;
 using Godot;
 
 namespace BestiaBehemothClient.Game.World
@@ -112,7 +113,7 @@ namespace BestiaBehemothClient.Game.World
           return;
         }
 
-        value.Configure(WorldInfo);
+        value.Configure(Store, WorldInfo);
 
         foreach (var batch in _staticBatches.Values)
         {
@@ -219,10 +220,19 @@ namespace BestiaBehemothClient.Game.World
         case ChunkStaticEntitiesSMSG statics:
           // Applied straight away rather than queued: a batch is a few hundred transforms and, for the kinds
           // that have art, a scene instance each - not a decode and a mesh build, so it does not need the
-          // frame budget the chunk queue exists to spread. It arrives behind its chunk, so the ground is
-          // already there or already queued.
+          // frame budget the chunk queue exists to spread.
+          //
+          // "Already queued" is not good enough any more, though. A prop now reads the terrain under it to
+          // stand on the surface as drawn rather than as rounded, and a batch that lands while its own chunk
+          // is still in _toDecode would find nothing there and silently fall back for the whole column. So it
+          // waits, and Decode applies it - the batch is retained here for late-attaching renderers anyway, so
+          // holding it costs nothing and it is still placed exactly once.
           _staticBatches[statics.Key] = statics;
-          StaticEntities?.Apply(statics);
+
+          if (Store.Get(statics.Key) != null)
+          {
+            StaticEntities?.Apply(statics);
+          }
           break;
 
         case StaticEntityRemovedSMSG removed:
@@ -291,7 +301,7 @@ namespace BestiaBehemothClient.Game.World
       StaticEntities?.Clear();
 
       Renderer?.Configure(Store, info);
-      StaticEntities?.Configure(info);
+      StaticEntities?.Configure(Store, info);
     }
 
     private void OnManifest(ChunkManifestSMSG manifest)
@@ -340,6 +350,14 @@ namespace BestiaBehemothClient.Game.World
         Store.Put(data.Key, chunk, data.Revision);
         Renderer?.Invalidate(data.Key);
 
+        // Anything waiting on this ground can now be stood on it. Ordinary rather than exceptional: the
+        // server sends a column's static batch right behind its payload, and decoding is budgeted, so a batch
+        // usually arrives several frames before the chunk it belongs to comes off the queue.
+        if (_staticBatches.TryGetValue(data.Key, out var waiting))
+        {
+          StaticEntities?.Apply(waiting);
+        }
+
         _decoded++;
         _payloadBytes += data.PayloadBytes;
         _decodedBytes += chunk.Volume * 2;
@@ -385,6 +403,50 @@ namespace BestiaBehemothClient.Game.World
         GD.Print($"[patch] {patch.Key} not applicable; re-requesting the chunk");
         _socket.SendMessage(new ChunkRequestCMSG(new[] { patch.Key }));
       }
+    }
+
+    /// <summary>
+    /// Godot-space y of the terrain surface under (<paramref name="worldX"/>, <paramref name="worldZ"/>), or
+    /// <c>NaN</c> if the ground there is not known.
+    /// </summary>
+    /// <remarks>
+    /// The reason this sits on the manager rather than on <see cref="SurfaceProbe"/> where the work happens:
+    /// GDScript cannot reach a plain C# object, so <see cref="Store"/> is invisible to <c>entity.gd</c> no matter
+    /// how public it is. A method on a <see cref="Node"/> taking and returning floats is the narrowest bridge
+    /// that crosses, and it is the right place for the conversion anyway - this class is the one that holds both
+    /// the chunks and the <see cref="WorldInfo"/> that says how big a voxel is.
+    ///
+    /// <para>
+    /// Godot is y-up and the server is z-up, so the axes swap here exactly as they do in
+    /// <c>PositionComponent.FromProto</c> and in the vertex positions <see cref="SurfaceProbe"/>'s field is built
+    /// from.
+    /// </para>
+    ///
+    /// <para>
+    /// <paramref name="nearY"/> is what makes the answer local rather than global: pass where the caller thinks
+    /// it is, and get back the surface it is standing on rather than the roof of a cave it is inside. A caller
+    /// with no better idea can pass its own y, which is what the server said and is never far wrong.
+    /// </para>
+    /// </remarks>
+    public float GroundYAt(float worldX, float worldZ, float nearY)
+    {
+      if (WorldInfo == null)
+      {
+        return float.NaN;
+      }
+
+      var voxelSize = (float)WorldInfo.VoxelSizeMetres;
+      if (voxelSize <= 0f)
+      {
+        return float.NaN;
+      }
+
+      var surface = SurfaceProbe.SurfaceAt(
+        Store, BlockAppearance.Current,
+        worldX / voxelSize, worldZ / voxelSize, nearY / voxelSize,
+        WorldInfo.ChunkSize, WorldInfo.ChunkHeight);
+
+      return double.IsNaN(surface) ? float.NaN : (float)(surface * voxelSize);
     }
 
     /// <summary>A one-line summary of the session so far, for a debug overlay or the console.</summary>

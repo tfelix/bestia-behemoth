@@ -249,7 +249,10 @@ func move_to(destination: Vector3) -> void:
 	if owned_entity.is_casting():
 		return
 
-	var path := PathCalculator.calculate_tile_path(owned_entity.global_position, destination)
+	# The logical position, not the rendered one: the path is rounded to whole tiles on the way out
+	# (Vec3Convert), and the rendered position carries a sub-voxel ground correction that can round
+	# the starting tile to the wrong side of a boundary.
+	var path := PathCalculator.calculate_tile_path(owned_entity.get_logical_position(), destination)
 	if path.is_empty():
 		return
 
