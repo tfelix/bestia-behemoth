@@ -185,15 +185,23 @@ object MineHead {
 }
 
 /**
- * Everything towns and history put on top of the ground, as blocks: buildings, wall circuits, and the
- * residue of settlements that are no longer there.
+ * Everything towns and history put on top of the ground, as blocks: floor slabs, fortifications, wall
+ * circuits, and the residue of settlements that are no longer there.
  *
  * ### Why these are blocks and not terrain
  *
- * The same reason a bridge deck is. A heightfield has one height per column, and a building is a floor with
- * air above it and a roof above that - three surfaces in one column. The vector tier gets the building's
- * *footprint and floor level* right, to sub-metre precision and identically from either side of a chunk
- * border, and this turns that into masonry.
+ * The same reason a bridge deck is. A heightfield has one height per column, and a keep is a floor with air
+ * above it and a roof above that - three surfaces in one column. The vector tier gets the footprint and floor
+ * level right, to sub-metre precision and identically from either side of a chunk border, and this turns that
+ * into masonry.
+ *
+ * ### Why most buildings are no longer any of it
+ *
+ * An ordinary building - a house, a shop, a temple - is a `PropKind.BUILDING` now rather than a shell of
+ * blocks, on the argument that took trees and mana crystals out of the palette first: a thing a player can
+ * enter, own or destroy needs somewhere to keep that state, and a voxel is a byte. What is left here is the
+ * worked stone that genuinely is terrain - the slab a building stands on, and the fortifications a town wall
+ * is made of, which have to stop an arrow rather than hold a shopkeeper.
  *
  * Nothing here is chunk-seeded. Every voxel is a function of the column's world position and the feature's
  * own immutable attributes, which is what makes two chunks agree about the wall running between them. The
@@ -207,12 +215,19 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     val function: BuildingFunction,
     val storeys: Int,
     val floor: Double,
-    val wall: BlockType,
-    val roof: BlockType,
     val roofShape: RoofShape,
     val door: Vec2d
   ) {
     val eave: Double get() = floor + storeys * STOREY_HEIGHT
+
+    /**
+     * Whether this building is built out of blocks rather than emitted as a prop.
+     *
+     * True for fortifications only - a keep and a wall tower are part of the wall circuit, and a circuit has
+     * to be standing geometry a player cannot walk through or shoot over. Every other building is a
+     * `PropKind.BUILDING` now; see `BuildingProps`.
+     */
+    val voxelised: Boolean get() = function == BuildingFunction.FORTIFICATION
   }
 
   private class Wall(
@@ -246,8 +261,6 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
           ],
           storeys = footprint.attribute(BuildingChannels.STOREYS).toInt().coerceIn(1, 8),
           floor = footprint.attribute(BuildingChannels.FLOOR_ELEVATION),
-          wall = BlockType.of(footprint.attribute(BuildingChannels.WALL_BLOCK).toInt()),
-          roof = BlockType.of(footprint.attribute(BuildingChannels.ROOF_BLOCK).toInt()),
           roofShape = RoofShape.entries[footprint.attribute(BuildingChannels.ROOF_SHAPE).toInt()],
           door = Vec2d(
             footprint.attribute(BuildingChannels.DOOR_X),
@@ -399,7 +412,22 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
   // --- Buildings ------------------------------------------------------------------------------------
 
   /**
-   * One column of a building: plinth, wall or floor, and roof.
+   * One column of a building: its floor slab, and for a fortification the walls and roof as well.
+   *
+   * ### Why most of a building is no longer here
+   *
+   * This used to raise every building out of blocks - plinth, wall ring, doorway lintel, roof. A building is
+   * an **entity** now, the same way a tree and a mana crystal became entities: something a player can enter,
+   * own, burn down and have the world remember, none of which a voxel can hold. `BuildingProps` emits it, and
+   * the wall/roof materials that used to be `BlockType`s ride along as [net.bestia.worldgen.civ.WallMaterial]
+   * and [net.bestia.worldgen.civ.RoofMaterial] attributes.
+   *
+   * **The floor slab stays, and that half is deliberate.** The lot pad grades the ground but cannot always
+   * level it, which is what the plinth was for; without a slab a building entity would stand over a hole on
+   * any slope the pad could not flatten. A floor is also walkable ground in a way a wall is not, so this is
+   * the half that was genuinely terrain all along.
+   *
+   * Fortifications are the exception and stay blocks entirely - see [Structure.voxelised].
    *
    * The wall ring is decided in the footprint's own axes, so a building at an angle has square corners
    * rather than the stepped diagonal a world-axis test would give it.
@@ -411,24 +439,26 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     ground: Double,
     into: StructureSpans
   ) {
+    // The floor slab, and the plinth under it where the pad could not level the ground all the way.
+    into.add(min(ground, structure.floor) - SLAB_THICKNESS, structure.floor, BlockType.MASONRY)
+
+    if (!structure.voxelised) return
+
     val footprint = structure.footprint
     val dx = worldX - footprint.center.x
     val dy = worldY - footprint.center.y
     val along = dx * footprint.bearing.x + dy * footprint.bearing.y
     val across = -dx * footprint.bearing.y + dy * footprint.bearing.x
 
-    // The floor slab, and the plinth under it where the pad could not level the ground all the way.
-    into.add(min(ground, structure.floor) - SLAB_THICKNESS, structure.floor, structure.wall)
-
     val inWall = abs(along) > footprint.halfLength - WALL_THICKNESS ||
         abs(across) > footprint.halfWidth - WALL_THICKNESS
 
-    if (inWall && structure.function != BuildingFunction.MARKET) {
+    if (inWall) {
       if (isDoorway(structure, along, across)) {
         // A lintel over the opening rather than no wall at all, so the building is not open to the eaves.
-        into.add(structure.floor + DOOR_HEIGHT, structure.eave, structure.wall)
+        into.add(structure.floor + DOOR_HEIGHT, structure.eave, BlockType.MASONRY)
       } else {
-        into.add(structure.floor, structure.eave, structure.wall)
+        into.add(structure.floor, structure.eave, BlockType.MASONRY)
       }
     }
 
@@ -436,7 +466,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
     // a walled yard.
     val rise = roofRise(structure, along, across)
     val ridge = structure.eave + rise
-    into.add(ridge - ROOF_THICKNESS, ridge, structure.roof)
+    into.add(ridge - ROOF_THICKNESS, ridge, BlockType.MASONRY)
   }
 
   /**
@@ -592,8 +622,12 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       Math.round(worldY * SCATTER_QUANTISE)
     ) < STANDING_CHANCE * (1.0 - site.decay)
 
+    // A standing stub is masonry; what has fallen is gravel. `RUBBLE` was its own block for exactly this,
+    // "distinct from GRAVEL so a ruin reads as worked stone, not scree" - and a collapsed wall *is* scree, so
+    // losing the distinction costs a shade of grey and no meaning. The stub beside it is what says a town was
+    // here.
     val height = if (standing) STUB_HEIGHT * (1.0 - site.decay * 0.5) else RUBBLE_HEIGHT
-    into.add(ground - SLAB_THICKNESS, ground + height, if (standing) BlockType.MASONRY else BlockType.RUBBLE)
+    into.add(ground - SLAB_THICKNESS, ground + height, if (standing) BlockType.MASONRY else BlockType.GRAVEL)
   }
 
   /**
@@ -724,12 +758,15 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
       fraction > MONASTERY_WALL_SHARE ->
         into.add(ground - WALL_FOOTING, ground + MONASTERY_WALL_HEIGHT * decay, BlockType.MASONRY)
 
+      // Masonry throughout, where the range used to be rendered plaster and its roof tile. Those two blocks
+      // existed to build houses out of and went with the houses; a monastery is a history site rather than a
+      // town building, so it stays voxels, but it stays them in the one worked stone left.
       fraction > MONASTERY_RANGE_SHARE -> {
-        into.add(ground - SLAB_THICKNESS, ground + MONASTERY_RANGE_HEIGHT * decay, BlockType.PLASTER)
+        into.add(ground - SLAB_THICKNESS, ground + MONASTERY_RANGE_HEIGHT * decay, BlockType.MASONRY)
         into.add(
           ground + MONASTERY_RANGE_HEIGHT * decay,
           ground + MONASTERY_RANGE_HEIGHT * decay + ROOF_THICKNESS,
-          BlockType.ROOF_TILE
+          BlockType.MASONRY
         )
       }
 
@@ -853,7 +890,7 @@ class TownStructures(features: List<VectorFeature>, private val seed: Long) {
         if (fraction > SHRINE_CAIRN_SHARE) return
         val across = fraction / SHRINE_CAIRN_SHARE
         val height = SHRINE_CAIRN_HEIGHT * decay * sqrt(1.0 - across * across)
-        if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.RUBBLE)
+        if (height > 0.0) into.add(ground - SLAB_THICKNESS, ground + height, BlockType.GRAVEL)
       }
     }
   }

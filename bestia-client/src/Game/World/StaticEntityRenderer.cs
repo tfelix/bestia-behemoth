@@ -340,8 +340,17 @@ namespace BestiaBehemothClient.Game.World
     /// Draws every prop of one artless kind in this chunk as a single multimesh.
     /// </summary>
     /// <remarks>
-    /// Scaled on y only: the mesh is a unit box standing on its own origin, so this makes a tall thing tall
-    /// rather than also fat. See <see cref="AddSceneProp"/> for why a real model is treated differently.
+    /// Scaled on y only for most kinds: the mesh is a box of the kind's own width standing on its own origin,
+    /// so this makes a tall thing tall rather than also fat. See <see cref="AddSceneProp"/> for why a real
+    /// model is treated differently.
+    ///
+    /// <para>
+    /// A building is the exception, and it is scaled on all three axes because its footprint arrives per entry
+    /// - see <see cref="ChunkStaticEntitiesSMSG.Entry.HasFootprint"/>. The x and z factors are *relative to the
+    /// kind's own placeholder width*, since the shared mesh is already that wide; a building whose row said 5 m
+    /// and whose lot is 9 m across is scaled by 1.8 rather than by 9. Keeping the shared mesh is what lets a
+    /// whole town's houses stay one multimesh instead of one draw each.
+    /// </para>
     /// </remarks>
     private void AddPlaceholderBatch(Node3D container, int kind, List<ChunkStaticEntitiesSMSG.Entry> entries)
     {
@@ -352,13 +361,22 @@ namespace BestiaBehemothClient.Game.World
         InstanceCount = entries.Count
       };
 
+      // The width the shared mesh was built at, which every per-entry footprint is expressed against. Guarded
+      // because a row with a zero width would otherwise divide by it.
+      var meshWidth = Mathf.Max(PropAppearance.Of(kind).PlaceholderWidth, 0.001f);
+
       for (var i = 0; i < entries.Count; i++)
       {
         var entry = entries[i];
 
+        // Local x is the facing axis, so half-length scales x and half-width scales z. Doubled because the
+        // wire carries half-extents and the mesh is a full width.
+        var along = entry.HasFootprint ? entry.HalfLength * 2f / meshWidth : 1f;
+        var across = entry.HasFootprint ? entry.HalfWidth * 2f / meshWidth : 1f;
+
         // The server's z is the ground the prop stands on, and a mesh built upward from its own origin wants
         // that as its base.
-        var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(1f, entry.Height, 1f));
+        var basis = new Basis(Vector3.Up, entry.Yaw).Scaled(new Vector3(along, entry.Height, across));
         multi.SetInstanceTransform(i, new Transform3D(basis, GroundedPositionOf(entry)));
       }
 

@@ -132,7 +132,7 @@ namespace BestiaBehemothClient.Game.World
     /// Lava: opaque and emissive, unlike water.
     /// </summary>
     /// <remarks>
-    /// Opaque is load bearing rather than a taste call - see <see cref="Mesh.BlockAppearance"/>'s
+    /// Drawing it opaque is load bearing rather than a taste call - see <see cref="Mesh.BlockAppearance"/>'s
     /// <c>Molten</c>, which explains why the basin under a pool is not meshed and what an alpha would show
     /// through to.
     ///

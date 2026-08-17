@@ -16,9 +16,11 @@ package net.bestia.worldgen.voxel
  * already there; storing it costs one byte per voxel, and that byte is 255 or 0 nearly everywhere, so it
  * costs almost nothing once encoded.
  *
- * This is the same argument [net.bestia.worldgen.derived.OpacityGrid] makes one level up, where a boolean
- * would force a choice between a fence post that blocks four metres of sight and a wall players can see
- * through. Being inconsistent about it between the two tiers would be hard to justify.
+ * [net.bestia.worldgen.derived.OpacityGrid] one level up is now built on exactly this number rather than
+ * merely agreeing with it: a cell's occlusion is the occupancy accumulated through it, so a half-full voxel
+ * stops half as much sight. It used to weight that by a per-material opacity as well - the fraction that let a
+ * leaf canopy attenuate rather than either block outright or not at all - and leaves left the palette for
+ * props, taking the only material that disagreed with its own solidity with them.
  */
 object Occupancy {
 

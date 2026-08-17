@@ -8,6 +8,7 @@ import net.bestia.worldgen.civ.DistrictKind
 import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.civ.TownParams
+import net.bestia.worldgen.civ.WallMaterial
 import net.bestia.worldgen.core.Actor
 import net.bestia.worldgen.core.ActorType
 import net.bestia.worldgen.core.Chronicle
@@ -286,7 +287,7 @@ object TownMain {
 
       val storeys = place.buildings.map { it.attribute(BuildingChannels.STOREYS).toInt() }
       val stone = place.buildings.count {
-        it.attribute(BuildingChannels.WALL_BLOCK).toInt() == net.bestia.worldgen.voxel.BlockType.MASONRY.id
+        it.attribute(BuildingChannels.WALL_MATERIAL).toInt() == WallMaterial.STONE.ordinal
       }
       println()
       line("mean storeys", fixed(storeys.average()))

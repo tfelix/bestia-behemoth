@@ -124,15 +124,18 @@ class BlightedCoverTest {
     val BLIGHTED = setOf(
       BlockType.BLIGHTED_GRASS,
       BlockType.BLIGHTED_DIRT,
-      BlockType.BLIGHTED_SAND,
-      BlockType.BLIGHTED_PEAT
+      BlockType.BLIGHTED_SAND
     )
 
+    // Five clean materials against three blighted ones, because `SurfaceCover.blight` is deliberately not a
+    // bijection: DRY_GRASS shares GRASS's twin and MUD shares DIRT's. Counting both sides still works - what
+    // this fixture asserts is that corrupted ground holds blighted cover and clean ground does not.
     val CLEAN_TWINS = setOf(
       BlockType.GRASS,
+      BlockType.DRY_GRASS,
       BlockType.DIRT,
-      BlockType.SAND,
-      BlockType.PEAT
+      BlockType.MUD,
+      BlockType.SAND
     )
   }
 }

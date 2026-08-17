@@ -238,7 +238,7 @@ class VoxelTest {
   @Test
   fun `rle rejects a truncated payload`() {
     val chunk = VoxelChunk(pos, size = 4, height = 4)
-    chunk.blocks.fill(BlockType.SHALE.id.toByte())
+    chunk.blocks.fill(BlockType.STONE.id.toByte())
     chunk.occupancy.fill(Occupancy.FULL_BYTE)
     val encoded = RleCodec.encode(chunk)
 

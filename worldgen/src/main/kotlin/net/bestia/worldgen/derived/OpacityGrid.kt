@@ -83,10 +83,13 @@ class OpacityGrid(
       // one level down: having gone to the trouble of storing how full a voxel is, rounding it back to solid
       // or empty here would put the resolution cliff straight back.
       //
-      // Weighted by the material's own opacity as well as by how full the voxel is, which is the same
-      // argument a third time. A leaf canopy is the material that forced it: as a boolean it is either a
-      // wall - one voxel in four of leaves stopping an arrow outright - or nothing at all, and a forest is
-      // neither. See BlockType.opacity.
+      // Solidity is the material test, and `BlockType.opacity` used to be. That property was a fraction so
+      // that a leaf canopy could attenuate a sight line rather than either stopping it outright or not at all
+      // - and leaves left the palette for props, taking the only material with a fractional opacity with
+      // them. Every remaining material's opacity was exactly `if (solid) 1.0 else 0.0`, so it was deleted and
+      // this reads `solid` instead: identical output, one fewer property to keep true.
+      //
+      // The grid still reports a fraction. That fraction was always occupancy, which is untouched.
       val filled = IntArray(cells.size)
       val totals = IntArray(cells.size)
 
@@ -101,9 +104,8 @@ class OpacityGrid(
             val cell = column + localZ / factor
             totals[cell]++
             val block = BlockType.ofOrNull(voxels.blocks[offset + localZ].toInt() and 0xFF)
-            if (block != null && block.opacity > 0.0) {
-              val occupancy = voxels.occupancy[offset + localZ].toInt() and 0xFF
-              filled[cell] += (occupancy * block.opacity).toInt()
+            if (block != null && block.solid) {
+              filled[cell] += voxels.occupancy[offset + localZ].toInt() and 0xFF
             }
           }
         }

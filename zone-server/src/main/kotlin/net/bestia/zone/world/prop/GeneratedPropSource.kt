@@ -1,5 +1,6 @@
 package net.bestia.zone.world.prop
 
+import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component
 import kotlin.math.abs
 
 /**
- * Everything the generator puts on the ground: trees, mana crystals, wound spires.
+ * Everything the generator puts on the ground: trees, mana crystals, wound spires, landmarks, buildings.
  *
  * One source for all three rather than one per kind, because they come out of a single `propsIn` call - the
  * generator resolves each prop's ground from the column heights it builds once for the chunk, and splitting
@@ -40,7 +41,15 @@ class GeneratedPropSource(
    */
   override val kinds: Set<StaticEntityKind> = buildSet {
     for (kind in PropKind.entries) {
-      val subKinds = if (kind == PropKind.POI) PoiKind.entries.indices else 0..0
+      val subKinds = when (kind) {
+        PropKind.POI -> PoiKind.entries.indices
+        // Every function but FORTIFICATION, which never becomes a prop - `StaticEntityKind.of` throws for it
+        // rather than returning something, so enumerating it here would fail the boot on a kind nothing emits.
+        PropKind.BUILDING -> BuildingFunction.entries.indices.filter {
+          BuildingFunction.entries[it] != BuildingFunction.FORTIFICATION
+        }
+        else -> 0..0
+      }
       for (subKind in subKinds) {
         for (blighted in BOTH) for (large in BOTH) add(StaticEntityKind.of(kind, blighted, large, subKind))
       }
@@ -58,6 +67,7 @@ class GeneratedPropSource(
 
     for (i in props.indices) {
       val kind = StaticEntityKind.of(props.kindAt(i), props.isBlighted(i), props.isLarge(i), props.subKindAt(i))
+      val rectangular = props.kindAt(i) == PropKind.BUILDING
 
       // Metres to position units, and the height from the generator's own column rather than from
       // `GroundHeight`: the two agree, and this one cannot be asked off the tick thread.
@@ -76,7 +86,15 @@ class GeneratedPropSource(
           // A fresh roll here would make a wood shimmer as a player walked in and out of view of it.
           variant = variantOf(props.identityAt(i)),
           heightDm = Math.round(props.heightAt(i) * 10.0).toInt(),
-          yaw = yawOf(props.identityAt(i))
+          // The generator's own facing where it has one, and a stable roll where it does not. A building faces
+          // the street its lot fronts, which is a fact about the town and not something to re-roll; a tree has
+          // no opinion, so it gets one derived from its name for the reason above.
+          yaw = if (props.yawAt(i).isFinite()) props.yawAt(i).toFloat() else yawOf(props.identityAt(i)),
+          // Only for the one kind that has a footprint of its own. `radiusAt` is a tree's *crown* for every
+          // other kind - a real number, and the wrong one to send as half a bounding box, since a canopy is
+          // not something to walk into.
+          halfLengthDm = if (rectangular) decimetres(props.radiusAt(i)) else 0,
+          halfWidthDm = if (rectangular) decimetres(props.halfWidthAt(i)) else 0
         )
       )
     }
@@ -95,6 +113,9 @@ class GeneratedPropSource(
 
   private fun yawOf(propId: Long): Float =
     (abs((propId * 0x9E3779B97F4A7C15uL.toLong()) ushr 40) % 3600) / 3600f * TWO_PI
+
+  /** Metres to decimetres, which is what the wire carries every extent in. */
+  private fun decimetres(metres: Double): Int = Math.round(metres * 10.0).toInt().coerceAtLeast(0)
 
   private companion object {
     const val TWO_PI = 6.2831855f

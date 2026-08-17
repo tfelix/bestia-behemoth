@@ -172,8 +172,11 @@ class ParamsVersionTest {
       "Names" to -9_118_719_711_542_149_956L,
       "EventKind" to 1_616_518_775_768_109_607L,
       "Order" to -2_417_387_423_981_603_910L,
-      "ResourceType" to 8_190_588_717_705_702_599L,
-      "MinableOre" to 4_365_871_184_218_980_312L,
+      // Both moved when ruby, diamond, emerald and amethyst joined the catalogue: `ResourceType` because the
+      // worth table gained four rows, `MinableOre` because it gained four rows and every `scarcityRank` below
+      // diamond shifted to keep the ordering dense.
+      "ResourceType" to -6_527_222_474_440_031_099L,
+      "MinableOre" to -396_090_231_383_855_382L,
       "SpawnHostility" to 1_601_490_678_795_006_744L,
       "PoiKind" to -8_044_551_008_766_842_828L
     )

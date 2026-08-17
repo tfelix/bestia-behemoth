@@ -345,7 +345,7 @@ class ChunkStoreTest {
     // somewhere, and this turns that silent desync into a bandwidth blip.
     val original = generate(ChunkPos(0, 0))
     val altered = original.copy()
-    altered[3, 3, 1] = BlockType.SHALE
+    altered[3, 3, 1] = BlockType.STONE
 
     assertNotEquals(BaseHash.of(original), BaseHash.of(altered))
   }
@@ -403,16 +403,17 @@ class ChunkStoreTest {
     // never to update the number alone: bump `ChunkEngine.VERSION` on both sides, mirror the change into the
     // client's `BlockAppearance.Palette`, and then re-pin here.
     assertEquals(
-      -2_483_694_738_586_420_562L, PipelineVersion.paletteVersion(),
+      2_430_615_180_319_028_482L, PipelineVersion.paletteVersion(),
       "BlockType changed. Bump ChunkEngine.VERSION here and in the client, mirror the change into the " +
           "client's BlockAppearance.Palette, then update this pin."
     )
 
-    // Both pins were re-pinned together here for PERMAFROST's removal (id 35 freed, folded into DIRT) as
-    // part of the pre-release version reset - see ChunkEngine.VERSION's own KDoc. A codec-only bump, unlike
+    // Both pins moved together here for the palette cleanup, which is the largest change either has seen: the
+    // building materials left for props, the four sedimentary rocks became STONE plus LIMESTONE, peat and clay
+    // became MUD, four gems arrived, and every id was renumbered densely from zero. A codec-only bump, unlike
     // this one, moves the version pin below without moving this one.
     assertEquals(
-      1, ChunkEngine.VERSION,
+      2, ChunkEngine.VERSION,
       "ChunkEngine.VERSION moved - re-pin this and check the client's constant matches. Both this and the " +
           "palette pin above move together whenever BlockType changes; only a codec-only bump moves this alone."
     )

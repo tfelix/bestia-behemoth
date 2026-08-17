@@ -267,9 +267,12 @@ class ChunkMaterializer(
     // is the deposit markers for *this* query rather than a layer covering the world. Same reason
     // `TownStructures` and `OreVeins` are constructed per chunk a few lines above.
     aetherite(nearby).propsIn(chunk, site, into)
-    // Last, and per chunk from `nearby` for the reason above. The only source here that emits *placed* objects
-    // rather than scattered ones - see `PoiProps`.
+    // The two sources that emit *placed* objects rather than scattered ones, both per chunk from `nearby` for
+    // the reason above. Neither re-decides anything the world tier already settled - see `PoiProps`.
     PoiProps(config, nearby).propsIn(chunk, site, into)
+    // No `site`, and it is the only source here without one: `trunkSite` refuses the ground a building stands
+    // on, by design and by its own job. See `BuildingProps`.
+    BuildingProps(config, nearby).propsIn(chunk, into)
 
     return into
   }
@@ -554,7 +557,7 @@ class ChunkMaterializer(
 
     // Bare rock outranks paving and the cap both: a street is not laid on a cliff face, and grass does not
     // grow on one. `bareCover` answers null for most biomes, which means "show the bed that is exposed here" -
-    // so a limestone crag is white and a shale one grey, from the stratigraphy, with no table for it.
+    // so a limestone crag is white and the stone around it grey, from the stratigraphy, with no table for it.
     val bare =
       if (!steep) null else SurfaceCover.bareCover(biome) ?: rock.rockAt(top - config.voxelSize * 0.5)
     val capBlock =
@@ -873,7 +876,9 @@ class ChunkMaterializer(
      * .version] was: the promise had no counterparty. It starts counting again from the first world that
      * outlives a branch. What a bump means is unchanged, and the git history holds the old changelog.
      */
-    const val VERSION = 1
+    // 2: buildings stopped being voxels and became props, and the strata draw collapsed to STONE/LIMESTONE.
+    // Both change what a column materialises into, which is exactly what this number is for.
+    const val VERSION = 2
 
     /**
      * Margin added to a chunk's bounds when querying features, in metres.

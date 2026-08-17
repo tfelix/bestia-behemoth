@@ -69,6 +69,19 @@ message ChunkStaticEntitiesSMSG {
 
     /** Facing, in hundredths of a radian. A tree does not need more and a byte and a half is plenty. */
     uint32 yaw_centiradians = 8;
+
+    /**
+     * Footprint half-extents in decimetres, along and across the facing, or **0 for a kind that has none**.
+     *
+     * Zero is the common case and costs nothing on the wire - proto3 does not encode a zero field - which is
+     * the whole reason these are per-entry rather than a second message. Every kind but a building is
+     * radially symmetric and takes its size from `prop-kinds.yml`; a building cannot, because a temple and a
+     * barn are not the same building and the lot each stands on is what decided its size.
+     *
+     * The two travel together. One set and the other zero means a producer filled in half a footprint.
+     */
+    uint32 half_length_dm = 9;
+    uint32 half_width_dm = 10;
   }
 
   repeated Entry entries = 2;

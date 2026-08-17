@@ -113,7 +113,29 @@ namespace BestiaBehemothClient.Game.World
       new Kind { PlaceholderWidth = 0.8f, PlaceholderColour = new Color(0.72f, 0.70f, 0.66f) }, // POI_BROKEN_OBELISK
       new Kind { PlaceholderWidth = 0.5f, PlaceholderColour = new Color(0.66f, 0.62f, 0.56f) }, // POI_WAYSTONE
       new Kind { PlaceholderWidth = 0.9f, PlaceholderColour = new Color(0.48f, 0.42f, 0.38f) }, // POI_PETRIFIED_TREE
-      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.40f, 0.44f, 0.40f) }  // POI_SUNKEN_IDOL
+      new Kind { PlaceholderWidth = 0.7f, PlaceholderColour = new Color(0.40f, 0.44f, 0.40f) }, // POI_SUNKEN_IDOL
+
+      // The nine buildings a town is made of.
+      //
+      // <b><see cref="Kind.PlaceholderWidth"/> is ignored for every one of them</b>, and that is the only place
+      // in this table where a field does not apply. A building's footprint arrives per entry on the wire -
+      // `half_length_dm` and `half_width_dm` - because a temple and a barn are not the same size and no
+      // per-kind number could stand in for the lot each was cut from. The widths below are left at a plausible
+      // value rather than zero so that a regression which drops the wire extents draws something rather than
+      // nothing; <see cref="StaticEntityRenderer"/> is where the choice is made.
+      //
+      // Colours are the materials these used to be built from, back when a building was voxels: the tan of
+      // timber and plaster for the ordinary ones, worked-stone grey for the civic and religious ones that were
+      // masonry more often than not. A player who learned the old palette reads the same town.
+      new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.62f, 0.60f, 0.56f) }, // BUILDING_MARKET
+      new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.74f, 0.72f, 0.66f) }, // BUILDING_TEMPLE
+      new Kind { PlaceholderWidth = 6.0f, PlaceholderColour = new Color(0.66f, 0.65f, 0.62f) }, // BUILDING_CIVIC
+      new Kind { PlaceholderWidth = 4.5f, PlaceholderColour = new Color(0.72f, 0.62f, 0.44f) }, // BUILDING_SHOP
+      new Kind { PlaceholderWidth = 4.5f, PlaceholderColour = new Color(0.58f, 0.46f, 0.32f) }, // BUILDING_CRAFT
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.50f, 0.42f, 0.32f) }, // BUILDING_WAREHOUSE
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.70f, 0.56f, 0.36f) }, // BUILDING_INN
+      new Kind { PlaceholderWidth = 4.5f, PlaceholderColour = new Color(0.78f, 0.74f, 0.64f) }, // BUILDING_RESIDENCE
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.64f, 0.54f, 0.34f) }  // BUILDING_FARM
     };
 
     /// <summary>

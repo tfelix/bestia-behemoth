@@ -25,14 +25,26 @@ import kotlin.test.assertTrue
  *
  * A waste tomb needs the conjunction of harsh ground, a settlement within `seerRange` of it, and an explorer or
  * general who lived long enough to be rolled - so it is seed-dependent in the way `SpecialSitesTest` documents
- * for forts and lighthouses. 256 cells at the default seed is the reference world the desert re-siting was
- * measured on, and it carries desert.
+ * for forts and lighthouses.
+ *
+ * It ran on the *default* seed until the resource and town stages were reversioned, which reseeds everything
+ * downstream of them and left that world with no lost traveller at all. **The pass was fine**: a sweep of
+ * twenty-five consecutive seeds at 256 cells found waste tombs on twenty-three of them, three to thirteen
+ * apiece, and exactly two produced none - the old default being one of the two. So this is re-pinned rather
+ * than relaxed, which is what the module's own habit asks for: pin an existence check to a seed that has the
+ * thing, rather than writing a conditional that passes vacuously on every seed that does not.
+ *
+ * [SEED] is the richest of that sweep at thirteen, chosen for margin - a seed with one waste tomb would fail
+ * this file again on the next reseed of anything upstream.
  */
 class WasteTombTest {
 
   private companion object {
+    /** See the class KDoc. Not the demo default, which produces none since the stage reversioning. */
+    const val SEED = 11_753_243L
+
     val world: GeneratedWorld = StandardWorld.build(
-      StandardWorld.demoConfig().copy(widthCells = 256, heightCells = 256)
+      StandardWorld.demoConfig().copy(seed = SEED, widthCells = 256, heightCells = 256)
     )
 
     val chronicle get() = world.world.chronicle

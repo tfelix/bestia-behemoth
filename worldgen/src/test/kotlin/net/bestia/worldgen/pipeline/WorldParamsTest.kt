@@ -92,7 +92,9 @@ class WorldParamsTest {
   @Test
   fun `the defaults are pinned`() {
     assertEquals(-8_026_274_329_628_347_450L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
-    assertEquals(-4_864_179_299_762_783_222L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    // Moved with `ChunkMaterializer.VERSION` 1 -> 2: buildings stopped being voxels and the strata draw
+    // collapsed to STONE plus LIMESTONE, both of which change what a column materialises into.
+    assertEquals(486_565_586_489_113_592L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)

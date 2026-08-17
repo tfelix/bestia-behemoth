@@ -61,6 +61,49 @@ enum class ResourceType(val label: String) {
    */
   PYRELITH("pyrelith"),
 
+  /*
+   * The real gems, added after pyrelith proved the shape worked.
+   *
+   * Pyrelith's KDoc argues for inventing a material because an invented one is something a player has to come
+   * here to learn. These are the opposite argument and both are worth having: a player already knows what a
+   * diamond is worth, so a diamond needs no explaining and no crafting system to be a reason to dig. What each
+   * one *does* have to earn is a geological setting nothing else occupies - see `ResourceStage.suitabilityFor`,
+   * where all four are one arm each and no two share a conjunction of terms.
+   */
+
+  /**
+   * Corundum in marble, at a collision belt.
+   *
+   * Shares [MARBLE]'s suitability terms deliberately: ruby genuinely is a marble-hosted gem, so the ground
+   * that makes one makes the other, and pretending otherwise would be inventing geology to avoid a
+   * coincidence. Depth is what separates them - marble is quarried off the surface, ruby is dug for - which is
+   * the same separation `MinableOre.PYRELITH` and `SULFUR` already rely on.
+   */
+  RUBY("ruby"),
+
+  /**
+   * Kimberlite through the keel of an old craton: the deepest thing in the world worth digging for.
+   *
+   * The only entry in this enum that keys on being **away** from a plate boundary, and that is what keeps it
+   * off every other precious deposit's ground - copper, gold, silver and ruby all want the arc. Real
+   * kimberlite erupts through crust that has been quiet for an age and never at a subduction zone, so the
+   * anti-correlation is the geology rather than a spacing trick.
+   */
+  DIAMOND("diamond"),
+
+  /** Beryl in a granite pegmatite: `TIN`'s plutons, several times deeper and a great deal rarer. */
+  EMERALD("emerald"),
+
+  /**
+   * Quartz geodes in soft, vuggy cover.
+   *
+   * Deliberately the cheap one, and it is the only entry here placed for an economic reason rather than a
+   * geological one. Every other gem is rare, deep and worth an expedition, which left a player digging their
+   * first shaft with nothing at all to find; this is two to forty-five metres down, an order of magnitude more
+   * abundant than the rest, and worth about what salt is. A gem economy needs a floor as much as a ceiling.
+   */
+  AMETHYST("amethyst"),
+
   // Bulk minerals.
   SALT("salt"),
   STONE("building stone"),
@@ -99,12 +142,23 @@ enum class ResourceType(val label: String) {
       // cannot reach RESOURCE_VALUE and cannot move a settlement toward ground no civilisation could work.
       AETHERITE -> 1.5
       MITHRANDIUM -> 1.2
+      // Above gold and below mithrandium, and as good as unreachable either way: at 300-800 m a diamond pipe
+      // is deeper than anything a settlement can work, so like mithrandium this weight only ever reaches the
+      // value field through a shallow outlier. That is the intent rather than a limitation.
+      DIAMOND -> 1.1
       GOLD_LODE, GOLD_PLACER -> 1.0
+      // Ruby sits on the arc like copper, gold and silver do, and it is worth more than any of them - so it is
+      // the strongest new pull toward volcanic and orogenic ground that `Terms.hazard`'s volcanic term has to
+      // absorb. See PYRELITH below for why that term exists at all.
+      RUBY -> 0.9
       // Between silver and gold. High enough to be worth the walk, and the reason `Terms.hazard` needed a
       // volcanic term in the same commit: without one, a valuable ore on the arc pulls settlements *onto* the
       // volcanoes through RESOURCE_VALUE, and then eruptions fire far more often than their rate implies.
       PYRELITH -> 0.85
+      EMERALD -> 0.8
       SILVER -> 0.75
+      // Priced with salt, not with the gems. The whole point of it is to be the one a player finds early.
+      AMETHYST -> 0.35
       COPPER, TIN -> 0.5
       IRON -> 0.55
       SULFUR -> 0.45
@@ -193,29 +247,82 @@ enum class MinableOre(
    * and on such a world the floor would put three pyrelith mines on the three least-bad cells in a world with no
    * volcano in it. A resource that is *absent* from some worlds is a stronger fact about the map than one that
    * is merely rare on all of them.
+   *
+   * ### The gems, and what the floor turned out to cost
+   *
+   * It is false about the rare gems too, for a related reason and one measured rather than argued. A floor is
+   * not free: `guarantee` tops up from the best cells the world has and then blocks everything within
+   * `oreSeparation` of each, so **every guaranteed ore spends some of a small world's ground**. Adding four
+   * gems at three deposits each took a 128 km world from comfortable to over-subscribed, and what gave way was
+   * `MITHRANDIUM` - down to one deposit from three, because diamond wants old crust too and picks first. A
+   * floor that breaks another ore's floor is not a floor.
+   *
+   * So the three expensive gems opt out. Their preconditions do exist on every world, unlike volcanism, but a
+   * guarantee is a promise about the *economy* - iron and copper have to be there or a civilisation cannot be
+   * built - and a diamond is a luxury. "This world has no diamond mine" is a fact worth having; "this world has
+   * no iron" is a broken world. [AMETHYST] keeps its guarantee and is the reason the others can drop theirs:
+   * every world still has a gem in it, and the one it is guaranteed is the cheap one a player finds early.
    */
   val guaranteed: Boolean = true
 ) {
+
+  /**
+   * The deepest and rarest thing in the world, and **first in the dispersal order** for the same reason
+   * pyrelith is near the front: its ground is the scarcest here. A craton keel is old crust that is also flat
+   * and also nowhere near a plate boundary, and the three together are a small fraction of a small fraction.
+   *
+   * Deep enough that no settlement works it - that is deliberate, and it is [ResourceType.DIAMOND]'s whole
+   * point. Nothing else in this table starts below 300 m.
+   *
+   * Its [spacingFactor] matches [MITHRANDIUM]'s rather than exceeding it, and that is [MITHRANDIUM]'s own
+   * argument applied to a tighter conjunction: old crust *and* worn flat *and* away from a boundary already
+   * thins this further than any of the others, so widening the candidate spacing on top of it buys nothing and
+   * costs worlds with no diamond in them. It was 2.8 for one measurement, which is also what turned
+   * `ResourceParams.spacingShrink` from a no-op into an active floor on a 384 km world - the rarest ore's
+   * spacing is what that threshold is computed from, so this number has reach well beyond diamond.
+   */
+  DIAMOND(ResourceType.DIAMOND, 0, 1.9, 0.03, 300.0, 800.0, guaranteed = false),
 
   /**
    * Its [spacingFactor] only matches gold's, not because it is as common but because it does not need to be
    * scarcer than that: the three-way conjunction of old, hard *and* high ground already thins it further than
    * any of the others, and pushing the spacing out on top of it produced worlds with none in them at all.
    */
-  MITHRANDIUM(ResourceType.MITHRANDIUM, 0, 2.4, 0.20, 250.0, 600.0),
-  GOLD(ResourceType.GOLD_LODE, 1, 2.4, 0.49, 10.0, 150.0),
+  MITHRANDIUM(ResourceType.MITHRANDIUM, 1, 2.4, 0.20, 250.0, 600.0),
+
+  /**
+   * Ahead of gold and silver on ground it shares with both, which is `IRON`'s argument applied to a gem: ruby
+   * wants the same arc the precious metals want, and there are far more arc cells that suit gold than suit
+   * ruby, so letting gold pick first would cost ruby more than it costs gold.
+   */
+  RUBY(ResourceType.RUBY, 2, 2.4, 0.09, 60.0, 220.0, guaranteed = false),
+
+  /**
+   * Pegmatite in `TIN`'s plutons, and ahead of tin for ruby's reason: the rarer of two sharing ground picks
+   * first.
+   *
+   * Its floor is 120 m and its ceiling stops at 240, one metre-band short of [MITHRANDIUM]'s 250, and that
+   * ceiling is not a rounding of anything. It was 400 first, which put emerald *through* the depth at which
+   * mithrandium starts - and the world's one durable claim about depth is that there is a tier below what a
+   * medieval shaft reaches, holding mithrandium and diamond and nothing else. A gem that straddles the
+   * boundary erases the tier. `OreDepositTest.the deep ores lie below everything a shaft reaches` is the
+   * tripwire, and it caught exactly this.
+   */
+  EMERALD(ResourceType.EMERALD, 3, 2.4, 0.11, 120.0, 240.0, guaranteed = false),
+
+  GOLD(ResourceType.GOLD_LODE, 4, 2.4, 0.49, 10.0, 150.0),
 
   /**
    * Vugs in the interior of a thick flow, so shallow to mid depth and scarcer than silver.
    *
-   * Second in the dispersal order, above silver, because its ground is the scarcest of any ore here - a strong
-   * volcanic field is about a tenth of the volcanic country, which is about a hundredth of the land. Letting the
-   * metals pick first would mean pyrelith took whatever was left of an already tiny candidate set.
+   * Above silver in the dispersal order, because its ground is the scarcest of any *volcanic* deposit - a
+   * strong volcanic field is about a tenth of the volcanic country, which is about a hundredth of the land.
+   * Letting the metals pick first would mean pyrelith took whatever was left of an already tiny candidate set.
    */
-  PYRELITH(ResourceType.PYRELITH, 2, 2.4, 0.16, 5.0, 90.0, guaranteed = false),
+  PYRELITH(ResourceType.PYRELITH, 5, 2.4, 0.16, 5.0, 90.0, guaranteed = false),
 
-  SILVER(ResourceType.SILVER, 3, 2.2, 0.79, 10.0, 150.0),
-  TIN(ResourceType.TIN, 4, 1.7, 0.92, 10.0, 150.0),
+  SILVER(ResourceType.SILVER, 6, 2.2, 0.79, 10.0, 150.0),
+  TIN(ResourceType.TIN, 7, 1.7, 0.92, 10.0, 150.0),
 
   /**
    * Ahead of copper despite being commoner, which is the one place this ordering is deliberate rather than
@@ -223,12 +330,21 @@ enum class MinableOre(
    * to pick first meant it took every arc site and iron got what was left. Iron is also the ore the economy
    * cannot do without, so if one of the two has to be crowded it should not be this one.
    */
-  IRON(ResourceType.IRON, 5, 1.4, 2.0, 10.0, 150.0),
+  IRON(ResourceType.IRON, 8, 1.4, 2.0, 10.0, 150.0),
 
   /** Bedded halite, which is why it is shallow: it is the floor of a lake that dried up, not a vein. */
-  SALT(ResourceType.SALT, 6, 1.2, 1.05, 0.0, 6.0),
+  SALT(ResourceType.SALT, 9, 1.2, 1.05, 0.0, 6.0),
 
-  COPPER(ResourceType.COPPER, 7, 1.2, 6.6, 10.0, 150.0),
+  /**
+   * The one gem down here among the bulk minerals, and it belongs here rather than with the others.
+   *
+   * Geodes form in soft cover, which is the commonest ground in this whole table and the one thing no other
+   * deposit competes for - so it picks late and loses nothing by it. Shallow, abundant and cheap on purpose:
+   * see [ResourceType.AMETHYST].
+   */
+  AMETHYST(ResourceType.AMETHYST, 10, 1.4, 1.2, 2.0, 45.0),
+
+  COPPER(ResourceType.COPPER, 11, 1.2, 6.6, 10.0, 150.0),
 
   /**
    * Sulfur crusts, in `SALT`'s shape: shallow, bedded, and hand-worked rather than mined out of a vein.
@@ -239,7 +355,7 @@ enum class MinableOre(
    * ground. The economy can do without sulfur and cannot do without iron, which is `IRON`'s own argument one
    * place further down the list.
    */
-  SULFUR(ResourceType.SULFUR, 8, 1.3, 1.4, 0.0, 12.0, guaranteed = false);
+  SULFUR(ResourceType.SULFUR, 12, 1.3, 1.4, 0.0, 12.0, guaranteed = false);
 
   init {
     require(spacingFactor > 0.0) { "$name spacingFactor must be positive, was $spacingFactor" }

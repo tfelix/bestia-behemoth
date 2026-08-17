@@ -54,6 +54,22 @@ namespace BestiaBehemothClient.Bnet.Message.Map
       public float Height { get; init; }
 
       public float Yaw { get; init; }
+
+      /// <summary>
+      /// Footprint half-extents in metres, along and across <see cref="Yaw"/>, or 0 for a kind with none.
+      /// </summary>
+      /// <remarks>
+      /// Zero for every kind but a building, which is the only one whose size is decided per instance - by the
+      /// lot the town laid out for it - rather than per kind by <c>prop-kinds.yml</c>. Zero is also what the
+      /// wire sends for those, and proto3 does not encode a zero, so this costs nothing on the thousands of
+      /// trees in a view volume.
+      /// </remarks>
+      public float HalfLength { get; init; }
+
+      public float HalfWidth { get; init; }
+
+      /// <summary>Whether this entry carries a footprint of its own rather than taking its kind's.</summary>
+      public bool HasFootprint => HalfLength > 0f && HalfWidth > 0f;
     }
 
     public static ChunkStaticEntitiesSMSG FromProto(global::Bnet.ChunkStaticEntitiesSMSG proto)
@@ -76,7 +92,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
             proto.Pos.Y * ChunkEngine.ChunkSize + (int)entry.LocalY
           ),
           Height = entry.HeightDm / 10f,
-          Yaw = entry.YawCentiradians / 100f
+          Yaw = entry.YawCentiradians / 100f,
+          HalfLength = entry.HalfLengthDm / 10f,
+          HalfWidth = entry.HalfWidthDm / 10f
         });
       }
 

@@ -320,11 +320,10 @@ object SurfaceCover {
    */
   fun soil(biome: Biome, blighted: Boolean): BlockType = blight(
     when (biome) {
-    // Both wetlands sit on peat: it is organic ground that never finished rotting either way, and the
-    // difference between them is what is on *top* of it - see [cap], where they part.
-    Biome.BOG, Biome.SWAMP -> BlockType.PEAT
+    // Both wetlands sit on saturated ground, and so does a river bank: peat, silt and floodplain mud are one
+    // material here. They used to be two - see [cap], where the two wetlands used to part and no longer do.
+    Biome.BOG, Biome.SWAMP, Biome.RIPARIAN -> BlockType.MUD
     Biome.BEACH, Biome.DESERT -> BlockType.SAND
-    Biome.BADLANDS, Biome.RIPARIAN -> BlockType.CLAY
 
     // Ash and lapilli over cooling rock. `BiomeStage.soilDepthAt` returns zero for a volcanic field, so this is
     // reached only where a caller asks about one directly - but answering `DIRT` there would be a claim that a
@@ -345,9 +344,9 @@ object SurfaceCover {
    * What steep ground shows instead of soil, or null for "whatever bed is exposed there".
    *
    * Null is the interesting half, and it is why this replaced a single `GRAVEL`. A rock cliff should show the
-   * rock, and [Stratigraphy] already knows which bed the surface cuts - so a limestone crag comes out white,
-   * a shale one grey and a sandstone one orange, for free and with no table to keep consistent. What is left
-   * here are the biomes whose steep ground is made of something that is *not* the bedrock under it.
+   * rock, and [Stratigraphy] already knows which bed the surface cuts - so a limestone crag comes out white
+   * against grey stone and granite below it, for free and with no table to keep consistent. What is left here
+   * are the biomes whose steep ground is made of something that is *not* the bedrock under it.
    *
    * This is the half of the old `CLIFF` biome worth keeping. That biome capped every steep cell in the world
    * in one grey gravel, so an ice cliff, a dune scarp and a granite crag were indistinguishable - and it had
@@ -360,8 +359,11 @@ object SurfaceCover {
     Biome.ICE_SHEET -> BlockType.ICE
     // A dune scarp, and a sea cliff on a sand coast.
     Biome.DESERT, Biome.BEACH -> BlockType.SAND
-    // Soft rock *is* the definition of badlands, so the bed and the bare cover agree here anyway.
-    Biome.BADLANDS -> BlockType.CLAY
+    // Soft rock *is* the definition of badlands, so the bed and the bare cover agree here anyway - and since
+    // the four sedimentary rocks became one, they agree literally: this names the same block the bed under it
+    // is made of. Kept as an explicit arm rather than dropped to `null` because that agreement is a fact
+    // about badlands, not a coincidence to rely on from a distance.
+    Biome.BADLANDS -> BlockType.STONE
 
     // A crater wall is basalt whatever the bed under the volcano happens to be, because the volcano built it.
     // This is the one entry where naming a material beats showing the exposed bed: [Stratigraphy] knows the
@@ -387,14 +389,14 @@ object SurfaceCover {
   fun cap(biome: Biome, temperature: Double, waterDepth: Double, blighted: Boolean): BlockType {
     // Under water before anything else, and not blighted: corruption is zero over lakes and sea by
     // construction, so a blighted lake bed could only ever be a caller passing the wrong flag.
-    if (waterDepth > DEEP_WATER) return BlockType.CLAY
+    if (waterDepth > DEEP_WATER) return BlockType.MUD
     if (waterDepth > 0.0) return if (temperature < 2.0) BlockType.GRAVEL else BlockType.SAND
 
     // Materials that outrank a snow cap. Ice already is frozen water, and the three bare-ground biomes are
     // bare because nothing settles on them - which is as true in a blizzard as it is in a drought.
     val bare = when (biome) {
       Biome.ICE_SHEET -> BlockType.ICE
-      Biome.BADLANDS -> BlockType.CLAY
+      Biome.BADLANDS -> BlockType.STONE
       Biome.BEACH, Biome.DESERT -> BlockType.SAND
 
       /*
@@ -423,12 +425,13 @@ object SurfaceCover {
 
     return blight(
       when (biome) {
-      // Bare peat and moss hummocks: an open bog surface is the peat itself.
-      Biome.BOG -> BlockType.PEAT
-      // And a swamp's is the silt washed over it. The pair is where the two wetlands become visibly different
-      // ground - brown fibrous peat under open sky against dark mud under a closed canopy - and it needs no
-      // new material to say so.
-      Biome.SWAMP -> BlockType.CLAY
+      // Both wetlands, in one material, and the merge is a **deliberate loss of a distinction** rather than a
+      // simplification that cost nothing. These were peat and clay: brown fibrous peat under open sky for a
+      // bog, dark silt under a closed canopy for a swamp, and the pair was the whole of what made the two
+      // read as different ground from above. What is left to tell them apart is the canopy - which is the
+      // thing a player is actually looking at, and the reason the two-material version was worth giving up.
+      // If they ever need to differ again, differ them by texture on one material before adding a second.
+      Biome.BOG, Biome.SWAMP -> BlockType.MUD
       Biome.TUNDRA, Biome.COLD_DESERT -> BlockType.DIRT
       Biome.ALPINE -> BlockType.GRAVEL
       // The other half of keeping grassland out of the dry-grass merge. Both are open country under grass and
@@ -457,7 +460,7 @@ object SurfaceCover {
    * clean one, or the reverse.
    *
    * The `else` here is a real default, not a swept-under-the-rug case: this is a mapping over a
-   * fifty-material palette that answers for four of them and leaves the rest alone **by construction**, not a
+   * sixty-material palette that answers for five of them and leaves the rest alone **by construction**, not a
    * dispatch with a hole in it. Snow, ice, gravel, masonry and every rock reach it and are meant to.
    */
   private fun blight(block: BlockType, blighted: Boolean): BlockType =
@@ -465,9 +468,10 @@ object SurfaceCover {
       // Dry grass shares grassland's blighted twin rather than getting one of its own: corrupted ground is
       // corrupted ground, and a fifth palette row to distinguish two shades of dead scrub buys nothing.
       BlockType.GRASS, BlockType.DRY_GRASS -> BlockType.BLIGHTED_GRASS
-      BlockType.DIRT -> BlockType.BLIGHTED_DIRT
+      // Mud shares dirt's twin for dry grass's reason, and with less to lose: corrupted ground is corrupted
+      // ground, and a corrupted bog was never going to be told from corrupted earth by its colour.
+      BlockType.DIRT, BlockType.MUD -> BlockType.BLIGHTED_DIRT
       BlockType.SAND -> BlockType.BLIGHTED_SAND
-      BlockType.PEAT -> BlockType.BLIGHTED_PEAT
       else -> block
     }
 

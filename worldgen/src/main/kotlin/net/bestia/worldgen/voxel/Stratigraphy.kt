@@ -98,15 +98,16 @@ class RockColumn internal constructor(
    * a pattern the second time a player digs, and there is no reason for the world to have one. Keyed on
    * the plate so that each has its own stratigraphic column - a geologically real unit with irregular
    * boundaries, unlike a spatial grid, which would leave a visible rectangular seam.
+   *
+   * It drew from four rocks once - shale, sandstone, limestone, conglomerate, at 34/29/27/10 - and three of
+   * them differed in nothing but their colour on the client, so they became one [BlockType.STONE]. **The roll
+   * and its thresholds are unchanged**, and that is deliberate rather than lazy: limestone kept exactly the
+   * band it always had, `[0.63, 0.90)`, so every cave system in every seed stands where it stood before. A
+   * tidier `roll < 0.27` would have been the same 27% of beds and a different 27% of beds.
    */
   fun faciesOf(bed: Int): BlockType {
     val roll = GenRng.hashUnit(faciesSalt, plate.toLong(), bed.toLong())
-    return when {
-      roll < 0.34 -> BlockType.SHALE
-      roll < 0.63 -> BlockType.SANDSTONE
-      roll < 0.90 -> BlockType.LIMESTONE
-      else -> BlockType.CONGLOMERATE
-    }
+    return if (roll >= 0.63 && roll < 0.90) BlockType.LIMESTONE else BlockType.STONE
   }
 }
 

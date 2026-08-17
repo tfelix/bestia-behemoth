@@ -52,8 +52,8 @@ class BareRockTest {
     val cap = capOf(chunk, 8, 8)
 
     assertTrue(
-      cap == BlockType.GRANITE || cap == BlockType.BASALT || cap == BlockType.LIMESTONE ||
-          cap == BlockType.SANDSTONE || cap == BlockType.SHALE || cap == BlockType.CONGLOMERATE,
+      cap == BlockType.GRANITE || cap == BlockType.BASALT ||
+          cap == BlockType.STONE || cap == BlockType.LIMESTONE,
       "steep grassland should expose the bed, was $cap"
     )
   }

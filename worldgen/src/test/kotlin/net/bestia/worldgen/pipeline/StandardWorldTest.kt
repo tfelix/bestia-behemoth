@@ -734,29 +734,26 @@ class StandardWorldTest {
      *
      * A roof, a deck and a tree crown are all at their own elevation and the column source never claimed
      * otherwise, so a surface view reading one of them is not an error. The set started as a single
-     * `== MASONRY` check for bridge decks and has grown once per phase that put something above ground: the
-     * seven worked materials with step 8, `LOG`/`LEAVES` with the vegetation scatter, and the two mana
-     * crystals with the corruption work.
+     * `== MASONRY` check for bridge decks, grew once per phase that put something above ground, and has been
+     * shrinking ever since as each of those things left the palette for an entity.
      *
      * The blighted twins are in [SOILS] rather than here, beside the material each replaces, because that is
      * what they are: blighted turf is the ground exactly as turf is.
      *
-     * This set used to also hold `LOG`, `LEAVES`, their blighted twins and the two mana crystals - the growing
-     * things, which a chunk built rather than found. They are entities now and no chunk names them.
+     * It has held `LOG`, `LEAVES`, their blighted twins and two mana crystals - the growing things - and then
+     * timber, plaster, thatch, roof tile and rubble, the built ones. All of them are entities now and no chunk
+     * names any of them. What is left is a bridge deck, a street, a floor slab and a fortification, which is
+     * to say: the worked stone that really is terrain.
      */
-    val BUILT = setOf(
-      BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.RUBBLE, BlockType.COBBLESTONE
-    )
+    val BUILT = setOf(BlockType.MASONRY, BlockType.COBBLESTONE)
 
     val SOILS = setOf(
-      BlockType.DIRT, BlockType.SAND, BlockType.CLAY, BlockType.PEAT, BlockType.GRASS,
-      BlockType.BLIGHTED_DIRT, BlockType.BLIGHTED_SAND, BlockType.BLIGHTED_PEAT,
-      BlockType.BLIGHTED_GRASS
+      BlockType.DIRT, BlockType.SAND, BlockType.MUD, BlockType.GRASS, BlockType.DRY_GRASS,
+      BlockType.BLIGHTED_DIRT, BlockType.BLIGHTED_SAND, BlockType.BLIGHTED_GRASS
     )
     val BEDROCKS = setOf(
-      BlockType.GRANITE, BlockType.BASALT, BlockType.LIMESTONE,
-      BlockType.SANDSTONE, BlockType.SHALE, BlockType.CONGLOMERATE
+      BlockType.GRANITE, BlockType.BASALT, BlockType.OBSIDIAN,
+      BlockType.STONE, BlockType.LIMESTONE
     )
   }
 }

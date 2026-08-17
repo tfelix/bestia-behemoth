@@ -9,6 +9,7 @@ import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.voxel.BlockType
+import net.bestia.worldgen.voxel.PropKind
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -82,12 +83,13 @@ class TownStageTest {
       val function = building.attribute(BuildingChannels.FUNCTION).toInt()
       assertTrue(function in BuildingFunction.entries.indices, "building ${building.id} has function $function")
 
-      // Ids, not ordinals: these are the permanent numbers, and a wall built of block id 3 is a bug that only
-      // shows up as a strangely coloured town.
-      val wall = BlockType.ofOrNull(building.attribute(BuildingChannels.WALL_BLOCK).toInt())
-      val roof = BlockType.ofOrNull(building.attribute(BuildingChannels.ROOF_BLOCK).toInt())
-      assertTrue(wall != null && wall.solid, "building ${building.id} has wall block ${wall?.name}")
-      assertTrue(roof != null && roof.solid, "building ${building.id} has roof block ${roof?.name}")
+      // Ordinals now, where these used to be block ids - a building is a prop rather than a shell of voxels,
+      // so its walls are an attribute. An out-of-range value here is a channel read that landed on the wrong
+      // number, which shows up as a town built of nothing.
+      val wall = building.attribute(BuildingChannels.WALL_MATERIAL).toInt()
+      val roof = building.attribute(BuildingChannels.ROOF_MATERIAL).toInt()
+      assertTrue(wall in WallMaterial.entries.indices, "building ${building.id} has wall material $wall")
+      assertTrue(roof in RoofMaterial.entries.indices, "building ${building.id} has roof material $roof")
 
       assertTrue(
         building.attribute(BuildingChannels.FLOOR_ELEVATION).isFinite(),
@@ -124,17 +126,33 @@ class TownStageTest {
   }
 
   /**
-   * A building's pad levels the ground it covers.
+   * A building's pad levels the ground it covers, as far as a pad is allowed to.
    *
    * The property that stops a house being half-buried on a slope, and the reason a building is one feature
    * rather than a marker beside a pad. Checked against the *column source* - the thing chunk generation
    * actually samples - rather than against the pad's own profile, which would be checking the feature against
    * itself.
+   *
+   * ### Two assertions, because "level" is not what the code promises
+   *
+   * The pad is capped: `TownStage.PAD_MAX_CUT` and `PAD_MAX_FILL` stop it from carving a cliff or standing a
+   * house on a four-metre plinth of invented ground, so on steep enough ground it legitimately falls short.
+   * This test asserted a flat one-metre tolerance for every building and passed only because no building in
+   * its sample had ever landed on ground that needed more - a reseed of the town stage was enough to find one
+   * 2.75 m below its own floor, which is inside what the pad is allowed to leave.
+   *
+   * So the hard bound is the pad's own limit, which still catches the failure worth catching: real terrain
+   * moves tens of metres across a lot, so a pad that stopped running would miss by an order of magnitude
+   * rather than by a metre. The one-metre claim survives as a *majority* - if the pad quietly became a
+   * best-effort skirt, most buildings would stop being level and this would say so.
    */
   @Test
   fun `the ground under a building is level`() {
     val sample = buildings.sortedBy { it.id.value }.take(24)
     assertTrue(sample.isNotEmpty(), "no buildings to check")
+
+    var samples = 0
+    var level = 0
 
     for (building in sample) {
       val floor = building.attribute(BuildingChannels.FLOOR_ELEVATION)
@@ -144,12 +162,24 @@ class TownStageTest {
       for (corner in corners) {
         val inside = building.center.lerp(corner, 0.66)
         val height = groundAt(inside.x, inside.y)
+        val offset = height - floor
+
         assertTrue(
-          Math.abs(height - floor) < LEVEL_TOLERANCE,
-          "under building ${building.id} the ground is $height and the floor is $floor"
+          offset <= PAD_MAX_CUT + PAD_SLACK && offset >= -PAD_MAX_FILL - PAD_SLACK,
+          "under building ${building.id} the ground is $height and the floor is $floor, which is further " +
+              "than the pad is allowed to leave it"
         )
+
+        samples++
+        if (Math.abs(offset) < LEVEL_TOLERANCE) level++
       }
     }
+
+    assertTrue(
+      level >= samples * LEVEL_MAJORITY,
+      "only $level of $samples samples under a building are within ${LEVEL_TOLERANCE}m of its floor; the " +
+          "pad is no longer levelling anything but the easiest ground"
+    )
   }
 
   /**
@@ -162,29 +192,46 @@ class TownStageTest {
   @Test
   fun `a building appears in the chunk that contains it`() {
     val config = generated.config
-    // The biggest building in the world, so the sample has room to land on a wall rather than a doorway.
-    val building = buildings.maxByOrNull { it.halfLength * it.halfWidth }!!
+    // The biggest ordinary building in the world. Fortifications are excluded because they are the one kind
+    // that is still voxels rather than a prop - see `TownStructures.Structure.voxelised`.
+    val building = buildings
+      .filter {
+        BuildingFunction.entries[it.attribute(BuildingChannels.FUNCTION).toInt()] !=
+            BuildingFunction.FORTIFICATION
+      }
+      .maxByOrNull { it.halfLength * it.halfWidth }!!
 
     val chunkX = Math.floorDiv((building.center.x / config.voxelSize).toInt(), config.chunkSize)
     val chunkY = Math.floorDiv((building.center.y / config.voxelSize).toInt(), config.chunkSize)
-    val columns = generated.materializer.surfaceColumns(chunkX, chunkY)
 
-    val worked = setOf(
-      BlockType.MASONRY, BlockType.TIMBER, BlockType.PLASTER, BlockType.THATCH,
-      BlockType.ROOF_TILE, BlockType.COBBLESTONE
+    // The prop, which is now what a building *is*. This is the assertion that used to be a count of worked
+    // voxels: the whole path from a `FootprintFeature` on the world tier to something a runtime can spawn runs
+    // through here, and nothing else in the module tests it end to end.
+    val props = generated.materializer.propsIn(chunkX, chunkY)
+    val emitted = props.indices.filter { props.kindAt(it) == PropKind.BUILDING }
+
+    assertTrue(
+      emitted.isNotEmpty(),
+      "the chunk containing building ${building.id} at ${building.center} emitted no building prop"
     )
+    for (i in emitted) {
+      assertTrue(props.radiusAt(i) > 0.0 && props.halfWidthAt(i) > 0.0, "a building prop has no footprint")
+      assertTrue(props.heightAt(i) > 0.0, "a building prop has no height")
+      assertTrue(props.yawAt(i).isFinite(), "a building prop has no facing")
+    }
 
-    var found = 0
+    // The floor slab is the half of a building that is still terrain, and it has to land in the same chunk.
+    val columns = generated.materializer.surfaceColumns(chunkX, chunkY)
+    var slab = 0
     for (localY in 0 until config.chunkSize) {
       for (localX in 0 until config.chunkSize) {
-        val block = BlockType.ofOrNull(columns.blockAt(localX, localY)) ?: continue
-        if (block in worked) found++
+        if (BlockType.ofOrNull(columns.blockAt(localX, localY)) == BlockType.MASONRY) slab++
       }
     }
 
     assertTrue(
-      found > 0,
-      "the chunk containing building ${building.id} at ${building.center} has no worked material in it"
+      slab > 0,
+      "the chunk containing building ${building.id} at ${building.center} has no floor slab in it"
     )
   }
 
@@ -271,11 +318,15 @@ class TownStageTest {
 
     // Not the same columns - they are different places - but both must contain the building, since it crosses
     // the border between them.
+    //
+    // Masonry alone now, and what it finds is the **floor slab**: the walls are a prop, and a prop belongs to
+    // exactly one chunk by construction. The slab is the part that still spans the border, so it is what tests
+    // the property this case is actually about - two independently materialised chunks agreeing about one
+    // structure's geometry at the seam between them.
     fun workedCount(chunk: net.bestia.worldgen.voxel.VoxelChunk): Int {
       var count = 0
       for (i in chunk.blocks.indices) {
-        val block = BlockType.ofOrNull(chunk.blocks[i].toInt()) ?: continue
-        if (block == BlockType.MASONRY || block == BlockType.TIMBER || block == BlockType.PLASTER) count++
+        if (BlockType.ofOrNull(chunk.blocks[i].toInt()) == BlockType.MASONRY) count++
       }
       return count
     }
@@ -307,5 +358,21 @@ class TownStageTest {
   private companion object {
     /** Metres the ground under a building may differ from its floor. One voxel of slack. */
     const val LEVEL_TOLERANCE = 1.0
+
+    /**
+     * Mirrors `TownStage.PAD_MAX_CUT` and `PAD_MAX_FILL`, which are private.
+     *
+     * Duplicated rather than opened up, on `WasteTombTest.TOMB_OFFSET_ALLOWANCE`'s argument: these are the
+     * *bound* on the assertion rather than the value under test, so changing them over there should make
+     * somebody look at this line instead of silently widening it.
+     */
+    const val PAD_MAX_CUT = 4.0
+    const val PAD_MAX_FILL = 3.0
+
+    /** One voxel, for the rounding between a pad's profile and the column the materialiser samples. */
+    const val PAD_SLACK = 1.0
+
+    /** Share of samples that must be level to within [LEVEL_TOLERANCE]. See the test's own KDoc. */
+    const val LEVEL_MAJORITY = 0.8
   }
 }

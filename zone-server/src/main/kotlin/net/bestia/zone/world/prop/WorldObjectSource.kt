@@ -13,6 +13,11 @@ import net.bestia.zone.geometry.Vec3L
  * @property position already grounded, from the stamped column heights rather than the base heightfield
  * @property variant a stable roll for picking between interchangeable meshes
  * @property heightDm the height the generator drew, in decimetres
+ * @property halfLengthDm half-extent along the facing axis in decimetres, or 0 for a kind whose footprint is
+ *   the one in `prop-kinds.yml`. Nonzero only for a building, which is the one kind whose size is decided per
+ *   instance by the lot it stands on rather than per kind - a temple and a barn share no dimension.
+ * @property halfWidthDm the same across the facing axis. Zero and [halfLengthDm] zero travel together; one of
+ *   the two set alone means a producer filled in half a footprint.
  */
 data class WorldObjectSite(
   val kind: StaticEntityKind,
@@ -20,7 +25,9 @@ data class WorldObjectSite(
   val position: Vec3L,
   val variant: Int,
   val heightDm: Int,
-  val yaw: Float
+  val yaw: Float,
+  val halfLengthDm: Int = 0,
+  val halfWidthDm: Int = 0
 )
 
 /**

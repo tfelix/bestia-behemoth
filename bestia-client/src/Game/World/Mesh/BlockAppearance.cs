@@ -115,7 +115,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       Sand = 3,
 
-      /// <summary>Loose earth: dirt, clay and peat.</summary>
+      /// <summary>Loose earth. Dirt, and the blighted twins of everything that is not rock.</summary>
       Soil = 4,
 
       /// <summary>Every bed and every ore body. The tint is what tells granite from a gold seam.</summary>
@@ -124,8 +124,22 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// <summary>Permanent snowpack and ice, as placed by the generator - not the weather overlay.</summary>
       Snow = 6,
 
-      /// <summary>Unused. Held open so the first material that genuinely needs its own texture has somewhere to go.</summary>
-      Reserved = 7
+      /// <summary>
+      /// Saturated ground: <c>MUD</c>, and nothing else.
+      /// </summary>
+      /// <remarks>
+      /// This was <c>Reserved</c>, held open "so the first material that genuinely needs its own texture has
+      /// somewhere to go". Wet ground is that material. Every other slot here is a grain - the blades of grass,
+      /// the fracture of rock - and wetness is not a grain, which is exactly why no tint over
+      /// <see cref="Soil"/> could express it and why a bog rendered as a ploughed field.
+      ///
+      /// <para>
+      /// <b>All eight slots are now spent.</b> The next material that needs its own texture cannot have one
+      /// without going to sixteen, and <see cref="Slots"/> explains what sixteen costs: all four vertex
+      /// attributes Godot offers, with nothing left over.
+      /// </para>
+      /// </remarks>
+      Wetland = 7
     }
 
     /// <summary>
@@ -156,9 +170,16 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// Whether it obstructs: the server's <c>BlockType.solid</c>, mirrored.
       /// </summary>
       /// <remarks>
-      /// Unread here now that <see cref="Surface"/> answers the meshing question, and mirrored anyway for the
-      /// same reason <see cref="Opaque"/> is: the two palettes have to be comparable by eye, and a field that
-      /// disappears from this side is a divergence nobody can see.
+      /// Unread here now that <see cref="Surface"/> answers the meshing question, and mirrored anyway because
+      /// the two palettes have to be comparable by eye: a field that disappears from this side is a divergence
+      /// nobody can see.
+      ///
+      /// <para>
+      /// There was an <c>Opaque</c> beside this one, mirroring a server property of the same name. Both are
+      /// gone. The server's existed so a leaf canopy could half-block a sight line, leaves left the palette for
+      /// props, and every material that remained had <c>opaque == solid</c> exactly - so it was deleted there
+      /// and deleting it here changes nothing but the row count.
+      /// </para>
       /// </remarks>
       public bool Solid { get; init; }
 
@@ -174,15 +195,6 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// contradicts it, and it fails by rendering rather than by throwing.
       /// </remarks>
       public SurfaceSlot Slot { get; init; }
-
-      /// <summary>
-      /// Whether it blocks sight.
-      /// </summary>
-      /// <remarks>
-      /// Never distinct from <see cref="Solid"/> in the current palette and unread by anything here, but
-      /// mirrored because the server distinguishes them and a divergence would be silent.
-      /// </remarks>
-      public bool Opaque { get; init; }
 
       public Color Colour { get; init; }
     }
@@ -204,74 +216,69 @@ namespace BestiaBehemothClient.Game.World.Mesh
       Molten(3, "LAVA", 0.95f, 0.36f, 0.09f),
 
       // Basement.
-      Terrain(10, "GRANITE", SurfaceSlot.Rock, 0.60f, 0.56f, 0.55f),
-      Terrain(11, "BASALT", SurfaceSlot.Rock, 0.26f, 0.26f, 0.28f),
+      Terrain(4, "GRANITE", SurfaceSlot.Rock, 0.60f, 0.56f, 0.55f),
+      Terrain(5, "BASALT", SurfaceSlot.Rock, 0.26f, 0.26f, 0.28f),
 
       // Volcanic glass. Darker and cooler than basalt, which is the only thing it is ever next to.
-      Terrain(12, "OBSIDIAN", SurfaceSlot.Rock, 0.09f, 0.08f, 0.11f),
+      Terrain(6, "OBSIDIAN", SurfaceSlot.Rock, 0.09f, 0.08f, 0.11f),
 
-      // Sedimentary cover.
-      Terrain(20, "LIMESTONE", SurfaceSlot.Rock, 0.78f, 0.76f, 0.68f),
-      Terrain(21, "SANDSTONE", SurfaceSlot.Rock, 0.76f, 0.62f, 0.42f),
-      Terrain(22, "SHALE", SurfaceSlot.Rock, 0.34f, 0.35f, 0.36f),
-      Terrain(23, "CONGLOMERATE", SurfaceSlot.Rock, 0.57f, 0.51f, 0.45f),
+      // Sedimentary cover, in two rows where it was four. Sandstone, shale and conglomerate were three colours
+      // of one rock with no difference a player could act on, and they are STONE now; limestone stayed because
+      // caves dissolve it, which makes a white band in a cliff mean something - it is the rock a cave is in.
+      Terrain(7, "STONE", SurfaceSlot.Rock, 0.55f, 0.53f, 0.49f),
+      Terrain(8, "LIMESTONE", SurfaceSlot.Rock, 0.78f, 0.76f, 0.68f),
 
       // Unconsolidated. GRAVEL is rock rather than soil: it is what a scree slope and a river bed are made of,
       // and a loose-earth texture under it would read as mud in exactly the places water has washed the fines out.
-      Terrain(30, "GRAVEL", SurfaceSlot.Rock, 0.52f, 0.50f, 0.48f),
-      Terrain(31, "SAND", SurfaceSlot.Sand, 0.85f, 0.76f, 0.55f),
-      Terrain(32, "CLAY", SurfaceSlot.Soil, 0.60f, 0.45f, 0.36f),
-      Terrain(33, "DIRT", SurfaceSlot.Soil, 0.38f, 0.28f, 0.19f),
-      Terrain(34, "PEAT", SurfaceSlot.Soil, 0.22f, 0.17f, 0.13f),
+      Terrain(9, "GRAVEL", SurfaceSlot.Rock, 0.52f, 0.50f, 0.48f),
+      Terrain(10, "SAND", SurfaceSlot.Sand, 0.85f, 0.76f, 0.55f),
+      Terrain(11, "DIRT", SurfaceSlot.Soil, 0.38f, 0.28f, 0.19f),
 
-      // 35 was PERMAFROST, mechanically identical to DIRT server-side; folded back in on the palette pass
-      // and its id left free rather than reused, mirroring worldgen's BlockType.
+      // Saturated ground: a bog, a swamp, a river bank, the floor of deep water. Was PEAT and CLAY, which the
+      // server merged - see BlockType.MUD for what that gave up.
+      //
+      // The one material to claim SurfaceSlot.Wetland, and the reason the slot was spent on it: wet ground is
+      // not dry ground in a darker shade. Standing water in the grain, a sheen, a different scatter - none of
+      // that is expressible as a tint over the loose-earth texture, which is what this row had before and why
+      // a bog looked like a ploughed field.
+      Terrain(12, "MUD", SurfaceSlot.Wetland, 0.30f, 0.24f, 0.18f),
 
       // Surface cover.
-      Terrain(40, "GRASS", SurfaceSlot.Grass, 0.28f, 0.45f, 0.19f),
-      Terrain(41, "SNOW", SurfaceSlot.Snow, 0.92f, 0.94f, 0.96f),
+      Terrain(13, "GRASS", SurfaceSlot.Grass, 0.28f, 0.45f, 0.19f),
       // Bleached bunchgrass: what DRYLAND caps in, and deliberately a long way from GRASS in hue. Grassland and
-      // dryland are a third of the land between them and used to share id 40, so telling them apart is the whole
-      // reason this row exists - a subtle difference here would put the two biomes back into one colour.
-      Terrain(42, "DRY_GRASS", SurfaceSlot.DryGrass, 0.61f, 0.57f, 0.33f),
-
-      // Ids 45 to 48 are free and must stay free: LOG, LEAVES, MANA_CRYSTAL_SMALL and MANA_CRYSTAL_LARGE.
-      // Trees and mana crystals are entities now, delivered by ChunkStaticEntitiesSMSG and drawn by
-      // StaticEntityRenderer, so nothing in a chunk payload names them. See BlockType's own note.
+      // dryland are a third of the land between them and used to share one id, so telling them apart is the
+      // whole reason this row exists - a subtle difference here would put the two biomes back into one colour.
+      Terrain(14, "DRY_GRASS", SurfaceSlot.DryGrass, 0.61f, 0.57f, 0.33f),
+      Terrain(15, "SNOW", SurfaceSlot.Snow, 0.92f, 0.94f, 0.96f),
 
       // Corrupted ground. Each is its clean twin pulled toward violet and darkened, so a corruption boundary
       // reads as the same terrain gone wrong rather than as a different biome - which is what it is.
       //
       // Each therefore takes its clean twin's slot, which is that same argument one layer down: the corrupted
-      // ground is the same ground, so it wants the same grain and only a different colour. Giving the four of
+      // ground is the same ground, so it wants the same grain and only a different colour. Giving the three of
       // them a slot of their own would make a blight boundary a change of *texture*, and the boundary would read
       // as two different materials meeting rather than as one material going wrong.
-      Terrain(49, "BLIGHTED_GRASS", SurfaceSlot.Grass, 0.30f, 0.24f, 0.34f),
-      Terrain(50, "BLIGHTED_DIRT", SurfaceSlot.Soil, 0.26f, 0.18f, 0.24f),
-      Terrain(51, "BLIGHTED_SAND", SurfaceSlot.Sand, 0.56f, 0.46f, 0.54f),
-      Terrain(52, "BLIGHTED_PEAT", SurfaceSlot.Soil, 0.17f, 0.12f, 0.18f),
-      // 53 and 54 free: BLIGHTED_LOG and BLIGHTED_LEAVES. A corrupted tree carries a flag on its prop now.
-
-      // Bridge decking and other worked structure.
       //
-      // The worked materials are all on Neutral, and that is a holding position rather than a judgement. Thatch
-      // and plaster want their own textures - they are the only things in the palette with a man-made weave - but
-      // one shared "worked" texture would be worse than none, because a plastered wall and a thatched roof drawn
-      // with the same grain in two colours reads as a rendering fault, where flat colour reads as unfinished art.
-      // Each gets a slot when it gets a texture; Reserved is where the first one goes.
-      Terrain(60, "MASONRY", SurfaceSlot.Neutral, 0.62f, 0.60f, 0.56f),
+      // Three, and the server's blight table is not a bijection: DRY_GRASS shares BLIGHTED_GRASS and MUD shares
+      // BLIGHTED_DIRT. A corrupted bog therefore renders on the Soil slot rather than Wetland, which is a real
+      // loss of the wet grain and a deliberate one - corrupted ground is corrupted ground.
+      Terrain(16, "BLIGHTED_GRASS", SurfaceSlot.Grass, 0.30f, 0.24f, 0.34f),
+      Terrain(17, "BLIGHTED_DIRT", SurfaceSlot.Soil, 0.26f, 0.18f, 0.24f),
+      Terrain(18, "BLIGHTED_SAND", SurfaceSlot.Sand, 0.56f, 0.46f, 0.54f),
 
-      // Buildings and streets, added with the server's step 8. Deliberately more saturated than the natural
-      // materials they stand on: a town has to read as built from a distance at which its shape does not.
-      Terrain(61, "TIMBER", SurfaceSlot.Neutral, 0.44f, 0.31f, 0.19f),
-      Terrain(62, "PLASTER", SurfaceSlot.Neutral, 0.86f, 0.82f, 0.73f),
-      Terrain(63, "THATCH", SurfaceSlot.Neutral, 0.72f, 0.60f, 0.30f),
-      Terrain(64, "ROOF_TILE", SurfaceSlot.Neutral, 0.55f, 0.26f, 0.20f),
-
-      // Rubble and cobblestone are the exception: both are broken stone, so rock's grain is the right one and
-      // only the colour differs. They are worked materials that happen to be made of the unworked one.
-      Terrain(66, "RUBBLE", SurfaceSlot.Rock, 0.48f, 0.46f, 0.43f),
-      Terrain(67, "COBBLESTONE", SurfaceSlot.Rock, 0.42f, 0.41f, 0.40f),
+      // Worked stone, and there are only two rows left of a band that had six.
+      //
+      // TIMBER, PLASTER, THATCH, ROOF_TILE and RUBBLE were all here to draw *houses* with, and a house is an
+      // entity now - it arrives over ChunkStaticEntitiesSMSG and StaticEntityRenderer draws it, the same path
+      // trees and mana crystals already took. What is left is the worked stone that really is terrain: a bridge
+      // deck, a street, and the floor slab a building stands on.
+      //
+      // MASONRY stays on Neutral, which is a holding position rather than a judgement - it is flat colour until
+      // somebody authors a texture for it, and flat colour reads as unfinished art where a borrowed grain would
+      // read as a rendering fault. Cobblestone is the exception and takes rock's grain, because broken stone is
+      // what it is made of.
+      Terrain(19, "MASONRY", SurfaceSlot.Neutral, 0.62f, 0.60f, 0.56f),
+      Terrain(20, "COBBLESTONE", SurfaceSlot.Rock, 0.42f, 0.41f, 0.40f),
 
       // Ore, placed per voxel at chunk generation, three grades per metal. The grade is not decoration: it
       // decides what a broken voxel drops, so a player has to be able to see the difference between the rim
@@ -282,74 +289,107 @@ namespace BestiaBehemothClient.Game.World.Mesh
       // exactly the colour, drawn over the same fracture and grain the wall around it has. Giving ore its own
       // texture would break the thing this row block exists to protect: the seam has to read as part of the wall,
       // or a player cannot see where it stops.
-      Terrain(100, "ORE_COPPER_SMALL", SurfaceSlot.Rock, 0.48f, 0.42f, 0.36f),
-      Terrain(101, "ORE_COPPER_MEDIUM", SurfaceSlot.Rock, 0.60f, 0.45f, 0.30f),
-      Terrain(102, "ORE_COPPER_RICH", SurfaceSlot.Rock, 0.73f, 0.46f, 0.29f),
+      Terrain(21, "ORE_COPPER_SMALL", SurfaceSlot.Rock, 0.48f, 0.42f, 0.36f),
+      Terrain(22, "ORE_COPPER_MEDIUM", SurfaceSlot.Rock, 0.60f, 0.45f, 0.30f),
+      Terrain(23, "ORE_COPPER_RICH", SurfaceSlot.Rock, 0.73f, 0.46f, 0.29f),
 
-      Terrain(103, "ORE_TIN_SMALL", SurfaceSlot.Rock, 0.47f, 0.48f, 0.49f),
-      Terrain(104, "ORE_TIN_MEDIUM", SurfaceSlot.Rock, 0.61f, 0.63f, 0.66f),
-      Terrain(105, "ORE_TIN_RICH", SurfaceSlot.Rock, 0.76f, 0.79f, 0.83f),
+      Terrain(24, "ORE_TIN_SMALL", SurfaceSlot.Rock, 0.47f, 0.48f, 0.49f),
+      Terrain(25, "ORE_TIN_MEDIUM", SurfaceSlot.Rock, 0.61f, 0.63f, 0.66f),
+      Terrain(26, "ORE_TIN_RICH", SurfaceSlot.Rock, 0.76f, 0.79f, 0.83f),
 
-      Terrain(106, "ORE_IRON_SMALL", SurfaceSlot.Rock, 0.45f, 0.38f, 0.34f),
-      Terrain(107, "ORE_IRON_MEDIUM", SurfaceSlot.Rock, 0.58f, 0.36f, 0.28f),
-      Terrain(108, "ORE_IRON_RICH", SurfaceSlot.Rock, 0.70f, 0.41f, 0.31f),
+      Terrain(27, "ORE_IRON_SMALL", SurfaceSlot.Rock, 0.45f, 0.38f, 0.34f),
+      Terrain(28, "ORE_IRON_MEDIUM", SurfaceSlot.Rock, 0.58f, 0.36f, 0.28f),
+      Terrain(29, "ORE_IRON_RICH", SurfaceSlot.Rock, 0.70f, 0.41f, 0.31f),
 
-      Terrain(109, "ORE_GOLD_SMALL", SurfaceSlot.Rock, 0.54f, 0.49f, 0.35f),
-      Terrain(110, "ORE_GOLD_MEDIUM", SurfaceSlot.Rock, 0.77f, 0.65f, 0.31f),
-      Terrain(111, "ORE_GOLD_RICH", SurfaceSlot.Rock, 0.97f, 0.81f, 0.31f),
+      Terrain(30, "ORE_GOLD_SMALL", SurfaceSlot.Rock, 0.54f, 0.49f, 0.35f),
+      Terrain(31, "ORE_GOLD_MEDIUM", SurfaceSlot.Rock, 0.77f, 0.65f, 0.31f),
+      Terrain(32, "ORE_GOLD_RICH", SurfaceSlot.Rock, 0.97f, 0.81f, 0.31f),
 
-      Terrain(112, "ORE_SILVER_SMALL", SurfaceSlot.Rock, 0.52f, 0.53f, 0.55f),
-      Terrain(113, "ORE_SILVER_MEDIUM", SurfaceSlot.Rock, 0.71f, 0.73f, 0.76f),
-      Terrain(114, "ORE_SILVER_RICH", SurfaceSlot.Rock, 0.89f, 0.91f, 0.94f),
+      Terrain(33, "ORE_SILVER_SMALL", SurfaceSlot.Rock, 0.52f, 0.53f, 0.55f),
+      Terrain(34, "ORE_SILVER_MEDIUM", SurfaceSlot.Rock, 0.71f, 0.73f, 0.76f),
+      Terrain(35, "ORE_SILVER_RICH", SurfaceSlot.Rock, 0.89f, 0.91f, 0.94f),
 
-      // Cold violet-cyan, which nothing else in the palette is anywhere near. The rarest thing in the ground
+      // Cold violet-cyan, which nothing else in the palette is anywhere near. The rarest metal in the ground
       // should be unmistakable the moment it appears in a shaft wall.
-      Terrain(115, "ORE_MITHRANDIUM_SMALL", SurfaceSlot.Rock, 0.38f, 0.45f, 0.50f),
-      Terrain(116, "ORE_MITHRANDIUM_MEDIUM", SurfaceSlot.Rock, 0.40f, 0.68f, 0.76f),
-      Terrain(117, "ORE_MITHRANDIUM_RICH", SurfaceSlot.Rock, 0.48f, 0.89f, 0.94f),
+      Terrain(36, "ORE_MITHRANDIUM_SMALL", SurfaceSlot.Rock, 0.38f, 0.45f, 0.50f),
+      Terrain(37, "ORE_MITHRANDIUM_MEDIUM", SurfaceSlot.Rock, 0.40f, 0.68f, 0.76f),
+      Terrain(38, "ORE_MITHRANDIUM_RICH", SurfaceSlot.Rock, 0.48f, 0.89f, 0.94f),
 
-      Terrain(118, "ROCK_SALT_SMALL", SurfaceSlot.Rock, 0.69f, 0.67f, 0.66f),
-      Terrain(119, "ROCK_SALT_MEDIUM", SurfaceSlot.Rock, 0.83f, 0.81f, 0.80f),
-      Terrain(120, "ROCK_SALT_RICH", SurfaceSlot.Rock, 0.96f, 0.94f, 0.93f),
-
-      // Aetherite: the same ore body, dug out of corrupted rock. Violet where mithrandium is cyan, so the
-      // two rare metals are told apart at a glance in a dark gallery.
-      Terrain(121, "ORE_AETHERITE_SMALL", SurfaceSlot.Rock, 0.42f, 0.33f, 0.52f),
-      Terrain(122, "ORE_AETHERITE_MEDIUM", SurfaceSlot.Rock, 0.58f, 0.40f, 0.78f),
-      Terrain(123, "ORE_AETHERITE_RICH", SurfaceSlot.Rock, 0.74f, 0.48f, 0.98f),
+      Terrain(39, "ROCK_SALT_SMALL", SurfaceSlot.Rock, 0.69f, 0.67f, 0.66f),
+      Terrain(40, "ROCK_SALT_MEDIUM", SurfaceSlot.Rock, 0.83f, 0.81f, 0.80f),
+      Terrain(41, "ROCK_SALT_RICH", SurfaceSlot.Rock, 0.96f, 0.94f, 0.93f),
 
       // Sulfur: acid yellow, pulled green deliberately. Gold's rich grade is a warm 0.97/0.81/0.31 and a
       // second yellow ore that read as warm would be mistaken for it in a lamplit gallery, which matters
       // because one of them is worth crossing a volcano for and the other is worth carrying home by the sack.
-      Terrain(124, "ORE_SULFUR_SMALL", SurfaceSlot.Rock, 0.52f, 0.51f, 0.34f),
-      Terrain(125, "ORE_SULFUR_MEDIUM", SurfaceSlot.Rock, 0.72f, 0.74f, 0.28f),
-      Terrain(126, "ORE_SULFUR_RICH", SurfaceSlot.Rock, 0.88f, 0.93f, 0.26f),
+      Terrain(42, "ORE_SULFUR_SMALL", SurfaceSlot.Rock, 0.52f, 0.51f, 0.34f),
+      Terrain(43, "ORE_SULFUR_MEDIUM", SurfaceSlot.Rock, 0.72f, 0.74f, 0.28f),
+      Terrain(44, "ORE_SULFUR_RICH", SurfaceSlot.Rock, 0.88f, 0.93f, 0.26f),
 
-      // Pyrelith: rose, which nothing else in the palette occupies. It sits in basalt beside lava, so it has
-      // to be distinct from that orange as well as from aetherite's violet and mithrandium's cyan - the three
-      // colours a player already reads as "rare".
-      Terrain(127, "GEM_PYRELITH_SMALL", SurfaceSlot.Rock, 0.45f, 0.22f, 0.30f),
-      Terrain(128, "GEM_PYRELITH_MEDIUM", SurfaceSlot.Rock, 0.72f, 0.24f, 0.42f),
-      Terrain(129, "GEM_PYRELITH_RICH", SurfaceSlot.Rock, 0.96f, 0.30f, 0.52f)
+      // Aetherite: the same ore body, dug out of corrupted rock.
+      //
+      // Magenta, and it used to be violet. Amethyst arrived below and violet is the one colour an amethyst
+      // cannot give up, so the ore moved rather than the gem - a corrupted seam reads as *wrong* rather than as
+      // precious, and pushing it toward magenta says that better than sharing a hue with a gemstone did.
+      Terrain(45, "ORE_AETHERITE_SMALL", SurfaceSlot.Rock, 0.44f, 0.30f, 0.44f),
+      Terrain(46, "ORE_AETHERITE_MEDIUM", SurfaceSlot.Rock, 0.68f, 0.30f, 0.66f),
+      Terrain(47, "ORE_AETHERITE_RICH", SurfaceSlot.Rock, 0.90f, 0.32f, 0.86f),
+
+      // The gems. Every one is on the rock slot with the ores and for the ore's reason: a crystal in a vug is
+      // still seen through the wall it is in, so what tells it apart has to be colour over the wall's own grain.
+      //
+      // Between them and the three "rare" metals above, the palette is now spending eight distinct hues on
+      // things a player digs for. Each block below says which colour it must not be confused with.
+
+      // Pyrelith: rose. It sits in basalt beside lava, so it has to be distinct from that orange as well as
+      // from ruby's crimson two rows down.
+      Terrain(48, "GEM_PYRELITH_SMALL", SurfaceSlot.Rock, 0.45f, 0.22f, 0.30f),
+      Terrain(49, "GEM_PYRELITH_MEDIUM", SurfaceSlot.Rock, 0.72f, 0.24f, 0.42f),
+      Terrain(50, "GEM_PYRELITH_RICH", SurfaceSlot.Rock, 0.96f, 0.30f, 0.52f),
+
+      // Amethyst: violet, and blue-violet specifically, to stay clear of aetherite's magenta. The commonest
+      // gem and the shallowest, so this is the one most players see first.
+      Terrain(51, "GEM_AMETHYST_SMALL", SurfaceSlot.Rock, 0.40f, 0.36f, 0.50f),
+      Terrain(52, "GEM_AMETHYST_MEDIUM", SurfaceSlot.Rock, 0.48f, 0.38f, 0.72f),
+      Terrain(53, "GEM_AMETHYST_RICH", SurfaceSlot.Rock, 0.56f, 0.42f, 0.92f),
+
+      // Emerald: the only green in the palette. Sulfur is the near miss - acid yellow-green - so this is
+      // pushed well into blue-green to keep a pegmatite from reading as a fumarole.
+      Terrain(54, "GEM_EMERALD_SMALL", SurfaceSlot.Rock, 0.30f, 0.44f, 0.38f),
+      Terrain(55, "GEM_EMERALD_MEDIUM", SurfaceSlot.Rock, 0.22f, 0.62f, 0.44f),
+      Terrain(56, "GEM_EMERALD_RICH", SurfaceSlot.Rock, 0.16f, 0.80f, 0.48f),
+
+      // Ruby: crimson. Pure red where pyrelith is pink and iron's rich grade is rusty orange-brown - three
+      // warm ores that a lamp flattens toward each other, which is why this one is the most saturated.
+      Terrain(57, "GEM_RUBY_SMALL", SurfaceSlot.Rock, 0.46f, 0.24f, 0.24f),
+      Terrain(58, "GEM_RUBY_MEDIUM", SurfaceSlot.Rock, 0.70f, 0.17f, 0.22f),
+      Terrain(59, "GEM_RUBY_RICH", SurfaceSlot.Rock, 0.91f, 0.10f, 0.20f),
+
+      // Diamond: cool white. The hardest row in the table to keep distinct, because silver and rock salt both
+      // end near white - so this starts darker and colder than either and ends bluer, and the depth does the
+      // rest. At 300 to 800 metres nothing else here is in the same gallery.
+      Terrain(60, "GEM_DIAMOND_SMALL", SurfaceSlot.Rock, 0.50f, 0.58f, 0.64f),
+      Terrain(61, "GEM_DIAMOND_MEDIUM", SurfaceSlot.Rock, 0.68f, 0.80f, 0.88f),
+      Terrain(62, "GEM_DIAMOND_RICH", SurfaceSlot.Rock, 0.84f, 0.95f, 1.00f)
     };
 
     /// <summary>
     /// A material on the opaque terrain surface.
     /// </summary>
     /// <remarks>
-    /// Solid and sight-blocking together, which every terrain material in the server's enum currently is. A
-    /// material that is one and not the other needs its own factory rather than a fourth argument here, so
-    /// that the divergence is visible in the table rather than hidden in a boolean.
+    /// Solid, which every terrain material in the server's enum is. A material that is drawn into the terrain
+    /// mesh without being solid needs its own factory rather than a fourth argument here, so that the
+    /// divergence is visible in the table rather than hidden in a boolean.
     /// </remarks>
     private static Block Terrain(byte id, string name, SurfaceSlot slot, float r, float g, float b) =>
       new()
       {
-        Id = id, Name = name, Solid = true, Opaque = true,
+        Id = id, Name = name, Solid = true,
         Surface = SurfaceKind.Terrain, Slot = slot, Colour = new Color(r, g, b)
       };
 
     /// <summary>
-    /// A material on the transparent water surface: neither solid nor sight-blocking.
+    /// A material on the transparent water surface. Not solid.
     /// </summary>
     /// <remarks>
     /// No slot, because the water surface is not drawn by the terrain shader and has no texture array to index
@@ -360,20 +400,20 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private static Block Fluid(byte id, string name, float r, float g, float b, float a) =>
       new()
       {
-        Id = id, Name = name, Solid = false, Opaque = false,
+        Id = id, Name = name, Solid = false,
         Surface = SurfaceKind.Water, Slot = SurfaceSlot.Neutral, Colour = new Color(r, g, b, a)
       };
 
     /// <summary>
-    /// Molten rock: its own surface, drawn opaque and emissive. Neither solid nor sight-blocking.
+    /// Molten rock: its own surface, drawn opaque and emissive. Not solid.
     /// </summary>
     /// <remarks>
-    /// Not <see cref="Fluid"/>, and the argument is the one the class remarks make about the leaf canopy: which
-    /// mesh a material is drawn into is a different question from whether it obstructs. On the water surface a
-    /// lava pool beside a lake would blend into one continuous sheet, with water's alpha and no glow.
+    /// Not <see cref="Fluid"/>, and the argument is that which mesh a material is drawn into is a different
+    /// question from whether it obstructs. On the water surface a lava pool beside a lake would blend into one
+    /// continuous sheet, with water's alpha and no glow.
     ///
     /// <para>
-    /// <b>Opaque on purpose, and that is load bearing rather than aesthetic.</b> <c>ChunkBands</c> marks active
+    /// <b>Drawn opaque on purpose, and that is load bearing rather than aesthetic.</b> <c>ChunkBands</c> marks active
     /// cells from the occupancy byte alone, and the materialiser fills everything below the air interface to
     /// full - rock and the fluid above it alike - so a rock/fluid interface is not an occupancy change and the
     /// bed under a fluid is never meshed. (The same is already true of every lake bed in the world.) An alpha
@@ -389,7 +429,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private static Block Molten(byte id, string name, float r, float g, float b) =>
       new()
       {
-        Id = id, Name = name, Solid = false, Opaque = false,
+        Id = id, Name = name, Solid = false,
         Surface = SurfaceKind.Lava, Slot = SurfaceSlot.Neutral, Colour = new Color(r, g, b)
       };
 

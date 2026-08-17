@@ -305,7 +305,9 @@ class ResourceStage(
 
   override val id = ID
 
-  override val version = 1
+  // 2: four gems joined the catalogue and every `scarcityRank` below diamond shifted to make room. A code
+  // change rather than a retune, so it belongs here and not in `paramsVersion` - see `Stage.version`.
+  override val version = 2
 
   override val paramsVersion
     get() = GenRng.hash(
@@ -744,7 +746,8 @@ class ResourceStage(
 
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
     ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT,
-    ResourceType.SULFUR, ResourceType.PYRELITH ->
+    ResourceType.SULFUR, ResourceType.PYRELITH, ResourceType.RUBY, ResourceType.DIAMOND,
+    ResourceType.EMERALD, ResourceType.AMETHYST ->
       throw IllegalArgumentException("$type is a mineable ore; its spacing is MinableOre.spacingFactor")
 
     // Never placed at all - see ResourceType.AETHERITE. Reaching here means somebody added it to a candidate
@@ -767,7 +770,8 @@ class ResourceStage(
     // under a hundred and fifty metres of rock for looking like marble.
     ResourceType.COPPER, ResourceType.TIN, ResourceType.IRON, ResourceType.GOLD_LODE,
     ResourceType.GOLD_PLACER, ResourceType.SILVER, ResourceType.MITHRANDIUM, ResourceType.SALT,
-    ResourceType.SULFUR, ResourceType.PYRELITH ->
+    ResourceType.SULFUR, ResourceType.PYRELITH, ResourceType.RUBY, ResourceType.DIAMOND,
+    ResourceType.EMERALD, ResourceType.AMETHYST ->
       throw IllegalArgumentException("$type is a mineable ore; its depth comes from its ore body")
 
     // Never placed at all - see ResourceType.AETHERITE. It inherits the depth of whatever body it replaces.
@@ -986,6 +990,103 @@ private class Terrain(
         ResourceType.MARBLE ->
           if (submerged) 0.0 else arc * ramp(age, 0.3, 0.8) * ramp(1.0 - rock, 0.2, 0.6) * 0.7
 
+        /*
+         * The four gems. Each is one arm and no two share a conjunction of terms, which is the same standard the
+         * metals above are held to - a resource whose placement cannot be wrong cannot be discovered either.
+         */
+
+        /*
+         * Ruby is corundum in the metamorphic rock of a collision belt: the arc, and crust that has been one
+         * long enough to have cooked.
+         *
+         * It began as `MARBLE`'s arm almost verbatim - ruby genuinely is a marble-hosted gem - and the soft-rock
+         * term came with it. **That term put ruby on zero worlds in six**, and the reason is written two arms
+         * down under `PYRELITH`, which fell into it first: `arc` is proximity to a convergent boundary,
+         * orogenic crust is *hard*, and asking for soft rock at an arc asks for two things that barely
+         * co-occur. Marble survives it because it is a surface resource sampled three times as densely and with
+         * no 12 km dispersal pass thinning it further; an ore in the same conjunction simply never lands.
+         *
+         * Dropping it is also the better geology rather than a concession. `1 - rock` in marble's arm stands
+         * for the *protolith* - the limestone that was there before the collision - and what grows corundum is
+         * what the collision did to it. Ruby wants the metamorphism, which is the `arc` and the `age`.
+         *
+         * That leaves it the same shape as gold and silver, which is fine and is the point: they are all
+         * collision-belt minerals. Depth is what separates them - `MinableOre.RUBY` is 60-220 m against gold's
+         * 10-150 m - and the dispersal pass keeps any two deposits 12 km apart whatever they are.
+         */
+        ResourceType.RUBY ->
+          if (submerged) 0.0
+          else arc * ramp(age, 0.35, 0.80) * 0.5
+
+        /*
+         * Diamond, and the one arm in this whole `when` that keys on being **away** from a plate boundary.
+         *
+         * The anti-arc term is doing work no other term here can. Every precious deposit above wants the arc -
+         * copper, gold, silver and now ruby are all `arc * something` - so without one a diamond pipe would
+         * land on the same orogenic belt as the rest and the deepest, rarest thing in the world would be found
+         * in exactly the country a player already has reasons to be in. Kimberlite erupts through crust that
+         * has been quiet for an age and never at a subduction zone, so the geology and the design want the same
+         * term.
+         *
+         * It is `1 - ANTI_ARC * arc` and **not** a plain `1 - arc`, which is a scale correction rather than a
+         * softening for its own sake. `arc` is `exp(-distance / 90 km)`, so a plain complement only approaches
+         * one beyond about ninety kilometres from a boundary - and the development world is 128 km across, with
+         * the sweep worlds at 192. On a map that size there is no "far from any boundary", so a plain
+         * complement is not a preference at all: it is a veto, and it put diamond on **zero worlds in six**.
+         * What survives is the ordering - ground away from an arc is worth about four times ground on one -
+         * which is the claim worth making and the one a player can read off a map of any size.
+         *
+         * The elevation clause is the second half of that separation, and it is `MITHRANDIUM`'s clause with the
+         * sign flipped: mithrandium wants old, hard *and high* ground, diamond wants old and **worn flat**. Two
+         * resources that both need ancient crust therefore cannot co-occur, and neither needed a scarcity number
+         * to say so.
+         *
+         * ### The elevation numbers, and the mistake they were the second instance of
+         *
+         * That clause read `ramp(1200 - above, 0, 900)` first, and it put diamond on **zero worlds in six**.
+         * `IRON`'s own comment fifty lines up describes the identical failure - "its elevation clause used to
+         * be `600 - above`, which assumed a world whose land sat below six hundred metres. This one's median
+         * land elevation is fourteen hundred, so the clause read zero nearly everywhere". A threshold that
+         * sounds like lowland on Earth is above the median here, and writing one is apparently a thing worth
+         * doing twice. The numbers below are iron's banded route's, which were measured against this world.
+         *
+         * The age ramp is still the tightest in the file, because a craton keel is genuinely the oldest thing
+         * on a map. `GemDepositTest` is what says any of this is reachable; it exists because nothing else in
+         * the suite can tell a rare gem from an unreachable one.
+         */
+        ResourceType.DIAMOND ->
+          if (submerged) 0.0
+          else ramp(age, 0.62, 0.92) * (1.0 - DIAMOND_ANTI_ARC * arc) * ramp(2500.0 - above, 0.0, 1500.0) * 0.8
+
+        /*
+         * Beryl in a granite pegmatite, which is `TIN`'s setting: a pegmatite is the last, most evolved melt
+         * left over from the pluton that put the tin there, so the two share ground for the same kind of reason
+         * ruby and marble do.
+         *
+         * Separated from tin the same way, by depth: `MinableOre.EMERALD` is 120-400 m against tin's 10-150 m.
+         * The ramps are pushed up at both ends (0.62-0.92 against tin's 0.6-0.9, 0.45-0.88 against 0.4-0.85)
+         * because a pegmatite is the *core* of the hardest, oldest pluton rather than anywhere in one.
+         */
+        ResourceType.EMERALD ->
+          if (submerged) 0.0
+          else ramp(rock, 0.62, 0.92) * ramp(age, 0.45, 0.88) * 0.4
+
+        /*
+         * Amethyst: quartz geodes in soft, vuggy cover.
+         *
+         * `1 - rock` is what makes this the one gem in soft ground, and it is the only *positive* use of soft
+         * rock in the table that is not marble's - so it is also the only deposit that wants the sedimentary
+         * basins the metals all avoid. A geode is a cavity that had somewhere to form, and hard crystalline
+         * rock has none.
+         *
+         * The elevation window keeps it off both the abyssal cover and the high shields: a geode field is a
+         * modest, eroded landscape. No scarcity term at all - the 0.9 ceiling is the highest of any gem here on
+         * purpose, because being *found* is this one's entire job.
+         */
+        ResourceType.AMETHYST ->
+          if (submerged) 0.0
+          else ramp(1.0 - rock, 0.35, 0.75) * ramp(above, 50.0, 700.0) * 0.9
+
         // Straight off the canopy raster, which is the one resource in this list whose suitability is
         // literally a layer. The five-way `when` over the biome this replaces graded a clearing, a young
         // stand and old growth identically as long as the classifier called them all forest, and it had an
@@ -1111,6 +1212,16 @@ private class Terrain(
 
     /** Distance over which arc-related mineralisation fades, in metres. */
     const val ARC_RANGE = 90_000.0
+
+    /**
+     * How much of diamond's suitability an arc takes away, at the boundary itself.
+     *
+     * A preference of about four to one for cratonic interior over orogenic belt, and deliberately not the
+     * one-to-nothing a plain `1 - arc` would give. See the `DIAMOND` arm in `suitabilityFor` for why the
+     * difference is a scale correction rather than a softening: at [ARC_RANGE] a plain complement is a veto on
+     * any world smaller than a few hundred kilometres, which is every world this generator currently builds.
+     */
+    const val DIAMOND_ANTI_ARC = 0.75
 
     /** Summed deposit weight that counts as "as good as it gets" for the value field. */
     const val VALUE_SATURATION = 2.5

@@ -246,7 +246,9 @@ class TownStage(
   // briefly moved to 2 for a real code change, the town outline leaving its disc for a warped Ring, but that
   // was still pre-release: the promise a bump makes has no counterparty until a world outlives this repository,
   // which still has not happened. The git history holds the note that used to be here.
-  override val version = 1
+  // 2: a building's walls and roof stopped being `BlockType` ids on the footprint and became `WallMaterial`
+  // and `RoofMaterial` ordinals, because the building itself stopped being blocks.
+  override val version = 2
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, Culture.catalogueDigest(), SettlementTier.catalogueDigest())
   /**
@@ -757,8 +759,8 @@ class TownStage(
         .channel(BuildingChannels.FUNCTION) { building.function.ordinal.toDouble() }
         .channel(BuildingChannels.STOREYS) { building.storeys.toDouble() }
         .channel(BuildingChannels.FLOOR_ELEVATION) { building.floorElevation }
-        .channel(BuildingChannels.WALL_BLOCK) { building.wall.id.toDouble() }
-        .channel(BuildingChannels.ROOF_BLOCK) { building.roof.id.toDouble() }
+        .channel(BuildingChannels.WALL_MATERIAL) { building.wall.ordinal.toDouble() }
+        .channel(BuildingChannels.ROOF_MATERIAL) { building.roof.ordinal.toDouble() }
         .channel(BuildingChannels.ROOF_SHAPE) { building.roofShape.ordinal.toDouble() }
         .channel(BuildingChannels.DOOR_X) { building.doorBearing.x }
         .channel(BuildingChannels.DOOR_Y) { building.doorBearing.y }
@@ -968,8 +970,8 @@ class TownStage(
               halfWidth = min(keep.halfAcross, params.lotDepth * KEEP_MAX_HALF),
               function = BuildingFunction.FORTIFICATION,
               storeys = KEEP_STOREYS,
-              wall = BlockType.MASONRY,
-              roof = BlockType.MASONRY,
+              wall = WallMaterial.STONE,
+              roof = RoofMaterial.TILE,
               roofShape = RoofShape.FLAT,
               floorElevation = floor,
               grammarSeed = 0L,
@@ -1158,8 +1160,8 @@ class TownStage(
             function = BuildingFunction.FORTIFICATION,
             // Taller than the curtain it stands on, which is the whole point of a tower.
             storeys = TOWER_STOREYS,
-            wall = BlockType.MASONRY,
-            roof = BlockType.MASONRY,
+            wall = WallMaterial.STONE,
+            roof = RoofMaterial.TILE,
             roofShape = RoofShape.FLAT,
             floorElevation = floor,
             grammarSeed = 0L,

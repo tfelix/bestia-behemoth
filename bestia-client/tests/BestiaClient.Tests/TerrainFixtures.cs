@@ -41,9 +41,9 @@ namespace BestiaBehemothClient.Tests
     internal const byte Air = 0;
     internal const byte Water = 1;
     internal const byte Lava = 3;
-    internal const byte Granite = 10;
-    internal const byte Sand = 31;
-    internal const byte Grass = 40;
+    internal const byte Granite = 4;
+    internal const byte Sand = 10;
+    internal const byte Grass = 13;
 
     /// <summary>
     /// Rich gold ore, for the tests about what a single ore voxel in a granite wall looks like.
@@ -52,7 +52,7 @@ namespace BestiaBehemothClient.Tests
     /// Shares <c>GRANITE</c>'s slot and not its colour, which is the entire point of it being here: the two are
     /// the same rock and the ore is only visible because the tint says so.
     /// </remarks>
-    internal const byte GoldOre = 111;
+    internal const byte GoldOre = 32;
 
     /// <summary>
     /// The shipped palette, trimmed to the handful of materials these tests use.
@@ -95,7 +95,7 @@ namespace BestiaBehemothClient.Tests
       BlockAppearance.SurfaceSlot slot, Color colour) =>
       new()
       {
-        Id = id, Name = name, Solid = solid, Opaque = solid,
+        Id = id, Name = name, Solid = solid,
         Surface = surface,
         Slot = slot,
         Colour = colour

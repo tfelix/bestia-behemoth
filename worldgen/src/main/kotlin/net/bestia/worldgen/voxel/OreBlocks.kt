@@ -46,10 +46,23 @@ object OreBlocks {
     ResourceType.SULFUR to triple(
       BlockType.ORE_SULFUR_SMALL, BlockType.ORE_SULFUR_MEDIUM, BlockType.ORE_SULFUR_RICH
     ),
-    // A gem in the graded map with the ores, because the vein machinery is what places graded bodies and a vug
-    // field is one - the grade is how much of the cavity is crystal rather than how rich the rock is.
+    // The gems are in the graded map with the ores, because the vein machinery is what places graded bodies
+    // and a vug field or a pegmatite is one - the grade is how much of the cavity is crystal rather than how
+    // rich the rock is.
     ResourceType.PYRELITH to triple(
       BlockType.GEM_PYRELITH_SMALL, BlockType.GEM_PYRELITH_MEDIUM, BlockType.GEM_PYRELITH_RICH
+    ),
+    ResourceType.AMETHYST to triple(
+      BlockType.GEM_AMETHYST_SMALL, BlockType.GEM_AMETHYST_MEDIUM, BlockType.GEM_AMETHYST_RICH
+    ),
+    ResourceType.EMERALD to triple(
+      BlockType.GEM_EMERALD_SMALL, BlockType.GEM_EMERALD_MEDIUM, BlockType.GEM_EMERALD_RICH
+    ),
+    ResourceType.RUBY to triple(
+      BlockType.GEM_RUBY_SMALL, BlockType.GEM_RUBY_MEDIUM, BlockType.GEM_RUBY_RICH
+    ),
+    ResourceType.DIAMOND to triple(
+      BlockType.GEM_DIAMOND_SMALL, BlockType.GEM_DIAMOND_MEDIUM, BlockType.GEM_DIAMOND_RICH
     ),
     // In the map so `yieldOf` can name a broken block, but never reached through `blocksFor` from a deposit
     // marker - no marker ever carries this type. `OreVeins` looks it up directly when the ground around a
@@ -68,7 +81,9 @@ object OreBlocks {
    */
   private val PLAIN: Map<ResourceType, BlockType> = mapOf(
     ResourceType.MARBLE to BlockType.LIMESTONE,
-    ResourceType.CLAY to BlockType.CLAY,
+    // Clay lost its own block when peat and clay became one MUD, and this is the right block for it anyway:
+    // what a clay pit is dug out of is saturated fine sediment, which is what MUD now names.
+    ResourceType.CLAY to BlockType.MUD,
     // Obsidian is here for marble's reason and one more: it is not disseminated through rock at all, so there is
     // nothing for a grade to be a grade *of*. A flow margin is either glass or it is not.
     ResourceType.OBSIDIAN to BlockType.OBSIDIAN

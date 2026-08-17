@@ -221,7 +221,9 @@ class WorldObjectResidencyService(
               localY = (pose.position.y - chunkY.toLong() * chunkSize).toInt(),
               z = pose.position.z.toInt(),
               heightDm = visual.heightDm,
-              yawCentiradians = Math.round(pose.yaw * 100f)
+              yawCentiradians = Math.round(pose.yaw * 100f),
+              halfLengthDm = visual.halfLengthDm,
+              halfWidthDm = visual.halfWidthDm
             )
           )
         }
@@ -294,7 +296,13 @@ class WorldObjectResidencyService(
       val spec = kinds.of(site.kind)
       val id = world.createEntity { id ->
         add(id, PropPose(site.position, site.yaw))
-        add(id, StaticVisual(site.kind, site.variant % spec.variants, site.heightDm))
+        add(
+          id,
+          StaticVisual(
+            site.kind, site.variant % spec.variants, site.heightDm,
+            site.halfLengthDm, site.halfWidthDm
+          )
+        )
         add(id, PropVitality(spec.maxHp))
         add(id, WorldObjectIdentity(site.propId, latticeVersion))
         add(id, StaticSync)

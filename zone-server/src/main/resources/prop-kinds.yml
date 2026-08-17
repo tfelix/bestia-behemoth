@@ -109,3 +109,65 @@ kinds:
     max-hp: 250
     collider: { half-x: 1, half-y: 1, height: 2 }
     variants: 1
+
+  # The buildings a town lays out: one row per entry in worldgen's `BuildingFunction` except FORTIFICATION,
+  # which stays voxels. Mandatory in the same way the landmarks above are - a function added to worldgen with
+  # no row here fails the boot rather than the first town that has one.
+  #
+  # `collider` is the only field here that is a placeholder rather than a decision, and it is a *deliberate*
+  # one: a building's real footprint arrives per instance on the wire, because a temple and a barn are not the
+  # same size and no per-kind number could be. What is written below is the half-extent of a typical lot for
+  # that function, so that when `ChunkWalkQuery.canStep` finally reads colliders it has something with the
+  # right order of magnitude rather than a zero. See `PropInstances.halfWidthAt`.
+  #
+  # `max-hp` is shaped by what the walls are, not by size: stone stands where thatch does not. No `collect`
+  # anywhere - a building is not something you pick up - and no `loot` for the reason at the top of this file.
+  #
+  # `variants` is 1 throughout and that is a holding position: `StaticEntityRenderer` draws a placeholder box
+  # scaled by the footprint on the wire, so a second model would be a second box. It goes up per function when
+  # there is art.
+  - kind: BUILDING_MARKET
+    max-hp: 300
+    collider: { half-x: 8, half-y: 6, height: 4 }
+    variants: 1
+
+  - kind: BUILDING_TEMPLE
+    max-hp: 900
+    collider: { half-x: 9, half-y: 6, height: 12 }
+    variants: 1
+
+  - kind: BUILDING_CIVIC
+    max-hp: 800
+    collider: { half-x: 8, half-y: 6, height: 10 }
+    variants: 1
+
+  - kind: BUILDING_SHOP
+    max-hp: 400
+    collider: { half-x: 5, half-y: 4, height: 8 }
+    variants: 1
+
+  - kind: BUILDING_CRAFT
+    max-hp: 400
+    collider: { half-x: 5, half-y: 4, height: 8 }
+    variants: 1
+
+  - kind: BUILDING_WAREHOUSE
+    max-hp: 500
+    collider: { half-x: 7, half-y: 5, height: 8 }
+    variants: 1
+
+  - kind: BUILDING_INN
+    max-hp: 450
+    collider: { half-x: 6, half-y: 5, height: 10 }
+    variants: 1
+
+  - kind: BUILDING_RESIDENCE
+    max-hp: 350
+    collider: { half-x: 5, half-y: 4, height: 8 }
+    variants: 1
+
+  # Lower than a house of the same size: a barn is a shell over a yard.
+  - kind: BUILDING_FARM
+    max-hp: 250
+    collider: { half-x: 6, half-y: 5, height: 5 }
+    variants: 1

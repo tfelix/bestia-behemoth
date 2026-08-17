@@ -1,5 +1,6 @@
 package net.bestia.zone.world.prop
 
+import net.bestia.worldgen.civ.BuildingFunction
 import net.bestia.worldgen.poi.PoiKind
 import net.bestia.worldgen.voxel.PropKind
 
@@ -8,9 +9,12 @@ import net.bestia.worldgen.voxel.PropKind
  *
  * Deliberately wider than worldgen's [PropKind]: that enum names what the *generator* emits, and this one
  * names everything that reaches a client through the static entity channel - which will also carry the walls
- * and structures players build and the buildings a town is made of. Those are ordinary persisted entities with
- * nothing generated about them, and they want the same cheap per-chunk delivery, so the delivery mechanism has
- * to be keyed on something broader than "what the generator produced".
+ * and structures players build. Those are ordinary persisted entities with nothing generated about them, and
+ * they want the same cheap per-chunk delivery, so the delivery mechanism has to be keyed on something broader
+ * than "what the generator produced".
+ *
+ * The buildings a town is made of were the other half of that sentence, and they have now arrived - see
+ * [BUILDING_KINDS].
  *
  * The ordinal reaches the wire, so **append only**.
  */
@@ -33,7 +37,25 @@ enum class StaticEntityKind {
   POI_BROKEN_OBELISK,
   POI_WAYSTONE,
   POI_PETRIFIED_TREE,
-  POI_SUNKEN_IDOL;
+  POI_SUNKEN_IDOL,
+
+  // The buildings a town lays out, one per entry in worldgen's `BuildingFunction` and joined to it by name -
+  // see [BUILDING_KINDS]. `FORTIFICATION` is absent on purpose and is the one function with no constant here:
+  // a keep and a wall tower are still voxels, because a wall circuit an agent can walk through is not a wall.
+  //
+  // A constant each rather than one `BUILDING` kind plus a discriminator, for the reason the POI block above
+  // gives: a client dispatches a *mesh* on this value, and a barn has nothing in common with a temple. It is
+  // also what gives each of them its own `prop-kinds.yml` row, so the interaction a shop eventually needs -
+  // a door, an owner, a stock of goods - is not shared with a warehouse's.
+  BUILDING_MARKET,
+  BUILDING_TEMPLE,
+  BUILDING_CIVIC,
+  BUILDING_SHOP,
+  BUILDING_CRAFT,
+  BUILDING_WAREHOUSE,
+  BUILDING_INN,
+  BUILDING_RESIDENCE,
+  BUILDING_FARM;
 
   companion object {
 
@@ -58,6 +80,17 @@ enum class StaticEntityKind {
       // not have held a dozen landmarks, so the generator gives them one `PropKind` and a byte - see
       // `PropInstances.subKindAt`.
       PropKind.POI -> POI_KINDS[subKind]
+      // `BuildingFunction`'s ordinal, on `subKind` for the same reason a POI's kind is: sixteen `PropKind`s do
+      // not stretch to a landmark catalogue *and* ten building functions.
+      //
+      // The null is `FORTIFICATION`, and it is a hard failure rather than a fallback. A fortification is
+      // voxels, so `BuildingProps` filters it out before it can ever become a prop; one arriving here means
+      // that filter and this table have drifted apart, and quietly drawing it as a residence would put a
+      // farmhouse where a gate tower should be and tell nobody.
+      PropKind.BUILDING -> requireNotNull(BUILDING_KINDS[subKind]) {
+        "BuildingFunction.${BuildingFunction.entries[subKind]} has no StaticEntityKind; it should never " +
+            "have been emitted as a prop - see BuildingProps"
+      }
     }
 
     /**
@@ -73,6 +106,24 @@ enum class StaticEntityKind {
       requireNotNull(entries.firstOrNull { it.name == name }) {
         "worldgen's PoiKind.${poi.name} has no StaticEntityKind.$name; append one and give it a prop-kinds.yml row"
       }
+    }
+
+    /**
+     * The runtime kind for each entry in worldgen's `BuildingFunction`, indexed by its ordinal.
+     *
+     * Joined by name and checked at class load, exactly as [POI_KINDS] is, and **nullable where that one is
+     * not**: `FORTIFICATION` is a building the generator never turns into a prop, so a missing constant is the
+     * correct answer for it rather than a gap to fail on. Every *other* function must have one, and a new
+     * function added to worldgen with no constant here fails the boot rather than a player's chunk.
+     */
+    private val BUILDING_KINDS: List<StaticEntityKind?> = BuildingFunction.entries.map { function ->
+      val name = "BUILDING_${function.name}"
+      val kind = entries.firstOrNull { it.name == name }
+      require(kind != null || function == BuildingFunction.FORTIFICATION) {
+        "worldgen's BuildingFunction.${function.name} has no StaticEntityKind.$name; append one and give it " +
+            "a prop-kinds.yml row, or exclude it in BuildingProps the way FORTIFICATION is"
+      }
+      kind
     }
   }
 }

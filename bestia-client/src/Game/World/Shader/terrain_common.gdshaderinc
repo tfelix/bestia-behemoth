@@ -27,7 +27,12 @@
 // The layer order is BlockAppearance.SurfaceSlot's ordinals and is a wire format between that file and this
 // one:
 //
-//     0 NEUTRAL   1 GRASS   2 DRY_GRASS   3 SAND   4 SOIL   5 ROCK   6 SNOW   7 (reserved)
+//     0 NEUTRAL   1 GRASS   2 DRY_GRASS   3 SAND   4 SOIL   5 ROCK   6 SNOW   7 WETLAND
+//
+// Slot 7 was held in reserve for the first material that genuinely needed its own texture rather than a tint
+// over somebody else's. That material is MUD: a bog on the soil layer was a ploughed field in a darker brown,
+// because wetness is not a grain and no tint supplies one. The reserve is now spent - there is no ninth slot
+// short of doubling the vertex format.
 
 // The slot count is written as a literal 8 throughout rather than as a name.
 //

@@ -274,11 +274,16 @@ has shipped to make the bumps so far mean anything.
 
 ### Encoding & storage (`voxel/`, `store/`)
 
-- **`BlockType`** — 60 declared types, `id` explicit and permanent (never ordinal-derived), sparse by
-  design: fluids 0-3, basement 10-12, sedimentary 20-23, unconsolidated 30-34, surface cover 40-42 +
-  blighted 49-52, worked 60-67 (ids 35 `PERMAFROST` and 65 `PLANK` deliberately freed, not reused —
-  `PERMAFROST` was mechanically identical to `DIRT` and was folded into it in this cleanup pass),
-  ore/gem 100-129.
+- **`BlockType`** — 63 declared types, `id` explicit (never ordinal-derived) and **dense, 0-62**: fluids
+  0-3, rock 4-8 (`GRANITE`, `BASALT`, `OBSIDIAN`, `STONE`, `LIMESTONE`), unconsolidated 9-12
+  (incl. `MUD`), surface cover 13-15, blighted twins 16-18, worked stone 19-20 (`MASONRY`,
+  `COBBLESTONE`), ore/gem 21-62 in fourteen contiguous grade-triples. The ids were sparse in bands of
+  ten until the palette cleanup, which deleted the building materials (a building is a
+  `PropKind.BUILDING` now, not voxels), folded four sedimentary rocks into `STONE` + `LIMESTONE`
+  (limestone kept *only* because `Stratigraphy.SOLUBLE` gates every cave on it), folded `PEAT`/`CLAY`
+  into `MUD`, and added four gems. **Every id now fits in six bits**, which `RleCodec`'s declined
+  merged-run format was measured against back when it did not — worth re-measuring, and the headroom is
+  two ids, not thirty.
 - **`RleCodec`** (`voxel/RleCodec.kt`) — `VERSION = 2` (`:78`), the **one** version number that survived
   the stage-version reset, because it's a wire-protocol byte named `CHUNK_ENCODING_RLE_V2` in
   `chunk.proto`. Two separate run-length streams (blocks, then occupancy), not interleaved. A tighter

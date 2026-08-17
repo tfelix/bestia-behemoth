@@ -25,18 +25,19 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ci1tZXNzYWdlcy9tYXAvY2h1bmtfc3RhdGljX2VudGl0aWVzX3Ntc2cucHJv",
-            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byKCAgoXQ2h1bmtT",
+            "dG8SBGJuZXQaGG1lc3NhZ2VzL21hcC9jaHVuay5wcm90byKxAgoXQ2h1bmtT",
             "dGF0aWNFbnRpdGllc1NNU0cSGwoDcG9zGAEgASgLMg4uYm5ldC5DaHVua1Bv",
             "cxI0CgdlbnRyaWVzGAIgAygLMiMuYm5ldC5DaHVua1N0YXRpY0VudGl0aWVz",
-            "U01TRy5FbnRyeRqTAQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
+            "U01TRy5FbnRyeRrCAQoFRW50cnkSEQoJZW50aXR5X2lkGAEgASgGEgwKBGtp",
             "bmQYAiABKA0SDwoHdmFyaWFudBgDIAEoDRIPCgdsb2NhbF94GAQgASgNEg8K",
             "B2xvY2FsX3kYBSABKA0SCQoBehgGIAEoERIRCgloZWlnaHRfZG0YByABKA0S",
-            "GAoQeWF3X2NlbnRpcmFkaWFucxgIIAEoDUI1ChVuZXQuYmVzdGlhLmJuZXQu",
-            "cHJvdG9CHENodW5rU3RhdGljRW50aXRpZXNTTVNHUHJvdG9iBnByb3RvMw=="));
+            "GAoQeWF3X2NlbnRpcmFkaWFucxgIIAEoDRIWCg5oYWxmX2xlbmd0aF9kbRgJ",
+            "IAEoDRIVCg1oYWxmX3dpZHRoX2RtGAogASgNQjUKFW5ldC5iZXN0aWEuYm5l",
+            "dC5wcm90b0IcQ2h1bmtTdGF0aWNFbnRpdGllc1NNU0dQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.ChunkReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians" }, null, null, null, null)})
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG), global::Bnet.ChunkStaticEntitiesSMSG.Parser, new[]{ "Pos", "Entries" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry), global::Bnet.ChunkStaticEntitiesSMSG.Types.Entry.Parser, new[]{ "EntityId", "Kind", "Variant", "LocalX", "LocalY", "Z", "HeightDm", "YawCentiradians", "HalfLengthDm", "HalfWidthDm" }, null, null, null, null)})
           }));
     }
     #endregion
@@ -353,6 +354,8 @@ namespace Bnet {
           z_ = other.z_;
           heightDm_ = other.heightDm_;
           yawCentiradians_ = other.yawCentiradians_;
+          halfLengthDm_ = other.halfLengthDm_;
+          halfWidthDm_ = other.halfWidthDm_;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
@@ -479,6 +482,41 @@ namespace Bnet {
           }
         }
 
+        /// <summary>Field number for the "half_length_dm" field.</summary>
+        public const int HalfLengthDmFieldNumber = 9;
+        private uint halfLengthDm_;
+        /// <summary>
+        ///*
+        /// Footprint half-extents in decimetres, along and across the facing, or **0 for a kind that has none**.
+        ///
+        /// Zero is the common case and costs nothing on the wire - proto3 does not encode a zero field - which is
+        /// the whole reason these are per-entry rather than a second message. Every kind but a building is
+        /// radially symmetric and takes its size from `prop-kinds.yml`; a building cannot, because a temple and a
+        /// barn are not the same building and the lot each stands on is what decided its size.
+        ///
+        /// The two travel together. One set and the other zero means a producer filled in half a footprint.
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public uint HalfLengthDm {
+          get { return halfLengthDm_; }
+          set {
+            halfLengthDm_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "half_width_dm" field.</summary>
+        public const int HalfWidthDmFieldNumber = 10;
+        private uint halfWidthDm_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public uint HalfWidthDm {
+          get { return halfWidthDm_; }
+          set {
+            halfWidthDm_ = value;
+          }
+        }
+
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public override bool Equals(object other) {
@@ -502,6 +540,8 @@ namespace Bnet {
           if (Z != other.Z) return false;
           if (HeightDm != other.HeightDm) return false;
           if (YawCentiradians != other.YawCentiradians) return false;
+          if (HalfLengthDm != other.HalfLengthDm) return false;
+          if (HalfWidthDm != other.HalfWidthDm) return false;
           return Equals(_unknownFields, other._unknownFields);
         }
 
@@ -517,6 +557,8 @@ namespace Bnet {
           if (Z != 0) hash ^= Z.GetHashCode();
           if (HeightDm != 0) hash ^= HeightDm.GetHashCode();
           if (YawCentiradians != 0) hash ^= YawCentiradians.GetHashCode();
+          if (HalfLengthDm != 0) hash ^= HalfLengthDm.GetHashCode();
+          if (HalfWidthDm != 0) hash ^= HalfWidthDm.GetHashCode();
           if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
@@ -567,6 +609,14 @@ namespace Bnet {
             output.WriteRawTag(64);
             output.WriteUInt32(YawCentiradians);
           }
+          if (HalfLengthDm != 0) {
+            output.WriteRawTag(72);
+            output.WriteUInt32(HalfLengthDm);
+          }
+          if (HalfWidthDm != 0) {
+            output.WriteRawTag(80);
+            output.WriteUInt32(HalfWidthDm);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
@@ -609,6 +659,14 @@ namespace Bnet {
             output.WriteRawTag(64);
             output.WriteUInt32(YawCentiradians);
           }
+          if (HalfLengthDm != 0) {
+            output.WriteRawTag(72);
+            output.WriteUInt32(HalfLengthDm);
+          }
+          if (HalfWidthDm != 0) {
+            output.WriteRawTag(80);
+            output.WriteUInt32(HalfWidthDm);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(ref output);
           }
@@ -642,6 +700,12 @@ namespace Bnet {
           }
           if (YawCentiradians != 0) {
             size += 1 + pb::CodedOutputStream.ComputeUInt32Size(YawCentiradians);
+          }
+          if (HalfLengthDm != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HalfLengthDm);
+          }
+          if (HalfWidthDm != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeUInt32Size(HalfWidthDm);
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -678,6 +742,12 @@ namespace Bnet {
           }
           if (other.YawCentiradians != 0) {
             YawCentiradians = other.YawCentiradians;
+          }
+          if (other.HalfLengthDm != 0) {
+            HalfLengthDm = other.HalfLengthDm;
+          }
+          if (other.HalfWidthDm != 0) {
+            HalfWidthDm = other.HalfWidthDm;
           }
           _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
         }
@@ -726,6 +796,14 @@ namespace Bnet {
                 YawCentiradians = input.ReadUInt32();
                 break;
               }
+              case 72: {
+                HalfLengthDm = input.ReadUInt32();
+                break;
+              }
+              case 80: {
+                HalfWidthDm = input.ReadUInt32();
+                break;
+              }
             }
           }
         #endif
@@ -771,6 +849,14 @@ namespace Bnet {
               }
               case 64: {
                 YawCentiradians = input.ReadUInt32();
+                break;
+              }
+              case 72: {
+                HalfLengthDm = input.ReadUInt32();
+                break;
+              }
+              case 80: {
+                HalfWidthDm = input.ReadUInt32();
                 break;
               }
             }

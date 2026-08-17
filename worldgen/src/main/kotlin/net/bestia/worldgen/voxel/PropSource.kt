@@ -52,7 +52,35 @@ enum class PropKind {
    * evaluate for itself; this one comes from a `FeatureKind.POI` marker the world tier placed, because "one of
    * these somewhere in the world" is not a question a lattice can answer. See `PoiProps`.
    */
-  POI
+  POI,
+
+  /**
+   * A building a town laid out: a house, a shop, a temple, a barn.
+   *
+   * The palette used to raise these out of blocks - `TIMBER` walls, `THATCH` roofs, a masonry plinth - and the
+   * argument for stopping is the one that took trees out of the palette first. A building is something a
+   * player enters, owns, rents, robs or burns down, and **every one of those is state**; a voxel is a byte
+   * with nowhere to keep any of it. `WorldObjectDivergence` already stores per-prop state against a [PropId],
+   * so a building becomes a thing the world can remember for the price of being a prop.
+   *
+   * [PoiProps]' precedent again for the catalogue: one kind, with `BuildingFunction`'s ordinal in
+   * [PropInstances.subKindAt], rather than ten kinds out of the sixteen [PropId] has room for.
+   *
+   * **The first kind that is not radially symmetric**, which is why [PropInstances] grew a yaw and a second
+   * half-extent for it. A tree is a circle and a house is not.
+   *
+   * Not every building: `BuildingFunction.FORTIFICATION` stays voxels, because a keep and a wall tower are
+   * part of a wall circuit and a circuit has to be geometry. See `TownStructures.Structure.voxelised`.
+   *
+   * ### What this costs, today
+   *
+   * `WalkableTile` routes an agent straight **through** a house until a collider on the entity answers for it
+   * - exactly the loss recorded when `LOG` left the palette and a trunk stopped obstructing. The floor slab
+   * under the building is still solid ground, so an agent walks across the floor rather than through the
+   * hillside; what is missing is the walls. One clause in `ChunkWalkQuery.canStep` closes it when there is an
+   * entity collider to ask.
+   */
+  BUILDING
 }
 
 /**
@@ -71,7 +99,17 @@ fun interface PropSite {
   fun groundAt(worldX: Double, worldY: Double): Double
 }
 
-/** Bit flags on an emitted prop. */
+/**
+ * Bit flags on an emitted prop.
+ *
+ * Bits 0-1 are general and mean the same thing for every kind. Bits 2-6 are **[PropKind.BUILDING]'s**, and
+ * that is a deliberate narrowing of what this object is rather than an accident: a building carries three
+ * small categorical attributes that a runtime turns into a mesh, none of them worth a `FloatArray` column in
+ * [PropInstances] for a kind that emits a few hundred per chunk. `subKindAt` is already spoken for by
+ * `BuildingFunction`, so they go here, packed and read through named helpers so no call site does the shifting.
+ *
+ * Seven bits used of eight. The next kind that needs its own attributes wants a column, not the last bit.
+ */
 object PropFlags {
 
   /** Standing on corrupted ground: the blighted variant of whatever this kind looks like. */
@@ -79,6 +117,35 @@ object PropFlags {
 
   /** The larger of a kind's two size variants, where it has them. */
   const val LARGE = 2
+
+  private const val ROOF_SHAPE_SHIFT = 2
+  private const val ROOF_SHAPE_MASK = 0b11
+  private const val WALL_MATERIAL_SHIFT = 4
+  private const val WALL_MATERIAL_MASK = 0b11
+  private const val ROOF_MATERIAL_SHIFT = 6
+  private const val ROOF_MATERIAL_MASK = 0b1
+
+  /**
+   * Pack a building's three appearance ordinals into the flag bits.
+   *
+   * @throws IllegalArgumentException if an ordinal has outgrown its field, which means an enum gained a value
+   *   and this packing did not - a loud failure being the entire reason to check rather than mask.
+   */
+  fun building(roofShape: Int, wallMaterial: Int, roofMaterial: Int): Int {
+    require(roofShape in 0..ROOF_SHAPE_MASK) { "roof shape $roofShape does not fit two bits" }
+    require(wallMaterial in 0..WALL_MATERIAL_MASK) { "wall material $wallMaterial does not fit two bits" }
+    require(roofMaterial in 0..ROOF_MATERIAL_MASK) { "roof material $roofMaterial does not fit one bit" }
+
+    return (roofShape shl ROOF_SHAPE_SHIFT) or
+        (wallMaterial shl WALL_MATERIAL_SHIFT) or
+        (roofMaterial shl ROOF_MATERIAL_SHIFT)
+  }
+
+  fun roofShapeOf(flags: Int) = (flags shr ROOF_SHAPE_SHIFT) and ROOF_SHAPE_MASK
+
+  fun wallMaterialOf(flags: Int) = (flags shr WALL_MATERIAL_SHIFT) and WALL_MATERIAL_MASK
+
+  fun roofMaterialOf(flags: Int) = (flags shr ROOF_MATERIAL_SHIFT) and ROOF_MATERIAL_MASK
 }
 
 /**
@@ -165,6 +232,8 @@ class PropInstances(initialCapacity: Int = 32) {
   private var subKind = ByteArray(initialCapacity)
   private var heightM = FloatArray(initialCapacity)
   private var radiusM = FloatArray(initialCapacity)
+  private var halfWidthM = FloatArray(initialCapacity)
+  private var yawRad = FloatArray(initialCapacity)
   private var flags = ByteArray(initialCapacity)
 
   var count: Int = 0
@@ -210,12 +279,41 @@ class PropInstances(initialCapacity: Int = 32) {
   /** Trunk height for a tree, overall height for a crystal or spire, in metres. */
   fun heightAt(i: Int) = heightM[i].toDouble()
 
-  /** Crown radius for a tree, in metres. Zero for a kind that has no spread. */
+  /**
+   * Crown radius for a tree, in metres, and **half-length** for a [PropKind.BUILDING]. Zero for a kind that
+   * has no spread.
+   *
+   * The two readings share a column because they are the same question - how far does this reach from its own
+   * position - asked of a circle and of the long axis of a rectangle. [halfWidthAt] is the second answer a
+   * rectangle needs and a circle does not.
+   */
   fun radiusAt(i: Int) = radiusM[i].toDouble()
+
+  /**
+   * Half-extent across the short axis, in metres, for a prop that is not radially symmetric.
+   *
+   * Zero for every kind but [PropKind.BUILDING], where zero would mean a building with no width - so a
+   * consumer that meets a zero here on a building is looking at a producer that forgot to set it, not at a
+   * legitimately flat one.
+   */
+  fun halfWidthAt(i: Int) = halfWidthM[i].toDouble()
+
+  /**
+   * Which way the prop faces, in radians, or [Double.NaN] for one with no facing of its own.
+   *
+   * `NaN` rather than zero, and the distinction is load-bearing: a runtime rolls a yaw off the prop's identity
+   * for the kinds that have none, so that a tree faces the same way every time it is re-materialised without
+   * anything storing which way that is. Zero would be indistinguishable from "due east, deliberately", and
+   * every tree in the world would face the same way.
+   */
+  fun yawAt(i: Int) = yawRad[i].toDouble()
 
   fun isBlighted(i: Int) = flags[i].toInt() and PropFlags.BLIGHTED != 0
 
   fun isLarge(i: Int) = flags[i].toInt() and PropFlags.LARGE != 0
+
+  /** The raw flag bits, for the [PropFlags] accessors that unpack a building's appearance. */
+  fun flagsAt(i: Int) = flags[i].toInt()
 
   fun add(
     kind: PropKind,
@@ -225,10 +323,13 @@ class PropInstances(initialCapacity: Int = 32) {
     ground: Double,
     heightM: Double,
     radiusM: Double = 0.0,
+    halfWidthM: Double = 0.0,
+    yawRad: Double = Double.NaN,
     flags: Int = 0,
     subKind: Int = 0
   ) {
     require(subKind in 0..Byte.MAX_VALUE) { "subKind $subKind does not fit a byte" }
+    require(flags in 0..Byte.MAX_VALUE) { "flags $flags do not fit a byte" }
 
     ensureCapacity(count + 1)
 
@@ -240,6 +341,8 @@ class PropInstances(initialCapacity: Int = 32) {
     this.ground[count] = ground
     this.heightM[count] = heightM.toFloat()
     this.radiusM[count] = radiusM.toFloat()
+    this.halfWidthM[count] = halfWidthM.toFloat()
+    this.yawRad[count] = yawRad.toFloat()
     this.flags[count] = flags.toByte()
 
     count++
@@ -259,6 +362,8 @@ class PropInstances(initialCapacity: Int = 32) {
     subKind = subKind.copyOf(size)
     heightM = heightM.copyOf(size)
     radiusM = radiusM.copyOf(size)
+    halfWidthM = halfWidthM.copyOf(size)
+    yawRad = yawRad.copyOf(size)
     flags = flags.copyOf(size)
   }
 }

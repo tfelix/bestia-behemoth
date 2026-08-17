@@ -58,8 +58,8 @@ internal class Building(
   val halfWidth: Double,
   val function: BuildingFunction,
   val storeys: Int,
-  val wall: BlockType,
-  val roof: BlockType,
+  val wall: WallMaterial,
+  val roof: RoofMaterial,
   val roofShape: RoofShape,
   /** Elevation of the ground floor, in metres. Baked in so every chunk agrees where the floor is. */
   val floorElevation: Double,
@@ -287,17 +287,22 @@ internal class Zoning(
 
     // Stone follows the culture, then wealth, then function. A temple is stone in a timber town, which is
     // exactly the signal a temple is for.
+    //
+    // The rolls and their thresholds are untouched from when these were block types; only what they select
+    // changed. A building is an entity now, so its walls are an attribute rather than a material - see
+    // [WallMaterial]. Keeping the arithmetic identical means a seed's towns are built of the same things they
+    // were, which is the one part of this change that had no reason to move.
     val stoneChance = (culture.stoneShare * (0.5 + wealth) + prestige * 0.5).coerceIn(0.0, 1.0)
     val stone = roll(index.toLong(), STONE_SALT) < stoneChance
     val wall = when {
-      function == BuildingFunction.FORTIFICATION -> BlockType.MASONRY
-      stone -> BlockType.MASONRY
-      culture.stoneShare < 0.2 -> BlockType.TIMBER
-      else -> BlockType.PLASTER
+      function == BuildingFunction.FORTIFICATION -> WallMaterial.STONE
+      stone -> WallMaterial.STONE
+      culture.stoneShare < 0.2 -> WallMaterial.TIMBER
+      else -> WallMaterial.PLASTER
     }
 
     val tiled = roll(index.toLong(), ROOF_SALT) < (wealth * 0.8 + prestige * 0.5)
-    val roof = if (tiled) BlockType.ROOF_TILE else BlockType.THATCH
+    val roof = if (tiled) RoofMaterial.TILE else RoofMaterial.THATCH
     val roofShape = when {
       function == BuildingFunction.MARKET -> RoofShape.FLAT
       broadFront -> RoofShape.HIP
@@ -385,9 +390,15 @@ object BuildingChannels {
   /** Elevation of the ground floor in metres. The one number the materialiser cannot rederive. */
   const val FLOOR_ELEVATION = "floor_elevation"
 
-  /** [BlockType] id of the walls, and of the roof. Ids, not ordinals - they are the permanent numbers. */
-  const val WALL_BLOCK = "wall_block"
-  const val ROOF_BLOCK = "roof_block"
+  /**
+   * [WallMaterial] and [RoofMaterial] ordinals.
+   *
+   * These carried `BlockType` *ids* until buildings became props - ids rather than ordinals, because a block
+   * id is permanent and an enum ordinal is not. Both enums are declared append-only for that same reason, so
+   * the guarantee moved rather than went away.
+   */
+  const val WALL_MATERIAL = "wall_material"
+  const val ROOF_MATERIAL = "roof_material"
 
   /** [RoofShape] ordinal. */
   const val ROOF_SHAPE = "roof_shape"

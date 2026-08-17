@@ -325,23 +325,24 @@ class BlockPalette : Palette {
       put(BlockType.GRANITE.id, Colors.rgb(178, 166, 160))
       put(BlockType.BASALT.id, Colors.rgb(78, 76, 80))
       put(BlockType.OBSIDIAN.id, Colors.rgb(26, 24, 32))
+      put(BlockType.STONE.id, Colors.rgb(150, 146, 138))
       put(BlockType.LIMESTONE.id, Colors.rgb(214, 210, 190))
-      put(BlockType.SANDSTONE.id, Colors.rgb(206, 172, 122))
-      put(BlockType.SHALE.id, Colors.rgb(104, 104, 112))
-      put(BlockType.CONGLOMERATE.id, Colors.rgb(158, 140, 118))
       put(BlockType.GRAVEL.id, Colors.rgb(146, 142, 136))
       put(BlockType.SAND.id, Colors.rgb(232, 214, 164))
-      put(BlockType.CLAY.id, Colors.rgb(160, 128, 106))
       put(BlockType.DIRT.id, Colors.rgb(122, 92, 62))
-      put(BlockType.PEAT.id, Colors.rgb(74, 60, 44))
+      put(BlockType.MUD.id, Colors.rgb(74, 60, 44))
       put(BlockType.GRASS.id, Colors.rgb(96, 146, 72))
+      put(BlockType.DRY_GRASS.id, Colors.rgb(178, 168, 104))
       put(BlockType.SNOW.id, Colors.rgb(246, 248, 252))
+
+      // The blighted covers, which had no entries at all and fell through to the hashed fallback - so a
+      // corrupted province came out in three arbitrary colours that changed nothing but looked deliberate.
+      // Purple, because that is what corruption reads as everywhere else in the viewer.
+      put(BlockType.BLIGHTED_GRASS.id, Colors.rgb(96, 72, 108))
+      put(BlockType.BLIGHTED_DIRT.id, Colors.rgb(78, 60, 82))
+      put(BlockType.BLIGHTED_SAND.id, Colors.rgb(150, 128, 148))
+
       put(BlockType.MASONRY.id, Colors.rgb(168, 160, 148))
-      put(BlockType.TIMBER.id, Colors.rgb(112, 79, 48))
-      put(BlockType.PLASTER.id, Colors.rgb(220, 210, 186))
-      put(BlockType.THATCH.id, Colors.rgb(184, 153, 76))
-      put(BlockType.ROOF_TILE.id, Colors.rgb(140, 66, 51))
-      put(BlockType.RUBBLE.id, Colors.rgb(122, 118, 110))
       put(BlockType.COBBLESTONE.id, Colors.rgb(107, 105, 102))
 
       // Ore, one hue per metal and three steps of it. The steps are what a slice through a body has to show:
@@ -356,8 +357,22 @@ class BlockPalette : Palette {
       graded(BlockType.ROCK_SALT_SMALL, 176, 172, 168, 244, 240, 236)
       // Acid yellow, pulled green away from gold's warm 248/206/78 so the two are told apart in a section.
       graded(BlockType.ORE_SULFUR_SMALL, 132, 130, 86, 224, 238, 66)
-      // Rose, which nothing else here occupies - and specifically not lava's orange, since it sits in basalt.
+      // Magenta. Had no entry at all and fell through to the hashed fallback, which drew corrupted ore in a
+      // colour with no relation to the corruption everything else in the viewer draws purple.
+      graded(BlockType.ORE_AETHERITE_SMALL, 88, 64, 92, 226, 70, 214)
+
+      // The gems. Each takes a hue no metal occupies, because the whole reason to look at a section is to
+      // tell one body from another.
+      //
+      // Rose, and specifically not lava's orange, since pyrelith sits in basalt.
       graded(BlockType.GEM_PYRELITH_SMALL, 114, 56, 76, 244, 76, 132)
+      // Blue-violet, kept off aetherite's magenta above.
+      graded(BlockType.GEM_AMETHYST_SMALL, 104, 92, 132, 152, 108, 224)
+      graded(BlockType.GEM_EMERALD_SMALL, 72, 104, 88, 48, 220, 130)
+      graded(BlockType.GEM_RUBY_SMALL, 118, 62, 62, 232, 40, 56)
+      // Near-white with a blue cast. The one gem whose bright end risks reading as snow, which is why its
+      // dull end starts well down in grey rather than at rock's tint.
+      graded(BlockType.GEM_DIAMOND_SMALL, 150, 158, 166, 232, 248, 255)
     }
 
     /**

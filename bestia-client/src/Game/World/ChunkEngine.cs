@@ -26,10 +26,14 @@ namespace BestiaBehemothClient.Game.World
     // Reset to 1 with the server's, once, when worldgen's feature work landed and before any client shipped.
     // The bumps it had accumulated were compatibility statements to a counterparty that did not exist yet.
     // Reached 6 that way - volcanic materials, the removal-only patch format, trees/crystals leaving the
-    // palette for props, DRY_GRASS - each documented in a comment above this field at the time. Reset to 1
-    // again here, for the same reason: still pre-release, still no counterparty for the promise. Append-only
-    // from the first client release onwards; the git history holds the old changelog.
-    public const uint Version = 1;
+    // palette for props, DRY_GRASS - each documented in a comment above this field at the time. Reset to 1,
+    // for the same reason: still pre-release, still no counterparty for the promise. Append-only from the
+    // first client release onwards; the git history holds the old changelog.
+    //
+    // 2: the palette cleanup. Building materials left for props, the four sedimentary rocks became STONE plus
+    // LIMESTONE, peat and clay became MUD, four gems arrived, and every id was renumbered densely - the ids,
+    // the names and the row count all at once, which is every clause of the bump rule in one change.
+    public const uint Version = 2;
 
     /// <summary>
     /// Voxels per chunk edge, for expanding a chunk-local coordinate to a global one.

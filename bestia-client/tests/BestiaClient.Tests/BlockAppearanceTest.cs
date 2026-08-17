@@ -53,8 +53,8 @@ namespace BestiaBehemothClient.Tests
     ///
     /// <para>
     /// The shape of the numbers is the interesting part and worth checking by eye when this fails. Rock carries
-    /// forty of the fifty-nine because thirty of those are ore - ore is host rock with metal in it, and the grade
-    /// is carried by the tint rather than by a texture of its own.
+    /// forty-nine of the sixty-two because forty-two of those are ore and gem - both are host rock with
+    /// something in it, and the grade is carried by the tint rather than by a texture of its own.
     /// </para>
     /// </remarks>
     [Fact]
@@ -64,21 +64,26 @@ namespace BestiaBehemothClient.Tests
         .GroupBy(b => b.Slot)
         .ToDictionary(g => g.Key, g => g.Count());
 
-      Assert.Equal(59, BlockAppearance.Palette.Count);
+      Assert.Equal(62, BlockAppearance.Palette.Count);
 
-      // Water, lava, and the five worked materials with no texture of their own yet.
-      Assert.Equal(7, Count(BlockAppearance.SurfaceSlot.Neutral));
+      // Water, lava, and masonry - the last worked material with no texture of its own yet. It was five
+      // worked materials until the building ones left the palette for props.
+      Assert.Equal(3, Count(BlockAppearance.SurfaceSlot.Neutral));
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Grass));
       Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.DryGrass));
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Sand));
-      Assert.Equal(5, Count(BlockAppearance.SurfaceSlot.Soil));
 
-      // Ten beds and broken stone, plus thirty grades of ore.
-      Assert.Equal(40, Count(BlockAppearance.SurfaceSlot.Rock));
+      // Dirt and its blighted twin. Peat and clay used to be here and are MUD on Wetland now; a corrupted bog
+      // still lands here, because MUD's blighted twin is BLIGHTED_DIRT.
+      Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Soil));
+
+      // Five beds, gravel and cobblestone, plus forty-two grades of ore and gem.
+      Assert.Equal(49, Count(BlockAppearance.SurfaceSlot.Rock));
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Snow));
 
-      // Held open on purpose. The first worked material to get its own texture goes here.
-      Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Reserved));
+      // MUD, and it is the whole reason the slot stopped being Reserved: wet ground is not dry ground in a
+      // darker tint. See SurfaceSlot.Wetland - there is no spare slot left after this one.
+      Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Wetland));
 
       int Count(BlockAppearance.SurfaceSlot slot) => census.GetValueOrDefault(slot, 0);
     }
@@ -93,22 +98,26 @@ namespace BestiaBehemothClient.Tests
     /// </remarks>
     [Theory]
     // Corrupted ground takes its clean twin's slot: the blight is a change of colour, not of material.
-    [InlineData(49, BlockAppearance.SurfaceSlot.Grass)]
-    [InlineData(51, BlockAppearance.SurfaceSlot.Sand)]
-    // Ore is host rock. The grade lives in the tint, which is the only reason it stays legible.
-    [InlineData(100, BlockAppearance.SurfaceSlot.Rock)]
-    [InlineData(111, BlockAppearance.SurfaceSlot.Rock)]
-    [InlineData(129, BlockAppearance.SurfaceSlot.Rock)]
+    [InlineData(16, BlockAppearance.SurfaceSlot.Grass)]     // BLIGHTED_GRASS
+    [InlineData(18, BlockAppearance.SurfaceSlot.Sand)]      // BLIGHTED_SAND
+    // And a corrupted bog lands on Soil rather than Wetland, because MUD's twin is BLIGHTED_DIRT. A real loss
+    // of the wet grain and a deliberate one - the server's blight table is not a bijection.
+    [InlineData(17, BlockAppearance.SurfaceSlot.Soil)]      // BLIGHTED_DIRT
+    // Ore and gem are both host rock. The grade lives in the tint, which is the only reason it stays legible.
+    [InlineData(21, BlockAppearance.SurfaceSlot.Rock)]      // ORE_COPPER_SMALL, first of the band
+    [InlineData(32, BlockAppearance.SurfaceSlot.Rock)]      // ORE_GOLD_RICH
+    [InlineData(62, BlockAppearance.SurfaceSlot.Rock)]      // GEM_DIAMOND_RICH, last of the palette
     // Gravel is what scree and river beds are made of; loose earth under it would read as mud.
-    [InlineData(30, BlockAppearance.SurfaceSlot.Rock)]
-    // Rubble and cobblestone are worked, but they are worked *stone*.
-    [InlineData(66, BlockAppearance.SurfaceSlot.Rock)]
-    [InlineData(67, BlockAppearance.SurfaceSlot.Rock)]
-    // Thatch and plaster wait for textures of their own rather than share one that fits neither.
-    [InlineData(62, BlockAppearance.SurfaceSlot.Neutral)]
-    [InlineData(63, BlockAppearance.SurfaceSlot.Neutral)]
+    [InlineData(9, BlockAppearance.SurfaceSlot.Rock)]       // GRAVEL
+    // Cobblestone is worked, but it is worked *stone*.
+    [InlineData(20, BlockAppearance.SurfaceSlot.Rock)]      // COBBLESTONE
+    // Masonry waits for a texture of its own rather than share one that fits it badly. The last of the worked
+    // materials to be in this position - the other five left the palette when buildings became props.
+    [InlineData(19, BlockAppearance.SurfaceSlot.Neutral)]   // MASONRY
     // Dry grass is its own slot for the same reason it is its own block: a third of the land depends on it.
-    [InlineData(42, BlockAppearance.SurfaceSlot.DryGrass)]
+    [InlineData(14, BlockAppearance.SurfaceSlot.DryGrass)]  // DRY_GRASS
+    // And the slot that was held in reserve, spent on the one material a tint could not express.
+    [InlineData(12, BlockAppearance.SurfaceSlot.Wetland)]   // MUD
     public void MaterialDrawsFromSlot(int id, BlockAppearance.SurfaceSlot slot) =>
       Assert.Equal(slot, BlockAppearance.Current.SlotOf((byte)id));
 

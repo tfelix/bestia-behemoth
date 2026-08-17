@@ -21,6 +21,9 @@ data class ChunkStaticEntitiesSMSG(
   /**
    * @property z global voxel z, unlike [localX]/[localY] which are inside the chunk - a column spans the
    *   whole vertical extent, so a slab-local z would need the slab index to mean anything
+   * @property halfLengthDm footprint half-extent along the facing, or 0 for a kind that takes its size from
+   *   `prop-kinds.yml`. Nonzero only for a building, whose size is decided by the lot it stands on.
+   * @property halfWidthDm the same across the facing; travels with [halfLengthDm] or not at all
    */
   data class Entry(
     val entityId: Long,
@@ -30,7 +33,9 @@ data class ChunkStaticEntitiesSMSG(
     val localY: Int,
     val z: Int,
     val heightDm: Int,
-    val yawCentiradians: Int
+    val yawCentiradians: Int,
+    val halfLengthDm: Int = 0,
+    val halfWidthDm: Int = 0
   )
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {
@@ -48,6 +53,8 @@ data class ChunkStaticEntitiesSMSG(
           .setZ(entry.z)
           .setHeightDm(entry.heightDm)
           .setYawCentiradians(entry.yawCentiradians)
+          .setHalfLengthDm(entry.halfLengthDm)
+          .setHalfWidthDm(entry.halfWidthDm)
           .build()
       )
     }

@@ -196,7 +196,7 @@ class OreDepositTest {
 
     // Marble and clay do show, as plain material rather than as gradeable ore.
     assertEquals(BlockType.LIMESTONE, OreBlocks.plainBlockFor(ResourceType.MARBLE))
-    assertEquals(BlockType.CLAY, OreBlocks.plainBlockFor(ResourceType.CLAY))
+    assertEquals(BlockType.MUD, OreBlocks.plainBlockFor(ResourceType.CLAY))
     assertNull(OreBlocks.yieldOf(BlockType.LIMESTONE), "limestone is rock, not ore anybody picks up")
   }
 
@@ -325,22 +325,41 @@ class OreDepositTest {
     }
   }
 
+  /**
+   * The two deep things lie below everything a civilisation digs, and diamond lies below mithrandium.
+   *
+   * This asserted a single ore at the bottom of the world until diamond arrived under it. The claim was never
+   * really about mithrandium: it is that the world holds something **no settlement can reach**, so that there
+   * is a reason to go and dig rather than to buy. Two such things is more of that property, not less - what
+   * would break it is the gap closing, so the ordering below is checked in both places rather than relaxed
+   * into "one of them is deepest".
+   */
   @Test
-  fun `mithrandium lies below everything else in the ground`() {
+  fun `the deep ores lie below everything a shaft reaches`() {
+    val deep = setOf(ResourceType.MITHRANDIUM, ResourceType.DIAMOND)
+
     val mithrandium = deposits.filter { typeOf(it) == ResourceType.MITHRANDIUM }
-    val rest = deposits.filter { typeOf(it) != ResourceType.MITHRANDIUM }
+    val diamond = deposits.filter { typeOf(it) == ResourceType.DIAMOND }
+    val rest = deposits.filter { typeOf(it) !in deep }
 
-    // Not asserted to exist: it needs old, hard, high crust all at once, and a small test world may have
-    // none. The claim being checked is the ordering, which holds either way.
-    if (mithrandium.isEmpty()) return
-
-    val shallowest = mithrandium.minOf { it.attribute(DepositChannels.DEPTH) }
-    val deepest = rest.maxOf { it.attribute(DepositChannels.DEPTH) }
+    // Neither is asserted to exist: mithrandium needs old, hard, high crust all at once and diamond needs old,
+    // flat crust away from a plate boundary, so a small test world may have neither. The claim being checked
+    // is the ordering, which holds either way. `GemDepositTest` is what says they are reachable at all.
+    val shallowestDeep = (mithrandium + diamond).minOfOrNull { it.attribute(DepositChannels.DEPTH) } ?: return
+    val deepestOther = rest.maxOf { it.attribute(DepositChannels.DEPTH) }
 
     assertTrue(
-      shallowest > deepest,
-      "the shallowest mithrandium is $shallowest m down but something else reaches $deepest m, " +
-          "so it is no longer the one ore a medieval shaft cannot reach"
+      shallowestDeep > deepestOther,
+      "the shallowest deep ore is $shallowestDeep m down but something else reaches $deepestOther m, " +
+          "so nothing is out of reach of a medieval shaft any more"
+    )
+
+    // Asserted on the catalogue rather than on the placed deposits, because the two bands overlap on purpose -
+    // 250..600 against 300..800 - so a single mithrandium can legitimately be found below a single diamond.
+    // What must hold is that diamond *reaches* deeper than anything else, which is a fact about the table.
+    assertTrue(
+      MinableOre.DIAMOND.maxDepth > MinableOre.entries.filter { it != MinableOre.DIAMOND }.maxOf { it.maxDepth },
+      "diamond is meant to reach deeper than anything else in the ground"
     )
   }
 
