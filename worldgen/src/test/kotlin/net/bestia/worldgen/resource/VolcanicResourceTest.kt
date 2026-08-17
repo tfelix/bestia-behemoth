@@ -18,16 +18,16 @@ import kotlin.test.assertTrue
 /**
  * Sulfur, obsidian and pyrelith: that they are placed at all, and that where they are placed is checkable.
  *
- * ### The sweep is the point, not a nicety
+ * ### The sweep is the point, not a nicety, and so is [RawGeology]
  *
- * All three are exempt from `ResourceParams.minDepositsPerOre`, which is the floor that makes every *other* ore
- * present on every world - see `MinableOre.guaranteed`. That exemption is deliberate and it removes the thing
- * that would otherwise prove these three exist: a world with no convergent boundary and no hotspot on land is a
- * legitimate seed, and on it the correct answer is no sulfur at all. So a single-seed test cannot tell "correctly
- * absent" from "never placed anywhere", and the 128 km world the `OreDepositTest` fixture uses in fact yields
- * **zero pyrelith** - which is right, and is also exactly what a dead code path looks like.
+ * These worlds are built with the guaranteed deposit floor **switched off**, and without that this file would
+ * be worthless. Sulfur and pyrelith each have a floor under them on the shipped tuning, so on the real defaults
+ * every world holds both whatever `suitabilityFor` says - which means an arm that never fires anywhere would
+ * pass here in silence. [RawGeology] explains the split; `OreCoverageTest` makes the other half of the claim.
  *
- * The sweep asserts on the **total across seeds**, which is the only quantity that separates the two. It is
+ * With the floor off, a world can legitimately come out with no pyrelith - it needs the strongest volcanism
+ * there is - so a single-seed test still cannot tell "correctly absent" from "never placed anywhere". The sweep
+ * asserts on the **total across seeds**, which is the only quantity that separates the two. It is
  * `ManaHistoryTest`'s shape and it is here for the same reason.
  *
  * ### And the placement claim
@@ -62,9 +62,9 @@ class VolcanicResourceTest {
     for (type in VOLCANIC) {
       assertTrue(
         (totals[type] ?: 0) > 0,
-        "no ${type.label} deposit on any of ${SEEDS.size} worlds. Either the suitability is unreachable or the " +
-            "exemption from the deposit floor has left it unplaceable - and do NOT fix this by making it " +
-            "guaranteed, which would put it on worlds with no volcano"
+        "no ${type.label} deposit on any of ${SEEDS.size} worlds, with the guaranteed floor off. Its " +
+            "suitability is unreachable, or its spacing has compounded with it - and do NOT fix this by " +
+            "raising its floor, which is exactly the thing this sweep switches off in order to see past"
       )
     }
   }
@@ -168,7 +168,8 @@ class VolcanicResourceTest {
   private val worlds: List<GeneratedWorld> by lazy {
     SEEDS.map {
       StandardWorld.build(
-        WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0)
+        WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0),
+        params = RawGeology.PARAMS
       )
     }
   }

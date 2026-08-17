@@ -176,7 +176,9 @@ class ParamsVersionTest {
       // worth table gained four rows, `MinableOre` because it gained four rows and every `scarcityRank` below
       // diamond shifted to keep the ordering dense.
       "ResourceType" to -6_527_222_474_440_031_099L,
-      "MinableOre" to -396_090_231_383_855_382L,
+      // Moved again when ruby's and diamond's candidate spacing was cut to put more of both in a world - see
+      // `GemDepositTest`'s baseline for what that bought.
+      "MinableOre" to 7_745_890_654_563_600_391L,
       "SpawnHostility" to 1_601_490_678_795_006_744L,
       "PoiKind" to -8_044_551_008_766_842_828L
     )
@@ -212,7 +214,10 @@ class ParamsVersionTest {
       // reaches both tiers and a knob invisible to one of them is how they drift apart.
       "VegetationParams" to -3_903_118_992_586_938_283L,
       "GradeMix" to -7_184_838_964_596_318_845L,
-      "ResourceParams" to 6_146_072_137_982_550_005L,
+      // Moved when `ResourceParams.ore` arrived: per-ore abundance and candidate spacing are settable from a
+      // params file now, and the digest folds the effective numbers so a file that changes one changes the
+      // world's identity. See `OreTuning`.
+      "ResourceParams" to -3_082_852_477_049_862_381L,
       "CaveParams" to -4_263_381_643_348_589_984L,
       "ManaParams" to -7_122_319_974_616_012_373L,
       "HabitabilityParams" to -8_568_146_273_010_455_127L,

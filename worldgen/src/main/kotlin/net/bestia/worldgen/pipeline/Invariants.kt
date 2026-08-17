@@ -38,6 +38,7 @@ import net.bestia.worldgen.resource.OreBody
 import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureEvaluator
+import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature
 import net.bestia.worldgen.vector.MarkerFeature
@@ -219,6 +220,7 @@ object Invariants {
     checkSettlementsAreSeparated(generated, ::fail)
     checkDepositsAreWellFormed(generated, ::fail)
     checkOreDepositsAreSpacedApart(generated, ::fail)
+    checkEveryOreIsInTheWorld(generated, ::fail)
     checkFjordSillsAreShallowerThanTheirBasins(generated, ::fail)
     // Was written and never registered, so the property the architecture document lists as asserted was not
     // being checked by anything. Registered here rather than left as documentation of an intention.
@@ -1542,19 +1544,29 @@ object Invariants {
   }
 
   /**
-   * No two mineable deposits sit on top of each other.
+   * No two mineable deposits sit on top of each other, and the dispersal rule is only bent where it had to be.
    *
-   * Two rules in one, and they fail differently. The **separation** rule is the gameplay one: every resource
+   * Three rules, and they fail differently. The **overlap** rule is the physical one: two intersecting bodies
+   * would make one voxel two different ores, and `OreVeins` would settle it by feature order rather than by
+   * geology. The **hard separation** rule is `ResourceParams.guaranteeSeparation`, the shortest distance the
+   * stage will place two deposits at under any circumstances.
+   *
+   * The third is the interesting one. `ResourceParams.oreSeparation` is the gameplay rule - every resource
    * samples its own Poisson set, so before `ResourceStage` gained a dispersal pass a copper body and a silver
-   * body could land a hundred metres apart, and a player who found one had found both. The **overlap** rule is
-   * the physical one: two intersecting bodies would make one voxel two different ores, and `OreVeins` would
-   * settle it by feature order rather than by geology.
+   * body could land a hundred metres apart, and a player who found one had found both - and it is now a target
+   * the guaranteed top-up is **allowed to breach**, because a world that holds every ore is worth more than a
+   * world whose deposits are all far apart. What must stay true is that the breach is a last resort rather than
+   * the mechanism: the top-up places at most `guaranteedDeposits` of each ore, so at most twice that many
+   * deposits in the world can be involved in a close pair. Measured over forty-seven seeds: nothing at all at
+   * 192 km, four deposits at worst on a 128 km world, and thirty-three on a 64 km world that has barely room
+   * for its own quota. Sixty is the design's bound and none of them came near it.
    *
    * Checked with a bucket grid rather than pairwise, because a full world holds tens of thousands of deposits
    * and the quadratic version of this took long enough to be worth not writing.
    */
   private fun checkOreDepositsAreSpacedApart(generated: GeneratedWorld, fail: (String, String) -> Unit) {
-    val separation = generated.params.resource.oreSeparation
+    val target = generated.params.resource.oreSeparation
+    val hard = generated.params.resource.guaranteeSeparation
     val clearance = generated.params.resource.bodyClearance
 
     val deposits = generated.world.features.all()
@@ -1565,22 +1577,27 @@ object Invariants {
         type in ResourceType.entries.indices && MinableOre.of(ResourceType.entries[type]) != null
       }
 
+    val relaxed = HashSet<FeatureId>()
     val buckets = HashMap<Long, MutableList<PointMarker>>()
     for (deposit in deposits) {
-      val cx = Math.floor(deposit.position.x / separation).toInt()
-      val cy = Math.floor(deposit.position.y / separation).toInt()
+      val cx = Math.floor(deposit.position.x / target).toInt()
+      val cy = Math.floor(deposit.position.y / target).toInt()
 
       for (dy in -1..1) {
         for (dx in -1..1) {
           for (other in buckets[bucketKey(cx + dx, cy + dy)] ?: continue) {
             val distance = deposit.position.distanceTo(other.position)
-            if (distance < separation * (1.0 - SEPARATION_TOLERANCE)) {
+            if (distance < hard * (1.0 - SEPARATION_TOLERANCE)) {
               fail(
                 "ore deposits are spaced apart",
                 "${deposit.id} and ${other.id} are ${distance.toInt()} m apart, " +
-                    "needing ${separation.toInt()} m"
+                    "below the ${hard.toInt()} m even the guarantee will not go under"
               )
               return
+            }
+            if (distance < target * (1.0 - SEPARATION_TOLERANCE)) {
+              relaxed.add(deposit.id)
+              relaxed.add(other.id)
             }
 
             val bodies = deposit.attribute(DepositChannels.RADIUS) + other.attribute(DepositChannels.RADIUS)
@@ -1597,6 +1614,49 @@ object Invariants {
       }
 
       buckets.getOrPut(bucketKey(cx, cy)) { ArrayList() }.add(deposit)
+    }
+
+    val allowed = 2 * MinableOre.entries.sumOf { generated.params.resource.ore.floorOf(it) }
+    if (relaxed.size > allowed) {
+      fail(
+        "ore deposits are spaced apart",
+        "${relaxed.size} deposits stand closer than the ${target.toInt()} m dispersal target, more than the " +
+            "$allowed the guaranteed top-up could account for - the dispersal pass itself is not working"
+      )
+    }
+  }
+
+  /**
+   * Every world holds every mineable ore.
+   *
+   * The promise `MinableOre.guaranteedDeposits` makes, checked against the finished world rather than against
+   * the code that is supposed to keep it - which is the whole point of having this file. A world missing an ore
+   * is one a player can cross and prove wrong, and it is also the failure that hides best: every other test in
+   * the suite passes on such a world by finding nothing and asserting nothing about it.
+   *
+   * Zero is only a violation for an ore whose floor is above zero. Nothing sets a floor of zero today, and a
+   * future ore that legitimately belongs to some worlds and not others should say so there rather than be
+   * silently tolerated here.
+   */
+  private fun checkEveryOreIsInTheWorld(generated: GeneratedWorld, fail: (String, String) -> Unit) {
+    val present = HashSet<ResourceType>()
+    for (feature in generated.world.features.all()) {
+      if (feature.kind != FeatureKind.ORE_DEPOSIT) continue
+      val marker = feature as? PointMarker ?: continue
+      val type = runCatching { marker.attribute(DepositChannels.TYPE).toInt() }.getOrNull() ?: continue
+      if (type in ResourceType.entries.indices) present.add(ResourceType.entries[type])
+    }
+
+    for (ore in MinableOre.entries) {
+      if (generated.params.resource.ore.floorOf(ore) <= 0) continue
+      if (ore.resource in present) continue
+
+      fail(
+        "every ore is in the world",
+        "not one ${ore.resource.label} deposit anywhere, though every world is promised " +
+            "${generated.params.resource.ore.floorOf(ore)}"
+      )
+      return
     }
   }
 

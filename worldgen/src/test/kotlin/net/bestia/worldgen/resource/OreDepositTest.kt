@@ -268,19 +268,17 @@ class OreDepositTest {
       .filterIsInstance<PointMarker>()
       .groupBy { ResourceType.entries[it.attribute(DepositChannels.TYPE).toInt()] }
 
-    val guaranteed = small.params.resource.minDepositsPerOre
+    // Per ore now rather than one number for all of them - see `MinableOre.guaranteedDeposits` for why the
+    // staples are promised three and the luxuries one, and `OreCoverageTest` for the sweep that says the
+    // promise holds on more than this one seed.
     for (ore in MinableOre.entries) {
-      // The exemption *is* the point for the volcanic ores, not an inconvenience the test works around. A seed
-      // can legitimately have no convergent boundary and no hotspot on land, and on such a world the floor would
-      // put three pyrelith mines on the three least-bad cells of a world with no volcano in it - which is a
-      // resource that lies about the map rather than one that is rare on it. `VolcanicResourceTest` is what
-      // proves the exempt ores are nonetheless placed on the worlds that can hold them.
-      if (!ore.guaranteed) continue
+      val promised = small.params.resource.ore.floorOf(ore)
+      if (promised <= 0) continue
 
       val n = found[ore.resource].orEmpty().size
       assertTrue(
-        n >= guaranteed,
-        "a 128 km world has $n ${ore.name} deposits, fewer than the $guaranteed every world is promised - " +
+        n >= promised,
+        "a 128 km world has $n ${ore.name} deposits, fewer than the $promised every world is promised - " +
             "a player could cross the whole map and prove the ore does not exist"
       )
     }
@@ -292,10 +290,10 @@ class OreDepositTest {
     val byOre = deposits.groupBy { typeOf(it) }
 
     for (ore in MinableOre.entries) {
-      // Same exemption, same reason: the abundance is what a world *should* hold given the geology, and the
-      // guarantee is what makes it hold that much even when the sampler missed. Without the guarantee an exempt
-      // ore can legitimately come out at zero tons, and asserting otherwise would be asserting the guarantee.
-      if (!ore.guaranteed) continue
+      // Only the ores with a floor under them. The abundance is what a world *should* hold given the geology,
+      // and the floor is what makes it hold that much even when the sampler missed; an ore with no floor can
+      // legitimately come out at zero tons, and asserting otherwise would be asserting the floor.
+      if (ore.guaranteedDeposits <= 0) continue
 
       val held = byOre[ore.resource].orEmpty().sumOf { it.attribute(DepositChannels.TONS) }
       val target = ore.worldTons(area)

@@ -154,29 +154,40 @@ data class ResourceParams(
   val minSitesAcross: Double = 6.0,
 
   /**
-   * Deposits of each mineable ore every world gets, however small or however poor its geology.
-   *
-   * The hard guarantee behind "every world has every ore". [minSitesAcross] tightens the *sampling* so a small
-   * world is offered enough sites, but sampling stays a lottery and a lottery has a losing ticket: the ore with
-   * the strictest geology still came out absent on some seeds. This is the floor under that, filled from the
-   * best ground the world actually has - see `guarantee`, which explains why topping up is causally honest
-   * rather than a sprinkle.
-   *
-   * A floor of last resort, not the main mechanism. Above it, scarcity still comes from geology and spacing:
-   * a 512 km world naturally holds thirty-odd copper deposits against two or three of mithrandium, and nothing
-   * here touches that.
-   */
-  val minDepositsPerOre: Int = 3,
-
-  /**
    * Least distance between any two mineable deposits, whatever their type, in metres.
    *
    * The reason the stage has a dispersal pass at all. Each resource samples its own Poisson set independently,
    * so without this a copper body and a silver body can land a hundred metres apart - and a player who finds
    * one has found both, which is the opposite of a reason to cross the map. Enforced rarest ore first, so
    * mithrandium picks its ground before iron does.
+   *
+   * A target rather than an absolute: [guaranteeSeparation] is what the stage will fall back to rather than
+   * leave an ore out of a world altogether.
    */
   val oreSeparation: Double = 12_000.0,
+
+  /**
+   * Least distance the *guaranteed* top-up will settle for, in metres, when [oreSeparation] leaves it nowhere.
+   *
+   * The tiebreak between two rules that can genuinely conflict, and the order is: **a world holds every ore
+   * before any two of them are far apart.** Both are gameplay rules and neither is physics, but they are not
+   * worth the same. Two mines four kilometres apart is a mildly disappointing afternoon; an ore that is not in
+   * the world at all is a player crossing the map and proving it, which is the failure the whole guarantee
+   * exists to prevent.
+   *
+   * It binds where a small world runs out of room. A 128 km map holds about a hundred deposits at 12 km
+   * spacing, the floors alone ask for thirty, and the ores that pick last are the ones asking for the ground
+   * everything else already took - measured, `SULFUR` picks thirteenth of thirteen and came out absent on a
+   * 128 km world whose vent fields were entirely inside other deposits' exclusion discs, and on nineteen worlds
+   * in forty-seven at 96 km. Nothing was wrong with those worlds' geology; the dispersal rule had simply eaten
+   * it.
+   *
+   * Still far above the physical floor - `bodyClearance` needs two `OreBody.MAX_RADIUS` bodies only 420 m
+   * apart - so a relaxed pair is two distinct mines in two distinct places, never one orebody wearing two
+   * markers. `Invariants` checks this number as the hard rule and [oreSeparation] as the one the top-up is
+   * allowed to breach, and bounds how often it may.
+   */
+  val guaranteeSeparation: Double = 2_500.0,
 
   /**
    * How far apart two orebodies must be as a multiple of their combined radii.
@@ -187,8 +198,23 @@ data class ResourceParams(
    */
   val bodyClearance: Double = 1.5,
 
-  /** Multiplier on every deposit's tonnage. One knob for "there is too much / too little metal about". */
+  /**
+   * Multiplier on every deposit's tonnage. One knob for "there is too much / too little metal about".
+   *
+   * Deliberately global. [ore] is where a single resource is turned up or down; this is where the whole economy
+   * is, and keeping the two separate means a world can be made richer without flattening the differences
+   * between what is in it.
+   */
   val tonnageScale: Double = 1.0,
+
+  /**
+   * Per-ore overrides for abundance, candidate spacing and the guaranteed floor. See [OreTuning].
+   *
+   * The floor is the one number here that used to live in this class, as a single `minDepositsPerOre` applied
+   * to every ore alike. It moved because thirteen ores at three deposits each over-subscribes a small world -
+   * see [MinableOre.guaranteedDeposits], which is where the per-ore defaults and the measurement now are.
+   */
+  val ore: OreTuning = OreTuning(),
 
   /** How the ore inside a deposit splits between the three grades. */
   val grades: GradeMix = GradeMix(),
@@ -212,13 +238,18 @@ data class ResourceParams(
     require(bodyClearance >= 1.0) { "bodyClearance must be at least 1, was $bodyClearance" }
     require(tonnageScale > 0.0) { "tonnageScale must be positive, was $tonnageScale" }
     require(minSitesAcross >= 1.0) { "minSitesAcross must be at least 1, was $minSitesAcross" }
-    require(minDepositsPerOre >= 0) { "minDepositsPerOre must not be negative, was $minDepositsPerOre" }
 
     // The dispersal pass buckets candidates into cells of oreSeparation and only looks at the eight
     // neighbours, so a rejection that could reach further than one cell would not be seen.
     val reach = 2.0 * OreBody.MAX_RADIUS * bodyClearance
     require(oreSeparation >= reach) {
       "oreSeparation $oreSeparation is below $reach, the furthest two bodies can reject each other from"
+    }
+    // The relaxed pass queries the same bucket grid at a shorter radius, which is only a conservative
+    // superset while it *is* shorter - and below `reach` it would stop being the rule that keeps two
+    // orebodies from occupying the same voxels.
+    require(guaranteeSeparation in reach..oreSeparation) {
+      "guaranteeSeparation $guaranteeSeparation is outside $reach..$oreSeparation"
     }
   }
 
@@ -234,17 +265,20 @@ data class ResourceParams(
    */
   fun spacingShrink(shortEdgeMetres: Double): Double {
     val floor = shortEdgeMetres / minSitesAcross
-    val coarsest = candidateSpacing * MinableOre.entries.maxOf { it.spacingFactor }
+    // Through [ore], so that turning one resource's spacing up in a params file moves the floor with it rather
+    // than leaving the rarest ore sampled more coarsely than the floor was computed for.
+    val coarsest = candidateSpacing * ore.coarsestSpacing()
     return min(1.0, floor / coarsest)
   }
 
   fun overriddenBy(source: ParamsText.ParamsSource) = copy(
     candidateSpacing = source.double("candidateSpacing", candidateSpacing),
     minSitesAcross = source.double("minSitesAcross", minSitesAcross),
-    minDepositsPerOre = source.int("minDepositsPerOre", minDepositsPerOre),
     oreSeparation = source.double("oreSeparation", oreSeparation),
+    guaranteeSeparation = source.double("guaranteeSeparation", guaranteeSeparation),
     bodyClearance = source.double("bodyClearance", bodyClearance),
     tonnageScale = source.double("tonnageScale", tonnageScale),
+    ore = ore.overriddenBy(source.scope("ore")),
     grades = grades.overriddenBy(source.scope("grades")),
     valueRadius = source.double("valueRadius", valueRadius),
     placerRange = source.double("placerRange", placerRange),
@@ -254,10 +288,11 @@ data class ResourceParams(
   override fun digest() = ParamsDigest()
     .put("candidateSpacing", candidateSpacing)
     .put("minSitesAcross", minSitesAcross)
-    .put("minDepositsPerOre", minDepositsPerOre)
     .put("oreSeparation", oreSeparation)
+    .put("guaranteeSeparation", guaranteeSeparation)
     .put("bodyClearance", bodyClearance)
     .put("tonnageScale", tonnageScale)
+    .nested("ore", ore.digest().value)
     .nested("grades", grades.digest().value)
     .put("valueRadius", valueRadius)
     .put("placerRange", placerRange)
@@ -307,7 +342,9 @@ class ResourceStage(
 
   // 2: four gems joined the catalogue and every `scarcityRank` below diamond shifted to make room. A code
   // change rather than a retune, so it belongs here and not in `paramsVersion` - see `Stage.version`.
-  override val version = 2
+  // 3: the guaranteed top-up covers every ore, and falls back to a shorter separation rather than leave one
+  // out of a world. Both are changes to what `generate` does, not to a number it reads.
+  override val version = 3
 
   override val paramsVersion
     get() = GenRng.hash(
@@ -359,16 +396,13 @@ class ResourceStage(
       placed[mineable] = kept
     }
 
+    // Rarest first here too, and it matters more than it does above: a top-up blocks the ground around it, so
+    // the ore with the least ground to choose from has to choose before the ore with the most.
     for (mineable in MinableOre.byScarcity) {
-      // The volcanic ores opt out - see `MinableOre.guaranteed`. The floor's justification is "the geology is
-      // already there and the sampler simply missed it", which is true of copper on a world with arcs and false
-      // of pyrelith on a world with no volcano: there the floor would place three gem mines on the three
-      // least-bad cells in a world that has no volcanic ground at all.
-      if (!mineable.guaranteed) continue
-
+      val floor = params.ore.floorOf(mineable)
       val kept = placed.getValue(mineable)
-      if (kept.size < params.minDepositsPerOre) {
-        kept += guarantee(ctx, terrain, mineable, params.minDepositsPerOre - kept.size, taken)
+      if (kept.size < floor) {
+        kept += guarantee(ctx, terrain, mineable, floor - kept.size, taken)
       }
     }
 
@@ -425,7 +459,7 @@ class ResourceStage(
   ): List<Site> {
     val type = mineable.resource
     val suitability = terrain.suitabilityFor(type)
-    val spacing = params.candidateSpacing * mineable.spacingFactor * shrink
+    val spacing = params.candidateSpacing * params.ore.spacingOf(mineable) * shrink
     val rng = ctx.rng(CANDIDATE_STREAM, type.ordinal.toLong())
     val out = ArrayList<Site>()
 
@@ -463,6 +497,18 @@ class ResourceStage(
    * high ground. The sampler simply missed them. So this scans for the best of those cells and puts the
    * deposit on one, which is where the causal model said it should have gone anyway.
    *
+   * ### It cannot invent ground, and that is why every ore may use it
+   *
+   * `score > 0.0` is the whole of the honesty argument and it is worth stating plainly, because the volcanic
+   * ores were exempted for years on the belief that a floor would put a pyrelith mine in a world with no
+   * volcano. It would not: pyrelith's and sulfur's arms are `ramp(volcanism, ...)`, which is **exactly** zero
+   * off a vent field, so on such a world `ranked` comes back empty and this places nothing at all. The same
+   * holds for every other arm - a deposit topped up here always stands on ground its own suitability endorses,
+   * and the only thing the floor overrules is the *lottery*.
+   *
+   * The consequence is that a genuinely absent geology still yields an absent ore, silently. `Invariants`'
+   * own coverage check is what makes that loud, and `OreCoverageTest` is what says it has never happened.
+   *
    * Only runs when an ore is short, and only then does it pay for a raster scan - so a world large enough to
    * fill its own quota never touches this.
    */
@@ -494,20 +540,28 @@ class ResourceStage(
     ranked.sortByDescending { it.first }
 
     val out = ArrayList<Site>()
-    for ((score, centre) in ranked) {
+
+    // Two sweeps over the same ranked cells. The first keeps the full dispersal distance and is the one that
+    // almost always suffices; only if the ore would otherwise be *absent* does the second go back over the
+    // same ground at the relaxed distance - see `ResourceParams.guaranteeSeparation` for why coverage outranks
+    // dispersal when the two cannot both be had.
+    for (separation in doubleArrayOf(params.oreSeparation, params.guaranteeSeparation)) {
+      for ((score, centre) in ranked) {
+        if (out.size >= needed) break
+
+        // Off the lattice, or a guaranteed deposit would sit at an exact cell centre and read as placed by a
+        // grid rather than by geology.
+        val position = Vec2d(
+          centre.x + (rng.nextDouble() - 0.5) * terrain.metresPerCell,
+          centre.y + (rng.nextDouble() - 0.5) * terrain.metresPerCell
+        )
+        if (taken.blocks(position, separation)) continue
+        taken.add(position)
+
+        out.add(Site(position, score, richnessAt(score, rng.nextDouble()), mineable.depthAt(rng.nextDouble()),
+          rng.nextDouble()))
+      }
       if (out.size >= needed) break
-
-      // Off the lattice, or a guaranteed deposit would sit at an exact cell centre and read as placed by a
-      // grid rather than by geology.
-      val position = Vec2d(
-        centre.x + (rng.nextDouble() - 0.5) * terrain.metresPerCell,
-        centre.y + (rng.nextDouble() - 0.5) * terrain.metresPerCell
-      )
-      if (taken.blocks(position)) continue
-      taken.add(position)
-
-      out.add(Site(position, score, richnessAt(score, rng.nextDouble()), mineable.depthAt(rng.nextDouble()),
-        rng.nextDouble()))
     }
 
     return out
@@ -533,7 +587,7 @@ class ResourceStage(
   ): List<Candidate> {
     if (sites.isEmpty()) return emptyList()
 
-    val total = mineable.worldTons(areaSqMetres) * params.tonnageScale
+    val total = mineable.worldTons(areaSqMetres, params.ore.abundanceOf(mineable)) * params.tonnageScale
     // Squared, so most deposits are modest and a big one is a find. Floored above zero so no site is left
     // with nothing in it at all.
     val weights = sites.map { MIN_SHARE + it.share * it.share }
@@ -588,12 +642,17 @@ class ResourceStage(
    * own extents: `ResourceParams` requires the separation to exceed the furthest two bodies could ever reject
    * each other from, so the wider rule subsumes the narrower one and the sizing pass is free to run afterwards.
    * `Invariants` re-checks both against the finished world, which is what keeps that reasoning honest.
+   *
+   * [blocks] takes the distance to enforce rather than reading [separation], so the relaxed pass of the
+   * guaranteed top-up can share this grid. That is sound in exactly one direction: the nine buckets around a
+   * position cover everything within [separation] of it, so any **shorter** query sees a superset of what it
+   * needs. A longer one would not, which is what `ResourceParams` requires `guaranteeSeparation` to prevent.
    */
   private class Occupied(private val separation: Double) {
 
     private val buckets = HashMap<Long, MutableList<Vec2d>>()
 
-    fun blocks(position: Vec2d): Boolean {
+    fun blocks(position: Vec2d, within: Double = separation): Boolean {
       val cx = floor(position.x / separation).toInt()
       val cy = floor(position.y / separation).toInt()
 
@@ -601,7 +660,7 @@ class ResourceStage(
         for (dx in -1..1) {
           val bucket = buckets[keyOf(cx + dx, cy + dy)] ?: continue
           for (other in bucket) {
-            if (position.distanceTo(other) < separation) return true
+            if (position.distanceTo(other) < within) return true
           }
         }
       }
@@ -1016,7 +1075,7 @@ private class Terrain(
          */
         ResourceType.RUBY ->
           if (submerged) 0.0
-          else arc * ramp(age, 0.35, 0.80) * 0.5
+          else arc * ramp(age, 0.28, 0.72) * 0.65
 
         /*
          * Diamond, and the one arm in this whole `when` that keys on being **away** from a plate boundary.
@@ -1056,7 +1115,7 @@ private class Terrain(
          */
         ResourceType.DIAMOND ->
           if (submerged) 0.0
-          else ramp(age, 0.62, 0.92) * (1.0 - DIAMOND_ANTI_ARC * arc) * ramp(2500.0 - above, 0.0, 1500.0) * 0.8
+          else ramp(age, 0.55, 0.88) * (1.0 - DIAMOND_ANTI_ARC * arc) * ramp(2500.0 - above, 0.0, 1500.0) * 0.9
 
         /*
          * Beryl in a granite pegmatite, which is `TIN`'s setting: a pegmatite is the last, most evolved melt

@@ -13,6 +13,7 @@ import net.bestia.worldgen.mana.CorruptionParams
 import net.bestia.worldgen.climate.WeatherParams
 import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.GradeMix
+import net.bestia.worldgen.resource.OreTuning
 import net.bestia.worldgen.resource.ResourceParams
 import net.bestia.worldgen.spawn.SpawnerParams
 import kotlin.test.Test
@@ -50,6 +51,10 @@ class WorldParamsLoadTest {
     Triple("erosion.basins", ClosedBasinParams(), emptySet()),
     Triple("resource", ResourceParams(), emptySet()),
     Triple("resource.grades", GradeMix(), emptySet()),
+    // Per ore rather than per field: its keys are `resource.ore.<ore name>.abundance` and the ore names come
+    // from `MinableOre`, so the digest's entries are `diamond.abundance` and not `abundance`. Listed all the
+    // same, because what this file checks is that a hashed scope has a loader at all.
+    Triple("resource.ore", OreTuning(), emptySet()),
     Triple("cave", CaveParams(), emptySet()),
     Triple("mana", ManaParams(), emptySet()),
     Triple("corruption", CorruptionParams(), emptySet()),
@@ -72,8 +77,15 @@ class WorldParamsLoadTest {
 
     for ((prefix, params, forwarded) in loadable) {
       val digested = params.digest().names.toSet()
+      // Every key under this prefix that no *deeper* row has claimed. Deliberately not "the remainder holds no
+      // dot", which was the same thing until `resource.ore` arrived: its keys are `<ore name>.<field>`, so it
+      // hashes and loads one level further down than every other params class here and a depth test would read
+      // its whole scope as somebody else's.
       val loaderKeys = text.requestedKeys
-        .filter { it.startsWith("$prefix.") && it.removePrefix("$prefix.").none { c -> c == '.' } }
+        .filter { key ->
+          key.startsWith("$prefix.") &&
+              prefixes.none { other -> other != prefix && other.startsWith("$prefix.") && key.startsWith("$other.") }
+        }
         .map { it.removePrefix("$prefix.") }
         .toSet()
 

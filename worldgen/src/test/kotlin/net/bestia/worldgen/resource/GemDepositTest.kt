@@ -13,22 +13,27 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * The gems reach the ground, on some world.
+ * The gems reach the ground **by geology**, on some world.
  *
  * `VolcanicResourceTest`'s shape and for its reason, which the module states as habit 6: **a subsystem that is
- * complete, tested and never reached looks exactly like one that works.** Three of these four gems are
- * `guaranteed = false`, so nothing anywhere else in the suite would notice if a suitability arm were written so
- * tightly that no world ever satisfied it - every per-seed test would pass by finding nothing and asserting
- * nothing. Only a count says otherwise.
+ * complete, tested and never reached looks exactly like one that works.** Nothing anywhere else in the suite
+ * would notice if a suitability arm were written so tightly that no world ever satisfied it - every per-seed
+ * test would pass by finding nothing and asserting nothing. Only a count says otherwise.
+ *
+ * ### The worlds here are built with the guaranteed floor switched off, and that is the whole design
+ *
+ * Every mineable ore now has a floor under it - see `MinableOre.guaranteedDeposits` - and a floor is precisely
+ * the thing that would make this file pass while telling you nothing. A gem whose arm never fires anywhere
+ * still gets its guaranteed deposit on every world, so on the shipped tuning "at least one ruby exists" is a
+ * statement about the top-up and not about ruby. Turning the floor off restores the question this file was
+ * written to ask: **can the causal sampler find this gem's ground at all.** `OreCoverageTest` asks the other
+ * question, on the shipped tuning, and asserts per world rather than per sweep.
  *
  * ### Why a total across seeds and not a per-seed floor
  *
- * A rare gem is *meant* to be absent from some worlds, which is exactly what makes "this seed has none" an
- * unusable assertion - it cannot tell correct absence from a dead code path. The total over a sweep can: at
- * these abundances, zero across every seed is not rarity, it is unreachability.
- *
- * [AMETHYST] is the exception and is asserted per seed, because it is the one gem with a floor under it. If it
- * is ever missing from a single world, `ResourceStage`'s guarantee has stopped working.
+ * With the guarantee off, a rare gem is *meant* to be absent from some worlds, which is exactly what makes
+ * "this seed has none" an unusable assertion - it cannot tell correct absence from a dead code path. The total
+ * over a sweep can: at these abundances, zero across every seed is not rarity, it is unreachability.
  */
 class GemDepositTest {
 
@@ -47,12 +52,6 @@ class GemDepositTest {
       }
 
       perSeed.add("seed $seed: " + GEMS.joinToString(" ") { "${it.label}=${counts[it] ?: 0}" })
-
-      assertTrue(
-        (counts[ResourceType.AMETHYST] ?: 0) > 0,
-        "seed $seed has no amethyst, and amethyst is the one gem every world is promised - see " +
-            "MinableOre.guaranteed on why the other three opted out and this one did not"
-      )
     }
 
     // Printed unconditionally: the numbers are the point, and a future retune wants to read them against the
@@ -63,9 +62,9 @@ class GemDepositTest {
     for (type in GEMS) {
       assertTrue(
         (totals[type] ?: 0) > 0,
-        "no ${type.label} deposit on any of ${SEEDS.size} worlds. Its suitability arm in " +
-            "ResourceStage.suitabilityFor is unreachable, or its spacing has compounded with it - and do NOT " +
-            "fix it by making it guaranteed, which would paper over an arm that never fires"
+        "no ${type.label} deposit on any of ${SEEDS.size} worlds, with the guaranteed floor off. Its " +
+            "suitability arm in ResourceStage.suitabilityFor is unreachable, or its spacing has compounded " +
+            "with it - and do NOT fix it by raising its floor, which would paper over an arm that never fires"
       )
     }
   }
@@ -147,35 +146,41 @@ class GemDepositTest {
      * Two sweeps over one set of seeds is two sets of numbers that can be read side by side - a retune that
      * moves the gems and not the volcanics is a different kind of change from one that moves both.
      *
-     * Deposits found per seed at the tuning this landed on, which is the baseline a future retune should be
-     * read against:
+     * Deposits the **sampler alone** finds per seed, with the guaranteed floor off, which is the baseline a
+     * future retune should be read against:
      *
      * ```
      *   seed        1    3    7   11   42  C0FFEE   total   worlds with none
      *   amethyst    3    3    3    3    3    3       18      0 of 6
-     *   emerald     1    1    3    0    1    1        7      1 of 6
-     *   ruby        2    0    1    2    1    2        8      1 of 6
-     *   diamond     3    1    0    0    0    1        5      3 of 6
+     *   emerald     1    1    1    0    1    1        5      1 of 6
+     *   ruby        4    3    9    5    9    5       35      0 of 6
+     *   diamond     2    1    3    0    4    1       11      1 of 6
      * ```
      *
-     * Amethyst is flat threes because it is the guaranteed one and the floor is what it is getting - three
-     * deposits is `ResourceParams.minDepositsPerOre` exactly, so on a 192 km world the sampler is placing none
-     * of it and the top-up is placing all of it. Worth knowing rather than worth fixing: it is the shallowest
-     * and commonest gem by design, and a bigger world samples it properly.
+     * The zeroes in that table are the point of it and are not a defect: on the **shipped** tuning every one of
+     * those worlds holds all four gems, because the floor fills them in, and `OreCoverageTest` is what asserts
+     * so. What this table measures is the half the floor would otherwise hide.
      *
      * Diamond is the one to watch, and every number in its row was earned. It read **zero across all six**
      * twice over: once from an elevation clause written for a world whose land sits below 1200 m (this one's
      * median is 1400), and once from a plain `1 - arc` that is a veto rather than a preference at these world
-     * sizes. Both are recorded in `ResourceStage.suitabilityFor`. A row of five is thin but real; a row of one,
-     * which is what the first fix produced, is a test that passes by luck - `VolcanicResourceTest` says so in
-     * its own baseline note and it was right here too.
+     * sizes. Both are recorded in `ResourceStage.suitabilityFor`. The first fix produced a total of *one*,
+     * which is a test that passes by luck rather than one that measures reachability -
+     * `VolcanicResourceTest` says so in its own baseline note and it was right here too.
+     *
+     * The current row comes from widening both gems deliberately: ruby's and diamond's suitability ceilings
+     * and age bands were loosened and their `spacingFactor`s cut, so the sampler *looks* in more places. Ruby
+     * went 8 to 35 and diamond 5 to 11. Emerald drifted 7 to 5 on the same change and was not touched: it
+     * picks after ruby in the dispersal order and now loses a little ground to it, which is what a shared
+     * dispersal pass is supposed to do.
      */
     val SEEDS = listOf(1L, 3L, 7L, 11L, 42L, 0xC0FFEEL)
 
     val worlds: List<GeneratedWorld> by lazy {
       SEEDS.map {
         StandardWorld.build(
-          WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0)
+          WorldConfig(seed = it, widthCells = CELLS, heightCells = CELLS, chunkSize = 32, voxelSize = 1.0),
+          params = RawGeology.PARAMS
         )
       }
     }

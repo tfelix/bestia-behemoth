@@ -168,6 +168,40 @@ another must agree with (erosion's ocean margin, settlement's habitability weigh
 limits, nav's habitability threshold) so two independently-defaulted copies of the same number can't
 silently diverge.
 
+Any of them can be overridden from a **params file** (`core/ParamsText.kt`, passed as `-Pparams=file`
+to the viewer tasks): a flat list of dotted keys, `params-format = 1` first, where the schema is
+*derived* from what readers ask for — so a key nobody reads is an error with a line number and a
+nearest-key suggestion. `resource/OreTuning.kt` is the per-resource corner of it, and the one most
+often wanted:
+
+```
+resource.ore.diamond.spacing   = 1.3   # candidate spacing: smaller looks in more places -> more deposits
+resource.ore.diamond.abundance = 0.06  # tonnes per 1000 km², the world's total -> richer deposits
+resource.ore.diamond.floor     = 2     # deposits EVERY world gets, however badly it suits diamond
+```
+
+The first two answer different halves of "how much is there": spacing decides how many finds exist,
+abundance decides how rich each one is. `resource.tonnageScale` is the global version of the second
+and `resource.candidateSpacing` of the first. Defaults for all three live on the `MinableOre` enum;
+an unset key reads back the enum's number, so nothing is duplicated.
+
+**Every world holds every mineable ore**, and `floor` is the promise. `ResourceStage.guarantee` tops a
+short ore up from the best ground the world has, and it can only place where suitability is **above
+zero** — so it cannot invent a volcano, and the deposit stands where the causal model said it should
+have. Two things follow that are easy to get wrong:
+
+- The floors are per ore (3 for the staples, 1 for the luxuries) because each one blocks
+  `oreSeparation` of ground around itself, and thirteen ores at three each over-subscribes a 128 km
+  world — measured, mithrandium fell from three deposits to one.
+- When the full 12 km dispersal distance leaves an ore nowhere, the top-up falls back to
+  `resource.guaranteeSeparation` (2.5 km) rather than leave it out. **Coverage outranks dispersal.**
+  It never fires at 192 km, touches at most four deposits on a 128 km world, and is what makes 64 km
+  worlds work at all.
+
+`OreCoverageTest` asserts the promise on the shipped tuning, per world. `GemDepositTest` and
+`VolcanicResourceTest` deliberately build with the floors **off** (`RawGeology.PARAMS`) — on the real
+defaults the floor would answer their question for them and hide an unreachable suitability arm.
+
 **`Invariants`** (`pipeline/Invariants.kt`, ~48 named checks) is the regression harness: `sweep()`
 builds N worlds in parallel and runs every check over each — physics (discharge never decreases
 downstream, lakes stand above their beds), history/chronicle self-consistency, civil structure (nothing

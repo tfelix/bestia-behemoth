@@ -236,34 +236,39 @@ enum class MinableOre(
   val maxDepth: Double,
 
   /**
-   * Whether `ResourceStage.guarantee` puts a floor of deposits on a world that placed none by score.
+   * Fewest deposits of this a world gets, however badly its geology suits it. Zero disables the floor.
    *
-   * True for everything whose geology every world has. The guarantee is justified there by the argument at
-   * `ResourceStage`'s own floor - "the geology is already there, the sampler simply missed them" - and that is
-   * a true statement about copper on a world with arcs and about mithrandium on a world with old crust.
+   * **Every world has every ore, and this is the number that says so.** `ResourceStage.guarantee` tops a short
+   * ore up from the best ground the world actually has, and it is honest rather than a sprinkle for the reason
+   * stated there: the geology is already present and the thinned Poisson sampler simply missed it. Overridable
+   * per ore from a params file - see [OreTuning].
    *
-   * It is **false** about volcanism, and that is the whole reason this flag exists. A seed can legitimately have
-   * no convergent boundary and no hotspot on land - `ResourceStage` and `HistoryStage` both already handle it -
-   * and on such a world the floor would put three pyrelith mines on the three least-bad cells in a world with no
-   * volcano in it. A resource that is *absent* from some worlds is a stronger fact about the map than one that
-   * is merely rare on all of them.
+   * ### Why it is per ore and not one number for all of them
    *
-   * ### The gems, and what the floor turned out to cost
+   * A floor is not free. `guarantee` blocks everything within `ResourceParams.oreSeparation` of each deposit it
+   * places, so **every guaranteed ore spends some of a small world's ground**, and a 128 km world has only so
+   * much. Thirteen ores at three deposits each over-subscribes it: measured, `MITHRANDIUM` fell to one deposit
+   * from three, because diamond wants old crust too and picks first. A floor that breaks another ore's floor is
+   * not a floor.
    *
-   * It is false about the rare gems too, for a related reason and one measured rather than argued. A floor is
-   * not free: `guarantee` tops up from the best cells the world has and then blocks everything within
-   * `oreSeparation` of each, so **every guaranteed ore spends some of a small world's ground**. Adding four
-   * gems at three deposits each took a 128 km world from comfortable to over-subscribed, and what gave way was
-   * `MITHRANDIUM` - down to one deposit from three, because diamond wants old crust too and picks first. A
-   * floor that breaks another ore's floor is not a floor.
+   * So the split is by what the promise is *for*. Three is the staple number, and it belongs to the ores a
+   * civilisation cannot be built without - iron, copper, tin, gold, silver, salt - plus the two the world's own
+   * story rests on, [MITHRANDIUM] and [AMETHYST]. One is the luxury number: "this world has a diamond mine" is
+   * the promise worth making about a diamond, and asking for three of them costs another ore its own floor.
    *
-   * So the three expensive gems opt out. Their preconditions do exist on every world, unlike volcanism, but a
-   * guarantee is a promise about the *economy* - iron and copper have to be there or a civilisation cannot be
-   * built - and a diamond is a luxury. "This world has no diamond mine" is a fact worth having; "this world has
-   * no iron" is a broken world. [AMETHYST] keeps its guarantee and is the reason the others can drop theirs:
-   * every world still has a gem in it, and the one it is guaranteed is the cheap one a player finds early.
+   * ### The volcanic ores, and a premise that turned out to be false
+   *
+   * [PYRELITH] and [SULFUR] were exempt entirely, on the argument that a seed can legitimately have no
+   * convergent boundary and no hotspot on land, so a floor would put three pyrelith mines in a world with no
+   * volcano in it. That argument was wrong twice. `guarantee` only ever places on a cell that scores **above
+   * zero**, and both arms are `ramp(volcanism, ...)`, which is exactly zero off the vent fields - so it could
+   * not have invented a volcano even where there was none. And there is none to invent: measured over twenty
+   * worlds at 128 and 192 km, every single one peaked at full volcanism and held between 1 700 and 5 400 square
+   * kilometres of ground that suits pyrelith. Pyrelith was nevertheless absent from six worlds in ten. That is
+   * not a world without volcanoes; it is the sampler missing ground that was there, which is the one thing the
+   * floor exists for.
    */
-  val guaranteed: Boolean = true
+  val guaranteedDeposits: Int = 3
 ) {
 
   /**
@@ -274,14 +279,15 @@ enum class MinableOre(
    * Deep enough that no settlement works it - that is deliberate, and it is [ResourceType.DIAMOND]'s whole
    * point. Nothing else in this table starts below 300 m.
    *
-   * Its [spacingFactor] matches [MITHRANDIUM]'s rather than exceeding it, and that is [MITHRANDIUM]'s own
-   * argument applied to a tighter conjunction: old crust *and* worn flat *and* away from a boundary already
-   * thins this further than any of the others, so widening the candidate spacing on top of it buys nothing and
-   * costs worlds with no diamond in them. It was 2.8 for one measurement, which is also what turned
-   * `ResourceParams.spacingShrink` from a no-op into an active floor on a 384 km world - the rarest ore's
-   * spacing is what that threshold is computed from, so this number has reach well beyond diamond.
+   * Its [spacingFactor] is the *tightest* of the deep ores despite being the rarest of them, which is
+   * [MITHRANDIUM]'s own argument taken one step further. Old crust *and* worn flat *and* away from a boundary
+   * already thins this harder than any other conjunction here, so the suitability field is doing all the
+   * scarcity work; a wide candidate spacing on top of it does not make diamond rare, it makes diamond
+   * *missing*. At 2.8 the sweep found none on four worlds in six - and 2.8 is also what turned
+   * `ResourceParams.spacingShrink` from a no-op into an active floor on a 384 km world, since the coarsest
+   * ore's spacing is what that threshold is computed from. This number has reach well beyond diamond.
    */
-  DIAMOND(ResourceType.DIAMOND, 0, 1.9, 0.03, 300.0, 800.0, guaranteed = false),
+  DIAMOND(ResourceType.DIAMOND, 0, 1.5, 0.03, 300.0, 800.0, guaranteedDeposits = 1),
 
   /**
    * Its [spacingFactor] only matches gold's, not because it is as common but because it does not need to be
@@ -295,7 +301,7 @@ enum class MinableOre(
    * wants the same arc the precious metals want, and there are far more arc cells that suit gold than suit
    * ruby, so letting gold pick first would cost ruby more than it costs gold.
    */
-  RUBY(ResourceType.RUBY, 2, 2.4, 0.09, 60.0, 220.0, guaranteed = false),
+  RUBY(ResourceType.RUBY, 2, 1.8, 0.09, 60.0, 220.0, guaranteedDeposits = 1),
 
   /**
    * Pegmatite in `TIN`'s plutons, and ahead of tin for ruby's reason: the rarer of two sharing ground picks
@@ -308,7 +314,7 @@ enum class MinableOre(
    * boundary erases the tier. `OreDepositTest.the deep ores lie below everything a shaft reaches` is the
    * tripwire, and it caught exactly this.
    */
-  EMERALD(ResourceType.EMERALD, 3, 2.4, 0.11, 120.0, 240.0, guaranteed = false),
+  EMERALD(ResourceType.EMERALD, 3, 2.4, 0.11, 120.0, 240.0, guaranteedDeposits = 1),
 
   GOLD(ResourceType.GOLD_LODE, 4, 2.4, 0.49, 10.0, 150.0),
 
@@ -319,7 +325,7 @@ enum class MinableOre(
    * strong volcanic field is about a tenth of the volcanic country, which is about a hundredth of the land.
    * Letting the metals pick first would mean pyrelith took whatever was left of an already tiny candidate set.
    */
-  PYRELITH(ResourceType.PYRELITH, 5, 2.4, 0.16, 5.0, 90.0, guaranteed = false),
+  PYRELITH(ResourceType.PYRELITH, 5, 2.4, 0.16, 5.0, 90.0, guaranteedDeposits = 1),
 
   SILVER(ResourceType.SILVER, 6, 2.2, 0.79, 10.0, 150.0),
   TIN(ResourceType.TIN, 7, 1.7, 0.92, 10.0, 150.0),
@@ -355,9 +361,10 @@ enum class MinableOre(
    * ground. The economy can do without sulfur and cannot do without iron, which is `IRON`'s own argument one
    * place further down the list.
    */
-  SULFUR(ResourceType.SULFUR, 12, 1.3, 1.4, 0.0, 12.0, guaranteed = false);
+  SULFUR(ResourceType.SULFUR, 12, 1.3, 1.4, 0.0, 12.0, guaranteedDeposits = 1);
 
   init {
+    require(guaranteedDeposits >= 0) { "$name guaranteedDeposits must not be negative, was $guaranteedDeposits" }
     require(spacingFactor > 0.0) { "$name spacingFactor must be positive, was $spacingFactor" }
     require(tonsPerThousandSqKm > 0.0) {
       "$name tonsPerThousandSqKm must be positive, was $tonsPerThousandSqKm"
@@ -366,8 +373,14 @@ enum class MinableOre(
     require(maxDepth >= minDepth) { "$name maxDepth $maxDepth is below minDepth $minDepth" }
   }
 
-  /** Tons of this metal a world of [areaSqMetres] holds in total, across however many deposits it got. */
-  fun worldTons(areaSqMetres: Double) =
+  /**
+   * Tons of this metal a world of [areaSqMetres] holds in total, across however many deposits it got.
+   *
+   * Takes the abundance rather than reading [tonsPerThousandSqKm] itself, so that a params file can move it -
+   * see [OreTuning]. Callers pass `params.ore.abundanceOf(this)`; the enum's own number is what that returns
+   * when nothing overrides it.
+   */
+  fun worldTons(areaSqMetres: Double, tonsPerThousandSqKm: Double = this.tonsPerThousandSqKm) =
     tonsPerThousandSqKm * (areaSqMetres / SQ_METRES_PER_THOUSAND_SQ_KM)
 
   /** Metres below the surface for a deposit whose depth roll came out at [roll]. */
@@ -401,7 +414,7 @@ enum class MinableOre(
           .put("${ore.name}.tonsPerThousandSqKm", ore.tonsPerThousandSqKm)
           .put("${ore.name}.minDepth", ore.minDepth)
           .put("${ore.name}.maxDepth", ore.maxDepth)
-          .put("${ore.name}.guaranteed", if (ore.guaranteed) 1.0 else 0.0)
+          .put("${ore.name}.guaranteedDeposits", ore.guaranteedDeposits.toDouble())
       }
       return digest.value
     }

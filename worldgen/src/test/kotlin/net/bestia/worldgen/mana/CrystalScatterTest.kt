@@ -58,7 +58,7 @@ class CrystalScatterTest {
     var crystals = 0
     var hectares = 0.0
 
-    for ((originX, originY) in sampleOrigins(highCorruption, squares = 6)) {
+    for ((originX, originY) in sampleOrigins(highCorruption, SAMPLE_SQUARES)) {
       // Whole chunks rather than a 220 m square of columns, because `propsIn` answers per chunk. Seven
       // squared covers 224 m, which is the same ground the column sweep used to walk.
       val fromChunkX = Math.floorDiv(Math.floor(originX / world.config.voxelSize).toLong(), world.config.chunkSize.toLong()).toInt()
@@ -147,6 +147,26 @@ class CrystalScatterTest {
   }
 
   private companion object {
+
+    /**
+     * Sample squares per side, and it was six until a reseed of the world caught it out.
+     *
+     * The stride sampler above fixed *which* squares are drawn; this fixes how many, and the two failures are
+     * different. Six squares came back on one seed at 4.85 corrupted against 1.46 clean - a ratio of 3.3,
+     * under the five this asserts - and nothing about the crystals had changed. Measured on the same world at
+     * more squares: 7.7 at twelve, 12.6 at twenty-four, 15.7 at forty-eight.
+     *
+     * **The clean side is what is noisy, not the corrupted one.** Corrupted ground reads 4.9 to 7.0 across
+     * every sample size, because a corrupted province is large and uniform; clean high-mana ground reads 1.46,
+     * 0.85, 0.56, 0.43 as the squares go up, because at the clean spacing of 175 m a 224 m square holds one or
+     * two crystals and six of them is a dozen crystals deciding the denominator of the ratio. Over eight seeds
+     * at twenty-four squares the ratio runs 7.8 to 36.7, and every one of them clears five with room; at six it
+     * ran 3.3 to 35.1 on the same worlds.
+     *
+     * Twenty-four costs about a second per side and buys a measurement that a downstream reseed cannot flip.
+     */
+    const val SAMPLE_SQUARES = 24
+
     /** Half the sample square's edge, in metres. */
     const val HALF_SQUARE = 110.0
 
