@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.LearnedSkillRepository
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.WeightLimitCalculator
@@ -133,8 +134,6 @@ class MasterEntitySpawner(
         )
       )
 
-      // Formula-driven pools: seeded full from level + attributes and kept fresh by
-      // StatusValueRecalcSystem (gated on FormulaDrivenVitals) as level/attributes change.
       val maxHp = conditionValueCalculator.computeMaxHp(master.level, baseStatusValues.vitality)
       val maxMana = conditionValueCalculator.computeMaxMana(master.level, baseStatusValues.intelligence)
       val maxStamina = conditionValueCalculator.computeMaxStamina(
@@ -143,6 +142,7 @@ class MasterEntitySpawner(
       add(id, Health(current = maxHp, max = maxHp))
       add(id, Mana(current = maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
+      add(id, FormulaDrivenVitals)
 
       add(
         id,

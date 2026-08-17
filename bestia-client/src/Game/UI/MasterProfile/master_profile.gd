@@ -37,6 +37,31 @@ func _ready() -> void:
 
 func _on_self_received(msg: SelfSMSG) -> void:
 	_master_entity_id = msg.MasterEntityId
+	_seed_from_cache()
+
+
+## Seeds the condition bars from the master Entity's cache (kept up to date by
+## entity_manager.gd/entity.gd), because _on_entity_received below has to drop everything that
+## arrives before _master_entity_id is known - and a master spawns with full pools, so the server's
+## push at spawn is the only one it will get until something damages it. Mirrors
+## StatusPoints._seed_from_cache.
+func _seed_from_cache() -> void:
+	var entity_manager := EntityManager.get_instance()
+	var entity: Entity = entity_manager.get_entity(_master_entity_id) if entity_manager else null
+	if entity == null:
+		return
+
+	_seed_bar(_health_bar, _hp_value, entity.get_health())
+	_seed_bar(_mana_bar, _mana_value, entity.get_mana())
+	_seed_bar(_stamina_bar, _stamina_value, entity.get_stamina())
+
+
+## Skips pools we have never received: an absent pool is not the same as a pool of zero, and writing
+## a 0/0 bar over a value a live update already delivered would be a regression, not a seed.
+func _seed_bar(bar: ProgressBar, value_label: Label, pool: ConditionPool) -> void:
+	if pool == null:
+		return
+	_update_bar(bar, value_label, pool.current, pool.maximum)
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:

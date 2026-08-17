@@ -64,6 +64,15 @@ var _base_status_values: Dictionary = {}
 # Latest known available status points (master entities only, same reason as _skill_points).
 var _status_points: int = 0
 
+# Latest known condition pools, cached for the same reason as _skill_points, but with a sharper edge
+# to it: a master spawns with its pools already full, so the server's push at spawn is the *only* one
+# until something damages it, and MasterProfile is often still being loaded when that push lands.
+# Without a cache here the HUD has nothing to seed from and keeps showing its scene placeholders.
+# Null until the first push for that pool arrives - see ConditionPool on why absent is not zero.
+var _health: ConditionPool = null
+var _mana: ConditionPool = null
+var _stamina: ConditionPool = null
+
 # True while this entity is channelling a skill (server-driven via CastingComponentSMSG, cleared by
 # a CastingComponentSMSG with Removed = true). For the owned entity this also gates movement input,
 # since moving cancels the cast server-side.
@@ -435,9 +444,34 @@ func show_damage(msg: DamageEntitySMSG) -> void:
 
 
 func update_health(msg: HealthComponentSMSG) -> void:
+	_health = ConditionPool.new(msg.Current, msg.Max)
 	var visual = _get_visual_for_method("update_health")
 	if visual != null:
 		visual.update_health(msg)
+
+
+## Mana and stamina have no visual of their own (no floating bar over an entity shows them) - they
+## are cached purely so the owner's HUD can seed itself, unlike update_health above.
+func update_mana(msg: ManaComponentSMSG) -> void:
+	_mana = ConditionPool.new(msg.Current, msg.Max)
+
+
+func update_stamina(msg: StaminaComponentSMSG) -> void:
+	_stamina = ConditionPool.new(msg.Current, msg.Max)
+
+
+## Null until the server has pushed this pool at least once, which is why callers must null-check
+## rather than treat a missing pool as 0/0.
+func get_health() -> ConditionPool:
+	return _health
+
+
+func get_mana() -> ConditionPool:
+	return _mana
+
+
+func get_stamina() -> ConditionPool:
+	return _stamina
 
 
 func update_casting(msg: CastingComponentSMSG) -> void:

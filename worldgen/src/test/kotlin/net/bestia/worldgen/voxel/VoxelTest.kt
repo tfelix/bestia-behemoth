@@ -54,7 +54,7 @@ class VoxelTest {
     assertEquals(
       mapOf(
         BlockType.AIR to Passability.OPEN,
-        BlockType.WATER to Passability.WADEABLE,
+        BlockType.WATER to Passability.SWIMMABLE,
         BlockType.LAVA to Passability.BLOCKED
       ),
       BlockType.entries.filter { !it.solid }.associateWith { it.passability }
@@ -67,7 +67,7 @@ class VoxelTest {
     // case this exists for: also not solid, and must never be waded at any depth.
     assertEquals(
       setOf(BlockType.WATER),
-      BlockType.entries.filter { it.passability == Passability.WADEABLE }.toSet()
+      BlockType.entries.filter { it.passability == Passability.SWIMMABLE }.toSet()
     )
   }
 

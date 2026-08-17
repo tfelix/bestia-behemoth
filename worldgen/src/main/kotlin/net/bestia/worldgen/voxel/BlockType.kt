@@ -32,7 +32,7 @@ enum class Passability {
    * How much of it is too much is the agent's business, not the material's - see
    * [net.bestia.worldgen.derived.AgentProfile.maxWadeDepth].
    */
-  WADEABLE,
+  SWIMMABLE,
 
   /** Nothing moves through it: every solid material, and lava. */
   BLOCKED
@@ -104,9 +104,8 @@ enum class BlockType(
   val carvable: Boolean = true
 ) {
 
-  /** Nothing to remove. Marked uncarvable so "is there anything here" and "may I take it" agree. */
   AIR(0, solid = false, opaque = false, carvable = false),
-  WATER(1, solid = false, opaque = false, passability = Passability.WADEABLE, carvable = false),
+  WATER(1, solid = false, opaque = false, passability = Passability.SWIMMABLE, carvable = false),
   ICE(2, solid = true),
 
   /**
@@ -220,8 +219,6 @@ enum class BlockType(
   BLIGHTED_DIRT(50, solid = true),
   BLIGHTED_SAND(51, solid = true),
   BLIGHTED_PEAT(52, solid = true),
-
-  // Ids 53 and 54 are free: `BLIGHTED_LOG` and `BLIGHTED_LEAVES`. See the note above ids 45 to 48.
 
   /** Bridge decking and other worked structure. */
   MASONRY(60, solid = true),

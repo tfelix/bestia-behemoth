@@ -77,7 +77,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_c5uss")
-value = 80.0
+value = 0.0
 show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.6963682, 0, 0.10344406, 0.7411765)
@@ -97,7 +97,7 @@ text = "HP"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "1240 / 2100"
+text = "0 / 0"
 horizontal_alignment = 2
 
 [node name="ManaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=271089587]
@@ -105,7 +105,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_puc4o")
-value = 80.0
+value = 0.0
 show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.15658718, 0.4828896, 0.82301164, 0.6509804)
@@ -125,7 +125,7 @@ text = "Mana"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "789 / 820"
+text = "0 / 0"
 horizontal_alignment = 2
 
 [node name="StaminaBar" type="ProgressBar" parent="TopMargin/ProfileDetails/ProfilContainer/BarContainer" unique_id=1649866667]
@@ -133,7 +133,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 theme_override_styles/fill = SubResource("StyleBoxFlat_urjgt")
-value = 80.0
+value = 0.0
 show_percentage = false
 script = ExtResource("2_c5uss")
 color = Color(0.9254902, 0.92941177, 0.93333334, 0.8235294)
@@ -153,7 +153,7 @@ text = "Stamina"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "100 / 100"
+text = "0 / 0"
 horizontal_alignment = 2
 
 [node name="MenuGrid2" type="GridContainer" parent="TopMargin/ProfileDetails/ProfilContainer" unique_id=746667595]
@@ -236,7 +236,7 @@ theme_override_constants/separation = 18
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Weight: 100 / 2400"
+text = "Weight: 0 / 0"
 
 [node name="GoldLabel" type="Label" parent="TopMargin/ProfileDetails/VBoxContainer/InventoryDetails" unique_id=238750136]
 layout_mode = 2

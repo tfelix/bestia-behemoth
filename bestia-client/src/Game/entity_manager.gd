@@ -150,12 +150,12 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	elif msg is HealthComponentSMSG:
 		entity.update_health(msg)
 	elif msg is ManaComponentSMSG:
-		# no handling so far at the world-entity level. The local player's mana is handled
-		# directly by MasterProfile, which listens to ConnectionManager.entity_received itself.
-		pass
+		# Cached on the entity rather than only handled by MasterProfile (which listens to
+		# ConnectionManager.entity_received itself): the HUD may not exist yet when this arrives,
+		# and it seeds itself from the cache once it learns its master entity id.
+		entity.update_mana(msg)
 	elif msg is StaminaComponentSMSG:
-		# no handling so far at the world-entity level, same as ManaComponentSMSG above.
-		pass
+		entity.update_stamina(msg)
 	elif msg is CarryCapacityComponentSMSG:
 		# no handling so far. The local player's carry capacity is handled directly by
 		# MasterProfile, same as InventoryComponentSMSG below.

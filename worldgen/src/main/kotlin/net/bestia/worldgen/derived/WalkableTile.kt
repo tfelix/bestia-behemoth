@@ -20,7 +20,7 @@ data class AgentProfile(
    */
   val maxStep: Double = 1.0,
   /**
-   * Deepest [net.bestia.worldgen.voxel.Passability.WADEABLE] fluid still walkable rather than swum, in
+   * Deepest [net.bestia.worldgen.voxel.Passability.SWIMMABLE] fluid still walkable rather than swum, in
    * voxels.
    *
    * Keyed on the classification rather than on water by name, so a second wadeable fluid needs no new knob.
@@ -206,7 +206,7 @@ class WalkableTile(
         // material that silently becomes free headroom. That is what this replaced.
         when (block.passability) {
           Passability.OPEN -> Unit
-          Passability.WADEABLE -> {
+          Passability.SWIMMABLE -> {
             wade += Occupancy.fractionOf(voxels.occupancy[offset + z].toInt() and 0xFF)
             if (wade > agent.maxWadeDepth) return false
           }

@@ -6,6 +6,7 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.Mana
@@ -50,7 +51,8 @@ class StatusValueRecalcSystem(
     StatusEffects::class,
     Equipment::class,
     IsStatusValueDirty::class,
-    Level::class
+    Level::class,
+    FormulaDrivenVitals::class
   )
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -136,8 +138,14 @@ class StatusValueRecalcSystem(
    * entities that opt into formula-driven vitals ([FormulaDrivenVitals]). Mobs lack the marker and
    * keep their authored pool. `CurMax.max` re-clamps `current`, so a shrunken pool never leaves a
    * character above its new maximum.
+   *
+   * The gate sits here rather than on the query in [update] on purpose: a mob still needs its
+   * [StatusValues] and [Speed] rebuilt so buffs and slows land on it, it is only the pool maxima
+   * that are content rather than formula.
    */
   private fun recomputeConditionMaxima(world: World, id: EntityId, context: StatusValueRecalcContext) {
+    if (!world.has(id, FormulaDrivenVitals::class)) return
+
     val level = world.get(id, Level::class)?.level ?: 1
 
     world.get(id, Health::class)?.let { it.max = conditionValueCalculator.computeMaxHp(level, context.vitality) }

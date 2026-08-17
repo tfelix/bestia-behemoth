@@ -469,10 +469,8 @@ class VegetationScatter(
       for (cellX in fromX until untilX) {
         val tree = treeAt(cellX, cellY) ?: continue
 
-        val columnX = Math.floorDiv(Quantize.toFixed(tree.x), voxelUnits)
-        val columnY = Math.floorDiv(Quantize.toFixed(tree.y), voxelUnits)
-        if (Math.floorDiv(columnX, chunkSize).toInt() != chunk.x) continue
-        if (Math.floorDiv(columnY, chunkSize).toInt() != chunk.y) continue
+        if (config.chunkOf(tree.x) != chunk.x) continue
+        if (config.chunkOf(tree.y) != chunk.y) continue
 
         val ground = site.groundAt(tree.x, tree.y)
         if (ground.isNaN()) continue

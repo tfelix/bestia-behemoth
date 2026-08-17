@@ -1,6 +1,7 @@
 package net.bestia.worldgen.core
 
 import net.bestia.worldgen.vector.Aabb
+import net.bestia.worldgen.vector.Quantize
 
 /**
  * Immutable description of one world: the seed and the dimensions everything else is derived from.
@@ -202,6 +203,32 @@ data class WorldConfig(
    * given elevation is, which matters the moment a cache key or a wire format carries one.
    */
   fun voxelZOf(elevation: Double): Int = Math.floor(elevation / voxelSize).toInt()
+
+  /**
+   * Which voxel column a horizontal world coordinate falls in.
+   *
+   * The horizontal counterpart of [voxelZOf], and **not** the same arithmetic, which is the whole reason it
+   * is a named function rather than an inlined `floor(world / voxelSize)`. The coordinate is snapped to
+   * [Quantize]'s millimetre grid *before* the divide, because a trunk, a shard or a landmark near a chunk
+   * border is reached by two chunks through different arithmetic and the two results can differ by an ULP.
+   * Plain `floor` turns that ULP into a whole voxel of disagreement, and a prop the two chunks disagree
+   * about is a prop that appears twice in the world or not at all - `VegetationScatter.propsIn` decides
+   * ownership with exactly this call.
+   *
+   * The price is a half-millimetre bias: a position in the top 0.5 mm of a voxel snaps up into the next one,
+   * so its ground is read from the neighbouring column. That is a sub-millimetre placement error on a
+   * metre-scale voxel, traded for a duplicate-or-missing prop, and it is the right way round.
+   *
+   * **Hoisted here because it had been copied five times** - `AetheriteScatter`, `CrystalScatter`,
+   * `PoiProps`, `VegetationScatter` and `ChunkMaterializer.trunkSite` each carried their own `columnOf`, and
+   * `Invariants.checkPropsAreWellPlaced` carried a sixth that had drifted to plain `floor`. That drift is
+   * not a difference anybody can see by reading either side; it surfaced as a rare-seed invariant failure
+   * blaming the heightfield, on the one prop in a world that landed within half a millimetre of a boundary.
+   */
+  fun voxelOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), Quantize.toFixed(voxelSize))
+
+  /** Which horizontal chunk covers a world coordinate, by the same convention as [voxelOf]. */
+  fun chunkOf(world: Double): Int = Math.floorDiv(voxelOf(world), chunkSize.toLong()).toInt()
 
   /** Which vertical chunk covers an elevation. Negative below sea level. */
   fun chunkZOf(elevation: Double): Int = Math.floorDiv(voxelZOf(elevation), chunkHeight)

@@ -9,6 +9,7 @@ import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.StatusValues
@@ -143,6 +144,9 @@ class StatusEffectSystemsIntegrationTest {
     val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
     val entity = world.create()
     world.seedStatusValues(entity)
+    // Opts this entity into formula-derived pool maxima, the way both player spawners do. Without
+    // it the recalc leaves Health.max alone - see the mob test below.
+    world.add(entity, FormulaDrivenVitals)
 
     val baseMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 10)
     val buffedMaxHp = conditionValueCalculator.computeMaxHp(level = 1, vitality = 30)
@@ -159,6 +163,30 @@ class StatusEffectSystemsIntegrationTest {
     world.tick(1.0f) // fully expires the 1s duration
     world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
     assertEquals(baseMaxHp, world.get(entity, Health::class)!!.max)
+  }
+
+  @Test
+  fun `a mob without FormulaDrivenVitals keeps its authored max HP through a status effect`() {
+    // A mob's pool is content, not formula: it comes from its species row (Bestia.health). Without
+    // the marker gate the recalc recomputed it with the *player* formula, and since a mob carries no
+    // Level component that means level 1 - so a 500 HP boss became an 18 HP one the first time
+    // anything applied a status effect to it, permanently, because CurMax.max clamps current down
+    // with it.
+    val (world, registry) = newWorld(VitalityBuffScript(vitalityBonus = 20, duration = 1.0))
+    val mob = world.create()
+    world.seedStatusValues(mob)
+    world.add(mob, Health(current = 500, max = 500))
+
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(VitalityBuffScript(duration = 1.0))))
+      .applyEffect(world, mob, definitionId = vitalityEffect.id, level = 1)
+
+    world.tick(0.1f)
+
+    assertEquals(500, world.get(mob, Health::class)!!.max, "an authored pool must survive a recalc")
+    assertEquals(500, world.get(mob, Health::class)!!.current)
+    // The buff itself still lands - only the pool maximum is off limits, so debuffs and slows keep
+    // working on mobs.
+    assertEquals(30, world.get(mob, StatusValues::class)!!.vitality)
   }
 
   @Test

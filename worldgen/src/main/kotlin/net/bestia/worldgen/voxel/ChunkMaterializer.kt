@@ -1,6 +1,5 @@
 package net.bestia.worldgen.voxel
 
-import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.ColumnHeights
@@ -308,10 +307,8 @@ class ChunkMaterializer(
     caves: CaveNetwork,
     bridges: BridgeDecks
   ) = PropSite { worldX, worldY ->
-    val localX = Math.floorDiv(Quantize.toFixed(worldX), Quantize.toFixed(config.voxelSize)).toInt() -
-        chunk.x * config.chunkSize
-    val localY = Math.floorDiv(Quantize.toFixed(worldY), Quantize.toFixed(config.voxelSize)).toInt() -
-        chunk.y * config.chunkSize
+    val localX = config.voxelOf(worldX).toInt() - chunk.x * config.chunkSize
+    val localY = config.voxelOf(worldY).toInt() - chunk.y * config.chunkSize
 
     val ground = heights[localX, localY]
     val scratch = trunkScratch

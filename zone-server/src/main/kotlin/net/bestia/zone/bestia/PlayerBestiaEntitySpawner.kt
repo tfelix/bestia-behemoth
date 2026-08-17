@@ -5,6 +5,7 @@ import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
+import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
@@ -102,7 +103,8 @@ class PlayerBestiaEntitySpawner(
         )
       )
 
-      // Formula-driven pools, kept fresh by StatusValueRecalcSystem (gated on FormulaDrivenVitals).
+      // Formula-driven pools, kept fresh by StatusValueRecalcSystem - which is what the
+      // FormulaDrivenVitals marker below opts this entity into.
       val maxHp = conditionValueCalculator.computeMaxHp(playerBestia.level, baseStatusValues.vitality)
       val maxMana = conditionValueCalculator.computeMaxMana(playerBestia.level, baseStatusValues.intelligence)
       val maxStamina = conditionValueCalculator.computeMaxStamina(
@@ -111,6 +113,7 @@ class PlayerBestiaEntitySpawner(
       add(id, Health(current = maxHp, max = maxHp))
       add(id, Mana(current = maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
+      add(id, FormulaDrivenVitals)
 
       add(
         id,

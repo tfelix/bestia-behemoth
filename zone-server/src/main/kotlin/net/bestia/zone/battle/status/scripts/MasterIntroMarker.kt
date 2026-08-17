@@ -23,14 +23,6 @@ import java.lang.Double.POSITIVE_INFINITY
  * marker into durable storage when the master row is created; [net.bestia.zone.account.master.MasterEntitySpawner]
  * replays whatever is stored on every spawn, and [apply] deletes the marker as soon as it has sent the dialog.
  * The next persist writes the emptied list, so no later login finds anything to replay.
- *
- * It never expires on its own and is never synced to the client - a master created but not selected for a
- * year still gets greeted on its first login.
- *
- * Note that [apply] is the *status value recalc* hook and runs on every recalc, not once per application
- * ([net.bestia.zone.battle.StatusEffectService.applyEffect] never calls it). Self-removal below is what
- * makes a single dialog out of that; a dedicated `onApplied` lifecycle on [StatusEffectScript] would be
- * the cleaner home for one-shot behaviour.
  */
 @Component
 class MasterIntroMarker(

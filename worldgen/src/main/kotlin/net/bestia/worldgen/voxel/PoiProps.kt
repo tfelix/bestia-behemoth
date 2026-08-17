@@ -46,7 +46,6 @@ class PoiProps(
   private class Poi(val kind: PoiKind, val x: Double, val y: Double)
 
   private val cellUnits = Quantize.toFixed(POI_CELL_SIZE)
-  private val voxelUnits = Quantize.toFixed(config.voxelSize)
 
   private val pois: List<Poi> = features
     .asSequence()
@@ -72,8 +71,8 @@ class PoiProps(
     val chunkSize = config.chunkSize.toLong()
 
     for (poi in pois) {
-      if (Math.floorDiv(columnOf(poi.x), chunkSize).toInt() != chunk.x) continue
-      if (Math.floorDiv(columnOf(poi.y), chunkSize).toInt() != chunk.y) continue
+      if (config.chunkOf(poi.x) != chunk.x) continue
+      if (config.chunkOf(poi.y) != chunk.y) continue
 
       val ground = site.groundAt(poi.x, poi.y)
       if (ground.isNaN()) continue
@@ -110,7 +109,6 @@ class PoiProps(
    */
   private fun cellOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), cellUnits)
 
-  private fun columnOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), voxelUnits)
 
   companion object {
 

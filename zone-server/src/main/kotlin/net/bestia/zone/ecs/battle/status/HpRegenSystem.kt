@@ -1,20 +1,24 @@
 package net.bestia.zone.ecs.battle.status
 
+import net.bestia.zone.battle.status.RegenerationCalculator
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
-import kotlin.math.roundToInt
 
 /**
  * Passive HP regeneration for every entity with [Health], gated on the entity not being
- * [InCombat]. Amount follows `MaxHP * VIT / 99 + 2 / 100` per tick.
+ * [InCombat]. Amount and the 6 s cadence come from the docs' HP-recovery formula, via
+ * [RegenerationCalculator.hpRegen]:
+ * https://docs.bestia-game.net/docs/mechanics/statusvalues/
  */
 @SpringComponent
 @Order(56)
-class HpRegenSystem : System {
+class HpRegenSystem(
+  private val regenerationCalculator: RegenerationCalculator
+) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(6f)
   override val reads: ComponentClassSet = setOf(StatusValues::class, InCombat::class)
@@ -27,9 +31,12 @@ class HpRegenSystem : System {
       val health = get<Health>()
       if (health.current >= health.max) return@each
 
-      val vitality = world.get(id, StatusValues::class)?.vitality ?: 0
-      val regen = (health.max * vitality / 99.0 + 2.0 / 100.0).roundToInt()
-      health.current += regen
+      // No attributes, no passive regeneration - an entity that was never given StatusValues has no
+      // vitality to regenerate from. Explicit rather than defaulting VIT to 0, which used to come
+      // out as a zero amount only by accident of rounding and would now be a floor of 1 per tick.
+      val vitality = world.get(id, StatusValues::class)?.vitality ?: return@each
+
+      health.current += regenerationCalculator.hpRegen(health.max, vitality)
     }
   }
 }

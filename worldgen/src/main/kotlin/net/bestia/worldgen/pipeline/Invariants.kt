@@ -2825,6 +2825,11 @@ object Invariants {
    * **exactly**, with no tolerance: the only way to be a little bit wrong here is to have sampled the base
    * heightfield instead of the stamped column heights, and that is a defect the tolerance would hide.
    * `WildSpawnerService.resolve` has exactly that bug shape for a den's z.
+   *
+   * An exact assertion only earns its keep while both sides convert a world position to a column the *same*
+   * way, and for a while they did not - see [WorldConfig.voxelOf]. A tolerance would have hidden that too,
+   * and worse: the symptom was a millimetre-scale height difference reported under a message accusing the
+   * heightfield, which is the wrong place to go looking.
    */
   private fun checkPropsAreWellPlaced(generated: GeneratedWorld, fail: (String, String) -> Unit) {
     if (generated.world.layers[LayerId.CANOPY_COVER] == null) return
@@ -2854,12 +2859,14 @@ object Invariants {
             return
           }
 
-          val columnX = Math.floorDiv(
-            Math.floor(props.xAt(i) / config.voxelSize).toLong(), config.chunkSize.toLong()
-          )
-          val columnY = Math.floorDiv(
-            Math.floor(props.yAt(i) / config.voxelSize).toLong(), config.chunkSize.toLong()
-          )
+          // `config.voxelOf`/`chunkOf`, not a local `floor(x / voxelSize)`. This check used to spell the
+          // conversion out itself, and it had drifted from the one every producer uses: theirs snaps to the
+          // millimetre grid first so two chunks reaching the same trunk cannot disagree about which column
+          // it stands in, and plain `floor` does not. The two agree everywhere except in the top half
+          // millimetre of a voxel, so the drift stayed invisible until a world put a tree 0.47 mm below a
+          // boundary - and then reported it as the heightfield bug below, which it was not.
+          val columnX = config.chunkOf(props.xAt(i)).toLong()
+          val columnY = config.chunkOf(props.yAt(i)).toLong()
           if (columnX.toInt() != chunkX || columnY.toInt() != chunkY) {
             fail(
               "props are well placed",
@@ -2869,10 +2876,8 @@ object Invariants {
             return
           }
 
-          val voxelX = Math.floor(props.xAt(i) / config.voxelSize).toLong()
-          val voxelY = Math.floor(props.yAt(i) / config.voxelSize).toLong()
-          val localX = (voxelX - chunkX.toLong() * config.chunkSize).toInt()
-          val localY = (voxelY - chunkY.toLong() * config.chunkSize).toInt()
+          val localX = (config.voxelOf(props.xAt(i)) - chunkX.toLong() * config.chunkSize).toInt()
+          val localY = (config.voxelOf(props.yAt(i)) - chunkY.toLong() * config.chunkSize).toInt()
 
           if (heights[localX, localY] != props.groundAt(i)) {
             fail(

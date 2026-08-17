@@ -139,7 +139,6 @@ class CrystalScatter(
 ) {
 
   private val cellUnits = Quantize.toFixed(params.cellSize)
-  private val voxelUnits = Quantize.toFixed(config.voxelSize)
   private val scatterSeed = GenRng.mix64(seed xor SCATTER_SALT)
 
   /**
@@ -167,8 +166,8 @@ class CrystalScatter(
       for (cellX in fromX until untilX) {
         val crystal = crystalAt(cellX, cellY) ?: continue
 
-        if (Math.floorDiv(columnOf(crystal.x), chunkSize).toInt() != chunk.x) continue
-        if (Math.floorDiv(columnOf(crystal.y), chunkSize).toInt() != chunk.y) continue
+        if (config.chunkOf(crystal.x) != chunk.x) continue
+        if (config.chunkOf(crystal.y) != chunk.y) continue
 
         val ground = site.groundAt(crystal.x, crystal.y)
         if (ground.isNaN()) continue
@@ -250,7 +249,6 @@ class CrystalScatter(
     return cap != BlockType.ICE && cap != BlockType.SNOW
   }
 
-  private fun columnOf(world: Double): Long = Math.floorDiv(Quantize.toFixed(world), voxelUnits)
 
   /** One crystal, as the lattice draws it before the ground is known. */
   private class Crystal(
