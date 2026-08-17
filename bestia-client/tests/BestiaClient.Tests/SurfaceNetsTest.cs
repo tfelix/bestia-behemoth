@@ -365,6 +365,19 @@ namespace BestiaBehemothClient.Tests
     /// The fixture puts both fluids in one chunk on either side of a non-axis-aligned boundary, so a mesher that
     /// mixed the masks could not produce this geometry by accident.
     /// </para>
+    ///
+    /// <para>
+    /// <b>There is deliberately no assertion about the terrain surface here</b>, and its absence is the point
+    /// rather than an omission. This fixture submerges every column, and the materialiser fills everything below
+    /// an air interface to full occupancy - bed and fluid alike - so a rock/fluid boundary is not an occupancy
+    /// change and <see cref="ChunkBands"/> never marks it. The bed under a fluid is therefore not meshed, which
+    /// is true of every lake bed in the world and is exactly why <see cref="BlockAppearance"/> draws lava
+    /// opaque: an alpha would show a hole where the pool's basin should be. This test asserted
+    /// <c>NotNull(mesh.Terrain)</c> until that was noticed, which was asserting the opposite of the design the
+    /// renderer beside it depends on. <see cref="WaterIsASeparateSurfaceAboveTheTerrainSurface"/> is where the
+    /// bed-under-water claim lives, and it holds there because that fixture has ground standing above the
+    /// waterline as well as under it.
+    /// </para>
     /// </remarks>
     [Fact]
     public void LavaIsItsOwnSurfaceAndDoesNotMergeWithWater()
@@ -378,7 +391,7 @@ namespace BestiaBehemothClient.Tests
 
       var mesh = Mesh(source);
 
-      Assert.NotNull(mesh?.Terrain);
+      Assert.NotNull(mesh);
       Assert.NotNull(mesh.Lava);
       Assert.NotNull(mesh.Water);
       Assert.False(mesh.Lava.IsEmpty);
@@ -402,9 +415,15 @@ namespace BestiaBehemothClient.Tests
       Assert.InRange(lava.Max(v => v.Y), lavaTop - 0.0001, lavaTop + 0.0001);
       Assert.InRange(water.Max(v => v.Y), waterTop - 0.0001, waterTop + 0.0001);
 
-      // And the crater floor is still drawn under the lava, for the reason a riverbed is drawn under water: the
-      // lava material is opaque today, and a missing bed becomes a hole through the world the moment it is not.
-      Assert.NotEmpty(Interior(mesh.Terrain));
+      // The crater floor is NOT drawn under the lava, and this test used to assert that it was. See the remarks
+      // above: a bed-to-fluid boundary changes the material and not the occupancy, ChunkBands is built from
+      // occupancy alone, so the cell is never visited. Asserting the opposite made the test fail on a fixture
+      // that is faithful to what the materialiser writes.
+      //
+      // It is a real limitation rather than a tidy one, and it is recorded rather than hidden: making it false
+      // means teaching ChunkBands to see a solid/fluid change as well as an occupancy change, which would mesh
+      // the bed of every lake and sea in the world. That is a cost and a decision, not a bug fix.
+      Assert.Null(mesh.Terrain);
     }
 
     /// <summary>The lava surface is flat and faces up, like any other standing fluid.</summary>

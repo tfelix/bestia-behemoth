@@ -29,6 +29,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// </para>
   ///
   /// <para>
+  /// <b>Two passes, because a run boundary is only half of a surface.</b> Walking a column finds every
+  /// horizontal face - the ground, a cave floor, a cave ceiling - and finds no vertical one at all, because a
+  /// wall changes nothing as you walk down either side of it. <see cref="MarkHorizontalFaces"/> is the other
+  /// half, comparing adjacent columns run by run so that a cliff and the wall of a gallery are marked too. Both
+  /// passes cost surface area rather than volume, which is the property this class exists for.
+  /// </para>
+  ///
+  /// <para>
   /// Only boundaries <i>inside</i> the chunk are recorded. A boundary at the chunk's own floor or ceiling is
   /// between this chunk and its vertical neighbour, and cannot be seen from one chunk's arrays alone; those are
   /// resolved by <see cref="SeamAtFloor"/> at mesh time, when the neighbour is in hand. Keeping them out of here
@@ -97,23 +105,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var minActive = int.MaxValue;
       var maxActive = -1;
 
-      // Whether every column turned out to be a single run of the same value as every other column. Tracked
-      // because a chunk with no interior boundary anywhere can still have a surface: columns that are solid
-      // top-to-bottom beside columns that are air top-to-bottom are a cliff face, and no vertical run boundary
-      // exists anywhere to mark it. Real terrain does not produce that - it would be a 256 m sheer face inside one
-      // chunk - but a uniform chunk is the case this class exists to skip, so it must not skip a wrong one.
-      var mixedColumns = false;
-      var firstColumnValue = occupancy[0];
-
       for (var column = 0; column < size * size; column++)
       {
         var wordBase = column * words;
         var strip = occupancy.Slice(column * height, height);
-
-        if (strip[0] != firstColumnValue)
-        {
-          mixedColumns = true;
-        }
 
         var z = 0;
         while (z < height)
@@ -133,6 +128,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
           z = next;
         }
+      }
+
+      MarkHorizontalFaces(occupancy, mask, size, height, words);
+
+      for (var column = 0; column < size * size; column++)
+      {
+        var wordBase = column * words;
 
         for (var word = 0; word < words; word++)
         {
@@ -150,15 +152,150 @@ namespace BestiaBehemothClient.Game.World.Mesh
         }
       }
 
-      if (maxActive < 0 && mixedColumns)
-      {
-        // No vertical boundary anywhere, but the columns disagree: mark the lot rather than declare it uniform.
-        mask.AsSpan().Fill(~0UL);
-        minActive = 0;
-        maxActive = height - 1;
-      }
-
       return new ChunkBands(size, height, words, mask, maxActive < 0 ? -1 : minActive, maxActive);
+    }
+
+    /// <summary>
+    /// Marks the cells where two horizontally adjacent columns disagree.
+    /// </summary>
+    /// <remarks>
+    /// <b>A vertical rock face has no vertical run boundary anywhere near it</b>, which is the hole the
+    /// per-column pass above cannot see. A solid column beside a carved one changes nothing as you walk either
+    /// column downward; what changes is the step *between* them, and the loop above never compares two columns.
+    ///
+    /// <para>
+    /// The symptom is a face that thins to nothing as it grows. A cave passage is marked at its floor and its
+    /// ceiling, because those are real run boundaries in the carved column, and <see cref="Reach"/> spreads each
+    /// by one cell - so a three-metre passage happens to come out solid and a sixteen-metre gallery renders as a
+    /// floor and a ceiling with the wall between them missing. That is not a rendering artefact a player would
+    /// read as one: it is a hole through into the void, in exactly the places the world puts galleries and
+    /// cliffs.
+    /// </para>
+    ///
+    /// <para>
+    /// This is the pass that closes it, and it stays within the cost model the class is built on: it walks
+    /// <i>runs</i>, not cells. Two adjacent columns are compared by stepping to whichever has the next boundary,
+    /// so an interval where neither changes is settled by one comparison however tall it is. Open terrain
+    /// therefore costs a handful of steps per pair and marks the one- or two-cell step between neighbouring
+    /// surface heights, which the vertical pass had already marked. A cliff costs the same and marks its whole
+    /// face - which is the surface, and has to be meshed.
+    /// </para>
+    ///
+    /// <para>
+    /// It also replaces the <c>mixedColumns</c> fallback this method used to end with, which filled the entire
+    /// mask when no vertical boundary existed anywhere but the columns disagreed. That was the same failure
+    /// caught only in its global form and answered with a sledgehammer; a sheer face inside one chunk is now
+    /// marked precisely rather than by meshing all 262 144 cells.
+    /// </para>
+    /// </remarks>
+    private static void MarkHorizontalFaces(
+      ReadOnlySpan<byte> occupancy, ulong[] mask, int size, int height, int words)
+    {
+      for (var y = 0; y < size; y++)
+      {
+        for (var x = 0; x < size; x++)
+        {
+          var column = y * size + x;
+          var here = occupancy.Slice(column * height, height);
+
+          if (x + 1 < size)
+          {
+            Compare(here, occupancy.Slice((column + 1) * height, height), mask, size, height, words, x, y, 1, 0);
+          }
+
+          if (y + 1 < size)
+          {
+            Compare(here, occupancy.Slice((column + size) * height, height), mask, size, height, words, x, y, 0, 1);
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Walks one pair of adjacent columns together, marking every stretch over which they disagree.
+    /// </summary>
+    /// <remarks>
+    /// <b>The stretches where the two agree are skipped by <c>CommonPrefixLength</c></b>, which is vectorised,
+    /// and only the stretches where they disagree are walked a byte at a time. That asymmetry is the whole
+    /// performance argument, and it is the right way round: two adjacent columns agree over nearly their entire
+    /// height - the rock below them both and the air above them both - and disagree only across the step
+    /// between their surfaces, which is the face that has to be meshed.
+    ///
+    /// <para>
+    /// A run walk was tried first and is what the vertical pass uses, but it does not survive being done per
+    /// <i>pair</i>: there are twice as many pairs as columns and each needs both columns walked, so the same
+    /// technique that costs ~30 us over a chunk cost 520 us here, against a 500 us budget. Asking "where do
+    /// these two first differ" once per agreeing stretch is a handful of calls per pair instead of a handful
+    /// per run.
+    /// </para>
+    ///
+    /// <para>
+    /// Static, and everything it needs is a parameter. As a capturing local function this and
+    /// <see cref="Mark"/> compile to instance calls on a display class allocated per chunk scan, which is real
+    /// cost on a method whose whole justification is being too cheap to think about.
+    /// </para>
+    /// </remarks>
+    private static void Compare(
+      ReadOnlySpan<byte> a, ReadOnlySpan<byte> b, ulong[] mask,
+      int size, int height, int words, int x, int y, int dx, int dy)
+    {
+      var z = 0;
+      while (z < height)
+      {
+        z += a.Slice(z).CommonPrefixLength(b.Slice(z));
+
+        if (z >= height)
+        {
+          return;
+        }
+
+        var start = z;
+        while (z < height && a[z] != b[z])
+        {
+          z++;
+        }
+
+        Mark(mask, size, height, words, x, y, dx, dy, start, z - 1);
+      }
+    }
+
+    /// <summary>
+    /// Marks the cells that can see a difference between one column pair, and no more of them than that.
+    /// </summary>
+    /// <remarks>
+    /// A cell's corners read one column either side of it, so a cell at <c>cx</c> has both members of the pair
+    /// <c>(x, x + dx)</c> among its corners only for <c>cx</c> in <c>{x, x + dx}</c>. Across the pair's own axis
+    /// it reaches one row further each way, and in z it spreads by <see cref="Reach"/> - the same spread the
+    /// vertical pass applies to a run boundary, for the same reason.
+    /// </remarks>
+    private static void Mark(
+      ulong[] mask, int size, int height, int words, int x, int y, int dx, int dy, int lo, int hi)
+    {
+      var from = Math.Max(0, lo - Reach);
+      var to = Math.Min(height - 1, hi + Reach);
+
+      for (var step = 0; step <= 1; step++)
+      {
+        var cx = x + step * dx;
+        var cy = y + step * dy;
+
+        for (var side = -Reach; side <= Reach; side++)
+        {
+          var sx = cx + side * dy;
+          var sy = cy + side * dx;
+
+          if (sx < 0 || sx >= size || sy < 0 || sy >= size)
+          {
+            continue;
+          }
+
+          var wordBase = (sy * size + sx) * words;
+          for (var k = from; k <= to; k++)
+          {
+            mask[wordBase + (k >> 6)] |= 1UL << (k & 63);
+          }
+        }
+      }
     }
 
     /// <summary>

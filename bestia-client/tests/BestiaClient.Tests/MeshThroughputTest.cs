@@ -118,9 +118,16 @@ namespace BestiaBehemothClient.Tests
         $"band scan {micros:F0} us per chunk " +
         $"({TerrainFixtures.Size * TerrainFixtures.Size} columns of {TerrainFixtures.Height})");
 
-      // Roughly 30 us, which is what makes rescanning on every decode and every patch a non-decision. The vectorised
-      // run walk is the reason; a per-cell loop over 262 144 cells would be two orders of magnitude worse.
-      Assert.True(micros < 500.0, $"{micros:F0} us per band scan suggests the run walk stopped vectorising");
+      // Roughly 330 us, which is still what makes rescanning on every decode and every patch a non-decision: a
+      // whole view volume is about 40 ms of scanning, once, on a worker thread. A per-cell loop over 262 144
+      // cells would be two orders of magnitude worse, and staying off one is what the budget guards.
+      //
+      // It was ~30 us before ChunkBands gained its horizontal pass, and the tenfold is that pass: there are
+      // twice as many adjacent column pairs as columns, and each pair has to be compared rather than merely
+      // walked. Worth it - without it a vertical rock face has no run boundary anywhere near it, so cave walls
+      // and cliffs came out with holes through into the void. Both passes are vectorised; if this ever fails,
+      // the question is which one stopped being.
+      Assert.True(micros < 500.0, $"{micros:F0} us per band scan suggests a scan stopped vectorising");
     }
   }
 }
