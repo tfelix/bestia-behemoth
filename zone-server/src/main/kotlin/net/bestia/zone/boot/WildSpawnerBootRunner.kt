@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
  * relies on.
  *
  * Nothing is spawned yet. Every den starts dormant and `SpawnerSystem` wakes the ones a player walks near, so
- * a world of a thousand dens costs a thousand components at boot and no entities at all.
+ * a world of thirty thousand dens costs thirty thousand components at boot and no entities at all.
  */
 @Component
 @Order(105)
@@ -47,10 +47,12 @@ class WildSpawnerBootRunner(
         add(
           id,
           Spawner(
+            identity = den.identity,
             bestiaId = den.bestiaId,
             maxSpawnCount = den.pack,
             position = den.position,
-            range = den.range
+            range = den.range,
+            activationRange = den.activationRange
           )
         )
       }

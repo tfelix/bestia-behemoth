@@ -302,7 +302,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "town", "economy", "detail", "strata", "crystal", "aetherite", "spawner", "vegetationStand"
+      "town", "economy", "detail", "strata", "crystal", "aetherite", "vegetationStand"
     )
 
     /**
@@ -332,6 +332,12 @@ data class WorldParams(
         // and whether a landmark is far enough from a road is exactly the sort of thing found by looking at one
         // and then moving a number.
         poi = base.poi.overriddenBy(text.scope("poi")),
+        // Off `NOT_YET_LOADABLE` because den density is quadratic in `candidateSpacing` and there is no way
+        // to know the right value except by generating a world and counting - which is what
+        // `:worldgen:invariants -Pparams=...` is for. Recompiling between attempts is the wrong loop for a
+        // number found by measurement. Note this reaches the offline tooling only: zone-server's
+        // `WorldGenConfig.baseParams` is still hard-coded to `DEFAULT`.
+        spawner = base.spawner.overriddenBy(text.scope("spawner")),
         nav = base.nav.overriddenBy(text.scope("nav"))
       )
       text.checkAllConsumed(NOT_YET_LOADABLE)

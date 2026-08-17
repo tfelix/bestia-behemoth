@@ -11,6 +11,8 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
+import net.bestia.zone.ecs.spawn.DenIdentity
+import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.entity.PersistedComponent
 import net.bestia.zone.entity.PersistedEntity
 import net.bestia.zone.entity.PersistedEntityRepository
@@ -28,6 +30,16 @@ data class MobSnapshot(
   val y: Long,
   val z: Long,
   val currentHp: Int,
+
+  /**
+   * Which den owns this creature, or null for one nothing owns - a `/spawn`ed mob, and every row written
+   * before den ownership existed.
+   *
+   * Nullable **and** defaulted, both on purpose: the blob is free-form JSON and rows already in the table
+   * have no `den` key at all, so the default covers Jackson's Kotlin module honouring constructor defaults
+   * and the nullability covers it not.
+   */
+  val den: DenIdentity? = null,
 ) : EntitySnapshot
 
 /**
@@ -58,6 +70,9 @@ class MobEntityPersister(
       bestiaId = visual.id,
       x = pos.x, y = pos.y, z = pos.z,
       currentHp = hp?.current ?: NO_HP,
+      // Carried, never interpreted. Which den this names, and whether that den still exists on this world,
+      // is DenPackRestoreService's question - this persister knows only that it is part of a mob's state.
+      den = world.get(id, DenMember::class)?.den,
     )
   }
 
@@ -89,6 +104,7 @@ class MobEntityPersister(
         bestiaId = snap.bestiaId,
         pos = Vec3L(snap.x, snap.y, snap.z),
         entityId = snap.entityId,
+        den = snap.den?.let(::DenMember),
       )
       if (snap.currentHp != NO_HP) {
         world.modify(snap.entityId) { id ->

@@ -54,6 +54,25 @@ object SpawnerChannels {
 
   /** 1 for a boss den, 0 otherwise. */
   const val BOSS = "boss"
+
+  /**
+   * Mean annual air temperature at the den, in degrees Celsius. From `LayerId.TEMPERATURE`.
+   *
+   * The axis a species' temperature window is tested against. [BIOME] already carries the coarse answer -
+   * nothing tropical lives on an ice sheet because no den is there - so this is what discriminates *within*
+   * a biome, and `GRASSLAND` spanning cold steppe and warm savanna is the case that needs it.
+   */
+  const val TEMPERATURE = "temperature"
+
+  /**
+   * Summer-to-winter swing at the den, in degrees. From `LayerId.TEMPERATURE_RANGE`.
+   *
+   * Emitted but not yet read by anything. A channel is eight bytes per marker; a channel *added later* is a
+   * second forced world regeneration, because the marker set is only rebuilt when the pipeline version
+   * moves. "This never freezes" is the obvious next rule and it needs the swing beside the mean, so this is
+   * the one moment where having it is free.
+   */
+  const val TEMPERATURE_SWING = "temperature_swing"
 }
 
 /** Tuning for [SpawnerStage]. */
@@ -65,16 +84,27 @@ data class SpawnerParams(
    * Used raw, not detail-scaled: how many monsters there are per square kilometre is a gameplay density, and
    * a small world wants the same one a large world has. `CaveStage.candidateSpacing` argues the same case.
    *
-   * **The wrong lever for population.** It is quadratic in the feature count - halving it quadruples the
-   * markers the world carries - while [minPack]/[maxPack] cost nothing. Reach for those first.
+   * **This is the spatial-density lever, and it is quadratic** - halving it quadruples the markers the world
+   * carries. [minPack]/[maxPack] cost nothing by comparison and are the right lever for "more creatures".
+   * Reach for this one only when what is wanted is creatures *more often*, which is what it was reached for:
+   * dens 2 500 m apart against a 220 m activation range meant a player could walk for kilometres between
+   * encounters, and the wilderness measured empty.
    *
-   * Measured over thirty 192 km worlds at this spacing: **1 432 dens per world**, spread across the level
-   * bands `1-8 / 9-40 / 41-79 / 80-100` as **18 / 439 / 794 / 180**. At a mean pack of about six that is
-   * some eight thousand potential creatures, of which only those near a player are ever live. The sweep
-   * prints those four numbers per seed; a distribution that collapses into one band is the failure they are
-   * there to catch.
+   * Calibrated from a measurement of the shipped 128 km world rather than from theory. The relation is
+   * `dens/km² = K / spacing_km²` with **K ≈ 0.25**, which already folds in the ~35 % of candidates lost to
+   * water, settlement clearance and [minAcceptance]. At 2 500 m that gave 656 dens on the 128 km world; at
+   * 350 m it gives about **33 000**, or 2.04 dens/km², which against a mean pack of ~9.6 is ~20 creatures
+   * per km² - two or three on a 352 m screen.
+   *
+   * Level-band distribution is unchanged by this, only scaled: `1-8 / 9-40 / 41-79 / 80-100` came out as
+   * **18 / 439 / 794 / 180** per 1 432 dens. The sweep prints those four numbers per seed; a distribution
+   * that collapses into one band is the failure they are there to catch.
+   *
+   * The cost is real and worth stating: the Poisson sampler goes from milliseconds to seconds on a 128 km
+   * world, and a 512 km world produces on the order of half a million markers. See `Invariants.sweep`'s
+   * memory note before running a wide sweep.
    */
-  val candidateSpacing: Double = 2_500.0,
+  val candidateSpacing: Double = 350.0,
 
   /** Metres around a standing settlement inside which nothing above [homeMaxLevel] spawns. */
   val homeSafeRadius: Double = 3_000.0,
@@ -116,17 +146,50 @@ data class SpawnerParams(
   /** Half-width of a spawner's level range, clamped into `1..maxLevel`. */
   val levelSpread: Int = 4,
 
-  val minPack: Int = 2,
-  val maxPack: Int = 14,
+  val minPack: Int = 4,
+  val maxPack: Int = 20,
 
-  val minRadius: Double = 40.0,
-  val maxRadius: Double = 140.0,
+  /**
+   * How far from the marker a pack spreads, in metres, from gentlest to most dangerous country.
+   *
+   * **This is the evenness knob, and it costs nothing.** A runtime places a den's creatures inside a box of
+   * this width, so the creature field is not a uniform scatter but a cluster process: knots of one den's
+   * pack, with whatever lies between them. At the old 40-140 m a den was a tight huddle far smaller than a
+   * screen, so at any density that produced the right *mean* the experience was still feast-or-famine -
+   * around 45 % of screens holding nothing and the rest holding a clump.
+   *
+   * Widening the box to a fair fraction of a screen is what turns those knots into a field, and unlike
+   * [candidateSpacing] it adds no markers at all. The ceiling is the runtime's, not this stage's: zone-server
+   * wakes a den at `radius + activation margin` and refuses a den whose range exceeds its activation range,
+   * so a radius past about 800 m has nowhere to put the margin.
+   */
+  val minRadius: Double = 250.0,
+  val maxRadius: Double = 550.0,
 
   /** Chance a corrupted spawner is a boss den instead of a pack. */
   val bossChance: Double = 0.025,
 
   /** Metres of clearance kept from a standing settlement's own centre. */
-  val settlementClearance: Double = 250.0
+  val settlementClearance: Double = 250.0,
+
+  /**
+   * Chance a candidate in the gentlest country still becomes a spawner.
+   *
+   * Not zero: a settled valley with no monsters at all is a park, and the level-one content has to live
+   * somewhere. **And not low, either**, which is the part that had to be measured. At 0.25 the wilderness
+   * held four times the dens of the settled country, and since the settled country is already the smaller
+   * share of the map the whole world produced twelve dens below level nine - about thirty starter creatures
+   * for every new master on it.
+   *
+   * At 0.5 remote ground is still twice as thick with dens as a river valley, which is enough for the
+   * wilderness to feel like one, and the starter band roughly doubles. Density is the wrong lever for
+   * difficulty anyway: what makes the far mountains dangerous is the *level*, not the count.
+   *
+   * A field rather than the `private const` it used to be, because a constant is in no digest: retuning it
+   * moved no version number at all, so a world generated before the change and one generated after were
+   * indistinguishable to the boot gate while having different wildernesses.
+   */
+  val minAcceptance: Double = 0.5
 ) : Params {
 
   init {
@@ -147,6 +210,7 @@ data class SpawnerParams(
     require(minRadius > 0.0 && minRadius <= maxRadius) { "the radius range is empty" }
     require(bossChance in 0.0..1.0) { "bossChance must be a share, was $bossChance" }
     require(settlementClearance >= 0.0) { "settlementClearance must not be negative" }
+    require(minAcceptance in 0.0..1.0) { "minAcceptance must be a share, was $minAcceptance" }
   }
 
   fun overriddenBy(source: ParamsText.ParamsSource) = copy(
@@ -170,7 +234,8 @@ data class SpawnerParams(
     minRadius = source.double("minRadius", minRadius),
     maxRadius = source.double("maxRadius", maxRadius),
     bossChance = source.double("bossChance", bossChance),
-    settlementClearance = source.double("settlementClearance", settlementClearance)
+    settlementClearance = source.double("settlementClearance", settlementClearance),
+    minAcceptance = source.double("minAcceptance", minAcceptance)
   )
 
   override fun digest() = ParamsDigest()
@@ -195,6 +260,7 @@ data class SpawnerParams(
     .put("maxRadius", maxRadius)
     .put("bossChance", bossChance)
     .put("settlementClearance", settlementClearance)
+    .put("minAcceptance", minAcceptance)
 }
 
 /**
@@ -239,8 +305,11 @@ class SpawnerStage(
 
   override val id = ID
   // 2: the home safety ring dropped from four settlements to three, along with
-  // SettlementSpawnPoints.MAX_HOME_CANDIDATES - the 5th-largest town is ordinary country again.
-  override val version = 2
+  //    SettlementSpawnPoints.MAX_HOME_CANDIDATES - the 5th-largest town is ordinary country again.
+  // 3: markers carry TEMPERATURE and TEMPERATURE_SWING. A code change to what `generate` computes rather
+  //    than a retune, so it belongs here and not in the params digest - a marker read for a channel it does
+  //    not have throws, so a cached world tier from before this must not be treated as current.
+  override val version = 3
 
   override val paramsVersion get() = GenRng.hash(params.digest().value, SpawnHostility.catalogueDigest())
 
@@ -265,6 +334,15 @@ class SpawnerStage(
     val corruption = Grid.from(ctx.layers.float(LayerId.CORRUPTION))
     val biome = ctx.layers.int(LayerId.BIOME)
     val seaLevel = ctx.config.seaLevel
+
+    // `resampled`, not `from`: climate runs on 4 km cells on any world of 384 cells or more, while this
+    // stage is at a kilometre. Indexing a climate layer with this stage's own `cell` would silently read
+    // somewhere else entirely - and would look perfectly correct on a 128-cell world, where the two
+    // resolutions happen to coincide. `Invariants.checkSpawnersAreWellFormed` range-checks the result for
+    // exactly that reason. No `dependencies` entry is needed: ClimateStage is already in the transitive
+    // closure through BiomeStage.
+    val temperature = Grid.resampled(ctx.layers.float(LayerId.TEMPERATURE), region)
+    val temperatureRange = Grid.resampled(ctx.layers.float(LayerId.TEMPERATURE_RANGE), region)
 
     val standing = standingSettlements(ctx, region)
     val homes = homeSettlements(ctx, region, standing)
@@ -307,7 +385,7 @@ class SpawnerStage(
       // Thinned by danger, with a floor: settled countryside must still hold *something*, or the ring around
       // every town is an empty park. A thinned Poisson process has the acceptance as its intensity, which is
       // `ResourceStage`'s own note and what makes density vary without a second sampler.
-      val acceptance = MIN_ACCEPTANCE + (1.0 - MIN_ACCEPTANCE) * danger
+      val acceptance = params.minAcceptance + (1.0 - params.minAcceptance) * danger
       if (rng.nextDouble() > acceptance) continue
 
       val corrupted = severity >= CorruptionStage.CORRUPTED
@@ -315,7 +393,12 @@ class SpawnerStage(
       // be from it, because the stage cannot see the arrival point. See MAX_ARRIVAL_OFFSET_METRES.
       val nearHome = homes.any { wrap.distance(site.x, site.y, it.x, it.y) < homeRing }
 
-      spawners.add(marker(nextId(), site, danger, severity, corrupted, nearHome, here, rng))
+      spawners.add(
+        marker(
+          nextId(), site, danger, severity, corrupted, nearHome, here,
+          temperature.data[cell].toDouble(), temperatureRange.data[cell].toDouble(), rng
+        )
+      )
     }
 
     return StageResult(features = spawners)
@@ -357,6 +440,8 @@ class SpawnerStage(
     corrupted: Boolean,
     nearHome: Boolean,
     biome: Biome,
+    temperature: Double,
+    temperatureSwing: Double,
     rng: GenRng
   ): PointMarker {
     val boss = corrupted && rng.nextDouble() < params.bossChance
@@ -400,6 +485,8 @@ class SpawnerStage(
       .channel(SpawnerChannels.BIOME) { biome.ordinal.toDouble() }
       .channel(SpawnerChannels.CORRUPTION) { severity }
       .channel(SpawnerChannels.BOSS) { if (boss) 1.0 else 0.0 }
+      .channel(SpawnerChannels.TEMPERATURE) { temperature }
+      .channel(SpawnerChannels.TEMPERATURE_SWING) { temperatureSwing }
       .build()
 
     return PointMarker(featureId, FeatureKind.BESTIA_SPAWN, at, attributes)
@@ -482,20 +569,5 @@ class SpawnerStage(
     val ID = StageId("spawners")
 
     private const val CANDIDATE_STREAM = 1L
-
-    /**
-     * Chance a candidate in the gentlest country still becomes a spawner.
-     *
-     * Not zero: a settled valley with no monsters at all is a park, and the level-one content has to live
-     * somewhere. **And not low, either**, which is the part that had to be measured. At 0.25 the wilderness
-     * held four times the dens of the settled country, and since the settled country is already the smaller
-     * share of the map the whole world produced twelve dens below level nine - about thirty starter
-     * creatures for every new master on it.
-     *
-     * At 0.5 remote ground is still twice as thick with dens as a river valley, which is enough for the
-     * wilderness to feel like one, and the starter band roughly doubles. Density is the wrong lever for
-     * difficulty anyway: what makes the far mountains dangerous is the *level*, not the count.
-     */
-    private const val MIN_ACCEPTANCE = 0.5
   }
 }

@@ -116,6 +116,13 @@ object Invariants {
    * at the default 192 cells that is a few megabytes each, but a sweep at `--cells 512` should expect to
    * need a heap sized for a dozen of them.
    *
+   * **That warning became binding when den density went up fifty-fold.** `SpawnerParams.candidateSpacing`
+   * dropped from 2 500 m to 350 m, so a 128 km world carries some thirty thousand `BESTIA_SPAWN` markers
+   * instead of six hundred and a 512 km world carries on the order of half a million - a few hundred
+   * megabytes of markers per world, times one world per core in flight. A wide sweep at `--cells 512` will
+   * spend its time in the collector or die in it. Sweep at 192-256 cells unless the question genuinely needs
+   * a large world, and raise the heap when it does. `:worldgen:test` had to go to 4 GB for the same reason.
+   *
    * Note that each build runs serially inside its own thread, since [Parallel.map] marks its workers as
    * being in a parallel region already. That is the right way round: twelve whole worlds at once keeps
    * every core busy for the entire sweep, where one world at a time leaves them idle through
@@ -1778,6 +1785,25 @@ object Invariants {
     return bands
   }
 
+  /**
+   * Dens per square kilometre.
+   *
+   * Beside [spawnerCensus] because the census answers "is the ramp working" and this answers "will a player
+   * ever meet anything", which are independent and were confused once already: the shipped world had a
+   * perfectly shaped four-band distribution over 656 dens spread across 16 384 km², so a player could walk
+   * for kilometres between encounters while every assertion passed.
+   *
+   * `SpawnerParams.candidateSpacing` is the lever, and it is quadratic, so this is the number to read when
+   * turning it - printed per seed by the sweep, so a spacing can be dialled in without booting a server.
+   */
+  fun spawnerDensity(generated: GeneratedWorld): Double {
+    val dens = generated.world.features.all().count { it.kind == FeatureKind.BESTIA_SPAWN }
+    val config = generated.config
+    val squareKm = (config.widthCells * config.heightCells) *
+        (config.baseResolution.metresPerCell / 1_000.0).let { it * it }
+    return if (squareKm <= 0.0) 0.0 else dens / squareKm
+  }
+
   fun landFraction(generated: GeneratedWorld, layerId: LayerId = LayerId.ELEVATION): Double {
     val elevation = generated.world.layers.require<FloatLayer>(layerId)
     val seaLevel = generated.config.seaLevel
@@ -2589,6 +2615,8 @@ object Invariants {
       val pack = marker.attribute(SpawnerChannels.PACK).toInt()
       val radius = marker.attribute(SpawnerChannels.RADIUS)
       val biome = marker.attribute(SpawnerChannels.BIOME).toInt()
+      val temperature = marker.attribute(SpawnerChannels.TEMPERATURE)
+      val swing = marker.attribute(SpawnerChannels.TEMPERATURE_SWING)
 
       val problem = when {
         low < 1 || high > maxLevel -> "levels $low..$high outside 1..$maxLevel"
@@ -2597,6 +2625,16 @@ object Invariants {
         pack < 1 -> "pack $pack is empty"
         radius <= 0.0 -> "radius $radius is not positive"
         biome !in net.bestia.worldgen.bio.Biome.entries.indices -> "biome ordinal $biome is out of range"
+        // The tripwire for reading the climate layers wrongly. `TEMPERATURE` is at climate resolution while
+        // this stage is at a kilometre, so the marker has to go through `Grid.resampled` - and indexing the
+        // raw layer with the stage's own cell would look *perfectly correct on a 128-cell world*, where the
+        // two resolutions coincide, and be wrong on every world large enough to coarsen climate. A plain
+        // range check is the only thing that catches that without a second world to compare against.
+        !temperature.isFinite() || temperature !in -100.0..100.0 ->
+          "temperature $temperature is not a Celsius value; the climate layer is being read at the wrong " +
+              "resolution"
+
+        !swing.isFinite() || swing !in 0.0..100.0 -> "temperature swing $swing is not a Celsius range"
         else -> null
       }
 

@@ -8,11 +8,20 @@ import net.bestia.zone.util.EntityId
  * A den: somewhere creatures come from, and the bookkeeping that keeps the right number of them alive.
  *
  * Most dens on a world are **dormant**, and that is the design rather than an optimisation. `worldgen`'s
- * spawner stage puts on the order of a thousand of these on a 128 km world; if every one kept a pack of six
- * alive, the server would carry several thousand entities nobody is looking at. [activationRange] is what
- * keeps that from happening - see [SpawnerSystem].
+ * spawner stage puts some thirty thousand of these on a 128 km world; if every one kept a pack of ten alive,
+ * the server would carry a third of a million entities nobody is looking at. [activationRange] is what keeps
+ * that from happening - see [SpawnerSystem].
  */
 class Spawner(
+  /**
+   * This den's durable name, so a creature it made can find its way back after a restart.
+   *
+   * Required, with no default, deliberately. There are only two places a `Spawner` is built, and a
+   * placeholder identity would not fail here - it would produce creatures that persist a membership
+   * pointing at nothing, and surface a restart later as a pack that quietly doubled.
+   */
+  val identity: DenIdentity,
+
   /** Which species. This was ignored once; see [SpawnerSystem.spawnMissingEntities]. */
   val bestiaId: Long,
   val maxSpawnCount: Int = 1,

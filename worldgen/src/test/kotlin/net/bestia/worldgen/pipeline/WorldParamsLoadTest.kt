@@ -14,6 +14,7 @@ import net.bestia.worldgen.climate.WeatherParams
 import net.bestia.worldgen.mana.ManaParams
 import net.bestia.worldgen.resource.GradeMix
 import net.bestia.worldgen.resource.ResourceParams
+import net.bestia.worldgen.spawn.SpawnerParams
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -55,7 +56,10 @@ class WorldParamsLoadTest {
     Triple("weather", WeatherParams(), emptySet()),
     // Ahead of the rest of the chunk tier because its cost, not its look, is the open question - see
     // `DropletParams.overriddenBy`.
-    Triple("droplets", DropletParams(), emptySet())
+    Triple("droplets", DropletParams(), emptySet()),
+    // Loadable because `candidateSpacing` is quadratic in the den count and the only way to know the right
+    // value is to generate a world and count - which is what `:worldgen:invariants -Pparams=...` is for.
+    Triple("spawner", SpawnerParams(), emptySet())
   )
 
   @Test

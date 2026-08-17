@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -19,15 +20,15 @@ import org.springframework.stereotype.Component as SpringComponent
  *
  * ### Dormancy is the whole point
  *
- * `worldgen`'s spawner stage puts on the order of a thousand dens on the 128 km world and some ten thousand on
- * a 512 km one. A pack of six each would be tens of thousands of entities, nearly all of them out of anybody's
+ * `worldgen`'s spawner stage puts some thirty thousand dens on the 128 km world and half a million on a
+ * 512 km one. A pack of ten each would be a third of a million entities, nearly all of them out of anybody's
  * sight. So a den does nothing until a player is inside its [Spawner.activationRange].
  *
  * ### Finding the few without looking at the many
  *
- * This system used to sweep every den on the world on every tick and distance-test each one. That is up to ten
- * thousand component fetches sixty times a second to discover that two dens are near a player. The work is now
- * split the way a physics broadphase is:
+ * This system used to sweep every den on the world on every tick and distance-test each one. That is tens of
+ * thousands of component fetches sixty times a second to discover that two dens are near a player. The work is
+ * now split the way a physics broadphase is:
  *
  *  1. **Broad phase** - [SpawnerCellIndex] returns the dens in the 3x3 cells around each player. A few hash
  *     probes, no traversal, no lock, and it is built once at boot because dens never move.
@@ -46,24 +47,43 @@ import org.springframework.stereotype.Component as SpringComponent
  * is torn down only if it is still idle [UNLOAD_DELAY_SECONDS] later. This is the same hysteresis the grid
  * unload delay gives a WoW-style server, and it costs one timestamp per stocked den.
  *
- * ### Two bugs this file used to have
+ * ### Where a rehydrated pack comes in
  *
- * Both were the kind that look like working code. `spawnMissingEntities` called `spawnMob(world, "blob", ...)`
- * with a literal, so **every den in the world produced blobs** whatever its `bestiaId` said - which would have
- * made the entire level ramp invisible while the spawn system appeared to work perfectly. And it spawned at
- * `z = 0`, sea level, which for a den on a hillside is underground.
+ * A den's creatures are `Persistent`, so a pack alive at shutdown comes back at the next boot. It comes back
+ * *before* this system has ever seen the den, though, and a den nobody is standing near never reaches the
+ * broad phase - so a restored pack would belong to no den and never be torn down. [adoptRehydratedPack] is
+ * the second, boot-only producer of [stocked] that closes this: `DenPackRestoreService` hands the den over
+ * once, and from there the ordinary idle-and-expire path owns it. The three phases above are untouched.
+ *
+ * ### Three bugs this file used to have
+ *
+ * All were the kind that look like working code. `despawnPack` destroyed its creatures without telling
+ * `PersistedEntityDeletionQueue`, so **every dormant den left its whole pack behind in the database** to be
+ * rehydrated at the next boot as creatures nothing owned - on top of the fresh pack the den then made.
+ * `spawnMissingEntities` called `spawnMob(world, "blob", ...)` with a literal, so **every den in the world
+ * produced blobs** whatever its `bestiaId` said - which would have made the entire level ramp invisible while
+ * the spawn system appeared to work perfectly. And it spawned at `z = 0`, sea level, which for a den on a
+ * hillside is underground.
  *
  * The height fix is deliberately **not** a call to `ChunkService` from here.
  * `ChunkStreamSystem.groundNewcomers` already snaps anything without a `Grounded` marker onto the surface on
  * the tick after it appears, and two mechanisms for "put this entity on the ground" is one too many. What this
  * passes instead is the **den's own z**, which `WildSpawnerService` took from the terrain when it placed the
  * den - so a creature starts within a voxel or two of its final height and is exact one tick later.
+ *
+ * That approximation got looser when [Spawner.range] went from 140 m to several hundred, which is what makes a
+ * den read as populated country rather than as a huddle: a pack now spreads far enough that the den's own
+ * height is a poorer guess for its far corner, and a creature can be placed over a lake or against a cliff.
+ * `groundNewcomers` still puts it on the surface a tick later, so the failure mode is a creature standing
+ * somewhere odd rather than one underground - but nothing checks the ground under a *spawn point* the way
+ * `Invariants.checkSpawnersAreOnDryLand` checks the den's own centre.
  */
 @SpringComponent
 @Order(80)
 class SpawnerSystem(
   private val bestiaEntitySpawner: BestiaEntitySpawner,
   private val cellIndex: SpawnerCellIndex,
+  private val deletionQueue: PersistedEntityDeletionQueue,
 ) : System {
 
   /**
@@ -208,21 +228,59 @@ class SpawnerSystem(
     val spawnedEntityId = bestiaEntitySpawner.spawnMob(
       world,
       spawner.bestiaId,
-      Vec3L(x, y, spawner.position.z)
+      Vec3L(x, y, spawner.position.z),
+      den = DenMember(spawner.identity)
     )
 
     spawner.spawnedEntities.add(spawnedEntityId)
   }
 
-  /** Takes the pack back out of the world, so the den restocks fresh rather than resuming half full. */
+  /**
+   * Takes the pack back out of the world, so the den restocks fresh rather than resuming half full.
+   *
+   * The queue entry is the half that used to be missing. A creature carries `Persistent`, so it has a row
+   * in `entity` the moment the persistence sweep next runs; destroying it without saying so left that row
+   * behind to be rehydrated at the next boot as a creature the den had already forgotten. The den restocks
+   * on top of it, and the population grows every restart.
+   *
+   * Enqueued **unconditionally**, outside the liveness guard: a member `DeathSystem` destroyed earlier this
+   * tick is already gone from the world and still has a row, and a delete for an id that has none is a
+   * no-op.
+   */
   private fun despawnPack(spawner: Spawner, world: World) {
     if (spawner.spawnedEntities.isEmpty()) return
 
     LOG.debug { "Den at ${spawner.position} went dormant; despawning ${spawner.spawnedEntities.size}" }
     for (entityId in spawner.spawnedEntities) {
+      deletionQueue.enqueue(entityId)
       if (world.hasEntity(entityId)) world.destroy(entityId)
     }
     spawner.spawnedEntities.clear()
+  }
+
+  /**
+   * Takes responsibility for a den whose pack was rehydrated from storage rather than spawned here.
+   *
+   * [stocked] is otherwise seeded only from `desired`, which is only reached through the broad phase, which
+   * only fires for a den near a player. A den restored at boot has a live pack and, almost always, nobody
+   * anywhere near it - so without this it would sit outside every set this system keeps: never restocked,
+   * never counted, and, the part that matters, **never torn down**. Its creatures would outlive every
+   * restart.
+   *
+   * Adding it to [stocked] alone is enough, and that is the point of doing it this way. On the next pass
+   * the den is not in `desired`, so the existing `putIfAbsent` stamps it idle and [expireIdleDens] despawns
+   * it [UNLOAD_DELAY_SECONDS] later down exactly the path a den a player walked away from takes. If a
+   * player does arrive first, `desired` wins, the stamp is dropped, and [spawnMissingEntities] tops the
+   * rehydrated pack up to size instead of rebuilding it. [update] needs no change at all, and there is no
+   * scan - this system is *told*, once, rather than made to go looking.
+   *
+   * Boot-time only, from [DenPackRestoreService], and it writes a plain `HashSet` from the boot thread.
+   * That is safe because `CommandLineRunner`s are sequential and `WorldBootRunner` starts the tick loop
+   * strictly later - not because the set is thread-safe. Deliberately not made concurrent: that would hide
+   * the constraint and charge every tick for a boot-time convenience.
+   */
+  fun adoptRehydratedPack(denEntityId: EntityId) {
+    stocked.add(denEntityId)
   }
 
   private fun removeDeadEntities(spawner: Spawner, world: World) {

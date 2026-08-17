@@ -217,7 +217,7 @@ class ParamsVersionTest {
       "OrderInfluence" to 2_558_661_069_677_437_569L,
       "HistoryParams" to 2_362_190_350_999_628_922L,
       "CorruptionParams" to -8_182_278_140_807_375_004L,
-      "SpawnerParams" to 8_240_882_274_862_173_131L,
+      "SpawnerParams" to 8_534_286_933_049_913_492L,
       // Both moved with the de-circularising of the town: `StreetParams` gained the arc and boundary fields and
       // lost nothing, and `TownParams` holds it.
       "TownParams" to 4_581_537_478_736_483_729L,

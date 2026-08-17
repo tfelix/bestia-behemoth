@@ -16,6 +16,7 @@ import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.bestia.BestiaVisual
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.persistence.Persistent
+import net.bestia.zone.ecs.spawn.DenMember
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
@@ -30,11 +31,19 @@ class BestiaEntitySpawner(
   private val movementProfileRegistry: MovementProfileRegistry
 ) {
 
+  /**
+   * @param den which den this creature belongs to, or null for one nothing owns - a `/spawn`ed mob, or a
+   *   rehydrated one whose row predates den ownership. Taken here rather than added by the caller
+   *   afterwards because `SpawnerSystem` calls this mid-tick, where `World.add` is *deferred* to the end of
+   *   the tick; going through `configure` puts it on inside the same `createEntity` lock, atomically, and
+   *   gives rehydration the identical entry point.
+   */
   fun spawnMob(
     world: WorldView,
     bestiaId: Long,
     pos: Vec3L,
     entityId: EntityId? = null,
+    den: DenMember? = null,
   ): EntityId {
     LOG.debug { "Spawning mob bestia $bestiaId on $pos" }
 
@@ -70,6 +79,8 @@ class BestiaEntitySpawner(
         )
       )
       add(id, Persistent)
+      // Only when a den made it. Absence is what marks a creature nothing owns; see DenMember.
+      den?.let { add(id, it) }
 
       // What the creature's body is doing, kept in step by the AI act stage and synced to everyone in range.
       // Unconditional like the movement capability below: a mob with no AI still renders, and IDLE is the

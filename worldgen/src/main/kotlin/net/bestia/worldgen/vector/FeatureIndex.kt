@@ -21,7 +21,12 @@ import kotlin.math.min
  *
  * ### What it actually measures out at, and where the cost really is
  *
- * Measured across 192-cell, 256-cell and genesis worlds via `invariants`, which prints [metrics] per seed:
+ * Measured across 192-cell, 256-cell and genesis worlds via `invariants`, which prints [metrics] per seed.
+ * The figures below are **from before the spawner stage's density retune** and are kept because the shape of
+ * the argument still holds; the absolute numbers are stale, and the `invariants` sweep is where current ones
+ * come from. What moved is the feature count - some thirty thousand extra dens on a genesis world - which
+ * pushes cell size down by roughly a factor of three for *every* feature. [MAX_CELLS_PER_FEATURE] was raised
+ * from 256 to 4 096 in the same change so that a smaller cell does not start overflowing rivers and roads.
  *
  * | | 192 cells | 256 cells | genesis (128) |
  * |---|---|---|---|
@@ -34,11 +39,10 @@ import kotlin.math.min
  * Two of those numbers overturn an assumption worth writing down, because it was the assumption this
  * measurement was added to check.
  *
- * **The overflow list is empty.** [MAX_CELLS_PER_FEATURE] is 256 cells and a cell is around five
- * kilometres, so a feature has to span eighty kilometres before it overflows, and almost nothing does -
- * not even a sea lane, whose KDoc on `FeatureKind.SEA_LANE` says it lives here. That claim is now known to
- * be false on worlds of this size; the `affectsHeight = false` half of its argument still stands and is
- * the half that matters. Designing around the overflow list would have been designing around nothing.
+ * **The overflow list is empty**, and the raised cap is what keeps it that way. A sea lane's KDoc on
+ * `FeatureKind.SEA_LANE` claims it lives in the overflow list; that was already false at the old cell size
+ * and stays false at the new one. The `affectsHeight = false` half of its argument still stands and is the
+ * half that matters. Designing around the overflow list would have been designing around nothing.
  *
  * **The real hot spot is a town.** One bucket holds 1 500 - 1 800 features, which on a 192-cell world is
  * *thirty-seven per cent of every feature in the world in one cell* - a city's buildings, streets and
@@ -197,8 +201,22 @@ class FeatureIndex private constructor(
 
   companion object {
 
-    /** A feature covering more grid cells than this goes into the overflow list. */
-    private const val MAX_CELLS_PER_FEATURE = 256
+    /**
+     * A feature covering more grid cells than this goes into the overflow list.
+     *
+     * Raised from 256 when the spawner stage's den count went up fifty-fold. [deriveCellSize] sizes the grid
+     * from the *total* feature count, so thirty thousand new point markers shrink the cell for every feature
+     * in the world - from around 3 700 m to around 1 300 m on a genesis world. A cap of 256 cells was eighty
+     * kilometres of span at the old size and twenty at the new one, which rivers, roads and sea lanes cross
+     * routinely; each one that overflows is then appended to **every query in the world**, including every
+     * chunk generation.
+     *
+     * A pure performance knob, and cheap in the direction it was moved: it decides bucket smearing against
+     * overflow and never a query *result*, since [query] re-tests `bbox.intersects` regardless. Smearing a
+     * thirty-by-thirty-cell river costs nine hundred ints once. It is in no digest, so raising it moves no
+     * version and regenerates nothing.
+     */
+    private const val MAX_CELLS_PER_FEATURE = 4_096
 
     private const val TARGET_FEATURES_PER_CELL = 4.0
 

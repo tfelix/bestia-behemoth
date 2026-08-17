@@ -52,20 +52,42 @@ class ItemImporterBootRunner(
     }
   }
 
+  /**
+   * Copies an edited YML item over the row that already carries its id.
+   *
+   * The base class hands back the *managed* entity and re-saves that same object, so this has to **assign**
+   * - returning `true` without writing anything, which is what this used to do, made the import log say
+   * "1 updated" while the database kept the old values. `import()` is not transactional, so `entity` is
+   * detached and the save is a merge; there is no dirty checking to fall back on.
+   *
+   * The identity columns are deliberately not touched. `id` is what inventories, loot tables and item
+   * instances reference, and `identifier` is the key this row was matched on in the first place.
+   */
   override fun tryUpdate(dto: ItemYamlDto, entity: Item): Boolean {
+    val type = getType(dto)
+    val equipSlot = getEquipSlot(dto)
+
     val needsUpdate = entity.weight != dto.weight
-      || entity.type != getType(dto)
+      || entity.type != type
       || entity.script != dto.script
-      || entity.equipSlot != getEquipSlot(dto)
+      || entity.equipSlot != equipSlot
       || entity.description != dto.description
 
-    return if (needsUpdate) {
-      // TODO this is a bit tricky because we need to preserve IDs but still might want to update. Maybe once this
-      //   is in place we want to use a proper schema migration mechanism instead?
-      true
-    } else {
-      false
+    if (!needsUpdate) {
+      return false
     }
+
+    entity.weight = dto.weight
+    entity.type = type
+    entity.script = dto.script
+    entity.equipSlot = equipSlot
+    entity.description = dto.description
+    // Derived from the type at construction, so it has to follow the type here too - an item changed from
+    // EQUIP to ETC that kept `stackable = false` would silently stop merging in the inventory.
+    entity.stackable = type != Item.ItemType.EQUIP
+    entity.validate()
+
+    return true
   }
 
   override fun getYmlIdentifier(dto: ItemYamlDto): String {

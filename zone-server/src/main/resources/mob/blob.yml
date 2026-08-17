@@ -13,6 +13,11 @@ habitat:
   - RIPARIAN
   - BEACH
   - TEMPERATE_FOREST
+# Mean annual temperature the blob prefers, in degrees Celsius. A preference and not a requirement: a den
+# outside this draws blobs more rarely rather than never, which is what keeps a thin catalogue from leaving
+# holes. `habitat` above is the hard constraint.
+temperature-min: -5
+temperature-max: 32
 spawn-weight: 100
 # A blob has no head, hands or accessories - only these two slots exist for it.
 equip-slots:

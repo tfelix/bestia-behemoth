@@ -72,6 +72,19 @@ def cli = { String name -> project.gradle.startParameter.projectProperties[name]
 tasks.named("test") {
     useJUnitPlatform()
 
+    /*
+     * Gradle gives a test worker 512 MB by default, and that stopped being enough when the spawner stage's
+     * den density went up fifty-fold: a genesis world now carries some thirty thousand `BESTIA_SPAWN`
+     * markers instead of six hundred, and several tests hold a whole generated world - a few of them more
+     * than one, or one at a larger cell count. The symptom is not a failing assertion but
+     * `OutOfMemoryError` out of the executor itself, which reports as "Could not complete execution for
+     * Gradle Test Executor N" and names no test at all.
+     *
+     * Four gigabytes rather than the smallest number that passes, because the suite generates worlds
+     * concurrently and the peak depends on how many land in flight together.
+     */
+    maxHeapSize = '4g'
+
     // `./gradlew :worldgen:test -Pserial` runs the whole suite on one thread. The first question about any
     // new test failure is whether the work splitting caused it, and this is how that is answered in one run.
     if (cli('serial') != null) systemProperty 'worldgen.parallel', 'false'

@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.persistence
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.entity.deleteAllByEntityIdIn
 import net.bestia.zone.util.EntityId
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -90,12 +91,28 @@ class EntityPersistenceService(
     LOG.debug { "Entity persistence sync flushed $persisted entity/entities across $batches batch(es)" }
   }
 
+  /**
+   * Deletes the rows of entities that have been permanently removed from the world.
+   *
+   * Caught rather than propagated, and that is the whole point of the `try`: this runs *first* in a cycle,
+   * and [PersistedEntityDeletionQueue.drainAll] has already emptied the queue by the time anything can
+   * fail. Letting a prune failure out would abort the snapshot phase of the same cycle - so one bad batch
+   * of ids would stop the server persisting *anything*, permanently, and the queue those ids came from is
+   * already gone so it would not even retry. Losing a few stale rows is the far cheaper failure, and the
+   * error log is what makes it visible rather than silent.
+   */
   private fun pruneRemovedEntities() {
     val removed = deletionQueue.drainAll()
-    if (removed.isNotEmpty()) {
-      persistedEntityRepository.deleteByEntityIdIn(removed)
+    if (removed.isEmpty()) {
+      return
+    }
+
+    try {
+      persistedEntityRepository.deleteAllByEntityIdIn(removed)
       statusEffectPersistenceService.deleteFor(removed)
       LOG.debug { "Pruned ${removed.size} persisted row(s) for removed entities" }
+    } catch (e: Exception) {
+      LOG.error(e) { "Failed to prune ${removed.size} persisted row(s) for removed entities: ${e.message}" }
     }
   }
 

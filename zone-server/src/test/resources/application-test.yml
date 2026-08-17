@@ -10,3 +10,23 @@ spring:
       ddl-auto: create
     show-sql: false
     open-in-view: false
+
+# No wild dens in the shared integration context.
+#
+# The scenario tests assert on *timing* - that a chunk patch reaches its holders, that a carve is applied
+# before the next assertion - against a Spring context they share. A populated wilderness puts tens of
+# AI-driven creatures around every test player, all of them planning, moving and broadcasting on the same
+# tick thread the chunk stream runs on, and the scenarios start losing races they never signed up for.
+#
+# This is not covering up a regression; it is undoing an accident. Before the density retune the shipped
+# catalogue could stock 12 of 656 dens, so wild spawning was silently dead and these tests had a quiet world
+# by luck rather than by choice. This says it out loud instead.
+#
+# It costs nothing in coverage: every test that is actually about dens - `SpawnerSystemTest`,
+# `DenPackRestoreTest`, `WildDenCoverageTest`, `WildSpawnDensityTest` - builds its own world and its own
+# dens rather than reading this one. A scenario that ever wants a populated world should override this
+# block for itself.
+wild-spawn:
+  bands:
+    - max-level: 100
+      den-share: 0.0

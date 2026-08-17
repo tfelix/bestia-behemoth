@@ -181,6 +181,7 @@ object InvariantsMain {
             "  corrupt ${"%.3f".format(Locale.ROOT, corrupted.last())}" +
             "  mana ${manaLog.last().joinToString("/")}" +
             "  dens ${dens.last().joinToString("/")}" +
+            "  dens/km2 ${"%.2f".format(Locale.ROOT, Invariants.spawnerDensity(generated))}" +
             "  index ${index.oversizedCount}/${index.size}"
         if (single.isClean) {
           println("  seed $seed ok    $measured")
