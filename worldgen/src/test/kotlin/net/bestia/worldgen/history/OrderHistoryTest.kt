@@ -1,5 +1,6 @@
 package net.bestia.worldgen.history
 
+import net.bestia.worldgen.core.Chronicle
 import net.bestia.worldgen.core.EventKind
 import net.bestia.worldgen.core.Faction
 import net.bestia.worldgen.core.SiteKind
@@ -9,7 +10,9 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pipeline.WorldParams
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
+import net.bestia.worldgen.vector.VectorFeature
 import net.bestia.worldgen.voxel.ChunkMaterializer
+import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -34,20 +37,70 @@ import kotlin.test.assertTrue
  * founder held - and assert the weighting only in the strong form that survives a small sample: an Order given
  * an overwhelming weight must come out ahead. The measured shape at realistic weights is recorded in
  * [OrderInfluence.favouring]'s KDoc instead, because a test that pinned 52/33/14 would be pinning the seed list.
+ *
+ * ### Many small worlds rather than a few large ones
+ *
+ * This class was the most expensive one in the module - some seventy worlds at 256 cells, three minutes of a
+ * twelve-minute suite - and it bought nothing with the size. Measured over seeds 1..16 at
+ * [OrderInfluence.BALANCED], as `civilisations / sworn / schisms / shrines / rites` summed over the sixteen:
+ *
+ * ```
+ *    64 cells   16 / 9 / 3 / 34 / 149      268 ms per world
+ *    96 cells   16 / 9 / 2 / 35 / 135      386 ms
+ *   128 cells   16 / 9 / 3 / 37 / 153      674 ms
+ *   192 cells   16 / 9 / 3 / 34 / 152     1688 ms
+ *   256 cells   32 / 18 / 6 / 64 / 183     3707 ms
+ * ```
+ *
+ * The history a world produces is **flat in the world's size** right up to 256 cells, where the civilisation
+ * count steps from one per world to two and everything downstream of it doubles with it. So the old KDoc's
+ * complaint was true - a small world does come out with one civilisation - and the conclusion drawn from it was
+ * not: what the distribution claims need is *civilisations*, and a civilisation costs 13.8 times less at 64
+ * cells than at 256. Sixteen small worlds are sixteen civilisations for a fifth of the price of the four large
+ * ones that gave eight.
+ *
+ * The seed count is therefore doubled as the size drops. Everything the tests below insist on happening at all
+ * has more margin than it had before - the thinnest is the schism, which three of these sixteen worlds have
+ * against an expected one and a half on the four old ones.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OrderHistoryTest {
 
-  private val seeds = listOf(7L, 11L, 42L, 99L)
+  private val seeds = (1L..16L).toList()
 
   /**
-   * A world big enough to hold several civilisations.
+   * The history a world generated, and nothing else of the world.
    *
-   * 256 cells rather than 128: the Orders are a property of *civilisations*, and a 128 km world routinely comes
-   * out with one - which makes every distribution claim below vacuous and would have hidden the schism cascade
-   * that the first version of this subsystem had.
+   * The cache below is what makes it worth separating: a `GeneratedWorld` holds every layer, every chunk column
+   * and some eight thousand spawner markers, and keeping ninety-six of those alive at once is how this class
+   * would repay its new speed in heap. A chronicle and a handful of point markers are kilobytes.
    */
-  private fun world(seed: Long, influence: OrderInfluence): GeneratedWorld = StandardWorld.build(
-    WorldConfig(seed = seed, widthCells = 256, heightCells = 256),
+  private class OrderWorld(built: GeneratedWorld) {
+    val chronicle: Chronicle = built.world.chronicle
+
+    /** Every SHRINE feature, unfiltered by shape - one test asserts there are none, whatever kind they'd be. */
+    val shrines: List<VectorFeature> = built.world.features.all().filter { it.kind == FeatureKind.SHRINE }
+
+    val settlementMarkers: List<PointMarker> = built.world.features.all()
+      .filter { it.kind == FeatureKind.SETTLEMENT_HISTORY }
+      .filterIsInstance<PointMarker>()
+  }
+
+  /**
+   * The thirteen tests below ask for some seventy worlds between them and there are only six distinct
+   * influences, so all but a quarter of those builds were the same world generated again.
+   *
+   * `PER_CLASS` rather than the module's usual companion-object `by lazy`, because this cache is keyed and
+   * would otherwise outlive the class and sit in the heap for the rest of the suite.
+   */
+  private val histories = HashMap<Pair<Long, OrderInfluence>, OrderWorld>()
+
+  private fun world(seed: Long, influence: OrderInfluence): OrderWorld =
+    histories.getOrPut(seed to influence) { OrderWorld(build(seed, influence)) }
+
+  /** 64 cells: see the class KDoc for the measurement that says the history does not care. */
+  private fun build(seed: Long, influence: OrderInfluence): GeneratedWorld = StandardWorld.build(
+    WorldConfig(seed = seed, widthCells = 64, heightCells = 64),
     params = WorldParams.DEFAULT.copy(
       history = WorldParams.DEFAULT.history.copy(orderInfluence = influence)
     )
@@ -60,7 +113,7 @@ class OrderHistoryTest {
   @Test
   fun `a world with no previous victor has no Orders in it`() {
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.NONE).world.chronicle
+      val chronicle = world(seed, OrderInfluence.NONE).chronicle
 
       assertTrue(chronicle.events.isNotEmpty(), "seed $seed generated no history at all to check")
       assertTrue(!chronicle.hasOrders, "seed $seed has sworn civilisations with the Orders absent")
@@ -83,9 +136,11 @@ class OrderHistoryTest {
         "seed $seed raised a shrine on a world that has no Orders"
       )
       // The channel still exists on every marker - see `SiteChannels.ORDER` on why - and must read "none".
-      val shrineMarkers = world(seed, OrderInfluence.NONE).world.features.all()
-        .filter { it.kind == FeatureKind.SHRINE }
-      assertEquals(emptyList(), shrineMarkers, "seed $seed emitted a SHRINE feature with the Orders absent")
+      assertEquals(
+        emptyList(),
+        world(seed, OrderInfluence.NONE).shrines,
+        "seed $seed emitted a SHRINE feature with the Orders absent"
+      )
     }
   }
 
@@ -95,8 +150,8 @@ class OrderHistoryTest {
     // layer sits inside history - so it may empty a town and must never move or add one. A drift here would mean
     // the Orders had reached back into `SettlementStage`, which is the one thing this pass must not do.
     for (seed in seeds) {
-      val without = world(seed, OrderInfluence.NONE).world.chronicle
-      val with = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val without = world(seed, OrderInfluence.NONE).chronicle
+      val with = world(seed, OrderInfluence.BALANCED).chronicle
 
       assertEquals(
         without.settlements.map { it.foundedYear },
@@ -111,9 +166,11 @@ class OrderHistoryTest {
     // `HistoryStageTest` makes this claim with the Orders off. It has to be re-made with them on, because the
     // Order pass is the newest source of rolls and a stream draw smuggled in here would only show up as two runs
     // of one seed disagreeing.
+    // `build` rather than `world`: the cache would hand the same object back twice and the test would pass on
+    // reference equality without ever generating anything a second time.
     val influence = OrderInfluence.favouring(Faction.CHAOS)
-    val first = world(11L, influence).world.chronicle
-    val second = world(11L, influence).world.chronicle
+    val first = build(11L, influence).world.chronicle
+    val second = build(11L, influence).world.chronicle
 
     assertEquals(first.events.size, second.events.size, "two runs of one seed logged different event counts")
     assertEquals(
@@ -133,7 +190,7 @@ class OrderHistoryTest {
     var sworn = 0
 
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
 
       for (civ in chronicle.civs) {
         val order = civ.sworn ?: continue
@@ -170,7 +227,7 @@ class OrderHistoryTest {
     // The cap that stops the drift into Chaos documented in `HistorySim.reconsider`. Without it a blighted world
     // walks every civilisation through Eternity and the Circle into Chaos, and `OrderInfluence` stops mattering.
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
 
       for (civ in chronicle.civs) {
         val schisms = chronicle.eventsOf(net.bestia.worldgen.core.Actor(
@@ -187,7 +244,7 @@ class OrderHistoryTest {
     var schisms = 0
 
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
 
       for (event in chronicle.events.filter { it.kind == EventKind.ORDER_SCHISM }) {
         schisms++
@@ -211,7 +268,7 @@ class OrderHistoryTest {
 
     for (seed in seeds) {
       val built = world(seed, OrderInfluence.BALANCED)
-      val chronicle = built.world.chronicle
+      val chronicle = built.chronicle
 
       for (site in chronicle.sitesOfKind(SiteKind.SHRINE)) {
         shrines++
@@ -250,7 +307,7 @@ class OrderHistoryTest {
     // The rule that fixed a naming collision: `Names.site`'s `else` branch ignores the seed, so two shrines
     // hosted by one town render as the same place for a thousand years. See `HistorySim.raiseShrines`.
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
       val hosts = chronicle.sitesOfKind(SiteKind.SHRINE).map { it.settlement }
 
       assertEquals(
@@ -264,10 +321,8 @@ class OrderHistoryTest {
   fun `every shrine reaches the feature store carrying its Order`() {
     for (seed in seeds) {
       val built = world(seed, OrderInfluence.BALANCED)
-      val chronicle = built.world.chronicle
-      val markers = built.world.features.all()
-        .filter { it.kind == FeatureKind.SHRINE }
-        .filterIsInstance<PointMarker>()
+      val chronicle = built.chronicle
+      val markers = built.shrines.filterIsInstance<PointMarker>()
 
       assertEquals(
         chronicle.sitesOfKind(SiteKind.SHRINE).size,
@@ -290,11 +345,8 @@ class OrderHistoryTest {
   fun `a settlement marker carries its people's Order`() {
     for (seed in seeds) {
       val built = world(seed, OrderInfluence.BALANCED)
-      val chronicle = built.world.chronicle
-      val markers = built.world.features.all()
-        .filter { it.kind == FeatureKind.SETTLEMENT_HISTORY }
-        .filterIsInstance<PointMarker>()
-        .associateBy { it.attribute(HistoryChannels.INDEX).toInt() }
+      val chronicle = built.chronicle
+      val markers = built.settlementMarkers.associateBy { it.attribute(HistoryChannels.INDEX).toInt() }
 
       for (record in chronicle.settlements) {
         val marker = assertNotNull(markers[record.index], "seed $seed: settlement ${record.index} has no marker")
@@ -334,7 +386,7 @@ class OrderHistoryTest {
       var rivals = 0
 
       for (seed in seeds) {
-        val chronicle = world(seed, influence).world.chronicle
+        val chronicle = world(seed, influence).chronicle
         for (event in chronicle.events.filter { it.kind == EventKind.ORDER_SWORN }) {
           if (event.detail.contains(winner.label)) favoured++ else rivals++
         }
@@ -355,7 +407,7 @@ class OrderHistoryTest {
     val influence = OrderInfluence(chaos = 0.0, eternity = 1.0, circle = 1.0)
 
     for (seed in seeds) {
-      val chronicle = world(seed, influence).world.chronicle
+      val chronicle = world(seed, influence).chronicle
 
       assertEquals(
         emptyList(),
@@ -379,7 +431,7 @@ class OrderHistoryTest {
     var rites = 0
 
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
 
       for (event in chronicle.events.filter { it.kind == EventKind.RITE_PERFORMED }) {
         rites++
@@ -399,7 +451,7 @@ class OrderHistoryTest {
     var checked = 0
 
     for (seed in seeds) {
-      val chronicle = world(seed, OrderInfluence.BALANCED).world.chronicle
+      val chronicle = world(seed, OrderInfluence.BALANCED).chronicle
       val ids = chronicle.events.mapTo(HashSet()) { it.id }
 
       for (event in chronicle.events.filter { it.kind == EventKind.ORDER_SWORN }) {
