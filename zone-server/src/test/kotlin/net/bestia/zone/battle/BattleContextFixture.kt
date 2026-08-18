@@ -24,7 +24,8 @@ object BattleContextFixture {
   }
 
   fun attack(
-    level: Int = 1
+    level: Int = 1,
+    aoeRadius: Double? = null
   ): BattleSkill {
     return BattleSkill(
       strength = 0,
@@ -32,9 +33,24 @@ object BattleContextFixture {
       range = 5,
       skillType = SkillType.NO_DAMAGE,
       needsLineOfSight = false,
+      aoeRadius = aoeRadius,
       attackElement = Element.NORMAL,
       level = level,
       script = null
+    )
+  }
+
+  fun groundCtx(
+    attack: BattleSkill = attack(),
+    attackerEntity: BattleEntity = battleEntity(),
+    targetPosition: Vec3L = Vec3L(3, 0, 0)
+  ): BattleContext {
+    return GroundBattleContext(
+      usedAttack = attack,
+      attacker = attackerEntity,
+      damageVariables = DamageVariables(),
+      weapon = Weapon(atk = 10, upgradeLevel = 0, matk = 0),
+      targetPosition = targetPosition
     )
   }
 

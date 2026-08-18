@@ -549,8 +549,17 @@ skills:
     identifier: ember
     type: NO_DAMAGE
     script: Ember
-    targetType: ENEMY
+    targetType: AOE_GROUND
+    aoeRadius: 1.0
     needsLineOfSight: true
+    range: 6
+    manaCost: 6
+    description: |
+      Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
+      9.6s - eight times in all.
+
+      Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
+      the flames burn the caster too.
 
   - id: 1001
     identifier: tackle

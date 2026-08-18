@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EffectResource" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/effect_resource.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/EffectVisual/Effects/EmberPatch.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+effect_id = 1
+effect_visual = ExtResource("2_scene")

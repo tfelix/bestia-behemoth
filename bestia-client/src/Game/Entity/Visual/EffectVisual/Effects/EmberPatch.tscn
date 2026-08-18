@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Game/Entity/Visual/EffectVisual/Effects/ember_patch.gd" id="1_script"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_patch"]
+size = Vector2(3, 3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+resource_local_to_scene = true
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+albedo_color = Color(1, 0.45, 0.12, 0.5)
+emission_enabled = true
+emission = Color(1, 0.35, 0.05, 1)
+emission_energy_multiplier = 2.0
+
+[node name="EmberPatch" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Flames" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+mesh = SubResource("PlaneMesh_patch")
+material_override = SubResource("StandardMaterial3D_flame")

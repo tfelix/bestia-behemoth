@@ -9,6 +9,14 @@ data class BattleSkill(
   val range: Long,
   val skillType: SkillType,
   val needsLineOfSight: Boolean,
+
+  /**
+   * Tiles in every direction from the aimed-at point, for an `AOE_GROUND` skill; null for every other
+   * target type. Carried so a script damages the area the client drew rather than one it picked for
+   * itself.
+   */
+  val aoeRadius: Double?,
+
   val attackElement: Element,
   val level: Int,
   val script: String?,
@@ -23,6 +31,7 @@ data class BattleSkill(
         range = 1,
         skillType = SkillType.MELEE_PHYSICAL,
         needsLineOfSight = false,
+        aoeRadius = null,
         attackElement = element,
         script = null,
         level = 1
@@ -40,6 +49,7 @@ data class BattleSkill(
     range = skill.range?.toLong() ?: 1L,
     skillType = skill.type,
     needsLineOfSight = skill.needsLineOfSight,
+    aoeRadius = skill.aoeRadius,
     attackElement = attackElement,
     level = level,
     script = skill.script,

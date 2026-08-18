@@ -11,8 +11,12 @@ func _process(delta):
 	rotation.y += rotation_speed * 2.0 * PI * delta
 
 
-## Scales the decal's ground footprint to match an AOE skill's radius. Decal.size is a
-## full extent, not a radius, so this doubles it; the vertical (.y) extent is left
-## untouched so only the footprint on the ground changes.
+## Scales the decal's ground footprint to match an AOE skill's radius.
+##
+## The footprint is 2 * radius + 1 tiles, not 2 * radius: server side a radius counts tiles in every
+## direction *from the centre tile*, and that centre tile burns too - so a radius of 1 is the 3x3
+## around the aiming point (see AreaEffectSystem). Decal.size is a full extent, and the vertical (.y)
+## extent is left alone so only the ground footprint changes.
 func set_radius(radius: float) -> void:
-	size = Vector3(radius * 2.0, size.y, radius * 2.0)
+	var extent := radius * 2.0 + 1.0
+	size = Vector3(extent, size.y, extent)

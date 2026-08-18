@@ -15,7 +15,11 @@ Level 1 enables you to cook at a camp fire
 `-20%/lv` cooking time
 `+20%/lv` success chance"
 SKILL_4_DESC,Restores a small amount of health to the target.
-SKILL_1000_DESC,A weak fire spark that scorches the target.
+SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flames is burnt every 1.2s for
+9.6s - eight times in all.
+
+Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
+the flames burn the caster too."
 SKILL_1001_DESC,A basic physical charge attack.
 SKILL_5_DESC,"Hurls a bolt of searing fire at a single enemy.
 
