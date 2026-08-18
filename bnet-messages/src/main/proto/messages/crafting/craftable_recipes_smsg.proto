@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CraftableRecipesSmsgProto";
+
+/**
+ * What the player can make with the skill they just activated, here, right now.
+ *
+ * Sent in answer to activating a crafting skill rather than to a request of its own: the success
+ * chance and the duration both depend on invested skill levels and on which station is standing
+ * nearby, so only the server can fill them in, and activation is already the moment the player asked.
+ *
+ * Carries no recipe *names*. A producing recipe is named by its output item, which the client already
+ * has in its own item DB; the three item-changing effects are named by the effect. That is what keeps
+ * a recipe catalogue from needing a second localized copy on the client.
+ */
+message CraftableRecipesSMSG {
+  uint64 skill_id = 1;
+
+  // The station the server actually found in range, as a StaticEntityKind ordinal + 1; 0 means none was
+  // needed or none was there. Presentation only - the window titles itself with it.
+  uint32 station_kind = 2;
+
+  repeated CraftableRecipe recipes = 3;
+}
+
+message CraftableRecipe {
+  uint64 recipe_id = 1;
+
+  // net.bestia.zone.crafting.RecipeEffect ordinal, whose declaration order is the contract for this
+  // value. Anything but PRODUCE (0) needs the player to pick an item to work on.
+  uint32 effect = 2;
+
+  // What a PRODUCE recipe makes; both 0 for the effects that change an item instead.
+  uint32 output_item_id = 3;
+  uint32 output_amount = 4;
+
+  repeated RecipeInput inputs = 5;
+
+  // Success chance in per mille, so the wire carries no float for a number the UI shows as a percentage.
+  uint32 success_permille = 6;
+
+  // After the crafter's construction-time reduction, so the window shows the time they will actually wait.
+  uint32 craft_millis = 7;
+
+  // Whether the crafter is holding every input right now. The recipe is still listed when they are not -
+  // a recipe you cannot afford yet is what tells you what to go and gather.
+  bool inputs_held = 8;
+}
+
+message RecipeInput {
+  uint32 item_id = 1;
+  uint32 amount = 2;
+
+  // How many the crafter is holding, so the window can show "2/3" without a second lookup.
+  uint32 held = 3;
+}

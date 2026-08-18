@@ -26,5 +26,9 @@ message InventoryItem {
   uint32 max_durability = 6;
   // Rune slots cut into the backing instance by Item Customization; nothing can fill one yet.
   uint32 slots = 7;
+
+  // Upgrade level on the backing instance, 0 for an untouched item and for every plain stack. What
+  // Upgrade Equipment raises and what every equip script scales off.
+  uint32 upgrade_level = 8;
 }
 

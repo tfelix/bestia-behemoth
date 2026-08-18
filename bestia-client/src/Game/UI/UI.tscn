@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusPoints.tscn" id="12_status"]
 [ext_resource type="PackedScene" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
+[ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -69,6 +70,12 @@ visible = false
 layout_mode = 1
 content = ExtResource("12_status")
 window_title = "Status"
+
+[node name="CraftingWin" parent="." unique_id=2084369027 instance=ExtResource("8_wdgtw")]
+visible = false
+layout_mode = 1
+content = ExtResource("15_craft")
+window_title = "Crafting"
 
 [node name="Clock" parent="." instance=ExtResource("14_clock")]
 layout_mode = 1

@@ -95,7 +95,8 @@ data class Equipment(
           uniqueId = item.uniqueId,
           durability = item.durability,
           maxDurability = item.maxDurability,
-          slots = item.slots
+          slots = item.slots,
+          upgradeLevel = item.upgradeLevel
         )
       }
     )

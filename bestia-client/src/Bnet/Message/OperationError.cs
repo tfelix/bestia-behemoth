@@ -12,6 +12,14 @@ namespace BestiaBehemothClient.Bnet.Message
     public int Code { get; set; }
 
     /// <summary>
+    /// <see cref="Code"/> as its lowercase enum name, for the GDScript side. GDScript cannot see a C#
+    /// enum's members, so matching on this is what keeps a new denial reason from being re-declared as a
+    /// bare ordinal over there - the duplication <c>DialogArg.KindName</c> was introduced to stop.
+    /// </summary>
+    [Export]
+    public string CodeName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Creates an OperationError message from protobuf data
     /// </summary>
     /// <param name="protoOperationError">The protobuf OperationError object</param>
@@ -20,7 +28,8 @@ namespace BestiaBehemothClient.Bnet.Message
     {
       return new OperationError
       {
-        Code = (int)protoOperationError.Code
+        Code = (int)protoOperationError.Code,
+        CodeName = protoOperationError.Code.ToString().ToLowerInvariant()
       };
     }
 

@@ -210,7 +210,8 @@ class PlayerBestiaEntitySpawner(
           equipped = slot.isEquipped,
           durability = slot.durability,
           maxDurability = slot.maxDurability,
-          slots = slot.slots
+          slots = slot.slots,
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
         )
       }.toMutableList()
     )

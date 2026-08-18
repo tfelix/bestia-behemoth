@@ -5,6 +5,7 @@ import net.bestia.zone.battle.BattleContextFactory
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.damage.AreaEffectResult
 import net.bestia.zone.battle.damage.Buff
+import net.bestia.zone.battle.damage.CraftingResult
 import net.bestia.zone.battle.damage.CriticalHit
 import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
@@ -22,7 +23,10 @@ import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.crafting.CraftingService
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.skill.findByIdOrThrow
+import net.bestia.zone.world.prop.PlayerStructureService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
@@ -44,6 +48,8 @@ class SkillExecutionService(
   private val outMessageProcessor: OutMessageProcessor,
   private val statusEffectService: StatusEffectService,
   private val areaEffectSpawner: AreaEffectSpawner,
+  private val craftingService: CraftingService,
+  private val playerStructureService: PlayerStructureService,
 ) {
 
   /**
@@ -128,6 +134,11 @@ class SkillExecutionService(
       return
     }
 
+    if (result is CraftingResult) {
+      applyCrafting(world, casterId, skillId, targetPosition, result)
+      return
+    }
+
     // Every other result is a number aimed at one entity, which a ground-targeted skill does not have.
     val targetId = targetEntityId ?: return
 
@@ -143,9 +154,9 @@ class SkillExecutionService(
       is CriticalHit -> DamageEntitySMSG.DamageType.CRIT
       is Heal -> DamageEntitySMSG.DamageType.HEAL
       is HitDamage, is TrueDamage -> DamageEntitySMSG.DamageType.NORMAL
-      // Both unreachable (handled above); they keep the `when` exhaustive so a new result type is a
+      // All unreachable (handled above); they keep the `when` exhaustive so a new result type is a
       // compile error here rather than a silently unhandled skill.
-      is Buff, is AreaEffectResult -> return
+      is Buff, is AreaEffectResult, is CraftingResult -> return
     }
 
     val position = world.get(casterId, Position::class)?.toVec3L() ?: return
@@ -217,6 +228,43 @@ class SkillExecutionService(
     // Deferred for the reason the damage staging below is: a system iterating the world cannot create
     // an entity inline, and inside a deferred block the structural changes apply immediately.
     world.defer { areaEffectSpawner.spawn(world, center, result.visualId, effect) }
+  }
+
+  /**
+   * Resolves a crafting skill's activation against the world: put a station up, or offer what can be made here.
+   *
+   * The "no station in range" branch is what makes one activation discoverable. A player who has taken Carpentry
+   * and aims it at bare ground gets a workbench; aiming it at their workbench gets the recipe list. A skill that
+   * only *uses* a station never places one, so aiming Weapon Repair at empty ground offers an empty list rather
+   * than building a forge out of nothing.
+   */
+  private fun applyCrafting(
+    world: World,
+    casterId: EntityId,
+    skillId: Long,
+    targetPosition: Vec3L?,
+    result: CraftingResult
+  ) {
+    val station = result.station
+
+    if (result.placesStation && station != null) {
+      val at = targetPosition ?: world.get(casterId, Position::class)?.toVec3L()
+
+      if (at != null && playerStructureService.stationNear(world, at, station) == null) {
+        val masterId = world.get(casterId, Master::class)?.masterId
+        if (masterId == null) {
+          LOG.debug { "Entity $casterId is not a master and cannot build a $station" }
+          return
+        }
+
+        // Deferred for the reason the damage staging is: a system iterating the world cannot create an entity
+        // inline, and inside a deferred block the structural changes apply immediately.
+        world.defer { playerStructureService.place(world, station, masterId, at, yaw = 0f) }
+        return
+      }
+    }
+
+    craftingService.offerRecipes(world, casterId, skillId)
   }
 
   companion object {

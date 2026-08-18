@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.ChunkPos
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.prop.PlayerStructureIdentity
 import net.bestia.zone.ecs.prop.PropPose
 import net.bestia.zone.ecs.prop.PropVitality
 import net.bestia.zone.ecs.prop.StaticSync
@@ -292,31 +293,72 @@ class WorldObjectResidencyService(
 
     val ids = LongArray(sites.size)
 
-    sites.forEachIndexed { i, site ->
-      val spec = kinds.of(site.kind)
-      val id = world.createEntity { id ->
-        add(id, PropPose(site.position, site.yaw))
-        add(
-          id,
-          StaticVisual(
-            site.kind, site.variant % spec.variants, site.heightDm,
-            site.halfLengthDm, site.halfWidthDm
-          )
-        )
-        add(id, PropVitality(spec.maxHp))
-        add(id, WorldObjectIdentity(site.propId, latticeVersion))
-        add(id, StaticSync)
-      }
-
-      // Straight into the interest index rather than through the dirty-Position path, which is the only other
-      // way in: `ZoneEngine` inserts from its dirty-`Position` loop, and a static entity is deliberately not in
-      // the `Position` store. Being *findable* by an area query and being *synced* per component are
-      // independent, and a fireball has to find a tree.
-      aoi.setEntityPosition(id, site.position, AoiLayer.STATIC)
-      ids[i] = id
-    }
+    sites.forEachIndexed { i, site -> ids[i] = spawn(world, site) }
 
     resident[column] = ids
+  }
+
+  /**
+   * Brings one site into the world and into the interest index. Shared by [materialise] and [placeNow] so a
+   * player-built station is assembled exactly the way a generated tree is - a second copy of this would be
+   * the place a new prop component silently failed to appear on half the props.
+   */
+  private fun spawn(world: World, site: WorldObjectSite): Long {
+    val spec = kinds.of(site.kind)
+
+    val id = world.createEntity { id ->
+      add(id, PropPose(site.position, site.yaw))
+      add(
+        id,
+        StaticVisual(
+          site.kind, site.variant % spec.variants, site.heightDm,
+          site.halfLengthDm, site.halfWidthDm
+        )
+      )
+      add(id, PropVitality(spec.maxHp))
+      add(id, WorldObjectIdentity(site.propId, latticeVersion))
+      // Only for something a player built, so a tree carries no half-empty second identity.
+      if (site.structureId != 0L) add(id, PlayerStructureIdentity(site.structureId))
+      add(id, StaticSync)
+    }
+
+    // Straight into the interest index rather than through the dirty-Position path, which is the only other
+    // way in: `ZoneEngine` inserts from its dirty-`Position` loop, and a static entity is deliberately not in
+    // the `Position` store. Being *findable* by an area query and being *synced* per component are
+    // independent, and a fireball has to find a tree.
+    aoi.setEntityPosition(id, site.position, AoiLayer.STATIC)
+
+    return id
+  }
+
+  /**
+   * Adds a site to a column that is *already resident*, and re-announces that column to everyone holding it.
+   *
+   * For something built while people are watching. A placement writes its durable row first, so a column
+   * nobody holds needs nothing here - it will be built from the row the next time somebody walks up to it, and
+   * this returns null to say so.
+   *
+   * The re-announcement is a whole-column batch rather than a "one entity appeared" message, because there is
+   * no such message and adding one would be the wrong shape: `StaticEntityRenderer.Apply` replaces a column
+   * outright, so a batch is idempotent while an incremental add would have to be exactly-once.
+   *
+   * @return the new entity's id, or null when the column is not resident
+   */
+  fun placeNow(world: World, site: WorldObjectSite): Long? {
+    val chunkX = Math.floorDiv(site.position.x, chunkSize.toLong()).toInt()
+    val chunkY = Math.floorDiv(site.position.y, chunkSize.toLong()).toInt()
+    val column = pack(chunkX, chunkY)
+
+    val ids = resident[column] ?: return null
+
+    val id = spawn(world, site)
+    resident[column] = ids + id
+
+    // Queued rather than sent: `flushBatches` reads the components back off the entity, and the `add`s above
+    // are still in the deferred queue while a system is iterating. The next drain runs after them.
+    awaitingBatch.getOrPut(column) { HashSet() }.addAll(subscriptions.subscribersOfColumn(chunkX, chunkY))
+
+    return id
   }
 
   /**

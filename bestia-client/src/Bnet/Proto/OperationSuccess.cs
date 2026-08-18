@@ -26,9 +26,10 @@ namespace Bnet {
           string.Concat(
             "CidtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX3N1Y2Nlc3MucHJvdG8SBGJu",
             "ZXQiMQoQT3BlcmF0aW9uU3VjY2VzcxIdCgRjb2RlGAEgASgOMg8uYm5ldC5P",
-            "cFN1Y2Nlc3MqMwoJT3BTdWNjZXNzEhIKDk1BU1RFUl9DUkVBVEVEEAASEgoO",
-            "TUFTVEVSX0RFTEVURUQQAUIuChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CFU9w",
-            "ZXJhdGlvblN1Y2Nlc3NQcm90b2IGcHJvdG8z"));
+            "cFN1Y2Nlc3MqXgoJT3BTdWNjZXNzEhIKDk1BU1RFUl9DUkVBVEVEEAASEgoO",
+            "TUFTVEVSX0RFTEVURUQQARITCg9DUkFGVF9TVUNDRUVERUQQAhIUChBTVFJV",
+            "Q1RVUkVfUExBQ0VEEANCLgoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhVPcGVy",
+            "YXRpb25TdWNjZXNzUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpSuccess), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -42,6 +43,12 @@ namespace Bnet {
   public enum OpSuccess {
     [pbr::OriginalName("MASTER_CREATED")] MasterCreated = 0,
     [pbr::OriginalName("MASTER_DELETED")] MasterDeleted = 1,
+    /// <summary>
+    /// A craft resolved and produced what it promised. The new item arrives through the ordinary inventory
+    /// sync; this is only what lets the window say so rather than the player inferring it from a bag.
+    /// </summary>
+    [pbr::OriginalName("CRAFT_SUCCEEDED")] CraftSucceeded = 2,
+    [pbr::OriginalName("STRUCTURE_PLACED")] StructurePlaced = 3,
   }
 
   #endregion

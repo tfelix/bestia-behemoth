@@ -18,9 +18,10 @@ import org.springframework.stereotype.Component
  * anything - which is the only reason it passed, since it also looked scripts up under a package that
  * does not exist.
  *
- * This logs instead of throwing: several catalogued skills (`Blessing`, `DivineProtection`, `Cooking`,
- * `Ember`) are declared in `skills.yml` but have no implementation yet, and a hard failure would make
- * the server unbootable against a populated database.
+ * This logs instead of throwing: the Survival, Scholar and Warrior trees are catalogued in `skills.yml`
+ * against a design that is not refined yet, so most of their scripts do not exist, and a hard failure
+ * would make the server unbootable against a populated database. The Novice, Craftsman and Blacksmith
+ * trees are complete, so anything from those appearing in this warning is a regression.
  */
 @Component
 class SkillScriptBootValidator(

@@ -19,6 +19,7 @@ data class InventoryComponentSMSG(
         .setDurability(item.durability)
         .setMaxDurability(item.maxDurability)
         .setSlots(item.slots)
+        .setUpgradeLevel(item.upgradeLevel)
         .build()
     }
 
@@ -39,6 +40,7 @@ data class InventoryComponentSMSG(
     val equipped: Boolean = false,
     val durability: Int = 0,
     val maxDurability: Int = 0,
-    val slots: Int = 0
+    val slots: Int = 0,
+    val upgradeLevel: Int = 0
   )
 }

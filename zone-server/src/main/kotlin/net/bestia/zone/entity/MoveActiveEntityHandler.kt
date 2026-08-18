@@ -35,10 +35,12 @@ class MoveActiveEntityHandler(
     // sends) counts as player activity and aborts a pending logout.
     logoutCancelService.cancelLogout(activeEntityId)
 
-    // Casting is stationary: any movement command interrupts it. Deliberately done before the path is
-    // validated - the player expressed intent to move, so the cast dies even if the path is rejected
-    // below. The client blocks movement clicks while casting, so this is the authoritative backstop.
+    // Casting and crafting are both stationary: any movement command interrupts either. Deliberately done
+    // before the path is validated - the player expressed intent to move, so the channel dies even if the
+    // path is rejected below. The client blocks movement clicks while casting, so this is the authoritative
+    // backstop.
     castCancelService.cancelCast(activeEntityId)
+    castCancelService.cancelCraft(activeEntityId)
 
     world.modify(activeEntityId) { id ->
       if (msg.path.isEmpty()) {

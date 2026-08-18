@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://bcrafting0win"]
+
+[ext_resource type="Script" path="res://Game/UI/Crafting/crafting.gd" id="1_craft"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="Crafting" type="PanelContainer"]
+custom_minimum_size = Vector2(520, 300)
+offset_right = 520.0
+offset_bottom = 340.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+script = ExtResource("1_craft")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StationLabel" type="Label" parent="Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Workbench"
+
+[node name="TargetRow" type="HBoxContainer" parent="Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TargetLabel" type="Label" parent="Margin/Body/TargetRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "Work on:"
+
+[node name="TargetPicker" type="OptionButton" parent="Margin/Body/TargetRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Separator" type="HSeparator" parent="Margin/Body"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RecipeRows" type="VBoxContainer" parent="Margin/Body/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Status" type="Label" parent="Margin/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = ""
+autowrap_mode = 3

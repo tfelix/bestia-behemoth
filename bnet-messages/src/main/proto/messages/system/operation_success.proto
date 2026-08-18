@@ -8,6 +8,11 @@ option java_outer_classname = "OperationSuccessProto";
 enum OpSuccess {
   MASTER_CREATED = 0;
   MASTER_DELETED = 1;
+
+  // A craft resolved and produced what it promised. The new item arrives through the ordinary inventory
+  // sync; this is only what lets the window say so rather than the player inferring it from a bag.
+  CRAFT_SUCCEEDED = 2;
+  STRUCTURE_PLACED = 3;
 }
 
 message OperationSuccess {

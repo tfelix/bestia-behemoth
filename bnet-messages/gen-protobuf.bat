@@ -31,6 +31,11 @@ REM System messages
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\authentication.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\authentication_success.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\operation_success.proto"
+
+REM Crafting messages
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\crafting\craft_item_cmsg.proto"
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\crafting\cancel_craft_cmsg.proto"
+"%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\crafting\craftable_recipes_smsg.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\operation_error.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\ping.proto"
 "%PROTOC%" --proto_path=%PROTO_FOLDER% --csharp_out=%OUTPUT_FOLDER% "%PROTO_FOLDER%\messages\system\chat_cmsg.proto"

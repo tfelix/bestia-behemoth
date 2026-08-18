@@ -12,6 +12,9 @@ signal chat_received(message: ChatSMSG)
 ## Emitted when the server wants a dialog shown. Account-scoped, not tied to an entity, so it is
 ## deliberately kept out of [signal entity_received]. Consumed by the DialogManager autoload.
 signal dialog_received(message: DialogSMSG)
+## Emitted when the server answers a crafting-skill activation with what can be made here. Account-scoped
+## for the reason [signal dialog_received] is: it opens a window, and a window belongs to a client.
+signal craftable_recipes_received(message: CraftableRecipesSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
@@ -46,6 +49,8 @@ var EquipItemCMSG = load("res://Bnet/Message/Inventory/EquipItemCMSG.cs")
 var UnequipItemCMSG = load("res://Bnet/Message/Inventory/UnequipItemCMSG.cs")
 var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
+var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
+var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -316,6 +321,26 @@ func unequip_item(slot: int) -> void:
 	_socket.SendMessage(msg)
 
 
+## Asks the server to perform one recipe. [param target_unique_id] names the held item instance to work on
+## and is 0 for a recipe that makes something instead.
+##
+## The server may refuse (materials short, station gone, already crafting) with an OperationError, and a
+## craft that starts can still fail when it resolves - nothing is applied locally either way. Progress
+## arrives as a CastingComponentSMSG, which is deliberately the same bar a spell cast uses.
+func craft_item(recipe_id: int, target_unique_id: int = 0) -> void:
+	assert(is_ready_to_send())
+	var msg = CraftItemCMSG.new()
+	msg.RecipeId = recipe_id
+	msg.TargetUniqueId = target_unique_id
+	_socket.SendMessage(msg)
+
+
+## Abandons the craft in progress. Nothing is refunded because nothing has been spent yet.
+func cancel_craft() -> void:
+	assert(is_ready_to_send())
+	_socket.SendMessage(CancelCraftCMSG.new())
+
+
 func send_chat(text: String, mode: int = 3, target_player: String = "") -> void:
 	assert(is_ready_to_send())
 	var msg = ChatCMSG.new()
@@ -421,6 +446,8 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		chat_received.emit(message)
 	elif message is DialogSMSG:
 		dialog_received.emit(message)
+	elif message is CraftableRecipesSMSG:
+		craftable_recipes_received.emit(message)
 	elif message is OperationSuccess:
 		operation_success.emit(message)
 	elif message is OperationError:

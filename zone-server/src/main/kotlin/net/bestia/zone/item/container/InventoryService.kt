@@ -107,6 +107,101 @@ class InventoryService(
     return withOwnerContainer(masterId, playerBestiaId) { it.unequip(slot) != null }
   }
 
+  /**
+   * Takes every stack in [inputs] off a master's container in one transaction, or nothing at all.
+   *
+   * All-or-nothing is the point: a craft that consumed two of its three materials and then found the
+   * third missing would have eaten them for no result and no message. The check and the removals share a
+   * transaction, so a concurrent drop can only land before or after, never between them.
+   *
+   * @return false, having changed nothing, when any input is not held in full
+   */
+  @Transactional
+  fun consumeAll(masterId: Long, inputs: List<Pair<Long, Int>>): Boolean {
+    if (inputs.isEmpty()) return true
+
+    val master = masterRepository.findByIdOrThrow(masterId)
+
+    // Summed per item first, so a recipe naming the same material twice is checked against the total
+    // rather than against whichever line happened to be looked at last.
+    val required = inputs.groupBy({ it.first }, { it.second }).mapValues { (_, amounts) -> amounts.sum() }
+
+    if (required.any { (itemId, amount) -> !master.container.hasItem(itemId, amount) }) {
+      return false
+    }
+
+    required.forEach { (itemId, amount) ->
+      if (!master.container.removeStackable(itemId, amount)) {
+        // Reached only if an input is held solely as instance slots, which `hasItem` counts and
+        // `removeStackable` will not touch. Rolling back is the honest answer: the alternative is
+        // consuming part of the recipe.
+        throw IllegalStateException(
+          "Master $masterId holds item $itemId only as unique instances; recipe inputs must be stackable"
+        )
+      }
+    }
+
+    masterRepository.save(master)
+
+    return true
+  }
+
+  /**
+   * Reads the [ItemInstance] a master is holding under [uniqueId], or null when they are not holding it -
+   * which includes holding it *worn*, because every craft that changes an item refuses a worn one.
+   *
+   * Refusing worn gear is the same rule the container applies to dropping and consuming: you cannot alter
+   * what you are wearing without taking it off. It also keeps a resolving craft from having to reach into
+   * the `Equipment` component, whose entries are immutable snapshots.
+   */
+  @Transactional(readOnly = true)
+  fun heldInstance(masterId: Long, uniqueId: Long): ItemInstance? {
+    if (uniqueId == 0L) return null
+
+    val master = masterRepository.findByIdOrThrow(masterId)
+
+    return master.container.slots
+      .firstOrNull { it.uniqueId == uniqueId && !it.isEquipped }
+      ?.itemInstance
+  }
+
+  /**
+   * Applies [change] to a held, not-worn instance and saves it.
+   *
+   * The instance is re-read inside the transaction rather than taking one handed in by the caller: a
+   * craft resolves a tick or more after it was validated, and the row may have moved on.
+   *
+   * @return the mutated instance, or null when it is no longer held
+   */
+  @Transactional
+  fun updateInstance(masterId: Long, uniqueId: Long, change: (ItemInstance) -> Unit): ItemInstance? {
+    val instance = heldInstance(masterId, uniqueId) ?: return null
+
+    change(instance)
+
+    return itemInstanceRepository.save(instance)
+  }
+
+  /**
+   * Destroys a held, not-worn instance outright - what a failed rune-slot cut does to the item.
+   *
+   * Deletes the row rather than only detaching it, which is the opposite of every other removal path here
+   * (see [removeOneFromMaster], whose whole point is keeping the instance alive in transit). Nothing is
+   * in transit: the item is gone.
+   *
+   * @return false when the instance was not held
+   */
+  @Transactional
+  fun destroyInstance(masterId: Long, uniqueId: Long): Boolean {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val taken = master.container.takeInstance(uniqueId) ?: return false
+
+    masterRepository.save(master)
+    itemInstanceRepository.delete(taken)
+
+    return true
+  }
+
   private fun <T> withOwnerContainer(masterId: Long, playerBestiaId: PlayerBestiaId?, block: (ItemContainer) -> T): T {
     return if (playerBestiaId == null) {
       val master = masterRepository.findByIdOrThrow(masterId)

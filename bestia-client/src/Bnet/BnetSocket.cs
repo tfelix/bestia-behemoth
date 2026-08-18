@@ -235,6 +235,11 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = System.DialogSMSG.FromProto(envelope.Dialog);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.CraftableRecipes != null)
+        {
+          var msg = Crafting.CraftableRecipesSMSG.FromProto(envelope.CraftableRecipes);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.WorldInfo != null)
         {
           var msg = Map.WorldInfoSMSG.FromProto(envelope.WorldInfo);

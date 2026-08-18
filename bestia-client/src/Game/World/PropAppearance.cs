@@ -135,7 +135,18 @@ namespace BestiaBehemothClient.Game.World
       new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.50f, 0.42f, 0.32f) }, // BUILDING_WAREHOUSE
       new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.70f, 0.56f, 0.36f) }, // BUILDING_INN
       new Kind { PlaceholderWidth = 4.5f, PlaceholderColour = new Color(0.78f, 0.74f, 0.64f) }, // BUILDING_RESIDENCE
-      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.64f, 0.54f, 0.34f) }  // BUILDING_FARM
+      new Kind { PlaceholderWidth = 5.0f, PlaceholderColour = new Color(0.64f, 0.54f, 0.34f) }, // BUILDING_FARM
+
+      // The three crafting stations a player builds, and the first rows here for kinds no generator produces.
+      // Boxes for now, and deliberately small ones: a station is a thing you stand next to rather than a
+      // landmark, and drawing it the size of a shed would make a workbench read as a building.
+      //
+      // Not Collectible: a station is taken down by damaging it, not picked up by a passer-by, and
+      // prop-kinds.yml gives none of them a `collect` block - so offering the click would only earn a
+      // COLLECT_NOT_COLLECTIBLE.
+      new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f) }, // WORKBENCH
+      new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f) }, // FURNACE
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f) }  // FORGE
     };
 
     /// <summary>

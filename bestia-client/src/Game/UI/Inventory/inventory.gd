@@ -124,6 +124,21 @@ func is_initialized_for_current_entity() -> bool:
 	return _items.has(selected_entity_id)
 
 
+## Held items that carry per-instance state and are not being worn - what the crafting window offers as a
+## target for a repair, an upgrade or a rune slot.
+##
+## Worn gear is excluded because the server refuses it: you take a piece off to work on it, the same rule the
+## item container applies to dropping and consuming. A plain stack is excluded because it has no instance at
+## all, so there is nothing per-item to change.
+func held_instances() -> Array:
+	if not _items.has(selected_entity_id):
+		return []
+
+	return _items[selected_entity_id].filter(
+		func(item): return item.player_item_id != 0 and not item.equipped
+	)
+
+
 func get_item_count(item_id: int) -> int:
 	if !_items.has(selected_entity_id):
 		return 0

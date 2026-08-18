@@ -4,6 +4,7 @@ extends Control
 @onready var _skills: WidgetWindow = $SkillsWin
 @onready var _equipment_win: WidgetWindow = $EquipmentWin
 @onready var _status_win: WidgetWindow = $StatusWin
+@onready var _crafting_win: WidgetWindow = $CraftingWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
 
@@ -24,6 +25,12 @@ func _ready() -> void:
 	inventory.equipment_window = _equipment_win
 	equipment.equipment_updated.connect(inventory.refresh)
 
+	# The crafting window has no toggle of its own: there is nothing to show until the server answers a
+	# crafting-skill activation with what can be made, so the message is what opens it.
+	var crafting := _crafting_win.get_content() as Crafting
+	crafting.inventory = inventory
+	crafting.recipes_offered.connect(_on_recipes_offered)
+
 
 func _on_master_profile_inventory_win_toggled() -> void:
 	_inventory_win.visible = !_inventory_win.visible
@@ -43,6 +50,14 @@ func _on_master_profile_skills_win_toggled() -> void:
 ## dragging from one into the other, so both have to be visible at the same time.
 func _on_master_profile_equipment_win_toggled() -> void:
 	_equipment_win.visible = !_equipment_win.visible
+	_skills.visible = false
+
+
+## Brought forward by the server rather than by the player, so activating Carpentry at a workbench opens the
+## window whether or not it was already up. The skills window closes because the player almost certainly
+## activated the skill from it and would otherwise be reading two lists at once.
+func _on_recipes_offered() -> void:
+	_crafting_win.visible = true
 	_skills.visible = false
 
 

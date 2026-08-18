@@ -12,6 +12,9 @@ import "messages/system/chat_smsg.proto";
 import "messages/system/authentication.proto";
 import "messages/system/operation_error.proto";
 import "messages/system/operation_success.proto";
+import "messages/crafting/craft_item_cmsg.proto";
+import "messages/crafting/cancel_craft_cmsg.proto";
+import "messages/crafting/craftable_recipes_smsg.proto";
 import "messages/entity/move_active_entity.proto";
 import "messages/entity/get_all_entities.proto";
 import "messages/entity/select_active_entity.proto";
@@ -175,6 +178,11 @@ message Envelope {
     PartyInfoSMSG party_info = 605;
     PartyErrorSMSG party_error = 606;
     DisbandPartySMSG disband_party = 607;
+
+    // CRAFTING & BUILDING 700
+    CraftableRecipesSMSG craftable_recipes = 700;
+    CraftItemCMSG craft_item = 701;
+    CancelCraftCMSG cancel_craft = 702;
 
     // MISC
   }

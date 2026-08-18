@@ -36,7 +36,10 @@ data class Inventory(
     var maxDurability: Int = 0,
 
     /** Rune slots cut into the backing instance; zero for everything else. */
-    var slots: Int = 0
+    var slots: Int = 0,
+
+    /** Mirrors [net.bestia.zone.item.instance.ItemInstance.upgradeLevel]. */
+    var upgradeLevel: Int = 0
   ) {
     val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
@@ -196,6 +199,27 @@ data class Inventory(
     return false
   }
 
+  /**
+   * Mirrors a change made to the backing [net.bestia.zone.item.instance.ItemInstance] - a repair, a
+   * successful upgrade, a freshly cut rune slot.
+   *
+   * Named for *what changed* rather than offering a setter per field, because a craft resolves into
+   * exactly one of these three and the caller has the whole new state in hand either way. Returns false
+   * when [uniqueId] is not held here, which is what tells a resolving craft the item left in the
+   * meantime.
+   */
+  fun updateInstanceState(uniqueId: Long, durability: Int, slots: Int, upgradeLevel: Int): Boolean {
+    if (uniqueId == 0L) return false
+    val item = items.find { it.uniqueId == uniqueId } ?: return false
+
+    item.durability = durability
+    item.slots = slots
+    item.upgradeLevel = upgradeLevel
+    markDirty()
+
+    return true
+  }
+
   override fun isDirty(): Boolean {
     return dirty
   }
@@ -219,7 +243,8 @@ data class Inventory(
           equipped = item.equipped,
           durability = item.durability,
           maxDurability = item.maxDurability,
-          slots = item.slots
+          slots = item.slots,
+          upgradeLevel = item.upgradeLevel
         )
       }
     )

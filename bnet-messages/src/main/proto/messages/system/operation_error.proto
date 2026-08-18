@@ -41,6 +41,23 @@ enum OpError {
   // player - it means PropAppearance's Collectible mirror has drifted from the server, and it is kept
   // separate precisely so that drift is nameable rather than hidden inside COLLECT_TARGET_GONE.
   COLLECT_NOT_COLLECTIBLE = 15;
+
+  // Crafting. The first three are refusals - the craft never started - and the last two are outcomes: the
+  // materials are gone either way, which is the whole risk in a craft and has to be visible.
+  //
+  // Deliberately one code for "you cannot do this recipe" whatever the reason (unknown recipe, skill too
+  // low, no station in range, target not held, target is a plain stack, nothing left to repair). A client
+  // that could tell those apart would be a way to enumerate the recipe catalogue and other players' items,
+  // and the crafting window already knows all of it except the target check.
+  CRAFT_NOT_POSSIBLE = 16;
+  CRAFT_MISSING_MATERIALS = 17;
+  CRAFT_ALREADY_IN_PROGRESS = 18;
+  CRAFT_FAILED = 19;
+  // A failed rune-slot cut took the item with it - see MasterCraftBonusService.destroyChance.
+  CRAFT_ITEM_DESTROYED = 20;
+
+  // Placing a crafting station: no room, or already standing on somebody else's.
+  STRUCTURE_NO_ROOM = 21;
 }
 
 message OperationError {

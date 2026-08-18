@@ -12,6 +12,13 @@ namespace BestiaBehemothClient.Bnet.Message
     public int Code { get; set; }
 
     /// <summary>
+    /// <see cref="Code"/> as its lowercase enum name, for the GDScript side - the mirror of
+    /// <c>OperationError.CodeName</c>, and for the same reason.
+    /// </summary>
+    [Export]
+    public string CodeName { get; set; } = string.Empty;
+
+    /// <summary>
     /// Creates an OperationSuccess message from protobuf data
     /// </summary>
     /// <param name="protoOperationSuccess">The protobuf OperationSuccess object</param>
@@ -20,7 +27,8 @@ namespace BestiaBehemothClient.Bnet.Message
     {
       return new OperationSuccess
       {
-        Code = (int)protoOperationSuccess.Code
+        Code = (int)protoOperationSuccess.Code,
+        CodeName = protoOperationSuccess.Code.ToString().ToLowerInvariant()
       };
     }
 

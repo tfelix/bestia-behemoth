@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "CancelCraftCmsgProto";
+
+/**
+ * Abandon the craft in progress. Carries nothing: an entity crafts at most one thing at a time, and
+ * the server already knows which - the same shape the cast channel uses, where moving is the cancel.
+ *
+ * Nothing is refunded because nothing has been spent: inputs are consumed when a craft resolves.
+ */
+message CancelCraftCMSG {
+}

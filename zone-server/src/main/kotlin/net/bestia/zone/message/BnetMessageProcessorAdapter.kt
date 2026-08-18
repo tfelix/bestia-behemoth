@@ -13,6 +13,8 @@ import net.bestia.zone.battle.ActivateSkillCMSG
 import net.bestia.zone.battle.AttackEntityCMSG
 import net.bestia.zone.skill.GetSkillsCMSG
 import net.bestia.zone.chat.ChatCMSG
+import net.bestia.zone.crafting.CancelCraftCMSG
+import net.bestia.zone.crafting.CraftItemCMSG
 import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
 import net.bestia.zone.entity.SelectEntityCMSG
@@ -72,6 +74,8 @@ class BnetMessageProcessorAdapter(
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
+      envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
+      envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

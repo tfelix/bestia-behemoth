@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3IquwMKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
+            "b3Iq0gQKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
             "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
             "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
             "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
@@ -35,9 +35,12 @@ namespace Bnet {
             "CBIcChhBSV9DT05GSUdfSU5WQUxJRF9TVEFOQ0UQCRIUChBNQVNURVJfTk9U",
             "X09XTkVEEAoSGAoUTUFTVEVSX05BTUVfTUlTTUFUQ0gQCxIRCg1NQVNURVJf",
             "SU5fVVNFEAwSFwoTQ09MTEVDVF9UQVJHRVRfR09ORRANEhgKFENPTExFQ1Rf",
-            "T1VUX09GX1JBTkdFEA4SGwoXQ09MTEVDVF9OT1RfQ09MTEVDVElCTEUQD0Is",
-            "ChVuZXQuYmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9i",
-            "BnByb3RvMw=="));
+            "T1VUX09GX1JBTkdFEA4SGwoXQ09MTEVDVF9OT1RfQ09MTEVDVElCTEUQDxIW",
+            "ChJDUkFGVF9OT1RfUE9TU0lCTEUQEBIbChdDUkFGVF9NSVNTSU5HX01BVEVS",
+            "SUFMUxAREh0KGUNSQUZUX0FMUkVBRFlfSU5fUFJPR1JFU1MQEhIQCgxDUkFG",
+            "VF9GQUlMRUQQExIYChRDUkFGVF9JVEVNX0RFU1RST1lFRBAUEhUKEVNUUlVD",
+            "VFVSRV9OT19ST09NEBVCLAoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhNPcGVy",
+            "YXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -91,6 +94,27 @@ namespace Bnet {
     /// separate precisely so that drift is nameable rather than hidden inside COLLECT_TARGET_GONE.
     /// </summary>
     [pbr::OriginalName("COLLECT_NOT_COLLECTIBLE")] CollectNotCollectible = 15,
+    /// <summary>
+    /// Crafting. The first three are refusals - the craft never started - and the last two are outcomes: the
+    /// materials are gone either way, which is the whole risk in a craft and has to be visible.
+    ///
+    /// Deliberately one code for "you cannot do this recipe" whatever the reason (unknown recipe, skill too
+    /// low, no station in range, target not held, target is a plain stack, nothing left to repair). A client
+    /// that could tell those apart would be a way to enumerate the recipe catalogue and other players' items,
+    /// and the crafting window already knows all of it except the target check.
+    /// </summary>
+    [pbr::OriginalName("CRAFT_NOT_POSSIBLE")] CraftNotPossible = 16,
+    [pbr::OriginalName("CRAFT_MISSING_MATERIALS")] CraftMissingMaterials = 17,
+    [pbr::OriginalName("CRAFT_ALREADY_IN_PROGRESS")] CraftAlreadyInProgress = 18,
+    [pbr::OriginalName("CRAFT_FAILED")] CraftFailed = 19,
+    /// <summary>
+    /// A failed rune-slot cut took the item with it - see MasterCraftBonusService.destroyChance.
+    /// </summary>
+    [pbr::OriginalName("CRAFT_ITEM_DESTROYED")] CraftItemDestroyed = 20,
+    /// <summary>
+    /// Placing a crafting station: no room, or already standing on somebody else's.
+    /// </summary>
+    [pbr::OriginalName("STRUCTURE_NO_ROOM")] StructureNoRoom = 21,
   }
 
   #endregion
