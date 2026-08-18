@@ -15,3 +15,5 @@ cooldown = 1.5
 max_level = 10
 target_type = "ENEMY"
 cast_time = 2.0
+tree = "WARRIOR"
+sub_tree = "WIZARD"

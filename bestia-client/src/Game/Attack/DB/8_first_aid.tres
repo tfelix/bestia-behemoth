@@ -12,3 +12,4 @@ cooldown = 180.0
 max_level = 3
 target_type = "FRIENDLY"
 cast_time = 10.0
+tree = "NOVICE"

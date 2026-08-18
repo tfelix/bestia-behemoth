@@ -11,3 +11,4 @@ mana_cost = 8
 cooldown = 10.0
 max_level = 1
 target_type = "FRIENDLY"
+tree = "NOVICE"

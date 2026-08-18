@@ -11,3 +11,4 @@ mana_cost = 20
 cooldown = 0.0
 max_level = 10
 target_type = "GROUND"
+tree = "CRAFTSMAN"

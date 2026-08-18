@@ -12,3 +12,5 @@ cooldown = 0.0
 max_level = 5
 target_type = "GROUND"
 cast_time = 3.0
+tree = "CRAFTSMAN"
+sub_tree = "BLACKSMITH"

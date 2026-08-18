@@ -19,8 +19,8 @@ import java.io.File
  * (`*.tres` files under `bestia-client/src/Game/Attack/DB/`). See
  * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
- * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time` are touched
- * on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
+ * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time`/`tree`/
+ * `sub_tree` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
  * presentation with no server equivalent and is left alone. `aoe_radius` is only checked/patched
  * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all. `cast_time` is
  * likewise only checked/patched for skills that declare a non-zero `castTime` server-side; an
@@ -59,7 +59,12 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val castTime: Double = 0.0
   )
   private data class SkillsFile(val skills: List<SkillDto> = emptyList())
-  private data class TreeNodeDto(val skill: String, val maxLevel: Int)
+  private data class TreeNodeDto(
+    val skill: String,
+    val maxLevel: Int,
+    val tree: String? = null,
+    val subTree: String? = null
+  )
   private data class TreeFile(val skills: List<TreeNodeDto> = emptyList())
   private data class Expected(
     val identifier: String,
@@ -67,7 +72,14 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val description: String?,
     val targetType: String,
     val aoeRadius: Double?,
-    val castTime: Double
+    val castTime: Double,
+
+    /**
+     * The tree/sub-tree the Skills window groups this skill under. Empty for a skill outside the
+     * master tree entirely (a bestia or item-taught one), which the client shows in its own tab.
+     */
+    val tree: String,
+    val subTree: String
   )
 
   @TaskAction
@@ -77,18 +89,22 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
     val skills = mapper.readValue(skillsYml.get().asFile, SkillsFile::class.java).skills
     val tree = mapper.readValue(masterSkillTreeYml.get().asFile, TreeFile::class.java).skills
-    val maxLevelByIdentifier = tree.associate { it.skill to it.maxLevel }
+    val nodeByIdentifier = tree.associateBy { it.skill }
 
     val expectedById = skills.associate { skill ->
       // A skill absent from master_skill_tree.yml is not master-investable (e.g. a bestia-only
       // skill) and is always single-rank client-side.
+      val node = nodeByIdentifier[skill.identifier]
+
       skill.id to Expected(
         skill.identifier,
-        maxLevelByIdentifier[skill.identifier] ?: 1,
+        node?.maxLevel ?: 1,
         skill.description?.trim()?.takeIf { it.isNotEmpty() },
         skill.targetType,
         skill.aoeRadius,
-        skill.castTime
+        skill.castTime,
+        node?.tree.orEmpty(),
+        node?.subTree.orEmpty()
       )
     }
 
@@ -101,6 +117,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val targetTypePattern = Regex("target_type\\s*=\\s*\"([^\"]*)\"")
     val aoeRadiusPattern = Regex("""aoe_radius\s*=\s*([\d.]+)""")
     val castTimePattern = Regex("""cast_time\s*=\s*([\d.]+)""")
+    val treePattern = Regex("tree\\s*=\\s*\"([^\"]*)\"")
+    val subTreePattern = Regex("sub_tree\\s*=\\s*\"([^\"]*)\"")
 
     val fileBySkillId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -222,6 +240,28 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
+      for ((field, pattern, expectedValue) in listOf(
+        Triple("tree", treePattern, expected.tree),
+        Triple("sub_tree", subTreePattern, expected.subTree)
+      )) {
+        val currentText = file.readText()
+        val current = pattern.find(currentText)?.groupValues?.get(1).orEmpty()
+
+        if (current != expectedValue) {
+          if (shouldFix) {
+            val newText = if (pattern.containsMatchIn(currentText)) {
+              pattern.replace(currentText) { "$field = \"$expectedValue\"" }
+            } else {
+              currentText.trimEnd('\n') + "\n$field = \"$expectedValue\"\n"
+            }
+            file.writeText(newText)
+            logger.lifecycle("SkillDbSync: patched ${file.name}: $field '$current' -> '$expectedValue'")
+          } else {
+            problems += "${file.name}: $field='$current' but master_skill_tree.yml expects '$expectedValue' (id=$id)"
+          }
+        }
+      }
+
       // The English text itself is only server-sourced (and thus only checked/patched here) once
       // skills.yml actually declares a description for this skill - until then it's hand-authored
       // straight in skills.csv, same as every other still-unsynced client field.
@@ -261,6 +301,10 @@ abstract class SkillDbSyncTask : DefaultTask() {
   private fun stubTres(id: Long, expected: Expected, descriptionKey: String): String {
     val aoeRadiusLine = if (expected.aoeRadius != null) "\naoe_radius = ${expected.aoeRadius}" else ""
     val castTimeLine = if (expected.castTime > 0.0) "\ncast_time = ${expected.castTime}" else ""
+    // Omitted for a skill outside the master tree: the resource default is the empty string the
+    // check compares against, so a bestia skill wants no line rather than an empty one.
+    val treeLine = if (expected.tree.isNotEmpty()) "\ntree = \"${expected.tree}\"" else ""
+    val subTreeLine = if (expected.subTree.isNotEmpty()) "\nsub_tree = \"${expected.subTree}\"" else ""
     return """
     [gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
@@ -275,6 +319,6 @@ abstract class SkillDbSyncTask : DefaultTask() {
     cooldown = 0.0
     max_level = ${expected.maxLevel}
     target_type = "${expected.targetType}"
-    """.trimIndent() + aoeRadiusLine + castTimeLine + "\n"
+    """.trimIndent() + aoeRadiusLine + castTimeLine + treeLine + subTreeLine + "\n"
   }
 }

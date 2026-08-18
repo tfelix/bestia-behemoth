@@ -3,7 +3,37 @@ class_name Skills
 
 const SkillRowScene = preload("res://Game/UI/Skills/SkillRow/SkillRow.tscn")
 
+## Tab order, and the only place a tree is spelled for a reader. A tree the server sends that is not
+## listed here still gets a tab, appended after these with its identifier title-cased - so a new tree in
+## master_skill_tree.yml shows up rather than vanishing, it just sorts last until it is named here.
+const TREE_ORDER: Array[String] = ["NOVICE", "CRAFTSMAN", "SURVIVAL", "SCHOLAR", "WARRIOR"]
+const TREE_NAMES := {
+	"NOVICE": "Novice",
+	"CRAFTSMAN": "Craftsman",
+	"SURVIVAL": "Survival",
+	"SCHOLAR": "Scholar",
+	"WARRIOR": "Warrior",
+}
+const SUB_TREE_NAMES := {
+	"BLACKSMITH": "Blacksmith",
+	"ARTIFICER": "Artificer",
+	"ALCHEMIST": "Alchemist",
+	"FORESTER": "Forester",
+	"PROSPECTOR": "Prospector",
+	"MINER": "Miner",
+	"PRIEST": "Priest",
+	"WIZARD": "Wizard",
+}
+
+## Skills outside the master tree - a bestia's own, or item-taught - carry no tree and collect here.
+const NO_TREE := ""
+const NO_TREE_TAB_NAME := "Bestia"
+
+const _SUB_TREE_HEADER_COLOR := Color(0.75, 0.75, 0.8)
+const _SUB_TREE_HEADER_FONT_SIZE := 12
+
 @onready var _search_line_edit = %SearchLineEdit
+@onready var _tree_tabs: TabBar = %TreeTabs
 @onready var _skill_rows = %SkillRows
 @onready var _skill_points_label: Label = %SkillPointsLabel
 @onready var _confirm_button: Button = %ConfirmButton
@@ -16,6 +46,9 @@ var _master_entity_id: int = 0
 var _current_entity_id: int = 0
 var _available_skill_points: int = 0
 var _selected_row: Control = null
+
+## Tree identifier per tab index, in the order the tabs are shown.
+var _tabbed_trees: Array[String] = []
 
 
 func _ready() -> void:
@@ -67,22 +100,107 @@ func _seed_skill_points_from_cache() -> void:
 
 
 func _populate_rows(msg: SkillListSMSG) -> void:
+	# Detached before being freed, not just queue_free()d: freeing is deferred to the end of the frame,
+	# and the tab rebuild and filter pass below would otherwise still walk the outgoing rows.
 	for child in _skill_rows.get_children():
+		_skill_rows.remove_child(child)
 		child.queue_free()
 	_selected_row = null
 
 	var is_master_view = msg.EntityId == _master_entity_id
+	var last_group := [null, null]
+
 	for entry in msg.Skills:
 		var row = SkillRowScene.instantiate()
+		var tree: String = _tree_of(entry)
+		var sub_tree: String = _sub_tree_of(entry)
+
+		# The server sends the tree contiguously (see MasterSkillTreeRegistry), so a change of sub-tree
+		# is where its heading belongs. A tree's own roots have no sub-tree and so get no heading.
+		if not sub_tree.is_empty() and [tree, sub_tree] != last_group:
+			_skill_rows.add_child(_sub_tree_header(tree, sub_tree))
+		last_group = [tree, sub_tree]
+
 		_skill_rows.add_child(row)
+		row.set_meta("skill_tree", tree)
+		row.set_meta("sub_tree", sub_tree)
 
 		row.initialize(entry)
 		row.set_is_master_row(is_master_view)
 		row.row_selected.connect(_on_row_selected)
 		row.investment_changed.connect(_on_row_investment_changed)
 
+	_rebuild_tabs(msg)
 	_update_skill_row_buttons()
-	_perform_skill_search()
+	_apply_filters()
+
+
+## The tree a skill belongs to, from the client's own Attack DB - the wire carries only an id and a
+## level. An unknown skill has no catalogue entry to ask, and lands in the no-tree tab beside the
+## bestia skills.
+func _tree_of(entry: SkillListEntry) -> String:
+	var attack: AttackResource = AttackDB.get_instance().get_attack(entry.SkillId)
+	return attack.tree if attack else NO_TREE
+
+
+func _sub_tree_of(entry: SkillListEntry) -> String:
+	var attack: AttackResource = AttackDB.get_instance().get_attack(entry.SkillId)
+	return attack.sub_tree if attack else ""
+
+
+func _sub_tree_header(tree: String, sub_tree: String) -> Label:
+	var header := Label.new()
+	header.text = SUB_TREE_NAMES.get(sub_tree, sub_tree.capitalize())
+	header.add_theme_font_size_override("font_size", _SUB_TREE_HEADER_FONT_SIZE)
+	header.add_theme_color_override("font_color", _SUB_TREE_HEADER_COLOR)
+	header.set_meta("skill_tree", tree)
+	header.set_meta("sub_tree", sub_tree)
+	header.set_meta("is_sub_tree_header", true)
+	return header
+
+
+## Rebuilds the tab strip from the trees this list actually contains, keeping the current tab selected
+## when it survives the rebuild - a skill point spent triggers a fresh SkillListSMSG, and being thrown
+## back to the first tab on every investment would make spending several points miserable.
+func _rebuild_tabs(msg: SkillListSMSG) -> void:
+	var present := {}
+	for entry in msg.Skills:
+		present[_tree_of(entry)] = true
+
+	var previous: String = _current_tree()
+
+	_tabbed_trees.clear()
+	for tree in TREE_ORDER:
+		if present.has(tree):
+			_tabbed_trees.append(tree)
+	for tree in present:
+		if tree != NO_TREE and not _tabbed_trees.has(tree):
+			_tabbed_trees.append(tree)
+	if present.has(NO_TREE):
+		_tabbed_trees.append(NO_TREE)
+
+	_tree_tabs.clear_tabs()
+	for tree in _tabbed_trees:
+		_tree_tabs.add_tab(NO_TREE_TAB_NAME if tree == NO_TREE else TREE_NAMES.get(tree, tree.capitalize()))
+
+	_tree_tabs.visible = _tabbed_trees.size() > 1
+
+	var restored: int = _tabbed_trees.find(previous)
+	if _tree_tabs.tab_count > 0:
+		_tree_tabs.current_tab = restored if restored >= 0 else 0
+
+
+func _current_tree() -> String:
+	var index: int = _tree_tabs.current_tab
+	return _tabbed_trees[index] if index >= 0 and index < _tabbed_trees.size() else NO_TREE
+
+
+func _on_tree_tabs_tab_changed(_tab: int) -> void:
+	# A selection in the tab being left would leave the Use button pointing at a row nobody can see.
+	if _selected_row and is_instance_valid(_selected_row):
+		_selected_row.set_selected(false)
+	_selected_row = null
+	_apply_filters()
 
 
 ## Highlights whichever row was last clicked so the footer's Use button knows what to
@@ -100,10 +218,19 @@ func _on_use_button_pressed() -> void:
 	ConnectionManager.activate_skill(_selected_row.skill_id, _selected_row.get_selected_level())
 
 
+## Every actual skill row, skipping the sub-tree headings that share the container.
+func _rows() -> Array:
+	var rows: Array = []
+	for child in _skill_rows.get_children():
+		if not child.has_meta("is_sub_tree_header"):
+			rows.append(child)
+	return rows
+
+
 ## Sum of every row's buffered, not-yet-confirmed point spend.
 func _get_pending_point_total() -> int:
 	var total = 0
-	for row in _skill_rows.get_children():
+	for row in _rows():
 		if row.has_pending_investment():
 			total += row.get_pending_investment()["amount"]
 	return total
@@ -132,7 +259,7 @@ func _update_skill_row_buttons() -> void:
 	_confirm_button.visible = pending_total > 0
 	_cancel_button.visible = pending_total > 0
 
-	for row in _skill_rows.get_children():
+	for row in _rows():
 		row.set_can_spend_points(remaining > 0)
 
 
@@ -142,7 +269,7 @@ func _update_skill_row_buttons() -> void:
 ## every row's pending buffer, so there's nothing left to do here but send the request.
 func _on_confirm_button_pressed() -> void:
 	var investments: Array = []
-	for row in _skill_rows.get_children():
+	for row in _rows():
 		var investment = row.get_pending_investment()
 		if not investment.is_empty():
 			investments.append(investment)
@@ -155,14 +282,14 @@ func _on_confirm_button_pressed() -> void:
 
 ## Discards every row's buffered, not-yet-confirmed investment without contacting the server.
 func _on_cancel_button_pressed() -> void:
-	for row in _skill_rows.get_children():
+	for row in _rows():
 		row.reset_pending_investment()
 	_update_skill_row_buttons()
 
 
 func _on_clear_button_pressed() -> void:
 	_search_line_edit.text = ""
-	_perform_skill_search()
+	_apply_filters()
 
 
 ## Skills is instantiated as a WidgetWindow's content (see ui.gd), so hiding
@@ -173,10 +300,24 @@ func _on_close_button_pressed() -> void:
 
 
 func _on_search_line_edit_text_changed(_new_text: String) -> void:
-	_perform_skill_search()
+	_apply_filters()
 
 
-func _perform_skill_search() -> void:
-	var query = _search_line_edit.text.strip_edges().to_lower()
-	for row in _skill_rows.get_children():
-		row.visible = query.is_empty() or row.get_skill_name().to_lower().contains(query)
+## A row shows when it is in the open tab and matches the search; a sub-tree heading shows only when
+## something under it survived both, so filtering never leaves a heading over nothing.
+func _apply_filters() -> void:
+	var query: String = _search_line_edit.text.strip_edges().to_lower()
+	var tree := _current_tree()
+	var groups_with_rows := {}
+
+	for row in _rows():
+		var shown: bool = row.get_meta("skill_tree", NO_TREE) == tree \
+			and (query.is_empty() or row.get_skill_name().to_lower().contains(query))
+		row.visible = shown
+		if shown:
+			groups_with_rows[row.get_meta("sub_tree", "")] = true
+
+	for child in _skill_rows.get_children():
+		if child.has_meta("is_sub_tree_header"):
+			child.visible = child.get_meta("skill_tree", NO_TREE) == tree \
+				and groups_with_rows.has(child.get_meta("sub_tree", ""))

@@ -1,27 +1,36 @@
+# Every node carries the tree (and, inside a tree, the sub-tree) it belongs to. These reach the client
+# through its own Attack DB rather than over the wire - `./gradlew syncSkillDb` copies them into the
+# .tres files, which is where the Skills window reads them to build one tab per tree. The server parses
+# them only so that adding one here is not a boot failure; it has no use for the grouping itself.
 skills:
   # --- Novice Tree ---
   - skill: BASIC_SKILL
+    tree: NOVICE
     maxLevel: 5
 
   - skill: PLAY_DEAD
+    tree: NOVICE
     maxLevel: 1
     prerequisites:
       - skill: BASIC_SKILL
         level: 2
 
   - skill: FIRST_AID
+    tree: NOVICE
     maxLevel: 3
     prerequisites:
       - skill: BASIC_SKILL
         level: 3
 
   - skill: COOKING
+    tree: NOVICE
     maxLevel: 3
     prerequisites:
       - skill: BASIC_SKILL
         level: 3
 
   - skill: MASTER_RITUAL
+    tree: NOVICE
     maxLevel: 1
     prerequisites:
       - skill: BASIC_SKILL
@@ -29,28 +38,36 @@ skills:
 
   # --- Craftsman Tree ---
   - skill: CARPENTRY
+    tree: CRAFTSMAN
     maxLevel: 10
 
   - skill: TINKERER
+    tree: CRAFTSMAN
     maxLevel: 5
     prerequisites:
       - skill: CARPENTRY
         level: 3
 
   - skill: ITEM_CUSTOMIZATION
+    tree: CRAFTSMAN
     maxLevel: 10
     prerequisites:
       - skill: CARPENTRY
         level: 3
 
   - skill: UPGRADE_EQUIPMENT
+    tree: CRAFTSMAN
     maxLevel: 1
 
   # Blacksmith (unlocked at 5+ pts in Craftsman Tree)
   - skill: ORE_REFINEMENT
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 3
 
   - skill: FORGE_WEAPON
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 10
     prerequisites:
       - skill: ORE_REFINEMENT
@@ -59,6 +76,8 @@ skills:
         level: 5
 
   - skill: FORGE_ARMOR
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 10
     prerequisites:
       - skill: ORE_REFINEMENT
@@ -67,12 +86,16 @@ skills:
         level: 5
 
   - skill: WEAPON_REPAIR
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 5
     prerequisites:
       - skill: ORE_REFINEMENT
         level: 3
 
   - skill: WEAPONRY_RESEARCH
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 10
     prerequisites:
       - skill: WEAPON_REPAIR
@@ -81,6 +104,8 @@ skills:
         level: 1
 
   - skill: MASTER_SMITH
+    tree: CRAFTSMAN
+    subTree: BLACKSMITH
     maxLevel: 5
     prerequisites:
       - skill: FORGE_WEAPON
@@ -90,21 +115,29 @@ skills:
 
   # Artificer (unlocked at 5+ pts in Craftsman Tree)
   - skill: MANA_HARVESTER
+    tree: CRAFTSMAN
+    subTree: ARTIFICER
     maxLevel: 10
 
   - skill: MANAFLOW_EXPERT
+    tree: CRAFTSMAN
+    subTree: ARTIFICER
     maxLevel: 5
     prerequisites:
       - skill: MANA_HARVESTER
         level: 3
 
   - skill: RUNIC_ETCHING
+    tree: CRAFTSMAN
+    subTree: ARTIFICER
     maxLevel: 10
     prerequisites:
       - skill: ITEM_CUSTOMIZATION
         level: 3
 
   - skill: MAGIC_ARTISAN
+    tree: CRAFTSMAN
+    subTree: ARTIFICER
     maxLevel: 10
     prerequisites:
       - skill: RUNIC_ETCHING
@@ -112,21 +145,29 @@ skills:
 
   # Alchemist (unlocked at 5+ pts in Craftsman Tree)
   - skill: HERBALISM
+    tree: CRAFTSMAN
+    subTree: ALCHEMIST
     maxLevel: 5
 
   - skill: ALCHEMY
+    tree: CRAFTSMAN
+    subTree: ALCHEMIST
     maxLevel: 10
     prerequisites:
       - skill: HERBALISM
         level: 2
 
   - skill: TRANSMUTATION
+    tree: CRAFTSMAN
+    subTree: ALCHEMIST
     maxLevel: 10
     prerequisites:
       - skill: ALCHEMY
         level: 5
 
   - skill: ALCHEMY_MASTERY
+    tree: CRAFTSMAN
+    subTree: ALCHEMIST
     maxLevel: 5
     prerequisites:
       - skill: ALCHEMY
@@ -134,28 +175,40 @@ skills:
 
   # --- Survival Tree ---
   - skill: INNER_PEACE
+    tree: SURVIVAL
     maxLevel: 10
 
   - skill: WEATHER_RESISTANCE
+    tree: SURVIVAL
     maxLevel: 5
 
   - skill: QUICK_TRAVEL
+    tree: SURVIVAL
     maxLevel: 5
 
   - skill: FISHING
+    tree: SURVIVAL
     maxLevel: 5
 
   # Forester (unlocked at 5+ pts in Survival Tree)
   - skill: LUMBERJACK
+    tree: SURVIVAL
+    subTree: FORESTER
     maxLevel: 5
 
   - skill: TRAPPING
+    tree: SURVIVAL
+    subTree: FORESTER
     maxLevel: 5
 
   - skill: EXPERT_TAMING
+    tree: SURVIVAL
+    subTree: FORESTER
     maxLevel: 5
 
   - skill: BEASTFRIEND
+    tree: SURVIVAL
+    subTree: FORESTER
     maxLevel: 5
     prerequisites:
       - skill: EXPERT_TAMING
@@ -163,46 +216,64 @@ skills:
 
   # Prospector (unlocked at 5+ pts in Survival Tree)
   - skill: MAXIMIZE_CARRY_CAPACITY
+    tree: SURVIVAL
+    subTree: PROSPECTOR
     maxLevel: 5
 
   # Note: master.md's "Enlarge Weight Limit" lists its requirement as "Power Maximize Lv. 3",
   # which doesn't match any skill name in this tree - treated as Maximize Carry Capacity per
   # the doc's own note.
   - skill: ENLARGE_WEIGHT_LIMIT
+    tree: SURVIVAL
+    subTree: PROSPECTOR
     maxLevel: 5
     prerequisites:
       - skill: MAXIMIZE_CARRY_CAPACITY
         level: 3
 
   - skill: CARTOGRAPHY
+    tree: SURVIVAL
+    subTree: PROSPECTOR
     maxLevel: 5
 
   - skill: WILDERNESS_SURVIVAL
+    tree: SURVIVAL
+    subTree: PROSPECTOR
     maxLevel: 5
     prerequisites:
       - skill: ENLARGE_WEIGHT_LIMIT
         level: 3
 
   - skill: WEATHER_SENSE
+    tree: SURVIVAL
+    subTree: PROSPECTOR
     maxLevel: 3
 
   # Miner (unlocked at 5+ pts in Survival Tree)
   - skill: MINING
+    tree: SURVIVAL
+    subTree: MINER
     maxLevel: 5
 
   - skill: GEM_CUTTING
+    tree: SURVIVAL
+    subTree: MINER
     maxLevel: 5
     prerequisites:
       - skill: MINING
         level: 3
 
   - skill: DEEP_DELVER
+    tree: SURVIVAL
+    subTree: MINER
     maxLevel: 5
     prerequisites:
       - skill: MINING
         level: 3
 
   - skill: RESOURCE_SONAR
+    tree: SURVIVAL
+    subTree: MINER
     maxLevel: 3
     prerequisites:
       - skill: GEM_CUTTING
@@ -213,16 +284,24 @@ skills:
   # --- Scholar Tree (Priest sub-tree partially catalogued below; Trader/Sage/Warrior tree
   # skills from master.md are not yet added - see docs/mechanics/master.md for the full design) ---
   - skill: BLESSING
+    tree: SCHOLAR
+    subTree: PRIEST
     maxLevel: 10
     prerequisites:
       - skill: DIVINE_PROTECTION
         level: 5
 
   - skill: HEAL
+    tree: SCHOLAR
+    subTree: PRIEST
     maxLevel: 10
 
   - skill: DIVINE_PROTECTION
+    tree: SCHOLAR
+    subTree: PRIEST
     maxLevel: 10
 
   - skill: FIREBOLT
+    tree: WARRIOR
+    subTree: WIZARD
     maxLevel: 10

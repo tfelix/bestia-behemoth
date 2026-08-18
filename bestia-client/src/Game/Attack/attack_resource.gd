@@ -24,6 +24,12 @@ const TARGET_TYPE_FRIENDLY := "FRIENDLY"
 @export_enum("GROUND", "AOE_GROUND", "ENEMY", "FRIENDLY") var target_type: String = TARGET_TYPE_GROUND
 @export var aoe_radius: float = 0.0
 
+## Which skill tree, and inside it which sub-tree, the Skills window groups this skill under. Mirrors
+## master_skill_tree.yml and is synced by SkillDbSyncTask; both are empty for a skill outside the master
+## tree entirely (a bestia or item-taught one), which the window collects into a tab of its own.
+@export var tree: String = ""
+@export var sub_tree: String = ""
+
 ## Cache for instantiated AttackUse objects. Key: GDScript path, Value: AttackUse instance
 static var _script_instance_cache: Dictionary = {}
 

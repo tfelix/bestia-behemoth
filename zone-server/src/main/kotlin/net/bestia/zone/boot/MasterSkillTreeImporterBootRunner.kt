@@ -32,7 +32,16 @@ class MasterSkillTreeImporterBootRunner(
     data class NodeDto(
       val skill: String,
       val maxLevel: Int,
-      val prerequisites: List<PrerequisiteDto> = emptyList()
+      val prerequisites: List<PrerequisiteDto> = emptyList(),
+
+      /**
+       * Which tree and sub-tree the node sits in. Parsed and then dropped: the grouping exists for the
+       * client's Skills window, which reads it from its own Attack DB (see `SkillDbSyncTask`), and
+       * nothing server-side has a use for it. Declared here because Jackson rejects unknown properties
+       * by default, so an unparsed key in the YAML would fail the boot rather than be ignored.
+       */
+      val tree: String? = null,
+      val subTree: String? = null
     )
 
     data class PrerequisiteDto(
