@@ -3,6 +3,7 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.core.ParamsText
 import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pipeline.WorldParams
+import net.bestia.worldgen.render.Viewport
 import java.io.File
 import java.util.Locale
 import kotlin.math.abs

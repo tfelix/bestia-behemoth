@@ -4,6 +4,10 @@ import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.civ.SettlementTier
 import net.bestia.worldgen.core.ChunkSeamCheck
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.render.Colors
+import net.bestia.worldgen.render.Hillshade
+import net.bestia.worldgen.render.Viewport
+import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker
 import net.bestia.worldgen.vector.VectorFeature

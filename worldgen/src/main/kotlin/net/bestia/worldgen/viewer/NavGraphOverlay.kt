@@ -4,6 +4,7 @@ import net.bestia.worldgen.core.MovementMode
 import net.bestia.worldgen.core.NavEdgeKind
 import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.NavNodeKind
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.Aabb
 import java.awt.BasicStroke
 import java.awt.Color

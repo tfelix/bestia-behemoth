@@ -1,6 +1,11 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.render.Colors
+import net.bestia.worldgen.render.GradientRamp
+import net.bestia.worldgen.render.Hillshade
+import net.bestia.worldgen.render.Ramps
+import net.bestia.worldgen.render.Viewport
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals

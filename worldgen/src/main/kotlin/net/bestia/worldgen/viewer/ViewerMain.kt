@@ -15,6 +15,7 @@ import net.bestia.worldgen.core.Timings
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.Invariants
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.MarkerFeature
 import net.bestia.worldgen.vector.PointMarker

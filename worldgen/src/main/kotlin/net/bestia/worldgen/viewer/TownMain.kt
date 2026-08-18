@@ -24,9 +24,10 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.pop.BusinessCatalogue
 import net.bestia.worldgen.pop.BusinessChannels
 import net.bestia.worldgen.pop.EconomyChannels
-import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.EconomyProbe
+import net.bestia.worldgen.pop.Households
 import net.bestia.worldgen.pop.Sector
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.AreaFeature
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.FootprintFeature

@@ -3,6 +3,8 @@ package net.bestia.worldgen.viewer
 import net.bestia.worldgen.bio.Biome
 import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
+import net.bestia.worldgen.render.Colors
+import net.bestia.worldgen.render.Ramps
 import kotlin.math.floor
 
 /**

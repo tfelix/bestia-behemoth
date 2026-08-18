@@ -1,4 +1,4 @@
-package net.bestia.worldgen.viewer
+package net.bestia.worldgen.render
 
 import net.bestia.worldgen.vector.Aabb
 import kotlin.test.Test

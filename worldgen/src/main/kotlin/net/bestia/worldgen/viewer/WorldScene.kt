@@ -1,5 +1,6 @@
 package net.bestia.worldgen.viewer
 
+import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.core.BaseHeightField
 import net.bestia.worldgen.core.ChunkColumnSource
 import net.bestia.worldgen.core.ChunkPos
@@ -11,9 +12,11 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.World
 import net.bestia.worldgen.core.WorldConfig
-import net.bestia.worldgen.civ.SettlementChannels
 import net.bestia.worldgen.history.HistoryChannels
 import net.bestia.worldgen.pipeline.GeneratedWorld
+import net.bestia.worldgen.render.Ramps
+import net.bestia.worldgen.render.Viewport
+import net.bestia.worldgen.render.optionalAttribute
 import net.bestia.worldgen.vector.Aabb
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker

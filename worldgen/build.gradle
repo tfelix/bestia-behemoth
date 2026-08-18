@@ -13,6 +13,12 @@ description = 'worldgen'
  * I/O. Everything outside the `viewer` package is a pure function over plain data; the viewer is the
  * one place allowed to touch Swing and the filesystem, and nothing depends on it.
  *
+ * `render` is the exception that proves the rule. Viewport arithmetic, hillshading and packed-RGB colour
+ * are wanted by two callers now - the offline viewer and the zone-server's map tiles - and none of it
+ * touches AWT or a file, so it sits outside `viewer` where `checkBoundaries` holds it to the same standard
+ * as the generator itself. The rasterisers stay apart: `viewer` keeps the Swing one, zone-server owns the
+ * tile one. What is shared is the geometry and the arithmetic, never the drawing.
+ *
  * `zone-server` depends on this module: `world/WorldService` generates and persists the world and
  * `world/stream/ChunkService` is the caller the chunk tier was always missing. The other callers are the
  * tests, the invariant sweep, the viewer and the probe.
@@ -38,6 +44,7 @@ description = 'worldgen'
  *   derived   column summaries, opacity grid, walkable tiles, chunk deltas
  *   store     tiered chunk cache, delta and baking, base hashing, the version gate
  *   pipeline  assembles the stages into a world; the regression invariants
+ *   render    viewport, hillshade, colour ramps - map arithmetic with no renderer attached
  *   viewer    tooling, not shipped to the server
  *
  * The stage packages are siblings: they depend on the three foundation layers and on each other only

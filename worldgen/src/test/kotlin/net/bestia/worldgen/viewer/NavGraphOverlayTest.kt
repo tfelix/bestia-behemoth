@@ -7,6 +7,7 @@ import net.bestia.worldgen.core.NavGraph
 import net.bestia.worldgen.core.NavNode
 import net.bestia.worldgen.core.NavNodeId
 import net.bestia.worldgen.core.NavNodeKind
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.Vec2d
 import java.awt.image.BufferedImage
 import kotlin.test.Test

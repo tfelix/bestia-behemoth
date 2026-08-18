@@ -9,6 +9,8 @@ import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerData
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
+import net.bestia.worldgen.render.Ramps
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.voxel.BlockType
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import java.util.Locale

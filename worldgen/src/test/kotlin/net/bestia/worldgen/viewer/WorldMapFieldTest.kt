@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.FloatLayer
 import net.bestia.worldgen.core.IntLayer
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Resolution
+import net.bestia.worldgen.render.Colors
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

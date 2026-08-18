@@ -152,3 +152,152 @@ tasks.register('syncDialogDb', DialogDbSyncTask) {
     dialogsCsv = rootProject.layout.projectDirectory.file('bestia-client/src/Localization/dialogs.csv')
     fix = true
 }
+
+/**
+ * The cartography tools.
+ *
+ * All of them build a world through `StandardWorld.build` and draw it, with no Spring context and no database,
+ * so the cycle from editing a style to looking at the result is a few seconds rather than a boot. That is the
+ * whole reason they live here as `JavaExec` mains rather than as a Spring profile.
+ *
+ * Conventions are worldgen's, not invented here - see the long comment on `cli` in worldgen/build.gradle for
+ * why `project.hasProperty` is never used.
+ */
+def cli = { String name -> project.gradle.startParameter.projectProperties[name] }
+
+/** zone-server's own birth settings, so `-Pgenesis` draws the world this server actually boots. */
+def genesisSettings = layout.projectDirectory.file('src/main/resources/application.yml')
+
+/**
+ * The world-shaping switches every cartography task takes.
+ *
+ * Spelled to match `WorldGenSettings.FLAGS`, which is what lets `-Pgenesis` hand these tools and worldgen's own
+ * tools the same world.
+ */
+def WORLD_PROPS = ['genesis', 'seed', 'cells', 'params'] as Set
+
+/**
+ * Forwards a task's switches, and refuses any `-P` the task does not understand.
+ *
+ * The refusal closes a hole that was live in this file and is still live in worldgen's. `cli('level')` returns
+ * null for `-Plevl=6`, so a mistyped switch was never forwarded and never complained about: `mapRender
+ * -Pgenesis -Plevl=6` rendered the default level and printed a confident "L7" while the operator believed they
+ * had asked for L6. That is the same class of bug worldgen's header records shipping twice with `-Pdepth` and
+ * `-Partifacts`, one layer further out - the switch reaches Gradle, is accepted, and is dropped between there
+ * and the tool.
+ *
+ * Declaring each switch once, as a map from property to tool flag, is what keeps the check honest: the accepted
+ * set is derived from the same map that does the forwarding, so the two cannot drift.
+ *
+ * Checked in `doFirst` rather than at configuration time, so an unrelated invocation - `:zone-server:test` with
+ * some other project property set - is not broken by a validation only these five tasks want.
+ *
+ * `-Pgenesis` is applied before the rest so an explicit `-Pseed` or `-Pcells` still overrides it: MapToolArgs
+ * takes the *last* occurrence of a flag, which is what makes "the server's world, but 256 cells across"
+ * expressible.
+ *
+ * @param values   `-Pname=x` switches, mapped to the tool flag that carries the value
+ * @param switches valueless `-Pname` switches, mapped to their tool flag
+ */
+def cartographyTool = { task, Map values, Map switches ->
+    if (cli('genesis') != null) {
+        task.args WorldGenSettings.toolArgs(genesisSettings.asFile)
+    }
+    if (cli('seed') != null) task.args '--seed', cli('seed')
+    if (cli('cells') != null) {
+        // Per-edge rather than a single --cells, so -Pgenesis -Pcells=256 is not a contradiction.
+        task.args '--width-cells', cli('cells')
+        task.args '--height-cells', cli('cells')
+    }
+    if (cli('params') != null) task.args '--params', cli('params')
+
+    values.each { name, flag -> if (cli(name) != null) task.args flag, cli(name) }
+    switches.each { name, flag -> if (cli(name) != null) task.args flag }
+
+    def accepted = WORLD_PROPS + values.keySet() + switches.keySet()
+    def taskName = task.name
+
+    task.doFirst {
+        def unknown = project.gradle.startParameter.projectProperties.keySet() - accepted
+        if (!unknown.isEmpty()) {
+            throw new GradleException(
+                    taskName + ' does not understand -P' + unknown.sort().join(', -P') + '.\n' +
+                    'It would have been accepted and silently dropped, so this run would have used defaults ' +
+                    'while looking like it had honoured the switch.\n' +
+                    'Known: -P' + accepted.sort().join(', -P'))
+        }
+    }
+
+    // JavaExec otherwise runs on the Gradle daemon's JVM, which is older than the toolchain these classes were
+    // compiled against.
+    task.javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    task.classpath = sourceSets.main.runtimeClasspath
+    task.group = 'cartography'
+}
+
+/**
+ * One viewport of the map to a PNG: `./gradlew :zone-server:mapRender -Pgenesis -Plevel=7`.
+ *
+ * `-Plevel=n` is metres per pixel as a power of two, so 0 is 1 m/px and 9 is 512. Omit it and the whole world is
+ * fitted to the image width. The style follows the zoom unless `-Pstyle` overrides it.
+ */
+tasks.register('mapRender', JavaExec) {
+    description = 'Renders one viewport of the world map to a PNG'
+    mainClass = 'net.bestia.zone.cartography.tools.MapRenderMain'
+    cartographyTool(it,
+            [level: '--level', x: '--x', y: '--y', width: '--width', height: '--height',
+             palette: '--palette', paper: '--paper', style: '--style', out: '--out'],
+            [noLabels: '--no-labels'])
+}
+
+/**
+ * What the map is drawing from, as text: `./gradlew :zone-server:mapInspect -Pgenesis -Pcoast`.
+ *
+ * The other half of `mapRender`. A wrong-looking map is either a wrong picture or wrong data, and only this can
+ * tell you which.
+ */
+tasks.register('mapInspect', JavaExec) {
+    description = 'Prints the fields the map renders from: a point, a transect, the coast, towns or a census'
+    mainClass = 'net.bestia.zone.cartography.tools.MapInspectMain'
+    cartographyTool(it,
+            [x: '--x', y: '--y', to: '--to', steps: '--steps', level: '--level'],
+            [coast: '--coast', grid: '--grid', census: '--census', towns: '--towns'])
+}
+
+/**
+ * Bakes the tile pyramid: `./gradlew :zone-server:mapBake -Pgenesis`.
+ *
+ * Coarse levels whole, fine levels only around settlements. `-Pwhole` bakes every level across the entire world
+ * instead, which is a very different amount of work - see MapBakeMain's own comment.
+ */
+tasks.register('mapBake', JavaExec) {
+    description = 'Renders the map tile pyramid to the on-disk cache'
+    mainClass = 'net.bestia.zone.cartography.tools.MapBakeMain'
+    cartographyTool(it,
+            [levels: '--levels', out: '--out', threads: '--threads'],
+            [force: '--force', whole: '--whole'])
+}
+
+/**
+ * Serves the tiles and a viewer: `./gradlew :zone-server:mapServe -Pgenesis`, then open localhost:8099.
+ *
+ * The only tool that can show a *seam* interactively, which is the failure a tiled map is actually prone to and
+ * which no single tile reveals. Renders on demand into the same cache `mapBake` writes.
+ */
+tasks.register('mapServe', JavaExec) {
+    description = 'Serves the tile pyramid with a browser slippy-map viewer'
+    mainClass = 'net.bestia.zone.cartography.tools.MapServeMain'
+    cartographyTool(it, [port: '--port', out: '--out'], [:])
+}
+
+/**
+ * Renders one level twice and diffs it: `./gradlew :zone-server:mapAtlas -Pgenesis -Plevel=6`.
+ *
+ * Assembled from tiles, and again as a single frame. The two must be identical; where they are not, the
+ * difference image says which pass is frame-dependent. `AtlasStyleSeamTest` asserts the same property in CI.
+ */
+tasks.register('mapAtlas', JavaExec) {
+    description = 'Renders one zoom level as tiles and as one frame, and reports any difference'
+    mainClass = 'net.bestia.zone.cartography.tools.MapAtlasMain'
+    cartographyTool(it, [level: '--level', out: '--out'], [tiled: '--tiled'])
+}

@@ -11,6 +11,8 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.worldgen.render.Ramps
+import net.bestia.worldgen.render.Viewport
 import java.awt.GraphicsEnvironment
 import java.nio.file.Files
 import javax.swing.SwingUtilities

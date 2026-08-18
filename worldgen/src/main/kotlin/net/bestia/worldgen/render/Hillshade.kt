@@ -1,4 +1,4 @@
-package net.bestia.worldgen.viewer
+package net.bestia.worldgen.render
 
 import kotlin.math.cos
 import kotlin.math.sin

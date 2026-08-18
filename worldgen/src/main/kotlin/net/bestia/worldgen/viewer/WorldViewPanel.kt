@@ -1,6 +1,7 @@
 package net.bestia.worldgen.viewer
 
 import net.bestia.worldgen.core.ChunkSeamCheck
+import net.bestia.worldgen.render.Viewport
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font

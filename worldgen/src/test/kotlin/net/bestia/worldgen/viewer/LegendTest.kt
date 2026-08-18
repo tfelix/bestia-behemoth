@@ -11,6 +11,7 @@ import net.bestia.worldgen.core.Resolution
 import net.bestia.worldgen.core.StageId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.render.Viewport
 import net.bestia.worldgen.vector.FeatureId
 import net.bestia.worldgen.vector.FeatureKind
 import net.bestia.worldgen.vector.PointMarker

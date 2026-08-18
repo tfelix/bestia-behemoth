@@ -1,6 +1,6 @@
-package net.bestia.worldgen.viewer
+package net.bestia.worldgen.render
 
-/** Packed 24-bit RGB helpers. The viewer works in ints throughout; `java.awt.Color` allocates. */
+/** Packed 24-bit RGB helpers. Both renderers work in ints throughout; `java.awt.Color` allocates. */
 object Colors {
 
   fun rgb(r: Int, g: Int, b: Int): Int =

@@ -5,6 +5,9 @@ import net.bestia.worldgen.climate.SeasonalPrecipitation
 import net.bestia.worldgen.core.GenRng
 import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.fields.D8
+import net.bestia.worldgen.render.ColorRamp
+import net.bestia.worldgen.render.Colors
+import net.bestia.worldgen.render.Ramps
 import net.bestia.worldgen.voxel.BlockType
 import java.awt.Color
 
