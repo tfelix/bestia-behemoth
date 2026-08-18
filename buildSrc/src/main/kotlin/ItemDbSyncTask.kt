@@ -19,7 +19,7 @@ import java.io.File
  * against the Godot client's Item DB (the `.tres` files under `bestia-client/src/Game/Item/DB/`),
  * the exact check/sync split [SkillDbSyncTask] uses for skills.
  *
- * `item_id`, `type`, `weight`, `equip_slot`, `name_key` and `description_key` are touched - every
+ * `item_id`, `type`, `weight`, `level`, `equip_slot`, `name_key` and `description_key` are touched - every
  * other field (`icon`, `item_script`, `item_visual`) is hand-authored client presentation with no
  * server equivalent and is left alone. `equip_slot` is only checked/patched for `EQUIP` items;
  * anything else is fine relying on the resource default of 0 ("not equipment").
@@ -57,6 +57,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     @JsonProperty("item-db-name")
     val identifier: String,
     val weight: Int,
+    val level: Int = 1,
     val type: String,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
@@ -68,6 +69,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
   private data class Expected(
     val identifier: String,
     val weight: Int,
+    val level: Int,
     val type: Int,
     val equipSlot: Int,
     val description: String?
@@ -84,6 +86,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
       item.id to Expected(
         identifier = item.identifier,
         weight = item.weight,
+        level = item.level,
         type = typeOrdinalOf(item),
         equipSlot = equipSlotValueOf(item),
         description = item.description?.trim()?.takeIf { it.isNotEmpty() }
@@ -97,6 +100,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     // in the gd_resource/ext_resource header lines.
     val itemIdPattern = Regex("""^item_id\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val weightPattern = Regex("""^weight\s*=\s*(\d+)""", RegexOption.MULTILINE)
+    val levelPattern = Regex("""^level\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val typePattern = Regex("""^type\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val equipSlotPattern = Regex("""^equip_slot\s*=\s*(\d+)""", RegexOption.MULTILINE)
     val nameKeyPattern = Regex("""^name_key\s*=\s*"([^"]*)"""", RegexOption.MULTILINE)
@@ -139,6 +143,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
 
       patchNumericField(file, "weight", weightPattern, expected.weight, id, shouldFix, problems)
       patchNumericField(file, "type", typePattern, expected.type, id, shouldFix, problems)
+      patchNumericField(file, "level", levelPattern, expected.level, id, shouldFix, problems)
 
       // Only equipment needs the line at all; a usable/etc item is fine relying on the default 0.
       if (expected.equipSlot != 0) {
@@ -277,6 +282,7 @@ abstract class ItemDbSyncTask : DefaultTask() {
     name_key = "$nameKey"
     description_key = "$descriptionKey"
     weight = ${expected.weight}
+    level = ${expected.level}
     type = ${expected.type}
     """.trimIndent() + equipSlotLine + "\n"
   }

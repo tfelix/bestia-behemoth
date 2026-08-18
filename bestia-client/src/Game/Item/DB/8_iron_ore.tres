@@ -9,3 +9,4 @@ name_key = "IRON_ORE"
 description_key = "IRON_ORE_DESC"
 weight = 70
 type = 2
+level = 10

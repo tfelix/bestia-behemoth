@@ -9,3 +9,4 @@ name_key = "WEAPON_BLUEPRINT"
 description_key = "WEAPON_BLUEPRINT_DESC"
 weight = 10
 type = 2
+level = 15

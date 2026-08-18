@@ -9,3 +9,4 @@ name_key = "IRON_INGOT"
 description_key = "IRON_INGOT_DESC"
 weight = 60
 type = 2
+level = 12

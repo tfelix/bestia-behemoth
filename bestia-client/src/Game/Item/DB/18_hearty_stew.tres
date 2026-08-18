@@ -9,3 +9,4 @@ name_key = "HEARTY_STEW"
 description_key = "HEARTY_STEW_DESC"
 weight = 15
 type = 0
+level = 5

@@ -9,3 +9,4 @@ name_key = "COAL"
 description_key = "COAL_DESC"
 weight = 30
 type = 2
+level = 5

@@ -18,6 +18,9 @@ extends Panel
 ## can fill one yet.
 @export var slots: int = 0
 
+## How often this copy has been improved. Shown as the familiar [code]+N[/code] after the name.
+@export var upgrade_level: int = 0
+
 ## Colours for the wear bar, worst state last. Fill is picked by [method _wear_color].
 const _WEAR_FINE := Color(0.36, 0.71, 0.35)
 const _WEAR_WORN := Color(0.85, 0.72, 0.22)
@@ -68,7 +71,15 @@ func _wear_color() -> Color:
 ## Plain text rather than the BBCode skill descriptions use: a Control tooltip is a plain Label unless
 ## the whole tooltip scene is replaced, and one line of wear does not justify that.
 func _build_tooltip() -> String:
-	var lines: Array[String] = [tr(item.name_key)]
+	var title := tr(item.name_key)
+	if upgrade_level > 0:
+		title += " +%d" % upgrade_level
+
+	var lines: Array[String] = [title]
+
+	# Tier 1 is the floor and says nothing about an item, so it is left off rather than shown as "Lv. 1".
+	if item.level > 1:
+		lines.append("Lv. %d" % item.level)
 
 	if max_durability > 0:
 		var broken := " (broken)" if durability <= 0 else ""

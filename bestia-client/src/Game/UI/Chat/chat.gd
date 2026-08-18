@@ -16,15 +16,19 @@ var _history_index: int = -1
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
 const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 
-## Refusals the chat window is the right place to report, by [code]OperationError.CodeName[/code].
+## Refusals reported as a system line here, by [code]OperationError.CodeName[/code].
 ##
-## A player whose message went nowhere has to be told here, in the window they typed it in - an error toast
-## somewhere else would leave them retyping. Matching on the name rather than the ordinal keeps a new denial
-## reason from being re-declared as a bare number, which is the duplication [code]DialogArg.KindName[/code]
-## was introduced to stop.
+## The chat window is the client's only system-message channel, and for a chat refusal it is also the right
+## one: a player whose message went nowhere has to be told in the window they typed it in, since a toast
+## somewhere else would leave them retyping. The equip refusal is here for want of anywhere better - the
+## equipment window shows no text at all - and moves the day it grows a status line of its own.
+##
+## Matching on the name rather than the ordinal keeps a new denial reason from being re-declared here as a bare
+## number, which is the duplication [code]DialogArg.KindName[/code] was introduced to stop.
 const _REFUSALS := {
 	"basic_skill_chat_locked": "You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.",
 	"basic_skill_party_locked": "Parties need Basic Skill Lv. 5.",
+	"equip_level_too_low": "You are not high enough level to wear that yet.",
 }
 
 

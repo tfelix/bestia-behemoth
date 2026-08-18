@@ -9,3 +9,4 @@ name_key = "SEAL_OF_MASTERY"
 description_key = "SEAL_OF_MASTERY_DESC"
 weight = 5
 type = 2
+level = 50

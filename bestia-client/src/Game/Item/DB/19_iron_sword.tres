@@ -10,3 +10,4 @@ description_key = "IRON_SWORD_DESC"
 weight = 90
 type = 1
 equip_slot = 7
+level = 20

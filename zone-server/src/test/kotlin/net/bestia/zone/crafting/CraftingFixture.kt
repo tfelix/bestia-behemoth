@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.item.ItemTemplateRegistry
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.message.OutMessageProcessor
@@ -29,7 +30,15 @@ class CraftingFixture(
   recipeList: List<Recipe> = emptyList(),
 
   /** Identifier -> id, for the skills [MasterCraftBonusService] resolves lazily. */
-  skillIds: Map<String, Long> = emptyMap()
+  skillIds: Map<String, Long> = emptyMap(),
+
+  /**
+   * Item id -> tier, for the item-level ceilings.
+   *
+   * Empty means every item is tier 1, which is what most tests want: an unspecified item should not accidentally
+   * be beyond a crafter and turn a test about materials into a test about reach.
+   */
+  itemLevels: Map<Long, Int> = emptyMap()
 ) {
 
   val world: World = testWorld()
@@ -40,6 +49,10 @@ class CraftingFixture(
   val inventoryService = mockk<InventoryService>(relaxed = true)
   val structures = mockk<PlayerStructureService>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
+
+  val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
+    every { templates.levelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
+  }
 
   /** Runs submitted jobs immediately, so a test can assert the durable side without waiting on a thread. */
   val asyncJobExecutor = mockk<AsyncJobExecutor>().also { executor ->
@@ -69,7 +82,8 @@ class CraftingFixture(
       inventoryService = inventoryService,
       structures = structures,
       outMessageProcessor = outMessageProcessor,
-      asyncJobExecutor = asyncJobExecutor
+      asyncJobExecutor = asyncJobExecutor,
+      itemTemplates = itemTemplates
     )
   }
 
@@ -151,6 +165,9 @@ class CraftingFixture(
       craftSeconds = craftSeconds,
       baseSuccessChance = baseSuccessChance
     )
+
+    /** What an item the fixture was told nothing about counts as - the easiest tier there is. */
+    const val DEFAULT_ITEM_LEVEL = 1
 
     const val SKILL_ID = 100L
     const val INPUT_ITEM = 8L

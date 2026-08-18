@@ -41,6 +41,7 @@ class MasterCraftBonusService(
   private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(WEAPONRY_RESEARCH)?.id }
   private val masterSmithId: Long? by lazy { skills.findByIdentifier(MASTER_SMITH)?.id }
   private val cookingId: Long? by lazy { skills.findByIdentifier(COOKING)?.id }
+  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(WEAPON_REPAIR)?.id }
   private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(FORGE_WEAPON)?.id }
   private val forgeArmorId: Long? by lazy { skills.findByIdentifier(FORGE_ARMOR)?.id }
   private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(UPGRADE_EQUIPMENT)?.id }
@@ -105,6 +106,40 @@ class MasterCraftBonusService(
   }
 
   /**
+   * The highest item tier this crafter can reach with [recipe], or [NO_ITEM_LEVEL_CAP] for work the design docs
+   * put no ceiling on.
+   *
+   * Two skills have a ceiling and the rest do not, which is exactly what the docs say - Carpentry climbs from
+   * 10 to "100+" and Weapon Repair from 20 to "100+". The `+` is the interesting part and is read literally: at
+   * full rank the ceiling is gone rather than sitting at a hundred, because a table that ends in a plus sign is
+   * saying the master has stopped being the limit.
+   *
+   * Inventing a ceiling for the other seven would be inventing content, so they get none - a forge with no
+   * documented reach forges whatever it has a recipe for.
+   */
+  fun maxItemLevel(known: KnownSkills?, recipe: Recipe): Int = when (recipe.requiredSkillId) {
+    carpentryId ->
+      ceilingAt(CARPENTRY_ITEM_LEVEL_STEP, CARPENTRY_UNCAPPED_AT, rankIn(known, carpentryId))
+
+    weaponRepairId ->
+      ceilingAt(REPAIR_ITEM_LEVEL_STEP, REPAIR_UNCAPPED_AT, rankIn(known, weaponRepairId))
+
+    else -> NO_ITEM_LEVEL_CAP
+  }
+
+  /**
+   * A linear ceiling that disappears at [uncappedAt].
+   *
+   * Rank 0 gets a ceiling of 0 rather than [step], so a crafter who has not taken the skill cannot reach even
+   * a tier-1 item through it - reaching this without the skill means a bug let the craft through.
+   */
+  private fun ceilingAt(step: Int, uncappedAt: Int, level: Int): Int = when {
+    level <= 0 -> 0
+    level >= uncappedAt -> NO_ITEM_LEVEL_CAP
+    else -> step * level
+  }
+
+  /**
    * How many rune slots this crafter's Item Customization allows in one item, or 0 without the skill.
    *
    * A hard cap rather than a bonus: the docs' table reads "max slots", so a level 3 crafter cannot cut a
@@ -148,6 +183,9 @@ class MasterCraftBonusService(
    */
   private fun KnownSkills.levelIn(skillId: Long?): Int = skillId?.let { levelOf(it) } ?: 0
 
+  /** Rank 0 for a caller with no skills at all, which is every one of them until a master is resolved. */
+  private fun rankIn(known: KnownSkills?, skillId: Long?): Int = known?.levelIn(skillId) ?: 0
+
   private fun <T> at(table: List<T>, level: Int, zero: T): T =
     if (level <= 0) zero else table[(level - 1).coerceAtMost(table.size - 1)]
 
@@ -158,6 +196,14 @@ class MasterCraftBonusService(
   companion object {
     /** See [craftSeconds]. */
     const val MIN_CRAFT_SECONDS = 0.1f
+
+    /**
+     * No ceiling at all - what [maxItemLevel] answers for the seven skills the docs give no table.
+     *
+     * [Int.MAX_VALUE] rather than a large number, so a comparison against it can never be accidentally
+     * meaningful: there is no item tier that could sit above it.
+     */
+    const val NO_ITEM_LEVEL_CAP = Int.MAX_VALUE
 
     private const val CARPENTRY = "CARPENTRY"
 
@@ -174,6 +220,7 @@ class MasterCraftBonusService(
     private const val FORGE_WEAPON = "FORGE_WEAPON"
     private const val FORGE_ARMOR = "FORGE_ARMOR"
     private const val UPGRADE_EQUIPMENT = "UPGRADE_EQUIPMENT"
+    private const val WEAPON_REPAIR = "WEAPON_REPAIR"
 
     /** Cooking Lv.1-3: +0%, +20%, +40% success and -0%, -20%, -40% time. */
     private val COOKING_SUCCESS = listOf(0.0f, 0.2f, 0.4f)
@@ -208,5 +255,13 @@ class MasterCraftBonusService(
     /** Master Smith Lv.1-5: +5% a level on both forging and upgrading. */
     private val SMITH_FORGING = (1..5).map { it * 0.05f }
     private val SMITH_UPGRADE = (1..5).map { it * 0.05f }
+
+    /** Carpentry Lv.1-10: item tier 10 rising to "100+", so ten a level and no ceiling at full rank. */
+    private const val CARPENTRY_ITEM_LEVEL_STEP = 10
+    private const val CARPENTRY_UNCAPPED_AT = 10
+
+    /** Weapon Repair Lv.1-5: item tier 20 rising to "100+", so twenty a level and no ceiling at full rank. */
+    private const val REPAIR_ITEM_LEVEL_STEP = 20
+    private const val REPAIR_UNCAPPED_AT = 5
   }
 }

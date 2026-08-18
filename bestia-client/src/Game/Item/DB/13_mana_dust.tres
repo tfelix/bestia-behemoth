@@ -9,3 +9,4 @@ name_key = "MANA_DUST"
 description_key = "MANA_DUST_DESC"
 weight = 3
 type = 2
+level = 15

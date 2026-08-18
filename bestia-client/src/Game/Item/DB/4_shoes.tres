@@ -12,3 +12,4 @@ description_key = "SHOES_DESC"
 weight = 20
 type = 1
 equip_slot = 6
+level = 1

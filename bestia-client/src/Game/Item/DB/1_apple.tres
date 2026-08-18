@@ -14,3 +14,4 @@ weight = 1
 item_visual = ExtResource("3_apple_visual")
 metadata/_custom_type_script = "uid://bn4gvq3ayku4r"
 type = 0
+level = 1

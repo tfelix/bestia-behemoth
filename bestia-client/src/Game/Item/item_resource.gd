@@ -8,6 +8,14 @@ enum ItemType {USABLE, EQUIP, ETC}
 @export var name_key: String
 @export var description_key: String
 @export var weight: int
+
+## The item's tier: what it takes to have anything to do with it. It is the level a wearer needs to put gear
+## on and the reach a crafter needs to make it or work on it; for a material it says which tier of work it
+## belongs to. Kept in sync with items.yml by './gradlew syncItemDb'.
+##
+## An instance's effective tier is this plus its upgrade level, so a well-upgraded item is harder to work on
+## than a plain one of the same kind. Only the server does that arithmetic - see Item.effectiveLevel.
+@export var level: int = 1
 @export var item_script: GDScript
 @export var type: ItemType
 @export var item_visual: PackedScene

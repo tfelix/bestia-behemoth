@@ -14,3 +14,6 @@ class_name InventoryItemResource
 
 ## Rune slots cut into the backing instance by Item Customization.
 @export var slots: int = 0
+
+## How often this copy has been improved by Upgrade Equipment.
+@export var upgrade_level: int = 0

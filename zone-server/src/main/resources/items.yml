@@ -1,6 +1,18 @@
+# `level` is the item's tier: what it takes to have anything to do with it. It is the level a wearer needs
+# to put gear on, the reach a crafter needs to make it or work on it (see `MasterCraftBonusService`), and for
+# a material the tier of work it belongs to. Defaults to 1, so an item with nothing to say about its tier
+# says nothing.
+#
+# A material's level gates nothing by itself - a recipe already names the skill and rank it needs, and saying
+# it twice would only let the two drift. It is what a player reads off the material and what a future recipe
+# is priced against.
+#
+# An instance's effective level is this plus its upgrade level, so a `+6` sword is harder to repair than a
+# plain one. Item.effectiveLevel is the only place that arithmetic lives.
 items:
   - id: 1
     item-db-name: apple
+    level: 1
     weight: 1
     type: USABLE
     script: AppleScript
@@ -11,11 +23,13 @@ items:
 
   - id: 2
     item-db-name: jelly
+    level: 1
     weight: 1
     type: ETC
 
   - id: 3
     item-db-name: small_health_potion
+    level: 3
     weight: 1
     type: USABLE
     script: SmallHealthPotionScript
@@ -28,6 +42,7 @@ items:
   # wear. Set here so Weapon Repair has something to act on - see `ItemInstance.maxDurability`.
   - id: 4
     item-db-name: shoes
+    level: 1
     weight: 20
     type: EQUIP
     equip-slot: FOOTGEAR
@@ -40,6 +55,7 @@ items:
 
   - id: 5
     item-db-name: boots
+    level: 10
     weight: 40
     type: EQUIP
     equip-slot: FOOTGEAR
@@ -56,6 +72,7 @@ items:
   # away for the sake of a shorter catalogue.
   - id: 6
     item-db-name: mana_crystal
+    level: 5
     weight: 5
     type: ETC
     description: |
@@ -63,6 +80,7 @@ items:
 
   - id: 7
     item-db-name: aetherite_shard
+    level: 10
     weight: 8
     type: ETC
     description: |
@@ -77,6 +95,7 @@ items:
   # these - and so that refining is a *gain*: two ore plus one coal (170) become one ingot (60).
   - id: 8
     item-db-name: iron_ore
+    level: 10
     weight: 70
     type: ETC
     description: |
@@ -86,6 +105,7 @@ items:
 
   - id: 9
     item-db-name: iron_ingot
+    level: 12
     weight: 60
     type: ETC
     description: |
@@ -95,6 +115,7 @@ items:
 
   - id: 10
     item-db-name: coal
+    level: 5
     weight: 30
     type: ETC
     description: |
@@ -102,6 +123,7 @@ items:
 
   - id: 11
     item-db-name: clay
+    level: 1
     weight: 25
     type: ETC
     description: |
@@ -109,6 +131,7 @@ items:
 
   - id: 12
     item-db-name: void_essence
+    level: 30
     weight: 2
     type: ETC
     description: |
@@ -118,6 +141,7 @@ items:
 
   - id: 13
     item-db-name: mana_dust
+    level: 15
     weight: 3
     type: ETC
     description: |
@@ -125,6 +149,7 @@ items:
 
   - id: 14
     item-db-name: engraving_set
+    level: 10
     weight: 45
     type: ETC
     description: |
@@ -134,6 +159,7 @@ items:
 
   - id: 15
     item-db-name: seal_of_mastery
+    level: 50
     weight: 5
     type: ETC
     description: |
@@ -143,6 +169,7 @@ items:
 
   - id: 16
     item-db-name: weapon_blueprint
+    level: 15
     weight: 10
     type: ETC
     description: |
@@ -150,6 +177,7 @@ items:
 
   - id: 17
     item-db-name: armor_blueprint
+    level: 15
     weight: 10
     type: ETC
     description: |
@@ -158,6 +186,7 @@ items:
   # The one thing Cooking makes, and the only crafted item that is USABLE rather than a material.
   - id: 18
     item-db-name: hearty_stew
+    level: 5
     weight: 15
     type: USABLE
     script: HeartyStewScript
@@ -172,6 +201,7 @@ items:
   # level, and both are what Weapon Repair and Upgrade Equipment act on.
   - id: 19
     item-db-name: iron_sword
+    level: 20
     weight: 90
     type: EQUIP
     equip-slot: RIGHT_HAND
@@ -184,6 +214,7 @@ items:
 
   - id: 20
     item-db-name: iron_cuirass
+    level: 25
     weight: 240
     type: EQUIP
     equip-slot: ARMOR

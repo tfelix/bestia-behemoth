@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3IqjQUKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
+            "b3IqwwUKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
             "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
             "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
             "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
@@ -40,8 +40,10 @@ namespace Bnet {
             "SUFMUxAREh0KGUNSQUZUX0FMUkVBRFlfSU5fUFJPR1JFU1MQEhIQCgxDUkFG",
             "VF9GQUlMRUQQExIYChRDUkFGVF9JVEVNX0RFU1RST1lFRBAUEhUKEVNUUlVD",
             "VFVSRV9OT19ST09NEBUSGwoXQkFTSUNfU0tJTExfQ0hBVF9MT0NLRUQQFhIc",
-            "ChhCQVNJQ19TS0lMTF9QQVJUWV9MT0NLRUQQF0IsChVuZXQuYmVzdGlhLmJu",
-            "ZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3RvMw=="));
+            "ChhCQVNJQ19TS0lMTF9QQVJUWV9MT0NLRUQQFxIbChdDUkFGVF9JVEVNX1RP",
+            "T19BRFZBTkNFRBAYEhcKE0VRVUlQX0xFVkVMX1RPT19MT1cQGUIsChVuZXQu",
+            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -123,6 +125,16 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("BASIC_SKILL_CHAT_LOCKED")] BasicSkillChatLocked = 22,
     [pbr::OriginalName("BASIC_SKILL_PARTY_LOCKED")] BasicSkillPartyLocked = 23,
+    /// <summary>
+    /// The item is of a higher tier than the crafter can reach - see MasterCraftBonusService.maxItemLevel. Kept
+    /// apart from CRAFT_NOT_POSSIBLE because it is the one crafting refusal a player can act on by investing:
+    /// "raise the skill" is useful, and folding it into the catch-all would have hidden it.
+    /// </summary>
+    [pbr::OriginalName("CRAFT_ITEM_TOO_ADVANCED")] CraftItemTooAdvanced = 24,
+    /// <summary>
+    /// The wearer is below the item's level - see Item.level.
+    /// </summary>
+    [pbr::OriginalName("EQUIP_LEVEL_TOO_LOW")] EquipLevelTooLow = 25,
   }
 
   #endregion

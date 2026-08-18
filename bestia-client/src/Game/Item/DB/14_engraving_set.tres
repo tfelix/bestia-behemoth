@@ -9,3 +9,4 @@ name_key = "ENGRAVING_SET"
 description_key = "ENGRAVING_SET_DESC"
 weight = 45
 type = 2
+level = 10

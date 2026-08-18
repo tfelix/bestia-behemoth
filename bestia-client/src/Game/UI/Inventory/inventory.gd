@@ -63,6 +63,7 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.durability = itemMsg.Durability
 			inv_item.max_durability = itemMsg.MaxDurability
 			inv_item.slots = itemMsg.Slots
+			inv_item.upgrade_level = itemMsg.UpgradeLevel
 			selected_entity_items.append(inv_item)
 		_render_items()
 		inventory_updated.emit()
@@ -98,6 +99,7 @@ func _render_items() -> void:
 		inv_item.durability = item.durability
 		inv_item.max_durability = item.max_durability
 		inv_item.slots = item.slots
+		inv_item.upgrade_level = item.upgrade_level
 		inv_item.inventory = self
 		match item.item.type:
 			ItemResource.ItemType.USABLE:

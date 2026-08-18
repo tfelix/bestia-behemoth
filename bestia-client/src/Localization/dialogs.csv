@@ -9,7 +9,9 @@ The world ahead is yours to explore.
 Good luck! You will need it."
 DIALOG_2_TEXT,"Well met, traveller. I have nothing to offer you yet - come back once I do."
 DIALOG_BASIC_SKILL_PRIMER_TITLE,Where To Begin
-DIALOG_BASIC_SKILL_PRIMER_TEXT,"Open your Skills window. The first thing there is [b]Basic Skill[/b], and almost nothing else opens until it does.
+DIALOG_BASIC_SKILL_PRIMER_TEXT,"You cannot speak to anyone yet, and that is not a fault.
+
+Open your Skills window. The first entry there is [b]Basic Skill[/b], and almost nothing opens until it does.
 
 [table=2]
 [cell]Lv. 1[/cell][cell]Trade with other players[/cell]
@@ -19,6 +21,6 @@ DIALOG_BASIC_SKILL_PRIMER_TEXT,"Open your Skills window. The first thing there i
 [cell]Lv. 5[/cell][cell]Form parties, and perform the Master Ritual[/cell]
 [/table]
 
-You start with three points. You earn one more every time you gain a level, and where they go is the only thing about your Master that nobody else decides.
+You begin with nothing to spend. Every level you gain is one point, and where it goes is the only thing about your Master that nobody else decides. Two levels buys you a voice.
 
 Trade posts and sitting are not built yet, so those two ranks buy nothing today."

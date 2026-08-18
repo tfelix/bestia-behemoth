@@ -64,6 +64,14 @@ enum OpError {
   // subsystems that exist are gated, so there is nothing here for trading, trade posts or sitting.
   BASIC_SKILL_CHAT_LOCKED = 22;
   BASIC_SKILL_PARTY_LOCKED = 23;
+
+  // The item is of a higher tier than the crafter can reach - see MasterCraftBonusService.maxItemLevel. Kept
+  // apart from CRAFT_NOT_POSSIBLE because it is the one crafting refusal a player can act on by investing:
+  // "raise the skill" is useful, and folding it into the catch-all would have hidden it.
+  CRAFT_ITEM_TOO_ADVANCED = 24;
+
+  // The wearer is below the item's level - see Item.level.
+  EQUIP_LEVEL_TOO_LOW = 25;
 }
 
 message OperationError {

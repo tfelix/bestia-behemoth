@@ -9,3 +9,4 @@ name_key = "CLAY"
 description_key = "CLAY_DESC"
 weight = 25
 type = 2
+level = 1

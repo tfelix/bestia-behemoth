@@ -13,7 +13,7 @@ class EquipmentServiceTest {
 
   private val boots = Item(
     id = 4L, identifier = "boots", weight = 8, type = Item.ItemType.EQUIP,
-    equipSlot = EquipmentSlot.FOOTGEAR
+    equipSlot = EquipmentSlot.FOOTGEAR, level = BOOTS_LEVEL
   )
   private val apple = Item(id = 1L, identifier = "apple", weight = 1, type = Item.ItemType.ETC)
 
@@ -26,7 +26,11 @@ class EquipmentServiceTest {
   fun `a held item going into an available slot is accepted`() {
     val equipment = Equipment(EquipmentSlots.ALL)
 
-    assertNull(service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L))
+    assertNull(
+      service.checkEquip(
+        equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, WELL_ABOVE_ITEM_LEVEL
+      )
+    )
   }
 
   @Test
@@ -36,7 +40,7 @@ class EquipmentServiceTest {
 
     assertEquals(
       EquipmentService.Denial.SLOT_NOT_AVAILABLE,
-      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L)
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, WELL_ABOVE_ITEM_LEVEL)
     )
   }
 
@@ -46,7 +50,7 @@ class EquipmentServiceTest {
 
     assertEquals(
       EquipmentService.Denial.NOT_ALLOWED,
-      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.ARMOR, 77L)
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.ARMOR, 77L, WELL_ABOVE_ITEM_LEVEL)
     )
   }
 
@@ -56,7 +60,9 @@ class EquipmentServiceTest {
 
     assertEquals(
       EquipmentService.Denial.NOT_ALLOWED,
-      service.checkEquip(equipment, inventoryOf(held(apple, uniqueId = 0L)), apple, EquipmentSlot.ARMOR, 0L)
+      service.checkEquip(
+        equipment, inventoryOf(held(apple, uniqueId = 0L)), apple, EquipmentSlot.ARMOR, 0L, WELL_ABOVE_ITEM_LEVEL
+      )
     )
   }
 
@@ -66,7 +72,41 @@ class EquipmentServiceTest {
 
     assertEquals(
       EquipmentService.Denial.ITEM_NOT_FOUND,
-      service.checkEquip(equipment, inventoryOf(), boots, EquipmentSlot.FOOTGEAR, 77L)
+      service.checkEquip(equipment, inventoryOf(), boots, EquipmentSlot.FOOTGEAR, 77L, WELL_ABOVE_ITEM_LEVEL)
+    )
+  }
+
+  @Test
+  fun `a wearer below the item's level is refused`() {
+    val equipment = Equipment(EquipmentSlots.ALL)
+
+    assertEquals(
+      EquipmentService.Denial.LEVEL_TOO_LOW,
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, BOOTS_LEVEL - 1)
+    )
+  }
+
+  /** Exactly the item's level is enough - the table reads as a minimum, not as something to exceed. */
+  @Test
+  fun `a wearer exactly at the item's level is accepted`() {
+    val equipment = Equipment(EquipmentSlots.ALL)
+
+    assertNull(
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, BOOTS_LEVEL)
+    )
+  }
+
+  /**
+   * An entity with no `Level` component at all reaches the service as level 0, and being unqualified is the
+   * safe reading of not knowing.
+   */
+  @Test
+  fun `a wearer of no known level is refused anything above tier one`() {
+    val equipment = Equipment(EquipmentSlots.ALL)
+
+    assertEquals(
+      EquipmentService.Denial.LEVEL_TOO_LOW,
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, 0)
     )
   }
 
@@ -77,7 +117,14 @@ class EquipmentServiceTest {
 
     assertEquals(
       EquipmentService.Denial.ITEM_NOT_FOUND,
-      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L)
+      service.checkEquip(equipment, inventoryOf(held(boots)), boots, EquipmentSlot.FOOTGEAR, 77L, WELL_ABOVE_ITEM_LEVEL)
     )
+  }
+
+  private companion object {
+    const val BOOTS_LEVEL = 10
+
+    /** High enough that the structural cases never trip the level rule as well. */
+    const val WELL_ABOVE_ITEM_LEVEL = 99
   }
 }

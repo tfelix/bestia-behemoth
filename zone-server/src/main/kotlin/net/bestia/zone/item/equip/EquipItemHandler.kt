@@ -2,6 +2,7 @@ package net.bestia.zone.item.equip
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto
+import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.WorldView
@@ -69,7 +70,10 @@ class EquipItemHandler(
         inventory = inventory,
         item = item,
         slot = msg.slot,
-        heldUniqueId = held?.uniqueId ?: msg.uniqueId
+        heldUniqueId = held?.uniqueId ?: msg.uniqueId,
+        // Zero for an entity with no Level component at all, which the service reads as unqualified rather
+        // than as exempt.
+        wearerLevel = get(id, Level::class)?.level ?: 0
       )
 
       if (denial != null) {
@@ -144,6 +148,7 @@ class EquipItemHandler(
       EquipmentService.Denial.SLOT_NOT_AVAILABLE -> OperationErrorProto.OpError.EQUIP_SLOT_NOT_AVAILABLE
       EquipmentService.Denial.ITEM_NOT_FOUND -> OperationErrorProto.OpError.EQUIP_ITEM_NOT_FOUND
       EquipmentService.Denial.NOT_ALLOWED -> OperationErrorProto.OpError.EQUIP_NOT_ALLOWED
+      EquipmentService.Denial.LEVEL_TOO_LOW -> OperationErrorProto.OpError.EQUIP_LEVEL_TOO_LOW
     }
 
     outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(code))

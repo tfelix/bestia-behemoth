@@ -10,3 +10,4 @@ description_key = "IRON_CUIRASS_DESC"
 weight = 240
 type = 1
 equip_slot = 4
+level = 25

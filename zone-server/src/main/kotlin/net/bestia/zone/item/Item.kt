@@ -45,6 +45,25 @@ class Item(
   var equipSlot: EquipmentSlot? = null,
 
   /**
+   * The tier this item belongs to: what it takes to have anything to do with it.
+   *
+   * One number answering three questions, which is the whole reason it is a property of the *template* rather
+   * than of a use of it. It is the level a wearer needs to put gear on
+   * ([net.bestia.zone.item.equip.EquipmentService]), the reach a crafter needs to make it or work on it
+   * ([net.bestia.zone.crafting.MasterCraftBonusService.maxItemLevel]), and the tier a material belongs to.
+   *
+   * **A material's level gates nothing on its own today**, and that is deliberate rather than an oversight:
+   * a recipe already says which skill and which rank it needs, so gating its inputs as well would be the same
+   * rule stated twice and drifting. What the number does for a material is say which tier of work it is *for*,
+   * which is what a player reads off it and what a future recipe is priced against.
+   *
+   * An instance's *effective* level is this plus its upgrade level - see
+   * [net.bestia.zone.item.instance.ItemInstance.upgradeLevel]. A well-upgraded sword is harder to work on than
+   * a plain one of the same kind, which is what makes the two numbers interact rather than merely coexist.
+   */
+  var level: Int = 1,
+
+  /**
    * How much wear a fresh [net.bestia.zone.item.instance.ItemInstance] of this template can take, or
    * **0 for an item that does not wear at all** - which is every material, every consumable and any
    * piece of gear nobody has given a number to yet.
@@ -65,6 +84,15 @@ class Item(
     requireValidIdentifier(identifier)
     validate()
   }
+
+  /**
+   * What this item counts as when a crafter looks at one particular copy of it.
+   *
+   * Every upgrade makes an item that little bit more demanding to touch, so a `+6` sword can be beyond a smith
+   * who repairs the plain one all day. That is the interaction the two numbers exist for; without it,
+   * upgrade level would be a stat bonus and nothing else.
+   */
+  fun effectiveLevel(upgradeLevel: Int): Int = level + upgradeLevel
 
   /**
    * The invariants tying [type] to [script] and [equipSlot].

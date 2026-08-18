@@ -9,3 +9,4 @@ name_key = "VOID_ESSENCE"
 description_key = "VOID_ESSENCE_DESC"
 weight = 2
 type = 2
+level = 30

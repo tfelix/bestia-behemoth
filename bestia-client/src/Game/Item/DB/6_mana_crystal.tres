@@ -11,3 +11,4 @@ description_key = "MANA_CRYSTAL_DESC"
 weight = 5
 type = 2
 item_visual = ExtResource("2_visual")
+level = 5

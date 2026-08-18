@@ -34,6 +34,7 @@ class ItemImporterBootRunner(
     val script: String? = null,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
+    val level: Int = 1,
     @JsonProperty("max-durability")
     val maxDurability: Int = 0,
     val description: String? = null
@@ -73,6 +74,7 @@ class ItemImporterBootRunner(
       || entity.type != type
       || entity.script != dto.script
       || entity.equipSlot != equipSlot
+      || entity.level != dto.level
       || entity.maxDurability != dto.maxDurability
       || entity.description != dto.description
 
@@ -84,6 +86,7 @@ class ItemImporterBootRunner(
     entity.type = type
     entity.script = dto.script
     entity.equipSlot = equipSlot
+    entity.level = dto.level
     entity.maxDurability = dto.maxDurability
     entity.description = dto.description
     // Derived from the type at construction, so it has to follow the type here too - an item changed from
@@ -114,6 +117,7 @@ class ItemImporterBootRunner(
       type = getType(dto),
       script = dto.script,
       equipSlot = getEquipSlot(dto),
+      level = dto.level,
       maxDurability = dto.maxDurability,
       description = dto.description
     )

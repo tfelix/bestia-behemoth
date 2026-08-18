@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.boot.RecipeImporterBootRunner
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.skill.Skill
@@ -105,6 +106,37 @@ class RecipeCatalogTest {
     }
   }
 
+  /**
+   * Every shipped recipe has to be reachable at the rank it asks for.
+   *
+   * The two halves of that - `recipes.yml`s `requiredSkill.level` and `items.yml`s `level` - are written in
+   * different files by hand, and a recipe claiming Carpentry 1 is enough for a tier-15 output would be offered
+   * to nobody and refused with `CRAFT_ITEM_TOO_ADVANCED`. Exactly the kind of dead catalogue entry that stays
+   * invisible until a player complains.
+   */
+  @Test
+  fun `every producing recipe is reachable at the rank it requires`() {
+    load()
+
+    val levelById = identifiers("items.yml", "items", "id", "level").mapKeys { it.key.toLong() }
+    assertTrue(levelById.isNotEmpty(), "items.yml should declare levels")
+
+    val bonuses = MasterCraftBonusService(skillRepository)
+
+    registry.all().filter { it.effect == RecipeEffect.PRODUCE }.forEach { recipe ->
+      val outputLevel = levelById[recipe.output!!.itemId]
+      assertNotNull(outputLevel, "${recipe.identifier} names an output with no level")
+
+      val atRequiredRank = KnownSkills(mutableMapOf(recipe.requiredSkillId to recipe.requiredSkillLevel))
+      val reach = bonuses.maxItemLevel(atRequiredRank, recipe)
+
+      assertTrue(
+        outputLevel!! <= reach,
+        "${recipe.identifier} makes a tier-$outputLevel item but its own required rank only reaches $reach"
+      )
+    }
+  }
+
   @Test
   fun `two recipes sharing an id fail the load`() {
     val one = recipe(id = 7, identifier = "ONE")
@@ -134,13 +166,25 @@ class RecipeCatalogTest {
     baseSuccessChance = 1f
   )
 
-  /** Reads `<listKey>[].{<idKey>: id, <identifierKey>: name}` out of a server resource. */
-  private fun identifiers(resource: String, listKey: String, identifierKey: String): Map<String, Long> {
+  /**
+   * Reads one field of a server resource keyed by another, e.g. every item identifier to its id.
+   *
+   * Rows missing [valueKey] are dropped rather than defaulted, so an absent optional field cannot be mistaken
+   * for a zero.
+   */
+  private fun identifiers(
+    resource: String,
+    listKey: String,
+    identifierKey: String,
+    valueKey: String = "id"
+  ): Map<String, Long> {
     val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
     val tree = ClassPathResource(resource).inputStream.use { mapper.readTree(it) }
 
-    return tree[listKey].associate { it[identifierKey].asText() to it["id"].asLong() }
+    return tree[listKey]
+      .filter { it.has(valueKey) }
+      .associate { it[identifierKey].asText() to it[valueKey].asLong() }
   }
 }

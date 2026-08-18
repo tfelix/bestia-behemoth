@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.item.ItemTemplateRegistry
 import net.bestia.zone.ecs.item.ObtainItemIntent
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.item.container.InventoryService
@@ -52,6 +53,7 @@ class CraftingService(
   private val structures: PlayerStructureService,
   private val outMessageProcessor: OutMessageProcessor,
   private val asyncJobExecutor: AsyncJobExecutor,
+  private val itemTemplates: ItemTemplateRegistry,
 ) {
 
   /**
@@ -59,8 +61,8 @@ class CraftingService(
    *
    * Lists a recipe the crafter cannot currently afford, deliberately: a recipe you have no materials for is
    * what tells you what to go and gather, and hiding it would make the tree look empty. What it does *not* list
-   * is a recipe whose station is missing or whose level is too high - those are not near-misses, they are
-   * somewhere else entirely.
+   * is a recipe whose station is missing, whose skill rank is too low, or whose output is above the tier this
+   * crafter can reach - those are not near-misses, they are somewhere else entirely.
    */
   fun offerRecipes(world: World, casterId: EntityId, skillId: Long) {
     val accountId = world.get(casterId, Account::class)?.accountId ?: return
@@ -72,6 +74,9 @@ class CraftingService(
 
     val offered = recipes.forSkill(skillId)
       .filter { known?.knowsSkill(skillId, it.requiredSkillLevel) == true }
+      // Only a producing recipe can be judged here: the tier that matters for the other three is the tier of
+      // the item the player has not picked yet, so those are checked when the craft is asked for.
+      .filter { it.needsTarget || withinReach(known, it, outputLevelOf(it)) }
       .filter { recipe ->
         val station = recipe.station ?: return@filter true
         if (position == null) return@filter false
@@ -118,8 +123,11 @@ class CraftingService(
 
     val inventory = world.get(entityId, Inventory::class) ?: return OpError.CRAFT_NOT_POSSIBLE
 
-    if (recipe.needsTarget && targetFor(recipe, inventory, targetUniqueId, known) == null) {
-      return OpError.CRAFT_NOT_POSSIBLE
+    if (recipe.needsTarget) {
+      val target = targetFor(recipe, inventory, targetUniqueId, known) ?: return OpError.CRAFT_NOT_POSSIBLE
+      if (!withinReach(known, recipe, target.effectiveLevel)) return OpError.CRAFT_ITEM_TOO_ADVANCED
+    } else if (!withinReach(known, recipe, outputLevelOf(recipe))) {
+      return OpError.CRAFT_ITEM_TOO_ADVANCED
     }
 
     // Checked at the start as well as at the end, so a player is told now rather than after waiting out a
@@ -156,9 +164,17 @@ class CraftingService(
     val known = world.get(entityId, KnownSkills::class)
 
     val target = if (recipe.needsTarget) {
-      targetFor(recipe, inventory, crafting.targetUniqueId, known) ?: return refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
+      targetFor(recipe, inventory, crafting.targetUniqueId, known)
+        ?: return refuse(accountId, OpError.CRAFT_NOT_POSSIBLE)
     } else {
       null
+    }
+
+    // Re-checked here as well as at the start, because an upgrade landing mid-craft raises the target's
+    // effective tier - so a smith can be exactly at their ceiling when they begin and past it when they finish.
+    val tier = target?.effectiveLevel ?: outputLevelOf(recipe)
+    if (!withinReach(known, recipe, tier)) {
+      return refuse(accountId, OpError.CRAFT_ITEM_TOO_ADVANCED)
     }
 
     if (!consumeInputs(recipe, inventory, masterId)) {
@@ -255,12 +271,16 @@ class CraftingService(
     val held = inventory.getItems().firstOrNull { it.uniqueId == uniqueId } ?: return null
     if (held.equipped) return null
 
+    // Null for an item the catalogue does not know, which `withinReach` then refuses outright.
+    val templateLevel = itemTemplates.levelOf(held.itemId) ?: return null
+
     val state = TargetState(
       uniqueId = uniqueId,
       durability = held.durability,
       maxDurability = held.maxDurability,
       slots = held.slots,
-      upgradeLevel = held.upgradeLevel
+      upgradeLevel = held.upgradeLevel,
+      templateLevel = templateLevel
     )
 
     return when (recipe.effect) {
@@ -274,6 +294,22 @@ class CraftingService(
       RecipeEffect.PRODUCE -> null
     }
   }
+
+  /**
+   * Whether a crafter at these skill levels may touch an item of [itemLevel] through [recipe].
+   *
+   * An unknown tier is *out* of reach rather than trivially in it: a recipe naming an item the catalogue does
+   * not have is a content error, and the safe reading of a content error is not "the easiest possible item".
+   */
+  private fun withinReach(known: KnownSkills?, recipe: Recipe, itemLevel: Int?): Boolean {
+    if (itemLevel == null) return false
+
+    return itemLevel <= bonuses.maxItemLevel(known, recipe)
+  }
+
+  /** The tier of what [recipe] makes, or null when it makes nothing or names an unknown item. */
+  private fun outputLevelOf(recipe: Recipe): Int? =
+    recipe.output?.let { itemTemplates.levelOf(it.itemId) }
 
   private fun holdsInputs(recipe: Recipe, inventory: Inventory): Boolean =
     required(recipe).all { (itemId, amount) -> heldAmount(inventory, itemId) >= amount }
@@ -337,8 +373,19 @@ class CraftingService(
     val durability: Int,
     val maxDurability: Int,
     val slots: Int,
-    val upgradeLevel: Int
+    val upgradeLevel: Int,
+
+    /** The template's own tier, before the upgrade level is added to it. */
+    val templateLevel: Int
   ) {
+    /**
+     * What a crafter has to be able to reach to touch this particular copy.
+     *
+     * Kept as the arithmetic `Item.effectiveLevel` states rather than calling it, because this side of the
+     * craft works off the live inventory mirror and never holds the template row.
+     */
+    val effectiveLevel: Int get() = templateLevel + upgradeLevel
+
     fun writeOnto(instance: ItemInstance) {
       instance.durability = durability
       instance.slots = slots

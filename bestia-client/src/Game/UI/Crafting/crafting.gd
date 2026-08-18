@@ -29,6 +29,7 @@ const _RESULT_MESSAGES := {
 	"craft_missing_materials": "Not enough materials.",
 	"craft_already_in_progress": "Already working on something.",
 	"craft_not_possible": "You cannot do that here.",
+	"craft_item_too_advanced": "That is beyond you for now. Raise the skill to reach a higher tier of item.",
 }
 
 ## Assigned at runtime by Game/UI/ui.gd, for the same reason the Inventory <-> Equipment pair is: the Inventory

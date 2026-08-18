@@ -136,6 +136,44 @@ class MasterCraftBonusServiceTest {
     assertEquals(0.30f, service.destroyChance(null), TOLERANCE)
   }
 
+  @Test
+  fun `carpentry reaches item tier ten a level and loses the ceiling at full rank`() {
+    val recipe = recipeRequiring(CARPENTRY)
+
+    assertEquals(0, service.maxItemLevel(known(), recipe), "no Carpentry reaches nothing at all")
+    assertEquals(10, service.maxItemLevel(known(CARPENTRY to 1), recipe))
+    assertEquals(90, service.maxItemLevel(known(CARPENTRY to 9), recipe))
+    // The docs read "100+", and the plus is taken literally: at full rank the master stops being the limit.
+    assertEquals(
+      MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+      service.maxItemLevel(known(CARPENTRY to 10), recipe)
+    )
+  }
+
+  @Test
+  fun `weapon repair reaches item tier twenty a level and loses the ceiling at full rank`() {
+    val recipe = recipeRequiring(WEAPON_REPAIR)
+
+    assertEquals(20, service.maxItemLevel(known(WEAPON_REPAIR to 1), recipe))
+    assertEquals(80, service.maxItemLevel(known(WEAPON_REPAIR to 4), recipe))
+    assertEquals(
+      MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+      service.maxItemLevel(known(WEAPON_REPAIR to 5), recipe)
+    )
+  }
+
+  /** Seven of the nine skills have no documented ceiling, and inventing one would be inventing content. */
+  @Test
+  fun `a skill the docs give no ceiling has none`() {
+    for (identifier in listOf(COOKING, ITEM_CUSTOMIZATION, ORE_REFINEMENT, FORGE_WEAPON, UPGRADE_EQUIPMENT)) {
+      assertEquals(
+        MasterCraftBonusService.NO_ITEM_LEVEL_CAP,
+        service.maxItemLevel(known(identifier to 1), recipeRequiring(identifier)),
+        "$identifier should have no item level ceiling"
+      )
+    }
+  }
+
   /**
    * A level past the end of a table means the catalogue raised a maxLevel, which should degrade to the best
    * documented row rather than throw and kill a craft in progress.

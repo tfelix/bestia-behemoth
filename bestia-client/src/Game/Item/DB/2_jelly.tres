@@ -9,3 +9,4 @@ name_key = "JELLY"
 description_key = "JELLY_DESC"
 weight = 1
 type = 2
+level = 1

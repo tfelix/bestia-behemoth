@@ -88,7 +88,6 @@ class MasterFactory(
     )
 
     createMasterData.effortValues.forEach { (attribute, value) -> newMaster.setEffortValue(attribute, value) }
-    newMaster.skillPoints = STARTING_SKILL_POINTS
 
     // Asked for rather than read straight from the repository so that a create arriving before anyone has
     // listed the masters still finds candidates, instead of rejecting a perfectly valid id against an
@@ -166,20 +165,6 @@ class MasterFactory(
   }
 
   companion object {
-    /**
-     * What a brand-new master has to spend in the skill tree before earning anything.
-     *
-     * **This number exists because of the Basic Skill gates.** A master used to start with none, and
-     * [net.bestia.zone.account.master.skill.BasicSkillGate] locks chat behind Basic Skill rank 2 - so with a
-     * zero start a new player could not talk to anybody until their second level-up, which is a lock nobody
-     * can open rather than a ramp. Three is enough to reach chat and have one point left to place, and leaves
-     * parties (rank 5) as something to grow into.
-     *
-     * A balance knob rather than a mechanism: raising it to 5 makes every documented Basic Skill unlock
-     * available immediately, and dropping it to 0 restores the old behaviour. Nothing reads it but this.
-     */
-    const val STARTING_SKILL_POINTS = 3
-
     /**
      * Every attribute at [EffortValueCostCalculator.BALANCED_EFFORT_VALUE], which costs exactly
      * [EffortValueCostCalculator.CREATION_EFFORT_POINTS] - a valid, opinion-free starting build for

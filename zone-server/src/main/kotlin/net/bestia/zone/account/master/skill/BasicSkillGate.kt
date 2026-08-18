@@ -72,9 +72,10 @@ class BasicSkillGate(
     /**
      * Chat needs rank 2 and parties need rank 5, per the design docs.
      *
-     * A new master starts with [net.bestia.zone.account.master.MasterFactory.STARTING_SKILL_POINTS] to
-     * spend, which is what keeps [CHAT_RANK] reachable on the first login rather than a level-up away - see
-     * that constant for the reasoning, because the two numbers only make sense together.
+     * **A new master starts with no skill points at all, so neither is reachable on the first login**, and
+     * that is deliberate rather than an oversight: a novice earns the right to be heard. The primer the client
+     * shows on a master's first login (`DIALOG_BASIC_SKILL_PRIMER_TEXT`) exists to say so, so that being
+     * unable to speak reads as a rule rather than as a broken chat box.
      */
     const val CHAT_RANK = 2
     const val PARTY_RANK = 5

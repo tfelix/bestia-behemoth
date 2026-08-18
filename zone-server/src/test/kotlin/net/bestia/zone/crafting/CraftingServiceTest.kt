@@ -1,5 +1,6 @@
 package net.bestia.zone.crafting
 
+import io.mockk.every
 import io.mockk.verify
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.crafting.CraftingFixture.Companion.INPUT_ITEM
@@ -303,7 +304,7 @@ class CraftingServiceTest {
     val crafter = fixture.givenCrafter(knownSkills = mapOf(SKILL_ID to 1))
 
     var sent: CraftableRecipesSMSG? = null
-    io.mockk.every { fixture.outMessageProcessor.sendToPlayer(any<Long>(), any<CraftableRecipesSMSG>()) } answers {
+    every { fixture.outMessageProcessor.sendToPlayer(any<Long>(), any<CraftableRecipesSMSG>()) } answers {
       sent = secondArg()
     }
 
@@ -315,10 +316,106 @@ class CraftingServiceTest {
     assertFalse(sent!!.recipes.single().inputs.all { it.held >= it.amount })
   }
 
+  /**
+   * The whole point of item tiers: a repair a smith can do all day on a plain sword is beyond them on a
+   * high-tier one, and Weapon Repair rank 1 reaches tier 20 exactly.
+   */
+  @Test
+  fun `a target above the crafters reach is refused with something they can act on`() {
+    val repair = recipe(
+      id = 20, identifier = "REPAIR", effect = RecipeEffect.REPAIR, requiredSkillId = REPAIR_ID
+    )
+    val fixture = CraftingFixture(
+      listOf(repair),
+      skillIds = mapOf("WEAPON_REPAIR" to REPAIR_ID),
+      itemLevels = mapOf(TARGET_ITEM to 21)
+    )
+    val crafter = fixture.givenCrafter(
+      items = listOf(stack(INPUT_ITEM, 9), instance(TARGET_ITEM, uniqueId = 1, durability = 5, maxDurability = 200)),
+      knownSkills = mapOf(REPAIR_ID to 1)
+    )
+
+    // Not CRAFT_NOT_POSSIBLE: this is the one crafting refusal a player fixes by investing, so it says so.
+    assertEquals(
+      OpError.CRAFT_ITEM_TOO_ADVANCED,
+      fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 1)
+    )
+  }
+
+  /**
+   * An upgrade level counts towards the tier, so improving an item can put it beyond the smith who made it.
+   * That interaction is the reason item level and upgrade level are not two unrelated numbers.
+   */
+  @Test
+  fun `upgrades push an item out of reach that its plain twin is inside`() {
+    val repair = recipe(
+      id = 21, identifier = "REPAIR", effect = RecipeEffect.REPAIR, requiredSkillId = REPAIR_ID
+    )
+    val fixture = CraftingFixture(
+      listOf(repair),
+      skillIds = mapOf("WEAPON_REPAIR" to REPAIR_ID),
+      itemLevels = mapOf(TARGET_ITEM to 20)
+    )
+    val crafter = fixture.givenCrafter(
+      items = listOf(
+        stack(INPUT_ITEM, 9),
+        instance(TARGET_ITEM, uniqueId = 1, durability = 5, maxDurability = 200),
+        instance(TARGET_ITEM, uniqueId = 2, durability = 5, maxDurability = 200, upgradeLevel = 1)
+      ),
+      knownSkills = mapOf(REPAIR_ID to 1)
+    )
+
+    assertNull(fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 1))
+    fixture.world.remove(crafter, Crafting::class)
+
+    assertEquals(
+      OpError.CRAFT_ITEM_TOO_ADVANCED,
+      fixture.service.start(fixture.world, crafter, repair.id, targetUniqueId = 2)
+    )
+  }
+
+  @Test
+  fun `the offered list hides a recipe whose output is beyond the crafter`() {
+    val beyond = recipe(id = 22, identifier = "BEYOND", requiredSkillId = CARPENTRY_ID)
+    val fixture = CraftingFixture(
+      listOf(beyond),
+      skillIds = mapOf("CARPENTRY" to CARPENTRY_ID),
+      itemLevels = mapOf(OUTPUT_ITEM to 11)
+    )
+    val crafter = fixture.givenCrafter(knownSkills = mapOf(CARPENTRY_ID to 1))
+
+    var sent: CraftableRecipesSMSG? = null
+    every { fixture.outMessageProcessor.sendToPlayer(any<Long>(), any<CraftableRecipesSMSG>()) } answers {
+      sent = secondArg()
+    }
+
+    fixture.service.offerRecipes(fixture.world, crafter, CARPENTRY_ID)
+
+    assertNotNull(sent)
+    assertTrue(sent!!.recipes.isEmpty(), "Carpentry rank 1 reaches tier 10, and this output is tier 11")
+  }
+
+  /** An item the catalogue does not know is out of reach, not trivially the easiest thing there is. */
+  @Test
+  fun `an output the catalogue has no level for is refused`() {
+    val unknown = recipe(id = 23, identifier = "UNKNOWN_OUTPUT")
+    val fixture = CraftingFixture(listOf(unknown))
+    every { fixture.itemTemplates.levelOf(any()) } returns null
+
+    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
+
+    assertEquals(
+      OpError.CRAFT_ITEM_TOO_ADVANCED,
+      fixture.service.start(fixture.world, crafter, unknown.id, targetUniqueId = 0)
+    )
+  }
+
   private fun crafting(recipeId: Long, targetUniqueId: Long = 0L) =
     Crafting(recipeId = recipeId, targetUniqueId = targetUniqueId, totalSeconds = 1f)
 
   private companion object {
     const val CUSTOMIZATION_ID = 11L
+    const val CARPENTRY_ID = 9L
+    const val REPAIR_ID = 15L
   }
 }
