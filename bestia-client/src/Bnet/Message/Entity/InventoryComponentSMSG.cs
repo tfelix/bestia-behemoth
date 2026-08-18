@@ -66,6 +66,13 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint Slots { get; set; }
 
     /// <summary>
+    /// Upgrades hammered into the backing instance by Item Customization, drawn as a +N suffix on the name.
+    /// It raises what the item counts as to a crafter, so a highly upgraded piece can be beyond the smith who
+    /// repairs the plain one - which is why the number is worth showing rather than folding into the stats.
+    /// </summary>
+    [Export] public uint UpgradeLevel { get; set; }
+
+    /// <summary>
     /// Creates an InventoryItem from protobuf data
     /// </summary>
     public static InventoryItem FromProto(global::Bnet.InventoryItem protoItem)
@@ -78,7 +85,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         Equipped = protoItem.Equipped,
         Durability = protoItem.Durability,
         MaxDurability = protoItem.MaxDurability,
-        Slots = protoItem.Slots
+        Slots = protoItem.Slots,
+        UpgradeLevel = protoItem.UpgradeLevel
       };
     }
   }

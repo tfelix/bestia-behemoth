@@ -28,6 +28,7 @@ class GetSelfHandler(
   private val outMessageProcessor: OutMessageProcessor,
   private val connectionInfoService: ConnectionInfoService,
   private val bestiaInfoFactory: BestiaInfoFactory,
+  private val masterRepository: MasterRepository,
   private val world: WorldView
 ) : InMessageProcessor.IncomingMessageHandler<GetSelfCMSG> {
   override val handles = GetSelfCMSG::class
@@ -90,7 +91,8 @@ class GetSelfHandler(
     return SelfSMSG(
       masterId = masterId,
       masterEntityId = selectedMasterEntityId,
-      availableBestias = bestiaInfos
+      availableBestias = bestiaInfos,
+      hasPerformedMasterRitual = masterRepository.findByIdOrThrow(masterId).hasPerformedMasterRitual
     )
   }
 

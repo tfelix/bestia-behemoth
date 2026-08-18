@@ -15,10 +15,6 @@ const EFFORT_POINT_BUDGET := 84
 
 ## Every attribute starts here, so the six mandatory first points come out of the budget too - the
 ## screen therefore opens with 78 of the 84 left rather than the full amount.
-##
-## There is no upper bound on purpose: the budget already is one (five attributes at the floor leave
-## exactly enough for a sixth at 22), and a cap of 9 would make it a cap of exactly the budget, leaving
-## 9/9/9/9/9/9 as the only distribution that spends it. See EffortValueCostCalculator on the server.
 const MIN_EFFORT_VALUE := 1
 
 # Mirrors the proto OpSuccess / OpError enum values (see operation_success.proto / operation_error.proto).
@@ -162,7 +158,8 @@ func _on_effort_value_changed(_row) -> void:
 ## covers its next (escalating) point, and only down while it is above the floor.
 func _refresh_effort_ui() -> void:
 	var remaining := _remaining_effort_points()
-	_points_label.text = "Effort Points: %s / %s left" % [remaining, EFFORT_POINT_BUDGET]
+	var starting_budget := EFFORT_POINT_BUDGET - 6
+	_points_label.text = "Effort Points: %s / %s left" % [remaining, starting_budget]
 
 	for row in _effort_rows:
 		var can_increase: bool = remaining >= StatusAttribute.step_cost(row.next_value())

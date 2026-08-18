@@ -77,7 +77,6 @@ class AetheriteScatter(
         )
       }.getOrNull()
     }
-    .filterNotNull()
     .toList()
 
   val isEmpty get() = outcrops.isEmpty()
@@ -97,7 +96,6 @@ class AetheriteScatter(
     val fromY = Math.floorDiv(Quantize.toFixed(bounds.minY), cellUnits)
     val untilY = Math.floorDiv(Quantize.toFixed(bounds.maxY), cellUnits) + 1
 
-    val chunkSize = config.chunkSize.toLong()
     val firstOfThisChunk = into.count
 
     for (outcrop in outcrops) {

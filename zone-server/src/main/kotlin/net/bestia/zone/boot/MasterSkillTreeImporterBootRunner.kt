@@ -35,12 +35,12 @@ class MasterSkillTreeImporterBootRunner(
       val prerequisites: List<PrerequisiteDto> = emptyList(),
 
       /**
-       * Which tree and sub-tree the node sits in. Parsed and then dropped: the grouping exists for the
-       * client's Skills window, which reads it from its own Attack DB (see `SkillDbSyncTask`), and
-       * nothing server-side has a use for it. Declared here because Jackson rejects unknown properties
-       * by default, so an unparsed key in the YAML would fail the boot rather than be ignored.
+       * Which tree and sub-tree the node sits in. Required (no default): every node in the file
+       * declares one today, and a node silently missing its tree would silently escape both the
+       * Master-Ritual tree gate and the 5-point sub-tree gate in [MasterSkillTreeService] rather
+       * than failing the boot. [subTree] stays optional - a tree's trunk skills have none.
        */
-      val tree: String? = null,
+      val tree: String,
       val subTree: String? = null
     )
 
@@ -81,6 +81,8 @@ class MasterSkillTreeImporterBootRunner(
     return MasterSkillTreeNode(
       skillId = skill.id,
       maxLevel = dto.maxLevel,
+      tree = dto.tree,
+      subTree = dto.subTree,
       prerequisites = prerequisites
     )
   }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://2utnspaewyar"]
+[gd_scene format=3 uid="uid://2utnspaewyar"]
 
 [ext_resource type="Script" uid="uid://d0wgy6dui6vqy" path="res://Menu/CreateNewMaster/create_new_master.gd" id="1_83cya"]
 [ext_resource type="PackedScene" path="res://Menu/CreateNewMaster/EffortValueRow/EffortValueRow.tscn" id="2_evrow"]
@@ -6,7 +6,7 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_83cya"]
 size = Vector2(250, 300)
 
-[node name="CreateNewMaster" type="Control"]
+[node name="CreateNewMaster" type="Control" unique_id=766961055]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_83cya")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1524643216]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,50 +23,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="P" type="PanelContainer" parent="CenterContainer"]
+[node name="P" type="PanelContainer" parent="CenterContainer" unique_id=163614746]
 layout_mode = 2
 
-[node name="M" type="MarginContainer" parent="CenterContainer/P"]
+[node name="M" type="MarginContainer" parent="CenterContainer/P" unique_id=611122242]
 layout_mode = 2
 theme_override_constants/margin_left = 14
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 14
 
-[node name="Main" type="VBoxContainer" parent="CenterContainer/P/M"]
+[node name="Main" type="VBoxContainer" parent="CenterContainer/P/M" unique_id=2124865086]
 layout_mode = 2
 theme_override_constants/separation = 40
 
-[node name="Title" type="Label" parent="CenterContainer/P/M/Main"]
+[node name="Title" type="Label" parent="CenterContainer/P/M/Main" unique_id=1879486540]
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "Create A New Character"
 
-[node name="Creation" type="HBoxContainer" parent="CenterContainer/P/M/Main"]
+[node name="Creation" type="HBoxContainer" parent="CenterContainer/P/M/Main" unique_id=2146038547]
 layout_mode = 2
 theme_override_constants/separation = 80
 
-[node name="Left" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+[node name="Left" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=2029040470]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=340082265]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="GenderLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry1"]
+[node name="GenderLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry1" unique_id=291076695]
 layout_mode = 2
 text = "Gender"
 
-[node name="Row" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry1"]
+[node name="Row" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry1" unique_id=858480941]
 layout_mode = 2
 
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=245881920]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = "<"
 
-[node name="GenderButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+[node name="GenderButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=1741139395]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -78,28 +78,28 @@ popup/item_1/id = 1
 popup/item_2/text = "Diverse"
 popup/item_2/id = 2
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row"]
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry1/Row" unique_id=1928968746]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=1015903529]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry2"]
+[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry2" unique_id=913697262]
 layout_mode = 2
 text = "Body"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry2"]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry2" unique_id=743232284]
 layout_mode = 2
 
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=424496201]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=1963993979]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -107,28 +107,28 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2"]
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry2/Row2" unique_id=1922800378]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry3" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+[node name="Entry3" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=398748436]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry3"]
+[node name="Body" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry3" unique_id=1648909028]
 layout_mode = 2
 text = "Face"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry3"]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry3" unique_id=1406986408]
 layout_mode = 2
 
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=2007769454]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+[node name="Body" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=448479495]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -136,28 +136,28 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2"]
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry3/Row2" unique_id=1533178037]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Entry4" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left"]
+[node name="Entry4" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left" unique_id=1136699241]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry4"]
+[node name="Title" type="Label" parent="CenterContainer/P/M/Main/Creation/Left/Entry4" unique_id=1543104546]
 layout_mode = 2
 text = "Hair"
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry4"]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Left/Entry4" unique_id=1254061637]
 layout_mode = 2
 
-[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+[node name="L" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=788519822]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = "<"
 
-[node name="Options" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+[node name="Options" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=1847950495]
 layout_mode = 2
 size_flags_horizontal = 3
 selected = 0
@@ -165,211 +165,210 @@ item_count = 1
 popup/item_0/text = "Type 1"
 popup/item_0/id = 0
 
-[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2"]
+[node name="R" type="Button" parent="CenterContainer/P/M/Main/Creation/Left/Entry4/Row2" unique_id=1699725810]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 text = ">"
 
-[node name="Middle" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+[node name="Middle" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=1472622708]
 layout_mode = 2
 theme_override_constants/separation = 40
 
-[node name="Preview" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle"]
+[node name="Preview" type="HBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=126258200]
 layout_mode = 2
 
-[node name="RotL" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+[node name="RotL" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=625566897]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 0
 text = "->"
 
-[node name="Image" type="TextureRect" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+[node name="Image" type="TextureRect" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=554157855]
 layout_mode = 2
 texture = SubResource("PlaceholderTexture2D_83cya")
 
-[node name="RotR" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview"]
+[node name="RotR" type="Button" parent="CenterContainer/P/M/Main/Creation/Middle/Preview" unique_id=1542793231]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 size_flags_vertical = 0
 text = "<-"
 
-[node name="Name" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle"]
+[node name="Name" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=684218007]
 layout_mode = 2
 
-[node name="NameLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/Name"]
+[node name="NameLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/Name" unique_id=1015359337]
 layout_mode = 2
 text = "Character Name"
 
-[node name="NameEdit" type="LineEdit" parent="CenterContainer/P/M/Main/Creation/Middle/Name"]
+[node name="NameEdit" type="LineEdit" parent="CenterContainer/P/M/Main/Creation/Middle/Name" unique_id=374935857]
 layout_mode = 2
 placeholder_text = "Enter Name"
 
-[node name="SpawnPoint" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle"]
+[node name="SpawnPoint" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Middle" unique_id=1322592938]
 layout_mode = 2
 
-[node name="SpawnPointLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint"]
+[node name="SpawnPointLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint" unique_id=1824059791]
 layout_mode = 2
 text = "Home Settlement"
 
-[node name="SpawnPointButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint"]
+[node name="SpawnPointButton" type="OptionButton" parent="CenterContainer/P/M/Main/Creation/Middle/SpawnPoint" unique_id=2048333050]
 layout_mode = 2
 disabled = true
 
-[node name="Right" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+[node name="Right" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=877922377]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right"]
+[node name="Entry1" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right" unique_id=1706292419]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HairCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry1"]
+[node name="HairCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry1" unique_id=1461824934]
 layout_mode = 2
 text = "Hair Color"
 
-[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry1"]
+[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry1" unique_id=1345002155]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 5
 
-[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1993804115]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=383400892]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(0.49398458, 0.99999994, 0.8300373, 1)
 
-[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=2079419083]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(1, 0, 0, 1)
 
-[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1585880332]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(0.3689821, 0.21426192, 0.0357328, 1)
 
-[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1847718639]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=477522567]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1344050906]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer"]
+[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry1/GridContainer" unique_id=1868768381]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right"]
+[node name="Entry2" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Right" unique_id=831219291]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SkinCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry2"]
+[node name="SkinCLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Right/Entry2" unique_id=1677680310]
 layout_mode = 2
 text = "Skin"
 
-[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry2"]
+[node name="GridContainer" type="GridContainer" parent="CenterContainer/P/M/Main/Creation/Right/Entry2" unique_id=1531215877]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 5
 
-[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1287461296]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect2" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=525395348]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(0.49398458, 0.99999994, 0.8300373, 1)
 
-[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect3" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=839641676]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(1, 0, 0, 1)
 
-[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect4" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=579698267]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 color = Color(0.3689821, 0.21426192, 0.0357328, 1)
 
-[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect5" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1844336850]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect6" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1161099314]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect7" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1041878567]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer"]
+[node name="ColorRect8" type="ColorRect" parent="CenterContainer/P/M/Main/Creation/Right/Entry2/GridContainer" unique_id=1875435773]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 
-[node name="Stats" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation"]
+[node name="Stats" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation" unique_id=1175545082]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="StatsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats"]
+[node name="StatsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=95803308]
 layout_mode = 2
 text = "Effort Values"
 
-[node name="Rows" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Stats"]
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=1849984589]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="StrengthRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="StrengthRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=192678209 instance=ExtResource("2_evrow")]
 layout_mode = 2
-attribute = 0
 
-[node name="AgilityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="AgilityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=834461666 instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 1
 
-[node name="VitalityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="VitalityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=1265146782 instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 2
 
-[node name="IntelligenceRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="IntelligenceRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=1412177253 instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 3
 
-[node name="DexterityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="DexterityRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=987409991 instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 4
 
-[node name="WillpowerRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" instance=ExtResource("2_evrow")]
+[node name="WillpowerRow" parent="CenterContainer/P/M/Main/Creation/Stats/Rows" unique_id=2077495446 instance=ExtResource("2_evrow")]
 layout_mode = 2
 attribute = 5
 
-[node name="PointsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats"]
+[node name="PointsLabel" type="Label" parent="CenterContainer/P/M/Main/Creation/Stats" unique_id=1412573702]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Effort Points: 78 / 84 left"
+text = "Effort Points: 78 / 78 left"
 
-[node name="Bottom" type="HBoxContainer" parent="CenterContainer/P/M/Main"]
+[node name="Bottom" type="HBoxContainer" parent="CenterContainer/P/M/Main" unique_id=1224116185]
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_constants/separation = 18
 
-[node name="CreateButton" type="Button" parent="CenterContainer/P/M/Main/Bottom"]
+[node name="CreateButton" type="Button" parent="CenterContainer/P/M/Main/Bottom" unique_id=257219940]
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Create"
 
-[node name="CancelButton" type="Button" parent="CenterContainer/P/M/Main/Bottom"]
+[node name="CancelButton" type="Button" parent="CenterContainer/P/M/Main/Bottom" unique_id=1001774840]
 custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Cancel"

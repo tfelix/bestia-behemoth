@@ -90,7 +90,7 @@ class MasterEntitySpawner(
         masterEntityId = id
       )
 
-      add(id, Account(master.account.id))
+      add(id, Account(accountId = master.account.id, hasPerformedMasterRitual = master.hasPerformedMasterRitual))
       add(id, MasterComponent(master.id, master.name))
       add(id, Position.fromVec3(master.currentPosition))
       add(id, Level(master.level))

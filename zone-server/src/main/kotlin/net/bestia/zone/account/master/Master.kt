@@ -68,6 +68,18 @@ class Master(
     }
 
   /**
+   * Whether this master has successfully completed the Master Ritual (crafted a Seal of Mastery -
+   * see [net.bestia.zone.battle.skill.scripts.MasterRitual]). A Novice may only invest skill
+   * points into the Novice tree; every other tree is gated behind this, checked in
+   * [net.bestia.zone.account.master.skill.MasterSkillTreeService]. Flipped by
+   * [net.bestia.zone.crafting.CraftingService] on a successful `SEAL_OF_MASTERY` craft, mirrored
+   * live on the entity by `net.bestia.zone.ecs.account.Account.hasPerformedMasterRitual`. Reported
+   * to the client in `SelfSMSG`, not pushed as its own live component.
+   */
+  @Column(name = "has_performed_master_ritual", nullable = false)
+  var hasPerformedMasterRitual: Boolean = false
+
+  /**
    * The six **effort values** (EV) - the only part of a master's status values the player controls.
    * Distributed on the creation screen out of
    * [net.bestia.zone.account.master.status.EffortValueCostCalculator.CREATION_EFFORT_POINTS] and

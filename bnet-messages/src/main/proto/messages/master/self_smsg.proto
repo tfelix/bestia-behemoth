@@ -16,4 +16,8 @@ message SelfSMSG {
   uint64 master_id = 1;
   uint64 master_entity_id = 2;
   repeated BestiaInfo available_bestias = 3;
+
+  // Whether this master has completed the Master Ritual and may invest skill points outside the
+  // Novice tree - see MasterSkillTreeService.
+  bool has_performed_master_ritual = 4;
 }

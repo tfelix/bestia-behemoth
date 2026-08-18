@@ -65,6 +65,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     /// </summary>
     [Export] public uint Slots { get; set; }
 
+    /// <summary>
+    /// Upgrades on the backing instance, the same number the inventory draws as a +N suffix. Carried here so
+    /// taking a piece off does not change what it says it is.
+    /// </summary>
+    [Export] public uint UpgradeLevel { get; set; }
+
     public static EquippedItem FromProto(global::Bnet.EquippedItem protoItem)
     {
       return new EquippedItem
@@ -74,7 +80,8 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
         UniqueId = protoItem.UniqueId,
         Durability = protoItem.Durability,
         MaxDurability = protoItem.MaxDurability,
-        Slots = protoItem.Slots
+        Slots = protoItem.Slots,
+        UpgradeLevel = protoItem.UpgradeLevel
       };
     }
   }

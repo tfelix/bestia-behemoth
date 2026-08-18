@@ -124,13 +124,6 @@ class VoxelChunk(
     return z + fillAt(localX, localY, z)
   }
 
-  /** As [solidHeightAt], but for the air interface - so a water surface counts. */
-  fun filledHeightAt(localX: Int, localY: Int): Double {
-    val z = highestNonAir(localX, localY)
-    if (z < 0) return -1.0
-    return z + fillAt(localX, localY, z)
-  }
-
   fun countOf(block: BlockType): Int {
     val id = block.id.toByte()
     var count = 0

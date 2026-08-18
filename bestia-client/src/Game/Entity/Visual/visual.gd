@@ -36,6 +36,7 @@ func show_chat(msg: ChatSMSG) -> void:
 	var chat_anchor = get_node("ChatAnchor")
 
 	if chat_anchor == null:
+		printerr("Visual %s received chat but has not ChatAnchor set." % [name])
 		return
 	
 	for x in chat_anchor.get_children():

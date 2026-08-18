@@ -7,11 +7,14 @@ import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.skill.LearnedSkill
 import net.bestia.zone.skill.LearnedSkillRepository
+import net.bestia.zone.skill.MasterRitualNotPerformedException
 import net.bestia.zone.skill.NoSkillPointsAvailableException
 import net.bestia.zone.skill.SkillMaxLevelReachedException
 import net.bestia.zone.skill.SkillPrerequisiteNotMetException
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.SkillSubTreeNotUnlockedException
 import net.bestia.zone.skill.findByIdOrThrow
+import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.WorldView
@@ -37,6 +40,10 @@ class MasterSkillTreeService(
   private val masterResolver: MasterResolver
 ) {
 
+  /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
+  private val basicSkillId: Long? by lazy { skillRepository.findByIdentifier(BASIC_SKILL_IDENTIFIER)?.id }
+  private val masterRitualId: Long? by lazy { skillRepository.findByIdentifier(MASTER_RITUAL_IDENTIFIER)?.id }
+
   /**
    * Applies every investment in [investments] in order, within a single transaction: an earlier
    * entry can satisfy the prerequisite of a later one in the same request. If any entry can't be
@@ -59,6 +66,7 @@ class MasterSkillTreeService(
       ?: throw MasterNotFoundException()
 
     var remainingSkillPoints = world.read { get(entityId, SkillPoints::class)?.value } ?: 0
+    val hasPerformedRitual = world.read { get(entityId, Account::class)?.hasPerformedMasterRitual } ?: false
     val updatedSkills = LinkedHashMap<Long, LearnedSkill>()
     var spentSkillPoints = 0
 
@@ -68,11 +76,15 @@ class MasterSkillTreeService(
           throw NoSkillPointsAvailableException(master.id)
         }
 
-        updatedSkills[investment.skillId] = investSingleLevel(master, investment.skillId)
+        updatedSkills[investment.skillId] = investSingleLevel(master, investment.skillId, hasPerformedRitual)
         remainingSkillPoints -= 1
         spentSkillPoints += 1
       }
     }
+
+    // Checked at the end of every batch, not just one that touches Basic Skill: this also heals a
+    // master who reached Basic Skill 5 before this existed, the next time they spend any point.
+    maybeGrantMasterRitual(master, updatedSkills)
 
     // Persist the point deduction in the SAME transaction as the LearnedSkill rows so the skill
     // level and the spent point can never diverge across a crash. Master.skillPoints is re-seeded
@@ -107,9 +119,25 @@ class MasterSkillTreeService(
    * world - [investSkillPoints] applies every world-visible effect of the whole batch (points
    * spent, skills learned) in one go via [syncToEcs] once all entries have been validated.
    */
-  private fun investSingleLevel(master: Master, skillId: Long): LearnedSkill {
+  private fun investSingleLevel(master: Master, skillId: Long, hasPerformedRitual: Boolean): LearnedSkill {
     val node = masterSkillTreeRegistry.findBySkillId(skillId)
       ?: throw SkillTreeNodeNotFoundException(skillId)
+
+    if (node.tree != NOVICE_TREE && !hasPerformedRitual) {
+      throw MasterRitualNotPerformedException(master.id, node.tree)
+    }
+
+    // Only gated when the tree actually has trunk skills to spend those points on first. Scholar
+    // and Warrior today are nothing but a sub-tree (Priest/Wizard) with no trunk yet - unlike
+    // Blacksmith/Artificer/Alchemist/Forester/Prospector/Miner, `master_skill_tree.yml` never
+    // comments them "(unlocked at 5+ pts in ... Tree)", and gating them the same way would make
+    // Priest/Wizard permanently unreachable rather than just unfinished.
+    if (node.subTree != null && hasTrunkSkills(node.tree)) {
+      val treePoints = pointsInvestedInTree(master.id, node.tree)
+      if (treePoints < SUB_TREE_UNLOCK_THRESHOLD) {
+        throw SkillSubTreeNotUnlockedException(node.subTree, node.tree, SUB_TREE_UNLOCK_THRESHOLD, treePoints)
+      }
+    }
 
     val existing = learnedSkillRepository.findByMasterIdAndSkillId(master.id, skillId)
     val currentLevel = existing?.level ?: 0
@@ -140,6 +168,41 @@ class MasterSkillTreeService(
     return learnedSkill
   }
 
+  /**
+   * Sums invested levels across every node sharing [tree] - trunk skills and every sub-tree under
+   * it both count, matching "spend at least 5 skill points into the Craftsman tree" rather than
+   * "into the Craftsman trunk specifically."
+   */
+  private fun pointsInvestedInTree(masterId: Long, tree: String): Int {
+    return learnedSkillRepository.findAllByMasterId(masterId).sumOf { learnedSkill ->
+      if (masterSkillTreeRegistry.findBySkillId(learnedSkill.skill.id)?.tree == tree) learnedSkill.level else 0
+    }
+  }
+
+  private fun hasTrunkSkills(tree: String): Boolean =
+    masterSkillTreeRegistry.all().any { it.tree == tree && it.subTree == null }
+
+  /**
+   * Master Ritual's own flavor text (`skills.yml`) says it is "automatically enabled once Lv. 5 in
+   * Basic Skill is reached" - it is not a node a master spends a point on, so this grants it for
+   * free (never touching [Master.skillPoints]) rather than requiring [investSingleLevel]. Adds the
+   * grant to [updatedSkills] so the same [syncToEcs] push that follows this batch carries it too.
+   */
+  private fun maybeGrantMasterRitual(master: Master, updatedSkills: MutableMap<Long, LearnedSkill>) {
+    val basicSkillId = basicSkillId ?: return
+    val masterRitualId = masterRitualId ?: return
+
+    if (learnedSkillRepository.findByMasterIdAndSkillId(master.id, masterRitualId) != null) return
+
+    val basicSkillLevel = learnedSkillRepository.findByMasterIdAndSkillId(master.id, basicSkillId)?.level ?: 0
+    if (basicSkillLevel < MASTER_RITUAL_UNLOCK_LEVEL) return
+
+    val masterRitualSkill = skillRepository.findByIdOrThrow(masterRitualId)
+    val learnedSkill = LearnedSkill(skill = masterRitualSkill, master = master)
+    learnedSkillRepository.save(learnedSkill)
+    updatedSkills[masterRitualId] = learnedSkill
+  }
+
   /** The single place [investSkillPoints] mutates the ECS world, once per batch. */
   private fun syncToEcs(entityId: EntityId, updatedSkills: Collection<LearnedSkill>, spentSkillPoints: Int) {
     if (updatedSkills.isEmpty()) return
@@ -157,5 +220,15 @@ class MasterSkillTreeService(
       // happens to dirty the entity - equipping an item, taking a buff, levelling up.
       add(id, IsStatusValueDirty)
     }
+  }
+
+  companion object {
+    private const val NOVICE_TREE = "NOVICE"
+    private const val BASIC_SKILL_IDENTIFIER = "BASIC_SKILL"
+    private const val MASTER_RITUAL_IDENTIFIER = "MASTER_RITUAL"
+    private const val MASTER_RITUAL_UNLOCK_LEVEL = 5
+
+    /** How many points must be spent anywhere in a tree before any of its sub-trees can be. */
+    private const val SUB_TREE_UNLOCK_THRESHOLD = 5
   }
 }

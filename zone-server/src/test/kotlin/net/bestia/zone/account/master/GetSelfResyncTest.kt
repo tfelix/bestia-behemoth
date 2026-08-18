@@ -2,6 +2,7 @@ package net.bestia.zone.account.master
 
 import io.mockk.every
 import io.mockk.mockk
+import net.bestia.zone.account.Account
 import net.bestia.zone.account.GetSelfCMSG
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
@@ -22,6 +23,8 @@ import net.bestia.zone.util.EntityId
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.awt.Color
+import java.util.Optional
 import kotlin.reflect.KClass
 
 /**
@@ -44,10 +47,24 @@ class GetSelfResyncTest {
   private val bestiaInfoFactory = mockk<BestiaInfoFactory>()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
 
+  private val masterRepository = mockk<MasterRepository>(relaxed = true).also { repo ->
+    val master = Master(
+      account = Account(accountId),
+      name = "resync-test",
+      hairColor = Color.BLUE,
+      skinColor = Color.BLUE,
+      hair = Hairstyle.HAIR_1,
+      face = Face.FACE_1,
+      body = BodyType.BODY_M_1
+    )
+    every { repo.findById(masterId) } returns Optional.of(master)
+  }
+
   private val handler = GetSelfHandler(
     outMessageProcessor = outMessageProcessor,
     connectionInfoService = connectionInfoService,
     bestiaInfoFactory = bestiaInfoFactory,
+    masterRepository = masterRepository,
     world = world
   )
 

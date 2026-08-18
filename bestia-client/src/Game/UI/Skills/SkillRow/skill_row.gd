@@ -45,6 +45,12 @@ var _is_master_row: bool = false
 # Skills._update_skill_row_buttons - a row has no standing connection to that count otherwise.
 var _can_spend_globally: bool = false
 
+# Whether this row's tree/sub-tree is currently investable - broadcast in from Skills
+# (Skills._is_tree_unlocked), which is the one place that knows about the Master Ritual flag and
+# the other rows' levels needed to judge a sub-tree's 5-point threshold. Defaults true so a row
+# outside the master tree (a bestia's own skills) is never accidentally gated.
+var _tree_unlocked: bool = true
+
 var _selected_skill_level: int = 1
 
 
@@ -135,7 +141,7 @@ func _refresh_display() -> void:
 		_detail_row.hide()
 		_not_available_label.show()
 
-	var can_invest_more = _is_master_row and effective_level < _max_skill_level
+	var can_invest_more = _is_master_row and _tree_unlocked and effective_level < _max_skill_level
 	_spend_skill_point_button.visible = _can_spend_globally and can_invest_more
 
 	_update_modulate()
@@ -145,6 +151,13 @@ func _refresh_display() -> void:
 ## changes, since a row has no standing connection to that state otherwise.
 func set_can_spend_points(can_spend: bool) -> void:
 	_can_spend_globally = can_spend
+	_refresh_display()
+
+
+## Called by Skills (the owning list) whenever this row's tree/sub-tree lock state may have
+## changed - a fresh skill list, or a SelfSMSG carrying an updated ritual flag.
+func set_tree_unlocked(unlocked: bool) -> void:
+	_tree_unlocked = unlocked
 	_refresh_display()
 
 

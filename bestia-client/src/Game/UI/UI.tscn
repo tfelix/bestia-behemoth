@@ -12,12 +12,12 @@
 [ext_resource type="PackedScene" uid="uid://df51h0nyi66q4" path="res://Game/UI/Options/Options.tscn" id="10_opts"]
 [ext_resource type="PackedScene" uid="uid://cq1eqwin0001" path="res://Game/UI/Equipment/Equipment.tscn" id="11_equip"]
 [ext_resource type="PackedScene" path="res://Game/UI/StatusPoints/StatusPoints.tscn" id="12_status"]
-[ext_resource type="PackedScene" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
+[ext_resource type="PackedScene" uid="uid://bgk82i8fwg1a2" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 [ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
-[ext_resource type="Script" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
+[ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -80,7 +80,7 @@ layout_mode = 1
 content = ExtResource("15_craft")
 window_title = "Crafting"
 
-[node name="Clock" parent="." instance=ExtResource("14_clock")]
+[node name="Clock" parent="." unique_id=1359698401 instance=ExtResource("14_clock")]
 layout_mode = 1
 
 [node name="BuffList" parent="." unique_id=1824369573 instance=ExtResource("9_74y3c")]
@@ -93,18 +93,20 @@ offset_bottom = 450.0
 [node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
 layout_mode = 1
 
-[node name="MapSource" type="Node" parent="."]
+[node name="MapSource" type="Node" parent="." unique_id=456323444]
 script = ExtResource("18_mapsrc")
 
-[node name="Minimap" parent="." instance=ExtResource("16_minimap")]
+[node name="Minimap" parent="." unique_id=1254805221 instance=ExtResource("16_minimap")]
+visible = false
 layout_mode = 1
 
-[node name="MapOverlay" parent="." instance=ExtResource("17_mapovl")]
+[node name="MapOverlay" parent="." unique_id=28217583 instance=ExtResource("17_mapovl")]
+visible = false
 layout_mode = 1
 
-[node name="MessageDialog" parent="." instance=ExtResource("13_dialog")]
+[node name="MessageDialog" parent="." unique_id=1957725178 instance=ExtResource("13_dialog")]
 
+[connection signal="equipment_win_toggled" from="MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
 [connection signal="inventory_win_toggled" from="MasterProfile" to="." method="_on_master_profile_inventory_win_toggled"]
 [connection signal="skills_win_toggled" from="MasterProfile" to="." method="_on_master_profile_skills_win_toggled"]
-[connection signal="equipment_win_toggled" from="MasterProfile" to="." method="_on_master_profile_equipment_win_toggled"]
 [connection signal="status_win_toggled" from="MasterProfile" to="." method="_on_master_profile_status_win_toggled"]

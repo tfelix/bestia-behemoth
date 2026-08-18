@@ -1,10 +1,13 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ore_refinement"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 13
+icon = SubResource("PlaceholderTexture2D_ore_refinement")
 name = "Ore Refinement"
 description_key = "SKILL_13_DESC"
 mana_cost = 18
