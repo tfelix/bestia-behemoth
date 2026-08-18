@@ -1,10 +1,13 @@
 package net.bestia.zone.ecs.battle.effects
 
+import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.RegenerationModifiers
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
@@ -27,12 +30,19 @@ import kotlin.collections.orEmpty
 import org.springframework.stereotype.Component as SpringComponent
 
 /**
- * Rebuilds [StatusValues] (and [Speed.speed]) from scratch for every entity marked
- * [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), folds in every worn
- * item's [net.bestia.zone.item.equip.script.EquipmentScript.apply], then runs every active
- * [StatusEffects] instance's [net.bestia.zone.battle.status.StatusEffectScript.apply] over the
- * result in turn, then writes the final values back and clears the dirty marker. Equipment is
- * applied before effects so a percentage buff scales the geared value, not the naked one.
+ * Rebuilds [StatusValues] (and [Speed.speed], and [RegenerationModifiers]) from scratch for every
+ * entity marked [IsStatusValueDirty]: starts from [BaseStatusValues] (and [Speed.baseSpeed]), folds
+ * in every learned [net.bestia.zone.battle.skill.passive.PassiveSkillScript], then every worn item's
+ * [net.bestia.zone.item.equip.script.EquipmentScript.apply], then runs every active [StatusEffects]
+ * instance's [net.bestia.zone.battle.status.StatusEffectScript.apply] over the result in turn, then
+ * writes the final values back and clears the dirty marker.
+ *
+ * Passives and equipment are applied before effects because effect scripts are the multiplicative
+ * ones (`context.speed *= …`), and a percentage buff should scale the innate, geared value rather
+ * than the naked one. Passives before equipment is convention rather than arithmetic - both are
+ * additive today - but it keeps "innate, then worn, then temporary" reading in the order a player
+ * would describe it. Note the regeneration modifiers are order-independent by construction: they
+ * accumulate as a flat and a percentage sum resolved once, at regen time.
  *
  * Runs after [StatusEffectDurationSystem] (46) so an effect that expired this tick is already
  * gone before values are rebuilt.
@@ -43,6 +53,7 @@ class StatusValueRecalcSystem(
   private val statusEffectDefinitionRegistry: StatusEffectDefinitionRegistry,
   private val statusEffectScriptRegistry: StatusEffectScriptRegistry,
   private val equipmentScriptRegistry: EquipmentScriptRegistry,
+  private val passiveSkillScriptRegistry: PassiveSkillScriptRegistry,
   private val conditionValueCalculator: ConditionValueCalculator
 ) : System {
 
@@ -52,7 +63,8 @@ class StatusValueRecalcSystem(
     Equipment::class,
     IsStatusValueDirty::class,
     Level::class,
-    FormulaDrivenVitals::class
+    FormulaDrivenVitals::class,
+    KnownSkills::class
   )
   override val writes: ComponentClassSet = setOf(
     StatusValues::class,
@@ -60,7 +72,8 @@ class StatusValueRecalcSystem(
     IsStatusValueDirty::class,
     Health::class,
     Mana::class,
-    Stamina::class
+    Stamina::class,
+    RegenerationModifiers::class
   )
 
   override fun update(world: World, deltaTime: Float) {
@@ -73,6 +86,7 @@ class StatusValueRecalcSystem(
 
       val context = StatusValueRecalcContext(base, baseSpeed)
 
+      applyPassiveSkills(context, world, id)
       applyEquipmentEffects(context, world, id)
       applyStatusEffects(context, world, id)
 
@@ -99,9 +113,37 @@ class StatusValueRecalcSystem(
 
       world.get(id, Speed::class)?.let { speed -> speed.speed = context.speed }
 
+      // Overwrite, never accumulate: the context was rebuilt from scratch above, so a buff that has
+      // since expired contributes nothing to it and must stop contributing here too. On the first
+      // pass the component may not exist yet - `update` mutates the instance it just created even
+      // when the structural add is deferred to the end of the tick, so no values are lost, only the
+      // tick on which the component becomes queryable. Invisible against a 6-10s regen cadence,
+      // which is why the spawners deliberately do not pre-seed it.
+      world.update(id, default = { RegenerationModifiers() }) { it.copyFrom(context) }
+
       recomputeConditionMaxima(world, id, context)
 
       world.remove(id, IsStatusValueDirty::class)
+    }
+  }
+
+  /**
+   * Folds in every passive skill this entity has actually invested in. Iterates the (few) scripted
+   * passives and asks [KnownSkills] for each level rather than the other way round - see
+   * [PassiveSkillScriptRegistry.bound].
+   */
+  private fun applyPassiveSkills(
+    context: StatusValueRecalcContext,
+    world: World,
+    id: EntityId
+  ) {
+    val knownSkills = world.get(id, KnownSkills::class) ?: return
+
+    for ((skillId, script) in passiveSkillScriptRegistry.bound()) {
+      val level = knownSkills.levelOf(skillId)
+      if (level > 0) {
+        script.apply(context, level)
+      }
     }
   }
 

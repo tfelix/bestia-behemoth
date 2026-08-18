@@ -9,6 +9,7 @@ import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.item.CarryCapacity
 import net.bestia.zone.ecs.item.WeightLimitCalculator
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.battle.status.ConditionValueCalculator
@@ -143,6 +144,14 @@ class MasterEntitySpawner(
       add(id, Mana(current = maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
       add(id, FormulaDrivenVitals)
+
+      // The pools above are seeded from the *base* attributes, because nothing worn, buffed or
+      // learned has been folded in yet. This asks for a recalc on the first tick so passives and
+      // equipment actually take effect. Consequence to know about: where those raise a maximum,
+      // `CurMax.max` lifts the ceiling without lifting `current`, so a geared master enters the
+      // world a few points short of full and regenerates the difference within a tick or two - the
+      // same trade GainExpSystem already makes on level-up.
+      add(id, IsStatusValueDirty)
 
       add(
         id,

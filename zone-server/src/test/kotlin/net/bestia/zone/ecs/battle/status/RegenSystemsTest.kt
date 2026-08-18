@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.battle.status
 
+import net.bestia.zone.battle.status.RegenModifier
 import net.bestia.zone.battle.status.RegenerationCalculator
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
@@ -130,6 +131,46 @@ class RegenSystemsTest {
     world.tick(allDue)
 
     assertEquals(18, world.get(entity, Health::class)!!.current)
+  }
+
+  @Test
+  fun `a regeneration modifier raises the amount healed per tick`() {
+    val world = newWorld()
+    val entity = world.woundedEntity()
+    world.add(entity, RegenerationModifiers(hp = RegenModifier(flat = 5)))
+
+    world.tick(allDue)
+
+    assertEquals(8, world.get(entity, Health::class)!!.current, "1 + (hpRegen(18, 9) + 5)")
+    // Untouched pools keep the base rate even though the component is present.
+    assertEquals(3, world.get(entity, Mana::class)!!.current)
+    assertEquals(4, world.get(entity, Stamina::class)!!.current)
+  }
+
+  @Test
+  fun `each pool reads only its own modifier`() {
+    // Guards against a copy-paste `hp` surviving into ManaRegenSystem or StaminaRegenSystem.
+    val world = newWorld()
+    val entity = world.woundedEntity()
+    world.add(entity, RegenerationModifiers(mana = RegenModifier(flat = 10)))
+
+    world.tick(allDue)
+
+    assertEquals(3, world.get(entity, Health::class)!!.current, "HP must ignore the mana modifier")
+    assertEquals(13, world.get(entity, Mana::class)!!.current, "1 + (manaRegen(28, 9) + 10)")
+    assertEquals(4, world.get(entity, Stamina::class)!!.current, "stamina must ignore it too")
+  }
+
+  @Test
+  fun `a full suppression modifier stops regeneration without damaging the pool`() {
+    val world = newWorld()
+    val entity = world.woundedEntity()
+    world.add(entity, RegenerationModifiers(hp = RegenModifier(percent = -200)))
+
+    world.tick(allDue)
+
+    // Not 0, and certainly not negative: suppression withholds healing, it does not deal damage.
+    assertEquals(1, world.get(entity, Health::class)!!.current)
   }
 
   @Test

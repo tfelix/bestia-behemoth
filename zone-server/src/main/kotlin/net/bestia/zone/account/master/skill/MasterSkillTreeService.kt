@@ -13,6 +13,7 @@ import net.bestia.zone.skill.SkillPrerequisiteNotMetException
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.findByIdOrThrow
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.util.EntityId
@@ -150,6 +151,11 @@ class MasterSkillTreeService(
       if (spentSkillPoints > 0) {
         get(id, SkillPoints::class)?.let { it.value -= spentSkillPoints }
       }
+
+      // A newly learned (or levelled) PASSIVE contributes to the status recalc, so the effective
+      // values it feeds are now stale. Without this a passive stays inert until something else
+      // happens to dirty the entity - equipping an item, taking a buff, levelling up.
+      add(id, IsStatusValueDirty)
     }
   }
 }

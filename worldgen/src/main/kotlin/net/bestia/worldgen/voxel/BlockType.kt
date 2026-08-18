@@ -17,12 +17,6 @@ package net.bestia.worldgen.voxel
 enum class Passability {
   /**
    * Something can move through it.
-   *
-   * **Air, and only air, since the leaf blocks left the palette** - every other non-solid material declares
-   * something else. It stays the default for a non-solid material on purpose: a new one that forgets to
-   * declare its passability gets the permissive answer and is caught by
-   * `VoxelTest.every non-solid material declares what it does to an agent`, rather than silently becoming a
-   * wall.
    */
   OPEN,
 

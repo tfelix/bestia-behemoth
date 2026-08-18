@@ -82,6 +82,65 @@ class RegenerationCalculatorTest {
   }
 
   @Test
+  fun `a null modifier leaves the base rate untouched`() {
+    // The common case by a wide margin: nothing worn, buffed or learned affects this pool, so the
+    // entity carries no RegenerationModifiers component at all.
+    assertEquals(12, calculator.applyModifier(12, null))
+  }
+
+  @Test
+  fun `a flat modifier is added before the percentage is applied`() {
+    // (12 + 5) * 1.20, not 12 * 1.20 + 5. Same ordering rationale as applying equipment before
+    // status effects: a percentage bonus scales the geared value, not the naked one.
+    assertEquals(20, calculator.applyModifier(12, RegenModifier(flat = 5, percent = 20)))
+  }
+
+  @Test
+  fun `percentages accumulate additively`() {
+    val stacked = RegenModifier()
+      .plus(percent = 6)
+      .plus(percent = 10)
+      .plus(percent = 4)
+
+    assertEquals(RegenModifier(percent = 20), stacked)
+    assertEquals(calculator.applyModifier(50, RegenModifier(percent = 20)), calculator.applyModifier(50, stacked))
+  }
+
+  @Test
+  fun `a suppression debuff can stop regeneration but never invert it`() {
+    // -100% zeroes the rate, which is the point of such a debuff. Beyond that the product itself
+    // goes negative, and Kotlin's integer division truncates toward zero rather than flooring - so
+    // without the clamp a strong enough debuff would start *healing*. A regen system only ever adds
+    // what this returns.
+    assertEquals(0, calculator.applyModifier(20, RegenModifier(percent = -100)))
+    assertEquals(0, calculator.applyModifier(20, RegenModifier(percent = -200)))
+    assertEquals(0, calculator.applyModifier(2, RegenModifier(flat = -10)))
+  }
+
+  @Test
+  fun `a small percentage of a small base is swallowed by integer truncation`() {
+    // A deliberate, documented property rather than a bug: the docs floor this result, and the
+    // placeholder base values keep low-level pools tiny. A level-1 master regenerates 2 HP a tick,
+    // so INNER_PEACE (+3%/level, maxLevel 10) is worth nothing at all until +50% - which the skill
+    // cannot reach. A percentage passive is inherently a late-game passive while this holds.
+    val levelOneBase = calculator.hpRegen(pools.computeMaxHp(level = 1, vitality = 9), vitality = 9)
+    assertEquals(2, levelOneBase)
+
+    assertEquals(2, calculator.applyModifier(levelOneBase, RegenModifier(percent = 3)))
+    assertEquals(2, calculator.applyModifier(levelOneBase, RegenModifier(percent = 30)))
+    assertEquals(3, calculator.applyModifier(levelOneBase, RegenModifier(percent = 50)))
+  }
+
+  @Test
+  fun `a percentage modifier is felt at a late-game regeneration rate`() {
+    // The same +30% that vanishes at level 1 is worth a real +6 on a level-100 pool.
+    val lateGameBase = calculator.hpRegen(pools.computeMaxHp(level = 100, vitality = 100), vitality = 100)
+    assertEquals(21, lateGameBase)
+
+    assertEquals(27, calculator.applyModifier(lateGameBase, RegenModifier(percent = 30)))
+  }
+
+  @Test
   fun `the high intelligence bonus is a step, not a ramp`() {
     // Deliberately discontinuous per the docs: crossing 120 INT is worth more than the point before
     // it. Guards against someone "smoothing" the threshold away.

@@ -4,6 +4,7 @@ import net.bestia.zone.battle.skill.InsufficientLevelException
 import net.bestia.zone.bestia.PlayerBestiaRepository
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.util.PlayerBestiaId
@@ -55,8 +56,11 @@ class BestiaSkillLearnService(
 
     if (entityId != null) {
       world.modify(entityId) { entityId ->
-        // AvailableSkills is internal (not client-synced), so no dirty flag is involved.
+        // KnownSkills itself is internal (not client-synced), so it carries no dirty flag of its
+        // own - but a learned PASSIVE feeds the status recalc, so the effective values derived from
+        // it have to be rebuilt.
         get(entityId, KnownSkills::class)?.learnOrUpdate(skillId)
+        add(entityId, IsStatusValueDirty)
       }
     }
 

@@ -21,7 +21,11 @@ class HpRegenSystem(
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(6f)
-  override val reads: ComponentClassSet = setOf(StatusValues::class, InCombat::class)
+  override val reads: ComponentClassSet = setOf(
+    StatusValues::class,
+    InCombat::class,
+    RegenerationModifiers::class
+  )
   override val writes: ComponentClassSet = setOf(Health::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -36,7 +40,13 @@ class HpRegenSystem(
       // out as a zero amount only by accident of rounding and would now be a floor of 1 per tick.
       val vitality = world.get(id, StatusValues::class)?.vitality ?: return@each
 
-      health.current += regenerationCalculator.hpRegen(health.max, vitality)
+      // Fetched rather than queried on: an entity with nothing modifying its regeneration has no
+      // RegenerationModifiers at all, and joining it into the query above would restrict
+      // regeneration to buffed entities only.
+      val modifier = world.get(id, RegenerationModifiers::class)?.hp
+      val base = regenerationCalculator.hpRegen(health.max, vitality)
+
+      health.current += regenerationCalculator.applyModifier(base, modifier)
     }
   }
 }

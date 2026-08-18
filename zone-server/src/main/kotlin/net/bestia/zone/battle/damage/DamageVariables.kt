@@ -37,11 +37,7 @@ data class DamageVariables(
 
   // Misc
   var neededManaMod: Float = 1f,
-  var healMod: Float = 1f,
-
-  var hpRegenMod: Float = 1f,
-  var manaRegenMod: Float = 1f,
-  var staminaRegenMod: Float = 1f
+  var healMod: Float = 1f
 ) {
 
 

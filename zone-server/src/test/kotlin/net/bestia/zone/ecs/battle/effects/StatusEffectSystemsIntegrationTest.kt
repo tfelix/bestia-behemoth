@@ -1,6 +1,11 @@
 package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
+import net.bestia.zone.battle.skill.SkillTargetType
+import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.passive.PassiveSkillScript
+import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
+import net.bestia.zone.battle.status.RegenModifier
 import net.bestia.zone.battle.status.StackBehavior
 import net.bestia.zone.battle.status.StatusEffectDefinition
 import net.bestia.zone.battle.status.StatusEffectDefinitionRegistry
@@ -8,11 +13,14 @@ import net.bestia.zone.battle.status.StatusEffectScript
 import net.bestia.zone.battle.status.StatusEffectScriptRegistry
 import net.bestia.zone.battle.status.ConditionValueCalculator
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
+import net.bestia.zone.ecs.battle.status.RegenerationModifiers
 import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.skill.Skill
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment
@@ -94,25 +102,88 @@ class StatusEffectSystemsIntegrationTest {
     script = "VitalityBuffScript"
   )
 
+  private val regenEffect = StatusEffectDefinition(
+    id = 3L,
+    identifier = "TEST_REGEN_BUFF",
+    isSyncedToClient = true,
+    script = "RegenBuffScript"
+  )
+
+  /** A stand-in [StatusEffectScript] granting a flat-and-percentage HP regeneration bonus. */
+  private class RegenBuffScript(
+    override val stackBehavior: StackBehavior = StackBehavior.REFRESH_DURATION,
+    private val duration: Double = 1.0
+  ) : StatusEffectScript {
+    override fun durationSeconds(level: Int): Double = duration
+    override fun apply(
+      world: World,
+      entityId: EntityId,
+      context: StatusValueRecalcContext,
+      level: Int,
+      sourceEntityId: EntityId?
+    ) {
+      context.addHpRegen(percent = 30)
+    }
+  }
+
+  /** A stand-in [EquipmentScript] granting a flat HP regeneration bonus. */
+  private class RegenRingScript : EquipmentScript {
+    override fun apply(context: StatusValueRecalcContext, slot: EquipmentSlot, upgradeLevel: Int) {
+      context.addHpRegen(flat = 2)
+    }
+  }
+
+  /** A stand-in [PassiveSkillScript] in the shape of the real `InnerPeace`. */
+  private class TestPassiveScript : PassiveSkillScript {
+    override val skillIdentifier = "TEST_PASSIVE"
+    override fun apply(context: StatusValueRecalcContext, level: Int) {
+      context.addHpRegen(percent = 20 * level)
+    }
+  }
+
   private val conditionValueCalculator = ConditionValueCalculator()
+
+  private val passiveSkill = Skill(
+    id = PASSIVE_SKILL_ID,
+    identifier = "TEST_PASSIVE",
+    strength = null,
+    type = SkillType.PASSIVE,
+    script = null,
+    manaCost = 0,
+    range = null,
+    targetType = SkillTargetType.FRIENDLY,
+    needsLineOfSight = false,
+    requiredLevel = 0
+  )
 
   private fun newWorld(
     script: StatusEffectScript,
-    equipmentScriptRegistry: EquipmentScriptRegistry = EquipmentScriptRegistry(emptyList())
+    equipmentScriptRegistry: EquipmentScriptRegistry = EquipmentScriptRegistry(emptyList()),
+    passiveSkillScriptRegistry: PassiveSkillScriptRegistry = PassiveSkillScriptRegistry(emptyList())
   ): Pair<World, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
-    definitionRegistry.load(listOf(speedEffect, vitalityEffect))
+    definitionRegistry.load(listOf(speedEffect, vitalityEffect, regenEffect))
 
     val scriptRegistry = StatusEffectScriptRegistry(listOf(script))
 
     val world = testWorld(
       systems = listOf(
         StatusEffectDurationSystem(),
-        StatusValueRecalcSystem(definitionRegistry, scriptRegistry, equipmentScriptRegistry, conditionValueCalculator)
+        StatusValueRecalcSystem(
+          definitionRegistry,
+          scriptRegistry,
+          equipmentScriptRegistry,
+          passiveSkillScriptRegistry,
+          conditionValueCalculator
+        )
       )
     )
     return world to definitionRegistry
   }
+
+  /** A registry with [TestPassiveScript] already bound to [passiveSkill]. */
+  private fun boundPassiveRegistry(): PassiveSkillScriptRegistry =
+    PassiveSkillScriptRegistry(listOf(TestPassiveScript())).apply { bind(listOf(passiveSkill)) }
 
   private fun World.seedStatusValues(entity: EntityId) {
     add(entity, BaseStatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
@@ -163,6 +234,76 @@ class StatusEffectSystemsIntegrationTest {
     world.tick(1.0f) // fully expires the 1s duration
     world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
     assertEquals(baseMaxHp, world.get(entity, Health::class)!!.max)
+  }
+
+  @Test
+  fun `a passive, worn gear and a status effect all fold into one RegenerationModifiers`() {
+    val ringItem = Item(
+      id = 6L, identifier = "regen_ring", weight = 1, type = Item.ItemType.EQUIP,
+      script = "RegenRingScript", equipSlot = EquipmentSlot.FOOTGEAR
+    )
+    val equipmentScriptRegistry = EquipmentScriptRegistry(listOf(RegenRingScript()))
+    equipmentScriptRegistry.bind(listOf(ringItem))
+
+    val (world, registry) = newWorld(RegenBuffScript(), equipmentScriptRegistry, boundPassiveRegistry())
+    val entity = world.create()
+    world.seedStatusValues(entity)
+    world.add(entity, KnownSkills(mutableMapOf(PASSIVE_SKILL_ID to 2)))
+    val equipment = Equipment(EquipmentSlots.ALL)
+    world.add(entity, equipment)
+    equipment.equip(EquipmentSlot.FOOTGEAR, Equipment.EquippedItem(itemId = ringItem.id, uniqueId = 1L))
+
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(RegenBuffScript())))
+      .applyEffect(world, entity, definitionId = regenEffect.id, level = 1)
+
+    world.tick(0.1f)
+
+    // Passive (+20%/lv at level 2) and effect (+30%) sum additively; the ring's flat +2 is separate.
+    assertEquals(
+      RegenModifier(flat = 2, percent = 70),
+      world.get(entity, RegenerationModifiers::class)!!.hp
+    )
+    // Pools nothing touched stay neutral rather than inheriting the HP bonus.
+    assertEquals(RegenModifier(), world.get(entity, RegenerationModifiers::class)!!.mana)
+  }
+
+  @Test
+  fun `RegenerationModifiers is rebuilt from scratch, so an expired buff stops contributing`() {
+    // The CarryCapacity regression guard: this fails loudly if the write-back ever becomes `+=`
+    // instead of an overwrite, or if the recalc starts from the previous result instead of base.
+    val (world, registry) = newWorld(RegenBuffScript(duration = 1.0), passiveSkillScriptRegistry = boundPassiveRegistry())
+    val entity = world.create()
+    world.seedStatusValues(entity)
+    world.add(entity, KnownSkills(mutableMapOf(PASSIVE_SKILL_ID to 1)))
+
+    StatusEffectService(registry, StatusEffectScriptRegistry(listOf(RegenBuffScript(duration = 1.0))))
+      .applyEffect(world, entity, definitionId = regenEffect.id, level = 1)
+
+    world.tick(0.1f)
+    assertEquals(RegenModifier(percent = 50), world.get(entity, RegenerationModifiers::class)!!.hp)
+
+    // Recalculating without anything changing must not double the contributions.
+    world.add(entity, IsStatusValueDirty)
+    world.tick(0.1f)
+    assertEquals(RegenModifier(percent = 50), world.get(entity, RegenerationModifiers::class)!!.hp)
+
+    world.tick(1.0f) // fully expires the 1s duration
+    world.tick(0.1f) // recalc picks up the dirty marker deferred by the expiry tick
+
+    // Back to the passive alone - the expired effect's 30% is gone rather than baked in.
+    assertEquals(RegenModifier(percent = 20), world.get(entity, RegenerationModifiers::class)!!.hp)
+  }
+
+  @Test
+  fun `a mob without KnownSkills gets no passive contribution`() {
+    val (world, _) = newWorld(SpeedBuffScript(), passiveSkillScriptRegistry = boundPassiveRegistry())
+    val mob = world.create()
+    world.seedStatusValues(mob)
+
+    world.add(mob, IsStatusValueDirty)
+    world.tick(0.1f)
+
+    assertEquals(RegenModifier(), world.get(mob, RegenerationModifiers::class)!!.hp)
   }
 
   @Test
@@ -254,5 +395,9 @@ class StatusEffectSystemsIntegrationTest {
 
     assertEquals(1, world.get(entity, StatusEffects::class)!!.activeEffects.size)
     assertEquals(1.0f, world.get(entity, StatusEffects::class)!!.activeEffects.single().remainingSeconds, 0.001f)
+  }
+
+  private companion object {
+    const val PASSIVE_SKILL_ID = 99L
   }
 }

@@ -21,7 +21,11 @@ class ManaRegenSystem(
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(8f)
-  override val reads: ComponentClassSet = setOf(StatusValues::class, InCombat::class)
+  override val reads: ComponentClassSet = setOf(
+    StatusValues::class,
+    InCombat::class,
+    RegenerationModifiers::class
+  )
   override val writes: ComponentClassSet = setOf(Mana::class)
 
   override fun update(world: World, deltaTime: Float) {
@@ -31,10 +35,14 @@ class ManaRegenSystem(
       val mana = get<Mana>()
       if (mana.current >= mana.max) return@each
 
-      // Same reasoning as HpRegenSystem: no attributes, no passive regeneration.
+      // Same reasoning as HpRegenSystem, for both of these: no attributes means no passive
+      // regeneration, and a missing RegenerationModifiers means an unmodified rate.
       val intelligence = world.get(id, StatusValues::class)?.intelligence ?: return@each
 
-      mana.current += regenerationCalculator.manaRegen(mana.max, intelligence)
+      val modifier = world.get(id, RegenerationModifiers::class)?.mana
+      val base = regenerationCalculator.manaRegen(mana.max, intelligence)
+
+      mana.current += regenerationCalculator.applyModifier(base, modifier)
     }
   }
 }

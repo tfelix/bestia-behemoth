@@ -7,6 +7,7 @@ import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.FormulaDrivenVitals
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
@@ -114,6 +115,10 @@ class PlayerBestiaEntitySpawner(
       add(id, Mana(current = maxMana, max = maxMana))
       add(id, Stamina(current = maxStamina, max = maxStamina))
       add(id, FormulaDrivenVitals)
+
+      // Recalc on the first tick so passives and worn equipment are folded in - see the same call
+      // in MasterEntitySpawner for the (minor, self-healing) effect this has on starting pools.
+      add(id, IsStatusValueDirty)
 
       add(
         id,
