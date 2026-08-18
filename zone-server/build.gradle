@@ -52,6 +52,21 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+/**
+ * Pinned rather than detected.
+ *
+ * The Spring Boot plugin finds the application class by scanning the compiled output for a `main` method,
+ * and fails outright when it finds more than one candidate. The cartography tools further down this file
+ * are five plain `main`s in the same source set, so without this line `bootRun` and `bootJar` stop with
+ * "Unable to find a single main class" and list all six.
+ *
+ * Any future `main` added to zone-server is therefore free rather than fatal, which is the point of
+ * stating it here: the alternative is the next tool breaking the server's boot.
+ */
+springBoot {
+	mainClass = 'net.bestia.zone.ZoneServerApplicationKt'
+}
+
 allOpen {
 	annotation 'jakarta.persistence.Entity'
 	annotation 'jakarta.persistence.MappedSuperclass'
