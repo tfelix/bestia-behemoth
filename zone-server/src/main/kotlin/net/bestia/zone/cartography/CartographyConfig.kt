@@ -1,5 +1,6 @@
 package net.bestia.zone.cartography
 
+import net.bestia.zone.cartography.tile.MapWorldKey
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -16,9 +17,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @property starterChartRadiusMetres radius of the chart a new master is created holding. Charts are the only
  *   source of map knowledge, so without this a fresh master's map and minimap are blank - see
  *   `MasterFactory`. Sized to show the home settlement and the ground around it rather than to be a head start.
+ * @property cacheDir root of the on-disk tile cache. One directory per [MapWorldKey] beneath it, so deleting the
+ *   lot costs render time and nothing else - tiles are a pure function of the world and the styles.
  */
 @ConfigurationProperties("cartography")
 data class CartographyConfig(
   val surveyRadiusPerLevelMetres: Double = 1_000.0,
   val starterChartRadiusMetres: Double = 1_500.0,
+  val cacheDir: String = "./build/map-cache",
 )

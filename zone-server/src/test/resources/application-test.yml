@@ -1,4 +1,10 @@
 spring:
+  # Pinned back to `none`: eleven test classes use a bare `@SpringBootTest`, which defaults to a MOCK web
+  # environment and binds no port, so there is no collision to avoid - but building a servlet context the suite
+  # never calls into is pure boot time. The one test that does want HTTP overrides this property itself.
+  main:
+    web-application-type: none
+
   datasource:
     url: jdbc:h2:mem:behemoth-test
     driver-class-name: org.h2.Driver

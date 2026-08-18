@@ -18,7 +18,16 @@ dependencies {
 	implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security' // needed?
+	// Serves the map tile pyramid, and nothing else. The game itself talks over the Netty socket; tiles are
+	// bulk binary asset traffic with their own caching and conditional-request semantics, which is what HTTP is
+	// for and what a message envelope is not.
+	//
+	// `spring-boot-starter-security` used to sit here marked `// needed?`, imported by exactly zero Kotlin
+	// files. It was inert only because there was no web layer: adding this line activates its auto-config,
+	// which installs a default `SecurityFilterChain` demanding HTTP Basic with a password printed at boot and
+	// would have 401'd every tile request. Removed rather than configured around - the map's own auth is a
+	// plain `OncePerRequestFilter` over the login JWT, and `jjwt` below is independent of it.
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	implementation 'org.reflections:reflections:0.10.2'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0'

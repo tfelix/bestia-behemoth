@@ -255,4 +255,19 @@ spring:
     open-in-view: false
 
   main:
-    web-application-type: none
+    # `servlet` since the map tile service arrived. The game socket is Netty on `socket.port` and is unaffected -
+    # these are two ports on one process, not one protocol carrying both.
+    web-application-type: servlet
+
+# The map tile endpoint. Nothing else is served over HTTP.
+#
+# A different port from `socket.port` above so the two can be firewalled and load-balanced apart: tiles are
+# cacheable public-ish assets that a CDN could reasonably sit in front of, and the game socket is neither.
+server:
+  address: 127.0.0.1
+  port: 8091
+
+cartography:
+  # Where baked tiles live. Regenerable: the directory is keyed by world shape, pipeline and style version, so
+  # deleting it costs render time and nothing else.
+  cache-dir: ./build/map-cache

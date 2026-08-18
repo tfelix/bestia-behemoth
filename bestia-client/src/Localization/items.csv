@@ -63,3 +63,12 @@ IRON_CUIRASS,Iron Cuirass
 IRON_CUIRASS_DESC,"A breastplate beaten out of four ingots and fitted by eye.
 
 It will stop what it stops."
+CHART,Chart
+CHART_DESC,"A chart of surveyed land, drawn by hand.
+
+Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
+copied onto blank vellum."
+CHART_BLANK,Blank Chart
+CHART_BLANK_DESC,"Blank vellum, ruled and ready to be drawn on.
+
+Surveying spends one, and so does copying a chart."
