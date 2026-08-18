@@ -4,11 +4,10 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 8
-name = "First Aid"
-description_key = "SKILL_8_DESC"
-mana_cost = 0
-cooldown = 180.0
-max_level = 3
-target_type = "FRIENDLY"
-cast_time = 10.0
+skill_id = 44
+name = "Upgrade Equipment"
+description_key = "SKILL_44_DESC"
+mana_cost = 18
+cooldown = 0.0
+max_level = 1
+target_type = "GROUND"

@@ -9,5 +9,5 @@ name = "Basic Skill"
 description_key = "SKILL_6_DESC"
 mana_cost = 0
 cooldown = 0.0
-max_level = 10
+max_level = 5
 target_type = "FRIENDLY"

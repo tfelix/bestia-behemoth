@@ -32,12 +32,14 @@ skills:
     type: NO_DAMAGE
     script: Cooking
     targetType: GROUND
+    range: 2
     description: |
       The Master and his Bestia can start to cook meals on fire places. These meals apply
       certain buff effects when they are eaten.
 
-      `-10%/lv` cooking time
-      `+10%/lv` success chance
+      Level 1 enables you to cook at a camp fire
+      `-20%/lv` cooking time
+      `+20%/lv` success chance
 
   - id: 4
     identifier: HEAL
@@ -70,11 +72,9 @@ skills:
 
       Lv.1 Allows to trade with other players.
       Lv.2 Allows to chat with other players via public and whisper chat.
-      Lv.3 Allows to express emotes.
+      Lv.3 Allows to use trade posts.
       Lv.4 Allows sitting to double HP & Mana recovery.
-      Lv.5 Allows to join and create parties.
-      Lv.6 Allows to use trade posts.
-      Lv.7 Allows the user to perform the "Master Ritual".
+      Lv.5 Allows to join and create parties. Enables the user to perform the "Master Ritual".
 
   - id: 7
     identifier: PLAY_DEAD
@@ -82,6 +82,7 @@ skills:
     script: PlayDead
     targetType: FRIENDLY
     needsLineOfSight: false
+    manaCost: 8
     description: |
       Feigns death to avoid menace of nearby enemies. This skill can be switched on and off.
 
@@ -93,11 +94,16 @@ skills:
     script: FirstAid
     targetType: FRIENDLY
     needsLineOfSight: true
+    range: 2
+    castTime: 10.0
     description: |
       Apply bandages to a Bestia and channel a healing effect over 10s. The cooldown of this
-      skill is 5 minutes. A Bestia can only receive a single First Aid every 60 secs.
+      skill is 3 minutes. A Bestia can only receive a single First Aid every 60 secs.
 
-      `+20%/lv` HP healed or `+100 HP/lv` healed
+      Whichever is greater, a share of the maximum health of the target or a flat amount:
+      Lv.1 `+30%` max HP or `+100 HP`
+      Lv.2 `+60%` max HP or `+200 HP`
+      Lv.3 `+100%` max HP or `+350 HP`
 
   - id: 9
     identifier: MASTER_RITUAL
@@ -105,7 +111,7 @@ skills:
     script: MasterRitual
     targetType: GROUND
     description: |
-      Automatically enabled once Lv. 7 in Basic Skill is reached. Can only be used as long as
+      Automatically enabled once Lv. 5 in Basic Skill is reached. Can only be used as long as
       you are a Novice. Converts 25 Void Essence, 5 Mana Dust and 3 Clay into a Seal of Mastery.
 
 # --- Craftsman Tree ---
@@ -114,13 +120,18 @@ skills:
     type: NO_DAMAGE
     script: Carpentry
     targetType: GROUND
+    range: 2
+    manaCost: 20
     description: |
       Allows you to construct useful items of daily use and structures which can be placed in
       the world.
 
+      Level 1 enables you to place a Workbench
       `+5%/lv` success chance
       `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank
 
+  # Called "Master Craftsman" in the design docs, and shown under that name in the client. The
+  # identifier stays TINKERER: renaming it makes the importer delete a row LearnedSkill points at.
   - id: 11
     identifier: TINKERER
     type: PASSIVE
@@ -130,50 +141,75 @@ skills:
       world is very quick for you and the Bestia under your command.
 
       `-10%/lv` construction time of structures
+      `+2%/lv` construction success chance
 
   - id: 12
     identifier: ITEM_CUSTOMIZATION
     type: NO_DAMAGE
     script: ItemCustomization
     targetType: GROUND
+    range: 2
+    manaCost: 23
     description: |
       You are able to rework items to put slots in them in which runes can be slotted.
       Requires an Engraving Set which will be consumed in the process.
 
+      `+10%/lv` success chance
+      `-2%/lv` chance to destroy the item when the engraving fails, from 30% down to 12%
+      1 rune slot, rising to 2 at Lv.4 and 3 at Lv.7
+
 # Blacksmith
   - id: 13
     identifier: ORE_REFINEMENT
-    type: PASSIVE
-    targetType: FRIENDLY
+    type: NO_DAMAGE
+    script: OreRefinement
+    targetType: GROUND
+    range: 2
+    manaCost: 18
+    castTime: 10.0
     description: |
-      Enables the smith to refine the finest ores. A must have to produce the raw materials
-      for weapon or armor forging.
+      Enables the smith to refine the finest ores into ingots. A must have to produce the raw
+      materials for weapon or armor forging. Burns Coal as fuel.
 
-      `+30 ore lv/lv` that can be refined, up to ore level 90+ at max rank
+      Level 1 enables you to place a Furnace
+      `+30%/lv` refinement success chance
 
   - id: 14
     identifier: FORGE_WEAPON
     type: NO_DAMAGE
     script: ForgeWeapon
     targetType: GROUND
+    range: 2
+    manaCost: 23
+    castTime: 10.0
     description: |
       Able to forge weaponry from raw ingredients. Higher skill level unlocks forging
       higher-level weapons.
+
+      Level 1 enables you to place a Forge
 
   - id: 15
     identifier: FORGE_ARMOR
     type: NO_DAMAGE
     script: ForgeArmor
     targetType: GROUND
+    range: 2
+    manaCost: 23
+    castTime: 10.0
     description: |
-      The counterpart to Blacksmith: forges plate, mail and shields from smelted ingots.
+      The counterpart to Forge Weapon: forges plate, mail and shields from smelted ingots.
       Higher skill level unlocks forging higher-level armor.
+
+      Level 1 enables you to place a Forge
 
   - id: 16
     identifier: WEAPON_REPAIR
     type: NO_DAMAGE
     script: WeaponRepair
     targetType: GROUND
+    range: 2
+    manaCost: 33
+    castTime: 3.0
     description: |
       You can repair damaged or broken equipment to refurbish and make it usable again.
       Higher levels unlock repairing equipment of a higher item level.
@@ -189,6 +225,7 @@ skills:
       either one further after forging. If an upgrade fails the equipment can be destroyed.
 
       `+4%/lv` success chance when upgrading a weapon or armor
+      `+1%/lv` success chance when forging
 
   - id: 18
     identifier: MASTER_SMITH
@@ -492,6 +529,20 @@ skills:
       the first swing of the pick.
 
       Can sense ore and gem deposits through solid rock within 5m / Lv.
+
+  # Craftsman tree - see the tree grouping in master_skill_tree.yml.
+  - id: 44
+    identifier: UPGRADE_EQUIPMENT
+    type: NO_DAMAGE
+    script: UpgradeEquipment
+    targetType: GROUND
+    range: 2
+    manaCost: 18
+    description: |
+      Adapt and improvise weapons and armor to better suit your needs and protect you. Each
+      attempt can fail, and a failed attempt can destroy the equipment outright.
+
+      Weaponry Research raises the odds; Master Smith raises them further.
 
 # BESTIA SKILLS (reserved 1000+, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000

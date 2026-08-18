@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = 11
-name = "Tinkerer"
+name = "Master Craftsman"
 description_key = "SKILL_11_DESC"
 mana_cost = 0
 cooldown = 0.0

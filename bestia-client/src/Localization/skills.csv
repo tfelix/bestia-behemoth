@@ -11,8 +11,9 @@ SKILL_2_DESC,A passive ward that shields the master from harm.
 SKILL_3_DESC,"The Master and his Bestia can start to cook meals on fire places. These meals apply
 certain buff effects when they are eaten.
 
-`-10%/lv` cooking time
-`+10%/lv` success chance"
+Level 1 enables you to cook at a camp fire
+`-20%/lv` cooking time
+`+20%/lv` success chance"
 SKILL_4_DESC,Restores a small amount of health to the target.
 SKILL_1000_DESC,A weak fire spark that scorches the target.
 SKILL_1001_DESC,A basic physical charge attack.
@@ -23,39 +24,51 @@ SKILL_6_DESC,"Enables the use of the basic user interface.
 
 Lv.1 Allows to trade with other players.
 Lv.2 Allows to chat with other players via public and whisper chat.
-Lv.3 Allows to express emotes.
+Lv.3 Allows to use trade posts.
 Lv.4 Allows sitting to double HP & Mana recovery.
-Lv.5 Allows to join and create parties.
-Lv.6 Allows to use trade posts.
-Lv.7 Allows the user to perform the ""Master Ritual""."
+Lv.5 Allows to join and create parties. Enables the user to perform the ""Master Ritual""."
 SKILL_7_DESC,"Feigns death to avoid menace of nearby enemies. This skill can be switched on and off.
 
 After performing the ritual to become a Bestia Master this skill can not be used anymore."
 SKILL_8_DESC,"Apply bandages to a Bestia and channel a healing effect over 10s. The cooldown of this
-skill is 5 minutes. A Bestia can only receive a single First Aid every 60 secs.
+skill is 3 minutes. A Bestia can only receive a single First Aid every 60 secs.
 
-`+20%/lv` HP healed or `+100 HP/lv` healed"
-SKILL_9_DESC,"Automatically enabled once Lv. 7 in Basic Skill is reached. Can only be used as long as
+Whichever is greater, a share of the maximum health of the target or a flat amount:
+Lv.1 `+30%` max HP or `+100 HP`
+Lv.2 `+60%` max HP or `+200 HP`
+Lv.3 `+100%` max HP or `+350 HP`"
+SKILL_9_DESC,"Automatically enabled once Lv. 5 in Basic Skill is reached. Can only be used as long as
 you are a Novice. Converts 25 Void Essence, 5 Mana Dust and 3 Clay into a Seal of Mastery."
 SKILL_10_DESC,"Allows you to construct useful items of daily use and structures which can be placed in
 the world.
 
+Level 1 enables you to place a Workbench
 `+5%/lv` success chance
 `+10 item lv/lv` of items that can be produced, up to item level 100+ at max rank"
 SKILL_11_DESC,"You are very skilled in working with tools and raw material. Building structures in the
 world is very quick for you and the Bestia under your command.
 
-`-10%/lv` construction time of structures"
+`-10%/lv` construction time of structures
+`+2%/lv` construction success chance"
 SKILL_12_DESC,"You are able to rework items to put slots in them in which runes can be slotted.
-Requires an Engraving Set which will be consumed in the process."
-SKILL_13_DESC,"Enables the smith to refine the finest ores. A must have to produce the raw materials
-for weapon or armor forging.
+Requires an Engraving Set which will be consumed in the process.
 
-`+30 ore lv/lv` that can be refined, up to ore level 90+ at max rank"
+`+10%/lv` success chance
+`-2%/lv` chance to destroy the item when the engraving fails, from 30% down to 12%
+1 rune slot, rising to 2 at Lv.4 and 3 at Lv.7"
+SKILL_13_DESC,"Enables the smith to refine the finest ores into ingots. A must have to produce the raw
+materials for weapon or armor forging. Burns Coal as fuel.
+
+Level 1 enables you to place a Furnace
+`+30%/lv` refinement success chance"
 SKILL_14_DESC,"Able to forge weaponry from raw ingredients. Higher skill level unlocks forging
-higher-level weapons."
-SKILL_15_DESC,"The counterpart to Blacksmith: forges plate, mail and shields from smelted ingots.
-Higher skill level unlocks forging higher-level armor."
+higher-level weapons.
+
+Level 1 enables you to place a Forge"
+SKILL_15_DESC,"The counterpart to Forge Weapon: forges plate, mail and shields from smelted ingots.
+Higher skill level unlocks forging higher-level armor.
+
+Level 1 enables you to place a Forge"
 SKILL_16_DESC,"You can repair damaged or broken equipment to refurbish and make it usable again.
 Higher levels unlock repairing equipment of a higher item level.
 
@@ -63,7 +76,8 @@ Higher levels unlock repairing equipment of a higher item level.
 SKILL_17_DESC,"Deeper knowledge of weapons and armor that raises the odds of successfully refining
 either one further after forging. If an upgrade fails the equipment can be destroyed.
 
-`+4%/lv` success chance when upgrading a weapon or armor"
+`+4%/lv` success chance when upgrading a weapon or armor
+`+1%/lv` success chance when forging"
 SKILL_18_DESC,"The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
 rarest ore.
 
@@ -193,3 +207,7 @@ SKILL_43_DESC,"The Miner's capstone: a feel for what's underfoot precise enough 
 the first swing of the pick.
 
 Can sense ore and gem deposits through solid rock within 5m / Lv."
+SKILL_44_DESC,"Adapt and improvise weapons and armor to better suit your needs and protect you. Each
+attempt can fail, and a failed attempt can destroy the equipment outright.
+
+Weaponry Research raises the odds; Master Smith raises them further."

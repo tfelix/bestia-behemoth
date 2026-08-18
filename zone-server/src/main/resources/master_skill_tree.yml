@@ -1,7 +1,7 @@
 skills:
   # --- Novice Tree ---
   - skill: BASIC_SKILL
-    maxLevel: 10
+    maxLevel: 5
 
   - skill: PLAY_DEAD
     maxLevel: 1
@@ -19,13 +19,13 @@ skills:
     maxLevel: 3
     prerequisites:
       - skill: BASIC_SKILL
-        level: 4
+        level: 3
 
   - skill: MASTER_RITUAL
     maxLevel: 1
     prerequisites:
       - skill: BASIC_SKILL
-        level: 7
+        level: 5
 
   # --- Craftsman Tree ---
   - skill: CARPENTRY
@@ -42,6 +42,9 @@ skills:
     prerequisites:
       - skill: CARPENTRY
         level: 3
+
+  - skill: UPGRADE_EQUIPMENT
+    maxLevel: 1
 
   # Blacksmith (unlocked at 5+ pts in Craftsman Tree)
   - skill: ORE_REFINEMENT
@@ -74,6 +77,8 @@ skills:
     prerequisites:
       - skill: WEAPON_REPAIR
         level: 3
+      - skill: UPGRADE_EQUIPMENT
+        level: 1
 
   - skill: MASTER_SMITH
     maxLevel: 5

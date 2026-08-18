@@ -11,6 +11,6 @@ icon = SubResource("PlaceholderTexture2D_cooking")
 name = "Cooking"
 description_key = "SKILL_3_DESC"
 mana_cost = 0
-cooldown = 5.0
+cooldown = 0.0
 max_level = 3
 target_type = "GROUND"
