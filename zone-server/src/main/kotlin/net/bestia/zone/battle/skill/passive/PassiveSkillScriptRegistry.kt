@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill.passive
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
 
@@ -50,7 +50,7 @@ class PassiveSkillScriptRegistry(
           "${script::class.simpleName} names unknown skill '${script.skillIdentifier}'"
         )
 
-      if (skill.type != SkillType.PASSIVE) {
+      if (skill.type != AttackType.PASSIVE) {
         throw PassiveSkillScriptBindingException(
           "${script::class.simpleName} names skill '${script.skillIdentifier}', which is " +
             "${skill.type} rather than PASSIVE - only passives are folded into the status recalc"

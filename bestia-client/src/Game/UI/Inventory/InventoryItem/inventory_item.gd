@@ -40,7 +40,7 @@ var inventory = null
 
 func _ready() -> void:
 	_count.text = str(amount)
-	_icon.texture = item.icon
+	_icon.texture = item.get_icon()
 	_update_wear()
 	tooltip_text = _build_tooltip()
 

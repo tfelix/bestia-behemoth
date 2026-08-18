@@ -86,9 +86,45 @@ File naming convention: `<id>_<identifier lowercased>.tres` (e.g. `1000_ember.tr
 matching `skills.yml`'s `id`/`identifier` — not required by any loader code (only
 `skill_id` inside the file matters), but keep it for greppability.
 
-Field provenance — **only `skill_id`, `max_level`, and `description_key` are meant to
-mirror the server**; everything else (`icon`, `name`, `mana_cost`, `cooldown`) is
-client-only presentation, hand-authored by whoever adds the skill.
+Field provenance — the fields `SkillDbSyncTask` mirrors from the server are `skill_id`,
+`max_level`, `description_key`, `target_type`, `aoe_radius`, `cast_time`, `tree`, `sub_tree`
+and `is_passive`. `is_passive` is the only thing the client keeps of `skills.yml`'s `type`:
+a `PASSIVE` skill is never cast, so the Skills window refuses to let it be dragged onto the
+hotbar (`skill_row.gd`) and `ShortcutContainer` refuses the drop; the remaining SkillTypes are
+server-side damage math the client has no use for. Everything else (`icon`, `name`, `mana_cost`, `cooldown`) is client-only
+presentation, hand-authored by whoever adds the skill; the task never touches it.
+
+A `.tres` is normally edited straight in Godot's inspector, which rewrites the whole file on
+save and **drops every property still equal to its script default** — one save can remove
+`max_level = 1`, `target_type = "GROUND"`, `mana_cost = 0` and `cooldown = 0.0` outright.
+That is not drift: the sync task reads a missing line as the resource default, and `stubTres`
+omits those same lines for the same reason. Don't put them back by hand.
+
+### Icons
+
+`icon` is a plain `Texture2D` export, so authoring one is drag-and-drop in the inspector, the
+same as `ItemResource.icon`. The PNG lives in the DB folder beside its `.tres` and is named
+after it (`40_mining.tres` ← `40_mining.png`); attribution goes in `bestia-client/ASSETS.md`.
+
+Never read `icon` directly — `AttackResource.get_icon()` falls back to a shared placeholder so
+a skill with no art yet draws a box instead of an empty hole (`ItemResource.get_icon()` does the
+same for items). `checkSkillDb` reports how many skills still lack one: a to-do list, never a
+build failure, since the field is deliberately hand-authored.
+
+Source art can be any size; the importer scales it, so nothing needs pre-scaling externally.
+Select the PNGs together in the FileSystem dock and set four options in the Import dock once:
+
+| Option | Value |
+| --- | --- |
+| `process/size_limit` | `128` — 2x the 64x64 box the row draws. Downscale-only, longest dimension, aspect preserved. |
+| `mipmaps/generate` | off |
+| `compress/mode` | `Lossless` |
+| `detect_3d/compress_to` | `Disabled` — left enabled, Godot silently switches the texture to VRAM-compressed + mipmaps if it ever shows up in a 3D scene. |
+
+An atlas is deliberately not used. `ResourceImporterTextureAtlas` supports only `atlas_file`,
+`import_mode`, `crop_to_region` and `trim_alpha_border_from_region` — no resize and no
+compression — so it would force hand-scaling every source, and `AttackDB` loads every `.tres`
+(and therefore every icon) on the first Skills-window open regardless, so it would save nothing.
 
 ## 4. `bestia-client/src/Localization/skills.csv` — the English description, and its translations
 
@@ -132,8 +168,10 @@ until someone backfills a `skills.yml` description for it.
    bestia-species/item-taught skills.
 3. Add `bestia-client/src/Game/Attack/DB/<id>_<identifier>.tres`: `skill_id` = the new
    id, `max_level` = the `master_skill_tree.yml` value (or `1` if step 2 was skipped),
-   `description_key` = `SKILL_<id>_DESC`, plus hand-authored `name`/`icon`/`mana_cost`/
-   `cooldown`.
+   `description_key` = `SKILL_<id>_DESC`, plus hand-authored `name`/`mana_cost`/`cooldown`.
+   `syncSkillDb` will create the file as a stub for you if you'd rather start from that.
+   For `icon`, drop `<id>_<identifier>.png` in the same folder and assign it in the inspector
+   (see Icons above) — leaving it unset is fine, the skill just shows the placeholder.
 4. Restart zone-server once to confirm boot doesn't throw (duplicate id, unresolved
    `master_skill_tree.yml` identifier, or a `NO_DAMAGE` skill missing its `script`).
 5. Cross check the skill consistence (see below).

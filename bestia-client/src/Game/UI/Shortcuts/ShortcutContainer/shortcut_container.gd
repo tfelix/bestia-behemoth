@@ -57,12 +57,24 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		set_shortcut(data)
 
 
-# Accepts items as well as skills.
+# Accepts items as well as skills, except for passive ones - those are always on and have no
+# activation to bind a key to. Checked here and not only at the drag source (SkillRow) because a
+# shortcut assigned before a skill became passive can still be dragged from slot to slot.
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	if typeof(data) != TYPE_DICTIONARY:
 		return false
 
-	return data["type"] == "item" or data["type"] == "skill"
+	if data["type"] == "skill":
+		return not _is_passive_skill(data["id"])
+
+	return data["type"] == "item"
+
+
+# A skill missing from the Attack DB is not treated as passive: it already reports itself loudly in
+# _update_display(), and refusing the drop on top of that would just hide the actual problem.
+func _is_passive_skill(skill_id: int) -> bool:
+	var attack: AttackResource = AttackDB.get_instance().get_attack(skill_id)
+	return attack != null and attack.is_passive
 
 
 # Allows an assigned shortcut to be picked up and dragged elsewhere.
@@ -186,7 +198,7 @@ func _update_display() -> void:
 		ShortcutData.ShortcutType.ITEM:
 			var item = ItemDB.get_instance().get_item(_shortcut_data.reference_id)
 			if item:
-				_icon.texture = item.icon
+				_icon.texture = item.get_icon()
 				# Request initial count update, which also refreshes the disabled state
 				item_count_requested.emit(shortcut_row, shortcut_number, _shortcut_data.reference_id)
 				_count.visible = true
@@ -195,7 +207,7 @@ func _update_display() -> void:
 		ShortcutData.ShortcutType.SKILL:
 			var attack = AttackDB.get_instance().get_attack(_shortcut_data.reference_id)
 			if attack:
-				_icon.texture = attack.icon
+				_icon.texture = attack.get_icon()
 			else:
 				printerr("Attack ID %s not found in AttackDB, can not display it" % [_shortcut_data.reference_id])
 			_count.visible = false

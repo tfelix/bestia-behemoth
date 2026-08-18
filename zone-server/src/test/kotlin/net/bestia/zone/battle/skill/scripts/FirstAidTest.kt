@@ -17,7 +17,7 @@ class FirstAidTest {
   @Test
   fun `heals a share of the target's own pool once that beats the flat floor`() {
     // 30% of 2000 is 600, well past the Lv.1 floor of 100.
-    val healed = sut.doAttack(ctx(skillLevel = 1, targetMaxHealth = 2000))
+    val healed = sut.execute(ctx(skillLevel = 1, targetMaxHealth = 2000))
 
     assertTrue(healed is Heal)
     assertEquals(600, healed.amount)
@@ -26,12 +26,12 @@ class FirstAidTest {
   @Test
   fun `falls back to the flat amount for a target with a small pool`() {
     // 30% of 100 is 30, so the Lv.1 floor of 100 is what a young bestia actually gets.
-    assertEquals(100, sut.doAttack(ctx(skillLevel = 1, targetMaxHealth = 100)).amount)
+    assertEquals(100, sut.execute(ctx(skillLevel = 1, targetMaxHealth = 100)).amount)
   }
 
   @Test
   fun `each rank heals more than the last`() {
-    val amounts = (1..3).map { sut.doAttack(ctx(skillLevel = it, targetMaxHealth = 2000)).amount }
+    val amounts = (1..3).map { sut.execute(ctx(skillLevel = it, targetMaxHealth = 2000)).amount }
 
     assertEquals(listOf(600, 1200, 2000), amounts)
   }
@@ -39,8 +39,8 @@ class FirstAidTest {
   @Test
   fun `a rank beyond the table is treated as the top rank rather than crashing`() {
     assertEquals(
-      sut.doAttack(ctx(skillLevel = 3, targetMaxHealth = 2000)).amount,
-      sut.doAttack(ctx(skillLevel = 9, targetMaxHealth = 2000)).amount
+      sut.execute(ctx(skillLevel = 3, targetMaxHealth = 2000)).amount,
+      sut.execute(ctx(skillLevel = 9, targetMaxHealth = 2000)).amount
     )
   }
 
@@ -66,7 +66,7 @@ class FirstAidTest {
   fun `there is nothing to bandage on open ground`() {
     val groundCtx = BattleContextFixture.groundCtx()
 
-    assertEquals(Miss, sut.doAttack(groundCtx))
+    assertEquals(Miss, sut.execute(groundCtx))
     assertFalse(sut.isAttackPossible(groundCtx))
   }
 

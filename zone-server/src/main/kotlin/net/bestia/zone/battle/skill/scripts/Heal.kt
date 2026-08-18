@@ -16,7 +16,7 @@ class Heal(
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService) {
 
-  override fun doAttack(ctx: BattleContext): Damage {
+  override fun execute(ctx: BattleContext): Damage {
     return when (ctx) {
       is EntityBattleContext -> heal(ctx)
       is GroundBattleContext -> return Miss

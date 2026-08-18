@@ -8,7 +8,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.world.prop.PropPromotionService
-import net.bestia.zone.world.prop.WorldObjectDivergenceRegistry
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 

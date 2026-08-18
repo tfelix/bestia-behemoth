@@ -44,7 +44,7 @@ class FirstAid(
     return super.isAttackPossible(ctx)
   }
 
-  override fun doAttack(ctx: BattleContext): Damage {
+  override fun execute(ctx: BattleContext): Damage {
     return when (ctx) {
       is EntityBattleContext -> Heal(healed(ctx))
       is GroundBattleContext -> Miss

@@ -45,6 +45,13 @@ generated at load; dropping a correctly named PNG into that folder replaces one.
 * [thermometer-half-solid](https://fontawesome.com/icons/thermometer-half?style=solid), Font Awesome, Unmodified, [CC BY 4.0](https://fontawesome.com/license)
 * [Heart Icon](https://game-icons.net/1x1/skoll/hearts.html), Skoll [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
 
+Skill icons live in `src/Game/Attack/DB/` next to the `AttackResource` they belong to and are named after
+it, so the file name says which skill each credit covers:
+
+* [Fireball](https://game-icons.net/1x1/lorc/fireball.html) as `5_firebolt.png`, Lorc, [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+* [Logging](https://game-icons.net/1x1/skoll/logging.html) as `31_lumberjack.png`, Skoll, [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+* [Mining](https://game-icons.net/1x1/lorc/mining.html) as `40_mining.png`, Lorc, [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+
 ## Music / Audio
 
 * [RPG Town Loop #2 by Sirkoto51](https://freesound.org/people/Sirkoto51/sounds/349179/)

@@ -2,7 +2,7 @@ package net.bestia.zone.skill
 
 import jakarta.persistence.*
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity
@@ -23,7 +23,7 @@ class Skill(
   var strength: Int?,
 
   @Column(nullable = false)
-  var type: SkillType,
+  var type: AttackType,
 
   @Column(nullable = true)
   var script: String?,
@@ -117,7 +117,7 @@ class Skill(
     }
 
     // No damage skills are required to have a script and strength set to null.
-    if (type == SkillType.NO_DAMAGE) {
+    if (type == AttackType.NO_DAMAGE) {
       requireNotNull(script) {
         "Skill $identifier is NO_DAMAGE and must have a script attached"
       }

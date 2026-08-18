@@ -3,7 +3,7 @@ package net.bestia.zone.battle.skill.passive
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
- * The always-on effect of a [net.bestia.zone.battle.skill.SkillType.PASSIVE] skill: a contribution
+ * The always-on effect of a [net.bestia.zone.battle.skill.AttackType.PASSIVE] skill: a contribution
  * folded into an entity's effective status values every time
  * `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem` rebuilds them, scaled by how many
  * levels the entity has invested.

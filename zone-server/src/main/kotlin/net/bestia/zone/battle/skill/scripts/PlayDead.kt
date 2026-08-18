@@ -19,5 +19,5 @@ class PlayDead : SkillStrategy {
 
   override fun isAttackPossible(ctx: BattleContext): Boolean = true
 
-  override fun doAttack(ctx: BattleContext): Damage = Buff(StatusEffectId.PLAY_DEAD.id)
+  override fun execute(ctx: BattleContext): Damage = Buff(StatusEffectId.PLAY_DEAD.id)
 }

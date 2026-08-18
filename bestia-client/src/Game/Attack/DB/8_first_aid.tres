@@ -1,18 +1,14 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://bx38kgpfxgso5"]
 
-[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_first_aid"]
+[ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 8
-icon = SubResource("PlaceholderTexture2D_first_aid")
 name = "First Aid"
 description_key = "SKILL_8_DESC"
-mana_cost = 0
 cooldown = 180.0
+cast_time = 10.0
 max_level = 3
 target_type = "FRIENDLY"
-cast_time = 10.0
 tree = "NOVICE"

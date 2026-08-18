@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.battle.skill.passive.PassiveSkillScript
 import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.RegenModifier
@@ -147,7 +147,7 @@ class StatusEffectSystemsIntegrationTest {
     id = PASSIVE_SKILL_ID,
     identifier = "TEST_PASSIVE",
     strength = null,
-    type = SkillType.PASSIVE,
+    type = AttackType.PASSIVE,
     script = null,
     manaCost = 0,
     range = null,

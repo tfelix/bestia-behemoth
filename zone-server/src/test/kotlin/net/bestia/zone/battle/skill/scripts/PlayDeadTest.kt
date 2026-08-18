@@ -13,7 +13,7 @@ class PlayDeadTest {
 
   @Test
   fun `feigning death applies the effect that hides the caster from perception`() {
-    val result = sut.doAttack(BattleContextFixture.entityCtx())
+    val result = sut.execute(BattleContextFixture.entityCtx())
 
     assertEquals(Buff(StatusEffectId.PLAY_DEAD.id), result)
   }

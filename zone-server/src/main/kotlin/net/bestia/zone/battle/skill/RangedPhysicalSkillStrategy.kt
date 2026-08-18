@@ -24,7 +24,7 @@ class RangedPhysicalSkillStrategy(
    * Checks if the attack performs a critical hit onto the target. The outcome
    * of the critical hit check is then saved into damage variables.
    */
-  override fun doAttack(ctx: BattleContext): Damage {
+  override fun execute(ctx: BattleContext): Damage {
     return when (ctx) {
       is EntityBattleContext -> doRangedAttack(ctx)
       is GroundBattleContext -> return Miss

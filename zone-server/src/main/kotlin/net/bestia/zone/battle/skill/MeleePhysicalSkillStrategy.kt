@@ -16,7 +16,7 @@ open class MeleePhysicalSkillStrategy(
    * Checks if the attack performs a critical hit onto the target. The outcome
    * of the critical hit check is then saved into damage variables.
    */
-  override fun doAttack(ctx: BattleContext): Damage {
+  override fun execute(ctx: BattleContext): Damage {
     val damageValue = damageCalculator.calculateDamage(ctx)
     LOG.trace { "doAttack: damage $damageValue" }
 

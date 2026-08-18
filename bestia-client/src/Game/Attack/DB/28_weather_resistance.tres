@@ -1,13 +1,10 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_weather_resistance"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 28
-icon = SubResource("PlaceholderTexture2D_weather_resistance")
 name = "Weather Resistance"
 description_key = "SKILL_28_DESC"
 mana_cost = 0
@@ -15,3 +12,4 @@ cooldown = 0.0
 max_level = 5
 target_type = "FRIENDLY"
 tree = "SURVIVAL"
+is_passive = true

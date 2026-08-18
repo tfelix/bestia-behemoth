@@ -24,6 +24,10 @@ import java.io.File
  * server equivalent and is left alone. `equip_slot` is only checked/patched for `EQUIP` items;
  * anything else is fine relying on the resource default of 0 ("not equipment").
  *
+ * A `.tres` saved from the Godot inspector - which is how `icon` gets authored - is rewritten whole,
+ * and every property still equal to its script default is dropped. A missing line therefore reads as
+ * the resource default rather than as drift, or assigning an icon in the editor would fail the build.
+ *
  * `name_key`/`description_key` are derived from `items.yml`'s `item-db-name` identifier
  * (uppercased), not the numeric id - e.g. `jelly` -> `name_key = "JELLY"`,
  * `description_key = "JELLY_DESC"`. This keeps the localization keys stable across id
@@ -141,13 +145,15 @@ abstract class ItemDbSyncTask : DefaultTask() {
         continue
       }
 
-      patchNumericField(file, "weight", weightPattern, expected.weight, id, shouldFix, problems)
-      patchNumericField(file, "type", typePattern, expected.type, id, shouldFix, problems)
-      patchNumericField(file, "level", levelPattern, expected.level, id, shouldFix, problems)
+      patchNumericField(file, "weight", weightPattern, expected.weight, DEFAULT_WEIGHT, id, shouldFix, problems)
+      patchNumericField(file, "type", typePattern, expected.type, DEFAULT_TYPE, id, shouldFix, problems)
+      patchNumericField(file, "level", levelPattern, expected.level, DEFAULT_LEVEL, id, shouldFix, problems)
 
       // Only equipment needs the line at all; a usable/etc item is fine relying on the default 0.
-      if (expected.equipSlot != 0) {
-        patchNumericField(file, "equip_slot", equipSlotPattern, expected.equipSlot, id, shouldFix, problems)
+      if (expected.equipSlot != DEFAULT_EQUIP_SLOT) {
+        patchNumericField(
+          file, "equip_slot", equipSlotPattern, expected.equipSlot, DEFAULT_EQUIP_SLOT, id, shouldFix, problems
+        )
       }
 
       // name_key/description_key are derived from the identifier, not hand-authored - keep them in
@@ -199,12 +205,13 @@ abstract class ItemDbSyncTask : DefaultTask() {
     name: String,
     pattern: Regex,
     expected: Int,
+    resourceDefault: Int,
     id: Long,
     shouldFix: Boolean,
     problems: MutableList<String>
   ) {
     val text = file.readText()
-    val current = pattern.find(text)?.groupValues?.get(1)?.toIntOrNull()
+    val current = pattern.find(text)?.groupValues?.get(1)?.toIntOrNull() ?: resourceDefault
     if (current == expected) return
 
     if (shouldFix) {
@@ -214,9 +221,9 @@ abstract class ItemDbSyncTask : DefaultTask() {
         text.trimEnd('\n') + "\n$name = $expected\n"
       }
       file.writeText(newText)
-      logger.lifecycle("ItemDbSync: patched ${file.name}: $name ${current ?: "<missing>"} -> $expected")
+      logger.lifecycle("ItemDbSync: patched ${file.name}: $name $current -> $expected")
     } else {
-      problems += "${file.name}: $name=${current ?: "<missing>"} but items.yml expects $expected (id=$id)"
+      problems += "${file.name}: $name=$current but items.yml expects $expected (id=$id)"
     }
   }
 
@@ -270,7 +277,13 @@ abstract class ItemDbSyncTask : DefaultTask() {
   }
 
   private fun stubTres(id: Long, expected: Expected, nameKey: String, descriptionKey: String): String {
-    val equipSlotLine = if (expected.equipSlot != 0) "\nequip_slot = ${expected.equipSlot}" else ""
+    // Omitted when they equal the resource default, both to match what a Godot save leaves behind and
+    // because the checks above read a missing line as that default.
+    val weightLine = if (expected.weight != DEFAULT_WEIGHT) "\nweight = ${expected.weight}" else ""
+    val levelLine = if (expected.level != DEFAULT_LEVEL) "\nlevel = ${expected.level}" else ""
+    val typeLine = if (expected.type != DEFAULT_TYPE) "\ntype = ${expected.type}" else ""
+    val equipSlotLine =
+      if (expected.equipSlot != DEFAULT_EQUIP_SLOT) "\nequip_slot = ${expected.equipSlot}" else ""
     return """
     [gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
 
@@ -281,13 +294,16 @@ abstract class ItemDbSyncTask : DefaultTask() {
     item_id = $id
     name_key = "$nameKey"
     description_key = "$descriptionKey"
-    weight = ${expected.weight}
-    level = ${expected.level}
-    type = ${expected.type}
-    """.trimIndent() + equipSlotLine + "\n"
+    """.trimIndent() + weightLine + levelLine + typeLine + equipSlotLine + "\n"
   }
 
   companion object {
+    /** Mirror the `@export` defaults in `item_resource.gd`. */
+    private const val DEFAULT_WEIGHT = 0
+    private const val DEFAULT_LEVEL = 1
+    private const val DEFAULT_TYPE = 0
+    private const val DEFAULT_EQUIP_SLOT = 0
+
     /** Must mirror `net.bestia.zone.item.Item.ItemType` and `ItemResource.ItemType`. */
     private val TYPE_ORDER = listOf("USABLE", "EQUIP", "ETC")
 

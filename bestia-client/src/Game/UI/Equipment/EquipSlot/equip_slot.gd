@@ -43,7 +43,7 @@ func set_available(available: bool) -> void:
 
 
 func _refresh() -> void:
-	_icon.texture = _item.icon if _item != null else null
+	_icon.texture = _item.get_icon() if _item != null else null
 	_icon.visible = _item != null
 	_label.visible = _item == null
 	_label.text = EquipmentSlot.display_name(slot)

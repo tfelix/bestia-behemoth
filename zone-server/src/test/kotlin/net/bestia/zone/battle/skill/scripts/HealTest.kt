@@ -29,7 +29,7 @@ class HealTest {
             ),
           )
 
-          val heal = sut.doAttack(ctx)
+          val heal = sut.execute(ctx)
 
           println(String.format("%7d | %6d | %3d | %4d", skillLv, charLv, int, heal.amount))
         }

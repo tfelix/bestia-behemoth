@@ -1,17 +1,15 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://cla3bqdt0eqkc"]
 
-[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_basic_skill"]
+[ext_resource type="Texture2D" uid="uid://bendirv6dms3t" path="res://Game/Attack/DB/6_basic_skill.png" id="1_4c8c5"]
+[ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 6
-icon = SubResource("PlaceholderTexture2D_basic_skill")
+icon = ExtResource("1_4c8c5")
 name = "Basic Skill"
 description_key = "SKILL_6_DESC"
-mana_cost = 0
-cooldown = 0.0
 max_level = 5
 target_type = "FRIENDLY"
 tree = "NOVICE"
+is_passive = true

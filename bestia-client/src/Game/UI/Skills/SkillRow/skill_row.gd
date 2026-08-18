@@ -25,6 +25,11 @@ var skill_id: int = -1
 var _selected: bool = false
 var _max_skill_level: int = 1
 
+# Always-on skills (skills.yml SkillType.PASSIVE) are invested in but never cast, so this row
+# offers no way to put one on the hotbar. Read off the AttackResource in initialize(); a skill
+# missing from the Attack DB has no entry to ask and stays castable, same as its other fields.
+var _is_passive: bool = false
+
 # The level the server has confirmed as learned/invested (from the last SkillListSMSG) - this,
 # not _max_skill_level, is the ceiling for what can be selected to actually Use or drag onto a
 # shortcut, since a pending investment isn't real until the server has accepted it.
@@ -73,19 +78,21 @@ func initialize(entry: SkillListEntry) -> void:
 
 	if attack:
 		_skill_name.text = attack.name
-		_icon.texture = attack.icon
+		_icon.texture = attack.get_icon()
 		_mana_label.text = "Mana: %s" % [attack.mana_cost]
 		# Empty tooltip_text disables the hover tooltip entirely (a skill with no
 		# description_key yet).
 		tooltip_text = tr(attack.description_key) if not attack.description_key.is_empty() else ""
 		_max_skill_level = attack.max_level
+		_is_passive = attack.is_passive
 	else:
 		printerr("Skills: Skill ID %s not found in AttackDB, can not display it" % [entry.SkillId])
 		_skill_name.text = "Unknown Skill"
-		_icon.texture = null
+		_icon.texture = AttackResource.MISSING_ICON
 		_mana_label.text = "Mana: %s" % [0]
 		tooltip_text = ""
 		_max_skill_level = 1
+		_is_passive = false
 
 	_selected_skill_level = clampi(_base_level, 1, maxi(_base_level, 1))
 
@@ -230,8 +237,10 @@ func _gui_input(event: InputEvent) -> void:
 
 ## Allows a learned skill to be dragged onto a hotbar shortcut slot at the currently
 ## selected level (see ShortcutContainer._can_drop_data, which already accepts "skill").
+## A passive has nothing to trigger, so it never leaves the row - the drop side rejects it as well,
+## since a shortcut can also be dragged between slots without ever passing through here.
 func _get_drag_data(_at_position: Vector2) -> Variant:
-	if _base_level == 0:
+	if _base_level == 0 or _is_passive:
 		return null
 
 	var preview: TextureRect = TextureRect.new()

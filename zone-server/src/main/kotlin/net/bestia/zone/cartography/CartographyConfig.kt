@@ -22,7 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  */
 @ConfigurationProperties("cartography")
 data class CartographyConfig(
-  val surveyRadiusPerLevelMetres: Double = 1_000.0,
-  val starterChartRadiusMetres: Double = 1_500.0,
-  val cacheDir: String = "./build/map-cache",
+  val surveyRadiusPerLevelMetres: Double,
+  val starterChartRadiusMetres: Double,
+  val cacheDir: String,
 )

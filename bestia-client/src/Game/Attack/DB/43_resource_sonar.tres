@@ -1,13 +1,10 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_resource_sonar"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 43
-icon = SubResource("PlaceholderTexture2D_resource_sonar")
 name = "Resource Sonar"
 description_key = "SKILL_43_DESC"
 mana_cost = 0
@@ -16,3 +13,4 @@ max_level = 3
 target_type = "FRIENDLY"
 tree = "SURVIVAL"
 sub_tree = "MINER"
+is_passive = true

@@ -1,6 +1,6 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.skill.BattleSkill
+import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.battle.damage.DamageVariables
 import net.bestia.zone.geometry.Vec3L
 
@@ -10,19 +10,26 @@ import net.bestia.zone.geometry.Vec3L
  * @author Thomas Felix
  */
 sealed class BattleContext {
-  abstract val usedAttack: BattleSkill
+  abstract val usedAttack: BattleAttack
   abstract val attacker: BattleEntity
   abstract val damageVariables: DamageVariables
   abstract val weapon: Weapon
 
   abstract fun targetPosition(): Vec3L
+
+  companion object {
+    fun verifyGroundBattleContext(ctx: BattleContext): GroundBattleContext {
+      return ctx as? GroundBattleContext
+        ?: throw IllegalArgumentException("Context is not a GroundBattleContext")
+    }
+  }
 }
 
 /**
  * Context used when damage is calculated between entities.
  */
 data class EntityBattleContext(
-  override val usedAttack: BattleSkill,
+  override val usedAttack: BattleAttack,
   override val attacker: BattleEntity,
   override val weapon: Weapon,
   override val damageVariables: DamageVariables,
@@ -38,7 +45,7 @@ data class EntityBattleContext(
  * Context used if we choose to attack the ground.
  */
 data class GroundBattleContext(
-  override val usedAttack: BattleSkill,
+  override val usedAttack: BattleAttack,
   override val attacker: BattleEntity,
   override val weapon: Weapon,
   override val damageVariables: DamageVariables,

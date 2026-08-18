@@ -1,8 +1,7 @@
-[gd_scene format=3 uid="uid://dw3cq4i6mv37x"]
+[gd_scene load_steps=3 format=3 uid="uid://dw3cq4i6mv37x"]
 
 [ext_resource type="Script" uid="uid://bs56yjanu2rub" path="res://Game/UI/Skills/SkillRow/skill_row.gd" id="1_10nyf"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_3agn1"]
+[ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="2_icon"]
 
 [node name="SkillRow" type="MarginContainer" unique_id=2050178806]
 theme_override_constants/margin_top = 8
@@ -24,7 +23,9 @@ custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-texture = SubResource("PlaceholderTexture2D_3agn1")
+texture = ExtResource("2_icon")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="SkillTextMargin" type="MarginContainer" parent="Row" unique_id=1576502014]
 layout_mode = 2

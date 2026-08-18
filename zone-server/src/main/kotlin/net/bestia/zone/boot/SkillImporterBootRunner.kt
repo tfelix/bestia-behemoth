@@ -4,7 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.annotation.Order
 import org.springframework.core.io.ClassPathResource
@@ -29,7 +29,7 @@ class SkillImporterBootRunner(
     val identifier: String,
     val strength: Int? = null,
     val manaCost: Int = 0,
-    val type: SkillType,
+    val type: AttackType,
     val script: String? = null,
     val range: Int? = null,
     val targetType: SkillTargetType,

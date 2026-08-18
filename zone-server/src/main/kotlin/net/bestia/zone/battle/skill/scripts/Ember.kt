@@ -31,7 +31,7 @@ class Ember(
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService) {
 
-  override fun doAttack(ctx: BattleContext): Damage {
+  override fun execute(ctx: BattleContext): Damage {
     return when (ctx) {
       is GroundBattleContext -> ember(ctx)
       is EntityBattleContext -> Miss

@@ -3,6 +3,11 @@ class_name ItemResource
 
 enum ItemType {USABLE, EQUIP, ETC}
 
+## Stand-in for an item whose art is not authored yet. [member icon] is left unset in the .tres until
+## then (ItemDbSyncTask never writes the field), and every read goes through [method get_icon] so an
+## unfinished item draws something visible instead of an empty slot.
+const MISSING_ICON: Texture2D = preload("res://Game/UI/Inventory/InventoryItem/item_placeholder.png")
+
 @export var item_id: int
 @export var icon: Texture2D
 @export var name_key: String
@@ -27,6 +32,12 @@ enum ItemType {USABLE, EQUIP, ETC}
 
 ## Cache for instantiated ItemUse objects. Key: GDScript path, Value: ItemUse instance
 static var _script_instance_cache: Dictionary = {}
+
+
+## The texture to draw for this item. Always prefer this over reading [member icon] directly, so the
+## not-authored-yet fallback lives in exactly one place rather than at each of the call sites.
+func get_icon() -> Texture2D:
+	return icon if icon != null else MISSING_ICON
 
 
 func use_item() -> void:

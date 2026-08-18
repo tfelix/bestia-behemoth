@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill.passive
 
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.Skill
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -28,7 +28,7 @@ class PassiveSkillScriptRegistryTest {
   }
 
   /** [script] is only non-null for castable skills, which `Skill` itself requires to have one. */
-  private fun skill(id: Long, identifier: String, type: SkillType, script: String? = null) = Skill(
+  private fun skill(id: Long, identifier: String, type: AttackType, script: String? = null) = Skill(
     id = id,
     identifier = identifier,
     strength = null,
@@ -41,16 +41,16 @@ class PassiveSkillScriptRegistryTest {
     requiredLevel = 0
   )
 
-  private val innerPeace = skill(27L, "INNER_PEACE", SkillType.PASSIVE)
+  private val innerPeace = skill(27L, "INNER_PEACE", AttackType.PASSIVE)
 
   /**
    * A PASSIVE skill nobody has written a script for. Most of the catalogue looks like this, and
    * `DIVINE_PROTECTION` additionally carries a `script:` name in `skills.yml` with no bean behind
    * it - a leftover from before passives had a pipeline. Binding must stay indifferent to both.
    */
-  private val divineProtection = skill(2L, "DIVINE_PROTECTION", SkillType.PASSIVE)
+  private val divineProtection = skill(2L, "DIVINE_PROTECTION", AttackType.PASSIVE)
 
-  private val firebolt = skill(5L, "FIREBOLT", SkillType.NO_DAMAGE, script = "Firebolt")
+  private val firebolt = skill(5L, "FIREBOLT", AttackType.NO_DAMAGE, script = "Firebolt")
 
   @Test
   fun `a script binds to the skill it names`() {

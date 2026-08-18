@@ -1,18 +1,16 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="AttackResource" format=3]
 
 [ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
-
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_lumberjack"]
+[ext_resource type="Texture2D" path="res://Game/Attack/DB/31_lumberjack.png" id="1_wk26d"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 31
-icon = SubResource("PlaceholderTexture2D_lumberjack")
+icon = ExtResource("1_wk26d")
 name = "Lumberjack"
 description_key = "SKILL_31_DESC"
-mana_cost = 0
-cooldown = 0.0
 max_level = 5
 target_type = "FRIENDLY"
 tree = "SURVIVAL"
 sub_tree = "FORESTER"
+is_passive = true

@@ -20,11 +20,15 @@ import java.io.File
  * `.claude/skills/skill-system/SKILL.md` for the full relationship between these files.
  *
  * Only `skill_id`/`max_level`/`description_key`/`target_type`/`aoe_radius`/`cast_time`/`tree`/
- * `sub_tree` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
+ * `sub_tree`/`is_passive` are touched on a `.tres` file — every other field (icon, name, mana_cost, cooldown) is hand-authored client
  * presentation with no server equivalent and is left alone. `aoe_radius` is only checked/patched
  * when `target_type` is `AOE_GROUND` - non-AOE skills never need the line at all. `cast_time` is
  * likewise only checked/patched for skills that declare a non-zero `castTime` server-side; an
  * instant-cast skill never needs the line.
+ *
+ * A `.tres` saved from the Godot inspector - which is how `icon` gets authored - is rewritten whole,
+ * and every property still equal to its script default is dropped. A missing line therefore reads as
+ * the resource default rather than as drift, or assigning an icon in the editor would fail the build.
  *
  * `description_key` points into `bestia-client/src/Localization/skills.csv`, a Godot CSV
  * translation source (same mechanism as `items.csv`). Whenever `skills.yml` declares a
@@ -33,6 +37,16 @@ import java.io.File
  * `description` in `skills.yml` yet, is hand-translated/hand-authored and left untouched.
  */
 abstract class SkillDbSyncTask : DefaultTask() {
+
+  private companion object {
+    /** Mirrors the `@export` defaults in `attack_resource.gd`. */
+    const val DEFAULT_MAX_LEVEL = 1
+    const val DEFAULT_TARGET_TYPE = "GROUND"
+    const val DEFAULT_IS_PASSIVE = false
+
+    /** The `net.bestia.zone.battle.skill.SkillType` name the client cares about, as spelled in `skills.yml`. */
+    const val PASSIVE_SKILL_TYPE = "PASSIVE"
+  }
 
   @get:InputFile
   abstract val skillsYml: RegularFileProperty
@@ -54,6 +68,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val id: Long,
     val identifier: String,
     val description: String? = null,
+    val type: String? = null,
     val targetType: String,
     val aoeRadius: Double? = null,
     val castTime: Double = 0.0
@@ -79,7 +94,14 @@ abstract class SkillDbSyncTask : DefaultTask() {
      * master tree entirely (a bestia or item-taught one), which the client shows in its own tab.
      */
     val tree: String,
-    val subTree: String
+    val subTree: String,
+
+    /**
+     * Whether the server catalogues this as [net.bestia.zone.battle.skill.SkillType.PASSIVE], the one
+     * distinction the client draws between skill types - a passive is never cast, so the client hides
+     * every way to activate it. The other types only matter to the server's damage formula.
+     */
+    val isPassive: Boolean
   )
 
   @TaskAction
@@ -104,7 +126,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
         skill.aoeRadius,
         skill.castTime,
         node?.tree.orEmpty(),
-        node?.subTree.orEmpty()
+        node?.subTree.orEmpty(),
+        skill.type == PASSIVE_SKILL_TYPE
       )
     }
 
@@ -117,8 +140,12 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val targetTypePattern = Regex("target_type\\s*=\\s*\"([^\"]*)\"")
     val aoeRadiusPattern = Regex("""aoe_radius\s*=\s*([\d.]+)""")
     val castTimePattern = Regex("""cast_time\s*=\s*([\d.]+)""")
-    val treePattern = Regex("tree\\s*=\\s*\"([^\"]*)\"")
-    val subTreePattern = Regex("sub_tree\\s*=\\s*\"([^\"]*)\"")
+    // Anchored: unanchored, `tree = "..."` also matches inside a `sub_tree` line, and the patch below
+    // would then rewrite sub_tree's value.
+    val treePattern = Regex("^tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
+    val subTreePattern = Regex("^sub_tree\\s*=\\s*\"([^\"]*)\"", RegexOption.MULTILINE)
+    val isPassivePattern = Regex("""is_passive\s*=\s*(true|false)""")
+    val iconPattern = Regex("^icon\\s*=", RegexOption.MULTILINE)
 
     val fileBySkillId = mutableMapOf<Long, File>()
     for (file in tresFiles) {
@@ -155,11 +182,19 @@ abstract class SkillDbSyncTask : DefaultTask() {
 
       val text = file.readText()
       val currentMaxLevel = maxLevelPattern.find(text)?.groupValues?.get(1)?.toIntOrNull()
+        ?: DEFAULT_MAX_LEVEL
       val currentDescriptionKey = descriptionKeyPattern.find(text)?.groupValues?.get(1)
 
       if (currentMaxLevel != expected.maxLevel) {
         if (shouldFix) {
-          file.writeText(maxLevelPattern.replace(text) { "max_level = ${expected.maxLevel}" })
+          // Append rather than replace when the line is absent - Regex.replace would no-op and the
+          // drift would survive the fix.
+          val newMaxLevelText = if (maxLevelPattern.containsMatchIn(text)) {
+            maxLevelPattern.replace(text) { "max_level = ${expected.maxLevel}" }
+          } else {
+            text.trimEnd('\n') + "\nmax_level = ${expected.maxLevel}\n"
+          }
+          file.writeText(newMaxLevelText)
           logger.lifecycle("SkillDbSync: patched ${file.name}: max_level $currentMaxLevel -> ${expected.maxLevel}")
         } else {
           problems += "${file.name}: max_level=$currentMaxLevel but skills.yml/master_skill_tree.yml expect ${expected.maxLevel} (id=$id)"
@@ -181,7 +216,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
-      val currentTargetType = targetTypePattern.find(text)?.groupValues?.get(1)
+      val currentTargetType = targetTypePattern.find(text)?.groupValues?.get(1) ?: DEFAULT_TARGET_TYPE
 
       if (currentTargetType != expected.targetType) {
         if (shouldFix) {
@@ -192,9 +227,9 @@ abstract class SkillDbSyncTask : DefaultTask() {
             patched.trimEnd('\n') + "\ntarget_type = \"${expected.targetType}\"\n"
           }
           file.writeText(newText)
-          logger.lifecycle("SkillDbSync: patched ${file.name}: target_type ${currentTargetType ?: "<missing>"} -> ${expected.targetType}")
+          logger.lifecycle("SkillDbSync: patched ${file.name}: target_type $currentTargetType -> ${expected.targetType}")
         } else {
-          problems += "${file.name}: target_type=${currentTargetType ?: "<missing>"} but expected ${expected.targetType} (id=$id)"
+          problems += "${file.name}: target_type=$currentTargetType but expected ${expected.targetType} (id=$id)"
         }
       }
 
@@ -262,6 +297,29 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
+      // Only the client's one type distinction is mirrored: whether the skill is PASSIVE, which
+      // decides whether the Skills window offers any way to cast it. MAGIC vs MELEE_PHYSICAL vs the
+      // rest is server-side damage math the client never needs.
+      run {
+        val currentText = file.readText()
+        val currentIsPassive = isPassivePattern.find(currentText)?.groupValues?.get(1)?.toBoolean()
+          ?: DEFAULT_IS_PASSIVE
+
+        if (currentIsPassive != expected.isPassive) {
+          if (shouldFix) {
+            val newText = if (isPassivePattern.containsMatchIn(currentText)) {
+              isPassivePattern.replace(currentText) { "is_passive = ${expected.isPassive}" }
+            } else {
+              currentText.trimEnd('\n') + "\nis_passive = ${expected.isPassive}\n"
+            }
+            file.writeText(newText)
+            logger.lifecycle("SkillDbSync: patched ${file.name}: is_passive $currentIsPassive -> ${expected.isPassive}")
+          } else {
+            problems += "${file.name}: is_passive=$currentIsPassive but skills.yml expects ${expected.isPassive} (id=$id)"
+          }
+        }
+      }
+
       // The English text itself is only server-sourced (and thus only checked/patched here) once
       // skills.yml actually declares a description for this skill - until then it's hand-authored
       // straight in skills.csv, same as every other still-unsynced client field.
@@ -285,6 +343,18 @@ abstract class SkillDbSyncTask : DefaultTask() {
       }
     }
 
+    // icon is hand-authored art with no server equivalent, so an unfinished one is a to-do rather than
+    // drift - AttackResource.get_icon() already falls back to a visible placeholder.
+    val missingIcons = fileBySkillId.filterKeys { it in knownIds }
+      .filterValues { !iconPattern.containsMatchIn(it.readText()) }
+      .keys.sorted()
+    if (missingIcons.isNotEmpty()) {
+      logger.warn(
+        "SkillDbSync: ${missingIcons.size} of ${knownIds.size} skills have no icon yet " +
+          "(ids: ${missingIcons.joinToString(", ")})"
+      )
+    }
+
     if (shouldFix && csvDirty) {
       skillsCsv.get().asFile.writeText(csv.render())
     }
@@ -299,12 +369,18 @@ abstract class SkillDbSyncTask : DefaultTask() {
   }
 
   private fun stubTres(id: Long, expected: Expected, descriptionKey: String): String {
+    // Omitted when they equal the resource default, both to match what a Godot save leaves behind and
+    // because the checks above read a missing line as that default.
+    val maxLevelLine = if (expected.maxLevel != DEFAULT_MAX_LEVEL) "\nmax_level = ${expected.maxLevel}" else ""
+    val targetTypeLine =
+      if (expected.targetType != DEFAULT_TARGET_TYPE) "\ntarget_type = \"${expected.targetType}\"" else ""
     val aoeRadiusLine = if (expected.aoeRadius != null) "\naoe_radius = ${expected.aoeRadius}" else ""
     val castTimeLine = if (expected.castTime > 0.0) "\ncast_time = ${expected.castTime}" else ""
     // Omitted for a skill outside the master tree: the resource default is the empty string the
     // check compares against, so a bestia skill wants no line rather than an empty one.
     val treeLine = if (expected.tree.isNotEmpty()) "\ntree = \"${expected.tree}\"" else ""
     val subTreeLine = if (expected.subTree.isNotEmpty()) "\nsub_tree = \"${expected.subTree}\"" else ""
+    val isPassiveLine = if (expected.isPassive != DEFAULT_IS_PASSIVE) "\nis_passive = ${expected.isPassive}" else ""
     return """
     [gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
 
@@ -317,8 +393,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     description_key = "$descriptionKey"
     mana_cost = 0
     cooldown = 0.0
-    max_level = ${expected.maxLevel}
-    target_type = "${expected.targetType}"
-    """.trimIndent() + aoeRadiusLine + castTimeLine + treeLine + subTreeLine + "\n"
+    """.trimIndent() + maxLevelLine + targetTypeLine + aoeRadiusLine + castTimeLine +
+      treeLine + subTreeLine + isPassiveLine + "\n"
   }
 }

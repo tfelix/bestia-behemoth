@@ -28,5 +28,5 @@ abstract class CraftingSkillStrategy(
   private val placesStation: Boolean = false
 ) : BasicMagicSkillStrategy(losService) {
 
-  override fun doAttack(ctx: BattleContext): Damage = CraftingResult(station, placesStation)
+  override fun execute(ctx: BattleContext): Damage = CraftingResult(station, placesStation)
 }

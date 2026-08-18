@@ -1,39 +1,43 @@
 package net.bestia.zone.battle.skill
 
-import net.bestia.zone.battle.LineOfSightService
-import net.bestia.zone.battle.BattleContext
-import net.bestia.zone.battle.damage.MeleePhysicalDamageCalculator
+import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
-import java.lang.IllegalStateException
-import java.util.concurrent.ThreadLocalRandom
 
+/**
+ * Resolves the `script` name from `skills.yml` (e.g. `Firebolt`) to the [SkillStrategy] bean
+ * implementing it.
+ *
+ * Scripts are plain Spring beans in `net.bestia.zone.battle.skill.scripts`, keyed here by their
+ * simple class name. This replaces an earlier `applicationContext.getBean(<fully qualified name>)`
+ * lookup which could never have worked: it pointed at a package that does not exist
+ * (`net.bestia.behemoth.battle.attack.scripts`), and `getBean(String)` resolves a *bean name*, which
+ * for an annotated class is the decapitalised simple name rather than the FQN.
+ */
 @Component
 class SkillStrategyFactory(
-  lineOfSightService: LineOfSightService,
-  private val skillScriptRegistry: SkillScriptRegistry
+  scripts: List<SkillStrategy>,
 ) {
 
-  private val random = ThreadLocalRandom.current()
-  private val meleeCalculator = MeleePhysicalDamageCalculator(random)
-  private val meleeStrategy = MeleePhysicalSkillStrategy(meleeCalculator, lineOfSightService, random)
-  private val rangedPhysicalStrategy = RangedPhysicalSkillStrategy(meleeCalculator, lineOfSightService, random)
+  private val byName: Map<String, SkillStrategy> = scripts
+    .mapNotNull { script -> script::class.simpleName?.let { it to script } }
+    .toMap()
 
-  // private val magicStrategy = MagicAttackStrategy(lineOfSightService, MagicDamageCalculator())
-
-  fun getSkillStrategy(ctx: BattleContext): SkillStrategy {
-    return when (ctx.usedAttack.skillType) {
-      SkillType.MELEE_PHYSICAL -> meleeStrategy
-      SkillType.RANGED_PHYSICAL -> rangedPhysicalStrategy
-      SkillType.MAGIC -> TODO()
-      SkillType.NO_DAMAGE -> getScriptBasedStrategy(ctx)
-      SkillType.PASSIVE -> throw IllegalStateException("PASSIVE skills are always-on and cannot be used as an active attack")
-    }
+  init {
+    LOG.info { "Registered ${byName.size} skill script(s): ${byName.keys.sorted()}" }
   }
 
-  private fun getScriptBasedStrategy(ctx: BattleContext): SkillStrategy {
-    val atkScript = ctx.usedAttack.script ?: throw NoSkillScriptException()
+  fun getSkillStrategy(skill: Skill): SkillStrategy {
+    val skillScript = skill.script
+      ?: throw NoSkillScriptException()
 
-    return skillScriptRegistry.get(atkScript)
-      ?: throw IllegalStateException("No SkillStrategy bean registered for script '$atkScript'")
+    return get(skillScript)
+      ?: throw IllegalStateException("No SkillStrategy bean registered for script '$skillScript'")
+  }
+
+  private fun get(scriptName: String): SkillStrategy? = byName[scriptName]
+
+  companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 }

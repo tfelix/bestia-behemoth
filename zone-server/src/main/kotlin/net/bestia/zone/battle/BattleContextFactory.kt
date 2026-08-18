@@ -1,6 +1,6 @@
 package net.bestia.zone.battle
 
-import net.bestia.zone.battle.skill.BattleSkill
+import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.battle.status.DerivedStatusValues
 import net.bestia.zone.battle.damage.DamageVariables
@@ -36,7 +36,7 @@ class BattleContextFactory(
   fun create(
     world: World,
     attackerId: EntityId,
-    usedAttack: BattleSkill,
+    usedAttack: BattleAttack,
     targetEntityId: EntityId?,
     targetPosition: Vec3L?
   ): BattleContext? {

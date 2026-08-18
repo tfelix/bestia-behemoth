@@ -9,6 +9,11 @@ const TARGET_TYPE_AOE_GROUND := "AOE_GROUND"
 const TARGET_TYPE_ENEMY := "ENEMY"
 const TARGET_TYPE_FRIENDLY := "FRIENDLY"
 
+## Stand-in for a skill whose art is not authored yet. [member icon] is deliberately left unset in the
+## .tres until then (SkillDbSyncTask never writes the field), and every read goes through
+## [method get_icon] so an unfinished skill draws something visible instead of an empty box.
+const MISSING_ICON: Texture2D = preload("res://Game/UI/Inventory/InventoryItem/item_placeholder.png")
+
 @export var skill_id: int
 @export var icon: Texture2D
 @export var name: String
@@ -30,8 +35,20 @@ const TARGET_TYPE_FRIENDLY := "FRIENDLY"
 @export var tree: String = ""
 @export var sub_tree: String = ""
 
+## True for a skills.yml SkillType.PASSIVE - an always-on effect the master only invests points into,
+## never casts. The server has no cast path for one at all (SkillStrategyFactory throws on a PASSIVE),
+## so the client must not offer it either: a passive can't be dragged onto the hotbar and can't be
+## activated. Synced by SkillDbSyncTask.
+@export var is_passive: bool = false
+
 ## Cache for instantiated AttackUse objects. Key: GDScript path, Value: AttackUse instance
 static var _script_instance_cache: Dictionary = {}
+
+
+## The texture to draw for this skill. Always prefer this over reading [member icon] directly, so the
+## not-authored-yet fallback lives in exactly one place rather than at each of the call sites.
+func get_icon() -> Texture2D:
+	return icon if icon != null else MISSING_ICON
 
 
 func use_skill(level: int) -> void:

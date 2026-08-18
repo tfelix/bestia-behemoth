@@ -3,7 +3,7 @@ package net.bestia.zone.battle.skill.scripts
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.battle.skill.SkillScriptRegistry
-import net.bestia.zone.battle.skill.SkillType
+import net.bestia.zone.battle.skill.AttackType
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -33,7 +33,7 @@ class SkillScriptBootValidator(
   fun validateSkillScripts() {
     val missing = skillRepository.findAll()
       // PASSIVE skills are always-on and never resolved through a strategy.
-      .filter { it.type != SkillType.PASSIVE }
+      .filter { it.type != AttackType.PASSIVE }
       .mapNotNull { skill -> skill.script?.let { skill.identifier to it } }
       .filterNot { (_, script) -> skillScriptRegistry.has(script) }
 
