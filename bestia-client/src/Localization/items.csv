@@ -55,3 +55,11 @@ HEARTY_STEW,Hearty Stew
 HEARTY_STEW_DESC,"A thick stew of whatever was to hand, cooked over an open fire.
 
 Restores health and stamina both, which no potion does."
+IRON_SWORD,Iron Sword
+IRON_SWORD_DESC,"A straight iron blade, plain and heavier than it looks.
+
+Nothing about it is clever. It does not need to be."
+IRON_CUIRASS,Iron Cuirass
+IRON_CUIRASS_DESC,"A breastplate beaten out of four ingots and fitted by eye.
+
+It will stop what it stops."

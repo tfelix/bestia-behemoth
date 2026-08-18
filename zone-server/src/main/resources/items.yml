@@ -165,3 +165,31 @@ items:
       A thick stew of whatever was to hand, cooked over an open fire.
 
       Restores health and stamina both, which no potion does.
+
+  # --- Forged gear --------------------------------------------------------------------------------
+  # What Forge Weapon and Forge Armor produce, and the reason they exist: the catalogue had only two
+  # pieces of footgear, so a forge had nothing it could plausibly make. Both wear, both take an upgrade
+  # level, and both are what Weapon Repair and Upgrade Equipment act on.
+  - id: 19
+    item-db-name: iron_sword
+    weight: 90
+    type: EQUIP
+    equip-slot: RIGHT_HAND
+    max-durability: 200
+    script: IronSwordScript
+    description: |
+      A straight iron blade, plain and heavier than it looks.
+
+      Nothing about it is clever. It does not need to be.
+
+  - id: 20
+    item-db-name: iron_cuirass
+    weight: 240
+    type: EQUIP
+    equip-slot: ARMOR
+    max-durability: 300
+    script: IronCuirassScript
+    description: |
+      A breastplate beaten out of four ingots and fitted by eye.
+
+      It will stop what it stops.

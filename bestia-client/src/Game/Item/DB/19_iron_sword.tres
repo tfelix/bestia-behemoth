@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemResource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Game/Item/item_resource.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_id = 19
+name_key = "IRON_SWORD"
+description_key = "IRON_SWORD_DESC"
+weight = 90
+type = 1
+equip_slot = 7

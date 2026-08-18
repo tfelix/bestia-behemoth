@@ -55,7 +55,15 @@ enum class StaticEntityKind {
   BUILDING_WAREHOUSE,
   BUILDING_INN,
   BUILDING_RESIDENCE,
-  BUILDING_FARM;
+  BUILDING_FARM,
+
+  // The crafting stations a player puts up, and the first entries here that no generator produces - which is
+  // what the class note above has been describing since it was written. They reach a client through the same
+  // per-chunk static entity channel as a tree, and they come from `PlayerStructureSource` rather than from
+  // `GeneratedPropSource`, so their `WorldObjectSite.propId` is 0.
+  WORKBENCH,
+  FURNACE,
+  FORGE;
 
   companion object {
 

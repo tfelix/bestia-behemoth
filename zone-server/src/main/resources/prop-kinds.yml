@@ -171,3 +171,24 @@ kinds:
     max-hp: 250
     collider: { half-x: 6, half-y: 5, height: 5 }
     variants: 1
+
+  # The three crafting stations a player builds - see `PlayerStructureSource`. No `collect`, deliberately:
+  # a station is taken down by whoever put it up (`RemoveStructureCMSG`), not picked up by a passer-by, and a
+  # `collect` block would make one player's forge free loot for the next.
+  #
+  # Health is what it takes to break somebody else's station, and it is shaped rather than balanced - the
+  # numbers say a furnace of brick outlasts a bench of planks, which is as far as any of this is decided.
+  - kind: WORKBENCH
+    max-hp: 150
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+
+  - kind: FURNACE
+    max-hp: 350
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+
+  - kind: FORGE
+    max-hp: 400
+    collider: { half-x: 2, half-y: 1, height: 2 }
+    variants: 1

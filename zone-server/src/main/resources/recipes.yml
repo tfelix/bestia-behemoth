@@ -1,0 +1,168 @@
+# Every craft in the game: what it needs, where, and what it produces or changes.
+#
+# Config rather than rows, for the reason `master_skill_tree.yml` is - nothing in the database ever
+# references a recipe, because a finished craft is recorded as the item it made. Read once at boot into
+# `RecipeRegistry`.
+#
+# `effect` decides the shape of the entry:
+#   PRODUCE   - declares `output`, takes no target
+#   ADD_SLOT  - cuts a rune slot into an item the crafter holds; declares no output
+#   UPGRADE   - raises that item's upgrade level by one
+#   REPAIR    - restores its durability
+# The three targeted effects all refuse a plain stackable pile: wear, upgrade level and slots are
+# per-instance state.
+#
+# `inputs` are consumed on failure as well as on success. That is the whole risk in a craft, and the
+# reason the success tables in the design docs are worth anything.
+#
+# `station` names a `StaticEntityKind` that must be standing within `CraftingService.STATION_RANGE`
+# tiles. Cooking and the Master Ritual deliberately have none: there is no camp-fire prop, and the
+# ritual is performed on bare ground.
+#
+# `baseSuccessChance` is before skill bonuses - see `MasterCraftBonusService`, which applies the docs'
+# per-level tables on top. A recipe at 1.0 cannot fail on its own.
+recipes:
+
+  # --- Novice tree ---------------------------------------------------------------------------------
+
+  - id: 1
+    identifier: HEARTY_STEW
+    effect: PRODUCE
+    output: { item: hearty_stew, amount: 1 }
+    inputs:
+      - { item: apple, amount: 2 }
+      - { item: jelly, amount: 1 }
+    skill: { skill: COOKING, level: 1 }
+    craftSeconds: 6.0
+    baseSuccessChance: 0.5
+
+  # The one thing the Master Ritual does, at the ratio the docs give. It cannot fail: a ritual that ate
+  # twenty-five void essence and gave nothing back would be a bug report, not a mechanic.
+  - id: 2
+    identifier: SEAL_OF_MASTERY
+    effect: PRODUCE
+    output: { item: seal_of_mastery, amount: 1 }
+    inputs:
+      - { item: void_essence, amount: 25 }
+      - { item: mana_dust, amount: 5 }
+      - { item: clay, amount: 3 }
+    skill: { skill: MASTER_RITUAL, level: 1 }
+    craftSeconds: 30.0
+    baseSuccessChance: 1.0
+
+  # --- Craftsman tree, at a workbench --------------------------------------------------------------
+
+  - id: 10
+    identifier: ENGRAVING_SET
+    effect: PRODUCE
+    output: { item: engraving_set, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 1 }
+      - { item: clay, amount: 2 }
+    skill: { skill: CARPENTRY, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 8.0
+    baseSuccessChance: 0.6
+
+  # Both blueprints are drawings pressed into a mana-fixed clay tablet, which is why clay and mana dust
+  # make a document.
+  - id: 11
+    identifier: WEAPON_BLUEPRINT
+    effect: PRODUCE
+    output: { item: weapon_blueprint, amount: 1 }
+    inputs:
+      - { item: clay, amount: 2 }
+      - { item: mana_dust, amount: 1 }
+    skill: { skill: CARPENTRY, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 10.0
+    baseSuccessChance: 0.55
+
+  - id: 12
+    identifier: ARMOR_BLUEPRINT
+    effect: PRODUCE
+    output: { item: armor_blueprint, amount: 1 }
+    inputs:
+      - { item: clay, amount: 3 }
+      - { item: mana_dust, amount: 1 }
+    skill: { skill: CARPENTRY, level: 2 }
+    station: WORKBENCH
+    craftSeconds: 10.0
+    baseSuccessChance: 0.55
+
+  # Cutting a slot costs the engraving set outright, so the tool is a real gate on how often it happens.
+  - id: 13
+    identifier: CUT_RUNE_SLOT
+    effect: ADD_SLOT
+    inputs:
+      - { item: engraving_set, amount: 1 }
+      - { item: mana_dust, amount: 2 }
+    skill: { skill: ITEM_CUSTOMIZATION, level: 1 }
+    station: WORKBENCH
+    craftSeconds: 12.0
+    baseSuccessChance: 0.25
+
+  # --- Blacksmith sub-tree ------------------------------------------------------------------------
+
+  # The one refining recipe, and the reason a furnace is worth placing: two ore plus coal weigh 170 and
+  # come out as an ingot weighing 60.
+  - id: 20
+    identifier: IRON_INGOT
+    effect: PRODUCE
+    output: { item: iron_ingot, amount: 1 }
+    inputs:
+      - { item: iron_ore, amount: 2 }
+      - { item: coal, amount: 1 }
+    skill: { skill: ORE_REFINEMENT, level: 1 }
+    station: FURNACE
+    craftSeconds: 10.0
+    baseSuccessChance: 0.4
+
+  - id: 21
+    identifier: IRON_SWORD
+    effect: PRODUCE
+    output: { item: iron_sword, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 3 }
+      - { item: coal, amount: 2 }
+      - { item: weapon_blueprint, amount: 1 }
+    skill: { skill: FORGE_WEAPON, level: 1 }
+    station: FORGE
+    craftSeconds: 20.0
+    baseSuccessChance: 0.35
+
+  - id: 22
+    identifier: IRON_CUIRASS
+    effect: PRODUCE
+    output: { item: iron_cuirass, amount: 1 }
+    inputs:
+      - { item: iron_ingot, amount: 4 }
+      - { item: coal, amount: 2 }
+      - { item: armor_blueprint, amount: 1 }
+    skill: { skill: FORGE_ARMOR, level: 1 }
+    station: FORGE
+    craftSeconds: 20.0
+    baseSuccessChance: 0.35
+
+  - id: 23
+    identifier: REPAIR_EQUIPMENT
+    effect: REPAIR
+    inputs:
+      - { item: iron_ingot, amount: 1 }
+      - { item: coal, amount: 1 }
+    skill: { skill: WEAPON_REPAIR, level: 1 }
+    station: FORGE
+    craftSeconds: 6.0
+    baseSuccessChance: 0.8
+
+  # Upgrading is the one craft with no station in the Blacksmith block: the docs give Upgrade Equipment
+  # neither a range nor a target, and it sits in the Craftsman tree rather than under the forge.
+  - id: 24
+    identifier: UPGRADE_EQUIPMENT
+    effect: UPGRADE
+    inputs:
+      - { item: iron_ingot, amount: 2 }
+      - { item: mana_dust, amount: 1 }
+    skill: { skill: UPGRADE_EQUIPMENT, level: 1 }
+    craftSeconds: 8.0
+    baseSuccessChance: 0.3
