@@ -15,15 +15,15 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
  *
  * ### Why the skill is named here rather than in `skills.yml`
  *
- * The obvious design is to reuse the existing nullable `script` column the way equipment does, and
- * it does not work: `SkillImporterBootRunner.tryUpdate` returns `false`, so
- * [net.bestia.zone.boot.YmlImporterBootRunner] only ever *creates* skill rows and never updates
- * them. Adding a `script:` line to an already-imported skill would change nothing on any existing
- * world database, and would do so silently - no error, no warning, just a passive that never fires.
+ * The obvious design is to reuse the existing nullable `script` column the way equipment does. That
+ * would work now that `SkillImporterBootRunner.tryUpdate` propagates content edits onto existing
+ * rows, but it buys nothing: the `script` column already means "the [net.bestia.zone.battle.skill.SkillStrategy] that resolves
+ * this skill when cast", and a passive is never cast - [net.bestia.zone.battle.skill.SkillStrategyFactory] throws on a PASSIVE
+ * skill and `SkillScriptBootValidator` skips them entirely. One column resolving into two unrelated
+ * bean registries depending on the row's `type` is a worse contract than a name on the bean.
  *
- * Declaring the identifier on the bean sidesteps that entirely: no content change, no database
- * migration, and no dependency on import semantics. It also follows what this codebase already does
- * for the two passives that were wired by hand -
+ * Declaring the identifier on the bean keeps the two vocabularies apart, and follows what this
+ * codebase already does for the two passives that were wired by hand -
  * [net.bestia.zone.environment.weather.EnvironmentalExposureSystem] and
  * [net.bestia.zone.environment.weather.WeatherPublisher] both resolve their skill by identifier,
  * "because the id in `skills.yml` is content and this is code". The same reasoning applies to the

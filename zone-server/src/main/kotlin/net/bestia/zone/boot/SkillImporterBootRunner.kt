@@ -86,9 +86,13 @@ class SkillImporterBootRunner(
     return dto.id
   }
 
+  /**
+   * Skills are content, so an edit to `skills.yml` has to reach an already-provisioned world -
+   * zone-server runs `ddl-auto: update` and keeps its rows across restarts. The candidate entity
+   * validates itself on construction, so an invalid edit fails the boot instead of being written.
+   */
   override fun tryUpdate(dto: SkillYmlDto, entity: Skill): Boolean {
-    // TODO no sure if we should even support updates
-    return false
+    return entity.updateContentFrom(newEntity(dto))
   }
 
   override fun postImport(entities: List<Skill>) {

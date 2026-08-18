@@ -20,53 +20,94 @@ class Skill(
   val identifier: String,
 
   @Column(nullable = true)
-  val strength: Int?,
+  var strength: Int?,
 
   @Column(nullable = false)
-  val type: SkillType,
+  var type: SkillType,
 
   @Column(nullable = true)
-  val script: String?,
+  var script: String?,
 
   @Column(nullable = false)
-  val manaCost: Int,
+  var manaCost: Int,
 
   // Named explicitly: `range` is a reserved word in MariaDB (window-function frame syntax), so an
   // unquoted `create table` with a bare `range` column fails on boot. H2 never enforced this.
   @Column(name = "attack_range", nullable = true)
-  val range: Int?,
+  var range: Int?,
 
   @Column(nullable = false)
-  val targetType: SkillTargetType,
+  var targetType: SkillTargetType,
 
   @Column(nullable = true)
-  val aoeRadius: Double? = null,
+  var aoeRadius: Double? = null,
 
-  val needsLineOfSight: Boolean,
+  var needsLineOfSight: Boolean,
 
   /**
    * Seconds the caster must channel before the skill resolves. 0 means it resolves instantly.
    * While casting the entity carries a `Casting` component; moving cancels it.
    */
   @Column(nullable = false)
-  val castTime: Float = 0f,
+  var castTime: Float = 0f,
 
   /**
    * 0 means this skill is immediately learnable.
    */
-  val requiredLevel: Int,
+  var requiredLevel: Int,
 
   /**
    * Long-form BBCode flavor text, English only. Synced to the client's translation CSV by
    * `./gradlew syncSkillDb` - see `.claude/skills/skill-system/SKILL.md`.
    */
   @Column(columnDefinition = "TEXT", nullable = true)
-  val description: String? = null
+  var description: String? = null
 ) {
 
   init {
     requireValidIdentifier(identifier)
+    validate()
+  }
 
+  /**
+   * Copies every content field off [other], returning whether anything actually differed.
+   *
+   * `id` and `identifier` are the match key the importer resolved [other] by and are deliberately
+   * not copied. [other] validated itself on construction, so no re-check is needed here.
+   */
+  fun updateContentFrom(other: Skill): Boolean {
+    val changed = strength != other.strength ||
+        type != other.type ||
+        script != other.script ||
+        manaCost != other.manaCost ||
+        range != other.range ||
+        targetType != other.targetType ||
+        aoeRadius != other.aoeRadius ||
+        needsLineOfSight != other.needsLineOfSight ||
+        castTime != other.castTime ||
+        requiredLevel != other.requiredLevel ||
+        description != other.description
+
+    if (!changed) {
+      return false
+    }
+
+    strength = other.strength
+    type = other.type
+    script = other.script
+    manaCost = other.manaCost
+    range = other.range
+    targetType = other.targetType
+    aoeRadius = other.aoeRadius
+    needsLineOfSight = other.needsLineOfSight
+    castTime = other.castTime
+    requiredLevel = other.requiredLevel
+    description = other.description
+
+    return true
+  }
+
+  private fun validate() {
     require(requiredLevel >= 0) {
       "requiredLevel must be >= 0"
     }
