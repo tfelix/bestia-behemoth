@@ -4,7 +4,9 @@ import net.bestia.zone.battle.skill.BattleSkill
 import net.bestia.zone.battle.status.DefenseValues
 import net.bestia.zone.battle.status.DerivedStatusValues
 import net.bestia.zone.battle.damage.DamageVariables
+import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.level.Level
+import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
@@ -94,7 +96,12 @@ class BattleContextFactory(
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
       // TODO No element component exists yet; everything is NORMAL until elements are modelled.
-      assumedElement = Element.NORMAL
+      assumedElement = Element.NORMAL,
+      maxHealth = world.get(entityId, Health::class)?.max ?: 0,
+      activeEffectIds = world.get(entityId, StatusEffects::class)
+        ?.activeEffects
+        ?.mapTo(mutableSetOf()) { it.definitionId }
+        ?: emptySet()
     )
   }
 

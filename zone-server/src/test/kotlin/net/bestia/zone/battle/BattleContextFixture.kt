@@ -12,13 +12,14 @@ object BattleContextFixture {
 
   fun entityCtx(
     attack: BattleSkill = attack(),
-    attackerEntity: BattleEntity = battleEntity()
+    attackerEntity: BattleEntity = battleEntity(),
+    defenderEntity: BattleEntity = battleEntity()
   ): BattleContext {
     return EntityBattleContext(
       usedAttack = attack,
       attacker = attackerEntity,
       damageVariables = DamageVariables(),
-      defender = battleEntity(),
+      defender = defenderEntity,
       weapon = Weapon(atk = 10, upgradeLevel = 0, matk = 0)
     )
   }
@@ -56,7 +57,9 @@ object BattleContextFixture {
 
   fun battleEntity(
     level: Int = 10,
-    intelligence: Int = 10
+    intelligence: Int = 10,
+    maxHealth: Int = 0,
+    activeEffectIds: Set<Long> = emptySet()
   ): BattleEntity {
     val statusValues = StatusValues(
       agility = 10,
@@ -77,7 +80,9 @@ object BattleContextFixture {
       ),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
-      assumedElement = Element.NORMAL
+      assumedElement = Element.NORMAL,
+      maxHealth = maxHealth,
+      activeEffectIds = activeEffectIds
     )
   }
 }

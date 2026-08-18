@@ -42,6 +42,23 @@ statusEffects:
     isSyncedToClient: true
     script: BlessingStatusEffect
 
+  # Applied by the PLAY_DEAD skill (skills.yml id 7). Synced so the client can show the player they
+  # are still feigning; what it actually does is make PerceptionSystem look past them.
+  - id: 7
+    identifier: PLAY_DEAD
+    polarity: BUFF
+    showIcon: true
+    isSyncedToClient: true
+    script: PlayDeadStatusEffect
+
+  # Internal bookkeeping only: a bestia may only receive First Aid once a minute (skills.yml id 8).
+  - id: 8
+    identifier: FIRST_AID_COOLDOWN
+    polarity: DEBUFF
+    showIcon: false
+    isSyncedToClient: false
+    script: FirstAidCooldown
+
   # Placeholder hook, attached to every master entity as it materializes (MasterEntitySpawner).
   # Currently does nothing at all - it exists so the "show the intro dialog once the master is in
   # the world" trigger can be built against a real, already-attached, never-synced effect. See

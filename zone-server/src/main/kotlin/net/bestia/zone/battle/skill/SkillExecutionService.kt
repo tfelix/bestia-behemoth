@@ -90,6 +90,13 @@ class SkillExecutionService(
     }
 
     applyResult(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, strategy.doAttack(ctx))
+
+    // After the result, so a skill that marks its target only does so once the cast really resolved.
+    targetEntityId?.let { target ->
+      strategy.effectsOnTarget(ctx).forEach { effect ->
+        statusEffectService.applyEffect(world, target, effect, skillLevel, casterId)
+      }
+    }
   }
 
   /** Returns false (spending nothing) when the caster cannot pay. */

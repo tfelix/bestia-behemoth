@@ -70,6 +70,8 @@ class StatusEffects(
    * a one-shot marker removing itself once it has done its job (see
    * [net.bestia.zone.battle.status.scripts.MasterIntroMarker]), a dispel, a skill that consumes a buff.
    */
+  fun hasEffect(definitionId: Long): Boolean = activeEffects.any { it.definitionId == definitionId }
+
   fun removeEffect(definitionId: Long): Boolean {
     val removed = activeEffects.removeAll { it.definitionId == definitionId }
 

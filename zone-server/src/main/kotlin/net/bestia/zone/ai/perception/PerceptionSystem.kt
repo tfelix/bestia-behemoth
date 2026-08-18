@@ -8,6 +8,8 @@ import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
+import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
@@ -42,7 +44,7 @@ class PerceptionSystem(
   override val schedule: Schedule = Schedule.EverySeconds(0.5f)
 
   override val reads: ComponentClassSet =
-    setOf(Position::class, Health::class, Master::class, TakenDamage::class)
+    setOf(Position::class, Health::class, Master::class, TakenDamage::class, StatusEffects::class)
 
   /**
    * `AiAgent` is declared as written, not read: this system mutates the agent's blackboard on every
@@ -127,6 +129,7 @@ class PerceptionSystem(
       .asSequence()
       .filter { it != self }
       .filter { world.has(it, Master::class) }
+      .filterNot { isFeigningDeath(world, it) }
       .mapNotNull { candidate ->
         val pos = world.get(candidate, Position::class)?.toVec3L() ?: return@mapNotNull null
         candidate to selfPos.distance(pos)
@@ -145,7 +148,14 @@ class PerceptionSystem(
   private fun recentAttacker(world: World, self: Long, aggroMemoryMs: Long): Long? =
     world.get(self, TakenDamage::class)
       ?.mostRecentAttacker(aggroMemoryMs)
-      ?.takeIf { world.isAlive(it) }
+      ?.takeIf { world.isAlive(it) && !isFeigningDeath(world, it) }
+
+  /**
+   * Someone playing dead is not seen and not remembered - dropping them from `recentAttacker` too is
+   * what makes the skill an escape rather than a pause, since a grudge outlives being out of sight.
+   */
+  private fun isFeigningDeath(world: World, entityId: Long): Boolean =
+    world.get(entityId, StatusEffects::class)?.hasEffect(StatusEffectId.PLAY_DEAD.id) == true
 
   private fun healthPct(world: World, entityId: Long): Int {
     val health = world.get(entityId, Health::class) ?: return 100

@@ -20,7 +20,9 @@ enum class StatusEffectId(val id: Long) {
   CRIPPLE(2),
   RESISTED_ONCE_MARKER(4),
   BLESSING(5),
-  MASTER_INTRO_MARKER(6);
+  MASTER_INTRO_MARKER(6),
+  PLAY_DEAD(7),
+  FIRST_AID_COOLDOWN(8);
 
   companion object {
     private val byId = entries.associateBy { it.id }
