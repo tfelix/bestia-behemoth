@@ -58,6 +58,12 @@ enum OpError {
 
   // Placing a crafting station: no room, or already standing on somebody else's.
   STRUCTURE_NO_ROOM = 21;
+
+  // Basic Skill gates what a player may do at all - see net.bestia.zone.account.master.skill.BasicSkillGate.
+  // Two codes rather than one because the ranks differ and the client says which rank is needed; only the two
+  // subsystems that exist are gated, so there is nothing here for trading, trade posts or sitting.
+  BASIC_SKILL_CHAT_LOCKED = 22;
+  BASIC_SKILL_PARTY_LOCKED = 23;
 }
 
 message OperationError {

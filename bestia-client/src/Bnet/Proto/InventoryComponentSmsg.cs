@@ -27,16 +27,17 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0Ik8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50",
             "aXR5X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJ",
-            "dGVtIpABCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5p",
+            "dGVtIqcBCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5p",
             "cXVlX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoDRIQCghlcXVpcHBlZBgEIAEo",
             "CBISCgpkdXJhYmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgN",
-            "Eg0KBXNsb3RzGAcgASgNQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52",
-            "ZW50b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
+            "Eg0KBXNsb3RzGAcgASgNEhUKDXVwZ3JhZGVfbGV2ZWwYCCABKA1CNAoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhtJbnZlbnRvcnlDb21wb25lbnRTTVNHUHJv",
+            "dG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots", "UpgradeLevel" }, null, null, null, null)
           }));
     }
     #endregion
@@ -305,6 +306,7 @@ namespace Bnet {
       durability_ = other.durability_;
       maxDurability_ = other.maxDurability_;
       slots_ = other.slots_;
+      upgradeLevel_ = other.upgradeLevel_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -406,6 +408,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "upgrade_level" field.</summary>
+    public const int UpgradeLevelFieldNumber = 8;
+    private uint upgradeLevel_;
+    /// <summary>
+    /// Upgrade level on the backing instance, 0 for an untouched item and for every plain stack. What
+    /// Upgrade Equipment raises and what every equip script scales off.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint UpgradeLevel {
+      get { return upgradeLevel_; }
+      set {
+        upgradeLevel_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -428,6 +446,7 @@ namespace Bnet {
       if (Durability != other.Durability) return false;
       if (MaxDurability != other.MaxDurability) return false;
       if (Slots != other.Slots) return false;
+      if (UpgradeLevel != other.UpgradeLevel) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -442,6 +461,7 @@ namespace Bnet {
       if (Durability != 0) hash ^= Durability.GetHashCode();
       if (MaxDurability != 0) hash ^= MaxDurability.GetHashCode();
       if (Slots != 0) hash ^= Slots.GetHashCode();
+      if (UpgradeLevel != 0) hash ^= UpgradeLevel.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -488,6 +508,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt32(Slots);
       }
+      if (UpgradeLevel != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(UpgradeLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -526,6 +550,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteUInt32(Slots);
       }
+      if (UpgradeLevel != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(UpgradeLevel);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -556,6 +584,9 @@ namespace Bnet {
       }
       if (Slots != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Slots);
+      }
+      if (UpgradeLevel != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(UpgradeLevel);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -589,6 +620,9 @@ namespace Bnet {
       }
       if (other.Slots != 0) {
         Slots = other.Slots;
+      }
+      if (other.UpgradeLevel != 0) {
+        UpgradeLevel = other.UpgradeLevel;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -633,6 +667,10 @@ namespace Bnet {
             Slots = input.ReadUInt32();
             break;
           }
+          case 64: {
+            UpgradeLevel = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -674,6 +712,10 @@ namespace Bnet {
           }
           case 56: {
             Slots = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            UpgradeLevel = input.ReadUInt32();
             break;
           }
         }

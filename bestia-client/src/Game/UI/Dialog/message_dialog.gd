@@ -1,6 +1,9 @@
 extends AcceptDialog
 class_name MessageDialog
-## Shows one server-pushed dialog: a block of localized text and a confirm button.
+## Shows one queued dialog: a block of localized text and a confirm button.
+##
+## Server-pushed and client-only dialogs are indistinguishable from here, which is the point of
+## [DialogContent] - both arrive as a pair of translation keys plus any placeholder values.
 ##
 ## Registers itself with the [code]DialogManager[/code] autoload, which owns the queue and decides
 ## what to show when - so this node only ever deals with the dialog currently on screen. That split
@@ -9,7 +12,8 @@ class_name MessageDialog
 ##
 ## Only [code]CONFIRM[/code] dialogs exist so far. Player-choice dialogs will add buttons here and
 ## send the answer back through [code]ConnectionManager[/code]; the queue and text resolution above
-## and below this node do not change for that.
+## and below this node do not change for that - though a choice dialog is necessarily server-pushed, since
+## an answer nobody receives is not a choice.
 
 const _DEFAULT_TITLE_KEY := "DIALOG_DEFAULT_TITLE"
 
@@ -33,12 +37,12 @@ func _exit_tree() -> void:
 
 ## Called by DialogManager. Never call this directly - going through the manager is what keeps
 ## dialogs from overwriting each other.
-func show_dialog(message) -> void:
-	_current = message
+func show_dialog(content: DialogContent) -> void:
+	_current = content
 
-	_body.text = DialogText.resolve(message)
+	_body.text = DialogText.resolve(content)
 
-	var dialog_title := DialogText.resolve_title(message)
+	var dialog_title := DialogText.resolve_title(content)
 	title = dialog_title if not dialog_title.is_empty() else tr(_DEFAULT_TITLE_KEY)
 
 	popup_centered()

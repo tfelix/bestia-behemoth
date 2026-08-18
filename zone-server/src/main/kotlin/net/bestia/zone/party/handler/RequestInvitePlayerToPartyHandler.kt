@@ -1,8 +1,11 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
+import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.AlreadyInPartyException
 import net.bestia.zone.party.NotPartyException
@@ -17,13 +20,23 @@ import org.springframework.stereotype.Component
 @Component
 class RequestInvitePlayerToPartyHandler(
   private val partyService: PartyService,
-  private val outMessageProcessor: OutMessageProcessor
+  private val outMessageProcessor: OutMessageProcessor,
+  private val basicSkillGate: BasicSkillGate
 ) : InMessageProcessor.IncomingMessageHandler<RequestPartyInvitationCMSG> {
 
   override val handles = RequestPartyInvitationCMSG::class
 
   override fun handle(msg: RequestPartyInvitationCMSG): Boolean {
     LOG.trace { "RX: $msg" }
+
+    // The inviter's rank, not the invitee's: joining a party is not what Basic Skill rank 5 unlocks, growing
+    // one is - and refusing an invitation because the person invited has not bought a novice skill would make
+    // the gate somebody else's problem.
+    if (!basicSkillGate.mayParty(msg.playerId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_PARTY_LOCKED))
+      return true
+    }
+
     try {
       val invitation = partyService.invitePlayerToParty(
         msg.playerId,

@@ -1,12 +1,15 @@
 package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.account.master.MasterNotFoundException
 import net.bestia.zone.account.master.MasterResolver
+import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -16,7 +19,8 @@ class ChatHandler(
   private val masterOperations: MasterResolver,
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
-  private val chatCommandHandler: ChatCommandHandler
+  private val chatCommandHandler: ChatCommandHandler,
+  private val basicSkillGate: BasicSkillGate
 ) : InMessageProcessor.IncomingMessageHandler<ChatCMSG> {
   override val handles = ChatCMSG::class
 
@@ -25,6 +29,13 @@ class ChatHandler(
 
     // Some sanity checks.
     if (msg.text.isEmpty()) {
+      return true
+    }
+
+    // Talking to other players needs Basic Skill rank 2; commands deliberately do not, since a GM command
+    // and a chat message only share a transport, and locking `/spawn` behind a novice skill would be absurd.
+    if (msg.type != ChatCMSG.Type.COMMAND && !basicSkillGate.mayChat(msg.playerId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_CHAT_LOCKED))
       return true
     }
 

@@ -1,9 +1,10 @@
 class_name DialogText
-## Turns a [DialogSMSG] into displayable, localized text.
+## Turns a [DialogContent] into displayable, localized text.
 ##
 ## The server never sends text - only a dialog id and typed placeholder values - so everything
 ## visible is assembled here: the sentence comes from [code]dialogs.csv[/code], and each
-## [code]{placeholder}[/code] in it is filled from the message's args.
+## [code]{placeholder}[/code] in it is filled from the args. A client-only dialog goes through the same
+## path with no args at all, which is what makes local and server dialogs interchangeable to the window.
 ##
 ## This is the first place in the client that treats a translated string as a [i]template[/i].
 ## Everywhere else builds a hardcoded English sentence around a translated fragment (see
@@ -17,21 +18,23 @@ class_name DialogText
 ## Resolves the body text. Returns the raw translation key if it is missing from
 ## [code]dialogs.csv[/code], which is the default lookup behaviour and exactly what we want in
 ## development - a missing dialog is loud on screen rather than silently blank.
-static func resolve(message) -> String:
-	return _format(_translate(text_key(message.DialogId)), message)
+static func resolve(content: DialogContent) -> String:
+	return _format(_translate(content.text_key), content.args)
 
 
 ## Resolves the window title, or an empty string if this dialog has no [code]_TITLE[/code] row.
 ## Titles are optional by design: plenty of dialogs are just a line of text.
-static func resolve_title(message) -> String:
-	var key := title_key(message.DialogId)
-	var translated := _translate(key)
-
-	# The lookup echoes the key back when there is no entry for it, which is how we detect "no title".
-	if translated == key:
+static func resolve_title(content: DialogContent) -> String:
+	if content.title_key.is_empty():
 		return ""
 
-	return _format(translated, message)
+	var translated := _translate(content.title_key)
+
+	# The lookup echoes the key back when there is no entry for it, which is how we detect "no title".
+	if translated == content.title_key:
+		return ""
+
+	return _format(translated, content.args)
 
 
 static func _translate(key: String) -> String:
@@ -46,10 +49,13 @@ static func title_key(dialog_id: int) -> String:
 	return "DIALOG_%d_TITLE" % dialog_id
 
 
-static func _format(template: String, message) -> String:
+static func _format(template: String, args: Array) -> String:
+	if args.is_empty():
+		return template
+
 	var values := {}
 
-	for arg in message.Args:
+	for arg in args:
 		values[arg.Name] = _resolve_arg(arg)
 
 	return template.format(values)

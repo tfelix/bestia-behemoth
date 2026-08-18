@@ -1,7 +1,10 @@
 package net.bestia.zone.party.handler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
+import net.bestia.zone.account.master.skill.BasicSkillGate
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.party.CreatePartyCMSG
 import net.bestia.zone.party.PartyService
@@ -14,13 +17,23 @@ import org.springframework.stereotype.Component
 @Component
 class CreatePartyHandler(
   private val partyService: PartyService,
-  private val outMessageProcessor: OutMessageProcessor
+  private val outMessageProcessor: OutMessageProcessor,
+  private val basicSkillGate: BasicSkillGate
 ) : InMessageProcessor.IncomingMessageHandler<CreatePartyCMSG> {
 
   override val handles = CreatePartyCMSG::class
 
   override fun handle(msg: CreatePartyCMSG): Boolean {
     LOG.trace { "RX: $msg" }
+
+    // Parties are Basic Skill rank 5. Refused through the shared OperationError rather than a PartyErrorCode:
+    // the reason has nothing to do with parties, and the same denial has to read the same whether it comes
+    // from here or from an invite.
+    if (!basicSkillGate.mayParty(msg.playerId)) {
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(OpError.BASIC_SKILL_PARTY_LOCKED))
+      return true
+    }
+
     try {
       val party = partyService.createParty(msg.playerId, msg.partyName)
       // Send party info back to the creator

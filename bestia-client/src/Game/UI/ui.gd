@@ -1,5 +1,9 @@
 extends Control
 
+## The client-only primer shown to each master once, explaining that Basic Skill is what unlocks chat and
+## parties - which is otherwise something a new player discovers by being refused.
+const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
+
 @onready var _inventory_win: WidgetWindow = $InventoryWin
 @onready var _skills: WidgetWindow = $SkillsWin
 @onready var _equipment_win: WidgetWindow = $EquipmentWin
@@ -30,6 +34,11 @@ func _ready() -> void:
 	var crafting := _crafting_win.get_content() as Crafting
 	crafting.inventory = inventory
 	crafting.recipes_offered.connect(_on_recipes_offered)
+
+	# Queued rather than shown, so it lands behind the server's own welcome dialog instead of racing it.
+	# Everything in it is static - what Basic Skill unlocks at which rank - so it needs nothing from the
+	# server and is client-only. See DialogManager.show_local_once.
+	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
 
 
 func _on_master_profile_inventory_win_toggled() -> void:

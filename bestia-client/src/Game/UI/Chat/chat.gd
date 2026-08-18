@@ -16,9 +16,21 @@ var _history_index: int = -1
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
 const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 
+## Refusals the chat window is the right place to report, by [code]OperationError.CodeName[/code].
+##
+## A player whose message went nowhere has to be told here, in the window they typed it in - an error toast
+## somewhere else would leave them retyping. Matching on the name rather than the ordinal keeps a new denial
+## reason from being re-declared as a bare number, which is the duplication [code]DialogArg.KindName[/code]
+## was introduced to stop.
+const _REFUSALS := {
+	"basic_skill_chat_locked": "You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.",
+	"basic_skill_party_locked": "Parties need Basic Skill Lv. 5.",
+}
+
 
 func _ready() -> void:
 	ConnectionManager.connect("chat_received", _on_chat_received)
+	ConnectionManager.operation_error.connect(_on_operation_error)
 
 
 func _input(event):
@@ -138,6 +150,14 @@ func _scroll_to_bottom() -> void:
 	# Wait for the next frame to ensure layout is updated
 	await get_tree().process_frame
 	scroll_container.scroll_vertical = int(scroll_container.get_v_scroll_bar().max_value)
+
+
+## Reports the refusals from [constant _REFUSALS] and ignores every other operation error, which belongs to
+## whichever window raised it.
+func _on_operation_error(message) -> void:
+	var text: String = _REFUSALS.get(message.CodeName, "")
+	if not text.is_empty():
+		_add_chat_line(text)
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

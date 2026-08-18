@@ -89,6 +89,9 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Autowired
   private lateinit var masterSpawnPointService: MasterSpawnPointService
 
+  @Autowired
+  private lateinit var scenarioDataSetup: ScenarioDataSetup
+
   private var newMasterId: Long = 0
   private val newMasterName = "journeyM1"
 
@@ -146,6 +149,11 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
     inventoryService.addItem(newMaster, "boots", 1)
     newMaster.strength = 100
     masterRepository.save(newMaster)
+
+    // This master is created through the real message flow rather than by the fixture, so it starts with Basic
+    // Skill at rank 0 - and the chat and party orders below would then be testing BasicSkillGate instead of
+    // chat and parties. The fixture masters get the same grant for the same reason.
+    scenarioDataSetup.grantFullBasicSkill(newMasterId)
 
     clientPlayer1.sendMessage(SelectMasterCMSG(clientPlayer1.connectedPlayerId, newMasterId))
     await {

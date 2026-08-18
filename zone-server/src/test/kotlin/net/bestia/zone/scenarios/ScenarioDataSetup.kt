@@ -8,6 +8,8 @@ import net.bestia.zone.account.master.BodyType
 import net.bestia.zone.account.master.Face
 import net.bestia.zone.account.master.Hairstyle
 import net.bestia.zone.account.master.MasterFactory
+import net.bestia.zone.account.master.MasterRepository
+import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.bestia.Bestia
 import net.bestia.zone.bestia.BestiaRepository
 import net.bestia.zone.bestia.PlayerBestiaCreateOperation
@@ -15,6 +17,9 @@ import net.bestia.zone.bestia.PlayerBestiaCreateOperation.PlayerBestiaCreateData
 import net.bestia.zone.bestia.findByIdOrThrow
 import net.bestia.zone.geometry.Vec3
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.skill.LearnedSkill
+import net.bestia.zone.skill.LearnedSkillRepository
+import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.world.MasterSpawnPointService
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -36,6 +41,9 @@ class ScenarioDataSetup(
   private val bestiaRepository: BestiaRepository,
   private val playerBestiaCreateOperation: PlayerBestiaCreateOperation,
   private val masterSpawnPointService: MasterSpawnPointService,
+  private val skillRepository: SkillRepository,
+  private val learnedSkillRepository: LearnedSkillRepository,
+  private val masterRepository: MasterRepository,
   private val applicationContext: ApplicationContext
 ) {
 
@@ -44,6 +52,34 @@ class ScenarioDataSetup(
    * candidate the generated world offers.
    */
   private fun defaultSpawnPointId(): Int = masterSpawnPointService.ensureComputed().first().id.toInt()
+
+  /**
+   * Gives a master Basic Skill at full rank.
+   *
+   * Without it every scenario that chats or forms a party would be testing
+   * [net.bestia.zone.account.master.skill.BasicSkillGate] instead of what it is about - a fresh master holds
+   * rank 0, and rank 2 is what chat needs. Written as a row rather than invested through
+   * `MasterSkillTreeService`, which needs a live entity and so cannot be used before anyone has selected the
+   * master.
+   *
+   * Deliberately does not touch [Master.skillPoints]: a master keeps the points
+   * `MasterFactory.STARTING_SKILL_POINTS` gave it, so a scenario about *spending* points still has some.
+   *
+   * Public because a scenario that creates its own master through the real `CreateMasterCMSG` flow needs the
+   * same grant, and two copies of it would drift - see `MultiPlayerJourneyScenario`.
+   */
+  fun grantFullBasicSkill(masterId: Long) {
+    val basicSkill = skillRepository.findByIdentifier(BASIC_SKILL)
+      ?: error("skills.yml has no $BASIC_SKILL; the scenario fixtures cannot open the chat gate")
+
+    learnedSkillRepository.save(
+      LearnedSkill(
+        skill = basicSkill,
+        level = FIXTURE_BASIC_SKILL_LEVEL,
+        master = masterRepository.findByIdOrThrow(masterId)
+      )
+    )
+  }
 
   /**
    * We need to do it like this because our YML loader needs to run first to setup the mob
@@ -119,6 +155,8 @@ class ScenarioDataSetup(
     // context anyway.
     val master1 = masterFactory.create(account1.id, createMasterData1)
 
+    grantFullBasicSkill(master1.id)
+
     LOG.info { "Account 1 (ID: ${account1.id}) created" }
 
     // add 1. bestia to first master.
@@ -149,6 +187,7 @@ class ScenarioDataSetup(
       spawnPointId = defaultSpawnPointId()
     )
     val master2 = masterFactory.create(account1.id, createMasterData2)
+    grantFullBasicSkill(master2.id)
 
     // add bestia to second master.
     playerBestiaCreateOperation.createAndSpawn(
@@ -186,6 +225,7 @@ class ScenarioDataSetup(
       spawnPointId = defaultSpawnPointId()
     )
     val master = masterFactory.create(account2.id, createMasterData)
+    grantFullBasicSkill(master.id)
 
     return TestFixture.AccountData(
       account = account2,
@@ -208,6 +248,7 @@ class ScenarioDataSetup(
       spawnPointId = defaultSpawnPointId()
     )
     val master = masterFactory.create(account3.id, createMasterData)
+    grantFullBasicSkill(master.id)
 
     LOG.info { "Account 3 (ID: ${account3.id}) created" }
 
@@ -220,6 +261,11 @@ class ScenarioDataSetup(
   }
 
   companion object {
+    private const val BASIC_SKILL = "BASIC_SKILL"
+
+    /** Full rank, so no scenario has to know which of the five unlocks it happens to need. */
+    private const val FIXTURE_BASIC_SKILL_LEVEL = 5
+
     private val LOG = KotlinLogging.logger { }
   }
 }
