@@ -11,6 +11,7 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.damage.Heal
 import net.bestia.zone.battle.damage.HitDamage
 import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.damage.SurveyResult
 import net.bestia.zone.battle.damage.TrueDamage
 import net.bestia.zone.ecs.battle.effects.AreaEffect
 import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
@@ -24,6 +25,8 @@ import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.crafting.CraftingService
+import net.bestia.zone.cartography.SurveyService
+import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.skill.findByIdOrThrow
 import net.bestia.zone.world.prop.PlayerStructureService
@@ -50,6 +53,7 @@ class SkillExecutionService(
   private val areaEffectSpawner: AreaEffectSpawner,
   private val craftingService: CraftingService,
   private val playerStructureService: PlayerStructureService,
+  private val surveyService: SurveyService,
 ) {
 
   /**
@@ -139,6 +143,11 @@ class SkillExecutionService(
       return
     }
 
+    if (result is SurveyResult) {
+      applySurvey(world, casterId, targetPosition, result)
+      return
+    }
+
     // Every other result is a number aimed at one entity, which a ground-targeted skill does not have.
     val targetId = targetEntityId ?: return
 
@@ -156,7 +165,7 @@ class SkillExecutionService(
       is HitDamage, is TrueDamage -> DamageEntitySMSG.DamageType.NORMAL
       // All unreachable (handled above); they keep the `when` exhaustive so a new result type is a
       // compile error here rather than a silently unhandled skill.
-      is Buff, is AreaEffectResult, is CraftingResult -> return
+      is Buff, is AreaEffectResult, is CraftingResult, is SurveyResult -> return
     }
 
     val position = world.get(casterId, Position::class)?.toVec3L() ?: return
@@ -192,6 +201,37 @@ class SkillExecutionService(
 
       outMessageProcessor.sendToAllPlayersInRange(position, msg)
     }
+  }
+
+  /**
+   * Sends the survey off to be charted, and does no database work here.
+   *
+   * Everything a chart needs - the blank to consume, the instance to mint, the row to write - is relational, and
+   * this runs under the world lock on `zone-tick` where that is forbidden. So the only work done here is
+   * resolving the three ids off the live world, which is the part that *cannot* be done later: by the time an
+   * async job runs, the caster may have logged out.
+   */
+  private fun applySurvey(world: World, casterId: EntityId, targetPosition: Vec3L?, result: SurveyResult) {
+    val at = targetPosition ?: world.get(casterId, Position::class)?.toVec3L()
+    if (at == null) {
+      LOG.debug { "Survey by $casterId has no position to centre on" }
+      return
+    }
+
+    val masterId = world.get(casterId, Master::class)?.masterId
+    if (masterId == null) {
+      LOG.debug { "Entity $casterId is not a master and cannot hold a chart" }
+      return
+    }
+
+    surveyService.survey(
+      world = world,
+      masterId = masterId,
+      accountId = world.get(casterId, Account::class)?.accountId,
+      entityId = casterId,
+      centre = at,
+      radiusMetres = result.radiusMetres
+    )
   }
 
   /**

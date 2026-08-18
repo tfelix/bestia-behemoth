@@ -98,6 +98,27 @@ data class CraftingResult(
 }
 
 /**
+ * The skill is a survey: it charts the ground around the aimed-at point rather than affecting anything on it.
+ *
+ * [net.bestia.zone.battle.skill.SkillExecutionService] hands this to
+ * [net.bestia.zone.cartography.SurveyService], which mints the chart off the tick thread. A script returns a
+ * radius rather than writing a chart itself for the reason [AreaEffectResult] and [CraftingResult] exist - a
+ * strategy is a pure function of a [net.bestia.zone.battle.BattleContext], with no world and no database.
+ *
+ * The centre is not carried here: it is the skill's target position, which the executor already has, and
+ * duplicating it would let the two disagree.
+ */
+data class SurveyResult(
+  val radiusMetres: Double
+) : Damage() {
+  override val amount: Int = 0
+
+  init {
+    require(radiusMetres > 0.0) { "A survey has to reach somewhere, was $radiusMetres m" }
+  }
+}
+
+/**
  * The skill applies a status effect rather than a health change - [net.bestia.zone.battle.skill.SkillExecutionService]
  * dispatches this to [net.bestia.zone.battle.StatusEffectService] instead of broadcasting a
  * [DamageEntitySMSG].

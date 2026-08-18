@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
+import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.item.instance.ItemInstanceRepository
 import net.bestia.zone.party.PartyService
 import net.bestia.zone.util.AccountId
@@ -33,12 +34,16 @@ import org.springframework.transaction.annotation.Transactional
  *   survives being moved). With their owner gone nothing can ever reach them again, so they are deleted
  *   here, after the slots that pointed at them.
  * - **Persisted status effects** - stored against [Master.entityId], which is not a foreign key to anything.
+ * - **Map charts** ([MapChartRepository]) - a chart row *is* keyed by a real foreign key to the item instance
+ *   that carries it, so it has to go before the instance does. Every master holds at least one, since one is
+ *   granted at creation.
  */
 @Service
 class MasterDeletionService(
   private val masterRepository: MasterRepository,
   private val partyService: PartyService,
   private val itemInstanceRepository: ItemInstanceRepository,
+  private val mapChartRepository: MapChartRepository,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
@@ -113,6 +118,8 @@ class MasterDeletionService(
     masterRepository.flush()
 
     if (heldInstanceIds.isNotEmpty()) {
+      // Before the instances: map_chart.item_instance_id is a foreign key, so the other order violates it.
+      mapChartRepository.deleteAllByItemInstanceIdIn(heldInstanceIds)
       itemInstanceRepository.deleteAllById(heldInstanceIds)
     }
 

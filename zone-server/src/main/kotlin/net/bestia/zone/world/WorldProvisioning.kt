@@ -6,6 +6,7 @@ import net.bestia.worldgen.pipeline.StandardWorld
 import net.bestia.worldgen.store.PipelineVersion
 import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.entity.PersistedEntityRepository
+import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.entity.deleteAllByKind
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,6 +26,7 @@ class WorldProvisioning(
   private val worldRepository: WorldRepository,
   private val masterSpawnPointRepository: MasterSpawnPointRepository,
   private val persistedEntityRepository: PersistedEntityRepository,
+  private val mapChartRepository: MapChartRepository,
   private val config: WorldGenConfig
 ) {
 
@@ -79,6 +81,10 @@ class WorldProvisioning(
 
     worldRepository.deleteAll()
     masterSpawnPointRepository.deleteAll()
+    // Charts name places by coordinate, and the coordinates mean different terrain in the new world.
+    // `MapChart.worldShapeVersion` would catch a survived row and refuse to read it, so this is the tidy half
+    // rather than the correctness half - but leaving them would keep an unreadable item in every inventory.
+    mapChartRepository.deleteAll()
     persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
 
     // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to

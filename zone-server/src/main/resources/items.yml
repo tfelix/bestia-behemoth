@@ -224,3 +224,27 @@ items:
       A breastplate beaten out of four ingots and fitted by eye.
 
       It will stop what it stops.
+
+  - id: 21
+    item-db-name: chart
+    level: 1
+    weight: 5
+    type: ETC
+    # Never stacks: the surveyed ground lives on a `map_chart` row keyed by this item's instance, so two
+    # charts merged into one stack would be one chart and one orphaned row.
+    stackable: false
+    description: |
+      A chart of surveyed land, drawn by hand.
+
+      Shows the ground whoever made it walked. Two charts can be joined into one, and any chart can be
+      copied onto blank vellum.
+
+  - id: 22
+    item-db-name: chart_blank
+    level: 1
+    weight: 5
+    type: ETC
+    description: |
+      Blank vellum, ruled and ready to be drawn on.
+
+      Surveying spends one, and so does copying a chart.

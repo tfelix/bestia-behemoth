@@ -70,6 +70,28 @@ class InventoryService(
   }
 
   /**
+   * Mints a fresh instance of [item] into a master's container and answers it.
+   *
+   * [grantToMaster] cannot serve here because it returns nothing, and the caller that needs this needs the
+   * instance itself: a chart is a row that *references* its item instance, so the id has to come back out of
+   * the grant rather than be looked up afterwards - a lookup would have to guess which of several identical
+   * instances was the new one.
+   *
+   * Always an instance, never a stack, whatever the template says about stacking: an item something else hangs
+   * per-instance state off has to have an instance to hang it off.
+   */
+  @Transactional
+  fun mintInstanceForMaster(masterId: Long, item: Item): ItemInstance {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val instance = itemInstanceRepository.save(ItemInstance(item = item))
+
+    master.container.addInstance(instance)
+    masterRepository.save(master)
+
+    return instance
+  }
+
+  /**
    * Removes one item (identified by its template id) from a master's container, preferring a unique
    * instance so its identity is preserved for whatever happens next (e.g. dropping it to the
    * ground). The removal must be durable before the caller mutates the in-memory/ECS state, to

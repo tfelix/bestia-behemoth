@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3IqwwUKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
+            "b3IqnAYKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
             "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
             "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
             "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
@@ -41,9 +41,10 @@ namespace Bnet {
             "VF9GQUlMRUQQExIYChRDUkFGVF9JVEVNX0RFU1RST1lFRBAUEhUKEVNUUlVD",
             "VFVSRV9OT19ST09NEBUSGwoXQkFTSUNfU0tJTExfQ0hBVF9MT0NLRUQQFhIc",
             "ChhCQVNJQ19TS0lMTF9QQVJUWV9MT0NLRUQQFxIbChdDUkFGVF9JVEVNX1RP",
-            "T19BRFZBTkNFRBAYEhcKE0VRVUlQX0xFVkVMX1RPT19MT1cQGUIsChVuZXQu",
-            "YmVzdGlhLmJuZXQucHJvdG9CE09wZXJhdGlvbkVycm9yUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "T19BRFZBTkNFRBAYEhcKE0VRVUlQX0xFVkVMX1RPT19MT1cQGRITCg9DSEFS",
+            "VF9OT1RfRk9VTkQQGhIVChFDSEFSVF9ORUVEU19CTEFOSxAbEhQKEENIQVJU",
+            "X01FUkdFX1NBTUUQHBIVChFDSEFSVF9TVEFMRV9XT1JMRBAdQiwKFW5ldC5i",
+            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -135,6 +136,27 @@ namespace Bnet {
     /// The wearer is below the item's level - see Item.level.
     /// </summary>
     [pbr::OriginalName("EQUIP_LEVEL_TOO_LOW")] EquipLevelTooLow = 25,
+    /// <summary>
+    /// Charts. The chart named is not held, not a chart at all, or the templates are missing from items.yml -
+    /// one code for all three on the reasoning MASTER_NOT_OWNED gives: a client that could tell them apart
+    /// would be a way to probe what other players are carrying.
+    /// </summary>
+    [pbr::OriginalName("CHART_NOT_FOUND")] ChartNotFound = 26,
+    /// <summary>
+    /// Surveying and copying both consume a blank chart, and there is none in the inventory.
+    /// </summary>
+    [pbr::OriginalName("CHART_NEEDS_BLANK")] ChartNeedsBlank = 27,
+    /// <summary>
+    /// A chart cannot be merged into itself. Reachable only from a hand-built client - the map window picks two
+    /// rows - but the alternative would be silently consuming the chart into itself.
+    /// </summary>
+    [pbr::OriginalName("CHART_MERGE_SAME")] ChartMergeSame = 28,
+    /// <summary>
+    /// The chart was surveyed in a world that has since been regenerated, so its coverage names ground that no
+    /// longer exists. Named rather than folded into CHART_NOT_FOUND because the player still has the item and
+    /// would otherwise be told it does not exist.
+    /// </summary>
+    [pbr::OriginalName("CHART_STALE_WORLD")] ChartStaleWorld = 29,
   }
 
   #endregion

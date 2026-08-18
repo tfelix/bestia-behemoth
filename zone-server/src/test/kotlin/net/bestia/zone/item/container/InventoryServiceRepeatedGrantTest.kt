@@ -51,6 +51,12 @@ class InventoryServiceRepeatedGrantTest {
     // Each call below is its own top-level transaction (this test method itself is not
     // @Transactional), matching how DevDataBootstrapRunner invokes them - `master` becomes
     // detached after every commit, which is what makes the merge-duplication bug reproducible.
+    // Counted rather than assumed empty: a fixture master is created holding a starter map chart, and this
+    // test is about whether *these three* grants duplicate, not about what else is in the bag.
+    val slotsBefore = transactionTemplate.execute {
+      masterRepository.findByIdOrThrow(masterId).container.slots.size
+    }!!
+
     inventoryService.addItem(master, "apple", 12)
     inventoryService.addItem(master, "shoes", 1)
     inventoryService.addItem(master, "boots", 1)
@@ -60,7 +66,7 @@ class InventoryServiceRepeatedGrantTest {
         .map { it.template.identifier to it.amount }
     }!!
 
-    assertEquals(3, slots.size, "expected exactly one slot per granted item, got: $slots")
+    assertEquals(slotsBefore + 3, slots.size, "expected exactly one slot per granted item, got: $slots")
     assertEquals(12, slots.first { it.first == "apple" }.second)
     assertEquals(1, slots.count { it.first == "shoes" })
     assertEquals(1, slots.count { it.first == "boots" })

@@ -37,7 +37,17 @@ class ItemImporterBootRunner(
     val level: Int = 1,
     @JsonProperty("max-durability")
     val maxDurability: Int = 0,
-    val description: String? = null
+    val description: String? = null,
+
+    /**
+     * Whether fresh grants of this item merge into a stack. Omit it and the type decides, which is right for
+     * everything whose identity is only its template.
+     *
+     * Set it to `false` for an item something else hangs per-instance state off - a chart's surveyed ground
+     * lives on a row keyed by its `item_instance`, so two charts that merged into one stack would be one chart
+     * and one orphaned row.
+     */
+    val stackable: Boolean? = null
   )
 
   /**
@@ -77,6 +87,7 @@ class ItemImporterBootRunner(
       || entity.level != dto.level
       || entity.maxDurability != dto.maxDurability
       || entity.description != dto.description
+      || entity.stackable != stackableOf(dto, type)
 
     if (!needsUpdate) {
       return false
@@ -89,9 +100,9 @@ class ItemImporterBootRunner(
     entity.level = dto.level
     entity.maxDurability = dto.maxDurability
     entity.description = dto.description
-    // Derived from the type at construction, so it has to follow the type here too - an item changed from
-    // EQUIP to ETC that kept `stackable = false` would silently stop merging in the inventory.
-    entity.stackable = type != Item.ItemType.EQUIP
+    // Follows the type unless the yml overrides it - an item changed from EQUIP to ETC that kept
+    // `stackable = false` would silently stop merging in the inventory.
+    entity.stackable = stackableOf(dto, type)
     entity.validate()
 
     return true
@@ -119,9 +130,13 @@ class ItemImporterBootRunner(
       equipSlot = getEquipSlot(dto),
       level = dto.level,
       maxDurability = dto.maxDurability,
-      description = dto.description
+      description = dto.description,
+      stackable = stackableOf(dto, getType(dto))
     )
   }
+
+  private fun stackableOf(dto: ItemYamlDto, type: Item.ItemType): Boolean =
+    dto.stackable ?: (type != Item.ItemType.EQUIP)
 
   private fun getType(dto: ItemYamlDto): Item.ItemType {
     return try {

@@ -99,14 +99,16 @@ class MasterDeletionServiceTest {
 
   @Test
   fun `deletes the unique items the master was carrying`() {
-    val master = createThrowawayMaster()
+    // Measured before the master exists, so the baseline includes neither the shoes nor the starter map chart
+    // every new master is created holding - both of which the delete has to take with it.
     val instancesBefore = itemInstanceRepository.count()
+    val master = createThrowawayMaster()
 
     // Shoes are EQUIP and therefore not stackable, so granting a pair mints an ItemInstance row instead of
     // growing a stack. That is the case the delete order has to get right: the container slot pointing at
     // the instance must be gone before the instance itself can be removed.
     inventoryService.addItem(master, "shoes", 1)
-    assertEquals(instancesBefore + 1, itemInstanceRepository.count())
+    assertEquals(instancesBefore + 2, itemInstanceRepository.count(), "the chart and the shoes")
 
     masterDeletionService.delete(ACCOUNT_ID, master.id, master.name)
 

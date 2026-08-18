@@ -454,11 +454,17 @@ skills:
     type: NO_DAMAGE
     script: Cartography
     targetType: GROUND
+    range: 4
+    manaCost: 15
+    # Surveying channels, so it runs through the existing Casting/CastingSystem and can be interrupted by
+    # taking a hit. A survey that resolved instantly would be a map drawn while running away from something.
+    castTime: 5.0
     description: |
       Enables the player to chart unexplored land, revealing terrain that can be shared,
       traded on, or built on.
 
-      Each level reduces the difficulty of surveying unexplored land.
+      Spends one sheet of blank vellum and produces a chart of the ground around the surveyed
+      point. Each level reaches a kilometre further, up to five at full rank.
 
   - id: 38
     identifier: WILDERNESS_SURVIVAL

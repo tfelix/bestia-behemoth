@@ -1,5 +1,6 @@
 package net.bestia.zone.account.master
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.Account
 import net.bestia.zone.account.AccountRepository
 import net.bestia.zone.account.findByIdOrThrow
@@ -7,10 +8,14 @@ import net.bestia.zone.account.master.status.EffortValueCostCalculator
 import net.bestia.zone.account.master.status.StatusAttribute
 import net.bestia.zone.account.master.status.setEffortValue
 import net.bestia.zone.battle.status.StatusEffectId
+import net.bestia.zone.cartography.CartographyConfig
+import net.bestia.zone.cartography.chart.ChartService
 import net.bestia.zone.ecs.core.EntityIdGenerator
 import net.bestia.zone.ecs.persistence.StatusEffectPersistenceService
 import net.bestia.zone.util.AccountId
+import net.bestia.zone.world.MasterSpawnPoint
 import net.bestia.zone.world.MasterSpawnPointService
+import net.bestia.zone.world.WorldService
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
@@ -36,6 +41,9 @@ class MasterFactory(
   private val entityIdGenerator: EntityIdGenerator,
   private val statusEffectPersistenceService: StatusEffectPersistenceService,
   private val effortValueCostCalculator: EffortValueCostCalculator,
+  private val chartService: ChartService,
+  private val cartographyConfig: CartographyConfig,
+  private val worldService: WorldService,
 ) {
 
   class CreateMasterData(
@@ -126,8 +134,40 @@ class MasterFactory(
     // once-ever event: the spawner replays whatever is stored, and MasterIntroMarker deletes itself
     // after firing, so the second login finds nothing to replay.
     statusEffectPersistenceService.seed(savedMaster.entityId, StatusEffectId.MASTER_INTRO_MARKER)
+    grantStarterChart(savedMaster, spawnPoint)
 
     return savedMaster
+  }
+
+  /**
+   * Puts a chart of the home settlement in a new master's pack.
+   *
+   * Charts are the *only* source of map knowledge - there is no permanent per-master atlas - so without this a
+   * fresh master's map and minimap are blank, which reads as a broken window rather than as fog. It is sized to
+   * show where they are standing and what is around it, not to be a head start: see
+   * [CartographyConfig.starterChartRadiusMetres].
+   *
+   * Failure is logged and swallowed. A missing item template is a broken deployment, and refusing to create the
+   * master over it would turn a blank map into an account nobody can play.
+   */
+  private fun grantStarterChart(master: Master, spawnPoint: MasterSpawnPoint) {
+    val voxelSize = worldService.config.voxelSize
+    val result = chartService.grantStarterChart(
+      masterId = master.id,
+      centreX = spawnPoint.position.x * voxelSize,
+      centreY = spawnPoint.position.y * voxelSize,
+      radiusMetres = cartographyConfig.starterChartRadiusMetres
+    )
+
+    when (result) {
+      is ChartService.Result.Ok -> LOG.info {
+        "Master ${master.id} starts with a chart of ${result.cells} cells around ${spawnPoint.settlementName}"
+      }
+
+      is ChartService.Result.Refused -> LOG.error {
+        "Master ${master.id} could not be given a starter chart (${result.error}); their map will be blank"
+      }
+    }
   }
 
   /**
@@ -165,6 +205,8 @@ class MasterFactory(
   }
 
   companion object {
+    private val LOG = KotlinLogging.logger { }
+
     /**
      * Every attribute at [EffortValueCostCalculator.BALANCED_EFFORT_VALUE], which costs exactly
      * [EffortValueCostCalculator.CREATION_EFFORT_POINTS] - a valid, opinion-free starting build for

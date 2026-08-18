@@ -13,3 +13,4 @@ max_level = 5
 target_type = "GROUND"
 tree = "SURVIVAL"
 sub_tree = "PROSPECTOR"
+cast_time = 5.0

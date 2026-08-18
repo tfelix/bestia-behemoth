@@ -13,6 +13,11 @@ enum OpSuccess {
   // sync; this is only what lets the window say so rather than the player inferring it from a bag.
   CRAFT_SUCCEEDED = 2;
   STRUCTURE_PLACED = 3;
+
+  // A survey resolved into a chart, or two charts became one. The chart itself arrives through the ordinary
+  // inventory sync; this is what lets the window say the cast did something, since a survey over ground the
+  // player had already charted looks identical to one that failed.
+  CHART_WRITTEN = 4;
 }
 
 message OperationSuccess {

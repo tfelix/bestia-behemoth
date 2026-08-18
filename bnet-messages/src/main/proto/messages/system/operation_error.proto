@@ -72,6 +72,20 @@ enum OpError {
 
   // The wearer is below the item's level - see Item.level.
   EQUIP_LEVEL_TOO_LOW = 25;
+
+  // Charts. The chart named is not held, not a chart at all, or the templates are missing from items.yml -
+  // one code for all three on the reasoning MASTER_NOT_OWNED gives: a client that could tell them apart
+  // would be a way to probe what other players are carrying.
+  CHART_NOT_FOUND = 26;
+  // Surveying and copying both consume a blank chart, and there is none in the inventory.
+  CHART_NEEDS_BLANK = 27;
+  // A chart cannot be merged into itself. Reachable only from a hand-built client - the map window picks two
+  // rows - but the alternative would be silently consuming the chart into itself.
+  CHART_MERGE_SAME = 28;
+  // The chart was surveyed in a world that has since been regenerated, so its coverage names ground that no
+  // longer exists. Named rather than folded into CHART_NOT_FOUND because the player still has the item and
+  // would otherwise be told it does not exist.
+  CHART_STALE_WORLD = 29;
 }
 
 message OperationError {
