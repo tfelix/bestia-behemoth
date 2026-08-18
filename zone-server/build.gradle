@@ -283,11 +283,14 @@ tasks.register('mapBake', JavaExec) {
  *
  * The only tool that can show a *seam* interactively, which is the failure a tiled map is actually prone to and
  * which no single tile reveals. Renders on demand into the same cache `mapBake` writes.
+ *
+ * `-Pfog=x,y,r` masks the tiles against a synthetic chart, semicolons separating several discs - quote it, since
+ * PowerShell reads a bare semicolon as a command separator.
  */
 tasks.register('mapServe', JavaExec) {
     description = 'Serves the tile pyramid with a browser slippy-map viewer'
     mainClass = 'net.bestia.zone.cartography.tools.MapServeMain'
-    cartographyTool(it, [port: '--port', out: '--out'], [:])
+    cartographyTool(it, [port: '--port', out: '--out', fog: '--fog'], [:])
 }
 
 /**

@@ -40,20 +40,27 @@ class TileRenderer(val inputs: TileInputs) {
   /**
    * Renders and encodes to PNG.
    *
-   * PNG rather than a lossy format for two reasons that both matter later: the fog mask is applied as alpha, so
-   * the format has to carry it, and the atlas style is line art, which is what JPEG's ringing is worst at.
+   * PNG rather than a lossy format for two reasons: the fog mask is applied as alpha, so the format has to carry
+   * it, and the atlas style is line art, which is what JPEG's ringing is worst at.
+   *
+   * With a [mask] the result is ARGB and is **not** interchangeable with the unmasked tile - it belongs to one
+   * chart set, so it must never be written to the base tile store.
    *
    * A tile of drawn parchment compresses poorly - the paper texture varies every pixel by design, which is
    * exactly what a run-length predictor cannot exploit. Measure before optimising this: `mapBake` prints the
    * mean tile size per level, and the honest fixes if it is too large are fewer colours (an indexed palette) or
    * less paper noise, not a lossier codec.
    */
-  fun encode(tile: TileId): ByteArray {
+  fun encode(tile: TileId, mask: FogMask? = null): ByteArray {
     val image = render(tile)
     posterize((image.raster.dataBuffer as DataBufferInt).data)
 
+    // Quantise first, then mask. The other order would posterise the alpha channel along with the colour and
+    // snap the fringe to the colour lattice, and it would undo the zeroing that hides uncharted ground.
+    val encoded = mask?.applyTo(image) ?: image
+
     val out = ByteArrayOutputStream(EXPECTED_TILE_BYTES)
-    ImageIO.write(image, "png", out)
+    ImageIO.write(encoded, "png", out)
     return out.toByteArray()
   }
 

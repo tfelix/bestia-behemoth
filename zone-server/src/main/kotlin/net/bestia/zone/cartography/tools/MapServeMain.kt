@@ -2,8 +2,14 @@ package net.bestia.zone.cartography.tools
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import net.bestia.worldgen.core.WorldWrap
 import net.bestia.worldgen.pipeline.StandardWorld
+import net.bestia.zone.cartography.coverage.AreaCoverage
+import net.bestia.zone.cartography.coverage.Coverage
+import net.bestia.zone.cartography.coverage.CoverageCodec
+import net.bestia.zone.cartography.coverage.SurveyGrid
 import net.bestia.zone.cartography.render.TileInputs
+import net.bestia.zone.cartography.tile.FogMask
 import net.bestia.zone.cartography.tile.MapWorldKey
 import net.bestia.zone.cartography.tile.TileId
 import net.bestia.zone.cartography.tile.TileRenderer
@@ -16,7 +22,8 @@ import java.util.concurrent.Executors
  * Serves the tile pyramid and a viewer for it, so a whole level can be panned and zoomed in a browser.
  *
  * ```
- * ./gradlew :zone-server:mapServe -Pgenesis          # then open http://localhost:8099
+ * ./gradlew :zone-server:mapServe -Pgenesis                        # then open http://localhost:8099
+ * ./gradlew :zone-server:mapServe -Pgenesis -Pfog=64000,64000,8000  # with synthetic chart coverage
  * ```
  *
  * ### Why this exists rather than a folder of PNGs
@@ -33,16 +40,29 @@ import java.util.concurrent.Executors
  * ### Why the JDK's own HTTP server
  *
  * `jdk.httpserver` is in the JDK, so a development tool costs no dependency and starts in the time it takes to
- * generate a world. The production endpoint is a Spring `@RestController` on zone-server's own port and shares
- * none of this - which is the right split: this serves *without* authentication or fog on purpose, because its
- * job is to show the map as drawn, and adding either would hide the thing being inspected.
+ * generate a world. The production endpoint is a Spring `@RestController` on zone-server's own port and
+ * shares
+ * none of this - which is the right split: this serves *without* authentication on purpose, because its job is
+ * to show the map as drawn.
+ *
+ * ### Fog is opt-in
+ *
+ * Without `-Pfog` nothing is masked, because the usual question here is what the map looks like and a mask
+ * would hide the answer. With it, a synthetic [Coverage] stands in for a player's charts and the tile path
+ * takes exactly the branches the tile service will: a 404 for unknown ground, the untouched base tile where
+ * coverage is complete, and a masked render in between. That is the only way to see the fringe over real
+ * terrain at more than one zoom, which is where the alignment between the mask lattice and the tile grid
+ * either holds or visibly does not.
+ *
+ * Masked tiles are never written to the store. They belong to one chart set; the store's contents are shared.
  */
 object MapServeMain {
 
   private const val PORT = "--port"
   private const val OUT = "--out"
+  private const val FOG = "--fog"
 
-  private val FLAGS = setOf(PORT, OUT)
+  private val FLAGS = setOf(PORT, OUT, FOG)
 
   @JvmStatic
   fun main(argv: Array<String>) {
@@ -57,6 +77,7 @@ object MapServeMain {
 
     val fit = TileId.fitLevel(config.widthMetres)
     val port = args.int(PORT, DEFAULT_PORT)
+    val fog = args.string(FOG)?.let { syntheticCoverage(it, SurveyGrid(WorldWrap(config))) }
 
     val server = HttpServer.create(InetSocketAddress(LOOPBACK, port), BACKLOG)
     server.executor = Executors.newFixedThreadPool(THREADS) { runnable ->
@@ -66,7 +87,7 @@ object MapServeMain {
     server.createContext("/") { exchange ->
       when {
         exchange.requestURI.path == "/" -> respond(exchange, "text/html; charset=utf-8", viewerHtml(config.widthMetres, config.heightMetres, fit).toByteArray())
-        exchange.requestURI.path.startsWith("/t/") -> tile(exchange, store, renderer, fit)
+        exchange.requestURI.path.startsWith("/t/") -> tile(exchange, store, renderer, fit, fog)
         else -> respond(exchange, "text/plain", "not found".toByteArray(), 404)
       }
     }
@@ -79,6 +100,15 @@ object MapServeMain {
       )
     )
     println("cache ${store.directory.absolutePath} holds ${store.measure()}")
+    if (fog != null) {
+      println(
+        "fog on: %,d cells charted, %,.0f km2, %,d bytes stored, bounds %s".format(
+          Locale.ROOT, fog.cellCount(),
+          fog.cellCount() * SurveyGrid.CELL_METRES * SurveyGrid.CELL_METRES / 1e6,
+          CoverageCodec.encode(fog).size, fog.bounds()
+        )
+      )
+    }
     println()
     println("open http://localhost:$port  -  drag to pan, wheel to zoom, levels 0..$fit")
     println("Ctrl-C to stop")
@@ -87,7 +117,13 @@ object MapServeMain {
   }
 
   /** `/t/{level}/{tx}/{ty}.png`, from the cache or rendered into it. */
-  private fun tile(exchange: HttpExchange, store: TileStore, renderer: ThreadLocal<TileRenderer>, fit: Int) {
+  private fun tile(
+    exchange: HttpExchange,
+    store: TileStore,
+    renderer: ThreadLocal<TileRenderer>,
+    fit: Int,
+    fog: Coverage?
+  ) {
     val parts = exchange.requestURI.path.removePrefix("/t/").removeSuffix(".png").split('/')
     if (parts.size != 3) {
       respond(exchange, "text/plain", "expected /t/{level}/{tx}/{ty}.png".toByteArray(), 400)
@@ -108,6 +144,8 @@ object MapServeMain {
       return
     }
 
+    if (fog != null && servedThroughFog(exchange, renderer, id, fog)) return
+
     val cached = store.read(id)
     if (cached != null) {
       respond(exchange, "image/png", cached)
@@ -117,6 +155,59 @@ object MapServeMain {
     val encoded = renderer.get().encode(id)
     store.write(id, encoded)
     respond(exchange, "image/png", encoded)
+  }
+
+  /**
+   * Responds and returns true, or returns false to say the unmasked tile is the right answer.
+   *
+   * Which way round matters: getting it backwards leaves the fully charted branch returning without writing a
+   * response at all, and the request simply hangs.
+   *
+   * The two cheap questions come first, both answered from the bitset rather than from a lattice: no coverage
+   * at all is a 404 with nothing rendered, and coverage complete across [FogMask.clearingArea] means the base
+   * tile needs no mask and can come from the shared cache.
+   */
+  private fun servedThroughFog(
+    exchange: HttpExchange,
+    renderer: ThreadLocal<TileRenderer>,
+    id: TileId,
+    fog: Coverage
+  ): Boolean {
+    if (fog.coverageOf(id.bounds) == AreaCoverage.None) {
+      respond(exchange, "text/plain", "uncharted".toByteArray(), 404)
+      return true
+    }
+
+    if (fog.coverageOf(FogMask.clearingArea(id)) == AreaCoverage.Full) return false
+
+    val mask = FogMask.forTile(id, fog)
+    if (mask.isFullyHidden) {
+      respond(exchange, "text/plain", "uncharted".toByteArray(), 404)
+      return true
+    }
+
+    respond(exchange, "image/png", renderer.get().encode(id, mask))
+    return true
+  }
+
+  /**
+   * `x,y,r` discs in metres, semicolon separated: `-Pfog=64000,64000,8000;70000,60000,3000`.
+   *
+   * More than one disc because a merged chart is several, and the interesting artefact is where two of them
+   * meet: a fringe reappearing inside the union would mean the distance field is being computed per disc
+   * instead of over the coverage.
+   */
+  private fun syntheticCoverage(spec: String, grid: SurveyGrid): Coverage {
+    val coverage = Coverage(grid)
+
+    for (disc in spec.split(';')) {
+      val parts = disc.split(',').map { it.trim() }
+      require(parts.size == 3) { "--fog wants x,y,r per disc, got '$disc'" }
+
+      coverage.fillDisc(parts[0].toDouble(), parts[1].toDouble(), parts[2].toDouble())
+    }
+
+    return coverage
   }
 
   private fun respond(exchange: HttpExchange, contentType: String, body: ByteArray, status: Int = 200) {
