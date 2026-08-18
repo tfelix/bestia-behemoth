@@ -45,6 +45,16 @@ class Item(
   var equipSlot: EquipmentSlot? = null,
 
   /**
+   * How much wear a fresh [net.bestia.zone.item.instance.ItemInstance] of this template can take, or
+   * **0 for an item that does not wear at all** - which is every material, every consumable and any
+   * piece of gear nobody has given a number to yet.
+   *
+   * Only ever read when an instance is minted; from then on the instance owns its own copy, so that a
+   * well-forged sword can be tougher than the catalogue's baseline. See [ItemInstance.maxDurability].
+   */
+  var maxDurability: Int = 0,
+
+  /**
    * Long-form flavor text, English only.
    */
   @Column(columnDefinition = "TEXT", nullable = true)

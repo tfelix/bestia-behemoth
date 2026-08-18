@@ -15,6 +15,9 @@ data class EquipmentComponentSMSG(
         .setSlot(item.slot)
         .setItemId(item.itemId)
         .setUniqueId(item.uniqueId)
+        .setDurability(item.durability)
+        .setMaxDurability(item.maxDurability)
+        .setSlots(item.slots)
         .build()
     }
 
@@ -32,6 +35,9 @@ data class EquipmentComponentSMSG(
   data class EquippedItem(
     val slot: Int,
     val itemId: Int,
-    val uniqueId: Long
+    val uniqueId: Long,
+    val durability: Int = 0,
+    val maxDurability: Int = 0,
+    val slots: Int = 0
   )
 }

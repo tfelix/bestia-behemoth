@@ -23,4 +23,12 @@ message EquippedItem {
   uint32 slot = 1;
   uint32 item_id = 2;
   uint64 unique_id = 3;
+
+  // Wear on the backing item instance. Both zero for a plain stack and for gear nobody gave a
+  // durability - see net.bestia.zone.item.instance.ItemInstance.maxDurability. A client draws a wear
+  // bar only when max_durability > 0.
+  uint32 durability = 4;
+  uint32 max_durability = 5;
+  // Rune slots cut into the backing instance by Item Customization; nothing can fill one yet.
+  uint32 slots = 6;
 }

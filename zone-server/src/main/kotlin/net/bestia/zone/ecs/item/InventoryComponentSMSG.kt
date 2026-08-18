@@ -16,6 +16,9 @@ data class InventoryComponentSMSG(
         .setUniqueId(item.uniqueId)
         .setAmount(item.amount)
         .setEquipped(item.equipped)
+        .setDurability(item.durability)
+        .setMaxDurability(item.maxDurability)
+        .setSlots(item.slots)
         .build()
     }
 
@@ -33,6 +36,9 @@ data class InventoryComponentSMSG(
     val itemId: Int,
     val uniqueId: Long,
     val amount: Int,
-    val equipped: Boolean = false
+    val equipped: Boolean = false,
+    val durability: Int = 0,
+    val maxDurability: Int = 0,
+    val slots: Int = 0
   )
 }

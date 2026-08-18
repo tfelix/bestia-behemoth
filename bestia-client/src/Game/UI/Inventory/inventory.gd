@@ -16,6 +16,7 @@ var equipment_window: WidgetWindow = null
 
 @onready var _usable_grid: GridContainer = %UsableGrid
 @onready var _equip_grid: GridContainer = %EquipGrid
+@onready var _etc_grid: GridContainer = %EtcGrid
 
 var _items: Dictionary[int, Array]
 
@@ -59,6 +60,9 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			inv_item.amount = itemMsg.Amount
 			inv_item.player_item_id = itemMsg.UniqueId
 			inv_item.equipped = itemMsg.Equipped
+			inv_item.durability = itemMsg.Durability
+			inv_item.max_durability = itemMsg.MaxDurability
+			inv_item.slots = itemMsg.Slots
 			selected_entity_items.append(inv_item)
 		_render_items()
 		inventory_updated.emit()
@@ -75,10 +79,9 @@ func _render_items() -> void:
 		# Items for this entity are probably not loaded yet.
 		return
 
-	for child in _usable_grid.get_children():
-		child.queue_free()
-	for child in _equip_grid.get_children():
-		child.queue_free()
+	for grid in [_usable_grid, _equip_grid, _etc_grid]:
+		for child in grid.get_children():
+			child.queue_free()
 
 	var selected_entity_items = _items[selected_entity_id]
 
@@ -92,6 +95,9 @@ func _render_items() -> void:
 		inv_item.amount = item.amount
 		inv_item.item = item.item
 		inv_item.unique_id = item.player_item_id
+		inv_item.durability = item.durability
+		inv_item.max_durability = item.max_durability
+		inv_item.slots = item.slots
 		inv_item.inventory = self
 		match item.item.type:
 			ItemResource.ItemType.USABLE:
@@ -99,7 +105,7 @@ func _render_items() -> void:
 			ItemResource.ItemType.EQUIP:
 				_equip_grid.add_child(inv_item)
 			ItemResource.ItemType.ETC:
-				pass
+				_etc_grid.add_child(inv_item)
 
 
 ## Double-clicking an equipment item while the equipment window is open equips it into the slot the

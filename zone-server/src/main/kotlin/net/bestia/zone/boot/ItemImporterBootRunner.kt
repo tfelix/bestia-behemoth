@@ -34,6 +34,8 @@ class ItemImporterBootRunner(
     val script: String? = null,
     @JsonProperty("equip-slot")
     val equipSlot: String? = null,
+    @JsonProperty("max-durability")
+    val maxDurability: Int = 0,
     val description: String? = null
   )
 
@@ -71,6 +73,7 @@ class ItemImporterBootRunner(
       || entity.type != type
       || entity.script != dto.script
       || entity.equipSlot != equipSlot
+      || entity.maxDurability != dto.maxDurability
       || entity.description != dto.description
 
     if (!needsUpdate) {
@@ -81,6 +84,7 @@ class ItemImporterBootRunner(
     entity.type = type
     entity.script = dto.script
     entity.equipSlot = equipSlot
+    entity.maxDurability = dto.maxDurability
     entity.description = dto.description
     // Derived from the type at construction, so it has to follow the type here too - an item changed from
     // EQUIP to ETC that kept `stackable = false` would silently stop merging in the inventory.
@@ -110,6 +114,7 @@ class ItemImporterBootRunner(
       type = getType(dto),
       script = dto.script,
       equipSlot = getEquipSlot(dto),
+      maxDurability = dto.maxDurability,
       description = dto.description
     )
   }

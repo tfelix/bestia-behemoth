@@ -189,7 +189,10 @@ class PlayerBestiaEntitySpawner(
         Equipment.EquippedItem(
           itemId = slot.template.id,
           uniqueId = slot.uniqueId,
-          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0
+          upgradeLevel = slot.itemInstance?.upgradeLevel ?: 0,
+          durability = slot.durability,
+          maxDurability = slot.maxDurability,
+          slots = slot.slots
         )
       }.toMutableMap()
     )
@@ -204,7 +207,10 @@ class PlayerBestiaEntitySpawner(
           weight = slot.template.weight,
           uniqueId = slot.uniqueId,
           stackable = slot.isStackable,
-          equipped = slot.isEquipped
+          equipped = slot.isEquipped,
+          durability = slot.durability,
+          maxDurability = slot.maxDurability,
+          slots = slot.slots
         )
       }.toMutableList()
     )

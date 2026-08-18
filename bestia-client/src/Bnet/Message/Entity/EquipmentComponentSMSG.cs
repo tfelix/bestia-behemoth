@@ -53,13 +53,28 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     [Export] public uint ItemId { get; set; }
     [Export] public ulong UniqueId { get; set; }
 
+    /// <summary>
+    /// Wear on the backing item instance. Both zero for a plain stack and for gear with no durability
+    /// at all, so a wear bar is drawn only when <see cref="MaxDurability"/> is greater than zero.
+    /// </summary>
+    [Export] public uint Durability { get; set; }
+    [Export] public uint MaxDurability { get; set; }
+
+    /// <summary>
+    /// Rune slots cut into the backing instance by Item Customization. Nothing can fill one yet.
+    /// </summary>
+    [Export] public uint Slots { get; set; }
+
     public static EquippedItem FromProto(global::Bnet.EquippedItem protoItem)
     {
       return new EquippedItem
       {
         Slot = protoItem.Slot,
         ItemId = protoItem.ItemId,
-        UniqueId = protoItem.UniqueId
+        UniqueId = protoItem.UniqueId,
+        Durability = protoItem.Durability,
+        MaxDurability = protoItem.MaxDurability,
+        Slots = protoItem.Slots
       };
     }
   }

@@ -25,7 +25,18 @@ data class Inventory(
     val weight: Int = 0,
     val uniqueId: Long = 0L,
     val stackable: Boolean = true,
-    var equipped: Boolean = false
+    var equipped: Boolean = false,
+
+    /**
+     * Mirrors the backing instance's wear so the client can draw it without a second round trip.
+     * Both zero for a plain stack and for gear nobody gave a durability - see
+     * [net.bestia.zone.item.instance.ItemInstance.maxDurability].
+     */
+    var durability: Int = 0,
+    var maxDurability: Int = 0,
+
+    /** Rune slots cut into the backing instance; zero for everything else. */
+    var slots: Int = 0
   ) {
     val isStackable: Boolean get() = stackable && uniqueId == 0L
     val totalWeight get() = amount * weight
@@ -205,7 +216,10 @@ data class Inventory(
           itemId = item.itemId.toInt(),
           uniqueId = item.uniqueId,
           amount = item.amount,
-          equipped = item.equipped
+          equipped = item.equipped,
+          durability = item.durability,
+          maxDurability = item.maxDurability,
+          slots = item.slots
         )
       }
     )

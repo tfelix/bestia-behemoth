@@ -82,7 +82,15 @@ class EquipItemHandler(
       val previous = equipment.unequip(msg.slot)
       val equipped = equipment.equip(
         msg.slot,
-        Equipment.EquippedItem(itemId = item.id, uniqueId = held?.uniqueId ?: 0L)
+        Equipment.EquippedItem(
+          itemId = item.id,
+          uniqueId = held?.uniqueId ?: 0L,
+          // Carried over from the inventory view rather than re-read from the DB: the wear a client
+          // already sees on the item in the bag must be the wear it sees on the item in the slot.
+          durability = held?.durability ?: 0,
+          maxDurability = held?.maxDurability ?: 0,
+          slots = held?.slots ?: 0
+        )
       )
 
       if (!equipped) {

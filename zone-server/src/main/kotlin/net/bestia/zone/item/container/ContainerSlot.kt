@@ -75,4 +75,9 @@ class ContainerSlot(
   val uniqueId: Long get() = itemInstance?.id ?: 0L
 
   val isStackable: Boolean get() = itemInstance == null
+
+  /** Zero for a plain stack, which by construction carries no per-instance state. */
+  val durability: Int get() = itemInstance?.durability ?: 0
+  val maxDurability: Int get() = itemInstance?.maxDurability ?: 0
+  val slots: Int get() = itemInstance?.slots ?: 0
 }

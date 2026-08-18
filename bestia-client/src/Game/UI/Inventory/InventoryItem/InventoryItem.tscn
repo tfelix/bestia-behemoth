@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxb2e62g0eqfb"]
+[gd_scene load_steps=6 format=3 uid="uid://dxb2e62g0eqfb"]
 
 [ext_resource type="Script" uid="uid://rsg51hifbndf" path="res://Game/UI/Inventory/InventoryItem/inventory_item.gd" id="1_2a2sk"]
 [ext_resource type="Texture2D" uid="uid://d0xpuiawf18dy" path="res://Game/UI/Inventory/InventoryItem/item_placeholder.png" id="2_fb7w5"]
@@ -25,6 +25,13 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wear_bg"]
+bg_color = Color(0.09, 0.09, 0.09, 0.85)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [node name="InventoryItem" type="Panel"]
 custom_minimum_size = Vector2(64, 64)
 theme_override_styles/panel = SubResource("StyleBoxFlat_2a2sk")
@@ -48,6 +55,23 @@ layout_mode = 2
 texture = ExtResource("2_fb7w5")
 expand_mode = 2
 stretch_mode = 5
+
+[node name="Wear" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -7.0
+offset_left = 4.0
+offset_right = -4.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/background = SubResource("StyleBoxFlat_wear_bg")
+show_percentage = false
 
 [node name="MarginCount" type="MarginContainer" parent="."]
 layout_mode = 1

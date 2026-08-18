@@ -163,7 +163,13 @@ class ObtainItemIntentSystem(
         amount = amount,
         weight = item.weight,
         uniqueId = uniqueId,
-        stackable = item.stackable
+        stackable = item.stackable,
+        // Mirrors what InventoryService.grant is about to mint: a fresh instance starts unworn, and a
+        // stackable item gets no instance and therefore no durability at all. A re-attached instance
+        // (uniqueId != 0, an item picked back up off the ground) keeps whatever wear it had, which this
+        // cannot see - the client gets the real number on the next full inventory send.
+        durability = if (item.stackable) 0 else item.maxDurability,
+        maxDurability = if (item.stackable) 0 else item.maxDurability
       )
     )
 

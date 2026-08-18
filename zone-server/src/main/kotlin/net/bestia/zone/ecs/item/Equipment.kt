@@ -34,7 +34,14 @@ data class Equipment(
     val itemId: Long,
     val uniqueId: Long,
     /** Mirrors [net.bestia.zone.item.instance.ItemInstance.upgradeLevel] so equip scripts can scale off it. */
-    val upgradeLevel: Int = 0
+    val upgradeLevel: Int = 0,
+
+    /** Wear on the backing instance, both zero for gear that does not wear. */
+    val durability: Int = 0,
+    val maxDurability: Int = 0,
+
+    /** Rune slots cut into the backing instance. */
+    val slots: Int = 0
   )
 
   fun isSlotAvailable(slot: EquipmentSlot): Boolean = availableSlotMask.hasEquipSlot(slot)
@@ -85,7 +92,10 @@ data class Equipment(
         EquipmentComponentSMSG.EquippedItem(
           slot = slot.ordinal,
           itemId = item.itemId.toInt(),
-          uniqueId = item.uniqueId
+          uniqueId = item.uniqueId,
+          durability = item.durability,
+          maxDurability = item.maxDurability,
+          slots = item.slots
         )
       }
     )

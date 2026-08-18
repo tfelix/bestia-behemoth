@@ -27,15 +27,16 @@ namespace Bnet {
             "CjFtZXNzYWdlcy9jb21wb25lbnQvaW52ZW50b3J5X2NvbXBvbmVudF9zbXNn",
             "LnByb3RvEgRibmV0Ik8KFkludmVudG9yeUNvbXBvbmVudFNNU0cSEQoJZW50",
             "aXR5X2lkGAEgASgGEiIKBWl0ZW1zGAIgAygLMhMuYm5ldC5JbnZlbnRvcnlJ",
-            "dGVtIlUKDUludmVudG9yeUl0ZW0SDwoHaXRlbV9pZBgBIAEoDRIRCgl1bmlx",
-            "dWVfaWQYAiABKAQSDgoGYW1vdW50GAMgASgNEhAKCGVxdWlwcGVkGAQgASgI",
-            "QjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52ZW50b3J5Q29tcG9uZW50",
-            "U01TR1Byb3RvYgZwcm90bzM="));
+            "dGVtIpABCg1JbnZlbnRvcnlJdGVtEg8KB2l0ZW1faWQYASABKA0SEQoJdW5p",
+            "cXVlX2lkGAIgASgEEg4KBmFtb3VudBgDIAEoDRIQCghlcXVpcHBlZBgEIAEo",
+            "CBISCgpkdXJhYmlsaXR5GAUgASgNEhYKDm1heF9kdXJhYmlsaXR5GAYgASgN",
+            "Eg0KBXNsb3RzGAcgASgNQjQKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IbSW52",
+            "ZW50b3J5Q29tcG9uZW50U01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryComponentSMSG), global::Bnet.InventoryComponentSMSG.Parser, new[]{ "EntityId", "Items" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.InventoryItem), global::Bnet.InventoryItem.Parser, new[]{ "ItemId", "UniqueId", "Amount", "Equipped", "Durability", "MaxDurability", "Slots" }, null, null, null, null)
           }));
     }
     #endregion
@@ -301,6 +302,9 @@ namespace Bnet {
       uniqueId_ = other.uniqueId_;
       amount_ = other.amount_;
       equipped_ = other.equipped_;
+      durability_ = other.durability_;
+      maxDurability_ = other.maxDurability_;
+      slots_ = other.slots_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -358,6 +362,50 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "durability" field.</summary>
+    public const int DurabilityFieldNumber = 5;
+    private uint durability_;
+    /// <summary>
+    /// Wear on the backing item instance. Both zero for a plain stack and for gear nobody gave a
+    /// durability - see net.bestia.zone.item.instance.ItemInstance.maxDurability. A client draws a wear
+    /// bar only when max_durability > 0.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Durability {
+      get { return durability_; }
+      set {
+        durability_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_durability" field.</summary>
+    public const int MaxDurabilityFieldNumber = 6;
+    private uint maxDurability_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint MaxDurability {
+      get { return maxDurability_; }
+      set {
+        maxDurability_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "slots" field.</summary>
+    public const int SlotsFieldNumber = 7;
+    private uint slots_;
+    /// <summary>
+    /// Rune slots cut into the backing instance by Item Customization; nothing can fill one yet.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Slots {
+      get { return slots_; }
+      set {
+        slots_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -377,6 +425,9 @@ namespace Bnet {
       if (UniqueId != other.UniqueId) return false;
       if (Amount != other.Amount) return false;
       if (Equipped != other.Equipped) return false;
+      if (Durability != other.Durability) return false;
+      if (MaxDurability != other.MaxDurability) return false;
+      if (Slots != other.Slots) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -388,6 +439,9 @@ namespace Bnet {
       if (UniqueId != 0UL) hash ^= UniqueId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
       if (Equipped != false) hash ^= Equipped.GetHashCode();
+      if (Durability != 0) hash ^= Durability.GetHashCode();
+      if (MaxDurability != 0) hash ^= MaxDurability.GetHashCode();
+      if (Slots != 0) hash ^= Slots.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -422,6 +476,18 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Equipped);
       }
+      if (Durability != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Durability);
+      }
+      if (MaxDurability != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(MaxDurability);
+      }
+      if (Slots != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(Slots);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -448,6 +514,18 @@ namespace Bnet {
         output.WriteRawTag(32);
         output.WriteBool(Equipped);
       }
+      if (Durability != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(Durability);
+      }
+      if (MaxDurability != 0) {
+        output.WriteRawTag(48);
+        output.WriteUInt32(MaxDurability);
+      }
+      if (Slots != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(Slots);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -469,6 +547,15 @@ namespace Bnet {
       }
       if (Equipped != false) {
         size += 1 + 1;
+      }
+      if (Durability != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Durability);
+      }
+      if (MaxDurability != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(MaxDurability);
+      }
+      if (Slots != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Slots);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -493,6 +580,15 @@ namespace Bnet {
       }
       if (other.Equipped != false) {
         Equipped = other.Equipped;
+      }
+      if (other.Durability != 0) {
+        Durability = other.Durability;
+      }
+      if (other.MaxDurability != 0) {
+        MaxDurability = other.MaxDurability;
+      }
+      if (other.Slots != 0) {
+        Slots = other.Slots;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -525,6 +621,18 @@ namespace Bnet {
             Equipped = input.ReadBool();
             break;
           }
+          case 40: {
+            Durability = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            MaxDurability = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            Slots = input.ReadUInt32();
+            break;
+          }
         }
       }
     #endif
@@ -554,6 +662,18 @@ namespace Bnet {
           }
           case 32: {
             Equipped = input.ReadBool();
+            break;
+          }
+          case 40: {
+            Durability = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            MaxDurability = input.ReadUInt32();
+            break;
+          }
+          case 56: {
+            Slots = input.ReadUInt32();
             break;
           }
         }

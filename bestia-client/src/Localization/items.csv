@@ -21,3 +21,37 @@ MANA_CRYSTAL,Mana Crystal
 MANA_CRYSTAL_DESC,"A shard of raw mana crystal, cool to the touch and faintly lit from within."
 AETHERITE_SHARD,Aetherite Shard
 AETHERITE_SHARD_DESC,"A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm."
+IRON_ORE,Iron Ore
+IRON_ORE_DESC,"A lump of raw iron ore, streaked with rust-coloured veins.
+
+Useless until a furnace has had it."
+IRON_INGOT,Iron Ingot
+IRON_INGOT_DESC,"A bar of refined iron, still warm from the furnace.
+
+The starting point of every forged weapon and every plate of armour."
+COAL,Coal
+COAL_DESC,"A handful of coal. It burns hot enough to melt ore, and dirties everything it touches."
+CLAY,Clay
+CLAY_DESC,"Wet river clay, kneaded into a ball. It takes a shape and keeps it."
+VOID_ESSENCE,Void Essence
+VOID_ESSENCE_DESC,"A bead of condensed void, cold in a way that has nothing to do with temperature.
+
+The Master Ritual needs a great many of them."
+MANA_DUST,Mana Dust
+MANA_DUST_DESC,"Mana crystal ground to a fine, faintly glowing powder."
+ENGRAVING_SET,Engraving Set
+ENGRAVING_SET_DESC,"A roll of fine chisels and gravers.
+
+Consumed a little at a time by the work of cutting slots into a finished item."
+SEAL_OF_MASTERY,Seal of Mastery
+SEAL_OF_MASTERY_DESC,"The proof of a completed Master Ritual, and the only thing that is.
+
+What it opens is not yet built."
+WEAPON_BLUEPRINT,Weapon Blueprint
+WEAPON_BLUEPRINT_DESC,"A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how."
+ARMOR_BLUEPRINT,Armor Blueprint
+ARMOR_BLUEPRINT_DESC,"A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise."
+HEARTY_STEW,Hearty Stew
+HEARTY_STEW_DESC,"A thick stew of whatever was to hand, cooked over an open fire.
+
+Restores health and stamina both, which no potion does."

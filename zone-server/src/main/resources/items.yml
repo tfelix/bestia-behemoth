@@ -24,11 +24,14 @@ items:
 
       Heals a modest amount of health when consumed.
 
+  # `max-durability` is only meaningful on gear: a material and a consumable are gone before they could
+  # wear. Set here so Weapon Repair has something to act on - see `ItemInstance.maxDurability`.
   - id: 4
     item-db-name: shoes
     weight: 20
     type: EQUIP
     equip-slot: FOOTGEAR
+    max-durability: 120
     script: ShoesScript
     description: |
       A sturdy pair of leather shoes.
@@ -40,6 +43,7 @@ items:
     weight: 40
     type: EQUIP
     equip-slot: FOOTGEAR
+    max-durability: 260
     script: BootsScript
     description: |
       A pair of heavy iron-shod boots.
@@ -63,3 +67,101 @@ items:
     type: ETC
     description: |
       A splinter of aetherite, prised from corrupted rock. It hums faintly against the palm.
+
+
+  # --- Crafting materials -------------------------------------------------------------------------
+  # What the Craftsman and Blacksmith trees act on (`recipes.yml`). Everything here is ETC: a material
+  # is not usable and not worn, it is only ever an input or an output of a recipe.
+  #
+  # Weights are shaped so that carrying ore is a decision - `WeightLimitCalculator` counts every one of
+  # these - and so that refining is a *gain*: two ore plus one coal (170) become one ingot (60).
+  - id: 8
+    item-db-name: iron_ore
+    weight: 70
+    type: ETC
+    description: |
+      A lump of raw iron ore, streaked with rust-coloured veins.
+
+      Useless until a furnace has had it.
+
+  - id: 9
+    item-db-name: iron_ingot
+    weight: 60
+    type: ETC
+    description: |
+      A bar of refined iron, still warm from the furnace.
+
+      The starting point of every forged weapon and every plate of armour.
+
+  - id: 10
+    item-db-name: coal
+    weight: 30
+    type: ETC
+    description: |
+      A handful of coal. It burns hot enough to melt ore, and dirties everything it touches.
+
+  - id: 11
+    item-db-name: clay
+    weight: 25
+    type: ETC
+    description: |
+      Wet river clay, kneaded into a ball. It takes a shape and keeps it.
+
+  - id: 12
+    item-db-name: void_essence
+    weight: 2
+    type: ETC
+    description: |
+      A bead of condensed void, cold in a way that has nothing to do with temperature.
+
+      The Master Ritual needs a great many of them.
+
+  - id: 13
+    item-db-name: mana_dust
+    weight: 3
+    type: ETC
+    description: |
+      Mana crystal ground to a fine, faintly glowing powder.
+
+  - id: 14
+    item-db-name: engraving_set
+    weight: 45
+    type: ETC
+    description: |
+      A roll of fine chisels and gravers.
+
+      Consumed a little at a time by the work of cutting slots into a finished item.
+
+  - id: 15
+    item-db-name: seal_of_mastery
+    weight: 5
+    type: ETC
+    description: |
+      The proof of a completed Master Ritual, and the only thing that is.
+
+      What it opens is not yet built.
+
+  - id: 16
+    item-db-name: weapon_blueprint
+    weight: 10
+    type: ETC
+    description: |
+      A smith's drawing of a blade, annotated in a hand that assumed the reader already knew how.
+
+  - id: 17
+    item-db-name: armor_blueprint
+    weight: 10
+    type: ETC
+    description: |
+      A smith's drawing of a breastplate, with the hard part - the fitting - left as an exercise.
+
+  # The one thing Cooking makes, and the only crafted item that is USABLE rather than a material.
+  - id: 18
+    item-db-name: hearty_stew
+    weight: 15
+    type: USABLE
+    script: HeartyStewScript
+    description: |
+      A thick stew of whatever was to hand, cooked over an open fire.
+
+      Restores health and stamina both, which no potion does.
