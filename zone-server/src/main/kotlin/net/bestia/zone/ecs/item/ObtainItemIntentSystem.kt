@@ -43,7 +43,7 @@ class ObtainItemIntentSystem(
 
   override val reads: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class,
-    Position::class, Account::class, ItemVisual::class, CarryCapacity::class
+    Position::class, Account::class, GroundItemStack::class, CarryCapacity::class
   )
   override val writes: ComponentClassSet = setOf(
     ObtainItemIntent.LootItemIntent::class, ObtainItemIntent.CreateItemIntent::class, Inventory::class
@@ -75,7 +75,7 @@ class ObtainItemIntentSystem(
     // once we know it can actually be granted (in range, still there, fits the looter's carry
     // capacity), so a rejected loot leaves the stack on the ground instead of losing it.
     val claimed = world.modify(intent.sourceEntityItemStackId) { itemStackEntityId ->
-      val itemVisual = get(itemStackEntityId, ItemVisual::class)
+      val stack = get(itemStackEntityId, GroundItemStack::class)
         ?: return@modify null
       val lootPos = get(itemStackEntityId, Position::class)?.toVec3L()
       if (lootPos == null) {
@@ -88,22 +88,22 @@ class ObtainItemIntentSystem(
         return@modify null
       }
 
-      val item = itemRepository.findByIdOrNull(itemVisual.itemId)
+      val item = itemRepository.findByIdOrNull(stack.itemId)
       if (item == null) {
-        LOG.error { "Ground item $itemStackEntityId references unknown item ${itemVisual.itemId}; destroying it" }
+        LOG.error { "Ground item $itemStackEntityId references unknown item ${stack.itemId}; destroying it" }
         destroy(itemStackEntityId)
         return@modify null
       }
 
-      if (!canObtain(this, entityId, item.weight * itemVisual.amount)) {
+      if (!canObtain(this, entityId, item.weight * stack.amount)) {
         return@modify null // over capacity (or no inventory at all) - leave the stack on the ground
       }
 
-      // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever ItemVisual
-      // was synced to.
+      // destroy() alone notifies clients: ZoneEngine broadcasts a vanish to whoever the stack's
+      // EntityVisual was synced to.
       destroy(itemStackEntityId)
 
-      ClaimedLoot(item, itemVisual.amount, itemVisual.uniqueId)
+      ClaimedLoot(item, stack.amount, stack.uniqueId)
     }
 
     if (claimed == null) {

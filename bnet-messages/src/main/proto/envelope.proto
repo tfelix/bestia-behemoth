@@ -3,8 +3,7 @@ syntax = "proto3";
 package bnet;
 
 import "messages/component/position_component.proto";
-import "messages/component/bestia_visual_component.proto";
-import "messages/component/item_visual_component.proto";
+import "messages/component/visual_component.proto";
 import "messages/component/exp_component_smsg.proto";
 import "messages/component/level_component_smsg.proto";
 import "messages/system/ping.proto";
@@ -144,8 +143,8 @@ message Envelope {
     VanishEntitySMSG vanish_entity = 504;
     DamageEntitySMSG damage_entity = 505;
     PositionComponent comp_position = 510;
-    BestiaVisualComponent comp_bestia_visual = 511;
-    ItemVisualComponent comp_item_visual = 512;
+    // 511 and 512 held the BestiaVisualComponent and ItemVisualComponent that comp_visual replaced.
+    VisualComponent comp_visual = 513;
     MasterVisualComponentSMSG comp_master_visual = 514;
     PathComponentSMSG comp_path = 515;
     SpeedComponentSMSG comp_speed = 516;

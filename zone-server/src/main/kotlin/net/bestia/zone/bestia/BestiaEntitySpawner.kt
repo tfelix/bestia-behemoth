@@ -13,7 +13,8 @@ import net.bestia.zone.ecs.battle.status.Stamina
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.ecs.spawn.DenMember
@@ -51,7 +52,7 @@ class BestiaEntitySpawner(
 
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
-      add(id, BestiaVisual(bestiaId))
+      add(id, EntityVisual(VisualKind.BESTIA, bestiaId))
       add(id, Health(bestia.health, bestia.health))
       add(id, Stamina(current = 10, max = 10))
       add(id, Speed())

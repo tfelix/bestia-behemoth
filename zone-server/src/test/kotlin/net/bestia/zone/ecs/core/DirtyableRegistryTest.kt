@@ -1,10 +1,9 @@
 package net.bestia.zone.ecs.core
 
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Mana
 import net.bestia.zone.ecs.item.Inventory
-import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
@@ -27,10 +26,9 @@ class DirtyableRegistryTest {
       Health::class,
       Mana::class,
       Inventory::class,
-      ItemVisual::class,
       Exp::class,
       Level::class,
-      BestiaVisual::class,
+      EntityVisual::class,
       SkillPoints::class,
     )
 

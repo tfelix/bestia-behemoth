@@ -14,7 +14,7 @@ signal equipment_updated()
 
 var _master_entity_id: int = 0
 var _selected_entity_id: int = 0
-## Bestia template id per entity, cached from BestiaVisualComponent so the slot mask survives the
+## Bestia template id per entity, cached from VisualComponentSMSG so the slot mask survives the
 ## window being closed when the component arrives.
 var _bestia_id_by_entity: Dictionary = {}
 
@@ -66,8 +66,8 @@ func _on_entity_received(msg: EntitySMSG) -> void:
 			_worn = _to_worn_by_slot(msg.Items)
 			_render()
 		equipment_updated.emit()
-	elif msg is BestiaVisualComponent:
-		_bestia_id_by_entity[msg.EntityId] = int(msg.BestiaId)
+	elif msg is VisualComponentSMSG and msg.Kind == VisualKind.BESTIA:
+		_bestia_id_by_entity[msg.EntityId] = int(msg.VisualId)
 		if msg.EntityId == _selected_entity_id:
 			_seed_worn_from_cache()
 			_render()

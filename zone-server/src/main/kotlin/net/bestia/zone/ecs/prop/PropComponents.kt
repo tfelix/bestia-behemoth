@@ -38,11 +38,11 @@ data class PropPose(
  * What a static entity looks like.
  *
  * Not `Dirtyable`: the initial state travels in the per-chunk batch that carries the ground it stands on, and
- * after that it does not change until something interacts with it. Contrast `BestiaVisual`, which is
+ * after that it does not change until something interacts with it. Contrast `EntityVisual`, which is
  * `Dirtyable` because a mob arrives one entity at a time.
  *
  * Carries only what the client cannot derive - the kind, a variant roll, the height the generator drew, and a
- * footprint for the one kind whose size is not a property of its kind - on the same argument `BestiaVisual`
+ * footprint for the one kind whose size is not a property of its kind - on the same argument `EntityVisual`
  * makes by sending a catalogue id and nothing else.
  */
 data class StaticVisual(

@@ -128,8 +128,8 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 	
 	if msg is PositionComponent:
 		entity.update_position(msg)
-	elif msg is BestiaVisualComponent:
-		entity.update_bestia_visual(msg)
+	elif msg is VisualComponentSMSG:
+		entity.update_visual(msg)
 	elif msg is MasterVisualComponentSMSG:
 		entity.update_master_visual(msg)
 	elif msg is PathComponentSMSG:
@@ -171,8 +171,6 @@ func _on_entity_message_received(msg: EntitySMSG) -> void:
 		entity.update_effects(msg)
 	elif msg is DamageEntitySMSG:
 		entity.show_damage(msg)
-	elif msg is ItemVisualComponentSMSG:
-		entity.update_item_visual(msg)
 	elif msg is InventoryComponentSMSG:
 		# no handling so far. The inventory of our entity is handled via a own handler
 		# directly in the inventory node. On an per entity level it is not handled.

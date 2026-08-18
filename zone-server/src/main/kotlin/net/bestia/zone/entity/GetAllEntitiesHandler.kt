@@ -3,14 +3,12 @@ package net.bestia.zone.entity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.AoiLayer
 import net.bestia.zone.ecs.EntityAOIService
-import net.bestia.zone.ecs.item.ItemVisual
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.movement.Speed
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.bestia.BestiaVisual
-import net.bestia.zone.ecs.bestia.BestiaVisualComponentSMSG
-import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualComponentSMSG
 import net.bestia.zone.ecs.account.MasterVisual
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
@@ -52,12 +50,11 @@ class GetAllEntitiesHandler(
     val outMessages = world.read {
       entitiesInRange.flatMap { eid ->
         listOfNotNull(
-          tryBuildBestiaComponent(eid),
+          tryBuildVisualComponent(eid),
           tryBuildPositionComponent(eid),
           tryBuildMasterComponent(eid),
           tryBuildPathComponent(eid),
-          tryBuildSpeedComponent(eid),
-          tryBuildLootComponent(eid)
+          tryBuildSpeedComponent(eid)
         )
       }
     }
@@ -80,10 +77,10 @@ class GetAllEntitiesHandler(
     )
   }
 
-  private fun World.tryBuildBestiaComponent(entityId: EntityId): SMSG? {
-    val bestiaComp = get(entityId, BestiaVisual::class) ?: return null
+  private fun World.tryBuildVisualComponent(entityId: EntityId): SMSG? {
+    val visual = get(entityId, EntityVisual::class) ?: return null
 
-    return BestiaVisualComponentSMSG(entityId, bestiaComp.id)
+    return VisualComponentSMSG(entityId, visual.kind, visual.id)
   }
 
   private fun World.tryBuildPositionComponent(entityId: EntityId): SMSG? {
@@ -102,12 +99,6 @@ class GetAllEntitiesHandler(
     val speedComp = get(entityId, Speed::class) ?: return null
 
     return SpeedSMSG(entityId, speedComp.speed)
-  }
-
-  private fun World.tryBuildLootComponent(entityId: EntityId): SMSG? {
-    val itemVisualComp = get(entityId, ItemVisual::class) ?: return null
-
-    return ItemVisualComponentSMSG(entityId, itemVisualComp.itemId.toInt(), itemVisualComp.amount, itemVisualComp.uniqueId)
   }
 
   private fun findPositionOfActive(accountId: AccountId): Vec3L {

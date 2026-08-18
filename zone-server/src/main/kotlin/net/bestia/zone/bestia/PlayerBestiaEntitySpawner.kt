@@ -23,7 +23,8 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.level.Level
 import net.bestia.zone.ecs.battle.level.LevelUpExperienceCalculator
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.entity.Animation
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.persistence.Persistent
@@ -72,7 +73,7 @@ class PlayerBestiaEntitySpawner(
       add(id, Level(playerBestia.level))
       add(id, Exp(0, levelUpExpCalculator.getRequiredExperience(playerBestia.level)))
       add(id, Speed())
-      add(id, BestiaVisual(playerBestia.bestia.id))
+      add(id, EntityVisual(VisualKind.BESTIA, playerBestia.bestia.id))
       // Rendered by the same visual as a wild mob, so it gets the same posture channel: an owned bestia left
       // on a FORAGE stance sleeps, and its owner should be able to see that it is asleep.
       add(id, Animation())

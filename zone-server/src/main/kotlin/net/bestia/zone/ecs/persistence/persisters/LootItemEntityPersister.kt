@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.item.ItemVisual
+import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
 import net.bestia.zone.ecs.persistence.EntitySnapshot
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
 /**
- * Persists dropped/ground item entities (those carrying an [ItemVisual]) into the generic blob
+ * Persists dropped/ground item entities (those carrying a [GroundItemStack]) into the generic blob
  * tables and rebuilds them on startup via [LootItemEntitySpawner].
  */
 @Component
@@ -33,17 +33,17 @@ class LootItemEntityPersister(
   override val loadsAtStartup = true
 
   override fun supports(world: World, id: EntityId): Boolean =
-    world.has(id, ItemVisual::class)
+    world.has(id, GroundItemStack::class)
 
   override fun snapshot(world: World, id: EntityId): EntitySnapshot? {
-    val visual = world.get(id, ItemVisual::class) ?: return null
+    val stack = world.get(id, GroundItemStack::class) ?: return null
     val pos = world.get(id, Position::class) ?: return null
 
     return LootSnapshot(
       entityId = id,
-      itemId = visual.itemId,
-      amount = visual.amount,
-      uniqueId = visual.uniqueId,
+      itemId = stack.itemId,
+      amount = stack.amount,
+      uniqueId = stack.uniqueId,
       x = pos.x, y = pos.y, z = pos.z,
     )
   }

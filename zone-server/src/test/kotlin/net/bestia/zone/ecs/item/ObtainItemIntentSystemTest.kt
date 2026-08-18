@@ -153,7 +153,7 @@ class ObtainItemIntentSystemTest {
     val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
-      add(id, ItemVisual(itemId = sword.id, amount = 2))
+      add(id, GroundItemStack(itemId = sword.id, amount = 2))
     }
 
     world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
@@ -175,7 +175,7 @@ class ObtainItemIntentSystemTest {
     val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
-      add(id, ItemVisual(itemId = sword.id, amount = 1, uniqueId = 77L))
+      add(id, GroundItemStack(itemId = sword.id, amount = 1, uniqueId = 77L))
     }
 
     world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
@@ -192,7 +192,7 @@ class ObtainItemIntentSystemTest {
     val looter = createCarrier(capacityMax = 100, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(100, 100, 0)))
-      add(id, ItemVisual(itemId = sword.id, amount = 2))
+      add(id, GroundItemStack(itemId = sword.id, amount = 2))
     }
 
     world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }
@@ -210,7 +210,7 @@ class ObtainItemIntentSystemTest {
     val looter = createCarrier(capacityMax = 5, pos = Vec3L(0, 0, 0))
     val groundStack = world.createEntity { id ->
       add(id, Position.fromVec3(Vec3L(0, 0, 0)))
-      add(id, ItemVisual(itemId = boulder.id, amount = 1))
+      add(id, GroundItemStack(itemId = boulder.id, amount = 1))
     }
 
     world.modify(looter) { id -> add(id, ObtainItemIntent.LootItemIntent(sourceEntityItemStackId = groundStack)) }

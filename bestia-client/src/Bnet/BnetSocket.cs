@@ -160,14 +160,9 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Entity.StatusPointsComponentSMSG.FromProto(envelope.CompStatusPoints);
           EmitSignal(SignalName.MessageReceived, msg);
         }
-        else if (envelope.CompBestiaVisual != null)
+        else if (envelope.CompVisual != null)
         {
-          var msg = Entity.BestiaVisualComponent.FromProto(envelope.CompBestiaVisual);
-          EmitSignal(SignalName.MessageReceived, msg);
-        }
-        else if (envelope.CompItemVisual != null)
-        {
-          var msg = Entity.ItemVisualComponentSMSG.FromProto(envelope.CompItemVisual);
+          var msg = Entity.VisualComponentSMSG.FromProto(envelope.CompVisual);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.Self != null)

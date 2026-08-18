@@ -10,9 +10,9 @@ var _item_id: int = 0
 @onready var sparkles = $Sparkles
 
 
-func setup_visual(msg: ItemVisualComponentSMSG) -> void:
+func setup_visual(msg: VisualComponentSMSG) -> void:
 	_entity_id = msg.EntityId
-	_item_id = msg.ItemId
+	_item_id = msg.VisualId
 
 
 func _ready() -> void:

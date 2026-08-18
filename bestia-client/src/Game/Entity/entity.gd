@@ -311,28 +311,44 @@ func show_chat(msg: ChatSMSG) -> void:
 		printerr("Entity %s has no show_chat visual", [entity_id])
 
 
-func update_bestia_visual(msg: BestiaVisualComponent) -> void:
-	var existing = get_node_or_null(_VISUAL_NODE_NAME)
-	if existing != null:
-		existing.queue_free()
-	var visual = BestiaModelScn.instantiate() as BestiaVisual
-	visual.setup_visual(msg)
-	visual.name = _VISUAL_NODE_NAME
-	add_child(visual)
-
-
-func update_item_visual(msg: ItemVisualComponentSMSG) -> void:
-	var existing = get_node_or_null(_VISUAL_NODE_NAME)
-	if existing != null:
-		existing.queue_free()
-	var item_resource = ItemDB.get_instance().get_item(msg.ItemId)
-	if item_resource == null or item_resource.item_visual == null:
-		printerr("Entity %s: no item_visual PackedScene for item %s" % [entity_id, msg.ItemId])
+## Builds this entity's visual from a kind plus a catalogue id. Masters go through
+## update_master_visual instead - their appearance is a set of parameters, not one id.
+func update_visual(msg: VisualComponentSMSG) -> void:
+	var scene: PackedScene = _visual_scene_for(msg)
+	if scene == null:
 		return
-	var visual = item_resource.item_visual.instantiate() as ItemVisual
+
+	var existing = get_node_or_null(_VISUAL_NODE_NAME)
+	if existing != null:
+		existing.queue_free()
+
+	# Untyped on purpose: each kind's visual declares its own setup_visual, and MasterVisual's takes a
+	# different message - so there is no common base method to call through.
+	var visual = scene.instantiate()
 	visual.setup_visual(msg)
 	visual.name = _VISUAL_NODE_NAME
 	add_child(visual)
+
+
+func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
+	match msg.Kind:
+		VisualKind.BESTIA:
+			return BestiaModelScn
+		VisualKind.ITEM:
+			var item_resource = ItemDB.get_instance().get_item(msg.VisualId)
+			if item_resource == null or item_resource.item_visual == null:
+				printerr("Entity %s: no item_visual PackedScene for item %s" % [entity_id, msg.VisualId])
+				return null
+			return item_resource.item_visual
+		VisualKind.EFFECT:
+			var effect_resource = EffectDB.get_instance().get_effect(msg.VisualId)
+			if effect_resource == null or effect_resource.effect_visual == null:
+				printerr("Entity %s: no effect_visual PackedScene for effect %s" % [entity_id, msg.VisualId])
+				return null
+			return effect_resource.effect_visual
+		_:
+			printerr("Entity %s: unknown visual kind %s" % [entity_id, msg.Kind])
+			return null
 
 
 func update_master_visual(msg: MasterVisualComponentSMSG) -> void:

@@ -6,7 +6,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.bestia.BestiaEntitySpawner
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.EntityPersister
@@ -43,7 +44,7 @@ data class MobSnapshot(
 ) : EntitySnapshot
 
 /**
- * Persists world mobs/NPCs (entities with a [BestiaVisual] but no [Account] — player bestias have
+ * Persists world mobs/NPCs (entities with a bestia [EntityVisual] but no [Account] — player bestias have
  * both) into the generic [PersistedEntity]/[PersistedComponent] blob tables, and rebuilds them on
  * startup through [BestiaEntitySpawner] (which re-derives Health/Speed/AI from the bestia catalog),
  * overlaying the persisted current HP.
@@ -59,10 +60,10 @@ class MobEntityPersister(
   override val loadsAtStartup = true
 
   override fun supports(world: World, id: EntityId): Boolean =
-    world.has(id, BestiaVisual::class) && !world.has(id, Account::class)
+    world.get(id, EntityVisual::class)?.kind == VisualKind.BESTIA && !world.has(id, Account::class)
 
   override fun snapshot(world: World, id: EntityId): EntitySnapshot? {
-    val visual = world.get(id, BestiaVisual::class) ?: return null
+    val visual = world.get(id, EntityVisual::class) ?: return null
     val pos = world.get(id, Position::class) ?: return null
     val hp = world.get(id, Health::class)
     return MobSnapshot(

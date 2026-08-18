@@ -21,9 +21,9 @@ func _ready() -> void:
 	_anim_player.play(_APPEAR_ANIM)
 
 
-func setup_visual(msg: BestiaVisualComponent) -> void:
+func setup_visual(msg: VisualComponentSMSG) -> void:
 	_bestia_entity_id = msg.EntityId
-	_bestia_id = msg.BestiaId
+	_bestia_id = msg.VisualId
 	# Load bestia data on-demand
 	# TODO its not yet clear what path we go, either we load recources, we could also think
 	# about a sperate scene for every bestia and just enter the values there and move around the different

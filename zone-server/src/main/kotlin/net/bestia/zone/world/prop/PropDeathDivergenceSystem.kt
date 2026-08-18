@@ -20,7 +20,7 @@ import kotlin.random.Random
  * `@Order(65)`: after [net.bestia.zone.ecs.battle.damage.ReceivedDamageSystem] (`@Order(50)`, adds [Dead])
  * and before [net.bestia.zone.ecs.battle.damage.DeathSystem] (`@Order(70)`, unconditionally destroys
  * anything `Dead` - its own `assignExp`/`spawnLoot` already no-op harmlessly here since a prop has no
- * `BestiaVisual`, so that system needs no changes at all). No wave-scheduling conflict: neither system reads
+ * `EntityVisual`, so that system needs no changes at all). No wave-scheduling conflict: neither system reads
  * or writes what the other does.
  *
  * ### Exactly once, by construction, not by locking

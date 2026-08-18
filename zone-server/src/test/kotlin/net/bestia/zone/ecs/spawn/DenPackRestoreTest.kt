@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.spawn
 
 import io.mockk.mockk
 import net.bestia.zone.bestia.BestiaEntitySpawner
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
 import net.bestia.zone.ecs.core.SnowflakeEntityIdGenerator
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
@@ -240,7 +240,7 @@ class DenPackRestoreTest {
 
   private fun countMobs(world: World): Int {
     var count = 0
-    world.each(BestiaVisual::class) { _, _ -> count++ }
+    world.each(EntityVisual::class) { _, _ -> count++ }
     return count
   }
 

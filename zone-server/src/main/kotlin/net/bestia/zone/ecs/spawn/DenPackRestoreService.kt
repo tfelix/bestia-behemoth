@@ -2,7 +2,8 @@ package net.bestia.zone.ecs.spawn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.persistence.PersistedEntityDeletionQueue
 import net.bestia.zone.util.EntityId
@@ -182,9 +183,9 @@ class DenPackRestoreService(
    */
   private fun countUnownedMobs(world: World): Int {
     var unowned = 0
-    world.each(BestiaVisual::class) { id, _ ->
+    world.each(EntityVisual::class) { id, visual ->
       // `!Account` is MobEntityPersister.supports' own test for "a world mob rather than a player bestia".
-      if (!world.has(id, DenMember::class) && !world.has(id, Account::class)) {
+      if (visual.kind == VisualKind.BESTIA && !world.has(id, DenMember::class) && !world.has(id, Account::class)) {
         unowned++
       }
     }

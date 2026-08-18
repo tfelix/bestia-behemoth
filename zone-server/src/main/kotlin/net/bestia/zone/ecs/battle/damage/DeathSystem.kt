@@ -6,7 +6,8 @@ import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.exp.Exp
 import net.bestia.zone.ecs.battle.exp.ExperienceGainCalculator
 import net.bestia.zone.ecs.battle.exp.GainExp
-import net.bestia.zone.ecs.bestia.BestiaVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -29,7 +30,7 @@ class DeathSystem(
 ) : System {
 
   override val reads: ComponentClassSet =
-    setOf(Dead::class, TakenDamage::class, BestiaVisual::class, Position::class, Account::class, PartyMembership::class)
+    setOf(Dead::class, TakenDamage::class, EntityVisual::class, Position::class, Account::class, PartyMembership::class)
 
   override val writes: ComponentClassSet = setOf(Exp::class)
 
@@ -55,7 +56,7 @@ class DeathSystem(
     val damageDealer = world.get(entityId, TakenDamage::class)?.damagePercentages()
       ?: return
 
-    val bestiaVisual = world.get(entityId, BestiaVisual::class)
+    val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
     // Check which of those are an actual player. Every player bestia has an Account component.
@@ -67,7 +68,7 @@ class DeathSystem(
     // the experience calculator requires a DB lookup so we defer the call.
     world.defer {
       val earnedExp = experienceGainCalculator.calculate(
-        bestiaVisual.id,
+        species,
         damageDealer,
         attackingPlayerCount
       )
@@ -119,11 +120,18 @@ class DeathSystem(
     val position = world.get(entityId, Position::class)?.toVec3L()
       ?: return
 
-    val bestiaVisual = world.get(entityId, BestiaVisual::class)
+    val species = world.bestiaSpeciesOf(entityId)
       ?: return
 
-    lootItemEntitySpawner.spawnLoot(world, bestiaVisual.id, position)
+    lootItemEntitySpawner.spawnLoot(world, species, position)
   }
+
+  /**
+   * The species id behind an entity, or null when it is not a bestia at all. Exp and loot are both
+   * keyed on the species, and [EntityVisual] carries ids from several catalogues.
+   */
+  private fun World.bestiaSpeciesOf(entityId: EntityId): Long? =
+    get(entityId, EntityVisual::class)?.takeIf { it.kind == VisualKind.BESTIA }?.id
 
   companion object {
     private val LOG = KotlinLogging.logger { }

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "VisualComponentProto";
+
+/**
+ * Which catalogue the client resolves `id` in. One message for every kind of visual, so a new one -
+ * a spell effect, a placed structure - costs a catalogue entry on the client and no wire change.
+ */
+enum VisualKind {
+  BESTIA = 0;
+  ITEM = 1;
+  EFFECT = 2;
+}
+
+/**
+ * What an entity looks like: a kind plus an id into the matching client catalogue, and nothing else.
+ *
+ * MasterVisualComponentSMSG stays a message of its own because a master's appearance is a set of
+ * parameters (hair colour and the like) rather than a single catalogue id.
+ */
+message VisualComponent {
+  fixed64 entity_id = 1;
+  VisualKind kind = 2;
+  uint64 id = 3;
+}

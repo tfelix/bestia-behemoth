@@ -8,7 +8,8 @@ import net.bestia.zone.ecs.core.AsyncJobExecutor
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.CarryCapacity
-import net.bestia.zone.ecs.item.ItemVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.entity.VanishEntitySMSG
 import net.bestia.zone.geometry.Vec3L
@@ -50,7 +51,7 @@ class ZoneEngineTest {
     val pos = Vec3L(1, 2, 0)
     val entity = world.createEntity { id ->
       add(id, Position.fromVec3(pos))
-      add(id, ItemVisual(itemId = 1L, amount = 1))
+      add(id, EntityVisual(VisualKind.ITEM, 1L))
     }
 
     world.destroy(entity)
@@ -65,7 +66,7 @@ class ZoneEngineTest {
     val pos = Vec3L(1, 2, 0)
     val entity = world.createEntity { id ->
       add(id, Position.fromVec3(pos))
-      add(id, ItemVisual(itemId = 1L, amount = 1))
+      add(id, EntityVisual(VisualKind.ITEM, 1L))
       add(id, Dead)
     }
 

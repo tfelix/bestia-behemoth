@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.util.EntityId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.ecs.item.ItemVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.entity.VisualKind
+import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.persistence.Persistent
 import net.bestia.zone.geometry.Vec3L
@@ -50,9 +52,10 @@ class LootItemEntitySpawner(
   ): EntityId {
     val configure: World.(EntityId) -> Unit = { id ->
       add(id, Position.fromVec3(pos))
+      add(id, EntityVisual(VisualKind.ITEM, itemId))
       add(
         id,
-        ItemVisual(
+        GroundItemStack(
           itemId = itemId,
           amount = amount,
           uniqueId = uniqueId

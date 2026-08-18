@@ -20,7 +20,7 @@ import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.item.EquipmentComponentSMSG
 import net.bestia.zone.ecs.item.InventoryComponentSMSG
-import net.bestia.zone.ecs.item.ItemVisualComponentSMSG
+import net.bestia.zone.ecs.entity.VisualComponentSMSG
 import net.bestia.zone.ecs.logout.LogoutIntentComponentSMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.ecs.movement.Position
@@ -514,8 +514,8 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
       val inventory = clientPlayer1.getLastReceived(InventoryComponentSMSG::class)
       assertFalse(inventory.items.any { it.itemId == APPLE_ITEM_ID.toInt() })
 
-      val visual = clientPlayer1.getLastReceived(ItemVisualComponentSMSG::class)
-      assertEquals(APPLE_ITEM_ID.toInt(), visual.itemId)
+      val visual = clientPlayer1.getLastReceived(VisualComponentSMSG::class)
+      assertEquals(APPLE_ITEM_ID, visual.visualId)
       droppedEntityId = visual.entityId
     }
 

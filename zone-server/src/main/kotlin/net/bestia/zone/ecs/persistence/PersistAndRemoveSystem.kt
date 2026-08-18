@@ -9,8 +9,8 @@ import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.effects.StatusEffects
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.battle.status.StatusPoints
-import net.bestia.zone.ecs.bestia.BestiaVisual
-import net.bestia.zone.ecs.item.ItemVisual
+import net.bestia.zone.ecs.entity.EntityVisual
+import net.bestia.zone.ecs.item.GroundItemStack
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
@@ -36,7 +36,7 @@ class PersistAndRemoveSystem(
   override val reads: ComponentClassSet = setOf(
     PersistAndRemove::class, Master::class, Account::class, Position::class,
     Level::class, SkillPoints::class, StatusPoints::class, BaseStatusValues::class,
-    Health::class, BestiaVisual::class, ItemVisual::class, StatusEffects::class,
+    Health::class, EntityVisual::class, GroundItemStack::class, StatusEffects::class,
   )
 
   override fun update(world: World, deltaTime: Float) {
