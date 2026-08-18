@@ -1,0 +1,35 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Game/UI/Map/minimap.gd" id="1_minimap"]
+[ext_resource type="Script" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
+
+[node name="Minimap" type="PanelContainer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -184.0
+offset_top = 70.0
+offset_right = -8.0
+offset_bottom = 246.0
+grow_horizontal = 0
+script = ExtResource("1_minimap")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="View" type="Control" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_mapview")
+
+[node name="Hint" type="Label" parent="Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "M"
+horizontal_alignment = 2
+vertical_alignment = 2

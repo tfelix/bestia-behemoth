@@ -11,6 +11,17 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _crafting_win: WidgetWindow = $CraftingWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
+@onready var _map_source: MapSource = $MapSource
+@onready var _minimap: Minimap = $Minimap
+@onready var _map_overlay: MapOverlay = $MapOverlay
+
+## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
+const _CHART_ITEM_IDS := [21]
+
+## The charts the player was last seen holding, as a sorted signature. Compared rather than counted, so
+## swapping one chart for another - which changes what is visible without changing how many are held -
+## still drops the cache.
+var _chart_signature: String = ""
 
 
 ## GroundDropZone and Shortcuts can't get their Inventory reference from an editor-wired
@@ -35,10 +46,53 @@ func _ready() -> void:
 	crafting.inventory = inventory
 	crafting.recipes_offered.connect(_on_recipes_offered)
 
+	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
+	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
+	# views ask for the player's position.
+	var entities := get_parent().get_node_or_null("EntityManager")
+	_minimap.setup(_map_source, entities)
+	_map_overlay.setup(_map_source, entities)
+	_map_source.fetch_meta()
+
+	# The one thing the client needs to know about its own fog is which charts it holds, and that arrives
+	# with the inventory it was already being sent. No map channel message, no coverage-changed push.
+	inventory.inventory_updated.connect(_on_inventory_updated.bind(inventory))
+	_on_inventory_updated(inventory)
+
 	# Queued rather than shown, so it lands behind the server's own welcome dialog instead of racing it.
 	# Everything in it is static - what Basic Skill unlocks at which rank - so it needs nothing from the
 	# server and is client-only. See DialogManager.show_local_once.
 	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_map"):
+		_map_overlay.toggle()
+		get_viewport().set_input_as_handled()
+
+
+## Shows or hides the minimap, and drops the tiles that depended on the old charts.
+##
+## Charts are the only source of map knowledge, so a player holding none would have a minimap of solid fog -
+## which reads as a broken widget rather than as something to go and earn.
+##
+## Only the personal tiles go. A fully charted tile is the same picture for everybody and does not become a
+## different one when its owner charts more land, so charting does not throw away the part of the map that
+## was already complete.
+func _on_inventory_updated(inventory: Inventory) -> void:
+	var held: Array[String] = []
+	for item in inventory.held_instances():
+		if item.item.item_id in _CHART_ITEM_IDS:
+			held.append("%d:%d" % [item.item.item_id, item.player_item_id])
+
+	held.sort()
+	var signature := ",".join(held)
+	if signature == _chart_signature:
+		return
+
+	_chart_signature = signature
+	_minimap.set_has_chart(not held.is_empty())
+	_map_source.invalidate_coverage()
 
 
 func _on_master_profile_inventory_win_toggled() -> void:

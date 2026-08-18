@@ -110,6 +110,15 @@ func _ready() -> void:
 	world_clock.Attach(_socket)
 
 
+## The signed JWT this session was opened with, for the map's REST calls.
+##
+## Reused rather than exchanged for a ticket of its own: the zone verifies it with the same validator the
+## socket handshake uses, so there is one place a token is judged instead of two that can disagree. Empty
+## before login.
+func login_token() -> String:
+	return _login_token
+
+
 func disconnect_from_server() -> void:
 	_socket.DisconnectFromServer()
 

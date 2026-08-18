@@ -15,6 +15,9 @@
 [ext_resource type="PackedScene" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 [ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
+[ext_resource type="PackedScene" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
+[ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
+[ext_resource type="Script" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -88,6 +91,15 @@ offset_right = -16.0
 offset_bottom = 450.0
 
 [node name="Options" parent="." unique_id=1824369574 instance=ExtResource("10_opts")]
+layout_mode = 1
+
+[node name="MapSource" type="Node" parent="."]
+script = ExtResource("18_mapsrc")
+
+[node name="Minimap" parent="." instance=ExtResource("16_minimap")]
+layout_mode = 1
+
+[node name="MapOverlay" parent="." instance=ExtResource("17_mapovl")]
 layout_mode = 1
 
 [node name="MessageDialog" parent="." instance=ExtResource("13_dialog")]
