@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 
 namespace BestiaBehemothClient.Bnet.Message
@@ -20,6 +21,14 @@ namespace BestiaBehemothClient.Bnet.Message
     public string CodeName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Substitution values for the message template the client holds for <see cref="CodeName"/>, in order -
+    /// a player's name, a count, a place. The server sends values and never a finished sentence, so the
+    /// wording and its translation stay here. Empty for most codes.
+    /// </summary>
+    [Export]
+    public string[] Args { get; set; } = [];
+
+    /// <summary>
     /// Creates an OperationError message from protobuf data
     /// </summary>
     /// <param name="protoOperationError">The protobuf OperationError object</param>
@@ -29,7 +38,8 @@ namespace BestiaBehemothClient.Bnet.Message
       return new OperationError
       {
         Code = (int)protoOperationError.Code,
-        CodeName = protoOperationError.Code.ToString().ToLowerInvariant()
+        CodeName = protoOperationError.Code.ToString().ToLowerInvariant(),
+        Args = protoOperationError.Args.ToArray()
       };
     }
 
@@ -39,10 +49,13 @@ namespace BestiaBehemothClient.Bnet.Message
     /// <returns>Protobuf OperationError object</returns>
     public global::Bnet.OperationError ToProto()
     {
-      return new global::Bnet.OperationError
+      var proto = new global::Bnet.OperationError
       {
         Code = (global::Bnet.OpError)Code
       };
+      proto.Args.AddRange(Args);
+
+      return proto;
     }
 
     /// <summary>

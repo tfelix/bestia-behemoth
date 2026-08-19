@@ -29,6 +29,13 @@ import net.bestia.zone.item.UseItemCMSG
 import net.bestia.zone.ecs.logout.RequestLogoutCMSG
 import net.bestia.zone.party.AcceptPartyInviteCMSG
 import net.bestia.zone.party.DeclinePartyInviteCMSG
+import net.bestia.zone.trade.AnswerTradeRequestCMSG
+import net.bestia.zone.trade.CancelTradeCMSG
+import net.bestia.zone.trade.ConfirmTradeCMSG
+import net.bestia.zone.trade.OfferTradeItemCMSG
+import net.bestia.zone.trade.RequestTradeCMSG
+import net.bestia.zone.trade.RetractTradeItemCMSG
+import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.world.prop.collect.CollectPropCMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
@@ -80,6 +87,13 @@ class BnetMessageProcessorAdapter(
       envelope.hasMergeCharts() -> MergeChartsCMSG.fromBnet(accountId, envelope.mergeCharts)
       envelope.hasCopyChart() -> CopyChartCMSG.fromBnet(accountId, envelope.copyChart)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
+      envelope.hasRequestTrade() -> RequestTradeCMSG.fromBnet(accountId, envelope.requestTrade)
+      envelope.hasAnswerTradeRequest() -> AnswerTradeRequestCMSG.fromBnet(accountId, envelope.answerTradeRequest)
+      envelope.hasOfferTradeItem() -> OfferTradeItemCMSG.fromBnet(accountId, envelope.offerTradeItem)
+      envelope.hasRetractTradeItem() -> RetractTradeItemCMSG.fromBnet(accountId, envelope.retractTradeItem)
+      envelope.hasSetTradeLock() -> SetTradeLockCMSG.fromBnet(accountId, envelope.setTradeLock)
+      envelope.hasConfirmTrade() -> ConfirmTradeCMSG.fromBnet(accountId, envelope.confirmTrade)
+      envelope.hasCancelTrade() -> CancelTradeCMSG.fromBnet(accountId, envelope.cancelTrade)
 
       else -> throw UnknownBnetMessageException(envelope)
     }

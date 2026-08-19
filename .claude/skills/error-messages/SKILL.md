@@ -14,8 +14,8 @@ patterns in use - **default to the first one**.
 [`OperationErrorSMSG`](../../../zone-server/src/main/kotlin/net/bestia/zone/message/OperationErrorSMSG.kt)
 wraps the generic `OperationError` proto message
 ([`operation_error.proto`](../../../bnet-messages/src/main/proto/messages/system/operation_error.proto)),
-which is just one `OpError` enum value. It already carries entries for multiple features
-(`EQUIP_*`, `MASTER_*`), namespaced by prefix within the single enum.
+which is one `OpError` enum value plus an optional `repeated string args`. It already carries entries for
+multiple features (`EQUIP_*`, `MASTER_*`, `TRADE_*`), namespaced by prefix within the single enum.
 
 **When you need a new denial reason for a handler:**
 
@@ -27,6 +27,18 @@ which is just one `OpError` enum value. It already carries entries for multiple 
 3. Do **not** create a new `data class FooErrorSMSG(...)` that just re-wraps `OperationError` with
    its own parallel Kotlin enum - it's pure duplication of `OperationErrorSMSG`, since the proto
    `OpError` enum already carries a distinct, namespaced value per reason.
+
+### A message that has to name something: `args`
+
+`OperationError` carries `repeated string args`, and `OperationErrorSMSG` takes them as
+`args: List<String>`. They are **substitution values for the client's own template**, in order - a player's
+name, a count, a place - never a sentence composed on the server, because the wording and its translation
+belong to the client. The client side is `chat.gd`'s `_REFUSALS` map, whose entries may carry `%s`
+placeholders; `OperationError.cs` exposes the values as `Args`.
+
+`TRADE_DECLINED` is the worked example: the code says what happened, `args[0]` says who did it, and
+`"%s declined the trade."` lives on the client. This is what a denial that has to name somebody uses -
+**not** a dedicated `*ErrorSMSG`, and not an English string smuggled through `ChatSMSG`.
 
 This is what [`EquipItemHandler.sendDenial`](../../../zone-server/src/main/kotlin/net/bestia/zone/item/equip/EquipItemHandler.kt)
 does: `EquipmentService.Denial` maps to `OpError.EQUIP_*` inline, no dedicated SMSG class.
@@ -71,6 +83,7 @@ message family. A plain "this was refused, here's why" enum is not that - it bel
 ## Rule of thumb
 
 > Adding a new error reason a player is meant to read and act on → add an `OpError` value and use
-> `OperationErrorSMSG`. Rejecting something an honest client can't send → reuse the feature's
-> existing generic code and log it, no new value. Only reach for a dedicated `*ErrorSMSG` + proto
-> message when the payload genuinely can't be expressed as a single code.
+> `OperationErrorSMSG`, with `args` if the message has to name something. Rejecting something an honest
+> client can't send → reuse the feature's existing generic code and log it, no new value. Only reach for a
+> dedicated `*ErrorSMSG` + proto message when the payload genuinely can't be expressed as a code plus a few
+> substitution values.

@@ -25,11 +25,25 @@ const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 ##
 ## Matching on the name rather than the ordinal keeps a new denial reason from being re-declared here as a bare
 ## number, which is the duplication [code]DialogArg.KindName[/code] was introduced to stop.
+##
+## A template may carry [code]%s[/code] placeholders, filled from [code]OperationError.Args[/code] in order.
+## The server sends values and never a finished sentence, so the wording stays here and can be translated.
 const _REFUSALS := {
 	"basic_skill_chat_locked": "You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.",
 	"basic_skill_party_locked": "Parties need Basic Skill Lv. 5.",
+	"basic_skill_trade_locked": "Trading needs Basic Skill Lv. 1.",
 	"equip_level_too_low": "You are not high enough level to wear that yet.",
+	"trade_target_unavailable": "They cannot trade right now.",
+	"trade_out_of_range": "You are too far away to trade with them.",
+	"trade_declined": "%s declined the trade.",
+	"trade_cancelled": "%s cancelled the trade.",
+	"trade_walked_away": "The trade with %s was cancelled - you moved too far apart.",
+	"trade_failed": "The trade could not be completed. Nothing changed hands.",
 }
+
+## Refusals drawn in red rather than as a plain system line. Anything a player is meant to read as "that did
+## not happen" belongs here; a neutral notice does not.
+const _ERROR_COLOR := Color(0.90, 0.35, 0.35)
 
 
 func _ready() -> void:
@@ -125,7 +139,7 @@ func _switch_chat_mode(modeIdx: int) -> void:
 
 ## Adds a new chat line and make sure not more than the allowed lines are added.
 ## If the chat was scrolled down it should scroll down too.
-func _add_chat_line(text: String) -> void:
+func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
 	# Check if the scroll container is scrolled to the bottom
 	var was_at_bottom = scroll_container.scroll_vertical >= scroll_container.get_v_scroll_bar().max_value - scroll_container.get_v_scroll_bar().page
 
@@ -134,6 +148,8 @@ func _add_chat_line(text: String) -> void:
 	new_line.text = text
 	new_line.layout_mode = 2
 	new_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if color != Color.WHITE:
+		new_line.add_theme_color_override("font_color", color)
 
 	# Add the new line to the container
 	lines_container.add_child(new_line)
@@ -159,9 +175,17 @@ func _scroll_to_bottom() -> void:
 ## Reports the refusals from [constant _REFUSALS] and ignores every other operation error, which belongs to
 ## whichever window raised it.
 func _on_operation_error(message) -> void:
-	var text: String = _REFUSALS.get(message.CodeName, "")
-	if not text.is_empty():
-		_add_chat_line(text)
+	var template: String = _REFUSALS.get(message.CodeName, "")
+	if template.is_empty():
+		return
+
+	# A template with placeholders and no args would render "%s" at the player, so a mismatch falls back to
+	# the raw template rather than a broken sentence.
+	var text := template
+	if message.Args.size() > 0:
+		text = template % Array(message.Args)
+
+	_add_chat_line(text, _ERROR_COLOR)
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

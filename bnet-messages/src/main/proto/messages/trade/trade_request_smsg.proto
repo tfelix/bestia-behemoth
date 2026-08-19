@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TradeRequestSmsgProto";
+
+// The prompt: somebody nearby wants to trade. Answered with AnswerTradeRequestCMSG, referencing trade_id.
+//
+// Carries the requester's name because nothing else on the wire would let the client resolve one from an
+// entity id alone - MasterVisualComponentSMSG's name arrives with the entity, and a request can outlive
+// the requester walking out of view.
+message TradeRequestSMSG {
+  uint64 trade_id = 1;
+  uint64 from_entity_id = 2;
+  string from_master_name = 3;
+}

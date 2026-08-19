@@ -14,6 +14,9 @@ sky_material = SubResource("ProceduralSkyMaterial_hqwdr")
 [sub_resource type="Environment" id="Environment_iv3md"]
 background_mode = 2
 sky = SubResource("Sky_vrr3t")
+ssao_enabled = true
+ssil_enabled = true
+sdfgi_enabled = true
 glow_levels/2 = 6.0
 fog_enabled = true
 fog_mode = 1
@@ -44,11 +47,13 @@ environment = SubResource("Environment_iv3md")
 [node name="Sun" type="DirectionalLight3D" parent="." unique_id=297546982]
 transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
 shadow_enabled = true
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 220.0
 
 [node name="Moon" type="DirectionalLight3D" parent="." unique_id=297546983]
 transform = Transform3D(0.4460189, -0.81221586, 0.37599537, -0.29966903, -0.5313671, -0.7923683, 0.84336567, 0.24073704, -0.48039573, 0, 5.2176847, 3.7376866)
 light_energy = 0.0
-shadow_enabled = false
+directional_shadow_max_distance = 220.0
 
 [node name="EntityManager" type="Node" parent="." unique_id=432959366]
 script = ExtResource("9_eqev2")

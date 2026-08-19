@@ -55,6 +55,25 @@ class ContainerSlot(
 
   val isEquipped: Boolean get() = equippedIn != null
 
+  /**
+   * The trade this slot is currently promised to, or null when it is freely held.
+   *
+   * The same shape as [equippedIn] and for the same reason: an offered item has to stop being spendable the
+   * instant it is offered, and marking it in place is what lets every removal path refuse it with one check.
+   * Moving it to an escrow container instead would leave rows nothing could give back after a crash - this
+   * way the item never leaves its owner, and clearing every marker at boot is a complete recovery.
+   *
+   * Only [ItemContainer] writes it, so the rule lives in exactly one place.
+   */
+  @Column(name = "reserved_by_trade_id", nullable = true)
+  var reservedByTradeId: Long? = null
+    internal set
+
+  val isReserved: Boolean get() = reservedByTradeId != null
+
+  /** Neither worn nor promised away, i.e. actually available to spend. */
+  val isFree: Boolean get() = !isEquipped && !isReserved
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   val id: Long = 0

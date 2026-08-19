@@ -17,6 +17,12 @@ signal dialog_received(message: DialogSMSG)
 signal craftable_recipes_received(message: CraftableRecipesSMSG)
 signal operation_success(message: OperationSuccess)
 signal operation_error(message: OperationError)
+## Emitted when another player asks us to trade. Account-scoped for the reason [signal dialog_received] is:
+## it raises a prompt, and a prompt belongs to a client rather than to an entity.
+signal trade_request_received(message: TradeRequestSMSG)
+## Emitted on every change to an open trade. A full snapshot each time - it opens the window, updates it and
+## closes it, so the trade window never has to reconstruct state from a sequence.
+signal trade_state_received(message: TradeStateSMSG)
 ## Emitted whenever the server re-syncs the pending logout countdown (seconds until despawn).
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
@@ -51,6 +57,13 @@ var RequestLogoutCMSG = load("res://Bnet/Message/System/RequestLogoutCMSG.cs")
 var CollectPropCMSG = load("res://Bnet/Message/Map/CollectPropCMSG.cs")
 var CraftItemCMSG = load("res://Bnet/Message/Crafting/CraftItemCMSG.cs")
 var CancelCraftCMSG = load("res://Bnet/Message/Crafting/CancelCraftCMSG.cs")
+var RequestTradeCMSG = load("res://Bnet/Message/Trade/RequestTradeCMSG.cs")
+var AnswerTradeRequestCMSG = load("res://Bnet/Message/Trade/AnswerTradeRequestCMSG.cs")
+var OfferTradeItemCMSG = load("res://Bnet/Message/Trade/OfferTradeItemCMSG.cs")
+var RetractTradeItemCMSG = load("res://Bnet/Message/Trade/RetractTradeItemCMSG.cs")
+var SetTradeLockCMSG = load("res://Bnet/Message/Trade/SetTradeLockCMSG.cs")
+var ConfirmTradeCMSG = load("res://Bnet/Message/Trade/ConfirmTradeCMSG.cs")
+var CancelTradeCMSG = load("res://Bnet/Message/Trade/CancelTradeCMSG.cs")
 var Ping = load("res://Bnet/Message/Ping.cs")
 var ChunkStreamManagerScript = load("res://Game/World/ChunkStreamManager.cs")
 var WeatherStateScript = load("res://Game/World/WeatherState.cs")
@@ -350,6 +363,71 @@ func cancel_craft() -> void:
 	_socket.SendMessage(CancelCraftCMSG.new())
 
 
+## Asks the player behind [param target_entity_id] to trade. Refused with an OperationError when they are
+## out of reach, already trading, or not somebody who can trade yet.
+func request_trade(target_entity_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RequestTradeCMSG.new()
+	msg.TargetEntityId = target_entity_id
+	_socket.SendMessage(msg)
+
+
+## Answers the prompt a TradeRequestSMSG raised.
+func answer_trade_request(trade_id: int, accept: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = AnswerTradeRequestCMSG.new()
+	msg.TradeId = trade_id
+	msg.Accept = accept
+	_socket.SendMessage(msg)
+
+
+## Puts an item into our side of the trade. Nothing is applied locally: the answering TradeStateSMSG is what
+## draws it, which is also how a refusal corrects itself.
+func offer_trade_item(trade_id: int, item_id: int, unique_id: int, amount: int) -> void:
+	assert(is_ready_to_send())
+	var msg = OfferTradeItemCMSG.new()
+	msg.TradeId = trade_id
+	msg.ItemId = item_id
+	msg.UniqueId = unique_id
+	msg.Amount = amount
+	_socket.SendMessage(msg)
+
+
+## Takes one line back out of our own offer. [param offer_slot_id] is the id the server gave that line, not
+## an item id - two lines of the same item are separate offers.
+func retract_trade_item(trade_id: int, offer_slot_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = RetractTradeItemCMSG.new()
+	msg.TradeId = trade_id
+	msg.OfferSlotId = offer_slot_id
+	_socket.SendMessage(msg)
+
+
+## Locks or unlocks our side. Any change to either offer clears both locks again.
+func set_trade_lock(trade_id: int, locked: bool) -> void:
+	assert(is_ready_to_send())
+	var msg = SetTradeLockCMSG.new()
+	msg.TradeId = trade_id
+	msg.Locked = locked
+	_socket.SendMessage(msg)
+
+
+## The final commitment. Accepted only once both sides are locked; the exchange runs on the second one.
+func confirm_trade(trade_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = ConfirmTradeCMSG.new()
+	msg.TradeId = trade_id
+	_socket.SendMessage(msg)
+
+
+## Calls the trade off. Allowed from either side up until the second confirmation.
+func cancel_trade(trade_id: int) -> void:
+	assert(is_ready_to_send())
+	var msg = CancelTradeCMSG.new()
+	msg.TradeId = trade_id
+	_socket.SendMessage(msg)
+
+
 func send_chat(text: String, mode: int = 3, target_player: String = "") -> void:
 	assert(is_ready_to_send())
 	var msg = ChatCMSG.new()
@@ -461,6 +539,10 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		operation_success.emit(message)
 	elif message is OperationError:
 		operation_error.emit(message)
+	elif message is TradeRequestSMSG:
+		trade_request_received.emit(message)
+	elif message is TradeStateSMSG:
+		trade_state_received.emit(message)
 	elif message is MapSMSG:
 		# Terrain traffic. ChunkStreamManager subscribes to MessageReceived itself, and a signal fans out to
 		# every listener, so these reach this handler too and have to be ignored rather than reported.

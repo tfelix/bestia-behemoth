@@ -8,12 +8,14 @@ signal amount_confirmed(item_id: int, amount: int)
 var _item_id: int = 0
 
 
-func open_for(item: ItemResource, max_amount: int) -> void:
+## [param prompt] takes one "%s", the item's name. Dropping is not the only thing you pick an amount for -
+## offering part of a stack in a trade asks the same question with different wording.
+func open_for(item: ItemResource, max_amount: int, prompt: String = "Drop how many %s?") -> void:
 	_item_id = item.item_id
 	_spin_box.min_value = 1
 	_spin_box.max_value = max_amount
 	_spin_box.value = max_amount
-	dialog_text = "Drop how many %s?" % tr(item.name_key)
+	dialog_text = prompt % tr(item.name_key)
 	popup_centered()
 
 

@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "TradeStateSmsgProto";
+
+/**
+ * The whole trade, as the receiving side sees it. One message opens the window, updates it and closes it.
+ *
+ * Always a full snapshot rather than a delta, like every other state message here: a refused action is
+ * answered by re-sending this, which snaps an optimistic client back with no special-case code on either
+ * end. The two sides get different messages - "own" and "partner" are relative to the recipient.
+ */
+message TradeStateSMSG {
+  uint64 trade_id = 1;
+  TradeStatus status = 2;
+
+  string partner_master_name = 3;
+  uint64 partner_entity_id = 4;
+
+  repeated TradeOfferItem own_offer = 5;
+  repeated TradeOfferItem partner_offer = 6;
+
+  // Reserved for currency, which does not exist yet - always 0. Present from the start so adding it later
+  // is additive on the wire rather than a renumbering.
+  uint64 own_gold = 7;
+  uint64 partner_gold = 8;
+
+  bool own_locked = 9;
+  bool partner_locked = 10;
+  bool own_confirmed = 11;
+  bool partner_confirmed = 12;
+}
+
+enum TradeStatus {
+  // Both sides may still add and retract.
+  TRADE_STATUS_OPEN = 0;
+  // Both sides locked; contents frozen, waiting on confirmations.
+  TRADE_STATUS_LOCKED = 1;
+  // The exchange went through. Closes the window.
+  TRADE_STATUS_COMPLETED = 2;
+  // Called off, by either party or by the world. Closes the window; the reason arrives separately as an
+  // OperationError so it lands in the chat log rather than in a window that is about to disappear.
+  TRADE_STATUS_CANCELLED = 3;
+}
+
+// One line of an offer. Mirrors InventoryItem field for field, plus the id of the line itself, so the
+// client renders it with the same item row it already uses for the inventory grid.
+message TradeOfferItem {
+  // Names this line for RetractTradeItemCMSG. Two lines of the same template are distinct offers.
+  uint64 offer_slot_id = 1;
+
+  uint32 item_id = 2;
+  uint64 unique_id = 3;
+  uint32 amount = 4;
+
+  uint32 durability = 5;
+  uint32 max_durability = 6;
+  uint32 slots = 7;
+  uint32 upgrade_level = 8;
+}

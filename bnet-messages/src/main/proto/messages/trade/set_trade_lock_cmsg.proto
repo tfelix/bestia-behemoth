@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SetTradeLockCmsgProto";
+
+// Locks or unlocks the sender's side. Locking says "I am done adding"; any change to either offer clears
+// both locks again, so both sides being locked means both have seen exactly these contents.
+//
+// Unlocking only works while the other side has not locked yet - once both are locked the contents freeze
+// and the only moves left are ConfirmTradeCMSG and CancelTradeCMSG.
+message SetTradeLockCMSG {
+  uint64 trade_id = 1;
+  bool locked = 2;
+}

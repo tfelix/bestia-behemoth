@@ -14,4 +14,9 @@ message MasterVisualComponentSMSG {
   Face face = 5;
   BodyType body = 6;
   Hairstyle hair = 7;
+
+  // The master's name, so the client can label whoever it is looking at. It rides along with the visual
+  // rather than on a component of its own because it is the same fact under the same broadcast rule: it is
+  // public, it never changes while the entity lives, and every viewer needs it exactly when the body arrives.
+  string name = 8;
 }

@@ -9,6 +9,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _equipment_win: WidgetWindow = $EquipmentWin
 @onready var _status_win: WidgetWindow = $StatusWin
 @onready var _crafting_win: WidgetWindow = $CraftingWin
+@onready var _trade_win: WidgetWindow = $TradeWin
 @onready var _ground_drop_zone: GroundDropZone = $GroundDropZone
 @onready var _shortcuts: Shortcuts = $Shortcuts
 @onready var _map_source: MapSource = $MapSource
@@ -45,6 +46,14 @@ func _ready() -> void:
 	var crafting := _crafting_win.get_content() as Crafting
 	crafting.inventory = inventory
 	crafting.recipes_offered.connect(_on_recipes_offered)
+
+	# Same again for trading: two people agreeing to trade is what opens the window, and the exchange ending
+	# is what closes it, so it has no toggle either. It needs the inventory to price a partial stack - the
+	# server is asked for an amount the player is actually holding.
+	var trade := _trade_win.get_content() as Trade
+	trade.inventory = inventory
+	trade.trade_opened.connect(_on_trade_opened)
+	trade.trade_closed.connect(_on_trade_closed)
 
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
@@ -122,6 +131,18 @@ func _on_master_profile_equipment_win_toggled() -> void:
 func _on_recipes_offered() -> void:
 	_crafting_win.visible = true
 	_skills.visible = false
+
+
+## Opened by the server, like the crafting window. The inventory comes up with it because a trade is made of
+## dragging out of it, and closing it would leave the player nothing to offer.
+func _on_trade_opened() -> void:
+	_trade_win.visible = true
+	_inventory_win.visible = true
+	_skills.visible = false
+
+
+func _on_trade_closed() -> void:
+	_trade_win.visible = false
 
 
 func _on_master_profile_status_win_toggled() -> void:

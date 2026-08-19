@@ -60,8 +60,8 @@ enum OpError {
   STRUCTURE_NO_ROOM = 21;
 
   // Basic Skill gates what a player may do at all - see net.bestia.zone.account.master.skill.BasicSkillGate.
-  // Two codes rather than one because the ranks differ and the client says which rank is needed; only the two
-  // subsystems that exist are gated, so there is nothing here for trading, trade posts or sitting.
+  // A code per subsystem rather than one shared code, because the ranks differ and the client says which rank
+  // is needed. Trade posts and sitting are still unbuilt, so ranks 3 and 4 have nothing here.
   BASIC_SKILL_CHAT_LOCKED = 22;
   BASIC_SKILL_PARTY_LOCKED = 23;
 
@@ -86,9 +86,35 @@ enum OpError {
   // longer exists. Named rather than folded into CHART_NOT_FOUND because the player still has the item and
   // would otherwise be told it does not exist.
   CHART_STALE_WORLD = 29;
+
+  // Trading. Deliberately one code for every reason the other side cannot be traded with - not a player,
+  // offline, already trading, gone, or the request sat unanswered until it expired. On the same reasoning
+  // MASTER_NOT_OWNED gives: a client that could tell those apart would be a way to probe who is online and
+  // what they are busy with.
+  TRADE_TARGET_UNAVAILABLE = 30;
+  // Too far away to ask. The one refusal a player can act on, which is why it is not folded into the code
+  // above; the client only offers Trade on somebody in range, so this should only be reachable under latency.
+  TRADE_OUT_OF_RANGE = 31;
+
+  // The three ways a trade ends that are somebody else's doing, so the player is told who. Each carries the
+  // other party's master name in args[0].
+  TRADE_DECLINED = 32;
+  TRADE_CANCELLED = 33;
+  TRADE_WALKED_AWAY = 34;
+
+  // The exchange itself could not be committed and was rolled back whole - nothing changed hands. Not
+  // reachable by a player: it means the reserved items moved under the transaction, and both sides get it.
+  TRADE_FAILED = 35;
+
+  BASIC_SKILL_TRADE_LOCKED = 36;
 }
 
 message OperationError {
   OpError code = 1;
+
+  // Substitution values for the client's message template, in order - a player's name, a count, a place.
+  // Never a server-composed sentence: the wording and its translation stay on the client, which is what
+  // keeps a code from quietly becoming an English string on the wire. Most codes carry none.
+  repeated string args = 2;
 }
 

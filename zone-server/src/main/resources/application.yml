@@ -254,6 +254,7 @@ logging:
   level:
     root: INFO
     net.bestia.zone: TRACE
+    net.bestia.zone.ai: INFO
     net.bestia.zone.ecs.movement.MoveSystem: INFO # disable movement, too spammy
 
 spring:

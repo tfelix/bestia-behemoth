@@ -1,0 +1,122 @@
+[gd_scene load_steps=3 format=3 uid="uid://btradewin0001"]
+
+[ext_resource type="Script" path="res://Game/UI/Trade/trade.gd" id="1_trade"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.11, 0.11, 0.13, 1)
+
+[node name="Trade" type="PanelContainer"]
+custom_minimum_size = Vector2(580, 320)
+offset_right = 580.0
+offset_bottom = 340.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+script = ExtResource("1_trade")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="OwnColumn" type="VBoxContainer" parent="Margin/Body/Columns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="OwnHeader" type="Label" parent="Margin/Body/Columns/OwnColumn"]
+layout_mode = 2
+text = "Your offer"
+
+[node name="OwnGrid" type="GridContainer" parent="Margin/Body/Columns/OwnColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 4
+
+[node name="OwnGold" type="Label" parent="Margin/Body/Columns/OwnColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Gold: 0"
+
+[node name="OwnStatus" type="Label" parent="Margin/Body/Columns/OwnColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Drag items here"
+
+[node name="Separator" type="VSeparator" parent="Margin/Body/Columns"]
+layout_mode = 2
+
+[node name="PartnerColumn" type="VBoxContainer" parent="Margin/Body/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="PartnerHeader" type="Label" parent="Margin/Body/Columns/PartnerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Their offer"
+
+[node name="PartnerGrid" type="GridContainer" parent="Margin/Body/Columns/PartnerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 4
+
+[node name="PartnerGold" type="Label" parent="Margin/Body/Columns/PartnerColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Gold: 0"
+
+[node name="PartnerStatus" type="Label" parent="Margin/Body/Columns/PartnerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = ""
+
+[node name="Separator2" type="HSeparator" parent="Margin/Body"]
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="LockButton" type="Button" parent="Margin/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Lock"
+
+[node name="ConfirmButton" type="Button" parent="Margin/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="Margin/Body/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[connection signal="pressed" from="Margin/Body/Buttons/LockButton" to="." method="_on_lock_pressed"]
+[connection signal="pressed" from="Margin/Body/Buttons/ConfirmButton" to="." method="_on_confirm_pressed"]
+[connection signal="pressed" from="Margin/Body/Buttons/CancelButton" to="." method="_on_cancel_pressed"]

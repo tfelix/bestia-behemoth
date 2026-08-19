@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://ctlfaihkuq8x5"]
 
-[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://d3mkwwyqrn2gh" path="res://Game/Attack/DB/3_cooking.png" id="1_0pxmm"]
+[ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 3
+icon = ExtResource("1_0pxmm")
 name = "Cooking"
 description_key = "SKILL_3_DESC"
-mana_cost = 0
-cooldown = 0.0
 max_level = 3
-target_type = "GROUND"
 tree = "NOVICE"

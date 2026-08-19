@@ -30,7 +30,17 @@ const _COLLECT_STALL_FRAMES: int = 3
 
 var current_state: MouseState
 var selected_entity: Node3D = null
-var _context_menu: PopupMenu = null
+
+## Whatever the cursor is currently over, or null. A right-click arrives as a screen position only, so this
+## is what tells the context menu what it is being opened on - re-raycasting would have to agree with physics
+## picking about which of two overlapping bodies won, and it would not always.
+var hovered_object: Node3D = null
+
+## Our own master's entity id, so the menu never offers to trade with ourselves. Cached off SelfSMSG, the
+## same way BuffList, Inventory and Equipment cache it.
+var own_entity_id: int = 0
+
+var _context_menu: ContextMenu = null
 
 ## Set while walking towards a prop that was clicked from out of range. See pending_collect.gd.
 var _pending_collect: PendingCollect = null
@@ -39,6 +49,7 @@ var _pending_collect: PendingCollect = null
 func _ready() -> void:
 	current_state = MouseStateDefault.new()
 	current_state.enter(self)
+	ConnectionManager.self_received.connect(_on_self_received)
 
 
 func _process(delta: float) -> void:
@@ -177,6 +188,11 @@ func object_clicked(object: Node3D, event: InputEvent, click_position: Vector3) 
 
 
 func on_object_hover(object: Node3D, entered: bool) -> void:
+	if entered:
+		hovered_object = object
+	elif hovered_object == object:
+		hovered_object = null
+
 	current_state.handle_object_hover(self, object, entered)
 
 
@@ -191,11 +207,21 @@ func right_clicked(screen_position: Vector2) -> void:
 	current_state.handle_right_click(self, screen_position)
 
 
-func open_context_menu(screen_position: Vector2) -> void:
+## Opens the context menu on [param target]. Nothing is shown when that target offers no actions, so the
+## caller does not have to know what is actionable.
+func open_context_menu_for(target: Node3D, screen_position: Vector2) -> void:
+	if target == null:
+		return
+
 	if _context_menu == null:
 		_context_menu = _ContextMenuScene.instantiate()
 		add_child(_context_menu)
-	_context_menu.open_at(screen_position)
+
+	_context_menu.open_for(target, screen_position)
+
+
+func _on_self_received(msg: SelfSMSG) -> void:
+	own_entity_id = msg.MasterEntityId
 
 
 func select_entity(entity: Node3D) -> void:

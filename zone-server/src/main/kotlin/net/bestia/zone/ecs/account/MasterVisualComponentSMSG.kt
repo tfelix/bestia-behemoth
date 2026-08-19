@@ -11,6 +11,7 @@ import java.awt.Color
 
 data class MasterVisualComponentSMSG(
   override val entityId: Long,
+  val name: String,
   val skinColor: Color,
   val hairColor: Color,
   val face: Face,
@@ -33,6 +34,7 @@ data class MasterVisualComponentSMSG(
 
     val masterVisualComponent = MasterVisualComponentSMSGProto.MasterVisualComponentSMSG.newBuilder()
       .setEntityId(entityId)
+      .setName(name)
       .setSkinColor(skinColorProto)
       .setHairColor(hairColorProto)
       .setFace(mapFace(face))

@@ -82,6 +82,15 @@ import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/weather_smsg.proto";
 import "messages/map/world_time_smsg.proto";
+import "messages/trade/request_trade_cmsg.proto";
+import "messages/trade/answer_trade_request_cmsg.proto";
+import "messages/trade/offer_trade_item_cmsg.proto";
+import "messages/trade/retract_trade_item_cmsg.proto";
+import "messages/trade/set_trade_lock_cmsg.proto";
+import "messages/trade/confirm_trade_cmsg.proto";
+import "messages/trade/cancel_trade_cmsg.proto";
+import "messages/trade/trade_request_smsg.proto";
+import "messages/trade/trade_state_smsg.proto";
 
 option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "EnvelopeProto";
@@ -187,6 +196,17 @@ message Envelope {
     CraftableRecipesSMSG craftable_recipes = 700;
     CraftItemCMSG craft_item = 701;
     CancelCraftCMSG cancel_craft = 702;
+
+    // TRADE 800
+    RequestTradeCMSG request_trade = 800;
+    AnswerTradeRequestCMSG answer_trade_request = 801;
+    OfferTradeItemCMSG offer_trade_item = 802;
+    RetractTradeItemCMSG retract_trade_item = 803;
+    SetTradeLockCMSG set_trade_lock = 804;
+    ConfirmTradeCMSG confirm_trade = 805;
+    CancelTradeCMSG cancel_trade = 806;
+    TradeRequestSMSG trade_request = 810;
+    TradeStateSMSG trade_state = 811;
 
     // MISC
   }

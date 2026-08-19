@@ -87,6 +87,43 @@ data class Inventory(
     return removed
   }
 
+  /**
+   * Removes one non-stackable entry of [itemId], for a caller that has already decided - durably - that this
+   * copy is leaving but cannot name it by [Item.uniqueId] because its instance row was minted after this
+   * mirror was built.
+   *
+   * `firstOrNull`, not `singleOrNull`: holding two of the same piece of gear is ordinary, and refusing to
+   * remove either of them would be the wrong answer.
+   */
+  fun removeInstanceOf(itemId: Long): Boolean {
+    val item = items.firstOrNull { it.itemId == itemId && !it.isStackable } ?: return false
+
+    items.remove(item)
+    markDirty()
+
+    return true
+  }
+
+  /**
+   * Takes [amount] off the first plain stack of [itemId] that holds at least that much.
+   *
+   * Exists alongside [removeAmount] because that one uses `singleOrNull` and therefore silently does nothing
+   * the moment a template is held both as a stack and as an instance - which is exactly the situation a trade
+   * or a drop is most likely to meet.
+   */
+  fun removeFromStack(itemId: Long, amount: Int): Boolean {
+    require(amount > 0) { "amount > 0 required, was $amount" }
+    val item = items.firstOrNull { it.itemId == itemId && it.isStackable && it.amount >= amount } ?: return false
+
+    item.amount -= amount
+    if (item.amount <= 0) {
+      items.remove(item)
+    }
+    markDirty()
+
+    return true
+  }
+
   // Remove items matching predicate
   fun removeItemsIf(predicate: (Item) -> Boolean): Boolean {
     val removed = items.removeIf(predicate)

@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service
  * at 2, trade posts at 3, sitting recovery at 4, parties and every other skill tree at 5 - so unlike every
  * skill it does nothing on activation and is instead asked about by the subsystems it unlocks.
  *
- * ### Only two of the five are enforced
+ * ### Only three of the five are enforced
  *
- * Chat and parties, because they are the only two of the five that exist. There is no trading, there are no
- * trade posts, and sitting is not a mechanic - so ranks 1, 3 and 4 have nothing to gate and are deliberately
- * not represented here. A constant for a subsystem that does not exist would read as an implemented rule.
+ * Trading, chat and parties, because they are the only three of the five that exist. There are no trade posts
+ * and sitting is not a mechanic - so ranks 3 and 4 have nothing to gate and are deliberately not represented
+ * here. A constant for a subsystem that does not exist would read as an implemented rule.
  *
  * ### It answers off the live entity
  *
@@ -37,6 +37,9 @@ class BasicSkillGate(
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
   private val basicSkillId: Long? by lazy { skills.findByIdentifier(BASIC_SKILL)?.id }
+
+  /** True once the account may trade with another player. Asked of both parties, not only the one who asks. */
+  fun mayTrade(accountId: AccountId): Boolean = rankOf(accountId) >= TRADE_RANK
 
   /** True once the account may talk to other players. Public chat and whispers both; GM commands never. */
   fun mayChat(accountId: AccountId): Boolean = rankOf(accountId) >= CHAT_RANK
@@ -70,13 +73,14 @@ class BasicSkillGate(
 
   companion object {
     /**
-     * Chat needs rank 2 and parties need rank 5, per the design docs.
+     * Trading needs rank 1, chat needs rank 2 and parties need rank 5, per the design docs.
      *
-     * **A new master starts with no skill points at all, so neither is reachable on the first login**, and
-     * that is deliberate rather than an oversight: a novice earns the right to be heard. The primer the client
-     * shows on a master's first login (`DIALOG_BASIC_SKILL_PRIMER_TEXT`) exists to say so, so that being
-     * unable to speak reads as a rule rather than as a broken chat box.
+     * **A new master starts with no skill points at all, so none of them is reachable on the first login**,
+     * and that is deliberate rather than an oversight: a novice earns the right to be heard, and to be dealt
+     * with. The primer the client shows on a master's first login (`DIALOG_BASIC_SKILL_PRIMER_TEXT`) exists to
+     * say so, so that being unable to speak reads as a rule rather than as a broken chat box.
      */
+    const val TRADE_RANK = 1
     const val CHAT_RANK = 2
     const val PARTY_RANK = 5
 

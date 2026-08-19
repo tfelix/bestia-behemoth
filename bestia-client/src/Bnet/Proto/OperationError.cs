@@ -25,30 +25,34 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
-            "Ii0KDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3IqnAYKB09wRXJyb3ISHQoZTUFTVEVSX05BTUVfQUxSRUFEWV9UQUtFThAA",
-            "Eh4KGk1BU1RFUl9NQVhfTUFTVEVSU19SRUFDSEVEEAESFwoTTUFTVEVSX0lO",
-            "VkFMSURfTkFNRRACEhgKFE1BU1RFUl9HRU5FUkFMX0VSUk9SEAMSHAoYRVFV",
-            "SVBfU0xPVF9OT1RfQVZBSUxBQkxFEAQSGAoURVFVSVBfSVRFTV9OT1RfRk9V",
-            "TkQQBRIVChFFUVVJUF9OT1RfQUxMT1dFRBAGEh4KGk1BU1RFUl9JTlZBTElE",
-            "X1NQQVdOX1BPSU5UEAcSHgoaQUlfQ09ORklHX0JFU1RJQV9OT1RfT1dORUQQ",
-            "CBIcChhBSV9DT05GSUdfSU5WQUxJRF9TVEFOQ0UQCRIUChBNQVNURVJfTk9U",
-            "X09XTkVEEAoSGAoUTUFTVEVSX05BTUVfTUlTTUFUQ0gQCxIRCg1NQVNURVJf",
-            "SU5fVVNFEAwSFwoTQ09MTEVDVF9UQVJHRVRfR09ORRANEhgKFENPTExFQ1Rf",
-            "T1VUX09GX1JBTkdFEA4SGwoXQ09MTEVDVF9OT1RfQ09MTEVDVElCTEUQDxIW",
-            "ChJDUkFGVF9OT1RfUE9TU0lCTEUQEBIbChdDUkFGVF9NSVNTSU5HX01BVEVS",
-            "SUFMUxAREh0KGUNSQUZUX0FMUkVBRFlfSU5fUFJPR1JFU1MQEhIQCgxDUkFG",
-            "VF9GQUlMRUQQExIYChRDUkFGVF9JVEVNX0RFU1RST1lFRBAUEhUKEVNUUlVD",
-            "VFVSRV9OT19ST09NEBUSGwoXQkFTSUNfU0tJTExfQ0hBVF9MT0NLRUQQFhIc",
-            "ChhCQVNJQ19TS0lMTF9QQVJUWV9MT0NLRUQQFxIbChdDUkFGVF9JVEVNX1RP",
-            "T19BRFZBTkNFRBAYEhcKE0VRVUlQX0xFVkVMX1RPT19MT1cQGRITCg9DSEFS",
-            "VF9OT1RfRk9VTkQQGhIVChFDSEFSVF9ORUVEU19CTEFOSxAbEhQKEENIQVJU",
-            "X01FUkdFX1NBTUUQHBIVChFDSEFSVF9TVEFMRV9XT1JMRBAdQiwKFW5ldC5i",
+            "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
+            "b3ISDAoEYXJncxgCIAMoCSrCBwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
+            "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
+            "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
+            "UF9JVEVNX05PVF9GT1VORBAFEhUKEUVRVUlQX05PVF9BTExPV0VEEAYSHgoa",
+            "TUFTVEVSX0lOVkFMSURfU1BBV05fUE9JTlQQBxIeChpBSV9DT05GSUdfQkVT",
+            "VElBX05PVF9PV05FRBAIEhwKGEFJX0NPTkZJR19JTlZBTElEX1NUQU5DRRAJ",
+            "EhQKEE1BU1RFUl9OT1RfT1dORUQQChIYChRNQVNURVJfTkFNRV9NSVNNQVRD",
+            "SBALEhEKDU1BU1RFUl9JTl9VU0UQDBIXChNDT0xMRUNUX1RBUkdFVF9HT05F",
+            "EA0SGAoUQ09MTEVDVF9PVVRfT0ZfUkFOR0UQDhIbChdDT0xMRUNUX05PVF9D",
+            "T0xMRUNUSUJMRRAPEhYKEkNSQUZUX05PVF9QT1NTSUJMRRAQEhsKF0NSQUZU",
+            "X01JU1NJTkdfTUFURVJJQUxTEBESHQoZQ1JBRlRfQUxSRUFEWV9JTl9QUk9H",
+            "UkVTUxASEhAKDENSQUZUX0ZBSUxFRBATEhgKFENSQUZUX0lURU1fREVTVFJP",
+            "WUVEEBQSFQoRU1RSVUNUVVJFX05PX1JPT00QFRIbChdCQVNJQ19TS0lMTF9D",
+            "SEFUX0xPQ0tFRBAWEhwKGEJBU0lDX1NLSUxMX1BBUlRZX0xPQ0tFRBAXEhsK",
+            "F0NSQUZUX0lURU1fVE9PX0FEVkFOQ0VEEBgSFwoTRVFVSVBfTEVWRUxfVE9P",
+            "X0xPVxAZEhMKD0NIQVJUX05PVF9GT1VORBAaEhUKEUNIQVJUX05FRURTX0JM",
+            "QU5LEBsSFAoQQ0hBUlRfTUVSR0VfU0FNRRAcEhUKEUNIQVJUX1NUQUxFX1dP",
+            "UkxEEB0SHAoYVFJBREVfVEFSR0VUX1VOQVZBSUxBQkxFEB4SFgoSVFJBREVf",
+            "T1VUX09GX1JBTkdFEB8SEgoOVFJBREVfREVDTElORUQQIBITCg9UUkFERV9D",
+            "QU5DRUxMRUQQIRIVChFUUkFERV9XQUxLRURfQVdBWRAiEhAKDFRSQURFX0ZB",
+            "SUxFRBAjEhwKGEJBU0lDX1NLSUxMX1RSQURFX0xPQ0tFRBAkQiwKFW5ldC5i",
             "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OperationError), global::Bnet.OperationError.Parser, new[]{ "Code" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.OperationError), global::Bnet.OperationError.Parser, new[]{ "Code", "Args" }, null, null, null, null)
           }));
     }
     #endregion
@@ -121,8 +125,8 @@ namespace Bnet {
     [pbr::OriginalName("STRUCTURE_NO_ROOM")] StructureNoRoom = 21,
     /// <summary>
     /// Basic Skill gates what a player may do at all - see net.bestia.zone.account.master.skill.BasicSkillGate.
-    /// Two codes rather than one because the ranks differ and the client says which rank is needed; only the two
-    /// subsystems that exist are gated, so there is nothing here for trading, trade posts or sitting.
+    /// A code per subsystem rather than one shared code, because the ranks differ and the client says which rank
+    /// is needed. Trade posts and sitting are still unbuilt, so ranks 3 and 4 have nothing here.
     /// </summary>
     [pbr::OriginalName("BASIC_SKILL_CHAT_LOCKED")] BasicSkillChatLocked = 22,
     [pbr::OriginalName("BASIC_SKILL_PARTY_LOCKED")] BasicSkillPartyLocked = 23,
@@ -157,6 +161,31 @@ namespace Bnet {
     /// would otherwise be told it does not exist.
     /// </summary>
     [pbr::OriginalName("CHART_STALE_WORLD")] ChartStaleWorld = 29,
+    /// <summary>
+    /// Trading. Deliberately one code for every reason the other side cannot be traded with - not a player,
+    /// offline, already trading, gone, or the request sat unanswered until it expired. On the same reasoning
+    /// MASTER_NOT_OWNED gives: a client that could tell those apart would be a way to probe who is online and
+    /// what they are busy with.
+    /// </summary>
+    [pbr::OriginalName("TRADE_TARGET_UNAVAILABLE")] TradeTargetUnavailable = 30,
+    /// <summary>
+    /// Too far away to ask. The one refusal a player can act on, which is why it is not folded into the code
+    /// above; the client only offers Trade on somebody in range, so this should only be reachable under latency.
+    /// </summary>
+    [pbr::OriginalName("TRADE_OUT_OF_RANGE")] TradeOutOfRange = 31,
+    /// <summary>
+    /// The three ways a trade ends that are somebody else's doing, so the player is told who. Each carries the
+    /// other party's master name in args[0].
+    /// </summary>
+    [pbr::OriginalName("TRADE_DECLINED")] TradeDeclined = 32,
+    [pbr::OriginalName("TRADE_CANCELLED")] TradeCancelled = 33,
+    [pbr::OriginalName("TRADE_WALKED_AWAY")] TradeWalkedAway = 34,
+    /// <summary>
+    /// The exchange itself could not be committed and was rolled back whole - nothing changed hands. Not
+    /// reachable by a player: it means the reserved items moved under the transaction, and both sides get it.
+    /// </summary>
+    [pbr::OriginalName("TRADE_FAILED")] TradeFailed = 35,
+    [pbr::OriginalName("BASIC_SKILL_TRADE_LOCKED")] BasicSkillTradeLocked = 36,
   }
 
   #endregion
@@ -198,6 +227,7 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public OperationError(OperationError other) : this() {
       code_ = other.code_;
+      args_ = other.args_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -219,6 +249,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "args" field.</summary>
+    public const int ArgsFieldNumber = 2;
+    private static readonly pb::FieldCodec<string> _repeated_args_codec
+        = pb::FieldCodec.ForString(18);
+    private readonly pbc::RepeatedField<string> args_ = new pbc::RepeatedField<string>();
+    /// <summary>
+    /// Substitution values for the client's message template, in order - a player's name, a count, a place.
+    /// Never a server-composed sentence: the wording and its translation stay on the client, which is what
+    /// keeps a code from quietly becoming an English string on the wire. Most codes carry none.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> Args {
+      get { return args_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -235,6 +281,7 @@ namespace Bnet {
         return true;
       }
       if (Code != other.Code) return false;
+      if(!args_.Equals(other.args_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -243,6 +290,7 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (Code != global::Bnet.OpError.MasterNameAlreadyTaken) hash ^= Code.GetHashCode();
+      hash ^= args_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -265,6 +313,7 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteEnum((int) Code);
       }
+      args_.WriteTo(output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -279,6 +328,7 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteEnum((int) Code);
       }
+      args_.WriteTo(ref output, _repeated_args_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -292,6 +342,7 @@ namespace Bnet {
       if (Code != global::Bnet.OpError.MasterNameAlreadyTaken) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Code);
       }
+      size += args_.CalculateSize(_repeated_args_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -307,6 +358,7 @@ namespace Bnet {
       if (other.Code != global::Bnet.OpError.MasterNameAlreadyTaken) {
         Code = other.Code;
       }
+      args_.Add(other.args_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -326,6 +378,10 @@ namespace Bnet {
             Code = (global::Bnet.OpError) input.ReadEnum();
             break;
           }
+          case 18: {
+            args_.AddEntriesFrom(input, _repeated_args_codec);
+            break;
+          }
         }
       }
     #endif
@@ -343,6 +399,10 @@ namespace Bnet {
             break;
           case 8: {
             Code = (global::Bnet.OpError) input.ReadEnum();
+            break;
+          }
+          case 18: {
+            args_.AddEntriesFrom(ref input, _repeated_args_codec);
             break;
           }
         }

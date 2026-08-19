@@ -1,5 +1,6 @@
 package net.bestia.zone.item.container
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
@@ -13,6 +14,7 @@ import net.bestia.zone.item.instance.ItemInstance
 import net.bestia.zone.item.instance.ItemInstanceRepository
 import net.bestia.zone.item.instance.findByIdOrThrow
 import net.bestia.zone.util.PlayerBestiaId
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -170,7 +172,8 @@ class InventoryService(
 
   /**
    * Reads the [ItemInstance] a master is holding under [uniqueId], or null when they are not holding it -
-   * which includes holding it *worn*, because every craft that changes an item refuses a worn one.
+   * which includes holding it *worn* or promised to a trade, because every craft that changes an item
+   * refuses both.
    *
    * Refusing worn gear is the same rule the container applies to dropping and consuming: you cannot alter
    * what you are wearing without taking it off. It also keeps a resolving craft from having to reach into
@@ -183,7 +186,7 @@ class InventoryService(
     val master = masterRepository.findByIdOrThrow(masterId)
 
     return master.container.slots
-      .firstOrNull { it.uniqueId == uniqueId && !it.isEquipped }
+      .firstOrNull { it.uniqueId == uniqueId && it.isFree }
       ?.itemInstance
   }
 
@@ -224,6 +227,181 @@ class InventoryService(
     return true
   }
 
+  /**
+   * Promises an item to an open trade: it stays on the owner's container but stops being reachable by every
+   * other path, so it can no longer be dropped, eaten or spent on a craft while it sits in the trade window.
+   *
+   * Must be durable before the caller mirrors the removal into the live ECS inventory, for the reason
+   * [removeOneFromMaster] gives: the database decides which physical item left, and doing it the other way
+   * round duplicates the item on a crash.
+   *
+   * [uniqueId] names the exact instance. It may legitimately be 0 for an instance item obtained this session
+   * whose row was minted after the live inventory copy was made, in which case any free copy of the template
+   * is taken instead - the same fallback [ItemContainer.equip] makes.
+   *
+   * Flushes, because the caller needs the id of the slot to name this offer line on the wire, and a deferred
+   * insert would hand back 0.
+   *
+   * The id is read back off what `save` returned rather than off the instance that was mutated: `save` goes
+   * through `merge()`, which may answer with a managed copy, and it is that copy the generated id lands on -
+   * the same trap [addItem] documents. The new line is the one reserved for this trade that was not reserved
+   * for it a moment ago, which identifies it whether a slot was split off or an existing one merely marked.
+   *
+   * @return what was promised, or null when it is not freely held in that quantity
+   */
+  @Transactional
+  fun reserveForTrade(masterId: Long, tradeId: Long, itemId: Long, uniqueId: Long, amount: Int): ReservedItem? {
+    require(amount > 0) { "amount > 0 required, was $amount" }
+
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val item = itemRepository.findByIdOrNull(itemId) ?: return null
+
+    val alreadyOffered = master.container.reservedSlots(tradeId).map { it.id }.toSet()
+
+    when {
+      uniqueId != 0L -> master.container.reserveInstance(uniqueId, tradeId)
+      !item.stackable -> master.container.reserveAnyInstance(itemId, tradeId)
+      else -> master.container.reserveStackable(itemId, amount, tradeId)
+    } ?: return null
+
+    val saved = masterRepository.saveAndFlush(master)
+
+    val persisted = saved.container.reservedSlots(tradeId).firstOrNull { it.id !in alreadyOffered }
+    if (persisted == null) {
+      LOG.warn { "Trade $tradeId: reservation of item $itemId for master $masterId did not survive the flush" }
+      return null
+    }
+
+    return ReservedItem.of(persisted)
+  }
+
+  /**
+   * Gives one promised line back to its owner.
+   *
+   * @return what came back, so the caller can put it into the live inventory, or null when the line is not
+   *   promised to this trade any more
+   */
+  @Transactional
+  fun releaseTradeReservation(masterId: Long, tradeId: Long, offerSlotId: Long): ReservedItem? {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val slot = master.container.slots
+      .firstOrNull { it.id == offerSlotId && it.reservedByTradeId == tradeId }
+      ?: return null
+
+    // Read the line before releasing it: releasing may merge the stack away, and the merged-into slot is a
+    // different row carrying a different amount.
+    val released = ReservedItem.of(slot)
+
+    master.container.releaseReservation(offerSlotId, tradeId)
+    masterRepository.save(master)
+
+    return released
+  }
+
+  /**
+   * Gives everything one master promised to [tradeId] back, for a trade that ended without an exchange.
+   *
+   * Answers what came back rather than nothing, because the live inventory has to be put back together too
+   * and only this transaction knows what was in there.
+   */
+  @Transactional
+  fun releaseAllTradeReservations(masterId: Long, tradeId: Long): List<ReservedItem> {
+    val master = masterRepository.findByIdOrThrow(masterId)
+    val released = master.container.reservedSlots(tradeId).map { ReservedItem.of(it) }
+
+    if (released.isEmpty()) {
+      return emptyList()
+    }
+
+    master.container.releaseAllReservations(tradeId)
+    masterRepository.save(master)
+
+    return released
+  }
+
+  /**
+   * **The atomic point of a trade.** Moves everything each side promised to the other, in one transaction, or
+   * moves nothing at all.
+   *
+   * All-or-nothing for the same reason [consumeAll] is, only with more at stake: a half-completed exchange
+   * would take one player's goods and hand back nothing. The verification and both moves share a transaction,
+   * so a concurrent drop or craft can only land before or after, never between them.
+   *
+   * The reserved slots are re-read here and checked against what the trade session recorded rather than
+   * trusted from the caller: settlement happens a message or two after the offers were made. A mismatch
+   * throws, which is what rolls the whole thing back.
+   *
+   * [ItemInstance] rows are moved, not recreated, so a well-forged sword changes hands complete - with its
+   * wear, its rune slots, its upgrade level and the master who made it.
+   */
+  @Transactional
+  fun settleTrade(
+    tradeId: Long,
+    masterAId: Long,
+    masterBId: Long,
+    expectedA: Set<Long>,
+    expectedB: Set<Long>,
+  ): Settlement {
+    require(masterAId != masterBId) { "A master cannot trade with themselves (master $masterAId)" }
+
+    val masterA = masterRepository.findByIdOrThrow(masterAId)
+    val masterB = masterRepository.findByIdOrThrow(masterBId)
+
+    val heldA = masterA.container.reservedSlots(tradeId).map { it.id }.toSet()
+    val heldB = masterB.container.reservedSlots(tradeId).map { it.id }.toSet()
+
+    if (heldA != expectedA || heldB != expectedB) {
+      throw TradeSettlementFailedException(
+        tradeId,
+        "reserved slots moved: master $masterAId holds $heldA (expected $expectedA), " +
+                "master $masterBId holds $heldB (expected $expectedB)"
+      )
+    }
+
+    val toB = move(tradeId, expectedA, from = masterA.container, to = masterB.container)
+    val toA = move(tradeId, expectedB, from = masterB.container, to = masterA.container)
+
+    masterRepository.save(masterA)
+    masterRepository.save(masterB)
+
+    return Settlement(toMasterA = toA, toMasterB = toB)
+  }
+
+  private fun move(
+    tradeId: Long,
+    slotIds: Set<Long>,
+    from: ItemContainer,
+    to: ItemContainer,
+  ): List<ReservedItem> = slotIds.map { slotId ->
+    val detached = from.detachReserved(slotId, tradeId)
+      ?: throw TradeSettlementFailedException(tradeId, "slot $slotId vanished mid-settlement")
+
+    if (detached.instance != null) {
+      to.addInstance(detached.instance)
+    } else {
+      to.addStackable(detached.template, detached.amount)
+    }
+
+    ReservedItem(
+      offerSlotId = slotId,
+      itemId = detached.template.id,
+      amount = detached.amount,
+      weight = detached.template.weight,
+      uniqueId = detached.instance?.id ?: 0L,
+      stackable = detached.instance == null,
+      durability = detached.instance?.durability ?: 0,
+      maxDurability = detached.instance?.maxDurability ?: 0,
+      slots = detached.instance?.slots ?: 0,
+      upgradeLevel = detached.instance?.upgradeLevel ?: 0,
+    )
+  }
+
+  /** What each side ends up receiving, so both live inventories can be rebuilt after the commit. */
+  data class Settlement(
+    val toMasterA: List<ReservedItem>,
+    val toMasterB: List<ReservedItem>,
+  )
+
   private fun <T> withOwnerContainer(masterId: Long, playerBestiaId: PlayerBestiaId?, block: (ItemContainer) -> T): T {
     return if (playerBestiaId == null) {
       val master = masterRepository.findByIdOrThrow(masterId)
@@ -236,6 +414,10 @@ class InventoryService(
       playerBestiaRepository.save(playerBestia)
       result
     }
+  }
+
+  private companion object {
+    private val LOG = KotlinLogging.logger { }
   }
 
   private fun grant(container: ItemContainer, item: Item, amount: Int, uniqueId: Long) {

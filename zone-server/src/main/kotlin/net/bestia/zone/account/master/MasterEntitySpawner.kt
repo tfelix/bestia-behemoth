@@ -103,6 +103,7 @@ class MasterEntitySpawner(
         id,
         MasterVisual(
           id = master.id.toInt(),
+          name = master.name,
           skinColor = master.skinColor,
           hairColor = master.hairColor,
           face = master.face,

@@ -286,6 +286,16 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.StaticEntityRemovedSMSG.FromProto(envelope.StaticEntityRemoved);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.TradeRequest != null)
+        {
+          var msg = Trade.TradeRequestSMSG.FromProto(envelope.TradeRequest);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.TradeState != null)
+        {
+          var msg = Trade.TradeStateSMSG.FromProto(envelope.TradeState);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else
         {
           GD.PrintErr($"BnetSocket: Envelope message '{envelope.MessageCase}' was not handled! Please add handling and type conversion.");

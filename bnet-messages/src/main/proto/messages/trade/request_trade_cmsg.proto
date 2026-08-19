@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "RequestTradeCmsgProto";
+
+// Asks the player behind target_entity_id to trade. Raises a TradeRequestSMSG on their side and, once
+// they answer, a TradeStateSMSG or an OperationError on this one.
+//
+// Nothing validates target_entity_id here - a stale one simply names an entity that is not a tradeable
+// player, which TradeService refuses like any other.
+message RequestTradeCMSG {
+  uint64 target_entity_id = 1;
+}

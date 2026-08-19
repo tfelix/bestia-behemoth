@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "OfferTradeItemCmsgProto";
+
+// Puts an item from the sender's inventory into their side of the trade window. The server takes it out
+// of the live inventory at once, so it can no longer be dropped, used or spent on a craft while offered.
+//
+// unique_id names the exact instance; 0 for a plain stack, and also for an instance obtained this session
+// whose row was minted after the live inventory copy was made - the server then falls back to item_id.
+message OfferTradeItemCMSG {
+  uint64 trade_id = 1;
+  uint32 item_id = 2;
+  uint64 unique_id = 3;
+  uint32 amount = 4;
+}

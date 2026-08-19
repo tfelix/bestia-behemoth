@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="AttackResource" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AttackResource" format=3 uid="uid://cutsh7mgkvje2"]
 
-[ext_resource type="Script" path="res://Game/Attack/attack_resource.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cdo62wfsbx48p" path="res://Game/Attack/DB/7_play_dead.png" id="1_0w2fe"]
+[ext_resource type="Script" uid="uid://cusu6un1ro3qh" path="res://Game/Attack/attack_resource.gd" id="1_script"]
 
 [resource]
 script = ExtResource("1_script")
 skill_id = 7
+icon = ExtResource("1_0w2fe")
 name = "Play Dead"
 description_key = "SKILL_7_DESC"
 mana_cost = 8
 cooldown = 10.0
-max_level = 1
 target_type = "FRIENDLY"
 tree = "NOVICE"

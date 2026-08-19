@@ -100,103 +100,122 @@ namespace Bnet {
             "X3Ntc2cucHJvdG8aLW1lc3NhZ2VzL21hcC9zdGF0aWNfZW50aXR5X3JlbW92",
             "ZWRfc21zZy5wcm90bxokbWVzc2FnZXMvbWFwL2NvbGxlY3RfcHJvcF9jbXNn",
             "LnByb3RvGh9tZXNzYWdlcy9tYXAvd2VhdGhlcl9zbXNnLnByb3RvGiJtZXNz",
-            "YWdlcy9tYXAvd29ybGRfdGltZV9zbXNnLnByb3RvIvEfCghFbnZlbG9wZRIz",
-            "ChFvcGVyYXRpb25fc3VjY2VzcxgBIAEoCzIWLmJuZXQuT3BlcmF0aW9uU3Vj",
-            "Y2Vzc0gAEi8KD29wZXJhdGlvbl9lcnJvchgCIAEoCzIULmJuZXQuT3BlcmF0",
-            "aW9uRXJyb3JIABIuCg5hdXRoZW50aWNhdGlvbhhkIAEoCzIULmJuZXQuQXV0",
-            "aGVudGljYXRpb25IABIqCgxkaXNjb25uZWN0ZWQYZSABKAsyEi5ibmV0LkRp",
-            "c2Nvbm5lY3RlZEgAEj0KFmF1dGhlbnRpY2F0aW9uX3N1Y2Nlc3MYZiABKAsy",
-            "Gy5ibmV0LkF1dGhlbnRpY2F0aW9uU3VjY2Vzc0gAEhoKBHBpbmcYeCABKAsy",
-            "Ci5ibmV0LlBpbmdIABIaCgRwb25nGHkgASgLMgouYm5ldC5Qb25nSAASIwoJ",
-            "Y2hhdF9jbXNnGHogASgLMg4uYm5ldC5DaGF0Q01TR0gAEiMKCWNoYXRfc21z",
-            "Zxh7IAEoCzIOLmJuZXQuQ2hhdFNNU0dIABIxCg5yZXF1ZXN0X2xvZ291dBh8",
-            "IAEoCzIXLmJuZXQuUmVxdWVzdExvZ291dENNU0dIABIiCgZkaWFsb2cYfSAB",
-            "KAsyEC5ibmV0LkRpYWxvZ1NNU0dIABIqCgp3b3JsZF9pbmZvGMgBIAEoCzIT",
-            "LmJuZXQuV29ybGRJbmZvU01TR0gAEjIKDmNodW5rX21hbmlmZXN0GMkBIAEo",
-            "CzIXLmJuZXQuQ2h1bmtNYW5pZmVzdFNNU0dIABIwCg1jaHVua19yZXF1ZXN0",
-            "GMoBIAEoCzIWLmJuZXQuQ2h1bmtSZXF1ZXN0Q01TR0gAEioKCmNodW5rX2Rh",
-            "dGEYywEgASgLMhMuYm5ldC5DaHVua0RhdGFTTVNHSAASLAoLY2h1bmtfcGF0",
-            "Y2gYzAEgASgLMhQuYm5ldC5DaHVua1BhdGNoU01TR0gAEiUKB3dlYXRoZXIY",
-            "zQEgASgLMhEuYm5ldC5XZWF0aGVyU01TR0gAEj8KFWNodW5rX3N0YXRpY19l",
-            "bnRpdGllcxjOASABKAsyHS5ibmV0LkNodW5rU3RhdGljRW50aXRpZXNTTVNH",
-            "SAASPwoVc3RhdGljX2VudGl0eV9yZW1vdmVkGM8BIAEoCzIdLmJuZXQuU3Rh",
-            "dGljRW50aXR5UmVtb3ZlZFNNU0dIABIuCgxjb2xsZWN0X3Byb3AY0AEgASgL",
-            "MhUuYm5ldC5Db2xsZWN0UHJvcENNU0dIABIqCgp3b3JsZF90aW1lGNEBIAEo",
-            "CzITLmJuZXQuV29ybGRUaW1lU01TR0gAEjAKDWdldF9pbnZlbnRvcnkYrQIg",
-            "ASgLMhYuYm5ldC5HZXRJbnZlbnRvcnlDTVNHSAASJgoIdXNlX2l0ZW0YrgIg",
-            "ASgLMhEuYm5ldC5Vc2VJdGVtQ01TR0gAEigKCWRyb3BfaXRlbRivAiABKAsy",
-            "Ei5ibmV0LkRyb3BJdGVtQ01TR0gAEigKCWxvb3RfaXRlbRiwAiABKAsyEi5i",
-            "bmV0Lkxvb3RJdGVtQ01TR0gAEioKCmVxdWlwX2l0ZW0YsQIgASgLMhMuYm5l",
-            "dC5FcXVpcEl0ZW1DTVNHSAASLgoMdW5lcXVpcF9pdGVtGLICIAEoCzIVLmJu",
-            "ZXQuVW5lcXVpcEl0ZW1DTVNHSAASLgoMbWVyZ2VfY2hhcnRzGLMCIAEoCzIV",
-            "LmJuZXQuTWVyZ2VDaGFydHNDTVNHSAASKgoKY29weV9jaGFydBi0AiABKAsy",
-            "Ey5ibmV0LkNvcHlDaGFydENNU0dIABIqCgpnZXRfbWFzdGVyGJEDIAEoCzIT",
-            "LmJuZXQuR2V0TWFzdGVyQ01TR0gAEh8KBm1hc3RlchiSAyABKAsyDC5ibmV0",
-            "Lk1hc3RlckgAEjAKDXNlbGVjdF9tYXN0ZXIYkwMgASgLMhYuYm5ldC5TZWxl",
-            "Y3RNYXN0ZXJDTVNHSAASJgoIZ2V0X3NlbGYYlAMgASgLMhEuYm5ldC5HZXRT",
-            "ZWxmQ01TR0gAEh8KBHNlbGYYlQMgASgLMg4uYm5ldC5TZWxmU01TR0gAEjkK",
-            "EmludmVzdF9za2lsbF9wb2ludBiWAyABKAsyGi5ibmV0LkludmVzdFNraWxs",
-            "UG9pbnRDTVNHSAASKgoKZ2V0X3NraWxscxiXAyABKAsyEy5ibmV0LkdldFNr",
-            "aWxsc0NNU0dIABIyCg5hY3RpdmF0ZV9za2lsbBiYAyABKAsyFy5ibmV0LkFj",
-            "dGl2YXRlU2tpbGxDTVNHSAASMAoNY3JlYXRlX21hc3RlchiZAyABKAsyFi5i",
-            "bmV0LkNyZWF0ZU1hc3RlckNNU0dIABI7ChNpbnZlc3Rfc3RhdHVzX3BvaW50",
-            "GJoDIAEoCzIbLmJuZXQuSW52ZXN0U3RhdHVzUG9pbnRDTVNHSAASPAoUc2V0",
-            "X2Jlc3RpYV9haV9jb25maWcYmwMgASgLMhsuYm5ldC5TZXRCZXN0aWFBaUNv",
-            "bmZpZ0NNU0dIABI1ChBiZXN0aWFfYWlfY29uZmlnGJwDIAEoCzIYLmJuZXQu",
-            "QmVzdGlhQWlDb25maWdTTVNHSAASMAoNZGVsZXRlX21hc3RlchidAyABKAsy",
-            "Fi5ibmV0LkRlbGV0ZU1hc3RlckNNU0dIABI5ChRzZWxlY3RfYWN0aXZlX2Vu",
-            "dGl0eRj0AyABKAsyGC5ibmV0LlNlbGVjdEFjdGl2ZUVudGl0eUgAEjUKEm1v",
-            "dmVfYWN0aXZlX2VudGl0eRj1AyABKAsyFi5ibmV0Lk1vdmVBY3RpdmVFbnRp",
-            "dHlIABIxChBnZXRfYWxsX2VudGl0aWVzGPYDIAEoCzIULmJuZXQuR2V0QWxs",
-            "RW50aXRpZXNIABIwCg1hdHRhY2tfZW50aXR5GPcDIAEoCzIWLmJuZXQuQXR0",
-            "YWNrRW50aXR5Q01TR0gAEjAKDXZhbmlzaF9lbnRpdHkY+AMgASgLMhYuYm5l",
-            "dC5WYW5pc2hFbnRpdHlTTVNHSAASMAoNZGFtYWdlX2VudGl0eRj5AyABKAsy",
-            "Fi5ibmV0LkRhbWFnZUVudGl0eVNNU0dIABIxCg1jb21wX3Bvc2l0aW9uGP4D",
-            "IAEoCzIXLmJuZXQuUG9zaXRpb25Db21wb25lbnRIABItCgtjb21wX3Zpc3Vh",
-            "bBiBBCABKAsyFS5ibmV0LlZpc3VhbENvbXBvbmVudEgAEj4KEmNvbXBfbWFz",
-            "dGVyX3Zpc3VhbBiCBCABKAsyHy5ibmV0Lk1hc3RlclZpc3VhbENvbXBvbmVu",
-            "dFNNU0dIABItCgljb21wX3BhdGgYgwQgASgLMhcuYm5ldC5QYXRoQ29tcG9u",
-            "ZW50U01TR0gAEi8KCmNvbXBfc3BlZWQYhAQgASgLMhguYm5ldC5TcGVlZENv",
-            "bXBvbmVudFNNU0dIABIrCghjb21wX2V4cBiFBCABKAsyFi5ibmV0LkV4cENv",
-            "bXBvbmVudFNNU0dIABIvCgpjb21wX2xldmVsGIYEIAEoCzIYLmJuZXQuTGV2",
-            "ZWxDb21wb25lbnRTTVNHSAASLQoJY29tcF9tYW5hGIcEIAEoCzIXLmJuZXQu",
-            "TWFuYUNvbXBvbmVudFNNU0dIABIxCgtjb21wX2hlYWx0aBiIBCABKAsyGS5i",
-            "bmV0LkhlYWx0aENvbXBvbmVudFNNU0dIABI3Cg5jb21wX2ludmVudG9yeRiJ",
-            "BCABKAsyHC5ibmV0LkludmVudG9yeUNvbXBvbmVudFNNU0dIABIzChFjb21w",
-            "X3NraWxsX3BvaW50cxiLBCABKAsyFS5ibmV0LlNraWxsUG9pbnRzU01TR0gA",
-            "Ei8KD2NvbXBfc2tpbGxfbGlzdBiMBCABKAsyEy5ibmV0LlNraWxsTGlzdFNN",
-            "U0dIABI3Cg5jb21wX2FuaW1hdGlvbhiNBCABKAsyHC5ibmV0LkFuaW1hdGlv",
-            "bkNvbXBvbmVudFNNU0dIABIzCgxjb21wX2VmZmVjdHMYjgQgASgLMhouYm5l",
-            "dC5TdGF0dXNFZmZlY3RMaXN0U01TR0gAEjUKEmNvbXBfbG9nb3V0X2ludGVu",
-            "dBiPBCABKAsyFi5ibmV0LkxvZ291dEludGVudFNNU0dIABIzCgxjb21wX3N0",
-            "YW1pbmEYkQQgASgLMhouYm5ldC5TdGFtaW5hQ29tcG9uZW50U01TR0gAEkAK",
-            "E2NvbXBfY2FycnlfY2FwYWNpdHkYkgQgASgLMiAuYm5ldC5DYXJyeUNhcGFj",
-            "aXR5Q29tcG9uZW50U01TR0gAEjMKDGNvbXBfY2FzdGluZxiTBCABKAsyGi5i",
-            "bmV0LkNhc3RpbmdDb21wb25lbnRTTVNHSAASNwoOY29tcF9lcXVpcG1lbnQY",
-            "lAQgASgLMhwuYm5ldC5FcXVpcG1lbnRDb21wb25lbnRTTVNHSAASNQoSY29t",
-            "cF9zdGF0dXNfdmFsdWVzGJUEIAEoCzIWLmJuZXQuU3RhdHVzVmFsdWVzU01T",
-            "R0gAEjUKEmNvbXBfc3RhdHVzX3BvaW50cxiWBCABKAsyFi5ibmV0LlN0YXR1",
-            "c1BvaW50c1NNU0dIABI+Chdjb21wX2Jhc2Vfc3RhdHVzX3ZhbHVlcxiXBCAB",
-            "KAsyGi5ibmV0LkJhc2VTdGF0dXNWYWx1ZXNTTVNHSAASOwoTYWNjZXB0X3Bh",
-            "cnR5X2ludml0ZRjYBCABKAsyGy5ibmV0LkFjY2VwdFBhcnR5SW52aXRlQ01T",
-            "R0gAEj0KFGRlY2xpbmVfcGFydHlfaW52aXRlGNkEIAEoCzIcLmJuZXQuRGVj",
-            "bGluZVBhcnR5SW52aXRlQ01TR0gAEjYKEHBhcnR5X2ludml0YXRpb24Y2gQg",
-            "ASgLMhkuYm5ldC5QYXJ0eUludml0YXRpb25TTVNHSAASRQoYcGFydHlfaW52",
-            "aXRhdGlvbl9jcmVhdGVkGNsEIAEoCzIgLmJuZXQuUGFydHlJbnZpdGF0aW9u",
-            "Q3JlYXRlZFNNU0dIABI/ChVwYXJ0eV9pbnZpdGVfZGVjbGluZWQY3AQgASgL",
-            "Mh0uYm5ldC5QYXJ0eUludml0ZURlY2xpbmVkU01TR0gAEioKCnBhcnR5X2lu",
-            "Zm8Y3QQgASgLMhMuYm5ldC5QYXJ0eUluZm9TTVNHSAASLAoLcGFydHlfZXJy",
-            "b3IY3gQgASgLMhQuYm5ldC5QYXJ0eUVycm9yU01TR0gAEjAKDWRpc2JhbmRf",
-            "cGFydHkY3wQgASgLMhYuYm5ldC5EaXNiYW5kUGFydHlTTVNHSAASOAoRY3Jh",
-            "ZnRhYmxlX3JlY2lwZXMYvAUgASgLMhouYm5ldC5DcmFmdGFibGVSZWNpcGVz",
-            "U01TR0gAEioKCmNyYWZ0X2l0ZW0YvQUgASgLMhMuYm5ldC5DcmFmdEl0ZW1D",
-            "TVNHSAASLgoMY2FuY2VsX2NyYWZ0GL4FIAEoCzIVLmJuZXQuQ2FuY2VsQ3Jh",
-            "ZnRDTVNHSABCCQoHbWVzc2FnZUImChVuZXQuYmVzdGlhLmJuZXQucHJvdG9C",
-            "DUVudmVsb3BlUHJvdG9iBnByb3RvMw=="));
+            "YWdlcy9tYXAvd29ybGRfdGltZV9zbXNnLnByb3RvGidtZXNzYWdlcy90cmFk",
+            "ZS9yZXF1ZXN0X3RyYWRlX2Ntc2cucHJvdG8aLm1lc3NhZ2VzL3RyYWRlL2Fu",
+            "c3dlcl90cmFkZV9yZXF1ZXN0X2Ntc2cucHJvdG8aKm1lc3NhZ2VzL3RyYWRl",
+            "L29mZmVyX3RyYWRlX2l0ZW1fY21zZy5wcm90bxosbWVzc2FnZXMvdHJhZGUv",
+            "cmV0cmFjdF90cmFkZV9pdGVtX2Ntc2cucHJvdG8aKG1lc3NhZ2VzL3RyYWRl",
+            "L3NldF90cmFkZV9sb2NrX2Ntc2cucHJvdG8aJ21lc3NhZ2VzL3RyYWRlL2Nv",
+            "bmZpcm1fdHJhZGVfY21zZy5wcm90bxombWVzc2FnZXMvdHJhZGUvY2FuY2Vs",
+            "X3RyYWRlX2Ntc2cucHJvdG8aJ21lc3NhZ2VzL3RyYWRlL3RyYWRlX3JlcXVl",
+            "c3Rfc21zZy5wcm90bxolbWVzc2FnZXMvdHJhZGUvdHJhZGVfc3RhdGVfc21z",
+            "Zy5wcm90byLJIwoIRW52ZWxvcGUSMwoRb3BlcmF0aW9uX3N1Y2Nlc3MYASAB",
+            "KAsyFi5ibmV0Lk9wZXJhdGlvblN1Y2Nlc3NIABIvCg9vcGVyYXRpb25fZXJy",
+            "b3IYAiABKAsyFC5ibmV0Lk9wZXJhdGlvbkVycm9ySAASLgoOYXV0aGVudGlj",
+            "YXRpb24YZCABKAsyFC5ibmV0LkF1dGhlbnRpY2F0aW9uSAASKgoMZGlzY29u",
+            "bmVjdGVkGGUgASgLMhIuYm5ldC5EaXNjb25uZWN0ZWRIABI9ChZhdXRoZW50",
+            "aWNhdGlvbl9zdWNjZXNzGGYgASgLMhsuYm5ldC5BdXRoZW50aWNhdGlvblN1",
+            "Y2Nlc3NIABIaCgRwaW5nGHggASgLMgouYm5ldC5QaW5nSAASGgoEcG9uZxh5",
+            "IAEoCzIKLmJuZXQuUG9uZ0gAEiMKCWNoYXRfY21zZxh6IAEoCzIOLmJuZXQu",
+            "Q2hhdENNU0dIABIjCgljaGF0X3Ntc2cYeyABKAsyDi5ibmV0LkNoYXRTTVNH",
+            "SAASMQoOcmVxdWVzdF9sb2dvdXQYfCABKAsyFy5ibmV0LlJlcXVlc3RMb2dv",
+            "dXRDTVNHSAASIgoGZGlhbG9nGH0gASgLMhAuYm5ldC5EaWFsb2dTTVNHSAAS",
+            "KgoKd29ybGRfaW5mbxjIASABKAsyEy5ibmV0LldvcmxkSW5mb1NNU0dIABIy",
+            "Cg5jaHVua19tYW5pZmVzdBjJASABKAsyFy5ibmV0LkNodW5rTWFuaWZlc3RT",
+            "TVNHSAASMAoNY2h1bmtfcmVxdWVzdBjKASABKAsyFi5ibmV0LkNodW5rUmVx",
+            "dWVzdENNU0dIABIqCgpjaHVua19kYXRhGMsBIAEoCzITLmJuZXQuQ2h1bmtE",
+            "YXRhU01TR0gAEiwKC2NodW5rX3BhdGNoGMwBIAEoCzIULmJuZXQuQ2h1bmtQ",
+            "YXRjaFNNU0dIABIlCgd3ZWF0aGVyGM0BIAEoCzIRLmJuZXQuV2VhdGhlclNN",
+            "U0dIABI/ChVjaHVua19zdGF0aWNfZW50aXRpZXMYzgEgASgLMh0uYm5ldC5D",
+            "aHVua1N0YXRpY0VudGl0aWVzU01TR0gAEj8KFXN0YXRpY19lbnRpdHlfcmVt",
+            "b3ZlZBjPASABKAsyHS5ibmV0LlN0YXRpY0VudGl0eVJlbW92ZWRTTVNHSAAS",
+            "LgoMY29sbGVjdF9wcm9wGNABIAEoCzIVLmJuZXQuQ29sbGVjdFByb3BDTVNH",
+            "SAASKgoKd29ybGRfdGltZRjRASABKAsyEy5ibmV0LldvcmxkVGltZVNNU0dI",
+            "ABIwCg1nZXRfaW52ZW50b3J5GK0CIAEoCzIWLmJuZXQuR2V0SW52ZW50b3J5",
+            "Q01TR0gAEiYKCHVzZV9pdGVtGK4CIAEoCzIRLmJuZXQuVXNlSXRlbUNNU0dI",
+            "ABIoCglkcm9wX2l0ZW0YrwIgASgLMhIuYm5ldC5Ecm9wSXRlbUNNU0dIABIo",
+            "Cglsb290X2l0ZW0YsAIgASgLMhIuYm5ldC5Mb290SXRlbUNNU0dIABIqCgpl",
+            "cXVpcF9pdGVtGLECIAEoCzITLmJuZXQuRXF1aXBJdGVtQ01TR0gAEi4KDHVu",
+            "ZXF1aXBfaXRlbRiyAiABKAsyFS5ibmV0LlVuZXF1aXBJdGVtQ01TR0gAEi4K",
+            "DG1lcmdlX2NoYXJ0cxizAiABKAsyFS5ibmV0Lk1lcmdlQ2hhcnRzQ01TR0gA",
+            "EioKCmNvcHlfY2hhcnQYtAIgASgLMhMuYm5ldC5Db3B5Q2hhcnRDTVNHSAAS",
+            "KgoKZ2V0X21hc3RlchiRAyABKAsyEy5ibmV0LkdldE1hc3RlckNNU0dIABIf",
+            "CgZtYXN0ZXIYkgMgASgLMgwuYm5ldC5NYXN0ZXJIABIwCg1zZWxlY3RfbWFz",
+            "dGVyGJMDIAEoCzIWLmJuZXQuU2VsZWN0TWFzdGVyQ01TR0gAEiYKCGdldF9z",
+            "ZWxmGJQDIAEoCzIRLmJuZXQuR2V0U2VsZkNNU0dIABIfCgRzZWxmGJUDIAEo",
+            "CzIOLmJuZXQuU2VsZlNNU0dIABI5ChJpbnZlc3Rfc2tpbGxfcG9pbnQYlgMg",
+            "ASgLMhouYm5ldC5JbnZlc3RTa2lsbFBvaW50Q01TR0gAEioKCmdldF9za2ls",
+            "bHMYlwMgASgLMhMuYm5ldC5HZXRTa2lsbHNDTVNHSAASMgoOYWN0aXZhdGVf",
+            "c2tpbGwYmAMgASgLMhcuYm5ldC5BY3RpdmF0ZVNraWxsQ01TR0gAEjAKDWNy",
+            "ZWF0ZV9tYXN0ZXIYmQMgASgLMhYuYm5ldC5DcmVhdGVNYXN0ZXJDTVNHSAAS",
+            "OwoTaW52ZXN0X3N0YXR1c19wb2ludBiaAyABKAsyGy5ibmV0LkludmVzdFN0",
+            "YXR1c1BvaW50Q01TR0gAEjwKFHNldF9iZXN0aWFfYWlfY29uZmlnGJsDIAEo",
+            "CzIbLmJuZXQuU2V0QmVzdGlhQWlDb25maWdDTVNHSAASNQoQYmVzdGlhX2Fp",
+            "X2NvbmZpZxicAyABKAsyGC5ibmV0LkJlc3RpYUFpQ29uZmlnU01TR0gAEjAK",
+            "DWRlbGV0ZV9tYXN0ZXIYnQMgASgLMhYuYm5ldC5EZWxldGVNYXN0ZXJDTVNH",
+            "SAASOQoUc2VsZWN0X2FjdGl2ZV9lbnRpdHkY9AMgASgLMhguYm5ldC5TZWxl",
+            "Y3RBY3RpdmVFbnRpdHlIABI1ChJtb3ZlX2FjdGl2ZV9lbnRpdHkY9QMgASgL",
+            "MhYuYm5ldC5Nb3ZlQWN0aXZlRW50aXR5SAASMQoQZ2V0X2FsbF9lbnRpdGll",
+            "cxj2AyABKAsyFC5ibmV0LkdldEFsbEVudGl0aWVzSAASMAoNYXR0YWNrX2Vu",
+            "dGl0eRj3AyABKAsyFi5ibmV0LkF0dGFja0VudGl0eUNNU0dIABIwCg12YW5p",
+            "c2hfZW50aXR5GPgDIAEoCzIWLmJuZXQuVmFuaXNoRW50aXR5U01TR0gAEjAK",
+            "DWRhbWFnZV9lbnRpdHkY+QMgASgLMhYuYm5ldC5EYW1hZ2VFbnRpdHlTTVNH",
+            "SAASMQoNY29tcF9wb3NpdGlvbhj+AyABKAsyFy5ibmV0LlBvc2l0aW9uQ29t",
+            "cG9uZW50SAASLQoLY29tcF92aXN1YWwYgQQgASgLMhUuYm5ldC5WaXN1YWxD",
+            "b21wb25lbnRIABI+ChJjb21wX21hc3Rlcl92aXN1YWwYggQgASgLMh8uYm5l",
+            "dC5NYXN0ZXJWaXN1YWxDb21wb25lbnRTTVNHSAASLQoJY29tcF9wYXRoGIME",
+            "IAEoCzIXLmJuZXQuUGF0aENvbXBvbmVudFNNU0dIABIvCgpjb21wX3NwZWVk",
+            "GIQEIAEoCzIYLmJuZXQuU3BlZWRDb21wb25lbnRTTVNHSAASKwoIY29tcF9l",
+            "eHAYhQQgASgLMhYuYm5ldC5FeHBDb21wb25lbnRTTVNHSAASLwoKY29tcF9s",
+            "ZXZlbBiGBCABKAsyGC5ibmV0LkxldmVsQ29tcG9uZW50U01TR0gAEi0KCWNv",
+            "bXBfbWFuYRiHBCABKAsyFy5ibmV0Lk1hbmFDb21wb25lbnRTTVNHSAASMQoL",
+            "Y29tcF9oZWFsdGgYiAQgASgLMhkuYm5ldC5IZWFsdGhDb21wb25lbnRTTVNH",
+            "SAASNwoOY29tcF9pbnZlbnRvcnkYiQQgASgLMhwuYm5ldC5JbnZlbnRvcnlD",
+            "b21wb25lbnRTTVNHSAASMwoRY29tcF9za2lsbF9wb2ludHMYiwQgASgLMhUu",
+            "Ym5ldC5Ta2lsbFBvaW50c1NNU0dIABIvCg9jb21wX3NraWxsX2xpc3QYjAQg",
+            "ASgLMhMuYm5ldC5Ta2lsbExpc3RTTVNHSAASNwoOY29tcF9hbmltYXRpb24Y",
+            "jQQgASgLMhwuYm5ldC5BbmltYXRpb25Db21wb25lbnRTTVNHSAASMwoMY29t",
+            "cF9lZmZlY3RzGI4EIAEoCzIaLmJuZXQuU3RhdHVzRWZmZWN0TGlzdFNNU0dI",
+            "ABI1ChJjb21wX2xvZ291dF9pbnRlbnQYjwQgASgLMhYuYm5ldC5Mb2dvdXRJ",
+            "bnRlbnRTTVNHSAASMwoMY29tcF9zdGFtaW5hGJEEIAEoCzIaLmJuZXQuU3Rh",
+            "bWluYUNvbXBvbmVudFNNU0dIABJAChNjb21wX2NhcnJ5X2NhcGFjaXR5GJIE",
+            "IAEoCzIgLmJuZXQuQ2FycnlDYXBhY2l0eUNvbXBvbmVudFNNU0dIABIzCgxj",
+            "b21wX2Nhc3RpbmcYkwQgASgLMhouYm5ldC5DYXN0aW5nQ29tcG9uZW50U01T",
+            "R0gAEjcKDmNvbXBfZXF1aXBtZW50GJQEIAEoCzIcLmJuZXQuRXF1aXBtZW50",
+            "Q29tcG9uZW50U01TR0gAEjUKEmNvbXBfc3RhdHVzX3ZhbHVlcxiVBCABKAsy",
+            "Fi5ibmV0LlN0YXR1c1ZhbHVlc1NNU0dIABI1ChJjb21wX3N0YXR1c19wb2lu",
+            "dHMYlgQgASgLMhYuYm5ldC5TdGF0dXNQb2ludHNTTVNHSAASPgoXY29tcF9i",
+            "YXNlX3N0YXR1c192YWx1ZXMYlwQgASgLMhouYm5ldC5CYXNlU3RhdHVzVmFs",
+            "dWVzU01TR0gAEjsKE2FjY2VwdF9wYXJ0eV9pbnZpdGUY2AQgASgLMhsuYm5l",
+            "dC5BY2NlcHRQYXJ0eUludml0ZUNNU0dIABI9ChRkZWNsaW5lX3BhcnR5X2lu",
+            "dml0ZRjZBCABKAsyHC5ibmV0LkRlY2xpbmVQYXJ0eUludml0ZUNNU0dIABI2",
+            "ChBwYXJ0eV9pbnZpdGF0aW9uGNoEIAEoCzIZLmJuZXQuUGFydHlJbnZpdGF0",
+            "aW9uU01TR0gAEkUKGHBhcnR5X2ludml0YXRpb25fY3JlYXRlZBjbBCABKAsy",
+            "IC5ibmV0LlBhcnR5SW52aXRhdGlvbkNyZWF0ZWRTTVNHSAASPwoVcGFydHlf",
+            "aW52aXRlX2RlY2xpbmVkGNwEIAEoCzIdLmJuZXQuUGFydHlJbnZpdGVEZWNs",
+            "aW5lZFNNU0dIABIqCgpwYXJ0eV9pbmZvGN0EIAEoCzITLmJuZXQuUGFydHlJ",
+            "bmZvU01TR0gAEiwKC3BhcnR5X2Vycm9yGN4EIAEoCzIULmJuZXQuUGFydHlF",
+            "cnJvclNNU0dIABIwCg1kaXNiYW5kX3BhcnR5GN8EIAEoCzIWLmJuZXQuRGlz",
+            "YmFuZFBhcnR5U01TR0gAEjgKEWNyYWZ0YWJsZV9yZWNpcGVzGLwFIAEoCzIa",
+            "LmJuZXQuQ3JhZnRhYmxlUmVjaXBlc1NNU0dIABIqCgpjcmFmdF9pdGVtGL0F",
+            "IAEoCzITLmJuZXQuQ3JhZnRJdGVtQ01TR0gAEi4KDGNhbmNlbF9jcmFmdBi+",
+            "BSABKAsyFS5ibmV0LkNhbmNlbENyYWZ0Q01TR0gAEjAKDXJlcXVlc3RfdHJh",
+            "ZGUYoAYgASgLMhYuYm5ldC5SZXF1ZXN0VHJhZGVDTVNHSAASPQoUYW5zd2Vy",
+            "X3RyYWRlX3JlcXVlc3QYoQYgASgLMhwuYm5ldC5BbnN3ZXJUcmFkZVJlcXVl",
+            "c3RDTVNHSAASNQoQb2ZmZXJfdHJhZGVfaXRlbRiiBiABKAsyGC5ibmV0Lk9m",
+            "ZmVyVHJhZGVJdGVtQ01TR0gAEjkKEnJldHJhY3RfdHJhZGVfaXRlbRijBiAB",
+            "KAsyGi5ibmV0LlJldHJhY3RUcmFkZUl0ZW1DTVNHSAASMQoOc2V0X3RyYWRl",
+            "X2xvY2sYpAYgASgLMhYuYm5ldC5TZXRUcmFkZUxvY2tDTVNHSAASMAoNY29u",
+            "ZmlybV90cmFkZRilBiABKAsyFi5ibmV0LkNvbmZpcm1UcmFkZUNNU0dIABIu",
+            "CgxjYW5jZWxfdHJhZGUYpgYgASgLMhUuYm5ldC5DYW5jZWxUcmFkZUNNU0dI",
+            "ABIwCg10cmFkZV9yZXF1ZXN0GKoGIAEoCzIWLmJuZXQuVHJhZGVSZXF1ZXN0",
+            "U01TR0gAEiwKC3RyYWRlX3N0YXRlGKsGIAEoCzIULmJuZXQuVHJhZGVTdGF0",
+            "ZVNNU0dIAEIJCgdtZXNzYWdlQiYKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IN",
+            "RW52ZWxvcGVQcm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.VisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.MergeChartsCmsgReflection.Descriptor, global::Bnet.CopyChartCmsgReflection.Descriptor, global::Bnet.EquipmentComponentSmsgReflection.Descriptor, global::Bnet.StatusValuesSmsgReflection.Descriptor, global::Bnet.BaseStatusValuesSmsgReflection.Descriptor, global::Bnet.StatusPointsSmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInvitationCreatedSmsgReflection.Descriptor, global::Bnet.PartyInviteDeclinedSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.PartyErrorSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Bnet.PositionComponentReflection.Descriptor, global::Bnet.VisualComponentReflection.Descriptor, global::Bnet.ExpComponentSmsgReflection.Descriptor, global::Bnet.LevelComponentSmsgReflection.Descriptor, global::Bnet.PingReflection.Descriptor, global::Bnet.ChatCmsgReflection.Descriptor, global::Bnet.ChatSmsgReflection.Descriptor, global::Bnet.AuthenticationReflection.Descriptor, global::Bnet.OperationErrorReflection.Descriptor, global::Bnet.OperationSuccessReflection.Descriptor, global::Bnet.CraftItemCmsgReflection.Descriptor, global::Bnet.CancelCraftCmsgReflection.Descriptor, global::Bnet.CraftableRecipesSmsgReflection.Descriptor, global::Bnet.MoveActiveEntityReflection.Descriptor, global::Bnet.GetAllEntitiesReflection.Descriptor, global::Bnet.SelectActiveEntityReflection.Descriptor, global::Bnet.AuthenticationSuccessReflection.Descriptor, global::Bnet.DisconnectedReflection.Descriptor, global::Bnet.GetMasterCmsgReflection.Descriptor, global::Bnet.GetSelfCmsgReflection.Descriptor, global::Bnet.SelfSmsgReflection.Descriptor, global::Bnet.MasterReflection.Descriptor, global::Bnet.SelectMasterCmsgReflection.Descriptor, global::Bnet.CreateMasterCmsgReflection.Descriptor, global::Bnet.DeleteMasterCmsgReflection.Descriptor, global::Bnet.MasterVisualComponentSmsgReflection.Descriptor, global::Bnet.PathComponentSmsgReflection.Descriptor, global::Bnet.SpeedComponentSmsgReflection.Descriptor, global::Bnet.HealthComponentSmsgReflection.Descriptor, global::Bnet.ManaComponentSmsgReflection.Descriptor, global::Bnet.StaminaComponentSmsgReflection.Descriptor, global::Bnet.CarryCapacityComponentSmsgReflection.Descriptor, global::Bnet.InventoryComponentSmsgReflection.Descriptor, global::Bnet.SkillPointsSmsgReflection.Descriptor, global::Bnet.SkillListSmsgReflection.Descriptor, global::Bnet.AnimationComponentSmsgReflection.Descriptor, global::Bnet.StatusEffectListSmsgReflection.Descriptor, global::Bnet.InvestSkillPointCmsgReflection.Descriptor, global::Bnet.InvestStatusPointCmsgReflection.Descriptor, global::Bnet.SetBestiaAiConfigCmsgReflection.Descriptor, global::Bnet.BestiaAiConfigSmsgReflection.Descriptor, global::Bnet.GetSkillsCmsgReflection.Descriptor, global::Bnet.ActivateSkillCmsgReflection.Descriptor, global::Bnet.AttackEntityCmsgReflection.Descriptor, global::Bnet.VanishEntitySmsgReflection.Descriptor, global::Bnet.DamageEntitySmsgReflection.Descriptor, global::Bnet.GetInventoryCmsgReflection.Descriptor, global::Bnet.UseItemCmsgReflection.Descriptor, global::Bnet.DropItemCmsgReflection.Descriptor, global::Bnet.LootItemCmsgReflection.Descriptor, global::Bnet.EquipItemCmsgReflection.Descriptor, global::Bnet.UnequipItemCmsgReflection.Descriptor, global::Bnet.MergeChartsCmsgReflection.Descriptor, global::Bnet.CopyChartCmsgReflection.Descriptor, global::Bnet.EquipmentComponentSmsgReflection.Descriptor, global::Bnet.StatusValuesSmsgReflection.Descriptor, global::Bnet.BaseStatusValuesSmsgReflection.Descriptor, global::Bnet.StatusPointsSmsgReflection.Descriptor, global::Bnet.RequestLogoutCmsgReflection.Descriptor, global::Bnet.DialogSmsgReflection.Descriptor, global::Bnet.LogoutIntentSmsgReflection.Descriptor, global::Bnet.CastingComponentSmsgReflection.Descriptor, global::Bnet.AcceptPartyInviteCmsgReflection.Descriptor, global::Bnet.DeclinePartyInviteCmsgReflection.Descriptor, global::Bnet.PartyInvitationSmsgReflection.Descriptor, global::Bnet.PartyInvitationCreatedSmsgReflection.Descriptor, global::Bnet.PartyInviteDeclinedSmsgReflection.Descriptor, global::Bnet.PartyInfoSmsgReflection.Descriptor, global::Bnet.PartyErrorSmsgReflection.Descriptor, global::Bnet.DisbandPartySmsgReflection.Descriptor, global::Bnet.WorldInfoSmsgReflection.Descriptor, global::Bnet.ChunkManifestSmsgReflection.Descriptor, global::Bnet.ChunkRequestCmsgReflection.Descriptor, global::Bnet.ChunkDataSmsgReflection.Descriptor, global::Bnet.ChunkPatchSmsgReflection.Descriptor, global::Bnet.ChunkStaticEntitiesSmsgReflection.Descriptor, global::Bnet.StaticEntityRemovedSmsgReflection.Descriptor, global::Bnet.CollectPropCmsgReflection.Descriptor, global::Bnet.WeatherSmsgReflection.Descriptor, global::Bnet.WorldTimeSmsgReflection.Descriptor, global::Bnet.RequestTradeCmsgReflection.Descriptor, global::Bnet.AnswerTradeRequestCmsgReflection.Descriptor, global::Bnet.OfferTradeItemCmsgReflection.Descriptor, global::Bnet.RetractTradeItemCmsgReflection.Descriptor, global::Bnet.SetTradeLockCmsgReflection.Descriptor, global::Bnet.ConfirmTradeCmsgReflection.Descriptor, global::Bnet.CancelTradeCmsgReflection.Descriptor, global::Bnet.TradeRequestSmsgReflection.Descriptor, global::Bnet.TradeStateSmsgReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "MergeCharts", "CopyChart", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList", "CompAnimation", "CompEffects", "CompLogoutIntent", "CompStamina", "CompCarryCapacity", "CompCasting", "CompEquipment", "CompStatusValues", "CompStatusPoints", "CompBaseStatusValues", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInvitationCreated", "PartyInviteDeclined", "PartyInfo", "PartyError", "DisbandParty", "CraftableRecipes", "CraftItem", "CancelCraft" }, new[]{ "Message" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.Envelope), global::Bnet.Envelope.Parser, new[]{ "OperationSuccess", "OperationError", "Authentication", "Disconnected", "AuthenticationSuccess", "Ping", "Pong", "ChatCmsg", "ChatSmsg", "RequestLogout", "Dialog", "WorldInfo", "ChunkManifest", "ChunkRequest", "ChunkData", "ChunkPatch", "Weather", "ChunkStaticEntities", "StaticEntityRemoved", "CollectProp", "WorldTime", "GetInventory", "UseItem", "DropItem", "LootItem", "EquipItem", "UnequipItem", "MergeCharts", "CopyChart", "GetMaster", "Master", "SelectMaster", "GetSelf", "Self", "InvestSkillPoint", "GetSkills", "ActivateSkill", "CreateMaster", "InvestStatusPoint", "SetBestiaAiConfig", "BestiaAiConfig", "DeleteMaster", "SelectActiveEntity", "MoveActiveEntity", "GetAllEntities", "AttackEntity", "VanishEntity", "DamageEntity", "CompPosition", "CompVisual", "CompMasterVisual", "CompPath", "CompSpeed", "CompExp", "CompLevel", "CompMana", "CompHealth", "CompInventory", "CompSkillPoints", "CompSkillList", "CompAnimation", "CompEffects", "CompLogoutIntent", "CompStamina", "CompCarryCapacity", "CompCasting", "CompEquipment", "CompStatusValues", "CompStatusPoints", "CompBaseStatusValues", "AcceptPartyInvite", "DeclinePartyInvite", "PartyInvitation", "PartyInvitationCreated", "PartyInviteDeclined", "PartyInfo", "PartyError", "DisbandParty", "CraftableRecipes", "CraftItem", "CancelCraft", "RequestTrade", "AnswerTradeRequest", "OfferTradeItem", "RetractTradeItem", "SetTradeLock", "ConfirmTrade", "CancelTrade", "TradeRequest", "TradeState" }, new[]{ "Message" }, null, null, null)
           }));
     }
     #endregion
@@ -481,6 +500,33 @@ namespace Bnet {
           break;
         case MessageOneofCase.CancelCraft:
           CancelCraft = other.CancelCraft.Clone();
+          break;
+        case MessageOneofCase.RequestTrade:
+          RequestTrade = other.RequestTrade.Clone();
+          break;
+        case MessageOneofCase.AnswerTradeRequest:
+          AnswerTradeRequest = other.AnswerTradeRequest.Clone();
+          break;
+        case MessageOneofCase.OfferTradeItem:
+          OfferTradeItem = other.OfferTradeItem.Clone();
+          break;
+        case MessageOneofCase.RetractTradeItem:
+          RetractTradeItem = other.RetractTradeItem.Clone();
+          break;
+        case MessageOneofCase.SetTradeLock:
+          SetTradeLock = other.SetTradeLock.Clone();
+          break;
+        case MessageOneofCase.ConfirmTrade:
+          ConfirmTrade = other.ConfirmTrade.Clone();
+          break;
+        case MessageOneofCase.CancelTrade:
+          CancelTrade = other.CancelTrade.Clone();
+          break;
+        case MessageOneofCase.TradeRequest:
+          TradeRequest = other.TradeRequest.Clone();
+          break;
+        case MessageOneofCase.TradeState:
+          TradeState = other.TradeState.Clone();
           break;
       }
 
@@ -1492,6 +1538,117 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "request_trade" field.</summary>
+    public const int RequestTradeFieldNumber = 800;
+    /// <summary>
+    /// TRADE 800
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.RequestTradeCMSG RequestTrade {
+      get { return messageCase_ == MessageOneofCase.RequestTrade ? (global::Bnet.RequestTradeCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.RequestTrade;
+      }
+    }
+
+    /// <summary>Field number for the "answer_trade_request" field.</summary>
+    public const int AnswerTradeRequestFieldNumber = 801;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.AnswerTradeRequestCMSG AnswerTradeRequest {
+      get { return messageCase_ == MessageOneofCase.AnswerTradeRequest ? (global::Bnet.AnswerTradeRequestCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.AnswerTradeRequest;
+      }
+    }
+
+    /// <summary>Field number for the "offer_trade_item" field.</summary>
+    public const int OfferTradeItemFieldNumber = 802;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.OfferTradeItemCMSG OfferTradeItem {
+      get { return messageCase_ == MessageOneofCase.OfferTradeItem ? (global::Bnet.OfferTradeItemCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.OfferTradeItem;
+      }
+    }
+
+    /// <summary>Field number for the "retract_trade_item" field.</summary>
+    public const int RetractTradeItemFieldNumber = 803;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.RetractTradeItemCMSG RetractTradeItem {
+      get { return messageCase_ == MessageOneofCase.RetractTradeItem ? (global::Bnet.RetractTradeItemCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.RetractTradeItem;
+      }
+    }
+
+    /// <summary>Field number for the "set_trade_lock" field.</summary>
+    public const int SetTradeLockFieldNumber = 804;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.SetTradeLockCMSG SetTradeLock {
+      get { return messageCase_ == MessageOneofCase.SetTradeLock ? (global::Bnet.SetTradeLockCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.SetTradeLock;
+      }
+    }
+
+    /// <summary>Field number for the "confirm_trade" field.</summary>
+    public const int ConfirmTradeFieldNumber = 805;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.ConfirmTradeCMSG ConfirmTrade {
+      get { return messageCase_ == MessageOneofCase.ConfirmTrade ? (global::Bnet.ConfirmTradeCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.ConfirmTrade;
+      }
+    }
+
+    /// <summary>Field number for the "cancel_trade" field.</summary>
+    public const int CancelTradeFieldNumber = 806;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.CancelTradeCMSG CancelTrade {
+      get { return messageCase_ == MessageOneofCase.CancelTrade ? (global::Bnet.CancelTradeCMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.CancelTrade;
+      }
+    }
+
+    /// <summary>Field number for the "trade_request" field.</summary>
+    public const int TradeRequestFieldNumber = 810;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.TradeRequestSMSG TradeRequest {
+      get { return messageCase_ == MessageOneofCase.TradeRequest ? (global::Bnet.TradeRequestSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.TradeRequest;
+      }
+    }
+
+    /// <summary>Field number for the "trade_state" field.</summary>
+    public const int TradeStateFieldNumber = 811;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Bnet.TradeStateSMSG TradeState {
+      get { return messageCase_ == MessageOneofCase.TradeState ? (global::Bnet.TradeStateSMSG) message_ : null; }
+      set {
+        message_ = value;
+        messageCase_ = value == null ? MessageOneofCase.None : MessageOneofCase.TradeState;
+      }
+    }
+
     private object message_;
     /// <summary>Enum of possible cases for the "message" oneof.</summary>
     public enum MessageOneofCase {
@@ -1577,6 +1734,15 @@ namespace Bnet {
       CraftableRecipes = 700,
       CraftItem = 701,
       CancelCraft = 702,
+      RequestTrade = 800,
+      AnswerTradeRequest = 801,
+      OfferTradeItem = 802,
+      RetractTradeItem = 803,
+      SetTradeLock = 804,
+      ConfirmTrade = 805,
+      CancelTrade = 806,
+      TradeRequest = 810,
+      TradeState = 811,
     }
     private MessageOneofCase messageCase_ = MessageOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1688,6 +1854,15 @@ namespace Bnet {
       if (!object.Equals(CraftableRecipes, other.CraftableRecipes)) return false;
       if (!object.Equals(CraftItem, other.CraftItem)) return false;
       if (!object.Equals(CancelCraft, other.CancelCraft)) return false;
+      if (!object.Equals(RequestTrade, other.RequestTrade)) return false;
+      if (!object.Equals(AnswerTradeRequest, other.AnswerTradeRequest)) return false;
+      if (!object.Equals(OfferTradeItem, other.OfferTradeItem)) return false;
+      if (!object.Equals(RetractTradeItem, other.RetractTradeItem)) return false;
+      if (!object.Equals(SetTradeLock, other.SetTradeLock)) return false;
+      if (!object.Equals(ConfirmTrade, other.ConfirmTrade)) return false;
+      if (!object.Equals(CancelTrade, other.CancelTrade)) return false;
+      if (!object.Equals(TradeRequest, other.TradeRequest)) return false;
+      if (!object.Equals(TradeState, other.TradeState)) return false;
       if (MessageCase != other.MessageCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -1777,6 +1952,15 @@ namespace Bnet {
       if (messageCase_ == MessageOneofCase.CraftableRecipes) hash ^= CraftableRecipes.GetHashCode();
       if (messageCase_ == MessageOneofCase.CraftItem) hash ^= CraftItem.GetHashCode();
       if (messageCase_ == MessageOneofCase.CancelCraft) hash ^= CancelCraft.GetHashCode();
+      if (messageCase_ == MessageOneofCase.RequestTrade) hash ^= RequestTrade.GetHashCode();
+      if (messageCase_ == MessageOneofCase.AnswerTradeRequest) hash ^= AnswerTradeRequest.GetHashCode();
+      if (messageCase_ == MessageOneofCase.OfferTradeItem) hash ^= OfferTradeItem.GetHashCode();
+      if (messageCase_ == MessageOneofCase.RetractTradeItem) hash ^= RetractTradeItem.GetHashCode();
+      if (messageCase_ == MessageOneofCase.SetTradeLock) hash ^= SetTradeLock.GetHashCode();
+      if (messageCase_ == MessageOneofCase.ConfirmTrade) hash ^= ConfirmTrade.GetHashCode();
+      if (messageCase_ == MessageOneofCase.CancelTrade) hash ^= CancelTrade.GetHashCode();
+      if (messageCase_ == MessageOneofCase.TradeRequest) hash ^= TradeRequest.GetHashCode();
+      if (messageCase_ == MessageOneofCase.TradeState) hash ^= TradeState.GetHashCode();
       hash ^= (int) messageCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -2120,6 +2304,42 @@ namespace Bnet {
         output.WriteRawTag(242, 43);
         output.WriteMessage(CancelCraft);
       }
+      if (messageCase_ == MessageOneofCase.RequestTrade) {
+        output.WriteRawTag(130, 50);
+        output.WriteMessage(RequestTrade);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerTradeRequest) {
+        output.WriteRawTag(138, 50);
+        output.WriteMessage(AnswerTradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.OfferTradeItem) {
+        output.WriteRawTag(146, 50);
+        output.WriteMessage(OfferTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.RetractTradeItem) {
+        output.WriteRawTag(154, 50);
+        output.WriteMessage(RetractTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.SetTradeLock) {
+        output.WriteRawTag(162, 50);
+        output.WriteMessage(SetTradeLock);
+      }
+      if (messageCase_ == MessageOneofCase.ConfirmTrade) {
+        output.WriteRawTag(170, 50);
+        output.WriteMessage(ConfirmTrade);
+      }
+      if (messageCase_ == MessageOneofCase.CancelTrade) {
+        output.WriteRawTag(178, 50);
+        output.WriteMessage(CancelTrade);
+      }
+      if (messageCase_ == MessageOneofCase.TradeRequest) {
+        output.WriteRawTag(210, 50);
+        output.WriteMessage(TradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.TradeState) {
+        output.WriteRawTag(218, 50);
+        output.WriteMessage(TradeState);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2454,6 +2674,42 @@ namespace Bnet {
         output.WriteRawTag(242, 43);
         output.WriteMessage(CancelCraft);
       }
+      if (messageCase_ == MessageOneofCase.RequestTrade) {
+        output.WriteRawTag(130, 50);
+        output.WriteMessage(RequestTrade);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerTradeRequest) {
+        output.WriteRawTag(138, 50);
+        output.WriteMessage(AnswerTradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.OfferTradeItem) {
+        output.WriteRawTag(146, 50);
+        output.WriteMessage(OfferTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.RetractTradeItem) {
+        output.WriteRawTag(154, 50);
+        output.WriteMessage(RetractTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.SetTradeLock) {
+        output.WriteRawTag(162, 50);
+        output.WriteMessage(SetTradeLock);
+      }
+      if (messageCase_ == MessageOneofCase.ConfirmTrade) {
+        output.WriteRawTag(170, 50);
+        output.WriteMessage(ConfirmTrade);
+      }
+      if (messageCase_ == MessageOneofCase.CancelTrade) {
+        output.WriteRawTag(178, 50);
+        output.WriteMessage(CancelTrade);
+      }
+      if (messageCase_ == MessageOneofCase.TradeRequest) {
+        output.WriteRawTag(210, 50);
+        output.WriteMessage(TradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.TradeState) {
+        output.WriteRawTag(218, 50);
+        output.WriteMessage(TradeState);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -2706,6 +2962,33 @@ namespace Bnet {
       }
       if (messageCase_ == MessageOneofCase.CancelCraft) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(CancelCraft);
+      }
+      if (messageCase_ == MessageOneofCase.RequestTrade) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(RequestTrade);
+      }
+      if (messageCase_ == MessageOneofCase.AnswerTradeRequest) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(AnswerTradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.OfferTradeItem) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(OfferTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.RetractTradeItem) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(RetractTradeItem);
+      }
+      if (messageCase_ == MessageOneofCase.SetTradeLock) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(SetTradeLock);
+      }
+      if (messageCase_ == MessageOneofCase.ConfirmTrade) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(ConfirmTrade);
+      }
+      if (messageCase_ == MessageOneofCase.CancelTrade) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(CancelTrade);
+      }
+      if (messageCase_ == MessageOneofCase.TradeRequest) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(TradeRequest);
+      }
+      if (messageCase_ == MessageOneofCase.TradeState) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(TradeState);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3205,6 +3488,60 @@ namespace Bnet {
             CancelCraft = new global::Bnet.CancelCraftCMSG();
           }
           CancelCraft.MergeFrom(other.CancelCraft);
+          break;
+        case MessageOneofCase.RequestTrade:
+          if (RequestTrade == null) {
+            RequestTrade = new global::Bnet.RequestTradeCMSG();
+          }
+          RequestTrade.MergeFrom(other.RequestTrade);
+          break;
+        case MessageOneofCase.AnswerTradeRequest:
+          if (AnswerTradeRequest == null) {
+            AnswerTradeRequest = new global::Bnet.AnswerTradeRequestCMSG();
+          }
+          AnswerTradeRequest.MergeFrom(other.AnswerTradeRequest);
+          break;
+        case MessageOneofCase.OfferTradeItem:
+          if (OfferTradeItem == null) {
+            OfferTradeItem = new global::Bnet.OfferTradeItemCMSG();
+          }
+          OfferTradeItem.MergeFrom(other.OfferTradeItem);
+          break;
+        case MessageOneofCase.RetractTradeItem:
+          if (RetractTradeItem == null) {
+            RetractTradeItem = new global::Bnet.RetractTradeItemCMSG();
+          }
+          RetractTradeItem.MergeFrom(other.RetractTradeItem);
+          break;
+        case MessageOneofCase.SetTradeLock:
+          if (SetTradeLock == null) {
+            SetTradeLock = new global::Bnet.SetTradeLockCMSG();
+          }
+          SetTradeLock.MergeFrom(other.SetTradeLock);
+          break;
+        case MessageOneofCase.ConfirmTrade:
+          if (ConfirmTrade == null) {
+            ConfirmTrade = new global::Bnet.ConfirmTradeCMSG();
+          }
+          ConfirmTrade.MergeFrom(other.ConfirmTrade);
+          break;
+        case MessageOneofCase.CancelTrade:
+          if (CancelTrade == null) {
+            CancelTrade = new global::Bnet.CancelTradeCMSG();
+          }
+          CancelTrade.MergeFrom(other.CancelTrade);
+          break;
+        case MessageOneofCase.TradeRequest:
+          if (TradeRequest == null) {
+            TradeRequest = new global::Bnet.TradeRequestSMSG();
+          }
+          TradeRequest.MergeFrom(other.TradeRequest);
+          break;
+        case MessageOneofCase.TradeState:
+          if (TradeState == null) {
+            TradeState = new global::Bnet.TradeStateSMSG();
+          }
+          TradeState.MergeFrom(other.TradeState);
           break;
       }
 
@@ -3952,6 +4289,87 @@ namespace Bnet {
             CancelCraft = subBuilder;
             break;
           }
+          case 6402: {
+            global::Bnet.RequestTradeCMSG subBuilder = new global::Bnet.RequestTradeCMSG();
+            if (messageCase_ == MessageOneofCase.RequestTrade) {
+              subBuilder.MergeFrom(RequestTrade);
+            }
+            input.ReadMessage(subBuilder);
+            RequestTrade = subBuilder;
+            break;
+          }
+          case 6410: {
+            global::Bnet.AnswerTradeRequestCMSG subBuilder = new global::Bnet.AnswerTradeRequestCMSG();
+            if (messageCase_ == MessageOneofCase.AnswerTradeRequest) {
+              subBuilder.MergeFrom(AnswerTradeRequest);
+            }
+            input.ReadMessage(subBuilder);
+            AnswerTradeRequest = subBuilder;
+            break;
+          }
+          case 6418: {
+            global::Bnet.OfferTradeItemCMSG subBuilder = new global::Bnet.OfferTradeItemCMSG();
+            if (messageCase_ == MessageOneofCase.OfferTradeItem) {
+              subBuilder.MergeFrom(OfferTradeItem);
+            }
+            input.ReadMessage(subBuilder);
+            OfferTradeItem = subBuilder;
+            break;
+          }
+          case 6426: {
+            global::Bnet.RetractTradeItemCMSG subBuilder = new global::Bnet.RetractTradeItemCMSG();
+            if (messageCase_ == MessageOneofCase.RetractTradeItem) {
+              subBuilder.MergeFrom(RetractTradeItem);
+            }
+            input.ReadMessage(subBuilder);
+            RetractTradeItem = subBuilder;
+            break;
+          }
+          case 6434: {
+            global::Bnet.SetTradeLockCMSG subBuilder = new global::Bnet.SetTradeLockCMSG();
+            if (messageCase_ == MessageOneofCase.SetTradeLock) {
+              subBuilder.MergeFrom(SetTradeLock);
+            }
+            input.ReadMessage(subBuilder);
+            SetTradeLock = subBuilder;
+            break;
+          }
+          case 6442: {
+            global::Bnet.ConfirmTradeCMSG subBuilder = new global::Bnet.ConfirmTradeCMSG();
+            if (messageCase_ == MessageOneofCase.ConfirmTrade) {
+              subBuilder.MergeFrom(ConfirmTrade);
+            }
+            input.ReadMessage(subBuilder);
+            ConfirmTrade = subBuilder;
+            break;
+          }
+          case 6450: {
+            global::Bnet.CancelTradeCMSG subBuilder = new global::Bnet.CancelTradeCMSG();
+            if (messageCase_ == MessageOneofCase.CancelTrade) {
+              subBuilder.MergeFrom(CancelTrade);
+            }
+            input.ReadMessage(subBuilder);
+            CancelTrade = subBuilder;
+            break;
+          }
+          case 6482: {
+            global::Bnet.TradeRequestSMSG subBuilder = new global::Bnet.TradeRequestSMSG();
+            if (messageCase_ == MessageOneofCase.TradeRequest) {
+              subBuilder.MergeFrom(TradeRequest);
+            }
+            input.ReadMessage(subBuilder);
+            TradeRequest = subBuilder;
+            break;
+          }
+          case 6490: {
+            global::Bnet.TradeStateSMSG subBuilder = new global::Bnet.TradeStateSMSG();
+            if (messageCase_ == MessageOneofCase.TradeState) {
+              subBuilder.MergeFrom(TradeState);
+            }
+            input.ReadMessage(subBuilder);
+            TradeState = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -4694,6 +5112,87 @@ namespace Bnet {
             }
             input.ReadMessage(subBuilder);
             CancelCraft = subBuilder;
+            break;
+          }
+          case 6402: {
+            global::Bnet.RequestTradeCMSG subBuilder = new global::Bnet.RequestTradeCMSG();
+            if (messageCase_ == MessageOneofCase.RequestTrade) {
+              subBuilder.MergeFrom(RequestTrade);
+            }
+            input.ReadMessage(subBuilder);
+            RequestTrade = subBuilder;
+            break;
+          }
+          case 6410: {
+            global::Bnet.AnswerTradeRequestCMSG subBuilder = new global::Bnet.AnswerTradeRequestCMSG();
+            if (messageCase_ == MessageOneofCase.AnswerTradeRequest) {
+              subBuilder.MergeFrom(AnswerTradeRequest);
+            }
+            input.ReadMessage(subBuilder);
+            AnswerTradeRequest = subBuilder;
+            break;
+          }
+          case 6418: {
+            global::Bnet.OfferTradeItemCMSG subBuilder = new global::Bnet.OfferTradeItemCMSG();
+            if (messageCase_ == MessageOneofCase.OfferTradeItem) {
+              subBuilder.MergeFrom(OfferTradeItem);
+            }
+            input.ReadMessage(subBuilder);
+            OfferTradeItem = subBuilder;
+            break;
+          }
+          case 6426: {
+            global::Bnet.RetractTradeItemCMSG subBuilder = new global::Bnet.RetractTradeItemCMSG();
+            if (messageCase_ == MessageOneofCase.RetractTradeItem) {
+              subBuilder.MergeFrom(RetractTradeItem);
+            }
+            input.ReadMessage(subBuilder);
+            RetractTradeItem = subBuilder;
+            break;
+          }
+          case 6434: {
+            global::Bnet.SetTradeLockCMSG subBuilder = new global::Bnet.SetTradeLockCMSG();
+            if (messageCase_ == MessageOneofCase.SetTradeLock) {
+              subBuilder.MergeFrom(SetTradeLock);
+            }
+            input.ReadMessage(subBuilder);
+            SetTradeLock = subBuilder;
+            break;
+          }
+          case 6442: {
+            global::Bnet.ConfirmTradeCMSG subBuilder = new global::Bnet.ConfirmTradeCMSG();
+            if (messageCase_ == MessageOneofCase.ConfirmTrade) {
+              subBuilder.MergeFrom(ConfirmTrade);
+            }
+            input.ReadMessage(subBuilder);
+            ConfirmTrade = subBuilder;
+            break;
+          }
+          case 6450: {
+            global::Bnet.CancelTradeCMSG subBuilder = new global::Bnet.CancelTradeCMSG();
+            if (messageCase_ == MessageOneofCase.CancelTrade) {
+              subBuilder.MergeFrom(CancelTrade);
+            }
+            input.ReadMessage(subBuilder);
+            CancelTrade = subBuilder;
+            break;
+          }
+          case 6482: {
+            global::Bnet.TradeRequestSMSG subBuilder = new global::Bnet.TradeRequestSMSG();
+            if (messageCase_ == MessageOneofCase.TradeRequest) {
+              subBuilder.MergeFrom(TradeRequest);
+            }
+            input.ReadMessage(subBuilder);
+            TradeRequest = subBuilder;
+            break;
+          }
+          case 6490: {
+            global::Bnet.TradeStateSMSG subBuilder = new global::Bnet.TradeStateSMSG();
+            if (messageCase_ == MessageOneofCase.TradeState) {
+              subBuilder.MergeFrom(TradeState);
+            }
+            input.ReadMessage(subBuilder);
+            TradeState = subBuilder;
             break;
           }
         }

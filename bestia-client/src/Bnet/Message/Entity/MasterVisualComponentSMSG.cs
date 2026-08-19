@@ -4,11 +4,19 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 {
   /// <summary>
   /// Message for updating an entity's complete master visual component with all visual properties.
-  /// Contains entity ID, visual ID, colors, face, body type, and hairstyle.
+  /// Contains entity ID, name, visual ID, colors, face, body type, and hairstyle.
   /// </summary>
   [GlobalClass]
   public partial class MasterVisualComponentSMSG : EntitySMSG
   {
+    /// <summary>
+    /// The master's name, used to label whoever the player is looking at. It rides along with the
+    /// visual because it arrives under the same broadcast rule: public, fixed for the entity's life,
+    /// and needed exactly when the body shows up.
+    /// </summary>
+    [Export]
+    public string Name { get; set; } = "";
+
     [Export]
     public int VisualId { get; set; } = 0;
 
@@ -45,6 +53,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
       return new MasterVisualComponentSMSG
       {
         EntityId = protoMasterVisual.EntityId,
+        Name = protoMasterVisual.Name,
         SkinColor = skinColor,
         HairColor = hairColor,
         Face = (int)protoMasterVisual.Face,

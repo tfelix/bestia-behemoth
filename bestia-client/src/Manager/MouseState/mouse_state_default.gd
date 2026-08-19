@@ -25,6 +25,10 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 		mgr.cancel_pending_collect()
 		mgr.select_entity(object)
 		ConnectionManager.send_attack_entity(object.get_bestia_entity_id(), 0, 1)
+	elif object is MasterVisual:
+		# Selecting only. Clicking another player is how you look at them, not how you hit them - what you can
+		# do to them lives in the right-click menu.
+		mgr.select_entity(object)
 	elif object is ItemVisual:
 		mgr.cancel_pending_collect()
 		ConnectionManager.loot_item(object.get_item_entity_id())
@@ -52,9 +56,15 @@ func handle_ground_input_event(mgr: MouseManager, click_position: Vector3, event
 
 
 func handle_right_click(mgr: MouseManager, screen_position: Vector2) -> void:
-	pass
-	# TODO not sure if I want a right click menu... 
-	# mgr.open_context_menu(screen_position)
+	var target := mgr.hovered_object
+	if target == null:
+		return
+
+	# Our own body is under the cursor as often as anyone else's, and there is nothing to do to it.
+	if target.has_method("get_bestia_entity_id") and target.get_bestia_entity_id() == mgr.own_entity_id:
+		return
+
+	mgr.open_context_menu_for(target, screen_position)
 
 
 func _find_entity(object: Node3D) -> Entity:

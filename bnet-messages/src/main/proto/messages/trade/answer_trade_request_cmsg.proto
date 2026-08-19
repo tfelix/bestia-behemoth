@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "AnswerTradeRequestCmsgProto";
+
+// Answers the prompt raised by TradeRequestSMSG. One message for both answers rather than an
+// accept/decline pair, because the two differ only in a boolean and share every validation.
+message AnswerTradeRequestCMSG {
+  uint64 trade_id = 1;
+  bool accept = 2;
+}

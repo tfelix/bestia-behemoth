@@ -3,9 +3,14 @@
 [ext_resource type="Script" uid="uid://mj7o7ml2h0gd" path="res://Game/Entity/Visual/MasterVisual/master_visual.gd" id="1_biohp"]
 [ext_resource type="PackedScene" uid="uid://3d10kmwvr52c" path="res://Game/Master/Mage.glb" id="2_1txkv"]
 [ext_resource type="PackedScene" uid="uid://bq7cst1bar0ck" path="res://Game/VFX/CastBar/CastBar.tscn" id="3_castb"]
+[ext_resource type="PackedScene" uid="uid://g1nu1oan0ehe" path="res://Game/Entity/NameTag/NameTag.tscn" id="4_nmtag"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_castb"]
 viewport_path = NodePath("SubViewport")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mstpick"]
+radius = 0.45
+height = 2.3
 
 [node name="MasterVisual" type="Node3D" unique_id=922268045]
 script = ExtResource("1_biohp")
@@ -90,5 +95,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.912204, 0)
 [node name="CastBar" parent="." instance=ExtResource("3_castb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.35, 0)
 texture = SubResource("ViewportTexture_castb")
+
+[node name="NameTag" parent="." instance=ExtResource("4_nmtag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.65, 0)
+visible = false
+text = "Master"
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+shape = SubResource("CapsuleShape3D_mstpick")
+
+[connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]
+[connection signal="mouse_entered" from="Area3D" to="." method="_on_area_3d_mouse_entered"]
+[connection signal="mouse_exited" from="Area3D" to="." method="_on_area_3d_mouse_exited"]
 
 [editable path="Mage"]

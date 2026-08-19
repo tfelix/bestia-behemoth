@@ -69,6 +69,7 @@ class GetAllEntitiesHandler(
 
     return MasterVisualComponentSMSG(
       entityId = entityId,
+      name = masterComp.name,
       skinColor = masterComp.skinColor,
       hairColor = masterComp.hairColor,
       face = masterComp.face,

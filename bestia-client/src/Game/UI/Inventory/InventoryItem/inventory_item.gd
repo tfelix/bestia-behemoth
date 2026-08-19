@@ -1,7 +1,20 @@
 extends Panel
 
+## Emitted when a trade-offer row is dragged out and dropped on nothing, which is how an offer is taken back.
+## Only ever fires while [member drag_source] is "trade_offer".
+signal dragged_out()
+
 @export var item: ItemResource
 @export var amount: int
+
+## Which list this row belongs to, and therefore what dragging it means. "inventory_item" is a held item on
+## its way somewhere; "trade_offer" is a line already inside a trade window, where dragging out retracts it
+## and double-clicking must not use it - it is not in the inventory to be used.
+@export var drag_source: String = "inventory_item"
+
+## Names this offer line for a retraction. Set only for a "trade_offer" row; two rows of the same template
+## are separate offers, so the item id could not tell them apart.
+@export var offer_slot_id: int = 0
 
 ## Id of the backing item instance, or 0 for a plain stackable pile. Needed to name *which*
 ## physical item to equip when several copies are held.
@@ -32,6 +45,8 @@ const _WEAR_BROKEN := Color(0.79, 0.27, 0.24)
 ## the Inventory class while it's parsed, and Inventory in turn preloads InventoryItem.tscn -
 ## a load cycle that Godot rejects with a "Busy" parse error.
 var inventory = null
+
+var _is_dragging_self: bool = false
 
 @onready var _count: Label = %Count
 @onready var _icon: TextureRect = %Icon
@@ -100,7 +115,24 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.rotation_degrees = 10
 	set_drag_preview(preview)
 	preview.texture = _icon.texture
-	return {"type": "item", "id": item.item_id, "unique_id": unique_id, "source": "inventory_item"}
+	_is_dragging_self = true
+	return {
+		"type": "item",
+		"id": item.item_id,
+		"unique_id": unique_id,
+		"source": drag_source,
+		"offer_slot_id": offer_slot_id,
+	}
+
+
+## NOTIFICATION_DRAG_END reaches every control in the viewport, so only the row that started the drag reacts.
+## A trade offer dropped on nothing is a retraction - the same "dragged out of its slot means take it out"
+## gesture the shortcut bar uses.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_DRAG_END and _is_dragging_self:
+		_is_dragging_self = false
+		if drag_source == "trade_offer" and not get_viewport().gui_is_drag_successful():
+			dragged_out.emit()
 
 
 func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
@@ -110,6 +142,9 @@ func _can_drop_data(_at_position: Vector2, _data: Variant) -> bool:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
+			# An item sitting in a trade window is not held any more - there is nothing here to wear or eat.
+			if drag_source != "inventory_item":
+				return
 			# With the equipment window open, double clicking a piece of gear puts it on; anything
 			# else (or a closed window) falls through to the normal "use this item".
 			if inventory != null and inventory.try_quick_equip(item, unique_id):

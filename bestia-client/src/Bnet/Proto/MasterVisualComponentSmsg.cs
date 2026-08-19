@@ -26,16 +26,17 @@ namespace Bnet {
           string.Concat(
             "CjVtZXNzYWdlcy9jb21wb25lbnQvbWFzdGVyX3Zpc3VhbF9jb21wb25lbnRf",
             "c21zZy5wcm90bxIEYm5ldBocbWVzc2FnZXMvbWFzdGVyL21hc3Rlci5wcm90",
-            "byLHAQoZTWFzdGVyVmlzdWFsQ29tcG9uZW50U01TRxIRCgllbnRpdHlfaWQY",
+            "byLVAQoZTWFzdGVyVmlzdWFsQ29tcG9uZW50U01TRxIRCgllbnRpdHlfaWQY",
             "ASABKAYSHwoKc2tpbl9jb2xvchgDIAEoCzILLmJuZXQuQ29sb3ISHwoKaGFp",
             "cl9jb2xvchgEIAEoCzILLmJuZXQuQ29sb3ISGAoEZmFjZRgFIAEoDjIKLmJu",
             "ZXQuRmFjZRIcCgRib2R5GAYgASgOMg4uYm5ldC5Cb2R5VHlwZRIdCgRoYWly",
-            "GAcgASgOMg8uYm5ldC5IYWlyc3R5bGVCNwoVbmV0LmJlc3RpYS5ibmV0LnBy",
-            "b3RvQh5NYXN0ZXJWaXN1YWxDb21wb25lbnRTTVNHUHJvdG9iBnByb3RvMw=="));
+            "GAcgASgOMg8uYm5ldC5IYWlyc3R5bGUSDAoEbmFtZRgIIAEoCUI3ChVuZXQu",
+            "YmVzdGlhLmJuZXQucHJvdG9CHk1hc3RlclZpc3VhbENvbXBvbmVudFNNU0dQ",
+            "cm90b2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.MasterReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterVisualComponentSMSG), global::Bnet.MasterVisualComponentSMSG.Parser, new[]{ "EntityId", "SkinColor", "HairColor", "Face", "Body", "Hair" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.MasterVisualComponentSMSG), global::Bnet.MasterVisualComponentSMSG.Parser, new[]{ "EntityId", "SkinColor", "HairColor", "Face", "Body", "Hair", "Name" }, null, null, null, null)
           }));
     }
     #endregion
@@ -83,6 +84,7 @@ namespace Bnet {
       face_ = other.face_;
       body_ = other.body_;
       hair_ = other.hair_;
+      name_ = other.name_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -164,6 +166,23 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 8;
+    private string name_ = "";
+    /// <summary>
+    /// The master's name, so the client can label whoever it is looking at. It rides along with the visual
+    /// rather than on a component of its own because it is the same fact under the same broadcast rule: it is
+    /// public, it never changes while the entity lives, and every viewer needs it exactly when the body arrives.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -185,6 +204,7 @@ namespace Bnet {
       if (Face != other.Face) return false;
       if (Body != other.Body) return false;
       if (Hair != other.Hair) return false;
+      if (Name != other.Name) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -198,6 +218,7 @@ namespace Bnet {
       if (Face != global::Bnet.Face._1) hash ^= Face.GetHashCode();
       if (Body != global::Bnet.BodyType.BodyM1) hash ^= Body.GetHashCode();
       if (Hair != global::Bnet.Hairstyle.Hair1) hash ^= Hair.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -240,6 +261,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteEnum((int) Hair);
       }
+      if (Name.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Name);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -274,6 +299,10 @@ namespace Bnet {
         output.WriteRawTag(56);
         output.WriteEnum((int) Hair);
       }
+      if (Name.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Name);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -301,6 +330,9 @@ namespace Bnet {
       }
       if (Hair != global::Bnet.Hairstyle.Hair1) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Hair);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -337,6 +369,9 @@ namespace Bnet {
       }
       if (other.Hair != global::Bnet.Hairstyle.Hair1) {
         Hair = other.Hair;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -383,6 +418,10 @@ namespace Bnet {
             Hair = (global::Bnet.Hairstyle) input.ReadEnum();
             break;
           }
+          case 66: {
+            Name = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -426,6 +465,10 @@ namespace Bnet {
           }
           case 56: {
             Hair = (global::Bnet.Hairstyle) input.ReadEnum();
+            break;
+          }
+          case 66: {
+            Name = input.ReadString();
             break;
           }
         }
