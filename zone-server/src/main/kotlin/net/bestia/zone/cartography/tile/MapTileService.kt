@@ -45,7 +45,27 @@ class MapTileService(
 ) {
 
   /** A tile ready to send, and how the client is allowed to cache it. */
-  data class Tile(val bytes: ByteArray, val etag: String, val shared: Boolean)
+  data class Tile(val bytes: ByteArray, val etag: String, val shared: Boolean) {
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (javaClass != other?.javaClass) return false
+
+      other as Tile
+
+      if (shared != other.shared) return false
+      if (!bytes.contentEquals(other.bytes)) return false
+      if (etag != other.etag) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      var result = shared.hashCode()
+      result = 31 * result + bytes.contentHashCode()
+      result = 31 * result + etag.hashCode()
+      return result
+    }
+  }
 
   private val workers = Executors.newFixedThreadPool(RENDER_THREADS) { runnable ->
     Thread(runnable, "map-render").apply { isDaemon = true }

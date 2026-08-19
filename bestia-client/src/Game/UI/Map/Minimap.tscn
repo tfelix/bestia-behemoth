@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Game/UI/Map/minimap.gd" id="1_minimap"]
 [ext_resource type="Script" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_minimappanel"]
+bg_color = Color(0.075, 0.065, 0.055, 1)
 
 [node name="Minimap" type="PanelContainer"]
 anchors_preset = 1
@@ -12,6 +15,7 @@ offset_top = 70.0
 offset_right = -8.0
 offset_bottom = 246.0
 grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_minimappanel")
 script = ExtResource("1_minimap")
 
 [node name="Margin" type="MarginContainer" parent="."]

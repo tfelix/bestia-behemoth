@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Game/UI/Map/map_overlay.gd" id="1_overlay"]
 [ext_resource type="Script" path="res://Game/UI/Map/map_view.gd" id="2_mapview"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mappanel"]
+bg_color = Color(0.075, 0.065, 0.055, 1)
 
 [node name="MapOverlay" type="Control"]
 anchors_preset = 15
@@ -31,6 +34,7 @@ offset_right = 512.0
 offset_bottom = 384.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mappanel")
 
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2

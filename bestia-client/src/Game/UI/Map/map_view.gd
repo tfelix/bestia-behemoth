@@ -11,11 +11,20 @@ extends Control
 ## 256 pixels and the map stays crisp. Zooming changes which level is fetched rather than scaling what is
 ## already here, which is what keeps hand-drawn line work from turning to mush.
 ##
-## [b]Uncharted ground draws as nothing.[/b] The server answers 404 for a tile the player has charted none
-## of, so the background shows through. That is the fog: there is no separate fog layer, because a mask
-## composited on the client would mean the client had been sent the picture underneath it.
+## [b]Uncharted ground is this view's own background.[/b] The server answers 404 for a tile the player has
+## charted none of, and leaves the rest transparent where their charts stop - so the fog is simply whatever is
+## painted underneath, and painting it is this control's job. There is no separate fog layer beyond that,
+## because a mask composited on the client would mean the client had been sent the picture underneath it.
 
 const _TILE := 256
+
+## Ground the player holds no chart of.
+##
+## Opaque, and that is the whole point rather than a styling choice: behind this control is the 3D world, so a
+## translucent one shows the player the very ground their charts are meant to be withholding. Drawn here and
+## not left to the hosting panel so that both views get it, and so the fog cannot be lost by restyling a
+## window.
+const _FOG := Color(0.11, 0.095, 0.08)
 
 ## Metres per pixel is 2^level, so 0 is one metre to the pixel and 9 is 512.
 @export var level: int = 2
@@ -64,6 +73,15 @@ func _on_meta_ready(meta: Dictionary) -> void:
 	queue_redraw()
 
 
+## Jumps to a zoom level, clamped to the ladder this world actually has.
+##
+## What a caller opening a view should use rather than assigning [member level] itself: how many levels exist
+## above the finest depends on the world's size, so a fixed number is a request and not a fact.
+func go_to_level(to_level: int) -> void:
+	level = clampi(to_level, _min_level, _max_level)
+	queue_redraw()
+
+
 ## Centres on the player, if there is one to centre on.
 func centre_on_player() -> void:
 	var at: Variant = _player_metres()
@@ -78,6 +96,10 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
+	# Before the early return, not after it: a view with nothing to draw yet still has to cover the world behind
+	# it, or the map spends its first frames as a window onto the terrain.
+	draw_rect(Rect2(Vector2.ZERO, size), _FOG)
+
 	if source == null or source.meta.is_empty():
 		return
 
@@ -127,10 +149,19 @@ func _gui_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			_dragging = event.pressed
 			accept_event()
-		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
+
+		# The camera's own zoom actions rather than the wheel buttons directly, so the map and the world behind
+		# it can never disagree about which way the wheel means closer.
+		#
+		# Accepted whether or not the level moved, and that is the part that matters: Godot lets a wheel event a
+		# [method Control._gui_input] did not accept carry on to [method Node._unhandled_input], where the spring
+		# arm is listening - so without this the map zooms and the camera underneath it zooms with it.
+		elif event.is_action_pressed("camera_zoom_in"):
 			_zoom(-1, event.position)
-		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			accept_event()
+		elif event.is_action_pressed("camera_zoom_out"):
 			_zoom(1, event.position)
+			accept_event()
 
 	elif event is InputEventMouseMotion and _dragging:
 		var mpp := _metres_per_pixel()

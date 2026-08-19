@@ -37,7 +37,7 @@ class Planner(
     val start = agent.snapshotState(worldState)
 
     val goal = selectCurrentGoal(agent, start) ?: run {
-      log.info("[{}] no available/unsatisfied goal to pursue — nothing to plan", agent.name)
+      log.trace("[{}] no available/unsatisfied goal to pursue — nothing to plan", agent.name)
       return null
     }
 
@@ -53,11 +53,11 @@ class Planner(
    * search on every tick regardless.
    */
   fun planFor(agent: Agent, goal: Goal, start: WorldState): Plan? {
-    log.info("[{}] planning for goal '{}' from state {}", agent.name, goal.name, start)
+    log.trace("[{}] planning for goal '{}' from state {}", agent.name, goal.name, start)
 
     val plan = search(start, goal, agent.actionResolver)
     if (plan != null) {
-      log.info("[{}] found plan: {}", agent.name, plan)
+      log.trace("[{}] found plan: {}", agent.name, plan)
     } else {
       log.warn("[{}] no plan found to satisfy goal '{}' from state {}", agent.name, goal.name, start)
     }
@@ -80,7 +80,7 @@ class Planner(
       .maxByOrNull { it.evaluatePriority(state) }
 
     if (selected != null) {
-      log.info("[{}] selected goal '{}' (priority={})", agent.name, selected.name, selected.evaluatePriority(state))
+      log.trace("[{}] selected goal '{}' (priority={})", agent.name, selected.name, selected.evaluatePriority(state))
     }
     return selected
   }

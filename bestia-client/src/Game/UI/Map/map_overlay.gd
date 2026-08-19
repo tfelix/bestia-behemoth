@@ -14,15 +14,20 @@ extends Control
 @onready var _title: Label = $Panel/Margin/Rows/Header/Title
 @onready var _scale_label: Label = $Panel/Margin/Rows/Footer/Scale
 
-## Level the map opens at. Level 7 is 128 m to the pixel, which fits a 128 km world in about a thousand
-## pixels - the whole world at a glance, which is what a player opening the map wants first.
-const _OPEN_LEVEL := 7
+## Level the map opens at. Level 4 is 16 m to the pixel, so the panel shows about 16 km of ground across.
+##
+## Deliberately not the whole world, which was the first answer and the wrong one. Charts are the only source
+## of map knowledge, so the whole world at a glance is almost entirely fog: a starter chart is 1500 m in radius
+## and the widest single survey is 5 km, which at world scale is a couple of dozen pixels and reads as a broken
+## window rather than as an unexplored one. This opens at a zoom where the ground a player actually has is
+## legible, and leaves the wheel to go out from there.
+const _OPEN_LEVEL := 4
 
 
 func setup(source: MapSource, entities: Node) -> void:
 	_view.interactive = true
-	_view.level = _OPEN_LEVEL
 	_view.setup(source, entities)
+	_view.go_to_level(_OPEN_LEVEL)
 
 
 func _ready() -> void:
@@ -38,7 +43,7 @@ func toggle() -> void:
 
 func open() -> void:
 	visible = true
-	_view.level = _OPEN_LEVEL
+	_view.go_to_level(_OPEN_LEVEL)
 	_view.centre_on_player()
 	# Deliberately after centring: it follows for exactly one frame, so a player who opens the map while
 	# running gets it centred on where they are rather than where they were when the scene loaded.

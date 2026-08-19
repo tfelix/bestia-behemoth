@@ -88,7 +88,7 @@ class EntityPersistenceService(
       Thread.yield() // give the tick thread room between batches
     }
 
-    LOG.debug { "Entity persistence sync flushed $persisted entity/entities across $batches batch(es)" }
+    LOG.debug { "Entity persistence sync flushed $persisted entities across $batches batch(es)" }
   }
 
   /**
