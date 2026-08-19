@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.battle.skill
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.CountdownBar
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.EntitySMSG
@@ -14,10 +15,11 @@ import net.bestia.zone.util.EntityId
  * kept around. [CastingSystem] drives the countdown and hands the finished cast to
  * [net.bestia.zone.battle.skill.SkillExecutionService].
  *
- * Synced to everyone in range via the [Dirtyable] pipeline so bystanders see the cast bar too. It is
- * [Removable]: cancelling a cast is simply removing this component, which re-sends
- * [CastingComponentSMSG] with `removed = true` - the client reads that as "cast over", deliberately
- * the same signal for a completed and an interrupted cast, since either way the bar just disappears.
+ * Synced to everyone in range via the [Dirtyable] pipeline so bystanders see the cast bar too, at the
+ * throttled cadence [CountdownBar] describes rather than every tick. It is [Removable]: cancelling a
+ * cast is simply removing this component, which re-sends [CastingComponentSMSG] with `removed = true`
+ * - the client reads that as "cast over", deliberately the same signal for a completed and an
+ * interrupted cast, since either way the bar just disappears.
  */
 class Casting(
   val skillId: Long,
@@ -30,33 +32,13 @@ class Casting(
   val targetPosition: Vec3L?,
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
-) : Component, Removable {
-
-  var remainingSeconds: Float = remainingSeconds
-    set(value) {
-      if (field != value) {
-        field = value
-        dirty = true
-      }
-    }
-
-  private var dirty = true
+) : CountdownBar(remainingSeconds), Component, Removable {
 
   init {
     require(totalSeconds > 0f) { "Casting requires a positive totalSeconds, got $totalSeconds" }
     require(targetEntityId != null || targetPosition != null) {
       "Casting needs either a target entity or a target position"
     }
-  }
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG =

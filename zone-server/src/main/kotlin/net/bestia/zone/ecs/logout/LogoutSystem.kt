@@ -38,9 +38,9 @@ class LogoutSystem(
   override fun update(world: World, deltaTime: Float) {
     world.query(LogoutIntent::class).each { id ->
       val intent = get<LogoutIntent>()
-      intent.remainingSeconds -= deltaTime
+      intent.countdown(deltaTime)
 
-      if(intent.remainingSeconds <= 0.0) {
+      if (intent.hasElapsed()) {
         finalizeLogout(world, id)
       }
     }

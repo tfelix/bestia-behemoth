@@ -78,13 +78,47 @@ class CastingSystemTest {
   }
 
   @Test
-  fun `countdown marks the component dirty so the client bar stays corrected`() {
+  fun `a fresh cast is dirty so the client is told the bar opened`() {
     val id = castingEntity(castTime = 3f)
-    world.get(id, Casting::class)!!.clearDirty()
-
-    world.tick(0.5f)
 
     assertTrue(world.get(id, Casting::class)!!.isDirty())
+  }
+
+  @Test
+  fun `ticking below the sync interval does not re-dirty the component`() {
+    val id = castingEntity(castTime = 5f)
+    val casting = world.get(id, Casting::class)!!
+    casting.clearDirty()
+
+    repeat(10) { world.tick(0.05f) }
+
+    assertEquals(4.5f, casting.remainingSeconds, TOLERANCE, "the countdown still runs every tick")
+    assertFalse(casting.isDirty(), "half a second of ticks must not produce half a second of packets")
+  }
+
+  @Test
+  fun `crossing the sync interval re-dirties so the client bar stays corrected`() {
+    val id = castingEntity(castTime = 5f)
+    val casting = world.get(id, Casting::class)!!
+    casting.clearDirty()
+
+    repeat(20) { world.tick(0.05f) }
+
+    assertTrue(casting.isDirty())
+  }
+
+  @Test
+  fun `the tick a cast elapses on does not dirty - its removal ends the bar`() {
+    val id = castingEntity(castTime = 1f)
+    val casting = world.get(id, Casting::class)!!
+    casting.clearDirty()
+
+    world.tick(1f)
+
+    assertFalse(world.has(id, Casting::class))
+    // A heartbeat carrying remainingSeconds = 0 would make the client hide the bar a beat before
+    // the removal arrives, so the elapsing tick deliberately stays clean.
+    assertFalse(casting.isDirty())
   }
 
   @Test

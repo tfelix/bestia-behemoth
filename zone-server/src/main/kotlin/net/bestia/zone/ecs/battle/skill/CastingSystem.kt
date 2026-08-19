@@ -33,9 +33,9 @@ class CastingSystem(
 
     world.query(Casting::class).each { id ->
       val casting = get<Casting>()
-      casting.remainingSeconds -= deltaTime
+      casting.countdown(deltaTime)
 
-      if (casting.remainingSeconds <= 0f) {
+      if (casting.hasElapsed()) {
         (completed ?: mutableListOf<Pair<EntityId, Casting>>().also { completed = it }).add(id to casting)
       }
     }

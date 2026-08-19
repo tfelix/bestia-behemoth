@@ -34,9 +34,9 @@ class CraftingSystem(
 
     world.query(Crafting::class).each { id ->
       val crafting = get<Crafting>()
-      crafting.remainingSeconds -= deltaTime
+      crafting.countdown(deltaTime)
 
-      if (crafting.remainingSeconds <= 0f) {
+      if (crafting.hasElapsed()) {
         (completed ?: mutableListOf<Pair<EntityId, Crafting>>().also { completed = it }).add(id to crafting)
       }
     }

@@ -3,6 +3,7 @@ package net.bestia.zone.ecs.crafting
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.battle.skill.CastingComponentSMSG
 import net.bestia.zone.ecs.core.Component
+import net.bestia.zone.ecs.core.CountdownBar
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -19,7 +20,7 @@ import net.bestia.zone.util.EntityId
  * same thing to a player - a bar that fills and then either resolves or is interrupted - so reusing the
  * message means the client draws both with the code it already has. The two channels are mutually
  * exclusive: [net.bestia.zone.ecs.battle.skill.CastCancelService] drops both together, so a bar can
- * only ever belong to one of them.
+ * only ever belong to one of them. It is throttled the same way too - see [CountdownBar].
  *
  * ### Its inputs are not spent yet
  *
@@ -36,30 +37,10 @@ class Crafting(
 
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
-) : Component, Removable {
-
-  var remainingSeconds: Float = remainingSeconds
-    set(value) {
-      if (field != value) {
-        field = value
-        dirty = true
-      }
-    }
-
-  private var dirty = true
+) : CountdownBar(remainingSeconds), Component, Removable {
 
   init {
     require(totalSeconds > 0f) { "Crafting requires a positive totalSeconds, got $totalSeconds" }
-  }
-
-  override fun isDirty(): Boolean = dirty
-
-  override fun markDirty() {
-    dirty = true
-  }
-
-  override fun clearDirty() {
-    dirty = false
   }
 
   override fun toEntityMessage(entityId: Long, removed: Boolean): EntitySMSG =
