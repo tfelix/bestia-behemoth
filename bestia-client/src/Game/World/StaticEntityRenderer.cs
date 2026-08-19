@@ -156,20 +156,28 @@ namespace BestiaBehemothClient.Game.World
     /// hypothetical - a batch can be applied before its own chunk has been decoded - which is why
     /// <c>ChunkStreamManager</c> holds a batch back until the ground is there.
     /// </para>
+    ///
+    /// <para>
+    /// Horizontally the prop is put in the middle of its voxel, not on the corner its coordinate names - a cell
+    /// spans <c>[n, n+1]</c>, so a tree placed at the bare coordinate stands on the seam between four of them.
+    /// The same offset <c>Entity._apply_position</c> applies, and for the same reason; see <c>TileSpace</c>.
+    /// </para>
     /// </remarks>
     private Vector3 GroundedPositionOf(ChunkStaticEntitiesSMSG.Entry entry)
     {
-      var placed = (Vector3)entry.Position * _voxelSize;
+      // Entry.Position is already in Godot's axis order, so y is the vertical one and z is the server's y - which
+      // is why the half-voxel centring goes on x and z and the vertical is left to the surface probe below.
+      var centre = (Vector3)entry.Position + new Vector3(0.5f, 0f, 0.5f);
+      var placed = centre * _voxelSize;
 
       if (_store == null)
       {
         return placed;
       }
 
-      // Entry.Position is already in Godot's axis order, so y is the vertical one and z is the server's y.
       var surface = Mesh.SurfaceProbe.SurfaceAt(
         _store, Mesh.BlockAppearance.Current,
-        entry.Position.X, entry.Position.Z, entry.Position.Y, _chunkSize, _chunkHeight);
+        centre.X, centre.Z, entry.Position.Y, _chunkSize, _chunkHeight);
 
       return double.IsNaN(surface)
         ? placed

@@ -20,11 +20,13 @@ class_name Entity extends Node3D
 # Logical vs. drawn position
 # ==========================
 # `position` is NOT where the server says this entity is. It is _logical_position - which is - plus
-# a sub-voxel ground correction, because whole-voxel heights do not meet the terrain that gets
-# drawn. Everything in the prediction system below works in logical space; only _apply_position
-# crosses over. Anything outside this file that needs a server coordinate must ask
-# get_logical_position() rather than reading `position`, or a round trip through Vec3Convert's
-# rounding can come back a tile away. See _update_ground_offset.
+# two corrections. Half a tile horizontally, because a tile coordinate names that tile's corner and a
+# model standing on the corner straddles four of them (see TileSpace). A sub-voxel ground offset
+# vertically, because whole-voxel heights do not meet the terrain that gets drawn. Everything in the
+# prediction system below works in logical space; only _apply_position crosses over. Anything outside
+# this file that needs a server coordinate must ask get_logical_position() rather than reading
+# `position`, or a round trip through Vec3Convert's rounding can come back a tile away.
+# See _update_ground_offset.
 
 
 var BestiaModelScn = preload("res://Game/Entity/Visual/BestiaVisual/BestiaVisual.tscn")
@@ -185,9 +187,9 @@ func get_logical_position() -> Vector3:
 	return _logical_position
 
 
-## Draws the entity at its logical position, lifted onto the terrain.
+## Draws the entity in the middle of its tile, lifted onto the terrain.
 func _apply_position() -> void:
-	position = _logical_position + Vector3(0.0, _ground_offset, 0.0)
+	position = _logical_position + TileSpace.CENTRE_OFFSET + Vector3(0.0, _ground_offset, 0.0)
 
 
 ## Sub-voxel height correction, applied to this node so that everything hanging off it follows.
@@ -243,10 +245,15 @@ func _probe_ground_offset() -> float:
 	if ConnectionManager.chunk_stream == null:
 		return NAN
 
-	# Probed at the logical position, not the drawn one. Feeding the corrected height back in would
-	# make the offset measure itself and decay to nothing.
+	# Probed under the model - the middle of the tile - rather than at the corner the tile's coordinate
+	# names, because the middle is where the feet are and half a tile of slope is worth having.
+	#
+	# Horizontally only. The height fed in is the logical one, not the drawn one: feeding the corrected
+	# height back in would make the offset measure itself and decay to nothing.
 	var ground: float = ConnectionManager.chunk_stream.GroundYAt(
-		_logical_position.x, _logical_position.z, _logical_position.y)
+		_logical_position.x + TileSpace.CENTRE_OFFSET.x,
+		_logical_position.z + TileSpace.CENTRE_OFFSET.z,
+		_logical_position.y)
 	if is_nan(ground):
 		return NAN
 

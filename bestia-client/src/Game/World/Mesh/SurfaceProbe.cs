@@ -57,9 +57,17 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <remarks>
     /// Bilinear across the four lattice lines around the point, because between them is where the mesh's own
     /// triangles are. Lattice lines carrying no weight are not sampled at all, which is not just an optimisation:
-    /// an entity standing on exact integer coordinates - which is every entity that is not mid-step - sits
-    /// exactly on a lattice line, and requiring its neighbours to have a surface too would fail every probe taken
-    /// on the lip of a cliff.
+    /// a probe taken on exact integer coordinates sits exactly on a lattice line, and requiring its neighbours to
+    /// have a surface too would fail every such probe taken on the lip of a cliff.
+    ///
+    /// <para>
+    /// Entities and props get no benefit from that, and deliberately so. They are probed at the centre of their
+    /// tile rather than at the corner its coordinate names, because the centre is where they are drawn - so all
+    /// four lattice lines carry weight and any one of them missing gives <c>NaN</c>. That is the honest answer:
+    /// the height under a model's feet genuinely depends on all four. Callers treat <c>NaN</c> as "hold the
+    /// offset you had" rather than as a reason to move, so an unstreamed neighbour costs a frame of staleness
+    /// and not a visible drop.
+    /// </para>
     /// </remarks>
     /// <param name="source">The chunks held.</param>
     /// <param name="appearance">The palette, for the terrain include mask.</param>

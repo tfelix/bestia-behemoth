@@ -60,7 +60,12 @@ func _update_ground_indicator() -> void:
 		_indicator.visible = false
 	else:
 		_indicator.visible = true
-		_indicator.global_position = _last_ground_hit
+		# Snapped to the tile that will actually be hit rather than sliding with the mouse. The
+		# footprint is an odd number of tiles centred on the target one (see AOECastIndicator.set_radius),
+		# so centring the decal on that tile's centre makes it cover exactly the cells that will burn -
+		# drawn at the raw hit it was up to half a tile out from them on each axis.
+		var centre := TileSpace.tile_centre(TileSpace.world_to_tile(_last_ground_hit))
+		_indicator.global_position = Vector3(centre.x, _last_ground_hit.y, centre.z)
 
 
 func _update_entity_snap(mgr) -> void:
@@ -115,5 +120,9 @@ func _try_confirm(mgr, event: InputEvent) -> void:
 	else:
 		if _last_ground_hit == null:
 			return
-		ConnectionManager.activate_skill(skill.skill_id, skill_level, _last_ground_hit)
+		# The tile under the cursor, not the raw hit: Vec3Convert rounds whatever it is handed, and a
+		# world position rounds to the tile whose *centre* is nearest, which is the neighbour of the one
+		# the indicator just drew for half of every tile. See TileSpace.
+		ConnectionManager.activate_skill(
+			skill.skill_id, skill_level, TileSpace.world_to_tile(_last_ground_hit))
 	mgr.enter_default()

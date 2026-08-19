@@ -9,10 +9,16 @@ class_name PathCalculator
 static func calculate_tile_path(start: Vector3, target: Vector3) -> Array[Vector3]:
 	var path: Array[Vector3] = []
 
+	# Two different snaps, because the two arguments are not the same kind of thing - see TileSpace.
+	# `start` is already a tile index and is fractional only while the entity is mid-step, so the tile
+	# it is on is the nearest one. `target` is a raw world position off a raycast, so the tile it names
+	# is the cell containing it. Rounding the target instead is what used to let a click highlight one
+	# tile and walk to its neighbour.
 	var cur_x := int(round(start.x))
 	var cur_z := int(round(start.z))
-	var target_x := int(round(target.x))
-	var target_z := int(round(target.z))
+	var target_tile := TileSpace.world_to_tile(target)
+	var target_x := int(target_tile.x)
+	var target_z := int(target_tile.z)
 
 	var total_steps := maxi(absi(target_x - cur_x), absi(target_z - cur_z))
 	if total_steps == 0:
