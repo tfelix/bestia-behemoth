@@ -25,15 +25,15 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Ch9tZXNzYWdlcy9tYXN0ZXIvc2VsZl9zbXNnLnByb3RvEgRibmV0GiFtZXNz",
-            "YWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8iiQEKCFNlbGZTTVNHEhEK",
+            "YWdlcy9tYXN0ZXIvYmVzdGlhX2luZm8ucHJvdG8ihwEKCFNlbGZTTVNHEhEK",
             "CW1hc3Rlcl9pZBgBIAEoBBIYChBtYXN0ZXJfZW50aXR5X2lkGAIgASgEEisK",
-            "EWF2YWlsYWJsZV9iZXN0aWFzGAMgAygLMhAuYm5ldC5CZXN0aWFJbmZvEiMK",
-            "G2hhc19wZXJmb3JtZWRfbWFzdGVyX3JpdHVhbBgEIAEoCEImChVuZXQuYmVz",
-            "dGlhLmJuZXQucHJvdG9CDVNlbGZTTVNHUHJvdG9iBnByb3RvMw=="));
+            "EWF2YWlsYWJsZV9iZXN0aWFzGAMgAygLMhAuYm5ldC5CZXN0aWFJbmZvSgQI",
+            "BBAFUhtoYXNfcGVyZm9ybWVkX21hc3Rlcl9yaXR1YWxCJgoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQg1TZWxmU01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Bnet.BestiaInfoReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SelfSMSG), global::Bnet.SelfSMSG.Parser, new[]{ "MasterId", "MasterEntityId", "AvailableBestias", "HasPerformedMasterRitual" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.SelfSMSG), global::Bnet.SelfSMSG.Parser, new[]{ "MasterId", "MasterEntityId", "AvailableBestias" }, null, null, null, null)
           }));
     }
     #endregion
@@ -83,7 +83,6 @@ namespace Bnet {
       masterId_ = other.masterId_;
       masterEntityId_ = other.masterEntityId_;
       availableBestias_ = other.availableBestias_.Clone();
-      hasPerformedMasterRitual_ = other.hasPerformedMasterRitual_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -128,22 +127,6 @@ namespace Bnet {
       get { return availableBestias_; }
     }
 
-    /// <summary>Field number for the "has_performed_master_ritual" field.</summary>
-    public const int HasPerformedMasterRitualFieldNumber = 4;
-    private bool hasPerformedMasterRitual_;
-    /// <summary>
-    /// Whether this master has completed the Master Ritual and may invest skill points outside the
-    /// Novice tree - see MasterSkillTreeService.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasPerformedMasterRitual {
-      get { return hasPerformedMasterRitual_; }
-      set {
-        hasPerformedMasterRitual_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -162,7 +145,6 @@ namespace Bnet {
       if (MasterId != other.MasterId) return false;
       if (MasterEntityId != other.MasterEntityId) return false;
       if(!availableBestias_.Equals(other.availableBestias_)) return false;
-      if (HasPerformedMasterRitual != other.HasPerformedMasterRitual) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -173,7 +155,6 @@ namespace Bnet {
       if (MasterId != 0UL) hash ^= MasterId.GetHashCode();
       if (MasterEntityId != 0UL) hash ^= MasterEntityId.GetHashCode();
       hash ^= availableBestias_.GetHashCode();
-      if (HasPerformedMasterRitual != false) hash ^= HasPerformedMasterRitual.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -201,10 +182,6 @@ namespace Bnet {
         output.WriteUInt64(MasterEntityId);
       }
       availableBestias_.WriteTo(output, _repeated_availableBestias_codec);
-      if (HasPerformedMasterRitual != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(HasPerformedMasterRitual);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -224,10 +201,6 @@ namespace Bnet {
         output.WriteUInt64(MasterEntityId);
       }
       availableBestias_.WriteTo(ref output, _repeated_availableBestias_codec);
-      if (HasPerformedMasterRitual != false) {
-        output.WriteRawTag(32);
-        output.WriteBool(HasPerformedMasterRitual);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -245,9 +218,6 @@ namespace Bnet {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(MasterEntityId);
       }
       size += availableBestias_.CalculateSize(_repeated_availableBestias_codec);
-      if (HasPerformedMasterRitual != false) {
-        size += 1 + 1;
-      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -267,9 +237,6 @@ namespace Bnet {
         MasterEntityId = other.MasterEntityId;
       }
       availableBestias_.Add(other.availableBestias_);
-      if (other.HasPerformedMasterRitual != false) {
-        HasPerformedMasterRitual = other.HasPerformedMasterRitual;
-      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -297,10 +264,6 @@ namespace Bnet {
             availableBestias_.AddEntriesFrom(input, _repeated_availableBestias_codec);
             break;
           }
-          case 32: {
-            HasPerformedMasterRitual = input.ReadBool();
-            break;
-          }
         }
       }
     #endif
@@ -326,10 +289,6 @@ namespace Bnet {
           }
           case 26: {
             availableBestias_.AddEntriesFrom(ref input, _repeated_availableBestias_codec);
-            break;
-          }
-          case 32: {
-            HasPerformedMasterRitual = input.ReadBool();
             break;
           }
         }

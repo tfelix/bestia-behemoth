@@ -36,13 +36,27 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
 
 Convention in the file: master skills are grouped first under `# MASTER SKILLS`, bestia
 skills after under `# BESTIA SKILLS`, by ascending id (**bestia-species/item skills are
-reserved at id 1000+**; master skills use the open range below that, currently 1-43) —
-not enforced by code, just keep following it. The 1000+ split was chosen when the master
-skill tree grew past the original "masters 1-99" convention (see
-`docs/mechanics/master.md` for the full master skill tree design) — if it ever needs
-renumbering again, check that no other file hardcodes a raw skill id first (as of this
-writing, nothing outside `skills.yml`/`master_skill_tree.yml`/the `.tres` files/
-`skills.csv` does).
+reserved at id 1000+**; master skills use the open range below that, currently 1-44, with
+id 9 a hole where `MASTER_RITUAL` used to be) — not enforced by code, just keep following
+it. The 1000+ split was chosen when the master skill tree grew past the original
+"masters 1-99" convention (see `docs/mechanics/master.md` for the full master skill tree
+design).
+
+**Two ids are load-bearing outside the content files, so renumbering is no longer free:**
+
+- `BASIC_SKILL` is **pinned at id 1**. The Skills window has to name it to draw the tree
+  gate (`skills.gd`'s `BASIC_SKILL_ID`), and an id is the only handle the client has —
+  the wire carries ids and the Attack DB is keyed by them. Moving it means editing that
+  constant too.
+- `MultiPlayerJourneyScenario` hardcodes real ids from this file
+  (`BLESSING_ID`, `HEAL_ID`, `DIVINE_PROTECTION_ID`) to drive an end-to-end investment.
+
+Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, which is
+what `MasterSkillTreeService` and `BasicSkillGate` do. Prefer that. And note that
+renumbering an **existing** id needs a database wipe: `YmlImporterBootRunner` matches rows
+by identifier and `Skill.updateContentFrom` deliberately does not copy `id`, so an edit
+here silently leaves the old id in the `skill` table while every other file says the new
+one.
 
 ### Castable, passive, unimplemented — and why there is no `type`
 
@@ -129,11 +143,23 @@ by `identifier`.
 - A skill in `skills.yml` with no entry here (e.g. bestia skills 1000+, `ember`,
   `tackle`) is not master-investable at all — masters never see a level-up option for
   it.
-- This file has **no representation of the "tree mastery" mechanics** described in
-  `docs/mechanics/master.md` (a sub-tree unlocking once 5+ points are spent in its parent
-  tree, or a master capping out at 3 tree masteries) — only explicit skill-to-skill
-  `prerequisites` edges exist today. Enforcing the point-gated sub-tree unlock is a
-  separate `MasterSkillTreeService` feature, not a YAML content change.
+- Two gates beyond `prerequisites` are enforced in `MasterSkillTreeService` and have **no
+  representation in this file** — they are code, read off `tree`/`subTree`:
+  - **Basic Skill 5 opens every tree but Novice** (`TREE_UNLOCK_BASIC_SKILL_LEVEL`). The
+    Novice tree is always investable; anything else needs `BASIC_SKILL` maxed first. Checked
+    per level, not once per batch, so one request can take Basic Skill to 5 and then spend
+    into another tree.
+  - **5+ points anywhere in a tree open its sub-trees** (`SUB_TREE_UNLOCK_THRESHOLD`), but
+    only for a tree that has a trunk skill at all — Scholar and Warrior are nothing but a
+    sub-tree today, so gating them would make Priest/Wizard unreachable rather than merely
+    unfinished.
+
+  `master.md`'s remaining "tree mastery" idea (a master capping out at 3 tree masteries) is
+  still unimplemented, in this file and in code.
+- The client mirrors both gates in `skills.gd` (`_is_tree_unlocked`), deriving them from the
+  `SkillListSMSG` it already receives rather than from a flag of its own — so the tabs
+  unlock on the list the server pushes right after an investment, not at the next login.
+  The constants there are marked as mirrors; change one side and the other drifts silently.
 
 **Every** `master_skill_tree.yml` node must have a corresponding `skills.yml` entry, but not vice versa.
 

@@ -3,8 +3,6 @@ package net.bestia.zone.crafting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
-import net.bestia.zone.account.master.MasterRepository
-import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -56,7 +54,6 @@ class CraftingService(
   private val outMessageProcessor: OutMessageProcessor,
   private val asyncJobExecutor: AsyncJobExecutor,
   private val itemTemplates: ItemTemplateRegistry,
-  private val masterRepository: MasterRepository,
 ) {
 
   /**
@@ -195,10 +192,6 @@ class CraftingService(
         // Through the intent rather than written here, so the grant goes through the one path that checks carry
         // capacity and persists - see the class note.
         world.add(entityId, ObtainItemIntent.CreateItemIntent(itemId = output.itemId, amount = output.amount))
-
-        if (recipe.identifier == MASTER_RITUAL_RECIPE_IDENTIFIER) {
-          completeMasterRitual(world, entityId, masterId)
-        }
       }
 
       RecipeEffect.ADD_SLOT -> applyToTarget(inventory, masterId, target!!.copy(slots = target.slots + 1))
@@ -239,26 +232,6 @@ class CraftingService(
 
   private fun refuse(accountId: Long?, code: OpError) {
     accountId?.let { outMessageProcessor.sendToPlayer(it, OperationErrorSMSG(code)) }
-  }
-
-  /**
-   * Turns a Novice into a Master: this is the one moment [Master.hasPerformedMasterRitual] flips.
-   * The live [Account] field is updated synchronously so a skill point investment later in the
-   * same tick sees it immediately (see `MasterSkillTreeService`); the durable row catches up
-   * through the same per-master job queue every other durable write in this class already uses.
-   * Not pushed to the client as its own message - `GetSelfHandler` reports the durable value in
-   * `SelfSMSG` whenever a `GetSelfCMSG` is next handled (e.g. on login).
-   */
-  private fun completeMasterRitual(world: World, entityId: EntityId, masterId: Long) {
-    world.get(entityId, Account::class)?.hasPerformedMasterRitual = true
-
-    asyncJobExecutor.submit(masterId) {
-      val master = masterRepository.findByIdOrThrow(masterId)
-      if (!master.hasPerformedMasterRitual) {
-        master.hasPerformedMasterRitual = true
-        masterRepository.save(master)
-      }
-    }
   }
 
   /**
@@ -429,9 +402,6 @@ class CraftingService(
      * every other per-level table in the tree tops out at.
      */
     const val MAX_UPGRADE_LEVEL = 10
-
-    /** The one recipe (`recipes.yml`) that performs the Master Ritual. */
-    private const val MASTER_RITUAL_RECIPE_IDENTIFIER = "SEAL_OF_MASTERY"
 
     private val LOG = KotlinLogging.logger { }
   }

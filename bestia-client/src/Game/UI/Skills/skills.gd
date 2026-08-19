@@ -33,6 +33,13 @@ const NO_TREE_TAB_NAME := "Bestia"
 ## anywhere in a tree before any of its sub-trees can be.
 const SUB_TREE_UNLOCK_THRESHOLD := 5
 
+## Basic Skill, and how far it must be taken before any tree but Novice opens - mirrors
+## MasterSkillTreeService.TREE_UNLOCK_BASIC_SKILL_LEVEL. skills.yml pins Basic Skill at id 1 for
+## exactly this: it is the one skill the client has to name, and naming it by id is the only way,
+## since the wire carries ids and the Attack DB is keyed by them.
+const BASIC_SKILL_ID := 1
+const TREE_UNLOCK_BASIC_SKILL_LEVEL := 5
+
 const _SUB_TREE_HEADER_COLOR := Color(0.75, 0.75, 0.8)
 const _SUB_TREE_HEADER_FONT_SIZE := 12
 
@@ -51,13 +58,12 @@ var _current_entity_id: int = 0
 var _available_skill_points: int = 0
 var _selected_row: Control = null
 
-# Whether the master has performed the Master Ritual - gates every tab outside Novice. Comes from
-# SelfSMSG (see _on_self_received), so it is only as fresh as the last time one arrived (login, or
-# a future explicit resync) rather than pushed the instant the ritual completes - the server is the
-# actual authority regardless, this is only what the tab lock in this window is drawn from. Kept
-# alongside a per-tree point total/trunk flag (rebuilt each time a SkillListSMSG arrives) so a
-# later SelfSMSG can re-lock/unlock the rows already on screen without waiting for a fresh list.
-var _has_performed_master_ritual: bool = false
+# Everything the tab locks are judged from, all of it rebuilt out of the SkillListSMSG the rows
+# themselves are built from (see _rebuild_tree_state) - Basic Skill's level, and per tree the points
+# invested in it plus whether it has a trunk skill at all. The server is the actual authority; this
+# is only what the lock in this window is drawn from, and it is exactly as fresh as the row beside
+# it, because it comes from the same message.
+var _basic_skill_level: int = 0
 var _tree_points: Dictionary = {}
 var _tree_has_trunk: Dictionary = {}
 
@@ -83,11 +89,6 @@ func request_refresh() -> void:
 
 func _on_self_received(msg: SelfSMSG) -> void:
 	_master_entity_id = msg.MasterEntityId
-	# Only ever refreshed when a SelfSMSG arrives (login, or a future explicit resync) - not pushed
-	# live the moment the ritual completes. The server is the actual authority regardless; this is
-	# just what the tab lock in this window is drawn from.
-	_has_performed_master_ritual = msg.HasPerformedMasterRitual
-	_refresh_tree_locks()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:
@@ -157,12 +158,14 @@ func _populate_rows(msg: SkillListSMSG) -> void:
 	_apply_filters()
 
 
-## Recomputes, from the skill list the server just sent, how many points are invested in each
-## tree (trunk and every sub-tree under it summed together) and whether that tree has any trunk
-## skill at all - mirrors MasterSkillTreeService.pointsInvestedInTree/hasTrunkSkills.
+## Recomputes, from the skill list the server just sent, Basic Skill's level plus how many points
+## are invested in each tree (trunk and every sub-tree under it summed together) and whether that
+## tree has any trunk skill at all - mirrors MasterSkillTreeService.pointsInvestedInTree/
+## hasTrunkSkills.
 func _rebuild_tree_state(msg: SkillListSMSG) -> void:
 	_tree_points.clear()
 	_tree_has_trunk.clear()
+	_basic_skill_level = 0
 
 	for entry in msg.Skills:
 		var tree: String = _tree_of(entry)
@@ -170,30 +173,25 @@ func _rebuild_tree_state(msg: SkillListSMSG) -> void:
 		_tree_points[tree] = _tree_points.get(tree, 0) + entry.Level
 		if sub_tree.is_empty():
 			_tree_has_trunk[tree] = true
+		if entry.SkillId == BASIC_SKILL_ID:
+			_basic_skill_level = entry.Level
 
 
 ## Mirrors MasterSkillTreeService.investSingleLevel's two gates: the Novice tree is always open,
-## everything else needs the Master Ritual; a sub-tree additionally needs 5+ points spent
-## anywhere in its parent tree, but only once that tree actually has a trunk skill to spend them
-## on (Scholar/Priest and Warrior/Wizard have none yet, so they are exempt - see the server side).
+## everything else needs Basic Skill at 5; a sub-tree additionally needs 5+ points spent anywhere
+## in its parent tree, but only once that tree actually has a trunk skill to spend them on
+## (Scholar/Priest and Warrior/Wizard have none yet, so they are exempt - see the server side).
+##
+## Both gates are read out of the same SkillListSMSG the rows are built from, so the tabs unlock on
+## the list the server pushes right after an investment is confirmed rather than at the next login.
 func _is_tree_unlocked(tree: String, sub_tree: String) -> bool:
-	# NO_TREE is a bestia's own skills (or item-taught), never master-investable at all - the
-	# ritual gate only means something for an actual master_skill_tree.yml node.
-	if tree != NO_TREE and tree != "NOVICE" and not _has_performed_master_ritual:
+	# NO_TREE is a bestia's own skills (or item-taught), never master-investable at all - the Basic
+	# Skill gate only means something for an actual master_skill_tree.yml node.
+	if tree != NO_TREE and tree != "NOVICE" and _basic_skill_level < TREE_UNLOCK_BASIC_SKILL_LEVEL:
 		return false
 	if not sub_tree.is_empty() and _tree_has_trunk.get(tree, false):
 		return _tree_points.get(tree, 0) >= SUB_TREE_UNLOCK_THRESHOLD
 	return true
-
-
-## Re-applies [method _is_tree_unlocked] to every row already on screen, using the tree state from
-## the last SkillListSMSG - called whenever a SelfSMSG arrives, since that alone can flip the ritual
-## flag without a fresh skill list following it.
-func _refresh_tree_locks() -> void:
-	for row in _rows():
-		var tree: String = row.get_meta("skill_tree", NO_TREE)
-		var sub_tree: String = row.get_meta("sub_tree", "")
-		row.set_tree_unlocked(_is_tree_unlocked(tree, sub_tree))
 
 
 ## The tree a skill belongs to, from the client's own Attack DB - the wire carries only an id and a

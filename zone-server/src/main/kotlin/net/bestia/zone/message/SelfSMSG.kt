@@ -9,8 +9,7 @@ import net.bestia.zone.geometry.Vec3L
 data class SelfSMSG(
   val masterId: Long,
   val masterEntityId: Long,
-  val availableBestias: List<BestiaInfo>,
-  val hasPerformedMasterRitual: Boolean = false
+  val availableBestias: List<BestiaInfo>
 ) : SMSG {
 
   data class BestiaInfo(
@@ -29,7 +28,6 @@ data class SelfSMSG(
     val selfBuilder = SelfSMSGProto.SelfSMSG.newBuilder()
       .setMasterId(masterId)
       .setMasterEntityId(masterEntityId)
-      .setHasPerformedMasterRitual(hasPerformedMasterRitual)
 
     availableBestias.forEach { bestia ->
       val position = Vec3OuterClass.Vec3.newBuilder()

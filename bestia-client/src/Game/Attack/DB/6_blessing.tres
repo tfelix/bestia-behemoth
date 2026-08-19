@@ -4,11 +4,12 @@
 
 [resource]
 script = ExtResource("1_script")
-skill_id = 9
-name = "Master Ritual"
-description_key = "SKILL_9_DESC"
-mana_cost = 0
-cooldown = 0.0
-max_level = 1
-target_type = "GROUND"
-tree = "NOVICE"
+skill_id = 6
+name = "Blessing"
+description_key = "SKILL_6_DESC"
+mana_cost = 10
+cooldown = 3.0
+max_level = 10
+target_type = "FRIENDLY"
+tree = "SCHOLAR"
+sub_tree = "PRIEST"

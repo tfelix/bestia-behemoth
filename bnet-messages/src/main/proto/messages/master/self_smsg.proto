@@ -17,7 +17,10 @@ message SelfSMSG {
   uint64 master_entity_id = 2;
   repeated BestiaInfo available_bestias = 3;
 
-  // Whether this master has completed the Master Ritual and may invest skill points outside the
-  // Novice tree - see MasterSkillTreeService.
-  bool has_performed_master_ritual = 4;
+  // Field 4 was `has_performed_master_ritual`, and is reserved rather than reused. The trees are
+  // now gated on Basic Skill 5, which the client reads straight off the SkillListSMSG it already
+  // receives - so the lock updates the moment the point is spent, instead of only at the next login
+  // when a SelfSMSG happens to arrive.
+  reserved 4;
+  reserved "has_performed_master_ritual";
 }

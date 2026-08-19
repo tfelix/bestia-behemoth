@@ -14,9 +14,9 @@ import net.bestia.zone.ecs.account.Account as EcsAccount
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
+import net.bestia.zone.skill.BasicSkillTooLowForTreeException
 import net.bestia.zone.skill.LearnedSkill
 import net.bestia.zone.skill.LearnedSkillRepository
-import net.bestia.zone.skill.MasterRitualNotPerformedException
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.SkillSubTreeNotUnlockedException
@@ -29,9 +29,9 @@ import java.awt.Color
 import java.util.Optional
 
 /**
- * A small test tree standing in for `master_skill_tree.yml`: BASIC_SKILL/MASTER_RITUAL in Novice,
- * a Craftsman trunk skill and one Blacksmith sub-tree skill - just enough to exercise the three
- * gates `investSkillPoints` enforces beyond a plain prerequisite check.
+ * A small test tree standing in for `master_skill_tree.yml`: BASIC_SKILL in Novice, a Craftsman
+ * trunk skill and one Blacksmith sub-tree skill - just enough to exercise the two gates
+ * `investSkillPoints` enforces beyond a plain prerequisite check.
  */
 class MasterSkillTreeServiceTest {
 
@@ -54,7 +54,6 @@ class MasterSkillTreeServiceTest {
 
   private val skills = listOf(
     skill(BASIC_SKILL_ID, "BASIC_SKILL"),
-    skill(MASTER_RITUAL_ID, "MASTER_RITUAL"),
     skill(CARPENTRY_ID, "CARPENTRY"),
     skill(ORE_REFINEMENT_ID, "ORE_REFINEMENT")
   ).associateBy { it.identifier }
@@ -63,12 +62,6 @@ class MasterSkillTreeServiceTest {
     masterSkillTreeRegistry.load(
       listOf(
         MasterSkillTreeNode(skillId = BASIC_SKILL_ID, maxLevel = 5, tree = "NOVICE"),
-        MasterSkillTreeNode(
-          skillId = MASTER_RITUAL_ID,
-          maxLevel = 1,
-          tree = "NOVICE",
-          prerequisites = listOf(MasterSkillPrerequisite(prerequisiteSkillId = BASIC_SKILL_ID, requiredLevel = 5))
-        ),
         MasterSkillTreeNode(skillId = CARPENTRY_ID, maxLevel = 10, tree = "CRAFTSMAN"),
         MasterSkillTreeNode(
           skillId = ORE_REFINEMENT_ID,
@@ -97,7 +90,7 @@ class MasterSkillTreeServiceTest {
     every { learnedSkillRepository.findAllByMasterId(any()) } answers { learnedSkills.toList() }
   }
 
-  private fun givenMaster(hasPerformedRitual: Boolean = false, skillPoints: Int = 99): Pair<Master, EntityId> {
+  private fun givenMaster(skillPoints: Int = 99): Pair<Master, EntityId> {
     val master = Master(
       account = Account(1L),
       name = "novice",
@@ -110,7 +103,7 @@ class MasterSkillTreeServiceTest {
 
     val entityId = world.createEntity { id ->
       add(id, SkillPoints(skillPoints))
-      add(id, EcsAccount(accountId = 1L, hasPerformedMasterRitual = hasPerformedRitual))
+      add(id, EcsAccount(accountId = 1L))
     }
 
     every { masterRepository.findById(master.id) } returns Optional.of(master)
@@ -120,63 +113,78 @@ class MasterSkillTreeServiceTest {
     return master to entityId
   }
 
+  private fun invest(masterId: Long, skillId: Long, amount: Int = 1) =
+    service.investSkillPoints(masterId, listOf(SkillPointInvestment(skillId, amount)))
+
   private fun learnedLevelOf(skillId: Long): Int? = learnedSkills.find { it.skill.id == skillId }?.level
 
   @Test
-  fun `reaching Basic Skill 5 grants Master Ritual for free`() {
-    val (master, _) = givenMaster(skillPoints = 5)
+  fun `a master with no Basic Skill at all cannot invest outside the Novice tree`() {
+    val (master, _) = givenMaster()
 
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(BASIC_SKILL_ID, 5)))
-
-    assertEquals(1, learnedLevelOf(MASTER_RITUAL_ID))
-    assertEquals(0, master.skillPoints, "the free grant must not have cost a point")
-  }
-
-  @Test
-  fun `Basic Skill below 5 does not grant Master Ritual`() {
-    val (master, _) = givenMaster(skillPoints = 4)
-
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(BASIC_SKILL_ID, 4)))
-
-    assertNull(learnedLevelOf(MASTER_RITUAL_ID))
-  }
-
-  @Test
-  fun `a Novice cannot invest outside the Novice tree`() {
-    val (master, _) = givenMaster(hasPerformedRitual = false)
-
-    assertThrows<MasterRitualNotPerformedException> {
-      service.investSkillPoints(master.id, listOf(SkillPointInvestment(CARPENTRY_ID, 1)))
+    assertThrows<BasicSkillTooLowForTreeException> {
+      invest(master.id, CARPENTRY_ID)
     }
     assertNull(learnedLevelOf(CARPENTRY_ID))
   }
 
   @Test
-  fun `a master who performed the ritual can invest outside the Novice tree`() {
-    val (master, _) = givenMaster(hasPerformedRitual = true)
+  fun `a master below Basic Skill 5 cannot invest outside the Novice tree`() {
+    val (master, _) = givenMaster()
+    invest(master.id, BASIC_SKILL_ID, 4)
 
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(CARPENTRY_ID, 1)))
+    assertThrows<BasicSkillTooLowForTreeException> {
+      invest(master.id, CARPENTRY_ID)
+    }
+    assertNull(learnedLevelOf(CARPENTRY_ID))
+  }
 
+  @Test
+  fun `Basic Skill 5 unlocks the other trees`() {
+    val (master, _) = givenMaster()
+    invest(master.id, BASIC_SKILL_ID, 5)
+
+    invest(master.id, CARPENTRY_ID)
+
+    assertEquals(1, learnedLevelOf(CARPENTRY_ID))
+  }
+
+  /**
+   * The gate is checked per level rather than once per batch precisely so this works - the same
+   * promise `investSkillPoints` already makes for a prerequisite satisfied earlier in the batch.
+   */
+  @Test
+  fun `Basic Skill 5 and a point in another tree can be spent in one batch`() {
+    val (master, _) = givenMaster()
+
+    service.investSkillPoints(
+      master.id,
+      listOf(SkillPointInvestment(BASIC_SKILL_ID, 5), SkillPointInvestment(CARPENTRY_ID, 1))
+    )
+
+    assertEquals(5, learnedLevelOf(BASIC_SKILL_ID))
     assertEquals(1, learnedLevelOf(CARPENTRY_ID))
   }
 
   @Test
   fun `a sub-tree stays locked below 5 points spent in its parent tree`() {
-    val (master, _) = givenMaster(hasPerformedRitual = true, skillPoints = 10)
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(CARPENTRY_ID, 4)))
+    val (master, _) = givenMaster()
+    invest(master.id, BASIC_SKILL_ID, 5)
+    invest(master.id, CARPENTRY_ID, 4)
 
     assertThrows<SkillSubTreeNotUnlockedException> {
-      service.investSkillPoints(master.id, listOf(SkillPointInvestment(ORE_REFINEMENT_ID, 1)))
+      invest(master.id, ORE_REFINEMENT_ID)
     }
     assertNull(learnedLevelOf(ORE_REFINEMENT_ID))
   }
 
   @Test
   fun `a sub-tree unlocks once 5 points are spent anywhere in its parent tree`() {
-    val (master, _) = givenMaster(hasPerformedRitual = true, skillPoints = 10)
+    val (master, _) = givenMaster()
+    invest(master.id, BASIC_SKILL_ID, 5)
+    invest(master.id, CARPENTRY_ID, 5)
 
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(CARPENTRY_ID, 5)))
-    service.investSkillPoints(master.id, listOf(SkillPointInvestment(ORE_REFINEMENT_ID, 1)))
+    invest(master.id, ORE_REFINEMENT_ID)
 
     assertEquals(1, learnedLevelOf(ORE_REFINEMENT_ID))
   }
@@ -195,7 +203,6 @@ class MasterSkillTreeServiceTest {
 
   companion object {
     private const val BASIC_SKILL_ID = 1L
-    private const val MASTER_RITUAL_ID = 2L
     private const val CARPENTRY_ID = 3L
     private const val ORE_REFINEMENT_ID = 4L
   }

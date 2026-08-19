@@ -13,7 +13,6 @@ import net.bestia.zone.battle.damage.DamageEntitySMSG
 import net.bestia.zone.battle.status.StatusEffectId
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
-import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.battle.effects.StatusEffectsComponentSMSG
 import net.bestia.zone.ecs.battle.level.LevelComponentSMSG
 import net.bestia.zone.ecs.battle.status.SkillPointsComponentSMSG
@@ -109,7 +108,7 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   companion object {
     private const val DIVINE_PROTECTION_ID = 2L
     private const val HEAL_ID = 4L
-    private const val BLESSING_ID = 1L
+    private const val BLESSING_ID = 6L
     private const val APPLE_ITEM_ID = 1L
     private const val SHOES_ITEM_ID = 4L
     private const val BOOTS_ITEM_ID = 5L
@@ -346,15 +345,10 @@ class MultiPlayerJourneyScenario : BestiaNoSocketScenario(autoClientConnect = fa
   @Test
   @Order(11)
   fun `investing skill points levels up heal and unlocks blessing in one batched request`() {
-    // Heal/Blessing sit in the Scholar tree, gated behind the Master Ritual - this scenario is
-    // about the batched-investment mechanics, not the ritual itself, so grant it directly rather
-    // than simulating the whole Seal of Mastery craft.
-    val activeEntityId = connectionInfoService.getActiveEntityId(clientPlayer1.connectedPlayerId)
-    world.modify(activeEntityId) { id -> get(id, Account::class)?.hasPerformedMasterRitual = true }
-    masterRepository.findByIdOrThrow(newMasterId).let {
-      it.hasPerformedMasterRitual = true
-      masterRepository.save(it)
-    }
+    // Heal/Blessing sit in the Scholar tree, which stays shut until Basic Skill is at 5 - already
+    // satisfied here by the grantFullBasicSkill in Order(1), which the chat and party orders need
+    // anyway. Nothing extra to set up: this order is about the batched-investment mechanics, and
+    // the master has nowhere near the 12 points buying the unlock outright would cost.
 
     clientPlayer1.sendMessage(
       InvestSkillPointCMSG(

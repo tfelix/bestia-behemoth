@@ -11,12 +11,6 @@ import net.bestia.zone.crafting.CraftingFixture.Companion.TARGET_ITEM
 import net.bestia.zone.crafting.CraftingFixture.Companion.instance
 import net.bestia.zone.crafting.CraftingFixture.Companion.recipe
 import net.bestia.zone.crafting.CraftingFixture.Companion.stack
-import net.bestia.zone.account.Account
-import net.bestia.zone.account.master.BodyType
-import net.bestia.zone.account.master.Face
-import net.bestia.zone.account.master.Hairstyle
-import net.bestia.zone.account.master.Master as MasterEntity
-import net.bestia.zone.ecs.account.Account as EcsAccount
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.crafting.Crafting
 import net.bestia.zone.ecs.item.ObtainItemIntent
@@ -27,8 +21,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.awt.Color
-import java.util.Optional
 
 /**
  * The rules a craft is made of: who may start one, what it costs, and what happens when it lands.
@@ -416,31 +408,6 @@ class CraftingServiceTest {
       OpError.CRAFT_ITEM_TOO_ADVANCED,
       fixture.service.start(fixture.world, crafter, unknown.id, targetUniqueId = 0)
     )
-  }
-
-  /** The one moment a Novice becomes a Master - see `CraftingService.completeMasterRitual`. */
-  @Test
-  fun `completing the Seal of Mastery recipe flips the ritual flag, live and durably`() {
-    val ritual = recipe(id = 24, identifier = "SEAL_OF_MASTERY")
-    val fixture = CraftingFixture(listOf(ritual))
-    val crafter = fixture.givenCrafter(items = listOf(stack(INPUT_ITEM, 5)), knownSkills = mapOf(SKILL_ID to 1))
-
-    val master = MasterEntity(
-      account = Account(1L),
-      name = "novice",
-      hairColor = Color.BLUE,
-      skinColor = Color.BLUE,
-      hair = Hairstyle.HAIR_1,
-      face = Face.FACE_1,
-      body = BodyType.BODY_M_1
-    )
-    every { fixture.masterRepository.findById(MASTER_ID) } returns Optional.of(master)
-    every { fixture.masterRepository.save(any()) } answers { firstArg() }
-
-    fixture.service.resolve(fixture.world, crafter, crafting(ritual.id))
-
-    assertTrue(fixture.world.get(crafter, EcsAccount::class)!!.hasPerformedMasterRitual)
-    verify { fixture.masterRepository.save(match { it.hasPerformedMasterRitual }) }
   }
 
   private fun crafting(recipeId: Long, targetUniqueId: Long = 0L) =

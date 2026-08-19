@@ -2,7 +2,6 @@ package net.bestia.zone.crafting
 
 import io.mockk.every
 import io.mockk.mockk
-import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.skill.KnownSkills
@@ -50,7 +49,6 @@ class CraftingFixture(
   val inventoryService = mockk<InventoryService>(relaxed = true)
   val structures = mockk<PlayerStructureService>()
   val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
-  val masterRepository = mockk<MasterRepository>(relaxed = true)
 
   val itemTemplates = mockk<ItemTemplateRegistry>().also { templates ->
     every { templates.levelOf(any()) } answers { itemLevels[firstArg<Long>()] ?: DEFAULT_ITEM_LEVEL }
@@ -85,8 +83,7 @@ class CraftingFixture(
       structures = structures,
       outMessageProcessor = outMessageProcessor,
       asyncJobExecutor = asyncJobExecutor,
-      itemTemplates = itemTemplates,
-      masterRepository = masterRepository
+      itemTemplates = itemTemplates
     )
   }
 

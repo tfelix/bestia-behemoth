@@ -37,7 +37,7 @@ class MasterSkillTreeImporterBootRunner(
       /**
        * Which tree and sub-tree the node sits in. Required (no default): every node in the file
        * declares one today, and a node silently missing its tree would silently escape both the
-       * Master-Ritual tree gate and the 5-point sub-tree gate in [MasterSkillTreeService] rather
+       * Basic-Skill tree gate and the 5-point sub-tree gate in [MasterSkillTreeService] rather
        * than failing the boot. [subTree] stays optional - a tree's trunk skills have none.
        */
       val tree: String,

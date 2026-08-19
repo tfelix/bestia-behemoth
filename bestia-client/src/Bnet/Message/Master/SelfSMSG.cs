@@ -18,13 +18,6 @@ namespace BestiaBehemothClient.Bnet.Message.Master
     public Godot.Collections.Array<BestiaInfo> AvailableBestias { get; set; } = [];
 
     /// <summary>
-    /// Whether this master has completed the Master Ritual and may invest skill points outside
-    /// the Novice tree.
-    /// </summary>
-    [Export]
-    public bool HasPerformedMasterRitual { get; set; }
-
-    /// <summary>
     /// Creates a SelfSMSG message from protobuf data
     /// </summary>
     /// <param name="protoSelf">The protobuf SelfSMSG object</param>
@@ -34,8 +27,7 @@ namespace BestiaBehemothClient.Bnet.Message.Master
       var selfSmsg = new SelfSMSG
       {
         MasterId = protoSelf.MasterId,
-        MasterEntityId = protoSelf.MasterEntityId,
-        HasPerformedMasterRitual = protoSelf.HasPerformedMasterRitual
+        MasterEntityId = protoSelf.MasterEntityId
       };
 
       foreach (var bestia in protoSelf.AvailableBestias)

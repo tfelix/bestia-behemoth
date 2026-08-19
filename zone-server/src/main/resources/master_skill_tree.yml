@@ -29,13 +29,6 @@ skills:
       - skill: BASIC_SKILL
         level: 3
 
-  - skill: MASTER_RITUAL
-    tree: NOVICE
-    maxLevel: 1
-    prerequisites:
-      - skill: BASIC_SKILL
-        level: 5
-
   # --- Craftsman Tree ---
   - skill: CARPENTRY
     tree: CRAFTSMAN

@@ -137,8 +137,6 @@ items:
     description: |
       A bead of condensed void, cold in a way that has nothing to do with temperature.
 
-      The Master Ritual needs a great many of them.
-
   - id: 13
     item-db-name: mana_dust
     level: 15
@@ -156,16 +154,6 @@ items:
       A roll of fine chisels and gravers.
 
       Consumed a little at a time by the work of cutting slots into a finished item.
-
-  - id: 15
-    item-db-name: seal_of_mastery
-    level: 50
-    weight: 5
-    type: ETC
-    description: |
-      The proof of a completed Master Ritual, and the only thing that is.
-
-      What it opens is not yet built.
 
   - id: 16
     item-db-name: weapon_blueprint

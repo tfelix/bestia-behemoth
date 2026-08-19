@@ -16,8 +16,7 @@
 # reason the success tables in the design docs are worth anything.
 #
 # `station` names a `StaticEntityKind` that must be standing within `CraftingService.STATION_RANGE`
-# tiles. Cooking and the Master Ritual deliberately have none: there is no camp-fire prop, and the
-# ritual is performed on bare ground.
+# tiles. Cooking deliberately has none: there is no camp-fire prop, so a meal is cooked anywhere.
 #
 # `baseSuccessChance` is before skill bonuses - see `MasterCraftBonusService`, which applies the docs'
 # per-level tables on top. A recipe at 1.0 cannot fail on its own.
@@ -35,20 +34,6 @@ recipes:
     skill: { skill: COOKING, level: 1 }
     craftSeconds: 6.0
     baseSuccessChance: 0.5
-
-  # The one thing the Master Ritual does, at the ratio the docs give. It cannot fail: a ritual that ate
-  # twenty-five void essence and gave nothing back would be a bug report, not a mechanic.
-  - id: 2
-    identifier: SEAL_OF_MASTERY
-    effect: PRODUCE
-    output: { item: seal_of_mastery, amount: 1 }
-    inputs:
-      - { item: void_essence, amount: 25 }
-      - { item: mana_dust, amount: 5 }
-      - { item: clay, amount: 3 }
-    skill: { skill: MASTER_RITUAL, level: 1 }
-    craftSeconds: 30.0
-    baseSuccessChance: 1.0
 
   # --- Craftsman tree, at a workbench --------------------------------------------------------------
 

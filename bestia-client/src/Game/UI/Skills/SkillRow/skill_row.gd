@@ -51,9 +51,9 @@ var _is_master_row: bool = false
 var _can_spend_globally: bool = false
 
 # Whether this row's tree/sub-tree is currently investable - broadcast in from Skills
-# (Skills._is_tree_unlocked), which is the one place that knows about the Master Ritual flag and
-# the other rows' levels needed to judge a sub-tree's 5-point threshold. Defaults true so a row
-# outside the master tree (a bestia's own skills) is never accidentally gated.
+# (Skills._is_tree_unlocked), which is the one place that knows the Basic Skill level and the other
+# rows' levels needed to judge a sub-tree's 5-point threshold. Defaults true so a row outside the
+# master tree (a bestia's own skills) is never accidentally gated.
 var _tree_unlocked: bool = true
 
 var _selected_skill_level: int = 1
@@ -162,7 +162,8 @@ func set_can_spend_points(can_spend: bool) -> void:
 
 
 ## Called by Skills (the owning list) whenever this row's tree/sub-tree lock state may have
-## changed - a fresh skill list, or a SelfSMSG carrying an updated ritual flag.
+## changed, which today means once per fresh skill list: every input to the lock is derived from
+## that one message.
 func set_tree_unlocked(unlocked: bool) -> void:
 	_tree_unlocked = unlocked
 	_refresh_display()

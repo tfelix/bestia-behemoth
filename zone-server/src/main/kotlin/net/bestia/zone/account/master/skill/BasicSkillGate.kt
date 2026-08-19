@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
  * What a player may do at all, according to how far they have taken Basic Skill.
  *
  * The design docs make Basic Skill a ladder of *permissions* rather than an effect - trading at rank 1, chat
- * at 2, trade posts at 3, sitting recovery at 4, parties and the Master Ritual at 5 - so unlike every other
+ * at 2, trade posts at 3, sitting recovery at 4, parties and every other skill tree at 5 - so unlike every
  * skill it does nothing on activation and is instead asked about by the subsystems it unlocks.
  *
  * ### Only two of the five are enforced

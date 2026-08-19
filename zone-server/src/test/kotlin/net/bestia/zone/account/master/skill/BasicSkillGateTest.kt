@@ -130,6 +130,6 @@ class BasicSkillGateTest {
 
   private companion object {
     const val ACCOUNT_ID = 1L
-    const val BASIC_SKILL_ID = 6L
+    const val BASIC_SKILL_ID = 1L
   }
 }

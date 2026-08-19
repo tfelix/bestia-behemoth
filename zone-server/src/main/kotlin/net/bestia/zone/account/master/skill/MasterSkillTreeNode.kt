@@ -9,7 +9,7 @@ package net.bestia.zone.account.master.skill
  *
  * [tree] and [subTree] used to be client-presentation-only (the grouping the Skills window reads
  * from its own Attack DB) but are now also load-bearing server-side: [MasterSkillTreeService]
- * gates investment outside the Novice tree behind the Master Ritual, and gates a [subTree] behind
+ * gates investment outside the Novice tree behind Basic Skill 5, and gates a [subTree] behind
  * 5+ points spent anywhere in [tree].
  */
 data class MasterSkillTreeNode(
