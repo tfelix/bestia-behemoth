@@ -1,80 +1,57 @@
 package net.bestia.zone.battle.damage
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.EntityBattleContext
-import java.util.*
-import java.util.concurrent.ThreadLocalRandom
+import java.util.Random
 import kotlin.math.max
 
-
 /**
- * This calculates the raw damage of an attack if all other variables are known.
- * This calculates the damage of ranged weapons.
+ * Physical damage for an arrow, a bolt or a sling stone: the DEX half of the pair with
+ * [MeleePhysicalDamageCalculator].
  *
- * @author Thomas Felix
+ * Its soft defence is deliberately *harsher* than melee's, which is RO's arrangement and the reason a ranged
+ * attacker is not simply a melee attacker who is safe: `VIT` counts fully rather than as itself, so armour tells
+ * more against arrows than against a sword.
  */
 class RangedPhysicalDamageCalculator(
-    random: Random = ThreadLocalRandom.current()
+  random: Random
 ) : BaseDamageCalculator(random) {
+
+  /** The ranged ATK: the melee term with STR and DEX swapped. */
+  override fun getStatusAttack(battleCtx: EntityBattleContext): Float =
+    battleCtx.attacker.derivedStatusValues.rangedAtk.toFloat()
+
   override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
-    return battleCtx.damageVariables.attackRangedBonus
-  }
+    val vars = battleCtx.damageVariables
 
-  // Same as MeleePhysicalDamageCalculator
-  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
-    /*
-    val defStatus = battleCtx.defenderStatusPoints
-    val lv = battleCtx.defenderLevel
-
-    val softDef = lv / 2f + defStatus.vitality + defStatus.strength / 3f
-
-    return min(0f, softDef)*/
-    TODO("Not yet implemented")
+    return vars.attackRangedBonus + vars.attackPhysicalBonus
   }
 
   /**
-   * @return The attack value based solely on the status of the entity.
+   * Zero until ammunition is a thing one can carry. `RangedPhysicalAttackStrategy` does not check for it either,
+   * so an archer currently shoots for free - the arrow, when it exists, belongs in both places at once.
    */
-  override fun getStatusAttack(battleCtx: EntityBattleContext): Float {
-    /*
-    val lvMod = battleCtx.attackerLevel / 4f
-    val sp = battleCtx.attackerStatusPoints
+  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
-    return lvMod + sp.dexterity + sp.strength / 5f*/
-    TODO("Not yet implemented")
+  /**
+   * `SoftDEF + VIT/2 + STR/6`: the shared attribute defence, plus the extra that armour gives against something
+   * thrown rather than swung.
+   *
+   * The addition is on top of [net.bestia.zone.battle.status.DefenseValues] rather than a second formula
+   * replacing it, so the documented SoftDEF stays the one definition and this reads as what it is - a ranged
+   * surcharge.
+   */
+  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
+    val defender = battleCtx.defender
+    val surcharge = defender.statusValues.vitality / 2f + defender.statusValues.strength / 6f
+
+    return max(0f, defender.defense.defense + surcharge)
   }
 
-  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float {
-    /*
-    val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
-    val defStatus = battleCtx.defenderStatusPoints
-    val defDefense = battleCtx.defenderDefense.physicalDefense
-
-    return (1 - (defDefense / 100f + physicalDefenseMod)).clamp(0.05f, 1.0f)*/
-    TODO("Not yet implemented")
-  }
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float = physicalDefenseModifier(battleCtx)
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
-    val dmgVars = battleCtx.damageVariables
+    val vars = battleCtx.damageVariables
 
-    return max(0f, dmgVars.attackMeleeMod)
-  }
-
-  override fun calculateDamage(battleCtx: EntityBattleContext): Int {
-    TODO("Not yet implemented")
-  }
-
-  override fun calculateWeaponAtk(): Float {
-    LOG.warn("calculateWeaponAtk is currently not implemented.")
-    return 0f
-  }
-
-  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float {
-    // TODO Use proper ammo attack dmg when its implemented
-    return 0f
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
+    return max(0f, vars.attackRangedMod) * max(0f, vars.attackPhysicalMod)
   }
 }

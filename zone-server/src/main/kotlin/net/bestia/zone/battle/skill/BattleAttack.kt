@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.Element
+import net.bestia.zone.battle.ElementModifier
 import net.bestia.zone.skill.Skill
 
 /**
@@ -37,6 +38,15 @@ data class BattleAttack(
   val script: String?,
   val castTime: Float = 0f,
 ) {
+
+  init {
+    // Refused here rather than deep in the damage formula: ElementModifier throws on a level 2+ attack element,
+    // and it is consulted from the tick thread where an exception costs the whole tick. Failing at construction
+    // points at whoever chose the element instead.
+    require(ElementModifier.isLegalAttackElement(attackElement)) {
+      "$attackElement cannot be an attack element - only level 1 elements can be"
+    }
+  }
 
   companion object {
 

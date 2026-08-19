@@ -32,7 +32,8 @@ object BattleContextFixture {
     level: Int = 1,
     aoeRadius: Double? = null,
     range: Long = 5,
-    needsLineOfSight: Boolean = false
+    needsLineOfSight: Boolean = false,
+    element: Element = Element.NORMAL
   ): BattleAttack {
     return BattleAttack(
       strength = 0,
@@ -41,7 +42,7 @@ object BattleContextFixture {
       attackType = AttackType.MELEE_PHYSICAL,
       needsLineOfSight = needsLineOfSight,
       aoeRadius = aoeRadius,
-      attackElement = Element.NORMAL,
+      attackElement = element,
       level = level,
       script = null
     )
@@ -61,33 +62,48 @@ object BattleContextFixture {
     )
   }
 
+  /**
+   * [defense] and [magicDefense] default to null, meaning "whatever [DefenseValues.fromStatusValues] derives
+   * from these attributes" - which is what a real entity has. Pass them only to pin a defence independently of
+   * the attributes, which the damage tests need in order to move one term at a time.
+   */
   fun battleEntity(
     level: Int = 10,
     intelligence: Int = 10,
+    strength: Int = 10,
+    dexterity: Int = 10,
+    agility: Int = 10,
+    vitality: Int = 10,
+    willpower: Int = 10,
+    defense: Int? = null,
+    magicDefense: Int? = null,
+    element: Element = Element.NORMAL,
     maxHealth: Int = 0,
     activeEffectIds: Set<Long> = emptySet(),
     id: Long = ATTACKER_ID
   ): BattleEntity {
     val statusValues = StatusValues(
-      agility = 10,
-      strength = 10,
-      dexterity = 10,
+      agility = agility,
+      strength = strength,
+      dexterity = dexterity,
       intelligence = intelligence,
-      vitality = 10,
-      willpower = 10
+      vitality = vitality,
+      willpower = willpower
     )
+
+    val derivedDefense = DefenseValues.fromStatusValues(level, statusValues)
 
     return BattleEntity(
       id = id,
       position = Vec3L(1, 0, 0),
       level = level,
       defense = DefenseValues(
-        defense = 10,
-        magicDefense = 20
+        defense = defense ?: derivedDefense.defense,
+        magicDefense = magicDefense ?: derivedDefense.magicDefense
       ),
       statusValues = statusValues,
       derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
-      assumedElement = Element.NORMAL,
+      assumedElement = element,
       maxHealth = maxHealth,
       activeEffectIds = activeEffectIds
     )

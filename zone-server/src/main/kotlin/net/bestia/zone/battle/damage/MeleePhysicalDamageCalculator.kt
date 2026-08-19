@@ -1,77 +1,46 @@
 package net.bestia.zone.battle.damage
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.EntityBattleContext
-import java.util.*
+import java.util.Random
 import kotlin.math.max
 
-
 /**
- * This calculates the raw damage of an attack if all other variables are known.
- * Even though no member state is saved this calculator is instanced as an
- * object in order to perform some kind of strategy pattern so the damage
- * calculation can be switched during runtime.
+ * Physical damage for something swung, thrust or bitten: the STR half of the pair with
+ * [RangedPhysicalDamageCalculator].
  *
- * @author Thomas Felix
+ * Nothing about the *shape* of the formula differs between the two - see [BaseDamageCalculator]. What differs is
+ * which attribute the attacker's power comes from and which of the [DamageVariables] bonuses apply.
  */
 class MeleePhysicalDamageCalculator(
-    random: Random
+  random: Random
 ) : BaseDamageCalculator(random) {
-  override fun calculateDamage(battleCtx: EntityBattleContext): Int {
-    TODO("Not yet implemented")
-  }
 
-  override fun calculateWeaponAtk(): Float {
-    LOG.warn { "calculateWeaponAtk is currently not implemented." }
-    return 0f
-  }
+  /** The documented melee ATK: `BaseLv/4 + STR + DEX/5 + WIL/3`. */
+  override fun getStatusAttack(battleCtx: EntityBattleContext): Float =
+    battleCtx.attacker.derivedStatusValues.atk.toFloat()
 
   override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
-    return battleCtx.damageVariables.attackMeleeBonus + battleCtx.damageVariables.attackPhysicalBonus
+    val vars = battleCtx.damageVariables
+
+    return vars.attackMeleeBonus + vars.attackPhysicalBonus
   }
 
-  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float {
-    return 0f
-  }
+  /** A fist carries no ammunition, and never will. */
+  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
-  override fun getStatusAttack(battleCtx: EntityBattleContext): Float {
-    /*
-    val lvMod = battleCtx.attackerLevel / 4f
-    val sp = battleCtx.attackerStatusPoints
+  /**
+   * `SoftDEF = VIT + STR/5 + AGI/5 + BaseLv/4`, straight off the target - see
+   * [net.bestia.zone.battle.status.DefenseValues], which is where that formula lives and is the only place it
+   * should. Subtracted flat, so it matters most against a weak attacker and fades against a strong one.
+   */
+  override fun getSoftDefense(battleCtx: EntityBattleContext): Float =
+    max(0f, battleCtx.defender.defense.defense.toFloat())
 
-    return lvMod + sp.strength + sp.dexterity / 5f*/
-    TODO("Not yet implemented")
-  }
-
-  // Same as RangedDamageCalculator
-  override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
-    /*
-    val defStatus = battleCtx.defenderStatusPoints
-    val lv = battleCtx.defenderLevel
-
-    val softDef = lv / 2f + defStatus.vitality / 2f + defStatus.strength / 4f
-
-    return max(0f, softDef)*/
-    TODO("Not yet implemented")
-  }
-
-  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float {
-    /*
-    val physicalDefenseMod = battleCtx.damageVariables.physicalDefenseMod
-    val defDefense = battleCtx.defenderDefense.physicalDefense
-
-    return (1 - ((defDefense / 100f) * physicalDefenseMod)).clamp(0.05f, 1.0f)
-     */
-    TODO("Not yet implemented")
-  }
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float = physicalDefenseModifier(battleCtx)
 
   override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
-    val dmgVars = battleCtx.damageVariables
+    val vars = battleCtx.damageVariables
 
-    return max(0f, dmgVars.attackMeleeMod)
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
+    return max(0f, vars.attackMeleeMod) * max(0f, vars.attackPhysicalMod)
   }
 }

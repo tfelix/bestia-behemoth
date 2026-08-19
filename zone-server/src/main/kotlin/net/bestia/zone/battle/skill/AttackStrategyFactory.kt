@@ -3,6 +3,7 @@ package net.bestia.zone.battle.skill
 import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.MeleePhysicalDamageCalculator
+import net.bestia.zone.battle.damage.RangedPhysicalDamageCalculator
 import org.springframework.stereotype.Component
 import java.util.Random
 
@@ -22,15 +23,21 @@ class AttackStrategyFactory(
   random: Random = ThreadLocalRandomSource,
 ) {
 
-  private val meleeCalculator = MeleePhysicalDamageCalculator(random)
-  private val meleeStrategy = MeleePhysicalAttackStrategy(meleeCalculator, lineOfSightService, random)
-  private val rangedStrategy = RangedPhysicalAttackStrategy(meleeCalculator, lineOfSightService, random)
+  private val meleeStrategy =
+    PhysicalAttackStrategy(MeleePhysicalDamageCalculator(random), lineOfSightService, random)
+
+  private val rangedStrategy =
+    PhysicalAttackStrategy(RangedPhysicalDamageCalculator(random), lineOfSightService, random)
 
   fun getAttackStrategy(ctx: BattleContext): AttackStrategy = when (ctx.usedAttack.attackType) {
     AttackType.MELEE_PHYSICAL -> meleeStrategy
     AttackType.RANGED_PHYSICAL -> rangedStrategy
-    // No weapon is magic yet, and MagicDamageCalculator is unimplemented. Deliberately not TODO(): that
-    // would be a NotImplementedError thrown on the tick thread, killing the system that swung.
+
+    // No weapon is magic, so nothing reaches this. `MagicDamageCalculator` exists and would supply the
+    // numbers, but a magic attack also neither misses nor crits, and that is a strategy rather than a
+    // calculator - so it wants its own [AttackStrategy] rather than this one wired to a different formula.
+    // Falls through to melee meanwhile: a TODO() here would be a NotImplementedError on the tick thread,
+    // killing the system that swung.
     AttackType.MAGIC -> meleeStrategy
   }
 }

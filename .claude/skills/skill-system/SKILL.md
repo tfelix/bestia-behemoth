@@ -80,6 +80,13 @@ The old `tackle` row (id 1001) was exactly this mistake and has been removed, al
 `attacks:` entry leaves `skill_id` unset for a basic attack, and names a real catalogue id only when
 the creature should genuinely *cast* something (it must then know that skill via `KnownSkills`).
 
+**How hard it hits** is `battle/damage/BaseDamageCalculator.kt`, whose KDoc carries the formula and
+what is still missing from it. Don't restate it anywhere else — it is one template with three
+subclasses (melee, ranged, magic) differing only in which attribute feeds the attack and how armour
+bites, and it follows Ragnarok Online pre-renewal, as `DefenseValues`, `DerivedStatusValues` and
+`ElementModifier` already did. A skill script that wants its *own* number computes it itself
+(`Firebolt`, `Ember`, `Heal` all do); one that wants the shared formula can use these calculators.
+
 ### How a cast is resolved, and the execution budget
 
 `SkillExecutionService.execute` **enqueues** and returns; the script runs on an `AsyncJobExecutor`

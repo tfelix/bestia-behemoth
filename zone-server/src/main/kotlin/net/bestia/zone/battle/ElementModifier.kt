@@ -18,7 +18,6 @@ internal object ElementModifier {
           // LEVEL 1
           ElementKey(Element.NORMAL, Element.NORMAL) to 100,
           ElementKey(Element.NORMAL, Element.WATER) to 100,
-          ElementKey(Element.NORMAL, Element.WATER) to 100,
           ElementKey(Element.NORMAL, Element.EARTH) to 100,
           ElementKey(Element.NORMAL, Element.FIRE) to 100,
           ElementKey(Element.NORMAL, Element.WIND) to 100,
@@ -83,7 +82,7 @@ internal object ElementModifier {
           ElementKey(Element.POISON, Element.GHOST) to 100,
           ElementKey(Element.POISON, Element.UNDEAD) to -25,
 
-          ElementKey(Element.HOLY, Element.HOLY) to 100,
+          ElementKey(Element.HOLY, Element.NORMAL) to 100,
           ElementKey(Element.HOLY, Element.WATER) to 100,
           ElementKey(Element.HOLY, Element.EARTH) to 100,
           ElementKey(Element.HOLY, Element.FIRE) to 100,
@@ -194,7 +193,7 @@ internal object ElementModifier {
           ElementKey(Element.POISON, Element.GHOST_2) to 75,
           ElementKey(Element.POISON, Element.UNDEAD_2) to -50,
 
-          ElementKey(Element.HOLY, Element.HOLY_2) to 100,
+          ElementKey(Element.HOLY, Element.NORMAL_2) to 100,
           ElementKey(Element.HOLY, Element.WATER_2) to 100,
           ElementKey(Element.HOLY, Element.EARTH_2) to 100,
           ElementKey(Element.HOLY, Element.FIRE_2) to 100,
@@ -305,7 +304,7 @@ internal object ElementModifier {
           ElementKey(Element.POISON, Element.GHOST_3) to 50,
           ElementKey(Element.POISON, Element.UNDEAD_3) to -75,
 
-          ElementKey(Element.HOLY, Element.HOLY_3) to 100,
+          ElementKey(Element.HOLY, Element.NORMAL_3) to 100,
           ElementKey(Element.HOLY, Element.WATER_3) to 100,
           ElementKey(Element.HOLY, Element.EARTH_3) to 100,
           ElementKey(Element.HOLY, Element.FIRE_3) to 100,
@@ -416,7 +415,7 @@ internal object ElementModifier {
           ElementKey(Element.POISON, Element.GHOST_4) to 25,
           ElementKey(Element.POISON, Element.UNDEAD_4) to -100,
 
-          ElementKey(Element.HOLY, Element.HOLY_4) to 100,
+          ElementKey(Element.HOLY, Element.NORMAL_4) to 100,
           ElementKey(Element.HOLY, Element.WATER_4) to 75,
           ElementKey(Element.HOLY, Element.EARTH_4) to 75,
           ElementKey(Element.HOLY, Element.FIRE_4) to 75,
@@ -494,6 +493,16 @@ internal object ElementModifier {
    * Element of the defender.
    * @return The damage modifier.
    */
+  /**
+   * Whether [element] may be used as an *attack* element. Only level 1 elements may: a level is a property of
+   * what something is made of, not of what is thrown at it.
+   *
+   * Exposed so the boundary where an element enters a [net.bestia.zone.battle.skill.BattleAttack] can refuse a
+   * bad one, rather than [getModifier] throwing from inside the damage formula - which runs on the tick thread
+   * and would take the tick down with it.
+   */
+  fun isLegalAttackElement(element: Element): Boolean = legalAttackElements.contains(element)
+
   fun getModifier(attacker: Element, defender: Element): Int {
     if (!legalAttackElements.contains(attacker)) {
       throw IllegalArgumentException("Attack element must always be level 1.")

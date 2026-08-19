@@ -69,41 +69,41 @@ data class DamageVariables(
 
 
   /**
-   * Adds all values from the argument to the local values and return a new
-   * damage variable object.
+   * Field-wise sum of two sets.
    *
-   * @param rhs
-   * @return
+   * Written as one constructor call rather than a sequence of assignments because the assignment version had
+   * drifted: `attackMeleeMod` was being taken from `attackRangedMod`, `physicalDefenseMod` from
+   * `criticalChanceMod` (overwritten two lines later, so only the dead line was wrong), `attackMeleeBonus` and
+   * `healMod` were not copied at all, and three fields were assigned twice. Naming every parameter makes a
+   * missing one a compile error instead.
+   *
+   * **The `*Mod` fields do not have a sensible zero for this.** They are multipliers defaulting to `1f`, so
+   * summing two untouched sets yields `2f` - "no change" twice over reading as "double". Nothing calls this
+   * yet; whoever wires up stacking effects has to decide whether mods multiply or whether they carry deltas
+   * around zero, and that decision belongs with them rather than being guessed here.
    */
-  fun add(rhs: DamageVariables): DamageVariables {
-    val vars = DamageVariables()
+  fun add(rhs: DamageVariables): DamageVariables = DamageVariables(
+    attackMagicBonus = attackMagicBonus + rhs.attackMagicBonus,
+    attackMagicMod = attackMagicMod + rhs.attackMagicMod,
 
-    // Attack
-    vars.attackPhysicalBonus = attackPhysicalBonus + rhs.attackPhysicalBonus
-    vars.attackMagicBonus = attackMagicBonus + rhs.attackMagicBonus
-    vars.attackMagicMod = attackMagicMod + rhs.attackMagicMod
-    vars.attackPhysicalMod = attackPhysicalMod + rhs.attackPhysicalMod
-    vars.attackRangedMod = attackRangedMod + rhs.attackRangedMod
-    vars.attackMeleeMod = attackRangedMod + rhs.attackRangedMod
+    attackPhysicalBonus = attackPhysicalBonus + rhs.attackPhysicalBonus,
+    attackPhysicalMod = attackPhysicalMod + rhs.attackPhysicalMod,
 
-    // Weapon
-    vars.weaponMod = weaponMod + rhs.weaponMod
+    attackRangedBonus = attackRangedBonus + rhs.attackRangedBonus,
+    attackRangedMod = attackRangedMod + rhs.attackRangedMod,
 
-    // Critical
-    vars.criticalChanceMod = criticalChanceMod + rhs.criticalChanceMod
-    vars.criticalDamageMod = criticalDamageMod + rhs.criticalDamageMod
+    attackMeleeBonus = attackMeleeBonus + rhs.attackMeleeBonus,
+    attackMeleeMod = attackMeleeMod + rhs.attackMeleeMod,
 
-    // Defenses
-    vars.physicalDefenseMod = criticalChanceMod + rhs.criticalChanceMod
-    vars.criticalDamageMod = criticalDamageMod + rhs.criticalDamageMod
-    vars.physicalDefenseMod = physicalDefenseMod + rhs.physicalDefenseMod
-    vars.magicDefenseMod = magicDefenseMod + rhs.magicDefenseMod
+    weaponMod = weaponMod + rhs.weaponMod,
 
-    // Misc
-    vars.neededManaMod = neededManaMod + rhs.neededManaMod
-    vars.attackRangedMod = attackRangedMod + rhs.attackRangedMod
-    vars.attackRangedBonus = attackRangedBonus + rhs.attackRangedBonus
+    criticalChanceMod = criticalChanceMod + rhs.criticalChanceMod,
+    criticalDamageMod = criticalDamageMod + rhs.criticalDamageMod,
 
-    return vars
-  }
+    physicalDefenseMod = physicalDefenseMod + rhs.physicalDefenseMod,
+    magicDefenseMod = magicDefenseMod + rhs.magicDefenseMod,
+
+    neededManaMod = neededManaMod + rhs.neededManaMod,
+    healMod = healMod + rhs.healMod
+  )
 }

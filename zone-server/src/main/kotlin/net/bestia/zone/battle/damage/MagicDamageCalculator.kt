@@ -1,82 +1,52 @@
 package net.bestia.zone.battle.damage
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.EntityBattleContext
-import java.util.*
-import java.util.concurrent.ThreadLocalRandom
+import java.util.Random
 import kotlin.math.max
 
 /**
- * This calculates the raw damage of an attack if all other variables are known.
- * Even though no member state is saved this calculator is instanced as an
- * object in order to perform some kind of strategy pattern so the damage
- * calculation can be switched during runtime.
+ * Magic damage: the same [BaseDamageCalculator] shape as the two physical calculators, off `MATK` and
+ * `SoftMDEF` instead of `ATK` and `SoftDEF`.
  *
- * @author Thomas Felix
+ * **Nothing uses this yet.** No weapon is magic ([net.bestia.zone.battle.skill.AttackStrategyFactory] routes
+ * `MAGIC` to melee), and the magic skills that exist - `Firebolt`, `Ember`, `Heal` - each compute their own
+ * number in their own script. It is implemented rather than left as a stub so that the day a skill wants the
+ * shared formula, the formula is there and is the same one everything else uses; and because a `TODO()` in a
+ * damage calculator is a `NotImplementedError` waiting on the tick thread.
  */
 class MagicDamageCalculator(
-    random: Random = ThreadLocalRandom.current()
+  random: Random
 ) : BaseDamageCalculator(random) {
-  override fun getBonusAttack(battleCtx: EntityBattleContext): Float {
-    return battleCtx.damageVariables.attackMagicBonus
-  }
+
+  /** `MATK = BaseLv/4 + INT + WIL/5`. */
+  override fun getStatusAttack(battleCtx: EntityBattleContext): Float =
+    battleCtx.attacker.derivedStatusValues.matk.toFloat()
+
+  override fun getBonusAttack(battleCtx: EntityBattleContext): Float =
+    battleCtx.damageVariables.attackMagicBonus
+
+  /** A spell carries no ammunition. */
+  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float = 0f
 
   /**
-   * @return The attack value based solely on the status of the entity.
+   * `SoftMDEF + WIL/4`: the documented magic defence (see
+   * [net.bestia.zone.battle.status.DefenseValues]) plus willpower, which is what resisting a spell is and has
+   * no place in the physical term.
    */
-  override fun getStatusAttack(battleCtx: EntityBattleContext): Float {
-    /*
-    val lvMod = battleCtx.attackerLevel / 4f
-    val sp = battleCtx.attackerStatusPoints
-
-    return lvMod + sp.intelligence + sp.willpower / 5f*/
-    TODO("Not yet implemented")
-  }
-
   override fun getSoftDefense(battleCtx: EntityBattleContext): Float {
-    /*
-    val defStatus = battleCtx.defenderStatusPoints
-    val lv = battleCtx.defenderLevel
+    val defender = battleCtx.defender
 
-    val softDef = lv / 2f + defStatus.vitality +
-        defStatus.willpower / 4f +
-        defStatus.intelligence / 5f
-
-    return min(0f, softDef)*/
-
-    TODO("Not yet implemented")
+    return max(0f, defender.defense.magicDefense + defender.statusValues.willpower / 4f)
   }
 
-  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float {
-    /*
-    val magicDefenseMod = battleCtx.damageVariables.magicDefenseMod
-    val defDefense = battleCtx.defenderDefense.magicDefense
+  /** Reads [DamageVariables.magicDefenseMod]; there is no equipment MDEF to reduce a spell by yet. */
+  override fun getHardDefenseModifier(battleCtx: EntityBattleContext): Float =
+    magicDefenseModifier(battleCtx)
 
-    return (1 - (defDefense / 100f + magicDefenseMod)).clamp(0.05f, 1.0f)*/
-    TODO("Not yet implemented")
-  }
+  override fun getAttackModifier(battleCtx: EntityBattleContext): Float =
+    max(0f, battleCtx.damageVariables.attackMagicMod)
 
-  override fun getAttackModifier(battleCtx: EntityBattleContext): Float {
-    val dmgVars = battleCtx.damageVariables
-
-    return max(0f, dmgVars.attackMagicMod)
-  }
-
-  override fun calculateDamage(battleCtx: EntityBattleContext): Int {
-    TODO("Not yet implemented")
-  }
-
-  override fun calculateWeaponAtk(): Float {
-    LOG.warn("calculateWeaponAtk is currently not implemented.")
-    return 0f
-  }
-
-  // Magic does not use ammo
-  override fun getAmmoAttack(battleCtx: EntityBattleContext): Float {
-    return 0f
-  }
-
-  companion object {
-    private val LOG = KotlinLogging.logger { }
-  }
+  /** A spell's power is its own; a staff held while casting adds nothing until equipment exists. */
+  override fun calculateWeaponAtk(battleCtx: EntityBattleContext): Float =
+    battleCtx.weapon.matk.toFloat()
 }

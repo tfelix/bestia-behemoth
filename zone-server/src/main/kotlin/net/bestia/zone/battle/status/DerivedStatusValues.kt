@@ -12,6 +12,18 @@ package net.bestia.zone.battle.status
  */
 data class DerivedStatusValues(
   val atk: Int,
+
+  /**
+   * The [atk] a bow or a sling uses, with STR and DEX swapped.
+   *
+   * The docs give one ATK, and it is the melee one. A ranged weapon that scaled off STR would make an archer
+   * a swordsman who stands further away, so the two roles need two numbers - and swapping exactly those two
+   * attributes is what Ragnarok Online's pre-renewal BaseATK does for the same reason. Everything else about
+   * the term is identical, deliberately: an archer is not meant to hit harder than a swordsman, only to hit
+   * off a different attribute.
+   */
+  val rangedAtk: Int,
+
   val matk: Int,
   val hitrate: Int,
   val flee: Int,
@@ -25,6 +37,8 @@ data class DerivedStatusValues(
     ): DerivedStatusValues {
       // ATK (melee) = BaseLevel/4 + STR + DEX/5 + WIL/3
       val atk = lv / 4 + sv.strength + sv.dexterity / 5 + sv.willpower / 3
+      // ATK (ranged) = the same with STR and DEX swapped
+      val rangedAtk = lv / 4 + sv.dexterity + sv.strength / 5 + sv.willpower / 3
       // MATK = BaseLevel/4 + INT + WIL/5
       val matk = lv / 4 + sv.intelligence + sv.willpower / 5
       // HIT = 175 + BaseLv + DEX + WIL/3
@@ -36,6 +50,7 @@ data class DerivedStatusValues(
 
       return DerivedStatusValues(
         atk = atk,
+        rangedAtk = rangedAtk,
         matk = matk,
         hitrate = hitrate,
         flee = flee,

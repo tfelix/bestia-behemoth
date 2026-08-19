@@ -10,6 +10,7 @@ import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.battle.FixedRandom
 import net.bestia.zone.world.prop.PropPromotionService
 import java.util.Random
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,12 +24,11 @@ class AttackExecutionServiceTest {
   private val world = testWorld()
 
   /**
-   * Always draws zero, so `nextFloat()` is 0.0: below every hit and crit threshold. The point of these tests
-   * is the pathway, and with the fixture's identical stats a real roll lands a coin-flip miss half the time.
+   * Always draws zero, so `nextFloat()` is 0.0: below every hit and crit threshold, and no attack variance. The
+   * point of these tests is the pathway, and with the fixture's identical stats a real roll misses about one
+   * swing in five.
    */
-  private val alwaysLands = object : Random() {
-    override fun next(bits: Int) = 0
-  }
+  private val alwaysLands = FixedRandom(0f)
 
   private fun serviceWith(random: Random) = AttackExecutionService(
     BattleContextFactory(PropPromotionService(mockk(relaxed = true))),
@@ -50,16 +50,28 @@ class AttackExecutionServiceTest {
   }
 
   @Test
-  fun `a basic swing deals no damage yet, because the melee formula is still a placeholder`() {
-    // Pins the honest current state rather than a balance decision: BaseDamageCalculator.calculateDamage is
-    // commented out down to `return 0` ("placeholder until the real damage formula is invented"). When that
-    // formula lands this test should fail, and be replaced by one asserting the real numbers.
+  fun `a basic swing takes real health off`() {
+    // Both fighters have every attribute at 10 and no Level component, so BattleContextFactory reads level 1:
+    // ATK = 1/4 + 10 + 10/5 + 10/3 = 15, and `alwaysLands` also wins the crit roll, so the swing bypasses the
+    // target's soft defence for floor(2 * 15 * 1.4) = 42.
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
     sut.attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
 
-    assertEquals(0, world.get(target, DamageComponent::class)?.total() ?: 0)
+    assertEquals(42, world.get(target, DamageComponent::class)?.total())
+  }
+
+  @Test
+  fun `an ordinary hit is smaller than a critical, and pays the target's defence`() {
+    // 0.5 clears the hit check (about 0.84 for these two) but not the crit check (about 0.024), and spends half
+    // the variance: floor(2 * 15 * 0.925) - 14 = 27 - 14 = 13.
+    val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
+    val target = world.spawnFighter(at = Vec3L(1, 0, 0))
+
+    serviceWith(FixedRandom(0.5f)).attack(world, attacker, target, BattleAttack.getBasicMeleeAttack())
+
+    assertEquals(13, world.get(target, DamageComponent::class)?.total())
   }
 
   @Test
@@ -101,9 +113,7 @@ class AttackExecutionServiceTest {
 
   @Test
   fun `a missed swing stages nothing`() {
-    val neverLands = object : Random() {
-      override fun next(bits: Int) = Int.MAX_VALUE
-    }
+    val neverLands = FixedRandom(1f)
     val attacker = world.spawnFighter(at = Vec3L(0, 0, 0))
     val target = world.spawnFighter(at = Vec3L(1, 0, 0))
 
