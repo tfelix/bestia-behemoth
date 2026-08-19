@@ -43,6 +43,34 @@ namespace BestiaBehemothClient.Game.World
     [Export(PropertyHint.Range, "10,89,1")] public float PeakElevationDegrees { get; set; } = 68.0f;
 
     /// <summary>
+    /// How close to the horizon either light is allowed to get, in degrees. The arc flattens out here; the
+    /// colour and the energy carry the rest of the sunset.
+    /// </summary>
+    /// <remarks>
+    /// A shadow is <c>height / tan(elevation)</c> long, so its far end runs away as <c>1/elevation²</c> while
+    /// the sun itself is still turning at a placid hundredth of a degree per second. Twelve real minutes
+    /// before sunset a ten-metre tree already throws a hundred-metre shadow whose tip is crossing the ground
+    /// at a quarter of a metre per second, and six minutes later that tip is doing walking pace - which reads
+    /// on screen as the shadow's far edge sliding and smearing rather than as the sun going down. The same
+    /// geometry stretches every shadow-map texel by <c>1/sin(elevation)</c>, so the edge going soft and the
+    /// edge going loose arrive together.
+    ///
+    /// <para>
+    /// Nine degrees keeps a ten-metre caster inside sixty-odd metres of shadow, which is comfortably within
+    /// the range the directional light rasterises. Raising this trades sunset length for edge stability; the
+    /// arc is worth watching at 1 to see what is being bought.
+    /// </para>
+    ///
+    /// <para>
+    /// This is also what keeps the sun from lighting the world from underneath. <see cref="ApplyLights"/>
+    /// hides it on brightness, and brightness lags the geometry badly: the sun is still at half energy the
+    /// moment it crosses the horizon, and does not fade out until the raw arc has taken it two dozen degrees
+    /// below it - a long stretch of a shadow-casting light shining up through the ground.
+    /// </para>
+    /// </remarks>
+    [Export(PropertyHint.Range, "1,30,1")] public float MinElevationDegrees { get; set; } = 9.0f;
+
+    /// <summary>
     /// How far the sun's bearing swings between rising and setting, in degrees, centred on
     /// <see cref="BaseAzimuthDegrees"/>.
     /// </summary>
@@ -168,11 +196,24 @@ namespace BestiaBehemothClient.Game.World
 
     private void ApplyLights(float daylight, float twilight)
     {
-      var hourOfDay = (float)_clock.HourOfDay;
+      var progress = SolarProgress((float)_clock.HourOfDay);
+
+      // The arc the sun would follow if the horizon were not in the way, which both lights are placed off:
+      // the moon is this turned around, so deriving it from the raw angle rather than from the sun's own
+      // floored rotation is what lets the moon rise while the sun is pinned above the skyline.
+      //
+      // The arc is pinned to the twilight ramps rather than to the full-day band: the sun crosses zero at the
+      // *midpoint* of each ramp, so sunrise happens when the light is half up. That is what makes the orange
+      // land at the same moment the sun is on the skyline instead of an hour off it.
+      //
+      // Elevation straight from the light level would hold the sun at its peak for the whole fourteen-hour
+      // day, and a sun that does not move casts shadows that do not move. This is its own curve.
+      var elevation = Mathf.DegToRad(PeakElevationDegrees) * Mathf.Sin(Mathf.Pi * progress);
+      var azimuth = Mathf.DegToRad(BaseAzimuthDegrees + (progress - 0.5f) * SweepDegrees);
 
       if (_sun != null)
       {
-        _sun.Rotation = SunRotation(hourOfDay);
+        _sun.Rotation = LightRotation(elevation, azimuth);
         _sun.LightEnergy = SunEnergy * daylight;
         _sun.LightColor = SunDayColour.Lerp(SunTwilightColour, twilight);
 
@@ -184,32 +225,23 @@ namespace BestiaBehemothClient.Game.World
       if (_moon != null)
       {
         // The anti-sun: it rises as the sun sets, which is free and is also roughly what a moon does.
-        var sun = SunRotation(hourOfDay);
-        _moon.Rotation = new Vector3(-sun.X, sun.Y + Mathf.Pi, sun.Z);
+        _moon.Rotation = LightRotation(-elevation, azimuth + Mathf.Pi);
         _moon.LightEnergy = MoonEnergy * (1.0f - daylight);
         _moon.Visible = daylight < 0.998f;
       }
     }
 
     /// <summary>
-    /// Where the sun is at a given hour, as an Euler rotation for a light pointing along its own -Z.
+    /// A bearing and an elevation as an Euler rotation for a light pointing along its own -Z, with the
+    /// elevation held at or above <see cref="MinElevationDegrees"/>.
     /// </summary>
     /// <remarks>
-    /// The arc is pinned to the twilight ramps rather than to the full-day band: the sun crosses the horizon
-    /// at the *midpoint* of each ramp, so sunrise happens when the light is half up. That is what makes the
-    /// orange land at the same moment the sun is on the skyline instead of an hour off it.
+    /// The floor is applied here rather than to the arc so that the arc stays the honest astronomy and this
+    /// stays the one place either light is placed. A light whose turn is past the floor simply stops
+    /// descending; nothing else about the hour it represents changes.
     /// </remarks>
-    private Vector3 SunRotation(float hourOfDay)
-    {
-      var progress = SolarProgress(hourOfDay);
-
-      // Elevation straight from the light level would hold the sun at its peak for the whole fourteen-hour
-      // day, and a sun that does not move casts shadows that do not move. This is its own curve.
-      var elevation = Mathf.DegToRad(PeakElevationDegrees) * Mathf.Sin(Mathf.Pi * progress);
-      var azimuth = Mathf.DegToRad(BaseAzimuthDegrees + (progress - 0.5f) * SweepDegrees);
-
-      return new Vector3(-elevation, azimuth, 0.0f);
-    }
+    private Vector3 LightRotation(float elevation, float azimuth) =>
+      new(-Mathf.Max(elevation, Mathf.DegToRad(MinElevationDegrees)), azimuth, 0.0f);
 
     /// <summary>
     /// How far through its arc the sun is: <c>0</c> at sunrise, <c>0.5</c> at solar noon, <c>1</c> at sunset,
