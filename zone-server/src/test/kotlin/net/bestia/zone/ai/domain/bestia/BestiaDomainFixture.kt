@@ -3,6 +3,7 @@ package net.bestia.zone.ai.domain.bestia
 import io.mockk.mockk
 import net.bestia.zone.ai.bt.Locomotion
 import net.bestia.zone.ai.core.action.ActionResolver
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.navigation.TestNavigation
 
@@ -12,7 +13,8 @@ import net.bestia.zone.navigation.TestNavigation
  * A *planning* test never ticks a behaviour tree — it asserts about which actions the planner chains and
  * what that does to memory — so the tree's dependencies only have to exist, not work. Navigation gets the
  * real service over flat ground because it is cheap, and the skill service is mocked because building a
- * real one means five more beans for something no planning assertion touches.
+ * real one means five more beans for something no planning assertion touches. The same goes for the basic
+ * attack service, which most mobs are the only user of.
  */
 object BestiaDomainFixture {
 
@@ -20,8 +22,13 @@ object BestiaDomainFixture {
 
   fun skills(): SkillExecutionService = mockk(relaxed = true)
 
+  fun attackExecution(): AttackExecutionService = mockk(relaxed = true)
+
   fun resolver(
     actionIds: List<String>,
     attacks: List<AttackDefinition> = emptyList(),
-  ): ActionResolver = BestiaDomain.resolver(actionIds, locomotion(), skills(), attacks)
+  ): ActionResolver = BestiaDomain.resolver(
+    actionIds,
+    BestiaDomain.Collaborators(locomotion(), skills(), attackExecution(), attacks)
+  )
 }

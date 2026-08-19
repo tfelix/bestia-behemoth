@@ -5,6 +5,7 @@ import net.bestia.zone.ai.core.state.Blackboard
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.profile.AiConfig
 import net.bestia.zone.ai.profile.AiProfile
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.navigation.NavigationService
@@ -20,12 +21,13 @@ import org.springframework.stereotype.Service
  * touching any goal or action code, and there is exactly one place each number lives.
  *
  * A Spring `@Service` rather than the object it replaced, because the action templates it builds now need
- * real collaborators: navigation to move and the skill service to attack.
+ * real collaborators: navigation to move, and both attack pathways to fight with.
  */
 @Service
 class AiAgentFactory(
   navigation: NavigationService,
   private val skills: SkillExecutionService,
+  private val attackExecution: AttackExecutionService,
   private val sharedMemory: SharedMemoryService,
 ) {
 
@@ -58,7 +60,10 @@ class AiAgentFactory(
       profileId = profile.identifier,
       name = profile.identifier,
       goals = goals,
-      actionResolver = BestiaDomain.resolver(profile.actionIds, locomotion, skills, profile.attacks),
+      actionResolver = BestiaDomain.resolver(
+        profile.actionIds,
+        BestiaDomain.Collaborators(locomotion, skills, attackExecution, profile.attacks)
+      ),
       memory = memory,
       teamMemory = sharedMemory.teamBoard(profile.faction),
     )

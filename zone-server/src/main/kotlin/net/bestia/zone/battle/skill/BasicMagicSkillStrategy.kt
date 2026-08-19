@@ -1,39 +1,27 @@
 package net.bestia.zone.battle.skill
 
 import net.bestia.zone.battle.LineOfSightService
-import net.bestia.zone.battle.BattleContext
-import net.bestia.zone.battle.EntityBattleContext
-import net.bestia.zone.battle.GroundBattleContext
-import net.bestia.zone.geometry.Vec3L
 
+/**
+ * The range and line-of-sight gate almost every cast skill wants, so a script only has to say what it
+ * does and not re-derive where it reaches.
+ *
+ * Both numbers come from the catalogue via [BattleAttack], which is what keeps the reach the client
+ * enforces while aiming and the reach the server checks the same value.
+ */
 abstract class BasicMagicSkillStrategy(
   private val losService: LineOfSightService,
 ) : SkillStrategy {
 
-  override fun isAttackPossible(ctx: BattleContext): Boolean {
-    val targetPos = getTargetPosition(ctx)
+  override fun isCastPossible(ctx: SkillContext): Boolean {
+    val attack = ctx.battle.usedAttack
+    val attackerPos = ctx.battle.attacker.position
+    val targetPos = ctx.aimedAt
 
-    return if (ctx.usedAttack.needsLineOfSight) {
-      val hasLos = losService.hasLineOfSight(ctx.attacker.position, targetPos)
-
-      hasLos && isAttackInRange(ctx.attacker.position, targetPos, ctx.usedAttack.range)
-    } else {
-      isAttackInRange(ctx.attacker.position, targetPos, ctx.usedAttack.range)
+    if (attackerPos.distance(targetPos) > attack.range) {
+      return false
     }
-  }
 
-  private fun getTargetPosition(ctx: BattleContext): Vec3L {
-    return when (ctx) {
-      is EntityBattleContext -> ctx.defender.position
-      is GroundBattleContext -> ctx.targetPosition
-    }
-  }
-
-  private fun isAttackInRange(
-    attackerPos: Vec3L,
-    targetPos: Vec3L,
-    range: Long
-  ): Boolean {
-    return attackerPos.distance(targetPos) <= range
+    return !attack.needsLineOfSight || losService.hasLineOfSight(attackerPos, targetPos)
   }
 }

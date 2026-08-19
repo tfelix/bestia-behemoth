@@ -76,7 +76,14 @@ data class AiProfileDto(
     val id: String,
     val range: Long,
     val baseCost: Float = 5f,
-    val skillId: Long = 0L,
+
+    /**
+     * Left unset for a plain bite or swing, which is what most profiles want - see
+     * [net.bestia.zone.ai.domain.bestia.AttackDefinition.skillId]. Naming a `skills.yml` id here makes the
+     * creature *cast* instead, and it must then know that skill.
+     */
+    val skillId: Long? = null,
+
     val cooldownSeconds: Float = 1.5f,
   )
 }

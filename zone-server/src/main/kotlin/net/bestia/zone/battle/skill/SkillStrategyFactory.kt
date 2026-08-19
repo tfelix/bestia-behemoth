@@ -5,14 +5,13 @@ import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
 
 /**
- * Resolves the `script` name from `skills.yml` (e.g. `Firebolt`) to the [SkillStrategy] bean
- * implementing it.
+ * Resolves the `script` name from `skills.yml` (e.g. `Firebolt`) to the [SkillStrategy] bean implementing
+ * it. Scripts are plain Spring beans in `net.bestia.zone.battle.skill.scripts`, keyed by their simple class
+ * name.
  *
- * Scripts are plain Spring beans in `net.bestia.zone.battle.skill.scripts`, keyed here by their
- * simple class name. This replaces an earlier `applicationContext.getBean(<fully qualified name>)`
- * lookup which could never have worked: it pointed at a package that does not exist
- * (`net.bestia.behemoth.battle.attack.scripts`), and `getBean(String)` resolves a *bean name*, which
- * for an annotated class is the decapitalised simple name rather than the FQN.
+ * This registry is also the answer to "may this skill be cast at all", which is why `Skill` no longer
+ * carries a type: a skill with a strategy is active, and one without is a passive or an unfinished entry
+ * that the client must offer no way to activate. See [has].
  */
 @Component
 class SkillStrategyFactory(
@@ -29,13 +28,16 @@ class SkillStrategyFactory(
 
   fun getSkillStrategy(skill: Skill): SkillStrategy {
     val skillScript = skill.script
-      ?: throw NoSkillScriptException()
+      ?: throw NoSkillScriptException(skill.identifier)
 
-    return get(skillScript)
-      ?: throw IllegalStateException("No SkillStrategy bean registered for script '$skillScript'")
+    return byName[skillScript]
+      ?: throw NoSkillScriptException(skill.identifier)
   }
 
-  private fun get(scriptName: String): SkillStrategy? = byName[scriptName]
+  /** Whether [scriptName] has an implementation, i.e. whether the skill naming it can be cast. */
+  fun has(scriptName: String): Boolean = byName.containsKey(scriptName)
+
+  fun isCastable(skill: Skill): Boolean = skill.script?.let { has(it) } == true
 
   companion object {
     private val LOG = KotlinLogging.logger { }

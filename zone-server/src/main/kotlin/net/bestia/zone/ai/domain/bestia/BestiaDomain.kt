@@ -23,6 +23,7 @@ import net.bestia.zone.ai.domain.bestia.action.ReturnHomeActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.SleepActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WalkToVegetationActionTemplate
 import net.bestia.zone.ai.domain.bestia.action.WanderActionTemplate
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.geometry.Vec3L
 
@@ -362,44 +363,45 @@ object BestiaDomain {
   }
 
   /**
+   * What a template needs beyond the planning contract, bundled so adding a collaborator does not widen
+   * eight lambdas. Two services rather than one because a bestia can both bite and cast, and those are
+   * different pathways: see [AttackExecutionService] and [SkillExecutionService].
+   */
+  data class Collaborators(
+    val locomotion: Locomotion,
+    val skills: SkillExecutionService,
+    val attackExecution: AttackExecutionService,
+    val attacks: List<AttackDefinition> = emptyList(),
+  )
+
+  /**
    * How to build each template this domain knows, keyed by the id a profile names it with.
    *
-   * Templates need real collaborators now that they carry behaviour as well as a planning contract —
-   * [Locomotion] to move and [SkillExecutionService] to attack — so this is a map of *factories* rather
-   * than of instances. Keeping it as one map means [ACTION_IDS] and [actionTemplates] cannot drift
-   * apart, which a hand-maintained second list of ids inevitably would.
+   * Templates need real collaborators now that they carry behaviour as well as a planning contract, so this
+   * is a map of *factories* rather than of instances. Keeping it as one map means [ACTION_IDS] and
+   * [actionTemplates] cannot drift apart, which a hand-maintained second list of ids inevitably would.
    */
-  private val TEMPLATE_FACTORIES:
-    Map<String, (Locomotion, SkillExecutionService, List<AttackDefinition>) -> ActionTemplate> = mapOf(
-    "wander" to { loc, _, _ -> WanderActionTemplate(loc) },
-    "returnHome" to { loc, _, _ -> ReturnHomeActionTemplate(loc) },
-    "walkToVegetation" to { loc, _, _ -> WalkToVegetationActionTemplate(loc) },
-    "eatVegetation" to { _, _, _ -> EatVegetationActionTemplate() },
-    "sleep" to { _, _, _ -> SleepActionTemplate() },
-    "approachTarget" to { loc, _, _ -> ApproachTargetActionTemplate(loc) },
-    "attack" to { _, skills, attacks -> AttackActionTemplate(attacks, skills) },
-    "flee" to { loc, _, _ -> FleeActionTemplate(loc) },
+  private val TEMPLATE_FACTORIES: Map<String, (Collaborators) -> ActionTemplate> = mapOf(
+    "wander" to { c -> WanderActionTemplate(c.locomotion) },
+    "returnHome" to { c -> ReturnHomeActionTemplate(c.locomotion) },
+    "walkToVegetation" to { c -> WalkToVegetationActionTemplate(c.locomotion) },
+    "eatVegetation" to { _ -> EatVegetationActionTemplate() },
+    "sleep" to { _ -> SleepActionTemplate() },
+    "approachTarget" to { c -> ApproachTargetActionTemplate(c.locomotion) },
+    "attack" to { c -> AttackActionTemplate(c.attacks, c.skills, c.attackExecution) },
+    "flee" to { c -> FleeActionTemplate(c.locomotion) },
   )
 
   /** Every action id a profile may name, for fail-fast validation at boot without building anything. */
   val ACTION_IDS: Set<String> get() = TEMPLATE_FACTORIES.keys
 
   /** Every action template this domain knows, keyed by [ActionTemplate.id] for profile lookups. */
-  fun actionTemplates(
-    locomotion: Locomotion,
-    skills: SkillExecutionService,
-    attacks: List<AttackDefinition> = emptyList(),
-  ): Map<String, ActionTemplate> =
-    TEMPLATE_FACTORIES.mapValues { (_, build) -> build(locomotion, skills, attacks) }
+  fun actionTemplates(collaborators: Collaborators): Map<String, ActionTemplate> =
+    TEMPLATE_FACTORIES.mapValues { (_, build) -> build(collaborators) }
 
-  /** Builds the [ActionResolver] for a profile's declared [actionIds] and known [attacks]. */
-  fun resolver(
-    actionIds: List<String>,
-    locomotion: Locomotion,
-    skills: SkillExecutionService,
-    attacks: List<AttackDefinition> = emptyList(),
-  ): ActionResolver {
-    val catalog = actionTemplates(locomotion, skills, attacks)
+  /** Builds the [ActionResolver] for a profile's declared [actionIds]. */
+  fun resolver(actionIds: List<String>, collaborators: Collaborators): ActionResolver {
+    val catalog = actionTemplates(collaborators)
     return CompositeActionResolver(actionIds.mapNotNull { catalog[it] })
   }
 }

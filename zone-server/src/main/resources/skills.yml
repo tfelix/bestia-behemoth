@@ -5,10 +5,17 @@ skills:
 #   respectively). aoeRadius is only read when targetType is AOE_GROUND.
 # castTime: seconds the caster channels before the skill resolves (default 0 = instant). While
 #   channelling the entity carries a Casting component; moving or taking damage cancels it.
+# script: the SkillStrategy implementing this skill (net.bestia.zone.battle.skill.scripts), and the
+#   only thing that says whether it can be CAST. A skill with no script is never castable - which is
+#   what a PASSIVE used to mean, and is most of this file. There is no `type` field.
+#   A passive that has a stat effect does NOT name it here: a PassiveSkillScript declares its own
+#   skillIdentifier on the bean, so this column stays one vocabulary. `syncSkillDb` relies on that -
+#   it cannot see Spring beans and derives the client's is_passive as "has no script".
+#   A basic weapon attack is not a skill at all and never appears in this file at all, see
+#   net.bestia.zone.battle.skill.BattleAttack.
 # MASTER SKILLS
   - id: 1
     identifier: BLESSING
-    type: NO_DAMAGE
     script: Blessing
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -23,13 +30,10 @@ skills:
       [cell]1[/cell][cell]1[/cell][cell]2[/cell][cell]60s[/cell][cell]28[/cell][cell]2[/cell][cell]2[/cell][cell]4[/cell][cell]80s[/cell][cell]32[/cell][cell]3[/cell][cell]3[/cell][cell]6[/cell][cell]100s[/cell][cell]36[/cell][cell]4[/cell][cell]4[/cell][cell]8[/cell][cell]120s[/cell][cell]40[/cell][cell]5[/cell][cell]5[/cell][cell]10[/cell][cell]140s[/cell][cell]44[/cell][cell]6[/cell][cell]6[/cell][cell]12[/cell][cell]160s[/cell][cell]48[/cell][cell]7[/cell][cell]7[/cell][cell]14[/cell][cell]180s[/cell][cell]52[/cell][cell]8[/cell][cell]8[/cell][cell]16[/cell][cell]200s[/cell][cell]56[/cell][cell]9[/cell][cell]9[/cell][cell]18[/cell][cell]220s[/cell][cell]60[/cell][cell]10[/cell][cell]10[/cell][cell]20[/cell][cell]240s[/cell][cell]64[/cell][/table]
   - id: 2
     identifier: DIVINE_PROTECTION
-    type: PASSIVE
-    script: DivineProtection
     targetType: FRIENDLY
 
   - id: 3
     identifier: COOKING
-    type: NO_DAMAGE
     script: Cooking
     targetType: GROUND
     range: 2
@@ -43,14 +47,12 @@ skills:
 
   - id: 4
     identifier: HEAL
-    type: NO_DAMAGE
     script: Heal
     targetType: FRIENDLY
     needsLineOfSight: false
 
   - id: 5
     identifier: FIREBOLT
-    type: NO_DAMAGE
     script: Firebolt
     targetType: ENEMY
     needsLineOfSight: true
@@ -65,7 +67,6 @@ skills:
 # --- Novice Tree ---
   - id: 6
     identifier: BASIC_SKILL
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Enables the use of the basic user interface.
@@ -78,7 +79,6 @@ skills:
 
   - id: 7
     identifier: PLAY_DEAD
-    type: NO_DAMAGE
     script: PlayDead
     targetType: FRIENDLY
     needsLineOfSight: false
@@ -90,7 +90,6 @@ skills:
 
   - id: 8
     identifier: FIRST_AID
-    type: NO_DAMAGE
     script: FirstAid
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -107,7 +106,6 @@ skills:
 
   - id: 9
     identifier: MASTER_RITUAL
-    type: NO_DAMAGE
     script: MasterRitual
     targetType: GROUND
     description: |
@@ -117,7 +115,6 @@ skills:
 # --- Craftsman Tree ---
   - id: 10
     identifier: CARPENTRY
-    type: NO_DAMAGE
     script: Carpentry
     targetType: GROUND
     range: 2
@@ -134,7 +131,6 @@ skills:
   # identifier stays TINKERER: renaming it makes the importer delete a row LearnedSkill points at.
   - id: 11
     identifier: TINKERER
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       You are very skilled in working with tools and raw material. Building structures in the
@@ -145,7 +141,6 @@ skills:
 
   - id: 12
     identifier: ITEM_CUSTOMIZATION
-    type: NO_DAMAGE
     script: ItemCustomization
     targetType: GROUND
     range: 2
@@ -161,7 +156,6 @@ skills:
 # Blacksmith
   - id: 13
     identifier: ORE_REFINEMENT
-    type: NO_DAMAGE
     script: OreRefinement
     targetType: GROUND
     range: 2
@@ -176,7 +170,6 @@ skills:
 
   - id: 14
     identifier: FORGE_WEAPON
-    type: NO_DAMAGE
     script: ForgeWeapon
     targetType: GROUND
     range: 2
@@ -190,7 +183,6 @@ skills:
 
   - id: 15
     identifier: FORGE_ARMOR
-    type: NO_DAMAGE
     script: ForgeArmor
     targetType: GROUND
     range: 2
@@ -204,7 +196,6 @@ skills:
 
   - id: 16
     identifier: WEAPON_REPAIR
-    type: NO_DAMAGE
     script: WeaponRepair
     targetType: GROUND
     range: 2
@@ -218,7 +209,6 @@ skills:
 
   - id: 17
     identifier: WEAPONRY_RESEARCH
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Deeper knowledge of weapons and armor that raises the odds of successfully refining
@@ -229,7 +219,6 @@ skills:
 
   - id: 18
     identifier: MASTER_SMITH
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       The capstone of the forge. Makes a Blacksmith's hands steady enough to trust with the
@@ -241,7 +230,6 @@ skills:
 # Artificer
   - id: 19
     identifier: MANA_HARVESTER
-    type: NO_DAMAGE
     script: ManaHarvester
     targetType: GROUND
     description: |
@@ -254,7 +242,6 @@ skills:
 
   - id: 20
     identifier: MANAFLOW_EXPERT
-    type: NO_DAMAGE
     script: ManaflowExpert
     targetType: GROUND
     description: |
@@ -266,7 +253,6 @@ skills:
 
   - id: 21
     identifier: RUNIC_ETCHING
-    type: NO_DAMAGE
     script: RunicEtching
     targetType: FRIENDLY
     needsLineOfSight: true
@@ -279,7 +265,6 @@ skills:
 
   - id: 22
     identifier: MAGIC_ARTISAN
-    type: NO_DAMAGE
     script: MagicArtisan
     targetType: GROUND
     description: |
@@ -292,7 +277,6 @@ skills:
 # Alchemist
   - id: 23
     identifier: HERBALISM
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Teaches which roots, herbs and mana-touched growth are worth the harvest, and how to
@@ -306,7 +290,6 @@ skills:
 
   - id: 24
     identifier: ALCHEMY
-    type: NO_DAMAGE
     script: Alchemy
     targetType: GROUND
     description: |
@@ -328,7 +311,6 @@ skills:
 
   - id: 25
     identifier: TRANSMUTATION
-    type: NO_DAMAGE
     script: Transmutation
     targetType: GROUND
     description: |
@@ -340,7 +322,6 @@ skills:
 
   - id: 26
     identifier: ALCHEMY_MASTERY
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Increased yield and success chance for Alchemy.
@@ -348,7 +329,6 @@ skills:
 # --- Survival Tree ---
   - id: 27
     identifier: INNER_PEACE
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Your Bestia and Master gain an increased HP and Mana regeneration rate.
@@ -357,7 +337,6 @@ skills:
 
   - id: 28
     identifier: WEATHER_RESISTANCE
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Your Bestia and Master gain an increased tolerance against high and low environment
@@ -367,7 +346,6 @@ skills:
 
   - id: 29
     identifier: QUICK_TRAVEL
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       You and your Bestia know every kind of terrain.
@@ -376,7 +354,6 @@ skills:
 
   - id: 30
     identifier: FISHING
-    type: NO_DAMAGE
     script: Fishing
     targetType: GROUND
     description: |
@@ -388,7 +365,6 @@ skills:
 # Forester
   - id: 31
     identifier: LUMBERJACK
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       The player is able to gather wood resources faster.
@@ -398,7 +374,6 @@ skills:
 
   - id: 32
     identifier: TRAPPING
-    type: NO_DAMAGE
     script: Trapping
     targetType: GROUND
     description: |
@@ -411,7 +386,6 @@ skills:
 
   - id: 33
     identifier: EXPERT_TAMING
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Bestia under your control gain faster experience and require less food to maintain their
@@ -422,7 +396,6 @@ skills:
 
   - id: 34
     identifier: BEASTFRIEND
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Detailed knowledge of the Bestia and their behavior makes it easier for you to tame and
@@ -433,7 +406,6 @@ skills:
 # Prospector
   - id: 35
     identifier: MAXIMIZE_CARRY_CAPACITY
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Raises the carrying capacity of your own Master.
@@ -442,7 +414,6 @@ skills:
 
   - id: 36
     identifier: ENLARGE_WEIGHT_LIMIT
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Raises the carrying capacity of every Bestia under your control.
@@ -451,7 +422,6 @@ skills:
 
   - id: 37
     identifier: CARTOGRAPHY
-    type: NO_DAMAGE
     script: Cartography
     targetType: GROUND
     range: 4
@@ -468,7 +438,6 @@ skills:
 
   - id: 38
     identifier: WILDERNESS_SURVIVAL
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Hardens the master and their Bestia against travel through hostile terrain, far from the
@@ -480,7 +449,6 @@ skills:
 
   - id: 39
     identifier: WEATHER_SENSE
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       An instinct for reading the sky and wind well before a storm ever arrives, letting the
@@ -492,7 +460,6 @@ skills:
 # Miner
   - id: 40
     identifier: MINING
-    type: NO_DAMAGE
     script: Mining
     targetType: GROUND
     description: |
@@ -504,7 +471,6 @@ skills:
 
   - id: 41
     identifier: GEM_CUTTING
-    type: NO_DAMAGE
     script: GemCutting
     targetType: GROUND
     description: |
@@ -517,7 +483,6 @@ skills:
 
   - id: 42
     identifier: DEEP_DELVER
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       Lets a Miner push shafts deeper than good sense would recommend, into ground that pays
@@ -528,7 +493,6 @@ skills:
 
   - id: 43
     identifier: RESOURCE_SONAR
-    type: PASSIVE
     targetType: FRIENDLY
     description: |
       The Miner's capstone: a feel for what's underfoot precise enough to map a shaft before
@@ -539,7 +503,6 @@ skills:
   # Craftsman tree - see the tree grouping in master_skill_tree.yml.
   - id: 44
     identifier: UPGRADE_EQUIPMENT
-    type: NO_DAMAGE
     script: UpgradeEquipment
     targetType: GROUND
     range: 2
@@ -553,7 +516,6 @@ skills:
 # BESTIA SKILLS (reserved 1000+, see master_skill_tree.yml / skill-system SKILL.md)
   - id: 1000
     identifier: ember
-    type: NO_DAMAGE
     script: Ember
     targetType: AOE_GROUND
     aoeRadius: 1.0
@@ -567,8 +529,3 @@ skills:
       Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
       the flames burn the caster too.
 
-  - id: 1001
-    identifier: tackle
-    strength: 4
-    type: MELEE_PHYSICAL
-    targetType: ENEMY

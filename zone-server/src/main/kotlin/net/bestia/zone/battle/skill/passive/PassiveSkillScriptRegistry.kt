@@ -1,7 +1,7 @@
 package net.bestia.zone.battle.skill.passive
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.skill.AttackType
+import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.skill.Skill
 import org.springframework.stereotype.Component
 
@@ -21,7 +21,8 @@ import org.springframework.stereotype.Component
  */
 @Component
 class PassiveSkillScriptRegistry(
-  scripts: List<PassiveSkillScript>
+  scripts: List<PassiveSkillScript>,
+  private val skillStrategyFactory: SkillStrategyFactory,
 ) {
 
   private val byName: Map<String, PassiveSkillScript> = scripts
@@ -38,7 +39,7 @@ class PassiveSkillScriptRegistry(
    * [net.bestia.zone.battle.skill.scripts.SkillScriptBootValidator]: that one tolerates misses
    * because plenty of catalogued skills legitimately have no implementation yet, whereas this
    * direction - a script bean that exists in code - can only miss through a typo or a renamed
-   * skill. The reverse direction is deliberately *not* checked: a PASSIVE skill with no script is
+   * skill. The reverse direction is deliberately *not* checked: a passive skill with no script is
    * the normal case for most of the catalogue.
    */
   fun bind(skills: List<Skill>) {
@@ -50,10 +51,13 @@ class PassiveSkillScriptRegistry(
           "${script::class.simpleName} names unknown skill '${script.skillIdentifier}'"
         )
 
-      if (skill.type != AttackType.PASSIVE) {
+      // A skill cannot be both cast and folded into the status recalc: the two ask different questions of
+      // the same level, and nothing decides which one a point bought. With `Skill.type` gone this is the
+      // check that catches it - a passive is a skill *without* a SkillStrategy, by definition.
+      if (skillStrategyFactory.isCastable(skill)) {
         throw PassiveSkillScriptBindingException(
-          "${script::class.simpleName} names skill '${script.skillIdentifier}', which is " +
-            "${skill.type} rather than PASSIVE - only passives are folded into the status recalc"
+          "${script::class.simpleName} names skill '${script.skillIdentifier}', which also has the " +
+            "castable script '${skill.script}' - a skill is either cast or always-on, not both"
         )
       }
 

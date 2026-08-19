@@ -6,11 +6,13 @@ import net.bestia.zone.ai.core.action.ActionTemplate
 import net.bestia.zone.ai.core.behavior.Status
 import net.bestia.zone.ai.core.effect.Effects
 import net.bestia.zone.ai.core.state.WorldState
+import net.bestia.zone.ai.bt.leaves.BasicAttack
 import net.bestia.zone.ai.bt.leaves.UseSkill
 import net.bestia.zone.ai.domain.bestia.AttackDefinition
 import net.bestia.zone.ai.domain.bestia.AttackEffectiveness
 import net.bestia.zone.ai.domain.bestia.BestiaDomain
 import net.bestia.zone.ai.domain.bestia.EffectivenessKey
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 
 /**
@@ -24,6 +26,7 @@ import net.bestia.zone.battle.skill.SkillExecutionService
 class AttackActionTemplate(
   private val attacks: List<AttackDefinition>,
   private val skills: SkillExecutionService,
+  private val attackExecution: AttackExecutionService,
 ) : ActionTemplate {
   override val id = "attack"
 
@@ -62,10 +65,18 @@ class AttackActionTemplate(
   private fun fightUntilDead(targetId: Long, attack: AttackDefinition) = selector {
     condition("target is dead") { ctx -> !ctx.world.isAlive(targetId) }
     sequence {
-      optional { cooldown(attack.cooldownSeconds) { node(UseSkill(targetId, attack.skillId, skills)) } }
+      optional { cooldown(attack.cooldownSeconds) { node(swing(targetId, attack)) } }
       run("still fighting") { Status.RUNNING }
     }
   }
+
+  /**
+   * A named skill goes through the skill pipeline; everything else is a plain swing. Most mobs only ever take
+   * this second branch, which is the point of keeping the two apart.
+   */
+  private fun swing(targetId: Long, attack: AttackDefinition) = attack.skillId
+    ?.let { UseSkill(targetId, it, skills) }
+    ?: BasicAttack(targetId, attackExecution)
 
   companion object {
     private const val UNKNOWN_ARCHETYPE = "unknown"

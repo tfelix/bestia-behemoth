@@ -20,7 +20,6 @@ SKILL_1000_DESC,"Sets a patch of ground alight. Everything standing in the flame
 
 Aimed at the ground rather than at a creature, and it does not care whose side anyone is on:
 the flames burn the caster too."
-SKILL_1001_DESC,A basic physical charge attack.
 SKILL_5_DESC,"Hurls a bolt of searing fire at a single enemy.
 
 Must be channelled - moving or taking damage interrupts the cast."

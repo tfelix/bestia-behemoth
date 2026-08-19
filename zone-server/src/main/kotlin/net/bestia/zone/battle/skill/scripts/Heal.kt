@@ -1,42 +1,32 @@
 package net.bestia.zone.battle.skill.scripts
 
-import net.bestia.zone.battle.LineOfSightService
-import net.bestia.zone.battle.BattleContext
 import net.bestia.zone.battle.EntityBattleContext
-import net.bestia.zone.battle.GroundBattleContext
-import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
+import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.damage.Damage
 import net.bestia.zone.battle.damage.Heal
-import net.bestia.zone.battle.damage.Miss
+import net.bestia.zone.battle.skill.BasicMagicSkillStrategy
+import net.bestia.zone.battle.skill.SkillContext
 import org.springframework.stereotype.Component
 
-/** Registered under the script name `Heal` (see `skills.yml` id 4) via [net.bestia.zone.battle.skill.SkillScriptRegistry]. */
+/** Heal (`skills.yml` id 4). */
 @Component
 class Heal(
   losService: LineOfSightService,
 ) : BasicMagicSkillStrategy(losService) {
 
-  override fun execute(ctx: BattleContext): Damage {
-    return when (ctx) {
-      is EntityBattleContext -> heal(ctx)
-      is GroundBattleContext -> return Miss
-    }
+  override fun isCastPossible(ctx: SkillContext): Boolean {
+    return ctx.battle is EntityBattleContext && super.isCastPossible(ctx)
   }
 
-  override fun isAttackPossible(ctx: BattleContext): Boolean {
-    return if(ctx is EntityBattleContext) {
-      super.isAttackPossible(ctx)
-    } else {
-      false
-    }
-  }
+  override fun execute(ctx: SkillContext): Damage? {
+    val battle = ctx.battle as? EntityBattleContext ?: return null
 
-  private fun heal(ctx: EntityBattleContext): Damage {
-    val effectFac = ctx.damageVariables.healMod + ctx.damageVariables.healMod
-    val baseAmount = ((ctx.attacker.level + ctx.attacker.statusValues.intelligence) / 5) * ctx.usedAttack.level * 3
-    val matk = ctx.weapon.upgradeLevel * ctx.weapon.upgradeLevel + ctx.weapon.matk + ctx.attacker.derivedStatusValues.matk
-    val healthRestored = (baseAmount * effectFac) / 100 + matk
+    val effectFac = battle.damageVariables.healMod + battle.damageVariables.healMod
+    val baseAmount =
+      ((battle.attacker.level + battle.attacker.statusValues.intelligence) / 5) * battle.usedAttack.level * 3
+    val matk =
+      battle.weapon.upgradeLevel * battle.weapon.upgradeLevel + battle.weapon.matk + battle.attacker.derivedStatusValues.matk
 
-    return Heal(healthRestored.toInt())
+    return Heal(((baseAmount * effectFac) / 100 + matk).toInt())
   }
 }

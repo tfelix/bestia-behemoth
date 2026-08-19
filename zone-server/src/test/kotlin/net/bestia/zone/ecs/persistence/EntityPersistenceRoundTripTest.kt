@@ -68,7 +68,14 @@ class EntityPersistenceRoundTripTest {
   }
 
   /** An isolated, non-ticking world so systems (the blob wanders) can't perturb the assertions. */
-  private fun newWorld() = World(idGenerator = SnowflakeEntityIdGenerator(), systems = emptyList())
+  /**
+   * One generator across every world this test builds. A fresh `SnowflakeEntityIdGenerator` restarts its
+   * sequence at 0, so two of them created inside the same millisecond - which is what a loop of `newWorld()`
+   * does - hand out the *same* id, and entities meant to be distinct collide in the persistence table.
+   */
+  private val idGenerator = SnowflakeEntityIdGenerator()
+
+  private fun newWorld() = World(idGenerator = idGenerator, systems = emptyList())
 
   private companion object {
     // Seeded from mob/blob.yml by the mob importer in the test profile.

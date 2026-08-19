@@ -10,7 +10,6 @@ import net.bestia.zone.account.master.Master
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.MasterResolver
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.ecs.account.Account as EcsAccount
 import net.bestia.zone.ecs.battle.status.SkillPoints
 import net.bestia.zone.ecs.core.World
@@ -186,7 +185,6 @@ class MasterSkillTreeServiceTest {
     id = id,
     identifier = identifier,
     strength = null,
-    type = AttackType.PASSIVE,
     script = null,
     manaCost = 0,
     range = null,

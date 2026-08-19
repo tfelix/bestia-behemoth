@@ -21,8 +21,11 @@ game (master-castable, bestia-species, item-taught) gets one entry here, loaded 
   hand-assigned in the YML and never reassigned by the DB.
 - `identifier` — string name (e.g. `BLESSING`), used to cross-reference from
   `master_skill_tree.yml` (below) instead of hardcoding ids there.
-- `type` / `script` / `strength` / `needsLineOfSight` / `manaCost` / `range` — combat
-  behavior. `NO_DAMAGE` skills must have a `script` and no `strength`.
+- `script` / `needsLineOfSight` / `manaCost` / `range` / `targetType` — behaviour. **`script`
+  is also what decides whether the skill can be cast at all**; there is no `type` field. See
+  "Castable, passive, unimplemented" below.
+- `strength` — vestigial. Nothing reads it: a skill's damage comes out of its script, and a
+  basic attack's comes from the weapon.
 - `requiredLevel` — **not** used by the master skill tree; per-bestia-species skill
   unlocks are a third, separate mechanism.
 - `description` (optional) — long-form BBCode flavor text, English only. When present,
@@ -40,6 +43,62 @@ skill tree grew past the original "masters 1-99" convention (see
 renumbering again, check that no other file hardcodes a raw skill id first (as of this
 writing, nothing outside `skills.yml`/`master_skill_tree.yml`/the `.tres` files/
 `skills.csv` does).
+
+### Castable, passive, unimplemented — and why there is no `type`
+
+`skills.yml` used to carry a `type` (`MELEE_PHYSICAL`, `NO_DAMAGE`, `PASSIVE`, ...). It is gone,
+because it meant two unrelated things at once: how damage is calculated, and whether the entry may
+be activated. The one question that survives is answered by `script` alone:
+
+| `script` in `skills.yml` | meaning |
+| --- | --- |
+| names a `SkillStrategy` bean (`battle/skill/scripts/`) | **castable** — an active skill |
+| absent | not castable: a passive, or a skill nobody has written yet |
+| present but no such bean | not implemented; `SkillScriptBootValidator` warns at boot |
+
+`SkillStrategyFactory.isCastable` is the single place that answers it.
+
+A passive that *does* have a stat effect still leaves this column empty: a `PassiveSkillScript`
+declares its own `skillIdentifier` on the bean rather than being named from the YAML, so `script`
+stays one vocabulary — see that interface's KDoc for the full argument. This is what makes
+`syncSkillDb`'s `is_passive = (script == null)` exact, since a Gradle task cannot see Spring beans.
+
+A skill must never be castable *and* named by a `PassiveSkillScript` —
+`PassiveSkillScriptRegistry.bind` fails the boot if it is, because the two would read the same
+invested level with nothing deciding which one a point bought.
+
+### A basic attack is not a skill
+
+A sword swing, an arrow, a mob's bite has **no entry in this file at all**. It is a `BattleAttack`
+(`battle/skill/BattleAttack.kt`) resolved by `AttackStrategyFactory` → `AttackStrategy` and run by
+`AttackExecutionService` — no catalogue row, no script, no mana, no cast bar. That split is why
+`AttackType` still exists (it selects the melee/ranged/magic formula) but no longer appears in
+`skills.yml`.
+
+The old `tackle` row (id 1001) was exactly this mistake and has been removed, along with the
+`0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. An AI profile's
+`attacks:` entry leaves `skill_id` unset for a basic attack, and names a real catalogue id only when
+the creature should genuinely *cast* something (it must then know that skill via `KnownSkills`).
+
+### How a cast is resolved, and the execution budget
+
+`SkillExecutionService.execute` **enqueues** and returns; the script runs on an `AsyncJobExecutor`
+worker, keyed on the caster so two casts by one entity resolve in order. This is what lets a script
+do its own world manipulation — spawn a patch, place a station, mint a chart — instead of returning
+a spec for a service to enact.
+
+It is safe because `World.tick` holds the world lock for its whole duration and every scope a script
+opens takes the same lock, so a cast can never interleave with a tick. What it *can* do is make the
+tick wait, so a script reaches the world only through `SkillContext.world` (a `SkillWorld`), whose
+every operation is charged against a per-cast `SkillBudget`. Overrunning it fizzles the cast and logs
+at ERROR. The ceilings are the `skill:` block in `application.yml`.
+
+**A script must never inject `World` or `WorldView`.** Scripts are collected into
+`SkillStrategyFactory`, which `CastingSystem` transitively depends on, and the `World` bean is
+assembled from every system — injecting one closes a cycle Spring refuses to build and the context
+fails at boot with nothing pointing at the script. A service whose methods take a world goes behind
+`SkillWorld` (`offerRecipes`, `survey`); a service that needs none (a config, a calculator) a script
+may inject itself.
 
 ## 2. `zone-server/src/main/resources/master_skill_tree.yml` — the learnable subset
 
@@ -88,10 +147,12 @@ matching `skills.yml`'s `id`/`identifier` — not required by any loader code (o
 
 Field provenance — the fields `SkillDbSyncTask` mirrors from the server are `skill_id`,
 `max_level`, `description_key`, `target_type`, `aoe_radius`, `cast_time`, `tree`, `sub_tree`
-and `is_passive`. `is_passive` is the only thing the client keeps of `skills.yml`'s `type`:
-a `PASSIVE` skill is never cast, so the Skills window refuses to let it be dragged onto the
-hotbar (`skill_row.gd`) and `ShortcutContainer` refuses the drop; the remaining SkillTypes are
-server-side damage math the client has no use for. Everything else (`icon`, `name`, `mana_cost`, `cooldown`) is client-only
+and `is_passive`. `is_passive` is derived from whether `skills.yml` gives the skill a `script`,
+which is the server's own definition of castable: a skill the client cannot activate is refused
+by the Skills window as a hotbar drag (`skill_row.gd`) and by `ShortcutContainer` as a drop.
+The build cannot see Spring beans, so a script name with no bean behind it still reads as
+castable here while the server refuses the cast — that is the unimplemented case, and
+`SkillScriptBootValidator` is what reports it. Everything else (`icon`, `name`, `mana_cost`, `cooldown`) is client-only
 presentation, hand-authored by whoever adds the skill; the task never touches it.
 
 A `.tres` is normally edited straight in Godot's inspector, which rewrites the whole file on
@@ -173,7 +234,9 @@ until someone backfills a `skills.yml` description for it.
    For `icon`, drop `<id>_<identifier>.png` in the same folder and assign it in the inspector
    (see Icons above) — leaving it unset is fine, the skill just shows the placeholder.
 4. Restart zone-server once to confirm boot doesn't throw (duplicate id, unresolved
-   `master_skill_tree.yml` identifier, or a `NO_DAMAGE` skill missing its `script`).
+   `master_skill_tree.yml` identifier, or an `aoeRadius` that disagrees with `targetType`), and
+   to see whether the new skill shows up in `SkillScriptBootValidator`'s "no skill script found"
+   warning — if it does, it can be learned but will do nothing when cast.
 5. Cross check the skill consistence (see below).
 
 ## Cross-checking consistency: `checkSkillDb` / `syncSkillDb`

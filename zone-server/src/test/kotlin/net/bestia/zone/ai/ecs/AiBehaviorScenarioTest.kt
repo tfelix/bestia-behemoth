@@ -61,25 +61,21 @@ class AiBehaviorScenarioTest {
   }
 
   @Test
-  fun `the mob casts its attack through the skill service once in melee range`() {
+  fun `the mob swings its basic attack once in melee range`() {
     val mob = ai.spawnMob("aggressive_melee", Vec3L(0, 0, 0))
     val player = ai.spawnPlayer(Vec3L(1, 0, 0))
 
     ai.tickUntilGoal(mob, "KillEnemy")
     ai.tick(times = 20)
 
-    // Going through the skill service rather than stacking a Damage component directly is the point: a mob
-    // attacks by the same route a player does, so range, mana and the strategy script all apply.
+    // Going through the attack service rather than stacking a Damage component directly is the point: a mob
+    // swings by the same route a player does, so range and the damage formula both apply. It is deliberately
+    // *not* the skill service - a bite is not a catalogue row, which is what the profile saying no skillId
+    // means.
     verify(atLeast = 1) {
-      ai.skills.execute(
-        world = ai.world,
-        casterId = mob,
-        skillId = 0L,
-        skillLevel = 1,
-        targetEntityId = player,
-        targetPosition = null,
-      )
+      ai.attackExecution.attack(ai.world, mob, player, any())
     }
+    verify(exactly = 0) { ai.skills.execute(any(), any(), any(), any(), any(), any()) }
   }
 
   @Test

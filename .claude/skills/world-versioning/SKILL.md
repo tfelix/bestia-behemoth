@@ -126,6 +126,13 @@ This also destroys accounts, masters, items and parties, not just the world. For
 `spring.jpa.hibernate.ddl-auto` is `update`. Setting it to `create` drops and recreates the whole schema
 every boot, which is a heavier hammer than `down -v` and easy to leave switched on by accident.
 
+`update` also never *drops* a column, so a removed entity field leaves its column behind on any database
+that already existed. Harmless — JPA stops mapping it — but a leftover `NOT NULL` column with no default
+will refuse every future insert into that table. `skill.type` (removed when a skill's castability moved
+onto its `script`, see the `skill-system` skill) is one such column; the `skill` table is fully rewritten
+from `skills.yml` at every boot, so it only matters on a database whose rows predate the change. If an
+insert starts failing on a column no entity mentions, that is why: drop the column by hand, or reset.
+
 ### What a reset does *not* have to clean
 
 Chunk voxel data. `ChunkService` builds its store over a `MemoryBlobStore()`

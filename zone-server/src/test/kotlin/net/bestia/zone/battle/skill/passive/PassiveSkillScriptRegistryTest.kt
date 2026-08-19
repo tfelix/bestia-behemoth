@@ -1,7 +1,10 @@
 package net.bestia.zone.battle.skill.passive
 
+import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.battle.skill.SkillContext
+import net.bestia.zone.battle.skill.SkillStrategyFactory
+import net.bestia.zone.battle.skill.SkillStrategy
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.Skill
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -27,12 +30,18 @@ class PassiveSkillScriptRegistryTest {
     override fun apply(context: StatusValueRecalcContext, level: Int) = Unit
   }
 
-  /** [script] is only non-null for castable skills, which `Skill` itself requires to have one. */
-  private fun skill(id: Long, identifier: String, type: AttackType, script: String? = null) = Skill(
+  /** Named `Firebolt`, so the strategy factory keys it under that name and FIREBOLT counts as castable. */
+  private class Firebolt : SkillStrategy {
+    override fun isCastPossible(ctx: SkillContext) = true
+    override fun execute(ctx: SkillContext): Damage? = null
+  }
+
+  private val strategies = SkillStrategyFactory(listOf(Firebolt()))
+
+  private fun skill(id: Long, identifier: String, script: String? = null) = Skill(
     id = id,
     identifier = identifier,
     strength = null,
-    type = type,
     script = script,
     manaCost = 0,
     range = null,
@@ -41,21 +50,23 @@ class PassiveSkillScriptRegistryTest {
     requiredLevel = 0
   )
 
-  private val innerPeace = skill(27L, "INNER_PEACE", AttackType.PASSIVE)
+  private val innerPeace = skill(27L, "INNER_PEACE")
 
   /**
-   * A PASSIVE skill nobody has written a script for. Most of the catalogue looks like this, and
-   * `DIVINE_PROTECTION` additionally carries a `script:` name in `skills.yml` with no bean behind
-   * it - a leftover from before passives had a pipeline. Binding must stay indifferent to both.
+   * A passive nobody has written a script for. Most of the catalogue looks like this: with `Skill.type` gone,
+   * "no castable script" is exactly what makes a skill passive, so binding must stay indifferent to it.
    */
-  private val divineProtection = skill(2L, "DIVINE_PROTECTION", AttackType.PASSIVE)
+  private val divineProtection = skill(2L, "DIVINE_PROTECTION")
 
-  private val firebolt = skill(5L, "FIREBOLT", AttackType.NO_DAMAGE, script = "Firebolt")
+  private val firebolt = skill(5L, "FIREBOLT", script = "Firebolt")
+
+  private fun registry(vararg scripts: PassiveSkillScript) =
+    PassiveSkillScriptRegistry(scripts.toList(), strategies)
 
   @Test
   fun `a script binds to the skill it names`() {
     val script = InnerPeaceStub()
-    val registry = PassiveSkillScriptRegistry(listOf(script))
+    val registry = registry(script)
 
     registry.bind(listOf(innerPeace, divineProtection, firebolt))
 
@@ -70,7 +81,7 @@ class PassiveSkillScriptRegistryTest {
     // Deliberately only validated in one direction. Roughly twenty catalogued passives have no
     // implementation, and failing boot on them would make the server unbootable against any real
     // database - the same reason SkillScriptBootValidator warns rather than throws.
-    val registry = PassiveSkillScriptRegistry(listOf(InnerPeaceStub()))
+    val registry = registry(InnerPeaceStub())
 
     registry.bind(listOf(innerPeace, divineProtection))
 
@@ -82,7 +93,7 @@ class PassiveSkillScriptRegistryTest {
   fun `a script naming an unknown skill fails binding`() {
     // The typo case. A script bean exists in code, so a miss can only be a mistake - unlike the
     // reverse direction, it has no legitimate in-between state and must not go quietly inert.
-    val registry = PassiveSkillScriptRegistry(listOf(MissingSkillScript()))
+    val registry = registry(MissingSkillScript())
 
     val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(innerPeace)) }
 
@@ -90,20 +101,20 @@ class PassiveSkillScriptRegistryTest {
   }
 
   @Test
-  fun `a script naming a non-passive skill fails binding`() {
-    // Only passives are folded into the status recalc; a castable skill resolves through
-    // SkillStrategy instead, and naming one here would silently never fire.
-    val registry = PassiveSkillScriptRegistry(listOf(CastableSkillScript()))
+  fun `a script naming a castable skill fails binding`() {
+    // A skill is either cast or always-on, never both: the two would read the same invested level and
+    // nothing decides which one a point bought. This is the check that replaced `type != PASSIVE`.
+    val registry = registry(CastableSkillScript())
 
     val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(firebolt)) }
 
-    assertEquals(true, ex.message!!.contains("PASSIVE"))
+    assertEquals(true, ex.message!!.contains("FIREBOLT"))
   }
 
   @Test
   fun `binding is empty before it has run`() {
     // The registry is a bean long before PassiveSkillScriptBinderBootRunner fires; anything reading
     // it in that window must see nothing rather than a half-built map.
-    assertEquals(emptyMap<Long, PassiveSkillScript>(), PassiveSkillScriptRegistry(listOf(InnerPeaceStub())).bound())
+    assertEquals(emptyMap<Long, PassiveSkillScript>(), registry(InnerPeaceStub()).bound())
   }
 }

@@ -43,9 +43,6 @@ abstract class SkillDbSyncTask : DefaultTask() {
     const val DEFAULT_MAX_LEVEL = 1
     const val DEFAULT_TARGET_TYPE = "GROUND"
     const val DEFAULT_IS_PASSIVE = false
-
-    /** The `net.bestia.zone.battle.skill.SkillType` name the client cares about, as spelled in `skills.yml`. */
-    const val PASSIVE_SKILL_TYPE = "PASSIVE"
   }
 
   @get:InputFile
@@ -68,7 +65,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val id: Long,
     val identifier: String,
     val description: String? = null,
-    val type: String? = null,
+    val script: String? = null,
     val targetType: String,
     val aoeRadius: Double? = null,
     val castTime: Double = 0.0
@@ -97,9 +94,14 @@ abstract class SkillDbSyncTask : DefaultTask() {
     val subTree: String,
 
     /**
-     * Whether the server catalogues this as [net.bestia.zone.battle.skill.SkillType.PASSIVE], the one
-     * distinction the client draws between skill types - a passive is never cast, so the client hides
-     * every way to activate it. The other types only matter to the server's damage formula.
+     * Whether the client must hide every way to activate this skill. Derived from whether `skills.yml` gives
+     * it a `script`, which is the server's own definition of castable - there is no `type` field to read, and
+     * a skill with no script has nothing to run if it were cast. See
+     * `net.bestia.zone.battle.skill.SkillStrategyFactory.isCastable`.
+     *
+     * The build cannot see Spring beans, so a script name with no bean behind it still reads as castable here
+     * while the server refuses the cast. That is the unimplemented-skill case, and `SkillScriptBootValidator`
+     * is what reports it.
      */
     val isPassive: Boolean
   )
@@ -127,7 +129,7 @@ abstract class SkillDbSyncTask : DefaultTask() {
         skill.castTime,
         node?.tree.orEmpty(),
         node?.subTree.orEmpty(),
-        skill.type == PASSIVE_SKILL_TYPE
+        skill.script == null
       )
     }
 
@@ -297,9 +299,8 @@ abstract class SkillDbSyncTask : DefaultTask() {
         }
       }
 
-      // Only the client's one type distinction is mirrored: whether the skill is PASSIVE, which
-      // decides whether the Skills window offers any way to cast it. MAGIC vs MELEE_PHYSICAL vs the
-      // rest is server-side damage math the client never needs.
+      // The one thing the client needs to know beyond presentation: whether there is any way to cast this,
+      // which decides whether the Skills window lets it be dragged to the hotbar.
       run {
         val currentText = file.readText()
         val currentIsPassive = isPassivePattern.find(currentText)?.groupValues?.get(1)?.toBoolean()

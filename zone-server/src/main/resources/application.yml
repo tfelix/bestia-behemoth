@@ -149,6 +149,26 @@ navigation:
   # hundred NPCs changing their minds together reads as a system reacting rather than creatures finding out.
   macro-replan-jitter-seconds: 60
 
+# Bounds on what one skill script may do to the world. A script runs off the tick thread (see
+# SkillExecutionService), but it reaches the world through the same lock the tick holds - so what these limit
+# is lock occupancy, not tick time. A script that trips either of them has a bug: the cast fizzles and the
+# overrun is logged at ERROR with the skill and the caster.
+skill:
+  # World operations one cast may spend - a component read, a spatial query, a spawn, a message. Each is one
+  # short lock scope, so this is the number that bounds how long a cast can keep the tick waiting. The
+  # busiest script today (a crafting activation: position, station, master, place) spends four, and a spawn
+  # is charged eight, so this is generous by an order of magnitude while still catching a loop.
+  world-ops-per-cast: 64
+  # Entities one spatial query may answer with, charged per result on top of the query itself. Over this the
+  # query is refused rather than truncated - a script that silently saw half the entities in a cube would be
+  # a bug nobody could see. Must stay below world-ops-per-cast, or the op budget always trips first and this
+  # limit never reports anything; SkillExecutionConfig refuses to start if it does not.
+  max-query-results: 32
+  # Wall clock one cast may take, checked whenever an operation is charged. It catches a script looping
+  # *between* operations; it cannot interrupt one already running, so it is a runaway guard rather than the
+  # bound. The op count above is what pins behaviour.
+  max-millis-per-cast: 250
+
 world:
   tick-rate: 20
   parallel-systems: false

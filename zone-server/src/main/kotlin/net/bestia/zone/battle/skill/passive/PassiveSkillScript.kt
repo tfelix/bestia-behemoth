@@ -3,7 +3,7 @@ package net.bestia.zone.battle.skill.passive
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 
 /**
- * The always-on effect of a [net.bestia.zone.battle.skill.AttackType.PASSIVE] skill: a contribution
+ * The always-on effect of a passive skill: a contribution
  * folded into an entity's effective status values every time
  * `net.bestia.zone.ecs.battle.effects.StatusValueRecalcSystem` rebuilds them, scaled by how many
  * levels the entity has invested.
@@ -17,10 +17,10 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
  *
  * The obvious design is to reuse the existing nullable `script` column the way equipment does. That
  * would work now that `SkillImporterBootRunner.tryUpdate` propagates content edits onto existing
- * rows, but it buys nothing: the `script` column already means "the [net.bestia.zone.battle.skill.SkillStrategy] that resolves
- * this skill when cast", and a passive is never cast - [net.bestia.zone.battle.skill.SkillStrategyFactory] throws on a PASSIVE
- * skill and `SkillScriptBootValidator` skips them entirely. One column resolving into two unrelated
- * bean registries depending on the row's `type` is a worse contract than a name on the bean.
+ * rows, but it buys nothing: the `script` column already means "the [net.bestia.zone.battle.skill.SkillStrategy] that
+ * resolves this skill when cast", and a passive is never cast. One column resolving into two unrelated bean
+ * registries is a worse contract than a name on the bean - and now that `Skill.type` is gone, the *absence* of
+ * a castable script is precisely what makes a skill passive, so the column could not carry both anyway.
  *
  * Declaring the identifier on the bean keeps the two vocabularies apart, and follows what this
  * codebase already does for the two passives that were wired by hand -
@@ -32,8 +32,8 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 interface PassiveSkillScript {
 
   /**
-   * The `skills.yml` identifier of the PASSIVE skill this implements, e.g. `INNER_PEACE`. Resolved
-   * to a skill id once at boot; a value that matches no skill, or one that is not PASSIVE, fails
+   * The `skills.yml` identifier of the passive skill this implements, e.g. `INNER_PEACE`. Resolved
+   * to a skill id once at boot; a value that matches no skill, or one that is also castable, fails
    * startup rather than going quietly inert.
    */
   val skillIdentifier: String

@@ -69,7 +69,7 @@ class ActivateSkillHandler(
     val targetEntityId = msg.targetEntityId.takeIf { it != 0L }
     val targetPosition: Vec3L? = if (targetEntityId == null) msg.targetPosition else null
 
-    world.modify(activeEntityId) { id ->
+    val started = world.modify(activeEntityId) { id ->
       // Before the cast-time branch, deliberately: a message-handler context never runs nested inside
       // scheduler.tick(), so this add() applies immediately - unlike promoting only from
       // BattleContextFactory, which a channelled cast reaches from inside CastingSystem.update() and would
@@ -87,16 +87,22 @@ class ActivateSkillHandler(
             totalSeconds = skill.castTime
           )
         )
-      } else {
-        skillExecutionService.execute(
-          world = this,
-          casterId = id,
-          skillId = skill.id,
-          skillLevel = msg.skillLevel,
-          targetEntityId = targetEntityId,
-          targetPosition = targetPosition
-        )
       }
+
+      id
+    } ?: return true
+
+    // Outside the modify scope on purpose: resolution runs on a worker that has to take the world lock, and
+    // handing it work while this thread still holds that lock would just make the worker wait.
+    if (skill.castTime <= 0f) {
+      skillExecutionService.execute(
+        world = world,
+        casterId = started,
+        skillId = skill.id,
+        skillLevel = msg.skillLevel,
+        targetEntityId = targetEntityId,
+        targetPosition = targetPosition
+      )
     }
 
     return true

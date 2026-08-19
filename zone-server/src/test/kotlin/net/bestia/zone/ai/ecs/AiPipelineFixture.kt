@@ -9,12 +9,12 @@ import net.bestia.zone.ai.perception.ForageSense
 import net.bestia.zone.ai.perception.PerceptionSystem
 import net.bestia.zone.ai.perception.SenseSystem
 import net.bestia.zone.ai.profile.AiProfileRegistry
+import net.bestia.zone.battle.skill.AttackExecutionService
 import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.ZoneConfig
 import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.battle.damage.TakenDamage
-import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
@@ -32,16 +32,17 @@ import net.bestia.zone.util.EntityId
 /**
  * The whole AI pipeline wired for a test, without a Spring context and without a generated world.
  *
- * `SkillExecutionService` is mocked rather than built. Constructing a real one means a skill repository, a
- * strategy factory, a battle-context factory, an outbound message processor and a status-effect service —
- * none of which an AI test has an opinion about. What an AI test *does* have an opinion about is whether the
- * creature decided to attack the right target with the right skill, and a mock records exactly that. Damage
- * arithmetic is the battle system's business and is tested there.
+ * Both attack services are mocked rather than built. Constructing a real `SkillExecutionService` means a skill
+ * repository, a strategy factory, a context factory and a job executor — none of which an AI test has an
+ * opinion about. What an AI test *does* have an opinion about is whether the creature decided to attack the
+ * right target by the right route, and a mock records exactly that. Damage arithmetic is the battle system's
+ * business and is tested there.
  */
 class AiPipelineFixture(tickRate: Int = 20) {
 
   val aoi = EntityAOIService()
   val skills: SkillExecutionService = mockk(relaxed = true)
+  val attackExecution: AttackExecutionService = mockk(relaxed = true)
   val sharedMemory = SharedMemoryService()
 
   val profiles = AiProfileRegistry().apply { load() }
@@ -69,6 +70,7 @@ class AiPipelineFixture(tickRate: Int = 20) {
   val agentFactory = AiAgentFactory(
     navigation = TestNavigation.service(),
     skills = skills,
+    attackExecution = attackExecution,
     sharedMemory = sharedMemory,
   )
 
@@ -87,13 +89,15 @@ class AiPipelineFixture(tickRate: Int = 20) {
 
   val world: World = testWorld(systems = systems)
 
-  /** A mob running [profileId], at [pos], with the basic attack seeded the way the real spawner does. */
+  /**
+   * A mob running [profileId], at [pos]. No `KnownSkills`: a basic attack is not a catalogued skill, which is
+   * what the real spawner does too.
+   */
   fun spawnMob(profileId: String, pos: Vec3L, health: Int = 10, maxHealth: Int = 10): EntityId =
     world.createEntity { id ->
       world.add(id, Position.fromVec3(pos))
       world.add(id, Health(health, maxHealth))
       world.add(id, Speed())
-      world.add(id, KnownSkills(mutableMapOf(0L to 1)))
       world.add(id, Animation())
       world.add(id, agentFactory.create(profiles.getOrThrow(profileId), homePosition = pos))
     }

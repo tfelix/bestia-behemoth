@@ -2,7 +2,6 @@ package net.bestia.zone.battle.skill.scripts
 
 import net.bestia.zone.battle.LineOfSightService
 import net.bestia.zone.battle.skill.CraftingSkillStrategy
-import net.bestia.zone.world.prop.StaticEntityKind
 import org.springframework.stereotype.Component
 
 /**

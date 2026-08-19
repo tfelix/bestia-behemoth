@@ -10,10 +10,14 @@ import net.bestia.zone.battle.status.StatusValues
 
 object BattleContextFixture {
 
+  const val ATTACKER_ID = 1L
+  const val DEFENDER_ID = 2L
+
   fun entityCtx(
     attack: BattleAttack = attack(),
     attackerEntity: BattleEntity = battleEntity(),
-    defenderEntity: BattleEntity = battleEntity()
+    // A distinct id, so a test asserting which side something landed on cannot pass by accident.
+    defenderEntity: BattleEntity = battleEntity(id = DEFENDER_ID)
   ): BattleContext {
     return EntityBattleContext(
       usedAttack = attack,
@@ -26,14 +30,16 @@ object BattleContextFixture {
 
   fun attack(
     level: Int = 1,
-    aoeRadius: Double? = null
+    aoeRadius: Double? = null,
+    range: Long = 5,
+    needsLineOfSight: Boolean = false
   ): BattleAttack {
     return BattleAttack(
       strength = 0,
       manaCost = 10,
-      range = 5,
-      attackType = AttackType.NO_DAMAGE,
-      needsLineOfSight = false,
+      range = range,
+      attackType = AttackType.MELEE_PHYSICAL,
+      needsLineOfSight = needsLineOfSight,
       aoeRadius = aoeRadius,
       attackElement = Element.NORMAL,
       level = level,
@@ -59,7 +65,8 @@ object BattleContextFixture {
     level: Int = 10,
     intelligence: Int = 10,
     maxHealth: Int = 0,
-    activeEffectIds: Set<Long> = emptySet()
+    activeEffectIds: Set<Long> = emptySet(),
+    id: Long = ATTACKER_ID
   ): BattleEntity {
     val statusValues = StatusValues(
       agility = 10,
@@ -71,7 +78,7 @@ object BattleContextFixture {
     )
 
     return BattleEntity(
-      id = 1,
+      id = id,
       position = Vec3L(1, 0, 0),
       level = level,
       defense = DefenseValues(

@@ -1,108 +1,66 @@
 package net.bestia.zone.battle.skill
 
-import net.bestia.zone.battle.BattleContext
-import net.bestia.zone.battle.BattleEntity
-import net.bestia.zone.battle.Element
-import net.bestia.zone.battle.EntityBattleContext
-import net.bestia.zone.battle.GroundBattleContext
-import net.bestia.zone.battle.Weapon
-import net.bestia.zone.battle.skill.BattleAttack
-import net.bestia.zone.battle.status.DefenseValues
-import net.bestia.zone.battle.status.DerivedStatusValues
-import net.bestia.zone.battle.damage.DamageVariables
-import net.bestia.zone.ecs.battle.effects.StatusEffects
-import net.bestia.zone.ecs.battle.level.Level
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.StatusValues
-import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.battle.BattleContextFactory
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
+import net.bestia.zone.skill.Skill
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
 /**
- * Projects live ECS state onto the [BattleContext] value objects the damage calculation works with.
- * This is the bridge that was missing between the ECS and the (previously unreachable) battle
- * package - nothing built a [BattleEntity] from an entity id before.
+ * Builds the [SkillContext] one cast runs against: a snapshot of the fight plus a fresh budget.
  *
- * Must be called while the world lock is held; callers pass the [World] they already have (a system
- * on the tick thread, or the receiver inside a `WorldView.read/modify` block).
+ * The snapshot is taken inside a single lock scope and is a plain value afterwards, which is what lets
+ * the rest of the cast run off the tick thread. [BattleContextFactory] does that part - it is the one
+ * place ECS state is projected onto [net.bestia.zone.battle.BattleEntity], and duplicating it here
+ * would give the skill pathway a second copy of the defence and status formulas to drift from.
  */
 @Component
 class SkillContextFactory(
+  private val battleContextFactory: BattleContextFactory,
+  private val skillWorldServices: SkillWorldServices,
+  private val config: SkillExecutionConfig,
 ) {
 
+  /**
+   * Null when the cast has nothing left to resolve against: a caster or target that died or despawned,
+   * or a ground cast with no position.
+   */
   fun create(
-    usedAttack: BattleAttack,
+    world: WorldView,
+    casterId: EntityId,
+    skill: Skill,
+    skillLevel: Int,
     targetEntityId: EntityId?,
     targetPosition: Vec3L?
-  ): BattleContext? {
-    val attacker = battleEntity(world, attackerId) ?: return null
+  ): SkillContext? {
+    val usedAttack = BattleAttack.of(skill, skillLevel)
 
-    if (targetEntityId != null) {
-      val defender = battleEntity(world, targetEntityId) ?: return null
+    val battle = world.read {
+      battleContextFactory.create(this, casterId, usedAttack, targetEntityId, targetPosition)
+    } ?: return null
 
-      return EntityBattleContext(
-        usedAttack = usedAttack,
-        attacker = attacker,
-        weapon = equippedWeapon(),
-        damageVariables = DamageVariables(),
-        defender = defender
-      )
-    }
+    val budget = SkillBudget(
+      maxOps = config.worldOpsPerCast,
+      maxQueryResults = config.maxQueryResults,
+      maxMillis = config.maxMillisPerCast
+    )
 
-    return GroundBattleContext(
-      usedAttack = usedAttack,
-      attacker = attacker,
-      weapon = equippedWeapon(),
-      damageVariables = DamageVariables(),
-      targetPosition = targetPosition ?: return null
+    return SkillContext(
+      battle = battle,
+      world = BudgetedSkillWorld(
+        world = world,
+        budget = budget,
+        services = skillWorldServices,
+        casterId = casterId,
+        skillId = skill.id,
+        skillLevel = skillLevel
+      ),
+      casterId = casterId,
+      targetEntityId = targetEntityId,
+      targetPosition = targetPosition,
+      skillId = skill.id,
+      skillLevel = skillLevel
     )
   }
-
-  private fun battleEntity(world: World, entityId: EntityId): BattleEntity? {
-    if (!world.isAlive(entityId)) {
-      return null
-    }
-
-    // A defensive, idempotent no-op for anything already promoted or never a prop; the call site that
-    // actually matters for a channelled skill is ActivateSkillHandler - see PropPromotionService's own KDoc
-    // for why calling it only here would fizzle the first hit of a channelled cast.
-    if (!propPromotion.promoteIfNeeded(world, entityId)) return null
-
-    val position = world.get(entityId, Position::class)?.toVec3L() ?: return null
-    val attributes = world.get(entityId, StatusValues::class) ?: return null
-    val level = world.get(entityId, Level::class)?.level ?: 1
-
-    val statusValues = net.bestia.zone.battle.status.StatusValues(
-      strength = attributes.strength,
-      vitality = attributes.vitality,
-      intelligence = attributes.intelligence,
-      agility = attributes.agility,
-      willpower = attributes.willpower,
-      dexterity = attributes.dexterity
-    )
-
-    return BattleEntity(
-      id = entityId,
-      position = position,
-      level = level,
-      // Soft defense per the docs' SoftDEF/SoftMDEF formulas. Hard (equipment) defense is a
-      // separate term still missing until an armour system lands.
-      defense = DefenseValues.fromStatusValues(level, statusValues),
-      statusValues = statusValues,
-      derivedStatusValues = DerivedStatusValues.fromStatusValues(level, statusValues),
-      // TODO No element component exists yet; everything is NORMAL until elements are modelled.
-      assumedElement = Element.NORMAL,
-      maxHealth = world.get(entityId, Health::class)?.max ?: 0,
-      activeEffectIds = world.get(entityId, StatusEffects::class)
-        ?.activeEffects
-        ?.mapTo(mutableSetOf()) { it.definitionId }
-        ?: emptySet()
-    )
-  }
-
-  // TODO There is no equipment system yet, so every entity fights bare-handed.
-  private fun equippedWeapon() = Weapon(atk = 0, matk = 0, upgradeLevel = 0)
 }

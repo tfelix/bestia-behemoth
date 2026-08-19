@@ -20,7 +20,17 @@ data class DamageEntitySMSG(
     NORMAL,
     CRIT,
     DODGE,
-    HEAL
+    HEAL;
+
+    companion object {
+      /** Exhaustive over [Damage], so a new result type is a compile error here rather than a silent NORMAL. */
+      fun of(damage: Damage): DamageType = when (damage) {
+        is Miss -> MISS
+        is CriticalHit -> CRIT
+        is Heal -> HEAL
+        is HitDamage, is TrueDamage -> NORMAL
+      }
+    }
   }
 
   override fun toBnetEnvelope(): EnvelopeProto.Envelope {

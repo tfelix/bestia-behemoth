@@ -6,7 +6,6 @@ import net.bestia.zone.ai.ecs.AiAgentFactory
 import net.bestia.zone.ai.profile.AiProfileRegistry
 import net.bestia.zone.navigation.MovementCapability
 import net.bestia.zone.navigation.profile.MovementProfileRegistry
-import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.BaseStatusValues
 import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.battle.status.Stamina
@@ -102,9 +101,12 @@ class BestiaEntitySpawner(
 
   /**
    * Attaches AI to a freshly spawned mob when its bestia declares an AI archetype. The [AiAgent] does not
-   * implement `Dirtyable`, which is what keeps AI internals off the wire; [KnownSkills] seeds the basic
-   * attack its attack actions cast. [spawnPosition] becomes the home position it wanders around and
-   * returns to.
+   * implement `Dirtyable`, which is what keeps AI internals off the wire. [spawnPosition] becomes the home
+   * position it wanders around and returns to.
+   *
+   * No [net.bestia.zone.ecs.battle.skill.KnownSkills] is seeded: a mob's basic attack is not a catalogued
+   * skill and needs no entry (it used to be seeded as skill id 0, a row `skills.yml` never had). A mob that
+   * should also *cast* something gets a real skill id from its AI profile's attack list.
    */
   private fun World.attachAi(id: EntityId, bestia: Bestia, spawnPosition: Vec3L) {
     val profileId = bestia.aiProfile ?: return
@@ -116,7 +118,6 @@ class BestiaEntitySpawner(
     }
 
     add(id, aiAgentFactory.create(profile, homePosition = spawnPosition))
-    add(id, KnownSkills(mutableMapOf(BASIC_ATTACK_ID to 1)))
   }
 
   fun spawnMob(
@@ -135,6 +136,5 @@ class BestiaEntitySpawner(
 
   companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val BASIC_ATTACK_ID = 0L
   }
 }

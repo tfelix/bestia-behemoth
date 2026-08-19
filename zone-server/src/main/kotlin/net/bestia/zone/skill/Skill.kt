@@ -2,7 +2,6 @@ package net.bestia.zone.skill
 
 import jakarta.persistence.*
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.AttackType
 import net.bestia.zone.util.requireValidIdentifier
 
 @Entity
@@ -22,9 +21,15 @@ class Skill(
   @Column(nullable = true)
   var strength: Int?,
 
-  @Column(nullable = false)
-  var type: AttackType,
-
+  /**
+   * Names the `SkillStrategy` that implements this skill, and so decides whether it can be *cast* at all -
+   * see `SkillStrategyFactory.isCastable`. Null means it cannot be: a passive, or a skill nobody has written
+   * yet. There is deliberately no `type` column saying so; one enum meaning both "how is damage calculated"
+   * and "may this be cast" is what the skill/attack split was undoing.
+   *
+   * A passive with a stat effect leaves this null too - its `PassiveSkillScript` names the skill rather than
+   * the other way round, which keeps this column resolving into exactly one bean registry.
+   */
   @Column(nullable = true)
   var script: String?,
 
@@ -77,7 +82,6 @@ class Skill(
    */
   fun updateContentFrom(other: Skill): Boolean {
     val changed = strength != other.strength ||
-        type != other.type ||
         script != other.script ||
         manaCost != other.manaCost ||
         range != other.range ||
@@ -93,7 +97,6 @@ class Skill(
     }
 
     strength = other.strength
-    type = other.type
     script = other.script
     manaCost = other.manaCost
     range = other.range
@@ -114,16 +117,6 @@ class Skill(
 
     require(castTime >= 0f) {
       "Skill $identifier: castTime must be >= 0"
-    }
-
-    // No damage skills are required to have a script and strength set to null.
-    if (type == AttackType.NO_DAMAGE) {
-      requireNotNull(script) {
-        "Skill $identifier is NO_DAMAGE and must have a script attached"
-      }
-      require(strength == null) {
-        "Skill $identifier is NO_DAMAGE and must have strength set to null"
-      }
     }
 
     val radius = aoeRadius

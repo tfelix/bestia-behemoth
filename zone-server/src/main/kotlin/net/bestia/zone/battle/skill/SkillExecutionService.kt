@@ -1,72 +1,95 @@
 package net.bestia.zone.battle.skill
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.battle.StatusEffectService
-import net.bestia.zone.battle.damage.AreaEffectResult
-import net.bestia.zone.battle.damage.Buff
-import net.bestia.zone.battle.damage.CraftingResult
-import net.bestia.zone.battle.damage.CriticalHit
-import net.bestia.zone.battle.damage.DamageEntitySMSG
-import net.bestia.zone.battle.damage.Heal
-import net.bestia.zone.battle.damage.HitDamage
-import net.bestia.zone.battle.damage.Miss
-import net.bestia.zone.battle.damage.SurveyResult
-import net.bestia.zone.battle.damage.TrueDamage
-import net.bestia.zone.ecs.battle.effects.AreaEffectSpawner
-import net.bestia.zone.ecs.battle.damage.Damage as DamageComponent
-import net.bestia.zone.ecs.battle.status.Health
-import net.bestia.zone.ecs.battle.status.Mana
-import net.bestia.zone.ecs.core.World
-import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.geometry.Vec3L
-import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.Skill
 import net.bestia.zone.skill.SkillRepository
-import net.bestia.zone.crafting.CraftingService
-import net.bestia.zone.cartography.SurveyService
-import net.bestia.zone.ecs.account.Account
-import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.skill.findByIdOrThrow
-import net.bestia.zone.world.prop.PlayerStructureService
 import net.bestia.zone.util.EntityId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
-import net.bestia.zone.battle.damage.Damage as DamageResult
 
 /**
- * Resolves an activated skill: builds the battle context, picks the strategy, runs it and applies the
- * result. This is the single place where a skill actually takes effect, whether it fired instantly
- * (no cast time) or at the end of a channelled cast.
+ * Resolves an activated skill: builds the context, runs the script, applies whatever number came back.
+ * The single place a skill takes effect, whether it fired instantly or at the end of a channelled cast.
  *
- * Runs with the world lock held (the lock is reentrant, so both the tick thread and a message handler
- * inside a `modify` block can call in).
+ * ### Skills resolve off the tick thread
+ *
+ * [execute] enqueues and returns; the work happens on an [AsyncJobExecutor] worker. That is what lets a
+ * script query and spawn and do relational work itself, instead of returning a spec for this service to
+ * enact - the arrangement the deleted `AreaEffectResult`/`CraftingResult`/`SurveyResult` types existed to
+ * work around.
+ *
+ * It is safe because `World.tick` holds the world lock for its whole duration, and every scope a script
+ * opens takes that same lock. A cast therefore never interleaves with a tick: inside one of its scopes
+ * `World.iterating` is always false, so structural changes apply immediately rather than being deferred,
+ * and a get-or-create on the target's `Damage` component is atomic against every other caster. The cost
+ * is lock *contention*, which [SkillBudget] bounds.
+ *
+ * Jobs are keyed on the caster, so two casts by the same entity resolve in the order they were activated.
+ *
+ * ### What is still checked here rather than in the script
+ *
+ * Mana and liveness, because every skill pays them the same way. Everything else - who may be targeted,
+ * what the skill does, what it leaves behind - is the script's.
  */
 @Service
 class SkillExecutionService(
   private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
-  private val outMessageProcessor: OutMessageProcessor,
-  private val statusEffectService: StatusEffectService,
+  private val skillContextFactory: SkillContextFactory,
+  private val asyncJobExecutor: AsyncJobExecutor,
 ) {
 
   /**
-   * Skills are immutable once imported, so they are cached rather than hitting JPA on every cast -
-   * this runs on the tick thread under the world lock, where a database round trip would stall the
-   * whole simulation.
+   * Skills are immutable once imported, so they are cached rather than hitting JPA on every cast. Kept
+   * even though resolution moved off the tick thread: a cast is on the critical path of somebody pressing
+   * a button, and a round trip per keypress is still a round trip.
    */
   private val skillCache = ConcurrentHashMap<Long, Skill>()
 
+  /**
+   * Queues [skillId] for resolution and returns immediately, from any thread.
+   *
+   * The worker takes the world lock, so it waits out whatever scope the caller is inside. From a system that
+   * is expected and bounded - `CastingSystem` runs inside `World.tick`, which holds the lock for the whole
+   * tick, and the worker simply starts when the tick ends. From a message handler it is worth avoiding, since
+   * a handler's scope is as long as the handler makes it; `ActivateSkillHandler` calls this outside its
+   * `modify` block for that reason.
+   *
+   * A waiting worker is one of four in a pool shared with `ZoneEngine`'s outbound broadcasts, so a cast
+   * queued mid-tick does cost the pool a worker for the rest of that tick. It cannot deadlock: nothing ever
+   * waits on a submitted job.
+   */
   fun execute(
-    world: World,
+    world: WorldView,
     casterId: EntityId,
     skillId: Long,
     skillLevel: Int,
     targetEntityId: EntityId?,
     targetPosition: Vec3L?
   ) {
-    // TODO check if the entity owns the requested skill in this level?
+    asyncJobExecutor.submit(casterId) {
+      resolve(world, casterId, skillId, skillLevel, targetEntityId, targetPosition)
+    }
+  }
 
-    val skill = skillCache.computeIfAbsent(skillId) { skillRepository.findByIdOrThrow(it) }
+  private fun resolve(
+    world: WorldView,
+    casterId: EntityId,
+    skillId: Long,
+    skillLevel: Int,
+    targetEntityId: EntityId?,
+    targetPosition: Vec3L?
+  ) {
+    val skill = try {
+      skillCache.computeIfAbsent(skillId) { skillRepository.findByIdOrThrow(it) }
+    } catch (e: Exception) {
+      LOG.warn(e) { "Skill $skillId activated by $casterId is not in the catalogue, ignoring" }
+      return
+    }
 
     val strategy = try {
       skillStrategyFactory.getSkillStrategy(skill)
@@ -75,95 +98,42 @@ class SkillExecutionService(
       return
     }
 
-    // Checked here rather than at activation on purpose: for a channelled skill the caster may have
-    // drifted out of range or lost line of sight while casting, which must make the skill fizzle.
-    if (!strategy.isAttackPossible(ctx)) {
-      LOG.debug { "Skill $skillId by $casterId fizzled: attack not possible (range/line of sight)" }
+    val ctx = skillContextFactory.create(world, casterId, skill, skillLevel, targetEntityId, targetPosition)
+    if (ctx == null) {
+      LOG.debug { "Skill $skillId by $casterId fizzled: caster or target no longer resolvable" }
       return
     }
 
-    if (!consumeMana(world, casterId, skill.manaCost)) {
-      LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana" }
-      return
-    }
-
-    applyResult(world, casterId, skillId, skillLevel, targetEntityId, targetPosition, strategy.execute(ctx))
-
-    // After the result, so a skill that marks its target only does so once the cast really resolved.
-    targetEntityId?.let { target ->
-      strategy.effectsOnTarget(ctx).forEach { effect ->
-        statusEffectService.applyEffect(world, target, effect, skillLevel, casterId)
-      }
-    }
-  }
-
-  /** Returns false (spending nothing) when the caster cannot pay. */
-  private fun consumeMana(world: World, casterId: EntityId, manaCost: Int): Boolean {
-    if (manaCost <= 0) {
-      return true
-    }
-
-    val mana = world.get(casterId, Mana::class) ?: return true
-    if (mana.current < manaCost) {
-      return false
-    }
-
-    mana.current -= manaCost
-    return true
-  }
-
-  private fun applyResult(
-    world: World,
-    casterId: EntityId,
-    skillId: Long,
-    skillLevel: Int,
-    targetEntityId: EntityId?,
-    targetPosition: Vec3L?,
-    result: DamageResult
-  ) {
-
-    // Every other result is a number aimed at one entity, which a ground-targeted skill does not have.
-    val targetId = targetEntityId ?: return
-
-    val type = when (result) {
-      is Miss -> DamageEntitySMSG.DamageType.MISS
-      is CriticalHit -> DamageEntitySMSG.DamageType.CRIT
-      is Heal -> DamageEntitySMSG.DamageType.HEAL
-      is HitDamage, is TrueDamage -> DamageEntitySMSG.DamageType.NORMAL
-    }
-
-    val position = world.get(casterId, Position::class)?.toVec3L() ?: return
-    val msg = DamageEntitySMSG(
-      entityId = targetId,
-      sourceEntityId = casterId,
-      attackId = skillId.toInt(),
-      div = 1,
-      damage = result.amount,
-      skillLevel = skillLevel,
-      type = type
-    )
-
-    // Deferred for two reasons: the network fan-out (an AOI query plus writes) should not happen in
-    // the middle of a system, and `World.add` is itself deferred while a system iterates - so
-    // staging damage inline would make two casts landing on the same target in the same tick each
-    // create their own Damage component, the second silently replacing the first. Inside a deferred
-    // block structural changes are applied immediately, so the get-or-create below is sound.
-    world.defer {
-      when (result) {
-        is Miss -> Unit
-
-        // CurMax.current clamps to [0, max] itself.
-        is Heal -> world.get(targetId, Health::class)?.let { it.current += result.amount }
-
-        // Damage is staged on the target as a component; ReceivedDamageSystem drains it into Health,
-        // which also handles death, threat tracking and interrupting the victim's own cast.
-        else -> {
-          val damage = world.get(targetId, DamageComponent::class) ?: world.add(targetId, DamageComponent())
-          damage.add(result.amount, casterId)
-        }
+    try {
+      // Checked here rather than at activation on purpose: for a channelled skill the caster may have
+      // drifted out of range or lost line of sight while casting, which must make the skill fizzle.
+      if (!strategy.isCastPossible(ctx)) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: the cast is no longer possible" }
+        return
       }
 
-      outMessageProcessor.sendToAllPlayersInRange(position, msg)
+      // After the possibility check and before the effect, so a refused cast costs nothing and a
+      // resolved one is always paid for.
+      if (!ctx.world.consumeCasterMana(skill.manaCost)) {
+        LOG.debug { "Skill $skillId by $casterId fizzled: not enough mana" }
+        return
+      }
+
+      val result = strategy.execute(ctx)
+
+      // A skill whose whole effect is a patch of ground, a station or a chart has no number to show, and
+      // a ground-targeted one has no entity to show it on.
+      if (result != null && targetEntityId != null) {
+        ctx.world.apply(targetEntityId, result)
+      }
+
+      LOG.trace { "Skill $skillId by $casterId resolved, spending ${skill.manaCost} mana" }
+    } catch (e: SkillBudgetExceededException) {
+      // Not rolled back: the ECS has no transaction, so whatever the script already did stands. A script
+      // that trips this has a bug, and the log is what surfaces it.
+      LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId overran its execution budget" }
+    } catch (e: Exception) {
+      LOG.error(e) { "Skill $skillId (script=${skill.script}) by $casterId failed" }
     }
   }
 

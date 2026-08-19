@@ -2,7 +2,7 @@ package net.bestia.zone.ecs.battle.effects
 
 import net.bestia.zone.battle.StatusEffectService
 import net.bestia.zone.battle.skill.SkillTargetType
-import net.bestia.zone.battle.skill.AttackType
+import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.battle.skill.passive.PassiveSkillScript
 import net.bestia.zone.battle.skill.passive.PassiveSkillScriptRegistry
 import net.bestia.zone.battle.status.RegenModifier
@@ -147,7 +147,6 @@ class StatusEffectSystemsIntegrationTest {
     id = PASSIVE_SKILL_ID,
     identifier = "TEST_PASSIVE",
     strength = null,
-    type = AttackType.PASSIVE,
     script = null,
     manaCost = 0,
     range = null,
@@ -159,7 +158,7 @@ class StatusEffectSystemsIntegrationTest {
   private fun newWorld(
     script: StatusEffectScript,
     equipmentScriptRegistry: EquipmentScriptRegistry = EquipmentScriptRegistry(emptyList()),
-    passiveSkillScriptRegistry: PassiveSkillScriptRegistry = PassiveSkillScriptRegistry(emptyList())
+    passiveSkillScriptRegistry: PassiveSkillScriptRegistry = passiveRegistry()
   ): Pair<World, StatusEffectDefinitionRegistry> {
     val definitionRegistry = StatusEffectDefinitionRegistry()
     definitionRegistry.load(listOf(speedEffect, vitalityEffect, regenEffect))
@@ -181,9 +180,16 @@ class StatusEffectSystemsIntegrationTest {
     return world to definitionRegistry
   }
 
+  /**
+   * No skill strategies: nothing here is castable, which is exactly what makes [passiveSkill] passive now
+   * that `Skill.type` is gone.
+   */
+  private fun passiveRegistry(vararg scripts: PassiveSkillScript) =
+    PassiveSkillScriptRegistry(scripts.toList(), SkillStrategyFactory(emptyList()))
+
   /** A registry with [TestPassiveScript] already bound to [passiveSkill]. */
   private fun boundPassiveRegistry(): PassiveSkillScriptRegistry =
-    PassiveSkillScriptRegistry(listOf(TestPassiveScript())).apply { bind(listOf(passiveSkill)) }
+    passiveRegistry(TestPassiveScript()).apply { bind(listOf(passiveSkill)) }
 
   private fun World.seedStatusValues(entity: EntityId) {
     add(entity, BaseStatusValues(strength = 10, intelligence = 10, vitality = 10, dexterity = 10, willpower = 10, agility = 10))
