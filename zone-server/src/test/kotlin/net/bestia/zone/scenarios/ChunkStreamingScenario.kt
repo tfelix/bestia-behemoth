@@ -395,17 +395,19 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     // waterline, and `desiredChunks` unioned the player's own slab ±1 on top. In the 2.5 km ocean margin
     // that is six slabs per column, five of them solid water the client meshes to nothing - and it grew by
     // one more for every 256 m of depth. 726 chunks offered for a view that draws 121.
-    val outside = announced.filter { it.z < anchor.z - vertical || it.z > anchor.z + vertical }
+    // One slab below the clip is allowed and nothing further: a kept slab draws the surface at its own floor,
+    // so its floor neighbour comes with it or the pair draws nothing. See ChunkCoords.offeredSlabs.
+    val outside = announced.filter { it.z < anchor.z - vertical - 1 || it.z > anchor.z + vertical }
     assertTrue(
       outside.isEmpty(),
-      "nothing outside ${anchor.z} ± $vertical may be offered, however far the surface rule reaches; " +
-          "got ${outside.take(5)}"
+      "nothing below ${anchor.z - vertical - 1} or above ${anchor.z + vertical} may be offered, however far " +
+          "the surface rule reaches; got ${outside.take(5)}"
     )
 
     val perColumn = announced.groupingBy { it.x to it.y }.eachCount()
     assertTrue(
-      perColumn.values.all { it <= 2 * vertical + 1 },
-      "a column may cost at most ${2 * vertical + 1} slabs, but one cost ${perColumn.values.max()}"
+      perColumn.values.all { it <= 2 * vertical + 2 },
+      "a column may cost at most ${2 * vertical + 2} slabs, but one cost ${perColumn.values.max()}"
     )
 
     // The other half of the rule, and the reason the clip is safe: the player's own slab survives it
@@ -435,5 +437,43 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
       merged.occupancy[carvedIndex].toInt() and 0xFF,
       "the voxel at the centre of the brush should have been removed entirely"
     )
+  }
+
+  @Test
+  @Order(10)
+  fun `a request past the token budget is deferred rather than dropped`() {
+    // The rate limit used to `break` out of the loop and discard the rest of the request. Nothing brought those
+    // chunks back: the manifest offers what was never *announced*, not what never *arrived*, so a client that
+    // asked at the wrong moment held a permanent hole. A teleport asks for a whole view volume at once, which
+    // is exactly the wrong moment.
+    val account = clientPlayer1.connectedPlayerId
+    val announced = subscriptions.announcedTo(account)
+    val sent = subscriptions.sentTo(account)
+
+    // From the back of the set: the earlier tests took what they needed from the front, and these have to be
+    // chunks whose only route to the client is the request this test is about.
+    val fresh = announced.filterNot { it in sent }.takeLast(6)
+    assertTrue(fresh.size == 6, "need six un-sent offers to ask for, had ${fresh.size}")
+
+    clientPlayer1.clearMessages()
+
+    // Duplicates of one legitimate offer, because the gate refuses un-announced positions without charging for
+    // them - so junk cannot empty the bucket, only real asking can. A duplicate still costs a token, which
+    // makes this the cheapest way to reach the limit without disturbing anything else.
+    val barrier = fresh.first()
+    clientPlayer1.sendMessage(ChunkRequestCMSG(account, List(settings.requestBurst) { barrier }))
+
+    clientPlayer1.sendMessage(ChunkRequestCMSG(account, fresh))
+
+    await {
+      val missing = fresh.filterNot { chunk ->
+        clientPlayer1.receivedAny(ChunkDataSMSG::class) { it.chunk == chunk }
+      }
+
+      assertTrue(
+        missing.isEmpty(),
+        "every chunk asked for past the budget must still arrive as the bucket refills; never got $missing"
+      )
+    }
   }
 }

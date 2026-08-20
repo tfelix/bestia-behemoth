@@ -18,8 +18,9 @@ import org.springframework.stereotype.Component
  *
  * A chunk stream is the first thing here that can outrun a socket, and Netty's outbound buffer is not a
  * place to put backpressure - an unbounded queue of three-kilobyte payloads behind a slow client is how a
- * server runs out of heap because somebody is on hotel wifi. A skipped chunk is not lost: it stays
- * un-`markSent`, so the next manifest offers it again.
+ * server runs out of heap because somebody is on hotel wifi. Skipped is not lost, but it is the caller's to
+ * recover: it stays un-`markSent` and in `ChunkStreamSystem`'s own send queue, which retries it. The manifest
+ * will not, because it offers what was never announced rather than what never arrived.
  */
 @Component
 @Profile("!no-socket")

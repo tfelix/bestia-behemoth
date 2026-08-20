@@ -4,6 +4,7 @@ import net.bestia.bnet.proto.ChunkProto
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.zone.geometry.Vec3L
+import java.util.SortedSet
 
 /**
  * Translation between the ECS's position units and worldgen's chunk and voxel addresses.
@@ -82,6 +83,29 @@ object ChunkCoords {
    * Collapses to a single slab whenever sea level is not on a chunk boundary, which is the usual case for any
    * sea level that is not a multiple of the slab height.
    */
+  /**
+   * Which of a column's surface slabs to offer a player anchored in slab [anchorZ].
+   *
+   * The clip to [vertical] is what keeps the count proportional to what is on screen rather than to how deep
+   * the water is, and [anchorZ] survives it unconditionally so there is always ground underfoot.
+   *
+   * It may reach one slab further down than [vertical] allows, and has to. A surface is an interface between
+   * two slabs and is drawn by the upper one, so a slab kept while its floor neighbour is clipped away draws
+   * nothing - the failure [seaSurfaceSlabs] returns a pair to avoid. Only one level: a slab pulled in as
+   * somebody's floor is a source of voxels, not a thing that draws, so it needs no floor of its own.
+   *
+   * Ascending, because the caller's insertion order becomes send order and a floor has to arrive before what
+   * draws against it.
+   */
+  fun offeredSlabs(surfaces: IntArray, anchorZ: Int, vertical: Int): SortedSet<Int> {
+    val kept = sortedSetOf(anchorZ)
+    surfaces.filterTo(kept) { it >= anchorZ - vertical && it <= anchorZ + vertical }
+
+    kept.filter { it - 1 in surfaces }.forEach { kept.add(it - 1) }
+
+    return kept
+  }
+
   fun seaSurfaceSlabs(config: WorldConfig): List<Int> {
     val topWater = Math.ceil(config.seaLevel / config.voxelSize).toInt() - 1
 

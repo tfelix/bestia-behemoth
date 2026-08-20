@@ -109,6 +109,39 @@ class ChunkCoordsTest {
   }
 
   @Test
+  fun `the waterline pair survives a clip that would otherwise split it`() {
+    // The regression test for a sea that vanishes when you climb above it. Open ocean is the pair {-1, 0}, and
+    // a player one slab up clips to [0, 2] - which keeps the air and drops the water it is drawn against, so
+    // the client meshed nothing at all and the sea disappeared from a cliff top.
+    val sea = intArrayOf(-1, 0)
+
+    assertEquals(listOf(-1, 0), ChunkCoords.offeredSlabs(sea, anchorZ = 0, vertical = 1).toList())
+    assertEquals(listOf(-1, 0, 1), ChunkCoords.offeredSlabs(sea, anchorZ = 1, vertical = 1).toList())
+
+    // Two slabs up the sea is dropped outright rather than half-offered, which is right: it is over 512 m below
+    // a camera that draws about 200. Half-offered is the only wrong answer.
+    assertEquals(listOf(2), ChunkCoords.offeredSlabs(sea, anchorZ = 2, vertical = 1).toList())
+  }
+
+  @Test
+  fun `only a floor partner escapes the clip, and only by one slab`() {
+    // A slab pulled in as somebody's floor is a source of voxels, not a thing that draws, so it needs no floor
+    // of its own. Without that bound the rule would walk a deep column down slab by slab - the 726-chunk
+    // regression by another route.
+    val deep = intArrayOf(-4, -3, -2, -1, 0)
+
+    // -1 and 0 clear the clip, -2 comes in as -1's floor, and -3 does not come in as -2's: the rule reads the
+    // kept set once and does not chase what it adds.
+    assertEquals(listOf(-2, -1, 0), ChunkCoords.offeredSlabs(deep, anchorZ = 0, vertical = 1).toList())
+  }
+
+  @Test
+  fun `the anchor slab is offered even where the surface rule says nothing`() {
+    // Standing on a built platform, or in a cave, or at an elevation the heightfield knows nothing about.
+    assertEquals(listOf(7), ChunkCoords.offeredSlabs(intArrayOf(), anchorZ = 7, vertical = 1).toList())
+  }
+
+  @Test
   fun `a chunk address survives the proto round trip including negatives`() {
     val chunk = ChunkPos(-123_456, 987_654, -3)
 

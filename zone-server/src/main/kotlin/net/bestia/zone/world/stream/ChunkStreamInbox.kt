@@ -22,8 +22,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * ### Bounded, and it drops rather than blocks
  *
  * A queue fed by the network and drained by a fixed budget is a queue a client can grow on purpose. Past
- * [MAX_PENDING] the oldest entries are discarded: a dropped request costs the client one round trip, because
- * the next manifest re-offers whatever it still lacks, whereas an unbounded queue costs the server its heap.
+ * [MAX_PENDING] the oldest entries are discarded, on the grounds that an unbounded queue costs the server its
+ * heap. That is the one loss here with no recovery behind it - the next manifest does *not* re-offer what was
+ * dropped, because it diffs against what was announced rather than what arrived - so the bound is set far above
+ * what a view volume can ask for and reaching it means something is wrong upstream.
  */
 @Service
 class ChunkStreamInbox {

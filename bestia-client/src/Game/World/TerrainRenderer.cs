@@ -28,6 +28,15 @@ namespace BestiaBehemothClient.Game.World
   /// arrives - <see cref="ChunkMesh.MissingNeighbours"/> says which those are, so an arrival only disturbs the
   /// chunks that were actually waiting on it rather than a whole 3x3 block.
   /// </para>
+  ///
+  /// <para>
+  /// <b>Both ends of that have to be checked, because a job in flight owns no tile.</b>
+  /// <see cref="Invalidate"/> can only reach chunks that are already installed, and meshing is asynchronous
+  /// while decoding is not - so a dependency that arrives between a job starting and its result installing
+  /// announces itself to nobody. <see cref="InstallOne"/> therefore asks the reverse question as it records the
+  /// debt: is any of it already paid? Without that, the window is wide enough to matter on every login and every
+  /// teleport, since <see cref="InstallsPerFrame"/> is deliberately smaller than the decode budget feeding it.
+  /// </para>
   /// </remarks>
   [GlobalClass]
   public partial class TerrainRenderer : Node3D
@@ -427,14 +436,11 @@ namespace BestiaBehemothClient.Game.World
         {
           try
           {
-            var mesh = SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize, wrap);
-
-            // An empty result is still a result: it means whatever used to be here must come down.
-            _finished.Enqueue(mesh ?? new ChunkMesh
-            {
-              Key = key,
-              MissingNeighbours = Array.Empty<ChunkKey>()
-            });
+            // An empty result is still a result - it means whatever used to be here must come down - and the
+            // mesher returns one rather than null so that an empty mesh still carries what it was waiting on.
+            // Substituting a debt-free mesh here is how a chunk of sea that meshed before its water arrived
+            // became a hole nothing would ever revisit.
+            _finished.Enqueue(SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize, wrap));
           }
           catch (Exception ex)
           {
@@ -475,6 +481,19 @@ namespace BestiaBehemothClient.Game.World
       }
 
       tile.MissingNeighbours = mesh.MissingNeighbours ?? Array.Empty<ChunkKey>();
+
+      // The debt may already be paid. `Invalidate` can only disturb chunks that have a tile, and this chunk had
+      // none while its job was in flight - so a neighbour that arrived in that window told nobody, and no later
+      // arrival will mention it again. Installing is the first moment this dependency is on the books, which
+      // makes it the right moment to ask whether it is still outstanding.
+      foreach (var missing in tile.MissingNeighbours)
+      {
+        if (_store?.Get(missing) != null)
+        {
+          Enqueue(mesh.Key);
+          break;
+        }
+      }
 
       for (var kind = 0; kind < tile.Surfaces.Length; kind++)
       {

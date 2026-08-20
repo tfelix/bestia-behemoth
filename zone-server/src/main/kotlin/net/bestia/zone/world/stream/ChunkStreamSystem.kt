@@ -258,7 +258,9 @@ class ChunkStreamSystem(
    * Recomputes the desired set and tells the client the difference.
    *
    * @param reset the client's whole set is being replaced, which is the case on the first manifest of a
-   *   session and would also be the case after a teleport
+   *   session and only then. A teleport gets an amendment: the old view's columns fall outside the radius and
+   *   are withdrawn by the ordinary rule, whereas a replacement is bounded by this tick's slab budget and would
+   *   have the client discard terrain the manifest had no room to re-list.
    */
   private fun sendManifest(accountId: Long, anchor: ChunkPos, reset: Boolean, budget: Budget) {
     val desired = desiredChunks(anchor, budget)
@@ -281,24 +283,34 @@ class ChunkStreamSystem(
 
     val refs = added.map { ChunkManifestSMSG.Ref(it, chunkService.revisionOf(it)) }
 
+    // Recorded only once the bytes are away. An account credited with an offer it never received asks for
+    // nothing, and the diff above is computed against what was announced - so those chunks are never mentioned
+    // again and the client holds a hole for the rest of the session.
+    if (!fanOut.sendTo(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))) {
+      LOG.debug { "Manifest for $accountId could not be written; leaving its subscription untouched" }
+      return
+    }
+
     subscriptions.applyManifest(accountId, added, removed, reset)
 
     // Withdrawn chunks must also leave the send queue, or a client would be handed terrain it has just been
     // told to forget.
     queued[accountId]?.removeAll(removed.toSet())
 
-    fanOut.sendTo(accountId, ChunkManifestSMSG(reset = reset, added = refs, removed = removed))
-
     // The chunk under the player's feet goes out unasked, at the head of the queue. Everything else waits to
     // be requested, but making the player wait a round trip for the ground they are standing on is the one
     // case where the saving is not worth it.
+    //
+    // Gated on not having sent it rather than on `reset`, which only ever means the first manifest of a
+    // session: a teleport wants this exactly as much as a login does and never sets that flag.
     //
     // Queued rather than written here, and it still leaves in this same tick - step four drains the queue.
     // Writing it here instead would mark the client as holding the chunk *before* step three broadcasts this
     // tick's edits, so an edit to this very chunk in step one would then be described by a patch the client
     // must reject: the exact race the three-before-four ordering exists to avoid. Going through the queue
     // costs nothing and keeps that argument free of special cases.
-    if (reset) queueFirst(accountId, chunkService.normalise(anchor))
+    val ground = chunkService.normalise(anchor)
+    if (ground !in subscriptions.sentTo(accountId)) queueFirst(accountId, ground)
 
     LOG.debug {
       "Manifest for $accountId at $anchor: ${added.size} added, ${removed.size} removed, reset=$reset"
@@ -312,7 +324,8 @@ class ChunkStreamSystem(
    * each column, clipped to `viewRadiusChunksVertical` around the player's own slab, plus that slab itself:
    *
    * ```
-   * slabs(column) = (surfaces(column) ∩ [anchor.z - v, anchor.z + v]) ∪ { anchor.z }
+   * kept(column)  = (surfaces(column) ∩ [anchor.z - v, anchor.z + v]) ∪ { anchor.z }
+   * slabs(column) = kept ∪ { z - 1 | z ∈ kept, z - 1 ∈ surfaces(column) }
    * ```
    *
    * ### Why the surface term is a set and not a span
@@ -333,6 +346,12 @@ class ChunkStreamSystem(
    * They must have ground under them on the first tick even where the surface rule disagrees - standing on a
    * built platform, or in a cave, or simply at an elevation the heightfield knows nothing about. It replaces
    * an unconditional `anchor.z ± 1`, which tripled the count to buy the same guarantee.
+   *
+   * ### Why the clip may be exceeded by one slab downward, and why the order matters
+   *
+   * Both are [ChunkCoords.offeredSlabs]'s to explain. In short: a slab kept while the slab it draws its floor
+   * against was clipped away offers something that draws nothing, and insertion order here becomes send order,
+   * so a floor has to go out before what draws against it.
    */
   private fun desiredChunks(anchor: ChunkPos, budget: Budget): Set<ChunkPos> {
     val radius = settings.viewRadiusChunks
@@ -355,13 +374,8 @@ class ChunkStreamSystem(
 
       if (slabs == null) continue
 
-      desired.add(chunkService.normalise(ChunkPos(column.x, column.y, anchor.z)))
-
-      for (z in slabs) {
-        if (z < anchor.z - vertical || z > anchor.z + vertical) continue
-
-        desired.add(chunkService.normalise(ChunkPos(column.x, column.y, z)))
-      }
+      ChunkCoords.offeredSlabs(slabs, anchor.z, vertical)
+        .forEach { desired.add(chunkService.normalise(ChunkPos(column.x, column.y, it))) }
     }
 
     return desired
@@ -440,7 +454,7 @@ class ChunkStreamSystem(
       val budget = tokens.getOrPut(request.accountId) { settings.requestBurst }
       var spent = 0
 
-      for (chunk in request.chunks) {
+      for ((index, chunk) in request.chunks.withIndex()) {
         val normalised = chunkService.normalise(chunk)
 
         // The gate. A position the client was never offered is not served - which is what stops a pull
@@ -452,7 +466,14 @@ class ChunkStreamSystem(
         }
 
         if (spent >= budget) {
-          LOG.debug { "Account ${request.accountId} is out of request tokens; dropping the rest" }
+          // Deferred rather than dropped. A manifest diffs against what has been announced, so a request
+          // discarded here is never re-offered and the client never asks again - which turned a rate limit that
+          // only meant to slow the asking down into permanent holes in the terrain, worst right after a
+          // teleport asks for a whole view volume at once.
+          val deferred = request.chunks.drop(index)
+          inbox.offerRequest(ChunkStreamInbox.Request(request.accountId, deferred))
+
+          LOG.debug { "Account ${request.accountId} is out of request tokens; deferring ${deferred.size}" }
           break
         }
 
@@ -481,12 +502,20 @@ class ChunkStreamSystem(
 
       while (iterator.hasNext() && sent < settings.chunksPerTickPerPlayer) {
         val chunk = iterator.next()
-        iterator.remove()
 
         // It may have been withdrawn between the request and now.
-        if (!subscriptions.isAnnouncedTo(accountId, chunk)) continue
+        if (!subscriptions.isAnnouncedTo(accountId, chunk)) {
+          iterator.remove()
+          continue
+        }
 
-        if (push(accountId, chunk)) sent++
+        // Kept on a failed write, because nothing else would bring it back - the manifest offers what was not
+        // announced, not what did not arrive. A channel that is gone or full will refuse the rest of this
+        // tick's writes too, so stop rather than spend the budget finding that out chunk by chunk.
+        if (!push(accountId, chunk)) break
+
+        iterator.remove()
+        sent++
       }
 
       if (pending.isEmpty()) emptied.add(accountId)
@@ -517,8 +546,8 @@ class ChunkStreamSystem(
    * Sends one chunk payload and records that the client holds it.
    *
    * `markSent` is what makes the client a patch recipient, so it must happen only when the bytes actually
-   * went out. A write skipped because the channel was full leaves the chunk un-sent, and the next manifest
-   * offers it again - which is the whole reason a skip is safe.
+   * went out. A skipped write leaves the chunk un-sent and in the send queue; the caller retries it on a later
+   * tick. The manifest will not, because it offers what was never announced rather than what never arrived.
    */
   private fun push(accountId: Long, chunk: ChunkPos): Boolean {
     val message = chunkService.dataMessageFor(chunk)

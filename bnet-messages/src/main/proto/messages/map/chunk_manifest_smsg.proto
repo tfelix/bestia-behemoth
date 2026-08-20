@@ -22,8 +22,13 @@ option java_outer_classname = "ChunkManifestSMSGProto";
  */
 message ChunkManifestSMSG {
   /**
-   * Replace the client's whole set rather than amending it. Set on the first manifest of a session and
-   * after a teleport; a step of ordinary movement sends an amendment instead.
+   * Replace the client's whole set rather than amending it. Set on the first manifest of a session only;
+   * everything after it, a teleport included, is an amendment.
+   *
+   * A teleport does not need one. The amendment withdraws the columns the old view held, because they are no
+   * longer within the view radius, and the ground under the player is queued unasked either way. Replacing the
+   * set instead would have the client discard terrain it still needs: a manifest is bounded by the per-tick
+   * slab budget, so the replacement offered on fresh ground names a fraction of the view volume.
    *
    * When set, [removed] is empty and [added] is the complete set - anything the client holds and does
    * not find in [added] is no longer subscribed.

@@ -213,7 +213,7 @@ namespace BestiaBehemothClient.Tests
         }
       }
 
-      Assert.Null(Mesh(source));
+      Assert.True(Mesh(source).IsEmpty);
     }
 
     /// <summary>
@@ -247,8 +247,10 @@ namespace BestiaBehemothClient.Tests
       Assert.All(heights, v => Assert.InRange(v.Y, -0.0001f, 0.0001f));
 
       // Each chunk owns the lattice edges at its own floor and not at its ceiling, so the chunk below must not
-      // draw this same surface a second time.
-      Assert.Null(Mesh(source, 0, 0, -1));
+      // draw this same surface a second time. Empty rather than null: the mesher always returns a mesh now, so
+      // that an empty one can still name what it was waiting on - here the rock slab at z = -2, which this
+      // fixture does not hold.
+      Assert.True(Mesh(source, 0, 0, -1).IsEmpty);
     }
 
     /// <summary>
@@ -295,6 +297,61 @@ namespace BestiaBehemothClient.Tests
       }
 
       Assert.All(mesh.Water.Normals, n => Assert.True(n.Y > 0.99f, $"water normal {n} is not up"));
+    }
+
+    /// <summary>
+    /// The sea arrives in two slabs, and the one that draws it is sent first.
+    /// </summary>
+    /// <remarks>
+    /// The regression test for chunk-sized holes in the ocean. Open sea is uniform water under uniform air, so
+    /// neither slab has an interior run boundary and the only thing that produces the water sheet is the seam at
+    /// the air slab's own floor - which means the air slab cannot draw the sea until the water slab is in hand.
+    ///
+    /// <para>
+    /// It never can be, first time round: the server offers a column's own anchor slab before the surface slabs
+    /// under it, so the air slab is requested, sent and meshed first as a matter of course. The mesh that results
+    /// is empty and <i>correct</i>, and the bug was that it was also silent - it recorded no dependency on the
+    /// water below, so when the water landed nothing knew to look again and that column of sea stayed missing for
+    /// the rest of the session.
+    /// </para>
+    ///
+    /// <para>
+    /// So the assertion that matters is the middle one. Emptiness is fine; emptiness owing nothing is the bug.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void AnAirSlabMeshedBeforeItsWaterOwesTheWaterAndDrawsTheSeaOnceItArrives()
+    {
+      var source = new FakeChunkSource();
+
+      for (var chunkY = -1; chunkY <= 1; chunkY++)
+      {
+        for (var chunkX = -1; chunkX <= 1; chunkX++)
+        {
+          source.Put(TerrainFixtures.Uniform(chunkX, chunkY, 0, TerrainFixtures.Air, 0));
+        }
+      }
+
+      var dry = Mesh(source);
+
+      Assert.True(dry.IsEmpty);
+      Assert.Contains(new ChunkKey(0, 0, -1), dry.MissingNeighbours);
+
+      for (var chunkY = -1; chunkY <= 1; chunkY++)
+      {
+        for (var chunkX = -1; chunkX <= 1; chunkX++)
+        {
+          source.Put(TerrainFixtures.Uniform(chunkX, chunkY, -1, TerrainFixtures.Water, 255));
+        }
+      }
+
+      var wet = Mesh(source);
+
+      Assert.NotNull(wet.Water);
+
+      var water = Interior(wet.Water);
+      Assert.NotEmpty(water);
+      Assert.All(water, v => Assert.InRange(v.Y, -0.0001f, 0.0001f));
     }
 
     /// <summary>

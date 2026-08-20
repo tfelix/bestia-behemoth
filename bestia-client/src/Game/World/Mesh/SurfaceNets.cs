@@ -639,7 +639,20 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var patch = TerrainPatch.Gather(source, key, wrap);
       if (patch == null)
       {
-        return null;
+        // Nothing to draw here - but if the slab below is not held, that is a provisional verdict rather than a
+        // settled one, and saying so is the difference between a hole that heals and one that does not. A chunk
+        // draws the surface at its own floor from itself and the slab beneath it together, and over open sea that
+        // seam is the *only* surface there is: uniform water below, uniform air above, and a sheet between them
+        // that neither slab can find alone. Reported as a debt so the renderer re-meshes when the water lands.
+        //
+        // Already canonical, and it has to be: z does not wrap, and this chunk's own key came from the server.
+        var below = new ChunkKey(key.X, key.Y, key.Z - 1);
+
+        return new ChunkMesh
+        {
+          Key = key,
+          MissingNeighbours = source.Get(below) == null ? new[] { below } : Array.Empty<ChunkKey>()
+        };
       }
 
       var surfaces = new ChunkSurface[BlockAppearance.SurfaceKinds];
@@ -658,7 +671,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       if (!any)
       {
-        return null;
+        // Empty is a result, and it still owes whatever the patch had to guess about. Dropping those debts here
+        // is the other half of how a provisional nothing turns permanent: the chunk installs owing nobody, so no
+        // later arrival ever disturbs it.
+        return new ChunkMesh { Key = key, MissingNeighbours = patch.MissingNeighbours };
       }
 
       return new ChunkMesh

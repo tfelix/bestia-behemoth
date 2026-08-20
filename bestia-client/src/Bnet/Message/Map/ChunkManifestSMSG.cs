@@ -34,7 +34,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
 
     /// <summary>
     /// Replace the whole held set rather than amending it. Anything held and not in <see cref="Added"/> is no
-    /// longer subscribed. Set on the first manifest of a session and after a teleport.
+    /// longer subscribed. Set on the first manifest of a session only - a teleport sends an amendment, which
+    /// withdraws the old view's columns by the ordinary rule.
     /// </summary>
     [Export] public bool Reset { get; set; }
 

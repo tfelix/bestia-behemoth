@@ -27,6 +27,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
   /// arrives. Reading absent terrain as air instead would wrap every chunk at the edge of the streamed disc in a
   /// shell of cliff faces.
   /// </para>
+  ///
+  /// <para><b>Vertically as well as horizontally, and that is not symmetry for its own sake.</b> A chunk draws
+  /// the surface at its own floor, so the slab below is a genuine input rather than a nicety - and over open sea
+  /// it is the <i>only</i> input, because uniform water under uniform air has no interior boundary for either
+  /// slab to find alone. An absent slab below that went unrecorded is therefore not a flat seam that nobody
+  /// notices; it is a chunk of missing ocean that never repairs itself, because nothing tells the renderer to
+  /// look again when the water arrives.
+  /// </para>
   /// </remarks>
   public sealed class TerrainPatch
   {
@@ -150,6 +158,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// open air or open water; the only surface it can carry is on its floor, and only if the chunk below
     /// disagrees with it. Most of the 121 chunks a player holds are exactly that chunk, and they cost one band
     /// lookup and one comparison pass each.
+    ///
+    /// <para>
+    /// <b><c>null</c> means "no surface given what is held", not "no surface".</b> When the slab below has not
+    /// arrived the answer can flip once it does, so the caller has to record that dependency rather than take
+    /// the emptiness as settled - see <see cref="SurfaceNets.Build"/>, which is where that debt is raised.
+    /// </para>
     /// </remarks>
     public static TerrainPatch Gather(IChunkSource source, ChunkKey key, ChunkWrap wrap)
     {
@@ -184,8 +198,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
       }
 
       // A cliff on a shared boundary is a crossing in a column whose own occupancy is constant, so a neighbour's
-      // bands can widen the range this chunk has to gather. Only the eight horizontal neighbours: a vertical one
-      // contributes through the floor seam above.
+      // bands can widen the range this chunk has to gather. Only the eight horizontal neighbours here: a vertical
+      // one contributes through the floor seam above instead. That is about the *range* to gather - the vertical
+      // neighbours still have to be reported as dependencies, which GatherStrip does as it crosses into them.
       for (var dy = -1; dy <= 1; dy++)
       {
         for (var dx = -1; dx <= 1; dx++)
@@ -274,7 +289,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
           GatherStrip(
             source, chunkX, chunkY, localX, localY, height, baseVoxelZ, depth,
-            blocks.AsSpan(stripBase, depth), occupancy.AsSpan(stripBase, depth));
+            blocks.AsSpan(stripBase, depth), occupancy.AsSpan(stripBase, depth), missing);
 
           GatherMask(
             source, chunkX, chunkY, localX, localY, key.Z, height,
@@ -300,7 +315,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     private static void GatherStrip(
       IChunkSource source, int chunkX, int chunkY, int localX, int localY,
       int height, long baseVoxelZ, int depth,
-      Span<byte> blocks, Span<byte> occupancy)
+      Span<byte> blocks, Span<byte> occupancy, List<ChunkKey> missing)
     {
       var firstKnown = -1;
       var lastKnown = -1;
@@ -313,7 +328,8 @@ namespace BestiaBehemothClient.Game.World.Mesh
         var localZ = (int)(voxelZ - (long)chunkZ * height);
         var take = Math.Min(depth - patchZ, height - localZ);
 
-        var held = source.Get(new ChunkKey(chunkX, chunkY, chunkZ));
+        var vertical = new ChunkKey(chunkX, chunkY, chunkZ);
+        var held = source.Get(vertical);
 
         if (held != null)
         {
@@ -328,6 +344,15 @@ namespace BestiaBehemothClient.Game.World.Mesh
           }
 
           lastKnown = patchZ + take - 1;
+        }
+        else if (!missing.Contains(vertical))
+        {
+          // The strip crossed into a slab that is not held, and the extension at the end of this method will
+          // paper over the gap. That makes the patch provisional in exactly the way an absent horizontal
+          // neighbour does, and it has to be said out loud for the same reason - otherwise the guess is never
+          // revisited. It is not a rare case: a surface on a chunk floor is drawn from the two slabs together,
+          // and the sea is uniform water under uniform air, so the waterline is nothing *but* this case.
+          missing.Add(vertical);
         }
 
         patchZ += take;

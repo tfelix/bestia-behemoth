@@ -104,7 +104,7 @@ namespace BestiaBehemothClient.Tests
       chunk.Blocks[index] = TerrainFixtures.Air;
       chunk.Occupancy[index] = 0;
 
-      Assert.Null(Mesh(Buried(chunk)));
+      Assert.True(Mesh(Buried(chunk)).IsEmpty);
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ namespace BestiaBehemothClient.Tests
     [InlineData(1.2)]
     public void ASphereBelowTheResolutionFloorDrawsNothing(double radius)
     {
-      Assert.Null(MeshOfSphere(radius));
+      Assert.True(MeshOfSphere(radius).IsEmpty);
     }
 
     /// <summary>Above the floor a carve draws, and the bore grows with the radius as <c>2R - 1</c>.</summary>
