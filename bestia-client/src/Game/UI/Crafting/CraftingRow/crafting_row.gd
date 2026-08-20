@@ -63,8 +63,8 @@ func _title_of(recipe: CraftableRecipe) -> String:
 		printerr("CraftingRow: unknown output item %d for recipe %d" % [recipe.OutputItemId, recipe.RecipeId])
 		return "?"
 
-	var name := tr(item.name_key)
-	return name if recipe.OutputAmount <= 1 else "%s ×%d" % [name, recipe.OutputAmount]
+	var name_key := tr(item.name_key)
+	return name_key if recipe.OutputAmount <= 1 else "%s ×%d" % [name_key, recipe.OutputAmount]
 
 
 ## "2/3 Iron Ore, 1/1 Coal" - held first so a shortfall reads as a shortfall at a glance.

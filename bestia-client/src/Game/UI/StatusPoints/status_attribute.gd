@@ -44,6 +44,7 @@ static func short_code(attribute: Attribute) -> String:
 ## values 1-5 cost 1 each, 6-8 cost 2, 9-11 cost 3, and so on.
 ## See https://docs.bestia-game.net/docs/mechanics/statusvalues/#effort-values
 static func step_cost(next_value: int) -> int:
+	@warning_ignore("integer_division")
 	return maxi(1, next_value / 3)
 
 
