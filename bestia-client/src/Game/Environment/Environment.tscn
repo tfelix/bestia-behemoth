@@ -25,28 +25,6 @@ fog_depth_end = 220.0
 
 [node name="Environment" type="Node" unique_id=47354015]
 script = ExtResource("1_1xco1")
-peak_elevation_degrees = null
-min_elevation_degrees = null
-sweep_degrees = null
-base_azimuth_degrees = null
-sun_energy = null
-moon_energy = null
-sun_day_colour = null
-sun_twilight_colour = null
-moon_colour = null
-sky_top_day = null
-sky_top_twilight = null
-sky_top_night = null
-sky_horizon_day = null
-sky_horizon_twilight = null
-sky_horizon_night = null
-ground_day = null
-ground_twilight = null
-ground_night = null
-fog_day = null
-fog_twilight = null
-fog_night = null
-twilight_strength = null
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=341834245]
 environment = SubResource("Environment_gi4sg")

@@ -1,6 +1,12 @@
 extends Node
 
 ## Drives the sun, the moon, the sky and the fog from the world clock.
+##
+## The lights and the WorldEnvironment are children of this same scene, so their shadow settings, angular
+## sizes and fog distances stay where a designer would look for them - and so they are reached directly here
+## rather than handed over by whatever scene this is dropped into. Only the clock comes from outside, and it
+## is allowed to be missing: this is a visual layer, and a client that has not been told the time should
+## still be playable under the light the scene was authored with.
 
 ## How high the sun climbs at its peak, in degrees.
 ##
@@ -30,6 +36,8 @@ extends Node
 
 ## The bearing the sun crosses at its peak. Shadows point away from this at midday.
 @export_range(-180, 180, 1) var base_azimuth_degrees: float = 40.0
+
+@export_range(0, 300, 1) var update_delay_seconds: int = 10
 
 @export var sun_energy: float = 1.0
 
@@ -70,11 +78,17 @@ extends Node
 @export_range(0, 1, 0.01) var twilight_strength: float = 0.75
 
 var _clock: Node = null
+
+# This will trigger an immediate update after init.
+var _last_updated_since: float = float(update_delay_seconds) + 1.0
+
 @onready var _sun: DirectionalLight3D = $Sun
 @onready var _moon: DirectionalLight3D = $Moon
-@onready var _world_environment: WorldEnvironment = $WorldEnvironment
-var _environment: Environment = null
-var _sky: ProceduralSkyMaterial = null
+@onready var _environment: Environment = ($WorldEnvironment as WorldEnvironment).environment
+
+# The sky material is reached through the Environment rather than exported separately, because the two have
+# to be the *same* sky - the one the background draws and the one ambient light is sampled from.
+@onready var _sky: ProceduralSkyMaterial = _environment.sky.sky_material as ProceduralSkyMaterial
 
 
 func _ready() -> void:
@@ -82,30 +96,23 @@ func _ready() -> void:
 	if _clock == null:
 		push_warning("[daynight] no WorldClock; the scene's authored lighting will not change.")
 
-	_environment = _world_environment.environment if _world_environment != null else null
-
-	# The sky material is reached through the Environment rather than exported separately, because the
-	# two have to be the *same* sky - the one the background draws and the one ambient light is sampled
-	# from.
-	if _environment != null and _environment.sky != null:
-		_sky = _environment.sky.sky_material as ProceduralSkyMaterial
-
-	if _sky == null:
-		push_warning(
-			"[daynight] the environment has no ProceduralSkyMaterial; the sky will not follow the " +
-			"clock. Lights and fog still will.")
-
-	if _moon != null:
-		# Never casts shadows, and that is a decision rather than an oversight: a second shadow-casting
-		# directional light doubles the shadow pass for a fill that is a sixth of the sun's brightness.
-		# The sun is hidden outright at night, so nothing is paying for a shadow map nobody can see.
-		_moon.shadow_enabled = false
-		_moon.light_color = moon_colour
+	# Never casts shadows, and that is a decision rather than an oversight: a second shadow-casting
+	# directional light doubles the shadow pass for a fill that is a sixth of the sun's brightness. The
+	# sun is hidden outright at night, so nothing is paying for a shadow map nobody can see.
+	_moon.shadow_enabled = false
+	_moon.light_color = moon_colour
 
 
 func _process(_delta: float) -> void:
 	if _clock == null or not _clock.IsAnchored():
 		return
+	
+	_last_updated_since += _delta
+	
+	if _last_updated_since < update_delay_seconds:
+		return
+	
+	_last_updated_since = 0.0
 
 	var daylight: float = _clock.Daylight
 
@@ -133,20 +140,18 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 	var elevation: float = deg_to_rad(peak_elevation_degrees) * sin(PI * progress)
 	var azimuth: float = deg_to_rad(base_azimuth_degrees + (progress - 0.5) * sweep_degrees)
 
-	if _sun != null:
-		_sun.rotation = _light_rotation(elevation, azimuth)
-		_sun.light_energy = sun_energy * daylight
-		_sun.light_color = sun_day_colour.lerp(sun_twilight_colour, twilight)
+	_sun.rotation = _light_rotation(elevation, azimuth)
+	_sun.light_energy = sun_energy * daylight
+	_sun.light_color = sun_day_colour.lerp(sun_twilight_colour, twilight)
 
-		# Hidden rather than merely dark. A DirectionalLight3D at zero energy still renders its shadow
-		# map, and the whole of full night would be paying for a pass that contributes nothing.
-		_sun.visible = daylight > 0.002
+	# Hidden rather than merely dark. A DirectionalLight3D at zero energy still renders its shadow map,
+	# and the whole of full night would be paying for a pass that contributes nothing.
+	_sun.visible = daylight > 0.002
 
-	if _moon != null:
-		# The anti-sun: it rises as the sun sets, which is free and is also roughly what a moon does.
-		_moon.rotation = _light_rotation(-elevation, azimuth + PI)
-		_moon.light_energy = moon_energy * (1.0 - daylight)
-		_moon.visible = daylight < 0.998
+	# The anti-sun: it rises as the sun sets, which is free and is also roughly what a moon does.
+	_moon.rotation = _light_rotation(-elevation, azimuth + PI)
+	_moon.light_energy = moon_energy * (1.0 - daylight)
+	_moon.visible = daylight < 0.998
 
 
 ## A bearing and an elevation as an Euler rotation for a light pointing along its own -Z, with the
@@ -186,17 +191,15 @@ func _solar_progress(hour_of_day: float) -> float:
 
 
 func _apply_sky(daylight: float, twilight: float) -> void:
-	if _sky != null:
-		_sky.sky_top_color = _blend(sky_top_night, sky_top_day, sky_top_twilight, daylight, twilight)
-		_sky.sky_horizon_color = _blend(
-			sky_horizon_night, sky_horizon_day, sky_horizon_twilight, daylight, twilight)
-		_sky.ground_horizon_color = _blend(ground_night, ground_day, ground_twilight, daylight, twilight)
+	_sky.sky_top_color = _blend(sky_top_night, sky_top_day, sky_top_twilight, daylight, twilight)
+	_sky.sky_horizon_color = _blend(
+		sky_horizon_night, sky_horizon_day, sky_horizon_twilight, daylight, twilight)
+	_sky.ground_horizon_color = _blend(ground_night, ground_day, ground_twilight, daylight, twilight)
 
 	# Fog is the loudest of the three. It is drawn over everything at distance, so a fog still lit for
 	# midday is a pale band along the horizon of a night scene - which reads as the night not having
 	# applied rather than as one setting having been missed.
-	if _environment != null:
-		_environment.fog_light_color = _blend(fog_night, fog_day, fog_twilight, daylight, twilight)
+	_environment.fog_light_color = _blend(fog_night, fog_day, fog_twilight, daylight, twilight)
 
 
 ## Night to day by the light level, then toward the twilight cast by how close the crossover is.
