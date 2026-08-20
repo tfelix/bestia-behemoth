@@ -19,7 +19,9 @@ import net.bestia.zone.geometry.Vec3
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.skill.LearnedSkill
 import net.bestia.zone.skill.LearnedSkillRepository
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.world.MasterSpawnPointService
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -69,8 +71,8 @@ class ScenarioDataSetup(
    * same grant, and two copies of it would drift - see `MultiPlayerJourneyScenario`.
    */
   fun grantFullBasicSkill(masterId: Long) {
-    val basicSkill = skillRepository.findByIdentifier(BASIC_SKILL)
-      ?: error("skills.yml has no $BASIC_SKILL; the scenario fixtures cannot open the chat gate")
+    val basicSkill = skillRepository.findByIdentifier(SkillId.BASIC_SKILL)
+      ?: error("skills.yml has no ${SkillId.BASIC_SKILL}; the scenario fixtures cannot open the chat gate")
 
     learnedSkillRepository.save(
       LearnedSkill(
@@ -261,8 +263,6 @@ class ScenarioDataSetup(
   }
 
   companion object {
-    private const val BASIC_SKILL = "BASIC_SKILL"
-
     /** Full rank, so no scenario has to know which of the five unlocks it happens to need. */
     private const val FIXTURE_BASIC_SKILL_LEVEL = 5
 

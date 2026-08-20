@@ -93,7 +93,17 @@ data class ChunkStreamConfig(
   val derivedRebuildsPerTick: Int = 2,
 
   /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
-  val allowDebugEdits: Boolean = true
+  val allowDebugEdits: Boolean = true,
+
+  /**
+   * Steepest rise a step may cross and still count as walkable, in degrees.
+   *
+   * Feeds the one [net.bestia.worldgen.derived.AgentProfile] shared by NPC pathfinding and the player's own
+   * move validation - see `AgentProfile.forMaxSlope` - so retuning this retunes both together. Forty-five is
+   * not an arbitrary default: it is the angle at which a rise equals its run, which is why it was already the
+   * hard-coded step height before this became a setting.
+   */
+  val maxWalkSlopeDegrees: Double = 45.0
 ) {
 
   init {
@@ -107,6 +117,9 @@ data class ChunkStreamConfig(
     require(slabComputationsPerTick > 0) { "A slab budget of zero would never offer any terrain" }
     require(deflateLevel in 0..9) { "Deflate level must be 0..9, was $deflateLevel" }
     require(derivedRebuildsPerTick >= 0) { "Rebuild budget cannot be negative" }
+    require(maxWalkSlopeDegrees > 0.0 && maxWalkSlopeDegrees < 90.0) {
+      "maxWalkSlopeDegrees must be strictly between 0 and 90, was $maxWalkSlopeDegrees"
+    }
   }
 
   /** Chunks along one edge of the horizontal view square, for sizing and for logging what a login will cost. */

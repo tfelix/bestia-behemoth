@@ -2,18 +2,15 @@ package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.battle.skill.NoSkillScriptException
-import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.battle.skill.SkillCheckService
 import net.bestia.zone.battle.skill.SkillStrategyFactory
-import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
-import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
-import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
 
@@ -28,11 +25,9 @@ import org.springframework.stereotype.Component
 @Component
 class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
+  private val skillCheckService: SkillCheckService,
   private val world: WorldView,
-  private val skillRepository: SkillRepository,
   private val skillStrategyFactory: SkillStrategyFactory,
-  private val skillExecutionService: SkillExecutionService,
-  private val logoutCancelService: LogoutCancelService,
   private val propPromotion: PropPromotionService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
@@ -43,49 +38,28 @@ class ActivateSkillHandler(
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    // Using a skill is player activity — abort any pending logout.
-    logoutCancelService.cancelLogout(activeEntityId)
-
-    // Resolve the skill knowledge inside a lock-held read scope so the component is never touched
-    // (or mutated) off the tick thread. Returns null when the entity has no AvailableSkills at all.
-    val knowsSkill = world.read {
-      get(activeEntityId, KnownSkills::class)?.knowsSkill(msg.attackId, msg.skillLevel)
-    }
-
-    if (knowsSkill == null) {
-      LOG.warn { "Entity $activeEntityId does not have any available skill component" }
-      return true
-    }
+    val knowsSkill = skillCheckService.knowsSkill(activeEntityId, msg.attackId, msg.skillLevel)
 
     if (!knowsSkill) {
       LOG.warn { "Entity $activeEntityId does not know attack ${msg.attackId} at level ${msg.skillLevel}, ignoring activation" }
       return true
     }
 
-    val skill = skillRepository.findById(msg.attackId).orElse(null)
-    if (skill == null) {
-      LOG.warn { "Entity $activeEntityId activated unknown skill ${msg.attackId}, ignoring" }
-      return true
-    }
-
     val strategy = try {
-      skillStrategyFactory.getSkillStrategy(skill)
+      skillStrategyFactory.getSkillStrategy(msg.attackId)
     } catch (e: NoSkillScriptException) {
-      // A passive, or an entry nobody has implemented. Refused here rather than at resolution so a
-      // channelled one does not show a cast bar for a cast that was never going to happen.
+      // TODO improve the error message here as most info aleady is in e.message.
       LOG.warn { "Entity $activeEntityId activated ${skill.identifier}, which has no script: ${e.message}" }
       return true
     }
 
     LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
 
-    // Before the cast starts and in its own scope, so a skill whose reagent is missing is refused while the
-    // player is still looking at the button rather than after channelling for it. Nothing is spent here - see
-    // SkillStrategy.checkCastStart.
-    val denial = world.modify(activeEntityId) { id -> strategy.checkCastStart(this, id, msg.skillLevel) }
-    if (denial != null) {
-      LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $denial" }
-      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(denial))
+    // why is there no world.read(entityId) equivalent? because this should not be a write but only a read.
+    val isCastDenied = world.modify(activeEntityId) { id -> strategy.checkCastStart(this, id, msg.skillLevel) }
+    if (isCastDenied != null) {
+      LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $isCastDenied" }
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(isCastDenied))
       return true
     }
 
@@ -94,39 +68,23 @@ class ActivateSkillHandler(
     val targetEntityId = msg.targetEntityId.takeIf { it != 0L }
     val targetPosition: Vec3L? = if (targetEntityId == null) msg.targetPosition else null
 
-    val started = world.modify(activeEntityId) { id ->
+    world.modify(activeEntityId) { id ->
       // Before the cast-time branch, deliberately: a message-handler context never runs nested inside
       // scheduler.tick(), so this add() applies immediately - unlike promoting only from
       // BattleContextFactory, which a channelled cast reaches from inside CastingSystem.update() and would
       // silently fizzle its first hit against a pristine prop. See PropPromotionService's own KDoc.
-      if (targetEntityId != null) propPromotion.promoteIfNeeded(this, targetEntityId)
-
-      if (skill.castTime > 0f) {
-        // Starting a new cast supersedes whatever was being cast before.
-        add(
-          id, Casting(
-            skillId = skill.id,
-            skillLevel = msg.skillLevel,
-            targetEntityId = targetEntityId,
-            targetPosition = targetPosition,
-            totalSeconds = skill.castTime
-          )
-        )
+      if (targetEntityId != null) {
+        propPromotion.promoteIfNeeded(this, targetEntityId)
       }
 
-      id
-    } ?: return true
-
-    // Outside the modify scope on purpose: resolution runs on a worker that has to take the world lock, and
-    // handing it work while this thread still holds that lock would just make the worker wait.
-    if (skill.castTime <= 0f) {
-      skillExecutionService.execute(
-        world = world,
-        casterId = started,
-        skillId = skill.id,
-        skillLevel = msg.skillLevel,
-        targetEntityId = targetEntityId,
-        targetPosition = targetPosition
+      add(
+        id, Casting(
+          skillId = skill.id,
+          skillLevel = msg.skillLevel,
+          targetEntityId = targetEntityId,
+          targetPosition = targetPosition,
+          totalSeconds = skill.castTime
+        )
       )
     }
 

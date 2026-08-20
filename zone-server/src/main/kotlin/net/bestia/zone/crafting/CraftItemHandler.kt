@@ -22,7 +22,6 @@ class CraftItemHandler(
   private val world: WorldView,
   private val craftingService: CraftingService,
   private val castCancelService: CastCancelService,
-  private val logoutCancelService: LogoutCancelService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<CraftItemCMSG> {
   override val handles = CraftItemCMSG::class
@@ -31,8 +30,6 @@ class CraftItemHandler(
     LOG.trace { "RX: $msg" }
 
     val activeEntityId = connectionInfoService.getActiveEntityId(msg.playerId)
-
-    logoutCancelService.cancelLogout(activeEntityId)
 
     // A craft and a cast share one progress bar on the client, so starting one has to end the other - see
     // Crafting's own note on why it reuses CastingComponentSMSG.

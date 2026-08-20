@@ -27,8 +27,9 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
     [Export] public TradeStatus Status { get; set; } = TradeStatus.Open;
 
     /// <summary>
-    /// <see cref="Status"/> as a lowercase string, for the GDScript side - it cannot see a C# enum's
-    /// members, so matching on this avoids re-declaring the ordinals over there by hand.
+    /// <see cref="Status"/> as a lowercase snake_case string, for the GDScript side - it cannot see a C#
+    /// enum's members, so matching on this avoids re-declaring the ordinals over there by hand. Single
+    /// words as it happens, because protoc strips the <c>TRADE_STATUS_</c> prefix off every value.
     /// </summary>
     [Export] public string StatusName { get; set; } = "open";
 
@@ -73,7 +74,7 @@ namespace BestiaBehemothClient.Bnet.Message.Trade
       {
         TradeId = proto.TradeId,
         Status = status,
-        StatusName = status.ToString().ToLowerInvariant(),
+        StatusName = EnumName.Of(status),
         PartnerMasterName = proto.PartnerMasterName,
         PartnerEntityId = proto.PartnerEntityId,
         OwnOffer = own,

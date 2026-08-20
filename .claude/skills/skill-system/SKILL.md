@@ -51,12 +51,34 @@ design).
 - `MultiPlayerJourneyScenario` hardcodes real ids from this file
   (`BLESSING_ID`, `HEAL_ID`, `DIVINE_PROTECTION_ID`) to drive an end-to-end investment.
 
-Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, which is
-what `MasterSkillTreeService` and `BasicSkillGate` do. Prefer that. And note that
-renumbering an **existing** id needs a database wipe: `YmlImporterBootRunner` matches rows
-by identifier and `Skill.updateContentFrom` deliberately does not copy `id`, so an edit
-here silently leaves the old id in the `skill` table while every other file says the new
-one.
+Everywhere else, code resolves a skill by `identifier` through `SkillRepository`, and the
+identifier itself comes from the **`SkillId` enum** (`zone-server/.../skill/SkillId.kt`) —
+`skills.findByIdentifier(SkillId.CARPENTRY)`, via the typed overload in `SkillRepository.kt`.
+Prefer that; never a string literal. And note that renumbering an **existing** id needs a
+database wipe: `YmlImporterBootRunner` matches rows by identifier and
+`Skill.updateContentFrom` deliberately does not copy `id`, so an edit here silently leaves
+the old id in the `skill` table while every other file says the new one.
+
+### `SkillId` — the identifiers code names
+
+`SkillId` holds one constant per skill that *code* has to name (15 today: `BASIC_SKILL`, the
+eleven crafting skills `MasterCraftBonusService` reads, the two weather skills, and
+`INNER_PEACE`). It carries **no numeric id** — unlike `DialogId` and `StatusEffectId`, which do —
+because a skill's id is content owned by this file and copying it into code would give a
+renumbering a second place to be right.
+
+`SkillCatalogBootValidator` fails the boot if a `SkillId` constant names no row in `skills.yml`,
+and `SkillCatalogBootValidatorTest` fails the build for the same drift without needing a
+database. Worth a dead boot because the failure is otherwise silent: every call site resolves
+the identifier lazily and degrades to "nobody knows this skill", so a renamed skill turns a
+crafting bonus or a permission gate inert with nothing saying so (`BasicSkillGate` even fails
+*open* by design).
+
+**The check runs in one direction only** — the reverse of `DialogCatalogBootValidator` and
+`StatusEffectCatalogBootValidator`. A catalogued skill with no `SkillId` constant is the normal
+case for most of the file, so **adding a skill stays a content-only edit**. Add a constant only
+when code has to name the skill; `PassiveSkillScript.skill` (typed `SkillId`) is the one API that
+requires one.
 
 ### Castable, passive, unimplemented — and why there is no `type`
 
@@ -73,7 +95,7 @@ be activated. The one question that survives is answered by `script` alone:
 `SkillStrategyFactory.isCastable` is the single place that answers it.
 
 A passive that *does* have a stat effect still leaves this column empty: a `PassiveSkillScript`
-declares its own `skillIdentifier` on the bean rather than being named from the YAML, so `script`
+declares its own `skill` (a `SkillId`) on the bean rather than being named from the YAML, so `script`
 stays one vocabulary — see that interface's KDoc for the full argument. This is what makes
 `syncSkillDb`'s `is_passive = (script == null)` exact, since a Gradle task cannot see Spring beans.
 

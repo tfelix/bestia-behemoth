@@ -24,17 +24,37 @@ multiple features (`EQUIP_*`, `MASTER_*`, `TRADE_*`), namespaced by prefix withi
 2. In the handler, map your domain enum (e.g. a `Denial` sealed enum returned by a service) to the
    matching `OperationErrorProto.OpError` value with a local `when`, and send
    `OperationErrorSMSG(code)`.
-3. Do **not** create a new `data class FooErrorSMSG(...)` that just re-wraps `OperationError` with
+3. Add the wording to the client, as one `ERROR_<YOUR_CODE>` row in
+   `bestia-client/src/Localization/general.csv` - see below. No client code changes.
+4. Do **not** create a new `data class FooErrorSMSG(...)` that just re-wraps `OperationError` with
    its own parallel Kotlin enum - it's pure duplication of `OperationErrorSMSG`, since the proto
    `OpError` enum already carries a distinct, namespaced value per reason.
+
+### The wording: one `general.csv` row, no client code
+
+The wire carries the enum ordinal and nothing else. The client turns it back into a name -
+`OperationError.cs` derives `CodeName` via `EnumName.Of`, giving lowercase snake_case
+(`chart_needs_blank`) - and `chat.gd` builds the translation key from it: `"ERROR_%s" %
+CodeName.to_upper()`. So a new refusal the chat window should voice needs exactly one row in
+`general.csv`, keyed `ERROR_` plus the proto value verbatim:
+
+```csv
+ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
+```
+
+Codes with no row are ignored on purpose - most belong to a window that words them itself, and
+`chat.gd` returns silently rather than showing a raw key. That silence once hid a real bug for the
+whole table, so `EnumNameTest` in `bestia-client/tests/BestiaClient.Tests` cross-checks every
+`ERROR_*` row against the `OpError` values and fails the build on a typo or a rename. Run
+`dotnet test bestia-client/tests/BestiaClient.Tests` after adding a code.
 
 ### A message that has to name something: `args`
 
 `OperationError` carries `repeated string args`, and `OperationErrorSMSG` takes them as
 `args: List<String>`. They are **substitution values for the client's own template**, in order - a player's
 name, a count, a place - never a sentence composed on the server, because the wording and its translation
-belong to the client. The client side is `chat.gd`'s `_REFUSALS` map, whose entries may carry `%s`
-placeholders; `OperationError.cs` exposes the values as `Args`.
+belong to the client. The client side is the `ERROR_*` row above, which may carry `%s` placeholders;
+`OperationError.cs` exposes the values as `Args`, and `chat.gd` substitutes them into the template.
 
 `TRADE_DECLINED` is the worked example: the code says what happened, `args[0]` says who did it, and
 `"%s declined the trade."` lives on the client. This is what a denial that has to name somebody uses -

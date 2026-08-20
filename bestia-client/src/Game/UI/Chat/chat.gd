@@ -184,11 +184,16 @@ func _scroll_to_bottom() -> void:
 ## status line of its own.
 ##
 ## The translation key is built straight from [code]OperationError.CodeName[/code] - matching on the name
-## rather than the ordinal is what keeps a new denial reason from being re-declared here as a bare number,
-## the same duplication [code]DialogArg.KindName[/code] was introduced to stop - so a new chat refusal needs
-## only a [code]general.csv[/code] row, no entry in this file at all. [method Object.tr] echoes a missing key
-## straight back, which is how a code with no row here - because it belongs to another window - is told apart
-## from one this window actually owns.
+## rather than the ordinal is what keeps a new denial reason from being re-declared here as a bare number -
+## so a new chat refusal needs only a [code]general.csv[/code] row, no entry in this file at all.
+## [method Object.tr] echoes a missing key straight back, which is how a code with no row here - because it
+## belongs to another window - is told apart from one this window actually owns.
+##
+## That silent return is load-bearing, and it cuts both ways: it is also what hid the whole table going dead
+## when [code]CodeName[/code] lost its underscores, since a wrong key is indistinguishable from a key another
+## window owns. Nothing at runtime can tell those apart, so the guard against it is [code]EnumNameTest[/code]
+## in [code]tests/BestiaClient.Tests[/code], which checks every [code]ERROR_*[/code] row against the
+## [code]OpError[/code] values at build time.
 func _on_operation_error(message) -> void:
 	var key := "ERROR_%s" % message.CodeName.to_upper()
 	var template := tr(key)

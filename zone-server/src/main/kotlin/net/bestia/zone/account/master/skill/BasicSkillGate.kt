@@ -4,7 +4,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.util.AccountId
 import org.springframework.stereotype.Service
 
@@ -36,7 +38,7 @@ class BasicSkillGate(
 ) {
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val basicSkillId: Long? by lazy { skills.findByIdentifier(BASIC_SKILL)?.id }
+  private val basicSkillId: Long? by lazy { skills.findByIdentifier(SkillId.BASIC_SKILL)?.id }
 
   /** True once the account may trade with another player. Asked of both parties, not only the one who asks. */
   fun mayTrade(accountId: AccountId): Boolean = rankOf(accountId) >= TRADE_RANK
@@ -83,8 +85,6 @@ class BasicSkillGate(
     const val TRADE_RANK = 1
     const val CHAT_RANK = 2
     const val PARTY_RANK = 5
-
-    private const val BASIC_SKILL = "BASIC_SKILL"
 
     private val LOG = KotlinLogging.logger { }
   }

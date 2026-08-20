@@ -9,7 +9,9 @@ import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.core.annotation.Order
 import kotlin.math.abs
@@ -52,7 +54,7 @@ class EnvironmentalExposureSystem(
 ) : System {
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val resistanceId: Long? by lazy { skills.findByIdentifier(WEATHER_RESISTANCE)?.id }
+  private val resistanceId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_RESISTANCE)?.id }
 
   override val schedule: Schedule get() = Schedule.EverySeconds(config.intervalSeconds)
 
@@ -112,6 +114,5 @@ class EnvironmentalExposureSystem(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
-    private const val WEATHER_RESISTANCE = "WEATHER_RESISTANCE"
   }
 }

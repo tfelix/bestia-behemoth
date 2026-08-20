@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 class MoveSystemTest {
 
   /** A ridge running along x: height 100 at x=0 rising to 104 at x=4, so a straight line cannot follow it. */
-  private val ridge = GroundHeight { x, _ -> 100L + x }
+  private val ridge = GroundHeight { position -> 100L + position.x }
 
   /** Walks the whole path and returns where the entity ended up. */
   private fun walk(path: List<Vec3L>, ground: GroundHeight): Position {
@@ -70,7 +70,7 @@ class MoveSystemTest {
   fun `a column with no height falls back to the waypoint rather than dropping the entity`() {
     // Off the grid, or before the world is generated. Refusing to move would be worse than trusting the
     // waypoint, and answering zero would drop the entity to sea level from wherever it was.
-    val unknown = GroundHeight { _, _ -> null }
+    val unknown = GroundHeight { null }
 
     val position = walk(listOf(Vec3L(1, 0, 137)), unknown)
 

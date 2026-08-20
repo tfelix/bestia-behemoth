@@ -1,7 +1,9 @@
 package net.bestia.zone.crafting
 
 import net.bestia.zone.ecs.battle.skill.KnownSkills
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdentifier
 import org.springframework.stereotype.Service
 
 /**
@@ -34,17 +36,17 @@ class MasterCraftBonusService(
   private val skills: SkillRepository
 ) {
 
-  private val carpentryId: Long? by lazy { skills.findByIdentifier(CARPENTRY)?.id }
-  private val tinkererId: Long? by lazy { skills.findByIdentifier(TINKERER)?.id }
-  private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(ITEM_CUSTOMIZATION)?.id }
-  private val oreRefinementId: Long? by lazy { skills.findByIdentifier(ORE_REFINEMENT)?.id }
-  private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(WEAPONRY_RESEARCH)?.id }
-  private val masterSmithId: Long? by lazy { skills.findByIdentifier(MASTER_SMITH)?.id }
-  private val cookingId: Long? by lazy { skills.findByIdentifier(COOKING)?.id }
-  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(WEAPON_REPAIR)?.id }
-  private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(FORGE_WEAPON)?.id }
-  private val forgeArmorId: Long? by lazy { skills.findByIdentifier(FORGE_ARMOR)?.id }
-  private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(UPGRADE_EQUIPMENT)?.id }
+  private val carpentryId: Long? by lazy { skills.findByIdentifier(SkillId.CARPENTRY)?.id }
+  private val tinkererId: Long? by lazy { skills.findByIdentifier(SkillId.TINKERER)?.id }
+  private val itemCustomizationId: Long? by lazy { skills.findByIdentifier(SkillId.ITEM_CUSTOMIZATION)?.id }
+  private val oreRefinementId: Long? by lazy { skills.findByIdentifier(SkillId.ORE_REFINEMENT)?.id }
+  private val weaponryResearchId: Long? by lazy { skills.findByIdentifier(SkillId.WEAPONRY_RESEARCH)?.id }
+  private val masterSmithId: Long? by lazy { skills.findByIdentifier(SkillId.MASTER_SMITH)?.id }
+  private val cookingId: Long? by lazy { skills.findByIdentifier(SkillId.COOKING)?.id }
+  private val weaponRepairId: Long? by lazy { skills.findByIdentifier(SkillId.WEAPON_REPAIR)?.id }
+  private val forgeWeaponId: Long? by lazy { skills.findByIdentifier(SkillId.FORGE_WEAPON)?.id }
+  private val forgeArmorId: Long? by lazy { skills.findByIdentifier(SkillId.FORGE_ARMOR)?.id }
+  private val upgradeEquipmentId: Long? by lazy { skills.findByIdentifier(SkillId.UPGRADE_EQUIPMENT)?.id }
 
   /**
    * The chance [recipe] succeeds for this crafter, clamped to 0..1.
@@ -204,23 +206,6 @@ class MasterCraftBonusService(
      * meaningful: there is no item tier that could sit above it.
      */
     const val NO_ITEM_LEVEL_CAP = Int.MAX_VALUE
-
-    private const val CARPENTRY = "CARPENTRY"
-
-    /**
-     * The docs' "Master Craftsman". Kept as `TINKERER` because that is the identifier `skills.yml` shipped and
-     * `LearnedSkill` has a foreign key to it - renaming would try to delete a referenced row.
-     */
-    private const val TINKERER = "TINKERER"
-    private const val ITEM_CUSTOMIZATION = "ITEM_CUSTOMIZATION"
-    private const val ORE_REFINEMENT = "ORE_REFINEMENT"
-    private const val WEAPONRY_RESEARCH = "WEAPONRY_RESEARCH"
-    private const val MASTER_SMITH = "MASTER_SMITH"
-    private const val COOKING = "COOKING"
-    private const val FORGE_WEAPON = "FORGE_WEAPON"
-    private const val FORGE_ARMOR = "FORGE_ARMOR"
-    private const val UPGRADE_EQUIPMENT = "UPGRADE_EQUIPMENT"
-    private const val WEAPON_REPAIR = "WEAPON_REPAIR"
 
     /** Cooking Lv.1-3: +0%, +20%, +40% success and -0%, -20%, -40% time. */
     private val COOKING_SUCCESS = listOf(0.0f, 0.2f, 0.4f)

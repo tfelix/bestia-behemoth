@@ -1,6 +1,7 @@
 package net.bestia.zone.battle.skill.passive
 
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.skill.SkillId
 
 /**
  * The always-on effect of a passive skill: a contribution
@@ -22,7 +23,7 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
  * registries is a worse contract than a name on the bean - and now that `Skill.type` is gone, the *absence* of
  * a castable script is precisely what makes a skill passive, so the column could not carry both anyway.
  *
- * Declaring the identifier on the bean keeps the two vocabularies apart, and follows what this
+ * Declaring the skill on the bean keeps the two vocabularies apart, and follows what this
  * codebase already does for the two passives that were wired by hand -
  * [net.bestia.zone.environment.weather.EnvironmentalExposureSystem] and
  * [net.bestia.zone.environment.weather.WeatherPublisher] both resolve their skill by identifier,
@@ -32,11 +33,10 @@ import net.bestia.zone.battle.status.StatusValueRecalcContext
 interface PassiveSkillScript {
 
   /**
-   * The `skills.yml` identifier of the passive skill this implements, e.g. `INNER_PEACE`. Resolved
-   * to a skill id once at boot; a value that matches no skill, or one that is also castable, fails
-   * startup rather than going quietly inert.
+   * The passive skill this implements. Resolved to a skill id once at boot; a constant the catalogue
+   * has no row for, or one that is also castable, fails startup rather than going quietly inert.
    */
-  val skillIdentifier: String
+  val skill: SkillId
 
   /** Mutates [context] to reflect this passive being known at [level], which is always >= 1. */
   fun apply(context: StatusValueRecalcContext, level: Int)

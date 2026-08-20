@@ -1,22 +1,4 @@
 skills:
-# targetType: GROUND | AOE_GROUND | ENEMY | FRIENDLY - who/what the skill is aimed at
-#   (GROUND = a plain ground point, AOE_GROUND = a ground point with an area of effect,
-#   see aoeRadius below; ENEMY/FRIENDLY = a single entity, defaulting to hostile/friendly
-#   respectively). aoeRadius is only read when targetType is AOE_GROUND.
-# castTime: seconds the caster channels before the skill resolves (default 0 = instant). While
-#   channelling the entity carries a Casting component; moving or taking damage cancels it.
-# script: the SkillStrategy implementing this skill (net.bestia.zone.battle.skill.scripts), and the
-#   only thing that says whether it can be CAST. A skill with no script is never castable - which is
-#   what a PASSIVE used to mean, and is most of this file. There is no `type` field.
-#   A passive that has a stat effect does NOT name it here: a PassiveSkillScript declares its own
-#   skillIdentifier on the bean, so this column stays one vocabulary. `syncSkillDb` relies on that -
-#   it cannot see Spring beans and derives the client's is_passive as "has no script".
-#   A basic weapon attack is not a skill at all and never appears in this file at all, see
-#   net.bestia.zone.battle.skill.BattleAttack.
-# MASTER SKILLS
-# Ids 1-9 predate the tree grouping and are not ordered by tree; `master_skill_tree.yml` is the
-# authority on which tree a skill belongs to. Basic Skill holds id 1 because it is the one skill the
-# client has to name in code - the Skills window gates every non-Novice tab on it, see skills.gd.
   - id: 1
     identifier: BASIC_SKILL
     targetType: FRIENDLY

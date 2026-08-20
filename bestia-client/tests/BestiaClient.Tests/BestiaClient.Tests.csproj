@@ -28,4 +28,13 @@
     <ProjectReference Include="..\..\src\Bestia Behemoth Client.csproj" />
   </ItemGroup>
 
+  <!--
+    EnumNameTest reads the translation table itself rather than restating its keys, because a copy of the
+    keys here would drift in exactly the way the test exists to catch. Copied next to the assembly so the
+    test needs no walk up from AppContext.BaseDirectory to find the repo.
+  -->
+  <ItemGroup>
+    <None Include="..\..\src\Localization\general.csv" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

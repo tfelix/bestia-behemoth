@@ -21,6 +21,7 @@ import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.battle.status.RegenerationModifiers
 import net.bestia.zone.ecs.battle.status.StatusValues
 import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.item.Equipment
@@ -135,7 +136,7 @@ class StatusEffectSystemsIntegrationTest {
 
   /** A stand-in [PassiveSkillScript] in the shape of the real `InnerPeace`. */
   private class TestPassiveScript : PassiveSkillScript {
-    override val skillIdentifier = "TEST_PASSIVE"
+    override val skill = SkillId.INNER_PEACE
     override fun apply(context: StatusValueRecalcContext, level: Int) {
       context.addHpRegen(percent = 20 * level)
     }
@@ -145,7 +146,7 @@ class StatusEffectSystemsIntegrationTest {
 
   private val passiveSkill = Skill(
     id = PASSIVE_SKILL_ID,
-    identifier = "TEST_PASSIVE",
+    identifier = SkillId.INNER_PEACE.name,
     strength = null,
     script = null,
     manaCost = 0,

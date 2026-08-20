@@ -39,7 +39,7 @@ class MoveSystem(private val ground: GroundHeight) : System {
       // along, so correcting only `position` would fix where the entity *is* and leave the path it appears to
       // take running through the hillside. See Path.groundResolved.
       if (!movementPath.groundResolved) {
-        movementPath.resolveGround { ground.standingZAt(it.x, it.y) }
+        movementPath.resolveGround { ground.standingZAt(it) }
       }
 
       if (movementPath.path.isEmpty()) {
@@ -60,7 +60,7 @@ class MoveSystem(private val ground: GroundHeight) : System {
         // The waypoint's own z is the fallback rather than the answer: it is only reached when the column has no
         // height to report, which means off the grid or a world that is not generated yet. Keeping the old
         // behaviour there is better than refusing to move.
-        position.z = ground.standingZAt(nextPoint.x, nextPoint.y) ?: nextPoint.z
+        position.z = ground.standingZAt(nextPoint) ?: nextPoint.z
 
         LOG.trace { "Entity $id on $nextPoint" }
 

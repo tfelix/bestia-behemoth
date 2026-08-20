@@ -13,9 +13,11 @@ namespace BestiaBehemothClient.Bnet.Message
     public int Code { get; set; }
 
     /// <summary>
-    /// <see cref="Code"/> as its lowercase enum name, for the GDScript side. GDScript cannot see a C#
-    /// enum's members, so matching on this is what keeps a new denial reason from being re-declared as a
-    /// bare ordinal over there - the duplication <c>DialogArg.KindName</c> was introduced to stop.
+    /// <see cref="Code"/> as its lowercase snake_case enum name, for the GDScript side. GDScript cannot see
+    /// a C# enum's members, so matching on this is what keeps a new denial reason from being re-declared as
+    /// a bare ordinal over there - the duplication <c>create_new_master.gd</c> still shows. The chat window
+    /// turns it straight into an <c>ERROR_*</c> translation key, so the spelling <see cref="EnumName"/>
+    /// produces is the one <c>general.csv</c> has to use.
     /// </summary>
     [Export]
     public string CodeName { get; set; } = string.Empty;
@@ -38,7 +40,7 @@ namespace BestiaBehemothClient.Bnet.Message
       return new OperationError
       {
         Code = (int)protoOperationError.Code,
-        CodeName = protoOperationError.Code.ToString().ToLowerInvariant(),
+        CodeName = EnumName.Of(protoOperationError.Code),
         Args = protoOperationError.Args.ToArray()
       };
     }

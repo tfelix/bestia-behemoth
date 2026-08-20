@@ -33,9 +33,9 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     [Export] public RecipeEffect Effect { get; set; } = RecipeEffect.Produce;
 
     /// <summary>
-    /// <see cref="Effect"/> as a lowercase string, for the GDScript side - it cannot see a C# enum's
-    /// members, so matching on this avoids re-declaring the ordinals over there by hand. The same
-    /// reasoning <c>DialogArg.KindName</c> spells out.
+    /// <see cref="Effect"/> as a lowercase snake_case string, for the GDScript side - it cannot see a C#
+    /// enum's members, so matching on this avoids re-declaring the ordinals over there by hand. The same
+    /// reasoning <see cref="EnumName"/> spells out.
     /// </summary>
     [Export] public string EffectName { get; set; } = "produce";
 
@@ -86,7 +86,7 @@ namespace BestiaBehemothClient.Bnet.Message.Crafting
     private void SetEffect(RecipeEffect effect)
     {
       Effect = effect;
-      EffectName = effect.ToString().ToLowerInvariant();
+      EffectName = EnumName.Of(effect);
       NeedsTarget = effect != RecipeEffect.Produce;
     }
   }

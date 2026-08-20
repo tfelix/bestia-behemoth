@@ -1,7 +1,9 @@
 package net.bestia.zone.environment.weather
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillRepository
+import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.socket.OutMessageHandler
 import net.bestia.zone.world.stream.ChunkService
 import org.springframework.stereotype.Service
@@ -51,7 +53,7 @@ class WeatherPublisher(
    * Visible because both callers resolve a player's level against it before calling [publish]: that level
    * lives in a `KnownSkills` component, and reading components is the caller's business - see the class note.
    */
-  val weatherSenseSkillId: Long? by lazy { skills.findByIdentifier(WEATHER_SENSE)?.id }
+  val weatherSenseSkillId: Long? by lazy { skills.findByIdentifier(SkillId.WEATHER_SENSE)?.id }
 
   private val lastSent = ConcurrentHashMap<Long, WeatherSMSG>()
   private val lastSentAt = ConcurrentHashMap<Long, Long>()
@@ -157,8 +159,6 @@ class WeatherPublisher(
   private companion object {
     private val LOG = KotlinLogging.logger { }
     private const val COUNTER_LOG_MILLIS = 300_000L
-
-    private const val WEATHER_SENSE = "WEATHER_SENSE"
 
     /** Real seconds of foresight each level of WEATHER_SENSE buys. From the skill's own description. */
     private const val FORESIGHT_SECONDS_PER_LEVEL = 300

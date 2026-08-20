@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  * thread, where a repository round trip is not acceptable.
  *
  * The mapping runs identifier -> id rather than the other way round, because a script names its own
- * skill (see [PassiveSkillScript.skillIdentifier]); the id itself is content owned by `skills.yml`.
+ * skill (see [PassiveSkillScript.skill]); the id itself is content owned by `skills.yml`.
  * It is injected once at boot by
  * [net.bestia.zone.boot.PassiveSkillScriptBinderBootRunner], which must be a `CommandLineRunner`
  * rather than an `ApplicationReadyEvent` listener like the neighbouring *validators* - the tick loop
@@ -33,7 +33,7 @@ class PassiveSkillScriptRegistry(
   private var bySkillId: Map<Long, PassiveSkillScript> = emptyMap()
 
   /**
-   * Resolves every script's [PassiveSkillScript.skillIdentifier] against the catalogue.
+   * Resolves every script's [PassiveSkillScript.skill] against the catalogue.
    *
    * Throws rather than warning, unlike
    * [net.bestia.zone.battle.skill.scripts.SkillScriptBootValidator]: that one tolerates misses
@@ -46,9 +46,9 @@ class PassiveSkillScriptRegistry(
     val byIdentifier = skills.associateBy { it.identifier }
 
     bySkillId = byName.values.associateBy { script ->
-      val skill = byIdentifier[script.skillIdentifier]
+      val skill = byIdentifier[script.skill.name]
         ?: throw PassiveSkillScriptBindingException(
-          "${script::class.simpleName} names unknown skill '${script.skillIdentifier}'"
+          "${script::class.simpleName} names unknown skill '${script.skill}'"
         )
 
       // A skill cannot be both cast and folded into the status recalc: the two ask different questions of
@@ -56,7 +56,7 @@ class PassiveSkillScriptRegistry(
       // check that catches it - a passive is a skill *without* a SkillStrategy, by definition.
       if (skillStrategyFactory.isCastable(skill)) {
         throw PassiveSkillScriptBindingException(
-          "${script::class.simpleName} names skill '${script.skillIdentifier}', which also has the " +
+          "${script::class.simpleName} names skill '${script.skill}', which also has the " +
             "castable script '${skill.script}' - a skill is either cast or always-on, not both"
         )
       }

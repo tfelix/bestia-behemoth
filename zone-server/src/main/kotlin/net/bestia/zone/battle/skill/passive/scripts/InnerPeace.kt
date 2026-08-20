@@ -2,6 +2,7 @@ package net.bestia.zone.battle.skill.passive.scripts
 
 import net.bestia.zone.battle.skill.passive.PassiveSkillScript
 import net.bestia.zone.battle.status.StatusValueRecalcContext
+import net.bestia.zone.skill.SkillId
 import org.springframework.stereotype.Component
 
 /**
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component
 @Component
 class InnerPeace : PassiveSkillScript {
 
-  override val skillIdentifier = "INNER_PEACE"
+  override val skill = SkillId.INNER_PEACE
 
   override fun apply(context: StatusValueRecalcContext, level: Int) {
     context.addHpRegen(percent = PERCENT_PER_LEVEL * level)

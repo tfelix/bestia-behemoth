@@ -56,6 +56,11 @@ class ChunkService(
   /**
    * One batch of removals applied to one chunk, waiting to be told to the clients that hold it.
    *
+   * An empty [removals] with [fromRevision] equal to [toRevision] is not a no-op: it means this chunk's own
+   * content did not change, but a neighbour's did, and this chunk's mesh reads into that neighbour's edge
+   * voxels (the mesher's apron - see [MESH_APRON_LOW]/[MESH_APRON_HIGH]). A holder is told anyway, so it
+   * re-meshes off the now-current neighbour instead of leaving a seam at the shared border.
+   *
    * @property removals packed `(voxelIndex shl 8) or remainingOccupancy`, sorted, coalesced - an index appears
    *   once, at the lowest occupancy it reached during the tick
    * @property baked the chunk outgrew its delta and was baked; its whole content was rewritten, so a patch
@@ -213,7 +218,8 @@ class ChunkService(
 
     // Reads merged voxels, never a base: a walkable span or an opacity cell computed from terrain that
     // ignores what players built would be wrong in exactly the places it matters most.
-    val derived = DerivedStore(voxels = store::merged, agent = AgentProfile())
+    val agent = AgentProfile.forMaxSlope(config.voxelSize, settings.maxWalkSlopeDegrees)
+    val derived = DerivedStore(voxels = store::merged, agent = agent)
 
     LOG.info {
       "Chunk streaming ready: ${config.chunkSize}x${config.chunkSize}x${config.chunkHeight} chunks, " +
@@ -532,6 +538,10 @@ class ChunkService(
       pendingFrom.putIfAbsent(chunk, from)
       if (outcome.baked) pendingBaked.add(chunk)
 
+      for (neighbour in apronNeighboursOf(chunk, config.chunkSize, prior)) {
+        touchApronNeighbour(normalise(neighbour))
+      }
+
       carved.addAll(prior)
       touched.add(chunk)
 
@@ -555,6 +565,56 @@ class ChunkService(
     revisions[chunk] = revisionOf(chunk) + 1
     loaded.derived.invalidate(chunk)
     for (listener in changeListeners) listener(chunk)
+  }
+
+  /**
+   * Which of [chunk]'s horizontal neighbours have this chunk in their mesher's apron, given the voxels that
+   * were actually carved.
+   *
+   * A neighbour on the low side of an axis reads this chunk's high edge (its [MESH_APRON_HIGH]-cell apron),
+   * and a neighbour on the high side reads this chunk's low edge (its [MESH_APRON_LOW]-cell apron) - see
+   * `TerrainPatch.Gather` on the client for the geometry this mirrors. A diagonal neighbour only cares when
+   * one carved voxel is in *both* aprons at once; a brush that runs along a whole edge without reaching the
+   * corner must not spuriously touch it.
+   */
+  private fun apronNeighboursOf(chunk: ChunkPos, size: Int, carved: List<CarvedVoxel>): Set<ChunkPos> {
+    val neighbours = LinkedHashSet<ChunkPos>()
+    val sizeAsLong = size.toLong()
+
+    for (voxel in carved) {
+      val localX = Math.floorMod(voxel.voxelX, sizeAsLong).toInt()
+      val localY = Math.floorMod(voxel.voxelY, sizeAsLong).toInt()
+
+      val lowX = localX < MESH_APRON_HIGH
+      val highX = localX >= size - MESH_APRON_LOW
+      val lowY = localY < MESH_APRON_HIGH
+      val highY = localY >= size - MESH_APRON_LOW
+
+      if (lowX) neighbours.add(ChunkPos(chunk.x - 1, chunk.y, chunk.z))
+      if (highX) neighbours.add(ChunkPos(chunk.x + 1, chunk.y, chunk.z))
+      if (lowY) neighbours.add(ChunkPos(chunk.x, chunk.y - 1, chunk.z))
+      if (highY) neighbours.add(ChunkPos(chunk.x, chunk.y + 1, chunk.z))
+
+      if (lowX && lowY) neighbours.add(ChunkPos(chunk.x - 1, chunk.y - 1, chunk.z))
+      if (lowX && highY) neighbours.add(ChunkPos(chunk.x - 1, chunk.y + 1, chunk.z))
+      if (highX && lowY) neighbours.add(ChunkPos(chunk.x + 1, chunk.y - 1, chunk.z))
+      if (highX && highY) neighbours.add(ChunkPos(chunk.x + 1, chunk.y + 1, chunk.z))
+    }
+
+    return neighbours
+  }
+
+  /**
+   * Marks [chunk] as needing to be re-sent, without touching its content or bumping its revision.
+   *
+   * For a neighbour whose mesh reads into a chunk that was actually carved - see [apronNeighboursOf]. Safe to
+   * call for a chunk that already has a real change pending this tick: [pending]'s entry is reused rather than
+   * replaced, and [pendingFrom] keeps whichever revision was recorded first, which is always the one from
+   * before either change.
+   */
+  private fun touchApronNeighbour(chunk: ChunkPos) {
+    pending.getOrPut(chunk) { LinkedHashMap() }
+    pendingFrom.putIfAbsent(chunk, revisionOf(chunk))
   }
 
   /**
@@ -633,5 +693,10 @@ class ChunkService(
 
   private companion object {
     private val LOG = KotlinLogging.logger { }
+
+    // Must match TerrainPatch.ApronLow / TerrainPatch.ApronHigh in the client mesher - see the same precedent
+    // for CarveBrush.MIN_RADIUS, which is pinned against client rendering assumptions the same way.
+    private const val MESH_APRON_LOW = 2
+    private const val MESH_APRON_HIGH = 1
   }
 }

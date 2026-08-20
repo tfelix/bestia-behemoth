@@ -7,6 +7,7 @@ import net.bestia.zone.battle.skill.SkillStrategy
 import net.bestia.zone.battle.skill.SkillTargetType
 import net.bestia.zone.battle.status.StatusValueRecalcContext
 import net.bestia.zone.skill.Skill
+import net.bestia.zone.skill.SkillId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
@@ -16,27 +17,28 @@ import org.junit.jupiter.api.assertThrows
 class PassiveSkillScriptRegistryTest {
 
   private class InnerPeaceStub : PassiveSkillScript {
-    override val skillIdentifier = "INNER_PEACE"
+    override val skill = SkillId.INNER_PEACE
     override fun apply(context: StatusValueRecalcContext, level: Int) = context.addHpRegen(percent = 3 * level)
   }
 
+  /** Names a real constant that the catalogue handed to `bind` does not contain. */
   private class MissingSkillScript : PassiveSkillScript {
-    override val skillIdentifier = "NO_SUCH_SKILL"
+    override val skill = SkillId.WEATHER_SENSE
     override fun apply(context: StatusValueRecalcContext, level: Int) = Unit
   }
 
   private class CastableSkillScript : PassiveSkillScript {
-    override val skillIdentifier = "FIREBOLT"
+    override val skill = SkillId.COOKING
     override fun apply(context: StatusValueRecalcContext, level: Int) = Unit
   }
 
-  /** Named `Firebolt`, so the strategy factory keys it under that name and FIREBOLT counts as castable. */
-  private class Firebolt : SkillStrategy {
+  /** Named `Cooking`, so the strategy factory keys it under that name and COOKING counts as castable. */
+  private class Cooking : SkillStrategy {
     override fun isCastPossible(ctx: SkillContext) = true
     override fun execute(ctx: SkillContext): Damage? = null
   }
 
-  private val strategies = SkillStrategyFactory(listOf(Firebolt()))
+  private val strategies = SkillStrategyFactory(listOf(Cooking()))
 
   private fun skill(id: Long, identifier: String, script: String? = null) = Skill(
     id = id,
@@ -58,7 +60,7 @@ class PassiveSkillScriptRegistryTest {
    */
   private val divineProtection = skill(2L, "DIVINE_PROTECTION")
 
-  private val firebolt = skill(5L, "FIREBOLT", script = "Firebolt")
+  private val cooking = skill(3L, "COOKING", script = "Cooking")
 
   private fun registry(vararg scripts: PassiveSkillScript) =
     PassiveSkillScriptRegistry(scripts.toList(), strategies)
@@ -68,7 +70,7 @@ class PassiveSkillScriptRegistryTest {
     val script = InnerPeaceStub()
     val registry = registry(script)
 
-    registry.bind(listOf(innerPeace, divineProtection, firebolt))
+    registry.bind(listOf(innerPeace, divineProtection, cooking))
 
     assertEquals(1, registry.bound().size)
     assertSame(script, registry.bound()[innerPeace.id])
@@ -91,13 +93,14 @@ class PassiveSkillScriptRegistryTest {
 
   @Test
   fun `a script naming an unknown skill fails binding`() {
-    // The typo case. A script bean exists in code, so a miss can only be a mistake - unlike the
-    // reverse direction, it has no legitimate in-between state and must not go quietly inert.
+    // Now that the property is a SkillId the typo case cannot be written, but a skill deleted or
+    // renamed out of `skills.yml` still lands here - and earlier than SkillCatalogBootValidator,
+    // which only fires once the tick loop is already running.
     val registry = registry(MissingSkillScript())
 
     val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(innerPeace)) }
 
-    assertEquals(true, ex.message!!.contains("NO_SUCH_SKILL"))
+    assertEquals(true, ex.message!!.contains("WEATHER_SENSE"))
   }
 
   @Test
@@ -106,9 +109,9 @@ class PassiveSkillScriptRegistryTest {
     // nothing decides which one a point bought. This is the check that replaced `type != PASSIVE`.
     val registry = registry(CastableSkillScript())
 
-    val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(firebolt)) }
+    val ex = assertThrows<PassiveSkillScriptBindingException> { registry.bind(listOf(cooking)) }
 
-    assertEquals(true, ex.message!!.contains("FIREBOLT"))
+    assertEquals(true, ex.message!!.contains("COOKING"))
   }
 
   @Test

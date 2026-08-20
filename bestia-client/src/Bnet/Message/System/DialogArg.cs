@@ -36,10 +36,11 @@ namespace BestiaBehemothClient.Bnet.Message.System
     public DialogArgKind Kind { get; set; } = DialogArgKind.Text;
 
     /// <summary>
-    /// <see cref="Kind"/> as a lowercase string, for the GDScript side. GDScript cannot see a C#
-    /// enum's members, so matching on this avoids re-declaring the ordinals over there by hand -
+    /// <see cref="Kind"/> as a lowercase snake_case string, for the GDScript side. GDScript cannot see
+    /// a C# enum's members, so matching on this avoids re-declaring the ordinals over there by hand -
     /// which is exactly how the operation-error codes ended up duplicated in
-    /// <c>create_new_master.gd</c>.
+    /// <c>create_new_master.gd</c>. Single words as it happens, which is why this one property survived
+    /// the spelling bug <see cref="EnumName"/> now fixes for all five.
     /// </summary>
     [Export]
     public string KindName { get; set; } = "text";
@@ -95,7 +96,7 @@ namespace BestiaBehemothClient.Bnet.Message.System
     private void SetKind(DialogArgKind kind)
     {
       Kind = kind;
-      KindName = kind.ToString().ToLowerInvariant();
+      KindName = EnumName.Of(kind);
     }
   }
 }

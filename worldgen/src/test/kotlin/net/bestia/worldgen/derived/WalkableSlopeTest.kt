@@ -35,6 +35,15 @@ class WalkableSlopeTest {
   }
 
   @Test
+  fun `forMaxSlope converts a configured angle to the matching step height`() {
+    // Same relationship as the default, but at an angle nothing hard-codes - pins the conversion itself
+    // rather than the one point it happens to agree with a literal `1.0`.
+    val agent = AgentProfile.forMaxSlope(voxelSize, degrees = 30.0)
+
+    assertEquals(voxelSize * tan(Math.toRadians(30.0)), agent.maxStep, 1e-9)
+  }
+
+  @Test
   fun `a rise within one voxel is walkable and a steeper one is not`() {
     val agent = AgentProfile()
 

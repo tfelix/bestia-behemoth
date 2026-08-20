@@ -9,11 +9,13 @@ import net.bestia.zone.skill.BasicSkillTooLowForTreeException
 import net.bestia.zone.skill.LearnedSkill
 import net.bestia.zone.skill.LearnedSkillRepository
 import net.bestia.zone.skill.NoSkillPointsAvailableException
+import net.bestia.zone.skill.SkillId
 import net.bestia.zone.skill.SkillMaxLevelReachedException
 import net.bestia.zone.skill.SkillPrerequisiteNotMetException
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.skill.SkillSubTreeNotUnlockedException
 import net.bestia.zone.skill.findByIdOrThrow
+import net.bestia.zone.skill.findByIdentifier
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.status.IsStatusValueDirty
 import net.bestia.zone.ecs.core.WorldView
@@ -40,7 +42,7 @@ class MasterSkillTreeService(
 ) {
 
   /** Resolved by identifier, because the id in `skills.yml` is content and this is code. */
-  private val basicSkillId: Long? by lazy { skillRepository.findByIdentifier(BASIC_SKILL_IDENTIFIER)?.id }
+  private val basicSkillId: Long? by lazy { skillRepository.findByIdentifier(SkillId.BASIC_SKILL)?.id }
 
   /**
    * Applies every investment in [investments] in order, within a single transaction: an earlier
@@ -218,7 +220,6 @@ class MasterSkillTreeService(
 
   companion object {
     private const val NOVICE_TREE = "NOVICE"
-    private const val BASIC_SKILL_IDENTIFIER = "BASIC_SKILL"
 
     /**
      * How far Basic Skill must be taken before any tree but Novice opens. Deliberately its own

@@ -1,5 +1,7 @@
 package net.bestia.zone.ecs.movement
 
+import net.bestia.zone.geometry.Vec3L
+
 /**
  * Where the ground is, so movement can put an entity on it instead of trusting where it was told to go.
  *
@@ -19,11 +21,17 @@ package net.bestia.zone.ecs.movement
 fun interface GroundHeight {
 
   /**
-   * The `z` an entity standing at ([x], [y]) should have, in position units, or `null` where there is no answer.
+   * The `z` an entity standing at ([position]'s x/y) should have, in position units, or `null` where there is
+   * no answer.
+   *
+   * [position]'s own `z` is a hint, not part of the question: a column can have more than one standable
+   * surface - one floor per storey of a building, one per chamber of a cave - and it picks whichever is
+   * closest to where the entity already thinks it is, so an entity on an upper floor is not reported onto the
+   * ground below it.
    *
    * Null means the column is genuinely unavailable - off the grid, or the world is not generated yet - and not
    * "the ground is at zero". A caller that cannot tell those apart puts players at sea level in the middle of a
    * mountain range, so the distinction is worth a nullable return.
    */
-  fun standingZAt(x: Long, y: Long): Long?
+  fun standingZAt(position: Vec3L): Long?
 }

@@ -8,9 +8,11 @@ import net.bestia.zone.ecs.account.ActivePlayer
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
+import net.bestia.zone.ecs.movement.GroundHeight
 import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.movement.Path
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.socket.ChunkFanOut
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
@@ -44,7 +46,8 @@ class ChunkStreamSystem(
   private val subscriptions: ChunkSubscriptionService,
   private val inbox: ChunkStreamInbox,
   private val fanOut: ChunkFanOut,
-  private val settings: ChunkStreamConfig
+  private val settings: ChunkStreamConfig,
+  private val groundHeight: GroundHeight
 ) : System {
 
   override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class)
@@ -130,7 +133,6 @@ class ChunkStreamSystem(
    * @see Grounded for why this is a marker rather than a "snap anything below the surface" rule
    */
   private fun groundNewcomers(world: World) {
-    val config = chunkService.config
     val ungrounded = ArrayList<EntityId>()
 
     world.query(Position::class).each { id ->
@@ -139,21 +141,17 @@ class ChunkStreamSystem(
 
     for (entityId in ungrounded) {
       val position = world.get(entityId, Position::class) ?: continue
-      val ground = chunkService.surfaceElevationAt(position.x, position.y)
+      val z = groundHeight.standingZAt(position.toVec3L())
 
-      if (ground == null) {
+      if (z == null) {
         // Off the grid. Marked anyway: retrying every tick would ask the same unanswerable question sixty times
         // a second, and a position outside the world is a different bug from a position at the wrong height.
         world.add(entityId, Grounded)
         continue
       }
 
-      val z = ChunkCoords.standingZ(config, ground)
       if (z != position.z) {
-        LOG.info {
-          "Grounded entity $entityId at (${position.x},${position.y}): z ${position.z} -> $z, " +
-              "ground ${"%.1f".format(ground)} m"
-        }
+        LOG.info { "Grounded entity $entityId at (${position.x},${position.y}): z ${position.z} -> $z" }
         position.z = z
       }
 
@@ -175,8 +173,6 @@ class ChunkStreamSystem(
     val teleports = inbox.drainTeleports()
     if (teleports.isEmpty()) return
 
-    val config = chunkService.config
-
     val entities = HashMap<Long, EntityId>()
     world.query(Position::class, Account::class, ActivePlayer::class).each { id ->
       entities[get<Account>().accountId] = id
@@ -189,28 +185,22 @@ class ChunkStreamSystem(
         continue
       }
 
-      val ground = chunkService.surfaceElevationAt(teleport.x, teleport.y)
-      if (ground == null) {
+      val position = world.get(entityId, Position::class) ?: continue
+
+      // Shared with MoveSystem's per-step snap, so a teleport and a walk agree about where the ground is.
+      val z = groundHeight.standingZAt(Vec3L(teleport.x, teleport.y, position.z))
+      if (z == null) {
         LOG.warn { "Account ${teleport.accountId} asked to move to (${teleport.x},${teleport.y}), off the grid" }
         continue
       }
 
-      // Shared with MoveSystem's per-step snap, so a teleport and a walk agree about where the ground is. It also
-      // clamps to the waterline; see ChunkCoords.standingZ for that and for why it rounds.
-      val z = ChunkCoords.standingZ(config, ground)
-
-      world.get(entityId, Position::class)?.let { position ->
-        position.x = teleport.x
-        position.y = teleport.y
-        position.z = z
-      }
+      position.x = teleport.x
+      position.y = teleport.y
+      position.z = z
 
       world.remove(entityId, Path::class)
 
-      LOG.info {
-        "Moved account ${teleport.accountId} to (${teleport.x},${teleport.y},$z), " +
-            "ground ${"%.1f".format(ground)} m"
-      }
+      LOG.info { "Moved account ${teleport.accountId} to (${teleport.x},${teleport.y},$z)" }
     }
   }
 

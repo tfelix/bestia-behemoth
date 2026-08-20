@@ -6,6 +6,7 @@ import net.bestia.worldgen.voxel.Occupancy
 import net.bestia.worldgen.voxel.Passability
 import net.bestia.worldgen.voxel.VoxelChunk
 import kotlin.math.abs
+import kotlin.math.tan
 
 /** How big the thing walking is, and how athletic. */
 data class AgentProfile(
@@ -33,6 +34,32 @@ data class AgentProfile(
     require(height >= 1) { "height must be at least 1" }
     require(maxStep >= 0.0) { "maxStep must not be negative" }
     require(maxWadeDepth >= 0.0) { "maxWadeDepth must not be negative" }
+  }
+
+  companion object {
+    /**
+     * An [AgentProfile] whose [maxStep] is derived from a maximum walkable slope rather than stated directly
+     * in voxels, since a slope in degrees is what a config file or a game designer actually thinks in.
+     *
+     * `maxStep` and `voxelSize` are two independent numbers that happen to agree exactly at the 45-degree
+     * default, which is worth pinning in a test (see `WalkableSlopeTest`) precisely because nothing in the
+     * types enforces it. This factory is the one place the `tan` relationship is computed, so a caller never
+     * has to re-derive a step height from a slope by hand.
+     */
+    fun forMaxSlope(
+      voxelSize: Double,
+      degrees: Double,
+      height: Int = 2,
+      maxWadeDepth: Double = 1.0
+    ): AgentProfile {
+      require(degrees > 0.0 && degrees < 90.0) { "degrees must be strictly between 0 and 90, was $degrees" }
+
+      return AgentProfile(
+        height = height,
+        maxStep = voxelSize * tan(Math.toRadians(degrees)),
+        maxWadeDepth = maxWadeDepth
+      )
+    }
   }
 }
 

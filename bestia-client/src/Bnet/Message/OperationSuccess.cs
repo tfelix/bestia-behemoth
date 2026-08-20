@@ -12,7 +12,7 @@ namespace BestiaBehemothClient.Bnet.Message
     public int Code { get; set; }
 
     /// <summary>
-    /// <see cref="Code"/> as its lowercase enum name, for the GDScript side - the mirror of
+    /// <see cref="Code"/> as its lowercase snake_case enum name, for the GDScript side - the mirror of
     /// <c>OperationError.CodeName</c>, and for the same reason.
     /// </summary>
     [Export]
@@ -28,7 +28,7 @@ namespace BestiaBehemothClient.Bnet.Message
       return new OperationSuccess
       {
         Code = (int)protoOperationSuccess.Code,
-        CodeName = protoOperationSuccess.Code.ToString().ToLowerInvariant()
+        CodeName = EnumName.Of(protoOperationSuccess.Code)
       };
     }
 
