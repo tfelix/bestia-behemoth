@@ -116,9 +116,12 @@ class ClientMessageHandler(
 
     LOG.debug { "Client ${ctx.channel().remoteAddress()} authed as player ${result.accountId}" }
 
+    // Minted here rather than off AccountConnectedEvent below: the reply is flushed before that event is
+    // published, so a ticket created by a listener would not exist yet when the client first presents it.
     val authSuccess = AuthenticationSuccessProto.AuthenticationSuccess
       .newBuilder()
       .setServerVersion("behemoth/${handlerCtx.version}")
+      .setHttpTicket(handlerCtx.httpTicketService.ticketFor(result.accountId))
     // TODO Send the available permissions to the client
     // .setPermissions(AuthenticationSuccessProto.ClientPermissions.REGULAR)
 

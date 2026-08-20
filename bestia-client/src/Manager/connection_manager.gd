@@ -98,6 +98,9 @@ var world_clock: Node = null
 # Signed JWT obtained from the login server, sent to the zone during the auth handshake.
 var _login_token: String = ""
 
+# Credential for this client's REST calls, handed over by the zone in AuthenticationSuccess.
+var _http_ticket: String = ""
+
 var last_connection_error: ConnectionError = ConnectionError.NO_ERROR
 var selected_master_info: MasterInfo = null
 
@@ -123,13 +126,17 @@ func _ready() -> void:
 	world_clock.Attach(_socket)
 
 
-## The signed JWT this session was opened with, for the map's REST calls.
+## Credential for this client's REST calls, or empty before the zone has authenticated this connection.
 ##
-## Reused rather than exchanged for a ticket of its own: the zone verifies it with the same validator the
-## socket handshake uses, so there is one place a token is judged instead of two that can disagree. Empty
-## before login.
-func login_token() -> String:
-	return _login_token
+## Not the login JWT, which is what this used to be: that token expires an hour after the login server issued
+## it, and the socket only judges it once at the handshake - so the game carried on working while every map
+## request started coming back 401. The zone mints this one per connection and forgets it when the connection
+## goes, so it cannot expire underneath a client that is still playing.
+##
+## The map is the only thing behind HTTP today, hence the generic name: anything else put there wants this
+## same ticket rather than a scheme of its own.
+func http_ticket() -> String:
+	return _http_ticket
 
 
 func disconnect_from_server() -> void:
@@ -515,6 +522,7 @@ func _on_bnet_socket_message_received(message: Object) -> void:
 		# loader to go into the master selection screen.
 		assert(_connection_state == ConnectionState.CONNECTED_NOT_AUTHED)
 		_connection_state = ConnectionState.CONNECTED_AUTHED
+		_http_ticket = message.HttpTicket
 		SceneManager.unblock_transition()
 	elif message is Pong:
 		_on_pong()
@@ -573,6 +581,9 @@ func _on_bnet_socket_connection_status_changed(status: int) -> void:
 	if status == 0:
 		# connection was closed, perform cleanup and inform the user.
 		_connection_state = ConnectionState.DISCONNECTED
+		# The zone forgot this ticket the moment the socket died, so holding on to it would only let the map
+		# present a credential that is already refused.
+		_http_ticket = ""
 		if _intentional_disconnect:
 			# Player-initiated logout: go home quietly instead of showing "connection lost".
 			_intentional_disconnect = false

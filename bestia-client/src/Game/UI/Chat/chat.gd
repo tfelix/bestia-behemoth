@@ -1,3 +1,4 @@
+class_name Chat
 extends Control
 
 @onready var chat_input: LineEdit = %ChatInput
@@ -16,7 +17,7 @@ var _history_index: int = -1
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
 const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 
-## Refusals reported as a system line here, by [code]OperationError.CodeName[/code].
+## Refusals reported through [method error_line] here, by [code]OperationError.CodeName[/code].
 ##
 ## The chat window is the client's only system-message channel, and for a chat refusal it is also the right
 ## one: a player whose message went nowhere has to be told in the window they typed it in, since a toast
@@ -47,9 +48,14 @@ const _REFUSALS := {
 	"trade_failed": "The trade could not be completed. Nothing changed hands.",
 }
 
-## Refusals drawn in red rather than as a plain system line. Anything a player is meant to read as "that did
-## not happen" belongs here; a neutral notice does not.
+## Red, for something that did not happen: a refusal, a failure, an action the server turned down.
 const _ERROR_COLOR := Color(0.90, 0.35, 0.35)
+
+## Yellow, for something the player should know but was not refused - a notice rather than a denial.
+##
+## Distinct from [constant _ERROR_COLOR] because the two read differently at a glance, which is the whole
+## value of colouring them at all: red is "that did not happen", yellow is "here is something you need".
+const _SYSTEM_COLOR := Color(0.95, 0.82, 0.35)
 
 
 func _ready() -> void:
@@ -143,8 +149,27 @@ func _switch_chat_mode(modeIdx: int) -> void:
 	user_whisper_input.hide()
 
 
-## Adds a new chat line and make sure not more than the allowed lines are added.
+## A neutral notice, in yellow.
+##
+## Public because the refusals in [constant _REFUSALS] are not the only things with nowhere else to be said -
+## the map has no text of its own either, and a map that has stopped working has to be able to say so.
+##
+## The colour is fixed rather than a parameter: which of the two a message is belongs to the message, and a
+## caller free to pass any colour is a caller free to make a denial look like a notice.
+func system_line(text: String) -> void:
+	_add_chat_line(text, _SYSTEM_COLOR)
+
+
+## Something the player asked for and did not get, in red.
+func error_line(text: String) -> void:
+	_add_chat_line(text, _ERROR_COLOR)
+
+
+## Adds a new chat line in any colour, and makes sure not more than the allowed lines are added.
 ## If the chat was scrolled down it should scroll down too.
+##
+## Private: callers outside pick a *kind* of line - [method system_line] or [method error_line] - and the
+## colour follows from that, so the palette stays in one place.
 func _add_chat_line(text: String, color: Color = Color.WHITE) -> void:
 	# Check if the scroll container is scrolled to the bottom
 	var was_at_bottom = scroll_container.scroll_vertical >= scroll_container.get_v_scroll_bar().max_value - scroll_container.get_v_scroll_bar().page
@@ -191,7 +216,7 @@ func _on_operation_error(message) -> void:
 	if message.Args.size() > 0:
 		text = template % Array(message.Args)
 
-	_add_chat_line(text, _ERROR_COLOR)
+	error_line(text)
 
 
 func _on_chat_received(message: ChatSMSG) -> void:

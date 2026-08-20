@@ -6,6 +6,7 @@ import net.bestia.bnet.proto.AuthenticationProto
 import net.bestia.bnet.proto.EnvelopeProto
 import net.bestia.zone.account.AccountDisconnectedEvent
 import net.bestia.zone.account.authentication.AuthenticationProcessor
+import net.bestia.zone.account.authentication.HttpTicketService
 import org.junit.jupiter.api.Test
 import org.springframework.context.ApplicationEventPublisher
 import kotlin.test.assertEquals
@@ -56,6 +57,7 @@ class DualConnectionTakeoverTest {
       socketConfig = SocketServerConfig("127.0.0.1", 0, 30L, emptyList()),
       channelRegistry = registry,
       zoneReadinessService = readiness,
+      httpTicketService = HttpTicketService(),
       version = "test"
     )
   }

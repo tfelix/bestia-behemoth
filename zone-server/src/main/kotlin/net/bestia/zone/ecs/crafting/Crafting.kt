@@ -3,7 +3,7 @@ package net.bestia.zone.ecs.crafting
 import net.bestia.zone.ecs.SyncTargets
 import net.bestia.zone.ecs.battle.skill.CastingComponentSMSG
 import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.CountdownBar
+import net.bestia.zone.ecs.core.Countdown
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.message.EntitySMSG
@@ -20,7 +20,7 @@ import net.bestia.zone.util.EntityId
  * same thing to a player - a bar that fills and then either resolves or is interrupted - so reusing the
  * message means the client draws both with the code it already has. The two channels are mutually
  * exclusive: [net.bestia.zone.ecs.battle.skill.CastCancelService] drops both together, so a bar can
- * only ever belong to one of them. It is throttled the same way too - see [CountdownBar].
+ * only ever belong to one of them. It is throttled the same way too - see [Countdown].
  *
  * ### Its inputs are not spent yet
  *
@@ -37,7 +37,23 @@ class Crafting(
 
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
-) : CountdownBar(remainingSeconds), Component, Removable {
+) : Countdown(remainingSeconds), Removable {
+
+  private var lastSynced = 0f
+
+  override fun countdown(deltaTime: Float) {
+    super.countdown(deltaTime)
+    lastSynced += deltaTime
+  }
+
+  override fun isDirty(): Boolean {
+    return lastSynced >= RESYNC_INTERVAL || super.isDirty()
+  }
+
+  override fun clearDirty() {
+    super.clearDirty()
+    lastSynced = 0f
+  }
 
   init {
     require(totalSeconds > 0f) { "Crafting requires a positive totalSeconds, got $totalSeconds" }
@@ -53,4 +69,8 @@ class Crafting(
 
   // Bystanders see the bar too, so a smith at a forge is visibly busy - the same choice Casting makes.
   override fun syncTargets(world: World, entityId: EntityId): SyncTargets = SyncTargets.PublicInRange
+
+  companion object {
+    private const val RESYNC_INTERVAL = 2f
+  }
 }

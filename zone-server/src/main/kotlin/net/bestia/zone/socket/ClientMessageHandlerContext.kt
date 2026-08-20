@@ -1,6 +1,7 @@
 package net.bestia.zone.socket
 
 import net.bestia.zone.account.authentication.AuthenticationProcessor
+import net.bestia.zone.account.authentication.HttpTicketService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Profile
@@ -14,6 +15,7 @@ class ClientMessageHandlerContext(
   val socketConfig: SocketServerConfig,
   val channelRegistry: ChannelRegistry,
   val zoneReadinessService: ZoneReadinessService,
+  val httpTicketService: HttpTicketService,
   @Value("\${zone.version}")
   val version: String,
 )

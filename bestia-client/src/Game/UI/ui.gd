@@ -15,9 +15,15 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _map_source: MapSource = $MapSource
 @onready var _minimap: Minimap = $Minimap
 @onready var _map_overlay: MapOverlay = $MapOverlay
+@onready var _chat: Chat = $Chat
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
 const _CHART_ENABLING_ITEM_IDS := [21]
+
+## Said once when the map server stops accepting this session. Worded here rather than in [MapSource] for the
+## reason the chat refusals are worded in [code]chat.gd[/code]: the code that detects a thing should not be
+## the code that phrases it, or the phrasing cannot be translated.
+const _MAP_UNAVAILABLE_TEXT := "The map is unavailable - this session is no longer recognised by the map server."
 
 ## The charts the player was last seen holding, as a sorted signature. Compared rather than counted, so
 ## swapping one chart for another - which changes what is visible without changing how many are held -
@@ -59,10 +65,12 @@ func _ready() -> void:
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
 	# views ask for the player's position.
 	var entities := EntityManager.get_instance()
-	
-	get_parent().get_node_or_null("EntityManager")
 	_minimap.setup(_map_source, entities)
 	_map_overlay.setup(_map_source, entities)
+
+	# The map draws no text of its own, so a map that has stopped working reports itself where the other
+	# window-less refusals do. Connected before the first request, so a refusal of it is not missed.
+	_map_source.map_unavailable.connect(_on_map_unavailable)
 	_map_source.fetch_meta()
 
 	# The one thing the client needs to know about its own fog is which charts it holds, and that arrives
@@ -79,10 +87,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-## Shows or hides the minimap, and drops the tiles that depended on the old charts.
+## Shows or hides both map views, and drops the tiles that depended on the old charts.
 ##
 ## Charts are the only source of map knowledge, so a player holding none would have a minimap of solid fog -
-## which reads as a broken widget rather than as something to go and earn.
+## which reads as a broken widget rather than as something to go and earn. The overlay is gated on the same
+## thing for the same reason, and because an ungated one goes on asking the server for tiles of ground the
+## player has no way to see.
 ##
 ## Only the personal tiles go. A fully charted tile is the same picture for everybody and does not become a
 ## different one when its owner charts more land, so charting does not throw away the part of the map that
@@ -100,7 +110,12 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 
 	_chart_signature = signature
 	_minimap.set_has_chart(not held.is_empty())
+	_map_overlay.set_has_chart(not held.is_empty())
 	_map_source.set_chart_signature(signature)
+
+
+func _on_map_unavailable() -> void:
+	_chat.system_line(_MAP_UNAVAILABLE_TEXT)
 
 
 func _on_master_profile_inventory_win_toggled() -> void:

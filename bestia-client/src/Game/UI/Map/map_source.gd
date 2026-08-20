@@ -10,8 +10,10 @@ extends Node
 ## re-requested every time the window opens. Conditional requests, a cache that survives a restart and a
 ## transfer that cannot delay a movement packet are all things HTTP already does.
 ##
-## [b]Authentication.[/b] The login JWT this session was opened with, which the zone verifies with the same
-## validator the socket handshake uses. No ticket message, no second expiry to keep in step.
+## [b]Authentication.[/b] The map ticket the zone hands over in [code]AuthenticationSuccess[/code], which
+## lives exactly as long as the connection. Deliberately not the login JWT this used to send: that expires an
+## hour after the login server issued it and the socket only checks it once, so the map quietly stopped
+## working an hour into every session while the game carried on. See [method ConnectionManager.http_ticket].
 ##
 ## [b]What the server never sends.[/b] Nothing tells this when the player's charts change. A chart is an
 ## item, so the inventory sync already carries the news - see [method set_chart_signature], called from
@@ -25,6 +27,15 @@ signal tile_absent(key: String)
 
 ## World geometry and the level range, from [code]/map/v1/meta[/code]. Nothing can be addressed before it.
 signal meta_ready(meta: Dictionary)
+
+## The server refused this client's ticket, so nothing more will be asked for.
+##
+## Exists because the alternative is what this used to do: treat a 401 as a transient failure and re-ask every
+## five seconds for every tile on screen, for the rest of the session, with nothing but a log line to say so.
+## A credential that is not accepted is not a slow tile, and the player is owed the difference.
+##
+## Carries no reason: there is one, and whoever shows it needs the wording rather than the diagnosis.
+signal map_unavailable()
 
 ## Concurrent requests. Godot's HTTPRequest is one-at-a-time per node, so this is literally a node count.
 ## Six is about a screen of tiles in two waves without opening a connection per tile.
@@ -93,6 +104,15 @@ var _personal_dir: String = ""
 
 var _chart_key: String = ""
 
+## Set once the server has refused our ticket. Nothing is requested while it stands, and nothing clears it:
+## retrying the same ticket is asking the same question and expecting a different answer. A reconnect gets a
+## fresh one because it also gets a fresh Game scene, and so a fresh one of these.
+var _refused: bool = false
+
+## Whether the one-off "no master selected yet" line has been logged. A 409 is transient, so the requests keep
+## backing off and retrying; only the noise is suppressed.
+var _warned_no_master: bool = false
+
 
 static func key_of(level: int, tx: int, ty: int) -> String:
 	return "%d/%d/%d" % [level, tx, ty]
@@ -108,7 +128,7 @@ func _ready() -> void:
 
 ## Asks for the world geometry, retrying until it answers. Safe to call more than once.
 func fetch_meta() -> void:
-	if not meta.is_empty():
+	if not meta.is_empty() or not _may_request():
 		return
 
 	_fetch_meta_once(1)
@@ -134,6 +154,9 @@ func is_absent(key: String) -> bool:
 
 ## Requests [param key] unless it is already known, in flight, known to be absent, or backing off.
 func want(level: int, tx: int, ty: int) -> void:
+	if not _may_request():
+		return
+
 	var key := key_of(level, tx, ty)
 	if cached(key) != null or is_absent(key) or _in_flight.has(key) or _queue.has(key):
 		return
@@ -142,6 +165,15 @@ func want(level: int, tx: int, ty: int) -> void:
 
 	_queue.append(key)
 	_pump()
+
+
+## Whether there is any point sending a request at all.
+##
+## An empty ticket is the case that used to produce the second kind of 401: the map can be drawn before the
+## zone has authenticated the connection, and sending [code]"Bearer "[/code] with nothing after it asks the
+## server to refuse us. Not having a credential yet is worth waiting out rather than asking about.
+func _may_request() -> bool:
+	return not _refused and not ConnectionManager.http_ticket().is_empty()
 
 
 ## Points this at the chart set the player is now holding, dropping everything that depended on the old one.
@@ -188,6 +220,12 @@ func _fetch_meta_once(attempt: int) -> void:
 
 ## Whether the answer was usable. Warns about what it rejected, so a retried failure is still visible.
 func _accept_meta(result: int, code: int, body: PackedByteArray) -> bool:
+	if code == 401:
+		# Refused rather than retried: the ten attempts would be spent re-asking a question already answered,
+		# and [method _retry_meta] stops of its own accord once this is set.
+		_refuse()
+		return false
+
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 		push_warning("MapSource: /meta failed (result=%s, code=%s)" % [result, code])
 		return false
@@ -204,14 +242,17 @@ func _accept_meta(result: int, code: int, body: PackedByteArray) -> bool:
 
 
 func _retry_meta(attempt: int) -> void:
+	if _refused:
+		return
+
 	if attempt >= _META_ATTEMPTS:
 		push_warning("MapSource: /meta failed %d times; there will be no map this session" % attempt)
 		return
 
 	await get_tree().create_timer(_META_RETRY_SECONDS).timeout
 
-	# Another attempt may have landed while this one was waiting.
-	if meta.is_empty():
+	# Another attempt may have landed - or the ticket been refused - while this one was waiting.
+	if meta.is_empty() and not _refused:
 		_fetch_meta_once(attempt + 1)
 
 
@@ -263,6 +304,19 @@ func _on_tile_completed(
 		tile_absent.emit(key)
 		return
 
+	if code == 401:
+		_refuse()
+		return
+
+	if code == 409:
+		# The session exists but has no master yet, which resolves itself - so this keeps retrying and only
+		# stops saying so.
+		if not _warned_no_master:
+			_warned_no_master = true
+			push_warning("MapSource: the zone has no master selected for this account yet; still trying")
+		_back_off(key)
+		return
+
 	if code != 200:
 		push_warning("MapSource: tile %s returned %s" % [key, code])
 		_back_off(key)
@@ -297,6 +351,20 @@ func _is_shared(headers: PackedStringArray) -> bool:
 		if lower.begins_with("cache-control:") and lower.contains("immutable"):
 			return true
 	return false
+
+
+## Stops asking, once.
+##
+## Everything already queued is dropped rather than left to drain: they carry the same ticket and would each
+## come back with the same refusal, which is the request storm this exists to end.
+func _refuse() -> void:
+	if _refused:
+		return
+
+	_refused = true
+	_queue.clear()
+	push_warning("MapSource: the map server refused this session's ticket; asking for nothing further")
+	map_unavailable.emit()
 
 
 func _back_off(key: String) -> void:
@@ -444,4 +512,4 @@ func _base() -> String:
 
 
 func _headers() -> PackedStringArray:
-	return PackedStringArray(["Authorization: Bearer " + ConnectionManager.login_token()])
+	return PackedStringArray(["Authorization: Bearer " + ConnectionManager.http_ticket()])

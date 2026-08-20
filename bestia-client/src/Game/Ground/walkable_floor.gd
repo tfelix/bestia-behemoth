@@ -9,5 +9,5 @@ func _ready() -> void:
 	add_to_group("floor")
 
 
-func _on_input_event(_camera: Node, event: InputEvent, position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	MouseManager.on_ground_input_event(position, event)
+func _on_input_event(_camera: Node, event: InputEvent, _position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	MouseManager.on_ground_input_event(_position, event)

@@ -1,9 +1,6 @@
 package net.bestia.zone.cartography.web
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
-import net.bestia.account.Role
-import net.bestia.zone.ZoneConfig
+import net.bestia.zone.account.authentication.HttpTicketService
 import net.bestia.zone.account.master.MasterRepository
 import net.bestia.zone.account.master.findByIdOrThrow
 import net.bestia.zone.cartography.chart.ChartService
@@ -24,22 +21,21 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
-import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * The tile endpoint, over a real socket, with a real token and a real session.
+ * The tile endpoint, over a real ticket and a real session.
  *
  * Testing it this way rather than through `MockMvc` is about the parts that only exist on the wire: conditional
  * requests, the two different `Cache-Control` policies, and that uncharted ground is a 404 with no body rather
  * than an empty image.
  *
- * Nothing is mocked. The token is signed here with the same secret `LoginTokenValidator` verifies against, and
- * the session is established through `GameClientMockFactory` the way every scenario does - so this exercises the
- * filter's actual job, which is turning a login token into the master whose charts apply. A mocked validator
- * would have tested the controller and skipped the only interesting thing about the filter.
+ * Nothing is mocked. The session is established through `GameClientMockFactory` the way every scenario does, and
+ * the ticket comes from the same `AccountConnectedEvent` the socket handshake publishes - so this exercises the
+ * filter's actual job, which is turning a ticket into the master whose charts apply. A mocked lookup would have
+ * tested the controller and skipped the only interesting thing about the filter.
  *
  * `spring.main.web-application-type` is overridden because `application-test.yml` pins it to `none`; the rest of
  * the suite has no use for a servlet container and this is the one test that does.
@@ -77,7 +73,7 @@ class MapTileControllerTest {
   private lateinit var gameClientFactory: GameClientMockFactory
 
   @Autowired
-  private lateinit var zoneConfig: ZoneConfig
+  private lateinit var httpTickets: HttpTicketService
 
   private lateinit var client: GameClientMock
   private var accountId: Long = 0
@@ -92,7 +88,7 @@ class MapTileControllerTest {
     client = gameClientFactory.getGameClient(accountId = accountId)
     client.connect(masterId)
 
-    token = signedToken(accountId)
+    token = httpTickets.ticketFor(accountId)
   }
 
   @AfterAll
@@ -101,23 +97,42 @@ class MapTileControllerTest {
   }
 
   @Test
-  fun `a request without a token is refused`() {
+  fun `a request without a ticket is refused`() {
     assertEquals(HttpStatus.UNAUTHORIZED, rest.getForEntity(url(6, 0, 0), String::class.java).statusCode)
   }
 
   @Test
-  fun `a token this server did not sign is refused`() {
-    val foreign = Jwts.builder()
-      .issuer("login")
-      .audience().add("zone").and()
-      .subject(accountId.toString())
-      .claim("role", Role.USER.name)
-      .signWith(Keys.hmacShaKeyFor("a-completely-different-secret-of-sufficient-length".toByteArray()))
-      .compact()
-
-    val response = rest.exchange(url(6, 0, 0), HttpMethod.GET, signed(foreign), String::class.java)
+  fun `a ticket this server never issued is refused`() {
+    val response = rest.exchange(
+      url(6, 0, 0), HttpMethod.GET, signed("11111111-2222-3333-4444-555555555555"), String::class.java
+    )
 
     assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+  }
+
+  @Test
+  fun `a ticket stops working when the connection that owns it goes away`() {
+    // The property the login token could not have: its credential outlived the session by design, which is
+    // how a disconnected client's token stayed good for tiles and a playing client's stopped being.
+    //
+    // On its own account rather than the shared fixture one, whose session every other test here needs.
+    val otherAccountId = testFixture.account2.account.id
+    val other = gameClientFactory.getGameClient(accountId = otherAccountId)
+    other.connect(testFixture.account2.masterIds.first())
+
+    val ticket = httpTickets.ticketFor(otherAccountId)
+    assertEquals(
+      HttpStatus.OK,
+      rest.exchange("/map/v1/meta", HttpMethod.GET, signed(ticket), Map::class.java).statusCode,
+      "the ticket should work while the session it belongs to is live"
+    )
+
+    other.disconnect()
+
+    assertEquals(
+      HttpStatus.UNAUTHORIZED,
+      rest.exchange("/map/v1/meta", HttpMethod.GET, signed(ticket), String::class.java).statusCode
+    )
   }
 
   @Test
@@ -304,14 +319,6 @@ class MapTileControllerTest {
 
     return assertNotNull(body[key], "/meta carries no $key")
   }
-
-  private fun signedToken(accountId: Long): String = Jwts.builder()
-    .issuer("login")
-    .audience().add("zone").and()
-    .subject(accountId.toString())
-    .claim("role", Role.USER.name)
-    .signWith(Keys.hmacShaKeyFor(zoneConfig.jwtAuthSecretKey.toByteArray(StandardCharsets.UTF_8)))
-    .compact()
 
   private fun signed(bearer: String = token, ifNoneMatch: String? = null): HttpEntity<Void> {
     val headers = HttpHeaders()

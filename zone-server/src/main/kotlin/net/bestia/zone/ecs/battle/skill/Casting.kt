@@ -2,8 +2,7 @@ package net.bestia.zone.ecs.battle.skill
 
 import net.bestia.zone.ecs.core.Removable
 import net.bestia.zone.ecs.SyncTargets
-import net.bestia.zone.ecs.core.Component
-import net.bestia.zone.ecs.core.CountdownBar
+import net.bestia.zone.ecs.core.Countdown
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.EntitySMSG
@@ -16,7 +15,7 @@ import net.bestia.zone.util.EntityId
  * [net.bestia.zone.battle.skill.SkillExecutionService].
  *
  * Synced to everyone in range via the [Dirtyable] pipeline so bystanders see the cast bar too, at the
- * throttled cadence [CountdownBar] describes rather than every tick. It is [Removable]: cancelling a
+ * throttled cadence [Countdown] describes rather than every tick. It is [Removable]: cancelling a
  * cast is simply removing this component, which re-sends [CastingComponentSMSG] with `removed = true`
  * - the client reads that as "cast over", deliberately the same signal for a completed and an
  * interrupted cast, since either way the bar just disappears.
@@ -32,7 +31,7 @@ class Casting(
   val targetPosition: Vec3L?,
   val totalSeconds: Float,
   remainingSeconds: Float = totalSeconds,
-) : CountdownBar(remainingSeconds), Component, Removable {
+) : Countdown(remainingSeconds), Removable {
 
   init {
     require(totalSeconds > 0f) { "Casting requires a positive totalSeconds, got $totalSeconds" }

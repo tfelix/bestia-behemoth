@@ -77,7 +77,7 @@ namespace BestiaBehemothClient.Bnet.Message
         }
         else if (envelope.AuthenticationSuccess != null)
         {
-          var msg = new AuthenticationSuccess();
+          var msg = AuthenticationSuccess.FromProto(envelope.AuthenticationSuccess);
           EmitSignal(SignalName.MessageReceived, msg);
         }
         else if (envelope.Pong != null)

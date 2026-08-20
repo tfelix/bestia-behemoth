@@ -13,4 +13,8 @@ enum ClientPermissions {
 message AuthenticationSuccess {
     string serverVersion = 1;
     ClientPermissions permissions = 2;
+
+    // Credential for the client's HTTP requests, good for exactly as long as this connection. The map is
+    // the only thing behind it today; it is named for what it authenticates rather than for that one caller.
+    string http_ticket = 3;
 }

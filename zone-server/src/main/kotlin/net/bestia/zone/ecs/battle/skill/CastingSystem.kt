@@ -5,7 +5,6 @@ import net.bestia.zone.battle.skill.SkillExecutionService
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.System
 import net.bestia.zone.ecs.core.World
-import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 
@@ -28,31 +27,24 @@ class CastingSystem(
   override val writes: ComponentClassSet = setOf(Casting::class)
 
   override fun update(world: World, deltaTime: Float) {
-    // Collected first so the component removals below don't mutate what we're iterating over.
-    var completed: MutableList<Pair<EntityId, Casting>>? = null
-
     world.query(Casting::class).each { id ->
       val casting = get<Casting>()
       casting.countdown(deltaTime)
 
       if (casting.hasElapsed()) {
-        (completed ?: mutableListOf<Pair<EntityId, Casting>>().also { completed = it }).add(id to casting)
+        LOG.debug { "Cast of skill ${casting.skillId} by entity $id completed" }
+
+        world.remove(id, Casting::class)
+
+        skillExecutionService.execute(
+          world = world,
+          casterId = id,
+          skillId = casting.skillId,
+          skillLevel = casting.skillLevel,
+          targetEntityId = casting.targetEntityId,
+          targetPosition = casting.targetPosition
+        )
       }
-    }
-
-    completed?.forEach { (id, casting) ->
-      LOG.debug { "Cast of skill ${casting.skillId} by entity $id completed" }
-
-      world.remove(id, Casting::class)
-
-      skillExecutionService.execute(
-        world = world,
-        casterId = id,
-        skillId = casting.skillId,
-        skillLevel = casting.skillLevel,
-        targetEntityId = casting.targetEntityId,
-        targetPosition = casting.targetPosition
-      )
     }
   }
 

@@ -1,6 +1,6 @@
 ---
 name: kotlin-conventions
-description: Kotlin code conventions - file/class organization and comment style. Read this BEFORE creating a new Kotlin class, exception, or DTO, before adding a second top-level type to an existing file, or before writing comments/KDoc. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, comment, comments, KDoc, docstring, code documentation.
+description: Kotlin code conventions - file/class organization, function bodies, and comment style. Read this BEFORE creating a new Kotlin class, exception, or DTO, before adding a second top-level type to an existing file, before writing a function, or before writing comments/KDoc. Triggers on: new .kt file, top-level class, nested class, inner class, sealed class subtypes, exception hierarchy, DTO class, one class per file, multiple classes in one file, expression body, single-expression function, one-liner, comment, comments, KDoc, docstring, code documentation.
 ---
 
 # Kotlin file & class organization
@@ -21,6 +21,23 @@ Before adding a second type as an inner class, ask what its relationship to the 
    own thing (e.g. a CMSG and the handler that processes it) → its own file, named after the
    type.
 
+
+# Function bodies
+
+Expression-body one-liners are forbidden, even for trivial getters/delegations. Always use a
+block body with an explicit `return`.
+
+NO:
+```kotlin
+fun accountFor(ticket: String): Long? = byTicket[ticket]
+```
+
+YES:
+```kotlin
+fun accountFor(ticket: String): Long? {
+    return byTicket[ticket]
+}
+```
 
 # Comments
 

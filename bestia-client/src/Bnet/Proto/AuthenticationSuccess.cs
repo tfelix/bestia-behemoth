@@ -25,15 +25,16 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CixtZXNzYWdlcy9zeXN0ZW0vYXV0aGVudGljYXRpb25fc3VjY2Vzcy5wcm90",
-            "bxIEYm5ldCJcChVBdXRoZW50aWNhdGlvblN1Y2Nlc3MSFQoNc2VydmVyVmVy",
+            "bxIEYm5ldCJxChVBdXRoZW50aWNhdGlvblN1Y2Nlc3MSFQoNc2VydmVyVmVy",
             "c2lvbhgBIAEoCRIsCgtwZXJtaXNzaW9ucxgCIAEoDjIXLmJuZXQuQ2xpZW50",
-            "UGVybWlzc2lvbnMqKwoRQ2xpZW50UGVybWlzc2lvbnMSCAoES0lMTBAAEgwK",
-            "CE1BUF9NT1ZFEAFCMwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhpBdXRoZW50",
-            "aWNhdGlvblN1Y2Nlc3NQcm90b2IGcHJvdG8z"));
+            "UGVybWlzc2lvbnMSEwoLaHR0cF90aWNrZXQYAyABKAkqKwoRQ2xpZW50UGVy",
+            "bWlzc2lvbnMSCAoES0lMTBAAEgwKCE1BUF9NT1ZFEAFCMwoVbmV0LmJlc3Rp",
+            "YS5ibmV0LnByb3RvQhpBdXRoZW50aWNhdGlvblN1Y2Nlc3NQcm90b2IGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.ClientPermissions), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuthenticationSuccess), global::Bnet.AuthenticationSuccess.Parser, new[]{ "ServerVersion", "Permissions" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AuthenticationSuccess), global::Bnet.AuthenticationSuccess.Parser, new[]{ "ServerVersion", "Permissions", "HttpTicket" }, null, null, null, null)
           }));
     }
     #endregion
@@ -85,6 +86,7 @@ namespace Bnet {
     public AuthenticationSuccess(AuthenticationSuccess other) : this() {
       serverVersion_ = other.serverVersion_;
       permissions_ = other.permissions_;
+      httpTicket_ = other.httpTicket_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -118,6 +120,22 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "http_ticket" field.</summary>
+    public const int HttpTicketFieldNumber = 3;
+    private string httpTicket_ = "";
+    /// <summary>
+    /// Credential for the client's HTTP requests, good for exactly as long as this connection. The map is
+    /// the only thing behind it today; it is named for what it authenticates rather than for that one caller.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string HttpTicket {
+      get { return httpTicket_; }
+      set {
+        httpTicket_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -135,6 +153,7 @@ namespace Bnet {
       }
       if (ServerVersion != other.ServerVersion) return false;
       if (Permissions != other.Permissions) return false;
+      if (HttpTicket != other.HttpTicket) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -144,6 +163,7 @@ namespace Bnet {
       int hash = 1;
       if (ServerVersion.Length != 0) hash ^= ServerVersion.GetHashCode();
       if (Permissions != global::Bnet.ClientPermissions.Kill) hash ^= Permissions.GetHashCode();
+      if (HttpTicket.Length != 0) hash ^= HttpTicket.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -170,6 +190,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteEnum((int) Permissions);
       }
+      if (HttpTicket.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(HttpTicket);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -188,6 +212,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteEnum((int) Permissions);
       }
+      if (HttpTicket.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(HttpTicket);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -203,6 +231,9 @@ namespace Bnet {
       }
       if (Permissions != global::Bnet.ClientPermissions.Kill) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Permissions);
+      }
+      if (HttpTicket.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(HttpTicket);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -221,6 +252,9 @@ namespace Bnet {
       }
       if (other.Permissions != global::Bnet.ClientPermissions.Kill) {
         Permissions = other.Permissions;
+      }
+      if (other.HttpTicket.Length != 0) {
+        HttpTicket = other.HttpTicket;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -245,6 +279,10 @@ namespace Bnet {
             Permissions = (global::Bnet.ClientPermissions) input.ReadEnum();
             break;
           }
+          case 26: {
+            HttpTicket = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -266,6 +304,10 @@ namespace Bnet {
           }
           case 16: {
             Permissions = (global::Bnet.ClientPermissions) input.ReadEnum();
+            break;
+          }
+          case 26: {
+            HttpTicket = input.ReadString();
             break;
           }
         }
