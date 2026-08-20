@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Game/Entity/Visual/ItemVisual/ItemVisual.tscn" id="1_missing"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_missing"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_missing"]
+albedo_color = Color(0.72, 0.68, 0.55, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_missing"]
+material = SubResource("StandardMaterial3D_missing")
+size = Vector3(0.24, 0.24, 0.24)
+
+[node name="MissingItem" instance=ExtResource("1_missing")]
+
+[node name="Sparkles" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41833496, 0)
+lifetime = 2.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0)
+shape = SubResource("SphereShape3D_missing")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="3"]
+mesh = SubResource("BoxMesh_missing")

@@ -343,10 +343,13 @@ func _visual_scene_for(msg: VisualComponentSMSG) -> PackedScene:
 			return BestiaModelScn
 		VisualKind.ITEM:
 			var item_resource = ItemDB.get_instance().get_item(msg.VisualId)
-			if item_resource == null or item_resource.item_visual == null:
-				printerr("Entity %s: no item_visual PackedScene for item %s" % [entity_id, msg.VisualId])
+			# An id the ItemDB has never heard of is a real desync and stays an error. An item the DB
+			# knows but has no mesh for is not: get_item_visual() hands back the placeholder so it
+			# still drops as something visible and lootable.
+			if item_resource == null:
+				printerr("Entity %s: no item %s in the ItemDB" % [entity_id, msg.VisualId])
 				return null
-			return item_resource.item_visual
+			return item_resource.get_item_visual()
 		VisualKind.EFFECT:
 			var effect_resource = EffectDB.get_instance().get_effect(msg.VisualId)
 			if effect_resource == null or effect_resource.effect_visual == null:

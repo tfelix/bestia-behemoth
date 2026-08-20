@@ -8,6 +8,12 @@ enum ItemType {USABLE, EQUIP, ETC}
 ## unfinished item draws something visible instead of an empty slot.
 const MISSING_ICON: Texture2D = preload("res://Game/UI/Inventory/InventoryItem/item_placeholder.png")
 
+## The same deal for an item's ground art. Without it a dropped item is not merely undecorated: the
+## entity gets no visual child at all, so there is nothing to see and - because the clickable Area3D
+## lives on the visual - nothing to click either, and the item sits on the ground unlootable until
+## someone authors a mesh for it.
+const MISSING_VISUAL: PackedScene = preload("res://Game/Entity/Visual/ItemVisual/Items/MissingItem.tscn")
+
 @export var item_id: int
 @export var icon: Texture2D
 @export var name_key: String
@@ -38,6 +44,12 @@ static var _script_instance_cache: Dictionary = {}
 ## not-authored-yet fallback lives in exactly one place rather than at each of the call sites.
 func get_icon() -> Texture2D:
 	return icon if icon != null else MISSING_ICON
+
+
+## The scene to spawn for this item lying on the ground. Always prefer this over reading
+## [member item_visual] directly, for the same reason [method get_icon] exists.
+func get_item_visual() -> PackedScene:
+	return item_visual if item_visual != null else MISSING_VISUAL
 
 
 func use_item() -> void:
