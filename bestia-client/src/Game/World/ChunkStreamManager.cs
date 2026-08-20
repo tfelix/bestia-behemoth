@@ -134,6 +134,9 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkStaticEntitiesSMSG> _staticBatches = new();
 
+    /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
+    private ChunkWrap _wrap = ChunkWrap.None;
+
     /// <summary>
     /// Whether a renderer reference is still safe to call.
     /// </summary>
@@ -281,6 +284,9 @@ namespace BestiaBehemothClient.Game.World
       // it decodes, from inside BnetSocket's dispatch, which has no world context of its own to pass instead.
       ChunkEngine.ChunkSize = info.ChunkSize;
 
+      // Cached rather than derived per call: GroundYAt is asked once per entity per frame by entity.gd.
+      _wrap = ChunkWrap.Of(info);
+
       GD.Print($"[world] {info}");
 
       if (info.ChunkEngineVersion != ChunkEngine.Version)
@@ -396,13 +402,27 @@ namespace BestiaBehemothClient.Game.World
         return;
       }
 
-      // Either the chunk was never held, or it diverged and ApplyPatch dropped it. Both are fixed the same
-      // way, and only if the server still considers it ours.
+      // Either the chunk was never held, or ApplyPatch dropped it - diverged, or the removals would not
+      // apply. All are fixed the same way, and only if the server still considers it ours.
       if (Store.IsAnnounced(patch.Key) && _socket != null)
       {
+        // The tile is deliberately left drawing while the replacement is in flight. It is stale, but it
+        // is one round trip stale and Decode re-meshes on arrival - whereas removing it now would open a
+        // hole with no collider beneath a player who is, by definition, standing close enough to it to be
+        // subscribed.
         GD.Print($"[patch] {patch.Key} not applicable; re-requesting the chunk");
         _socket.SendMessage(new ChunkRequestCMSG(new[] { patch.Key }));
+        return;
       }
+
+      // Nothing is coming: the store has dropped this position and no request will refill it. A tile left
+      // behind would keep drawing terrain, and answering collision with it, until some later manifest
+      // happened to re-list or reset the position - which for a chunk the server has stopped announcing
+      // may be never. The renderer must not outlive the store's knowledge, so drop it.
+      //
+      // Terrain only. The static batch for this column is tracked separately and the server retires it
+      // through its own message, so pruning it here would delete props that are still live.
+      Renderer?.Remove(patch.Key);
     }
 
     /// <summary>
@@ -444,7 +464,7 @@ namespace BestiaBehemothClient.Game.World
       var surface = SurfaceProbe.SurfaceAt(
         Store, BlockAppearance.Current,
         worldX / voxelSize, worldZ / voxelSize, nearY / voxelSize,
-        WorldInfo.ChunkSize, WorldInfo.ChunkHeight);
+        WorldInfo.ChunkSize, WorldInfo.ChunkHeight, _wrap);
 
       return double.IsNaN(surface) ? float.NaN : (float)(surface * voxelSize);
     }

@@ -67,7 +67,7 @@ namespace BestiaBehemothClient.Tests
     }
 
     private static ChunkMesh Mesh(FakeChunkSource source) =>
-      SurfaceNets.Build(source, new ChunkKey(0, 0, 0), TerrainFixtures.Appearance(), 1.0f);
+      SurfaceNets.Build(source, new ChunkKey(0, 0, 0), TerrainFixtures.Appearance(), 1.0f, ChunkWrap.None);
 
     private static ChunkMesh MeshOfSphere(double radius) =>
       Mesh(Buried(TerrainFixtures.SolidWithSphere(0, 0, 0, CentreX, CentreY, CentreZ, radius)));

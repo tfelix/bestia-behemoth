@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://ykdxpspi6cly"]
+
+[ext_resource type="Script" uid="uid://bbv2b3q2a8bo6" path="res://Game/Environment/environment.gd" id="1_1xco1"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1xco1"]
+sky_top_color = Color(0.84507084, 0.90585876, 0.98905593, 1)
+
+[sub_resource type="Sky" id="Sky_vrr3t"]
+sky_material = SubResource("ProceduralSkyMaterial_1xco1")
+
+[sub_resource type="Environment" id="Environment_gi4sg"]
+background_mode = 2
+sky = SubResource("Sky_vrr3t")
+ssao_enabled = true
+ssil_enabled = true
+sdfgi_enabled = true
+glow_levels/2 = 6.0
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.6304211, 0.7294453, 0.8286436, 1)
+fog_density = 1.0
+fog_depth_curve = 0.34151033
+fog_depth_begin = 170.0
+fog_depth_end = 220.0
+
+[node name="Environment" type="Node" unique_id=47354015]
+script = ExtResource("1_1xco1")
+peak_elevation_degrees = null
+min_elevation_degrees = null
+sweep_degrees = null
+base_azimuth_degrees = null
+sun_energy = null
+moon_energy = null
+sun_day_colour = null
+sun_twilight_colour = null
+moon_colour = null
+sky_top_day = null
+sky_top_twilight = null
+sky_top_night = null
+sky_horizon_day = null
+sky_horizon_twilight = null
+sky_horizon_night = null
+ground_day = null
+ground_twilight = null
+ground_night = null
+fog_day = null
+fog_twilight = null
+fog_night = null
+twilight_strength = null
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=341834245]
+environment = SubResource("Environment_gi4sg")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1646600109]
+transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
+shadow_enabled = true
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 220.0
+
+[node name="Moon" type="DirectionalLight3D" parent="." unique_id=1147340168]
+transform = Transform3D(0.4460189, -0.81221586, 0.37599537, -0.29966903, -0.5313671, -0.7923683, 0.84336567, 0.24073704, -0.48039573, 0, 5.2176847, 3.7376866)
+light_energy = 0.0
+directional_shadow_max_distance = 220.0

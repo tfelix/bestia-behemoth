@@ -43,7 +43,7 @@ namespace BestiaBehemothClient.Tests
     }
 
     private static ChunkMesh Mesh(FakeChunkSource source, int chunkX = 0, int chunkY = 0, int chunkZ = 0) =>
-      SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, chunkZ), TerrainFixtures.Appearance(), 1.0f);
+      SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, chunkZ), TerrainFixtures.Appearance(), 1.0f, ChunkWrap.None);
 
     /// <summary>Vertices away from the chunk's own edges, where the neighbourhood is genuine.</summary>
     private static List<Vector3> Interior(ChunkSurface surface) =>

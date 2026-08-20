@@ -22,7 +22,7 @@ namespace BestiaBehemothClient.Tests
     private const int Height = TerrainFixtures.Height;
 
     private static double Probe(IChunkSource source, double voxelX, double voxelY, double nearZ) =>
-      SurfaceProbe.SurfaceAt(source, TerrainFixtures.Appearance(), voxelX, voxelY, nearZ, Size, Height);
+      SurfaceProbe.SurfaceAt(source, TerrainFixtures.Appearance(), voxelX, voxelY, nearZ, Size, Height, ChunkWrap.None);
 
     /// <summary>
     /// Surrounds a chunk with its neighbours, so a probe near the middle reads genuine terrain on all sides.
@@ -84,7 +84,7 @@ namespace BestiaBehemothClient.Tests
     {
       var source = Surrounded((x, y) => Ramp(x, y, 40.0, 0.25));
 
-      var mesh = SurfaceNets.Build(source, new ChunkKey(0, 0, 0), TerrainFixtures.Appearance(), 1.0f);
+      var mesh = SurfaceNets.Build(source, new ChunkKey(0, 0, 0), TerrainFixtures.Appearance(), 1.0f, ChunkWrap.None);
       Assert.NotNull(mesh?.Terrain);
 
       // Away from the chunk's own edges, where the neighbourhood is genuine rather than an extended apron.

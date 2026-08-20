@@ -76,11 +76,13 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <param name="nearZ">Roughly where the surface is expected, in voxels. The server's height, normally.</param>
     /// <param name="chunkSize">Voxels per horizontal chunk axis.</param>
     /// <param name="chunkHeight">Voxels per vertical chunk axis.</param>
+    /// <param name="wrap">The world's chunk grid, so a probe next to a seam reads across it rather than off
+    /// the edge of the held set.</param>
     /// <returns>The surface z, or <c>double.NaN</c> if a needed chunk is not held or nothing was found near
     /// <paramref name="nearZ"/>.</returns>
     public static double SurfaceAt(
       IChunkSource source, BlockAppearance appearance,
-      double voxelX, double voxelY, double nearZ, int chunkSize, int chunkHeight)
+      double voxelX, double voxelY, double nearZ, int chunkSize, int chunkHeight, ChunkWrap wrap)
     {
       // Finiteness is checked rather than assumed because the coordinates come in from a caller's scene position,
       // and a NaN reaching Math.Floor would be cast to an integer lattice index rather than rejected.
@@ -99,7 +101,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var tx = voxelX - latticeX;
       var ty = voxelY - latticeY;
 
-      var cursor = new Cursor();
+      var cursor = new Cursor(wrap);
 
       var height = 0.0;
       var total = 0.0;
@@ -244,12 +246,27 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </remarks>
     private struct Cursor
     {
+      private readonly ChunkWrap _wrap;
       private ChunkKey _key;
       private VoxelChunk _chunk;
       private bool _valid;
 
+      internal Cursor(ChunkWrap wrap)
+      {
+        _wrap = wrap;
+        _key = default;
+        _chunk = null;
+        _valid = false;
+      }
+
       internal VoxelChunk Get(IChunkSource source, ChunkKey key)
       {
+        // Folded here rather than at the four callers, every one of which derives its address from a voxel
+        // coordinate and so routinely names the column one past a seam. Doing it here also means the memo
+        // below keys on the canonical address, so a probe straddling the seam gets a hit instead of two
+        // misses on two spellings of the same chunk.
+        key = _wrap.Normalise(key);
+
         if (_valid && _key.Equals(key))
         {
           return _chunk;

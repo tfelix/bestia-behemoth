@@ -208,11 +208,24 @@ namespace BestiaBehemothClient.Game.World
     /// The shape of one day, as the server stated it. Not <see cref="DayCycle.IsValid"/> until anchored.
     /// </summary>
     /// <remarks>
-    /// Exposed for <see cref="DayNightCycle"/>, which needs the boundaries to place the sun's arc: sunrise is
-    /// the midpoint of the dawn ramp, which is a question about the calendar rather than one a renderer may
-    /// answer for itself.
+    /// A C#-only view: <see cref="DayCycle"/> is a plain struct, not one of Godot's Variant types, so it
+    /// cannot cross into GDScript. <see cref="SunriseHour"/>, <see cref="SunsetHour"/> and
+    /// <see cref="HoursPerDay"/> forward the three numbers <c>DayNightCycle.gd</c> actually needs.
     /// </remarks>
     public DayCycle Cycle => _cycle;
+
+    /// <summary>
+    /// The hour the sun crosses the horizon rising, forwarded from <see cref="Cycle"/> for GDScript.
+    /// </summary>
+    public double SunriseHour => _cycle.SunriseHour;
+
+    /// <summary>
+    /// The hour the sun crosses the horizon setting, forwarded from <see cref="Cycle"/> for GDScript.
+    /// </summary>
+    public double SunsetHour => _cycle.SunsetHour;
+
+    /// <summary>Hours in one Bestia day, forwarded from <see cref="Cycle"/> for GDScript.</summary>
+    public int HoursPerDay => _hoursPerDay;
 
     /// <summary>
     /// The hour of the Bestia day as a fraction, e.g. <c>13.5</c> for half past one in the afternoon.

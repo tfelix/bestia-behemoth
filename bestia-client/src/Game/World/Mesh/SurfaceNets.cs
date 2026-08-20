@@ -634,9 +634,9 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// is worth having: on nearly every chunk in the world the lava pass would be that scan and nothing else.
     /// </remarks>
     public static ChunkMesh Build(
-      IChunkSource source, ChunkKey key, BlockAppearance appearance, float voxelSize)
+      IChunkSource source, ChunkKey key, BlockAppearance appearance, float voxelSize, ChunkWrap wrap)
     {
-      var patch = TerrainPatch.Gather(source, key);
+      var patch = TerrainPatch.Gather(source, key, wrap);
       if (patch == null)
       {
         return null;

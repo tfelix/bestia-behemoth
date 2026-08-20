@@ -187,6 +187,11 @@ namespace BestiaBehemothClient.Game.World
     private float _voxelSize = 1.0f;
     private int _chunkSize = 32;
     private int _chunkHeight = 256;
+
+    /// <summary>The world's chunk grid, so locally derived addresses fold across a seam the way the
+    /// server's already have. <see cref="ChunkWrap.None"/> until configured.</summary>
+    private ChunkWrap _wrap = ChunkWrap.None;
+
     private int _running;
 
     private ChunkKey _collisionAnchor;
@@ -232,6 +237,7 @@ namespace BestiaBehemothClient.Game.World
         _voxelSize = (float)worldInfo.VoxelSizeMetres;
         _chunkSize = worldInfo.ChunkSize;
         _chunkHeight = worldInfo.ChunkHeight;
+        _wrap = ChunkWrap.Of(worldInfo);
       }
 
       Clear();
@@ -411,6 +417,7 @@ namespace BestiaBehemothClient.Game.World
 
         var source = _store;
         var voxelSize = _voxelSize;
+        var wrap = _wrap;
 
         // Incremented with an interlock even though only this thread increments it: the workers decrement it, and a
         // plain read-modify-write here could lose one of those and leak a slot until the next world.
@@ -420,7 +427,7 @@ namespace BestiaBehemothClient.Game.World
         {
           try
           {
-            var mesh = SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize);
+            var mesh = SurfaceNets.Build(source, key, BlockAppearance.Current, voxelSize, wrap);
 
             // An empty result is still a result: it means whatever used to be here must come down.
             _finished.Enqueue(mesh ?? new ChunkMesh
@@ -686,8 +693,10 @@ namespace BestiaBehemothClient.Game.World
     {
       var radius = Math.Max(0, CollisionRadiusChunks);
 
-      return Math.Abs(key.X - _collisionAnchor.X) <= radius &&
-             Math.Abs(key.Y - _collisionAnchor.Y) <= radius &&
+      // Measured the short way round, or the chunk immediately east of a player standing at the seam reads
+      // as the full width of the world away and never gets a collider.
+      return Math.Abs(_wrap.DeltaX(_collisionAnchor.X, key.X)) <= radius &&
+             Math.Abs(_wrap.DeltaY(_collisionAnchor.Y, key.Y)) <= radius &&
              Math.Abs(key.Z - _collisionAnchor.Z) <= 1;
     }
 
@@ -709,10 +718,13 @@ namespace BestiaBehemothClient.Game.World
       var voxelY = (long)Mathf.Floor(position.Z / _voxelSize);
       var voxelZ = (long)Mathf.Floor(position.Y / _voxelSize);
 
-      return new ChunkKey(
+      // Folded, because this is derived from a scene position rather than received: a player standing in the
+      // last column names the chunk past the seam as readily as any other, and the tile it wants is the one
+      // the server sent under the canonical address.
+      return _wrap.Normalise(new ChunkKey(
         FloorDiv(voxelX, _chunkSize),
         FloorDiv(voxelY, _chunkSize),
-        FloorDiv(voxelZ, _chunkHeight));
+        FloorDiv(voxelZ, _chunkHeight)));
     }
 
     private static int FloorDiv(long value, int divisor)

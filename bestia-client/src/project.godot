@@ -167,7 +167,7 @@ toggle_terrain_debug={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation", "res://Localization/dialogs.en.translation")
+locale/translations=PackedStringArray("res://Localization/items.en.translation", "res://Localization/skills.en.translation", "res://Localization/dialogs.en.translation", "res://Localization/general.en.translation")
 
 [rendering]
 

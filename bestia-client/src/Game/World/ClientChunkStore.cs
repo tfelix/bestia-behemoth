@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BestiaBehemothClient.Bnet.Message.Map;
@@ -135,8 +136,9 @@ namespace BestiaBehemothClient.Game.World
     /// Applies a patch, or reports that the chunk must be re-requested.
     /// </summary>
     /// <returns>
-    /// <c>true</c> if the patch was applied; <c>false</c> if the chunk is not held or has diverged, in which
-    /// case it has been dropped and the caller should request it again.
+    /// <c>true</c> if the patch was applied; <c>false</c> if the chunk is not held, if it has diverged, or
+    /// if the removals would not apply. In the latter two cases it has been dropped and the caller should
+    /// request it again.
     /// </returns>
     public bool ApplyPatch(ChunkPatchSMSG patch)
     {
@@ -157,9 +159,29 @@ namespace BestiaBehemothClient.Game.World
         return false;
       }
 
-      foreach (var removal in patch.Decode())
+      try
       {
-        held.Chunk.ApplyRemoval(removal.Index, removal.RemainingOccupancy);
+        foreach (var removal in patch.Decode())
+        {
+          held.Chunk.ApplyRemoval(removal.Index, removal.RemainingOccupancy);
+        }
+      }
+      catch (Exception ex)
+      {
+        // Treated exactly like divergence above, and it has to be. ApplyRemoval throws on an index
+        // outside the chunk and on an occupancy that would *rise*, and it throws mid-loop - so the
+        // voxels are already part-patched by the time we arrive here, while Revision below has not
+        // moved. Leaving that in place would be worse than a visible failure: the next patch would
+        // match FromRevision, apply cleanly on top of corrupt voxels, and the divergence check above
+        // would never fire again. Dropping the chunk is the only outcome that self-heals.
+        //
+        // The decode sits inside the try as well, so a payload in an encoding this build does not
+        // know is caught here rather than escaping into Godot's signal dispatch.
+        GD.PushWarning(
+          $"[chunk] {patch.Key} patch would not apply: {ex.Message}. Discarding and re-requesting.");
+
+        _held.TryRemove(patch.Key, out _);
+        return false;
       }
 
       held.Revision = patch.ToRevision;

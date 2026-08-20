@@ -1,0 +1,15 @@
+keys,en
+ERROR_BASIC_SKILL_CHAT_LOCKED,You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.
+ERROR_BASIC_SKILL_PARTY_LOCKED,Parties need Basic Skill Lv. 5.
+ERROR_BASIC_SKILL_TRADE_LOCKED,Trading needs Basic Skill Lv. 1.
+ERROR_EQUIP_LEVEL_TOO_LOW,You are not high enough level to wear that yet.
+ERROR_CHART_NEEDS_BLANK,You have no blank vellum to draw on.
+ERROR_CHART_NOT_FOUND,You are not carrying that chart.
+ERROR_CHART_MERGE_SAME,A chart cannot be joined with itself.
+ERROR_CHART_STALE_WORLD,That chart shows land that no longer exists.
+ERROR_TRADE_TARGET_UNAVAILABLE,They cannot trade right now.
+ERROR_TRADE_OUT_OF_RANGE,You are too far away to trade with them.
+ERROR_TRADE_DECLINED,%s declined the trade.
+ERROR_TRADE_CANCELLED,%s cancelled the trade.
+ERROR_TRADE_WALKED_AWAY,The trade with %s was cancelled because you moved too far apart.
+ERROR_TRADE_FAILED,The trade could not be completed. Nothing changed hands.

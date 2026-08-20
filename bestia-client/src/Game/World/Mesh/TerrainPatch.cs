@@ -151,7 +151,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// disagrees with it. Most of the 121 chunks a player holds are exactly that chunk, and they cost one band
     /// lookup and one comparison pass each.
     /// </remarks>
-    public static TerrainPatch Gather(IChunkSource source, ChunkKey key)
+    public static TerrainPatch Gather(IChunkSource source, ChunkKey key, ChunkWrap wrap)
     {
       var chunk = source.Get(key);
       var bands = source.BandsOf(key);
@@ -195,7 +195,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
             continue;
           }
 
-          var neighbour = source.BandsOf(new ChunkKey(key.X + dx, key.Y + dy, key.Z));
+          var neighbour = source.BandsOf(wrap.Normalise(new ChunkKey(key.X + dx, key.Y + dy, key.Z)));
           if (neighbour == null || neighbour.IsUniform)
           {
             continue;
@@ -214,11 +214,11 @@ namespace BestiaBehemothClient.Game.World.Mesh
         return null;
       }
 
-      return Build(source, key, size, height, quadZLo, quadZHi, seamAtFloor);
+      return Build(source, key, wrap, size, height, quadZLo, quadZHi, seamAtFloor);
     }
 
     private static TerrainPatch Build(
-      IChunkSource source, ChunkKey key,
+      IChunkSource source, ChunkKey key, ChunkWrap wrap,
       int size, int height, int quadZLo, int quadZHi, bool seamAtFloor)
     {
       var width = size + ApronLow + ApronHigh;
@@ -246,15 +246,22 @@ namespace BestiaBehemothClient.Game.World.Mesh
           var localX = (int)(voxelX - (long)chunkX * size);
           var localY = (int)(voxelY - (long)chunkY * size);
 
+          // Only the address is folded across the seam, never the offset within it. localX above is taken
+          // from the unwrapped division and is the same either way round, because a wrapped axis is a whole
+          // number of chunks wide - so folding after taking the offset keeps the two consistent. Recording
+          // the folded address matters as much as looking it up: MissingNeighbours is compared against the
+          // keys the server sends, which are already canonical.
+          var neighbour = wrap.Normalise(new ChunkKey(chunkX, chunkY, key.Z));
+          chunkX = neighbour.X;
+          chunkY = neighbour.Y;
+
           // A horizontal neighbour that is not held at all: read this chunk's own edge column instead, which
           // continues the terrain flat rather than cutting it off with a cliff into nothing.
-          if ((chunkX != key.X || chunkY != key.Y) &&
-              source.Get(new ChunkKey(chunkX, chunkY, key.Z)) == null)
+          if ((chunkX != key.X || chunkY != key.Y) && source.Get(neighbour) == null)
           {
-            var absent = new ChunkKey(chunkX, chunkY, key.Z);
-            if (!missing.Contains(absent))
+            if (!missing.Contains(neighbour))
             {
-              missing.Add(absent);
+              missing.Add(neighbour);
             }
 
             chunkX = key.X;

@@ -17,37 +17,6 @@ var _history_index: int = -1
 ## Index 0=Public(/s), 1=Party(/p), 2=Guild(/g)
 const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 
-## Refusals reported through [method error_line] here, by [code]OperationError.CodeName[/code].
-##
-## The chat window is the client's only system-message channel, and for a chat refusal it is also the right
-## one: a player whose message went nowhere has to be told in the window they typed it in, since a toast
-## somewhere else would leave them retyping. The equip and chart refusals are here for want of anywhere
-## better - neither the equipment window nor the map shows text at all - and move the day either grows a
-## status line of its own. A survey refused at cast start has nowhere else at all to be seen: it happens
-## while the player is looking at the world, not at a window.
-##
-## Matching on the name rather than the ordinal keeps a new denial reason from being re-declared here as a bare
-## number, which is the duplication [code]DialogArg.KindName[/code] was introduced to stop.
-##
-## A template may carry [code]%s[/code] placeholders, filled from [code]OperationError.Args[/code] in order.
-## The server sends values and never a finished sentence, so the wording stays here and can be translated.
-const _REFUSALS := {
-	"basic_skill_chat_locked": "You cannot speak yet. Raise Basic Skill to Lv. 2 in your Skills window.",
-	"basic_skill_party_locked": "Parties need Basic Skill Lv. 5.",
-	"basic_skill_trade_locked": "Trading needs Basic Skill Lv. 1.",
-	"equip_level_too_low": "You are not high enough level to wear that yet.",
-	"chart_needs_blank": "You have no blank vellum to draw on.",
-	"chart_not_found": "You are not carrying that chart.",
-	"chart_merge_same": "A chart cannot be joined with itself.",
-	"chart_stale_world": "That chart shows land that no longer exists.",
-	"trade_target_unavailable": "They cannot trade right now.",
-	"trade_out_of_range": "You are too far away to trade with them.",
-	"trade_declined": "%s declined the trade.",
-	"trade_cancelled": "%s cancelled the trade.",
-	"trade_walked_away": "The trade with %s was cancelled - you moved too far apart.",
-	"trade_failed": "The trade could not be completed. Nothing changed hands.",
-}
-
 ## Red, for something that did not happen: a refusal, a failure, an action the server turned down.
 const _ERROR_COLOR := Color(0.90, 0.35, 0.35)
 
@@ -151,8 +120,9 @@ func _switch_chat_mode(modeIdx: int) -> void:
 
 ## A neutral notice, in yellow.
 ##
-## Public because the refusals in [constant _REFUSALS] are not the only things with nowhere else to be said -
-## the map has no text of its own either, and a map that has stopped working has to be able to say so.
+## Public because the refusals handled in [method _on_operation_error] are not the only things with nowhere
+## else to be said - the map has no text of its own either, and a map that has stopped working has to be able
+## to say so.
 ##
 ## The colour is fixed rather than a parameter: which of the two a message is belongs to the message, and a
 ## caller free to pass any colour is a caller free to make a denial look like a notice.
@@ -203,11 +173,26 @@ func _scroll_to_bottom() -> void:
 	scroll_container.scroll_vertical = int(scroll_container.get_v_scroll_bar().max_value)
 
 
-## Reports the refusals from [constant _REFUSALS] and ignores every other operation error, which belongs to
-## whichever window raised it.
+## Reports an operation error as a chat refusal, and ignores every one this window has no wording for -
+## which is every operation error except the chat, equip, chart and trade refusals: whichever window raised
+## those handles them itself.
+##
+## The chat window is the client's only system-message channel, and for a chat refusal it is also the right
+## one: a player whose message went nowhere has to be told in the window they typed it in, since a toast
+## somewhere else would leave them retyping. The equip and chart refusals are here for want of anywhere
+## better - neither the equipment window nor the map shows text at all - and move the day either grows a
+## status line of its own.
+##
+## The translation key is built straight from [code]OperationError.CodeName[/code] - matching on the name
+## rather than the ordinal is what keeps a new denial reason from being re-declared here as a bare number,
+## the same duplication [code]DialogArg.KindName[/code] was introduced to stop - so a new chat refusal needs
+## only a [code]general.csv[/code] row, no entry in this file at all. [method Object.tr] echoes a missing key
+## straight back, which is how a code with no row here - because it belongs to another window - is told apart
+## from one this window actually owns.
 func _on_operation_error(message) -> void:
-	var template: String = _REFUSALS.get(message.CodeName, "")
-	if template.is_empty():
+	var key := "ERROR_%s" % message.CodeName.to_upper()
+	var template := tr(key)
+	if template == key:
 		return
 
 	# A template with placeholders and no args would render "%s" at the player, so a mismatch falls back to

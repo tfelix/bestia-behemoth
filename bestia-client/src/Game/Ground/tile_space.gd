@@ -40,3 +40,18 @@ static func world_to_tile(world: Vector3) -> Vector3:
 ## Where [param tile] gets drawn: the middle of it, rather than the corner its coordinate names.
 static func tile_centre(tile: Vector3) -> Vector3:
 	return tile + CENTRE_OFFSET
+
+
+## [param godot] with its axes named the way the server, the chat commands and the player all name them.
+##
+## Display only. Godot is y-up and the server is z-up, so a Godot vector's height is its [code]y[/code]
+## while every server-side coordinate calls the height [code]z[/code] - [code]/carve[/code] and
+## [code]/mm[/code] both take the server order, and [code]WorldConfig.voxelZOf[/code] is what "z" means
+## there. Printing a raw Godot vector under the labels X/Y/Z therefore tells a player that their height
+## is "Y", and a triple copied out of such a readout aims a carve kilometres into the sky.
+##
+## [b]This is not the wire conversion.[/b] [code]Vec3Convert.ToProto[/code] is, and it rounds on the way
+## out because it takes a tile coordinate. Nothing here may be used to build a message; nothing there may
+## be used to build a label.
+static func to_server_axes(godot: Vector3) -> Vector3:
+	return Vector3(godot.x, godot.z, godot.y)

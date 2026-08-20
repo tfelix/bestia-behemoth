@@ -203,7 +203,7 @@ text = "Master Name"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "X: 100   Y: 200"
+text = "X: 100, Y: 200, Z: 300"
 
 [node name="ExpDetails" type="HBoxContainer" parent="TopMargin/ProfileDetails/VBoxContainer" unique_id=2051564463]
 layout_mode = 2

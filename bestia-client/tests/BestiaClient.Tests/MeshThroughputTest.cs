@@ -51,7 +51,7 @@ namespace BestiaBehemothClient.Tests
       var appearance = TerrainFixtures.Appearance();
 
       // Warm the JIT and grow the thread-local scratch buffers before the clock starts.
-      SurfaceNets.Build(source, new ChunkKey(0, 0, 0), appearance, 1.0f);
+      SurfaceNets.Build(source, new ChunkKey(0, 0, 0), appearance, 1.0f, ChunkWrap.None);
 
       var watch = Stopwatch.StartNew();
 
@@ -62,7 +62,7 @@ namespace BestiaBehemothClient.Tests
       {
         for (var chunkX = -radius; chunkX <= radius; chunkX++)
         {
-          var mesh = SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), appearance, 1.0f);
+          var mesh = SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), appearance, 1.0f, ChunkWrap.None);
           if (mesh == null)
           {
             continue;

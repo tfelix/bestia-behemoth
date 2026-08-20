@@ -91,7 +91,13 @@ func _update_level(level: int) -> void:
 
 
 func _update_position(pos: Vector3) -> void:
-	_position.text = "X: %s, Y: %s, Z: %s" % [pos.x, pos.y, pos.z]
+	# Labelled with the server's axis names, not Godot's. A player reads these numbers straight back
+	# into /carve and /mm, and both take x/y horizontal with z as the height - printing Godot's y-up
+	# vector verbatim called the height "Y", and a triple copied out of here aimed a carve kilometres
+	# into the sky. Whole numbers for the same reason: a position is a voxel index, and /carve's
+	# parser accepts integers only.
+	var shown := TileSpace.to_server_axes(pos)
+	_position.text = "X: %s, Y: %s, Z: %s" % [int(shown.x), int(shown.y), int(shown.z)]
 
 
 func _update_bar(bar: ProgressBar, value_label: Label, current: int, max_value: int) -> void:

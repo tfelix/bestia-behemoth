@@ -118,6 +118,9 @@ namespace BestiaBehemothClient.Game.World
 
     private int _chunkHeight = 256;
 
+    /// <summary>The world's chunk grid, so a prop next to a seam finds the ground under it.</summary>
+    private ChunkWrap _wrap = ChunkWrap.None;
+
     /// <summary>
     /// Adopts the world's units and the terrain to stand props on. Safe to call with nulls, which keeps the
     /// defaults.
@@ -137,6 +140,7 @@ namespace BestiaBehemothClient.Game.World
         _voxelSize = (float)worldInfo.VoxelSizeMetres;
         _chunkSize = worldInfo.ChunkSize;
         _chunkHeight = worldInfo.ChunkHeight;
+        _wrap = ChunkWrap.Of(worldInfo);
       }
 
       Clear();
@@ -177,7 +181,7 @@ namespace BestiaBehemothClient.Game.World
 
       var surface = Mesh.SurfaceProbe.SurfaceAt(
         _store, Mesh.BlockAppearance.Current,
-        centre.X, centre.Z, entry.Position.Y, _chunkSize, _chunkHeight);
+        centre.X, centre.Z, entry.Position.Y, _chunkSize, _chunkHeight, _wrap);
 
       return double.IsNaN(surface)
         ? placed

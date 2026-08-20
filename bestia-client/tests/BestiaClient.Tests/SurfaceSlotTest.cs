@@ -38,7 +38,7 @@ namespace BestiaBehemothClient.Tests
     }
 
     private static ChunkMesh Mesh(FakeChunkSource source, int chunkX = 0, int chunkY = 0) =>
-      SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), Appearance, 1.0f);
+      SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), Appearance, 1.0f, ChunkWrap.None);
 
     /// <summary>The eight weights of one vertex, reassembled from the two channels they are split across.</summary>
     private static int[] WeightsAt(ChunkSurface surface, int vertex)
