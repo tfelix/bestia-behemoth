@@ -55,12 +55,12 @@ class BestiaSkillLearnService(
       ?.entityId
 
     if (entityId != null) {
-      world.modify(entityId) { entityId ->
+      world.modify(entityId) { id ->
         // KnownSkills itself is internal (not client-synced), so it carries no dirty flag of its
         // own - but a learned PASSIVE feeds the status recalc, so the effective values derived from
         // it have to be rebuilt.
-        get(entityId, KnownSkills::class)?.learnOrUpdate(skillId)
-        add(entityId, IsStatusValueDirty)
+        get(id, KnownSkills::class)?.learnOrUpdate(skillId)
+        add(id, IsStatusValueDirty)
       }
     }
 

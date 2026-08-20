@@ -25,10 +25,10 @@ class PersistedComponent(
   @JoinColumn(name = "entityId", foreignKey = ForeignKey(name = "fk_component_entity"))
   var entity: PersistedEntity? = null
 
-  override fun equals(o: Any?): Boolean {
-    if (this === o) return true
-    if (o !is PersistedComponent) return false
-    return id == o.id
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is PersistedComponent) return false
+    return id == other.id
   }
 
   override fun hashCode(): Int {

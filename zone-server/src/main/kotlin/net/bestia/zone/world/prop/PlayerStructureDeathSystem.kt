@@ -36,7 +36,7 @@ class PlayerStructureDeathSystem(
   override val writes: ComponentClassSet = emptySet()
 
   override fun update(world: World, deltaTime: Float) {
-    world.query(Dead::class, PlayerStructureIdentity::class, PropPose::class).each { id ->
+    world.query(Dead::class, PlayerStructureIdentity::class, PropPose::class).each { _ ->
       val identity = get<PlayerStructureIdentity>()
       val position = get<PropPose>().position
 
