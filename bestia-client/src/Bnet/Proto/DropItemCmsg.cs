@@ -25,13 +25,13 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CidtZXNzYWdlcy9pbnZlbnRvcnkvZHJvcF9pdGVtX2Ntc2cucHJvdG8SBGJu",
-            "ZXQiLwoMRHJvcEl0ZW1DTVNHEg8KB2l0ZW1faWQYASABKAQSDgoGYW1vdW50",
-            "GAIgASgNQioKFW5ldC5iZXN0aWEuYm5ldC5wcm90b0IRRHJvcEl0ZW1DTVNH",
-            "UHJvdG9iBnByb3RvMw=="));
+            "ZXQiQgoMRHJvcEl0ZW1DTVNHEg8KB2l0ZW1faWQYASABKAQSDgoGYW1vdW50",
+            "GAIgASgNEhEKCXVuaXF1ZV9pZBgDIAEoBEIqChVuZXQuYmVzdGlhLmJuZXQu",
+            "cHJvdG9CEURyb3BJdGVtQ01TR1Byb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DropItemCMSG), global::Bnet.DropItemCMSG.Parser, new[]{ "ItemId", "Amount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.DropItemCMSG), global::Bnet.DropItemCMSG.Parser, new[]{ "ItemId", "Amount", "UniqueId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -75,6 +75,7 @@ namespace Bnet {
     public DropItemCMSG(DropItemCMSG other) : this() {
       itemId_ = other.itemId_;
       amount_ = other.amount_;
+      uniqueId_ = other.uniqueId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -108,6 +109,26 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "unique_id" field.</summary>
+    public const int UniqueIdFieldNumber = 3;
+    private ulong uniqueId_;
+    /// <summary>
+    /// Names the exact copy to drop, so a player holding two of one template (two charts, each with its
+    /// own surveyed ground) drops the one they dragged rather than whichever the server finds first.
+    ///
+    /// 0 for a plain stack, and legitimately 0 for an instance whose row was minted after the client's
+    /// inventory copy was made - the server then falls back to picking any free copy, which is the same
+    /// fallback equipping makes and for the same reason.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong UniqueId {
+      get { return uniqueId_; }
+      set {
+        uniqueId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -125,6 +146,7 @@ namespace Bnet {
       }
       if (ItemId != other.ItemId) return false;
       if (Amount != other.Amount) return false;
+      if (UniqueId != other.UniqueId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -134,6 +156,7 @@ namespace Bnet {
       int hash = 1;
       if (ItemId != 0UL) hash ^= ItemId.GetHashCode();
       if (Amount != 0) hash ^= Amount.GetHashCode();
+      if (UniqueId != 0UL) hash ^= UniqueId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -160,6 +183,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt32(Amount);
       }
+      if (UniqueId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(UniqueId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -178,6 +205,10 @@ namespace Bnet {
         output.WriteRawTag(16);
         output.WriteUInt32(Amount);
       }
+      if (UniqueId != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(UniqueId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -193,6 +224,9 @@ namespace Bnet {
       }
       if (Amount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Amount);
+      }
+      if (UniqueId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UniqueId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -211,6 +245,9 @@ namespace Bnet {
       }
       if (other.Amount != 0) {
         Amount = other.Amount;
+      }
+      if (other.UniqueId != 0UL) {
+        UniqueId = other.UniqueId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -235,6 +272,10 @@ namespace Bnet {
             Amount = input.ReadUInt32();
             break;
           }
+          case 24: {
+            UniqueId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -256,6 +297,10 @@ namespace Bnet {
           }
           case 16: {
             Amount = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            UniqueId = input.ReadUInt64();
             break;
           }
         }

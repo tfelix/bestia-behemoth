@@ -16,18 +16,21 @@ var DropAmountDialogScn = preload("res://Game/UI/Inventory/DropAmountDialog/Drop
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	var item_id: int = data.get("id")
+	# Forwarded so the server drops the copy that was actually dragged. Two charts of one template are
+	# two different maps, and picking the wrong one would throw away land the player had surveyed.
+	var unique_id: int = data.get("unique_id", 0)
 	var owned_amount = inventory.get_item_count(item_id)
 	if owned_amount <= 0:
 		return
 
 	if owned_amount == 1:
-		ConnectionManager.drop_item(item_id, 1)
+		ConnectionManager.drop_item(item_id, 1, unique_id)
 		return
 
 	var item_resource = ItemDB.get_instance().get_item(item_id)
 	var dialog = DropAmountDialogScn.instantiate() as DropAmountDialog
 	add_child(dialog)
-	dialog.amount_confirmed.connect(func(id: int, amount: int) -> void: ConnectionManager.drop_item(id, amount))
+	dialog.amount_confirmed.connect(func(id: int, amount: int) -> void: ConnectionManager.drop_item(id, amount, unique_id))
 	dialog.confirmed.connect(dialog.queue_free)
 	dialog.canceled.connect(dialog.queue_free)
 	dialog.open_for(item_resource, owned_amount)

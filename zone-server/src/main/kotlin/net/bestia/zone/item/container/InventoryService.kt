@@ -99,11 +99,19 @@ class InventoryService(
    * ground). The removal must be durable before the caller mutates the in-memory/ECS state, to
    * avoid item duplication on a crash. The returned instance - if any - is intentionally kept alive
    * in the DB, just detached from the container. Returns null if the item was not present.
+   *
+   * [uniqueId] pins the choice to one copy when the caller knows which one it means; see
+   * [ItemContainer.removeOne].
    */
   @Transactional
-  fun removeOneFromMaster(masterId: Long, itemId: Long, amount: Int): ItemContainer.RemovedItem? {
+  fun removeOneFromMaster(
+    masterId: Long,
+    itemId: Long,
+    amount: Int,
+    uniqueId: Long = 0L
+  ): ItemContainer.RemovedItem? {
     val master = masterRepository.findByIdOrThrow(masterId)
-    val removed = master.container.removeOne(itemId, amount) ?: return null
+    val removed = master.container.removeOne(itemId, amount, uniqueId) ?: return null
     masterRepository.save(master)
     return removed
   }

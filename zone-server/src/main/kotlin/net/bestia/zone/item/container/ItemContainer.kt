@@ -146,8 +146,21 @@ class ItemContainer(
    * item's identity is preserved on e.g. a drop. Returns the detached [ItemInstance] (null for a
    * plain stackable) so the caller can carry its identity onward. [amount] is only used for the
    * stackable case; an instance always removes exactly one.
+   *
+   * A non-zero [uniqueId] names the exact copy to take, and nothing else will do: two copies of one
+   * template can be meaningfully different (two charts are two different maps), so a named copy that
+   * turns out to be worn, promised to a trade, or gone returns null rather than quietly taking the
+   * other one. Zero means "any free copy" - the caller either holds a stack, or holds an instance
+   * whose row was minted after its inventory copy was made and cannot name it yet (see [equip]).
    */
-  fun removeOne(itemId: Long, amount: Int): RemovedItem? {
+  fun removeOne(itemId: Long, amount: Int, uniqueId: Long = 0L): RemovedItem? {
+    if (uniqueId != 0L) {
+      val named = _slots.firstOrNull { it.uniqueId == uniqueId && it.isFree && it.template.id == itemId }
+        ?: return null
+      _slots.remove(named)
+      return RemovedItem(uniqueId = named.uniqueId, instance = named.itemInstance)
+    }
+
     val instanceSlot = _slots.firstOrNull { !it.isStackable && it.isFree && it.template.id == itemId }
     if (instanceSlot != null) {
       _slots.remove(instanceSlot)

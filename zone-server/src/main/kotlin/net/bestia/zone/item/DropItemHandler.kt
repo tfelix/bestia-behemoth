@@ -59,10 +59,13 @@ class DropItemHandler(
       // 1. Persist the removal to the DB first - this is the durable, crash-safe commit. The DB is
       //    the source of truth for which physical item leaves the inventory: it prefers a unique
       //    instance and hands back its uniqueId so the dropped item keeps its identity.
-      val removed = inventoryService.removeOneFromMaster(masterId, item.id, msg.amount)
+      val removed = inventoryService.removeOneFromMaster(masterId, item.id, msg.amount, msg.uniqueId)
 
       if (removed == null) {
-        LOG.warn { "Could not remove ${msg.amount} of item ${item.identifier} from master $masterId in DB" }
+        LOG.warn {
+          "Could not remove ${msg.amount} of item ${item.identifier} (uniqueId ${msg.uniqueId}) " +
+            "from master $masterId in DB"
+        }
         return@modify null
       }
 

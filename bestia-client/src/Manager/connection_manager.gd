@@ -295,11 +295,14 @@ func use_item(item_id: int) -> void:
 	_socket.SendMessage(msg)
 
 
-func drop_item(item_id: int, amount: int) -> void:
+## [param unique_id] names which copy to drop and is 0 for a plain stack - see the field comment in
+## drop_item_cmsg.proto for why the server tolerates a 0 on an instance item too.
+func drop_item(item_id: int, amount: int, unique_id: int = 0) -> void:
 	assert(is_ready_to_send())
 	var msg = DropItemCMSG.new()
 	msg.ItemId = item_id
 	msg.Amount = amount
+	msg.UniqueId = unique_id
 	_socket.SendMessage(msg)
 
 
