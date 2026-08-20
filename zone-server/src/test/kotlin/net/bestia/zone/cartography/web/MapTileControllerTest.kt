@@ -183,6 +183,89 @@ class MapTileControllerTest {
   }
 
   @Test
+  fun `a tile charted to its own edges but no further is served masked, not refused`() {
+    // The ring of tiles just inside a chart's boundary, which is where a player spends most of their time
+    // looking. Every cell of the tile is charted and the falloff margin around it is not, so the service's
+    // two questions disagree: it is not completely charted, and it is not entirely unknown either. Rendered
+    // and masked is the only right answer, and a masked tile has to be keyed on something - which is the
+    // whole reason the key is taken over the ground the mask reads rather than over the tile.
+    val spot = TileId.of(2, 20_000.0 + NEXT_SPOT++ * 20_000.0, 20_000.0)
+    val bounds = spot.bounds
+
+    // Sized against the survey lattice rather than by eye. A level-2 tile is 1024 m, so its furthest cell
+    // centre is 679 m out and 800 m buries every one of them; the falloff margin reaches 160 m further,
+    // putting its corner cell 950 m out and leaving it uncharted. Full inside, not full around it.
+    chartedAt((bounds.minX + bounds.maxX) / 2.0, (bounds.minY + bounds.maxY) / 2.0, radiusMetres = 800.0)
+
+    val response = rest.exchange(url(spot), HttpMethod.GET, signed(), ByteArray::class.java)
+
+    assertEquals(HttpStatus.OK, response.statusCode)
+    assertTrue(isPng(assertNotNull(response.body)), "a frontier tile should come back as a masked PNG")
+
+    // Now chart ground that overlaps the margin this tile's mask reads, which changes its key and so gets
+    // past the masked cache. The tile has to be drawn a second time, and this time the base it is drawn over
+    // is the one the first request left in the tile store - which is the only place that read-back is
+    // exercised, and the step that makes a frontier tile cost a decode instead of a render.
+    chartedAt(bounds.minX - 200.0, (bounds.minY + bounds.maxY) / 2.0, radiusMetres = 800.0)
+
+    val redrawn = rest.exchange(url(spot), HttpMethod.GET, signed(), ByteArray::class.java)
+
+    assertEquals(HttpStatus.OK, redrawn.statusCode)
+    assertTrue(isPng(assertNotNull(redrawn.body)), "a tile masked over a cached base should still be a PNG")
+  }
+
+  @Test
+  fun `ground one world width east of a charted tile is a 404, not that tile again`() {
+    // The world wraps and the survey grid wraps with it, so the coverage of a tile past the eastern edge is
+    // the coverage of the tile it folds onto. Without a bounds test the server answers with a second copy of
+    // ground this player has charted - and the imagery does *not* wrap, so what comes back is blank
+    // parchment with a true fog mask cut out of it: the player's own chart, drawn over nowhere.
+    val centre = charted(radiusMetres = 3_000.0)
+    val tile = TileId.of(2, centre.first, centre.second)
+    val across = TileId.tilesAcross(worldMetres("worldWidthMetres"), tile.level)
+
+    assertEquals(
+      HttpStatus.OK,
+      rest.exchange(url(tile), HttpMethod.GET, signed(), ByteArray::class.java).statusCode,
+      "the tile this test is about is not charted, so it proves nothing"
+    )
+
+    for (wrapped in listOf(
+      TileId(tile.level, tile.tx + across, tile.ty),
+      TileId(tile.level, tile.tx - across, tile.ty)
+    )) {
+      assertEquals(
+        HttpStatus.NOT_FOUND,
+        rest.exchange(url(wrapped), HttpMethod.GET, signed(), ByteArray::class.java).statusCode,
+        "$wrapped is a world width from $tile and the world has no such tile"
+      )
+    }
+  }
+
+  @Test
+  fun `the coarsest level is one tile with nothing beside it`() {
+    // L9 spans 131 km against a 128 km world, so the whole map fits in tile zero - and a map panel at that
+    // scale is several world widths across. Every neighbour has to be a 404 or the client draws a lattice of
+    // copies of the same few charted pixels, which is what the coarse levels looked like.
+    charted(radiusMetres = 3_000.0)
+    val coarsest = worldMeta("maxLevel") as Int
+
+    assertEquals(
+      HttpStatus.OK,
+      rest.exchange(url(coarsest, 0, 0), HttpMethod.GET, signed(), ByteArray::class.java).statusCode,
+      "the world itself should be charted somewhere by now"
+    )
+
+    for ((tx, ty) in listOf(1L to 0L, 0L to 1L, -1L to 0L, 0L to -1L, 1L to 1L)) {
+      assertEquals(
+        HttpStatus.NOT_FOUND,
+        rest.exchange(url(coarsest, tx, ty), HttpMethod.GET, signed(), ByteArray::class.java).statusCode,
+        "L$coarsest/$tx/$ty is outside a world that fits in one tile"
+      )
+    }
+  }
+
+  @Test
   fun `a level above the pyramid is a bad request rather than a rendered void`() {
     assertEquals(
       HttpStatus.BAD_REQUEST,
@@ -196,10 +279,11 @@ class MapTileControllerTest {
    * Each call moves 20 km east, because the fixture master is shared across the class and two overlapping
    * surveys would make "partly charted" tests depend on which ran first.
    */
-  private fun charted(radiusMetres: Double): Pair<Double, Double> {
-    val centreX = 20_000.0 + NEXT_SPOT++ * 20_000.0
-    val centreY = 20_000.0
+  private fun charted(radiusMetres: Double): Pair<Double, Double> =
+    chartedAt(20_000.0 + NEXT_SPOT++ * 20_000.0, 20_000.0, radiusMetres)
 
+  /** The same, on ground the caller has picked - for the tests that care where the boundary falls. */
+  private fun chartedAt(centreX: Double, centreY: Double, radiusMetres: Double): Pair<Double, Double> {
     inventoryService.addItem(
       masterRepository.findByIdOrThrow(masterId), ChartService.BLANK_IDENTIFIER, 1
     )
@@ -210,6 +294,15 @@ class MapTileControllerTest {
     Thread.sleep(COVERAGE_TTL_SLACK_MILLIS)
 
     return centreX to centreY
+  }
+
+  private fun worldMetres(key: String): Double = (worldMeta(key) as Number).toDouble()
+
+  /** One field of `/meta`, so the geometry a test reasons about is the one the server published. */
+  private fun worldMeta(key: String): Any {
+    val body = assertNotNull(rest.exchange("/map/v1/meta", HttpMethod.GET, signed(), Map::class.java).body)
+
+    return assertNotNull(body[key], "/meta carries no $key")
   }
 
   private fun signedToken(accountId: Long): String = Jwts.builder()

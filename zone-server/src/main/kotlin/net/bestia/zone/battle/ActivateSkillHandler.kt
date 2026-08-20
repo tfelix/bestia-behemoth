@@ -1,7 +1,9 @@
 package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.zone.battle.skill.NoSkillScriptException
 import net.bestia.zone.battle.skill.SkillExecutionService
+import net.bestia.zone.battle.skill.SkillStrategyFactory
 import net.bestia.zone.ecs.battle.skill.KnownSkills
 import net.bestia.zone.ecs.battle.skill.Casting
 import net.bestia.zone.ecs.core.WorldView
@@ -9,6 +11,8 @@ import net.bestia.zone.ecs.core.session.ConnectionInfoService
 import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.InMessageProcessor
+import net.bestia.zone.message.OperationErrorSMSG
+import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.skill.SkillRepository
 import net.bestia.zone.world.prop.PropPromotionService
 import org.springframework.stereotype.Component
@@ -17,8 +21,8 @@ import org.springframework.stereotype.Component
  * Handles a player activating a learned skill from the UI (Skills window or hotbar), for whichever
  * entity (master or an owned bestia) is currently active.
  *
- * Validates that the skill is known at the requested level, then either resolves it immediately or -
- * when the skill has a cast time - attaches a [Casting] component and lets
+ * Validates that the skill is known at the requested level and that its cost can be met, then either
+ * resolves it immediately or - when the skill has a cast time - attaches a [Casting] component and lets
  * [net.bestia.zone.ecs.battle.skill.CastingSystem] resolve it when the channel finishes.
  */
 @Component
@@ -26,9 +30,11 @@ class ActivateSkillHandler(
   private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
   private val skillRepository: SkillRepository,
+  private val skillStrategyFactory: SkillStrategyFactory,
   private val skillExecutionService: SkillExecutionService,
   private val logoutCancelService: LogoutCancelService,
   private val propPromotion: PropPromotionService,
+  private val outMessageProcessor: OutMessageProcessor,
 ) : InMessageProcessor.IncomingMessageHandler<ActivateSkillCMSG> {
   override val handles = ActivateSkillCMSG::class
 
@@ -62,7 +68,26 @@ class ActivateSkillHandler(
       return true
     }
 
+    val strategy = try {
+      skillStrategyFactory.getSkillStrategy(skill)
+    } catch (e: NoSkillScriptException) {
+      // A passive, or an entry nobody has implemented. Refused here rather than at resolution so a
+      // channelled one does not show a cast bar for a cast that was never going to happen.
+      LOG.warn { "Entity $activeEntityId activated ${skill.identifier}, which has no script: ${e.message}" }
+      return true
+    }
+
     LOG.info { "Skill activated: ${msg.attackId} Lv. ${msg.skillLevel} at ${msg.targetPosition}" }
+
+    // Before the cast starts and in its own scope, so a skill whose reagent is missing is refused while the
+    // player is still looking at the button rather than after channelling for it. Nothing is spent here - see
+    // SkillStrategy.checkCastStart.
+    val denial = world.modify(activeEntityId) { id -> strategy.checkCastStart(this, id, msg.skillLevel) }
+    if (denial != null) {
+      LOG.debug { "Activation of ${skill.identifier} by $activeEntityId refused: $denial" }
+      outMessageProcessor.sendToPlayer(msg.playerId, OperationErrorSMSG(denial))
+      return true
+    }
 
     // An entity-targeted skill carries a target id (the client sends 0 when nothing was picked); a
     // ground-targeted one falls back to the position, which is always present on the wire.

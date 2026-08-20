@@ -54,9 +54,12 @@ class ChartService(
   /**
    * Turns a completed survey into a chart in the master's inventory, consuming a blank.
    *
-   * The blank is checked *here* rather than before the cast, and that is forced rather than chosen: a
-   * `SkillStrategy` is a pure function of a battle context and has no inventory to look at. Crafting refuses
-   * for the same reason at the same point.
+   * The blank is *taken* here and nowhere else, which is what makes a cancelled or interrupted survey free.
+   * It is also checked earlier, at cast start, by `SurveyService.checkBlank` - not instead of this one but
+   * before it, so a surveyor with nothing to draw on is told at the button rather than five seconds later.
+   * The check here is the one that decides: a sheet counted then can be dropped or traded away while the bar
+   * fills, and only this one shares a transaction with the write. `CraftingService` checks its inputs at
+   * `start` and takes them at `resolve` for the same reason.
    */
   @Transactional
   fun mint(masterId: Long, centreX: Double, centreY: Double, radiusMetres: Double): Result {

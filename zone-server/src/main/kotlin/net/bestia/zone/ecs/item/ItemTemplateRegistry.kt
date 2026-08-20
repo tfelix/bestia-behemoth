@@ -21,7 +21,15 @@ class ItemTemplateRegistry(
 
   private data class Template(val level: Int, val weight: Int)
 
-  private val byItemId = itemRepository.findAll().associate { it.id to Template(it.level, it.weight) }
+  private val byItemId: Map<Long, Template>
+
+  private val idByIdentifier: Map<String, Long>
+
+  init {
+    val all = itemRepository.findAll()
+    byItemId = all.associate { it.id to Template(it.level, it.weight) }
+    idByIdentifier = all.associate { it.identifier to it.id }
+  }
 
   /**
    * The item's tier, or null for an id the catalogue does not know.
@@ -33,4 +41,12 @@ class ItemTemplateRegistry(
   fun levelOf(itemId: Long): Int? = byItemId[itemId]?.level
 
   fun weightOf(itemId: Long): Int? = byItemId[itemId]?.weight
+
+  /**
+   * The catalogue id behind an `items.yml` identifier, or null when no such item was imported.
+   *
+   * For the callers that know an item by name rather than by id - a script naming its reagent - and have to
+   * resolve it where a `findByIdentifier` round trip cannot go: inside a world lock scope.
+   */
+  fun idOf(identifier: String): Long? = idByIdentifier[identifier]
 }

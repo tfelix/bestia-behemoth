@@ -38,6 +38,19 @@ class TileRenderer(val inputs: TileInputs) {
   fun render(tile: TileId): BufferedImage = styleFor(tile.level).render(tile.viewport(), inputs)
 
   /**
+   * Renders and quantises: the tile exactly as it is *stored*, which is the same picture for every player.
+   *
+   * Split out of [encode] so a masked tile can be drawn over one of these read back from `TileStore` rather
+   * than over a fresh render. Nothing player-specific has happened to it yet, and nothing may: the mask is
+   * applied on the way out, to a copy.
+   */
+  fun draw(tile: TileId): BufferedImage {
+    val image = render(tile)
+    posterize((image.raster.dataBuffer as DataBufferInt).data)
+    return image
+  }
+
+  /**
    * Renders and encodes to PNG.
    *
    * PNG rather than a lossy format for two reasons: the fog mask is applied as alpha, so the format has to carry
@@ -51,12 +64,17 @@ class TileRenderer(val inputs: TileInputs) {
    * mean tile size per level, and the honest fixes if it is too large are fewer colours (an indexed palette) or
    * less paper noise, not a lossier codec.
    */
-  fun encode(tile: TileId, mask: FogMask? = null): ByteArray {
-    val image = render(tile)
-    posterize((image.raster.dataBuffer as DataBufferInt).data)
+  fun encode(tile: TileId, mask: FogMask? = null): ByteArray = encode(draw(tile), mask)
 
-    // Quantise first, then mask. The other order would posterise the alpha channel along with the colour and
-    // snap the fringe to the colour lattice, and it would undo the zeroing that hides uncharted ground.
+  /**
+   * Encodes a tile [draw] already produced, optionally masked.
+   *
+   * Takes a drawn tile rather than drawing one because that is the whole point of the split: the image may
+   * have come from the on-disk cache. It must be a quantised one - masking first would posterise the alpha
+   * channel along with the colour, snap the fringe to the colour lattice, and undo the zeroing that hides
+   * uncharted ground - which is why [draw] is the only thing that makes them.
+   */
+  fun encode(image: BufferedImage, mask: FogMask?): ByteArray {
     val encoded = mask?.applyTo(image) ?: image
 
     val out = ByteArrayOutputStream(EXPECTED_TILE_BYTES)

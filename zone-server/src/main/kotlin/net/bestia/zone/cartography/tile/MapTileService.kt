@@ -9,11 +9,15 @@ import net.bestia.zone.cartography.coverage.Coverage
 import net.bestia.zone.cartography.render.TileInputs
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import javax.imageio.ImageIO
 
 /**
  * Answers "what may this master see of this tile", and produces the bytes.
@@ -67,6 +71,15 @@ class MapTileService(
     }
   }
 
+  /**
+   * The render pool did not answer in time.
+   *
+   * Its own type rather than an `IllegalStateException`, so the controller can tell a saturated pool from a
+   * genuine bug. The difference reaches the player: a tile refused as 500 is one the client has no reason to
+   * ask for again, and a cold zoom level that fails once then stays fog for the whole session.
+   */
+  class RenderTimedOut(message: String, cause: Throwable) : RuntimeException(message, cause)
+
   private val workers = Executors.newFixedThreadPool(RENDER_THREADS) { runnable ->
     Thread(runnable, "map-render").apply { isDaemon = true }
   }
@@ -94,12 +107,18 @@ class MapTileService(
     val generated = worldService.generated
     val key = MapWorldKey.of(generated)
 
+    val width = generated.config.widthMetres
+    val height = generated.config.heightMetres
+
     LOG.info { "Map tiles for world key $key under ${File(config.cacheDir, key.value).absolutePath}" }
     Resources(
       inputs = TileInputs.of(generated),
       key = key,
       store = TileStore(File(config.cacheDir), key),
-      fitLevel = TileId.fitLevel(generated.config.widthMetres)
+      // The longer edge: a world taller than it is wide still needs a level its whole map fits inside.
+      fitLevel = TileId.fitLevel(maxOf(width, height)),
+      widthMetres = width,
+      heightMetres = height
     )
   }
 
@@ -107,7 +126,9 @@ class MapTileService(
     val inputs: TileInputs,
     val key: MapWorldKey,
     val store: TileStore,
-    val fitLevel: Int
+    val fitLevel: Int,
+    val widthMetres: Double,
+    val heightMetres: Double
   )
 
   /** World geometry and the cache key a client needs before it can ask for anything. */
@@ -136,16 +157,30 @@ class MapTileService(
       "Level ${id.level} is outside 0..${resources.fitLevel}"
     }
 
+    if (!holdsTile(id)) return null
+
     val coverage = coverageFor(masterId)
 
     if (coverage.coverageOf(FogMask.clearingArea(id)) == AreaCoverage.Full) {
       return Tile(base(id), etag = "\"${resources.key}-${id.path()}\"", shared = true)
     }
 
-    val inside = coverage.coverageOf(id.bounds)
-    if (inside == AreaCoverage.None) return null
+    if (coverage.coverageOf(id.bounds) == AreaCoverage.None) return null
 
-    val digest = (inside as AreaCoverage.Partial).digest
+    // Digested over the ground the mask *reads*, never over the tile alone, and the two are genuinely
+    // different questions. The tile's own cells can be complete while the falloff margin around them is not -
+    // which is the whole ring just inside a chart's edge - and asking there for a digest that only a partly
+    // charted area has produces no answer at all. It is also the honest cache key: the fringe is built from
+    // the neighbouring cells, so two chart sets that agree inside the tile and differ just outside it draw
+    // different tiles and must not share one.
+    val digest = when (val around = coverage.coverageOf(FogMask.readArea(id))) {
+      is AreaCoverage.Partial -> around.digest
+      // Unreachable in both directions - `readArea` contains the area found not to be `Full` above, and
+      // contains a tile found not to be `None`. Answered rather than thrown, so that if either area is ever
+      // reshaped the cost is a cache that collides instead of a request that fails.
+      else -> UNKEYED_DIGEST
+    }
+
     val cacheKey = "${id.path()}#$digest"
     masked[cacheKey]?.let { return Tile(it, etag = "\"${resources.key}-$cacheKey\"", shared = false) }
 
@@ -154,11 +189,26 @@ class MapTileService(
     // fringe swallowing a lone charted cell after quantisation.
     if (mask.isFullyHidden) return null
 
-    val bytes = render { renderers.get().encode(id, mask) }
+    val bytes = render { renderers.get().encode(baseImage(id), mask) }
     if (masked.size < MAX_MASKED_TILES) masked[cacheKey] = bytes
 
     return Tile(bytes, etag = "\"${resources.key}-$cacheKey\"", shared = false)
   }
+
+  /**
+   * Whether the world has this tile at all.
+   *
+   * A decision rather than a formality, because the world wraps and the two halves of the map disagree about
+   * that. [net.bestia.zone.cartography.coverage.SurveyGrid] folds an out-of-world cell back onto a real one,
+   * so the coverage of the tile one world-width east *is* the coverage of this one - but `TerrainRaster` does
+   * not wrap and answers NaN out there. Serving those tiles therefore hands back blank parchment carrying a
+   * true fog mask: the imagery is of nowhere, and the shape cut out of it still says where the player has
+   * charted. Answering 404 is also what stops the map drawing the world over and over at the coarse levels,
+   * where a panel is several world-widths across.
+   */
+  private fun holdsTile(id: TileId): Boolean =
+    id.tx in 0 until TileId.tilesAcross(resources.widthMetres, id.level) &&
+        id.ty in 0 until TileId.tilesAcross(resources.heightMetres, id.level)
 
   /** Base bytes from the on-disk cache, rendering into it on a miss. */
   private fun base(id: TileId): ByteArray {
@@ -167,6 +217,39 @@ class MapTileService(
     val bytes = render { renderers.get().encode(id) }
     resources.store.write(id, bytes)
     return bytes
+  }
+
+  /**
+   * The same base tile as an image, for a mask to be laid over.
+   *
+   * A masked tile is the base tile plus an alpha channel, so rendering one from scratch was paying a full
+   * style pass for a picture the cache very often already held - and paying it again on the next request for
+   * the same ground under a different chart set. Worse, it meant `mapBake` was dead weight for exactly the
+   * players who need it most: a tile is only served unmasked once its *surroundings* are completely charted,
+   * so until then every request re-drew ground that was already on disk.
+   *
+   * Decoding cannot drift from rendering. The stored bytes are PNG, which is lossless, and they were written
+   * from [TileRenderer.draw] - already quantised - so laying a mask over them gives the identical result.
+   *
+   * Rendered tiles are written on the way past for the same reason [base] writes them: the base is what every
+   * *other* chart set masks too, so paying for it once here is what stops the next frontier tile paying again.
+   */
+  private fun baseImage(id: TileId): BufferedImage {
+    val renderer = renderers.get()
+
+    resources.store.read(id)?.let { bytes ->
+      try {
+        ImageIO.read(ByteArrayInputStream(bytes))?.let { return it }
+        LOG.warn { "Cached tile $id decoded to nothing, re-rendering it" }
+      } catch (e: IOException) {
+        // A cache is allowed to fail; re-rendering loses time and nothing else.
+        LOG.warn(e) { "Cached tile $id could not be decoded, re-rendering it" }
+      }
+    }
+
+    val image = renderer.draw(id)
+    resources.store.write(id, renderer.encode(image, mask = null))
+    return image
   }
 
   private fun coverageFor(masterId: Long): Coverage {
@@ -194,7 +277,7 @@ class MapTileService(
       future.get(RENDER_TIMEOUT_SECONDS, TimeUnit.SECONDS)
     } catch (e: TimeoutException) {
       future.cancel(true)
-      throw IllegalStateException("Rendering a tile took longer than $RENDER_TIMEOUT_SECONDS s", e)
+      throw RenderTimedOut("Rendering a tile took longer than $RENDER_TIMEOUT_SECONDS s", e)
     }
   }
 
@@ -223,7 +306,17 @@ class MapTileService(
 
     const val MAX_CACHED_COVERAGES = 500
 
-    /** A cold plan tile samples the detail heightfield per pixel, which is seconds rather than milliseconds. */
+    /**
+     * How long one tile may take before the request is answered as retryable rather than waited on any longer.
+     *
+     * Far above what a render actually costs: `mapBake` measures Genesis at a few milliseconds a tile even at
+     * L0, where the detail heightfield is sampled per pixel. Reaching this therefore means the pool is starved
+     * or wedged, not that the tile is expensive - so it is deliberately generous, and the price of being wrong
+     * about that is one tile the client asks for again a moment later.
+     */
     const val RENDER_TIMEOUT_SECONDS = 30L
+
+    /** Stands in for a coverage digest in the case that cannot arise. See its only use. */
+    const val UNKEYED_DIGEST = 0L
   }
 }

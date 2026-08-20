@@ -1,6 +1,9 @@
 package net.bestia.zone.battle.skill
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.battle.damage.Damage
+import net.bestia.zone.ecs.core.World
+import net.bestia.zone.util.EntityId
 
 /**
  * The implementation of one catalogued skill, resolved from `skills.yml`'s `script` name by
@@ -25,12 +28,36 @@ import net.bestia.zone.battle.damage.Damage
 interface SkillStrategy {
 
   /**
-   * Whether the cast may go ahead at all: range, line of sight, a target that is eligible, ammunition,
-   * a reagent. Nothing is spent and nothing happens when this is false.
+   * Whether the skill's cost can be met *now*, at activation - before the cast bar goes up. Nothing to
+   * check by default.
+   *
+   * **Read-only.** It answers whether the reagent is there, and the reagent is spent when the cast lands,
+   * not here: a cast that is interrupted, walked out of or cancelled must cost nothing. So every skill that
+   * overrides this checks the same thing twice - here so the player is told at the button rather than after
+   * channelling for five seconds, and again where it is actually taken, because the seconds in between are
+   * long enough to drop, trade or use up what was counted. `CraftingService` checks its inputs at
+   * `start` and again at `resolve` for exactly that reason.
+   *
+   * Separate from [isCastPossible] because it answers a different question at a different moment: that one
+   * asks whether the cast still makes sense when it resolves, this one whether it should ever begin.
+   *
+   * Runs on the message thread inside the caster's own `modify` scope, which is why it is handed the [World]
+   * rather than the budgeted [SkillWorld] a resolving cast gets: there is no budget yet and no snapshot to
+   * take. The lock is held for the duration, so an implementation may read live components - but it may not
+   * do relational work, and having nothing to write it has no reason to.
+   *
+   * @return the refusal to report to the player, or null when the cast may start
+   */
+  fun checkCastStart(world: World, casterId: EntityId, skillLevel: Int): OpError? = null
+
+  /**
+   * Whether the cast may go ahead at all: range, line of sight, a target that is eligible. Nothing is
+   * spent and nothing happens when this is false.
    *
    * Checked at *resolution* rather than activation, which is what makes a channelled skill fizzle when
    * the caster wandered out of range while casting. Whether the attack then *hits* is [execute]'s
-   * business.
+   * business. Whether the cast can be *afforded* is neither of those - [checkCastStart] asks that before
+   * the cast bar, and the script itself spends what it spends when it resolves.
    */
   fun isCastPossible(ctx: SkillContext): Boolean
 

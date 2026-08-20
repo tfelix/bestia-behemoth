@@ -70,7 +70,7 @@ class FogMask private constructor(
    */
   fun applyTo(image: BufferedImage): BufferedImage {
     val masked = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
-    val source = (image.raster.dataBuffer as DataBufferInt).data
+    val source = rgbOf(image)
     val target = (masked.raster.dataBuffer as DataBufferInt).data
 
     val metresPerPixel = tile.metresPerPixel
@@ -92,6 +92,21 @@ class FogMask private constructor(
 
     return masked
   }
+
+  /**
+   * The tile's colours as packed ints.
+   *
+   * A tile straight off the renderer is `TYPE_INT_RGB` and lends its own array; one decoded from the tile
+   * store is whatever `ImageIO` chose for it - `TYPE_3BYTE_BGR`, normally - and is converted. The branch lives
+   * here rather than at the call site because the alternative is every caller knowing which of the two it
+   * holds, and being wrong about it is a `ClassCastException` at request time.
+   */
+  private fun rgbOf(image: BufferedImage): IntArray =
+    if (image.type == BufferedImage.TYPE_INT_RGB || image.type == BufferedImage.TYPE_INT_ARGB) {
+      (image.raster.dataBuffer as DataBufferInt).data
+    } else {
+      image.getRGB(0, 0, image.width, image.height, null, 0, image.width)
+    }
 
   /** Bilinear, so the fringe is smooth at close zoom where one lattice cell spans many pixels. */
   private fun revealAt(worldX: Double, worldY: Double, bounds: Aabb): Float {
@@ -139,10 +154,30 @@ class FogMask private constructor(
      */
     fun clearingArea(tile: TileId): Aabb = tile.bounds.expanded(FALLOFF_METRES)
 
+    /**
+     * Every scrap of ground the mask for a tile is built from: the tile, plus the halo the lattice extends by.
+     *
+     * This is the area a masked tile may be **keyed** on, and the reason it is not [clearingArea] is that
+     * [clearingArea] is up to one lattice step narrower. A digest taken over anything the mask reads outside
+     * of it can be equal for two chart sets whose fringes differ - a cache handing one player another
+     * player's fog, which is the failure this rules out by construction rather than by argument.
+     *
+     * Emphatically not the area to test for "needs no mask": that is [clearingArea], which is the *narrowest*
+     * area whose completeness makes the fringe vanish, and widening it there would serve a masked tile where
+     * a shared one was correct.
+     */
+    fun readArea(tile: TileId): Aabb = stepFor(tile).let { tile.bounds.expanded(haloFor(it) * it) }
+
+    /** Lattice pitch: the survey cell, or one pixel where a pixel is the coarser of the two. */
+    private fun stepFor(tile: TileId): Double = maxOf(SurveyGrid.CELL_METRES, tile.metresPerPixel)
+
+    /** Cells of margin, wide enough that the falloff is computed from the same ground the neighbour uses. */
+    private fun haloFor(step: Double): Int = ceil(FALLOFF_METRES / step).toInt() + 1
+
     fun forTile(tile: TileId, coverage: Coverage): FogMask {
-      val step = maxOf(SurveyGrid.CELL_METRES, tile.metresPerPixel)
+      val step = stepFor(tile)
       val across = (tile.span / step).roundToInt()
-      val halo = ceil(FALLOFF_METRES / step).toInt() + 1
+      val halo = haloFor(step)
       val lattice = across + 2 * halo
 
       val charted = BooleanArray(lattice * lattice)

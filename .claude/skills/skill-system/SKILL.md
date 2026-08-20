@@ -121,6 +121,31 @@ fails at boot with nothing pointing at the script. A service whose methods take 
 `SkillWorld` (`offerRecipes`, `survey`); a service that needs none (a config, a calculator) a script
 may inject itself.
 
+### What a cast costs, and when
+
+Four moments, and mixing them up is how a player ends up watching a five-second bar that was always
+going to be refused — or losing a reagent to a cast they cancelled:
+
+| moment | what is settled | where |
+| --- | --- | --- |
+| **activation** (before the cast bar) | is the reagent there — **checked only** | `SkillStrategy.checkCastStart`, from `ActivateSkillHandler` |
+| **resolution** | range, line of sight, an eligible target | `SkillStrategy.isCastPossible` |
+| **resolution**, after that check | mana | `SkillExecutionService` |
+| **resolution**, in the script | the reagent — **checked again and taken** | the script, or the service it hands the work to |
+
+`checkCastStart` defaults to checking nothing; `Cartography` is the one skill that overrides it, asking
+`SurveyService.checkBlank` whether a sheet of blank vellum is in the live `Inventory`. It runs on the
+message thread inside the caster's own `modify` scope, so it is handed the `World` directly (there is no
+budget and no snapshot yet) and it may only read — it does no relational work and takes nothing. A
+refusal comes back as an `OpError` and is sent as an `OperationErrorSMSG`, so the player reads it in
+chat instead of watching a bar.
+
+**The early check never replaces the late one.** It is there for the player, not for correctness: the
+reagent is spent where it can be spent transactionally alongside the effect (`ChartService.mint` for a
+survey), and the seconds in between are long enough to drop, trade or use up what was counted. Checking
+at the start and taking at the end is exactly what `CraftingService.start`/`resolve` does — and it is
+what makes an interrupted, cancelled or walked-out-of cast cost nothing.
+
 ## 2. `zone-server/src/main/resources/master_skill_tree.yml` — the learnable subset
 
 A **master** (the player, not a bestia) spends skill points to invest levels into a

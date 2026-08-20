@@ -560,6 +560,12 @@ func is_ready_to_send() -> bool:
 	return _connection_state == ConnectionState.CONNECTED_AUTHED
 
 
+func current_master_key() -> String:
+	if ConnectionManager.selected_master_info == null:
+		return ""
+	return str(ConnectionManager.selected_master_info.MasterId)
+
+
 func _on_bnet_socket_connection_status_changed(status: int) -> void:
 	if status == 0:
 		# connection was closed, perform cleanup and inform the user.

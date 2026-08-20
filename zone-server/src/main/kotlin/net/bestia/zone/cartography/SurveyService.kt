@@ -1,11 +1,15 @@
 package net.bestia.zone.cartography
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.bnet.proto.OperationSuccessProto.OpSuccess
 import net.bestia.zone.cartography.chart.ChartService
+import net.bestia.zone.ecs.account.Master
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.WorldView
 import net.bestia.zone.ecs.item.Inventory
+import net.bestia.zone.ecs.item.ItemTemplateRegistry
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OperationSuccessSMSG
@@ -16,6 +20,9 @@ import org.springframework.stereotype.Service
 
 /**
  * Carries a resolved survey from the tick thread to the database and back.
+ *
+ * [checkBlank] is the odd one out: it runs at *activation*, from the skill script, and only looks. What the
+ * survey costs is taken by `ChartService.mint` at the far end, so a cancelled cast pays nothing.
  *
  * Three things have to happen in three different places and this is what sequences them: the chart is written
  * relationally (off-tick, transactional), the live inventory the player is looking at is corrected (on the
@@ -52,7 +59,42 @@ class SurveyService(
   private val asyncJobExecutor: AsyncJobExecutor,
   private val worldService: WorldService,
   private val outMessageProcessor: OutMessageProcessor,
+  private val itemTemplates: ItemTemplateRegistry,
 ) {
+
+  /**
+   * Whether a survey may start at all: is there a master here, and is there anything to draw on.
+   *
+   * **Takes nothing.** The blank is spent by [ChartService.mint] when the channel finishes, so a cast that
+   * is interrupted, cancelled or walked out of costs its caster nothing. This is the earlier of the two
+   * checks that guard one removal, and it exists for the player rather than for correctness: without it the
+   * refusal arrives five seconds late, after a cast bar that was always going to come to nothing.
+   *
+   * Reads the live [Inventory] rather than the container, because it runs on a message thread holding the
+   * world lock, where a transaction may not go - and because the mirror is what the player is looking at. An
+   * item promised to a trade is already out of it, so it cannot be counted here.
+   *
+   * @return the refusal to report, or null when the cast may start
+   */
+  fun checkBlank(world: World, entityId: EntityId): OpError? {
+    if (world.get(entityId, Master::class) == null) {
+      // Only a master holds charts, and only a master tree teaches CARTOGRAPHY - so an honest client never
+      // sends this and the generic code plus a log is the whole answer.
+      LOG.warn { "Entity $entityId is not a master and cannot survey" }
+      return OpError.CHART_NOT_FOUND
+    }
+
+    val blankItemId = itemTemplates.idOf(ChartService.BLANK_IDENTIFIER)
+    if (blankItemId == null) {
+      // items.yml is imported at boot, so this is a broken deployment rather than anything a player did.
+      LOG.error { "items.yml is missing '${ChartService.BLANK_IDENTIFIER}'; nobody can survey anything" }
+      return OpError.CHART_NOT_FOUND
+    }
+
+    val holdsOne = world.get(entityId, Inventory::class)?.getItems()?.any { it.itemId == blankItemId } == true
+
+    return if (holdsOne) null else OpError.CHART_NEEDS_BLANK
+  }
 
   /**
    * Charts a disc around [centre] for [masterId], and reports the outcome to [accountId].

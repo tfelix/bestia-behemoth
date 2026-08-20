@@ -56,7 +56,13 @@ data class TileId(val level: Int, val tx: Long, val ty: Long) {
     heightPx = TILE_PIXELS
   )
 
-  /** The tile one level coarser that contains this one. Null at the coarsest level a world has. */
+  /**
+   * The tile one level coarser that contains this one, or null at [MAX_LEVEL].
+   *
+   * Bounded by the arithmetic ceiling and not by the world's own coarsest level, because a [TileId] does not
+   * know how big the world is - `fitLevel` is the world's business. A caller walking up the pyramid has to
+   * stop at its own fit level; this only guarantees the span cannot overflow.
+   */
   fun parent(): TileId? =
     if (level >= MAX_LEVEL) null else TileId(level + 1, floorDiv2(tx), floorDiv2(ty))
 
@@ -80,9 +86,11 @@ data class TileId(val level: Int, val tx: Long, val ty: Long) {
     /**
      * Tile edge in pixels.
      *
-     * 256 rather than 512: the fog mask granularity, the survey cell and the tile all have to agree, and a
-     * 256 m survey cell over a 256 px tile means level 0 carries exactly one fog bit per tile - the simplest
-     * possible boundary case, and one that falls out of the ladder instead of being special-cased.
+     * 256 rather than 512: the fog mask granularity, the survey cell and the tile all have to agree, and 256
+     * is a whole number of `SurveyGrid.CELL_METRES` cells at every level - sixteen of them across an L0 tile,
+     * one across an L4 tile, and a fraction of one above that, which is where the mask starts sampling per
+     * pixel instead. A tile edge is therefore always a cell boundary, so a tile and its neighbour read the
+     * same bits for the ground between them rather than each rounding it their own way.
      */
     const val TILE_PIXELS = 256
 

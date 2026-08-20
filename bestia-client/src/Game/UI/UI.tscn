@@ -15,10 +15,10 @@
 [ext_resource type="PackedScene" uid="uid://bgk82i8fwg1a2" path="res://Game/UI/Dialog/MessageDialog.tscn" id="13_dialog"]
 [ext_resource type="PackedScene" path="res://Game/UI/Clock/Clock.tscn" id="14_clock"]
 [ext_resource type="PackedScene" uid="uid://bcrafting0win" path="res://Game/UI/Crafting/Crafting.tscn" id="15_craft"]
-[ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/Minimap.tscn" id="16_minimap"]
 [ext_resource type="PackedScene" path="res://Game/UI/Map/MapOverlay.tscn" id="17_mapovl"]
 [ext_resource type="Script" uid="uid://chthlxaerqb0t" path="res://Game/UI/Map/map_source.gd" id="18_mapsrc"]
+[ext_resource type="PackedScene" uid="uid://btradewin0001" path="res://Game/UI/Trade/Trade.tscn" id="19_trade"]
 
 [node name="UI" type="Control" unique_id=549600065]
 layout_mode = 3
@@ -81,7 +81,7 @@ layout_mode = 1
 content = ExtResource("15_craft")
 window_title = "Crafting"
 
-[node name="TradeWin" parent="." instance=ExtResource("8_wdgtw")]
+[node name="TradeWin" parent="." unique_id=446005974 instance=ExtResource("8_wdgtw")]
 visible = false
 layout_mode = 1
 content = ExtResource("19_trade")

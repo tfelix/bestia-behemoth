@@ -92,7 +92,7 @@ func show_local(key: String) -> void:
 ## Silently does nothing when no master is selected, which is the case when [code]Game.tscn[/code] was run
 ## straight from the editor: there is nowhere to record it, so showing it would mean showing it every run.
 func show_local_once(key: String) -> void:
-	var master_key := _current_master_key()
+	var master_key := ConnectionManager.current_master_key()
 	if master_key.is_empty():
 		return
 
@@ -112,7 +112,7 @@ func show_local_once(key: String) -> void:
 ## Forgets that this master has seen [param key], so it will be shown again. For debugging and for a future
 ## "replay the tutorial" option; nothing calls it yet.
 func forget_local(key: String) -> void:
-	var master_key := _current_master_key()
+	var master_key := ConnectionManager.current_master_key()
 	if master_key.is_empty():
 		return
 
@@ -125,15 +125,6 @@ func forget_local(key: String) -> void:
 	seen_for_master.erase(key)
 	_seen[master_key] = seen_for_master
 	_save_seen()
-
-
-## Identifies whose dialogs these are. MasterId is set by ConnectionManager.select_bestia_master() before it
-## switches to Game.tscn, so it is available as early as a scene's _ready - the same reasoning
-## [code]shortcuts.gd[/code] spells out for its own key.
-func _current_master_key() -> String:
-	if ConnectionManager.selected_master_info == null:
-		return ""
-	return str(ConnectionManager.selected_master_info.MasterId)
 
 
 func _load_seen() -> void:

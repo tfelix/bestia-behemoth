@@ -8,15 +8,13 @@ extends Control
 ## drawing is one thing, because a minimap is a map view that happens to be small.
 ##
 ## [b]Zoom is discrete.[/b] A level means a fixed metres-per-pixel, so a tile is always drawn at its native
-## 256 pixels and the map stays crisp. Zooming changes which level is fetched rather than scaling what is
+## size and the map stays crisp. Zooming changes which level is fetched rather than scaling what is
 ## already here, which is what keeps hand-drawn line work from turning to mush.
 ##
 ## [b]Uncharted ground is this view's own background.[/b] The server answers 404 for a tile the player has
 ## charted none of, and leaves the rest transparent where their charts stop - so the fog is simply whatever is
 ## painted underneath, and painting it is this control's job. There is no separate fog layer beyond that,
 ## because a mask composited on the client would mean the client had been sent the picture underneath it.
-
-const _TILE := 256
 
 ## Ground the player holds no chart of.
 ##
@@ -46,6 +44,17 @@ var centre := Vector2.ZERO
 var _min_level: int = 0
 var _max_level: int = 9
 var _metres_per_voxel: float = 1.0
+
+## Tile edge in pixels, from [code]/meta[/code]. Read rather than assumed: it sets both the metres a tile
+## spans and the rectangle one is drawn into, so a server that changed it would otherwise misplace every tile
+## rather than fail.
+var _tile_pixels: int = 256
+
+## World extent in metres, or zero before [code]/meta[/code] answers. Zero means "do not clamp" - an
+## unclamped map is a worse map, but a map, and a wrong extent would be an empty one.
+var _world_width: float = 0.0
+var _world_height: float = 0.0
+
 var _dragging := false
 
 
@@ -69,7 +78,11 @@ func _on_meta_ready(meta: Dictionary) -> void:
 	_min_level = int(meta.get("minLevel", 0))
 	_max_level = int(meta.get("maxLevel", 9))
 	_metres_per_voxel = float(meta.get("metresPerVoxel", 1.0))
+	_tile_pixels = maxi(int(meta.get("tileSize", 256)), 1)
+	_world_width = float(meta.get("worldWidthMetres", 0.0))
+	_world_height = float(meta.get("worldHeightMetres", 0.0))
 	level = clampi(level, _min_level, _max_level)
+	_clamp_centre()
 	queue_redraw()
 
 
@@ -91,7 +104,9 @@ func centre_on_player() -> void:
 
 
 func _process(_delta: float) -> void:
-	if follow_player and visible:
+	# In the tree, not merely this control's own flag: the minimap's panel hides itself when the player holds
+	# no chart, and its view underneath stays `visible` - so following would redraw a widget nobody can see.
+	if follow_player and is_visible_in_tree():
 		centre_on_player()
 
 
@@ -104,7 +119,7 @@ func _draw() -> void:
 		return
 
 	var mpp := _metres_per_pixel()
-	var span := _TILE * mpp
+	var span := _tile_pixels * mpp
 	var half := size * 0.5
 
 	var west := centre.x - half.x * mpp
@@ -112,8 +127,14 @@ func _draw() -> void:
 	var south := centre.y - half.y * mpp
 	var north := centre.y + half.y * mpp
 
-	for ty in range(floori(south / span), floori(north / span) + 1):
-		for tx in range(floori(west / span), floori(east / span) + 1):
+	# Only the tiles the world actually has. The world wraps, and the server folds an out-of-world tile back
+	# onto a real one - so without this the map draws the same ground once per world width, which at the
+	# coarse levels fills the panel with copies of a chart a few pixels across.
+	var last_x := _last_tile(_world_width, span)
+	var last_y := _last_tile(_world_height, span)
+
+	for ty in range(maxi(floori(south / span), 0), mini(floori(north / span), last_y) + 1):
+		for tx in range(maxi(floori(west / span), 0), mini(floori(east / span), last_x) + 1):
 			var key := MapSource.key_of(level, tx, ty)
 			var texture := source.cached(key)
 			if texture == null:
@@ -123,7 +144,7 @@ func _draw() -> void:
 			# The tile's north-west corner: world y grows north and screen y grows down, so the *top* edge
 			# of a tile is its ty+1 boundary.
 			var corner := _to_screen(Vector2(tx * span, (ty + 1) * span))
-			draw_texture_rect(texture, Rect2(corner, Vector2(_TILE, _TILE)), false)
+			draw_texture_rect(texture, Rect2(corner, Vector2(_tile_pixels, _tile_pixels)), false)
 
 	_draw_player()
 
@@ -168,6 +189,7 @@ func _gui_input(event: InputEvent) -> void:
 		centre.x -= event.relative.x * mpp
 		centre.y += event.relative.y * mpp
 		follow_player = false
+		_clamp_centre()
 		queue_redraw()
 		accept_event()
 
@@ -186,11 +208,32 @@ func _zoom(steps: int, at: Vector2) -> void:
 	var mpp := _metres_per_pixel()
 	centre.x = anchor.x - (at.x - size.x * 0.5) * mpp
 	centre.y = anchor.y + (at.y - size.y * 0.5) * mpp
+	_clamp_centre()
 	queue_redraw()
 
 
 func _metres_per_pixel() -> float:
 	return pow(2.0, level)
+
+
+## Index of the last tile the world has along an axis, or a bound past any screen when the extent is unknown.
+func _last_tile(metres: float, span: float) -> int:
+	if metres <= 0.0:
+		return 1 << 30
+
+	return maxi(ceili(metres / span), 1) - 1
+
+
+## Holds the view over the world.
+##
+## The world wraps but the map deliberately draws it once, so panning has to stop somewhere and the world's
+## own edge is the only honest place. Without this the centre walks off into ground that has no tiles, and
+## the panel becomes fog with nothing in it to say which way is back.
+func _clamp_centre() -> void:
+	if _world_width > 0.0:
+		centre.x = clampf(centre.x, 0.0, _world_width)
+	if _world_height > 0.0:
+		centre.y = clampf(centre.y, 0.0, _world_height)
 
 
 func _to_screen(world: Vector2) -> Vector2:

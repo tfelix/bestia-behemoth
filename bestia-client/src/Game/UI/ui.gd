@@ -17,7 +17,7 @@ const _BASIC_SKILL_PRIMER := "BASIC_SKILL_PRIMER"
 @onready var _map_overlay: MapOverlay = $MapOverlay
 
 ## Item ids of the map charts, from items.yml. The minimap exists exactly while one of these is carried.
-const _CHART_ITEM_IDS := [21]
+const _CHART_ENABLING_ITEM_IDS := [21]
 
 ## The charts the player was last seen holding, as a sorted signature. Compared rather than counted, so
 ## swapping one chart for another - which changes what is visible without changing how many are held -
@@ -58,7 +58,9 @@ func _ready() -> void:
 	# The map lives beside the game rather than inside it: both views draw from one MapSource, so panning
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
 	# views ask for the player's position.
-	var entities := get_parent().get_node_or_null("EntityManager")
+	var entities := EntityManager.get_instance()
+	
+	get_parent().get_node_or_null("EntityManager")
 	_minimap.setup(_map_source, entities)
 	_map_overlay.setup(_map_source, entities)
 	_map_source.fetch_meta()
@@ -68,9 +70,6 @@ func _ready() -> void:
 	inventory.inventory_updated.connect(_on_inventory_updated.bind(inventory))
 	_on_inventory_updated(inventory)
 
-	# Queued rather than shown, so it lands behind the server's own welcome dialog instead of racing it.
-	# Everything in it is static - what Basic Skill unlocks at which rank - so it needs nothing from the
-	# server and is client-only. See DialogManager.show_local_once.
 	DialogManager.show_local_once(_BASIC_SKILL_PRIMER)
 
 
@@ -91,7 +90,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_inventory_updated(inventory: Inventory) -> void:
 	var held: Array[String] = []
 	for item in inventory.held_instances():
-		if item.item.item_id in _CHART_ITEM_IDS:
+		if item.item.item_id in _CHART_ENABLING_ITEM_IDS:
 			held.append("%d:%d" % [item.item.item_id, item.player_item_id])
 
 	held.sort()
@@ -101,7 +100,7 @@ func _on_inventory_updated(inventory: Inventory) -> void:
 
 	_chart_signature = signature
 	_minimap.set_has_chart(not held.is_empty())
-	_map_source.invalidate_coverage()
+	_map_source.set_chart_signature(signature)
 
 
 func _on_master_profile_inventory_win_toggled() -> void:

@@ -32,8 +32,8 @@ func _ready() -> void:
 	ConnectionManager.connect("chat_received", _on_chat_message_received)
 	ConnectionManager.connect("self_received", _on_self_message_received)
 	# After a load we request all entities and information about ourself.
-	ConnectionManager.get_all_entities()
 	ConnectionManager.get_self()
+	ConnectionManager.get_all_entities()
 
 
 ## Returns the Entity node the player currently controls (their bestia master), or

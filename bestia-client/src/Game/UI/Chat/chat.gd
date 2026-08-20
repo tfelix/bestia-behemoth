@@ -20,8 +20,10 @@ const BNET_MODE_MAP: Array[int] = [3, 0, 1]
 ##
 ## The chat window is the client's only system-message channel, and for a chat refusal it is also the right
 ## one: a player whose message went nowhere has to be told in the window they typed it in, since a toast
-## somewhere else would leave them retyping. The equip refusal is here for want of anywhere better - the
-## equipment window shows no text at all - and moves the day it grows a status line of its own.
+## somewhere else would leave them retyping. The equip and chart refusals are here for want of anywhere
+## better - neither the equipment window nor the map shows text at all - and move the day either grows a
+## status line of its own. A survey refused at cast start has nowhere else at all to be seen: it happens
+## while the player is looking at the world, not at a window.
 ##
 ## Matching on the name rather than the ordinal keeps a new denial reason from being re-declared here as a bare
 ## number, which is the duplication [code]DialogArg.KindName[/code] was introduced to stop.
@@ -33,6 +35,10 @@ const _REFUSALS := {
 	"basic_skill_party_locked": "Parties need Basic Skill Lv. 5.",
 	"basic_skill_trade_locked": "Trading needs Basic Skill Lv. 1.",
 	"equip_level_too_low": "You are not high enough level to wear that yet.",
+	"chart_needs_blank": "You have no blank vellum to draw on.",
+	"chart_not_found": "You are not carrying that chart.",
+	"chart_merge_same": "A chart cannot be joined with itself.",
+	"chart_stale_world": "That chart shows land that no longer exists.",
 	"trade_target_unavailable": "They cannot trade right now.",
 	"trade_out_of_range": "You are too far away to trade with them.",
 	"trade_declined": "%s declined the trade.",

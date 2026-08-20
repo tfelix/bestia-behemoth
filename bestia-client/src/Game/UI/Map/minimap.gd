@@ -19,10 +19,10 @@ const _LEVEL := 2
 
 
 func setup(source: MapSource, entities: Node) -> void:
-	_view.level = _LEVEL
 	_view.follow_player = true
 	_view.interactive = false
 	_view.setup(source, entities)
+	_view.go_to_level(_LEVEL)
 
 
 ## Called whenever the inventory changes: the widget exists exactly while a chart does.

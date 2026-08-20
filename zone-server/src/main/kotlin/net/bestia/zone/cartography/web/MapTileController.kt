@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import net.bestia.zone.cartography.tile.MapTileService
 import net.bestia.zone.cartography.tile.TileId
 import org.springframework.http.CacheControl
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -74,6 +75,13 @@ class MapTileController(
       tiles.tile(masterId, id)
     } catch (e: IllegalArgumentException) {
       throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+    } catch (e: MapTileService.RenderTimedOut) {
+      // Transient, and saying so is the whole point. The pool was busy, not the request malformed - so this
+      // names a moment to come back on rather than reporting a fault a client would be right to give up on.
+      LOG.warn(e) { "Tile $id timed out; asking the client back in $RETRY_AFTER_SECONDS s" }
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS.toString())
+        .build()
     } ?: return ResponseEntity.notFound().build()
 
     // Compared here rather than by a Spring `ShallowEtagHeaderFilter`, which computes the tag from the body it
@@ -101,6 +109,14 @@ class MapTileController(
 
     /** A year, which is the conventional ceiling and what `immutable` means in practice. */
     const val IMMUTABLE_DAYS = 365L
+
+    /**
+     * How long a client is asked to wait after a render timed out.
+     *
+     * Comfortably longer than the render that just failed to finish, so the retry meets a pool with room in
+     * it rather than rejoining the queue that caused the timeout.
+     */
+    const val RETRY_AFTER_SECONDS = 5L
 
     private val LOG = KotlinLogging.logger { }
   }

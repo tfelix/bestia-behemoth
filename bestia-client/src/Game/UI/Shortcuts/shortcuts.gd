@@ -91,18 +91,8 @@ func _find_container(row: int, number: int) -> ShortcutContainer:
 	return null
 
 
-## Identifies whose bar is currently on screen. MasterId is already set by
-## ConnectionManager.select_bestia_master() before it switches to Game.tscn, so it is available
-## this early - unlike SelfSMSG.MasterEntityId, which only arrives once the Game scene is up.
-## Empty when Game.tscn was run directly from the editor without going through MasterSelect.
-func _current_master_key() -> String:
-	if ConnectionManager.selected_master_info == null:
-		return ""
-	return str(ConnectionManager.selected_master_info.MasterId)
-
-
 func save_shortcuts() -> void:
-	var master_key = _current_master_key()
+	var master_key = ConnectionManager.current_master_key()
 	if master_key.is_empty():
 		push_warning("Shortcuts: no master selected, not persisting the bar")
 		return
@@ -172,7 +162,7 @@ func _apply_shortcuts_for_current_master() -> void:
 	for container in _shortcut_containers:
 		container.set_shortcut_data(ShortcutData.new())
 
-	var master_key = _current_master_key()
+	var master_key = ConnectionManager.current_master_key()
 	if master_key.is_empty() or not _all_shortcuts.has(master_key):
 		return
 
