@@ -61,6 +61,29 @@ class ChunkStreamSystem(
    */
   override val writes: ComponentClassSet = setOf(Position::class, Path::class, Grounded::class)
 
+  /**
+   * Gives the derived structures their residency, which nothing used to.
+   *
+   * `DerivedStore` builds on demand and its production callers all guard on `isTracked` first, so nothing ever
+   * put a chunk into it: walkability, line of sight and ground height answered "unknown" for the whole life of
+   * the process, and movement fell back to whatever height the client claimed. The subscription set is the
+   * right scope for it - a chunk somebody is holding is a chunk something may walk in - and these two hooks
+   * are the one place that already knows when a chunk enters and leaves it, refcounted across login, walking,
+   * a `reset` manifest, master deselection and disconnect alike.
+   *
+   * Wired here rather than in [ChunkService] because this is where both beans already meet, and because the
+   * lambdas must not touch the world until they fire: `derived()` forces world generation, and at bean
+   * construction time there is no world. They can only fire from inside [update], which is behind the
+   * `isReady` guard.
+   *
+   * Marking only, as both hooks require - `track` queues a build and returns, and the budget in step five pays
+   * for it.
+   */
+  init {
+    subscriptions.onFirstSubscriber { chunkService.derived().track(it) }
+    subscriptions.onLastSubscriber { chunkService.derived().forget(it) }
+  }
+
   /** Chunks a client has asked for and not yet been sent, nearest first. */
   private val queued = HashMap<Long, LinkedHashSet<ChunkPos>>()
 
@@ -311,7 +334,9 @@ class ChunkStreamSystem(
    * The chunks a player at [anchor] should hold.
    *
    * Horizontally a square of `viewRadiusChunks` around them. Vertically, the slabs that hold a *surface* in
-   * each column, clipped to `viewRadiusChunksVertical` around the player's own slab, plus that slab itself:
+   * each column - the generated terrain, the sea, cave passages, and whatever anybody has dug into, which
+   * [ChunkService.surfaceSlabsOf] answers as one set - clipped to `viewRadiusChunksVertical` around the
+   * player's own slab, plus that slab itself:
    *
    * ```
    * kept(column)  = (surfaces(column) ∩ [anchor.z - v, anchor.z + v]) ∪ { anchor.z }

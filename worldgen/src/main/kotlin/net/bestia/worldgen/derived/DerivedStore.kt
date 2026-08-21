@@ -49,7 +49,12 @@ class DerivedStore(
 
   fun walkableOf(chunk: ChunkPos): WalkableTile = entryOf(chunk).walkable
 
-  /** True when this chunk's structures are queued for a rebuild and may not reflect recent edits. */
+  /**
+   * True when this chunk's structures are queued and so may not reflect recent edits.
+   *
+   * Covers a chunk that has never been built at all as well as one whose build went out of date - [queue]
+   * means "needs building" for both, and neither has an answer a caller can trust yet.
+   */
   fun isStale(chunk: ChunkPos) = chunk in queue
 
   /**
@@ -63,11 +68,36 @@ class DerivedStore(
   fun isTracked(chunk: ChunkPos) = chunk in entries
 
   /**
+   * Asks for a chunk's structures to be built, out of the ordinary budget, without building them here.
+   *
+   * **The entry point this class was missing.** Every other way in builds on demand, and the only production
+   * callers guard themselves on [isTracked] first - so nothing ever put a chunk into [entries], the queue
+   * [rebuild] drains was never filled, and every walkability query in the server answered "unknown" for the
+   * whole life of the process. A subsystem that is complete, tested and never *reached* looks exactly like one
+   * that works.
+   *
+   * So the residency has to be pushed in by whoever knows which chunks matter - in `zone-server` that is the
+   * chunk subscription set, since a chunk somebody is holding is a chunk something may walk in. Paid for out
+   * of [rebuild]'s budget rather than here, because a login subscribes a whole view volume at once and
+   * building that inline would be the one hitch on the zone thread this class exists to prevent.
+   *
+   * Idempotent, and cheap enough to call per arrival: a chunk that is already built is left alone rather than
+   * queued for a pointless rebuild.
+   */
+  fun track(chunk: ChunkPos) {
+    if (chunk in entries) return
+    queue.add(chunk)
+  }
+
+  /**
    * Marks a chunk's structures stale after a delta was applied to it.
    *
    * Only this chunk. Cross-chunk walkability is resolved at query time from two tiles rather than stored,
    * so an edit never invalidates a neighbour - which is what keeps the blast radius of placing one block
    * to exactly one tile.
+   *
+   * An edit to a chunk nobody is tracking is dropped, deliberately: there is nothing to keep current, and
+   * whenever the chunk is tracked it will be built from the merged voxels the delta is already part of.
    */
   fun invalidate(chunk: ChunkPos) {
     val entry = entries[chunk] ?: return
@@ -94,16 +124,21 @@ class DerivedStore(
       val chunk = iterator.next()
       iterator.remove()
 
-      // `invalidate`/`forget` keep `entries` and `queue` in lockstep, so a queued chunk always has an entry;
-      // guarded rather than asserted because a dequeued chunk that turned out to have none should not count
-      // as rebuilt.
-      val entry = entries[chunk] ?: continue
-      build(chunk).let {
-        entry.summary = it.summary
-        entry.opacity = it.opacity
-        entry.walkable = it.walkable
+      // A queued chunk may have no entry yet - that is what `track` queues, a first build rather than a
+      // rebuild - so an absent entry is inserted rather than skipped. An existing one is updated in place so
+      // that anything holding the entry keeps seeing the current structures.
+      val built = build(chunk)
+      val entry = entries[chunk]
+
+      if (entry == null) {
+        entries[chunk] = built
+      } else {
+        entry.summary = built.summary
+        entry.opacity = built.opacity
+        entry.walkable = built.walkable
         entry.stale = false
       }
+
       done++
     }
 

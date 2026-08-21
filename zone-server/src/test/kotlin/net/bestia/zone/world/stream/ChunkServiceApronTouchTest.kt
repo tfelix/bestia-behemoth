@@ -19,6 +19,12 @@ import kotlin.test.assertTrue
  * re-mesh when a carve lands close enough to a shared border. `ChunkService.carve` has to tell a holder about
  * that neighbour too, with an empty patch, or the two sides of the border draw from different data forever.
  *
+ * **On all three axes.** The vertical arm is the later half of the same bug: a chunk draws the surface at its
+ * own *floor* and `GatherStrip` crosses into the slab below to do it, so a carve near a slab boundary leaves
+ * the neighbouring slab's mesh stale exactly where a shaft crosses it. `TerrainRenderer.Invalidate` only
+ * revisits chunks that recorded this one as *missing*, and a slab that is held is not in that list, so nothing
+ * else would ever repair it.
+ *
  * Against a genuinely generated world, for the same reason [ChunkServiceCaveStreamingTest] is: a synthetic
  * voxel grid would only prove the touch bookkeeping in isolation, not that a real carve's `voxelX`/`voxelY`
  * localise the way this depends on.
@@ -149,6 +155,93 @@ class ChunkServiceApronTouchTest {
       assertNull(
         changes[origin.copy(x = origin.x + dx, y = origin.y + dy)],
         "chunk offset ($dx,$dy) does not border the carve and must not be touched"
+      )
+    }
+  }
+
+  /**
+   * Carves at an explicit local z inside a slab that is guaranteed solid, and returns the chunk it landed in.
+   *
+   * A whole slab below the one holding [solidVoxelZAt] rather than that slab itself, so every local z from the
+   * floor to the ceiling is buried: the tests below need to aim at a slab *ceiling*, and the ceiling of the
+   * slab the surface is in would be open air.
+   */
+  private fun carveAtLocalZ(service: ChunkService, localZ: Int): ChunkPos {
+    val size = config.chunkSize.toLong()
+    val voxelX = size / 2
+    val voxelY = size / 2
+
+    val surfaceSlab = Math.floorDiv(solidVoxelZAt(voxelX, voxelY).toLong(), config.chunkHeight.toLong()).toInt()
+    val slab = surfaceSlab - 1
+    val voxelZ = slab * config.chunkHeight + localZ
+
+    service.carve(CarveBrush.sphere(voxelX + 0.5, voxelY + 0.5, voxelZ + 0.5, CARVE_RADIUS))
+
+    return ChunkPos(
+      Math.floorDiv(voxelX, size).toInt(),
+      Math.floorDiv(voxelY, size).toInt(),
+      slab
+    )
+  }
+
+  @Test
+  fun `a carve near a slab ceiling also touches the slab above, and no others`() {
+    val service = newService()
+
+    // Three voxels off the ceiling, exactly mirroring the horizontal case above: within CARVE_RADIUS of the
+    // top two cells (TerrainPatch.ApronLow), while the nearest voxel of the slab above stays 2.5 voxels away
+    // and so must not change.
+    val origin = carveAtLocalZ(service, config.chunkHeight - 3)
+
+    val changes = service.drainChanges().associateBy { it.chunk }
+
+    val real = changes[origin]
+    assertNotNull(real, "the carved chunk itself must be reported")
+    assertTrue(real!!.removals.isNotEmpty(), "the carved chunk's own voxels changed")
+
+    val above = changes[origin.copy(z = origin.z + 1)]
+    assertNotNull(above, "the slab above reads this chunk's top cells into its mesh apron and must be told")
+    assertTrue(above!!.removals.isEmpty(), "the slab above's own content did not change")
+    assertEquals(above.fromRevision, above.toRevision, "an apron-only touch must not bump a revision")
+
+    assertNull(
+      changes[origin.copy(z = origin.z - 1)],
+      "the slab below shares no boundary with a carve at the ceiling and must not be touched"
+    )
+  }
+
+  @Test
+  fun `a carve near a slab floor also touches the slab below, and no others`() {
+    val service = newService()
+
+    val origin = carveAtLocalZ(service, 2)
+
+    val changes = service.drainChanges().associateBy { it.chunk }
+    assertNotNull(changes[origin], "the carved chunk itself must be reported")
+
+    val below = changes[origin.copy(z = origin.z - 1)]
+    assertNotNull(below, "a chunk draws the surface at its own floor from the slab beneath, which must be told")
+    assertTrue(below!!.removals.isEmpty(), "the slab below's own content did not change")
+
+    assertNull(
+      changes[origin.copy(z = origin.z + 1)],
+      "the slab above shares no boundary with a carve at the floor and must not be touched"
+    )
+  }
+
+  @Test
+  fun `a carve in mid-slab touches neither vertical neighbour`() {
+    val service = newService()
+
+    val origin = carveAtLocalZ(service, config.chunkHeight / 2)
+
+    val changes = service.drainChanges().associateBy { it.chunk }
+    assertNotNull(changes[origin], "the carved chunk itself must be reported")
+
+    for (dz in listOf(-1, 1)) {
+      assertNull(
+        changes[origin.copy(z = origin.z + dz)],
+        "slab offset $dz has no border with a mid-slab carve and must not be touched"
       )
     }
   }

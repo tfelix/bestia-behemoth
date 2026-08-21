@@ -87,11 +87,15 @@ class MoveActiveEntityHandler(
    * wall already looks like; a denial toast for every such click would be noise for something the player
    * caused by looking at the wrong spot on screen, not by doing anything wrong.
    *
-   * [LocalWalkQuery.canStep] only answers for a chunk whose derived walkability tile already exists, and
-   * nothing in this build populates that tile ahead of the first query for it - the same reason a fresh
-   * spawn's own chunk is `isResident == false` moments after the manifest that just streamed it. Refusing a
-   * step on that alone would strand a player in the chunk they just arrived in, which is worse than the
-   * validation this is meant to add. So a side this build cannot yet vouch for is treated as walkable rather
+   * [LocalWalkQuery.canStep] only answers for a chunk whose derived walkability tile already exists. That used
+   * to be *no chunk at all* - nothing populated the store, so this validation never once refused a step and
+   * every path was accepted whole. `ChunkStreamSystem` now tracks a chunk's structures when it enters somebody's
+   * subscription, so the window is the handful of ticks the rebuild budget needs after a chunk arrives rather
+   * than the life of the process. It is still a window: a fresh spawn's own chunk can be `isResident == false`
+   * moments after the manifest that streamed it.
+   *
+   * Refusing a step on that alone would strand a player in the chunk they just arrived in, which is worse than
+   * the validation this is meant to add. So a side that cannot yet be vouched for is treated as walkable rather
    * than blocked - the same trade [net.bestia.zone.navigation.graph.MacroGraphService.isStillPassable] makes
    * for a structural edge whose chunk is not resident: absence of evidence is not evidence of a wall.
    */

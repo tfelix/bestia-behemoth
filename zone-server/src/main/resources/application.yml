@@ -108,17 +108,21 @@ chunk-stream:
   # 128 is about 64 MB.
   hot-chunk-capacity: 128
   # Cached vertical slab ranges, one per horizontal chunk column (two ints each, so this can be generous).
-  # Computing one means a feature query plus ~1000 noise evaluations; never invalidated, because the
-  # heightfield it derives from is immutable and player edits change voxels rather than terrain height.
+  # Computing one means a feature query plus ~1000 noise evaluations; never invalidated, because what it holds
+  # is the *generated* slabs and the heightfield those derive from is immutable. The slabs a player's digging
+  # adds are tracked separately and unioned in on read - the heightfield cannot express a hole.
   slab-cache-capacity: 16384
   # New slab ranges computed per tick, across all players. The cache makes a repeated manifest free, but the
   # first one over fresh ground still has to sample every column in the view volume - doing all 121 in one
   # tick stalls the zone thread for whole ticks. So a manifest grows over a second or so instead, which the
   # protocol already supports since it is a diff. The player's own column is never deferred.
   slab-computations-per-tick: 4
-  # Derived structures (walkable spans, opacity) rebuilt per tick. Queries serve the stale copy until then,
-  # which beats a rebuild hitch on the zone thread every time somebody places a block.
-  derived-rebuilds-per-tick: 2
+  # Derived structures (walkable spans, opacity, column summaries) built or rebuilt per tick, across all
+  # players. Queries serve the stale copy until then, which beats a rebuild hitch on the zone thread every time
+  # somebody places a block. This budget now also pays for the *first* build of every chunk entering a
+  # subscription - a login is a whole view volume at once - so at tick-rate 20 this is 160 chunks a second and
+  # fresh ground becomes walkable in under a second rather than in three.
+  derived-rebuilds-per-tick: 8
   # Whether the /carve chat command is honoured. It also needs the TERRAIN authority.
   allow-debug-edits: true
 

@@ -565,6 +565,56 @@ class DerivedStructureTest {
   }
 
   @Test
+  fun `tracking a chunk queues a first build and pays for it out of the budget`() {
+    // The entry point the store went without, and the reason every walkability query in zone-server answered
+    // "unknown" for the life of the process: everything else builds on demand, and the callers that matter all
+    // guard on `isTracked` first, so nothing ever put a chunk in. Residency has to be pushed in from outside -
+    // and out of the same budget as a rebuild, because a login subscribes a whole view volume at once.
+    var builds = 0
+    val store = DerivedStore(voxels = {
+      builds++
+      flatGround()
+    })
+
+    store.track(pos)
+
+    assertFalse(store.isTracked(pos), "tracking asks for a build, it does not perform one")
+    assertTrue(store.isStale(pos), "an unbuilt chunk has no answer a caller can trust yet")
+    assertEquals(0, builds)
+    assertEquals(1, store.pendingRebuilds)
+
+    assertEquals(1, store.rebuild(budget = 1))
+    assertTrue(store.isTracked(pos))
+    assertFalse(store.isStale(pos))
+    assertEquals(1, builds)
+    assertEquals(3, store.summaryOf(pos).surfaceAt(0, 0), "the build is a real one, not a placeholder")
+
+    // Idempotent: a chunk somebody is already holding must not be queued for a pointless rebuild when a second
+    // player walks into it, which at a view volume apiece would be most of what the budget ever did.
+    store.track(pos)
+    assertEquals(0, store.pendingRebuilds)
+    assertEquals(1, builds)
+  }
+
+  @Test
+  fun `forgetting a tracked chunk drops it, and it can be tracked again`() {
+    val store = DerivedStore(voxels = { flatGround() })
+
+    store.track(pos)
+    store.rebuild(budget = 1)
+    assertEquals(1, store.trackedChunks)
+
+    // The last subscriber leaving. Nothing is holding the chunk, so nothing needs its structures.
+    store.forget(pos)
+    assertFalse(store.isTracked(pos))
+    assertEquals(0, store.trackedChunks)
+    assertEquals(0, store.pendingRebuilds)
+
+    store.track(pos)
+    assertEquals(1, store.pendingRebuilds, "a forgotten chunk is tracked again when somebody comes back")
+  }
+
+  @Test
   fun `a zero budget rebuilds nothing and keeps the work queued`() {
     val store = DerivedStore(voxels = { flatGround() })
     store.summaryOf(pos)

@@ -183,14 +183,42 @@ class ChunkService(
   private val baseHashes = Lru<ChunkPos, Long>(settings.encodedCacheCapacity)
 
   /**
-   * Vertical slabs per horizontal chunk column. See [surfaceSlabsOf] for why this cache is load bearing.
+   * The *generated* vertical slabs per horizontal chunk column. See [surfaceSlabsOf] for why this cache is
+   * load bearing.
    *
-   * Keyed on `(x, y)` only, and never invalidated, because the heightfield it derives from is immutable. Held
-   * far more generously than the chunk caches: an entry is a two- or three-element array against half a
-   * megabyte for a decoded chunk, and a hit here is what keeps recomputing a manifest off the tick thread's
-   * critical path.
+   * Keyed on `(x, y)` only, and never invalidated, because the heightfield and vector features it derives
+   * from are immutable. Held far more generously than the chunk caches: an entry is a two- or three-element
+   * array against half a megabyte for a decoded chunk, and a hit here is what keeps recomputing a manifest
+   * off the tick thread's critical path.
+   *
+   * **Not the whole answer any more.** What a player has to be offered is wherever there is *content*, and a
+   * carve creates content in a slab the heightfield never mentions - see [editedSlabs]. This cache holds the
+   * half that genuinely cannot change; the edit half is layered over it on read.
    */
   private val slabs = Lru<Pair<Int, Int>, IntArray>(settings.slabCacheCapacity)
+
+  /**
+   * Slabs a column holds only because somebody dug into it, keyed the same way as [slabs].
+   *
+   * The heightfield cannot express a hole. A column's generated slab span is bounded by its own ground
+   * height, so a shaft carved through the floor of the lowest slab that span mentions lands in a slab nobody
+   * is ever offered - generated, cached, and never announced. The client cannot paper over it either:
+   * `TerrainPatch.GatherStrip` extends the lowest voxel it actually holds downward rather than reading absent
+   * terrain as air, and in a carved column that voxel *is* air, so the floor of the shaft has no sign change
+   * to mesh and is drawn as nothing at all.
+   *
+   * Records `z - 1` alongside `z`, and that is not belt and braces. [ChunkCoords.offeredSlabs] pulls in a
+   * floor neighbour only when it is itself in the surface set, and reads the kept set once without chasing
+   * what it adds, so a shaft that bottoms out on a slab floor needs the slab beneath named outright. It is
+   * conservative in the direction `GeneratedWorld.contentSlabsOf` already argues for: one empty chunk costs a
+   * few bytes, one missing chunk is a hole in the world.
+   *
+   * Not an LRU, and not evictable: forgetting an entry would silently withdraw terrain a player is standing
+   * on. It grows with the number of *columns* anyone has ever dug in, holding a two- or three-element set
+   * each, and lives exactly as long as the deltas it describes - `ChunkStore`'s blob store is in memory, so
+   * both are gone on restart together.
+   */
+  private val editedSlabs = HashMap<Pair<Int, Int>, MutableSet<Int>>()
 
   private data class EncodedKey(val chunk: ChunkPos, val revision: Int)
 
@@ -265,23 +293,60 @@ class ChunkService(
    * walking pace is every thirty-two metres. Uncached that is over a hundred thousand height evaluations on
    * the tick thread against a fifty-millisecond budget.
    *
-   * Caching is sound rather than a gamble: the answer is a pure function of the base heightfield and the
-   * vector features, both immutable after world creation. Player edits change *voxels*, never the
-   * heightfield, so no edit can invalidate this - which is why there is no invalidation path and should not
-   * be one.
+   * Caching the *generated* half is sound rather than a gamble: it is a pure function of the base heightfield
+   * and the vector features, both immutable after world creation, so nothing can invalidate it and there is
+   * deliberately no invalidation path.
+   *
+   * ### Player edits are not part of that argument, and used to be assumed into it
+   *
+   * The old note here reasoned that an edit changes voxels rather than the heightfield and therefore cannot
+   * invalidate the cache. True, and it answered the wrong question: this method decides where there is
+   * *content worth streaming*, and a carve creates content in a slab the heightfield does not mention.
+   * [editedSlabs] holds that half and is unioned in on read - so the expensive computation stays cached and
+   * uninvalidated while the answer still moves when somebody digs.
    */
-  fun surfaceSlabsOf(column: ChunkPos): IntArray = slabs.getOrPut(column.x to column.y) {
-    computed++
-    computeSurfaceSlabs(column)
+  fun surfaceSlabsOf(column: ChunkPos): IntArray {
+    val key = column.x to column.y
+    val generated = slabs.getOrPut(key) {
+      computed++
+      computeSurfaceSlabs(column)
+    }
+
+    return withEdits(key, generated)
   }
 
   /**
-   * The cached slabs, or `null` if they have not been computed yet.
+   * The cached slabs, or `null` if the *generated* half has not been computed yet.
    *
    * Lets a caller distinguish "free" from "expensive" and spend a budget accordingly, rather than discovering
    * the cost after paying it. See [ChunkStreamConfig.slabComputationsPerTick].
+   *
+   * Unions the edits exactly as [surfaceSlabsOf] does. Anything else would have the budgeted path in
+   * `ChunkStreamSystem.desiredChunks` offer a narrower set than the unbudgeted one, so terrain would appear
+   * and then be withdrawn depending on which branch a tick happened to take.
    */
-  fun cachedSlabsOf(column: ChunkPos): IntArray? = slabs[column.x to column.y]
+  fun cachedSlabsOf(column: ChunkPos): IntArray? {
+    val key = column.x to column.y
+    return slabs[key]?.let { withEdits(key, it) }
+  }
+
+  /**
+   * The generated slabs plus whatever digging has added to this column, ascending.
+   *
+   * Returns [generated] itself in the overwhelmingly common case of a column nobody has touched, and in the
+   * case where the shaft never left the slabs the heightfield already named - so the hot path stays a bare
+   * array return and allocates nothing.
+   */
+  private fun withEdits(column: Pair<Int, Int>, generated: IntArray): IntArray {
+    val edited = editedSlabs[column] ?: return generated
+    if (edited.all { it in generated }) return generated
+
+    val merged = sortedSetOf<Int>()
+    for (z in generated) merged.add(z)
+    merged.addAll(edited)
+
+    return merged.toIntArray()
+  }
 
   private var computed = 0
 
@@ -557,51 +622,85 @@ class ChunkService(
   /**
    * Called by [ChunkStore] whenever a chunk's contents change.
    *
-   * Bumps the revision and marks the derived structures stale. The rebuild itself is *not* done here - it is
-   * queued and paid for out of a per-tick budget, so one swing of a pick cannot cost the zone thread a
-   * walkability rebuild in the middle of a tick.
+   * Bumps the revision, records the slab as one this column now has to be offered, and marks the derived
+   * structures stale. The rebuild itself is *not* done here - it is queued and paid for out of a per-tick
+   * budget, so one swing of a pick cannot cost the zone thread a walkability rebuild in the middle of a tick.
+   *
+   * The right place for the [editedSlabs] bookkeeping precisely because it is the single funnel every content
+   * change already goes through, whatever route the edit arrived by. An apron-only touch deliberately does
+   * *not* reach here: nothing about that chunk changed, so nothing about which slabs hold content did either.
    */
   private fun onChunkChanged(chunk: ChunkPos) {
     revisions[chunk] = revisionOf(chunk) + 1
+
+    val edited = editedSlabs.getOrPut(chunk.x to chunk.y) { HashSet(2) }
+    edited.add(chunk.z)
+    edited.add(chunk.z - 1)
+
     loaded.derived.invalidate(chunk)
     for (listener in changeListeners) listener(chunk)
   }
 
   /**
-   * Which of [chunk]'s horizontal neighbours have this chunk in their mesher's apron, given the voxels that
-   * were actually carved.
+   * Which of [chunk]'s neighbours have this chunk in their mesher's apron, given the voxels that were actually
+   * carved.
    *
    * A neighbour on the low side of an axis reads this chunk's high edge (its [MESH_APRON_HIGH]-cell apron),
    * and a neighbour on the high side reads this chunk's low edge (its [MESH_APRON_LOW]-cell apron) - see
    * `TerrainPatch.Gather` on the client for the geometry this mirrors. A diagonal neighbour only cares when
    * one carved voxel is in *both* aprons at once; a brush that runs along a whole edge without reaching the
    * corner must not spuriously touch it.
+   *
+   * ### All three axes, because the client's apron has always had three
+   *
+   * This walked `x` and `y` and left `chunk.z` alone, which read as symmetry not being worth the trouble. It
+   * is not symmetry: a chunk draws the surface at its own *floor*, and `TerrainPatch.GatherStrip` crosses
+   * into `chunkZ ± 1` to do it, so a carve within [MESH_APRON_LOW] voxels of a slab ceiling changes how the
+   * slab above draws its floor. The holder was never told, and `TerrainRenderer.Invalidate` only revisits
+   * chunks that recorded this one as *missing* - a slab that is held is not in that list - so the seam stayed
+   * stale for the rest of the session. That is the scar a shaft leaves exactly where it crosses a slab
+   * boundary.
+   *
+   * The offsets are a cross product over per-axis reach rather than eight hand-written cases, because in
+   * three dimensions there are twenty-six of them and the vertical diagonals are real: a voxel in this
+   * chunk's high-x *and* high-z aprons is read by `(x + 1, y, z + 1)`.
    */
   private fun apronNeighboursOf(chunk: ChunkPos, size: Int, carved: List<CarvedVoxel>): Set<ChunkPos> {
     val neighbours = LinkedHashSet<ChunkPos>()
     val sizeAsLong = size.toLong()
+    val height = loaded.config.chunkHeight
 
     for (voxel in carved) {
-      val localX = Math.floorMod(voxel.voxelX, sizeAsLong).toInt()
-      val localY = Math.floorMod(voxel.voxelY, sizeAsLong).toInt()
+      val xs = apronOffsetsOf(Math.floorMod(voxel.voxelX, sizeAsLong).toInt(), size)
+      val ys = apronOffsetsOf(Math.floorMod(voxel.voxelY, sizeAsLong).toInt(), size)
+      val zs = apronOffsetsOf(Math.floorMod(voxel.voxelZ, height), height)
 
-      val lowX = localX < MESH_APRON_HIGH
-      val highX = localX >= size - MESH_APRON_LOW
-      val lowY = localY < MESH_APRON_HIGH
-      val highY = localY >= size - MESH_APRON_LOW
-
-      if (lowX) neighbours.add(ChunkPos(chunk.x - 1, chunk.y, chunk.z))
-      if (highX) neighbours.add(ChunkPos(chunk.x + 1, chunk.y, chunk.z))
-      if (lowY) neighbours.add(ChunkPos(chunk.x, chunk.y - 1, chunk.z))
-      if (highY) neighbours.add(ChunkPos(chunk.x, chunk.y + 1, chunk.z))
-
-      if (lowX && lowY) neighbours.add(ChunkPos(chunk.x - 1, chunk.y - 1, chunk.z))
-      if (lowX && highY) neighbours.add(ChunkPos(chunk.x - 1, chunk.y + 1, chunk.z))
-      if (highX && lowY) neighbours.add(ChunkPos(chunk.x + 1, chunk.y - 1, chunk.z))
-      if (highX && highY) neighbours.add(ChunkPos(chunk.x + 1, chunk.y + 1, chunk.z))
+      for (dz in zs) {
+        for (dy in ys) {
+          for (dx in xs) {
+            if (dx == 0 && dy == 0 && dz == 0) continue
+            neighbours.add(ChunkPos(chunk.x + dx, chunk.y + dy, chunk.z + dz))
+          }
+        }
+      }
     }
 
     return neighbours
+  }
+
+  /**
+   * Which neighbour offsets along one axis read a voxel at [local] into their mesh apron.
+   *
+   * Always `0` - this chunk itself, so the cross product above covers the case where only one axis reaches -
+   * plus `-1` when the voxel is inside the low neighbour's [MESH_APRON_HIGH] reach, and `+1` when it is
+   * inside the high neighbour's [MESH_APRON_LOW] reach. Both can hold at once only for an [extent] smaller
+   * than the two aprons together, which no real chunk dimension is; the code allows it rather than asserting
+   * against it because the honest answer there is "both".
+   */
+  private fun apronOffsetsOf(local: Int, extent: Int): List<Int> = buildList(3) {
+    if (local < MESH_APRON_HIGH) add(-1)
+    add(0)
+    if (local >= extent - MESH_APRON_LOW) add(1)
   }
 
   /**
@@ -695,7 +794,9 @@ class ChunkService(
     private val LOG = KotlinLogging.logger { }
 
     // Must match TerrainPatch.ApronLow / TerrainPatch.ApronHigh in the client mesher - see the same precedent
-    // for CarveBrush.MIN_RADIUS, which is pinned against client rendering assumptions the same way.
+    // for CarveBrush.MIN_RADIUS, which is pinned against client rendering assumptions the same way. The match
+    // is on all three axes: the client gathers this apron vertically too, which is how a chunk draws the
+    // surface at its own floor at all.
     private const val MESH_APRON_LOW = 2
     private const val MESH_APRON_HIGH = 1
   }

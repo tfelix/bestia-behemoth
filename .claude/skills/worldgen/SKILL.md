@@ -343,6 +343,15 @@ today** — `zone-server`'s local pathfinding queries it directly for 45°-rule 
 `OpacityGrid`/`ColumnSummary` remain unread outside `worldgen` itself; don't assume line-of-sight or
 shelter logic exists just because the derived layer does.
 
+**And that one reader fired for the first time only recently — habit 6, in this module's own store.**
+Every accessor built on demand, `invalidate` early-returned when there was no entry, and the only
+production callers guarded themselves on `isTracked` first: so `entries` stayed empty forever, the queue
+`rebuild` drains was never filled, and `surfaceAt`/`canStep`/`isResident` answered null-or-false for the
+whole life of every server process. Movement silently trusted the client's own z instead. `track(chunk)`
+exists so residency can be *pushed in* by whoever knows which chunks matter — `zone-server` drives it off
+`ChunkSubscriptionService.onFirstSubscriber`/`onLastSubscriber` — and a queued chunk with no entry is now a
+first build rather than a skipped one. Count the output before believing the tests: all thirty passed.
+
 ## zone-server integration
 
 The world tier is **regenerated at boot, never persisted** — rasters/features are a pure function of
@@ -366,11 +375,17 @@ edits) is stored as deltas over that regenerated base.
   client requests only what it's missing (`ChunkRequestCMSG` → `ChunkDataSMSG`), edits fan out as
   `ChunkPatchSMSG`. `ChunkStaticEntitiesSMSG` streams the props from `propsIn()` above (trees, crystals,
   wound spires) to a dedicated client renderer.
-- **`GeneratedWorld.contentSlabsOf`** (`pipeline/StandardWorld.kt:120-154`) answers which vertical slabs
-  hold anything worth streaming — the terrain heightfield span unioned with intersecting cave passages —
-  but **`ChunkService.computeSurfaceSlabs` still only unions the terrain span**, not this. A cave forty
-  metres down is generated and never streamed to a nearby player. This gap is real; check
-  `ChunkService.kt` before assuming it's fixed.
+- **Which vertical slabs get streamed is answered in two halves, and only one of them lives here.**
+  `GeneratedWorld.contentSlabsOf` (`pipeline/StandardWorld.kt:121-155`) covers the generated half — the
+  terrain heightfield span unioned with intersecting cave passages — and `ChunkService.computeSurfaceSlabs`
+  unions it in alongside its own terrain span and the sea-surface pair. (An earlier version of this note
+  said it did *not*, which was true and cost a player walking into a cave the ground in front of them; it
+  is fixed.) The other half cannot live here at all: **`contentSlabsOf` is generation-only and knows
+  nothing about `ChunkDelta`**, so a shaft a player carves through the floor of the lowest slab their
+  column's ground reaches is content in a slab this function will never name. `ChunkService` keeps its own
+  `editedSlabs` index for that, fed from the one funnel every content change passes through, and unions it
+  over the cached generated set on read — which is why that cache still needs no invalidation path. The
+  heightfield genuinely cannot express a hole; do not re-derive the offered set from it alone.
 - **Master spawn points** — `civ/SettlementSpawnPoints.kt` (pure function, not a stage — it produces
   nothing the pipeline consumes) offers `MAX_HOME_CANDIDATES = 3` settlements, the 2nd/3rd/4th largest
   standing ones, never the obvious capital; `SpawnerStage` reads the same constant for its home safety

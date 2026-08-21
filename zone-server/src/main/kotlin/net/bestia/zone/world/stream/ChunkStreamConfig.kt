@@ -65,8 +65,10 @@ data class ChunkStreamConfig(
    * A two- or three-element array per entry, so this can be generous - and it needs to be. Computing one
    * means a feature query plus a thousand noise evaluations, and a manifest asks about a whole view volume
    * every time a player crosses a chunk boundary. 16 384 covers roughly a hundred and thirty view volumes, so
-   * a handful of players moving around a region keep hitting it. Never invalidated: the heightfield it
-   * derives from is immutable, and player edits change voxels rather than terrain height.
+   * a handful of players moving around a region keep hitting it. Never invalidated, because what it holds is
+   * the *generated* slabs and the heightfield those derive from is immutable - the slabs a player's digging
+   * adds are tracked separately and unioned in on read, so an edit needs no invalidation here either. See
+   * [ChunkService.surfaceSlabsOf].
    */
   val slabCacheCapacity: Int = 16_384,
 
@@ -86,11 +88,21 @@ data class ChunkStreamConfig(
   val slabComputationsPerTick: Int = 4,
 
   /**
-   * Derived structures rebuilt per tick. Queries keep serving the stale structure until then, which is the
-   * trade the design argues for: pathing briefly wrong beats a rebuild hitch on the zone thread every time
-   * somebody places a block.
+   * Derived structures built or rebuilt per tick, across all players. Queries keep serving the stale structure
+   * until then, which is the trade the design argues for: pathing briefly wrong beats a rebuild hitch on the
+   * zone thread every time somebody places a block.
+   *
+   * This budget now pays for two things rather than one. It always covered *rebuilds* after an edit, and it
+   * also covers the **first** build of every chunk entering a subscription - see the `onFirstSubscriber` wiring
+   * in `ChunkStreamSystem`, which is what gives `DerivedStore` any residency at all. A login subscribes a
+   * whole view volume at once, so at the default tick rate of 20 this is 160 chunks a second and fresh ground
+   * becomes walkable inside a second; at the old 2 it took three.
+   *
+   * One build is a `ChunkStore.merged` plus three full passes over a chunk's 262 144 voxels. Two of those
+   * three - `ColumnSummary` and `OpacityGrid` - have no gameplay reader today; splitting them out so only
+   * `WalkableTile` is built eagerly is the obvious next saving if this ever shows up on the tick budget.
    */
-  val derivedRebuildsPerTick: Int = 2,
+  val derivedRebuildsPerTick: Int = 8,
 
   /** Whether the `/carve` chat command is honoured at all. Off in production; the authority check applies too. */
   val allowDebugEdits: Boolean = true,
