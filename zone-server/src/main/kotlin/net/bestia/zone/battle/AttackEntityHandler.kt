@@ -1,78 +1,51 @@
 package net.bestia.zone.battle
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import net.bestia.zone.account.master.MasterResolver
-import net.bestia.zone.ecs.battle.skill.KnownSkills
-import net.bestia.zone.ecs.battle.damage.Damage
-import net.bestia.zone.ecs.movement.Position
-import net.bestia.zone.util.EntityId
+import net.bestia.zone.battle.skill.AttackExecutionService
+import net.bestia.zone.battle.skill.BattleAttack
 import net.bestia.zone.ecs.core.WorldView
-import net.bestia.zone.battle.AttackEntityCMSG
-import net.bestia.zone.battle.damage.DamageEntitySMSG
+import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.ecs.logout.LogoutCancelService
 import net.bestia.zone.message.InMessageProcessor
-import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
-import kotlin.random.Random
 
 /**
- * Handles attack requests from players to target entities.
- * This processes the attack action and initiates combat mechanics.
+ * Handles a player swinging at a target entity, for whichever entity (master or an owned bestia) is
+ * currently active.
+ *
+ * Nothing but a basic attack arrives here - no catalogue row, no script, no mana, no cast bar - so the
+ * handler has nothing to validate beyond who is swinging: range, line of sight, whether the swing lands
+ * and what it takes off are all [AttackExecutionService]'s, the same path a mob's bite takes through the
+ * `BasicAttack` behaviour-tree leaf. Casting a skill is [ActivateSkillHandler].
  */
 @Component
 class AttackEntityHandler(
-  private val messageProcessor: OutMessageProcessor,
+  private val connectionInfoService: ConnectionInfoService,
   private val world: WorldView,
-  private val masterResolver: MasterResolver
+  private val attackExecutionService: AttackExecutionService,
+  private val logoutCancelService: LogoutCancelService,
 ) : InMessageProcessor.IncomingMessageHandler<AttackEntityCMSG> {
   override val handles = AttackEntityCMSG::class
 
   override fun handle(msg: AttackEntityCMSG): Boolean {
     LOG.trace { "RX: $msg" }
 
-    // Hacky test implementation
-    val masterEntityId = masterResolver.getSelectedMasterEntityIdByAccountId(msg.playerId)
-      ?: return true
+    val attackerId = connectionInfoService.getActiveEntityId(msg.playerId)
 
-    if (!checkAttackAvailable(masterEntityId, msg.usedAttackId, msg.usedSkillLevel)) {
-      return true
+    // Swinging at something is player activity - abort any pending logout.
+    logoutCancelService.cancelLogout(attackerId)
+
+    // Inside the caster's own scope because AttackExecutionService resolves inline against the live World:
+    // it stages the damage and broadcasts, which both need the lock held. A handler scope never runs nested
+    // inside a tick, so the staging applies immediately rather than being deferred.
+    // Returns null - and so does nothing - when the attacker is no longer alive.
+    world.modify(attackerId) { id ->
+      // TODO Take the weapon and its element off the attacker once an equipment system exists; until then
+      //  everyone swings the bare-handed attack, the same one BasicAttack gives a mob.
+      attackExecutionService.attack(this, id, msg.targetEntityId, BattleAttack.getBasicMeleeAttack())
     }
-
-    val damageTaken = Random.nextInt(1, 7)
-
-    world.modify(msg.targetEntityId) { id ->
-      val damage = get(id, Damage::class) ?: add(id, Damage())
-      damage.add(damageTaken, masterEntityId)
-    }
-
-    val position = world.read { getOrThrow(masterEntityId, Position::class).toVec3L() }
-
-    val damageMsg = DamageEntitySMSG(
-      entityId = msg.targetEntityId,
-      sourceEntityId = masterEntityId,
-      attackId = 0,
-      div = 1,
-      damage = damageTaken,
-      skillLevel = 1,
-      type = DamageEntitySMSG.DamageType.NORMAL
-    )
-    messageProcessor.sendToAllPlayersInRange(position, damageMsg)
 
     return true
-  }
-
-  private fun checkAttackAvailable(
-    attackingEntityId: EntityId,
-    usedSkillId: Long,
-    usedSkillLevel: Int
-  ): Boolean {
-    // Basic attack is always possible
-    return if (usedSkillId == 0L) {
-      true
-    } else {
-      world.read {
-        getOrThrow(attackingEntityId, KnownSkills::class).knowsSkill(usedSkillId, usedSkillLevel)
-      }
-    }
   }
 
   companion object {

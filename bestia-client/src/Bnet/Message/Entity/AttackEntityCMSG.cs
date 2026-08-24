@@ -5,15 +5,12 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
 {
 
   /// <summary>
-  /// Message to request attacking a target entity.
+  /// Swings the active entity's basic attack at a target entity. A basic attack has no entry in the
+  /// Attack DB, so nothing here names one - casting a skill is ActivateSkillCMSG.
   /// </summary>
   public partial class AttackEntityCMSG : ICMSG
   {
     [Export] public ulong EntityId { get; set; }
-
-    [Export] public ulong UsedAttackId { get; set; }
-
-    [Export] public uint SkillLevel { get; set; }
 
     public AttackEntityCMSG()
     {
@@ -23,9 +20,7 @@ namespace BestiaBehemothClient.Bnet.Message.Entity
     {
       var attackEntityCmsg = new global::Bnet.AttackEntityCMSG
       {
-        EntityId = EntityId,
-        UsedAttackId = UsedAttackId,
-        SkillLevel = SkillLevel
+        EntityId = EntityId
       };
 
       return new Envelope

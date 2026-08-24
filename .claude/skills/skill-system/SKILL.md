@@ -111,6 +111,12 @@ A sword swing, an arrow, a mob's bite has **no entry in this file at all**. It i
 `AttackType` still exists (it selects the melee/ranged/magic formula) but no longer appears in
 `skills.yml`.
 
+Both sides of the game reach it the same way: a mob through the `BasicAttack` behaviour-tree leaf, a
+player through `AttackEntityHandler` (the `AttackEntityCMSG` a click sends). That message carries a
+target and nothing else — the `used_attack_id`/`skill_level` it used to carry are reserved field
+numbers now, because there is no id to send. Casting a skill is `ActivateSkillCMSG`, a different
+message down a different pathway.
+
 The old `tackle` row (id 1001) was exactly this mistake and has been removed, along with the
 `0`-valued `skillId` mobs used to be seeded with — an id `skills.yml` never had. An AI profile's
 `attacks:` entry leaves `skill_id` unset for a basic attack, and names a real catalogue id only when

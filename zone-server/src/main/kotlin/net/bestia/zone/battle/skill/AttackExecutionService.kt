@@ -34,8 +34,10 @@ class AttackExecutionService(
 ) {
 
   /**
-   * Swings [attack] at [targetId]. Callable from the tick thread with the world lock held, which is where
-   * every caller is today (an AI leaf inside a system).
+   * Swings [attack] at [targetId]. Callable from anywhere the world lock is already held: the tick thread
+   * inside a system (the `BasicAttack` behaviour-tree leaf), or a `WorldView.modify` scope on the message
+   * thread (`AttackEntityHandler`, when a player clicks something). A player's swing and a mob's bite are
+   * the same swing, which is the point.
    */
   fun attack(world: World, attackerId: EntityId, targetId: EntityId, attack: BattleAttack) {
     val ctx = battleContextFactory.create(world, attackerId, attack, targetId, targetPosition = null)

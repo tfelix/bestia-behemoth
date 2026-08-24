@@ -6,15 +6,19 @@ option java_package = "net.bestia.bnet.proto";
 option java_outer_classname = "AttackEntityCmsgProto";
 
 /**
- * Sends the active selected entity to the server.
+ * Swings the active entity's basic attack at another entity.
+ *
+ * A basic attack only - a sword swing, an arrow, a bite. It has no catalogue row, no script, no mana and
+ * no cast bar, which is why nothing here names one. Casting a *skill* is ActivateSkillCMSG.
  */
 message AttackEntityCMSG {
   uint64 entity_id = 1;
-  /**
-   * 0 means basic attack. Everything else requires a lookup against
-   * the attack list.
-   */
-  uint64 used_attack_id = 2;
 
-  uint32 skill_level = 3;
+  /**
+   * Fields 2 and 3 were `used_attack_id` and `skill_level`, and are reserved rather than reused. They
+   * carried the arrangement where a swing was a skill with id 0 - a row skills.yml never had - and the
+   * client only ever sent that 0. A real cast goes through ActivateSkillCMSG, which carries both.
+   */
+  reserved 2, 3;
+  reserved "used_attack_id", "skill_level";
 }

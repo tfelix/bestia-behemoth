@@ -24,7 +24,7 @@ func handle_object_clicked(mgr: MouseManager, object: Node3D, event: InputEvent,
 		# Attacking or looting is a new order and supersedes a walk that was on its way to a prop.
 		mgr.cancel_pending_collect()
 		mgr.select_entity(object)
-		ConnectionManager.send_attack_entity(object.get_bestia_entity_id(), 0, 1)
+		ConnectionManager.send_attack_entity(object.get_bestia_entity_id())
 	elif object is MasterVisual:
 		# Selecting only. Clicking another player is how you look at them, not how you hit them - what you can
 		# do to them lives in the right-click menu.

@@ -448,12 +448,12 @@ func send_chat(text: String, mode: int = 3, target_player: String = "") -> void:
 	_socket.SendMessage(msg)
 
 
-func send_attack_entity(entity_id: int, attack_id: int, skill_level: int) -> void:
+## Swings the active entity's basic attack at [param entity_id]. A basic attack carries no attack id and
+## no level - it has no entry in the Attack DB at all. Casting a skill is [method activate_skill].
+func send_attack_entity(entity_id: int) -> void:
 	assert(is_ready_to_send())
 	var msg = AttackEntityCMSG.new()
 	msg.EntityId = entity_id
-	msg.UsedAttackId = attack_id
-	msg.SkillLevel = skill_level
 	_socket.SendMessage(msg)
 
 

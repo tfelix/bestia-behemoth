@@ -159,7 +159,7 @@ class SurveyService(
         return@modify
       }
 
-      result.consumedBlankItemId?.let { inventory.decItem(it.toInt()) }
+      result.consumedBlankPaperItemId?.let { inventory.decItem(it.toInt()) }
       removedUniqueIds.forEach { inventory.removeByUniqueId(it) }
 
       // A chart never stacks - it carries per-instance state, which is the whole reason it has an instance -

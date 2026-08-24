@@ -39,21 +39,9 @@ class Crafting(
   remainingSeconds: Float = totalSeconds,
 ) : Countdown(remainingSeconds), Removable {
 
-  private var lastSynced = 0f
-
-  override fun countdown(deltaTime: Float) {
-    super.countdown(deltaTime)
-    lastSynced += deltaTime
-  }
-
-  override fun isDirty(): Boolean {
-    return lastSynced >= RESYNC_INTERVAL || super.isDirty()
-  }
-
-  override fun clearDirty() {
-    super.clearDirty()
-    lastSynced = 0f
-  }
+  // A craft bar reports "still busy" rather than feeding a decision, so it beats at half the rate a
+  // cast bar does. The accumulator itself is Countdown's.
+  override val syncIntervalSeconds = RESYNC_INTERVAL
 
   init {
     require(totalSeconds > 0f) { "Crafting requires a positive totalSeconds, got $totalSeconds" }

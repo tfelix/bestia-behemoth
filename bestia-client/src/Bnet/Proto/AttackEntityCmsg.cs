@@ -25,14 +25,14 @@ namespace Bnet {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CihtZXNzYWdlcy9lbnRpdHkvYXR0YWNrX2VudGl0eV9jbXNnLnByb3RvEgRi",
-            "bmV0IlIKEEF0dGFja0VudGl0eUNNU0cSEQoJZW50aXR5X2lkGAEgASgEEhYK",
-            "DnVzZWRfYXR0YWNrX2lkGAIgASgEEhMKC3NraWxsX2xldmVsGAMgASgNQi4K",
-            "FW5ldC5iZXN0aWEuYm5ldC5wcm90b0IVQXR0YWNrRW50aXR5Q21zZ1Byb3Rv",
-            "YgZwcm90bzM="));
+            "bmV0Ik4KEEF0dGFja0VudGl0eUNNU0cSEQoJZW50aXR5X2lkGAEgASgESgQI",
+            "AhADSgQIAxAEUg51c2VkX2F0dGFja19pZFILc2tpbGxfbGV2ZWxCLgoVbmV0",
+            "LmJlc3RpYS5ibmV0LnByb3RvQhVBdHRhY2tFbnRpdHlDbXNnUHJvdG9iBnBy",
+            "b3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AttackEntityCMSG), global::Bnet.AttackEntityCMSG.Parser, new[]{ "EntityId", "UsedAttackId", "SkillLevel" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.AttackEntityCMSG), global::Bnet.AttackEntityCMSG.Parser, new[]{ "EntityId" }, null, null, null, null)
           }));
     }
     #endregion
@@ -41,7 +41,10 @@ namespace Bnet {
   #region Messages
   /// <summary>
   ///*
-  /// Sends the active selected entity to the server.
+  /// Swings the active entity's basic attack at another entity.
+  ///
+  /// A basic attack only - a sword swing, an arrow, a bite. It has no catalogue row, no script, no mana and
+  /// no cast bar, which is why nothing here names one. Casting a *skill* is ActivateSkillCMSG.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class AttackEntityCMSG : pb::IMessage<AttackEntityCMSG>
@@ -79,8 +82,6 @@ namespace Bnet {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public AttackEntityCMSG(AttackEntityCMSG other) : this() {
       entityId_ = other.entityId_;
-      usedAttackId_ = other.usedAttackId_;
-      skillLevel_ = other.skillLevel_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -102,35 +103,6 @@ namespace Bnet {
       }
     }
 
-    /// <summary>Field number for the "used_attack_id" field.</summary>
-    public const int UsedAttackIdFieldNumber = 2;
-    private ulong usedAttackId_;
-    /// <summary>
-    ///*
-    /// 0 means basic attack. Everything else requires a lookup against
-    /// the attack list.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong UsedAttackId {
-      get { return usedAttackId_; }
-      set {
-        usedAttackId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "skill_level" field.</summary>
-    public const int SkillLevelFieldNumber = 3;
-    private uint skillLevel_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint SkillLevel {
-      get { return skillLevel_; }
-      set {
-        skillLevel_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -147,8 +119,6 @@ namespace Bnet {
         return true;
       }
       if (EntityId != other.EntityId) return false;
-      if (UsedAttackId != other.UsedAttackId) return false;
-      if (SkillLevel != other.SkillLevel) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -157,8 +127,6 @@ namespace Bnet {
     public override int GetHashCode() {
       int hash = 1;
       if (EntityId != 0UL) hash ^= EntityId.GetHashCode();
-      if (UsedAttackId != 0UL) hash ^= UsedAttackId.GetHashCode();
-      if (SkillLevel != 0) hash ^= SkillLevel.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -181,14 +149,6 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(EntityId);
       }
-      if (UsedAttackId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(UsedAttackId);
-      }
-      if (SkillLevel != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(SkillLevel);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -203,14 +163,6 @@ namespace Bnet {
         output.WriteRawTag(8);
         output.WriteUInt64(EntityId);
       }
-      if (UsedAttackId != 0UL) {
-        output.WriteRawTag(16);
-        output.WriteUInt64(UsedAttackId);
-      }
-      if (SkillLevel != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(SkillLevel);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -223,12 +175,6 @@ namespace Bnet {
       int size = 0;
       if (EntityId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(EntityId);
-      }
-      if (UsedAttackId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UsedAttackId);
-      }
-      if (SkillLevel != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SkillLevel);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -244,12 +190,6 @@ namespace Bnet {
       }
       if (other.EntityId != 0UL) {
         EntityId = other.EntityId;
-      }
-      if (other.UsedAttackId != 0UL) {
-        UsedAttackId = other.UsedAttackId;
-      }
-      if (other.SkillLevel != 0) {
-        SkillLevel = other.SkillLevel;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -270,14 +210,6 @@ namespace Bnet {
             EntityId = input.ReadUInt64();
             break;
           }
-          case 16: {
-            UsedAttackId = input.ReadUInt64();
-            break;
-          }
-          case 24: {
-            SkillLevel = input.ReadUInt32();
-            break;
-          }
         }
       }
     #endif
@@ -295,14 +227,6 @@ namespace Bnet {
             break;
           case 8: {
             EntityId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            UsedAttackId = input.ReadUInt64();
-            break;
-          }
-          case 24: {
-            SkillLevel = input.ReadUInt32();
             break;
           }
         }

@@ -197,7 +197,7 @@ class ChartService(
      * @property uniqueId the chart instance the player now holds
      * @property item its template, which is what the live inventory mirror needs to list it
      * @property cells how much ground it covers, for logging and for the client's own display
-     * @property consumedBlankItemId the blank this operation used up, or null when it used none. Carried
+     * @property consumedBlankPaperItemId the blank this operation used up, or null when it used none. Carried
      *   rather than looked up again because the live [net.bestia.zone.ecs.item.Inventory] has to be corrected
      *   by whoever applies this, and it is the one fact about the operation that is not visible from the
      *   result otherwise.
@@ -206,7 +206,7 @@ class ChartService(
       val uniqueId: Long,
       val item: Item,
       val cells: Long,
-      val consumedBlankItemId: Long? = null
+      val consumedBlankPaperItemId: Long? = null
     ) : Result
 
     data class Refused(val error: OpError) : Result
