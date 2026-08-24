@@ -107,6 +107,15 @@ enum OpError {
   TRADE_FAILED = 35;
 
   BASIC_SKILL_TRADE_LOCKED = 36;
+
+  // Chat commands. A command the player may not use is told apart from one that does not exist, because the
+  // two are different problems: the first is answered by asking a GM, the second by checking the spelling.
+  // The distinction leaks that a command exists, which is fine - `/help` lists them and they are not secret.
+  CHAT_COMMAND_NO_PERMISSION = 37;
+  CHAT_COMMAND_UNKNOWN = 38;
+  // The command matched and then threw. Not reachable by typing: the grammar already rejected the bad forms,
+  // so this means the command itself is broken, and the stack trace is server-side.
+  CHAT_COMMAND_FAILED = 39;
 }
 
 message OperationError {

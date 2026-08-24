@@ -13,3 +13,6 @@ ERROR_TRADE_DECLINED,%s declined the trade.
 ERROR_TRADE_CANCELLED,%s cancelled the trade.
 ERROR_TRADE_WALKED_AWAY,The trade with %s was cancelled because you moved too far apart.
 ERROR_TRADE_FAILED,The trade could not be completed. Nothing changed hands.
+ERROR_CHAT_COMMAND_NO_PERMISSION,You are not allowed to use that command.
+ERROR_CHAT_COMMAND_UNKNOWN,There is no such command. Type /help to see the ones you can use.
+ERROR_CHAT_COMMAND_FAILED,That command went wrong and did nothing.

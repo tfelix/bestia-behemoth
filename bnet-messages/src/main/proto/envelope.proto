@@ -54,8 +54,6 @@ import "messages/inventory/drop_item_cmsg.proto";
 import "messages/inventory/loot_item_cmsg.proto";
 import "messages/inventory/equip_item_cmsg.proto";
 import "messages/inventory/unequip_item_cmsg.proto";
-import "messages/inventory/merge_charts_cmsg.proto";
-import "messages/inventory/copy_chart_cmsg.proto";
 import "messages/component/equipment_component_smsg.proto";
 import "messages/component/status_values_smsg.proto";
 import "messages/component/base_status_values_smsg.proto";
@@ -133,8 +131,6 @@ message Envelope {
     LootItemCMSG loot_item = 304;
     EquipItemCMSG equip_item = 305;
     UnequipItemCMSG unequip_item = 306;
-    MergeChartsCMSG merge_charts = 307;
-    CopyChartCMSG copy_chart = 308;
 
     // MASTER & BESTIA 400
     GetMasterCMSG get_master = 401;

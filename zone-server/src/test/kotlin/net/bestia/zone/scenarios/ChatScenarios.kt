@@ -1,7 +1,9 @@
 package net.bestia.zone.scenarios
 
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.chat.ChatSMSG
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.socket.PongSMSG
 import org.junit.jupiter.api.Test
@@ -128,31 +130,15 @@ class ChatScenarios : BestiaNoSocketScenario() {
     assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
   }
 
-  @Test
-  fun `send non-privileged chat command when not connected as privileged player executes`() {
-    clientPlayer3.sendMessage(
-      ChatCMSG(
-        playerId = clientPlayer3.connectedPlayerId,
-        type = ChatCMSG.Type.COMMAND,
-        text = "/online",
-      )
-    )
-
-    val whisperChatErrorRx = clientPlayer3.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
-  }
-
   /**
-   * These two used to send `/mm 10 10` and expect `error.not_supported`, which held only because nothing
-   * implemented `/mm`. They were named as privilege tests but never were: `GameClientMockFactory` gives every
-   * mock client the full authority set, so player1 and player3 are equally privileged and both were simply
-   * failing to match any command. Implementing `/mm` turned that into a failure and exposed it.
+   * Used to send `/mm 10 10` and expect `error.not_supported`, which held only because nothing implemented
+   * `/mm`. It was named as a privilege test but never was: `GameClientMockFactory` gives every mock client
+   * the full authority set, so player1 and player3 are equally privileged and both were simply failing to
+   * match any command. Implementing `/mm` turned that into a failure and exposed it.
    *
-   * Renamed to say what they check, and pointed at a string nothing will ever claim. Real coverage of the
-   * authority gate needs a client built with a restricted set, which the factory does not expose yet.
+   * Renamed to say what it checks, and pointed at a string nothing will ever claim. Real coverage of the
+   * authority gate is [net.bestia.zone.chat.ChatCommandHandlerTest], which can build the restricted
+   * authority set the mock factory does not expose.
    */
   @Test
   fun `an unrecognised chat command echos an error`() {
@@ -164,11 +150,11 @@ class ChatScenarios : BestiaNoSocketScenario() {
       )
     )
 
-    val whisperChatErrorRx = clientPlayer3.getLastReceived(ChatSMSG::class)
-
-    assertEquals("error.not_supported", whisperChatErrorRx.text)
-    assertNull(whisperChatErrorRx.senderUsername)
-    assertEquals(ChatCMSG.Type.ERROR, whisperChatErrorRx.type)
+    assertNull(clientPlayer3.tryGetLastReceived(ChatSMSG::class))
+    assertEquals(
+      OperationErrorSMSG(OpError.CHAT_COMMAND_UNKNOWN),
+      clientPlayer3.getLastReceived(OperationErrorSMSG::class)
+    )
   }
 
   /**
@@ -187,6 +173,7 @@ class ChatScenarios : BestiaNoSocketScenario() {
     )
 
     assertNull(clientPlayer1.tryGetLastReceived(ChatSMSG::class))
+    assertNull(clientPlayer1.tryGetLastReceived(OperationErrorSMSG::class))
   }
 }
 

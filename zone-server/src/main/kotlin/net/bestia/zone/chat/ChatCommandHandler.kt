@@ -1,7 +1,9 @@
 package net.bestia.zone.chat
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.bestia.bnet.proto.OperationErrorProto.OpError
 import net.bestia.zone.ecs.core.session.ConnectionInfoService
+import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import org.springframework.stereotype.Component
 
@@ -30,14 +32,23 @@ class ChatCommandHandler(
           }
         } catch (e: Exception) {
           LOG.error(e) { "Chat command ${cmd.javaClass.simpleName} failed for player $playerId with '$cmdText'" }
-          val errorMsg = ChatSMSG(text = "error.command_failed", type = ChatCMSG.Type.ERROR)
-          outMessageProcessor.sendToPlayer(playerId, errorMsg)
+          outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(OpError.CHAT_COMMAND_FAILED))
           return
         }
       }
 
-      LOG.debug { "No chat command found for player $playerId with '$cmdText'" }
-      outMessageProcessor.sendToPlayer(playerId, ChatSMSG.ERROR_NOT_SUPPORTED)
+      // Nothing ran, and the player is owed the reason. A command they typed correctly but may not use is a
+      // different problem from one that does not exist, and answering both with "unknown" reads as the
+      // feature being missing.
+      val deniedByAuthority = commands.any { it.isMatch(cmdText) && !it.isAvailable(playerAuthorities) }
+
+      if (deniedByAuthority) {
+        LOG.debug { "Player $playerId lacks the authority for '$cmdText'" }
+        outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(OpError.CHAT_COMMAND_NO_PERMISSION))
+      } else {
+        LOG.debug { "No chat command found for player $playerId with '$cmdText'" }
+        outMessageProcessor.sendToPlayer(playerId, OperationErrorSMSG(OpError.CHAT_COMMAND_UNKNOWN))
+      }
     }
   }
 

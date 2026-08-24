@@ -26,7 +26,7 @@ namespace Bnet {
           string.Concat(
             "CiVtZXNzYWdlcy9zeXN0ZW0vb3BlcmF0aW9uX2Vycm9yLnByb3RvEgRibmV0",
             "IjsKDk9wZXJhdGlvbkVycm9yEhsKBGNvZGUYASABKA4yDS5ibmV0Lk9wRXJy",
-            "b3ISDAoEYXJncxgCIAMoCSrCBwoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
+            "b3ISDAoEYXJncxgCIAMoCSqVCAoHT3BFcnJvchIdChlNQVNURVJfTkFNRV9B",
             "TFJFQURZX1RBS0VOEAASHgoaTUFTVEVSX01BWF9NQVNURVJTX1JFQUNIRUQQ",
             "ARIXChNNQVNURVJfSU5WQUxJRF9OQU1FEAISGAoUTUFTVEVSX0dFTkVSQUxf",
             "RVJST1IQAxIcChhFUVVJUF9TTE9UX05PVF9BVkFJTEFCTEUQBBIYChRFUVVJ",
@@ -47,8 +47,10 @@ namespace Bnet {
             "UkxEEB0SHAoYVFJBREVfVEFSR0VUX1VOQVZBSUxBQkxFEB4SFgoSVFJBREVf",
             "T1VUX09GX1JBTkdFEB8SEgoOVFJBREVfREVDTElORUQQIBITCg9UUkFERV9D",
             "QU5DRUxMRUQQIRIVChFUUkFERV9XQUxLRURfQVdBWRAiEhAKDFRSQURFX0ZB",
-            "SUxFRBAjEhwKGEJBU0lDX1NLSUxMX1RSQURFX0xPQ0tFRBAkQiwKFW5ldC5i",
-            "ZXN0aWEuYm5ldC5wcm90b0ITT3BlcmF0aW9uRXJyb3JQcm90b2IGcHJvdG8z"));
+            "SUxFRBAjEhwKGEJBU0lDX1NLSUxMX1RSQURFX0xPQ0tFRBAkEh4KGkNIQVRf",
+            "Q09NTUFORF9OT19QRVJNSVNTSU9OECUSGAoUQ0hBVF9DT01NQU5EX1VOS05P",
+            "V04QJhIXChNDSEFUX0NPTU1BTkRfRkFJTEVEECdCLAoVbmV0LmJlc3RpYS5i",
+            "bmV0LnByb3RvQhNPcGVyYXRpb25FcnJvclByb3RvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Bnet.OpError), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -186,6 +188,18 @@ namespace Bnet {
     /// </summary>
     [pbr::OriginalName("TRADE_FAILED")] TradeFailed = 35,
     [pbr::OriginalName("BASIC_SKILL_TRADE_LOCKED")] BasicSkillTradeLocked = 36,
+    /// <summary>
+    /// Chat commands. A command the player may not use is told apart from one that does not exist, because the
+    /// two are different problems: the first is answered by asking a GM, the second by checking the spelling.
+    /// The distinction leaks that a command exists, which is fine - `/help` lists them and they are not secret.
+    /// </summary>
+    [pbr::OriginalName("CHAT_COMMAND_NO_PERMISSION")] ChatCommandNoPermission = 37,
+    [pbr::OriginalName("CHAT_COMMAND_UNKNOWN")] ChatCommandUnknown = 38,
+    /// <summary>
+    /// The command matched and then threw. Not reachable by typing: the grammar already rejected the bad forms,
+    /// so this means the command itself is broken, and the stack trace is server-side.
+    /// </summary>
+    [pbr::OriginalName("CHAT_COMMAND_FAILED")] ChatCommandFailed = 39,
   }
 
   #endregion

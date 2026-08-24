@@ -14,8 +14,6 @@ import net.bestia.zone.battle.AttackEntityCMSG
 import net.bestia.zone.skill.GetSkillsCMSG
 import net.bestia.zone.chat.ChatCMSG
 import net.bestia.zone.crafting.CancelCraftCMSG
-import net.bestia.zone.cartography.chart.CopyChartCMSG
-import net.bestia.zone.cartography.chart.MergeChartsCMSG
 import net.bestia.zone.crafting.CraftItemCMSG
 import net.bestia.zone.entity.GetAllEntitiesCMSG
 import net.bestia.zone.entity.MoveActiveEntityCMSG
@@ -84,8 +82,6 @@ class BnetMessageProcessorAdapter(
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
       envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
-      envelope.hasMergeCharts() -> MergeChartsCMSG.fromBnet(accountId, envelope.mergeCharts)
-      envelope.hasCopyChart() -> CopyChartCMSG.fromBnet(accountId, envelope.copyChart)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)
       envelope.hasRequestTrade() -> RequestTradeCMSG.fromBnet(accountId, envelope.requestTrade)
       envelope.hasAnswerTradeRequest() -> AnswerTradeRequestCMSG.fromBnet(accountId, envelope.answerTradeRequest)
