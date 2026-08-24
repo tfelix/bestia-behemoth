@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="|Sign in to ${rpName}|">Sign in to Bestia</title>
+  <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<main class="card"
+      id="app"
+      th:attr="data-session=${sessionId}, data-register=${register}">
+
+  <h1 class="wordmark" th:text="${rpName}">BESTIA</h1>
+
+  <p class="lead" id="lead">Sign in with your passkey to continue in the game.</p>
+
+  <div id="actions">
+    <button type="button" id="login-button" class="primary">Use a passkey</button>
+    <button type="button" id="show-register" class="secondary">Create an account</button>
+    <button type="button" id="show-recover" class="link">I have lost all my passkeys</button>
+  </div>
+
+  <form id="register-form" class="hidden" autocomplete="off">
+    <label for="display-name">Choose an account name</label>
+    <input type="text" id="display-name" name="displayName" maxlength="32" minlength="3"
+           autocomplete="off" spellcheck="false">
+    <p class="hint">
+      This labels your passkey in your device's sign-in list, and identifies you if you ever have to
+      recover the account. Your character's name is chosen later, in the game.
+    </p>
+    <button type="submit" class="primary">Create account and passkey</button>
+    <button type="button" class="secondary" data-back>Back</button>
+  </form>
+
+  <form id="recover-form" class="hidden" autocomplete="off">
+    <p class="lead">
+      Enter your account name and one of the recovery codes you saved when the account was created.
+      You will be asked to create a fresh passkey straight away.
+    </p>
+    <label for="recover-name">Your account name</label>
+    <input type="text" id="recover-name" maxlength="32" autocomplete="off" spellcheck="false">
+    <label for="recover-code">Recovery code</label>
+    <input type="text" id="recover-code" maxlength="40" autocomplete="off" spellcheck="false"
+           placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX">
+    <button type="submit" class="primary">Recover account</button>
+    <button type="button" class="secondary" data-back>Back</button>
+  </form>
+
+  <section id="recovery" class="hidden">
+    <h2>Save your recovery codes</h2>
+    <p class="warning">
+      These are shown once and never again. Bestia holds no email address for you, so if you lose
+      every passkey <em>and</em> these codes, nobody can restore the account.
+    </p>
+    <ul id="recovery-codes" class="codes"></ul>
+  </section>
+
+  <section id="done" class="hidden">
+    <h2 id="done-heading">You are signed in</h2>
+    <button type="button" id="continue-button" class="primary">Continue to the game</button>
+    <button type="button" id="add-credential-button" class="secondary">Add another passkey</button>
+    <p class="lead">
+      Adding a second passkey - a security key, or a passkey on your phone - means losing one device
+      does not lock you out.
+    </p>
+  </section>
+
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+  <p id="error" class="error hidden" role="alert"></p>
+
+  <noscript>
+    <p class="error">Signing in needs JavaScript, because passkeys are handled by your browser.</p>
+  </noscript>
+</main>
+
+<script th:src="@{/js/webauthn.js}"></script>
+</body>
+</html>

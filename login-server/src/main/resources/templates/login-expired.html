@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign-in link expired</title>
+  <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<main class="card">
+  <h1 class="wordmark">BESTIA</h1>
+  <p class="error" th:text="${reason}">This sign-in link has expired.</p>
+  <p class="lead">You can close this tab and start again from the game.</p>
+</main>
+</body>
+</html>

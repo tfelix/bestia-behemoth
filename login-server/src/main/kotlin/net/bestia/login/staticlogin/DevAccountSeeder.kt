@@ -8,14 +8,19 @@ import net.bestia.login.account.loginmethod.StaticTokenLoginMethod
 import net.bestia.login.account.loginmethod.StaticTokenLoginMethodRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 /**
  * Seeds a small set of static development accounts on startup so the username + static token login
- * can be used without any blockchain/NFT setup. The in-memory schema is recreated on every start
- * (`ddl-auto: create`), so seeding runs idempotently guarded by username lookups.
+ * can be used without any blockchain/NFT setup. Seeding is idempotent, guarded by username lookups,
+ * because the database is now durable and this runs on every boot.
+ *
+ * Confined to the `dev` profile: these tokens are in the repository, and one of the accounts is a
+ * SUPER_GM. A deployment that runs under any other profile does not get them.
  */
 @Component
+@Profile("dev")
 class DevAccountSeeder(
   private val accountRepository: AccountRepository,
   private val staticTokenLoginMethodRepository: StaticTokenLoginMethodRepository
@@ -48,7 +53,11 @@ class DevAccountSeeder(
         )
       )
 
-      LOG.info { "Seeded dev account '${dev.username}' (account ${account.id}, role ${dev.role})" }
+      LOG.warn {
+        "Seeded dev account '${dev.username}' (account ${account.id}, role ${dev.role}) with a " +
+          "static token that is public in the repository. Do not run the `dev` profile on a host " +
+          "that anyone else can reach."
+      }
     }
   }
 

@@ -1,0 +1,17 @@
+services:
+  mariadb:
+    image: 'mariadb:11'
+    environment:
+      - 'MARIADB_DATABASE=bestia_login'
+      - 'MARIADB_USER=bestia'
+      - 'MARIADB_PASSWORD=bestia'
+      - 'MARIADB_ROOT_PASSWORD=bestia-root'
+    ports:
+      # 3307 on the host: zone-server/compose.yaml already claims 3306 and the two servers
+      # deliberately share no database, so both containers have to be able to run at once.
+      - '3307:3306'
+    volumes:
+      - 'login-mariadb-data:/var/lib/mysql'
+
+volumes:
+  login-mariadb-data:

@@ -27,12 +27,18 @@ signal trade_state_received(message: TradeStateSMSG)
 signal logout_countdown_received(remaining_seconds: float)
 ## Emitted when the server aborts a pending logout (player moved / used a skill / took damage).
 signal logout_cancelled()
+## Emitted once the system browser has been opened for a passkey login, so the UI can offer a way out
+## of a wait that is otherwise entirely off-screen.
+signal passkey_browser_opened()
+## Emitted when a passkey login ends without a token. Carries a message meant for the player.
+signal passkey_login_failed(reason: String)
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 enum ConnectionError {NO_ERROR, LOGIN_OFFLINE, LOGIN_ERROR, ZONE_CONNECTION_LOST}
 
 @onready var _socket = $BnetSocket
 @onready var _login_request = $LoginRequest
+@onready var _passkey_login = $PasskeyLogin
 
 
 var Authentication = load("res://Bnet/Message/Authentication.cs")
@@ -195,11 +201,52 @@ func _on_login_request_completed(result: int, response_code: int, _headers: Pack
 		_goto_connection_lost(ConnectionError.LOGIN_ERROR)
 		return
 
-	_login_token = json.data["token"]
+	_accept_login_token(json.data["token"])
+
+
+## Shared tail of every login method. The zone only ever sees a signed JWT, so how it was obtained -
+## static development token, passkey, later a wallet signature - stops mattering here.
+func _accept_login_token(token: String) -> void:
+	_login_token = token
 
 	# We have a valid JWT now. Go to master select (blocked until the zone confirms auth) and connect.
 	SceneManager.goto_scene("res://Menu/MasterSelect/MasterSelect.tscn", true)
 	_socket.ConnectToServer()
+
+
+## Signs in with a passkey. The system browser does the WebAuthn ceremony and hands back a one-time
+## code, which [PasskeyLoginService] exchanges for the same JWT the static login returns.
+func login_with_passkey() -> void:
+	assert(_connection_state == ConnectionState.DISCONNECTED)
+	last_connection_error = ConnectionError.NO_ERROR
+	_passkey_login.StartLogin(SettingsManager.login_server_url)
+
+
+## Creates a new account and its first passkey. Same flow as [method login_with_passkey], only the
+## page the browser lands on differs.
+func register_with_passkey() -> void:
+	assert(_connection_state == ConnectionState.DISCONNECTED)
+	last_connection_error = ConnectionError.NO_ERROR
+	_passkey_login.StartRegistration(SettingsManager.login_server_url)
+
+
+## Abandons an in-flight passkey login. The browser tab is left alone - we cannot close it, and the
+## login session expires on the server by itself.
+func cancel_passkey_login() -> void:
+	_passkey_login.Cancel()
+
+
+func _on_passkey_awaiting_browser() -> void:
+	passkey_browser_opened.emit()
+
+
+func _on_passkey_login_succeeded(token: String) -> void:
+	_accept_login_token(token)
+
+
+func _on_passkey_login_failed(reason: String) -> void:
+	printerr("ConnectionManager: passkey login failed: ", reason)
+	passkey_login_failed.emit(reason)
 
 
 func _goto_connection_lost(last_error: ConnectionError) -> void:

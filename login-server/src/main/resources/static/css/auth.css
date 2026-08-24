@@ -1,0 +1,154 @@
+:root {
+  color-scheme: dark;
+  --bg: #14110f;
+  --card: #1f1b18;
+  --edge: #3a322c;
+  --ink: #f0e9e1;
+  --muted: #a2968a;
+  --accent: #c2703a;
+  --accent-ink: #14110f;
+  --warn: #e0b050;
+  --bad: #e07a6a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.card {
+  width: 100%;
+  max-width: 26rem;
+  padding: 2rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.75rem;
+  background: var(--card);
+}
+
+.wordmark {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.lead {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+}
+
+button {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.secondary {
+  background: transparent;
+  border-color: var(--edge);
+  color: var(--ink);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+input[type="text"] {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--edge);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+
+.codes {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  list-style: none;
+  border: 1px solid var(--edge);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  user-select: all;
+}
+
+.status {
+  margin: 1rem 0 0;
+  min-height: 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.warning {
+  color: var(--warn);
+  font-size: 0.9rem;
+}
+
+.error {
+  margin: 1rem 0 0;
+  color: var(--bad);
+  font-size: 0.9rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.link {
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-decoration: underline;
+}
+
+.hint {
+  margin: -0.5rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}

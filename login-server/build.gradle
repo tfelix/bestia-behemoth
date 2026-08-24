@@ -13,6 +13,7 @@ dependencies {
     implementation project(':shared')
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
@@ -20,12 +21,38 @@ dependencies {
     implementation 'org.web3j:crypto:4.10.3'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 
+    // Server-side WebAuthn/FIDO2 ceremony handling. 2.9.0 is the first release carrying the
+    // YSA-2026-02 fix, so do not float this below that.
+    implementation 'com.yubico:webauthn-server-core:2.9.0'
+
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mariadb'
     testImplementation 'io.mockk:mockk:1.14.5'
+
+    // The virtual authenticator has to encode CBOR itself. Yubico pulls this in at runtime but does
+    // not expose it for compilation, and building the attestation object by hand would be worse.
+    testImplementation 'com.upokecenter:cbor:4.5.6'
+}
+
+/**
+ * The JPA entities are `class`, not `open class`. Without this Hibernate cannot subclass them for
+ * lazy proxies, so every `@ManyToOne` silently has to stay EAGER.
+ */
+allOpen {
+    annotation 'jakarta.persistence.Entity'
+    annotation 'jakarta.persistence.MappedSuperclass'
+    annotation 'jakarta.persistence.Embeddable'
 }
 
 tasks.named('test') {

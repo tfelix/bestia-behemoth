@@ -262,9 +262,14 @@ runs early), `passive-day-active` (diurnal grazer that never flees and hunts who
 login-server is a plain Spring Boot REST service (`spring-boot-starter-web`, no
 sockets) — authentication only, it never touches the game world. Key packages under
 `login-server/src/main/kotlin/net/bestia/login/`: `account/loginmethod`
-(`NftLoginMethod`, `StaticTokenLoginMethod`), `eip712` (wallet-signature auth),
-`ethereum` (web3j NFT-ownership checks), `staticlogin` (dev-only login +
-`DevAccountSeeder`), `jwt`.
+(`NftLoginMethod`, `StaticTokenLoginMethod`, `WebAuthnCredential`), `eip712`
+(wallet-signature auth), `ethereum` (web3j NFT-ownership checks), `staticlogin`
+(dev-only login + `DevAccountSeeder`, `@Profile("dev")`), `webauthn` (passkeys),
+`gamelogin` (browser-mediated login sessions), `recovery`, `jwt`.
+
+Storage is MariaDB (`login-server/compose.yaml`, port 3307) with Flyway owning the
+schema (`src/main/resources/db/migration/`) and `ddl-auto: validate` checking it. This
+is the only module with migrations.
 
 `LoginController` (`POST /api/v1/login`) returns a signed JWT from
 `JwtService.createLoginToken(accountId, role)` — `issuer("login")`,
@@ -276,6 +281,26 @@ issuer/audience against a **shared secret string** configured separately in each
 server's `application.yml` (`jwt.secret` in login-server, `zone.jwt-auth-secret-key`
 in zone-server — currently both the placeholder `"your-secret-key-here-change-in-production"`).
 There is no DB call between the two servers; trust is entirely in the JWT signature.
+
+Three login methods now converge on that same `createLoginToken` call, so nothing
+downstream of the socket handshake can tell them apart:
+
+- `POST /api/v1/auth/static` — the dev username + static token path the client uses by
+  default.
+- `POST /api/v1/auth/eip712sig` → `POST /api/v1/login` — wallet signature, refresh token.
+- **Passkeys / WebAuthn**, which never touch the game client. The client calls
+  `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,
+  opens the returned URL with `OS.ShellOpen`, and waits on a `TcpListener` bound to
+  `127.0.0.1:0` (`bestia-client/src/Auth/`). The system browser runs the ceremony
+  against `/api/v1/webauthn/**`, `POST /api/v1/auth/session/complete` mints a 60-second
+  single-use code, and the game trades it at `POST /api/v1/auth/game/exchange` for the
+  same zone JWT. WebAuthn itself is entirely the browser's problem — there is no native
+  passkey code on any platform, and no `bestia://` URI scheme (RFC 8252 §7.3; Safari and
+  Firefox refuse custom-scheme redirects anyway).
+
+An account may hold any number of `WebAuthn Credential` rows. They are joined to it by
+one `webauthn_user.user_handle`, which is what makes a synced passkey created on one
+machine resolve to the same account on another — the backend has no concept of a device.
 
 Auth success on the socket triggers `AccountConnectedEvent` →
 `AccountEntityControlService.handleAccountConnected`, which registers authorities into

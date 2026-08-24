@@ -2,19 +2,32 @@ server:
   port: 8080
 
 spring:
+  # `dev` gates the static development account seeding (see DevAccountSeeder). Any real deployment
+  # must run with SPRING_PROFILES_ACTIVE set to something else, or it boots with a publicly known
+  # SUPER_GM credential.
+  profiles:
+    active: dev
+
   datasource:
-    url: jdbc:h2:mem:login
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
-  h2:
-    console:
-      enabled: true
+    # Matches login-server/compose.yaml. `./gradlew :login-server:bootRun` starts that container via
+    # spring-boot-docker-compose and rewires the datasource to it, so these values only apply when
+    # running standalone against a real MariaDB - override them with env vars there
+    # (SPRING_DATASOURCE_URL / _USERNAME / _PASSWORD).
+    url: jdbc:mariadb://localhost:3307/bestia_login
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: bestia
+    password: bestia
+
   jpa:
     hibernate:
-      ddl-auto: create
-    show-sql: false  # Optional: Show SQL statements in logs
+      # Flyway owns the schema. Hibernate only checks that the entities still match it.
+      ddl-auto: validate
+    show-sql: false
     open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
 eip712:
   name: "Bestia Login"
@@ -22,12 +35,40 @@ eip712:
   chain-id: 1
 
 jwt:
+  # Overridable without a placeholder: relaxed binding maps the JWT_SECRET env var onto this key.
+  # Must be kept identical to zone-server's `zone.jwt-auth-secret-key`.
   secret: "your-secret-key-here-change-in-production"
   # Validity (days) of the long-lived refresh token.
   expiration-days: 5
-  # Validity (minutes) of the short-lived zone login token. Kept generous for development
-  # so the client does not need a refresh loop yet.
-  login-token-minutes: 60
+  # Validity (minutes) of the short-lived zone login token. This is a handoff ticket, not a session:
+  # the socket judges it once at the handshake and the map endpoint uses its own ticket
+  # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
+  login-token-minutes: 2
+
+webauthn:
+  # The RP ID is burned into every credential ever created and cannot be changed without
+  # re-enrolling all of them. In production use the registrable domain (bestia.game), never the
+  # host the page happens to be served from, so the auth site can move between subdomains later.
+  rp-id: "localhost"
+  rp-name: "Bestia"
+  # Origins the browser is allowed to run the ceremony from. Production: https://auth.bestia.game
+  origins:
+    - "http://localhost:8080"
+  # Relaxes origin matching to ignore the port. Only correct for development, where the page is on
+  # http://localhost:8080 rather than the implicit https://<rp-id>:443.
+  allow-origin-port: true
+  # How long a started registration/assertion ceremony may sit unfinished.
+  ceremony-ttl-seconds: 300
+
+game-login:
+  # How long the player has to complete the browser half of the flow.
+  session-ttl-seconds: 300
+  # Lifetime of the single-use authorization code handed to the loopback listener.
+  authorization-code-ttl-seconds: 60
+  # Base URL the game is told to open. Must be an origin listed under `webauthn.origins`.
+  public-base-url: "http://localhost:8080"
+  # Recovery codes handed out once when an account is created.
+  recovery-code-count: 10
 
 ethereum:
   rpc-url: "https://mainnet.infura.io/v3/YOUR_PROJECT_ID"
