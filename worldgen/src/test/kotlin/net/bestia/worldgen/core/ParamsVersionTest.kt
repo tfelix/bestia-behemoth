@@ -236,7 +236,8 @@ class ParamsVersionTest {
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
       "CrystalParams" to 7_903_608_439_399_290_165L,
-      "WeatherParams" to 6_942_341_092_082_949_637L,
+      // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
+      "WeatherParams" to 874_725_757_913_884_383L,
       "Culture" to 9_142_772_940_960_129_542L
     )
 
