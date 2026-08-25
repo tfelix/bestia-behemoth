@@ -1,5 +1,6 @@
 package net.bestia.zone.ecs.battle.effects
 
+import io.mockk.every
 import io.mockk.mockk
 import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
@@ -8,9 +9,13 @@ import net.bestia.zone.ecs.battle.status.Health
 import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.core.testWorld
 import net.bestia.zone.ecs.movement.Position
+import net.bestia.zone.ecs.prop.PropPose
+import net.bestia.zone.ecs.prop.PropVitality
+import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
+import net.bestia.zone.world.prop.PropPromotionService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -20,7 +25,16 @@ class AreaEffectSystemTest {
 
   private val aoi = EntityAOIService()
   private val outMessageProcessor = mockk<OutMessageProcessor>(relaxed = true)
-  private val sut = AreaEffectSystem(aoi, outMessageProcessor)
+
+  /**
+   * The real service, not a mock: it is what makes an area effect hit a static prop at all, and a relaxed mock
+   * would answer `false` and quietly restore the behaviour this test exists to pin.
+   */
+  private val propPromotion = PropPromotionService(
+    mockk(relaxed = true) { every { of(any()) } returns null }
+  )
+
+  private val sut = AreaEffectSystem(aoi, outMessageProcessor, propPromotion)
   private val world: World = testWorld(systems = listOf(sut))
 
   /** The world's AOI index is fed by ZoneEngine's dirty-position pass, which no test world runs. */
@@ -182,5 +196,34 @@ class AreaEffectSystemTest {
     const val DAMAGE_PER_TICK = 7
     const val TICK_INTERVAL = 1.2f
     const val DURATION = 9.6f
+  }
+
+  /**
+   * The case `AoiLayer.ALL` was chosen for and did not deliver: *"a fire that spares the trees is the
+   * defect"*. A pristine prop has no `Health`, so before promotion moved into the damage path this loop
+   * skipped every one of them and `Ember` burnt no trees at all.
+   */
+  @Test
+  fun `a static prop in the blast is promoted and damaged`() {
+    val at = Vec3L(4, 4, 0)
+    val prop = world.createEntity { entityId ->
+      add(entityId, PropPose(at, yaw = 0f))
+      add(entityId, PropVitality(maxHp = 120))
+      add(entityId, WorldObjectIdentity(propId = 99L, latticeVersion = 1L))
+    }
+    aoi.setEntityPosition(prop, at)
+
+    world.createEntity { entityId ->
+      add(entityId, Position.fromVec3(at))
+      add(entityId, AreaEffect.lasting(
+        casterId = 1L, skillId = 1000L, skillLevel = 1, radiusTiles = 2,
+        damagePerTick = 10, tickIntervalSeconds = 0.1f, durationSeconds = 1f
+      ))
+    }
+
+    world.tick(0.2f)
+
+    assertTrue(world.has(prop, Health::class), "the prop was never promoted")
+    assertTrue((world.get(prop, Damage::class)?.total() ?: 0) > 0, "the prop took no damage")
   }
 }

@@ -20,7 +20,14 @@ import org.springframework.stereotype.Component
 @Component
 class AreaEffectSpawner {
 
-  fun spawn(world: World, center: Vec3L, visualId: Long, effect: AreaEffect): EntityId {
+  /**
+   * @param visualId the effect visual to draw, or **null** for an effect that must not be drawn at all.
+   *   Null is for something whose appearance already reaches the client another way - a grass fire, which is
+   *   rendered from the per-chunk burning mask, so an `EntityVisual` here would draw a second fire on top of
+   *   the real one. Not a default: "no visual" is a deliberate decision at every call site, and an effect that
+   *   forgot its visual would otherwise be invisible for the same reason and by accident.
+   */
+  fun spawn(world: World, center: Vec3L, visualId: Long?, effect: AreaEffect): EntityId {
     LOG.debug {
       "Spawning area effect for skill ${effect.skillId} on $center: ${effect.remainingTicks} ticks of " +
           "${effect.damagePerTick} every ${effect.tickIntervalSeconds}s over ${effect.radiusTiles} tiles"
@@ -28,7 +35,9 @@ class AreaEffectSpawner {
 
     return world.createEntity { id ->
       add(id, Position.fromVec3(center))
-      add(id, EntityVisual(VisualKind.EFFECT, visualId))
+      // `EntityVisual` is the only Dirtyable here, so an effect without one is also the one that gets no
+      // vanish broadcast when it dies - which is right: nothing was told it appeared either.
+      visualId?.let { add(id, EntityVisual(VisualKind.EFFECT, it)) }
       add(id, effect)
     }
   }
