@@ -318,7 +318,8 @@ object StandardWorld {
       corruption = world.layers[LayerId.CORRUPTION] as? FloatLayer,
       aetheriteCorruption = p.corruption.aetheriteCorruption,
       crystalParams = p.crystal,
-      aetheriteParams = p.aetherite
+      aetheriteParams = p.aetherite,
+      groundCoverParams = p.groundCover
     )
 
     return GeneratedWorld(world, base, columns, materializer, p)
