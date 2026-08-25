@@ -137,7 +137,7 @@ data class GroundCoverParams(
     require(herbHeight > 0.0) { "herbHeight must be positive, was $herbHeight" }
     require(shrubHeight > 0.0) { "shrubHeight must be positive, was $shrubHeight" }
     require(reedHeight > 0.0) { "reedHeight must be positive, was $reedHeight" }
-    require(heightSpread in 0.0..1.0) { "heightSpread must be in [0,1), was $heightSpread" }
+    require(heightSpread in 0.0..1.0) { "heightSpread must be in [0,1], was $heightSpread" }
   }
 
   override fun digest(): ParamsDigest {

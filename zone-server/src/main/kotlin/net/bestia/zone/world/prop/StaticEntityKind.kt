@@ -84,10 +84,13 @@ enum class StaticEntityKind {
     /**
      * The runtime kind for a generated prop.
      *
-     * Splits worldgen's three kinds into five, because the flags that are an attribute in the generator are a
-     * *visual* to a client: a blighted tree and a green one are different models, and the two crystal sizes are
-     * different meshes. Keeping that split here rather than sending the flags means the client dispatches on
-     * one value instead of decoding a bitfield, and adding a sixth variant costs an enum constant.
+     * Splits a generator kind into several constants wherever its *flags* are a visual: a blighted tree and a
+     * green one are different models, and the two crystal sizes are different meshes. Keeping that split here
+     * rather than sending the flags means a client dispatches on one value instead of decoding a bitfield, and
+     * one more variant costs one enum constant.
+     *
+     * The counts deliberately go unstated. This said "three kinds into five" while the generator had four and
+     * this had seven, because a number in a comment is a number nobody updates.
      */
     fun of(kind: PropKind, blighted: Boolean, large: Boolean, subKind: Int = 0): StaticEntityKind = when (kind) {
       PropKind.TREE -> if (blighted) BLIGHTED_TREE else TREE
