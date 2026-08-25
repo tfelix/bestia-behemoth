@@ -84,6 +84,7 @@ class WeatherModel(
   private val airmassSeed = GenRng.mix64(seed xor AIRMASS_SALT)
   private val severitySeed = GenRng.mix64(seed xor SEVERITY_SALT)
   private val windSeed = GenRng.mix64(seed xor WIND_SALT)
+  private val veerSeed = GenRng.mix64(seed xor VEER_SALT)
 
   private val synopticWavelength = config.scaleByLength(params.synopticWavelength)
   private val airmassWavelength = config.scaleByLength(params.airmassWavelength)
@@ -247,12 +248,37 @@ class WeatherModel(
 
   private data class Wind(val speed: Double, val direction: Double)
 
+  /**
+   * The surface wind: a prevailing bearing off the latitude, backing and veering as fronts pass over.
+   *
+   * ### The veer, and the two places it deliberately is not applied
+   *
+   * The bearing used to be `Winds.directionAt(latitude)` alone - a pure function of latitude, so **constant in
+   * time**. See [WeatherParams.windVeerRadians] for what that cost. The veer is its own channel on the
+   * synoptic wavelength, so it turns on the same timescale the gust strengthens on: one front, one change in
+   * the weather.
+   *
+   * **Not [Winds.directionAt]'s own `seasonalShift`.** That is the physically right knob and it is the
+   * *monsoon* knob - it moves the Hadley/Ferrel band boundaries, so it belongs to `ClimateStage`'s
+   * precipitation sweep. Turning it on here would put a seasonal wind reversal in the weather without one in
+   * the climate that produced the rainfall the weather is sampled against.
+   *
+   * **Not [drifted]'s advection vector**, which still uses the unveered prevailing. That vector is the
+   * direction the *pattern* travels, and wobbling it moves the whole climatology - the measured percentages in
+   * [WeatherParams]' own KDoc and the rank correlation `WeatherClimatologyTest` pins are both computed off it.
+   * The wind a player feels and the direction the front travels are two different quantities, and only the
+   * first one was wrong.
+   */
   private fun windAt(region: WeatherRegion, dayOfWorld: Double): Wind {
     val prevailing = Winds.directionAt(region.latitude)
     val gust = drifted(windSeed, region, dayOfWorld, synopticWavelength, params.synopticPeriodDays)
+    // Centred on zero, so the veer adds no net rotation and the mean bearing over a year is still the
+    // latitude's own. `WindDirectionTest` asserts exactly that.
+    val veer = (drifted(veerSeed, region, dayOfWorld, synopticWavelength, params.synopticPeriodDays) - 0.5) *
+        2.0 * params.windVeerRadians
     return Wind(
       speed = BASE_WIND + gust * GUST_WIND,
-      direction = Math.atan2(prevailing.y, prevailing.x)
+      direction = Math.atan2(prevailing.y, prevailing.x) + veer
     )
   }
 
@@ -364,6 +390,9 @@ class WeatherModel(
     private const val AIRMASS_SALT = 0x41697252654D61L
     private const val SEVERITY_SALT = 0x5365765274794CL
     private const val WIND_SALT = 0x57696E6447757AL
+
+    /** Its own salt, so the bearing does not turn in lockstep with the gust strengthening. */
+    private const val VEER_SALT = 0x576E6456656572L
 
     /**
      * Flattens a `[-1,1]` fbm sample into a uniform `[0,1]`, through [FBM_CDF].

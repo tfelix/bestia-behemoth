@@ -114,6 +114,20 @@ data class WeatherParams(
   val sandstormSurfaceShare: Double = 0.40,
 
   /**
+   * How far the surface wind may swing either side of the latitude's prevailing bearing, in radians.
+   *
+   * Without this the bearing was `Winds.directionAt(latitude)` and nothing else - a pure function of latitude,
+   * so **constant in time for the life of a world**. Every region had exactly one wind direction it had ever
+   * had, which reads as a world with no weather in it, and anything downwind-biased came out the same shape
+   * every time.
+   *
+   * On the *synoptic* channel rather than a faster one, so the bearing backs and veers as a front passes
+   * instead of wandering. 0.9 rad is about 52 degrees: enough that a fire or a rain shadow runs a visibly
+   * different way from one day to the next, and not so much that a trade wind ever blows the wrong way.
+   */
+  val windVeerRadians: Double = 0.9,
+
+  /**
    * Mean mana below which mana does **nothing** to the weather.
    *
    * A threshold rather than a gain from zero, deliberately: if every region got a share of the bonus the layer
@@ -213,6 +227,11 @@ data class WeatherParams(
     require(blizzardIntensity in 0.0..1.0) { "blizzardIntensity must be a share" }
     require(sandstormWind > 0.0) { "sandstormWind must be positive" }
     require(sandstormSurfaceShare in 0.0..1.0) { "sandstormSurfaceShare must be a share" }
+    // Half a turn either way would let the veer alone reverse a trade wind, at which point the prevailing
+    // bearing has stopped meaning anything.
+    require(windVeerRadians >= 0.0 && windVeerRadians <= Math.PI / 2.0) {
+      "windVeerRadians must be in [0, pi/2], was $windVeerRadians"
+    }
     require(manaThreshold in 0.0..1.0) { "manaThreshold must be a share" }
     require(manaExponent > 0.0) { "manaExponent must be positive" }
     require(manaGain >= 0.0) { "manaGain must not be negative" }
@@ -250,6 +269,7 @@ data class WeatherParams(
     blizzardIntensity = source.double("blizzardIntensity", blizzardIntensity),
     sandstormWind = source.double("sandstormWind", sandstormWind),
     sandstormSurfaceShare = source.double("sandstormSurfaceShare", sandstormSurfaceShare),
+    windVeerRadians = source.double("windVeerRadians", windVeerRadians),
     manaThreshold = source.double("manaThreshold", manaThreshold),
     manaExponent = source.double("manaExponent", manaExponent),
     manaGain = source.double("manaGain", manaGain),
@@ -282,6 +302,7 @@ data class WeatherParams(
     .put("blizzardIntensity", blizzardIntensity)
     .put("sandstormWind", sandstormWind)
     .put("sandstormSurfaceShare", sandstormSurfaceShare)
+    .put("windVeerRadians", windVeerRadians)
     .put("manaThreshold", manaThreshold)
     .put("manaExponent", manaExponent)
     .put("manaGain", manaGain)
