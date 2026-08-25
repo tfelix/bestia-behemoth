@@ -6,6 +6,7 @@ import net.bestia.worldgen.core.LayerId
 import net.bestia.worldgen.core.WorldConfig
 import net.bestia.worldgen.pipeline.GeneratedWorld
 import net.bestia.worldgen.pipeline.StandardWorld
+import org.junit.jupiter.api.TestInstance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,7 +21,13 @@ import kotlin.test.assertTrue
  *
  * One generated world, shared, and the chunk sweeps are the expensive half - so the whole sample is swept
  * once into [plants] and every test reads that.
+ *
+ * **`PER_CLASS` is what makes "shared" true**, and without it none of the caching above does anything. JUnit's
+ * default is a fresh test-class instance per method, so a `by lazy` instance field is rebuilt for every `@Test`
+ * - six generated worlds and six chunk sweeps rather than one of each. `OrderHistoryTest` is the precedent.
+ * Safe here because every field this shares is derived from that one world and never mutated after.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GroundCoverScatterTest {
 
   private val world: GeneratedWorld by lazy {

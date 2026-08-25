@@ -94,8 +94,13 @@ class WorldParamsTest {
     // Moved with `ResourceParams.ore` and with ruby's and diamond's retuning; see ParamsVersionTest's own pins.
     assertEquals(-1_090_744_351_799_380_755L, WorldParams.DEFAULT.version, "re-pin: the world tuning moved")
     // Moved with `ChunkMaterializer.VERSION` 1 -> 2: buildings stopped being voxels and the strata draw
-    // collapsed to STONE plus LIMESTONE, both of which change what a column materialises into.
-    assertEquals(486_565_586_489_113_592L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
+    // collapsed to STONE plus LIMESTONE, both of which change what a column materialises into. Moved again
+    // when `GroundCoverParams` was folded in - a new prop source changes what `propsIn` returns for every
+    // chunk in the world, which is exactly what this number keys the chunk cache on.
+    //
+    // The pin above it did **not** move, and that is the assertion this pair really makes: ground cover
+    // reaches the chunk tier and nothing above it.
+    assertEquals(6_652_399_870_248_238_818L, WorldParams.DEFAULT.chunkTierVersion, "re-pin: the chunk tier moved")
   }
 
   private fun config() = StandardWorld.demoConfig().copy(widthCells = 64, heightCells = 64)
