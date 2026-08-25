@@ -192,3 +192,62 @@ kinds:
     max-hp: 400
     collider: { half-x: 2, half-y: 1, height: 2 }
     variants: 1
+
+  # The ground cover: worldgen's herbs, shrubs and reeds, each with its blighted twin. See `GroundCoverScatter`
+  # for why these are props at all while the grass you walk on is not.
+  #
+  # `max-hp` is low on purpose, and the number that sets it is `GroundFireConfig.damagePerTick` (6): a herb and
+  # a reed die to one tick of a grass fire, and a shrub takes two or three. A fire that swept a meadow and left
+  # every plant in it standing would be the defect.
+  #
+  # Every one is collectible and every one regrows, which no kind above does both of - a felled tree regrows
+  # but is not picked, and a collected crystal is picked but is gone for good. A picked herb is the first thing
+  # in the world that comes back, and the machinery for it already exists: `CollectPropIntentSystem` records
+  # the depletion with a `resumeAt` and `shouldEmit` refuses the prop until the clock passes.
+  #
+  # Regrowth is faster than a tree's half hour, in the order a plant grows in: a herb is quickest, a shrub is
+  # woody and slowest.
+  #
+  # `variants: 1` throughout, and it is a holding position rather than a decision - these are placeholder boxes
+  # until there is art. See `PropAppearance`.
+  - kind: HERB
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 23, amount: 1 }
+
+  - kind: BLIGHTED_HERB
+    max-hp: 4
+    collider: { half-x: 1, half-y: 1, height: 1 }
+    variants: 1
+    regrow-seconds: 600
+    collect: { item-id: 23, amount: 1 }
+
+  - kind: SHRUB
+    max-hp: 16
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+    regrow-seconds: 1200
+    collect: { item-id: 24, amount: 1 }
+
+  - kind: BLIGHTED_SHRUB
+    max-hp: 12
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+    regrow-seconds: 1200
+    collect: { item-id: 24, amount: 1 }
+
+  - kind: REED
+    max-hp: 6
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 25, amount: 2 }
+
+  - kind: BLIGHTED_REED
+    max-hp: 5
+    collider: { half-x: 1, half-y: 1, height: 2 }
+    variants: 1
+    regrow-seconds: 900
+    collect: { item-id: 25, amount: 2 }

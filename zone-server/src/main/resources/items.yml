@@ -236,3 +236,38 @@ items:
       Blank vellum, ruled and ready to be drawn on.
 
       Surveying spends one, and so does copying a chart.
+
+  # --- Foraged plants -----------------------------------------------------------------------------
+  # What the three ground cover kinds yield - see `prop-kinds.yml`. All ETC: a material is only ever an
+  # input, and none of these is worth a USABLE script of its own when Cooking already has one.
+  #
+  # Light, because foraging is something you do while walking somewhere else. `WeightLimitCalculator`
+  # counts every one, and a herb that cost as much to carry as a lump of ore would make picking it a
+  # decision instead of a reflex.
+  - id: 23
+    item-db-name: wild_herb
+    level: 1
+    weight: 1
+    type: ETC
+    description: |
+      A handful of leaves and roots, pulled up at the wayside.
+
+      Bitter, and worth something to anyone who brews.
+
+  - id: 24
+    item-db-name: bramble_berries
+    level: 1
+    weight: 2
+    type: ETC
+    description: |
+      Dark berries picked off a thorny shrub, still cold from the shade.
+
+  - id: 25
+    item-db-name: reed_stalk
+    level: 1
+    weight: 3
+    type: ETC
+    description: |
+      A cut reed stalk, hollow and stubbornly straight.
+
+      Thatch, baskets and arrow shafts all start here.
