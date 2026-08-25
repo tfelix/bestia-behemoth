@@ -8,6 +8,7 @@ import net.bestia.zone.ecs.script.ScriptComponent
 import net.bestia.zone.entity.PersistedEntityRepository
 import net.bestia.zone.cartography.chart.MapChartRepository
 import net.bestia.zone.entity.deleteAllByKind
+import net.bestia.zone.world.prop.WorldObjectDivergenceRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -27,6 +28,7 @@ class WorldProvisioning(
   private val masterSpawnPointRepository: MasterSpawnPointRepository,
   private val persistedEntityRepository: PersistedEntityRepository,
   private val mapChartRepository: MapChartRepository,
+  private val worldObjectDivergenceRepository: WorldObjectDivergenceRepository,
   private val config: WorldGenConfig
 ) {
 
@@ -57,9 +59,9 @@ class WorldProvisioning(
    *
    * Reached from [WorldService] both under [WorldGenConfig.OnMismatch.REGENERATE] and while retrying a fresh
    * world that came out with too few standing settlements. Everything the old world implied - terrain, chunk
-   * caches, the cached [MasterSpawnPoint] candidates, any persisted script entities, and in time the stored
-   * player deltas over them - goes with the row, because all of it is derived from the seed and dimensions
-   * being replaced. Nothing is backed up: a world that was worth keeping should not have been booted under
+   * caches, the cached [MasterSpawnPoint] candidates, surveyed chart coverage, which props were felled or
+   * claimed, any persisted script entities, and in time the stored player deltas over them - goes with the
+   * row, because all of it is derived from the seed and dimensions being replaced. Nothing is backed up: a world that was worth keeping should not have been booted under
    * this policy (or, for the retry case, was never shown to a player in the first place).
    */
   @Transactional
@@ -85,6 +87,11 @@ class WorldProvisioning(
     // `MapChart.worldShapeVersion` would catch a survived row and refuse to read it, so this is the tidy half
     // rather than the correctness half - but leaving them would keep an unreadable item in every inventory.
     mapChartRepository.deleteAll()
+    // Every felled tree and claimed landmark. `WorldObjectDivergence` carries a `worldShapeVersion` now, so
+    // this is the tidy half like the charts above rather than the correctness half - but it was the
+    // correctness half until that column existed, because `pipelineVersion` does not fold the seed and a
+    // reseeded world therefore matched on the only guard there was.
+    worldObjectDivergenceRepository.deleteAll()
     persistedEntityRepository.deleteAllByKind(ScriptComponent.KIND)
 
     // Before the insert, not after the method returns. The name is uniquely indexed and Hibernate is free to
