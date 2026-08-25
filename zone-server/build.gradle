@@ -75,6 +75,13 @@ allOpen {
 
 tasks.named('test') {
 	useJUnitPlatform()
+
+	// Gradle's default worker heap is 512 MB, which was never a chosen number for this suite and is not enough
+	// for it. The scenario tests boot a real Spring context and genuinely generate a 128 km world - rasters,
+	// vector features, a chunk cache - and several contexts can be alive at once. The suite had been passing
+	// with almost nothing to spare and would OOM on a new entity or a handful of extra beans, taking a whole
+	// test worker with it and reporting the crash against whichever unrelated test happened to be running.
+	maxHeapSize = '2g'
 }
 
 /**

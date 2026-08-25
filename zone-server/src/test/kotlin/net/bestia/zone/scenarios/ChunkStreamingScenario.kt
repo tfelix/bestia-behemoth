@@ -182,15 +182,26 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   fun `a chunk that was never offered is not served`() {
     clientPlayer1.clearMessages()
 
-    // Far outside any plausible view volume. The gate is what stops a pull transport being a way to walk the
-    // whole map, or to make the server materialise arbitrary terrain, one request at a time.
-    val unoffered = ChunkPos(500_000, 500_000, 0)
+    // Outside the view volume, and it has to be *derived* rather than picked.
+    //
+    // This was `ChunkPos(500_000, 500_000, 0)` on the reasoning that it is "far outside any plausible view
+    // volume", which is true in metres and false on this world: both axes wrap, a 128 km world at a 32 m chunk
+    // is exactly 4000 chunks across, and 500000 is 125 * 4000 - so `normalise` mapped it to chunk **(0, 0)**.
+    // The test therefore passed only while the player happened to spawn away from the origin, and failed as a
+    // *premise* whenever they did not.
+    //
+    // Half the world from wherever this player actually is, which on a wrapping world is the furthest any
+    // chunk can be from any other and so cannot alias back into the view.
+    val anchor = subscriptions.announcedTo(clientPlayer1.connectedPlayerId).first()
+    val chunksPerAxis = (chunkService.config.widthMetres / chunkService.config.chunkExtent).toInt()
+    val unoffered = ChunkPos(anchor.x + chunksPerAxis / 2, anchor.y + chunksPerAxis / 2, 0)
+
     assertTrue(
       !subscriptions.isAnnouncedTo(clientPlayer1.connectedPlayerId, chunkService.normalise(unoffered)),
       "the test's own premise: this chunk must not be in the subscription"
     )
 
-    val barrier = subscriptions.announcedTo(clientPlayer1.connectedPlayerId).first()
+    val barrier = anchor
 
     clientPlayer1.sendMessage(ChunkRequestCMSG(clientPlayer1.connectedPlayerId, listOf(unoffered)))
     // A second, legitimately-offered request queued right behind it. Requests are served in arrival order, so
