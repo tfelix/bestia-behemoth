@@ -1,9 +1,8 @@
 package net.bestia.zone.world.fire
 
 import net.bestia.worldgen.voxel.BlockType
-import net.bestia.worldgen.voxel.SurfaceCover
+import net.bestia.worldgen.voxel.SurfaceColumns
 import net.bestia.zone.world.WorldService
-import net.bestia.zone.world.stream.ChunkService
 import org.springframework.stereotype.Service
 
 /**
@@ -32,68 +31,85 @@ fun interface BurnableGround {
  * scatter refuses it as a proxy for *tree* cover because grassland is one of the best litter producers on the
  * list while being almost treeless - which is precisely why it belongs here.
  *
- * ### The bog trap closes itself
+ * ### It asks the voxels what the ground is, not the climate
  *
- * `BiomeForageGround`'s KDoc warns that a threshold on litter "would have quietly sent every herbivore into
- * the mires", bog scoring 0.85 on it. That cannot happen here and not because of a hand-written exclusion
- * list: bog caps in `MUD`, `MUD` is not a burnable cap, so fuel is zero before litter is ever read. The cap
- * test does the work a list would have had to remember to do.
+ * The obvious source is `SurfaceCover.cap(biome, temperature, ...)`, which answers from the biome and the
+ * climate - and that is what the first version used. It has a hole: streets are stamped `COBBLESTONE`,
+ * bridges `MASONRY`, a mine collar worked stone, all by the *voxel* pass, and `cap` never sees any of it. A
+ * fire crossed a paved road.
  *
- * ### What this does not know about: roads
+ * `ChunkMaterializer.surfaceColumns` gives the block actually standing at the top of each column, so every
+ * one of those is a firebreak for free and without a geometry test - a road is not burnable because a road is
+ * cobblestone, which is the same reason a cliff is not. Cached per column, because it materialises up to two
+ * slabs per call.
  *
- * Streets and roads are stamped `COBBLESTONE` into the *voxels* by `TownStructures`, which is a decision
- * `SurfaceCover.cap` never sees - it answers from the biome and the climate. So **a fire crosses a paved road
- * today.** Stated rather than left to be discovered; closing it wants one bounded feature query per fire at
- * ignition, not a per-cell lookup here.
+ * ### Two traps that close themselves
+ *
+ * **Bog.** `BiomeForageGround`'s KDoc warns that a threshold on litter "would have quietly sent every
+ * herbivore into the mires", bog scoring 0.85 on it. Bog's surface is `MUD`, which is not in [CAP_FUEL], so
+ * fuel is zero before litter is read - no exclusion list to forget a biome from.
+ *
+ * **Water.** A river through grassland is a *feature* in a RIPARIAN cell, so the biome says things grow here.
+ * The surface block over it is water, and water is not in [CAP_FUEL] either.
  */
 @Service
 class SurfaceBurnableGround(
   private val worldService: WorldService,
-  /**
-   * For the ground height, and only for that.
-   *
-   * Needed because the water test cannot come from the biome: a river running through grassland is a *feature*
-   * stamped into a RIPARIAN or GRASSLAND cell, so the biome says "things grow here" and the water says
-   * otherwise. `VegetationScatter.propsIn` makes the same call in the same words - "a biome is a kilometre cell
-   * and a pond edge is not, so the water surface has the last word".
-   */
-  private val chunkService: ChunkService,
 ) : BurnableGround {
+
+  /**
+   * Chunk column -> the block at the top of each of its columns.
+   *
+   * **Never invalidated**, on `ChunkStreamConfig.slabCacheCapacity`'s argument: this is a pure function of the
+   * generated world. A player carving terrain could in principle change it, and the consequence is a fire
+   * treating a freshly-dug pit as whatever used to be on top - which is not worth an invalidation path for a
+   * mechanic about grass.
+   */
+  private val surfaceCache = object : LinkedHashMap<Long, SurfaceColumns>(CACHE_CAPACITY, 0.75f, true) {
+    override fun removeEldestEntry(eldest: Map.Entry<Long, SurfaceColumns>) = size > CACHE_CAPACITY
+  }
 
   override fun fuelAt(voxelX: Long, voxelY: Long): Double {
     if (!worldService.isLoaded) return 0.0
 
     val config = worldService.config
-    val worldX = voxelX * config.voxelSize
-    val worldY = voxelY * config.voxelSize
+    val chunkSize = config.chunkSize.toLong()
 
-    val surface = worldService.generated.materializer.surface
+    val chunkX = Math.floorDiv(voxelX, chunkSize).toInt()
+    val chunkY = Math.floorDiv(voxelY, chunkSize).toInt()
 
-    // Standing water, from the surface rather than from the biome - see the constructor note. A null ground
-    // is a column outside the world, which is not burning either.
-    val ground = chunkService.surfaceElevationAt(voxelX, voxelY) ?: return 0.0
-    if (surface.waterLevelAt(worldX, worldY) > ground) return 0.0
+    val columns = surfaceCache.getOrPut(ScorchRegistry.columnKeyOf(chunkX, chunkY)) {
+      worldService.generated.materializer.surfaceColumns(chunkX, chunkY)
+    }
 
-    val biome = surface.biomeAt(worldX, worldY)
-    val cap = SurfaceCover.cap(
-      biome,
-      surface.temperatureAt(worldX, worldY),
-      0.0,
-      surface.isBlightedAt(worldX, worldY)
+    val block = columns.blockAt(
+      Math.floorMod(voxelX, chunkSize).toInt(),
+      Math.floorMod(voxelY, chunkSize).toInt()
     )
 
-    val capFuel = CAP_FUEL[cap] ?: return 0.0
+    // Everything not in the table is zero - water, sand, snow, ice, mud, every rock, and the cobblestone and
+    // masonry a road or a bridge is made of. Unburnable by construction rather than by an exclusion list.
+    // `ofOrNull`, not `of`: the throwing variant means "written by another version", which is the right
+    // reaction when decoding a stored chunk and the wrong one on the tick thread inside a grass fire.
+    val blockFuel = BlockType.ofOrNull(block)?.let { CAP_FUEL[it] } ?: return 0.0
+
+    val worldX = voxelX * config.voxelSize
+    val worldY = voxelY * config.voxelSize
+    val biome = worldService.generated.materializer.surface.biomeAt(worldX, worldY)
 
     // Litter carries the fire and canopy shades the ground that would otherwise dry out, so an open grassland
     // burns better than a closed forest floor at the same litter. Shaped rather than balanced.
     val openness = 1.0 - biome.canopy * CANOPY_DAMPING
-    return (biome.litter * LITTER_WEIGHT * openness * capFuel).coerceIn(0.0, 1.0)
+    return (biome.litter * LITTER_WEIGHT * openness * blockFuel).coerceIn(0.0, 1.0)
   }
 
   private companion object {
 
+    /** Chunk columns held at once. A fire spans a handful; a view volume is 121. */
+    const val CACHE_CAPACITY = 512
+
     /**
-     * The only caps that carry a fire, and what each is worth.
+     * The only surface blocks that carry a fire, and what each is worth.
      *
      * A map rather than a set plus a constant, because dry grass genuinely burns better than green: it is the
      * one distinction the cap table already draws that fire cares about. Anything absent is zero - so sand,

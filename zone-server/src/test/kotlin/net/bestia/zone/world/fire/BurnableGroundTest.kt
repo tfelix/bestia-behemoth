@@ -8,29 +8,33 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Which ground carries a fire, checked against the cap table rather than against a generated world.
+ * Which ground carries a fire.
  *
- * `SurfaceBurnableGround` is three lookups and one arithmetic line over `SurfaceCover.cap`, `Biome.litter` and
- * `Biome.canopy`. Building a world to test it would measure the world, so this asks the same question of the
- * same inputs: **for every biome, would the ground it caps in burn, and does the ranking come out right.**
+ * `SurfaceBurnableGround` reads the **surface block** from the materialiser and combines it with the biome's
+ * litter and canopy. Building a world to test that would measure the world, so this asks the same arithmetic
+ * of the same inputs, using `SurfaceCover.cap` to stand in for what the voxel pass would put on top of each
+ * biome where nothing has been built.
  *
- * The value that matters is not any single number - they are shaped rather than balanced - but the shape of
- * the answer across the biome list, and in particular the two entries that would be wrong under a plausible
- * simpler implementation.
+ * That substitution is exactly where the interesting cases are, and it is worth being explicit that it is a
+ * substitution: `cap` does **not** know about roads, bridges or masonry, which is why the real implementation
+ * stopped using it. Those are covered by the block table below rather than by a biome.
  */
 class BurnableGroundTest {
 
-  /** The fuel arithmetic, given what the world would have said. Mirrors `SurfaceBurnableGround.fuelAt`. */
-  private fun fuelOf(biome: Biome, temperature: Double = 15.0, blighted: Boolean = false): Double {
-    val cap = SurfaceCover.cap(biome, temperature, 0.0, blighted)
-    val capFuel = when (cap) {
+  /** The fuel arithmetic over a surface block and a biome. Mirrors `SurfaceBurnableGround.fuelAt`. */
+  private fun fuelOf(block: BlockType, biome: Biome): Double {
+    val blockFuel = when (block) {
       BlockType.DRY_GRASS -> 1.0
       BlockType.GRASS -> 0.8
       BlockType.BLIGHTED_GRASS -> 0.9
       else -> return 0.0
     }
-    return (biome.litter * 1.2 * (1.0 - biome.canopy * 0.5) * capFuel).coerceIn(0.0, 1.0)
+    return (biome.litter * 1.2 * (1.0 - biome.canopy * 0.5) * blockFuel).coerceIn(0.0, 1.0)
   }
+
+  /** What the voxel pass would cap this biome with where nothing has been built on it. */
+  private fun fuelOf(biome: Biome, temperature: Double = 15.0, blighted: Boolean = false): Double =
+    fuelOf(SurfaceCover.cap(biome, temperature, 0.0, blighted), biome)
 
   @Test
   fun `grassland burns well`() {
@@ -73,6 +77,27 @@ class BurnableGroundTest {
 
     assertTrue(forest > 0.0, "a rainforest floor is completely fireproof")
     assertTrue(grass > forest, "grassland ($grass) does not outburn rainforest ($forest)")
+  }
+
+  /**
+   * **The case that made the implementation change.** A street is cobblestone and a bridge masonry, both
+   * stamped by the voxel pass into a cell whose *biome* is grassland - so a biome-only fuel function set fire
+   * to a paved road. Reading the surface block is what closes it, and it closes bridges and mine collars with
+   * the same line.
+   */
+  @Test
+  fun `worked stone does not burn even in the middle of a grassland`() {
+    assertTrue(fuelOf(BlockType.GRASS, Biome.GRASSLAND) > 0.0, "the premise: grassland burns")
+
+    for (built in listOf(BlockType.COBBLESTONE, BlockType.MASONRY, BlockType.STONE, BlockType.GRAVEL)) {
+      assertEquals(0.0, fuelOf(built, Biome.GRASSLAND), "$built burns in a grassland")
+    }
+  }
+
+  @Test
+  fun `standing water does not burn even in a riparian cell`() {
+    assertTrue(Biome.RIPARIAN.litter > 0.5, "the premise: riparian scores well on litter")
+    assertEquals(0.0, fuelOf(BlockType.WATER, Biome.RIPARIAN), "a river burns")
   }
 
   /**
