@@ -31,7 +31,11 @@ data class AreaEffect(
    * Half the edge of the affected cube, in tiles: a radius of 1 covers the 3x3 the caster aimed at.
    * See [AreaEffectSystem] for why this is not a distance test.
    */
-  val radiusTiles: Long,
+  /**
+   * Half the cube's edge. **Mutable**, because a spreading grass fire resizes the effect covering it rather
+   * than replacing it - re-spawning would broadcast an entity appearing every second.
+   */
+  var radiusTiles: Long,
 
   val damagePerTick: Int,
   val tickIntervalSeconds: Float,

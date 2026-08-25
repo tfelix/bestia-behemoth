@@ -7,6 +7,8 @@ import net.bestia.zone.ecs.EntityAOIService
 import net.bestia.zone.ecs.battle.damage.Damage
 import net.bestia.zone.ecs.battle.damage.Dead
 import net.bestia.zone.ecs.battle.status.Health
+import net.bestia.zone.ecs.battle.status.StatusValues
+import net.bestia.zone.ecs.movement.Grounded
 import net.bestia.zone.ecs.core.ComponentClassSet
 import net.bestia.zone.ecs.core.Schedule
 import net.bestia.zone.ecs.core.System
@@ -14,6 +16,7 @@ import net.bestia.zone.ecs.core.World
 import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.message.OutMessageProcessor
+import net.bestia.zone.world.prop.PropPromotionService
 import net.bestia.zone.util.EntityId
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
@@ -35,13 +38,24 @@ import org.springframework.stereotype.Component as SpringComponent
 @Order(48)
 class AreaEffectSystem(
   private val entityAOIService: EntityAOIService,
-  private val outMessageProcessor: OutMessageProcessor
+  private val outMessageProcessor: OutMessageProcessor,
+  private val propPromotionService: PropPromotionService
 ) : System {
 
   override val schedule: Schedule = Schedule.EveryTick
 
   override val reads: ComponentClassSet = setOf(Position::class, Health::class, Dead::class)
-  override val writes: ComponentClassSet = setOf(AreaEffect::class, Damage::class)
+  /**
+   * Includes what `PropPromotionService` adds to a *victim*, not just what this touches on the effect.
+   *
+   * `SystemScheduler.conflicts()` looks at nothing but these sets, so a system that promotes a prop and does
+   * not say so can share a wave with something iterating `Position` or `Health` - and the fact that the
+   * promotion happens to entities this system does not own makes no difference to the store being mutated.
+   */
+  override val writes: ComponentClassSet = setOf(
+    AreaEffect::class, Damage::class,
+    Position::class, Grounded::class, Health::class, StatusValues::class
+  )
 
   override fun update(world: World, deltaTime: Float) {
     // Collected first: destroying inside the query would mutate what it is iterating.
@@ -90,6 +104,16 @@ class AreaEffectSystem(
         if (!effect.hitsCaster && victimId == effect.casterId) continue
         if (!world.isAlive(victimId)) continue
         if (world.has(victimId, Dead::class)) continue
+
+        // A static prop has no `Health` until something interacts with it, so without this the `AoiLayer.ALL`
+        // above bought nothing and the class note's "a fire that spares the trees is the defect" was an
+        // aspiration rather than a description. False means the prop refuses - a claimed landmark, a mined-out
+        // crystal, one not yet regrown - which is the same answer any other unresolvable target gives.
+        //
+        // Sound *here* specifically because this is inside `world.defer`: structural changes apply immediately
+        // in a deferred block, so the `Health` the promotion adds is visible to the check on the next line. In
+        // an ordinary system body it would be queued and this would still see nothing.
+        if (!propPromotionService.promoteIfNeeded(world, victimId)) continue
         if (!world.has(victimId, Health::class)) continue
 
         val damage = world.get(victimId, Damage::class) ?: world.add(victimId, Damage())
