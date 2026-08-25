@@ -42,9 +42,22 @@ namespace BestiaBehemothClient.Game.World
     private const int Size = 512;
 
     /// <summary>Slot ordinal to the name its file carries, for the log and for finding it.</summary>
+    /// <remarks>
+    /// Keep in step with <c>BlockAppearance.SurfaceSlot</c> - a name here is how the file for that slot is
+    /// found, so a mismatch means authored art silently never loads and the slot renders as generated noise.
+    /// Slot 7 read <c>reserved</c> long after it became <c>Wetland</c>, which is exactly that bug sitting
+    /// harmlessly in place because nobody had drawn the texture yet.
+    ///
+    /// <para>
+    /// Slots 9 to 15 are unnamed on purpose. They exist because the enum went to sixteen for
+    /// <c>Scorched</c>, and naming them now would invite art for materials nobody has decided on; an unnamed
+    /// slot loads as generated grey and no block maps to it, so it costs a texture layer and nothing else.
+    /// </para>
+    /// </remarks>
     private static readonly string[] Names =
     {
-      "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "reserved"
+      "neutral", "grass", "dry_grass", "sand", "soil", "rock", "snow", "wetland", "scorched",
+      "slot09", "slot10", "slot11", "slot12", "slot13", "slot14", "slot15"
     };
 
     /// <summary>The two arrays, and the mean colour of each albedo layer.</summary>

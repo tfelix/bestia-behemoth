@@ -42,6 +42,19 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// <summary>Slots four to seven, for <c>ARRAY_CUSTOM1</c>. Same shape as <see cref="SlotWeights0"/>.</summary>
     public byte[] SlotWeights1 { get; init; }
 
+    /// <summary>Slots eight to eleven, for <c>ARRAY_CUSTOM2</c>. Same shape as <see cref="SlotWeights0"/>.</summary>
+    public byte[] SlotWeights2 { get; init; }
+
+    /// <summary>
+    /// Slots twelve to fifteen, for <c>ARRAY_CUSTOM3</c>. Same shape as <see cref="SlotWeights0"/>.
+    /// </summary>
+    /// <remarks>
+    /// The last one. Godot offers four custom vertex channels and <c>BlockAppearance.Slots</c> now spends all
+    /// four, so anything else wanting per-vertex data has to share a channel or go through a per-chunk
+    /// indirection instead - see that constant's own remarks.
+    /// </remarks>
+    public byte[] SlotWeights3 { get; init; }
+
     public int[] Indices { get; init; }
 
     public int TriangleCount => Indices.Length / 3;

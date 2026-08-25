@@ -38,7 +38,7 @@ group_uniforms;
 // One colour per slot, in BlockAppearance.SurfaceSlot order. Chosen to be told apart at a glance and
 // deliberately unlike the materials they stand for - a debug view that looks like the thing it is debugging is
 // one you cannot use to tell whether it is working.
-const vec3 SLOT_COLOURS[8] = {
+const vec3 SLOT_COLOURS[16] = {
 	vec3(0.50, 0.50, 0.50), // NEUTRAL   grey
 	vec3(0.10, 0.90, 0.20), // GRASS     green
 	vec3(0.85, 0.85, 0.10), // DRY_GRASS yellow
@@ -46,7 +46,17 @@ const vec3 SLOT_COLOURS[8] = {
 	vec3(0.55, 0.25, 0.05), // SOIL      brown
 	vec3(0.20, 0.45, 1.00), // ROCK      blue
 	vec3(1.00, 1.00, 1.00), // SNOW      white
-	vec3(1.00, 0.00, 0.80)  // RESERVED  magenta, because seeing it at all is the bug
+	vec3(0.00, 0.85, 0.85), // WETLAND   cyan
+	vec3(0.15, 0.05, 0.20), // SCORCHED  near-black violet
+	// Slots 9 to 15 have no material yet. Magenta, because seeing one at all is the bug - the same posture
+	// PropAppearance takes for an unknown prop kind, and the reason slot 7 used to be magenta here.
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80),
+	vec3(1.00, 0.00, 0.80)
 };
 
 vec3 debug_colour(TerrainSurface surface) {
@@ -129,6 +139,8 @@ void vertex() {
 	v_world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
 	v_weights_low = CUSTOM0;
 	v_weights_high = CUSTOM1;
+	v_weights_low2 = CUSTOM2;
+	v_weights_high2 = CUSTOM3;
 }
 
 void fragment() {

@@ -82,8 +82,13 @@ namespace BestiaBehemothClient.Tests
       Assert.Equal(2, Count(BlockAppearance.SurfaceSlot.Snow));
 
       // MUD, and it is the whole reason the slot stopped being Reserved: wet ground is not dry ground in a
-      // darker tint. See SurfaceSlot.Wetland - there is no spare slot left after this one.
+      // darker tint. See SurfaceSlot.Wetland.
       Assert.Equal(1, Count(BlockAppearance.SurfaceSlot.Wetland));
+
+      // None. Scorched ground is not a block and cannot be one - the chunk wire format can only remove a voxel
+      // - so it reaches the mesher as a per-chunk mask and no palette row maps to it. A row appearing here
+      // means somebody tried to make burnt ground a BlockType, which cannot be delivered.
+      Assert.Equal(0, Count(BlockAppearance.SurfaceSlot.Scorched));
 
       int Count(BlockAppearance.SurfaceSlot slot) => census.GetValueOrDefault(slot, 0);
     }
@@ -125,19 +130,33 @@ namespace BestiaBehemothClient.Tests
     /// Every slot ordinal is a channel the mesher can actually write to.
     /// </summary>
     /// <remarks>
-    /// The enum and <see cref="BlockAppearance.Slots"/> are two statements of the same fact in two places, and the
-    /// mesher indexes an eight-element array by the first while the vertex format is sized by the second. A ninth
-    /// slot added without widening the format is an out-of-range write in a worker thread.
+    /// The mesher indexes a <see cref="BlockAppearance.Slots"/>-element array by the ordinal and the vertex
+    /// format is sized by the same constant, so a slot past the end is an out-of-range write in a worker thread.
+    ///
+    /// <para>
+    /// <b>Fits, not fills.</b> This asserted equality while the enum happened to use all eight channels, which
+    /// conflated two different facts: that no ordinal escapes the format, and that no channel goes spare. The
+    /// second was never a requirement, and stopped being true the moment the format went to sixteen for
+    /// <c>Scorched</c> - the spare channels are deliberate headroom, and a test demanding they be filled would
+    /// have to be edited by whoever fills one, which is the opposite of a guard.
+    /// </para>
     /// </remarks>
     [Fact]
     public void SlotOrdinalsFitTheVertexFormat()
     {
       var slots = Enum.GetValues<BlockAppearance.SurfaceSlot>();
 
-      Assert.Equal(BlockAppearance.Slots, slots.Length);
+      Assert.True(
+        slots.Length <= BlockAppearance.Slots,
+        $"{slots.Length} slots declared against a format sized for {BlockAppearance.Slots}");
       Assert.All(slots, slot => Assert.InRange((int)slot, 0, BlockAppearance.Slots - 1));
 
-      // Two RGBA8 vertex attributes, four weights each. Everything above assumes this split.
+      // Ordinals are dense from zero, so the texture array layer count and the enum agree.
+      Assert.Equal(
+        Enumerable.Range(0, slots.Length),
+        slots.Select(slot => (int)slot).OrderBy(ordinal => ordinal));
+
+      // Four RGBA8 vertex attributes, four weights each. Everything above assumes this split.
       Assert.Equal(0, BlockAppearance.Slots % 4);
     }
   }

@@ -90,9 +90,14 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var normals = new List<Vector3>(2048);
       var colours = new List<Color>(2048);
 
-      // Four bytes per vertex each, because that is the shape ArrayMesh wants an eight-bit custom channel in.
-      var slotWeights0 = new List<byte>(2048 * 4);
-      var slotWeights1 = new List<byte>(2048 * 4);
+      // One list per custom vertex channel, four bytes per vertex each, because that is the shape ArrayMesh
+      // wants an eight-bit custom channel in. An array rather than four locals so EmitVertex and PackWeights
+      // take one parameter instead of four; there is no fifth channel, because Godot offers exactly four.
+      var slotWeights = new List<byte>[BlockAppearance.Slots / 4];
+      for (var channel = 0; channel < slotWeights.Length; channel++)
+      {
+        slotWeights[channel] = new List<byte>(2048 * 4);
+      }
 
       var corner = new float[8];
 
@@ -130,7 +135,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
             EmitVertex(
               patch, field, corner, px, py, pz, includeMask, appearance, voxelSize,
-              vertices, normals, colours, slotWeights0, slotWeights1);
+              vertices, normals, colours, slotWeights);
 
             vertexAt[(py * width + px) * depth + pz] = vertices.Count - 1;
           }
@@ -154,8 +159,10 @@ namespace BestiaBehemothClient.Game.World.Mesh
         Vertices = vertices.ToArray(),
         Normals = normals.ToArray(),
         Colours = colours.ToArray(),
-        SlotWeights0 = slotWeights0.ToArray(),
-        SlotWeights1 = slotWeights1.ToArray(),
+        SlotWeights0 = slotWeights[0].ToArray(),
+        SlotWeights1 = slotWeights[1].ToArray(),
+        SlotWeights2 = slotWeights[2].ToArray(),
+        SlotWeights3 = slotWeights[3].ToArray(),
         Indices = indices.ToArray()
       };
     }
@@ -342,7 +349,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       int px, int py, int pz,
       byte[] includeMask, BlockAppearance appearance, float voxelSize,
       List<Vector3> vertices, List<Vector3> normals, List<Color> colours,
-      List<byte> slotWeights0, List<byte> slotWeights1)
+      List<byte>[] slotWeights)
     {
       float sumX = 0.0f, sumY = 0.0f, sumZ = 0.0f;
       var crossings = 0;
@@ -398,7 +405,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
       var dominant = AccumulateSurface(patch, px, py, pz, includeMask, appearance, weights);
 
       colours.Add(appearance.ColourOf(dominant));
-      PackWeights(weights, appearance.SlotOf(dominant), slotWeights0, slotWeights1);
+      PackWeights(weights, appearance.SlotOf(dominant), slotWeights);
     }
 
     /// <summary>
@@ -486,7 +493,7 @@ namespace BestiaBehemothClient.Game.World.Mesh
     /// </para>
     /// </remarks>
     private static void PackWeights(
-      int[] weights, BlockAppearance.SurfaceSlot dominant, List<byte> low, List<byte> high)
+      int[] weights, BlockAppearance.SurfaceSlot dominant, List<byte>[] channels)
     {
       var total = 0;
       for (var slot = 0; slot < BlockAppearance.Slots; slot++)
@@ -512,10 +519,12 @@ namespace BestiaBehemothClient.Game.World.Mesh
 
       weights[(int)dominant] += 255 - assigned;
 
-      for (var slot = 0; slot < 4; slot++)
+      for (var channel = 0; channel < channels.Length; channel++)
       {
-        low.Add((byte)weights[slot]);
-        high.Add((byte)weights[slot + 4]);
+        for (var lane = 0; lane < 4; lane++)
+        {
+          channels[channel].Add((byte)weights[channel * 4 + lane]);
+        }
       }
     }
 

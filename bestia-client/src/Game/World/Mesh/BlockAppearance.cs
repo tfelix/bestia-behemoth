@@ -132,25 +132,48 @@ namespace BestiaBehemothClient.Game.World.Mesh
       /// somewhere to go". Wet ground is that material. Every other slot here is a grain - the blades of grass,
       /// the fracture of rock - and wetness is not a grain, which is exactly why no tint over
       /// <see cref="Soil"/> could express it and why a bog rendered as a ploughed field.
-      ///
-      /// <para>
-      /// <b>All eight slots are now spent.</b> The next material that needs its own texture cannot have one
-      /// without going to sixteen, and <see cref="Slots"/> explains what sixteen costs: all four vertex
-      /// attributes Godot offers, with nothing left over.
-      /// </para>
       /// </remarks>
-      Wetland = 7
+      Wetland = 7,
+
+      /// <summary>
+      /// Ash and charred stubble: ground a fire has been through.
+      /// </summary>
+      /// <remarks>
+      /// The material that took this enum to sixteen, and it could not have been a tint over <see cref="Soil"/>
+      /// for <see cref="Wetland"/>'s reason: burnt ground is its own grain, not a darker version of somebody
+      /// else's. It also cannot be a <c>BlockType</c>, which is where a reader will expect to find it - the
+      /// server's chunk wire format can only ever *remove* a voxel (<c>CHUNK_PATCH_ENCODING_REMOVAL_V1</c> is
+      /// the only encoding there is), so no message can change a voxel's material. Scorch arrives as its own
+      /// per-chunk mask and is substituted into the weights by the mesher.
+      /// </remarks>
+      Scorched = 8
     }
 
     /// <summary>
-    /// How many slots the shader blends between. Eight, and the eight are not arbitrary.
+    /// How many slots the shader blends between. Sixteen, which is every one Godot's vertex attributes allow.
     /// </summary>
     /// <remarks>
-    /// One <c>RGBA8</c> vertex attribute holds four weights, so eight is two attributes - <c>CUSTOM0</c> and
-    /// <c>CUSTOM1</c> - and sixteen would be all four Godot offers with nothing left for anything else. Keep in
-    /// step with <see cref="SurfaceSlot"/> and with the array uniforms in <c>terrain.gdshader</c>.
+    /// One <c>RGBA8</c> vertex attribute holds four weights, so sixteen is all four Godot offers -
+    /// <c>CUSTOM0</c> through <c>CUSTOM3</c> - with nothing left for anything else. Keep in step with
+    /// <see cref="SurfaceSlot"/> and with the array uniforms in <c>terrain_common.gdshaderinc</c>.
+    ///
+    /// <para>
+    /// <b>Widening this cost no per-pixel time, which is why it was affordable.</b> The shader samples only the
+    /// two heaviest slots and says why at the site: a weight-culled loop over all of them "would be cheaper on a
+    /// typical pixel and unbounded on the worst one". So going from eight to sixteen added eight integer
+    /// compares to that max-search and <b>zero texture fetches</b>. What it spent is the last two vertex
+    /// attributes and the VRAM for the extra layers.
+    /// </para>
+    ///
+    /// <para>
+    /// The attributes are now the binding constraint rather than the slot count. The next thing that wants
+    /// per-vertex data has to either share a channel or move the splat to a per-chunk indirection - keep eight
+    /// weight channels and remap them through a per-chunk table of which slots this chunk actually uses, built
+    /// over the chunk <b>and its aprons</b> so a seam cannot disagree. Not needed yet; recorded so it is not
+    /// rediscovered from scratch.
+    /// </para>
     /// </remarks>
-    public const int Slots = 8;
+    public const int Slots = 16;
 
     /// <summary>One material, exactly as the server's <c>BlockType</c> declares it, plus how to draw it.</summary>
     public sealed class Block

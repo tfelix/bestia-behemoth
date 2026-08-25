@@ -40,19 +40,28 @@ namespace BestiaBehemothClient.Tests
     private static ChunkMesh Mesh(FakeChunkSource source, int chunkX = 0, int chunkY = 0) =>
       SurfaceNets.Build(source, new ChunkKey(chunkX, chunkY, 0), Appearance, 1.0f, ChunkWrap.None);
 
-    /// <summary>The eight weights of one vertex, reassembled from the two channels they are split across.</summary>
+    /// <summary>Every weight of one vertex, reassembled from the four channels they are split across.</summary>
     private static int[] WeightsAt(ChunkSurface surface, int vertex)
     {
       var weights = new int[BlockAppearance.Slots];
+      var channels = Channels(surface);
 
-      for (var channel = 0; channel < 4; channel++)
+      for (var channel = 0; channel < channels.Length; channel++)
       {
-        weights[channel] = surface.SlotWeights0[vertex * 4 + channel];
-        weights[channel + 4] = surface.SlotWeights1[vertex * 4 + channel];
+        for (var lane = 0; lane < 4; lane++)
+        {
+          weights[channel * 4 + lane] = channels[channel][vertex * 4 + lane];
+        }
       }
 
       return weights;
     }
+
+    /// <summary>The custom vertex channels the weights are split across, in slot order.</summary>
+    private static byte[][] Channels(ChunkSurface surface) => new[]
+    {
+      surface.SlotWeights0, surface.SlotWeights1, surface.SlotWeights2, surface.SlotWeights3
+    };
 
     private static int WeightOf(ChunkSurface surface, int vertex, BlockAppearance.SurfaceSlot slot) =>
       WeightsAt(surface, vertex)[(int)slot];
@@ -83,8 +92,12 @@ namespace BestiaBehemothClient.Tests
 
       foreach (var surface in mesh.Surfaces.Where(s => s != null))
       {
-        Assert.Equal(surface.Vertices.Length * 4, surface.SlotWeights0.Length);
-        Assert.Equal(surface.Vertices.Length * 4, surface.SlotWeights1.Length);
+        // Every channel, not just the first two. A channel left unfilled uploads as whatever the attribute
+        // defaults to, and the slots in it would then read as present-but-zero rather than as absent.
+        foreach (var channel in Channels(surface))
+        {
+          Assert.Equal(surface.Vertices.Length * 4, channel.Length);
+        }
 
         checkedAny = true;
       }
