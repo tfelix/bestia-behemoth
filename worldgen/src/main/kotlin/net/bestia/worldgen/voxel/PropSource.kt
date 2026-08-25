@@ -80,7 +80,33 @@ enum class PropKind {
    * hillside; what is missing is the walls. One clause in `ChunkWalkQuery.canStep` closes it when there is an
    * entity collider to ask.
    */
-  BUILDING
+  BUILDING,
+
+  /**
+   * A herb: the small pickable plant of open ground and of a forest floor.
+   *
+   * The first of three kinds that share **one** lattice, and three kinds rather than one with a discriminator
+   * because they are different objects to everything downstream - different meshes, different health,
+   * different yields. `StaticEntityKind` dispatches a mesh on the kind, so a byte would only be unpacked
+   * again on the other side. See [GroundCoverScatter] for why one lattice is safe here where it is not
+   * between [MANA_CRYSTAL] and [WOUND_SPIRE].
+   *
+   * These are deliberately **not** the grass a player sees. Grass as a surface is the terrain's own material
+   * and burns as a field with no entity behind it at all; these are the sparse plants that have an identity,
+   * so that picking one is something the world can remember.
+   */
+  HERB,
+
+  /** A shrub: the woody member of the ground cover, on scrub and under a canopy. See [HERB]. */
+  SHRUB,
+
+  /**
+   * A reed, on the strip of ground barely above the water it grows out of.
+   *
+   * Placed off the *water surface* rather than off the biome, because a biome is a kilometre cell and a pond
+   * edge is not. See [GroundCoverScatter].
+   */
+  REED
 }
 
 /**

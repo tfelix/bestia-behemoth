@@ -43,6 +43,7 @@ import net.bestia.worldgen.resource.ResourceType
 import net.bestia.worldgen.spawn.SpawnHostility
 import net.bestia.worldgen.spawn.SpawnerParams
 import net.bestia.worldgen.voxel.CrystalParams
+import net.bestia.worldgen.voxel.GroundCoverParams
 import net.bestia.worldgen.voxel.StrataParams
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -113,6 +114,7 @@ class ParamsVersionTest {
     StrataParams(),
     DropletParams(),
     CrystalParams(),
+    GroundCoverParams(),
     WeatherParams(),
     // A catalogue rather than a params object, and a tunable either way. A named preset because `name` has no
     // default - a culture without one would be a bug, and the constructor says so.
@@ -236,6 +238,8 @@ class ParamsVersionTest {
       "StrataParams" to 5_360_263_422_566_259_310L,
       "DropletParams" to 8_150_952_456_997_203_313L,
       "CrystalParams" to 7_903_608_439_399_290_165L,
+      // The pickable plants. Chunk tier only, so it moves `chunkTierVersion` and no stage version.
+      "GroundCoverParams" to 9_016_082_839_178_701_101L,
       // Re-pinned when `windVeerRadians` was added, so a region's wind could back and veer over time.
       "WeatherParams" to 874_725_757_913_884_383L,
       "Culture" to 9_142_772_940_960_129_542L

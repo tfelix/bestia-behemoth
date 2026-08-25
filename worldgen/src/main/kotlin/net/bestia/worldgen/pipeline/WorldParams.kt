@@ -30,6 +30,7 @@ import net.bestia.worldgen.spawn.VegetationStandParams
 import net.bestia.worldgen.voxel.ChunkMaterializer
 import net.bestia.worldgen.voxel.AetheriteParams
 import net.bestia.worldgen.voxel.CrystalParams
+import net.bestia.worldgen.voxel.GroundCoverParams
 import net.bestia.worldgen.voxel.StrataParams
 import net.bestia.worldgen.voxel.VegetationParams
 
@@ -174,6 +175,16 @@ data class WorldParams(
   val aetherite: AetheriteParams = AetheriteParams(),
 
   /**
+   * The pickable plants: herbs, shrubs and reeds. Chunk tier only, for [crystal]'s reason.
+   *
+   * Beside [crystal] rather than beside [vegetation], though it scatters plants: what decides where it folds
+   * is which tiers read it, and no stage does. There is no kilometre raster of ground cover the way
+   * `CANOPY_COVER` is one of trees - if a stage ever wants one, this has to be folded twice for the reason
+   * [vegetation] is.
+   */
+  val groundCover: GroundCoverParams = GroundCoverParams(),
+
+  /**
    * The weather model.
    *
    * **Folded into neither [version] nor [chunkTierVersion], and that is the point rather than an oversight.**
@@ -280,7 +291,8 @@ data class WorldParams(
       // decide which of the three ore blocks a voxel is, so it belongs on this side too.
       r.resource.grades.digest().value,
       r.crystal.digest().value,
-      r.aetherite.digest().value
+      r.aetherite.digest().value,
+      r.groundCover.digest().value
     )
   }
 
@@ -302,7 +314,7 @@ data class WorldParams(
      */
     val NOT_YET_LOADABLE = setOf(
       "glacial", "hydrology", "pond", "alluvium", "biome", "vegetation", "habitability", "settlement",
-      "town", "economy", "detail", "strata", "crystal", "aetherite", "vegetationStand"
+      "town", "economy", "detail", "strata", "crystal", "aetherite", "vegetationStand", "groundCover"
     )
 
     /**

@@ -139,7 +139,10 @@ class ChunkMaterializer(
   crystalParams: CrystalParams = CrystalParams(),
 
   /** Where the aetherite shards outcrop. Forwarded from the params object, like the crystal tuning. */
-  private val aetheriteParams: AetheriteParams = AetheriteParams()
+  private val aetheriteParams: AetheriteParams = AetheriteParams(),
+
+  /** Where the herbs, shrubs and reeds are. Forwarded from the params object, like the crystal tuning. */
+  groundCoverParams: GroundCoverParams = GroundCoverParams()
 ) {
 
   /**
@@ -159,6 +162,14 @@ class ChunkMaterializer(
    * a position without materialising a chunk to find out.
    */
   val vegetation = VegetationScatter(config, surface, config.seed, vegetationParams)
+
+  /**
+   * Where the pickable plants are.
+   *
+   * Public for [crystals]' reason: "is there anything to forage here" is a question about the world, and a
+   * runtime that wants to answer it should not have to build a chunk first.
+   */
+  val groundCover = GroundCoverScatter(config, surface, config.seed, groundCoverParams)
 
   /** Materialises one chunk volume. */
   fun materialize(chunk: ChunkPos): VoxelChunk {
@@ -261,6 +272,9 @@ class ChunkMaterializer(
     val into = PropInstances()
 
     vegetation.propsIn(chunk, site, into)
+    // Shares the trees' `site`, which is what keeps a herb off a paved road, out of a building's footprint
+    // and off a cave mouth without asking any of those questions again.
+    groundCover.propsIn(chunk, site, into)
     crystals.propsIn(chunk, site, into)
     structures.spireProps(config, chunk, site, into)
     // Built here from `nearby` rather than held in a field like `crystals` and `vegetation`, because its input
