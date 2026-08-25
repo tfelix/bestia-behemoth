@@ -1,12 +1,12 @@
 extends Node
 
-## Drives the sun, the moon, the sky and the fog from the world clock.
+## Drives the sun, the moon, the sky and the fog from the world clock and the weather.
 ##
 ## The lights and the WorldEnvironment are children of this same scene, so their shadow settings, angular
 ## sizes and fog distances stay where a designer would look for them - and so they are reached directly here
-## rather than handed over by whatever scene this is dropped into. Only the clock comes from outside, and it
-## is allowed to be missing: this is a visual layer, and a client that has not been told the time should
-## still be playable under the light the scene was authored with.
+## rather than handed over by whatever scene this is dropped into. Only the clock and the weather come from
+## outside, and both are allowed to be missing: this is a visual layer, and a client that has not been told
+## the time or the sky should still be playable under the light the scene was authored with.
 
 ## How high the sun climbs at its peak, in degrees.
 ##
@@ -77,18 +77,86 @@ extends Node
 ## play under it.
 @export_range(0, 1, 0.01) var twilight_strength: float = 0.75
 
+@export_group("Weather")
+
+## What the daytime sky goes under a full overcast.
+##
+## Light greys, and that is the whole trick rather than an accident of taste. Ambient light is sampled from
+## this sky, so a bright grey dome is what raises the fill light as the sun is dimmed - which is what cloud
+## actually does, moving light out of one direction and into every direction. Darkening both together is what
+## makes an overcast noon read as dusk.
+@export var overcast_sky_top: Color = Color(0.560, 0.600, 0.655)
+@export var overcast_sky_horizon: Color = Color(0.690, 0.700, 0.720)
+@export var overcast_ground: Color = Color(0.400, 0.410, 0.425)
+@export var overcast_fog: Color = Color(0.655, 0.680, 0.710)
+
+## How much cloud deepens the night, in [0, 1] at full cover.
+##
+## The mirror of the palette above and the reason it needs one: cloud brightens a day and darkens a night,
+## because at night there is nothing overhead for it to scatter back down.
+@export_range(0, 1, 0.01) var overcast_night_darkening: float = 0.35
+
+## Where the fog closes to in a whiteout, in metres. The authored distances are the clear-day end.
+##
+## Floored well above where a blizzard would put them if visibility alone decided, and the camera is why:
+## fog depth is measured from the camera, which orbits out to thirty-six metres, so a fog that begins at six
+## would swallow the player's own character before it swallowed anything else. Losing the world in a whiteout
+## is the effect; losing the character you are steering is a bug.
+@export_range(1, 100, 1) var whiteout_fog_begin: float = 22.0
+@export_range(2, 200, 1) var whiteout_fog_end: float = 60.0
+
+@export_subgroup("Lightning")
+
+## Seconds between bolts. Redrawn after each one.
+@export_range(1, 120, 0.5) var lightning_min_gap_seconds: float = 5.0
+@export_range(1, 240, 0.5) var lightning_max_gap_seconds: float = 22.0
+
+## How long a stroke takes to fade, in seconds. Short: the eye keeps a flash far longer than the sky does.
+@export_range(0.05, 2, 0.01) var lightning_decay_seconds: float = 0.35
+
+@export var lightning_energy: float = 3.2
+
+@export var lightning_colour: Color = Color(0.86, 0.90, 1.0)
+
 var _clock: Node = null
+var _weather: Node = null
 
 # This will trigger an immediate update after init.
 var _last_updated_since: float = float(update_delay_seconds) + 1.0
 
+# The last sky the throttled pass computed. Kept because the lightning runs unthrottled on top of it, and
+# fog colour therefore has two writers a frame apart - so the slow one has to leave its answer somewhere the
+# fast one can add to rather than overwrite.
+var _base_fog_colour: Color = Color.WHITE
+
+# The authored clear-day fog distances, read once. Weather only ever pulls them in from here.
+var _clear_fog_begin: float = 0.0
+var _clear_fog_end: float = 0.0
+
+# What the last throttled pass was told, so a sky that drifts between passes can force an early one.
+var _applied_overcast: float = -1.0
+var _applied_visibility: float = -1.0
+var _applied_haze: float = -1.0
+
+var _flash: float = 0.0
+var _next_strike: float = -1.0
+var _strikes_left: int = 0
+
 @onready var _sun: DirectionalLight3D = $Sun
 @onready var _moon: DirectionalLight3D = $Moon
+@onready var _flash_light: DirectionalLight3D = $Flash
 @onready var _environment: Environment = ($WorldEnvironment as WorldEnvironment).environment
 
 # The sky material is reached through the Environment rather than exported separately, because the two have
 # to be the *same* sky - the one the background draws and the one ambient light is sampled from.
 @onready var _sky: ProceduralSkyMaterial = _environment.sky.sky_material as ProceduralSkyMaterial
+
+## How far overcast or visibility has to drift before the throttled pass is brought forward.
+##
+## The clock is what update_delay_seconds was chosen for: ten seconds of a sun that crosses the sky in eight
+## real hours is nothing. Weather is not on that scale - a shower arriving would step the whole sky in one
+## jump at the next pass, ten seconds after it started.
+const _WEATHER_BAND := 0.02
 
 
 func _ready() -> void:
@@ -96,32 +164,53 @@ func _ready() -> void:
 	if _clock == null:
 		push_warning("[daynight] no WorldClock; the scene's authored lighting will not change.")
 
+	_weather = ConnectionManager.weather
+	if _weather == null:
+		push_warning("[daynight] no WeatherState; the sky will stay clear.")
+
 	# Never casts shadows, and that is a decision rather than an oversight: a second shadow-casting
 	# directional light doubles the shadow pass for a fill that is a sixth of the sun's brightness. The
 	# sun is hidden outright at night, so nothing is paying for a shadow map nobody can see.
 	_moon.shadow_enabled = false
 	_moon.light_color = moon_colour
 
+	# A third one, and the same reasoning applies twice over: it is on for a tenth of a second at a time.
+	_flash_light.shadow_enabled = false
+	_flash_light.light_color = lightning_colour
+	_flash_light.visible = false
 
-func _process(_delta: float) -> void:
+	_clear_fog_begin = _environment.fog_depth_begin
+	_clear_fog_end = _environment.fog_depth_end
+
+
+func _process(delta: float) -> void:
 	if _clock == null or not _clock.IsAnchored():
 		return
-	
-	_last_updated_since += _delta
-	
-	if _last_updated_since < update_delay_seconds:
-		return
-	
-	_last_updated_since = 0.0
 
-	var daylight: float = _clock.Daylight
+	var overcast := _overcast()
+	var visibility := _visibility()
 
-	# Peaks at 1 exactly where daylight crosses a half - which is the middle of each ramp, and so the
-	# moment the sun is on the horizon. One scalar gives both the blend and the sun's own warm cast.
-	var twilight: float = (1.0 - absf(2.0 * daylight - 1.0)) * twilight_strength
+	_last_updated_since += delta
 
-	_apply_lights(daylight, twilight)
-	_apply_sky(daylight, twilight)
+	if _last_updated_since >= float(update_delay_seconds) \
+			or absf(overcast - _applied_overcast) > _WEATHER_BAND \
+			or absf(visibility - _applied_visibility) > _WEATHER_BAND:
+		_last_updated_since = 0.0
+		_applied_overcast = overcast
+		_applied_visibility = visibility
+
+		var daylight: float = _clock.Daylight
+
+		# Peaks at 1 exactly where daylight crosses a half - which is the middle of each ramp, and so the
+		# moment the sun is on the horizon. One scalar gives both the blend and the sun's own warm cast.
+		var twilight: float = (1.0 - absf(2.0 * daylight - 1.0)) * twilight_strength * _twilight_scale()
+
+		_apply_lights(daylight, twilight)
+		_apply_sky(daylight, twilight, overcast, visibility)
+
+	# Unthrottled, and it has to be: a stroke is shorter than one throttled pass, so a flash applied on that
+	# beat would be on screen for ten seconds or missed entirely.
+	_tick_lightning(delta)
 
 
 func _apply_lights(daylight: float, twilight: float) -> void:
@@ -140,17 +229,29 @@ func _apply_lights(daylight: float, twilight: float) -> void:
 	var elevation: float = deg_to_rad(peak_elevation_degrees) * sin(PI * progress)
 	var azimuth: float = deg_to_rad(base_azimuth_degrees + (progress - 0.5) * sweep_degrees)
 
+	var dimming := _sun_energy_scale()
+
+	# Widening the disc as well as dimming it. Cloud does not merely block light, it scatters it: an
+	# overcast sky is one enormous area light, and its shadows have no edge left to speak of. Dimming alone
+	# gives sharp black shadows in a grey world, which is what an eclipse looks like rather than a dull day.
+	var softness := _sun_angular_degrees()
+
 	_sun.rotation = _light_rotation(elevation, azimuth)
-	_sun.light_energy = sun_energy * daylight
+	_sun.light_energy = sun_energy * daylight * dimming
 	_sun.light_color = sun_day_colour.lerp(sun_twilight_colour, twilight)
+	_sun.light_angular_distance = softness
 
 	# Hidden rather than merely dark. A DirectionalLight3D at zero energy still renders its shadow map,
 	# and the whole of full night would be paying for a pass that contributes nothing.
 	_sun.visible = daylight > 0.002
 
 	# The anti-sun: it rises as the sun sets, which is free and is also roughly what a moon does.
+	#
+	# Cloud is between the player and both lights, so `dimming` takes the same cut out of each. A moon still
+	# picking out every hillside through a blizzard is the tell that the weather stopped at the sun.
 	_moon.rotation = _light_rotation(-elevation, azimuth + PI)
-	_moon.light_energy = moon_energy * (1.0 - daylight)
+	_moon.light_energy = moon_energy * (1.0 - daylight) * dimming
+	_moon.light_angular_distance = softness
 	_moon.visible = daylight < 0.998
 
 
@@ -190,18 +291,174 @@ func _solar_progress(hour_of_day: float) -> float:
 	return 1.0 + (hour - sunset) / night_hours
 
 
-func _apply_sky(daylight: float, twilight: float) -> void:
-	_sky.sky_top_color = _blend(sky_top_night, sky_top_day, sky_top_twilight, daylight, twilight)
-	_sky.sky_horizon_color = _blend(
-		sky_horizon_night, sky_horizon_day, sky_horizon_twilight, daylight, twilight)
-	_sky.ground_horizon_color = _blend(ground_night, ground_day, ground_twilight, daylight, twilight)
+func _apply_sky(daylight: float, twilight: float, overcast: float, visibility: float) -> void:
+	_sky.sky_top_color = _weathered(
+		sky_top_night, sky_top_day, sky_top_twilight, overcast_sky_top, overcast, daylight, twilight)
+	_sky.sky_horizon_color = _weathered(
+		sky_horizon_night, sky_horizon_day, sky_horizon_twilight, overcast_sky_horizon,
+		overcast, daylight, twilight)
+	_sky.ground_horizon_color = _weathered(
+		ground_night, ground_day, ground_twilight, overcast_ground, overcast, daylight, twilight)
 
 	# Fog is the loudest of the three. It is drawn over everything at distance, so a fog still lit for
 	# midday is a pale band along the horizon of a night scene - which reads as the night not having
 	# applied rather than as one setting having been missed.
-	_environment.fog_light_color = _blend(fog_night, fog_day, fog_twilight, daylight, twilight)
+	# Kinds whose air has a colour of its own tint the fog on top of the hour and the cloud. Applied last so
+	# it survives them both: a sandstorm at dusk is sand-coloured, not orange, because what is between the
+	# player and the horizon is sand rather than sky.
+	_base_fog_colour = _weathered(
+		fog_night, fog_day, fog_twilight, overcast_fog, overcast, daylight, twilight).lerp(
+			_haze_colour(), _haze_tint())
+	_environment.fog_light_color = _base_fog_colour
+
+	# Rain, fog and snow are all things in the air between the player and the horizon, so they are the same
+	# effect at different strengths and all of them belong here rather than in a per-kind branch.
+	_environment.fog_depth_begin = lerpf(whiteout_fog_begin, _clear_fog_begin, visibility)
+	_environment.fog_depth_end = lerpf(whiteout_fog_end, _clear_fog_end, visibility)
 
 
-## Night to day by the light level, then toward the twilight cast by how close the crossover is.
-static func _blend(night: Color, day: Color, twilight: Color, daylight: float, twilight_weight: float) -> Color:
-	return night.lerp(day, daylight).lerp(twilight, twilight_weight)
+## The palette entry for one surface: weather first, then the hour.
+##
+## The order is the point. Weather acts on the *ends* of the day/night blend - it greys the day and deepens
+## the night - and only then does the hour choose between them. Blending toward a grey after the hour had
+## chosen would put a midday grey over midnight, which is a sky lit from nowhere.
+func _weathered(night: Color, day: Color, twilight: Color, overcast_colour: Color, overcast: float,
+		daylight: float, twilight_weight: float) -> Color:
+	var clouded_day := day.lerp(overcast_colour, overcast)
+	var clouded_night := night.darkened(overcast_night_darkening * overcast)
+
+	return clouded_night.lerp(clouded_day, daylight).lerp(twilight, twilight_weight)
+
+
+func _tick_lightning(delta: float) -> void:
+	if not _is_storming():
+		if _flash > 0.0:
+			_flash = 0.0
+			_show_flash()
+
+		_next_strike = -1.0
+		_strikes_left = 0
+
+		return
+
+	if _next_strike < 0.0:
+		_schedule_strike()
+
+	_next_strike -= delta
+	if _next_strike <= 0.0:
+		_strike()
+
+	if _flash > 0.0:
+		_flash = maxf(_flash - delta / lightning_decay_seconds, 0.0)
+		_show_flash()
+
+
+func _strike() -> void:
+	_flash = 1.0
+	_strikes_left -= 1
+
+	# A bolt somewhere else in the sky each time, so repeated strikes do not all light the world from the
+	# same corner. Elevation stays high: this is the sky flashing, not a light at ground level.
+	_flash_light.rotation = Vector3(deg_to_rad(randf_range(-80.0, -40.0)), randf_range(-PI, PI), 0.0)
+
+	if _strikes_left > 0:
+		# The second stroke of the same bolt, close enough behind to read as one flicker rather than two
+		# separate bolts. Nearly every real flash does this and its absence is what makes a single clean
+		# pulse look like a light switch.
+		_next_strike = randf_range(0.05, 0.15)
+	else:
+		_schedule_strike()
+
+
+func _schedule_strike() -> void:
+	_next_strike = randf_range(lightning_min_gap_seconds, lightning_max_gap_seconds)
+	_strikes_left = 2 if randf() < 0.55 else 1
+
+
+func _show_flash() -> void:
+	# Squared, so the fall is fast at the top and lingers at the bottom. A linear fade reads as a lamp being
+	# turned down rather than as a discharge.
+	var energy := _flash * _flash
+
+	_flash_light.visible = energy > 0.002
+	_flash_light.light_energy = lightning_energy * energy
+
+	# The air lights up as well as the ground. Without this the flash stops at whatever the fog is drawn
+	# over, and a storm at distance flickers only in the near field.
+	_environment.fog_light_color = _base_fog_colour.lerp(lightning_colour, energy * 0.75)
+
+
+## The five weather readings, each with the value that means "no weather" when there is nobody to ask.
+##
+## Landed in a typed local rather than returned straight out of the ternary: a C# property crosses into
+## GDScript as a Variant, and the analyser cannot see that the branch types agree.
+func _overcast() -> float:
+	if _weather == null:
+		return 0.0
+
+	var value: float = _weather.Overcast
+
+	return value
+
+
+func _visibility() -> float:
+	if _weather == null:
+		return 1.0
+
+	var value: float = _weather.Visibility
+
+	return value
+
+
+func _sun_energy_scale() -> float:
+	if _weather == null:
+		return 1.0
+
+	var value: float = _weather.SunEnergyScale
+
+	return value
+
+
+func _sun_angular_degrees() -> float:
+	if _weather == null:
+		return 0.5
+
+	var value: float = _weather.SunAngularDegrees
+
+	return value
+
+
+func _twilight_scale() -> float:
+	if _weather == null:
+		return 1.0
+
+	var value: float = _weather.TwilightScale
+
+	return value
+
+
+func _haze_colour() -> Color:
+	if _weather == null:
+		return Color.WHITE
+
+	var value: Color = _weather.HazeColour
+
+	return value
+
+
+func _haze_tint() -> float:
+	if _weather == null:
+		return 0.0
+
+	var value: float = _weather.HazeTint
+
+	return value
+
+
+func _is_storming() -> bool:
+	if _weather == null:
+		return false
+
+	var storming: bool = _weather.HasLightning
+
+	return storming

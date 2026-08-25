@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://ykdxpspi6cly"]
 
 [ext_resource type="Script" uid="uid://bbv2b3q2a8bo6" path="res://Game/Environment/environment.gd" id="1_1xco1"]
+[ext_resource type="Script" path="res://Game/Environment/CloudShadows/cloud_shadows.gd" id="2_cloud"]
+[ext_resource type="Script" path="res://Game/Environment/Precipitation/precipitation.gd" id="3_precip"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1xco1"]
 sky_top_color = Color(0.84507084, 0.90585876, 0.98905593, 1)
@@ -39,3 +41,13 @@ directional_shadow_max_distance = 220.0
 transform = Transform3D(0.4460189, -0.81221586, 0.37599537, -0.29966903, -0.5313671, -0.7923683, 0.84336567, 0.24073704, -0.48039573, 0, 5.2176847, 3.7376866)
 light_energy = 0.0
 directional_shadow_max_distance = 220.0
+
+[node name="Flash" type="DirectionalLight3D" parent="." unique_id=1938274655]
+visible = false
+light_energy = 0.0
+
+[node name="CloudShadows" type="Node3D" parent="." unique_id=1029384756]
+script = ExtResource("2_cloud")
+
+[node name="Precipitation" type="Node3D" parent="." unique_id=1746395028]
+script = ExtResource("3_precip")
