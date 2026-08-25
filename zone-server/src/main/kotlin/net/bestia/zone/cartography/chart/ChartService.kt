@@ -12,6 +12,7 @@ import net.bestia.zone.item.Item
 import net.bestia.zone.item.ItemRepository
 import net.bestia.zone.item.container.InventoryService
 import net.bestia.zone.world.WorldService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -35,6 +36,11 @@ import org.springframework.transaction.annotation.Transactional
  * copying all pass through here, but dropping a chart, looting one and eventually trading one do not. A cache
  * with three of its five invalidation points would serve a player ground they had sold. It belongs with the
  * tile service, which can watch inventory changes as a whole.
+ *
+ * What this class *can* see, it says: every write publishes a [ChartsChangedEvent], because the tile service's
+ * own cache being stale here is not the ordinary cost of a cache. A tile of uncharted ground is a 404, and the
+ * client remembers a 404 for as long as it holds the same charts - so a tile refused in the seconds after a
+ * survey stays fog until the next one.
  */
 @Service
 class ChartService(
@@ -43,6 +49,7 @@ class ChartService(
   private val inventoryService: InventoryService,
   private val itemRepository: ItemRepository,
   private val masterRepository: MasterRepository,
+  private val events: ApplicationEventPublisher,
 ) {
 
   /**
@@ -108,6 +115,11 @@ class ChartService(
     charts.delete(from)
     inventoryService.destroyInstance(masterId, fromUniqueId)
 
+    // A merge cannot grow the union - both charts were already held - but it rewrites the rows the union is
+    // read from, and "this class changed a master's charts" is a simpler rule to keep true than "this class
+    // changed what a master can see".
+    events.publishEvent(ChartsChangedEvent(this, masterId))
+
     LOG.debug { "Master $masterId merged chart $fromUniqueId into $intoUniqueId, now ${target.cellCount()} cells" }
     return Result.Ok(intoUniqueId, into.itemInstance.item, target.cellCount())
   }
@@ -167,6 +179,7 @@ class ChartService(
   private fun write(masterId: Long, chartItem: Item, coverage: Coverage): Long {
     val instance = inventoryService.mintInstanceForMaster(masterId, chartItem)
     charts.save(MapChart(instance, CoverageCodec.encode(coverage), worldService.record.shapeVersion))
+    events.publishEvent(ChartsChangedEvent(this, masterId))
 
     return instance.id
   }

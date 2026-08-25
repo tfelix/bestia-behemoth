@@ -281,6 +281,29 @@ class MapTileControllerTest {
   }
 
   @Test
+  fun `a tile charted a moment ago is not a 404`() {
+    // The whole failure this guards, in order: the player looks at fog, surveys it, and asks again the instant
+    // their inventory shows the chart. The first look is what makes it bite - it leaves the master's *empty*
+    // coverage in the tile service's cache, so without the eviction the answer to the second is the answer to
+    // the first, and the client writes that ground off for as long as it holds these charts.
+    val spot = TileId.of(3, 88_000.0 + NEXT_SPOT++ * 20_000.0, 44_000.0)
+    val centre = spot.bounds.let { (it.minX + it.maxX) / 2.0 to (it.minY + it.maxY) / 2.0 }
+
+    assertEquals(
+      HttpStatus.NOT_FOUND,
+      rest.exchange(url(spot), HttpMethod.GET, signed(), ByteArray::class.java).statusCode,
+      "this test needs ground the master has not charted, and has not looked at"
+    )
+
+    chartedAt(centre.first, centre.second, radiusMetres = 1_000.0)
+
+    val response = rest.exchange(url(spot), HttpMethod.GET, signed(), ByteArray::class.java)
+
+    assertEquals(HttpStatus.OK, response.statusCode, "ground charted a moment ago is still being refused")
+    assertTrue(isPng(assertNotNull(response.body)), "a freshly charted tile should come back as a masked PNG")
+  }
+
+  @Test
   fun `a level above the pyramid is a bad request rather than a rendered void`() {
     assertEquals(
       HttpStatus.BAD_REQUEST,
@@ -305,9 +328,9 @@ class MapTileControllerTest {
     val result = chartService.mint(masterId, centreX, centreY, radiusMetres)
     assertTrue(result is ChartService.Result.Ok, "could not chart the ground this test is about: $result")
 
-    // The tile service remembers a master's coverage briefly; wait it out rather than reaching in to clear it.
-    Thread.sleep(COVERAGE_TTL_SLACK_MILLIS)
-
+    // No wait for the tile service's coverage cache: writing a chart evicts it. Every test here therefore asks
+    // for ground charted a millisecond ago, which is the case `a tile charted a moment ago is not a 404` is
+    // about and the one the client cannot survive being told "no" to.
     return centreX to centreY
   }
 
@@ -338,8 +361,5 @@ class MapTileControllerTest {
   private companion object {
     /** Keeps each test's survey on its own ground, since the fixture master is shared. */
     var NEXT_SPOT = 0
-
-    /** Comfortably past `MapTileService.COVERAGE_TTL_MILLIS`. */
-    const val COVERAGE_TTL_SLACK_MILLIS = 2_500L
   }
 }

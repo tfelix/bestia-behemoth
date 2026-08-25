@@ -4,11 +4,14 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy
 import net.bestia.zone.cartography.CartographyConfig
 import net.bestia.zone.cartography.chart.ChartService
+import net.bestia.zone.cartography.chart.ChartsChangedEvent
 import net.bestia.zone.cartography.coverage.AreaCoverage
 import net.bestia.zone.cartography.coverage.Coverage
 import net.bestia.zone.cartography.render.TileInputs
 import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -92,11 +95,16 @@ class MapTileService(
   /**
    * The coverage a master can see, remembered briefly.
    *
-   * Not invalidated on change, expired on a timer, and that is the honest shape for it. `ChartService` sees
-   * minting, merging and copying - but not a chart dropped, looted or eventually traded, so a cache with
-   * explicit invalidation would have some of its invalidation points and look like it had all of them. A short
-   * expiry has *bounded* staleness instead, which is a thing that can be reasoned about: a survey shows up on
-   * the map within [COVERAGE_TTL_MILLIS], and opening the map does not run twenty identical queries.
+   * Expired on a timer *and* dropped on [ChartsChangedEvent], which is the pairing rather than a belt and
+   * braces. `ChartService` sees minting, merging and copying but not a chart dropped, looted or eventually
+   * traded - so invalidation alone would have some of its invalidation points while looking like it had all of
+   * them, and the timer is what keeps the staleness bounded for the ones it cannot see.
+   *
+   * The event is what surveying needs, because a stale answer there is not merely late. An uncharted tile is a
+   * 404 and the client remembers a 404 for as long as it holds the same charts - and it drops that memory the
+   * instant its inventory shows the new chart, which is *before* [COVERAGE_TTL_MILLIS] is up. So every tile it
+   * asked for in that window was told, permanently, that its owner had charted none of that ground: survey,
+   * open the map, and the zoom level you were looking at is fog for the rest of the session.
    */
   private val coverageCache = ConcurrentHashMap<Long, CachedCoverage>()
 
@@ -269,6 +277,19 @@ class MapTileService(
     }
 
     return coverage
+  }
+
+  /**
+   * Forgets what a master had charted, so the next tile re-reads it.
+   *
+   * After the commit, not on publication: the eviction has to outlive the write it answers to, and a request
+   * already in flight for the same master would otherwise re-fill the cache from the uncommitted state and put
+   * the staleness straight back. [TransactionalEventListener] drops an event published with no transaction
+   * around it, hence the fallback - a caller that wrote a chart outside one still gets the eviction.
+   */
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+  fun onChartsChanged(event: ChartsChangedEvent) {
+    coverageCache.remove(event.masterId)
   }
 
   private fun render(work: () -> ByteArray): ByteArray {
