@@ -84,6 +84,47 @@ namespace BestiaBehemothClient.Game.World
     private TerrainRenderer _renderer;
 
     /// <summary>
+    /// Draws the coarse ring past where <see cref="Renderer"/> reaches.
+    /// </summary>
+    /// <remarks>
+    /// Attached the same way and late for the same reason, and caught up from <see cref="_heldPatches"/>
+    /// rather than from anything the server will repeat. That distinction matters here: a manifest is a diff
+    /// against what was *announced*, not against what was drawn, so a patch already offered is never offered
+    /// again - and a renderer attached after the first manifest would otherwise stay empty until the player
+    /// walked far enough to move the ring.
+    ///
+    /// <para>
+    /// Takes the chunk renderer's material rather than loading its own. The terrain shader wants no UVs and no
+    /// tangents, so a grid mesh satisfies it as well as an isosurface does, and sharing keeps one texture array
+    /// in VRAM instead of two.
+    /// </para>
+    /// </remarks>
+    [Export]
+    public FarTerrainRenderer FarTerrain
+    {
+      get => IsUsable(_farTerrain) ? _farTerrain : null;
+
+      set
+      {
+        _farTerrain = value;
+
+        if (!IsUsable(value))
+        {
+          return;
+        }
+
+        value.Configure(WorldInfo, Renderer?.TerrainMaterial);
+
+        foreach (var payload in _heldPatches.Values)
+        {
+          _toDecodePatches.Enqueue(payload);
+        }
+      }
+    }
+
+    private FarTerrainRenderer _farTerrain;
+
+    /// <summary>
     /// Draws what stands on the terrain, or null in a headless test.
     /// </summary>
     /// <remarks>
@@ -171,6 +212,37 @@ namespace BestiaBehemothClient.Game.World
 
     private readonly Queue<ChunkDataSMSG> _toDecode = new();
 
+    /// <summary>
+    /// Coarse patch payloads waiting to be inflated, decoded and meshed.
+    /// </summary>
+    /// <remarks>
+    /// Its own queue, drained on its own budget. A patch is a fixed 25 kB inflated where a chunk is half a
+    /// megabyte, so the two are not interchangeable units of work - sharing one budget would let a burst of
+    /// horizon delay the ground the player is standing on, which is the one thing the frame budget exists to
+    /// prevent.
+    /// </remarks>
+    private readonly Queue<SurfacePatchSMSG> _toDecodePatches = new();
+
+    /// <summary>
+    /// The payload of each patch still held, so a late-attached renderer can be caught up.
+    /// </summary>
+    /// <remarks>
+    /// Kept for the same reason <see cref="_staticBatches"/> is, and it is needed more here: the chunk
+    /// renderer can be replayed from <see cref="Store"/>, but a decoded patch is handed straight to the far
+    /// renderer and kept nowhere else. Without this a renderer attached after the manifest arrived would draw
+    /// nothing until the player walked far enough for the ring to move - and the server diffs against what it
+    /// announced, not against what was drawn, so it would never re-offer them.
+    ///
+    /// <para>
+    /// The payload rather than the decoded patch: 2.5 kB against 42 kB, and re-decoding on attach happens
+    /// once.
+    /// </para>
+    /// </remarks>
+    private readonly Dictionary<PatchKey, SurfacePatchSMSG> _heldPatches = new();
+
+    /// <summary>Patch payloads kept between sessions. Safe where the chunk store is not - see the class.</summary>
+    public PatchDiskCache PatchCache { get; } = new();
+
     private int _decoded;
     private int _patched;
     private long _payloadBytes;
@@ -212,6 +284,11 @@ namespace BestiaBehemothClient.Game.World
       {
         Decode(_toDecode.Dequeue());
       }
+
+      for (var done = 0; done < budget && _toDecodePatches.Count > 0; done++)
+      {
+        DecodePatch(_toDecodePatches.Dequeue());
+      }
     }
 
     private void OnMessageReceived(ISMSG message)
@@ -232,6 +309,16 @@ namespace BestiaBehemothClient.Game.World
 
         case ChunkPatchSMSG patch:
           OnPatch(patch);
+          break;
+
+        // Named apart from the chunk cases above them on purpose: C# scoping of pattern variables across
+        // switch sections is not worth relying on, and a duplicate name here would not compile.
+        case SurfacePatchManifestSMSG patchManifest:
+          OnPatchManifest(patchManifest);
+          break;
+
+        case SurfacePatchSMSG surfacePatch:
+          _toDecodePatches.Enqueue(surfacePatch);
           break;
 
         case ChunkGroundOverlaySMSG overlay:
@@ -338,8 +425,112 @@ namespace BestiaBehemothClient.Game.World
       _burnMasks.Clear();
       StaticEntities?.Clear();
 
+      _toDecodePatches.Clear();
+      _heldPatches.Clear();
+      FarTerrain?.Clear();
+
+      // Patches, unlike chunks, survive the session - so this opens the store for *this* world rather than
+      // clearing it. A different world has a different version and lands in a different directory, which is
+      // what makes reading one back safe at all.
+      PatchCache.Open(info.SurfacePatchVersion);
+
       Renderer?.Configure(Store, info);
       StaticEntities?.Configure(Store, info);
+      FarTerrain?.Configure(info, Renderer?.TerrainMaterial);
+    }
+
+    /// <summary>
+    /// Acts on the coarse ring's manifest: draws what is already on disk, asks for the rest.
+    /// </summary>
+    /// <remarks>
+    /// The disk cache is what makes this cheap on a second visit. A patch is a pure function of the server's
+    /// heightfield, so one stored under this world's own version is still correct - and the whole ring can
+    /// therefore be drawn without a single byte on the wire. A first visit asks for everything and pays about
+    /// two kilobytes a patch.
+    ///
+    /// <para>
+    /// A manifest is re-sent whenever the ring grows, but each patch appears in <c>Added</c> only once - the
+    /// server diffs against what it has announced - so an outstanding request is not repeated and there is no
+    /// in-flight set to keep here. What is checked is what is already <i>held</i>, which a reconnect or a late
+    /// renderer can genuinely make the server announce again.
+    /// </para>
+    /// </remarks>
+    private void OnPatchManifest(SurfacePatchManifestSMSG manifest)
+    {
+      if (manifest.Reset)
+      {
+        foreach (var key in _heldPatches.Keys)
+        {
+          FarTerrain?.Remove(key);
+        }
+
+        _heldPatches.Clear();
+      }
+
+      foreach (var key in manifest.Removed)
+      {
+        if (_heldPatches.Remove(key))
+        {
+          FarTerrain?.Remove(key);
+        }
+      }
+
+      var wanted = new List<PatchKey>();
+
+      foreach (var key in manifest.Added)
+      {
+        if (_heldPatches.ContainsKey(key))
+        {
+          continue;
+        }
+
+        var stored = PatchCache.Read(key);
+        if (stored != null)
+        {
+          // Straight onto the decode queue rather than drawn here: reading a whole ring off disk in one frame
+          // is the same stutter as decoding one, and the queue already spreads that.
+          var message = SurfacePatchSMSG.FromCache(key, stored);
+          _toDecodePatches.Enqueue(message);
+          _heldPatches[key] = message;
+          continue;
+        }
+
+        wanted.Add(key);
+      }
+
+      GD.Print(
+        $"[patches] reset={manifest.Reset} +{manifest.Added.Count} -{manifest.Removed.Count}: " +
+        $"holding {_heldPatches.Count}, requesting {wanted.Count}");
+
+      if (wanted.Count == 0 || _socket == null)
+      {
+        return;
+      }
+
+      _socket.SendMessage(new SurfacePatchRequestCMSG(wanted));
+    }
+
+    private void DecodePatch(SurfacePatchSMSG message)
+    {
+      try
+      {
+        var patch = message.Decode();
+
+        // Written to disk only for what arrived over the wire; a payload that came off disk is already there.
+        if (!_heldPatches.ContainsKey(patch.Key))
+        {
+          PatchCache.Write(patch.Key, message.Payload);
+          _heldPatches[patch.Key] = message;
+        }
+
+        FarTerrain?.Queue(patch);
+      }
+      catch (Exception e)
+      {
+        // A patch that will not decode is distant scenery. Saying so once and carrying on is a better answer
+        // than a client that stops drawing terrain over a corrupted horizon tile.
+        GD.PushWarning($"[patches] could not decode {message.Key}: {e.Message}");
+      }
     }
 
     private void OnManifest(ChunkManifestSMSG manifest)

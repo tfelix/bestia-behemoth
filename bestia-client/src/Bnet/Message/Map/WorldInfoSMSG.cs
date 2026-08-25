@@ -45,6 +45,22 @@ namespace BestiaBehemothClient.Bnet.Message.Map
     [Export] public int ViewRadiusChunks { get; set; }
 
     /// <summary>
+    /// Identity of this world's coarse surface patches, and the key <see cref="Game.World.PatchDiskCache"/>
+    /// stores them under.
+    /// </summary>
+    /// <remarks>
+    /// Folds the server's world record with the patch wire format, so it changes whenever either the ground or
+    /// the bytes describing it do. <see cref="ChunkEngineVersion"/> cannot stand in for it: that says whether
+    /// this client can decode a payload, not which world produced it, so caching against it would draw a
+    /// regenerated world with the previous one's terrain. Zero means the server sent none, and nothing is
+    /// persisted at all rather than persisted under a key every world would share.
+    /// </remarks>
+    [Export] public uint SurfacePatchVersion { get; set; }
+
+    /// <summary>How far the coarse ring reaches, in chunks. Zero when the server sends no patches.</summary>
+    [Export] public int PatchRadiusChunks { get; set; }
+
+    /// <summary>
     /// Bestia-seconds elapsed since the world began, as of the moment this message was built.
     /// </summary>
     /// <remarks>
@@ -121,7 +137,9 @@ namespace BestiaBehemothClient.Bnet.Message.Map
         WrapX = proto.WrapX,
         WrapY = proto.WrapY,
         ChunkEngineVersion = proto.ChunkEngineVersion,
-        ViewRadiusChunks = proto.ViewRadiusChunks
+        ViewRadiusChunks = proto.ViewRadiusChunks,
+        SurfacePatchVersion = proto.SurfacePatchVersion,
+        PatchRadiusChunks = proto.PatchRadiusChunks
       };
     }
 
@@ -132,7 +150,8 @@ namespace BestiaBehemothClient.Bnet.Message.Map
 
       return $"{Name} {widthKm:F0}x{heightKm:F0} km, chunks {ChunkSize}x{ChunkSize}x{ChunkHeight} " +
              $"@{VoxelSizeMetres:F1}m, sea level {SeaLevelMetres:F0}m, wrapX={WrapX} wrapY={WrapY}, " +
-             $"chunk engine v{ChunkEngineVersion}, view radius {ViewRadiusChunks}";
+             $"chunk engine v{ChunkEngineVersion}, view radius {ViewRadiusChunks}, " +
+             $"patch radius {PatchRadiusChunks} (world {SurfacePatchVersion:x8})";
     }
   }
 }

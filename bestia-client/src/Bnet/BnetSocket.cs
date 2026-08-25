@@ -268,6 +268,18 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.ChunkPatchSMSG.FromProto(envelope.ChunkPatch);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.SurfacePatchManifest != null)
+        {
+          var msg = Map.SurfacePatchManifestSMSG.FromProto(envelope.SurfacePatchManifest);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
+        else if (envelope.SurfacePatch != null)
+        {
+          // Converted but not decoded, exactly as a chunk payload is: the receive queue drains in one frame,
+          // so inflating a login's worth of patches here would put all of it into that frame.
+          var msg = Map.SurfacePatchSMSG.FromProto(envelope.SurfacePatch);
+          EmitSignal(SignalName.MessageReceived, msg);
+        }
         else if (envelope.Weather != null)
         {
           var msg = Map.WeatherSMSG.FromProto(envelope.Weather);
