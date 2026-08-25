@@ -10,19 +10,14 @@ import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.geometry.Vec3L
 import net.bestia.zone.item.loot.LootItemEntitySpawner
-import net.bestia.zone.world.WorldService
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
 /** What a promoted prop's death records about the durable object it was. */
 class PropDeathDivergenceSystemTest {
 
-  private fun worldService(): WorldService = mockk {
-    every { record } returns mockk { every { pipelineVersion } returns 42L }
-  }
-
   private fun system(divergence: WorldObjectDivergenceRegistry) = PropDeathDivergenceSystem(
-    kindRegistry(), mockk<LootItemEntitySpawner>(), divergence, worldService()
+    kindRegistry(), mockk<LootItemEntitySpawner>(), divergence
   )
 
   private fun kindRegistry() = PropKindRegistry().also { it.load() }
@@ -39,7 +34,7 @@ class PropDeathDivergenceSystemTest {
   }
 
   @Test
-  fun `a felled tree is recorded with a future resumeAt at its lattice version`() {
+  fun `a felled tree is recorded with a future resumeAt`() {
     val divergence = pristine()
     val world = testWorld()
     val propId = 123L
@@ -55,7 +50,7 @@ class PropDeathDivergenceSystemTest {
 
     verify {
       divergence.recordDepletion(
-        propId, StaticEntityKind.TREE, 42L,
+        propId, StaticEntityKind.TREE,
         match<Instant> { it.isAfter(Instant.now()) }
       )
     }
@@ -76,7 +71,7 @@ class PropDeathDivergenceSystemTest {
 
     system(divergence).update(world, 0f)
 
-    verify { divergence.recordDepletion(propId, StaticEntityKind.POI_LOST_GRAVE, 42L, null) }
+    verify { divergence.recordDepletion(propId, StaticEntityKind.POI_LOST_GRAVE, null) }
   }
 
   /**
@@ -100,7 +95,7 @@ class PropDeathDivergenceSystemTest {
 
     system(divergence).update(world, 0f)
 
-    verify(exactly = 0) { divergence.recordDepletion(any(), any(), any(), any()) }
+    verify(exactly = 0) { divergence.recordDepletion(any(), any(), any()) }
   }
 
   @Test
@@ -112,6 +107,6 @@ class PropDeathDivergenceSystemTest {
 
     system(divergence).update(world, 0f)
 
-    verify(exactly = 0) { divergence.recordDepletion(any(), any(), any(), any()) }
+    verify(exactly = 0) { divergence.recordDepletion(any(), any(), any()) }
   }
 }

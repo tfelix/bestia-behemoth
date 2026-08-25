@@ -2,6 +2,7 @@ package net.bestia.zone.world.prop
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.zone.ecs.core.AsyncJobExecutor
+import net.bestia.zone.world.WorldService
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -31,6 +32,15 @@ data class DivergenceEntry(val kind: StaticEntityKind, val state: DivergenceStat
 class WorldObjectDivergenceRegistry(
   private val repository: WorldObjectDivergenceRepository,
   private val asyncJobExecutor: AsyncJobExecutor,
+  /**
+   * Read for the two version stamps, and read **here** rather than passed in by each caller.
+   *
+   * A caller supplying them could supply a mismatched pair - the lattice version of this world beside the
+   * shape version of another - and that is precisely the class of bug the second guard was added to catch. One
+   * bean reads both off one `record`, so the pair is consistent by construction rather than by every call site
+   * remembering to make it so.
+   */
+  private val worldService: WorldService,
 ) {
 
   private val byPropId = HashMap<Long, DivergenceEntry>()
@@ -40,13 +50,20 @@ class WorldObjectDivergenceRegistry(
   fun of(propId: Long): DivergenceEntry? = if (propId == 0L) null else byPropId[propId]
 
   /** [resumeAt] non-null means temporary (a tree with a `regrowSeconds`); null means terminal. */
-  fun recordDepletion(propId: Long, kind: StaticEntityKind, latticeVersion: Long, resumeAt: Instant?) {
+  fun recordDepletion(propId: Long, kind: StaticEntityKind, resumeAt: Instant?) {
     if (propId == 0L) return
 
     byPropId[propId] = DivergenceEntry(kind, DivergenceState.DEPLETED, resumeAt)
 
+    // Read here rather than inside the job, so the row is stamped with the world as it was when the prop was
+    // depleted and the job stays pure I/O.
+    val latticeVersion = worldService.record.pipelineVersion
+    val worldShapeVersion = worldService.record.shapeVersion
+
     asyncJobExecutor.submit(propId) {
-      val row = WorldObjectDivergence(propId, kind.name, DivergenceState.DEPLETED, latticeVersion)
+      val row = WorldObjectDivergence(
+        propId, kind.name, DivergenceState.DEPLETED, latticeVersion, worldShapeVersion
+      )
       row.resumeAt = resumeAt
       repository.save(row)
     }
@@ -59,12 +76,20 @@ class WorldObjectDivergenceRegistry(
   }
 
   /**
-   * Boot-time only. Discards (not merely skips) any row whose `latticeVersion` disagrees with
-   * [currentLatticeVersion] - see [WorldObjectDivergence]'s own KDoc for why a stale row is deleted rather
-   * than left in the table.
+   * Boot-time only. Discards (not merely skips) any row disagreeing with the live world on **either** version
+   * - see [WorldObjectDivergence]'s own KDoc for the two guards and for why a stale row is deleted rather than
+   * left in the table.
+   *
+   * The two counts are logged separately because they mean different things to whoever is reading the boot
+   * log: a lattice mismatch says the build moved, a shape mismatch says the world did.
    */
-  fun loadAll(currentLatticeVersion: Long) {
-    val (valid, orphaned) = repository.findAll().partition { it.latticeVersion == currentLatticeVersion }
+  fun loadAll() {
+    val latticeVersion = worldService.record.pipelineVersion
+    val worldShapeVersion = worldService.record.shapeVersion
+
+    val (valid, orphaned) = repository.findAll().partition {
+      it.latticeVersion == latticeVersion && it.worldShapeVersion == worldShapeVersion
+    }
 
     valid.forEach { row ->
       byPropId[row.propId] = DivergenceEntry(StaticEntityKind.valueOf(row.kind), row.state, row.resumeAt)
@@ -72,9 +97,14 @@ class WorldObjectDivergenceRegistry(
 
     if (orphaned.isNotEmpty()) {
       repository.deleteAll(orphaned)
+
+      val staleLattice = orphaned.count { it.latticeVersion != latticeVersion }
+      val staleShape = orphaned.count { it.worldShapeVersion != worldShapeVersion }
+
       LOG.warn {
-        "${orphaned.size} world-object divergence row(s) predate this world's current lattice " +
-            "(pipelineVersion $currentLatticeVersion); discarded"
+        "${orphaned.size} world-object divergence row(s) do not belong to this world; discarded " +
+            "($staleLattice on lattice, pipelineVersion $latticeVersion; " +
+            "$staleShape on shape, shapeVersion $worldShapeVersion)"
       }
     }
 

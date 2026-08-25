@@ -43,10 +43,19 @@ class CollectPropIntentSystemTest {
    * relaxed mock returning null from `of` would make every one of these tests pass for the wrong reason.
    * Only its two collaborators are stubbed, and both only carry the async DB write.
    */
-  private fun newDivergence() = WorldObjectDivergenceRegistry(mockk(relaxed = true), mockk(relaxed = true))
+  private fun newDivergence() =
+    WorldObjectDivergenceRegistry(mockk(relaxed = true), mockk(relaxed = true), worldService())
 
+  /**
+   * Both version stamps, because `recordDepletion` reads both off the record before handing the row to the
+   * async write - see [WorldObjectDivergenceRegistry]. Not `relaxed`: a stubbed-out `record` would answer 0
+   * for each and these tests would still pass, which is exactly the silence the two guards exist to break.
+   */
   private fun worldService(): WorldService = mockk {
-    every { record } returns mockk { every { pipelineVersion } returns 42L }
+    every { record } returns mockk {
+      every { pipelineVersion } returns 42L
+      every { shapeVersion } returns 7L
+    }
   }
 
   private fun newSystem(): CollectPropIntentSystem {
@@ -55,7 +64,7 @@ class CollectPropIntentSystemTest {
     out = mockk(relaxed = true)
 
     return CollectPropIntentSystem(
-      PropKindRegistry().also { it.load() }, divergence, residency, worldService(), out
+      PropKindRegistry().also { it.load() }, divergence, residency, out
     )
   }
 
@@ -170,7 +179,7 @@ class CollectPropIntentSystemTest {
     val prop = world.addProp(propId = 7002L)
     val collector = world.addCollector(prop)
 
-    divergence.recordDepletion(7002L, StaticEntityKind.MANA_CRYSTAL_SMALL, 42L, null)
+    divergence.recordDepletion(7002L, StaticEntityKind.MANA_CRYSTAL_SMALL, null)
 
     world.tick(0f)
 
