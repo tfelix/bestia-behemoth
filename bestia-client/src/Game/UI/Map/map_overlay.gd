@@ -21,10 +21,10 @@ extends Control
 ## Level the map opens at. Level 4 is 16 m to the pixel, so the panel shows about 16 km of ground across.
 ##
 ## Deliberately not the whole world, which was the first answer and the wrong one. Charts are the only source
-## of map knowledge, so the whole world at a glance is almost entirely fog: a starter chart is 1500 m in radius
-## and the widest single survey is 5 km, which at world scale is a couple of dozen pixels and reads as a broken
-## window rather than as an unexplored one. This opens at a zoom where the ground a player actually has is
-## legible, and leaves the wheel to go out from there.
+## of map knowledge, so the whole world at a glance is almost entirely fog: the widest single survey is 5 km,
+## which at world scale is a couple of dozen pixels and reads as a broken window rather than as an unexplored
+## one. This opens at a zoom where the ground a player actually has is legible, and leaves the wheel to go out
+## from there.
 const _OPEN_LEVEL := 4
 
 var _has_chart: bool = false

@@ -322,11 +322,14 @@ class WebAuthnController(
   private fun <T : Any> handle(block: () -> T): ResponseEntity<*> {
     return try {
       ResponseEntity.ok(block())
+    } catch (e: UnknownCredentialException) {
+      LOG.warn(e) { "WebAuthn ceremony rejected" }
+      ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WebAuthnFailure(UNKNOWN_CREDENTIAL_ERROR))
     } catch (e: WebAuthnException) {
-      LOG.debug(e) { "WebAuthn ceremony rejected" }
+      LOG.warn(e) { "WebAuthn ceremony rejected" }
       badRequest()
     } catch (e: GameLoginException) {
-      LOG.debug(e) { "WebAuthn ceremony rejected" }
+      LOG.warn(e) { "WebAuthn ceremony rejected" }
       badRequest()
     }
   }
@@ -338,6 +341,10 @@ class WebAuthnController(
   companion object {
     private val LOG = KotlinLogging.logger { }
     private const val GENERIC_ERROR = "Authentication failed"
+
+    // Stable across releases: the client string-matches on it to show a specific message. The rest
+    // of the failure space stays folded into GENERIC_ERROR - see UnknownCredentialException.
+    private const val UNKNOWN_CREDENTIAL_ERROR = "unknown_credential"
     private const val REQUESTS_PER_WINDOW = 30
     private val WINDOW: Duration = Duration.ofMinutes(1)
 

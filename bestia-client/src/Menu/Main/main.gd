@@ -1,9 +1,7 @@
 extends Control
 
 @onready var _version_label = %VersionLabel
-@onready var _play_button = %PlayButton
 @onready var _login_button = %LoginButton
-@onready var _create_account_button = %CreateAccountButton
 @onready var _status_label = %StatusLabel
 @onready var _cancel_login_button = %CancelLoginButton
 
@@ -26,21 +24,16 @@ func _on_settings_button_pressed() -> void:
 	SceneManager.goto_scene("res://Menu/Settings/Settings.tscn")
 
 
-func _on_play_button_pressed() -> void:
-	_set_buttons_disabled(true)
-	ConnectionManager.login()
+func _on_credits_button_pressed() -> void:
+	SceneManager.goto_scene("res://Menu/Credits/Credits.tscn")
 
 
+## One button for both signing in and signing up: the page that opens in the browser offers a
+## passkey, account creation and recovery side by side, so the choice is made there rather than here.
 func _on_login_button_pressed() -> void:
 	_set_buttons_disabled(true)
 	_show_status("Opening your browser...")
 	ConnectionManager.login_with_passkey()
-
-
-func _on_create_account_button_pressed() -> void:
-	_set_buttons_disabled(true)
-	_show_status("Opening your browser...")
-	ConnectionManager.register_with_passkey()
 
 
 func _on_cancel_login_button_pressed() -> void:
@@ -71,6 +64,4 @@ func _reset_buttons() -> void:
 
 
 func _set_buttons_disabled(disabled: bool) -> void:
-	_play_button.disabled = disabled
 	_login_button.disabled = disabled
-	_create_account_button.disabled = disabled

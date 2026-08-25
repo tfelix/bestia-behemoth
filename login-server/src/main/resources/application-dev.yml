@@ -1,0 +1,5 @@
+# Only loaded under the `dev` profile, which application.yml activates by default. A dev host is
+# expected to be reachable only by the person developing on it, so the passkey registered there is
+# trusted with everything and no separate admin account is needed.
+account:
+  sign-up-role: SUPER_GM

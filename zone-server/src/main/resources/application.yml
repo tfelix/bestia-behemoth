@@ -296,5 +296,5 @@ cartography:
   # Where baked tiles live. Regenerable: the directory is keyed by world shape, pipeline and style version, so
   # deleting it costs render time and nothing else.
   cache-dir: ./build/map-cache
-  starter-chart-radius-metres: 1500
+  starter-chart-radius-metres: 5000
   survey-radius-per-level-metres: 1000

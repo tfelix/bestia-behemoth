@@ -46,22 +46,12 @@ namespace BestiaBehemothClient.Auth
     /// <summary>True while a login is in flight, so the UI can refuse to start a second one.</summary>
     public bool IsBusy => _cancellation != null;
 
+    /// <summary>
+    /// Starts the ceremony. There is deliberately no separate "register" entry point: the page in
+    /// the browser offers signing in, creating an account and recovering one, so which of the three
+    /// happens is decided there rather than by the button the player pressed in the menu.
+    /// </summary>
     public void StartLogin(string loginServerUrl)
-    {
-      Start(loginServerUrl, register: false);
-    }
-
-    public void StartRegistration(string loginServerUrl)
-    {
-      Start(loginServerUrl, register: true);
-    }
-
-    public void Cancel()
-    {
-      _cancellation?.Cancel();
-    }
-
-    private void Start(string loginServerUrl, bool register)
     {
       if (IsBusy)
       {
@@ -73,10 +63,15 @@ namespace BestiaBehemothClient.Auth
 
       // Fire and forget on purpose: the result comes back as a signal on the main thread, which is
       // the only way a Node may talk to the rest of the scene tree.
-      _ = RunAsync(loginServerUrl, register, _cancellation.Token);
+      _ = RunAsync(loginServerUrl, _cancellation.Token);
     }
 
-    private async Task RunAsync(string loginServerUrl, bool register, CancellationToken cancellationToken)
+    public void Cancel()
+    {
+      _cancellation?.Cancel();
+    }
+
+    private async Task RunAsync(string loginServerUrl, CancellationToken cancellationToken)
     {
       try
       {
@@ -89,7 +84,7 @@ namespace BestiaBehemothClient.Auth
         var state = Pkce.CreateState();
 
         var session = await api
-          .StartAsync(callbackServer.RedirectUri, Pkce.Challenge(verifier), state, register, cancellationToken)
+          .StartAsync(callbackServer.RedirectUri, Pkce.Challenge(verifier), state, cancellationToken)
           .ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(session?.LoginUrl))

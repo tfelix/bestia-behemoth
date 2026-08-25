@@ -65,6 +65,12 @@ func _ready() -> void:
 	# the overlay warms the minimap. EntityManager is a sibling of this node under Game and is what the
 	# views ask for the player's position.
 	var entities := EntityManager.get_instance()
+	if entities == null:
+		# Said out loud because it used to be silent. Both views keep whatever they are handed for the
+		# life of the scene, so a null here is not a map that recovers on the next frame - it is a map
+		# stuck on the world origin, showing fog and no player marker, for the whole session.
+		push_error("No EntityManager for the map views; the map cannot follow the player.")
+
 	_minimap.setup(_map_source, entities)
 	_map_overlay.setup(_map_source, entities)
 

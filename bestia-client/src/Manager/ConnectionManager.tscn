@@ -14,9 +14,6 @@ metadata/_custom_type_script = "uid://b6fewlw5bpykm"
 [node name="PingTimer" type="Timer" parent="." unique_id=1223624401]
 wait_time = 10.0
 
-[node name="LoginRequest" type="HTTPRequest" parent="." unique_id=1556636665]
-timeout = 3.0
-
 [node name="PasskeyLogin" type="Node" parent="." unique_id=1360672931]
 script = ExtResource("3_pkyln")
 metadata/_custom_type_script = "uid://kjzde8gxd6ncf"
@@ -24,7 +21,6 @@ metadata/_custom_type_script = "uid://kjzde8gxd6ncf"
 [connection signal="ConnectionStatusChanged" from="BnetSocket" to="." method="_on_bnet_socket_connection_status_changed"]
 [connection signal="MessageReceived" from="BnetSocket" to="." method="_on_bnet_socket_message_received"]
 [connection signal="timeout" from="PingTimer" to="." method="_on_ping_timer_timeout"]
-[connection signal="request_completed" from="LoginRequest" to="." method="_on_login_request_completed"]
 [connection signal="LoginSucceeded" from="PasskeyLogin" to="." method="_on_passkey_login_succeeded"]
 [connection signal="LoginFailed" from="PasskeyLogin" to="." method="_on_passkey_login_failed"]
 [connection signal="AwaitingBrowser" from="PasskeyLogin" to="." method="_on_passkey_awaiting_browser"]

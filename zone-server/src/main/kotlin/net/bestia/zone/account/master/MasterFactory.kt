@@ -143,9 +143,8 @@ class MasterFactory(
    * Puts a chart of the home settlement in a new master's pack.
    *
    * Charts are the *only* source of map knowledge - there is no permanent per-master atlas - so without this a
-   * fresh master's map and minimap are blank, which reads as a broken window rather than as fog. It is sized to
-   * show where they are standing and what is around it, not to be a head start: see
-   * [CartographyConfig.starterChartRadiusMetres].
+   * fresh master's map and minimap are blank, which reads as a broken window rather than as fog. How much
+   * ground it covers, and why it is not a token amount, is [CartographyConfig.starterChartRadiusMetres].
    *
    * Failure is logged and swallowed. A missing item template is a broken deployment, and refusing to create the
    * master over it would turn a blank map into an account nobody can play.

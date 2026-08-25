@@ -340,6 +340,11 @@
       return;
     }
 
+    if (e && e.message === 'unknown_credential') {
+      setError("This passkey isn't registered on this server. Create an account or use recovery instead.");
+      return;
+    }
+
     setError(fallback);
   }
 

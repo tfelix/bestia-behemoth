@@ -24,11 +24,14 @@ namespace BestiaBehemothClient.Auth
       };
     }
 
+    /// <summary>
+    /// Always asks for the sign-in page. That page offers creating an account and recovering one as
+    /// well, so the game has no reason to ask for the REGISTER intent the server still accepts.
+    /// </summary>
     public async Task<StartResponse> StartAsync(
       string redirectUri,
       string codeChallenge,
       string state,
-      bool register,
       CancellationToken cancellationToken)
     {
       var request = new StartRequest
@@ -37,7 +40,7 @@ namespace BestiaBehemothClient.Auth
         CodeChallenge = codeChallenge,
         CodeChallengeMethod = "S256",
         State = state,
-        Intent = register ? "REGISTER" : "LOGIN"
+        Intent = "LOGIN"
       };
 
       using var response = await _http

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
  *
  * Nothing in the game mines yet, which would leave the whole change-broadcast path built and never executed.
  * This exists so the chain from a brush through the delta, the derived-structure invalidation, the revision
- * bump and the patch fan-out can be driven by hand from the cli-client or the chat box and watched end to end.
+ * bump and the patch fan-out can be driven by hand from the chat box and watched end to end.
  *
  * A chat command rather than its own message, which its predecessor briefly was: the command framework already
  * carries the authority check, the help text and the error reply, and this way a dev-only capability costs no

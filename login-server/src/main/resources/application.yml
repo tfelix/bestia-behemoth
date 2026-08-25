@@ -2,9 +2,9 @@ server:
   port: 8080
 
 spring:
-  # `dev` gates the static development account seeding (see DevAccountSeeder). Any real deployment
-  # must run with SPRING_PROFILES_ACTIVE set to something else, or it boots with a publicly known
-  # SUPER_GM credential.
+  # `dev` raises `account.sign-up-role` (see application-dev.yml). Any real deployment must run
+  # with SPRING_PROFILES_ACTIVE set to something else, or it hands SUPER_GM to everyone who
+  # registers.
   profiles:
     active: dev
 
@@ -44,6 +44,12 @@ jwt:
   # the socket judges it once at the handshake and the map endpoint uses its own ticket
   # (zone-server HttpTicketService), so it only has to survive the walk from login to connect.
   login-token-minutes: 2
+
+account:
+  # Role every newly registered account is created with. Registration is unauthenticated, so
+  # anything above USER hands elevated permissions to whoever signs up next - application-dev.yml
+  # raises it for local play and no other profile should.
+  sign-up-role: USER
 
 webauthn:
   # The RP ID is burned into every credential ever created and cannot be changed without

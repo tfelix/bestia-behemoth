@@ -20,7 +20,6 @@ architecture questions, this file and the source are more authoritative than the
 |---|---|
 | `bestia-client` | Godot game client (C#) |
 | `bnet-messages` | protobuf message contracts — the wire format shared by client & server |
-| `cli-client` | headless Kotlin dev/test client (`cli-client/src/main/kotlin/net/bestia/client/CLI.kt`) — connects a raw socket + REST auth without needing Godot, useful for manually exercising zone-server |
 | `login-server` | Spring Boot REST auth service, issues JWTs |
 | `shared` | small Kotlin types shared by both servers: `Role`/`Authority` (`shared/src/main/kotlin/net/bestia/account/`), EIP712 auth DTOs. **Not** shared DB entities — each server defines its own JPA `Account` |
 | `zone-server` | Spring Boot game server: Netty TCP socket, message dispatch, ECS game loop, AI |
@@ -262,10 +261,13 @@ runs early), `passive-day-active` (diurnal grazer that never flees and hunts who
 login-server is a plain Spring Boot REST service (`spring-boot-starter-web`, no
 sockets) — authentication only, it never touches the game world. Key packages under
 `login-server/src/main/kotlin/net/bestia/login/`: `account/loginmethod`
-(`NftLoginMethod`, `StaticTokenLoginMethod`, `WebAuthnCredential`), `eip712`
-(wallet-signature auth), `ethereum` (web3j NFT-ownership checks), `staticlogin`
-(dev-only login + `DevAccountSeeder`, `@Profile("dev")`), `webauthn` (passkeys),
-`gamelogin` (browser-mediated login sessions), `recovery`, `jwt`.
+(`NftLoginMethod`, `WebAuthnCredential`), `eip712` (wallet-signature auth), `ethereum`
+(web3j NFT-ownership checks), `webauthn` (passkeys), `gamelogin` (browser-mediated
+login sessions), `recovery`, `jwt`.
+
+`account.sign-up-role` (`AccountConfig`) is the role every passkey registration is
+created with — `USER` in `application.yml`, raised to `SUPER_GM` by
+`application-dev.yml`, which is how a dev host gets a GM account.
 
 Storage is MariaDB (`login-server/compose.yaml`, port 3307) with Flyway owning the
 schema (`src/main/resources/db/migration/`) and `ddl-auto: validate` checking it. This
@@ -282,11 +284,9 @@ server's `application.yml` (`jwt.secret` in login-server, `zone.jwt-auth-secret-
 in zone-server — currently both the placeholder `"your-secret-key-here-change-in-production"`).
 There is no DB call between the two servers; trust is entirely in the JWT signature.
 
-Three login methods now converge on that same `createLoginToken` call, so nothing
+Two login methods now converge on that same `createLoginToken` call, so nothing
 downstream of the socket handshake can tell them apart:
 
-- `POST /api/v1/auth/static` — the dev username + static token path the client uses by
-  default.
 - `POST /api/v1/auth/eip712sig` → `POST /api/v1/login` — wallet signature, refresh token.
 - **Passkeys / WebAuthn**, which never touch the game client. The client calls
   `POST /api/v1/auth/game/start` with a loopback `redirect_uri` and a PKCE challenge,

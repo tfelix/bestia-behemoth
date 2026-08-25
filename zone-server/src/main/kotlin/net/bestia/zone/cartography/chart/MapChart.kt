@@ -12,6 +12,7 @@ import jakarta.persistence.Lob
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import net.bestia.zone.item.instance.ItemInstance
+import org.hibernate.Length
 
 /**
  * The charted ground one map item knows about.
@@ -57,13 +58,17 @@ class MapChart(
   /**
    * `CoverageCodec`-encoded survey bits: the repo's first binary column.
    *
+   * The explicit length matters: `@Lob` on its own leaves the MariaDB dialect picking a 255 byte `tinyblob`,
+   * which a survey of anything larger than a village overruns - the insert then fails outright rather than
+   * truncating, so charting simply stops working. `LONG32` is `longblob`.
+   *
    * Eagerly fetched, despite being a `@Lob`. Lazy loading of a *basic* attribute needs bytecode enhancement,
    * which this build does not do, so `@Basic(fetch = LAZY)` here would read as a claim the runtime ignores.
    * There is nothing to gain from it either: a well-travelled chart of a 128 km world is tens of kilobytes and
    * the only reason to load the row at all is to read this.
    */
   @Lob
-  @Column(name = "coverage", nullable = false)
+  @Column(name = "coverage", nullable = false, length = Length.LONG32)
   var coverage: ByteArray,
 
   @Column(name = "world_shape_version", nullable = false)

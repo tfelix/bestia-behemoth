@@ -13,6 +13,7 @@ import com.yubico.webauthn.exception.RegistrationFailedException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.account.Role
 import net.bestia.login.account.Account
+import net.bestia.login.account.AccountConfig
 import net.bestia.login.account.AccountRepository
 import net.bestia.login.account.loginmethod.WebAuthnCredential
 import net.bestia.login.account.loginmethod.WebAuthnCredentialRepository
@@ -33,7 +34,8 @@ class WebAuthnRegistrationService(
   private val credentials: WebAuthnCredentialRepository,
   private val recoveryCodeService: RecoveryCodeService,
   private val webAuthnConfig: WebAuthnConfig,
-  private val gameLoginConfig: GameLoginConfig
+  private val gameLoginConfig: GameLoginConfig,
+  private val accountConfig: AccountConfig
 ) {
 
   /**
@@ -133,7 +135,17 @@ class WebAuthnRegistrationService(
       val pendingHandle = ceremony.pendingHandle
         ?: throw WebAuthnException("Registration ceremony has a pending name but no handle")
 
-      account = accounts.save(Account(role = Role.USER).apply { displayName = pendingName })
+      account = accounts.save(
+        Account(role = accountConfig.signUpRole).apply { displayName = pendingName }
+      )
+
+      if (accountConfig.signUpRole != Role.USER) {
+        LOG.warn {
+          "Account ${account.id} ('$pendingName') was created as ${accountConfig.signUpRole}. " +
+            "account.sign-up-role is raised, so every registration on this host is elevated."
+        }
+      }
+
       users.save(WebAuthnUser(accountId = account.id, userHandle = pendingHandle))
       userHandle = pendingHandle
       recoveryCodes = recoveryCodeService.reissue(account.id, gameLoginConfig.recoveryCodeCount)

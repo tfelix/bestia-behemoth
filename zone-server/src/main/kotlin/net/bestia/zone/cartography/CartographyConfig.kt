@@ -16,7 +16,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  *   multiple rather than a base plus a gain.
  * @property starterChartRadiusMetres radius of the chart a new master is created holding. Charts are the only
  *   source of map knowledge, so without this a fresh master's map and minimap are blank - see
- *   `MasterFactory`. Sized to show the home settlement and the ground around it rather than to be a head start.
+ *   `MasterFactory`. Deliberately generous: a chart of a village and its fields reads as a broken map at the
+ *   zoom the overlay opens at, and a new player has no way to tell the two apart. One rank-5 survey's worth
+ *   is enough ground to orient by and to set out from, and costs the surveying skill nothing it can sell -
+ *   what `CARTOGRAPHY` is for is charting somewhere *else*.
  * @property cacheDir root of the on-disk tile cache. One directory per [MapWorldKey] beneath it, so deleting the
  *   lot costs render time and nothing else - tiles are a pure function of the world and the styles.
  */

@@ -59,6 +59,10 @@ class WebAuthnAssertionService(
       throw WebAuthnException("Malformed assertion response", e)
     }
 
+    if (!credentials.existsByCredentialId(response.id.bytes)) {
+      throw UnknownCredentialException()
+    }
+
     val result = try {
       relyingParty.finishAssertion(
         FinishAssertionOptions.builder()

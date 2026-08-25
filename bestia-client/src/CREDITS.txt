@@ -1,0 +1,4 @@
+Title: Stylized Grass Shader
+Author: StayAtHomeDev
+Source: https://stayathomedev.itch.io/stylized-grass-shader
+License: MIT

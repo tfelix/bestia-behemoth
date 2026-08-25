@@ -19,15 +19,25 @@ var _owned_master_entity_id: int = 0
 ## Game scene, reset via resync_entities() on zone changes, unlike the true global
 ## singletons in project.godot), so there's no direct global name for it. This is the
 ## one place that knows how to find it, so callers don't each duplicate the group lookup.
-## May return null if called before the current scene's EntityManager node has run its
-## own _ready() - always guard the result.
+## Usable from any node's _ready() - see _enter_tree() - but still null before the Game
+## scene exists at all, so guard the result.
 static func get_instance() -> EntityManager:
 	var loop := Engine.get_main_loop() as SceneTree
 	return loop.get_first_node_in_group("entity_manager") as EntityManager
 
 
-func _ready() -> void:
+## Joins the group here rather than in _ready(), because _ready() is too late for half the
+## scene to find us. Godot propagates _enter_tree() across the whole subtree before it runs
+## a single _ready(), whereas _ready() runs in tree order - so a sibling declared ahead of
+## us in Game.tscn is fully ready while our own _ready() has yet to fire. UI is exactly such
+## a sibling: when the group was joined below, it asked get_instance() for the entity manager
+## its map views follow, got null, and cached it. Both views then sat on the world origin and
+## drew nothing but fog for the rest of the session, with no player marker and no error.
+func _enter_tree() -> void:
 	add_to_group("entity_manager")
+
+
+func _ready() -> void:
 	ConnectionManager.connect("entity_received", _on_entity_message_received)
 	ConnectionManager.connect("chat_received", _on_chat_message_received)
 	ConnectionManager.connect("self_received", _on_self_message_received)

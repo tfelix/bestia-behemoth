@@ -34,10 +34,9 @@ signal passkey_browser_opened()
 signal passkey_login_failed(reason: String)
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
-enum ConnectionError {NO_ERROR, LOGIN_OFFLINE, LOGIN_ERROR, ZONE_CONNECTION_LOST}
+enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
 
 @onready var _socket = $BnetSocket
-@onready var _login_request = $LoginRequest
 @onready var _passkey_login = $PasskeyLogin
 
 
@@ -171,41 +170,8 @@ func disconnect_to_main_menu() -> void:
 	_socket.DisconnectFromServer()
 
 
-func login() -> void:
-	assert(_connection_state == ConnectionState.DISCONNECTED)
-	last_connection_error = ConnectionError.NO_ERROR
-	# Exchange the configured static development credentials for a signed JWT at the login server.
-	# Once we have the token we connect to the zone and send it during the auth handshake.
-	var url = SettingsManager.login_server_url + "/api/v1/auth/static"
-	var headers = ["Content-Type: application/json"]
-	var payload = JSON.stringify({
-		"username": SettingsManager.dev_username,
-		"token": SettingsManager.dev_static_token
-	})
-	var err = _login_request.request(url, headers, HTTPClient.METHOD_POST, payload)
-	if err != OK:
-		printerr("ConnectionManager: could not start login request: ", err)
-		_goto_connection_lost(ConnectionError.LOGIN_OFFLINE)
-
-
-# TODO move the code into a seperate script on the LoginRequest node to tidy the connection manager up.
-func _on_login_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-		printerr("ConnectionManager: login failed (result=%s, code=%s)" % [result, response_code])
-		_goto_connection_lost(ConnectionError.LOGIN_ERROR)
-		return
-
-	var json = JSON.new()
-	if json.parse(body.get_string_from_utf8()) != OK or typeof(json.data) != TYPE_DICTIONARY or not json.data.has("token"):
-		printerr("ConnectionManager: could not parse login response")
-		_goto_connection_lost(ConnectionError.LOGIN_ERROR)
-		return
-
-	_accept_login_token(json.data["token"])
-
-
 ## Shared tail of every login method. The zone only ever sees a signed JWT, so how it was obtained -
-## static development token, passkey, later a wallet signature - stops mattering here.
+## passkey, later a wallet signature - stops mattering here.
 func _accept_login_token(token: String) -> void:
 	_login_token = token
 
@@ -215,19 +181,14 @@ func _accept_login_token(token: String) -> void:
 
 
 ## Signs in with a passkey. The system browser does the WebAuthn ceremony and hands back a one-time
-## code, which [PasskeyLoginService] exchanges for the same JWT the static login returns.
+## code, which [PasskeyLoginService] exchanges for a signed JWT.
+##
+## This is also how a new account is made: the page offers signing in, creating an account and
+## recovering one, so the menu needs no separate entry point for registration.
 func login_with_passkey() -> void:
 	assert(_connection_state == ConnectionState.DISCONNECTED)
 	last_connection_error = ConnectionError.NO_ERROR
 	_passkey_login.StartLogin(SettingsManager.login_server_url)
-
-
-## Creates a new account and its first passkey. Same flow as [method login_with_passkey], only the
-## page the browser lands on differs.
-func register_with_passkey() -> void:
-	assert(_connection_state == ConnectionState.DISCONNECTED)
-	last_connection_error = ConnectionError.NO_ERROR
-	_passkey_login.StartRegistration(SettingsManager.login_server_url)
 
 
 ## Abandons an in-flight passkey login. The browser tab is left alone - we cannot close it, and the

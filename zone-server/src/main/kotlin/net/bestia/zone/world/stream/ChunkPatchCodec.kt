@@ -68,7 +68,7 @@ object ChunkPatchCodec {
     return out.toByteArray()
   }
 
-  /** Inverse of [encode]. Used by tests and by the cli-client; the game client decodes in C#. */
+  /** Inverse of [encode]. Used by tests; the game client decodes in C#. */
   fun decode(bytes: ByteArray): IntArray {
     val removals = ArrayList<Int>()
     var at = 0
