@@ -63,7 +63,21 @@ enum class StaticEntityKind {
   // `GeneratedPropSource`, so their `WorldObjectSite.propId` is 0.
   WORKBENCH,
   FURNACE,
-  FORGE;
+  FORGE,
+
+  // The ground cover: worldgen's HERB, SHRUB and REED, each with its blighted twin. Split on `blighted` like
+  // the trees and for the trees' reason - a corrupted herb is a different model, not a tint.
+  //
+  // A blighted *reed* looks like a kind nothing can ask for, since corruption is zero over water. It is not:
+  // a reed stands on the shore rather than in the lake, corruption is sampled bilinearly, and a shore in a
+  // corrupted province reads a non-zero value. Uniform with the other two is cheaper than an exception whose
+  // premise does not hold.
+  HERB,
+  BLIGHTED_HERB,
+  SHRUB,
+  BLIGHTED_SHRUB,
+  REED,
+  BLIGHTED_REED;
 
   companion object {
 
@@ -99,6 +113,13 @@ enum class StaticEntityKind {
         "BuildingFunction.${BuildingFunction.entries[subKind]} has no StaticEntityKind; it should never " +
             "have been emitted as a prop - see BuildingProps"
       }
+      // No table for these three, unlike the POI and building blocks above, and the difference is that those
+      // dispatch on a *different* enum's ordinal - which a `when` cannot see, so they need a name join checked
+      // at class load. `PropKind` is this `when`'s own subject, so a kind appended in worldgen without an arm
+      // here is a compile error, which is the stronger guard.
+      PropKind.HERB -> if (blighted) BLIGHTED_HERB else HERB
+      PropKind.SHRUB -> if (blighted) BLIGHTED_SHRUB else SHRUB
+      PropKind.REED -> if (blighted) BLIGHTED_REED else REED
     }
 
     /**
