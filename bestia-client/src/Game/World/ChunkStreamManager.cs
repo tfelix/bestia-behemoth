@@ -134,6 +134,20 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     private readonly Dictionary<ChunkKey, ChunkStaticEntitiesSMSG> _staticBatches = new();
 
+    /// <summary>
+    /// The scorch and fire masks for the columns this client holds.
+    /// </summary>
+    /// <remarks>
+    /// Sparse and usually empty: the server sends nothing for ground that has never burnt, so an entry here
+    /// means something actually happened to that column. A clean message removes its entry rather than storing
+    /// an empty one, which is how a healed scar retires.
+    /// </remarks>
+    private readonly Dictionary<ChunkKey, ChunkGroundOverlaySMSG> _burnMasks = new();
+
+    /// <summary>The overlay for one column, or null when that ground is clean.</summary>
+    public ChunkGroundOverlaySMSG BurnMaskOf(ChunkKey key) =>
+      _burnMasks.TryGetValue(key, out var mask) ? mask : null;
+
     /// <summary>The world's chunk grid, for the addresses this class derives rather than receives.</summary>
     private ChunkWrap _wrap = ChunkWrap.None;
 
@@ -220,6 +234,23 @@ namespace BestiaBehemothClient.Game.World
           OnPatch(patch);
           break;
 
+        case ChunkGroundOverlaySMSG overlay:
+          // Retained for the same reason a static batch is: the renderer may attach long after the message
+          // arrived, and the server sends no more until the ground changes again.
+          //
+          // Unlike a static batch this does *not* wait for the chunk to decode. The masks are two bitmasks over
+          // a lattice this client already knows the shape of, so there is nothing to read off the terrain -
+          // whoever draws them needs the mesh, and gets it when the chunk lands.
+          if (overlay.IsClean)
+          {
+            _burnMasks.Remove(overlay.Key);
+          }
+          else
+          {
+            _burnMasks[overlay.Key] = overlay;
+          }
+          break;
+
         case ChunkStaticEntitiesSMSG statics:
           // Applied straight away rather than queued: a batch is a few hundred transforms and, for the kinds
           // that have art, a scene instance each - not a decode and a mesh build, so it does not need the
@@ -304,6 +335,7 @@ namespace BestiaBehemothClient.Game.World
       Store.Clear();
       _toDecode.Clear();
       _staticBatches.Clear();
+      _burnMasks.Clear();
       StaticEntities?.Clear();
 
       Renderer?.Configure(Store, info);
@@ -331,6 +363,7 @@ namespace BestiaBehemothClient.Game.World
 
         Renderer?.Remove(key);
         _staticBatches.Remove(key);
+        _burnMasks.Remove(key);
         StaticEntities?.Remove(key);
       }
 
@@ -421,7 +454,10 @@ namespace BestiaBehemothClient.Game.World
       // may be never. The renderer must not outlive the store's knowledge, so drop it.
       //
       // Terrain only. The static batch for this column is tracked separately and the server retires it
-      // through its own message, so pruning it here would delete props that are still live.
+      // through its own message, so pruning it here would delete props that are still live. The burn mask is
+      // left for the same reason and one more: a patch says the *voxels* changed, and a mask is not made of
+      // voxels - dropping it here would put a fire out because somebody mined a rock nearby. The next manifest
+      // prunes both by the ordinary rule.
       Renderer?.Remove(patch.Key);
     }
 

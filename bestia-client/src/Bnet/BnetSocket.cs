@@ -6,6 +6,7 @@ using System.Threading;
 using System.IO;
 using Bnet;
 using Google.Protobuf;
+using BestiaBehemothClient.Game.World;
 
 namespace BestiaBehemothClient.Bnet.Message
 {
@@ -280,6 +281,24 @@ namespace BestiaBehemothClient.Bnet.Message
           var msg = Map.ChunkStaticEntitiesSMSG.FromProto(envelope.ChunkStaticEntities);
           EmitSignal(SignalName.MessageReceived, msg);
         }
+        else if (envelope.ChunkGroundOverlay != null)
+        {
+          // A MapSMSG for ChunkStaticEntitiesSMSG's reason: it describes ground, not an entity this client ever
+          // spawned, so EntityManager must never see it.
+          //
+          // Decoding needs the chunk size, which only WorldInfoSMSG carries - so a mask arriving before that
+          // has nothing to validate its length against and is dropped rather than guessed at.
+          if (ChunkEngine.ChunkSize <= 0)
+          {
+            GD.PushWarning("[bnet] ground overlay before WorldInfo; dropped");
+          }
+          else
+          {
+            var msg = Map.ChunkGroundOverlaySMSG.FromProto(
+              envelope.ChunkGroundOverlay, ChunkEngine.ChunkSize);
+            EmitSignal(SignalName.MessageReceived, msg);
+          }
+        }
         else if (envelope.StaticEntityRemoved != null)
         {
           // Also a MapSMSG, and for the same reason: it names a prop, not an entity the client ever spawned.
@@ -332,6 +351,15 @@ namespace BestiaBehemothClient.Bnet.Message
       {
         var manifest = envelope.ChunkManifest;
         return $"ChunkManifest(reset={manifest.Reset}, +{manifest.Added.Count}, -{manifest.Removed.Count})";
+      }
+
+      if (envelope.ChunkGroundOverlay != null)
+      {
+        // 256 bytes of bitmask, and protobuf's own ToString escapes every byte of it - so over a kilobyte of
+        // log per send, several times a second per column for the length of a fire.
+        var overlay = envelope.ChunkGroundOverlay;
+        return $"ChunkGroundOverlay({overlay.Pos.X},{overlay.Pos.Y}) " +
+               $"{overlay.Scorched.Length}B scorched, {overlay.Burning.Length}B burning";
       }
 
       if (envelope.ChunkStaticEntities != null)
