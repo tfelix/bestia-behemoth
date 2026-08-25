@@ -71,6 +71,10 @@ game-login:
   session-ttl-seconds: 300
   # Lifetime of the single-use authorization code handed to the loopback listener.
   authorization-code-ttl-seconds: 60
+  # How long a client may keep resuming the game without touching a passkey again. Slides on every
+  # rotation, so it expires a client that has not started the game in this long rather than capping
+  # how long a session may live.
+  refresh-token-days: 30
   # Base URL the game is told to open. Must be an origin listed under `webauthn.origins`.
   public-base-url: "http://localhost:8080"
   # Recovery codes handed out once when an account is created.

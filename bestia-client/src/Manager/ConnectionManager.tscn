@@ -24,3 +24,4 @@ metadata/_custom_type_script = "uid://kjzde8gxd6ncf"
 [connection signal="LoginSucceeded" from="PasskeyLogin" to="." method="_on_passkey_login_succeeded"]
 [connection signal="LoginFailed" from="PasskeyLogin" to="." method="_on_passkey_login_failed"]
 [connection signal="AwaitingBrowser" from="PasskeyLogin" to="." method="_on_passkey_awaiting_browser"]
+[connection signal="ResumeUnavailable" from="PasskeyLogin" to="." method="_on_passkey_resume_unavailable"]

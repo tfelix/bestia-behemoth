@@ -35,9 +35,22 @@ func _ready() -> void:
 	_render_items()
 
 
+## The master entity id, which is what every read of this inventory is keyed on - and so, in practice, the
+## moment the items the server already sent become reachable at all.
+##
+## The order is not a race: the UI subtree readies before EntityManager, so `getInventory` goes out before
+## `getSelf` and the zone answers in that order. Until this runs, [member selected_entity_id] is 0 and both
+## [method held_instances] and [method get_item_count] read an entity nobody has heard of, so they answer
+## "carrying nothing" for an inventory that is sitting right there.
+##
+## Hence the emit, which is not cosmetic: the only inventory push of a login has already been and gone by
+## now, so a listener that concluded "nothing carried" from it is never told otherwise for the rest of the
+## session. That is what hid the minimap and made M do nothing while a chart sat in the inventory window,
+## and what left the shortcut bar reading zero for items in hand.
 func _on_self_received(msg: SelfSMSG) -> void:
 	selected_entity_id = msg.MasterEntityId
 	_render_items()
+	inventory_updated.emit()
 
 
 func _on_entity_received(msg: EntitySMSG) -> void:

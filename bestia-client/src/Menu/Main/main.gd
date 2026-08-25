@@ -4,6 +4,12 @@ extends Control
 @onready var _login_button = %LoginButton
 @onready var _status_label = %StatusLabel
 @onready var _cancel_login_button = %CancelLoginButton
+@onready var _sign_out_button = %SignOutButton
+
+# Whether the sign-in in flight was asked for. A resume the player started may fall through to the browser
+# when the stored session turns out to be dead; one that started by itself on launch must not, because
+# opening a browser nobody asked for is not something to do on a game's first frame.
+var _login_requested: bool = false
 
 
 func _ready() -> void:
@@ -13,6 +19,11 @@ func _ready() -> void:
 
 	ConnectionManager.passkey_browser_opened.connect(_on_passkey_browser_opened)
 	ConnectionManager.passkey_login_failed.connect(_on_passkey_login_failed)
+	ConnectionManager.session_resume_unavailable.connect(_on_session_resume_unavailable)
+
+	if ConnectionManager.auto_resume_session():
+		_set_buttons_disabled(true)
+		_show_status("Signing you in...")
 
 
 func _on_quit_button_pressed() -> void:
@@ -30,10 +41,26 @@ func _on_credits_button_pressed() -> void:
 
 ## One button for both signing in and signing up: the page that opens in the browser offers a
 ## passkey, account creation and recovery side by side, so the choice is made there rather than here.
+##
+## A stored session skips all of that, which is the ordinary case after the first run.
 func _on_login_button_pressed() -> void:
+	_login_requested = true
 	_set_buttons_disabled(true)
-	_show_status("Opening your browser...")
-	ConnectionManager.login_with_passkey()
+
+	if ConnectionManager.has_stored_session():
+		_show_status("Signing you in...")
+		ConnectionManager.resume_session()
+	else:
+		_show_status("Opening your browser...")
+		ConnectionManager.login_with_passkey()
+
+
+## Wanted on a shared machine: the stored session is what lets anyone who sits down here start the game
+## as this account, so there has to be a way to take it away.
+func _on_sign_out_button_pressed() -> void:
+	ConnectionManager.sign_out()
+	_reset_buttons()
+	_show_status("Signed out on this computer.")
 
 
 func _on_cancel_login_button_pressed() -> void:
@@ -52,16 +79,32 @@ func _on_passkey_login_failed(reason: String) -> void:
 	_show_status(reason)
 
 
+## The stored session is gone. If the player pressed Sign in they still want to get in, so carry straight
+## on into the browser rather than making them press the same button twice.
+func _on_session_resume_unavailable() -> void:
+	if _login_requested:
+		_show_status("Opening your browser...")
+		ConnectionManager.login_with_passkey()
+
+		return
+
+	_reset_buttons()
+	_show_status("Your saved sign-in has expired.")
+
+
 func _show_status(text: String) -> void:
 	_status_label.text = text
 	_status_label.visible = true
 
 
 func _reset_buttons() -> void:
+	_login_requested = false
 	_set_buttons_disabled(false)
 	_cancel_login_button.visible = false
+	_sign_out_button.visible = ConnectionManager.has_stored_session()
 	_status_label.visible = false
 
 
 func _set_buttons_disabled(disabled: bool) -> void:
 	_login_button.disabled = disabled
+	_sign_out_button.disabled = disabled

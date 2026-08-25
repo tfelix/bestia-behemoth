@@ -32,6 +32,9 @@ signal logout_cancelled()
 signal passkey_browser_opened()
 ## Emitted when a passkey login ends without a token. Carries a message meant for the player.
 signal passkey_login_failed(reason: String)
+## Emitted when a stored session could not be resumed and has been discarded, so the browser is the only way
+## left in. Not an error: this is what the end of a token's life looks like.
+signal session_resume_unavailable()
 
 enum ConnectionState {DISCONNECTED, CONNECTED_NOT_AUTHED, CONNECTED_AUTHED}
 enum ConnectionError {NO_ERROR, ZONE_CONNECTION_LOST}
@@ -113,6 +116,10 @@ var selected_master_info: MasterInfo = null
 # routes to the main menu instead of the "connection lost" screen.
 var _intentional_disconnect: bool = false
 
+# Whether this launch has already tried its stored session. The main menu is returned to on every logout,
+# and resuming each time it appears would make quitting to the menu bounce the player straight back in.
+var _auto_resume_attempted: bool = false
+
 
 func _ready() -> void:
 	chunk_stream = ChunkStreamManagerScript.new()
@@ -191,6 +198,36 @@ func login_with_passkey() -> void:
 	_passkey_login.StartLogin(SettingsManager.login_server_url)
 
 
+## Whether a stored session exists, i.e. whether signing in can skip the browser.
+func has_stored_session() -> bool:
+	return _passkey_login.HasStoredSession()
+
+
+## Uses the stored session instead of the browser. Ends in the same place a passkey login does, or in
+## [signal session_resume_unavailable] if the server would not take the token.
+func resume_session() -> void:
+	assert(_connection_state == ConnectionState.DISCONNECTED)
+	last_connection_error = ConnectionError.NO_ERROR
+	_passkey_login.TryResume(SettingsManager.login_server_url)
+
+
+## Resumes without being asked, at most once per launch. Returns whether an attempt was actually started,
+## which is the menu's cue to show a wait instead of a Sign in button.
+func auto_resume_session() -> bool:
+	if _auto_resume_attempted or not has_stored_session():
+		return false
+
+	_auto_resume_attempted = true
+	resume_session()
+
+	return true
+
+
+## Discards the stored session here and on the server, so the next start needs a passkey again.
+func sign_out() -> void:
+	_passkey_login.SignOut(SettingsManager.login_server_url)
+
+
 ## Abandons an in-flight passkey login. The browser tab is left alone - we cannot close it, and the
 ## login session expires on the server by itself.
 func cancel_passkey_login() -> void:
@@ -208,6 +245,10 @@ func _on_passkey_login_succeeded(token: String) -> void:
 func _on_passkey_login_failed(reason: String) -> void:
 	printerr("ConnectionManager: passkey login failed: ", reason)
 	passkey_login_failed.emit(reason)
+
+
+func _on_passkey_resume_unavailable() -> void:
+	session_resume_unavailable.emit()
 
 
 func _goto_connection_lost(last_error: ConnectionError) -> void:

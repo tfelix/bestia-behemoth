@@ -18,7 +18,8 @@ import java.time.Duration
 import java.time.LocalDateTime
 
 /**
- * The two calls the game itself makes. Everything between them happens in the system browser.
+ * The calls the game itself makes. Everything between /start and /exchange happens in the system
+ * browser; /refresh replaces all three on every start after the first.
  *
  * The client is untrusted throughout: it chooses the redirect target (validated to a loopback
  * literal), the PKCE challenge (which it must later prove it can open) and the state nonce (which
@@ -31,6 +32,7 @@ class GameLoginController(
   private val authorizationCodeService: AuthorizationCodeService,
   private val accounts: AccountRepository,
   private val accountLoginGuard: AccountLoginGuard,
+  private val refreshTokenService: RefreshTokenService,
   private val jwtService: JwtService,
   private val rateLimiter: RateLimiter
 ) {
@@ -57,12 +59,27 @@ class GameLoginController(
     val codeVerifier: String
   )
 
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+  data class RefreshRequest(
+    val refreshToken: String
+  )
+
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+  data class RevokeRequest(
+    val refreshToken: String
+  )
+
   /**
-   * Deliberately the same shape as the static development login's success body, so the client has
-   * one token-handling path regardless of how the token was obtained.
+   * What both /exchange and /refresh return, so the client has one token-handling path regardless of
+   * whether this start went through the browser.
+   *
+   * [refreshToken] is always a fresh one. The client must replace what it stored: the token it sent
+   * is spent, and presenting it again is what the server reads as a stolen copy.
    */
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
   data class ExchangeResponse(
-    val token: String
+    val token: String,
+    val refreshToken: String
   )
 
   data class GameLoginFailure(
@@ -136,12 +153,87 @@ class GameLoginController(
       accounts.save(account)
 
       ResponseEntity.ok(
-        ExchangeResponse(token = jwtService.createLoginToken(account.id, account.role))
+        ExchangeResponse(
+          token = jwtService.createLoginToken(account.id, account.role),
+          refreshToken = refreshTokenService.issueForNewSession(account.id)
+        )
       )
     } catch (e: GameLoginException) {
       LOG.debug(e) { "Rejected game login exchange" }
       failure(e)
     }
+  }
+
+  /**
+   * The whole point of the exercise: a client that already has a refresh token starts the game
+   * without a browser, a loopback listener or a passkey prompt.
+   *
+   * Nothing about the passkey ceremony is repeated here, so everything that could have changed since
+   * it happened has to be re-examined: the token may have been revoked, and the account may have
+   * been banned. Both are checked before a zone token is minted.
+   */
+  @PostMapping("/refresh")
+  fun refresh(
+    @RequestBody request: RefreshRequest,
+    servletRequest: HttpServletRequest
+  ): ResponseEntity<*> {
+    if (!allow(servletRequest, "refresh")) {
+      return tooManyRequests()
+    }
+
+    return try {
+      val rotated = refreshTokenService.rotate(request.refreshToken)
+
+      if (rotated !is RefreshTokenService.Rotation.Rotated) {
+        throw GameLoginException(GameLoginError.INVALID_GRANT, "refresh token could not be rotated")
+      }
+
+      val account = accounts.findById(rotated.accountId).orElseThrow {
+        GameLoginException(GameLoginError.INVALID_GRANT, "refresh token refers to a missing account")
+      }
+
+      accountLoginGuard.denialReason(account)?.let { reason ->
+        // The successor minted a moment ago goes too. An account that may not log in has no business
+        // holding a standing invitation to do so on any of its devices.
+        refreshTokenService.revokeAllForAccount(account.id)
+
+        throw GameLoginException(GameLoginError.ACCOUNT_UNAVAILABLE, reason)
+      }
+
+      account.lastLogin = LocalDateTime.now()
+      accounts.save(account)
+
+      ResponseEntity.ok(
+        ExchangeResponse(
+          token = jwtService.createLoginToken(account.id, account.role),
+          refreshToken = rotated.token
+        )
+      )
+    } catch (e: GameLoginException) {
+      LOG.debug(e) { "Rejected refresh" }
+      failure(e)
+    }
+  }
+
+  /**
+   * Signs one client out: the chain the presented token belongs to stops working, on the server and
+   * not only on the machine that asked.
+   *
+   * Answers the same way whether the token was live, already dead or never existed. There is nothing
+   * a caller could do with the difference except find out whether a token it guessed is real.
+   */
+  @PostMapping("/revoke")
+  fun revoke(
+    @RequestBody request: RevokeRequest,
+    servletRequest: HttpServletRequest
+  ): ResponseEntity<Void> {
+    if (!allow(servletRequest, "revoke")) {
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build()
+    }
+
+    refreshTokenService.revokeFamilyOf(request.refreshToken)
+
+    return ResponseEntity.noContent().build()
   }
 
   /**

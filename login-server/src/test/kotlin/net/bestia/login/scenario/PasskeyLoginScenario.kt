@@ -1,61 +1,21 @@
 package net.bestia.login.scenario
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
-import net.bestia.login.jwt.JwtConfig
-import net.bestia.login.ratelimit.RateLimiter
 import net.bestia.login.util.SecureTokens
 import net.bestia.login.webauthn.VirtualAuthenticator
-import net.bestia.login.webauthn.WebAuthnConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.util.UriComponentsBuilder
-import java.nio.charset.StandardCharsets
-import java.util.Base64
 
 /**
- * The whole browser-mediated login, end to end, with a virtual authenticator standing in for the
- * operating system's passkey provider.
+ * The ceremony itself: who a credential resolves to, what a recovery code is worth, and the ways an
+ * assertion or a code must not be reusable.
  *
- * Everything the game does is exercised for real - the loopback redirect URI, PKCE, the one-time
- * code - and the token that comes out is checked the way zone-server checks it, rather than merely
- * asserted non-null.
+ * Resuming a session afterwards is [SessionResumeScenario]; the plumbing both share is in
+ * [BasePasskeyScenario].
  */
-class PasskeyLoginScenario : BaseLoginScenario() {
-
-  @Autowired
-  private lateinit var restTemplate: TestRestTemplate
-
-  @Autowired
-  private lateinit var webAuthnConfig: WebAuthnConfig
-
-  @Autowired
-  private lateinit var jwtConfig: JwtConfig
-
-  @Autowired
-  private lateinit var rateLimiter: RateLimiter
-
-  private val mapper = ObjectMapper()
-
-  @BeforeEach
-  fun resetLimits() {
-    // Every test in this class shares one loopback address, so without this the later ones start
-    // failing on the limiter rather than on whatever they mean to assert.
-    rateLimiter.reset()
-  }
+class PasskeyLoginScenario : BasePasskeyScenario() {
 
   @Test
   fun `a new account can be created and then signed in with the same passkey`() {
@@ -273,119 +233,6 @@ class PasskeyLoginScenario : BaseLoginScenario() {
     assertTrue(response.headers.getFirst("Content-Security-Policy")!!.contains("frame-ancestors 'none'"))
   }
 
-  // --- flow helpers -------------------------------------------------------------------------
-
-  private fun register(
-    authenticator: VirtualAuthenticator,
-    displayName: String = uniqueDisplayName()
-  ): Completed {
-    val session = start()
-
-    val options = post(
-      "/api/v1/webauthn/register/options",
-      mapOf("session_id" to session.sessionId, "display_name" to displayName)
-    )
-
-    val publicKey = options.get("public_key")
-    val userHandle = decodeB64u(publicKey.get("user").get("id").asText())
-
-    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify")
-
-    return Completed(
-      code = completeAndTakeCode(session),
-      verifier = session.verifier,
-      userHandle = userHandle,
-      recoveryCodes = verified.get("recovery_codes").map { it.asText() }
-    )
-  }
-
-  private fun recover(
-    authenticator: VirtualAuthenticator,
-    displayName: String,
-    recoveryCode: String
-  ): Completed {
-    val session = start()
-
-    val options = post(
-      "/api/v1/webauthn/recover/options",
-      mapOf(
-        "session_id" to session.sessionId,
-        "display_name" to displayName,
-        "recovery_code" to recoveryCode
-      )
-    )
-
-    val userHandle = decodeB64u(options.get("public_key").get("user").get("id").asText())
-    val verified = createCredential(authenticator, options, "/api/v1/webauthn/register/verify")
-
-    return Completed(
-      code = completeAndTakeCode(session),
-      verifier = session.verifier,
-      userHandle = userHandle,
-      recoveryCodes = verified.get("recovery_codes").map { it.asText() }
-    )
-  }
-
-  private fun signIn(authenticator: VirtualAuthenticator, userHandle: ByteArray): Completed {
-    val session = start()
-    assertOn(session, authenticator, userHandle)
-
-    return Completed(
-      code = completeAndTakeCode(session),
-      verifier = session.verifier,
-      userHandle = userHandle,
-      recoveryCodes = emptyList()
-    )
-  }
-
-  private fun assertOn(
-    session: StartedSession,
-    authenticator: VirtualAuthenticator,
-    userHandle: ByteArray
-  ) {
-    val options = post("/api/v1/webauthn/assert/options", mapOf("session_id" to session.sessionId))
-    val publicKey = options.get("public_key")
-
-    // Usernameless: nothing identifying the account was sent, so the credential has to be
-    // discoverable and the account is resolved from the handle the authenticator returns.
-    assertTrue(publicKey.get("allowCredentials") == null || publicKey.get("allowCredentials").isEmpty)
-
-    val credential = authenticator.get(
-      webAuthnConfig.rpId,
-      publicKey.get("challenge").asText(),
-      origin(),
-      userHandle
-    )
-
-    post(
-      "/api/v1/webauthn/assert/verify",
-      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential))
-    )
-  }
-
-  private fun addCredential(session: StartedSession, authenticator: VirtualAuthenticator) {
-    val options = post("/api/v1/webauthn/credentials/options", mapOf("session_id" to session.sessionId))
-
-    createCredential(authenticator, options, "/api/v1/webauthn/credentials/verify")
-  }
-
-  private fun createCredential(
-    authenticator: VirtualAuthenticator,
-    options: JsonNode,
-    verifyPath: String
-  ): JsonNode {
-    val credential = authenticator.create(
-      webAuthnConfig.rpId,
-      options.get("public_key").get("challenge").asText(),
-      origin()
-    )
-
-    return post(
-      verifyPath,
-      mapOf("ceremony_id" to options.get("ceremony_id").asText(), "credential" to mapper.readTree(credential))
-    )
-  }
-
   private fun assertAssertionRefused(rpId: String?, origin: String) {
     val authenticator = VirtualAuthenticator()
     val registration = register(authenticator)
@@ -406,124 +253,5 @@ class PasskeyLoginScenario : BaseLoginScenario() {
     )
 
     assertEquals(400, response.statusCode.value())
-  }
-
-  private fun start(): StartedSession {
-    val verifier = SecureTokens.randomToken()
-    val state = SecureTokens.randomToken()
-
-    val response = post(
-      "/api/v1/auth/game/start",
-      startBody("http://127.0.0.1:$LOOPBACK_PORT/callback", state, verifier)
-    )
-
-    assertTrue(response.get("login_url").asText().contains("/game-login"))
-
-    return StartedSession(
-      sessionId = response.get("session_id").asText(),
-      verifier = verifier,
-      state = state
-    )
-  }
-
-  private fun startBody(
-    redirectUri: String,
-    state: String,
-    verifier: String = SecureTokens.randomToken()
-  ): Map<String, String> {
-    return mapOf(
-      "redirect_uri" to redirectUri,
-      "code_challenge" to SecureTokens.base64Url(SecureTokens.sha256(verifier)),
-      "code_challenge_method" to "S256",
-      "state" to state,
-      "intent" to "LOGIN"
-    )
-  }
-
-  /**
-   * The browser's last step. The code is only minted here, which is why the sixty second lifetime
-   * is not spent while the player reads their recovery codes.
-   */
-  private fun completeAndTakeCode(session: StartedSession): String {
-    val completed = post("/api/v1/auth/session/complete", mapOf("session_id" to session.sessionId))
-    val query = UriComponentsBuilder.fromUriString(completed.get("redirect_to").asText()).build().queryParams
-
-    assertEquals(session.state, query.getFirst("state"))
-
-    return query.getFirst("code")!!
-  }
-
-  private fun exchange(code: String, verifier: String): String {
-    val response = rawExchange(code, verifier)
-
-    assertEquals(200, response.statusCode.value())
-
-    return mapper.readTree(response.body).get("token").asText()
-  }
-
-  private fun rawExchange(code: String, verifier: String): ResponseEntity<String> {
-    return rawPost("/api/v1/auth/game/exchange", mapOf("code" to code, "code_verifier" to verifier))
-  }
-
-  /**
-   * Verified the way zone-server verifies it - same secret, same issuer and audience checks - so a
-   * token that passes here is one the game socket would actually accept.
-   */
-  private fun accountIdOf(token: String): Long {
-    val key = Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(StandardCharsets.UTF_8))
-    val claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
-
-    assertEquals("login", claims.issuer)
-    assertTrue(claims.audience.contains("zone"))
-    assertEquals("USER", claims.get("role", String::class.java))
-
-    return claims.subject.toLong()
-  }
-
-  // --- transport ----------------------------------------------------------------------------
-
-  private fun post(path: String, body: Any): JsonNode {
-    val response = rawPost(path, body)
-
-    assertEquals(200, response.statusCode.value(), "POST $path returned ${response.body}")
-
-    return mapper.readTree(response.body)
-  }
-
-  private fun rawPost(path: String, body: Any): ResponseEntity<String> {
-    val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
-
-    return restTemplate.postForEntity(path, HttpEntity(body, headers), String::class.java)
-  }
-
-  private fun origin(): String {
-    return webAuthnConfig.origins.first()
-  }
-
-  private fun uniqueDisplayName(): String {
-    return "Player" + SecureTokens.randomToken(12).filter { it.isLetterOrDigit() }.take(20)
-  }
-
-  private fun decodeB64u(value: String): ByteArray {
-    return Base64.getUrlDecoder().decode(value)
-  }
-
-  private data class StartedSession(
-    val sessionId: String,
-    val verifier: String,
-    val state: String
-  )
-
-  private data class Completed(
-    val code: String,
-    val verifier: String,
-    val userHandle: ByteArray,
-    val recoveryCodes: List<String>
-  )
-
-  companion object {
-    /** Never bound in the test: the server only records the redirect target, it never calls it. */
-    private const val LOOPBACK_PORT = 49721
-    private const val RECOVERY_CODE_COUNT = 10
   }
 }

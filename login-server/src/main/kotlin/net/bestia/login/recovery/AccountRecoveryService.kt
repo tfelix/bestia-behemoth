@@ -3,6 +3,7 @@ package net.bestia.login.recovery
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.login.account.AccountLoginGuard
 import net.bestia.login.account.AccountRepository
+import net.bestia.login.gamelogin.RefreshTokenService
 import net.bestia.login.webauthn.WebAuthnException
 import net.bestia.login.webauthn.WebAuthnRegistrationService
 import org.springframework.stereotype.Service
@@ -21,7 +22,8 @@ class AccountRecoveryService(
   private val accounts: AccountRepository,
   private val recoveryCodeService: RecoveryCodeService,
   private val registrationService: WebAuthnRegistrationService,
-  private val accountLoginGuard: AccountLoginGuard
+  private val accountLoginGuard: AccountLoginGuard,
+  private val refreshTokenService: RefreshTokenService
 ) {
 
   @Transactional
@@ -45,6 +47,12 @@ class AccountRecoveryService(
     }
 
     LOG.warn { "Account ${account.id} is being recovered with a recovery code" }
+
+    // A player recovering has lost control of their passkeys, so a client still resuming this account
+    // without one is as likely to be whoever took them as the owner. Done on the spent code rather
+    // than on the finished ceremony: the code is the part that proves this came from the owner's own
+    // records, and waiting would leave the thief's session alive through a recovery that failed.
+    refreshTokenService.revokeAllForAccount(account.id)
 
     return registrationService.startCredentialRegistration(
       accountId = account.id,

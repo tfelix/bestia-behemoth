@@ -15,10 +15,33 @@ extends Node3D
 ## [b]A shadow-casting cloud plane above the world.[/b] Physically the real thing, and it rides the sun's
 ## PSSM splits: the pattern is huge and soft, the splits sample it at four different densities, and the seams
 ## between them fall across it. It also smears without limit once the sun elevation hits its floor.
+##
+## [b]Why the tiles overlap instead of abutting.[/b] A decal's texture is copied into the renderer's decal
+## atlas and sampled with clamping, so the outer half texel of every decal blends toward the transparent
+## surround of its atlas entry: a tile that stops exactly where its neighbour starts loses up to half of its
+## shadow along the join. On screen that is a bright line a texel wide, running the length of the tile and
+## drifting with the wind - the first thing the eye finds in an otherwise soft mask. Overlapping the tiles is
+## not the fix by itself, because two decals over one fragment each mix toward the shadow in turn, so an
+## overlap is a dark line where an abutting edge was a bright one. Both together work: the tiles overlap by
+## [member blend_metres] and the mask's alpha carries a window that reaches zero at its edge, so neighbours
+## crossfade. Measured against a deliberately featureless mask, that took the join from an eight percent
+## bright spike down to under half a percent, which is less than the render varies by anyway.
 
-## Metres across per decal. Three of these cover the camera in each axis, so the grid reaches 1.5 tiles in
-## every direction - comfortably past [code]fog_depth_end[/code], where nothing is visible anyway.
+## Metres across per cloud tile. Three of these cover the camera in each axis, so the grid reaches 1.5 tiles
+## in every direction - comfortably past [code]fog_depth_end[/code], where nothing is visible anyway.
+##
+## This is the period of the mask rather than the size of a decal: each decal is [member blend_metres] wider,
+## so that neighbours can overlap.
 @export_range(64, 1024, 32) var tile_metres: float = 256.0
+
+## How far neighbouring tiles overlap and crossfade, in metres.
+##
+## Generous rather than tight, and that is the point. The crossfade is not exact - two decals over one
+## fragment compose as two mixes rather than one, which leaves the middle of a join a couple of percent
+## lighter than the middle of a tile. Spread over tens of metres that is indistinguishable from the cloud
+## itself; squeezed into one metre the same error reads as a line. What it costs is that the overlap is drawn
+## by two decals rather than one.
+@export_range(4, 128, 4) var blend_metres: float = 32.0
 
 ## How deep each decal projects, in metres, centred on the camera.
 ##
@@ -29,10 +52,18 @@ extends Node3D
 ## How much darker the ground goes under the thickest part of a cloud, at full strength.
 @export_range(0, 1, 0.01) var max_darkness: float = 0.45
 
-## What a shadowed patch of ground is tinted toward.
+## What a shadowed patch of ground would be tinted toward.
 ##
 ## Not black, and not neutral. Ground in cloud shadow is still lit - by the sky, which is blue - so the
 ## shadow is a colour shift as much as a darkening. Black patches read as holes in the terrain.
+##
+## [b]Inert as it stands, and left here rather than deleted.[/b] The renderer multiplies this into the
+## sampled mask before mixing it into albedo, and the mask is black with only its alpha carrying the cloud -
+## so the product is black whatever this says, and shadows mix toward black. Proven by rendering a decal with
+## a pure red modulate: the shadowed ground came back with its red channel untouched at 0.69, and only rose
+## to 0.94 once the mask itself carried white. Making it real is one line - luminance 255 in
+## [method _bake_mask] - but it lightens every shadow in the same breath, because mixing 45% toward a mid
+## blue-grey is nowhere near mixing 45% toward black, so [member max_darkness] wants re-tuning with it.
 @export var shadow_colour: Color = Color(0.30, 0.35, 0.46)
 
 ## How fast the clouds travel relative to the wind at head height, which is what the server reports.
@@ -66,15 +97,37 @@ extends Node3D
 
 const _GRID := 3
 
-## How far cover has to move before the mask is worth regenerating. [NoiseTexture2D] renders on a thread, so
-## this is cheap - but not free, and cover drifts continuously.
+## How far cover has to move before the mask is worth rebuilding. The bake runs on a worker thread, so this
+## is cheap - but not free, and cover drifts continuously.
 const _COVERAGE_BAND := 0.08
+
+## Half the width of the ramp from clear sky to solid cloud, in noise units - how soft the threshold that
+## makes the mask is. Wide enough that cloud edges are soft, narrow enough that cover still means something.
+const _EDGE := 0.22
 
 var _weather: Node = null
 var _clock: Node = null
 
 var _decals: Array[Decal] = []
-var _noise_texture: NoiseTexture2D = null
+
+## The noise field: one tile, one byte per texel, wrapping at [member texture_size]. Generated once - cover
+## moves the threshold, not the field.
+var _field := PackedByteArray()
+
+## The crossfade window, one weight per mask texel, used on both axes. See [method _build_window].
+var _window := PackedFloat32Array()
+
+## What every decal samples. Rebuilt in place with [method ImageTexture.set_image], which reaches the decal
+## atlas where [method ImageTexture.update] silently does not.
+var _mask := ImageTexture.new()
+
+## Border texels on each side of the mask: half the overlap, rounded to whole texels.
+var _pad := 0
+
+## Metres across per decal - a tile plus both borders. The grid is still spaced by [member tile_metres].
+var _span := 0.0
+
+var _bake_task := -1
 
 ## Where the cloud field has drifted to, in metres. Grows without bound on purpose - it is only ever used
 ## modulo [member tile_metres], and a float carries far more session than anyone will play.
@@ -93,7 +146,8 @@ func _ready() -> void:
 
 	_clock = ConnectionManager.world_clock
 
-	_build_texture()
+	_measure()
+	_build_window()
 	_build_decals()
 
 	visible = false
@@ -115,6 +169,12 @@ func _process(delta: float) -> void:
 
 	var overcast: float = _weather.Overcast
 	_ensure_coverage(overcast)
+
+	# The first bake lands a frame or two after the first cloudy frame. Before it does there is nothing to
+	# project - nothing that would still cost its screen area in the decal pass.
+	if _mask.get_width() == 0:
+		visible = false
+		return
 
 	var wind: Vector3 = _weather.Wind
 	_drift += Vector2(wind.x, wind.z) * wind_multiplier * delta
@@ -174,9 +234,10 @@ func _sun_offset() -> Vector2:
 
 ## Wraps the grid around the camera and applies the current strength.
 ##
-## The grid is aligned so that each decal starts exactly where the cloud field repeats, which is what lets it
-## teleport by a whole tile without anything showing: the mask is seamless with period [member tile_metres],
-## so the pattern either side of the jump is identical.
+## The grid is spaced by [member tile_metres] however wide the decals themselves are, and aligned so that each
+## tile starts exactly where the cloud field repeats - which is what lets it teleport by a whole tile without
+## anything showing: the mask has period [member tile_metres], so the pattern either side of the jump is
+## identical.
 func _place(camera_position: Vector3, offset: Vector2, strength: float) -> void:
 	var half := tile_metres * 0.5
 	var mix := strength * max_darkness
@@ -200,45 +261,78 @@ func _place(camera_position: Vector3, offset: Vector2, strength: float) -> void:
 			decal.albedo_mix = mix
 
 
+## Turns [member blend_metres] into whole texels, because the overlap and the window have to agree to the
+## texel: half a texel of disagreement is half a texel of the join not summing to one, which is the line all
+## of this exists to remove.
+func _measure() -> void:
+	var texel := tile_metres / float(texture_size)
+
+	# At least a texel of border, and at most a quarter tile: each window ramp is 2 * pad wide, and the two
+	# of them must not meet in the middle.
+	_pad = clampi(int(round(blend_metres * 0.5 / texel)), 1, texture_size / 4)
+	_span = tile_metres + float(2 * _pad) * texel
+
+
+## Builds the crossfade window: one weight per mask texel, applied along both axes.
+##
+## Ramps up over the first [code]2 * _pad[/code] texels, down over the last, and is 1 in between. The pair
+## that has to agree is a texel [code]i[/code] of one tile and the same patch of ground in the next, which is
+## texel [code]i + texture_size[/code] of that neighbour - and [method @GlobalScope.smoothstep] is symmetric
+## about its middle, so those two weights sum to exactly 1. Both axes use the same window and the weight is
+## their product, so an overlapping corner, where four decals meet, sums to 1 as well.
+func _build_window() -> void:
+	var total := texture_size + 2 * _pad
+	var ramp := float(2 * _pad)
+
+	_window.resize(total)
+	for i in total:
+		var rising := smoothstep(0.0, 1.0, clampf((float(i) + 0.5) / ramp, 0.0, 1.0))
+		var falling := smoothstep(0.0, 1.0, clampf((float(total) - 0.5 - float(i)) / ramp, 0.0, 1.0))
+		_window[i] = rising * falling
+
+
 ## Rebuilds the mask when the sky has changed enough to be worth it.
 ##
-## Cover moves the ramp, which grows the patches; strength separately sets how dark they go. Both are needed,
-## and the first is the one that is easy to skip: a fixed pattern fading up and down is the tell that gives a
-## cheap effect away, because real cloud shadow gets larger before it gets darker.
+## Cover moves the threshold, which grows the patches; strength separately sets how dark they go. Both are
+## needed, and the first is the one that is easy to skip: a fixed pattern fading up and down is the tell that
+## gives a cheap effect away, because real cloud shadow gets larger before it gets darker.
 func _ensure_coverage(coverage: float) -> void:
 	if absf(coverage - _built_coverage) < _COVERAGE_BAND:
 		return
 
+	# One bake at a time, and the coverage is deliberately not recorded when one is already running: the next
+	# frame asks again, rather than the sky quietly settling wherever the last finished bake left it.
+	if _bake_task != -1 and not WorkerThreadPool.is_task_completed(_bake_task):
+		return
+
 	_built_coverage = coverage
-
-	# The ramp is a property of the texture, so assigning it is what queues the regeneration.
-	_noise_texture.color_ramp = _ramp_for(coverage)
+	_bake_task = WorkerThreadPool.add_task(_bake.bind(coverage), true, "cloud shadow mask")
 
 
-## The mask ramp for a given cover: where the noise stops being sky and starts being cloud.
+## Runs on a worker thread. A third of a million texels of threshold and window is a couple of frames' work,
+## and cover crosses [constant _COVERAGE_BAND] several times during a single weather change - so on the main
+## thread it would be several dropped frames spread over the ten seconds the player spends watching the sky.
+func _bake(coverage: float) -> void:
+	if _field.is_empty():
+		_build_field()
+
+	_publish.call_deferred(_bake_mask(coverage))
+
+
+func _publish(image: Image) -> void:
+	if _bake_task != -1:
+		# The documented way to release a task rather than a real wait: the task is what deferred this call.
+		WorkerThreadPool.wait_for_task_completion(_bake_task)
+		_bake_task = -1
+
+	_mask.set_image(image)
+
+
+## Generates the noise field: one tile, seamless, one byte per texel.
 ##
-## Built fresh each time rather than by moving the existing points. [method Gradient.set_offset] re-sorts,
-## so pushing the lower point past where the upper one currently sits swaps the two colours - and the
-## threshold sweeps across the whole range as the sky changes, which is exactly when that happens. The
-## symptom would be the shadows inverting into shafts of light.
-func _ramp_for(coverage: float) -> Gradient:
-	# Falls as cover rises, so more of the noise field clears the bar and the patches grow.
-	var threshold := lerpf(0.85, 0.15, clampf(coverage, 0.0, 1.0))
-	const EDGE := 0.22
-
-	var ramp := Gradient.new()
-	ramp.offsets = PackedFloat32Array([
-		clampf(threshold - EDGE, 0.0, 1.0),
-		clampf(threshold + EDGE, 0.0, 1.0)])
-
-	# Black throughout; only the alpha carries the cloud. The tint is applied per decal through modulate, so
-	# the mask stays a mask and the colour stays somewhere a designer can find it.
-	ramp.colors = PackedColorArray([Color(0.0, 0.0, 0.0, 0.0), Color(0.0, 0.0, 0.0, 1.0)])
-
-	return ramp
-
-
-func _build_texture() -> void:
+## Once, not per bake. Cover is a threshold on this field and thresholding a byte is arithmetic, while four
+## octaves of noise over a quarter of a million texels is the expensive half of the old rebuild.
+func _build_field() -> void:
 	var noise := FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
@@ -246,13 +340,55 @@ func _build_texture() -> void:
 	noise.fractal_gain = 0.45
 	noise.frequency = cloud_scale / float(texture_size)
 
-	_noise_texture = NoiseTexture2D.new()
-	_noise_texture.noise = noise
-	_noise_texture.width = texture_size
-	_noise_texture.height = texture_size
-	_noise_texture.seamless = true
-	_noise_texture.generate_mipmaps = true
-	_noise_texture.color_ramp = _ramp_for(0.5)
+	var image := noise.get_seamless_image(texture_size, texture_size)
+
+	# One byte per texel is what the bake indexes. Converting is cheaper than trusting the default.
+	if image.get_format() != Image.FORMAT_L8:
+		image.convert(Image.FORMAT_L8)
+
+	_field = image.get_data()
+
+
+## Bakes the mask the decals sample.
+##
+## The field is one tile; the mask is that field wrapped into an image [code]2 * _pad[/code] texels wider, so
+## its border repeats what the neighbouring tile begins with, with the crossfade window multiplied into the
+## alpha. Cover enters as the threshold, which falls as cover rises - so more of the field clears the bar and
+## the patches grow.
+##
+## [b]LA8[/b], where a [Gradient] on a [NoiseTexture2D] used to do this: two bytes a texel, of which only the
+## alpha is written. Not an optimisation - the alpha has to be the threshold times the window, and a gradient
+## only ever sees the noise value, never where in the tile it sits.
+func _bake_mask(coverage: float) -> Image:
+	var size := texture_size
+	var total := size + 2 * _pad
+
+	# Falls as cover rises, so more of the noise field clears the bar and the patches grow.
+	var threshold := lerpf(0.85, 0.15, clampf(coverage, 0.0, 1.0))
+	var clear_below := (threshold - _EDGE) * 255.0
+	var per_unit := 255.0 / (2.0 * _EDGE * 255.0)
+
+	var data := PackedByteArray()
+	data.resize(total * total * 2)
+
+	# The luminance byte stays at the zero the resize left it, so the mask is black and only its alpha carries
+	# the cloud. See [member shadow_colour] for what that costs.
+	var out := 1
+	for y in total:
+		var row := posmod(y - _pad, size) * size
+		var weight: float = _window[y] * per_unit
+		for x in total:
+			var alpha := (float(_field[row + posmod(x - _pad, size)]) - clear_below) * weight * _window[x]
+			data[out] = clampi(int(alpha), 0, 255)
+			out += 2
+
+	var image := Image.create_from_data(total, total, false, Image.FORMAT_LA8, data)
+
+	# Mipmaps for the far end of the grid, which reaches well past the fog. The near tiles are magnified and
+	# never sample below the top level.
+	image.generate_mipmaps()
+
+	return image
 
 
 func _build_decals() -> void:
@@ -261,8 +397,8 @@ func _build_decals() -> void:
 	for i in _GRID * _GRID:
 		var decal := Decal.new()
 		decal.name = "CloudShadow%d" % i
-		decal.size = Vector3(tile_metres, depth_metres, tile_metres)
-		decal.texture_albedo = _noise_texture
+		decal.size = Vector3(_span, depth_metres, _span)
+		decal.texture_albedo = _mask
 		decal.modulate = shadow_colour
 
 		# Zero rather than the default, in both directions: the fade is along the projection axis, and any of
