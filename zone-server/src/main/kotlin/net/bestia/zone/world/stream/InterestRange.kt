@@ -22,17 +22,20 @@ import org.springframework.stereotype.Service
  * That is survivable while everything of interest is a mob that moves - it is why the defect went
  * unnoticed - and it is fatal for a static entity, which is announced once and then never again.
  *
- * ### Why it equals the view volume exactly
+ * ### Why it is its own setting rather than the view radius
  *
- * A player is sent terrain for [ChunkStreamConfig.chunksAcrossView] chunks square. Anything inside
- * that is ground they can see, so it is ground an entity can be seen standing on; anything outside it
- * is ground they do not have. Making the entity range a *different* number means picking which of the
- * two mistakes to make - entities popping in over terrain that arrived long ago, or updates spent on
- * entities standing on ground the client cannot draw.
+ * It used to read [ChunkStreamConfig.chunksAcrossView] directly, and the argument for that was sound
+ * while terrain arrived at one detail level: ground the client has is ground an entity can be seen
+ * standing on, and any other number picks which of two mistakes to make.
  *
- * So there is deliberately no margin. If hysteresis is ever wanted - so an entity leaving the view
+ * Terrain now arrives at two. Past the full-detail ring the client gets a coarse surface it can draw
+ * but cannot dig, collide with or interact with - so "ground the client has" stopped being one radius
+ * and stopped answering this question. Entities belong to the *full-detail* ring, which is what this
+ * number is: raising the draw distance must not multiply entity traffic by the square of it.
+ *
+ * Still no margin, and still one number. If hysteresis is ever wanted - so an entity leaving the view
  * keeps updating for a moment rather than stopping at the boundary - the honest unit is one chunk of
- * slack added here, once, rather than a second constant somewhere that drifts.
+ * slack added to this setting, rather than a second constant somewhere that drifts.
  *
  * Computed on each read rather than cached: `chunkSize` is a per-world birth setting, and
  * `WorldProvisioning.recreate` can replace the world under a running server.
@@ -48,10 +51,10 @@ class InterestRange(
    *
    * The *edge*, not the radius, because that is what
    * [net.bestia.zone.ecs.AreaOfInterestService.queryEntitiesInCube] takes - it halves the value
-   * itself. At the defaults this is 11 chunks x 32 voxels = 352, so +/-176 m, which is the view
-   * volume to the metre.
+   * itself. At the defaults this is 11 chunks x 32 voxels = 352, so +/-176 m, which is the
+   * full-detail terrain ring to the metre.
    */
   val cubeEdge: Long
-    get() = settings.chunksAcrossView.toLong() *
+    get() = settings.chunksAcrossInterest.toLong() *
         worldService.config.chunkSize / ChunkCoords.VOXELS_PER_POSITION_UNIT
 }

@@ -9,17 +9,24 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  * Separate from `worldgen`, which holds a world's *birth* settings and is ignored once a world exists.
  * These can all change on a restart without consequence, because none of them affects what the terrain is.
  *
- * @property viewRadiusChunks horizontal radius in chunks around the player's own. Five gives an 11x11 square,
- *   352 m across and 176 m from centre to edge - sized against a draw distance of about 200 m. The cost is
- *   quadratic: seven would be 225 chunks rather than 121. A square rather than a disc on purpose; the frustum
- *   it is standing in for is rectangular.
+ * @property viewRadiusChunks horizontal radius in chunks around the player's own. Seven gives a 15x15 square,
+ *   480 m across and 240 m from centre to edge, which the client's fog is tuned to. A square rather than a
+ *   disc on purpose; the frustum it is standing in for is rectangular.
+ *
+ *   The cost is quadratic and this is close to the ceiling for full voxels: 225 chunks is ~115 MB decoded on
+ *   a client that keeps every chunk it is sent, and 225 columns of slab sampling at
+ *   [slabComputationsPerTick] is about three seconds of fill-in on fresh ground. Draw distance past here
+ *   wants a coarser representation, not a larger number.
+ * @property interestRadiusChunks horizontal radius in chunks within which entities are replicated. See
+ *   [InterestRange], which is the only reader and carries the argument for why this is now its own number
+ *   rather than [viewRadiusChunks].
  * @property viewRadiusChunksVertical vertical radius in *slabs*. A view volume wants bounding in z for the
  *   same reason it wants bounding in x and y, and a slab is 256 m tall, so one is already a 768 m column -
  *   far more than an isometric camera can show. This is a ceiling on what the surface rule may offer, not a
  *   box that is subscribed to outright: see [ChunkService.surfaceSlabsOf].
  * @property chunksPerTickPerPlayer how many chunk payloads one connection may be sent per tick. At the
- *   default tick rate of 20 this is 80 chunks a second, so an initial 121-chunk load spreads over about
- *   one and a half seconds. The ceiling exists for the *client's* sake as much as the socket's: it drains
+ *   default tick rate of 20 this is 80 chunks a second, so an initial 225-chunk load spreads over about
+ *   three seconds. The ceiling exists for the *client's* sake as much as the socket's: it drains
  *   its whole receive queue in a single frame, so an unbudgeted burst is a visible stutter.
  * @property requestBurst token bucket depth for [ChunkRequestCMSG]. A client legitimately asks for a whole
  *   manifest at once on login, so the burst has to cover that; the refill is what limits sustained asking.
@@ -35,7 +42,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 @ConfigurationProperties(prefix = "chunk-stream")
 @ConfigurationPropertiesScan
 data class ChunkStreamConfig(
-  val viewRadiusChunks: Int = 5,
+  val viewRadiusChunks: Int = 7,
+  val interestRadiusChunks: Int = 5,
   val viewRadiusChunksVertical: Int = 1,
   val chunksPerTickPerPlayer: Int = 4,
   val requestBurst: Int = 512,
@@ -76,7 +84,7 @@ data class ChunkStreamConfig(
    * New columns' slabs computed per tick, across all players.
    *
    * The cache above makes a *repeated* manifest free, but the first one over fresh ground still has to sample
-   * the heightfield for every column in the view volume - 121 chunks at the default radius, each a feature
+   * the heightfield for every column in the view volume - 225 chunks at the default radius, each a feature
    * query plus a thousand noise evaluations. Doing that in one tick stalls the zone thread for long enough to
    * be measured in whole ticks, which showed up as unrelated scenario tests timing out waiting for ordinary
    * health regeneration to propagate.
@@ -120,6 +128,7 @@ data class ChunkStreamConfig(
 
   init {
     require(viewRadiusChunks >= 0) { "View radius cannot be negative" }
+    require(interestRadiusChunks >= 0) { "Interest radius cannot be negative" }
     require(viewRadiusChunksVertical >= 0) { "Vertical view radius cannot be negative" }
     require(chunksPerTickPerPlayer > 0) { "A send budget of zero would never stream anything" }
     require(requestBurst > 0 && requestRefillPerTick > 0) { "The request bucket must be able to refill" }
@@ -136,4 +145,7 @@ data class ChunkStreamConfig(
 
   /** Chunks along one edge of the horizontal view square, for sizing and for logging what a login will cost. */
   val chunksAcrossView get() = 2 * viewRadiusChunks + 1
+
+  /** Chunks along one edge of the entity interest square. See [InterestRange]. */
+  val chunksAcrossInterest get() = 2 * interestRadiusChunks + 1
 }

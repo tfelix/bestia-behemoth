@@ -82,9 +82,15 @@ worldgen:
 # Terrain streaming to the client. Runtime settings: unlike `worldgen` above, none of these affect what the
 # terrain *is*, so they can change on a restart with no consequence.
 chunk-stream:
-  # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 5 gives an 11x11 square -
-  # 352 m across, 176 m from centre to edge. Cost is quadratic: 7 would be 225 chunks rather than 121.
-  view-radius-chunks: 5
+  # Horizontal radius in chunks around the player's own. A chunk is 32 m across, so 7 gives a 15x15 square -
+  # 480 m across, 240 m from centre to edge, matched by the fog in the client's Environment.tscn. Cost is
+  # quadratic, and this is about as far as full voxels reach: 225 chunks is ~115 MB decoded on the client,
+  # which keeps every chunk it is sent. Past here the answer is a coarser representation, not a bigger radius.
+  view-radius-chunks: 7
+  # Horizontal radius in chunks within which entities are replicated. Deliberately not tied to
+  # view-radius-chunks any more: past the full-detail ring the client gets terrain it can draw but not
+  # interact with, and entity traffic is quadratic in this number. See InterestRange.
+  interest-radius-chunks: 5
   # Vertical radius in slabs. A slab is 256 m tall, so 1 is already a 768 m column - far more than the camera
   # shows. This caps what the surface rule may offer; it is not subscribed to as a box. Without it a login in
   # deep water offered every slab from the seabed up to the waterline, 726 chunks where 121 was the answer.

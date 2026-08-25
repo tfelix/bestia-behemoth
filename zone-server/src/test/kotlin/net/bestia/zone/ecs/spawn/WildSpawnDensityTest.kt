@@ -93,7 +93,7 @@ class WildSpawnDensityTest {
     // Derived from the real configs rather than restated, so the test cannot drift away from what the client
     // is actually streamed.
     val stream = ChunkStreamConfig()
-    val screenMetres = stream.chunksAcrossView * settings.chunkSize * settings.voxelSizeMetres
+    val screenMetres = stream.chunksAcrossInterest * settings.chunkSize * settings.voxelSizeMetres
     val screenKm2 = (screenMetres / 1_000.0) * (screenMetres / 1_000.0)
 
     val worldKm2 = (settings.widthCells * settings.cellSizeMetres / 1_000.0) *

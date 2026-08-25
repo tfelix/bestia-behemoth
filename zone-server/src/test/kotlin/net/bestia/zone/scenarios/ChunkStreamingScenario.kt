@@ -111,9 +111,9 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     val across = settings.chunksAcrossView
 
     // The view fills in over several ticks rather than arriving whole. Sampling which vertical slabs the
-    // surface occupies costs a feature query and a thousand noise evaluations per column, so doing all 121 in
-    // one tick would stall the zone thread; the budget spreads it and the manifest grows as a diff. Terrain is
-    // therefore slightly late on genuinely new ground and instant once anyone has been there.
+    // surface occupies costs a feature query and a thousand noise evaluations per column, so doing a whole
+    // view volume in one tick would stall the zone thread; the budget spreads it and the manifest grows as a
+    // diff. Terrain is therefore slightly late on genuinely new ground and instant once anyone has been there.
     await {
       val announced = subscriptions.announcedTo(clientPlayer1.connectedPlayerId).size
       assertTrue(
