@@ -9,9 +9,13 @@ namespace BestiaBehemothClient.Game.World
   /// </summary>
   /// <remarks>
   /// A sibling of <see cref="TerrainRenderer"/> and it keeps the same contract: one node per chunk, removed
-  /// when the chunk leaves the manifest. That is the only lifecycle rule there is - the server sends a batch
-  /// behind each chunk payload and never sends a removal for an individual entity, so a chunk going away is
-  /// what takes its contents with it.
+  /// when the chunk leaves the manifest, which is what takes a chunk's contents with it.
+  ///
+  /// <para>
+  /// That used to be the <i>only</i> lifecycle rule, on the claim that the server never removes an individual
+  /// entity. It does: <see cref="Bnet.Message.Map.StaticEntityRemovedSMSG"/> is how a felled tree or a picked
+  /// herb goes away without its chunk being withdrawn, and <c>BnetSocket</c> has dispatched it for some time.
+  /// </para>
   ///
   /// <para>
   /// <b>A prop is an entity with a visual on it, drawn without being one.</b> The scenes under
@@ -41,7 +45,21 @@ namespace BestiaBehemothClient.Game.World
   /// regardless, and a <see cref="MultiMesh"/> cannot delete an arbitrary instance (only truncate the tail via
   /// <c>VisibleInstanceCount</c>). Keeping both would mean zero-scaling a collected crystal's transform,
   /// leaving a hole in the buffer, and maintaining an <c>entityId -> slot</c> index to find it by. One node
-  /// per prop is fewer moving parts for a population two orders of magnitude below the trees.
+  /// per prop is fewer moving parts.
+  /// </para>
+  ///
+  /// <para>
+  /// <b>The population that justified it is gone, and this is the next thing here that needs work.</b> That
+  /// argument rested on collectible props being two orders of magnitude below the trees - true while they were
+  /// crystals and aetherite, at one every 145 m. The ground cover kinds are collectible and run at about twice
+  /// the tree density, so a view volume now holds on the order of a thousand nodes each carrying a
+  /// <c>PropPicker</c> area, where it held tens. The batching this gave up cheaply is no longer cheap.
+  /// </para>
+  ///
+  /// <para>
+  /// The fix is the one <see cref="MultiMesh"/> paragraph above already describes, plus a single picker per
+  /// kind per chunk resolved against a transform buffer rather than one area per prop - the same
+  /// <c>entityId -> slot</c> index that was not worth building for a few dozen crystals.
   /// </para>
   ///
   /// <para>

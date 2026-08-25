@@ -146,7 +146,22 @@ namespace BestiaBehemothClient.Game.World
       // COLLECT_NOT_COLLECTIBLE.
       new Kind { PlaceholderWidth = 1.2f, PlaceholderColour = new Color(0.55f, 0.40f, 0.24f) }, // WORKBENCH
       new Kind { PlaceholderWidth = 1.4f, PlaceholderColour = new Color(0.42f, 0.36f, 0.34f) }, // FURNACE
-      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f) }  // FORGE
+      new Kind { PlaceholderWidth = 1.8f, PlaceholderColour = new Color(0.36f, 0.30f, 0.30f) }, // FORGE
+
+      // The ground cover: a herb, a shrub and a reed, each with its blighted twin. Collectible - every one of
+      // them has a `collect` block in prop-kinds.yml - so all six get a click target.
+      //
+      // The narrowest boxes in the table by some way, and that is the point rather than a placeholder's
+      // indifference: these are the densest props in the world and drawing them at a landmark's width would
+      // wall a meadow off. Greens, so that the ground cover reads as growth against the stone and ore above,
+      // with the blighted twins desaturated toward the corruption palette the player already knows from a
+      // blighted tree.
+      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.42f, 0.62f, 0.28f), Collectible = true }, // HERB
+      new Kind { PlaceholderWidth = 0.3f, PlaceholderColour = new Color(0.44f, 0.44f, 0.26f), Collectible = true }, // BLIGHTED_HERB
+      new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.28f, 0.46f, 0.24f), Collectible = true }, // SHRUB
+      new Kind { PlaceholderWidth = 0.6f, PlaceholderColour = new Color(0.34f, 0.32f, 0.22f), Collectible = true }, // BLIGHTED_SHRUB
+      new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.56f, 0.60f, 0.34f), Collectible = true }, // REED
+      new Kind { PlaceholderWidth = 0.4f, PlaceholderColour = new Color(0.46f, 0.44f, 0.30f), Collectible = true }  // BLIGHTED_REED
     };
 
     /// <summary>
