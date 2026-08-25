@@ -69,6 +69,18 @@ class RecordingSkillWorld(
     return spawnedAreaEffects.size.toLong()
   }
 
+  /** What a script asked to set light to, so `Ember`'s two separate effects can be told apart in a test. */
+  val ignitions = mutableListOf<Ignition>()
+
+  data class Ignition(val centre: Vec3L, val radiusTiles: Long)
+
+  /** True, because a fake ground has no reason to refuse. A test wanting refusal overrides this. */
+  override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {
+    ignitions += Ignition(centre, radiusTiles)
+
+    return true
+  }
+
   override fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float): Boolean {
     placedStations += PlacedStation(kind, masterId, at)
 

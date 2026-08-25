@@ -94,6 +94,22 @@ class BudgetedSkillWorld(
   }
 
   /**
+   * On the lock, like every other op here, and that is what makes it safe.
+   *
+   * `GroundFireService` holds a plain `HashMap` on the documented grounds that only the tick thread touches
+   * it. A skill script runs off that thread - so this goes through `world.read`, whose lock the tick also
+   * holds for its whole duration. Same reasoning as `spawnAreaEffect` above, including that `read` is an odd
+   * name for something that mutates.
+   */
+  override fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean {
+    budget.charge(SPAWN_OPS)
+
+    return world.read {
+      services.groundFire.ignite(centre, radiusTiles, casterId, skillId, skillLevel) != null
+    }
+  }
+
+  /**
    * A heal moves [Health] directly; damage is staged as a [DamageComponent] so `ReceivedDamageSystem` drains
    * it, which is also what handles death, threat and interrupting the victim's own cast.
    *

@@ -25,6 +25,7 @@ class SkillWorldServices(
   val aoi: EntityAOIService,
   val structures: PlayerStructureService,
   val areaEffectSpawner: AreaEffectSpawner,
+  val groundFire: net.bestia.zone.world.fire.GroundFireService,
   val statusEffects: StatusEffectService,
   val messages: OutMessageProcessor,
   val crafting: CraftingService,

@@ -16,20 +16,25 @@ import org.springframework.stereotype.Component
  * a handful of columns in ordinary play, zero most of the time. Nothing here scales with world size, which is
  * what makes a whole-set sweep affordable where `WorldObjectResidencySystem` needs a per-tick budget.
  *
- * ### Once a minute, and touching no components at all
+ * ### Once a minute
  *
  * `EverySeconds(60)`: a scar heals over Bestia *days*, so a faster cadence would re-integrate the same hour
- * repeatedly to move nothing. Declaring no `reads` and no `writes` is honest rather than lazy - this reads the
- * scorch registry and the weather field, neither of which is an ECS component, so there is nothing for
- * `SystemScheduler.conflicts()` to order it against and it may share a wave with anything.
+ * repeatedly to move nothing.
  *
- * The [World] parameter is unused for the same reason, and that is worth a word: every other system in this
- * package touches entities, so a reader meeting one that does not will look for the trick.
+ * ### It declares no components, and that is now true rather than merely convenient
+ *
+ * This touches the scorch registry, the weather field and `GroundOverlayService`, none of which is a component.
+ * An earlier version declared a write it did not make - on a component `ChunkStreamSystem` reads - purely to
+ * force an ordering, because `markDirty` used to read the subscription service. That worked and cost far too
+ * much: an always-present system conflicting with a large part of the engine flattens the wave scheduling for
+ * everything and ran this suite's heap out. `GroundOverlayService` keeps its own holders map instead; see its
+ * KDoc.
  */
 @Component
 class ScorchRegrowthSystem(
   private val registry: ScorchRegistry,
   private val rain: RainAccumulator,
+  private val overlay: GroundOverlayService,
 ) : System {
 
   override val schedule: Schedule = Schedule.EverySeconds(SWEEP_SECONDS)
@@ -61,6 +66,10 @@ class ScorchRegrowthSystem(
       val before = scar.visible.count
       scar.erodeTo(steps)
       if (scar.visible.count == before) continue
+
+      // Re-announce it either way: a client holding this column is drawing a scar that just got smaller, and
+      // the overlay carries the whole mask so one message settles it.
+      overlay.markDirty(columnKey)
 
       if (scar.visible.isEmpty) {
         registry.forget(columnKey)

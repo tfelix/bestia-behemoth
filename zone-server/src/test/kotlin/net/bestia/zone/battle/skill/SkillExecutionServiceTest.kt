@@ -212,6 +212,7 @@ class SkillExecutionServiceTest {
       aoi = mockk(relaxed = true),
       structures = mockk(relaxed = true),
       areaEffectSpawner = mockk(relaxed = true),
+      groundFire = mockk(relaxed = true),
       statusEffects = mockk(relaxed = true),
       messages = mockk(relaxed = true),
       crafting = mockk(relaxed = true),
