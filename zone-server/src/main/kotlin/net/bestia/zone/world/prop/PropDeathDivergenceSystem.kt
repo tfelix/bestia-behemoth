@@ -8,7 +8,6 @@ import net.bestia.zone.ecs.movement.Position
 import net.bestia.zone.ecs.prop.StaticVisual
 import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.item.loot.LootItemEntitySpawner
-import net.bestia.zone.world.WorldService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
@@ -37,7 +36,6 @@ class PropDeathDivergenceSystem(
   private val kinds: PropKindRegistry,
   private val lootItemEntitySpawner: LootItemEntitySpawner,
   private val divergence: WorldObjectDivergenceRegistry,
-  private val worldService: WorldService,
 ) : System {
 
   override val reads: ComponentClassSet =
@@ -73,7 +71,7 @@ class PropDeathDivergenceSystem(
       }
 
       val resumeAt = spec.regrowSeconds?.let { Instant.now().plusSeconds(it) }
-      divergence.recordDepletion(identity.propId, visual.kind, worldService.record.pipelineVersion, resumeAt)
+      divergence.recordDepletion(identity.propId, visual.kind, resumeAt)
     }
   }
 }

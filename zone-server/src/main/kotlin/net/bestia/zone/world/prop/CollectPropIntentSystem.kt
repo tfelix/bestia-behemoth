@@ -15,7 +15,6 @@ import net.bestia.zone.ecs.prop.WorldObjectIdentity
 import net.bestia.zone.message.OperationErrorSMSG
 import net.bestia.zone.message.OutMessageProcessor
 import net.bestia.zone.util.EntityId
-import net.bestia.zone.world.WorldService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component as SpringComponent
 import java.time.Instant
@@ -63,7 +62,6 @@ class CollectPropIntentSystem(
   private val kinds: PropKindRegistry,
   private val divergence: WorldObjectDivergenceRegistry,
   private val residency: WorldObjectResidencyService,
-  private val worldService: WorldService,
   private val outMessageProcessor: OutMessageProcessor,
 ) : System {
 
@@ -121,7 +119,7 @@ class CollectPropIntentSystem(
     // resumeAt is derived rather than hardcoded to null: every collectible kind is terminal today, and a
     // future one that regrows should need no change here.
     val resumeAt = spec.regrowSeconds?.let { Instant.now().plusSeconds(it) }
-    divergence.recordDepletion(identity.propId, visual.kind, worldService.record.pipelineVersion, resumeAt)
+    divergence.recordDepletion(identity.propId, visual.kind, resumeAt)
 
     residency.remove(world, propId)
     world.add(collectorId, ObtainItemIntent.CreateItemIntent(collect.itemId, collect.amount))
