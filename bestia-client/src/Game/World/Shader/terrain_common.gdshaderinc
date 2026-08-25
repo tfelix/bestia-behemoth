@@ -84,7 +84,7 @@ group_uniforms;
 group_uniforms Slots;
 
 // Metres per texture tile, per slot. Larger is coarser.
-uniform float slot_uv_scale[8];
+uniform float slot_uv_scale[16];
 
 // What colour the slot's texture already is, so that the per-vertex tint can be applied as a correction to it
 // rather than as a multiply.
@@ -100,7 +100,7 @@ uniform float slot_uv_scale[8];
 // Already linear, so no source_color hint: TerrainSlotTextures averages the decoded texture rather than its
 // storage bytes, which is the space the division below happens in. Tagging it source_color would decode it a
 // second time and brighten every material by the same wrong amount.
-uniform vec3 slot_reference_tint[8];
+uniform vec3 slot_reference_tint[16];
 
 // Where each slot's tiling is measured from, in world metres, snapped by the CPU to a whole number of that
 // slot's own tiles.
@@ -114,7 +114,7 @@ uniform vec3 slot_reference_tint[8];
 // Snapped per slot rather than to one shared grid so that no constraint falls on slot_uv_scale. A shared grid
 // would have to be a common multiple of every slot's tile size, and an artist typing 3.0 into one of these
 // would make the texture jump each time the origin moved.
-uniform vec3 slot_uv_origin[8];
+uniform vec3 slot_uv_origin[16];
 
 // How much a slot's height map is allowed to decide the blend, per slot. Zero blends it linearly by weight
 // alone; high values let its crevices fill and its ridges stand out through whatever it borders.
@@ -122,7 +122,7 @@ uniform vec3 slot_uv_origin[8];
 // Per slot because materials differ in how much relief they have any business asserting. Gravel and rock should
 // push through grass at their edges; snow and sand are drifts that settle into whatever they land on and should
 // mostly not.
-uniform float slot_height_contrast[8];
+uniform float slot_height_contrast[16];
 
 group_uniforms;
 
@@ -208,6 +208,8 @@ varying vec3 v_world_normal;
 // available in both and needs none of this.
 varying vec4 v_weights_low;
 varying vec4 v_weights_high;
+varying vec4 v_weights_low2;
+varying vec4 v_weights_high2;
 
 struct TerrainSurface {
 	vec3 albedo;
@@ -247,6 +249,8 @@ struct TerrainSurface {
 //     v_world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
 //     v_weights_low = CUSTOM0;
 //     v_weights_high = CUSTOM1;
+//     v_weights_low2 = CUSTOM2;
+//     v_weights_high2 = CUSTOM3;
 //
 // v_world_normal is the geometric normal and is kept separately from NORMAL, because the triplanar projection
 // has to be chosen from the surface's actual orientation rather than from whatever a normal map later
@@ -358,7 +362,7 @@ TerrainSurface terrain_surface(vec3 tint) {
 	vec3 ddx = dFdx(v_world_pos);
 	vec3 ddy = dFdy(v_world_pos);
 
-	float weights[8];
+	float weights[16];
 	weights[0] = v_weights_low.r;
 	weights[1] = v_weights_low.g;
 	weights[2] = v_weights_low.b;
@@ -367,6 +371,14 @@ TerrainSurface terrain_surface(vec3 tint) {
 	weights[5] = v_weights_high.g;
 	weights[6] = v_weights_high.b;
 	weights[7] = v_weights_high.a;
+	weights[8] = v_weights_low2.r;
+	weights[9] = v_weights_low2.g;
+	weights[10] = v_weights_low2.b;
+	weights[11] = v_weights_low2.a;
+	weights[12] = v_weights_high2.r;
+	weights[13] = v_weights_high2.g;
+	weights[14] = v_weights_high2.b;
+	weights[15] = v_weights_high2.a;
 
 	// SLOPE REWEIGHTS THE SPLAT RATHER THAN OVERLAYING A LAYER.
 	//
@@ -394,16 +406,19 @@ TerrainSurface terrain_surface(vec3 tint) {
 
 	// The two heaviest slots, and only those two get sampled.
 	//
-	// A weight-culled loop over all eight would be cheaper on a typical pixel and unbounded on the worst one -
-	// three axes by eight slots is twenty-four fetches at exactly the corners where the frame is already
+	// A weight-culled loop over all sixteen would be cheaper on a typical pixel and unbounded on the worst one -
+	// three axes by sixteen slots is forty-eight fetches at exactly the corners where the frame is already
 	// slowest. This is a fixed cost with no texture fetch inside data-dependent control flow, and the slots it
 	// discards are ones a height blend would have crushed to nothing anyway.
+	//
+	// This is also why widening the palette from eight slots to sixteen cost no per-pixel texture bandwidth at
+	// all: the search below grew by eight integer compares and the number of fetches did not move.
 	int slot0 = 0;
 	int slot1 = 0;
 	float best0 = -1.0;
 	float best1 = -1.0;
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 16; i++) {
 		float w = weights[i];
 
 		if (w > best0) {

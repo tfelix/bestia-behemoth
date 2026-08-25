@@ -551,26 +551,34 @@ namespace BestiaBehemothClient.Game.World
     /// </para>
     ///
     /// <para>
-    /// Water and lava carry weights they will never use, because they run through the same mesher and eight bytes
-    /// on a sheet of water is cheaper than a second code path. This still guards on null rather than assuming, so
+    /// Water and lava carry weights they will never use, because they run through the same mesher and sixteen
+    /// bytes on a sheet of water is cheaper than a second code path. This still guards on null rather than assuming, so
     /// that a surface built before this existed - or by a test that does not care - is drawn instead of dropped.
     /// </para>
     /// </remarks>
     private static Godot.Mesh.ArrayFormat SlotWeightFormat(ChunkSurface surface, Godot.Collections.Array arrays)
     {
-      if (surface.SlotWeights0 == null || surface.SlotWeights1 == null)
+      // All four or none. A partial set would upload weights the shader reads past the end of, and the slots in
+      // the missing channels would come back as whatever the attribute defaults to - which draws *something*,
+      // and is therefore worse than drawing nothing.
+      if (surface.SlotWeights0 == null || surface.SlotWeights1 == null ||
+          surface.SlotWeights2 == null || surface.SlotWeights3 == null)
       {
         return 0;
       }
 
       arrays[(int)Godot.Mesh.ArrayType.Custom0] = surface.SlotWeights0;
       arrays[(int)Godot.Mesh.ArrayType.Custom1] = surface.SlotWeights1;
+      arrays[(int)Godot.Mesh.ArrayType.Custom2] = surface.SlotWeights2;
+      arrays[(int)Godot.Mesh.ArrayType.Custom3] = surface.SlotWeights3;
 
       const uint Rgba8 = (uint)Godot.Mesh.ArrayCustomFormat.Rgba8Unorm;
 
       return (Godot.Mesh.ArrayFormat)(
         (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom0Shift) |
-        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom1Shift));
+        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom1Shift) |
+        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom2Shift) |
+        (Rgba8 << (int)Godot.Mesh.ArrayFormat.FormatCustom3Shift));
     }
 
     private MeshInstance3D Apply(MeshInstance3D instance, ChunkSurface surface, Material material, string name)
@@ -621,7 +629,8 @@ namespace BestiaBehemothClient.Game.World
         // was never meshed, so without this the next hour goes on the mesher rather than on the array shapes.
         var weights = surface.SlotWeights0 == null
           ? "none"
-          : $"{surface.SlotWeights0.Length}B+{surface.SlotWeights1.Length}B for {surface.Vertices.Length} verts";
+          : $"{surface.SlotWeights0.Length}+{surface.SlotWeights1.Length}+{surface.SlotWeights2?.Length}+" +
+            $"{surface.SlotWeights3?.Length}B for {surface.Vertices.Length} verts";
 
         GD.Print(
           $"[terrain] {name.Split(' ')[0]} surface: {surface.TriangleCount} tris in " +

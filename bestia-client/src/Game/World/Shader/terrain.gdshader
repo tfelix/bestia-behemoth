@@ -12,6 +12,8 @@ void vertex() {
 	v_world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
 	v_weights_low = CUSTOM0;
 	v_weights_high = CUSTOM1;
+	v_weights_low2 = CUSTOM2;
+	v_weights_high2 = CUSTOM3;
 }
 
 void fragment() {
