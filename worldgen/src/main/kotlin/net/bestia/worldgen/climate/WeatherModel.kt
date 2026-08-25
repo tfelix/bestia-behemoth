@@ -26,6 +26,28 @@ data class WeatherState(
   val windDirection: Double,
 
   /**
+   * How dry the ground here is, `0` (saturated) to `1` (tinder).
+   *
+   * ### What this is not
+   *
+   * **Not soil moisture, and not days-since-rain.** There is no state in this model and there must not be -
+   * that is the whole reason a forecast is the same evaluation at a later `t`. This is the slow **air-mass**
+   * channel standing in for the ground, and it is honest only at the multi-day scale that channel moves on.
+   *
+   * ### Why it has to come from the air mass
+   *
+   * A consumer could compute "is it raining right now" from [intensity] for itself, and that is exactly the
+   * version that does not work: rain stops and the ground is instantly tinder again, so a fire lit thirty
+   * seconds after a downpour spreads as fast as one lit in a drought. The air mass is the only signal in this
+   * model with a memory longer than a front - `airmassPeriodDays` is four times `synopticPeriodDays` - so it
+   * is the only thing here that can say "this region has been dry for a while".
+   *
+   * The current front still gets a veto through [intensity], because ground under active rain is wet whatever
+   * the fortnight was like.
+   */
+  val dryness: Double = 0.0,
+
+  /**
    * Sign and share of a mana storm's temperature anomaly, `-1` to `+1`; zero for every other kind.
    *
    * The sign is drawn from the region and the day rather than being always cold, because "high mana means
@@ -149,6 +171,9 @@ class WeatherModel(
       cloudCover = cloud,
       windSpeed = wind.speed,
       windDirection = wind.direction,
+      // The air mass carries the fortnight, `intensity` vetoes for the front standing over it right now. See
+      // `WeatherState.dryness` for why neither half is enough on its own.
+      dryness = ((1.0 - airmass) * (1.0 - intensity)).coerceIn(0.0, 1.0),
       manaAnomaly = anomaly,
       hazard = if (kind == WeatherKind.TORNADO) hazardAt(region, dayOfWorld) else null
     )
