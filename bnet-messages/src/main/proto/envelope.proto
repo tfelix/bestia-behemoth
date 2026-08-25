@@ -76,6 +76,7 @@ import "messages/map/chunk_request_cmsg.proto";
 import "messages/map/chunk_data_smsg.proto";
 import "messages/map/chunk_patch_smsg.proto";
 import "messages/map/chunk_static_entities_smsg.proto";
+import "messages/map/chunk_ground_overlay_smsg.proto";
 import "messages/map/static_entity_removed_smsg.proto";
 import "messages/map/collect_prop_cmsg.proto";
 import "messages/map/weather_smsg.proto";
@@ -123,6 +124,7 @@ message Envelope {
     StaticEntityRemovedSMSG static_entity_removed = 207;
     CollectPropCMSG collect_prop = 208;
     WorldTimeSMSG world_time = 209;
+    ChunkGroundOverlaySMSG chunk_ground_overlay = 210;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;

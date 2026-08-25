@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "ChunkGroundOverlaySMSGProto";
+
+/**
+ * Which bit shift a mask's cells sit at.
+ *
+ * A discriminator for `ChunkPatchEncoding`'s reason, which is the sharper one here than it is there: **any**
+ * byte string is a legal bitmask. A decoder disagreeing about the layout does not fail - it draws a plausible
+ * pattern of scorch in the wrong places, which is indistinguishable from a fire having burnt there. So the
+ * format is named on the wire and pinned by a fixture test on both sides.
+ */
+enum ChunkGroundOverlayEncoding {
+  /** Refuse. Zero is "nobody said", which is a different thing from the first format. */
+  CHUNK_GROUND_OVERLAY_ENCODING_UNSPECIFIED = 0;
+
+  /**
+   * `chunk_size * chunk_size` bits, cell `(localX, localY)` at index `localY * chunk_size + localX`, that
+   * index's bit in byte `index / 8` counting from the least significant.
+   *
+   * The same indexing `ColumnSummary` uses, so a reader who knows one knows the other.
+   */
+  CHUNK_GROUND_OVERLAY_ENCODING_BITMASK_V1 = 1;
+}
+
+/**
+ * What has happened to the ground of one chunk column that its voxels cannot say: which square metres are
+ * burnt, and which are alight right now.
+ *
+ * ### Why this is not part of the chunk
+ *
+ * Scorch is not a block and cannot be one. `ChunkPatchEncoding` has exactly one value,
+ * `CHUNK_PATCH_ENCODING_REMOVAL_V1`, and a client derives a patched voxel's material locally from what the
+ * generator gave it - so **no message in this protocol can change a voxel's material**. `ChunkDelta` cannot
+ * carry it either: it holds how much of each voxel is *left* and enforces that occupancy only ever falls.
+ *
+ * So the ground's history travels beside the ground. The client feeds the scorched mask into its mesher as a
+ * slot substitution, which is why scorch blends and slopes like any other material rather than sitting on top
+ * as a decal.
+ *
+ * ### One message, both masks
+ *
+ * They come out of the same cellular-automaton step over the same lattice and a cell is nearly always in at
+ * most one of them. Sending them separately would mean two arrival orders and a frame in which a cell is
+ * neither burning nor burnt, which is the state a viewer cannot draw.
+ *
+ * ### Not in the manifest, not requested, and not a delta
+ *
+ * A revision a client holds across a re-send is the wrong shape for something that changes several times a
+ * second while a fire runs, so this is pushed behind the terrain and dropped when the manifest withdraws the
+ * column - exactly as `ChunkStaticEntitiesSMSG` is.
+ *
+ * **Each message carries the whole mask for the column, never a diff.** So a lost one self-heals on the next
+ * send and needs no sequence number, and applying the same one twice changes nothing. Sending only the cells
+ * that changed is the obvious optimisation and it would turn an idempotent message into an exactly-once one;
+ * at 128 bytes a mask there is nothing to win.
+ *
+ * ### Size
+ *
+ * `ceil(chunk_size² / 8)` bytes per mask - 128 at a chunk size of 32, so 256 plus framing at the very worst,
+ * against roughly three kilobytes of deflated chunk payload for the same ground. proto3 does not encode an
+ * empty `bytes`, so a column with nothing on it is about twelve bytes; that message is worth sending, because
+ * "this ground is clean" and "the overlay has not arrived" are different states to anything deciding whether
+ * it can start drawing. It is also how a healed scar is retired - there is no removal message and none is
+ * needed.
+ */
+message ChunkGroundOverlaySMSG {
+  /**
+   * The column. `z` is meaningless and must be ignored, as in `ChunkStaticEntitiesSMSG`: what has happened to
+   * the ground happened to the surface, which belongs to a column rather than to a slab.
+   */
+  ChunkPos pos = 1;
+
+  ChunkGroundOverlayEncoding encoding = 2;
+
+  /** Ground a fire has been through. Absent when none of this column is burnt. */
+  bytes scorched = 3;
+
+  /** Ground alight right now. Absent when nothing here is burning, which is almost always. */
+  bytes burning = 4;
+}
