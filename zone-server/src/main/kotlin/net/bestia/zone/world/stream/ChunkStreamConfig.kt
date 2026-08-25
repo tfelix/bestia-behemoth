@@ -1,5 +1,6 @@
 package net.bestia.zone.world.stream
 
+import net.bestia.worldgen.lod.PatchGrid
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 
@@ -20,6 +21,16 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
  * @property interestRadiusChunks horizontal radius in chunks within which entities are replicated. See
  *   [InterestRange], which is the only reader and carries the argument for why this is now its own number
  *   rather than [viewRadiusChunks].
+ * @property patchRadiusChunks how far coarse surface patches reach, in chunks, or zero to send none. They
+ *   start where [viewRadiusChunks] ends, so 24 against a view radius of 7 draws to about 768 m - three times
+ *   as far, for well under a third of the bytes one view volume of chunks costs. See `SurfacePatchService`.
+ * @property patchLevel detail level the ring is sampled at. Level 0 is four metres per sample over 256 m of
+ *   ground. One level everywhere for now; picking a coarser level for the outer half is the obvious next
+ *   saving and needs only that the client force a shared edge to the coarser of the two, which
+ *   `SurfacePatchTest` shows costs nothing because the samples coincide exactly.
+ * @property patchesPerTickPerPlayer coarse patches one connection may be sent per tick. Its own budget rather
+ *   than a share of [chunksPerTickPerPlayer], and spent after it, so the horizon can never delay the ground
+ *   under the player's feet.
  * @property viewRadiusChunksVertical vertical radius in *slabs*. A view volume wants bounding in z for the
  *   same reason it wants bounding in x and y, and a slab is 256 m tall, so one is already a 768 m column -
  *   far more than an isometric camera can show. This is a ceiling on what the surface rule may offer, not a
@@ -44,6 +55,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 data class ChunkStreamConfig(
   val viewRadiusChunks: Int = 7,
   val interestRadiusChunks: Int = 5,
+  val patchRadiusChunks: Int = 24,
+  val patchLevel: Int = 0,
+  val patchesPerTickPerPlayer: Int = 2,
   val viewRadiusChunksVertical: Int = 1,
   val chunksPerTickPerPlayer: Int = 4,
   val requestBurst: Int = 512,
@@ -79,6 +93,16 @@ data class ChunkStreamConfig(
    * [ChunkService.surfaceSlabsOf].
    */
   val slabCacheCapacity: Int = 16_384,
+
+  /**
+   * Finished coarse-patch payloads kept. About 2.5 kB each, so 4 096 is roughly 10 MB.
+   *
+   * Never invalidated - a patch is a pure function of the heightfield - but still bounded: a 128 km world
+   * holds a quarter of a million level-0 patches, and evicting one costs only a resample on the sampling
+   * pool. Wants to comfortably exceed the patches one region's worth of players hold between them, which is
+   * a few dozen each.
+   */
+  val patchCacheCapacity: Int = 4_096,
 
   /**
    * New columns' slabs computed per tick, across all players.
@@ -129,12 +153,16 @@ data class ChunkStreamConfig(
   init {
     require(viewRadiusChunks >= 0) { "View radius cannot be negative" }
     require(interestRadiusChunks >= 0) { "Interest radius cannot be negative" }
+    require(patchRadiusChunks >= 0) { "Patch radius cannot be negative" }
+    require(patchLevel in 0..PatchGrid.MAX_LEVEL) { "Patch level must be 0..${PatchGrid.MAX_LEVEL}" }
+    require(patchesPerTickPerPlayer > 0) { "A patch budget of zero would never stream the far ring" }
     require(viewRadiusChunksVertical >= 0) { "Vertical view radius cannot be negative" }
     require(chunksPerTickPerPlayer > 0) { "A send budget of zero would never stream anything" }
     require(requestBurst > 0 && requestRefillPerTick > 0) { "The request bucket must be able to refill" }
     require(encodedCacheCapacity > 0) { "The encoded cache must hold at least one chunk" }
     require(hotChunkCapacity > 0) { "The hot chunk cache must hold at least one chunk" }
     require(slabCacheCapacity > 0) { "The slab cache must hold at least one column" }
+    require(patchCacheCapacity > 0) { "The patch cache must hold at least one patch" }
     require(slabComputationsPerTick > 0) { "A slab budget of zero would never offer any terrain" }
     require(deflateLevel in 0..9) { "Deflate level must be 0..9, was $deflateLevel" }
     require(derivedRebuildsPerTick >= 0) { "Rebuild budget cannot be negative" }

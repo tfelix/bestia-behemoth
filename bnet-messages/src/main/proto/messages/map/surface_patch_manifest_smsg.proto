@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/surface_patch.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SurfacePatchManifestSMSGProto";
+
+/**
+ * The coarse patches this client is entitled to, announced before any of them is sent.
+ *
+ * The same announce-then-pull shape as `ChunkManifestSMSG`, and for the same two reasons: the offer is a
+ * fraction of the payload, and the announced set is simultaneously the client's shopping list and the
+ * server's authorisation set - which is what keeps a pull transport from being a way to scrape the map.
+ *
+ * ### No revisions here
+ *
+ * A `ChunkRef` carries one because a chunk changes when somebody digs. A patch comes from the heightfield,
+ * which no edit can move, so a patch a client holds is a patch it never needs again for as long as the world
+ * lives. That is also what makes it safe to keep on disk between sessions, which chunks are not - see
+ * `WorldInfoSMSG.surface_patch_version` for the key that makes that safe.
+ */
+message SurfacePatchManifestSMSG {
+  /**
+   * Replace the client's whole set rather than amending it. First manifest of a session only.
+   *
+   * A teleport is an amendment, exactly as it is for chunks: the patches the old view held leave the set on
+   * their own, and replacing instead would have the client discard ground it still needs.
+   */
+  bool reset = 1;
+
+  /** Patches entering the set. */
+  repeated PatchPos added = 2;
+
+  /** Patches leaving the set. Empty when [reset] is set, because [added] then says everything. */
+  repeated PatchPos removed = 3;
+}

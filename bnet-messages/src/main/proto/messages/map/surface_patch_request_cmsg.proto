@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/surface_patch.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SurfacePatchRequestCMSGProto";
+
+/**
+ * Asks for the payloads of patches the client does not already hold.
+ *
+ * The server answers only for positions currently in this account's announced set and drops the rest without
+ * an error, exactly as `ChunkRequestCMSG` does - a stale request is a legitimate race as often as it is an
+ * abuse, and the client recovers from either by acting on the next manifest.
+ *
+ * A client with a disk cache asks for far less than the manifest offers, and on a second visit to a region it
+ * asks for nothing at all.
+ */
+message SurfacePatchRequestCMSG {
+  repeated PatchPos patches = 1;
+}

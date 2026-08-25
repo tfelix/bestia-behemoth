@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package bnet;
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SurfacePatchProto";
+
+/**
+ * The address of one coarse surface patch: a detail level and a position on that level's grid.
+ *
+ * Levels are anchored at the fine end - level 0 is four metres per sample in every world - so a client's
+ * stored copy keeps its meaning across a world resize. A patch spans 64 cells, so level 0 covers 256 m and
+ * each level above doubles both the spacing and the span.
+ *
+ * Deliberately not a `ChunkPos` with a level bolted on. A chunk address has a z and a patch has none: a patch
+ * is a heightfield, one surface per column, and the whole reason it is cheap is that it cannot express a hole.
+ * Sharing the type would invite code to ask a patch which slab it is in, which has no answer.
+ */
+message PatchPos {
+  uint32 level = 1;
+  sint32 x = 2;
+  sint32 y = 3;
+}
+
+/**
+ * How the bytes in a patch payload are encoded.
+ *
+ * Its own enum rather than a reuse of `ChunkEncoding`, for the reason `ChunkPatchEncoding` is separate from
+ * `ChunkEncoding`: these are different formats solving different problems and they will not change together.
+ */
+enum SurfacePatchEncoding {
+  /** A payload that does not say how it was encoded cannot be decoded; refuse rather than guess. */
+  SURFACE_PATCH_ENCODING_UNSPECIFIED = 0;
+
+  /**
+   * Four fixed-width planes - height, water, material, canopy - in that order, after a small header.
+   *
+   * Planes rather than one interleaved stream because the four values have nothing in common and every
+   * fourth byte would break the other three's runs. `RleCodec` separates its two streams for the same reason
+   * and measured roughly a factor of two in it.
+   */
+  SURFACE_PATCH_ENCODING_PLANES_V1 = 1;
+}

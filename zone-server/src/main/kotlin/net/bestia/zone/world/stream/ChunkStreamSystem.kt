@@ -2,6 +2,8 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.lod.PatchGrid
+import net.bestia.worldgen.lod.PatchPos
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.zone.ecs.account.Account
 import net.bestia.zone.ecs.account.ActivePlayer
@@ -47,7 +49,8 @@ class ChunkStreamSystem(
   private val inbox: ChunkStreamInbox,
   private val fanOut: ChunkFanOut,
   private val settings: ChunkStreamConfig,
-  private val groundHeight: GroundHeight
+  private val groundHeight: GroundHeight,
+  private val patches: SurfacePatchService
 ) : System {
 
   override val reads: ComponentClassSet = setOf(Account::class, ActivePlayer::class)
@@ -90,6 +93,17 @@ class ChunkStreamSystem(
   /** Token buckets, so a client cannot ask faster than it is served. */
   private val tokens = HashMap<Long, Int>()
 
+  /**
+   * Coarse patches announced to each client, and the ones it has asked for and not yet been sent.
+   *
+   * Deliberately not [ChunkSubscriptionService]. That tracks two sets and a refcounted column index because a
+   * chunk has props hanging off it, a patch audience for edits, and a residency that drives `DerivedStore`. A
+   * patch has none of those: nothing stands on it, nothing edits it, and it is never patched. What is left is
+   * the authorisation set, which is one map.
+   */
+  private val patchesAnnounced = HashMap<Long, MutableSet<PatchPos>>()
+  private val patchesQueued = HashMap<Long, LinkedHashSet<PatchPos>>()
+
   override fun update(world: World, deltaTime: Float) {
     if (!chunkService.isReady) return
 
@@ -104,6 +118,11 @@ class ChunkStreamSystem(
     updateSubscriptions(world)
     broadcastChanges()
     serveRequests()
+
+    // After the chunks, and on its own budget. The far ring is scenery; the ground a player is standing on is
+    // not, and a tick that could only afford one of the two must spend it on the near one.
+    servePatchRequests()
+
     chunkService.rebuildDerived()
   }
 
@@ -255,7 +274,93 @@ class ChunkStreamSystem(
       // Run every tick, not only when the anchor moves. The desired set can grow while a player stands still,
       // because the slab budget may not have been able to afford the whole view volume yet.
       sendManifest(accountId, anchor, reset = previous == null, budget = budget)
+      sendPatchManifest(accountId, anchor, reset = previous == null)
     }
+  }
+
+  /**
+   * Tells the client which coarse patches it may have, and starts sampling the ones that are not ready.
+   *
+   * The same diff-and-announce shape as [sendManifest], minus the slab budget: sampling a patch does not
+   * happen on this thread at all, so there is nothing here to ration. A patch that is not sampled yet is
+   * simply not offered this tick and the next manifest picks it up - which is the same "a manifest grows
+   * instead" behaviour the slab budget produces, arrived at for a different reason.
+   */
+  private fun sendPatchManifest(accountId: Long, anchor: ChunkPos, reset: Boolean) {
+    if (settings.patchRadiusChunks <= 0) return
+
+    val wanted = desiredPatches(anchor)
+    val held = patchesAnnounced.getOrPut(accountId) { HashSet() }
+
+    // Announce only what a client could actually be served. Everything else is handed to the sampling pool
+    // and offered by a later manifest.
+    val ready = LinkedHashSet<PatchPos>()
+    for (pos in wanted) {
+      if (patches.cached(pos) != null) ready.add(pos) else patches.request(pos)
+    }
+
+    val added = if (reset) ready.toList() else ready.filterNot { it in held }
+    val removed = if (reset) emptyList() else held.filterNot { it in wanted }
+
+    if (added.isEmpty() && removed.isEmpty() && !reset) return
+
+    if (!fanOut.sendTo(accountId, SurfacePatchManifestSMSG(reset, added, removed))) {
+      LOG.debug { "Patch manifest for $accountId could not be written; leaving its set untouched" }
+      return
+    }
+
+    if (reset) held.clear()
+    held.removeAll(removed.toSet())
+    held.addAll(added)
+
+    patchesQueued[accountId]?.removeAll(removed.toSet())
+  }
+
+  /**
+   * The coarse patches a player at [anchor] should hold: every patch the ring overlaps.
+   *
+   * Includes the patches under the full-detail chunks rather than cutting a hole in the middle. A hole would
+   * have to be cut in *patch* units, which are eight chunks wide, so it could only ever be a ragged
+   * approximation of a square view volume - and the client is the side that knows exactly where its own
+   * chunks reach, so it is the side that should stop drawing. The cost is a handful of patches.
+   *
+   * ### Not wrapped across the world seam
+   *
+   * Chunk addresses are normalised through [ChunkService.normalise]; patches are not, and are clipped to the
+   * world instead. A patch grid does not divide a world of arbitrary size into a whole number of patches, so
+   * wrapping would need a second seam rule that could disagree with the chunks' one. The ground it costs is
+   * the ocean margin, which `WorldConfig` already requires to be wider than a player can see and fills with
+   * featureless deep water for exactly this kind of reason.
+   */
+  private fun desiredPatches(anchor: ChunkPos): Set<PatchPos> {
+    val level = settings.patchLevel
+    val extent = chunkService.config.chunkExtent
+    val reach = settings.patchRadiusChunks * extent
+
+    val centreX = (anchor.x + 0.5) * extent
+    val centreY = (anchor.y + 0.5) * extent
+
+    val low = PatchGrid.at(level, centreX - reach, centreY - reach)
+    val high = PatchGrid.at(level, centreX + reach, centreY + reach)
+
+    val lastX = PatchGrid.at(level, chunkService.config.widthMetres - 1.0, 0.0).x
+    val lastY = PatchGrid.at(level, 0.0, chunkService.config.heightMetres - 1.0).y
+
+    val here = PatchGrid.at(level, centreX, centreY)
+    val wanted = ArrayList<PatchPos>()
+
+    for (y in low.y..high.y) {
+      for (x in low.x..high.x) {
+        if (x < 0 || y < 0 || x > lastX || y > lastY) continue
+        wanted.add(PatchPos(level, x, y))
+      }
+    }
+
+    // Nearest first, so a budget that runs out spends it on the horizon a player is facing rather than on
+    // the corner behind them, and so the ring fills outwards.
+    wanted.sortBy { (it.x - here.x) * (it.x - here.x) + (it.y - here.y) * (it.y - here.y) }
+
+    return LinkedHashSet(wanted)
   }
 
   /** A tick's allowance of expensive slab computations. Mutable on purpose; one instance, shared. */
@@ -573,11 +678,77 @@ class ChunkStreamSystem(
     return true
   }
 
+  /**
+   * Queues what a client asked for and sends what the budget allows, gated on the announced set.
+   *
+   * The same gate [serveRequests] applies, and it is the whole reason a pull transport is safe: a position
+   * nobody offered is not served, so a client cannot walk the map by guessing coordinates.
+   *
+   * No token bucket here. The chunk path needs one because a request makes the server generate terrain; a
+   * patch request cannot, because it is only ever answered from what has already been sampled. Asking for a
+   * patch that is not cached costs a map lookup and is dropped.
+   */
+  private fun servePatchRequests() {
+    if (settings.patchRadiusChunks <= 0) return
+
+    for (request in inbox.drainPatchRequests()) {
+      val announced = patchesAnnounced[request.accountId] ?: continue
+
+      for (pos in request.patches) {
+        if (pos !in announced) {
+          LOG.debug { "Account ${request.accountId} asked for $pos, which it was not offered" }
+          continue
+        }
+
+        patchesQueued.getOrPut(request.accountId) { LinkedHashSet() }.add(pos)
+      }
+    }
+
+    sendQueuedPatches()
+  }
+
+  private fun sendQueuedPatches() {
+    if (patchesQueued.isEmpty()) return
+
+    val emptied = ArrayList<Long>()
+
+    for ((accountId, pending) in patchesQueued) {
+      var sent = 0
+      val iterator = pending.iterator()
+
+      while (iterator.hasNext() && sent < settings.patchesPerTickPerPlayer) {
+        val pos = iterator.next()
+
+        if (patchesAnnounced[accountId]?.contains(pos) != true) {
+          iterator.remove()
+          continue
+        }
+
+        // Announced only once cached, so this is a hit in every ordinary case. An eviction between the two
+        // leaves it queued for the next tick, by which time the resample has finished.
+        val payload = patches.cached(pos) ?: break
+
+        // Kept on a failed write, for [sendQueued]'s reason: nothing else would bring it back, and a channel
+        // that refuses one write will refuse the rest of this tick's too.
+        if (!fanOut.sendTo(accountId, SurfacePatchSMSG(pos, payload.compressed, payload.payload))) break
+
+        iterator.remove()
+        sent++
+      }
+
+      if (pending.isEmpty()) emptied.add(accountId)
+    }
+
+    emptied.forEach { patchesQueued.remove(it) }
+  }
+
   private fun forget(accountId: Long) {
     subscriptions.forget(accountId)
     inbox.forget(accountId)
     queued.remove(accountId)
     tokens.remove(accountId)
+    patchesAnnounced.remove(accountId)
+    patchesQueued.remove(accountId)
   }
 
   private companion object {

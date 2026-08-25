@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package bnet;
+
+import "messages/map/chunk.proto";
+import "messages/map/surface_patch.proto";
+
+option java_package = "net.bestia.bnet.proto";
+option java_outer_classname = "SurfacePatchSMSGProto";
+
+/**
+ * One coarse surface patch: the visible surface of a square of ground, without the voxels under it.
+ *
+ * Height, standing water, material and canopy density, one value per sample on a 65x65 grid. At level 0 that
+ * is 256 m of ground - sixty-four chunks - for a fixed 25 364 bytes encoded and around two kilobytes
+ * deflated, against roughly 192 kB for those chunks. That ratio is the entire reason the draw distance can
+ * grow at all.
+ *
+ * Carries nothing a player could not see from where they are standing: no ore, no cave interiors, no strata.
+ * A patch is a heightfield and cannot express a hole, which is a limit and also the safety property.
+ *
+ * Reuses `ChunkCompression` rather than declaring a second copy of the same two values. Compression is a
+ * property of a byte string, not of what the byte string means.
+ */
+message SurfacePatchSMSG {
+  PatchPos pos = 1;
+
+  SurfacePatchEncoding encoding = 2;
+  ChunkCompression compression = 3;
+
+  bytes payload = 4;
+}

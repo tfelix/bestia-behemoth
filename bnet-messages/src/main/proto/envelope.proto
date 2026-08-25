@@ -74,6 +74,9 @@ import "messages/map/world_info_smsg.proto";
 import "messages/map/chunk_manifest_smsg.proto";
 import "messages/map/chunk_request_cmsg.proto";
 import "messages/map/chunk_data_smsg.proto";
+import "messages/map/surface_patch_manifest_smsg.proto";
+import "messages/map/surface_patch_request_cmsg.proto";
+import "messages/map/surface_patch_smsg.proto";
 import "messages/map/chunk_patch_smsg.proto";
 import "messages/map/chunk_static_entities_smsg.proto";
 import "messages/map/chunk_ground_overlay_smsg.proto";
@@ -125,6 +128,9 @@ message Envelope {
     CollectPropCMSG collect_prop = 208;
     WorldTimeSMSG world_time = 209;
     ChunkGroundOverlaySMSG chunk_ground_overlay = 210;
+    SurfacePatchManifestSMSG surface_patch_manifest = 211;
+    SurfacePatchRequestCMSG surface_patch_request = 212;
+    SurfacePatchSMSG surface_patch = 213;
 
     // INVENTORY 300
     GetInventoryCMSG get_inventory = 301;

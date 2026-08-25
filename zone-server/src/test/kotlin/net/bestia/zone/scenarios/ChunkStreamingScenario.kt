@@ -2,6 +2,8 @@ package net.bestia.zone.scenarios
 
 import net.bestia.worldgen.core.ChunkPos
 import net.bestia.worldgen.derived.ChunkDelta
+import net.bestia.worldgen.lod.PatchPos
+import net.bestia.worldgen.lod.SurfacePatchCodec
 import net.bestia.worldgen.voxel.CarveBrush
 import net.bestia.worldgen.voxel.ChunkEngine
 import net.bestia.worldgen.voxel.RleCodec
@@ -15,12 +17,16 @@ import net.bestia.zone.world.stream.ChunkRequestCMSG
 import net.bestia.zone.world.stream.ChunkService
 import net.bestia.zone.world.stream.ChunkStreamConfig
 import net.bestia.zone.world.stream.ChunkSubscriptionService
+import net.bestia.zone.world.stream.SurfacePatchManifestSMSG
+import net.bestia.zone.world.stream.SurfacePatchRequestCMSG
+import net.bestia.zone.world.stream.SurfacePatchSMSG
 import net.bestia.zone.world.stream.WorldInfoSMSG
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.io.ByteArrayOutputStream
 import java.util.zip.Inflater
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -177,8 +183,105 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
     )
   }
 
+  /**
+   * The far ring, end to end. Everything about it that could quietly do nothing is checked here.
+   *
+   * This subsystem has shipped a complete, tested, never-*reached* feature more than once, and a coarse patch
+   * is a strong candidate for the next one: it is announced by its own manifest, sampled on its own pool, and
+   * served from its own queue, so every one of those could work in isolation while nothing ever arrived. So
+   * the assertion is a decoded patch in the client's hands, not a green unit test underneath it.
+   */
   @Test
   @Order(4)
+  fun `the coarse ring reaches beyond the chunks and decodes`() {
+    await {
+      val announced = assertNotNull(
+        clientPlayer1.tryGetLastReceived(SurfacePatchManifestSMSG::class),
+        "the far ring was never announced"
+      )
+      assertTrue(announced.added.isNotEmpty(), "a patch manifest with nothing in it is a ring nobody can draw")
+    }
+
+    val manifest = clientPlayer1.getLastReceived(SurfacePatchManifestSMSG::class)
+
+    // The whole point of the ring: ground the chunk radius cannot reach. A patch is eight chunks wide, so the
+    // outermost one has to start further out than the view volume's own edge.
+    val anchor = subscriptions.anchorOf(clientPlayer1.connectedPlayerId)!!
+    val extent = chunkService.config.chunkExtent
+    val chunkReach = settings.viewRadiusChunks * extent
+    val furthest = manifest.added.maxOf {
+      maxOf(abs(it.bounds.maxX - anchor.x * extent), abs(it.bounds.maxY - anchor.y * extent))
+    }
+    assertTrue(
+      furthest > chunkReach,
+      "the ring reaches $furthest m and the chunks already reach $chunkReach m, so it adds nothing"
+    )
+
+    val wanted = manifest.added.take(settings.patchesPerTickPerPlayer)
+    clientPlayer1.sendMessage(SurfacePatchRequestCMSG(clientPlayer1.connectedPlayerId, wanted))
+
+    await {
+      assertTrue(
+        clientPlayer1.receivedAny(SurfacePatchSMSG::class) { it.pos in wanted },
+        "no requested patch arrived"
+      )
+    }
+
+    val data = clientPlayer1.getLastReceived(SurfacePatchSMSG::class)
+    val patch = SurfacePatchCodec.decode(
+      if (data.compressed) inflate(data.payload) else data.payload
+    )
+
+    assertEquals(data.pos, patch.pos)
+
+    // A patch of pure sentinel would decode, round-trip and assert green while describing nothing at all.
+    assertTrue(
+      patch.height.any { it != patch.height[0] },
+      "every sample is the same height, so this patch is not terrain"
+    )
+    assertTrue(
+      patch.block.any { it.toInt() != 0 },
+      "every sample decoded to block id zero, so the material plane never reached the wire"
+    )
+  }
+
+  @Test
+  @Order(5)
+  fun `a patch that was never offered is not served`() {
+    // Read before clearing. A manifest is a diff, so it is sent only when the set moves - clearing first and
+    // then asking for one is a wait for a message the server has no reason to send.
+    val manifest = clientPlayer1.getLastReceived(SurfacePatchManifestSMSG::class)
+    val announced = manifest.added.toSet()
+
+    clientPlayer1.clearMessages()
+
+    // Far enough that no ring can reach it, and unlike the chunk case there is no wrap to alias it back:
+    // patches are clipped to the world rather than normalised across the seam.
+    val unoffered = PatchPos(settings.patchLevel, announced.maxOf { it.x } + 1_000, announced.maxOf { it.y })
+    assertTrue(unoffered !in announced, "the test's own premise: this patch must not have been offered")
+
+    val barrier = manifest.added.first()
+
+    clientPlayer1.sendMessage(SurfacePatchRequestCMSG(clientPlayer1.connectedPlayerId, listOf(unoffered)))
+    // A legitimate request queued behind it, for the reason the chunk gate's test spells out: retrying a
+    // "nothing arrived" assertion cannot distinguish "the gate held" from "the answer has not come yet".
+    clientPlayer1.sendMessage(SurfacePatchRequestCMSG(clientPlayer1.connectedPlayerId, listOf(barrier)))
+
+    await {
+      assertTrue(
+        clientPlayer1.receivedAny(SurfacePatchSMSG::class) { it.pos == barrier },
+        "barrier patch should have arrived by now"
+      )
+    }
+
+    assertTrue(
+      !clientPlayer1.receivedAny(SurfacePatchSMSG::class) { it.pos == unoffered },
+      "the announced set is the authorisation set; a patch nobody offered must not be served"
+    )
+  }
+
+  @Test
+  @Order(6)
   fun `a chunk that was never offered is not served`() {
     clientPlayer1.clearMessages()
 
@@ -251,7 +354,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(5)
+  @Order(7)
   fun `carving terrain sends the holders a patch rather than the chunk`() {
     // Carve inside a chunk the client demonstrably holds, so it is a patch recipient - and specifically the
     // held chunk that is *dearest to restate*, which is what makes the patch the cheaper of the two.
@@ -334,7 +437,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(6)
+  @Order(8)
   fun `recomputing a subscription does not resample the heightfield`() {
     // A manifest asks which vertical slabs the surface occupies for every column in the view volume, and each
     // uncached answer is a feature query plus a thousand noise evaluations. Recomputed from scratch on every
@@ -371,7 +474,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(7)
+  @Order(9)
   fun `the slabs actually contain the terrain surface`() {
     val anchor = assertNotNull(subscriptions.anchorOf(clientPlayer1.connectedPlayerId))
     val config = chunkService.config
@@ -392,7 +495,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(8)
+  @Order(10)
   fun `the view volume is bounded vertically however deep the water is`() {
     val anchor = chunkService.normalise(assertNotNull(subscriptions.anchorOf(clientPlayer1.connectedPlayerId)))
     val vertical = settings.viewRadiusChunksVertical
@@ -430,7 +533,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(9)
+  @Order(11)
   fun `the carve is visible in the server's own authoritative view`() {
     // Not a restatement of the patch test. The patch says what the server *told* the client; this says what
     // the server itself believes, which is the view line of sight and movement validation will be answered
@@ -451,7 +554,7 @@ class ChunkStreamingScenario : BestiaNoSocketScenario(
   }
 
   @Test
-  @Order(10)
+  @Order(12)
   fun `a request past the token budget is deferred rather than dropped`() {
     // The rate limit used to `break` out of the loop and discard the rest of the request. Nothing brought those
     // chunks back: the manifest offers what was never *announced*, not what never *arrived*, so a client that

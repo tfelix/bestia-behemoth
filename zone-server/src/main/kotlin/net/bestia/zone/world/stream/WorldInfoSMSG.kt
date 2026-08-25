@@ -27,6 +27,8 @@ data class WorldInfoSMSG(
   val wrapY: Boolean,
   val chunkEngineVersion: Int,
   val viewRadiusChunks: Int,
+  val surfacePatchVersion: Int,
+  val patchRadiusChunks: Int,
   val worldAgeBestiaSeconds: Double,
   val timeSpeedFactor: Double
 ) : SMSG {
@@ -45,6 +47,8 @@ data class WorldInfoSMSG(
       .setWrapY(wrapY)
       .setChunkEngineVersion(chunkEngineVersion)
       .setViewRadiusChunks(viewRadiusChunks)
+      .setSurfacePatchVersion(surfacePatchVersion)
+      .setPatchRadiusChunks(patchRadiusChunks)
       .setWorldAgeBestiaSeconds(worldAgeBestiaSeconds)
       .setTimeSpeedFactor(timeSpeedFactor)
       .setHoursPerDay(BestiaDateTime.HOURS_PER_DAY)
@@ -75,6 +79,8 @@ data class WorldInfoSMSG(
       record: PersistedWorld,
       config: WorldConfig,
       viewRadiusChunks: Int,
+      surfacePatchVersion: Int,
+      patchRadiusChunks: Int,
       now: BestiaDateTime,
       timeSpeedFactor: Double
     ) = WorldInfoSMSG(
@@ -90,6 +96,8 @@ data class WorldInfoSMSG(
       wrapY = config.wrapY,
       chunkEngineVersion = ChunkEngine.VERSION,
       viewRadiusChunks = viewRadiusChunks,
+      surfacePatchVersion = surfacePatchVersion,
+      patchRadiusChunks = patchRadiusChunks,
       worldAgeBestiaSeconds = now.absoluteSecond.toDouble(),
       timeSpeedFactor = timeSpeedFactor
     )

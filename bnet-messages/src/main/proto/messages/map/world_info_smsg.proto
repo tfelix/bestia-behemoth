@@ -51,6 +51,23 @@ message WorldInfoSMSG {
   int32 view_radius_chunks = 40;
 
   /**
+   * Identity of the coarse surface patches this world produces, so a client may keep them on disk.
+   *
+   * A patch never changes for a given world, which is what makes a cache across sessions safe where the
+   * chunk cache is not - a chunk is keyed on a revision the server forgets when it restarts. But "a given
+   * world" has to be checkable, and neither of the two numbers already here can do it: the seed is
+   * deliberately absent, and [chunk_engine_version] says whether the client can *decode* a payload, not
+   * which world produced it. Cache against that and a regenerated world reads back the old world's terrain.
+   *
+   * So this folds the world row's own generation identity together with the patch format version. It
+   * changes when the ground changes, and a client that sees a new value throws its stored patches away.
+   */
+  uint32 surface_patch_version = 41;
+
+  /** How far coarse patches reach, in chunks from the player's own. Zero when the server sends none. */
+  int32 patch_radius_chunks = 42;
+
+  /**
    * The world calendar, as an anchor the client runs forward on its own rather than as a ticking message.
    *
    * A clock that is pushed has to be pushed often enough to look like a clock, which is a message per player

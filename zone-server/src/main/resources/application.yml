@@ -91,6 +91,15 @@ chunk-stream:
   # view-radius-chunks any more: past the full-detail ring the client gets terrain it can draw but not
   # interact with, and entity traffic is quadratic in this number. See InterestRange.
   interest-radius-chunks: 5
+  # How far coarse surface patches reach, in chunks, starting where view-radius-chunks ends. 24 draws to about
+  # 768 m - three times the full-detail ring - for well under a third of what one view volume of chunks costs,
+  # and a client may keep them on disk because no edit can move them. Zero sends none.
+  patch-radius-chunks: 24
+  # Detail level the ring is sampled at: 0 is four metres per sample over 256 m of ground.
+  patch-level: 0
+  # Coarse patches one connection may be sent per tick. Spent after the chunk budget, so the horizon can never
+  # delay the ground under the player's feet.
+  patches-per-tick-per-player: 2
   # Vertical radius in slabs. A slab is 256 m tall, so 1 is already a 768 m column - far more than the camera
   # shows. This caps what the surface rule may offer; it is not subscribed to as a box. Without it a login in
   # deep water offered every slab from the seabed up to the waterline, 726 chunks where 121 was the answer.

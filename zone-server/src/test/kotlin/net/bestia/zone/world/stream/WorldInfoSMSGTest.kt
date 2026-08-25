@@ -21,9 +21,26 @@ class WorldInfoSMSGTest {
     record = mockk(relaxed = true),
     config = mockk(relaxed = true),
     viewRadiusChunks = 8,
+    surfacePatchVersion = 0x5EED,
+    patchRadiusChunks = 24,
     now = BestiaDateTime.since(elapsed),
     timeSpeedFactor = BestiaDateTime.SPEED_FACTOR
   ).toBnetEnvelope().worldInfo
+
+  /**
+   * The two fields a client's disk cache of coarse patches rests on.
+   *
+   * Dropping either is silent in the worst way: a zero version reads as a perfectly good cache key, so every
+   * world a player visits would share one, and the second world they entered would be drawn with the first
+   * one's terrain. The wire values are pinned here for the same reason the calendar's are.
+   */
+  @Test
+  fun `the surface patch identity reaches the wire`() {
+    val info = infoAt(Duration.ofHours(8))
+
+    assertEquals(0x5EED, info.surfacePatchVersion)
+    assertEquals(24, info.patchRadiusChunks)
+  }
 
   @Test
   fun `the calendar reaches the wire with nothing zeroed`() {

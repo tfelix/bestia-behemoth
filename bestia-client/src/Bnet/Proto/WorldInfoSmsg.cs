@@ -24,25 +24,26 @@ namespace Bnet {
     static WorldInfoSmsgReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0IpUE",
+            "CiJtZXNzYWdlcy9tYXAvd29ybGRfaW5mb19zbXNnLnByb3RvEgRibmV0ItEE",
             "Cg1Xb3JsZEluZm9TTVNHEgwKBG5hbWUYASABKAkSEwoLd2lkdGhfY2VsbHMY",
             "AiABKAUSFAoMaGVpZ2h0X2NlbGxzGAMgASgFEhgKEGNlbGxfc2l6ZV9tZXRy",
             "ZXMYBCABKAESEgoKY2h1bmtfc2l6ZRgKIAEoBRIUCgxjaHVua19oZWlnaHQY",
             "CyABKAUSGQoRdm94ZWxfc2l6ZV9tZXRyZXMYDCABKAESGAoQc2VhX2xldmVs",
             "X21ldHJlcxgNIAEoARIOCgZ3cmFwX3gYFCABKAgSDgoGd3JhcF95GBUgASgI",
             "EhwKFGNodW5rX2VuZ2luZV92ZXJzaW9uGB4gASgNEhoKEnZpZXdfcmFkaXVz",
-            "X2NodW5rcxgoIAEoBRIgChh3b3JsZF9hZ2VfYmVzdGlhX3NlY29uZHMYMiAB",
-            "KAESGQoRdGltZV9zcGVlZF9mYWN0b3IYMyABKAESFQoNaG91cnNfcGVyX2Rh",
-            "eRg0IAEoBRIWCg5kYXlzX3Blcl9tb250aBg1IAEoBRIXCg9tb250aHNfcGVy",
-            "X3llYXIYNiABKAUSFgoObmlnaHRfZW5kX2hvdXIYOCABKAUSFQoNZGF3bl9l",
-            "bmRfaG91chg5IAEoBRIXCg9kdXNrX3N0YXJ0X2hvdXIYOiABKAUSGAoQbmln",
-            "aHRfc3RhcnRfaG91chg7IAEoBUoECDcQOFILbmlnaHRfaG91cnNCKwoVbmV0",
-            "LmJlc3RpYS5ibmV0LnByb3RvQhJXb3JsZEluZm9TTVNHUHJvdG9iBnByb3Rv",
-            "Mw=="));
+            "X2NodW5rcxgoIAEoBRIdChVzdXJmYWNlX3BhdGNoX3ZlcnNpb24YKSABKA0S",
+            "GwoTcGF0Y2hfcmFkaXVzX2NodW5rcxgqIAEoBRIgChh3b3JsZF9hZ2VfYmVz",
+            "dGlhX3NlY29uZHMYMiABKAESGQoRdGltZV9zcGVlZF9mYWN0b3IYMyABKAES",
+            "FQoNaG91cnNfcGVyX2RheRg0IAEoBRIWCg5kYXlzX3Blcl9tb250aBg1IAEo",
+            "BRIXCg9tb250aHNfcGVyX3llYXIYNiABKAUSFgoObmlnaHRfZW5kX2hvdXIY",
+            "OCABKAUSFQoNZGF3bl9lbmRfaG91chg5IAEoBRIXCg9kdXNrX3N0YXJ0X2hv",
+            "dXIYOiABKAUSGAoQbmlnaHRfc3RhcnRfaG91chg7IAEoBUoECDcQOFILbmln",
+            "aHRfaG91cnNCKwoVbmV0LmJlc3RpYS5ibmV0LnByb3RvQhJXb3JsZEluZm9T",
+            "TVNHUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Bnet.WorldInfoSMSG), global::Bnet.WorldInfoSMSG.Parser, new[]{ "Name", "WidthCells", "HeightCells", "CellSizeMetres", "ChunkSize", "ChunkHeight", "VoxelSizeMetres", "SeaLevelMetres", "WrapX", "WrapY", "ChunkEngineVersion", "ViewRadiusChunks", "SurfacePatchVersion", "PatchRadiusChunks", "WorldAgeBestiaSeconds", "TimeSpeedFactor", "HoursPerDay", "DaysPerMonth", "MonthsPerYear", "NightEndHour", "DawnEndHour", "DuskStartHour", "NightStartHour" }, null, null, null, null)
           }));
     }
     #endregion
@@ -110,6 +111,8 @@ namespace Bnet {
       wrapY_ = other.wrapY_;
       chunkEngineVersion_ = other.chunkEngineVersion_;
       viewRadiusChunks_ = other.viewRadiusChunks_;
+      surfacePatchVersion_ = other.surfacePatchVersion_;
+      patchRadiusChunks_ = other.patchRadiusChunks_;
       worldAgeBestiaSeconds_ = other.worldAgeBestiaSeconds_;
       timeSpeedFactor_ = other.timeSpeedFactor_;
       hoursPerDay_ = other.hoursPerDay_;
@@ -292,6 +295,46 @@ namespace Bnet {
       }
     }
 
+    /// <summary>Field number for the "surface_patch_version" field.</summary>
+    public const int SurfacePatchVersionFieldNumber = 41;
+    private uint surfacePatchVersion_;
+    /// <summary>
+    ///*
+    /// Identity of the coarse surface patches this world produces, so a client may keep them on disk.
+    ///
+    /// A patch never changes for a given world, which is what makes a cache across sessions safe where the
+    /// chunk cache is not - a chunk is keyed on a revision the server forgets when it restarts. But "a given
+    /// world" has to be checkable, and neither of the two numbers already here can do it: the seed is
+    /// deliberately absent, and [chunk_engine_version] says whether the client can *decode* a payload, not
+    /// which world produced it. Cache against that and a regenerated world reads back the old world's terrain.
+    ///
+    /// So this folds the world row's own generation identity together with the patch format version. It
+    /// changes when the ground changes, and a client that sees a new value throws its stored patches away.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SurfacePatchVersion {
+      get { return surfacePatchVersion_; }
+      set {
+        surfacePatchVersion_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "patch_radius_chunks" field.</summary>
+    public const int PatchRadiusChunksFieldNumber = 42;
+    private int patchRadiusChunks_;
+    /// <summary>
+    ///* How far coarse patches reach, in chunks from the player's own. Zero when the server sends none. 
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PatchRadiusChunks {
+      get { return patchRadiusChunks_; }
+      set {
+        patchRadiusChunks_ = value;
+      }
+    }
+
     /// <summary>Field number for the "world_age_bestia_seconds" field.</summary>
     public const int WorldAgeBestiaSecondsFieldNumber = 50;
     private double worldAgeBestiaSeconds_;
@@ -449,6 +492,8 @@ namespace Bnet {
       if (WrapY != other.WrapY) return false;
       if (ChunkEngineVersion != other.ChunkEngineVersion) return false;
       if (ViewRadiusChunks != other.ViewRadiusChunks) return false;
+      if (SurfacePatchVersion != other.SurfacePatchVersion) return false;
+      if (PatchRadiusChunks != other.PatchRadiusChunks) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(WorldAgeBestiaSeconds, other.WorldAgeBestiaSeconds)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.Equals(TimeSpeedFactor, other.TimeSpeedFactor)) return false;
       if (HoursPerDay != other.HoursPerDay) return false;
@@ -477,6 +522,8 @@ namespace Bnet {
       if (WrapY != false) hash ^= WrapY.GetHashCode();
       if (ChunkEngineVersion != 0) hash ^= ChunkEngineVersion.GetHashCode();
       if (ViewRadiusChunks != 0) hash ^= ViewRadiusChunks.GetHashCode();
+      if (SurfacePatchVersion != 0) hash ^= SurfacePatchVersion.GetHashCode();
+      if (PatchRadiusChunks != 0) hash ^= PatchRadiusChunks.GetHashCode();
       if (WorldAgeBestiaSeconds != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(WorldAgeBestiaSeconds);
       if (TimeSpeedFactor != 0D) hash ^= pbc::ProtobufEqualityComparers.BitwiseDoubleEqualityComparer.GetHashCode(TimeSpeedFactor);
       if (HoursPerDay != 0) hash ^= HoursPerDay.GetHashCode();
@@ -551,6 +598,14 @@ namespace Bnet {
       if (ViewRadiusChunks != 0) {
         output.WriteRawTag(192, 2);
         output.WriteInt32(ViewRadiusChunks);
+      }
+      if (SurfacePatchVersion != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteUInt32(SurfacePatchVersion);
+      }
+      if (PatchRadiusChunks != 0) {
+        output.WriteRawTag(208, 2);
+        output.WriteInt32(PatchRadiusChunks);
       }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
@@ -646,6 +701,14 @@ namespace Bnet {
         output.WriteRawTag(192, 2);
         output.WriteInt32(ViewRadiusChunks);
       }
+      if (SurfacePatchVersion != 0) {
+        output.WriteRawTag(200, 2);
+        output.WriteUInt32(SurfacePatchVersion);
+      }
+      if (PatchRadiusChunks != 0) {
+        output.WriteRawTag(208, 2);
+        output.WriteInt32(PatchRadiusChunks);
+      }
       if (WorldAgeBestiaSeconds != 0D) {
         output.WriteRawTag(145, 3);
         output.WriteDouble(WorldAgeBestiaSeconds);
@@ -728,6 +791,12 @@ namespace Bnet {
       if (ViewRadiusChunks != 0) {
         size += 2 + pb::CodedOutputStream.ComputeInt32Size(ViewRadiusChunks);
       }
+      if (SurfacePatchVersion != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(SurfacePatchVersion);
+      }
+      if (PatchRadiusChunks != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(PatchRadiusChunks);
+      }
       if (WorldAgeBestiaSeconds != 0D) {
         size += 2 + 8;
       }
@@ -802,6 +871,12 @@ namespace Bnet {
       }
       if (other.ViewRadiusChunks != 0) {
         ViewRadiusChunks = other.ViewRadiusChunks;
+      }
+      if (other.SurfacePatchVersion != 0) {
+        SurfacePatchVersion = other.SurfacePatchVersion;
+      }
+      if (other.PatchRadiusChunks != 0) {
+        PatchRadiusChunks = other.PatchRadiusChunks;
       }
       if (other.WorldAgeBestiaSeconds != 0D) {
         WorldAgeBestiaSeconds = other.WorldAgeBestiaSeconds;
@@ -891,6 +966,14 @@ namespace Bnet {
           }
           case 320: {
             ViewRadiusChunks = input.ReadInt32();
+            break;
+          }
+          case 328: {
+            SurfacePatchVersion = input.ReadUInt32();
+            break;
+          }
+          case 336: {
+            PatchRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {
@@ -990,6 +1073,14 @@ namespace Bnet {
           }
           case 320: {
             ViewRadiusChunks = input.ReadInt32();
+            break;
+          }
+          case 328: {
+            SurfacePatchVersion = input.ReadUInt32();
+            break;
+          }
+          case 336: {
+            PatchRadiusChunks = input.ReadInt32();
             break;
           }
           case 401: {

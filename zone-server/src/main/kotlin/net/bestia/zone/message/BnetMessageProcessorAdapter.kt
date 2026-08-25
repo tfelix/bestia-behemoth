@@ -37,6 +37,7 @@ import net.bestia.zone.trade.SetTradeLockCMSG
 import net.bestia.zone.socket.PingCMSG
 import net.bestia.zone.world.prop.collect.CollectPropCMSG
 import net.bestia.zone.world.stream.ChunkRequestCMSG
+import net.bestia.zone.world.stream.SurfacePatchRequestCMSG
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
@@ -80,6 +81,8 @@ class BnetMessageProcessorAdapter(
       envelope.hasAcceptPartyInvite() -> AcceptPartyInviteCMSG.fromBnet(accountId, envelope.acceptPartyInvite)
       envelope.hasDeclinePartyInvite() -> DeclinePartyInviteCMSG.fromBnet(accountId, envelope.declinePartyInvite)
       envelope.hasChunkRequest() -> ChunkRequestCMSG.fromBnet(accountId, envelope.chunkRequest)
+      envelope.hasSurfacePatchRequest() ->
+        SurfacePatchRequestCMSG.fromBnet(accountId, envelope.surfacePatchRequest)
       envelope.hasCollectProp() -> CollectPropCMSG.fromBnet(accountId, envelope.collectProp)
       envelope.hasCraftItem() -> CraftItemCMSG.fromBnet(accountId, envelope.craftItem)
       envelope.hasCancelCraft() -> CancelCraftCMSG(accountId)

@@ -24,6 +24,7 @@ class WorldInfoSender(
   private val inbox: ChunkStreamInbox,
   private val outMessageProcessor: OutMessageProcessor,
   private val settings: ChunkStreamConfig,
+  private val patches: SurfacePatchService,
   private val bestiaClock: BestiaClock
 ) {
 
@@ -40,6 +41,8 @@ class WorldInfoSender(
         worldService.record,
         worldService.config,
         settings.viewRadiusChunks,
+        patches.version,
+        settings.patchRadiusChunks,
         bestiaClock.now(),
         bestiaClock.speedFactor
       )

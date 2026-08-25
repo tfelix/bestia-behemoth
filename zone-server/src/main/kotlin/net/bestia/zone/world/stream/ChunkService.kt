@@ -150,10 +150,6 @@ class ChunkService(
     val encodedBytes: Int
   )
 
-  private class Lru<K, V>(private val capacity: Int) : LinkedHashMap<K, V>(16, 0.75f, true) {
-    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?) = size > capacity
-  }
-
   private val loaded by lazy { build() }
 
   private class Loaded(

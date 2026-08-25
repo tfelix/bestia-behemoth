@@ -2,6 +2,7 @@ package net.bestia.zone.world.stream
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.bestia.worldgen.core.ChunkPos
+import net.bestia.worldgen.lod.PatchPos
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -32,6 +33,9 @@ class ChunkStreamInbox {
 
   data class Request(val accountId: Long, val chunks: List<ChunkPos>)
 
+  /** The same, for coarse surface patches. Its own queue so a horizon request cannot delay ground under foot. */
+  data class PatchRequest(val accountId: Long, val patches: List<PatchPos>)
+
   /**
    * Remove rock in a sphere around a world voxel.
    *
@@ -55,6 +59,9 @@ class ChunkStreamInbox {
   private val requests = ConcurrentLinkedQueue<Request>()
   private val requestCount = AtomicInteger()
 
+  private val patchRequests = ConcurrentLinkedQueue<PatchRequest>()
+  private val patchRequestCount = AtomicInteger()
+
   private val carves = ConcurrentLinkedQueue<Carve>()
   private val carveCount = AtomicInteger()
 
@@ -62,6 +69,8 @@ class ChunkStreamInbox {
   private val teleportCount = AtomicInteger()
 
   val pendingRequests get() = requestCount.get()
+
+  val pendingPatchRequests get() = patchRequestCount.get()
 
   val pendingCarves get() = carveCount.get()
 
@@ -72,6 +81,13 @@ class ChunkStreamInbox {
 
     requests.add(request)
     trim(requests, requestCount, "chunk requests")
+  }
+
+  fun offerPatchRequest(request: PatchRequest) {
+    if (request.patches.isEmpty()) return
+
+    patchRequests.add(request)
+    trim(patchRequests, patchRequestCount, "patch requests")
   }
 
   fun offerCarve(carve: Carve) {
@@ -86,6 +102,8 @@ class ChunkStreamInbox {
 
   fun drainRequests(): List<Request> = drain(requests, requestCount)
 
+  fun drainPatchRequests(): List<PatchRequest> = drain(patchRequests, patchRequestCount)
+
   fun drainCarves(): List<Carve> = drain(carves, carveCount)
 
   fun drainTeleports(): List<Teleport> = drain(teleports, teleportCount)
@@ -94,6 +112,9 @@ class ChunkStreamInbox {
   fun forget(accountId: Long) {
     requestCount.addAndGet(-requests.count { it.accountId == accountId })
     requests.removeIf { it.accountId == accountId }
+
+    patchRequestCount.addAndGet(-patchRequests.count { it.accountId == accountId })
+    patchRequests.removeIf { it.accountId == accountId }
 
     carveCount.addAndGet(-carves.count { it.accountId == accountId })
     carves.removeIf { it.accountId == accountId }
