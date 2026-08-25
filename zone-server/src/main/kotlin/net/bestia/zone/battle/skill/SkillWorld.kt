@@ -84,6 +84,15 @@ interface SkillWorld {
   /** Puts a station up at [at] for [masterId]. False when the ground already holds one of the same kind. */
   fun placeStation(kind: StaticEntityKind, masterId: Long, at: Vec3L, yaw: Float = 0f): Boolean
 
+  /**
+   * Sets light to the grass around [centre], if any of it will take.
+   *
+   * [radiusTiles] is a **radius**. False when nothing there is burnable, or when too many fires are already
+   * running - a caller treats that exactly as it treats a skill landing on bare rock, because from the
+   * player's side it is the same thing.
+   */
+  fun igniteGroundFire(centre: Vec3L, radiusTiles: Long): Boolean
+
   // ----------------------------------------------------------------- effects
 
   /** Lands [damage] on [targetEntityId] and shows the number to everyone who can see it. */

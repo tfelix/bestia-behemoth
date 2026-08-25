@@ -55,6 +55,15 @@ class Ember(
       )
     )
 
+    // And set light to the grass, which is a *separate* thing from the patch above and deliberately so. The
+    // patch is the spell: a fixed radius, a fixed duration, damage computed from the caster. The fire is what
+    // the world does about it afterwards - it spreads on wind and dryness, outlives the spell, and leaves a
+    // scar. On stone, in the rain, or in a bog it simply does not catch, and the spell is unchanged.
+    ctx.world.igniteGroundFire(
+      centre = ground.targetPosition,
+      radiusTiles = ground.usedAttack.aoeRadius?.roundToLong() ?: DEFAULT_RADIUS_TILES
+    )
+
     // The patch is the whole effect; there is no entity to float a number over.
     return null
   }

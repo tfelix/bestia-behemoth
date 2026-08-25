@@ -48,6 +48,9 @@ class ScorchRegrowthSystemTest {
     return ScorchRegistry(repository, executor, worldService)
   }
 
+  /** Relaxed: what the overlay does with a dirty column is its own test's business, not this one's. */
+  private fun overlay(): GroundOverlayService = mockk(relaxed = true)
+
   /** An accumulator that adds a fixed amount of rain per sweep. */
   private fun rain(mmPerSweep: Double): RainAccumulator = mockk {
     every { healRainMm } returns this@ScorchRegrowthSystemTest.healRainMm
@@ -70,7 +73,7 @@ class ScorchRegrowthSystemTest {
     val key = ScorchRegistry.columnKeyOf(1, 1)
     val burnt = burn(registry, key)
 
-    val sut = ScorchRegrowthSystem(registry, rain(mmPerSweep = 0.0))
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = 0.0), overlay = overlay())
     repeat(10) { sut.update(testWorld(), 0f) }
 
     val scar = assertNotNull(registry.scarOf(key))
@@ -86,7 +89,7 @@ class ScorchRegrowthSystemTest {
     val burnt = burn(registry, key)
 
     // A sixth of the heal amount per sweep, so the first sweep is worth exactly one erosion step.
-    val sut = ScorchRegrowthSystem(registry, rain(mmPerSweep = healRainMm / 6.0))
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm / 6.0), overlay = overlay())
     sut.update(testWorld(), 0f)
 
     val scar = assertNotNull(registry.scarOf(key))
@@ -103,7 +106,7 @@ class ScorchRegrowthSystemTest {
     val key = ScorchRegistry.columnKeyOf(1, 1)
     burn(registry, key)
 
-    val sut = ScorchRegrowthSystem(registry, rain(mmPerSweep = healRainMm))
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm), overlay = overlay())
     repeat(10) { sut.update(testWorld(), 0f) }
 
     assertNull(registry.scarOf(key), "a fully rained-on scar is still in the registry")
@@ -123,7 +126,7 @@ class ScorchRegrowthSystemTest {
     burn(registry, narrow, half = 2)
     burn(registry, wide, half = 12)
 
-    val sut = ScorchRegrowthSystem(registry, rain(mmPerSweep = healRainMm))
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm), overlay = overlay())
     sut.update(testWorld(), 0f)
 
     assertNull(registry.scarOf(narrow), "a small scar survived a full heal's worth of rain")
@@ -133,7 +136,7 @@ class ScorchRegrowthSystemTest {
   @Test
   fun `a sweep with nothing burnt does nothing at all`() {
     val registry = registry()
-    val sut = ScorchRegrowthSystem(registry, rain(mmPerSweep = healRainMm))
+    val sut = ScorchRegrowthSystem(registry = registry, rain = rain(mmPerSweep = healRainMm), overlay = overlay())
 
     sut.update(testWorld(), 0f)
 
