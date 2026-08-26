@@ -22,7 +22,12 @@ void fragment() {
 	ALBEDO = surface.albedo;
 	ROUGHNESS = surface.roughness;
 	AO = surface.ao;
-	AO_LIGHT_AFFECT = 1.0;
+	// AO is a texture-space term - the crevices between pebbles and the gaps under grass, baked into the
+	// material's alpha channel. It belongs to the ambient, which is what Godot's default of 0 says: whether
+	// the sun reaches a fragment is already answered, per fragment, by the shadow map. Feeding AO into the
+	// direct light as well darkened every lit surface by its own texture and took the crisp edge off the
+	// sun/shade boundary on slopes - relief bought by flattening the thing the relief was meant to show.
+	AO_LIGHT_AFFECT = 0.0;
 
 	// NORMAL and never NORMAL_MAP.
 	//

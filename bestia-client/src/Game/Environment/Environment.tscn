@@ -16,7 +16,6 @@ sky = SubResource("Sky_vrr3t")
 ssao_enabled = true
 ssil_enabled = true
 sdfgi_enabled = true
-glow_levels/2 = 6.0
 fog_enabled = true
 fog_mode = 1
 fog_light_color = Color(0.6304211, 0.7294453, 0.8286436, 1)
