@@ -28,6 +28,14 @@ namespace BestiaBehemothClient.Game.World
     /// <summary>The look of a sky nobody has said anything about yet.</summary>
     public static readonly WeatherLook Clear = For(WeatherSMSG.Kind.Clear, 0.0f, 0.0f);
 
+    /// <summary>The cover at which cloud starts to take the edge off a shadow.</summary>
+    /// <remarks>
+    /// Lined up with the server's own <c>cloudyCover</c>, so the sun goes soft at the moment the sky earns the
+    /// name Cloudy. Below it the deck is broken and the sun spends most of its time in a gap. Nothing breaks if
+    /// the server's threshold moves - this is a look, not a contract.
+    /// </remarks>
+    private const float DiffusionOnset = 0.55f;
+
     private WeatherLook(float rainRate, float snowRate, float dustRate, float groundWetRate, float overcast,
       float visibility, float windScale, bool hasLightning, Color hazeColour = default, float hazeTint = 0.0f)
     {
@@ -117,30 +125,53 @@ namespace BestiaBehemothClient.Game.World
     }
 
     /// <summary>
+    /// How much of the sunlight has become skylight, 0 to 1: a point source at 0, one sky-wide area light at 1.
+    /// </summary>
+    /// <remarks>
+    /// Not the cover, and the gap between the two is the whole reason this exists. Cloud softens a shadow only
+    /// once it stands <i>between</i> the sun and the ground, and a broken deck mostly does not: at three tenths
+    /// cover the sun is in a gap seven times out of ten, and the shadow it throws then is as hard as a cloudless
+    /// one.
+    ///
+    /// <para>
+    /// Reading softness straight off the cover instead softened every shadow in the world on the strength of a
+    /// few clouds on the horizon - and that is not a hypothetical sky. <c>CLEAR</c> is not "cover zero", it is
+    /// simply every sky below the server's own <c>cloudyCover</c>, so an ordinary clear day reports cover
+    /// anywhere up to that threshold and got a sun four times the width of the real one.
+    /// </para>
+    /// </remarks>
+    public float Diffusion
+    {
+      get { return DiffusionFor(Overcast); }
+    }
+
+    /// <summary>
     /// How strongly cloud shadows read on the ground, 0 to 1, before the sun's own height is applied.
     /// </summary>
     /// <remarks>
-    /// Rises to a peak around half cover and then <b>falls again</b>, which is the detail that makes the
+    /// Rises to a peak under a broken deck and then <b>falls again</b>, which is the detail that makes the
     /// effect read as weather rather than as blotches. Distinct shadows need distinct clouds; a solid
     /// overcast has none, and what it produces is uniform gloom - which is <see cref="Overcast"/>'s job and
     /// not this one. The floor under a full sky is small rather than zero, because a perfectly even ground
     /// looks like a feature that failed to load.
+    ///
+    /// <para>
+    /// The one curve here still shaped on cover rather than on <see cref="Diffusion"/>, because the shape is
+    /// wrong for it: mottling is strongest exactly where the deck is broken and the sun is still hard. What it
+    /// does borrow is the onset, so a sky the server calls clear gets clean, evenly lit ground rather than
+    /// drifting patches nothing overhead accounts for - patches which cost the sharp shadows the same sky is
+    /// throwing, by giving the eye something larger and softer to find first.
+    /// </para>
     /// </remarks>
     public float ShadowStrength
     {
-      get
-      {
-        var risen = Smoothstep(0.05f, 0.45f, Overcast);
-        var closingOver = Smoothstep(0.7f, 1.0f, Overcast);
-
-        return risen * (1.0f - closingOver * 0.85f);
-      }
+      get { return ShadowStrengthFor(Overcast); }
     }
 
     /// <summary>What to multiply the sun's authored energy by.</summary>
     public float SunEnergyScale
     {
-      get { return Mathf.Lerp(1.0f, 0.32f, Overcast); }
+      get { return SunEnergyScaleFor(Overcast); }
     }
 
     /// <summary>
@@ -150,6 +181,14 @@ namespace BestiaBehemothClient.Game.World
     /// Cloud does not merely block light, it scatters it: an overcast sky is one enormous area light and its
     /// shadows have no edge to speak of. Dimming alone gives sharp black shadows in a grey world, which is
     /// what an eclipse looks like rather than what a dull day looks like.
+    ///
+    /// <para>
+    /// <b>Zero at the clear end, and not the sun's real half degree.</b> Geometrically those are the same
+    /// picture - half a degree is a centimetre or two of penumbra under a person - but they are not the same
+    /// code path: any value above zero puts Godot on the blocker-search soft-shadow filter, and only zero
+    /// leaves it on the fixed one. A floor of half a degree therefore did not mean "very nearly hard", it
+    /// meant the blurred filter at its narrowest under every sky there is, with no way back.
+    /// </para>
     ///
     /// <para>
     /// <b>The ceiling is small, and measured rather than reasoned.</b> Physically an overcast sky is a
@@ -163,7 +202,7 @@ namespace BestiaBehemothClient.Game.World
     /// </remarks>
     public float SunAngularDegrees
     {
-      get { return Mathf.Lerp(0.5f, 3.0f, Overcast); }
+      get { return SunAngularDegreesFor(Overcast); }
     }
 
     /// <summary>
@@ -172,10 +211,60 @@ namespace BestiaBehemothClient.Game.World
     /// <remarks>
     /// An overcast sunset is grey. The orange comes from a long clear path through the atmosphere, and cloud
     /// is exactly what removes it.
+    ///
+    /// <para>
+    /// On cover rather than on <see cref="Diffusion"/>, and that is a judgement rather than an oversight: what
+    /// kills the orange is cloud along the horizon, where the light is coming from, and a deck broken directly
+    /// overhead can be solid out there. A sunset mutes well before the shadows underfoot soften.
+    /// </para>
     /// </remarks>
     public float TwilightScale
     {
-      get { return Mathf.Lerp(1.0f, 0.25f, Overcast); }
+      get { return TwilightScaleFor(Overcast); }
+    }
+
+    /// <summary><see cref="Diffusion"/> for a cover this struct does not hold.</summary>
+    /// <remarks>
+    /// <b>Why these five carry a static form at all.</b> A look is built from one reading and a reading is a
+    /// step, so <see cref="WeatherState"/> smooths the cover over several seconds before anything renders from
+    /// it. The curves have to be applied to that smoothed value; applied to the look's own
+    /// <see cref="Overcast"/> - which is what the properties above do, and what a test pinning the shape
+    /// wants - the sun's disc crossed its whole range in a single frame while the sky that should have
+    /// explained it eased over five seconds. <c>cloud_shadows.gd</c> already read the smoothed cover, so the
+    /// two halves of one effect ran on different clocks.
+    /// </remarks>
+    public static float DiffusionFor(float overcast)
+    {
+      return Smoothstep(DiffusionOnset, 1.0f, overcast);
+    }
+
+    /// <summary><see cref="ShadowStrength"/> for a cover this struct does not hold.</summary>
+    public static float ShadowStrengthFor(float overcast)
+    {
+      // Bracketing DiffusionOnset rather than standing free, so re-tuning where the sun goes soft moves where
+      // the ground starts to mottle along with it.
+      var risen = Smoothstep(DiffusionOnset - 0.1f, DiffusionOnset + 0.2f, overcast);
+      var closingOver = Smoothstep(0.85f, 1.0f, overcast);
+
+      return risen * (1.0f - closingOver * 0.85f);
+    }
+
+    /// <summary><see cref="SunEnergyScale"/> for a cover this struct does not hold.</summary>
+    public static float SunEnergyScaleFor(float overcast)
+    {
+      return Mathf.Lerp(1.0f, 0.32f, DiffusionFor(overcast));
+    }
+
+    /// <summary><see cref="SunAngularDegrees"/> for a cover this struct does not hold.</summary>
+    public static float SunAngularDegreesFor(float overcast)
+    {
+      return Mathf.Lerp(0.0f, 3.0f, DiffusionFor(overcast));
+    }
+
+    /// <summary><see cref="TwilightScale"/> for a cover this struct does not hold.</summary>
+    public static float TwilightScaleFor(float overcast)
+    {
+      return Mathf.Lerp(1.0f, 0.25f, overcast);
     }
 
     /// <summary>

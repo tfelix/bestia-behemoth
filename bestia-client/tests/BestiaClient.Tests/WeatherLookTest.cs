@@ -102,21 +102,34 @@ namespace BestiaBehemothClient.Tests
     }
 
     /// <summary>
-    /// Cloud shadows peak under a broken sky and fade out again under a solid one.
+    /// Cloud shadows arrive with the deck, peak under a broken one, and fade out again under a solid one.
     /// </summary>
     /// <remarks>
-    /// The non-obvious half of the curve, and the whole reason it is written down. Distinct shadows need
-    /// distinct clouds; full overcast has none and produces uniform gloom instead. A curve that only rose
-    /// would put its strongest mottling on exactly the sky that has no mottling in it.
+    /// Two non-obvious ends, which is the whole reason the curve is written down.
+    ///
+    /// <para>
+    /// It <b>falls again</b> at the top because distinct shadows need distinct clouds; full overcast has none
+    /// and produces uniform gloom instead. A curve that only rose would put its strongest mottling on exactly
+    /// the sky that has no mottling in it.
+    /// </para>
+    ///
+    /// <para>
+    /// It starts <b>late</b> at the bottom because <c>CLEAR</c> is every sky below the server's cloudy
+    /// threshold, so half cover is still a sky the game calls clear. Patches drifting across that ground are
+    /// weather nothing overhead accounts for, and they cost the sharp shadows the same sky is throwing by
+    /// giving the eye something larger and softer to find first. See <see cref="WeatherLook.Diffusion"/>.
+    /// </para>
     /// </remarks>
     [Fact]
     public void CloudShadowsPeakUnderABrokenSky()
     {
       var clear = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 0.0f).ShadowStrength;
-      var broken = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 0.5f).ShadowStrength;
+      var scattered = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 0.5f).ShadowStrength;
+      var broken = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 0.8f).ShadowStrength;
       var solid = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, 1.0f).ShadowStrength;
 
       Assert.Equal(0.0f, clear, 5);
+      Assert.True(scattered < 0.15f, $"a sky the server still calls clear mottles the ground at {scattered:F2}");
       Assert.True(broken > 0.9f, $"a broken sky casts only {broken:F2}");
       Assert.True(solid < broken, "a solid overcast casts the strongest shadows");
 
@@ -208,6 +221,37 @@ namespace BestiaBehemothClient.Tests
       Assert.False(look.IsPrecipitating);
       Assert.False(look.HasLightning);
       Assert.Equal(1.0f, look.Visibility, 5);
+    }
+
+    /// <summary>
+    /// A sky the server still calls clear casts hard shadows, however much cloud it reports.
+    /// </summary>
+    /// <remarks>
+    /// Worth a test of its own because it is invisible from the code: nothing about <c>Kind.Clear</c> says the
+    /// cover behind it can be anything but zero, and it can be anything below the server's cloudy threshold.
+    /// A softness read straight off that cover softened every shadow in the world on an ordinary clear day.
+    ///
+    /// <para>
+    /// Zero is pinned exactly rather than as "small", because at the clear end it is not a tuning choice but a
+    /// different filter in the renderer - see <see cref="WeatherLook.SunAngularDegrees"/>.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void AClearSkyKeepsAHardSun()
+    {
+      foreach (var cover in new[] { 0.0f, 0.2f, 0.4f, 0.54f })
+      {
+        var look = WeatherLook.For(WeatherSMSG.Kind.Clear, 0.0f, cover);
+
+        Assert.Equal(0.0f, look.SunAngularDegrees, 5);
+        Assert.Equal(1.0f, look.SunEnergyScale, 5);
+      }
+
+      // And the moment the sky earns the name, it starts to give.
+      var cloudy = WeatherLook.For(WeatherSMSG.Kind.Cloudy, 0.0f, 0.8f);
+
+      Assert.True(cloudy.SunAngularDegrees > 0.0f, "a cloudy sky keeps a point-source sun");
+      Assert.True(cloudy.SunEnergyScale < 1.0f, "a cloudy sky does not dim the sun");
     }
 
     /// <summary>
