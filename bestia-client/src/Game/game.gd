@@ -64,3 +64,9 @@ func _process(_delta: float) -> void:
 	var player: Entity = $EntityManager.get_owned_entity()
 	if player != null:
 		_terrain.SetCollisionAnchorAt(player.global_position)
+
+		# The grass measures its level of detail from the player rather than from the camera, so that zooming
+		# out stops thinning the field the player is standing in. TerrainGrass works the zoom out for itself
+		# from how far this is from the camera — see SetFocusAt.
+		if _grass != null:
+			_grass.SetFocusAt(player.global_position)

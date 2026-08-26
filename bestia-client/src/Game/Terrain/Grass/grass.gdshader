@@ -84,6 +84,16 @@ uniform float gust_depth : hint_range(0.0, 1.0) = 0.45;
 uniform float flutter_amount : hint_range(0.0, 1.0) = 0.18;
 uniform float flutter_speed : hint_range(0.0, 20.0) = 4.5;
 
+group_uniforms;
+
+// How much bigger to draw this instance than it was authored, as a share of its own size. Written per cell by
+// `TerrainGrass.Retune` so that a cell thinned by distance still covers its ground - see `GrassLod.CoverageScale`.
+//
+// **Additive, so that not setting it is a no-op.** `StaticEntityRenderer` draws every ground-cover prop in the
+// world with this same shader and sets nothing, and a multiplier those instances read as zero would collapse
+// every herb, shrub and reed to a point. Nought means unchanged whatever an unset instance uniform resolves to.
+instance uniform float grass_extra_scale = 0.0;
+
 varying vec3 worldPos;
 
 // 0 at the base of a blade and 1 at its tip, whichever way this mesh was unwrapped.
@@ -91,6 +101,12 @@ varying float blade_v;
 
 void vertex() {
 	blade_v = uv_v_at_tip ? 1.0 - UV.y : UV.y;
+
+	// Grown about the plant's own base, which both meshes are authored standing on, so a scaled clump stays
+	// planted instead of sinking or floating. Done before `rest` below rather than after, so that everything
+	// measured from it follows for free: `above` is the taller lever arm, and a clump drawn at twice its size
+	// sways like the taller plant it now is rather than like the one it was authored as.
+	VERTEX *= 1.0 + grass_extra_scale;
 
 	// Where this vertex would stand in dead calm. Kept, because the offset has to be turned back into model
 	// space at the end and because the albedo noise below is a property of the ground, not of the blade.
