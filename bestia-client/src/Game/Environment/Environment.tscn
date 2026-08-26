@@ -34,13 +34,14 @@ environment = SubResource("Environment_gi4sg")
 [node name="Sun" type="DirectionalLight3D" parent="." unique_id=1646600109]
 transform = Transform3D(0.4460189, 0.81221586, -0.37599537, -0.29966903, 0.5313671, 0.7923683, 0.84336567, -0.24073704, 0.48039573, 0, 5.2176847, 3.7376866)
 shadow_enabled = true
+directional_shadow_split_1 = 0.05
+directional_shadow_split_2 = 0.17
 directional_shadow_blend_splits = true
 directional_shadow_max_distance = 220.0
 
 [node name="Moon" type="DirectionalLight3D" parent="." unique_id=1147340168]
 transform = Transform3D(0.4460189, -0.81221586, 0.37599537, -0.29966903, -0.5313671, -0.7923683, 0.84336567, 0.24073704, -0.48039573, 0, 5.2176847, 3.7376866)
 light_energy = 0.0
-directional_shadow_max_distance = 220.0
 
 [node name="Flash" type="DirectionalLight3D" parent="." unique_id=1938274655]
 visible = false
